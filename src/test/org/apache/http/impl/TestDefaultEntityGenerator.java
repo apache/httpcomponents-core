@@ -41,7 +41,6 @@ import org.apache.http.io.HttpDataInputStream;
 import org.apache.http.io.HttpDataReceiver;
 import org.apache.http.io.InputStreamHttpDataReceiver;
 import org.apache.http.mockup.HttpDataReceiverMockup;
-import org.apache.http.params.HttpParams;
 import org.apache.http.params.HttpProtocolParams;
 
 import junit.framework.Test;
@@ -66,7 +65,7 @@ public class TestDefaultEntityGenerator extends TestCase {
         junit.textui.TestRunner.main(testCaseName);
     }
 
-    public void testIllegalResponseArg() throws Exception {
+    public void testIllegalGenerateArg() throws Exception {
         EntityGenerator entitygen = new DefaultEntityGenerator();
         try {
             entitygen.generate(null, null);
@@ -82,14 +81,107 @@ public class TestDefaultEntityGenerator extends TestCase {
         }
     }
 
+    public void testEntityWithTransferEncoding() throws Exception {
+        HttpDataReceiver datareceiver = new HttpDataReceiverMockup("0\r\n", "US-ASCII");
+        HttpMutableMessage message = new BasicHttpMessage();
+        
+        // lenient mode 
+        message.getParams().setBooleanParameter(HttpProtocolParams.STRICT_TRANSFER_ENCODING, false);
+        message.addHeader(new Header("Content-Type", "unknown"));
+        message.addHeader(new Header("Transfer-Encoding", "identity, chunked"));
+        message.addHeader(new Header("Content-Length", "plain wrong"));
+        EntityGenerator entitygen = new DefaultEntityGenerator();
+        HttpEntity entity = entitygen.generate(datareceiver, message);
+        assertNotNull(entity);
+        assertEquals(-1, entity.getContentLength());
+        assertTrue(entity.isChunked());
+        assertTrue(entity.getInputStream() instanceof ChunkedInputStream);
+
+        // strict mode 
+        message.getParams().setBooleanParameter(HttpProtocolParams.STRICT_TRANSFER_ENCODING, true);
+        entity = entitygen.generate(datareceiver, message);
+        assertNotNull(entity);
+        assertEquals(-1, entity.getContentLength());
+        assertTrue(entity.isChunked());
+        assertTrue(entity.getInputStream() instanceof ChunkedInputStream);
+    }
+
+    public void testEntityWithIdentityTransferEncoding() throws Exception {
+        InputStream instream = new ByteArrayInputStream(new byte[] {});
+        HttpDataReceiver datareceiver = new InputStreamHttpDataReceiver(instream);
+        HttpMutableMessage message = new BasicHttpMessage();
+        
+        // lenient mode 
+        message.getParams().setBooleanParameter(HttpProtocolParams.STRICT_TRANSFER_ENCODING, false);
+        message.addHeader(new Header("Content-Type", "unknown"));
+        message.addHeader(new Header("Transfer-Encoding", "identity"));
+        message.addHeader(new Header("Content-Length", "plain wrong"));
+        EntityGenerator entitygen = new DefaultEntityGenerator();
+        HttpEntity entity = entitygen.generate(datareceiver, message);
+        assertNotNull(entity);
+        assertEquals(-1, entity.getContentLength());
+        assertFalse(entity.isChunked());
+        assertTrue(entity.getInputStream() instanceof ByteArrayInputStream);
+    }
+
+    public void testEntityWithUnsupportedTransferEncoding() throws Exception {
+        HttpDataReceiver datareceiver = new HttpDataReceiverMockup("0\r\n", "US-ASCII");
+        HttpMutableMessage message = new BasicHttpMessage();
+        
+        // lenient mode 
+        message.getParams().setBooleanParameter(HttpProtocolParams.STRICT_TRANSFER_ENCODING, false);
+        message.addHeader(new Header("Content-Type", "unknown"));
+        message.addHeader(new Header("Transfer-Encoding", "whatever; param=value, chunked"));
+        message.addHeader(new Header("Content-Length", "plain wrong"));
+        EntityGenerator entitygen = new DefaultEntityGenerator();
+        HttpEntity entity = entitygen.generate(datareceiver, message);
+        assertNotNull(entity);
+        assertEquals(-1, entity.getContentLength());
+        assertTrue(entity.isChunked());
+        assertTrue(entity.getInputStream() instanceof ChunkedInputStream);
+
+        // strict mode 
+        message.getParams().setBooleanParameter(HttpProtocolParams.STRICT_TRANSFER_ENCODING, true);
+        try {
+            entitygen.generate(datareceiver, message);
+            fail("ProtocolException should have been thrown");
+        } catch (ProtocolException ex) {
+            // expected
+        }
+    }
+
+    public void testChunkedTransferEncodingMustBeLast() throws Exception {
+        HttpDataReceiver datareceiver = new HttpDataReceiverMockup("0\r\n", "US-ASCII");
+        HttpMutableMessage message = new BasicHttpMessage();
+        
+        // lenient mode 
+        message.getParams().setBooleanParameter(HttpProtocolParams.STRICT_TRANSFER_ENCODING, false);
+        message.addHeader(new Header("Content-Type", "unknown"));
+        message.addHeader(new Header("Transfer-Encoding", "chunked, identity"));
+        message.addHeader(new Header("Content-Length", "plain wrong"));
+        EntityGenerator entitygen = new DefaultEntityGenerator();
+        HttpEntity entity = entitygen.generate(datareceiver, message);
+        assertNotNull(entity);
+        assertEquals(-1, entity.getContentLength());
+        assertFalse(entity.isChunked());
+        assertFalse(entity.getInputStream() instanceof ChunkedInputStream);
+
+        // strict mode 
+        message.getParams().setBooleanParameter(HttpProtocolParams.STRICT_TRANSFER_ENCODING, true);
+        try {
+            entitygen.generate(datareceiver, message);
+            fail("ProtocolException should have been thrown");
+        } catch (ProtocolException ex) {
+            // expected
+        }
+    }
+
     public void testEntityWithContentLength() throws Exception {
         HttpDataReceiver datareceiver = new HttpDataReceiverMockup(new byte[] {});
         HttpMutableMessage message = new BasicHttpMessage();
-        HttpParams params = new DefaultHttpParams(null);
-        message.setParams(params);
         
         // lenient mode 
-        params.setBooleanParameter(HttpProtocolParams.STRICT_TRANSFER_ENCODING, false);
+        message.getParams().setBooleanParameter(HttpProtocolParams.STRICT_TRANSFER_ENCODING, false);
         message.addHeader(new Header("Content-Type", "unknown"));
         message.addHeader(new Header("Content-Length", "0"));
         EntityGenerator entitygen = new DefaultEntityGenerator();
@@ -103,11 +195,9 @@ public class TestDefaultEntityGenerator extends TestCase {
     public void testEntityWithMultipleContentLength() throws Exception {
         HttpDataReceiver datareceiver = new HttpDataReceiverMockup(new byte[] {'0'});
         HttpMutableMessage message = new BasicHttpMessage();
-        HttpParams params = new DefaultHttpParams(null);
-        message.setParams(params);
 
         // lenient mode 
-        params.setBooleanParameter(HttpProtocolParams.STRICT_TRANSFER_ENCODING, false);
+        message.getParams().setBooleanParameter(HttpProtocolParams.STRICT_TRANSFER_ENCODING, false);
         message.addHeader(new Header("Content-Type", "unknown"));
         message.addHeader(new Header("Content-Length", "0"));
         message.addHeader(new Header("Content-Length", "0"));
@@ -121,7 +211,7 @@ public class TestDefaultEntityGenerator extends TestCase {
         assertTrue(entity.getInputStream() instanceof ContentLengthInputStream);
         
         // strict mode 
-        params.setBooleanParameter(HttpProtocolParams.STRICT_TRANSFER_ENCODING, true);
+        message.getParams().setBooleanParameter(HttpProtocolParams.STRICT_TRANSFER_ENCODING, true);
         try {
             entitygen.generate(datareceiver, message);
             fail("ProtocolException should have been thrown");
@@ -133,11 +223,9 @@ public class TestDefaultEntityGenerator extends TestCase {
     public void testEntityWithMultipleContentLengthSomeWrong() throws Exception {
         HttpDataReceiver datareceiver = new HttpDataReceiverMockup(new byte[] {'0'});
         HttpMutableMessage message = new BasicHttpMessage();
-        HttpParams params = new DefaultHttpParams(null);
-        message.setParams(params);
 
         // lenient mode 
-        params.setBooleanParameter(HttpProtocolParams.STRICT_TRANSFER_ENCODING, false);
+        message.getParams().setBooleanParameter(HttpProtocolParams.STRICT_TRANSFER_ENCODING, false);
         message.addHeader(new Header("Content-Type", "unknown"));
         message.addHeader(new Header("Content-Length", "1"));
         message.addHeader(new Header("Content-Length", "yyy"));
@@ -151,7 +239,7 @@ public class TestDefaultEntityGenerator extends TestCase {
         assertTrue(entity.getInputStream() instanceof ContentLengthInputStream);
         
         // strict mode 
-        params.setBooleanParameter(HttpProtocolParams.STRICT_TRANSFER_ENCODING, true);
+        message.getParams().setBooleanParameter(HttpProtocolParams.STRICT_TRANSFER_ENCODING, true);
         try {
             entitygen.generate(datareceiver, message);
             fail("ProtocolException should have been thrown");
@@ -163,11 +251,9 @@ public class TestDefaultEntityGenerator extends TestCase {
     public void testEntityWithMultipleContentLengthAllWrong() throws Exception {
         HttpDataReceiver datareceiver = new HttpDataReceiverMockup(new byte[] {'0'});
         HttpMutableMessage message = new BasicHttpMessage();
-        HttpParams params = new DefaultHttpParams(null);
-        message.setParams(params);
 
         // lenient mode 
-        params.setBooleanParameter(HttpProtocolParams.STRICT_TRANSFER_ENCODING, false);
+        message.getParams().setBooleanParameter(HttpProtocolParams.STRICT_TRANSFER_ENCODING, false);
         message.addHeader(new Header("Content-Type", "unknown"));
         message.addHeader(new Header("Content-Length", "yyy"));
         message.addHeader(new Header("Content-Length", "xxx"));
@@ -181,7 +267,7 @@ public class TestDefaultEntityGenerator extends TestCase {
         assertTrue(entity.getInputStream() instanceof HttpDataInputStream);
         
         // strict mode 
-        params.setBooleanParameter(HttpProtocolParams.STRICT_TRANSFER_ENCODING, true);
+        message.getParams().setBooleanParameter(HttpProtocolParams.STRICT_TRANSFER_ENCODING, true);
         try {
             entitygen.generate(datareceiver, message);
             fail("ProtocolException should have been thrown");
@@ -193,11 +279,9 @@ public class TestDefaultEntityGenerator extends TestCase {
     public void testEntityWithInvalidContentLength() throws Exception {
         HttpDataReceiver datareceiver = new HttpDataReceiverMockup(new byte[] {'0'});
         HttpMutableMessage message = new BasicHttpMessage();
-        HttpParams params = new DefaultHttpParams(null);
-        message.setParams(params);
 
         // lenient mode 
-        params.setBooleanParameter(HttpProtocolParams.STRICT_TRANSFER_ENCODING, false);
+        message.getParams().setBooleanParameter(HttpProtocolParams.STRICT_TRANSFER_ENCODING, false);
         message.addHeader(new Header("Content-Type", "unknown"));
         message.addHeader(new Header("Content-Length", "xxx"));
         EntityGenerator entitygen = new DefaultEntityGenerator();
@@ -210,7 +294,7 @@ public class TestDefaultEntityGenerator extends TestCase {
         assertTrue(entity.getInputStream() instanceof HttpDataInputStream);
         
         // strict mode 
-        params.setBooleanParameter(HttpProtocolParams.STRICT_TRANSFER_ENCODING, true);
+        message.getParams().setBooleanParameter(HttpProtocolParams.STRICT_TRANSFER_ENCODING, true);
         try {
             entitygen.generate(datareceiver, message);
             fail("ProtocolException should have been thrown");
@@ -222,11 +306,9 @@ public class TestDefaultEntityGenerator extends TestCase {
     public void testEntityNeitherContentLengthNorTransferEncoding() throws Exception {
         HttpDataReceiver datareceiver = new HttpDataReceiverMockup(new byte[] {'0'});
         HttpMutableMessage message = new BasicHttpMessage();
-        HttpParams params = new DefaultHttpParams(null);
-        message.setParams(params);
 
         // lenient mode 
-        params.setBooleanParameter(HttpProtocolParams.STRICT_TRANSFER_ENCODING, false);
+        message.getParams().setBooleanParameter(HttpProtocolParams.STRICT_TRANSFER_ENCODING, false);
         EntityGenerator entitygen = new DefaultEntityGenerator();
         HttpEntity entity = entitygen.generate(datareceiver, message);
         assertNotNull(entity);

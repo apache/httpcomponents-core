@@ -33,8 +33,16 @@ import java.io.IOException;
 import java.io.InputStream;
 
 /**
- * Cuts the wrapped InputStream off after a specified number of bytes.
- *
+ * <p>
+ * This class cuts the wrapped InputStream off after a specified number of bytes.
+ * </p>
+ * <p>
+ * Note that this class NEVER closes the underlying stream, even when close
+ * gets called.  Instead, it will read until the "end" of its chunking on close,
+ * which allows for the seamless invocation of subsequent HTTP 1.1 calls, while
+ * not requiring the client to remember to read the entire contents of the
+ * response.
+ * </p>
  * <p>Implementation note: Choices abound. One approach would pass
  * through the {@link InputStream#mark} and {@link InputStream#reset} calls to
  * the underlying stream.  That's tricky, though, because you then have to
