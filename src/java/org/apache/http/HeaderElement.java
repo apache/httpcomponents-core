@@ -1,7 +1,7 @@
 /*
  * $Header: /home/jerenkrantz/tmp/commons/commons-convert/cvs/home/cvs/jakarta-commons//httpclient/src/java/org/apache/commons/httpclient/HeaderElement.java,v 1.23 2004/05/13 04:03:25 mbecke Exp $
  * $Revision: 1.23 $
- * $Date: 2004/05/13 04:03:25 $
+ * $Date$
  *
  * ====================================================================
  *
@@ -81,7 +81,7 @@ import org.apache.commons.logging.LogFactory;
  * @author <a href="mailto:oleg@ural.com">Oleg Kalnichevski</a>
  * 
  * @since 1.0
- * @version $Revision: 1.23 $ $Date: 2004/05/13 04:03:25 $
+ * @version $Revision: 1.23 $ $Date$
  */
 public class HeaderElement extends NameValuePair {
 

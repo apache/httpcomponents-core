@@ -1,7 +1,7 @@
 /*
  * $Header: /home/jerenkrantz/tmp/commons/commons-convert/cvs/home/cvs/jakarta-commons//httpclient/src/java/org/apache/commons/httpclient/HttpStatus.java,v 1.18 2004/05/02 11:21:13 olegk Exp $
  * $Revision: 1.18 $
- * $Date: 2004/05/02 11:21:13 $
+ * $Date$
  *
  * ====================================================================
  *
@@ -41,7 +41,7 @@ package org.apache.commons.httpclient;
  * 
  * TODO: Internationalization of reason phrases 
  * 
- * @version $Id: HttpStatus.java,v 1.18 2004/05/02 11:21:13 olegk Exp $
+ * @version $Id$
  */
 public class HttpStatus {
 

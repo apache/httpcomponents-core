@@ -1,7 +1,7 @@
 /*
  * $Header: /home/jerenkrantz/tmp/commons/commons-convert/cvs/home/cvs/jakarta-commons//httpclient/src/java/org/apache/commons/httpclient/HttpVersion.java,v 1.6 2004/12/20 19:52:50 olegk Exp $
  * $Revision: 1.6 $
- * $Date: 2004/12/20 19:52:50 $
+ * $Date$
  *
  * ====================================================================
  *
@@ -63,7 +63,7 @@ package org.apache.commons.httpclient;
  * 
  * @author <a href="mailto:oleg@ural.ru">Oleg Kalnichevski</a>
  * 
- * @version $Revision: 1.6 $ $Date: 2004/12/20 19:52:50 $
+ * @version $Revision: 1.6 $ $Date$
  *
  * @since 3.0
  */
