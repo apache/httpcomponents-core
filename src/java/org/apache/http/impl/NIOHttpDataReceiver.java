@@ -96,11 +96,20 @@ public class NIOHttpDataReceiver implements HttpDataReceiver {
         if (b == null) {
             return 0;
         }
+        int noRead = 0;
+        // prefill the buffer if necessary
+        if (this.buffer.position() == 0) {
+            noRead = fillBuffer();
+            if (noRead == -1) {
+                // end of stream
+                return -1;
+            }
+        }
         if (!this.buffer.hasRemaining()) {
             this.buffer.clear();
-            int noRead = fillBuffer();
+            noRead = fillBuffer();
             if (noRead == -1) {
-                return noRead; 
+                return -1; 
             }
         }
         int chunk = len;
