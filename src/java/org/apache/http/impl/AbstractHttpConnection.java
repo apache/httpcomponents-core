@@ -139,4 +139,34 @@ abstract class AbstractHttpConnection implements HttpConnection {
         }
     }
     
+    // Poor man's logging
+    // These methods are to be overridden at at a higher level
+    
+    protected boolean isWirelogEnabled() {
+        return false;
+    }
+    
+    protected void wirelog(final String s) {
+    }
+    
+    protected boolean isErrorEnabled() {
+        return false;
+    }
+    
+    protected void error(final String s) {
+    }
+    
+    protected void error(final String s, final Throwable t) {
+    }
+
+    protected boolean isWarnEnabled() {
+        return false;
+    }
+    
+    protected void warn(final String s) {
+    }
+    
+    protected void warn(final String s, final Throwable t) {
+    }
+    
 }
