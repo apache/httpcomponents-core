@@ -244,4 +244,40 @@ public class TestNIOHttpTransmitterAndReceiver extends TestCase {
         assertEquals(-1, receiver.read(tmp));
         assertEquals(-1, receiver.read(tmp));
     }
+    
+    public void testReadWriteByte() throws Exception {
+        // make the buffer larger than that of transmitter
+        byte[] out = new byte[40];
+        for (int i = 0; i < out.length; i++) {
+            out[i] = (byte)('0' + i);
+        }
+        ByteArrayOutputStream outstream = new ByteArrayOutputStream();
+        HttpDataTransmitter transmitter = 
+            new NIOHttpDataTransmitter(Channels.newChannel(outstream), 16);
+        for (int i = 0; i < out.length; i++) {
+            transmitter.write(out[i]);
+        }
+        transmitter.flush();
+
+        byte[] tmp = outstream.toByteArray();
+        assertEquals(out.length, tmp.length);
+        for (int i = 0; i < out.length; i++) {
+            assertEquals(out[i], tmp[i]);
+        }
+        
+        ByteArrayInputStream instream = new ByteArrayInputStream(tmp);
+        HttpDataReceiver receiver = 
+            new NIOHttpDataReceiver(Channels.newChannel(instream), 16);
+
+        byte[] in = new byte[40];
+        for (int i = 0; i < in.length; i++) {
+            in[i] = (byte)receiver.read();
+        }
+        for (int i = 0; i < out.length; i++) {
+            assertEquals(out[i], in[i]);
+        }
+        assertEquals(-1, receiver.read());
+        assertEquals(-1, receiver.read());
+    }
+    
 }

@@ -50,6 +50,8 @@ public interface HttpDataReceiver {
     
     int read(byte[] b) throws IOException; 
     
+    int read() throws IOException; 
+    
     String readLine() throws IOException;
     
     boolean isDataAvailable(int timeout) throws IOException; 

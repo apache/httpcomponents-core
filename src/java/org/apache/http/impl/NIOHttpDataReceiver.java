@@ -70,6 +70,7 @@ public class NIOHttpDataReceiver implements HttpDataReceiver {
             buffersize = 2048;
         }
         this.buffer = ByteBuffer.allocateDirect(buffersize);
+        this.buffer.flip();
         
         this.charset = Charset.forName("US-ASCII");
     }
@@ -97,14 +98,6 @@ public class NIOHttpDataReceiver implements HttpDataReceiver {
             return 0;
         }
         int noRead = 0;
-        // prefill the buffer if necessary
-        if (this.buffer.position() == 0) {
-            noRead = fillBuffer();
-            if (noRead == -1) {
-                // end of stream
-                return -1;
-            }
-        }
         if (!this.buffer.hasRemaining()) {
             this.buffer.clear();
             noRead = fillBuffer();
@@ -127,6 +120,18 @@ public class NIOHttpDataReceiver implements HttpDataReceiver {
         return read(b, 0, b.length);
     }
     
+    public int read() throws IOException {
+        int noRead = 0;
+        if (!this.buffer.hasRemaining()) {
+            this.buffer.clear();
+            noRead = fillBuffer();
+            if (noRead == -1) {
+                return -1; 
+            }
+        }
+        return this.buffer.get();
+    }
+    
     private int locateLF() {
         for (int i = this.buffer.position(); i < this.buffer.limit(); i++) {
             int b = this.buffer.get(i);
@@ -139,14 +144,6 @@ public class NIOHttpDataReceiver implements HttpDataReceiver {
     
     public String readLine() throws IOException {
         int noRead = 0;
-        // prefill the buffer if necessary
-        if (this.buffer.position() == 0) {
-            noRead = fillBuffer();
-            if (noRead == -1) {
-                // end of stream
-                return null;
-            }
-        }
         CharsetDecoder chardecoder = createCharDecoder();
         StringBuffer line = new StringBuffer(); 
         CharBuffer tmp = CharBuffer.allocate(128);
@@ -175,7 +172,6 @@ public class NIOHttpDataReceiver implements HttpDataReceiver {
                     retry = false;
                     // terminate the decoding process
                     chardecoder.decode(this.buffer, tmp, true);
-                    this.buffer.clear();
                 }
             }
             // append the decoded content to the line buffer

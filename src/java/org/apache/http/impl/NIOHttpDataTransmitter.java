@@ -150,6 +150,13 @@ public class NIOHttpDataTransmitter implements HttpDataTransmitter {
         write(CRLF);
     }
 
+    public void write(int b) throws IOException {
+        if (!this.buffer.hasRemaining()) {
+            flushBuffer();
+        }
+        this.buffer.put((byte)b);
+    }
+
     private void flushCharEncoder(final CharsetEncoder charencoder) throws IOException {
         boolean retry = true;
         while (retry) {

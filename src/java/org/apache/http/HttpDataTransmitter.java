@@ -50,6 +50,8 @@ public interface HttpDataTransmitter {
     
     void write(byte[] b) throws IOException;
     
+    void write(int b) throws IOException;
+    
     void writeLine(String s) throws IOException;
     
     void flush() throws IOException;
