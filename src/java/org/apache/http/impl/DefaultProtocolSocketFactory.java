@@ -71,18 +71,6 @@ public class DefaultProtocolSocketFactory implements ProtocolSocketFactory {
     }
 
     /**
-     * @see #createSocket(java.lang.String,int,java.net.InetAddress,int)
-     */
-    public Socket createSocket(
-        String host,
-        int port,
-        InetAddress localAddress,
-        int localPort
-    ) throws IOException, UnknownHostException {
-        return new Socket(host, port, localAddress, localPort);
-    }
-    
-    /**
      * Attempts to get a new socket connection to the given host within the given time limit.
      * <p>
      * This method employs several techniques to circumvent the limitations of older JREs that 
@@ -119,26 +107,14 @@ public class DefaultProtocolSocketFactory implements ProtocolSocketFactory {
         if (params == null) {
             throw new IllegalArgumentException("Parameters may not be null");
         }
+        Socket socket = new Socket();
+        if (localAddress != null) {
+            socket.bind(new InetSocketAddress(localAddress, localPort));
+        }
         HttpConnectionParams connparams = new HttpConnectionParams(params); 
         int timeout = connparams.getConnectionTimeout();
-        if (timeout == 0) {
-            return createSocket(host, port, localAddress, localPort);
-        } else {
-            Socket socket = new Socket();
-            if (localAddress != null) {
-                socket.bind(new InetSocketAddress(localAddress, localPort));
-            }
-            socket.connect(new InetSocketAddress(host, port), timeout);
-            return socket;
-        }
-    }
-
-    /**
-     * @see ProtocolSocketFactory#createSocket(java.lang.String,int)
-     */
-    public Socket createSocket(String host, int port)
-        throws IOException, UnknownHostException {
-        return new Socket(host, port);
+        socket.connect(new InetSocketAddress(host, port), timeout);
+        return socket;
     }
 
     /**
