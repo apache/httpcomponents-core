@@ -120,15 +120,19 @@ public class NIOHttpDataTransmitter implements HttpDataTransmitter {
         if (b == null) {
             return;
         }
-        int i = off;
-        while (i < len) {
+        int remaining = len;
+        while (remaining > 0) {
             if (this.buffer.hasRemaining()) {
-                int chunk = len - i;
+                int chunk = len;
+                if (chunk > remaining) {
+                    chunk = remaining;
+                }
                 if (chunk > this.buffer.remaining()) {
                     chunk = this.buffer.remaining();
                 }
-                this.buffer.put(b, i, chunk);
-                i += chunk;
+                this.buffer.put(b, off, chunk);
+                off += chunk;
+                remaining -= chunk; 
             } else {
                 flushBuffer();
             }
