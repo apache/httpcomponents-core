@@ -81,7 +81,7 @@ public class NIOHttpDataTransmitter implements HttpDataTransmitter {
         this.charset = Charset.forName(protocolParams.getHttpElementCharset()); 
     }
 
-    private void flushBuffer() throws IOException {
+    protected void flushBuffer() throws IOException {
         this.buffer.flip();
         this.channel.write(this.buffer);
         this.buffer.compact();

@@ -87,10 +87,14 @@ public class NIOHttpDataReceiver implements HttpDataReceiver {
         return chardecoder;
     }
     
-    private int fillBuffer() throws IOException {
+    protected int fillBuffer() throws IOException {
         int i = this.channel.read(this.buffer);
         this.buffer.flip();
         return i;
+    }
+
+    protected boolean hasDataInBuffer() {
+        return this.buffer.hasRemaining();
     }
     
     public int read(final byte[] b, int off, int len) throws IOException {
