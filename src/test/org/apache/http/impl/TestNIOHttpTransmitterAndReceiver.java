@@ -34,6 +34,8 @@ import java.nio.channels.Channels;
 
 import org.apache.http.HttpDataReceiver;
 import org.apache.http.HttpDataTransmitter;
+import org.apache.http.params.HttpParams;
+import org.apache.http.params.HttpProtocolParams;
 
 import junit.framework.*;
 
@@ -279,5 +281,60 @@ public class TestNIOHttpTransmitterAndReceiver extends TestCase {
         assertEquals(-1, receiver.read());
         assertEquals(-1, receiver.read());
     }
+
+    static final int SWISS_GERMAN_HELLO [] = {
+        0x47, 0x72, 0xFC, 0x65, 0x7A, 0x69, 0x5F, 0x7A, 0xE4, 0x6D, 0xE4
+    };
+        
+    static final int RUSSIAN_HELLO [] = {
+        0x412, 0x441, 0x435, 0x43C, 0x5F, 0x43F, 0x440, 0x438, 
+        0x432, 0x435, 0x442 
+    }; 
     
+    private static String constructString(int [] unicodeChars) {
+        StringBuffer buffer = new StringBuffer();
+        if (unicodeChars != null) {
+            for (int i = 0; i < unicodeChars.length; i++) {
+                buffer.append((char)unicodeChars[i]); 
+            }
+        }
+        return buffer.toString();
+    }
+
+    public void testMultibyteCodedReadWriteLine() throws Exception {
+        String s1 = constructString(SWISS_GERMAN_HELLO);
+        String s2 = constructString(RUSSIAN_HELLO);
+        String s3 = "Like hello and stuff";
+        
+        HttpParams params = new DefaultHttpParams(null);
+        new HttpProtocolParams(params).setHttpElementCharset("UTF-8");
+        
+        ByteArrayOutputStream out = new ByteArrayOutputStream();
+        HttpDataTransmitter transmitter = 
+            new NIOHttpDataTransmitter(Channels.newChannel(out), 16);
+        transmitter.reset(params);
+
+        for (int i = 0; i < 10; i++) {
+            transmitter.writeLine(s1);
+            transmitter.writeLine(s2);
+            transmitter.writeLine(s3);
+        }
+        transmitter.flush();
+        
+        ByteArrayInputStream in = new ByteArrayInputStream(out.toByteArray());
+        HttpDataReceiver receiver = 
+            new NIOHttpDataReceiver(Channels.newChannel(in), 16);
+        receiver.reset(params);
+
+        assertTrue(receiver.isDataAvailable(0));
+        
+        for (int i = 0; i < 10; i++) {
+            assertEquals(s1, receiver.readLine());
+            assertEquals(s2, receiver.readLine());
+            assertEquals(s3, receiver.readLine());
+        }
+        assertNull(receiver.readLine());
+        assertNull(receiver.readLine());
+    }
+
 }
