@@ -29,6 +29,8 @@
 
 package org.apache.http;
 
+import org.apache.http.params.HttpParams;
+
 /**
  * <p>
  * </p>
@@ -49,5 +51,7 @@ public interface HttpMessage {
     Header getLastHeader(String name);
 
     Header[] getAllHeaders();
+
+    HttpParams getParams();
     
 }

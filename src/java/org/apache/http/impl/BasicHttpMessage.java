@@ -47,7 +47,8 @@ import org.apache.http.params.HttpParams;
 class BasicHttpMessage implements HttpMutableMessage {
     
     private final HeaderGroup headergroup;
-    private final HttpParams params;
+    
+    private HttpParams params = null;
     
     protected BasicHttpMessage() {
         super();
@@ -102,4 +103,10 @@ class BasicHttpMessage implements HttpMutableMessage {
         return this.params;
     }
     
+    public void setParams(final HttpParams params) {
+        if (params == null) {
+            throw new IllegalArgumentException("HTTP parameters may not be null");
+        }
+        this.params = params;
+    }
 }
