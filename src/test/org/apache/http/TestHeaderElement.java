@@ -226,4 +226,13 @@ public class TestHeaderElement extends TestCase {
         assertFalse(element1.equals("name = value; param1 = value1; param2 = value2"));
     }
     
+    public void testToString() {
+        String s = "name = value; param1 = value1; param2 = value2";
+        HeaderElement element = new HeaderElement(s.toCharArray());
+        assertEquals(s, element.toString());
+        s = "name; param1 = value1; param2 = value2";
+        element = new HeaderElement(s.toCharArray());
+        assertEquals(s, element.toString());
+    }
+    
 }
