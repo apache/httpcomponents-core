@@ -37,7 +37,7 @@ import org.apache.http.util.LangUtils;
  * 
  * @author <a href="mailto:becke@u.washington.edu">Michael Becke</a>
  * @author <a href="mailto:mbowler@GargoyleSoftware.com">Mike Bowler</a>
- * @author <a href="mailto:oleg@ural.ru">Oleg Kalnichevski</a>
+ * @author <a href="mailto:oleg at ural.ru">Oleg Kalnichevski</a>
  * @author Laura Werner
  * 
  * @since 3.0 
@@ -172,25 +172,14 @@ public class HttpHost implements Cloneable {
     /**
      * @see java.lang.Object#equals(java.lang.Object)
      */
-    public boolean equals(final Object o) {
-        
-        if (o instanceof HttpHost) {
-            // shortcut if we're comparing with ourselves
-            if (o == this) { 
-                return true;
-            }
-            HttpHost that = (HttpHost) o;
-            if (!this.hostname.equalsIgnoreCase(that.hostname)) {
-                return false;
-            }
-            if (this.port != that.port) {
-                return false;
-            }
-            if (!this.protocol.equals(that.protocol)) {
-                return false;
-            }
-            // everything matches
-            return true;
+    public boolean equals(final Object obj) {
+        if (obj == null) return false;
+        if (this == obj) return true;
+        if (obj instanceof HttpHost) {
+            HttpHost that = (HttpHost) obj;
+            return this.hostname.equalsIgnoreCase(that.hostname) 
+                && this.port == that.port
+                && this.protocol.equals(that.protocol);
         } else {
             return false;
         }

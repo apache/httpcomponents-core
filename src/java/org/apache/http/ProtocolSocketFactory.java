@@ -61,7 +61,7 @@ public interface ProtocolSocketFactory {
      * @param port the port on the host
      * @param localAddress the local host name/IP to bind the socket to
      * @param localPort the port on the local machine
-     * @param params {@link HttpConnectionParams Http connection parameters}
+     * @param params {@link HttpParams Http parameters}
      * 
      * @return Socket a new socket
      * 
