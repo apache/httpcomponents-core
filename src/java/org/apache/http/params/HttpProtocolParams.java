@@ -77,6 +77,53 @@ public class HttpProtocolParams {
      */
     public static final String HTTP_CONTENT_CHARSET = "http.protocol.content-charset"; 
     
+    /**
+     * Defines the content of the <tt>User-Agent</tt> header used by  
+     * {@link org.apache.commons.httpclient.HttpMethod HTTP methods}.
+     * <p>
+     * This parameter expects a value of type {@link String}.
+     * </p>
+     */
+    public static final String USER_AGENT = "http.useragent"; 
+
+    /**
+     * Defines the maximum number of ignorable lines before we expect
+     * a HTTP response's status code.
+     * <p>
+     * With HTTP/1.1 persistent connections, the problem arises that
+     * broken scripts could return a wrong Content-Length
+     * (there are more bytes sent than specified).<br />
+     * Unfortunately, in some cases, this is not possible after the bad response,
+     * but only before the next one. <br />
+     * So, HttpClient must be able to skip those surplus lines this way.
+     * </p>
+     * <p>
+     * Set this to 0 to disallow any garbage/empty lines before the status line.<br />
+     * To specify no limit, use {@link java.lang.Integer#MAX_VALUE} (default in lenient mode).
+     * </p>
+     *  
+     * This parameter expects a value of type {@link Integer}.
+     */
+    public static final String STATUS_LINE_GARBAGE_LIMIT = "http.protocol.status-line-garbage-limit";
+
+    /**
+     * The key used to look up the date patterns used for parsing. The String patterns are stored
+     * in a {@link java.util.Collection} and must be compatible with 
+     * {@link java.text.SimpleDateFormat}.
+     * <p>
+     * This parameter expects a value of type {@link java.util.Collection}.
+     * </p>
+     */
+    public static final String DATE_PATTERNS = "http.dateparser.patterns";
+
+    /**
+     * Defines the virtual host name.
+     * <p>
+     * This parameter expects a value of type {@link java.lang.String}. 
+     * </p>
+     */
+    public static final String VIRTUAL_HOST = "http.virtual-host"; 
+
     private final HttpParams params;
     
     /**
@@ -221,4 +268,21 @@ public class HttpProtocolParams {
         return setParameter(PROTOCOL_VERSION, version);
     }
 
+    /**
+     * Sets the virtual host name.
+     * 
+     * @param hostname The host name
+     */
+    public void setVirtualHost(final String hostname) {
+        setParameter(VIRTUAL_HOST, hostname);
+    }
+
+    /**
+     * Returns the virtual host name.
+     * 
+     * @return The virtual host name
+     */
+    public String getVirtualHost() {
+        return (String) getParameter(VIRTUAL_HOST);
+    }
 }
