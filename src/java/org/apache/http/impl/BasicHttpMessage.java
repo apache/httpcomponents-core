@@ -32,7 +32,6 @@ package org.apache.http.impl;
 import java.util.Iterator;
 
 import org.apache.http.Header;
-import org.apache.http.HeaderGroup;
 import org.apache.http.HttpMutableMessage;
 import org.apache.http.params.HttpParams;
 

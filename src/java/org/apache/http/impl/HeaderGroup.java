@@ -27,11 +27,13 @@
  *
  */
 
-package org.apache.http;
+package org.apache.http.impl;
 
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+
+import org.apache.http.Header;
 
 /**
  * A class for combining a set of headers.  This class allows for multiple

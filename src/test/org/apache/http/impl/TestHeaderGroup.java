@@ -27,9 +27,11 @@
  *
  */
 
-package org.apache.http;
+package org.apache.http.impl;
 
 import java.util.Iterator;
+
+import org.apache.http.Header;
 
 import junit.framework.Test;
 import junit.framework.TestCase;
