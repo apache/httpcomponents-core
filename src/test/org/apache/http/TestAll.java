@@ -41,6 +41,8 @@ public class TestAll extends TestCase {
     public static Test suite() {
         TestSuite suite = new TestSuite();
         suite.addTest(TestAllUtil.suite());
+        suite.addTest(TestNameValuePair.suite());
+        suite.addTest(TestHeader.suite());
         suite.addTest(TestHttpStatus.suite());
         suite.addTest(TestHttpVersion.suite());
         return suite;
