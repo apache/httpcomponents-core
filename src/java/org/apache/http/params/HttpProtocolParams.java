@@ -124,6 +124,15 @@ public class HttpProtocolParams {
      */
     public static final String VIRTUAL_HOST = "http.virtual-host"; 
 
+    /**
+     * Defines whether responses with an invalid <tt>Transfer-Encoding</tt> header should be 
+     * rejected.
+     * <p>
+     * This parameter expects a value of type {@link Boolean}.
+     * </p>
+     */
+    public static final String STRICT_TRANSFER_ENCODING = "http.protocol.strict-transfer-encoding"; 
+
     private final HttpParams params;
     
     /**
