@@ -63,6 +63,24 @@ public class TestStatusLine extends TestCase {
 
     // ----------------------------------------------------------- Test Methods
 
+    public void testConstructor() {
+        StatusLine statusline = new StatusLine(HttpVersion.HTTP_1_1, HttpStatus.SC_OK, "OK");
+        assertEquals(HttpVersion.HTTP_1_1, statusline.getHttpVersion()); 
+        assertEquals(HttpStatus.SC_OK, statusline.getStatusCode()); 
+        assertEquals("OK", statusline.getReasonPhrase()); 
+    }
+        
+    public void testConstructorInvalidInput() {
+        try {
+            StatusLine statusline = new StatusLine(null, HttpStatus.SC_OK, "OK");
+            fail("IllegalArgumentException should have been thrown");
+        } catch (IllegalArgumentException e) { /* expected */ }
+        try {
+            StatusLine statusline = new StatusLine(HttpVersion.HTTP_1_1, -1, "OK");
+            fail("IllegalArgumentException should have been thrown");
+        } catch (IllegalArgumentException e) { /* expected */ }
+    }
+        
     public void testIfStatusLine() throws Exception {
         assertTrue(StatusLine.startsWithHTTP("HTTP"));
         assertTrue(StatusLine.startsWithHTTP("         HTTP"));
@@ -137,6 +155,10 @@ public class TestStatusLine extends TestCase {
             statusLine = StatusLine.parse("HTTP/1.1    ");
             fail();
         } catch (HttpException e) { /* expected */ }
+        try {
+            statusLine = StatusLine.parse("HTTP/1.1");
+            fail();
+        } catch (HttpException e) { /* expected */ }
     }
 
     public void testNullInput() throws Exception {
@@ -144,7 +166,12 @@ public class TestStatusLine extends TestCase {
             statusLine = StatusLine.parse(null);
             fail("IllegalArgumentException should have been thrown");
         } catch (IllegalArgumentException e) { /* expected */ }
-
     }
     
+    public void testToString() throws Exception {
+        StatusLine statusline = new StatusLine(HttpVersion.HTTP_1_1, HttpStatus.SC_OK, "OK");
+        assertEquals("HTTP/1.1 200 OK", statusline.toString());
+        statusline = new StatusLine(HttpVersion.HTTP_1_1, HttpStatus.SC_OK, null);
+        assertEquals("HTTP/1.1 200", statusline.toString());
+    }
 }
