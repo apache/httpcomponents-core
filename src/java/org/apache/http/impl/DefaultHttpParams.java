@@ -97,11 +97,12 @@ public class DefaultHttpParams implements HttpParams, Serializable, Cloneable {
         }
     }
 
-    public synchronized void setParameter(final String name, final Object value) {
+    public synchronized HttpParams setParameter(final String name, final Object value) {
         if (this.parameters == null) {
             this.parameters = new HashMap();
         }
         this.parameters.put(name, value);
+        return this;
     }
     
     /**
@@ -124,8 +125,9 @@ public class DefaultHttpParams implements HttpParams, Serializable, Cloneable {
         return ((Long)param).longValue();
     }
     
-    public void setLongParameter(final String name, long value) {
+    public HttpParams setLongParameter(final String name, long value) {
         setParameter(name, new Long(value));
+        return this;
     }
 
     public int getIntParameter(final String name, int defaultValue) { 
@@ -136,8 +138,9 @@ public class DefaultHttpParams implements HttpParams, Serializable, Cloneable {
         return ((Integer)param).intValue();
     }
     
-    public void setIntParameter(final String name, int value) {
+    public HttpParams setIntParameter(final String name, int value) {
         setParameter(name, new Integer(value));
+        return this;
     }
 
     public double getDoubleParameter(final String name, double defaultValue) { 
@@ -148,8 +151,9 @@ public class DefaultHttpParams implements HttpParams, Serializable, Cloneable {
         return ((Double)param).doubleValue();
     }
     
-    public void setDoubleParameter(final String name, double value) {
+    public HttpParams setDoubleParameter(final String name, double value) {
         setParameter(name, new Double(value));
+        return this;
     }
 
     public boolean getBooleanParameter(final String name, boolean defaultValue) { 
@@ -160,8 +164,9 @@ public class DefaultHttpParams implements HttpParams, Serializable, Cloneable {
         return ((Boolean)param).booleanValue();
     }
     
-    public void setBooleanParameter(final String name, boolean value) {
+    public HttpParams setBooleanParameter(final String name, boolean value) {
         setParameter(name, new Boolean(value));
+        return this;
     }
 
     public boolean isParameterSet(final String name) {

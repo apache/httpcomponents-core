@@ -88,7 +88,7 @@ public interface HttpParams {
      * @param name parameter name
      * @param value parameter value
      */ 
-    void setParameter(String name, Object value);
+    HttpParams setParameter(String name, Object value);
     
     /** 
      * Returns a {@link Long} parameter value with the given name. 
@@ -112,7 +112,7 @@ public interface HttpParams {
      * @param name parameter name
      * @param value parameter value
      */ 
-    void setLongParameter(String name, long value);
+    HttpParams setLongParameter(String name, long value);
 
     /** 
      * Returns an {@link Integer} parameter value with the given name. 
@@ -136,7 +136,7 @@ public interface HttpParams {
      * @param name parameter name
      * @param value parameter value
      */ 
-    void setIntParameter(String name, int value);
+    HttpParams setIntParameter(String name, int value);
 
     /** 
      * Returns a {@link Double} parameter value with the given name. 
@@ -160,7 +160,7 @@ public interface HttpParams {
      * @param name parameter name
      * @param value parameter value
      */ 
-    void setDoubleParameter(String name, double value);
+    HttpParams setDoubleParameter(String name, double value);
 
     /** 
      * Returns a {@link Boolean} parameter value with the given name. 
@@ -184,7 +184,7 @@ public interface HttpParams {
      * @param name parameter name
      * @param value parameter value
      */ 
-    void setBooleanParameter(String name, boolean value);
+    HttpParams setBooleanParameter(String name, boolean value);
 
     /**
      * Returns <tt>true</tt> if the parameter is set at any level, <tt>false</tt> otherwise.
