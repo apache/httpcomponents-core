@@ -181,6 +181,9 @@ public class EncodingUtil {
      * @since 3.0
      */
     public static String getAsciiString(final byte[] data) {
+        if (data == null) {
+            throw new IllegalArgumentException("Parameter may not be null");
+        }
         return getAsciiString(data, 0, data.length);
     }
 

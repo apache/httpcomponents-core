@@ -112,23 +112,5 @@ public class HttpLineParser {
         }
         return EncodingUtil.getString(rawdata, 0, len - offset, charset);
     }
-
-    /**
-     * Read up to <tt>"\n"</tt> from an (unchunked) input stream.
-     * If the stream ends before the line terminator is found,
-     * the last part of the string will still be returned.
-     * If no input data available, <code>null</code> is returned
-     *
-     * @param inputStream the stream to read from
-     *
-     * @throws IOException if an I/O problem occurs
-     * @return a line from the stream
-     * 
-     * @deprecated use #readLine(InputStream, String)
-     */
-
-    public static String readLine(final InputStream inputStream) throws IOException {
-        return readLine(inputStream, "US-ASCII");
-    }
     
 }

@@ -69,10 +69,13 @@ public class TestHttpLineParser extends TestCase {
         assertEquals(null, HttpLineParser.readLine(instream, ASCII));
 
         instream = new ByteArrayInputStream(
-            "\n\r\nstuff\r\n".getBytes(ASCII)); 
+            "\n\r\nstuff\r\nstuff\nstuff".getBytes(ASCII)); 
         assertEquals("", HttpLineParser.readLine(instream, ASCII));
         assertEquals("", HttpLineParser.readLine(instream, ASCII));
         assertEquals("stuff", HttpLineParser.readLine(instream, ASCII));
+        assertEquals("stuff", HttpLineParser.readLine(instream, ASCII));
+        assertEquals("stuff", HttpLineParser.readLine(instream, ASCII));
+        assertEquals(null, HttpLineParser.readLine(instream, ASCII));
         assertEquals(null, HttpLineParser.readLine(instream, ASCII));
     }
 
@@ -93,8 +96,10 @@ public class TestHttpLineParser extends TestCase {
     public void testReadMultibyeHttpLine() throws Exception {
         String s = constructString(SWISS_GERMAN_HELLO);
         InputStream instream = new ByteArrayInputStream(
-            ("\r\r\n" + s + "\r\n").getBytes(UTF8)); 
+            ("\r\r\n" + s + "\r\n" + s + "\n" + s).getBytes(UTF8)); 
         assertEquals("\r", HttpLineParser.readLine(instream, UTF8));
+        assertEquals(s, HttpLineParser.readLine(instream, UTF8));
+        assertEquals(s, HttpLineParser.readLine(instream, UTF8));
         assertEquals(s, HttpLineParser.readLine(instream, UTF8));
         assertEquals(null, HttpLineParser.readLine(instream, UTF8));
 

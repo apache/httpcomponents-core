@@ -82,6 +82,12 @@ public class TestEncodingUtils extends TestCase {
         assertEquals(s, s3);
         
         try {
+            EncodingUtil.getString(null, 0, 0, "UTF-8");
+            fail("IllegalArgumentException should have been thrown");
+        } catch (IllegalArgumentException ex) {
+            // expected
+        }
+        try {
             EncodingUtil.getString(null, "UTF-8");
             fail("IllegalArgumentException should have been thrown");
         } catch (IllegalArgumentException ex) {
@@ -150,6 +156,18 @@ public class TestEncodingUtils extends TestCase {
     public void testAsciiBytesToString() throws Exception {
         String s = "ascii only, I mean it!";
         assertEquals(s, EncodingUtil.getAsciiString(s.getBytes("US-ASCII")));
+        try {
+            EncodingUtil.getAsciiString(null);
+            fail("IllegalArgumentException should have been thrown");
+        } catch (IllegalArgumentException ex) {
+            // expected
+        }
+        try {
+            EncodingUtil.getAsciiString(null, 0, 0);
+            fail("IllegalArgumentException should have been thrown");
+        } catch (IllegalArgumentException ex) {
+            // expected
+        }
     }
     
     public void testAsciiStringToBytes() throws Exception {
@@ -162,6 +180,16 @@ public class TestEncodingUtils extends TestCase {
         for (int i = 0; i < ascii.length; i++) {
             assertEquals(ascii[i], data[i]);
         }
+        try {
+            EncodingUtil.getAsciiBytes(null);
+            fail("IllegalArgumentException should have been thrown");
+        } catch (IllegalArgumentException ex) {
+            // expected
+        }
+    }
+    
+    public void testAsciiNotSupportedError() {
+        new EncodingUtil.AsciiNotSupportedError("Fatal error");
     }
     
 }
