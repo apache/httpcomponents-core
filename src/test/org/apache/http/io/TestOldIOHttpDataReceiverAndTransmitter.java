@@ -80,7 +80,8 @@ public class TestOldIOHttpDataReceiverAndTransmitter extends TestCase {
     public void testInputStreamHttpDataReceiver() throws IOException {
         String s = "aaaaa";
         InputStream in = new ByteArrayInputStream(EncodingUtil.getAsciiBytes(s));
-        HttpDataReceiver datareceiver = new InputStreamHttpDataReceiver(in);
+        InputStreamHttpDataReceiver datareceiver = new InputStreamHttpDataReceiver(in);
+        assertNotNull(datareceiver.getInputStream());
         assertTrue(datareceiver.isDataAvailable(1));
         assertEquals('a', datareceiver.read());
         byte[] tmp = new byte[2];
@@ -97,13 +98,16 @@ public class TestOldIOHttpDataReceiverAndTransmitter extends TestCase {
     public void testOutputStreamHttpDataTransmitter() throws IOException {
         String s = "aaaaa\r\n";
         ByteArrayOutputStream out = new ByteArrayOutputStream();
-        HttpDataTransmitter datatransmitter = new OutputStreamHttpDataTransmitter(out);
+        OutputStreamHttpDataTransmitter datatransmitter = new OutputStreamHttpDataTransmitter(out);
         datatransmitter.reset(new DefaultHttpParams(null));
+
+        assertNotNull(datatransmitter.getOutputStream());
         
         datatransmitter.write('a');
         datatransmitter.write(new byte[] {'a'});
         datatransmitter.write(new byte[] {'a'}, 0, 1);
         datatransmitter.writeLine("aa");
+        datatransmitter.writeLine(null);
         datatransmitter.flush();
         
         assertEquals(s, out.toString("US-ASCII"));

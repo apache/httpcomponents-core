@@ -273,35 +273,6 @@ public class TestChunkCoding extends TestCase {
         assertEquals(0, out.size());
     }
     
-    public void testContentLengthInputStream() throws IOException {
-        String correct = "1234567890123456";
-        InputStream in = new ContentLengthInputStream(new ByteArrayInputStream(
-            EncodingUtil.getBytes(correct, CONTENT_CHARSET)), 10L);
-        byte[] buffer = new byte[50];
-        int len = in.read(buffer);
-        ByteArrayOutputStream out = new ByteArrayOutputStream();
-        out.write(buffer, 0, len);
-        String result = EncodingUtil.getString(out.toByteArray(), CONTENT_CHARSET);
-        assertEquals(result, "1234567890");
-    }
-
-    public void testContentLengthInputStreamSkip() throws IOException {
-        InputStream in = new ContentLengthInputStream(new ByteArrayInputStream(new byte[20]), 10L);
-        assertEquals(10, in.skip(10));
-        assertTrue(in.read() == -1);
-
-        in = new ContentLengthInputStream(new ByteArrayInputStream(new byte[20]), 10L);
-        in.read();
-        assertEquals(9, in.skip(10));
-        assertTrue(in.read() == -1);
-
-        in = new ContentLengthInputStream(new ByteArrayInputStream(new byte[20]), 2L);
-        in.read();
-        in.read();
-        assertTrue(in.skip(10) <= 0);
-        assertTrue(in.read() == -1);
-    }
-
     public void testChunkedConsitance() throws IOException {
         String input = "76126;27823abcd;:q38a-\nkjc\rk%1ad\tkh/asdui\r\njkh+?\\suweb";
         ByteArrayOutputStream buffer = new ByteArrayOutputStream();

@@ -77,19 +77,6 @@ public class ContentLengthInputStream extends InputStream {
     private InputStream wrappedStream = null;
 
     /**
-     * @deprecated use {@link #ContentLengthInputStream(InputStream, long)}
-     * 
-     * Creates a new length limited stream
-     *
-     * @param in The stream to wrap
-     * @param contentLength The maximum number of bytes that can be read from
-     * the stream. Subsequent read operations will return -1.
-     */
-    public ContentLengthInputStream(InputStream in, int contentLength) {
-        this(in, (long)contentLength);
-    }
-
-    /**
      * Creates a new length limited stream
      *
      * @param in The stream to wrap
@@ -98,8 +85,14 @@ public class ContentLengthInputStream extends InputStream {
      * 
      * @since 3.0
      */
-    public ContentLengthInputStream(InputStream in, long contentLength) {
+    public ContentLengthInputStream(final InputStream in, long contentLength) {
         super();
+        if (in == null) {
+            throw new IllegalArgumentException("Input stream may not be null");
+        }
+        if (contentLength < 0) {
+            throw new IllegalArgumentException("Content length may not be negative");
+        }
         this.wrappedStream = in;
         this.contentLength = contentLength;
     }
