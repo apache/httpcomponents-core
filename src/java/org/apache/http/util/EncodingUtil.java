@@ -30,6 +30,8 @@ package org.apache.http.util;
 
 import java.io.UnsupportedEncodingException;
 
+import org.apache.http.HttpRuntime;
+
 /**
  * The home for utility methods that handle various encoding tasks.
  * 
@@ -141,7 +143,7 @@ public class EncodingUtil {
         try {
             return data.getBytes(ASCII_CHARSET);
         } catch (UnsupportedEncodingException e) {
-            throw new AsciiNotSupportedError("HttpClient requires ASCII support");
+            throw new HttpRuntime.FatalError("HttpClient requires ASCII support");
         }
     }
 
@@ -166,7 +168,7 @@ public class EncodingUtil {
         try {
             return new String(data, offset, length, ASCII_CHARSET);
         } catch (UnsupportedEncodingException e) {
-            throw new AsciiNotSupportedError("HttpClient requires ASCII support");
+            throw new HttpRuntime.FatalError("HttpClient requires ASCII support");
         }
     }
 
@@ -194,12 +196,4 @@ public class EncodingUtil {
         super();
     }
 
-    static class AsciiNotSupportedError extends Error {
-        
-        public AsciiNotSupportedError(final String message) {
-            super(message);
-        }
-        
-    }
-    
 }

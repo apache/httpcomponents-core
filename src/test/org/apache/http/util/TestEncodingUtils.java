@@ -188,8 +188,4 @@ public class TestEncodingUtils extends TestCase {
         }
     }
     
-    public void testAsciiNotSupportedError() {
-        new EncodingUtil.AsciiNotSupportedError("Fatal error");
-    }
-    
 }
