@@ -189,6 +189,7 @@
     <clover-setup initString="${build.home}/clover/database/coverage.db" >
       <files>
         <exclude name="**/Test*.java"/>
+        <exclude name="**/mockup/*.java"/>
       </files>
     </clover-setup>
   </target>
