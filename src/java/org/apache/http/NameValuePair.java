@@ -1,5 +1,5 @@
 /*
- * $Header: /home/jerenkrantz/tmp/commons/commons-convert/cvs/home/cvs/jakarta-commons//httpclient/src/java/org/apache/commons/httpclient/NameValuePair.java,v 1.17 2004/04/18 23:51:35 jsdever Exp $
+ * $HeadURL$
  * $Revision$
  * $Date$
  *
