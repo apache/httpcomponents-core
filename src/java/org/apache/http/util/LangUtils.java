@@ -60,7 +60,9 @@ public class LangUtils {
 
     public static boolean equals(final Object[] a1, final Object[] a2) {
         if (a1 == null) {
-            if (a2 != null) {
+            if (a2 == null) {
+                return true;
+            } else {
                 return false;
             }
         } else {
@@ -70,11 +72,11 @@ public class LangUtils {
                         return false;
                     }
                 }
+                return true;
             } else {
                 return false;
             }
         }
-        return true;
     }
     
 }
