@@ -1,4 +1,8 @@
 /*
+ * $HeadURL$
+ * $Revision$
+ * $Date$
+ * 
  * ====================================================================
  *
  *  Copyright 1999-2004 The Apache Software Foundation
@@ -21,11 +25,9 @@
  * information on the Apache Software Foundation, please see
  * <http://www.apache.org/>.
  *
- * [Additional notices, if required by prior licensing conditions]
- *
  */
 
-package org.apache.commons.httpclient;
+package org.apache.http.util;
 
 import junit.framework.Test;
 import junit.framework.TestCase;
@@ -33,32 +35,27 @@ import junit.framework.TestSuite;
 
 import java.util.List;
 
-import org.apache.commons.httpclient.util.ParameterParser;
+import org.apache.http.NameValuePair;
 
 /**
  * Unit tests for {@link ParameterParser}.
  *
- * @author <a href="mailto:oleg@ural.ru">Oleg Kalnichevski</a>
+ * @author <a href="mailto:oleg at ural.ru">Oleg Kalnichevski</a>
  */
 public class TestParameterParser extends TestCase {
 
-    // ------------------------------------------------------------ Constructor
     public TestParameterParser(String testName) {
         super(testName);
     }
 
-    // ------------------------------------------------------------------- Main
     public static void main(String args[]) {
         String[] testCaseName = { TestParameterParser.class.getName() };
         junit.textui.TestRunner.main(testCaseName);
     }
 
-    // ------------------------------------------------------- TestCase Methods
-
     public static Test suite() {
         return new TestSuite(TestParameterParser.class);
     }
-
 
     public void testParsing() {
         String s = 
