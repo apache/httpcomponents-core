@@ -62,6 +62,31 @@ public class TestNIOHttpTransmitterAndReceiver extends TestCase {
     public static Test suite() {
         return new TestSuite(TestNIOHttpTransmitterAndReceiver.class);
     }
+
+    public void testConstructor() throws Exception {
+        ByteArrayOutputStream out = new ByteArrayOutputStream();
+        HttpDataTransmitter transmitter1 = 
+            new NIOHttpDataTransmitter(Channels.newChannel(out), -10); 
+        HttpDataTransmitter transmitter2 = 
+            new NIOHttpDataTransmitter(Channels.newChannel(out), 200000000); 
+        try {
+            HttpDataTransmitter transmitter3 = new NIOHttpDataTransmitter(null, 1024); 
+            fail("IllegalArgumentException should have been thrown");
+        } catch (IllegalArgumentException ex) {
+            //expected
+        }
+        ByteArrayInputStream in = new ByteArrayInputStream(out.toByteArray());
+        HttpDataReceiver receiver1 = 
+            new NIOHttpDataReceiver(Channels.newChannel(in), -10); 
+        HttpDataReceiver receiver2 = 
+            new NIOHttpDataReceiver(Channels.newChannel(in), 200000000); 
+        try {
+            HttpDataReceiver receiver3 = new NIOHttpDataReceiver(null, 1024); 
+            fail("IllegalArgumentException should have been thrown");
+        } catch (IllegalArgumentException ex) {
+            //expected
+        }
+    }
     
     public void testBasicReadWriteLine() throws Exception {
         
@@ -84,12 +109,16 @@ public class TestNIOHttpTransmitterAndReceiver extends TestCase {
         for (int i = 0; i < teststrs.length; i++) {
             transmitter.writeLine(teststrs[i]);
         }
+        //this write operation should have no effect
+        transmitter.writeLine(null);
         transmitter.flush();
         
         ByteArrayInputStream in = new ByteArrayInputStream(out.toByteArray());
         HttpDataReceiver receiver = 
             new NIOHttpDataReceiver(Channels.newChannel(in), 16);
 
+        assertTrue(receiver.isDataAvailable(0));
+        
         for (int i = 0; i < teststrs.length; i++) {
             assertEquals(teststrs[i], receiver.readLine());
         }
@@ -105,6 +134,10 @@ public class TestNIOHttpTransmitterAndReceiver extends TestCase {
         transmitter.write(new byte[] {'\r', '\n'});
         transmitter.write(new byte[] {'\r', '\r', '\n'});
         transmitter.write(new byte[] {'\n'});
+        //these write operations should have no effect
+        transmitter.write(null);
+        transmitter.write(null, 0, 12);
+        
         transmitter.flush();
 
         StringBuffer buffer = new StringBuffer();
@@ -151,5 +184,64 @@ public class TestNIOHttpTransmitterAndReceiver extends TestCase {
         assertEquals("a", receiver.readLine());
         assertNull(receiver.readLine());
         assertNull(receiver.readLine());
+    }
+    
+    public void testReadWriteBytes() throws Exception {
+        // make the buffer larger than that of transmitter
+        byte[] out = new byte[40];
+        for (int i = 0; i < out.length; i++) {
+            out[i] = (byte)('0' + i);
+        }
+        ByteArrayOutputStream outstream = new ByteArrayOutputStream();
+        HttpDataTransmitter transmitter = 
+            new NIOHttpDataTransmitter(Channels.newChannel(outstream), 16);
+        int off = 0;
+        int remaining = out.length;
+        while (remaining > 0) {
+            int chunk = 10;
+            if (chunk > remaining) {
+                chunk = remaining;
+            }
+            transmitter.write(out, off, chunk);
+            off += chunk;
+            remaining -= chunk;
+        }
+        transmitter.flush();
+
+        byte[] tmp = outstream.toByteArray();
+        assertEquals(out.length, tmp.length);
+        for (int i = 0; i < out.length; i++) {
+            assertEquals(out[i], tmp[i]);
+        }
+        
+        ByteArrayInputStream instream = new ByteArrayInputStream(tmp);
+        HttpDataReceiver receiver = 
+            new NIOHttpDataReceiver(Channels.newChannel(instream), 16);
+
+        // these read operations will have no effect
+        assertEquals(0, receiver.read(null, 0, 10));
+        assertEquals(0, receiver.read(null));        
+        
+        byte[] in = new byte[40];
+        int noRead = 0;
+        off = 0;
+        remaining = in.length;
+        while (remaining > 0) {
+            int chunk = 10;
+            if (chunk > remaining) {
+                chunk = remaining;
+            }
+            int l = receiver.read(in, off, chunk);
+            if (l == -1) {
+                break;
+            }
+            off += l;
+            remaining -= l;
+        }
+        for (int i = 0; i < out.length; i++) {
+            assertEquals(out[i], in[i]);
+        }
+        assertEquals(-1, receiver.read(tmp));
+        assertEquals(-1, receiver.read(tmp));
     }
 }
