@@ -91,7 +91,9 @@ public class DefaultEntityGenerator implements EntityGenerator {
         }
 
         HttpMutableEntity entity = new BasicHttpEntity();
+        
         HttpParams params = message.getParams(); 
+        boolean strict = params.isParameterTrue(HttpProtocolParams.STRICT_TRANSFER_ENCODING);
         
         Header contentTypeHeader = message.getFirstHeader(CONTENT_TYPE);
         Header transferEncodingHeader = message.getFirstHeader(TRANSFER_ENCODING);
@@ -100,7 +102,7 @@ public class DefaultEntityGenerator implements EntityGenerator {
         // RFC2616, 4.4 item number 3
         if (transferEncodingHeader != null) {
             HeaderElement[] encodings = transferEncodingHeader.getElements();
-            if (params.isParameterTrue(HttpProtocolParams.STRICT_TRANSFER_ENCODING)) {
+            if (strict) {
                 // Currently only chunk and identity are supported
                 for (int i = 0; i < encodings.length; i++) {
                     String encoding = encodings[i].getValue();
@@ -113,8 +115,12 @@ public class DefaultEntityGenerator implements EntityGenerator {
             }
             // The chunked encoding must be the last one applied
             // RFC2616, 14.41
-            int len = encodings.length;            
-            if ((len > 0) && (CHUNKED_ENCODING.equalsIgnoreCase(encodings[len - 1].getName()))) { 
+            int len = encodings.length;
+            if (IDENTITY_ENCODING.equalsIgnoreCase(transferEncodingHeader.getValue())) {
+                entity.setChunked(false);
+                entity.setContentLength(-1);
+                entity.setInputStream(getRawInputStream(datareceiver));                            
+            } else if ((len > 0) && (CHUNKED_ENCODING.equalsIgnoreCase(encodings[len - 1].getName()))) { 
                 entity.setChunked(true);
                 entity.setContentLength(-1);
                 // if response body is empty
@@ -122,21 +128,34 @@ public class DefaultEntityGenerator implements EntityGenerator {
                 if (datareceiver.isDataAvailable(connparams.getSoTimeout())) {
                     entity.setInputStream(new ChunkedInputStream(datareceiver));
                 } else {
-                    if (params.isParameterTrue(HttpProtocolParams.STRICT_TRANSFER_ENCODING)) {
+                    if (strict) {
                         throw new ProtocolException("Chunk-encoded body declared but not sent");
                     }
+                    entity.setInputStream(null);                            
                 }
+            } else {
+                if (strict) {
+                    throw new ProtocolException("Chunk-encoding must be the last one applied");
+                }
+                entity.setChunked(false);
+                entity.setContentLength(-1);
+                entity.setInputStream(getRawInputStream(datareceiver));                            
             }
         } else if (contentLengthHeader != null) {
             long contentlen = -1;
             Header[] headers = message.getHeaders(CONTENT_LENGTH);
+            if (strict && headers.length > 1) {
+                throw new ProtocolException("Multiple content length headers");
+            }
             for (int i = headers.length - 1; i >= 0; i--) {
                 Header header = headers[i];
                 try {
                     contentlen = Long.parseLong(header.getValue());
                     break;
                 } catch (NumberFormatException e) {
-                    // No option but to ignore it
+                    if (strict) {
+                        throw new ProtocolException("Invalid content length: " + header.getValue());
+                    }
                 }
                 // See if we can have better luck with another header, if present
             }
@@ -147,6 +166,10 @@ public class DefaultEntityGenerator implements EntityGenerator {
                 instream = new ContentLengthInputStream(instream, contentlen);
             }
             entity.setInputStream(instream);
+        } else {
+            entity.setChunked(false);
+            entity.setContentLength(-1);
+            entity.setInputStream(getRawInputStream(datareceiver));                            
         }
         if (contentTypeHeader != null) {
             entity.setContentType(contentTypeHeader.getValue());    
