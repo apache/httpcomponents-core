@@ -1,0 +1,245 @@
+/*
+ * $HeadURL$
+ * $Revision$
+ * $Date$
+ *
+ * ====================================================================
+ *
+ *  Copyright 1999-2004 The Apache Software Foundation
+ *
+ *  Licensed under the Apache License, Version 2.0 (the "License");
+ *  you may not use this file except in compliance with the License.
+ *  You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an "AS IS" BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
+ * ====================================================================
+ *
+ * This software consists of voluntary contributions made by many
+ * individuals on behalf of the Apache Software Foundation.  For more
+ * information on the Apache Software Foundation, please see
+ * <http://www.apache.org/>.
+ *
+ */
+
+package org.apache.http.impl;
+
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.InetAddress;
+import java.net.Socket;
+
+import org.apache.http.Header;
+import org.apache.http.HttpClientConnection;
+import org.apache.http.HttpEntityEnclosingMessage;
+import org.apache.http.HttpException;
+import org.apache.http.HttpHost;
+import org.apache.http.HttpMutableEntity;
+import org.apache.http.HttpMutableResponse;
+import org.apache.http.HttpRequest;
+import org.apache.http.HttpResponse;
+import org.apache.http.HttpStatus;
+import org.apache.http.NoHttpResponseException;
+import org.apache.http.ProtocolException;
+import org.apache.http.ProtocolSocketFactory;
+import org.apache.http.StatusLine;
+import org.apache.http.params.HttpParams;
+import org.apache.http.params.HttpProtocolParams;
+import org.apache.http.util.HeadersParser;
+
+/**
+ * <p>
+ * </p>
+ * @author <a href="mailto:oleg at ural.ru">Oleg Kalnichevski</a>
+ *
+ * @version $Revision$
+ * 
+ * @since 4.0
+ */
+public class DefaultHttpClientConnection 
+        extends AbstractHttpConnection implements HttpClientConnection {
+
+    private HttpHost targethost = null;
+    private boolean reusable = false;
+    
+    public DefaultHttpClientConnection() {
+        super();
+    }
+    
+    public void open(
+            final HttpHost targethost,
+            final HttpParams params,
+            final InetAddress localAddress) throws IOException {
+        if (targethost == null) {
+            throw new IllegalArgumentException("Target host may not be null");
+        }
+        if (params == null) {
+            throw new IllegalArgumentException("HTTP parameters may not be null");
+        }
+        assertNotOpen();
+        
+        ProtocolSocketFactory socketfactory = targethost.getProtocol().getSocketFactory();
+        Socket socket = socketfactory.createSocket(
+                targethost.getHostName(), targethost.getPort(), localAddress, 0, params);
+        bind(socket, params);
+        this.targethost = targethost;
+        this.reusable = true;
+    }
+    
+    public HttpHost getTargetHost() {
+        return this.targethost;
+    }
+    
+    public void close() throws IOException {
+        this.targethost = null;
+        this.reusable = false;
+        super.close();
+    }
+
+    public void sendRequest(final HttpRequest request) 
+            throws HttpException, IOException {
+        if (request == null) {
+            throw new IllegalArgumentException("HTTP request may not be null");
+        }
+        assertOpen();
+        // reset the data transmitter
+        this.datatransmitter.reset(request.getParams());
+        
+        sendRequestLine(request);
+        sendRequestHeaders(request);
+        if (request instanceof HttpEntityEnclosingMessage) {
+            sendRequestBody((HttpEntityEnclosingMessage)request);
+        }
+        this.datatransmitter.flush();
+    }
+    
+    protected void sendRequestLine(
+            final HttpRequest request) throws HttpException, IOException {
+        String line = request.getRequestLine().toString();
+        this.datatransmitter.writeLine(line);
+        if (isWirelogEnabled()) {
+            wirelog(">> " + line + "[\\r][\\n]");
+        }
+    }
+
+    protected void sendRequestHeaders(
+            final HttpRequest request) throws HttpException, IOException {
+        Header[] headers = request.getAllHeaders();
+        for (int i = 0; i < headers.length; i++) {
+            String line = headers[i].toString();
+            this.datatransmitter.writeLine(line);
+            if (isWirelogEnabled()) {
+                wirelog(">> " + line + "[\\r][\\n]");
+            }
+        }
+        this.datatransmitter.writeLine("");
+        if (isWirelogEnabled()) {
+            wirelog(">> [\\r][\\n]");
+        }
+    }
+
+    protected void sendRequestBody(
+            final HttpEntityEnclosingMessage request) throws HttpException, IOException {
+    }
+    
+    public HttpResponse receiveResponse(final HttpParams params) 
+            throws HttpException, IOException {
+        if (params == null) {
+            throw new IllegalArgumentException("HTTP parameters may not be null");
+        }
+        assertOpen();
+
+        // reset the data receiver
+        this.datareceiver.reset(params);
+
+        BasicHttpResponse response = new BasicHttpResponse();
+        response.setParams(params);
+        
+        processResponseStatusLine(response);
+        processResponseHeaders(response);
+        processResponseBody(response);
+        return response;
+    }
+    
+    protected void processResponseStatusLine(
+            final HttpMutableResponse response) throws HttpException, IOException {
+        //read out the HTTP status string
+        int maxGarbageLines = response.getParams().getIntParameter(
+                HttpProtocolParams.STATUS_LINE_GARBAGE_LIMIT, Integer.MAX_VALUE);
+        int count = 0;
+        String s;
+        do {
+            s = this.datareceiver.readLine();
+            if (s == null && count == 0) {
+                // The server just dropped connection on us
+                throw new NoHttpResponseException("The server " + 
+                        this.targethost.getHostName() + " failed to respond");
+            }
+            if (s != null && StatusLine.startsWithHTTP(s)) {
+                // Got one
+                break;
+            } else if (s == null || count >= maxGarbageLines) {
+                // Giving up
+                throw new ProtocolException("The server " + this.targethost.getHostName() + 
+                        " failed to respond with a valid HTTP response");
+            }
+            count++;
+            if (isWirelogEnabled()) {
+                wirelog("<< " + s + "[\\r][\\n]");
+            }
+        } while(true);
+        //create the status line from the status string
+        response.setStatusLine(StatusLine.parse(s));
+        if (isWirelogEnabled()) {
+            wirelog("<< " + s + "[\\r][\\n]");
+        }
+    }
+
+    protected void processResponseHeaders(
+            final HttpMutableResponse response) throws HttpException, IOException {
+        Header[] headers = HeadersParser.processHeaders(this.datareceiver);
+        for (int i = 0; i < headers.length; i++) {
+            response.addHeader(headers[i]);
+            if (isWirelogEnabled()) {
+                wirelog("<< " + headers[i].toString() + "[\\r][\\n]");
+            }
+        }
+        wirelog("<< [\\r][\\n]");
+    }
+    
+    protected boolean canResponseHaveBody(final HttpResponse response) {
+        int status = response.getStatusLine().getStatusCode(); 
+        return status >= HttpStatus.SC_OK 
+            && status != HttpStatus.SC_NO_CONTENT 
+            && status != HttpStatus.SC_NOT_MODIFIED; 
+    }
+        
+    protected void processResponseBody(
+            final HttpMutableResponse response) throws HttpException, IOException {
+        EntityGenerator entitygen = new DefaultEntityGenerator();
+        HttpMutableEntity entity = entitygen.generate(this.datareceiver, response);
+        if (canResponseHaveBody(response)) {
+            // if there is a result - ALWAYS wrap it in an observer which will
+            // close the underlying stream as soon as it is consumed, and notify
+            // the watcher that the stream has been consumed.
+            InputStream instream = entity.getInputStream();
+            instream = new AutoCloseInputStream(
+                    instream, new DefaultResponseConsumedWatcher(this, response));
+            entity.setInputStream(instream);
+        } else {
+            if (entity.isChunked() || entity.getContentLength() > 0) {
+                if (isWarnEnabled()) {
+                    warn("This response may not have a response body");
+                }
+            }
+            entity.setInputStream(null);
+        }
+        response.setEntity(entity);
+    }
+    
+}
