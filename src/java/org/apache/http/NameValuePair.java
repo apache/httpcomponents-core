@@ -31,6 +31,8 @@ package org.apache.http;
 
 import java.io.Serializable;
 
+import org.apache.http.util.LangUtils;
+
 /**
  * <p>A simple class encapsulating a name/value pair.</p>
  * 
@@ -43,131 +45,72 @@ import java.io.Serializable;
  */
 public class NameValuePair implements Serializable {
 
-    // ----------------------------------------------------------- Constructors
+    private final String name;
+    private final String value;
 
     /**
-     * Default constructor.
+     * Default Constructor taking a name and a value. The value may be null.
      * 
-     */
-    public NameValuePair() {
-        this (null, null);
-    }
-
-    /**
-     * Constructor.
      * @param name The name.
      * @param value The value.
      */
-    public NameValuePair(String name, String value) {
+    public NameValuePair(final String name, final String value) {
+        super();
+        if (name == null) {
+            throw new IllegalArgumentException("Name may not be null");
+        }
         this.name = name;
         this.value = value;
     }
 
-    // ----------------------------------------------------- Instance Variables
-
     /**
-     * Name.
-     */
-    private String name = null;
-
-    /**
-     * Value.
-     */
-    private String value = null;
-
-    // ------------------------------------------------------------- Properties
-
-    /**
-     * Set the name.
-     *
-     * @param name The new name
-     * @see #getName()
-     */
-    public void setName(String name) {
-        this.name = name;
-    }
-
-
-    /**
-     * Return the name.
+     * Returns the name.
      *
      * @return String name The name
-     * @see #setName(String)
      */
     public String getName() {
-        return name;
+        return this.name;
     }
 
-
     /**
-     * Set the value.
-     *
-     * @param value The new value.
-     */
-    public void setValue(String value) {
-        this.value = value;
-    }
-
-
-    /**
-     * Return the current value.
+     * Returns the value.
      *
      * @return String value The current value.
      */
     public String getValue() {
-        return value;
+        return this.value;
     }
 
-    // --------------------------------------------------------- Public Methods
-
     /**
-     * Get a String representation of this pair.
+     * Get a string representation of this pair.
+     * 
      * @return A string representation.
      */
     public String toString() {
-        return ("name=" + name + ", " + "value=" + value);
+        StringBuffer buffer = new StringBuffer();
+        buffer.append(this.name);
+        buffer.append(" = ");
+        buffer.append(this.value);
+        return buffer.toString();
     }
 
-    /**
-     * Test if the given <i>object</i> is equal to me. <tt>NameValuePair</tt>s
-     * are equals if both their <tt>name</tt> and <tt>value</tt> fields are equal.
-     * If <tt>object</tt> is <tt>null</tt> this method returns <tt>false</tt>.
-     *
-     * @param object the {@link Object} to compare to or <tt>null</tt>
-     * @return true if the objects are equal.
-     */
-    public boolean equals(Object object) {
+    public boolean equals(final Object object) {
         if (object == null) return false;
         if (this == object) return true;
-        if (!(object instanceof NameValuePair)) return false;
-        
-        NameValuePair pair = (NameValuePair) object;
-        return ((null == name ? null == pair.name : name.equals(pair.name))
-              && (null == value ? null == pair.value : value.equals(pair.value)));
-    }
-
-    /**
-     * hashCode. Returns a hash code for this object such that if <tt>a.{@link
-     * #equals equals}(b)</tt> then <tt>a.hashCode() == b.hashCode()</tt>.
-     * @return The hash code.
-     */
-    public int hashCode() {
-        return (this.getClass().hashCode() 
-            ^ (null == name ? 0 : name.hashCode()) 
-            ^ (null == value ? 0 : value.hashCode()));
-    }
-
-    /*
-    public Object clone() {
-        try {
-            NameValuePair that = (NameValuePair)(super.clone());
-            that.setName(this.getName());
-            that.setValue(this.getValue());
-            return that;
-        } catch(CloneNotSupportedException e) {
-            // this should never happen
-            throw new RuntimeException("Panic. super.clone not supported in NameValuePair.");
+        if (object instanceof NameValuePair) {
+            NameValuePair that = (NameValuePair) object;
+            return this.name.equals(that.name)
+                  && LangUtils.equals(this.value, that.value);
+        } else {
+            return false;
         }
     }
-    */
+
+    public int hashCode() {
+        int hash = LangUtils.HASH_SEED;
+        hash = LangUtils.hashCode(hash, this.name);
+        hash = LangUtils.hashCode(hash, this.value);
+        return hash;
+    }
+    
 }

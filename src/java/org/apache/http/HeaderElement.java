@@ -32,6 +32,7 @@ package org.apache.http;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.http.util.LangUtils;
 import org.apache.http.util.ParameterParser;
 
 /**
@@ -81,25 +82,11 @@ import org.apache.http.util.ParameterParser;
  * @since 1.0
  * @version $Revision: 1.23 $ $Date$
  */
-public class HeaderElement extends NameValuePair {
+public class HeaderElement {
 
-    // ----------------------------------------------------------- Constructors
-
-    /**
-     * Default constructor.
-     */
-    public HeaderElement() {
-        this(null, null, null);
-    }
-
-    /**
-      * Constructor.
-      * @param name my name
-      * @param value my (possibly <tt>null</tt>) value
-      */
-    public HeaderElement(String name, String value) {
-        this(name, value, null);
-    }
+    private final String name;
+    private final String value;
+    private final NameValuePair[] parameters;
 
     /**
      * Constructor with name, value and parameters.
@@ -108,10 +95,27 @@ public class HeaderElement extends NameValuePair {
      * @param value my (possibly <tt>null</tt>) value
      * @param parameters my (possibly <tt>null</tt>) parameters
      */
-    public HeaderElement(String name, String value,
-            NameValuePair[] parameters) {
-        super(name, value);
+    public HeaderElement(
+            final String name, 
+            final String value,
+            final NameValuePair[] parameters) {
+        super();
+        if (name == null) {
+            throw new IllegalArgumentException("Name may not be null");
+        }
+        this.name = name;
+        this.value = value;
         this.parameters = parameters;
+    }
+
+    /**
+     * Constructor with name and value.
+     * 
+     * @param name my name
+     * @param value my (possibly <tt>null</tt>) value
+     */
+    public HeaderElement(String name, String value) {
+       this(name, value, null);
     }
 
     /**
@@ -124,20 +128,21 @@ public class HeaderElement extends NameValuePair {
      * @since 3.0
      */
     public HeaderElement(char[] chars, int offset, int length) {
-        this();
-        if (chars == null) {
-            return;
-        }
+        super();
         ParameterParser parser = new ParameterParser();
         List params = parser.parse(chars, offset, length, ';');
         if (params.size() > 0) {
             NameValuePair element = (NameValuePair) params.remove(0);
-            setName(element.getName());  
-            setValue(element.getValue());
+            this.name = element.getName();
+            this.value = element.getValue();
             if (params.size() > 0) {
                 this.parameters = (NameValuePair[])
                     params.toArray(new NameValuePair[params.size()]);    
+            } else {
+                this.parameters = null;
             }
+        } else {
+            throw new IllegalArgumentException("Empty array of chars");
         }
     }
 
@@ -152,14 +157,23 @@ public class HeaderElement extends NameValuePair {
         this(chars, 0, chars.length);
     }
 
-    // -------------------------------------------------------- Constants
+    /**
+     * Returns the name.
+     *
+     * @return String name The name
+     */
+    public String getName() {
+        return this.name;
+    }
 
-    // ----------------------------------------------------- Instance Variables
-
-    /** My parameters, if any. */
-    private NameValuePair[] parameters = null;
-
-    // ------------------------------------------------------------- Properties
+    /**
+     * Returns the value.
+     *
+     * @return String value The current value.
+     */
+    public String getValue() {
+        return this.value;
+    }
 
     /**
      * Get parameters, if any.
@@ -188,7 +202,6 @@ public class HeaderElement extends NameValuePair {
             return new HeaderElement[] {};
         }
         List elements = new ArrayList(); 
-        
         int i = 0;
         int from = 0;
         int len = headerValue.length;
@@ -205,7 +218,7 @@ public class HeaderElement extends NameValuePair {
             } else if (i == len - 1) {
                 element = new HeaderElement(headerValue, from, len);
             }
-            if ((element != null) && (element.getName() != null)) {
+            if (element != null) {
                 elements.add(element);
             }
             i++;
@@ -224,32 +237,12 @@ public class HeaderElement extends NameValuePair {
      * 
      * @since 3.0
      */
-    public static final HeaderElement[] parseElements(String headerValue) {
+    public static final HeaderElement[] parseElements(final String headerValue) {
         if (headerValue == null) {
             return new HeaderElement[] {};
         }
         return parseElements(headerValue.toCharArray());
     }
-
-    /**
-     * This parses the value part of a header. The result is an array of
-     * HeaderElement objects.
-     *
-     * @param headerValue  the string representation of the header value
-     *                     (as received from the web server).
-     * @return array of {@link HeaderElement}s.
-     * @throws HttpException if the above syntax rules are violated.
-     * 
-     * @deprecated Use #parseElements(String).
-     */
-    public static final HeaderElement[] parse(String headerValue)
-        throws HttpException {
-        if (headerValue == null) {
-            return new HeaderElement[] {};
-        }
-        return parseElements(headerValue.toCharArray());
-    }
-         
 
     /**
      * Returns parameter with the given name, if found. Otherwise null 
@@ -258,7 +251,7 @@ public class HeaderElement extends NameValuePair {
      * @param name The name to search by.
      * @return NameValuePair parameter with the given name
      */
-    public NameValuePair getParameterByName(String name) {
+    public NameValuePair getParameterByName(final String name) {
         if (name == null) {
             throw new IllegalArgumentException("Name may not be null");
         } 
@@ -276,5 +269,31 @@ public class HeaderElement extends NameValuePair {
         return found;
     }
 
+    public boolean equals(final Object object) {
+        if (object == null) return false;
+        if (this == object) return true;
+        if (object instanceof HeaderElement) {
+            HeaderElement that = (HeaderElement) object;
+            return this.name.equals(that.name)
+                && LangUtils.equals(this.value, that.value)
+                && LangUtils.equals(this.parameters, that.parameters);
+        } else {
+            return false;
+        }
+    }
+
+    public int hashCode() {
+        int hash = LangUtils.HASH_SEED;
+        hash = LangUtils.hashCode(hash, this.name);
+        hash = LangUtils.hashCode(hash, this.value);
+        if (this.parameters != null) {
+            for (int i = 0; i < this.parameters.length; i++) {
+                hash = LangUtils.hashCode(hash, this.parameters[i]);
+            }
+        }
+        return hash;
+    }
+    
+    
 }
 

@@ -1,0 +1,78 @@
+/*
+ * $Header: /home/jerenkrantz/tmp/commons/commons-convert/cvs/home/cvs/jakarta-commons//httpclient/src/java/org/apache/commons/httpclient/util/ParameterParser.java,v 1.5 2004/05/13 04:01:22 mbecke Exp $
+ * $Revision$
+ * $Date$
+ *
+ * ====================================================================
+ *
+ *  Copyright 1999-2004 The Apache Software Foundation
+ *
+ *  Licensed under the Apache License, Version 2.0 (the "License");
+ *  you may not use this file except in compliance with the License.
+ *  You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an "AS IS" BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
+ * ====================================================================
+ *
+ * This software consists of voluntary contributions made by many
+ * individuals on behalf of the Apache Software Foundation.  For more
+ * information on the Apache Software Foundation, please see
+ * <http://www.apache.org/>.
+ *
+ */
+
+package org.apache.http.util;
+
+/**
+ * A set of utility methods to help produce consistent Object#equals(Object) and
+ * Object#hashCode methods.
+ *  
+ * @author <a href="mailto:oleg at ural.ru">Oleg Kalnichevski</a>
+ * 
+ * @since 4.0
+ */
+public class LangUtils {
+    
+    public static int HASH_SEED = 17;
+    public static int HASH_OFFSET = 37;
+    
+    private LangUtils() {
+        super();
+    }
+
+    public static int hashCode(final int seed, final int hashcode) {
+        return seed * HASH_OFFSET + hashcode;
+    }
+
+    public static int hashCode(final int seed, final Object obj) {
+        return hashCode(seed, obj != null ? obj.hashCode() : 0);
+    }
+    
+    public static boolean equals(final Object obj1, final Object obj2) {
+        return obj1 == null ? obj2 == null : obj1.equals(obj2);
+    }
+
+    public static boolean equals(final Object[] a1, final Object[] a2) {
+        if (a1 == null) {
+            if (a2 != null) {
+                return false;
+            }
+        } else {
+            if (a2 != null && a1.length == a2.length) {
+                for (int i = 0; i < a1.length; i++) {
+                    if (!equals(a1[i], a2[i])) {
+                        return false;
+                    }
+                }
+            }
+        }
+        return true;
+    }
+    
+}
