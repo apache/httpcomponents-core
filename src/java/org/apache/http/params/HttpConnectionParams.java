@@ -1,0 +1,347 @@
+/*
+ * $HeadURL$
+ * $Revision$
+ * $Date$
+ *
+ * ====================================================================
+ *
+ *  Copyright 1999-2004 The Apache Software Foundation
+ *
+ *  Licensed under the Apache License, Version 2.0 (the "License");
+ *  you may not use this file except in compliance with the License.
+ *  You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an "AS IS" BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
+ * ====================================================================
+ *
+ * This software consists of voluntary contributions made by many
+ * individuals on behalf of the Apache Software Foundation.  For more
+ * information on the Apache Software Foundation, please see
+ * <http://www.apache.org/>.
+ *
+ */
+
+package org.apache.http.params;
+
+/**
+ * This class implements an adaptor around the {@link HttpParams} interface
+ * to simplify manipulation of the HTTP connection specific parameters.
+ * 
+ * @author <a href="mailto:oleg at ural.ru">Oleg Kalnichevski</a>
+ * 
+ * @version $Revision$
+ * 
+ * @since 3.0
+ */
+public class HttpConnectionParams {
+
+    /**
+     * Defines the default socket timeout (<tt>SO_TIMEOUT</tt>) in milliseconds which is the 
+     * timeout for waiting for data. A timeout value of zero is interpreted as an infinite 
+     * timeout. This value is used when no socket timeout is set in the 
+     * {@link HttpMethodParams HTTP method parameters}. 
+     * <p>
+     * This parameter expects a value of type {@link Integer}.
+     * </p>
+     * @see java.net.SocketOptions#SO_TIMEOUT
+     */
+    public static final String SO_TIMEOUT = "http.socket.timeout"; 
+
+    /**
+     * Determines whether Nagle's algorithm is to be used. The Nagle's algorithm 
+     * tries to conserve bandwidth by minimizing the number of segments that are 
+     * sent. When applications wish to decrease network latency and increase 
+     * performance, they can disable Nagle's algorithm (that is enable TCP_NODELAY). 
+     * Data will be sent earlier, at the cost of an increase in bandwidth consumption. 
+     * <p>
+     * This parameter expects a value of type {@link Boolean}.
+     * </p>
+     * @see java.net.SocketOptions#TCP_NODELAY
+     */
+    public static final String TCP_NODELAY = "http.tcp.nodelay"; 
+
+    /**
+     * Determines a hint the size of the underlying buffers used by the platform 
+     * for outgoing network I/O. This value is a suggestion to the kernel from 
+     * the application about the size of buffers to use for the data to be sent 
+     * over the socket.
+     * <p>
+     * This parameter expects a value of type {@link Integer}.
+     * </p>
+     * @see java.net.SocketOptions#SO_SNDBUF
+     */
+    public static final String SO_SNDBUF = "http.socket.sendbuffer"; 
+
+    /**
+     * Determines a hint the size of the underlying buffers used by the platform 
+     * for incoming network I/O. This value is a suggestion to the kernel from 
+     * the application about the size of buffers to use for the data to be received 
+     * over the socket.  
+     * <p>
+     * This parameter expects a value of type {@link Integer}.
+     * </p>
+     * @see java.net.SocketOptions#SO_RCVBUF
+     */
+    public static final String SO_RCVBUF = "http.socket.receivebuffer"; 
+
+    /**
+     * Sets SO_LINGER with the specified linger time in seconds. The maximum timeout 
+     * value is platform specific. Value <tt>0</tt> implies that the option is disabled.
+     * Value <tt>-1</tt> implies that the JRE default is used. The setting only affects 
+     * socket close.  
+     * <p>
+     * This parameter expects a value of type {@link Integer}.
+     * </p>
+     * @see java.net.SocketOptions#SO_LINGER
+     */
+    public static final String SO_LINGER = "http.socket.linger"; 
+
+    /**
+     * Determines the timeout until a connection is etablished. A value of zero 
+     * means the timeout is not used. The default value is zero.
+     * <p>
+     * This parameter expects a value of type {@link Integer}.
+     * </p>
+     */
+    public static final String CONNECTION_TIMEOUT = "http.connection.timeout"; 
+
+    /**
+     * Determines whether stale connection check is to be used. Disabling 
+     * stale connection check may result in slight performance improvement 
+     * at the risk of getting an I/O error when executing a request over a
+     * connection that has been closed at the server side. 
+     * <p>
+     * This parameter expects a value of type {@link Boolean}.
+     * </p>
+     */
+    public static final String STALE_CONNECTION_CHECK = "http.connection.stalecheck"; 
+
+    private final HttpParams params;
+    
+    /**
+     */
+    public HttpConnectionParams(final HttpParams params) {
+        super();
+        if (params == null) {
+            throw new IllegalArgumentException("HTTP parameters may not be null");
+        }
+        this.params = params;
+    }
+
+    public Object getParameter(final String name) {
+        return this.params.getParameter(name);
+    }
+
+    public HttpConnectionParams setParameter(final String name, final Object value) {
+        this.params.setParameter(name, value);
+        return this;
+    }
+        
+    public long getLongParameter(final String name, long defaultValue) { 
+        return this.params.getLongParameter(name, defaultValue);
+    }
+    
+    public HttpConnectionParams setLongParameter(final String name, long value) {
+        this.params.setLongParameter(name, value);
+        return this;
+    }
+
+    public int getIntParameter(final String name, int defaultValue) { 
+        return this.params.getIntParameter(name, defaultValue);
+    }
+
+    public HttpConnectionParams setIntParameter(final String name, int value) {
+        this.params.setIntParameter(name, value);
+        return this;
+    }
+
+    public double getDoubleParameter(final String name, double defaultValue) { 
+        return this.params.getDoubleParameter(name, defaultValue);
+    }
+    
+    public HttpConnectionParams setDoubleParameter(final String name, double value) {
+        this.params.setDoubleParameter(name, value);
+        return this;
+    }
+
+    public boolean getBooleanParameter(final String name, boolean defaultValue) { 
+        return this.params.getBooleanParameter(name, defaultValue);
+    }
+    
+    public HttpConnectionParams setBooleanParameter(final String name, boolean value) {
+        this.params.setBooleanParameter(name, value);
+        return this;
+    }
+    
+    /**
+     * Returns the default socket timeout (<tt>SO_TIMEOUT</tt>) in milliseconds which is the 
+     * timeout for waiting for data. A timeout value of zero is interpreted as an infinite 
+     * timeout. This value is used when no socket timeout is set in the 
+     * {@link HttpMethodParams HTTP method parameters}. 
+     *
+     * @return timeout in milliseconds
+     */
+    public int getSoTimeout() {
+        return getIntParameter(SO_TIMEOUT, 0);
+    }
+
+    /**
+     * Sets the default socket timeout (<tt>SO_TIMEOUT</tt>) in milliseconds which is the 
+     * timeout for waiting for data. A timeout value of zero is interpreted as an infinite 
+     * timeout. This value is used when no socket timeout is set in the 
+     * {@link HttpMethodParams HTTP method parameters}. 
+     *
+     * @param timeout Timeout in milliseconds
+     */
+    public HttpConnectionParams setSoTimeout(int timeout) {
+        return setIntParameter(SO_TIMEOUT, timeout);
+    }
+
+    /**
+     * Tests if Nagle's algorithm is to be used.  
+     *
+     * @return <tt>true</tt> if the Nagle's algorithm is to NOT be used
+     *   (that is enable TCP_NODELAY), <tt>false</tt> otherwise.
+     */
+    public boolean getTcpNoDelay() {
+        return getBooleanParameter(TCP_NODELAY, true);
+    }
+
+    /**
+     * Determines whether Nagle's algorithm is to be used. The Nagle's algorithm 
+     * tries to conserve bandwidth by minimizing the number of segments that are 
+     * sent. When applications wish to decrease network latency and increase 
+     * performance, they can disable Nagle's algorithm (that is enable TCP_NODELAY). 
+     * Data will be sent earlier, at the cost of an increase in bandwidth consumption. 
+     *
+     * @param value <tt>true</tt> if the Nagle's algorithm is to NOT be used
+     *   (that is enable TCP_NODELAY), <tt>false</tt> otherwise.
+     */
+    public HttpConnectionParams setTcpNoDelay(boolean value) {
+        return setBooleanParameter(TCP_NODELAY, value);
+    }
+
+    /**
+     * Returns a hint the size of the underlying buffers used by the platform for 
+     * outgoing network I/O. This value is a suggestion to the kernel from the 
+     * application about the size of buffers to use for the data to be sent over 
+     * the socket.
+     *
+     * @return the hint size of the send buffer
+     */
+    public int getSendBufferSize() {
+        return getIntParameter(SO_SNDBUF, -1);
+    }
+
+    /**
+     * Sets a hint the size of the underlying buffers used by the platform for 
+     * outgoing network I/O. This value is a suggestion to the kernel from the 
+     * application about the size of buffers to use for the data to be sent over 
+     * the socket.
+     *
+     * @param size the hint size of the send buffer
+     */
+    public HttpConnectionParams setSendBufferSize(int size) {
+        return setIntParameter(SO_SNDBUF, size);
+    }
+
+    /**
+     * Returns a hint the size of the underlying buffers used by the platform 
+     * for incoming network I/O. This value is a suggestion to the kernel from 
+     * the application about the size of buffers to use for the data to be received 
+     * over the socket.  
+     *
+     * @return the hint size of the send buffer
+     */
+    public int getReceiveBufferSize() {
+        return getIntParameter(SO_RCVBUF, -1);
+    }
+
+    /**
+     * Sets a hint the size of the underlying buffers used by the platform 
+     * for incoming network I/O. This value is a suggestion to the kernel from 
+     * the application about the size of buffers to use for the data to be received 
+     * over the socket.  
+     *
+     * @param size the hint size of the send buffer
+     */
+    public HttpConnectionParams setReceiveBufferSize(int size) {
+        return setIntParameter(SO_RCVBUF, size);
+    }
+
+    /**
+     * Returns linger-on-close timeout. Value <tt>0</tt> implies that the option is 
+     * disabled. Value <tt>-1</tt> implies that the JRE default is used.
+     * 
+     * @return the linger-on-close timeout
+     */
+    public int getLinger() {
+        return getIntParameter(SO_LINGER, -1);
+    }
+
+    /**
+     * Returns linger-on-close timeout. This option disables/enables immediate return 
+     * from a close() of a TCP Socket. Enabling this option with a non-zero Integer 
+     * timeout means that a close() will block pending the transmission and 
+     * acknowledgement of all data written to the peer, at which point the socket is 
+     * closed gracefully. Value <tt>0</tt> implies that the option is 
+     * disabled. Value <tt>-1</tt> implies that the JRE default is used.
+     *
+     * @param value the linger-on-close timeout
+     */
+    public HttpConnectionParams setLinger(int value) {
+        return setIntParameter(SO_LINGER, value);
+    }
+
+    /**
+     * Returns the timeout until a connection is etablished. A value of zero 
+     * means the timeout is not used. The default value is zero.
+     * 
+     * @return timeout in milliseconds.
+     */
+    public int getConnectionTimeout() {
+        return getIntParameter(CONNECTION_TIMEOUT, 0);
+    }
+
+    /**
+     * Sets the timeout until a connection is etablished. A value of zero 
+     * means the timeout is not used. The default value is zero.
+     * 
+     * @param timeout Timeout in milliseconds.
+     */
+    public HttpConnectionParams setConnectionTimeout(int timeout) {
+        return setIntParameter(CONNECTION_TIMEOUT, timeout);
+    }
+    
+    /**
+     * Tests whether stale connection check is to be used. Disabling 
+     * stale connection check may result in slight performance improvement 
+     * at the risk of getting an I/O error when executing a request over a
+     * connection that has been closed at the server side. 
+     * 
+     * @return <tt>true</tt> if stale connection check is to be used, 
+     *   <tt>false</tt> otherwise.
+     */
+    public boolean isStaleCheckingEnabled() {
+        return getBooleanParameter(STALE_CONNECTION_CHECK, true);
+    }
+
+    /**
+     * Defines whether stale connection check is to be used. Disabling 
+     * stale connection check may result in slight performance improvement 
+     * at the risk of getting an I/O error when executing a request over a
+     * connection that has been closed at the server side. 
+     * 
+     * @param value <tt>true</tt> if stale connection check is to be used, 
+     *   <tt>false</tt> otherwise.
+     */
+    public HttpConnectionParams setStaleCheckingEnabled(boolean value) {
+        return setBooleanParameter(STALE_CONNECTION_CHECK, value);
+    }
+}
