@@ -42,6 +42,7 @@ public class TestAllImpl extends TestCase {
         suite.addTest(TestNIOHttpTransmitterAndReceiver.suite());
         suite.addTest(TestAutoCloseInputStream.suite());
         suite.addTest(TestDefaultConnectionReuseStrategy.suite());
+        suite.addTest(TestDefaultEntityGenerator.suite());
         return suite;
     }
 
