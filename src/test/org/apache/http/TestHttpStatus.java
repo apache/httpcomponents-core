@@ -1,7 +1,8 @@
 /*
- * $Header: /home/jerenkrantz/tmp/commons/commons-convert/cvs/home/cvs/jakarta-commons//httpclient/src/test/org/apache/commons/httpclient/TestHttpStatus.java,v 1.4 2004/05/02 11:21:13 olegk Exp $
+ * $HeadURL$
  * $Revision$
  * $Date$
+ * 
  * ====================================================================
  *
  *  Copyright 1999-2004 The Apache Software Foundation
@@ -24,11 +25,9 @@
  * information on the Apache Software Foundation, please see
  * <http://www.apache.org/>.
  *
- * [Additional notices, if required by prior licensing conditions]
- *
  */
 
-package org.apache.commons.httpclient;
+package org.apache.http;
 
 import junit.framework.*;
 import java.lang.reflect.*;
@@ -38,7 +37,6 @@ import java.lang.reflect.*;
  * Unit tests for {@link HttpStatus}
  *
  * @author Sean C. Sullivan
- * @version $Id$
  */
 public class TestHttpStatus extends TestCase {
 

@@ -1,7 +1,8 @@
 /*
- * $Header: /home/jerenkrantz/tmp/commons/commons-convert/cvs/home/cvs/jakarta-commons//httpclient/src/test/org/apache/commons/httpclient/TestHttpVersion.java,v 1.3 2004/05/09 12:16:12 olegk Exp $
+ * $HeadURL$
  * $Revision$
  * $Date$
+ * 
  * ====================================================================
  *
  *  Copyright 1999-2004 The Apache Software Foundation
@@ -24,11 +25,9 @@
  * information on the Apache Software Foundation, please see
  * <http://www.apache.org/>.
  *
- * [Additional notices, if required by prior licensing conditions]
- *
  */
 
-package org.apache.commons.httpclient;
+package org.apache.http;
 
 import junit.framework.Test;
 import junit.framework.TestCase;
@@ -37,9 +36,7 @@ import junit.framework.TestSuite;
 /**
  * Test cases for HTTP version class
  *
- * @author <a href="mailto:oleg@ural.ru">Oleg Kalnichevski</a>
- * 
- * @version $Revision$
+ * @author <a href="mailto:oleg at ural.ru">Oleg Kalnichevski</a>
  */
 public class TestHttpVersion extends TestCase {
 
