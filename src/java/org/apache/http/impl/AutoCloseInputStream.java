@@ -46,20 +46,11 @@ import java.io.InputStream;
 class AutoCloseInputStream extends FilterInputStream {
 
     /** 
-     * True if this stream is open.  Assume that the underlying stream 
-     * is open until we get an EOF indication.
-     */
-    private boolean streamOpen = true;
-
-    /** True if the stream closed itself. */
-    private boolean selfClosed = false;
-
-    /** 
      * The watcher is notified when the contents of the stream have
      * been  exhausted
      */ 
     private ResponseConsumedWatcher watcher = null;
-
+    private boolean watcherNotified = false;
     /**
      * Create a new auto closing stream for the provided connection
      *
@@ -80,14 +71,8 @@ class AutoCloseInputStream extends FilterInputStream {
      * @return the character read, or -1 for EOF
      */
     public int read() throws IOException {
-        int l = -1;
-
-        if (isReadAllowed()) {
-            // underlying stream not closed, go ahead and read.
-            l = super.read();
-            checkClose(l);
-        }
-
+        int l = super.read();
+        checkEndOfStream(l);
         return l;
     }
 
@@ -101,13 +86,8 @@ class AutoCloseInputStream extends FilterInputStream {
      * @throws IOException if there are errors reading
      */
     public int read(byte[] b, int off, int len) throws IOException {
-        int l = -1;
-
-        if (isReadAllowed()) {
-            l = super.read(b,  off,  len);
-            checkClose(l);
-        }
-
+        int l = super.read(b,  off,  len);
+        checkEndOfStream(l);
         return l;
     }
 
@@ -120,12 +100,8 @@ class AutoCloseInputStream extends FilterInputStream {
      * @throws IOException if there are errors reading
      */
     public int read(byte[] b) throws IOException {
-        int l = -1;
-
-        if (isReadAllowed()) {
-            l = super.read(b);
-            checkClose(l);
-        }
+        int l = super.read(b);
+        checkEndOfStream(l);
         return l;
     }
 
@@ -135,10 +111,8 @@ class AutoCloseInputStream extends FilterInputStream {
      * @throws IOException If an IO problem occurs.
      */
     public void close() throws IOException {
-        if (!selfClosed) {
-            selfClosed = true;
-            notifyWatcher();
-        }
+        super.close();
+        ensureWatcherNotified();
     }
 
     /**
@@ -147,35 +121,19 @@ class AutoCloseInputStream extends FilterInputStream {
      * @param readResult    The result of the read operation to check.
      * @throws IOException If an IO problem occurs.
      */
-    private void checkClose(int readResult) throws IOException {
+    private void checkEndOfStream(int readResult) throws IOException {
         if (readResult == -1) {
-            notifyWatcher();
+            close();
         }
-    }
-
-    /**
-     * See whether a read of the underlying stream should be allowed, and if
-     * not, check to see whether our stream has already been closed!
-     *
-     * @return <code>true</code> if it is still OK to read from the stream.
-     * @throws IOException If an IO problem occurs.
-     */
-    private boolean isReadAllowed() throws IOException {
-        if (!streamOpen && selfClosed) {
-            throw new IOException("Attempted read on closed stream.");
-        }
-        return streamOpen;
     }
 
     /**
      * Notify the watcher that the contents have been consumed.
      * @throws IOException If an IO problem occurs.
      */
-    private void notifyWatcher() throws IOException {
-        if (streamOpen) {
-            super.close();
-            streamOpen = false;
-
+    private void ensureWatcherNotified() throws IOException {
+        if (!this.watcherNotified) {
+            this.watcherNotified = true;
             if (watcher != null) {
                 watcher.responseConsumed();
             }
