@@ -142,7 +142,9 @@ public class HeaderElement {
                 this.parameters = null;
             }
         } else {
-            throw new IllegalArgumentException("Empty array of chars");
+            this.name = "";
+            this.value = null;
+            this.parameters = null;
         }
     }
 
@@ -218,7 +220,7 @@ public class HeaderElement {
             } else if (i == len - 1) {
                 element = new HeaderElement(headerValue, from, len);
             }
-            if (element != null) {
+            if (element != null && !element.getName().equals("")) {
                 elements.add(element);
             }
             i++;
