@@ -32,7 +32,8 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.apache.http.impl.DefaultProtocolSocketFactory;
+import org.apache.http.impl.NIOProtocolSocketFactory;
+import org.apache.http.impl.OldIOProtocolSocketFactory;
 import org.apache.http.util.LangUtils;
 
 /**
@@ -133,8 +134,14 @@ public class Protocol {
         throws IllegalStateException {
 
         if ("http".equals(id)) {
-            final Protocol http 
-                = new Protocol("http", DefaultProtocolSocketFactory.getSocketFactory(), 80);
+            // TODO: remove direct dependency on the impl classes
+            ProtocolSocketFactory socketfactory = null;
+            if (HttpRuntime.isNIOCapable()) {
+                socketfactory = NIOProtocolSocketFactory.getSocketFactory();
+            } else {
+                socketfactory = OldIOProtocolSocketFactory.getSocketFactory();
+            }
+            final Protocol http = new Protocol("http", socketfactory, 80);
             Protocol.registerProtocol("http", http);
             return http;
         }
