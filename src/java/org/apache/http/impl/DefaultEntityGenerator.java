@@ -65,7 +65,7 @@ public class DefaultEntityGenerator implements EntityGenerator {
     private static final String CHUNKED_ENCODING = "chunked";
     private static final String IDENTITY_ENCODING = "identity";
     
-    public DefaultEntityGenerator(final HttpParams params) {
+    public DefaultEntityGenerator() {
         super();
     }
 
@@ -80,7 +80,7 @@ public class DefaultEntityGenerator implements EntityGenerator {
         }
     }
     
-    public HttpMutableEntity generateEntity(
+    public HttpMutableEntity generate(
             final HttpDataReceiver datareceiver,
             final HttpMessage message) throws HttpException, IOException {
         if (datareceiver == null) {

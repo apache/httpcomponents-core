@@ -47,7 +47,7 @@ import org.apache.http.io.HttpDataReceiver;
  */
 public interface EntityGenerator {
 
-    HttpMutableEntity generateEntity(
+    HttpMutableEntity generate(
             HttpDataReceiver datareceiver,
             HttpMessage message) throws HttpException, IOException;
             
