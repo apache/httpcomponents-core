@@ -2,6 +2,7 @@
  * $HeadURL$
  * $Revision$
  * $Date$
+ * 
  * ====================================================================
  *
  *  Copyright 1999-2004 The Apache Software Foundation
@@ -26,27 +27,38 @@
  *
  */
 
-package org.apache.http.io;
+package org.apache.http.util;
 
-import junit.framework.*;
+import junit.framework.Test;
+import junit.framework.TestCase;
+import junit.framework.TestSuite;
 
-public class TestAllIO extends TestCase {
+/**
+ * Unit tests for {@link TestExceptionUtils}.
+ *
+ * @author <a href="mailto:oleg at ural.ru">Oleg Kalnichevski</a>
+ */
+public class TestExceptionUtils extends TestCase {
 
-    public TestAllIO(String testName) {
+    public TestExceptionUtils(String testName) {
         super(testName);
     }
 
-    public static Test suite() {
-        TestSuite suite = new TestSuite();
-        suite.addTest(TestHttpDataInputStream.suite());
-        suite.addTest(TestHttpDataOutputStream.suite());
-        suite.addTest(TestChunkCoding.suite());
-        return suite;
-    }
-
     public static void main(String args[]) {
-        String[] testCaseName = { TestAllIO.class.getName() };
+        String[] testCaseName = { TestExceptionUtils.class.getName() };
         junit.textui.TestRunner.main(testCaseName);
     }
 
+    public static Test suite() {
+        return new TestSuite(TestExceptionUtils.class);
+    }
+    
+    public void testExceptionChaining() throws Exception {
+        Exception ex1 = new Exception(); 
+        Exception ex2 = new Exception();
+        ExceptionUtil.initCause(ex1, ex2);
+        assertNotNull(ex1.getCause());
+        assertTrue(ex1.getCause() == ex2);
+    }
+    
 }

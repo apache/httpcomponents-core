@@ -66,6 +66,16 @@ public class TestLangUtils extends TestCase {
         assertTrue(h1 == h2);
     }
     
+    public void testBooleanHash() {
+        int h1 = LangUtils.hashCode(LangUtils.HASH_SEED, true);
+        int h2 = LangUtils.hashCode(LangUtils.HASH_SEED, false);
+        int h3 = LangUtils.hashCode(LangUtils.HASH_SEED, true);
+        int h4 = LangUtils.hashCode(LangUtils.HASH_SEED, false);
+        assertTrue(h1 != h2);
+        assertTrue(h1 == h3);
+        assertTrue(h2 == h4);
+    }
+    
     public void testBasicEquality() {
         assertTrue(LangUtils.equals(null, null));
         assertFalse(LangUtils.equals(null, "abc"));
