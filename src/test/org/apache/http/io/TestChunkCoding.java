@@ -35,7 +35,6 @@ import java.io.InputStream;
 import java.io.OutputStream;
 
 import org.apache.http.Header;
-import org.apache.http.impl.DefaultHttpParams;
 import org.apache.http.util.EncodingUtil;
 
 import junit.framework.Test;
@@ -273,27 +272,6 @@ public class TestChunkCoding extends TestCase {
         }
         assertEquals(0, out.size());
     }
-
-    public void testInputStreamHttpDataReceiver() throws IOException {
-        String s = "aaaaa";
-        InputStream in = new ByteArrayInputStream(
-                        EncodingUtil.getBytes(s, CONTENT_CHARSET));
-        ChunkedInputStream.InputStreamHttpDataReceiver datareceiver =
-            new ChunkedInputStream.InputStreamHttpDataReceiver(in);
-        assertTrue(datareceiver.isDataAvailable(1));
-        assertEquals('a', datareceiver.read());
-        byte[] tmp = new byte[2];
-        datareceiver.read(tmp);
-        assertEquals('a', tmp[0]);
-        assertEquals('a', tmp[1]);
-        datareceiver.read(tmp, 0, tmp.length);
-        assertEquals('a', tmp[0]);
-        assertEquals('a', tmp[1]);
-        assertEquals(-1, datareceiver.read());
-        datareceiver.reset(new DefaultHttpParams(null));
-    }
-
-    
     
     public void testContentLengthInputStream() throws IOException {
         String correct = "1234567890123456";

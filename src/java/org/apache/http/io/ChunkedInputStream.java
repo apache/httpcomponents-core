@@ -35,12 +35,9 @@ import java.io.InputStream;
 
 import org.apache.http.Header;
 import org.apache.http.HttpException;
-import org.apache.http.params.HttpParams;
-import org.apache.http.params.HttpProtocolParams;
 import org.apache.http.util.EncodingUtil;
 import org.apache.http.util.ExceptionUtil;
 import org.apache.http.util.HeadersParser;
-import org.apache.http.util.HttpLineParser;
 
 /**
  * <p>Transparently coalesces chunks of a HTTP stream that uses
@@ -85,7 +82,7 @@ public class ChunkedInputStream extends InputStream {
     
     private Header[] footers = new Header[] {};
 
-    public ChunkedInputStream(final HttpDataReceiver in) throws IOException {
+    public ChunkedInputStream(final HttpDataReceiver in) {
         super();
     	if (in == null) {
     		throw new IllegalArgumentException("InputStream parameter may not be null");
@@ -343,43 +340,4 @@ public class ChunkedInputStream extends InputStream {
         }
     }
 
-    static class InputStreamHttpDataReceiver implements HttpDataReceiver {
-        
-        private final InputStream instream;
-        
-        private String charset = "US-ASCII";
-        
-        public InputStreamHttpDataReceiver(final InputStream instream) {
-            super();
-            if (instream == null) {
-                throw new IllegalArgumentException("Input stream may not be null");
-            }
-            this.instream = instream;
-        }
-        
-        public boolean isDataAvailable(int timeout) throws IOException {
-            return this.instream.available() > 0;
-        }
-        
-        public int read() throws IOException {
-            return this.instream.read();
-        }
-        
-        public int read(final byte[] b, int off, int len) throws IOException {
-            return this.instream.read(b, off, len);
-        }
-        
-        public int read(final byte[] b) throws IOException {
-            return this.instream.read(b);
-        }
-        
-        public String readLine() throws IOException {
-            return HttpLineParser.readLine(this.instream, this.charset);
-        }
-        
-        public void reset(final HttpParams params) {
-            HttpProtocolParams protocolParams = new HttpProtocolParams(params);
-            this.charset = protocolParams.getHttpElementCharset(); 
-        }
-    }
 }
