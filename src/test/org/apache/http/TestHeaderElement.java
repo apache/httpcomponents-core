@@ -60,6 +60,44 @@ public class TestHeaderElement extends TestCase {
         return new TestSuite(TestHeaderElement.class);
     }
 
+    public void testConstructor() throws Exception {
+        HeaderElement element = new HeaderElement("name", "value", 
+                new NameValuePair[] {
+                    new NameValuePair("param1", "value1"),
+                    new NameValuePair("param2", "value2")
+                } );
+        assertEquals("name", element.getName());
+        assertEquals("value", element.getValue());
+        assertEquals(2, element.getParameters().length);
+        assertEquals("value1", element.getParameterByName("param1").getValue());
+        assertEquals("value2", element.getParameterByName("param2").getValue());
+    }
+
+    public void testConstructor2() throws Exception {
+        HeaderElement element = new HeaderElement("name", "value");
+        assertEquals("name", element.getName());
+        assertEquals("value", element.getValue());
+        assertEquals(0, element.getParameters().length);
+    }
+
+    public void testCharArrayConstructor() throws Exception {
+        String s = "name = value; param1 = value1";
+        HeaderElement element = new HeaderElement(s.toCharArray()); 
+        assertEquals("name", element.getName());
+        assertEquals("value", element.getValue());
+        assertEquals(1, element.getParameters().length);
+        assertEquals("value1", element.getParameterByName("param1").getValue());
+    }
+    
+    public void testInvalidName() {
+        try {
+            HeaderElement element = new HeaderElement(null, null, null); 
+            fail("IllegalArgumentException should have been thrown");
+        } catch (IllegalArgumentException ex) {
+            //expected
+        }
+    }
+    
     public void testParseHeaderElements() throws Exception {
         // this is derived from the old main method in HeaderElement
         String headerValue = "name1 = value1; name2; name3=\"value3\" , name4=value4; " +
@@ -100,17 +138,92 @@ public class TestHeaderElement extends TestCase {
         assertEquals("Number of elements", 1, elements.length);
     }
 
-
     public void testFringeCase2() throws Exception {
         String headerValue = "name1 = value1, ";
         HeaderElement[] elements = HeaderElement.parseElements(headerValue);
         assertEquals("Number of elements", 1, elements.length);
     }
 
-
     public void testFringeCase3() throws Exception {
         String headerValue = ",, ,, ,";
         HeaderElement[] elements = HeaderElement.parseElements(headerValue);
         assertEquals("Number of elements", 0, elements.length);
     }
+    
+    public void testNullInput() throws Exception {
+        HeaderElement[] elements = HeaderElement.parseElements((char [])null);
+        assertNotNull(elements);
+        assertEquals("Number of elements", 0, elements.length);
+        elements = HeaderElement.parseElements((String)null);
+        assertNotNull(elements);
+        assertEquals("Number of elements", 0, elements.length);
+    }
+
+    public void testParamByName() throws Exception {
+        String s = "name = value; param1 = value1; param2 = value2";
+        HeaderElement element = new HeaderElement(s.toCharArray()); 
+        assertEquals("value1", element.getParameterByName("param1").getValue());
+        assertEquals("value2", element.getParameterByName("param2").getValue());
+        assertNull(element.getParameterByName("param3"));
+        try {
+            element.getParameterByName(null);
+            fail("IllegalArgumentException should have been thrown");
+        } catch (IllegalArgumentException ex) {
+            //expected
+        }
+    }
+
+    public void testHashCode() {
+        HeaderElement element1 = new HeaderElement("name", "value", 
+                new NameValuePair[] {
+                    new NameValuePair("param1", "value1"),
+                    new NameValuePair("param2", "value2")
+                } );
+        HeaderElement element2 = new HeaderElement("name", "value", 
+                new NameValuePair[] {
+                    new NameValuePair("param2", "value2"),
+                    new NameValuePair("param1", "value1")
+                } );
+        HeaderElement element3 = new HeaderElement("name", "value"); 
+        HeaderElement element4 = new HeaderElement("name", "value"); 
+        HeaderElement element5 = new HeaderElement("name", "value", 
+                new NameValuePair[] {
+                    new NameValuePair("param1", "value1"),
+                    new NameValuePair("param2", "value2")
+                } );
+        assertTrue(element1.hashCode() != element2.hashCode());
+        assertTrue(element1.hashCode() != element3.hashCode());
+        assertTrue(element2.hashCode() != element3.hashCode());
+        assertTrue(element3.hashCode() == element4.hashCode());
+        assertTrue(element1.hashCode() == element5.hashCode());
+    }
+    
+    public void testEquals() {
+        HeaderElement element1 = new HeaderElement("name", "value", 
+                new NameValuePair[] {
+                    new NameValuePair("param1", "value1"),
+                    new NameValuePair("param2", "value2")
+                } );
+        HeaderElement element2 = new HeaderElement("name", "value", 
+                new NameValuePair[] {
+                    new NameValuePair("param2", "value2"),
+                    new NameValuePair("param1", "value1")
+                } );
+        HeaderElement element3 = new HeaderElement("name", "value"); 
+        HeaderElement element4 = new HeaderElement("name", "value"); 
+        HeaderElement element5 = new HeaderElement("name", "value", 
+                new NameValuePair[] {
+                    new NameValuePair("param1", "value1"),
+                    new NameValuePair("param2", "value2")
+                } );
+        assertTrue(element1.equals(element1));
+        assertTrue(!element1.equals(element2));
+        assertTrue(!element1.equals(element3));
+        assertTrue(!element2.equals(element3));
+        assertTrue(element3.equals(element4));
+        assertTrue(element1.equals(element5));
+        assertFalse(element1.equals(null));
+        assertFalse(element1.equals("name = value; param1 = value1; param2 = value2"));
+    }
+    
 }

@@ -91,9 +91,9 @@ public class HeaderElement {
     /**
      * Constructor with name, value and parameters.
      *
-     * @param name my name
-     * @param value my (possibly <tt>null</tt>) value
-     * @param parameters my (possibly <tt>null</tt>) parameters
+     * @param name header element name
+     * @param value header element value. May be <tt>null</tt>
+     * @param parameters header element parameters. May be <tt>null</tt>
      */
     public HeaderElement(
             final String name, 
@@ -105,16 +105,20 @@ public class HeaderElement {
         }
         this.name = name;
         this.value = value;
-        this.parameters = parameters;
+        if (parameters != null) {
+            this.parameters = parameters;
+        } else {
+            this.parameters = new NameValuePair[] {};
+        }
     }
 
     /**
      * Constructor with name and value.
      * 
-     * @param name my name
-     * @param value my (possibly <tt>null</tt>) value
+     * @param name header element name
+     * @param value header element value. May be <tt>null</tt>
      */
-    public HeaderElement(String name, String value) {
+    public HeaderElement(final String name, final String value) {
        this(name, value, null);
     }
 
@@ -144,7 +148,7 @@ public class HeaderElement {
         } else {
             this.name = "";
             this.value = null;
-            this.parameters = null;
+            this.parameters = new NameValuePair[] {};
         }
     }
 
@@ -258,14 +262,11 @@ public class HeaderElement {
             throw new IllegalArgumentException("Name may not be null");
         } 
         NameValuePair found = null;
-        NameValuePair parameters[] = getParameters();
-        if (parameters != null) {
-            for (int i = 0; i < parameters.length; i++) {
-                NameValuePair current = parameters[ i ];
-                if (current.getName().equalsIgnoreCase(name)) {
-                    found = current;
-                    break;
-                }
+        for (int i = 0; i < this.parameters.length; i++) {
+            NameValuePair current = this.parameters[ i ];
+            if (current.getName().equalsIgnoreCase(name)) {
+                found = current;
+                break;
             }
         }
         return found;
@@ -288,10 +289,8 @@ public class HeaderElement {
         int hash = LangUtils.HASH_SEED;
         hash = LangUtils.hashCode(hash, this.name);
         hash = LangUtils.hashCode(hash, this.value);
-        if (this.parameters != null) {
-            for (int i = 0; i < this.parameters.length; i++) {
-                hash = LangUtils.hashCode(hash, this.parameters[i]);
-            }
+        for (int i = 0; i < this.parameters.length; i++) {
+            hash = LangUtils.hashCode(hash, this.parameters[i]);
         }
         return hash;
     }

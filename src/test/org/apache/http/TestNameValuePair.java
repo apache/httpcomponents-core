@@ -53,7 +53,7 @@ public class TestNameValuePair extends TestCase {
         return new TestSuite(TestNameValuePair.class);
     }
 
-    public void testBasicGet() {
+    public void testConstructor() {
         NameValuePair param = new NameValuePair("name", "value");
         assertEquals("name", param.getName()); 
         assertEquals("value", param.getValue()); 

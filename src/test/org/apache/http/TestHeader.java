@@ -53,7 +53,7 @@ public class TestHeader extends TestCase {
         return new TestSuite(TestHeader.class);
     }
 
-    public void testBasicGet() {
+    public void testConstructor() {
         Header header = new Header("name", "value", true);
         assertEquals("name", header.getName()); 
         assertEquals("value", header.getValue()); 
@@ -93,4 +93,20 @@ public class TestHeader extends TestCase {
         Header header1 = new Header("name1", "value1");
         assertEquals("name1: value1", header1.toString());
     }
+    
+    public void testHeaderElements() {
+        Header header = new Header("name", "element1 = value1, element2; param1 = value1, element3");
+        HeaderElement[] elements = header.getElements(); 
+        assertNotNull(elements); 
+        assertEquals(3, elements.length); 
+        assertEquals("element1", elements[0].getName()); 
+        assertEquals("value1", elements[0].getValue()); 
+        assertEquals("element2", elements[1].getName()); 
+        assertEquals(null, elements[1].getValue()); 
+        assertEquals("element3", elements[2].getName()); 
+        assertEquals(null, elements[2].getValue()); 
+        assertEquals(1, elements[1].getParameters().length); 
+
+    }    
+    
 }
