@@ -33,8 +33,8 @@ import java.io.IOException;
 import java.util.ArrayList;
 
 import org.apache.http.Header;
-import org.apache.http.HttpDataReceiver;
 import org.apache.http.HttpException;
+import org.apache.http.io.HttpDataReceiver;
 
 /**
  * A utility class for parsing http header values according to

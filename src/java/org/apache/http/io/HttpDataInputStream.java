@@ -32,8 +32,6 @@ package org.apache.http.io;
 import java.io.IOException;
 import java.io.InputStream;
 
-import org.apache.http.HttpDataReceiver;
-
 /**
  * <p>
  * </p>

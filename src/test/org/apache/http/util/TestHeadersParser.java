@@ -30,7 +30,7 @@
 package org.apache.http.util;
 
 import org.apache.http.Header;
-import org.apache.http.HttpDataReceiver;
+import org.apache.http.io.HttpDataReceiver;
 import org.apache.http.mockup.HttpDataReceiverMockup;
 
 import junit.framework.Test;

@@ -27,7 +27,7 @@
  *
  */
 
-package org.apache.http;
+package org.apache.http.io;
 
 import java.io.IOException;
 
@@ -42,18 +42,18 @@ import org.apache.http.params.HttpParams;
  * 
  * @since 4.0
  */
-public interface HttpDataReceiver {
-    
+public interface HttpDataTransmitter {
+
     void reset(HttpParams params);
 
-    int read(byte[] b, int off, int len) throws IOException; 
+    void write(byte[] b, int off, int len) throws IOException;
     
-    int read(byte[] b) throws IOException; 
+    void write(byte[] b) throws IOException;
     
-    int read() throws IOException; 
+    void write(int b) throws IOException;
     
-    String readLine() throws IOException;
+    void writeLine(String s) throws IOException;
     
-    boolean isDataAvailable(int timeout) throws IOException; 
-
+    void flush() throws IOException;
+    
 }

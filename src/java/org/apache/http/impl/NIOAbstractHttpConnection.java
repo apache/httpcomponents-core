@@ -33,8 +33,8 @@ import java.io.IOException;
 import java.net.Socket;
 
 import org.apache.http.HttpConnection;
-import org.apache.http.HttpDataReceiver;
-import org.apache.http.HttpDataTransmitter;
+import org.apache.http.io.HttpDataReceiver;
+import org.apache.http.io.HttpDataTransmitter;
 import org.apache.http.params.HttpConnectionParams;
 import org.apache.http.params.HttpParams;
 

@@ -32,7 +32,6 @@ import junit.framework.Test;
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
 
-import org.apache.http.HttpDataReceiver;
 import org.apache.http.mockup.HttpDataReceiverMockup;
 
 /**

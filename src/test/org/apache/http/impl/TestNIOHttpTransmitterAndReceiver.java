@@ -32,8 +32,8 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.nio.channels.Channels;
 
-import org.apache.http.HttpDataReceiver;
-import org.apache.http.HttpDataTransmitter;
+import org.apache.http.io.HttpDataReceiver;
+import org.apache.http.io.HttpDataTransmitter;
 import org.apache.http.mockup.HttpDataReceiverMockup;
 import org.apache.http.mockup.HttpDataTransmitterMockup;
 import org.apache.http.params.HttpParams;
