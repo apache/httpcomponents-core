@@ -48,38 +48,30 @@ import org.apache.http.params.HttpParams;
  * 
  * @since 2.0
  */
-public class DefaultProtocolSocketFactory implements ProtocolSocketFactory {
+public class NIOProtocolSocketFactory implements ProtocolSocketFactory {
 
     /**
      * The factory singleton.
      */
-    private static final DefaultProtocolSocketFactory factory = new DefaultProtocolSocketFactory();
+    private static final NIOProtocolSocketFactory factory = new NIOProtocolSocketFactory();
     
     /**
      * Gets an singleton instance of the DefaultProtocolSocketFactory.
      * @return a DefaultProtocolSocketFactory
      */
-    public static DefaultProtocolSocketFactory getSocketFactory() {
+    public static NIOProtocolSocketFactory getSocketFactory() {
         return factory;
     }
     
     /**
      * Constructor for DefaultProtocolSocketFactory.
      */
-    private DefaultProtocolSocketFactory() {
+    private NIOProtocolSocketFactory() {
         super();
     }
 
     /**
      * Attempts to get a new socket connection to the given host within the given time limit.
-     * <p>
-     * This method employs several techniques to circumvent the limitations of older JREs that 
-     * do not support connect timeout. When running in JRE 1.4 or above reflection is used to 
-     * call Socket#connect(SocketAddress endpoint, int timeout) method. When executing in older 
-     * JREs a controller thread is executed. The controller thread attempts to create a new socket
-     * within the given limit of time. If socket constructor does not return until the timeout 
-     * expires, the controller terminates and throws an {@link ConnectTimeoutException}
-     * </p>
      *  
      * @param host the host name/IP
      * @param port the port on the host
@@ -121,14 +113,14 @@ public class DefaultProtocolSocketFactory implements ProtocolSocketFactory {
      * All instances of DefaultProtocolSocketFactory are the same.
      */
     public boolean equals(Object obj) {
-        return ((obj != null) && obj.getClass().equals(DefaultProtocolSocketFactory.class));
+        return ((obj != null) && obj.getClass().equals(NIOProtocolSocketFactory.class));
     }
 
     /**
      * All instances of DefaultProtocolSocketFactory have the same hash code.
      */
     public int hashCode() {
-        return DefaultProtocolSocketFactory.class.hashCode();
+        return NIOProtocolSocketFactory.class.hashCode();
     }
 
 }
