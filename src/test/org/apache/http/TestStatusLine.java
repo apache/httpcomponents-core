@@ -39,8 +39,6 @@ import junit.framework.*;
  */
 public class TestStatusLine extends TestCase {
 
-    private StatusLine statusLine = null;
-
     // ------------------------------------------------------------ Constructor
     public TestStatusLine(String testName) {
         super(testName);
@@ -93,7 +91,7 @@ public class TestStatusLine extends TestCase {
 
     public void testSuccess() throws Exception {
         //typical status line
-        statusLine = StatusLine.parse("HTTP/1.1 200 OK");
+        StatusLine statusLine = StatusLine.parse("HTTP/1.1 200 OK");
         assertEquals("HTTP/1.1 200 OK", statusLine.toString());
         assertEquals(HttpVersion.HTTP_1_1, statusLine.getHttpVersion());
         assertEquals(200, statusLine.getStatusCode());
@@ -141,6 +139,7 @@ public class TestStatusLine extends TestCase {
     }
 
     public void testFailure() throws Exception {
+        StatusLine statusLine = null;
         try {
             statusLine = StatusLine.parse("xxx 200 OK");
             fail();
@@ -162,6 +161,7 @@ public class TestStatusLine extends TestCase {
     }
 
     public void testNullInput() throws Exception {
+        StatusLine statusLine = null;
         try {
             statusLine = StatusLine.parse(null);
             fail("IllegalArgumentException should have been thrown");
