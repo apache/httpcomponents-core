@@ -1,5 +1,5 @@
 /*
- * $Header: $
+ * $HeadURL$
  * $Revision$
  * $Date$
  *
@@ -58,11 +58,8 @@ public class StatusLine {
 
     // ----------------------------------------------------- Instance Variables
 
-    /** The original Status-Line. */
-    private final String statusLine;
-
     /** The HTTP-Version. */
-    private final String httpVersion;
+    private final HttpVersion httpVersion;
 
     /** The Status-Code. */
     private final int statusCode;
@@ -70,17 +67,38 @@ public class StatusLine {
     /** The Reason-Phrase. */
     private final String reasonPhrase;
 
-
     // ----------------------------------------------------------- Constructors
-
     /**
-     * Default constructor.
-     *
-     * @param statusLine the status line returned from the HTTP server
-     * @throws HttpException if the status line is invalid
+     * Default constructor
      */
-    public StatusLine(final String statusLine) throws HttpException {
-
+    public StatusLine(final HttpVersion httpVersion, int statusCode, final String reasonPhrase) {
+        super();
+        if (httpVersion == null) {
+            throw new IllegalArgumentException("HTTP version may not be null");
+        }
+        if (statusCode < 0) {
+            throw new IllegalArgumentException("Status code may not be negative");
+        }
+        this.httpVersion = httpVersion;
+        this.statusCode = statusCode;
+        this.reasonPhrase = reasonPhrase;
+    }
+    /**
+     * Parses the status line returned from the HTTP server.
+     *
+     * @param statusLine the status line to be parsed
+     * 
+     * @throws HttpException if the status line is invalid
+     * 
+     * @since 4.0 
+     */
+    public static StatusLine parse(final String statusLine) throws HttpException {
+        if (statusLine == null) {
+            throw new IllegalArgumentException("Status line string may not be null");
+        }
+        HttpVersion httpVersion = null;
+        int statusCode = 0;
+        String reasonPhrase = null;
         int length = statusLine.length();
         int at = 0;
         int start = 0;
@@ -100,7 +118,7 @@ public class StatusLine {
                         "Unable to parse HTTP-Version from the status line: '"
                         + statusLine + "'");
             }
-            this.httpVersion = (statusLine.substring(start, at)).toUpperCase();
+            httpVersion = HttpVersion.parse(statusLine.substring(start, at));
 
             //advance through spaces
             while (statusLine.charAt(at) == ' ') {
@@ -113,7 +131,7 @@ public class StatusLine {
                 to = length;
             }
             try {
-                this.statusCode = Integer.parseInt(statusLine.substring(at, to));
+                statusCode = Integer.parseInt(statusLine.substring(at, to));
             } catch (NumberFormatException e) {
                 throw new ProtocolException(
                     "Unable to parse status code from status line: '" 
@@ -122,17 +140,15 @@ public class StatusLine {
             //handle the Reason-Phrase
             at = to + 1;
             if (at < length) {
-                this.reasonPhrase = statusLine.substring(at).trim();
+                reasonPhrase = statusLine.substring(at).trim();
             } else {
-                this.reasonPhrase = "";
+                reasonPhrase = "";
             }
         } catch (StringIndexOutOfBoundsException e) {
             throw new HttpException("Status-Line '" + statusLine + "' is not valid"); 
         }
-        //save the original Status-Line
-        this.statusLine = new String(statusLine);
+        return new StatusLine(httpVersion, statusCode, reasonPhrase);
     }
-
 
     // --------------------------------------------------------- Public Methods
 
@@ -140,29 +156,33 @@ public class StatusLine {
      * @return the Status-Code
      */
     public final int getStatusCode() {
-        return statusCode;
+        return this.statusCode;
     }
 
     /**
      * @return the HTTP-Version
      */
-    public final String getHttpVersion() {
-        return httpVersion;
+    public final HttpVersion getHttpVersion() {
+        return this.httpVersion;
     }
 
     /**
      * @return the Reason-Phrase
      */
     public final String getReasonPhrase() {
-        return reasonPhrase;
+        return this.reasonPhrase;
     }
 
-    /**
-     * Return a string representation of this object.
-     * @return a string represenation of this object.
-     */
     public final String toString() {
-        return statusLine;
+        StringBuffer buffer = new StringBuffer();
+        buffer.append(this.httpVersion);
+        buffer.append(' ');
+        buffer.append(this.statusCode);
+        if (this.reasonPhrase != null && !this.reasonPhrase.equals("")) {
+            buffer.append(' ');
+            buffer.append(this.reasonPhrase);
+        }
+        return buffer.toString();
     }
 
     /**
