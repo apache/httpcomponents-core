@@ -1,0 +1,180 @@
+<project name="http-common" default="compile" basedir=".">
+
+<!-- ========== Properties: Property Files  =============================== -->
+
+  <property file="${basedir}/build.properties"/>     <!-- Component local   -->
+  <property file="${basedir}/../build.properties"/>  <!-- Commons local     -->
+  <property file="${user.home}/build.properties"/>   <!-- User local        -->
+
+<!-- ========== Properties: External Dependencies ========================= -->
+
+  <property name="lib.dir" value="./lib"/>
+
+<!-- ========== Properties: Javadoc Properties    ========================= -->
+
+  <property name="javadoc.j2sdk.link" value="http://java.sun.com/products/jdk/1.4/docs/api/"/>
+
+<!-- ========== Properties: Component Declarations ======================== -->
+
+  <!-- The name of this component -->
+  <property name="component.name"          value="http-common"/>
+
+  <!-- The title of this component -->
+  <property name="component.title"         value="Jakarta HttpClient (http-common)"/>
+
+  <!-- The current version number of this component -->
+  <property name="component.version"       value="4.0-dev"/>
+
+<!-- ========== Properties: Source Directories ============================ -->
+
+  <!-- The base directory for component sources -->
+  <property name="source.home"             value="src"/>
+
+  <!-- The base directory for documenation -->
+  <property name="docs.home"               value="docs"/>
+
+<!-- ========== Properties: Test Configuration ============================ -->
+
+  <!-- The base directory for unit test sources -->
+  <property name="test.home"               value="src/test"/>
+
+  <!-- The Junit test jarfile -->
+  <property name="junit.jar" value="${lib.dir}/junit.jar"/>
+
+<!-- ========== Properties: Destination Directories ======================= -->
+
+  <!-- The base directory for compilation targets -->
+  <property name="build.home"              value="target"/>
+
+  <!-- The base directory for distribution targets -->
+  <property name="dist.home"               value="dist"/>
+
+<!-- ========== Compiler Defaults ========================================= -->
+
+  <!-- Should Java compilations set the 'debug' compiler option? -->
+  <property name="compile.debug"           value="false"/>
+
+  <!-- Should Java compilations set the 'deprecation' compiler option? -->
+  <property name="compile.deprecation"     value="true"/>
+
+  <!-- Should Java compilations set the 'optimize' compiler option? -->
+  <property name="compile.optimize"        value="true"/>
+
+  <!-- Construct compile classpath -->
+  <path id="compile.classpath">
+    <pathelement location="${build.home}/classes"/>
+  </path>
+
+<!-- ========== Test Execution Defaults =================================== -->
+
+  <!-- Construct unit test classpath -->
+  <path id="test.classpath">
+    <pathelement location="${build.home}/classes"/>
+    <pathelement location="${build.home}/tests"/>
+    <pathelement location="${junit.jar}"/>
+  </path>
+
+  <!-- Should all tests fail if one does? -->
+  <property name="test.failonerror"    value="true"/>
+
+  <!-- The root test to execute -->
+  <property name="test.runner"         value="junit.textui.TestRunner"/>
+  <property name="test.entry"          value="org.apache.http.TestAll"/>
+
+<!-- ========== Targets =================================================== -->
+
+<!-- ========== Targets: "Internal" Targets =============================== -->
+
+  <target name="init"
+          description="Initialize and evaluate conditionals">
+    <echo message="-------- ${component.title} ${component.version} --------"/>
+    <filter token="name"    value="${component.name}"/>
+    <filter token="version" value="${component.version}"/>
+  </target>
+
+  <target name="prepare" depends="init"
+          description="Prepare build directory">
+    <mkdir dir="${build.home}"/>
+    <mkdir dir="${build.home}/classes"/>
+    <mkdir dir="${build.home}/conf"/>
+    <mkdir dir="${build.home}/docs"/>
+    <mkdir dir="${build.home}/docs/api"/>
+    <mkdir dir="${build.home}/tests"/>
+  </target>
+
+  <target name="static" depends="prepare"
+          description="Copy static files to build directory">
+    <tstamp/>
+  </target>
+
+<!-- ========== Targets: "External" Targets: Clean-up ===================== -->
+
+  <target name="clean"
+          description="Clean build and distribution directories">
+    <delete dir="${build.home}"/>
+    <delete dir="${dist.home}"/>
+  </target>
+
+  <target name="all" depends="clean,compile"
+          description="Clean and compile all components"/>
+
+<!-- ========== Targets: "External" Targets: Compilation ================== -->
+
+  <target name="compile" depends="static"
+          description="Compile shareable components">
+    <javac srcdir      ="${source.home}/java"
+           destdir     ="${build.home}/classes"
+           debug       ="${compile.debug}"
+           deprecation ="${compile.deprecation}"
+           optimize    ="${compile.optimize}">
+      <classpath refid="compile.classpath"/>
+    </javac>
+  </target>
+
+  <target name="compile.tests" depends="compile"
+          description="Compile unit test cases">
+    <javac srcdir      ="${test.home}"
+           destdir     ="${build.home}/tests"
+           debug       ="${compile.debug}"
+           deprecation ="${compile.deprecation}"
+           optimize    ="${compile.optimize}">
+      <classpath refid="test.classpath"/>
+    </javac>
+    <copy todir="${build.home}/tests" filtering="on">
+      <fileset dir="${test.home}" includes="**/*.properties" />
+    </copy>
+  </target>
+
+<!-- ========== Targets: "External" Targets: Testing ====================== -->
+
+  <target name="test" depends="compile.tests" if="test.entry"
+          description="Run all unit test cases">
+      <java classname="${test.runner}" fork="yes" failonerror="${test.failonerror}">
+        <arg value="${test.entry}"/>
+        <classpath refid="test.classpath"/>
+      </java>
+  </target>
+
+<!-- ========== Targets: "External" Targets: Documenation ================= -->
+
+  <target name="javadoc" depends="compile"
+          description="Create component Javadoc documentation">
+    <mkdir dir="${dist.home}"/>
+    <mkdir dir="${dist.home}/docs"/>
+    <mkdir dir="${dist.home}/docs/api"/>
+    <javadoc sourcepath   ="${source.home}/java"
+             destdir      ="${dist.home}/docs/api"
+             packagenames ="org.apache.http.*"
+             author       ="true"
+             protected    ="true"
+             version      ="true"
+             doctitle     ="&lt;h1&gt;${component.title}&lt;/h1&gt;"
+             windowtitle  ="${component.title} (Version ${component.version})"
+             bottom       ="Copyright (c) 1999-2005 - Apache Software Foundation"
+    >
+      <classpath refid="test.classpath"/>
+      <link href="${javadoc.j2sdk.link}"/>
+    </javadoc>
+  </target>
+
+</project>
