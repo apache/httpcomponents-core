@@ -38,6 +38,8 @@ import java.nio.charset.CharsetDecoder;
 import java.nio.charset.CodingErrorAction;
 
 import org.apache.http.HttpDataReceiver;
+import org.apache.http.params.HttpParams;
+import org.apache.http.params.HttpProtocolParams;
 
 /**
  * <p>
@@ -55,7 +57,8 @@ public class NIOHttpDataReceiver implements HttpDataReceiver {
     
     private final ReadableByteChannel channel;
     private final ByteBuffer buffer;
-    private final Charset charset;
+    
+    private Charset charset = null;
     
     protected NIOHttpDataReceiver(final ReadableByteChannel channel, int buffersize) {
         if (channel == null) {
@@ -69,6 +72,11 @@ public class NIOHttpDataReceiver implements HttpDataReceiver {
         this.buffer = ByteBuffer.allocateDirect(buffersize);
         
         this.charset = Charset.forName("US-ASCII");
+    }
+
+    public void reset(final HttpParams params) {
+        HttpProtocolParams protocolParams = new HttpProtocolParams(params);
+        this.charset = Charset.forName(protocolParams.getHttpElementCharset()); 
     }
 
     private CharsetDecoder createCharDecoder() {

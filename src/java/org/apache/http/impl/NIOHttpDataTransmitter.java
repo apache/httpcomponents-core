@@ -39,6 +39,8 @@ import java.nio.charset.CoderResult;
 import java.nio.charset.CodingErrorAction;
 
 import org.apache.http.HttpDataTransmitter;
+import org.apache.http.params.HttpParams;
+import org.apache.http.params.HttpProtocolParams;
 
 /**
  * <p>
@@ -57,7 +59,8 @@ public class NIOHttpDataTransmitter implements HttpDataTransmitter {
 
     private final WritableByteChannel channel;
     private final ByteBuffer buffer;
-    private final Charset charset;
+
+    private Charset charset = null;
 
     protected NIOHttpDataTransmitter(final WritableByteChannel channel, int buffersize) {
         super();
@@ -71,6 +74,11 @@ public class NIOHttpDataTransmitter implements HttpDataTransmitter {
         }
         this.buffer = ByteBuffer.allocateDirect(buffersize);
         this.charset = Charset.forName("US-ASCII");
+    }
+    
+    public void reset(final HttpParams params) {
+        HttpProtocolParams protocolParams = new HttpProtocolParams(params);
+        this.charset = Charset.forName(protocolParams.getHttpElementCharset()); 
     }
 
     private void flushBuffer() throws IOException {

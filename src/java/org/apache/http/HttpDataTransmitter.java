@@ -31,6 +31,8 @@ package org.apache.http;
 
 import java.io.IOException;
 
+import org.apache.http.params.HttpParams;
+
 /**
  * <p>
  * </p>
@@ -41,6 +43,8 @@ import java.io.IOException;
  * @since 4.0
  */
 public interface HttpDataTransmitter {
+
+    void reset(HttpParams params);
 
     void write(byte[] b, int off, int len) throws IOException;
     
