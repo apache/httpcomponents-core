@@ -64,7 +64,7 @@ public class HttpRuntime {
             throw new FatalError("Invalid Java specification major version: " + verstr);
         }
         try {
-            JAVA_MINOR_VER = Integer.parseInt(verstr.substring(i - 1));
+            JAVA_MINOR_VER = Integer.parseInt(verstr.substring(i + 1));
         } catch (NumberFormatException ex) {
             throw new FatalError("Invalid Java specification minor version: " + verstr);
         }

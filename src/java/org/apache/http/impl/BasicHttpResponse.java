@@ -45,6 +45,7 @@ import org.apache.http.StatusLine;
 public class BasicHttpResponse extends BasicHttpMessage implements HttpMutableResponse {
     
     private StatusLine statusline = null;
+    private HttpEntity entity = null;
     
     public BasicHttpResponse() {
         super();
@@ -67,10 +68,11 @@ public class BasicHttpResponse extends BasicHttpMessage implements HttpMutableRe
     }
     
     public HttpEntity getEntity() {
-        return null;
+        return this.entity;
     }
     
     public void setEntity(final HttpEntity entity) {
+        this.entity = entity;
     }
     
 }

@@ -43,13 +43,6 @@ import java.io.IOException;
 public class NoHttpResponseException extends IOException {
 
     /**
-     * Creates a new NoHttpResponseException with a <tt>null</tt> detail message.
-     */
-    public NoHttpResponseException() {
-        super();
-    }
-
-    /**
      * Creates a new NoHttpResponseException with the specified detail message.
      *
      * @param message exception message

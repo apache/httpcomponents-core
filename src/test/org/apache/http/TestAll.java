@@ -45,6 +45,7 @@ public class TestAll extends TestCase {
         
         suite.addTest(TestAllUtil.suite());
         
+        suite.addTest(TestHttpExceptions.suite());
         suite.addTest(TestNameValuePair.suite());
         suite.addTest(TestHeader.suite());
         suite.addTest(TestHeaderElement.suite());
@@ -52,6 +53,8 @@ public class TestAll extends TestCase {
         suite.addTest(TestHttpVersion.suite());
         suite.addTest(TestStatusLine.suite());
         suite.addTest(TestRequestLine.suite());
+        suite.addTest(TestHttpHost.suite());
+        suite.addTest(TestHttpRuntime.suite());
 
         suite.addTest(TestAllIO.suite());
         

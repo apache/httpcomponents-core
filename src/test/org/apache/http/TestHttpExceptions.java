@@ -26,28 +26,47 @@
  *
  */
 
-package org.apache.http.impl;
+package org.apache.http;
 
 import junit.framework.*;
 
-public class TestAllImpl extends TestCase {
+/**
+ * Simple tests for various HTTP exception classes.
+ *
+ * @author <a href="mailto:oleg at ural.ru">Oleg Kalnichevski</a>
+ *
+ * @version $Revision$
+ */
+public class TestHttpExceptions extends TestCase {
 
-    public TestAllImpl(String testName) {
+    // ------------------------------------------------------------ Constructor
+    public TestHttpExceptions(String testName) {
         super(testName);
     }
 
-    public static Test suite() {
-        TestSuite suite = new TestSuite();
-        suite.addTest(TestHeaderGroup.suite());
-        suite.addTest(TestNIOHttpTransmitterAndReceiver.suite());
-        suite.addTest(TestAutoCloseInputStream.suite());
-        suite.addTest(TestDefaultConnectionReuseStrategy.suite());
-        return suite;
-    }
-
+    // ------------------------------------------------------------------- Main
     public static void main(String args[]) {
-        String[] testCaseName = { TestAllImpl.class.getName() };
+        String[] testCaseName = { TestHttpExceptions.class.getName() };
         junit.textui.TestRunner.main(testCaseName);
     }
 
+    // ------------------------------------------------------- TestCase Methods
+
+    public static Test suite() {
+        return new TestSuite(TestHttpExceptions.class);
+    }
+
+    public void testConstructor() {
+        Throwable cause = new Exception();
+        new HttpException();
+        new HttpException("Oppsie");
+        new HttpException("Oppsie", cause);
+        new ProtocolException();
+        new ProtocolException("Oppsie");
+        new ProtocolException("Oppsie", cause);
+        new NoHttpResponseException("Oppsie");
+        new ConnectTimeoutException();
+        new ConnectTimeoutException("Oppsie");
+    }
+            
 }

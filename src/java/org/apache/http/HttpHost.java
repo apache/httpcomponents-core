@@ -148,10 +148,8 @@ public class HttpHost implements Cloneable {
      */
     public String toURI() {
         StringBuffer buffer = new StringBuffer(50);        
-        if (this.protocol != null) {
-            buffer.append(this.protocol.getScheme());
-            buffer.append("://");
-        }
+        buffer.append(this.protocol.getScheme());
+        buffer.append("://");
         buffer.append(this.hostname);
         if (this.port != this.protocol.getDefaultPort()) {
             buffer.append(':');
@@ -164,9 +162,7 @@ public class HttpHost implements Cloneable {
      * @see java.lang.Object#toString()
      */
     public String toString() {
-        StringBuffer buffer = new StringBuffer(50);        
-        buffer.append(toURI());
-        return buffer.toString();
+        return toURI();
     }    
     
     /**
@@ -190,7 +186,7 @@ public class HttpHost implements Cloneable {
      */
     public int hashCode() {
         int hash = LangUtils.HASH_SEED;
-        hash = LangUtils.hashCode(hash, this.hostname);
+        hash = LangUtils.hashCode(hash, this.hostname.toUpperCase());
         hash = LangUtils.hashCode(hash, this.port);
         hash = LangUtils.hashCode(hash, this.protocol);
         return hash;
