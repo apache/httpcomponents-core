@@ -1,7 +1,7 @@
 /*
  * $Header: /home/jerenkrantz/tmp/commons/commons-convert/cvs/home/cvs/jakarta-commons//httpclient/src/java/org/apache/commons/httpclient/ProtocolException.java,v 1.4 2004/05/13 04:03:25 mbecke Exp $
  * $Revision: 1.4 $
- * $Date: 2004/05/13 04:03:25 $
+ * $Date$
  *
  * ====================================================================
  *
@@ -27,7 +27,7 @@
  *
  */
 
-package org.apache.commons.httpclient;
+package org.apache.http;
 
 /**
  * Signals that an HTTP protocol violation has occurred.  For example, HttpClient

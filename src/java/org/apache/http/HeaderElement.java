@@ -27,14 +27,12 @@
  *
  */
 
-package org.apache.commons.httpclient;
+package org.apache.http;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.commons.httpclient.util.ParameterParser;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.apache.http.util.ParameterParser;
 
 /**
  * <p>One element of an HTTP header's value.</p>
@@ -156,9 +154,6 @@ public class HeaderElement extends NameValuePair {
 
     // -------------------------------------------------------- Constants
 
-    /** Log object for this class. */
-    private static final Log LOG = LogFactory.getLog(HeaderElement.class);
-
     // ----------------------------------------------------- Instance Variables
 
     /** My parameters, if any. */
@@ -189,9 +184,6 @@ public class HeaderElement extends NameValuePair {
      * @since 3.0
      */
     public static final HeaderElement[] parseElements(char[] headerValue) {
-            
-        LOG.trace("enter HeaderElement.parseElements(char[])");
-
         if (headerValue == null) {
             return new HeaderElement[] {};
         }
@@ -233,9 +225,6 @@ public class HeaderElement extends NameValuePair {
      * @since 3.0
      */
     public static final HeaderElement[] parseElements(String headerValue) {
-            
-        LOG.trace("enter HeaderElement.parseElements(String)");
-
         if (headerValue == null) {
             return new HeaderElement[] {};
         }
@@ -255,9 +244,6 @@ public class HeaderElement extends NameValuePair {
      */
     public static final HeaderElement[] parse(String headerValue)
         throws HttpException {
-            
-        LOG.trace("enter HeaderElement.parse(String)");
-
         if (headerValue == null) {
             return new HeaderElement[] {};
         }
@@ -272,11 +258,7 @@ public class HeaderElement extends NameValuePair {
      * @param name The name to search by.
      * @return NameValuePair parameter with the given name
      */
-
     public NameValuePair getParameterByName(String name) {
-
-        LOG.trace("enter HeaderElement.getParameterByName(String)");
-
         if (name == null) {
             throw new IllegalArgumentException("Name may not be null");
         } 

@@ -27,7 +27,7 @@
  *
  */
 
-package org.apache.commons.httpclient;
+package org.apache.http;
 
 /**
  * <p>An HTTP header.</p>

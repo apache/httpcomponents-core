@@ -27,7 +27,7 @@
  *
  */
 
-package org.apache.commons.httpclient;
+package org.apache.http;
 
 import java.util.ArrayList;
 import java.util.Iterator;

@@ -27,7 +27,7 @@
  *
  */
 
-package org.apache.commons.httpclient;
+package org.apache.http;
 
 /**
  * Constants enumerating the HTTP status codes.

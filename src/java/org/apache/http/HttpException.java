@@ -1,7 +1,7 @@
 /*
  * $Header: /home/jerenkrantz/tmp/commons/commons-convert/cvs/home/cvs/jakarta-commons//httpclient/src/java/org/apache/commons/httpclient/HttpException.java,v 1.19 2004/09/30 18:53:20 olegk Exp $
  * $Revision: 1.19 $
- * $Date: 2004/09/30 18:53:20 $
+ * $Date$
  *
  * ====================================================================
  *
@@ -27,7 +27,7 @@
  *
  */
 
-package org.apache.commons.httpclient;
+package org.apache.http;
 
 import java.io.IOException;
 import java.io.PrintStream;
@@ -39,7 +39,7 @@ import java.lang.reflect.Method;
  * 
  * @author Laura Werner
  * 
- * @version $Revision: 1.19 $ $Date: 2004/09/30 18:53:20 $
+ * @version $Revision: 1.19 $ $Date$
  */
 public class HttpException extends IOException {
 
