@@ -227,7 +227,7 @@ public class ChunkedInputStream extends InputStream {
         while (state != -1) {
         int b = in.read();
             if (b == -1) { 
-                throw new IOException("chunked stream ended unexpectedly");
+                throw new IOException("Chunked stream ended unexpectedly");
             }
             switch (state) {
                 case 0: 
@@ -248,7 +248,7 @@ public class ChunkedInputStream extends InputStream {
                         state = -1;
                     } else {
                         // this was not CRLF
-                        throw new IOException("Protocol violation: Unexpected"
+                        throw new IOException("Unexpected"
                             + " single newline character in chunk size");
                     }
                     break;
@@ -266,7 +266,7 @@ public class ChunkedInputStream extends InputStream {
                             baos.write(b);
                     }
                     break;
-                default: throw new RuntimeException("assertion failed");
+                default: throw new IllegalStateException("Invalid state condition");
             }
         }
 
@@ -294,7 +294,7 @@ public class ChunkedInputStream extends InputStream {
         try {
             this.footers = HeadersParser.processHeaders(in);
         } catch (HttpException e) {
-            IOException ioe = new IOException(e.getMessage());
+            IOException ioe = new IOException("Invalid footer: " + e.getMessage());
             ExceptionUtil.initCause(ioe, e); 
             throw ioe;
         }

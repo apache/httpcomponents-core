@@ -35,6 +35,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 
 import org.apache.http.Header;
+import org.apache.http.impl.DefaultHttpParams;
 import org.apache.http.util.EncodingUtil;
 
 import junit.framework.Test;
@@ -61,22 +62,45 @@ public class TestChunkCoding extends TestCase {
         junit.textui.TestRunner.main(testCaseName);
     }
 
-    public void testChunkedInputStream() throws IOException {
-        String correctInput = "10;key=\"value\r\nnewline\"\r\n1234567890123456\r\n5\r\n12345\r\n0\r\nFooter1: abcde\r\nFooter2: fghij\r\n";
-        String correctResult = "123456789012345612345";
+    public void testConstructors() throws Exception {
+        try {
+            new ChunkedInputStream((HttpDataReceiver)null);
+            fail("IllegalArgumentException should have been thrown");
+        } catch (IllegalArgumentException ex) {
+            // expected
+        }
+        try {
+            new ChunkedInputStream((InputStream)null);
+            fail("IllegalArgumentException should have been thrown");
+        } catch (IllegalArgumentException ex) {
+            // expected
+        }
+    }
 
-        //Test for when buffer is larger than chunk size
+    private final static String CHUNKED_INPUT 
+        = "10;key=\"value\\\r\nnewline\"\r\n1234567890123456\r\n5\r\n12345\r\n0\r\nFooter1: abcde\r\nFooter2: fghij\r\n";
+    
+    private final static String CHUNKED_RESULT 
+        = "123456789012345612345";
+    
+    // Test for when buffer is larger than chunk size
+    public void testChunkedInputStreamLargeBuffer() throws IOException {
         ChunkedInputStream in = new ChunkedInputStream(
                 new ByteArrayInputStream(
-                        EncodingUtil.getBytes(correctInput, CONTENT_CHARSET)));
+                        EncodingUtil.getBytes(CHUNKED_INPUT, CONTENT_CHARSET)));
         byte[] buffer = new byte[300];
         ByteArrayOutputStream out = new ByteArrayOutputStream();
         int len;
         while ((len = in.read(buffer)) > 0) {
             out.write(buffer, 0, len);
         }
+        assertEquals(-1, in.read(buffer));
+        assertEquals(-1, in.read(buffer));
+        
+        in.close();
+        
         String result = EncodingUtil.getString(out.toByteArray(), CONTENT_CHARSET);
-        assertEquals(result, correctResult);
+        assertEquals(result, CHUNKED_RESULT);
         
         Header[] footers = in.getFooters();
         assertNotNull(footers);
@@ -85,18 +109,27 @@ public class TestChunkCoding extends TestCase {
         assertEquals("abcde", footers[0].getValue());
         assertEquals("Footer2", footers[1].getName());
         assertEquals("fghij", footers[1].getValue());
-        
-        //Test for when buffer is smaller than chunk size.
-        in = new ChunkedInputStream(
+    }        
+
+    //Test for when buffer is smaller than chunk size.
+    public void testChunkedInputStreamSmallBuffer() throws IOException {
+        ChunkedInputStream in = new ChunkedInputStream(
                 new ByteArrayInputStream(
-                            EncodingUtil.getBytes(correctInput, CONTENT_CHARSET)));
-        buffer = new byte[7];
-        out = new ByteArrayOutputStream();
+                            EncodingUtil.getBytes(CHUNKED_INPUT, CONTENT_CHARSET)));
+
+        byte[] buffer = new byte[7];
+        ByteArrayOutputStream out = new ByteArrayOutputStream();
+        int len;
         while ((len = in.read(buffer)) > 0) {
             out.write(buffer, 0, len);
         }
-        result = EncodingUtil.getString(out.toByteArray(), CONTENT_CHARSET);
-        footers = in.getFooters();
+        assertEquals(-1, in.read(buffer));
+        assertEquals(-1, in.read(buffer));
+
+        in.close();
+                
+        String result = EncodingUtil.getString(out.toByteArray(), CONTENT_CHARSET);
+        Header[] footers = in.getFooters();
         assertNotNull(footers);
         assertEquals(2, footers.length);
         assertEquals("Footer1", footers[0].getName());
@@ -104,14 +137,59 @@ public class TestChunkCoding extends TestCase {
         assertEquals("Footer2", footers[1].getName());
         assertEquals("fghij", footers[1].getValue());
     }
+        
+    // One byte read
+    public void testChunkedInputStreamOneByteRead() throws IOException {
+        String s = "5\r\n01234\r\n5\r\n56789\r\n0\r\n";
+        ChunkedInputStream in = new ChunkedInputStream(
+                new ByteArrayInputStream(
+                        EncodingUtil.getBytes(s, CONTENT_CHARSET)));
+        int ch;
+        int i = '0';
+        while ((ch = in.read()) != -1) {
+            assertEquals(i, ch);
+            i++;
+        }
+        assertEquals(-1, in.read());
+        assertEquals(-1, in.read());        
 
-    public void testCorruptChunkedInputStream1() throws IOException {
-        //missing \r\n at the end of the first chunk
-        String corrupInput = "10;key=\"value\"\r\n123456789012345\r\n5\r\n12345\r\n0\r\nFooter1: abcde\r\nFooter2: fghij\r\n";
+        in.close();        
+    }
 
+    public void testChunkedInputStreamClose() throws IOException {
+        String s = "5\r\n01234\r\n5\r\n56789\r\n0\r\n";
+        ChunkedInputStream in = new ChunkedInputStream(
+                new ByteArrayInputStream(
+                        EncodingUtil.getBytes(s, CONTENT_CHARSET)));
+        in.close();
+        in.close();
+        try {
+            in.read();
+            fail("IOException should have been thrown");
+        } catch (IOException ex) {
+            // expected
+        }
+        byte[] tmp = new byte[10]; 
+        try {
+            in.read(tmp);
+            fail("IOException should have been thrown");
+        } catch (IOException ex) {
+            // expected
+        }
+        try {
+            in.read(tmp, 0, tmp.length);
+            fail("IOException should have been thrown");
+        } catch (IOException ex) {
+            // expected
+        }
+    }
+
+    // Missing \r\n at the end of the first chunk
+    public void testCorruptChunkedInputStreamMissingCRLF() throws IOException {
+        String s = "5\r\n012345\r\n56789\r\n0\r\n";
         InputStream in = new ChunkedInputStream(
                 new ByteArrayInputStream(
-                        EncodingUtil.getBytes(corrupInput, CONTENT_CHARSET)));
+                        EncodingUtil.getBytes(s, CONTENT_CHARSET)));
         byte[] buffer = new byte[300];
         ByteArrayOutputStream out = new ByteArrayOutputStream();
         int len;
@@ -119,7 +197,62 @@ public class TestChunkCoding extends TestCase {
             while ((len = in.read(buffer)) > 0) {
                 out.write(buffer, 0, len);
             }
-            fail("Should have thrown exception");
+            fail("IOException should have been thrown");
+        } catch(IOException e) {
+            /* expected exception */
+        }
+    }
+
+    // Missing LF
+    public void testCorruptChunkedInputStreamMissingLF() throws IOException {
+        String s = "5\r01234\r\n5\r\n56789\r\n0\r\n";
+        InputStream in = new ChunkedInputStream(
+                new ByteArrayInputStream(
+                        EncodingUtil.getBytes(s, CONTENT_CHARSET)));
+        try {
+            in.read();
+            fail("IOException should have been thrown");
+        } catch(IOException e) {
+            /* expected exception */
+        }
+    }
+
+    // Missing closing chunk
+    public void testCorruptChunkedInputStreamNoClosingChunk() throws IOException {
+        InputStream in = new ChunkedInputStream(
+                new ByteArrayInputStream(new byte[] {}));
+        try {
+            in.read();
+            fail("IOException should have been thrown");
+        } catch(IOException e) {
+            /* expected exception */
+        }
+    }
+
+    // Invalid chunk size
+    public void testCorruptChunkedInputStreamInvalidSize() throws IOException {
+        String s = "whatever\r\n01234\r\n5\r\n56789\r\n0\r\n";
+        InputStream in = new ChunkedInputStream(
+                new ByteArrayInputStream(
+                        EncodingUtil.getBytes(s, CONTENT_CHARSET)));
+        try {
+            in.read();
+            fail("IOException should have been thrown");
+        } catch(IOException e) {
+            /* expected exception */
+        }
+    }
+
+    // Invalid footer
+    public void testCorruptChunkedInputStreamInvalidFooter() throws IOException {
+        String s = "1\r\n0\r\n0\r\nstuff\r\n";
+        InputStream in = new ChunkedInputStream(
+                new ByteArrayInputStream(
+                        EncodingUtil.getBytes(s, CONTENT_CHARSET)));
+        try {
+            in.read();
+            in.read();
+            fail("IOException should have been thrown");
         } catch(IOException e) {
             /* expected exception */
         }
@@ -139,6 +272,27 @@ public class TestChunkCoding extends TestCase {
         assertEquals(0, out.size());
     }
 
+    public void testInputStreamHttpDataReceiver() throws IOException {
+        String s = "aaaaa";
+        InputStream in = new ByteArrayInputStream(
+                        EncodingUtil.getBytes(s, CONTENT_CHARSET));
+        ChunkedInputStream.InputStreamHttpDataReceiver datareceiver =
+            new ChunkedInputStream.InputStreamHttpDataReceiver(in);
+        assertTrue(datareceiver.isDataAvailable(1));
+        assertEquals('a', datareceiver.read());
+        byte[] tmp = new byte[2];
+        datareceiver.read(tmp);
+        assertEquals('a', tmp[0]);
+        assertEquals('a', tmp[1]);
+        datareceiver.read(tmp, 0, tmp.length);
+        assertEquals('a', tmp[0]);
+        assertEquals('a', tmp[1]);
+        assertEquals(-1, datareceiver.read());
+        datareceiver.reset(new DefaultHttpParams(null));
+    }
+
+    
+    
     public void testContentLengthInputStream() throws IOException {
         String correct = "1234567890123456";
         InputStream in = new ContentLengthInputStream(new ByteArrayInputStream(
@@ -173,6 +327,8 @@ public class TestChunkCoding extends TestCase {
         ByteArrayOutputStream buffer = new ByteArrayOutputStream();
         OutputStream out = new ChunkedOutputStream(buffer);
         out.write(EncodingUtil.getBytes(input, CONTENT_CHARSET));
+        out.flush();
+        out.close();
         out.close();
         buffer.close();
         InputStream in = new ChunkedInputStream(
