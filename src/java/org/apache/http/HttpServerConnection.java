@@ -30,6 +30,9 @@
 package org.apache.http;
 
 import java.io.IOException;
+import java.net.Socket;
+
+import org.apache.http.params.HttpParams;
 
 /**
  * <p>
@@ -42,10 +45,10 @@ import java.io.IOException;
  */
 public interface HttpServerConnection extends HttpConnection {
 
-    void open(HttpHost host) throws IOException;
+    void bind(Socket socket, HttpParams params) throws IOException;
     
-    void sendRequest(HttpRequest request) throws HttpException, IOException;
+    HttpRequest receiveRequest() throws HttpException, IOException;
 
-    HttpResponse receiveResponse() throws HttpException, IOException;
+    void sendResponse(HttpResponse response) throws HttpException, IOException;
     
 }

@@ -45,5 +45,11 @@ public interface HttpConnection {
     void close() throws IOException;
     
     boolean isOpen();
-        
+ 
+    void setSocketTimeout(int timeout) throws IOException;
+
+    int getSocketTimeout() throws IOException;
+
+    boolean isStale();
+    
 }
