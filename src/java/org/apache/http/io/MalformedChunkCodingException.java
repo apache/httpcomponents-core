@@ -27,33 +27,28 @@
  *
  */
 
-package org.apache.http;
+package org.apache.http.io;
 
-import java.io.InterruptedIOException;
+import java.io.IOException;
 
 /**
- * A timeout while connecting to an HTTP server or waiting for an
- * available connection from an HttpConnectionManager.
- * 
- * @author <a href="mailto:laura@lwerner.org">Laura Werner</a>
- * 
- * @since 3.0
+ * Signals a malformed chunked stream
  */
-public class ConnectTimeoutException extends InterruptedIOException {
+public class MalformedChunkCodingException extends IOException {
 
     /**
-     * Creates a ConnectTimeoutException with a <tt>null</tt> detail message.
+     * Creates a MalformedChunkCodingException with a <tt>null</tt> detail message.
      */
-    public ConnectTimeoutException() {
+    public MalformedChunkCodingException() {
         super();
     }
 
     /**
-     * Creates a ConnectTimeoutException with the specified detail message.
+     * Creates a MalformedChunkCodingException with the specified detail message.
      * 
      * @param message The exception detail message 
      */
-    public ConnectTimeoutException(final String message) {
+    public MalformedChunkCodingException(final String message) {
         super(message);
     }
 

@@ -75,6 +75,8 @@ public class TestChunkCoding extends TestCase {
         } catch (IllegalArgumentException ex) {
             // expected
         }
+        new MalformedChunkCodingException();
+        new MalformedChunkCodingException("");
     }
 
     private final static String CHUNKED_INPUT 
@@ -197,8 +199,8 @@ public class TestChunkCoding extends TestCase {
             while ((len = in.read(buffer)) > 0) {
                 out.write(buffer, 0, len);
             }
-            fail("IOException should have been thrown");
-        } catch(IOException e) {
+            fail("MalformedChunkCodingException should have been thrown");
+        } catch(MalformedChunkCodingException e) {
             /* expected exception */
         }
     }
@@ -211,8 +213,8 @@ public class TestChunkCoding extends TestCase {
                         EncodingUtil.getBytes(s, CONTENT_CHARSET)));
         try {
             in.read();
-            fail("IOException should have been thrown");
-        } catch(IOException e) {
+            fail("MalformedChunkCodingException should have been thrown");
+        } catch(MalformedChunkCodingException e) {
             /* expected exception */
         }
     }
@@ -223,8 +225,8 @@ public class TestChunkCoding extends TestCase {
                 new ByteArrayInputStream(new byte[] {}));
         try {
             in.read();
-            fail("IOException should have been thrown");
-        } catch(IOException e) {
+            fail("MalformedChunkCodingException should have been thrown");
+        } catch(MalformedChunkCodingException e) {
             /* expected exception */
         }
     }
@@ -237,8 +239,8 @@ public class TestChunkCoding extends TestCase {
                         EncodingUtil.getBytes(s, CONTENT_CHARSET)));
         try {
             in.read();
-            fail("IOException should have been thrown");
-        } catch(IOException e) {
+            fail("MalformedChunkCodingException should have been thrown");
+        } catch(MalformedChunkCodingException e) {
             /* expected exception */
         }
     }
@@ -252,8 +254,8 @@ public class TestChunkCoding extends TestCase {
         try {
             in.read();
             in.read();
-            fail("IOException should have been thrown");
-        } catch(IOException e) {
+            fail("MalformedChunkCodingException should have been thrown");
+        } catch(MalformedChunkCodingException e) {
             /* expected exception */
         }
     }

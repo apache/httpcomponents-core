@@ -182,7 +182,7 @@ public class ChunkedInputStream extends InputStream {
         int cr = in.read();
         int lf = in.read();
         if ((cr != '\r') || (lf != '\n')) { 
-            throw new IOException(
+            throw new MalformedChunkCodingException(
                 "CRLF expected at end of chunk: " + cr + "/" + lf);
         }
     }
@@ -227,7 +227,7 @@ public class ChunkedInputStream extends InputStream {
         while (state != -1) {
         int b = in.read();
             if (b == -1) { 
-                throw new IOException("Chunked stream ended unexpectedly");
+                throw new MalformedChunkCodingException("Chunked stream ended unexpectedly");
             }
             switch (state) {
                 case 0: 
@@ -248,7 +248,7 @@ public class ChunkedInputStream extends InputStream {
                         state = -1;
                     } else {
                         // this was not CRLF
-                        throw new IOException("Unexpected"
+                        throw new MalformedChunkCodingException("Unexpected"
                             + " single newline character in chunk size");
                     }
                     break;
@@ -281,7 +281,7 @@ public class ChunkedInputStream extends InputStream {
         try {
             result = Integer.parseInt(dataString.trim(), 16);
         } catch (NumberFormatException e) {
-            throw new IOException ("Bad chunk size: " + dataString);
+            throw new MalformedChunkCodingException("Bad chunk size: " + dataString);
         }
         return result;
     }
@@ -294,7 +294,8 @@ public class ChunkedInputStream extends InputStream {
         try {
             this.footers = HeadersParser.processHeaders(in);
         } catch (HttpException e) {
-            IOException ioe = new IOException("Invalid footer: " + e.getMessage());
+            IOException ioe = new MalformedChunkCodingException("Invalid footer: " 
+                    + e.getMessage());
             ExceptionUtil.initCause(ioe, e); 
             throw ioe;
         }
