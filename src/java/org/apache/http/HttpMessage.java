@@ -38,8 +38,16 @@ package org.apache.http;
  * 
  * @since 4.0
  */
-public interface HttpRequest extends HttpMessage {
+public interface HttpMessage {
 
-    RequestLine getRequestLine();
+    boolean containsHeader(String name);
+    
+    Header[] getHeaders(String name);
+
+    Header getFirstHeader(String name);
+
+    Header getLastHeader(String name);
+
+    Header[] getAllHeaders();
     
 }

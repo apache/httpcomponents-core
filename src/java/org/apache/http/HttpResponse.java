@@ -1,5 +1,5 @@
 /*
- * $Header: $
+ * $HeadURL$
  * $Revision$
  * $Date$
  *
@@ -29,8 +29,6 @@
 
 package org.apache.http;
 
-import org.apache.http.params.HttpParams;
-
 /**
  * <p>
  * </p>
@@ -40,14 +38,10 @@ import org.apache.http.params.HttpParams;
  * 
  * @since 4.0
  */
-public interface HttpResponse {
+public interface HttpResponse extends HttpMessage {
 
     StatusLine getStatusLine();
 
-    HeaderGroup getHeaders();
-    
     HttpEntity getEntity();
-    
-    HttpParams getParams();
     
 }

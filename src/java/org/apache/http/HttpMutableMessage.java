@@ -29,6 +29,10 @@
 
 package org.apache.http;
 
+import java.util.Iterator;
+
+import org.apache.http.params.HttpParams;
+
 /**
  * <p>
  * </p>
@@ -38,8 +42,16 @@ package org.apache.http;
  * 
  * @since 4.0
  */
-public interface HttpRequest extends HttpMessage {
+public interface HttpMutableMessage extends HttpMessage {
 
-    RequestLine getRequestLine();
+    void addHeader(Header header);
+
+    void setHeader(Header header);
+
+    void removeHeader(Header header);
+    
+    Iterator headerIterator();
+
+    HttpParams getParams();
     
 }
