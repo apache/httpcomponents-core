@@ -1,6 +1,6 @@
 /*
  * $Header: /home/jerenkrantz/tmp/commons/commons-convert/cvs/home/cvs/jakarta-commons//httpclient/src/java/org/apache/commons/httpclient/NameValuePair.java,v 1.17 2004/04/18 23:51:35 jsdever Exp $
- * $Revision: 1.17 $
+ * $Revision$
  * $Date$
  *
  * ====================================================================
@@ -40,7 +40,7 @@ import org.apache.http.util.LangUtils;
  * @author Sean C. Sullivan
  * @author <a href="mailto:mbowler@GargoyleSoftware.com">Mike Bowler</a>
  * 
- * @version $Revision: 1.17 $ $Date$
+ * @version $Revision$ $Date$
  * 
  */
 public class NameValuePair implements Serializable {

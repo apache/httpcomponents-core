@@ -1,6 +1,6 @@
 /*
  * $Header: /home/jerenkrantz/tmp/commons/commons-convert/cvs/home/cvs/jakarta-commons//httpclient/src/java/org/apache/commons/httpclient/Header.java,v 1.17 2004/09/15 20:42:17 olegk Exp $
- * $Revision: 1.17 $
+ * $Revision$
  * $Date$
  *
  * ====================================================================
@@ -37,7 +37,7 @@ import org.apache.http.util.LangUtils;
  * @author <a href="mailto:remm@apache.org">Remy Maucherat</a>
  * @author <a href="mailto:mbowler@GargoyleSoftware.com">Mike Bowler</a>
  * @author <a href="mailto:oleg@ural.ru">Oleg Kalnichevski</a>
- * @version $Revision: 1.17 $ $Date$
+ * @version $Revision$ $Date$
  */
 public class Header {
 

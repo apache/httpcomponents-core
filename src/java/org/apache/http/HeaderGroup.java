@@ -1,6 +1,6 @@
 /*
  * $Header: /home/jerenkrantz/tmp/commons/commons-convert/cvs/home/cvs/jakarta-commons//httpclient/src/java/org/apache/commons/httpclient/HeaderGroup.java,v 1.8 2004/05/13 04:03:25 mbecke Exp $
- * $Revision: 1.8 $
+ * $Revision$
  * $Date$
  *
  * ====================================================================
