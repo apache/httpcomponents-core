@@ -106,7 +106,29 @@ public class TestHeader extends TestCase {
         assertEquals("element3", elements[2].getName()); 
         assertEquals(null, elements[2].getValue()); 
         assertEquals(1, elements[1].getParameters().length); 
-
     }    
     
+    public void testHeaderParsing() throws Exception {
+        Header header1 = Header.parse("name:value"); 
+        assertEquals("name", header1.getName());
+        assertEquals("value", header1.getValue());
+
+        Header header2 = Header.parse("    name   :    value       "); 
+        assertEquals("name", header2.getName());
+        assertEquals("value", header2.getValue());
+        
+        try {
+            Header header3 = Header.parse("  whatever  ");
+            fail("ProtocolException should have been thrown");
+        } catch (ProtocolException ex) {
+            // expected
+        }
+
+        try {
+            Header header3 = Header.parse(null);
+            fail("IllegalArgumentException should have been thrown");
+        } catch (IllegalArgumentException ex) {
+            // expected
+        }
+    }    
 }

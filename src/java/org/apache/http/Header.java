@@ -154,4 +154,17 @@ public class Header {
         return hash;
     }
     
+    public static Header parse(final String headerLine) throws ProtocolException {
+        if (headerLine == null) {
+            throw new IllegalArgumentException("Header line may not be null");
+        }
+        int colon = headerLine.indexOf(":");
+        if (colon < 0) {
+            throw new ProtocolException("Unable to parse header: " + headerLine);
+        }
+        String name = headerLine.substring(0, colon).trim();
+        String value = headerLine.substring(colon + 1).trim();
+        return new Header(name, value);
+    }
+    
 }
