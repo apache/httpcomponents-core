@@ -45,6 +45,4 @@ public interface HttpOutgoingEntity extends HttpEntity {
 
     void writeTo(OutputStream outstream) throws IOException;
     
-    void setContentType(String contentType);
-    
 }

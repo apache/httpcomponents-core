@@ -40,16 +40,14 @@ import java.io.InputStream;
  * 
  * @since 4.0
  */
-public interface HttpEntity {
+public interface HttpMutableEntity extends HttpEntity {
 
-    boolean isRepeatable();
-
-    boolean isChunked();
-
-    long getContentLength();
+    void setChunked(boolean b);
     
-    String getContentType();
+    void setContentType(String contentType);
     
-    InputStream getInputStream();
+    void setContentLength(long len);
+    
+    void setInputStream(InputStream instream);
     
 }
