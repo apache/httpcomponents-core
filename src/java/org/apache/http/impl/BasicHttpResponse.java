@@ -46,7 +46,11 @@ public class BasicHttpResponse extends BasicHttpMessage implements HttpMutableRe
     
     private StatusLine statusline = null;
     
-    protected BasicHttpResponse(final StatusLine statusline) {
+    public BasicHttpResponse() {
+        super();
+    }
+
+    public BasicHttpResponse(final StatusLine statusline) {
         super();
         setStatusLine(statusline);
     }

@@ -27,12 +27,12 @@
  *
  */
 
-package org.apache.http.impl;
+package org.apache.http.io;
 
 import java.io.IOException;
-import java.net.Socket;
-import java.net.SocketException;
-import java.net.SocketTimeoutException;
+import java.io.InputStream;
+
+import org.apache.http.HttpDataReceiver;
 
 /**
  * <p>
@@ -43,39 +43,46 @@ import java.net.SocketTimeoutException;
  * 
  * @since 4.0
  */
-public class NIOSocketHttpDataReceiver extends NIOHttpDataReceiver {
-
-    private final Socket socket;
+public class HttpDataInputStream extends InputStream {
     
-    protected NIOSocketHttpDataReceiver(final Socket socket) throws SocketException {
+    private final HttpDataReceiver datareceiver;
+    
+    private boolean closed = false;
+    
+    public HttpDataInputStream(final HttpDataReceiver datareceiver) {
         super();
-        if (socket == null) {
-            throw new IllegalArgumentException("Socket may not be null");
+        if (datareceiver == null) {
+            throw new IllegalArgumentException("HTTP data receiver may not be null");
         }
-        if (socket.getChannel() == null) {
-            throw new IllegalArgumentException("Socket does not implement NIO channel");
-        }
-        init(socket.getChannel(), socket.getReceiveBufferSize());
-        this.socket = socket;
+        this.datareceiver = datareceiver;
     }
     
-    public boolean isDataAvailable(int timeout) throws IOException {
-        if (hasDataInBuffer()) {
-            return true;
+    public int available() throws IOException {
+        if (!this.closed && this.datareceiver.isDataAvailable(10)) {
+            return 1;
         } else {
-            boolean result = false;
-            int oldtimeout = this.socket.getSoTimeout();
-            try {
-                this.socket.setSoTimeout(timeout);
-                fillBuffer();
-                result = true;
-            } catch (SocketTimeoutException e) {
-                // no data available
-            } finally {
-                socket.setSoTimeout(oldtimeout);
-            }
-            return result;
+            return 0;
         }
-    }    
-        
+    }
+    
+    public void close() throws IOException {
+        this.closed = true;
+    }
+
+    public int read() throws IOException {
+        if (this.closed) {
+            return -1;
+        } else {
+            return this.datareceiver.read();
+        }
+    }
+    
+    public int read(final byte[] b, int off, int len) throws IOException {
+        if (this.closed) {
+            return -1;
+        } else {
+            return this.datareceiver.read(b, off, len);
+        }
+    }
+    
 }

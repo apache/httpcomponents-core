@@ -51,19 +51,18 @@ import org.apache.http.params.HttpProtocolParams;
  * 
  * @since 4.0
  */
-public class NIOHttpDataTransmitter implements HttpDataTransmitter {
+public abstract class NIOHttpDataTransmitter implements HttpDataTransmitter {
 
     private static final int CR = 13;
     private static final int LF = 10;
     private static final byte[] CRLF = new byte[] {CR, LF};
 
-    private final WritableByteChannel channel;
-    private final ByteBuffer buffer;
+    private WritableByteChannel channel = null;
+    private ByteBuffer buffer = null;
 
     private Charset charset = null;
 
-    protected NIOHttpDataTransmitter(final WritableByteChannel channel, int buffersize) {
-        super();
+    protected void init(final WritableByteChannel channel, int buffersize) {
         if (channel == null) {
             throw new IllegalArgumentException("Channel may not be null");
         }

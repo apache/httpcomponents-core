@@ -50,17 +50,17 @@ import org.apache.http.params.HttpProtocolParams;
  * 
  * @since 4.0
  */
-public class NIOHttpDataReceiver implements HttpDataReceiver {
+public abstract class NIOHttpDataReceiver implements HttpDataReceiver {
 
     private static final int CR = 13;
     private static final int LF = 10;
     
-    private final ReadableByteChannel channel;
-    private final ByteBuffer buffer;
+    private ReadableByteChannel channel = null;
+    private ByteBuffer buffer = null;
     
     private Charset charset = null;
     
-    protected NIOHttpDataReceiver(final ReadableByteChannel channel, int buffersize) {
+    protected void init(final ReadableByteChannel channel, int buffersize) {
         if (channel == null) {
             throw new IllegalArgumentException("Channel may not be null");
         }

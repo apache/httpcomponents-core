@@ -26,26 +26,25 @@
  *
  */
 
-package org.apache.http.util;
+package org.apache.http.io;
 
 import junit.framework.*;
 
-public class TestAllUtil extends TestCase {
+public class TestAllIO extends TestCase {
 
-    public TestAllUtil(String testName) {
+    public TestAllIO(String testName) {
         super(testName);
     }
 
     public static Test suite() {
         TestSuite suite = new TestSuite();
-        suite.addTest(TestLangUtils.suite());
-        suite.addTest(TestParameterParser.suite());
-        suite.addTest(TestHeadersParser.suite());
+        suite.addTest(TestHttpDataInputStream.suite());
+        suite.addTest(TestHttpDataOutputStream.suite());
         return suite;
     }
 
     public static void main(String args[]) {
-        String[] testCaseName = { TestAllUtil.class.getName() };
+        String[] testCaseName = { TestAllIO.class.getName() };
         junit.textui.TestRunner.main(testCaseName);
     }
 

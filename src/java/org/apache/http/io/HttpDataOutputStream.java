@@ -27,12 +27,12 @@
  *
  */
 
-package org.apache.http.impl;
+package org.apache.http.io;
 
 import java.io.IOException;
-import java.net.Socket;
-import java.net.SocketException;
-import java.net.SocketTimeoutException;
+import java.io.OutputStream;
+
+import org.apache.http.HttpDataTransmitter;
 
 /**
  * <p>
@@ -43,39 +43,45 @@ import java.net.SocketTimeoutException;
  * 
  * @since 4.0
  */
-public class NIOSocketHttpDataReceiver extends NIOHttpDataReceiver {
-
-    private final Socket socket;
+public class HttpDataOutputStream extends OutputStream {
     
-    protected NIOSocketHttpDataReceiver(final Socket socket) throws SocketException {
+    private final HttpDataTransmitter datatransmitter;
+    
+    private boolean closed = false;
+    
+    public HttpDataOutputStream(final HttpDataTransmitter datatransmitter) {
         super();
-        if (socket == null) {
-            throw new IllegalArgumentException("Socket may not be null");
+        if (datatransmitter == null) {
+            throw new IllegalArgumentException("HTTP data transmitter may not be null");
         }
-        if (socket.getChannel() == null) {
-            throw new IllegalArgumentException("Socket does not implement NIO channel");
-        }
-        init(socket.getChannel(), socket.getReceiveBufferSize());
-        this.socket = socket;
+        this.datatransmitter = datatransmitter;
     }
     
-    public boolean isDataAvailable(int timeout) throws IOException {
-        if (hasDataInBuffer()) {
-            return true;
-        } else {
-            boolean result = false;
-            int oldtimeout = this.socket.getSoTimeout();
-            try {
-                this.socket.setSoTimeout(timeout);
-                fillBuffer();
-                result = true;
-            } catch (SocketTimeoutException e) {
-                // no data available
-            } finally {
-                socket.setSoTimeout(oldtimeout);
-            }
-            return result;
+    public void close() throws IOException {
+        if (!this.closed) {
+            this.closed = true;
+            this.datatransmitter.flush();
         }
-    }    
-        
+    }
+
+    private void assertNotClosed() {
+        if (this.closed) {
+            throw new IllegalStateException("Stream closed"); 
+        }
+    }
+    
+    public void flush() throws IOException {
+        assertNotClosed();
+        this.datatransmitter.flush();
+    }
+    
+    public void write(final byte[] b, int off, int len) throws IOException {
+        assertNotClosed();
+        this.datatransmitter.write(b, off, len);
+    }
+    
+    public void write(int b) throws IOException {
+        assertNotClosed();
+        this.datatransmitter.write(b);
+    }
 }

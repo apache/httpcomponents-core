@@ -29,6 +29,7 @@
 package org.apache.http;
 
 import org.apache.http.impl.TestAllImpl;
+import org.apache.http.io.TestAllIO;
 import org.apache.http.util.TestAllUtil;
 
 import junit.framework.*;
@@ -51,6 +52,8 @@ public class TestAll extends TestCase {
         suite.addTest(TestHttpVersion.suite());
         suite.addTest(TestStatusLine.suite());
         suite.addTest(TestRequestLine.suite());
+
+        suite.addTest(TestAllIO.suite());
         
         suite.addTest(TestAllImpl.suite());
         

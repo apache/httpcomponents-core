@@ -45,18 +45,15 @@ public class NIOSocketHttpDataTransmitter extends NIOHttpDataTransmitter {
 
     private final Socket socket;
     
-    private static Socket validate(final Socket socket) {
+    protected NIOSocketHttpDataTransmitter(final Socket socket) throws SocketException {
+        super();
         if (socket == null) {
             throw new IllegalArgumentException("Socket may not be null");
         }
         if (socket.getChannel() == null) {
             throw new IllegalArgumentException("Socket does not implement NIO channel");
         }
-        return socket;
-    }
-    
-    protected NIOSocketHttpDataTransmitter(final Socket socket) throws SocketException {
-        super(validate(socket).getChannel(), socket.getSendBufferSize());
+        init(socket.getChannel(), socket.getSendBufferSize());
         this.socket = socket;
     }
     
