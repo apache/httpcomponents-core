@@ -112,7 +112,7 @@ public class HeaderGroup {
         if (headers.length == 0) {
             return null;   
         } else if (headers.length == 1) {
-            return new Header(headers[0].getName(), headers[0].getValue());
+            return headers[0];
         } else {
             StringBuffer valueBuffer = new StringBuffer(headers[0].getValue());
             
@@ -221,9 +221,9 @@ public class HeaderGroup {
      * 
      * @return iterator over this group of headers.
      * 
-     * @since 3.0
+     * @since 4.0
      */
-    public Iterator getIterator() {
+    public Iterator iterator() {
         return this.headers.iterator(); 
     }
 }
