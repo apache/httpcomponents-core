@@ -27,7 +27,7 @@
  *
  */
 
-package org.apache.commons.httpclient;
+package org.apache.http;
 
 /**
  *  <p>HTTP version, as specified in RFC 2616.</p>
