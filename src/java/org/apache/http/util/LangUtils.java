@@ -50,6 +50,10 @@ public class LangUtils {
         return seed * HASH_OFFSET + hashcode;
     }
 
+    public static int hashCode(final int seed, final boolean b) {
+        return hashCode(seed, b ? 1 : 0);
+    }
+    
     public static int hashCode(final int seed, final Object obj) {
         return hashCode(seed, obj != null ? obj.hashCode() : 0);
     }
