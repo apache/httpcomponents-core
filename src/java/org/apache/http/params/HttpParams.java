@@ -234,6 +234,6 @@ public interface HttpParams {
      * 
      * @see java.lang.Object#clone()
      */
-    Object clone() throws CloneNotSupportedException;
+    Object clone();
     
 }

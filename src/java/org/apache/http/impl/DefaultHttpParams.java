@@ -199,13 +199,11 @@ public class DefaultHttpParams implements HttpParams, Serializable, Cloneable {
      * @see java.io.Serializable
      * @see java.lang.Object#clone()
      */
-    public Object clone() throws CloneNotSupportedException
-    {
-        DefaultHttpParams clone = (DefaultHttpParams)super.clone();
+    public Object clone() {
+        DefaultHttpParams clone = new DefaultHttpParams(this.defaults);
         if (this.parameters != null) {
             clone.parameters = (HashMap)this.parameters.clone(); 
         }
-        clone.setDefaults(this.defaults);
         return clone;
     }
 }
