@@ -95,4 +95,14 @@ public class TestParameterParser extends TestCase {
         params = parser.parse(s, ';');
         assertEquals(0, params.size());
     }
+
+    public void testNullInput() {
+        ParameterParser  parser = new ParameterParser();
+        List params = parser.parse((String)null, ';');
+        assertEquals(0, params.size());        
+        params = parser.parse((char[])null, ';');
+        assertEquals(0, params.size());        
+        params = parser.parse((char[])null, 0, 0, ';');
+        assertEquals(0, params.size());        
+    }
 }

@@ -39,6 +39,7 @@ public class TestAllUtil extends TestCase {
     public static Test suite() {
         TestSuite suite = new TestSuite();
         suite.addTest(TestParameterParser.suite());
+        suite.addTest(TestLangUtils.suite());
         return suite;
     }
 
