@@ -40,6 +40,7 @@
 
   <!-- The Junit test jarfile -->
   <property name="junit.jar" value="${lib.dir}/junit.jar"/>
+  <property name="clover.jar" value="${lib.dir}/clover.jar"/>
 
 <!-- ========== Properties: Destination Directories ======================= -->
 
@@ -65,13 +66,18 @@
     <pathelement location="${build.home}/classes"/>
   </path>
 
+<!-- ========== Clover task definitions =================================== -->
+
+   <taskdef resource="clovertasks"/>
+
 <!-- ========== Test Execution Defaults =================================== -->
 
   <!-- Construct unit test classpath -->
   <path id="test.classpath">
-    <pathelement location="${build.home}/classes"/>
+    <path refid="compile.classpath" />
     <pathelement location="${build.home}/tests"/>
     <pathelement location="${junit.jar}"/>
+    <pathelement location="${clover.jar}"/>
   </path>
 
   <!-- Should all tests fail if one does? -->
@@ -100,6 +106,8 @@
     <mkdir dir="${build.home}/docs"/>
     <mkdir dir="${build.home}/docs/api"/>
     <mkdir dir="${build.home}/tests"/>
+    <mkdir dir="${build.home}/clover"/>
+    <mkdir dir="${build.home}/clover/database"/>
   </target>
 
   <target name="static" depends="prepare"
@@ -159,9 +167,6 @@
 
   <target name="javadoc" depends="compile"
           description="Create component Javadoc documentation">
-    <mkdir dir="${dist.home}"/>
-    <mkdir dir="${dist.home}/docs"/>
-    <mkdir dir="${dist.home}/docs/api"/>
     <javadoc sourcepath   ="${source.home}/java"
              destdir      ="${dist.home}/docs/api"
              packagenames ="org.apache.http.*"
@@ -176,5 +181,26 @@
       <link href="${javadoc.j2sdk.link}"/>
     </javadoc>
   </target>
+
+<!-- ========== Targets: "External" Targets: Test coverage analysis ======= -->
+
+  <target name="clover-db"
+          description="Initialize test coverage database">
+    <clover-setup initString="${build.home}/clover/database/coverage.db" >
+      <files>
+        <exclude name="**/Test*.java"/>
+      </files>
+    </clover-setup>
+  </target>
+
+  <target name="clover" depends="clover-db, test"
+          description="Run test coverage analysis">
+    <clover-report>
+       <current outfile="${build.home}/clover/coverage-report">
+          <format type="html"/>
+       </current>
+    </clover-report>
+
+ </target>
 
 </project>
