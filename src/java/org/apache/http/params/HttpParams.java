@@ -228,4 +228,12 @@ public interface HttpParams {
      */
     boolean isParameterFalse(String name);
 
+    /**
+     * Clones this collection of parameters. This method may produce a shallow copy
+     * of the parameter collection if appropriate. 
+     * 
+     * @see java.lang.Object#clone()
+     */
+    Object clone() throws CloneNotSupportedException;
+    
 }
