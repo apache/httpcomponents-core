@@ -89,6 +89,7 @@ public abstract class NIOHttpDataReceiver implements HttpDataReceiver {
     }
     
     protected int fillBuffer() throws IOException {
+        this.buffer.compact();
         int i = this.channel.read(this.buffer);
         this.buffer.flip();
         return i;
@@ -104,7 +105,6 @@ public abstract class NIOHttpDataReceiver implements HttpDataReceiver {
         }
         int noRead = 0;
         if (!this.buffer.hasRemaining()) {
-            this.buffer.clear();
             noRead = fillBuffer();
             if (noRead == -1) {
                 return -1; 
@@ -128,7 +128,6 @@ public abstract class NIOHttpDataReceiver implements HttpDataReceiver {
     public int read() throws IOException {
         int noRead = 0;
         if (!this.buffer.hasRemaining()) {
-            this.buffer.clear();
             noRead = fillBuffer();
             if (noRead == -1) {
                 return -1; 
@@ -181,7 +180,6 @@ public abstract class NIOHttpDataReceiver implements HttpDataReceiver {
                     chardecoder.decode(this.buffer, tmp, false);
                 }
                 // discard the decoded content
-                this.buffer.compact();
                 noRead = fillBuffer();
                 if (noRead == -1) {
                     retry = false;
