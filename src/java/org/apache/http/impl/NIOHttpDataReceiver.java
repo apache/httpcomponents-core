@@ -35,6 +35,7 @@ import java.nio.CharBuffer;
 import java.nio.channels.ReadableByteChannel;
 import java.nio.charset.Charset;
 import java.nio.charset.CharsetDecoder;
+import java.nio.charset.CoderResult;
 import java.nio.charset.CodingErrorAction;
 
 import org.apache.http.io.HttpDataReceiver;
@@ -161,7 +162,17 @@ public abstract class NIOHttpDataReceiver implements HttpDataReceiver {
                 // read up to the end of line
                 int origLimit = this.buffer.limit();
                 this.buffer.limit(i + 1);
-                chardecoder.decode(this.buffer, tmp, true);
+                for (;;) {
+                    CoderResult result = chardecoder.decode(this.buffer, tmp, true);
+                    if (result.isOverflow()) {
+                        tmp.flip();
+                        line.append(tmp.array(), tmp.position(), tmp.remaining());
+                        tmp.clear();
+                    }
+                    if (result.isUnderflow()) {
+                        break;
+                    }
+                }
                 this.buffer.limit(origLimit);
             } else {
                 // end of line not found

@@ -31,6 +31,7 @@ package org.apache.http.impl;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.nio.channels.Channels;
+import java.nio.channels.ReadableByteChannel;
 
 import org.apache.http.io.HttpDataReceiver;
 import org.apache.http.io.HttpDataTransmitter;
@@ -85,7 +86,7 @@ public class TestNIOHttpTransmitterAndReceiver extends TestCase {
         HttpDataReceiver receiver2 = 
             new HttpDataReceiverMockup (Channels.newChannel(in), 200000000); 
         try {
-            HttpDataReceiver receiver3 = new HttpDataReceiverMockup(null, 1024); 
+            HttpDataReceiver receiver3 = new HttpDataReceiverMockup((ReadableByteChannel)null, 1024); 
             fail("IllegalArgumentException should have been thrown");
         } catch (IllegalArgumentException ex) {
             //expected
@@ -182,6 +183,40 @@ public class TestNIOHttpTransmitterAndReceiver extends TestCase {
         assertNull(receiver.readLine());
     }
     
+    public void testBasicReadWriteLineLargeBuffer() throws Exception {
+        
+        String[] teststrs = new String[5];
+        teststrs[0] = "Hello";
+        teststrs[1] = "This string should be much longer than the size of the output buffer " +
+                "which is only 16 bytes for this test";
+        StringBuffer buffer = new StringBuffer();
+        for (int i = 0; i < 15; i++) {
+            buffer.append("123456789 ");
+        }
+        buffer.append("and stuff like that");
+        teststrs[2] = buffer.toString();
+        teststrs[3] = "";
+        teststrs[4] = "And goodbye";
+        
+        HttpDataTransmitterMockup transmitter = new HttpDataTransmitterMockup(); 
+        for (int i = 0; i < teststrs.length; i++) {
+            transmitter.writeLine(teststrs[i]);
+        }
+        //this write operation should have no effect
+        transmitter.writeLine(null);
+        transmitter.flush();
+        
+        HttpDataReceiverMockup receiver = new HttpDataReceiverMockup(transmitter.getData(), 1024);
+
+        assertTrue(receiver.isDataAvailable(0));
+        
+        for (int i = 0; i < teststrs.length; i++) {
+            assertEquals(teststrs[i], receiver.readLine());
+        }
+        assertNull(receiver.readLine());
+        assertNull(receiver.readLine());
+    }
+
     public void testReadWriteBytes() throws Exception {
         // make the buffer larger than that of transmitter
         byte[] out = new byte[40];

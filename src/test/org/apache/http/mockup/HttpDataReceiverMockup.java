@@ -28,9 +28,21 @@ public class HttpDataReceiverMockup extends NIOHttpDataReceiver {
                 BUFFER_SIZE);
     }
 
+    public HttpDataReceiverMockup(final byte[] bytes, int buffersize) {
+        super();
+        init(Channels.newChannel(
+                new ByteArrayInputStream(bytes)),
+                buffersize);
+    }
+
+    public HttpDataReceiverMockup(final String s, final String charset, int buffersize) 
+        throws UnsupportedEncodingException {
+        this(s.getBytes(charset), buffersize);
+    }
+    
     public HttpDataReceiverMockup(final String s, final String charset) 
         throws UnsupportedEncodingException {
         this(s.getBytes(charset));
-    }
     
+    }
 }
