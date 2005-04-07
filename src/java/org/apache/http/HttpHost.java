@@ -147,9 +147,19 @@ public class HttpHost implements Cloneable {
      * @return The host uri.
      */
     public String toURI() {
-        StringBuffer buffer = new StringBuffer(50);        
+        StringBuffer buffer = new StringBuffer();        
         buffer.append(this.protocol.getScheme());
         buffer.append("://");
+        buffer.append(this.hostname);
+        if (this.port != this.protocol.getDefaultPort()) {
+            buffer.append(':');
+            buffer.append(this.port);
+        }
+        return buffer.toString();
+    }
+
+    public String toHostString() {
+        StringBuffer buffer = new StringBuffer();        
         buffer.append(this.hostname);
         if (this.port != this.protocol.getDefaultPort()) {
             buffer.append(':');

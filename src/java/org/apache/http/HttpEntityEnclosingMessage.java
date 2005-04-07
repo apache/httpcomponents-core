@@ -38,10 +38,10 @@ package org.apache.http;
  * 
  * @since 4.0
  */
-public interface HttpEntityEnclosingMessage {
+public interface HttpEntityEnclosingMessage extends HttpMessage {
 
     void setEntity(HttpOutgoingEntity entity);
     
-    void setUseChunkEncoding(boolean b);
+    HttpOutgoingEntity getEntity();
     
 }

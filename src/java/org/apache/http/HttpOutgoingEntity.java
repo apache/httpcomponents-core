@@ -30,7 +30,8 @@
 package org.apache.http;
 
 import java.io.IOException;
-import java.io.OutputStream;
+
+import org.apache.http.io.HttpDataTransmitter;
 
 /**
  * <p>
@@ -43,6 +44,6 @@ import java.io.OutputStream;
  */
 public interface HttpOutgoingEntity extends HttpEntity {
 
-    void writeTo(OutputStream outstream) throws IOException;
+    void writeTo(HttpDataTransmitter datatransmitter) throws IOException;
     
 }

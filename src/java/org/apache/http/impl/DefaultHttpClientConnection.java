@@ -41,9 +41,11 @@ import org.apache.http.HttpException;
 import org.apache.http.HttpHost;
 import org.apache.http.HttpMutableEntity;
 import org.apache.http.HttpMutableResponse;
+import org.apache.http.HttpOutgoingEntity;
 import org.apache.http.HttpRequest;
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
+import org.apache.http.HttpVersion;
 import org.apache.http.NoHttpResponseException;
 import org.apache.http.ProtocolException;
 import org.apache.http.ProtocolSocketFactory;
@@ -64,8 +66,11 @@ import org.apache.http.util.HeadersParser;
 public class DefaultHttpClientConnection 
         extends AbstractHttpConnection implements HttpClientConnection {
 
+    private static final String EXPECT_DIRECTIVE = "Expect";
+    private static final String EXPECT_CONTINUE = "100-Continue";
+    private static final int CONTINUE_WAIT_MS = 3000;
+    
     private HttpHost targethost = null;
-    private boolean reusable = false;
     
     public DefaultHttpClientConnection() {
         super();
@@ -88,7 +93,6 @@ public class DefaultHttpClientConnection
                 targethost.getHostName(), targethost.getPort(), localAddress, 0, params);
         bind(socket, params);
         this.targethost = targethost;
-        this.reusable = true;
     }
     
     public HttpHost getTargetHost() {
@@ -97,11 +101,10 @@ public class DefaultHttpClientConnection
     
     public void close() throws IOException {
         this.targethost = null;
-        this.reusable = false;
         super.close();
     }
 
-    public void sendRequest(final HttpRequest request) 
+    public HttpResponse sendRequest(final HttpRequest request) 
             throws HttpException, IOException {
         if (request == null) {
             throw new IllegalArgumentException("HTTP request may not be null");
@@ -112,10 +115,14 @@ public class DefaultHttpClientConnection
         
         sendRequestLine(request);
         sendRequestHeaders(request);
+        
+        HttpResponse response = null;
         if (request instanceof HttpEntityEnclosingMessage) {
-            sendRequestBody((HttpEntityEnclosingMessage)request);
+            // send request may be prematurely terminated by the target server
+            response = sendRequestBody(request);
         }
         this.datatransmitter.flush();
+        return response;
     }
     
     protected void sendRequestLine(
@@ -143,22 +150,50 @@ public class DefaultHttpClientConnection
         }
     }
 
-    protected void sendRequestBody(
-            final HttpEntityEnclosingMessage request) throws HttpException, IOException {
+    protected HttpResponse sendRequestBody(final HttpRequest request) 
+                                                    throws HttpException, IOException {
+        HttpOutgoingEntity entity = ((HttpEntityEnclosingMessage)request).getEntity();
+        if (entity == null) {
+            return null;
+        }
+        // See if 'expect-continue' handshake is supported 
+        if (HttpVersion.HTTP_1_1.greaterEquals(request.getRequestLine().getHttpVersion())) {
+            // ... and activated
+            Header expect = request.getFirstHeader(EXPECT_DIRECTIVE);
+            if (expect != null && EXPECT_CONTINUE.equalsIgnoreCase(expect.getValue())) {
+                // flush the headers
+                this.datatransmitter.flush();
+                if (this.datareceiver.isDataAvailable(CONTINUE_WAIT_MS)) {
+                    HttpResponse response = receiveResponse(request);
+                    int status = response.getStatusLine().getStatusCode();
+                    if (status > 100) {
+                        return response;
+                    } else {
+                        if (status != HttpStatus.SC_CONTINUE) {
+                            throw new ProtocolException("Unexpected response: " + 
+                                    response.getStatusLine());
+                        }
+                    }
+                }
+            }
+        }
+        entity.writeTo(this.datatransmitter);
+        return null;
     }
     
-    public HttpResponse receiveResponse(final HttpParams params) 
-            throws HttpException, IOException {
-        if (params == null) {
-            throw new IllegalArgumentException("HTTP parameters may not be null");
+    public HttpResponse receiveResponse(final HttpRequest request) 
+                                                    throws HttpException, IOException {
+        if (request == null) {
+            throw new IllegalArgumentException("HTTP request may not be null");
         }
         assertOpen();
 
+        HttpParams params = request.getParams();
         // reset the data receiver
         this.datareceiver.reset(params);
 
         BasicHttpResponse response = new BasicHttpResponse();
-        response.setParams(params);
+        response.setParams((HttpParams)params.clone());
         
         processResponseStatusLine(response);
         processResponseHeaders(response);

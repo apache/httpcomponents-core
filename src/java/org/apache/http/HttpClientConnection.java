@@ -47,8 +47,8 @@ public interface HttpClientConnection extends HttpConnection {
 
     void open(HttpHost host, HttpParams params, InetAddress localAddress) throws IOException;
     
-    void sendRequest(HttpRequest request) throws HttpException, IOException;
+    HttpResponse sendRequest(HttpRequest request) throws HttpException, IOException;
 
-    HttpResponse receiveResponse(HttpParams params) throws HttpException, IOException;
+    HttpResponse receiveResponse(HttpRequest request) throws HttpException, IOException;
     
 }
