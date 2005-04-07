@@ -143,7 +143,7 @@ public class HeaderElement {
                 this.parameters = (NameValuePair[])
                     params.toArray(new NameValuePair[params.size()]);    
             } else {
-                this.parameters = null;
+                this.parameters = new NameValuePair[] {};
             }
         } else {
             this.name = "";
