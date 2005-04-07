@@ -77,6 +77,7 @@ abstract class AbstractHttpConnection implements HttpConnection {
             throw new IllegalArgumentException("HTTP parameters may not be null");
         }
         assertNotOpen();
+        this.socket = socket;
         HttpConnectionParams connParams = new HttpConnectionParams(params); 
         this.socket.setTcpNoDelay(connParams.getTcpNoDelay());
         this.socket.setSoTimeout(connParams.getSoTimeout());

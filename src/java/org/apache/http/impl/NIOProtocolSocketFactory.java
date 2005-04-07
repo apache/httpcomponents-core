@@ -34,6 +34,7 @@ import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.Socket;
 import java.net.UnknownHostException;
+import java.nio.channels.SocketChannel;
 
 import org.apache.http.ConnectTimeoutException;
 import org.apache.http.ProtocolSocketFactory;
@@ -99,7 +100,8 @@ public class NIOProtocolSocketFactory implements ProtocolSocketFactory {
         if (params == null) {
             throw new IllegalArgumentException("Parameters may not be null");
         }
-        Socket socket = new Socket();
+        SocketChannel channel = SocketChannel.open(); 
+        Socket socket = channel.socket();
         if (localAddress != null) {
             socket.bind(new InetSocketAddress(localAddress, localPort));
         }
