@@ -37,7 +37,7 @@ import org.apache.http.impl.OldIOProtocolSocketFactory;
 import org.apache.http.util.LangUtils;
 
 /**
- * A class to encapsulate the specifics of a protocol.  This class class also
+ * A class to encapsulate the specifics of a protocol.  This class also
  * provides the ability to customize the set and characteristics of the
  * protocols used.
  * 
@@ -195,22 +195,6 @@ public class Protocol {
         this.defaultPort = defaultPort;
         this.secure = (factory instanceof SecureProtocolSocketFactory);
     }
-    
-    /**
-     * Constructs a new Protocol. Whether the created protocol is secure depends on
-     * the class of <code>factory</code>.
-     *
-     * @param scheme the scheme (e.g. http, https)
-     * @param factory the factory for creating sockets for communication using
-     * this protocol
-     * @param defaultPort the port this protocol defaults to
-     * @deprecated Use the constructor that uses ProtocolSocketFactory, this version of
-     * the constructor is only kept for backwards API compatibility.
-     */
-    public Protocol(String scheme, 
-        SecureProtocolSocketFactory factory, int defaultPort) {
-        this(scheme, (ProtocolSocketFactory) factory, defaultPort);   
-    }    
     
     /**
      * Returns the defaultPort.
