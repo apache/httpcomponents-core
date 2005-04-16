@@ -40,6 +40,4 @@ package org.apache.http;
  */
 public interface HttpMutableRequest extends HttpRequest, HttpMutableMessage {
 
-    void setRequestLine(RequestLine requestline);
-    
 }

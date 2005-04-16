@@ -1,5 +1,5 @@
 /*
- * $Header: $
+ * $HeadURL$
  * $Revision$
  * $Date$
  *
@@ -27,10 +27,9 @@
  *
  */
 
-package org.apache.http;
+package org.apache.http.impl;
 
-import java.io.IOException;
-import java.io.OutputStream;
+import org.apache.http.HttpException;
 
 /**
  * <p>
@@ -41,8 +40,15 @@ import java.io.OutputStream;
  * 
  * @since 4.0
  */
-public interface HttpOutgoingEntity extends HttpEntity {
+public class RequestValidationException extends HttpException {
 
-    void writeTo(OutputStream outstream) throws IOException;
-    
+    /**
+     * Creates a new RequestValidationException with the specified detail message.
+     * 
+     * @param message The exception detail message
+     */
+    public RequestValidationException(final String message) {
+        super(message);
+    }
+
 }

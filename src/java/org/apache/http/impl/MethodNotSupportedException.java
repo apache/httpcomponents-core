@@ -1,5 +1,5 @@
 /*
- * $Header: $
+ * $HeadURL$
  * $Revision$
  * $Date$
  *
@@ -27,10 +27,9 @@
  *
  */
 
-package org.apache.http;
+package org.apache.http.impl;
 
-import java.io.IOException;
-import java.io.OutputStream;
+import org.apache.http.HttpException;
 
 /**
  * <p>
@@ -41,8 +40,25 @@ import java.io.OutputStream;
  * 
  * @since 4.0
  */
-public interface HttpOutgoingEntity extends HttpEntity {
+public class MethodNotSupportedException extends HttpException {
 
-    void writeTo(OutputStream outstream) throws IOException;
-    
+    /**
+     * Creates a new MethodNotSupportedException with the specified detail message.
+     * 
+     * @param message The exception detail message
+     */
+    public MethodNotSupportedException(final String message) {
+        super(message);
+    }
+
+    /**
+     * Creates a new MethodNotSupportedException with the specified detail message and cause.
+     * 
+     * @param message the exception detail message
+     * @param cause the <tt>Throwable</tt> that caused this exception, or <tt>null</tt>
+     * if the cause is unavailable, unknown, or not a <tt>Throwable</tt>
+     */
+    public MethodNotSupportedException(final String message, final Throwable cause) {
+        super(message, cause);
+    }
 }

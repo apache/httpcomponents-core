@@ -31,12 +31,13 @@ package org.apache.http.impl;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.net.InetAddress;
 import java.net.Socket;
 
 import org.apache.http.Header;
 import org.apache.http.HttpClientConnection;
-import org.apache.http.HttpEntityEnclosingMessage;
+import org.apache.http.HttpEntityEnclosingRequest;
 import org.apache.http.HttpException;
 import org.apache.http.HttpHost;
 import org.apache.http.HttpMutableEntity;
@@ -50,6 +51,8 @@ import org.apache.http.NoHttpResponseException;
 import org.apache.http.ProtocolException;
 import org.apache.http.ProtocolSocketFactory;
 import org.apache.http.StatusLine;
+import org.apache.http.io.ChunkedOutputStream;
+import org.apache.http.io.HttpDataOutputStream;
 import org.apache.http.params.HttpParams;
 import org.apache.http.params.HttpProtocolParams;
 import org.apache.http.util.HeadersParser;
@@ -116,13 +119,16 @@ public class DefaultHttpClientConnection
         sendRequestLine(request);
         sendRequestHeaders(request);
         
-        HttpResponse response = null;
-        if (request instanceof HttpEntityEnclosingMessage) {
+        if (request instanceof HttpEntityEnclosingRequest) {
             // send request may be prematurely terminated by the target server
-            response = sendRequestBody(request);
+            HttpResponse response = expectContinue(request);
+            if (response != null) {
+                return response;
+            }
+            sendRequestBody((HttpEntityEnclosingRequest)request);
         }
         this.datatransmitter.flush();
-        return response;
+        return null;
     }
     
     protected void sendRequestLine(
@@ -150,14 +156,11 @@ public class DefaultHttpClientConnection
         }
     }
 
-    protected HttpResponse sendRequestBody(final HttpRequest request) 
-                                                    throws HttpException, IOException {
-        HttpOutgoingEntity entity = ((HttpEntityEnclosingMessage)request).getEntity();
-        if (entity == null) {
-            return null;
-        }
-        // See if 'expect-continue' handshake is supported 
-        if (HttpVersion.HTTP_1_1.greaterEquals(request.getRequestLine().getHttpVersion())) {
+    protected HttpResponse expectContinue(final HttpRequest request) 
+            throws HttpException, IOException {
+        // See if 'expect-continue' handshake is supported
+        HttpVersion ver = request.getRequestLine().getHttpVersion();
+        if (ver.greaterEquals(HttpVersion.HTTP_1_1)) {
             // ... and activated
             Header expect = request.getFirstHeader(EXPECT_DIRECTIVE);
             if (expect != null && EXPECT_CONTINUE.equalsIgnoreCase(expect.getValue())) {
@@ -177,8 +180,29 @@ public class DefaultHttpClientConnection
                 }
             }
         }
-        entity.writeTo(this.datatransmitter);
         return null;
+    }
+    
+    protected void sendRequestBody(final HttpEntityEnclosingRequest request) 
+            throws HttpException, IOException {
+        if (request.getEntity() == null) {
+            return;
+        }
+        HttpOutgoingEntity entity = (HttpOutgoingEntity)request.getEntity();
+        HttpVersion ver = request.getRequestLine().getHttpVersion();
+        if (entity.isChunked() && ver.lessEquals(HttpVersion.HTTP_1_0)) {
+            throw new ProtocolException(
+                    "Chunked transfer encoding not allowed for " + ver);
+        }
+        OutputStream outstream = new HttpDataOutputStream(this.datatransmitter);
+        if (entity.isChunked()) {
+            outstream = new ChunkedOutputStream(outstream);
+        }
+        entity.writeTo(outstream);
+        if (outstream instanceof ChunkedOutputStream) {
+            ((ChunkedOutputStream) outstream).finish();
+        }
+        outstream.flush();
     }
     
     public HttpResponse receiveResponse(final HttpRequest request) 
@@ -192,19 +216,16 @@ public class DefaultHttpClientConnection
         // reset the data receiver
         this.datareceiver.reset(params);
 
-        BasicHttpResponse response = new BasicHttpResponse();
-        response.setParams((HttpParams)params.clone());
-        
-        processResponseStatusLine(response);
+        HttpMutableResponse response = processResponseStatusLine(params);
         processResponseHeaders(response);
         processResponseBody(response);
         return response;
     }
     
-    protected void processResponseStatusLine(
-            final HttpMutableResponse response) throws HttpException, IOException {
+    protected HttpMutableResponse processResponseStatusLine(final HttpParams params) 
+                throws HttpException, IOException {
         //read out the HTTP status string
-        int maxGarbageLines = response.getParams().getIntParameter(
+        int maxGarbageLines = params.getIntParameter(
                 HttpProtocolParams.STATUS_LINE_GARBAGE_LIMIT, Integer.MAX_VALUE);
         int count = 0;
         String s;
@@ -229,10 +250,11 @@ public class DefaultHttpClientConnection
             }
         } while(true);
         //create the status line from the status string
-        response.setStatusLine(StatusLine.parse(s));
+        StatusLine statusline = StatusLine.parse(s);
         if (isWirelogEnabled()) {
             wirelog("<< " + s + "[\\r][\\n]");
         }
+        return HttpResponseFactory.newHttpResponse(statusline);
     }
 
     protected void processResponseHeaders(

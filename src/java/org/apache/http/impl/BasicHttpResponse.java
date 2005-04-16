@@ -47,26 +47,18 @@ public class BasicHttpResponse extends BasicHttpMessage implements HttpMutableRe
     private StatusLine statusline = null;
     private HttpEntity entity = null;
     
-    public BasicHttpResponse() {
-        super();
-    }
-
     public BasicHttpResponse(final StatusLine statusline) {
         super();
-        setStatusLine(statusline);
+        if (statusline == null) {
+            throw new IllegalArgumentException("Status line may not be null");
+        }
+        this.statusline = statusline;
     }
 
     public StatusLine getStatusLine() {
         return this.statusline; 
     }
 
-    public void setStatusLine(final StatusLine statusline) {
-        if (statusline == null) {
-            throw new IllegalArgumentException("Status line may not be null");
-        }
-        this.statusline = statusline;
-    }
-    
     public HttpEntity getEntity() {
         return this.entity;
     }

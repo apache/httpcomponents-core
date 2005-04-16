@@ -84,8 +84,8 @@ public class TestDefaultResponseConsumedWatcher extends TestCase {
         entity.setContentLength(data.length);
         entity.setInputStream(new ByteArrayInputStream(data));
         
-        HttpMutableResponse response = new BasicHttpResponse();
-        response.setStatusLine(new StatusLine(HttpVersion.HTTP_1_0, 200, "OK"));
+        StatusLine statusline = new StatusLine(HttpVersion.HTTP_1_0, 200, "OK");
+        HttpMutableResponse response = new BasicHttpResponse(statusline);
         response.setHeader(new Header("Connection", "Close"));
         response.setParams(new DefaultHttpParams(null));
         response.setEntity(entity);
@@ -108,8 +108,8 @@ public class TestDefaultResponseConsumedWatcher extends TestCase {
         entity.setContentLength(data.length);
         entity.setInputStream(new ByteArrayInputStream(data));
         
-        HttpMutableResponse response = new BasicHttpResponse();
-        response.setStatusLine(new StatusLine(HttpVersion.HTTP_1_1, 200, "OK"));
+        StatusLine statusline = new StatusLine(HttpVersion.HTTP_1_1, 200, "OK");
+        HttpMutableResponse response = new BasicHttpResponse(statusline);
         response.setHeader(new Header("Connection", "Keep-alive"));
         response.setParams(new DefaultHttpParams(null));
         response.setEntity(entity);

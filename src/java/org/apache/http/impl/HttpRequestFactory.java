@@ -1,5 +1,5 @@
 /*
- * $Header: $
+ * $HeadURL$
  * $Revision$
  * $Date$
  *
@@ -27,7 +27,10 @@
  *
  */
 
-package org.apache.http;
+package org.apache.http.impl;
+
+import org.apache.http.HttpMutableRequest;
+import org.apache.http.RequestLine;
 
 /**
  * <p>
@@ -38,10 +41,25 @@ package org.apache.http;
  * 
  * @since 4.0
  */
-public interface HttpEntityEnclosingMessage extends HttpMessage {
-
-    void setEntity(HttpOutgoingEntity entity);
+public class HttpRequestFactory {
     
-    HttpOutgoingEntity getEntity();
+    private HttpRequestFactory() {
+        super();
+    }
+
+    public static HttpMutableRequest newHttpRequest(final RequestLine requestline)
+            throws MethodNotSupportedException {
+        if (requestline == null) {
+            throw new IllegalArgumentException("Request line may not be null");
+        }
+        String method = requestline.getMethod();
+        if ("GET".equalsIgnoreCase(method)) {
+            return new BasicHttpRequest(requestline); 
+        } else if ("POST".equalsIgnoreCase(method)) {
+            return new BasicHttpEntityEnclosingRequest(requestline); 
+        } else { 
+            throw new MethodNotSupportedException(method +  " method not supported");
+        }
+    }
     
 }

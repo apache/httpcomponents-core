@@ -32,7 +32,6 @@ import junit.framework.Test;
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
 
-import org.apache.http.HttpMutableRequest;
 import org.apache.http.HttpRequest;
 import org.apache.http.HttpVersion;
 import org.apache.http.RequestLine;
@@ -88,16 +87,6 @@ public class TestBasicRequest extends TestCase {
         assertEquals("GET", request.getRequestLine().getMethod());
         assertEquals("/stuff", request.getRequestLine().getUri());
         assertEquals(HttpVersion.HTTP_1_0, request.getRequestLine().getHttpVersion());
-    }
-
-    public void testNullRequestLine() throws Exception {
-        HttpMutableRequest request = new BasicHttpRequest("GET", "/stuff");
-        try {
-            request.setRequestLine(null);
-            fail("IllegalArgumentException should have been thrown");
-        } catch (IllegalArgumentException ex) {
-            // expected
-        }
     }
 
 }

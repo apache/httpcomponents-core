@@ -1,5 +1,5 @@
 /*
- * $Header: $
+ * $HeadURL$
  * $Revision$
  * $Date$
  *
@@ -27,10 +27,11 @@
  *
  */
 
-package org.apache.http;
+package org.apache.http.impl;
 
-import java.io.IOException;
-import java.io.OutputStream;
+import org.apache.http.HttpEntity;
+import org.apache.http.HttpMutableEntityEnclosingRequest;
+import org.apache.http.RequestLine;
 
 /**
  * <p>
@@ -41,8 +42,24 @@ import java.io.OutputStream;
  * 
  * @since 4.0
  */
-public interface HttpOutgoingEntity extends HttpEntity {
-
-    void writeTo(OutputStream outstream) throws IOException;
+public class BasicHttpEntityEnclosingRequest 
+            extends BasicHttpRequest implements HttpMutableEntityEnclosingRequest {
     
+    private HttpEntity entity = null;
+    
+    protected BasicHttpEntityEnclosingRequest(final String method, final String uri) {
+        super(method, uri);
+    }
+
+    protected BasicHttpEntityEnclosingRequest(final RequestLine requestline) {
+        super(requestline);
+    }
+
+    public HttpEntity getEntity() {
+        return this.entity;
+    }
+
+    public void setEntity(final HttpEntity entity) {
+        this.entity = entity;
+    }
 }

@@ -45,10 +45,10 @@ import org.apache.http.params.HttpProtocolParams;
  */
 public class BasicHttpRequest extends BasicHttpMessage implements HttpMutableRequest {
     
-    private String method = null;
-    private String uri = null;
-    private RequestLine requestline = null;
-    
+    private final RequestLine requestline;
+    private final String method;
+    private final String uri;
+        
     protected BasicHttpRequest(final String method, final String uri) {
         super();
         if (method == null) {
@@ -59,11 +59,17 @@ public class BasicHttpRequest extends BasicHttpMessage implements HttpMutableReq
         }
         this.method = method;
         this.uri = uri;
+        this.requestline = null;
     }
 
     protected BasicHttpRequest(final RequestLine requestline) {
         super();
-        setRequestLine(requestline);
+        if (requestline == null) {
+            throw new IllegalArgumentException("Request line may not be null");
+        }
+        this.requestline = requestline;
+        this.method = requestline.getMethod();
+        this.uri = requestline.getUri();
     }
 
     public RequestLine getRequestLine() {
@@ -74,14 +80,4 @@ public class BasicHttpRequest extends BasicHttpMessage implements HttpMutableReq
             return new RequestLine(this.method, this.uri, ver);
         }
     }
-
-    public void setRequestLine(final RequestLine requestline) {
-        if (requestline == null) {
-            throw new IllegalArgumentException("Request line may not be null");
-        }
-        this.requestline = requestline;
-        this.method = requestline.getMethod();
-        this.uri = requestline.getUri();
-    }
-    
 }

@@ -40,8 +40,6 @@ package org.apache.http;
  */
 public interface HttpMutableResponse extends HttpMutableMessage, HttpResponse {
 
-    void setStatusLine(StatusLine statusline);
-
     void setEntity(HttpEntity entity);
     
 }

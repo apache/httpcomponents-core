@@ -1,5 +1,5 @@
 /*
- * $Header: $
+ * $HeadURL$
  * $Revision$
  * $Date$
  *
@@ -27,10 +27,12 @@
  *
  */
 
-package org.apache.http;
+package org.apache.http.impl;
 
-import java.io.IOException;
-import java.io.OutputStream;
+import org.apache.http.HttpMutableResponse;
+import org.apache.http.HttpStatus;
+import org.apache.http.HttpVersion;
+import org.apache.http.StatusLine;
 
 /**
  * <p>
@@ -41,8 +43,26 @@ import java.io.OutputStream;
  * 
  * @since 4.0
  */
-public interface HttpOutgoingEntity extends HttpEntity {
-
-    void writeTo(OutputStream outstream) throws IOException;
+public class HttpResponseFactory {
     
+    private HttpResponseFactory() {
+        super();
+    }
+
+    public static HttpMutableResponse newHttpResponse(final HttpVersion ver, final int status)
+            throws MethodNotSupportedException {
+        if (ver == null) {
+            throw new IllegalArgumentException("HTTP version may not be null");
+        }
+        StatusLine statusline = new StatusLine(ver, status, HttpStatus.getStatusText(status)); 
+        return new BasicHttpResponse(statusline); 
+    }
+    
+    public static HttpMutableResponse newHttpResponse(final StatusLine statusline)
+            throws MethodNotSupportedException {
+        if (statusline == null) {
+            throw new IllegalArgumentException("Status line may not be null");
+        }
+        return new BasicHttpResponse(statusline); 
+    }
 }
