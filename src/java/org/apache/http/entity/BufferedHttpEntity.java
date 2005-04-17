@@ -33,7 +33,7 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 
-import org.apache.http.HttpEntity;
+import org.apache.http.HttpIncomingEntity;
 
 /**
  * <p>
@@ -44,12 +44,12 @@ import org.apache.http.HttpEntity;
  * 
  * @since 4.0
  */
-public class BufferedHttpEntity implements HttpEntity {
+public class BufferedHttpEntity implements HttpIncomingEntity {
     
-    private final HttpEntity source;
+    private final HttpIncomingEntity source;
     private final byte[] buffer;
     
-    public BufferedHttpEntity(final HttpEntity entity) throws IOException {
+    public BufferedHttpEntity(final HttpIncomingEntity entity) throws IOException {
         super();
         if (entity == null) {
             throw new IllegalArgumentException("HTTP entity may not be null");

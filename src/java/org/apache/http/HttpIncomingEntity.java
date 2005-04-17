@@ -1,5 +1,5 @@
 /*
- * $HeadURL$
+ * $Header: $
  * $Revision$
  * $Date$
  *
@@ -29,6 +29,8 @@
 
 package org.apache.http;
 
+import java.io.InputStream;
+
 /**
  * <p>
  * </p>
@@ -38,8 +40,8 @@ package org.apache.http;
  * 
  * @since 4.0
  */
-public interface HttpMutableResponse extends HttpMutableMessage, HttpResponse {
+public interface HttpIncomingEntity extends HttpEntity {
 
-    void setEntity(HttpIncomingEntity entity);
+    InputStream getInputStream();
     
 }

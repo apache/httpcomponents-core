@@ -32,7 +32,7 @@ import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 
 import org.apache.http.Header;
-import org.apache.http.HttpEntity;
+import org.apache.http.HttpIncomingEntity;
 import org.apache.http.HttpMutableMessage;
 import org.apache.http.ProtocolException;
 import org.apache.http.io.ChunkedInputStream;
@@ -91,7 +91,7 @@ public class TestDefaultEntityGenerator extends TestCase {
         message.addHeader(new Header("Transfer-Encoding", "identity, chunked"));
         message.addHeader(new Header("Content-Length", "plain wrong"));
         EntityGenerator entitygen = new DefaultEntityGenerator();
-        HttpEntity entity = entitygen.generate(datareceiver, message);
+        HttpIncomingEntity entity = entitygen.generate(datareceiver, message);
         assertNotNull(entity);
         assertEquals(-1, entity.getContentLength());
         assertTrue(entity.isChunked());
@@ -117,7 +117,7 @@ public class TestDefaultEntityGenerator extends TestCase {
         message.addHeader(new Header("Transfer-Encoding", "identity"));
         message.addHeader(new Header("Content-Length", "plain wrong"));
         EntityGenerator entitygen = new DefaultEntityGenerator();
-        HttpEntity entity = entitygen.generate(datareceiver, message);
+        HttpIncomingEntity entity = entitygen.generate(datareceiver, message);
         assertNotNull(entity);
         assertEquals(-1, entity.getContentLength());
         assertFalse(entity.isChunked());
@@ -134,7 +134,7 @@ public class TestDefaultEntityGenerator extends TestCase {
         message.addHeader(new Header("Transfer-Encoding", "whatever; param=value, chunked"));
         message.addHeader(new Header("Content-Length", "plain wrong"));
         EntityGenerator entitygen = new DefaultEntityGenerator();
-        HttpEntity entity = entitygen.generate(datareceiver, message);
+        HttpIncomingEntity entity = entitygen.generate(datareceiver, message);
         assertNotNull(entity);
         assertEquals(-1, entity.getContentLength());
         assertTrue(entity.isChunked());
@@ -160,7 +160,7 @@ public class TestDefaultEntityGenerator extends TestCase {
         message.addHeader(new Header("Transfer-Encoding", "chunked, identity"));
         message.addHeader(new Header("Content-Length", "plain wrong"));
         EntityGenerator entitygen = new DefaultEntityGenerator();
-        HttpEntity entity = entitygen.generate(datareceiver, message);
+        HttpIncomingEntity entity = entitygen.generate(datareceiver, message);
         assertNotNull(entity);
         assertEquals(-1, entity.getContentLength());
         assertFalse(entity.isChunked());
@@ -185,7 +185,7 @@ public class TestDefaultEntityGenerator extends TestCase {
         message.addHeader(new Header("Content-Type", "unknown"));
         message.addHeader(new Header("Content-Length", "0"));
         EntityGenerator entitygen = new DefaultEntityGenerator();
-        HttpEntity entity = entitygen.generate(datareceiver, message);
+        HttpIncomingEntity entity = entitygen.generate(datareceiver, message);
         assertNotNull(entity);
         assertEquals(0, entity.getContentLength());
         assertFalse(entity.isChunked());
@@ -203,7 +203,7 @@ public class TestDefaultEntityGenerator extends TestCase {
         message.addHeader(new Header("Content-Length", "0"));
         message.addHeader(new Header("Content-Length", "1"));
         EntityGenerator entitygen = new DefaultEntityGenerator();
-        HttpEntity entity = entitygen.generate(datareceiver, message);
+        HttpIncomingEntity entity = entitygen.generate(datareceiver, message);
         assertNotNull(entity);
         assertEquals(1, entity.getContentLength());
         assertFalse(entity.isChunked());
@@ -231,7 +231,7 @@ public class TestDefaultEntityGenerator extends TestCase {
         message.addHeader(new Header("Content-Length", "yyy"));
         message.addHeader(new Header("Content-Length", "xxx"));
         EntityGenerator entitygen = new DefaultEntityGenerator();
-        HttpEntity entity = entitygen.generate(datareceiver, message);
+        HttpIncomingEntity entity = entitygen.generate(datareceiver, message);
         assertNotNull(entity);
         assertEquals(1, entity.getContentLength());
         assertFalse(entity.isChunked());
@@ -258,7 +258,7 @@ public class TestDefaultEntityGenerator extends TestCase {
         message.addHeader(new Header("Content-Length", "yyy"));
         message.addHeader(new Header("Content-Length", "xxx"));
         EntityGenerator entitygen = new DefaultEntityGenerator();
-        HttpEntity entity = entitygen.generate(datareceiver, message);
+        HttpIncomingEntity entity = entitygen.generate(datareceiver, message);
         assertNotNull(entity);
         assertEquals(-1, entity.getContentLength());
         assertFalse(entity.isChunked());
@@ -285,7 +285,7 @@ public class TestDefaultEntityGenerator extends TestCase {
         message.addHeader(new Header("Content-Type", "unknown"));
         message.addHeader(new Header("Content-Length", "xxx"));
         EntityGenerator entitygen = new DefaultEntityGenerator();
-        HttpEntity entity = entitygen.generate(datareceiver, message);
+        HttpIncomingEntity entity = entitygen.generate(datareceiver, message);
         assertNotNull(entity);
         assertEquals(-1, entity.getContentLength());
         assertFalse(entity.isChunked());
@@ -310,7 +310,7 @@ public class TestDefaultEntityGenerator extends TestCase {
         // lenient mode 
         message.getParams().setBooleanParameter(HttpProtocolParams.STRICT_TRANSFER_ENCODING, false);
         EntityGenerator entitygen = new DefaultEntityGenerator();
-        HttpEntity entity = entitygen.generate(datareceiver, message);
+        HttpIncomingEntity entity = entitygen.generate(datareceiver, message);
         assertNotNull(entity);
         assertEquals(-1, entity.getContentLength());
         assertFalse(entity.isChunked());
@@ -326,7 +326,7 @@ public class TestDefaultEntityGenerator extends TestCase {
         HttpMutableMessage message = new BasicHttpMessage();
         message.addHeader(new Header("Content-Type", "unknown"));
         EntityGenerator entitygen = new DefaultEntityGenerator();
-        HttpEntity entity = entitygen.generate(datareceiver, message);
+        HttpIncomingEntity entity = entitygen.generate(datareceiver, message);
         assertNotNull(entity);
         assertEquals(-1, entity.getContentLength());
         assertFalse(entity.isChunked());

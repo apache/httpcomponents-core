@@ -36,7 +36,7 @@ import org.apache.http.Header;
 import org.apache.http.HeaderElement;
 import org.apache.http.HttpException;
 import org.apache.http.HttpMessage;
-import org.apache.http.HttpMutableEntity;
+import org.apache.http.HttpMutableIncomingEntity;
 import org.apache.http.ProtocolException;
 import org.apache.http.io.ChunkedInputStream;
 import org.apache.http.io.ContentLengthInputStream;
@@ -208,7 +208,7 @@ public class DefaultEntityGenerator implements EntityGenerator {
         }
     }
     
-    public HttpMutableEntity generate(
+    public HttpMutableIncomingEntity generate(
             final HttpDataReceiver datareceiver,
             final HttpMessage message) throws HttpException, IOException {
         if (datareceiver == null) {
@@ -218,7 +218,7 @@ public class DefaultEntityGenerator implements EntityGenerator {
             throw new IllegalArgumentException("HTTP message may not be null");
         }
 
-        HttpMutableEntity entity = new BasicHttpEntity();
+        HttpMutableIncomingEntity entity = new BasicHttpEntity();
         
         HttpParams params = message.getParams(); 
         boolean strict = params.isParameterTrue(HttpProtocolParams.STRICT_TRANSFER_ENCODING);

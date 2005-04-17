@@ -37,6 +37,7 @@ import java.io.Reader;
 
 import org.apache.http.HeaderElement;
 import org.apache.http.HttpEntity;
+import org.apache.http.HttpIncomingEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.NameValuePair;
 import org.apache.http.params.HttpProtocolParams;
@@ -62,7 +63,7 @@ public class EntityConsumer {
         this.response = response;
     }
 
-    public static byte[] toByteArray(final HttpEntity entity) throws IOException {
+    public static byte[] toByteArray(final HttpIncomingEntity entity) throws IOException {
         if (entity == null) {
             throw new IllegalArgumentException("HTTP entity may not be null");
         }
@@ -104,7 +105,7 @@ public class EntityConsumer {
     }
 
     public static String toString(
-            final HttpEntity entity, final String defaultCharset) throws IOException {
+            final HttpIncomingEntity entity, final String defaultCharset) throws IOException {
         if (entity == null) {
             throw new IllegalArgumentException("HTTP entity may not be null");
         }
@@ -131,12 +132,12 @@ public class EntityConsumer {
         return buffer.toString();
     }
 
-    public static String toString(final HttpEntity entity) throws IOException {
+    public static String toString(final HttpIncomingEntity entity) throws IOException {
         return toString(entity, null);
     }
 
     public byte[] asByteArray() throws IOException {
-        HttpEntity entity = this.response.getEntity();
+        HttpIncomingEntity entity = this.response.getEntity();
         if (entity == null) {
             return new byte[] {};
         }
@@ -144,7 +145,7 @@ public class EntityConsumer {
     }
     
     public String asString() throws IOException {
-        HttpEntity entity = this.response.getEntity();
+        HttpIncomingEntity entity = this.response.getEntity();
         if (entity == null) {
             return "";
         }

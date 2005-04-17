@@ -29,7 +29,7 @@
 
 package org.apache.http.impl;
 
-import org.apache.http.HttpEntity;
+import org.apache.http.HttpIncomingEntity;
 import org.apache.http.HttpMutableResponse;
 import org.apache.http.StatusLine;
 
@@ -45,7 +45,7 @@ import org.apache.http.StatusLine;
 public class BasicHttpResponse extends BasicHttpMessage implements HttpMutableResponse {
     
     private StatusLine statusline = null;
-    private HttpEntity entity = null;
+    private HttpIncomingEntity entity = null;
     
     public BasicHttpResponse(final StatusLine statusline) {
         super();
@@ -59,11 +59,11 @@ public class BasicHttpResponse extends BasicHttpMessage implements HttpMutableRe
         return this.statusline; 
     }
 
-    public HttpEntity getEntity() {
+    public HttpIncomingEntity getEntity() {
         return this.entity;
     }
     
-    public void setEntity(final HttpEntity entity) {
+    public void setEntity(final HttpIncomingEntity entity) {
         this.entity = entity;
     }
     

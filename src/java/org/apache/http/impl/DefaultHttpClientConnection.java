@@ -40,7 +40,7 @@ import org.apache.http.HttpClientConnection;
 import org.apache.http.HttpEntityEnclosingRequest;
 import org.apache.http.HttpException;
 import org.apache.http.HttpHost;
-import org.apache.http.HttpMutableEntity;
+import org.apache.http.HttpMutableIncomingEntity;
 import org.apache.http.HttpMutableResponse;
 import org.apache.http.HttpOutgoingEntity;
 import org.apache.http.HttpRequest;
@@ -279,7 +279,7 @@ public class DefaultHttpClientConnection
     protected void processResponseBody(
             final HttpMutableResponse response) throws HttpException, IOException {
         EntityGenerator entitygen = new DefaultEntityGenerator();
-        HttpMutableEntity entity = entitygen.generate(this.datareceiver, response);
+        HttpMutableIncomingEntity entity = entitygen.generate(this.datareceiver, response);
         if (canResponseHaveBody(response)) {
             // if there is a result - ALWAYS wrap it in an observer which will
             // close the underlying stream as soon as it is consumed, and notify

@@ -42,6 +42,6 @@ public interface HttpResponse extends HttpMessage {
 
     StatusLine getStatusLine();
 
-    HttpEntity getEntity();
+    HttpIncomingEntity getEntity();
     
 }

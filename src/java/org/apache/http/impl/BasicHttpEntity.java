@@ -31,7 +31,7 @@ package org.apache.http.impl;
 
 import java.io.InputStream;
 
-import org.apache.http.HttpMutableEntity;
+import org.apache.http.HttpMutableIncomingEntity;
 
 /**
  * <p>
@@ -42,7 +42,7 @@ import org.apache.http.HttpMutableEntity;
  * 
  * @since 4.0
  */
-public class BasicHttpEntity implements HttpMutableEntity {
+public class BasicHttpEntity implements HttpMutableIncomingEntity {
     
     private String contenttype = null;
     private InputStream instream = null;
