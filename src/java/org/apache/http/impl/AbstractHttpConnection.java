@@ -49,9 +49,9 @@ import org.apache.http.params.HttpParams;
  */
 abstract class AbstractHttpConnection implements HttpConnection {
 
-    protected transient Socket socket = null;
-    protected transient HttpDataTransmitter datatransmitter = null;
-    protected transient HttpDataReceiver datareceiver = null;
+    protected volatile Socket socket = null;
+    protected volatile HttpDataTransmitter datatransmitter = null;
+    protected volatile HttpDataReceiver datareceiver = null;
     
     protected AbstractHttpConnection() {
         super();
@@ -141,7 +141,7 @@ abstract class AbstractHttpConnection implements HttpConnection {
     }
     
     // Poor man's logging
-    // These methods are to be overridden at at a higher level
+    // These methods are to be overridden at a higher level
     
     protected boolean isWirelogEnabled() {
         return false;
