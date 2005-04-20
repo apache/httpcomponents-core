@@ -205,12 +205,13 @@ public class DefaultHttpServerConnection
         }
         HttpOutgoingEntity entity = (HttpOutgoingEntity)response.getEntity();
         HttpVersion ver = response.getStatusLine().getHttpVersion();
-        if (entity.isChunked() && ver.lessEquals(HttpVersion.HTTP_1_0)) {
+        boolean chunked = entity.isChunked() || entity.getContentLength() < 0;  
+        if (chunked && ver.lessEquals(HttpVersion.HTTP_1_0)) {
             throw new ProtocolException(
                     "Chunked transfer encoding not allowed for " + ver);
         }
         OutputStream outstream = new HttpDataOutputStream(this.datatransmitter);
-        if (entity.isChunked()) {
+        if (chunked) {
             outstream = new ChunkedOutputStream(outstream);
         }
         entity.writeTo(outstream);
