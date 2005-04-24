@@ -37,7 +37,9 @@ import java.io.Reader;
 
 import org.apache.http.HeaderElement;
 import org.apache.http.HttpEntity;
+import org.apache.http.HttpEntityEnclosingRequest;
 import org.apache.http.HttpIncomingEntity;
+import org.apache.http.HttpMessage;
 import org.apache.http.HttpResponse;
 import org.apache.http.NameValuePair;
 import org.apache.http.params.HttpProtocolParams;
@@ -53,14 +55,25 @@ import org.apache.http.params.HttpProtocolParams;
  */
 public class EntityConsumer {
     
-    private final HttpResponse response;
+    private final HttpMessage message;
+    private final HttpIncomingEntity entity;
     
     public EntityConsumer(final HttpResponse response) {
         super();
         if (response == null) {
             throw new IllegalArgumentException("HTTP response may not be null");
         }
-        this.response = response;
+        this.message = response;
+        this.entity = (HttpIncomingEntity)response.getEntity();
+    }
+
+    public EntityConsumer(final HttpEntityEnclosingRequest request) {
+        super();
+        if (request == null) {
+            throw new IllegalArgumentException("HTTP request may not be null");
+        }
+        this.message = request;
+        this.entity = (HttpIncomingEntity)request.getEntity();
     }
 
     public static byte[] toByteArray(final HttpIncomingEntity entity) throws IOException {
@@ -137,20 +150,18 @@ public class EntityConsumer {
     }
 
     public byte[] asByteArray() throws IOException {
-        HttpIncomingEntity entity = this.response.getEntity();
-        if (entity == null) {
+        if (this.entity == null) {
             return new byte[] {};
         }
-        return toByteArray(entity);
+        return toByteArray(this.entity);
     }
     
     public String asString() throws IOException {
-        HttpIncomingEntity entity = this.response.getEntity();
-        if (entity == null) {
+        if (this.entity == null) {
             return "";
         }
-        HttpProtocolParams params = new HttpProtocolParams(this.response.getParams());
-        return toString(entity, params.getContentCharset());
+        HttpProtocolParams params = new HttpProtocolParams(this.message.getParams());
+        return toString(this.entity, params.getContentCharset());
     }
     
 }

@@ -27,7 +27,9 @@
  *
  */
 
-package org.apache.http;
+package org.apache.http.impl;
+
+import java.io.IOException;
 
 /**
  * <p>
@@ -38,10 +40,15 @@ package org.apache.http;
  * 
  * @since 4.0
  */
-public interface HttpResponse extends HttpMessage {
+public class ConnectionClosedException extends IOException {
 
-    StatusLine getStatusLine();
+    /**
+     * Creates a new MethodNotSupportedException with the specified detail message.
+     * 
+     * @param message The exception detail message
+     */
+    public ConnectionClosedException(final String message) {
+        super(message);
+    }
 
-    HttpEntity getEntity();
-    
 }

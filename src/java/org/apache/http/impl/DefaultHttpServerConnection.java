@@ -98,8 +98,8 @@ public class DefaultHttpServerConnection
                 validateRequest(request);
                 validated = true;
                 sendContinue(responsever);
-                receiveRequestBody((HttpMutableEntityEnclosingRequest)request);
             }
+            receiveRequestBody((HttpMutableEntityEnclosingRequest)request);
         }
         if (!validated) {
             validateRequest(request);
@@ -111,7 +111,7 @@ public class DefaultHttpServerConnection
             throws HttpException, IOException {
         String line = this.datareceiver.readLine();
         if (line == null) {
-            throw new ProtocolException("Request line not found"); 
+            throw new ConnectionClosedException("Client closed connection"); 
         }
         RequestLine requestline = RequestLine.parse(line);
         if (isWirelogEnabled()) {

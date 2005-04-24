@@ -29,9 +29,11 @@
 
 package org.apache.http.impl;
 
-import org.apache.http.HttpIncomingEntity;
+import org.apache.http.HttpEntity;
 import org.apache.http.HttpMutableResponse;
+import org.apache.http.HttpStatus;
 import org.apache.http.StatusLine;
+import org.apache.http.params.HttpProtocolParams;
 
 /**
  * <p>
@@ -45,25 +47,44 @@ import org.apache.http.StatusLine;
 public class BasicHttpResponse extends BasicHttpMessage implements HttpMutableResponse {
     
     private StatusLine statusline = null;
-    private HttpIncomingEntity entity = null;
+    private HttpEntity entity = null;
     
+    public BasicHttpResponse() {
+        super();
+        setStatusCode(HttpStatus.SC_OK);
+    }
+
     public BasicHttpResponse(final StatusLine statusline) {
         super();
-        if (statusline == null) {
-            throw new IllegalArgumentException("Status line may not be null");
-        }
-        this.statusline = statusline;
+        setStatusLine(statusline);
     }
 
     public StatusLine getStatusLine() {
         return this.statusline; 
     }
 
-    public HttpIncomingEntity getEntity() {
+    public HttpEntity getEntity() {
         return this.entity;
     }
+
+    public void setStatusLine(final StatusLine statusline) {
+        if (statusline == null) {
+            throw new IllegalArgumentException("Status line may not be null");
+        }
+        this.statusline = statusline;
+    }
     
-    public void setEntity(final HttpIncomingEntity entity) {
+    public void setStatusCode(int code) {
+        if (code < 0) {
+            throw new IllegalArgumentException("Status line may not be null");
+        }
+        HttpProtocolParams params = new HttpProtocolParams(getParams()); 
+        this.statusline = new StatusLine(
+                params.getVersion(), 
+                code, HttpStatus.getStatusText(code));
+    }
+    
+    public void setEntity(final HttpEntity entity) {
         this.entity = entity;
     }
     
