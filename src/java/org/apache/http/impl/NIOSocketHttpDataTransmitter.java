@@ -29,8 +29,11 @@
 
 package org.apache.http.impl;
 
+import java.io.IOException;
 import java.net.Socket;
 import java.net.SocketException;
+import java.nio.ByteBuffer;
+import java.nio.channels.SocketChannel;
 
 /**
  * <p>
@@ -43,7 +46,7 @@ import java.net.SocketException;
  */
 public class NIOSocketHttpDataTransmitter extends NIOHttpDataTransmitter {
 
-    private final Socket socket;
+    private final SocketChannel channel;
     
     protected NIOSocketHttpDataTransmitter(final Socket socket) throws SocketException {
         super();
@@ -53,8 +56,12 @@ public class NIOSocketHttpDataTransmitter extends NIOHttpDataTransmitter {
         if (socket.getChannel() == null) {
             throw new IllegalArgumentException("Socket does not implement NIO channel");
         }
-        init(socket.getChannel(), socket.getSendBufferSize());
-        this.socket = socket;
+        this.channel = socket.getChannel();
+        initBuffer(socket.getSendBufferSize());
     }
-    
+
+    protected void writeToChannel(final ByteBuffer src) throws IOException {
+        this.channel.write(src);
+    }
+        
 }

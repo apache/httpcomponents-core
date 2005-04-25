@@ -199,7 +199,7 @@ public class ElementalHttpEchoServer {
             super();
             this.conn = conn;
             this.params = new DefaultHttpParams(null);
-            new HttpConnectionParams(this.params).setSoTimeout(15000); 
+            new HttpConnectionParams(this.params).setSoTimeout(5000); 
             this.handler = new RequestHandler();
         }
         
@@ -221,7 +221,6 @@ public class ElementalHttpEchoServer {
             while (!Thread.interrupted()) {
                 BasicHttpResponse response = new BasicHttpResponse();
                 try {
-                    this.conn.setSocketTimeout(100);
                     HttpRequest request = this.conn.receiveRequest(this.params);
                     System.out.println("Request received");
                     this.handler.handleRequest(request, response);

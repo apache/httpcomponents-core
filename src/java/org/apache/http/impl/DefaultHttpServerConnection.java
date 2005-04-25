@@ -219,6 +219,6 @@ public class DefaultHttpServerConnection
             ((ChunkedOutputStream) outstream).finish();
         }
         outstream.flush();
-    }  
-    
+    }
+        
 }

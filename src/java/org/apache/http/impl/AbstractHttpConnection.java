@@ -106,15 +106,17 @@ abstract class AbstractHttpConnection implements HttpConnection {
     }
     
     public void close() throws IOException {
-        HttpDataTransmitter tmp1 = this.datatransmitter;
-        if (tmp1 != null) {
-            tmp1.flush();
+        HttpDataTransmitter tmptransmitter = this.datatransmitter;
+        if (tmptransmitter != null) {
+            tmptransmitter.flush();
         }
         this.datareceiver = null;
         this.datatransmitter = null;
-        Socket tmp2 = this.socket;
-        if (tmp2 != null) {
-            tmp2.close();
+        Socket tmpsocket = this.socket;
+        if (tmpsocket != null) {
+            tmpsocket.shutdownOutput();
+            tmpsocket.shutdownInput();
+            tmpsocket.close();
         }
         this.socket = null;
     }

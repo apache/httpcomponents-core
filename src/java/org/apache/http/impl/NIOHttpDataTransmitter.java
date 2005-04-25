@@ -32,7 +32,6 @@ package org.apache.http.impl;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.CharBuffer;
-import java.nio.channels.WritableByteChannel;
 import java.nio.charset.Charset;
 import java.nio.charset.CharsetEncoder;
 import java.nio.charset.CoderResult;
@@ -57,17 +56,11 @@ public abstract class NIOHttpDataTransmitter implements HttpDataTransmitter {
     private static final int LF = 10;
     private static final byte[] CRLF = new byte[] {CR, LF};
 
-    private WritableByteChannel channel = null;
     private ByteBuffer buffer = null;
 
     private Charset charset = null;
 
-    protected void init(final WritableByteChannel channel, int buffersize) {
-        if (channel == null) {
-            throw new IllegalArgumentException("Channel may not be null");
-        }
-        this.channel = channel;
-        
+    protected void initBuffer(int buffersize) {
         if ((buffersize > 2048) || (buffersize <= 0)) {
             buffersize = 2048;
         }
@@ -80,16 +73,18 @@ public abstract class NIOHttpDataTransmitter implements HttpDataTransmitter {
         this.charset = Charset.forName(protocolParams.getHttpElementCharset()); 
     }
 
+    protected abstract void writeToChannel(ByteBuffer src) throws IOException;
+    
     protected void flushBuffer() throws IOException {
         this.buffer.flip();
-        this.channel.write(this.buffer);
+        writeToChannel(this.buffer);
         this.buffer.compact();
     }
     
     public void flush() throws IOException {
         this.buffer.flip();
         while (this.buffer.hasRemaining()) {
-            this.channel.write(this.buffer);
+            writeToChannel(this.buffer);
         }
         this.buffer.clear();
     }

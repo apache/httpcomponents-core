@@ -32,7 +32,6 @@ package org.apache.http.impl;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.CharBuffer;
-import java.nio.channels.ReadableByteChannel;
 import java.nio.charset.Charset;
 import java.nio.charset.CharsetDecoder;
 import java.nio.charset.CoderResult;
@@ -56,23 +55,16 @@ public abstract class NIOHttpDataReceiver implements HttpDataReceiver {
     private static final int CR = 13;
     private static final int LF = 10;
     
-    private ReadableByteChannel channel = null;
     private ByteBuffer buffer = null;
     
     private Charset charset = null;
     
-    protected void init(final ReadableByteChannel channel, int buffersize) {
-        if (channel == null) {
-            throw new IllegalArgumentException("Channel may not be null");
-        }
-        this.channel = channel;
-        
+    protected void initBuffer(int buffersize) {
         if ((buffersize > 2048) || (buffersize <= 0)) {
             buffersize = 2048;
         }
         this.buffer = ByteBuffer.allocateDirect(buffersize);
         this.buffer.flip();
-        
         this.charset = Charset.forName("US-ASCII");
     }
 
@@ -88,9 +80,11 @@ public abstract class NIOHttpDataReceiver implements HttpDataReceiver {
         return chardecoder;
     }
     
+    protected abstract int readFromChannel(ByteBuffer dst) throws IOException;
+    
     protected int fillBuffer() throws IOException {
         this.buffer.compact();
-        int i = this.channel.read(this.buffer);
+        int i = readFromChannel(this.buffer);
         this.buffer.flip();
         return i;
     }
@@ -222,9 +216,5 @@ public abstract class NIOHttpDataReceiver implements HttpDataReceiver {
         }
         return line.toString();
     }
-    
-    public boolean isDataAvailable(int timeout) throws IOException {
-        return this.channel.isOpen();
-    }    
     
 }
