@@ -38,7 +38,6 @@ import java.io.Reader;
 import org.apache.http.HeaderElement;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpEntityEnclosingRequest;
-import org.apache.http.HttpIncomingEntity;
 import org.apache.http.HttpMessage;
 import org.apache.http.HttpResponse;
 import org.apache.http.NameValuePair;
@@ -56,7 +55,7 @@ import org.apache.http.params.HttpProtocolParams;
 public class EntityConsumer {
     
     private final HttpMessage message;
-    private final HttpIncomingEntity entity;
+    private final HttpEntity entity;
     
     public EntityConsumer(final HttpResponse response) {
         super();
@@ -64,7 +63,7 @@ public class EntityConsumer {
             throw new IllegalArgumentException("HTTP response may not be null");
         }
         this.message = response;
-        this.entity = (HttpIncomingEntity)response.getEntity();
+        this.entity = response.getEntity();
     }
 
     public EntityConsumer(final HttpEntityEnclosingRequest request) {
@@ -73,14 +72,14 @@ public class EntityConsumer {
             throw new IllegalArgumentException("HTTP request may not be null");
         }
         this.message = request;
-        this.entity = (HttpIncomingEntity)request.getEntity();
+        this.entity = request.getEntity();
     }
 
-    public static byte[] toByteArray(final HttpIncomingEntity entity) throws IOException {
+    public static byte[] toByteArray(final HttpEntity entity) throws IOException {
         if (entity == null) {
             throw new IllegalArgumentException("HTTP entity may not be null");
         }
-        InputStream instream = entity.getInputStream();
+        InputStream instream = entity.getContent();
         if (instream == null) {
             return new byte[] {};
         }
@@ -118,11 +117,11 @@ public class EntityConsumer {
     }
 
     public static String toString(
-            final HttpIncomingEntity entity, final String defaultCharset) throws IOException {
+            final HttpEntity entity, final String defaultCharset) throws IOException {
         if (entity == null) {
             throw new IllegalArgumentException("HTTP entity may not be null");
         }
-        if (entity.getInputStream() == null) {
+        if (entity.getContent() == null) {
             return "";
         }
         if (entity.getContentLength() > Integer.MAX_VALUE) {
@@ -135,7 +134,7 @@ public class EntityConsumer {
         if (charset == null) {
             charset = "ISO-8859-1";
         }
-        Reader reader = new InputStreamReader(entity.getInputStream(), charset);
+        Reader reader = new InputStreamReader(entity.getContent(), charset);
         StringBuffer buffer = new StringBuffer(); 
         char[] tmp = new char[1024];
         int l;
@@ -145,7 +144,7 @@ public class EntityConsumer {
         return buffer.toString();
     }
 
-    public static String toString(final HttpIncomingEntity entity) throws IOException {
+    public static String toString(final HttpEntity entity) throws IOException {
         return toString(entity, null);
     }
 

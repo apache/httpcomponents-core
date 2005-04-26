@@ -31,10 +31,8 @@ package org.apache.http.entity;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.OutputStream;
 
-import org.apache.http.HttpOutgoingEntity;
-import org.apache.http.io.ContentLengthInputStream;
+import org.apache.http.HttpEntity;
 
 /**
  * <p>
@@ -45,11 +43,11 @@ import org.apache.http.io.ContentLengthInputStream;
  * 
  * @since 4.0
  */
-public class InputStreamEntity implements HttpOutgoingEntity {
+public class InputStreamEntity implements HttpEntity {
 
     private final static String DEFAULT_CONTENT_TYPE = "application/octet-stream";
 
-    private final InputStream source;
+    private final InputStream content;
     private final long length;
     private String contentType = DEFAULT_CONTENT_TYPE;
     private boolean chunked = false;
@@ -59,7 +57,7 @@ public class InputStreamEntity implements HttpOutgoingEntity {
         if (instream == null) {
             throw new IllegalArgumentException("Source input stream may not be null");
         }
-        this.source = instream;
+        this.content = instream;
         this.length = length;
     }
 
@@ -87,20 +85,8 @@ public class InputStreamEntity implements HttpOutgoingEntity {
         this.contentType = s;
     }
 
-    public void writeTo(final OutputStream outstream) throws IOException {
-        if (outstream == null) {
-            throw new IllegalArgumentException("Output stream may not be null");
-        }
-        InputStream instream = this.source;
-        if (this.length >= 0) {
-            instream = new ContentLengthInputStream(instream, this.length);
-        }
-        int l;
-        byte[] tmp = new byte[1024];
-        while ((l = instream.read(tmp)) != -1) {
-            outstream.write(tmp, 0, l);
-        }
-        outstream.flush();
+    public InputStream getContent() throws IOException {
+        return this.content;
     }
-
+        
 }

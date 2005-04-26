@@ -33,7 +33,7 @@ import java.io.IOException;
 
 import org.apache.http.HttpException;
 import org.apache.http.HttpMessage;
-import org.apache.http.HttpMutableIncomingEntity;
+import org.apache.http.HttpMutableEntity;
 import org.apache.http.io.HttpDataReceiver;
 
 /**
@@ -47,7 +47,7 @@ import org.apache.http.io.HttpDataReceiver;
  */
 public interface EntityGenerator {
 
-    HttpMutableIncomingEntity generate(
+    HttpMutableEntity generate(
             HttpDataReceiver datareceiver,
             HttpMessage message) throws HttpException, IOException;
             

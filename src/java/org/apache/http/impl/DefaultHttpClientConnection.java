@@ -31,7 +31,6 @@ package org.apache.http.impl;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.OutputStream;
 import java.net.InetAddress;
 import java.net.Socket;
 
@@ -40,9 +39,8 @@ import org.apache.http.HttpClientConnection;
 import org.apache.http.HttpEntityEnclosingRequest;
 import org.apache.http.HttpException;
 import org.apache.http.HttpHost;
-import org.apache.http.HttpMutableIncomingEntity;
+import org.apache.http.HttpMutableEntity;
 import org.apache.http.HttpMutableResponse;
-import org.apache.http.HttpOutgoingEntity;
 import org.apache.http.HttpRequest;
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
@@ -51,8 +49,6 @@ import org.apache.http.NoHttpResponseException;
 import org.apache.http.ProtocolException;
 import org.apache.http.ProtocolSocketFactory;
 import org.apache.http.StatusLine;
-import org.apache.http.io.ChunkedOutputStream;
-import org.apache.http.io.HttpDataOutputStream;
 import org.apache.http.params.HttpParams;
 import org.apache.http.params.HttpProtocolParams;
 import org.apache.http.util.HeadersParser;
@@ -188,22 +184,11 @@ public class DefaultHttpClientConnection
         if (request.getEntity() == null) {
             return;
         }
-        HttpOutgoingEntity entity = (HttpOutgoingEntity)request.getEntity();
-        HttpVersion ver = request.getRequestLine().getHttpVersion();
-        boolean chunked = entity.isChunked() || entity.getContentLength() < 0;  
-        if (chunked && ver.lessEquals(HttpVersion.HTTP_1_0)) {
-            throw new ProtocolException(
-                    "Chunked transfer encoding not allowed for " + ver);
-        }
-        OutputStream outstream = new HttpDataOutputStream(this.datatransmitter);
-        if (chunked) {
-            outstream = new ChunkedOutputStream(outstream);
-        }
-        entity.writeTo(outstream);
-        if (outstream instanceof ChunkedOutputStream) {
-            ((ChunkedOutputStream) outstream).finish();
-        }
-        outstream.flush();
+        EntityWriter entitywriter = new DefaultEntityWriter();
+        entitywriter.write(
+                request.getEntity(),
+                request.getRequestLine().getHttpVersion(),
+                this.datatransmitter);
     }
     
     public HttpResponse receiveResponse(final HttpRequest request) 
@@ -280,22 +265,22 @@ public class DefaultHttpClientConnection
     protected void processResponseBody(
             final HttpMutableResponse response) throws HttpException, IOException {
         EntityGenerator entitygen = new DefaultEntityGenerator();
-        HttpMutableIncomingEntity entity = entitygen.generate(this.datareceiver, response);
+        HttpMutableEntity entity = entitygen.generate(this.datareceiver, response);
         if (canResponseHaveBody(response)) {
             // if there is a result - ALWAYS wrap it in an observer which will
             // close the underlying stream as soon as it is consumed, and notify
             // the watcher that the stream has been consumed.
-            InputStream instream = entity.getInputStream();
+            InputStream instream = entity.getContent();
             instream = new AutoCloseInputStream(
                     instream, new DefaultResponseConsumedWatcher(this, response));
-            entity.setInputStream(instream);
+            entity.setContent(instream);
         } else {
             if (entity.isChunked() || entity.getContentLength() > 0) {
                 if (isWarnEnabled()) {
                     warn("This response may not have a response body");
                 }
             }
-            entity.setInputStream(null);
+            entity.setContent(null);
         }
         response.setEntity(entity);
     }

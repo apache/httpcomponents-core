@@ -32,7 +32,7 @@ import java.io.ByteArrayInputStream;
 
 import org.apache.http.Header;
 import org.apache.http.HttpConnection;
-import org.apache.http.HttpMutableIncomingEntity;
+import org.apache.http.HttpMutableEntity;
 import org.apache.http.HttpMutableResponse;
 import org.apache.http.HttpVersion;
 import org.apache.http.StatusLine;
@@ -79,10 +79,10 @@ public class TestDefaultResponseConsumedWatcher extends TestCase {
     public void testConnectionAutoClose() throws Exception {
         byte[] data = new byte[] {'1', '2', '3'};
         HttpConnection conn = new HttpConnectionMockup();
-        HttpMutableIncomingEntity entity = new BasicHttpEntity();
+        HttpMutableEntity entity = new BasicHttpEntity();
         entity.setChunked(false);
         entity.setContentLength(data.length);
-        entity.setInputStream(new ByteArrayInputStream(data));
+        entity.setContent(new ByteArrayInputStream(data));
         
         StatusLine statusline = new StatusLine(HttpVersion.HTTP_1_0, 200, "OK");
         HttpMutableResponse response = new BasicHttpResponse(statusline);
@@ -92,21 +92,21 @@ public class TestDefaultResponseConsumedWatcher extends TestCase {
         
         // Wrap the entity input stream 
         ResponseConsumedWatcher watcher = new DefaultResponseConsumedWatcher(conn, response);
-        entity.setInputStream(new AutoCloseInputStream(entity.getInputStream(), watcher));
+        entity.setContent(new AutoCloseInputStream(entity.getContent(), watcher));
         
         assertTrue(conn.isOpen());
         int b;
-        while ((b = entity.getInputStream().read()) != -1) {}
+        while ((b = entity.getContent().read()) != -1) {}
         assertFalse(conn.isOpen());
     }
 
     public void testConnectionKeepAlive() throws Exception {
         byte[] data = new byte[] {'1', '2', '3'};
         HttpConnection conn = new HttpConnectionMockup();
-        HttpMutableIncomingEntity entity = new BasicHttpEntity();
+        HttpMutableEntity entity = new BasicHttpEntity();
         entity.setChunked(false);
         entity.setContentLength(data.length);
-        entity.setInputStream(new ByteArrayInputStream(data));
+        entity.setContent(new ByteArrayInputStream(data));
         
         StatusLine statusline = new StatusLine(HttpVersion.HTTP_1_1, 200, "OK");
         HttpMutableResponse response = new BasicHttpResponse(statusline);
@@ -116,11 +116,11 @@ public class TestDefaultResponseConsumedWatcher extends TestCase {
         
         // Wrap the entity input stream 
         ResponseConsumedWatcher watcher = new DefaultResponseConsumedWatcher(conn, response);
-        entity.setInputStream(new AutoCloseInputStream(entity.getInputStream(), watcher));
+        entity.setContent(new AutoCloseInputStream(entity.getContent(), watcher));
         
         assertTrue(conn.isOpen());
         int b;
-        while ((b = entity.getInputStream().read()) != -1) {}
+        while ((b = entity.getContent().read()) != -1) {}
         assertTrue(conn.isOpen());
     }
 }

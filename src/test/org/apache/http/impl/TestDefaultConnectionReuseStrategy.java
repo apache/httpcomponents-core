@@ -29,7 +29,7 @@
 package org.apache.http.impl;
 
 import org.apache.http.Header;
-import org.apache.http.HttpMutableIncomingEntity;
+import org.apache.http.HttpMutableEntity;
 import org.apache.http.HttpMutableResponse;
 import org.apache.http.HttpVersion;
 import org.apache.http.StatusLine;
@@ -67,7 +67,7 @@ public class TestDefaultConnectionReuseStrategy extends TestCase {
     }
 
     public void testNoContentLengthResponse() throws Exception {
-        HttpMutableIncomingEntity entity = new BasicHttpEntity();
+        HttpMutableEntity entity = new BasicHttpEntity();
         entity.setChunked(false);
         entity.setContentLength(-1);
         StatusLine statusline = new StatusLine(HttpVersion.HTTP_1_0, 200, "OK");
@@ -79,7 +79,7 @@ public class TestDefaultConnectionReuseStrategy extends TestCase {
     }
 
     public void testExplicitClose() throws Exception {
-        HttpMutableIncomingEntity entity = new BasicHttpEntity();
+        HttpMutableEntity entity = new BasicHttpEntity();
         entity.setChunked(true);
         entity.setContentLength(-1);
         // Use HTTP 1.1
@@ -93,7 +93,7 @@ public class TestDefaultConnectionReuseStrategy extends TestCase {
     }
     
     public void testExplicitKeepAlive() throws Exception {
-        HttpMutableIncomingEntity entity = new BasicHttpEntity();
+        HttpMutableEntity entity = new BasicHttpEntity();
         entity.setChunked(false);
         entity.setContentLength(10);
         // Use HTTP 1.0

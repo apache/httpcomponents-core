@@ -1,7 +1,7 @@
 /*
- * $Header: $
- * $Revision$
- * $Date$
+ * $HeadURL: $
+ * $Revision: $
+ * $Date: $
  *
  * ====================================================================
  *
@@ -27,22 +27,29 @@
  *
  */
 
-package org.apache.http;
+package org.apache.http.impl;
 
 import java.io.IOException;
-import java.io.OutputStream;
+
+import org.apache.http.HttpEntity;
+import org.apache.http.HttpException;
+import org.apache.http.HttpVersion;
+import org.apache.http.io.HttpDataTransmitter;
 
 /**
  * <p>
  * </p>
  * @author <a href="mailto:oleg at ural.ru">Oleg Kalnichevski</a>
  *
- * @version $Revision$
+ * @version $Revision: $
  * 
  * @since 4.0
  */
-public interface HttpOutgoingEntity extends HttpEntity {
+public interface EntityWriter {
 
-    void writeTo(OutputStream outstream) throws IOException;
-    
+    void write(
+            HttpEntity entity,
+            HttpVersion version,
+            HttpDataTransmitter datatransmitter) throws HttpException, IOException;
+            
 }

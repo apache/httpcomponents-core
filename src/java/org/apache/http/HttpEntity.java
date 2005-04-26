@@ -29,6 +29,9 @@
 
 package org.apache.http;
 
+import java.io.IOException;
+import java.io.InputStream;
+
 /**
  * <p>
  * </p>
@@ -48,4 +51,5 @@ public interface HttpEntity {
     
     String getContentType();
     
+    InputStream getContent() throws IOException;
 }

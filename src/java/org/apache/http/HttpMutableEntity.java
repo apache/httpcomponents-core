@@ -29,6 +29,8 @@
 
 package org.apache.http;
 
+import java.io.InputStream;
+
 /**
  * <p>
  * </p>
@@ -46,4 +48,5 @@ public interface HttpMutableEntity extends HttpEntity {
     
     void setContentLength(long len);
     
+    void setContent(InputStream instream);
 }

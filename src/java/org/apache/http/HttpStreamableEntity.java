@@ -29,7 +29,8 @@
 
 package org.apache.http;
 
-import java.io.InputStream;
+import java.io.IOException;
+import java.io.OutputStream;
 
 /**
  * <p>
@@ -40,8 +41,8 @@ import java.io.InputStream;
  * 
  * @since 4.0
  */
-public interface HttpMutableIncomingEntity extends HttpIncomingEntity, HttpMutableEntity {
+public interface HttpStreamableEntity extends HttpEntity {
 
-    void setInputStream(InputStream instream);
+    void writeTo(OutputStream outstream) throws IOException;
     
 }

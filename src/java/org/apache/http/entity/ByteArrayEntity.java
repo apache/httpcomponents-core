@@ -29,10 +29,12 @@
 
 package org.apache.http.entity;
 
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.OutputStream;
 
-import org.apache.http.HttpOutgoingEntity;
+import org.apache.http.HttpStreamableEntity;
 
 /**
  * <p>
@@ -43,11 +45,11 @@ import org.apache.http.HttpOutgoingEntity;
  * 
  * @since 4.0
  */
-public class ByteArrayEntity implements HttpOutgoingEntity {
+public class ByteArrayEntity implements HttpStreamableEntity {
 
     private final static String DEFAULT_CONTENT_TYPE = "application/octet-stream";
 
-    private final byte[] source;
+    private final byte[] content;
     private String contentType = DEFAULT_CONTENT_TYPE;
     private boolean chunked = false;
 
@@ -56,7 +58,7 @@ public class ByteArrayEntity implements HttpOutgoingEntity {
         if (b == null) {
             throw new IllegalArgumentException("Source byte array may not be null");
         }
-        this.source = b;
+        this.content = b;
     }
 
     public boolean isRepeatable() {
@@ -72,7 +74,7 @@ public class ByteArrayEntity implements HttpOutgoingEntity {
     }
 
     public long getContentLength() {
-        return this.source.length;
+        return this.content.length;
     }
     
     public String getContentType() {
@@ -83,11 +85,15 @@ public class ByteArrayEntity implements HttpOutgoingEntity {
         this.contentType = s;
     }
 
+    public InputStream getContent() {
+        return new ByteArrayInputStream(this.content);
+    }
+    
     public void writeTo(final OutputStream outstream) throws IOException {
         if (outstream == null) {
             throw new IllegalArgumentException("Output stream may not be null");
         }
-        outstream.write(this.source);
+        outstream.write(this.content);
         outstream.flush();
     }
 

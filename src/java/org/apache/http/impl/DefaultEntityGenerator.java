@@ -36,7 +36,7 @@ import org.apache.http.Header;
 import org.apache.http.HeaderElement;
 import org.apache.http.HttpException;
 import org.apache.http.HttpMessage;
-import org.apache.http.HttpMutableIncomingEntity;
+import org.apache.http.HttpMutableEntity;
 import org.apache.http.ProtocolException;
 import org.apache.http.io.ChunkedInputStream;
 import org.apache.http.io.ContentLengthInputStream;
@@ -208,7 +208,7 @@ public class DefaultEntityGenerator implements EntityGenerator {
         }
     }
     
-    public HttpMutableIncomingEntity generate(
+    public HttpMutableEntity generate(
             final HttpDataReceiver datareceiver,
             final HttpMessage message) throws HttpException, IOException {
         if (datareceiver == null) {
@@ -218,7 +218,7 @@ public class DefaultEntityGenerator implements EntityGenerator {
             throw new IllegalArgumentException("HTTP message may not be null");
         }
 
-        HttpMutableIncomingEntity entity = new BasicHttpEntity();
+        HttpMutableEntity entity = new BasicHttpEntity();
         
         HttpParams params = message.getParams(); 
         boolean strict = params.isParameterTrue(HttpProtocolParams.STRICT_TRANSFER_ENCODING);
@@ -246,19 +246,19 @@ public class DefaultEntityGenerator implements EntityGenerator {
             if (IDENTITY_ENCODING.equalsIgnoreCase(transferEncodingHeader.getValue())) {
                 entity.setChunked(false);
                 entity.setContentLength(-1);
-                entity.setInputStream(getRawInputStream(datareceiver));                            
+                entity.setContent(getRawInputStream(datareceiver));                            
             } else if ((len > 0) && (CHUNKED_ENCODING.equalsIgnoreCase(encodings[len - 1].getName()))) { 
                 entity.setChunked(true);
                 entity.setContentLength(-1);
                 // if response body is empty
                 HttpConnectionParams connparams = new HttpConnectionParams(params); 
                 if (datareceiver.isDataAvailable(connparams.getSoTimeout())) {
-                    entity.setInputStream(new ChunkedInputStream(datareceiver));
+                    entity.setContent(new ChunkedInputStream(datareceiver));
                 } else {
                     if (strict) {
                         throw new ProtocolException("Chunk-encoded body declared but not sent");
                     }
-                    entity.setInputStream(null);                            
+                    entity.setContent(null);                            
                 }
             } else {
                 if (strict) {
@@ -266,7 +266,7 @@ public class DefaultEntityGenerator implements EntityGenerator {
                 }
                 entity.setChunked(false);
                 entity.setContentLength(-1);
-                entity.setInputStream(getRawInputStream(datareceiver));                            
+                entity.setContent(getRawInputStream(datareceiver));                            
             }
         } else if (contentLengthHeader != null) {
             long contentlen = -1;
@@ -292,11 +292,11 @@ public class DefaultEntityGenerator implements EntityGenerator {
             if (contentlen >= 0) {
                 instream = new ContentLengthInputStream(instream, contentlen);
             }
-            entity.setInputStream(instream);
+            entity.setContent(instream);
         } else {
             entity.setChunked(false);
             entity.setContentLength(-1);
-            entity.setInputStream(getRawInputStream(datareceiver));                            
+            entity.setContent(getRawInputStream(datareceiver));                            
         }
         if (contentTypeHeader != null) {
             entity.setContentType(contentTypeHeader.getValue());    

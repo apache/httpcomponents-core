@@ -29,10 +29,12 @@
 
 package org.apache.http.entity;
 
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.OutputStream;
 
-import org.apache.http.HttpOutgoingEntity;
+import org.apache.http.HttpStreamableEntity;
 
 /**
  * <p>
@@ -43,11 +45,11 @@ import org.apache.http.HttpOutgoingEntity;
  * 
  * @since 4.0
  */
-public class StringEntity implements HttpOutgoingEntity {
+public class StringEntity implements HttpStreamableEntity {
 
     private final static String DEFAULT_CONTENT_TYPE = "text/plain; charset=";
 
-    private final String source;
+    private final String content;
     private String contentType = null;
     private boolean chunked = false;
 
@@ -56,7 +58,7 @@ public class StringEntity implements HttpOutgoingEntity {
         if (s == null) {
             throw new IllegalArgumentException("Source string may not be null");
         }
-        this.source = s;
+        this.content = s;
         if (charset != null) {
             this.contentType = DEFAULT_CONTENT_TYPE + charset;
         }
@@ -79,7 +81,7 @@ public class StringEntity implements HttpOutgoingEntity {
     }
 
     public long getContentLength() {
-        return this.source.length();
+        return this.content.length();
     }
     
     public String getContentType() {
@@ -89,13 +91,18 @@ public class StringEntity implements HttpOutgoingEntity {
     public void setContentType(final String s) {
         this.contentType = s;
     }
-
+    
+    public InputStream getContent() throws IOException {
+        String charset = EntityConsumer.getContentCharSet(this);
+        return new ByteArrayInputStream(this.content.getBytes(charset));
+    }
+    
     public void writeTo(final OutputStream outstream) throws IOException {
         if (outstream == null) {
             throw new IllegalArgumentException("Output stream may not be null");
         }
         String charset = EntityConsumer.getContentCharSet(this);
-        byte[] content = this.source.getBytes(charset);
+        byte[] content = this.content.getBytes(charset);
         outstream.write(content);
         outstream.flush();
     }

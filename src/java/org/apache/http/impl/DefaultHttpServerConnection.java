@@ -30,7 +30,6 @@
 package org.apache.http.impl;
 
 import java.io.IOException;
-import java.io.OutputStream;
 import java.net.Socket;
 
 import org.apache.http.Header;
@@ -39,16 +38,12 @@ import org.apache.http.HttpMutableEntity;
 import org.apache.http.HttpMutableEntityEnclosingRequest;
 import org.apache.http.HttpMutableRequest;
 import org.apache.http.HttpMutableResponse;
-import org.apache.http.HttpOutgoingEntity;
 import org.apache.http.HttpRequest;
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpServerConnection;
 import org.apache.http.HttpStatus;
 import org.apache.http.HttpVersion;
-import org.apache.http.ProtocolException;
 import org.apache.http.RequestLine;
-import org.apache.http.io.ChunkedOutputStream;
-import org.apache.http.io.HttpDataOutputStream;
 import org.apache.http.params.HttpParams;
 import org.apache.http.util.HeadersParser;
 
@@ -203,22 +198,11 @@ public class DefaultHttpServerConnection
         if (response.getEntity() == null) {
             return;
         }
-        HttpOutgoingEntity entity = (HttpOutgoingEntity)response.getEntity();
-        HttpVersion ver = response.getStatusLine().getHttpVersion();
-        boolean chunked = entity.isChunked() || entity.getContentLength() < 0;  
-        if (chunked && ver.lessEquals(HttpVersion.HTTP_1_0)) {
-            throw new ProtocolException(
-                    "Chunked transfer encoding not allowed for " + ver);
-        }
-        OutputStream outstream = new HttpDataOutputStream(this.datatransmitter);
-        if (chunked) {
-            outstream = new ChunkedOutputStream(outstream);
-        }
-        entity.writeTo(outstream);
-        if (outstream instanceof ChunkedOutputStream) {
-            ((ChunkedOutputStream) outstream).finish();
-        }
-        outstream.flush();
+        EntityWriter entitywriter = new DefaultEntityWriter();
+        entitywriter.write(
+                response.getEntity(),
+                response.getStatusLine().getHttpVersion(),
+                this.datatransmitter);
     }
         
 }
