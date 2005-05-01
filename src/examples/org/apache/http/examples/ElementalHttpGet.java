@@ -52,7 +52,7 @@ public class ElementalHttpGet {
         
         HttpParams connparams = new DefaultHttpParams(null);
         HttpHost host = new HttpHost("www.yahoo.com");
-        HttpClientConnection conn = new DefaultHttpClientConnection();
+        HttpClientConnection conn = new DefaultHttpClientConnection(host);
         try {
             
             String[] targets = {
@@ -67,7 +67,7 @@ public class ElementalHttpGet {
                 request.setHeader(new Header("Connection", "Keep-Alive"));
                 if (!conn.isOpen()) {
                     System.out.println("Open new connection to: " + host);
-                    conn.open(host, connparams, null);
+                    conn.open(connparams);
                 } else {
                     System.out.println("Connection kept alive. Reusing...");
                 }

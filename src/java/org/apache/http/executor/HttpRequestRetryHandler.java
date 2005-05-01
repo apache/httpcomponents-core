@@ -31,7 +31,7 @@ package org.apache.http.executor;
 
 import java.io.IOException;
 
-import org.apache.http.HttpRequest;
+import org.apache.http.HttpContext;
 
 /**
  * A handler for determining if an HttpRequest should be retried after a 
@@ -59,6 +59,6 @@ public interface HttpRequestRetryHandler {
      * @return <code>true</code> if the method should be retried, <code>false</code>
      * otherwise
      */
-    boolean retryRequest(HttpRequest request, IOException exception, int executionCount);
+    boolean retryRequest(IOException exception, int executionCount, HttpContext context);
 
 }

@@ -58,7 +58,7 @@ public class ElementalHttpPost {
         
         HttpParams connparams = new DefaultHttpParams(null);
         HttpHost host = new HttpHost("localhost", 8080);
-        HttpClientConnection conn = new DefaultHttpClientConnection();
+        HttpClientConnection conn = new DefaultHttpClientConnection(host);
         try {
             
             HttpEntity[] requestBodies = {
@@ -94,7 +94,7 @@ public class ElementalHttpPost {
                 
                 if (!conn.isOpen()) {
                     System.out.println("Open new connection to: " + host);
-                    conn.open(host, connparams, null);
+                    conn.open(connparams);
                 } else {
                     System.out.println("Connection kept alive. Reusing...");
                 }

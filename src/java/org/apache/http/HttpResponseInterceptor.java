@@ -42,7 +42,7 @@ import java.io.IOException;
  */
 public interface HttpResponseInterceptor {
 
-    void intercept(HttpMutableResponse response, HttpContext context) 
+    void process(HttpMutableResponse response, HttpContext context) 
         throws HttpException, IOException;
     
 }

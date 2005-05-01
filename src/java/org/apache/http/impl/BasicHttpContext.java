@@ -27,9 +27,12 @@
  *
  */
 
-package org.apache.http;
+package org.apache.http.impl;
 
-import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
+
+import org.apache.http.HttpContext;
 
 /**
  * <p>
@@ -40,9 +43,38 @@ import java.io.IOException;
  * 
  * @since 4.0
  */
-public interface HttpRequestInterceptor {
+public class BasicHttpContext implements HttpContext {
+    
+    private final HttpContext parentContext;
+    private Map map = null;
+    
+    public BasicHttpContext(final HttpContext parentContext) {
+        super();
+        this.parentContext = parentContext;
+    }
+    
+    public Object getAttribute(final String id) {
+        if (id == null) {
+            throw new IllegalArgumentException("Id may not be null");
+        }
+        Object obj = null;
+        if (this.map != null) {
+            obj = this.map.get(id);
+        }
+        if (obj == null && this.parentContext != null) {
+            obj = this.parentContext.getAttribute(id);
+        }
+        return obj;
+    }
 
-    void process(HttpMutableRequest request, HttpContext context) 
-        throws HttpException, IOException;
+    public void setAttribute(final String id, final Object obj) {
+        if (id == null) {
+            throw new IllegalArgumentException("Id may not be null");
+        }
+        if (this.map == null) {
+            this.map = new HashMap();
+        }
+        this.map.put(id, obj);
+    }
     
 }

@@ -30,7 +30,6 @@
 package org.apache.http;
 
 import java.io.IOException;
-import java.net.InetAddress;
 
 import org.apache.http.params.HttpParams;
 
@@ -45,7 +44,9 @@ import org.apache.http.params.HttpParams;
  */
 public interface HttpClientConnection extends HttpConnection {
 
-    void open(HttpHost host, HttpParams params, InetAddress localAddress) throws IOException;
+    HttpHost getHost();
+    
+    void open(HttpParams params) throws IOException;
     
     HttpResponse sendRequest(HttpRequest request) throws HttpException, IOException;
 

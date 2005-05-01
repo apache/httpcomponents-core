@@ -69,19 +69,23 @@ public class DefaultHttpClientConnection
     private static final String EXPECT_CONTINUE = "100-Continue";
     private static final int CONTINUE_WAIT_MS = 3000;
     
-    private HttpHost targethost = null;
+    private final HttpHost targethost;
+    private final InetAddress localAddress;
     
-    public DefaultHttpClientConnection() {
+    public DefaultHttpClientConnection(final HttpHost targethost, final InetAddress localAddress) {
         super();
-    }
-    
-    public void open(
-            final HttpHost targethost,
-            final HttpParams params,
-            final InetAddress localAddress) throws IOException {
         if (targethost == null) {
             throw new IllegalArgumentException("Target host may not be null");
         }
+        this.targethost = targethost;
+        this.localAddress = localAddress;
+    }
+    
+    public DefaultHttpClientConnection(final HttpHost targethost) {
+        this(targethost, null);
+    }
+    
+    public void open(final HttpParams params) throws IOException {
         if (params == null) {
             throw new IllegalArgumentException("HTTP parameters may not be null");
         }
@@ -89,17 +93,17 @@ public class DefaultHttpClientConnection
         
         ProtocolSocketFactory socketfactory = targethost.getProtocol().getSocketFactory();
         Socket socket = socketfactory.createSocket(
-                targethost.getHostName(), targethost.getPort(), localAddress, 0, params);
+                this.targethost.getHostName(), this.targethost.getPort(), 
+                this.localAddress, 0, 
+                params);
         bind(socket, params);
-        this.targethost = targethost;
     }
     
-    public HttpHost getTargetHost() {
+    public HttpHost getHost() {
         return this.targethost;
     }
     
     public void close() throws IOException {
-        this.targethost = null;
         super.close();
     }
 
