@@ -73,9 +73,11 @@ public class ResponseContentInterceptor implements HttpResponseInterceptor {
                         "Chunked transfer encoding not allowed for " + ver);
             }
             response.setHeader(new Header(TRANSFER_ENC, "chunked", true));
+            response.removeHeaders(CONTENT_LEN);
         } else {
             response.setHeader(new Header(CONTENT_LEN, 
                     Long.toString(entity.getContentLength()), true));
+            response.removeHeaders(TRANSFER_ENC);
         }
         // Specify a content type if known
         if (entity.getContentType() != null) {
