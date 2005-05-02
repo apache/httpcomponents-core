@@ -75,7 +75,7 @@ public class ElementalHttpPost {
             for (int i = 0; i < requestBodies.length; i++) {
                 HttpPostRequest request = new HttpPostRequest("/httpclienttest/body");
                 request.setHeader(new Header("Host", host.toHostString()));
-                request.setHeader(new Header("Agent", "Elemental HTTP client"));
+                request.setHeader(new Header("User-Agent", "Elemental HTTP client"));
                 request.setHeader(new Header("Connection", "Keep-Alive"));
                 
                 HttpEntity requestbody = requestBodies[i];

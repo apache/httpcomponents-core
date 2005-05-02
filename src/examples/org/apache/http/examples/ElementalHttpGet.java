@@ -63,7 +63,7 @@ public class ElementalHttpGet {
             for (int i = 0; i < targets.length; i++) {
                 HttpGetRequest request = new HttpGetRequest(targets[i]);
                 request.setHeader(new Header("Host", host.toHostString()));
-                request.setHeader(new Header("Agent", "Elemental HTTP client"));
+                request.setHeader(new Header("User-Agent", "Elemental HTTP client"));
                 request.setHeader(new Header("Connection", "Keep-Alive"));
                 if (!conn.isOpen()) {
                     System.out.println("Open new connection to: " + host);
