@@ -50,6 +50,8 @@ public interface HttpMutableMessage extends HttpMessage {
 
     void removeHeader(Header header);
     
+    void removeHeaders(String name);
+    
     Iterator headerIterator();
     
     void setParams(HttpParams params);
