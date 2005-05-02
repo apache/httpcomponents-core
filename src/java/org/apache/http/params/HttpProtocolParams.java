@@ -294,4 +294,13 @@ public class HttpProtocolParams {
     public String getVirtualHost() {
         return (String) getParameter(VIRTUAL_HOST);
     }
+    
+    public String getUserAgent() { 
+        return (String) getParameter(USER_AGENT);
+    }
+    
+    public HttpProtocolParams setUserAgent(final String useragent) {
+        return setParameter(USER_AGENT, useragent);
+    }
+
 }

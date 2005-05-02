@@ -148,8 +148,6 @@ public class HttpRequestExecutor {
         }
     }
 
-    
-    
     private void postprocessResponse(final HttpMutableResponse response) 
             throws IOException, HttpException {
         if (this.interceptors == null) {
