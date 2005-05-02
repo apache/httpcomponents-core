@@ -34,7 +34,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 
-import org.apache.http.HttpStreamableEntity;
+import org.apache.http.HttpEntity;
 
 /**
  * <p>
@@ -45,7 +45,7 @@ import org.apache.http.HttpStreamableEntity;
  * 
  * @since 4.0
  */
-public class ByteArrayEntity implements HttpStreamableEntity {
+public class ByteArrayEntity implements HttpEntity {
 
     private final static String DEFAULT_CONTENT_TYPE = "application/octet-stream";
 

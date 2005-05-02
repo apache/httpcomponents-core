@@ -32,6 +32,7 @@ package org.apache.http.entity;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
 
 import org.apache.http.HttpEntity;
 
@@ -89,5 +90,16 @@ public class BufferedHttpEntity implements HttpEntity {
     public boolean isRepeatable() {
         return true;
     }
-
+    
+    public void writeTo(final OutputStream outstream) throws IOException {
+        if (outstream == null) {
+            throw new IllegalArgumentException("Output stream may not be null");
+        }
+        if (this.buffer != null) {
+            outstream.write(this.buffer);
+        } else {
+            this.source.writeTo(outstream);
+        }
+    }
+    
 }

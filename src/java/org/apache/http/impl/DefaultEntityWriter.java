@@ -30,16 +30,13 @@
 package org.apache.http.impl;
 
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.OutputStream;
 
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpException;
-import org.apache.http.HttpStreamableEntity;
 import org.apache.http.HttpVersion;
 import org.apache.http.ProtocolException;
 import org.apache.http.io.ChunkedOutputStream;
-import org.apache.http.io.ContentLengthInputStream;
 import org.apache.http.io.HttpDataOutputStream;
 import org.apache.http.io.HttpDataTransmitter;
 import org.apache.http.io.OutputStreamHttpDataTransmitter;
@@ -93,20 +90,7 @@ public class DefaultEntityWriter implements EntityWriter {
         if (chunked) {
             outstream = new ChunkedOutputStream(outstream);
         }
-        if (entity instanceof HttpStreamableEntity) {
-            ((HttpStreamableEntity)entity).writeTo(outstream);
-        } else {
-            InputStream instream = entity.getContent();
-            long len = entity.getContentLength();
-            if (len >= 0) {
-                instream = new ContentLengthInputStream(instream, len);
-            }
-            int l;
-            byte[] tmp = new byte[1024];
-            while ((l = instream.read(tmp)) != -1) {
-                outstream.write(tmp, 0, l);
-            }
-        }
+        entity.writeTo(outstream);
         if (outstream instanceof ChunkedOutputStream) {
             ((ChunkedOutputStream) outstream).finish();
         }

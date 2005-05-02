@@ -29,9 +29,12 @@
 
 package org.apache.http.impl;
 
+import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
 
 import org.apache.http.HttpMutableEntity;
+import org.apache.http.io.ContentLengthInputStream;
 
 /**
  * <p>
@@ -45,8 +48,8 @@ import org.apache.http.HttpMutableEntity;
 public class BasicHttpEntity implements HttpMutableEntity {
     
     private String contenttype = null;
-    private InputStream instream = null;
-    private long contentlen = -1;
+    private InputStream content = null;
+    private long length = -1;
     private boolean chunked = false;
     
     protected BasicHttpEntity() {
@@ -54,7 +57,7 @@ public class BasicHttpEntity implements HttpMutableEntity {
     }
 
     public long getContentLength() {
-        return this.contentlen;
+        return this.length;
     }
 
     public String getContentType() {
@@ -62,7 +65,7 @@ public class BasicHttpEntity implements HttpMutableEntity {
     }
     
     public InputStream getContent() {
-        return this.instream;
+        return this.content;
     }
     
     public boolean isChunked() {
@@ -78,7 +81,7 @@ public class BasicHttpEntity implements HttpMutableEntity {
     }
     
     public void setContentLength(long len) {
-        this.contentlen = len;
+        this.length = len;
     }
     
     public void setContentType(final String contentType) {
@@ -86,7 +89,25 @@ public class BasicHttpEntity implements HttpMutableEntity {
     }
     
     public void setContent(final InputStream instream) {
-        this.instream = instream; 
+        this.content = instream; 
+    }
+    
+    public void writeTo(final OutputStream outstream) throws IOException {
+        if (outstream == null) {
+            throw new IllegalArgumentException("Output stream may not be null");
+        }
+        if (this.content == null) {
+            return;
+        }
+        InputStream instream = this.content;
+        if (this.length >= 0) {
+            instream = new ContentLengthInputStream(instream, this.length);
+        }
+        int l;
+        byte[] tmp = new byte[1024];
+        while ((l = instream.read(tmp)) != -1) {
+            outstream.write(tmp, 0, l);
+        }
     }
     
 }

@@ -31,8 +31,10 @@ package org.apache.http.entity;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
 
 import org.apache.http.HttpEntity;
+import org.apache.http.io.ContentLengthInputStream;
 
 /**
  * <p>
@@ -89,4 +91,19 @@ public class InputStreamEntity implements HttpEntity {
         return this.content;
     }
         
+    public void writeTo(final OutputStream outstream) throws IOException {
+        if (outstream == null) {
+            throw new IllegalArgumentException("Output stream may not be null");
+        }
+        InputStream instream = this.content;
+        if (this.length >= 0) {
+            instream = new ContentLengthInputStream(instream, this.length);
+        }
+        int l;
+        byte[] tmp = new byte[1024];
+        while ((l = instream.read(tmp)) != -1) {
+            outstream.write(tmp, 0, l);
+        }
+    }
+    
 }
