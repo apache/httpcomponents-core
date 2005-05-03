@@ -70,7 +70,11 @@ public class HttpRequestExecutor {
             throw new IllegalArgumentException("HTTP parameters may not be null");
         }
         this.params = params;
-        this.localContext = new BasicHttpContext(parentContext); 
+        this.localContext = new BasicHttpContext(parentContext);
+    }
+    
+    public HttpRequestExecutor(final HttpParams params) {
+        this(params, null);
     }
     
     private void setInterceptor(final Object obj) {
@@ -175,6 +179,9 @@ public class HttpRequestExecutor {
         this.localContext.setAttribute(HttpContext.HTTP_REQUEST, request);
         this.localContext.setAttribute(HttpContext.HTTP_CONNECTION, conn);
         this.localContext.setAttribute(HttpContext.HTTP_TARGET_HOST, conn.getHost());
+
+        // Link own parameters as defaults 
+        request.getParams().setDefaults(this.params);
         
         if (request instanceof HttpMutableRequest) {
             preprocessRequest((HttpMutableRequest)request);
@@ -188,7 +195,7 @@ public class HttpRequestExecutor {
         for (int execCount = 0; ; execCount++) {
             try {
                 if (connparams.isStaleCheckingEnabled()) {
-                    if (conn.isStale()) {
+                    if (conn.isOpen() && conn.isStale()) {
                         conn.close();
                     }
                 }
@@ -220,6 +227,9 @@ public class HttpRequestExecutor {
                 throw ex;
             }
         }
+        
+        // Link own parameters as defaults 
+        response.getParams().setDefaults(this.params);
         
         if (response instanceof HttpMutableResponse) {
             postprocessResponse((HttpMutableResponse)response);
