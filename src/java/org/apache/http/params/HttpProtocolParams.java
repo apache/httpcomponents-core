@@ -133,6 +133,34 @@ public class HttpProtocolParams {
      */
     public static final String STRICT_TRANSFER_ENCODING = "http.protocol.strict-transfer-encoding"; 
 
+    /**
+     * <p>
+     * Activates 'Expect: 100-Continue' handshake for the 
+     * {@link org.apache.commons.httpclient.methods.ExpectContinueMethod 
+     * entity enclosing methods}. The purpose of the 'Expect: 100-Continue'
+     * handshake to allow a client that is sending a request message with 
+     * a request body to determine if the origin server is willing to 
+     * accept the request (based on the request headers) before the client
+     * sends the request body.
+     * </p>
+     * 
+     * <p>
+     * The use of the 'Expect: 100-continue' handshake can result in 
+     * noticable peformance improvement for entity enclosing requests
+     * (such as POST and PUT) that require the target server's 
+     * authentication.
+     * </p>
+     * 
+     * <p>
+     * 'Expect: 100-continue' handshake should be used with 
+     * caution, as it may cause problems with HTTP servers and 
+     * proxies that do not support HTTP/1.1 protocol.
+     * </p>
+     * 
+     * This parameter expects a value of type {@link Boolean}.
+     */
+    public static final String USE_EXPECT_CONTINUE = "http.protocol.expect-continue"; 
+
     private final HttpParams params;
     
     /**
@@ -303,4 +331,11 @@ public class HttpProtocolParams {
         return setParameter(USER_AGENT, useragent);
     }
 
+    public boolean useExpectContinue() {
+        return getBooleanParameter(HttpProtocolParams.USE_EXPECT_CONTINUE, false);
+    }
+    
+    public HttpProtocolParams setUseExpectContinue(boolean b) {
+        return setBooleanParameter(HttpProtocolParams.USE_EXPECT_CONTINUE, b);
+    }
 }

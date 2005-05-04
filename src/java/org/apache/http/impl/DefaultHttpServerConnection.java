@@ -173,7 +173,7 @@ public class DefaultHttpServerConnection
         String line = response.getStatusLine().toString();
         this.datatransmitter.writeLine(line);
         if (isWirelogEnabled()) {
-            wirelog(">> " + line + "[\\r][\\n]");
+            wirelog("<< " + line + "[\\r][\\n]");
         }
     }
 
@@ -184,12 +184,12 @@ public class DefaultHttpServerConnection
             String line = headers[i].toString();
             this.datatransmitter.writeLine(line);
             if (isWirelogEnabled()) {
-                wirelog(">> " + line + "[\\r][\\n]");
+                wirelog("<< " + line + "[\\r][\\n]");
             }
         }
         this.datatransmitter.writeLine("");
         if (isWirelogEnabled()) {
-            wirelog(">> [\\r][\\n]");
+            wirelog("<< [\\r][\\n]");
         }
     }
 

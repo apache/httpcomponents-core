@@ -67,7 +67,7 @@ public class DefaultHttpClientConnection
 
     private static final String EXPECT_DIRECTIVE = "Expect";
     private static final String EXPECT_CONTINUE = "100-Continue";
-    private static final int CONTINUE_WAIT_MS = 3000;
+    private static final int WAIT_FOR_CONTINUE_MS = 10000;
     
     private final HttpHost targethost;
     private final InetAddress localAddress;
@@ -166,16 +166,16 @@ public class DefaultHttpClientConnection
             if (expect != null && EXPECT_CONTINUE.equalsIgnoreCase(expect.getValue())) {
                 // flush the headers
                 this.datatransmitter.flush();
-                if (this.datareceiver.isDataAvailable(CONTINUE_WAIT_MS)) {
-                    HttpResponse response = receiveResponse(request);
+                if (this.datareceiver.isDataAvailable(WAIT_FOR_CONTINUE_MS)) {
+                    HttpResponse response = readResponse(request.getParams());
                     int status = response.getStatusLine().getStatusCode();
-                    if (status > 100) {
-                        return response;
-                    } else {
+                    if (status < 200) {
                         if (status != HttpStatus.SC_CONTINUE) {
                             throw new ProtocolException("Unexpected response: " + 
                                     response.getStatusLine());
                         }
+                    } else {
+                        return response;
                     }
                 }
             }
@@ -206,13 +206,30 @@ public class DefaultHttpClientConnection
         // reset the data receiver
         this.datareceiver.reset(params);
 
-        HttpMutableResponse response = processResponseStatusLine(params);
-        processResponseHeaders(response);
-        processResponseBody(response);
+        for (;;) {
+            HttpResponse response = readResponse(params);
+            int statuscode = response.getStatusLine().getStatusCode();
+            if (statuscode >= 200) {
+                return response;
+            }
+            if (isWarnEnabled()) {
+                warn("Unexpected provisional response: " + response.getStatusLine());
+            }
+        }
+    }
+
+    protected HttpResponse readResponse(final HttpParams params)
+            throws HttpException, IOException {
+        this.datareceiver.reset(params);
+        HttpMutableResponse response = readResponseStatusLine(params);
+        readResponseHeaders(response);
+        if (canResponseHaveBody(response)) {
+            readResponseBody(response);
+        }
         return response;
     }
-    
-    protected HttpMutableResponse processResponseStatusLine(final HttpParams params) 
+
+    protected HttpMutableResponse readResponseStatusLine(final HttpParams params) 
                 throws HttpException, IOException {
         //read out the HTTP status string
         int maxGarbageLines = params.getIntParameter(
@@ -247,7 +264,7 @@ public class DefaultHttpClientConnection
         return HttpResponseFactory.newHttpResponse(statusline);
     }
 
-    protected void processResponseHeaders(
+    protected void readResponseHeaders(
             final HttpMutableResponse response) throws HttpException, IOException {
         Header[] headers = HeadersParser.processHeaders(this.datareceiver);
         for (int i = 0; i < headers.length; i++) {
@@ -266,26 +283,17 @@ public class DefaultHttpClientConnection
             && status != HttpStatus.SC_NOT_MODIFIED; 
     }
         
-    protected void processResponseBody(
+    protected void readResponseBody(
             final HttpMutableResponse response) throws HttpException, IOException {
         EntityGenerator entitygen = new DefaultEntityGenerator();
         HttpMutableEntity entity = entitygen.generate(this.datareceiver, response);
-        if (canResponseHaveBody(response)) {
-            // if there is a result - ALWAYS wrap it in an observer which will
-            // close the underlying stream as soon as it is consumed, and notify
-            // the watcher that the stream has been consumed.
-            InputStream instream = entity.getContent();
-            instream = new AutoCloseInputStream(
-                    instream, new DefaultResponseConsumedWatcher(this, response));
-            entity.setContent(instream);
-        } else {
-            if (entity.isChunked() || entity.getContentLength() > 0) {
-                if (isWarnEnabled()) {
-                    warn("This response may not have a response body");
-                }
-            }
-            entity.setContent(null);
-        }
+        // if there is a result - ALWAYS wrap it in an observer which will
+        // close the underlying stream as soon as it is consumed, and notify
+        // the watcher that the stream has been consumed.
+        InputStream instream = entity.getContent();
+        instream = new AutoCloseInputStream(
+                instream, new DefaultResponseConsumedWatcher(this, response));
+        entity.setContent(instream);
         response.setEntity(entity);
     }
     

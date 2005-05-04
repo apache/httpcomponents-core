@@ -40,6 +40,7 @@ import org.apache.http.impl.DefaultHttpParams;
 import org.apache.http.impl.HttpGetRequest;
 import org.apache.http.interceptor.RequestConnControl;
 import org.apache.http.interceptor.RequestContent;
+import org.apache.http.interceptor.RequestExpectContinue;
 import org.apache.http.interceptor.RequestTargetHost;
 import org.apache.http.interceptor.RequestUserAgent;
 import org.apache.http.params.HttpParams;
@@ -70,6 +71,7 @@ public class HttpRequestExecutorDemo {
         // Recommended request interceptors
         httpexecutor.setRequestInterceptor(new RequestConnControl());
         httpexecutor.setRequestInterceptor(new RequestUserAgent());
+        httpexecutor.setRequestInterceptor(new RequestExpectContinue());
         
         HttpHost host = new HttpHost("www.yahoo.com");
         HttpClientConnection conn = new DefaultHttpClientConnection(host);

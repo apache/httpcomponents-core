@@ -94,7 +94,8 @@ public class NIOSocketHttpDataReceiver extends NIOHttpDataReceiver {
         if (hasDataInBuffer()) {
             return true;
         } else {
-            return this.selector.select(timeout) > 0;
+            this.selector.select(timeout);
+            return !this.selector.selectedKeys().isEmpty();
         }
     }    
         
