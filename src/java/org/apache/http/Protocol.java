@@ -34,6 +34,7 @@ import java.util.Map;
 
 import org.apache.http.impl.NIOProtocolSocketFactory;
 import org.apache.http.impl.OldIOProtocolSocketFactory;
+import org.apache.http.impl.SSLProtocolSocketFactory;
 import org.apache.http.util.LangUtils;
 
 /**
@@ -145,14 +146,12 @@ public class Protocol {
             Protocol.registerProtocol("http", http);
             return http;
         }
-        /*
         if ("https".equals(id)) {
             final Protocol https 
                 = new Protocol("https", SSLProtocolSocketFactory.getSocketFactory(), 443);
             Protocol.registerProtocol("https", https);
             return https;
         }
-        */
         throw new IllegalStateException("unsupported protocol: '" + id + "'");
     }
     

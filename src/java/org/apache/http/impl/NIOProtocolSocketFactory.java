@@ -54,14 +54,14 @@ public class NIOProtocolSocketFactory implements ProtocolSocketFactory {
     /**
      * The factory singleton.
      */
-    private static final NIOProtocolSocketFactory factory = new NIOProtocolSocketFactory();
+    private static final NIOProtocolSocketFactory DEFAULT_FACTORY = new NIOProtocolSocketFactory();
     
     /**
      * Gets an singleton instance of the DefaultProtocolSocketFactory.
      * @return a DefaultProtocolSocketFactory
      */
     public static NIOProtocolSocketFactory getSocketFactory() {
-        return factory;
+        return DEFAULT_FACTORY;
     }
     
     /**

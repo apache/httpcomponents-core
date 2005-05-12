@@ -51,14 +51,14 @@ public class OldIOProtocolSocketFactory implements ProtocolSocketFactory {
     /**
      * The factory singleton.
      */
-    private static final OldIOProtocolSocketFactory factory = new OldIOProtocolSocketFactory();
+    private static final OldIOProtocolSocketFactory DEFAULT_FACTORY = new OldIOProtocolSocketFactory();
     
     /**
      * Gets an singleton instance of the DefaultProtocolSocketFactory.
      * @return a DefaultProtocolSocketFactory
      */
     public static OldIOProtocolSocketFactory getSocketFactory() {
-        return factory;
+        return DEFAULT_FACTORY;
     }
     
     /**
