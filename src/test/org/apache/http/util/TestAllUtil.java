@@ -43,6 +43,7 @@ public class TestAllUtil extends TestCase {
         suite.addTest(TestEncodingUtils.suite());
         suite.addTest(TestHttpLineParser.suite());
         suite.addTest(TestParameterParser.suite());
+        suite.addTest(TestParameterFormatter.suite());
         suite.addTest(TestHeadersParser.suite());
         return suite;
     }
