@@ -36,9 +36,9 @@ import java.net.Socket;
 import org.apache.http.HttpHost;
 import org.apache.http.HttpProxyConnection;
 import org.apache.http.Protocol;
-import org.apache.http.ProtocolSocketFactory;
 import org.apache.http.ProxyHost;
-import org.apache.http.SecureProtocolSocketFactory;
+import org.apache.http.SecureSocketFactory;
+import org.apache.http.SocketFactory;
 import org.apache.http.params.HttpParams;
 
 /**
@@ -84,9 +84,9 @@ public class DefaultHttpProxyConnection
         }
         assertOpen();
         Protocol protocol = targetHost.getProtocol();
-        ProtocolSocketFactory socketfactory = protocol.getSocketFactory();
-        if (socketfactory instanceof SecureProtocolSocketFactory) {
-            Socket socket = ((SecureProtocolSocketFactory)socketfactory)
+        SocketFactory socketfactory = protocol.getSocketFactory();
+        if (socketfactory instanceof SecureSocketFactory) {
+            Socket socket = ((SecureSocketFactory)socketfactory)
                 .createSocket(
                     this.socket, 
                     targetHost.getHostName(), 

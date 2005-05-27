@@ -32,9 +32,6 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.apache.http.impl.NIOProtocolSocketFactory;
-import org.apache.http.impl.OldIOProtocolSocketFactory;
-import org.apache.http.impl.SSLProtocolSocketFactory;
 import org.apache.http.util.LangUtils;
 
 /**
@@ -112,55 +109,18 @@ public class Protocol {
         if (id == null) {
             throw new IllegalArgumentException("id is null");
         }
-
         Protocol protocol = (Protocol) PROTOCOLS.get(id);
-
         if (protocol == null) {
-            protocol = lazyRegisterProtocol(id);
+            throw new IllegalStateException("Unsupported protocol: '" + id + "'");
         }
-
         return protocol;
     } 
-
-    /**
-     * Lazily registers the protocol with the given id.
-     * 
-     * @param id the protocol ID
-     * 
-     * @return the lazily registered protocol
-     * 
-     * @throws IllegalStateException if the protocol with id is not recognized
-     */
-    private static Protocol lazyRegisterProtocol(String id) 
-        throws IllegalStateException {
-
-        if ("http".equals(id)) {
-            // TODO: remove direct dependency on the impl classes
-            ProtocolSocketFactory socketfactory = null;
-            if (HttpRuntime.isNIOCapable()) {
-                socketfactory = NIOProtocolSocketFactory.getSocketFactory();
-            } else {
-                socketfactory = OldIOProtocolSocketFactory.getSocketFactory();
-            }
-            final Protocol http = new Protocol("http", socketfactory, 80);
-            Protocol.registerProtocol("http", http);
-            return http;
-        }
-        if ("https".equals(id)) {
-            final Protocol https 
-                = new Protocol("https", SSLProtocolSocketFactory.getSocketFactory(), 443);
-            Protocol.registerProtocol("https", https);
-            return https;
-        }
-        throw new IllegalStateException("unsupported protocol: '" + id + "'");
-    }
-    
 
     /** the scheme of this protocol (e.g. http, https) */
     private String scheme;
     
     /** The socket factory for this protocol */
-    private ProtocolSocketFactory socketFactory;
+    private SocketFactory socketFactory;
     
     /** The default port for this protocol */
     private int defaultPort;
@@ -177,7 +137,7 @@ public class Protocol {
      * this protocol
      * @param defaultPort the port this protocol defaults to
      */
-    public Protocol(String scheme, ProtocolSocketFactory factory, int defaultPort) {
+    public Protocol(final String scheme, final SocketFactory factory, int defaultPort) {
         
         if (scheme == null) {
             throw new IllegalArgumentException("scheme is null");
@@ -192,7 +152,7 @@ public class Protocol {
         this.scheme = scheme;
         this.socketFactory = factory;
         this.defaultPort = defaultPort;
-        this.secure = (factory instanceof SecureProtocolSocketFactory);
+        this.secure = (factory instanceof SecureSocketFactory);
     }
     
     /**
@@ -204,11 +164,10 @@ public class Protocol {
     }
 
     /**
-     * Returns the socketFactory.  If secure the factory is a
-     * SecureProtocolSocketFactory.
+     * Returns the socketFactory.  If secure the factory is a SecureSocketFactory.
      * @return SocketFactory
      */
-    public ProtocolSocketFactory getSocketFactory() {
+    public SocketFactory getSocketFactory() {
         return socketFactory;
     }
 

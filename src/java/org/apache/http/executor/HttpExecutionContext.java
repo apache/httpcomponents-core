@@ -27,7 +27,7 @@
  *
  */
 
-package org.apache.http.impl;
+package org.apache.http.executor;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -43,12 +43,17 @@ import org.apache.http.HttpContext;
  * 
  * @since 4.0
  */
-public class BasicHttpContext implements HttpContext {
+public class HttpExecutionContext implements HttpContext {
+    
+    public static final String HTTP_REQUEST     = "http.request"; 
+    public static final String HTTP_CONNECTION  = "http.connection"; 
+    public static final String HTTP_TARGET_HOST = "http.target_host"; 
+    public static final String HTTP_PROXY_HOST  = "http.proxy_host"; 
     
     private final HttpContext parentContext;
     private Map map = null;
     
-    public BasicHttpContext(final HttpContext parentContext) {
+    public HttpExecutionContext(final HttpContext parentContext) {
         super();
         this.parentContext = parentContext;
     }

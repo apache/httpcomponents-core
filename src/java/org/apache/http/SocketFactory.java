@@ -52,7 +52,7 @@ import org.apache.http.params.HttpParams;
  * 
  * @since 2.0
  */
-public interface ProtocolSocketFactory {
+public interface SocketFactory {
 
     /**
      * Gets a new socket connection to the given host.

@@ -40,11 +40,6 @@ package org.apache.http;
  */
 public interface HttpContext {
 
-    public static final String HTTP_REQUEST     = "http.request"; 
-    public static final String HTTP_CONNECTION  = "http.connection"; 
-    public static final String HTTP_TARGET_HOST = "http.target_host"; 
-    public static final String HTTP_PROXY_HOST  = "http.proxy_host"; 
-    
     Object getAttribute(String id);
 
     void setAttribute(String id, Object obj);

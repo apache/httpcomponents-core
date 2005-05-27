@@ -29,7 +29,8 @@
 
 package org.apache.http;
 
-import org.apache.http.impl.NIOProtocolSocketFactory;
+import org.apache.http.impl.NIOSocketFactory;
+import org.apache.http.impl.OldIOSocketFactory;
 
 import junit.framework.Test;
 import junit.framework.TestCase;
@@ -55,6 +56,18 @@ public class TestHttpHost extends TestCase {
         return new TestSuite(TestHttpHost.class);
     }
 
+    protected void setUp() throws Exception {
+        super.setUp();
+        SocketFactory socketfactory = null;
+        if (HttpRuntime.isNIOCapable()) {
+            socketfactory = NIOSocketFactory.getSocketFactory();
+        } else {
+            socketfactory = OldIOSocketFactory.getSocketFactory();
+        }
+        final Protocol http = new Protocol("http", socketfactory, 80);
+        Protocol.registerProtocol("http", http);
+    }
+    
     public void testConstructor() {
         Protocol http = Protocol.getProtocol("http");
         HttpHost host1 = new HttpHost("somehost");
@@ -90,7 +103,7 @@ public class TestHttpHost extends TestCase {
     public void testHashCode() {
         Protocol http = Protocol.getProtocol("http");
         Protocol myhttp = new Protocol("myhttp", 
-                NIOProtocolSocketFactory.getSocketFactory(), 8080);
+                NIOSocketFactory.getSocketFactory(), 8080);
         HttpHost host1 = new HttpHost("somehost", 8080, http);
         HttpHost host2 = new HttpHost("somehost", 80, http);
         HttpHost host3 = new HttpHost("someotherhost", 8080, http);
@@ -109,7 +122,7 @@ public class TestHttpHost extends TestCase {
     public void testEquals() {
         Protocol http = Protocol.getProtocol("http");
         Protocol myhttp = new Protocol("myhttp", 
-                NIOProtocolSocketFactory.getSocketFactory(), 8080);
+                NIOSocketFactory.getSocketFactory(), 8080);
         HttpHost host1 = new HttpHost("somehost", 8080, http);
         HttpHost host2 = new HttpHost("somehost", 80, http);
         HttpHost host3 = new HttpHost("someotherhost", 8080, http);
@@ -130,7 +143,7 @@ public class TestHttpHost extends TestCase {
     public void testToString() {
         Protocol http = Protocol.getProtocol("http");
         Protocol myhttp = new Protocol("myhttp", 
-                NIOProtocolSocketFactory.getSocketFactory(), 8080);
+                NIOSocketFactory.getSocketFactory(), 8080);
         HttpHost host1 = new HttpHost("somehost");
         assertEquals("http://somehost", host1.toString());
         HttpHost host2 = new HttpHost("somehost", http.getDefaultPort());

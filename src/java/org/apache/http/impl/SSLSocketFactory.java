@@ -45,12 +45,11 @@ import javax.net.SocketFactory;
 import javax.net.ssl.KeyManager;
 import javax.net.ssl.KeyManagerFactory;
 import javax.net.ssl.SSLContext;
-import javax.net.ssl.SSLSocketFactory;
 import javax.net.ssl.TrustManager;
 import javax.net.ssl.TrustManagerFactory;
 
 import org.apache.http.ConnectTimeoutException;
-import org.apache.http.SecureProtocolSocketFactory;
+import org.apache.http.SecureSocketFactory;
 import org.apache.http.params.HttpConnectionParams;
 import org.apache.http.params.HttpParams;
 
@@ -131,7 +130,7 @@ import org.apache.http.params.HttpParams;
  * @author <a href="mailto:oleg at ural.ru">Oleg Kalnichevski</a>
  */
 
-public class SSLProtocolSocketFactory implements SecureProtocolSocketFactory {
+public class SSLSocketFactory implements SecureSocketFactory {
 
     public static final String TLS   = "TLS";
     public static final String SSL   = "SSL";
@@ -140,20 +139,20 @@ public class SSLProtocolSocketFactory implements SecureProtocolSocketFactory {
     /**
      * The factory singleton.
      */
-    private static final SSLProtocolSocketFactory DEFAULT_FACTORY = new SSLProtocolSocketFactory();
+    private static final SSLSocketFactory DEFAULT_FACTORY = new SSLSocketFactory();
     
     /**
      * Gets an singleton instance of the SSLProtocolSocketFactory.
      * @return a SSLProtocolSocketFactory
      */
-    public static SSLProtocolSocketFactory getSocketFactory() {
+    public static SSLSocketFactory getSocketFactory() {
         return DEFAULT_FACTORY;
     }
     
     private final SSLContext sslcontext;
     private final SocketFactory socketfactory;
 
-    public SSLProtocolSocketFactory(
+    public SSLSocketFactory(
         String algorithm, 
         final KeyStore keystore, 
         final String keystorePassword, 
@@ -178,7 +177,7 @@ public class SSLProtocolSocketFactory implements SecureProtocolSocketFactory {
         this.socketfactory = this.sslcontext.getSocketFactory();
     }
 
-    public SSLProtocolSocketFactory(
+    public SSLSocketFactory(
             final KeyStore keystore, 
             final String keystorePassword, 
             final KeyStore truststore) 
@@ -187,22 +186,22 @@ public class SSLProtocolSocketFactory implements SecureProtocolSocketFactory {
         this(TLS, keystore, keystorePassword, truststore, null);
     }
 
-    public SSLProtocolSocketFactory(final KeyStore keystore, final String keystorePassword) 
+    public SSLSocketFactory(final KeyStore keystore, final String keystorePassword) 
             throws NoSuchAlgorithmException, KeyManagementException, KeyStoreException, UnrecoverableKeyException
     {
         this(TLS, keystore, keystorePassword, null, null);
     }
 
-    public SSLProtocolSocketFactory(final KeyStore truststore) 
+    public SSLSocketFactory(final KeyStore truststore) 
             throws NoSuchAlgorithmException, KeyManagementException, KeyStoreException, UnrecoverableKeyException
     {
         this(TLS, null, null, truststore, null);
     }
 
-    public SSLProtocolSocketFactory() {
+    public SSLSocketFactory() {
         super();
         this.sslcontext = null;
-        this.socketfactory = SSLSocketFactory.getDefault(); 
+        this.socketfactory = javax.net.ssl.SSLSocketFactory.getDefault(); 
     }
 
     private static KeyManager[] createKeyManagers(final KeyStore keystore, final String password)

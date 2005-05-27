@@ -43,7 +43,6 @@ import org.apache.http.HttpRequest;
 import org.apache.http.HttpRequestInterceptor;
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpResponseInterceptor;
-import org.apache.http.impl.BasicHttpContext;
 import org.apache.http.params.HttpConnectionParams;
 import org.apache.http.params.HttpParams;
 
@@ -70,7 +69,7 @@ public class HttpRequestExecutor {
             throw new IllegalArgumentException("HTTP parameters may not be null");
         }
         this.params = params;
-        this.localContext = new BasicHttpContext(parentContext);
+        this.localContext = new HttpExecutionContext(parentContext);
     }
     
     public HttpRequestExecutor(final HttpParams params) {
@@ -176,9 +175,9 @@ public class HttpRequestExecutor {
             throw new IllegalArgumentException("Client connection may not be null");
         }
         
-        this.localContext.setAttribute(HttpContext.HTTP_REQUEST, request);
-        this.localContext.setAttribute(HttpContext.HTTP_CONNECTION, conn);
-        this.localContext.setAttribute(HttpContext.HTTP_TARGET_HOST, conn.getHost());
+        this.localContext.setAttribute(HttpExecutionContext.HTTP_REQUEST, request);
+        this.localContext.setAttribute(HttpExecutionContext.HTTP_CONNECTION, conn);
+        this.localContext.setAttribute(HttpExecutionContext.HTTP_TARGET_HOST, conn.getHost());
 
         // Link own parameters as defaults 
         request.getParams().setDefaults(this.params);

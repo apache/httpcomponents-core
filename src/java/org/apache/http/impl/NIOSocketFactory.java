@@ -37,7 +37,7 @@ import java.net.UnknownHostException;
 import java.nio.channels.SocketChannel;
 
 import org.apache.http.ConnectTimeoutException;
-import org.apache.http.ProtocolSocketFactory;
+import org.apache.http.SocketFactory;
 import org.apache.http.params.HttpConnectionParams;
 import org.apache.http.params.HttpParams;
 
@@ -49,25 +49,25 @@ import org.apache.http.params.HttpParams;
  * 
  * @since 2.0
  */
-public class NIOProtocolSocketFactory implements ProtocolSocketFactory {
+public class NIOSocketFactory implements SocketFactory {
 
     /**
      * The factory singleton.
      */
-    private static final NIOProtocolSocketFactory DEFAULT_FACTORY = new NIOProtocolSocketFactory();
+    private static final NIOSocketFactory DEFAULT_FACTORY = new NIOSocketFactory();
     
     /**
      * Gets an singleton instance of the DefaultProtocolSocketFactory.
      * @return a DefaultProtocolSocketFactory
      */
-    public static NIOProtocolSocketFactory getSocketFactory() {
+    public static NIOSocketFactory getSocketFactory() {
         return DEFAULT_FACTORY;
     }
     
     /**
      * Constructor for DefaultProtocolSocketFactory.
      */
-    private NIOProtocolSocketFactory() {
+    private NIOSocketFactory() {
         super();
     }
 
@@ -115,14 +115,14 @@ public class NIOProtocolSocketFactory implements ProtocolSocketFactory {
      * All instances of DefaultProtocolSocketFactory are the same.
      */
     public boolean equals(Object obj) {
-        return ((obj != null) && obj.getClass().equals(NIOProtocolSocketFactory.class));
+        return ((obj != null) && obj.getClass().equals(NIOSocketFactory.class));
     }
 
     /**
      * All instances of DefaultProtocolSocketFactory have the same hash code.
      */
     public int hashCode() {
-        return NIOProtocolSocketFactory.class.hashCode();
+        return NIOSocketFactory.class.hashCode();
     }
 
 }

@@ -37,6 +37,7 @@ import org.apache.http.HttpException;
 import org.apache.http.HttpHost;
 import org.apache.http.HttpMutableRequest;
 import org.apache.http.HttpRequestInterceptor;
+import org.apache.http.executor.HttpExecutionContext;
 import org.apache.http.params.HttpProtocolParams;
 
 /**
@@ -65,7 +66,8 @@ public class RequestTargetHost implements HttpRequestInterceptor {
             throw new IllegalArgumentException("HTTP context may not be null");
         }
         if (!request.containsHeader(TARGET_HOST)) {
-            HttpHost targethost = (HttpHost) context.getAttribute(HttpContext.HTTP_TARGET_HOST);
+            HttpHost targethost = (HttpHost) context
+                .getAttribute(HttpExecutionContext.HTTP_TARGET_HOST);
             HttpProtocolParams params = new HttpProtocolParams(request.getParams());
             String virtualhost = params.getVirtualHost();
             if (virtualhost != null) {

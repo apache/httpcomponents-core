@@ -42,7 +42,7 @@ import java.net.UnknownHostException;
  * @author <a href="mailto:mbowler@GargoyleSoftware.com">Mike Bowler</a>
  * @since 2.0
  */
-public interface SecureProtocolSocketFactory extends ProtocolSocketFactory {
+public interface SecureSocketFactory extends SocketFactory {
 
     /**
      * Returns a socket connected to the given host that is layered over an

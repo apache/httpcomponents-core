@@ -47,7 +47,7 @@ import org.apache.http.HttpStatus;
 import org.apache.http.HttpVersion;
 import org.apache.http.NoHttpResponseException;
 import org.apache.http.ProtocolException;
-import org.apache.http.ProtocolSocketFactory;
+import org.apache.http.SocketFactory;
 import org.apache.http.StatusLine;
 import org.apache.http.params.HttpParams;
 import org.apache.http.params.HttpProtocolParams;
@@ -91,7 +91,7 @@ public class DefaultHttpClientConnection
         }
         assertNotOpen();
         
-        ProtocolSocketFactory socketfactory = targethost.getProtocol().getSocketFactory();
+        SocketFactory socketfactory = targethost.getProtocol().getSocketFactory();
         Socket socket = socketfactory.createSocket(
                 this.targethost.getHostName(), this.targethost.getPort(), 
                 this.localAddress, 0, 
