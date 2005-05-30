@@ -6,7 +6,7 @@ import java.nio.ByteBuffer;
 import java.nio.channels.Channels;
 import java.nio.channels.WritableByteChannel;
 
-import org.apache.http.impl.NIOHttpDataTransmitter;
+import org.apache.http.impl.io.NIOHttpDataTransmitter;
 
 /**
  * {@link HttpDataTransmitter} mockup implementation.

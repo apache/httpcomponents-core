@@ -33,6 +33,8 @@ import java.io.ByteArrayOutputStream;
 import java.nio.channels.Channels;
 import java.nio.channels.ReadableByteChannel;
 
+import org.apache.http.impl.io.NIOHttpDataReceiver;
+import org.apache.http.impl.io.NIOHttpDataTransmitter;
 import org.apache.http.io.HttpDataReceiver;
 import org.apache.http.io.HttpDataTransmitter;
 import org.apache.http.mockup.HttpDataReceiverMockup;

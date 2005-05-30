@@ -27,14 +27,16 @@
  *
  */
 
-package org.apache.http.impl;
+package org.apache.http.impl.io;
 
-import java.io.BufferedOutputStream;
 import java.io.IOException;
-import java.io.OutputStream;
 import java.net.Socket;
 
-import org.apache.http.io.OutputStreamHttpDataTransmitter;
+import javax.net.ssl.SSLSocket;
+
+import org.apache.http.HttpRuntime;
+import org.apache.http.io.HttpDataReceiver;
+import org.apache.http.io.HttpDataReceiverFactory;
 
 /**
  * <p>
@@ -45,24 +47,25 @@ import org.apache.http.io.OutputStreamHttpDataTransmitter;
  * 
  * @since 4.0
  */
-public class OldIOSocketHttpDataTransmitter extends OutputStreamHttpDataTransmitter {
-
-    private final Socket socket;
+public class DefaultHttpDataReceiverFactory implements HttpDataReceiverFactory {
     
-    private static OutputStream createOutputStream(final Socket socket) throws IOException {
+    public HttpDataReceiver create(final Socket socket) throws IOException {
         if (socket == null) {
             throw new IllegalArgumentException("Socket may not be null");
         }
-        int buffersize = socket.getSendBufferSize();
-        if ((buffersize > 2048) || (buffersize <= 0)) {
-            buffersize = 2048;
+        if (socket instanceof SSLSocket) {
+            if (HttpRuntime.isSSLNIOCapable()) {
+                return new NIOSocketHttpDataReceiver(socket); 
+            } else {
+                return new OldIOSocketHttpDataReceiver(socket); 
+            }
+        } else {
+            if (HttpRuntime.isNIOCapable()) {
+                return new NIOSocketHttpDataReceiver(socket); 
+            } else {
+                return new OldIOSocketHttpDataReceiver(socket); 
+            }            
         }
-        return new BufferedOutputStream(socket.getOutputStream(), buffersize);
-    }
-    
-    protected OldIOSocketHttpDataTransmitter(final Socket socket) throws IOException {
-        super(createOutputStream(socket));
-        this.socket = socket;
     }
     
 }

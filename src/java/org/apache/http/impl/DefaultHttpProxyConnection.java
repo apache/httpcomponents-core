@@ -37,8 +37,8 @@ import org.apache.http.HttpHost;
 import org.apache.http.HttpProxyConnection;
 import org.apache.http.Protocol;
 import org.apache.http.ProxyHost;
-import org.apache.http.SecureSocketFactory;
-import org.apache.http.SocketFactory;
+import org.apache.http.io.SecureSocketFactory;
+import org.apache.http.io.SocketFactory;
 import org.apache.http.params.HttpParams;
 
 /**

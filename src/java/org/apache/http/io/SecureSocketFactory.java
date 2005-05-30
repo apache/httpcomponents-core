@@ -27,58 +27,45 @@
  *
  */
 
-package org.apache.http;
+package org.apache.http.io;
 
 import java.io.IOException;
-import java.net.InetAddress;
 import java.net.Socket;
 import java.net.UnknownHostException;
 
-import org.apache.http.params.HttpParams;
-
 /**
- * A factory for creating Sockets.
+ * A ProtocolSocketFactory that is secure.
  * 
- * <p>Both {@link java.lang.Object#equals(java.lang.Object) Object.equals()} and 
- * {@link java.lang.Object#hashCode() Object.hashCode()} should be overridden appropriately.  
- * Protocol socket factories are used to uniquely identify <code>Protocol</code>s and 
- * <code>HostConfiguration</code>s, and <code>equals()</code> and <code>hashCode()</code> are 
- * required for the correct operation of some connection managers.</p>
- * 
- * @see Protocol
+ * @see org.apache.commons.httpclient.protocol.ProtocolSocketFactory
  * 
  * @author Michael Becke
  * @author <a href="mailto:mbowler@GargoyleSoftware.com">Mike Bowler</a>
- * 
  * @since 2.0
  */
-public interface SocketFactory {
+public interface SecureSocketFactory extends SocketFactory {
 
     /**
-     * Gets a new socket connection to the given host.
+     * Returns a socket connected to the given host that is layered over an
+     * existing socket.  Used primarily for creating secure sockets through
+     * proxies.
      * 
+     * @param socket the existing socket 
      * @param host the host name/IP
      * @param port the port on the host
-     * @param localAddress the local host name/IP to bind the socket to
-     * @param localPort the port on the local machine
-     * @param params {@link HttpParams Http parameters}
+     * @param autoClose a flag for closing the underling socket when the created
+     * socket is closed
      * 
      * @return Socket a new socket
      * 
      * @throws IOException if an I/O error occurs while creating the socket
      * @throws UnknownHostException if the IP address of the host cannot be
      * determined
-     * @throws ConnectTimeoutException if socket cannot be connected within the
-     *  given time limit
-     * 
-     * @since 3.0
      */
     Socket createSocket(
+        Socket socket, 
         String host, 
         int port, 
-        InetAddress localAddress, 
-        int localPort,
-        HttpParams params
-    ) throws IOException, UnknownHostException, ConnectTimeoutException;
+        boolean autoClose
+    ) throws IOException, UnknownHostException;              
 
 }

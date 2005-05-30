@@ -27,7 +27,7 @@
  *
  */
 
-package org.apache.http.impl;
+package org.apache.http.impl.io;
 
 import java.io.IOException;
 import java.net.InetAddress;
@@ -37,7 +37,7 @@ import java.net.UnknownHostException;
 import java.nio.channels.SocketChannel;
 
 import org.apache.http.ConnectTimeoutException;
-import org.apache.http.SocketFactory;
+import org.apache.http.io.SocketFactory;
 import org.apache.http.params.HttpConnectionParams;
 import org.apache.http.params.HttpParams;
 

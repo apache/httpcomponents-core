@@ -7,7 +7,7 @@ import java.nio.ByteBuffer;
 import java.nio.channels.Channels;
 import java.nio.channels.ReadableByteChannel;
 
-import org.apache.http.impl.NIOHttpDataReceiver;
+import org.apache.http.impl.io.NIOHttpDataReceiver;
 
 /**
  * {@link HttpDataInputStream} mockup implementation.

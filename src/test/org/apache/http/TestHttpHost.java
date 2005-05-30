@@ -29,8 +29,9 @@
 
 package org.apache.http;
 
-import org.apache.http.impl.NIOSocketFactory;
-import org.apache.http.impl.OldIOSocketFactory;
+import org.apache.http.impl.io.NIOSocketFactory;
+import org.apache.http.impl.io.OldIOSocketFactory;
+import org.apache.http.io.SocketFactory;
 
 import junit.framework.Test;
 import junit.framework.TestCase;
