@@ -27,7 +27,7 @@
  *
  */
 
-package org.apache.http.impl;
+package org.apache.http.impl.entity;
 
 import java.io.IOException;
 import java.io.OutputStream;

@@ -27,7 +27,7 @@
  *
  */
 
-package org.apache.http.impl;
+package org.apache.http.impl.entity;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -52,7 +52,7 @@ public class BasicHttpEntity implements HttpMutableEntity {
     private long length = -1;
     private boolean chunked = false;
     
-    protected BasicHttpEntity() {
+    public BasicHttpEntity() {
         super();
     }
 

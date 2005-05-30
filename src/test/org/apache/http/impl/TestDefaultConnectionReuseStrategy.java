@@ -33,6 +33,7 @@ import org.apache.http.HttpMutableEntity;
 import org.apache.http.HttpMutableResponse;
 import org.apache.http.HttpVersion;
 import org.apache.http.StatusLine;
+import org.apache.http.impl.entity.BasicHttpEntity;
 
 import junit.framework.Test;
 import junit.framework.TestCase;

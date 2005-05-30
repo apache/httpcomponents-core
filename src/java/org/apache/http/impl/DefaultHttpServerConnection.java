@@ -44,6 +44,10 @@ import org.apache.http.HttpServerConnection;
 import org.apache.http.HttpStatus;
 import org.apache.http.HttpVersion;
 import org.apache.http.RequestLine;
+import org.apache.http.impl.entity.DefaultEntityGenerator;
+import org.apache.http.impl.entity.DefaultEntityWriter;
+import org.apache.http.impl.entity.EntityGenerator;
+import org.apache.http.impl.entity.EntityWriter;
 import org.apache.http.params.HttpParams;
 import org.apache.http.util.HeadersParser;
 
