@@ -34,7 +34,9 @@ import java.net.Socket;
 
 import org.apache.http.HttpConnection;
 import org.apache.http.io.HttpDataReceiver;
+import org.apache.http.io.HttpDataReceiverFactory;
 import org.apache.http.io.HttpDataTransmitter;
+import org.apache.http.io.HttpDataTransmitterFactory;
 import org.apache.http.params.HttpConnectionParams;
 import org.apache.http.params.HttpParams;
 
@@ -53,10 +55,32 @@ abstract class AbstractHttpConnection implements HttpConnection {
     protected volatile HttpDataTransmitter datatransmitter = null;
     protected volatile HttpDataReceiver datareceiver = null;
     
+    /*
+     * Dependent interfaces
+     */
+    private HttpDataTransmitterFactory trxfactory = null; 
+    private HttpDataReceiverFactory rcvfactory = null; 
+    
     protected AbstractHttpConnection() {
         super();
+        this.trxfactory = new DefaultHttpDataTransmitterFactory();
+        this.rcvfactory = new DefaultHttpDataReceiverFactory();
     }
     
+    public void setReceiverFactory(final HttpDataReceiverFactory rcvfactory) {
+        if (rcvfactory == null) {
+            throw new IllegalArgumentException("Factory may not be null");
+        }
+        this.rcvfactory = rcvfactory;
+    }
+    
+    public void setTransmitterFactory(final HttpDataTransmitterFactory trxfactory) {
+        if (trxfactory == null) {
+            throw new IllegalArgumentException("Factory may not be null");
+        }
+        this.trxfactory = trxfactory;
+    }
+
     protected void assertNotOpen() {
         if (this.socket != null) {
             throw new IllegalStateException("Connection is already open");
@@ -95,10 +119,8 @@ abstract class AbstractHttpConnection implements HttpConnection {
         if (rcvBufSize >= 0) {
             this.socket.setReceiveBufferSize(rcvBufSize);
         }
-        this.datatransmitter = 
-            new DefaultHttpDataTransmitterFactory().create(this.socket); 
-        this.datareceiver = 
-            new DefaultHttpDataReceiverFactory().create(this.socket); 
+        this.datatransmitter = this.trxfactory.create(this.socket); 
+        this.datareceiver = this.rcvfactory.create(this.socket); 
     }
 
     public boolean isOpen() {
@@ -119,17 +141,6 @@ abstract class AbstractHttpConnection implements HttpConnection {
             tmpsocket.close();
         }
         this.socket = null;
-    }
-    
-    public int getSocketTimeout() throws IOException {
-        assertOpen();
-        return this.socket.getSoTimeout();
-    }
-    
-    
-    public void setSocketTimeout(int timeout) throws IOException {
-        assertOpen();
-        this.socket.setSoTimeout(timeout);
     }
     
     public boolean isStale() {
