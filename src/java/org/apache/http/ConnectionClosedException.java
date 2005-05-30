@@ -27,9 +27,9 @@
  *
  */
 
-package org.apache.http.impl;
+package org.apache.http;
 
-import org.apache.http.HttpException;
+import java.io.IOException;
 
 /**
  * <p>
@@ -40,14 +40,14 @@ import org.apache.http.HttpException;
  * 
  * @since 4.0
  */
-public class RequestValidationException extends HttpException {
+public class ConnectionClosedException extends IOException {
 
     /**
-     * Creates a new RequestValidationException with the specified detail message.
+     * Creates a new MethodNotSupportedException with the specified detail message.
      * 
      * @param message The exception detail message
      */
-    public RequestValidationException(final String message) {
+    public ConnectionClosedException(final String message) {
         super(message);
     }
 

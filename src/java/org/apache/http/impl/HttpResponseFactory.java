@@ -32,6 +32,7 @@ package org.apache.http.impl;
 import org.apache.http.HttpMutableResponse;
 import org.apache.http.HttpStatus;
 import org.apache.http.HttpVersion;
+import org.apache.http.MethodNotSupportedException;
 import org.apache.http.StatusLine;
 
 /**

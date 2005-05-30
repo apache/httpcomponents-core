@@ -36,6 +36,7 @@ import java.net.Socket;
 import java.nio.channels.ServerSocketChannel;
 import java.nio.channels.SocketChannel;
 
+import org.apache.http.ConnectionClosedException;
 import org.apache.http.Header;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpEntityEnclosingRequest;
@@ -44,16 +45,15 @@ import org.apache.http.HttpMutableResponse;
 import org.apache.http.HttpRequest;
 import org.apache.http.HttpServerConnection;
 import org.apache.http.HttpStatus;
+import org.apache.http.MethodNotSupportedException;
 import org.apache.http.ProtocolException;
 import org.apache.http.entity.EntityConsumer;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.BasicHttpResponse;
-import org.apache.http.impl.ConnectionClosedException;
 import org.apache.http.impl.ConnectionReuseStrategy;
 import org.apache.http.impl.DefaultConnectionReuseStrategy;
 import org.apache.http.impl.DefaultHttpParams;
 import org.apache.http.impl.DefaultHttpServerConnection;
-import org.apache.http.impl.MethodNotSupportedException;
 import org.apache.http.params.HttpConnectionParams;
 import org.apache.http.params.HttpParams;
 

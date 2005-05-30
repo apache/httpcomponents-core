@@ -32,6 +32,7 @@ package org.apache.http.impl;
 import java.io.IOException;
 import java.net.Socket;
 
+import org.apache.http.ConnectionClosedException;
 import org.apache.http.Header;
 import org.apache.http.HttpException;
 import org.apache.http.HttpMutableEntity;
@@ -44,6 +45,7 @@ import org.apache.http.HttpServerConnection;
 import org.apache.http.HttpStatus;
 import org.apache.http.HttpVersion;
 import org.apache.http.RequestLine;
+import org.apache.http.RequestValidationException;
 import org.apache.http.impl.entity.DefaultEntityGenerator;
 import org.apache.http.impl.entity.DefaultEntityWriter;
 import org.apache.http.impl.entity.EntityGenerator;

@@ -30,6 +30,7 @@
 package org.apache.http.impl;
 
 import org.apache.http.HttpMutableRequest;
+import org.apache.http.MethodNotSupportedException;
 import org.apache.http.RequestLine;
 
 /**

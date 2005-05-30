@@ -27,9 +27,8 @@
  *
  */
 
-package org.apache.http.impl;
+package org.apache.http;
 
-import java.io.IOException;
 
 /**
  * <p>
@@ -40,15 +39,25 @@ import java.io.IOException;
  * 
  * @since 4.0
  */
-public class ConnectionClosedException extends IOException {
+public class MethodNotSupportedException extends HttpException {
 
     /**
      * Creates a new MethodNotSupportedException with the specified detail message.
      * 
      * @param message The exception detail message
      */
-    public ConnectionClosedException(final String message) {
+    public MethodNotSupportedException(final String message) {
         super(message);
     }
 
+    /**
+     * Creates a new MethodNotSupportedException with the specified detail message and cause.
+     * 
+     * @param message the exception detail message
+     * @param cause the <tt>Throwable</tt> that caused this exception, or <tt>null</tt>
+     * if the cause is unavailable, unknown, or not a <tt>Throwable</tt>
+     */
+    public MethodNotSupportedException(final String message, final Throwable cause) {
+        super(message, cause);
+    }
 }
