@@ -43,6 +43,7 @@ import org.apache.http.HttpMutableEntity;
 import org.apache.http.HttpMutableResponse;
 import org.apache.http.HttpRequest;
 import org.apache.http.HttpResponse;
+import org.apache.http.HttpResponseFactory;
 import org.apache.http.HttpStatus;
 import org.apache.http.HttpVersion;
 import org.apache.http.NoHttpResponseException;
@@ -75,6 +76,11 @@ public class DefaultHttpClientConnection
     
     private final HttpHost targethost;
     private final InetAddress localAddress;
+
+    /*
+     * Dependent interfaces
+     */
+    private HttpResponseFactory responsefactory = null; 
     
     public DefaultHttpClientConnection(final HttpHost targethost, final InetAddress localAddress) {
         super();
@@ -83,12 +89,20 @@ public class DefaultHttpClientConnection
         }
         this.targethost = targethost;
         this.localAddress = localAddress;
+        this.responsefactory = new DefaultHttpResponseFactory();
     }
     
     public DefaultHttpClientConnection(final HttpHost targethost) {
         this(targethost, null);
     }
     
+    public void setResponseFactory(final HttpResponseFactory responsefactory) {
+        if (responsefactory == null) {
+            throw new IllegalArgumentException("Factory may not be null");
+        }
+        this.responsefactory = responsefactory;
+    }
+
     public void open(final HttpParams params) throws IOException {
         if (params == null) {
             throw new IllegalArgumentException("HTTP parameters may not be null");
@@ -265,7 +279,7 @@ public class DefaultHttpClientConnection
         if (isWirelogEnabled()) {
             wirelog("<< " + s + "[\\r][\\n]");
         }
-        return HttpResponseFactory.newHttpResponse(statusline);
+        return this.responsefactory.newHttpResponse(statusline);
     }
 
     protected void readResponseHeaders(

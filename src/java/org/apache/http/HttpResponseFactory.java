@@ -27,13 +27,7 @@
  *
  */
 
-package org.apache.http.impl;
-
-import org.apache.http.HttpMutableResponse;
-import org.apache.http.HttpStatus;
-import org.apache.http.HttpVersion;
-import org.apache.http.MethodNotSupportedException;
-import org.apache.http.StatusLine;
+package org.apache.http;
 
 /**
  * <p>
@@ -44,26 +38,10 @@ import org.apache.http.StatusLine;
  * 
  * @since 4.0
  */
-public class HttpResponseFactory {
+public interface HttpResponseFactory {
     
-    private HttpResponseFactory() {
-        super();
-    }
-
-    public static HttpMutableResponse newHttpResponse(final HttpVersion ver, final int status)
-            throws MethodNotSupportedException {
-        if (ver == null) {
-            throw new IllegalArgumentException("HTTP version may not be null");
-        }
-        StatusLine statusline = new StatusLine(ver, status, HttpStatus.getStatusText(status)); 
-        return new BasicHttpResponse(statusline); 
-    }
+    HttpMutableResponse newHttpResponse(HttpVersion ver, int status);
     
-    public static HttpMutableResponse newHttpResponse(final StatusLine statusline)
-            throws MethodNotSupportedException {
-        if (statusline == null) {
-            throw new IllegalArgumentException("Status line may not be null");
-        }
-        return new BasicHttpResponse(statusline); 
-    }
+    HttpMutableResponse newHttpResponse(StatusLine statusline);
+    
 }

@@ -33,10 +33,15 @@ import org.apache.http.Header;
 import org.apache.http.HttpClientConnection;
 import org.apache.http.HttpHost;
 import org.apache.http.HttpResponse;
+import org.apache.http.HttpRuntime;
+import org.apache.http.Protocol;
 import org.apache.http.entity.EntityConsumer;
 import org.apache.http.impl.DefaultHttpClientConnection;
 import org.apache.http.impl.DefaultHttpParams;
 import org.apache.http.impl.HttpGetRequest;
+import org.apache.http.impl.io.NIOSocketFactory;
+import org.apache.http.impl.io.OldIOSocketFactory;
+import org.apache.http.io.SocketFactory;
 import org.apache.http.params.HttpParams;
 
 /**
@@ -49,6 +54,14 @@ import org.apache.http.params.HttpParams;
 public class ElementalHttpGet {
 
     public static void main(String[] args) throws Exception {
+        
+        SocketFactory socketfactory = null;
+        if (HttpRuntime.isNIOCapable()) {
+            socketfactory = NIOSocketFactory.getSocketFactory();
+        } else {
+            socketfactory = OldIOSocketFactory.getSocketFactory();
+        }
+        Protocol.registerProtocol("http", new Protocol("http", socketfactory, 80));
         
         HttpParams connparams = new DefaultHttpParams(null);
         HttpHost host = new HttpHost("www.yahoo.com");

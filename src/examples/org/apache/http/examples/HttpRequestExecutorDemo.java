@@ -32,17 +32,22 @@ package org.apache.http.examples;
 import org.apache.http.HttpClientConnection;
 import org.apache.http.HttpHost;
 import org.apache.http.HttpResponse;
+import org.apache.http.HttpRuntime;
 import org.apache.http.HttpVersion;
+import org.apache.http.Protocol;
 import org.apache.http.entity.EntityConsumer;
 import org.apache.http.executor.HttpRequestExecutor;
 import org.apache.http.impl.DefaultHttpClientConnection;
 import org.apache.http.impl.DefaultHttpParams;
 import org.apache.http.impl.HttpGetRequest;
+import org.apache.http.impl.io.NIOSocketFactory;
+import org.apache.http.impl.io.OldIOSocketFactory;
 import org.apache.http.interceptor.RequestConnControl;
 import org.apache.http.interceptor.RequestContent;
 import org.apache.http.interceptor.RequestExpectContinue;
 import org.apache.http.interceptor.RequestTargetHost;
 import org.apache.http.interceptor.RequestUserAgent;
+import org.apache.http.io.SocketFactory;
 import org.apache.http.params.HttpParams;
 import org.apache.http.params.HttpProtocolParams;
 
@@ -56,6 +61,14 @@ import org.apache.http.params.HttpProtocolParams;
 public class HttpRequestExecutorDemo {
 
     public static void main(String[] args) throws Exception {
+        
+        SocketFactory socketfactory = null;
+        if (HttpRuntime.isNIOCapable()) {
+            socketfactory = NIOSocketFactory.getSocketFactory();
+        } else {
+            socketfactory = OldIOSocketFactory.getSocketFactory();
+        }
+        Protocol.registerProtocol("http", new Protocol("http", socketfactory, 80));
         
         HttpParams params = new DefaultHttpParams(null);
         

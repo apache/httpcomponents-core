@@ -40,7 +40,9 @@ import org.apache.http.HttpMutableEntityEnclosingRequest;
 import org.apache.http.HttpMutableRequest;
 import org.apache.http.HttpMutableResponse;
 import org.apache.http.HttpRequest;
+import org.apache.http.HttpRequestFactory;
 import org.apache.http.HttpResponse;
+import org.apache.http.HttpResponseFactory;
 import org.apache.http.HttpServerConnection;
 import org.apache.http.HttpStatus;
 import org.apache.http.HttpVersion;
@@ -68,10 +70,32 @@ public class DefaultHttpServerConnection
     private static final String EXPECT_DIRECTIVE = "Expect";
     private static final String EXPECT_CONTINUE = "100-Continue";
 
+    /*
+     * Dependent interfaces
+     */
+    private HttpRequestFactory requestfactory = null; 
+    private HttpResponseFactory responsefactory = null; 
+
     public DefaultHttpServerConnection() {
         super();
+        this.requestfactory = new DefaultHttpRequestFactory();
+        this.responsefactory = new DefaultHttpResponseFactory();
     }
     
+    public void setRequestFactory(final HttpRequestFactory requestfactory) {
+        if (requestfactory == null) {
+            throw new IllegalArgumentException("Factory may not be null");
+        }
+        this.requestfactory = requestfactory;
+    }
+
+    public void setResponseFactory(final HttpResponseFactory responsefactory) {
+        if (responsefactory == null) {
+            throw new IllegalArgumentException("Factory may not be null");
+        }
+        this.responsefactory = responsefactory;
+    }
+
     public void bind(final Socket socket, final HttpParams params) throws IOException {
         super.bind(socket, params);
     }
@@ -118,7 +142,7 @@ public class DefaultHttpServerConnection
         if (isWirelogEnabled()) {
             wirelog(">> " + line + "[\\r][\\n]");
         }
-        HttpMutableRequest request = HttpRequestFactory.newHttpRequest(requestline);
+        HttpMutableRequest request = this.requestfactory.newHttpRequest(requestline);
         request.setParams((HttpParams)params.clone());
         return request;
     }
@@ -146,8 +170,8 @@ public class DefaultHttpServerConnection
     
     protected void sendContinue(final HttpVersion ver) 
             throws IOException, HttpException {
-        HttpMutableResponse response = 
-            HttpResponseFactory.newHttpResponse(ver, HttpStatus.SC_CONTINUE);
+        HttpMutableResponse response = this.responsefactory.newHttpResponse(
+                ver, HttpStatus.SC_CONTINUE);
         sendResponse(response);
     }
 
