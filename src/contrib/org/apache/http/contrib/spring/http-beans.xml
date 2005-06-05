@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
+
+<beans>
+
+  <bean id="global-params" 
+    class="org.apache.http.impl.DefaultHttpParams" 
+    singleton="true" />
+
+  <bean id="params" 
+    class="org.apache.http.impl.DefaultHttpParams" 
+    singleton="false">
+    <property name="defaults"><ref bean="global-params"/></property>
+  </bean>
+
+  <bean id="socket-factory" 
+    class="org.apache.http.impl.io.NIOSocketFactory" 
+    singleton="true" />
+    
+  <bean id="http-protocol" 
+    class="org.apache.http.Protocol">
+    <constructor-arg index="0"><value>http</value></constructor-arg>
+    <constructor-arg index="1"><ref bean="socket-factory"/></constructor-arg>
+    <constructor-arg index="2"><value>80</value></constructor-arg>
+  </bean>
+  
+  <bean id="http-executor" 
+    class="org.apache.http.executor.HttpRequestExecutor" 
+    singleton="true" >
+    <property name="interceptors">
+      <set>
+        <!-- Required request interceptors -->
+        <bean class="org.apache.http.interceptor.RequestContent" />
+        <bean class="org.apache.http.interceptor.RequestTargetHost" />
+        <!-- Recommended request interceptors -->
+        <bean class="org.apache.http.interceptor.RequestConnControl" />
+        <bean class="org.apache.http.interceptor.RequestUserAgent" />
+        <bean class="org.apache.http.interceptor.RequestExpectContinue" />
+      </set>
+    </property>
+  </bean>
+  
+  <bean id="http-data-trx-factory" 
+    class="org.apache.http.impl.io.DefaultHttpDataTransmitterFactory" 
+    singleton="true" />
+  
+  <bean id="http-data-rcv-factory" 
+    class="org.apache.http.impl.io.DefaultHttpDataReceiverFactory" 
+    singleton="true" />
+  
+  <bean id="http-request-factory"
+    class="org.apache.http.impl.DefaultHttpRequestFactory" 
+    singleton="true" />
+  
+  <bean id="http-response-factory"
+    class="org.apache.http.impl.DefaultHttpResponseFactory" 
+    singleton="true" />
+  
+  <bean id="http-connection" 
+    class="org.apache.http.impl.DefaultHttpClientConnection" 
+    singleton="false">
+    <property name="receiverFactory"><ref bean="http-data-rcv-factory"/></property>
+    <property name="transmitterFactory"><ref bean="http-data-trx-factory"/></property>
+    <property name="responseFactory"><ref bean="http-response-factory"/></property>
+  </bean>
+  
+</beans>
