@@ -43,4 +43,7 @@ public interface HttpRequestFactory {
     HttpMutableRequest newHttpRequest(RequestLine requestline) 
         throws MethodNotSupportedException;
     
+    HttpMutableRequest newHttpRequest(String method, String uri) 
+    	throws MethodNotSupportedException;
+    
 }

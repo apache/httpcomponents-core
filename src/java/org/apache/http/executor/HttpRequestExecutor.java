@@ -57,26 +57,30 @@ import org.apache.http.params.HttpParams;
  */
 public class HttpRequestExecutor {
 
-    private final HttpParams params;
     private final HttpContext localContext;
     
+    private HttpParams params = null;
     private HttpRequestRetryHandler retryhandler = null;
     private Set interceptors = null; 
     
-    public HttpRequestExecutor(final HttpParams params, final HttpContext parentContext) {
+    public HttpRequestExecutor(final HttpContext parentContext) {
         super();
-        if (params == null) {
-            throw new IllegalArgumentException("HTTP parameters may not be null");
-        }
-        this.params = params;
         this.localContext = new HttpExecutionContext(parentContext);
     }
     
-    public HttpRequestExecutor(final HttpParams params) {
-        this(params, null);
+    public HttpRequestExecutor() {
+        this(null);
     }
     
-    private void setInterceptor(final Object obj) {
+    public HttpParams getParams() {
+        return this.params;
+    }
+
+    public void setParams(final HttpParams params) {
+        this.params = params;
+    }
+    
+    private void addInterceptor(final Object obj) {
         if (obj == null) {
             return;
         }
@@ -99,12 +103,12 @@ public class HttpRequestExecutor {
         }
     }
     
-    public void setRequestInterceptor(final HttpRequestInterceptor interceptor) {
-        setInterceptor(interceptor);
+    public void addRequestInterceptor(final HttpRequestInterceptor interceptor) {
+        addInterceptor(interceptor);
     }
     
-    public void setResponseInterceptor(final HttpResponseInterceptor interceptor) {
-        setInterceptor(interceptor);
+    public void addResponseInterceptor(final HttpResponseInterceptor interceptor) {
+        addInterceptor(interceptor);
     }
 
     public void removeRequestInterceptor(final HttpRequestInterceptor interceptor) {
@@ -126,6 +130,18 @@ public class HttpRequestExecutor {
             if (clazz.isInstance(i.next())) {
                 i.remove();
             }
+        }
+    }
+    
+    public void setInterceptors(final Set interceptors) {
+        if (interceptors == null) {
+            return;
+        }
+        if (this.interceptors != null) {
+            this.interceptors.clear();
+            this.interceptors.addAll(interceptors);
+        } else {
+            this.interceptors = new HashSet(interceptors);
         }
     }
     
@@ -177,7 +193,8 @@ public class HttpRequestExecutor {
         
         this.localContext.setAttribute(HttpExecutionContext.HTTP_REQUEST, request);
         this.localContext.setAttribute(HttpExecutionContext.HTTP_CONNECTION, conn);
-        this.localContext.setAttribute(HttpExecutionContext.HTTP_TARGET_HOST, conn.getHost());
+        this.localContext.setAttribute(HttpExecutionContext.HTTP_TARGET_HOST, 
+        		conn.getTargetHost());
 
         // Link own parameters as defaults 
         request.getParams().setDefaults(this.params);

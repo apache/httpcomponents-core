@@ -77,14 +77,15 @@ public class HttpRequestExecutorDemo {
             .setContentCharset("UTF-8")
             .setUserAgent("Jakarta HTTP Demo");
         
-        HttpRequestExecutor httpexecutor = new HttpRequestExecutor(params);
+        HttpRequestExecutor httpexecutor = new HttpRequestExecutor();
+        httpexecutor.setParams(params);
         // Required request interceptors
-        httpexecutor.setRequestInterceptor(new RequestContent());
-        httpexecutor.setRequestInterceptor(new RequestTargetHost());
+        httpexecutor.addRequestInterceptor(new RequestContent());
+        httpexecutor.addRequestInterceptor(new RequestTargetHost());
         // Recommended request interceptors
-        httpexecutor.setRequestInterceptor(new RequestConnControl());
-        httpexecutor.setRequestInterceptor(new RequestUserAgent());
-        httpexecutor.setRequestInterceptor(new RequestExpectContinue());
+        httpexecutor.addRequestInterceptor(new RequestConnControl());
+        httpexecutor.addRequestInterceptor(new RequestUserAgent());
+        httpexecutor.addRequestInterceptor(new RequestExpectContinue());
         
         HttpHost host = new HttpHost("www.yahoo.com");
         HttpClientConnection conn = new DefaultHttpClientConnection(host);

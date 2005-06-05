@@ -74,8 +74,8 @@ public class DefaultHttpClientConnection
     private static final String EXPECT_CONTINUE = "100-Continue";
     private static final int WAIT_FOR_CONTINUE_MS = 10000;
     
-    private final HttpHost targethost;
-    private final InetAddress localAddress;
+    private HttpHost targethost = null;
+    private InetAddress localAddress = null;
 
     /*
      * Dependent interfaces
@@ -84,9 +84,6 @@ public class DefaultHttpClientConnection
     
     public DefaultHttpClientConnection(final HttpHost targethost, final InetAddress localAddress) {
         super();
-        if (targethost == null) {
-            throw new IllegalArgumentException("Target host may not be null");
-        }
         this.targethost = targethost;
         this.localAddress = localAddress;
         this.responsefactory = new DefaultHttpResponseFactory();
@@ -94,6 +91,10 @@ public class DefaultHttpClientConnection
     
     public DefaultHttpClientConnection(final HttpHost targethost) {
         this(targethost, null);
+    }
+    
+    public DefaultHttpClientConnection() {
+        this(null, null);
     }
     
     public void setResponseFactory(final HttpResponseFactory responsefactory) {
@@ -108,8 +109,10 @@ public class DefaultHttpClientConnection
             throw new IllegalArgumentException("HTTP parameters may not be null");
         }
         assertNotOpen();
-        
-        SocketFactory socketfactory = targethost.getProtocol().getSocketFactory();
+        if (this.targethost == null) {
+        	throw new IllegalStateException("Target host not specified");
+        }
+        SocketFactory socketfactory = this.targethost.getProtocol().getSocketFactory();
         Socket socket = socketfactory.createSocket(
                 this.targethost.getHostName(), this.targethost.getPort(), 
                 this.localAddress, 0, 
@@ -117,8 +120,25 @@ public class DefaultHttpClientConnection
         bind(socket, params);
     }
     
-    public HttpHost getHost() {
+    public HttpHost getTargetHost() {
         return this.targethost;
+    }
+    
+    public InetAddress getLocalAddress() {
+        return this.localAddress;
+    }
+    
+    public void setTargetHost(final HttpHost targethost) {
+    	if (targethost == null) {
+    		throw new IllegalArgumentException("Target host may not be null");
+    	}
+    	assertNotOpen();
+    	this.targethost = targethost;
+    }
+    
+    public void setLocalAddress(final InetAddress localAddress) {
+    	assertNotOpen();
+    	this.localAddress = localAddress;
     }
     
     public void close() throws IOException {

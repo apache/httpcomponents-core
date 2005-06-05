@@ -63,5 +63,17 @@ public class DefaultHttpRequestFactory implements HttpRequestFactory {
             throw new MethodNotSupportedException(method +  " method not supported");
         }
     }
+
+    public HttpMutableRequest newHttpRequest(final String method, final String uri)
+			throws MethodNotSupportedException {
+		if ("GET".equalsIgnoreCase(method)) {
+			return new BasicHttpRequest(method, uri);
+		} else if ("POST".equalsIgnoreCase(method)) {
+			return new BasicHttpEntityEnclosingRequest(method, uri);
+		} else {
+			throw new MethodNotSupportedException(method
+					+ " method not supported");
+		}
+    }
     
 }

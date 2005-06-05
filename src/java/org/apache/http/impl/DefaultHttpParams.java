@@ -68,6 +68,10 @@ public class DefaultHttpParams implements HttpParams, Serializable, Cloneable {
         this.defaults = defaults; 
     }
     
+    public DefaultHttpParams() {
+        this(null);
+    }
+
     public synchronized HttpParams getDefaults() {
         return this.defaults;
     }
