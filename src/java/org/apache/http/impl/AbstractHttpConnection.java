@@ -138,9 +138,15 @@ abstract class AbstractHttpConnection implements HttpConnection {
         this.datatransmitter = null;
         Socket tmpsocket = this.socket;
         if (tmpsocket != null) {
-            tmpsocket.shutdownOutput();
-            tmpsocket.shutdownInput();
-            tmpsocket.close();
+            if (!tmpsocket.isClosed()) {
+                if (!tmpsocket.isOutputShutdown()) {
+                    tmpsocket.shutdownOutput();
+                }
+                if (!tmpsocket.isInputShutdown()) {
+                    tmpsocket.shutdownInput();
+                }
+                tmpsocket.close();
+            }
         }
         this.socket = null;
     }
