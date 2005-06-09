@@ -49,6 +49,7 @@ public class HttpExecutionContext implements HttpContext {
     public static final String HTTP_CONNECTION  = "http.connection"; 
     public static final String HTTP_TARGET_HOST = "http.target_host"; 
     public static final String HTTP_PROXY_HOST  = "http.proxy_host"; 
+    public static final String HTTP_REQ_SENT    = "http.request_sent"; 
     
     private final HttpContext parentContext;
     private Map map = null;

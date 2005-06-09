@@ -219,7 +219,11 @@ public class HttpRequestExecutor {
                     conn.open(this.params);
                     // TODO: Implement secure tunnelling
                 }
+                this.localContext.setAttribute(HttpExecutionContext.HTTP_REQ_SENT, 
+                        new Boolean(false)); 
                 response = conn.sendRequest(request);
+                this.localContext.setAttribute(HttpExecutionContext.HTTP_REQ_SENT, 
+                        new Boolean(true)); 
                 // Request may be terminated prematurely, if the expect-continue 
                 // protocol is used
                 if (response == null) {

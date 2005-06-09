@@ -24,6 +24,12 @@
     <constructor-arg index="2"><value>80</value></constructor-arg>
   </bean>
   
+  <bean id="request-retry-handler" 
+    class="org.apache.http.impl.DefaultHttpRequestRetryHandler">
+    <constructor-arg index="0"><value>3</value></constructor-arg>
+    <constructor-arg index="1"><value>false</value></constructor-arg>
+  </bean>
+  
   <bean id="http-executor" 
     class="org.apache.http.executor.HttpRequestExecutor" 
     singleton="true" >
@@ -38,6 +44,7 @@
         <bean class="org.apache.http.interceptor.RequestExpectContinue" />
       </set>
     </property>
+    <property name="retryHandler"><ref bean="request-retry-handler"/></property>
   </bean>
   
   <bean id="http-data-trx-factory" 
