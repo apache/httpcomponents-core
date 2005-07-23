@@ -84,6 +84,8 @@ public class HttpRuntime {
     
     public static class FatalError extends Error {
         
+    	static final long serialVersionUID = 7154545611894022392L;
+    	
         public FatalError(final String message) {
             super(message);
         }

@@ -41,6 +41,8 @@ package org.apache.http;
  */
 public class RequestValidationException extends HttpException {
 
+	static final long serialVersionUID = -5885803733287364258L;
+	
     /**
      * Creates a new RequestValidationException with the specified detail message.
      * 

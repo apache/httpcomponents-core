@@ -40,6 +40,8 @@ import org.apache.http.util.ExceptionUtil;
  */
 public class HttpException extends Exception {
 
+	static final long serialVersionUID = -5437299376222011036L;
+	
     /**
      * Creates a new HttpException with a <tt>null</tt> detail message.
      */

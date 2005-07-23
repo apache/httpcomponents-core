@@ -48,6 +48,8 @@ import org.apache.http.params.HttpParams;
  */
 public class DefaultHttpParams implements HttpParams, Serializable, Cloneable {
 
+	static final long serialVersionUID = -8296449161405728403L;
+	
     /** The set of default values to defer to */
     private HttpParams defaults = null;
 

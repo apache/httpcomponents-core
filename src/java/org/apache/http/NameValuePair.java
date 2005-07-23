@@ -45,6 +45,8 @@ import org.apache.http.util.LangUtils;
  */
 public class NameValuePair implements Serializable {
 
+	static final long serialVersionUID = -759179838086890081L;
+	 
     private final String name;
     private final String value;
 
