@@ -47,8 +47,6 @@ import org.apache.http.io.OutputStreamHttpDataTransmitter;
  */
 public class OldIOSocketHttpDataTransmitter extends OutputStreamHttpDataTransmitter {
 
-    private final Socket socket;
-    
     private static OutputStream createOutputStream(final Socket socket) throws IOException {
         if (socket == null) {
             throw new IllegalArgumentException("Socket may not be null");
@@ -62,7 +60,6 @@ public class OldIOSocketHttpDataTransmitter extends OutputStreamHttpDataTransmit
     
     protected OldIOSocketHttpDataTransmitter(final Socket socket) throws IOException {
         super(createOutputStream(socket));
-        this.socket = socket;
     }
     
 }
