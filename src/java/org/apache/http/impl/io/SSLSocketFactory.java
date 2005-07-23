@@ -255,7 +255,7 @@ public class SSLSocketFactory implements SecureSocketFactory {
         if (params == null) {
             throw new IllegalArgumentException("Parameters may not be null");
         }
-        Socket socket = this.sslcontext.getSocketFactory().createSocket();
+        Socket socket = this.socketfactory.createSocket();
         if (localAddress != null) {
             socket.bind(new InetSocketAddress(localAddress, localPort));
         }
