@@ -1,0 +1,119 @@
+<?xml version="1.0"?>
+<!DOCTYPE module PUBLIC
+    "-//Puppy Crawl//DTD Check Configuration 1.1//EN"
+    "http://www.puppycrawl.com/dtds/configuration_1_1.dtd">
+
+<module name="Checker">
+    <module name="PackageHtml"/>
+
+    <module name="TreeWalker">
+
+        <property name="tabWidth" value="4" />
+
+    <!-- JavaDoc checks -->
+        <module name="JavadocType">
+            <property name="scope" value="private" />
+            <property name="authorFormat" value="\S"/>
+        </module>
+        <module name="JavadocMethod">
+        <property name="scope" value="private" />
+            <property name="allowUndeclaredRTE" value="true"/>
+            <property name="allowMissingThrowsTags" value="true"/>
+        </module>
+        <module name="JavadocVariable">
+            <property name="scope" value="private" />
+    </module>
+
+    <!-- Naming checks -->
+        <module name="MemberName">
+            <property name="format" value="^[a-z][a-zA-Z0-9]*$"/>
+        </module>
+        <module name="ConstantName">
+            <property name="format" value="^[A-Z](_?[A-Z0-9]+)*$"/>
+        </module>
+        <module name="StaticVariableName">
+            <property name="format" value="^[a-z][a-zA-Z0-9]*$"/>
+        </module>
+        <module name="ParameterName">
+            <property name="format" value="^[a-z][a-zA-Z0-9]*$"/>
+        </module>
+        <module name="PackageName">
+            <property name="format" value="^[a-z]+(\.[a-z]*)*$"/>
+        </module>
+        <module name="TypeName">
+            <property name="format" value="^[A-Z][a-zA-Z0-9]*$"/>
+        </module>
+        <module name="MethodName">
+            <property name="format" value="^[a-z][a-zA-Z0-9]*$"/>
+        </module>
+        <module name="LocalVariableName">
+            <property name="format" value="^[a-z][a-zA-Z0-9]*$"/>
+        </module>
+        <module name="LocalFinalVariableName">
+            <property name="format" value="^[a-z][a-zA-Z0-9]*$"/>
+        </module>
+
+        <!-- Header checks -->
+        <module name="RegexpHeader">
+          <property name="headerFile" value="license.regexp"/>
+        </module>
+
+        <!-- Imports checks -->
+        <module name="IllegalImport">
+            <property name="illegalPkgs" value="sun"/>
+        </module>
+        <module name="UnusedImports"/>
+
+        <!-- Size Violations checks -->
+        <module name="LineLength">
+            <property name="max" value="100"/>
+            <property name="ignorePattern" value="Header:"/>
+        </module>
+        <!-- TODO: maxlinelen should be somthing more like
+            "^ \* \$Header: /home/jerenkrantz/tmp/commons/commons-convert/cvs/home/cvs/jakarta-commons//httpclient/checkstyle.xml.properties,v 1.1 2003/10/03 18:44:13 oglueck Exp $$"
+        -->
+        <module name="MethodLength">
+            <property name="max" value="150"/>
+        </module>
+        <module name="FileLength">
+            <property name="max" value="2000"/>
+        </module>
+        <module name="ParameterNumber">
+            <property name="max" value="7"/>
+        </module>
+
+        <!-- Whitespace checks -->
+        <module name="TabCharacter"/>
+        <module name="ParenPad">
+           <property name="option" value="nospace"/>
+        </module>
+        <module name="OperatorWrap">
+           <property name="option" value="nl"/>
+        </module>
+
+        <!-- Violators checks -->
+        <module name="RedundantModifier"/>
+
+        <!-- Blocks checks -->
+        <module name="EmptyBlock">
+          <property name="option" value="text"/>
+          <property name="tokens" value="LITERAL_CATCH"/>
+        </module>
+        <module name="LeftCurly">
+            <property name="option" value="eol"/>
+        </module>
+        <module name="RightCurly">
+            <property name="option" value="same"/>
+        </module>
+
+        <!-- Miscellaneous checks -->
+        <module name="TodoComment">
+          <property name="format" value="(TODO)|(FIXME):?"/>
+        </module>
+        <module name="UpperEll"/>
+        <module name="IllegalInstantiation">
+          <property name="classes" value="java.lang.Boolean"/>
+        </module>
+
+     </module>
+</module>
