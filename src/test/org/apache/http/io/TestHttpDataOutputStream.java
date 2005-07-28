@@ -60,9 +60,9 @@ public class TestHttpDataOutputStream extends TestCase {
 
     public void testConstructor() throws Exception {
         HttpDataTransmitterMockup transmitter = new HttpDataTransmitterMockup();
-        HttpDataOutputStream outstream1 = new HttpDataOutputStream(transmitter);
+        new HttpDataOutputStream(transmitter);
         try {
-            HttpDataOutputStream outstream2 = new HttpDataOutputStream(null);
+            new HttpDataOutputStream(null);
             fail("IllegalArgumentException should have been thrown");
         } catch (IllegalArgumentException ex) {
             //expected

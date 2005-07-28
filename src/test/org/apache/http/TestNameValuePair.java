@@ -61,7 +61,7 @@ public class TestNameValuePair extends TestCase {
     
     public void testInvalidName() {
         try {
-            NameValuePair param = new NameValuePair(null, null);
+            new NameValuePair(null, null);
             fail("IllegalArgumentException should have been thrown");
         } catch (IllegalArgumentException ex) {
             //expected

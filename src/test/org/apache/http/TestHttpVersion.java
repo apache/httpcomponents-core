@@ -56,13 +56,13 @@ public class TestHttpVersion extends TestCase {
     
     public void testHttpVersionInvalidConstructorInput() throws Exception {
         try {
-            HttpVersion ver = new HttpVersion(-1, -1); 
+            new HttpVersion(-1, -1); 
             fail("IllegalArgumentException should have been thrown");
         } catch (IllegalArgumentException e) {
             // expected
         }
         try {
-            HttpVersion ver = new HttpVersion(0, -1); 
+            new HttpVersion(0, -1); 
             fail("IllegalArgumentException should have been thrown");
         } catch (IllegalArgumentException e) {
             // expected

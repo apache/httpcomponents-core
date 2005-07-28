@@ -88,13 +88,13 @@ public class TestHttpHost extends TestCase {
         assertEquals(8080, host4.getPort()); 
         assertEquals(http, host4.getProtocol()); 
         try {
-            HttpHost host = new HttpHost(null, -1, null);
+            new HttpHost(null, -1, null);
             fail("IllegalArgumentException should have been thrown");
         } catch (IllegalArgumentException ex) {
             //expected
         }
         try {
-            HttpHost host = new HttpHost("somehost", -1, null);
+            new HttpHost("somehost", -1, null);
             fail("IllegalArgumentException should have been thrown");
         } catch (IllegalArgumentException ex) {
             //expected

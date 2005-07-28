@@ -62,7 +62,7 @@ public class TestHeader extends TestCase {
     
     public void testInvalidName() {
         try {
-            Header header = new Header(null, null);
+            new Header(null, null);
             fail("IllegalArgumentException should have been thrown");
         } catch (IllegalArgumentException ex) {
             //expected
@@ -118,14 +118,14 @@ public class TestHeader extends TestCase {
         assertEquals("value", header2.getValue());
         
         try {
-            Header header3 = Header.parse("  whatever  ");
+            Header.parse("  whatever  ");
             fail("ProtocolException should have been thrown");
         } catch (ProtocolException ex) {
             // expected
         }
 
         try {
-            Header header3 = Header.parse(null);
+            Header.parse(null);
             fail("IllegalArgumentException should have been thrown");
         } catch (IllegalArgumentException ex) {
             // expected

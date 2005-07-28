@@ -129,7 +129,7 @@ public class TestChunkCoding extends TestCase {
 
         in.close();
                 
-        String result = EncodingUtil.getString(out.toByteArray(), CONTENT_CHARSET);
+        EncodingUtil.getString(out.toByteArray(), CONTENT_CHARSET);
         Header[] footers = in.getFooters();
         assertNotNull(footers);
         assertEquals(2, footers.length);

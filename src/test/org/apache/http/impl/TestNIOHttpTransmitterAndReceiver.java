@@ -35,8 +35,6 @@ import java.nio.channels.ReadableByteChannel;
 
 import org.apache.http.impl.io.NIOHttpDataReceiver;
 import org.apache.http.impl.io.NIOHttpDataTransmitter;
-import org.apache.http.io.HttpDataReceiver;
-import org.apache.http.io.HttpDataTransmitter;
 import org.apache.http.mockup.HttpDataReceiverMockup;
 import org.apache.http.mockup.HttpDataTransmitterMockup;
 import org.apache.http.params.HttpParams;
@@ -72,23 +70,19 @@ public class TestNIOHttpTransmitterAndReceiver extends TestCase {
 
     public void testInit() throws Exception {
         ByteArrayOutputStream out = new ByteArrayOutputStream();
-        HttpDataTransmitter transmitter1 = 
-            new HttpDataTransmitterMockup(Channels.newChannel(out), -10); 
-        HttpDataTransmitter transmitter2 = 
-            new HttpDataTransmitterMockup(Channels.newChannel(out), 200000000); 
+        new HttpDataTransmitterMockup(Channels.newChannel(out), -10); 
+        new HttpDataTransmitterMockup(Channels.newChannel(out), 200000000); 
         try {
-            HttpDataTransmitter transmitter3 = new HttpDataTransmitterMockup(null, 1024); 
+            new HttpDataTransmitterMockup(null, 1024); 
             fail("IllegalArgumentException should have been thrown");
         } catch (IllegalArgumentException ex) {
             //expected
         }
         ByteArrayInputStream in = new ByteArrayInputStream(out.toByteArray());
-        HttpDataReceiver receiver1 = 
-            new HttpDataReceiverMockup(Channels.newChannel(in), -10); 
-        HttpDataReceiver receiver2 = 
-            new HttpDataReceiverMockup (Channels.newChannel(in), 200000000); 
+        new HttpDataReceiverMockup(Channels.newChannel(in), -10); 
+        new HttpDataReceiverMockup (Channels.newChannel(in), 200000000); 
         try {
-            HttpDataReceiver receiver3 = new HttpDataReceiverMockup((ReadableByteChannel)null, 1024); 
+            new HttpDataReceiverMockup((ReadableByteChannel)null, 1024); 
             fail("IllegalArgumentException should have been thrown");
         } catch (IllegalArgumentException ex) {
             //expected
@@ -252,7 +246,6 @@ public class TestNIOHttpTransmitterAndReceiver extends TestCase {
         assertEquals(0, receiver.read(null));        
         
         byte[] in = new byte[40];
-        int noRead = 0;
         off = 0;
         remaining = in.length;
         while (remaining > 0) {

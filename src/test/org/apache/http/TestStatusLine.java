@@ -70,11 +70,11 @@ public class TestStatusLine extends TestCase {
         
     public void testConstructorInvalidInput() {
         try {
-            StatusLine statusline = new StatusLine(null, HttpStatus.SC_OK, "OK");
+            new StatusLine(null, HttpStatus.SC_OK, "OK");
             fail("IllegalArgumentException should have been thrown");
         } catch (IllegalArgumentException e) { /* expected */ }
         try {
-            StatusLine statusline = new StatusLine(HttpVersion.HTTP_1_1, -1, "OK");
+            new StatusLine(HttpVersion.HTTP_1_1, -1, "OK");
             fail("IllegalArgumentException should have been thrown");
         } catch (IllegalArgumentException e) { /* expected */ }
     }
@@ -139,31 +139,29 @@ public class TestStatusLine extends TestCase {
     }
 
     public void testFailure() throws Exception {
-        StatusLine statusLine = null;
         try {
-            statusLine = StatusLine.parse("xxx 200 OK");
+            StatusLine.parse("xxx 200 OK");
             fail();
         } catch (HttpException e) { /* expected */ }
 
         try {
-            statusLine = StatusLine.parse("HTTP/1.1 xxx OK");
+            StatusLine.parse("HTTP/1.1 xxx OK");
             fail();
         } catch (HttpException e) { /* expected */ }
 
         try {
-            statusLine = StatusLine.parse("HTTP/1.1    ");
+            StatusLine.parse("HTTP/1.1    ");
             fail();
         } catch (HttpException e) { /* expected */ }
         try {
-            statusLine = StatusLine.parse("HTTP/1.1");
+            StatusLine.parse("HTTP/1.1");
             fail();
         } catch (HttpException e) { /* expected */ }
     }
 
     public void testNullInput() throws Exception {
-        StatusLine statusLine = null;
         try {
-            statusLine = StatusLine.parse(null);
+            StatusLine.parse(null);
             fail("IllegalArgumentException should have been thrown");
         } catch (IllegalArgumentException e) { /* expected */ }
     }

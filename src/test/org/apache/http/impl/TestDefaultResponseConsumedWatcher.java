@@ -63,13 +63,13 @@ public class TestDefaultResponseConsumedWatcher extends TestCase {
 
     public void testIllegalResponseArg() throws Exception {
         try {
-            ResponseConsumedWatcher watcher = new DefaultResponseConsumedWatcher(null, null);
+            new DefaultResponseConsumedWatcher(null, null);
             fail("IllegalArgumentException should have been thrown");
         } catch (IllegalArgumentException ex) {
             // expected
         }
         try {
-            ResponseConsumedWatcher watcher = new DefaultResponseConsumedWatcher(
+            new DefaultResponseConsumedWatcher(
                     new HttpConnectionMockup(), null);
             fail("IllegalArgumentException should have been thrown");
         } catch (IllegalArgumentException ex) {
@@ -96,8 +96,7 @@ public class TestDefaultResponseConsumedWatcher extends TestCase {
         entity.setContent(new AutoCloseInputStream(entity.getContent(), watcher));
         
         assertTrue(conn.isOpen());
-        int b;
-        while ((b = entity.getContent().read()) != -1) {}
+        while (entity.getContent().read() != -1) {}
         assertFalse(conn.isOpen());
     }
 
@@ -120,8 +119,7 @@ public class TestDefaultResponseConsumedWatcher extends TestCase {
         entity.setContent(new AutoCloseInputStream(entity.getContent(), watcher));
         
         assertTrue(conn.isOpen());
-        int b;
-        while ((b = entity.getContent().read()) != -1) {}
+        while (entity.getContent().read() != -1) {}
         assertTrue(conn.isOpen());
     }
 }

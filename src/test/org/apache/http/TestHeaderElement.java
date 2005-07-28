@@ -91,7 +91,7 @@ public class TestHeaderElement extends TestCase {
     
     public void testInvalidName() {
         try {
-            HeaderElement element = new HeaderElement(null, null, null); 
+            new HeaderElement(null, null, null); 
             fail("IllegalArgumentException should have been thrown");
         } catch (IllegalArgumentException ex) {
             //expected

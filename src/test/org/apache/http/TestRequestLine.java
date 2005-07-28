@@ -65,15 +65,15 @@ public class TestRequestLine extends TestCase {
         
     public void testConstructorInvalidInput() {
         try {
-            RequestLine requestline = new RequestLine(null, "/stuff", HttpVersion.HTTP_1_1);
+            new RequestLine(null, "/stuff", HttpVersion.HTTP_1_1);
             fail("IllegalArgumentException should have been thrown");
         } catch (IllegalArgumentException e) { /* expected */ }
         try {
-            RequestLine requestline = new RequestLine("GEt", null, HttpVersion.HTTP_1_1);
+            new RequestLine("GEt", null, HttpVersion.HTTP_1_1);
             fail("IllegalArgumentException should have been thrown");
         } catch (IllegalArgumentException e) { /* expected */ }
         try {
-            RequestLine requestline = new RequestLine("GET", "/stuff", (HttpVersion)null);
+            new RequestLine("GET", "/stuff", (HttpVersion)null);
             fail("IllegalArgumentException should have been thrown");
         } catch (IllegalArgumentException e) { /* expected */ }
     }
@@ -101,21 +101,20 @@ public class TestRequestLine extends TestCase {
     }
 
     public void testFailure() throws Exception {
-        RequestLine requestline = null;
         try {
-            requestline = RequestLine.parse("GET /stuff");
+            RequestLine.parse("GET /stuff");
             fail();
         } catch (HttpException e) { /* expected */ }
 
         try {
-            requestline = RequestLine.parse("GET/stuff HTTP/1.1");
+            RequestLine.parse("GET/stuff HTTP/1.1");
             fail();
         } catch (HttpException e) { /* expected */ }
     }
 
     public void testNullInput() throws Exception {
         try {
-            RequestLine requestline = RequestLine.parse(null);
+            RequestLine.parse(null);
             fail("IllegalArgumentException should have been thrown");
         } catch (IllegalArgumentException e) { /* expected */ }
     }
