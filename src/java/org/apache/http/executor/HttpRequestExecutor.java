@@ -207,10 +207,9 @@ public class HttpRequestExecutor {
         
         // loop until the method is successfully processed, the retryHandler 
         // returns false or a non-recoverable exception is thrown
-        HttpConnectionParams connparams = new HttpConnectionParams(this.params); 
         for (int execCount = 0; ; execCount++) {
             try {
-                if (connparams.isStaleCheckingEnabled()) {
+                if (HttpConnectionParams.isStaleCheckingEnabled(this.params)) {
                     if (conn.isOpen() && conn.isStale()) {
                         conn.close();
                     }

@@ -53,12 +53,12 @@ public class SpringHttpDemo {
         HttpParams globalparams = (HttpParams) beanfactory.getBean("global-params");
         
         HttpParams params = (HttpParams) beanfactory.getBean("params");
+        params.setDefaults(globalparams);
         
-        HttpProtocolParams protocolparams = new HttpProtocolParams(params)
-            .setVersion(HttpVersion.HTTP_1_1)
-            .setContentCharset("UTF-8")
-            .setUseExpectContinue(true)
-            .setUserAgent("Jakarta HTTP Demo");
+        HttpProtocolParams.setVersion(params, HttpVersion.HTTP_1_1);
+        HttpProtocolParams.setContentCharset(params, "UTF-8");
+        HttpProtocolParams.setUseExpectContinue(params, true);
+        HttpProtocolParams.setUserAgent(params, "Jakarta HTTP Demo");
         
         HttpRequestExecutor httpexec = (HttpRequestExecutor)beanfactory.getBean("http-executor");
         httpexec.setParams(params);

@@ -259,8 +259,7 @@ public class SSLSocketFactory implements SecureSocketFactory {
         if (localAddress != null) {
             socket.bind(new InetSocketAddress(localAddress, localPort));
         }
-        HttpConnectionParams connparams = new HttpConnectionParams(params); 
-        int timeout = connparams.getConnectionTimeout();
+        int timeout = HttpConnectionParams.getConnectionTimeout(params);
         socket.connect(new InetSocketAddress(host, port), timeout);
         return socket;
     }

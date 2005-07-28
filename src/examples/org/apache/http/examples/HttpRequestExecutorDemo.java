@@ -71,11 +71,9 @@ public class HttpRequestExecutorDemo {
         Protocol.registerProtocol("http", new Protocol("http", socketfactory, 80));
         
         HttpParams params = new DefaultHttpParams(null);
-        
-        new HttpProtocolParams(params)
-            .setVersion(HttpVersion.HTTP_1_1)
-            .setContentCharset("UTF-8")
-            .setUserAgent("Jakarta HTTP Demo");
+        HttpProtocolParams.setVersion(params, HttpVersion.HTTP_1_1);
+        HttpProtocolParams.setContentCharset(params, "UTF-8");
+        HttpProtocolParams.setUserAgent(params, "Jakarta HTTP Demo");
         
         HttpRequestExecutor httpexecutor = new HttpRequestExecutor();
         httpexecutor.setParams(params);

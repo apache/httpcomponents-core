@@ -39,7 +39,7 @@ package org.apache.http.params;
  * 
  * @since 3.0
  */
-public class HttpConnectionParams {
+public final class HttpConnectionParams {
 
     /**
      * Defines the default socket timeout (<tt>SO_TIMEOUT</tt>) in milliseconds which is the 
@@ -122,63 +122,12 @@ public class HttpConnectionParams {
      */
     public static final String STALE_CONNECTION_CHECK = "http.connection.stalecheck"; 
 
-    private final HttpParams params;
-    
     /**
      */
-    public HttpConnectionParams(final HttpParams params) {
+    private HttpConnectionParams() {
         super();
-        if (params == null) {
-            throw new IllegalArgumentException("HTTP parameters may not be null");
-        }
-        this.params = params;
     }
 
-    public Object getParameter(final String name) {
-        return this.params.getParameter(name);
-    }
-
-    public HttpConnectionParams setParameter(final String name, final Object value) {
-        this.params.setParameter(name, value);
-        return this;
-    }
-        
-    public long getLongParameter(final String name, long defaultValue) { 
-        return this.params.getLongParameter(name, defaultValue);
-    }
-    
-    public HttpConnectionParams setLongParameter(final String name, long value) {
-        this.params.setLongParameter(name, value);
-        return this;
-    }
-
-    public int getIntParameter(final String name, int defaultValue) { 
-        return this.params.getIntParameter(name, defaultValue);
-    }
-
-    public HttpConnectionParams setIntParameter(final String name, int value) {
-        this.params.setIntParameter(name, value);
-        return this;
-    }
-
-    public double getDoubleParameter(final String name, double defaultValue) { 
-        return this.params.getDoubleParameter(name, defaultValue);
-    }
-    
-    public HttpConnectionParams setDoubleParameter(final String name, double value) {
-        this.params.setDoubleParameter(name, value);
-        return this;
-    }
-
-    public boolean getBooleanParameter(final String name, boolean defaultValue) { 
-        return this.params.getBooleanParameter(name, defaultValue);
-    }
-    
-    public HttpConnectionParams setBooleanParameter(final String name, boolean value) {
-        this.params.setBooleanParameter(name, value);
-        return this;
-    }
-    
     /**
      * Returns the default socket timeout (<tt>SO_TIMEOUT</tt>) in milliseconds which is the 
      * timeout for waiting for data. A timeout value of zero is interpreted as an infinite 
@@ -187,8 +136,11 @@ public class HttpConnectionParams {
      *
      * @return timeout in milliseconds
      */
-    public int getSoTimeout() {
-        return getIntParameter(SO_TIMEOUT, 0);
+    public static int getSoTimeout(final HttpParams params) {
+        if (params == null) {
+            throw new IllegalArgumentException("HTTP parameters may not be null");
+        }
+        return params.getIntParameter(SO_TIMEOUT, 0);
     }
 
     /**
@@ -199,8 +151,12 @@ public class HttpConnectionParams {
      *
      * @param timeout Timeout in milliseconds
      */
-    public HttpConnectionParams setSoTimeout(int timeout) {
-        return setIntParameter(SO_TIMEOUT, timeout);
+    public static void setSoTimeout(final HttpParams params, int timeout) {
+        if (params == null) {
+            throw new IllegalArgumentException("HTTP parameters may not be null");
+        }
+        params.setIntParameter(SO_TIMEOUT, timeout);
+        
     }
 
     /**
@@ -209,8 +165,11 @@ public class HttpConnectionParams {
      * @return <tt>true</tt> if the Nagle's algorithm is to NOT be used
      *   (that is enable TCP_NODELAY), <tt>false</tt> otherwise.
      */
-    public boolean getTcpNoDelay() {
-        return getBooleanParameter(TCP_NODELAY, true);
+    public static boolean getTcpNoDelay(final HttpParams params) {
+        if (params == null) {
+            throw new IllegalArgumentException("HTTP parameters may not be null");
+        }
+        return params.getBooleanParameter(TCP_NODELAY, true);
     }
 
     /**
@@ -223,8 +182,11 @@ public class HttpConnectionParams {
      * @param value <tt>true</tt> if the Nagle's algorithm is to NOT be used
      *   (that is enable TCP_NODELAY), <tt>false</tt> otherwise.
      */
-    public HttpConnectionParams setTcpNoDelay(boolean value) {
-        return setBooleanParameter(TCP_NODELAY, value);
+    public static void setTcpNoDelay(final HttpParams params, boolean value) {
+        if (params == null) {
+            throw new IllegalArgumentException("HTTP parameters may not be null");
+        }
+        params.setBooleanParameter(TCP_NODELAY, value);
     }
 
     /**
@@ -235,8 +197,11 @@ public class HttpConnectionParams {
      *
      * @return the hint size of the send buffer
      */
-    public int getSendBufferSize() {
-        return getIntParameter(SO_SNDBUF, -1);
+    public static int getSendBufferSize(final HttpParams params) {
+        if (params == null) {
+            throw new IllegalArgumentException("HTTP parameters may not be null");
+        }
+        return params.getIntParameter(SO_SNDBUF, -1);
     }
 
     /**
@@ -247,8 +212,11 @@ public class HttpConnectionParams {
      *
      * @param size the hint size of the send buffer
      */
-    public HttpConnectionParams setSendBufferSize(int size) {
-        return setIntParameter(SO_SNDBUF, size);
+    public static void setSendBufferSize(final HttpParams params, int size) {
+        if (params == null) {
+            throw new IllegalArgumentException("HTTP parameters may not be null");
+        }
+        params.setIntParameter(SO_SNDBUF, size);
     }
 
     /**
@@ -259,8 +227,11 @@ public class HttpConnectionParams {
      *
      * @return the hint size of the send buffer
      */
-    public int getReceiveBufferSize() {
-        return getIntParameter(SO_RCVBUF, -1);
+    public static int getReceiveBufferSize(final HttpParams params) {
+        if (params == null) {
+            throw new IllegalArgumentException("HTTP parameters may not be null");
+        }
+        return params.getIntParameter(SO_RCVBUF, -1);
     }
 
     /**
@@ -271,8 +242,11 @@ public class HttpConnectionParams {
      *
      * @param size the hint size of the send buffer
      */
-    public HttpConnectionParams setReceiveBufferSize(int size) {
-        return setIntParameter(SO_RCVBUF, size);
+    public static void setReceiveBufferSize(final HttpParams params, int size) {
+        if (params == null) {
+            throw new IllegalArgumentException("HTTP parameters may not be null");
+        }
+        params.setIntParameter(SO_RCVBUF, size);
     }
 
     /**
@@ -281,8 +255,11 @@ public class HttpConnectionParams {
      * 
      * @return the linger-on-close timeout
      */
-    public int getLinger() {
-        return getIntParameter(SO_LINGER, -1);
+    public static int getLinger(final HttpParams params) {
+        if (params == null) {
+            throw new IllegalArgumentException("HTTP parameters may not be null");
+        }
+        return params.getIntParameter(SO_LINGER, -1);
     }
 
     /**
@@ -295,8 +272,11 @@ public class HttpConnectionParams {
      *
      * @param value the linger-on-close timeout
      */
-    public HttpConnectionParams setLinger(int value) {
-        return setIntParameter(SO_LINGER, value);
+    public static void setLinger(final HttpParams params, int value) {
+        if (params == null) {
+            throw new IllegalArgumentException("HTTP parameters may not be null");
+        }
+        params.setIntParameter(SO_LINGER, value);
     }
 
     /**
@@ -305,8 +285,11 @@ public class HttpConnectionParams {
      * 
      * @return timeout in milliseconds.
      */
-    public int getConnectionTimeout() {
-        return getIntParameter(CONNECTION_TIMEOUT, 0);
+    public static int getConnectionTimeout(final HttpParams params) {
+        if (params == null) {
+            throw new IllegalArgumentException("HTTP parameters may not be null");
+        }
+        return params.getIntParameter(CONNECTION_TIMEOUT, 0);
     }
 
     /**
@@ -315,8 +298,11 @@ public class HttpConnectionParams {
      * 
      * @param timeout Timeout in milliseconds.
      */
-    public HttpConnectionParams setConnectionTimeout(int timeout) {
-        return setIntParameter(CONNECTION_TIMEOUT, timeout);
+    public static void setConnectionTimeout(final HttpParams params, int timeout) {
+        if (params == null) {
+            throw new IllegalArgumentException("HTTP parameters may not be null");
+        }
+        params.setIntParameter(CONNECTION_TIMEOUT, timeout);
     }
     
     /**
@@ -328,8 +314,11 @@ public class HttpConnectionParams {
      * @return <tt>true</tt> if stale connection check is to be used, 
      *   <tt>false</tt> otherwise.
      */
-    public boolean isStaleCheckingEnabled() {
-        return getBooleanParameter(STALE_CONNECTION_CHECK, true);
+    public static boolean isStaleCheckingEnabled(final HttpParams params) {
+        if (params == null) {
+            throw new IllegalArgumentException("HTTP parameters may not be null");
+        }
+        return params.getBooleanParameter(STALE_CONNECTION_CHECK, true);
     }
 
     /**
@@ -341,7 +330,10 @@ public class HttpConnectionParams {
      * @param value <tt>true</tt> if stale connection check is to be used, 
      *   <tt>false</tt> otherwise.
      */
-    public HttpConnectionParams setStaleCheckingEnabled(boolean value) {
-        return setBooleanParameter(STALE_CONNECTION_CHECK, value);
+    public static void setStaleCheckingEnabled(final HttpParams params, boolean value) {
+        if (params == null) {
+            throw new IllegalArgumentException("HTTP parameters may not be null");
+        }
+        params.setBooleanParameter(STALE_CONNECTION_CHECK, value);
     }
 }

@@ -330,7 +330,7 @@ public class TestNIOHttpTransmitterAndReceiver extends TestCase {
         String s3 = "Like hello and stuff";
         
         HttpParams params = new DefaultHttpParams(null);
-        new HttpProtocolParams(params).setHttpElementCharset("UTF-8");
+        HttpProtocolParams.setHttpElementCharset(params, "UTF-8");
         
         HttpDataTransmitterMockup transmitter = new HttpDataTransmitterMockup();
         transmitter.reset(params);

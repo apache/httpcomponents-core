@@ -76,7 +76,7 @@ public class BasicHttpRequest extends BasicHttpMessage implements HttpMutableReq
         if (this.requestline != null) {
             return this.requestline;
         } else {
-            HttpVersion ver = new HttpProtocolParams(getParams()).getVersion();
+            HttpVersion ver = HttpProtocolParams.getVersion(getParams());
             return new RequestLine(this.method, this.uri, ver);
         }
     }

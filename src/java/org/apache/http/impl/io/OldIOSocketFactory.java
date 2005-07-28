@@ -98,8 +98,7 @@ public class OldIOSocketFactory implements SocketFactory {
         if (params == null) {
             throw new IllegalArgumentException("Parameters may not be null");
         }
-        HttpConnectionParams connparams = new HttpConnectionParams(params); 
-        int timeout = connparams.getConnectionTimeout();
+        int timeout = HttpConnectionParams.getConnectionTimeout(params);
         if (timeout != 0) {
             throw new IllegalStateException("Connection timeout is not supported in old IO mode");
         }

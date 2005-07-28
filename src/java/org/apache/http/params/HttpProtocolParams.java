@@ -41,7 +41,7 @@ import org.apache.http.HttpVersion;
  * 
  * @since 4.0
  */
-public class HttpProtocolParams {
+public final class HttpProtocolParams {
 
     /**
      * Defines the {@link HttpVersion HTTP protocol version} used per default.
@@ -161,69 +161,21 @@ public class HttpProtocolParams {
      */
     public static final String USE_EXPECT_CONTINUE = "http.protocol.expect-continue"; 
 
-    private final HttpParams params;
-    
     /**
      */
-    public HttpProtocolParams(final HttpParams params) {
+    private HttpProtocolParams() {
         super();
-        if (params == null) {
-            throw new IllegalArgumentException("HTTP parameters may not be null");
-        }
-        this.params = params;
-    }
-
-    public Object getParameter(final String name) {
-        return this.params.getParameter(name);
-    }
-
-    public HttpProtocolParams setParameter(final String name, final Object value) {
-        this.params.setParameter(name, value);
-        return this;
-    }
-        
-    public long getLongParameter(final String name, long defaultValue) { 
-        return this.params.getLongParameter(name, defaultValue);
-    }
-    
-    public HttpProtocolParams setLongParameter(final String name, long value) {
-        this.params.setLongParameter(name, value);
-        return this;
-    }
-
-    public int getIntParameter(final String name, int defaultValue) { 
-        return this.params.getIntParameter(name, defaultValue);
-    }
-
-    public HttpProtocolParams setIntParameter(final String name, int value) {
-        this.params.setIntParameter(name, value);
-        return this;
-    }
-
-    public double getDoubleParameter(final String name, double defaultValue) { 
-        return this.params.getDoubleParameter(name, defaultValue);
-    }
-    
-    public HttpProtocolParams setDoubleParameter(final String name, double value) {
-        this.params.setDoubleParameter(name, value);
-        return this;
-    }
-
-    public boolean getBooleanParameter(final String name, boolean defaultValue) { 
-        return this.params.getBooleanParameter(name, defaultValue);
-    }
-    
-    public HttpProtocolParams setBooleanParameter(final String name, boolean value) {
-        this.params.setBooleanParameter(name, value);
-        return this;
     }
 
     /**
      * Returns the charset to be used for writing HTTP headers.
      * @return The charset
      */
-    public String getHttpElementCharset() {
-        String charset = (String) getParameter(HTTP_ELEMENT_CHARSET);
+    public static String getHttpElementCharset(final HttpParams params) {
+        if (params == null) {
+            throw new IllegalArgumentException("HTTP parameters may not be null");
+        }
+        String charset = (String) params.getParameter(HTTP_ELEMENT_CHARSET);
         if (charset == null) {
             charset = "US-ASCII";
         }
@@ -234,8 +186,11 @@ public class HttpProtocolParams {
      * Sets the charset to be used for writing HTTP headers.
      * @param charset The charset
      */
-    public HttpProtocolParams setHttpElementCharset(final String charset) {
-        return setParameter(HTTP_ELEMENT_CHARSET, charset);
+    public static void setHttpElementCharset(final HttpParams params, final String charset) {
+        if (params == null) {
+            throw new IllegalArgumentException("HTTP parameters may not be null");
+        }
+        params.setParameter(HTTP_ELEMENT_CHARSET, charset);
     }
 
     /**
@@ -243,8 +198,11 @@ public class HttpProtocolParams {
      * when no charset explicitly specified.
      * @return The charset
      */
-    public String getContentCharset() {
-        String charset = (String) getParameter(HTTP_CONTENT_CHARSET);
+    public static String getContentCharset(final HttpParams params) {
+        if (params == null) {
+            throw new IllegalArgumentException("HTTP parameters may not be null");
+        }
+        String charset = (String) params.getParameter(HTTP_CONTENT_CHARSET);
         if (charset == null) {
             charset = "ISO-8859-1";
         }
@@ -256,8 +214,11 @@ public class HttpProtocolParams {
      * when no charset explicitly specified.
      * @param charset The charset
      */
-    public HttpProtocolParams setContentCharset(final String charset) {
-        return setParameter(HTTP_CONTENT_CHARSET, charset);
+    public static void setContentCharset(final HttpParams params, final String charset) {
+        if (params == null) {
+            throw new IllegalArgumentException("HTTP parameters may not be null");
+        }
+        params.setParameter(HTTP_CONTENT_CHARSET, charset);
     }
 
     /**
@@ -265,10 +226,13 @@ public class HttpProtocolParams {
      * not configured the {@link #HTTP_ELEMENT_CHARSET HTTP element charset} is used.
      * @return The charset
      */
-    public String getCredentialCharset() {
-        String charset = (String) getParameter(CREDENTIAL_CHARSET);
+    public static String getCredentialCharset(final HttpParams params) {
+        if (params == null) {
+            throw new IllegalArgumentException("HTTP parameters may not be null");
+        }
+        String charset = (String) params.getParameter(CREDENTIAL_CHARSET);
         if (charset == null) {
-            charset = getHttpElementCharset();
+            charset = getHttpElementCharset(params);
         }
         return charset;
     }
@@ -277,8 +241,11 @@ public class HttpProtocolParams {
      * Sets the charset to be used for writing HTTP headers.
      * @param charset The charset
      */
-    public HttpProtocolParams setCredentialCharset(final String charset) {
-        return setParameter(CREDENTIAL_CHARSET, charset);
+    public static void setCredentialCharset(final HttpParams params, final String charset) {
+        if (params == null) {
+            throw new IllegalArgumentException("HTTP parameters may not be null");
+        }
+        params.setParameter(CREDENTIAL_CHARSET, charset);
     }
     
     /**
@@ -286,8 +253,11 @@ public class HttpProtocolParams {
      *
      * @return {@link HttpVersion HTTP protocol version}
      */
-    public HttpVersion getVersion() { 
-        Object param = getParameter(PROTOCOL_VERSION);
+    public static HttpVersion getVersion(final HttpParams params) { 
+        if (params == null) {
+            throw new IllegalArgumentException("HTTP parameters may not be null");
+        }
+        Object param = params.getParameter(PROTOCOL_VERSION);
         if (param == null) {
             return HttpVersion.HTTP_1_1;
         }
@@ -301,8 +271,11 @@ public class HttpProtocolParams {
      *
      * @param version the {@link HttpVersion HTTP protocol version}
      */
-    public HttpProtocolParams setVersion(final HttpVersion version) {
-        return setParameter(PROTOCOL_VERSION, version);
+    public static void setVersion(final HttpParams params, final HttpVersion version) {
+        if (params == null) {
+            throw new IllegalArgumentException("HTTP parameters may not be null");
+        }
+        params.setParameter(PROTOCOL_VERSION, version);
     }
 
     /**
@@ -310,8 +283,11 @@ public class HttpProtocolParams {
      * 
      * @param hostname The host name
      */
-    public void setVirtualHost(final String hostname) {
-        setParameter(VIRTUAL_HOST, hostname);
+    public static void setVirtualHost(final HttpParams params, final String hostname) {
+        if (params == null) {
+            throw new IllegalArgumentException("HTTP parameters may not be null");
+        }
+        params.setParameter(VIRTUAL_HOST, hostname);
     }
 
     /**
@@ -319,23 +295,38 @@ public class HttpProtocolParams {
      * 
      * @return The virtual host name
      */
-    public String getVirtualHost() {
-        return (String) getParameter(VIRTUAL_HOST);
+    public static String getVirtualHost(final HttpParams params) {
+        if (params == null) {
+            throw new IllegalArgumentException("HTTP parameters may not be null");
+        }
+        return (String) params.getParameter(VIRTUAL_HOST);
     }
     
-    public String getUserAgent() { 
-        return (String) getParameter(USER_AGENT);
+    public static String getUserAgent(final HttpParams params) { 
+        if (params == null) {
+            throw new IllegalArgumentException("HTTP parameters may not be null");
+        }
+        return (String) params.getParameter(USER_AGENT);
     }
     
-    public HttpProtocolParams setUserAgent(final String useragent) {
-        return setParameter(USER_AGENT, useragent);
+    public static void setUserAgent(final HttpParams params, final String useragent) {
+        if (params == null) {
+            throw new IllegalArgumentException("HTTP parameters may not be null");
+        }
+        params.setParameter(USER_AGENT, useragent);
     }
 
-    public boolean useExpectContinue() {
-        return getBooleanParameter(HttpProtocolParams.USE_EXPECT_CONTINUE, false);
+    public static boolean useExpectContinue(final HttpParams params) {
+        if (params == null) {
+            throw new IllegalArgumentException("HTTP parameters may not be null");
+        }
+        return params.getBooleanParameter(HttpProtocolParams.USE_EXPECT_CONTINUE, false);
     }
     
-    public HttpProtocolParams setUseExpectContinue(boolean b) {
-        return setBooleanParameter(HttpProtocolParams.USE_EXPECT_CONTINUE, b);
+    public static void setUseExpectContinue(final HttpParams params, boolean b) {
+        if (params == null) {
+            throw new IllegalArgumentException("HTTP parameters may not be null");
+        }
+        params.setBooleanParameter(HttpProtocolParams.USE_EXPECT_CONTINUE, b);
     }
 }

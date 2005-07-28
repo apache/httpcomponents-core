@@ -69,8 +69,7 @@ public abstract class NIOHttpDataReceiver implements HttpDataReceiver {
     }
 
     public void reset(final HttpParams params) {
-        HttpProtocolParams protocolParams = new HttpProtocolParams(params);
-        this.charset = Charset.forName(protocolParams.getHttpElementCharset()); 
+        this.charset = Charset.forName(HttpProtocolParams.getHttpElementCharset(params)); 
     }
 
     private CharsetDecoder createCharDecoder() {

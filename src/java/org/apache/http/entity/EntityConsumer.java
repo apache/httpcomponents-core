@@ -159,8 +159,8 @@ public class EntityConsumer {
         if (this.entity == null) {
             return "";
         }
-        HttpProtocolParams params = new HttpProtocolParams(this.message.getParams());
-        return toString(this.entity, params.getContentCharset());
+        return toString(this.entity, HttpProtocolParams.getContentCharset(
+                this.message.getParams()));
     }
     
 }

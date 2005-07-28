@@ -251,8 +251,7 @@ public class DefaultEntityGenerator implements EntityGenerator {
                 entity.setChunked(true);
                 entity.setContentLength(-1);
                 // if response body is empty
-                HttpConnectionParams connparams = new HttpConnectionParams(params); 
-                if (datareceiver.isDataAvailable(connparams.getSoTimeout())) {
+                if (datareceiver.isDataAvailable(HttpConnectionParams.getSoTimeout(params))) {
                     entity.setContent(new ChunkedInputStream(datareceiver));
                 } else {
                     if (strict) {

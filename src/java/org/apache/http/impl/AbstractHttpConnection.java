@@ -104,20 +104,19 @@ abstract class AbstractHttpConnection implements HttpConnection {
         }
         assertNotOpen();
         this.socket = socket;
-        HttpConnectionParams connParams = new HttpConnectionParams(params); 
-        this.socket.setTcpNoDelay(connParams.getTcpNoDelay());
-        this.socket.setSoTimeout(connParams.getSoTimeout());
+        this.socket.setTcpNoDelay(HttpConnectionParams.getTcpNoDelay(params));
+        this.socket.setSoTimeout(HttpConnectionParams.getSoTimeout(params));
         
-        int linger = connParams.getLinger();
+        int linger = HttpConnectionParams.getLinger(params);
         if (linger >= 0) {
             this.socket.setSoLinger(linger > 0, linger);
         }
         
-        int sndBufSize = connParams.getSendBufferSize();
+        int sndBufSize = HttpConnectionParams.getSendBufferSize(params);
         if (sndBufSize >= 0) {
             this.socket.setSendBufferSize(sndBufSize);
         }        
-        int rcvBufSize = connParams.getReceiveBufferSize();
+        int rcvBufSize = HttpConnectionParams.getReceiveBufferSize(params);
         if (rcvBufSize >= 0) {
             this.socket.setReceiveBufferSize(rcvBufSize);
         }

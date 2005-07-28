@@ -199,7 +199,7 @@ public class ElementalHttpEchoServer {
             super();
             this.conn = conn;
             this.params = new DefaultHttpParams(null);
-            new HttpConnectionParams(this.params).setSoTimeout(5000); 
+            HttpConnectionParams.setSoTimeout(this.params, 5000); 
             this.handler = new RequestHandler();
         }
         

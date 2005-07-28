@@ -67,9 +67,9 @@ public class RequestExpectContinue implements HttpRequestInterceptor {
             HttpEntity entity = ((HttpEntityEnclosingRequest)request).getEntity();
             // Do not send the expect header if request body is known to be empty
             if (entity != null && entity.getContentLength() != 0) { 
-                HttpProtocolParams params = new HttpProtocolParams(request.getParams());
                 HttpVersion ver = request.getRequestLine().getHttpVersion();
-                if (params.useExpectContinue() && ver.greaterEquals(HttpVersion.HTTP_1_1)) {
+                if (HttpProtocolParams.useExpectContinue(request.getParams()) 
+                        && ver.greaterEquals(HttpVersion.HTTP_1_1)) {
                     request.addHeader(new Header(EXPECT_DIRECTIVE, "100-Continue", true));
                 }
             }

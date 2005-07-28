@@ -88,8 +88,7 @@ public class OutputStreamHttpDataTransmitter implements HttpDataTransmitter {
     }
     
     public void reset(final HttpParams params) {
-        HttpProtocolParams protocolParams = new HttpProtocolParams(params);
-        this.charset = protocolParams.getHttpElementCharset(); 
+        this.charset = HttpProtocolParams.getHttpElementCharset(params); 
     }
     
 }

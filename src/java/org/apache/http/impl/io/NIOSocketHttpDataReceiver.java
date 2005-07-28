@@ -72,8 +72,7 @@ public class NIOSocketHttpDataReceiver extends NIOHttpDataReceiver {
     }
     
     public void reset(final HttpParams params) {
-        HttpConnectionParams connParams = new HttpConnectionParams(params);
-        this.readTimeout = connParams.getSoTimeout();
+        this.readTimeout = HttpConnectionParams.getSoTimeout(params);
         super.reset(params); 
     }
 

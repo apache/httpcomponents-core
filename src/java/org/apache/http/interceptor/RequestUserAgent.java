@@ -61,8 +61,7 @@ public class RequestUserAgent implements HttpRequestInterceptor {
             throw new IllegalArgumentException("HTTP request may not be null");
         }
         if (!request.containsHeader(USER_AGENT)) {
-            HttpProtocolParams params = new HttpProtocolParams(request.getParams());
-            String useragent = params.getUserAgent();
+            String useragent = HttpProtocolParams.getUserAgent(request.getParams());
             if (useragent != null) {
                 request.addHeader(new Header(USER_AGENT, useragent, true));
             }

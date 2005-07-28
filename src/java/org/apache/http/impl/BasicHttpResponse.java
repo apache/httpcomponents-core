@@ -78,9 +78,8 @@ public class BasicHttpResponse extends BasicHttpMessage implements HttpMutableRe
         if (code < 0) {
             throw new IllegalArgumentException("Status line may not be null");
         }
-        HttpProtocolParams params = new HttpProtocolParams(getParams()); 
         this.statusline = new StatusLine(
-                params.getVersion(), 
+                HttpProtocolParams.getVersion(getParams()), 
                 code, HttpStatus.getStatusText(code));
     }
     

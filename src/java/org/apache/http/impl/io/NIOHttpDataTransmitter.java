@@ -69,8 +69,7 @@ public abstract class NIOHttpDataTransmitter implements HttpDataTransmitter {
     }
     
     public void reset(final HttpParams params) {
-        HttpProtocolParams protocolParams = new HttpProtocolParams(params);
-        this.charset = Charset.forName(protocolParams.getHttpElementCharset()); 
+        this.charset = Charset.forName(HttpProtocolParams.getHttpElementCharset(params)); 
     }
 
     protected abstract void writeToChannel(ByteBuffer src) throws IOException;
