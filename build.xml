@@ -1,4 +1,4 @@
-<project name="http-common" default="compile" basedir=".">
+<project name="Jakarta Http Common" default="compile" basedir=".">
 
   <property file="${basedir}/build.properties"/>
   <property file="${basedir}/../build.properties"/>
@@ -23,11 +23,11 @@
 
 <!-- ========== Targets: "External" Targets: Compilation ================== -->
 
-  <target name="compile" depends="clover-db, prepare">
+  <target name="compile" depends="prepare">
     <do-compile/>
   </target>
 
-  <target name="test" depends="compile">
+  <target name="test" depends="clover-db, compile">
     <do-test testentry="org.apache.http.TestAll"/>
   </target>
 
@@ -37,6 +37,10 @@
 
   <target name="clover" depends="test">
     <do-clover/>
+  </target>
+
+  <target name="package" depends="compile">
+    <do-package/>
   </target>
 
 </project>
