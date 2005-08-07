@@ -49,6 +49,8 @@ public interface HttpServerConnection extends HttpConnection {
     
     HttpRequest receiveRequest(HttpParams params) throws HttpException, IOException;
 
+    void continueRequest(HttpEntityEnclosingRequest request) throws HttpException, IOException;
+
     void sendResponse(HttpResponse response) throws HttpException, IOException;
     
 }

@@ -45,6 +45,7 @@ import org.apache.http.HttpMutableResponse;
 import org.apache.http.HttpRequest;
 import org.apache.http.HttpServerConnection;
 import org.apache.http.HttpStatus;
+import org.apache.http.HttpVersion;
 import org.apache.http.MethodNotSupportedException;
 import org.apache.http.ProtocolException;
 import org.apache.http.entity.EntityConsumer;
@@ -56,6 +57,7 @@ import org.apache.http.impl.DefaultHttpParams;
 import org.apache.http.impl.DefaultHttpServerConnection;
 import org.apache.http.params.HttpConnectionParams;
 import org.apache.http.params.HttpParams;
+import org.apache.http.params.HttpProtocolParams;
 
 /**
  * <p>
@@ -220,8 +222,27 @@ public class ElementalHttpEchoServer {
             System.out.println("New connection thread");
             while (!Thread.interrupted()) {
                 BasicHttpResponse response = new BasicHttpResponse();
+                response.getParams().setDefaults(this.params);
                 try {
                     HttpRequest request = this.conn.receiveRequest(this.params);
+                    HttpVersion ver = request.getRequestLine().getHttpVersion();
+                    if (ver.greaterEquals(HttpVersion.HTTP_1_1)) {
+                    	ver = HttpVersion.HTTP_1_1;
+                    }
+                    HttpProtocolParams.setVersion(response.getParams(), ver);
+                    
+                    if (request instanceof HttpEntityEnclosingRequest) {
+                    	if (((HttpEntityEnclosingRequest) request).expectContinue()) {
+
+                    		System.out.println("Expected 100 (Continue)");
+                    		
+                            BasicHttpResponse ack = new BasicHttpResponse();
+                            ack.getParams().setDefaults(this.params);
+                            ack.setStatusCode(HttpStatus.SC_CONTINUE);
+                            this.conn.sendResponse(ack);
+                            this.conn.continueRequest((HttpEntityEnclosingRequest) request);
+                    	}
+                    }
                     System.out.println("Request received");
                     this.handler.handleRequest(request, response);
                 } catch (ConnectionClosedException ex) {

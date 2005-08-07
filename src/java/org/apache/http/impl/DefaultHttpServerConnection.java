@@ -34,20 +34,16 @@ import java.net.Socket;
 
 import org.apache.http.ConnectionClosedException;
 import org.apache.http.Header;
+import org.apache.http.HttpEntityEnclosingRequest;
 import org.apache.http.HttpException;
 import org.apache.http.HttpMutableEntity;
 import org.apache.http.HttpMutableEntityEnclosingRequest;
 import org.apache.http.HttpMutableRequest;
-import org.apache.http.HttpMutableResponse;
 import org.apache.http.HttpRequest;
 import org.apache.http.HttpRequestFactory;
 import org.apache.http.HttpResponse;
-import org.apache.http.HttpResponseFactory;
 import org.apache.http.HttpServerConnection;
-import org.apache.http.HttpStatus;
-import org.apache.http.HttpVersion;
 import org.apache.http.RequestLine;
-import org.apache.http.RequestValidationException;
 import org.apache.http.impl.entity.DefaultEntityGenerator;
 import org.apache.http.impl.entity.DefaultEntityWriter;
 import org.apache.http.impl.entity.EntityGenerator;
@@ -67,19 +63,14 @@ import org.apache.http.util.HeadersParser;
 public class DefaultHttpServerConnection 
         extends AbstractHttpConnection implements HttpServerConnection {
 
-    private static final String EXPECT_DIRECTIVE = "Expect";
-    private static final String EXPECT_CONTINUE = "100-Continue";
-
     /*
      * Dependent interfaces
      */
     private HttpRequestFactory requestfactory = null; 
-    private HttpResponseFactory responsefactory = null; 
 
     public DefaultHttpServerConnection() {
         super();
         this.requestfactory = new DefaultHttpRequestFactory();
-        this.responsefactory = new DefaultHttpResponseFactory();
     }
     
     public void setRequestFactory(final HttpRequestFactory requestfactory) {
@@ -87,13 +78,6 @@ public class DefaultHttpServerConnection
             throw new IllegalArgumentException("Factory may not be null");
         }
         this.requestfactory = requestfactory;
-    }
-
-    public void setResponseFactory(final HttpResponseFactory responsefactory) {
-        if (responsefactory == null) {
-            throw new IllegalArgumentException("Factory may not be null");
-        }
-        this.responsefactory = responsefactory;
     }
 
     public void bind(final Socket socket, final HttpParams params) throws IOException {
@@ -112,22 +96,12 @@ public class DefaultHttpServerConnection
         HttpMutableRequest request = receiveRequestLine(params);
         receiveRequestHeaders(request);
 
-        HttpVersion responsever = request.getRequestLine().getHttpVersion();
-        if (responsever.greaterEquals(HttpVersion.HTTP_1_1)) {
-            responsever = HttpVersion.HTTP_1_1;
-        }
-
-        boolean validated = false;
         if (request instanceof HttpMutableEntityEnclosingRequest) {
-            if (expectContinue(request)) {
-                validateRequest(request);
-                validated = true;
-                sendContinue(responsever);
-            }
-            receiveRequestBody((HttpMutableEntityEnclosingRequest)request);
-        }
-        if (!validated) {
-            validateRequest(request);
+        	if (((HttpMutableEntityEnclosingRequest) request).expectContinue()) {
+            	// return and let the caller validate the request
+                return request;
+        	}
+            receiveRequestBody((HttpMutableEntityEnclosingRequest) request);
         }
         return request;
     }
@@ -159,22 +133,6 @@ public class DefaultHttpServerConnection
         wirelog(">> [\\r][\\n]");
     }
 
-    protected boolean expectContinue(final HttpRequest request) {
-        Header expect = request.getFirstHeader(EXPECT_DIRECTIVE);
-        return expect != null && EXPECT_CONTINUE.equalsIgnoreCase(expect.getValue());
-    }
-
-    protected void validateRequest(final HttpRequest request)
-            throws RequestValidationException {
-    }
-    
-    protected void sendContinue(final HttpVersion ver) 
-            throws IOException, HttpException {
-        HttpMutableResponse response = this.responsefactory.newHttpResponse(
-                ver, HttpStatus.SC_CONTINUE);
-        sendResponse(response);
-    }
-
     protected void receiveRequestBody(final HttpMutableEntityEnclosingRequest request)
             throws HttpException, IOException {
         EntityGenerator entitygen = new DefaultEntityGenerator();
@@ -182,8 +140,14 @@ public class DefaultHttpServerConnection
         request.setEntity(entity);
     }
     
-    
-    public void sendResponse(final HttpResponse response) 
+    public void continueRequest(final HttpEntityEnclosingRequest request) 
+    		throws HttpException, IOException {
+    	if (request.expectContinue() && request.getEntity() == null) {
+            receiveRequestBody((HttpMutableEntityEnclosingRequest) request);
+    	}
+	}
+
+	public void sendResponse(final HttpResponse response) 
             throws HttpException, IOException {
         if (response == null) {
             throw new IllegalArgumentException("HTTP response may not be null");
