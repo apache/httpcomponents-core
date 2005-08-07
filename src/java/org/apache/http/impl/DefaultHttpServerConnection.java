@@ -117,7 +117,7 @@ public class DefaultHttpServerConnection
             wirelog(">> " + line + "[\\r][\\n]");
         }
         HttpMutableRequest request = this.requestfactory.newHttpRequest(requestline);
-        request.setParams((HttpParams)params.clone());
+        request.getParams().setDefaults(params);
         return request;
     }
     

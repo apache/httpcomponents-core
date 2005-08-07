@@ -299,7 +299,9 @@ public class DefaultHttpClientConnection
         if (isWirelogEnabled()) {
             wirelog("<< " + s + "[\\r][\\n]");
         }
-        return this.responsefactory.newHttpResponse(statusline);
+        HttpMutableResponse response = this.responsefactory.newHttpResponse(statusline);
+        response.getParams().setDefaults(params);
+        return response;
     }
 
     protected void readResponseHeaders(
