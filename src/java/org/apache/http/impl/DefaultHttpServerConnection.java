@@ -34,7 +34,6 @@ import java.net.Socket;
 
 import org.apache.http.ConnectionClosedException;
 import org.apache.http.Header;
-import org.apache.http.HttpEntityEnclosingRequest;
 import org.apache.http.HttpException;
 import org.apache.http.HttpMutableEntity;
 import org.apache.http.HttpMutableEntityEnclosingRequest;
@@ -97,10 +96,6 @@ public class DefaultHttpServerConnection
         receiveRequestHeaders(request);
 
         if (request instanceof HttpMutableEntityEnclosingRequest) {
-        	if (((HttpMutableEntityEnclosingRequest) request).expectContinue()) {
-            	// return and let the caller validate the request
-                return request;
-        	}
             receiveRequestBody((HttpMutableEntityEnclosingRequest) request);
         }
         return request;
@@ -140,13 +135,6 @@ public class DefaultHttpServerConnection
         request.setEntity(entity);
     }
     
-    public void continueRequest(final HttpEntityEnclosingRequest request) 
-    		throws HttpException, IOException {
-    	if (request.expectContinue() && request.getEntity() == null) {
-            receiveRequestBody((HttpMutableEntityEnclosingRequest) request);
-    	}
-	}
-
 	public void sendResponse(final HttpResponse response) 
             throws HttpException, IOException {
         if (response == null) {

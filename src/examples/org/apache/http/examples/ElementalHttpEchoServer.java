@@ -240,7 +240,6 @@ public class ElementalHttpEchoServer {
                             ack.getParams().setDefaults(this.params);
                             ack.setStatusCode(HttpStatus.SC_CONTINUE);
                             this.conn.sendResponse(ack);
-                            this.conn.continueRequest((HttpEntityEnclosingRequest) request);
                     	}
                     }
                     System.out.println("Request received");
