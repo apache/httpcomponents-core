@@ -49,8 +49,8 @@ import org.apache.http.HttpVersion;
 import org.apache.http.NoHttpResponseException;
 import org.apache.http.ProtocolException;
 import org.apache.http.StatusLine;
+import org.apache.http.impl.entity.DefaultClientEntityWriter;
 import org.apache.http.impl.entity.DefaultEntityGenerator;
-import org.apache.http.impl.entity.DefaultEntityWriter;
 import org.apache.http.impl.entity.EntityGenerator;
 import org.apache.http.impl.entity.EntityWriter;
 import org.apache.http.io.SocketFactory;
@@ -226,7 +226,7 @@ public class DefaultHttpClientConnection
         if (request.getEntity() == null) {
             return;
         }
-        EntityWriter entitywriter = new DefaultEntityWriter();
+        EntityWriter entitywriter = new DefaultClientEntityWriter();
         entitywriter.write(
                 request.getEntity(),
                 request.getRequestLine().getHttpVersion(),

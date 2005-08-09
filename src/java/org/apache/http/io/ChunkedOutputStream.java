@@ -120,6 +120,9 @@ public class ChunkedOutputStream extends OutputStream {
 
     private boolean wroteLastChunk = false;
 
+    /** True if the stream is closed. */
+    private boolean closed = false;
+    
     // ----------------------------------------------------------- Constructors
     /**
      * Wraps a stream and chunks the output.
@@ -207,6 +210,9 @@ public class ChunkedOutputStream extends OutputStream {
 
     // -------------------------------------------- OutputStream Methods
     public void write(int b) throws IOException {
+        if (this.closed) {
+            throw new IOException("Attempted write to closed stream.");
+        }
         cache[cachePosition] = (byte) b;
         cachePosition++;
         if (cachePosition == cache.length) flushCache();
@@ -221,10 +227,13 @@ public class ChunkedOutputStream extends OutputStream {
      * @since 3.0
      */
     public void write(byte b[]) throws IOException {
-        this.write(b, 0, b.length);
+        write(b, 0, b.length);
     }
 
     public void write(byte src[], int off, int len) throws IOException {
+        if (this.closed) {
+            throw new IOException("Attempted write to closed stream.");
+        }
         if (len >= cache.length - cachePosition) {
             flushCacheWithAppend(src, off, len);
         } else {
@@ -246,7 +255,10 @@ public class ChunkedOutputStream extends OutputStream {
      * @throws IOException
      */
     public void close() throws IOException {
-        finish();
-        super.close();
+        if (!this.closed) {
+            this.closed = true;
+            finish();
+            stream.flush();
+        }
     }
 }

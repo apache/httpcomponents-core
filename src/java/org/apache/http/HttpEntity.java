@@ -1,5 +1,5 @@
 /*
- * $Header: $
+ * $HeadURL$
  * $Revision$
  * $Date$
  *
@@ -54,6 +54,21 @@ public interface HttpEntity {
     
     InputStream getContent() throws IOException;
     
-    void writeTo(OutputStream outstream) throws IOException;
+    /**
+     * Writes the entity content to the output stream either partially or entirely.
+     * This method may either write the entire content in one go, if it is feasible 
+     * to do so, or store the output stream as a local variable and use it internally 
+     * to write the content in parts. If the former case this method MUST return
+     * <tt>true</tt> to indicate that the output stream can be closed. In the latter
+     * case the output stream MUST be closed once the last content part is written
+     * in order to ensure that content codings that emit a closing chunk are properly
+     * terminated.  
+     * 
+     * @param outstream the output stream to write entity content to
+     * @return <tt>true</tt> if the entire entity content has been written, 
+     *   <tt>false</tt> otherwise.
+     * @throws IOException if an I/O error occurs
+     */
+    boolean writeTo(OutputStream outstream) throws IOException;
     
 }

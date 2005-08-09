@@ -91,7 +91,7 @@ public class BufferedHttpEntity implements HttpEntity {
         return true;
     }
     
-    public void writeTo(final OutputStream outstream) throws IOException {
+    public boolean writeTo(final OutputStream outstream) throws IOException {
         if (outstream == null) {
             throw new IllegalArgumentException("Output stream may not be null");
         }
@@ -100,6 +100,7 @@ public class BufferedHttpEntity implements HttpEntity {
         } else {
             this.source.writeTo(outstream);
         }
+        return true;
     }
     
 }

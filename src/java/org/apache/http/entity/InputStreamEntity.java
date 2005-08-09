@@ -91,7 +91,7 @@ public class InputStreamEntity implements HttpEntity {
         return this.content;
     }
         
-    public void writeTo(final OutputStream outstream) throws IOException {
+    public boolean writeTo(final OutputStream outstream) throws IOException {
         if (outstream == null) {
             throw new IllegalArgumentException("Output stream may not be null");
         }
@@ -104,6 +104,7 @@ public class InputStreamEntity implements HttpEntity {
         while ((l = instream.read(tmp)) != -1) {
             outstream.write(tmp, 0, l);
         }
+        return true;
     }
     
 }

@@ -89,12 +89,13 @@ public class ByteArrayEntity implements HttpEntity {
         return new ByteArrayInputStream(this.content);
     }
     
-    public void writeTo(final OutputStream outstream) throws IOException {
+    public boolean writeTo(final OutputStream outstream) throws IOException {
         if (outstream == null) {
             throw new IllegalArgumentException("Output stream may not be null");
         }
         outstream.write(this.content);
         outstream.flush();
+        return true;
     }
 
 }

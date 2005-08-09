@@ -44,7 +44,7 @@ import org.apache.http.HttpResponse;
 import org.apache.http.HttpServerConnection;
 import org.apache.http.RequestLine;
 import org.apache.http.impl.entity.DefaultEntityGenerator;
-import org.apache.http.impl.entity.DefaultEntityWriter;
+import org.apache.http.impl.entity.DefaultServerEntityWriter;
 import org.apache.http.impl.entity.EntityGenerator;
 import org.apache.http.impl.entity.EntityWriter;
 import org.apache.http.params.HttpParams;
@@ -180,7 +180,7 @@ public class DefaultHttpServerConnection
         if (response.getEntity() == null) {
             return;
         }
-        EntityWriter entitywriter = new DefaultEntityWriter();
+        EntityWriter entitywriter = new DefaultServerEntityWriter();
         entitywriter.write(
                 response.getEntity(),
                 response.getStatusLine().getHttpVersion(),

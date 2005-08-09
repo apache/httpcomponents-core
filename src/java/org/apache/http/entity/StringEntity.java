@@ -97,7 +97,7 @@ public class StringEntity implements HttpEntity {
         return new ByteArrayInputStream(this.content.getBytes(charset));
     }
     
-    public void writeTo(final OutputStream outstream) throws IOException {
+    public boolean writeTo(final OutputStream outstream) throws IOException {
         if (outstream == null) {
             throw new IllegalArgumentException("Output stream may not be null");
         }
@@ -105,6 +105,7 @@ public class StringEntity implements HttpEntity {
         byte[] content = this.content.getBytes(charset);
         outstream.write(content);
         outstream.flush();
+        return true;
     }
 
 }

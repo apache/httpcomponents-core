@@ -92,12 +92,12 @@ public class BasicHttpEntity implements HttpMutableEntity {
         this.content = instream; 
     }
     
-    public void writeTo(final OutputStream outstream) throws IOException {
+    public boolean writeTo(final OutputStream outstream) throws IOException {
         if (outstream == null) {
             throw new IllegalArgumentException("Output stream may not be null");
         }
         if (this.content == null) {
-            return;
+            return true;
         }
         InputStream instream = this.content;
         if (this.length >= 0) {
@@ -108,6 +108,7 @@ public class BasicHttpEntity implements HttpMutableEntity {
         while ((l = instream.read(tmp)) != -1) {
             outstream.write(tmp, 0, l);
         }
+        return true;
     }
     
 }
