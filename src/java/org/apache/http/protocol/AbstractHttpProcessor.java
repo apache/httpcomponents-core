@@ -27,7 +27,7 @@
  *
  */
 
-package org.apache.http.interceptor;
+package org.apache.http.protocol;
 
 import java.io.IOException;
 import java.util.HashSet;

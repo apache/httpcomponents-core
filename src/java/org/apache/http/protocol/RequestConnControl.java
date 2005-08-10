@@ -27,19 +27,15 @@
  *
  */
 
-package org.apache.http.interceptor;
+package org.apache.http.protocol;
 
 import java.io.IOException;
 
 import org.apache.http.Header;
 import org.apache.http.HttpContext;
-import org.apache.http.HttpEntity;
-import org.apache.http.HttpEntityEnclosingRequest;
 import org.apache.http.HttpException;
 import org.apache.http.HttpMutableRequest;
 import org.apache.http.HttpRequestInterceptor;
-import org.apache.http.HttpVersion;
-import org.apache.http.ProtocolException;
 
 /**
  * <p>
@@ -50,13 +46,11 @@ import org.apache.http.ProtocolException;
  * 
  * @since 4.0
  */
-public class RequestContent implements HttpRequestInterceptor {
+public class RequestConnControl implements HttpRequestInterceptor {
 
-    private static final String TRANSFER_ENC = "Transfer-Encoding";
-    private static final String CONTENT_LEN  = "Content-Length";
-    private static final String CONTENT_TYPE = "Content-Type";
+    private static final String CONN_DIRECTIVE = "Connection";
     
-    public RequestContent() {
+    public RequestConnControl() {
         super();
     }
     
@@ -65,26 +59,10 @@ public class RequestContent implements HttpRequestInterceptor {
         if (request == null) {
             throw new IllegalArgumentException("HTTP request may not be null");
         }
-        if (request instanceof HttpEntityEnclosingRequest) {
-            HttpVersion ver = request.getRequestLine().getHttpVersion();
-            HttpEntity entity = ((HttpEntityEnclosingRequest)request).getEntity();
-            // Must specify a transfer encoding or a content length 
-            if (entity.isChunked() || entity.getContentLength() < 0) {
-                if (ver.lessEquals(HttpVersion.HTTP_1_0)) {
-                    throw new ProtocolException(
-                            "Chunked transfer encoding not allowed for " + ver);
-                }
-                request.setHeader(new Header(TRANSFER_ENC, "chunked", true));
-                request.removeHeaders(CONTENT_LEN);
-            } else {
-                request.setHeader(new Header(CONTENT_LEN, 
-                        Long.toString(entity.getContentLength()), true));
-                request.removeHeaders(TRANSFER_ENC);
-            }
-            // Specify a content type if known
-            if (entity.getContentType() != null) {
-                request.setHeader(new Header(CONTENT_TYPE, entity.getContentType(), true)); 
-            }
+        if (!request.containsHeader(CONN_DIRECTIVE)) {
+            // Default policy is to keep connection alive
+            // whenever possible
+            request.addHeader(new Header(CONN_DIRECTIVE, "Keep-Alive", true));
         }
     }
     

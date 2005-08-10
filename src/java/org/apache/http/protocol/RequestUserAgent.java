@@ -27,18 +27,15 @@
  *
  */
 
-package org.apache.http.interceptor;
+package org.apache.http.protocol;
 
 import java.io.IOException;
 
 import org.apache.http.Header;
 import org.apache.http.HttpContext;
-import org.apache.http.HttpEntity;
-import org.apache.http.HttpEntityEnclosingRequest;
 import org.apache.http.HttpException;
 import org.apache.http.HttpMutableRequest;
 import org.apache.http.HttpRequestInterceptor;
-import org.apache.http.HttpVersion;
 import org.apache.http.params.HttpProtocolParams;
 
 /**
@@ -50,11 +47,11 @@ import org.apache.http.params.HttpProtocolParams;
  * 
  * @since 4.0
  */
-public class RequestExpectContinue implements HttpRequestInterceptor {
+public class RequestUserAgent implements HttpRequestInterceptor {
 
-    private static final String EXPECT_DIRECTIVE = "Expect";
+    private static final String USER_AGENT = "User-Agent";
     
-    public RequestExpectContinue() {
+    public RequestUserAgent() {
         super();
     }
     
@@ -63,15 +60,10 @@ public class RequestExpectContinue implements HttpRequestInterceptor {
         if (request == null) {
             throw new IllegalArgumentException("HTTP request may not be null");
         }
-        if (request instanceof HttpEntityEnclosingRequest) {
-            HttpEntity entity = ((HttpEntityEnclosingRequest)request).getEntity();
-            // Do not send the expect header if request body is known to be empty
-            if (entity != null && entity.getContentLength() != 0) { 
-                HttpVersion ver = request.getRequestLine().getHttpVersion();
-                if (HttpProtocolParams.useExpectContinue(request.getParams()) 
-                        && ver.greaterEquals(HttpVersion.HTTP_1_1)) {
-                    request.addHeader(new Header(EXPECT_DIRECTIVE, "100-Continue", true));
-                }
+        if (!request.containsHeader(USER_AGENT)) {
+            String useragent = HttpProtocolParams.getUserAgent(request.getParams());
+            if (useragent != null) {
+                request.addHeader(new Header(USER_AGENT, useragent, true));
             }
         }
     }

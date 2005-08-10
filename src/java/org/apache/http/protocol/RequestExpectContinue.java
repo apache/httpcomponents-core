@@ -27,15 +27,19 @@
  *
  */
 
-package org.apache.http.interceptor;
+package org.apache.http.protocol;
 
 import java.io.IOException;
 
 import org.apache.http.Header;
 import org.apache.http.HttpContext;
+import org.apache.http.HttpEntity;
+import org.apache.http.HttpEntityEnclosingRequest;
 import org.apache.http.HttpException;
 import org.apache.http.HttpMutableRequest;
 import org.apache.http.HttpRequestInterceptor;
+import org.apache.http.HttpVersion;
+import org.apache.http.params.HttpProtocolParams;
 
 /**
  * <p>
@@ -46,11 +50,11 @@ import org.apache.http.HttpRequestInterceptor;
  * 
  * @since 4.0
  */
-public class RequestConnControl implements HttpRequestInterceptor {
+public class RequestExpectContinue implements HttpRequestInterceptor {
 
-    private static final String CONN_DIRECTIVE = "Connection";
+    private static final String EXPECT_DIRECTIVE = "Expect";
     
-    public RequestConnControl() {
+    public RequestExpectContinue() {
         super();
     }
     
@@ -59,10 +63,16 @@ public class RequestConnControl implements HttpRequestInterceptor {
         if (request == null) {
             throw new IllegalArgumentException("HTTP request may not be null");
         }
-        if (!request.containsHeader(CONN_DIRECTIVE)) {
-            // Default policy is to keep connection alive
-            // whenever possible
-            request.addHeader(new Header(CONN_DIRECTIVE, "Keep-Alive", true));
+        if (request instanceof HttpEntityEnclosingRequest) {
+            HttpEntity entity = ((HttpEntityEnclosingRequest)request).getEntity();
+            // Do not send the expect header if request body is known to be empty
+            if (entity != null && entity.getContentLength() != 0) { 
+                HttpVersion ver = request.getRequestLine().getHttpVersion();
+                if (HttpProtocolParams.useExpectContinue(request.getParams()) 
+                        && ver.greaterEquals(HttpVersion.HTTP_1_1)) {
+                    request.addHeader(new Header(EXPECT_DIRECTIVE, "100-Continue", true));
+                }
+            }
         }
     }
     
