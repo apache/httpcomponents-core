@@ -189,6 +189,7 @@ public class DefaultEntityGenerator implements EntityGenerator {
     private static final String TRANSFER_ENCODING = "Transfer-Encoding";
     private static final String CONTENT_LENGTH = "Content-Length";
     private static final String CONTENT_TYPE = "Content-Type";
+    private static final String CONTENT_ENCODING = "Content-Encoding";
     
     private static final String CHUNKED_ENCODING = "chunked";
     private static final String IDENTITY_ENCODING = "identity";
@@ -224,6 +225,7 @@ public class DefaultEntityGenerator implements EntityGenerator {
         boolean strict = params.isParameterTrue(HttpProtocolParams.STRICT_TRANSFER_ENCODING);
         
         Header contentTypeHeader = message.getFirstHeader(CONTENT_TYPE);
+        Header contentEncodingHeader = message.getFirstHeader(CONTENT_ENCODING);
         Header transferEncodingHeader = message.getFirstHeader(TRANSFER_ENCODING);
         Header contentLengthHeader = message.getFirstHeader(CONTENT_LENGTH);
         // We use Transfer-Encoding if present and ignore Content-Length.
@@ -299,6 +301,9 @@ public class DefaultEntityGenerator implements EntityGenerator {
         }
         if (contentTypeHeader != null) {
             entity.setContentType(contentTypeHeader.getValue());    
+        }
+        if (contentEncodingHeader != null) {
+            entity.setContentEncoding(contentEncodingHeader.getValue());    
         }
         return entity;
     }

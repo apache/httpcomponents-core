@@ -46,6 +46,8 @@ public interface HttpMutableEntity extends HttpEntity {
     
     void setContentType(String contentType);
     
+    void setContentEncoding(String contentEncoding);
+    
     void setContentLength(long len);
     
     void setContent(InputStream instream);

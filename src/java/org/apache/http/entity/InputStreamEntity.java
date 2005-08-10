@@ -52,6 +52,7 @@ public class InputStreamEntity implements HttpEntity {
     private final InputStream content;
     private final long length;
     private String contentType = DEFAULT_CONTENT_TYPE;
+    private String contentEncoding = null;
     private boolean chunked = false;
 
     public InputStreamEntity(final InputStream instream, long length) {
@@ -83,8 +84,16 @@ public class InputStreamEntity implements HttpEntity {
         return this.contentType;
     }
 
-    public void setContentType(final String s) {
-        this.contentType = s;
+    public void setContentType(final String contentType) {
+        this.contentType = contentType;
+    }
+
+    public String getContentEncoding() {
+        return this.contentEncoding;
+    }
+
+    public void setContentEncoding(final String contentEncoding) {
+        this.contentEncoding = contentEncoding;
     }
 
     public InputStream getContent() throws IOException {

@@ -47,7 +47,8 @@ import org.apache.http.io.ContentLengthInputStream;
  */
 public class BasicHttpEntity implements HttpMutableEntity {
     
-    private String contenttype = null;
+    private String contentType = null;
+    private String contentEncoding = null;
     private InputStream content = null;
     private long length = -1;
     private boolean chunked = false;
@@ -61,7 +62,11 @@ public class BasicHttpEntity implements HttpMutableEntity {
     }
 
     public String getContentType() {
-        return this.contenttype;
+        return this.contentType;
+    }
+    
+    public String getContentEncoding() {
+        return this.contentEncoding;
     }
     
     public InputStream getContent() {
@@ -85,7 +90,11 @@ public class BasicHttpEntity implements HttpMutableEntity {
     }
     
     public void setContentType(final String contentType) {
-        this.contenttype = contentType;
+        this.contentType = contentType;
+    }
+    
+    public void setContentEncoding(final String contentEncoding) {
+        this.contentEncoding = contentEncoding;
     }
     
     public void setContent(final InputStream instream) {

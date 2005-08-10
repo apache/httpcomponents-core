@@ -51,6 +51,7 @@ public class StringEntity implements HttpEntity {
 
     private final String content;
     private String contentType = null;
+    private String contentEncoding = null;
     private boolean chunked = false;
 
     public StringEntity(final String s, final String charset) {
@@ -88,8 +89,16 @@ public class StringEntity implements HttpEntity {
         return this.contentType;
     }
 
-    public void setContentType(final String s) {
-        this.contentType = s;
+    public void setContentType(final String contentType) {
+        this.contentType = contentType;
+    }
+
+    public String getContentEncoding() {
+        return this.contentEncoding;
+    }
+
+    public void setContentEncoding(final String contentEncoding) {
+        this.contentEncoding = contentEncoding;
     }
     
     public InputStream getContent() throws IOException {

@@ -75,6 +75,10 @@ public class BufferedHttpEntity implements HttpEntity {
         return this.source.getContentType();
     }
     
+    public String getContentEncoding() {
+        return this.source.getContentEncoding();
+    }
+    
     public InputStream getContent() throws IOException {
         if (this.buffer != null) {
             return new ByteArrayInputStream(this.buffer);
@@ -97,10 +101,10 @@ public class BufferedHttpEntity implements HttpEntity {
         }
         if (this.buffer != null) {
             outstream.write(this.buffer);
+            return true;
         } else {
-            this.source.writeTo(outstream);
+            return this.source.writeTo(outstream);
         }
-        return true;
     }
     
 }

@@ -52,6 +52,8 @@ public interface HttpEntity {
     
     String getContentType();
     
+    String getContentEncoding();
+    
     InputStream getContent() throws IOException;
     
     /**
