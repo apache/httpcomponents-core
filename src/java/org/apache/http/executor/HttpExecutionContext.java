@@ -32,7 +32,7 @@ package org.apache.http.executor;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.apache.http.HttpContext;
+import org.apache.http.protocol.HttpContext;
 
 /**
  * <p>

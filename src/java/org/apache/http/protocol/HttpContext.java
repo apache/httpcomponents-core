@@ -27,7 +27,7 @@
  *
  */
 
-package org.apache.http;
+package org.apache.http.protocol;
 
 /**
  * <p>

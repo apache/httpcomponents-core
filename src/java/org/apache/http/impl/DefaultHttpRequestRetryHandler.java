@@ -35,10 +35,10 @@ import java.net.UnknownHostException;
 
 import javax.net.ssl.SSLHandshakeException;
 
-import org.apache.http.HttpContext;
 import org.apache.http.NoHttpResponseException;
 import org.apache.http.executor.HttpExecutionContext;
 import org.apache.http.executor.HttpRequestRetryHandler;
+import org.apache.http.protocol.HttpContext;
 
 /**
  * The default {@link HttpRequestRetryHandler} used by {@link HttpRequestExecutor}s.

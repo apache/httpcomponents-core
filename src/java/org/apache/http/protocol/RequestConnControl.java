@@ -32,7 +32,6 @@ package org.apache.http.protocol;
 import java.io.IOException;
 
 import org.apache.http.Header;
-import org.apache.http.HttpContext;
 import org.apache.http.HttpException;
 import org.apache.http.HttpMutableRequest;
 import org.apache.http.HttpRequestInterceptor;

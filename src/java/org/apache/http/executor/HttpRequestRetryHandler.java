@@ -31,7 +31,7 @@ package org.apache.http.executor;
 
 import java.io.IOException;
 
-import org.apache.http.HttpContext;
+import org.apache.http.protocol.HttpContext;
 
 /**
  * A handler for determining if an HttpRequest should be retried after a 

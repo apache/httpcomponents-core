@@ -32,7 +32,6 @@ package org.apache.http.executor;
 import java.io.IOException;
 
 import org.apache.http.HttpClientConnection;
-import org.apache.http.HttpContext;
 import org.apache.http.HttpException;
 import org.apache.http.HttpMutableRequest;
 import org.apache.http.HttpMutableResponse;
@@ -41,6 +40,7 @@ import org.apache.http.HttpResponse;
 import org.apache.http.params.HttpConnectionParams;
 import org.apache.http.params.HttpParams;
 import org.apache.http.protocol.AbstractHttpProcessor;
+import org.apache.http.protocol.HttpContext;
 
 /**
  * <p>
