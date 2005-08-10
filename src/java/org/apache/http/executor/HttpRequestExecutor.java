@@ -30,9 +30,6 @@
 package org.apache.http.executor;
 
 import java.io.IOException;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.Set;
 
 import org.apache.http.HttpClientConnection;
 import org.apache.http.HttpContext;
@@ -40,9 +37,8 @@ import org.apache.http.HttpException;
 import org.apache.http.HttpMutableRequest;
 import org.apache.http.HttpMutableResponse;
 import org.apache.http.HttpRequest;
-import org.apache.http.HttpRequestInterceptor;
 import org.apache.http.HttpResponse;
-import org.apache.http.HttpResponseInterceptor;
+import org.apache.http.interceptor.AbstractHttpProcessor;
 import org.apache.http.params.HttpConnectionParams;
 import org.apache.http.params.HttpParams;
 
@@ -55,17 +51,13 @@ import org.apache.http.params.HttpParams;
  * 
  * @since 4.0
  */
-public class HttpRequestExecutor {
+public class HttpRequestExecutor extends AbstractHttpProcessor {
 
-    private final HttpContext localContext;
-    
     private HttpParams params = null;
     private HttpRequestRetryHandler retryhandler = null;
-    private Set interceptors = null; 
     
     public HttpRequestExecutor(final HttpContext parentContext) {
-        super();
-        this.localContext = new HttpExecutionContext(parentContext);
+        super(new HttpExecutionContext(parentContext));
     }
     
     public HttpRequestExecutor() {
@@ -80,107 +72,6 @@ public class HttpRequestExecutor {
         this.params = params;
     }
     
-    private void addInterceptor(final Object obj) {
-        if (obj == null) {
-            return;
-        }
-        if (this.interceptors == null) {
-            this.interceptors = new HashSet();
-        }
-        this.interceptors.add(obj);
-    }
-    
-    public void removeInterceptor(final Object obj) {
-        if (obj == null) {
-            return;
-        }
-        if (this.interceptors == null) {
-            return;
-        }
-        this.interceptors.remove(obj);
-        if (this.interceptors.isEmpty()) {
-            this.interceptors = null;
-        }
-    }
-    
-    public void addRequestInterceptor(final HttpRequestInterceptor interceptor) {
-        addInterceptor(interceptor);
-    }
-    
-    public void addResponseInterceptor(final HttpResponseInterceptor interceptor) {
-        addInterceptor(interceptor);
-    }
-
-    public void removeRequestInterceptor(final HttpRequestInterceptor interceptor) {
-        removeInterceptor(interceptor);
-    }
-    
-    public void removeResponseInterceptor(final HttpResponseInterceptor interceptor) {
-        removeInterceptor(interceptor);
-    }
-    
-    public void removeInterceptors(final Class clazz) {
-        if (clazz == null) {
-            return;
-        }
-        if (this.interceptors == null) {
-            return;
-        }
-        for (Iterator i = this.interceptors.iterator(); i.hasNext(); ) {
-            if (clazz.isInstance(i.next())) {
-                i.remove();
-            }
-        }
-    }
-    
-    public void setInterceptors(final Set interceptors) {
-        if (interceptors == null) {
-            return;
-        }
-        if (this.interceptors != null) {
-            this.interceptors.clear();
-            this.interceptors.addAll(interceptors);
-        } else {
-            this.interceptors = new HashSet(interceptors);
-        }
-    }
-    
-    public HttpRequestRetryHandler getRetryHandler() {
-        return this.retryhandler;
-    }
-    
-    public void setRetryHandler(final HttpRequestRetryHandler retryhandler) {
-        this.retryhandler = retryhandler;
-    }
-    
-    private void preprocessRequest(final HttpMutableRequest request) 
-            throws IOException, HttpException {
-        if (this.interceptors == null) {
-            return;
-        }
-        for (Iterator i = this.interceptors.iterator(); i.hasNext(); ) {
-            Object obj = i.next();
-            if (obj instanceof HttpRequestInterceptor) {
-                HttpRequestInterceptor interceptor = (HttpRequestInterceptor)obj;
-                interceptor.process(request, this.localContext);
-            }
-        }
-    }
-
-    private void postprocessResponse(final HttpMutableResponse response) 
-            throws IOException, HttpException {
-        if (this.interceptors == null) {
-            return;
-        }
-        for (Iterator i = this.interceptors.iterator(); i.hasNext(); ) {
-            Object obj = i.next();
-            if (obj instanceof HttpResponseInterceptor) {
-                HttpResponseInterceptor interceptor = (HttpResponseInterceptor)obj;
-                interceptor.process(response, this.localContext);
-            }
-        }
-    }
-    
     public HttpResponse execute(final HttpRequest request, final HttpClientConnection conn) 
             throws IOException, HttpException {
         
@@ -190,10 +81,10 @@ public class HttpRequestExecutor {
         if (conn == null) {
             throw new IllegalArgumentException("Client connection may not be null");
         }
-        
-        this.localContext.setAttribute(HttpExecutionContext.HTTP_REQUEST, request);
-        this.localContext.setAttribute(HttpExecutionContext.HTTP_CONNECTION, conn);
-        this.localContext.setAttribute(HttpExecutionContext.HTTP_TARGET_HOST, 
+        HttpContext localContext = getContext();
+        localContext.setAttribute(HttpExecutionContext.HTTP_REQUEST, request);
+        localContext.setAttribute(HttpExecutionContext.HTTP_CONNECTION, conn);
+        localContext.setAttribute(HttpExecutionContext.HTTP_TARGET_HOST, 
         		conn.getTargetHost());
 
         // Link own parameters as defaults 
@@ -218,10 +109,10 @@ public class HttpRequestExecutor {
                     conn.open(this.params);
                     // TODO: Implement secure tunnelling
                 }
-                this.localContext.setAttribute(HttpExecutionContext.HTTP_REQ_SENT, 
+                localContext.setAttribute(HttpExecutionContext.HTTP_REQ_SENT, 
                         new Boolean(false)); 
                 response = conn.sendRequest(request);
-                this.localContext.setAttribute(HttpExecutionContext.HTTP_REQ_SENT, 
+                localContext.setAttribute(HttpExecutionContext.HTTP_REQ_SENT, 
                         new Boolean(true)); 
                 // Request may be terminated prematurely, if the expect-continue 
                 // protocol is used
