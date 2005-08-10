@@ -205,7 +205,7 @@ public class DefaultHttpClientConnection
                 // flush the headers
                 this.datatransmitter.flush();
                 if (this.datareceiver.isDataAvailable(WAIT_FOR_CONTINUE_MS)) {
-                    HttpResponse response = readResponse(request.getParams());
+                    HttpResponse response = readResponse(request);
                     int status = response.getStatusLine().getStatusCode();
                     if (status < 200) {
                         if (status != HttpStatus.SC_CONTINUE) {
@@ -240,12 +240,11 @@ public class DefaultHttpClientConnection
         }
         assertOpen();
 
-        HttpParams params = request.getParams();
         // reset the data receiver
-        this.datareceiver.reset(params);
+        this.datareceiver.reset(request.getParams());
 
         for (;;) {
-            HttpResponse response = readResponse(params);
+            HttpResponse response = readResponse(request);
             int statuscode = response.getStatusLine().getStatusCode();
             if (statuscode >= 200) {
                 return response;
@@ -256,12 +255,13 @@ public class DefaultHttpClientConnection
         }
     }
 
-    protected HttpResponse readResponse(final HttpParams params)
+    protected HttpResponse readResponse(final HttpRequest request)
             throws HttpException, IOException {
-        this.datareceiver.reset(params);
-        HttpMutableResponse response = readResponseStatusLine(params);
+        this.datareceiver.reset(request.getParams());
+        HttpMutableResponse response = readResponseStatusLine(request.getParams());
         readResponseHeaders(response);
-        if (canResponseHaveBody(response)) {
+        ResponseStrategy responsestrategy = new DefaultResponseStrategy();
+        if (responsestrategy.canHaveEntity(request, response)) {
             readResponseBody(response);
         }
         return response;
