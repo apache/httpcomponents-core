@@ -55,6 +55,8 @@ public class RequestContent implements HttpRequestInterceptor {
     private static final String CONTENT_LEN  = "Content-Length";
     private static final String CONTENT_TYPE = "Content-Type";
     
+    private static final String CHUNK_CODING = "chunked";
+    
     public RequestContent() {
         super();
     }
@@ -73,7 +75,7 @@ public class RequestContent implements HttpRequestInterceptor {
                     throw new ProtocolException(
                             "Chunked transfer encoding not allowed for " + ver);
                 }
-                request.setHeader(new Header(TRANSFER_ENC, "chunked", true));
+                request.setHeader(new Header(TRANSFER_ENC, CHUNK_CODING, true));
                 request.removeHeaders(CONTENT_LEN);
             } else {
                 request.setHeader(new Header(CONTENT_LEN, 

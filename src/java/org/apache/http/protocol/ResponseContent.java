@@ -37,7 +37,6 @@ import org.apache.http.HttpException;
 import org.apache.http.HttpMutableResponse;
 import org.apache.http.HttpResponseInterceptor;
 import org.apache.http.HttpVersion;
-import org.apache.http.ProtocolException;
 
 /**
  * <p>
@@ -53,6 +52,11 @@ public class ResponseContent implements HttpResponseInterceptor {
     private static final String TRANSFER_ENC = "Transfer-Encoding";
     private static final String CONTENT_LEN  = "Content-Length";
     private static final String CONTENT_TYPE = "Content-Type";
+    private static final String CONTENT_ENC = "Content-Encoding";
+    private static final String CONN_DIRECTIVE = "Connection";
+
+    private static final String CHUNK_CODING = "chunked";
+    private static final String CONN_CLOSE = "close";
     
     public ResponseContent() {
         super();
@@ -65,22 +69,26 @@ public class ResponseContent implements HttpResponseInterceptor {
         }
         HttpVersion ver = response.getStatusLine().getHttpVersion();
         HttpEntity entity = response.getEntity();
-        // Must specify a transfer encoding or a content length 
-        if (entity.isChunked() || entity.getContentLength() < 0) {
-            if (ver.lessEquals(HttpVersion.HTTP_1_0)) {
-                throw new ProtocolException(
-                        "Chunked transfer encoding not allowed for " + ver);
+        if (entity != null) {
+            long len = entity.getContentLength();
+            if (entity.isChunked() && ver.greaterEquals(HttpVersion.HTTP_1_1)) {
+                response.setHeader(new Header(TRANSFER_ENC, CHUNK_CODING, true));
+                response.removeHeaders(CONTENT_LEN);
+            } else if (len >= 0) {
+                response.setHeader(new Header(CONTENT_LEN, 
+                        Long.toString(entity.getContentLength()), true));
+                response.removeHeaders(TRANSFER_ENC);
+            } else {
+                response.setHeader(new Header(CONN_DIRECTIVE, CONN_CLOSE, true));
             }
-            response.setHeader(new Header(TRANSFER_ENC, "chunked", true));
-            response.removeHeaders(CONTENT_LEN);
-        } else {
-            response.setHeader(new Header(CONTENT_LEN, 
-                    Long.toString(entity.getContentLength()), true));
-            response.removeHeaders(TRANSFER_ENC);
-        }
-        // Specify a content type if known
-        if (entity.getContentType() != null) {
-            response.setHeader(new Header(CONTENT_TYPE, entity.getContentType(), true)); 
+            // Specify a content type if known
+            if (entity.getContentType() != null) {
+                response.setHeader(new Header(CONTENT_TYPE, entity.getContentType(), true)); 
+            }
+            // Specify a content encoding if known
+            if (entity.getContentEncoding() != null) {
+                response.setHeader(new Header(CONTENT_ENC, entity.getContentEncoding(), true)); 
+            }
         }
     }
     
