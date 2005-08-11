@@ -35,7 +35,9 @@ import org.apache.http.Header;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpException;
 import org.apache.http.HttpMutableResponse;
+import org.apache.http.HttpRequest;
 import org.apache.http.HttpResponseInterceptor;
+import org.apache.http.HttpStatus;
 import org.apache.http.HttpVersion;
 
 /**
@@ -47,16 +49,13 @@ import org.apache.http.HttpVersion;
  * 
  * @since 4.0
  */
-public class ResponseContent implements HttpResponseInterceptor {
+public class ResponseConnControl implements HttpResponseInterceptor {
 
-    private static final String TRANSFER_ENC = "Transfer-Encoding";
-    private static final String CONTENT_LEN  = "Content-Length";
-    private static final String CONTENT_TYPE = "Content-Type";
-    private static final String CONTENT_ENC = "Content-Encoding";
+    private static final String CONN_DIRECTIVE = "Connection";
 
-    private static final String CHUNK_CODING = "chunked";
+    private static final String CONN_CLOSE = "Close";
     
-    public ResponseContent() {
+    public ResponseConnControl() {
         super();
     }
     
@@ -65,26 +64,37 @@ public class ResponseContent implements HttpResponseInterceptor {
         if (response == null) {
             throw new IllegalArgumentException("HTTP request may not be null");
         }
+        if (context == null) {
+            throw new IllegalArgumentException("HTTP context may not be null");
+        }
+        // Always drop connection after certain type of responses
+        int status = response.getStatusLine().getStatusCode();
+        if (status == HttpStatus.SC_BAD_REQUEST ||
+        		status == HttpStatus.SC_REQUEST_TIMEOUT ||
+        		status == HttpStatus.SC_LENGTH_REQUIRED ||
+        		status == HttpStatus.SC_REQUEST_TOO_LONG ||
+        		status == HttpStatus.SC_REQUEST_URI_TOO_LONG ||
+        		status == HttpStatus.SC_INTERNAL_SERVER_ERROR ||
+        		status == HttpStatus.SC_SERVICE_UNAVAILABLE ||
+        		status == HttpStatus.SC_NOT_IMPLEMENTED) {
+            response.setHeader(new Header(CONN_DIRECTIVE, CONN_CLOSE, true));
+            return;
+        }
+        // Always drop connection for HTTP/1.0 responses and below
+        // if the content body cannot be correctly delimited
         HttpVersion ver = response.getStatusLine().getHttpVersion();
-        HttpEntity entity = response.getEntity();
-        if (entity != null) {
-            long len = entity.getContentLength();
-            if (entity.isChunked() && ver.greaterEquals(HttpVersion.HTTP_1_1)) {
-                response.setHeader(new Header(TRANSFER_ENC, CHUNK_CODING, true));
-                response.removeHeaders(CONTENT_LEN);
-            } else if (len >= 0) {
-                response.setHeader(new Header(CONTENT_LEN, 
-                        Long.toString(entity.getContentLength()), true));
-                response.removeHeaders(TRANSFER_ENC);
+        if (ver.lessEquals(HttpVersion.HTTP_1_0)) {
+            HttpEntity entity = response.getEntity();
+            if (entity != null && entity.getContentLength() < 0) {
+            	response.setHeader(new Header(CONN_DIRECTIVE, CONN_CLOSE, true));
+                return;
             }
-            // Specify a content type if known
-            if (entity.getContentType() != null) {
-                response.setHeader(new Header(CONTENT_TYPE, entity.getContentType(), true)); 
-            }
-            // Specify a content encoding if known
-            if (entity.getContentEncoding() != null) {
-                response.setHeader(new Header(CONTENT_ENC, entity.getContentEncoding(), true)); 
-            }
+        }
+        // Drop connection if requested by the client
+        HttpRequest request = (HttpRequest) context.getAttribute(HttpContext.HTTP_REQUEST);
+        Header header = request.getFirstHeader(CONN_DIRECTIVE);
+        if (header != null) {
+        	response.setHeader(new Header(CONN_DIRECTIVE, header.getValue(), true));
         }
     }
     

@@ -40,6 +40,10 @@ package org.apache.http.protocol;
  */
 public interface HttpContext {
 
+    public static final String HTTP_CONNECTION  = "http.connection"; 
+    public static final String HTTP_REQUEST     = "http.request"; 
+    public static final String HTTP_RESPONSE    = "http.response"; 
+    
     Object getAttribute(String id);
 
     void setAttribute(String id, Object obj);
