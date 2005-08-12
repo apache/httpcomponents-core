@@ -87,7 +87,10 @@ public class ContentLengthOutputStream extends OutputStream {
      * @throws IOException If an I/O problem occurs.
      */
     public void close() throws IOException {
-        this.closed = true;
+    	if (!this.closed) {
+            this.closed = true;
+            this.wrappedStream.flush();
+    	}
     }
 
     public void flush() throws IOException {
