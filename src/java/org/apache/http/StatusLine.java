@@ -83,6 +83,11 @@ public class StatusLine {
         this.statusCode = statusCode;
         this.reasonPhrase = reasonPhrase;
     }
+
+    public StatusLine(final HttpVersion httpVersion, int statusCode) {
+        this(httpVersion, statusCode, HttpStatus.getStatusText(statusCode));
+    }
+
     /**
      * Parses the status line returned from the HTTP server.
      *

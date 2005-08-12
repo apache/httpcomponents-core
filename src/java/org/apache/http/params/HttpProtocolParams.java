@@ -78,13 +78,20 @@ public final class HttpProtocolParams {
     public static final String HTTP_CONTENT_CHARSET = "http.protocol.content-charset"; 
     
     /**
-     * Defines the content of the <tt>User-Agent</tt> header used by  
-     * {@link org.apache.commons.httpclient.HttpMethod HTTP methods}.
+     * Defines the content of the <tt>User-Agent</tt> header.
      * <p>
      * This parameter expects a value of type {@link String}.
      * </p>
      */
     public static final String USER_AGENT = "http.useragent"; 
+
+    /**
+     * Defines the content of the <tt>Server</tt> header.
+     * <p>
+     * This parameter expects a value of type {@link String}.
+     * </p>
+     */
+    public static final String ORIGIN_SERVER = "http.origin-server"; 
 
     /**
      * Defines the maximum number of ignorable lines before we expect
