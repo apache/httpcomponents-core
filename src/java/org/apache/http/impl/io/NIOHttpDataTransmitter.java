@@ -61,7 +61,7 @@ public abstract class NIOHttpDataTransmitter implements HttpDataTransmitter {
     private Charset charset = null;
 
     protected void initBuffer(int buffersize) {
-        if ((buffersize > 2048) || (buffersize <= 0)) {
+        if ((buffersize < 2048)) {
             buffersize = 2048;
         }
         this.buffer = ByteBuffer.allocateDirect(buffersize);
