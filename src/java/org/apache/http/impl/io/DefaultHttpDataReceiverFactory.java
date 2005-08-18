@@ -49,18 +49,29 @@ import org.apache.http.io.HttpDataReceiverFactory;
  */
 public class DefaultHttpDataReceiverFactory implements HttpDataReceiverFactory {
     
+    private boolean useNIO;
+    
+    public DefaultHttpDataReceiverFactory(boolean useNIO) {
+        super();
+        this.useNIO = useNIO;
+    }
+    
+    public DefaultHttpDataReceiverFactory() {
+        this(true);
+    }
+
     public HttpDataReceiver create(final Socket socket) throws IOException {
         if (socket == null) {
             throw new IllegalArgumentException("Socket may not be null");
         }
         if (socket instanceof SSLSocket) {
-            if (HttpRuntime.isSSLNIOCapable()) {
+            if (this.useNIO && HttpRuntime.isSSLNIOCapable()) {
                 return new NIOSocketHttpDataReceiver(socket); 
             } else {
                 return new OldIOSocketHttpDataReceiver(socket); 
             }
         } else {
-            if (HttpRuntime.isNIOCapable()) {
+            if (this.useNIO && HttpRuntime.isNIOCapable()) {
                 return new NIOSocketHttpDataReceiver(socket); 
             } else {
                 return new OldIOSocketHttpDataReceiver(socket); 

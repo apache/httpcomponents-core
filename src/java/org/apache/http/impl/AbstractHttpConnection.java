@@ -65,8 +65,6 @@ abstract class AbstractHttpConnection implements HttpConnection {
     
     protected AbstractHttpConnection() {
         super();
-        this.trxfactory = new DefaultHttpDataTransmitterFactory();
-        this.rcvfactory = new DefaultHttpDataReceiverFactory();
     }
     
     public void setReceiverFactory(final HttpDataReceiverFactory rcvfactory) {
@@ -119,6 +117,12 @@ abstract class AbstractHttpConnection implements HttpConnection {
         int rcvBufSize = HttpConnectionParams.getReceiveBufferSize(params);
         if (rcvBufSize >= 0) {
             this.socket.setReceiveBufferSize(rcvBufSize);
+        }
+        if (this.trxfactory == null) {
+            this.trxfactory = new DefaultHttpDataTransmitterFactory();
+        }
+        if (this.rcvfactory == null) {
+            this.rcvfactory = new DefaultHttpDataReceiverFactory();
         }
         this.datatransmitter = this.trxfactory.create(this.socket); 
         this.datareceiver = this.rcvfactory.create(this.socket); 

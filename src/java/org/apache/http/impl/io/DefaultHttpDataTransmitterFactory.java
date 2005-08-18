@@ -49,18 +49,29 @@ import org.apache.http.io.HttpDataTransmitterFactory;
  */
 public class DefaultHttpDataTransmitterFactory implements HttpDataTransmitterFactory {
     
+    private boolean useNIO;
+    
+    public DefaultHttpDataTransmitterFactory(boolean useNIO) {
+        super();
+        this.useNIO = useNIO;
+    }
+    
+    public DefaultHttpDataTransmitterFactory() {
+        this(true);
+    }
+
     public HttpDataTransmitter create(final Socket socket) throws IOException {
         if (socket == null) {
             throw new IllegalArgumentException("Socket may not be null");
         }
         if (socket instanceof SSLSocket) {
-            if (HttpRuntime.isSSLNIOCapable()) {
+            if (this.useNIO && HttpRuntime.isSSLNIOCapable()) {
                 return new NIOSocketHttpDataTransmitter(socket); 
             } else {
                 return new OldIOSocketHttpDataTransmitter(socket); 
             }
         } else {
-            if (HttpRuntime.isNIOCapable()) {
+            if (this.useNIO && HttpRuntime.isNIOCapable()) {
                 return new NIOSocketHttpDataTransmitter(socket); 
             } else {
                 return new OldIOSocketHttpDataTransmitter(socket); 

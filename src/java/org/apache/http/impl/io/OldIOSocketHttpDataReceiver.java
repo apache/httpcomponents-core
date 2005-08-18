@@ -79,7 +79,7 @@ public class OldIOSocketHttpDataReceiver extends InputStreamHttpDataReceiver {
             throw new IllegalArgumentException("Socket may not be null");
         }
         int buffersize = socket.getReceiveBufferSize();
-        if ((buffersize > 2048) || (buffersize <= 0)) {
+        if (buffersize < 2048) {
             buffersize = 2048;
         }
         return new BufferedInputStream(socket.getInputStream(), buffersize);

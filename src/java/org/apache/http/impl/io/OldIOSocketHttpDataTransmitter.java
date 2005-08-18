@@ -52,7 +52,7 @@ public class OldIOSocketHttpDataTransmitter extends OutputStreamHttpDataTransmit
             throw new IllegalArgumentException("Socket may not be null");
         }
         int buffersize = socket.getSendBufferSize();
-        if ((buffersize > 2048) || (buffersize <= 0)) {
+        if (buffersize < 2048) {
             buffersize = 2048;
         }
         return new BufferedOutputStream(socket.getOutputStream(), buffersize);
