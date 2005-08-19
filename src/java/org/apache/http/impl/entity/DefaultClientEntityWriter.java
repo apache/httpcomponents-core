@@ -37,6 +37,7 @@ import org.apache.http.HttpException;
 import org.apache.http.HttpVersion;
 import org.apache.http.ProtocolException;
 import org.apache.http.io.ChunkedOutputStream;
+import org.apache.http.io.ContentLengthOutputStream;
 import org.apache.http.io.HttpDataOutputStream;
 import org.apache.http.io.HttpDataTransmitter;
 import org.apache.http.io.OutputStreamHttpDataTransmitter;
@@ -81,14 +82,17 @@ public class DefaultClientEntityWriter implements EntityWriter {
         if (datatransmitter == null) {
             throw new IllegalArgumentException("HTTP data transmitter may not be null");
         }
-        boolean chunked = entity.isChunked() || entity.getContentLength() < 0;  
+        long len = entity.getContentLength();
+        boolean chunked = entity.isChunked() || len < 0;  
         if (chunked && version.lessEquals(HttpVersion.HTTP_1_0)) {
             throw new ProtocolException(
-                    "Chunked transfer encoding not allowed for " + version);
+                    "Chunked transfer encoding not supported by " + version);
         }
         OutputStream outstream = getRawOutputStream(datatransmitter);
         if (chunked) {
             outstream = new ChunkedOutputStream(outstream);
+        } else {
+            outstream = new ContentLengthOutputStream(outstream, len);
         }
         if (entity.writeTo(outstream)) {
             outstream.close();
