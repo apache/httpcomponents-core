@@ -85,7 +85,7 @@ public class OldIOSocketHttpDataReceiver extends InputStreamHttpDataReceiver {
         return new BufferedInputStream(socket.getInputStream(), buffersize);
     }
     
-    protected OldIOSocketHttpDataReceiver(final Socket socket) throws IOException {
+    public OldIOSocketHttpDataReceiver(final Socket socket) throws IOException {
         super(createInputStream(socket));
         this.socket = socket;
     }

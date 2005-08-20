@@ -58,7 +58,7 @@ public class OldIOSocketHttpDataTransmitter extends OutputStreamHttpDataTransmit
         return new BufferedOutputStream(socket.getOutputStream(), buffersize);
     }
     
-    protected OldIOSocketHttpDataTransmitter(final Socket socket) throws IOException {
+    public OldIOSocketHttpDataTransmitter(final Socket socket) throws IOException {
         super(createOutputStream(socket));
     }
     

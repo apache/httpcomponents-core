@@ -48,7 +48,7 @@ public class NIOSocketHttpDataTransmitter extends NIOHttpDataTransmitter {
 
     private final SocketChannel channel;
     
-    protected NIOSocketHttpDataTransmitter(final Socket socket) throws SocketException {
+    public NIOSocketHttpDataTransmitter(final Socket socket) throws SocketException {
         super();
         if (socket == null) {
             throw new IllegalArgumentException("Socket may not be null");

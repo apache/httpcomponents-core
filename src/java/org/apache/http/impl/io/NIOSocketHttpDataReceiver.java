@@ -31,10 +31,7 @@ package org.apache.http.impl.io;
 
 import java.io.IOException;
 import java.net.Socket;
-import java.net.SocketTimeoutException;
 import java.nio.ByteBuffer;
-import java.nio.channels.SelectionKey;
-import java.nio.channels.Selector;
 import java.nio.channels.SocketChannel;
 
 import org.apache.http.params.HttpConnectionParams;
@@ -52,11 +49,8 @@ import org.apache.http.params.HttpParams;
 public class NIOSocketHttpDataReceiver extends NIOHttpDataReceiver {
 
     private final SocketChannel channel;
-    private final Selector selector;
     
-    private long readTimeout = 0;
-    
-    protected NIOSocketHttpDataReceiver(final Socket socket) throws IOException {
+    public NIOSocketHttpDataReceiver(final Socket socket) throws IOException {
         super();
         if (socket == null) {
             throw new IllegalArgumentException("Socket may not be null");
@@ -65,14 +59,13 @@ public class NIOSocketHttpDataReceiver extends NIOHttpDataReceiver {
             throw new IllegalArgumentException("Socket does not implement NIO channel");
         }
         this.channel = socket.getChannel();
-        this.channel.configureBlocking(false);
-        this.selector = Selector.open();
-        this.channel.register(this.selector, SelectionKey.OP_READ);
         initBuffer(socket.getReceiveBufferSize());
     }
     
     public void reset(final HttpParams params) {
-        this.readTimeout = HttpConnectionParams.getSoTimeout(params);
+        if (HttpConnectionParams.getSoTimeout(params) > 0) {
+        	throw new IllegalStateException("Socket timeout not supported by NIO connections");
+        }
         super.reset(params); 
     }
 
@@ -80,22 +73,11 @@ public class NIOSocketHttpDataReceiver extends NIOHttpDataReceiver {
         if (dst == null) {
             throw new IllegalArgumentException("Byte buffer may not be null");
         }
-        this.selector.select(this.readTimeout);
-        int result = this.channel.read(dst);
-        if (result == 0) {
-            throw new SocketTimeoutException("Socket read timeout after " 
-                    + this.readTimeout + " ms");
-        }
-        return result;
+        return this.channel.read(dst);
     }
   
     public boolean isDataAvailable(int timeout) throws IOException {
-        if (hasDataInBuffer()) {
-            return true;
-        } else {
-            this.selector.select(timeout);
-            return !this.selector.selectedKeys().isEmpty();
-        }
+        return hasDataInBuffer();
     }    
         
 }
