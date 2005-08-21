@@ -59,6 +59,7 @@ public abstract class NIOHttpDataTransmitter implements HttpDataTransmitter {
     private ByteBuffer buffer = null;
 
     private Charset charset = null;
+    private CharsetEncoder charencoder = null;
 
     protected void initBuffer(int buffersize) {
         if (buffersize < 2048) {
@@ -66,10 +67,12 @@ public abstract class NIOHttpDataTransmitter implements HttpDataTransmitter {
         }
         this.buffer = ByteBuffer.allocateDirect(buffersize);
         this.charset = Charset.forName("US-ASCII");
+        this.charencoder = createCharEncoder();
     }
     
     public void reset(final HttpParams params) {
         this.charset = Charset.forName(HttpProtocolParams.getHttpElementCharset(params)); 
+        this.charencoder = createCharEncoder();
     }
 
     protected abstract void writeToChannel(ByteBuffer src) throws IOException;
@@ -167,8 +170,8 @@ public abstract class NIOHttpDataTransmitter implements HttpDataTransmitter {
         }
         // Do not bother if the string is empty
         if (s.length() > 0 ) {
-            CharsetEncoder charencoder = createCharEncoder();
-            CharBuffer tmp = CharBuffer.allocate(128);
+        	this.charencoder.reset();
+            CharBuffer tmp = CharBuffer.allocate(1024);
             // transfer the string in small chunks
             int remaining = s.length();
             int offset = 0;
@@ -182,13 +185,13 @@ public abstract class NIOHttpDataTransmitter implements HttpDataTransmitter {
                 }
                 tmp.put(s, offset, offset + l);
                 tmp.flip();
-                write(charencoder, tmp, eol);
+                write(this.charencoder, tmp, eol);
                 tmp.compact();
                 offset += l;
                 remaining -= l;
             }
             // flush the encoder
-            flushCharEncoder(charencoder);
+            flushCharEncoder(this.charencoder);
         }
         writeCRLF();
     }
