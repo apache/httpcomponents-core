@@ -44,19 +44,19 @@ import java.io.OutputStream;
 public class IdentityOutputStream extends OutputStream {
     
     /**
-     * Wrapped output stream that all calls are delegated to.
+     * Wrapped data transmitter that all calls are delegated to.
      */
-    private final OutputStream wrappedStream;
+    private final HttpDataTransmitter out;
 
     /** True if the stream is closed. */
     private boolean closed = false;
 
-    public IdentityOutputStream(final OutputStream out) {
+    public IdentityOutputStream(final HttpDataTransmitter out) {
         super();
         if (out == null) {
-            throw new IllegalArgumentException("Output stream may not be null");
+            throw new IllegalArgumentException("HTTP data transmitter may not be null");
         }
-        this.wrappedStream = out;
+        this.out = out;
     }
 
     /**
@@ -67,19 +67,19 @@ public class IdentityOutputStream extends OutputStream {
     public void close() throws IOException {
     	if (!this.closed) {
             this.closed = true;
-            this.wrappedStream.flush();
+            this.out.flush();
     	}
     }
 
     public void flush() throws IOException {
-        this.wrappedStream.flush();
+        this.out.flush();
     }
 
     public void write(byte[] b, int off, int len) throws IOException {
         if (this.closed) {
             throw new IOException("Attempted write to closed stream.");
         }
-        this.wrappedStream.write(b, off, len);
+        this.out.write(b, off, len);
     }
 
     public void write(byte[] b) throws IOException {
@@ -90,7 +90,7 @@ public class IdentityOutputStream extends OutputStream {
         if (this.closed) {
             throw new IOException("Attempted write to closed stream.");
         }
-        this.wrappedStream.write(b);
+        this.out.write(b);
     }
     
 }

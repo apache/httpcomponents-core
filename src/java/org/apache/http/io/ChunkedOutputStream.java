@@ -32,8 +32,6 @@ package org.apache.http.io;
 import java.io.IOException;
 import java.io.OutputStream;
 
-import org.apache.http.util.EncodingUtil;
-
 /**
  * <p>This class implements chunked transfer coding as described in the 
  * <a href="http://www.w3.org/Protocols/rfc2616/rfc2616-sec3.html#sec3.6">Section 3.6.1</a> 
@@ -99,20 +97,12 @@ import org.apache.http.util.EncodingUtil;
  * </p>
  * 
  * @author Mohammad Rezaei, Goldman, Sachs & Co.
+ * @author <a href="mailto:oleg at ural.ru">Oleg Kalnichevski</a>
  */
 public class ChunkedOutputStream extends OutputStream {
 
-    // ------------------------------------------------------- Static Variables
-    private static final byte CRLF[] = new byte[] {(byte) 13, (byte) 10};
-
-    /** End chunk */
-    private static final byte ENDCHUNK[] = CRLF;
-
-    /** 0 */
-    private static final byte ZERO[] = new byte[] {(byte) '0'};
-
     // ----------------------------------------------------- Instance Variables
-    private OutputStream stream = null;
+    private final HttpDataTransmitter out;
 
     private byte[] cache;
 
@@ -132,19 +122,22 @@ public class ChunkedOutputStream extends OutputStream {
      * 
      * @since 3.0
      */
-    public ChunkedOutputStream(OutputStream stream, int bufferSize) throws IOException {
+    public ChunkedOutputStream(final HttpDataTransmitter out, int bufferSize)
+    		throws IOException {
+    	super();
         this.cache = new byte[bufferSize];
-        this.stream = stream;
+        this.out = out;
     }
 
     /**
-     * Wraps a stream and chunks the output. The default buffer size of 2048 was chosen because
-     * the chunk overhead is less than 0.5%
+     * Wraps a data transmitter and chunks the output. The default buffer size of 2048 was 
+     * chosen because the chunk overhead is less than 0.5%
      * @param stream
      * @throws IOException
      */
-    public ChunkedOutputStream(OutputStream stream) throws IOException {
-        this(stream, 2048);
+    public ChunkedOutputStream(final HttpDataTransmitter datatransmitter) 
+    		throws IOException {
+        this(datatransmitter, 2048);
     }
 
     // ----------------------------------------------------------- Internal methods
@@ -155,13 +148,11 @@ public class ChunkedOutputStream extends OutputStream {
      * @since 3.0
      */
     protected void flushCache() throws IOException {
-        if (cachePosition > 0) {
-            byte chunkHeader[] = EncodingUtil.getAsciiBytes(
-                    Integer.toHexString(cachePosition) + "\r\n");
-            stream.write(chunkHeader, 0, chunkHeader.length);
-            stream.write(cache, 0, cachePosition);
-            stream.write(ENDCHUNK, 0, ENDCHUNK.length);
-            cachePosition = 0;
+        if (this.cachePosition > 0) {
+        	this.out.writeLine(Integer.toHexString(this.cachePosition));
+        	this.out.write(this.cache, 0, this.cachePosition);
+        	this.out.writeLine("");
+            this.cachePosition = 0;
         }
     }
 
@@ -176,21 +167,17 @@ public class ChunkedOutputStream extends OutputStream {
      * @since 3.0
      */
     protected void flushCacheWithAppend(byte bufferToAppend[], int off, int len) throws IOException {
-        byte chunkHeader[] = EncodingUtil.getAsciiBytes(
-                Integer.toHexString(cachePosition + len) + "\r\n");
-        stream.write(chunkHeader, 0, chunkHeader.length);
-        stream.write(cache, 0, cachePosition);
-        stream.write(bufferToAppend, off, len);
-        stream.write(ENDCHUNK, 0, ENDCHUNK.length);
-        cachePosition = 0;
+    	this.out.writeLine(Integer.toHexString(this.cachePosition + len));
+    	this.out.write(this.cache, 0, this.cachePosition);
+    	this.out.write(bufferToAppend, off, len);
+    	this.out.writeLine("");
+        this.cachePosition = 0;
     }
 
     protected void writeClosingChunk() throws IOException {
         // Write the final chunk.
-
-        stream.write(ZERO, 0, ZERO.length);
-        stream.write(CRLF, 0, CRLF.length);
-        stream.write(ENDCHUNK, 0, ENDCHUNK.length);
+    	this.out.writeLine("0");
+    	this.out.writeLine("");
     }
 
     // ----------------------------------------------------------- Public Methods
@@ -201,10 +188,10 @@ public class ChunkedOutputStream extends OutputStream {
      * @since 3.0
      */
     public void finish() throws IOException {
-        if (!wroteLastChunk) {
+        if (!this.wroteLastChunk) {
             flushCache();
             writeClosingChunk();
-            wroteLastChunk = true;
+            this.wroteLastChunk = true;
         }
     }
 
@@ -213,9 +200,9 @@ public class ChunkedOutputStream extends OutputStream {
         if (this.closed) {
             throw new IOException("Attempted write to closed stream.");
         }
-        cache[cachePosition] = (byte) b;
-        cachePosition++;
-        if (cachePosition == cache.length) flushCache();
+        this.cache[this.cachePosition] = (byte) b;
+        this.cachePosition++;
+        if (this.cachePosition == this.cache.length) flushCache();
     }
 
     /**
@@ -234,11 +221,11 @@ public class ChunkedOutputStream extends OutputStream {
         if (this.closed) {
             throw new IOException("Attempted write to closed stream.");
         }
-        if (len >= cache.length - cachePosition) {
+        if (len >= this.cache.length - this.cachePosition) {
             flushCacheWithAppend(src, off, len);
         } else {
-            System.arraycopy(src, off, cache, cachePosition, len);
-            cachePosition += len;
+            System.arraycopy(src, off, cache, this.cachePosition, len);
+            this.cachePosition += len;
         }
     }
 
@@ -247,7 +234,7 @@ public class ChunkedOutputStream extends OutputStream {
      * @throws IOException
      */
     public void flush() throws IOException {
-        stream.flush();
+        this.out.flush();
     }
 
     /**
@@ -258,7 +245,7 @@ public class ChunkedOutputStream extends OutputStream {
         if (!this.closed) {
             this.closed = true;
             finish();
-            stream.flush();
+            this.out.flush();
         }
     }
 }

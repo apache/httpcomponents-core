@@ -38,9 +38,7 @@ import org.apache.http.HttpVersion;
 import org.apache.http.ProtocolException;
 import org.apache.http.io.ChunkedOutputStream;
 import org.apache.http.io.ContentLengthOutputStream;
-import org.apache.http.io.HttpDataOutputStream;
 import org.apache.http.io.HttpDataTransmitter;
-import org.apache.http.io.OutputStreamHttpDataTransmitter;
 
 /**
  * <p>
@@ -56,17 +54,6 @@ public class DefaultClientEntityWriter implements EntityWriter {
 
     public DefaultClientEntityWriter() {
         super();
-    }
-
-    private OutputStream getRawOutputStream(final HttpDataTransmitter datatransmitter) {
-        // This is a (quite ugly) performance hack
-        if (datatransmitter instanceof OutputStreamHttpDataTransmitter) {
-            // If we are dealing with the compatibility wrapper
-            // Get the original input stream
-            return  ((OutputStreamHttpDataTransmitter)datatransmitter).getOutputStream();
-        } else {
-            return new HttpDataOutputStream(datatransmitter);
-        }
     }
 
     public void write(
@@ -88,11 +75,11 @@ public class DefaultClientEntityWriter implements EntityWriter {
             throw new ProtocolException(
                     "Chunked transfer encoding not supported by " + version);
         }
-        OutputStream outstream = getRawOutputStream(datatransmitter);
+        OutputStream outstream = null;
         if (chunked) {
-            outstream = new ChunkedOutputStream(outstream);
+            outstream = new ChunkedOutputStream(datatransmitter);
         } else {
-            outstream = new ContentLengthOutputStream(outstream, len);
+            outstream = new ContentLengthOutputStream(datatransmitter, len);
         }
         if (entity.writeTo(outstream)) {
             outstream.close();

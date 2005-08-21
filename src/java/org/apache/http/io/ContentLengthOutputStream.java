@@ -44,9 +44,9 @@ import java.io.OutputStream;
 public class ContentLengthOutputStream extends OutputStream {
     
     /**
-     * Wrapped output stream that all calls are delegated to.
+     * Wrapped data transmitter that all calls are delegated to.
      */
-    private final OutputStream wrappedStream;
+    private final HttpDataTransmitter out;
 
     /**
      * The maximum number of bytes that can be written the stream. Subsequent
@@ -63,21 +63,21 @@ public class ContentLengthOutputStream extends OutputStream {
     /**
      * Creates a new length limited stream
      *
-     * @param in The stream to wrap
+     * @param out The data transmitter to wrap
      * @param contentLength The maximum number of bytes that can be written to
      * the stream. Subsequent write operations will be ignored.
      * 
      * @since 4.0
      */
-    public ContentLengthOutputStream(final OutputStream out, long contentLength) {
+    public ContentLengthOutputStream(final HttpDataTransmitter out, long contentLength) {
         super();
         if (out == null) {
-            throw new IllegalArgumentException("Output stream may not be null");
+            throw new IllegalArgumentException("HTTP data transmitter may not be null");
         }
         if (contentLength < 0) {
             throw new IllegalArgumentException("Content length may not be negative");
         }
-        this.wrappedStream = out;
+        this.out = out;
         this.contentLength = contentLength;
     }
 
@@ -89,12 +89,12 @@ public class ContentLengthOutputStream extends OutputStream {
     public void close() throws IOException {
     	if (!this.closed) {
             this.closed = true;
-            this.wrappedStream.flush();
+            this.out.flush();
     	}
     }
 
     public void flush() throws IOException {
-        this.wrappedStream.flush();
+        this.out.flush();
     }
 
     public void write(byte[] b, int off, int len) throws IOException {
@@ -106,7 +106,7 @@ public class ContentLengthOutputStream extends OutputStream {
             if (len > max) {
                 len = (int) max;
             }
-            this.wrappedStream.write(b, off, len);
+            this.out.write(b, off, len);
             this.total += len;
         }
     }
@@ -120,7 +120,7 @@ public class ContentLengthOutputStream extends OutputStream {
             throw new IOException("Attempted write to closed stream.");
         }
         if (this.total < this.contentLength) {
-            this.wrappedStream.write(b);
+            this.out.write(b);
             this.total++;
         }
     }
