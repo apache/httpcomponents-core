@@ -60,6 +60,7 @@ public abstract class NIOHttpDataTransmitter implements HttpDataTransmitter {
 
     private Charset charset = null;
     private CharsetEncoder charencoder = null;
+    private CharBuffer chbuffer = null;
 
     protected void initBuffer(int buffersize) {
         if (buffersize < 2048) {
@@ -68,6 +69,7 @@ public abstract class NIOHttpDataTransmitter implements HttpDataTransmitter {
         this.buffer = ByteBuffer.allocateDirect(buffersize);
         this.charset = Charset.forName("US-ASCII");
         this.charencoder = createCharEncoder();
+        this.chbuffer = CharBuffer.allocate(1024);
     }
     
     public void reset(final HttpParams params) {
@@ -171,22 +173,21 @@ public abstract class NIOHttpDataTransmitter implements HttpDataTransmitter {
         // Do not bother if the string is empty
         if (s.length() > 0 ) {
         	this.charencoder.reset();
-            CharBuffer tmp = CharBuffer.allocate(1024);
             // transfer the string in small chunks
             int remaining = s.length();
             int offset = 0;
             while (remaining > 0) {
-                int l = tmp.remaining();
+                int l = this.chbuffer.remaining();
                 boolean eol = false;
                 if (remaining < l) {
                     l = remaining;
                     // terminate the encoding process
                     eol = true;
                 }
-                tmp.put(s, offset, offset + l);
-                tmp.flip();
-                write(this.charencoder, tmp, eol);
-                tmp.compact();
+                this.chbuffer.put(s, offset, offset + l);
+                this.chbuffer.flip();
+                write(this.charencoder, this.chbuffer, eol);
+                this.chbuffer.compact();
                 offset += l;
                 remaining -= l;
             }

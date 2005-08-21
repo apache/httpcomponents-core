@@ -58,7 +58,8 @@ public abstract class NIOHttpDataReceiver implements HttpDataReceiver {
     private ByteBuffer buffer = null;
     
     private Charset charset = null;
-    private CharsetDecoder chardecoder;
+    private CharsetDecoder chardecoder = null;
+    private CharBuffer chbuffer = null;
     
     protected void initBuffer(int buffersize) {
         if (buffersize < 2048) {
@@ -68,6 +69,7 @@ public abstract class NIOHttpDataReceiver implements HttpDataReceiver {
         this.buffer.flip();
         this.charset = Charset.forName("US-ASCII");
         this.chardecoder = createCharDecoder();
+        this.chbuffer = CharBuffer.allocate(1024);
     }
 
     public void reset(final HttpParams params) {
@@ -148,9 +150,9 @@ public abstract class NIOHttpDataReceiver implements HttpDataReceiver {
     
     public String readLine() throws IOException {
         int noRead = 0;
+        this.chbuffer.clear();
         this.chardecoder.reset();
         StringBuffer line = new StringBuffer(); 
-        CharBuffer tmp = CharBuffer.allocate(1024);
         boolean retry = true;
         while (retry) {
             // attempt to find end of line (LF)
@@ -162,11 +164,13 @@ public abstract class NIOHttpDataReceiver implements HttpDataReceiver {
                 int origLimit = this.buffer.limit();
                 this.buffer.limit(i + 1);
                 for (;;) {
-                    CoderResult result = this.chardecoder.decode(this.buffer, tmp, true);
+                    CoderResult result = this.chardecoder.decode(
+                    		this.buffer, this.chbuffer, true);
                     if (result.isOverflow()) {
-                        tmp.flip();
-                        line.append(tmp.array(), tmp.position(), tmp.remaining());
-                        tmp.clear();
+                        this.chbuffer.flip();
+                        line.append(this.chbuffer.array(), 
+                        		this.chbuffer.position(), this.chbuffer.remaining());
+                        this.chbuffer.clear();
                     }
                     if (result.isUnderflow()) {
                         break;
@@ -177,29 +181,31 @@ public abstract class NIOHttpDataReceiver implements HttpDataReceiver {
                 // end of line not found
                 if (this.buffer.hasRemaining()) {
                     // decode the entire buffer content
-                    this.chardecoder.decode(this.buffer, tmp, false);
+                    this.chardecoder.decode(this.buffer, this.chbuffer, false);
                 }
                 // discard the decoded content
                 noRead = fillBuffer();
                 if (noRead == -1) {
                     retry = false;
                     // terminate the decoding process
-                    this.chardecoder.decode(this.buffer, tmp, true);
+                    this.chardecoder.decode(this.buffer, this.chbuffer, true);
                 }
             }
             // append the decoded content to the line buffer
-            tmp.flip();
-            if (tmp.hasRemaining()) {
-                line.append(tmp.array(), tmp.position(), tmp.remaining());
+            this.chbuffer.flip();
+            if (this.chbuffer.hasRemaining()) {
+                line.append(this.chbuffer.array(), 
+                		this.chbuffer.position(), this.chbuffer.remaining());
             }
-            tmp.clear();
+            this.chbuffer.clear();
         }
         // flush the decoder
-        this.chardecoder.flush(tmp);
-        tmp.flip();
+        this.chardecoder.flush(this.chbuffer);
+        this.chbuffer.flip();
         // append the decoded content to the line buffer
-        if (tmp.hasRemaining()) {
-            line.append(tmp.array(), tmp.position(), tmp.remaining());
+        if (this.chbuffer.hasRemaining()) {
+            line.append(this.chbuffer.array(), 
+            		this.chbuffer.position(), this.chbuffer.remaining());
         }
         if (noRead == -1 && line.length() == 0) {
             // indicate the end of stream
