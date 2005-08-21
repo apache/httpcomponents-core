@@ -117,7 +117,7 @@ public class ContentLengthInputStream extends InputStream {
         if (!closed) {
             try {
                 byte buffer[] = new byte[BUFFER_SIZE];
-                while (this.in.read(buffer) >= 0) {
+                while (read(buffer) >= 0) {
                 }
             } finally {
                 // close after above so that we don't throw an exception trying
