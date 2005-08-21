@@ -40,7 +40,7 @@ import java.nio.channels.Selector;
 import java.nio.channels.SocketChannel;
 import java.util.Random;
 
-public class NIOvsOldIO {
+public class RawNIOvsRawOIOTest {
 
     private static int BUFFER_SIZE = 8192; 
     private static int SO_TIMEOUT = 20000; 
@@ -48,7 +48,7 @@ public class NIOvsOldIO {
     private static int PORT = 8082; 
     private static int RUN_COUNT = 20; 
     
-    public NIOvsOldIO() {
+    public RawNIOvsRawOIOTest() {
         super();
     }
 
