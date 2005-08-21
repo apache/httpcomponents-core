@@ -126,7 +126,11 @@ public abstract class NIOHttpDataReceiver implements HttpDataReceiver {
                 return -1; 
             }
         }
-        return this.buffer.get();
+        int b = this.buffer.get();
+        if (b < 0) {
+            b = 256 + b;
+        }
+        return b;
     }
     
     private int locateLF() {
