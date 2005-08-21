@@ -1,16 +1,42 @@
+/*
+ * $HeadURL$
+ * $Revision$
+ * $Date$
+ *
+ * ====================================================================
+ *
+ *  Copyright 1999-2004 The Apache Software Foundation
+ *
+ *  Licensed under the Apache License, Version 2.0 (the "License");
+ *  you may not use this file except in compliance with the License.
+ *  You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an "AS IS" BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
+ * ====================================================================
+ *
+ * This software consists of voluntary contributions made by many
+ * individuals on behalf of the Apache Software Foundation.  For more
+ * information on the Apache Software Foundation, please see
+ * <http://www.apache.org/>.
+ *
+ */
+
 package tests.performance;
 
 import java.io.BufferedInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.net.InetSocketAddress;
-import java.net.ServerSocket;
 import java.net.Socket;
 import java.nio.ByteBuffer;
 import java.nio.channels.SelectionKey;
 import java.nio.channels.Selector;
-import java.nio.channels.ServerSocketChannel;
 import java.nio.channels.SocketChannel;
 import java.util.Random;
 
@@ -27,21 +53,21 @@ public class NIOvsOldIO {
     }
 
     public static void main(String[] args) throws Exception {
-        byte[] data = new byte[1000000];
+        byte[] data = new byte[50000000];
         Random rnd = new Random();
         rnd.nextBytes(data);
 
-        DataProcessor oldioProc = new OldIORawReceiver();
+        TestDataProcessor oldioProc = new OldIORawReceiver();
         executeTest(data, new OldIOListenerThread(oldioProc, PORT));
         System.out.println("Old IO average time (ms): " + 
                 oldioProc.getTotalTime() / RUN_COUNT);
         
-        DataProcessor nioBlockingProc = new NIOBlockingReceiver();
+        TestDataProcessor nioBlockingProc = new NIOBlockingReceiver();
         executeTest(data, new NIOListenerThread(nioBlockingProc, PORT));
         System.out.println("Blocking NIO average time (ms): " + 
                 nioBlockingProc.getTotalTime() / RUN_COUNT);
 
-        DataProcessor nioSelectProc = new NIOSelectReceiver();
+        TestDataProcessor nioSelectProc = new NIOSelectReceiver();
         executeTest(data, new NIOListenerThread(nioSelectProc, PORT));
         System.out.println("NIO with Select average time (ms): " + 
                 nioSelectProc.getTotalTime() / RUN_COUNT);
@@ -69,15 +95,7 @@ public class NIOvsOldIO {
         t.join(1000);
    }
     
-    static interface DataProcessor {
-        
-        void process(Socket socket) throws IOException;
-        
-        long getTotalTime();
-        
-    }
-    
-    static class OldIORawReceiver implements DataProcessor {
+    static class OldIORawReceiver implements TestDataProcessor {
         
         private long totalTime = 0;
         
@@ -103,7 +121,7 @@ public class NIOvsOldIO {
         
     }
 
-    static class NIOBlockingReceiver implements DataProcessor {
+    static class NIOBlockingReceiver implements TestDataProcessor {
         
         private long totalTime = 0;
         
@@ -135,7 +153,7 @@ public class NIOvsOldIO {
         
     }
 
-    static class NIOSelectReceiver implements DataProcessor {
+    static class NIOSelectReceiver implements TestDataProcessor {
         
         private long totalTime = 0;
         
@@ -169,102 +187,5 @@ public class NIOvsOldIO {
         }
         
     }
-
-    static class OldIOListenerThread extends Thread {
         
-        private final int port; 
-        private final DataProcessor dataprocessor;
-        private ServerSocket serversocket;
-        
-        public OldIOListenerThread(final DataProcessor dataprocessor, int port) {
-            super();
-            this.port = port;
-            this.dataprocessor = dataprocessor;
-        }
-        
-        public void run() {
-            try {
-                try {
-                    this.serversocket = new ServerSocket(this.port);
-                    while (!Thread.interrupted()) {
-                        Socket socket = this.serversocket.accept();
-                        try {
-                            socket.setTcpNoDelay(true);
-                            socket.setSendBufferSize(BUFFER_SIZE);
-                            socket.setReceiveBufferSize(BUFFER_SIZE);
-                            socket.setSoTimeout(SO_TIMEOUT);
-                            this.dataprocessor.process(socket);
-                        } finally {
-                            socket.close();
-                        }
-                    }
-                } finally {
-                    this.serversocket.close();
-                }
-            } catch (IOException ex) {
-                if (!isInterrupted()) {
-                    ex.printStackTrace();
-                }
-            }
-        }
-        
-        public void destroy() {
-            interrupt();
-            try {
-                this.serversocket.close();
-            } catch (IOException ignore) {
-            }
-        }
-        
-    }
-
-    static class NIOListenerThread extends Thread {
-        
-        private final int port; 
-        private final DataProcessor dataprocessor;
-        private ServerSocketChannel serverchannel;
-        
-        public NIOListenerThread(final DataProcessor dataprocessor, int port) {
-            super();
-            this.port = port;
-            this.dataprocessor = dataprocessor;
-        }
-        
-        public void run() {
-            try {
-                this.serverchannel = ServerSocketChannel.open();
-                try {
-                    this.serverchannel.socket().bind(new InetSocketAddress(this.port));
-                    while (!Thread.interrupted()) {
-                        SocketChannel channel = this.serverchannel.accept();
-                        try {
-                            Socket socket = channel.socket();
-                            socket.setTcpNoDelay(true);
-                            socket.setSendBufferSize(BUFFER_SIZE);
-                            socket.setReceiveBufferSize(BUFFER_SIZE);
-                            socket.setSoTimeout(SO_TIMEOUT);
-                            this.dataprocessor.process(socket);
-                        } finally {
-                            channel.close();
-                        }
-                    }
-                } finally {
-                    this.serverchannel.close();
-                }
-            } catch (IOException ex) {
-                if (!isInterrupted()) {
-                    ex.printStackTrace();
-                }
-            }
-        }
-        
-        public void destroy() {
-            interrupt();
-            try {
-                this.serverchannel.close();
-            } catch (IOException ignore) {
-            }
-        }
-        
-    }
 }
