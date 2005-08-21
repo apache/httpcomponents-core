@@ -43,7 +43,6 @@ import org.apache.http.io.ContentLengthInputStream;
 import org.apache.http.io.HttpDataInputStream;
 import org.apache.http.io.HttpDataReceiver;
 import org.apache.http.io.InputStreamHttpDataReceiver;
-import org.apache.http.params.HttpConnectionParams;
 import org.apache.http.params.HttpParams;
 import org.apache.http.params.HttpProtocolParams;
 
@@ -252,15 +251,7 @@ public class DefaultEntityGenerator implements EntityGenerator {
             } else if ((len > 0) && (CHUNKED_ENCODING.equalsIgnoreCase(encodings[len - 1].getName()))) { 
                 entity.setChunked(true);
                 entity.setContentLength(-1);
-                // if response body is empty
-                if (datareceiver.isDataAvailable(HttpConnectionParams.getSoTimeout(params))) {
-                    entity.setContent(new ChunkedInputStream(datareceiver));
-                } else {
-                    if (strict) {
-                        throw new ProtocolException("Chunk-encoded body declared but not sent");
-                    }
-                    entity.setContent(null);                            
-                }
+                entity.setContent(new ChunkedInputStream(datareceiver));
             } else {
                 if (strict) {
                     throw new ProtocolException("Chunk-encoding must be the last one applied");
