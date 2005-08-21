@@ -34,7 +34,6 @@ import java.io.InputStream;
 import java.io.OutputStream;
 
 import org.apache.http.HttpEntity;
-import org.apache.http.io.ContentLengthInputStream;
 
 /**
  * <p>
@@ -48,6 +47,7 @@ import org.apache.http.io.ContentLengthInputStream;
 public class InputStreamEntity implements HttpEntity {
 
     private final static String DEFAULT_CONTENT_TYPE = "application/octet-stream";
+    private final static int BUFFER_SIZE = 2048;
 
     private final InputStream content;
     private final long length;
@@ -105,14 +105,16 @@ public class InputStreamEntity implements HttpEntity {
             throw new IllegalArgumentException("Output stream may not be null");
         }
         InputStream instream = this.content;
-        if (this.length >= 0) {
-            instream = new ContentLengthInputStream(instream, this.length);
-        }
-        int l;
-        byte[] tmp = new byte[1024];
-        while ((l = instream.read(tmp)) != -1) {
-            outstream.write(tmp, 0, l);
-        }
+        byte[] buffer = new byte[BUFFER_SIZE];
+        long remaining = this.length;
+    	while (remaining > 0) {
+    	    int l = instream.read(buffer, 0, (int)Math.min(BUFFER_SIZE, remaining));
+    	    if (l == -1) {
+    	    	break;
+    	    }
+            outstream.write(buffer, 0, l);
+    	    remaining -= l;
+    	}
         return true;
     }
     

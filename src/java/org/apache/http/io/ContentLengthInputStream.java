@@ -67,6 +67,7 @@ import java.io.InputStream;
  */
 public class ContentLengthInputStream extends InputStream {
     
+	private static int BUFFER_SIZE = 2048;
     /**
      * The maximum number of bytes that can be read from the stream. Subsequent
      * read operations will return -1.
@@ -82,7 +83,7 @@ public class ContentLengthInputStream extends InputStream {
     /**
      * Wrapped input stream that all calls are delegated to.
      */
-    private InputStream wrappedStream = null;
+    private HttpDataReceiver in = null;
 
     /**
      * Creates a new length limited stream
@@ -93,7 +94,7 @@ public class ContentLengthInputStream extends InputStream {
      * 
      * @since 3.0
      */
-    public ContentLengthInputStream(final InputStream in, long contentLength) {
+    public ContentLengthInputStream(final HttpDataReceiver in, long contentLength) {
         super();
         if (in == null) {
             throw new IllegalArgumentException("Input stream may not be null");
@@ -101,7 +102,7 @@ public class ContentLengthInputStream extends InputStream {
         if (contentLength < 0) {
             throw new IllegalArgumentException("Content length may not be negative");
         }
-        this.wrappedStream = in;
+        this.in = in;
         this.contentLength = contentLength;
     }
 
@@ -115,7 +116,9 @@ public class ContentLengthInputStream extends InputStream {
     public void close() throws IOException {
         if (!closed) {
             try {
-                ChunkedInputStream.exhaustInputStream(this);
+                byte buffer[] = new byte[BUFFER_SIZE];
+                while (this.in.read(buffer) >= 0) {
+                }
             } finally {
                 // close after above so that we don't throw an exception trying
                 // to read after closed!
@@ -140,7 +143,7 @@ public class ContentLengthInputStream extends InputStream {
             return -1;
         }
         pos++;
-        return this.wrappedStream.read();
+        return this.in.read();
     }
 
     /**
@@ -167,7 +170,7 @@ public class ContentLengthInputStream extends InputStream {
         if (pos + len > contentLength) {
             len = (int) (contentLength - pos);
         }
-        int count = this.wrappedStream.read(b, off, len);
+        int count = this.in.read(b, off, len);
         pos += count;
         return count;
     }
@@ -193,16 +196,24 @@ public class ContentLengthInputStream extends InputStream {
      * @see InputStream#skip(long)
      */
     public long skip(long n) throws IOException {
+    	if (n <= 0) {
+    	    return 0;
+    	}
+    	byte[] buffer = new byte[BUFFER_SIZE];
         // make sure we don't skip more bytes than are 
         // still available
-        long length = Math.min(n, contentLength - pos);
+        long remaining = Math.min(n, this.contentLength - this.pos); 
         // skip and keep track of the bytes actually skipped
-        length = this.wrappedStream.skip(length);
-        // only add the skipped bytes to the current position
-        // if bytes were actually skipped
-        if (length > 0) {
-            pos += length;
-        }
-        return length;
+        long count = 0;
+    	while (remaining > 0) {
+    	    int l = read(buffer, 0, (int)Math.min(BUFFER_SIZE, remaining));
+    	    if (l == -1) {
+    	    	break;
+    	    }
+    	    count += l;
+    	    remaining -= l;
+    	}
+    	this.pos += count;
+    	return count;
     }
 }

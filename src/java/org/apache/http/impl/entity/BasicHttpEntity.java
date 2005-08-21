@@ -34,7 +34,6 @@ import java.io.InputStream;
 import java.io.OutputStream;
 
 import org.apache.http.HttpMutableEntity;
-import org.apache.http.io.ContentLengthInputStream;
 
 /**
  * <p>
@@ -109,11 +108,8 @@ public class BasicHttpEntity implements HttpMutableEntity {
             return true;
         }
         InputStream instream = this.content;
-        if (this.length >= 0) {
-            instream = new ContentLengthInputStream(instream, this.length);
-        }
         int l;
-        byte[] tmp = new byte[1024];
+        byte[] tmp = new byte[2048];
         while ((l = instream.read(tmp)) != -1) {
             outstream.write(tmp, 0, l);
         }

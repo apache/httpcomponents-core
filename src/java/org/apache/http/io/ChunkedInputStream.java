@@ -151,10 +151,6 @@ public class ChunkedInputStream extends InputStream {
         this.pos = 0;
     }
 
-    public ChunkedInputStream(final InputStream instream) throws IOException {
-        this(new InputStreamHttpDataReceiver(instream));
-    }
-
     /**
      * <p> Returns all the data in a chunked stream in coalesced form. A chunk
      * is followed by a CRLF. The method returns -1 as soon as a chunksize of 0
@@ -170,16 +166,15 @@ public class ChunkedInputStream extends InputStream {
      * @see HttpMethod#getResponseFooters()
      */
     public int read() throws IOException {
-
-        if (closed) {
+        if (this.closed) {
             throw new IOException("Attempted read from closed stream.");
         }
-        if (eof) {
+        if (this.eof) {
             return -1;
         } 
-        if (pos >= chunkSize) {
+        if (this.pos >= this.chunkSize) {
             nextChunk();
-            if (eof) { 
+            if (this.eof) { 
                 return -1;
             }
         }

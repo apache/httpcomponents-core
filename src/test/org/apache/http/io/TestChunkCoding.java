@@ -28,13 +28,14 @@
 
 package org.apache.http.io;
 
-import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 
 import org.apache.http.Header;
+import org.apache.http.mockup.HttpDataReceiverMockup;
+import org.apache.http.mockup.HttpDataTransmitterMockup;
 import org.apache.http.util.EncodingUtil;
 
 import junit.framework.Test;
@@ -68,12 +69,6 @@ public class TestChunkCoding extends TestCase {
         } catch (IllegalArgumentException ex) {
             // expected
         }
-        try {
-            new ChunkedInputStream((InputStream)null);
-            fail("IllegalArgumentException should have been thrown");
-        } catch (IllegalArgumentException ex) {
-            // expected
-        }
         new MalformedChunkCodingException();
         new MalformedChunkCodingException("");
     }
@@ -87,7 +82,7 @@ public class TestChunkCoding extends TestCase {
     // Test for when buffer is larger than chunk size
     public void testChunkedInputStreamLargeBuffer() throws IOException {
         ChunkedInputStream in = new ChunkedInputStream(
-                new ByteArrayInputStream(
+                new HttpDataReceiverMockup(
                         EncodingUtil.getBytes(CHUNKED_INPUT, CONTENT_CHARSET)));
         byte[] buffer = new byte[300];
         ByteArrayOutputStream out = new ByteArrayOutputStream();
@@ -115,7 +110,7 @@ public class TestChunkCoding extends TestCase {
     //Test for when buffer is smaller than chunk size.
     public void testChunkedInputStreamSmallBuffer() throws IOException {
         ChunkedInputStream in = new ChunkedInputStream(
-                new ByteArrayInputStream(
+                new HttpDataReceiverMockup(
                             EncodingUtil.getBytes(CHUNKED_INPUT, CONTENT_CHARSET)));
 
         byte[] buffer = new byte[7];
@@ -143,7 +138,7 @@ public class TestChunkCoding extends TestCase {
     public void testChunkedInputStreamOneByteRead() throws IOException {
         String s = "5\r\n01234\r\n5\r\n56789\r\n0\r\n";
         ChunkedInputStream in = new ChunkedInputStream(
-                new ByteArrayInputStream(
+                new HttpDataReceiverMockup(
                         EncodingUtil.getBytes(s, CONTENT_CHARSET)));
         int ch;
         int i = '0';
@@ -160,7 +155,7 @@ public class TestChunkCoding extends TestCase {
     public void testChunkedInputStreamClose() throws IOException {
         String s = "5\r\n01234\r\n5\r\n56789\r\n0\r\n";
         ChunkedInputStream in = new ChunkedInputStream(
-                new ByteArrayInputStream(
+                new HttpDataReceiverMockup(
                         EncodingUtil.getBytes(s, CONTENT_CHARSET)));
         in.close();
         in.close();
@@ -189,7 +184,7 @@ public class TestChunkCoding extends TestCase {
     public void testCorruptChunkedInputStreamMissingCRLF() throws IOException {
         String s = "5\r\n012345\r\n56789\r\n0\r\n";
         InputStream in = new ChunkedInputStream(
-                new ByteArrayInputStream(
+                new HttpDataReceiverMockup(
                         EncodingUtil.getBytes(s, CONTENT_CHARSET)));
         byte[] buffer = new byte[300];
         ByteArrayOutputStream out = new ByteArrayOutputStream();
@@ -208,7 +203,7 @@ public class TestChunkCoding extends TestCase {
     public void testCorruptChunkedInputStreamMissingLF() throws IOException {
         String s = "5\r01234\r\n5\r\n56789\r\n0\r\n";
         InputStream in = new ChunkedInputStream(
-                new ByteArrayInputStream(
+                new HttpDataReceiverMockup(
                         EncodingUtil.getBytes(s, CONTENT_CHARSET)));
         try {
             in.read();
@@ -221,7 +216,7 @@ public class TestChunkCoding extends TestCase {
     // Missing closing chunk
     public void testCorruptChunkedInputStreamNoClosingChunk() throws IOException {
         InputStream in = new ChunkedInputStream(
-                new ByteArrayInputStream(new byte[] {}));
+                new HttpDataReceiverMockup(new byte[] {}));
         try {
             in.read();
             fail("MalformedChunkCodingException should have been thrown");
@@ -234,7 +229,7 @@ public class TestChunkCoding extends TestCase {
     public void testCorruptChunkedInputStreamInvalidSize() throws IOException {
         String s = "whatever\r\n01234\r\n5\r\n56789\r\n0\r\n";
         InputStream in = new ChunkedInputStream(
-                new ByteArrayInputStream(
+                new HttpDataReceiverMockup(
                         EncodingUtil.getBytes(s, CONTENT_CHARSET)));
         try {
             in.read();
@@ -248,7 +243,7 @@ public class TestChunkCoding extends TestCase {
     public void testCorruptChunkedInputStreamInvalidFooter() throws IOException {
         String s = "1\r\n0\r\n0\r\nstuff\r\n";
         InputStream in = new ChunkedInputStream(
-                new ByteArrayInputStream(
+                new HttpDataReceiverMockup(
                         EncodingUtil.getBytes(s, CONTENT_CHARSET)));
         try {
             in.read();
@@ -262,7 +257,7 @@ public class TestChunkCoding extends TestCase {
     public void testEmptyChunkedInputStream() throws IOException {
         String input = "0\r\n";
         InputStream in = new ChunkedInputStream(
-                new ByteArrayInputStream(
+                new HttpDataReceiverMockup(
                         EncodingUtil.getBytes(input, CONTENT_CHARSET)));
         byte[] buffer = new byte[300];
         ByteArrayOutputStream out = new ByteArrayOutputStream();
@@ -283,7 +278,7 @@ public class TestChunkCoding extends TestCase {
         out.close();
         buffer.close();
         InputStream in = new ChunkedInputStream(
-                new ByteArrayInputStream(
+                new HttpDataReceiverMockup(
                         buffer.toByteArray()));
 
         byte[] d = new byte[10];
@@ -298,9 +293,8 @@ public class TestChunkCoding extends TestCase {
     }
 
     public void testChunkedOutputStream() throws IOException {
-        ByteArrayOutputStream buffer = new ByteArrayOutputStream();
-        ChunkedOutputStream out = new ChunkedOutputStream(
-        		new OutputStreamHttpDataTransmitter(buffer), 2);
+    	HttpDataTransmitterMockup buffer = new HttpDataTransmitterMockup();
+        ChunkedOutputStream out = new ChunkedOutputStream(buffer, 2);
         out.write('1');  
         out.write('2');  
         out.write('3');  
@@ -308,7 +302,7 @@ public class TestChunkCoding extends TestCase {
         out.finish();
         out.close();
         
-        byte [] rawdata =  buffer.toByteArray();
+        byte [] rawdata =  buffer.getData();
         
         assertEquals(19, rawdata.length);
         assertEquals('2', rawdata[0]);
@@ -333,16 +327,15 @@ public class TestChunkCoding extends TestCase {
     }
 
     public void testChunkedOutputStreamLargeChunk() throws IOException {
-        ByteArrayOutputStream buffer = new ByteArrayOutputStream();
-        ChunkedOutputStream out = new ChunkedOutputStream(
-        		new OutputStreamHttpDataTransmitter(buffer), 2);
+    	HttpDataTransmitterMockup buffer = new HttpDataTransmitterMockup();
+        ChunkedOutputStream out = new ChunkedOutputStream(buffer, 2);
         out.write(new byte[] {'1', '2', '3', '4'});
         out.finish();
         out.close();
         
-        byte [] rawdata =  buffer.toByteArray();
+        byte [] rawdata =  buffer.getData();
         
-//        assertEquals(14, rawdata.length);
+        assertEquals(14, rawdata.length);
         assertEquals('4', rawdata[0]);
         assertEquals('\r', rawdata[1]);
         assertEquals('\n', rawdata[2]);

@@ -198,7 +198,7 @@ public class DefaultEntityGenerator implements EntityGenerator {
         super();
     }
 
-    private InputStream getRawInputStream(final HttpDataReceiver datareceiver) {
+    private InputStream getIdentityInputStream(final HttpDataReceiver datareceiver) {
         // This is a (quite ugly) performance hack
         if (datareceiver instanceof InputStreamHttpDataReceiver) {
             // If we are dealing with the compatibility wrapper
@@ -248,7 +248,7 @@ public class DefaultEntityGenerator implements EntityGenerator {
             if (IDENTITY_ENCODING.equalsIgnoreCase(transferEncodingHeader.getValue())) {
                 entity.setChunked(false);
                 entity.setContentLength(-1);
-                entity.setContent(getRawInputStream(datareceiver));                            
+                entity.setContent(getIdentityInputStream(datareceiver));                            
             } else if ((len > 0) && (CHUNKED_ENCODING.equalsIgnoreCase(encodings[len - 1].getName()))) { 
                 entity.setChunked(true);
                 entity.setContentLength(-1);
@@ -267,7 +267,7 @@ public class DefaultEntityGenerator implements EntityGenerator {
                 }
                 entity.setChunked(false);
                 entity.setContentLength(-1);
-                entity.setContent(getRawInputStream(datareceiver));                            
+                entity.setContent(getIdentityInputStream(datareceiver));                            
             }
         } else if (contentLengthHeader != null) {
             long contentlen = -1;
@@ -289,15 +289,15 @@ public class DefaultEntityGenerator implements EntityGenerator {
             }
             entity.setChunked(false);
             entity.setContentLength(contentlen);
-            InputStream instream = getRawInputStream(datareceiver);            
             if (contentlen >= 0) {
-                instream = new ContentLengthInputStream(instream, contentlen);
+            	entity.setContent(new ContentLengthInputStream(datareceiver, contentlen));
+            } else {
+            	entity.setContent(getIdentityInputStream(datareceiver));
             }
-            entity.setContent(instream);
         } else {
             entity.setChunked(false);
             entity.setContentLength(-1);
-            entity.setContent(getRawInputStream(datareceiver));                            
+            entity.setContent(getIdentityInputStream(datareceiver));                            
         }
         if (contentTypeHeader != null) {
             entity.setContentType(contentTypeHeader.getValue());    
