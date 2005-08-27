@@ -111,7 +111,7 @@ public class TestHeaderElement extends TestCase {
         // 1st element has 2 getParameters()
         assertEquals(2,elements[0].getParameters().length);
         assertEquals("name2",elements[0].getParameters()[0].getName());
-        assertTrue(null == elements[0].getParameters()[0].getValue());
+        assertEquals(null, elements[0].getParameters()[0].getValue());
         assertEquals("name3",elements[0].getParameters()[1].getName());
         assertEquals("value3",elements[0].getParameters()[1].getValue());
         // 2nd element
@@ -123,7 +123,7 @@ public class TestHeaderElement extends TestCase {
         assertEquals("value5",elements[1].getParameters()[0].getValue());
         // 3rd element
         assertEquals("name6",elements[2].getName());
-        assertEquals(null,elements[2].getValue());
+        assertEquals("",elements[2].getValue());
         // 3rd element has 2 getParameters()
         assertEquals(2,elements[2].getParameters().length);
         assertEquals("name7",elements[2].getParameters()[0].getName());

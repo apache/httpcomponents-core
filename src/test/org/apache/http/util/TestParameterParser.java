@@ -78,7 +78,7 @@ public class TestParameterParser extends TestCase {
         assertEquals("test1", ((NameValuePair)params.get(1)).getName());
         assertEquals("stuff", ((NameValuePair)params.get(1)).getValue());
         assertEquals("test2", ((NameValuePair)params.get(2)).getName());
-        assertEquals(null, ((NameValuePair)params.get(2)).getValue());
+        assertEquals("", ((NameValuePair)params.get(2)).getValue());
         assertEquals("test3", ((NameValuePair)params.get(3)).getName());
         assertEquals(null, ((NameValuePair)params.get(3)).getValue());
 

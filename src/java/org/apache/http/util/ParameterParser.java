@@ -97,7 +97,7 @@ public class ParameterParser {
             }
         }
         String result = null;
-        if (i2 > i1) {
+        if (i2 >= i1) {
             result = new String(chars, i1, i2 - i1);
         }
         return result;
