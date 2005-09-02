@@ -36,6 +36,7 @@ import java.io.OutputStream;
 import org.apache.http.Header;
 import org.apache.http.mockup.HttpDataReceiverMockup;
 import org.apache.http.mockup.HttpDataTransmitterMockup;
+import org.apache.http.mockup.OutputStreamHttpDataTransmitterMockup;
 import org.apache.http.util.EncodingUtil;
 
 import junit.framework.Test;
@@ -271,7 +272,7 @@ public class TestChunkCoding extends TestCase {
     public void testChunkedConsitance() throws IOException {
         String input = "76126;27823abcd;:q38a-\nkjc\rk%1ad\tkh/asdui\r\njkh+?\\suweb";
         ByteArrayOutputStream buffer = new ByteArrayOutputStream();
-        OutputStream out = new ChunkedOutputStream(new OutputStreamHttpDataTransmitter(buffer));
+        OutputStream out = new ChunkedOutputStream(new OutputStreamHttpDataTransmitterMockup(buffer));
         out.write(EncodingUtil.getBytes(input, CONTENT_CHARSET));
         out.flush();
         out.close();
@@ -355,7 +356,7 @@ public class TestChunkCoding extends TestCase {
     public void testChunkedOutputStreamSmallChunk() throws IOException {
         ByteArrayOutputStream buffer = new ByteArrayOutputStream();
         ChunkedOutputStream out = new ChunkedOutputStream(
-        		new OutputStreamHttpDataTransmitter(buffer), 2);
+        		new OutputStreamHttpDataTransmitterMockup(buffer), 2);
         out.write('1');  
         out.finish();
         out.close();

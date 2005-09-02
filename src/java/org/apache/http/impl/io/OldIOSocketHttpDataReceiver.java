@@ -29,9 +29,7 @@
 
 package org.apache.http.impl.io;
 
-import java.io.BufferedInputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.InterruptedIOException;
 import java.net.Socket;
 
@@ -74,35 +72,24 @@ public class OldIOSocketHttpDataReceiver extends InputStreamHttpDataReceiver {
     
     private final Socket socket;
     
-    private static InputStream createInputStream(final Socket socket) throws IOException {
-        if (socket == null) {
-            throw new IllegalArgumentException("Socket may not be null");
-        }
+    public OldIOSocketHttpDataReceiver(final Socket socket) throws IOException {
+        super(socket.getInputStream());
+        this.socket = socket;
         int buffersize = socket.getReceiveBufferSize();
         if (buffersize < 2048) {
             buffersize = 2048;
         }
-        return new BufferedInputStream(socket.getInputStream(), buffersize);
-    }
-    
-    public OldIOSocketHttpDataReceiver(final Socket socket) throws IOException {
-        super(createInputStream(socket));
-        this.socket = socket;
+        initBuffer(buffersize);
     }
     
     public boolean isDataAvailable(int timeout) throws IOException {
-        InputStream instream = getInputStream();
-        boolean result = instream.available() > 0;
+        boolean result = hasBufferedData();
         if (!result) {
             int oldtimeout = this.socket.getSoTimeout();
             try {
                 this.socket.setSoTimeout(timeout);
-                instream.mark(1);
-                int byteRead = instream.read();
-                if (byteRead != -1) {
-                    instream.reset();
-                    result = true;
-                }
+                fillBuffer();
+                result = hasBufferedData();
             } catch (InterruptedIOException e) {
                 if (!isSocketTimeoutException(e)) {
                     throw e;

@@ -59,7 +59,11 @@ public class NIOSocketHttpDataReceiver extends NIOHttpDataReceiver {
             throw new IllegalArgumentException("Socket does not implement NIO channel");
         }
         this.channel = socket.getChannel();
-        initBuffer(socket.getReceiveBufferSize());
+        int buffersize = socket.getReceiveBufferSize();
+        if (buffersize < 2048) {
+            buffersize = 2048;
+        }
+        initBuffer(buffersize);
     }
     
     public void reset(final HttpParams params) {

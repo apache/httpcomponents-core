@@ -62,9 +62,6 @@ public abstract class NIOHttpDataReceiver implements HttpDataReceiver {
     private CharBuffer chbuffer = null;
     
     protected void initBuffer(int buffersize) {
-        if (buffersize < 2048) {
-            buffersize = 2048;
-        }
         this.buffer = ByteBuffer.allocateDirect(buffersize);
         this.buffer.flip();
         this.charset = Charset.forName("US-ASCII");

@@ -34,17 +34,27 @@ import java.io.InputStream;
 
 import org.apache.http.params.HttpParams;
 import org.apache.http.params.HttpProtocolParams;
-import org.apache.http.util.HttpLineParser;
+import org.apache.http.util.ByteArrayBuffer;
+import org.apache.http.util.EncodingUtil;
 
 /**
- * <p>Old IO Compatibility wrapper</p>
+ * <p>Classic IO Compatibility wrapper</p>
  *
  * @author <a href="mailto:oleg at ural.ru">Oleg Kalnichevski</a>
  *
  */
 public class InputStreamHttpDataReceiver implements HttpDataReceiver {
 
+    private static final int CR = 13;
+    private static final int LF = 10;
+    
     private final InputStream instream;
+    
+    private byte[] buffer;
+    private int bufferpos;
+    private int bufferlen;
+    
+    private ByteArrayBuffer linebuffer = null;
     
     private String charset = "US-ASCII";
     
@@ -55,33 +65,154 @@ public class InputStreamHttpDataReceiver implements HttpDataReceiver {
         }
         this.instream = instream;
     }
+
+    protected void initBuffer(int buffersize) {
+        this.buffer = new byte[buffersize];
+        this.bufferpos = 0;
+        this.bufferlen = 0;
+        this.linebuffer = new ByteArrayBuffer(buffersize);
+    }
     
-    public InputStream getInputStream() {
-        return this.instream;
+    protected int fillBuffer() throws IOException {
+    	// compact the buffer if necessary
+    	if (this.bufferpos > 0) {
+    		int len = this.bufferlen - this.bufferpos;
+            if (len > 0) {
+                System.arraycopy(this.buffer, this.bufferpos, this.buffer, 0, len);
+            }
+        	this.bufferpos = 0;
+        	this.bufferlen = len;
+    	}
+    	int l;
+    	int off = this.bufferlen;
+    	int len = this.buffer.length - this.bufferlen;
+    	while ((l = this.instream.read(this.buffer, off, len)) > 0) {
+    		off += l;
+            len -= l;
+    	}
+    	this.bufferlen = off;
+        if (l == -1 && off == 0) {
+            return -1;
+        } else {
+            return off;
+        }
+    }
+
+    protected boolean hasBufferedData() {
+        return this.bufferpos < this.bufferlen;
     }
     
     public boolean isDataAvailable(int timeout) throws IOException {
-        return this.instream.available() > 0;
+        return hasBufferedData();
     }
     
     public int read() throws IOException {
-        return this.instream.read();
+        int noRead = 0;
+    	while (!hasBufferedData()) {
+            noRead = fillBuffer();
+    		if (noRead == -1) {
+    			return -1;
+    		}
+    	}
+        int b = this.buffer[this.bufferpos++];
+        if (b < 0) {
+            b = 256 + b;
+        }
+        return b;
     }
     
     public int read(final byte[] b, int off, int len) throws IOException {
-        return this.instream.read(b, off, len);
+        if (b == null) {
+            return 0;
+        }
+        int noRead = 0;
+        while (!hasBufferedData()) {
+            noRead = fillBuffer();
+            if (noRead == -1) {
+                return -1;
+            }
+        }
+    	int chunk = this.bufferlen - this.bufferpos;
+    	if (chunk > len) {
+    		chunk = len;
+    	}
+    	System.arraycopy(this.buffer, this.bufferpos, b, off, chunk);
+    	this.bufferpos += chunk;
+    	return chunk;
     }
     
     public int read(final byte[] b) throws IOException {
-        return this.instream.read(b);
+        if (b == null) {
+            return 0;
+        }
+        return read(b, 0, b.length);
+    }
+    
+    private int locateLF() {
+        for (int i = this.bufferpos; i < this.bufferlen; i++) {
+            if (this.buffer[i] == LF) {
+                return i;
+            }
+        }
+        return -1;
     }
     
     public String readLine() throws IOException {
-        return HttpLineParser.readLine(this.instream, this.charset);
+    	this.linebuffer.clear();
+    	int noRead = 0;
+        boolean retry = true;
+        while (retry) {
+            // attempt to find end of line (LF)
+            int i = locateLF();
+            if (i != -1) {
+                // end of line found. 
+                retry = false;
+                int len = i + 1 - this.bufferpos;
+                this.linebuffer.append(this.buffer, this.bufferpos, len);
+                this.bufferpos = i + 1;
+            } else {
+                // end of line not found
+                if (hasBufferedData()) {
+                    int len = this.bufferlen - this.bufferpos;
+                    this.linebuffer.append(this.buffer, this.bufferpos, len);
+                    this.bufferpos = this.bufferlen;
+                }
+                noRead = fillBuffer();
+                if (noRead == -1) {
+                    retry = false;
+                    if (hasBufferedData()) {
+                        int len = this.bufferlen - this.bufferpos;
+                        this.linebuffer.append(this.buffer, this.bufferpos, len);
+                        this.bufferpos = this.bufferlen;
+                    }
+                }
+            }
+        }
+        if (noRead == -1 && this.linebuffer.length() == 0) {
+            // indicate the end of stream
+            return null;
+        }
+        // discard LF if found
+        int l = this.linebuffer.length(); 
+        if (l > 0) {
+            if (this.linebuffer.byteAt(l - 1) == LF) {
+                l--;
+                this.linebuffer.setLength(l);
+            }
+            // discard CR if found
+            if (l > 0) {
+                if (this.linebuffer.byteAt(l - 1) == CR) {
+                    l--;
+                    this.linebuffer.setLength(l);
+                }
+            }
+        }
+        return EncodingUtil.getString(
+        		this.linebuffer.getBytes(), 0, this.linebuffer.length(), this.charset);
     }
     
     public void reset(final HttpParams params) {
-        this.charset = HttpProtocolParams.getHttpElementCharset(params); 
+        this.charset = HttpProtocolParams.getHttpElementCharset(params);
     }
     
 }

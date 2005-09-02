@@ -70,7 +70,13 @@ public class TestNIOHttpTransmitterAndReceiver extends TestCase {
 
     public void testInit() throws Exception {
         ByteArrayOutputStream out = new ByteArrayOutputStream();
-        new HttpDataTransmitterMockup(Channels.newChannel(out), -10); 
+        new HttpDataTransmitterMockup(Channels.newChannel(out), 10); 
+        try {
+            new HttpDataTransmitterMockup(Channels.newChannel(out), -10); 
+            fail("IllegalArgumentException should have been thrown");
+        } catch (IllegalArgumentException ex) {
+            //expected
+        }
         try {
             new HttpDataTransmitterMockup(null, 1024); 
             fail("IllegalArgumentException should have been thrown");
@@ -78,7 +84,13 @@ public class TestNIOHttpTransmitterAndReceiver extends TestCase {
             //expected
         }
         ByteArrayInputStream in = new ByteArrayInputStream(out.toByteArray());
-        new HttpDataReceiverMockup(Channels.newChannel(in), -10); 
+        new HttpDataReceiverMockup(Channels.newChannel(in), 10); 
+        try {
+            new HttpDataReceiverMockup(Channels.newChannel(in), -10); 
+            fail("IllegalArgumentException should have been thrown");
+        } catch (IllegalArgumentException ex) {
+            //expected
+        }
         try {
             new HttpDataReceiverMockup((ReadableByteChannel)null, 1024); 
             fail("IllegalArgumentException should have been thrown");

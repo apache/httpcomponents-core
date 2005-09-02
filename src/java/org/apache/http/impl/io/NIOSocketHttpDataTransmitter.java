@@ -57,7 +57,11 @@ public class NIOSocketHttpDataTransmitter extends NIOHttpDataTransmitter {
             throw new IllegalArgumentException("Socket does not implement NIO channel");
         }
         this.channel = socket.getChannel();
-        initBuffer(socket.getSendBufferSize());
+        int buffersize = socket.getSendBufferSize();
+        if (buffersize < 2048) {
+            buffersize = 2048;
+        }
+        initBuffer(buffersize);
     }
 
     protected void writeToChannel(final ByteBuffer src) throws IOException {

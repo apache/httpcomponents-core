@@ -29,9 +29,7 @@
 
 package org.apache.http.impl.io;
 
-import java.io.BufferedOutputStream;
 import java.io.IOException;
-import java.io.OutputStream;
 import java.net.Socket;
 
 import org.apache.http.io.OutputStreamHttpDataTransmitter;
@@ -47,19 +45,13 @@ import org.apache.http.io.OutputStreamHttpDataTransmitter;
  */
 public class OldIOSocketHttpDataTransmitter extends OutputStreamHttpDataTransmitter {
 
-    private static OutputStream createOutputStream(final Socket socket) throws IOException {
-        if (socket == null) {
-            throw new IllegalArgumentException("Socket may not be null");
-        }
+    public OldIOSocketHttpDataTransmitter(final Socket socket) throws IOException {
+        super(socket.getOutputStream());
         int buffersize = socket.getSendBufferSize();
         if (buffersize < 2048) {
             buffersize = 2048;
         }
-        return new BufferedOutputStream(socket.getOutputStream(), buffersize);
-    }
-    
-    public OldIOSocketHttpDataTransmitter(final Socket socket) throws IOException {
-        super(createOutputStream(socket));
+        initBuffer(buffersize);
     }
     
 }

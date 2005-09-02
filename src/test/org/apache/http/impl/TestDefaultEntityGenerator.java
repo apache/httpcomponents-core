@@ -123,7 +123,6 @@ public class TestDefaultEntityGenerator extends TestCase {
         assertNotNull(entity);
         assertEquals(-1, entity.getContentLength());
         assertFalse(entity.isChunked());
-        assertTrue(entity.getContent() instanceof ByteArrayInputStream);
     }
 
     public void testEntityWithUnsupportedTransferEncoding() throws Exception {
@@ -320,19 +319,6 @@ public class TestDefaultEntityGenerator extends TestCase {
         assertFalse(entity.getContent() instanceof ContentLengthInputStream);
         assertFalse(entity.getContent() instanceof ChunkedInputStream);
         assertTrue(entity.getContent() instanceof HttpDataInputStream);
-    }
-
-    public void testOldIOWrapper() throws Exception {
-        InputStream instream = new ByteArrayInputStream(new byte[] {});
-        HttpDataReceiver datareceiver = new InputStreamHttpDataReceiver(instream);
-        HttpMutableMessage message = new BasicHttpMessage();
-        message.addHeader(new Header("Content-Type", "unknown"));
-        EntityGenerator entitygen = new DefaultEntityGenerator();
-        HttpEntity entity = entitygen.generate(datareceiver, message);
-        assertNotNull(entity);
-        assertEquals(-1, entity.getContentLength());
-        assertFalse(entity.isChunked());
-        assertTrue(entity.getContent() instanceof ByteArrayInputStream);
     }
 
 }

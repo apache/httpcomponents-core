@@ -49,6 +49,9 @@ public class OutputStreamHttpDataTransmitter implements HttpDataTransmitter {
 
     private final OutputStream outstream;
     
+    private byte[] buffer;
+    private int bufferlen;
+        
     private String charset = "US-ASCII";
     
     public OutputStreamHttpDataTransmitter(final OutputStream outstream) {
@@ -59,32 +62,63 @@ public class OutputStreamHttpDataTransmitter implements HttpDataTransmitter {
         this.outstream = outstream;
     }
 
-    public OutputStream getOutputStream() {
-        return this.outstream;
+    protected void initBuffer(int buffersize) {
+        this.buffer = new byte[buffersize];
+        this.bufferlen = 0;
+    }
+    
+    protected void flushBuffer() throws IOException {
+        if (this.bufferlen > 0) {
+            this.outstream.write(this.buffer, 0, this.bufferlen);
+            this.bufferlen = 0;
+        }
     }
     
     public void flush() throws IOException {
+        flushBuffer();
         this.outstream.flush();
     }
     
     public void write(final byte[] b, int off, int len) throws IOException {
-        this.outstream.write(b, off, len);
+        if (b == null) {
+            return;
+        }
+        int freecapacity = this.buffer.length - this.bufferlen;
+        if (len > freecapacity) {
+            // flush the buffer
+            flushBuffer();
+            freecapacity = this.buffer.length; 
+        }
+        if (len > freecapacity) {
+            // still does not fit, write directly to the out stream
+            this.outstream.write(b, off, len);
+        } else {
+            // buffer
+            System.arraycopy(b, off, this.buffer, this.bufferlen, len);
+            this.bufferlen += len;
+        }
     }
     
     public void write(final byte[] b) throws IOException {
-        this.outstream.write(b);
+        if (b == null) {
+            return;
+        }
+        write(b, 0, b.length);
     }
     
     public void write(int b) throws IOException {
-        this.outstream.write(b);
+        if (this.bufferlen == this.buffer.length) {
+            flushBuffer();
+        }
+        this.buffer[this.bufferlen++] = (byte)b;
     }
     
     public void writeLine(final String s) throws IOException {
         if (s == null) {
             return;
         }
-        this.outstream.write(s.getBytes(this.charset));
-        this.outstream.write(CRLF);
+        write(s.getBytes(this.charset));
+        write(CRLF);
     }
     
     public void reset(final HttpParams params) {

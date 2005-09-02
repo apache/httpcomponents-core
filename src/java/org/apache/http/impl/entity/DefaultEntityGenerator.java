@@ -30,7 +30,6 @@
 package org.apache.http.impl.entity;
 
 import java.io.IOException;
-import java.io.InputStream;
 
 import org.apache.http.Header;
 import org.apache.http.HeaderElement;
@@ -42,7 +41,6 @@ import org.apache.http.io.ChunkedInputStream;
 import org.apache.http.io.ContentLengthInputStream;
 import org.apache.http.io.HttpDataInputStream;
 import org.apache.http.io.HttpDataReceiver;
-import org.apache.http.io.InputStreamHttpDataReceiver;
 import org.apache.http.params.HttpParams;
 import org.apache.http.params.HttpProtocolParams;
 
@@ -197,17 +195,6 @@ public class DefaultEntityGenerator implements EntityGenerator {
         super();
     }
 
-    private InputStream getIdentityInputStream(final HttpDataReceiver datareceiver) {
-        // This is a (quite ugly) performance hack
-        if (datareceiver instanceof InputStreamHttpDataReceiver) {
-            // If we are dealing with the compatibility wrapper
-            // Get the original input stream
-            return  ((InputStreamHttpDataReceiver)datareceiver).getInputStream();
-        } else {
-            return new HttpDataInputStream(datareceiver);
-        }
-    }
-    
     public HttpMutableEntity generate(
             final HttpDataReceiver datareceiver,
             final HttpMessage message) throws HttpException, IOException {
@@ -247,7 +234,7 @@ public class DefaultEntityGenerator implements EntityGenerator {
             if (IDENTITY_ENCODING.equalsIgnoreCase(transferEncodingHeader.getValue())) {
                 entity.setChunked(false);
                 entity.setContentLength(-1);
-                entity.setContent(getIdentityInputStream(datareceiver));                            
+                entity.setContent(new HttpDataInputStream(datareceiver));                            
             } else if ((len > 0) && (CHUNKED_ENCODING.equalsIgnoreCase(encodings[len - 1].getName()))) { 
                 entity.setChunked(true);
                 entity.setContentLength(-1);
@@ -258,7 +245,7 @@ public class DefaultEntityGenerator implements EntityGenerator {
                 }
                 entity.setChunked(false);
                 entity.setContentLength(-1);
-                entity.setContent(getIdentityInputStream(datareceiver));                            
+                entity.setContent(new HttpDataInputStream(datareceiver));                            
             }
         } else if (contentLengthHeader != null) {
             long contentlen = -1;
@@ -283,12 +270,12 @@ public class DefaultEntityGenerator implements EntityGenerator {
             if (contentlen >= 0) {
             	entity.setContent(new ContentLengthInputStream(datareceiver, contentlen));
             } else {
-            	entity.setContent(getIdentityInputStream(datareceiver));
+            	entity.setContent(new HttpDataInputStream(datareceiver));
             }
         } else {
             entity.setChunked(false);
             entity.setContentLength(-1);
-            entity.setContent(getIdentityInputStream(datareceiver));                            
+            entity.setContent(new HttpDataInputStream(datareceiver));                            
         }
         if (contentTypeHeader != null) {
             entity.setContentType(contentTypeHeader.getValue());    
