@@ -104,13 +104,13 @@ public class HttpNIOvsHttpOIOTest {
         byte[] data3 = buffer.toByteArray();
         buffer = null;
 
-        TestDataProcessor p5 = new ByteReceiver(
+        TestDataProcessor p5 = new LineReceiver(
         		new DefaultHttpDataReceiverFactory(false));
         executeTest(data3, new OldIOListenerThread(p5, PORT));
         System.out.println("Old IO one line read average time (ms): " + 
                 p5.getTotalTime() / RUN_COUNT);
         
-        TestDataProcessor p6 = new ByteReceiver(
+        TestDataProcessor p6 = new LineReceiver(
         		new DefaultHttpDataReceiverFactory(true));
         executeTest(data3, new NIOListenerThread(p6, PORT));
         System.out.println("NIO one line read average time (ms): " + 
