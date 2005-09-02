@@ -4,7 +4,7 @@ import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
 
-import org.apache.http.io.InputStreamHttpDataReceiver;
+import org.apache.http.impl.io.InputStreamHttpDataReceiver;
 
 /**
  * {@link HttpDataInputStream} mockup implementation.

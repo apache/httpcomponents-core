@@ -35,11 +35,11 @@ import java.net.Socket;
 import java.util.Random;
 
 import org.apache.http.impl.io.DefaultHttpDataReceiverFactory;
+import org.apache.http.impl.io.OutputStreamHttpDataTransmitter;
 import org.apache.http.io.ChunkedInputStream;
 import org.apache.http.io.ChunkedOutputStream;
 import org.apache.http.io.ContentLengthInputStream;
 import org.apache.http.io.HttpDataReceiverFactory;
-import org.apache.http.io.OutputStreamHttpDataTransmitter;
 
 public class ChunkedIOvsContentLengthDelimIOTest {
 

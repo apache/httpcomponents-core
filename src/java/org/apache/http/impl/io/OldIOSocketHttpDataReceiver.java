@@ -33,7 +33,6 @@ import java.io.IOException;
 import java.io.InterruptedIOException;
 import java.net.Socket;
 
-import org.apache.http.io.InputStreamHttpDataReceiver;
 
 /**
  * <p>

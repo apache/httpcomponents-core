@@ -32,7 +32,6 @@ package org.apache.http.impl.io;
 import java.io.IOException;
 import java.net.Socket;
 
-import org.apache.http.io.OutputStreamHttpDataTransmitter;
 
 /**
  * <p>

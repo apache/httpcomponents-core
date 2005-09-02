@@ -37,11 +37,11 @@ import org.apache.http.HttpMutableMessage;
 import org.apache.http.ProtocolException;
 import org.apache.http.impl.entity.DefaultEntityGenerator;
 import org.apache.http.impl.entity.EntityGenerator;
+import org.apache.http.impl.io.InputStreamHttpDataReceiver;
 import org.apache.http.io.ChunkedInputStream;
 import org.apache.http.io.ContentLengthInputStream;
 import org.apache.http.io.HttpDataInputStream;
 import org.apache.http.io.HttpDataReceiver;
-import org.apache.http.io.InputStreamHttpDataReceiver;
 import org.apache.http.mockup.HttpDataReceiverMockup;
 import org.apache.http.params.HttpProtocolParams;
 

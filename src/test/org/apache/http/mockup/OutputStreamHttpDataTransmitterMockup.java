@@ -3,7 +3,7 @@ package org.apache.http.mockup;
 import java.io.ByteArrayOutputStream;
 import java.io.OutputStream;
 
-import org.apache.http.io.OutputStreamHttpDataTransmitter;
+import org.apache.http.impl.io.OutputStreamHttpDataTransmitter;
 
 /**
  * {@link HttpDataTransmitter} mockup implementation.
