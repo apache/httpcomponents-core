@@ -55,7 +55,7 @@ public class OutputStreamHttpDataTransmitter implements HttpDataTransmitter {
         
     private String charset = "US-ASCII";
     
-    public OutputStreamHttpDataTransmitter(final OutputStream outstream) {
+    protected OutputStreamHttpDataTransmitter(final OutputStream outstream) {
         super();
         if (outstream == null) {
             throw new IllegalArgumentException("Input stream may not be null");

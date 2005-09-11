@@ -28,21 +28,18 @@
 
 package org.apache.http.impl;
 
-import java.io.ByteArrayInputStream;
-import java.io.InputStream;
-
 import org.apache.http.Header;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpMutableMessage;
 import org.apache.http.ProtocolException;
 import org.apache.http.impl.entity.DefaultEntityGenerator;
 import org.apache.http.impl.entity.EntityGenerator;
-import org.apache.http.impl.io.InputStreamHttpDataReceiver;
 import org.apache.http.io.ChunkedInputStream;
 import org.apache.http.io.ContentLengthInputStream;
 import org.apache.http.io.HttpDataInputStream;
 import org.apache.http.io.HttpDataReceiver;
 import org.apache.http.mockup.HttpDataReceiverMockup;
+import org.apache.http.mockup.InputStreamHttpDataReceiverMockup;
 import org.apache.http.params.HttpProtocolParams;
 
 import junit.framework.Test;
@@ -109,8 +106,8 @@ public class TestDefaultEntityGenerator extends TestCase {
     }
 
     public void testEntityWithIdentityTransferEncoding() throws Exception {
-        InputStream instream = new ByteArrayInputStream(new byte[] {});
-        HttpDataReceiver datareceiver = new InputStreamHttpDataReceiver(instream);
+        HttpDataReceiver datareceiver = 
+        	new InputStreamHttpDataReceiverMockup(new byte[] {});
         HttpMutableMessage message = new BasicHttpMessage();
         
         // lenient mode 

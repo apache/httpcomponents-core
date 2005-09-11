@@ -59,7 +59,7 @@ public class InputStreamHttpDataReceiver implements HttpDataReceiver {
     
     private String charset = "US-ASCII";
     
-    public InputStreamHttpDataReceiver(final InputStream instream) {
+    protected InputStreamHttpDataReceiver(final InputStream instream) {
         super();
         if (instream == null) {
             throw new IllegalArgumentException("Input stream may not be null");
