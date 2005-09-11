@@ -29,13 +29,11 @@
 
 package org.apache.http.io;
 
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 
 import org.apache.http.Header;
 import org.apache.http.HttpException;
-import org.apache.http.util.EncodingUtil;
 import org.apache.http.util.ExceptionUtil;
 import org.apache.http.util.HeadersParser;
 
@@ -227,28 +225,11 @@ public class ChunkedInputStream extends InputStream {
     }
 
     /**
-     * Read the CRLF terminator.
-     * @throws IOException If an IO error occurs.
-     */
-    private void readCRLF() throws IOException {
-        int cr = in.read();
-        int lf = in.read();
-        if ((cr != '\r') || (lf != '\n')) { 
-            throw new MalformedChunkCodingException(
-                "CRLF expected at end of chunk: " + cr + "/" + lf);
-        }
-    }
-
-
-    /**
      * Read the next chunk.
      * @throws IOException If an IO error occurs.
      */
     private void nextChunk() throws IOException {
-        if (!bof) {
-            readCRLF();
-        }
-        chunkSize = getChunkSizeFromInputStream(in);
+        chunkSize = getChunkSize();
         bof = false;
         pos = 0;
         if (chunkSize == 0) {
@@ -270,60 +251,22 @@ public class ChunkedInputStream extends InputStream {
      * 
      * @throws IOException when the chunk size could not be parsed
      */
-    private static int getChunkSizeFromInputStream(final HttpDataReceiver in) 
-      throws IOException {
-            
-        ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        // States: 0=normal, 1=\r was scanned, 2=inside quoted string, -1=end
-        int state = 0; 
-        while (state != -1) {
-        int b = in.read();
-            if (b == -1) { 
-                throw new MalformedChunkCodingException("Chunked stream ended unexpectedly");
-            }
-            switch (state) {
-                case 0: 
-                    switch (b) {
-                        case '\r':
-                            state = 1;
-                            break;
-                        case '\"':
-                            state = 2;
-                            /* fall through */
-                        default:
-                            baos.write(b);
-                    }
-                    break;
-
-                case 1:
-                    if (b == '\n') {
-                        state = -1;
-                    } else {
-                        // this was not CRLF
-                        throw new MalformedChunkCodingException("Unexpected"
-                            + " single newline character in chunk size");
-                    }
-                    break;
-
-                case 2:
-                    switch (b) {
-                        case '\\':
-                            b = in.read();
-                            baos.write(b);
-                            break;
-                        case '\"':
-                            state = 0;
-                            /* fall through */
-                        default:
-                            baos.write(b);
-                    }
-                    break;
-                default: throw new IllegalStateException("Invalid state condition");
+    private int getChunkSize() throws IOException {
+    	// skip CRLF
+    	if (!bof) {
+            int cr = in.read();
+            int lf = in.read();
+            if ((cr != '\r') || (lf != '\n')) { 
+                throw new MalformedChunkCodingException(
+                    "CRLF expected at end of chunk");
             }
         }
-
         //parse data
-        String dataString = EncodingUtil.getAsciiString(baos.toByteArray());
+        String dataString = this.in.readLine();
+        if (dataString == null) {
+            throw new MalformedChunkCodingException(
+            		"Chunked stream ended unexpectedly");
+        }
         int separator = dataString.indexOf(';');
         dataString = (separator > 0)
             ? dataString.substring(0, separator).trim()
@@ -331,7 +274,7 @@ public class ChunkedInputStream extends InputStream {
 
         int result;
         try {
-            result = Integer.parseInt(dataString.trim(), 16);
+            result = Integer.parseInt(dataString, 16);
         } catch (NumberFormatException e) {
             throw new MalformedChunkCodingException("Bad chunk size: " + dataString);
         }

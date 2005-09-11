@@ -75,7 +75,7 @@ public class TestChunkCoding extends TestCase {
     }
 
     private final static String CHUNKED_INPUT 
-        = "10;key=\"value\\\r\nnewline\"\r\n1234567890123456\r\n5\r\n12345\r\n0\r\nFooter1: abcde\r\nFooter2: fghij\r\n";
+        = "10;key=\"value\"\r\n1234567890123456\r\n5\r\n12345\r\n0\r\nFooter1: abcde\r\nFooter2: fghij\r\n";
     
     private final static String CHUNKED_RESULT 
         = "123456789012345612345";
