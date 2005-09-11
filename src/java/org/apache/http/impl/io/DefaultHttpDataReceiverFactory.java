@@ -57,7 +57,7 @@ public class DefaultHttpDataReceiverFactory implements HttpDataReceiverFactory {
     }
     
     public DefaultHttpDataReceiverFactory() {
-        this(true);
+        this(false);
     }
 
     public HttpDataReceiver create(final Socket socket) throws IOException {

@@ -57,7 +57,7 @@ public class DefaultHttpDataTransmitterFactory implements HttpDataTransmitterFac
     }
     
     public DefaultHttpDataTransmitterFactory() {
-        this(true);
+        this(false);
     }
 
     public HttpDataTransmitter create(final Socket socket) throws IOException {
