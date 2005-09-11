@@ -86,17 +86,14 @@ public class InputStreamHttpDataReceiver implements HttpDataReceiver {
     	}
     	int l;
     	int off = this.bufferlen;
-    	int len = this.buffer.length - this.bufferlen;
-    	while ((l = this.instream.read(this.buffer, off, len)) > 0) {
-    		off += l;
-            len -= l;
+    	int len = this.buffer.length - off;
+    	l = this.instream.read(this.buffer, off, len);
+    	if (l == -1) {
+    		return -1;
+    	} else {
+        	this.bufferlen = off + l;
+        	return l;
     	}
-    	this.bufferlen = off;
-        if (l == -1 && off == 0) {
-            return -1;
-        } else {
-            return off;
-        }
     }
 
     protected boolean hasBufferedData() {
