@@ -30,7 +30,7 @@
 package org.apache.http;
 
 import org.apache.http.impl.io.NIOSocketFactory;
-import org.apache.http.impl.io.OldIOSocketFactory;
+import org.apache.http.impl.io.PlainSocketFactory;
 import org.apache.http.io.SocketFactory;
 
 import junit.framework.Test;
@@ -59,7 +59,7 @@ public class TestHttpHost extends TestCase {
 
     protected void setUp() throws Exception {
         super.setUp();
-        SocketFactory socketfactory = OldIOSocketFactory.getSocketFactory();
+        SocketFactory socketfactory = PlainSocketFactory.getSocketFactory();
         final Protocol http = new Protocol("http", socketfactory, 80);
         Protocol.registerProtocol("http", http);
     }

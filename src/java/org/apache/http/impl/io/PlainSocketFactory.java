@@ -46,25 +46,25 @@ import org.apache.http.params.HttpParams;
  * 
  * @since 2.0
  */
-public class OldIOSocketFactory implements SocketFactory {
+public class PlainSocketFactory implements SocketFactory {
 
     /**
      * The factory singleton.
      */
-    private static final OldIOSocketFactory DEFAULT_FACTORY = new OldIOSocketFactory();
+    private static final PlainSocketFactory DEFAULT_FACTORY = new PlainSocketFactory();
     
     /**
      * Gets an singleton instance of the DefaultProtocolSocketFactory.
      * @return a DefaultProtocolSocketFactory
      */
-    public static OldIOSocketFactory getSocketFactory() {
+    public static PlainSocketFactory getSocketFactory() {
         return DEFAULT_FACTORY;
     }
     
     /**
      * Constructor for DefaultProtocolSocketFactory.
      */
-    private OldIOSocketFactory() {
+    private PlainSocketFactory() {
         super();
     }
 
@@ -113,14 +113,14 @@ public class OldIOSocketFactory implements SocketFactory {
      * All instances of DefaultProtocolSocketFactory are the same.
      */
     public boolean equals(Object obj) {
-        return ((obj != null) && obj.getClass().equals(OldIOSocketFactory.class));
+        return ((obj != null) && obj.getClass().equals(PlainSocketFactory.class));
     }
 
     /**
      * All instances of DefaultProtocolSocketFactory have the same hash code.
      */
     public int hashCode() {
-        return OldIOSocketFactory.class.hashCode();
+        return PlainSocketFactory.class.hashCode();
     }
 
 }
