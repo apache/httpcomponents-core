@@ -35,7 +35,7 @@ import java.net.Socket;
 import java.util.Random;
 
 import org.apache.http.impl.io.DefaultHttpDataReceiverFactory;
-import org.apache.http.impl.io.OldIOSocketHttpDataTransmitter;
+import org.apache.http.impl.io.SocketHttpDataTransmitter;
 import org.apache.http.io.ChunkedInputStream;
 import org.apache.http.io.ChunkedOutputStream;
 import org.apache.http.io.ContentLengthInputStream;
@@ -96,7 +96,7 @@ public class ChunkedIOvsContentLengthDelimIOTest {
                 Socket conn = new Socket("localhost", PORT);
                 try {
                 	HttpDataTransmitter datatransmitter = 
-                		new OldIOSocketHttpDataTransmitter(conn);
+                		new SocketHttpDataTransmitter(conn);
                     OutputStream out = null;
                     if (chunked) {
                     	out = new ChunkedOutputStream(datatransmitter); 

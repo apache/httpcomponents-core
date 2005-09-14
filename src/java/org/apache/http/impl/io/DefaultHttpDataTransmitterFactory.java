@@ -68,13 +68,13 @@ public class DefaultHttpDataTransmitterFactory implements HttpDataTransmitterFac
             if (this.useNIO && HttpRuntime.isSSLNIOCapable()) {
                 return new NIOSocketHttpDataTransmitter(socket); 
             } else {
-                return new OldIOSocketHttpDataTransmitter(socket); 
+                return new SocketHttpDataTransmitter(socket); 
             }
         } else {
             if (this.useNIO && HttpRuntime.isNIOCapable()) {
                 return new NIOSocketHttpDataTransmitter(socket); 
             } else {
-                return new OldIOSocketHttpDataTransmitter(socket); 
+                return new SocketHttpDataTransmitter(socket); 
             }            
         }
     }

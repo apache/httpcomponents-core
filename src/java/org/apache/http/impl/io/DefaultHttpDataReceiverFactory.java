@@ -68,13 +68,13 @@ public class DefaultHttpDataReceiverFactory implements HttpDataReceiverFactory {
             if (this.useNIO && HttpRuntime.isSSLNIOCapable()) {
                 return new NIOSocketHttpDataReceiver(socket); 
             } else {
-                return new OldIOSocketHttpDataReceiver(socket); 
+                return new SocketHttpDataReceiver(socket); 
             }
         } else {
             if (this.useNIO && HttpRuntime.isNIOCapable()) {
                 return new NIOSocketHttpDataReceiver(socket); 
             } else {
-                return new OldIOSocketHttpDataReceiver(socket); 
+                return new SocketHttpDataReceiver(socket); 
             }            
         }
     }

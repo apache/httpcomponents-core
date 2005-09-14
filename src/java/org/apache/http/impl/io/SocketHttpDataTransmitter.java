@@ -42,9 +42,9 @@ import java.net.Socket;
  * 
  * @since 4.0
  */
-public class OldIOSocketHttpDataTransmitter extends AbstractHttpDataTransmitter {
+public class SocketHttpDataTransmitter extends AbstractHttpDataTransmitter {
 
-    public OldIOSocketHttpDataTransmitter(final Socket socket) throws IOException {
+    public SocketHttpDataTransmitter(final Socket socket) throws IOException {
         super();
         if (socket == null) {
             throw new IllegalArgumentException("Socket may not be null");
