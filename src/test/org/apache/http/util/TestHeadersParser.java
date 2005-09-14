@@ -31,7 +31,7 @@ package org.apache.http.util;
 
 import org.apache.http.Header;
 import org.apache.http.io.HttpDataReceiver;
-import org.apache.http.mockup.HttpDataReceiverMockup;
+import org.apache.http.mockup.InputStreamHttpDataReceiverMockup;
 
 import junit.framework.Test;
 import junit.framework.TestCase;
@@ -65,7 +65,7 @@ public class TestHeadersParser extends TestCase {
             "     and more stuff\r\n" + 
             "\t and even more stuff\r\n" +  
             "\r\n"; 
-        HttpDataReceiver receiver = new HttpDataReceiverMockup(s, "US-ASCII"); 
+        HttpDataReceiver receiver = new InputStreamHttpDataReceiverMockup(s, "US-ASCII"); 
         Header[] headers = HeadersParser.processHeaders(receiver);
         assertNotNull(headers);
         assertEquals(3, headers.length);
@@ -81,7 +81,7 @@ public class TestHeadersParser extends TestCase {
         String s = 
             "    header1: stuff\r\n" + 
             "header2  : stuff \r\n"; 
-        HttpDataReceiver receiver = new HttpDataReceiverMockup(s, "US-ASCII"); 
+        HttpDataReceiver receiver = new InputStreamHttpDataReceiverMockup(s, "US-ASCII"); 
         Header[] headers = HeadersParser.processHeaders(receiver);
         assertNotNull(headers);
         assertEquals(2, headers.length);
@@ -93,7 +93,7 @@ public class TestHeadersParser extends TestCase {
     
     public void testEmptyDataStream() throws Exception {
         String s = ""; 
-        HttpDataReceiver receiver = new HttpDataReceiverMockup(s, "US-ASCII"); 
+        HttpDataReceiver receiver = new InputStreamHttpDataReceiverMockup(s, "US-ASCII"); 
         Header[] headers = HeadersParser.processHeaders(receiver);
         assertNotNull(headers);
         assertEquals(0, headers.length);

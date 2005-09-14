@@ -35,8 +35,8 @@ import java.nio.channels.ReadableByteChannel;
 
 import org.apache.http.impl.io.NIOHttpDataReceiver;
 import org.apache.http.impl.io.NIOHttpDataTransmitter;
-import org.apache.http.mockup.HttpDataReceiverMockup;
-import org.apache.http.mockup.HttpDataTransmitterMockup;
+import org.apache.http.mockup.NIOHttpDataReceiverMockup;
+import org.apache.http.mockup.NIOHttpDataTransmitterMockup;
 import org.apache.http.params.HttpParams;
 import org.apache.http.params.HttpProtocolParams;
 
@@ -70,29 +70,29 @@ public class TestNIOHttpTransmitterAndReceiver extends TestCase {
 
     public void testInit() throws Exception {
         ByteArrayOutputStream out = new ByteArrayOutputStream();
-        new HttpDataTransmitterMockup(Channels.newChannel(out), 10); 
+        new NIOHttpDataTransmitterMockup(Channels.newChannel(out), 10); 
         try {
-            new HttpDataTransmitterMockup(Channels.newChannel(out), -10); 
+            new NIOHttpDataTransmitterMockup(Channels.newChannel(out), -10); 
             fail("IllegalArgumentException should have been thrown");
         } catch (IllegalArgumentException ex) {
             //expected
         }
         try {
-            new HttpDataTransmitterMockup(null, 1024); 
+            new NIOHttpDataTransmitterMockup(null, 1024); 
             fail("IllegalArgumentException should have been thrown");
         } catch (IllegalArgumentException ex) {
             //expected
         }
         ByteArrayInputStream in = new ByteArrayInputStream(out.toByteArray());
-        new HttpDataReceiverMockup(Channels.newChannel(in), 10); 
+        new NIOHttpDataReceiverMockup(Channels.newChannel(in), 10); 
         try {
-            new HttpDataReceiverMockup(Channels.newChannel(in), -10); 
+            new NIOHttpDataReceiverMockup(Channels.newChannel(in), -10); 
             fail("IllegalArgumentException should have been thrown");
         } catch (IllegalArgumentException ex) {
             //expected
         }
         try {
-            new HttpDataReceiverMockup((ReadableByteChannel)null, 1024); 
+            new NIOHttpDataReceiverMockup((ReadableByteChannel)null, 1024); 
             fail("IllegalArgumentException should have been thrown");
         } catch (IllegalArgumentException ex) {
             //expected
@@ -114,7 +114,7 @@ public class TestNIOHttpTransmitterAndReceiver extends TestCase {
         teststrs[3] = "";
         teststrs[4] = "And goodbye";
         
-        HttpDataTransmitterMockup transmitter = new HttpDataTransmitterMockup(); 
+        NIOHttpDataTransmitterMockup transmitter = new NIOHttpDataTransmitterMockup(); 
         for (int i = 0; i < teststrs.length; i++) {
             transmitter.writeLine(teststrs[i]);
         }
@@ -122,7 +122,7 @@ public class TestNIOHttpTransmitterAndReceiver extends TestCase {
         transmitter.writeLine(null);
         transmitter.flush();
         
-        HttpDataReceiverMockup receiver = new HttpDataReceiverMockup(transmitter.getData());
+        NIOHttpDataReceiverMockup receiver = new NIOHttpDataReceiverMockup(transmitter.getData());
 
         assertTrue(receiver.isDataAvailable(0));
         
@@ -134,7 +134,7 @@ public class TestNIOHttpTransmitterAndReceiver extends TestCase {
     }
 
     public void testComplexReadWriteLine() throws Exception {
-        HttpDataTransmitterMockup transmitter = new HttpDataTransmitterMockup(); 
+        NIOHttpDataTransmitterMockup transmitter = new NIOHttpDataTransmitterMockup(); 
         transmitter.write(new byte[] {'a', '\n'});
         transmitter.write(new byte[] {'\r', '\n'});
         transmitter.write(new byte[] {'\r', '\r', '\n'});
@@ -175,7 +175,7 @@ public class TestNIOHttpTransmitterAndReceiver extends TestCase {
         transmitter.write(new byte[] {'a'});
         transmitter.flush();
         
-        HttpDataReceiverMockup receiver = new HttpDataReceiverMockup(transmitter.getData());
+        NIOHttpDataReceiverMockup receiver = new NIOHttpDataReceiverMockup(transmitter.getData());
 
         assertEquals("a", receiver.readLine());
         assertEquals("", receiver.readLine());
@@ -204,7 +204,7 @@ public class TestNIOHttpTransmitterAndReceiver extends TestCase {
         teststrs[3] = "";
         teststrs[4] = "And goodbye";
         
-        HttpDataTransmitterMockup transmitter = new HttpDataTransmitterMockup(); 
+        NIOHttpDataTransmitterMockup transmitter = new NIOHttpDataTransmitterMockup(); 
         for (int i = 0; i < teststrs.length; i++) {
             transmitter.writeLine(teststrs[i]);
         }
@@ -212,7 +212,7 @@ public class TestNIOHttpTransmitterAndReceiver extends TestCase {
         transmitter.writeLine(null);
         transmitter.flush();
         
-        HttpDataReceiverMockup receiver = new HttpDataReceiverMockup(transmitter.getData(), 1024);
+        NIOHttpDataReceiverMockup receiver = new NIOHttpDataReceiverMockup(transmitter.getData(), 1024);
 
         assertTrue(receiver.isDataAvailable(0));
         
@@ -229,7 +229,7 @@ public class TestNIOHttpTransmitterAndReceiver extends TestCase {
         for (int i = 0; i < out.length; i++) {
             out[i] = (byte)('0' + i);
         }
-        HttpDataTransmitterMockup transmitter = new HttpDataTransmitterMockup();
+        NIOHttpDataTransmitterMockup transmitter = new NIOHttpDataTransmitterMockup();
         int off = 0;
         int remaining = out.length;
         while (remaining > 0) {
@@ -249,7 +249,7 @@ public class TestNIOHttpTransmitterAndReceiver extends TestCase {
             assertEquals(out[i], tmp[i]);
         }
         
-        HttpDataReceiverMockup receiver = new HttpDataReceiverMockup(tmp);
+        NIOHttpDataReceiverMockup receiver = new NIOHttpDataReceiverMockup(tmp);
 
         // these read operations will have no effect
         assertEquals(0, receiver.read(null, 0, 10));
@@ -283,7 +283,7 @@ public class TestNIOHttpTransmitterAndReceiver extends TestCase {
         for (int i = 0; i < out.length; i++) {
             out[i] = (byte)('0' + i);
         }
-        HttpDataTransmitterMockup transmitter = new HttpDataTransmitterMockup();
+        NIOHttpDataTransmitterMockup transmitter = new NIOHttpDataTransmitterMockup();
         for (int i = 0; i < out.length; i++) {
             transmitter.write(out[i]);
         }
@@ -295,7 +295,7 @@ public class TestNIOHttpTransmitterAndReceiver extends TestCase {
             assertEquals(out[i], tmp[i]);
         }
         
-        HttpDataReceiverMockup receiver = new HttpDataReceiverMockup(tmp);
+        NIOHttpDataReceiverMockup receiver = new NIOHttpDataReceiverMockup(tmp);
 
         byte[] in = new byte[40];
         for (int i = 0; i < in.length; i++) {
@@ -335,7 +335,7 @@ public class TestNIOHttpTransmitterAndReceiver extends TestCase {
         HttpParams params = new DefaultHttpParams(null);
         HttpProtocolParams.setHttpElementCharset(params, "UTF-8");
         
-        HttpDataTransmitterMockup transmitter = new HttpDataTransmitterMockup();
+        NIOHttpDataTransmitterMockup transmitter = new NIOHttpDataTransmitterMockup();
         transmitter.reset(params);
 
         for (int i = 0; i < 10; i++) {
@@ -345,7 +345,7 @@ public class TestNIOHttpTransmitterAndReceiver extends TestCase {
         }
         transmitter.flush();
         
-        HttpDataReceiverMockup receiver = new HttpDataReceiverMockup(transmitter.getData());
+        NIOHttpDataReceiverMockup receiver = new NIOHttpDataReceiverMockup(transmitter.getData());
         receiver.reset(params);
 
         assertTrue(receiver.isDataAvailable(0));

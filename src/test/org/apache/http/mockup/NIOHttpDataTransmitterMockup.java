@@ -13,7 +13,7 @@ import org.apache.http.impl.io.NIOHttpDataTransmitter;
  *
  * @author <a href="mailto:oleg at ural.ru">Oleg Kalnichevski</a>
  */
-public class HttpDataTransmitterMockup extends NIOHttpDataTransmitter {
+public class NIOHttpDataTransmitterMockup extends NIOHttpDataTransmitter {
 
     public static int BUFFER_SIZE = 16;
     
@@ -21,7 +21,7 @@ public class HttpDataTransmitterMockup extends NIOHttpDataTransmitter {
     
     private final WritableByteChannel channel;
     
-    public HttpDataTransmitterMockup(final WritableByteChannel channel, int buffersize) {
+    public NIOHttpDataTransmitterMockup(final WritableByteChannel channel, int buffersize) {
         super();
         if (channel == null) {
             throw new IllegalArgumentException("Channel may not be null");
@@ -30,7 +30,7 @@ public class HttpDataTransmitterMockup extends NIOHttpDataTransmitter {
         initBuffer(buffersize);
     }
 
-    public HttpDataTransmitterMockup() {
+    public NIOHttpDataTransmitterMockup() {
         super();
         this.channel = Channels.newChannel(this.buffer);
         initBuffer(BUFFER_SIZE);

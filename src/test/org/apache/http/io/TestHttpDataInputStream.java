@@ -28,11 +28,11 @@
 
 package org.apache.http.io;
 
+import org.apache.http.mockup.InputStreamHttpDataReceiverMockup;
+
 import junit.framework.Test;
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
-
-import org.apache.http.mockup.HttpDataReceiverMockup;
 
 /**
  * Simple tests for {@link HttpDataInputStream}.
@@ -59,7 +59,7 @@ public class TestHttpDataInputStream extends TestCase {
     }
 
     public void testConstructor() throws Exception {
-        HttpDataReceiver receiver = new HttpDataReceiverMockup(new byte[] {});
+        HttpDataReceiver receiver = new InputStreamHttpDataReceiverMockup(new byte[] {});
         new HttpDataInputStream(receiver);
         try {
             new HttpDataInputStream(null);
@@ -71,9 +71,8 @@ public class TestHttpDataInputStream extends TestCase {
     
     public void testBasicRead() throws Exception {
         byte[] input = new byte[] {'a', 'b', 'c'};
-        HttpDataReceiverMockup receiver = new HttpDataReceiverMockup(input);
+        InputStreamHttpDataReceiverMockup receiver = new InputStreamHttpDataReceiverMockup(input);
         HttpDataInputStream instream = new HttpDataInputStream(receiver);
-        assertTrue(instream.available() > 0);
         byte[] tmp = new byte[2];
         assertEquals(2, instream.read(tmp, 0, tmp.length));
         assertEquals('a', tmp[0]);
@@ -87,7 +86,7 @@ public class TestHttpDataInputStream extends TestCase {
     
     public void testClosedCondition() throws Exception {
         byte[] input = new byte[] {'a', 'b', 'c'};
-        HttpDataReceiverMockup receiver = new HttpDataReceiverMockup(input);
+        InputStreamHttpDataReceiverMockup receiver = new InputStreamHttpDataReceiverMockup(input);
         HttpDataInputStream instream = new HttpDataInputStream(receiver);
 
         instream.close();

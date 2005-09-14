@@ -28,11 +28,11 @@
 
 package org.apache.http.io;
 
+import org.apache.http.mockup.OutputStreamHttpDataTransmitterMockup;
+
 import junit.framework.Test;
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
-
-import org.apache.http.mockup.HttpDataTransmitterMockup;
 
 /**
  * Simple tests for {@link HttpDataOutputStream}.
@@ -59,7 +59,7 @@ public class TestHttpDataOutputStream extends TestCase {
     }
 
     public void testConstructor() throws Exception {
-        HttpDataTransmitterMockup transmitter = new HttpDataTransmitterMockup();
+        OutputStreamHttpDataTransmitterMockup transmitter = new OutputStreamHttpDataTransmitterMockup();
         new HttpDataOutputStream(transmitter);
         try {
             new HttpDataOutputStream(null);
@@ -70,7 +70,7 @@ public class TestHttpDataOutputStream extends TestCase {
     }
     
     public void testBasicWrite() throws Exception {
-        HttpDataTransmitterMockup transmitter = new HttpDataTransmitterMockup();
+    	OutputStreamHttpDataTransmitterMockup transmitter = new OutputStreamHttpDataTransmitterMockup();
         HttpDataOutputStream outstream = new HttpDataOutputStream(transmitter);
         outstream.write(new byte[] {'a', 'b'}, 0, 2);
         outstream.write('c');
@@ -87,7 +87,7 @@ public class TestHttpDataOutputStream extends TestCase {
     }
     
     public void testClosedCondition() throws Exception {
-        HttpDataTransmitterMockup transmitter = new HttpDataTransmitterMockup();
+    	OutputStreamHttpDataTransmitterMockup transmitter = new OutputStreamHttpDataTransmitterMockup();
         HttpDataOutputStream outstream = new HttpDataOutputStream(transmitter);
         outstream.close();
         outstream.close();
