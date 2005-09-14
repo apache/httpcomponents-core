@@ -42,21 +42,21 @@ import org.apache.http.mockup.HttpDataTransmitterMockup;
 import org.apache.http.params.HttpParams;
 import org.apache.http.params.HttpProtocolParams;
 
-public class TestOldIOHttpDataReceiverAndTransmitter extends TestCase {
+public class TestHttpDataReceiverAndTransmitter extends TestCase {
 
-    public TestOldIOHttpDataReceiverAndTransmitter(String testName) {
+    public TestHttpDataReceiverAndTransmitter(String testName) {
         super(testName);
     }
 
     // ------------------------------------------------------- TestCase Methods
 
     public static Test suite() {
-        return new TestSuite(TestOldIOHttpDataReceiverAndTransmitter.class);
+        return new TestSuite(TestHttpDataReceiverAndTransmitter.class);
     }
 
     // ------------------------------------------------------------------- Main
     public static void main(String args[]) {
-        String[] testCaseName = { TestOldIOHttpDataReceiverAndTransmitter.class.getName() };
+        String[] testCaseName = { TestHttpDataReceiverAndTransmitter.class.getName() };
         junit.textui.TestRunner.main(testCaseName);
     }
 
