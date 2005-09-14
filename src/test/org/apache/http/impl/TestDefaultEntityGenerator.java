@@ -38,7 +38,7 @@ import org.apache.http.io.ChunkedInputStream;
 import org.apache.http.io.ContentLengthInputStream;
 import org.apache.http.io.HttpDataInputStream;
 import org.apache.http.io.HttpDataReceiver;
-import org.apache.http.mockup.InputStreamHttpDataReceiverMockup;
+import org.apache.http.mockup.HttpDataReceiverMockup;
 import org.apache.http.params.HttpProtocolParams;
 
 import junit.framework.Test;
@@ -72,7 +72,7 @@ public class TestDefaultEntityGenerator extends TestCase {
             // expected
         }
         try {
-            entitygen.generate(new InputStreamHttpDataReceiverMockup(new byte[] {}) , null);
+            entitygen.generate(new HttpDataReceiverMockup(new byte[] {}) , null);
             fail("IllegalArgumentException should have been thrown");
         } catch (IllegalArgumentException ex) {
             // expected
@@ -80,7 +80,7 @@ public class TestDefaultEntityGenerator extends TestCase {
     }
 
     public void testEntityWithTransferEncoding() throws Exception {
-        HttpDataReceiver datareceiver = new InputStreamHttpDataReceiverMockup("0\r\n", "US-ASCII");
+        HttpDataReceiver datareceiver = new HttpDataReceiverMockup("0\r\n", "US-ASCII");
         HttpMutableMessage message = new BasicHttpMessage();
         
         // lenient mode 
@@ -106,7 +106,7 @@ public class TestDefaultEntityGenerator extends TestCase {
 
     public void testEntityWithIdentityTransferEncoding() throws Exception {
         HttpDataReceiver datareceiver = 
-        	new InputStreamHttpDataReceiverMockup(new byte[] {});
+        	new HttpDataReceiverMockup(new byte[] {});
         HttpMutableMessage message = new BasicHttpMessage();
         
         // lenient mode 
@@ -122,7 +122,7 @@ public class TestDefaultEntityGenerator extends TestCase {
     }
 
     public void testEntityWithUnsupportedTransferEncoding() throws Exception {
-        HttpDataReceiver datareceiver = new InputStreamHttpDataReceiverMockup("0\r\n", "US-ASCII");
+        HttpDataReceiver datareceiver = new HttpDataReceiverMockup("0\r\n", "US-ASCII");
         HttpMutableMessage message = new BasicHttpMessage();
         
         // lenient mode 
@@ -148,7 +148,7 @@ public class TestDefaultEntityGenerator extends TestCase {
     }
 
     public void testChunkedTransferEncodingMustBeLast() throws Exception {
-        HttpDataReceiver datareceiver = new InputStreamHttpDataReceiverMockup("0\r\n", "US-ASCII");
+        HttpDataReceiver datareceiver = new HttpDataReceiverMockup("0\r\n", "US-ASCII");
         HttpMutableMessage message = new BasicHttpMessage();
         
         // lenient mode 
@@ -174,7 +174,7 @@ public class TestDefaultEntityGenerator extends TestCase {
     }
 
     public void testEntityWithContentLength() throws Exception {
-        HttpDataReceiver datareceiver = new InputStreamHttpDataReceiverMockup(new byte[] {});
+        HttpDataReceiver datareceiver = new HttpDataReceiverMockup(new byte[] {});
         HttpMutableMessage message = new BasicHttpMessage();
         
         // lenient mode 
@@ -190,7 +190,7 @@ public class TestDefaultEntityGenerator extends TestCase {
     }
 
     public void testEntityWithMultipleContentLength() throws Exception {
-        HttpDataReceiver datareceiver = new InputStreamHttpDataReceiverMockup(new byte[] {'0'});
+        HttpDataReceiver datareceiver = new HttpDataReceiverMockup(new byte[] {'0'});
         HttpMutableMessage message = new BasicHttpMessage();
 
         // lenient mode 
@@ -218,7 +218,7 @@ public class TestDefaultEntityGenerator extends TestCase {
     }
     
     public void testEntityWithMultipleContentLengthSomeWrong() throws Exception {
-        HttpDataReceiver datareceiver = new InputStreamHttpDataReceiverMockup(new byte[] {'0'});
+        HttpDataReceiver datareceiver = new HttpDataReceiverMockup(new byte[] {'0'});
         HttpMutableMessage message = new BasicHttpMessage();
 
         // lenient mode 
@@ -246,7 +246,7 @@ public class TestDefaultEntityGenerator extends TestCase {
     }
     
     public void testEntityWithMultipleContentLengthAllWrong() throws Exception {
-        HttpDataReceiver datareceiver = new InputStreamHttpDataReceiverMockup(new byte[] {'0'});
+        HttpDataReceiver datareceiver = new HttpDataReceiverMockup(new byte[] {'0'});
         HttpMutableMessage message = new BasicHttpMessage();
 
         // lenient mode 
@@ -274,7 +274,7 @@ public class TestDefaultEntityGenerator extends TestCase {
     }
 
     public void testEntityWithInvalidContentLength() throws Exception {
-        HttpDataReceiver datareceiver = new InputStreamHttpDataReceiverMockup(new byte[] {'0'});
+        HttpDataReceiver datareceiver = new HttpDataReceiverMockup(new byte[] {'0'});
         HttpMutableMessage message = new BasicHttpMessage();
 
         // lenient mode 
@@ -301,7 +301,7 @@ public class TestDefaultEntityGenerator extends TestCase {
     }
 
     public void testEntityNeitherContentLengthNorTransferEncoding() throws Exception {
-        HttpDataReceiver datareceiver = new InputStreamHttpDataReceiverMockup(new byte[] {'0'});
+        HttpDataReceiver datareceiver = new HttpDataReceiverMockup(new byte[] {'0'});
         HttpMutableMessage message = new BasicHttpMessage();
 
         // lenient mode 

@@ -11,29 +11,29 @@ import org.apache.http.impl.io.AbstractHttpDataReceiver;
  *
  * @author <a href="mailto:oleg at ural.ru">Oleg Kalnichevski</a>
  */
-public class InputStreamHttpDataReceiverMockup extends AbstractHttpDataReceiver {
+public class HttpDataReceiverMockup extends AbstractHttpDataReceiver {
 
     public static int BUFFER_SIZE = 16;
     
-    public InputStreamHttpDataReceiverMockup(final InputStream instream, int buffersize) {
+    public HttpDataReceiverMockup(final InputStream instream, int buffersize) {
         super();
         init(instream, buffersize);
     }
 
-    public InputStreamHttpDataReceiverMockup(final byte[] bytes) {
+    public HttpDataReceiverMockup(final byte[] bytes) {
         this(bytes, BUFFER_SIZE);
     }
 
-    public InputStreamHttpDataReceiverMockup(final byte[] bytes, int buffersize) {
+    public HttpDataReceiverMockup(final byte[] bytes, int buffersize) {
         this(new ByteArrayInputStream(bytes), buffersize);
     }
 
-    public InputStreamHttpDataReceiverMockup(final String s, final String charset, int buffersize) 
+    public HttpDataReceiverMockup(final String s, final String charset, int buffersize) 
         throws UnsupportedEncodingException {
         this(s.getBytes(charset), buffersize);
     }
     
-    public InputStreamHttpDataReceiverMockup(final String s, final String charset) 
+    public HttpDataReceiverMockup(final String s, final String charset) 
         throws UnsupportedEncodingException {
         this(s.getBytes(charset));
     

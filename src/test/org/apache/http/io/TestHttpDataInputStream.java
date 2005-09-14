@@ -28,7 +28,7 @@
 
 package org.apache.http.io;
 
-import org.apache.http.mockup.InputStreamHttpDataReceiverMockup;
+import org.apache.http.mockup.HttpDataReceiverMockup;
 
 import junit.framework.Test;
 import junit.framework.TestCase;
@@ -59,7 +59,7 @@ public class TestHttpDataInputStream extends TestCase {
     }
 
     public void testConstructor() throws Exception {
-        HttpDataReceiver receiver = new InputStreamHttpDataReceiverMockup(new byte[] {});
+        HttpDataReceiver receiver = new HttpDataReceiverMockup(new byte[] {});
         new HttpDataInputStream(receiver);
         try {
             new HttpDataInputStream(null);
@@ -71,7 +71,7 @@ public class TestHttpDataInputStream extends TestCase {
     
     public void testBasicRead() throws Exception {
         byte[] input = new byte[] {'a', 'b', 'c'};
-        InputStreamHttpDataReceiverMockup receiver = new InputStreamHttpDataReceiverMockup(input);
+        HttpDataReceiverMockup receiver = new HttpDataReceiverMockup(input);
         HttpDataInputStream instream = new HttpDataInputStream(receiver);
         byte[] tmp = new byte[2];
         assertEquals(2, instream.read(tmp, 0, tmp.length));
@@ -86,7 +86,7 @@ public class TestHttpDataInputStream extends TestCase {
     
     public void testClosedCondition() throws Exception {
         byte[] input = new byte[] {'a', 'b', 'c'};
-        InputStreamHttpDataReceiverMockup receiver = new InputStreamHttpDataReceiverMockup(input);
+        HttpDataReceiverMockup receiver = new HttpDataReceiverMockup(input);
         HttpDataInputStream instream = new HttpDataInputStream(receiver);
 
         instream.close();
