@@ -59,12 +59,7 @@ public class TestHttpHost extends TestCase {
 
     protected void setUp() throws Exception {
         super.setUp();
-        SocketFactory socketfactory = null;
-        if (HttpRuntime.isNIOCapable()) {
-            socketfactory = NIOSocketFactory.getSocketFactory();
-        } else {
-            socketfactory = OldIOSocketFactory.getSocketFactory();
-        }
+        SocketFactory socketfactory = OldIOSocketFactory.getSocketFactory();
         final Protocol http = new Protocol("http", socketfactory, 80);
         Protocol.registerProtocol("http", http);
     }
