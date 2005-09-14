@@ -45,12 +45,15 @@ import java.net.Socket;
 public class OldIOSocketHttpDataTransmitter extends OutputStreamHttpDataTransmitter {
 
     public OldIOSocketHttpDataTransmitter(final Socket socket) throws IOException {
-        super(socket.getOutputStream());
+        super();
+        if (socket == null) {
+            throw new IllegalArgumentException("Socket may not be null");
+        }
         int buffersize = socket.getSendBufferSize();
         if (buffersize < 2048) {
             buffersize = 2048;
         }
-        initBuffer(buffersize);
+        init(socket.getOutputStream(), buffersize);
     }
     
 }

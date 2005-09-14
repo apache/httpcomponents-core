@@ -16,11 +16,8 @@ public class OutputStreamHttpDataTransmitterMockup extends OutputStreamHttpDataT
     public static int BUFFER_SIZE = 16;
     
     public OutputStreamHttpDataTransmitterMockup(final OutputStream outstream, int buffersize) {
-        super(outstream);
-        if (buffersize <= 0) {
-            throw new IllegalArgumentException("Buffer size may not be negative or zero");
-        }
-        initBuffer(buffersize);
+        super();
+        init(outstream, buffersize);
     }
 
     public OutputStreamHttpDataTransmitterMockup(final ByteArrayOutputStream buffer) {

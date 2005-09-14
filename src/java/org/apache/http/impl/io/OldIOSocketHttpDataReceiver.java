@@ -72,13 +72,16 @@ public class OldIOSocketHttpDataReceiver extends InputStreamHttpDataReceiver {
     private final Socket socket;
     
     public OldIOSocketHttpDataReceiver(final Socket socket) throws IOException {
-        super(socket.getInputStream());
+        super();
+        if (socket == null) {
+            throw new IllegalArgumentException("Socket may not be null");
+        }
         this.socket = socket;
         int buffersize = socket.getReceiveBufferSize();
         if (buffersize < 2048) {
             buffersize = 2048;
         }
-        initBuffer(buffersize);
+        init(socket.getInputStream(), buffersize);
     }
     
     public boolean isDataAvailable(int timeout) throws IOException {

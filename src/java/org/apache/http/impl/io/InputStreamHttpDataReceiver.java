@@ -44,13 +44,12 @@ import org.apache.http.util.EncodingUtil;
  * @author <a href="mailto:oleg at ural.ru">Oleg Kalnichevski</a>
  *
  */
-public class InputStreamHttpDataReceiver implements HttpDataReceiver {
+public abstract class InputStreamHttpDataReceiver implements HttpDataReceiver {
 
     private static final int CR = 13;
     private static final int LF = 10;
     
-    private final InputStream instream;
-    
+    private InputStream instream;
     private byte[] buffer;
     private int bufferpos;
     private int bufferlen;
@@ -59,15 +58,14 @@ public class InputStreamHttpDataReceiver implements HttpDataReceiver {
     
     private String charset = "US-ASCII";
     
-    protected InputStreamHttpDataReceiver(final InputStream instream) {
-        super();
+    protected void init(final InputStream instream, int buffersize) {
         if (instream == null) {
             throw new IllegalArgumentException("Input stream may not be null");
         }
+        if (buffersize <= 0) {
+            throw new IllegalArgumentException("Buffer size may not be negative or zero");
+        }
         this.instream = instream;
-    }
-
-    protected void initBuffer(int buffersize) {
         this.buffer = new byte[buffersize];
         this.bufferpos = 0;
         this.bufferlen = 0;

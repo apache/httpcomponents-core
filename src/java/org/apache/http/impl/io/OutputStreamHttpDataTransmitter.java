@@ -42,28 +42,26 @@ import org.apache.http.params.HttpProtocolParams;
  * @author <a href="mailto:oleg at ural.ru">Oleg Kalnichevski</a>
  *
  */
-public class OutputStreamHttpDataTransmitter implements HttpDataTransmitter {
+public abstract class OutputStreamHttpDataTransmitter implements HttpDataTransmitter {
 
     private static final int CR = 13;
     private static final int LF = 10;
     private static final byte[] CRLF = new byte[] {CR, LF};
 
-    private final OutputStream outstream;
-    
+    private OutputStream outstream;
     private byte[] buffer;
     private int bufferlen;
         
     private String charset = "US-ASCII";
     
-    protected OutputStreamHttpDataTransmitter(final OutputStream outstream) {
-        super();
+    protected void init(final OutputStream outstream, int buffersize) {
         if (outstream == null) {
             throw new IllegalArgumentException("Input stream may not be null");
         }
+        if (buffersize <= 0) {
+            throw new IllegalArgumentException("Buffer size may not be negative or zero");
+        }
         this.outstream = outstream;
-    }
-
-    protected void initBuffer(int buffersize) {
         this.buffer = new byte[buffersize];
         this.bufferlen = 0;
     }

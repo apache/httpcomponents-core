@@ -16,11 +16,8 @@ public class InputStreamHttpDataReceiverMockup extends InputStreamHttpDataReceiv
     public static int BUFFER_SIZE = 16;
     
     public InputStreamHttpDataReceiverMockup(final InputStream instream, int buffersize) {
-        super(instream);
-        if (buffersize <= 0) {
-            throw new IllegalArgumentException("Buffer size may not be negative or zero");
-        }
-        initBuffer(buffersize);
+        super();
+        init(instream, buffersize);
     }
 
     public InputStreamHttpDataReceiverMockup(final byte[] bytes) {
@@ -28,8 +25,7 @@ public class InputStreamHttpDataReceiverMockup extends InputStreamHttpDataReceiv
     }
 
     public InputStreamHttpDataReceiverMockup(final byte[] bytes, int buffersize) {
-        super(new ByteArrayInputStream(bytes));
-        initBuffer(buffersize);
+        this(new ByteArrayInputStream(bytes), buffersize);
     }
 
     public InputStreamHttpDataReceiverMockup(final String s, final String charset, int buffersize) 
