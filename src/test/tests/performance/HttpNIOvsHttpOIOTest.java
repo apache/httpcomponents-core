@@ -35,7 +35,6 @@ import java.io.OutputStream;
 import java.net.Socket;
 import java.util.Random;
 
-import org.apache.http.impl.io.DefaultHttpDataReceiverFactory;
 import org.apache.http.io.HttpDataReceiver;
 import org.apache.http.io.HttpDataReceiverFactory;
 

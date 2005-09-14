@@ -27,14 +27,15 @@
  *
  */
 
-package org.apache.http.impl.io;
+package tests.performance;
 
 import java.io.IOException;
 import java.net.Socket;
 
 import javax.net.ssl.SSLSocket;
 
-import org.apache.http.HttpRuntime;
+import org.apache.http.impl.io.NIOSocketHttpDataReceiver;
+import org.apache.http.impl.io.SocketHttpDataReceiver;
 import org.apache.http.io.HttpDataReceiver;
 import org.apache.http.io.HttpDataReceiverFactory;
 
@@ -65,13 +66,13 @@ public class DefaultHttpDataReceiverFactory implements HttpDataReceiverFactory {
             throw new IllegalArgumentException("Socket may not be null");
         }
         if (socket instanceof SSLSocket) {
-            if (this.useNIO && HttpRuntime.isSSLNIOCapable()) {
+            if (this.useNIO) {
                 return new NIOSocketHttpDataReceiver(socket); 
             } else {
                 return new SocketHttpDataReceiver(socket); 
             }
         } else {
-            if (this.useNIO && HttpRuntime.isNIOCapable()) {
+            if (this.useNIO) {
                 return new NIOSocketHttpDataReceiver(socket); 
             } else {
                 return new SocketHttpDataReceiver(socket); 

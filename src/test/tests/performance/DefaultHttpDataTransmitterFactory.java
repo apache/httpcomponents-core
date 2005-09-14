@@ -27,14 +27,15 @@
  *
  */
 
-package org.apache.http.impl.io;
+package tests.performance;
 
 import java.io.IOException;
 import java.net.Socket;
 
 import javax.net.ssl.SSLSocket;
 
-import org.apache.http.HttpRuntime;
+import org.apache.http.impl.io.NIOSocketHttpDataTransmitter;
+import org.apache.http.impl.io.SocketHttpDataTransmitter;
 import org.apache.http.io.HttpDataTransmitter;
 import org.apache.http.io.HttpDataTransmitterFactory;
 
@@ -65,13 +66,13 @@ public class DefaultHttpDataTransmitterFactory implements HttpDataTransmitterFac
             throw new IllegalArgumentException("Socket may not be null");
         }
         if (socket instanceof SSLSocket) {
-            if (this.useNIO && HttpRuntime.isSSLNIOCapable()) {
+            if (this.useNIO) {
                 return new NIOSocketHttpDataTransmitter(socket); 
             } else {
                 return new SocketHttpDataTransmitter(socket); 
             }
         } else {
-            if (this.useNIO && HttpRuntime.isNIOCapable()) {
+            if (this.useNIO) {
                 return new NIOSocketHttpDataTransmitter(socket); 
             } else {
                 return new SocketHttpDataTransmitter(socket); 

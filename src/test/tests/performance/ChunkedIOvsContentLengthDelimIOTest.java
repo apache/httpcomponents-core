@@ -34,7 +34,6 @@ import java.io.OutputStream;
 import java.net.Socket;
 import java.util.Random;
 
-import org.apache.http.impl.io.DefaultHttpDataReceiverFactory;
 import org.apache.http.impl.io.SocketHttpDataTransmitter;
 import org.apache.http.io.ChunkedInputStream;
 import org.apache.http.io.ChunkedOutputStream;

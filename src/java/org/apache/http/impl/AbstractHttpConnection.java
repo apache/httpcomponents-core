@@ -33,8 +33,8 @@ import java.io.IOException;
 import java.net.Socket;
 
 import org.apache.http.HttpConnection;
-import org.apache.http.impl.io.DefaultHttpDataReceiverFactory;
-import org.apache.http.impl.io.DefaultHttpDataTransmitterFactory;
+import org.apache.http.impl.io.SocketHttpDataReceiver;
+import org.apache.http.impl.io.SocketHttpDataTransmitter;
 import org.apache.http.io.HttpDataReceiver;
 import org.apache.http.io.HttpDataReceiverFactory;
 import org.apache.http.io.HttpDataTransmitter;
@@ -118,14 +118,16 @@ abstract class AbstractHttpConnection implements HttpConnection {
         if (rcvBufSize >= 0) {
             this.socket.setReceiveBufferSize(rcvBufSize);
         }
-        if (this.trxfactory == null) {
-            this.trxfactory = new DefaultHttpDataTransmitterFactory();
+        if (this.trxfactory != null) {
+            this.datatransmitter = this.trxfactory.create(this.socket); 
+        } else {
+            this.datatransmitter = new SocketHttpDataTransmitter(this.socket);
         }
-        if (this.rcvfactory == null) {
-            this.rcvfactory = new DefaultHttpDataReceiverFactory();
+        if (this.rcvfactory != null) {
+            this.datareceiver = this.rcvfactory.create(this.socket); 
+        } else {
+            this.datareceiver = new SocketHttpDataReceiver(this.socket);
         }
-        this.datatransmitter = this.trxfactory.create(this.socket); 
-        this.datareceiver = this.rcvfactory.create(this.socket); 
     }
 
     public boolean isOpen() {
