@@ -44,7 +44,7 @@ import org.apache.http.util.EncodingUtil;
  * @author <a href="mailto:oleg at ural.ru">Oleg Kalnichevski</a>
  *
  */
-public abstract class InputStreamHttpDataReceiver implements HttpDataReceiver {
+public abstract class AbstractHttpDataReceiver implements HttpDataReceiver {
 
     private static final int CR = 13;
     private static final int LF = 10;

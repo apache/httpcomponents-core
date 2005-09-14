@@ -3,14 +3,14 @@ package org.apache.http.mockup;
 import java.io.ByteArrayOutputStream;
 import java.io.OutputStream;
 
-import org.apache.http.impl.io.OutputStreamHttpDataTransmitter;
+import org.apache.http.impl.io.AbstractHttpDataTransmitter;
 
 /**
  * {@link HttpDataTransmitter} mockup implementation.
  *
  * @author <a href="mailto:oleg at ural.ru">Oleg Kalnichevski</a>
  */
-public class OutputStreamHttpDataTransmitterMockup extends OutputStreamHttpDataTransmitter {
+public class OutputStreamHttpDataTransmitterMockup extends AbstractHttpDataTransmitter {
 
     private ByteArrayOutputStream buffer = new ByteArrayOutputStream();
     public static int BUFFER_SIZE = 16;

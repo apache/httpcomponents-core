@@ -42,7 +42,7 @@ import org.apache.http.params.HttpProtocolParams;
  * @author <a href="mailto:oleg at ural.ru">Oleg Kalnichevski</a>
  *
  */
-public abstract class OutputStreamHttpDataTransmitter implements HttpDataTransmitter {
+public abstract class AbstractHttpDataTransmitter implements HttpDataTransmitter {
 
     private static final int CR = 13;
     private static final int LF = 10;

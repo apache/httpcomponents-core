@@ -43,7 +43,7 @@ import java.net.Socket;
  * 
  * @since 4.0
  */
-public class OldIOSocketHttpDataReceiver extends InputStreamHttpDataReceiver {
+public class OldIOSocketHttpDataReceiver extends AbstractHttpDataReceiver {
 
     static private final Class SOCKET_TIMEOUT_CLASS = SocketTimeoutExceptionClass();
 

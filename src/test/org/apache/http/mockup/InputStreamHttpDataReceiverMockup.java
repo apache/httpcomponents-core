@@ -4,14 +4,14 @@ import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
 
-import org.apache.http.impl.io.InputStreamHttpDataReceiver;
+import org.apache.http.impl.io.AbstractHttpDataReceiver;
 
 /**
  * {@link HttpDataInputStream} mockup implementation.
  *
  * @author <a href="mailto:oleg at ural.ru">Oleg Kalnichevski</a>
  */
-public class InputStreamHttpDataReceiverMockup extends InputStreamHttpDataReceiver {
+public class InputStreamHttpDataReceiverMockup extends AbstractHttpDataReceiver {
 
     public static int BUFFER_SIZE = 16;
     

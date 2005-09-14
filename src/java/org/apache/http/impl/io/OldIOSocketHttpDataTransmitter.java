@@ -42,7 +42,7 @@ import java.net.Socket;
  * 
  * @since 4.0
  */
-public class OldIOSocketHttpDataTransmitter extends OutputStreamHttpDataTransmitter {
+public class OldIOSocketHttpDataTransmitter extends AbstractHttpDataTransmitter {
 
     public OldIOSocketHttpDataTransmitter(final Socket socket) throws IOException {
         super();
