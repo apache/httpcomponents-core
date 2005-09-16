@@ -97,4 +97,8 @@ public class ByteArrayBuffer  {
         this.len = len;
     }
     
+    public boolean isEmpty() {
+        return this.len == 0; 
+    }
+    
 }

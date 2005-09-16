@@ -162,6 +162,10 @@ public abstract class AbstractHttpDataReceiver implements HttpDataReceiver {
             int i = locateLF();
             if (i != -1) {
                 // end of line found. 
+                if (this.linebuffer.isEmpty()) {
+                    // the entire line is preset in the read buffer
+                    return lineFromReadBuffer(i);   
+                }
                 retry = false;
                 int len = i + 1 - this.bufferpos;
                 this.linebuffer.append(this.buffer, this.bufferpos, len);
@@ -184,10 +188,14 @@ public abstract class AbstractHttpDataReceiver implements HttpDataReceiver {
                 }
             }
         }
-        if (noRead == -1 && this.linebuffer.length() == 0) {
+        if (noRead == -1 && this.linebuffer.isEmpty()) {
             // indicate the end of stream
             return null;
         }
+        return lineFromLineBuffer();
+    }
+    
+    private String lineFromLineBuffer() {
         // discard LF if found
         int l = this.linebuffer.length(); 
         if (l > 0) {
@@ -204,7 +212,19 @@ public abstract class AbstractHttpDataReceiver implements HttpDataReceiver {
             }
         }
         return EncodingUtil.getString(
-        		this.linebuffer.getBytes(), 0, this.linebuffer.length(), this.charset);
+                this.linebuffer.getBytes(), 0, this.linebuffer.length(), this.charset);
+    }
+    
+    private String lineFromReadBuffer(int pos) {
+        int off = this.bufferpos;
+        int len;
+        this.bufferpos = pos + 1;
+        if (pos > 0 && this.buffer[pos - 1] == CR) {
+            // skip CR if found
+            pos--;
+        }
+        len = pos - off;
+        return EncodingUtil.getString(this.buffer, off, len, this.charset);
     }
     
     public void reset(final HttpParams params) {
