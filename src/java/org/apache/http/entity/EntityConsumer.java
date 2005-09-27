@@ -29,7 +29,6 @@
 
 package org.apache.http.entity;
 
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -42,6 +41,7 @@ import org.apache.http.HttpMessage;
 import org.apache.http.HttpResponse;
 import org.apache.http.NameValuePair;
 import org.apache.http.params.HttpProtocolParams;
+import org.apache.http.util.ByteArrayBuffer;
 
 /**
  * <p>
@@ -87,16 +87,16 @@ public class EntityConsumer {
             throw new IllegalStateException("HTTP entity too large to be buffered in memory");
         }
         int i = (int)entity.getContentLength();
-        if (i == -1) {
-            i = 0;
+        if (i < 0) {
+            i = 4096;
         }
-        ByteArrayOutputStream outstream = new ByteArrayOutputStream(i);
-        byte[] tmp = new byte[2048];
+        ByteArrayBuffer buffer = new ByteArrayBuffer(i);
+        byte[] tmp = new byte[4096];
         int l;
         while((l = instream.read(tmp)) != -1) {
-            outstream.write(tmp, 0, l);
+        	buffer.append(tmp, 0, l);
         }
-        return outstream.toByteArray();
+        return buffer.getBytes();
     }
         
     public static String getContentCharSet(final HttpEntity entity) {
