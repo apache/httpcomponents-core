@@ -27,7 +27,7 @@
  *
  */
 
-package org.apache.http.impl;
+package org.apache.http.message;
 
 /**
  * <p>
@@ -38,11 +38,11 @@ package org.apache.http.impl;
  * 
  * @since 4.0
  */
-public class HttpPostRequest extends BasicHttpEntityEnclosingRequest {
+public class HttpGetRequest extends BasicHttpRequest {
 
-    public static String METHOD_NAME = "POST";
+    public static String METHOD_NAME = "GET";
     
-    public HttpPostRequest(final String uri) {
+    public HttpGetRequest(final String uri) {
         super(METHOD_NAME, uri);
     }
     

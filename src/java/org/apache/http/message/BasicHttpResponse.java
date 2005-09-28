@@ -27,14 +27,13 @@
  *
  */
 
-package org.apache.http.impl;
+package org.apache.http.message;
 
+import org.apache.http.HttpEntity;
 import org.apache.http.HttpMutableResponse;
-import org.apache.http.HttpResponseFactory;
 import org.apache.http.HttpStatus;
-import org.apache.http.HttpVersion;
 import org.apache.http.StatusLine;
-import org.apache.http.message.BasicHttpResponse;
+import org.apache.http.params.HttpProtocolParams;
 
 /**
  * <p>
@@ -45,24 +44,47 @@ import org.apache.http.message.BasicHttpResponse;
  * 
  * @since 4.0
  */
-public class DefaultHttpResponseFactory implements HttpResponseFactory {
+public class BasicHttpResponse extends BasicHttpMessage implements HttpMutableResponse {
     
-    public DefaultHttpResponseFactory() {
+    private StatusLine statusline = null;
+    private HttpEntity entity = null;
+    
+    public BasicHttpResponse() {
         super();
+        setStatusCode(HttpStatus.SC_OK);
     }
 
-    public HttpMutableResponse newHttpResponse(final HttpVersion ver, final int status) {
-        if (ver == null) {
-            throw new IllegalArgumentException("HTTP version may not be null");
-        }
-        StatusLine statusline = new StatusLine(ver, status, HttpStatus.getStatusText(status)); 
-        return new BasicHttpResponse(statusline); 
+    public BasicHttpResponse(final StatusLine statusline) {
+        super();
+        setStatusLine(statusline);
     }
-    
-    public HttpMutableResponse newHttpResponse(final StatusLine statusline) {
+
+    public StatusLine getStatusLine() {
+        return this.statusline; 
+    }
+
+    public HttpEntity getEntity() {
+        return this.entity;
+    }
+
+    public void setStatusLine(final StatusLine statusline) {
         if (statusline == null) {
             throw new IllegalArgumentException("Status line may not be null");
         }
-        return new BasicHttpResponse(statusline); 
+        this.statusline = statusline;
     }
+    
+    public void setStatusCode(int code) {
+        if (code < 0) {
+            throw new IllegalArgumentException("Status line may not be null");
+        }
+        this.statusline = new StatusLine(
+                HttpProtocolParams.getVersion(getParams()), 
+                code, HttpStatus.getStatusText(code));
+    }
+    
+    public void setEntity(final HttpEntity entity) {
+        this.entity = entity;
+    }
+    
 }

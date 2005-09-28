@@ -43,9 +43,9 @@ import org.apache.http.entity.InputStreamEntity;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.DefaultHttpClientConnection;
 import org.apache.http.impl.DefaultHttpParams;
-import org.apache.http.impl.HttpPostRequest;
 import org.apache.http.impl.io.PlainSocketFactory;
 import org.apache.http.io.SocketFactory;
+import org.apache.http.message.HttpPostRequest;
 import org.apache.http.params.HttpParams;
 
 /**

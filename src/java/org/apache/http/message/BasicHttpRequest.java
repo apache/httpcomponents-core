@@ -27,7 +27,7 @@
  *
  */
 
-package org.apache.http.impl;
+package org.apache.http.message;
 
 import org.apache.http.HttpMutableRequest;
 import org.apache.http.HttpVersion;
@@ -49,7 +49,7 @@ public class BasicHttpRequest extends BasicHttpMessage implements HttpMutableReq
     private final String method;
     private final String uri;
         
-    protected BasicHttpRequest(final String method, final String uri) {
+    public BasicHttpRequest(final String method, final String uri) {
         super();
         if (method == null) {
             throw new IllegalArgumentException("Method name may not be null");
@@ -62,7 +62,7 @@ public class BasicHttpRequest extends BasicHttpMessage implements HttpMutableReq
         this.requestline = null;
     }
 
-    protected BasicHttpRequest(final RequestLine requestline) {
+    public BasicHttpRequest(final RequestLine requestline) {
         super();
         if (requestline == null) {
             throw new IllegalArgumentException("Request line may not be null");

@@ -27,13 +27,12 @@
  *
  */
 
-package org.apache.http.impl;
+package org.apache.http.message;
 
+import org.apache.http.Header;
 import org.apache.http.HttpEntity;
-import org.apache.http.HttpMutableResponse;
-import org.apache.http.HttpStatus;
-import org.apache.http.StatusLine;
-import org.apache.http.params.HttpProtocolParams;
+import org.apache.http.HttpMutableEntityEnclosingRequest;
+import org.apache.http.RequestLine;
 
 /**
  * <p>
@@ -44,47 +43,33 @@ import org.apache.http.params.HttpProtocolParams;
  * 
  * @since 4.0
  */
-public class BasicHttpResponse extends BasicHttpMessage implements HttpMutableResponse {
+public class BasicHttpEntityEnclosingRequest 
+            extends BasicHttpRequest implements HttpMutableEntityEnclosingRequest {
     
-    private StatusLine statusline = null;
+    private static final String EXPECT_DIRECTIVE = "Expect";
+    private static final String EXPECT_CONTINUE = "100-Continue";
+
     private HttpEntity entity = null;
     
-    public BasicHttpResponse() {
-        super();
-        setStatusCode(HttpStatus.SC_OK);
+    public BasicHttpEntityEnclosingRequest(final String method, final String uri) {
+        super(method, uri);
     }
 
-    public BasicHttpResponse(final StatusLine statusline) {
-        super();
-        setStatusLine(statusline);
-    }
-
-    public StatusLine getStatusLine() {
-        return this.statusline; 
+    public BasicHttpEntityEnclosingRequest(final RequestLine requestline) {
+        super(requestline);
     }
 
     public HttpEntity getEntity() {
         return this.entity;
     }
 
-    public void setStatusLine(final StatusLine statusline) {
-        if (statusline == null) {
-            throw new IllegalArgumentException("Status line may not be null");
-        }
-        this.statusline = statusline;
-    }
-    
-    public void setStatusCode(int code) {
-        if (code < 0) {
-            throw new IllegalArgumentException("Status line may not be null");
-        }
-        this.statusline = new StatusLine(
-                HttpProtocolParams.getVersion(getParams()), 
-                code, HttpStatus.getStatusText(code));
-    }
-    
     public void setEntity(final HttpEntity entity) {
         this.entity = entity;
     }
+    
+	public boolean expectContinue() {
+        Header expect = getFirstHeader(EXPECT_DIRECTIVE);
+        return expect != null && EXPECT_CONTINUE.equalsIgnoreCase(expect.getValue());
+	}
     
 }

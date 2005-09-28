@@ -33,6 +33,8 @@ import org.apache.http.HttpMutableRequest;
 import org.apache.http.HttpRequestFactory;
 import org.apache.http.MethodNotSupportedException;
 import org.apache.http.RequestLine;
+import org.apache.http.message.BasicHttpEntityEnclosingRequest;
+import org.apache.http.message.BasicHttpRequest;
 
 /**
  * <p>

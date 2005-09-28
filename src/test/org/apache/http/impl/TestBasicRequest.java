@@ -35,6 +35,7 @@ import junit.framework.TestSuite;
 import org.apache.http.HttpRequest;
 import org.apache.http.HttpVersion;
 import org.apache.http.RequestLine;
+import org.apache.http.message.BasicHttpRequest;
 import org.apache.http.params.HttpProtocolParams;
 
 public class TestBasicRequest extends TestCase {

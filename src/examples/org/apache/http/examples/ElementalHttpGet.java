@@ -37,9 +37,9 @@ import org.apache.http.Protocol;
 import org.apache.http.entity.EntityConsumer;
 import org.apache.http.impl.DefaultHttpClientConnection;
 import org.apache.http.impl.DefaultHttpParams;
-import org.apache.http.impl.HttpGetRequest;
 import org.apache.http.impl.io.PlainSocketFactory;
 import org.apache.http.io.SocketFactory;
+import org.apache.http.message.HttpGetRequest;
 import org.apache.http.params.HttpParams;
 
 /**

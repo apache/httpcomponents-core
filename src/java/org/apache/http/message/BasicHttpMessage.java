@@ -27,12 +27,14 @@
  *
  */
 
-package org.apache.http.impl;
+package org.apache.http.message;
 
 import java.util.Iterator;
 
 import org.apache.http.Header;
 import org.apache.http.HttpMutableMessage;
+import org.apache.http.impl.DefaultHttpParams;
+import org.apache.http.impl.HeaderGroup;
 import org.apache.http.params.HttpParams;
 
 /**
@@ -44,7 +46,7 @@ import org.apache.http.params.HttpParams;
  * 
  * @since 4.0
  */
-class BasicHttpMessage implements HttpMutableMessage {
+public class BasicHttpMessage implements HttpMutableMessage {
     
     private final HeaderGroup headergroup;
     

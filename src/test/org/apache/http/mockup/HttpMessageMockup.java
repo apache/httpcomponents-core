@@ -27,23 +27,19 @@
  *
  */
 
-package org.apache.http.impl;
+package org.apache.http.mockup;
+
+import org.apache.http.message.BasicHttpMessage;
 
 /**
- * <p>
- * </p>
+ *  {@link HttpMessage} mockup implementation.
+ *  
  * @author <a href="mailto:oleg at ural.ru">Oleg Kalnichevski</a>
- *
- * @version $Revision$
- * 
- * @since 4.0
  */
-public class HttpGetRequest extends BasicHttpRequest {
-
-    public static String METHOD_NAME = "GET";
+public class HttpMessageMockup extends BasicHttpMessage {
     
-    public HttpGetRequest(final String uri) {
-        super(METHOD_NAME, uri);
+    public HttpMessageMockup() {
+        super();
     }
-    
+
 }
