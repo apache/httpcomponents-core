@@ -38,11 +38,11 @@ package org.apache.http.message;
  * 
  * @since 4.0
  */
-public class HttpPostRequest extends BasicHttpEntityEnclosingRequest {
+public class HttpGet extends BasicHttpRequest {
 
-    public static String METHOD_NAME = "POST";
+    public static String METHOD_NAME = "GET";
     
-    public HttpPostRequest(final String uri) {
+    public HttpGet(final String uri) {
         super(METHOD_NAME, uri);
     }
     

@@ -40,7 +40,7 @@ import org.apache.http.impl.DefaultHttpClientConnection;
 import org.apache.http.impl.DefaultHttpParams;
 import org.apache.http.impl.io.PlainSocketFactory;
 import org.apache.http.io.SocketFactory;
-import org.apache.http.message.HttpGetRequest;
+import org.apache.http.message.HttpGet;
 import org.apache.http.params.HttpParams;
 import org.apache.http.params.HttpProtocolParams;
 import org.apache.http.protocol.RequestConnControl;
@@ -81,7 +81,7 @@ public class HttpRequestExecutorDemo {
         HttpHost host = new HttpHost("www.yahoo.com");
         HttpClientConnection conn = new DefaultHttpClientConnection(host);
         try {
-            HttpGetRequest request1 = new HttpGetRequest("/");
+            HttpGet request1 = new HttpGet("/");
             HttpResponse response1 = httpexecutor.execute(request1, conn);
             System.out.println("<< Response: " + response1.getStatusLine());
             System.out.println(EntityConsumer.toString(response1.getEntity()));
@@ -89,7 +89,7 @@ public class HttpRequestExecutorDemo {
             if (conn.isOpen()) {
                 System.out.println("Connection kept alive...");
             }
-            HttpGetRequest request2 = new HttpGetRequest("/stuff");
+            HttpGet request2 = new HttpGet("/stuff");
             HttpResponse response2 = httpexecutor.execute(request2, conn);
             System.out.println("<< Response: " + response2.getStatusLine());
             System.out.println(EntityConsumer.toString(response2.getEntity()));

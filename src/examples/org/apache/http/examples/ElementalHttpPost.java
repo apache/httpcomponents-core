@@ -45,7 +45,7 @@ import org.apache.http.impl.DefaultHttpClientConnection;
 import org.apache.http.impl.DefaultHttpParams;
 import org.apache.http.impl.io.PlainSocketFactory;
 import org.apache.http.io.SocketFactory;
-import org.apache.http.message.HttpPostRequest;
+import org.apache.http.message.HttpPost;
 import org.apache.http.params.HttpParams;
 
 /**
@@ -79,7 +79,7 @@ public class ElementalHttpPost {
             };
             
             for (int i = 0; i < requestBodies.length; i++) {
-                HttpPostRequest request = new HttpPostRequest("/httpclienttest/body");
+                HttpPost request = new HttpPost("/httpclienttest/body");
                 request.setHeader(new Header("Host", host.toHostString()));
                 request.setHeader(new Header("User-Agent", "Elemental HTTP client"));
                 request.setHeader(new Header("Connection", "Keep-Alive"));

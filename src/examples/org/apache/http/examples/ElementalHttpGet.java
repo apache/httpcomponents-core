@@ -39,7 +39,7 @@ import org.apache.http.impl.DefaultHttpClientConnection;
 import org.apache.http.impl.DefaultHttpParams;
 import org.apache.http.impl.io.PlainSocketFactory;
 import org.apache.http.io.SocketFactory;
-import org.apache.http.message.HttpGetRequest;
+import org.apache.http.message.HttpGet;
 import org.apache.http.params.HttpParams;
 
 /**
@@ -67,7 +67,7 @@ public class ElementalHttpGet {
                     "/somewhere%20in%20pampa"};
             
             for (int i = 0; i < targets.length; i++) {
-                HttpGetRequest request = new HttpGetRequest(targets[i]);
+                HttpGet request = new HttpGet(targets[i]);
                 request.setHeader(new Header("Host", host.toHostString()));
                 request.setHeader(new Header("User-Agent", "Elemental HTTP client"));
                 request.setHeader(new Header("Connection", "Keep-Alive"));
