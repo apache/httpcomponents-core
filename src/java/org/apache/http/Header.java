@@ -29,6 +29,7 @@
 
 package org.apache.http;
 
+import org.apache.http.util.CharArrayBuffer;
 import org.apache.http.util.LangUtils;
 
 /**
@@ -115,7 +116,7 @@ public class Header {
      * @return a string
      */
     public String toString() {
-        StringBuffer buffer = new StringBuffer();
+        CharArrayBuffer buffer = new CharArrayBuffer(128);
         buffer.append(this.name);
         buffer.append(": ");
         buffer.append(this.value);

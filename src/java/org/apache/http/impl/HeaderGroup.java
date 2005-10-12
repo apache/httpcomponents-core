@@ -34,6 +34,7 @@ import java.util.Iterator;
 import java.util.List;
 
 import org.apache.http.Header;
+import org.apache.http.util.CharArrayBuffer;
 
 /**
  * A class for combining a set of headers.  This class allows for multiple
@@ -116,8 +117,8 @@ public class HeaderGroup {
         } else if (headers.length == 1) {
             return headers[0];
         } else {
-            StringBuffer valueBuffer = new StringBuffer(headers[0].getValue());
-            
+        	CharArrayBuffer valueBuffer = new CharArrayBuffer(128);
+        	valueBuffer.append(headers[0].getValue());
             for (int i = 1; i < headers.length; i++) {
                 valueBuffer.append(", ");
                 valueBuffer.append(headers[i].getValue());

@@ -29,6 +29,8 @@
 
 package org.apache.http;
 
+import org.apache.http.util.CharArrayBuffer;
+
 /**
  * Represents a Status-Line as returned from a HTTP server.
  *
@@ -179,10 +181,10 @@ public class StatusLine {
     }
 
     public final String toString() {
-        StringBuffer buffer = new StringBuffer();
+    	CharArrayBuffer buffer = new CharArrayBuffer(64);        
         buffer.append(this.httpVersion);
         buffer.append(' ');
-        buffer.append(this.statusCode);
+        buffer.append(Integer.toString(this.statusCode));
         if (this.reasonPhrase != null && !this.reasonPhrase.equals("")) {
             buffer.append(' ');
             buffer.append(this.reasonPhrase);

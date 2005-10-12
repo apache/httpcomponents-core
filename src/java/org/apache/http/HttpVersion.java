@@ -29,6 +29,8 @@
 
 package org.apache.http;
 
+import org.apache.http.util.CharArrayBuffer;
+
 /**
  *  <p>HTTP version, as specified in RFC 2616.</p>
  *  <p>
@@ -201,11 +203,11 @@ public class HttpVersion implements Comparable {
      * @see java.lang.Object#toString()
      */
     public String toString() {
-        StringBuffer buffer = new StringBuffer();
+        CharArrayBuffer buffer = new CharArrayBuffer(16);
         buffer.append("HTTP/"); 
-        buffer.append(this.major); 
+        buffer.append(Integer.toString(this.major)); 
         buffer.append('.'); 
-        buffer.append(this.minor); 
+        buffer.append(Integer.toString(this.minor)); 
         return buffer.toString();
     }
 

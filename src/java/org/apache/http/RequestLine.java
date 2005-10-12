@@ -32,6 +32,8 @@ package org.apache.http;
 import java.util.NoSuchElementException;
 import java.util.StringTokenizer;
 
+import org.apache.http.util.CharArrayBuffer;
+
 /**
  * <p>
  * </p>
@@ -76,13 +78,13 @@ public class RequestLine {
     }
 
     public String toString() {
-        StringBuffer sb = new StringBuffer();
-        sb.append(this.method);
-        sb.append(" ");
-        sb.append(this.uri);
-        sb.append(" ");
-        sb.append(this.httpversion);
-        return sb.toString();
+        CharArrayBuffer buffer = new CharArrayBuffer(64);
+        buffer.append(this.method);
+        buffer.append(' ');
+        buffer.append(this.uri);
+        buffer.append(' ');
+        buffer.append(this.httpversion);
+        return buffer.toString();
     }
     
     public static RequestLine parse(final String requestLine) 

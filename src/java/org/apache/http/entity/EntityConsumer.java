@@ -42,6 +42,7 @@ import org.apache.http.HttpResponse;
 import org.apache.http.NameValuePair;
 import org.apache.http.params.HttpProtocolParams;
 import org.apache.http.util.ByteArrayBuffer;
+import org.apache.http.util.CharArrayBuffer;
 
 /**
  * <p>
@@ -96,7 +97,7 @@ public class EntityConsumer {
         while((l = instream.read(tmp)) != -1) {
         	buffer.append(tmp, 0, l);
         }
-        return buffer.getBytes();
+        return buffer.toByteArray();
     }
         
     public static String getContentCharSet(final HttpEntity entity) {
@@ -127,6 +128,10 @@ public class EntityConsumer {
         if (entity.getContentLength() > Integer.MAX_VALUE) {
             throw new IllegalStateException("HTTP entity too large to be buffered in memory");
         }
+        int i = (int)entity.getContentLength();
+        if (i < 0) {
+            i = 4096;
+        }
         String charset = getContentCharSet(entity);
         if (charset == null) {
             charset = defaultCharset;
@@ -135,7 +140,7 @@ public class EntityConsumer {
             charset = "ISO-8859-1";
         }
         Reader reader = new InputStreamReader(entity.getContent(), charset);
-        StringBuffer buffer = new StringBuffer(); 
+        CharArrayBuffer buffer = new CharArrayBuffer(i); 
         char[] tmp = new char[1024];
         int l;
         while((l = reader.read(tmp)) != -1) {

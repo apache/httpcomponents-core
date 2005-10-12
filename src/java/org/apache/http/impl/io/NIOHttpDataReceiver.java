@@ -40,6 +40,7 @@ import java.nio.charset.CodingErrorAction;
 import org.apache.http.io.HttpDataReceiver;
 import org.apache.http.params.HttpParams;
 import org.apache.http.params.HttpProtocolParams;
+import org.apache.http.util.CharArrayBuffer;
 
 /**
  * <p>
@@ -149,7 +150,7 @@ public abstract class NIOHttpDataReceiver implements HttpDataReceiver {
         int noRead = 0;
         this.chbuffer.clear();
         this.chardecoder.reset();
-        StringBuffer line = new StringBuffer(); 
+        CharArrayBuffer line = new CharArrayBuffer(128); 
         boolean retry = true;
         while (retry) {
             // attempt to find end of line (LF)

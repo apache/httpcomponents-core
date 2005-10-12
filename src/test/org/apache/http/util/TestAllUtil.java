@@ -44,6 +44,8 @@ public class TestAllUtil extends TestCase {
         suite.addTest(TestParameterParser.suite());
         suite.addTest(TestParameterFormatter.suite());
         suite.addTest(TestHeadersParser.suite());
+        suite.addTest(TestByteArrayBuffer.suite());
+        suite.addTest(TestCharArrayBuffer.suite());
         return suite;
     }
 

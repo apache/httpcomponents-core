@@ -212,7 +212,7 @@ public abstract class AbstractHttpDataReceiver implements HttpDataReceiver {
             }
         }
         return EncodingUtil.getString(
-                this.linebuffer.getBytes(), 0, this.linebuffer.length(), this.charset);
+                this.linebuffer.getBuffer(), 0, this.linebuffer.length(), this.charset);
     }
     
     private String lineFromReadBuffer(int pos) {

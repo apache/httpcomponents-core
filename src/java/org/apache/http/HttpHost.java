@@ -29,6 +29,7 @@
 
 package org.apache.http;
 
+import org.apache.http.util.CharArrayBuffer;
 import org.apache.http.util.LangUtils;
 
 /**
@@ -147,23 +148,23 @@ public class HttpHost implements Cloneable {
      * @return The host uri.
      */
     public String toURI() {
-        StringBuffer buffer = new StringBuffer();        
+    	CharArrayBuffer buffer = new CharArrayBuffer(32);        
         buffer.append(this.protocol.getScheme());
         buffer.append("://");
         buffer.append(this.hostname);
         if (this.port != this.protocol.getDefaultPort()) {
             buffer.append(':');
-            buffer.append(this.port);
+            buffer.append(Integer.toString(this.port));
         }
         return buffer.toString();
     }
 
     public String toHostString() {
-        StringBuffer buffer = new StringBuffer();        
+    	CharArrayBuffer buffer = new CharArrayBuffer(32);        
         buffer.append(this.hostname);
         if (this.port != this.protocol.getDefaultPort()) {
             buffer.append(':');
-            buffer.append(this.port);
+            buffer.append(Integer.toString(this.port));
         }
         return buffer.toString();
     }

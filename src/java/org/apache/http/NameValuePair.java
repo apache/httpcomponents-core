@@ -31,6 +31,7 @@ package org.apache.http;
 
 import java.io.Serializable;
 
+import org.apache.http.util.CharArrayBuffer;
 import org.apache.http.util.LangUtils;
 
 /**
@@ -89,7 +90,7 @@ public class NameValuePair implements Serializable {
      * @return A string representation.
      */
     public String toString() {
-        StringBuffer buffer = new StringBuffer();
+        CharArrayBuffer buffer = new CharArrayBuffer(32);
         buffer.append(this.name);
         buffer.append(" = ");
         buffer.append(this.value);

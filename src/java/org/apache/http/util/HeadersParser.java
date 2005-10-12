@@ -69,7 +69,7 @@ public class HeadersParser  {
                 // we have continuation folded header
                 // so append value
                 String previousLine = (String) headerLines.remove(headerLines.size() - 1);
-                StringBuffer buffer = new StringBuffer();
+                CharArrayBuffer buffer = new CharArrayBuffer(128);
                 buffer.append(previousLine);
                 buffer.append(' ');
                 buffer.append(line.trim());

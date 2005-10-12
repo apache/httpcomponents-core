@@ -32,6 +32,7 @@ package org.apache.http;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.http.util.CharArrayBuffer;
 import org.apache.http.util.LangUtils;
 import org.apache.http.util.ParameterParser;
 
@@ -296,7 +297,7 @@ public class HeaderElement {
     }
     
     public String toString() {
-        StringBuffer buffer = new StringBuffer();
+        CharArrayBuffer buffer = new CharArrayBuffer(64);
         buffer.append(this.name);
         if (this.value != null) {
             buffer.append(" = ");
