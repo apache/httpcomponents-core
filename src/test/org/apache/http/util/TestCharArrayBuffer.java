@@ -88,6 +88,8 @@ public class TestCharArrayBuffer extends TestCase {
         	assertEquals(tmp[i], b2[i]);
         	assertEquals(tmp[i], buffer.charAt(i));
     	}
+    	assertEquals("1234", buffer.toString());
+    	
     	buffer.clear();
     	assertEquals(16, buffer.capacity()); 
     	assertEquals(0, buffer.length());
@@ -110,6 +112,32 @@ public class TestCharArrayBuffer extends TestCase {
     	
     	assertEquals(16, buffer.capacity()); 
     	assertEquals(10, buffer.length());
+    	
+    	assertEquals("1212341234", buffer.toString());
+    }
+
+    public void testAppendString() throws Exception {
+    	CharArrayBuffer buffer = new CharArrayBuffer(8);
+    	buffer.append("stuff");
+    	buffer.append(" and more stuff");
+    	assertEquals("stuff and more stuff", buffer.toString());
+    }
+    
+    public void testAppendNullString() throws Exception {
+    	CharArrayBuffer buffer = new CharArrayBuffer(8);
+    	buffer.append(null);
+    	assertEquals("null", buffer.toString());
+    }
+    
+    public void testAppendSingleChar() throws Exception {
+    	CharArrayBuffer buffer = new CharArrayBuffer(4);
+    	buffer.append('1');
+    	buffer.append('2');
+    	buffer.append('3');
+    	buffer.append('4');
+    	buffer.append('5');
+    	buffer.append('6');
+    	assertEquals("123456", buffer.toString());
     }
     
     public void testInvalidAppend() throws Exception {
