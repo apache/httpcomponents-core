@@ -66,6 +66,11 @@ public class TestStatusLine extends TestCase {
         assertEquals(HttpVersion.HTTP_1_1, statusline.getHttpVersion()); 
         assertEquals(HttpStatus.SC_OK, statusline.getStatusCode()); 
         assertEquals("OK", statusline.getReasonPhrase()); 
+
+        statusline = new StatusLine(HttpVersion.HTTP_1_1, HttpStatus.SC_OK);
+        assertEquals(HttpVersion.HTTP_1_1, statusline.getHttpVersion()); 
+        assertEquals(HttpStatus.SC_OK, statusline.getStatusCode()); 
+        assertEquals("OK", statusline.getReasonPhrase()); 
     }
         
     public void testConstructorInvalidInput() {

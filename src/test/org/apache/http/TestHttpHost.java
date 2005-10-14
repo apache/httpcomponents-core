@@ -154,6 +154,18 @@ public class TestHttpHost extends TestCase {
         assertEquals("myhttp://somehost:80", host6.toString());
     }
 
+    public void testToHostString() {
+        Protocol http = Protocol.getProtocol("http");
+        HttpHost host1 = new HttpHost("somehost");
+        assertEquals("somehost", host1.toHostString());
+        HttpHost host2 = new HttpHost("somehost", http.getDefaultPort());
+        assertEquals("somehost", host2.toHostString());
+        HttpHost host3 = new HttpHost("somehost", -1);
+        assertEquals("somehost", host3.toHostString());
+        HttpHost host4 = new HttpHost("somehost", 8888);
+        assertEquals("somehost:8888", host4.toHostString());
+    }
+
     public void testClone() {
         HttpHost host1 = new HttpHost("somehost", 8888, Protocol.getProtocol("http"));
         HttpHost host2 = (HttpHost) host1.clone(); 
