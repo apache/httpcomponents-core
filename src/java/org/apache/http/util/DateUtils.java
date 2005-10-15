@@ -31,11 +31,8 @@ package org.apache.http.util;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.Arrays;
 import java.util.Calendar;
-import java.util.Collection;
 import java.util.Date;
-import java.util.Iterator;
 import java.util.Locale;
 import java.util.TimeZone;
 
@@ -65,18 +62,22 @@ public class DateUtils {
      */
     public static final String PATTERN_ASCTIME = "EEE MMM d HH:mm:ss yyyy";
 
-    private static final Collection DEFAULT_PATTERNS = Arrays.asList(
-    		new String[] { PATTERN_ASCTIME, PATTERN_RFC1036, PATTERN_RFC1123 } );
+    private static final String[] DEFAULT_PATTERNS = new String[] { 
+    	PATTERN_ASCTIME, 
+    	PATTERN_RFC1036, 
+    	PATTERN_RFC1123 };
     
     private static final Date DEFAULT_TWO_DIGIT_YEAR_START;
     
+    public static final TimeZone GMT = TimeZone.getTimeZone("GMT");
+    
     static {
         Calendar calendar = Calendar.getInstance();
-        calendar.set(2000, Calendar.JANUARY, 1, 0, 0);
+        calendar.setTimeZone(GMT);
+        calendar.set(2000, Calendar.JANUARY, 1, 0, 0, 0);
+        calendar.set(Calendar.MILLISECOND, 0);
         DEFAULT_TWO_DIGIT_YEAR_START = calendar.getTime(); 
     }
-    
-    public static final TimeZone GMT = TimeZone.getTimeZone("GMT");
     
     /**
      * Parses a date value.  The formats used for parsing the date value are retrieved from
@@ -103,7 +104,7 @@ public class DateUtils {
      * 
      * @throws DateParseException if none of the dataFormats could parse the dateValue
      */
-    public static Date parseDate(String dateValue, Collection dateFormats) 
+    public static Date parseDate(final String dateValue, String[] dateFormats) 
         throws DateParseException {
         return parseDate(dateValue, dateFormats, null);
     }
@@ -124,7 +125,7 @@ public class DateUtils {
      */
     public static Date parseDate(
         String dateValue, 
-        Collection dateFormats,
+        String[] dateFormats,
         Date startDate 
     ) throws DateParseException {
         
@@ -147,16 +148,13 @@ public class DateUtils {
         }
         
         SimpleDateFormat dateParser = null;        
-        Iterator formatIter = dateFormats.iterator();
-        
-        while (formatIter.hasNext()) {
-            String format = (String) formatIter.next();            
+        for (int i = 0; i < dateFormats.length; i++) {
             if (dateParser == null) {
-                dateParser = new SimpleDateFormat(format, Locale.US);
+                dateParser = new SimpleDateFormat(dateFormats[i], Locale.US);
                 dateParser.setTimeZone(TimeZone.getTimeZone("GMT"));
                 dateParser.set2DigitYearStart(startDate);
             } else {
-                dateParser.applyPattern(format);                    
+                dateParser.applyPattern(dateFormats[i]);                    
             }
             try {
                 return dateParser.parse(dateValue);
@@ -204,6 +202,7 @@ public class DateUtils {
     }
     
     /** This class should not be instantiated. */    
-    private DateUtils() { }
+    private DateUtils() { 
+    }
     
 }
