@@ -180,6 +180,25 @@ public class TestChunkCoding extends TestCase {
         }
     }
 
+    public void testChunkedOutputStreamClose() throws IOException {
+        ChunkedOutputStream out = new ChunkedOutputStream(
+                new HttpDataTransmitterMockup());
+        out.close();
+        out.close();
+        try {
+        	out.write(new byte[] {1,2,3});
+            fail("IOException should have been thrown");
+        } catch (IOException ex) {
+            // expected
+        }
+        try {
+            out.write(1);
+            fail("IOException should have been thrown");
+        } catch (IOException ex) {
+            // expected
+        }
+    }
+
     // Missing \r\n at the end of the first chunk
     public void testCorruptChunkedInputStreamMissingCRLF() throws IOException {
         String s = "5\r\n012345\r\n56789\r\n0\r\n";

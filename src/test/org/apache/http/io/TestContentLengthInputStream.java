@@ -105,7 +105,12 @@ public class TestContentLengthInputStream extends TestCase {
         in.read();
         in.read();
         assertTrue(in.skip(10) <= 0);
+        assertTrue(in.skip(-1) == 0);
         assertTrue(in.read() == -1);
+        
+        in = new ContentLengthInputStream(new HttpDataReceiverMockup(new byte[2]), 4L);
+        in.read();
+        assertTrue(in.skip(2) == 1);
     }
 
     public void testClose() throws IOException {

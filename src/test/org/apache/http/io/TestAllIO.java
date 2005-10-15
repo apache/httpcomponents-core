@@ -42,6 +42,8 @@ public class TestAllIO extends TestCase {
         suite.addTest(TestHttpDataOutputStream.suite());
         suite.addTest(TestChunkCoding.suite());
         suite.addTest(TestContentLengthInputStream.suite());
+        suite.addTest(TestContentLengthOutputStream.suite());
+        suite.addTest(TestIdentityOutputStream.suite());
         return suite;
     }
 

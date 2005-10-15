@@ -100,4 +100,11 @@ public class TestHttpDataInputStream extends TestCase {
         assertEquals(-1, instream.read());        
     }
 
+    public void testAvailable() throws Exception {
+        byte[] input = new byte[] {'a', 'b', 'c'};
+        HttpDataReceiverMockup receiver = new HttpDataReceiverMockup(input);
+        HttpDataInputStream instream = new HttpDataInputStream(receiver);
+        assertTrue(instream.available() > 0);        
+    }
+    
 }
