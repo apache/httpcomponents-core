@@ -50,7 +50,6 @@ import org.apache.http.io.HttpDataReceiver;
 public class HeadersParser  {
 
     private HeadersParser() {
-        super();
     }
     
     public static Header[] processHeaders(final HttpDataReceiver datareceiver) 

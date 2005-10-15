@@ -60,30 +60,56 @@ public class TestParameterFormatter extends TestCase {
     }
 
     public void testBasicValueFormatting() throws Exception {
-        ParameterFormatter formatter = new ParameterFormatter();
-        
         NameValuePair param1 = new NameValuePair("param", "regular_stuff"); 
         NameValuePair param2 = new NameValuePair("param", "this\\that"); 
         NameValuePair param3 = new NameValuePair("param", "this,that"); 
         NameValuePair param4 = new NameValuePair("param", "quote marks (\") must be escaped"); 
         NameValuePair param5 = new NameValuePair("param", "back slash (\\) must be escaped too"); 
         NameValuePair param6 = new NameValuePair("param", "values with\tblanks must always be quoted"); 
+        NameValuePair param7 = new NameValuePair("param", null); 
         
-        formatter.setAlwaysUseQuotes(false);
-        assertEquals("param=regular_stuff", formatter.format(param1));
-        assertEquals("param=\"this\\\\that\"", formatter.format(param2));
-        assertEquals("param=\"this,that\"", formatter.format(param3));
-        assertEquals("param=\"quote marks (\\\") must be escaped\"", formatter.format(param4));
-        assertEquals("param=\"back slash (\\\\) must be escaped too\"", formatter.format(param5));
-        assertEquals("param=\"values with\tblanks must always be quoted\"", formatter.format(param6));
+        assertEquals("param=regular_stuff", ParameterFormatter.format(param1, false));
+        assertEquals("param=\"this\\\\that\"", ParameterFormatter.format(param2, false));
+        assertEquals("param=\"this,that\"", ParameterFormatter.format(param3, false));
+        assertEquals("param=\"quote marks (\\\") must be escaped\"", ParameterFormatter.format(param4, false));
+        assertEquals("param=\"back slash (\\\\) must be escaped too\"", ParameterFormatter.format(param5, false));
+        assertEquals("param=\"values with\tblanks must always be quoted\"", ParameterFormatter.format(param6, false));
+        assertEquals("param", ParameterFormatter.format(param7, false));
 
-        formatter.setAlwaysUseQuotes(true);
-        assertEquals("param=\"regular_stuff\"", formatter.format(param1));
-        assertEquals("param=\"this\\\\that\"", formatter.format(param2));
-        assertEquals("param=\"this,that\"", formatter.format(param3));
-        assertEquals("param=\"quote marks (\\\") must be escaped\"", formatter.format(param4));
-        assertEquals("param=\"back slash (\\\\) must be escaped too\"", formatter.format(param5));
-        assertEquals("param=\"values with\tblanks must always be quoted\"", formatter.format(param6));
+        assertEquals("param=\"regular_stuff\"", ParameterFormatter.format(param1, true));
+        assertEquals("param=\"this\\\\that\"", ParameterFormatter.format(param2, true));
+        assertEquals("param=\"this,that\"", ParameterFormatter.format(param3, true));
+        assertEquals("param=\"quote marks (\\\") must be escaped\"", ParameterFormatter.format(param4, true));
+        assertEquals("param=\"back slash (\\\\) must be escaped too\"", ParameterFormatter.format(param5, true));
+        assertEquals("param=\"values with\tblanks must always be quoted\"", ParameterFormatter.format(param6, true));
+        assertEquals("param", ParameterFormatter.format(param7, false));
+    }
+
+    public void testInvalidInput() throws Exception {
+        try {
+        	ParameterFormatter.format(null, new NameValuePair("param", "value"), true);
+            fail("IllegalArgumentException should habe been thrown");
+        } catch (IllegalArgumentException ex) {
+        	// expected
+        }
+        try {
+        	ParameterFormatter.format(null, "ssss", true);
+            fail("IllegalArgumentException should habe been thrown");
+        } catch (IllegalArgumentException ex) {
+        	// expected
+        }
+        try {
+        	ParameterFormatter.format(new StringBuffer(), (NameValuePair) null, true);
+            fail("IllegalArgumentException should habe been thrown");
+        } catch (IllegalArgumentException ex) {
+        	// expected
+        }
+        try {
+        	ParameterFormatter.format(new StringBuffer(), (String) null, true);
+            fail("IllegalArgumentException should habe been thrown");
+        } catch (IllegalArgumentException ex) {
+        	// expected
+        }
     }
     
 }

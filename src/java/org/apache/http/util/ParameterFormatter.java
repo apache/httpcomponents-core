@@ -103,15 +103,7 @@ public class ParameterFormatter {
             '"', '\\'
             };
     
-    /**
-     * This flag determines whether all parameter values must be enclosed in 
-     * quotation marks, even if they do not contain any special characters
-     */
-    private boolean alwaysUseQuotes = true;
-    
-    /** Default ParameterFormatter constructor */
-    public ParameterFormatter() {
-        super();
+    private ParameterFormatter() {
     }
     
     private static boolean isOneOf(char[] chars, char ch) {
@@ -132,27 +124,6 @@ public class ParameterFormatter {
     }
 
     /**
-     * Determines whether all parameter values must be enclosed in quotation 
-     * marks, even if they do not contain any special characters
-     * 
-     * @return <tt>true</tt> if all parameter values must be enclosed in 
-     * quotation marks, <tt>false</tt> otherwise
-     */
-    public boolean isAlwaysUseQuotes() {
-        return alwaysUseQuotes;
-    }
-    
-    /**
-     * Defines whether all parameter values must be enclosed in quotation 
-     * marks, even if they do not contain any special characters
-     * 
-     * @param alwaysUseQuotes
-     */
-    public void setAlwaysUseQuotes(boolean alwaysUseQuotes) {
-        this.alwaysUseQuotes = alwaysUseQuotes;
-    }
-    
-    /**
      * Formats the given parameter value using formatting rules defined
      * in RFC 2616 
      * 
@@ -163,8 +134,10 @@ public class ParameterFormatter {
      * characters<tt>, false</tt> only if the parameter value contains 
      * potentially unsafe special characters
      */
-    public static void formatValue(
-            final StringBuffer buffer, final String value, boolean alwaysUseQuotes) {
+    public static void format(
+            final StringBuffer buffer, 
+            final String value, 
+            boolean alwaysUseQuotes) {
         if (buffer == null) {
             throw new IllegalArgumentException("String buffer may not be null");
         }
@@ -207,8 +180,10 @@ public class ParameterFormatter {
      *  
      * @param buffer output buffer 
      * @param param the parameter to be formatted
+     * @param alwaysUseQuotes <tt>true</tt> if the parameter values must 
+     * always be enclosed in quotation marks, <tt>false</tt> otherwise
      */
-    public void format(final StringBuffer buffer, final NameValuePair param) {
+    public static void format(final StringBuffer buffer, final NameValuePair param, boolean alwaysUseQuotes) {
         if (buffer == null) {
             throw new IllegalArgumentException("String buffer may not be null");
         }
@@ -219,7 +194,7 @@ public class ParameterFormatter {
         String value = param.getValue();
         if (value != null) {
             buffer.append("=");
-            formatValue(buffer, value, this.alwaysUseQuotes);
+            format(buffer, value, alwaysUseQuotes);
         }
     }
     
@@ -228,13 +203,15 @@ public class ParameterFormatter {
      * formatting rules defined in RFC 2616
      *  
      * @param param the parameter to be formatted
+     * @param alwaysUseQuotes <tt>true</tt> if the parameter values must 
+     * always be enclosed in quotation marks, <tt>false</tt> otherwise
      * 
      * @return RFC 2616 conformant textual representaion of the 
      * attribute/value pair
      */
-    public String format(final NameValuePair param) {
+    public static String format(final NameValuePair param, boolean alwaysUseQuotes) {
         StringBuffer buffer = new StringBuffer();
-        format(buffer, param);
+        format(buffer, param, alwaysUseQuotes);
         return buffer.toString();
     }
 
