@@ -98,10 +98,6 @@ public abstract class AbstractHttpDataReceiver implements HttpDataReceiver {
         return this.bufferpos < this.bufferlen;
     }
     
-    public boolean isDataAvailable(int timeout) throws IOException {
-        return hasBufferedData();
-    }
-    
     public int read() throws IOException {
         int noRead = 0;
     	while (!hasBufferedData()) {
@@ -180,11 +176,6 @@ public abstract class AbstractHttpDataReceiver implements HttpDataReceiver {
                 noRead = fillBuffer();
                 if (noRead == -1) {
                     retry = false;
-                    if (hasBufferedData()) {
-                        int len = this.bufferlen - this.bufferpos;
-                        this.linebuffer.append(this.buffer, this.bufferpos, len);
-                        this.bufferpos = this.bufferlen;
-                    }
                 }
             }
         }

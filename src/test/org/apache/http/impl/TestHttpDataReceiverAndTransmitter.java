@@ -78,6 +78,12 @@ public class TestHttpDataReceiverAndTransmitter extends TestCase {
             //expected
         }
         try {
+            new HttpDataTransmitterMockup(out, -10); 
+            fail("IllegalArgumentException should have been thrown");
+        } catch (IllegalArgumentException ex) {
+            //expected
+        }
+        try {
             new HttpDataReceiverMockup((InputStream)null, 1024); 
             fail("IllegalArgumentException should have been thrown");
         } catch (IllegalArgumentException ex) {
@@ -100,8 +106,7 @@ public class TestHttpDataReceiverAndTransmitter extends TestCase {
         teststrs[3] = "";
         teststrs[4] = "And goodbye";
         
-        HttpDataTransmitterMockup transmitter = 
-            new HttpDataTransmitterMockup(); 
+        HttpDataTransmitterMockup transmitter = new HttpDataTransmitterMockup(); 
         for (int i = 0; i < teststrs.length; i++) {
             transmitter.writeLine(teststrs[i]);
         }
@@ -109,8 +114,8 @@ public class TestHttpDataReceiverAndTransmitter extends TestCase {
         transmitter.writeLine(null);
         transmitter.flush();
         
-        HttpDataReceiverMockup receiver = 
-            new HttpDataReceiverMockup(transmitter.getData());
+        HttpDataReceiverMockup receiver = new HttpDataReceiverMockup(
+        		transmitter.getData());
 
         for (int i = 0; i < teststrs.length; i++) {
             assertEquals(teststrs[i], receiver.readLine());
@@ -120,8 +125,7 @@ public class TestHttpDataReceiverAndTransmitter extends TestCase {
     }
 
     public void testComplexReadWriteLine() throws Exception {
-        HttpDataTransmitterMockup transmitter = 
-            new HttpDataTransmitterMockup(); 
+        HttpDataTransmitterMockup transmitter = new HttpDataTransmitterMockup(); 
         transmitter.write(new byte[] {'a', '\n'});
         transmitter.write(new byte[] {'\r', '\n'});
         transmitter.write(new byte[] {'\r', '\r', '\n'});
@@ -162,8 +166,8 @@ public class TestHttpDataReceiverAndTransmitter extends TestCase {
         transmitter.write(new byte[] {'a'});
         transmitter.flush();
         
-        HttpDataReceiverMockup receiver = 
-            new HttpDataReceiverMockup(transmitter.getData());
+        HttpDataReceiverMockup receiver = new HttpDataReceiverMockup(
+        		transmitter.getData());
 
         assertEquals("a", receiver.readLine());
         assertEquals("", receiver.readLine());
@@ -192,8 +196,7 @@ public class TestHttpDataReceiverAndTransmitter extends TestCase {
         teststrs[3] = "";
         teststrs[4] = "And goodbye";
         
-        HttpDataTransmitterMockup transmitter = 
-            new HttpDataTransmitterMockup(); 
+        HttpDataTransmitterMockup transmitter = new HttpDataTransmitterMockup(); 
         for (int i = 0; i < teststrs.length; i++) {
             transmitter.writeLine(teststrs[i]);
         }
@@ -201,8 +204,8 @@ public class TestHttpDataReceiverAndTransmitter extends TestCase {
         transmitter.writeLine(null);
         transmitter.flush();
         
-        HttpDataReceiverMockup receiver = 
-            new HttpDataReceiverMockup(transmitter.getData(), 1024);
+        HttpDataReceiverMockup receiver = new HttpDataReceiverMockup(
+        		transmitter.getData(), 1024);
 
         for (int i = 0; i < teststrs.length; i++) {
             assertEquals(teststrs[i], receiver.readLine());
@@ -217,8 +220,7 @@ public class TestHttpDataReceiverAndTransmitter extends TestCase {
         for (int i = 0; i < out.length; i++) {
             out[i] = (byte)('0' + i);
         }
-        HttpDataTransmitterMockup transmitter = 
-            new HttpDataTransmitterMockup();
+        HttpDataTransmitterMockup transmitter = new HttpDataTransmitterMockup();
         int off = 0;
         int remaining = out.length;
         while (remaining > 0) {
@@ -238,8 +240,7 @@ public class TestHttpDataReceiverAndTransmitter extends TestCase {
             assertEquals(out[i], tmp[i]);
         }
         
-        HttpDataReceiverMockup receiver = 
-            new HttpDataReceiverMockup(tmp);
+        HttpDataReceiverMockup receiver = new HttpDataReceiverMockup(tmp);
 
         // these read operations will have no effect
         assertEquals(0, receiver.read(null, 0, 10));
@@ -271,10 +272,9 @@ public class TestHttpDataReceiverAndTransmitter extends TestCase {
         // make the buffer larger than that of transmitter
         byte[] out = new byte[40];
         for (int i = 0; i < out.length; i++) {
-            out[i] = (byte)('0' + i);
+            out[i] = (byte)(120 + i);
         }
-        HttpDataTransmitterMockup transmitter = 
-            new HttpDataTransmitterMockup();
+        HttpDataTransmitterMockup transmitter = new HttpDataTransmitterMockup();
         for (int i = 0; i < out.length; i++) {
             transmitter.write(out[i]);
         }
@@ -286,9 +286,7 @@ public class TestHttpDataReceiverAndTransmitter extends TestCase {
             assertEquals(out[i], tmp[i]);
         }
         
-        HttpDataReceiverMockup receiver = 
-            new HttpDataReceiverMockup(tmp);
-
+        HttpDataReceiverMockup receiver = new HttpDataReceiverMockup(tmp);
         byte[] in = new byte[40];
         for (int i = 0; i < in.length; i++) {
             in[i] = (byte)receiver.read();
@@ -327,8 +325,7 @@ public class TestHttpDataReceiverAndTransmitter extends TestCase {
         HttpParams params = new DefaultHttpParams(null);
         HttpProtocolParams.setHttpElementCharset(params, "UTF-8");
         
-        HttpDataTransmitterMockup transmitter = 
-            new HttpDataTransmitterMockup();
+        HttpDataTransmitterMockup transmitter = new HttpDataTransmitterMockup();
         transmitter.reset(params);
 
         for (int i = 0; i < 10; i++) {
@@ -338,8 +335,8 @@ public class TestHttpDataReceiverAndTransmitter extends TestCase {
         }
         transmitter.flush();
         
-        HttpDataReceiverMockup receiver = 
-            new HttpDataReceiverMockup(transmitter.getData());
+        HttpDataReceiverMockup receiver = new HttpDataReceiverMockup(
+        		transmitter.getData());
         receiver.reset(params);
 
         for (int i = 0; i < 10; i++) {
