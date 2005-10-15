@@ -34,7 +34,7 @@ import org.apache.http.HttpMutableRequest;
 import org.apache.http.HttpRequestFactory;
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpVersion;
-import org.apache.http.Protocol;
+import org.apache.http.Scheme;
 import org.apache.http.entity.EntityConsumer;
 import org.apache.http.executor.HttpRequestExecutor;
 import org.apache.http.params.HttpParams;
@@ -63,7 +63,7 @@ public class SpringHttpDemo {
         HttpRequestExecutor httpexec = (HttpRequestExecutor)beanfactory.getBean("http-executor");
         httpexec.setParams(params);
         
-        Protocol http = (Protocol) beanfactory.getBean("http-protocol");
+        Scheme http = (Scheme) beanfactory.getBean("http-protocol");
         HttpHost host = new HttpHost("www.yahoo.com", 80, http);
 
         HttpRequestFactory requestfactory = (HttpRequestFactory) beanfactory.getBean("http-request-factory");

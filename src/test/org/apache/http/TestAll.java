@@ -53,6 +53,7 @@ public class TestAll extends TestCase {
         suite.addTest(TestHttpVersion.suite());
         suite.addTest(TestStatusLine.suite());
         suite.addTest(TestRequestLine.suite());
+        suite.addTest(TestScheme.suite());
         suite.addTest(TestHttpHost.suite());
 
         suite.addTest(TestAllIO.suite());

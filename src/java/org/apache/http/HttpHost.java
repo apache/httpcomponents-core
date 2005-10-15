@@ -34,7 +34,7 @@ import org.apache.http.util.LangUtils;
 
 /**
  * Holds all of the variables needed to describe an HTTP connection to a host. This includes 
- * remote host, port and protocol.
+ * remote host, port and scheme.
  * 
  * @author <a href="mailto:becke@u.washington.edu">Michael Becke</a>
  * @author <a href="mailto:mbowler@GargoyleSoftware.com">Mike Bowler</a>
@@ -51,30 +51,30 @@ public class HttpHost implements Cloneable {
     /** The port to use. */
     private int port = -1;
 
-    /** The protocol */
-    private Protocol protocol = null;
+    /** The scheme */
+    private Scheme scheme = null;
 
     /**
      * Constructor for HttpHost.
      *   
      * @param hostname the hostname (IP or DNS name). Can be <code>null</code>.
-     * @param port the port. Value <code>-1</code> can be used to set default protocol port
-     * @param protocol the protocol. Value <code>null</code> can be used to set default protocol
+     * @param port the port. Value <code>-1</code> can be used to set default scheme port
+     * @param scheme the scheme. Value <code>null</code> can be used to set default scheme
      */
-    public HttpHost(final String hostname, int port, final Protocol protocol) {
+    public HttpHost(final String hostname, int port, final Scheme scheme) {
         super();
         if (hostname == null) {
             throw new IllegalArgumentException("Host name may not be null");
         }
-        if (protocol == null) {
+        if (scheme == null) {
             throw new IllegalArgumentException("Protocol may not be null");
         }
         this.hostname = hostname;
-        this.protocol = protocol;
+        this.scheme = scheme;
         if (port >= 0) {
             this.port = port;
         } else {
-            this.port = this.protocol.getDefaultPort();
+            this.port = this.scheme.getDefaultPort();
         }
     }
 
@@ -82,10 +82,10 @@ public class HttpHost implements Cloneable {
      * Constructor for HttpHost.
      *   
      * @param hostname the hostname (IP or DNS name). Can be <code>null</code>.
-     * @param port the port. Value <code>-1</code> can be used to set default protocol port
+     * @param port the port. Value <code>-1</code> can be used to set default scheme port
      */
     public HttpHost(final String hostname, int port) {
-        this(hostname, port, Protocol.getProtocol("http"));
+        this(hostname, port, Scheme.getScheme("http"));
     }
     
     /**
@@ -94,7 +94,7 @@ public class HttpHost implements Cloneable {
      * @param hostname the hostname (IP or DNS name). Can be <code>null</code>.
      */
     public HttpHost(final String hostname) {
-        this(hostname, -1, Protocol.getProtocol("http"));
+        this(hostname, -1, Scheme.getScheme("http"));
     }
     
     /**
@@ -106,7 +106,7 @@ public class HttpHost implements Cloneable {
         super();
         this.hostname = httphost.hostname;
         this.port = httphost.port;
-        this.protocol = httphost.protocol;
+        this.scheme = httphost.scheme;
     }
 
     /**
@@ -135,11 +135,11 @@ public class HttpHost implements Cloneable {
     }
 
     /**
-     * Returns the protocol.
-     * @return The protocol.
+     * Returns the scheme.
+     * @return The scheme.
      */
-    public Protocol getProtocol() {
-        return this.protocol;
+    public Scheme getScheme() {
+        return this.scheme;
     }
 
     /**
@@ -149,10 +149,10 @@ public class HttpHost implements Cloneable {
      */
     public String toURI() {
     	CharArrayBuffer buffer = new CharArrayBuffer(32);        
-        buffer.append(this.protocol.getScheme());
+        buffer.append(this.scheme.getName());
         buffer.append("://");
         buffer.append(this.hostname);
-        if (this.port != this.protocol.getDefaultPort()) {
+        if (this.port != this.scheme.getDefaultPort()) {
             buffer.append(':');
             buffer.append(Integer.toString(this.port));
         }
@@ -162,7 +162,7 @@ public class HttpHost implements Cloneable {
     public String toHostString() {
     	CharArrayBuffer buffer = new CharArrayBuffer(32);        
         buffer.append(this.hostname);
-        if (this.port != this.protocol.getDefaultPort()) {
+        if (this.port != this.scheme.getDefaultPort()) {
             buffer.append(':');
             buffer.append(Integer.toString(this.port));
         }
@@ -186,7 +186,7 @@ public class HttpHost implements Cloneable {
             HttpHost that = (HttpHost) obj;
             return this.hostname.equalsIgnoreCase(that.hostname) 
                 && this.port == that.port
-                && this.protocol.equals(that.protocol);
+                && this.scheme.equals(that.scheme);
         } else {
             return false;
         }
@@ -199,7 +199,7 @@ public class HttpHost implements Cloneable {
         int hash = LangUtils.HASH_SEED;
         hash = LangUtils.hashCode(hash, this.hostname.toUpperCase());
         hash = LangUtils.hashCode(hash, this.port);
-        hash = LangUtils.hashCode(hash, this.protocol);
+        hash = LangUtils.hashCode(hash, this.scheme);
         return hash;
     }
 

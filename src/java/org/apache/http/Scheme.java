@@ -34,19 +34,20 @@ import java.util.Map;
 
 import org.apache.http.io.SecureSocketFactory;
 import org.apache.http.io.SocketFactory;
+import org.apache.http.util.CharArrayBuffer;
 import org.apache.http.util.LangUtils;
 
 /**
- * A class to encapsulate the specifics of a protocol.  This class also
+ * A class to encapsulate the specifics of a protocol scheme. This class also
  * provides the ability to customize the set and characteristics of the
- * protocols used.
+ * schemes used.
  * 
  * <p>One use case for modifying the default set of protocols would be to set a
  * custom SSL socket factory.  This would look something like the following:
  * <pre> 
- * Protocol myHTTPS = new Protocol( "https", new MySSLSocketFactory(), 443 );
+ * Scheme myHTTPS = new Scheme( "https", new MySSLSocketFactory(), 443 );
  * 
- * Protocol.registerProtocol( "https", myHTTPS );
+ * Scheme.registerScheme( "https", myHTTPS );
  * </pre>
  *
  * @author Michael Becke 
@@ -55,103 +56,99 @@ import org.apache.http.util.LangUtils;
  *  
  * @since 2.0 
  */
-public class Protocol {
+public class Scheme {
 
-    /** The available protocols */
-    private static final Map PROTOCOLS = Collections.synchronizedMap(new HashMap());
+    /** The available schemes */
+    private static final Map SCHEMES = Collections.synchronizedMap(new HashMap());
 
     /**
-     * Registers a new protocol with the given identifier.  If a protocol with
+     * Registers a new scheme with the given identifier. If a scheme with
      * the given ID already exists it will be overridden.  This ID is the same
-     * one used to retrieve the protocol from getProtocol(String).
+     * one used to retrieve the scheme from getScheme(String).
      * 
-     * @param id the identifier for this protocol
-     * @param protocol the protocol to register
+     * @param id the identifier for this scheme
+     * @param scheme the scheme to register
      * 
-     * @see #getProtocol(String)
+     * @see #getScheme(String)
      */
-    public static void registerProtocol(String id, Protocol protocol) {
-
+    public static void registerScheme(final String id, final Scheme scheme) {
         if (id == null) {
-            throw new IllegalArgumentException("id is null");
+            throw new IllegalArgumentException("Id may not be null");
         }
-        if (protocol == null) {
-            throw new IllegalArgumentException("protocol is null");
+        if (scheme == null) {
+            throw new IllegalArgumentException("Scheme may not be null");
         }
-
-        PROTOCOLS.put(id, protocol);
+        SCHEMES.put(id, scheme);
     }
 
     /**
-     * Unregisters the protocol with the given ID.
+     * Unregisters the scheme with the given ID.
      * 
-     * @param id the ID of the protocol to remove
+     * @param id the ID of the scheme to remove
      */
-    public static void unregisterProtocol(String id) {
-
+    public static void unregisterScheme(final String id) {
         if (id == null) {
-            throw new IllegalArgumentException("id is null");
+            throw new IllegalArgumentException("Id may not be null");
         }
-
-        PROTOCOLS.remove(id);
+        SCHEMES.remove(id);
     }
 
     /**
-     * Gets the protocol with the given ID.
+     * Gets the scheme with the given ID.
      * 
-     * @param id the protocol ID
+     * @param id the scheme ID
      * 
-     * @return Protocol a protocol
+     * @return Scheme a scheme
      * 
-     * @throws IllegalStateException if a protocol with the ID cannot be found
+     * @throws IllegalStateException if a scheme with the ID cannot be found
      */
-    public static Protocol getProtocol(String id) 
+    public static Scheme getScheme(String id) 
         throws IllegalStateException {
 
         if (id == null) {
             throw new IllegalArgumentException("id is null");
         }
-        Protocol protocol = (Protocol) PROTOCOLS.get(id);
-        if (protocol == null) {
-            throw new IllegalStateException("Unsupported protocol: '" + id + "'");
+        Scheme scheme = (Scheme) SCHEMES.get(id);
+        if (scheme == null) {
+            throw new IllegalStateException("Unsupported scheme: '" + id + "'");
         }
-        return protocol;
+        return scheme;
     } 
 
-    /** the scheme of this protocol (e.g. http, https) */
-    private String scheme;
+    /** the scheme of this scheme (e.g. http, https) */
+    private String name;
     
-    /** The socket factory for this protocol */
+    /** The socket factory for this scheme */
     private SocketFactory socketFactory;
     
-    /** The default port for this protocol */
+    /** The default port for this scheme */
     private int defaultPort;
     
-    /** True if this protocol is secure */
+    /** True if this scheme is secure */
     private boolean secure;
   
     /**
-     * Constructs a new Protocol. Whether the created protocol is secure depends on
+     * Constructs a new Protocol. Whether the created scheme is secure depends on
      * the class of <code>factory</code>.
      * 
-     * @param scheme the scheme (e.g. http, https)
+     * @param name the scheme name (e.g. http, https)
      * @param factory the factory for creating sockets for communication using
-     * this protocol
-     * @param defaultPort the port this protocol defaults to
+     * this scheme
+     * @param defaultPort the port this scheme defaults to
      */
-    public Protocol(final String scheme, final SocketFactory factory, int defaultPort) {
+    public Scheme(final String name, final SocketFactory factory, int defaultPort) {
         
-        if (scheme == null) {
-            throw new IllegalArgumentException("scheme is null");
+        if (name == null) {
+            throw new IllegalArgumentException("Scheme name may not be null");
         }
         if (factory == null) {
-            throw new IllegalArgumentException("socketFactory is null");
+            throw new IllegalArgumentException("Socket factory may not be null");
         }
         if (defaultPort <= 0) {
-            throw new IllegalArgumentException("port is invalid: " + defaultPort);
+            throw new IllegalArgumentException("Port is invalid: " + defaultPort);
         }
         
-        this.scheme = scheme;
+        this.name = name;
         this.socketFactory = factory;
         this.defaultPort = defaultPort;
         this.secure = (factory instanceof SecureSocketFactory);
@@ -177,20 +174,20 @@ public class Protocol {
      * Returns the scheme.
      * @return The scheme
      */
-    public String getScheme() {
-        return scheme;
+    public String getName() {
+        return name;
     }
 
     /**
-     * Returns true if this protocol is secure
-     * @return true if this protocol is secure
+     * Returns true if this scheme is secure
+     * @return true if this scheme is secure
      */
     public boolean isSecure() {
         return secure;
     }
     
     /**
-     * Resolves the correct port for this protocol.  Returns the given port if
+     * Resolves the correct port for this scheme.  Returns the given port if
      * valid or the default port otherwise.
      * 
      * @param port the port to be resolved
@@ -206,7 +203,11 @@ public class Protocol {
      * @return a string representation of this object.
      */
     public String toString() {
-        return scheme + ":" + defaultPort;
+    	CharArrayBuffer buffer = new CharArrayBuffer(32);
+    	buffer.append(this.name);
+    	buffer.append(':');
+    	buffer.append(Integer.toString(this.defaultPort));
+        return buffer.toString();
     }
     
     /**
@@ -215,11 +216,13 @@ public class Protocol {
      * @return true if the objects are equal.
      */
     public boolean equals(Object obj) {
-        if (obj instanceof Protocol) {
-            Protocol p = (Protocol) obj;
+        if (obj == null) return false;
+        if (this == obj) return true;
+        if (obj instanceof Scheme) {
+            Scheme p = (Scheme) obj;
             return (
                 defaultPort == p.getDefaultPort()
-                && scheme.equalsIgnoreCase(p.getScheme())
+                && name.equalsIgnoreCase(p.getName())
                 && secure == p.isSecure()
                 && socketFactory.equals(p.getSocketFactory()));
             
@@ -236,7 +239,7 @@ public class Protocol {
     public int hashCode() {
         int hash = LangUtils.HASH_SEED;
         hash = LangUtils.hashCode(hash, this.defaultPort);
-        hash = LangUtils.hashCode(hash, this.scheme.toLowerCase());
+        hash = LangUtils.hashCode(hash, this.name.toLowerCase());
         hash = LangUtils.hashCode(hash, this.secure);
         hash = LangUtils.hashCode(hash, this.socketFactory);
         return hash;

@@ -112,7 +112,7 @@ public class DefaultHttpClientConnection
         if (this.targethost == null) {
         	throw new IllegalStateException("Target host not specified");
         }
-        SocketFactory socketfactory = this.targethost.getProtocol().getSocketFactory();
+        SocketFactory socketfactory = this.targethost.getScheme().getSocketFactory();
         Socket socket = socketfactory.createSocket(
                 this.targethost.getHostName(), this.targethost.getPort(), 
                 this.localAddress, 0, 

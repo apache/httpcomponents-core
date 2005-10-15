@@ -35,7 +35,7 @@ import java.net.Socket;
 import java.net.UnknownHostException;
 
 import org.apache.http.ConnectTimeoutException;
-import org.apache.http.Protocol;
+import org.apache.http.Scheme;
 import org.apache.http.params.HttpParams;
 
 /**
@@ -47,7 +47,7 @@ import org.apache.http.params.HttpParams;
  * <code>HostConfiguration</code>s, and <code>equals()</code> and <code>hashCode()</code> are 
  * required for the correct operation of some connection managers.</p>
  * 
- * @see Protocol
+ * @see Scheme
  * 
  * @author Michael Becke
  * @author <a href="mailto:mbowler@GargoyleSoftware.com">Mike Bowler</a>

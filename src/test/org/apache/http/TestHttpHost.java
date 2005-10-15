@@ -60,28 +60,28 @@ public class TestHttpHost extends TestCase {
     protected void setUp() throws Exception {
         super.setUp();
         SocketFactory socketfactory = PlainSocketFactory.getSocketFactory();
-        final Protocol http = new Protocol("http", socketfactory, 80);
-        Protocol.registerProtocol("http", http);
+        final Scheme http = new Scheme("http", socketfactory, 80);
+        Scheme.registerScheme("http", http);
     }
     
     public void testConstructor() {
-        Protocol http = Protocol.getProtocol("http");
+        Scheme http = Scheme.getScheme("http");
         HttpHost host1 = new HttpHost("somehost");
         assertEquals("somehost", host1.getHostName()); 
         assertEquals(http.getDefaultPort(), host1.getPort()); 
-        assertEquals(http, host1.getProtocol()); 
+        assertEquals(http, host1.getScheme()); 
         HttpHost host2 = new HttpHost("somehost", 8080);
         assertEquals("somehost", host2.getHostName()); 
         assertEquals(8080, host2.getPort()); 
-        assertEquals(http, host2.getProtocol()); 
+        assertEquals(http, host2.getScheme()); 
         HttpHost host3 = new HttpHost("somehost", -1);
         assertEquals("somehost", host3.getHostName()); 
         assertEquals(http.getDefaultPort(), host3.getPort()); 
-        assertEquals(http, host3.getProtocol()); 
+        assertEquals(http, host3.getScheme()); 
         HttpHost host4 = new HttpHost("somehost", 8080, http);
         assertEquals("somehost", host4.getHostName()); 
         assertEquals(8080, host4.getPort()); 
-        assertEquals(http, host4.getProtocol()); 
+        assertEquals(http, host4.getScheme()); 
         try {
             new HttpHost(null, -1, null);
             fail("IllegalArgumentException should have been thrown");
@@ -97,22 +97,22 @@ public class TestHttpHost extends TestCase {
         ProxyHost proxyhost1 = new ProxyHost("somehost");
         assertEquals("somehost", proxyhost1.getHostName()); 
         assertEquals(http.getDefaultPort(), proxyhost1.getPort()); 
-        assertEquals(http, proxyhost1.getProtocol()); 
+        assertEquals(http, proxyhost1.getScheme()); 
 
         ProxyHost proxyhost2 = new ProxyHost("somehost", 8080);
         assertEquals("somehost", proxyhost2.getHostName()); 
         assertEquals(8080, proxyhost2.getPort()); 
-        assertEquals(http, proxyhost2.getProtocol()); 
+        assertEquals(http, proxyhost2.getScheme()); 
 
         ProxyHost proxyhost3 = new ProxyHost(proxyhost2);
         assertEquals("somehost", proxyhost3.getHostName()); 
         assertEquals(8080, proxyhost3.getPort()); 
-        assertEquals(http, proxyhost3.getProtocol()); 
+        assertEquals(http, proxyhost3.getScheme()); 
     }
     
     public void testHashCode() {
-        Protocol http = Protocol.getProtocol("http");
-        Protocol myhttp = new Protocol("myhttp", 
+        Scheme http = Scheme.getScheme("http");
+        Scheme myhttp = new Scheme("myhttp", 
                 NIOSocketFactory.getSocketFactory(), 8080);
         HttpHost host1 = new HttpHost("somehost", 8080, http);
         HttpHost host2 = new HttpHost("somehost", 80, http);
@@ -130,8 +130,8 @@ public class TestHttpHost extends TestCase {
     }
     
     public void testEquals() {
-        Protocol http = Protocol.getProtocol("http");
-        Protocol myhttp = new Protocol("myhttp", 
+        Scheme http = Scheme.getScheme("http");
+        Scheme myhttp = new Scheme("myhttp", 
                 NIOSocketFactory.getSocketFactory(), 8080);
         HttpHost host1 = new HttpHost("somehost", 8080, http);
         HttpHost host2 = new HttpHost("somehost", 80, http);
@@ -151,8 +151,8 @@ public class TestHttpHost extends TestCase {
     }
     
     public void testToString() {
-        Protocol http = Protocol.getProtocol("http");
-        Protocol myhttp = new Protocol("myhttp", 
+        Scheme http = Scheme.getScheme("http");
+        Scheme myhttp = new Scheme("myhttp", 
                 NIOSocketFactory.getSocketFactory(), 8080);
         HttpHost host1 = new HttpHost("somehost");
         assertEquals("http://somehost", host1.toString());
@@ -169,7 +169,7 @@ public class TestHttpHost extends TestCase {
     }
 
     public void testToHostString() {
-        Protocol http = Protocol.getProtocol("http");
+        Scheme http = Scheme.getScheme("http");
         HttpHost host1 = new HttpHost("somehost");
         assertEquals("somehost", host1.toHostString());
         HttpHost host2 = new HttpHost("somehost", http.getDefaultPort());
@@ -181,7 +181,7 @@ public class TestHttpHost extends TestCase {
     }
 
     public void testClone() {
-        HttpHost host1 = new HttpHost("somehost", 8888, Protocol.getProtocol("http"));
+        HttpHost host1 = new HttpHost("somehost", 8888, Scheme.getScheme("http"));
         HttpHost host2 = (HttpHost) host1.clone(); 
         assertEquals(host1, host2);
         ProxyHost proxyhost1 = new ProxyHost("somehost", 8888);

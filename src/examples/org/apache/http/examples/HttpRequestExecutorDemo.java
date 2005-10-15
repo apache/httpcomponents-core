@@ -33,7 +33,7 @@ import org.apache.http.HttpClientConnection;
 import org.apache.http.HttpHost;
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpVersion;
-import org.apache.http.Protocol;
+import org.apache.http.Scheme;
 import org.apache.http.entity.EntityConsumer;
 import org.apache.http.executor.HttpRequestExecutor;
 import org.apache.http.impl.DefaultHttpClientConnection;
@@ -61,7 +61,7 @@ public class HttpRequestExecutorDemo {
     public static void main(String[] args) throws Exception {
         
         SocketFactory socketfactory = PlainSocketFactory.getSocketFactory();
-        Protocol.registerProtocol("http", new Protocol("http", socketfactory, 80));
+        Scheme.registerScheme("http", new Scheme("http", socketfactory, 80));
         
         HttpParams params = new DefaultHttpParams(null);
         HttpProtocolParams.setVersion(params, HttpVersion.HTTP_1_1);

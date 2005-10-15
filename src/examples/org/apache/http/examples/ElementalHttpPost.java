@@ -36,7 +36,7 @@ import org.apache.http.HttpClientConnection;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpHost;
 import org.apache.http.HttpResponse;
-import org.apache.http.Protocol;
+import org.apache.http.Scheme;
 import org.apache.http.entity.ByteArrayEntity;
 import org.apache.http.entity.EntityConsumer;
 import org.apache.http.entity.InputStreamEntity;
@@ -60,7 +60,7 @@ public class ElementalHttpPost {
     public static void main(String[] args) throws Exception {
         
         SocketFactory socketfactory = PlainSocketFactory.getSocketFactory();
-        Protocol.registerProtocol("http", new Protocol("http", socketfactory, 80));
+        Scheme.registerScheme("http", new Scheme("http", socketfactory, 80));
 
         HttpParams connparams = new DefaultHttpParams(null);
         HttpHost host = new HttpHost("localhost", 8080);

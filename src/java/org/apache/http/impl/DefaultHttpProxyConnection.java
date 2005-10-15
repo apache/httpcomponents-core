@@ -35,7 +35,7 @@ import java.net.Socket;
 
 import org.apache.http.HttpHost;
 import org.apache.http.HttpProxyConnection;
-import org.apache.http.Protocol;
+import org.apache.http.Scheme;
 import org.apache.http.ProxyHost;
 import org.apache.http.io.SecureSocketFactory;
 import org.apache.http.io.SocketFactory;
@@ -83,7 +83,7 @@ public class DefaultHttpProxyConnection
                     this.tunneltarget + " is already active");
         }
         assertOpen();
-        Protocol protocol = targetHost.getProtocol();
+        Scheme protocol = targetHost.getScheme();
         SocketFactory socketfactory = protocol.getSocketFactory();
         if (socketfactory instanceof SecureSocketFactory) {
             Socket socket = ((SecureSocketFactory)socketfactory)

@@ -55,10 +55,10 @@ public class ProxyHost extends HttpHost {
      * Constructor for ProxyHost.
      *   
      * @param hostname the hostname (IP or DNS name). Can be <code>null</code>.
-     * @param port the port. Value <code>-1</code> can be used to set default protocol port
+     * @param port the port. Value <code>-1</code> can be used to set default scheme port
      */
     public ProxyHost(final String hostname, int port) {
-        super(hostname, port, Protocol.getProtocol("http"));
+        super(hostname, port, Scheme.getScheme("http"));
     }
     
     /**
