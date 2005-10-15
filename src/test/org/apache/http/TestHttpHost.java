@@ -29,7 +29,6 @@
 
 package org.apache.http;
 
-import org.apache.http.impl.io.NIOSocketFactory;
 import org.apache.http.impl.io.PlainSocketFactory;
 import org.apache.http.io.SocketFactory;
 
@@ -113,7 +112,7 @@ public class TestHttpHost extends TestCase {
     public void testHashCode() {
         Scheme http = Scheme.getScheme("http");
         Scheme myhttp = new Scheme("myhttp", 
-                NIOSocketFactory.getSocketFactory(), 8080);
+                PlainSocketFactory.getSocketFactory(), 8080);
         HttpHost host1 = new HttpHost("somehost", 8080, http);
         HttpHost host2 = new HttpHost("somehost", 80, http);
         HttpHost host3 = new HttpHost("someotherhost", 8080, http);
@@ -132,7 +131,7 @@ public class TestHttpHost extends TestCase {
     public void testEquals() {
         Scheme http = Scheme.getScheme("http");
         Scheme myhttp = new Scheme("myhttp", 
-                NIOSocketFactory.getSocketFactory(), 8080);
+        		PlainSocketFactory.getSocketFactory(), 8080);
         HttpHost host1 = new HttpHost("somehost", 8080, http);
         HttpHost host2 = new HttpHost("somehost", 80, http);
         HttpHost host3 = new HttpHost("someotherhost", 8080, http);
@@ -153,7 +152,7 @@ public class TestHttpHost extends TestCase {
     public void testToString() {
         Scheme http = Scheme.getScheme("http");
         Scheme myhttp = new Scheme("myhttp", 
-                NIOSocketFactory.getSocketFactory(), 8080);
+        		PlainSocketFactory.getSocketFactory(), 8080);
         HttpHost host1 = new HttpHost("somehost");
         assertEquals("http://somehost", host1.toString());
         HttpHost host2 = new HttpHost("somehost", http.getDefaultPort());

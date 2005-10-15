@@ -31,10 +31,8 @@ package org.apache.http.examples;
 
 import java.io.IOException;
 import java.io.InterruptedIOException;
-import java.net.InetSocketAddress;
+import java.net.ServerSocket;
 import java.net.Socket;
-import java.nio.channels.ServerSocketChannel;
-import java.nio.channels.SocketChannel;
 
 import org.apache.http.ConnectionClosedException;
 import org.apache.http.Header;
@@ -159,23 +157,21 @@ public class ElementalHttpEchoServer {
     
     static class RequestListenerThread extends Thread {
 
-        private final ServerSocketChannel serverchannel;
+        private final ServerSocket serversocket;
         private HttpParams params; 
         
         public RequestListenerThread(int port) throws IOException {
-            this.serverchannel = ServerSocketChannel.open();
-            this.serverchannel.socket().bind(new InetSocketAddress(port));
+            this.serversocket = new ServerSocket(port);
             this.params = new DefaultHttpParams(null); 
         }
         
         public void run() {
-            System.out.println("Listening on port " + this.serverchannel.socket().getLocalPort());
+            System.out.println("Listening on port " + this.serversocket.getLocalPort());
             while (!Thread.interrupted()) {
                 try {
-                    SocketChannel channel = this.serverchannel.accept();
-                    Socket socket = channel.socket();
+                	Socket socket = this.serversocket.accept();
                     HttpServerConnection conn = new DefaultHttpServerConnection();
-                    System.out.println("Incoming connection from " + socket.getRemoteSocketAddress());
+                    System.out.println("Incoming connection from " + socket.getInetAddress());
                     conn.bind(socket, this.params);
                     Thread t = new HttpConnectionThread(conn);
                     t.setDaemon(true);

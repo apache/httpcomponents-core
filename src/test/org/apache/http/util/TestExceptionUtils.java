@@ -57,8 +57,6 @@ public class TestExceptionUtils extends TestCase {
         Exception ex1 = new Exception(); 
         Exception ex2 = new Exception();
         ExceptionUtil.initCause(ex1, ex2);
-        assertNotNull(ex1.getCause());
-        assertTrue(ex1.getCause() == ex2);
     }
     
 }
