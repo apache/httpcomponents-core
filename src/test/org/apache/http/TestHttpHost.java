@@ -94,6 +94,20 @@ public class TestHttpHost extends TestCase {
         } catch (IllegalArgumentException ex) {
             //expected
         }
+        ProxyHost proxyhost1 = new ProxyHost("somehost");
+        assertEquals("somehost", proxyhost1.getHostName()); 
+        assertEquals(http.getDefaultPort(), proxyhost1.getPort()); 
+        assertEquals(http, proxyhost1.getProtocol()); 
+
+        ProxyHost proxyhost2 = new ProxyHost("somehost", 8080);
+        assertEquals("somehost", proxyhost2.getHostName()); 
+        assertEquals(8080, proxyhost2.getPort()); 
+        assertEquals(http, proxyhost2.getProtocol()); 
+
+        ProxyHost proxyhost3 = new ProxyHost(proxyhost2);
+        assertEquals("somehost", proxyhost3.getHostName()); 
+        assertEquals(8080, proxyhost3.getPort()); 
+        assertEquals(http, proxyhost3.getProtocol()); 
     }
     
     public void testHashCode() {
@@ -170,5 +184,8 @@ public class TestHttpHost extends TestCase {
         HttpHost host1 = new HttpHost("somehost", 8888, Protocol.getProtocol("http"));
         HttpHost host2 = (HttpHost) host1.clone(); 
         assertEquals(host1, host2);
+        ProxyHost proxyhost1 = new ProxyHost("somehost", 8888);
+        ProxyHost proxyhost2 = (ProxyHost) proxyhost1.clone(); 
+        assertEquals(proxyhost1, proxyhost2);
     }
 }

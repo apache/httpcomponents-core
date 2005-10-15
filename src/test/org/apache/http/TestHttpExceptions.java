@@ -67,6 +67,9 @@ public class TestHttpExceptions extends TestCase {
         new NoHttpResponseException("Oppsie");
         new ConnectTimeoutException();
         new ConnectTimeoutException("Oppsie");
+        new ConnectionClosedException("Oppsie");
+        new MethodNotSupportedException("Oppsie");
+        new MethodNotSupportedException("Oppsie", cause);
     }
             
 }
