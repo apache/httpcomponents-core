@@ -21,6 +21,10 @@ public class HttpConnectionMockup implements HttpConnection {
         this.open = false;
     }
     
+    public void shutdown() throws IOException {
+        this.open = false;
+    }
+    
     public int getSocketTimeout() throws IOException {
         return 0;
     }
