@@ -106,25 +106,25 @@ abstract class AbstractHttpConnection implements HttpConnection {
         if (params == null) {
             throw new IllegalArgumentException("HTTP parameters may not be null");
         }
-        assertNotOpen();
-        this.open = true;
-        this.socket = socket;
-        this.socket.setTcpNoDelay(HttpConnectionParams.getTcpNoDelay(params));
-        this.socket.setSoTimeout(HttpConnectionParams.getSoTimeout(params));
+        socket.setTcpNoDelay(HttpConnectionParams.getTcpNoDelay(params));
+        socket.setSoTimeout(HttpConnectionParams.getSoTimeout(params));
         
         int linger = HttpConnectionParams.getLinger(params);
         if (linger >= 0) {
-            this.socket.setSoLinger(linger > 0, linger);
+            socket.setSoLinger(linger > 0, linger);
         }
         
         int sndBufSize = HttpConnectionParams.getSendBufferSize(params);
         if (sndBufSize >= 0) {
-            this.socket.setSendBufferSize(sndBufSize);
+            socket.setSendBufferSize(sndBufSize);
         }        
         int rcvBufSize = HttpConnectionParams.getReceiveBufferSize(params);
         if (rcvBufSize >= 0) {
-            this.socket.setReceiveBufferSize(rcvBufSize);
+            socket.setReceiveBufferSize(rcvBufSize);
         }
+        assertNotOpen();
+        this.open = true;
+        this.socket = socket;
         if (this.trxfactory != null) {
             this.datatransmitter = this.trxfactory.create(this.socket); 
         } else {
@@ -140,30 +140,43 @@ abstract class AbstractHttpConnection implements HttpConnection {
     public boolean isOpen() {
         return this.open;
     }
-    
-    public void close() throws IOException {
+
+    /**
+     * This is the only method, which may be called from a different thread to
+     * force shutdown the connection. This method will not attempt to flush the 
+     * transmitter's internal buffer prior to closing the underlying socket.
+     */
+    public void shutdown() throws IOException {
         this.open = false;
-        synchronized (this) {
-            HttpDataTransmitter tmptransmitter = this.datatransmitter;
-            Socket tmpsocket = this.socket;
-            this.datareceiver = null;
-            this.datatransmitter = null;
-            this.socket = null;
-            if (tmptransmitter != null) {
-                tmptransmitter.flush();
-            }
-            if (tmpsocket != null) {
-            	try {
-                    tmpsocket.shutdownOutput();
-            	} catch (IOException ignore) {
-            	}
-            	try {
-                    tmpsocket.shutdownInput();
-            	} catch (IOException ignore) {
-            	}
-                tmpsocket.close();
-            }
+        Socket tmpsocket = this.socket;
+        if (tmpsocket != null) {
+            tmpsocket.close();
         }
+    }
+    
+    /**
+     * This method will gracefully close the connection. It will attempt to 
+     * flush the transmitter's internal buffer prior to closing the underlying 
+     * socket. This method MAY NOT be called from a different thread to force 
+     * shutdonw the connection. Use #shutdown() instead.
+     * 
+     * @see #shutdown()
+     */
+    public void close() throws IOException {
+        if (!this.open) {
+            return;
+        }
+        this.open = false;
+        this.datatransmitter.flush();
+        try {
+            this.socket.shutdownOutput();
+        } catch (IOException ignore) {
+        }
+        try {
+            this.socket.shutdownInput();
+        } catch (IOException ignore) {
+        }
+        this.socket.close();
     }
     
     public boolean isStale() {

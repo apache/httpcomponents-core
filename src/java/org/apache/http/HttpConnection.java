@@ -48,4 +48,5 @@ public interface HttpConnection {
  
     boolean isStale();
     
+    void shutdown() throws IOException;
 }
