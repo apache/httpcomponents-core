@@ -26,46 +26,24 @@
  *
  */
 
-package org.apache.http;
-
-import org.apache.http.entity.TestAllEntity;
-import org.apache.http.impl.TestAllImpl;
-import org.apache.http.io.TestAllIO;
-import org.apache.http.util.TestAllUtil;
+package org.apache.http.entity;
 
 import junit.framework.*;
 
-public class TestAll extends TestCase {
+public class TestAllEntity extends TestCase {
 
-    public TestAll(String testName) {
+    public TestAllEntity(String testName) {
         super(testName);
     }
 
     public static Test suite() {
         TestSuite suite = new TestSuite();
-        
-        suite.addTest(TestAllUtil.suite());
-        
-        suite.addTest(TestHttpExceptions.suite());
-        suite.addTest(TestNameValuePair.suite());
-        suite.addTest(TestHeader.suite());
-        suite.addTest(TestHeaderElement.suite());
-        suite.addTest(TestHttpStatus.suite());
-        suite.addTest(TestHttpVersion.suite());
-        suite.addTest(TestStatusLine.suite());
-        suite.addTest(TestRequestLine.suite());
-        suite.addTest(TestScheme.suite());
-        suite.addTest(TestHttpHost.suite());
-
-        suite.addTest(TestAllIO.suite());
-        suite.addTest(TestAllEntity.suite());
-        suite.addTest(TestAllImpl.suite());
-        
+        suite.addTest(TestHttpEntities.suite());
         return suite;
     }
 
     public static void main(String args[]) {
-        String[] testCaseName = { TestAll.class.getName() };
+        String[] testCaseName = { TestAllEntity.class.getName() };
         junit.textui.TestRunner.main(testCaseName);
     }
 
