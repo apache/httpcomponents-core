@@ -42,11 +42,25 @@ import java.io.IOException;
  */
 public interface HttpConnection {
 
+    /**
+     * This method will gracefully close the connection. It will attempt to 
+     * flush the transmitter's internal buffer prior to closing the underlying 
+     * socket. This method MAY NOT be called from a different thread to force 
+     * shutdonw the connection. Use #shutdown() instead.
+     * 
+     * @see #shutdown()
+     */
     void close() throws IOException;
     
     boolean isOpen();
  
     boolean isStale();
     
+    /**
+     * This method will force close the connection. This is the only method, 
+     * which may be called from a different thread to terminate the connection. 
+     * This method will not attempt to flush the transmitter's internal buffer 
+     * prior to closing the underlying socket.
+     */
     void shutdown() throws IOException;
 }

@@ -141,11 +141,6 @@ abstract class AbstractHttpConnection implements HttpConnection {
         return this.open;
     }
 
-    /**
-     * This is the only method, which may be called from a different thread to
-     * force shutdown the connection. This method will not attempt to flush the 
-     * transmitter's internal buffer prior to closing the underlying socket.
-     */
     public void shutdown() throws IOException {
         this.open = false;
         Socket tmpsocket = this.socket;
@@ -154,14 +149,6 @@ abstract class AbstractHttpConnection implements HttpConnection {
         }
     }
     
-    /**
-     * This method will gracefully close the connection. It will attempt to 
-     * flush the transmitter's internal buffer prior to closing the underlying 
-     * socket. This method MAY NOT be called from a different thread to force 
-     * shutdonw the connection. Use #shutdown() instead.
-     * 
-     * @see #shutdown()
-     */
     public void close() throws IOException {
         if (!this.open) {
             return;
