@@ -157,13 +157,79 @@ public class TestHttpEntities extends TestCase {
     	for (int i = 0; i < bytes.length; i++) {
     		assertEquals(bytes[i], bytes2[i]);
     	}
-    	
+        
     	try {
     		httpentity.writeTo(null);
     		fail("IllegalArgumentException should have been thrown");
     	} catch (IllegalArgumentException ex) {
     		// expected
     	}
+    }
+    
+    public void testStringEntity() throws Exception {
+        String s = "Message content";
+        StringEntity httpentity = new StringEntity(s, "ISO-8859-1");
+        httpentity.setContentType("text/plain");
+        httpentity.setContentEncoding("identity");
+        httpentity.setChunked(false);
+        
+        byte[] bytes = s.getBytes("ISO-8859-1");
+        assertEquals(bytes.length, httpentity.getContentLength());
+        assertEquals("text/plain", httpentity.getContentType());
+        assertEquals("identity", httpentity.getContentEncoding());
+        assertNotNull(httpentity.getContent());
+        assertFalse(httpentity.isChunked());
+        assertTrue(httpentity.isRepeatable());
+    }
+
+    public void testStringEntityIllegalConstructor() throws Exception {
+        try {
+            new StringEntity(null);
+            fail("IllegalArgumentException should have been thrown");
+        } catch (IllegalArgumentException ex) {
+            // expected
+        }
+    }
+
+    public void testStringEntityDefaultContent() throws Exception {
+        String s = "Message content";
+        StringEntity httpentity = new StringEntity(s, "US-ASCII");
+        assertEquals("text/plain; charset=US-ASCII", 
+                httpentity.getContentType());
+        httpentity = new StringEntity(s);
+        assertEquals("text/plain; charset=ISO-8859-1", 
+                httpentity.getContentType());
+    }
+
+    public void testStringEntityWriteTo() throws Exception {
+        String s = "Message content";
+        byte[] bytes = s.getBytes("ISO-8859-1");
+        StringEntity httpentity = new StringEntity(s);
+        
+        ByteArrayOutputStream out = new ByteArrayOutputStream();
+        assertTrue(httpentity.writeTo(out));
+        byte[] bytes2 = out.toByteArray();
+        assertNotNull(bytes2);
+        assertEquals(bytes.length, bytes2.length);
+        for (int i = 0; i < bytes.length; i++) {
+            assertEquals(bytes[i], bytes2[i]);
+        }
+
+        out = new ByteArrayOutputStream();
+        assertTrue(httpentity.writeTo(out));
+        bytes2 = out.toByteArray();
+        assertNotNull(bytes2);
+        assertEquals(bytes.length, bytes2.length);
+        for (int i = 0; i < bytes.length; i++) {
+            assertEquals(bytes[i], bytes2[i]);
+        }
+        
+        try {
+            httpentity.writeTo(null);
+            fail("IllegalArgumentException should have been thrown");
+        } catch (IllegalArgumentException ex) {
+            // expected
+        }
     }
     
 }

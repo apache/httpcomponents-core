@@ -33,6 +33,7 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.io.UnsupportedEncodingException;
 
 import org.apache.http.HttpEntity;
 
@@ -47,25 +48,29 @@ import org.apache.http.HttpEntity;
  */
 public class StringEntity implements HttpEntity {
 
+    private final static String DEFAULT_CHARSET = "ISO-8859-1";
     private final static String DEFAULT_CONTENT_TYPE = "text/plain; charset=";
 
-    private final String content;
+    private final byte[] content;
     private String contentType = null;
     private String contentEncoding = null;
     private boolean chunked = false;
 
-    public StringEntity(final String s, final String charset) {
+    public StringEntity(final String s, String charset) 
+            throws UnsupportedEncodingException {
         super();
         if (s == null) {
             throw new IllegalArgumentException("Source string may not be null");
         }
-        this.content = s;
-        if (charset != null) {
-            this.contentType = DEFAULT_CONTENT_TYPE + charset;
+        if (charset == null) {
+            charset = DEFAULT_CHARSET;
         }
+        this.contentType = DEFAULT_CONTENT_TYPE + charset;
+        this.content = s.getBytes(charset);
     }
 
-    public StringEntity(final String s) {
+    public StringEntity(final String s) 
+            throws UnsupportedEncodingException {
         this(s, null);
     }
 
@@ -82,7 +87,7 @@ public class StringEntity implements HttpEntity {
     }
 
     public long getContentLength() {
-        return this.content.length();
+        return this.content.length;
     }
     
     public String getContentType() {
@@ -102,17 +107,14 @@ public class StringEntity implements HttpEntity {
     }
     
     public InputStream getContent() throws IOException {
-        String charset = EntityConsumer.getContentCharSet(this);
-        return new ByteArrayInputStream(this.content.getBytes(charset));
+        return new ByteArrayInputStream(this.content);
     }
     
     public boolean writeTo(final OutputStream outstream) throws IOException {
         if (outstream == null) {
             throw new IllegalArgumentException("Output stream may not be null");
         }
-        String charset = EntityConsumer.getContentCharSet(this);
-        byte[] content = this.content.getBytes(charset);
-        outstream.write(content);
+        outstream.write(this.content);
         outstream.flush();
         return true;
     }
