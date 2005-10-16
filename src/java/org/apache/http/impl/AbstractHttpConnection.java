@@ -53,9 +53,15 @@ import org.apache.http.params.HttpParams;
  */
 abstract class AbstractHttpConnection implements HttpConnection {
 
-    protected volatile Socket socket = null;
-    protected volatile HttpDataTransmitter datatransmitter = null;
-    protected volatile HttpDataReceiver datareceiver = null;
+	/* 
+	 * I/O operations may not be performed if this flag is set to false 
+	 * All methods must call #assertOpen() to ensure the connection 
+	 * is open prior to performing any I/O
+	 */ 
+	protected volatile boolean open;
+    protected Socket socket = null;
+    protected HttpDataTransmitter datatransmitter = null;
+    protected HttpDataReceiver datareceiver = null;
     
     /*
      * Dependent interfaces
@@ -82,13 +88,13 @@ abstract class AbstractHttpConnection implements HttpConnection {
     }
 
     protected void assertNotOpen() {
-        if (this.socket != null) {
+        if (this.open) {
             throw new IllegalStateException("Connection is already open");
         }
     }
     
     protected void assertOpen() {
-        if (this.socket == null) {
+        if (!this.open) {
             throw new IllegalStateException("Connection is not open");
         }
     }
@@ -101,6 +107,7 @@ abstract class AbstractHttpConnection implements HttpConnection {
             throw new IllegalArgumentException("HTTP parameters may not be null");
         }
         assertNotOpen();
+        this.open = true;
         this.socket = socket;
         this.socket.setTcpNoDelay(HttpConnectionParams.getTcpNoDelay(params));
         this.socket.setSoTimeout(HttpConnectionParams.getSoTimeout(params));
@@ -131,28 +138,31 @@ abstract class AbstractHttpConnection implements HttpConnection {
     }
 
     public boolean isOpen() {
-        return this.socket != null;
+        return this.open;
     }
     
     public void close() throws IOException {
-        HttpDataTransmitter tmptransmitter = this.datatransmitter;
-        if (tmptransmitter != null) {
-            tmptransmitter.flush();
-        }
-        this.datareceiver = null;
-        this.datatransmitter = null;
-        Socket tmpsocket = this.socket;
-        this.socket = null;
-        if (tmpsocket != null) {
-        	try {
-                tmpsocket.shutdownOutput();
-        	} catch (IOException ignore) {
-        	}
-        	try {
-                tmpsocket.shutdownInput();
-        	} catch (IOException ignore) {
-        	}
-            tmpsocket.close();
+        this.open = false;
+        synchronized (this) {
+            HttpDataTransmitter tmptransmitter = this.datatransmitter;
+            Socket tmpsocket = this.socket;
+            this.datareceiver = null;
+            this.datatransmitter = null;
+            this.socket = null;
+            if (tmptransmitter != null) {
+                tmptransmitter.flush();
+            }
+            if (tmpsocket != null) {
+            	try {
+                    tmpsocket.shutdownOutput();
+            	} catch (IOException ignore) {
+            	}
+            	try {
+                    tmpsocket.shutdownInput();
+            	} catch (IOException ignore) {
+            	}
+                tmpsocket.close();
+            }
         }
     }
     
