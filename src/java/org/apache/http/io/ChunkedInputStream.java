@@ -34,7 +34,7 @@ import java.io.InputStream;
 
 import org.apache.http.Header;
 import org.apache.http.HttpException;
-import org.apache.http.util.ExceptionUtil;
+import org.apache.http.util.ExceptionUtils;
 import org.apache.http.util.HeadersParser;
 
 /**
@@ -291,7 +291,7 @@ public class ChunkedInputStream extends InputStream {
         } catch (HttpException e) {
             IOException ioe = new MalformedChunkCodingException("Invalid footer: " 
                     + e.getMessage());
-            ExceptionUtil.initCause(ioe, e); 
+            ExceptionUtils.initCause(ioe, e); 
             throw ioe;
         }
     }

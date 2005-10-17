@@ -38,7 +38,7 @@ import java.lang.reflect.Method;
  * 
  * @since 3.0
  */
-public class ExceptionUtil {
+public class ExceptionUtils {
 
     /** A reference to Throwable's initCause method, or null if it's not there in this JVM */
     static private final Method INIT_CAUSE_METHOD = getInitCauseMethod();

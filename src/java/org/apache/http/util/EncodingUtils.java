@@ -38,7 +38,7 @@ import java.io.UnsupportedEncodingException;
  * 
  * @since 2.0 final
  */
-public class EncodingUtil {
+public class EncodingUtils {
 
     /** ASCII chatset */
     private static final String ASCII_CHARSET = "US-ASCII";
@@ -190,7 +190,7 @@ public class EncodingUtil {
     /**
      * This class should not be instantiated.
      */
-    private EncodingUtil() {
+    private EncodingUtils() {
         super();
     }
 

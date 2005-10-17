@@ -36,7 +36,7 @@ import java.io.OutputStream;
 import org.apache.http.Header;
 import org.apache.http.mockup.HttpDataReceiverMockup;
 import org.apache.http.mockup.HttpDataTransmitterMockup;
-import org.apache.http.util.EncodingUtil;
+import org.apache.http.util.EncodingUtils;
 
 import junit.framework.Test;
 import junit.framework.TestCase;
@@ -83,7 +83,7 @@ public class TestChunkCoding extends TestCase {
     public void testChunkedInputStreamLargeBuffer() throws IOException {
         ChunkedInputStream in = new ChunkedInputStream(
                 new HttpDataReceiverMockup(
-                        EncodingUtil.getBytes(CHUNKED_INPUT, CONTENT_CHARSET)));
+                        EncodingUtils.getBytes(CHUNKED_INPUT, CONTENT_CHARSET)));
         byte[] buffer = new byte[300];
         ByteArrayOutputStream out = new ByteArrayOutputStream();
         int len;
@@ -95,7 +95,7 @@ public class TestChunkCoding extends TestCase {
         
         in.close();
         
-        String result = EncodingUtil.getString(out.toByteArray(), CONTENT_CHARSET);
+        String result = EncodingUtils.getString(out.toByteArray(), CONTENT_CHARSET);
         assertEquals(result, CHUNKED_RESULT);
         
         Header[] footers = in.getFooters();
@@ -111,7 +111,7 @@ public class TestChunkCoding extends TestCase {
     public void testChunkedInputStreamSmallBuffer() throws IOException {
         ChunkedInputStream in = new ChunkedInputStream(
                 new HttpDataReceiverMockup(
-                            EncodingUtil.getBytes(CHUNKED_INPUT, CONTENT_CHARSET)));
+                            EncodingUtils.getBytes(CHUNKED_INPUT, CONTENT_CHARSET)));
 
         byte[] buffer = new byte[7];
         ByteArrayOutputStream out = new ByteArrayOutputStream();
@@ -124,7 +124,7 @@ public class TestChunkCoding extends TestCase {
 
         in.close();
                 
-        EncodingUtil.getString(out.toByteArray(), CONTENT_CHARSET);
+        EncodingUtils.getString(out.toByteArray(), CONTENT_CHARSET);
         Header[] footers = in.getFooters();
         assertNotNull(footers);
         assertEquals(2, footers.length);
@@ -139,7 +139,7 @@ public class TestChunkCoding extends TestCase {
         String s = "5\r\n01234\r\n5\r\n56789\r\n0\r\n";
         ChunkedInputStream in = new ChunkedInputStream(
                 new HttpDataReceiverMockup(
-                        EncodingUtil.getBytes(s, CONTENT_CHARSET)));
+                        EncodingUtils.getBytes(s, CONTENT_CHARSET)));
         int ch;
         int i = '0';
         while ((ch = in.read()) != -1) {
@@ -156,7 +156,7 @@ public class TestChunkCoding extends TestCase {
         String s = "5\r\n01234\r\n5\r\n56789\r\n0\r\n";
         ChunkedInputStream in = new ChunkedInputStream(
                 new HttpDataReceiverMockup(
-                        EncodingUtil.getBytes(s, CONTENT_CHARSET)));
+                        EncodingUtils.getBytes(s, CONTENT_CHARSET)));
         in.close();
         in.close();
         try {
@@ -204,7 +204,7 @@ public class TestChunkCoding extends TestCase {
         String s = "5\r\n012345\r\n56789\r\n0\r\n";
         InputStream in = new ChunkedInputStream(
                 new HttpDataReceiverMockup(
-                        EncodingUtil.getBytes(s, CONTENT_CHARSET)));
+                        EncodingUtils.getBytes(s, CONTENT_CHARSET)));
         byte[] buffer = new byte[300];
         ByteArrayOutputStream out = new ByteArrayOutputStream();
         int len;
@@ -223,7 +223,7 @@ public class TestChunkCoding extends TestCase {
         String s = "5\r01234\r\n5\r\n56789\r\n0\r\n";
         InputStream in = new ChunkedInputStream(
                 new HttpDataReceiverMockup(
-                        EncodingUtil.getBytes(s, CONTENT_CHARSET)));
+                        EncodingUtils.getBytes(s, CONTENT_CHARSET)));
         try {
             in.read();
             fail("MalformedChunkCodingException should have been thrown");
@@ -249,7 +249,7 @@ public class TestChunkCoding extends TestCase {
         String s = "whatever\r\n01234\r\n5\r\n56789\r\n0\r\n";
         InputStream in = new ChunkedInputStream(
                 new HttpDataReceiverMockup(
-                        EncodingUtil.getBytes(s, CONTENT_CHARSET)));
+                        EncodingUtils.getBytes(s, CONTENT_CHARSET)));
         try {
             in.read();
             fail("MalformedChunkCodingException should have been thrown");
@@ -263,7 +263,7 @@ public class TestChunkCoding extends TestCase {
         String s = "1\r\n0\r\n0\r\nstuff\r\n";
         InputStream in = new ChunkedInputStream(
                 new HttpDataReceiverMockup(
-                        EncodingUtil.getBytes(s, CONTENT_CHARSET)));
+                        EncodingUtils.getBytes(s, CONTENT_CHARSET)));
         try {
             in.read();
             in.read();
@@ -277,7 +277,7 @@ public class TestChunkCoding extends TestCase {
         String input = "0\r\n";
         InputStream in = new ChunkedInputStream(
                 new HttpDataReceiverMockup(
-                        EncodingUtil.getBytes(input, CONTENT_CHARSET)));
+                        EncodingUtils.getBytes(input, CONTENT_CHARSET)));
         byte[] buffer = new byte[300];
         ByteArrayOutputStream out = new ByteArrayOutputStream();
         int len;
@@ -291,7 +291,7 @@ public class TestChunkCoding extends TestCase {
         String input = "76126;27823abcd;:q38a-\nkjc\rk%1ad\tkh/asdui\r\njkh+?\\suweb";
         ByteArrayOutputStream buffer = new ByteArrayOutputStream();
         OutputStream out = new ChunkedOutputStream(new HttpDataTransmitterMockup(buffer));
-        out.write(EncodingUtil.getBytes(input, CONTENT_CHARSET));
+        out.write(EncodingUtils.getBytes(input, CONTENT_CHARSET));
         out.flush();
         out.close();
         out.close();
@@ -307,7 +307,7 @@ public class TestChunkCoding extends TestCase {
             result.write(d, 0, len);
         }
 
-        String output = EncodingUtil.getString(result.toByteArray(), CONTENT_CHARSET);
+        String output = EncodingUtils.getString(result.toByteArray(), CONTENT_CHARSET);
         assertEquals(input, output);
     }
 

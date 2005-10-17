@@ -33,7 +33,7 @@ import java.io.IOException;
 import java.io.InputStream;
 
 import org.apache.http.mockup.HttpDataReceiverMockup;
-import org.apache.http.util.EncodingUtil;
+import org.apache.http.util.EncodingUtils;
 
 import junit.framework.Test;
 import junit.framework.TestCase;
@@ -78,7 +78,7 @@ public class TestContentLengthInputStream extends TestCase {
     public void testBasics() throws IOException {
         String correct = "1234567890123456";
         InputStream in = new ContentLengthInputStream(new HttpDataReceiverMockup(
-            EncodingUtil.getBytes(correct, CONTENT_CHARSET)), 10L);
+            EncodingUtils.getBytes(correct, CONTENT_CHARSET)), 10L);
         ByteArrayOutputStream out = new ByteArrayOutputStream();
 
         byte[] buffer = new byte[50];
@@ -87,7 +87,7 @@ public class TestContentLengthInputStream extends TestCase {
         len = in.read(buffer);
         out.write(buffer, 0, len);
         
-        String result = EncodingUtil.getString(out.toByteArray(), CONTENT_CHARSET);
+        String result = EncodingUtils.getString(out.toByteArray(), CONTENT_CHARSET);
         assertEquals(result, "1234567890");
     }
 
@@ -116,7 +116,7 @@ public class TestContentLengthInputStream extends TestCase {
     public void testClose() throws IOException {
         String correct = "1234567890123456";
         InputStream in = new ContentLengthInputStream(new HttpDataReceiverMockup(
-            EncodingUtil.getBytes(correct, CONTENT_CHARSET)), 10L);
+            EncodingUtils.getBytes(correct, CONTENT_CHARSET)), 10L);
         in.close();
         in.close();
         try {

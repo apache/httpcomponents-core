@@ -36,7 +36,7 @@ import org.apache.http.io.HttpDataReceiver;
 import org.apache.http.params.HttpParams;
 import org.apache.http.params.HttpProtocolParams;
 import org.apache.http.util.ByteArrayBuffer;
-import org.apache.http.util.EncodingUtil;
+import org.apache.http.util.EncodingUtils;
 
 /**
  * <p>Classic IO Compatibility wrapper</p>
@@ -202,7 +202,7 @@ public abstract class AbstractHttpDataReceiver implements HttpDataReceiver {
                 }
             }
         }
-        return EncodingUtil.getString(
+        return EncodingUtils.getString(
                 this.linebuffer.getBuffer(), 0, this.linebuffer.length(), this.charset);
     }
     
@@ -215,7 +215,7 @@ public abstract class AbstractHttpDataReceiver implements HttpDataReceiver {
             pos--;
         }
         len = pos - off;
-        return EncodingUtil.getString(this.buffer, off, len, this.charset);
+        return EncodingUtils.getString(this.buffer, off, len, this.charset);
     }
     
     public void reset(final HttpParams params) {

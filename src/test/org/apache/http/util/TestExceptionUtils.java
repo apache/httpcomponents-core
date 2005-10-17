@@ -56,7 +56,7 @@ public class TestExceptionUtils extends TestCase {
     public void testExceptionChaining() throws Exception {
         Exception ex1 = new Exception(); 
         Exception ex2 = new Exception();
-        ExceptionUtil.initCause(ex1, ex2);
+        ExceptionUtils.initCause(ex1, ex2);
     }
     
 }
