@@ -35,10 +35,10 @@ import org.apache.http.HttpRequestFactory;
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpVersion;
 import org.apache.http.Scheme;
-import org.apache.http.entity.EntityConsumer;
 import org.apache.http.executor.HttpRequestExecutor;
 import org.apache.http.params.HttpParams;
 import org.apache.http.params.HttpProtocolParams;
+import org.apache.http.util.EntityUtils;
 import org.springframework.beans.factory.xml.XmlBeanFactory;
 import org.springframework.core.io.ClassPathResource;
 
@@ -73,7 +73,7 @@ public class SpringHttpDemo {
             HttpMutableRequest request1 = requestfactory.newHttpRequest("GET", "/");
             HttpResponse response1 = httpexec.execute(request1, conn);
             System.out.println("<< Response: " + response1.getStatusLine());
-            System.out.println(EntityConsumer.toString(response1.getEntity()));
+            System.out.println(EntityUtils.toString(response1.getEntity()));
             System.out.println("==============");
             if (conn.isOpen()) {
                 System.out.println("Connection kept alive...");
@@ -81,7 +81,7 @@ public class SpringHttpDemo {
             HttpMutableRequest request2 = requestfactory.newHttpRequest("GET", "/stuff");
             HttpResponse response2 = httpexec.execute(request2, conn);
             System.out.println("<< Response: " + response2.getStatusLine());
-            System.out.println(EntityConsumer.toString(response2.getEntity()));
+            System.out.println(EntityUtils.toString(response2.getEntity()));
             System.out.println("==============");
         } finally {
             conn.close();

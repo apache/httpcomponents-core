@@ -38,7 +38,6 @@ import org.apache.http.HttpHost;
 import org.apache.http.HttpResponse;
 import org.apache.http.Scheme;
 import org.apache.http.entity.ByteArrayEntity;
-import org.apache.http.entity.EntityConsumer;
 import org.apache.http.entity.InputStreamEntity;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.DefaultHttpClientConnection;
@@ -47,6 +46,7 @@ import org.apache.http.impl.io.PlainSocketFactory;
 import org.apache.http.io.SocketFactory;
 import org.apache.http.message.HttpPost;
 import org.apache.http.params.HttpParams;
+import org.apache.http.util.EntityUtils;
 
 /**
  * <p>
@@ -112,9 +112,8 @@ public class ElementalHttpPost {
                     // No error response so far.  
                     response = conn.receiveResponse(request);
                 }
-                EntityConsumer body = new EntityConsumer(response);
                 System.out.println("<< Response: " + response.getStatusLine());
-                System.out.println(body.asString());
+                System.out.println(EntityUtils.toString(response.getEntity()));
                 System.out.println("==============");
             }
         } finally {

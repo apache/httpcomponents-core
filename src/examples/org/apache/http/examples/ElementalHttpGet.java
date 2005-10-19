@@ -34,13 +34,13 @@ import org.apache.http.HttpClientConnection;
 import org.apache.http.HttpHost;
 import org.apache.http.HttpResponse;
 import org.apache.http.Scheme;
-import org.apache.http.entity.EntityConsumer;
 import org.apache.http.impl.DefaultHttpClientConnection;
 import org.apache.http.impl.DefaultHttpParams;
 import org.apache.http.impl.io.PlainSocketFactory;
 import org.apache.http.io.SocketFactory;
 import org.apache.http.message.HttpGet;
 import org.apache.http.params.HttpParams;
+import org.apache.http.util.EntityUtils;
 
 /**
  * <p>
@@ -85,9 +85,8 @@ public class ElementalHttpGet {
                     // No error response so far. 
                     response = conn.receiveResponse(request);
                 }
-                EntityConsumer body = new EntityConsumer(response);
                 System.out.println("<< Response: " + response.getStatusLine());
-                System.out.println(body.asString());
+                System.out.println(EntityUtils.toString(response.getEntity()));
                 System.out.println("==============");
             }
         } finally {

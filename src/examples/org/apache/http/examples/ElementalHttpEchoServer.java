@@ -46,7 +46,6 @@ import org.apache.http.HttpStatus;
 import org.apache.http.HttpVersion;
 import org.apache.http.MethodNotSupportedException;
 import org.apache.http.ProtocolException;
-import org.apache.http.entity.EntityConsumer;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.ConnectionReuseStrategy;
 import org.apache.http.impl.DefaultConnectionReuseStrategy;
@@ -56,6 +55,7 @@ import org.apache.http.message.BasicHttpResponse;
 import org.apache.http.params.HttpConnectionParams;
 import org.apache.http.params.HttpParams;
 import org.apache.http.params.HttpProtocolParams;
+import org.apache.http.util.EntityUtils;
 
 /**
  * <p>
@@ -102,14 +102,13 @@ public class ElementalHttpEchoServer {
                 buffer.append("<p>Content Chunk-coded: ");
                 buffer.append(entity.isChunked());
                 buffer.append("</p>");
-                EntityConsumer consume = new EntityConsumer((HttpEntityEnclosingRequest)request);
                 if (entity.getContentType() != null 
                         && entity.getContentType().toLowerCase().startsWith("text/")) {
                     buffer.append("<p>");
-                    buffer.append(consume.asString());
+                    buffer.append(EntityUtils.toString(entity));
                     buffer.append("</p>");
                 } else {
-                    byte[] raw = consume.asByteArray();
+                    byte[] raw = EntityUtils.toByteArray(entity);
                     buffer.append("<p>");
                     for (int i = 0; i < raw.length; i++) {
                         buffer.append(Integer.toHexString(raw[i]).toLowerCase());

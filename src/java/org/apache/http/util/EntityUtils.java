@@ -27,7 +27,7 @@
  *
  */
 
-package org.apache.http.entity;
+package org.apache.http.util;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -36,13 +36,7 @@ import java.io.Reader;
 
 import org.apache.http.HeaderElement;
 import org.apache.http.HttpEntity;
-import org.apache.http.HttpEntityEnclosingRequest;
-import org.apache.http.HttpMessage;
-import org.apache.http.HttpResponse;
 import org.apache.http.NameValuePair;
-import org.apache.http.params.HttpProtocolParams;
-import org.apache.http.util.ByteArrayBuffer;
-import org.apache.http.util.CharArrayBuffer;
 
 /**
  * <p>
@@ -53,29 +47,11 @@ import org.apache.http.util.CharArrayBuffer;
  * 
  * @since 4.0
  */
-public class EntityConsumer {
+public class EntityUtils {
     
-    private final HttpMessage message;
-    private final HttpEntity entity;
+    private EntityUtils() {
+    }
     
-    public EntityConsumer(final HttpResponse response) {
-        super();
-        if (response == null) {
-            throw new IllegalArgumentException("HTTP response may not be null");
-        }
-        this.message = response;
-        this.entity = response.getEntity();
-    }
-
-    public EntityConsumer(final HttpEntityEnclosingRequest request) {
-        super();
-        if (request == null) {
-            throw new IllegalArgumentException("HTTP request may not be null");
-        }
-        this.message = request;
-        this.entity = request.getEntity();
-    }
-
     public static byte[] toByteArray(final HttpEntity entity) throws IOException {
         if (entity == null) {
             throw new IllegalArgumentException("HTTP entity may not be null");
@@ -151,21 +127,6 @@ public class EntityConsumer {
 
     public static String toString(final HttpEntity entity) throws IOException {
         return toString(entity, null);
-    }
-
-    public byte[] asByteArray() throws IOException {
-        if (this.entity == null) {
-            return new byte[] {};
-        }
-        return toByteArray(this.entity);
-    }
-    
-    public String asString() throws IOException {
-        if (this.entity == null) {
-            return "";
-        }
-        return toString(this.entity, HttpProtocolParams.getContentCharset(
-                this.message.getParams()));
     }
     
 }

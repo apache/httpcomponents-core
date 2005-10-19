@@ -35,6 +35,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 
 import org.apache.http.HttpEntity;
+import org.apache.http.util.EntityUtils;
 
 /**
  * <p>
@@ -57,7 +58,7 @@ public class BufferedHttpEntity implements HttpEntity {
         }
         this.source = entity;
         if (entity.isChunked() || !entity.isRepeatable() ) {
-            this.buffer = EntityConsumer.toByteArray(entity);
+            this.buffer = EntityUtils.toByteArray(entity);
         } else {
             this.buffer = null;
         }

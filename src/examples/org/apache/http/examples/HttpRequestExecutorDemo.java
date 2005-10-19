@@ -34,7 +34,6 @@ import org.apache.http.HttpHost;
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpVersion;
 import org.apache.http.Scheme;
-import org.apache.http.entity.EntityConsumer;
 import org.apache.http.executor.HttpRequestExecutor;
 import org.apache.http.impl.DefaultHttpClientConnection;
 import org.apache.http.impl.DefaultHttpParams;
@@ -48,6 +47,7 @@ import org.apache.http.protocol.RequestContent;
 import org.apache.http.protocol.RequestExpectContinue;
 import org.apache.http.protocol.RequestTargetHost;
 import org.apache.http.protocol.RequestUserAgent;
+import org.apache.http.util.EntityUtils;
 
 /**
  * <p>
@@ -84,7 +84,7 @@ public class HttpRequestExecutorDemo {
             HttpGet request1 = new HttpGet("/");
             HttpResponse response1 = httpexecutor.execute(request1, conn);
             System.out.println("<< Response: " + response1.getStatusLine());
-            System.out.println(EntityConsumer.toString(response1.getEntity()));
+            System.out.println(EntityUtils.toString(response1.getEntity()));
             System.out.println("==============");
             if (conn.isOpen()) {
                 System.out.println("Connection kept alive...");
@@ -92,7 +92,7 @@ public class HttpRequestExecutorDemo {
             HttpGet request2 = new HttpGet("/stuff");
             HttpResponse response2 = httpexecutor.execute(request2, conn);
             System.out.println("<< Response: " + response2.getStatusLine());
-            System.out.println(EntityConsumer.toString(response2.getEntity()));
+            System.out.println(EntityUtils.toString(response2.getEntity()));
             System.out.println("==============");
         } finally {
             conn.close();
