@@ -1,4 +1,4 @@
-<project name="Jakarta Http Common" default="compile" basedir=".">
+<project name="Jakarta HttpCompomponents Core" default="compile" basedir=".">
 
   <property file="${basedir}/build.properties"/>
   <property file="${basedir}/../build.properties"/>
@@ -6,8 +6,8 @@
 
 <!-- ========== Required component properties ============================= -->
 
-  <property name="component.name"          value="http-common"/>
-  <property name="component.title"         value="Jakarta Http Common"/>
+  <property name="component.name"          value="http-core"/>
+  <property name="component.title"         value="Jakarta HttpComponents Core"/>
   <property name="component.version"       value="4.0-dev"/>
   <property name="component.home"          value="${basedir}"/>
   <property name="component.src"           value="${component.home}/src/java"/>
