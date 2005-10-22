@@ -61,7 +61,7 @@ public class EntityUtils {
             return new byte[] {};
         }
         if (entity.getContentLength() > Integer.MAX_VALUE) {
-            throw new IllegalStateException("HTTP entity too large to be buffered in memory");
+            throw new IllegalArgumentException("HTTP entity too large to be buffered in memory");
         }
         int i = (int)entity.getContentLength();
         if (i < 0) {
@@ -102,7 +102,7 @@ public class EntityUtils {
             return "";
         }
         if (entity.getContentLength() > Integer.MAX_VALUE) {
-            throw new IllegalStateException("HTTP entity too large to be buffered in memory");
+            throw new IllegalArgumentException("HTTP entity too large to be buffered in memory");
         }
         int i = (int)entity.getContentLength();
         if (i < 0) {
