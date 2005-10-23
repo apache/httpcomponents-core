@@ -55,31 +55,46 @@ public class HeadersParser  {
     public static Header[] processHeaders(final HttpDataReceiver datareceiver) 
             throws HttpException, IOException {
         ArrayList headerLines = new ArrayList();
+        
+        CharArrayBuffer current = null;
+        CharArrayBuffer previous = null;
         for (;;) {
-            String line = datareceiver.readLine();
-            if ((line == null) || (line.length() < 1)) {
+            if (current == null) {
+                current = new CharArrayBuffer(64);
+            } else {
+                current.clear();
+            }
+            int l = datareceiver.readLine(current);
+            if (l == -1 || current.length() < 1) {
                 break;
             }
             // Parse the header name and value
             // Check for folded headers first
             // Detect LWS-char see HTTP/1.0 or HTTP/1.1 Section 2.2
             // discussion on folded headers
-            if ((line.charAt(0) == ' ' || line.charAt(0) == '\t') && !headerLines.isEmpty()) {
+            if ((current.charAt(0) == ' ' || current.charAt(0) == '\t') && previous != null) {
                 // we have continuation folded header
                 // so append value
-                String previousLine = (String) headerLines.remove(headerLines.size() - 1);
-                CharArrayBuffer buffer = new CharArrayBuffer(128);
-                buffer.append(previousLine);
-                buffer.append(' ');
-                buffer.append(line.trim());
-                headerLines.add(buffer.toString());
+                int i = 0;
+                while (i < current.length()) {
+                    char ch = current.charAt(i);
+                    if (ch != ' ' && ch != '\t') {
+                        break;
+                    }
+                    i++;
+                }
+                previous.append(' ');
+                previous.append(current.getBuffer(), i, current.length() - i);
             } else {
-                headerLines.add(line.trim());
+                headerLines.add(current);
+                previous = current;
+                current = null;
             }
         }
         Header[] headers = new Header[headerLines.size()];
         for (int i = 0; i < headerLines.size(); i++) {
-            headers[i] = Header.parse((String) headerLines.get(i));
+            CharArrayBuffer buffer = (CharArrayBuffer) headerLines.get(i);
+            headers[i] = Header.parse(buffer.toString());
         }
         return headers;
     }

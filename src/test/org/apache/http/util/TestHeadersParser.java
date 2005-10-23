@@ -64,6 +64,7 @@ public class TestHeadersParser extends TestCase {
             "header3: stuff\r\n" + 
             "     and more stuff\r\n" + 
             "\t and even more stuff\r\n" +  
+            "     \r\n" +  
             "\r\n"; 
         HttpDataReceiver receiver = new HttpDataReceiverMockup(s, "US-ASCII"); 
         Header[] headers = HeadersParser.processHeaders(receiver);
