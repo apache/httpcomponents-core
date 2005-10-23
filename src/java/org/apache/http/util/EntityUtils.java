@@ -113,7 +113,7 @@ public class EntityUtils {
             charset = defaultCharset;
         }
         if (charset == null) {
-            charset = "ISO-8859-1";
+            charset = EncodingUtils.ISO_8859_1_CHARSET;
         }
         Reader reader = new InputStreamReader(entity.getContent(), charset);
         CharArrayBuffer buffer = new CharArrayBuffer(i); 

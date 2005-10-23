@@ -41,7 +41,10 @@ import java.io.UnsupportedEncodingException;
 public class EncodingUtils {
 
     /** ASCII chatset */
-    private static final String ASCII_CHARSET = "US-ASCII";
+    public static final String ASCII_CHARSET = "US-ASCII";
+    
+    /** ISO-8859-1 chatset */
+    public static final String ISO_8859_1_CHARSET = "ISO-8859-1";
     
     /**
      * Converts the byte array of HTTP content characters to a string. If

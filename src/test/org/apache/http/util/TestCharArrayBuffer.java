@@ -198,5 +198,13 @@ public class TestCharArrayBuffer extends TestCase {
     		// expected
     	}
     }
-    
+
+    public void testEnsureCapacity() throws Exception {
+        CharArrayBuffer buffer = new CharArrayBuffer(4);
+        buffer.ensureCapacity(2);
+        assertEquals(4, buffer.capacity());
+        buffer.ensureCapacity(8);
+        assertEquals(8, buffer.capacity());
+    }
+        
 }

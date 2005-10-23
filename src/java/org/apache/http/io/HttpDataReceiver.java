@@ -32,6 +32,7 @@ package org.apache.http.io;
 import java.io.IOException;
 
 import org.apache.http.params.HttpParams;
+import org.apache.http.util.CharArrayBuffer;
 
 /**
  * <p>
@@ -51,6 +52,8 @@ public interface HttpDataReceiver {
     int read(byte[] b) throws IOException; 
     
     int read() throws IOException; 
+    
+    int readLine(CharArrayBuffer buffer) throws IOException;
     
     String readLine() throws IOException;
     

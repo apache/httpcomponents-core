@@ -41,6 +41,7 @@ import org.apache.http.mockup.HttpDataReceiverMockup;
 import org.apache.http.mockup.HttpDataTransmitterMockup;
 import org.apache.http.params.HttpParams;
 import org.apache.http.params.HttpProtocolParams;
+import org.apache.http.util.EncodingUtils;
 
 public class TestHttpDataReceiverAndTransmitter extends TestCase {
 
@@ -346,6 +347,42 @@ public class TestHttpDataReceiverAndTransmitter extends TestCase {
         }
         assertNull(receiver.readLine());
         assertNull(receiver.readLine());
+    }
+
+    public void testNonAsciiReadWriteLine() throws Exception {
+        String s1 = constructString(SWISS_GERMAN_HELLO);
+        
+        HttpParams params = new DefaultHttpParams(null);
+        HttpProtocolParams.setHttpElementCharset(params, EncodingUtils.ISO_8859_1_CHARSET);
+        
+        HttpDataTransmitterMockup transmitter = new HttpDataTransmitterMockup();
+        transmitter.reset(params);
+
+        for (int i = 0; i < 10; i++) {
+            transmitter.writeLine(s1);
+        }
+        transmitter.flush();
+        
+        HttpDataReceiverMockup receiver = new HttpDataReceiverMockup(
+                transmitter.getData());
+        HttpProtocolParams.setHttpElementCharset(params, EncodingUtils.ASCII_CHARSET);
+        receiver.reset(params);
+
+        for (int i = 0; i < 10; i++) {
+            assertEquals(s1, receiver.readLine());
+        }
+        assertNull(receiver.readLine());
+        assertNull(receiver.readLine());
+    }
+
+    public void testInvalidCharArrayBuffer() throws Exception {
+        HttpDataReceiverMockup receiver = new HttpDataReceiverMockup(new byte[] {});
+        try {
+            receiver.readLine(null); 
+            fail("IllegalArgumentException should have been thrown");
+        } catch (IllegalArgumentException ex) {
+            //expected
+        }
     }
     
 }

@@ -36,6 +36,7 @@ import org.apache.http.io.HttpDataReceiver;
 import org.apache.http.params.HttpParams;
 import org.apache.http.params.HttpProtocolParams;
 import org.apache.http.util.ByteArrayBuffer;
+import org.apache.http.util.CharArrayBuffer;
 import org.apache.http.util.EncodingUtils;
 
 /**
@@ -57,6 +58,7 @@ public abstract class AbstractHttpDataReceiver implements HttpDataReceiver {
     private ByteArrayBuffer linebuffer = null;
     
     private String charset = "US-ASCII";
+    private boolean ascii = true;
     
     protected void init(final InputStream instream, int buffersize) {
         if (instream == null) {
@@ -149,7 +151,10 @@ public abstract class AbstractHttpDataReceiver implements HttpDataReceiver {
         return -1;
     }
     
-    public String readLine() throws IOException {
+    public int readLine(final CharArrayBuffer charbuffer) throws IOException {
+        if (charbuffer == null) {
+            throw new IllegalArgumentException("Char array buffer may not be null");
+        }
     	this.linebuffer.clear();
     	int noRead = 0;
         boolean retry = true;
@@ -160,7 +165,7 @@ public abstract class AbstractHttpDataReceiver implements HttpDataReceiver {
                 // end of line found. 
                 if (this.linebuffer.isEmpty()) {
                     // the entire line is preset in the read buffer
-                    return lineFromReadBuffer(i);   
+                    return lineFromReadBuffer(charbuffer, i);
                 }
                 retry = false;
                 int len = i + 1 - this.bufferpos;
@@ -181,12 +186,12 @@ public abstract class AbstractHttpDataReceiver implements HttpDataReceiver {
         }
         if (noRead == -1 && this.linebuffer.isEmpty()) {
             // indicate the end of stream
-            return null;
+            return -1;
         }
-        return lineFromLineBuffer();
+        return lineFromLineBuffer(charbuffer);
     }
     
-    private String lineFromLineBuffer() {
+    private int lineFromLineBuffer(final CharArrayBuffer charbuffer) {
         // discard LF if found
         int l = this.linebuffer.length(); 
         if (l > 0) {
@@ -202,11 +207,13 @@ public abstract class AbstractHttpDataReceiver implements HttpDataReceiver {
                 }
             }
         }
-        return EncodingUtils.getString(
-                this.linebuffer.getBuffer(), 0, this.linebuffer.length(), this.charset);
+        copyToCharBuffer(
+                this.linebuffer.getBuffer(), 0, this.linebuffer.length(), 
+                charbuffer);
+        return this.linebuffer.length();
     }
     
-    private String lineFromReadBuffer(int pos) {
+    private int lineFromReadBuffer(final CharArrayBuffer charbuffer, int pos) {
         int off = this.bufferpos;
         int len;
         this.bufferpos = pos + 1;
@@ -215,11 +222,48 @@ public abstract class AbstractHttpDataReceiver implements HttpDataReceiver {
             pos--;
         }
         len = pos - off;
-        return EncodingUtils.getString(this.buffer, off, len, this.charset);
+        copyToCharBuffer(this.buffer, off, len, charbuffer);
+        return len;
+    }
+    
+    private void copyToCharBuffer(final byte[] b, int off, int len, 
+            final CharArrayBuffer charbuffer) {
+        if (this.ascii) {
+            // this is an uuuuugly performance hack
+            charbuffer.ensureCapacity(len); 
+            int oldlen = charbuffer.length();
+            int newlen = oldlen + len;
+            charbuffer.setLength(newlen); 
+            char[] tmp = charbuffer.getBuffer();
+            for (int i = oldlen; i < newlen; i++) {
+                int ch = b[off + i]; 
+                if (ch < 0) {
+                    ch = 256 + ch;
+                }
+                tmp[i] = (char) ch;
+            }
+        } else {
+            String s = EncodingUtils.getString(b, off, len, this.charset);
+            charbuffer.ensureCapacity(s.length()); 
+            charbuffer.append(s);
+        }
+    }
+
+    public String readLine() throws IOException {
+        CharArrayBuffer charbuffer = new CharArrayBuffer(64);
+        int l = readLine(charbuffer);
+        if (l != -1) {
+            return charbuffer.toString();
+        } else {
+            return null;
+        }
     }
     
     public void reset(final HttpParams params) {
         this.charset = HttpProtocolParams.getHttpElementCharset(params);
+        this.ascii = 
+            this.charset.equalsIgnoreCase(EncodingUtils.ASCII_CHARSET) ||
+            this.charset.equalsIgnoreCase("ASCII");
     }
     
 }

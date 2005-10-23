@@ -128,6 +128,13 @@ public class CharArrayBuffer  {
         return this.len;
     }
 
+    public void ensureCapacity(int required) {
+        int available = this.buffer.length - this.len;
+        if (required > available) {
+            expand(this.len + required);
+        }
+    }
+    
     public void setLength(int len) {
         if (len < 0 || len > this.buffer.length) {
             throw new IndexOutOfBoundsException();

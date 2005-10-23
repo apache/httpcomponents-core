@@ -30,6 +30,7 @@
 package org.apache.http.params;
 
 import org.apache.http.HttpVersion;
+import org.apache.http.util.EncodingUtils;
 
 /**
  * This class implements an adaptor around the {@link HttpParams} interface
@@ -184,7 +185,7 @@ public final class HttpProtocolParams {
         }
         String charset = (String) params.getParameter(HTTP_ELEMENT_CHARSET);
         if (charset == null) {
-            charset = "US-ASCII";
+            charset = EncodingUtils.ASCII_CHARSET;
         }
         return charset;
     }
@@ -211,7 +212,7 @@ public final class HttpProtocolParams {
         }
         String charset = (String) params.getParameter(HTTP_CONTENT_CHARSET);
         if (charset == null) {
-            charset = "ISO-8859-1";
+            charset = EncodingUtils.ISO_8859_1_CHARSET;
         }
         return charset;
     }
