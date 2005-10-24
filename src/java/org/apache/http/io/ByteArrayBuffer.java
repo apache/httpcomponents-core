@@ -78,7 +78,7 @@ public class ByteArrayBuffer  {
     	this.len = 0;
     }
     
-    public byte[] getBuffer() {
+    public byte[] internBuffer() {
         return this.buffer;
     }
     

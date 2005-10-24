@@ -208,7 +208,7 @@ public abstract class AbstractHttpDataReceiver implements HttpDataReceiver {
             }
         }
         copyToCharBuffer(
-                this.linebuffer.getBuffer(), 0, this.linebuffer.length(), 
+                this.linebuffer.internBuffer(), 0, this.linebuffer.length(), 
                 charbuffer);
         return this.linebuffer.length();
     }
@@ -234,7 +234,7 @@ public abstract class AbstractHttpDataReceiver implements HttpDataReceiver {
             int oldlen = charbuffer.length();
             int newlen = oldlen + len;
             charbuffer.setLength(newlen); 
-            char[] tmp = charbuffer.getBuffer();
+            char[] tmp = charbuffer.internBuffer();
             for (int i = oldlen; i < newlen; i++) {
                 int ch = b[off + i]; 
                 if (ch < 0) {

@@ -104,7 +104,7 @@ public class CharArrayBuffer  {
     	this.len = 0;
     }
     
-    public char[] getBuffer() {
+    public char[] internBuffer() {
         return this.buffer;
     }
     
