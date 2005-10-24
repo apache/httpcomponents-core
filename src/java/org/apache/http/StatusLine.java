@@ -29,7 +29,7 @@
 
 package org.apache.http;
 
-import org.apache.http.util.CharArrayBuffer;
+import org.apache.http.io.CharArrayBuffer;
 
 /**
  * Represents a Status-Line as returned from a HTTP server.

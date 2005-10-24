@@ -32,11 +32,11 @@ package org.apache.http.impl.io;
 import java.io.IOException;
 import java.io.InputStream;
 
+import org.apache.http.io.ByteArrayBuffer;
+import org.apache.http.io.CharArrayBuffer;
 import org.apache.http.io.HttpDataReceiver;
 import org.apache.http.params.HttpParams;
 import org.apache.http.params.HttpProtocolParams;
-import org.apache.http.util.ByteArrayBuffer;
-import org.apache.http.util.CharArrayBuffer;
 import org.apache.http.util.EncodingUtils;
 
 /**

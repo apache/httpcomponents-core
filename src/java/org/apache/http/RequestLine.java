@@ -32,7 +32,7 @@ package org.apache.http;
 import java.util.NoSuchElementException;
 import java.util.StringTokenizer;
 
-import org.apache.http.util.CharArrayBuffer;
+import org.apache.http.io.CharArrayBuffer;
 
 /**
  * <p>

@@ -32,7 +32,7 @@ package org.apache.http;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.http.util.CharArrayBuffer;
+import org.apache.http.io.CharArrayBuffer;
 import org.apache.http.util.LangUtils;
 import org.apache.http.util.ParameterParser;
 

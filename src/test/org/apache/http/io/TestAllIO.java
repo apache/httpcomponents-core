@@ -38,6 +38,8 @@ public class TestAllIO extends TestCase {
 
     public static Test suite() {
         TestSuite suite = new TestSuite();
+        suite.addTest(TestByteArrayBuffer.suite());
+        suite.addTest(TestCharArrayBuffer.suite());
         suite.addTest(TestHttpDataInputStream.suite());
         suite.addTest(TestHttpDataOutputStream.suite());
         suite.addTest(TestChunkCoding.suite());

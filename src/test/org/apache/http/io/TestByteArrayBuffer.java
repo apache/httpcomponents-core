@@ -27,7 +27,9 @@
  *
  */
 
-package org.apache.http.util;
+package org.apache.http.io;
+
+import org.apache.http.io.ByteArrayBuffer;
 
 import junit.framework.Test;
 import junit.framework.TestCase;

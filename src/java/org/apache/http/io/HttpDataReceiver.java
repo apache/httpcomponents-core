@@ -32,7 +32,6 @@ package org.apache.http.io;
 import java.io.IOException;
 
 import org.apache.http.params.HttpParams;
-import org.apache.http.util.CharArrayBuffer;
 
 /**
  * <p>

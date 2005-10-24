@@ -27,35 +27,35 @@
  *
  */
 
-package org.apache.http.util;
+package org.apache.http.io;
 
 /**
- * @author <a href="mailto:oleg@ural.ru">Oleg Kalnichevski</a>
+ * @author <a href="mailto:oleg at ural.ru">Oleg Kalnichevski</a>
  * 
  * @version $Revision$
  * 
  * @since 4.0
  */
-public class ByteArrayBuffer  {
+public class CharArrayBuffer  {
     
-    private byte[] buffer;
+    private char[] buffer;
     private int len;
 
-    public ByteArrayBuffer(int capacity) {
+    public CharArrayBuffer(int capacity) {
         super();
         if (capacity < 0) {
             throw new IllegalArgumentException("Buffer capacity may not be negative");
         }
-        this.buffer = new byte[capacity]; 
+        this.buffer = new char[capacity]; 
     }
 
     private void expand(int newlen) {
-        byte newbuffer[] = new byte[Math.max(this.buffer.length << 1, newlen)];
+    	char newbuffer[] = new char[Math.max(this.buffer.length << 1, newlen)];
         System.arraycopy(this.buffer, 0, newbuffer, 0, this.len);
         this.buffer = newbuffer;
     }
     
-    public void append(final byte[] b, int off, int len) {
+    public void append(final char[] b, int off, int len) {
         if (b == null) {
             return;
         }
@@ -73,24 +73,50 @@ public class ByteArrayBuffer  {
         System.arraycopy(b, off, this.buffer, this.len, len);
         this.len = newlen;
     }
+    
+    public void append(String str) {
+    	if (str == null) {
+    	    str = "null";
+    	}
+    	int strlen = str.length();
+    	int newlen = this.len + strlen;
+    	if (newlen > this.buffer.length) {
+        	expand(newlen);
+    	}
+    	str.getChars(0, strlen, this.buffer, this.len);
+    	this.len = newlen;
+    }
 
+    public void append(char ch) {
+    	int newlen = this.len + 1;
+    	if (newlen > this.buffer.length) {
+        	expand(newlen);
+    	}
+    	this.buffer[this.len] = ch;
+    	this.len = newlen;
+    }
+
+    public void append(final Object obj) {
+    	append(String.valueOf(obj));
+    }
+    
     public void clear() {
     	this.len = 0;
     }
     
-    public byte[] getBuffer() {
+    public char[] getBuffer() {
         return this.buffer;
     }
     
-    public byte[] toByteArray() {
-		byte[] b = new byte[this.len]; 
+    public char[] toCharArray() {
+    	char[] b = new char[this.len]; 
     	if (this.len > 0) {
             System.arraycopy(this.buffer, 0, b, 0, this.len);
     	}
         return b;
     }
     
-    public int byteAt(int i) {
+    public char charAt(int i) {
         return this.buffer[i];
     }
     
@@ -102,6 +128,13 @@ public class ByteArrayBuffer  {
         return this.len;
     }
 
+    public void ensureCapacity(int required) {
+        int available = this.buffer.length - this.len;
+        if (required > available) {
+            expand(this.len + required);
+        }
+    }
+    
     public void setLength(int len) {
         if (len < 0 || len > this.buffer.length) {
             throw new IndexOutOfBoundsException();
@@ -111,6 +144,10 @@ public class ByteArrayBuffer  {
     
     public boolean isEmpty() {
         return this.len == 0; 
+    }
+    
+    public String toString() {
+    	return new String(this.buffer, 0, this.len);
     }
     
 }

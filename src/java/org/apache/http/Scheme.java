@@ -32,9 +32,9 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.apache.http.io.CharArrayBuffer;
 import org.apache.http.io.SecureSocketFactory;
 import org.apache.http.io.SocketFactory;
-import org.apache.http.util.CharArrayBuffer;
 import org.apache.http.util.LangUtils;
 
 /**

@@ -29,7 +29,7 @@
 
 package org.apache.http;
 
-import org.apache.http.util.CharArrayBuffer;
+import org.apache.http.io.CharArrayBuffer;
 import org.apache.http.util.LangUtils;
 
 /**
