@@ -93,7 +93,9 @@ public class TestParameterParser extends TestCase {
 
         s = " = stuff ";
         params = parser.parse(s, ';');
-        assertEquals(0, params.size());
+        assertEquals(1, params.size());
+        assertEquals("", ((NameValuePair)params.get(0)).getName());
+        assertEquals("stuff", ((NameValuePair)params.get(0)).getValue());
     }
 
     public void testNullInput() {

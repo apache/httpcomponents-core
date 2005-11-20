@@ -223,7 +223,7 @@ public class ParameterParser {
             if (hasChar() && (chars[pos] == separator)) {
                 pos++; // skip separator
             }
-            if ((paramName != null) && (paramName.length() > 0)) {
+            if (paramName != null && !(paramName.equals("") && paramValue == null)) {
                 params.add(new NameValuePair(paramName, paramValue));
             }
         }        
