@@ -27,6 +27,7 @@
     <url>http://www.apache.org/</url>
     <logo>http://maven.apache.org/images/jakarta-logo-blue.gif</logo>
   </organization>
+  
 
   <inceptionYear>2005</inceptionYear>
   <package>org.apache.http</package>
