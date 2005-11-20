@@ -18,8 +18,8 @@
  -->
 <project>
   <pomVersion>3</pomVersion>
-  <id>http-common</id>
-  <name>Jakarta HTTP Common</name>
+  <id>http-core</id>
+  <name>Jakarta HttpComponentns Core</name>
   <currentVersion>4.0</currentVersion>
 
   <organization>
@@ -31,8 +31,8 @@
   <inceptionYear>2005</inceptionYear>
   <package>org.apache.http</package>
   <logo>http://jakarta.apache.org/images/jakarta-logo.gif</logo>
-  <description>Common components to build HTTP enabled applications.</description>
-  <shortDescription>Common components to build HTTP enabled applications.</shortDescription>
+  <description>Core components to build HTTP enabled applications.</description>
+  <shortDescription>Core components to build HTTP enabled applications.</shortDescription>
   <url>http://jakarta.apache.org/commons/httpclient/</url>
   <issueTrackingUrl><![CDATA[http://issues.apache.org/bugzilla/buglist.cgi?query_format=advanced&short_desc_type=allwordssubstr&short_desc=&product=HttpClient&component=Commons+HttpClient&long_desc_type=allwordssubstr&long_desc=&bug_file_loc_type=allwordssubstr&bug_file_loc=&keywords_type=anywords&keywords=&bug_status=UNCONFIRMED&bug_status=NEW&bug_status=ASSIGNED&bug_status=REOPENED&bug_status=NEEDINFO&emailassigned_to1=1&emailtype1=substring&email1=&emailreporter2=1&emailtype2=substring&email2=&bugidtype=include&bug_id=&votes=&chfieldfrom=&chfieldto=Now&chfieldvalue=&cmdtype=doit&order=Reuse+same+sort+as+last+time&field0-0-0=noop&type0-0-0=noop&value0-0-0=]]></issueTrackingUrl>
   <siteAddress>people.apache.org</siteAddress>
