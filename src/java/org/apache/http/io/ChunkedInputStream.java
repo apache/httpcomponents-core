@@ -123,6 +123,8 @@ public class ChunkedInputStream extends InputStream {
     /** The data receiver that we're wrapping */
     private HttpDataReceiver in;
 
+    private final CharArrayBuffer buffer;
+    
     /** The chunk size */
     private int chunkSize;
 
@@ -147,6 +149,7 @@ public class ChunkedInputStream extends InputStream {
     	}
         this.in = in;
         this.pos = 0;
+        this.buffer = new CharArrayBuffer(16);
     }
 
     /**
@@ -262,23 +265,22 @@ public class ChunkedInputStream extends InputStream {
             }
         }
         //parse data
-        String dataString = this.in.readLine();
-        if (dataString == null) {
+        this.buffer.clear();
+        int i = this.in.readLine(this.buffer);
+        if (i == -1) {
             throw new MalformedChunkCodingException(
             		"Chunked stream ended unexpectedly");
         }
-        int separator = dataString.indexOf(';');
-        dataString = (separator > 0)
-            ? dataString.substring(0, separator).trim()
-            : dataString.trim();
-
-        int result;
-        try {
-            result = Integer.parseInt(dataString, 16);
-        } catch (NumberFormatException e) {
-            throw new MalformedChunkCodingException("Bad chunk size: " + dataString);
+        int separator = this.buffer.indexOf(';');
+        if (separator < 0) {
+            separator = this.buffer.length();
         }
-        return result;
+        String s = this.buffer.substringTrimmed(0, separator);
+        try {
+            return Integer.parseInt(s, 16);
+        } catch (NumberFormatException e) {
+            throw new MalformedChunkCodingException("Bad chunk header");
+        }
     }
 
     /**

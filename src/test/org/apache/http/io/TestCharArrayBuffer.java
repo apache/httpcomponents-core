@@ -208,5 +208,65 @@ public class TestCharArrayBuffer extends TestCase {
         buffer.ensureCapacity(8);
         assertEquals(8, buffer.capacity());
     }
-        
+
+    public void testIndexOf() {
+        CharArrayBuffer buffer = new CharArrayBuffer(16);
+        buffer.append("name: value");
+        assertEquals(4, buffer.indexOf(':'));
+        assertEquals(-1, buffer.indexOf(','));
+        assertEquals(4, buffer.indexOf(':', -1));
+        assertEquals(-1, buffer.indexOf(',', 1000));
+    }
+    
+    public void testSubstring() {
+        CharArrayBuffer buffer = new CharArrayBuffer(16);
+        buffer.append(" name:  value    ");
+        assertEquals(5, buffer.indexOf(':'));
+        assertEquals(" name", buffer.substring(0, 5));
+        assertEquals("  value    ", buffer.substring(6, buffer.length()));
+        assertEquals("name", buffer.substringTrimmed(0, 5));
+        assertEquals("value", buffer.substringTrimmed(6, buffer.length()));
+        assertEquals("", buffer.substringTrimmed(13, buffer.length()));
+    }
+    
+    public void testSubstringIndexOfOutBound() {
+        CharArrayBuffer buffer = new CharArrayBuffer(16);
+        buffer.append("stuff");
+        try {
+            buffer.substring(-2, 10);
+            fail("IndexOutOfBoundsException should have been thrown");
+        } catch (IndexOutOfBoundsException ex) {
+            // expected
+        }
+        try {
+            buffer.substringTrimmed(-2, 10);
+            fail("IndexOutOfBoundsException should have been thrown");
+        } catch (IndexOutOfBoundsException ex) {
+            // expected
+        }
+        try {
+            buffer.substring(12, 10);
+            fail("IndexOutOfBoundsException should have been thrown");
+        } catch (IndexOutOfBoundsException ex) {
+            // expected
+        }
+        try {
+            buffer.substringTrimmed(12, 10);
+            fail("IndexOutOfBoundsException should have been thrown");
+        } catch (IndexOutOfBoundsException ex) {
+            // expected
+        }
+        try {
+            buffer.substring(2, 1);
+            fail("IndexOutOfBoundsException should have been thrown");
+        } catch (IndexOutOfBoundsException ex) {
+            // expected
+        }
+        try {
+            buffer.substringTrimmed(2, 1);
+            fail("IndexOutOfBoundsException should have been thrown");
+        } catch (IndexOutOfBoundsException ex) {
+            // expected
+        }
+    }
 }

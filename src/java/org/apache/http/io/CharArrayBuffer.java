@@ -146,6 +146,57 @@ public class CharArrayBuffer  {
         return this.len == 0; 
     }
     
+    public int indexOf(int ch, int fromIndex) {
+        if (fromIndex < 0) {
+            fromIndex = 0;
+        }
+        if (fromIndex > this.len) {
+            return -1;
+        }
+        for (int i = fromIndex; i < this.len; i++) {
+            if (this.buffer[i] == ch) {
+                return i;
+            }
+        }
+        return -1;
+    }
+    
+    public int indexOf(int ch) {
+        return indexOf(ch, 0);
+    }
+
+    public String substring(int beginIndex, int endIndex) {
+        if (beginIndex < 0) {
+            throw new IndexOutOfBoundsException();
+        }
+        if (endIndex > this.len) {
+            throw new IndexOutOfBoundsException();
+        }
+        if (beginIndex > endIndex) {
+            throw new IndexOutOfBoundsException();
+        }
+        return new String(this.buffer, beginIndex, endIndex - beginIndex);
+    }
+    
+    public String substringTrimmed(int beginIndex, int endIndex) {
+        if (beginIndex < 0) {
+            throw new IndexOutOfBoundsException();
+        }
+        if (endIndex > this.len) {
+            throw new IndexOutOfBoundsException();
+        }
+        if (beginIndex > endIndex) {
+            throw new IndexOutOfBoundsException();
+        }
+        while (beginIndex < endIndex && Character.isWhitespace(this.buffer[beginIndex])) {
+            beginIndex++;
+        }
+        while (endIndex > beginIndex && Character.isWhitespace(this.buffer[endIndex - 1])) {
+            endIndex--;
+        }
+        return new String(this.buffer, beginIndex, endIndex - beginIndex);
+    }
+    
     public String toString() {
     	return new String(this.buffer, 0, this.len);
     }
