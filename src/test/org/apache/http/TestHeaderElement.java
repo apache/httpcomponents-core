@@ -30,6 +30,8 @@
 
 package org.apache.http;
 
+import org.apache.http.io.CharArrayBuffer;
+
 import junit.framework.*;
 
 /**
@@ -82,7 +84,7 @@ public class TestHeaderElement extends TestCase {
 
     public void testCharArrayConstructor() throws Exception {
         String s = "name = value; param1 = value1";
-        HeaderElement element = new HeaderElement(s.toCharArray()); 
+        HeaderElement element = HeaderElement.parse(s); 
         assertEquals("name", element.getName());
         assertEquals("value", element.getValue());
         assertEquals(1, element.getParameters().length);
@@ -149,19 +151,75 @@ public class TestHeaderElement extends TestCase {
         HeaderElement[] elements = HeaderElement.parseElements(headerValue);
         assertEquals("Number of elements", 0, elements.length);
     }
-    
-    public void testNullInput() throws Exception {
-        HeaderElement[] elements = HeaderElement.parseElements((char [])null, 0, 0);
-        assertNotNull(elements);
-        assertEquals("Number of elements", 0, elements.length);
-        elements = HeaderElement.parseElements((String)null);
-        assertNotNull(elements);
-        assertEquals("Number of elements", 0, elements.length);
-    }
 
+    public void testInvalidInput() throws Exception {
+        CharArrayBuffer buffer = new CharArrayBuffer(32);
+        buffer.append("name = value");
+        try {
+            HeaderElement.parseElements(null, 0, 0);
+            fail("IllegalArgumentException should have been thrown");
+        } catch (IllegalArgumentException ex) {
+            // expected
+        }
+        try {
+            HeaderElement.parseElements(null);
+            fail("IllegalArgumentException should have been thrown");
+        } catch (IllegalArgumentException ex) {
+            // expected
+        }
+        try {
+            HeaderElement.parseElements(buffer, -1, 0);
+            fail("IllegalArgumentException should have been thrown");
+        } catch (IndexOutOfBoundsException ex) {
+            // expected
+        }
+        try {
+            HeaderElement.parseElements(buffer, 0, 1000);
+            fail("IllegalArgumentException should have been thrown");
+        } catch (IndexOutOfBoundsException ex) {
+            // expected
+        }
+        try {
+            HeaderElement.parseElements(buffer, 2, 1);
+            fail("IllegalArgumentException should have been thrown");
+        } catch (IndexOutOfBoundsException ex) {
+            // expected
+        }
+        try {
+            HeaderElement.parse(null, 0, 0);
+            fail("IllegalArgumentException should have been thrown");
+        } catch (IllegalArgumentException ex) {
+            // expected
+        }
+        try {
+            HeaderElement.parse(null);
+            fail("IllegalArgumentException should have been thrown");
+        } catch (IllegalArgumentException ex) {
+            // expected
+        }
+        try {
+            HeaderElement.parse(buffer, -1, 0);
+            fail("IllegalArgumentException should have been thrown");
+        } catch (IndexOutOfBoundsException ex) {
+            // expected
+        }
+        try {
+            HeaderElement.parse(buffer, 0, 1000);
+            fail("IllegalArgumentException should have been thrown");
+        } catch (IndexOutOfBoundsException ex) {
+            // expected
+        }
+        try {
+            HeaderElement.parse(buffer, 2, 1);
+            fail("IllegalArgumentException should have been thrown");
+        } catch (IndexOutOfBoundsException ex) {
+            // expected
+        }
+    }
+    
     public void testParamByName() throws Exception {
         String s = "name = value; param1 = value1; param2 = value2";
-        HeaderElement element = new HeaderElement(s.toCharArray()); 
+        HeaderElement element = HeaderElement.parse(s); 
         assertEquals("value1", element.getParameterByName("param1").getValue());
         assertEquals("value2", element.getParameterByName("param2").getValue());
         assertNull(element.getParameterByName("param3"));
@@ -228,10 +286,10 @@ public class TestHeaderElement extends TestCase {
     
     public void testToString() {
         String s = "name = value; param1 = value1; param2 = value2";
-        HeaderElement element = new HeaderElement(s.toCharArray());
+        HeaderElement element = HeaderElement.parse(s);
         assertEquals(s, element.toString());
         s = "name; param1 = value1; param2 = value2";
-        element = new HeaderElement(s.toCharArray());
+        element = HeaderElement.parse(s);
         assertEquals(s, element.toString());
     }
     

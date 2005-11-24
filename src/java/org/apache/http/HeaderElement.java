@@ -124,47 +124,6 @@ public class HeaderElement {
     }
 
     /**
-     * Constructor with array of characters.
-     *
-     * @param chars the array of characters
-     * @param offset - the initial offset.
-     * @param length - the length.
-     * 
-     * @since 3.0
-     */
-    public HeaderElement(char[] chars, int offset, int length) {
-        super();
-        ParameterParser parser = new ParameterParser();
-        List params = parser.parse(chars, offset, length, ';');
-        if (params.size() > 0) {
-            NameValuePair element = (NameValuePair) params.remove(0);
-            this.name = element.getName();
-            this.value = element.getValue();
-            if (params.size() > 0) {
-                this.parameters = (NameValuePair[])
-                    params.toArray(new NameValuePair[params.size()]);    
-            } else {
-                this.parameters = new NameValuePair[] {};
-            }
-        } else {
-            this.name = "";
-            this.value = null;
-            this.parameters = new NameValuePair[] {};
-        }
-    }
-
-    /**
-     * Constructor with array of characters.
-     *
-     * @param chars the array of characters
-     * 
-     * @since 3.0
-     */
-    public HeaderElement(char[] chars) {
-        this(chars, 0, chars.length);
-    }
-
-    /**
      * Returns the name.
      *
      * @return String name The name
@@ -204,24 +163,33 @@ public class HeaderElement {
      * 
      * @since 3.0
      */
-    public static final HeaderElement[] parseElements(char[] headerValue, int indexFrom, int indexTo) {
-        if (headerValue == null) {
-            return new HeaderElement[] {};
+    public static final HeaderElement[] parseElements(final CharArrayBuffer buffer, int indexFrom, int indexTo) {
+        if (buffer == null) {
+            throw new IllegalArgumentException("Char array buffer may not be null");
+        }
+        if (indexFrom < 0) {
+            throw new IndexOutOfBoundsException();
+        }
+        if (indexTo > buffer.length()) {
+            throw new IndexOutOfBoundsException();
+        }
+        if (indexFrom > indexTo) {
+            throw new IndexOutOfBoundsException();
         }
         List elements = new ArrayList(); 
         int i = indexFrom;
         boolean qouted = false;
         while (i < indexTo) {
-            char ch = headerValue[i];
+            char ch = buffer.charAt(i);
             if (ch == '"') {
                 qouted = !qouted;
             }
             HeaderElement element = null;
             if ((!qouted) && (ch == ',')) {
-                element = new HeaderElement(headerValue, indexFrom, i);
+                element = parse(buffer, indexFrom, i);
                 indexFrom = i + 1;
             } else if (i == indexTo - 1) {
-                element = new HeaderElement(headerValue, indexFrom, indexTo);
+                element = parse(buffer, indexFrom, indexTo);
             }
             if (element != null && !element.getName().equals("")) {
                 elements.add(element);
@@ -236,17 +204,57 @@ public class HeaderElement {
      * This parses the value part of a header. The result is an array of
      * HeaderElement objects.
      *
-     * @param headerValue  the string representation of the header value
+     * @param s  the string representation of the header value
      *                     (as received from the web server).
      * @return array of {@link HeaderElement}s.
      * 
      * @since 3.0
      */
-    public static final HeaderElement[] parseElements(final String headerValue) {
-        if (headerValue == null) {
-            return new HeaderElement[] {};
+    public static final HeaderElement[] parseElements(final String s) {
+        if (s == null) {
+            throw new IllegalArgumentException("String may not be null");
         }
-        return parseElements(headerValue.toCharArray(), 0, headerValue.length());
+        CharArrayBuffer buffer = new CharArrayBuffer(s.length()); 
+        buffer.append(s);
+        return parseElements(buffer, 0, buffer.length());
+    }
+
+    public static HeaderElement parse(final CharArrayBuffer buffer, int indexFrom, int indexTo) {
+        if (buffer == null) {
+            throw new IllegalArgumentException("Char array buffer may not be null");
+        }
+        if (indexFrom < 0) {
+            throw new IndexOutOfBoundsException();
+        }
+        if (indexTo > buffer.length()) {
+            throw new IndexOutOfBoundsException();
+        }
+        if (indexFrom > indexTo) {
+            throw new IndexOutOfBoundsException();
+        }
+        ParameterParser parser = new ParameterParser();
+        List paramlist = parser.parse(buffer.internBuffer(), indexFrom, indexTo, ';');
+        if (paramlist.size() > 0) {
+            NameValuePair element = (NameValuePair) paramlist.remove(0);
+            String name = element.getName();
+            String value = element.getValue();
+            NameValuePair[] params = null;
+            if (paramlist.size() > 0) {
+                params = (NameValuePair[]) paramlist.toArray(new NameValuePair[paramlist.size()]);    
+            }
+            return new HeaderElement(name, value, params);
+        } else {
+            return new HeaderElement("", null, null);
+        }
+    }
+
+    public static final HeaderElement parse(final String s) {
+        if (s == null) {
+            throw new IllegalArgumentException("String may not be null");
+        }
+        CharArrayBuffer buffer = new CharArrayBuffer(s.length());
+        buffer.append(s);
+        return parse(buffer, 0, buffer.length());
     }
 
     /**
