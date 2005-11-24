@@ -204,26 +204,24 @@ public class HeaderElement {
      * 
      * @since 3.0
      */
-    public static final HeaderElement[] parseElements(char[] headerValue) {
+    public static final HeaderElement[] parseElements(char[] headerValue, int indexFrom, int indexTo) {
         if (headerValue == null) {
             return new HeaderElement[] {};
         }
         List elements = new ArrayList(); 
-        int i = 0;
-        int from = 0;
-        int len = headerValue.length;
+        int i = indexFrom;
         boolean qouted = false;
-        while (i < len) {
+        while (i < indexTo) {
             char ch = headerValue[i];
             if (ch == '"') {
                 qouted = !qouted;
             }
             HeaderElement element = null;
             if ((!qouted) && (ch == ',')) {
-                element = new HeaderElement(headerValue, from, i);
-                from = i + 1;
-            } else if (i == len - 1) {
-                element = new HeaderElement(headerValue, from, len);
+                element = new HeaderElement(headerValue, indexFrom, i);
+                indexFrom = i + 1;
+            } else if (i == indexTo - 1) {
+                element = new HeaderElement(headerValue, indexFrom, indexTo);
             }
             if (element != null && !element.getName().equals("")) {
                 elements.add(element);
@@ -248,7 +246,7 @@ public class HeaderElement {
         if (headerValue == null) {
             return new HeaderElement[] {};
         }
-        return parseElements(headerValue.toCharArray());
+        return parseElements(headerValue.toCharArray(), 0, headerValue.length());
     }
 
     /**

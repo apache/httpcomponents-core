@@ -151,7 +151,7 @@ public class TestHeaderElement extends TestCase {
     }
     
     public void testNullInput() throws Exception {
-        HeaderElement[] elements = HeaderElement.parseElements((char [])null);
+        HeaderElement[] elements = HeaderElement.parseElements((char [])null, 0, 0);
         assertNotNull(elements);
         assertEquals("Number of elements", 0, elements.length);
         elements = HeaderElement.parseElements((String)null);

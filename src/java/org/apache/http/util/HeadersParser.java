@@ -94,8 +94,7 @@ public class HeadersParser  {
         }
         Header[] headers = new Header[headerLines.size()];
         for (int i = 0; i < headerLines.size(); i++) {
-            CharArrayBuffer buffer = (CharArrayBuffer) headerLines.get(i);
-            headers[i] = Header.parse(buffer.toString());
+            headers[i] = new Header((CharArrayBuffer) headerLines.get(i));
         }
         return headers;
     }
