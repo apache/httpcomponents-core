@@ -56,7 +56,7 @@ import org.apache.http.impl.entity.EntityWriter;
 import org.apache.http.io.SocketFactory;
 import org.apache.http.params.HttpParams;
 import org.apache.http.params.HttpProtocolParams;
-import org.apache.http.util.HeadersParser;
+import org.apache.http.util.HeaderParser;
 
 /**
  * <p>
@@ -306,7 +306,7 @@ public class DefaultHttpClientConnection
 
     protected void readResponseHeaders(
             final HttpMutableResponse response) throws HttpException, IOException {
-        Header[] headers = HeadersParser.processHeaders(this.datareceiver);
+        Header[] headers = HeaderParser.parse(this.datareceiver);
         for (int i = 0; i < headers.length; i++) {
             response.addHeader(headers[i]);
             if (isWirelogEnabled()) {

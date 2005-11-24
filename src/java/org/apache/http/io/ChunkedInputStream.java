@@ -35,7 +35,7 @@ import java.io.InputStream;
 import org.apache.http.Header;
 import org.apache.http.HttpException;
 import org.apache.http.util.ExceptionUtils;
-import org.apache.http.util.HeadersParser;
+import org.apache.http.util.HeaderParser;
 
 /**
  * <p>This class implements chunked transfer coding as described in the 
@@ -289,7 +289,7 @@ public class ChunkedInputStream extends InputStream {
      */
     private void parseTrailerHeaders() throws IOException {
         try {
-            this.footers = HeadersParser.processHeaders(in);
+            this.footers = HeaderParser.parse(in);
         } catch (HttpException e) {
             IOException ioe = new MalformedChunkCodingException("Invalid footer: " 
                     + e.getMessage());

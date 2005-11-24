@@ -38,7 +38,7 @@ import junit.framework.TestCase;
 import junit.framework.TestSuite;
 
 /**
- * Unit tests for {@link HeadersParser}.
+ * Unit tests for {@link HeaderParser}.
  *
  * @author <a href="mailto:oleg at ural.ru">Oleg Kalnichevski</a>
  */
@@ -67,7 +67,7 @@ public class TestHeadersParser extends TestCase {
             "     \r\n" +  
             "\r\n"; 
         HttpDataReceiver receiver = new HttpDataReceiverMockup(s, "US-ASCII"); 
-        Header[] headers = HeadersParser.processHeaders(receiver);
+        Header[] headers = HeaderParser.parse(receiver);
         assertNotNull(headers);
         assertEquals(3, headers.length);
         assertEquals("header1", headers[0].getName());
@@ -83,7 +83,7 @@ public class TestHeadersParser extends TestCase {
             "    header1: stuff\r\n" + 
             "header2  : stuff \r\n"; 
         HttpDataReceiver receiver = new HttpDataReceiverMockup(s, "US-ASCII"); 
-        Header[] headers = HeadersParser.processHeaders(receiver);
+        Header[] headers = HeaderParser.parse(receiver);
         assertNotNull(headers);
         assertEquals(2, headers.length);
         assertEquals("header1", headers[0].getName());
@@ -95,7 +95,7 @@ public class TestHeadersParser extends TestCase {
     public void testEmptyDataStream() throws Exception {
         String s = ""; 
         HttpDataReceiver receiver = new HttpDataReceiverMockup(s, "US-ASCII"); 
-        Header[] headers = HeadersParser.processHeaders(receiver);
+        Header[] headers = HeaderParser.parse(receiver);
         assertNotNull(headers);
         assertEquals(0, headers.length);
     }

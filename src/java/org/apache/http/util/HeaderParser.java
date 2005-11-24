@@ -48,12 +48,12 @@ import org.apache.http.io.HttpDataReceiver;
  * 
  * @since 4.0
  */
-public class HeadersParser  {
+public class HeaderParser  {
 
-    private HeadersParser() {
+    private HeaderParser() {
     }
     
-    public static Header[] processHeaders(final HttpDataReceiver datareceiver) 
+    public static Header[] parse(final HttpDataReceiver datareceiver) 
             throws HttpException, IOException {
         ArrayList headerLines = new ArrayList();
         
