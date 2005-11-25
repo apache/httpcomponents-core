@@ -99,62 +99,77 @@ public class StatusLine {
      * 
      * @since 4.0 
      */
-    public static StatusLine parse(final String statusLine) throws HttpException {
-        if (statusLine == null) {
-            throw new IllegalArgumentException("Status line string may not be null");
+    public static StatusLine parse(
+            final CharArrayBuffer buffer, final int indexFrom, final int indexTo) 
+            throws ProtocolException {
+        if (buffer == null) {
+            throw new IllegalArgumentException("Char array buffer may not be null");
         }
-        HttpVersion httpVersion = null;
-        int statusCode = 0;
-        String reasonPhrase = null;
-        int length = statusLine.length();
-        int at = 0;
-        int start = 0;
+        if (indexFrom < 0) {
+            throw new IndexOutOfBoundsException();
+        }
+        if (indexTo > buffer.length()) {
+            throw new IndexOutOfBoundsException();
+        }
+        if (indexFrom > indexTo) {
+            throw new IndexOutOfBoundsException();
+        }
         try {
-            while (Character.isWhitespace(statusLine.charAt(at))) {
-                ++at;
-                ++start;
-            }
-            if (!"HTTP".equals(statusLine.substring(at, at += 4))) {
-                throw new HttpException("Status-Line '" + statusLine 
-                    + "' does not start with HTTP");
-            }
+            int i = indexFrom;
             //handle the HTTP-Version
-            at = statusLine.indexOf(" ", at);
-            if (at <= 0) {
+            while (Character.isWhitespace(buffer.charAt(i))) {
+                i++;
+            }            
+            int blank = buffer.indexOf(' ', i);
+            if (blank <= 0) {
                 throw new ProtocolException(
-                        "Unable to parse HTTP-Version from the status line: '"
-                        + statusLine + "'");
+                        "Unable to parse HTTP-Version from the status line: "
+                        + buffer.substring(indexFrom, indexTo));
             }
-            httpVersion = HttpVersion.parse(statusLine.substring(start, at));
+            HttpVersion ver = HttpVersion.parse(buffer, i, blank);
 
+            i = blank;
             //advance through spaces
-            while (statusLine.charAt(at) == ' ') {
-                at++;
-            }
+            while (Character.isWhitespace(buffer.charAt(i))) {
+                i++;
+            }            
 
             //handle the Status-Code
-            int to = statusLine.indexOf(" ", at);
-            if (to < 0) {
-                to = length;
+            blank = buffer.indexOf(' ', i);
+            if (blank < 0) {
+                blank = indexTo;
             }
+            int statusCode = 0;
             try {
-                statusCode = Integer.parseInt(statusLine.substring(at, to));
+                statusCode = Integer.parseInt(buffer.substringTrimmed(i, blank));
             } catch (NumberFormatException e) {
                 throw new ProtocolException(
-                    "Unable to parse status code from status line: '" 
-                    + statusLine + "'");
+                    "Unable to parse status code from status line: " 
+                    + buffer.substring(indexFrom, indexTo));
             }
             //handle the Reason-Phrase
-            at = to + 1;
-            if (at < length) {
-                reasonPhrase = statusLine.substring(at).trim();
+            i = blank;
+            String reasonPhrase = null;
+            if (i < indexTo) {
+                reasonPhrase = buffer.substringTrimmed(i, indexTo);
             } else {
                 reasonPhrase = "";
             }
-        } catch (StringIndexOutOfBoundsException e) {
-            throw new HttpException("Status-Line '" + statusLine + "' is not valid"); 
+            return new StatusLine(ver, statusCode, reasonPhrase);
+        } catch (IndexOutOfBoundsException e) {
+            throw new ProtocolException("Invalid status line: " + 
+                    buffer.substring(indexFrom, indexTo)); 
         }
-        return new StatusLine(httpVersion, statusCode, reasonPhrase);
+    }
+
+    public static final StatusLine parse(final String s)
+            throws ProtocolException {
+        if (s == null) {
+            throw new IllegalArgumentException("String may not be null");
+        }
+        CharArrayBuffer buffer = new CharArrayBuffer(s.length()); 
+        buffer.append(s);
+        return parse(buffer, 0, buffer.length());
     }
 
     // --------------------------------------------------------- Public Methods
@@ -191,22 +206,5 @@ public class StatusLine {
         }
         return buffer.toString();
     }
-
-    /**
-     * Tests if the string starts with 'HTTP' signature.
-     * @param s string to test
-     * @return <tt>true</tt> if the line starts with 'HTTP' 
-     *   signature, <tt>false</tt> otherwise.
-     */
-    public static boolean startsWithHTTP(final String s) {
-        try {
-            int at = 0;
-            while (Character.isWhitespace(s.charAt(at))) {
-                ++at;
-            }
-            return ("HTTP".equals(s.substring(at, at + 4)));
-        } catch (StringIndexOutOfBoundsException e) {
-            return false;
-        }
-    }
+    
 }

@@ -163,7 +163,8 @@ public class HeaderElement {
      * 
      * @since 3.0
      */
-    public static final HeaderElement[] parseElements(final CharArrayBuffer buffer, int indexFrom, int indexTo) {
+    public static final HeaderElement[] parseElements(
+            final CharArrayBuffer buffer, final int indexFrom, final int indexTo) {
         if (buffer == null) {
             throw new IllegalArgumentException("Char array buffer may not be null");
         }
@@ -177,24 +178,25 @@ public class HeaderElement {
             throw new IndexOutOfBoundsException();
         }
         List elements = new ArrayList(); 
-        int i = indexFrom;
+        int cur = indexFrom;
+        int from = indexFrom;
         boolean qouted = false;
-        while (i < indexTo) {
-            char ch = buffer.charAt(i);
+        while (cur < indexTo) {
+            char ch = buffer.charAt(cur);
             if (ch == '"') {
                 qouted = !qouted;
             }
             HeaderElement element = null;
             if ((!qouted) && (ch == ',')) {
-                element = parse(buffer, indexFrom, i);
-                indexFrom = i + 1;
-            } else if (i == indexTo - 1) {
-                element = parse(buffer, indexFrom, indexTo);
+                element = parse(buffer, from, cur);
+                from = cur + 1;
+            } else if (cur == indexTo - 1) {
+                element = parse(buffer, from, indexTo);
             }
             if (element != null && !element.getName().equals("")) {
                 elements.add(element);
             }
-            i++;
+            cur++;
         }
         return (HeaderElement[])
             elements.toArray(new HeaderElement[elements.size()]);
@@ -219,7 +221,8 @@ public class HeaderElement {
         return parseElements(buffer, 0, buffer.length());
     }
 
-    public static HeaderElement parse(final CharArrayBuffer buffer, int indexFrom, int indexTo) {
+    public static HeaderElement parse(
+            final CharArrayBuffer buffer, final int indexFrom, final int indexTo) {
         if (buffer == null) {
             throw new IllegalArgumentException("Char array buffer may not be null");
         }

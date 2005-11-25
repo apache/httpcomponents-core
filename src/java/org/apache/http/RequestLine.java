@@ -29,9 +29,6 @@
 
 package org.apache.http;
 
-import java.util.NoSuchElementException;
-import java.util.StringTokenizer;
-
 import org.apache.http.io.CharArrayBuffer;
 
 /**
@@ -87,23 +84,58 @@ public class RequestLine {
         return buffer.toString();
     }
     
-    public static RequestLine parse(final String requestLine) 
-            throws HttpException {
-        if (requestLine == null) {
-            throw new IllegalArgumentException("Request line string may not be null");
+    public static RequestLine parse(
+            final CharArrayBuffer buffer, final int indexFrom, final int indexTo) 
+            throws ProtocolException {
+        if (buffer == null) {
+            throw new IllegalArgumentException("Char array buffer may not be null");
         }
-        String method = null;
-        String uri = null;
-        String protocol = null;
+        if (indexFrom < 0) {
+            throw new IndexOutOfBoundsException();
+        }
+        if (indexTo > buffer.length()) {
+            throw new IndexOutOfBoundsException();
+        }
+        if (indexFrom > indexTo) {
+            throw new IndexOutOfBoundsException();
+        }
         try {
-            StringTokenizer st = new StringTokenizer(requestLine, " ");
-            method = st.nextToken().trim();
-            uri = st.nextToken().trim();
-            protocol = st.nextToken();
-        } catch (NoSuchElementException e) {
-            throw new ProtocolException("Invalid request line: " + requestLine);
+            int i = indexFrom;
+            while (Character.isWhitespace(buffer.charAt(i))) {
+                i++;
+            }
+            int blank = buffer.indexOf(' ', i);
+            if (blank < 0) {
+                throw new ProtocolException("Invalid request line: " + 
+                        buffer.substring(indexFrom, indexTo));
+            }
+            String method = buffer.substringTrimmed(i, blank);
+            i = blank;
+            while (Character.isWhitespace(buffer.charAt(i))) {
+                i++;
+            }
+            blank = buffer.indexOf(' ', i);
+            if (blank < 0) {
+                throw new ProtocolException("Invalid request line: " + 
+                        buffer.substring(indexFrom, indexTo));
+            }
+            String uri = buffer.substringTrimmed(i, blank);
+            HttpVersion ver = HttpVersion.parse(buffer, blank, indexTo);
+            return new RequestLine(method, uri, ver);
+        } catch (IndexOutOfBoundsException e) {
+            throw new ProtocolException("Invalid request line: " + 
+                    buffer.substring(indexFrom, indexTo)); 
         }
-        return new RequestLine(method, uri, HttpVersion.parse(protocol));
     }
 
+    public static final RequestLine parse(final String s)
+            throws ProtocolException {
+        if (s == null) {
+            throw new IllegalArgumentException("String may not be null");
+        }
+        CharArrayBuffer buffer = new CharArrayBuffer(s.length()); 
+        buffer.append(s);
+        return parse(buffer, 0, buffer.length());
+    }
+    
 }

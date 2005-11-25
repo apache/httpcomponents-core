@@ -53,6 +53,7 @@ import org.apache.http.impl.entity.DefaultClientEntityWriter;
 import org.apache.http.impl.entity.DefaultEntityGenerator;
 import org.apache.http.impl.entity.EntityGenerator;
 import org.apache.http.impl.entity.EntityWriter;
+import org.apache.http.io.CharArrayBuffer;
 import org.apache.http.io.SocketFactory;
 import org.apache.http.params.HttpParams;
 import org.apache.http.params.HttpProtocolParams;
@@ -77,6 +78,8 @@ public class DefaultHttpClientConnection
     private HttpHost targethost = null;
     private InetAddress localAddress = null;
 
+    private final CharArrayBuffer buffer; 
+    
     /*
      * Dependent interfaces
      */
@@ -86,6 +89,7 @@ public class DefaultHttpClientConnection
         super();
         this.targethost = targethost;
         this.localAddress = localAddress;
+        this.buffer = new CharArrayBuffer(64);
         this.responsefactory = new DefaultHttpResponseFactory();
     }
     
@@ -266,38 +270,60 @@ public class DefaultHttpClientConnection
         }
         return response;
     }
-
+    
+    /**
+     * Tests if the string starts with 'HTTP' signature.
+     * @param buffer buffer to test
+     * @return <tt>true</tt> if the line starts with 'HTTP' 
+     *   signature, <tt>false</tt> otherwise.
+     */
+    private static boolean startsWithHTTP(final CharArrayBuffer buffer) {
+        try {
+            int i = 0;
+            while (Character.isWhitespace(buffer.charAt(i))) {
+                ++i;
+            }
+            return buffer.charAt(i) == 'H' 
+                && buffer.charAt(i + 1) == 'T'
+                && buffer.charAt(i + 2) == 'T'
+                && buffer.charAt(i + 3) == 'P';
+        } catch (IndexOutOfBoundsException e) {
+            return false;
+        }
+    }
+    
     protected HttpMutableResponse readResponseStatusLine(final HttpParams params) 
                 throws HttpException, IOException {
+        // clear the buffer
+        this.buffer.clear();
         //read out the HTTP status string
         int maxGarbageLines = params.getIntParameter(
                 HttpProtocolParams.STATUS_LINE_GARBAGE_LIMIT, Integer.MAX_VALUE);
         int count = 0;
-        String s;
         do {
-            s = this.datareceiver.readLine();
-            if (s == null && count == 0) {
+            int i = this.datareceiver.readLine(this.buffer);
+            if (i == -1 && count == 0) {
                 // The server just dropped connection on us
                 throw new NoHttpResponseException("The server " + 
                         this.targethost.getHostName() + " failed to respond");
             }
-            if (s != null && StatusLine.startsWithHTTP(s)) {
+            if (startsWithHTTP(this.buffer)) {
                 // Got one
                 break;
-            } else if (s == null || count >= maxGarbageLines) {
+            } else if (i == -1 || count >= maxGarbageLines) {
                 // Giving up
                 throw new ProtocolException("The server " + this.targethost.getHostName() + 
                         " failed to respond with a valid HTTP response");
             }
             count++;
             if (isWirelogEnabled()) {
-                wirelog("<< " + s + "[\\r][\\n]");
+                wirelog("<< " + this.buffer.toString() + "[\\r][\\n]");
             }
         } while(true);
         //create the status line from the status string
-        StatusLine statusline = StatusLine.parse(s);
+        StatusLine statusline = StatusLine.parse(this.buffer, 0, this.buffer.length());
         if (isWirelogEnabled()) {
-            wirelog("<< " + s + "[\\r][\\n]");
+            wirelog("<< " + this.buffer.toString() + "[\\r][\\n]");
         }
         HttpMutableResponse response = this.responsefactory.newHttpResponse(statusline);
         response.getParams().setDefaults(params);

@@ -47,6 +47,7 @@ import org.apache.http.impl.entity.DefaultEntityGenerator;
 import org.apache.http.impl.entity.DefaultServerEntityWriter;
 import org.apache.http.impl.entity.EntityGenerator;
 import org.apache.http.impl.entity.EntityWriter;
+import org.apache.http.io.CharArrayBuffer;
 import org.apache.http.params.HttpParams;
 import org.apache.http.util.HeaderParser;
 
@@ -67,9 +68,12 @@ public class DefaultHttpServerConnection
      */
     private HttpRequestFactory requestfactory = null; 
 
+    private final CharArrayBuffer buffer; 
+        
     public DefaultHttpServerConnection() {
         super();
         this.requestfactory = new DefaultHttpRequestFactory();
+        this.buffer = new CharArrayBuffer(128);
     }
     
     public void setRequestFactory(final HttpRequestFactory requestfactory) {
@@ -103,13 +107,14 @@ public class DefaultHttpServerConnection
     
     protected HttpMutableRequest receiveRequestLine(final HttpParams params)
             throws HttpException, IOException {
-        String line = this.datareceiver.readLine();
-        if (line == null) {
+        this.buffer.clear();
+        int i = this.datareceiver.readLine(this.buffer);
+        if (i == -1) {
             throw new ConnectionClosedException("Client closed connection"); 
         }
-        RequestLine requestline = RequestLine.parse(line);
+        RequestLine requestline = RequestLine.parse(this.buffer, 0, this.buffer.length());
         if (isWirelogEnabled()) {
-            wirelog(">> " + line + "[\\r][\\n]");
+            wirelog(">> " + this.buffer.toString() + "[\\r][\\n]");
         }
         HttpMutableRequest request = this.requestfactory.newHttpRequest(requestline);
         request.getParams().setDefaults(params);

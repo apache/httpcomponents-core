@@ -28,6 +28,8 @@
 
 package org.apache.http;
 
+import org.apache.http.io.CharArrayBuffer;
+
 import junit.framework.*;
 
 /**
@@ -102,6 +104,16 @@ public class TestRequestLine extends TestCase {
 
     public void testFailure() throws Exception {
         try {
+            RequestLine.parse("    ");
+            fail();
+        } catch (HttpException e) { /* expected */ }
+
+        try {
+            RequestLine.parse("  GET");
+            fail();
+        } catch (HttpException e) { /* expected */ }
+
+        try {
             RequestLine.parse("GET /stuff");
             fail();
         } catch (HttpException e) { /* expected */ }
@@ -112,11 +124,39 @@ public class TestRequestLine extends TestCase {
         } catch (HttpException e) { /* expected */ }
     }
 
-    public void testNullInput() throws Exception {
+    public void testInvalidInput() throws Exception {
+        CharArrayBuffer buffer = new CharArrayBuffer(32);
+        buffer.append("GET /stuff HTTP/1.1");
+        try {
+            RequestLine.parse(null, 0, 0);
+            fail("IllegalArgumentException should have been thrown");
+        } catch (IllegalArgumentException ex) {
+            // expected
+        }
         try {
             RequestLine.parse(null);
             fail("IllegalArgumentException should have been thrown");
-        } catch (IllegalArgumentException e) { /* expected */ }
+        } catch (IllegalArgumentException ex) {
+            // expected
+        }
+        try {
+            RequestLine.parse(buffer, -1, 0);
+            fail("IllegalArgumentException should have been thrown");
+        } catch (IndexOutOfBoundsException ex) {
+            // expected
+        }
+        try {
+            RequestLine.parse(buffer, 0, 1000);
+            fail("IllegalArgumentException should have been thrown");
+        } catch (IndexOutOfBoundsException ex) {
+            // expected
+        }
+        try {
+            RequestLine.parse(buffer, 2, 1);
+            fail("IllegalArgumentException should have been thrown");
+        } catch (IndexOutOfBoundsException ex) {
+            // expected
+        }
     }
 
 }

@@ -29,6 +29,8 @@
 
 package org.apache.http;
 
+import org.apache.http.io.CharArrayBuffer;
+
 import junit.framework.Test;
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
@@ -91,6 +93,18 @@ public class TestHttpVersion extends TestCase {
             //expected
         }
         try {
+            HttpVersion.parse("    ");
+            fail("ProtocolException should have been thrown");
+        } catch (ProtocolException e) {
+            //expected
+        }
+        try {
+            HttpVersion.parse("HTT");
+            fail("ProtocolException should have been thrown");
+        } catch (ProtocolException e) {
+            //expected
+        }
+        try {
             HttpVersion.parse("crap");
             fail("ProtocolException should have been thrown");
         } catch (ProtocolException e) {
@@ -137,6 +151,41 @@ public class TestHttpVersion extends TestCase {
             fail("ProtocolException should have been thrown");
         } catch (ProtocolException e) {
             //expected
+        }
+    }
+
+    public void testInvalidInput() throws Exception {
+        CharArrayBuffer buffer = new CharArrayBuffer(32);
+        buffer.append("HTTP/1.1");
+        try {
+            HttpVersion.parse(null, 0, 0);
+            fail("IllegalArgumentException should have been thrown");
+        } catch (IllegalArgumentException ex) {
+            // expected
+        }
+        try {
+            HttpVersion.parse(null);
+            fail("IllegalArgumentException should have been thrown");
+        } catch (IllegalArgumentException ex) {
+            // expected
+        }
+        try {
+            HttpVersion.parse(buffer, -1, 0);
+            fail("IllegalArgumentException should have been thrown");
+        } catch (IndexOutOfBoundsException ex) {
+            // expected
+        }
+        try {
+            HttpVersion.parse(buffer, 0, 1000);
+            fail("IllegalArgumentException should have been thrown");
+        } catch (IndexOutOfBoundsException ex) {
+            // expected
+        }
+        try {
+            HttpVersion.parse(buffer, 2, 1);
+            fail("IllegalArgumentException should have been thrown");
+        } catch (IndexOutOfBoundsException ex) {
+            // expected
         }
     }
 

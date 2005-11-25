@@ -28,6 +28,8 @@
 
 package org.apache.http;
 
+import org.apache.http.io.CharArrayBuffer;
+
 import junit.framework.*;
 
 /**
@@ -84,16 +86,6 @@ public class TestStatusLine extends TestCase {
         } catch (IllegalArgumentException e) { /* expected */ }
     }
         
-    public void testIfStatusLine() throws Exception {
-        assertTrue(StatusLine.startsWithHTTP("HTTP"));
-        assertTrue(StatusLine.startsWithHTTP("         HTTP"));
-        assertTrue(StatusLine.startsWithHTTP("\rHTTP"));
-        assertTrue(StatusLine.startsWithHTTP("\tHTTP"));
-        assertFalse(StatusLine.startsWithHTTP("crap"));
-        assertFalse(StatusLine.startsWithHTTP("HTT"));
-        assertFalse(StatusLine.startsWithHTTP("http"));
-    }
-
     public void testSuccess() throws Exception {
         //typical status line
         StatusLine statusLine = StatusLine.parse("HTTP/1.1 200 OK");
@@ -164,13 +156,41 @@ public class TestStatusLine extends TestCase {
         } catch (HttpException e) { /* expected */ }
     }
 
-    public void testNullInput() throws Exception {
+    public void testInvalidInput() throws Exception {
+        CharArrayBuffer buffer = new CharArrayBuffer(32);
+        buffer.append("HTTP/1.1 200 OK");
+        try {
+            StatusLine.parse(null, 0, 0);
+            fail("IllegalArgumentException should have been thrown");
+        } catch (IllegalArgumentException ex) {
+            // expected
+        }
         try {
             StatusLine.parse(null);
             fail("IllegalArgumentException should have been thrown");
-        } catch (IllegalArgumentException e) { /* expected */ }
+        } catch (IllegalArgumentException ex) {
+            // expected
+        }
+        try {
+            StatusLine.parse(buffer, -1, 0);
+            fail("IllegalArgumentException should have been thrown");
+        } catch (IndexOutOfBoundsException ex) {
+            // expected
+        }
+        try {
+            StatusLine.parse(buffer, 0, 1000);
+            fail("IllegalArgumentException should have been thrown");
+        } catch (IndexOutOfBoundsException ex) {
+            // expected
+        }
+        try {
+            StatusLine.parse(buffer, 2, 1);
+            fail("IllegalArgumentException should have been thrown");
+        } catch (IndexOutOfBoundsException ex) {
+            // expected
+        }
     }
-    
+
     public void testToString() throws Exception {
         StatusLine statusline = new StatusLine(HttpVersion.HTTP_1_1, HttpStatus.SC_OK, "OK");
         assertEquals("HTTP/1.1 200 OK", statusline.toString());
