@@ -120,7 +120,7 @@ public class StatusLine {
             while (Character.isWhitespace(buffer.charAt(i))) {
                 i++;
             }            
-            int blank = buffer.indexOf(' ', i);
+            int blank = buffer.indexOf(' ', i, indexTo);
             if (blank <= 0) {
                 throw new ProtocolException(
                         "Unable to parse HTTP-Version from the status line: "
@@ -135,7 +135,7 @@ public class StatusLine {
             }            
 
             //handle the Status-Code
-            blank = buffer.indexOf(' ', i);
+            blank = buffer.indexOf(' ', i, indexTo);
             if (blank < 0) {
                 blank = indexTo;
             }

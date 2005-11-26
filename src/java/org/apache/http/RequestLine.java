@@ -104,7 +104,7 @@ public class RequestLine {
             while (Character.isWhitespace(buffer.charAt(i))) {
                 i++;
             }
-            int blank = buffer.indexOf(' ', i);
+            int blank = buffer.indexOf(' ', i, indexTo);
             if (blank < 0) {
                 throw new ProtocolException("Invalid request line: " + 
                         buffer.substring(indexFrom, indexTo));
@@ -114,7 +114,7 @@ public class RequestLine {
             while (Character.isWhitespace(buffer.charAt(i))) {
                 i++;
             }
-            blank = buffer.indexOf(' ', i);
+            blank = buffer.indexOf(' ', i, indexTo);
             if (blank < 0) {
                 throw new ProtocolException("Invalid request line: " + 
                         buffer.substring(indexFrom, indexTo));

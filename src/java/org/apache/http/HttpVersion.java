@@ -249,7 +249,7 @@ public class HttpVersion implements Comparable {
                         buffer.substring(indexFrom, indexTo));
             }
             i += 5;
-            int period = buffer.indexOf('.', i);
+            int period = buffer.indexOf('.', i, indexTo);
             if (period == -1) {
                 throw new ProtocolException("Invalid HTTP version number: " + 
                         buffer.substring(indexFrom, indexTo));

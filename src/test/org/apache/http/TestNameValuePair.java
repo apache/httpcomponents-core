@@ -29,6 +29,8 @@
 
 package org.apache.http;
 
+import org.apache.http.io.CharArrayBuffer;
+
 import junit.framework.Test;
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
@@ -92,4 +94,140 @@ public class TestNameValuePair extends TestCase {
         NameValuePair param1 = new NameValuePair("name1", "value1");
         assertEquals("name1 = value1", param1.toString());
     }
+    
+    public void testParse() {
+        String s = "test";
+        NameValuePair param = NameValuePair.parse(s);
+        assertEquals("test", param.getName());
+        assertEquals(null, param.getValue());
+
+        s = "test=stuff";
+        param = NameValuePair.parse(s);
+        assertEquals("test", param.getName());
+        assertEquals("stuff", param.getValue());
+        
+        s = "   test  =   stuff ";
+        param = NameValuePair.parse(s);
+        assertEquals("test", param.getName());
+        assertEquals("stuff", param.getValue());
+        
+        s = "test  = \"stuff\"";
+        param = NameValuePair.parse(s);
+        assertEquals("test", param.getName());
+        assertEquals("stuff", param.getValue());
+        
+        s = "test  = \"  stuff\\\"\"";
+        param = NameValuePair.parse(s);
+        assertEquals("test", param.getName());
+        assertEquals("  stuff\\\"", param.getValue());
+        
+        s = "  test";
+        param = NameValuePair.parse(s);
+        assertEquals("test", param.getName());
+        assertEquals(null, param.getValue());
+
+        s = "  ";
+        param = NameValuePair.parse(s);
+        assertEquals("", param.getName());
+        assertEquals(null, param.getValue());
+
+        s = " = stuff ";
+        param = NameValuePair.parse(s);
+        assertEquals("", param.getName());
+        assertEquals("stuff", param.getValue());
+    }
+
+    public void testParseAll() {
+        String s = 
+          "test; test1 =  stuff   ; test2 =  \"stuff; stuff\"; test3=\"stuff";
+        NameValuePair[] params = NameValuePair.parseAll(s);
+        assertEquals("test", params[0].getName());
+        assertEquals(null, params[0].getValue());
+        assertEquals("test1", params[1].getName());
+        assertEquals("stuff", params[1].getValue());
+        assertEquals("test2", params[2].getName());
+        assertEquals("stuff; stuff", params[2].getValue());
+        assertEquals("test3", params[3].getName());
+        assertEquals("\"stuff", params[3].getValue());
+
+        s = "  ";
+        params = NameValuePair.parseAll(s);
+        assertEquals(0, params.length);
+    }
+
+    public void testParseEscaped() {
+        String s = 
+          "test1 = stuff\\; stuff; test2 =  \"\\\"stuff\\\"\"";
+        NameValuePair[] params = NameValuePair.parseAll(s);
+        assertEquals("test1", params[0].getName());
+        assertEquals("stuff\\; stuff", params[0].getValue());
+        assertEquals("test2", params[1].getName());
+        assertEquals("\\\"stuff\\\"", params[1].getValue());
+    }
+
+    public void testInvalidInput() throws Exception {
+        CharArrayBuffer buffer = new CharArrayBuffer(32);
+        buffer.append("name = value");
+        try {
+            NameValuePair.parseAll(null, 0, 0);
+            fail("IllegalArgumentException should have been thrown");
+        } catch (IllegalArgumentException ex) {
+            // expected
+        }
+        try {
+            NameValuePair.parseAll(null);
+            fail("IllegalArgumentException should have been thrown");
+        } catch (IllegalArgumentException ex) {
+            // expected
+        }
+        try {
+            NameValuePair.parseAll(buffer, -1, 0);
+            fail("IllegalArgumentException should have been thrown");
+        } catch (IndexOutOfBoundsException ex) {
+            // expected
+        }
+        try {
+            NameValuePair.parseAll(buffer, 0, 1000);
+            fail("IllegalArgumentException should have been thrown");
+        } catch (IndexOutOfBoundsException ex) {
+            // expected
+        }
+        try {
+            NameValuePair.parseAll(buffer, 2, 1);
+            fail("IllegalArgumentException should have been thrown");
+        } catch (IndexOutOfBoundsException ex) {
+            // expected
+        }
+        try {
+            NameValuePair.parse(null, 0, 0);
+            fail("IllegalArgumentException should have been thrown");
+        } catch (IllegalArgumentException ex) {
+            // expected
+        }
+        try {
+            NameValuePair.parse(null);
+            fail("IllegalArgumentException should have been thrown");
+        } catch (IllegalArgumentException ex) {
+            // expected
+        }
+        try {
+            NameValuePair.parse(buffer, -1, 0);
+            fail("IllegalArgumentException should have been thrown");
+        } catch (IndexOutOfBoundsException ex) {
+            // expected
+        }
+        try {
+            NameValuePair.parse(buffer, 0, 1000);
+            fail("IllegalArgumentException should have been thrown");
+        } catch (IndexOutOfBoundsException ex) {
+            // expected
+        }
+        try {
+            NameValuePair.parse(buffer, 2, 1);
+            fail("IllegalArgumentException should have been thrown");
+        } catch (IndexOutOfBoundsException ex) {
+            // expected
+        }
+    }
+    
 }

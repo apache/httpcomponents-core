@@ -84,7 +84,7 @@ public class EntityUtils {
         }
         String charset = null;
         if (entity.getContentType() != null) { 
-            HeaderElement values[] = HeaderElement.parseElements(entity.getContentType());
+            HeaderElement values[] = HeaderElement.parseAll(entity.getContentType());
             if (values.length > 0) {
                 NameValuePair param = values[0].getParameterByName("charset");
                 if (param != null) {

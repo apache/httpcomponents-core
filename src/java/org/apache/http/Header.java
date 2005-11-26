@@ -176,7 +176,7 @@ public class Header {
      * @since 3.0
      */
     public HeaderElement[] getElements() {
-        return HeaderElement.parseElements(this.buffer, this.posValue, this.buffer.length());
+        return HeaderElement.parseAll(this.buffer, this.posValue, this.buffer.length());
     }
     
 }

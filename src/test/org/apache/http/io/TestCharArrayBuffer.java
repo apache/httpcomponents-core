@@ -214,8 +214,9 @@ public class TestCharArrayBuffer extends TestCase {
         buffer.append("name: value");
         assertEquals(4, buffer.indexOf(':'));
         assertEquals(-1, buffer.indexOf(','));
-        assertEquals(4, buffer.indexOf(':', -1));
-        assertEquals(-1, buffer.indexOf(',', 1000));
+        assertEquals(4, buffer.indexOf(':', -1, 11));
+        assertEquals(4, buffer.indexOf(':', 0, 1000));
+        assertEquals(-1, buffer.indexOf(':', 2, 1));
     }
     
     public void testSubstring() {

@@ -29,7 +29,8 @@
 
 package org.apache.http;
 
-import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.apache.http.io.CharArrayBuffer;
 import org.apache.http.util.LangUtils;
@@ -40,14 +41,13 @@ import org.apache.http.util.LangUtils;
  * @author <a href="mailto:bcholmes@interlog.com">B.C. Holmes</a>
  * @author Sean C. Sullivan
  * @author <a href="mailto:mbowler@GargoyleSoftware.com">Mike Bowler</a>
+ * @author <a href="mailto:oleg at ural.com">Oleg Kalnichevski</a>
  * 
  * @version $Revision$ $Date$
  * 
  */
-public class NameValuePair implements Serializable {
+public class NameValuePair {
 
-	static final long serialVersionUID = -759179838086890081L;
-	 
     private final String name;
     private final String value;
 
@@ -82,6 +82,104 @@ public class NameValuePair implements Serializable {
      */
     public String getValue() {
         return this.value;
+    }
+
+    public static final NameValuePair[] parseAll(
+            final CharArrayBuffer buffer, final int indexFrom, final int indexTo) {
+        if (buffer == null) {
+            throw new IllegalArgumentException("Char array buffer may not be null");
+        }
+        if (indexFrom < 0) {
+            throw new IndexOutOfBoundsException();
+        }
+        if (indexTo > buffer.length()) {
+            throw new IndexOutOfBoundsException();
+        }
+        if (indexFrom > indexTo) {
+            throw new IndexOutOfBoundsException();
+        }
+        List params = new ArrayList(); 
+        int cur = indexFrom;
+        int from = indexFrom;
+        boolean qouted = false;
+        char previous = 0;
+        while (cur < indexTo) {
+            char ch = buffer.charAt(cur);
+            if (ch == '"' && previous != '\\') {
+                qouted = !qouted;
+            }
+            NameValuePair param = null;
+            if (!qouted && ch == ';' && previous != '\\') {
+                param = parse(buffer, from, cur);
+                from = cur + 1;
+            } else if (cur == indexTo - 1) {
+                param = parse(buffer, from, indexTo);
+            }
+            if (param != null && !(param.getName().equals("") && param.getValue() == null)) {
+                params.add(param);
+            }
+            previous = ch;
+            cur++;
+        }
+        return (NameValuePair[]) params.toArray(new NameValuePair[params.size()]);
+    }
+    
+    public static final NameValuePair[] parseAll(final String s) {
+        if (s == null) {
+            throw new IllegalArgumentException("String may not be null");
+        }
+        CharArrayBuffer buffer = new CharArrayBuffer(s.length());
+        buffer.append(s);
+        return parseAll(buffer, 0, buffer.length());
+    }
+
+    public static NameValuePair parse(
+            final CharArrayBuffer buffer, final int indexFrom, final int indexTo) {
+        if (buffer == null) {
+            throw new IllegalArgumentException("Char array buffer may not be null");
+        }
+        if (indexFrom < 0) {
+            throw new IndexOutOfBoundsException();
+        }
+        if (indexTo > buffer.length()) {
+            throw new IndexOutOfBoundsException();
+        }
+        if (indexFrom > indexTo) {
+            throw new IndexOutOfBoundsException();
+        }
+        int eq = buffer.indexOf('=', indexFrom, indexTo);
+        if (eq < 0) {
+            return new NameValuePair(buffer.substringTrimmed(indexFrom, indexTo), null);
+        }
+        String name = buffer.substringTrimmed(indexFrom, eq);
+        int i1 = eq + 1;
+        int i2 = indexTo;
+        // Trim leading white spaces
+        while (i1 < i2 && (Character.isWhitespace(buffer.charAt(i1)))) {
+            i1++;
+        }
+        // Trim trailing white spaces
+        while ((i2 > i1) && (Character.isWhitespace(buffer.charAt(i2 - 1)))) {
+            i2--;
+        }
+        // Strip away quotes if necessary
+        if (((i2 - i1) >= 2) 
+            && (buffer.charAt(i1) == '"') 
+            && (buffer.charAt(i2 - 1) == '"')) {
+            i1++;
+            i2--;
+        }
+        String value = buffer.substring(i1, i2);
+        return new NameValuePair(name, value);
+    }
+
+    public static final NameValuePair parse(final String s) {
+        if (s == null) {
+            throw new IllegalArgumentException("String may not be null");
+        }
+        CharArrayBuffer buffer = new CharArrayBuffer(s.length());
+        buffer.append(s);
+        return parse(buffer, 0, buffer.length());
     }
 
     /**

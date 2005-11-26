@@ -146,14 +146,17 @@ public class CharArrayBuffer  {
         return this.len == 0; 
     }
     
-    public int indexOf(int ch, int fromIndex) {
-        if (fromIndex < 0) {
-            fromIndex = 0;
+    public int indexOf(int ch, int beginIndex, int endIndex) {
+        if (beginIndex < 0) {
+            beginIndex = 0;
         }
-        if (fromIndex > this.len) {
+        if (endIndex > this.len) {
+            endIndex = this.len;
+        }
+        if (beginIndex > endIndex) {
             return -1;
         }
-        for (int i = fromIndex; i < this.len; i++) {
+        for (int i = beginIndex; i < endIndex; i++) {
             if (this.buffer[i] == ch) {
                 return i;
             }
@@ -162,7 +165,7 @@ public class CharArrayBuffer  {
     }
     
     public int indexOf(int ch) {
-        return indexOf(ch, 0);
+        return indexOf(ch, 0, this.len);
     }
 
     public String substring(int beginIndex, int endIndex) {

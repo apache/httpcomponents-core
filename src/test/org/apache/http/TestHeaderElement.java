@@ -101,10 +101,9 @@ public class TestHeaderElement extends TestCase {
     }
     
     public void testParseHeaderElements() throws Exception {
-        // this is derived from the old main method in HeaderElement
         String headerValue = "name1 = value1; name2; name3=\"value3\" , name4=value4; " +
             "name5=value5, name6= ; name7 = value7; name8 = \" value8\"";
-        HeaderElement[] elements = HeaderElement.parseElements(headerValue);
+        HeaderElement[] elements = HeaderElement.parseAll(headerValue);
         // there are 3 elements
         assertEquals(3,elements.length);
         // 1st element
@@ -134,21 +133,31 @@ public class TestHeaderElement extends TestCase {
         assertEquals(" value8",elements[2].getParameters()[1].getValue());
     }
 
+    public void testParseEscaped() {
+        String s = 
+          "test1 = stuff\\, stuff, test2 =  \"\\\"stuff\\\"\"";
+        HeaderElement[] elements = HeaderElement.parseAll(s);
+        assertEquals("test1", elements[0].getName());
+        assertEquals("stuff\\, stuff", elements[0].getValue());
+        assertEquals("test2", elements[1].getName());
+        assertEquals("\\\"stuff\\\"", elements[1].getValue());
+    }
+
     public void testFringeCase1() throws Exception {
         String headerValue = "name1 = value1,";
-        HeaderElement[] elements = HeaderElement.parseElements(headerValue);
+        HeaderElement[] elements = HeaderElement.parseAll(headerValue);
         assertEquals("Number of elements", 1, elements.length);
     }
 
     public void testFringeCase2() throws Exception {
         String headerValue = "name1 = value1, ";
-        HeaderElement[] elements = HeaderElement.parseElements(headerValue);
+        HeaderElement[] elements = HeaderElement.parseAll(headerValue);
         assertEquals("Number of elements", 1, elements.length);
     }
 
     public void testFringeCase3() throws Exception {
         String headerValue = ",, ,, ,";
-        HeaderElement[] elements = HeaderElement.parseElements(headerValue);
+        HeaderElement[] elements = HeaderElement.parseAll(headerValue);
         assertEquals("Number of elements", 0, elements.length);
     }
 
@@ -156,31 +165,31 @@ public class TestHeaderElement extends TestCase {
         CharArrayBuffer buffer = new CharArrayBuffer(32);
         buffer.append("name = value");
         try {
-            HeaderElement.parseElements(null, 0, 0);
+            HeaderElement.parseAll(null, 0, 0);
             fail("IllegalArgumentException should have been thrown");
         } catch (IllegalArgumentException ex) {
             // expected
         }
         try {
-            HeaderElement.parseElements(null);
+            HeaderElement.parseAll(null);
             fail("IllegalArgumentException should have been thrown");
         } catch (IllegalArgumentException ex) {
             // expected
         }
         try {
-            HeaderElement.parseElements(buffer, -1, 0);
+            HeaderElement.parseAll(buffer, -1, 0);
             fail("IllegalArgumentException should have been thrown");
         } catch (IndexOutOfBoundsException ex) {
             // expected
         }
         try {
-            HeaderElement.parseElements(buffer, 0, 1000);
+            HeaderElement.parseAll(buffer, 0, 1000);
             fail("IllegalArgumentException should have been thrown");
         } catch (IndexOutOfBoundsException ex) {
             // expected
         }
         try {
-            HeaderElement.parseElements(buffer, 2, 1);
+            HeaderElement.parseAll(buffer, 2, 1);
             fail("IllegalArgumentException should have been thrown");
         } catch (IndexOutOfBoundsException ex) {
             // expected
