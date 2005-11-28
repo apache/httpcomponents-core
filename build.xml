@@ -27,7 +27,7 @@
     <do-compile/>
   </target>
 
-  <target name="test" depends="clover-db, compile">
+  <target name="test" depends="compile">
     <do-test testentry="org.apache.http.TestAll"/>
   </target>
 
@@ -35,7 +35,7 @@
     <do-javadoc packagenames ="org.apache.http.*"/>
   </target>
 
-  <target name="clover" depends="test">
+  <target name="clover" depends="clover-db, test">
     <do-clover/>
   </target>
 
