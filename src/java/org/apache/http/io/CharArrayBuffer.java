@@ -29,6 +29,8 @@
 
 package org.apache.http.io;
 
+import org.apache.http.util.EncodingUtils;
+
 /**
  * @author <a href="mailto:oleg at ural.ru">Oleg Kalnichevski</a>
  * 
@@ -36,10 +38,10 @@ package org.apache.http.io;
  * 
  * @since 4.0
  */
-public class CharArrayBuffer  {
+public final class CharArrayBuffer  {
     
-    private char[] buffer;
-    private int len;
+    protected char[] buffer;
+    protected int len;
 
     public CharArrayBuffer(int capacity) {
         super();
@@ -87,6 +89,20 @@ public class CharArrayBuffer  {
     	this.len = newlen;
     }
 
+    public void append(final CharArrayBuffer b, int off, int len) {
+        if (b == null) {
+            return;
+        }
+        append(b.buffer, off, len);
+    }
+        
+    public void append(final CharArrayBuffer b) {
+        if (b == null) {
+            return;
+        }
+        append(b.buffer,0, b.len);
+    }
+        
     public void append(char ch) {
     	int newlen = this.len + 1;
     	if (newlen > this.buffer.length) {
@@ -96,16 +112,59 @@ public class CharArrayBuffer  {
     	this.len = newlen;
     }
 
+    public void append(final byte[] b, int off, int len) {
+        if (b == null) {
+            return;
+        }
+        if ((off < 0) || (off > b.length) || (len < 0) ||
+                ((off + len) < 0) || ((off + len) > b.length)) {
+            throw new IndexOutOfBoundsException();
+        }
+        if (len == 0) {
+            return;
+        }
+        int oldlen = this.len;
+        int newlen = oldlen + len;
+        if (newlen > this.buffer.length) {
+            expand(newlen);
+        }
+        for (int i1 = off, i2 = oldlen; i2 < newlen; i1++, i2++) {
+            int ch = b[i1]; 
+            if (ch < 0) {
+                ch = 256 + ch;
+            }
+            this.buffer[i2] = (char) ch;
+        }
+        this.len = newlen;
+    }
+    
+    public void append(final byte[] b, int off, int len, final String charset) {
+        if (b == null) {
+            return;
+        }
+        append(EncodingUtils.getString(b, off, len, charset));
+    }
+
+    public void append(final ByteArrayBuffer b, int off, int len) {
+        if (b == null) {
+            return;
+        }
+        append(b.buffer, off, len);
+    }
+    
+    public void append(final ByteArrayBuffer b, int off, int len, final String charset) {
+        if (b == null) {
+            return;
+        }
+        append(b.buffer, off, len, charset);
+    }
+    
     public void append(final Object obj) {
     	append(String.valueOf(obj));
     }
     
     public void clear() {
     	this.len = 0;
-    }
-    
-    public char[] internBuffer() {
-        return this.buffer;
     }
     
     public char[] toCharArray() {

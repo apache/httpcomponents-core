@@ -207,10 +207,13 @@ public abstract class AbstractHttpDataReceiver implements HttpDataReceiver {
                 }
             }
         }
-        copyToCharBuffer(
-                this.linebuffer.internBuffer(), 0, this.linebuffer.length(), 
-                charbuffer);
-        return this.linebuffer.length();
+        l = this.linebuffer.length(); 
+        if (this.ascii) {
+            charbuffer.append(this.linebuffer, 0, l);
+        } else {
+            charbuffer.append(this.linebuffer, 0, l, this.charset);
+        }
+        return l;
     }
     
     private int lineFromReadBuffer(final CharArrayBuffer charbuffer, int pos) {
@@ -222,33 +225,14 @@ public abstract class AbstractHttpDataReceiver implements HttpDataReceiver {
             pos--;
         }
         len = pos - off;
-        copyToCharBuffer(this.buffer, off, len, charbuffer);
+        if (this.ascii) {
+            charbuffer.append(this.buffer, off, len);
+        } else {
+            charbuffer.append(this.buffer, off, len, this.charset);
+        }
         return len;
     }
     
-    private void copyToCharBuffer(final byte[] b, int off, int len, 
-            final CharArrayBuffer charbuffer) {
-        if (this.ascii) {
-            // this is an uuuuugly performance hack
-            charbuffer.ensureCapacity(len); 
-            int oldlen = charbuffer.length();
-            int newlen = oldlen + len;
-            charbuffer.setLength(newlen); 
-            char[] tmp = charbuffer.internBuffer();
-            for (int i = oldlen; i < newlen; i++) {
-                int ch = b[off + i]; 
-                if (ch < 0) {
-                    ch = 256 + ch;
-                }
-                tmp[i] = (char) ch;
-            }
-        } else {
-            String s = EncodingUtils.getString(b, off, len, this.charset);
-            charbuffer.ensureCapacity(s.length()); 
-            charbuffer.append(s);
-        }
-    }
-
     public String readLine() throws IOException {
         CharArrayBuffer charbuffer = new CharArrayBuffer(64);
         int l = readLine(charbuffer);

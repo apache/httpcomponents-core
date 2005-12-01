@@ -59,7 +59,6 @@ public class TestByteArrayBuffer extends TestCase {
     	ByteArrayBuffer buffer = new ByteArrayBuffer(16);
     	assertEquals(16, buffer.capacity()); 
     	assertEquals(0, buffer.length());
-    	assertEquals(16, buffer.internBuffer().length);
     	try {
     		new ByteArrayBuffer(-1);
     		fail("IllegalArgumentException should have been thrown");

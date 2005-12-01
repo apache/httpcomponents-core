@@ -36,10 +36,10 @@ package org.apache.http.io;
  * 
  * @since 4.0
  */
-public class ByteArrayBuffer  {
+public final class ByteArrayBuffer  {
     
-    private byte[] buffer;
-    private int len;
+    protected byte[] buffer;
+    protected int len;
 
     public ByteArrayBuffer(int capacity) {
         super();
@@ -76,10 +76,6 @@ public class ByteArrayBuffer  {
 
     public void clear() {
     	this.len = 0;
-    }
-    
-    public byte[] internBuffer() {
-        return this.buffer;
     }
     
     public byte[] toByteArray() {

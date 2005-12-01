@@ -85,7 +85,7 @@ public class HeaderParser  {
                     i++;
                 }
                 previous.append(' ');
-                previous.append(current.internBuffer(), i, current.length() - i);
+                previous.append(current, i, current.length() - i);
             } else {
                 headerLines.add(current);
                 previous = current;
