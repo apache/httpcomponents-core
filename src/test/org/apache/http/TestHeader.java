@@ -30,6 +30,8 @@
 package org.apache.http;
 
 import org.apache.http.io.CharArrayBuffer;
+import org.apache.http.io.HttpDataReceiver;
+import org.apache.http.mockup.HttpDataReceiverMockup;
 
 import junit.framework.Test;
 import junit.framework.TestCase;
@@ -146,5 +148,48 @@ public class TestHeader extends TestCase {
         assertEquals(1, elements[1].getParameters().length); 
     }    
         
+    public void testBasicHeaderParsing() throws Exception {
+        String s = 
+            "header1: stuff\r\n" + 
+            "header2  : stuff \r\n" + 
+            "header3: stuff\r\n" + 
+            "     and more stuff\r\n" + 
+            "\t and even more stuff\r\n" +  
+            "     \r\n" +  
+            "\r\n"; 
+        HttpDataReceiver receiver = new HttpDataReceiverMockup(s, "US-ASCII"); 
+        Header[] headers = Header.parseAll(receiver);
+        assertNotNull(headers);
+        assertEquals(3, headers.length);
+        assertEquals("header1", headers[0].getName());
+        assertEquals("stuff", headers[0].getValue());
+        assertEquals("header2", headers[1].getName());
+        assertEquals("stuff", headers[1].getValue());
+        assertEquals("header3", headers[2].getName());
+        assertEquals("stuff and more stuff and even more stuff", headers[2].getValue());
+    }
+
+    public void testParsingMalformedFirstHeader() throws Exception {
+        String s = 
+            "    header1: stuff\r\n" + 
+            "header2  : stuff \r\n"; 
+        HttpDataReceiver receiver = new HttpDataReceiverMockup(s, "US-ASCII"); 
+        Header[] headers = Header.parseAll(receiver);
+        assertNotNull(headers);
+        assertEquals(2, headers.length);
+        assertEquals("header1", headers[0].getName());
+        assertEquals("stuff", headers[0].getValue());
+        assertEquals("header2", headers[1].getName());
+        assertEquals("stuff", headers[1].getValue());
+    }
+    
+    public void testEmptyDataStream() throws Exception {
+        String s = ""; 
+        HttpDataReceiver receiver = new HttpDataReceiverMockup(s, "US-ASCII"); 
+        Header[] headers = Header.parseAll(receiver);
+        assertNotNull(headers);
+        assertEquals(0, headers.length);
+    }
+    
 }
 

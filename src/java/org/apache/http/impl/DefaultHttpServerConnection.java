@@ -49,7 +49,6 @@ import org.apache.http.impl.entity.EntityGenerator;
 import org.apache.http.impl.entity.EntityWriter;
 import org.apache.http.io.CharArrayBuffer;
 import org.apache.http.params.HttpParams;
-import org.apache.http.util.HeaderParser;
 
 /**
  * <p>
@@ -123,7 +122,7 @@ public class DefaultHttpServerConnection
     
     protected void receiveRequestHeaders(final HttpMutableRequest request) 
             throws HttpException, IOException {
-        Header[] headers = HeaderParser.parse(this.datareceiver);
+        Header[] headers = Header.parseAll(this.datareceiver);
         for (int i = 0; i < headers.length; i++) {
             request.addHeader(headers[i]);
             if (isWirelogEnabled()) {
