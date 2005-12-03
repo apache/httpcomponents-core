@@ -135,12 +135,15 @@ public class TestHeaderElement extends TestCase {
 
     public void testParseEscaped() {
         String s = 
-          "test1 = stuff\\, stuff, test2 =  \"\\\"stuff\\\"\"";
+          "test1 =  \"\\\"stuff\\\"\", test2= \"\\\\\", test3 = \"stuff, stuff\"";
         HeaderElement[] elements = HeaderElement.parseAll(s);
+        assertEquals(3, elements.length);
         assertEquals("test1", elements[0].getName());
-        assertEquals("stuff\\, stuff", elements[0].getValue());
+        assertEquals("\\\"stuff\\\"", elements[0].getValue());
         assertEquals("test2", elements[1].getName());
-        assertEquals("\\\"stuff\\\"", elements[1].getValue());
+        assertEquals("\\\\", elements[1].getValue());
+        assertEquals("test3", elements[2].getName());
+        assertEquals("stuff, stuff", elements[2].getValue());
     }
 
     public void testFringeCase1() throws Exception {
@@ -294,12 +297,69 @@ public class TestHeaderElement extends TestCase {
     }
     
     public void testToString() {
-        String s = "name = value; param1 = value1; param2 = value2";
+        String s = "name=value; param1=value1; param2=value2";
         HeaderElement element = HeaderElement.parse(s);
         assertEquals(s, element.toString());
-        s = "name; param1 = value1; param2 = value2";
+        s = "name; param1=value1; param2=value2";
         element = HeaderElement.parse(s);
         assertEquals(s, element.toString());
+    }
+    
+    public void testElementFormatting() throws Exception {
+        NameValuePair param1 = new NameValuePair("param", "regular_stuff"); 
+        NameValuePair param2 = new NameValuePair("param", "this\\that"); 
+        NameValuePair param3 = new NameValuePair("param", "this,that");
+        NameValuePair param4 = new NameValuePair("param", null);
+        NameValuePair[] params = new NameValuePair[] {param1, param2, param3, param4};
+        HeaderElement element = new HeaderElement("name", "value", params); 
+        
+        assertEquals("name=value; param=regular_stuff; param=\"this\\\\that\"; param=\"this,that\"; param", 
+                HeaderElement.format(element));
+    }
+    
+    public void testElementArrayFormatting() throws Exception {
+        NameValuePair param1 = new NameValuePair("param", "regular_stuff"); 
+        NameValuePair param2 = new NameValuePair("param", "this\\that"); 
+        NameValuePair param3 = new NameValuePair("param", "this,that");
+        NameValuePair param4 = new NameValuePair("param", null);
+        HeaderElement element1 = new HeaderElement("name1", "value1", new NameValuePair[] {param1}); 
+        HeaderElement element2 = new HeaderElement("name2", "value2", new NameValuePair[] {param2}); 
+        HeaderElement element3 = new HeaderElement("name3", "value3", new NameValuePair[] {param3}); 
+        HeaderElement element4 = new HeaderElement("name4", "value4", new NameValuePair[] {param4}); 
+        HeaderElement element5 = new HeaderElement("name5", null); 
+        HeaderElement[] elements = new HeaderElement[] {element1, element2, element3, element4, element5}; 
+        
+        assertEquals("name1=value1; param=regular_stuff, name2=value2; " +
+                "param=\"this\\\\that\", name3=value3; param=\"this,that\", " +
+                "name4=value4; param, name5", 
+                HeaderElement.formatAll(elements));
+    }
+    
+    public void testFormatInvalidInput() throws Exception {
+        try {
+            HeaderElement.format(null, new HeaderElement("name1", "value1"));
+            fail("IllegalArgumentException should habe been thrown");
+        } catch (IllegalArgumentException ex) {
+            // expected
+        }
+        try {
+            HeaderElement.format(new CharArrayBuffer(10), (HeaderElement) null);
+            fail("IllegalArgumentException should habe been thrown");
+        } catch (IllegalArgumentException ex) {
+            // expected
+        }
+        try {
+            HeaderElement.formatAll(null, new HeaderElement[] {new HeaderElement("name1", "value1")});
+            fail("IllegalArgumentException should habe been thrown");
+        } catch (IllegalArgumentException ex) {
+            // expected
+        }
+        try {
+            HeaderElement.formatAll(new CharArrayBuffer(10), (HeaderElement[]) null);
+            fail("IllegalArgumentException should habe been thrown");
+        } catch (IllegalArgumentException ex) {
+            // expected
+        }
     }
     
 }

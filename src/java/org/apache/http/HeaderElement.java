@@ -180,14 +180,14 @@ public class HeaderElement {
         int cur = indexFrom;
         int from = indexFrom;
         boolean qouted = false;
-        char previous = 0;
+        boolean escaped = false;
         while (cur < indexTo) {
             char ch = buffer.charAt(cur);
-            if (ch == '"' && previous != '\\') {
+            if (ch == '"' && !escaped) {
                 qouted = !qouted;
             }
             HeaderElement element = null;
-            if ((!qouted) && (ch == ',' && previous != '\\')) {
+            if ((!qouted) && (ch == ',')) {
                 element = parse(buffer, from, cur);
                 from = cur + 1;
             } else if (cur == indexTo - 1) {
@@ -196,7 +196,11 @@ public class HeaderElement {
             if (element != null && !element.getName().equals("")) {
                 elements.add(element);
             }
-            previous = ch;
+            if (escaped) {
+                escaped = false;
+            } else {
+                escaped = qouted && ch == '\\';
+            }
             cur++;
         }
         return (HeaderElement[])
@@ -262,6 +266,56 @@ public class HeaderElement {
         return parse(buffer, 0, buffer.length());
     }
 
+    public static void format(
+            final CharArrayBuffer buffer, 
+            final HeaderElement element) {
+        if (buffer == null) {
+            throw new IllegalArgumentException("String buffer may not be null");
+        }
+        if (element == null) {
+            throw new IllegalArgumentException("Header element may not be null");
+        }
+        buffer.append(element.getName());
+        if (element.getValue() != null) {
+            buffer.append("=");
+            buffer.append(element.getValue());
+        }
+        NameValuePair[] params = element.getParameters();
+        for (int i = 0; i < params.length; i++) {
+            buffer.append("; ");
+            NameValuePair.format(buffer, params[i], false);
+        }
+    }
+    
+    public static String format(final HeaderElement element) {
+        CharArrayBuffer buffer = new CharArrayBuffer(32);
+        format(buffer, element);
+        return buffer.toString();
+    }
+    
+    public static void formatAll(
+            final CharArrayBuffer buffer, 
+            final HeaderElement[] elements) {
+        if (buffer == null) {
+            throw new IllegalArgumentException("String buffer may not be null");
+        }
+        if (elements == null) {
+            throw new IllegalArgumentException("Array of header element may not be null");
+        }
+        for (int i = 0; i < elements.length; i++) {
+            if (i > 0) {
+                buffer.append(", ");
+            }
+            format(buffer, elements[i]);
+        }
+    }
+    
+    public static String formatAll(final HeaderElement[] elements) {
+        CharArrayBuffer buffer = new CharArrayBuffer(64);
+        formatAll(buffer, elements);
+        return buffer.toString();
+    }
+    
     /**
      * Returns parameter with the given name, if found. Otherwise null 
      * is returned
@@ -311,7 +365,7 @@ public class HeaderElement {
         CharArrayBuffer buffer = new CharArrayBuffer(64);
         buffer.append(this.name);
         if (this.value != null) {
-            buffer.append(" = ");
+            buffer.append("=");
             buffer.append(this.value);
         }
         for (int i = 0; i < this.parameters.length; i++) {
