@@ -35,6 +35,7 @@ import java.io.InputStream;
 import org.apache.http.Header;
 import org.apache.http.HttpException;
 import org.apache.http.util.ExceptionUtils;
+import org.apache.http.util.NumUtils;
 
 /**
  * <p>This class implements chunked transfer coding as described in the 
@@ -274,9 +275,8 @@ public class ChunkedInputStream extends InputStream {
         if (separator < 0) {
             separator = this.buffer.length();
         }
-        String s = this.buffer.substringTrimmed(0, separator);
         try {
-            return Integer.parseInt(s, 16);
+            return NumUtils.parseUnsignedHexInt(this.buffer, 0, separator);
         } catch (NumberFormatException e) {
             throw new MalformedChunkCodingException("Bad chunk header");
         }
