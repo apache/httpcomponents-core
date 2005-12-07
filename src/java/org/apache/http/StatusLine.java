@@ -207,4 +207,26 @@ public class StatusLine {
         return buffer.toString();
     }
     
+    public static void format(final CharArrayBuffer buffer, final StatusLine statusline) {
+        if (buffer == null) {
+            throw new IllegalArgumentException("String buffer may not be null");
+        }
+        if (statusline == null) {
+            throw new IllegalArgumentException("Status line may not be null");
+        }
+        HttpVersion.format(buffer, statusline.getHttpVersion());
+        buffer.append(' ');
+        buffer.append(Integer.toString(statusline.getStatusCode()));
+        if (statusline.getReasonPhrase() != null) {
+            buffer.append(' ');
+            buffer.append(statusline.getReasonPhrase());
+        }
+    }
+ 
+    public static String format(final StatusLine statusline) {
+        CharArrayBuffer buffer = new CharArrayBuffer(32);
+        format(buffer, statusline);
+        return buffer.toString();
+    }
+    
 }

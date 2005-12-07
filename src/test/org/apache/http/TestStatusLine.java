@@ -86,7 +86,7 @@ public class TestStatusLine extends TestCase {
         } catch (IllegalArgumentException e) { /* expected */ }
     }
         
-    public void testSuccess() throws Exception {
+    public void testParseSuccess() throws Exception {
         //typical status line
         StatusLine statusLine = StatusLine.parse("HTTP/1.1 200 OK");
         assertEquals("HTTP/1.1 200 OK", statusLine.toString());
@@ -135,7 +135,7 @@ public class TestStatusLine extends TestCase {
         assertEquals(HttpVersion.HTTP_1_1, statusLine.getHttpVersion());
     }
 
-    public void testFailure() throws Exception {
+    public void testParseFailure() throws Exception {
         try {
             StatusLine.parse("xxx 200 OK");
             fail();
@@ -156,7 +156,7 @@ public class TestStatusLine extends TestCase {
         } catch (HttpException e) { /* expected */ }
     }
 
-    public void testInvalidInput() throws Exception {
+    public void testParseInvalidInput() throws Exception {
         CharArrayBuffer buffer = new CharArrayBuffer(32);
         buffer.append("HTTP/1.1 200 OK");
         try {
@@ -197,4 +197,29 @@ public class TestStatusLine extends TestCase {
         statusline = new StatusLine(HttpVersion.HTTP_1_1, HttpStatus.SC_OK, null);
         assertEquals("HTTP/1.1 200", statusline.toString());
     }
+    
+    public void testFormatting() throws Exception {
+        StatusLine statusline = new StatusLine(HttpVersion.HTTP_1_1, HttpStatus.SC_OK, "OK");
+        String s = StatusLine.format(statusline);
+        assertEquals("HTTP/1.1 200 OK", s);
+        statusline = new StatusLine(HttpVersion.HTTP_1_1, HttpStatus.SC_OK, null);
+        s = StatusLine.format(statusline);
+        assertEquals("HTTP/1.1 200", s);
+    }
+    
+    public void testFormattingInvalidInput() throws Exception {
+        try {
+            StatusLine.format(null, new StatusLine(HttpVersion.HTTP_1_1, HttpStatus.SC_OK, "OK"));
+            fail("IllegalArgumentException should habe been thrown");
+        } catch (IllegalArgumentException ex) {
+            // expected
+        }
+        try {
+            StatusLine.format(new CharArrayBuffer(10), (StatusLine) null);
+            fail("IllegalArgumentException should habe been thrown");
+        } catch (IllegalArgumentException ex) {
+            // expected
+        }
+    }
+    
 }

@@ -284,5 +284,24 @@ public class HttpVersion implements Comparable {
         buffer.append(s);
         return parse(buffer, 0, buffer.length());
     }
-    
+
+    public static void format(final CharArrayBuffer buffer, final HttpVersion ver) {
+        if (buffer == null) {
+            throw new IllegalArgumentException("String buffer may not be null");
+        }
+        if (ver == null) {
+            throw new IllegalArgumentException("Version may not be null");
+        }
+        buffer.append("HTTP/"); 
+        buffer.append(Integer.toString(ver.getMajor())); 
+        buffer.append('.'); 
+        buffer.append(Integer.toString(ver.getMinor())); 
+    }
+ 
+    public static String format(final HttpVersion ver) {
+        CharArrayBuffer buffer = new CharArrayBuffer(16);
+        format(buffer, ver);
+        return buffer.toString();
+    }
+        
 }

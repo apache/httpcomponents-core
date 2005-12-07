@@ -154,7 +154,7 @@ public class TestHttpVersion extends TestCase {
         }
     }
 
-    public void testInvalidInput() throws Exception {
+    public void testHttpVersionParsingInvalidInput() throws Exception {
         CharArrayBuffer buffer = new CharArrayBuffer(32);
         buffer.append("HTTP/1.1");
         try {
@@ -222,5 +222,26 @@ public class TestHttpVersion extends TestCase {
         assertTrue(HttpVersion.HTTP_1_0.compareTo((Object)HttpVersion.HTTP_0_9) > 0);
         assertTrue(HttpVersion.HTTP_1_0.compareTo((Object)HttpVersion.HTTP_1_0) == 0);
    }
+    
+    public void testHttpVersionFormatting() throws Exception {
+        String s = HttpVersion.format(HttpVersion.HTTP_1_1);
+        assertEquals("HTTP/1.1", s);
+    }
+    
+    public void testHttpVersionFormattingInvalidInput() throws Exception {
+        try {
+            HttpVersion.format(null, HttpVersion.HTTP_1_1);
+            fail("IllegalArgumentException should habe been thrown");
+        } catch (IllegalArgumentException ex) {
+            // expected
+        }
+        try {
+            HttpVersion.format(new CharArrayBuffer(10), (HttpVersion) null);
+            fail("IllegalArgumentException should habe been thrown");
+        } catch (IllegalArgumentException ex) {
+            // expected
+        }
+    }
+
 }
 

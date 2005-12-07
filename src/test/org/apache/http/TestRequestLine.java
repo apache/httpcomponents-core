@@ -80,7 +80,7 @@ public class TestRequestLine extends TestCase {
         } catch (IllegalArgumentException e) { /* expected */ }
     }
         
-    public void testSuccess() throws Exception {
+    public void testParseSuccess() throws Exception {
         //typical request line
         RequestLine requestline = RequestLine.parse("GET /stuff HTTP/1.1");
         assertEquals("GET /stuff HTTP/1.1", requestline.toString());
@@ -102,7 +102,7 @@ public class TestRequestLine extends TestCase {
         assertEquals(HttpVersion.HTTP_1_1, requestline.getHttpVersion());
     }
 
-    public void testFailure() throws Exception {
+    public void testParseFailure() throws Exception {
         try {
             RequestLine.parse("    ");
             fail();
@@ -124,7 +124,7 @@ public class TestRequestLine extends TestCase {
         } catch (HttpException e) { /* expected */ }
     }
 
-    public void testInvalidInput() throws Exception {
+    public void testParseInvalidInput() throws Exception {
         CharArrayBuffer buffer = new CharArrayBuffer(32);
         buffer.append("GET /stuff HTTP/1.1");
         try {
@@ -159,4 +159,25 @@ public class TestRequestLine extends TestCase {
         }
     }
 
+    public void testFormatting() throws Exception {
+        RequestLine requestline = new RequestLine("GET", "/stuff", HttpVersion.HTTP_1_1);
+        String s = RequestLine.format(requestline);
+        assertEquals("GET /stuff HTTP/1.1", s);
+    }
+    
+    public void testFormattingInvalidInput() throws Exception {
+        try {
+            RequestLine.format(null, new RequestLine("GET", "/stuff", HttpVersion.HTTP_1_1));
+            fail("IllegalArgumentException should habe been thrown");
+        } catch (IllegalArgumentException ex) {
+            // expected
+        }
+        try {
+            RequestLine.format(new CharArrayBuffer(10), (RequestLine) null);
+            fail("IllegalArgumentException should habe been thrown");
+        } catch (IllegalArgumentException ex) {
+            // expected
+        }
+    }
+    
 }

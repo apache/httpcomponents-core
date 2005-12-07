@@ -138,4 +138,24 @@ public class RequestLine {
         return parse(buffer, 0, buffer.length());
     }
     
+    public static void format(final CharArrayBuffer buffer, final RequestLine requestline) {
+        if (buffer == null) {
+            throw new IllegalArgumentException("String buffer may not be null");
+        }
+        if (requestline == null) {
+            throw new IllegalArgumentException("Request line may not be null");
+        }
+        buffer.append(requestline.getMethod());
+        buffer.append(' ');
+        buffer.append(requestline.getUri());
+        buffer.append(' ');
+        HttpVersion.format(buffer, requestline.getHttpVersion());
+    }
+ 
+    public static String format(final RequestLine requestline) {
+        CharArrayBuffer buffer = new CharArrayBuffer(64);
+        format(buffer, requestline);
+        return buffer.toString();
+    }
+    
 }
