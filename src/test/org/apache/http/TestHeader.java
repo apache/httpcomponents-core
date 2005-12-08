@@ -37,7 +37,7 @@ import junit.framework.TestCase;
 import junit.framework.TestSuite;
 
 /**
- * Unit tests for {@link NameValuePair}.
+ * Unit tests for {@link Header}.
  *
  * @author <a href="mailto:oleg at ural.ru">Oleg Kalnichevski</a>
  */
@@ -82,6 +82,8 @@ public class TestHeader extends TestCase {
     public void testToString() {
         Header header1 = new Header("name1", "value1");
         assertEquals("name1: value1", header1.toString());
+        Header header2 = new Header("name2", null);
+        assertEquals("name2: ", header2.toString());
     }
     
     public void testHeaderElements() {
@@ -96,6 +98,11 @@ public class TestHeader extends TestCase {
         assertEquals("element3", elements[2].getName()); 
         assertEquals(null, elements[2].getValue()); 
         assertEquals(1, elements[1].getParameters().length); 
+        
+        header = new Header("name", null);
+        elements = header.getElements();
+        assertNotNull(elements); 
+        assertEquals(0, elements.length); 
     }    
         
     public void testBasicHeaderParsing() throws Exception {
@@ -119,6 +126,52 @@ public class TestHeader extends TestCase {
         assertEquals("stuff and more stuff and even more stuff", headers[2].getValue());
     }
 
+    public void testBufferedHeader() throws Exception {
+        String s = 
+            "header1  : stuff; param1 = value1; param2 = \"value 2\" \r\n" + 
+            "\r\n"; 
+        HttpDataReceiver receiver = new HttpDataReceiverMockup(s, "US-ASCII"); 
+        Header[] headers = Header.parseAll(receiver);
+        assertNotNull(headers);
+        assertEquals(1, headers.length);
+        assertEquals("header1  : stuff; param1 = value1; param2 = \"value 2\" ", headers[0].toString());
+        HeaderElement[] elements = headers[0].getElements();
+        assertNotNull(elements);
+        assertEquals(1, elements.length);
+        assertEquals("stuff", elements[0].getName());
+        assertEquals(null, elements[0].getValue());
+        NameValuePair[] params = elements[0].getParameters();
+        assertNotNull(params);
+        assertEquals(2, params.length);
+        assertEquals("param1", params[0].getName());
+        assertEquals("value1", params[0].getValue());
+        assertEquals("param2", params[1].getName());
+        assertEquals("value 2", params[1].getValue());
+    }
+
+    public void testParsingInvalidHeaders() throws Exception {
+        String s = "    stuff\r\n" + 
+            "header1: stuff\r\n" + 
+            "\r\n"; 
+        HttpDataReceiver receiver = new HttpDataReceiverMockup(s, "US-ASCII");
+        try {
+            Header.parseAll(receiver);
+            fail("ProtocolException should have been thrown");
+        } catch (ProtocolException ex) {
+            // expected
+        }
+        s = "  :  stuff\r\n" + 
+            "header1: stuff\r\n" + 
+            "\r\n"; 
+        receiver = new HttpDataReceiverMockup(s, "US-ASCII");
+        try {
+            Header.parseAll(receiver);
+            fail("ProtocolException should have been thrown");
+        } catch (ProtocolException ex) {
+            // expected
+        }
+    }
+    
     public void testParsingMalformedFirstHeader() throws Exception {
         String s = 
             "    header1: stuff\r\n" + 

@@ -152,7 +152,10 @@ public class Header {
         }
     }
 
-    
+    /**
+     * This class represents a raw HTTP header whose content is parsed
+     * 'on demand' only when the header value needs to be consumed  
+     */
     static class BufferedHeader extends Header {
         
         private final CharArrayBuffer buffer;
@@ -220,15 +223,15 @@ public class Header {
         Header[] headers = new Header[headerLines.size()];
         for (int i = 0; i < headerLines.size(); i++) {
             CharArrayBuffer buffer = (CharArrayBuffer) headerLines.get(i);
-            int comma = buffer.indexOf(':');
-            if (comma == -1) {
+            int colon = buffer.indexOf(':');
+            if (colon == -1) {
                 throw new ProtocolException("Invalid header: " + buffer.toString());
             }
-            String s = buffer.substringTrimmed(0, comma);
+            String s = buffer.substringTrimmed(0, colon);
             if (s.equals("")) {
                 throw new ProtocolException("Invalid header: " + buffer.toString());
             }
-            headers[i] = new BufferedHeader(s, buffer, comma + 1);
+            headers[i] = new BufferedHeader(s, buffer, colon + 1);
         }
         return headers;
     }
