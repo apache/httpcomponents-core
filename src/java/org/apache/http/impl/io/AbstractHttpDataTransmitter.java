@@ -32,6 +32,7 @@ package org.apache.http.impl.io;
 import java.io.IOException;
 import java.io.OutputStream;
 
+import org.apache.http.io.ByteArrayBuffer;
 import org.apache.http.io.CharArrayBuffer;
 import org.apache.http.io.HttpDataTransmitter;
 import org.apache.http.params.HttpParams;
@@ -50,8 +51,8 @@ public abstract class AbstractHttpDataTransmitter implements HttpDataTransmitter
     private static final byte[] CRLF = new byte[] {CR, LF};
 
     private OutputStream outstream;
-    private byte[] buffer;
-    private int bufferlen;
+    private ByteArrayBuffer buffer;
+    private int maxSize;
         
     private String charset = "US-ASCII";
     
@@ -63,14 +64,14 @@ public abstract class AbstractHttpDataTransmitter implements HttpDataTransmitter
             throw new IllegalArgumentException("Buffer size may not be negative or zero");
         }
         this.outstream = outstream;
-        this.buffer = new byte[buffersize];
-        this.bufferlen = 0;
+        this.buffer = new ByteArrayBuffer(buffersize);
+        this.maxSize = buffersize;
     }
     
     protected void flushBuffer() throws IOException {
-        if (this.bufferlen > 0) {
-            this.outstream.write(this.buffer, 0, this.bufferlen);
-            this.bufferlen = 0;
+        if (this.buffer.length() > 0) {
+            this.outstream.write(this.buffer.buffer(), 0, this.buffer.length());
+            this.buffer.clear();
         }
     }
     
@@ -83,19 +84,18 @@ public abstract class AbstractHttpDataTransmitter implements HttpDataTransmitter
         if (b == null) {
             return;
         }
-        int freecapacity = this.buffer.length - this.bufferlen;
-        if (len > freecapacity) {
+        int freecapacity = this.buffer.capacity() - this.buffer.length();
+        if (len > freecapacity || this.buffer.length() >= this.maxSize) {
             // flush the buffer
             flushBuffer();
-            freecapacity = this.buffer.length; 
+            freecapacity = this.buffer.capacity(); 
         }
-        if (len > freecapacity) {
+        if (len > freecapacity || len > this.maxSize) {
             // still does not fit, write directly to the out stream
             this.outstream.write(b, off, len);
         } else {
             // buffer
-            System.arraycopy(b, off, this.buffer, this.bufferlen, len);
-            this.bufferlen += len;
+            this.buffer.append(b, off, len);
         }
     }
     
@@ -107,10 +107,10 @@ public abstract class AbstractHttpDataTransmitter implements HttpDataTransmitter
     }
     
     public void write(int b) throws IOException {
-        if (this.bufferlen == this.buffer.length) {
+        if (this.buffer.length() == this.buffer.capacity()) {
             flushBuffer();
         }
-        this.buffer[this.bufferlen++] = (byte)b;
+        this.buffer.append(b);
     }
     
     public void writeLine(final String s) throws IOException {
