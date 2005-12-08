@@ -43,6 +43,7 @@ import org.apache.http.HttpRequestFactory;
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpServerConnection;
 import org.apache.http.RequestLine;
+import org.apache.http.StatusLine;
 import org.apache.http.impl.entity.DefaultEntityGenerator;
 import org.apache.http.impl.entity.DefaultServerEntityWriter;
 import org.apache.http.impl.entity.EntityGenerator;
@@ -156,10 +157,11 @@ public class DefaultHttpServerConnection
     
     protected void sendResponseStatusLine(final HttpResponse response) 
             throws HttpException, IOException {
-        String line = response.getStatusLine().toString();
-        this.datatransmitter.writeLine(line);
+        this.buffer.clear();
+        StatusLine.format(this.buffer, response.getStatusLine());
+        this.datatransmitter.writeLine(this.buffer);
         if (isWirelogEnabled()) {
-            wirelog("<< " + line + "[\\r][\\n]");
+            wirelog("<< " + this.buffer.toString() + "[\\r][\\n]");
         }
     }
 
@@ -167,13 +169,15 @@ public class DefaultHttpServerConnection
             throws HttpException, IOException {
         Header[] headers = response.getAllHeaders();
         for (int i = 0; i < headers.length; i++) {
-            String line = headers[i].toString();
-            this.datatransmitter.writeLine(line);
+            this.buffer.clear();
+            Header.format(this.buffer, headers[i]);
+            this.datatransmitter.writeLine(this.buffer);
             if (isWirelogEnabled()) {
-                wirelog("<< " + line + "[\\r][\\n]");
+                wirelog("<< " + this.buffer.toString() + "[\\r][\\n]");
             }
         }
-        this.datatransmitter.writeLine("");
+        this.buffer.clear();
+        this.datatransmitter.writeLine(this.buffer);
         if (isWirelogEnabled()) {
             wirelog("<< [\\r][\\n]");
         }

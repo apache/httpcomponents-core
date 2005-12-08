@@ -54,6 +54,8 @@ public interface HttpDataTransmitter {
     
     void writeLine(String s) throws IOException;
     
+    void writeLine(CharArrayBuffer buffer) throws IOException;
+    
     void flush() throws IOException;
     
 }

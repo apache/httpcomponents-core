@@ -32,6 +32,7 @@ package org.apache.http.impl.io;
 import java.io.IOException;
 import java.io.OutputStream;
 
+import org.apache.http.io.CharArrayBuffer;
 import org.apache.http.io.HttpDataTransmitter;
 import org.apache.http.params.HttpParams;
 import org.apache.http.params.HttpProtocolParams;
@@ -118,6 +119,13 @@ public abstract class AbstractHttpDataTransmitter implements HttpDataTransmitter
         }
         write(s.getBytes(this.charset));
         write(CRLF);
+    }
+    
+    public void writeLine(final CharArrayBuffer buffer) throws IOException {
+        if (buffer == null) {
+            return;
+        }
+        writeLine(buffer.toString());
     }
     
     public void reset(final HttpParams params) {

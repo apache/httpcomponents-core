@@ -112,7 +112,7 @@ public class TestHttpDataReceiverAndTransmitter extends TestCase {
             transmitter.writeLine(teststrs[i]);
         }
         //this write operation should have no effect
-        transmitter.writeLine(null);
+        transmitter.writeLine((String)null);
         transmitter.flush();
         
         HttpDataReceiverMockup receiver = new HttpDataReceiverMockup(
@@ -202,7 +202,7 @@ public class TestHttpDataReceiverAndTransmitter extends TestCase {
             transmitter.writeLine(teststrs[i]);
         }
         //this write operation should have no effect
-        transmitter.writeLine(null);
+        transmitter.writeLine((String)null);
         transmitter.flush();
         
         HttpDataReceiverMockup receiver = new HttpDataReceiverMockup(
