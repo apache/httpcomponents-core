@@ -74,6 +74,15 @@ public final class ByteArrayBuffer  {
         this.len = newlen;
     }
 
+    public void append(int b) {
+        int newlen = this.len + 1;
+        if (newlen > this.buffer.length) {
+            expand(newlen);
+        }
+        this.buffer[this.len] = (byte)b;
+        this.len = newlen;
+    }
+
     public void clear() {
     	this.len = 0;
     }

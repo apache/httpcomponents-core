@@ -152,6 +152,22 @@ public class TestByteArrayBuffer extends TestCase {
     	}
     }
 
+    public void testAppendOneByte() throws Exception {
+        ByteArrayBuffer buffer = new ByteArrayBuffer(4);
+        assertEquals(4, buffer.capacity()); 
+        
+        byte[] tmp = new byte[] { 1, 127, -1, -128, 1, -2};
+        for (int i = 0; i < tmp.length; i++) {
+            buffer.append(tmp[i]);
+        }
+        assertEquals(8, buffer.capacity()); 
+        assertEquals(6, buffer.length());
+        
+        for (int i = 0; i < tmp.length; i++) {
+            assertEquals(tmp[i], buffer.byteAt(i));
+        }
+    }
+    
     public void testSetLength() throws Exception {
     	ByteArrayBuffer buffer = new ByteArrayBuffer(4);
     	buffer.setLength(2);
