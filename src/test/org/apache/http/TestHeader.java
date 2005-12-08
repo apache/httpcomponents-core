@@ -29,6 +29,7 @@
 
 package org.apache.http;
 
+import org.apache.http.io.CharArrayBuffer;
 import org.apache.http.io.HttpDataReceiver;
 import org.apache.http.mockup.HttpDataReceiverMockup;
 
@@ -192,6 +193,30 @@ public class TestHeader extends TestCase {
         Header[] headers = Header.parseAll(receiver);
         assertNotNull(headers);
         assertEquals(0, headers.length);
+    }
+    
+    public void testHeaderFormatting() throws Exception {
+        Header header1 = new Header("name", "value");
+        String s = Header.format(header1); 
+        assertEquals("name: value", s);
+        Header header2 = new Header("name", null);
+        s = Header.format(header2); 
+        assertEquals("name: ", s);
+    }
+    
+    public void testHeaderFormattingInvalidInput() throws Exception {
+        try {
+            Header.format(null, new Header("name", "value"));
+            fail("IllegalArgumentException should habe been thrown");
+        } catch (IllegalArgumentException ex) {
+            // expected
+        }
+        try {
+            Header.format(new CharArrayBuffer(10), (Header) null);
+            fail("IllegalArgumentException should habe been thrown");
+        } catch (IllegalArgumentException ex) {
+            // expected
+        }
     }
     
 }

@@ -152,6 +152,26 @@ public class Header {
         }
     }
 
+    public static void format(final CharArrayBuffer buffer, final Header header) {
+        if (buffer == null) {
+            throw new IllegalArgumentException("String buffer may not be null");
+        }
+        if (header == null) {
+            throw new IllegalArgumentException("Header may not be null");
+        }
+        buffer.append(header.getName());
+        buffer.append(": ");
+        if (header.getValue() != null) {
+            buffer.append(header.getValue());
+        }
+    }
+ 
+    public static String format(final Header header) {
+        CharArrayBuffer buffer = new CharArrayBuffer(32);
+        format(buffer, header);
+        return buffer.toString();
+    }
+            
     /**
      * This class represents a raw HTTP header whose content is parsed
      * 'on demand' only when the header value needs to be consumed  
@@ -235,5 +255,5 @@ public class Header {
         }
         return headers;
     }
-    
+
 }
