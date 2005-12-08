@@ -38,8 +38,8 @@ package org.apache.http.io;
  */
 public final class ByteArrayBuffer  {
     
-    protected byte[] buffer;
-    protected int len;
+    private byte[] buffer;
+    private int len;
 
     public ByteArrayBuffer(int capacity) {
         super();
@@ -98,6 +98,10 @@ public final class ByteArrayBuffer  {
         return this.len;
     }
 
+    public byte[] buffer() {
+        return this.buffer;
+    }
+        
     public void setLength(int len) {
         if (len < 0 || len > this.buffer.length) {
             throw new IndexOutOfBoundsException();

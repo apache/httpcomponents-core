@@ -40,8 +40,8 @@ import org.apache.http.util.EncodingUtils;
  */
 public final class CharArrayBuffer  {
     
-    protected char[] buffer;
-    protected int len;
+    private char[] buffer;
+    private int len;
 
     public CharArrayBuffer(int capacity) {
         super();
@@ -149,14 +149,14 @@ public final class CharArrayBuffer  {
         if (b == null) {
             return;
         }
-        append(b.buffer, off, len);
+        append(b.buffer(), off, len);
     }
     
     public void append(final ByteArrayBuffer b, int off, int len, final String charset) {
         if (b == null) {
             return;
         }
-        append(b.buffer, off, len, charset);
+        append(b.buffer(), off, len, charset);
     }
     
     public void append(final Object obj) {
@@ -177,6 +177,10 @@ public final class CharArrayBuffer  {
     
     public char charAt(int i) {
         return this.buffer[i];
+    }
+    
+    public char[] buffer() {
+        return this.buffer;
     }
     
     public int capacity() {

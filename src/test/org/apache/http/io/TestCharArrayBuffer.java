@@ -59,6 +59,8 @@ public class TestCharArrayBuffer extends TestCase {
     	CharArrayBuffer buffer = new CharArrayBuffer(16);
     	assertEquals(16, buffer.capacity()); 
     	assertEquals(0, buffer.length());
+        assertNotNull(buffer.buffer());
+        assertEquals(16, buffer.buffer().length);
     	try {
     		new CharArrayBuffer(-1);
     		fail("IllegalArgumentException should have been thrown");
