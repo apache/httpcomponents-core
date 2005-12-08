@@ -29,6 +29,8 @@
 
 package org.apache.http.io;
 
+import org.apache.http.util.EncodingUtils;
+
 /**
  * @author <a href="mailto:oleg@ural.ru">Oleg Kalnichevski</a>
  * 
@@ -83,6 +85,50 @@ public final class ByteArrayBuffer  {
         this.len = newlen;
     }
 
+    public void append(final char[] b, int off, int len) {
+        if (b == null) {
+            return;
+        }
+        if ((off < 0) || (off > b.length) || (len < 0) ||
+                ((off + len) < 0) || ((off + len) > b.length)) {
+            throw new IndexOutOfBoundsException();
+        }
+        if (len == 0) {
+            return;
+        }
+        int oldlen = this.len;
+        int newlen = oldlen + len;
+        if (newlen > this.buffer.length) {
+            expand(newlen);
+        }
+        for (int i1 = off, i2 = oldlen; i2 < newlen; i1++, i2++) {
+            this.buffer[i2] = (byte) b[i1];
+        }
+        this.len = newlen;
+    }
+
+    public void append(final char[] b, int off, int len, final String charset) {
+        if (b == null) {
+            return;
+        }
+        byte[] tmp = EncodingUtils.getBytes(new String(b, off, len), charset);
+        append(tmp, 0, tmp.length);
+    }
+
+    public void append(final CharArrayBuffer b, int off, int len) {
+        if (b == null) {
+            return;
+        }
+        append(b.buffer(), off, len);
+    }
+    
+    public void append(final CharArrayBuffer b, int off, int len, final String charset) {
+        if (b == null) {
+            return;
+        }
+        append(b.buffer(), off, len, charset);
+    }
+    
     public void clear() {
     	this.len = 0;
     }
