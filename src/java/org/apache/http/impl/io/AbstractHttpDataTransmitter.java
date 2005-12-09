@@ -124,7 +124,9 @@ public abstract class AbstractHttpDataTransmitter implements HttpDataTransmitter
         if (s == null) {
             return;
         }
-        write(s.getBytes(this.charset));
+        if (s.length() > 0) {
+            write(s.getBytes(this.charset));
+        }
         write(CRLF);
     }
     
