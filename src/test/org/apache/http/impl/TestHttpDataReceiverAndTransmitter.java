@@ -115,7 +115,7 @@ public class TestHttpDataReceiverAndTransmitter extends TestCase {
             chbuffer.append(teststrs[i]);
             transmitter.writeLine(chbuffer);
         }
-        //this write operations should have no effect
+        //these write operations should have no effect
         transmitter.writeLine((String)null);
         transmitter.writeLine((CharArrayBuffer)null);
         transmitter.flush();
@@ -209,7 +209,7 @@ public class TestHttpDataReceiverAndTransmitter extends TestCase {
             chbuffer.append(teststrs[i]);
             transmitter.writeLine(chbuffer);
         }
-        //this write operations should have no effect
+        //these write operations should have no effect
         transmitter.writeLine((String)null);
         transmitter.writeLine((CharArrayBuffer)null);
         transmitter.flush();
