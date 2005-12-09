@@ -288,25 +288,6 @@ public class TestCharArrayBuffer extends TestCase {
         }
     }    
     
-    static final int SWISS_GERMAN_HELLO [] = {
-        0x47, 0x72, 0xFC, 0x65, 0x7A, 0x69, 0x5F, 0x7A, 0xE4, 0x6D, 0xE4
-    };
-        
-    static final int RUSSIAN_HELLO [] = {
-        0x412, 0x441, 0x435, 0x43C, 0x5F, 0x43F, 0x440, 0x438, 
-        0x432, 0x435, 0x442 
-    }; 
-    
-    private static String constructString(int [] unicodeChars) {
-        StringBuffer buffer = new StringBuffer();
-        if (unicodeChars != null) {
-            for (int i = 0; i < unicodeChars.length; i++) {
-                buffer.append((char)unicodeChars[i]); 
-            }
-        }
-        return buffer.toString();
-    }
-
     public void testAppendAsciiByteArray() throws Exception {
         String s1 = "stuff";
         String s2 = " and more stuff";
@@ -320,40 +301,15 @@ public class TestCharArrayBuffer extends TestCase {
         assertEquals("stuff and more stuff", buffer.toString());
     }
     
-    public void testAppendISOByteArray() throws Exception {
-        String s1 = constructString(SWISS_GERMAN_HELLO);
-        byte[] b1 = s1.getBytes("ISO-8859-1");
-        
-        CharArrayBuffer buffer = new CharArrayBuffer(8);
-        buffer.append(b1, 0, b1.length);
-        
-        assertEquals(s1, buffer.toString());
-    }
-    
-    public void testAppendByteArrayWithCharset() throws Exception {
-        String s1 = constructString(SWISS_GERMAN_HELLO);
-        String s2 = constructString(RUSSIAN_HELLO);
-        byte[] b1 = s1.getBytes("UTF-8");
-        byte[] b2 = s2.getBytes("UTF-8");
-        
-        CharArrayBuffer buffer = new CharArrayBuffer(8);
-        buffer.append(b1, 0, b1.length, "UTF-8");
-        buffer.append(b2, 0, b2.length, "UTF-8");
-        
-        assertEquals(s1 + s2, buffer.toString());
-    }
-    
     public void testAppendNullByteArray() throws Exception {
         CharArrayBuffer buffer = new CharArrayBuffer(8);
         buffer.append((byte[])null, 0, 0);
-        buffer.append((byte[])null, 0, 0, "US-ASCII");
         assertEquals("", buffer.toString());
     }
 
     public void testAppendNullByteArrayBuffer() throws Exception {
         CharArrayBuffer buffer = new CharArrayBuffer(8);
         buffer.append((ByteArrayBuffer)null, 0, 0);
-        buffer.append((ByteArrayBuffer)null, 0, 0, "US-ASCII");
         assertEquals("", buffer.toString());
     }
 

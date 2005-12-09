@@ -191,7 +191,8 @@ public abstract class AbstractHttpDataReceiver implements HttpDataReceiver {
         return lineFromLineBuffer(charbuffer);
     }
     
-    private int lineFromLineBuffer(final CharArrayBuffer charbuffer) {
+    private int lineFromLineBuffer(final CharArrayBuffer charbuffer) 
+            throws IOException {
         // discard LF if found
         int l = this.linebuffer.length(); 
         if (l > 0) {
@@ -211,12 +212,16 @@ public abstract class AbstractHttpDataReceiver implements HttpDataReceiver {
         if (this.ascii) {
             charbuffer.append(this.linebuffer, 0, l);
         } else {
-            charbuffer.append(this.linebuffer, 0, l, this.charset);
+            // This is VERY memory inefficient, BUT since non-ASCII charsets are 
+            // NOT meant to be used anyway, there's no point optimizing it
+            String s = new String(this.linebuffer.buffer(), 0, l, this.charset);
+            charbuffer.append(s);
         }
         return l;
     }
     
-    private int lineFromReadBuffer(final CharArrayBuffer charbuffer, int pos) {
+    private int lineFromReadBuffer(final CharArrayBuffer charbuffer, int pos) 
+            throws IOException {
         int off = this.bufferpos;
         int len;
         this.bufferpos = pos + 1;
@@ -228,7 +233,10 @@ public abstract class AbstractHttpDataReceiver implements HttpDataReceiver {
         if (this.ascii) {
             charbuffer.append(this.buffer, off, len);
         } else {
-            charbuffer.append(this.buffer, off, len, this.charset);
+            // This is VERY memory inefficient, BUT since non-ASCII charsets are 
+            // NOT meant to be used anyway, there's no point optimizing it
+            String s = new String(this.buffer, off, len, this.charset);
+            charbuffer.append(s);
         }
         return len;
     }

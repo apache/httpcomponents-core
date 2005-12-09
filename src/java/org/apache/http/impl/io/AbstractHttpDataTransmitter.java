@@ -37,6 +37,7 @@ import org.apache.http.io.CharArrayBuffer;
 import org.apache.http.io.HttpDataTransmitter;
 import org.apache.http.params.HttpParams;
 import org.apache.http.params.HttpProtocolParams;
+import org.apache.http.util.EncodingUtils;
 
 /**
  * <p>Old IO Compatibility wrapper</p>
@@ -50,11 +51,13 @@ public abstract class AbstractHttpDataTransmitter implements HttpDataTransmitter
     private static final int LF = 10;
     private static final byte[] CRLF = new byte[] {CR, LF};
 
+    private static final int MAX_CHUNK = 2048;
+    
     private OutputStream outstream;
     private ByteArrayBuffer buffer;
-    private int maxSize;
         
     private String charset = "US-ASCII";
+    private boolean ascii = true;
     
     protected void init(final OutputStream outstream, int buffersize) {
         if (outstream == null) {
@@ -65,7 +68,6 @@ public abstract class AbstractHttpDataTransmitter implements HttpDataTransmitter
         }
         this.outstream = outstream;
         this.buffer = new ByteArrayBuffer(buffersize);
-        this.maxSize = buffersize;
     }
     
     protected void flushBuffer() throws IOException {
@@ -84,16 +86,21 @@ public abstract class AbstractHttpDataTransmitter implements HttpDataTransmitter
         if (b == null) {
             return;
         }
-        int freecapacity = this.buffer.capacity() - this.buffer.length();
-        if (len > freecapacity || this.buffer.length() >= this.maxSize) {
+        // Do not want to buffer largish chunks
+        // if the byte array is larger then MAX_CHUNK
+        // write it directly to the output stream
+        if (len >= MAX_CHUNK || len > this.buffer.capacity()) {
             // flush the buffer
             flushBuffer();
-            freecapacity = this.buffer.capacity(); 
-        }
-        if (len > freecapacity || len > this.maxSize) {
-            // still does not fit, write directly to the out stream
+            // write directly to the out stream
             this.outstream.write(b, off, len);
         } else {
+            // Do not let the buffer grow unnecessarily
+            int freecapacity = this.buffer.capacity() - this.buffer.length();
+            if (len > freecapacity) {
+                // flush the buffer
+                flushBuffer();
+            }
             // buffer
             this.buffer.append(b, off, len);
         }
@@ -107,7 +114,7 @@ public abstract class AbstractHttpDataTransmitter implements HttpDataTransmitter
     }
     
     public void write(int b) throws IOException {
-        if (this.buffer.length() == this.buffer.capacity()) {
+        if (this.buffer.isFull()) {
             flushBuffer();
         }
         this.buffer.append(b);
@@ -121,15 +128,39 @@ public abstract class AbstractHttpDataTransmitter implements HttpDataTransmitter
         write(CRLF);
     }
     
-    public void writeLine(final CharArrayBuffer buffer) throws IOException {
+    public void writeLine(final CharArrayBuffer s) throws IOException {
         if (buffer == null) {
             return;
         }
-        writeLine(buffer.toString());
+        if (this.ascii) {
+            int off = 0;
+            int remaining = s.length();
+            while (remaining > 0) {
+                int chunk = this.buffer.capacity() - this.buffer.length();
+                chunk = Math.min(chunk, remaining);
+                if (chunk > 0) {
+                    this.buffer.append(s, off, chunk);
+                }
+                if (this.buffer.isFull()) {
+                    flushBuffer();
+                }
+                off =+ chunk;
+                remaining =- chunk;
+            }
+        } else {
+            // This is VERY memory inefficient, BUT since non-ASCII charsets are 
+            // NOT meant to be used anyway, there's no point optimizing it
+            byte[] tmp = s.toString().getBytes(this.charset);
+            write(tmp);
+        }
+        write(CRLF);
     }
     
     public void reset(final HttpParams params) {
         this.charset = HttpProtocolParams.getHttpElementCharset(params); 
+        this.ascii = 
+            this.charset.equalsIgnoreCase(EncodingUtils.ASCII_CHARSET) ||
+            this.charset.equalsIgnoreCase("ASCII");
     }
     
 }

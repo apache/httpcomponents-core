@@ -29,8 +29,6 @@
 
 package org.apache.http.io;
 
-import org.apache.http.util.EncodingUtils;
-
 /**
  * @author <a href="mailto:oleg at ural.ru">Oleg Kalnichevski</a>
  * 
@@ -138,25 +136,11 @@ public final class CharArrayBuffer  {
         this.len = newlen;
     }
     
-    public void append(final byte[] b, int off, int len, final String charset) {
-        if (b == null) {
-            return;
-        }
-        append(EncodingUtils.getString(b, off, len, charset));
-    }
-
     public void append(final ByteArrayBuffer b, int off, int len) {
         if (b == null) {
             return;
         }
         append(b.buffer(), off, len);
-    }
-    
-    public void append(final ByteArrayBuffer b, int off, int len, final String charset) {
-        if (b == null) {
-            return;
-        }
-        append(b.buffer(), off, len, charset);
     }
     
     public void append(final Object obj) {
@@ -207,6 +191,10 @@ public final class CharArrayBuffer  {
     
     public boolean isEmpty() {
         return this.len == 0; 
+    }
+    
+    public boolean isFull() {
+        return this.len == this.buffer.length; 
     }
     
     public int indexOf(int ch, int beginIndex, int endIndex) {
