@@ -37,6 +37,7 @@ import junit.framework.TestCase;
 import junit.framework.TestSuite;
 
 import org.apache.http.impl.DefaultHttpParams;
+import org.apache.http.io.CharArrayBuffer;
 import org.apache.http.mockup.HttpDataReceiverMockup;
 import org.apache.http.mockup.HttpDataTransmitterMockup;
 import org.apache.http.params.HttpParams;
@@ -107,12 +108,16 @@ public class TestHttpDataReceiverAndTransmitter extends TestCase {
         teststrs[3] = "";
         teststrs[4] = "And goodbye";
         
+        CharArrayBuffer chbuffer = new CharArrayBuffer(16); 
         HttpDataTransmitterMockup transmitter = new HttpDataTransmitterMockup(); 
         for (int i = 0; i < teststrs.length; i++) {
-            transmitter.writeLine(teststrs[i]);
+            chbuffer.clear();
+            chbuffer.append(teststrs[i]);
+            transmitter.writeLine(chbuffer);
         }
-        //this write operation should have no effect
+        //this write operations should have no effect
         transmitter.writeLine((String)null);
+        transmitter.writeLine((CharArrayBuffer)null);
         transmitter.flush();
         
         HttpDataReceiverMockup receiver = new HttpDataReceiverMockup(
@@ -197,12 +202,16 @@ public class TestHttpDataReceiverAndTransmitter extends TestCase {
         teststrs[3] = "";
         teststrs[4] = "And goodbye";
         
+        CharArrayBuffer chbuffer = new CharArrayBuffer(16); 
         HttpDataTransmitterMockup transmitter = new HttpDataTransmitterMockup(); 
         for (int i = 0; i < teststrs.length; i++) {
-            transmitter.writeLine(teststrs[i]);
+            chbuffer.clear();
+            chbuffer.append(teststrs[i]);
+            transmitter.writeLine(chbuffer);
         }
-        //this write operation should have no effect
+        //this write operations should have no effect
         transmitter.writeLine((String)null);
+        transmitter.writeLine((CharArrayBuffer)null);
         transmitter.flush();
         
         HttpDataReceiverMockup receiver = new HttpDataReceiverMockup(
@@ -329,10 +338,17 @@ public class TestHttpDataReceiverAndTransmitter extends TestCase {
         HttpDataTransmitterMockup transmitter = new HttpDataTransmitterMockup();
         transmitter.reset(params);
 
+        CharArrayBuffer chbuffer = new CharArrayBuffer(16); 
         for (int i = 0; i < 10; i++) {
-            transmitter.writeLine(s1);
-            transmitter.writeLine(s2);
-            transmitter.writeLine(s3);
+            chbuffer.clear();
+            chbuffer.append(s1);
+            transmitter.writeLine(chbuffer);
+            chbuffer.clear();
+            chbuffer.append(s2);
+            transmitter.writeLine(chbuffer);
+            chbuffer.clear();
+            chbuffer.append(s3);
+            transmitter.writeLine(chbuffer);
         }
         transmitter.flush();
         
@@ -358,8 +374,11 @@ public class TestHttpDataReceiverAndTransmitter extends TestCase {
         HttpDataTransmitterMockup transmitter = new HttpDataTransmitterMockup();
         transmitter.reset(params);
 
+        CharArrayBuffer chbuffer = new CharArrayBuffer(16); 
         for (int i = 0; i < 10; i++) {
-            transmitter.writeLine(s1);
+            chbuffer.clear();
+            chbuffer.append(s1);
+            transmitter.writeLine(chbuffer);
         }
         transmitter.flush();
         

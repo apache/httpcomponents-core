@@ -77,12 +77,14 @@ public class TestCharArrayBuffer extends TestCase {
     	assertNotNull(b1);
     	assertEquals(0, b1.length);
     	assertTrue(buffer.isEmpty());
+        assertFalse(buffer.isFull());
     	
     	char[] tmp = new char[] { '1', '2', '3', '4'};
     	buffer.append(tmp, 0, tmp.length);
     	assertEquals(16, buffer.capacity()); 
     	assertEquals(4, buffer.length());
     	assertFalse(buffer.isEmpty());
+        assertFalse(buffer.isFull());
     	
     	char[] b2 = buffer.toCharArray();
     	assertNotNull(b2);
@@ -97,6 +99,7 @@ public class TestCharArrayBuffer extends TestCase {
     	assertEquals(16, buffer.capacity()); 
     	assertEquals(0, buffer.length());
     	assertTrue(buffer.isEmpty());
+        assertFalse(buffer.isFull());
     }
     
     public void testExpandAppend() throws Exception {
