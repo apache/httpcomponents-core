@@ -129,7 +129,7 @@ public abstract class AbstractHttpDataTransmitter implements HttpDataTransmitter
     }
     
     public void writeLine(final CharArrayBuffer s) throws IOException {
-        if (buffer == null) {
+        if (s == null) {
             return;
         }
         if (this.ascii) {
@@ -144,8 +144,8 @@ public abstract class AbstractHttpDataTransmitter implements HttpDataTransmitter
                 if (this.buffer.isFull()) {
                     flushBuffer();
                 }
-                off =+ chunk;
-                remaining =- chunk;
+                off += chunk;
+                remaining -= chunk;
             }
         } else {
             // This is VERY memory inefficient, BUT since non-ASCII charsets are 
