@@ -69,6 +69,10 @@ public class RequestContent implements HttpRequestInterceptor {
         if (request instanceof HttpEntityEnclosingRequest) {
             HttpVersion ver = request.getRequestLine().getHttpVersion();
             HttpEntity entity = ((HttpEntityEnclosingRequest)request).getEntity();
+            if (entity == null) {
+                request.setHeader(new Header(CONTENT_LEN, "0", true));
+                return;
+            }
             // Must specify a transfer encoding or a content length 
             if (entity.isChunked() || entity.getContentLength() < 0) {
                 if (ver.lessEquals(HttpVersion.HTTP_1_0)) {
