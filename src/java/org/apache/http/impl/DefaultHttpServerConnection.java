@@ -63,17 +63,21 @@ import org.apache.http.params.HttpParams;
 public class DefaultHttpServerConnection 
         extends AbstractHttpConnection implements HttpServerConnection {
 
+    private final CharArrayBuffer buffer; 
+    
     /*
      * Dependent interfaces
      */
     private HttpRequestFactory requestfactory = null; 
+    private EntityGenerator entitygen = null;
+    private EntityWriter entitywriter = null;
 
-    private final CharArrayBuffer buffer; 
-        
     public DefaultHttpServerConnection() {
         super();
         this.requestfactory = new DefaultHttpRequestFactory();
         this.buffer = new CharArrayBuffer(128);
+        this.entitygen = new DefaultEntityGenerator();
+        this.entitywriter = new DefaultServerEntityWriter();
     }
     
     public void setRequestFactory(final HttpRequestFactory requestfactory) {
@@ -135,8 +139,7 @@ public class DefaultHttpServerConnection
 
     protected void receiveRequestBody(final HttpMutableEntityEnclosingRequest request)
             throws HttpException, IOException {
-        EntityGenerator entitygen = new DefaultEntityGenerator();
-        HttpMutableEntity entity = entitygen.generate(this.datareceiver, request);
+        HttpMutableEntity entity = this.entitygen.generate(this.datareceiver, request);
         request.setEntity(entity);
     }
     
@@ -188,8 +191,7 @@ public class DefaultHttpServerConnection
         if (response.getEntity() == null) {
             return;
         }
-        EntityWriter entitywriter = new DefaultServerEntityWriter();
-        entitywriter.write(
+        this.entitywriter.write(
                 response.getEntity(),
                 response.getStatusLine().getHttpVersion(),
                 this.datatransmitter);

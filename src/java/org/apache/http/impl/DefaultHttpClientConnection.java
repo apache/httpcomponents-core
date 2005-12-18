@@ -78,7 +78,10 @@ public class DefaultHttpClientConnection
     /*
      * Dependent interfaces
      */
-    private HttpResponseFactory responsefactory = null; 
+    private HttpResponseFactory responsefactory = null;
+    private EntityGenerator entitygen = null;
+    private EntityWriter entitywriter = null;
+    private ResponseStrategy responsestrategy = null;
     
     public DefaultHttpClientConnection(final HttpHost targethost, final InetAddress localAddress) {
         super();
@@ -86,6 +89,9 @@ public class DefaultHttpClientConnection
         this.localAddress = localAddress;
         this.buffer = new CharArrayBuffer(64);
         this.responsefactory = new DefaultHttpResponseFactory();
+        this.entitygen = new DefaultEntityGenerator();
+        this.entitywriter = new DefaultClientEntityWriter();
+        this.responsestrategy = new DefaultResponseStrategy();
     }
     
     public DefaultHttpClientConnection(final HttpHost targethost) {
@@ -218,8 +224,7 @@ public class DefaultHttpClientConnection
         if (request.getEntity() == null) {
             return;
         }
-        EntityWriter entitywriter = new DefaultClientEntityWriter();
-        entitywriter.write(
+        this.entitywriter.write(
                 request.getEntity(),
                 request.getRequestLine().getHttpVersion(),
                 this.datatransmitter);
@@ -256,8 +261,7 @@ public class DefaultHttpClientConnection
         this.datareceiver.reset(params);
         HttpMutableResponse response = readResponseStatusLine(params);
         readResponseHeaders(response);
-        ResponseStrategy responsestrategy = new DefaultResponseStrategy();
-        if (responsestrategy.canHaveEntity(null, response)) {
+        if (this.responsestrategy.canHaveEntity(null, response)) {
             readResponseBody(response);
         }
         return response;
@@ -343,8 +347,7 @@ public class DefaultHttpClientConnection
         
     protected void readResponseBody(
             final HttpMutableResponse response) throws HttpException, IOException {
-        EntityGenerator entitygen = new DefaultEntityGenerator();
-        HttpMutableEntity entity = entitygen.generate(this.datareceiver, response);
+        HttpMutableEntity entity = this.entitygen.generate(this.datareceiver, response);
         // if there is a result - ALWAYS wrap it in an observer which will
         // close the underlying stream as soon as it is consumed, and notify
         // the watcher that the stream has been consumed.
