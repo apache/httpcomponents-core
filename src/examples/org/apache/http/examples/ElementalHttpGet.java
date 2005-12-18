@@ -79,7 +79,7 @@ public class ElementalHttpGet {
                 }
                 System.out.println(">> Request URI: " + request.getRequestLine().getUri());
                 conn.sendRequest(request);
-                HttpResponse response = conn.receiveResponse(request.getParams()); 
+                HttpResponse response = conn.receiveResponse(request); 
                 System.out.println("<< Response: " + response.getStatusLine());
                 System.out.println(EntityUtils.toString(response.getEntity()));
                 System.out.println("==============");

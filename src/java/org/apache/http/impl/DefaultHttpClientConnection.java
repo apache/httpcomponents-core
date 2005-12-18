@@ -228,38 +228,37 @@ public class DefaultHttpClientConnection
                 this.datatransmitter);
     }
     
-    public HttpResponse receiveResponse(final HttpParams params) 
+    public HttpResponse receiveResponse(final HttpRequest request) 
             throws HttpException, IOException {
-        if (params == null) {
-            throw new IllegalArgumentException("HTTP parameters may not be null");
+        if (request == null) {
+            throw new IllegalArgumentException("HTTP request may not be null");
         }
         assertOpen();
         // reset the data receiver
-        this.datareceiver.reset(params);
-        return readResponse(params);
+        this.datareceiver.reset(request.getParams());
+        return readResponse(request);
     }
 
-    public HttpResponse receiveResponse(final HttpParams params, int timeout) 
+    public HttpResponse receiveResponse(final HttpRequest request, int timeout) 
             throws HttpException, IOException {
-        if (params == null) {
-            throw new IllegalArgumentException("HTTP parameters may not be null");
+        if (request == null) {
+            throw new IllegalArgumentException("HTTP request may not be null");
         }
         assertOpen();
         // reset the data receiver
-        this.datareceiver.reset(params);
+        this.datareceiver.reset(request.getParams());
         if (this.datareceiver.isDataAvailable(timeout)) {
-            return readResponse(params);
+            return readResponse(request);
         } else {
             return null;
         }
     }
 
-    protected HttpResponse readResponse(final HttpParams params)
+    protected HttpResponse readResponse(final HttpRequest request)
             throws HttpException, IOException {
-        this.datareceiver.reset(params);
-        HttpMutableResponse response = readResponseStatusLine(params);
+        HttpMutableResponse response = readResponseStatusLine(request.getParams());
         readResponseHeaders(response);
-        if (canResponseHaveBody(response)) {
+        if (canResponseHaveBody(request, response)) {
             readResponseBody(response);
         }
         return response;
@@ -336,7 +335,10 @@ public class DefaultHttpClientConnection
         wirelog("<< [\\r][\\n]");
     }
     
-    protected boolean canResponseHaveBody(final HttpResponse response) {
+    protected boolean canResponseHaveBody(final HttpRequest request, final HttpResponse response) {
+        if ("HEAD".equalsIgnoreCase(request.getRequestLine().getMethod())) {
+            return false;
+        }
         int status = response.getStatusLine().getStatusCode(); 
         return status >= HttpStatus.SC_OK 
             && status != HttpStatus.SC_NO_CONTENT 

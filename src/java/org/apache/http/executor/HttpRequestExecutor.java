@@ -128,8 +128,7 @@ public class HttpRequestExecutor extends AbstractHttpProcessor {
                         && request instanceof HttpEntityEnclosingRequest) {
                     // Do 'expect: continue' handshake
                     conn.sendRequestHeader((HttpEntityEnclosingRequest)request);
-                    response = conn.receiveResponse(request.getParams(), 
-                            WAIT_FOR_CONTINUE_MS);
+                    response = conn.receiveResponse(request, WAIT_FOR_CONTINUE_MS);
                     if (response == null) {
                         // No response. The 'expect: continue' is likely not supported
                         break;
@@ -152,7 +151,7 @@ public class HttpRequestExecutor extends AbstractHttpProcessor {
                         new Boolean(true)); 
                 for (;;) {
                     // Loop until non 1xx resposne is received
-                    response = conn.receiveResponse(request.getParams());
+                    response = conn.receiveResponse(request);
                     int statuscode = response.getStatusLine().getStatusCode();
                     if (statuscode >= HttpStatus.SC_OK) {
                         break;

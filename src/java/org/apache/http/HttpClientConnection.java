@@ -61,8 +61,8 @@ public interface HttpClientConnection extends HttpConnection {
 
     void sendRequestEntity(HttpEntityEnclosingRequest request) throws HttpException, IOException;
 
-    HttpResponse receiveResponse(HttpParams params) throws HttpException, IOException;
+    HttpResponse receiveResponse(HttpRequest request) throws HttpException, IOException;
 
-    HttpResponse receiveResponse(HttpParams params, int timeout) throws HttpException, IOException;
+    HttpResponse receiveResponse(HttpRequest request, int timeout) throws HttpException, IOException;
     
 }
