@@ -79,7 +79,7 @@ public class ElementalHttpPost {
             };
             
             for (int i = 0; i < requestBodies.length; i++) {
-                HttpPost request = new HttpPost("/httpclienttest/body");
+                HttpPost request = new HttpPost("/servlets-examples/servlet/RequestInfoExample");
                 request.setHeader(new Header("Host", host.toHostString()));
                 request.setHeader(new Header("User-Agent", "Elemental HTTP client"));
                 request.setHeader(new Header("Connection", "Keep-Alive"));
@@ -105,13 +105,8 @@ public class ElementalHttpPost {
                     System.out.println("Connection kept alive. Reusing...");
                 }
                 System.out.println(">> Request URI: " + request.getRequestLine().getUri());
-                HttpResponse response = conn.sendRequest(request);
-                // Request may be terminated prematurely, when expect-continue 
-                // protocol is used
-                if (response == null) {
-                    // No error response so far.  
-                    response = conn.receiveResponse(request);
-                }
+                conn.sendRequest(request);
+                HttpResponse response = conn.receiveResponse(request.getParams()); 
                 System.out.println("<< Response: " + response.getStatusLine());
                 System.out.println(EntityUtils.toString(response.getEntity()));
                 System.out.println("==============");

@@ -30,13 +30,18 @@
 package org.apache.http.executor;
 
 import java.io.IOException;
+import java.net.ProtocolException;
 
+import org.apache.http.Header;
 import org.apache.http.HttpClientConnection;
+import org.apache.http.HttpEntityEnclosingRequest;
 import org.apache.http.HttpException;
 import org.apache.http.HttpMutableRequest;
 import org.apache.http.HttpMutableResponse;
 import org.apache.http.HttpRequest;
 import org.apache.http.HttpResponse;
+import org.apache.http.HttpStatus;
+import org.apache.http.HttpVersion;
 import org.apache.http.params.HttpConnectionParams;
 import org.apache.http.params.HttpParams;
 import org.apache.http.protocol.AbstractHttpProcessor;
@@ -53,6 +58,10 @@ import org.apache.http.protocol.HttpContext;
  */
 public class HttpRequestExecutor extends AbstractHttpProcessor {
 
+    private static final String EXPECT_DIRECTIVE = "Expect";
+    private static final String EXPECT_CONTINUE = "100-Continue";
+    private static final int WAIT_FOR_CONTINUE_MS = 10000;
+    
     private HttpParams params = null;
     private HttpRequestRetryHandler retryhandler = null;
     
@@ -95,7 +104,6 @@ public class HttpRequestExecutor extends AbstractHttpProcessor {
         }
         
         HttpResponse response = null;
-        
         // loop until the method is successfully processed, the retryHandler 
         // returns false or a non-recoverable exception is thrown
         for (int execCount = 0; ; execCount++) {
@@ -111,14 +119,44 @@ public class HttpRequestExecutor extends AbstractHttpProcessor {
                 }
                 localContext.setAttribute(HttpExecutionContext.HTTP_REQ_SENT, 
                         new Boolean(false)); 
-                response = conn.sendRequest(request);
+                HttpVersion ver = request.getRequestLine().getHttpVersion();
+                Header expect = request.getFirstHeader(EXPECT_DIRECTIVE);
+                
+                if (expect != null 
+                        && EXPECT_CONTINUE.equalsIgnoreCase(expect.getValue())
+                        && ver.greaterEquals(HttpVersion.HTTP_1_1) 
+                        && request instanceof HttpEntityEnclosingRequest) {
+                    // Do 'expect: continue' handshake
+                    conn.sendRequestHeader((HttpEntityEnclosingRequest)request);
+                    response = conn.receiveResponse(request.getParams(), 
+                            WAIT_FOR_CONTINUE_MS);
+                    if (response == null) {
+                        // No response. The 'expect: continue' is likely not supported
+                        break;
+                    }
+                    int status = response.getStatusLine().getStatusCode();
+                    if (status < 200) {
+                        if (status != HttpStatus.SC_CONTINUE) {
+                            throw new ProtocolException("Unexpected response: " + 
+                                    response.getStatusLine());
+                        }
+                    } else {
+                        break;
+                    }                    
+                    conn.sendRequestEntity((HttpEntityEnclosingRequest)request);
+                } else {
+                    // Just fire and forget
+                    conn.sendRequest(request);
+                }
                 localContext.setAttribute(HttpExecutionContext.HTTP_REQ_SENT, 
                         new Boolean(true)); 
-                // Request may be terminated prematurely, if the expect-continue 
-                // protocol is used
-                if (response == null) {
-                    // No error response so far. 
-                    response = conn.receiveResponse(request);
+                for (;;) {
+                    // Loop until non 1xx resposne is received
+                    response = conn.receiveResponse(request.getParams());
+                    int statuscode = response.getStatusLine().getStatusCode();
+                    if (statuscode >= HttpStatus.SC_OK) {
+                        break;
+                    }
                 }
                 break;
             } catch (IOException ex) {

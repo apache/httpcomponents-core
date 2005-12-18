@@ -51,15 +51,14 @@ public class DefaultResponseStrategy implements ResponseStrategy {
 	}
 	
     public boolean canHaveEntity(final HttpRequest request, final HttpResponse response) {
-        if (request == null) {
-            throw new IllegalArgumentException("HTTP request may not be null");
-        }
         if (response == null) {
             throw new IllegalArgumentException("HTTP response may not be null");
         }
-        String method = request.getRequestLine().getMethod();
-        if (HEAD_METHOD.equalsIgnoreCase(method)) {
-        	return false;
+        if (request != null) {
+            String method = request.getRequestLine().getMethod();
+            if (HEAD_METHOD.equalsIgnoreCase(method)) {
+                return false;
+            }
         }
         int status = response.getStatusLine().getStatusCode();
         if (status < HttpStatus.SC_OK) {

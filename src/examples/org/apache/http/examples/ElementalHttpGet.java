@@ -57,13 +57,13 @@ public class ElementalHttpGet {
         Scheme.registerScheme("http", new Scheme("http", socketfactory, 80));
         
         HttpParams connparams = new DefaultHttpParams(null);
-        HttpHost host = new HttpHost("www.yahoo.com");
+        HttpHost host = new HttpHost("localhost", 8080);
         HttpClientConnection conn = new DefaultHttpClientConnection(host);
         try {
             
             String[] targets = {
                     "/",
-                    "/news/", 
+                    "/servlets-examples/servlet/RequestInfoExample", 
                     "/somewhere%20in%20pampa"};
             
             for (int i = 0; i < targets.length; i++) {
@@ -78,13 +78,8 @@ public class ElementalHttpGet {
                     System.out.println("Connection kept alive. Reusing...");
                 }
                 System.out.println(">> Request URI: " + request.getRequestLine().getUri());
-                HttpResponse response = conn.sendRequest(request);
-                // Request may be terminated prematurely, when expect-continue 
-                // protocol is used
-                if (response == null) {
-                    // No error response so far. 
-                    response = conn.receiveResponse(request);
-                }
+                conn.sendRequest(request);
+                HttpResponse response = conn.receiveResponse(request.getParams()); 
                 System.out.println("<< Response: " + response.getStatusLine());
                 System.out.println(EntityUtils.toString(response.getEntity()));
                 System.out.println("==============");
