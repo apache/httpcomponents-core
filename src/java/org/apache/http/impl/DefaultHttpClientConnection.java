@@ -81,7 +81,6 @@ public class DefaultHttpClientConnection
     private HttpResponseFactory responsefactory = null;
     private EntityGenerator entitygen = null;
     private EntityWriter entitywriter = null;
-    private ResponseStrategy responsestrategy = null;
     
     public DefaultHttpClientConnection(final HttpHost targethost, final InetAddress localAddress) {
         super();
@@ -91,7 +90,6 @@ public class DefaultHttpClientConnection
         this.responsefactory = new DefaultHttpResponseFactory();
         this.entitygen = new DefaultEntityGenerator();
         this.entitywriter = new DefaultClientEntityWriter();
-        this.responsestrategy = new DefaultResponseStrategy();
     }
     
     public DefaultHttpClientConnection(final HttpHost targethost) {
@@ -261,7 +259,7 @@ public class DefaultHttpClientConnection
         this.datareceiver.reset(params);
         HttpMutableResponse response = readResponseStatusLine(params);
         readResponseHeaders(response);
-        if (this.responsestrategy.canHaveEntity(null, response)) {
+        if (canResponseHaveBody(response)) {
             readResponseBody(response);
         }
         return response;
@@ -342,7 +340,8 @@ public class DefaultHttpClientConnection
         int status = response.getStatusLine().getStatusCode(); 
         return status >= HttpStatus.SC_OK 
             && status != HttpStatus.SC_NO_CONTENT 
-            && status != HttpStatus.SC_NOT_MODIFIED; 
+            && status != HttpStatus.SC_NOT_MODIFIED
+            && status != HttpStatus.SC_RESET_CONTENT; 
     }
         
     protected void readResponseBody(
