@@ -1,7 +1,7 @@
 /*
- * $HeadURL: $
- * $Revision: $
- * $Date: $
+ * $HeadURL$
+ * $Revision$
+ * $Date$
  *
  * ====================================================================
  *
@@ -48,6 +48,7 @@ import org.apache.http.impl.DefaultHttpParams;
 import org.apache.http.impl.io.PlainSocketFactory;
 import org.apache.http.impl.io.SSLSocketFactory;
 import org.apache.http.message.HttpGet;
+import org.apache.http.message.HttpHead;
 import org.apache.http.message.HttpPost;
 import org.apache.http.params.HttpConnectionParams;
 import org.apache.http.params.HttpParams;
@@ -63,7 +64,7 @@ import org.apache.http.protocol.RequestUserAgent;
  * </p>
  * @author <a href="mailto:oleg at ural.ru">Oleg Kalnichevski</a>
  *
- * @version $Revision: $
+ * @version $Revision$
  * 
  * @since 4.0
  */
@@ -91,6 +92,9 @@ public class HttpBenchmark {
     
     public static void main(String[] args) throws Exception {
 
+        Option iopt = new Option("i", false, "Do HEAD requests instead of GET.");
+        iopt.setRequired(false);
+        
         Option kopt = new Option("k", false, "Enable the HTTP KeepAlive feature, " +
                 "i.e., perform multiple requests within one HTTP session. " +
                 "Default is no KeepAlive");
@@ -121,6 +125,7 @@ public class HttpBenchmark {
         nopt.setRequired(false);
         
         Options options = new Options();
+        options.addOption(iopt);
         options.addOption(kopt);
         options.addOption(nopt);
         options.addOption(popt);
@@ -210,6 +215,9 @@ public class HttpBenchmark {
             HttpPost httppost = new HttpPost(url.getPath());
             httppost.setEntity(entity);
             request = httppost;
+        } else if (cmd.hasOption('i')) {
+            HttpHead httphead = new HttpHead(url.getPath());
+            request = httphead;
         } else {
             HttpGet httpget = new HttpGet(url.getPath());
             request = httpget;

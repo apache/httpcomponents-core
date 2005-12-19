@@ -1,7 +1,7 @@
 /*
- * $HeadURL: $
- * $Revision: $
- * $Date: $
+ * $HeadURL$
+ * $Revision$
+ * $Date$
  *
  * ====================================================================
  *
@@ -33,6 +33,7 @@ import java.io.InputStream;
 
 import org.apache.http.Header;
 import org.apache.http.HttpClientConnection;
+import org.apache.http.HttpEntity;
 import org.apache.http.HttpException;
 import org.apache.http.HttpRequest;
 import org.apache.http.HttpResponse;
@@ -43,7 +44,7 @@ import org.apache.http.executor.HttpRequestExecutor;
  * </p>
  * @author <a href="mailto:oleg at ural.ru">Oleg Kalnichevski</a>
  *
- * @version $Revision: $
+ * @version $Revision$
  * 
  * @since 4.0
  */
@@ -68,6 +69,7 @@ public class BenchmarkWorker {
         stats.start();
         for (int i = 0; i < count; i++) {
             try {
+                response = this.httpexecutor.execute(request, conn);
                 if (this.verbosity >= 4) {
                     System.out.println(">> " + request.getRequestLine().toString());
                     Header[] headers = request.getAllHeaders();
@@ -76,7 +78,6 @@ public class BenchmarkWorker {
                     }
                     System.out.println();
                 }
-                response = this.httpexecutor.execute(request, conn);
                 if (this.verbosity >= 3) {
                     System.out.println(response.getStatusLine().getStatusCode());
                 }
@@ -88,13 +89,16 @@ public class BenchmarkWorker {
                     }
                     System.out.println();
                 }
-                InputStream instream = response.getEntity().getContent();
-                byte[] buffer = new byte[4096];
+                HttpEntity entity = response.getEntity();
                 long contentlen = 0;
-                int l = 0;
-                while ((l = instream.read(buffer)) != -1) {
-                    stats.incTotal(l);
-                    contentlen += l;
+                if (entity != null) {
+                    InputStream instream = entity.getContent();
+                    byte[] buffer = new byte[4096];
+                    int l = 0;
+                    while ((l = instream.read(buffer)) != -1) {
+                        stats.incTotal(l);
+                        contentlen += l;
+                    }
                 }
                 if (!keepalive) {
                     conn.close();

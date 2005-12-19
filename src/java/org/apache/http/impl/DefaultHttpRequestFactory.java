@@ -59,6 +59,8 @@ public class DefaultHttpRequestFactory implements HttpRequestFactory {
         String method = requestline.getMethod();
         if ("GET".equalsIgnoreCase(method)) {
             return new BasicHttpRequest(requestline); 
+        } else if ("HEAD".equalsIgnoreCase(method)) {
+            return new BasicHttpRequest(requestline); 
         } else if ("POST".equalsIgnoreCase(method)) {
             return new BasicHttpEntityEnclosingRequest(requestline); 
         } else { 
