@@ -107,6 +107,20 @@ public class DefaultHttpClientConnection
         this.responsefactory = responsefactory;
     }
 
+    public void setEntityGenerator(final EntityGenerator entitygen) {
+        if (entitygen == null) {
+            throw new IllegalArgumentException("Entity generator may not be null");
+        }
+        this.entitygen = entitygen;
+    }
+
+    public void setEntityWriter(final EntityWriter entitywriter) {
+        if (entitywriter == null) {
+            throw new IllegalArgumentException("Entity writer may not be null");
+        }
+        this.entitywriter = entitywriter;
+    }
+
     public void open(final HttpParams params) throws IOException {
         if (params == null) {
             throw new IllegalArgumentException("HTTP parameters may not be null");

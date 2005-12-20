@@ -87,6 +87,20 @@ public class DefaultHttpServerConnection
         this.requestfactory = requestfactory;
     }
 
+    public void setEntityGenerator(final EntityGenerator entitygen) {
+        if (entitygen == null) {
+            throw new IllegalArgumentException("Entity generator may not be null");
+        }
+        this.entitygen = entitygen;
+    }
+
+    public void setEntityWriter(final EntityWriter entitywriter) {
+        if (entitywriter == null) {
+            throw new IllegalArgumentException("Entity writer may not be null");
+        }
+        this.entitywriter = entitywriter;
+    }
+
     public void bind(final Socket socket, final HttpParams params) throws IOException {
         super.bind(socket, params);
     }
