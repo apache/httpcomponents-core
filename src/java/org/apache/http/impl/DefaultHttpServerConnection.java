@@ -44,10 +44,10 @@ import org.apache.http.HttpResponse;
 import org.apache.http.HttpServerConnection;
 import org.apache.http.RequestLine;
 import org.apache.http.StatusLine;
+import org.apache.http.entity.EntityGenerator;
+import org.apache.http.entity.EntityWriter;
 import org.apache.http.impl.entity.DefaultEntityGenerator;
 import org.apache.http.impl.entity.DefaultServerEntityWriter;
-import org.apache.http.impl.entity.EntityGenerator;
-import org.apache.http.impl.entity.EntityWriter;
 import org.apache.http.io.CharArrayBuffer;
 import org.apache.http.params.HttpParams;
 

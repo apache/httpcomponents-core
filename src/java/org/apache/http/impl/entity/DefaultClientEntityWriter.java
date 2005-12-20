@@ -36,6 +36,7 @@ import org.apache.http.HttpEntity;
 import org.apache.http.HttpException;
 import org.apache.http.HttpVersion;
 import org.apache.http.ProtocolException;
+import org.apache.http.entity.EntityWriter;
 import org.apache.http.io.ChunkedOutputStream;
 import org.apache.http.io.ContentLengthOutputStream;
 import org.apache.http.io.HttpDataTransmitter;

@@ -38,6 +38,7 @@ import org.apache.http.HttpMessage;
 import org.apache.http.HttpMutableEntity;
 import org.apache.http.ProtocolException;
 import org.apache.http.entity.BasicHttpEntity;
+import org.apache.http.entity.EntityGenerator;
 import org.apache.http.io.ChunkedInputStream;
 import org.apache.http.io.ContentLengthInputStream;
 import org.apache.http.io.HttpDataInputStream;
