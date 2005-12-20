@@ -50,6 +50,7 @@ import org.apache.http.executor.HttpRequestExecutor;
  */
 public class BenchmarkWorker {
 
+    private byte[] buffer = new byte[4096];
     private final int verbosity;
     private final HttpRequestExecutor httpexecutor;
     
@@ -93,9 +94,8 @@ public class BenchmarkWorker {
                 long contentlen = 0;
                 if (entity != null) {
                     InputStream instream = entity.getContent();
-                    byte[] buffer = new byte[4096];
                     int l = 0;
-                    while ((l = instream.read(buffer)) != -1) {
+                    while ((l = instream.read(this.buffer)) != -1) {
                         stats.incTotal(l);
                         contentlen += l;
                     }
