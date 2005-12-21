@@ -40,10 +40,8 @@ public class TestAllImpl extends TestCase {
         TestSuite suite = new TestSuite();
         suite.addTest(TestHeaderGroup.suite());
         suite.addTest(TestHttpDataReceiverAndTransmitter.suite());
-        suite.addTest(TestAutoCloseInputStream.suite());
         suite.addTest(TestDefaultConnectionReuseStrategy.suite());
         suite.addTest(TestDefaultEntityGenerator.suite());
-        suite.addTest(TestDefaultResponseConsumedWatcher.suite());
         suite.addTest(TestBasicRequest.suite());
         return suite;
     }

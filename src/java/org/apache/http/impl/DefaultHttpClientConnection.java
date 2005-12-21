@@ -30,7 +30,6 @@
 package org.apache.http.impl;
 
 import java.io.IOException;
-import java.io.InputStream;
 import java.net.InetAddress;
 import java.net.Socket;
 
@@ -363,13 +362,6 @@ public class DefaultHttpClientConnection
     protected void readResponseBody(
             final HttpMutableResponse response) throws HttpException, IOException {
         HttpMutableEntity entity = this.entitygen.generate(this.datareceiver, response);
-        // if there is a result - ALWAYS wrap it in an observer which will
-        // close the underlying stream as soon as it is consumed, and notify
-        // the watcher that the stream has been consumed.
-        InputStream instream = entity.getContent();
-        instream = new AutoCloseInputStream(
-                instream, new DefaultResponseConsumedWatcher(this, response));
-        entity.setContent(instream);
         response.setEntity(entity);
     }
     
