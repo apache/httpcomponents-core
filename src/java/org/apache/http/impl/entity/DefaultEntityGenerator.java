@@ -197,7 +197,7 @@ public class DefaultEntityGenerator implements EntityGenerator {
         super();
     }
 
-    public HttpMutableEntity generate(
+    protected BasicHttpEntity generateEntity(
             final HttpDataReceiver datareceiver,
             final HttpMessage message) throws HttpException, IOException {
         if (datareceiver == null) {
@@ -207,7 +207,7 @@ public class DefaultEntityGenerator implements EntityGenerator {
             throw new IllegalArgumentException("HTTP message may not be null");
         }
 
-        HttpMutableEntity entity = new BasicHttpEntity();
+        BasicHttpEntity entity = new BasicHttpEntity();
         
         HttpParams params = message.getParams(); 
         boolean strict = params.isParameterTrue(HttpProtocolParams.STRICT_TRANSFER_ENCODING);
@@ -288,4 +288,10 @@ public class DefaultEntityGenerator implements EntityGenerator {
         return entity;
     }
         
+    public HttpMutableEntity generate(
+            final HttpDataReceiver datareceiver,
+            final HttpMessage message) throws HttpException, IOException {
+        return generateEntity(datareceiver, message);
+    }
+    
 }
