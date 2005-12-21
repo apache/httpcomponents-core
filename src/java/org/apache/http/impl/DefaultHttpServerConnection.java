@@ -34,8 +34,8 @@ import java.net.Socket;
 
 import org.apache.http.ConnectionClosedException;
 import org.apache.http.Header;
+import org.apache.http.HttpEntity;
 import org.apache.http.HttpException;
-import org.apache.http.HttpMutableEntity;
 import org.apache.http.HttpMutableEntityEnclosingRequest;
 import org.apache.http.HttpMutableRequest;
 import org.apache.http.HttpRequest;
@@ -153,7 +153,7 @@ public class DefaultHttpServerConnection
 
     protected void receiveRequestBody(final HttpMutableEntityEnclosingRequest request)
             throws HttpException, IOException {
-        HttpMutableEntity entity = this.entitygen.generate(this.datareceiver, request);
+        HttpEntity entity = this.entitygen.generate(this.datareceiver, request);
         request.setEntity(entity);
     }
     

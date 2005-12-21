@@ -35,10 +35,10 @@ import java.net.Socket;
 
 import org.apache.http.Header;
 import org.apache.http.HttpClientConnection;
+import org.apache.http.HttpEntity;
 import org.apache.http.HttpEntityEnclosingRequest;
 import org.apache.http.HttpException;
 import org.apache.http.HttpHost;
-import org.apache.http.HttpMutableEntity;
 import org.apache.http.HttpMutableResponse;
 import org.apache.http.HttpRequest;
 import org.apache.http.HttpResponse;
@@ -361,7 +361,7 @@ public class DefaultHttpClientConnection
         
     protected void readResponseBody(
             final HttpMutableResponse response) throws HttpException, IOException {
-        HttpMutableEntity entity = this.entitygen.generate(this.datareceiver, response);
+        HttpEntity entity = this.entitygen.generate(this.datareceiver, response);
         response.setEntity(entity);
     }
     

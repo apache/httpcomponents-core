@@ -33,7 +33,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 
-import org.apache.http.HttpMutableEntity;
+import org.apache.http.HttpEntity;
 
 /**
  * <p>
@@ -44,7 +44,7 @@ import org.apache.http.HttpMutableEntity;
  * 
  * @since 4.0
  */
-public class BasicHttpEntity implements HttpMutableEntity {
+public class BasicHttpEntity implements HttpEntity {
     
     private String contentType = null;
     private String contentEncoding = null;

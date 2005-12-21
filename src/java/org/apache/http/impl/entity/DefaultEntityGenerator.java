@@ -35,7 +35,7 @@ import org.apache.http.Header;
 import org.apache.http.HeaderElement;
 import org.apache.http.HttpException;
 import org.apache.http.HttpMessage;
-import org.apache.http.HttpMutableEntity;
+import org.apache.http.HttpEntity;
 import org.apache.http.ProtocolException;
 import org.apache.http.entity.BasicHttpEntity;
 import org.apache.http.entity.EntityGenerator;
@@ -288,7 +288,7 @@ public class DefaultEntityGenerator implements EntityGenerator {
         return entity;
     }
         
-    public HttpMutableEntity generate(
+    public HttpEntity generate(
             final HttpDataReceiver datareceiver,
             final HttpMessage message) throws HttpException, IOException {
         return generateEntity(datareceiver, message);
