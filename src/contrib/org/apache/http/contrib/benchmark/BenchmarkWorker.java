@@ -38,6 +38,8 @@ import org.apache.http.HttpException;
 import org.apache.http.HttpRequest;
 import org.apache.http.HttpResponse;
 import org.apache.http.executor.HttpRequestExecutor;
+import org.apache.http.impl.ConnectionReuseStrategy;
+import org.apache.http.impl.DefaultConnectionReuseStrategy;
 
 /**
  * <p>
@@ -53,10 +55,12 @@ public class BenchmarkWorker {
     private byte[] buffer = new byte[4096];
     private final int verbosity;
     private final HttpRequestExecutor httpexecutor;
+    private final ConnectionReuseStrategy connstrategy;
     
     public BenchmarkWorker(final HttpRequestExecutor httpexecutor, int verbosity) {
         super();
         this.httpexecutor = httpexecutor;
+        this.connstrategy = new DefaultConnectionReuseStrategy();
         this.verbosity = verbosity;
     }
     
@@ -100,7 +104,7 @@ public class BenchmarkWorker {
                         contentlen += l;
                     }
                 }
-                if (!keepalive) {
+                if (!keepalive || !this.connstrategy.keepAlive(response)) {
                     conn.close();
                 }
                 stats.setContentLength(contentlen);
