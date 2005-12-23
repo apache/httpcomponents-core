@@ -33,6 +33,9 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
 
+import org.apache.http.Header;
+import org.apache.http.HttpEntity;
+
 import junit.framework.Test;
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
@@ -64,14 +67,16 @@ public class TestHttpEntities extends TestCase {
     	BasicHttpEntity httpentity = new BasicHttpEntity();
     	httpentity.setContent(content);
     	httpentity.setContentLength(bytes.length);
-    	httpentity.setContentType("text/plain");
-    	httpentity.setContentEncoding("identity");
+    	httpentity.setContentType(new Header(HttpEntity.CONTENT_TYPE, "text/plain"));
+    	httpentity.setContentEncoding(new Header(HttpEntity.CONTENT_ENCODING, "identity"));
     	httpentity.setChunked(false);
     	
     	assertEquals(content, httpentity.getContent());
     	assertEquals(bytes.length, httpentity.getContentLength());
-    	assertEquals("text/plain", httpentity.getContentType());
-    	assertEquals("identity", httpentity.getContentEncoding());
+        assertEquals(HttpEntity.CONTENT_TYPE, httpentity.getContentType().getName());
+    	assertEquals("text/plain", httpentity.getContentType().getValue());
+        assertEquals(HttpEntity.CONTENT_ENCODING, httpentity.getContentEncoding().getName());
+    	assertEquals("identity", httpentity.getContentEncoding().getValue());
     	assertFalse(httpentity.isChunked());
     	assertFalse(httpentity.isRepeatable());
     }
@@ -120,8 +125,10 @@ public class TestHttpEntities extends TestCase {
     	httpentity.setChunked(false);
     	
     	assertEquals(bytes.length, httpentity.getContentLength());
-    	assertEquals("application/octet-stream", httpentity.getContentType());
-    	assertEquals("identity", httpentity.getContentEncoding());
+        assertEquals(HttpEntity.CONTENT_TYPE, httpentity.getContentType().getName());
+        assertEquals("application/octet-stream", httpentity.getContentType().getValue());
+        assertEquals(HttpEntity.CONTENT_ENCODING, httpentity.getContentEncoding().getName());
+        assertEquals("identity", httpentity.getContentEncoding().getValue());
     	assertNotNull(httpentity.getContent());
     	assertFalse(httpentity.isChunked());
     	assertTrue(httpentity.isRepeatable());
@@ -175,8 +182,10 @@ public class TestHttpEntities extends TestCase {
         
         byte[] bytes = s.getBytes("ISO-8859-1");
         assertEquals(bytes.length, httpentity.getContentLength());
-        assertEquals("text/plain", httpentity.getContentType());
-        assertEquals("identity", httpentity.getContentEncoding());
+        assertEquals(HttpEntity.CONTENT_TYPE, httpentity.getContentType().getName());
+        assertEquals("text/plain", httpentity.getContentType().getValue());
+        assertEquals(HttpEntity.CONTENT_ENCODING, httpentity.getContentEncoding().getName());
+        assertEquals("identity", httpentity.getContentEncoding().getValue());
         assertNotNull(httpentity.getContent());
         assertFalse(httpentity.isChunked());
         assertTrue(httpentity.isRepeatable());
@@ -195,10 +204,10 @@ public class TestHttpEntities extends TestCase {
         String s = "Message content";
         StringEntity httpentity = new StringEntity(s, "US-ASCII");
         assertEquals("text/plain; charset=US-ASCII", 
-                httpentity.getContentType());
+                httpentity.getContentType().getValue());
         httpentity = new StringEntity(s);
         assertEquals("text/plain; charset=ISO-8859-1", 
-                httpentity.getContentType());
+                httpentity.getContentType().getValue());
     }
 
     public void testStringEntityWriteTo() throws Exception {
@@ -241,8 +250,10 @@ public class TestHttpEntities extends TestCase {
         httpentity.setChunked(false);
         
         assertEquals(bytes.length, httpentity.getContentLength());
-        assertEquals("text/plain", httpentity.getContentType());
-        assertEquals("identity", httpentity.getContentEncoding());
+        assertEquals(HttpEntity.CONTENT_TYPE, httpentity.getContentType().getName());
+        assertEquals("text/plain", httpentity.getContentType().getValue());
+        assertEquals(HttpEntity.CONTENT_ENCODING, httpentity.getContentEncoding().getName());
+        assertEquals("identity", httpentity.getContentEncoding().getValue());
         assertEquals(instream, httpentity.getContent());
         assertNotNull(httpentity.getContent());
         assertFalse(httpentity.isChunked());

@@ -280,10 +280,10 @@ public class DefaultEntityGenerator implements EntityGenerator {
             entity.setContent(new HttpDataInputStream(datareceiver));                            
         }
         if (contentTypeHeader != null) {
-            entity.setContentType(contentTypeHeader.getValue());    
+            entity.setContentType(contentTypeHeader);    
         }
         if (contentEncodingHeader != null) {
-            entity.setContentEncoding(contentEncodingHeader.getValue());    
+            entity.setContentEncoding(contentEncodingHeader);    
         }
         return entity;
     }

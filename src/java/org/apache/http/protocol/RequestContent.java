@@ -53,7 +53,6 @@ public class RequestContent implements HttpRequestInterceptor {
 
     private static final String TRANSFER_ENC = "Transfer-Encoding";
     private static final String CONTENT_LEN  = "Content-Length";
-    private static final String CONTENT_TYPE = "Content-Type";
     
     private static final String CHUNK_CODING = "chunked";
     
@@ -88,7 +87,7 @@ public class RequestContent implements HttpRequestInterceptor {
             }
             // Specify a content type if known
             if (entity.getContentType() != null) {
-                request.setHeader(new Header(CONTENT_TYPE, entity.getContentType(), true)); 
+                request.setHeader(entity.getContentType()); 
             }
         }
     }

@@ -94,7 +94,7 @@ public class ElementalHttpPost {
                 }
                 // Specify a content type if known
                 if (requestbody.getContentType() != null) {
-                    request.setHeader(new Header("Content-Type", requestbody.getContentType())); 
+                    request.setHeader(requestbody.getContentType()); 
                 }
                 request.setEntity(requestbody);
                 

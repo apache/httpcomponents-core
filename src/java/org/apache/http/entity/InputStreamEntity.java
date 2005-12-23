@@ -33,6 +33,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 
+import org.apache.http.Header;
 import org.apache.http.HttpEntity;
 
 /**
@@ -80,16 +81,24 @@ public class InputStreamEntity implements HttpEntity {
         return this.length;
     }
     
-    public String getContentType() {
-        return this.contentType;
+    public Header getContentType() {
+        if (this.contentType != null) {
+            return new Header(HttpEntity.CONTENT_TYPE, this.contentType);
+        } else {
+            return null;
+        }
     }
 
     public void setContentType(final String contentType) {
         this.contentType = contentType;
     }
 
-    public String getContentEncoding() {
-        return this.contentEncoding;
+    public Header getContentEncoding() {
+        if (this.contentEncoding != null) {
+            return new Header(HttpEntity.CONTENT_ENCODING, this.contentEncoding);
+        } else {
+            return null;
+        }
     }
 
     public void setContentEncoding(final String contentEncoding) {

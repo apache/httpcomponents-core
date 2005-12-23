@@ -51,8 +51,6 @@ public class ResponseContent implements HttpResponseInterceptor {
 
     private static final String TRANSFER_ENC = "Transfer-Encoding";
     private static final String CONTENT_LEN  = "Content-Length";
-    private static final String CONTENT_TYPE = "Content-Type";
-    private static final String CONTENT_ENC = "Content-Encoding";
 
     private static final String CHUNK_CODING = "chunked";
     
@@ -79,11 +77,11 @@ public class ResponseContent implements HttpResponseInterceptor {
             }
             // Specify a content type if known
             if (entity.getContentType() != null) {
-                response.setHeader(new Header(CONTENT_TYPE, entity.getContentType(), true)); 
+                response.setHeader(entity.getContentType()); 
             }
             // Specify a content encoding if known
             if (entity.getContentEncoding() != null) {
-                response.setHeader(new Header(CONTENT_ENC, entity.getContentEncoding(), true)); 
+                response.setHeader(entity.getContentEncoding()); 
             }
         }
     }

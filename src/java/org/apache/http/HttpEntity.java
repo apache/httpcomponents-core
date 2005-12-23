@@ -44,15 +44,18 @@ import java.io.OutputStream;
  */
 public interface HttpEntity {
 
+    public static final String CONTENT_TYPE = "Content-Type";
+    public static final String CONTENT_ENCODING = "Content-Encoding";
+    
     boolean isRepeatable();
 
     boolean isChunked();
 
     long getContentLength();
     
-    String getContentType();
+    Header getContentType();
     
-    String getContentEncoding();
+    Header getContentEncoding();
     
     InputStream getContent() throws IOException;
     

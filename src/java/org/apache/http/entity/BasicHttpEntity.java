@@ -33,6 +33,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 
+import org.apache.http.Header;
 import org.apache.http.HttpEntity;
 
 /**
@@ -46,8 +47,8 @@ import org.apache.http.HttpEntity;
  */
 public class BasicHttpEntity implements HttpEntity {
     
-    private String contentType = null;
-    private String contentEncoding = null;
+    private Header contentType = null;
+    private Header contentEncoding = null;
     private InputStream content = null;
     private long length = -1;
     private boolean chunked = false;
@@ -60,11 +61,11 @@ public class BasicHttpEntity implements HttpEntity {
         return this.length;
     }
 
-    public String getContentType() {
+    public Header getContentType() {
         return this.contentType;
     }
     
-    public String getContentEncoding() {
+    public Header getContentEncoding() {
         return this.contentEncoding;
     }
     
@@ -88,11 +89,11 @@ public class BasicHttpEntity implements HttpEntity {
         this.length = len;
     }
     
-    public void setContentType(final String contentType) {
+    public void setContentType(final Header contentType) {
         this.contentType = contentType;
     }
     
-    public void setContentEncoding(final String contentEncoding) {
+    public void setContentEncoding(final Header contentEncoding) {
         this.contentEncoding = contentEncoding;
     }
     

@@ -103,7 +103,7 @@ public class ElementalHttpEchoServer {
                 buffer.append(entity.isChunked());
                 buffer.append("</p>");
                 if (entity.getContentType() != null 
-                        && entity.getContentType().toLowerCase().startsWith("text/")) {
+                        && entity.getContentType().getValue().toLowerCase().startsWith("text/")) {
                     buffer.append("<p>");
                     buffer.append(EntityUtils.toString(entity));
                     buffer.append("</p>");
@@ -136,7 +136,7 @@ public class ElementalHttpEchoServer {
                         Long.toString(body.getContentLength())));
             }
             if (body.getContentType() != null) {
-                response.setHeader(new Header("Content-Type", body.getContentType())); 
+                response.setHeader(body.getContentType()); 
             }
             response.setEntity(body);
         }

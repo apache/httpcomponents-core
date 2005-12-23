@@ -34,6 +34,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 
+import org.apache.http.Header;
 import org.apache.http.HttpEntity;
 import org.apache.http.util.EntityUtils;
 
@@ -72,11 +73,11 @@ public class BufferedHttpEntity implements HttpEntity {
         }
     }
 
-    public String getContentType() {
+    public Header getContentType() {
         return this.source.getContentType();
     }
     
-    public String getContentEncoding() {
+    public Header getContentEncoding() {
         return this.source.getContentEncoding();
     }
     
