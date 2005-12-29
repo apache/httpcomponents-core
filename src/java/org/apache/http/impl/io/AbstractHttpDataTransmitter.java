@@ -51,8 +51,6 @@ public abstract class AbstractHttpDataTransmitter implements HttpDataTransmitter
     private static final int LF = 10;
     private static final byte[] CRLF = new byte[] {CR, LF};
 
-    private static final int MAX_CHUNK = 2048;
-    
     private OutputStream outstream;
     private ByteArrayBuffer buffer;
         
@@ -89,7 +87,7 @@ public abstract class AbstractHttpDataTransmitter implements HttpDataTransmitter
         // Do not want to buffer largish chunks
         // if the byte array is larger then MAX_CHUNK
         // write it directly to the output stream
-        if (len >= MAX_CHUNK || len > this.buffer.capacity()) {
+        if (len > this.buffer.capacity()) {
             // flush the buffer
             flushBuffer();
             // write directly to the out stream
