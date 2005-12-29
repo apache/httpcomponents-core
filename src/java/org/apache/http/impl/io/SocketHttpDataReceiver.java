@@ -71,15 +71,17 @@ public class SocketHttpDataReceiver extends AbstractHttpDataReceiver {
     
     private final Socket socket;
     
-    public SocketHttpDataReceiver(final Socket socket) throws IOException {
+    public SocketHttpDataReceiver(final Socket socket, int buffersize) throws IOException {
         super();
         if (socket == null) {
             throw new IllegalArgumentException("Socket may not be null");
         }
         this.socket = socket;
-        int buffersize = socket.getReceiveBufferSize();
-        if (buffersize < 2048) {
-            buffersize = 2048;
+        if (buffersize < 0) {
+            buffersize = socket.getReceiveBufferSize();
+        }
+        if (buffersize < 1024) {
+            buffersize = 1024;
         }
         init(socket.getInputStream(), buffersize);
     }

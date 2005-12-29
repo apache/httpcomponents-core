@@ -67,28 +67,13 @@ public final class HttpConnectionParams {
     public static final String TCP_NODELAY = "http.tcp.nodelay"; 
 
     /**
-     * Determines a hint the size of the underlying buffers used by the platform 
-     * for outgoing network I/O. This value is a suggestion to the kernel from 
-     * the application about the size of buffers to use for the data to be sent 
-     * over the socket.
+     * Determines the size of the internal socket buffer used to buffer data
+     * while receiving / transmitting HTTP messages 
      * <p>
      * This parameter expects a value of type {@link Integer}.
      * </p>
-     * @see java.net.SocketOptions#SO_SNDBUF
      */
-    public static final String SO_SNDBUF = "http.socket.sendbuffer"; 
-
-    /**
-     * Determines a hint the size of the underlying buffers used by the platform 
-     * for incoming network I/O. This value is a suggestion to the kernel from 
-     * the application about the size of buffers to use for the data to be received 
-     * over the socket.  
-     * <p>
-     * This parameter expects a value of type {@link Integer}.
-     * </p>
-     * @see java.net.SocketOptions#SO_RCVBUF
-     */
-    public static final String SO_RCVBUF = "http.socket.receivebuffer"; 
+    public static final String SOCKET_BUFFER_SIZE = "http.socket.buffer-size"; 
 
     /**
      * Sets SO_LINGER with the specified linger time in seconds. The maximum timeout 
@@ -189,64 +174,18 @@ public final class HttpConnectionParams {
         params.setBooleanParameter(TCP_NODELAY, value);
     }
 
-    /**
-     * Returns a hint the size of the underlying buffers used by the platform for 
-     * outgoing network I/O. This value is a suggestion to the kernel from the 
-     * application about the size of buffers to use for the data to be sent over 
-     * the socket.
-     *
-     * @return the hint size of the send buffer
-     */
-    public static int getSendBufferSize(final HttpParams params) {
+    public static int getSocketBufferSize(final HttpParams params) {
         if (params == null) {
             throw new IllegalArgumentException("HTTP parameters may not be null");
         }
-        return params.getIntParameter(SO_SNDBUF, -1);
+        return params.getIntParameter(SOCKET_BUFFER_SIZE, -1);
     }
-
-    /**
-     * Sets a hint the size of the underlying buffers used by the platform for 
-     * outgoing network I/O. This value is a suggestion to the kernel from the 
-     * application about the size of buffers to use for the data to be sent over 
-     * the socket.
-     *
-     * @param size the hint size of the send buffer
-     */
-    public static void setSendBufferSize(final HttpParams params, int size) {
+    
+    public static void setSocketBufferSize(final HttpParams params, int size) {
         if (params == null) {
             throw new IllegalArgumentException("HTTP parameters may not be null");
         }
-        params.setIntParameter(SO_SNDBUF, size);
-    }
-
-    /**
-     * Returns a hint the size of the underlying buffers used by the platform 
-     * for incoming network I/O. This value is a suggestion to the kernel from 
-     * the application about the size of buffers to use for the data to be received 
-     * over the socket.  
-     *
-     * @return the hint size of the send buffer
-     */
-    public static int getReceiveBufferSize(final HttpParams params) {
-        if (params == null) {
-            throw new IllegalArgumentException("HTTP parameters may not be null");
-        }
-        return params.getIntParameter(SO_RCVBUF, -1);
-    }
-
-    /**
-     * Sets a hint the size of the underlying buffers used by the platform 
-     * for incoming network I/O. This value is a suggestion to the kernel from 
-     * the application about the size of buffers to use for the data to be received 
-     * over the socket.  
-     *
-     * @param size the hint size of the send buffer
-     */
-    public static void setReceiveBufferSize(final HttpParams params, int size) {
-        if (params == null) {
-            throw new IllegalArgumentException("HTTP parameters may not be null");
-        }
-        params.setIntParameter(SO_RCVBUF, size);
+        params.setIntParameter(SOCKET_BUFFER_SIZE, size);
     }
 
     /**

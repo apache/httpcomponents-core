@@ -114,26 +114,19 @@ abstract class AbstractHttpConnection implements HttpConnection {
             socket.setSoLinger(linger > 0, linger);
         }
         
-        int sndBufSize = HttpConnectionParams.getSendBufferSize(params);
-        if (sndBufSize >= 0) {
-            socket.setSendBufferSize(sndBufSize);
-        }        
-        int rcvBufSize = HttpConnectionParams.getReceiveBufferSize(params);
-        if (rcvBufSize >= 0) {
-            socket.setReceiveBufferSize(rcvBufSize);
-        }
+        int buffersize = HttpConnectionParams.getSocketBufferSize(params);
         assertNotOpen();
         this.open = true;
         this.socket = socket;
         if (this.trxfactory != null) {
             this.datatransmitter = this.trxfactory.create(this.socket); 
         } else {
-            this.datatransmitter = new SocketHttpDataTransmitter(this.socket);
+            this.datatransmitter = new SocketHttpDataTransmitter(this.socket, buffersize);
         }
         if (this.rcvfactory != null) {
             this.datareceiver = this.rcvfactory.create(this.socket); 
         } else {
-            this.datareceiver = new SocketHttpDataReceiver(this.socket);
+            this.datareceiver = new SocketHttpDataReceiver(this.socket, buffersize);
         }
     }
 
