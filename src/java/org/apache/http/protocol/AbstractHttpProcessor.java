@@ -30,9 +30,9 @@
 package org.apache.http.protocol;
 
 import java.io.IOException;
-import java.util.HashSet;
+import java.util.ArrayList;
 import java.util.Iterator;
-import java.util.Set;
+import java.util.List;
 
 import org.apache.http.HttpException;
 import org.apache.http.HttpMutableRequest;
@@ -53,7 +53,7 @@ public abstract class AbstractHttpProcessor {
 
     private final HttpContext localContext;
     
-    private Set interceptors = null; 
+    private List interceptors = null; 
     
     public AbstractHttpProcessor(final HttpContext localContext) {
         super();
@@ -65,7 +65,7 @@ public abstract class AbstractHttpProcessor {
             return;
         }
         if (this.interceptors == null) {
-            this.interceptors = new HashSet();
+            this.interceptors = new ArrayList();
         }
         this.interceptors.add(obj);
     }
@@ -113,7 +113,7 @@ public abstract class AbstractHttpProcessor {
         }
     }
     
-    public void setInterceptors(final Set interceptors) {
+    public void setInterceptors(final List interceptors) {
         if (interceptors == null) {
             return;
         }
@@ -121,7 +121,7 @@ public abstract class AbstractHttpProcessor {
             this.interceptors.clear();
             this.interceptors.addAll(interceptors);
         } else {
-            this.interceptors = new HashSet(interceptors);
+            this.interceptors = new ArrayList(interceptors);
         }
     }
     
