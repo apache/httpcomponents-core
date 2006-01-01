@@ -81,4 +81,15 @@ public class HttpExecutionContext implements HttpContext {
         this.map.put(id, obj);
     }
     
+    public Object removeAttribute(final String id) {
+        if (id == null) {
+            throw new IllegalArgumentException("Id may not be null");
+        }
+        if (this.map != null) {
+            return this.map.remove(id);
+        } else {
+            return null;
+        }
+    }
+
 }

@@ -47,5 +47,7 @@ public interface HttpContext {
     Object getAttribute(String id);
 
     void setAttribute(String id, Object obj);
+
+    Object removeAttribute(String id);
     
 }
