@@ -43,7 +43,7 @@ package org.apache.http;
 public class ProxyHost extends HttpHost {
 
     /**
-     * Copy constructor for HttpHost
+     * Copy constructor for ProxyHost.
      * 
      * @param httpproxy the HTTP host to copy details from
      */
@@ -62,7 +62,7 @@ public class ProxyHost extends HttpHost {
     }
     
     /**
-     * Constructor for HttpHost.
+     * Constructor for ProxyHost.
      *   
      * @param hostname the hostname (IP or DNS name). Can be <code>null</code>.
      */
