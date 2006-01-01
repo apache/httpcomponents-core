@@ -35,10 +35,10 @@ import java.net.ServerSocket;
 import java.net.Socket;
 
 import org.apache.http.ConnectionClosedException;
-import org.apache.http.Header;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpEntityEnclosingRequest;
 import org.apache.http.HttpException;
+import org.apache.http.HttpMutableRequest;
 import org.apache.http.HttpMutableResponse;
 import org.apache.http.HttpRequest;
 import org.apache.http.HttpServerConnection;
@@ -47,6 +47,7 @@ import org.apache.http.HttpVersion;
 import org.apache.http.MethodNotSupportedException;
 import org.apache.http.ProtocolException;
 import org.apache.http.entity.StringEntity;
+import org.apache.http.executor.HttpExecutionContext;
 import org.apache.http.impl.ConnectionReuseStrategy;
 import org.apache.http.impl.DefaultConnectionReuseStrategy;
 import org.apache.http.impl.DefaultHttpParams;
@@ -55,6 +56,12 @@ import org.apache.http.message.BasicHttpResponse;
 import org.apache.http.params.HttpConnectionParams;
 import org.apache.http.params.HttpParams;
 import org.apache.http.params.HttpProtocolParams;
+import org.apache.http.protocol.AbstractHttpProcessor;
+import org.apache.http.protocol.HttpContext;
+import org.apache.http.protocol.ResponseConnControl;
+import org.apache.http.protocol.ResponseContent;
+import org.apache.http.protocol.ResponseDate;
+import org.apache.http.protocol.ResponseServer;
 import org.apache.http.util.EntityUtils;
 
 /**
@@ -66,21 +73,140 @@ import org.apache.http.util.EntityUtils;
  */
 public class ElementalHttpEchoServer {
 
-    private static final String TEST_SERVER = "Test server"; 
-    
     public static void main(String[] args) throws Exception {
         Thread t = new RequestListenerThread(8080);
         t.setDaemon(false);
         t.start();
     }
     
-    static class RequestHandler {
+    static interface ServiceHandler {
+
+        void service(HttpRequest request, HttpMutableResponse response) 
+            throws IOException;
         
-        public RequestHandler() {
+    }
+    
+    static class HttpRequestProcessor extends AbstractHttpProcessor {
+        
+        private final HttpServerConnection conn;
+        private final ConnectionReuseStrategy connreuse;
+        
+        private HttpParams params = null;
+
+        public HttpRequestProcessor(final HttpServerConnection conn) {
+            super(new HttpExecutionContext(null));
+            if (conn == null) {
+                throw new IllegalArgumentException("HTTP server connection may not be null");
+            }
+            this.conn = conn;
+            this.connreuse = new DefaultConnectionReuseStrategy();
+        }
+
+        public HttpParams getParams() {
+            return this.params;
+        }
+        
+        public void setParams(final HttpParams params) {
+            this.params = params;
+        }
+        
+        public boolean isActive() {
+            return this.conn.isOpen();
+        }
+        
+        private void closeConnection() {
+            try {
+                this.conn.close();
+                System.out.println("Connection closed");
+            } catch (IOException ex) {
+                System.err.println("I/O error closing connection: " + ex.getMessage());
+            }
+        }
+                
+        public void doService(final ServiceHandler handler) { 
+            HttpContext localContext = getContext();
+            localContext.setAttribute(HttpExecutionContext.HTTP_CONNECTION, this.conn);
+            BasicHttpResponse response = new BasicHttpResponse();
+            response.getParams().setDefaults(this.params);
+            try {
+                HttpRequest request = this.conn.receiveRequest(this.params);
+                
+                if (request instanceof HttpMutableRequest) {
+                    preprocessRequest((HttpMutableRequest)request);
+                }
+
+                HttpVersion ver = request.getRequestLine().getHttpVersion();
+                if (ver.greaterEquals(HttpVersion.HTTP_1_1)) {
+                    ver = HttpVersion.HTTP_1_1;
+                }
+                HttpProtocolParams.setVersion(response.getParams(), ver);
+                
+                if (request instanceof HttpEntityEnclosingRequest) {
+                    if (((HttpEntityEnclosingRequest) request).expectContinue()) {
+
+                        System.out.println("Expected 100 (Continue)");
+                        
+                        BasicHttpResponse ack = new BasicHttpResponse();
+                        ack.getParams().setDefaults(this.params);
+                        ack.setStatusCode(HttpStatus.SC_CONTINUE);
+                        this.conn.sendResponse(ack);
+                    }
+                }
+                System.out.println("Request received");
+                localContext.setAttribute(HttpExecutionContext.HTTP_REQUEST, request);
+                localContext.setAttribute(HttpExecutionContext.HTTP_RESPONSE, response);
+                handler.service(request, response);
+            } catch (ConnectionClosedException ex) {
+                System.out.println("Client closed connection");
+                return;
+            } catch (HttpException ex) {
+                handleException(ex, response);
+            } catch (IOException ex) {
+                System.err.println("I/O error receiving request: " + ex.getMessage());
+                closeConnection();
+                return;
+            }
+            try {
+                if (response instanceof HttpMutableResponse) {
+                    postprocessResponse((HttpMutableResponse)response);
+                }
+                this.conn.sendResponse(response);
+                System.out.println("Response sent");
+            } catch (HttpException ex) {
+                System.err.println("Malformed response: " + ex.getMessage());
+                closeConnection();
+                return;
+            } catch (IOException ex) {
+                System.err.println("I/O error sending response: " + ex.getMessage());
+                closeConnection();
+                return;
+            }
+            if (!this.connreuse.keepAlive(response)) {
+                closeConnection();
+            } else {
+                System.out.println("Connection kept alive");
+            }
+        }
+        
+        private void handleException(final HttpException ex, final HttpMutableResponse response) {
+            if (ex instanceof MethodNotSupportedException) {
+                response.setStatusCode(HttpStatus.SC_NOT_IMPLEMENTED);
+            } else if (ex instanceof ProtocolException) {
+                response.setStatusCode(HttpStatus.SC_BAD_REQUEST);
+            } else {
+                response.setStatusCode(HttpStatus.SC_INTERNAL_SERVER_ERROR);
+            }
+        }
+                
+    }
+    
+    static class EchoServiceHandler implements ServiceHandler{
+        
+        public EchoServiceHandler() {
             super();
         }
         
-        public void handleRequest(final HttpRequest request, final HttpMutableResponse response) 
+        public void service(final HttpRequest request, final HttpMutableResponse response) 
                 throws IOException {
             StringBuffer buffer = new StringBuffer();
             buffer.append("<html>");
@@ -125,33 +251,11 @@ public class ElementalHttpEchoServer {
             buffer.append("</html>");
             StringEntity body = new StringEntity(buffer.toString());
             body.setContentType("text/html; charset=UTF-8");
+            response.setEntity(body);
 
             response.setStatusCode(HttpStatus.SC_OK);
-            response.setHeader(new Header("Server", TEST_SERVER));
-            response.setHeader(new Header("Connection", "Keep-Alive"));
-            if (body.isChunked() || body.getContentLength() < 0) {
-                response.setHeader(new Header("Transfer-Encoding", "chunked"));
-            } else {
-                response.setHeader(new Header("Content-Length", 
-                        Long.toString(body.getContentLength())));
-            }
-            if (body.getContentType() != null) {
-                response.setHeader(body.getContentType()); 
-            }
-            response.setEntity(body);
         }
         
-        public void handleException(final HttpException ex, final HttpMutableResponse response) {
-            if (ex instanceof MethodNotSupportedException) {
-                response.setStatusCode(HttpStatus.SC_NOT_IMPLEMENTED);
-            } else if (ex instanceof ProtocolException) {
-                response.setStatusCode(HttpStatus.SC_BAD_REQUEST);
-            } else {
-                response.setStatusCode(HttpStatus.SC_INTERNAL_SERVER_ERROR);
-            }
-            response.setHeader(new Header("Server", TEST_SERVER));
-            response.setHeader(new Header("Connection", "Close"));
-        }
     }
     
     static class RequestListenerThread extends Thread {
@@ -161,7 +265,13 @@ public class ElementalHttpEchoServer {
         
         public RequestListenerThread(int port) throws IOException {
             this.serversocket = new ServerSocket(port);
-            this.params = new DefaultHttpParams(null); 
+            this.params = new DefaultHttpParams(null);
+            this.params
+                .setIntParameter(HttpConnectionParams.SO_TIMEOUT, 5000)
+                .setIntParameter(HttpConnectionParams.SOCKET_BUFFER_SIZE, 8 * 1024)
+                .setBooleanParameter(HttpConnectionParams.STALE_CONNECTION_CHECK, false)
+                .setBooleanParameter(HttpConnectionParams.TCP_NODELAY, true)
+                .setParameter(HttpProtocolParams.ORIGIN_SERVER, "Elemental Server/1.1");
         }
         
         public void run() {
@@ -172,7 +282,14 @@ public class ElementalHttpEchoServer {
                     HttpServerConnection conn = new DefaultHttpServerConnection();
                     System.out.println("Incoming connection from " + socket.getInetAddress());
                     conn.bind(socket, this.params);
-                    Thread t = new HttpConnectionThread(conn);
+                    HttpRequestProcessor processor = new HttpRequestProcessor(conn);
+                    // Add required protocol interceptors
+                    processor.addResponseInterceptor(new ResponseContent());
+                    processor.addResponseInterceptor(new ResponseConnControl());
+                    processor.addResponseInterceptor(new ResponseDate());
+                    processor.addResponseInterceptor(new ResponseServer());                    
+                    processor.setParams(this.params);
+                    Thread t = new ConnectionProcessorThread(processor, new EchoServiceHandler());
                     t.setDaemon(true);
                     t.start();
                 } catch (InterruptedIOException ex) {
@@ -186,87 +303,23 @@ public class ElementalHttpEchoServer {
         }
     }
     
-    static class HttpConnectionThread extends Thread {
+    static class ConnectionProcessorThread extends Thread {
 
-        private final HttpServerConnection conn;
-        private final HttpParams params;
-        private final RequestHandler handler;
+        private final HttpRequestProcessor processor;
+        private final ServiceHandler handler;
         
-        public HttpConnectionThread(final HttpServerConnection conn) {
+        public ConnectionProcessorThread(
+                final HttpRequestProcessor processor, 
+                final ServiceHandler handler) {
             super();
-            this.conn = conn;
-            this.params = new DefaultHttpParams(null);
-            HttpConnectionParams.setSoTimeout(this.params, 5000); 
-            this.handler = new RequestHandler();
-        }
-        
-        public HttpParams getParams() {
-            return this.params;
-        }
-        
-        public void closeConnection() {
-            try {
-                this.conn.close();
-                System.out.println("Connection closed");
-            } catch (IOException ex) {
-                System.err.println("I/O error closing connection: " + ex.getMessage());
-            }
+            this.processor = processor;
+            this.handler = handler;
         }
         
         public void run() {
             System.out.println("New connection thread");
-            while (!Thread.interrupted()) {
-                BasicHttpResponse response = new BasicHttpResponse();
-                response.getParams().setDefaults(this.params);
-                try {
-                    HttpRequest request = this.conn.receiveRequest(this.params);
-                    HttpVersion ver = request.getRequestLine().getHttpVersion();
-                    if (ver.greaterEquals(HttpVersion.HTTP_1_1)) {
-                    	ver = HttpVersion.HTTP_1_1;
-                    }
-                    HttpProtocolParams.setVersion(response.getParams(), ver);
-                    
-                    if (request instanceof HttpEntityEnclosingRequest) {
-                    	if (((HttpEntityEnclosingRequest) request).expectContinue()) {
-
-                    		System.out.println("Expected 100 (Continue)");
-                    		
-                            BasicHttpResponse ack = new BasicHttpResponse();
-                            ack.getParams().setDefaults(this.params);
-                            ack.setStatusCode(HttpStatus.SC_CONTINUE);
-                            this.conn.sendResponse(ack);
-                    	}
-                    }
-                    System.out.println("Request received");
-                    this.handler.handleRequest(request, response);
-                } catch (ConnectionClosedException ex) {
-                    System.out.println("Client closed connection");
-                    break;
-                } catch (HttpException ex) {
-                    this.handler.handleException(ex, response);
-                } catch (IOException ex) {
-                    System.err.println("I/O error receiving request: " + ex.getMessage());
-                    closeConnection();
-                    break;
-                }
-                try {
-                    this.conn.sendResponse(response);
-                    System.out.println("Response sent");
-                } catch (HttpException ex) {
-                    System.err.println("Malformed response: " + ex.getMessage());
-                    closeConnection();
-                } catch (IOException ex) {
-                    System.err.println("I/O error sending response: " + ex.getMessage());
-                    closeConnection();
-                    break;
-                }
-                ConnectionReuseStrategy connreuse = new DefaultConnectionReuseStrategy();
-                if (!connreuse.keepAlive(response)) {
-                    closeConnection();
-                    break;
-                } else {
-                    System.out.println("Connection kept alive");
-                }
+            while (!Thread.interrupted() && this.processor.isActive()) {
+                this.processor.doService(this.handler);
             }
         }
 
