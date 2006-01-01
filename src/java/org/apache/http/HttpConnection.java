@@ -46,7 +46,7 @@ public interface HttpConnection {
      * This method will gracefully close the connection. It will attempt to 
      * flush the transmitter's internal buffer prior to closing the underlying 
      * socket. This method MAY NOT be called from a different thread to force 
-     * shutdonw the connection. Use #shutdown() instead.
+     * shutdown the connection. Use #shutdown() instead.
      * 
      * @see #shutdown()
      */
