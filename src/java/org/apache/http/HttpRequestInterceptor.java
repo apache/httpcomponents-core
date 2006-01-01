@@ -34,7 +34,8 @@ import java.io.IOException;
 import org.apache.http.protocol.HttpContext;
 
 /**
- * <p>Provides the possibility to preprocess a request before it is sent.
+ * <p>Provides the possibility to preprocess a request before it is sent
+ *  to the server or after it has received on the server side.
  * </p>
  * @author <a href="mailto:oleg at ural.ru">Oleg Kalnichevski</a>
  *

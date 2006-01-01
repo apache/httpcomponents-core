@@ -34,8 +34,8 @@ import java.io.IOException;
 import org.apache.http.protocol.HttpContext;
 
 /**
- * <p>Provides the possibility to postprocess a response after it has
- * been received.
+ * <p>Provides the possibility to postprocess a response before it is sent
+ * to the client or after it has been received on the client side.
  * </p>
  * @author <a href="mailto:oleg at ural.ru">Oleg Kalnichevski</a>
  *
