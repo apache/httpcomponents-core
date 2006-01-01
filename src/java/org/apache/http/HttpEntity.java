@@ -47,6 +47,12 @@ public interface HttpEntity {
     public static final String CONTENT_TYPE = "Content-Type";
     public static final String CONTENT_ENCODING = "Content-Encoding";
     
+    /**
+     * Tells if the entity is capable to produce its data more than once.
+     * A repeatable entity's getContent() and writeTo(OutputStream) methods
+     * can be called more than once whereas a non-repeatable entity's can not.
+     * @return true if the entity is repeatable, false otherwise.
+     */
     boolean isRepeatable();
 
     boolean isChunked();
@@ -57,6 +63,12 @@ public interface HttpEntity {
     
     Header getContentEncoding();
     
+    /**
+     * Creates a new InputStream object of the entity. It is a programming error
+     * to return the same InputStream object more than once.
+     * @return a new input stream that returns the entity data.
+     * @throws IOException if the stream could not be created
+     */
     InputStream getContent() throws IOException;
     
     /**
