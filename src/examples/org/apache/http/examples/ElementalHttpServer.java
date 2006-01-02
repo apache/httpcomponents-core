@@ -205,9 +205,9 @@ public class ElementalHttpServer {
                 
     }
     
-    static class EchoServiceHandler implements ServiceHandler{
+    static class FileServiceHandler implements ServiceHandler{
         
-        public EchoServiceHandler() {
+        public FileServiceHandler() {
             super();
         }
         
@@ -268,7 +268,7 @@ public class ElementalHttpServer {
                     processor.addResponseInterceptor(new ResponseDate());
                     processor.addResponseInterceptor(new ResponseServer());                    
                     processor.setParams(this.params);
-                    Thread t = new ConnectionProcessorThread(processor, new EchoServiceHandler());
+                    Thread t = new ConnectionProcessorThread(processor, new FileServiceHandler());
                     t.setDaemon(true);
                     t.start();
                 } catch (InterruptedIOException ex) {
