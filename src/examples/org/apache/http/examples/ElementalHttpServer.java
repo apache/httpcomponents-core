@@ -263,10 +263,10 @@ public class ElementalHttpServer {
                     conn.bind(socket, this.params);
                     HttpRequestProcessor processor = new HttpRequestProcessor(conn);
                     // Add required protocol interceptors
-                    processor.addResponseInterceptor(new ResponseContent());
-                    processor.addResponseInterceptor(new ResponseConnControl());
-                    processor.addResponseInterceptor(new ResponseDate());
-                    processor.addResponseInterceptor(new ResponseServer());                    
+                    processor.addInterceptor(new ResponseContent());
+                    processor.addInterceptor(new ResponseConnControl());
+                    processor.addInterceptor(new ResponseDate());
+                    processor.addInterceptor(new ResponseServer());                    
                     processor.setParams(this.params);
                     Thread t = new ConnectionProcessorThread(processor, new FileServiceHandler());
                     t.setDaemon(true);

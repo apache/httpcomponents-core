@@ -53,87 +53,90 @@ public abstract class AbstractHttpProcessor {
 
     private final HttpContext localContext;
     
-    private List interceptors = null; 
+    private List requestInterceptors = null; 
+    private List responseInterceptors = null; 
     
     public AbstractHttpProcessor(final HttpContext localContext) {
         super();
         this.localContext = localContext;
     }
     
-    private void addInterceptor(final Object obj) {
-        if (obj == null) {
+    public void addInterceptor(final HttpRequestInterceptor interceptor) {
+        if (interceptor == null) {
             return;
         }
-        if (this.interceptors == null) {
-            this.interceptors = new ArrayList();
+        if (this.requestInterceptors == null) {
+            this.requestInterceptors = new ArrayList();
         }
-        this.interceptors.add(obj);
+        this.requestInterceptors.add(interceptor);
     }
     
-    public void removeInterceptor(final Object obj) {
-        if (obj == null) {
+    public void removeInterceptor(final HttpRequestInterceptor interceptor) {
+        if (interceptor == null) {
             return;
         }
-        if (this.interceptors == null) {
+        if (this.requestInterceptors == null) {
             return;
         }
-        this.interceptors.remove(obj);
-        if (this.interceptors.isEmpty()) {
-            this.interceptors = null;
+        this.requestInterceptors.remove(interceptor);
+        if (this.requestInterceptors.isEmpty()) {
+            this.requestInterceptors = null;
         }
     }
     
-    public void addRequestInterceptor(final HttpRequestInterceptor interceptor) {
-        addInterceptor(interceptor);
+    public void addInterceptor(final HttpResponseInterceptor interceptor) {
+        if (interceptor == null) {
+            return;
+        }
+        if (this.responseInterceptors == null) {
+            this.responseInterceptors = new ArrayList();
+        }
+        this.responseInterceptors.add(interceptor);
     }
     
-    public void addResponseInterceptor(final HttpResponseInterceptor interceptor) {
-        addInterceptor(interceptor);
-    }
-
-    public void removeRequestInterceptor(final HttpRequestInterceptor interceptor) {
-        removeInterceptor(interceptor);
-    }
-    
-    public void removeResponseInterceptor(final HttpResponseInterceptor interceptor) {
-        removeInterceptor(interceptor);
+    public void removeInterceptor(final HttpResponseInterceptor interceptor) {
+        if (interceptor == null) {
+            return;
+        }
+        if (this.responseInterceptors == null) {
+            return;
+        }
+        this.responseInterceptors.remove(interceptor);
+        if (this.responseInterceptors.isEmpty()) {
+            this.responseInterceptors = null;
+        }
     }
     
     public void removeInterceptors(final Class clazz) {
         if (clazz == null) {
             return;
         }
-        if (this.interceptors == null) {
-            return;
+        if (this.requestInterceptors != null) {
+            for (Iterator i = this.requestInterceptors.iterator(); i.hasNext(); ) {
+                if (clazz.isInstance(i.next())) {
+                    i.remove();
+                }
+            }
         }
-        for (Iterator i = this.interceptors.iterator(); i.hasNext(); ) {
-            if (clazz.isInstance(i.next())) {
-                i.remove();
+        if (this.responseInterceptors != null) {
+            for (Iterator i = this.responseInterceptors.iterator(); i.hasNext(); ) {
+                if (clazz.isInstance(i.next())) {
+                    i.remove();
+                }
             }
         }
     }
     
-    public void setInterceptors(final List interceptors) {
-        if (interceptors == null) {
-            return;
-        }
-        if (this.interceptors != null) {
-            this.interceptors.clear();
-            this.interceptors.addAll(interceptors);
-        } else {
-            this.interceptors = new ArrayList(interceptors);
-        }
+    public void clearInterceptors() {
+        this.requestInterceptors = null;
+        this.responseInterceptors = null;
     }
     
     protected void preprocessRequest(final HttpMutableRequest request) 
             throws IOException, HttpException {
-        if (this.interceptors == null) {
-            return;
-        }
-        for (Iterator i = this.interceptors.iterator(); i.hasNext(); ) {
-            Object obj = i.next();
-            if (obj instanceof HttpRequestInterceptor) {
-                HttpRequestInterceptor interceptor = (HttpRequestInterceptor)obj;
+        if (this.requestInterceptors != null) {
+            for (Iterator i = this.requestInterceptors.iterator(); i.hasNext(); ) {
+                HttpRequestInterceptor interceptor = (HttpRequestInterceptor) i.next();
                 interceptor.process(request, this.localContext);
             }
         }
@@ -141,13 +144,9 @@ public abstract class AbstractHttpProcessor {
 
     protected void postprocessResponse(final HttpMutableResponse response) 
             throws IOException, HttpException {
-        if (this.interceptors == null) {
-            return;
-        }
-        for (Iterator i = this.interceptors.iterator(); i.hasNext(); ) {
-            Object obj = i.next();
-            if (obj instanceof HttpResponseInterceptor) {
-                HttpResponseInterceptor interceptor = (HttpResponseInterceptor)obj;
+        if (this.responseInterceptors != null) {
+            for (Iterator i = this.responseInterceptors.iterator(); i.hasNext(); ) {
+                HttpResponseInterceptor interceptor = (HttpResponseInterceptor) i.next();
                 interceptor.process(response, this.localContext);
             }
         }

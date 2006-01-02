@@ -71,12 +71,12 @@ public class HttpRequestExecutorDemo {
         HttpRequestExecutor httpexecutor = new HttpRequestExecutor();
         httpexecutor.setParams(params);
         // Required request interceptors
-        httpexecutor.addRequestInterceptor(new RequestContent());
-        httpexecutor.addRequestInterceptor(new RequestTargetHost());
+        httpexecutor.addInterceptor(new RequestContent());
+        httpexecutor.addInterceptor(new RequestTargetHost());
         // Recommended request interceptors
-        httpexecutor.addRequestInterceptor(new RequestConnControl());
-        httpexecutor.addRequestInterceptor(new RequestUserAgent());
-        httpexecutor.addRequestInterceptor(new RequestExpectContinue());
+        httpexecutor.addInterceptor(new RequestConnControl());
+        httpexecutor.addInterceptor(new RequestUserAgent());
+        httpexecutor.addInterceptor(new RequestExpectContinue());
         
         HttpHost host = new HttpHost("www.yahoo.com");
         HttpClientConnection conn = new DefaultHttpClientConnection(host);
