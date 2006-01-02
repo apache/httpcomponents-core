@@ -29,13 +29,14 @@
 
 package org.apache.http.examples;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.InterruptedIOException;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.net.URLDecoder;
 
 import org.apache.http.ConnectionClosedException;
-import org.apache.http.HttpEntity;
 import org.apache.http.HttpEntityEnclosingRequest;
 import org.apache.http.HttpException;
 import org.apache.http.HttpMutableRequest;
@@ -46,6 +47,7 @@ import org.apache.http.HttpStatus;
 import org.apache.http.HttpVersion;
 import org.apache.http.MethodNotSupportedException;
 import org.apache.http.ProtocolException;
+import org.apache.http.entity.FileEntity;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.executor.HttpExecutionContext;
 import org.apache.http.impl.ConnectionReuseStrategy;
@@ -62,7 +64,6 @@ import org.apache.http.protocol.ResponseConnControl;
 import org.apache.http.protocol.ResponseContent;
 import org.apache.http.protocol.ResponseDate;
 import org.apache.http.protocol.ResponseServer;
-import org.apache.http.util.EntityUtils;
 
 /**
  * <p>
@@ -74,7 +75,11 @@ import org.apache.http.util.EntityUtils;
 public class ElementalHttpEchoServer {
 
     public static void main(String[] args) throws Exception {
-        Thread t = new RequestListenerThread(8080);
+        if (args.length < 1) {
+            System.err.println("Please specify document root directory");
+            System.exit(1);
+        }
+        Thread t = new RequestListenerThread(8080, args[0]);
         t.setDaemon(false);
         t.start();
     }
@@ -208,52 +213,25 @@ public class ElementalHttpEchoServer {
         
         public void service(final HttpRequest request, final HttpMutableResponse response) 
                 throws IOException {
-            StringBuffer buffer = new StringBuffer();
-            buffer.append("<html>");
-            buffer.append("<body>");
-            buffer.append("<p>Request method: ");
-            buffer.append(request.getRequestLine().getMethod());
-            buffer.append("</p>");
-            buffer.append("<p>Request URI: ");
-            buffer.append(request.getRequestLine().getUri());
-            buffer.append("</p>");
-            buffer.append("<p>Request Version: ");
-            buffer.append(request.getRequestLine().getHttpVersion());
-            buffer.append("</p>");
-            if (request instanceof HttpEntityEnclosingRequest) {
-                HttpEntity entity = ((HttpEntityEnclosingRequest)request).getEntity();
-                buffer.append("<p>Content Type: ");
-                buffer.append(entity.getContentType());
-                buffer.append("</p>");
-                buffer.append("<p>Content Chunk-coded: ");
-                buffer.append(entity.isChunked());
-                buffer.append("</p>");
-                if (entity.getContentType() != null 
-                        && entity.getContentType().getValue().toLowerCase().startsWith("text/")) {
-                    buffer.append("<p>");
-                    buffer.append(EntityUtils.toString(entity));
-                    buffer.append("</p>");
-                } else {
-                    byte[] raw = EntityUtils.toByteArray(entity);
-                    buffer.append("<p>");
-                    for (int i = 0; i < raw.length; i++) {
-                        buffer.append(Integer.toHexString(raw[i]).toLowerCase());
-                        if (i % 20 == 19) {
-                            buffer.append("<br>");
-                        } else {
-                            buffer.append(" ");
-                        }
-                    }
-                    buffer.append("</p>");
-                }
+            String docroot = (String) request.getParams().getParameter("server.docroot");
+            String target = request.getRequestLine().getUri();
+            File file = new File(docroot, URLDecoder.decode(target));
+            if (!file.exists()) {
+                response.setStatusCode(HttpStatus.SC_NOT_FOUND);
+                StringEntity body = new StringEntity("File not found", "UTF-8");
+                response.setEntity(body);
+                System.out.println("File " + file.getPath() + " not found");
+            } else if (!file.canRead()) {
+                response.setStatusCode(HttpStatus.SC_FORBIDDEN);
+                StringEntity body = new StringEntity("Access Denied", "UTF-8");
+                response.setEntity(body);
+                System.out.println("Cannot read file " + file.getPath());
+            } else {
+                response.setStatusCode(HttpStatus.SC_OK);
+                FileEntity body = new FileEntity(file, "text/html");
+                response.setEntity(body);
+                System.out.println("Serving file " + file.getPath());
             }
-            buffer.append("</body>");
-            buffer.append("</html>");
-            StringEntity body = new StringEntity(buffer.toString());
-            body.setContentType("text/html; charset=UTF-8");
-            response.setEntity(body);
-
-            response.setStatusCode(HttpStatus.SC_OK);
         }
         
     }
@@ -263,7 +241,7 @@ public class ElementalHttpEchoServer {
         private final ServerSocket serversocket;
         private HttpParams params; 
         
-        public RequestListenerThread(int port) throws IOException {
+        public RequestListenerThread(int port, final String docroot) throws IOException {
             this.serversocket = new ServerSocket(port);
             this.params = new DefaultHttpParams(null);
             this.params
@@ -271,7 +249,8 @@ public class ElementalHttpEchoServer {
                 .setIntParameter(HttpConnectionParams.SOCKET_BUFFER_SIZE, 8 * 1024)
                 .setBooleanParameter(HttpConnectionParams.STALE_CONNECTION_CHECK, false)
                 .setBooleanParameter(HttpConnectionParams.TCP_NODELAY, true)
-                .setParameter(HttpProtocolParams.ORIGIN_SERVER, "Elemental Server/1.1");
+                .setParameter(HttpProtocolParams.ORIGIN_SERVER, "Elemental Server/1.1")
+                .setParameter("server.docroot", docroot);
         }
         
         public void run() {
