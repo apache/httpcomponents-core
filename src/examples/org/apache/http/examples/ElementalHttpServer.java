@@ -72,7 +72,7 @@ import org.apache.http.protocol.ResponseServer;
  *
  * @version $Revision$
  */
-public class ElementalHttpEchoServer {
+public class ElementalHttpServer {
 
     public static void main(String[] args) throws Exception {
         if (args.length < 1) {
