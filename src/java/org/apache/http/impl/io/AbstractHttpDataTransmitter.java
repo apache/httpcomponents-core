@@ -47,6 +47,8 @@ import org.apache.http.util.EncodingUtils;
  */
 public abstract class AbstractHttpDataTransmitter implements HttpDataTransmitter {
 
+    private static int MAX_CHUNK = 256;
+    
     private static final int CR = 13;
     private static final int LF = 10;
     private static final byte[] CRLF = new byte[] {CR, LF};
@@ -87,7 +89,7 @@ public abstract class AbstractHttpDataTransmitter implements HttpDataTransmitter
         // Do not want to buffer largish chunks
         // if the byte array is larger then MAX_CHUNK
         // write it directly to the output stream
-        if (len > this.buffer.capacity()) {
+        if (len > MAX_CHUNK || len > this.buffer.capacity()) {
             // flush the buffer
             flushBuffer();
             // write directly to the out stream
