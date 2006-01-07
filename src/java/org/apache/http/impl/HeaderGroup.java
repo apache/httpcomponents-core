@@ -141,8 +141,8 @@ public class HeaderGroup {
     public Header[] getHeaders(String name) {
         ArrayList headersFound = new ArrayList();
         
-        for (Iterator headerIter = headers.iterator(); headerIter.hasNext();) {
-            Header header = (Header) headerIter.next();
+        for (int i = 0; i < headers.size(); i++) {
+            Header header = (Header) headers.get(i);
             if (header.getName().equalsIgnoreCase(name)) {
                 headersFound.add(header);
             }
@@ -209,8 +209,8 @@ public class HeaderGroup {
      * contained, <code>false</code> otherwise
      */
     public boolean containsHeader(String name) {
-        for (Iterator headerIter = headers.iterator(); headerIter.hasNext();) {
-            Header header = (Header) headerIter.next();
+        for (int i = 0; i < headers.size(); i++) {
+            Header header = (Header) headers.get(i);
             if (header.getName().equalsIgnoreCase(name)) {
                 return true;
             }
