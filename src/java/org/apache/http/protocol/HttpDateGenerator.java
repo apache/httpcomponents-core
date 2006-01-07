@@ -1,7 +1,7 @@
 /*
- * $HeadURL$
- * $Revision$
- * $Date$
+ * $HeadURL: $
+ * $Revision: $
+ * $Date: $
  *
  * ====================================================================
  *
@@ -29,43 +29,43 @@
 
 package org.apache.http.protocol;
 
-import java.io.IOException;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.Locale;
 
-import org.apache.http.Header;
-import org.apache.http.HttpException;
-import org.apache.http.HttpMutableResponse;
-import org.apache.http.HttpResponseInterceptor;
-import org.apache.http.HttpStatus;
+import org.apache.http.util.DateUtils;
 
 /**
  * <p>
  * </p>
  * @author <a href="mailto:oleg at ural.ru">Oleg Kalnichevski</a>
  *
- * @version $Revision$
+ * @version $Revision: $
  * 
  * @since 4.0
  */
-public class ResponseDate implements HttpResponseInterceptor {
+public class HttpDateGenerator {
 
-    private static final String DATE_DIRECTIVE = "Date";
+    private final DateFormat dateformat;
     
-    private static final HttpDateGenerator DATE_GENERATOR = new HttpDateGenerator(); 
-    
-    public ResponseDate() {
+    private long dateAsLong = 0L;
+    private String dateAsText = null;
+
+    public HttpDateGenerator() {
         super();
+        this.dateformat = new SimpleDateFormat(DateUtils.PATTERN_RFC1123, Locale.US);
+        this.dateformat.setTimeZone(DateUtils.GMT);
     }
-
-    public void process(final HttpMutableResponse response, final HttpContext context) 
-        throws HttpException, IOException {
-        if (response == null) {
-            throw new IllegalArgumentException("HTTP request may not be null");
+    
+    public synchronized String getCurrentDate() {
+        long now = System.currentTimeMillis();
+        if (now - this.dateAsLong > 1000) {
+            // Generate new date string
+            this.dateAsText = this.dateformat.format(new Date(now));
+            this.dateAsLong = now;
         }
-        int status = response.getStatusLine().getStatusCode();
-        if (status >= HttpStatus.SC_OK) {
-            String httpdate = DATE_GENERATOR.getCurrentDate();
-            response.setHeader(new Header(DATE_DIRECTIVE, httpdate, true)); 
-        }
+        return this.dateAsText;
     }
     
 }
