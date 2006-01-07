@@ -86,9 +86,14 @@ public class BasicHttpMessage implements HttpMutableMessage {
         if (header == null) {
             return;
         }
-        Header[] headers = this.headergroup.getHeaders(header.getName());
-        for (int i = 0; i < headers.length; i++) {
-            this.headergroup.removeHeader(headers[i]);
+        // clean up
+        for (;;) {
+            Header oldheader = this.headergroup.getLastHeader(header.getName());
+            if (oldheader == null) {
+                break;
+            } else {
+                this.headergroup.removeHeader(oldheader);
+            }
         }
         this.headergroup.addHeader(header);
     }
