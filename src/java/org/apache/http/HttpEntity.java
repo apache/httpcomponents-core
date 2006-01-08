@@ -44,9 +44,6 @@ import java.io.OutputStream;
  */
 public interface HttpEntity {
 
-    public static final String CONTENT_TYPE = "Content-Type";
-    public static final String CONTENT_ENCODING = "Content-Encoding";
-    
     /**
      * Tells if the entity is capable to produce its data more than once.
      * A repeatable entity's getContent() and writeTo(OutputStream) methods

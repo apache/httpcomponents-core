@@ -37,6 +37,7 @@ import java.io.OutputStream;
 
 import org.apache.http.Header;
 import org.apache.http.HttpEntity;
+import org.apache.http.protocol.HTTP;
 
 /**
  * <p>
@@ -81,7 +82,7 @@ public class FileEntity implements HttpEntity {
     
     public Header getContentType() {
         if (this.contentType != null) {
-            return new Header(HttpEntity.CONTENT_TYPE, this.contentType);
+            return new Header(HTTP.CONTENT_TYPE, this.contentType);
         } else {
             return null;
         }
@@ -93,7 +94,7 @@ public class FileEntity implements HttpEntity {
 
     public Header getContentEncoding() {
         if (this.contentEncoding != null) {
-            return new Header(HttpEntity.CONTENT_ENCODING, this.contentEncoding);
+            return new Header(HTTP.CONTENT_ENCODING, this.contentEncoding);
         } else {
             return null;
         }

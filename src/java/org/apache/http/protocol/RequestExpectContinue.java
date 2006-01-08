@@ -51,10 +51,6 @@ import org.apache.http.params.HttpProtocolParams;
  */
 public class RequestExpectContinue implements HttpRequestInterceptor {
 
-    private static final String EXPECT_DIRECTIVE = "Expect";
-    
-    private static final String CONTINUE = "100-Continue";
-    
     public RequestExpectContinue() {
         super();
     }
@@ -71,7 +67,8 @@ public class RequestExpectContinue implements HttpRequestInterceptor {
                 HttpVersion ver = request.getRequestLine().getHttpVersion();
                 if (HttpProtocolParams.useExpectContinue(request.getParams()) 
                         && ver.greaterEquals(HttpVersion.HTTP_1_1)) {
-                    request.addHeader(new Header(EXPECT_DIRECTIVE, CONTINUE, true));
+                    request.addHeader(new Header(
+                            HTTP.EXPECT_DIRECTIVE, HTTP.EXPECT_CONTINUE, true));
                 }
             }
         }

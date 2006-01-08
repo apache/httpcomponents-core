@@ -51,11 +51,6 @@ import org.apache.http.ProtocolException;
  */
 public class RequestContent implements HttpRequestInterceptor {
 
-    private static final String TRANSFER_ENC = "Transfer-Encoding";
-    private static final String CONTENT_LEN  = "Content-Length";
-    
-    private static final String CHUNK_CODING = "chunked";
-    
     public RequestContent() {
         super();
     }
@@ -69,7 +64,7 @@ public class RequestContent implements HttpRequestInterceptor {
             HttpVersion ver = request.getRequestLine().getHttpVersion();
             HttpEntity entity = ((HttpEntityEnclosingRequest)request).getEntity();
             if (entity == null) {
-                request.setHeader(new Header(CONTENT_LEN, "0", true));
+                request.setHeader(new Header(HTTP.CONTENT_LEN, "0", true));
                 return;
             }
             // Must specify a transfer encoding or a content length 
@@ -78,12 +73,13 @@ public class RequestContent implements HttpRequestInterceptor {
                     throw new ProtocolException(
                             "Chunked transfer encoding not allowed for " + ver);
                 }
-                request.setHeader(new Header(TRANSFER_ENC, CHUNK_CODING, true));
-                request.removeHeaders(CONTENT_LEN);
+                request.setHeader(
+                        new Header(HTTP.TRANSFER_ENCODING, HTTP.CHUNK_CODING, true));
+                request.removeHeaders(HTTP.CONTENT_LEN);
             } else {
-                request.setHeader(new Header(CONTENT_LEN, 
+                request.setHeader(new Header(HTTP.CONTENT_LEN, 
                         Long.toString(entity.getContentLength()), true));
-                request.removeHeaders(TRANSFER_ENC);
+                request.removeHeaders(HTTP.TRANSFER_ENCODING);
             }
             // Specify a content type if known
             if (entity.getContentType() != null) {

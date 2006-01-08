@@ -48,8 +48,6 @@ import org.apache.http.HttpStatus;
  */
 public class ResponseDate implements HttpResponseInterceptor {
 
-    private static final String DATE_DIRECTIVE = "Date";
-    
     private static final HttpDateGenerator DATE_GENERATOR = new HttpDateGenerator(); 
     
     public ResponseDate() {
@@ -64,7 +62,7 @@ public class ResponseDate implements HttpResponseInterceptor {
         int status = response.getStatusLine().getStatusCode();
         if (status >= HttpStatus.SC_OK) {
             String httpdate = DATE_GENERATOR.getCurrentDate();
-            response.setHeader(new Header(DATE_DIRECTIVE, httpdate, true)); 
+            response.setHeader(new Header(HTTP.DATE_DIRECTIVE, httpdate, true)); 
         }
     }
     

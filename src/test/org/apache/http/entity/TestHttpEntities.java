@@ -34,7 +34,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
 
 import org.apache.http.Header;
-import org.apache.http.HttpEntity;
+import org.apache.http.protocol.HTTP;
 
 import junit.framework.Test;
 import junit.framework.TestCase;
@@ -62,27 +62,27 @@ public class TestHttpEntities extends TestCase {
 
     public void testBasicHttpEntity() throws Exception {
     	
-    	byte[] bytes = "Message content".getBytes("US-ASCII");
+    	byte[] bytes = "Message content".getBytes(HTTP.US_ASCII);
     	InputStream content = new ByteArrayInputStream(bytes);
     	BasicHttpEntity httpentity = new BasicHttpEntity();
     	httpentity.setContent(content);
     	httpentity.setContentLength(bytes.length);
-    	httpentity.setContentType(new Header(HttpEntity.CONTENT_TYPE, "text/plain"));
-    	httpentity.setContentEncoding(new Header(HttpEntity.CONTENT_ENCODING, "identity"));
+    	httpentity.setContentType(new Header(HTTP.CONTENT_TYPE, HTTP.PLAIN_TEXT_TYPE));
+    	httpentity.setContentEncoding(new Header(HTTP.CONTENT_ENCODING, HTTP.IDENTITY_CODING));
     	httpentity.setChunked(false);
     	
     	assertEquals(content, httpentity.getContent());
     	assertEquals(bytes.length, httpentity.getContentLength());
-        assertEquals(HttpEntity.CONTENT_TYPE, httpentity.getContentType().getName());
+        assertEquals(HTTP.CONTENT_TYPE, httpentity.getContentType().getName());
     	assertEquals("text/plain", httpentity.getContentType().getValue());
-        assertEquals(HttpEntity.CONTENT_ENCODING, httpentity.getContentEncoding().getName());
+        assertEquals(HTTP.CONTENT_ENCODING, httpentity.getContentEncoding().getName());
     	assertEquals("identity", httpentity.getContentEncoding().getValue());
     	assertFalse(httpentity.isChunked());
     	assertFalse(httpentity.isRepeatable());
     }
     
     public void testBasicHttpEntityWriteTo() throws Exception {
-    	byte[] bytes = "Message content".getBytes("US-ASCII");
+    	byte[] bytes = "Message content".getBytes(HTTP.US_ASCII);
     	InputStream content = new ByteArrayInputStream(bytes);
     	BasicHttpEntity httpentity = new BasicHttpEntity();
     	httpentity.setContent(content);
@@ -118,16 +118,16 @@ public class TestHttpEntities extends TestCase {
     }
     
     public void testByteArrayEntity() throws Exception {
-    	byte[] bytes = "Message content".getBytes("US-ASCII");
+    	byte[] bytes = "Message content".getBytes(HTTP.US_ASCII);
     	ByteArrayEntity httpentity = new ByteArrayEntity(bytes);
-    	httpentity.setContentType("application/octet-stream");
-    	httpentity.setContentEncoding("identity");
+    	httpentity.setContentType(HTTP.DEFAULT_CONTENT_TYPE);
+    	httpentity.setContentEncoding(HTTP.IDENTITY_CODING);
     	httpentity.setChunked(false);
     	
     	assertEquals(bytes.length, httpentity.getContentLength());
-        assertEquals(HttpEntity.CONTENT_TYPE, httpentity.getContentType().getName());
+        assertEquals(HTTP.CONTENT_TYPE, httpentity.getContentType().getName());
         assertEquals("application/octet-stream", httpentity.getContentType().getValue());
-        assertEquals(HttpEntity.CONTENT_ENCODING, httpentity.getContentEncoding().getName());
+        assertEquals(HTTP.CONTENT_ENCODING, httpentity.getContentEncoding().getName());
         assertEquals("identity", httpentity.getContentEncoding().getValue());
     	assertNotNull(httpentity.getContent());
     	assertFalse(httpentity.isChunked());
@@ -144,7 +144,7 @@ public class TestHttpEntities extends TestCase {
     }
 
     public void testByteArrayEntityWriteTo() throws Exception {
-    	byte[] bytes = "Message content".getBytes("US-ASCII");
+    	byte[] bytes = "Message content".getBytes(HTTP.US_ASCII);
     	ByteArrayEntity httpentity = new ByteArrayEntity(bytes);
     	
     	ByteArrayOutputStream out = new ByteArrayOutputStream();
@@ -175,16 +175,16 @@ public class TestHttpEntities extends TestCase {
     
     public void testStringEntity() throws Exception {
         String s = "Message content";
-        StringEntity httpentity = new StringEntity(s, "ISO-8859-1");
-        httpentity.setContentType("text/plain");
-        httpentity.setContentEncoding("identity");
+        StringEntity httpentity = new StringEntity(s, HTTP.ISO_8859_1);
+        httpentity.setContentType(HTTP.PLAIN_TEXT_TYPE);
+        httpentity.setContentEncoding(HTTP.IDENTITY_CODING);
         httpentity.setChunked(false);
         
-        byte[] bytes = s.getBytes("ISO-8859-1");
+        byte[] bytes = s.getBytes(HTTP.ISO_8859_1);
         assertEquals(bytes.length, httpentity.getContentLength());
-        assertEquals(HttpEntity.CONTENT_TYPE, httpentity.getContentType().getName());
+        assertEquals(HTTP.CONTENT_TYPE, httpentity.getContentType().getName());
         assertEquals("text/plain", httpentity.getContentType().getValue());
-        assertEquals(HttpEntity.CONTENT_ENCODING, httpentity.getContentEncoding().getName());
+        assertEquals(HTTP.CONTENT_ENCODING, httpentity.getContentEncoding().getName());
         assertEquals("identity", httpentity.getContentEncoding().getValue());
         assertNotNull(httpentity.getContent());
         assertFalse(httpentity.isChunked());
@@ -202,7 +202,7 @@ public class TestHttpEntities extends TestCase {
 
     public void testStringEntityDefaultContent() throws Exception {
         String s = "Message content";
-        StringEntity httpentity = new StringEntity(s, "US-ASCII");
+        StringEntity httpentity = new StringEntity(s, HTTP.US_ASCII);
         assertEquals("text/plain; charset=US-ASCII", 
                 httpentity.getContentType().getValue());
         httpentity = new StringEntity(s);
@@ -212,7 +212,7 @@ public class TestHttpEntities extends TestCase {
 
     public void testStringEntityWriteTo() throws Exception {
         String s = "Message content";
-        byte[] bytes = s.getBytes("ISO-8859-1");
+        byte[] bytes = s.getBytes(HTTP.ISO_8859_1);
         StringEntity httpentity = new StringEntity(s);
         
         ByteArrayOutputStream out = new ByteArrayOutputStream();
@@ -242,17 +242,17 @@ public class TestHttpEntities extends TestCase {
     }
 
     public void testInputStreamEntity() throws Exception {
-        byte[] bytes = "Message content".getBytes("ISO-8859-1");
+        byte[] bytes = "Message content".getBytes(HTTP.ISO_8859_1);
         InputStream instream = new ByteArrayInputStream(bytes);
         InputStreamEntity httpentity = new InputStreamEntity(instream, bytes.length);
-        httpentity.setContentType("text/plain");
-        httpentity.setContentEncoding("identity");
+        httpentity.setContentType(HTTP.PLAIN_TEXT_TYPE);
+        httpentity.setContentEncoding(HTTP.IDENTITY_CODING);
         httpentity.setChunked(false);
         
         assertEquals(bytes.length, httpentity.getContentLength());
-        assertEquals(HttpEntity.CONTENT_TYPE, httpentity.getContentType().getName());
+        assertEquals(HTTP.CONTENT_TYPE, httpentity.getContentType().getName());
         assertEquals("text/plain", httpentity.getContentType().getValue());
-        assertEquals(HttpEntity.CONTENT_ENCODING, httpentity.getContentEncoding().getName());
+        assertEquals(HTTP.CONTENT_ENCODING, httpentity.getContentEncoding().getName());
         assertEquals("identity", httpentity.getContentEncoding().getValue());
         assertEquals(instream, httpentity.getContent());
         assertNotNull(httpentity.getContent());
@@ -270,7 +270,7 @@ public class TestHttpEntities extends TestCase {
     }
 
     public void testInputStreamyEntityWriteTo() throws Exception {
-        byte[] bytes = "Message content".getBytes("ISO-8859-1");
+        byte[] bytes = "Message content".getBytes(HTTP.ISO_8859_1);
         InputStream instream = new ByteArrayInputStream(bytes);
         InputStreamEntity httpentity = new InputStreamEntity(instream, 7);
         
@@ -279,7 +279,7 @@ public class TestHttpEntities extends TestCase {
         byte[] bytes2 = out.toByteArray();
         assertNotNull(bytes2);
         assertEquals(7, bytes2.length);
-        String s = new String(bytes2, "ISO-8859-1");
+        String s = new String(bytes2, HTTP.ISO_8859_1);
         assertEquals("Message", s);
 
         instream = new ByteArrayInputStream(bytes);

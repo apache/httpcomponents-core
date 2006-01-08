@@ -35,6 +35,7 @@ import java.io.OutputStream;
 
 import org.apache.http.Header;
 import org.apache.http.HttpEntity;
+import org.apache.http.protocol.HTTP;
 
 /**
  * <p>
@@ -47,12 +48,11 @@ import org.apache.http.HttpEntity;
  */
 public class InputStreamEntity implements HttpEntity {
 
-    private final static String DEFAULT_CONTENT_TYPE = "application/octet-stream";
     private final static int BUFFER_SIZE = 2048;
 
     private final InputStream content;
     private final long length;
-    private String contentType = DEFAULT_CONTENT_TYPE;
+    private String contentType = HTTP.DEFAULT_CONTENT_TYPE;
     private String contentEncoding = null;
     private boolean chunked = false;
 
@@ -83,7 +83,7 @@ public class InputStreamEntity implements HttpEntity {
     
     public Header getContentType() {
         if (this.contentType != null) {
-            return new Header(HttpEntity.CONTENT_TYPE, this.contentType);
+            return new Header(HTTP.CONTENT_TYPE, this.contentType);
         } else {
             return null;
         }
@@ -95,7 +95,7 @@ public class InputStreamEntity implements HttpEntity {
 
     public Header getContentEncoding() {
         if (this.contentEncoding != null) {
-            return new Header(HttpEntity.CONTENT_ENCODING, this.contentEncoding);
+            return new Header(HTTP.CONTENT_ENCODING, this.contentEncoding);
         } else {
             return null;
         }

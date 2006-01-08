@@ -37,6 +37,7 @@ import java.io.UnsupportedEncodingException;
 
 import org.apache.http.Header;
 import org.apache.http.HttpEntity;
+import org.apache.http.protocol.HTTP;
 
 /**
  * <p>
@@ -48,9 +49,6 @@ import org.apache.http.HttpEntity;
  * @since 4.0
  */
 public class StringEntity implements HttpEntity {
-
-    private final static String DEFAULT_CHARSET = "ISO-8859-1";
-    private final static String DEFAULT_CONTENT_TYPE = "text/plain; charset=";
 
     private final byte[] content;
     private String contentType = null;
@@ -64,9 +62,9 @@ public class StringEntity implements HttpEntity {
             throw new IllegalArgumentException("Source string may not be null");
         }
         if (charset == null) {
-            charset = DEFAULT_CHARSET;
+            charset = HTTP.DEFAULT_CONTENT_CHARSET;
         }
-        this.contentType = DEFAULT_CONTENT_TYPE + charset;
+        this.contentType = HTTP.PLAIN_TEXT_TYPE + HTTP.CHARSET_PARAM + charset;
         this.content = s.getBytes(charset);
     }
 
@@ -93,7 +91,7 @@ public class StringEntity implements HttpEntity {
     
     public Header getContentType() {
         if (this.contentType != null) {
-            return new Header(HttpEntity.CONTENT_TYPE, this.contentType);
+            return new Header(HTTP.CONTENT_TYPE, this.contentType);
         } else {
             return null;
         }
@@ -105,7 +103,7 @@ public class StringEntity implements HttpEntity {
 
     public Header getContentEncoding() {
         if (this.contentEncoding != null) {
-            return new Header(HttpEntity.CONTENT_ENCODING, this.contentEncoding);
+            return new Header(HTTP.CONTENT_ENCODING, this.contentEncoding);
         } else {
             return null;
         }

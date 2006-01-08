@@ -45,6 +45,7 @@ import org.apache.http.io.HttpDataInputStream;
 import org.apache.http.io.HttpDataReceiver;
 import org.apache.http.params.HttpParams;
 import org.apache.http.params.HttpProtocolParams;
+import org.apache.http.protocol.HTTP;
 
 /**
  * <p>
@@ -185,14 +186,6 @@ import org.apache.http.params.HttpProtocolParams;
  */
 public class DefaultEntityGenerator implements EntityGenerator {
 
-    private static final String TRANSFER_ENCODING = "Transfer-Encoding";
-    private static final String CONTENT_LENGTH = "Content-Length";
-    private static final String CONTENT_TYPE = "Content-Type";
-    private static final String CONTENT_ENCODING = "Content-Encoding";
-    
-    private static final String CHUNKED_ENCODING = "chunked";
-    private static final String IDENTITY_ENCODING = "identity";
-    
     public DefaultEntityGenerator() {
         super();
     }
@@ -212,10 +205,10 @@ public class DefaultEntityGenerator implements EntityGenerator {
         HttpParams params = message.getParams(); 
         boolean strict = params.isParameterTrue(HttpProtocolParams.STRICT_TRANSFER_ENCODING);
         
-        Header contentTypeHeader = message.getFirstHeader(CONTENT_TYPE);
-        Header contentEncodingHeader = message.getFirstHeader(CONTENT_ENCODING);
-        Header transferEncodingHeader = message.getFirstHeader(TRANSFER_ENCODING);
-        Header contentLengthHeader = message.getFirstHeader(CONTENT_LENGTH);
+        Header contentTypeHeader = message.getFirstHeader(HTTP.CONTENT_TYPE);
+        Header contentEncodingHeader = message.getFirstHeader(HTTP.CONTENT_ENCODING);
+        Header transferEncodingHeader = message.getFirstHeader(HTTP.TRANSFER_ENCODING);
+        Header contentLengthHeader = message.getFirstHeader(HTTP.CONTENT_LEN);
         // We use Transfer-Encoding if present and ignore Content-Length.
         // RFC2616, 4.4 item number 3
         if (transferEncodingHeader != null) {
@@ -225,19 +218,20 @@ public class DefaultEntityGenerator implements EntityGenerator {
                 for (int i = 0; i < encodings.length; i++) {
                     String encoding = encodings[i].getName();
                     if (encoding != null && !encoding.equals("") 
-                        && !encoding.equalsIgnoreCase(CHUNKED_ENCODING)
-                        && !encoding.equalsIgnoreCase(IDENTITY_ENCODING)) {
+                        && !encoding.equalsIgnoreCase(HTTP.CHUNK_CODING)
+                        && !encoding.equalsIgnoreCase(HTTP.IDENTITY_CODING)) {
                         throw new ProtocolException("Unsupported transfer encoding: " + encoding);
                     }
                 }
             }
             // The chunked encoding must be the last one applied RFC2616, 14.41
             int len = encodings.length;
-            if (IDENTITY_ENCODING.equalsIgnoreCase(transferEncodingHeader.getValue())) {
+            if (HTTP.IDENTITY_CODING.equalsIgnoreCase(transferEncodingHeader.getValue())) {
                 entity.setChunked(false);
                 entity.setContentLength(-1);
                 entity.setContent(new HttpDataInputStream(datareceiver));                            
-            } else if ((len > 0) && (CHUNKED_ENCODING.equalsIgnoreCase(encodings[len - 1].getName()))) { 
+            } else if ((len > 0) && (HTTP.CHUNK_CODING.equalsIgnoreCase(
+                    encodings[len - 1].getName()))) { 
                 entity.setChunked(true);
                 entity.setContentLength(-1);
                 entity.setContent(new ChunkedInputStream(datareceiver));
@@ -251,7 +245,7 @@ public class DefaultEntityGenerator implements EntityGenerator {
             }
         } else if (contentLengthHeader != null) {
             long contentlen = -1;
-            Header[] headers = message.getHeaders(CONTENT_LENGTH);
+            Header[] headers = message.getHeaders(HTTP.CONTENT_LEN);
             if (strict && headers.length > 1) {
                 throw new ProtocolException("Multiple content length headers");
             }

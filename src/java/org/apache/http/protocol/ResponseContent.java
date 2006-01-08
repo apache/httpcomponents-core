@@ -49,11 +49,6 @@ import org.apache.http.HttpVersion;
  */
 public class ResponseContent implements HttpResponseInterceptor {
 
-    private static final String TRANSFER_ENC = "Transfer-Encoding";
-    private static final String CONTENT_LEN  = "Content-Length";
-
-    private static final String CHUNK_CODING = "chunked";
-    
     public ResponseContent() {
         super();
     }
@@ -68,12 +63,12 @@ public class ResponseContent implements HttpResponseInterceptor {
         if (entity != null) {
             long len = entity.getContentLength();
             if (entity.isChunked() && ver.greaterEquals(HttpVersion.HTTP_1_1)) {
-                response.setHeader(new Header(TRANSFER_ENC, CHUNK_CODING, true));
-                response.removeHeaders(CONTENT_LEN);
+                response.setHeader(new Header(HTTP.TRANSFER_ENCODING, HTTP.CHUNK_CODING, true));
+                response.removeHeaders(HTTP.CONTENT_LEN);
             } else if (len >= 0) {
-                response.setHeader(new Header(CONTENT_LEN, 
+                response.setHeader(new Header(HTTP.CONTENT_LEN, 
                         Long.toString(entity.getContentLength()), true));
-                response.removeHeaders(TRANSFER_ENC);
+                response.removeHeaders(HTTP.TRANSFER_ENCODING);
             }
             // Specify a content type if known
             if (entity.getContentType() != null) {

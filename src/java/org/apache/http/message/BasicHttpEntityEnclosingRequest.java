@@ -33,6 +33,7 @@ import org.apache.http.Header;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpMutableEntityEnclosingRequest;
 import org.apache.http.RequestLine;
+import org.apache.http.protocol.HTTP;
 
 /**
  * <p>
@@ -46,9 +47,6 @@ import org.apache.http.RequestLine;
 public class BasicHttpEntityEnclosingRequest 
             extends BasicHttpRequest implements HttpMutableEntityEnclosingRequest {
     
-    private static final String EXPECT_DIRECTIVE = "Expect";
-    private static final String EXPECT_CONTINUE = "100-Continue";
-
     private HttpEntity entity = null;
     
     public BasicHttpEntityEnclosingRequest(final String method, final String uri) {
@@ -68,8 +66,8 @@ public class BasicHttpEntityEnclosingRequest
     }
     
 	public boolean expectContinue() {
-        Header expect = getFirstHeader(EXPECT_DIRECTIVE);
-        return expect != null && EXPECT_CONTINUE.equalsIgnoreCase(expect.getValue());
+        Header expect = getFirstHeader(HTTP.EXPECT_DIRECTIVE);
+        return expect != null && HTTP.EXPECT_CONTINUE.equalsIgnoreCase(expect.getValue());
 	}
     
 }

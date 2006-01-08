@@ -34,6 +34,7 @@ import java.io.InputStream;
 
 import org.apache.http.Header;
 import org.apache.http.HttpException;
+import org.apache.http.protocol.HTTP;
 import org.apache.http.util.ExceptionUtils;
 import org.apache.http.util.NumUtils;
 
@@ -259,7 +260,7 @@ public class ChunkedInputStream extends InputStream {
     	if (!bof) {
             int cr = in.read();
             int lf = in.read();
-            if ((cr != '\r') || (lf != '\n')) { 
+            if ((cr != HTTP.CR) || (lf != HTTP.LF)) { 
                 throw new MalformedChunkCodingException(
                     "CRLF expected at end of chunk");
             }

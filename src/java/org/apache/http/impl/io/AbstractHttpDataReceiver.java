@@ -37,19 +37,16 @@ import org.apache.http.io.CharArrayBuffer;
 import org.apache.http.io.HttpDataReceiver;
 import org.apache.http.params.HttpParams;
 import org.apache.http.params.HttpProtocolParams;
-import org.apache.http.util.EncodingUtils;
+import org.apache.http.protocol.HTTP;
 
 /**
- * <p>Classic IO Compatibility wrapper</p>
+ * <p></p>
  *
  * @author <a href="mailto:oleg at ural.ru">Oleg Kalnichevski</a>
  *
  */
 public abstract class AbstractHttpDataReceiver implements HttpDataReceiver {
 
-    private static final int CR = 13;
-    private static final int LF = 10;
-    
     private InputStream instream;
     private byte[] buffer;
     private int bufferpos;
@@ -57,7 +54,7 @@ public abstract class AbstractHttpDataReceiver implements HttpDataReceiver {
     
     private ByteArrayBuffer linebuffer = null;
     
-    private String charset = "US-ASCII";
+    private String charset = HTTP.US_ASCII;
     private boolean ascii = true;
     
     protected void init(final InputStream instream, int buffersize) {
@@ -144,7 +141,7 @@ public abstract class AbstractHttpDataReceiver implements HttpDataReceiver {
     
     private int locateLF() {
         for (int i = this.bufferpos; i < this.bufferlen; i++) {
-            if (this.buffer[i] == LF) {
+            if (this.buffer[i] == HTTP.LF) {
                 return i;
             }
         }
@@ -196,13 +193,13 @@ public abstract class AbstractHttpDataReceiver implements HttpDataReceiver {
         // discard LF if found
         int l = this.linebuffer.length(); 
         if (l > 0) {
-            if (this.linebuffer.byteAt(l - 1) == LF) {
+            if (this.linebuffer.byteAt(l - 1) == HTTP.LF) {
                 l--;
                 this.linebuffer.setLength(l);
             }
             // discard CR if found
             if (l > 0) {
-                if (this.linebuffer.byteAt(l - 1) == CR) {
+                if (this.linebuffer.byteAt(l - 1) == HTTP.CR) {
                     l--;
                     this.linebuffer.setLength(l);
                 }
@@ -225,7 +222,7 @@ public abstract class AbstractHttpDataReceiver implements HttpDataReceiver {
         int off = this.bufferpos;
         int len;
         this.bufferpos = pos + 1;
-        if (pos > 0 && this.buffer[pos - 1] == CR) {
+        if (pos > 0 && this.buffer[pos - 1] == HTTP.CR) {
             // skip CR if found
             pos--;
         }
@@ -254,8 +251,8 @@ public abstract class AbstractHttpDataReceiver implements HttpDataReceiver {
     public void reset(final HttpParams params) {
         this.charset = HttpProtocolParams.getHttpElementCharset(params);
         this.ascii = 
-            this.charset.equalsIgnoreCase(EncodingUtils.ASCII_CHARSET) ||
-            this.charset.equalsIgnoreCase("ASCII");
+            this.charset.equalsIgnoreCase(HTTP.US_ASCII) ||
+            this.charset.equalsIgnoreCase(HTTP.ASCII);
     }
     
 }

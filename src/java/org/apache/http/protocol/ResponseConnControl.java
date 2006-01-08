@@ -51,10 +51,6 @@ import org.apache.http.HttpVersion;
  */
 public class ResponseConnControl implements HttpResponseInterceptor {
 
-    private static final String CONN_DIRECTIVE = "Connection";
-
-    private static final String CONN_CLOSE = "Close";
-    
     public ResponseConnControl() {
         super();
     }
@@ -77,7 +73,7 @@ public class ResponseConnControl implements HttpResponseInterceptor {
         		status == HttpStatus.SC_INTERNAL_SERVER_ERROR ||
         		status == HttpStatus.SC_SERVICE_UNAVAILABLE ||
         		status == HttpStatus.SC_NOT_IMPLEMENTED) {
-            response.setHeader(new Header(CONN_DIRECTIVE, CONN_CLOSE, true));
+            response.setHeader(new Header(HTTP.CONN_DIRECTIVE, HTTP.CONN_CLOSE, true));
             return;
         }
         // Always drop connection for HTTP/1.0 responses and below
@@ -86,15 +82,15 @@ public class ResponseConnControl implements HttpResponseInterceptor {
         if (ver.lessEquals(HttpVersion.HTTP_1_0)) {
             HttpEntity entity = response.getEntity();
             if (entity != null && entity.getContentLength() < 0) {
-            	response.setHeader(new Header(CONN_DIRECTIVE, CONN_CLOSE, true));
+            	response.setHeader(new Header(HTTP.CONN_DIRECTIVE, HTTP.CONN_CLOSE, true));
                 return;
             }
         }
         // Drop connection if requested by the client
         HttpRequest request = (HttpRequest) context.getAttribute(HttpContext.HTTP_REQUEST);
-        Header header = request.getFirstHeader(CONN_DIRECTIVE);
+        Header header = request.getFirstHeader(HTTP.CONN_DIRECTIVE);
         if (header != null) {
-        	response.setHeader(new Header(CONN_DIRECTIVE, header.getValue(), true));
+        	response.setHeader(new Header(HTTP.CONN_DIRECTIVE, header.getValue(), true));
         }
     }
     

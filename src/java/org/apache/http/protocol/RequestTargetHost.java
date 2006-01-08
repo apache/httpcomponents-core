@@ -50,8 +50,6 @@ import org.apache.http.params.HttpProtocolParams;
  */
 public class RequestTargetHost implements HttpRequestInterceptor {
 
-    private static final String TARGET_HOST = "Host";
-    
     public RequestTargetHost() {
         super();
     }
@@ -64,7 +62,7 @@ public class RequestTargetHost implements HttpRequestInterceptor {
         if (context == null) {
             throw new IllegalArgumentException("HTTP context may not be null");
         }
-        if (!request.containsHeader(TARGET_HOST)) {
+        if (!request.containsHeader(HTTP.TARGET_HOST)) {
             HttpHost targethost = (HttpHost) context
                 .getAttribute(HttpExecutionContext.HTTP_TARGET_HOST);
             if (targethost == null) {
@@ -74,7 +72,7 @@ public class RequestTargetHost implements HttpRequestInterceptor {
             if (virtualhost != null) {
                 targethost = new HttpHost(virtualhost, targethost.getPort());
             }
-            request.addHeader(new Header(TARGET_HOST, targethost.toHostString(), true));
+            request.addHeader(new Header(HTTP.TARGET_HOST, targethost.toHostString(), true));
         }
     }
     

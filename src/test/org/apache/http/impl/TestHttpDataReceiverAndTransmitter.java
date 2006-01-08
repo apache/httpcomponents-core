@@ -42,7 +42,7 @@ import org.apache.http.mockup.HttpDataReceiverMockup;
 import org.apache.http.mockup.HttpDataTransmitterMockup;
 import org.apache.http.params.HttpParams;
 import org.apache.http.params.HttpProtocolParams;
-import org.apache.http.util.EncodingUtils;
+import org.apache.http.protocol.HTTP;
 
 public class TestHttpDataReceiverAndTransmitter extends TestCase {
 
@@ -369,7 +369,7 @@ public class TestHttpDataReceiverAndTransmitter extends TestCase {
         String s1 = constructString(SWISS_GERMAN_HELLO);
         
         HttpParams params = new DefaultHttpParams(null);
-        HttpProtocolParams.setHttpElementCharset(params, EncodingUtils.ISO_8859_1_CHARSET);
+        HttpProtocolParams.setHttpElementCharset(params, HTTP.ISO_8859_1);
         
         HttpDataTransmitterMockup transmitter = new HttpDataTransmitterMockup();
         transmitter.reset(params);
@@ -384,7 +384,7 @@ public class TestHttpDataReceiverAndTransmitter extends TestCase {
         
         HttpDataReceiverMockup receiver = new HttpDataReceiverMockup(
                 transmitter.getData());
-        HttpProtocolParams.setHttpElementCharset(params, EncodingUtils.ASCII_CHARSET);
+        HttpProtocolParams.setHttpElementCharset(params, HTTP.ISO_8859_1);
         receiver.reset(params);
 
         for (int i = 0; i < 10; i++) {

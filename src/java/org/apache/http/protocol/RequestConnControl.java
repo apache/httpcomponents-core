@@ -47,10 +47,6 @@ import org.apache.http.HttpRequestInterceptor;
  */
 public class RequestConnControl implements HttpRequestInterceptor {
 
-    private static final String CONN_DIRECTIVE = "Connection";
-
-    private static final String CONN_KEEPALIVE = "Keep-Alive";
-    
     public RequestConnControl() {
         super();
     }
@@ -60,10 +56,10 @@ public class RequestConnControl implements HttpRequestInterceptor {
         if (request == null) {
             throw new IllegalArgumentException("HTTP request may not be null");
         }
-        if (!request.containsHeader(CONN_DIRECTIVE)) {
+        if (!request.containsHeader(HTTP.CONN_DIRECTIVE)) {
             // Default policy is to keep connection alive
             // whenever possible
-            request.addHeader(new Header(CONN_DIRECTIVE, CONN_KEEPALIVE, true));
+            request.addHeader(new Header(HTTP.CONN_DIRECTIVE, HTTP.CONN_KEEP_ALIVE, true));
         }
     }
     

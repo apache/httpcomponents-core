@@ -33,6 +33,7 @@ import org.apache.http.Header;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpVersion;
+import org.apache.http.protocol.HTTP;
 
 /**
  * <p>
@@ -45,10 +46,6 @@ import org.apache.http.HttpVersion;
  */
 public class DefaultConnectionReuseStrategy implements ConnectionReuseStrategy {
 
-    private static final String CONN_DIRECTIVE = "Connection";
-    private static final String CONN_CLOSE = "Close";
-    private static final String CONN_KEEP_ALIVE = "Keep-Alive";
-    
     public DefaultConnectionReuseStrategy() {
         super();
     }
@@ -67,12 +64,12 @@ public class DefaultConnectionReuseStrategy implements ConnectionReuseStrategy {
             }
         }
         // Check for 'Connection' directive
-        Header connheader = response.getFirstHeader(CONN_DIRECTIVE);
+        Header connheader = response.getFirstHeader(HTTP.CONN_DIRECTIVE);
         if (connheader != null) {
             String conndirective = connheader.getValue(); 
-            if (CONN_CLOSE.equalsIgnoreCase(conndirective)) {
+            if (HTTP.CONN_CLOSE.equalsIgnoreCase(conndirective)) {
                 return false;
-            } else if (CONN_KEEP_ALIVE.equalsIgnoreCase(conndirective)) {
+            } else if (HTTP.CONN_KEEP_ALIVE.equalsIgnoreCase(conndirective)) {
                 return true;
             } else {
                 // log unknown directive

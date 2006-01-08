@@ -48,8 +48,6 @@ import org.apache.http.params.HttpProtocolParams;
  */
 public class RequestUserAgent implements HttpRequestInterceptor {
 
-    private static final String USER_AGENT = "User-Agent";
-    
     public RequestUserAgent() {
         super();
     }
@@ -59,10 +57,10 @@ public class RequestUserAgent implements HttpRequestInterceptor {
         if (request == null) {
             throw new IllegalArgumentException("HTTP request may not be null");
         }
-        if (!request.containsHeader(USER_AGENT)) {
+        if (!request.containsHeader(HTTP.USER_AGENT)) {
             String useragent = HttpProtocolParams.getUserAgent(request.getParams());
             if (useragent != null) {
-                request.addHeader(new Header(USER_AGENT, useragent, true));
+                request.addHeader(new Header(HTTP.USER_AGENT, useragent, true));
             }
         }
     }

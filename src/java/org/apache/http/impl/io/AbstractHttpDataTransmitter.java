@@ -37,10 +37,10 @@ import org.apache.http.io.CharArrayBuffer;
 import org.apache.http.io.HttpDataTransmitter;
 import org.apache.http.params.HttpParams;
 import org.apache.http.params.HttpProtocolParams;
-import org.apache.http.util.EncodingUtils;
+import org.apache.http.protocol.HTTP;
 
 /**
- * <p>Old IO Compatibility wrapper</p>
+ * <p></p>
  *
  * @author <a href="mailto:oleg at ural.ru">Oleg Kalnichevski</a>
  *
@@ -49,14 +49,10 @@ public abstract class AbstractHttpDataTransmitter implements HttpDataTransmitter
 
     private static int MAX_CHUNK = 256;
     
-    private static final int CR = 13;
-    private static final int LF = 10;
-    private static final byte[] CRLF = new byte[] {CR, LF};
-
     private OutputStream outstream;
     private ByteArrayBuffer buffer;
         
-    private String charset = "US-ASCII";
+    private String charset = HTTP.US_ASCII;
     private boolean ascii = true;
     
     protected void init(final OutputStream outstream, int buffersize) {
@@ -127,7 +123,7 @@ public abstract class AbstractHttpDataTransmitter implements HttpDataTransmitter
         if (s.length() > 0) {
             write(s.getBytes(this.charset));
         }
-        write(CRLF);
+        write(HTTP.CRLF);
     }
     
     public void writeLine(final CharArrayBuffer s) throws IOException {
@@ -155,14 +151,14 @@ public abstract class AbstractHttpDataTransmitter implements HttpDataTransmitter
             byte[] tmp = s.toString().getBytes(this.charset);
             write(tmp);
         }
-        write(CRLF);
+        write(HTTP.CRLF);
     }
     
     public void reset(final HttpParams params) {
         this.charset = HttpProtocolParams.getHttpElementCharset(params); 
         this.ascii = 
-            this.charset.equalsIgnoreCase(EncodingUtils.ASCII_CHARSET) ||
-            this.charset.equalsIgnoreCase("ASCII");
+            this.charset.equalsIgnoreCase(HTTP.US_ASCII) ||
+            this.charset.equalsIgnoreCase(HTTP.ASCII);
     }
     
 }

@@ -39,6 +39,7 @@ import org.apache.http.HttpEntity;
 import org.apache.http.NameValuePair;
 import org.apache.http.io.ByteArrayBuffer;
 import org.apache.http.io.CharArrayBuffer;
+import org.apache.http.protocol.HTTP;
 
 /**
  * <p>
@@ -115,7 +116,7 @@ public class EntityUtils {
             charset = defaultCharset;
         }
         if (charset == null) {
-            charset = EncodingUtils.ISO_8859_1_CHARSET;
+            charset = HTTP.DEFAULT_CONTENT_CHARSET;
         }
         Reader reader = new InputStreamReader(entity.getContent(), charset);
         CharArrayBuffer buffer = new CharArrayBuffer(i); 

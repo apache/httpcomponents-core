@@ -45,6 +45,7 @@ import org.apache.http.HttpVersion;
 import org.apache.http.params.HttpConnectionParams;
 import org.apache.http.params.HttpParams;
 import org.apache.http.protocol.AbstractHttpProcessor;
+import org.apache.http.protocol.HTTP;
 import org.apache.http.protocol.HttpContext;
 
 /**
@@ -58,8 +59,6 @@ import org.apache.http.protocol.HttpContext;
  */
 public class HttpRequestExecutor extends AbstractHttpProcessor {
 
-    private static final String EXPECT_DIRECTIVE = "Expect";
-    private static final String EXPECT_CONTINUE = "100-Continue";
     private static final int WAIT_FOR_CONTINUE_MS = 10000;
     
     private HttpParams params = null;
@@ -120,10 +119,10 @@ public class HttpRequestExecutor extends AbstractHttpProcessor {
                 localContext.setAttribute(HttpExecutionContext.HTTP_REQ_SENT, 
                         new Boolean(false)); 
                 HttpVersion ver = request.getRequestLine().getHttpVersion();
-                Header expect = request.getFirstHeader(EXPECT_DIRECTIVE);
+                Header expect = request.getFirstHeader(HTTP.EXPECT_DIRECTIVE);
                 
                 if (expect != null 
-                        && EXPECT_CONTINUE.equalsIgnoreCase(expect.getValue())
+                        && HTTP.EXPECT_CONTINUE.equalsIgnoreCase(expect.getValue())
                         && ver.greaterEquals(HttpVersion.HTTP_1_1) 
                         && request instanceof HttpEntityEnclosingRequest) {
                     // Do 'expect: continue' handshake

@@ -30,6 +30,8 @@ package org.apache.http.util;
 
 import java.io.UnsupportedEncodingException;
 
+import org.apache.http.protocol.HTTP;
+
 /**
  * The home for utility methods that handle various encoding tasks.
  * 
@@ -40,12 +42,6 @@ import java.io.UnsupportedEncodingException;
  */
 public class EncodingUtils {
 
-    /** ASCII chatset */
-    public static final String ASCII_CHARSET = "US-ASCII";
-    
-    /** ISO-8859-1 chatset */
-    public static final String ISO_8859_1_CHARSET = "ISO-8859-1";
-    
     /**
      * Converts the byte array of HTTP content characters to a string. If
      * the specified charset is not supported, default system encoding
@@ -142,7 +138,7 @@ public class EncodingUtils {
         }
 
         try {
-            return data.getBytes(ASCII_CHARSET);
+            return data.getBytes(HTTP.US_ASCII);
         } catch (UnsupportedEncodingException e) {
             throw new Error("HttpClient requires ASCII support");
         }
@@ -167,7 +163,7 @@ public class EncodingUtils {
         }
 
         try {
-            return new String(data, offset, length, ASCII_CHARSET);
+            return new String(data, offset, length, HTTP.US_ASCII);
         } catch (UnsupportedEncodingException e) {
             throw new Error("HttpClient requires ASCII support");
         }

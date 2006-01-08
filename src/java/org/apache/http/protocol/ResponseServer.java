@@ -48,8 +48,6 @@ import org.apache.http.params.HttpProtocolParams;
  */
 public class ResponseServer implements HttpResponseInterceptor {
 
-    private static final String SERVER_DIRECTIVE = "Server";
-    
     public ResponseServer() {
         super();
     }
@@ -59,11 +57,11 @@ public class ResponseServer implements HttpResponseInterceptor {
         if (response == null) {
             throw new IllegalArgumentException("HTTP request may not be null");
         }
-        if (!response.containsHeader(SERVER_DIRECTIVE)) {
+        if (!response.containsHeader(HTTP.SERVER_DIRECTIVE)) {
             String s = (String) response.getParams().getParameter(
                     HttpProtocolParams.ORIGIN_SERVER);
             if (s != null) {
-                response.setHeader(new Header(SERVER_DIRECTIVE, s, true)); 
+                response.setHeader(new Header(HTTP.SERVER_DIRECTIVE, s, true)); 
             }
         }
     }
