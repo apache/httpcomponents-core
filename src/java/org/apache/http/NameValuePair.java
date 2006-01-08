@@ -33,6 +33,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.http.io.CharArrayBuffer;
+import org.apache.http.protocol.HTTP;
 import org.apache.http.util.LangUtils;
 
 /**
@@ -216,11 +217,11 @@ public class NameValuePair {
         int i1 = eq + 1;
         int i2 = indexTo;
         // Trim leading white spaces
-        while (i1 < i2 && (Character.isWhitespace(buffer.charAt(i1)))) {
+        while (i1 < i2 && (HTTP.isWhitespace(buffer.charAt(i1)))) {
             i1++;
         }
         // Trim trailing white spaces
-        while ((i2 > i1) && (Character.isWhitespace(buffer.charAt(i2 - 1)))) {
+        while ((i2 > i1) && (HTTP.isWhitespace(buffer.charAt(i2 - 1)))) {
             i2--;
         }
         // Strip away quotes if necessary

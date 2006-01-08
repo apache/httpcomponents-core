@@ -30,6 +30,7 @@
 package org.apache.http;
 
 import org.apache.http.io.CharArrayBuffer;
+import org.apache.http.protocol.HTTP;
 
 /**
  * Represents a Status-Line as returned from a HTTP server.
@@ -117,7 +118,7 @@ public class StatusLine {
         try {
             int i = indexFrom;
             //handle the HTTP-Version
-            while (Character.isWhitespace(buffer.charAt(i))) {
+            while (HTTP.isWhitespace(buffer.charAt(i))) {
                 i++;
             }            
             int blank = buffer.indexOf(' ', i, indexTo);
@@ -130,7 +131,7 @@ public class StatusLine {
 
             i = blank;
             //advance through spaces
-            while (Character.isWhitespace(buffer.charAt(i))) {
+            while (HTTP.isWhitespace(buffer.charAt(i))) {
                 i++;
             }            
 

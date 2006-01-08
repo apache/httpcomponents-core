@@ -30,6 +30,7 @@
 package org.apache.http;
 
 import org.apache.http.io.CharArrayBuffer;
+import org.apache.http.protocol.HTTP;
 
 /**
  * <p>
@@ -101,7 +102,7 @@ public class RequestLine {
         }
         try {
             int i = indexFrom;
-            while (Character.isWhitespace(buffer.charAt(i))) {
+            while (HTTP.isWhitespace(buffer.charAt(i))) {
                 i++;
             }
             int blank = buffer.indexOf(' ', i, indexTo);
@@ -111,7 +112,7 @@ public class RequestLine {
             }
             String method = buffer.substringTrimmed(i, blank);
             i = blank;
-            while (Character.isWhitespace(buffer.charAt(i))) {
+            while (HTTP.isWhitespace(buffer.charAt(i))) {
                 i++;
             }
             blank = buffer.indexOf(' ', i, indexTo);

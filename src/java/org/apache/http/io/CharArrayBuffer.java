@@ -29,6 +29,8 @@
 
 package org.apache.http.io;
 
+import org.apache.http.protocol.HTTP;
+
 /**
  * @author <a href="mailto:oleg at ural.ru">Oleg Kalnichevski</a>
  * 
@@ -242,10 +244,10 @@ public final class CharArrayBuffer  {
         if (beginIndex > endIndex) {
             throw new IndexOutOfBoundsException();
         }
-        while (beginIndex < endIndex && Character.isWhitespace(this.buffer[beginIndex])) {
+        while (beginIndex < endIndex && HTTP.isWhitespace(this.buffer[beginIndex])) {
             beginIndex++;
         }
-        while (endIndex > beginIndex && Character.isWhitespace(this.buffer[endIndex - 1])) {
+        while (endIndex > beginIndex && HTTP.isWhitespace(this.buffer[endIndex - 1])) {
             endIndex--;
         }
         return new String(this.buffer, beginIndex, endIndex - beginIndex);

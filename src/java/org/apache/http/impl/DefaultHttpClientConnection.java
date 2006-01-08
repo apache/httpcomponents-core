@@ -56,6 +56,7 @@ import org.apache.http.io.CharArrayBuffer;
 import org.apache.http.io.SocketFactory;
 import org.apache.http.params.HttpParams;
 import org.apache.http.params.HttpProtocolParams;
+import org.apache.http.protocol.HTTP;
 
 /**
  * <p>
@@ -286,7 +287,7 @@ public class DefaultHttpClientConnection
     private static boolean startsWithHTTP(final CharArrayBuffer buffer) {
         try {
             int i = 0;
-            while (Character.isWhitespace(buffer.charAt(i))) {
+            while (HTTP.isWhitespace(buffer.charAt(i))) {
                 ++i;
             }
             return buffer.charAt(i) == 'H' 

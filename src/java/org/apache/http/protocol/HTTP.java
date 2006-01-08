@@ -40,8 +40,10 @@ package org.apache.http.protocol;
  */
 public class HTTP {
 
-    public static final int CR = 13;
-    public static final int LF = 10;
+    public static final int CR = 13; // <US-ASCII CR, carriage return (13)>
+    public static final int LF = 10; // <US-ASCII LF, linefeed (10)>
+    public static final int SP = 32; // <US-ASCII SP, space (32)>
+    public static final int HT = 9;  // <US-ASCII HT, horizontal-tab (9)>
     public static final byte[] CRLF = new byte[] {CR, LF};
 
     /** HTTP header definitions */ 
@@ -86,6 +88,10 @@ public class HTTP {
     /** Default content type */
     public final static String DEFAULT_CONTENT_TYPE = OCTET_STREAM_TYPE;
 
+    public static boolean isWhitespace(char ch) {
+        return ch == SP || ch == HT || ch == CR || ch == LF; 
+    }
+    
     private HTTP() {
     }
        

@@ -30,6 +30,7 @@
 package org.apache.http;
 
 import org.apache.http.io.CharArrayBuffer;
+import org.apache.http.protocol.HTTP;
 import org.apache.http.util.NumUtils;
 
 /**
@@ -238,7 +239,7 @@ public class HttpVersion implements Comparable {
             int major, minor;
 
             int i = indexFrom;
-            while (Character.isWhitespace(buffer.charAt(i))) {
+            while (HTTP.isWhitespace(buffer.charAt(i))) {
                 i++;
             }            
             if (buffer.charAt(i    ) != 'H' 

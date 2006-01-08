@@ -1,6 +1,7 @@
 package org.apache.http.util;
 
 import org.apache.http.io.CharArrayBuffer;
+import org.apache.http.protocol.HTTP;
 
 public class NumUtils {
 
@@ -31,10 +32,10 @@ public class NumUtils {
         }
         int i1 = indexFrom;
         int i2 = indexTo;
-        while (i1 < indexTo && Character.isWhitespace(buffer.charAt(i1))) {
+        while (i1 < indexTo && HTTP.isWhitespace(buffer.charAt(i1))) {
             i1++;
         }
-        while (i2 > i1 && Character.isWhitespace(buffer.charAt(i2 - 1))) {
+        while (i2 > i1 && HTTP.isWhitespace(buffer.charAt(i2 - 1))) {
             i2--;
         }
         if (i1 == i2) {
