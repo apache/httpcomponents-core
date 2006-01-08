@@ -1,7 +1,7 @@
 /*
- * $HeadURL: $
- * $Revision: $
- * $Date: $
+ * $HeadURL$
+ * $Revision$
+ * $Date$
  *
  * ====================================================================
  *
@@ -34,7 +34,7 @@ package org.apache.http.protocol;
  * </p>
  * @author <a href="mailto:oleg at ural.ru">Oleg Kalnichevski</a>
  *
- * @version $Revision: $
+ * @version $Revision$
  * 
  * @since 4.0
  */

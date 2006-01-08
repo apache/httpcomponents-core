@@ -1,7 +1,7 @@
 /*
- * $HeadURL: $
- * $Revision: $
- * $Date: $
+ * $HeadURL$
+ * $Revision$
+ * $Date$
  *
  * ====================================================================
  *
@@ -41,7 +41,7 @@ import org.apache.http.util.DateUtils;
  * </p>
  * @author <a href="mailto:oleg at ural.ru">Oleg Kalnichevski</a>
  *
- * @version $Revision: $
+ * @version $Revision$
  * 
  * @since 4.0
  */
