@@ -135,8 +135,8 @@ public abstract class AbstractHttpProcessor {
     protected void preprocessRequest(final HttpMutableRequest request) 
             throws IOException, HttpException {
         if (this.requestInterceptors != null) {
-            for (Iterator i = this.requestInterceptors.iterator(); i.hasNext(); ) {
-                HttpRequestInterceptor interceptor = (HttpRequestInterceptor) i.next();
+            for (int i = 0; i < this.requestInterceptors.size(); i++) {
+                HttpRequestInterceptor interceptor = (HttpRequestInterceptor) this.requestInterceptors.get(i);
                 interceptor.process(request, this.localContext);
             }
         }
@@ -145,8 +145,8 @@ public abstract class AbstractHttpProcessor {
     protected void postprocessResponse(final HttpMutableResponse response) 
             throws IOException, HttpException {
         if (this.responseInterceptors != null) {
-            for (Iterator i = this.responseInterceptors.iterator(); i.hasNext(); ) {
-                HttpResponseInterceptor interceptor = (HttpResponseInterceptor) i.next();
+            for (int i = 0; i < this.responseInterceptors.size(); i++) {
+                HttpResponseInterceptor interceptor = (HttpResponseInterceptor) this.responseInterceptors.get(i);
                 interceptor.process(response, this.localContext);
             }
         }
