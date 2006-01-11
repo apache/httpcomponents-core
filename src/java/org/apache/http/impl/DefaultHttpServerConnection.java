@@ -38,7 +38,6 @@ import org.apache.http.HttpEntity;
 import org.apache.http.HttpException;
 import org.apache.http.HttpMutableEntityEnclosingRequest;
 import org.apache.http.HttpMutableRequest;
-import org.apache.http.HttpRequest;
 import org.apache.http.HttpRequestFactory;
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpServerConnection;
@@ -105,24 +104,27 @@ public class DefaultHttpServerConnection
         super.bind(socket, params);
     }
 
-    public HttpRequest receiveRequest(final HttpParams params) 
+    public HttpMutableRequest receiveRequestHeader(final HttpParams params) 
             throws HttpException, IOException {
         if (params == null) {
             throw new IllegalArgumentException("HTTP parameters may not be null");
         }
         assertOpen();
-        // reset the data transmitter
-        this.datareceiver.reset(params);
-
         HttpMutableRequest request = receiveRequestLine(params);
         receiveRequestHeaders(request);
-
-        if (request instanceof HttpMutableEntityEnclosingRequest) {
-            receiveRequestBody((HttpMutableEntityEnclosingRequest) request);
-        }
         return request;
     }
     
+    public void receiveRequestEntity(final HttpMutableEntityEnclosingRequest request) 
+            throws HttpException, IOException {
+        if (request == null) {
+            throw new IllegalArgumentException("HTTP request may not be null");
+        }
+        assertOpen();
+        HttpEntity entity = this.entitygen.generate(this.datareceiver, request);
+        request.setEntity(entity);
+    }
+
     protected HttpMutableRequest receiveRequestLine(final HttpParams params)
             throws HttpException, IOException {
         this.buffer.clear();
@@ -131,9 +133,6 @@ public class DefaultHttpServerConnection
             throw new ConnectionClosedException("Client closed connection"); 
         }
         RequestLine requestline = RequestLine.parse(this.buffer, 0, this.buffer.length());
-        if (isWirelogEnabled()) {
-            wirelog(">> " + this.buffer.toString() + "[\\r][\\n]");
-        }
         HttpMutableRequest request = this.requestfactory.newHttpRequest(requestline);
         request.getParams().setDefaults(params);
         return request;
@@ -144,32 +143,33 @@ public class DefaultHttpServerConnection
         Header[] headers = Header.parseAll(this.datareceiver);
         for (int i = 0; i < headers.length; i++) {
             request.addHeader(headers[i]);
-            if (isWirelogEnabled()) {
-                wirelog(">> " + headers[i].toString() + "[\\r][\\n]");
-            }
         }
-        wirelog(">> [\\r][\\n]");
     }
 
-    protected void receiveRequestBody(final HttpMutableEntityEnclosingRequest request)
-            throws HttpException, IOException {
-        HttpEntity entity = this.entitygen.generate(this.datareceiver, request);
-        request.setEntity(entity);
+    public void flush() throws IOException {
+        assertOpen();
+        this.datatransmitter.flush();
     }
     
-	public void sendResponse(final HttpResponse response) 
+	public void sendResponseHeader(final HttpResponse response) 
             throws HttpException, IOException {
         if (response == null) {
             throw new IllegalArgumentException("HTTP response may not be null");
         }
         assertOpen();
-
-        // reset the data transmitter
-        this.datatransmitter.reset(response.getParams());
         sendResponseStatusLine(response);
         sendResponseHeaders(response);
-        sendResponseBody(response);
-        this.datatransmitter.flush();
+    }
+
+    public void sendResponseEntity(final HttpResponse response) 
+            throws HttpException, IOException {
+        if (response.getEntity() == null) {
+            return;
+        }
+        this.entitywriter.write(
+                response.getEntity(),
+                response.getStatusLine().getHttpVersion(),
+                this.datatransmitter);
     }
     
     protected void sendResponseStatusLine(final HttpResponse response) 
@@ -177,9 +177,6 @@ public class DefaultHttpServerConnection
         this.buffer.clear();
         StatusLine.format(this.buffer, response.getStatusLine());
         this.datatransmitter.writeLine(this.buffer);
-        if (isWirelogEnabled()) {
-            wirelog("<< " + this.buffer.toString() + "[\\r][\\n]");
-        }
     }
 
     protected void sendResponseHeaders(final HttpResponse response) 
@@ -189,26 +186,9 @@ public class DefaultHttpServerConnection
             this.buffer.clear();
             Header.format(this.buffer, headers[i]);
             this.datatransmitter.writeLine(this.buffer);
-            if (isWirelogEnabled()) {
-                wirelog("<< " + this.buffer.toString() + "[\\r][\\n]");
-            }
         }
         this.buffer.clear();
         this.datatransmitter.writeLine(this.buffer);
-        if (isWirelogEnabled()) {
-            wirelog("<< [\\r][\\n]");
-        }
-    }
-
-    protected void sendResponseBody(final HttpResponse response) 
-            throws HttpException, IOException {
-        if (response.getEntity() == null) {
-            return;
-        }
-        this.entitywriter.write(
-                response.getEntity(),
-                response.getStatusLine().getHttpVersion(),
-                this.datatransmitter);
     }
         
 }

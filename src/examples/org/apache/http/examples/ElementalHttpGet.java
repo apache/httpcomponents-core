@@ -29,17 +29,26 @@
 
 package org.apache.http.examples;
 
-import org.apache.http.Header;
 import org.apache.http.HttpClientConnection;
 import org.apache.http.HttpHost;
 import org.apache.http.HttpResponse;
+import org.apache.http.HttpVersion;
 import org.apache.http.Scheme;
+import org.apache.http.executor.HttpRequestExecutor;
+import org.apache.http.impl.ConnectionReuseStrategy;
+import org.apache.http.impl.DefaultConnectionReuseStrategy;
 import org.apache.http.impl.DefaultHttpClientConnection;
 import org.apache.http.impl.DefaultHttpParams;
 import org.apache.http.impl.io.PlainSocketFactory;
 import org.apache.http.io.SocketFactory;
 import org.apache.http.message.HttpGet;
 import org.apache.http.params.HttpParams;
+import org.apache.http.params.HttpProtocolParams;
+import org.apache.http.protocol.RequestConnControl;
+import org.apache.http.protocol.RequestContent;
+import org.apache.http.protocol.RequestExpectContinue;
+import org.apache.http.protocol.RequestTargetHost;
+import org.apache.http.protocol.RequestUserAgent;
 import org.apache.http.util.EntityUtils;
 
 /**
@@ -55,8 +64,23 @@ public class ElementalHttpGet {
         
         SocketFactory socketfactory = PlainSocketFactory.getSocketFactory();
         Scheme.registerScheme("http", new Scheme("http", socketfactory, 80));
+
+        HttpParams params = new DefaultHttpParams(null);
+        HttpProtocolParams.setVersion(params, HttpVersion.HTTP_1_1);
+        HttpProtocolParams.setContentCharset(params, "UTF-8");
+        HttpProtocolParams.setUserAgent(params, "Jakarta-HttpComponents/1.1");
+        HttpProtocolParams.setUseExpectContinue(params, true);
         
-        HttpParams connparams = new DefaultHttpParams(null);
+        HttpRequestExecutor httpexecutor = new HttpRequestExecutor();
+        httpexecutor.setParams(params);
+        // Required request interceptors
+        httpexecutor.addInterceptor(new RequestContent());
+        httpexecutor.addInterceptor(new RequestTargetHost());
+        // Recommended request interceptors
+        httpexecutor.addInterceptor(new RequestConnControl());
+        httpexecutor.addInterceptor(new RequestUserAgent());
+        httpexecutor.addInterceptor(new RequestExpectContinue());
+        
         HttpHost host = new HttpHost("localhost", 8080);
         HttpClientConnection conn = new DefaultHttpClientConnection(host);
         try {
@@ -66,28 +90,24 @@ public class ElementalHttpGet {
                     "/servlets-examples/servlet/RequestInfoExample", 
                     "/somewhere%20in%20pampa"};
             
+            ConnectionReuseStrategy connStrategy = new DefaultConnectionReuseStrategy();
+            
             for (int i = 0; i < targets.length; i++) {
                 HttpGet request = new HttpGet(targets[i]);
-                request.setHeader(new Header("Host", host.toHostString()));
-                request.setHeader(new Header("User-Agent", "Elemental HTTP client"));
-                request.setHeader(new Header("Connection", "Keep-Alive"));
-                if (!conn.isOpen()) {
-                    System.out.println("Open new connection to: " + host);
-                    conn.open(connparams);
-                } else {
-                    System.out.println("Connection kept alive. Reusing...");
-                }
                 System.out.println(">> Request URI: " + request.getRequestLine().getUri());
-                conn.sendRequest(request);
-                HttpResponse response = conn.receiveResponse(request); 
+                HttpResponse response = httpexecutor.execute(request, conn);
                 System.out.println("<< Response: " + response.getStatusLine());
                 System.out.println(EntityUtils.toString(response.getEntity()));
                 System.out.println("==============");
+                if (!connStrategy.keepAlive(response)) {
+                    conn.close();
+                } else {
+                    System.out.println("Connection kept alive...");
+                }
             }
         } finally {
             conn.close();
         }
-        
     }
     
 }

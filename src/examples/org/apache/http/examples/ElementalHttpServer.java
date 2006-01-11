@@ -37,8 +37,10 @@ import java.net.Socket;
 import java.net.URLDecoder;
 
 import org.apache.http.ConnectionClosedException;
+import org.apache.http.HttpEntity;
 import org.apache.http.HttpEntityEnclosingRequest;
 import org.apache.http.HttpException;
+import org.apache.http.HttpMutableEntityEnclosingRequest;
 import org.apache.http.HttpMutableRequest;
 import org.apache.http.HttpMutableResponse;
 import org.apache.http.HttpRequest;
@@ -94,7 +96,7 @@ public class ElementalHttpServer {
     static class HttpRequestProcessor extends AbstractHttpProcessor {
         
         private final HttpServerConnection conn;
-        private final ConnectionReuseStrategy connreuse;
+        private final ConnectionReuseStrategy connStrategy;
         
         private HttpParams params = null;
 
@@ -104,7 +106,7 @@ public class ElementalHttpServer {
                 throw new IllegalArgumentException("HTTP server connection may not be null");
             }
             this.conn = conn;
-            this.connreuse = new DefaultConnectionReuseStrategy();
+            this.connStrategy = new DefaultConnectionReuseStrategy();
         }
 
         public HttpParams getParams() {
@@ -134,11 +136,22 @@ public class ElementalHttpServer {
             BasicHttpResponse response = new BasicHttpResponse();
             response.getParams().setDefaults(this.params);
             try {
-                HttpRequest request = this.conn.receiveRequest(this.params);
-                
-                if (request instanceof HttpMutableRequest) {
-                    preprocessRequest((HttpMutableRequest)request);
+                HttpMutableRequest request = this.conn.receiveRequestHeader(this.params);
+                if (request instanceof HttpEntityEnclosingRequest) {
+                    if (((HttpMutableEntityEnclosingRequest) request).expectContinue()) {
+
+                        System.out.println("Expected 100 (Continue)");
+                        
+                        BasicHttpResponse ack = new BasicHttpResponse();
+                        ack.getParams().setDefaults(this.params);
+                        ack.setStatusCode(HttpStatus.SC_CONTINUE);
+                        this.conn.sendResponseHeader(ack);
+                        this.conn.flush();
+                    }
+                    this.conn.receiveRequestEntity((HttpMutableEntityEnclosingRequest) request);
                 }
+                preprocessRequest(request);
+                System.out.println("Request received");
 
                 HttpVersion ver = request.getRequestLine().getHttpVersion();
                 if (ver.greaterEquals(HttpVersion.HTTP_1_1)) {
@@ -146,23 +159,22 @@ public class ElementalHttpServer {
                 }
                 HttpProtocolParams.setVersion(response.getParams(), ver);
                 
-                if (request instanceof HttpEntityEnclosingRequest) {
-                    if (((HttpEntityEnclosingRequest) request).expectContinue()) {
-
-                        System.out.println("Expected 100 (Continue)");
-                        
-                        BasicHttpResponse ack = new BasicHttpResponse();
-                        ack.getParams().setDefaults(this.params);
-                        ack.setStatusCode(HttpStatus.SC_CONTINUE);
-                        this.conn.sendResponse(ack);
-                    }
-                }
-                System.out.println("Request received");
                 localContext.setAttribute(HttpExecutionContext.HTTP_REQUEST, request);
                 localContext.setAttribute(HttpExecutionContext.HTTP_RESPONSE, response);
                 handler.service(request, response);
+                
+                if (request instanceof HttpEntityEnclosingRequest) {
+                    // Make sure the request content is fully consumed
+                    HttpEntity entity = ((HttpEntityEnclosingRequest)request).getEntity();
+                    if (entity != null && entity.getContent() != null) {
+                        entity.getContent().close();
+                    }
+                }
+                
+                postprocessResponse(response);
             } catch (ConnectionClosedException ex) {
                 System.out.println("Client closed connection");
+                closeConnection();
                 return;
             } catch (HttpException ex) {
                 handleException(ex, response);
@@ -172,10 +184,9 @@ public class ElementalHttpServer {
                 return;
             }
             try {
-                if (response instanceof HttpMutableResponse) {
-                    postprocessResponse((HttpMutableResponse)response);
-                }
-                this.conn.sendResponse(response);
+                this.conn.sendResponseHeader(response);
+                this.conn.sendResponseEntity(response);
+                this.conn.flush();
                 System.out.println("Response sent");
             } catch (HttpException ex) {
                 System.err.println("Malformed response: " + ex.getMessage());
@@ -186,7 +197,7 @@ public class ElementalHttpServer {
                 closeConnection();
                 return;
             }
-            if (!this.connreuse.keepAlive(response)) {
+            if (!this.connStrategy.keepAlive(response)) {
                 closeConnection();
             } else {
                 System.out.println("Connection kept alive");
@@ -249,7 +260,7 @@ public class ElementalHttpServer {
                 .setIntParameter(HttpConnectionParams.SOCKET_BUFFER_SIZE, 8 * 1024)
                 .setBooleanParameter(HttpConnectionParams.STALE_CONNECTION_CHECK, false)
                 .setBooleanParameter(HttpConnectionParams.TCP_NODELAY, true)
-                .setParameter(HttpProtocolParams.ORIGIN_SERVER, "Elemental Server/1.1")
+                .setParameter(HttpProtocolParams.ORIGIN_SERVER, "Jakarta-HttpComponents/1.1")
                 .setParameter("server.docroot", docroot);
         }
         

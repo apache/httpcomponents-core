@@ -41,9 +41,7 @@ import org.apache.http.HttpException;
 import org.apache.http.HttpHost;
 import org.apache.http.HttpMutableResponse;
 import org.apache.http.HttpRequest;
-import org.apache.http.HttpResponse;
 import org.apache.http.HttpResponseFactory;
-import org.apache.http.HttpStatus;
 import org.apache.http.NoHttpResponseException;
 import org.apache.http.ProtocolException;
 import org.apache.http.RequestLine;
@@ -86,7 +84,7 @@ public class DefaultHttpClientConnection
         super();
         this.targethost = targethost;
         this.localAddress = localAddress;
-        this.buffer = new CharArrayBuffer(64);
+        this.buffer = new CharArrayBuffer(128);
         this.responsefactory = new DefaultHttpResponseFactory();
         this.entitygen = new DefaultEntityGenerator();
         this.entitywriter = new DefaultClientEntityWriter();
@@ -158,39 +156,19 @@ public class DefaultHttpClientConnection
     	this.localAddress = localAddress;
     }
     
-    public void close() throws IOException {
-        super.close();
+    public boolean isResponseAvailable(int timeout) throws IOException {
+        assertOpen();
+        return this.datareceiver.isDataAvailable(timeout);
     }
 
-    public void sendRequest(final HttpRequest request) 
+    public void sendRequestHeader(final HttpRequest request) 
             throws HttpException, IOException {
         if (request == null) {
             throw new IllegalArgumentException("HTTP request may not be null");
         }
         assertOpen();
-        // reset the data transmitter
-        this.datatransmitter.reset(request.getParams());
-        
         sendRequestLine(request);
         sendRequestHeaders(request);
-        if (request instanceof HttpEntityEnclosingRequest) {
-            sendRequestBody((HttpEntityEnclosingRequest)request);
-        }
-        this.datatransmitter.flush();
-    }
-    
-    public void sendRequestHeader(final HttpEntityEnclosingRequest request) 
-            throws HttpException, IOException {
-        if (request == null) {
-            throw new IllegalArgumentException("HTTP request may not be null");
-        }
-        assertOpen();
-        // reset the data transmitter
-        this.datatransmitter.reset(request.getParams());
-        
-        sendRequestLine(request);
-        sendRequestHeaders(request);
-        this.datatransmitter.flush();
     }
 
     public void sendRequestEntity(final HttpEntityEnclosingRequest request) 
@@ -198,19 +176,25 @@ public class DefaultHttpClientConnection
         if (request == null) {
             throw new IllegalArgumentException("HTTP request may not be null");
         }
-        sendRequestBody(request);
-        this.datatransmitter.flush();
+        assertOpen();
+        if (request.getEntity() == null) {
+            return;
+        }
+        this.entitywriter.write(
+                request.getEntity(),
+                request.getRequestLine().getHttpVersion(),
+                this.datatransmitter);
     }
 
+    public void flush() throws IOException {
+        this.datatransmitter.flush();
+    }
     
     protected void sendRequestLine(final HttpRequest request) 
             throws HttpException, IOException {
         this.buffer.clear();
         RequestLine.format(this.buffer, request.getRequestLine());
         this.datatransmitter.writeLine(this.buffer);
-        if (isWirelogEnabled()) {
-            wirelog(">> " + this.buffer.toString() + "[\\r][\\n]");
-        }
     }
 
     protected void sendRequestHeaders(final HttpRequest request) 
@@ -220,62 +204,30 @@ public class DefaultHttpClientConnection
             this.buffer.clear();
             Header.format(this.buffer, headers[i]);
             this.datatransmitter.writeLine(this.buffer);
-            if (isWirelogEnabled()) {
-                wirelog(">> " + this.buffer.toString() + "[\\r][\\n]");
-            }
         }
         this.buffer.clear();
         this.datatransmitter.writeLine(this.buffer);
-        if (isWirelogEnabled()) {
-            wirelog(">> [\\r][\\n]");
-        }
     }
 
-    protected void sendRequestBody(final HttpEntityEnclosingRequest request) 
+    public HttpMutableResponse receiveResponseHeader(final HttpParams params) 
             throws HttpException, IOException {
-        if (request.getEntity() == null) {
-            return;
-        }
-        this.entitywriter.write(
-                request.getEntity(),
-                request.getRequestLine().getHttpVersion(),
-                this.datatransmitter);
-    }
-    
-    public HttpResponse receiveResponse(final HttpRequest request) 
-            throws HttpException, IOException {
-        if (request == null) {
-            throw new IllegalArgumentException("HTTP request may not be null");
+        if (params == null) {
+            throw new IllegalArgumentException("HTTP parameters may not be null");
         }
         assertOpen();
-        // reset the data receiver
-        this.datareceiver.reset(request.getParams());
-        return readResponse(request);
-    }
-
-    public HttpResponse receiveResponse(final HttpRequest request, int timeout) 
-            throws HttpException, IOException {
-        if (request == null) {
-            throw new IllegalArgumentException("HTTP request may not be null");
-        }
-        assertOpen();
-        // reset the data receiver
-        this.datareceiver.reset(request.getParams());
-        if (this.datareceiver.isDataAvailable(timeout)) {
-            return readResponse(request);
-        } else {
-            return null;
-        }
-    }
-
-    protected HttpResponse readResponse(final HttpRequest request)
-            throws HttpException, IOException {
-        HttpMutableResponse response = readResponseStatusLine(request.getParams());
+        HttpMutableResponse response = readResponseStatusLine(params);
         readResponseHeaders(response);
-        if (canResponseHaveBody(request, response)) {
-            readResponseBody(response);
-        }
         return response;
+    }
+
+    public void receiveResponseEntity(final HttpMutableResponse response)
+            throws HttpException, IOException {
+        if (response == null) {
+            throw new IllegalArgumentException("HTTP response may not be null");
+        }
+        assertOpen();
+        HttpEntity entity = this.entitygen.generate(this.datareceiver, response);
+        response.setEntity(entity);
     }
     
     /**
@@ -323,15 +275,9 @@ public class DefaultHttpClientConnection
                         " failed to respond with a valid HTTP response");
             }
             count++;
-            if (isWirelogEnabled()) {
-                wirelog("<< " + this.buffer.toString() + "[\\r][\\n]");
-            }
         } while(true);
         //create the status line from the status string
         StatusLine statusline = StatusLine.parse(this.buffer, 0, this.buffer.length());
-        if (isWirelogEnabled()) {
-            wirelog("<< " + this.buffer.toString() + "[\\r][\\n]");
-        }
         HttpMutableResponse response = this.responsefactory.newHttpResponse(statusline);
         response.getParams().setDefaults(params);
         return response;
@@ -342,28 +288,7 @@ public class DefaultHttpClientConnection
         Header[] headers = Header.parseAll(this.datareceiver);
         for (int i = 0; i < headers.length; i++) {
             response.addHeader(headers[i]);
-            if (isWirelogEnabled()) {
-                wirelog("<< " + headers[i].toString() + "[\\r][\\n]");
-            }
         }
-        wirelog("<< [\\r][\\n]");
-    }
-    
-    protected boolean canResponseHaveBody(final HttpRequest request, final HttpResponse response) {
-        if ("HEAD".equalsIgnoreCase(request.getRequestLine().getMethod())) {
-            return false;
-        }
-        int status = response.getStatusLine().getStatusCode(); 
-        return status >= HttpStatus.SC_OK 
-            && status != HttpStatus.SC_NO_CONTENT 
-            && status != HttpStatus.SC_NOT_MODIFIED
-            && status != HttpStatus.SC_RESET_CONTENT; 
-    }
-        
-    protected void readResponseBody(
-            final HttpMutableResponse response) throws HttpException, IOException {
-        HttpEntity entity = this.entitygen.generate(this.datareceiver, response);
-        response.setEntity(entity);
     }
     
 }

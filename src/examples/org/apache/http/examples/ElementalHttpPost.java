@@ -31,21 +31,30 @@ package org.apache.http.examples;
 
 import java.io.ByteArrayInputStream;
 
-import org.apache.http.Header;
 import org.apache.http.HttpClientConnection;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpHost;
 import org.apache.http.HttpResponse;
+import org.apache.http.HttpVersion;
 import org.apache.http.Scheme;
 import org.apache.http.entity.ByteArrayEntity;
 import org.apache.http.entity.InputStreamEntity;
 import org.apache.http.entity.StringEntity;
+import org.apache.http.executor.HttpRequestExecutor;
+import org.apache.http.impl.ConnectionReuseStrategy;
+import org.apache.http.impl.DefaultConnectionReuseStrategy;
 import org.apache.http.impl.DefaultHttpClientConnection;
 import org.apache.http.impl.DefaultHttpParams;
 import org.apache.http.impl.io.PlainSocketFactory;
 import org.apache.http.io.SocketFactory;
 import org.apache.http.message.HttpPost;
 import org.apache.http.params.HttpParams;
+import org.apache.http.params.HttpProtocolParams;
+import org.apache.http.protocol.RequestConnControl;
+import org.apache.http.protocol.RequestContent;
+import org.apache.http.protocol.RequestExpectContinue;
+import org.apache.http.protocol.RequestTargetHost;
+import org.apache.http.protocol.RequestUserAgent;
 import org.apache.http.util.EntityUtils;
 
 /**
@@ -62,7 +71,22 @@ public class ElementalHttpPost {
         SocketFactory socketfactory = PlainSocketFactory.getSocketFactory();
         Scheme.registerScheme("http", new Scheme("http", socketfactory, 80));
 
-        HttpParams connparams = new DefaultHttpParams(null);
+        HttpParams params = new DefaultHttpParams(null);
+        HttpProtocolParams.setVersion(params, HttpVersion.HTTP_1_1);
+        HttpProtocolParams.setContentCharset(params, "UTF-8");
+        HttpProtocolParams.setUserAgent(params, "Jakarta-HttpComponents/1.1");
+        HttpProtocolParams.setUseExpectContinue(params, true);
+        
+        HttpRequestExecutor httpexecutor = new HttpRequestExecutor();
+        httpexecutor.setParams(params);
+        // Required request interceptors
+        httpexecutor.addInterceptor(new RequestContent());
+        httpexecutor.addInterceptor(new RequestTargetHost());
+        // Recommended request interceptors
+        httpexecutor.addInterceptor(new RequestConnControl());
+        httpexecutor.addInterceptor(new RequestUserAgent());
+        httpexecutor.addInterceptor(new RequestExpectContinue());
+        
         HttpHost host = new HttpHost("localhost", 8080);
         HttpClientConnection conn = new DefaultHttpClientConnection(host);
         try {
@@ -78,38 +102,21 @@ public class ElementalHttpPost {
                                     .getBytes("UTF-8")), -1)
             };
             
+            ConnectionReuseStrategy connStrategy = new DefaultConnectionReuseStrategy();
+            
             for (int i = 0; i < requestBodies.length; i++) {
                 HttpPost request = new HttpPost("/servlets-examples/servlet/RequestInfoExample");
-                request.setHeader(new Header("Host", host.toHostString()));
-                request.setHeader(new Header("User-Agent", "Elemental HTTP client"));
-                request.setHeader(new Header("Connection", "Keep-Alive"));
-                
-                HttpEntity requestbody = requestBodies[i];
-                // Must specify a transfer encoding or a content length 
-                if (requestbody.isChunked() || requestbody.getContentLength() < 0) {
-                    request.setHeader(new Header("Transfer-Encoding", "chunked"));
-                } else {
-                    request.setHeader(new Header("Content-Length", 
-                            Long.toString(requestbody.getContentLength())));
-                }
-                // Specify a content type if known
-                if (requestbody.getContentType() != null) {
-                    request.setHeader(requestbody.getContentType()); 
-                }
-                request.setEntity(requestbody);
-                
-                if (!conn.isOpen()) {
-                    System.out.println("Open new connection to: " + host);
-                    conn.open(connparams);
-                } else {
-                    System.out.println("Connection kept alive. Reusing...");
-                }
+                request.setEntity(requestBodies[i]);
                 System.out.println(">> Request URI: " + request.getRequestLine().getUri());
-                conn.sendRequest(request);
-                HttpResponse response = conn.receiveResponse(request); 
+                HttpResponse response = httpexecutor.execute(request, conn);
                 System.out.println("<< Response: " + response.getStatusLine());
                 System.out.println(EntityUtils.toString(response.getEntity()));
                 System.out.println("==============");
+                if (!connStrategy.keepAlive(response)) {
+                    conn.close();
+                } else {
+                    System.out.println("Connection kept alive...");
+                }
             }
         } finally {
             conn.close();

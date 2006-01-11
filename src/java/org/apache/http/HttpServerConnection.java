@@ -45,10 +45,22 @@ import org.apache.http.params.HttpParams;
  */
 public interface HttpServerConnection extends HttpConnection {
 
-    void bind(Socket socket, HttpParams params) throws IOException;
+    void bind(Socket socket, HttpParams params) 
+        throws IOException;
     
-    HttpRequest receiveRequest(HttpParams params) throws HttpException, IOException;
+    HttpMutableRequest receiveRequestHeader(HttpParams params) 
+        throws HttpException, IOException;
 
-    void sendResponse(HttpResponse response) throws HttpException, IOException;
+    void receiveRequestEntity(HttpMutableEntityEnclosingRequest request) 
+        throws HttpException, IOException;
+
+    void sendResponseHeader(HttpResponse response) 
+        throws HttpException, IOException;
+    
+    void sendResponseEntity(HttpResponse response) 
+        throws HttpException, IOException;
+    
+    void flush()
+        throws IOException;
     
 }

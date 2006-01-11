@@ -32,7 +32,6 @@ package org.apache.http.executor;
 import java.io.IOException;
 import java.net.ProtocolException;
 
-import org.apache.http.Header;
 import org.apache.http.HttpClientConnection;
 import org.apache.http.HttpEntityEnclosingRequest;
 import org.apache.http.HttpException;
@@ -45,7 +44,6 @@ import org.apache.http.HttpVersion;
 import org.apache.http.params.HttpConnectionParams;
 import org.apache.http.params.HttpParams;
 import org.apache.http.protocol.AbstractHttpProcessor;
-import org.apache.http.protocol.HTTP;
 import org.apache.http.protocol.HttpContext;
 
 /**
@@ -80,6 +78,67 @@ public class HttpRequestExecutor extends AbstractHttpProcessor {
         this.params = params;
     }
     
+    private boolean canResponseHaveBody(final HttpRequest request, final HttpResponse response) {
+        if ("HEAD".equalsIgnoreCase(request.getRequestLine().getMethod())) {
+            return false;
+        }
+        int status = response.getStatusLine().getStatusCode(); 
+        return status >= HttpStatus.SC_OK 
+            && status != HttpStatus.SC_NO_CONTENT 
+            && status != HttpStatus.SC_NOT_MODIFIED
+            && status != HttpStatus.SC_RESET_CONTENT; 
+    }
+
+    private HttpMutableResponse doExecute(
+            final HttpRequest request, final HttpClientConnection conn)
+                throws IOException, HttpException {
+        HttpMutableResponse response = null;
+        getContext().setAttribute(HttpExecutionContext.HTTP_REQ_SENT, 
+                new Boolean(false));
+        // Send request header
+        conn.sendRequestHeader(request);
+        if (request instanceof HttpEntityEnclosingRequest) {
+            HttpVersion ver = request.getRequestLine().getHttpVersion();
+            if (ver.greaterEquals(HttpVersion.HTTP_1_1) 
+                    && ((HttpEntityEnclosingRequest)request).expectContinue()) {
+                // Flush headers
+                conn.flush();
+                if (conn.isResponseAvailable(WAIT_FOR_CONTINUE_MS)) {
+                    response = conn.receiveResponseHeader(this.params);
+                    if (canResponseHaveBody(request, response)) {
+                        conn.receiveResponseEntity(response);
+                    }
+                    int status = response.getStatusLine().getStatusCode();
+                    if (status < 200) {
+                        if (status != HttpStatus.SC_CONTINUE) {
+                            throw new ProtocolException("Unexpected response: " + 
+                                    response.getStatusLine());
+                        }
+                    } else {
+                        return response;
+                    }                    
+                }
+            }
+            conn.sendRequestEntity((HttpEntityEnclosingRequest) request);
+        }
+        conn.flush();
+        
+        getContext().setAttribute(HttpExecutionContext.HTTP_REQ_SENT, 
+                new Boolean(true)); 
+        for (;;) {
+            // Loop until non 1xx resposne is received
+            response = conn.receiveResponseHeader(this.params);
+            if (canResponseHaveBody(request, response)) {
+                conn.receiveResponseEntity(response);
+            }
+            int statuscode = response.getStatusLine().getStatusCode();
+            if (statuscode >= HttpStatus.SC_OK) {
+                break;
+            }
+        }
+        return response;
+    }
+    
     public HttpResponse execute(final HttpRequest request, final HttpClientConnection conn) 
             throws IOException, HttpException {
         
@@ -102,7 +161,7 @@ public class HttpRequestExecutor extends AbstractHttpProcessor {
             preprocessRequest((HttpMutableRequest)request);
         }
         
-        HttpResponse response = null;
+        HttpMutableResponse response = null;
         // loop until the method is successfully processed, the retryHandler 
         // returns false or a non-recoverable exception is thrown
         for (int execCount = 0; ; execCount++) {
@@ -116,46 +175,8 @@ public class HttpRequestExecutor extends AbstractHttpProcessor {
                     conn.open(this.params);
                     // TODO: Implement secure tunnelling
                 }
-                localContext.setAttribute(HttpExecutionContext.HTTP_REQ_SENT, 
-                        new Boolean(false)); 
-                HttpVersion ver = request.getRequestLine().getHttpVersion();
-                Header expect = request.getFirstHeader(HTTP.EXPECT_DIRECTIVE);
-                
-                if (expect != null 
-                        && HTTP.EXPECT_CONTINUE.equalsIgnoreCase(expect.getValue())
-                        && ver.greaterEquals(HttpVersion.HTTP_1_1) 
-                        && request instanceof HttpEntityEnclosingRequest) {
-                    // Do 'expect: continue' handshake
-                    conn.sendRequestHeader((HttpEntityEnclosingRequest)request);
-                    response = conn.receiveResponse(request, WAIT_FOR_CONTINUE_MS);
-                    if (response == null) {
-                        // No response. The 'expect: continue' is likely not supported
-                        break;
-                    }
-                    int status = response.getStatusLine().getStatusCode();
-                    if (status < 200) {
-                        if (status != HttpStatus.SC_CONTINUE) {
-                            throw new ProtocolException("Unexpected response: " + 
-                                    response.getStatusLine());
-                        }
-                    } else {
-                        break;
-                    }                    
-                    conn.sendRequestEntity((HttpEntityEnclosingRequest)request);
-                } else {
-                    // Just fire and forget
-                    conn.sendRequest(request);
-                }
-                localContext.setAttribute(HttpExecutionContext.HTTP_REQ_SENT, 
-                        new Boolean(true)); 
-                for (;;) {
-                    // Loop until non 1xx resposne is received
-                    response = conn.receiveResponse(request);
-                    int statuscode = response.getStatusLine().getStatusCode();
-                    if (statuscode >= HttpStatus.SC_OK) {
-                        break;
-                    }
-                }
+                response = doExecute(request, conn);
+                // exit retry loop
                 break;
             } catch (IOException ex) {
                 conn.close();
@@ -173,13 +194,7 @@ public class HttpRequestExecutor extends AbstractHttpProcessor {
                 throw ex;
             }
         }
-        
-        // Link own parameters as defaults 
-        response.getParams().setDefaults(this.params);
-        
-        if (response instanceof HttpMutableResponse) {
-            postprocessResponse((HttpMutableResponse)response);
-        }
+        postprocessResponse(response);
         return response;
     }
 }
