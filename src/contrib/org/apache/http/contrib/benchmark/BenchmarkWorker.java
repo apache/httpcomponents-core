@@ -37,9 +37,9 @@ import org.apache.http.HttpEntity;
 import org.apache.http.HttpException;
 import org.apache.http.HttpRequest;
 import org.apache.http.HttpResponse;
-import org.apache.http.executor.HttpRequestExecutor;
 import org.apache.http.impl.ConnectionReuseStrategy;
 import org.apache.http.impl.DefaultConnectionReuseStrategy;
+import org.apache.http.protocol.HttpRequestExecutor;
 
 /**
  * <p>

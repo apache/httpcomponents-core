@@ -36,7 +36,6 @@ import org.apache.http.HttpException;
 import org.apache.http.HttpHost;
 import org.apache.http.HttpMutableRequest;
 import org.apache.http.HttpRequestInterceptor;
-import org.apache.http.executor.HttpExecutionContext;
 import org.apache.http.params.HttpProtocolParams;
 
 /**

@@ -27,12 +27,11 @@
  *
  */
 
-package org.apache.http.executor;
+package org.apache.http.protocol;
 
 import java.util.HashMap;
 import java.util.Map;
 
-import org.apache.http.protocol.HttpContext;
 
 /**
  * <p>

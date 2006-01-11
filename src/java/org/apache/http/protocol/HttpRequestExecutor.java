@@ -27,7 +27,7 @@
  *
  */
 
-package org.apache.http.executor;
+package org.apache.http.protocol;
 
 import java.io.IOException;
 import java.net.ProtocolException;
@@ -43,8 +43,6 @@ import org.apache.http.HttpStatus;
 import org.apache.http.HttpVersion;
 import org.apache.http.params.HttpConnectionParams;
 import org.apache.http.params.HttpParams;
-import org.apache.http.protocol.AbstractHttpProcessor;
-import org.apache.http.protocol.HttpContext;
 
 /**
  * <p>
