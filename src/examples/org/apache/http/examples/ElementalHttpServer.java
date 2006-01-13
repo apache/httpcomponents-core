@@ -36,32 +36,20 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.URLDecoder;
 
-import org.apache.http.ConnectionClosedException;
-import org.apache.http.HttpEntity;
-import org.apache.http.HttpEntityEnclosingRequest;
 import org.apache.http.HttpException;
-import org.apache.http.HttpMutableEntityEnclosingRequest;
-import org.apache.http.HttpMutableRequest;
 import org.apache.http.HttpMutableResponse;
 import org.apache.http.HttpRequest;
 import org.apache.http.HttpServerConnection;
 import org.apache.http.HttpStatus;
-import org.apache.http.HttpVersion;
 import org.apache.http.MethodNotSupportedException;
-import org.apache.http.ProtocolException;
 import org.apache.http.entity.FileEntity;
 import org.apache.http.entity.StringEntity;
-import org.apache.http.impl.ConnectionReuseStrategy;
-import org.apache.http.impl.DefaultConnectionReuseStrategy;
 import org.apache.http.impl.DefaultHttpParams;
 import org.apache.http.impl.DefaultHttpServerConnection;
-import org.apache.http.message.BasicHttpResponse;
 import org.apache.http.params.HttpConnectionParams;
 import org.apache.http.params.HttpParams;
 import org.apache.http.params.HttpProtocolParams;
-import org.apache.http.protocol.AbstractHttpProcessor;
-import org.apache.http.protocol.HttpContext;
-import org.apache.http.protocol.HttpExecutionContext;
+import org.apache.http.protocol.HttpService;
 import org.apache.http.protocol.ResponseConnControl;
 import org.apache.http.protocol.ResponseContent;
 import org.apache.http.protocol.ResponseDate;
@@ -86,144 +74,18 @@ public class ElementalHttpServer {
         t.start();
     }
     
-    static interface ServiceHandler {
-
-        void service(HttpRequest request, HttpMutableResponse response) 
-            throws IOException;
+    static class FileServiceHandler extends HttpService {
         
-    }
-    
-    static class HttpRequestProcessor extends AbstractHttpProcessor {
-        
-        private final HttpServerConnection conn;
-        private final ConnectionReuseStrategy connStrategy;
-        
-        private HttpParams params = null;
-
-        public HttpRequestProcessor(final HttpServerConnection conn) {
-            super(new HttpExecutionContext(null));
-            if (conn == null) {
-                throw new IllegalArgumentException("HTTP server connection may not be null");
-            }
-            this.conn = conn;
-            this.connStrategy = new DefaultConnectionReuseStrategy();
+        public FileServiceHandler(final HttpServerConnection conn) {
+            super(conn);
         }
 
-        public HttpParams getParams() {
-            return this.params;
-        }
-        
-        public void setParams(final HttpParams params) {
-            this.params = params;
-        }
-        
-        public boolean isActive() {
-            return this.conn.isOpen();
-        }
-        
-        private void closeConnection() {
-            try {
-                this.conn.close();
-                System.out.println("Connection closed");
-            } catch (IOException ex) {
-                System.err.println("I/O error closing connection: " + ex.getMessage());
+        protected void doService(final HttpRequest request, final HttpMutableResponse response) 
+                throws HttpException, IOException {
+            String method = request.getRequestLine().getMethod();
+            if (!method.equalsIgnoreCase("GET") && !method.equalsIgnoreCase("HEAD")) {
+                throw new MethodNotSupportedException(method + " method not supported"); 
             }
-        }
-                
-        public void doService(final ServiceHandler handler) { 
-            HttpContext localContext = getContext();
-            localContext.setAttribute(HttpExecutionContext.HTTP_CONNECTION, this.conn);
-            BasicHttpResponse response = new BasicHttpResponse();
-            response.getParams().setDefaults(this.params);
-            try {
-                HttpMutableRequest request = this.conn.receiveRequestHeader(this.params);
-                if (request instanceof HttpEntityEnclosingRequest) {
-                    if (((HttpMutableEntityEnclosingRequest) request).expectContinue()) {
-
-                        System.out.println("Expected 100 (Continue)");
-                        
-                        BasicHttpResponse ack = new BasicHttpResponse();
-                        ack.getParams().setDefaults(this.params);
-                        ack.setStatusCode(HttpStatus.SC_CONTINUE);
-                        this.conn.sendResponseHeader(ack);
-                        this.conn.flush();
-                    }
-                    this.conn.receiveRequestEntity((HttpMutableEntityEnclosingRequest) request);
-                }
-                preprocessRequest(request);
-                System.out.println("Request received");
-
-                HttpVersion ver = request.getRequestLine().getHttpVersion();
-                if (ver.greaterEquals(HttpVersion.HTTP_1_1)) {
-                    ver = HttpVersion.HTTP_1_1;
-                }
-                HttpProtocolParams.setVersion(response.getParams(), ver);
-                
-                localContext.setAttribute(HttpExecutionContext.HTTP_REQUEST, request);
-                localContext.setAttribute(HttpExecutionContext.HTTP_RESPONSE, response);
-                handler.service(request, response);
-                
-                if (request instanceof HttpEntityEnclosingRequest) {
-                    // Make sure the request content is fully consumed
-                    HttpEntity entity = ((HttpEntityEnclosingRequest)request).getEntity();
-                    if (entity != null && entity.getContent() != null) {
-                        entity.getContent().close();
-                    }
-                }
-                
-                postprocessResponse(response);
-            } catch (ConnectionClosedException ex) {
-                System.out.println("Client closed connection");
-                closeConnection();
-                return;
-            } catch (HttpException ex) {
-                handleException(ex, response);
-            } catch (IOException ex) {
-                System.err.println("I/O error receiving request: " + ex.getMessage());
-                closeConnection();
-                return;
-            }
-            try {
-                this.conn.sendResponseHeader(response);
-                this.conn.sendResponseEntity(response);
-                this.conn.flush();
-                System.out.println("Response sent");
-            } catch (HttpException ex) {
-                System.err.println("Malformed response: " + ex.getMessage());
-                closeConnection();
-                return;
-            } catch (IOException ex) {
-                System.err.println("I/O error sending response: " + ex.getMessage());
-                closeConnection();
-                return;
-            }
-            if (!this.connStrategy.keepAlive(response)) {
-                closeConnection();
-            } else {
-                System.out.println("Connection kept alive");
-            }
-        }
-        
-        private void handleException(final HttpException ex, final HttpMutableResponse response) {
-            if (ex instanceof MethodNotSupportedException) {
-                response.setStatusCode(HttpStatus.SC_NOT_IMPLEMENTED);
-            } else if (ex instanceof ProtocolException) {
-                response.setStatusCode(HttpStatus.SC_BAD_REQUEST);
-            } else {
-                response.setStatusCode(HttpStatus.SC_INTERNAL_SERVER_ERROR);
-            }
-        }
-                
-    }
-    
-    static class FileServiceHandler implements ServiceHandler{
-        
-        public FileServiceHandler() {
-            super();
-        }
-        
-        public void service(final HttpRequest request, final HttpMutableResponse response) 
-                throws IOException {
             String docroot = (String) request.getParams().getParameter("server.docroot");
             String target = request.getRequestLine().getUri();
             File file = new File(docroot, URLDecoder.decode(target));
@@ -243,6 +105,18 @@ public class ElementalHttpServer {
                 response.setEntity(body);
                 System.out.println("Serving file " + file.getPath());
             }
+        }
+        
+        protected void logMessage(final String s) {
+            System.out.println(s);
+        }
+        
+        protected void logIOException(final IOException ex) {
+            System.err.println("IO error: " + ex.getMessage());
+        }
+        
+        protected void logProtocolException(final HttpException ex) {
+            System.err.println("HTTP protocol error: " + ex.getMessage());
         }
         
     }
@@ -272,14 +146,14 @@ public class ElementalHttpServer {
                     HttpServerConnection conn = new DefaultHttpServerConnection();
                     System.out.println("Incoming connection from " + socket.getInetAddress());
                     conn.bind(socket, this.params);
-                    HttpRequestProcessor processor = new HttpRequestProcessor(conn);
+                    FileServiceHandler fileServiceHandler = new FileServiceHandler(conn);
                     // Add required protocol interceptors
-                    processor.addInterceptor(new ResponseContent());
-                    processor.addInterceptor(new ResponseConnControl());
-                    processor.addInterceptor(new ResponseDate());
-                    processor.addInterceptor(new ResponseServer());                    
-                    processor.setParams(this.params);
-                    Thread t = new ConnectionProcessorThread(processor, new FileServiceHandler());
+                    fileServiceHandler.addInterceptor(new ResponseContent());
+                    fileServiceHandler.addInterceptor(new ResponseConnControl());
+                    fileServiceHandler.addInterceptor(new ResponseDate());
+                    fileServiceHandler.addInterceptor(new ResponseServer());                    
+                    fileServiceHandler.setParams(this.params);
+                    Thread t = new ConnectionProcessorThread(fileServiceHandler);
                     t.setDaemon(true);
                     t.start();
                 } catch (InterruptedIOException ex) {
@@ -295,21 +169,17 @@ public class ElementalHttpServer {
     
     static class ConnectionProcessorThread extends Thread {
 
-        private final HttpRequestProcessor processor;
-        private final ServiceHandler handler;
+        private final HttpService httpservice;
         
-        public ConnectionProcessorThread(
-                final HttpRequestProcessor processor, 
-                final ServiceHandler handler) {
+        public ConnectionProcessorThread(final HttpService httpservice) {
             super();
-            this.processor = processor;
-            this.handler = handler;
+            this.httpservice = httpservice;
         }
         
         public void run() {
             System.out.println("New connection thread");
-            while (!Thread.interrupted() && this.processor.isActive()) {
-                this.processor.doService(this.handler);
+            while (!Thread.interrupted() && this.httpservice.isActive()) {
+                this.httpservice.handleRequest();
             }
         }
 
