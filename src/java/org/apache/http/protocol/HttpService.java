@@ -1,7 +1,7 @@
 /*
- * $HeadURL: $
- * $Revision: $
- * $Date: $
+ * $HeadURL$
+ * $Revision$
+ * $Date$
  *
  * ====================================================================
  *
@@ -55,7 +55,7 @@ import org.apache.http.params.HttpParams;
  * </p>
  * @author <a href="mailto:oleg at ural.ru">Oleg Kalnichevski</a>
  *
- * @version $Revision: $
+ * @version $Revision$
  */
 public class HttpService extends AbstractHttpProcessor {
 
