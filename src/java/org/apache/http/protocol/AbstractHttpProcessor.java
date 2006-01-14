@@ -51,15 +51,8 @@ import org.apache.http.HttpResponseInterceptor;
  */
 public abstract class AbstractHttpProcessor {
 
-    private final HttpContext localContext;
-    
     private List requestInterceptors = null; 
     private List responseInterceptors = null; 
-    
-    public AbstractHttpProcessor(final HttpContext localContext) {
-        super();
-        this.localContext = localContext;
-    }
     
     public void addInterceptor(final HttpRequestInterceptor interceptor) {
         if (interceptor == null) {
@@ -132,28 +125,27 @@ public abstract class AbstractHttpProcessor {
         this.responseInterceptors = null;
     }
     
-    protected void preprocessRequest(final HttpMutableRequest request) 
-            throws IOException, HttpException {
+    protected void preprocessRequest(
+            final HttpMutableRequest request,
+            final HttpContext context) throws IOException, HttpException {
         if (this.requestInterceptors != null) {
             for (int i = 0; i < this.requestInterceptors.size(); i++) {
                 HttpRequestInterceptor interceptor = (HttpRequestInterceptor) this.requestInterceptors.get(i);
-                interceptor.process(request, this.localContext);
+                interceptor.process(request, context);
             }
         }
     }
 
-    protected void postprocessResponse(final HttpMutableResponse response) 
+    protected void postprocessResponse(
+            final HttpMutableResponse response,
+            final HttpContext context) 
             throws IOException, HttpException {
         if (this.responseInterceptors != null) {
             for (int i = 0; i < this.responseInterceptors.size(); i++) {
                 HttpResponseInterceptor interceptor = (HttpResponseInterceptor) this.responseInterceptors.get(i);
-                interceptor.process(response, this.localContext);
+                interceptor.process(response, context);
             }
         }
-    }
-    
-    protected HttpContext getContext() {
-    	return this.localContext;
     }
     
 }

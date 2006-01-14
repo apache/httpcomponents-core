@@ -57,11 +57,14 @@ public class HttpRequestExecutor extends AbstractHttpProcessor {
 
     private static final int WAIT_FOR_CONTINUE_MS = 10000;
     
+    private final HttpContext context;
+    
     private HttpParams params = null;
     private HttpRequestRetryHandler retryhandler = null;
     
     public HttpRequestExecutor(final HttpContext parentContext) {
-        super(new HttpExecutionContext(parentContext));
+        super();
+        this.context = new HttpExecutionContext(parentContext);
     }
     
     public HttpRequestExecutor() {
@@ -91,7 +94,7 @@ public class HttpRequestExecutor extends AbstractHttpProcessor {
             final HttpRequest request, final HttpClientConnection conn)
                 throws IOException, HttpException {
         HttpMutableResponse response = null;
-        getContext().setAttribute(HttpExecutionContext.HTTP_REQ_SENT, 
+        this.context.setAttribute(HttpExecutionContext.HTTP_REQ_SENT, 
                 new Boolean(false));
         // Send request header
         conn.sendRequestHeader(request);
@@ -121,7 +124,7 @@ public class HttpRequestExecutor extends AbstractHttpProcessor {
         }
         conn.flush();
         
-        getContext().setAttribute(HttpExecutionContext.HTTP_REQ_SENT, 
+        this.context.setAttribute(HttpExecutionContext.HTTP_REQ_SENT, 
                 new Boolean(true)); 
         for (;;) {
             // Loop until non 1xx resposne is received
@@ -146,17 +149,16 @@ public class HttpRequestExecutor extends AbstractHttpProcessor {
         if (conn == null) {
             throw new IllegalArgumentException("Client connection may not be null");
         }
-        HttpContext localContext = getContext();
-        localContext.setAttribute(HttpExecutionContext.HTTP_REQUEST, request);
-        localContext.setAttribute(HttpExecutionContext.HTTP_CONNECTION, conn);
-        localContext.setAttribute(HttpExecutionContext.HTTP_TARGET_HOST, 
+        this.context.setAttribute(HttpExecutionContext.HTTP_REQUEST, request);
+        this.context.setAttribute(HttpExecutionContext.HTTP_CONNECTION, conn);
+        this.context.setAttribute(HttpExecutionContext.HTTP_TARGET_HOST, 
         		conn.getTargetHost());
 
         // Link own parameters as defaults 
         request.getParams().setDefaults(this.params);
         
         if (request instanceof HttpMutableRequest) {
-            preprocessRequest((HttpMutableRequest)request);
+            preprocessRequest((HttpMutableRequest)request, this.context);
         }
         
         HttpMutableResponse response = null;
@@ -192,7 +194,7 @@ public class HttpRequestExecutor extends AbstractHttpProcessor {
                 throw ex;
             }
         }
-        postprocessResponse(response);
+        postprocessResponse(response, this.context);
         return response;
     }
 }

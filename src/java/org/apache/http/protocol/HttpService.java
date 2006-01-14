@@ -61,16 +61,18 @@ public class HttpService extends AbstractHttpProcessor {
 
     private final HttpServerConnection conn;
     private final ConnectionReuseStrategy connStrategy;
+    private final HttpContext context;
     
     private HttpParams params = null;
 
     public HttpService(final HttpServerConnection conn) {
-        super(new HttpExecutionContext(null));
+        super();
         if (conn == null) {
             throw new IllegalArgumentException("HTTP server connection may not be null");
         }
         this.conn = conn;
         this.connStrategy = new DefaultConnectionReuseStrategy();
+        this.context = new HttpExecutionContext(null);
     }
 
     public HttpParams getParams() {
@@ -94,8 +96,7 @@ public class HttpService extends AbstractHttpProcessor {
     }
             
     public void handleRequest() { 
-        HttpContext localContext = getContext();
-        localContext.setAttribute(HttpExecutionContext.HTTP_CONNECTION, this.conn);
+        this.context.setAttribute(HttpExecutionContext.HTTP_CONNECTION, this.conn);
         BasicHttpResponse response = new BasicHttpResponse();
         response.getParams().setDefaults(this.params);
         try {
@@ -113,11 +114,11 @@ public class HttpService extends AbstractHttpProcessor {
                 }
                 this.conn.receiveRequestEntity((HttpMutableEntityEnclosingRequest) request);
             }
-            preprocessRequest(request);
+            preprocessRequest(request, this.context);
             logMessage("Request received");
             
-            localContext.setAttribute(HttpExecutionContext.HTTP_REQUEST, request);
-            localContext.setAttribute(HttpExecutionContext.HTTP_RESPONSE, response);
+            this.context.setAttribute(HttpExecutionContext.HTTP_REQUEST, request);
+            this.context.setAttribute(HttpExecutionContext.HTTP_RESPONSE, response);
             doService(request, response);
             
             if (request instanceof HttpEntityEnclosingRequest) {
@@ -128,7 +129,7 @@ public class HttpService extends AbstractHttpProcessor {
                 }
             }
             
-            postprocessResponse(response);
+            postprocessResponse(response, this.context);
         } catch (ConnectionClosedException ex) {
             logMessage("Client closed connection");
             closeConnection();
