@@ -32,6 +32,7 @@ package org.apache.http.protocol;
 import java.io.IOException;
 
 import org.apache.http.ConnectionClosedException;
+import org.apache.http.ConnectionReuseStrategy;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpEntityEnclosingRequest;
 import org.apache.http.HttpException;
@@ -45,7 +46,6 @@ import org.apache.http.HttpVersion;
 import org.apache.http.MethodNotSupportedException;
 import org.apache.http.ProtocolException;
 import org.apache.http.StatusLine;
-import org.apache.http.impl.ConnectionReuseStrategy;
 import org.apache.http.impl.DefaultConnectionReuseStrategy;
 import org.apache.http.message.BasicHttpResponse;
 import org.apache.http.params.HttpParams;

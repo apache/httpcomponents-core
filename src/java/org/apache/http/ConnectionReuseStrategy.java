@@ -27,9 +27,8 @@
  *
  */
 
-package org.apache.http.impl;
+package org.apache.http;
 
-import org.apache.http.HttpResponse;
 
 /**
  * <p>

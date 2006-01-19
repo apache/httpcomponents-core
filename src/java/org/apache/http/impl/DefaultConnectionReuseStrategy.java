@@ -29,6 +29,7 @@
 
 package org.apache.http.impl;
 
+import org.apache.http.ConnectionReuseStrategy;
 import org.apache.http.Header;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
