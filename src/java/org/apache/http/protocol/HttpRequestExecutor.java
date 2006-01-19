@@ -197,4 +197,13 @@ public class HttpRequestExecutor extends AbstractHttpProcessor {
         postprocessResponse(response, this.context);
         return response;
     }
+
+    public HttpRequestRetryHandler getRetryHandler() {
+        return this.retryhandler;
+    }
+
+    public void setRetryHandler(final HttpRequestRetryHandler retryhandler) {
+        this.retryhandler = retryhandler;
+    }
+    
 }

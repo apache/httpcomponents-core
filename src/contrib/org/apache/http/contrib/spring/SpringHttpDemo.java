@@ -28,6 +28,7 @@
  */
 package org.apache.http.contrib.spring;
 
+import org.apache.http.ConnectionReuseStrategy;
 import org.apache.http.HttpClientConnection;
 import org.apache.http.HttpHost;
 import org.apache.http.HttpMutableRequest;
@@ -51,23 +52,23 @@ public class SpringHttpDemo {
         
         // Set global params if desired
         HttpParams globalparams = (HttpParams) beanfactory.getBean("global-params");
+        globalparams
+            .setParameter(HttpProtocolParams.PROTOCOL_VERSION, HttpVersion.HTTP_1_1)
+            .setParameter(HttpProtocolParams.HTTP_CONTENT_CHARSET, "UTF-8")
+            .setBooleanParameter(HttpProtocolParams.USE_EXPECT_CONTINUE, true)
+            .setParameter(HttpProtocolParams.USER_AGENT, "Jakarta-HttpComponents/1.1");
         
         HttpParams params = (HttpParams) beanfactory.getBean("params");
-        params.setDefaults(globalparams);
-        
-        HttpProtocolParams.setVersion(params, HttpVersion.HTTP_1_1);
-        HttpProtocolParams.setContentCharset(params, "UTF-8");
-        HttpProtocolParams.setUseExpectContinue(params, true);
-        HttpProtocolParams.setUserAgent(params, "Jakarta HTTP Demo");
         
         HttpRequestExecutor httpexec = (HttpRequestExecutor)beanfactory.getBean("http-executor");
         httpexec.setParams(params);
         
-        Scheme http = (Scheme) beanfactory.getBean("http-protocol");
+        Scheme http = (Scheme) beanfactory.getBean("http-scheme");
         HttpHost host = new HttpHost("www.yahoo.com", 80, http);
 
         HttpRequestFactory requestfactory = (HttpRequestFactory) beanfactory.getBean("http-request-factory");
         HttpClientConnection conn = (HttpClientConnection) beanfactory.getBean("http-connection");
+        ConnectionReuseStrategy connStrategy = (ConnectionReuseStrategy) beanfactory.getBean("conn-reuse-strategy");
         conn.setTargetHost(host);
         try {
             HttpMutableRequest request1 = requestfactory.newHttpRequest("GET", "/");
@@ -75,14 +76,23 @@ public class SpringHttpDemo {
             System.out.println("<< Response: " + response1.getStatusLine());
             System.out.println(EntityUtils.toString(response1.getEntity()));
             System.out.println("==============");
-            if (conn.isOpen()) {
+            if (connStrategy.keepAlive(response1)) {
                 System.out.println("Connection kept alive...");
+            } else {
+                conn.close();
+                System.out.println("Connection closed...");
             }
             HttpMutableRequest request2 = requestfactory.newHttpRequest("GET", "/stuff");
             HttpResponse response2 = httpexec.execute(request2, conn);
             System.out.println("<< Response: " + response2.getStatusLine());
             System.out.println(EntityUtils.toString(response2.getEntity()));
             System.out.println("==============");
+            if (connStrategy.keepAlive(response2)) {
+                System.out.println("Connection kept alive...");
+            } else {
+                conn.close();
+                System.out.println("Connection closed...");
+            }
         } finally {
             conn.close();
         }

@@ -14,11 +14,11 @@
   </bean>
 
   <bean id="socket-factory" 
-    class="org.apache.http.impl.io.NIOSocketFactory" 
+    class="org.apache.http.impl.io.PlainSocketFactory" 
     singleton="true" />
     
-  <bean id="http-protocol" 
-    class="org.apache.http.Protocol">
+  <bean id="http-scheme" 
+    class="org.apache.http.Scheme">
     <constructor-arg index="0"><value>http</value></constructor-arg>
     <constructor-arg index="1"><ref bean="socket-factory"/></constructor-arg>
     <constructor-arg index="2"><value>80</value></constructor-arg>
@@ -31,44 +31,48 @@
   </bean>
   
   <bean id="http-executor" 
-    class="org.apache.http.executor.HttpRequestExecutor" 
+    class="org.apache.http.protocol.HttpRequestExecutor" 
     singleton="true" >
     <property name="interceptors">
-      <set>
+      <list>
         <!-- Required request interceptors -->
-        <bean class="org.apache.http.interceptor.RequestContent" />
-        <bean class="org.apache.http.interceptor.RequestTargetHost" />
+        <bean class="org.apache.http.protocol.RequestContent" />
+        <bean class="org.apache.http.protocol.RequestTargetHost" />
         <!-- Recommended request interceptors -->
-        <bean class="org.apache.http.interceptor.RequestConnControl" />
-        <bean class="org.apache.http.interceptor.RequestUserAgent" />
-        <bean class="org.apache.http.interceptor.RequestExpectContinue" />
-      </set>
+        <bean class="org.apache.http.protocol.RequestConnControl" />
+        <bean class="org.apache.http.protocol.RequestUserAgent" />
+        <bean class="org.apache.http.protocol.RequestExpectContinue" />
+      </list>
     </property>
     <property name="retryHandler"><ref bean="request-retry-handler"/></property>
   </bean>
   
-  <bean id="http-data-trx-factory" 
-    class="org.apache.http.impl.io.DefaultHttpDataTransmitterFactory" 
-    singleton="true" />
-  
-  <bean id="http-data-rcv-factory" 
-    class="org.apache.http.impl.io.DefaultHttpDataReceiverFactory" 
-    singleton="true" />
-  
   <bean id="http-request-factory"
     class="org.apache.http.impl.DefaultHttpRequestFactory" 
-    singleton="true" />
+    singleton="false" />
   
   <bean id="http-response-factory"
     class="org.apache.http.impl.DefaultHttpResponseFactory" 
-    singleton="true" />
+    singleton="false" />
+  
+  <bean id="http-entity-writer"
+    class="org.apache.http.impl.entity.DefaultClientEntityWriter" 
+    singleton="false" />
+  
+  <bean id="http-entity-generator"
+    class="org.apache.http.impl.entity.DefaultEntityGenerator" 
+    singleton="false" />
   
   <bean id="http-connection" 
     class="org.apache.http.impl.DefaultHttpClientConnection" 
     singleton="false">
-    <property name="receiverFactory"><ref bean="http-data-rcv-factory"/></property>
-    <property name="transmitterFactory"><ref bean="http-data-trx-factory"/></property>
     <property name="responseFactory"><ref bean="http-response-factory"/></property>
+    <property name="entityWriter"><ref bean="http-entity-writer"/></property>
+    <property name="entityGenerator"><ref bean="http-entity-generator"/></property>
   </bean>
-  
+
+  <bean id="conn-reuse-strategy"
+    class="org.apache.http.impl.DefaultConnectionReuseStrategy" 
+    singleton="true" />
+    
 </beans>

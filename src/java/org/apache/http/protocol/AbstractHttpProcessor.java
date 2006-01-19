@@ -119,6 +119,27 @@ public abstract class AbstractHttpProcessor {
             }
         }
     }
+
+    public void setInterceptors(final List list) {
+        if (list == null) {
+            return;
+        }
+        if (this.requestInterceptors != null) {
+            this.requestInterceptors.clear();
+        }
+        if (this.responseInterceptors != null) {
+            this.responseInterceptors.clear();
+        }
+        for (int i = 0; i < list.size(); i++) {
+            Object obj = list.get(i);
+            if (obj instanceof HttpRequestInterceptor) {
+                addInterceptor((HttpRequestInterceptor)obj);
+            }
+            if (obj instanceof HttpResponseInterceptor) {
+                addInterceptor((HttpResponseInterceptor)obj);
+            }
+        }
+    }
     
     public void clearInterceptors() {
         this.requestInterceptors = null;
