@@ -147,11 +147,13 @@ public class ElementalHttpServer {
                     System.out.println("Incoming connection from " + socket.getInetAddress());
                     conn.bind(socket, this.params);
                     FileServiceHandler fileServiceHandler = new FileServiceHandler(conn);
-                    // Add required protocol interceptors
-                    fileServiceHandler.addInterceptor(new ResponseContent());
-                    fileServiceHandler.addInterceptor(new ResponseConnControl());
+
+                    // Required protocol interceptors
                     fileServiceHandler.addInterceptor(new ResponseDate());
                     fileServiceHandler.addInterceptor(new ResponseServer());                    
+                    fileServiceHandler.addInterceptor(new ResponseContent());
+                    fileServiceHandler.addInterceptor(new ResponseConnControl());
+                    
                     fileServiceHandler.setParams(this.params);
                     Thread t = new ConnectionProcessorThread(fileServiceHandler);
                     t.setDaemon(true);

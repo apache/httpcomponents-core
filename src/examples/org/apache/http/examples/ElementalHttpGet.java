@@ -73,10 +73,10 @@ public class ElementalHttpGet {
         
         HttpRequestExecutor httpexecutor = new HttpRequestExecutor();
         httpexecutor.setParams(params);
-        // Required request interceptors
+        // Required protocol interceptors
         httpexecutor.addInterceptor(new RequestContent());
         httpexecutor.addInterceptor(new RequestTargetHost());
-        // Recommended request interceptors
+        // Recommended protocol interceptors
         httpexecutor.addInterceptor(new RequestConnControl());
         httpexecutor.addInterceptor(new RequestUserAgent());
         httpexecutor.addInterceptor(new RequestExpectContinue());
