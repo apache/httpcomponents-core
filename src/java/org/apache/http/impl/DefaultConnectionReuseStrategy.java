@@ -58,10 +58,12 @@ public class DefaultConnectionReuseStrategy implements ConnectionReuseStrategy {
         HttpEntity entity = response.getEntity();
         HttpVersion ver = response.getStatusLine().getHttpVersion();
         if (entity != null) {
-            if (ver.lessEquals(HttpVersion.HTTP_1_0) && entity.getContentLength() < 0) {
-                // if the content length is not known and is not chunk
-                // encoded, the connection cannot be reused
-                return false;
+            if (entity.getContentLength() < 0) {
+                if (!entity.isChunked() || ver.lessEquals(HttpVersion.HTTP_1_0)) {
+                    // if the content length is not known and is not chunk
+                    // encoded, the connection cannot be reused
+                    return false;
+                }
             }
         }
         // Check for 'Connection' directive

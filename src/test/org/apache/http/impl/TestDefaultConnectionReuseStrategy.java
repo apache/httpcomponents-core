@@ -68,7 +68,7 @@ public class TestDefaultConnectionReuseStrategy extends TestCase {
         }
     }
 
-    public void testNoContentLengthResponse() throws Exception {
+    public void testNoContentLengthResponseHttp1_0() throws Exception {
         BasicHttpEntity entity = new BasicHttpEntity();
         entity.setChunked(false);
         entity.setContentLength(-1);
@@ -80,6 +80,43 @@ public class TestDefaultConnectionReuseStrategy extends TestCase {
         assertFalse(s.keepAlive(response));
     }
 
+    public void testNoContentLengthResponseHttp1_1() throws Exception {
+        BasicHttpEntity entity = new BasicHttpEntity();
+        entity.setChunked(false);
+        entity.setContentLength(-1);
+        StatusLine statusline = new StatusLine(HttpVersion.HTTP_1_1, 200, "OK");
+        HttpMutableResponse response = new BasicHttpResponse(statusline);
+        response.setEntity(entity);
+
+        ConnectionReuseStrategy s = new DefaultConnectionReuseStrategy();
+        assertFalse(s.keepAlive(response));
+    }
+
+    public void testChunkedContent() throws Exception {
+        BasicHttpEntity entity = new BasicHttpEntity();
+        entity.setChunked(true);
+        entity.setContentLength(-1);
+        StatusLine statusline = new StatusLine(HttpVersion.HTTP_1_1, 200, "OK");
+        HttpMutableResponse response = new BasicHttpResponse(statusline);
+        response.setEntity(entity);
+
+        ConnectionReuseStrategy s = new DefaultConnectionReuseStrategy();
+        assertTrue(s.keepAlive(response));
+    }
+
+    public void testIgnoreInvalidKeepAlive() throws Exception {
+        BasicHttpEntity entity = new BasicHttpEntity();
+        entity.setChunked(false);
+        entity.setContentLength(-1);
+        StatusLine statusline = new StatusLine(HttpVersion.HTTP_1_0, 200, "OK");
+        HttpMutableResponse response = new BasicHttpResponse(statusline);
+        response.addHeader(new Header("Connection", "keep-alive"));
+        response.setEntity(entity);
+
+        ConnectionReuseStrategy s = new DefaultConnectionReuseStrategy();
+        assertFalse(s.keepAlive(response));
+    }
+    
     public void testExplicitClose() throws Exception {
         BasicHttpEntity entity = new BasicHttpEntity();
         entity.setChunked(true);
