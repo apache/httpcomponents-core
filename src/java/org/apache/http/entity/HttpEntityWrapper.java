@@ -94,9 +94,9 @@ public class HttpEntityWrapper implements HttpEntity {
         return wrappedEntity.getContent();
     }
 
-    public boolean writeTo(OutputStream outstream)
+    public void writeTo(OutputStream outstream)
         throws IOException {
-        return wrappedEntity.writeTo(outstream);
+        wrappedEntity.writeTo(outstream);
     }
 
     public boolean isStreaming() {

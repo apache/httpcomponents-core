@@ -70,7 +70,7 @@ public class InputStreamEntity extends AbstractHttpEntity {
         return this.content;
     }
         
-    public boolean writeTo(final OutputStream outstream) throws IOException {
+    public void writeTo(final OutputStream outstream) throws IOException {
         if (outstream == null) {
             throw new IllegalArgumentException("Output stream may not be null");
         }
@@ -85,7 +85,6 @@ public class InputStreamEntity extends AbstractHttpEntity {
             outstream.write(buffer, 0, l);
     	    remaining -= l;
     	}
-        return true;
     }
 
     // non-javadoc, see interface HttpEntity

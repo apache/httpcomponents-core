@@ -82,9 +82,8 @@ public class DefaultClientEntityWriter implements EntityWriter {
         } else {
             outstream = new ContentLengthOutputStream(datatransmitter, len);
         }
-        if (entity.writeTo(outstream)) {
-            outstream.close();
-        }
+        entity.writeTo(outstream);
+        outstream.close();
     }
     
 }

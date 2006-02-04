@@ -88,7 +88,7 @@ public class TestHttpEntities extends TestCase {
     	httpentity.setContent(content);
     	
     	ByteArrayOutputStream out = new ByteArrayOutputStream();
-    	assertTrue(httpentity.writeTo(out));
+    	httpentity.writeTo(out);
     	byte[] bytes2 = out.toByteArray();
     	assertNotNull(bytes2);
     	assertEquals(bytes.length, bytes2.length);
@@ -97,14 +97,14 @@ public class TestHttpEntities extends TestCase {
     	}
 
     	out = new ByteArrayOutputStream();
-    	assertTrue(httpentity.writeTo(out));
+    	httpentity.writeTo(out);
     	bytes2 = out.toByteArray();
     	assertNotNull(bytes2);
     	assertEquals(0, bytes2.length);
     	
     	httpentity.setContent(null);
     	out = new ByteArrayOutputStream();
-    	assertTrue(httpentity.writeTo(out));
+    	httpentity.writeTo(out);
     	bytes2 = out.toByteArray();
     	assertNotNull(bytes2);
     	assertEquals(0, bytes2.length);
@@ -148,7 +148,7 @@ public class TestHttpEntities extends TestCase {
     	ByteArrayEntity httpentity = new ByteArrayEntity(bytes);
     	
     	ByteArrayOutputStream out = new ByteArrayOutputStream();
-    	assertTrue(httpentity.writeTo(out));
+    	httpentity.writeTo(out);
     	byte[] bytes2 = out.toByteArray();
     	assertNotNull(bytes2);
     	assertEquals(bytes.length, bytes2.length);
@@ -157,7 +157,7 @@ public class TestHttpEntities extends TestCase {
     	}
 
     	out = new ByteArrayOutputStream();
-    	assertTrue(httpentity.writeTo(out));
+    	httpentity.writeTo(out);
     	bytes2 = out.toByteArray();
     	assertNotNull(bytes2);
     	assertEquals(bytes.length, bytes2.length);
@@ -216,7 +216,7 @@ public class TestHttpEntities extends TestCase {
         StringEntity httpentity = new StringEntity(s);
         
         ByteArrayOutputStream out = new ByteArrayOutputStream();
-        assertTrue(httpentity.writeTo(out));
+        httpentity.writeTo(out);
         byte[] bytes2 = out.toByteArray();
         assertNotNull(bytes2);
         assertEquals(bytes.length, bytes2.length);
@@ -225,7 +225,7 @@ public class TestHttpEntities extends TestCase {
         }
 
         out = new ByteArrayOutputStream();
-        assertTrue(httpentity.writeTo(out));
+        httpentity.writeTo(out);
         bytes2 = out.toByteArray();
         assertNotNull(bytes2);
         assertEquals(bytes.length, bytes2.length);
@@ -275,7 +275,7 @@ public class TestHttpEntities extends TestCase {
         InputStreamEntity httpentity = new InputStreamEntity(instream, 7);
         
         ByteArrayOutputStream out = new ByteArrayOutputStream();
-        assertTrue(httpentity.writeTo(out));
+        httpentity.writeTo(out);
         byte[] bytes2 = out.toByteArray();
         assertNotNull(bytes2);
         assertEquals(7, bytes2.length);
@@ -285,7 +285,7 @@ public class TestHttpEntities extends TestCase {
         instream = new ByteArrayInputStream(bytes);
         httpentity = new InputStreamEntity(instream, 20);
         out = new ByteArrayOutputStream();
-        assertTrue(httpentity.writeTo(out));
+        httpentity.writeTo(out);
         bytes2 = out.toByteArray();
         assertNotNull(bytes2);
         assertEquals(bytes.length, bytes2.length);

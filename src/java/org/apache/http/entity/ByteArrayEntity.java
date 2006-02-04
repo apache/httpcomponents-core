@@ -67,13 +67,12 @@ public class ByteArrayEntity extends AbstractHttpEntity {
         return new ByteArrayInputStream(this.content);
     }
     
-    public boolean writeTo(final OutputStream outstream) throws IOException {
+    public void writeTo(final OutputStream outstream) throws IOException {
         if (outstream == null) {
             throw new IllegalArgumentException("Output stream may not be null");
         }
         outstream.write(this.content);
         outstream.flush();
-        return true;
     }
 
 

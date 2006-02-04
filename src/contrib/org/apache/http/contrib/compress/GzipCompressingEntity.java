@@ -69,7 +69,7 @@ public class GzipCompressingEntity extends HttpEntityWrapper {
         return true;
     }
 
-    public boolean writeTo(final OutputStream outstream) throws IOException {
+    public void writeTo(final OutputStream outstream) throws IOException {
         if (outstream == null) {
             throw new IllegalArgumentException("Output stream may not be null");
         }
@@ -81,8 +81,6 @@ public class GzipCompressingEntity extends HttpEntityWrapper {
             gzip.write(tmp, 0, l);
         }
         gzip.close();
-        outstream.close();
-        return true;
     }
 
 } // class GzipCompressingEntity

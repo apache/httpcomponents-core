@@ -98,15 +98,14 @@ public class BufferedHttpEntity extends HttpEntityWrapper {
     }
 
     
-    public boolean writeTo(final OutputStream outstream) throws IOException {
+    public void writeTo(final OutputStream outstream) throws IOException {
         if (outstream == null) {
             throw new IllegalArgumentException("Output stream may not be null");
         }
         if (this.buffer != null) {
             outstream.write(this.buffer);
-            return true;
         } else {
-            return wrappedEntity.writeTo(outstream);
+            wrappedEntity.writeTo(outstream);
         }
     }
 

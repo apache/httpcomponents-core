@@ -79,9 +79,8 @@ public class DefaultServerEntityWriter implements EntityWriter {
         } else {
             outstream = new IdentityOutputStream(datatransmitter); 
         }
-        if (entity.writeTo(outstream)) {
-            outstream.close();
-        }
+        entity.writeTo(outstream);
+        outstream.close();
     }
     
 }
