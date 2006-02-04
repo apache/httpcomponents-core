@@ -71,15 +71,12 @@ public class TestEncodingUtils extends TestCase {
         String s = constructString(SWISS_GERMAN_HELLO);
         byte[] utf = s.getBytes("UTF-8");
         byte[] latin1 = s.getBytes("ISO-8859-1");
-        byte[] def = s.getBytes();
         
         String s1 = EncodingUtils.getString(utf, "UTF-8");
         String s2 = EncodingUtils.getString(latin1, "ISO-8859-1");
-        String s3 = EncodingUtils.getString(def, "THIS JUST DOES NOT SEEM RIGHT");
         
         assertEquals(s, s1);
         assertEquals(s, s2);
-        assertEquals(s, s3);
         
         try {
             EncodingUtils.getString(null, 0, 0, "UTF-8");
@@ -111,11 +108,9 @@ public class TestEncodingUtils extends TestCase {
         String s = constructString(SWISS_GERMAN_HELLO);
         byte[] utf = s.getBytes("UTF-8");
         byte[] latin1 = s.getBytes("ISO-8859-1");
-        byte[] def = s.getBytes();
         
         byte[] data1 = EncodingUtils.getBytes(s, "UTF-8");
         byte[] data2 = EncodingUtils.getBytes(s, "ISO-8859-1");
-        byte[] data3 = EncodingUtils.getBytes(s, "THIS JUST DOES NOT SEEM RIGHT");
         
         assertNotNull(data1);
         assertEquals(utf.length, data1.length);
@@ -126,11 +121,6 @@ public class TestEncodingUtils extends TestCase {
         assertEquals(latin1.length, data2.length);
         for (int i = 0; i < latin1.length; i++) {
             assertEquals(latin1[i], data2[i]);
-        }
-        assertNotNull(data3);
-        assertEquals(def.length, data3.length);
-        for (int i = 0; i < def.length; i++) {
-            assertEquals(def[i], data3[i]);
         }
         
         try {
@@ -186,6 +176,19 @@ public class TestEncodingUtils extends TestCase {
         } catch (IllegalArgumentException ex) {
             // expected
         }
+    }
+    
+    public void testInvalidEncoding() {
+        String s = constructString(SWISS_GERMAN_HELLO);
+        byte[] b1 = s.getBytes();
+        byte[] b2 = EncodingUtils.getBytes(s, "This just aint right");
+        assertEquals(b1.length, b2.length);
+        for (int i = 0; i < b1.length; i++) {
+            assertEquals(b1[i], b2[i]);
+        }
+        String s1 = new String(b1);
+        String s2 = EncodingUtils.getString(b1, "This just aint right");
+        assertEquals(s1, s2);        
     }
     
 }
