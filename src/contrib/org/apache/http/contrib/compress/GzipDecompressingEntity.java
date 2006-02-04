@@ -31,63 +31,42 @@ package org.apache.http.contrib.compress;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.OutputStream;
 import java.util.zip.GZIPInputStream;
 
-import org.apache.http.Header;
 import org.apache.http.HttpEntity;
+import org.apache.http.entity.HttpEntityWrapper;
 
 /**
- * <p>
- * </p>
+ * Wrapping entity that decompresses {@link #getContent content}.
+ *
  * @author <a href="mailto:oleg at ural.ru">Oleg Kalnichevski</a>
  *
  * @version $Revision$
  * 
  * @since 4.0
  */
-public class GzipDecompressingEntity implements HttpEntity {
-    
-    private final HttpEntity entity;
-    private InputStream instream = null;
-    
-    public GzipDecompressingEntity(final HttpEntity entity) {
-        super();
-        if (entity == null) {
-            throw new IllegalArgumentException("HTTP entity may not be null");
-        }
-        this.entity = entity;
-    }
+public class GzipDecompressingEntity extends HttpEntityWrapper {
 
-    public InputStream getContent() throws IOException {
-        if (this.instream == null) {
-            this.instream = new GZIPInputStream(this.entity.getContent()); 
-        }
-        return this.instream;
-    }
-
-    public Header getContentEncoding() {
-        return this.entity.getContentEncoding();
-    }
-
-    public long getContentLength() {
-        return -1;
-    }
-
-    public Header getContentType() {
-        return this.entity.getContentType();
-    }
-
-    public boolean isChunked() {
-        return this.entity.isChunked();
-    }
-
-    public boolean isRepeatable() {
-        return this.entity.isRepeatable();
-    }
-
-    public boolean writeTo(final OutputStream outstream) throws IOException {
-        return this.entity.writeTo(outstream);
-    }
-
-}
+      private InputStream instream = null;
+      
+      public GzipDecompressingEntity(final HttpEntity entity) {
+          super(entity);
+      }
+  
+      public InputStream getContent() throws IOException {
+          if (this.instream == null) {
+              this.instream = new GZIPInputStream(wrappedEntity.getContent()); 
+          }
+          return this.instream;
+      }
+  
+      public long getContentLength() {
+          return -1;
+      }
+  
+      public boolean isRepeatable() {
+          // not repeatable, GZIPInputStream is created only once
+          return false;
+      }
+  
+} // class GzipDecompressingEntity

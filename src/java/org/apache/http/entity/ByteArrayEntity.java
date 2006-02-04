@@ -34,28 +34,21 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 
-import org.apache.http.Header;
-import org.apache.http.HttpEntity;
-import org.apache.http.protocol.HTTP;
-
 /**
- * <p>
- * </p>
+ * A self-contained entity obtaining content from a byte array.
+ *
  * @author <a href="mailto:oleg at ural.ru">Oleg Kalnichevski</a>
  *
  * @version $Revision$
  * 
  * @since 4.0
  */
-public class ByteArrayEntity implements HttpEntity {
+public class ByteArrayEntity extends AbstractHttpEntity {
 
     private final byte[] content;
-    private String contentType = HTTP.DEFAULT_CONTENT_TYPE;
-    private String contentEncoding = null;
-    private boolean chunked = false;
 
     public ByteArrayEntity(final byte[] b) {
-        super();
+        super();        
         if (b == null) {
             throw new IllegalArgumentException("Source byte array may not be null");
         }
@@ -66,40 +59,8 @@ public class ByteArrayEntity implements HttpEntity {
         return true;
     }
 
-    public boolean isChunked() {
-        return this.chunked;
-    }
-
-    public void setChunked(boolean b) {
-        this.chunked = b;
-    }
-
     public long getContentLength() {
         return this.content.length;
-    }
-    
-    public Header getContentType() {
-        if (this.contentType != null) {
-            return new Header(HTTP.CONTENT_TYPE, this.contentType);
-        } else {
-            return null;
-        }
-    }
-
-    public void setContentType(final String contentType) {
-        this.contentType = contentType;
-    }
-
-    public Header getContentEncoding() {
-        if (this.contentEncoding != null) {
-            return new Header(HTTP.CONTENT_ENCODING, this.contentEncoding);
-        } else {
-            return null;
-        }
-    }
-
-    public void setContentEncoding(final String contentEncoding) {
-        this.contentEncoding = contentEncoding;
     }
 
     public InputStream getContent() {
@@ -115,4 +76,15 @@ public class ByteArrayEntity implements HttpEntity {
         return true;
     }
 
-}
+
+    /**
+     * Tells that this entity is not streaming.
+     *
+     * @return <code>false</code>
+     */
+    public boolean isStreaming() {
+        return false;
+    }
+
+
+} // class ByteArrayEntity

@@ -35,25 +35,20 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.UnsupportedEncodingException;
 
-import org.apache.http.Header;
-import org.apache.http.HttpEntity;
 import org.apache.http.protocol.HTTP;
 
 /**
- * <p>
- * </p>
+ * A self-contained entity obtaining content from a string.
+ *
  * @author <a href="mailto:oleg at ural.ru">Oleg Kalnichevski</a>
  *
  * @version $Revision$
  * 
  * @since 4.0
  */
-public class StringEntity implements HttpEntity {
+public class StringEntity extends AbstractHttpEntity {
 
     private final byte[] content;
-    private String contentType = null;
-    private String contentEncoding = null;
-    private boolean chunked = false;
 
     public StringEntity(final String s, String charset) 
             throws UnsupportedEncodingException {
@@ -64,8 +59,8 @@ public class StringEntity implements HttpEntity {
         if (charset == null) {
             charset = HTTP.DEFAULT_CONTENT_CHARSET;
         }
-        this.contentType = HTTP.PLAIN_TEXT_TYPE + HTTP.CHARSET_PARAM + charset;
         this.content = s.getBytes(charset);
+        setContentType(HTTP.PLAIN_TEXT_TYPE + HTTP.CHARSET_PARAM + charset);
     }
 
     public StringEntity(final String s) 
@@ -77,40 +72,8 @@ public class StringEntity implements HttpEntity {
         return true;
     }
 
-    public boolean isChunked() {
-        return this.chunked;
-    }
-
-    public void setChunked(boolean b) {
-        this.chunked = b;
-    }
-
     public long getContentLength() {
         return this.content.length;
-    }
-    
-    public Header getContentType() {
-        if (this.contentType != null) {
-            return new Header(HTTP.CONTENT_TYPE, this.contentType);
-        } else {
-            return null;
-        }
-    }
-
-    public void setContentType(final String contentType) {
-        this.contentType = contentType;
-    }
-
-    public Header getContentEncoding() {
-        if (this.contentEncoding != null) {
-            return new Header(HTTP.CONTENT_ENCODING, this.contentEncoding);
-        } else {
-            return null;
-        }
-    }
-
-    public void setContentEncoding(final String contentEncoding) {
-        this.contentEncoding = contentEncoding;
     }
     
     public InputStream getContent() throws IOException {
@@ -126,4 +89,13 @@ public class StringEntity implements HttpEntity {
         return true;
     }
 
-}
+    /**
+     * Tells that this entity is not streaming.
+     *
+     * @return <code>false</code>
+     */
+    public boolean isStreaming() {
+        return false;
+    }
+
+} // class StringEntity

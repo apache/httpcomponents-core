@@ -32,33 +32,26 @@ package org.apache.http.entity;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-
-import org.apache.http.Header;
-import org.apache.http.HttpEntity;
-import org.apache.http.protocol.HTTP;
-
+ 
 /**
- * <p>
- * </p>
+ * A streamed entity obtaining content from an {@link InputStream InputStream}.
+ *
  * @author <a href="mailto:oleg at ural.ru">Oleg Kalnichevski</a>
  *
  * @version $Revision$
  * 
  * @since 4.0
  */
-public class InputStreamEntity implements HttpEntity {
+public class InputStreamEntity extends AbstractHttpEntity {
 
     private final static int BUFFER_SIZE = 2048;
 
     private final InputStream content;
     private final long length;
-    private String contentType = HTTP.DEFAULT_CONTENT_TYPE;
-    private String contentEncoding = null;
-    private boolean chunked = false;
+    private boolean consumed = false;
 
     public InputStreamEntity(final InputStream instream, long length) {
-        super();
-        if (instream == null) {
+        super();        if (instream == null) {
             throw new IllegalArgumentException("Source input stream may not be null");
         }
         this.content = instream;
@@ -69,40 +62,8 @@ public class InputStreamEntity implements HttpEntity {
         return false;
     }
 
-    public boolean isChunked() {
-        return this.chunked;
-    }
-
-    public void setChunked(boolean b) {
-        this.chunked = b;
-    }
-
     public long getContentLength() {
         return this.length;
-    }
-    
-    public Header getContentType() {
-        if (this.contentType != null) {
-            return new Header(HTTP.CONTENT_TYPE, this.contentType);
-        } else {
-            return null;
-        }
-    }
-
-    public void setContentType(final String contentType) {
-        this.contentType = contentType;
-    }
-
-    public Header getContentEncoding() {
-        if (this.contentEncoding != null) {
-            return new Header(HTTP.CONTENT_ENCODING, this.contentEncoding);
-        } else {
-            return null;
-        }
-    }
-
-    public void setContentEncoding(final String contentEncoding) {
-        this.contentEncoding = contentEncoding;
     }
 
     public InputStream getContent() throws IOException {
@@ -126,5 +87,18 @@ public class InputStreamEntity implements HttpEntity {
     	}
         return true;
     }
+
+    // non-javadoc, see interface HttpEntity
+    public boolean isStreaming() {
+        return !consumed;
+    }
+
+    // non-javadoc, see interface HttpEntity
+    public void consumeContent() throws IOException {
+        consumed = true;
+        // If the input stream is from a connection, closing it will read to
+        // the end of the content. Otherwise, we don't care what it does.
+        content.close();
+    }
     
-}
+} // class InputStreamEntity

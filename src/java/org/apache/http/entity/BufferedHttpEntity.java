@@ -34,30 +34,28 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 
-import org.apache.http.Header;
 import org.apache.http.HttpEntity;
 import org.apache.http.util.EntityUtils;
 
 /**
- * <p>
- * </p>
+ * A wrapping entity that buffers it content if necessary.
+ * The buffered entity is always repeatable.
+ * If the wrapped entity is repeatable itself, calls are passed through.
+ * If the wrapped entity is not repeatable, the content is read into a
+ * buffer once and provided from there as often as required.
+ *
  * @author <a href="mailto:oleg at ural.ru">Oleg Kalnichevski</a>
  *
  * @version $Revision$
  * 
  * @since 4.0
  */
-public class BufferedHttpEntity implements HttpEntity {
-    
-    private final HttpEntity source;
+public class BufferedHttpEntity extends HttpEntityWrapper {
+      
     private final byte[] buffer;
-    
+      
     public BufferedHttpEntity(final HttpEntity entity) throws IOException {
-        super();
-        if (entity == null) {
-            throw new IllegalArgumentException("HTTP entity may not be null");
-        }
-        this.source = entity;
+        super(entity);
         if (entity.isChunked() || !entity.isRepeatable() ) {
             this.buffer = EntityUtils.toByteArray(entity);
         } else {
@@ -69,33 +67,36 @@ public class BufferedHttpEntity implements HttpEntity {
         if (this.buffer != null) {
             return this.buffer.length;
         } else {
-            return this.source.getContentLength();
+            return wrappedEntity.getContentLength();
         }
-    }
-
-    public Header getContentType() {
-        return this.source.getContentType();
-    }
-    
-    public Header getContentEncoding() {
-        return this.source.getContentEncoding();
     }
     
     public InputStream getContent() throws IOException {
         if (this.buffer != null) {
             return new ByteArrayInputStream(this.buffer);
         } else {
-            return this.source.getContent();
+            return wrappedEntity.getContent();
         }
     }
-    
+
+    /**
+     * Tells that this entity does not have to be chunked.
+     *
+     * @return  <code>false</code>
+     */
     public boolean isChunked() {
         return false;
     }
     
+    /**
+     * Tells that this entity is repeatable.
+     *
+     * @return  <code>true</code>
+     */
     public boolean isRepeatable() {
         return true;
     }
+
     
     public boolean writeTo(final OutputStream outstream) throws IOException {
         if (outstream == null) {
@@ -105,8 +106,14 @@ public class BufferedHttpEntity implements HttpEntity {
             outstream.write(this.buffer);
             return true;
         } else {
-            return this.source.writeTo(outstream);
+            return wrappedEntity.writeTo(outstream);
         }
     }
+
+
+    // non-javadoc, see interface HttpEntity
+    public boolean isStreaming() {
+        return (buffer == null) && wrappedEntity.isStreaming();
+    }
     
-}
+} // class BufferedHttpEntity

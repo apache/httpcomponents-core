@@ -35,73 +35,33 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 
-import org.apache.http.Header;
-import org.apache.http.HttpEntity;
-import org.apache.http.protocol.HTTP;
-
 /**
- * <p>
- * </p>
+ * A self-contained entity obtaining content from a file.
+ *
  * @author <a href="mailto:oleg at ural.ru">Oleg Kalnichevski</a>
  *
  * @version $Revision$
  * 
  * @since 4.0
  */
-public class FileEntity implements HttpEntity {
+public class FileEntity extends AbstractHttpEntity {
 
     private final File file; 
-    private String contentType = null;
-    private String contentEncoding = null;
-    private boolean chunked = false;
 
     public FileEntity(final File file, final String contentType) {
-        super();
-        if (file == null) {
+        super();        if (file == null) {
             throw new IllegalArgumentException("File may not be null");
         }
         this.file = file;
-        this.contentType = contentType;
+        setContentType(contentType);
     }
 
     public boolean isRepeatable() {
         return true;
     }
 
-    public boolean isChunked() {
-        return this.chunked;
-    }
-
-    public void setChunked(boolean b) {
-        this.chunked = b;
-    }
-
     public long getContentLength() {
         return this.file.length();
-    }
-    
-    public Header getContentType() {
-        if (this.contentType != null) {
-            return new Header(HTTP.CONTENT_TYPE, this.contentType);
-        } else {
-            return null;
-        }
-    }
-
-    public void setContentType(final String contentType) {
-        this.contentType = contentType;
-    }
-
-    public Header getContentEncoding() {
-        if (this.contentEncoding != null) {
-            return new Header(HTTP.CONTENT_ENCODING, this.contentEncoding);
-        } else {
-            return null;
-        }
-    }
-
-    public void setContentEncoding(final String contentEncoding) {
-        this.contentEncoding = contentEncoding;
     }
     
     public InputStream getContent() throws IOException {
@@ -122,4 +82,13 @@ public class FileEntity implements HttpEntity {
         return true;
     }
 
-}
+    /**
+     * Tells that this entity is not streaming.
+     *
+     * @return <code>false</code>
+     */
+    public boolean isStreaming() {
+        return false;
+    }
+
+} // class FileEntity

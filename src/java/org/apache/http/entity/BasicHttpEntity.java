@@ -116,5 +116,19 @@ public class BasicHttpEntity implements HttpEntity {
         }
         return true;
     }
+
+
+    // non-javadoc, see interface HttpEntity
+    public boolean isStreaming() {
+        return (content != null);
+    }
+
+    // non-javadoc, see interface HttpEntity
+    public void consumeContent() throws IOException {
+        if (content != null) {
+            content.close(); // reads to the end of the entity
+            content = null;
+        }
+    }
     
-}
+} // class BasicHttpEntity

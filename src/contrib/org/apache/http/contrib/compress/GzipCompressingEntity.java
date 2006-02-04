@@ -36,33 +36,24 @@ import java.util.zip.GZIPOutputStream;
 
 import org.apache.http.Header;
 import org.apache.http.HttpEntity;
+import org.apache.http.entity.HttpEntityWrapper;
 import org.apache.http.protocol.HTTP;
 
 /**
- * <p>
- * </p>
++  * Wrapping entity that compresses content when {@link #writeTo writing}.
++  *
  * @author <a href="mailto:oleg at ural.ru">Oleg Kalnichevski</a>
  *
  * @version $Revision$
  * 
  * @since 4.0
  */
-public class GzipCompressingEntity implements HttpEntity {
+public class GzipCompressingEntity extends HttpEntityWrapper {
     
     private static final String GZIP_CODEC = "gzip";
-    
-    private final HttpEntity entity;
-    
-    public GzipCompressingEntity(final HttpEntity entity) {
-        super();
-        if (entity == null) {
-            throw new IllegalArgumentException("HTTP entity may not be null");
-        }
-        this.entity = entity;
-    }
 
-    public InputStream getContent() throws IOException {
-        return this.entity.getContent();
+    public GzipCompressingEntity(final HttpEntity entity) {
+        super(entity);
     }
 
     public Header getContentEncoding() {
@@ -73,17 +64,9 @@ public class GzipCompressingEntity implements HttpEntity {
         return -1;
     }
 
-    public Header getContentType() {
-        return this.entity.getContentType();
-    }
-
     public boolean isChunked() {
         // force content chunking
         return true;
-    }
-
-    public boolean isRepeatable() {
-        return this.entity.isRepeatable();
     }
 
     public boolean writeTo(final OutputStream outstream) throws IOException {
@@ -91,7 +74,7 @@ public class GzipCompressingEntity implements HttpEntity {
             throw new IllegalArgumentException("Output stream may not be null");
         }
         GZIPOutputStream gzip = new GZIPOutputStream(outstream);
-        InputStream in = this.entity.getContent();
+        InputStream in = wrappedEntity.getContent();
         byte[] tmp = new byte[2048];
         int l;
         while ((l = in.read(tmp)) != -1) {
@@ -102,4 +85,4 @@ public class GzipCompressingEntity implements HttpEntity {
         return true;
     }
 
-}
+} // class GzipCompressingEntity

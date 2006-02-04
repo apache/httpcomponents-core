@@ -34,8 +34,34 @@ import java.io.InputStream;
 import java.io.OutputStream;
 
 /**
+ * An entity that can be sent or received with an HTTP message.
+ * Entities can be found in some
+ * {@link HttpEntityEnclosingRequest requests} and in
+ * {@link HttpResponse responses}, where they are optional.
  * <p>
- * </p>
+ * In some places, the JavaDoc distinguishes three kinds of entities,
+ * depending on where their {@link #getContent content} originates:
+ * <ul>
+ * <li><b>streamed</b>: The content is received from a stream, or
+ *     generated on the fly. In particular, this category includes
+ *     entities being received from a {@link HttpConnection connection}.
+ *     {@link #isStreamed Streamed} entities are generally not
+ *      {@link #isRepeatable repeatable}.
+ *     </li>
+ * <li><b>self-contained</b>: The content is in memory or obtained by
+ *     means that are independent from a connection or other entity.
+ *     Self-contained entities are generally {@link #isRepeatable repeatable}.
+ *     </li>
+ * <li><b>wrapping</b>: The content is obtained from another entity.
+ *     </li>
+ * </ul>
+ * This distinction is important for connection management with incoming
+ * entities. For entities that are created by an application and only sent
+ * using the HTTP components framework, the difference between streamed
+ * and self-contained is of little importance. In that case, it is suggested
+ * to consider non-repeatable entities as streamed, and those that are
+ * repeatable (without a huge effort) as self-contained.
+ *
  * @author <a href="mailto:oleg at ural.ru">Oleg Kalnichevski</a>
  *
  * @version $Revision$
@@ -52,27 +78,68 @@ public interface HttpEntity {
      */
     boolean isRepeatable();
 
+    /**
+     * Tells about chunked encoding for this entity.
+     * The primary purpose of this method is to indicate whether
+     * chunked encoding should be used when the entity is sent.
+     * For entities that are received, it can also indicate whether
+     * the entity was received with chunked encoding.
+     * <br/>
+     * The behavior of wrapping entities is implementation dependent,
+     * but should respect the primary purpose.
+     *
+     * @return  <code>true</code> if chunked encoding is preferred for this
+     *          entity, or <code>false</code> if it is not
+     */
     boolean isChunked();
 
-    long getContentLength();
-    
-    Header getContentType();
-    
-    Header getContentEncoding();
-    
     /**
-     * Creates a new InputStream object of the entity. It is a programming error
+     * Tells the length of the content, if known.
+     *
+     * @return  the number of bytes of the content, or
+     *          a negative number if unknown. If the content length is known
+     *          but exceeds {@link java.lang.Long#MAX_VALUE Long.MAX_VALUE},
+     *          a negative number is returned.
+     */
+    long getContentLength();
+
+    /**
+     * Obtains the Content-Type header, if known.
+     * This is the header that should be used when sending the entity,
+     * or the one that was received with the entity. It can include a
+     * charset attribute.
+     *
+     * @return  the Content-Type header for this entity, or
+     *          <code>null</code> if the content type is unknown
+     */
+    Header getContentType();
+
+    /**
+     * Obtains the Content-Encoding header, if known.
+     * This is the header that should be used when sending the entity,
+     * or the one that was received with the entity.
+     * Wrapping entities that modify the content encoding should
+     * adjust this header accordingly.
+     *
+     * @return  the Content-Encoding header for this entity, or
+     *          <code>null</code> if the content encoding is unknown
+     */
+    Header getContentEncoding();
+
+    /**
+     * Creates a new InputStream object of the entity.
+     * It is a programming error
      * to return the same InputStream object more than once.
      * @return a new input stream that returns the entity data.
      * @throws IOException if the stream could not be created
      */
     InputStream getContent() throws IOException;
-    
+
     /**
      * Writes the entity content to the output stream either partially or entirely.
      * This method may either write the entire content in one go, if it is feasible 
      * to do so, or store the output stream as a local variable and use it internally 
-     * to write the content in parts. If the former case this method MUST return
+     * to write the content in parts. In the former case this method MUST return
      * <tt>true</tt> to indicate that the output stream can be closed. In the latter
      * case the output stream MUST be closed once the last content part is written
      * in order to ensure that content codings that emit a closing chunk are properly
@@ -84,5 +151,43 @@ public interface HttpEntity {
      * @throws IOException if an I/O error occurs
      */
     boolean writeTo(OutputStream outstream) throws IOException;
-    
-}
+
+    /**
+     * Tells whether this entity depends on an underlying stream.
+     * Streamed entities should return <code>true</code> until the
+     * content has been consumed, <code>false</code> afterwards.
+     * Self-contained entities should return <code>false</code>.
+     * Wrapping entities should delegate this call to the wrapped entity.
+     * <br/>
+     * The content of a streamed entity is consumed when the stream
+     * returned by {@link #getContent getContent} has been read to EOF,
+     * or after {@link #consumeContent consumeContent} has been called.
+     * If a streamed entity can not detect whether the stream has been
+     * read to EOF, it should return <code>true</code> until
+     * {@link #consumeContent consumeContent} is called.
+     *
+     * @return  <code>true</code> if the entity content is streamed and
+     *          not yet consumed, <code>false</code> otherwise
+     */
+    boolean isStreaming(); // don't expect an exception here
+
+    /**
+     * Consumes the remaining content of a streamed entity.
+     * This method is called to indicate that the content of this entity
+     * is no longer required.
+     * Streamed entities should dispose of the remaining content, if any.
+     * Self-contained entities can release allocated resources, but
+     * are not required to do anything.
+     * Wrapping entities should delegate this call to the wrapped entity.
+     * <br/>
+     * This method is of particular importance for entities being
+     * received from a {@link HttpConnection connection}. The entity
+     * needs to be consumed completely in order to re-use the connection
+     * with keep-alive.
+     *
+     * @throws IOException if an I/O error occurs.
+     *          This indicates that connection keep-alive is not possible.
+     */
+    void consumeContent() throws IOException;
+
+} // interface HttpEntity
