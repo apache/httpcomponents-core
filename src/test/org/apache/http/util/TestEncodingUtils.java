@@ -178,16 +178,16 @@ public class TestEncodingUtils extends TestCase {
         }
     }
     
-    public void testInvalidEncoding() {
+    public void testUnsupportedEncoding() {
         String s = constructString(SWISS_GERMAN_HELLO);
         byte[] b1 = s.getBytes();
-        byte[] b2 = EncodingUtils.getBytes(s, "This just aint right");
+        byte[] b2 = EncodingUtils.getBytes(s, "ThisJustAintRight");
         assertEquals(b1.length, b2.length);
         for (int i = 0; i < b1.length; i++) {
             assertEquals(b1[i], b2[i]);
         }
         String s1 = new String(b1);
-        String s2 = EncodingUtils.getString(b1, "This just aint right");
+        String s2 = EncodingUtils.getString(b1, "ThisJustAintRight");
         assertEquals(s1, s2);        
     }
     
