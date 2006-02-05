@@ -47,26 +47,22 @@ import org.apache.http.entity.HttpEntityWrapper;
  */
 public class GzipDecompressingEntity extends HttpEntityWrapper {
 
-      private InputStream instream = null;
-      
       public GzipDecompressingEntity(final HttpEntity entity) {
           super(entity);
       }
   
-      public InputStream getContent() throws IOException {
-          if (this.instream == null) {
-              this.instream = new GZIPInputStream(wrappedEntity.getContent()); 
-          }
-          return this.instream;
+      public InputStream getContent()
+          throws IOException, IllegalStateException {
+
+          // the wrapped entity's getContent() decides about repeatability
+          InputStream wrappedin = wrappedEntity.getContent();
+
+          return new GZIPInputStream(wrappedin);
       }
-  
+
       public long getContentLength() {
+          // length of ungzipped content not known in advance
           return -1;
       }
-  
-      public boolean isRepeatable() {
-          // not repeatable, GZIPInputStream is created only once
-          return false;
-      }
-  
+
 } // class GzipDecompressingEntity

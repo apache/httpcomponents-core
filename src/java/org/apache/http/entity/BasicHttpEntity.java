@@ -33,9 +33,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 
-import org.apache.http.Header;
-import org.apache.http.HttpEntity;
-
 /**
  * <p>
  * </p>
@@ -45,62 +42,82 @@ import org.apache.http.HttpEntity;
  * 
  * @since 4.0
  */
-public class BasicHttpEntity implements HttpEntity {
-    
-    private Header contentType = null;
-    private Header contentEncoding = null;
-    private InputStream content = null;
-    private long length = -1;
-    private boolean chunked = false;
-    
+public class BasicHttpEntity extends AbstractHttpEntity {
+
+    private InputStream content;
+    private boolean contentObtained;
+    private long length;
+
+    /**
+     * Creates a new basic entity.
+     * The content is initially missing, the content length
+     * is set to a negative number.
+     */
     public BasicHttpEntity() {
         super();
+        length = -1;
     }
 
+    // non-javadoc, see interface HttpEntity
     public long getContentLength() {
         return this.length;
     }
 
-    public Header getContentType() {
-        return this.contentType;
-    }
-    
-    public Header getContentEncoding() {
-        return this.contentEncoding;
-    }
-    
-    public InputStream getContent() {
+    /**
+     * Obtains the content, once only.
+     *
+     * @return  the content, if this is the first call to this method
+     *          since {@link #setContent setContent} has been called
+     *
+     * @throws IllegalStateException
+     *          if the content has been obtained before, or
+     *          has not yet been provided
+     */
+    public InputStream getContent()
+        throws IllegalStateException {
+
+        if (this.content == null)
+            throw new IllegalStateException("content has not been provided");
+        if (contentObtained)
+            throw new IllegalStateException("content is not repeatable");
+
+        contentObtained = true;
         return this.content;
-    }
-    
-    public boolean isChunked() {
-        return this.chunked;
-    }
-    
+
+    } // getContent
+
+    /**
+     * Tells that this entity is not repeatable.
+     *
+     * @return <code>false</code>
+     */
     public boolean isRepeatable() {
         return false;
     }
-    
-    public void setChunked(boolean b) {
-        this.chunked = b;
-    }
-    
+
+    /**
+     * Specifies the length of the content.
+     *
+     * @param len       the number of bytes in the content, or
+     *                  a negative number to indicate an unknown length
+     */
     public void setContentLength(long len) {
         this.length = len;
     }
-    
-    public void setContentType(final Header contentType) {
-        this.contentType = contentType;
-    }
-    
-    public void setContentEncoding(final Header contentEncoding) {
-        this.contentEncoding = contentEncoding;
-    }
-    
+
+    /**
+     * Specifies the content.
+     *
+     * @param instream          the stream to return with the next call to
+     *                          {@link #getContent getContent}
+     */
     public void setContent(final InputStream instream) {
-        this.content = instream; 
+        this.content = instream;
+        if (instream != null)
+            contentObtained = false;
     }
-    
+
+    // non-javadoc, see interface HttpEntity
     public void writeTo(final OutputStream outstream) throws IOException {
         if (outstream == null) {
             throw new IllegalArgumentException("Output stream may not be null");
@@ -115,7 +132,6 @@ public class BasicHttpEntity implements HttpEntity {
             outstream.write(tmp, 0, l);
         }
     }
-
 
     // non-javadoc, see interface HttpEntity
     public boolean isStreaming() {

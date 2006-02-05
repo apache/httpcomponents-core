@@ -101,7 +101,8 @@ public class EntityUtils {
         if (entity == null) {
             throw new IllegalArgumentException("HTTP entity may not be null");
         }
-        if (entity.getContent() == null) {
+        InputStream instream = entity.getContent();
+        if (instream == null) {
             return "";
         }
         if (entity.getContentLength() > Integer.MAX_VALUE) {
@@ -118,7 +119,7 @@ public class EntityUtils {
         if (charset == null) {
             charset = HTTP.DEFAULT_CONTENT_CHARSET;
         }
-        Reader reader = new InputStreamReader(entity.getContent(), charset);
+        Reader reader = new InputStreamReader(instream, charset);
         CharArrayBuffer buffer = new CharArrayBuffer(i); 
         char[] tmp = new char[1024];
         int l;

@@ -29,6 +29,7 @@
 
 package org.apache.http.util;
 
+import java.io.InputStream;
 import java.io.ByteArrayInputStream;
 
 import org.apache.http.Header;
@@ -68,8 +69,7 @@ public class TestEntityUtils extends TestCase {
     }
     
     public void testEmptyContentToByteArray() throws Exception {
-        BasicHttpEntity httpentity = new BasicHttpEntity();
-        httpentity.setContent(null);
+        NullHttpEntity httpentity = new NullHttpEntity();
         byte[] bytes = EntityUtils.toByteArray(httpentity);
         assertNotNull(bytes);
         assertEquals(0, bytes.length);
@@ -125,7 +125,7 @@ public class TestEntityUtils extends TestCase {
     
     public void testNullContentTypeGetContentCharset() throws Exception {
         BasicHttpEntity httpentity = new BasicHttpEntity();
-        httpentity.setContentType(null);
+        httpentity.setContentType((Header)null);
         assertNull(EntityUtils.getContentCharSet(httpentity));
     }
     
@@ -151,8 +151,7 @@ public class TestEntityUtils extends TestCase {
     }
     
     public void testEmptyContentToString() throws Exception {
-        BasicHttpEntity httpentity = new BasicHttpEntity();
-        httpentity.setContent(null);
+        NullHttpEntity httpentity = new NullHttpEntity();
         String s = EntityUtils.toString(httpentity);
         assertNotNull(s);
         assertEquals("", s);
@@ -237,5 +236,22 @@ public class TestEntityUtils extends TestCase {
         String s = EntityUtils.toString(httpentity, "ISO-8859-1");
         assertEquals(content, s);
     }
-    
-}
+
+    /**
+     * Helper class that returns <code>null</code> as the content.
+     */
+    public static class NullHttpEntity extends BasicHttpEntity {
+
+        // default constructor
+        /**
+         * Obtains no content.
+         * This method disables the state checks in the base class.
+         *
+         * @return <code>null</code>
+         */
+        public InputStream getContent() {
+            return null;
+        }
+    } // class NullEntity
+
+} // class TestEntityUtils

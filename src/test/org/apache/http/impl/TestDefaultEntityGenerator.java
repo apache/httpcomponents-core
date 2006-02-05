@@ -28,6 +28,8 @@
 
 package org.apache.http.impl;
 
+import java.io.InputStream;
+
 import org.apache.http.Header;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpMutableMessage;
@@ -205,8 +207,9 @@ public class TestDefaultEntityGenerator extends TestCase {
         assertNotNull(entity);
         assertEquals(1, entity.getContentLength());
         assertFalse(entity.isChunked());
-        assertNotNull(entity.getContent());
-        assertTrue(entity.getContent() instanceof ContentLengthInputStream);
+        InputStream instream = entity.getContent();
+        assertNotNull(instream);
+        assertTrue(instream instanceof ContentLengthInputStream);
         
         // strict mode 
         message.getParams().setBooleanParameter(HttpProtocolParams.STRICT_TRANSFER_ENCODING, true);
@@ -233,8 +236,9 @@ public class TestDefaultEntityGenerator extends TestCase {
         assertNotNull(entity);
         assertEquals(1, entity.getContentLength());
         assertFalse(entity.isChunked());
-        assertNotNull(entity.getContent());
-        assertTrue(entity.getContent() instanceof ContentLengthInputStream);
+        InputStream instream = entity.getContent();
+        assertNotNull(instream);
+        assertTrue(instream instanceof ContentLengthInputStream);
         
         // strict mode 
         message.getParams().setBooleanParameter(HttpProtocolParams.STRICT_TRANSFER_ENCODING, true);
@@ -260,9 +264,10 @@ public class TestDefaultEntityGenerator extends TestCase {
         assertNotNull(entity);
         assertEquals(-1, entity.getContentLength());
         assertFalse(entity.isChunked());
-        assertNotNull(entity.getContent());
-        assertFalse(entity.getContent() instanceof ContentLengthInputStream);
-        assertTrue(entity.getContent() instanceof HttpDataInputStream);
+        InputStream instream = entity.getContent();
+        assertNotNull(instream);
+        assertFalse(instream instanceof ContentLengthInputStream);
+        assertTrue(instream instanceof HttpDataInputStream);
         
         // strict mode 
         message.getParams().setBooleanParameter(HttpProtocolParams.STRICT_TRANSFER_ENCODING, true);
@@ -287,9 +292,10 @@ public class TestDefaultEntityGenerator extends TestCase {
         assertNotNull(entity);
         assertEquals(-1, entity.getContentLength());
         assertFalse(entity.isChunked());
-        assertNotNull(entity.getContent());
-        assertFalse(entity.getContent() instanceof ContentLengthInputStream);
-        assertTrue(entity.getContent() instanceof HttpDataInputStream);
+        InputStream instream = entity.getContent();
+        assertNotNull(instream);
+        assertFalse(instream instanceof ContentLengthInputStream);
+        assertTrue(instream instanceof HttpDataInputStream);
         
         // strict mode 
         message.getParams().setBooleanParameter(HttpProtocolParams.STRICT_TRANSFER_ENCODING, true);
@@ -312,10 +318,11 @@ public class TestDefaultEntityGenerator extends TestCase {
         assertNotNull(entity);
         assertEquals(-1, entity.getContentLength());
         assertFalse(entity.isChunked());
-        assertNotNull(entity.getContent());
-        assertFalse(entity.getContent() instanceof ContentLengthInputStream);
-        assertFalse(entity.getContent() instanceof ChunkedInputStream);
-        assertTrue(entity.getContent() instanceof HttpDataInputStream);
+        InputStream instream = entity.getContent();
+        assertNotNull(instream);
+        assertFalse(instream instanceof ContentLengthInputStream);
+        assertFalse(instream instanceof ChunkedInputStream);
+        assertTrue(instream instanceof HttpDataInputStream);
     }
 
 }

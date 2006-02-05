@@ -130,10 +130,17 @@ public interface HttpEntity {
      * Creates a new InputStream object of the entity.
      * It is a programming error
      * to return the same InputStream object more than once.
+     * Entities that are not {@link #isRepeatable repeatable}
+     * will throw an exception if this method is called multiple times.
+     *
      * @return a new input stream that returns the entity data.
+     *
      * @throws IOException if the stream could not be created
+     * @throws IllegalStateException
+     *  if this entity is not repeatable and the stream
+     *  has already been obtained previously
      */
-    InputStream getContent() throws IOException;
+    InputStream getContent() throws IOException, IllegalStateException;
 
     /**
      * Writes the entity content to the output stream.  
