@@ -57,8 +57,8 @@ import org.apache.http.params.HttpProtocolParams;
 import org.apache.http.protocol.HTTP;
 
 /**
- * <p>
- * </p>
+ * Default implementation of a client-side HTTP connection.
+ *
  * @author <a href="mailto:oleg at ural.ru">Oleg Kalnichevski</a>
  *
  * @version $Revision$

@@ -33,8 +33,8 @@ import java.io.IOException;
 import java.net.Socket;
 
 /**
- * <p>
- * </p>
+ * Factory for {@link HttpDataTransmitter HttpDataTransmitter} objects.
+ *
  * @author <a href="mailto:oleg at ural.ru">Oleg Kalnichevski</a>
  *
  * @version $Revision$

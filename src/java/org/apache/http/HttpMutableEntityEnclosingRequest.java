@@ -30,8 +30,8 @@
 package org.apache.http;
 
 /**
- * <p>
- * </p>
+ * An HTTP request with an entity that can be modified.
+ *
  * @author <a href="mailto:oleg at ural.ru">Oleg Kalnichevski</a>
  *
  * @version $Revision$

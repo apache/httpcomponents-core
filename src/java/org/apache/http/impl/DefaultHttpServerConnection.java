@@ -51,8 +51,8 @@ import org.apache.http.io.CharArrayBuffer;
 import org.apache.http.params.HttpParams;
 
 /**
- * <p>
- * </p>
+ * Default implementation of a server-side HTTP connection.
+ *
  * @author <a href="mailto:oleg at ural.ru">Oleg Kalnichevski</a>
  *
  * @version $Revision$

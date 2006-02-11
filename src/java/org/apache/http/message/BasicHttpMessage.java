@@ -38,8 +38,8 @@ import org.apache.http.impl.HeaderGroup;
 import org.apache.http.params.HttpParams;
 
 /**
- * <p>
- * </p>
+ * Basic implementation of an HTTP message that can be modified.
+ *
  * @author <a href="mailto:oleg at ural.ru">Oleg Kalnichevski</a>
  *
  * @version $Revision$

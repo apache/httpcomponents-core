@@ -138,7 +138,7 @@ public class Header {
     /**
      * Returns an array of {@link HeaderElement}s constructed from my value.
      *
-     * @see HeaderElement#parseElements(String)
+     * @see HeaderElement#parseAll
      * 
      * @return an array of header elements
      * 

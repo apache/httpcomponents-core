@@ -34,8 +34,8 @@ import java.io.IOException;
 import org.apache.http.params.HttpParams;
 
 /**
- * <p>
- * </p>
+ * An HTTP connection through a proxy.
+ *
  * @author <a href="mailto:oleg at ural.ru">Oleg Kalnichevski</a>
  *
  * @version $Revision$

@@ -164,8 +164,6 @@ public class ChunkedInputStream extends InputStream {
      * @return -1 of the end of the stream has been reached or the next data
      * byte
      * @throws IOException If an IO problem occurs
-     * 
-     * @see HttpMethod#getResponseFooters()
      */
     public int read() throws IOException {
         if (this.closed) {

@@ -42,8 +42,8 @@ import org.apache.http.io.CharArrayBuffer;
 import org.apache.http.protocol.HTTP;
 
 /**
- * <p>
- * </p>
+ * Static helpers for dealing with {@link HttpEntity entities}.
+ *
  * @author <a href="mailto:oleg at ural.ru">Oleg Kalnichevski</a>
  *
  * @version $Revision$

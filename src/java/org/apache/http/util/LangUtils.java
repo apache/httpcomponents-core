@@ -30,8 +30,8 @@
 package org.apache.http.util;
 
 /**
- * A set of utility methods to help produce consistent Object#equals(Object) and
- * Object#hashCode methods.
+ * A set of utility methods to help produce consistent
+ * {@link Object#equals equals} and {@link Object#hashCode hashCode} methods.
  *  
  * @author <a href="mailto:oleg at ural.ru">Oleg Kalnichevski</a>
  * 

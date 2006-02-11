@@ -37,7 +37,7 @@ import org.apache.http.protocol.HTTP;
 import org.apache.http.util.LangUtils;
 
 /**
- * <p>A simple class encapsulating an attribute/value pair</p> 
+ * A simple class encapsulating an attribute/value pair.
  * <p>
  *  This class comforms to the generic grammar and formatting rules outlined in the 
  *  <a href="http://www.w3.org/Protocols/rfc2616/rfc2616-sec2.html#sec2.2">Section 2.2</a>
@@ -382,7 +382,7 @@ public class NameValuePair {
      * Produces textual representaion of the attribute/value pair using 
      * formatting rules defined in RFC 2616
      *  
-     * @params param the parameters to be formatted
+     * @param params the parameters to be formatted
      * @param alwaysUseQuotes <tt>true</tt> if the parameter values must 
      * always be enclosed in quotation marks, <tt>false</tt> otherwise
      * 

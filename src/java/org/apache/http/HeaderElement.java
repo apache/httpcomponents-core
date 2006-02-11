@@ -156,8 +156,10 @@ public class HeaderElement {
      * This parses the value part of a header. The result is an array of
      * HeaderElement objects.
      *
-     * @param headerValue  the array of char representation of the header value
-     *                     (as received from the web server).
+     * @param buffer    the buffer from which to parse
+     * @param indexFrom where to start parsing in the buffer
+     * @param indexTo   where to stop parsing in the buffer
+     *
      * @return array of {@link HeaderElement}s.
      * 
      * @since 3.0

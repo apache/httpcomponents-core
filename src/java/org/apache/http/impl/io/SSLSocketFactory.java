@@ -40,7 +40,7 @@ import org.apache.http.params.HttpConnectionParams;
 import org.apache.http.params.HttpParams;
 
 /**
- * <p>A wrapper class for the standard JSSE SSLSocketFactory</p>
+ * .A wrapper class for the standard JSSE SSLSocketFactory.
  *   
  * @author <a href="mailto:oleg at ural.ru">Oleg Kalnichevski</a>
  */
@@ -102,9 +102,7 @@ public class SSLSocketFactory implements SecureSocketFactory {
         }
     }
 
-    /**
-     * @see SecureProtocolSocketFactory#createSocket(java.net.Socket,java.lang.String,int,boolean)
-     */
+    // non-javadoc, see interface SocketFactory
     public Socket createSocket(
         Socket socket,
         String host,

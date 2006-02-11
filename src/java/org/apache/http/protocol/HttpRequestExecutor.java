@@ -45,8 +45,10 @@ import org.apache.http.params.HttpConnectionParams;
 import org.apache.http.params.HttpParams;
 
 /**
- * <p>
- * </p>
+ * Sends HTTP requests and receives the responses.
+ * Takes care of request preprocessing and response postprocessing
+ * by the respective interceptors.
+ *
  * @author <a href="mailto:oleg at ural.ru">Oleg Kalnichevski</a>
  *
  * @version $Revision$

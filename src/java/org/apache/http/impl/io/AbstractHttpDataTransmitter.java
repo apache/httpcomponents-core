@@ -40,7 +40,7 @@ import org.apache.http.params.HttpProtocolParams;
 import org.apache.http.protocol.HTTP;
 
 /**
- * <p></p>
+ * Abstract base class for data transmitters using traditional IO.
  *
  * @author <a href="mailto:oleg at ural.ru">Oleg Kalnichevski</a>
  *

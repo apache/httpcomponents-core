@@ -41,8 +41,8 @@ import org.apache.http.HttpRequestInterceptor;
 import org.apache.http.HttpResponseInterceptor;
 
 /**
- * <p>
- * </p>
+ * Keeps lists of interceptors for processing requests and responses.
+ *
  * @author <a href="mailto:oleg at ural.ru">Oleg Kalnichevski</a>
  *
  * @version $Revision$

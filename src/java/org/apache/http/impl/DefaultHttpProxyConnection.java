@@ -42,8 +42,8 @@ import org.apache.http.io.SocketFactory;
 import org.apache.http.params.HttpParams;
 
 /**
- * <p>
- * </p>
+ * Default implementation of a client-side connection through a proxy.
+ *
  * @author <a href="mailto:oleg at ural.ru">Oleg Kalnichevski</a>
  *
  * @version $Revision$

@@ -32,6 +32,8 @@ package org.apache.http.io;
 import org.apache.http.protocol.HTTP;
 
 /**
+ * A resizable char array.
+ *
  * @author <a href="mailto:oleg at ural.ru">Oleg Kalnichevski</a>
  * 
  * @version $Revision$

@@ -30,8 +30,8 @@
 package org.apache.http;
 
 /**
- * <p>
- * </p>
+ * A factory for {@link HttpRequest HttpRequest} objects.
+ *
  * @author <a href="mailto:oleg at ural.ru">Oleg Kalnichevski</a>
  *
  * @version $Revision$

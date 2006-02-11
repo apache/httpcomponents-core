@@ -35,8 +35,9 @@ import java.net.Socket;
 import org.apache.http.params.HttpParams;
 
 /**
- * <p>
- * </p>
+ * An HTTP connection for use on the server side.
+ * Requests are received, responses are sent.
+ *
  * @author <a href="mailto:oleg at ural.ru">Oleg Kalnichevski</a>
  *
  * @version $Revision$

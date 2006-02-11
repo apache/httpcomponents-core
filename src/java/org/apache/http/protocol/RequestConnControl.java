@@ -37,8 +37,8 @@ import org.apache.http.HttpMutableRequest;
 import org.apache.http.HttpRequestInterceptor;
 
 /**
- * <p>
- * </p>
+ * A request interceptor that suggests connection keep-alive to the server.
+ *
  * @author <a href="mailto:oleg at ural.ru">Oleg Kalnichevski</a>
  *
  * @version $Revision$

@@ -31,8 +31,8 @@ package org.apache.http;
 
 
 /**
- * <p>
- * </p>
+ * Interface for deciding whether a connection should be kept alive.
+ *
  * @author <a href="mailto:oleg at ural.ru">Oleg Kalnichevski</a>
  *
  * @version $Revision$

@@ -48,6 +48,7 @@ import org.apache.http.params.HttpProtocolParams;
 import org.apache.http.protocol.HTTP;
 
 /**
+ * Default implementation of an entity generator.
  * <p>
  * This entity generator comforms to the entity transfer rules outlined in the 
  * <a href="http://www.w3.org/Protocols/rfc2616/rfc2616-sec3.html#sec4.4">Section 4.4</a>, 

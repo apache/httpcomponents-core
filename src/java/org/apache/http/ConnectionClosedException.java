@@ -32,8 +32,8 @@ package org.apache.http;
 import java.io.IOException;
 
 /**
- * <p>
- * </p>
+ * Indicates that a connection has been closed.
+ *
  * @author <a href="mailto:oleg at ural.ru">Oleg Kalnichevski</a>
  *
  * @version $Revision$

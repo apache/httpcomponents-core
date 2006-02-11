@@ -32,8 +32,9 @@ package org.apache.http;
 import org.apache.http.params.HttpParams;
 
 /**
- * <p>
- * </p>
+ * A generic HTTP message.
+ * Holds what is common between requests and responses.
+ *
  * @author <a href="mailto:oleg at ural.ru">Oleg Kalnichevski</a>
  *
  * @version $Revision$

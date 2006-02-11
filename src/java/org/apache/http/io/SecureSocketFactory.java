@@ -34,9 +34,8 @@ import java.net.Socket;
 import java.net.UnknownHostException;
 
 /**
- * A ProtocolSocketFactory that is secure.
- * 
- * @see org.apache.commons.httpclient.protocol.ProtocolSocketFactory
+ * A {@link SocketFactory SocketFactory} for secure sockets (SSL/TLS).
+ * See there for things to consider when implementing a socket factory.
  * 
  * @author Michael Becke
  * @author <a href="mailto:mbowler@GargoyleSoftware.com">Mike Bowler</a>

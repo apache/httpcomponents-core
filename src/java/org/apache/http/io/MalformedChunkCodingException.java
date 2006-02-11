@@ -32,7 +32,7 @@ package org.apache.http.io;
 import java.io.IOException;
 
 /**
- * Signals a malformed chunked stream
+ * Signals a malformed chunked stream.
  */
 public class MalformedChunkCodingException extends IOException {
 

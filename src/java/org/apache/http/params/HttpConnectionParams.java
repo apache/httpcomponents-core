@@ -45,7 +45,7 @@ public final class HttpConnectionParams {
      * Defines the default socket timeout (<tt>SO_TIMEOUT</tt>) in milliseconds which is the 
      * timeout for waiting for data. A timeout value of zero is interpreted as an infinite 
      * timeout. This value is used when no socket timeout is set in the 
-     * {@link HttpMethodParams HTTP method parameters}. 
+     * method parameters. 
      * <p>
      * This parameter expects a value of type {@link Integer}.
      * </p>
@@ -68,7 +68,7 @@ public final class HttpConnectionParams {
 
     /**
      * Determines the size of the internal socket buffer used to buffer data
-     * while receiving / transmitting HTTP messages 
+     * while receiving / transmitting HTTP messages.
      * <p>
      * This parameter expects a value of type {@link Integer}.
      * </p>
@@ -117,7 +117,7 @@ public final class HttpConnectionParams {
      * Returns the default socket timeout (<tt>SO_TIMEOUT</tt>) in milliseconds which is the 
      * timeout for waiting for data. A timeout value of zero is interpreted as an infinite 
      * timeout. This value is used when no socket timeout is set in the 
-     * {@link HttpMethodParams HTTP method parameters}. 
+     * method parameters. 
      *
      * @return timeout in milliseconds
      */
@@ -132,7 +132,7 @@ public final class HttpConnectionParams {
      * Sets the default socket timeout (<tt>SO_TIMEOUT</tt>) in milliseconds which is the 
      * timeout for waiting for data. A timeout value of zero is interpreted as an infinite 
      * timeout. This value is used when no socket timeout is set in the 
-     * {@link HttpMethodParams HTTP method parameters}. 
+     * method parameters. 
      *
      * @param timeout Timeout in milliseconds
      */

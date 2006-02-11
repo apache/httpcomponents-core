@@ -94,7 +94,9 @@ public class StatusLine {
     /**
      * Parses the status line returned from the HTTP server.
      *
-     * @param statusLine the status line to be parsed
+     * @param buffer    the buffer from which to parse
+     * @param indexFrom where to start parsing in the buffer
+     * @param indexTo   where to stop parsing in the buffer
      * 
      * @throws HttpException if the status line is invalid
      * 

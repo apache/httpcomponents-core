@@ -34,7 +34,7 @@ import org.apache.http.protocol.HTTP;
 
 /**
  * This class implements an adaptor around the {@link HttpParams} interface
- * to simplify manipulation of the HTTP connection specific parameters.
+ * to simplify manipulation of the HTTP protocol specific parameters.
  * 
  * @author <a href="mailto:oleg at ural.ru">Oleg Kalnichevski</a>
  * 
@@ -53,8 +53,8 @@ public final class HttpProtocolParams {
     public static final String PROTOCOL_VERSION = "http.protocol.version"; 
 
     /**
-     * Defines the charset to be used when encoding 
-     * {@link org.apache.commons.httpclient.Credentials}. If not defined then the 
+     * Defines the charset to be used when encoding credentials.
+     * If not defined then the 
      * {@link #HTTP_ELEMENT_CHARSET} should be used.
      * <p>
      * This parameter expects a value of type {@link String}.
@@ -144,8 +144,7 @@ public final class HttpProtocolParams {
     /**
      * <p>
      * Activates 'Expect: 100-Continue' handshake for the 
-     * {@link org.apache.commons.httpclient.methods.ExpectContinueMethod 
-     * entity enclosing methods}. The purpose of the 'Expect: 100-Continue'
+     * entity enclosing methods. The purpose of the 'Expect: 100-Continue'
      * handshake to allow a client that is sending a request message with 
      * a request body to determine if the origin server is willing to 
      * accept the request (based on the request headers) before the client
@@ -230,8 +229,9 @@ public final class HttpProtocolParams {
     }
 
     /**
-     * Returns the charset to be used for {@link org.apache.commons.httpclient.Credentials}. If
-     * not configured the {@link #HTTP_ELEMENT_CHARSET HTTP element charset} is used.
+     * Returns the charset to be used for credentials.
+     * If not configured the {@link #HTTP_ELEMENT_CHARSET HTTP element charset}
+     * is used.
      * @return The charset
      */
     public static String getCredentialCharset(final HttpParams params) {
@@ -274,8 +274,7 @@ public final class HttpProtocolParams {
     
     /**
      * Assigns the {@link HttpVersion HTTP protocol version} to be used by the 
-     * {@link org.apache.commons.httpclient.HttpMethod HTTP methods} that 
-     * this collection of parameters applies to. 
+     * HTTP methods that this collection of parameters applies to. 
      *
      * @param version the {@link HttpVersion HTTP protocol version}
      */

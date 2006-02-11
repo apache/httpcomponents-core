@@ -41,8 +41,8 @@ import org.apache.http.HttpVersion;
 import org.apache.http.params.HttpProtocolParams;
 
 /**
- * <p>
- * </p>
+ * A request interceptor that enables the expect-continue handshake.
+ *
  * @author <a href="mailto:oleg at ural.ru">Oleg Kalnichevski</a>
  *
  * @version $Revision$

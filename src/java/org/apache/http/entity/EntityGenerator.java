@@ -37,8 +37,8 @@ import org.apache.http.HttpMessage;
 import org.apache.http.io.HttpDataReceiver;
 
 /**
- * <p>
- * </p>
+ * Generates entities when HTTP messages are received.
+ *
  * @author <a href="mailto:oleg at ural.ru">Oleg Kalnichevski</a>
  *
  * @version $Revision$

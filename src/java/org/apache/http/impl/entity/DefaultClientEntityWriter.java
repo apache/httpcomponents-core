@@ -42,8 +42,7 @@ import org.apache.http.io.ContentLengthOutputStream;
 import org.apache.http.io.HttpDataTransmitter;
 
 /**
- * <p>
- * </p>
+ * Default implementation of an entity writer on the client side.
  * 
  * @author <a href="mailto:oleg at ural.ru">Oleg Kalnichevski</a>
  *

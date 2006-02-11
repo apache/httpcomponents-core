@@ -116,7 +116,7 @@ public class ChunkedOutputStream extends OutputStream {
     // ----------------------------------------------------------- Constructors
     /**
      * Wraps a stream and chunks the output.
-     * @param stream to wrap
+     * @param out the transmitter to wrap
      * @param bufferSize minimum chunk size (excluding last chunk)
      * @throws IOException
      * 
@@ -132,7 +132,7 @@ public class ChunkedOutputStream extends OutputStream {
     /**
      * Wraps a data transmitter and chunks the output. The default buffer size of 2048 was 
      * chosen because the chunk overhead is less than 0.5%
-     * @param stream
+     * @param datatransmitter the transmitter to wrap
      * @throws IOException
      */
     public ChunkedOutputStream(final HttpDataTransmitter datatransmitter) 

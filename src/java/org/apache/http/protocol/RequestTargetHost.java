@@ -39,8 +39,8 @@ import org.apache.http.HttpRequestInterceptor;
 import org.apache.http.params.HttpProtocolParams;
 
 /**
- * <p>
- * </p>
+ * A request interceptor that sets the Host header for HTTP/1.1 requests.
+ *
  * @author <a href="mailto:oleg at ural.ru">Oleg Kalnichevski</a>
  *
  * @version $Revision$

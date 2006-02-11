@@ -34,8 +34,10 @@ import java.io.IOException;
 import org.apache.http.params.HttpParams;
 
 /**
- * <p>
- * </p>
+ * Interface for sending data.
+ * Unlike {@link java.io.OutputStream}, this interface is tailored
+ * to the needs of the HTTP components.
+ *
  * @author <a href="mailto:oleg at ural.ru">Oleg Kalnichevski</a>
  *
  * @version $Revision$

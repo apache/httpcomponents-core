@@ -37,8 +37,8 @@ import org.apache.http.StatusLine;
 import org.apache.http.message.BasicHttpResponse;
 
 /**
- * <p>
- * </p>
+ * Default implementation of a factory for creating response objects.
+ *
  * @author <a href="mailto:oleg at ural.ru">Oleg Kalnichevski</a>
  *
  * @version $Revision$

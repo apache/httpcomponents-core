@@ -33,7 +33,7 @@ package org.apache.http.util;
 /**
  * An exception to indicate an error parsing a date string.
  * 
- * @see DateUtil
+ * @see DateUtils
  * 
  * @author Michael Becke
  */

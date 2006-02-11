@@ -50,10 +50,10 @@ public interface HttpRequestRetryHandler {
      * Determines if a method should be retried after an IOException
      * occurs during execution.
      * 
-     * @param request the request being executed
      * @param exception the exception that occurred
      * @param executionCount the number of times this method has been 
      * unsuccessfully executed
+     * @param context the context for the request execution
      * 
      * @return <code>true</code> if the method should be retried, <code>false</code>
      * otherwise

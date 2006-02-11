@@ -35,8 +35,8 @@ import org.apache.http.RequestLine;
 import org.apache.http.params.HttpProtocolParams;
 
 /**
- * <p>
- * </p>
+ * Basic implementation of an HTTP request that can be modified.
+ *
  * @author <a href="mailto:oleg at ural.ru">Oleg Kalnichevski</a>
  *
  * @version $Revision$

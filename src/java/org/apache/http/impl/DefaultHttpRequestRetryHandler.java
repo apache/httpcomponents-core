@@ -41,7 +41,7 @@ import org.apache.http.protocol.HttpExecutionContext;
 import org.apache.http.protocol.HttpRequestRetryHandler;
 
 /**
- * The default {@link HttpRequestRetryHandler} used by {@link HttpRequestExecutor}s.
+ * The default {@link HttpRequestRetryHandler} used by request executors.
  * 
  * @author Michael Becke
  * @author <a href="mailto:oleg at ural.ru">Oleg Kalnichevski</a>
@@ -72,8 +72,6 @@ public class DefaultHttpRequestRetryHandler implements HttpRequestRetryHandler {
     /** 
      * Used <code>retryCount</code> and <code>requestSentRetryEnabled</code> to determine
      * if the given method should be retried.
-     * 
-     * @see HttpMethodRetryHandler#retryMethod(HttpMethod, IOException, int)
      */
     public boolean retryRequest(
             final IOException exception, 

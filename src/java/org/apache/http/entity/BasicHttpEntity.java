@@ -34,8 +34,8 @@ import java.io.InputStream;
 import java.io.OutputStream;
 
 /**
- * <p>
- * </p>
+ * A generic streamed entity being received on a connection.
+ *
  * @author <a href="mailto:oleg at ural.ru">Oleg Kalnichevski</a>
  *
  * @version $Revision$

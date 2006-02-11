@@ -33,8 +33,8 @@ import java.io.IOException;
 import java.io.InputStream;
 
 /**
- * <p>
- * </p>
+ * A stream for reading from a {@link HttpDataReceiver HttpDataReceiver}.
+ *
  * @author <a href="mailto:oleg at ural.ru">Oleg Kalnichevski</a>
  *
  * @version $Revision$

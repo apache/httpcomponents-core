@@ -30,8 +30,12 @@
 package org.apache.http.protocol;
 
 /**
- * <p>
- * </p>
+ * A context for executing a request.
+ * The context is used to tie together the request, the response,
+ * and optional application data. It is also used for internal data.
+ * Attribute names starting with the prefix "http." are
+ * {@link #RESERVED_PREFIX reserved} for internal data.
+ *
  * @author <a href="mailto:oleg at ural.ru">Oleg Kalnichevski</a>
  *
  * @version $Revision$
@@ -40,6 +44,8 @@ package org.apache.http.protocol;
  */
 public interface HttpContext {
 
+    /** The prefix reserved for use by HTTP components. "http." */
+    public static final String RESERVED_PREFIX  = "http.";
     public static final String HTTP_CONNECTION  = "http.connection"; 
     public static final String HTTP_REQUEST     = "http.request"; 
     public static final String HTTP_RESPONSE    = "http.response"; 

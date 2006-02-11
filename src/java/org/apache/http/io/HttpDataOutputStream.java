@@ -33,8 +33,8 @@ import java.io.IOException;
 import java.io.OutputStream;
 
 /**
- * <p>
- * </p>
+ * A stream for writing to a {@link HttpDataTransmitter HttpDataTransmitter}.
+ *
  * @author <a href="mailto:oleg at ural.ru">Oleg Kalnichevski</a>
  *
  * @version $Revision$

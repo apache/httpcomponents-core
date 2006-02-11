@@ -34,8 +34,8 @@ import java.util.Map;
 
 
 /**
- * <p>
- * </p>
+ * Default implementation of the {@link HttpContext HttpContext}.
+ *
  * @author <a href="mailto:oleg at ural.ru">Oleg Kalnichevski</a>
  *
  * @version $Revision$

@@ -37,8 +37,8 @@ import org.apache.http.message.BasicHttpEntityEnclosingRequest;
 import org.apache.http.message.BasicHttpRequest;
 
 /**
- * <p>
- * </p>
+ * Default implementation of a factory for creating request objects.
+ *
  * @author <a href="mailto:oleg at ural.ru">Oleg Kalnichevski</a>
  *
  * @version $Revision$

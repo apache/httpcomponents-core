@@ -33,8 +33,8 @@ import java.io.IOException;
 import java.io.OutputStream;
 
 /**
- * <p>
- * </p>
+ * A stream wrapper that closes itself after a defined number of bytes.
+ *
  * @author <a href="mailto:oleg at ural.ru">Oleg Kalnichevski</a>
  *
  * @version $Revision$

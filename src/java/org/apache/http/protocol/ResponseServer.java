@@ -38,8 +38,9 @@ import org.apache.http.HttpResponseInterceptor;
 import org.apache.http.params.HttpProtocolParams;
 
 /**
- * <p>
- * </p>
+ * A response interceptor that adds a Server header.
+ * For use on the server side.
+ *
  * @author <a href="mailto:oleg at ural.ru">Oleg Kalnichevski</a>
  *
  * @version $Revision$

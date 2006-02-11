@@ -30,8 +30,8 @@
 package org.apache.http.protocol;
 
 /**
- * <p>
- * </p>
+ * Constants and static helpers related to the HTTP protocol
+ * 
  * @author <a href="mailto:oleg at ural.ru">Oleg Kalnichevski</a>
  *
  * @version $Revision$

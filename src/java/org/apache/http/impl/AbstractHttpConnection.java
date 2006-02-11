@@ -43,8 +43,8 @@ import org.apache.http.params.HttpConnectionParams;
 import org.apache.http.params.HttpParams;
 
 /**
- * <p>
- * </p>
+ * Abstract base class for HTTP connections on the client and server side.
+ *
  * @author <a href="mailto:oleg at ural.ru">Oleg Kalnichevski</a>
  *
  * @version $Revision$

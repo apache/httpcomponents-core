@@ -37,8 +37,8 @@ import org.apache.http.HttpVersion;
 import org.apache.http.io.HttpDataTransmitter;
 
 /**
- * <p>
- * </p>
+ * Writes an entity when HTTP messages are sent.
+ *
  * @author <a href="mailto:oleg at ural.ru">Oleg Kalnichevski</a>
  *
  * @version $Revision: $

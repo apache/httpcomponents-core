@@ -35,8 +35,9 @@ import java.net.InetAddress;
 import org.apache.http.params.HttpParams;
 
 /**
- * <p>
- * </p>
+ * An HTTP connection for use on the client side.
+ * It is used for sending requests and receiving responses.
+ *
  * @author <a href="mailto:oleg at ural.ru">Oleg Kalnichevski</a>
  *
  * @version $Revision$

@@ -33,8 +33,10 @@ import org.apache.http.io.CharArrayBuffer;
 import org.apache.http.protocol.HTTP;
 
 /**
- * <p>
- * </p>
+ * The first line of an {@link HttpRequest HttpRequest}.
+ * It contains the method, URI, and HTTP version of the request.
+ * For details, see RFC 2616.
+ *
  * @author <a href="mailto:oleg at ural.ru">Oleg Kalnichevski</a>
  *
  * @version $Revision$

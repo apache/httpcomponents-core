@@ -41,8 +41,8 @@ import org.apache.http.HttpVersion;
 import org.apache.http.ProtocolException;
 
 /**
- * <p>
- * </p>
+ * A request interceptor that decides about the transport encoding.
+ *
  * @author <a href="mailto:oleg at ural.ru">Oleg Kalnichevski</a>
  *
  * @version $Revision$

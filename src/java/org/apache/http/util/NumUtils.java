@@ -3,6 +3,10 @@ package org.apache.http.util;
 import org.apache.http.io.CharArrayBuffer;
 import org.apache.http.protocol.HTTP;
 
+
+/**
+ * Static helpers for dealing with numbers in string representation.
+ */
 public class NumUtils {
 
     private NumUtils() {

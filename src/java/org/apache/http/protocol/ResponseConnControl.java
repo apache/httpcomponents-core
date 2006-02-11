@@ -41,8 +41,9 @@ import org.apache.http.HttpStatus;
 import org.apache.http.HttpVersion;
 
 /**
- * <p>
- * </p>
+ * A response interceptor that suggests connection keep-alive to the client.
+ * For use on the server side.
+ *
  * @author <a href="mailto:oleg at ural.ru">Oleg Kalnichevski</a>
  *
  * @version $Revision$

@@ -45,7 +45,7 @@ import java.io.OutputStream;
  * <li><b>streamed</b>: The content is received from a stream, or
  *     generated on the fly. In particular, this category includes
  *     entities being received from a {@link HttpConnection connection}.
- *     {@link #isStreamed Streamed} entities are generally not
+ *     {@link #isStreaming Streamed} entities are generally not
  *      {@link #isRepeatable repeatable}.
  *     </li>
  * <li><b>self-contained</b>: The content is in memory or obtained by

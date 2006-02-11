@@ -39,8 +39,9 @@ import org.apache.http.HttpResponseInterceptor;
 import org.apache.http.HttpVersion;
 
 /**
- * <p>
- * </p>
+ * A response interceptor that sets up entity-related headers.
+ * For use on the server side.
+ *
  * @author <a href="mailto:oleg at ural.ru">Oleg Kalnichevski</a>
  *
  * @version $Revision$

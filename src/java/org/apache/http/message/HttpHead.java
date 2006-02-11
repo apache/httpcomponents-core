@@ -30,8 +30,8 @@
 package org.apache.http.message;
 
 /**
- * <p>
- * </p>
+ * A modifiable HTTP request with HEAD as the method.
+ *
  * @author <a href="mailto:oleg at ural.ru">Oleg Kalnichevski</a>
  *
  * @version $Revision$

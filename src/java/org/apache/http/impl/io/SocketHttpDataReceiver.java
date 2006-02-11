@@ -35,8 +35,8 @@ import java.net.Socket;
 
 
 /**
- * <p>
- * </p>
+ * A data receiver using a Java {@link Socket} and traditional IO.
+ *
  * @author <a href="mailto:oleg at ural.ru">Oleg Kalnichevski</a>
  *
  * @version $Revision$

@@ -37,8 +37,8 @@ import org.apache.http.HttpVersion;
 import org.apache.http.protocol.HTTP;
 
 /**
- * <p>
- * </p>
+ * Default implementation of a strategy deciding about connection re-use.
+ *
  * @author <a href="mailto:oleg at ural.ru">Oleg Kalnichevski</a>
  *
  * @version $Revision$
