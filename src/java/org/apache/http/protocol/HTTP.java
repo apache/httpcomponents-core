@@ -30,7 +30,7 @@
 package org.apache.http.protocol;
 
 /**
- * Constants and static helpers related to the HTTP protocol
+ * Constants and static helpers related to the HTTP protocol.
  * 
  * @author <a href="mailto:oleg at ural.ru">Oleg Kalnichevski</a>
  *
@@ -38,7 +38,7 @@ package org.apache.http.protocol;
  * 
  * @since 4.0
  */
-public class HTTP {
+public final class HTTP {
 
     public static final int CR = 13; // <US-ASCII CR, carriage return (13)>
     public static final int LF = 10; // <US-ASCII LF, linefeed (10)>
