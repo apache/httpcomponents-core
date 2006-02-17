@@ -94,7 +94,7 @@ public class ElementalHttpServer {
                 StringEntity body = new StringEntity("File not found", "UTF-8");
                 response.setEntity(body);
                 System.out.println("File " + file.getPath() + " not found");
-            } else if (!file.canRead()) {
+            } else if (!file.canRead() || file.isDirectory()) {
                 response.setStatusCode(HttpStatus.SC_FORBIDDEN);
                 StringEntity body = new StringEntity("Access Denied", "UTF-8");
                 response.setEntity(body);
