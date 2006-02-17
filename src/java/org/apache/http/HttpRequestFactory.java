@@ -40,10 +40,10 @@ package org.apache.http;
  */
 public interface HttpRequestFactory {
     
-    HttpMutableRequest newHttpRequest(RequestLine requestline) 
+    HttpRequest newHttpRequest(RequestLine requestline) 
         throws MethodNotSupportedException;
     
-    HttpMutableRequest newHttpRequest(String method, String uri) 
+    HttpRequest newHttpRequest(String method, String uri) 
     	throws MethodNotSupportedException;
     
 }

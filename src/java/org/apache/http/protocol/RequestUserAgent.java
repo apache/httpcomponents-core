@@ -33,7 +33,7 @@ import java.io.IOException;
 
 import org.apache.http.Header;
 import org.apache.http.HttpException;
-import org.apache.http.HttpMutableRequest;
+import org.apache.http.HttpRequest;
 import org.apache.http.HttpRequestInterceptor;
 import org.apache.http.params.HttpProtocolParams;
 
@@ -52,7 +52,7 @@ public class RequestUserAgent implements HttpRequestInterceptor {
         super();
     }
     
-    public void process(final HttpMutableRequest request, final HttpContext context) 
+    public void process(final HttpRequest request, final HttpContext context) 
         throws HttpException, IOException {
         if (request == null) {
             throw new IllegalArgumentException("HTTP request may not be null");

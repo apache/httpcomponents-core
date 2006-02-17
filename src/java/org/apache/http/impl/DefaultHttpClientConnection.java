@@ -39,8 +39,8 @@ import org.apache.http.HttpEntity;
 import org.apache.http.HttpEntityEnclosingRequest;
 import org.apache.http.HttpException;
 import org.apache.http.HttpHost;
-import org.apache.http.HttpMutableResponse;
 import org.apache.http.HttpRequest;
+import org.apache.http.HttpResponse;
 import org.apache.http.HttpResponseFactory;
 import org.apache.http.NoHttpResponseException;
 import org.apache.http.ProtocolException;
@@ -209,18 +209,18 @@ public class DefaultHttpClientConnection
         this.datatransmitter.writeLine(this.buffer);
     }
 
-    public HttpMutableResponse receiveResponseHeader(final HttpParams params) 
+    public HttpResponse receiveResponseHeader(final HttpParams params) 
             throws HttpException, IOException {
         if (params == null) {
             throw new IllegalArgumentException("HTTP parameters may not be null");
         }
         assertOpen();
-        HttpMutableResponse response = readResponseStatusLine(params);
+        HttpResponse response = readResponseStatusLine(params);
         readResponseHeaders(response);
         return response;
     }
 
-    public void receiveResponseEntity(final HttpMutableResponse response)
+    public void receiveResponseEntity(final HttpResponse response)
             throws HttpException, IOException {
         if (response == null) {
             throw new IllegalArgumentException("HTTP response may not be null");
@@ -251,7 +251,7 @@ public class DefaultHttpClientConnection
         }
     }
     
-    protected HttpMutableResponse readResponseStatusLine(final HttpParams params) 
+    protected HttpResponse readResponseStatusLine(final HttpParams params) 
                 throws HttpException, IOException {
         // clear the buffer
         this.buffer.clear();
@@ -278,13 +278,13 @@ public class DefaultHttpClientConnection
         } while(true);
         //create the status line from the status string
         StatusLine statusline = StatusLine.parse(this.buffer, 0, this.buffer.length());
-        HttpMutableResponse response = this.responsefactory.newHttpResponse(statusline);
+        HttpResponse response = this.responsefactory.newHttpResponse(statusline);
         response.getParams().setDefaults(params);
         return response;
     }
 
-    protected void readResponseHeaders(
-            final HttpMutableResponse response) throws HttpException, IOException {
+    protected void readResponseHeaders(final HttpResponse response) 
+            throws HttpException, IOException {
         Header[] headers = Header.parseAll(this.datareceiver);
         for (int i = 0; i < headers.length; i++) {
             response.addHeader(headers[i]);

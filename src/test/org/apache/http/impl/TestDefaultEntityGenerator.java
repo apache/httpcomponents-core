@@ -32,7 +32,7 @@ import java.io.InputStream;
 
 import org.apache.http.Header;
 import org.apache.http.HttpEntity;
-import org.apache.http.HttpMutableMessage;
+import org.apache.http.HttpMessage;
 import org.apache.http.ProtocolException;
 import org.apache.http.entity.EntityGenerator;
 import org.apache.http.impl.entity.DefaultEntityGenerator;
@@ -84,7 +84,7 @@ public class TestDefaultEntityGenerator extends TestCase {
 
     public void testEntityWithTransferEncoding() throws Exception {
         HttpDataReceiver datareceiver = new HttpDataReceiverMockup("0\r\n", "US-ASCII");
-        HttpMutableMessage message = new HttpMessageMockup();
+        HttpMessage message = new HttpMessageMockup();
         
         // lenient mode 
         message.getParams().setBooleanParameter(HttpProtocolParams.STRICT_TRANSFER_ENCODING, false);
@@ -110,7 +110,7 @@ public class TestDefaultEntityGenerator extends TestCase {
     public void testEntityWithIdentityTransferEncoding() throws Exception {
         HttpDataReceiver datareceiver = 
         	new HttpDataReceiverMockup(new byte[] {});
-        HttpMutableMessage message = new HttpMessageMockup();
+        HttpMessage message = new HttpMessageMockup();
         
         // lenient mode 
         message.getParams().setBooleanParameter(HttpProtocolParams.STRICT_TRANSFER_ENCODING, false);
@@ -126,7 +126,7 @@ public class TestDefaultEntityGenerator extends TestCase {
 
     public void testEntityWithUnsupportedTransferEncoding() throws Exception {
         HttpDataReceiver datareceiver = new HttpDataReceiverMockup("0\r\n", "US-ASCII");
-        HttpMutableMessage message = new HttpMessageMockup();
+        HttpMessage message = new HttpMessageMockup();
         
         // lenient mode 
         message.getParams().setBooleanParameter(HttpProtocolParams.STRICT_TRANSFER_ENCODING, false);
@@ -152,7 +152,7 @@ public class TestDefaultEntityGenerator extends TestCase {
 
     public void testChunkedTransferEncodingMustBeLast() throws Exception {
         HttpDataReceiver datareceiver = new HttpDataReceiverMockup("0\r\n", "US-ASCII");
-        HttpMutableMessage message = new HttpMessageMockup();
+        HttpMessage message = new HttpMessageMockup();
         
         // lenient mode 
         message.getParams().setBooleanParameter(HttpProtocolParams.STRICT_TRANSFER_ENCODING, false);
@@ -178,7 +178,7 @@ public class TestDefaultEntityGenerator extends TestCase {
 
     public void testEntityWithContentLength() throws Exception {
         HttpDataReceiver datareceiver = new HttpDataReceiverMockup(new byte[] {});
-        HttpMutableMessage message = new HttpMessageMockup();
+        HttpMessage message = new HttpMessageMockup();
         
         // lenient mode 
         message.getParams().setBooleanParameter(HttpProtocolParams.STRICT_TRANSFER_ENCODING, false);
@@ -194,7 +194,7 @@ public class TestDefaultEntityGenerator extends TestCase {
 
     public void testEntityWithMultipleContentLength() throws Exception {
         HttpDataReceiver datareceiver = new HttpDataReceiverMockup(new byte[] {'0'});
-        HttpMutableMessage message = new HttpMessageMockup();
+        HttpMessage message = new HttpMessageMockup();
 
         // lenient mode 
         message.getParams().setBooleanParameter(HttpProtocolParams.STRICT_TRANSFER_ENCODING, false);
@@ -223,7 +223,7 @@ public class TestDefaultEntityGenerator extends TestCase {
     
     public void testEntityWithMultipleContentLengthSomeWrong() throws Exception {
         HttpDataReceiver datareceiver = new HttpDataReceiverMockup(new byte[] {'0'});
-        HttpMutableMessage message = new HttpMessageMockup();
+        HttpMessage message = new HttpMessageMockup();
 
         // lenient mode 
         message.getParams().setBooleanParameter(HttpProtocolParams.STRICT_TRANSFER_ENCODING, false);
@@ -252,7 +252,7 @@ public class TestDefaultEntityGenerator extends TestCase {
     
     public void testEntityWithMultipleContentLengthAllWrong() throws Exception {
         HttpDataReceiver datareceiver = new HttpDataReceiverMockup(new byte[] {'0'});
-        HttpMutableMessage message = new HttpMessageMockup();
+        HttpMessage message = new HttpMessageMockup();
 
         // lenient mode 
         message.getParams().setBooleanParameter(HttpProtocolParams.STRICT_TRANSFER_ENCODING, false);
@@ -281,7 +281,7 @@ public class TestDefaultEntityGenerator extends TestCase {
 
     public void testEntityWithInvalidContentLength() throws Exception {
         HttpDataReceiver datareceiver = new HttpDataReceiverMockup(new byte[] {'0'});
-        HttpMutableMessage message = new HttpMessageMockup();
+        HttpMessage message = new HttpMessageMockup();
 
         // lenient mode 
         message.getParams().setBooleanParameter(HttpProtocolParams.STRICT_TRANSFER_ENCODING, false);
@@ -309,7 +309,7 @@ public class TestDefaultEntityGenerator extends TestCase {
 
     public void testEntityNeitherContentLengthNorTransferEncoding() throws Exception {
         HttpDataReceiver datareceiver = new HttpDataReceiverMockup(new byte[] {'0'});
-        HttpMutableMessage message = new HttpMessageMockup();
+        HttpMessage message = new HttpMessageMockup();
 
         // lenient mode 
         message.getParams().setBooleanParameter(HttpProtocolParams.STRICT_TRANSFER_ENCODING, false);

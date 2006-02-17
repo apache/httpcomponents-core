@@ -35,9 +35,9 @@ import java.net.Socket;
 import org.apache.http.ConnectionClosedException;
 import org.apache.http.Header;
 import org.apache.http.HttpEntity;
+import org.apache.http.HttpEntityEnclosingRequest;
 import org.apache.http.HttpException;
-import org.apache.http.HttpMutableEntityEnclosingRequest;
-import org.apache.http.HttpMutableRequest;
+import org.apache.http.HttpRequest;
 import org.apache.http.HttpRequestFactory;
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpServerConnection;
@@ -104,18 +104,18 @@ public class DefaultHttpServerConnection
         super.bind(socket, params);
     }
 
-    public HttpMutableRequest receiveRequestHeader(final HttpParams params) 
+    public HttpRequest receiveRequestHeader(final HttpParams params) 
             throws HttpException, IOException {
         if (params == null) {
             throw new IllegalArgumentException("HTTP parameters may not be null");
         }
         assertOpen();
-        HttpMutableRequest request = receiveRequestLine(params);
+        HttpRequest request = receiveRequestLine(params);
         receiveRequestHeaders(request);
         return request;
     }
     
-    public void receiveRequestEntity(final HttpMutableEntityEnclosingRequest request) 
+    public void receiveRequestEntity(final HttpEntityEnclosingRequest request) 
             throws HttpException, IOException {
         if (request == null) {
             throw new IllegalArgumentException("HTTP request may not be null");
@@ -125,7 +125,7 @@ public class DefaultHttpServerConnection
         request.setEntity(entity);
     }
 
-    protected HttpMutableRequest receiveRequestLine(final HttpParams params)
+    protected HttpRequest receiveRequestLine(final HttpParams params)
             throws HttpException, IOException {
         this.buffer.clear();
         int i = this.datareceiver.readLine(this.buffer);
@@ -133,12 +133,12 @@ public class DefaultHttpServerConnection
             throw new ConnectionClosedException("Client closed connection"); 
         }
         RequestLine requestline = RequestLine.parse(this.buffer, 0, this.buffer.length());
-        HttpMutableRequest request = this.requestfactory.newHttpRequest(requestline);
+        HttpRequest request = this.requestfactory.newHttpRequest(requestline);
         request.getParams().setDefaults(params);
         return request;
     }
     
-    protected void receiveRequestHeaders(final HttpMutableRequest request) 
+    protected void receiveRequestHeaders(final HttpRequest request) 
             throws HttpException, IOException {
         Header[] headers = Header.parseAll(this.datareceiver);
         for (int i = 0; i < headers.length; i++) {

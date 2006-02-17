@@ -36,8 +36,6 @@ import org.apache.http.HttpClientConnection;
 import org.apache.http.HttpEntityEnclosingRequest;
 import org.apache.http.HttpException;
 import org.apache.http.HttpHost;
-import org.apache.http.HttpMutableRequest;
-import org.apache.http.HttpMutableResponse;
 import org.apache.http.HttpRequest;
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
@@ -194,7 +192,7 @@ public class HttpRequestExecutor extends AbstractHttpProcessor {
         this.defaultContext.setAttribute(HttpExecutionContext.HTTP_REQUEST, 
                 request);
         
-        HttpMutableResponse response = null;
+        HttpResponse response = null;
         // loop until the method is successfully processed, the retryHandler 
         // returns false or a non-recoverable exception is thrown
         for (int execCount = 0; ; execCount++) {
@@ -250,9 +248,7 @@ public class HttpRequestExecutor extends AbstractHttpProcessor {
         }
         // link default parameters
         request.getParams().setDefaults(this.params);
-        if (request instanceof HttpMutableRequest) {
-            preprocessRequest((HttpMutableRequest) request, context);
-        }
+        preprocessRequest(request, context);
     }
 
     /**
@@ -321,7 +317,7 @@ public class HttpRequestExecutor extends AbstractHttpProcessor {
      * @throws HttpException      in case of a protocol or processing problem
      * @throws IOException        in case of an I/O problem
      */
-    protected HttpMutableResponse sendRequest(
+    protected HttpResponse sendRequest(
             final HttpRequest request,
             final HttpClientConnection conn,
             final HttpContext context)
@@ -336,7 +332,7 @@ public class HttpRequestExecutor extends AbstractHttpProcessor {
             throw new IllegalArgumentException("HTTP context may not be null");
         }
 
-        HttpMutableResponse response = null;
+        HttpResponse response = null;
         context.setAttribute(HttpExecutionContext.HTTP_REQ_SENT, Boolean.FALSE);
 
         conn.sendRequestHeader(request);
@@ -391,7 +387,7 @@ public class HttpRequestExecutor extends AbstractHttpProcessor {
      * @throws HttpException      in case of a protocol or processing problem
      * @throws IOException        in case of an I/O problem
      */
-    protected HttpMutableResponse receiveResponse(
+    protected HttpResponse receiveResponse(
             final HttpRequest          request,
             final HttpClientConnection conn,
             final HttpContext          context)
@@ -406,7 +402,7 @@ public class HttpRequestExecutor extends AbstractHttpProcessor {
             throw new IllegalArgumentException("HTTP context may not be null");
         }
         // see HttpRequestExecutor.doExecute, final part
-        HttpMutableResponse response = null;
+        HttpResponse response = null;
         int statuscode = 0;
 
         while (response == null || statuscode < HttpStatus.SC_OK) {
@@ -437,7 +433,7 @@ public class HttpRequestExecutor extends AbstractHttpProcessor {
      * @throws IOException        in case of an I/O problem
      */
     protected void finishResponse(
-            final HttpMutableResponse response,
+            final HttpResponse response,
             final HttpContext context)
                 throws HttpException, IOException {
         if (response == null) {

@@ -49,10 +49,10 @@ public interface HttpServerConnection extends HttpConnection {
     void bind(Socket socket, HttpParams params) 
         throws IOException;
     
-    HttpMutableRequest receiveRequestHeader(HttpParams params) 
+    HttpRequest receiveRequestHeader(HttpParams params) 
         throws HttpException, IOException;
 
-    void receiveRequestEntity(HttpMutableEntityEnclosingRequest request) 
+    void receiveRequestEntity(HttpEntityEnclosingRequest request) 
         throws HttpException, IOException;
 
     void sendResponseHeader(HttpResponse response) 

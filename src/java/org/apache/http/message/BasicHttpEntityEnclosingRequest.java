@@ -31,7 +31,7 @@ package org.apache.http.message;
 
 import org.apache.http.Header;
 import org.apache.http.HttpEntity;
-import org.apache.http.HttpMutableEntityEnclosingRequest;
+import org.apache.http.HttpEntityEnclosingRequest;
 import org.apache.http.RequestLine;
 import org.apache.http.protocol.HTTP;
 
@@ -45,7 +45,7 @@ import org.apache.http.protocol.HTTP;
  * @since 4.0
  */
 public class BasicHttpEntityEnclosingRequest 
-            extends BasicHttpRequest implements HttpMutableEntityEnclosingRequest {
+            extends BasicHttpRequest implements HttpEntityEnclosingRequest {
     
     private HttpEntity entity = null;
     

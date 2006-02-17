@@ -35,9 +35,9 @@ import java.util.Iterator;
 import java.util.List;
 
 import org.apache.http.HttpException;
-import org.apache.http.HttpMutableRequest;
-import org.apache.http.HttpMutableResponse;
+import org.apache.http.HttpRequest;
 import org.apache.http.HttpRequestInterceptor;
+import org.apache.http.HttpResponse;
 import org.apache.http.HttpResponseInterceptor;
 
 /**
@@ -147,8 +147,9 @@ public abstract class AbstractHttpProcessor {
     }
     
     protected void preprocessRequest(
-            final HttpMutableRequest request,
-            final HttpContext context) throws IOException, HttpException {
+            final HttpRequest request,
+            final HttpContext context) 
+                throws IOException, HttpException {
         if (this.requestInterceptors != null) {
             for (int i = 0; i < this.requestInterceptors.size(); i++) {
                 HttpRequestInterceptor interceptor = (HttpRequestInterceptor) this.requestInterceptors.get(i);
@@ -158,9 +159,9 @@ public abstract class AbstractHttpProcessor {
     }
 
     protected void postprocessResponse(
-            final HttpMutableResponse response,
+            final HttpResponse response,
             final HttpContext context) 
-            throws IOException, HttpException {
+                throws IOException, HttpException {
         if (this.responseInterceptors != null) {
             for (int i = 0; i < this.responseInterceptors.size(); i++) {
                 HttpResponseInterceptor interceptor = (HttpResponseInterceptor) this.responseInterceptors.get(i);

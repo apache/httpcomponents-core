@@ -34,8 +34,8 @@ import java.io.IOException;
 import org.apache.http.Header;
 import org.apache.http.HeaderElement;
 import org.apache.http.HttpException;
-import org.apache.http.HttpMutableResponse;
 import org.apache.http.HttpRequest;
+import org.apache.http.HttpResponse;
 import org.apache.http.HttpResponseInterceptor;
 import org.apache.http.protocol.HttpContext;
 
@@ -53,7 +53,7 @@ public class ResponseGzipCompress implements HttpResponseInterceptor {
     private static final String ACCEPT_ENCODING = "Accept-Encoding";
     private static final String GZIP_CODEC = "gzip";
     
-    public void process(final HttpMutableResponse response, final HttpContext context) 
+    public void process(final HttpResponse response, final HttpContext context) 
             throws HttpException, IOException {
         if (context == null) {
             throw new IllegalArgumentException("HTTP context may not be null");

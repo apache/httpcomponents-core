@@ -45,7 +45,7 @@ import org.apache.http.protocol.HttpContext;
  */
 public interface HttpRequestInterceptor {
 
-    void process(HttpMutableRequest request, HttpContext context) 
+    void process(HttpRequest request, HttpContext context) 
         throws HttpException, IOException;
     
 }

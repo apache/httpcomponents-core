@@ -36,10 +36,8 @@ import org.apache.http.ConnectionReuseStrategy;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpEntityEnclosingRequest;
 import org.apache.http.HttpException;
-import org.apache.http.HttpMutableEntityEnclosingRequest;
-import org.apache.http.HttpMutableRequest;
-import org.apache.http.HttpMutableResponse;
 import org.apache.http.HttpRequest;
+import org.apache.http.HttpResponse;
 import org.apache.http.HttpServerConnection;
 import org.apache.http.HttpStatus;
 import org.apache.http.HttpVersion;
@@ -105,9 +103,9 @@ public class HttpService extends AbstractHttpProcessor {
         BasicHttpResponse response = new BasicHttpResponse();
         response.getParams().setDefaults(this.params);
         try {
-            HttpMutableRequest request = this.conn.receiveRequestHeader(this.params);
+            HttpRequest request = this.conn.receiveRequestHeader(this.params);
             if (request instanceof HttpEntityEnclosingRequest) {
-                if (((HttpMutableEntityEnclosingRequest) request).expectContinue()) {
+                if (((HttpEntityEnclosingRequest) request).expectContinue()) {
 
                     logMessage("Expected 100 (Continue)");
                     
@@ -117,7 +115,7 @@ public class HttpService extends AbstractHttpProcessor {
                     this.conn.sendResponseHeader(ack);
                     this.conn.flush();
                 }
-                this.conn.receiveRequestEntity((HttpMutableEntityEnclosingRequest) request);
+                this.conn.receiveRequestEntity((HttpEntityEnclosingRequest) request);
             }
             preprocessRequest(request, this.context);
             logMessage("Request received");
@@ -167,7 +165,7 @@ public class HttpService extends AbstractHttpProcessor {
         }
     }
     
-    protected void handleException(final HttpException ex, final HttpMutableResponse response) {
+    protected void handleException(final HttpException ex, final HttpResponse response) {
         if (ex instanceof MethodNotSupportedException) {
             response.setStatusCode(HttpStatus.SC_NOT_IMPLEMENTED);
         } else if (ex instanceof ProtocolException) {
@@ -177,7 +175,7 @@ public class HttpService extends AbstractHttpProcessor {
         }
     }
     
-    protected void doService(final HttpRequest request, final HttpMutableResponse response) 
+    protected void doService(final HttpRequest request, final HttpResponse response) 
             throws HttpException, IOException {
         HttpVersion ver = request.getRequestLine().getHttpVersion();
         if (ver.lessEquals(HttpVersion.HTTP_1_1)) {

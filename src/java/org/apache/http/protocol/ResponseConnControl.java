@@ -34,8 +34,8 @@ import java.io.IOException;
 import org.apache.http.Header;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpException;
-import org.apache.http.HttpMutableResponse;
 import org.apache.http.HttpRequest;
+import org.apache.http.HttpResponse;
 import org.apache.http.HttpResponseInterceptor;
 import org.apache.http.HttpStatus;
 import org.apache.http.HttpVersion;
@@ -56,8 +56,8 @@ public class ResponseConnControl implements HttpResponseInterceptor {
         super();
     }
     
-    public void process(final HttpMutableResponse response, final HttpContext context) 
-        throws HttpException, IOException {
+    public void process(final HttpResponse response, final HttpContext context) 
+            throws HttpException, IOException {
         if (response == null) {
             throw new IllegalArgumentException("HTTP request may not be null");
         }

@@ -29,7 +29,7 @@
 
 package org.apache.http.message;
 
-import org.apache.http.HttpMutableRequest;
+import org.apache.http.HttpRequest;
 import org.apache.http.HttpVersion;
 import org.apache.http.RequestLine;
 import org.apache.http.params.HttpProtocolParams;
@@ -43,7 +43,7 @@ import org.apache.http.params.HttpProtocolParams;
  * 
  * @since 4.0
  */
-public class BasicHttpRequest extends BasicHttpMessage implements HttpMutableRequest {
+public class BasicHttpRequest extends BasicHttpMessage implements HttpRequest {
     
     private final RequestLine requestline;
     private final String method;

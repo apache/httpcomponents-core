@@ -29,7 +29,7 @@
 
 package org.apache.http.impl;
 
-import org.apache.http.HttpMutableResponse;
+import org.apache.http.HttpResponse;
 import org.apache.http.HttpResponseFactory;
 import org.apache.http.HttpStatus;
 import org.apache.http.HttpVersion;
@@ -51,7 +51,7 @@ public class DefaultHttpResponseFactory implements HttpResponseFactory {
         super();
     }
 
-    public HttpMutableResponse newHttpResponse(final HttpVersion ver, final int status) {
+    public HttpResponse newHttpResponse(final HttpVersion ver, final int status) {
         if (ver == null) {
             throw new IllegalArgumentException("HTTP version may not be null");
         }
@@ -59,7 +59,7 @@ public class DefaultHttpResponseFactory implements HttpResponseFactory {
         return new BasicHttpResponse(statusline); 
     }
     
-    public HttpMutableResponse newHttpResponse(final StatusLine statusline) {
+    public HttpResponse newHttpResponse(final StatusLine statusline) {
         if (statusline == null) {
             throw new IllegalArgumentException("Status line may not be null");
         }

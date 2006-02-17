@@ -33,7 +33,7 @@ import java.io.IOException;
 
 import org.apache.http.Header;
 import org.apache.http.HttpException;
-import org.apache.http.HttpMutableRequest;
+import org.apache.http.HttpRequest;
 import org.apache.http.HttpRequestInterceptor;
 import org.apache.http.protocol.HttpContext;
 
@@ -51,7 +51,7 @@ public class RequestAcceptEncoding implements HttpRequestInterceptor {
     private static final String ACCEPT_ENCODING = "Accept-Encoding";
     private static final String GZIP_CODEC = "gzip";
     
-    public void process(final HttpMutableRequest request, final HttpContext context) 
+    public void process(final HttpRequest request, final HttpContext context) 
             throws HttpException, IOException {
         if (!request.containsHeader(ACCEPT_ENCODING)) {
             request.addHeader(new Header(ACCEPT_ENCODING, GZIP_CODEC, true));

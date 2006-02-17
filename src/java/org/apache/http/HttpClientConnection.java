@@ -65,10 +65,10 @@ public interface HttpClientConnection extends HttpConnection {
     void sendRequestEntity(HttpEntityEnclosingRequest request) 
         throws HttpException, IOException;
 
-    HttpMutableResponse receiveResponseHeader(HttpParams params) 
+    HttpResponse receiveResponseHeader(HttpParams params) 
         throws HttpException, IOException;
 
-    void receiveResponseEntity(HttpMutableResponse response) 
+    void receiveResponseEntity(HttpResponse response) 
         throws HttpException, IOException;
     
     void flush() throws IOException;

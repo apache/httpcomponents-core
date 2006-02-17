@@ -40,8 +40,8 @@ package org.apache.http;
  */
 public interface HttpResponseFactory {
     
-    HttpMutableResponse newHttpResponse(HttpVersion ver, int status);
+    HttpResponse newHttpResponse(HttpVersion ver, int status);
     
-    HttpMutableResponse newHttpResponse(StatusLine statusline);
+    HttpResponse newHttpResponse(StatusLine statusline);
     
 }

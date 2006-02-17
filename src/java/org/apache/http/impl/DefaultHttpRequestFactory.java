@@ -29,7 +29,7 @@
 
 package org.apache.http.impl;
 
-import org.apache.http.HttpMutableRequest;
+import org.apache.http.HttpRequest;
 import org.apache.http.HttpRequestFactory;
 import org.apache.http.MethodNotSupportedException;
 import org.apache.http.RequestLine;
@@ -51,7 +51,7 @@ public class DefaultHttpRequestFactory implements HttpRequestFactory {
         super();
     }
 
-    public HttpMutableRequest newHttpRequest(final RequestLine requestline)
+    public HttpRequest newHttpRequest(final RequestLine requestline)
             throws MethodNotSupportedException {
         if (requestline == null) {
             throw new IllegalArgumentException("Request line may not be null");
@@ -68,7 +68,7 @@ public class DefaultHttpRequestFactory implements HttpRequestFactory {
         }
     }
 
-    public HttpMutableRequest newHttpRequest(final String method, final String uri)
+    public HttpRequest newHttpRequest(final String method, final String uri)
 			throws MethodNotSupportedException {
 		if ("GET".equalsIgnoreCase(method)) {
 			return new BasicHttpRequest(method, uri);

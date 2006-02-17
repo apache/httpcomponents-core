@@ -37,8 +37,8 @@ import java.net.Socket;
 import java.net.URLDecoder;
 
 import org.apache.http.HttpException;
-import org.apache.http.HttpMutableResponse;
 import org.apache.http.HttpRequest;
+import org.apache.http.HttpResponse;
 import org.apache.http.HttpServerConnection;
 import org.apache.http.HttpStatus;
 import org.apache.http.MethodNotSupportedException;
@@ -80,7 +80,7 @@ public class ElementalHttpServer {
             super(conn);
         }
 
-        protected void doService(final HttpRequest request, final HttpMutableResponse response) 
+        protected void doService(final HttpRequest request, final HttpResponse response) 
                 throws HttpException, IOException {
             String method = request.getRequestLine().getMethod();
             if (!method.equalsIgnoreCase("GET") && !method.equalsIgnoreCase("HEAD")) {

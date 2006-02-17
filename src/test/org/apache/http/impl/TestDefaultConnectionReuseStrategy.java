@@ -30,7 +30,7 @@ package org.apache.http.impl;
 
 import org.apache.http.ConnectionReuseStrategy;
 import org.apache.http.Header;
-import org.apache.http.HttpMutableResponse;
+import org.apache.http.HttpResponse;
 import org.apache.http.HttpVersion;
 import org.apache.http.StatusLine;
 import org.apache.http.entity.BasicHttpEntity;
@@ -73,7 +73,7 @@ public class TestDefaultConnectionReuseStrategy extends TestCase {
         entity.setChunked(false);
         entity.setContentLength(-1);
         StatusLine statusline = new StatusLine(HttpVersion.HTTP_1_0, 200, "OK");
-        HttpMutableResponse response = new BasicHttpResponse(statusline);
+        HttpResponse response = new BasicHttpResponse(statusline);
         response.setEntity(entity);
 
         ConnectionReuseStrategy s = new DefaultConnectionReuseStrategy();
@@ -85,7 +85,7 @@ public class TestDefaultConnectionReuseStrategy extends TestCase {
         entity.setChunked(false);
         entity.setContentLength(-1);
         StatusLine statusline = new StatusLine(HttpVersion.HTTP_1_1, 200, "OK");
-        HttpMutableResponse response = new BasicHttpResponse(statusline);
+        HttpResponse response = new BasicHttpResponse(statusline);
         response.setEntity(entity);
 
         ConnectionReuseStrategy s = new DefaultConnectionReuseStrategy();
@@ -97,7 +97,7 @@ public class TestDefaultConnectionReuseStrategy extends TestCase {
         entity.setChunked(true);
         entity.setContentLength(-1);
         StatusLine statusline = new StatusLine(HttpVersion.HTTP_1_1, 200, "OK");
-        HttpMutableResponse response = new BasicHttpResponse(statusline);
+        HttpResponse response = new BasicHttpResponse(statusline);
         response.setEntity(entity);
 
         ConnectionReuseStrategy s = new DefaultConnectionReuseStrategy();
@@ -109,7 +109,7 @@ public class TestDefaultConnectionReuseStrategy extends TestCase {
         entity.setChunked(false);
         entity.setContentLength(-1);
         StatusLine statusline = new StatusLine(HttpVersion.HTTP_1_0, 200, "OK");
-        HttpMutableResponse response = new BasicHttpResponse(statusline);
+        HttpResponse response = new BasicHttpResponse(statusline);
         response.addHeader(new Header("Connection", "keep-alive"));
         response.setEntity(entity);
 
@@ -123,7 +123,7 @@ public class TestDefaultConnectionReuseStrategy extends TestCase {
         entity.setContentLength(-1);
         // Use HTTP 1.1
         StatusLine statusline = new StatusLine(HttpVersion.HTTP_1_1, 200, "OK");
-        HttpMutableResponse response = new BasicHttpResponse(statusline);
+        HttpResponse response = new BasicHttpResponse(statusline);
         response.addHeader(new Header("Connection", "close"));
         response.setEntity(entity);
 
@@ -137,7 +137,7 @@ public class TestDefaultConnectionReuseStrategy extends TestCase {
         entity.setContentLength(10);
         // Use HTTP 1.0
         StatusLine statusline = new StatusLine(HttpVersion.HTTP_1_0, 200, "OK"); 
-        HttpMutableResponse response = new BasicHttpResponse(statusline);
+        HttpResponse response = new BasicHttpResponse(statusline);
         response.addHeader(new Header("Connection", "keep-alive"));
         response.setEntity(entity);
 
@@ -147,7 +147,7 @@ public class TestDefaultConnectionReuseStrategy extends TestCase {
 
     public void testHTTP10Default() throws Exception {
         StatusLine statusline = new StatusLine(HttpVersion.HTTP_1_0, 200, "OK"); 
-        HttpMutableResponse response = new BasicHttpResponse(statusline);
+        HttpResponse response = new BasicHttpResponse(statusline);
 
         ConnectionReuseStrategy s = new DefaultConnectionReuseStrategy();
         assertFalse(s.keepAlive(response));
@@ -155,7 +155,7 @@ public class TestDefaultConnectionReuseStrategy extends TestCase {
     
     public void testHTTP11Default() throws Exception {
         StatusLine statusline = new StatusLine(HttpVersion.HTTP_1_1, 200, "OK"); 
-        HttpMutableResponse response = new BasicHttpResponse(statusline);
+        HttpResponse response = new BasicHttpResponse(statusline);
 
         ConnectionReuseStrategy s = new DefaultConnectionReuseStrategy();
         assertTrue(s.keepAlive(response));
@@ -163,7 +163,7 @@ public class TestDefaultConnectionReuseStrategy extends TestCase {
 
     public void testFutureHTTP() throws Exception {
         StatusLine statusline = new StatusLine(new HttpVersion(3, 45), 200, "OK"); 
-        HttpMutableResponse response = new BasicHttpResponse(statusline);
+        HttpResponse response = new BasicHttpResponse(statusline);
 
         ConnectionReuseStrategy s = new DefaultConnectionReuseStrategy();
         assertTrue(s.keepAlive(response));
@@ -172,7 +172,7 @@ public class TestDefaultConnectionReuseStrategy extends TestCase {
     public void testBrokenConnectionDirective1() throws Exception {
         // Use HTTP 1.0
         StatusLine statusline = new StatusLine(HttpVersion.HTTP_1_0, 200, "OK"); 
-        HttpMutableResponse response = new BasicHttpResponse(statusline);
+        HttpResponse response = new BasicHttpResponse(statusline);
         response.addHeader(new Header("Connection", "keep--alive"));
 
         ConnectionReuseStrategy s = new DefaultConnectionReuseStrategy();
@@ -182,7 +182,7 @@ public class TestDefaultConnectionReuseStrategy extends TestCase {
     public void testBrokenConnectionDirective2() throws Exception {
         // Use HTTP 1.0
         StatusLine statusline = new StatusLine(HttpVersion.HTTP_1_0, 200, "OK"); 
-        HttpMutableResponse response = new BasicHttpResponse(statusline);
+        HttpResponse response = new BasicHttpResponse(statusline);
         response.addHeader(new Header("Connection", null));
 
         ConnectionReuseStrategy s = new DefaultConnectionReuseStrategy();

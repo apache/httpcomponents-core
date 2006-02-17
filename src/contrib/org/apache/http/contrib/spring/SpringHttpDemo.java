@@ -31,7 +31,7 @@ package org.apache.http.contrib.spring;
 import org.apache.http.ConnectionReuseStrategy;
 import org.apache.http.HttpClientConnection;
 import org.apache.http.HttpHost;
-import org.apache.http.HttpMutableRequest;
+import org.apache.http.HttpRequest;
 import org.apache.http.HttpRequestFactory;
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpVersion;
@@ -71,7 +71,7 @@ public class SpringHttpDemo {
         ConnectionReuseStrategy connStrategy = (ConnectionReuseStrategy) beanfactory.getBean("conn-reuse-strategy");
         conn.setTargetHost(host);
         try {
-            HttpMutableRequest request1 = requestfactory.newHttpRequest("GET", "/");
+            HttpRequest request1 = requestfactory.newHttpRequest("GET", "/");
             HttpResponse response1 = httpexec.execute(request1, conn);
             System.out.println("<< Response: " + response1.getStatusLine());
             System.out.println(EntityUtils.toString(response1.getEntity()));
@@ -82,7 +82,7 @@ public class SpringHttpDemo {
                 conn.close();
                 System.out.println("Connection closed...");
             }
-            HttpMutableRequest request2 = requestfactory.newHttpRequest("GET", "/stuff");
+            HttpRequest request2 = requestfactory.newHttpRequest("GET", "/stuff");
             HttpResponse response2 = httpexec.execute(request2, conn);
             System.out.println("<< Response: " + response2.getStatusLine());
             System.out.println(EntityUtils.toString(response2.getEntity()));

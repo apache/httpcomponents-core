@@ -29,6 +29,8 @@
 
 package org.apache.http;
 
+import java.util.Iterator;
+
 import org.apache.http.params.HttpParams;
 
 /**
@@ -53,6 +55,18 @@ public interface HttpMessage {
 
     Header[] getAllHeaders();
 
+    void addHeader(Header header);
+
+    void setHeader(Header header);
+
+    void removeHeader(Header header);
+    
+    void removeHeaders(String name);
+    
+    Iterator headerIterator();
+    
     HttpParams getParams();
     
+    void setParams(HttpParams params);
+        
 }
