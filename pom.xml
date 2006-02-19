@@ -29,7 +29,7 @@
   <packaging>jar</packaging>
   <version>4.0-SNAPSHOT</version>
   <name>HttpCore</name>
-  <url>http://jakarta.apache.org/httpcomponents/httpcore/</url>
+  <url>http://jakarta.apache.org/httpcomponents/http-core/</url>
   <description>Core components to build HTTP enabled services</description>
   <inceptionYear>2005</inceptionYear>
 
