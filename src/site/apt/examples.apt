@@ -1,0 +1,34 @@
+    ----------
+    HttpComponents HttpCore Examples
+    ----------
+    ----------
+    ----------
+
+HttpCore Examples
+
+    * {{{http://svn.apache.org/repos/asf/jakarta/httpcomponents/trunk/http-core/src/examples/org/apache/http/examples/ElementalHttpGet.java}Simple HTTP GET}}
+    
+    This example dempnstrates how to execute a series of simple HTTP GET requests.
+
+    * {{{http://svn.apache.org/repos/asf/jakarta/httpcomponents/trunk/http-core/src/examples/org/apache/http/examples/ElementalHttpPost.java}Simple HTTP POST}}
+    
+    This example dempnstrates how to execute a series of simple HTTP POST requests that enclose entity 
+    content of various types: a string, a byte array, an arbitrary input stream.  
+
+    * {{{http://svn.apache.org/repos/asf/jakarta/httpcomponents/trunk/http-core/src/examples/org/apache/http/examples/ElementalHttpServer.java}Simple HTTP server}}
+    
+    This is an example of a simple, but fully functional HTTP/1.1 server written with only a few dozens 
+    lines of Java code.
+
+    * {{{http://svn.apache.org/repos/asf/jakarta/httpcomponents/trunk/http-core/src/contrib/org/apache/http/contrib/spring/SpringHttpDemo.java}Spring integration example}}
+    
+    HttpCore components can be conveniently wired together using any IoC container, such as {{{http://www.springframework.org/}Spring}}. The bean descriptor for HttpCore
+    components can be found {{{http://svn.apache.org/repos/asf/jakarta/httpcomponents/trunk/http-core/src/contrib/org/apache/http/contrib/spring/http-beans.xml}here}}
+
+    * {{{http://svn.apache.org/repos/asf/jakarta/httpcomponents/trunk/http-core/src/contrib/org/apache/http/contrib/compress/}Content compression}}
+
+    These request / response interceptors implement client- and server-side content compression / 
+    decompression logic. They can be simply added to any existing HTTP processor to make it content 
+    compression enabled. If you use a IoC container to initialize HTTP processors, you will not even 
+    have to recompile your application.
+
