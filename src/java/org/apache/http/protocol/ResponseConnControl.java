@@ -83,7 +83,7 @@ public class ResponseConnControl implements HttpResponseInterceptor {
         if (entity != null) {
             HttpVersion ver = response.getStatusLine().getHttpVersion();
             if (entity.getContentLength() < 0 && 
-                    (!entity.isChunked()) || ver.lessEquals(HttpVersion.HTTP_1_0)) {
+                    (!entity.isChunked() || ver.lessEquals(HttpVersion.HTTP_1_0))) {
                 response.setHeader(new Header(HTTP.CONN_DIRECTIVE, HTTP.CONN_CLOSE));
                 return;
             }
