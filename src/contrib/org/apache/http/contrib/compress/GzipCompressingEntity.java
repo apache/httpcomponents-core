@@ -57,7 +57,7 @@ public class GzipCompressingEntity extends HttpEntityWrapper {
     }
 
     public Header getContentEncoding() {
-        return new Header(HTTP.CONTENT_ENCODING, GZIP_CODEC, true);
+        return new Header(HTTP.CONTENT_ENCODING, GZIP_CODEC);
     }
 
     public long getContentLength() {

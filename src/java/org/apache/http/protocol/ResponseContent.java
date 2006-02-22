@@ -64,11 +64,11 @@ public class ResponseContent implements HttpResponseInterceptor {
         if (entity != null) {
             long len = entity.getContentLength();
             if (entity.isChunked() && ver.greaterEquals(HttpVersion.HTTP_1_1)) {
-                response.setHeader(new Header(HTTP.TRANSFER_ENCODING, HTTP.CHUNK_CODING, true));
+                response.setHeader(new Header(HTTP.TRANSFER_ENCODING, HTTP.CHUNK_CODING));
                 response.removeHeaders(HTTP.CONTENT_LEN);
             } else if (len >= 0) {
                 response.setHeader(new Header(HTTP.CONTENT_LEN, 
-                        Long.toString(entity.getContentLength()), true));
+                        Long.toString(entity.getContentLength())));
                 response.removeHeaders(HTTP.TRANSFER_ENCODING);
             }
             // Specify a content type if known

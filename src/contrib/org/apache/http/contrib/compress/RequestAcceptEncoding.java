@@ -54,7 +54,7 @@ public class RequestAcceptEncoding implements HttpRequestInterceptor {
     public void process(final HttpRequest request, final HttpContext context) 
             throws HttpException, IOException {
         if (!request.containsHeader(ACCEPT_ENCODING)) {
-            request.addHeader(new Header(ACCEPT_ENCODING, GZIP_CODEC, true));
+            request.addHeader(new Header(ACCEPT_ENCODING, GZIP_CODEC));
         }
     }
     

@@ -71,7 +71,7 @@ public class RequestTargetHost implements HttpRequestInterceptor {
             if (virtualhost != null) {
                 targethost = new HttpHost(virtualhost, targethost.getPort());
             }
-            request.addHeader(new Header(HTTP.TARGET_HOST, targethost.toHostString(), true));
+            request.addHeader(new Header(HTTP.TARGET_HOST, targethost.toHostString()));
         }
     }
     

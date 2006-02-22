@@ -64,7 +64,7 @@ public class RequestContent implements HttpRequestInterceptor {
             HttpVersion ver = request.getRequestLine().getHttpVersion();
             HttpEntity entity = ((HttpEntityEnclosingRequest)request).getEntity();
             if (entity == null) {
-                request.setHeader(new Header(HTTP.CONTENT_LEN, "0", true));
+                request.setHeader(new Header(HTTP.CONTENT_LEN, "0"));
                 return;
             }
             // Must specify a transfer encoding or a content length 
@@ -74,11 +74,11 @@ public class RequestContent implements HttpRequestInterceptor {
                             "Chunked transfer encoding not allowed for " + ver);
                 }
                 request.setHeader(
-                        new Header(HTTP.TRANSFER_ENCODING, HTTP.CHUNK_CODING, true));
+                        new Header(HTTP.TRANSFER_ENCODING, HTTP.CHUNK_CODING));
                 request.removeHeaders(HTTP.CONTENT_LEN);
             } else {
                 request.setHeader(new Header(HTTP.CONTENT_LEN, 
-                        Long.toString(entity.getContentLength()), true));
+                        Long.toString(entity.getContentLength())));
                 request.removeHeaders(HTTP.TRANSFER_ENCODING);
             }
             // Specify a content type if known
