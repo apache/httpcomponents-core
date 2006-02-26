@@ -182,12 +182,12 @@ public class HttpRequestExecutor extends AbstractHttpProcessor {
         }
 
         //@@@ behavior if proxying - set real target or proxy, or both?
-        this.defaultContext.setAttribute(HttpExecutionContext.HTTP_TARGET_HOST, 
+        this.defaultContext.setAttribute(HttpExecutionContext.HTTP_TARGET_HOST,
                 conn.getTargetHost());
         this.defaultContext.setAttribute(HttpExecutionContext.HTTP_CONNECTION, 
                 conn);
         
-        prepareRequest(request, this.defaultContext);
+        doPrepareRequest(request, this.defaultContext);
 
         this.defaultContext.setAttribute(HttpExecutionContext.HTTP_REQUEST, 
                 request);
@@ -197,10 +197,12 @@ public class HttpRequestExecutor extends AbstractHttpProcessor {
         // returns false or a non-recoverable exception is thrown
         for (int execCount = 0; ; execCount++) {
             try {
-                establishConnection(conn, conn.getTargetHost(), request.getParams());
-                response = sendRequest(request, conn, this.defaultContext);
+                doEstablishConnection(conn, conn.getTargetHost(),
+                                      request.getParams());
+                response = doSendRequest(request, conn, this.defaultContext);
                 if (response == null) {
-                    response = receiveResponse(request, conn, this.defaultContext);
+                    response = doReceiveResponse(request, conn,
+                                                 this.defaultContext);
                 }
                 // exit retry loop
                 break;
@@ -221,7 +223,7 @@ public class HttpRequestExecutor extends AbstractHttpProcessor {
             }
         }
 
-        finishResponse(response, this.defaultContext);
+        doFinishResponse(response, this.defaultContext);
 
         return response;
 
@@ -236,7 +238,7 @@ public class HttpRequestExecutor extends AbstractHttpProcessor {
      * @throws HttpException      in case of a protocol or processing problem
      * @throws IOException        in case of an I/O problem
      */
-    protected void prepareRequest(
+    protected void doPrepareRequest(
             final HttpRequest          request,
             final HttpContext          context)
                 throws HttpException, IOException {
@@ -262,7 +264,7 @@ public class HttpRequestExecutor extends AbstractHttpProcessor {
      * @throws HttpException      in case of a problem
      * @throws IOException        in case of an IO problem
      */
-    protected void establishConnection(
+    protected void doEstablishConnection(
             final HttpClientConnection conn,
             final HttpHost target,
             final HttpParams params)
@@ -302,22 +304,25 @@ public class HttpRequestExecutor extends AbstractHttpProcessor {
 
     /**
      * Send a request over a connection.
-     * This method also handles the expect-continue handshake, if requested.
+     * This method also handles the expect-continue handshake if necessary.
+     * If it does not have to handle an expect-continue handshake, it will
+     * not use the connection for reading or anything else that depends on
+     * data coming in over the connection.
      *
      * @param request   the request to send, already
-     *                  {@link #prepareRequest prepared}
+     *                  {@link #doPrepareRequest prepared}
      * @param conn      the connection over which to send the request, already
-     *                  {@link #establishConnection established}
+     *                  {@link #doEstablishConnection established}
      * @param context   the context for sending the request
      *
      * @return  a terminal response received as part of an expect-continue
-     *          handshake or <code>null</code> if the expect-continue handshake
-     *          is not used.
+     *          handshake, or
+     *          <code>null</code> if the expect-continue handshake is not used
      *
      * @throws HttpException      in case of a protocol or processing problem
      * @throws IOException        in case of an I/O problem
      */
-    protected HttpResponse sendRequest(
+    protected HttpResponse doSendRequest(
             final HttpRequest request,
             final HttpClientConnection conn,
             final HttpContext context)
@@ -337,14 +342,16 @@ public class HttpRequestExecutor extends AbstractHttpProcessor {
 
         conn.sendRequestHeader(request);
         if (request instanceof HttpEntityEnclosingRequest) {
-            HttpEntityEnclosingRequest entityEnclRequest = (HttpEntityEnclosingRequest) request;
+            HttpEntityEnclosingRequest entityEnclRequest =
+                (HttpEntityEnclosingRequest) request;
 
             // Check for expect-continue handshake. We have to flush the
             // headers and wait for an 100-continue response to handle it.
             // If we get a different response, we must not send the entity.
             boolean sendentity = true;
             final HttpVersion ver = request.getRequestLine().getHttpVersion();
-            if (entityEnclRequest.expectContinue() && ver.greaterEquals(HttpVersion.HTTP_1_1)) {
+            if (entityEnclRequest.expectContinue() &&
+                ver.greaterEquals(HttpVersion.HTTP_1_1)) {
 
                 conn.flush();
                 // As suggested by RFC 2616 section 8.2.3, we don't wait for a
@@ -377,17 +384,19 @@ public class HttpRequestExecutor extends AbstractHttpProcessor {
 
     /**
      * Wait for and receive a response.
+     * This method will automatically ignore intermediate responses
+     * with status code 1xx.
      *
      * @param request   the request for which to obtain the response
      * @param conn      the connection over which the request was sent
      * @param context   the context for receiving the response
      *
-     * @return  the response, not yet post-processed
+     * @return  the final response, not yet post-processed
      *
      * @throws HttpException      in case of a protocol or processing problem
      * @throws IOException        in case of an I/O problem
      */
-    protected HttpResponse receiveResponse(
+    protected HttpResponse doReceiveResponse(
             final HttpRequest          request,
             final HttpClientConnection conn,
             final HttpContext          context)
@@ -401,7 +410,7 @@ public class HttpRequestExecutor extends AbstractHttpProcessor {
         if (context == null) {
             throw new IllegalArgumentException("HTTP context may not be null");
         }
-        // see HttpRequestExecutor.doExecute, final part
+
         HttpResponse response = null;
         int statuscode = 0;
 
@@ -417,7 +426,7 @@ public class HttpRequestExecutor extends AbstractHttpProcessor {
 
         return response;
 
-    } // obtainResponse
+    }
 
     /**
      * Finish a response.
@@ -432,7 +441,7 @@ public class HttpRequestExecutor extends AbstractHttpProcessor {
      * @throws HttpException      in case of a protocol or processing problem
      * @throws IOException        in case of an I/O problem
      */
-    protected void finishResponse(
+    protected void doFinishResponse(
             final HttpResponse response,
             final HttpContext context)
                 throws HttpException, IOException {
