@@ -21,7 +21,10 @@
       <item name="HttpComponents" href="http://jakarta.apache.org/httpcomponents/"/>
     </links>
 
-    <menu name="Overview">
+    <menu name="HttpComponents">
+      <item name="Home" href="http://jakarta.apache.org/httpcomponents/"/>
+    </menu>
+    <menu name="HttpCore Overview">
       <item name="Description" href="index.html"/>
       <item name="Examples" href="examples.html"/>
     </menu>
