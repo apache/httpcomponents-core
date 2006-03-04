@@ -8,11 +8,11 @@ HttpCore Examples
 
     * {{{http://svn.apache.org/repos/asf/jakarta/httpcomponents/trunk/http-core/src/examples/org/apache/http/examples/ElementalHttpGet.java}Simple HTTP GET}}
     
-    This example dempnstrates how to execute a series of simple HTTP GET requests.
+    This example demonstrates how to execute a series of simple HTTP GET requests.
 
     * {{{http://svn.apache.org/repos/asf/jakarta/httpcomponents/trunk/http-core/src/examples/org/apache/http/examples/ElementalHttpPost.java}Simple HTTP POST}}
     
-    This example dempnstrates how to execute a series of simple HTTP POST requests that enclose entity 
+    This example demonstrates how to execute a series of simple HTTP POST requests that enclose entity 
     content of various types: a string, a byte array, an arbitrary input stream.  
 
     * {{{http://svn.apache.org/repos/asf/jakarta/httpcomponents/trunk/http-core/src/examples/org/apache/http/examples/ElementalHttpServer.java}Simple HTTP server}}
