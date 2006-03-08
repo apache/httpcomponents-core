@@ -49,17 +49,6 @@
     <url>http://svn.apache.org/repos/asf/jakarta/httpcomponents/trunk/${pom.artifactId}</url>
   </scm>
 
-  <developers>
-    <developer>
-      <name>Oleg Kalnichevski</name>
-      <id>olegk</id>
-      <email>olegk -at- apache.org</email>
-      <roles>
-        <role>Java Developer</role>
-      </roles>
-    </developer>
-  </developers>
-
   <licenses>
     <license>
       <name>Apache License</name>
@@ -111,7 +100,6 @@
              <reportSet>
                <reports>
                  <report>dependencies</report>
-                 <report>mailing-list</report>
                  <report>issue-tracking</report>
                  <report>license</report>
                  <report>scm</report>
