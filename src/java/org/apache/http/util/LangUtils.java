@@ -43,7 +43,6 @@ public class LangUtils {
     public static int HASH_OFFSET = 37;
     
     private LangUtils() {
-        super();
     }
 
     public static int hashCode(final int seed, final int hashcode) {

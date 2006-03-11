@@ -190,7 +190,6 @@ public class EncodingUtils {
      * This class should not be instantiated.
      */
     private EncodingUtils() {
-        super();
     }
 
 }
