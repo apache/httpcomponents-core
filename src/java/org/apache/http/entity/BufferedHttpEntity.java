@@ -56,7 +56,7 @@ public class BufferedHttpEntity extends HttpEntityWrapper {
       
     public BufferedHttpEntity(final HttpEntity entity) throws IOException {
         super(entity);
-        if (entity.isChunked() || !entity.isRepeatable() ) {
+        if (!entity.isRepeatable() || entity.getContentLength() < 0) {
             this.buffer = EntityUtils.toByteArray(entity);
         } else {
             this.buffer = null;
@@ -85,7 +85,7 @@ public class BufferedHttpEntity extends HttpEntityWrapper {
      * @return  <code>false</code>
      */
     public boolean isChunked() {
-        return false;
+        return (buffer == null) && wrappedEntity.isChunked();
     }
     
     /**

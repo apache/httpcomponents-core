@@ -42,7 +42,10 @@ public class TestAllEntity extends TestCase {
         suite.addTest(TestStringEntity.suite());
         suite.addTest(TestByteArrayEntity.suite());
         suite.addTest(TestInputStreamEntity.suite());
+        suite.addTest(TestFileEntity.suite());
         suite.addTest(TestBasicHttpEntity.suite());
+        suite.addTest(TestHttpEntityWrapper.suite());
+        suite.addTest(TestBufferedHttpEntity.suite());
         return suite;
     }
 

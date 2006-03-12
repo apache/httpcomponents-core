@@ -49,7 +49,8 @@ public class FileEntity extends AbstractHttpEntity {
     private final File file; 
 
     public FileEntity(final File file, final String contentType) {
-        super();        if (file == null) {
+        super();
+        if (file == null) {
             throw new IllegalArgumentException("File may not be null");
         }
         this.file = file;
