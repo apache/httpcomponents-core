@@ -38,7 +38,11 @@ public class TestAllEntity extends TestCase {
 
     public static Test suite() {
         TestSuite suite = new TestSuite();
-        suite.addTest(TestHttpEntities.suite());
+        suite.addTest(TestAbstractHttpEntity.suite());
+        suite.addTest(TestStringEntity.suite());
+        suite.addTest(TestByteArrayEntity.suite());
+        suite.addTest(TestInputStreamEntity.suite());
+        suite.addTest(TestBasicHttpEntity.suite());
         return suite;
     }
 

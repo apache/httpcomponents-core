@@ -76,28 +76,38 @@ public class InputStreamEntity extends AbstractHttpEntity {
         }
         InputStream instream = this.content;
         byte[] buffer = new byte[BUFFER_SIZE];
-        long remaining = this.length;
-    	while (remaining > 0) {
-    	    int l = instream.read(buffer, 0, (int)Math.min(BUFFER_SIZE, remaining));
-    	    if (l == -1) {
-    	    	break;
-    	    }
-            outstream.write(buffer, 0, l);
-    	    remaining -= l;
-    	}
+        int l;
+        if (this.length < 0) {
+            // consume until EOF
+            while ((l = instream.read(buffer)) != -1) {
+                outstream.write(buffer, 0, l);
+            }
+        } else {
+            // consume no more than length
+            long remaining = this.length;
+            while (remaining > 0) {
+                l = instream.read(buffer, 0, (int)Math.min(BUFFER_SIZE, remaining));
+                if (l == -1) {
+                    break;
+                }
+                outstream.write(buffer, 0, l);
+                remaining -= l;
+            }
+        }
+        this.consumed = true;
     }
 
     // non-javadoc, see interface HttpEntity
     public boolean isStreaming() {
-        return !consumed;
+        return !this.consumed;
     }
 
     // non-javadoc, see interface HttpEntity
     public void consumeContent() throws IOException {
-        consumed = true;
+        this.consumed = true;
         // If the input stream is from a connection, closing it will read to
         // the end of the content. Otherwise, we don't care what it does.
-        content.close();
+        this.content.close();
     }
     
 } // class InputStreamEntity

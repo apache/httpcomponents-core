@@ -55,7 +55,7 @@ public class BasicHttpEntity extends AbstractHttpEntity {
      */
     public BasicHttpEntity() {
         super();
-        length = -1;
+        this.length = -1;
     }
 
     // non-javadoc, see interface HttpEntity
@@ -75,13 +75,13 @@ public class BasicHttpEntity extends AbstractHttpEntity {
      */
     public InputStream getContent()
         throws IllegalStateException {
-
-        if (this.content == null)
-            throw new IllegalStateException("content has not been provided");
-        if (contentObtained)
-            throw new IllegalStateException("content is not repeatable");
-
-        contentObtained = true;
+        if (this.content == null) {
+            throw new IllegalStateException("Content has not been provided");
+        }
+        if (this.contentObtained) {
+            throw new IllegalStateException("Content has been consumed");
+        }
+        this.contentObtained = true;
         return this.content;
 
     } // getContent
@@ -113,8 +113,7 @@ public class BasicHttpEntity extends AbstractHttpEntity {
      */
     public void setContent(final InputStream instream) {
         this.content = instream;
-        if (instream != null)
-            contentObtained = false;
+        this.contentObtained = false; 
     }
 
     // non-javadoc, see interface HttpEntity
@@ -122,10 +121,7 @@ public class BasicHttpEntity extends AbstractHttpEntity {
         if (outstream == null) {
             throw new IllegalArgumentException("Output stream may not be null");
         }
-        if (this.content == null) {
-            return;
-        }
-        InputStream instream = this.content;
+        InputStream instream = getContent();
         int l;
         byte[] tmp = new byte[2048];
         while ((l = instream.read(tmp)) != -1) {
@@ -135,14 +131,13 @@ public class BasicHttpEntity extends AbstractHttpEntity {
 
     // non-javadoc, see interface HttpEntity
     public boolean isStreaming() {
-        return (content != null);
+        return !this.contentObtained && this.content != null;
     }
 
     // non-javadoc, see interface HttpEntity
     public void consumeContent() throws IOException {
         if (content != null) {
             content.close(); // reads to the end of the entity
-            content = null;
         }
     }
     
