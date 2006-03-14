@@ -191,7 +191,7 @@ public class DefaultEntityDeserializer implements EntityDeserializer {
         super();
     }
 
-    protected BasicHttpEntity generateEntity(
+    protected BasicHttpEntity doDeserialize(
             final HttpDataReceiver datareceiver,
             final HttpMessage message) throws HttpException, IOException {
         if (datareceiver == null) {
@@ -286,7 +286,7 @@ public class DefaultEntityDeserializer implements EntityDeserializer {
     public HttpEntity deserialize(
             final HttpDataReceiver datareceiver,
             final HttpMessage message) throws HttpException, IOException {
-        return generateEntity(datareceiver, message);
+        return doDeserialize(datareceiver, message);
     }
     
 }

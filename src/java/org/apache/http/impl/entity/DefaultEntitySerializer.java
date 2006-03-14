@@ -32,18 +32,21 @@ package org.apache.http.impl.entity;
 import java.io.IOException;
 import java.io.OutputStream;
 
+import org.apache.http.Header;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpException;
 import org.apache.http.HttpMessage;
 import org.apache.http.HttpVersion;
+import org.apache.http.ProtocolException;
 import org.apache.http.entity.EntitySerializer;
 import org.apache.http.io.ChunkedOutputStream;
 import org.apache.http.io.ContentLengthOutputStream;
 import org.apache.http.io.HttpDataTransmitter;
 import org.apache.http.io.IdentityOutputStream;
+import org.apache.http.protocol.HTTP;
 
 /**
- * Default implementation of an entity writer on the server side.
+ * Default implementation of an entity writer on the client side.
  * 
  * @author <a href="mailto:oleg at ural.ru">Oleg Kalnichevski</a>
  *
@@ -51,10 +54,43 @@ import org.apache.http.io.IdentityOutputStream;
  * 
  * @since 4.0
  */
-public class DefaultServerEntitySerializer implements EntitySerializer {
+public class DefaultEntitySerializer implements EntitySerializer {
 
-    public DefaultServerEntitySerializer() {
+    public DefaultEntitySerializer() {
         super();
+    }
+    
+    protected OutputStream doSerialize(
+            final HttpDataTransmitter datatransmitter,
+            final HttpMessage message) throws HttpException, IOException {
+        Header transferEncodingHeader = message.getFirstHeader(HTTP.TRANSFER_ENCODING);
+        Header contentLengthHeader = message.getFirstHeader(HTTP.CONTENT_LEN);
+        if (transferEncodingHeader != null) {
+            String s = transferEncodingHeader.getValue();
+            if (HTTP.CHUNK_CODING.equalsIgnoreCase(s)) {
+                if (message.getHttpVersion().lessEquals(HttpVersion.HTTP_1_0)) {
+                    throw new ProtocolException(
+                            "Chunked transfer encoding not allowed for " + 
+                            message.getHttpVersion());
+                }
+                return new ChunkedOutputStream(datatransmitter);
+            } else if (HTTP.IDENTITY_CODING.equalsIgnoreCase(s)) {
+                return new IdentityOutputStream(datatransmitter);
+            } else {
+                throw new ProtocolException(
+                        "Unsupported transfer encoding: " + s);
+            }
+        } else if (contentLengthHeader != null) {
+            String s = contentLengthHeader.getValue();
+            try {
+                long len = Long.parseLong(s);
+                return new ContentLengthOutputStream(datatransmitter, len);
+            } catch (NumberFormatException e) {
+                throw new ProtocolException("Invalid content length: " + s);
+            }
+        } else {
+            return new IdentityOutputStream(datatransmitter); 
+        }
     }
 
     public void serialize(
@@ -70,15 +106,7 @@ public class DefaultServerEntitySerializer implements EntitySerializer {
         if (entity == null) {
             throw new IllegalArgumentException("HTTP entity may not be null");
         }
-        OutputStream outstream = null;
-        long len = entity.getContentLength();
-        if (entity.isChunked() && message.getHttpVersion().greaterEquals(HttpVersion.HTTP_1_1)) {
-            outstream = new ChunkedOutputStream(datatransmitter);
-        } else if (len >= 0) {
-            outstream = new ContentLengthOutputStream(datatransmitter, len);
-        } else {
-            outstream = new IdentityOutputStream(datatransmitter); 
-        }
+        OutputStream outstream = doSerialize(datatransmitter, message);
         entity.writeTo(outstream);
         outstream.close();
     }

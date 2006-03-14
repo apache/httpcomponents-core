@@ -45,7 +45,7 @@ public class HttpMessageMockup extends AbstractHttpMessage {
     }
 
     public HttpVersion getHttpVersion() {
-        return (HttpVersion) this.getParams().getParameter(HttpProtocolParams.PROTOCOL_VERSION);
+        return HttpProtocolParams.getVersion(this.getParams());
     }
     
 }

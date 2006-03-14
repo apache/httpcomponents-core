@@ -46,7 +46,7 @@ import org.apache.http.StatusLine;
 import org.apache.http.entity.EntityDeserializer;
 import org.apache.http.entity.EntitySerializer;
 import org.apache.http.impl.entity.DefaultEntityDeserializer;
-import org.apache.http.impl.entity.DefaultServerEntitySerializer;
+import org.apache.http.impl.entity.DefaultEntitySerializer;
 import org.apache.http.io.CharArrayBuffer;
 import org.apache.http.params.HttpParams;
 
@@ -75,7 +75,7 @@ public class DefaultHttpServerConnection
         super();
         this.requestfactory = new DefaultHttpRequestFactory();
         this.buffer = new CharArrayBuffer(128);
-        this.entityserializer = new DefaultServerEntitySerializer();
+        this.entityserializer = new DefaultEntitySerializer();
         this.entitydeserializer = new DefaultEntityDeserializer();
     }
     

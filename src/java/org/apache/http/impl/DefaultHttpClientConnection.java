@@ -48,7 +48,7 @@ import org.apache.http.RequestLine;
 import org.apache.http.StatusLine;
 import org.apache.http.entity.EntityDeserializer;
 import org.apache.http.entity.EntitySerializer;
-import org.apache.http.impl.entity.DefaultClientEntitySerializer;
+import org.apache.http.impl.entity.DefaultEntitySerializer;
 import org.apache.http.impl.entity.DefaultEntityDeserializer;
 import org.apache.http.io.CharArrayBuffer;
 import org.apache.http.io.SocketFactory;
@@ -86,7 +86,7 @@ public class DefaultHttpClientConnection
         this.localAddress = localAddress;
         this.buffer = new CharArrayBuffer(128);
         this.responsefactory = new DefaultHttpResponseFactory();
-        this.entityserializer = new DefaultClientEntitySerializer();
+        this.entityserializer = new DefaultEntitySerializer();
         this.entitydeserializer = new DefaultEntityDeserializer();
     }
     
