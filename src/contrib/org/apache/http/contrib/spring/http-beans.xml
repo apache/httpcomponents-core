@@ -55,20 +55,20 @@
     class="org.apache.http.impl.DefaultHttpResponseFactory" 
     singleton="false" />
   
-  <bean id="http-entity-writer"
-    class="org.apache.http.impl.entity.DefaultClientEntityWriter" 
+  <bean id="http-entity-serializer"
+    class="org.apache.http.impl.entity.DefaultEntitySerializer" 
     singleton="false" />
   
-  <bean id="http-entity-generator"
-    class="org.apache.http.impl.entity.DefaultEntityGenerator" 
+  <bean id="http-entity-deserializer"
+    class="org.apache.http.impl.entity.DefaultEntityDeserializer" 
     singleton="false" />
   
   <bean id="http-connection" 
     class="org.apache.http.impl.DefaultHttpClientConnection" 
     singleton="false">
     <property name="responseFactory"><ref bean="http-response-factory"/></property>
-    <property name="entityWriter"><ref bean="http-entity-writer"/></property>
-    <property name="entityGenerator"><ref bean="http-entity-generator"/></property>
+    <property name="entitySerializer"><ref bean="http-entity-serializer"/></property>
+    <property name="entityDeserializer"><ref bean="http-entity-deserializer"/></property>
   </bean>
 
   <bean id="conn-reuse-strategy"
