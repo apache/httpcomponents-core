@@ -41,7 +41,6 @@ public class TestAllImpl extends TestCase {
         suite.addTest(TestHeaderGroup.suite());
         suite.addTest(TestHttpDataReceiverAndTransmitter.suite());
         suite.addTest(TestDefaultConnectionReuseStrategy.suite());
-        suite.addTest(TestDefaultEntityDeserializer.suite());
         suite.addTest(TestBasicRequest.suite());
         return suite;
     }

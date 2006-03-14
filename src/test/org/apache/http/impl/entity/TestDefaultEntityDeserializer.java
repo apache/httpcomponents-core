@@ -26,7 +26,7 @@
  *
  */
 
-package org.apache.http.impl;
+package org.apache.http.impl.entity;
 
 import java.io.InputStream;
 
@@ -325,5 +325,29 @@ public class TestDefaultEntityDeserializer extends TestCase {
         assertTrue(instream instanceof HttpDataInputStream);
     }
 
+    public void testEntityContentType() throws Exception {
+        HttpDataReceiver datareceiver = new HttpDataReceiverMockup(new byte[] {'0'});
+        HttpMessage message = new HttpMessageMockup();
+
+        message.addHeader(new Header("Content-Type", "stuff"));
+        EntityDeserializer entitygen = new DefaultEntityDeserializer();
+        HttpEntity entity = entitygen.deserialize(datareceiver, message);
+        assertNotNull(entity);
+        assertNotNull(entity.getContentType());
+        assertEquals("stuff", entity.getContentType().getValue());
+    }
+
+    public void testEntityContentEncoding() throws Exception {
+        HttpDataReceiver datareceiver = new HttpDataReceiverMockup(new byte[] {'0'});
+        HttpMessage message = new HttpMessageMockup();
+
+        message.addHeader(new Header("Content-Encoding", "what not"));
+        EntityDeserializer entitygen = new DefaultEntityDeserializer();
+        HttpEntity entity = entitygen.deserialize(datareceiver, message);
+        assertNotNull(entity);
+        assertNotNull(entity.getContentEncoding());
+        assertEquals("what not", entity.getContentEncoding().getValue());
+    }
+    
 }
 
