@@ -61,6 +61,12 @@ public class RequestContent implements HttpRequestInterceptor {
             throw new IllegalArgumentException("HTTP request may not be null");
         }
         if (request instanceof HttpEntityEnclosingRequest) {
+            if (request.containsHeader(HTTP.TRANSFER_ENCODING)) {
+                throw new ProtocolException("Transfer-encoding header already present");
+            }
+            if (request.containsHeader(HTTP.CONTENT_LEN)) {
+                throw new ProtocolException("Content-Length header already present");
+            }
             HttpVersion ver = request.getRequestLine().getHttpVersion();
             HttpEntity entity = ((HttpEntityEnclosingRequest)request).getEntity();
             if (entity == null) {
@@ -73,17 +79,19 @@ public class RequestContent implements HttpRequestInterceptor {
                     throw new ProtocolException(
                             "Chunked transfer encoding not allowed for " + ver);
                 }
-                request.setHeader(
-                        new Header(HTTP.TRANSFER_ENCODING, HTTP.CHUNK_CODING));
-                request.removeHeaders(HTTP.CONTENT_LEN);
+                request.addHeader(new Header(HTTP.TRANSFER_ENCODING, 
+                        HTTP.CHUNK_CODING));
             } else {
-                request.setHeader(new Header(HTTP.CONTENT_LEN, 
+                request.addHeader(new Header(HTTP.CONTENT_LEN, 
                         Long.toString(entity.getContentLength())));
-                request.removeHeaders(HTTP.TRANSFER_ENCODING);
             }
             // Specify a content type if known
             if (entity.getContentType() != null) {
                 request.setHeader(entity.getContentType()); 
+            }
+            // Specify a content encoding if known
+            if (entity.getContentEncoding() != null) {
+                request.setHeader(entity.getContentEncoding()); 
             }
         }
     }

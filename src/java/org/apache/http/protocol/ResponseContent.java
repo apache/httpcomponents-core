@@ -37,6 +37,7 @@ import org.apache.http.HttpException;
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpResponseInterceptor;
 import org.apache.http.HttpVersion;
+import org.apache.http.ProtocolException;
 
 /**
  * A response interceptor that sets up entity-related headers.
@@ -59,17 +60,22 @@ public class ResponseContent implements HttpResponseInterceptor {
         if (response == null) {
             throw new IllegalArgumentException("HTTP request may not be null");
         }
+        if (response.containsHeader(HTTP.TRANSFER_ENCODING)) {
+            throw new ProtocolException("Transfer-encoding header already present");
+        }
+        if (response.containsHeader(HTTP.CONTENT_LEN)) {
+            throw new ProtocolException("Content-Length header already present");
+        }
         HttpVersion ver = response.getStatusLine().getHttpVersion();
         HttpEntity entity = response.getEntity();
         if (entity != null) {
             long len = entity.getContentLength();
             if (entity.isChunked() && ver.greaterEquals(HttpVersion.HTTP_1_1)) {
-                response.setHeader(new Header(HTTP.TRANSFER_ENCODING, HTTP.CHUNK_CODING));
-                response.removeHeaders(HTTP.CONTENT_LEN);
+                response.addHeader(new Header(HTTP.TRANSFER_ENCODING, 
+                        HTTP.CHUNK_CODING));
             } else if (len >= 0) {
-                response.setHeader(new Header(HTTP.CONTENT_LEN, 
+                response.addHeader(new Header(HTTP.CONTENT_LEN, 
                         Long.toString(entity.getContentLength())));
-                response.removeHeaders(HTTP.TRANSFER_ENCODING);
             }
             // Specify a content type if known
             if (entity.getContentType() != null) {
