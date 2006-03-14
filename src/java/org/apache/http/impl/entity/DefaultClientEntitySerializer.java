@@ -57,7 +57,7 @@ public class DefaultClientEntitySerializer implements EntitySerializer {
         super();
     }
 
-    public void write(
+    public void serialize(
             final HttpDataTransmitter datatransmitter,
             final HttpMessage message,
             final HttpEntity entity) throws HttpException, IOException {

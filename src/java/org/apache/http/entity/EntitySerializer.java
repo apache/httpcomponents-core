@@ -1,7 +1,7 @@
 /*
- * $HeadURL: $
- * $Revision: $
- * $Date: $
+ * $HeadURL$
+ * $Revision$
+ * $Date$
  *
  * ====================================================================
  *
@@ -41,13 +41,13 @@ import org.apache.http.io.HttpDataTransmitter;
  *
  * @author <a href="mailto:oleg at ural.ru">Oleg Kalnichevski</a>
  *
- * @version $Revision: $
+ * @version $Revision$
  * 
  * @since 4.0
  */
 public interface EntitySerializer {
 
-    void write(
+    void serialize(
             HttpDataTransmitter datatransmitter,
             HttpMessage message,
             HttpEntity entity) throws HttpException, IOException;

@@ -283,7 +283,7 @@ public class DefaultEntityDeserializer implements EntityDeserializer {
         return entity;
     }
         
-    public HttpEntity generate(
+    public HttpEntity deserialize(
             final HttpDataReceiver datareceiver,
             final HttpMessage message) throws HttpException, IOException {
         return generateEntity(datareceiver, message);

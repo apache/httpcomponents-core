@@ -69,13 +69,13 @@ public class TestDefaultEntityDeserializer extends TestCase {
     public void testIllegalGenerateArg() throws Exception {
         EntityDeserializer entitygen = new DefaultEntityDeserializer();
         try {
-            entitygen.generate(null, null);
+            entitygen.deserialize(null, null);
             fail("IllegalArgumentException should have been thrown");
         } catch (IllegalArgumentException ex) {
             // expected
         }
         try {
-            entitygen.generate(new HttpDataReceiverMockup(new byte[] {}) , null);
+            entitygen.deserialize(new HttpDataReceiverMockup(new byte[] {}) , null);
             fail("IllegalArgumentException should have been thrown");
         } catch (IllegalArgumentException ex) {
             // expected
@@ -92,7 +92,7 @@ public class TestDefaultEntityDeserializer extends TestCase {
         message.addHeader(new Header("Transfer-Encoding", "identity, chunked"));
         message.addHeader(new Header("Content-Length", "plain wrong"));
         EntityDeserializer entitygen = new DefaultEntityDeserializer();
-        HttpEntity entity = entitygen.generate(datareceiver, message);
+        HttpEntity entity = entitygen.deserialize(datareceiver, message);
         assertNotNull(entity);
         assertEquals(-1, entity.getContentLength());
         assertTrue(entity.isChunked());
@@ -100,7 +100,7 @@ public class TestDefaultEntityDeserializer extends TestCase {
 
         // strict mode 
         message.getParams().setBooleanParameter(HttpProtocolParams.STRICT_TRANSFER_ENCODING, true);
-        entity = entitygen.generate(datareceiver, message);
+        entity = entitygen.deserialize(datareceiver, message);
         assertNotNull(entity);
         assertEquals(-1, entity.getContentLength());
         assertTrue(entity.isChunked());
@@ -118,7 +118,7 @@ public class TestDefaultEntityDeserializer extends TestCase {
         message.addHeader(new Header("Transfer-Encoding", "identity"));
         message.addHeader(new Header("Content-Length", "plain wrong"));
         EntityDeserializer entitygen = new DefaultEntityDeserializer();
-        HttpEntity entity = entitygen.generate(datareceiver, message);
+        HttpEntity entity = entitygen.deserialize(datareceiver, message);
         assertNotNull(entity);
         assertEquals(-1, entity.getContentLength());
         assertFalse(entity.isChunked());
@@ -134,7 +134,7 @@ public class TestDefaultEntityDeserializer extends TestCase {
         message.addHeader(new Header("Transfer-Encoding", "whatever; param=value, chunked"));
         message.addHeader(new Header("Content-Length", "plain wrong"));
         EntityDeserializer entitygen = new DefaultEntityDeserializer();
-        HttpEntity entity = entitygen.generate(datareceiver, message);
+        HttpEntity entity = entitygen.deserialize(datareceiver, message);
         assertNotNull(entity);
         assertEquals(-1, entity.getContentLength());
         assertTrue(entity.isChunked());
@@ -143,7 +143,7 @@ public class TestDefaultEntityDeserializer extends TestCase {
         // strict mode 
         message.getParams().setBooleanParameter(HttpProtocolParams.STRICT_TRANSFER_ENCODING, true);
         try {
-            entitygen.generate(datareceiver, message);
+            entitygen.deserialize(datareceiver, message);
             fail("ProtocolException should have been thrown");
         } catch (ProtocolException ex) {
             // expected
@@ -160,7 +160,7 @@ public class TestDefaultEntityDeserializer extends TestCase {
         message.addHeader(new Header("Transfer-Encoding", "chunked, identity"));
         message.addHeader(new Header("Content-Length", "plain wrong"));
         EntityDeserializer entitygen = new DefaultEntityDeserializer();
-        HttpEntity entity = entitygen.generate(datareceiver, message);
+        HttpEntity entity = entitygen.deserialize(datareceiver, message);
         assertNotNull(entity);
         assertEquals(-1, entity.getContentLength());
         assertFalse(entity.isChunked());
@@ -169,7 +169,7 @@ public class TestDefaultEntityDeserializer extends TestCase {
         // strict mode 
         message.getParams().setBooleanParameter(HttpProtocolParams.STRICT_TRANSFER_ENCODING, true);
         try {
-            entitygen.generate(datareceiver, message);
+            entitygen.deserialize(datareceiver, message);
             fail("ProtocolException should have been thrown");
         } catch (ProtocolException ex) {
             // expected
@@ -185,7 +185,7 @@ public class TestDefaultEntityDeserializer extends TestCase {
         message.addHeader(new Header("Content-Type", "unknown"));
         message.addHeader(new Header("Content-Length", "0"));
         EntityDeserializer entitygen = new DefaultEntityDeserializer();
-        HttpEntity entity = entitygen.generate(datareceiver, message);
+        HttpEntity entity = entitygen.deserialize(datareceiver, message);
         assertNotNull(entity);
         assertEquals(0, entity.getContentLength());
         assertFalse(entity.isChunked());
@@ -203,7 +203,7 @@ public class TestDefaultEntityDeserializer extends TestCase {
         message.addHeader(new Header("Content-Length", "0"));
         message.addHeader(new Header("Content-Length", "1"));
         EntityDeserializer entitygen = new DefaultEntityDeserializer();
-        HttpEntity entity = entitygen.generate(datareceiver, message);
+        HttpEntity entity = entitygen.deserialize(datareceiver, message);
         assertNotNull(entity);
         assertEquals(1, entity.getContentLength());
         assertFalse(entity.isChunked());
@@ -214,7 +214,7 @@ public class TestDefaultEntityDeserializer extends TestCase {
         // strict mode 
         message.getParams().setBooleanParameter(HttpProtocolParams.STRICT_TRANSFER_ENCODING, true);
         try {
-            entitygen.generate(datareceiver, message);
+            entitygen.deserialize(datareceiver, message);
             fail("ProtocolException should have been thrown");
         } catch (ProtocolException ex) {
             // expected
@@ -232,7 +232,7 @@ public class TestDefaultEntityDeserializer extends TestCase {
         message.addHeader(new Header("Content-Length", "yyy"));
         message.addHeader(new Header("Content-Length", "xxx"));
         EntityDeserializer entitygen = new DefaultEntityDeserializer();
-        HttpEntity entity = entitygen.generate(datareceiver, message);
+        HttpEntity entity = entitygen.deserialize(datareceiver, message);
         assertNotNull(entity);
         assertEquals(1, entity.getContentLength());
         assertFalse(entity.isChunked());
@@ -243,7 +243,7 @@ public class TestDefaultEntityDeserializer extends TestCase {
         // strict mode 
         message.getParams().setBooleanParameter(HttpProtocolParams.STRICT_TRANSFER_ENCODING, true);
         try {
-            entitygen.generate(datareceiver, message);
+            entitygen.deserialize(datareceiver, message);
             fail("ProtocolException should have been thrown");
         } catch (ProtocolException ex) {
             // expected
@@ -260,7 +260,7 @@ public class TestDefaultEntityDeserializer extends TestCase {
         message.addHeader(new Header("Content-Length", "yyy"));
         message.addHeader(new Header("Content-Length", "xxx"));
         EntityDeserializer entitygen = new DefaultEntityDeserializer();
-        HttpEntity entity = entitygen.generate(datareceiver, message);
+        HttpEntity entity = entitygen.deserialize(datareceiver, message);
         assertNotNull(entity);
         assertEquals(-1, entity.getContentLength());
         assertFalse(entity.isChunked());
@@ -272,7 +272,7 @@ public class TestDefaultEntityDeserializer extends TestCase {
         // strict mode 
         message.getParams().setBooleanParameter(HttpProtocolParams.STRICT_TRANSFER_ENCODING, true);
         try {
-            entitygen.generate(datareceiver, message);
+            entitygen.deserialize(datareceiver, message);
             fail("ProtocolException should have been thrown");
         } catch (ProtocolException ex) {
             // expected
@@ -288,7 +288,7 @@ public class TestDefaultEntityDeserializer extends TestCase {
         message.addHeader(new Header("Content-Type", "unknown"));
         message.addHeader(new Header("Content-Length", "xxx"));
         EntityDeserializer entitygen = new DefaultEntityDeserializer();
-        HttpEntity entity = entitygen.generate(datareceiver, message);
+        HttpEntity entity = entitygen.deserialize(datareceiver, message);
         assertNotNull(entity);
         assertEquals(-1, entity.getContentLength());
         assertFalse(entity.isChunked());
@@ -300,7 +300,7 @@ public class TestDefaultEntityDeserializer extends TestCase {
         // strict mode 
         message.getParams().setBooleanParameter(HttpProtocolParams.STRICT_TRANSFER_ENCODING, true);
         try {
-            entitygen.generate(datareceiver, message);
+            entitygen.deserialize(datareceiver, message);
             fail("ProtocolException should have been thrown");
         } catch (ProtocolException ex) {
             // expected
@@ -314,7 +314,7 @@ public class TestDefaultEntityDeserializer extends TestCase {
         // lenient mode 
         message.getParams().setBooleanParameter(HttpProtocolParams.STRICT_TRANSFER_ENCODING, false);
         EntityDeserializer entitygen = new DefaultEntityDeserializer();
-        HttpEntity entity = entitygen.generate(datareceiver, message);
+        HttpEntity entity = entitygen.deserialize(datareceiver, message);
         assertNotNull(entity);
         assertEquals(-1, entity.getContentLength());
         assertFalse(entity.isChunked());

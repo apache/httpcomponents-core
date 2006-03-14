@@ -47,7 +47,7 @@ import org.apache.http.io.HttpDataReceiver;
  */
 public interface EntityDeserializer {
 
-    HttpEntity generate(
+    HttpEntity deserialize(
             HttpDataReceiver datareceiver,
             HttpMessage message) throws HttpException, IOException;
             

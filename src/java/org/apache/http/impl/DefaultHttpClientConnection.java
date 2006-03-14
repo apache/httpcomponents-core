@@ -180,7 +180,7 @@ public class DefaultHttpClientConnection
         if (request.getEntity() == null) {
             return;
         }
-        this.entityserializer.write(
+        this.entityserializer.serialize(
                 this.datatransmitter,
                 request,
                 request.getEntity());
@@ -226,7 +226,7 @@ public class DefaultHttpClientConnection
             throw new IllegalArgumentException("HTTP response may not be null");
         }
         assertOpen();
-        HttpEntity entity = this.entitydeserializer.generate(this.datareceiver, response);
+        HttpEntity entity = this.entitydeserializer.deserialize(this.datareceiver, response);
         response.setEntity(entity);
     }
     

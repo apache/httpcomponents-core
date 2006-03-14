@@ -121,7 +121,7 @@ public class DefaultHttpServerConnection
             throw new IllegalArgumentException("HTTP request may not be null");
         }
         assertOpen();
-        HttpEntity entity = this.entitydeserializer.generate(this.datareceiver, request);
+        HttpEntity entity = this.entitydeserializer.deserialize(this.datareceiver, request);
         request.setEntity(entity);
     }
 
@@ -166,7 +166,7 @@ public class DefaultHttpServerConnection
         if (response.getEntity() == null) {
             return;
         }
-        this.entityserializer.write(
+        this.entityserializer.serialize(
                 this.datatransmitter,
                 response,
                 response.getEntity());
