@@ -1,7 +1,7 @@
 /*
- * $HeadURL: $
- * $Revision: $
- * $Date: $
+ * $HeadURL$
+ * $Revision$
+ * $Date$
  *
  * ====================================================================
  *
@@ -35,14 +35,14 @@ import java.io.OutputStream;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpException;
 import org.apache.http.HttpVersion;
-import org.apache.http.ProtocolException;
-import org.apache.http.entity.EntityWriter;
+import org.apache.http.entity.EntitySerializer;
 import org.apache.http.io.ChunkedOutputStream;
 import org.apache.http.io.ContentLengthOutputStream;
 import org.apache.http.io.HttpDataTransmitter;
+import org.apache.http.io.IdentityOutputStream;
 
 /**
- * Default implementation of an entity writer on the client side.
+ * Default implementation of an entity writer on the server side.
  * 
  * @author <a href="mailto:oleg at ural.ru">Oleg Kalnichevski</a>
  *
@@ -50,9 +50,9 @@ import org.apache.http.io.HttpDataTransmitter;
  * 
  * @since 4.0
  */
-public class DefaultClientEntityWriter implements EntityWriter {
+public class DefaultServerEntitySerializer implements EntitySerializer {
 
-    public DefaultClientEntityWriter() {
+    public DefaultServerEntitySerializer() {
         super();
     }
 
@@ -69,17 +69,14 @@ public class DefaultClientEntityWriter implements EntityWriter {
         if (datatransmitter == null) {
             throw new IllegalArgumentException("HTTP data transmitter may not be null");
         }
-        long len = entity.getContentLength();
-        boolean chunked = entity.isChunked() || len < 0;  
-        if (chunked && version.lessEquals(HttpVersion.HTTP_1_0)) {
-            throw new ProtocolException(
-                    "Chunked transfer encoding not supported by " + version);
-        }
         OutputStream outstream = null;
-        if (chunked) {
+        long len = entity.getContentLength();
+        if (entity.isChunked() && version.greaterEquals(HttpVersion.HTTP_1_1)) {
             outstream = new ChunkedOutputStream(datatransmitter);
-        } else {
+        } else if (len >= 0) {
             outstream = new ContentLengthOutputStream(datatransmitter, len);
+        } else {
+            outstream = new IdentityOutputStream(datatransmitter); 
         }
         entity.writeTo(outstream);
         outstream.close();

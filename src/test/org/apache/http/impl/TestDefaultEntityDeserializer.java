@@ -34,8 +34,8 @@ import org.apache.http.Header;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpMessage;
 import org.apache.http.ProtocolException;
-import org.apache.http.entity.EntityGenerator;
-import org.apache.http.impl.entity.DefaultEntityGenerator;
+import org.apache.http.entity.EntityDeserializer;
+import org.apache.http.impl.entity.DefaultEntityDeserializer;
 import org.apache.http.io.ChunkedInputStream;
 import org.apache.http.io.ContentLengthInputStream;
 import org.apache.http.io.HttpDataInputStream;
@@ -48,26 +48,26 @@ import junit.framework.Test;
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
 
-public class TestDefaultEntityGenerator extends TestCase {
+public class TestDefaultEntityDeserializer extends TestCase {
 
-    public TestDefaultEntityGenerator(String testName) {
+    public TestDefaultEntityDeserializer(String testName) {
         super(testName);
     }
 
     // ------------------------------------------------------- TestCase Methods
 
     public static Test suite() {
-        return new TestSuite(TestDefaultEntityGenerator.class);
+        return new TestSuite(TestDefaultEntityDeserializer.class);
     }
 
     // ------------------------------------------------------------------- Main
     public static void main(String args[]) {
-        String[] testCaseName = { TestDefaultEntityGenerator.class.getName() };
+        String[] testCaseName = { TestDefaultEntityDeserializer.class.getName() };
         junit.textui.TestRunner.main(testCaseName);
     }
 
     public void testIllegalGenerateArg() throws Exception {
-        EntityGenerator entitygen = new DefaultEntityGenerator();
+        EntityDeserializer entitygen = new DefaultEntityDeserializer();
         try {
             entitygen.generate(null, null);
             fail("IllegalArgumentException should have been thrown");
@@ -91,7 +91,7 @@ public class TestDefaultEntityGenerator extends TestCase {
         message.addHeader(new Header("Content-Type", "unknown"));
         message.addHeader(new Header("Transfer-Encoding", "identity, chunked"));
         message.addHeader(new Header("Content-Length", "plain wrong"));
-        EntityGenerator entitygen = new DefaultEntityGenerator();
+        EntityDeserializer entitygen = new DefaultEntityDeserializer();
         HttpEntity entity = entitygen.generate(datareceiver, message);
         assertNotNull(entity);
         assertEquals(-1, entity.getContentLength());
@@ -117,7 +117,7 @@ public class TestDefaultEntityGenerator extends TestCase {
         message.addHeader(new Header("Content-Type", "unknown"));
         message.addHeader(new Header("Transfer-Encoding", "identity"));
         message.addHeader(new Header("Content-Length", "plain wrong"));
-        EntityGenerator entitygen = new DefaultEntityGenerator();
+        EntityDeserializer entitygen = new DefaultEntityDeserializer();
         HttpEntity entity = entitygen.generate(datareceiver, message);
         assertNotNull(entity);
         assertEquals(-1, entity.getContentLength());
@@ -133,7 +133,7 @@ public class TestDefaultEntityGenerator extends TestCase {
         message.addHeader(new Header("Content-Type", "unknown"));
         message.addHeader(new Header("Transfer-Encoding", "whatever; param=value, chunked"));
         message.addHeader(new Header("Content-Length", "plain wrong"));
-        EntityGenerator entitygen = new DefaultEntityGenerator();
+        EntityDeserializer entitygen = new DefaultEntityDeserializer();
         HttpEntity entity = entitygen.generate(datareceiver, message);
         assertNotNull(entity);
         assertEquals(-1, entity.getContentLength());
@@ -159,7 +159,7 @@ public class TestDefaultEntityGenerator extends TestCase {
         message.addHeader(new Header("Content-Type", "unknown"));
         message.addHeader(new Header("Transfer-Encoding", "chunked, identity"));
         message.addHeader(new Header("Content-Length", "plain wrong"));
-        EntityGenerator entitygen = new DefaultEntityGenerator();
+        EntityDeserializer entitygen = new DefaultEntityDeserializer();
         HttpEntity entity = entitygen.generate(datareceiver, message);
         assertNotNull(entity);
         assertEquals(-1, entity.getContentLength());
@@ -184,7 +184,7 @@ public class TestDefaultEntityGenerator extends TestCase {
         message.getParams().setBooleanParameter(HttpProtocolParams.STRICT_TRANSFER_ENCODING, false);
         message.addHeader(new Header("Content-Type", "unknown"));
         message.addHeader(new Header("Content-Length", "0"));
-        EntityGenerator entitygen = new DefaultEntityGenerator();
+        EntityDeserializer entitygen = new DefaultEntityDeserializer();
         HttpEntity entity = entitygen.generate(datareceiver, message);
         assertNotNull(entity);
         assertEquals(0, entity.getContentLength());
@@ -202,7 +202,7 @@ public class TestDefaultEntityGenerator extends TestCase {
         message.addHeader(new Header("Content-Length", "0"));
         message.addHeader(new Header("Content-Length", "0"));
         message.addHeader(new Header("Content-Length", "1"));
-        EntityGenerator entitygen = new DefaultEntityGenerator();
+        EntityDeserializer entitygen = new DefaultEntityDeserializer();
         HttpEntity entity = entitygen.generate(datareceiver, message);
         assertNotNull(entity);
         assertEquals(1, entity.getContentLength());
@@ -231,7 +231,7 @@ public class TestDefaultEntityGenerator extends TestCase {
         message.addHeader(new Header("Content-Length", "1"));
         message.addHeader(new Header("Content-Length", "yyy"));
         message.addHeader(new Header("Content-Length", "xxx"));
-        EntityGenerator entitygen = new DefaultEntityGenerator();
+        EntityDeserializer entitygen = new DefaultEntityDeserializer();
         HttpEntity entity = entitygen.generate(datareceiver, message);
         assertNotNull(entity);
         assertEquals(1, entity.getContentLength());
@@ -259,7 +259,7 @@ public class TestDefaultEntityGenerator extends TestCase {
         message.addHeader(new Header("Content-Type", "unknown"));
         message.addHeader(new Header("Content-Length", "yyy"));
         message.addHeader(new Header("Content-Length", "xxx"));
-        EntityGenerator entitygen = new DefaultEntityGenerator();
+        EntityDeserializer entitygen = new DefaultEntityDeserializer();
         HttpEntity entity = entitygen.generate(datareceiver, message);
         assertNotNull(entity);
         assertEquals(-1, entity.getContentLength());
@@ -287,7 +287,7 @@ public class TestDefaultEntityGenerator extends TestCase {
         message.getParams().setBooleanParameter(HttpProtocolParams.STRICT_TRANSFER_ENCODING, false);
         message.addHeader(new Header("Content-Type", "unknown"));
         message.addHeader(new Header("Content-Length", "xxx"));
-        EntityGenerator entitygen = new DefaultEntityGenerator();
+        EntityDeserializer entitygen = new DefaultEntityDeserializer();
         HttpEntity entity = entitygen.generate(datareceiver, message);
         assertNotNull(entity);
         assertEquals(-1, entity.getContentLength());
@@ -313,7 +313,7 @@ public class TestDefaultEntityGenerator extends TestCase {
 
         // lenient mode 
         message.getParams().setBooleanParameter(HttpProtocolParams.STRICT_TRANSFER_ENCODING, false);
-        EntityGenerator entitygen = new DefaultEntityGenerator();
+        EntityDeserializer entitygen = new DefaultEntityDeserializer();
         HttpEntity entity = entitygen.generate(datareceiver, message);
         assertNotNull(entity);
         assertEquals(-1, entity.getContentLength());

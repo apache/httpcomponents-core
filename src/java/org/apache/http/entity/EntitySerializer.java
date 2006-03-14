@@ -45,7 +45,7 @@ import org.apache.http.io.HttpDataTransmitter;
  * 
  * @since 4.0
  */
-public interface EntityWriter {
+public interface EntitySerializer {
 
     void write(
             HttpEntity entity,

@@ -43,10 +43,10 @@ import org.apache.http.HttpResponse;
 import org.apache.http.HttpServerConnection;
 import org.apache.http.RequestLine;
 import org.apache.http.StatusLine;
-import org.apache.http.entity.EntityGenerator;
-import org.apache.http.entity.EntityWriter;
-import org.apache.http.impl.entity.DefaultEntityGenerator;
-import org.apache.http.impl.entity.DefaultServerEntityWriter;
+import org.apache.http.entity.EntityDeserializer;
+import org.apache.http.entity.EntitySerializer;
+import org.apache.http.impl.entity.DefaultEntityDeserializer;
+import org.apache.http.impl.entity.DefaultServerEntitySerializer;
 import org.apache.http.io.CharArrayBuffer;
 import org.apache.http.params.HttpParams;
 
@@ -68,15 +68,15 @@ public class DefaultHttpServerConnection
      * Dependent interfaces
      */
     private HttpRequestFactory requestfactory = null; 
-    private EntityGenerator entitygen = null;
-    private EntityWriter entitywriter = null;
+    private EntitySerializer entityserializer = null;
+    private EntityDeserializer entitydeserializer = null;
 
     public DefaultHttpServerConnection() {
         super();
         this.requestfactory = new DefaultHttpRequestFactory();
         this.buffer = new CharArrayBuffer(128);
-        this.entitygen = new DefaultEntityGenerator();
-        this.entitywriter = new DefaultServerEntityWriter();
+        this.entityserializer = new DefaultServerEntitySerializer();
+        this.entitydeserializer = new DefaultEntityDeserializer();
     }
     
     public void setRequestFactory(final HttpRequestFactory requestfactory) {
@@ -86,18 +86,18 @@ public class DefaultHttpServerConnection
         this.requestfactory = requestfactory;
     }
 
-    public void setEntityGenerator(final EntityGenerator entitygen) {
-        if (entitygen == null) {
-            throw new IllegalArgumentException("Entity generator may not be null");
+    public void setEntityDeserializer(final EntityDeserializer entitydeserializer) {
+        if (entitydeserializer == null) {
+            throw new IllegalArgumentException("Entity deserializer may not be null");
         }
-        this.entitygen = entitygen;
+        this.entitydeserializer = entitydeserializer;
     }
 
-    public void setEntityWriter(final EntityWriter entitywriter) {
-        if (entitywriter == null) {
-            throw new IllegalArgumentException("Entity writer may not be null");
+    public void setEntitySerializer(final EntitySerializer entityserializer) {
+        if (entityserializer == null) {
+            throw new IllegalArgumentException("Entity serializer may not be null");
         }
-        this.entitywriter = entitywriter;
+        this.entityserializer = entityserializer;
     }
 
     public void bind(final Socket socket, final HttpParams params) throws IOException {
@@ -121,7 +121,7 @@ public class DefaultHttpServerConnection
             throw new IllegalArgumentException("HTTP request may not be null");
         }
         assertOpen();
-        HttpEntity entity = this.entitygen.generate(this.datareceiver, request);
+        HttpEntity entity = this.entitydeserializer.generate(this.datareceiver, request);
         request.setEntity(entity);
     }
 
@@ -166,7 +166,7 @@ public class DefaultHttpServerConnection
         if (response.getEntity() == null) {
             return;
         }
-        this.entitywriter.write(
+        this.entityserializer.write(
                 response.getEntity(),
                 response.getStatusLine().getHttpVersion(),
                 this.datatransmitter);

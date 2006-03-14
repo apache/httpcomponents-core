@@ -45,7 +45,7 @@ import org.apache.http.io.HttpDataReceiver;
  * 
  * @since 4.0
  */
-public interface EntityGenerator {
+public interface EntityDeserializer {
 
     HttpEntity generate(
             HttpDataReceiver datareceiver,

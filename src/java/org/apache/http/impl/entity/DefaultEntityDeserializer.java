@@ -38,7 +38,7 @@ import org.apache.http.HttpMessage;
 import org.apache.http.HttpEntity;
 import org.apache.http.ProtocolException;
 import org.apache.http.entity.BasicHttpEntity;
-import org.apache.http.entity.EntityGenerator;
+import org.apache.http.entity.EntityDeserializer;
 import org.apache.http.io.ChunkedInputStream;
 import org.apache.http.io.ContentLengthInputStream;
 import org.apache.http.io.HttpDataInputStream;
@@ -185,9 +185,9 @@ import org.apache.http.protocol.HTTP;
  * 
  * @since 4.0
  */
-public class DefaultEntityGenerator implements EntityGenerator {
+public class DefaultEntityDeserializer implements EntityDeserializer {
 
-    public DefaultEntityGenerator() {
+    public DefaultEntityDeserializer() {
         super();
     }
 
