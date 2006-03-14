@@ -368,6 +368,8 @@ public class HttpRequestExecutor extends AbstractHttpProcessor {
                             throw new ProtocolException(
                                     "Unexpected response: " + response.getStatusLine());
                         }
+                        // discard 100-continue
+                        response = null;
                     } else {
                         sendentity = false;
                     }
