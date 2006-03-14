@@ -29,17 +29,23 @@
 
 package org.apache.http.mockup;
 
-import org.apache.http.message.BasicHttpMessage;
+import org.apache.http.HttpVersion;
+import org.apache.http.message.AbstractHttpMessage;
+import org.apache.http.params.HttpProtocolParams;
 
 /**
  *  {@link HttpMessage} mockup implementation.
  *  
  * @author <a href="mailto:oleg at ural.ru">Oleg Kalnichevski</a>
  */
-public class HttpMessageMockup extends BasicHttpMessage {
+public class HttpMessageMockup extends AbstractHttpMessage {
     
     public HttpMessageMockup() {
         super();
     }
 
+    public HttpVersion getHttpVersion() {
+        return (HttpVersion) this.getParams().getParameter(HttpProtocolParams.PROTOCOL_VERSION);
+    }
+    
 }

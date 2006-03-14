@@ -34,6 +34,7 @@ import java.io.OutputStream;
 
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpException;
+import org.apache.http.HttpMessage;
 import org.apache.http.HttpVersion;
 import org.apache.http.ProtocolException;
 import org.apache.http.entity.EntitySerializer;
@@ -57,23 +58,23 @@ public class DefaultClientEntitySerializer implements EntitySerializer {
     }
 
     public void write(
-            final HttpEntity entity,
-            final HttpVersion version,
-            final HttpDataTransmitter datatransmitter) throws HttpException, IOException {
-        if (entity == null) {
-            throw new IllegalArgumentException("HTTP entity may not be null");
-        }
-        if (version == null) {
-            throw new IllegalArgumentException("HTTP version may not be null");
-        }
+            final HttpDataTransmitter datatransmitter,
+            final HttpMessage message,
+            final HttpEntity entity) throws HttpException, IOException {
         if (datatransmitter == null) {
             throw new IllegalArgumentException("HTTP data transmitter may not be null");
         }
+        if (message == null) {
+            throw new IllegalArgumentException("HTTP message may not be null");
+        }
+        if (entity == null) {
+            throw new IllegalArgumentException("HTTP entity may not be null");
+        }
         long len = entity.getContentLength();
         boolean chunked = entity.isChunked() || len < 0;  
-        if (chunked && version.lessEquals(HttpVersion.HTTP_1_0)) {
+        if (chunked && message.getHttpVersion().lessEquals(HttpVersion.HTTP_1_0)) {
             throw new ProtocolException(
-                    "Chunked transfer encoding not supported by " + version);
+                    "Chunked transfer encoding not supported by " + message.getHttpVersion());
         }
         OutputStream outstream = null;
         if (chunked) {

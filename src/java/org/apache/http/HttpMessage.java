@@ -44,6 +44,8 @@ import org.apache.http.params.HttpParams;
  * @since 4.0
  */
 public interface HttpMessage {
+    
+    public HttpVersion getHttpVersion();
 
     boolean containsHeader(String name);
     

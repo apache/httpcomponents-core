@@ -46,13 +46,13 @@ import org.apache.http.params.HttpParams;
  * 
  * @since 4.0
  */
-public class BasicHttpMessage implements HttpMessage {
+public abstract class AbstractHttpMessage implements HttpMessage {
     
     private final HeaderGroup headergroup;
     
     private HttpParams params = null;
     
-    protected BasicHttpMessage() {
+    protected AbstractHttpMessage() {
         super();
         this.headergroup = new HeaderGroup();
         this.params = new DefaultHttpParams(null);

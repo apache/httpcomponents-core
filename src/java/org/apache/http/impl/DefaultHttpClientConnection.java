@@ -181,9 +181,9 @@ public class DefaultHttpClientConnection
             return;
         }
         this.entityserializer.write(
-                request.getEntity(),
-                request.getRequestLine().getHttpVersion(),
-                this.datatransmitter);
+                this.datatransmitter,
+                request,
+                request.getEntity());
     }
 
     public void flush() throws IOException {

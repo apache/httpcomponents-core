@@ -43,7 +43,7 @@ import org.apache.http.params.HttpProtocolParams;
  * 
  * @since 4.0
  */
-public class BasicHttpRequest extends BasicHttpMessage implements HttpRequest {
+public class BasicHttpRequest extends AbstractHttpMessage implements HttpRequest {
     
     private final RequestLine requestline;
     private final String method;
@@ -72,6 +72,14 @@ public class BasicHttpRequest extends BasicHttpMessage implements HttpRequest {
         this.uri = requestline.getUri();
     }
 
+    public HttpVersion getHttpVersion() {
+        if (this.requestline != null) {
+            return this.requestline.getHttpVersion();
+        } else {
+            return HttpProtocolParams.getVersion(getParams());
+        }
+    }
+    
     public RequestLine getRequestLine() {
         if (this.requestline != null) {
             return this.requestline;
@@ -80,4 +88,5 @@ public class BasicHttpRequest extends BasicHttpMessage implements HttpRequest {
             return new RequestLine(this.method, this.uri, ver);
         }
     }
+    
 }

@@ -33,7 +33,7 @@ import java.io.IOException;
 
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpException;
-import org.apache.http.HttpVersion;
+import org.apache.http.HttpMessage;
 import org.apache.http.io.HttpDataTransmitter;
 
 /**
@@ -48,8 +48,8 @@ import org.apache.http.io.HttpDataTransmitter;
 public interface EntitySerializer {
 
     void write(
-            HttpEntity entity,
-            HttpVersion version,
-            HttpDataTransmitter datatransmitter) throws HttpException, IOException;
+            HttpDataTransmitter datatransmitter,
+            HttpMessage message,
+            HttpEntity entity) throws HttpException, IOException;
             
 }

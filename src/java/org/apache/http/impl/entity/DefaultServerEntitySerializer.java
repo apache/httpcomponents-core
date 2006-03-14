@@ -34,6 +34,7 @@ import java.io.OutputStream;
 
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpException;
+import org.apache.http.HttpMessage;
 import org.apache.http.HttpVersion;
 import org.apache.http.entity.EntitySerializer;
 import org.apache.http.io.ChunkedOutputStream;
@@ -57,21 +58,21 @@ public class DefaultServerEntitySerializer implements EntitySerializer {
     }
 
     public void write(
-            final HttpEntity entity,
-            final HttpVersion version,
-            final HttpDataTransmitter datatransmitter) throws HttpException, IOException {
-        if (entity == null) {
-            throw new IllegalArgumentException("HTTP entity may not be null");
-        }
-        if (version == null) {
-            throw new IllegalArgumentException("HTTP version may not be null");
-        }
+            final HttpDataTransmitter datatransmitter,
+            final HttpMessage message,
+            final HttpEntity entity) throws HttpException, IOException {
         if (datatransmitter == null) {
             throw new IllegalArgumentException("HTTP data transmitter may not be null");
         }
+        if (message == null) {
+            throw new IllegalArgumentException("HTTP message may not be null");
+        }
+        if (entity == null) {
+            throw new IllegalArgumentException("HTTP entity may not be null");
+        }
         OutputStream outstream = null;
         long len = entity.getContentLength();
-        if (entity.isChunked() && version.greaterEquals(HttpVersion.HTTP_1_1)) {
+        if (entity.isChunked() && message.getHttpVersion().greaterEquals(HttpVersion.HTTP_1_1)) {
             outstream = new ChunkedOutputStream(datatransmitter);
         } else if (len >= 0) {
             outstream = new ContentLengthOutputStream(datatransmitter, len);

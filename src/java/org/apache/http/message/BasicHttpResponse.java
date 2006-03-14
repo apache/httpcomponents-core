@@ -32,6 +32,7 @@ package org.apache.http.message;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
+import org.apache.http.HttpVersion;
 import org.apache.http.StatusLine;
 import org.apache.http.params.HttpProtocolParams;
 
@@ -44,7 +45,7 @@ import org.apache.http.params.HttpProtocolParams;
  * 
  * @since 4.0
  */
-public class BasicHttpResponse extends BasicHttpMessage implements HttpResponse {
+public class BasicHttpResponse extends AbstractHttpMessage implements HttpResponse {
     
     private StatusLine statusline = null;
     private HttpEntity entity = null;
@@ -59,6 +60,10 @@ public class BasicHttpResponse extends BasicHttpMessage implements HttpResponse 
         setStatusLine(statusline);
     }
 
+    public HttpVersion getHttpVersion() {
+        return this.statusline.getHttpVersion();
+    }
+    
     public StatusLine getStatusLine() {
         return this.statusline; 
     }

@@ -167,9 +167,9 @@ public class DefaultHttpServerConnection
             return;
         }
         this.entityserializer.write(
-                response.getEntity(),
-                response.getStatusLine().getHttpVersion(),
-                this.datatransmitter);
+                this.datatransmitter,
+                response,
+                response.getEntity());
     }
     
     protected void sendResponseStatusLine(final HttpResponse response) 
