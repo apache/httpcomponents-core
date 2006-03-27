@@ -37,6 +37,7 @@ import org.apache.commons.cli.HelpFormatter;
 import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.PosixParser;
+import org.apache.http.Header;
 import org.apache.http.HttpHost;
 import org.apache.http.HttpRequest;
 import org.apache.http.HttpVersion;
@@ -52,6 +53,7 @@ import org.apache.http.message.HttpPost;
 import org.apache.http.params.HttpConnectionParams;
 import org.apache.http.params.HttpParams;
 import org.apache.http.params.HttpProtocolParams;
+import org.apache.http.protocol.HTTP;
 import org.apache.http.protocol.HttpRequestExecutor;
 import org.apache.http.protocol.RequestConnControl;
 import org.apache.http.protocol.RequestContent;
@@ -221,6 +223,9 @@ public class HttpBenchmark {
         } else {
             HttpGet httpget = new HttpGet(url.getPath());
             request = httpget;
+        }
+        if (!keepAlive) {
+            request.addHeader(new Header(HTTP.CONN_DIRECTIVE, HTTP.CONN_CLOSE));
         }
         
         // Prepare request executor
