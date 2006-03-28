@@ -43,7 +43,6 @@ public class TestAllUtil extends TestCase {
         suite.addTest(TestEncodingUtils.suite());
         suite.addTest(TestDateUtils.suite());
         suite.addTest(TestEntityUtils.suite());
-        suite.addTest(TestNumUtils.suite());
         return suite;
     }
 

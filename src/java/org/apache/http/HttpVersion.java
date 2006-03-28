@@ -31,7 +31,6 @@ package org.apache.http;
 
 import org.apache.http.io.CharArrayBuffer;
 import org.apache.http.protocol.HTTP;
-import org.apache.http.util.NumUtils;
 
 /**
  *  <p>HTTP version, as specified in RFC 2616.</p>
@@ -257,13 +256,13 @@ public class HttpVersion implements Comparable {
                         buffer.substring(indexFrom, indexTo));
             }
             try {
-                major = NumUtils.parseUnsignedInt(buffer, i, period); 
+                major = Integer.parseInt(buffer.substringTrimmed(i, period)); 
             } catch (NumberFormatException e) {
                 throw new ProtocolException("Invalid HTTP major version number: " + 
                         buffer.substring(indexFrom, indexTo));
             }
             try {
-                minor = NumUtils.parseUnsignedInt(buffer, period + 1, indexTo); 
+                minor = Integer.parseInt(buffer.substringTrimmed(period + 1, indexTo)); 
             } catch (NumberFormatException e) {
                 throw new ProtocolException("Invalid HTTP minor version number: " + 
                         buffer.substring(indexFrom, indexTo));
