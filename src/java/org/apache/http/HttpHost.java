@@ -43,7 +43,7 @@ import org.apache.http.util.LangUtils;
  * 
  * @since 3.0 
  */
-public class HttpHost implements Cloneable {
+public class HttpHost {
 
     /** The host to use. */
     private String hostname = null;
@@ -109,13 +109,6 @@ public class HttpHost implements Cloneable {
         this.scheme = httphost.scheme;
     }
 
-    /**
-     * @see java.lang.Object#clone()
-     */
-    public Object clone() {
-        return new HttpHost(this);
-    }    
-    
     /**
      * Returns the host name (IP or DNS name).
      * 

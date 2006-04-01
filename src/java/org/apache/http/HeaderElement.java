@@ -106,7 +106,8 @@ public class HeaderElement {
         this.name = name;
         this.value = value;
         if (parameters != null) {
-            this.parameters = parameters;
+            this.parameters = new NameValuePair[parameters.length];
+            System.arraycopy(parameters, 0, this.parameters, 0, parameters.length);
         } else {
             this.parameters = new NameValuePair[] {};
         }
@@ -147,7 +148,9 @@ public class HeaderElement {
      * @return parameters as an array of {@link NameValuePair}s
      */
     public NameValuePair[] getParameters() {
-        return this.parameters;
+        NameValuePair[] acopy = new NameValuePair[this.parameters.length]; 
+        System.arraycopy(this.parameters, 0, acopy, 0, this.parameters.length);
+        return acopy;
     }
 
     // --------------------------------------------------------- Public Methods

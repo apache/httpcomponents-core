@@ -40,7 +40,7 @@ package org.apache.http.message;
  */
 public class HttpPost extends BasicHttpEntityEnclosingRequest {
 
-    public static String METHOD_NAME = "POST";
+    public final static String METHOD_NAME = "POST";
     
     public HttpPost(final String uri) {
         super(METHOD_NAME, uri);

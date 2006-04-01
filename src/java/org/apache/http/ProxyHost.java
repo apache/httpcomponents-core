@@ -70,11 +70,4 @@ public class ProxyHost extends HttpHost {
         this(hostname, -1);
     }
     
-    /**
-     * @see java.lang.Object#clone()
-     */
-    public Object clone() {
-        return new ProxyHost(this);
-    }    
-    
 }

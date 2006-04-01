@@ -46,7 +46,7 @@ import org.apache.http.params.HttpParams;
  * 
  * @since 3.0
  */
-public class DefaultHttpParams implements HttpParams, Serializable, Cloneable {
+public class DefaultHttpParams implements HttpParams, Serializable {
 
 	static final long serialVersionUID = -8296449161405728403L;
 	
@@ -171,7 +171,7 @@ public class DefaultHttpParams implements HttpParams, Serializable, Cloneable {
     }
     
     public HttpParams setBooleanParameter(final String name, boolean value) {
-        setParameter(name, new Boolean(value));
+        setParameter(name, value ? Boolean.TRUE : Boolean.FALSE);
         return this;
     }
 
@@ -198,18 +198,4 @@ public class DefaultHttpParams implements HttpParams, Serializable, Cloneable {
         this.parameters = null;
     }
 
-    /**
-     * Clones this collection of parameters. Please note that paramter values
-     * themselves are not cloned. 
-     * 
-     * @see java.io.Serializable
-     * @see java.lang.Object#clone()
-     */
-    public Object clone() {
-        DefaultHttpParams clone = new DefaultHttpParams(this.defaults);
-        if (this.parameters != null) {
-            clone.parameters = (HashMap)this.parameters.clone(); 
-        }
-        return clone;
-    }
 }

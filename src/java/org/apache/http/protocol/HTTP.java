@@ -44,7 +44,6 @@ public final class HTTP {
     public static final int LF = 10; // <US-ASCII LF, linefeed (10)>
     public static final int SP = 32; // <US-ASCII SP, space (32)>
     public static final int HT = 9;  // <US-ASCII HT, horizontal-tab (9)>
-    public static final byte[] CRLF = new byte[] {CR, LF};
 
     /** HTTP header definitions */ 
     public static final String TRANSFER_ENCODING = "Transfer-Encoding";

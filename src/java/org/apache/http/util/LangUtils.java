@@ -39,8 +39,8 @@ package org.apache.http.util;
  */
 public class LangUtils {
     
-    public static int HASH_SEED = 17;
-    public static int HASH_OFFSET = 37;
+    public static final int HASH_SEED = 17;
+    public static final int HASH_OFFSET = 37;
     
     private LangUtils() {
     }

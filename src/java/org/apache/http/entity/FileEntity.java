@@ -74,12 +74,16 @@ public class FileEntity extends AbstractHttpEntity {
             throw new IllegalArgumentException("Output stream may not be null");
         }
         InputStream instream = new FileInputStream(this.file);
-        byte[] tmp = new byte[4096];
-        int l;
-        while ((l = instream.read(tmp)) != -1) {
-            outstream.write(tmp, 0, l);
+        try {
+            byte[] tmp = new byte[4096];
+            int l;
+            while ((l = instream.read(tmp)) != -1) {
+                outstream.write(tmp, 0, l);
+            }
+            outstream.flush();
+        } finally {
+            instream.close();
         }
-        outstream.flush();
     }
 
     /**

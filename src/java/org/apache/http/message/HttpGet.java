@@ -40,7 +40,7 @@ package org.apache.http.message;
  */
 public class HttpGet extends BasicHttpRequest {
 
-    public static String METHOD_NAME = "GET";
+    public final static String METHOD_NAME = "GET";
     
     public HttpGet(final String uri) {
         super(METHOD_NAME, uri);

@@ -71,10 +71,14 @@ public class EntityUtils {
             i = 4096;
         }
         ByteArrayBuffer buffer = new ByteArrayBuffer(i);
-        byte[] tmp = new byte[4096];
-        int l;
-        while((l = instream.read(tmp)) != -1) {
-        	buffer.append(tmp, 0, l);
+        try {
+            byte[] tmp = new byte[4096];
+            int l;
+            while((l = instream.read(tmp)) != -1) {
+                buffer.append(tmp, 0, l);
+            }
+        } finally {
+            instream.close();
         }
         return buffer.toByteArray();
     }
@@ -121,10 +125,14 @@ public class EntityUtils {
         }
         Reader reader = new InputStreamReader(instream, charset);
         CharArrayBuffer buffer = new CharArrayBuffer(i); 
-        char[] tmp = new char[1024];
-        int l;
-        while((l = reader.read(tmp)) != -1) {
-            buffer.append(tmp, 0, l);
+        try {
+            char[] tmp = new char[1024];
+            int l;
+            while((l = reader.read(tmp)) != -1) {
+                buffer.append(tmp, 0, l);
+            }
+        } finally {
+            reader.close();
         }
         return buffer.toString();
     }

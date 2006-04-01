@@ -179,12 +179,4 @@ public class TestHttpHost extends TestCase {
         assertEquals("somehost:8888", host4.toHostString());
     }
 
-    public void testClone() {
-        HttpHost host1 = new HttpHost("somehost", 8888, Scheme.getScheme("http"));
-        HttpHost host2 = (HttpHost) host1.clone(); 
-        assertEquals(host1, host2);
-        ProxyHost proxyhost1 = new ProxyHost("somehost", 8888);
-        ProxyHost proxyhost2 = (ProxyHost) proxyhost1.clone(); 
-        assertEquals(proxyhost1, proxyhost2);
-    }
 }

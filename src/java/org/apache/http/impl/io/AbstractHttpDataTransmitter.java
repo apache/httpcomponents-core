@@ -47,6 +47,8 @@ import org.apache.http.protocol.HTTP;
  */
 public abstract class AbstractHttpDataTransmitter implements HttpDataTransmitter {
 
+    private static final byte[] CRLF = new byte[] {HTTP.CR, HTTP.LF};
+    
     private static int MAX_CHUNK = 256;
     
     private OutputStream outstream;
@@ -123,7 +125,7 @@ public abstract class AbstractHttpDataTransmitter implements HttpDataTransmitter
         if (s.length() > 0) {
             write(s.getBytes(this.charset));
         }
-        write(HTTP.CRLF);
+        write(CRLF);
     }
     
     public void writeLine(final CharArrayBuffer s) throws IOException {
@@ -151,7 +153,7 @@ public abstract class AbstractHttpDataTransmitter implements HttpDataTransmitter
             byte[] tmp = s.toString().getBytes(this.charset);
             write(tmp);
         }
-        write(HTTP.CRLF);
+        write(CRLF);
     }
     
     public void reset(final HttpParams params) {

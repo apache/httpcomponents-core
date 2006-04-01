@@ -40,7 +40,7 @@ package org.apache.http.message;
  */
 public class HttpHead extends BasicHttpRequest {
 
-    public static String METHOD_NAME = "HEAD";
+    public final static String METHOD_NAME = "HEAD";
     
     public HttpHead(final String uri) {
         super(METHOD_NAME, uri);
