@@ -88,6 +88,26 @@ public class HeaderElement {
     private final String value;
     private final NameValuePair[] parameters;
 
+    private HeaderElement(final NameValuePair[] nvps) {
+        super();
+        if (nvps.length > 0) {
+            NameValuePair nvp = nvps[0];
+            this.name = nvp.getName();
+            this.value = nvp.getValue();
+            int len = nvps.length - 1; 
+            if (len > 0) {
+                this.parameters = new NameValuePair[len];
+                System.arraycopy(nvps, 1, this.parameters, 0, len);
+            } else {
+                this.parameters = new NameValuePair[] {}; 
+            }
+        } else {
+            this.name = "";
+            this.value = null;
+            this.parameters = new NameValuePair[] {}; 
+        }
+    }
+    
     /**
      * Constructor with name, value and parameters.
      *
@@ -106,8 +126,7 @@ public class HeaderElement {
         this.name = name;
         this.value = value;
         if (parameters != null) {
-            this.parameters = new NameValuePair[parameters.length];
-            System.arraycopy(parameters, 0, this.parameters, 0, parameters.length);
+            this.parameters = (NameValuePair[])parameters.clone();
         } else {
             this.parameters = new NameValuePair[] {};
         }
@@ -148,9 +167,7 @@ public class HeaderElement {
      * @return parameters as an array of {@link NameValuePair}s
      */
     public NameValuePair[] getParameters() {
-        NameValuePair[] acopy = new NameValuePair[this.parameters.length]; 
-        System.arraycopy(this.parameters, 0, acopy, 0, this.parameters.length);
-        return acopy;
+        return (NameValuePair[])this.parameters.clone();
     }
 
     // --------------------------------------------------------- Public Methods
@@ -246,20 +263,7 @@ public class HeaderElement {
             throw new IndexOutOfBoundsException();
         }
         NameValuePair[] nvps = NameValuePair.parseAll(buffer, indexFrom, indexTo);
-        if (nvps.length > 0) {
-            NameValuePair nvp = nvps[0];
-            String name = nvp.getName();
-            String value = nvp.getValue();
-            NameValuePair[] params = null;
-            int len = nvps.length - 1; 
-            if (len > 0) {
-                params = new NameValuePair[len];
-                System.arraycopy(nvps, 1, params, 0, len);
-            }
-            return new HeaderElement(name, value, params);
-        } else {
-            return new HeaderElement("", null, null);
-        }
+        return new HeaderElement(nvps);
     }
 
     public static final HeaderElement parse(final String s) {

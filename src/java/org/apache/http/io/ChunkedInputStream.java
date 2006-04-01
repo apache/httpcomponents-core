@@ -318,9 +318,7 @@ public class ChunkedInputStream extends InputStream {
     }
 
     public Header[] getFooters() {
-        Header[] acopy = new Header[this.footers.length]; 
-        System.arraycopy(this.footers, 0, acopy, 0, this.footers.length);
-        return acopy;
+        return (Header[])this.footers.clone();
     }
     
     /**
