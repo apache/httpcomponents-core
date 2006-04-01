@@ -43,4 +43,8 @@
     <do-package/>
   </target>
 
+  <target name="findbugs" depends="compile, findbugs-init">
+    <do-findbugs/>
+  </target>
+
 </project>
