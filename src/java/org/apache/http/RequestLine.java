@@ -50,17 +50,17 @@ public class RequestLine {
     private final String uri;
 
     public RequestLine(final String method, final String uri, final HttpVersion httpversion) {
-    	super();
-    	if (method == null) {
-    		throw new IllegalArgumentException("Method may not be null");
-    	}
-    	if (uri == null) {
-    		throw new IllegalArgumentException("URI may not be null");
-    	}
-    	if (httpversion == null) {
-    		throw new IllegalArgumentException("HTTP version may not be null");
-    	}
-    	this.method = method;
+        	super();
+        	if (method == null) {
+        	    throw new IllegalArgumentException("Method may not be null");
+        	}
+        	if (uri == null) {
+        		throw new IllegalArgumentException("URI may not be null");
+        	}
+        	if (httpversion == null) {
+        		throw new IllegalArgumentException("HTTP version may not be null");
+        	}
+        	this.method = method;
         this.uri = uri;
         this.httpversion = httpversion;
     }
