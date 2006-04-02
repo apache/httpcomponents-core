@@ -44,6 +44,6 @@ public interface HttpRequestFactory {
         throws MethodNotSupportedException;
     
     HttpRequest newHttpRequest(String method, String uri) 
-    	throws MethodNotSupportedException;
+    	    throws MethodNotSupportedException;
     
 }
