@@ -158,9 +158,8 @@ public abstract class AbstractHttpDataTransmitter implements HttpDataTransmitter
     
     public void reset(final HttpParams params) {
         this.charset = HttpProtocolParams.getHttpElementCharset(params); 
-        this.ascii = 
-            this.charset.equalsIgnoreCase(HTTP.US_ASCII) ||
-            this.charset.equalsIgnoreCase(HTTP.ASCII);
+        this.ascii = this.charset.equalsIgnoreCase(HTTP.US_ASCII)
+                     || this.charset.equalsIgnoreCase(HTTP.ASCII);
     }
     
 }
