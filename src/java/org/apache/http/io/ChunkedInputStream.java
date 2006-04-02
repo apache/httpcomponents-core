@@ -144,9 +144,9 @@ public class ChunkedInputStream extends InputStream {
 
     public ChunkedInputStream(final HttpDataReceiver in) {
         super();
-    	if (in == null) {
-    		throw new IllegalArgumentException("InputStream parameter may not be null");
-    	}
+        if (in == null) {
+            throw new IllegalArgumentException("InputStream parameter may not be null");
+        }
         this.in = in;
         this.pos = 0;
         this.buffer = new CharArrayBuffer(16);
@@ -256,8 +256,8 @@ public class ChunkedInputStream extends InputStream {
      * @throws IOException when the chunk size could not be parsed
      */
     private int getChunkSize() throws IOException {
-    	// skip CRLF
-    	if (!bof) {
+        // skip CRLF
+        if (!bof) {
             int cr = in.read();
             int lf = in.read();
             if ((cr != HTTP.CR) || (lf != HTTP.LF)) { 
@@ -270,7 +270,7 @@ public class ChunkedInputStream extends InputStream {
         int i = this.in.readLine(this.buffer);
         if (i == -1) {
             throw new MalformedChunkCodingException(
-            		"Chunked stream ended unexpectedly");
+                    "Chunked stream ended unexpectedly");
         }
         int separator = this.buffer.indexOf(';');
         if (separator < 0) {
