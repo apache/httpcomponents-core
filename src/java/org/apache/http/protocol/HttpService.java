@@ -50,11 +50,6 @@ import org.apache.http.params.HttpParams;
 
 /**
  * Minimalistic server-side implementation of an HTTP processor.
- * We have no intention of competing with the Servlet API.
- * This implementation will remain minimalistic. It is here as
- * a proof-of-concept for our API. It can also be used for
- * implementing simple server-side applications or tests that
- * can be run without installing a servlet container first.
  *
  * @author <a href="mailto:oleg at ural.ru">Oleg Kalnichevski</a>
  *
