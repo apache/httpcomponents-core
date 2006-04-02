@@ -72,25 +72,25 @@ public abstract class AbstractHttpDataReceiver implements HttpDataReceiver {
     }
     
     protected int fillBuffer() throws IOException {
-    	// compact the buffer if necessary
-    	if (this.bufferpos > 0) {
-    		int len = this.bufferlen - this.bufferpos;
+        // compact the buffer if necessary
+        if (this.bufferpos > 0) {
+            int len = this.bufferlen - this.bufferpos;
             if (len > 0) {
                 System.arraycopy(this.buffer, this.bufferpos, this.buffer, 0, len);
             }
-        	this.bufferpos = 0;
-        	this.bufferlen = len;
-    	}
-    	int l;
-    	int off = this.bufferlen;
-    	int len = this.buffer.length - off;
-    	l = this.instream.read(this.buffer, off, len);
-    	if (l == -1) {
-    		return -1;
-    	} else {
-        	this.bufferlen = off + l;
-        	return l;
-    	}
+            this.bufferpos = 0;
+            this.bufferlen = len;
+        }
+        int l;
+        int off = this.bufferlen;
+        int len = this.buffer.length - off;
+        l = this.instream.read(this.buffer, off, len);
+        if (l == -1) {
+            return -1;
+        } else {
+            this.bufferlen = off + l;
+            return l;
+        }
     }
 
     protected boolean hasBufferedData() {
@@ -99,12 +99,12 @@ public abstract class AbstractHttpDataReceiver implements HttpDataReceiver {
     
     public int read() throws IOException {
         int noRead = 0;
-    	while (!hasBufferedData()) {
+        while (!hasBufferedData()) {
             noRead = fillBuffer();
-    		if (noRead == -1) {
-    			return -1;
-    		}
-    	}
+            if (noRead == -1) {
+                return -1;
+            }
+        }
         int b = this.buffer[this.bufferpos++];
         if (b < 0) {
             b = 256 + b;
@@ -123,13 +123,13 @@ public abstract class AbstractHttpDataReceiver implements HttpDataReceiver {
                 return -1;
             }
         }
-    	int chunk = this.bufferlen - this.bufferpos;
-    	if (chunk > len) {
-    		chunk = len;
-    	}
-    	System.arraycopy(this.buffer, this.bufferpos, b, off, chunk);
-    	this.bufferpos += chunk;
-    	return chunk;
+        int chunk = this.bufferlen - this.bufferpos;
+        if (chunk > len) {
+            chunk = len;
+        }
+        System.arraycopy(this.buffer, this.bufferpos, b, off, chunk);
+        this.bufferpos += chunk;
+        return chunk;
     }
     
     public int read(final byte[] b) throws IOException {
@@ -152,8 +152,8 @@ public abstract class AbstractHttpDataReceiver implements HttpDataReceiver {
         if (charbuffer == null) {
             throw new IllegalArgumentException("Char array buffer may not be null");
         }
-    	this.linebuffer.clear();
-    	int noRead = 0;
+        this.linebuffer.clear();
+        int noRead = 0;
         boolean retry = true;
         while (retry) {
             // attempt to find end of line (LF)
@@ -250,9 +250,8 @@ public abstract class AbstractHttpDataReceiver implements HttpDataReceiver {
     
     public void reset(final HttpParams params) {
         this.charset = HttpProtocolParams.getHttpElementCharset(params);
-        this.ascii = 
-            this.charset.equalsIgnoreCase(HTTP.US_ASCII) ||
-            this.charset.equalsIgnoreCase(HTTP.ASCII);
+        this.ascii = this.charset.equalsIgnoreCase(HTTP.US_ASCII)
+                     || this.charset.equalsIgnoreCase(HTTP.ASCII);
     }
     
 }
