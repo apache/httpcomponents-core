@@ -54,7 +54,7 @@ public final class CharArrayBuffer  {
     }
 
     private void expand(int newlen) {
-    	char newbuffer[] = new char[Math.max(this.buffer.length << 1, newlen)];
+        char newbuffer[] = new char[Math.max(this.buffer.length << 1, newlen)];
         System.arraycopy(this.buffer, 0, newbuffer, 0, this.len);
         this.buffer = newbuffer;
     }
@@ -72,23 +72,23 @@ public final class CharArrayBuffer  {
         }
         int newlen = this.len + len;
         if (newlen > this.buffer.length) {
-        	expand(newlen);
+            expand(newlen);
         }
         System.arraycopy(b, off, this.buffer, this.len, len);
         this.len = newlen;
     }
     
     public void append(String str) {
-    	if (str == null) {
-    	    str = "null";
-    	}
-    	int strlen = str.length();
-    	int newlen = this.len + strlen;
-    	if (newlen > this.buffer.length) {
-        	expand(newlen);
-    	}
-    	str.getChars(0, strlen, this.buffer, this.len);
-    	this.len = newlen;
+        if (str == null) {
+            str = "null";
+        }
+        int strlen = str.length();
+        int newlen = this.len + strlen;
+        if (newlen > this.buffer.length) {
+            expand(newlen);
+        }
+        str.getChars(0, strlen, this.buffer, this.len);
+        this.len = newlen;
     }
 
     public void append(final CharArrayBuffer b, int off, int len) {
@@ -106,12 +106,12 @@ public final class CharArrayBuffer  {
     }
         
     public void append(char ch) {
-    	int newlen = this.len + 1;
-    	if (newlen > this.buffer.length) {
-        	expand(newlen);
-    	}
-    	this.buffer[this.len] = ch;
-    	this.len = newlen;
+        int newlen = this.len + 1;
+        if (newlen > this.buffer.length) {
+            expand(newlen);
+        }
+        this.buffer[this.len] = ch;
+        this.len = newlen;
     }
 
     public void append(final byte[] b, int off, int len) {
@@ -148,18 +148,18 @@ public final class CharArrayBuffer  {
     }
     
     public void append(final Object obj) {
-    	append(String.valueOf(obj));
+        append(String.valueOf(obj));
     }
     
     public void clear() {
-    	this.len = 0;
+        this.len = 0;
     }
     
     public char[] toCharArray() {
-    	char[] b = new char[this.len]; 
-    	if (this.len > 0) {
+        char[] b = new char[this.len]; 
+        if (this.len > 0) {
             System.arraycopy(this.buffer, 0, b, 0, this.len);
-    	}
+        }
         return b;
     }
     
@@ -256,7 +256,7 @@ public final class CharArrayBuffer  {
     }
     
     public String toString() {
-    	return new String(this.buffer, 0, this.len);
+        return new String(this.buffer, 0, this.len);
     }
     
 }
