@@ -123,8 +123,8 @@ public class ChunkedOutputStream extends OutputStream {
      * @since 3.0
      */
     public ChunkedOutputStream(final HttpDataTransmitter out, int bufferSize)
-    		throws IOException {
-    	super();
+            throws IOException {
+        super();
         this.cache = new byte[bufferSize];
         this.out = out;
     }
@@ -136,7 +136,7 @@ public class ChunkedOutputStream extends OutputStream {
      * @throws IOException
      */
     public ChunkedOutputStream(final HttpDataTransmitter datatransmitter) 
-    		throws IOException {
+            throws IOException {
         this(datatransmitter, 2048);
     }
 
@@ -149,9 +149,9 @@ public class ChunkedOutputStream extends OutputStream {
      */
     protected void flushCache() throws IOException {
         if (this.cachePosition > 0) {
-        	this.out.writeLine(Integer.toHexString(this.cachePosition));
-        	this.out.write(this.cache, 0, this.cachePosition);
-        	this.out.writeLine("");
+            this.out.writeLine(Integer.toHexString(this.cachePosition));
+            this.out.write(this.cache, 0, this.cachePosition);
+            this.out.writeLine("");
             this.cachePosition = 0;
         }
     }
@@ -167,17 +167,17 @@ public class ChunkedOutputStream extends OutputStream {
      * @since 3.0
      */
     protected void flushCacheWithAppend(byte bufferToAppend[], int off, int len) throws IOException {
-    	this.out.writeLine(Integer.toHexString(this.cachePosition + len));
-    	this.out.write(this.cache, 0, this.cachePosition);
-    	this.out.write(bufferToAppend, off, len);
-    	this.out.writeLine("");
+        this.out.writeLine(Integer.toHexString(this.cachePosition + len));
+        this.out.write(this.cache, 0, this.cachePosition);
+        this.out.write(bufferToAppend, off, len);
+        this.out.writeLine("");
         this.cachePosition = 0;
     }
 
     protected void writeClosingChunk() throws IOException {
         // Write the final chunk.
-    	this.out.writeLine("0");
-    	this.out.writeLine("");
+        this.out.writeLine("0");
+        this.out.writeLine("");
     }
 
     // ----------------------------------------------------------- Public Methods

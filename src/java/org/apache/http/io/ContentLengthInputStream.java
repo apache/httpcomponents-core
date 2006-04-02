@@ -67,7 +67,7 @@ import java.io.InputStream;
  */
 public class ContentLengthInputStream extends InputStream {
     
-	private static int BUFFER_SIZE = 2048;
+    private static int BUFFER_SIZE = 2048;
     /**
      * The maximum number of bytes that can be read from the stream. Subsequent
      * read operations will return -1.
@@ -196,24 +196,24 @@ public class ContentLengthInputStream extends InputStream {
      * @see InputStream#skip(long)
      */
     public long skip(long n) throws IOException {
-    	if (n <= 0) {
-    	    return 0;
-    	}
-    	byte[] buffer = new byte[BUFFER_SIZE];
+        if (n <= 0) {
+            return 0;
+        }
+        byte[] buffer = new byte[BUFFER_SIZE];
         // make sure we don't skip more bytes than are 
         // still available
         long remaining = Math.min(n, this.contentLength - this.pos); 
         // skip and keep track of the bytes actually skipped
         long count = 0;
-    	while (remaining > 0) {
-    	    int l = read(buffer, 0, (int)Math.min(BUFFER_SIZE, remaining));
-    	    if (l == -1) {
-    	    	break;
-    	    }
-    	    count += l;
-    	    remaining -= l;
-    	}
-    	this.pos += count;
-    	return count;
+        while (remaining > 0) {
+            int l = read(buffer, 0, (int)Math.min(BUFFER_SIZE, remaining));
+            if (l == -1) {
+                break;
+            }
+            count += l;
+            remaining -= l;
+        }
+        this.pos += count;
+        return count;
     }
 }

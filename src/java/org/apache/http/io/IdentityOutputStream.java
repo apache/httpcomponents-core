@@ -65,10 +65,10 @@ public class IdentityOutputStream extends OutputStream {
      * @throws IOException If an I/O problem occurs.
      */
     public void close() throws IOException {
-    	if (!this.closed) {
+        if (!this.closed) {
             this.closed = true;
             this.out.flush();
-    	}
+        }
     }
 
     public void flush() throws IOException {
