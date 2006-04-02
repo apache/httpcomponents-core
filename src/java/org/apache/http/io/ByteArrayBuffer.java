@@ -70,7 +70,7 @@ public final class ByteArrayBuffer  {
         }
         int newlen = this.len + len;
         if (newlen > this.buffer.length) {
-        	expand(newlen);
+            expand(newlen);
         }
         System.arraycopy(b, off, this.buffer, this.len, len);
         this.len = newlen;
@@ -115,14 +115,14 @@ public final class ByteArrayBuffer  {
     }
     
     public void clear() {
-    	this.len = 0;
+        this.len = 0;
     }
     
     public byte[] toByteArray() {
-		byte[] b = new byte[this.len]; 
-    	if (this.len > 0) {
+        byte[] b = new byte[this.len]; 
+        if (this.len > 0) {
             System.arraycopy(this.buffer, 0, b, 0, this.len);
-    	}
+        }
         return b;
     }
     
