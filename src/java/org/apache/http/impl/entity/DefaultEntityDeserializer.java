@@ -265,9 +265,9 @@ public class DefaultEntityDeserializer implements EntityDeserializer {
             entity.setChunked(false);
             entity.setContentLength(contentlen);
             if (contentlen >= 0) {
-            	entity.setContent(new ContentLengthInputStream(datareceiver, contentlen));
+                entity.setContent(new ContentLengthInputStream(datareceiver, contentlen));
             } else {
-            	entity.setContent(new HttpDataInputStream(datareceiver));
+                entity.setContent(new HttpDataInputStream(datareceiver));
             }
         } else {
             entity.setChunked(false);
