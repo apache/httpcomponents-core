@@ -37,7 +37,8 @@ import org.apache.http.io.HttpDataReceiver;
 
 /**
  * <p>An HTTP header.</p>
- *
+ * TODO implement equals and hashCode
+ * 
  * @author <a href="mailto:remm@apache.org">Remy Maucherat</a>
  * @author <a href="mailto:mbowler@GargoyleSoftware.com">Mike Bowler</a>
  * @author <a href="mailto:oleg@ural.ru">Oleg Kalnichevski</a>
@@ -120,6 +121,14 @@ public class Header {
         }
     }
 
+    /**
+     * Formats a Header into a header line. The <code>header</code> is
+     * directly appended to <code>buffer</code>; no newline characters are
+     * inserted (folding).
+     * 
+     * @param buffer the buffer to append to
+     * @param header the header to format
+     */
     public static void format(final CharArrayBuffer buffer, final Header header) {
         if (buffer == null) {
             throw new IllegalArgumentException("String buffer may not be null");
@@ -134,6 +143,9 @@ public class Header {
         }
     }
  
+    /**
+     * @see #format(CharArrayBuffer, Header)
+     */
     public static String format(final Header header) {
         CharArrayBuffer buffer = new CharArrayBuffer(32);
         format(buffer, header);

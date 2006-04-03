@@ -41,6 +41,16 @@ package org.apache.http;
  */
 public interface ConnectionReuseStrategy {
 
+    /**
+     * Tells if the connection used to receive a response should be closed or
+     * kept open. Http processors should close the physical connection if this
+     * method returns false. They should do their best to keep it open if this
+     * method returns true.
+     * 
+     * @param response The response whose connection is concerned.
+     * @return true if the connection is to be kept open, false if it is to be
+     *         closed.
+     */
     boolean keepAlive(HttpResponse response);
             
 }

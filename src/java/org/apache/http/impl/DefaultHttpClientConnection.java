@@ -144,16 +144,16 @@ public class DefaultHttpClientConnection
     }
     
     public void setTargetHost(final HttpHost targethost) {
-    	if (targethost == null) {
-    		throw new IllegalArgumentException("Target host may not be null");
-    	}
-    	assertNotOpen();
-    	this.targethost = targethost;
+        if (targethost == null) {
+            throw new IllegalArgumentException("Target host may not be null");
+        }
+        assertNotOpen();
+        this.targethost = targethost;
     }
-    
+
     public void setLocalAddress(final InetAddress localAddress) {
-    	assertNotOpen();
-    	this.localAddress = localAddress;
+        assertNotOpen();
+        this.localAddress = localAddress;
     }
     
     public boolean isResponseAvailable(int timeout) throws IOException {

@@ -40,14 +40,38 @@ package org.apache.http;
  */
 public interface HttpResponse extends HttpMessage {
 
+    /**
+     * Returns the status line that belongs to this response as set by
+     * @link #setStatusLine(StatusLine).
+     */
     StatusLine getStatusLine();
 
+    /**
+     * Sets the status line that belongs to this response.
+     * @param statusline the status line of this response.
+     */
     void setStatusLine(StatusLine statusline);
     
+    /**
+     * Convenience method that creates and sets a new status line of this
+     * response that is initialized with the specified status code.
+     * 
+     * @param code the HTTP status code.
+     * @see HttpStatus
+     */
     void setStatusCode(int code);
     
+    /**
+     * Returns the response entity of this response as set by
+     * @link #setEntity(HttpEntity).
+     * @return the response entity or <code>null</code> if there is none.
+     */
     HttpEntity getEntity();
     
+    /**
+     * Associates a response entity with this response.
+     * @param entity the entity to associate with this response.
+     */
     void setEntity(HttpEntity entity);
     
 }

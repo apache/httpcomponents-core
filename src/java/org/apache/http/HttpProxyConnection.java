@@ -34,22 +34,48 @@ import java.io.IOException;
 import org.apache.http.params.HttpParams;
 
 /**
- * An HTTP connection through a proxy.
- *
+ * An HTTP connection through a proxy. The semantics of
+ * @link org.apache.http.HttpClientConnection#setTargetHost(HttpHost) and
+ * @link org.apache.http.HttpClientConnection#getTargetHost() methods of a proxy
+ *       connections change their meaning to designate the proxy host.
+
  * @author <a href="mailto:oleg at ural.ru">Oleg Kalnichevski</a>
- *
  * @version $Revision$
- * 
  * @since 4.0
  */
 public interface HttpProxyConnection extends HttpClientConnection {
 
+    /**
+     * After this connection is opened to the proxy, this method may be called
+     * to create a new connection over it. Subsequent data is sent over the
+     * resulting connection.
+     * 
+     * @param targetHost The final target host
+     * @param params The parameters effective for this connection
+     * @throws IOException
+     */
     void tunnelTo(HttpHost targetHost, HttpParams params) throws IOException;
     
+    /**
+     * Returns the target host as provided by
+     * 
+     * @link #tunnelTo(HttpHost, HttpParams).
+     */
     HttpHost getTunnelTarget();
-    
+
+    /**
+     * Checks if
+     * 
+     * @link #tunnelTo(HttpHost, HttpParams) has been called on this connection.
+     * @return true if tunnelTo has been called, false if not
+     */
     boolean isTunnelActive();
 
+    /**
+     * Checks if the tunnel uses a secure socket.
+     * 
+     * @return true if this is a secure tunnel.
+     */
     boolean isSecure();
     
 }

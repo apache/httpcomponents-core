@@ -40,6 +40,12 @@ package org.apache.http;
  */
 public interface HttpRequest extends HttpMessage {
 
+    /**
+     * Returns the request line of this request.
+     * @return the request line.
+     */
     RequestLine getRequestLine();
+    
+    //TODO add a setter for request line?
     
 }

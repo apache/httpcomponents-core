@@ -52,8 +52,22 @@ public interface HttpConnection {
      */
     void close() throws IOException;
     
+    /**
+     * Checks if this connection is open.
+     * @return true if it is open, false if it is closed.
+     */
     boolean isOpen();
  
+    /**
+     * Network connections may get closed during some time of inactivity for several reasons.
+     * The next time a read is attempted on such a connection it will throw an IOException.
+     * This method tries to alleviate this inconvenience by trying to find out if a connection is still
+     * usable. Implementations may do that by attempting a read with a very small timeout. Thus this
+     * method may block for a small indefinite time before returning a result. 
+     * 
+     * @return true if attempts to use this connection are likely to succeed, false if they are likely
+     * to fail and this connection should be closed and discarded.
+     */
     boolean isStale();
     
     /**

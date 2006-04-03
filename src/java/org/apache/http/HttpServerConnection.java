@@ -46,21 +46,62 @@ import org.apache.http.params.HttpParams;
  */
 public interface HttpServerConnection extends HttpConnection {
 
+    /**
+     * Binds this connection to an underlying socket.
+     * 
+     * @param socket The underlying socket.
+     * @param params the parameters in effect for this connection
+     * @throws IOException
+     */
     void bind(Socket socket, HttpParams params) 
         throws IOException;
     
+    /**
+     * Receives the request line and all headers available from this connection.
+     * The caller should examine the returned request and decide if to receive a
+     * request entity as well.
+     * 
+     * @param params the parameters in effect for this connection
+     * @return a new HttpRequest object whose request line and headers are
+     *         initialized.
+     * @throws HttpException
+     * @throws IOException
+     */
     HttpRequest receiveRequestHeader(HttpParams params) 
         throws HttpException, IOException;
 
+    /**
+     * Receives the next request entity available from this connection and attaches it to 
+     * an existing request. 
+     * @param request the request to attach the entity to.
+     * @throws HttpException
+     * @throws IOException
+     */
     void receiveRequestEntity(HttpEntityEnclosingRequest request) 
         throws HttpException, IOException;
 
+    /**
+     * Sends the response line and headers of a response over this connection.
+     * @param response the response whose headers to send.
+     * @throws HttpException
+     * @throws IOException
+     */
     void sendResponseHeader(HttpResponse response) 
         throws HttpException, IOException;
     
+    /**
+     * Sends the response entity of a response over this connection.
+     * @param response the response whose entity to send.
+     * @throws HttpException
+     * @throws IOException
+     */
     void sendResponseEntity(HttpResponse response) 
         throws HttpException, IOException;
     
+    /**
+     * Sends all pending buffered data over this connection.
+     * @throws IOException
+     */
     void flush()
         throws IOException;
     
