@@ -95,7 +95,7 @@ public interface HttpMessage {
      * Returns all the headers of this message. Headers are orderd in the sequence
      * they will be sent over a connection.
      * 
-     * @return
+     * @return all the headers of this message
      */
     Header[] getAllHeaders();
 

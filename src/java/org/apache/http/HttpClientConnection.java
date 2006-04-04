@@ -68,7 +68,7 @@ public interface HttpClientConnection extends HttpConnection {
      * 
      * @link #setLocalAddress(InetAddress) or <code>null</code> if
      *       unspecified.
-     * @return
+     * @return local address the connection
      */
     InetAddress getLocalAddress();
     
