@@ -22,7 +22,7 @@
   <parent>
     <groupId>org.apache.jakarta.httpcomponents</groupId>
     <artifactId>httpcomponents</artifactId>
-    <version>4.0-SNAPSHOT</version>
+    <version>project</version>
   </parent>
   <groupId>org.apache.jakarta.httpcomponents</groupId>
   <artifactId>jakarta-hc-httpcore</artifactId>
