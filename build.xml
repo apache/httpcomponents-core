@@ -6,9 +6,9 @@
 
 <!-- ========== Required component properties ============================= -->
 
-  <property name="component.name"          value="http-core"/>
-  <property name="component.title"         value="Jakarta HttpComponents Core"/>
-  <property name="component.version"       value="4.0-dev"/>
+  <property name="component.name"          value="httpcore"/>
+  <property name="component.title"         value="Jakarta HttpComponents HttpCore"/>
+  <property name="component.version"       value="4.0-alpha1-SNAPSHOT"/>
   <property name="component.home"          value="${basedir}"/>
   <property name="component.src"           value="${component.home}/src/java"/>
   <property name="component.tests"         value="${component.home}/src/test"/>

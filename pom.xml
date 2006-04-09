@@ -6,11 +6,11 @@
   </parent>
   <modelVersion>4.0.0</modelVersion>
   <groupId>org.apache.jakarta.httpcomponents</groupId>
-  <artifactId>jakarta-hc-httpcore</artifactId>
+  <artifactId>httpcore</artifactId>
   <name>HttpCore</name>
-  <version>4.0-alpha2-SNAPSHOT</version>
+  <version>4.0-alpha1-SNAPSHOT</version>
   <description>Core components to build HTTP enabled services</description>
-  <url>http://jakarta.apache.org/httpcomponents/http-core/</url>
+  <url>http://jakarta.apache.org/httpcomponents/httpcore/</url>
   <issueManagement>
     <system>Bugzilla</system>
     <url>http://issues.apache.org/bugzilla/buglist.cgi?query_format=advanced&amp;short_desc_type=allwordssubstr&amp;short_desc=&amp;product=HttpClient&amp;component=HttpCommon&amp;long_desc_type=allwordssubstr&amp;long_desc=&amp;bug_file_loc_type=allwordssubstr&amp;bug_file_loc=&amp;keywords_type=anywords&amp;keywords=&amp;bug_status=UNCONFIRMED&amp;bug_status=NEW&amp;bug_status=ASSIGNED&amp;bug_status=REOPENED&amp;bug_status=NEEDINFO&amp;emailassigned_to1=1&amp;emailtype1=substring&amp;email1=&amp;emailreporter2=1&amp;emailtype2=substring&amp;email2=&amp;bugidtype=include&amp;bug_id=&amp;votes=&amp;chfieldfrom=&amp;chfieldto=Now&amp;chfieldvalue=&amp;cmdtype=doit&amp;order=Reuse+same+sort+as+last+time&amp;field0-0-0=noop&amp;type0-0-0=noop&amp;value0-0-0=</url>
@@ -24,9 +24,9 @@
     </license>
   </licenses>
   <scm>
-    <connection>scm:svn:http://svn.apache.org/repos/asf/jakarta/httpcomponents/trunk/http-core</connection>
-    <developerConnection>scm:svn:http://svn.apache.org/repos/asf/jakarta/httpcomponents/trunk/http-core</developerConnection>
-    <url>http://svn.apache.org/repos/asf/jakarta/httpcomponents/trunk/http-core</url>
+    <connection>scm:svn:http://svn.apache.org/repos/asf/jakarta/httpcomponents/httpcore/trunk/</connection>
+    <developerConnection>scm:svn:http://svn.apache.org/repos/asf/jakarta/httpcomponents/httpcore/trunk/</developerConnection>
+    <url>http://svn.apache.org/repos/asf/jakarta/httpcomponents/httpcore/trunk/</url>
   </scm>
   <organization>
     <name>Apache Software Foundation</name>
@@ -53,7 +53,7 @@
       <plugin>
         <artifactId>maven-release-plugin</artifactId>
         <configuration>
-          <tagBase>https://svn.apache.org/repos/asf/jakarta/httpcomponents/tags/</tagBase>
+          <tagBase>https://svn.apache.org/repos/asf/jakarta/httpcomponents/httpcore/tags/</tagBase>
         </configuration>
       </plugin>
     </plugins>
