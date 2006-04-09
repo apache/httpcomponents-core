@@ -1,7 +1,7 @@
 <project name="Jakarta HttpCompomponents Core" default="compile" basedir=".">
 
   <property file="${basedir}/build.properties"/>
-  <property file="${basedir}/../build.properties"/>
+  <property file="${basedir}/../project/build.properties"/>
   <property file="${user.home}/build.properties"/>
 
 <!-- ========== Required component properties ============================= -->
@@ -19,7 +19,7 @@
 
 <!-- ========== Import common targets and macrdefs ======================== -->
 
-  <import file="../build-common.xml"/>
+  <import file="../project/build-common.xml"/>
 
 <!-- ========== Targets: "External" Targets: Compilation ================== -->
 
