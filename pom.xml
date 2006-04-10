@@ -6,7 +6,7 @@
   </parent>
   <modelVersion>4.0.0</modelVersion>
   <groupId>org.apache.jakarta.httpcomponents</groupId>
-  <artifactId>httpcore</artifactId>
+  <artifactId>jakarta-httpcore</artifactId>
   <name>HttpCore</name>
   <version>4.0-alpha1-SNAPSHOT</version>
   <description>Core components to build HTTP enabled services</description>
