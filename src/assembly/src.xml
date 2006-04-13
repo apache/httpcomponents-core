@@ -15,23 +15,12 @@
           </includes>
         </fileSet>
         <fileSet>
-          <directory>target</directory>
-          <outputDirectory></outputDirectory>
-          <includes>
-            <include>*.jar</include>
-          </includes>
-        </fileSet>
-        <fileSet>
           <directory>src/java</directory>
           <outputDirectory>src</outputDirectory>
         </fileSet>
         <fileSet>
           <directory>src/examples</directory>
           <outputDirectory>examples</outputDirectory>
-        </fileSet>
-        <fileSet>
-          <directory>target/javadoc</directory>
-          <outputDirectory>javadoc</outputDirectory>
         </fileSet>
     </fileSets>
 </assembly>
