@@ -22,5 +22,9 @@
           <directory>src/examples</directory>
           <outputDirectory>examples</outputDirectory>
         </fileSet>
+        <fileSet>
+          <directory>src/test</directory>
+          <outputDirectory>tests</outputDirectory>
+        </fileSet>
     </fileSets>
 </assembly>
