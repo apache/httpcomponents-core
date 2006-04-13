@@ -56,6 +56,15 @@
           <tagBase>https://svn.apache.org/repos/asf/jakarta/httpcomponents/httpcore/tags/</tagBase>
         </configuration>
       </plugin>
+      <plugin>
+        <artifactId>maven-assembly-plugin</artifactId>
+        <configuration>
+          <descriptors>
+            <descriptor>src/assembly/bin.xml</descriptor>
+            <descriptor>src/assembly/src.xml</descriptor>
+          </descriptors>
+        </configuration>
+      </plugin>
     </plugins>
   </build>
   <dependencies>

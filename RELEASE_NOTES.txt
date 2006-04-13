@@ -1,0 +1,10 @@
+Release 4.0 Alpha 1
+------------------
+
+This release represents a complete redesign of the Jakarta Commons HttpClient
+3.x API and a significant rewrite of the core HTTP components derived from 
+HttpClient 3.0 code base.
+
+These components will form the foundation of the future releases of Jakarta
+HttpClient and can also be used separately to build custom client- and 
+server-side HTTP services.
