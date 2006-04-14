@@ -1,5 +1,5 @@
 Release 4.0 Alpha 1
-------------------
+-------------------
 
 This release represents a complete redesign of the Jakarta Commons HttpClient
 3.x API and a significant rewrite of the core HTTP components derived from 
