@@ -15,16 +15,8 @@
           </includes>
         </fileSet>
         <fileSet>
-          <directory>src/java</directory>
+          <directory>src</directory>
           <outputDirectory>src</outputDirectory>
-        </fileSet>
-        <fileSet>
-          <directory>src/examples</directory>
-          <outputDirectory>examples</outputDirectory>
-        </fileSet>
-        <fileSet>
-          <directory>src/test</directory>
-          <outputDirectory>tests</outputDirectory>
         </fileSet>
     </fileSets>
 </assembly>
