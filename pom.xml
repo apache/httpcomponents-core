@@ -8,7 +8,7 @@
   <groupId>org.apache.jakarta.httpcomponents</groupId>
   <artifactId>jakarta-httpcore</artifactId>
   <name>HttpCore</name>
-  <version>4.0-alpha2</version>
+  <version>4.0-alpha2-SNAPSHOT</version>
   <description>Core components to build HTTP enabled services</description>
   <url>http://jakarta.apache.org/httpcomponents/httpcore/</url>
   <issueManagement>
