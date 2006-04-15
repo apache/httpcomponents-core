@@ -6,9 +6,9 @@
   </parent>
   <modelVersion>4.0.0</modelVersion>
   <groupId>org.apache.jakarta.httpcomponents</groupId>
-  <artifactId>httpcore</artifactId>
+  <artifactId>jakarta-httpcore</artifactId>
   <name>HttpCore</name>
-  <version>4.0-alpha1-SNAPSHOT</version>
+  <version>4.0-alpha1</version>
   <description>Core components to build HTTP enabled services</description>
   <url>http://jakarta.apache.org/httpcomponents/httpcore/</url>
   <issueManagement>
@@ -24,9 +24,9 @@
     </license>
   </licenses>
   <scm>
-    <connection>scm:svn:http://svn.apache.org/repos/asf/jakarta/httpcomponents/httpcore/trunk/</connection>
-    <developerConnection>scm:svn:http://svn.apache.org/repos/asf/jakarta/httpcomponents/httpcore/trunk/</developerConnection>
-    <url>http://svn.apache.org/repos/asf/jakarta/httpcomponents/httpcore/trunk/</url>
+    <connection>scm:svn:http://svn.apache.org/repos/asf/jakarta/httpcomponents/httpcore/tags/4.0-alpha1/</connection>
+    <developerConnection>scm:svn:http://svn.apache.org/repos/asf/jakarta/httpcomponents/httpcore/tags/4.0-alpha1/</developerConnection>
+    <url>http://svn.apache.org/repos/asf/jakarta/httpcomponents/httpcore/tags/4.0-alpha1/</url>
   </scm>
   <organization>
     <name>Apache Software Foundation</name>
@@ -54,6 +54,15 @@
         <artifactId>maven-release-plugin</artifactId>
         <configuration>
           <tagBase>https://svn.apache.org/repos/asf/jakarta/httpcomponents/httpcore/tags/</tagBase>
+        </configuration>
+      </plugin>
+      <plugin>
+        <artifactId>maven-assembly-plugin</artifactId>
+        <configuration>
+          <descriptors>
+            <descriptor>src/assembly/bin.xml</descriptor>
+            <descriptor>src/assembly/src.xml</descriptor>
+          </descriptors>
         </configuration>
       </plugin>
     </plugins>

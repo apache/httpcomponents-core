@@ -1,0 +1,22 @@
+<assembly>
+    <id>src</id>
+    <formats>
+        <format>tar.gz</format>
+        <format>zip</format>
+    </formats>
+    <fileSets>
+        <fileSet>
+          <includes>
+            <include>README.txt</include>
+            <include>LICENSE.txt</include>
+            <include>NOTICE.txt</include>
+            <include>RELEASE_NOTES.txt</include>
+            <include>pom.xml</include>
+          </includes>
+        </fileSet>
+        <fileSet>
+          <directory>src</directory>
+          <outputDirectory>src</outputDirectory>
+        </fileSet>
+    </fileSets>
+</assembly>
