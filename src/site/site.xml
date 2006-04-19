@@ -26,6 +26,7 @@
     </menu>
     <menu name="HttpCore Overview">
       <item name="Description" href="index.html"/>
+      <item name="Download" href="download.html"/>
       <item name="Examples" href="examples.html"/>
     </menu>
     ${reports}
