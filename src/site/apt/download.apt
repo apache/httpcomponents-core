@@ -9,7 +9,8 @@ HttpCore Downloads
     The latest release available for download:
 
     {{{http://jakarta.apache.org/site/downloads/downloads_httpcomponents-httpcore.cgi}4.0-alpha1}} - 
-    {{{http://www.apache.org/dist/jakarta/httpcomponents/httpcore/RELEASE_NOTES.txt}Release Notes}}
+    {{{http://www.apache.org/dist/jakarta/httpcomponents/httpcore/RELEASE_NOTES.txt}Release Notes}} -
+    {{{http://www.apache.org/dist/java-repository/httpcomponents-httpcore/licenses/LICENSE.txt}License}}
 
     If you are using {{{http://maven.apache.org}Maven}} for your project, you can create a dependency 
     in your {{{http://maven.apache.org/guides/introduction/introduction-to-the-pom.html}pom.xml}} 
