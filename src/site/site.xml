@@ -6,13 +6,11 @@
     <href>http://jakarta.apache.org/</href>
   </bannerLeft>
 
-<!--
   <bannerRight>
     <name>HttpComponents HttpCore</name>
-    <src></src>
+    <src>images/logos/httpcomponents.png</src>
     <href>http://jakarta.apache.org/httpcomponents/http-core/</href>
   </bannerRight>
--->
 
   <body>
     <links>
