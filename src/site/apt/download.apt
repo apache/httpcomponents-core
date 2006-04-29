@@ -24,3 +24,5 @@ HttpCore Downloads
     <scope>compile</scope>
   </dependency>
 -------------------------
+
+    THe list of project dependencies can be found {{{dependencies.html}here}} 
