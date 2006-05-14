@@ -122,8 +122,8 @@ public class HttpService extends AbstractHttpProcessor {
             if (request instanceof HttpEntityEnclosingRequest) {
                 // Make sure the request content is fully consumed
                 HttpEntity entity = ((HttpEntityEnclosingRequest)request).getEntity();
-                if (entity != null && entity.getContent() != null) {
-                    entity.getContent().close();
+                if (entity != null) {
+                    entity.consumeContent();
                 }
             }
             
