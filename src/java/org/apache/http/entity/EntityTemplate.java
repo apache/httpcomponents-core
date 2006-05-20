@@ -49,7 +49,7 @@ public class EntityTemplate extends AbstractHttpEntity {
     
     public EntityTemplate(final ContentProducer contentproducer) {
         super();
-        if (this.contentproducer == null) {
+        if (contentproducer == null) {
             throw new IllegalArgumentException("Content producer may not be null");
         }
         this.contentproducer = contentproducer; 
