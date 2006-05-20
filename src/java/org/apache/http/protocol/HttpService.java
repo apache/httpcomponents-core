@@ -129,8 +129,6 @@ public class HttpService extends AbstractHttpProcessor {
                     entity.consumeContent();
                 }
             }
-            
-            postprocessResponse(response, this.context);
         } catch (ConnectionClosedException ex) {
             logMessage("Client closed connection");
             closeConnection();
@@ -143,6 +141,7 @@ public class HttpService extends AbstractHttpProcessor {
             return;
         }
         try {
+            postprocessResponse(response, this.context);
             this.conn.sendResponseHeader(response);
             this.conn.sendResponseEntity(response);
             this.conn.flush();
