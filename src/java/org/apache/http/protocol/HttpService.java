@@ -101,65 +101,65 @@ public class HttpService extends AbstractHttpProcessor {
         BasicHttpResponse response = new BasicHttpResponse();
         response.getParams().setDefaults(this.params);
         try {
-            try {
-                HttpRequest request = this.conn.receiveRequestHeader(this.params);
-                if (request instanceof HttpEntityEnclosingRequest) {
-                    if (((HttpEntityEnclosingRequest) request).expectContinue()) {
+            HttpRequest request = this.conn.receiveRequestHeader(this.params);
+            if (request instanceof HttpEntityEnclosingRequest) {
+                if (((HttpEntityEnclosingRequest) request).expectContinue()) {
 
-                        logMessage("Expected 100 (Continue)");
-                        
-                        BasicHttpResponse ack = new BasicHttpResponse();
-                        ack.getParams().setDefaults(this.params);
-                        ack.setStatusCode(HttpStatus.SC_CONTINUE);
-                        this.conn.sendResponseHeader(ack);
-                        this.conn.flush();
-                    }
-                    this.conn.receiveRequestEntity((HttpEntityEnclosingRequest) request);
+                    logMessage("Expected 100 (Continue)");
+                    
+                    BasicHttpResponse ack = new BasicHttpResponse();
+                    ack.getParams().setDefaults(this.params);
+                    ack.setStatusCode(HttpStatus.SC_CONTINUE);
+                    this.conn.sendResponseHeader(ack);
+                    this.conn.flush();
                 }
-                preprocessRequest(request, this.context);
-                logMessage("Request received");
-                
-                this.context.setAttribute(HttpExecutionContext.HTTP_REQUEST, request);
-                this.context.setAttribute(HttpExecutionContext.HTTP_RESPONSE, response);
-                doService(request, response);
-                
-                if (request instanceof HttpEntityEnclosingRequest) {
-                    // Make sure the request content is fully consumed
-                    HttpEntity entity = ((HttpEntityEnclosingRequest)request).getEntity();
-                    if (entity != null) {
-                        entity.consumeContent();
-                    }
+                this.conn.receiveRequestEntity((HttpEntityEnclosingRequest) request);
+            }
+            preprocessRequest(request, this.context);
+            logMessage("Request received");
+            
+            this.context.setAttribute(HttpExecutionContext.HTTP_REQUEST, request);
+            this.context.setAttribute(HttpExecutionContext.HTTP_RESPONSE, response);
+            doService(request, response);
+            
+            if (request instanceof HttpEntityEnclosingRequest) {
+                // Make sure the request content is fully consumed
+                HttpEntity entity = ((HttpEntityEnclosingRequest)request).getEntity();
+                if (entity != null) {
+                    entity.consumeContent();
                 }
-                
-                postprocessResponse(response, this.context);
-            } catch (ConnectionClosedException ex) {
-                logMessage("Client closed connection");
-                return;
-            } catch (HttpException ex) {
-                handleException(ex, response);
-            } catch (IOException ex) {
-                logIOException(ex);
-                return;
             }
-            try {
-                this.conn.sendResponseHeader(response);
-                this.conn.sendResponseEntity(response);
-                this.conn.flush();
-                logMessage("Response sent");
-            } catch (HttpException ex) {
-                logProtocolException(ex);
-                return;
-            } catch (IOException ex) {
-                logIOException(ex);
-                return;
-            }
-            if (!this.connStrategy.keepAlive(response)) {
-                closeConnection();
-            } else {
-                logMessage("Connection kept alive");
-            }
-        } finally {
-            destroy();
+            
+            postprocessResponse(response, this.context);
+        } catch (ConnectionClosedException ex) {
+            logMessage("Client closed connection");
+            closeConnection();
+            return;
+        } catch (HttpException ex) {
+            handleException(ex, response);
+        } catch (IOException ex) {
+            logIOException(ex);
+            closeConnection();
+            return;
+        }
+        try {
+            this.conn.sendResponseHeader(response);
+            this.conn.sendResponseEntity(response);
+            this.conn.flush();
+            logMessage("Response sent");
+        } catch (HttpException ex) {
+            logProtocolException(ex);
+            closeConnection();
+            return;
+        } catch (IOException ex) {
+            logIOException(ex);
+            closeConnection();
+            return;
+        }
+        if (!this.connStrategy.keepAlive(response)) {
+            closeConnection();
+        } else {
+            logMessage("Connection kept alive");
         }
     }
     

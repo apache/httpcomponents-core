@@ -180,8 +180,12 @@ public class ElementalHttpServer {
         
         public void run() {
             System.out.println("New connection thread");
-            while (!Thread.interrupted() && this.httpservice.isActive()) {
-                this.httpservice.handleRequest();
+            try {
+                while (!Thread.interrupted() && !this.httpservice.isDestroyed() && this.httpservice.isActive()) {
+                    this.httpservice.handleRequest();
+                }
+            } finally {
+                this.httpservice.destroy();
             }
         }
 
