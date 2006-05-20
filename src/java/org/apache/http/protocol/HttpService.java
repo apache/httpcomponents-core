@@ -44,6 +44,7 @@ import org.apache.http.HttpVersion;
 import org.apache.http.MethodNotSupportedException;
 import org.apache.http.ProtocolException;
 import org.apache.http.StatusLine;
+import org.apache.http.UnsupportedHttpVersionException;
 import org.apache.http.impl.DefaultConnectionReuseStrategy;
 import org.apache.http.message.BasicHttpResponse;
 import org.apache.http.params.HttpParams;
@@ -163,6 +164,8 @@ public class HttpService extends AbstractHttpProcessor {
     protected void handleException(final HttpException ex, final HttpResponse response) {
         if (ex instanceof MethodNotSupportedException) {
             response.setStatusCode(HttpStatus.SC_NOT_IMPLEMENTED);
+        } else if (ex instanceof UnsupportedHttpVersionException) {
+            response.setStatusCode(HttpStatus.SC_HTTP_VERSION_NOT_SUPPORTED);
         } else if (ex instanceof ProtocolException) {
             response.setStatusCode(HttpStatus.SC_BAD_REQUEST);
         } else {
