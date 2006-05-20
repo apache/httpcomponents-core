@@ -196,7 +196,11 @@ public class HttpService extends AbstractHttpProcessor {
     
     public void destroy() {
         this.destroyed = true;
-        closeConnection();
+        try {
+            this.conn.shutdown();
+        } catch (IOException ex) {
+            logIOException(ex);
+        }
     }
     
     public boolean isDestroyed() {
