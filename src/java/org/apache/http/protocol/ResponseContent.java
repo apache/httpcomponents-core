@@ -36,6 +36,7 @@ import org.apache.http.HttpEntity;
 import org.apache.http.HttpException;
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpResponseInterceptor;
+import org.apache.http.HttpStatus;
 import org.apache.http.HttpVersion;
 import org.apache.http.ProtocolException;
 
@@ -84,6 +85,13 @@ public class ResponseContent implements HttpResponseInterceptor {
             // Specify a content encoding if known
             if (entity.getContentEncoding() != null) {
                 response.setHeader(entity.getContentEncoding()); 
+            }
+        } else {
+            int status = response.getStatusLine().getStatusCode();
+            if (status != HttpStatus.SC_NO_CONTENT 
+                    && status != HttpStatus.SC_NOT_MODIFIED
+                    && status != HttpStatus.SC_RESET_CONTENT) {
+                response.addHeader(new Header(HTTP.CONTENT_LEN, "0"));
             }
         }
     }
