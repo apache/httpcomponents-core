@@ -31,7 +31,6 @@ package org.apache.http.protocol;
 
 import java.io.IOException;
 
-import org.apache.http.Header;
 import org.apache.http.HttpException;
 import org.apache.http.HttpRequest;
 import org.apache.http.HttpRequestInterceptor;
@@ -60,7 +59,7 @@ public class RequestUserAgent implements HttpRequestInterceptor {
         if (!request.containsHeader(HTTP.USER_AGENT)) {
             String useragent = HttpProtocolParams.getUserAgent(request.getParams());
             if (useragent != null) {
-                request.addHeader(new Header(HTTP.USER_AGENT, useragent));
+                request.addHeader(new GeneratedHeader(HTTP.USER_AGENT, useragent));
             }
         }
     }

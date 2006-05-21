@@ -31,7 +31,6 @@ package org.apache.http.protocol;
 
 import java.io.IOException;
 
-import org.apache.http.Header;
 import org.apache.http.HttpException;
 import org.apache.http.HttpRequest;
 import org.apache.http.HttpRequestInterceptor;
@@ -59,7 +58,7 @@ public class RequestConnControl implements HttpRequestInterceptor {
         if (!request.containsHeader(HTTP.CONN_DIRECTIVE)) {
             // Default policy is to keep connection alive
             // whenever possible
-            request.addHeader(new Header(HTTP.CONN_DIRECTIVE, HTTP.CONN_KEEP_ALIVE));
+            request.addHeader(new GeneratedHeader(HTTP.CONN_DIRECTIVE, HTTP.CONN_KEEP_ALIVE));
         }
     }
     

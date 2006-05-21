@@ -31,7 +31,6 @@ package org.apache.http.protocol;
 
 import java.io.IOException;
 
-import org.apache.http.Header;
 import org.apache.http.HttpException;
 import org.apache.http.HttpHost;
 import org.apache.http.HttpRequest;
@@ -71,7 +70,7 @@ public class RequestTargetHost implements HttpRequestInterceptor {
             if (virtualhost != null) {
                 targethost = new HttpHost(virtualhost, targethost.getPort());
             }
-            request.addHeader(new Header(HTTP.TARGET_HOST, targethost.toHostString()));
+            request.addHeader(new GeneratedHeader(HTTP.TARGET_HOST, targethost.toHostString()));
         }
     }
     

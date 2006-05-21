@@ -31,7 +31,6 @@ package org.apache.http.protocol;
 
 import java.io.IOException;
 
-import org.apache.http.Header;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpEntityEnclosingRequest;
 import org.apache.http.HttpException;
@@ -70,7 +69,7 @@ public class RequestContent implements HttpRequestInterceptor {
             HttpVersion ver = request.getRequestLine().getHttpVersion();
             HttpEntity entity = ((HttpEntityEnclosingRequest)request).getEntity();
             if (entity == null) {
-                request.setHeader(new Header(HTTP.CONTENT_LEN, "0"));
+                request.setHeader(new GeneratedHeader(HTTP.CONTENT_LEN, "0"));
                 return;
             }
             // Must specify a transfer encoding or a content length 
@@ -79,10 +78,10 @@ public class RequestContent implements HttpRequestInterceptor {
                     throw new ProtocolException(
                             "Chunked transfer encoding not allowed for " + ver);
                 }
-                request.addHeader(new Header(HTTP.TRANSFER_ENCODING, 
+                request.addHeader(new GeneratedHeader(HTTP.TRANSFER_ENCODING, 
                         HTTP.CHUNK_CODING));
             } else {
-                request.addHeader(new Header(HTTP.CONTENT_LEN, 
+                request.addHeader(new GeneratedHeader(HTTP.CONTENT_LEN, 
                         Long.toString(entity.getContentLength())));
             }
             // Specify a content type if known

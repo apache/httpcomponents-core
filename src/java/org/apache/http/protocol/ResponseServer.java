@@ -31,7 +31,6 @@ package org.apache.http.protocol;
 
 import java.io.IOException;
 
-import org.apache.http.Header;
 import org.apache.http.HttpException;
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpResponseInterceptor;
@@ -62,7 +61,7 @@ public class ResponseServer implements HttpResponseInterceptor {
             String s = (String) response.getParams().getParameter(
                     HttpProtocolParams.ORIGIN_SERVER);
             if (s != null) {
-                response.setHeader(new Header(HTTP.SERVER_DIRECTIVE, s)); 
+                response.setHeader(new GeneratedHeader(HTTP.SERVER_DIRECTIVE, s)); 
             }
         }
     }

@@ -31,7 +31,6 @@ package org.apache.http.protocol;
 
 import java.io.IOException;
 
-import org.apache.http.Header;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpEntityEnclosingRequest;
 import org.apache.http.HttpException;
@@ -67,7 +66,8 @@ public class RequestExpectContinue implements HttpRequestInterceptor {
                 HttpVersion ver = request.getRequestLine().getHttpVersion();
                 if (HttpProtocolParams.useExpectContinue(request.getParams()) 
                         && ver.greaterEquals(HttpVersion.HTTP_1_1)) {
-                    request.addHeader(new Header(HTTP.EXPECT_DIRECTIVE, HTTP.EXPECT_CONTINUE));
+                    request.addHeader(new GeneratedHeader(HTTP.EXPECT_DIRECTIVE, 
+                            HTTP.EXPECT_CONTINUE));
                 }
             }
         }

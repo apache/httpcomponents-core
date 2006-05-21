@@ -31,7 +31,6 @@ package org.apache.http.protocol;
 
 import java.io.IOException;
 
-import org.apache.http.Header;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpException;
 import org.apache.http.HttpResponse;
@@ -72,10 +71,10 @@ public class ResponseContent implements HttpResponseInterceptor {
         if (entity != null) {
             long len = entity.getContentLength();
             if (entity.isChunked() && ver.greaterEquals(HttpVersion.HTTP_1_1)) {
-                response.addHeader(new Header(HTTP.TRANSFER_ENCODING, 
+                response.addHeader(new GeneratedHeader(HTTP.TRANSFER_ENCODING, 
                         HTTP.CHUNK_CODING));
             } else if (len >= 0) {
-                response.addHeader(new Header(HTTP.CONTENT_LEN, 
+                response.addHeader(new GeneratedHeader(HTTP.CONTENT_LEN, 
                         Long.toString(entity.getContentLength())));
             }
             // Specify a content type if known
@@ -91,7 +90,7 @@ public class ResponseContent implements HttpResponseInterceptor {
             if (status != HttpStatus.SC_NO_CONTENT 
                     && status != HttpStatus.SC_NOT_MODIFIED
                     && status != HttpStatus.SC_RESET_CONTENT) {
-                response.addHeader(new Header(HTTP.CONTENT_LEN, "0"));
+                response.addHeader(new GeneratedHeader(HTTP.CONTENT_LEN, "0"));
             }
         }
     }

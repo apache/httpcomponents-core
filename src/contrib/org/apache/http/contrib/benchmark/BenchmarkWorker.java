@@ -30,6 +30,7 @@ package org.apache.http.contrib.benchmark;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.Iterator;
 
 import org.apache.http.ConnectionReuseStrategy;
 import org.apache.http.Header;
@@ -39,6 +40,7 @@ import org.apache.http.HttpException;
 import org.apache.http.HttpRequest;
 import org.apache.http.HttpResponse;
 import org.apache.http.impl.DefaultConnectionReuseStrategy;
+import org.apache.http.protocol.GeneratedHeader;
 import org.apache.http.protocol.HTTP;
 import org.apache.http.protocol.HttpRequestExecutor;
 import org.apache.http.util.EntityUtils;
@@ -76,6 +78,7 @@ public class BenchmarkWorker {
         stats.start();
         for (int i = 0; i < count; i++) {
             try {
+                resetHeader(request);
                 response = this.httpexecutor.execute(request, conn);
                 if (this.verbosity >= 4) {
                     System.out.println(">> " + request.getRequestLine().toString());
@@ -140,4 +143,13 @@ public class BenchmarkWorker {
         return stats;
     }
 
+    private static void resetHeader(final HttpRequest request) {
+        for (Iterator it = request.headerIterator(); it.hasNext(); ) {
+            Header header = (Header) it.next();
+            if (header instanceof GeneratedHeader) {
+                it.remove();
+            }
+        }
+    }
+    
 }
