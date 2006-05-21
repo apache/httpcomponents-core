@@ -80,7 +80,7 @@ public class BenchmarkWorker {
             try {
                 resetHeader(request);
                 response = this.httpexecutor.execute(request, conn);
-                if (this.verbosity >= 4) {
+                if (this.verbosity >= 3) {
                     System.out.println(">> " + request.getRequestLine().toString());
                     Header[] headers = request.getAllHeaders();
                     for (int h = 0; h < headers.length; h++) {
@@ -88,10 +88,10 @@ public class BenchmarkWorker {
                     }
                     System.out.println();
                 }
-                if (this.verbosity >= 3) {
+                if (this.verbosity >= 2) {
                     System.out.println(response.getStatusLine().getStatusCode());
                 }
-                if (this.verbosity >= 4) {
+                if (this.verbosity >= 3) {
                     System.out.println("<< " + response.getStatusLine().toString());
                     Header[] headers = response.getAllHeaders();
                     for (int h = 0; h < headers.length; h++) {
