@@ -39,7 +39,9 @@ import org.apache.http.HttpException;
 import org.apache.http.HttpRequest;
 import org.apache.http.HttpResponse;
 import org.apache.http.impl.DefaultConnectionReuseStrategy;
+import org.apache.http.protocol.HTTP;
 import org.apache.http.protocol.HttpRequestExecutor;
+import org.apache.http.util.EntityUtils;
 
 /**
  * <p>
@@ -95,6 +97,10 @@ public class BenchmarkWorker {
                     System.out.println();
                 }
                 HttpEntity entity = response.getEntity();
+                String charset = EntityUtils.getContentCharSet(entity);
+                if (charset == null) {
+                    charset = HTTP.DEFAULT_CONTENT_CHARSET;
+                }
                 long contentlen = 0;
                 if (entity != null) {
                     InputStream instream = entity.getContent();
@@ -102,7 +108,15 @@ public class BenchmarkWorker {
                     while ((l = instream.read(this.buffer)) != -1) {
                         stats.incTotal(l);
                         contentlen += l;
+                        if (this.verbosity >= 4) {
+                            String s = new String(this.buffer, 0, l, charset);
+                            System.out.print(s);
+                        }
                     }
+                }
+                if (this.verbosity >= 4) {
+                    System.out.println();
+                    System.out.println();
                 }
                 if (!keepalive || !this.connstrategy.keepAlive(response)) {
                     conn.close();
