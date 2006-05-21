@@ -117,9 +117,16 @@ public class HttpBenchmark {
         Topt.setRequired(false);
         Topt.setArgName("content-type");
 
-        Option vopt = new Option("v", true, "Set verbosity level - 4 and above prints " +
-                "information on headers, 3 and above prints response codes (404, 200, " +
-                "etc.), 2 and above prints warnings and info.");
+        Option Hopt = new Option("H", true, "Add arbitrary header line, " +
+                "eg. 'Accept-Encoding: gzip' inserted after all normal " +
+                "header lines. (repeatable)");
+        Hopt.setRequired(false);
+        Hopt.setArgName("header");
+
+        Option vopt = new Option("v", true, "Set verbosity level - 4 and above " +
+                "prints response content, 3 and above prints " +
+                "information on headers, 2 and above prints response codes (404, 200, " +
+                "etc.), 1 and above prints warnings and info.");
         vopt.setRequired(false);
         vopt.setArgName("verbosity");
 
@@ -133,6 +140,7 @@ public class HttpBenchmark {
         options.addOption(popt);
         options.addOption(Topt);
         options.addOption(vopt);
+        options.addOption(Hopt);
         options.addOption(hopt);
 
         if (args.length == 0) {
@@ -176,7 +184,7 @@ public class HttpBenchmark {
                 System.exit(-1);
             }
         }
-        
+
         args = cmd.getArgs();
         if (args.length != 1) {
             showUsage(options);
@@ -226,6 +234,20 @@ public class HttpBenchmark {
         }
         if (!keepAlive) {
             request.addHeader(new Header(HTTP.CONN_DIRECTIVE, HTTP.CONN_CLOSE));
+        }
+
+        if(cmd.hasOption('H')) {
+            String[] strs = cmd.getOptionValues('H');
+            for (int i = 0; i < strs.length; i++) {
+                String s = strs[i];
+                int pos = s.indexOf(':');
+                if (pos != -1) {
+                    Header header = new Header(
+                            s.substring(0, pos).trim(),
+                            s.substring(pos + 1));
+                    request.addHeader(header);
+                }
+            }
         }
         
         // Prepare request executor
