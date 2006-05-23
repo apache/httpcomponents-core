@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?><project>
   <parent>
-    <artifactId>httpcomponents</artifactId>
-    <groupId>org.apache.jakarta.httpcomponents</groupId>
-    <version>project</version>
+    <artifactId>project</artifactId>
+    <groupId>org.apache.httpcomponents</groupId>
+    <version>4.0</version>
   </parent>
   <modelVersion>4.0.0</modelVersion>
-  <groupId>org.apache.jakarta.httpcomponents</groupId>
+  <groupId>org.apache.httpcomponents</groupId>
   <artifactId>jakarta-httpcore</artifactId>
   <name>HttpCore</name>
   <version>4.0-alpha2-SNAPSHOT</version>
