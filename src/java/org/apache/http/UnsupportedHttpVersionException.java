@@ -32,8 +32,8 @@ package org.apache.http;
 import org.apache.http.ProtocolException;
 
 /**
- * <p>
- * </p>
+ * Indicates an unsupported version of the HTTP protocol.
+ *
  * @author <a href="mailto:oleg at ural.ru">Oleg Kalnichevski</a>
  *
  * @version $Revision:379772 $
@@ -43,14 +43,14 @@ public class UnsupportedHttpVersionException extends ProtocolException {
 	static final long serialVersionUID = 6838964812421632743L;
 	
     /**
-     * Creates a NotImplementedException with a <tt>null</tt> detail message.
+     * Creates an exception without a detail message.
      */
     public UnsupportedHttpVersionException() {
         super();
     }
 
     /**
-     * Creates a NotImplementedException with the specified detail message.
+     * Creates an exception with the specified detail message.
      * 
      * @param message The exception detail message 
      */
