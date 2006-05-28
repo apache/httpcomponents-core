@@ -215,7 +215,7 @@ public class HeaderElement {
             } else if (cur == indexTo - 1) {
                 element = parse(buffer, from, indexTo);
             }
-            if (element != null && !element.getName().equals("")) {
+            if (element != null && !(element.getName().equals("") && element.getValue() == null)) {
                 elements.add(element);
             }
             if (escaped) {
