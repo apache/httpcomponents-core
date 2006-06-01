@@ -35,6 +35,7 @@ import java.io.InputStream;
 import org.apache.http.io.ByteArrayBuffer;
 import org.apache.http.io.CharArrayBuffer;
 import org.apache.http.io.HttpDataReceiver;
+import org.apache.http.params.HttpConnectionParams;
 import org.apache.http.params.HttpParams;
 import org.apache.http.params.HttpProtocolParams;
 import org.apache.http.protocol.HTTP;
@@ -56,6 +57,7 @@ public abstract class AbstractHttpDataReceiver implements HttpDataReceiver {
     
     private String charset = HTTP.US_ASCII;
     private boolean ascii = true;
+    private int maxLineLen = 0;
     
     protected void init(final InputStream instream, int buffersize) {
         if (instream == null) {
@@ -180,6 +182,9 @@ public abstract class AbstractHttpDataReceiver implements HttpDataReceiver {
                     retry = false;
                 }
             }
+            if (this.maxLineLen > 0 && this.linebuffer.length() >= this.maxLineLen) {
+                throw new IOException("Maximum line length limit exceeded");
+            }
         }
         if (noRead == -1 && this.linebuffer.isEmpty()) {
             // indicate the end of stream
@@ -252,6 +257,7 @@ public abstract class AbstractHttpDataReceiver implements HttpDataReceiver {
         this.charset = HttpProtocolParams.getHttpElementCharset(params);
         this.ascii = this.charset.equalsIgnoreCase(HTTP.US_ASCII)
                      || this.charset.equalsIgnoreCase(HTTP.ASCII);
+        this.maxLineLen = params.getIntParameter(HttpConnectionParams.MAX_LINE_LENGTH, 0);
     }
     
 }

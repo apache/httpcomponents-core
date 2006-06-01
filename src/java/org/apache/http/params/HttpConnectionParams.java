@@ -108,6 +108,15 @@ public final class HttpConnectionParams {
     public static final String STALE_CONNECTION_CHECK = "http.connection.stalecheck"; 
 
     /**
+     * Determines the maximum line length limit. if set, any HTTP line exceeding this
+     * limit will cause an IOException
+     * <p>
+     * This parameter expects a value of type {@link Integer}.
+     * </p>
+     */
+    public static final String MAX_LINE_LENGTH = "http.connection.max-line-length";
+    
+    /**
      */
     private HttpConnectionParams() {
         super();
@@ -275,4 +284,5 @@ public final class HttpConnectionParams {
         }
         params.setBooleanParameter(STALE_CONNECTION_CHECK, value);
     }
+    
 }

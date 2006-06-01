@@ -30,6 +30,7 @@ package org.apache.http.impl;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.io.InputStream;
 
 import junit.framework.Test;
@@ -40,6 +41,7 @@ import org.apache.http.impl.DefaultHttpParams;
 import org.apache.http.io.CharArrayBuffer;
 import org.apache.http.mockup.HttpDataReceiverMockup;
 import org.apache.http.mockup.HttpDataTransmitterMockup;
+import org.apache.http.params.HttpConnectionParams;
 import org.apache.http.params.HttpParams;
 import org.apache.http.params.HttpProtocolParams;
 import org.apache.http.protocol.HTTP;
@@ -306,6 +308,28 @@ public class TestHttpDataReceiverAndTransmitter extends TestCase {
         }
         assertEquals(-1, receiver.read());
         assertEquals(-1, receiver.read());
+    }
+
+    public void testLineLimit() throws Exception {
+        HttpParams params = new DefaultHttpParams();
+        String s = "a very looooooooooooooooooooooooooooooooooooooong line\r\n     ";
+        byte[] tmp = s.getBytes("US-ASCII"); 
+        HttpDataReceiverMockup receiver1 = new HttpDataReceiverMockup(tmp, 5);
+        // no limit
+        params.setIntParameter(HttpConnectionParams.MAX_LINE_LENGTH, 0);
+        receiver1.reset(params);
+        assertNotNull(receiver1.readLine());
+        
+        HttpDataReceiverMockup receiver2 = new HttpDataReceiverMockup(tmp, 5);
+        // 15 char limit
+        params.setIntParameter(HttpConnectionParams.MAX_LINE_LENGTH, 15);
+        receiver2.reset(params);
+        try {
+            receiver2.readLine();
+            fail("IOException should have been thrown");
+        } catch (IOException ex) {
+            // expected
+        }
     }
 
     static final int SWISS_GERMAN_HELLO [] = {

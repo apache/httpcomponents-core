@@ -128,6 +128,8 @@ abstract class AbstractHttpConnection implements HttpConnection {
         } else {
             this.datareceiver = new SocketHttpDataReceiver(this.socket, buffersize);
         }
+        this.datatransmitter.reset(params);
+        this.datareceiver.reset(params);
     }
 
     public boolean isOpen() {
