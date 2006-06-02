@@ -55,6 +55,7 @@ import org.apache.http.io.SocketFactory;
 import org.apache.http.params.HttpParams;
 import org.apache.http.params.HttpProtocolParams;
 import org.apache.http.protocol.HTTP;
+import org.apache.http.util.HeaderUtils;
 
 /**
  * Default implementation of a client-side HTTP connection.
@@ -285,7 +286,7 @@ public class DefaultHttpClientConnection
 
     protected void readResponseHeaders(final HttpResponse response) 
             throws HttpException, IOException {
-        Header[] headers = Header.parseAll(this.datareceiver);
+        Header[] headers = HeaderUtils.parseHeaders(this.datareceiver);
         for (int i = 0; i < headers.length; i++) {
             response.addHeader(headers[i]);
         }

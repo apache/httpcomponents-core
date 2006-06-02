@@ -29,14 +29,10 @@
 
 package org.apache.http;
 
-import java.io.IOException;
-import java.util.ArrayList;
-
 import org.apache.http.io.CharArrayBuffer;
-import org.apache.http.io.HttpDataReceiver;
 
 /**
- * <p>Represents an HTTP header field.</p>
+ * Represents an HTTP header field.
  * 
  * <p>The HTTP header fields follow the same generic format as
  * that given in Section 3.1 of RFC 822. Each header field consists
@@ -164,90 +160,6 @@ public class Header {
         CharArrayBuffer buffer = new CharArrayBuffer(32);
         format(buffer, header);
         return buffer.toString();
-    }
-            
-    /**
-     * This class represents a raw HTTP header whose content is parsed
-     * 'on demand' only when the header value needs to be consumed  
-     */
-    static class BufferedHeader extends Header {
-        
-        private final CharArrayBuffer buffer;
-        private final int posValue;
-        
-        private BufferedHeader(final String name, final CharArrayBuffer buffer, int posValue) {
-            super(name, null);
-            this.buffer = buffer;
-            this.posValue = posValue;
-        }
-        
-        public String getValue() {
-            return this.buffer.substringTrimmed(this.posValue, this.buffer.length());
-        }
-        
-        public HeaderElement[] getElements() {
-            return HeaderElement.parseAll(this.buffer, this.posValue, this.buffer.length());
-        }
-        
-        public String toString() {
-            return this.buffer.toString();
-        }
-        
-    }
-    
-    public static Header[] parseAll(final HttpDataReceiver datareceiver) 
-            throws HttpException, IOException {
-        ArrayList headerLines = new ArrayList();
-
-        CharArrayBuffer current = null;
-        CharArrayBuffer previous = null;
-        for (;;) {
-            if (current == null) {
-                current = new CharArrayBuffer(64);
-            } else {
-                current.clear();
-            }
-            int l = datareceiver.readLine(current);
-            if (l == -1 || current.length() < 1) {
-                break;
-            }
-            // Parse the header name and value
-            // Check for folded headers first
-            // Detect LWS-char see HTTP/1.0 or HTTP/1.1 Section 2.2
-            // discussion on folded headers
-            if ((current.charAt(0) == ' ' || current.charAt(0) == '\t') && previous != null) {
-                // we have continuation folded header
-                // so append value
-                int i = 0;
-                while (i < current.length()) {
-                    char ch = current.charAt(i);
-                    if (ch != ' ' && ch != '\t') {
-                        break;
-                    }
-                    i++;
-                }
-                previous.append(' ');
-                previous.append(current, i, current.length() - i);
-            } else {
-                headerLines.add(current);
-                previous = current;
-                current = null;
-            }
-        }
-        Header[] headers = new Header[headerLines.size()];
-        for (int i = 0; i < headerLines.size(); i++) {
-            CharArrayBuffer buffer = (CharArrayBuffer) headerLines.get(i);
-            int colon = buffer.indexOf(':');
-            if (colon == -1) {
-                throw new ProtocolException("Invalid header: " + buffer.toString());
-            }
-            String s = buffer.substringTrimmed(0, colon);
-            if (s.equals("")) {
-                throw new ProtocolException("Invalid header: " + buffer.toString());
-            }
-            headers[i] = new BufferedHeader(s, buffer, colon + 1);
-        }
-        return headers;
     }
 
 }

@@ -49,6 +49,7 @@ import org.apache.http.impl.entity.DefaultEntityDeserializer;
 import org.apache.http.impl.entity.DefaultEntitySerializer;
 import org.apache.http.io.CharArrayBuffer;
 import org.apache.http.params.HttpParams;
+import org.apache.http.util.HeaderUtils;
 
 /**
  * Default implementation of a server-side HTTP connection.
@@ -140,7 +141,7 @@ public class DefaultHttpServerConnection
     
     protected void receiveRequestHeaders(final HttpRequest request) 
             throws HttpException, IOException {
-        Header[] headers = Header.parseAll(this.datareceiver);
+        Header[] headers = HeaderUtils.parseHeaders(this.datareceiver);
         for (int i = 0; i < headers.length; i++) {
             request.addHeader(headers[i]);
         }
