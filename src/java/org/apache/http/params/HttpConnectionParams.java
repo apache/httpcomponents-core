@@ -108,8 +108,9 @@ public final class HttpConnectionParams {
     public static final String STALE_CONNECTION_CHECK = "http.connection.stalecheck"; 
 
     /**
-     * Determines the maximum line length limit. If set, any HTTP line exceeding this
-     * limit will cause an IOException
+     * Determines the maximum line length limit. If set to a positive value, any HTTP 
+     * line exceeding this limit will cause an IOException. A negative or zero value
+     * will effectively disable the check.
      * <p>
      * This parameter expects a value of type {@link Integer}.
      * </p>
@@ -117,9 +118,10 @@ public final class HttpConnectionParams {
     public static final String MAX_LINE_LENGTH = "http.connection.max-line-length";
     
     /**
-     * Determines the maximum HTTP header count allowed. If set, the number of HTTP 
-     * headers received from the data stream exceeding this limit will cause an 
-     * IOException 
+     * Determines the maximum HTTP header count allowed. If set to a positive value, 
+     * the number of HTTP headers received from the data stream exceeding this limit 
+     * will cause an IOException. A negative or zero value will effectively disable 
+     * the check. 
      * <p>
      * This parameter expects a value of type {@link Integer}.
      * </p>
