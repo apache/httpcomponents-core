@@ -52,6 +52,7 @@ import org.apache.http.impl.entity.DefaultEntitySerializer;
 import org.apache.http.impl.entity.DefaultEntityDeserializer;
 import org.apache.http.io.CharArrayBuffer;
 import org.apache.http.io.SocketFactory;
+import org.apache.http.params.HttpConnectionParams;
 import org.apache.http.params.HttpParams;
 import org.apache.http.params.HttpProtocolParams;
 import org.apache.http.protocol.HTTP;
@@ -71,6 +72,7 @@ public class DefaultHttpClientConnection
 
     private HttpHost targethost = null;
     private InetAddress localAddress = null;
+    private int maxHeaderCount = -1;
 
     private final CharArrayBuffer buffer; 
     
@@ -134,6 +136,7 @@ public class DefaultHttpClientConnection
                 this.localAddress, 0, 
                 params);
         bind(socket, params);
+        this.maxHeaderCount = params.getIntParameter(HttpConnectionParams.MAX_HEADER_COUNT, -1);
     }
     
     public HttpHost getTargetHost() {
@@ -286,7 +289,7 @@ public class DefaultHttpClientConnection
 
     protected void readResponseHeaders(final HttpResponse response) 
             throws HttpException, IOException {
-        Header[] headers = HeaderUtils.parseHeaders(this.datareceiver);
+        Header[] headers = HeaderUtils.parseHeaders(this.datareceiver, this.maxHeaderCount);
         for (int i = 0; i < headers.length; i++) {
             response.addHeader(headers[i]);
         }

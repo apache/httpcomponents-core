@@ -29,6 +29,8 @@
 
 package org.apache.http.util;
 
+import java.io.IOException;
+
 import org.apache.http.Header;
 import org.apache.http.HeaderElement;
 import org.apache.http.NameValuePair;
@@ -158,5 +160,20 @@ public class TestHeaderUtils extends TestCase {
         assertEquals(0, headers.length);
     }
 
+    public void testMaxHeaderCount() throws Exception {
+        String s = 
+            "header1: stuff\r\n" + 
+            "header2: stuff \r\n" + 
+            "header3: stuff\r\n" + 
+            "\r\n"; 
+        HttpDataReceiver receiver = new HttpDataReceiverMockup(s, "US-ASCII");
+        try {
+            HeaderUtils.parseHeaders(receiver, 2);
+            fail("IOException should have been thrown");
+        } catch (IOException ex) {
+            // expected
+        }
+    }
+        
 }
 

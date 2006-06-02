@@ -48,6 +48,7 @@ import org.apache.http.entity.EntitySerializer;
 import org.apache.http.impl.entity.DefaultEntityDeserializer;
 import org.apache.http.impl.entity.DefaultEntitySerializer;
 import org.apache.http.io.CharArrayBuffer;
+import org.apache.http.params.HttpConnectionParams;
 import org.apache.http.params.HttpParams;
 import org.apache.http.util.HeaderUtils;
 
@@ -63,6 +64,8 @@ import org.apache.http.util.HeaderUtils;
 public class DefaultHttpServerConnection 
         extends AbstractHttpConnection implements HttpServerConnection {
 
+    private int maxHeaderCount = -1;
+    
     private final CharArrayBuffer buffer; 
     
     /*
@@ -103,6 +106,7 @@ public class DefaultHttpServerConnection
 
     public void bind(final Socket socket, final HttpParams params) throws IOException {
         super.bind(socket, params);
+        this.maxHeaderCount = params.getIntParameter(HttpConnectionParams.MAX_HEADER_COUNT, -1);
     }
 
     public HttpRequest receiveRequestHeader(final HttpParams params) 
@@ -141,7 +145,7 @@ public class DefaultHttpServerConnection
     
     protected void receiveRequestHeaders(final HttpRequest request) 
             throws HttpException, IOException {
-        Header[] headers = HeaderUtils.parseHeaders(this.datareceiver);
+        Header[] headers = HeaderUtils.parseHeaders(this.datareceiver, this.maxHeaderCount);
         for (int i = 0; i < headers.length; i++) {
             request.addHeader(headers[i]);
         }

@@ -84,12 +84,16 @@ public class HeaderUtils {
      * format as given in Section 3.1 of RFC 822, RFC-2616 Section 4 and 19.3.
      *  
      * @param datareceiver HTTP data receiver
+     * @param maxCount maximum number of headers allowed. If the number of headers 
+     *        received from the data stream exceeds maxCount value, an IOException 
+     *        will be thrown. Setting this parameter to a negative value or zero 
+     *        will disable the check.   
      * @return array of HTTP headers
      * 
      * @throws HttpException
      * @throws IOException
      */
-    public static Header[] parseHeaders(final HttpDataReceiver datareceiver) 
+    public static Header[] parseHeaders(final HttpDataReceiver datareceiver, int maxCount) 
             throws HttpException, IOException {
         if (datareceiver == null) {
             throw new IllegalArgumentException("HTTP data receiver may not be null");
@@ -130,6 +134,9 @@ public class HeaderUtils {
                 previous = current;
                 current = null;
             }
+            if (maxCount > 0 && headerLines.size() >= maxCount) {
+                throw new IOException("Maximum header count exceeded");
+            }
         }
         Header[] headers = new Header[headerLines.size()];
         for (int i = 0; i < headerLines.size(); i++) {
@@ -145,6 +152,11 @@ public class HeaderUtils {
             headers[i] = new BufferedHeader(s, buffer, colon + 1);
         }
         return headers;
+    }
+
+    public static Header[] parseHeaders(final HttpDataReceiver datareceiver) 
+        throws HttpException, IOException {
+        return parseHeaders(datareceiver, -1);
     }
     
 }

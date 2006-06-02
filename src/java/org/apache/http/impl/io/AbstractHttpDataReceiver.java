@@ -57,7 +57,7 @@ public abstract class AbstractHttpDataReceiver implements HttpDataReceiver {
     
     private String charset = HTTP.US_ASCII;
     private boolean ascii = true;
-    private int maxLineLen = 0;
+    private int maxLineLen = -1;
     
     protected void init(final InputStream instream, int buffersize) {
         if (instream == null) {
@@ -257,7 +257,7 @@ public abstract class AbstractHttpDataReceiver implements HttpDataReceiver {
         this.charset = HttpProtocolParams.getHttpElementCharset(params);
         this.ascii = this.charset.equalsIgnoreCase(HTTP.US_ASCII)
                      || this.charset.equalsIgnoreCase(HTTP.ASCII);
-        this.maxLineLen = params.getIntParameter(HttpConnectionParams.MAX_LINE_LENGTH, 0);
+        this.maxLineLen = params.getIntParameter(HttpConnectionParams.MAX_LINE_LENGTH, -1);
     }
     
 }
