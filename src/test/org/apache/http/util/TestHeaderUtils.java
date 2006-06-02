@@ -61,53 +61,15 @@ public class TestHeaderUtils extends TestCase {
         return new TestSuite(TestHeaderUtils.class);
     }
 
-    public void testBasicConstructor() {
-        Header header = new Header("name", "value");
-        assertEquals("name", header.getName()); 
-        assertEquals("value", header.getValue()); 
-    }
-    
-    public void testBasicConstructorNullValue() {
-        Header header = new Header("name", null);
-        assertEquals("name", header.getName()); 
-        assertEquals(null, header.getValue()); 
-    }
-    
-    public void testInvalidName() {
+    public void testInvalidInput() throws Exception {
         try {
-            new Header(null, null);
+            HeaderUtils.parseHeaders(null);
             fail("IllegalArgumentException should have been thrown");
         } catch (IllegalArgumentException ex) {
-            //expected
+            // expected
         }
     }
     
-    public void testToString() {
-        Header header1 = new Header("name1", "value1");
-        assertEquals("name1: value1", header1.toString());
-        Header header2 = new Header("name2", null);
-        assertEquals("name2: ", header2.toString());
-    }
-    
-    public void testHeaderElements() {
-        Header header = new Header("name", "element1 = value1, element2; param1 = value1, element3");
-        HeaderElement[] elements = header.getElements(); 
-        assertNotNull(elements); 
-        assertEquals(3, elements.length); 
-        assertEquals("element1", elements[0].getName()); 
-        assertEquals("value1", elements[0].getValue()); 
-        assertEquals("element2", elements[1].getName()); 
-        assertEquals(null, elements[1].getValue()); 
-        assertEquals("element3", elements[2].getName()); 
-        assertEquals(null, elements[2].getValue()); 
-        assertEquals(1, elements[1].getParameters().length); 
-        
-        header = new Header("name", null);
-        elements = header.getElements();
-        assertNotNull(elements); 
-        assertEquals(0, elements.length); 
-    }    
-        
     public void testBasicHeaderParsing() throws Exception {
         String s = 
             "header1: stuff\r\n" + 

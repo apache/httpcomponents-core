@@ -91,6 +91,9 @@ public class HeaderUtils {
      */
     public static Header[] parseHeaders(final HttpDataReceiver datareceiver) 
             throws HttpException, IOException {
+        if (datareceiver == null) {
+            throw new IllegalArgumentException("HTTP data receiver may not be null");
+        }
         ArrayList headerLines = new ArrayList();
 
         CharArrayBuffer current = null;
