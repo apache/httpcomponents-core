@@ -1,6 +1,17 @@
+Release 4.0 Alpha 2
+-------------------
+This is a maintenance release that mostly fixes minor problems found since the 
+previous release. The upstream projects are strongly encouraged use this 
+release as a dependency while HttpCore undergoes another round of reviews
+and optimization in the SVN trunk
+
+Changelog: 
+
+* [HTTPCORE-4] optional header and line length limits to contain OOME risks
+  Contributed by Oleg Kalnichevski <olegk at apache.org>
+
 Release 4.0 Alpha 1
 -------------------
-
 This release represents a complete redesign of the Jakarta Commons HttpClient
 3.x API and a significant rewrite of the core HTTP components derived from 
 HttpClient 3.0 code base.
