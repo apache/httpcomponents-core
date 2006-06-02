@@ -29,6 +29,8 @@
 
 package org.apache.http;
 
+import org.apache.http.io.CharArrayBuffer;
+
 import junit.framework.Test;
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
@@ -99,6 +101,30 @@ public class TestHeader extends TestCase {
         assertNotNull(elements); 
         assertEquals(0, elements.length); 
     }    
+ 
+    public void testHeaderFormatting() throws Exception {
+        Header header1 = new Header("name", "value");
+        String s = Header.format(header1); 
+        assertEquals("name: value", s);
+        Header header2 = new Header("name", null);
+        s = Header.format(header2); 
+        assertEquals("name: ", s);
+    }
     
+    public void testHeaderFormattingInvalidInput() throws Exception {
+        try {
+            Header.format(null, new Header("name", "value"));
+            fail("IllegalArgumentException should habe been thrown");
+        } catch (IllegalArgumentException ex) {
+            // expected
+        }
+        try {
+            Header.format(new CharArrayBuffer(10), (Header) null);
+            fail("IllegalArgumentException should habe been thrown");
+        } catch (IllegalArgumentException ex) {
+            // expected
+        }
+    }
+        
 }
 
