@@ -8,7 +8,7 @@ HttpCore Downloads
 
     The latest release available for download:
 
-    {{{http://jakarta.apache.org/site/downloads/downloads_httpcomponents-httpcore.cgi}4.0-alpha1}} - 
+    {{{http://jakarta.apache.org/site/downloads/downloads_httpcomponents-httpcore.cgi}4.0-alpha2}} - 
     {{{http://www.apache.org/dist/jakarta/httpcomponents/httpcore/RELEASE_NOTES.txt}Release Notes}} -
     {{{http://www.apache.org/dist/java-repository/httpcomponents-httpcore/licenses/LICENSE.txt}License}}
 
@@ -18,9 +18,9 @@ HttpCore Downloads
 
 -------------------------
   <dependency>
-    <groupId>org.apache.jakarta.httpcomponents</groupId>
+    <groupId>org.apache.httpcomponents</groupId>
     <artifactId>jakarta-httpcore</artifactId>
-    <version>4.0-alpha1</version>
+    <version>4.0-alpha2</version>
     <scope>compile</scope>
   </dependency>
 -------------------------
