@@ -114,8 +114,14 @@
   <distributionManagement>
     <site>
       <id>apache.website</id>
+      <name>Apache Web Site</name>
       <url>scp://people.apache.org/www/jakarta.apache.org/httpcomponents/http-core</url>
     </site>
+    <repository>
+      <id>apache.releases</id>
+      <name>Apache Release Repository</name>
+      <url>scp://people.apache.org/www/www.apache.org/dist/maven-repository</url>
+    </repository>
   </distributionManagement>
   <properties>
     <maven.compile.source>1.3</maven.compile.source>
