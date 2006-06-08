@@ -70,6 +70,8 @@ public class TestHttpExceptions extends TestCase {
         new ConnectionClosedException("Oppsie");
         new MethodNotSupportedException("Oppsie");
         new MethodNotSupportedException("Oppsie", cause);
+        new UnsupportedHttpVersionException();
+        new UnsupportedHttpVersionException("Oppsie");
     }
             
 }
