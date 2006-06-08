@@ -8,9 +8,9 @@
   <groupId>org.apache.httpcomponents</groupId>
   <artifactId>jakarta-httpcore</artifactId>
   <name>HttpCore</name>
-  <version>4.0-alpha2-SNAPSHOT</version>
+  <version>4.0-alpha2</version>
   <description>Core components to build HTTP enabled services</description>
-  <url>http://jakarta.apache.org/httpcomponents/httpcore/</url>
+  <url>http://jakarta.apache.org/httpcomponents/httpcore</url>
   <issueManagement>
     <system>Jira</system>
     <url>http://issues.apache.org/jira/browse/HTTPCORE</url>
@@ -24,9 +24,9 @@
     </license>
   </licenses>
   <scm>
-    <connection>scm:svn:http://svn.apache.org/repos/asf/jakarta/httpcomponents/httpcore/trunk/</connection>
-    <developerConnection>scm:svn:http://svn.apache.org/repos/asf/jakarta/httpcomponents/httpcore/trunk/</developerConnection>
-    <url>http://svn.apache.org/repos/asf/jakarta/httpcomponents/httpcore/trunk/</url>
+    <connection>scm:svn:http://svn.apache.org/repos/asf/jakarta/httpcomponents/httpcore/tags/4.0-alpha2</connection>
+    <developerConnection>scm:svn:http://svn.apache.org/repos/asf/jakarta/httpcomponents/httpcore/tags/4.0-alpha2</developerConnection>
+    <url>http://svn.apache.org/repos/asf/jakarta/httpcomponents/httpcore/tags/4.0-alpha2</url>
   </scm>
   <organization>
     <name>Apache Software Foundation</name>
@@ -114,7 +114,7 @@
   <distributionManagement>
     <site>
       <id>apache.website</id>
-      <url>scp://people.apache.org/www/jakarta.apache.org/httpcomponents/http-core/</url>
+      <url>scp://people.apache.org/www/jakarta.apache.org/httpcomponents/http-core</url>
     </site>
   </distributionManagement>
   <properties>
