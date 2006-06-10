@@ -78,12 +78,14 @@ public class ResponseContent implements HttpResponseInterceptor {
                         Long.toString(entity.getContentLength())));
             }
             // Specify a content type if known
-            if (entity.getContentType() != null) {
-                response.setHeader(entity.getContentType()); 
+            if (entity.getContentType() != null && !response.containsHeader(
+                    HTTP.CONTENT_TYPE )) {
+                response.addHeader(entity.getContentType()); 
             }
             // Specify a content encoding if known
-            if (entity.getContentEncoding() != null) {
-                response.setHeader(entity.getContentEncoding()); 
+            if (entity.getContentEncoding() != null && !response.containsHeader(
+                    HTTP.CONTENT_ENCODING)) {
+                response.addHeader(entity.getContentEncoding()); 
             }
         } else {
             int status = response.getStatusLine().getStatusCode();

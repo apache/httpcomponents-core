@@ -69,7 +69,7 @@ public class RequestContent implements HttpRequestInterceptor {
             HttpVersion ver = request.getRequestLine().getHttpVersion();
             HttpEntity entity = ((HttpEntityEnclosingRequest)request).getEntity();
             if (entity == null) {
-                request.setHeader(new GeneratedHeader(HTTP.CONTENT_LEN, "0"));
+                request.addHeader(new GeneratedHeader(HTTP.CONTENT_LEN, "0"));
                 return;
             }
             // Must specify a transfer encoding or a content length 
@@ -85,12 +85,14 @@ public class RequestContent implements HttpRequestInterceptor {
                         Long.toString(entity.getContentLength())));
             }
             // Specify a content type if known
-            if (entity.getContentType() != null) {
-                request.setHeader(entity.getContentType()); 
+            if (entity.getContentType() != null && !request.containsHeader(
+                    HTTP.CONTENT_TYPE )) {
+                request.addHeader(entity.getContentType()); 
             }
             // Specify a content encoding if known
-            if (entity.getContentEncoding() != null) {
-                request.setHeader(entity.getContentEncoding()); 
+            if (entity.getContentEncoding() != null && !request.containsHeader(
+                    HTTP.CONTENT_ENCODING)) {
+                request.addHeader(entity.getContentEncoding()); 
             }
         }
     }
