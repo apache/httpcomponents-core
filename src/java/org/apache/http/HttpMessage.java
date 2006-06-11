@@ -108,12 +108,19 @@ public interface HttpMessage {
     void addHeader(Header header);
 
     /**
-     * Adds a header to this message. The new header will be appended to the end
-     * of the list. Existing headers with the same name will be removed.
+     * Overwrites the first header with the same name. The new header will be appended to 
+     * the end of the list, if no header with the given name can be found.
      * 
-     * @param header the header to add.
+     * @param header the header to set.
      */
     void setHeader(Header header);
+
+    /**
+     * Overwrites all the headers in the message.
+     * 
+     * @param headers the array of headers to set.
+     */
+    void setHeaders(Header[] headers);
 
     /**
      * Removes a header from this message.

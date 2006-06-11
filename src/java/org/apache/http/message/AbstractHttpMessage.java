@@ -86,16 +86,11 @@ public abstract class AbstractHttpMessage implements HttpMessage {
         if (header == null) {
             return;
         }
-        // clean up
-        for (;;) {
-            Header oldheader = this.headergroup.getLastHeader(header.getName());
-            if (oldheader == null) {
-                break;
-            } else {
-                this.headergroup.removeHeader(oldheader);
-            }
-        }
-        this.headergroup.addHeader(header);
+        this.headergroup.updateHeader(header);
+    }
+
+    public void setHeaders(final Header[] headers) {
+        this.headergroup.setHeaders(headers);
     }
 
     public void removeHeader(final Header header) {

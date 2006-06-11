@@ -32,6 +32,7 @@ package org.apache.http.impl;
 import java.io.IOException;
 import java.net.InetAddress;
 import java.net.Socket;
+import java.util.Iterator;
 
 import org.apache.http.Header;
 import org.apache.http.HttpClientConnection;
@@ -203,10 +204,9 @@ public class DefaultHttpClientConnection
 
     protected void sendRequestHeaders(final HttpRequest request) 
             throws HttpException, IOException {
-        Header[] headers = request.getAllHeaders();
-        for (int i = 0; i < headers.length; i++) {
+        for (Iterator it = request.headerIterator(); it.hasNext(); ) {
             this.buffer.clear();
-            Header.format(this.buffer, headers[i]);
+            Header.format(this.buffer, (Header) it.next());
             this.datatransmitter.writeLine(this.buffer);
         }
         this.buffer.clear();
@@ -290,9 +290,7 @@ public class DefaultHttpClientConnection
     protected void readResponseHeaders(final HttpResponse response) 
             throws HttpException, IOException {
         Header[] headers = HeaderUtils.parseHeaders(this.datareceiver, this.maxHeaderCount);
-        for (int i = 0; i < headers.length; i++) {
-            response.addHeader(headers[i]);
-        }
+        response.setHeaders(headers);
     }
     
 }
