@@ -372,13 +372,26 @@ public class TestStandardInterceptors extends TestCase {
         assertFalse(header instanceof GeneratedHeader);
     }
 
-    public void testRequestTargetHostMissingHost() throws Exception {
+    public void testRequestTargetHostMissingHostHTTP10() throws Exception {
         HttpContext context = new HttpExecutionContext(null);
-        BasicHttpRequest request = new BasicHttpRequest("GET", "/");
+        BasicHttpRequest request = new BasicHttpRequest(
+                new RequestLine("GET", "/", HttpVersion.HTTP_1_0));
         RequestTargetHost interceptor = new RequestTargetHost();
         interceptor.process(request, context);
         Header header = request.getFirstHeader(HTTP.TARGET_HOST);
         assertNull(header);
+    }
+
+    public void testRequestTargetHostMissingHostHTTP11() throws Exception {
+        HttpContext context = new HttpExecutionContext(null);
+        BasicHttpRequest request = new BasicHttpRequest("GET", "/");
+        RequestTargetHost interceptor = new RequestTargetHost();
+        try {
+            interceptor.process(request, context);
+            fail("ProtocolException should have been thrown");
+        } catch (ProtocolException ex) {
+            // expected
+        }
     }
 
     public void testRequestTargetHostVirtualHost() throws Exception {

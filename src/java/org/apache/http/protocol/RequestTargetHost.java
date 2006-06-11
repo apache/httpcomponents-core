@@ -35,6 +35,8 @@ import org.apache.http.HttpException;
 import org.apache.http.HttpHost;
 import org.apache.http.HttpRequest;
 import org.apache.http.HttpRequestInterceptor;
+import org.apache.http.HttpVersion;
+import org.apache.http.ProtocolException;
 import org.apache.http.params.HttpProtocolParams;
 
 /**
@@ -64,7 +66,12 @@ public class RequestTargetHost implements HttpRequestInterceptor {
             HttpHost targethost = (HttpHost) context
                 .getAttribute(HttpExecutionContext.HTTP_TARGET_HOST);
             if (targethost == null) {
-            	return;
+                HttpVersion ver = request.getRequestLine().getHttpVersion();
+                if (ver.lessEquals(HttpVersion.HTTP_1_0)) {
+                    return;
+                } else {
+                    throw new ProtocolException("Target host missing");
+                }
             }
             String virtualhost = HttpProtocolParams.getVirtualHost(request.getParams());
             if (virtualhost != null) {
