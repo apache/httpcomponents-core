@@ -54,7 +54,7 @@ public class HeaderGroup {
      * Constructor for HeaderGroup.
      */
     public HeaderGroup() {
-        this.headers = new ArrayList();
+        this.headers = new ArrayList(16);
     }
     
     /**
@@ -71,6 +71,9 @@ public class HeaderGroup {
      * @param header the header to add
      */
     public void addHeader(Header header) {
+        if (header == null) {
+            return;
+        }
         headers.add(header);
     }
     
@@ -80,7 +83,31 @@ public class HeaderGroup {
      * @param header the header to remove
      */
     public void removeHeader(Header header) {
+        if (header == null) {
+            return;
+        }
         headers.remove(header);
+    }
+
+    /**
+     * Replaces the first occurence of the header with the same name. If no header with 
+     * the same name is found the given header is added to the end of the list.
+     * 
+     * @param header the new header that should replace the first header with the same 
+     * name if present in the list.
+     */
+    public void updateHeader(Header header) {
+        if (header == null) {
+            return;
+        }
+        for (int i = 0; i < this.headers.size(); i++) {
+            Header current = (Header) this.headers.get(i);
+            if (current.getName().equalsIgnoreCase(header.getName())) {
+                this.headers.set(i, header);
+                return;
+            }
+        }
+        this.headers.add(header);
     }
 
     /**
@@ -92,9 +119,11 @@ public class HeaderGroup {
      */
     public void setHeaders(Header[] headers) {
         clear();
-        
+        if (headers == null) {
+            return;
+        }
         for (int i = 0; i < headers.length; i++) {
-            addHeader(headers[i]);
+            this.headers.add(headers[i]);
         }
     }
     
@@ -160,13 +189,12 @@ public class HeaderGroup {
      * @return the first header or <code>null</code>
      */
     public Header getFirstHeader(String name) {
-        for (Iterator headerIter = headers.iterator(); headerIter.hasNext();) {
-            Header header = (Header) headerIter.next();
+        for (int i = 0; i < headers.size(); i++) {
+            Header header = (Header) headers.get(i);
             if (header.getName().equalsIgnoreCase(name)) {
                 return header;
             }
         }
-        
         return null;                
     }
     

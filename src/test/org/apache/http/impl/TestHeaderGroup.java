@@ -75,9 +75,26 @@ public class TestHeaderGroup extends TestCase {
         HeaderGroup headergroup = new HeaderGroup();
         Header header = new Header("name", "value");
         headergroup.addHeader(header);
+        headergroup.addHeader(null);
         assertEquals(1, headergroup.getAllHeaders().length);
         headergroup.removeHeader(header);
+        headergroup.removeHeader(null);
         assertEquals(0, headergroup.getAllHeaders().length);
+    }
+
+    public void testUpdateHeader() {
+        HeaderGroup headergroup = new HeaderGroup();
+        Header header1 = new Header("name1", "value1");
+        Header header2 = new Header("name2", "value2");
+        Header header3 = new Header("name3", "value3");
+        headergroup.addHeader(header1);
+        headergroup.addHeader(header2);
+        headergroup.addHeader(header3);
+        headergroup.updateHeader(new Header("name2", "newvalue"));
+        headergroup.updateHeader(new Header("name4", "value4"));
+        headergroup.updateHeader(null);
+        assertEquals(4, headergroup.getAllHeaders().length);
+        assertEquals("newvalue", headergroup.getFirstHeader("name2").getValue());
     }
 
     public void testSetHeaders() {
@@ -94,6 +111,8 @@ public class TestHeaderGroup extends TestCase {
         assertTrue(headergroup.containsHeader("name2"));
         assertEquals(1, headergroup.getHeaders("name3").length);
         assertTrue(headergroup.containsHeader("name3"));
+        headergroup.setHeaders(null);
+        assertEquals(0, headergroup.getAllHeaders().length);
     }
 
     public void testFirstLastHeaders() {
