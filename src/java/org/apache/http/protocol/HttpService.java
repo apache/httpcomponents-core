@@ -67,13 +67,21 @@ public class HttpService extends AbstractHttpProcessor {
     private HttpParams params = null;
 
     public HttpService(final HttpServerConnection conn) {
+        this(conn, null);
+    }
+
+    public HttpService(final HttpServerConnection conn, final HttpContext parentContext) {
         super();
         if (conn == null) {
             throw new IllegalArgumentException("HTTP server connection may not be null");
         }
         this.conn = conn;
         this.connStrategy = new DefaultConnectionReuseStrategy();
-        this.context = new HttpExecutionContext(null);
+        this.context = new HttpExecutionContext(parentContext);
+    }
+    
+    public HttpContext getContext() {
+        return this.context;
     }
 
     public HttpParams getParams() {
