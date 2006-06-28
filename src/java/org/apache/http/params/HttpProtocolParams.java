@@ -53,16 +53,6 @@ public final class HttpProtocolParams {
     public static final String PROTOCOL_VERSION = "http.protocol.version"; 
 
     /**
-     * Defines the charset to be used when encoding credentials.
-     * If not defined then the 
-     * {@link #HTTP_ELEMENT_CHARSET} should be used.
-     * <p>
-     * This parameter expects a value of type {@link String}.
-     * </p>
-     */
-    public static final String CREDENTIAL_CHARSET = "http.protocol.credential-charset"; 
-    
-    /**
      * Defines the charset to be used for encoding HTTP protocol elements.
      * <p>
      * This parameter expects a value of type {@link String}.
@@ -113,16 +103,6 @@ public final class HttpProtocolParams {
      * This parameter expects a value of type {@link Integer}.
      */
     public static final String STATUS_LINE_GARBAGE_LIMIT = "http.protocol.status-line-garbage-limit";
-
-    /**
-     * The key used to look up the date patterns used for parsing. The String patterns are stored
-     * in a {@link java.util.Collection} and must be compatible with 
-     * {@link java.text.SimpleDateFormat}.
-     * <p>
-     * This parameter expects a value of type {@link java.util.Collection}.
-     * </p>
-     */
-    public static final String DATE_PATTERNS = "http.dateparser.patterns";
 
     /**
      * Defines the virtual host name.
@@ -228,34 +208,6 @@ public final class HttpProtocolParams {
         params.setParameter(HTTP_CONTENT_CHARSET, charset);
     }
 
-    /**
-     * Returns the charset to be used for credentials.
-     * If not configured the {@link #HTTP_ELEMENT_CHARSET HTTP element charset}
-     * is used.
-     * @return The charset
-     */
-    public static String getCredentialCharset(final HttpParams params) {
-        if (params == null) {
-            throw new IllegalArgumentException("HTTP parameters may not be null");
-        }
-        String charset = (String) params.getParameter(CREDENTIAL_CHARSET);
-        if (charset == null) {
-            charset = getHttpElementCharset(params);
-        }
-        return charset;
-    }
-    
-    /**
-     * Sets the charset to be used for writing HTTP headers.
-     * @param charset The charset
-     */
-    public static void setCredentialCharset(final HttpParams params, final String charset) {
-        if (params == null) {
-            throw new IllegalArgumentException("HTTP parameters may not be null");
-        }
-        params.setParameter(CREDENTIAL_CHARSET, charset);
-    }
-    
     /**
      * Returns {@link HttpVersion HTTP protocol version} to be used per default. 
      *
