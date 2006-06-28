@@ -59,7 +59,7 @@ public class ResponseConnControl implements HttpResponseInterceptor {
     public void process(final HttpResponse response, final HttpContext context) 
             throws HttpException, IOException {
         if (response == null) {
-            throw new IllegalArgumentException("HTTP request may not be null");
+            throw new IllegalArgumentException("HTTP response may not be null");
         }
         if (context == null) {
             throw new IllegalArgumentException("HTTP context may not be null");
