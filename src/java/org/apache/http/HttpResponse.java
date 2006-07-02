@@ -53,6 +53,13 @@ public interface HttpResponse extends HttpMessage {
     void setStatusLine(StatusLine statusline);
     
     /**
+     * Sets the status line that belongs to this response.
+     * @param ver the HTTP version.
+     * @param code the HTTP status code.
+     */
+    void setStatusLine(HttpVersion ver, int code);
+    
+    /**
      * Convenience method that creates and sets a new status line of this
      * response that is initialized with the specified status code.
      * 

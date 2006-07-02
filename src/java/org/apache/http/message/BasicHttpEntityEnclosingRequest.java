@@ -32,6 +32,7 @@ package org.apache.http.message;
 import org.apache.http.Header;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpEntityEnclosingRequest;
+import org.apache.http.HttpVersion;
 import org.apache.http.RequestLine;
 import org.apache.http.protocol.HTTP;
 
@@ -51,6 +52,11 @@ public class BasicHttpEntityEnclosingRequest
     
     public BasicHttpEntityEnclosingRequest(final String method, final String uri) {
         super(method, uri);
+    }
+
+    public BasicHttpEntityEnclosingRequest(final String method, final String uri, 
+            final HttpVersion ver) {
+        this(new BasicRequestLine(method, uri, ver));
     }
 
     public BasicHttpEntityEnclosingRequest(final RequestLine requestline) {

@@ -35,6 +35,7 @@ import org.apache.http.HttpStatus;
 import org.apache.http.HttpVersion;
 import org.apache.http.StatusLine;
 import org.apache.http.message.BasicHttpResponse;
+import org.apache.http.message.BasicStatusLine;
 
 /**
  * Default implementation of a factory for creating response objects.
@@ -55,7 +56,7 @@ public class DefaultHttpResponseFactory implements HttpResponseFactory {
         if (ver == null) {
             throw new IllegalArgumentException("HTTP version may not be null");
         }
-        StatusLine statusline = new StatusLine(ver, status, HttpStatus.getStatusText(status)); 
+        StatusLine statusline = new BasicStatusLine(ver, status, HttpStatus.getStatusText(status)); 
         return new BasicHttpResponse(statusline); 
     }
     

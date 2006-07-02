@@ -32,6 +32,7 @@ package org.apache.http;
 
 import org.apache.http.io.CharArrayBuffer;
 import org.apache.http.message.BasicHeaderElement;
+import org.apache.http.message.BasicNameValuePair;
 
 import junit.framework.*;
 
@@ -66,8 +67,8 @@ public class TestHeaderElement extends TestCase {
     public void testConstructor() throws Exception {
         HeaderElement element = new BasicHeaderElement("name", "value", 
                 new NameValuePair[] {
-                    new NameValuePair("param1", "value1"),
-                    new NameValuePair("param2", "value2")
+                    new BasicNameValuePair("param1", "value1"),
+                    new BasicNameValuePair("param2", "value2")
                 } );
         assertEquals("name", element.getName());
         assertEquals("value", element.getValue());
@@ -247,20 +248,20 @@ public class TestHeaderElement extends TestCase {
     public void testHashCode() {
         HeaderElement element1 = new BasicHeaderElement("name", "value", 
                 new NameValuePair[] {
-                    new NameValuePair("param1", "value1"),
-                    new NameValuePair("param2", "value2")
+                    new BasicNameValuePair("param1", "value1"),
+                    new BasicNameValuePair("param2", "value2")
                 } );
         HeaderElement element2 = new BasicHeaderElement("name", "value", 
                 new NameValuePair[] {
-                    new NameValuePair("param2", "value2"),
-                    new NameValuePair("param1", "value1")
+                    new BasicNameValuePair("param2", "value2"),
+                    new BasicNameValuePair("param1", "value1")
                 } );
         HeaderElement element3 = new BasicHeaderElement("name", "value"); 
         HeaderElement element4 = new BasicHeaderElement("name", "value"); 
         HeaderElement element5 = new BasicHeaderElement("name", "value", 
                 new NameValuePair[] {
-                    new NameValuePair("param1", "value1"),
-                    new NameValuePair("param2", "value2")
+                    new BasicNameValuePair("param1", "value1"),
+                    new BasicNameValuePair("param2", "value2")
                 } );
         assertTrue(element1.hashCode() != element2.hashCode());
         assertTrue(element1.hashCode() != element3.hashCode());
@@ -272,20 +273,20 @@ public class TestHeaderElement extends TestCase {
     public void testEquals() {
         HeaderElement element1 = new BasicHeaderElement("name", "value", 
                 new NameValuePair[] {
-                    new NameValuePair("param1", "value1"),
-                    new NameValuePair("param2", "value2")
+                    new BasicNameValuePair("param1", "value1"),
+                    new BasicNameValuePair("param2", "value2")
                 } );
         HeaderElement element2 = new BasicHeaderElement("name", "value", 
                 new NameValuePair[] {
-                    new NameValuePair("param2", "value2"),
-                    new NameValuePair("param1", "value1")
+                    new BasicNameValuePair("param2", "value2"),
+                    new BasicNameValuePair("param1", "value1")
                 } );
         HeaderElement element3 = new BasicHeaderElement("name", "value"); 
         HeaderElement element4 = new BasicHeaderElement("name", "value"); 
         HeaderElement element5 = new BasicHeaderElement("name", "value", 
                 new NameValuePair[] {
-                    new NameValuePair("param1", "value1"),
-                    new NameValuePair("param2", "value2")
+                    new BasicNameValuePair("param1", "value1"),
+                    new BasicNameValuePair("param2", "value2")
                 } );
         assertTrue(element1.equals(element1));
         assertTrue(!element1.equals(element2));
@@ -307,10 +308,10 @@ public class TestHeaderElement extends TestCase {
     }
     
     public void testElementFormatting() throws Exception {
-        NameValuePair param1 = new NameValuePair("param", "regular_stuff"); 
-        NameValuePair param2 = new NameValuePair("param", "this\\that"); 
-        NameValuePair param3 = new NameValuePair("param", "this,that");
-        NameValuePair param4 = new NameValuePair("param", null);
+        NameValuePair param1 = new BasicNameValuePair("param", "regular_stuff"); 
+        NameValuePair param2 = new BasicNameValuePair("param", "this\\that"); 
+        NameValuePair param3 = new BasicNameValuePair("param", "this,that");
+        NameValuePair param4 = new BasicNameValuePair("param", null);
         NameValuePair[] params = new NameValuePair[] {param1, param2, param3, param4};
         HeaderElement element = new BasicHeaderElement("name", "value", params); 
         
@@ -319,10 +320,10 @@ public class TestHeaderElement extends TestCase {
     }
     
     public void testElementArrayFormatting() throws Exception {
-        NameValuePair param1 = new NameValuePair("param", "regular_stuff"); 
-        NameValuePair param2 = new NameValuePair("param", "this\\that"); 
-        NameValuePair param3 = new NameValuePair("param", "this,that");
-        NameValuePair param4 = new NameValuePair("param", null);
+        NameValuePair param1 = new BasicNameValuePair("param", "regular_stuff"); 
+        NameValuePair param2 = new BasicNameValuePair("param", "this\\that"); 
+        NameValuePair param3 = new BasicNameValuePair("param", "this,that");
+        NameValuePair param4 = new BasicNameValuePair("param", null);
         HeaderElement element1 = new BasicHeaderElement("name1", "value1", new NameValuePair[] {param1}); 
         HeaderElement element2 = new BasicHeaderElement("name2", "value2", new NameValuePair[] {param2}); 
         HeaderElement element3 = new BasicHeaderElement("name3", "value3", new NameValuePair[] {param3}); 

@@ -29,14 +29,16 @@
 
 package org.apache.http.protocol;
 
+import junit.framework.Test;
+import junit.framework.TestCase;
+import junit.framework.TestSuite;
+
 import org.apache.http.Header;
 import org.apache.http.HttpHost;
 import org.apache.http.HttpStatus;
 import org.apache.http.HttpVersion;
 import org.apache.http.ProtocolException;
-import org.apache.http.RequestLine;
 import org.apache.http.Scheme;
-import org.apache.http.StatusLine;
 import org.apache.http.entity.BasicHttpEntity;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.io.PlainSocketFactory;
@@ -45,10 +47,6 @@ import org.apache.http.message.BasicHttpEntityEnclosingRequest;
 import org.apache.http.message.BasicHttpRequest;
 import org.apache.http.message.BasicHttpResponse;
 import org.apache.http.params.HttpProtocolParams;
-
-import junit.framework.Test;
-import junit.framework.TestCase;
-import junit.framework.TestSuite;
 
 /**
  * @author <a href="mailto:oleg at ural.ru">Oleg Kalnichevski</a>
@@ -185,7 +183,7 @@ public class TestStandardInterceptors extends TestCase {
     public void testRequestContentEntityChunkedHTTP10() throws Exception {
         HttpContext context = new HttpExecutionContext(null);
         BasicHttpEntityEnclosingRequest request = new BasicHttpEntityEnclosingRequest(
-                new RequestLine("POST", "/", HttpVersion.HTTP_1_0));
+                "POST", "/", HttpVersion.HTTP_1_0);
         String s = "whatever";
         StringEntity entity = new StringEntity(s, "US-ASCII");
         entity.setChunked(true);
@@ -233,7 +231,7 @@ public class TestStandardInterceptors extends TestCase {
     public void testRequestContentEntityUnknownLengthHTTP10() throws Exception {
         HttpContext context = new HttpExecutionContext(null);
         BasicHttpEntityEnclosingRequest request = new BasicHttpEntityEnclosingRequest(
-                new RequestLine("POST", "/", HttpVersion.HTTP_1_0));
+                "POST", "/", HttpVersion.HTTP_1_0);
         BasicHttpEntity entity = new BasicHttpEntity();
         entity.setContentLength(-1);
         entity.setChunked(false);
@@ -296,7 +294,7 @@ public class TestStandardInterceptors extends TestCase {
     public void testRequestExpectContinueHTTP10() throws Exception {
         HttpContext context = new HttpExecutionContext(null);
         BasicHttpEntityEnclosingRequest request = new BasicHttpEntityEnclosingRequest(
-                new RequestLine("POST", "/", HttpVersion.HTTP_1_0));
+                "POST", "/", HttpVersion.HTTP_1_0);
         String s = "whatever";
         StringEntity entity = new StringEntity(s, "US-ASCII");
         request.setEntity(entity);
@@ -368,7 +366,7 @@ public class TestStandardInterceptors extends TestCase {
     public void testRequestTargetHostMissingHostHTTP10() throws Exception {
         HttpContext context = new HttpExecutionContext(null);
         BasicHttpRequest request = new BasicHttpRequest(
-                new RequestLine("GET", "/", HttpVersion.HTTP_1_0));
+                "GET", "/", HttpVersion.HTTP_1_0);
         RequestTargetHost interceptor = new RequestTargetHost();
         interceptor.process(request, context);
         Header header = request.getFirstHeader(HTTP.TARGET_HOST);
@@ -513,7 +511,7 @@ public class TestStandardInterceptors extends TestCase {
         context.setAttribute(HttpExecutionContext.HTTP_REQUEST, request);
 
         BasicHttpResponse response = new BasicHttpResponse(
-                new StatusLine(HttpVersion.HTTP_1_0, HttpStatus.SC_OK));
+                HttpVersion.HTTP_1_0, HttpStatus.SC_OK);
         BasicHttpEntity entity = new BasicHttpEntity();
         response.setEntity(entity);
         ResponseConnControl interceptor = new ResponseConnControl();
@@ -573,7 +571,7 @@ public class TestStandardInterceptors extends TestCase {
         
         for (int i = 0; i < statusCodes.length; i++) {
             BasicHttpResponse response = new BasicHttpResponse(
-                    new StatusLine(HttpVersion.HTTP_1_1, statusCodes[i]));
+                    HttpVersion.HTTP_1_1, statusCodes[i]);
             interceptor.process(response, context);
             Header header = response.getFirstHeader(HTTP.CONN_DIRECTIVE);
             assertNotNull(header);
@@ -683,8 +681,7 @@ public class TestStandardInterceptors extends TestCase {
     
     public void testResponseContentEntityChunkedHTTP10() throws Exception {
         HttpContext context = new HttpExecutionContext(null);
-        BasicHttpResponse response = new BasicHttpResponse(
-                new StatusLine(HttpVersion.HTTP_1_0, HttpStatus.SC_OK));
+        BasicHttpResponse response = new BasicHttpResponse(HttpVersion.HTTP_1_0, HttpStatus.SC_OK);
         BasicHttpEntity entity = new BasicHttpEntity();
         entity.setChunked(true);
         response.setEntity(entity);

@@ -264,7 +264,7 @@ public class BasicHeaderElement implements HeaderElement {
         if (indexFrom > indexTo) {
             throw new IndexOutOfBoundsException();
         }
-        NameValuePair[] nvps = NameValuePair.parseAll(buffer, indexFrom, indexTo);
+        NameValuePair[] nvps = BasicNameValuePair.parseAll(buffer, indexFrom, indexTo);
         return new BasicHeaderElement(nvps);
     }
 
@@ -294,7 +294,7 @@ public class BasicHeaderElement implements HeaderElement {
         NameValuePair[] params = element.getParameters();
         for (int i = 0; i < params.length; i++) {
             buffer.append("; ");
-            NameValuePair.format(buffer, params[i], false);
+            BasicNameValuePair.format(buffer, params[i], false);
         }
     }
     

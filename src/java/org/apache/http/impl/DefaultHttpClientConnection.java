@@ -45,7 +45,6 @@ import org.apache.http.HttpResponse;
 import org.apache.http.HttpResponseFactory;
 import org.apache.http.NoHttpResponseException;
 import org.apache.http.ProtocolException;
-import org.apache.http.RequestLine;
 import org.apache.http.StatusLine;
 import org.apache.http.entity.EntityDeserializer;
 import org.apache.http.entity.EntitySerializer;
@@ -54,6 +53,8 @@ import org.apache.http.impl.entity.DefaultEntityDeserializer;
 import org.apache.http.io.CharArrayBuffer;
 import org.apache.http.io.SocketFactory;
 import org.apache.http.message.BasicHeader;
+import org.apache.http.message.BasicRequestLine;
+import org.apache.http.message.BasicStatusLine;
 import org.apache.http.params.HttpConnectionParams;
 import org.apache.http.params.HttpParams;
 import org.apache.http.params.HttpProtocolParams;
@@ -199,7 +200,7 @@ public class DefaultHttpClientConnection
     protected void sendRequestLine(final HttpRequest request) 
             throws HttpException, IOException {
         this.buffer.clear();
-        RequestLine.format(this.buffer, request.getRequestLine());
+        BasicRequestLine.format(this.buffer, request.getRequestLine());
         this.datatransmitter.writeLine(this.buffer);
     }
 
@@ -282,7 +283,7 @@ public class DefaultHttpClientConnection
             count++;
         } while(true);
         //create the status line from the status string
-        StatusLine statusline = StatusLine.parse(this.buffer, 0, this.buffer.length());
+        StatusLine statusline = BasicStatusLine.parse(this.buffer, 0, this.buffer.length());
         HttpResponse response = this.responsefactory.newHttpResponse(statusline);
         response.getParams().setDefaults(params);
         return response;

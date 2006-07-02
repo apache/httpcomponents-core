@@ -30,6 +30,7 @@
 package org.apache.http;
 
 import org.apache.http.io.CharArrayBuffer;
+import org.apache.http.message.BasicNameValuePair;
 
 import junit.framework.Test;
 import junit.framework.TestCase;
@@ -56,14 +57,14 @@ public class TestNameValuePair extends TestCase {
     }
 
     public void testConstructor() {
-        NameValuePair param = new NameValuePair("name", "value");
+        NameValuePair param = new BasicNameValuePair("name", "value");
         assertEquals("name", param.getName()); 
         assertEquals("value", param.getValue()); 
     }
     
     public void testInvalidName() {
         try {
-            new NameValuePair(null, null);
+            new BasicNameValuePair(null, null);
             fail("IllegalArgumentException should have been thrown");
         } catch (IllegalArgumentException ex) {
             //expected
@@ -71,17 +72,17 @@ public class TestNameValuePair extends TestCase {
     }
     
     public void testHashCode() {
-        NameValuePair param1 = new NameValuePair("name1", "value1");
-        NameValuePair param2 = new NameValuePair("name2", "value2");
-        NameValuePair param3 = new NameValuePair("name1", "value1");
+        NameValuePair param1 = new BasicNameValuePair("name1", "value1");
+        NameValuePair param2 = new BasicNameValuePair("name2", "value2");
+        NameValuePair param3 = new BasicNameValuePair("name1", "value1");
         assertTrue(param1.hashCode() != param2.hashCode());
         assertTrue(param1.hashCode() == param3.hashCode());
     }
     
     public void testEquals() {
-        NameValuePair param1 = new NameValuePair("name1", "value1");
-        NameValuePair param2 = new NameValuePair("name2", "value2");
-        NameValuePair param3 = new NameValuePair("name1", "value1");
+        NameValuePair param1 = new BasicNameValuePair("name1", "value1");
+        NameValuePair param2 = new BasicNameValuePair("name2", "value2");
+        NameValuePair param3 = new BasicNameValuePair("name1", "value1");
         assertFalse(param1.equals(param2));
         assertFalse(param1.equals(null));
         assertFalse(param1.equals("name1 = value1"));
@@ -91,50 +92,50 @@ public class TestNameValuePair extends TestCase {
     }
     
     public void testToString() {
-        NameValuePair param1 = new NameValuePair("name1", "value1");
+        NameValuePair param1 = new BasicNameValuePair("name1", "value1");
         assertEquals("name1=value1", param1.toString());
-        NameValuePair param2 = new NameValuePair("name1", null);
+        NameValuePair param2 = new BasicNameValuePair("name1", null);
         assertEquals("name1", param2.toString());
     }
     
     public void testParse() {
         String s = "test";
-        NameValuePair param = NameValuePair.parse(s);
+        NameValuePair param = BasicNameValuePair.parse(s);
         assertEquals("test", param.getName());
         assertEquals(null, param.getValue());
 
         s = "test=stuff";
-        param = NameValuePair.parse(s);
+        param = BasicNameValuePair.parse(s);
         assertEquals("test", param.getName());
         assertEquals("stuff", param.getValue());
         
         s = "   test  =   stuff ";
-        param = NameValuePair.parse(s);
+        param = BasicNameValuePair.parse(s);
         assertEquals("test", param.getName());
         assertEquals("stuff", param.getValue());
         
         s = "test  = \"stuff\"";
-        param = NameValuePair.parse(s);
+        param = BasicNameValuePair.parse(s);
         assertEquals("test", param.getName());
         assertEquals("stuff", param.getValue());
         
         s = "test  = \"  stuff\\\"\"";
-        param = NameValuePair.parse(s);
+        param = BasicNameValuePair.parse(s);
         assertEquals("test", param.getName());
         assertEquals("  stuff\\\"", param.getValue());
         
         s = "  test";
-        param = NameValuePair.parse(s);
+        param = BasicNameValuePair.parse(s);
         assertEquals("test", param.getName());
         assertEquals(null, param.getValue());
 
         s = "  ";
-        param = NameValuePair.parse(s);
+        param = BasicNameValuePair.parse(s);
         assertEquals("", param.getName());
         assertEquals(null, param.getValue());
 
         s = " = stuff ";
-        param = NameValuePair.parse(s);
+        param = BasicNameValuePair.parse(s);
         assertEquals("", param.getName());
         assertEquals("stuff", param.getValue());
     }
@@ -142,7 +143,7 @@ public class TestNameValuePair extends TestCase {
     public void testParseAll() {
         String s = 
           "test; test1 =  stuff   ; test2 =  \"stuff; stuff\"; test3=\"stuff";
-        NameValuePair[] params = NameValuePair.parseAll(s);
+        NameValuePair[] params = BasicNameValuePair.parseAll(s);
         assertEquals("test", params[0].getName());
         assertEquals(null, params[0].getValue());
         assertEquals("test1", params[1].getName());
@@ -153,14 +154,14 @@ public class TestNameValuePair extends TestCase {
         assertEquals("\"stuff", params[3].getValue());
 
         s = "  ";
-        params = NameValuePair.parseAll(s);
+        params = BasicNameValuePair.parseAll(s);
         assertEquals(0, params.length);
     }
 
     public void testParseEscaped() {
         String s = 
           "test1 =  \"\\\"stuff\\\"\"; test2= \"\\\\\"; test3 = \"stuff; stuff\"";
-        NameValuePair[] params = NameValuePair.parseAll(s);
+        NameValuePair[] params = BasicNameValuePair.parseAll(s);
         assertEquals(3, params.length);
         assertEquals("test1", params[0].getName());
         assertEquals("\\\"stuff\\\"", params[0].getValue());
@@ -174,61 +175,61 @@ public class TestNameValuePair extends TestCase {
         CharArrayBuffer buffer = new CharArrayBuffer(32);
         buffer.append("name = value");
         try {
-            NameValuePair.parseAll(null, 0, 0);
+            BasicNameValuePair.parseAll(null, 0, 0);
             fail("IllegalArgumentException should have been thrown");
         } catch (IllegalArgumentException ex) {
             // expected
         }
         try {
-            NameValuePair.parseAll(null);
+            BasicNameValuePair.parseAll(null);
             fail("IllegalArgumentException should have been thrown");
         } catch (IllegalArgumentException ex) {
             // expected
         }
         try {
-            NameValuePair.parseAll(buffer, -1, 0);
+            BasicNameValuePair.parseAll(buffer, -1, 0);
             fail("IllegalArgumentException should have been thrown");
         } catch (IndexOutOfBoundsException ex) {
             // expected
         }
         try {
-            NameValuePair.parseAll(buffer, 0, 1000);
+            BasicNameValuePair.parseAll(buffer, 0, 1000);
             fail("IllegalArgumentException should have been thrown");
         } catch (IndexOutOfBoundsException ex) {
             // expected
         }
         try {
-            NameValuePair.parseAll(buffer, 2, 1);
+            BasicNameValuePair.parseAll(buffer, 2, 1);
             fail("IllegalArgumentException should have been thrown");
         } catch (IndexOutOfBoundsException ex) {
             // expected
         }
         try {
-            NameValuePair.parse(null, 0, 0);
+            BasicNameValuePair.parse(null, 0, 0);
             fail("IllegalArgumentException should have been thrown");
         } catch (IllegalArgumentException ex) {
             // expected
         }
         try {
-            NameValuePair.parse(null);
+            BasicNameValuePair.parse(null);
             fail("IllegalArgumentException should have been thrown");
         } catch (IllegalArgumentException ex) {
             // expected
         }
         try {
-            NameValuePair.parse(buffer, -1, 0);
+            BasicNameValuePair.parse(buffer, -1, 0);
             fail("IllegalArgumentException should have been thrown");
         } catch (IndexOutOfBoundsException ex) {
             // expected
         }
         try {
-            NameValuePair.parse(buffer, 0, 1000);
+            BasicNameValuePair.parse(buffer, 0, 1000);
             fail("IllegalArgumentException should have been thrown");
         } catch (IndexOutOfBoundsException ex) {
             // expected
         }
         try {
-            NameValuePair.parse(buffer, 2, 1);
+            BasicNameValuePair.parse(buffer, 2, 1);
             fail("IllegalArgumentException should have been thrown");
         } catch (IndexOutOfBoundsException ex) {
             // expected
@@ -236,63 +237,63 @@ public class TestNameValuePair extends TestCase {
     }
 
     public void testBasicFormatting() throws Exception {
-        NameValuePair param1 = new NameValuePair("param", "regular_stuff"); 
-        NameValuePair param2 = new NameValuePair("param", "this\\that"); 
-        NameValuePair param3 = new NameValuePair("param", "this,that"); 
-        NameValuePair param4 = new NameValuePair("param", "quote marks (\") must be escaped"); 
-        NameValuePair param5 = new NameValuePair("param", "back slash (\\) must be escaped too"); 
-        NameValuePair param6 = new NameValuePair("param", "values with\tblanks must always be quoted"); 
-        NameValuePair param7 = new NameValuePair("param", null); 
+        NameValuePair param1 = new BasicNameValuePair("param", "regular_stuff"); 
+        NameValuePair param2 = new BasicNameValuePair("param", "this\\that"); 
+        NameValuePair param3 = new BasicNameValuePair("param", "this,that"); 
+        NameValuePair param4 = new BasicNameValuePair("param", "quote marks (\") must be escaped"); 
+        NameValuePair param5 = new BasicNameValuePair("param", "back slash (\\) must be escaped too"); 
+        NameValuePair param6 = new BasicNameValuePair("param", "values with\tblanks must always be quoted"); 
+        NameValuePair param7 = new BasicNameValuePair("param", null); 
         
-        assertEquals("param=regular_stuff", NameValuePair.format(param1, false));
-        assertEquals("param=\"this\\\\that\"", NameValuePair.format(param2, false));
-        assertEquals("param=\"this,that\"", NameValuePair.format(param3, false));
-        assertEquals("param=\"quote marks (\\\") must be escaped\"", NameValuePair.format(param4, false));
-        assertEquals("param=\"back slash (\\\\) must be escaped too\"", NameValuePair.format(param5, false));
-        assertEquals("param=\"values with\tblanks must always be quoted\"", NameValuePair.format(param6, false));
-        assertEquals("param", NameValuePair.format(param7, false));
+        assertEquals("param=regular_stuff", BasicNameValuePair.format(param1, false));
+        assertEquals("param=\"this\\\\that\"", BasicNameValuePair.format(param2, false));
+        assertEquals("param=\"this,that\"", BasicNameValuePair.format(param3, false));
+        assertEquals("param=\"quote marks (\\\") must be escaped\"", BasicNameValuePair.format(param4, false));
+        assertEquals("param=\"back slash (\\\\) must be escaped too\"", BasicNameValuePair.format(param5, false));
+        assertEquals("param=\"values with\tblanks must always be quoted\"", BasicNameValuePair.format(param6, false));
+        assertEquals("param", BasicNameValuePair.format(param7, false));
 
-        assertEquals("param=\"regular_stuff\"", NameValuePair.format(param1, true));
-        assertEquals("param=\"this\\\\that\"", NameValuePair.format(param2, true));
-        assertEquals("param=\"this,that\"", NameValuePair.format(param3, true));
-        assertEquals("param=\"quote marks (\\\") must be escaped\"", NameValuePair.format(param4, true));
-        assertEquals("param=\"back slash (\\\\) must be escaped too\"", NameValuePair.format(param5, true));
-        assertEquals("param=\"values with\tblanks must always be quoted\"", NameValuePair.format(param6, true));
-        assertEquals("param", NameValuePair.format(param7, false));
+        assertEquals("param=\"regular_stuff\"", BasicNameValuePair.format(param1, true));
+        assertEquals("param=\"this\\\\that\"", BasicNameValuePair.format(param2, true));
+        assertEquals("param=\"this,that\"", BasicNameValuePair.format(param3, true));
+        assertEquals("param=\"quote marks (\\\") must be escaped\"", BasicNameValuePair.format(param4, true));
+        assertEquals("param=\"back slash (\\\\) must be escaped too\"", BasicNameValuePair.format(param5, true));
+        assertEquals("param=\"values with\tblanks must always be quoted\"", BasicNameValuePair.format(param6, true));
+        assertEquals("param", BasicNameValuePair.format(param7, false));
     }
 
     public void testArrayFormatting() throws Exception {
-        NameValuePair param1 = new NameValuePair("param", "regular_stuff"); 
-        NameValuePair param2 = new NameValuePair("param", "this\\that"); 
-        NameValuePair param3 = new NameValuePair("param", "this,that");
+        NameValuePair param1 = new BasicNameValuePair("param", "regular_stuff"); 
+        NameValuePair param2 = new BasicNameValuePair("param", "this\\that"); 
+        NameValuePair param3 = new BasicNameValuePair("param", "this,that");
         NameValuePair[] params = new NameValuePair[] {param1, param2, param3}; 
         assertEquals("param=regular_stuff; param=\"this\\\\that\"; param=\"this,that\"", 
-                NameValuePair.formatAll(params, false));
+                BasicNameValuePair.formatAll(params, false));
         assertEquals("param=\"regular_stuff\"; param=\"this\\\\that\"; param=\"this,that\"", 
-                NameValuePair.formatAll(params, true));
+                BasicNameValuePair.formatAll(params, true));
     }
     
     public void testFormatInvalidInput() throws Exception {
         try {
-            NameValuePair.format(null, new NameValuePair("param", "value"), true);
+            BasicNameValuePair.format(null, new BasicNameValuePair("param", "value"), true);
             fail("IllegalArgumentException should habe been thrown");
         } catch (IllegalArgumentException ex) {
             // expected
         }
         try {
-            NameValuePair.format(new CharArrayBuffer(10), (NameValuePair) null, true);
+            BasicNameValuePair.format(new CharArrayBuffer(10), (NameValuePair) null, true);
             fail("IllegalArgumentException should habe been thrown");
         } catch (IllegalArgumentException ex) {
             // expected
         }
         try {
-            NameValuePair.formatAll(null, new NameValuePair[] {new NameValuePair("param", "value")}, true);
+            BasicNameValuePair.formatAll(null, new NameValuePair[] {new BasicNameValuePair("param", "value")}, true);
             fail("IllegalArgumentException should habe been thrown");
         } catch (IllegalArgumentException ex) {
             // expected
         }
         try {
-            NameValuePair.formatAll(new CharArrayBuffer(10), (NameValuePair[]) null, true);
+            BasicNameValuePair.formatAll(new CharArrayBuffer(10), (NameValuePair[]) null, true);
             fail("IllegalArgumentException should habe been thrown");
         } catch (IllegalArgumentException ex) {
             // expected

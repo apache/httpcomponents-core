@@ -60,6 +60,11 @@ public class BasicHttpResponse extends AbstractHttpMessage implements HttpRespon
         setStatusLine(statusline);
     }
 
+    public BasicHttpResponse(final HttpVersion ver, final int code) {
+        super();
+        setStatusLine(ver, code);
+    }
+
     public HttpVersion getHttpVersion() {
         return this.statusline.getHttpVersion();
     }
@@ -79,11 +84,18 @@ public class BasicHttpResponse extends AbstractHttpMessage implements HttpRespon
         this.statusline = statusline;
     }
     
+    public void setStatusLine(final HttpVersion ver, final int code) {
+        if (ver == null) {
+            throw new IllegalArgumentException("HTTP version may not be null");
+        }
+        this.statusline = new BasicStatusLine(ver, code);
+    }
+    
     public void setStatusCode(int code) {
         if (code < 0) {
             throw new IllegalArgumentException("Status line may not be null");
         }
-        this.statusline = new StatusLine(
+        this.statusline = new BasicStatusLine(
                 HttpProtocolParams.getVersion(getParams()), 
                 code, HttpStatus.getStatusText(code));
     }

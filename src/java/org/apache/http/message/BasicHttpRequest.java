@@ -62,6 +62,10 @@ public class BasicHttpRequest extends AbstractHttpMessage implements HttpRequest
         this.requestline = null;
     }
 
+    public BasicHttpRequest(final String method, final String uri, final HttpVersion ver) {
+        this(new BasicRequestLine(method, uri, ver));
+    }
+
     public BasicHttpRequest(final RequestLine requestline) {
         super();
         if (requestline == null) {
@@ -85,7 +89,7 @@ public class BasicHttpRequest extends AbstractHttpMessage implements HttpRequest
             return this.requestline;
         } else {
             HttpVersion ver = HttpProtocolParams.getVersion(getParams());
-            return new RequestLine(this.method, this.uri, ver);
+            return new BasicRequestLine(this.method, this.uri, ver);
         }
     }
     

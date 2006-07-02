@@ -43,13 +43,14 @@ import org.apache.http.HttpRequestFactory;
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpServerConnection;
 import org.apache.http.RequestLine;
-import org.apache.http.StatusLine;
 import org.apache.http.entity.EntityDeserializer;
 import org.apache.http.entity.EntitySerializer;
 import org.apache.http.impl.entity.DefaultEntityDeserializer;
 import org.apache.http.impl.entity.DefaultEntitySerializer;
 import org.apache.http.io.CharArrayBuffer;
 import org.apache.http.message.BasicHeader;
+import org.apache.http.message.BasicRequestLine;
+import org.apache.http.message.BasicStatusLine;
 import org.apache.http.params.HttpConnectionParams;
 import org.apache.http.params.HttpParams;
 import org.apache.http.util.HeaderUtils;
@@ -139,7 +140,7 @@ public class DefaultHttpServerConnection
         if (i == -1) {
             throw new ConnectionClosedException("Client closed connection"); 
         }
-        RequestLine requestline = RequestLine.parse(this.buffer, 0, this.buffer.length());
+        RequestLine requestline = BasicRequestLine.parse(this.buffer, 0, this.buffer.length());
         HttpRequest request = this.requestfactory.newHttpRequest(requestline);
         request.getParams().setDefaults(params);
         return request;
@@ -180,7 +181,7 @@ public class DefaultHttpServerConnection
     protected void sendResponseStatusLine(final HttpResponse response) 
             throws HttpException, IOException {
         this.buffer.clear();
-        StatusLine.format(this.buffer, response.getStatusLine());
+        BasicStatusLine.format(this.buffer, response.getStatusLine());
         this.datatransmitter.writeLine(this.buffer);
     }
 

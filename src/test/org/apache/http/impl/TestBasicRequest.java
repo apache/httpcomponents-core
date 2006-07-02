@@ -34,7 +34,6 @@ import junit.framework.TestSuite;
 
 import org.apache.http.HttpRequest;
 import org.apache.http.HttpVersion;
-import org.apache.http.RequestLine;
 import org.apache.http.message.BasicHttpRequest;
 import org.apache.http.params.HttpProtocolParams;
 
@@ -58,7 +57,7 @@ public class TestBasicRequest extends TestCase {
 
     public void testConstructor() throws Exception {
         new BasicHttpRequest("GET", "/stuff");
-        new BasicHttpRequest(new RequestLine("GET", "/stuff", HttpVersion.HTTP_1_1));
+        new BasicHttpRequest("GET", "/stuff", HttpVersion.HTTP_1_1);
         try {
             new BasicHttpRequest(null, "/stuff");
             fail("IllegalArgumentException should have been thrown");
@@ -83,8 +82,7 @@ public class TestBasicRequest extends TestCase {
     }
 
     public void testRequestLine2() throws Exception {
-        HttpRequest request = new BasicHttpRequest(
-                new RequestLine("GET", "/stuff", HttpVersion.HTTP_1_0));
+        HttpRequest request = new BasicHttpRequest("GET", "/stuff", HttpVersion.HTTP_1_0);
         assertEquals("GET", request.getRequestLine().getMethod());
         assertEquals("/stuff", request.getRequestLine().getUri());
         assertEquals(HttpVersion.HTTP_1_0, request.getRequestLine().getHttpVersion());
