@@ -38,6 +38,7 @@ import org.apache.http.HttpException;
 import org.apache.http.ProtocolException;
 import org.apache.http.io.CharArrayBuffer;
 import org.apache.http.io.HttpDataReceiver;
+import org.apache.http.message.BasicHeaderElement;
 
 /**
  * A utility class for processing HTTP headers.
@@ -75,7 +76,7 @@ public class HeaderUtils {
         }
         
         public HeaderElement[] getElements() {
-            return HeaderElement.parseAll(this.buffer, this.posValue, this.buffer.length());
+            return BasicHeaderElement.parseAll(this.buffer, this.posValue, this.buffer.length());
         }
         
         public String toString() {

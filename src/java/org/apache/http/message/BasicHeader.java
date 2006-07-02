@@ -127,7 +127,7 @@ public class BasicHeader implements Header {
      */
     public HeaderElement[] getElements() {
         if (this.value != null) {
-            return HeaderElement.parseAll(this.value);
+            return BasicHeaderElement.parseAll(this.value);
         } else {
             return new HeaderElement[] {}; 
         }
