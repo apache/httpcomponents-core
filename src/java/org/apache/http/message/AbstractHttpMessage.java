@@ -90,9 +90,6 @@ public abstract class AbstractHttpMessage implements HttpMessage {
     }
 
     public void setHeader(final Header header) {
-        if (header == null) {
-            return;
-        }
         this.headergroup.updateHeader(header);
     }
 
