@@ -27,8 +27,9 @@
  *
  */
 
-package org.apache.http;
+package org.apache.http.message;
 
+import org.apache.http.NameValuePair;
 import org.apache.http.io.CharArrayBuffer;
 import org.apache.http.message.BasicNameValuePair;
 

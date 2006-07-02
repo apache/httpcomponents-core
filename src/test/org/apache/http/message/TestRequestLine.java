@@ -26,8 +26,11 @@
  *
  */
 
-package org.apache.http;
+package org.apache.http.message;
 
+import org.apache.http.HttpException;
+import org.apache.http.HttpVersion;
+import org.apache.http.RequestLine;
 import org.apache.http.io.CharArrayBuffer;
 import org.apache.http.message.BasicRequestLine;
 

@@ -29,9 +29,6 @@
 
 package org.apache.http;
 
-import org.apache.http.io.CharArrayBuffer;
-import org.apache.http.message.BasicHttpVersion;
-
 import junit.framework.Test;
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
@@ -72,124 +69,6 @@ public class TestHttpVersion extends TestCase {
         }
     }
 
-    public void testHttpVersionParsing() throws Exception {
-        String s = "HTTP/1.1";
-        HttpVersion version = BasicHttpVersion.parse(s);
-        assertEquals("HTTP major version number", 1, version.getMajor());
-        assertEquals("HTTP minor version number", 1, version.getMinor());
-        assertEquals("HTTP version number", s, version.toString());
-
-        s = "HTTP/123.4567";
-        version = BasicHttpVersion.parse(s);
-        assertEquals("HTTP major version number", 123, version.getMajor());
-        assertEquals("HTTP minor version number", 4567, version.getMinor());
-        assertEquals("HTTP version number", s, version.toString());
-    }
-
-    public void testInvalidHttpVersionParsing() throws Exception {
-        try {
-            BasicHttpVersion.parse(null);
-            fail("IllegalArgumentException should have been thrown");
-        } catch (IllegalArgumentException e) {
-            //expected
-        }
-        try {
-            BasicHttpVersion.parse("    ");
-            fail("ProtocolException should have been thrown");
-        } catch (ProtocolException e) {
-            //expected
-        }
-        try {
-            BasicHttpVersion.parse("HTT");
-            fail("ProtocolException should have been thrown");
-        } catch (ProtocolException e) {
-            //expected
-        }
-        try {
-            BasicHttpVersion.parse("crap");
-            fail("ProtocolException should have been thrown");
-        } catch (ProtocolException e) {
-            //expected
-        }
-        try {
-            BasicHttpVersion.parse("HTTP/crap");
-            fail("ProtocolException should have been thrown");
-        } catch (ProtocolException e) {
-            //expected
-        }
-        try {
-            BasicHttpVersion.parse("HTTP/1");
-            fail("ProtocolException should have been thrown");
-        } catch (ProtocolException e) {
-            //expected
-        }
-        try {
-            BasicHttpVersion.parse("HTTP/1234   ");
-            fail("ProtocolException should have been thrown");
-        } catch (ProtocolException e) {
-            //expected
-        }
-        try {
-            BasicHttpVersion.parse("HTTP/1.");
-            fail("ProtocolException should have been thrown");
-        } catch (ProtocolException e) {
-            //expected
-        }
-        try {
-            BasicHttpVersion.parse("HTTP/1.1 crap");
-            fail("ProtocolException should have been thrown");
-        } catch (ProtocolException e) {
-            //expected
-        }
-        try {
-            BasicHttpVersion.parse("HTTP/whatever.whatever whatever");
-            fail("ProtocolException should have been thrown");
-        } catch (ProtocolException e) {
-            //expected
-        }
-        try {
-            BasicHttpVersion.parse("HTTP/1.whatever whatever");
-            fail("ProtocolException should have been thrown");
-        } catch (ProtocolException e) {
-            //expected
-        }
-    }
-
-    public void testHttpVersionParsingInvalidInput() throws Exception {
-        CharArrayBuffer buffer = new CharArrayBuffer(32);
-        buffer.append("HTTP/1.1");
-        try {
-            BasicHttpVersion.parse(null, 0, 0);
-            fail("IllegalArgumentException should have been thrown");
-        } catch (IllegalArgumentException ex) {
-            // expected
-        }
-        try {
-            BasicHttpVersion.parse(null);
-            fail("IllegalArgumentException should have been thrown");
-        } catch (IllegalArgumentException ex) {
-            // expected
-        }
-        try {
-            BasicHttpVersion.parse(buffer, -1, 0);
-            fail("IllegalArgumentException should have been thrown");
-        } catch (IndexOutOfBoundsException ex) {
-            // expected
-        }
-        try {
-            BasicHttpVersion.parse(buffer, 0, 1000);
-            fail("IllegalArgumentException should have been thrown");
-        } catch (IndexOutOfBoundsException ex) {
-            // expected
-        }
-        try {
-            BasicHttpVersion.parse(buffer, 2, 1);
-            fail("IllegalArgumentException should have been thrown");
-        } catch (IndexOutOfBoundsException ex) {
-            // expected
-        }
-    }
-
     public void testHttpVersionEquality() throws Exception {
         HttpVersion ver1 = new HttpVersion(1, 1); 
         HttpVersion ver2 = new HttpVersion(1, 1); 
@@ -224,25 +103,5 @@ public class TestHttpVersion extends TestCase {
         assertTrue(HttpVersion.HTTP_1_0.compareTo((Object)HttpVersion.HTTP_1_0) == 0);
    }
     
-    public void testHttpVersionFormatting() throws Exception {
-        String s = BasicHttpVersion.format(HttpVersion.HTTP_1_1);
-        assertEquals("HTTP/1.1", s);
-    }
-    
-    public void testHttpVersionFormattingInvalidInput() throws Exception {
-        try {
-            BasicHttpVersion.format(null, HttpVersion.HTTP_1_1);
-            fail("IllegalArgumentException should habe been thrown");
-        } catch (IllegalArgumentException ex) {
-            // expected
-        }
-        try {
-            BasicHttpVersion.format(new CharArrayBuffer(10), (HttpVersion) null);
-            fail("IllegalArgumentException should habe been thrown");
-        } catch (IllegalArgumentException ex) {
-            // expected
-        }
-    }
-
 }
 
