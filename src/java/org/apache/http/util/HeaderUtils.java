@@ -54,15 +54,20 @@ public class HeaderUtils {
      * This class represents a raw HTTP header whose content is parsed
      * 'on demand' only when the header value needs to be consumed  
      */
-    static class BufferedHeader extends Header {
+    static class BufferedHeader implements Header {
         
+        private final String name;
         private final CharArrayBuffer buffer;
         private final int posValue;
         
         public BufferedHeader(final String name, final CharArrayBuffer buffer, int posValue) {
-            super(name, null);
+            this.name = name;
             this.buffer = buffer;
             this.posValue = posValue;
+        }
+
+        public String getName() {
+            return this.name;
         }
         
         public String getValue() {

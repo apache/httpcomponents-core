@@ -34,7 +34,6 @@ import junit.framework.Test;
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
 
-import org.apache.http.Header;
 import org.apache.http.HttpMessage;
 import org.apache.http.HttpVersion;
 import org.apache.http.ProtocolException;
@@ -91,7 +90,7 @@ public class TestDefaultEntitySerializer extends TestCase {
     public void testEntityWithChunkTransferEncoding() throws Exception {
         HttpDataTransmitter datatransmitter = new HttpDataTransmitterMockup();
         HttpMessage message = new HttpMessageMockup();
-        message.addHeader(new Header("Transfer-Encoding", "Chunked"));
+        message.addHeader("Transfer-Encoding", "Chunked");
 
         DefaultEntitySerializer entitywriter = new DefaultEntitySerializer();
         OutputStream outstream = entitywriter.doSerialize(datatransmitter, message);
@@ -102,7 +101,7 @@ public class TestDefaultEntitySerializer extends TestCase {
     public void testEntityWithIdentityTransferEncoding() throws Exception {
         HttpDataTransmitter datatransmitter = new HttpDataTransmitterMockup();
         HttpMessage message = new HttpMessageMockup();
-        message.addHeader(new Header("Transfer-Encoding", "Identity"));
+        message.addHeader("Transfer-Encoding", "Identity");
 
         DefaultEntitySerializer entitywriter = new DefaultEntitySerializer();
         OutputStream outstream = entitywriter.doSerialize(datatransmitter, message);
@@ -113,7 +112,7 @@ public class TestDefaultEntitySerializer extends TestCase {
     public void testEntityWithInvalidTransferEncoding() throws Exception {
         HttpDataTransmitter datatransmitter = new HttpDataTransmitterMockup();
         HttpMessage message = new HttpMessageMockup();
-        message.addHeader(new Header("Transfer-Encoding", "whatever"));
+        message.addHeader("Transfer-Encoding", "whatever");
 
         DefaultEntitySerializer entitywriter = new DefaultEntitySerializer();
         try {
@@ -129,7 +128,7 @@ public class TestDefaultEntitySerializer extends TestCase {
         HttpMessage message = new HttpMessageMockup();
         message.getParams().setParameter(HttpProtocolParams.PROTOCOL_VERSION, 
                 HttpVersion.HTTP_1_0);
-        message.addHeader(new Header("Transfer-Encoding", "chunked"));
+        message.addHeader("Transfer-Encoding", "chunked");
 
         DefaultEntitySerializer entitywriter = new DefaultEntitySerializer();
         try {
@@ -143,7 +142,7 @@ public class TestDefaultEntitySerializer extends TestCase {
     public void testEntityWithContentLength() throws Exception {
         HttpDataTransmitter datatransmitter = new HttpDataTransmitterMockup();
         HttpMessage message = new HttpMessageMockup();
-        message.addHeader(new Header("Content-Length", "100"));
+        message.addHeader("Content-Length", "100");
         DefaultEntitySerializer entitywriter = new DefaultEntitySerializer();
         OutputStream outstream = entitywriter.doSerialize(datatransmitter, message);
         assertNotNull(outstream);
@@ -153,7 +152,7 @@ public class TestDefaultEntitySerializer extends TestCase {
     public void testEntityWithInvalidContentLength() throws Exception {
         HttpDataTransmitter datatransmitter = new HttpDataTransmitterMockup();
         HttpMessage message = new HttpMessageMockup();
-        message.addHeader(new Header("Content-Length", "whatever"));
+        message.addHeader("Content-Length", "whatever");
 
         DefaultEntitySerializer entitywriter = new DefaultEntitySerializer();
         try {
@@ -179,7 +178,7 @@ public class TestDefaultEntitySerializer extends TestCase {
         
         HttpDataTransmitterMockup datatransmitter = new HttpDataTransmitterMockup();
         HttpMessage message = new HttpMessageMockup();
-        message.addHeader(new Header("Content-Length", Integer.toString(content.length)));
+        message.addHeader("Content-Length", Integer.toString(content.length));
         
         DefaultEntitySerializer entitywriter = new DefaultEntitySerializer();
         entitywriter.serialize(datatransmitter, message, entity);

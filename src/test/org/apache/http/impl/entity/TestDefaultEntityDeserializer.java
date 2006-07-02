@@ -30,7 +30,6 @@ package org.apache.http.impl.entity;
 
 import java.io.InputStream;
 
-import org.apache.http.Header;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpMessage;
 import org.apache.http.ProtocolException;
@@ -88,9 +87,9 @@ public class TestDefaultEntityDeserializer extends TestCase {
         
         // lenient mode 
         message.getParams().setBooleanParameter(HttpProtocolParams.STRICT_TRANSFER_ENCODING, false);
-        message.addHeader(new Header("Content-Type", "unknown"));
-        message.addHeader(new Header("Transfer-Encoding", "identity, chunked"));
-        message.addHeader(new Header("Content-Length", "plain wrong"));
+        message.addHeader("Content-Type", "unknown");
+        message.addHeader("Transfer-Encoding", "identity, chunked");
+        message.addHeader("Content-Length", "plain wrong");
         EntityDeserializer entitygen = new DefaultEntityDeserializer();
         HttpEntity entity = entitygen.deserialize(datareceiver, message);
         assertNotNull(entity);
@@ -114,9 +113,9 @@ public class TestDefaultEntityDeserializer extends TestCase {
         
         // lenient mode 
         message.getParams().setBooleanParameter(HttpProtocolParams.STRICT_TRANSFER_ENCODING, false);
-        message.addHeader(new Header("Content-Type", "unknown"));
-        message.addHeader(new Header("Transfer-Encoding", "identity"));
-        message.addHeader(new Header("Content-Length", "plain wrong"));
+        message.addHeader("Content-Type", "unknown");
+        message.addHeader("Transfer-Encoding", "identity");
+        message.addHeader("Content-Length", "plain wrong");
         EntityDeserializer entitygen = new DefaultEntityDeserializer();
         HttpEntity entity = entitygen.deserialize(datareceiver, message);
         assertNotNull(entity);
@@ -130,9 +129,9 @@ public class TestDefaultEntityDeserializer extends TestCase {
         
         // lenient mode 
         message.getParams().setBooleanParameter(HttpProtocolParams.STRICT_TRANSFER_ENCODING, false);
-        message.addHeader(new Header("Content-Type", "unknown"));
-        message.addHeader(new Header("Transfer-Encoding", "whatever; param=value, chunked"));
-        message.addHeader(new Header("Content-Length", "plain wrong"));
+        message.addHeader("Content-Type", "unknown");
+        message.addHeader("Transfer-Encoding", "whatever; param=value, chunked");
+        message.addHeader("Content-Length", "plain wrong");
         EntityDeserializer entitygen = new DefaultEntityDeserializer();
         HttpEntity entity = entitygen.deserialize(datareceiver, message);
         assertNotNull(entity);
@@ -156,9 +155,9 @@ public class TestDefaultEntityDeserializer extends TestCase {
         
         // lenient mode 
         message.getParams().setBooleanParameter(HttpProtocolParams.STRICT_TRANSFER_ENCODING, false);
-        message.addHeader(new Header("Content-Type", "unknown"));
-        message.addHeader(new Header("Transfer-Encoding", "chunked, identity"));
-        message.addHeader(new Header("Content-Length", "plain wrong"));
+        message.addHeader("Content-Type", "unknown");
+        message.addHeader("Transfer-Encoding", "chunked, identity");
+        message.addHeader("Content-Length", "plain wrong");
         EntityDeserializer entitygen = new DefaultEntityDeserializer();
         HttpEntity entity = entitygen.deserialize(datareceiver, message);
         assertNotNull(entity);
@@ -182,8 +181,8 @@ public class TestDefaultEntityDeserializer extends TestCase {
         
         // lenient mode 
         message.getParams().setBooleanParameter(HttpProtocolParams.STRICT_TRANSFER_ENCODING, false);
-        message.addHeader(new Header("Content-Type", "unknown"));
-        message.addHeader(new Header("Content-Length", "0"));
+        message.addHeader("Content-Type", "unknown");
+        message.addHeader("Content-Length", "0");
         EntityDeserializer entitygen = new DefaultEntityDeserializer();
         HttpEntity entity = entitygen.deserialize(datareceiver, message);
         assertNotNull(entity);
@@ -198,10 +197,10 @@ public class TestDefaultEntityDeserializer extends TestCase {
 
         // lenient mode 
         message.getParams().setBooleanParameter(HttpProtocolParams.STRICT_TRANSFER_ENCODING, false);
-        message.addHeader(new Header("Content-Type", "unknown"));
-        message.addHeader(new Header("Content-Length", "0"));
-        message.addHeader(new Header("Content-Length", "0"));
-        message.addHeader(new Header("Content-Length", "1"));
+        message.addHeader("Content-Type", "unknown");
+        message.addHeader("Content-Length", "0");
+        message.addHeader("Content-Length", "0");
+        message.addHeader("Content-Length", "1");
         EntityDeserializer entitygen = new DefaultEntityDeserializer();
         HttpEntity entity = entitygen.deserialize(datareceiver, message);
         assertNotNull(entity);
@@ -227,10 +226,10 @@ public class TestDefaultEntityDeserializer extends TestCase {
 
         // lenient mode 
         message.getParams().setBooleanParameter(HttpProtocolParams.STRICT_TRANSFER_ENCODING, false);
-        message.addHeader(new Header("Content-Type", "unknown"));
-        message.addHeader(new Header("Content-Length", "1"));
-        message.addHeader(new Header("Content-Length", "yyy"));
-        message.addHeader(new Header("Content-Length", "xxx"));
+        message.addHeader("Content-Type", "unknown");
+        message.addHeader("Content-Length", "1");
+        message.addHeader("Content-Length", "yyy");
+        message.addHeader("Content-Length", "xxx");
         EntityDeserializer entitygen = new DefaultEntityDeserializer();
         HttpEntity entity = entitygen.deserialize(datareceiver, message);
         assertNotNull(entity);
@@ -256,9 +255,9 @@ public class TestDefaultEntityDeserializer extends TestCase {
 
         // lenient mode 
         message.getParams().setBooleanParameter(HttpProtocolParams.STRICT_TRANSFER_ENCODING, false);
-        message.addHeader(new Header("Content-Type", "unknown"));
-        message.addHeader(new Header("Content-Length", "yyy"));
-        message.addHeader(new Header("Content-Length", "xxx"));
+        message.addHeader("Content-Type", "unknown");
+        message.addHeader("Content-Length", "yyy");
+        message.addHeader("Content-Length", "xxx");
         EntityDeserializer entitygen = new DefaultEntityDeserializer();
         HttpEntity entity = entitygen.deserialize(datareceiver, message);
         assertNotNull(entity);
@@ -285,8 +284,8 @@ public class TestDefaultEntityDeserializer extends TestCase {
 
         // lenient mode 
         message.getParams().setBooleanParameter(HttpProtocolParams.STRICT_TRANSFER_ENCODING, false);
-        message.addHeader(new Header("Content-Type", "unknown"));
-        message.addHeader(new Header("Content-Length", "xxx"));
+        message.addHeader("Content-Type", "unknown");
+        message.addHeader("Content-Length", "xxx");
         EntityDeserializer entitygen = new DefaultEntityDeserializer();
         HttpEntity entity = entitygen.deserialize(datareceiver, message);
         assertNotNull(entity);
@@ -329,7 +328,7 @@ public class TestDefaultEntityDeserializer extends TestCase {
         HttpDataReceiver datareceiver = new HttpDataReceiverMockup(new byte[] {'0'});
         HttpMessage message = new HttpMessageMockup();
 
-        message.addHeader(new Header("Content-Type", "stuff"));
+        message.addHeader("Content-Type", "stuff");
         EntityDeserializer entitygen = new DefaultEntityDeserializer();
         HttpEntity entity = entitygen.deserialize(datareceiver, message);
         assertNotNull(entity);
@@ -341,7 +340,7 @@ public class TestDefaultEntityDeserializer extends TestCase {
         HttpDataReceiver datareceiver = new HttpDataReceiverMockup(new byte[] {'0'});
         HttpMessage message = new HttpMessageMockup();
 
-        message.addHeader(new Header("Content-Encoding", "what not"));
+        message.addHeader("Content-Encoding", "what not");
         EntityDeserializer entitygen = new DefaultEntityDeserializer();
         HttpEntity entity = entitygen.deserialize(datareceiver, message);
         assertNotNull(entity);

@@ -74,7 +74,7 @@ public class ResponseConnControl implements HttpResponseInterceptor {
         		status == HttpStatus.SC_INTERNAL_SERVER_ERROR ||
         		status == HttpStatus.SC_SERVICE_UNAVAILABLE ||
         		status == HttpStatus.SC_NOT_IMPLEMENTED) {
-            response.setHeader(new GeneratedHeader(HTTP.CONN_DIRECTIVE, HTTP.CONN_CLOSE));
+            response.setHeader(HTTP.CONN_DIRECTIVE, HTTP.CONN_CLOSE);
             return;
         }
         // Always drop connection for HTTP/1.0 responses and below
@@ -84,7 +84,7 @@ public class ResponseConnControl implements HttpResponseInterceptor {
             HttpVersion ver = response.getStatusLine().getHttpVersion();
             if (entity.getContentLength() < 0 && 
                     (!entity.isChunked() || ver.lessEquals(HttpVersion.HTTP_1_0))) {
-                response.setHeader(new GeneratedHeader(HTTP.CONN_DIRECTIVE, HTTP.CONN_CLOSE));
+                response.setHeader(HTTP.CONN_DIRECTIVE, HTTP.CONN_CLOSE);
                 return;
             }
         }
@@ -93,7 +93,7 @@ public class ResponseConnControl implements HttpResponseInterceptor {
         if (request != null) {
             Header header = request.getFirstHeader(HTTP.CONN_DIRECTIVE);
             if (header != null) {
-                response.setHeader(new GeneratedHeader(HTTP.CONN_DIRECTIVE, header.getValue()));
+                response.setHeader(HTTP.CONN_DIRECTIVE, header.getValue());
             }
         }
     }

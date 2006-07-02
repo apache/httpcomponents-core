@@ -29,8 +29,6 @@
 
 package org.apache.http;
 
-import org.apache.http.io.CharArrayBuffer;
-
 /**
  * Represents an HTTP header field.
  * 
@@ -50,116 +48,15 @@ import org.apache.http.io.CharArrayBuffer;
  *</pre>
  * 
  * @author <a href="mailto:remm@apache.org">Remy Maucherat</a>
- * @author <a href="mailto:mbowler@GargoyleSoftware.com">Mike Bowler</a>
  * @author <a href="mailto:oleg at ural.ru">Oleg Kalnichevski</a>
- * @version $Revision$ $Date$
+ * @version $Revision$
  */
-public class Header {
+public interface Header {
 
-    /**
-     * Header name.
-     */
-    private final String name;
+    String getName();
     
-    /**
-     * Header value.
-     */
-    private final String value;
+    String getValue();
+
+    HeaderElement[] getElements();
     
-    /**
-     * Constructor with name and value
-     *
-     * @param name the header name
-     * @param value the header value
-     */
-    public Header(final String name, final String value) {
-        super();
-        if (name == null) {
-            throw new IllegalArgumentException("Name may not be null");
-        }
-        this.name = name;
-        this.value = value;
-    }
-
-    /**
-     * Returns the header name.
-     *
-     * @return String name The name
-     */
-    public String getName() {
-        return this.name;
-    }
-
-    /**
-     * Returns the header value.
-     *
-     * @return String value The current value.
-     */
-    public String getValue() {
-        return this.value;
-    }
-
-    /**
-     * Returns a {@link String} representation of the header.
-     *
-     * @return a string
-     */
-    public String toString() {
-        CharArrayBuffer buffer = new CharArrayBuffer(32);
-        buffer.append(this.name);
-        buffer.append(": ");
-        if (this.value != null) {
-            buffer.append(this.value);
-        }
-        return buffer.toString();
-    }
-
-    /**
-     * Returns an array of {@link HeaderElement}s constructed from my value.
-     *
-     * @see HeaderElement#parseAll
-     * 
-     * @return an array of header elements
-     * 
-     * @since 3.0
-     */
-    public HeaderElement[] getElements() {
-        if (this.value != null) {
-            return HeaderElement.parseAll(this.value);
-        } else {
-            return new HeaderElement[] {}; 
-        }
-    }
-
-    /**
-     * Formats a Header into a header line. The <code>header</code> is
-     * directly appended to <code>buffer</code>; no newline characters are
-     * inserted (folding).
-     * 
-     * @param buffer the buffer to append to
-     * @param header the header to format
-     */
-    public static void format(final CharArrayBuffer buffer, final Header header) {
-        if (buffer == null) {
-            throw new IllegalArgumentException("String buffer may not be null");
-        }
-        if (header == null) {
-            throw new IllegalArgumentException("Header may not be null");
-        }
-        buffer.append(header.getName());
-        buffer.append(": ");
-        if (header.getValue() != null) {
-            buffer.append(header.getValue());
-        }
-    }
- 
-    /**
-     * @see #format(CharArrayBuffer, Header)
-     */
-    public static String format(final Header header) {
-        CharArrayBuffer buffer = new CharArrayBuffer(32);
-        format(buffer, header);
-        return buffer.toString();
-    }
-
 }

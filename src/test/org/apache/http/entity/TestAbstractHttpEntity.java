@@ -30,6 +30,7 @@
 package org.apache.http.entity;
 
 import org.apache.http.Header;
+import org.apache.http.message.BasicHeader;
 import org.apache.http.mockup.HttpEntityMockup;
 import org.apache.http.protocol.HTTP;
 
@@ -59,7 +60,7 @@ public class TestAbstractHttpEntity extends TestCase {
 
     public void testContentType() throws Exception {
     	HttpEntityMockup httpentity = new HttpEntityMockup();
-        httpentity.setContentType(new Header(HTTP.CONTENT_TYPE, HTTP.PLAIN_TEXT_TYPE));
+        httpentity.setContentType(new BasicHeader(HTTP.CONTENT_TYPE, HTTP.PLAIN_TEXT_TYPE));
         assertEquals(HTTP.CONTENT_TYPE, httpentity.getContentType().getName());
         assertEquals(HTTP.PLAIN_TEXT_TYPE, httpentity.getContentType().getValue());
 
@@ -75,7 +76,7 @@ public class TestAbstractHttpEntity extends TestCase {
 
     public void testContentEncoding() throws Exception {
         HttpEntityMockup httpentity = new HttpEntityMockup();
-        httpentity.setContentEncoding(new Header(HTTP.CONTENT_ENCODING, "gzip"));
+        httpentity.setContentEncoding(new BasicHeader(HTTP.CONTENT_ENCODING, "gzip"));
         assertEquals(HTTP.CONTENT_ENCODING, httpentity.getContentEncoding().getName());
         assertEquals("gzip", httpentity.getContentEncoding().getValue());
 

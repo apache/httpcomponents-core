@@ -233,7 +233,7 @@ public class HttpBenchmark {
             request = httpget;
         }
         if (!keepAlive) {
-            request.addHeader(new Header(HTTP.CONN_DIRECTIVE, HTTP.CONN_CLOSE));
+            request.addHeader(new DefaultHeader(HTTP.CONN_DIRECTIVE, HTTP.CONN_CLOSE));
         }
 
         if(cmd.hasOption('H')) {
@@ -242,7 +242,7 @@ public class HttpBenchmark {
                 String s = strs[i];
                 int pos = s.indexOf(':');
                 if (pos != -1) {
-                    Header header = new Header(
+                    Header header = new DefaultHeader(
                             s.substring(0, pos).trim(),
                             s.substring(pos + 1));
                     request.addHeader(header);

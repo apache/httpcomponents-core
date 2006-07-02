@@ -37,6 +37,7 @@ import java.util.zip.GZIPOutputStream;
 import org.apache.http.Header;
 import org.apache.http.HttpEntity;
 import org.apache.http.entity.HttpEntityWrapper;
+import org.apache.http.message.BasicHeader;
 import org.apache.http.protocol.HTTP;
 
 /**
@@ -57,7 +58,7 @@ public class GzipCompressingEntity extends HttpEntityWrapper {
     }
 
     public Header getContentEncoding() {
-        return new Header(HTTP.CONTENT_ENCODING, GZIP_CODEC);
+        return new BasicHeader(HTTP.CONTENT_ENCODING, GZIP_CODEC);
     }
 
     public long getContentLength() {

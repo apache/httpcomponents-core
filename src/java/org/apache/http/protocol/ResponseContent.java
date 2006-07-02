@@ -71,11 +71,9 @@ public class ResponseContent implements HttpResponseInterceptor {
         if (entity != null) {
             long len = entity.getContentLength();
             if (entity.isChunked() && ver.greaterEquals(HttpVersion.HTTP_1_1)) {
-                response.addHeader(new GeneratedHeader(HTTP.TRANSFER_ENCODING, 
-                        HTTP.CHUNK_CODING));
+                response.addHeader(HTTP.TRANSFER_ENCODING, HTTP.CHUNK_CODING);
             } else if (len >= 0) {
-                response.addHeader(new GeneratedHeader(HTTP.CONTENT_LEN, 
-                        Long.toString(entity.getContentLength())));
+                response.addHeader(HTTP.CONTENT_LEN, Long.toString(entity.getContentLength()));
             }
             // Specify a content type if known
             if (entity.getContentType() != null && !response.containsHeader(
@@ -92,7 +90,7 @@ public class ResponseContent implements HttpResponseInterceptor {
             if (status != HttpStatus.SC_NO_CONTENT 
                     && status != HttpStatus.SC_NOT_MODIFIED
                     && status != HttpStatus.SC_RESET_CONTENT) {
-                response.addHeader(new GeneratedHeader(HTTP.CONTENT_LEN, "0"));
+                response.addHeader(HTTP.CONTENT_LEN, "0");
             }
         }
     }

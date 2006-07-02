@@ -31,7 +31,6 @@ package org.apache.http.contrib.compress;
 
 import java.io.IOException;
 
-import org.apache.http.Header;
 import org.apache.http.HttpException;
 import org.apache.http.HttpRequest;
 import org.apache.http.HttpRequestInterceptor;
@@ -54,7 +53,7 @@ public class RequestAcceptEncoding implements HttpRequestInterceptor {
     public void process(final HttpRequest request, final HttpContext context) 
             throws HttpException, IOException {
         if (!request.containsHeader(ACCEPT_ENCODING)) {
-            request.addHeader(new Header(ACCEPT_ENCODING, GZIP_CODEC));
+            request.addHeader(ACCEPT_ENCODING, GZIP_CODEC);
         }
     }
     

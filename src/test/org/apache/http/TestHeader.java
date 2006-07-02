@@ -30,6 +30,7 @@
 package org.apache.http;
 
 import org.apache.http.io.CharArrayBuffer;
+import org.apache.http.message.BasicHeader;
 
 import junit.framework.Test;
 import junit.framework.TestCase;
@@ -56,20 +57,20 @@ public class TestHeader extends TestCase {
     }
 
     public void testBasicConstructor() {
-        Header header = new Header("name", "value");
+        Header header = new BasicHeader("name", "value");
         assertEquals("name", header.getName()); 
         assertEquals("value", header.getValue()); 
     }
     
     public void testBasicConstructorNullValue() {
-        Header header = new Header("name", null);
+        Header header = new BasicHeader("name", null);
         assertEquals("name", header.getName()); 
         assertEquals(null, header.getValue()); 
     }
     
     public void testInvalidName() {
         try {
-            new Header(null, null);
+            new BasicHeader(null, null);
             fail("IllegalArgumentException should have been thrown");
         } catch (IllegalArgumentException ex) {
             //expected
@@ -77,14 +78,14 @@ public class TestHeader extends TestCase {
     }
     
     public void testToString() {
-        Header header1 = new Header("name1", "value1");
+        Header header1 = new BasicHeader("name1", "value1");
         assertEquals("name1: value1", header1.toString());
-        Header header2 = new Header("name2", null);
+        Header header2 = new BasicHeader("name2", null);
         assertEquals("name2: ", header2.toString());
     }
     
     public void testHeaderElements() {
-        Header header = new Header("name", "element1 = value1, element2; param1 = value1, element3");
+        Header header = new BasicHeader("name", "element1 = value1, element2; param1 = value1, element3");
         HeaderElement[] elements = header.getElements(); 
         assertNotNull(elements); 
         assertEquals(3, elements.length); 
@@ -96,30 +97,30 @@ public class TestHeader extends TestCase {
         assertEquals(null, elements[2].getValue()); 
         assertEquals(1, elements[1].getParameters().length); 
         
-        header = new Header("name", null);
+        header = new BasicHeader("name", null);
         elements = header.getElements();
         assertNotNull(elements); 
         assertEquals(0, elements.length); 
     }    
  
     public void testHeaderFormatting() throws Exception {
-        Header header1 = new Header("name", "value");
-        String s = Header.format(header1); 
+        Header header1 = new BasicHeader("name", "value");
+        String s = BasicHeader.format(header1); 
         assertEquals("name: value", s);
-        Header header2 = new Header("name", null);
-        s = Header.format(header2); 
+        Header header2 = new BasicHeader("name", null);
+        s = BasicHeader.format(header2); 
         assertEquals("name: ", s);
     }
     
     public void testHeaderFormattingInvalidInput() throws Exception {
         try {
-            Header.format(null, new Header("name", "value"));
+            BasicHeader.format(null, new BasicHeader("name", "value"));
             fail("IllegalArgumentException should habe been thrown");
         } catch (IllegalArgumentException ex) {
             // expected
         }
         try {
-            Header.format(new CharArrayBuffer(10), (Header) null);
+            BasicHeader.format(new CharArrayBuffer(10), (Header) null);
             fail("IllegalArgumentException should habe been thrown");
         } catch (IllegalArgumentException ex) {
             // expected

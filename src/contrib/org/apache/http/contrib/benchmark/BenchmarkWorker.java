@@ -40,7 +40,6 @@ import org.apache.http.HttpException;
 import org.apache.http.HttpRequest;
 import org.apache.http.HttpResponse;
 import org.apache.http.impl.DefaultConnectionReuseStrategy;
-import org.apache.http.protocol.GeneratedHeader;
 import org.apache.http.protocol.HTTP;
 import org.apache.http.protocol.HttpRequestExecutor;
 import org.apache.http.util.EntityUtils;
@@ -146,7 +145,7 @@ public class BenchmarkWorker {
     private static void resetHeader(final HttpRequest request) {
         for (Iterator it = request.headerIterator(); it.hasNext(); ) {
             Header header = (Header) it.next();
-            if (header instanceof GeneratedHeader) {
+            if (!(header instanceof DefaultHeader)) {
                 it.remove();
             }
         }

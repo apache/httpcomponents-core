@@ -61,7 +61,7 @@ public class ResponseServer implements HttpResponseInterceptor {
             String s = (String) response.getParams().getParameter(
                     HttpProtocolParams.ORIGIN_SERVER);
             if (s != null) {
-                response.addHeader(new GeneratedHeader(HTTP.SERVER_DIRECTIVE, s)); 
+                response.addHeader(HTTP.SERVER_DIRECTIVE, s); 
             }
         }
     }

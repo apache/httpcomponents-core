@@ -33,6 +33,7 @@ import java.io.IOException;
 
 import org.apache.http.Header;
 import org.apache.http.HttpEntity;
+import org.apache.http.message.BasicHeader;
 import org.apache.http.protocol.HTTP;
 
 /**
@@ -138,7 +139,7 @@ public abstract class AbstractHttpEntity implements HttpEntity {
     public void setContentType(final String ctString) {
         Header h = null;
         if (ctString != null) {
-            h = new Header(HTTP.CONTENT_TYPE, ctString);
+            h = new BasicHeader(HTTP.CONTENT_TYPE, ctString);
         }
         setContentType(h);
     }
@@ -167,7 +168,7 @@ public abstract class AbstractHttpEntity implements HttpEntity {
     public void setContentEncoding(final String ceString) {
         Header h = null;
         if (ceString != null) {
-            h = new Header(HTTP.CONTENT_ENCODING, ceString);
+            h = new BasicHeader(HTTP.CONTENT_ENCODING, ceString);
         }
         setContentEncoding(h);
     }

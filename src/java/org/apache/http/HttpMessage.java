@@ -108,12 +108,30 @@ public interface HttpMessage {
     void addHeader(Header header);
 
     /**
+     * Adds a header to this message. The header will be appended to the end of
+     * the list.
+     * 
+     * @param name the name of the header.
+     * @param value the value of the header.
+     */
+    void addHeader(String name, String value);
+
+    /**
      * Overwrites the first header with the same name. The new header will be appended to 
      * the end of the list, if no header with the given name can be found.
      * 
      * @param header the header to set.
      */
     void setHeader(Header header);
+
+    /**
+     * Overwrites the first header with the same name. The new header will be appended to 
+     * the end of the list, if no header with the given name can be found.
+     * 
+     * @param name the name of the header.
+     * @param value the value of the header.
+     */
+    void setHeader(String name, String value);
 
     /**
      * Overwrites all the headers in the message.

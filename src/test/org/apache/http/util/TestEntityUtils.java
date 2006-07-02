@@ -34,6 +34,7 @@ import java.io.ByteArrayInputStream;
 
 import org.apache.http.Header;
 import org.apache.http.entity.BasicHttpEntity;
+import org.apache.http.message.BasicHeader;
 
 import junit.framework.Test;
 import junit.framework.TestCase;
@@ -131,13 +132,13 @@ public class TestEntityUtils extends TestCase {
     
     public void testNoCharsetGetContentCharset() throws Exception {
         BasicHttpEntity httpentity = new BasicHttpEntity();
-        httpentity.setContentType(new Header("Content-Type", "text/plain; param=yadayada"));
+        httpentity.setContentType(new BasicHeader("Content-Type", "text/plain; param=yadayada"));
         assertNull(EntityUtils.getContentCharSet(httpentity));
     }
     
     public void testGetContentCharset() throws Exception {
         BasicHttpEntity httpentity = new BasicHttpEntity();
-        httpentity.setContentType(new Header("Content-Type", "text/plain; charset = UTF-8"));
+        httpentity.setContentType(new BasicHeader("Content-Type", "text/plain; charset = UTF-8"));
         assertEquals("UTF-8", EntityUtils.getContentCharSet(httpentity));
     }
     
@@ -212,7 +213,7 @@ public class TestEntityUtils extends TestCase {
         byte[] bytes = content.getBytes("ISO-8859-1");
         BasicHttpEntity httpentity = new BasicHttpEntity();
         httpentity.setContent(new ByteArrayInputStream(bytes));
-        httpentity.setContentType(new Header("Content-Type", "text/plain"));
+        httpentity.setContentType(new BasicHeader("Content-Type", "text/plain"));
         String s = EntityUtils.toString(httpentity);
         assertEquals(content, s);
     }
@@ -222,7 +223,7 @@ public class TestEntityUtils extends TestCase {
         byte[] bytes = content.getBytes("KOI8-R");
         BasicHttpEntity httpentity = new BasicHttpEntity();
         httpentity.setContent(new ByteArrayInputStream(bytes));
-        httpentity.setContentType(new Header("Content-Type", "text/plain"));
+        httpentity.setContentType(new BasicHeader("Content-Type", "text/plain"));
         String s = EntityUtils.toString(httpentity, "KOI8-R");
         assertEquals(content, s);
     }
@@ -232,7 +233,7 @@ public class TestEntityUtils extends TestCase {
         byte[] bytes = content.getBytes("UTF-8");
         BasicHttpEntity httpentity = new BasicHttpEntity();
         httpentity.setContent(new ByteArrayInputStream(bytes));
-        httpentity.setContentType(new Header("Content-Type", "text/plain; charset=UTF-8"));
+        httpentity.setContentType(new BasicHeader("Content-Type", "text/plain; charset=UTF-8"));
         String s = EntityUtils.toString(httpentity, "ISO-8859-1");
         assertEquals(content, s);
     }

@@ -58,7 +58,7 @@ public class RequestConnControl implements HttpRequestInterceptor {
         if (!request.containsHeader(HTTP.CONN_DIRECTIVE)) {
             // Default policy is to keep connection alive
             // whenever possible
-            request.addHeader(new GeneratedHeader(HTTP.CONN_DIRECTIVE, HTTP.CONN_KEEP_ALIVE));
+            request.addHeader(HTTP.CONN_DIRECTIVE, HTTP.CONN_KEEP_ALIVE);
         }
     }
     

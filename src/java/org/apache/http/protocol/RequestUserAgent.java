@@ -59,7 +59,7 @@ public class RequestUserAgent implements HttpRequestInterceptor {
         if (!request.containsHeader(HTTP.USER_AGENT)) {
             String useragent = HttpProtocolParams.getUserAgent(request.getParams());
             if (useragent != null) {
-                request.addHeader(new GeneratedHeader(HTTP.USER_AGENT, useragent));
+                request.addHeader(HTTP.USER_AGENT, useragent);
             }
         }
     }

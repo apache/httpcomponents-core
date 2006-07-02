@@ -35,6 +35,7 @@ import java.util.List;
 
 import org.apache.http.Header;
 import org.apache.http.io.CharArrayBuffer;
+import org.apache.http.message.BasicHeader;
 
 /**
  * A class for combining a set of headers.  This class allows for multiple
@@ -153,7 +154,7 @@ public class HeaderGroup {
                 valueBuffer.append(headers[i].getValue());
             }
             
-            return new Header(name.toLowerCase(), valueBuffer.toString());
+            return new BasicHeader(name.toLowerCase(), valueBuffer.toString());
         }
     }
     

@@ -82,11 +82,25 @@ public abstract class AbstractHttpMessage implements HttpMessage {
         this.headergroup.addHeader(header);
     }
 
+    public void addHeader(final String name, final String value) {
+        if (name == null) {
+            throw new IllegalArgumentException("Header name may not be null");
+        }
+        this.headergroup.addHeader(new BasicHeader(name, value));
+    }
+
     public void setHeader(final Header header) {
         if (header == null) {
             return;
         }
         this.headergroup.updateHeader(header);
+    }
+
+    public void setHeader(final String name, final String value) {
+        if (name == null) {
+            throw new IllegalArgumentException("Header name may not be null");
+        }
+        this.headergroup.updateHeader(new BasicHeader(name, value));
     }
 
     public void setHeaders(final Header[] headers) {

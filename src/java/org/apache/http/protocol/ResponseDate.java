@@ -62,7 +62,7 @@ public class ResponseDate implements HttpResponseInterceptor {
         int status = response.getStatusLine().getStatusCode();
         if (status >= HttpStatus.SC_OK) {
             String httpdate = DATE_GENERATOR.getCurrentDate();
-            response.setHeader(new GeneratedHeader(HTTP.DATE_DIRECTIVE, httpdate)); 
+            response.setHeader(HTTP.DATE_DIRECTIVE, httpdate); 
         }
     }
     

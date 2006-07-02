@@ -49,6 +49,7 @@ import org.apache.http.entity.EntitySerializer;
 import org.apache.http.impl.entity.DefaultEntityDeserializer;
 import org.apache.http.impl.entity.DefaultEntitySerializer;
 import org.apache.http.io.CharArrayBuffer;
+import org.apache.http.message.BasicHeader;
 import org.apache.http.params.HttpConnectionParams;
 import org.apache.http.params.HttpParams;
 import org.apache.http.util.HeaderUtils;
@@ -187,7 +188,7 @@ public class DefaultHttpServerConnection
             throws HttpException, IOException {
         for (Iterator it = response.headerIterator(); it.hasNext(); ) {
             this.buffer.clear();
-            Header.format(this.buffer, (Header) it.next());
+            BasicHeader.format(this.buffer, (Header) it.next());
             this.datatransmitter.writeLine(this.buffer);
         }
         this.buffer.clear();
