@@ -36,6 +36,7 @@ import org.apache.http.HeaderElement;
 import org.apache.http.NameValuePair;
 import org.apache.http.ProtocolException;
 import org.apache.http.io.HttpDataReceiver;
+import org.apache.http.message.BufferedHeader;
 import org.apache.http.mockup.HttpDataReceiverMockup;
 
 import junit.framework.Test;
@@ -69,6 +70,12 @@ public class TestHeaderUtils extends TestCase {
         } catch (IllegalArgumentException ex) {
             // expected
         }
+        try {
+            new BufferedHeader(null);
+            fail("IllegalArgumentException should have been thrown");
+        } catch (IllegalArgumentException ex) {
+            // expected
+        }
     }
     
     public void testBasicHeaderParsing() throws Exception {
@@ -90,6 +97,12 @@ public class TestHeaderUtils extends TestCase {
         assertEquals("stuff", headers[1].getValue());
         assertEquals("header3", headers[2].getName());
         assertEquals("stuff and more stuff and even more stuff", headers[2].getValue());
+        
+        Header h = headers[0];
+        
+        assertTrue(h instanceof BufferedHeader);
+        assertNotNull(((BufferedHeader)h).getBuffer());
+        assertEquals("header1: stuff", ((BufferedHeader)h).toString());
     }
 
     public void testBufferedHeader() throws Exception {

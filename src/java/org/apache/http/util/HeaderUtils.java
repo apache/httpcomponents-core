@@ -33,12 +33,10 @@ import java.io.IOException;
 import java.util.ArrayList;
 
 import org.apache.http.Header;
-import org.apache.http.HeaderElement;
 import org.apache.http.HttpException;
-import org.apache.http.ProtocolException;
 import org.apache.http.io.CharArrayBuffer;
 import org.apache.http.io.HttpDataReceiver;
-import org.apache.http.message.BasicHeaderElement;
+import org.apache.http.message.BufferedHeader;
 
 /**
  * A utility class for processing HTTP headers.
@@ -51,40 +49,6 @@ public class HeaderUtils {
     private HeaderUtils() {
     }
 
-    /**
-     * This class represents a raw HTTP header whose content is parsed
-     * 'on demand' only when the header value needs to be consumed  
-     */
-    static class BufferedHeader implements Header {
-        
-        private final String name;
-        private final CharArrayBuffer buffer;
-        private final int posValue;
-        
-        public BufferedHeader(final String name, final CharArrayBuffer buffer, int posValue) {
-            this.name = name;
-            this.buffer = buffer;
-            this.posValue = posValue;
-        }
-
-        public String getName() {
-            return this.name;
-        }
-        
-        public String getValue() {
-            return this.buffer.substringTrimmed(this.posValue, this.buffer.length());
-        }
-        
-        public HeaderElement[] getElements() {
-            return BasicHeaderElement.parseAll(this.buffer, this.posValue, this.buffer.length());
-        }
-        
-        public String toString() {
-            return this.buffer.toString();
-        }
-        
-    }    
-    
     /**
      * Parses HTTP headers from the data receiver stream according to the generic 
      * format as given in Section 3.1 of RFC 822, RFC-2616 Section 4 and 19.3.
@@ -147,15 +111,7 @@ public class HeaderUtils {
         Header[] headers = new Header[headerLines.size()];
         for (int i = 0; i < headerLines.size(); i++) {
             CharArrayBuffer buffer = (CharArrayBuffer) headerLines.get(i);
-            int colon = buffer.indexOf(':');
-            if (colon == -1) {
-                throw new ProtocolException("Invalid header: " + buffer.toString());
-            }
-            String s = buffer.substringTrimmed(0, colon);
-            if (s.equals("")) {
-                throw new ProtocolException("Invalid header: " + buffer.toString());
-            }
-            headers[i] = new BufferedHeader(s, buffer, colon + 1);
+            headers[i] = new BufferedHeader(buffer);
         }
         return headers;
     }
