@@ -34,6 +34,7 @@ import java.util.ArrayList;
 
 import org.apache.http.Header;
 import org.apache.http.HttpException;
+import org.apache.http.ProtocolException;
 import org.apache.http.io.CharArrayBuffer;
 import org.apache.http.io.HttpDataReceiver;
 import org.apache.http.message.BufferedHeader;
@@ -111,7 +112,11 @@ public class HeaderUtils {
         Header[] headers = new Header[headerLines.size()];
         for (int i = 0; i < headerLines.size(); i++) {
             CharArrayBuffer buffer = (CharArrayBuffer) headerLines.get(i);
-            headers[i] = new BufferedHeader(buffer);
+            try {
+                headers[i] = new BufferedHeader(buffer);
+            } catch (IllegalArgumentException ex) {
+                throw new ProtocolException(ex.getMessage());
+            }
         }
         return headers;
     }

@@ -55,6 +55,7 @@ import org.apache.http.io.SocketFactory;
 import org.apache.http.message.BasicHeader;
 import org.apache.http.message.BasicRequestLine;
 import org.apache.http.message.BasicStatusLine;
+import org.apache.http.message.BufferedHeader;
 import org.apache.http.params.HttpConnectionParams;
 import org.apache.http.params.HttpParams;
 import org.apache.http.params.HttpProtocolParams;
@@ -207,9 +208,15 @@ public class DefaultHttpClientConnection
     protected void sendRequestHeaders(final HttpRequest request) 
             throws HttpException, IOException {
         for (Iterator it = request.headerIterator(); it.hasNext(); ) {
-            this.buffer.clear();
-            BasicHeader.format(this.buffer, (Header) it.next());
-            this.datatransmitter.writeLine(this.buffer);
+            Header header = (Header) it.next();
+            if (header instanceof BufferedHeader) {
+                // If the header is backed by a buffer, re-use the buffer
+                this.datatransmitter.writeLine(((BufferedHeader)header).getBuffer());
+            } else {
+                this.buffer.clear();
+                BasicHeader.format(this.buffer, header);
+                this.datatransmitter.writeLine(this.buffer);
+            }
         }
         this.buffer.clear();
         this.datatransmitter.writeLine(this.buffer);

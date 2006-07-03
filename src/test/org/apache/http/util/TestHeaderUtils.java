@@ -103,6 +103,7 @@ public class TestHeaderUtils extends TestCase {
         assertTrue(h instanceof BufferedHeader);
         assertNotNull(((BufferedHeader)h).getBuffer());
         assertEquals("header1: stuff", ((BufferedHeader)h).toString());
+        assertEquals(8, ((BufferedHeader)h).getValuePos());
     }
 
     public void testBufferedHeader() throws Exception {

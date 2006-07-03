@@ -31,7 +31,6 @@ package org.apache.http.message;
 
 import org.apache.http.Header;
 import org.apache.http.HeaderElement;
-import org.apache.http.ProtocolException;
 import org.apache.http.io.CharArrayBuffer;
 
 /**
@@ -62,18 +61,18 @@ public class BufferedHeader implements Header {
      * @param name the header name
      * @param value the header value
      */
-    public BufferedHeader(final CharArrayBuffer buffer) throws ProtocolException {
+    public BufferedHeader(final CharArrayBuffer buffer) {
         super();
         if (buffer == null) {
             throw new IllegalArgumentException("Char array buffer may not be null");
         }
         int colon = buffer.indexOf(':');
         if (colon == -1) {
-            throw new ProtocolException("Invalid header: " + buffer.toString());
+            throw new IllegalArgumentException("Invalid header: " + buffer.toString());
         }
         String s = buffer.substringTrimmed(0, colon);
         if (s.equals("")) {
-            throw new ProtocolException("Invalid header: " + buffer.toString());
+            throw new IllegalArgumentException("Invalid header: " + buffer.toString());
         }
         this.buffer = buffer;
         this.name = s;
@@ -92,6 +91,10 @@ public class BufferedHeader implements Header {
         return BasicHeaderElement.parseAll(this.buffer, this.valuePos, this.buffer.length());
     }
 
+    public int getValuePos() {
+        return this.valuePos;
+    }
+    
     public CharArrayBuffer getBuffer() {
         return this.buffer;
     }
