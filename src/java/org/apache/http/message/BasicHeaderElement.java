@@ -38,7 +38,7 @@ import org.apache.http.io.CharArrayBuffer;
 import org.apache.http.util.LangUtils;
 
 /**
- * <p>One element of an HTTP header's value.</p>
+ * One element of an HTTP header's value.
  * <p>
  * Some HTTP headers (such as the set-cookie header) have values that
  * can be decomposed into multiple elements.  Such headers must be in the
@@ -71,18 +71,19 @@ import org.apache.http.util.LangUtils;
  * </p>
  * <p>
  * This class also exposes a {@link #parse} method for parsing a
- * {@link Header} value into an array of elements.
+ * {@link org.apache.http.Header} value into an array of elements.
  * </p>
- *
- * @see Header
  *
  * @author <a href="mailto:bcholmes@interlog.com">B.C. Holmes</a>
  * @author <a href="mailto:jericho@thinkfree.com">Park, Sung-Gu</a>
  * @author <a href="mailto:mbowler@GargoyleSoftware.com">Mike Bowler</a>
  * @author <a href="mailto:oleg at ural.com">Oleg Kalnichevski</a>
+ *
+ *
+ * <!-- empty lines above to avoid 'svn diff' context problems -->
+ * @version $Revision$ $Date$
  * 
  * @since 1.0
- * @version $Revision$ $Date$
  */
 public class BasicHeaderElement implements HeaderElement {
 

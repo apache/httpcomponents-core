@@ -54,6 +54,9 @@ import org.apache.http.io.CharArrayBuffer;
  * @author <a href="mailto:remm@apache.org">Remy Maucherat</a>
  * @author <a href="mailto:mbowler@GargoyleSoftware.com">Mike Bowler</a>
  * @author <a href="mailto:oleg at ural.ru">Oleg Kalnichevski</a>
+ *
+ *
+ * <!-- empty lines above to avoid 'svn diff' context problems -->
  * @version $Revision$ $Date$
  */
 public class BasicHeader implements Header {
@@ -119,7 +122,7 @@ public class BasicHeader implements Header {
     /**
      * Returns an array of {@link HeaderElement}s constructed from my value.
      *
-     * @see HeaderElement#parseAll
+     * @see BasicHeaderElement#parseAll
      * 
      * @return an array of header elements
      * 

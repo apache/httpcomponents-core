@@ -34,18 +34,24 @@ import java.io.IOException;
 import org.apache.http.params.HttpParams;
 
 /**
- * An HTTP connection through a proxy. The semantics of
- * @link org.apache.http.HttpClientConnection#setTargetHost(HttpHost) and
- * @link org.apache.http.HttpClientConnection#getTargetHost() methods of a proxy
- *       connections change their meaning to designate the proxy host.
-
+ * An HTTP connection through a proxy.
+ * The semantics of the
+ * {@link HttpClientConnection#setTargetHost setTargetHost} and
+ * {@link HttpClientConnection#getTargetHost getTargetHost}
+ * methods of a the base interface change their meaning to designate
+ * the proxy host instead of the target host.
+ *
  * @author <a href="mailto:oleg at ural.ru">Oleg Kalnichevski</a>
+ *
+ *
+ * <!-- empty lines above to avoid 'svn diff' context problems -->
  * @version $Revision$
  * @since 4.0
  */
 public interface HttpProxyConnection extends HttpClientConnection {
 
     /**
+     * Creates a tunnelled connection through the proxy.
      * After this connection is opened to the proxy, this method may be called
      * to create a new connection over it. Subsequent data is sent over the
      * resulting connection.
@@ -57,24 +63,25 @@ public interface HttpProxyConnection extends HttpClientConnection {
     void tunnelTo(HttpHost targetHost, HttpParams params) throws IOException;
     
     /**
-     * Returns the target host as provided by
-     * 
-     * @link #tunnelTo(HttpHost, HttpParams).
+     * Obtains the target host of a tunnel through a proxy.
+     *
+     * @return  the target host provided to {@link #tunnelTo tunnelTo}
      */
     HttpHost getTunnelTarget();
 
     /**
-     * Checks if
+     * Checks if this connection is tunnelled.
+     *
+     * @return <code>true</code> if {@link #tunnelTo tunnelTo} has been called,
+     *         <code>false</code> otherwise
      * 
-     * @link #tunnelTo(HttpHost, HttpParams) has been called on this connection.
-     * @return true if tunnelTo has been called, false if not
      */
     boolean isTunnelActive();
 
     /**
-     * Checks if the tunnel uses a secure socket.
+     * Checks if the tunnel uses a secure connection.
      * 
-     * @return true if this is a secure tunnel.
+     * @return <code>true</code> if this is a secure tunnel
      */
     boolean isSecure();
     

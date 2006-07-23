@@ -36,12 +36,14 @@ import org.apache.http.io.CharArrayBuffer;
 import org.apache.http.protocol.HTTP;
 
 /**
- * The first line of an {@link HttpRequest HttpRequest}.
+ * The first line of an {@link org.apache.http.HttpRequest HttpRequest}.
  * It contains the method, URI, and HTTP version of the request.
  * For details, see RFC 2616.
  *
  * @author <a href="mailto:oleg at ural.ru">Oleg Kalnichevski</a>
  *
+ *
+ * <!-- empty lines above to avoid 'svn diff' context problems -->
  * @version $Revision$
  * 
  * @since 4.0

@@ -41,6 +41,8 @@ import org.apache.http.params.HttpParams;
  *
  * @author <a href="mailto:oleg at ural.ru">Oleg Kalnichevski</a>
  *
+ *
+ * <!-- empty lines above to avoid 'svn diff' context problems -->
  * @version $Revision$
  * 
  * @since 4.0
@@ -48,27 +50,29 @@ import org.apache.http.params.HttpParams;
 public interface HttpClientConnection extends HttpConnection {
 
     /**
-     * Returns the current target host as set by @link #setTargetHost(HttpHost).
-     * @return the target host of this connection
+     * Returns the current target host.
+     *
+     * @return the target host, as set by {@link #setTargetHost setTargetHost}.
      */
     HttpHost getTargetHost();
     
     /**
      * Provides the implementation with the host it is supposed to connect to.
      * The host must be set prior to a call to
-     * 
-     * @link #open(HttpParams). The target host can only be set as long as the
-     *       connection is not open.
+     * {@link #open(HttpParams) open}.
+     * The target host can only be set as long as the connection is not open.
+     *
      * @param targethost the host to connect to
      */
     void setTargetHost(HttpHost targethost);
-    
+
     /**
-     * The local address the connection is or will be bound to as set by
+     * The local address of the connection.
+     * The connection is or will be bound to this address.
      * 
-     * @link #setLocalAddress(InetAddress) or <code>null</code> if
-     *       unspecified.
-     * @return local address the connection
+     * @return  local address of this connection as set by
+     *          {@link #setLocalAddress setLocalAddress}, or
+     *          <code>null</code> if unspecified
      */
     InetAddress getLocalAddress();
     

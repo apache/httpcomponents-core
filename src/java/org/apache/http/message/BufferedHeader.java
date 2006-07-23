@@ -38,6 +38,10 @@ import org.apache.http.io.CharArrayBuffer;
  * the header value needs to be consumed.
  * 
  * @author <a href="mailto:oleg at ural.ru">Oleg Kalnichevski</a>
+ *
+ *
+ * <!-- empty lines above to avoid 'svn diff' context problems -->
+ * @version $Revision$ $Date$
  */
 public class BufferedHeader implements Header {
 
@@ -55,11 +59,14 @@ public class BufferedHeader implements Header {
      * The beginning of the header value in the buffer
      */
     private final int valuePos;
+
+
     /**
-     * Constructor with name and value
+     * Creates a new header from a buffer.
+     * The name of the header will be parsed immediately,
+     * the value only if it is accessed.
      *
-     * @param name the header name
-     * @param value the header value
+     * @param buffer    the buffer containing the header to represent
      */
     public BufferedHeader(final CharArrayBuffer buffer) {
         super();
