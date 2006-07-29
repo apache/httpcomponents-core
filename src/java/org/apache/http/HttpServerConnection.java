@@ -30,7 +30,6 @@
 package org.apache.http;
 
 import java.io.IOException;
-import java.net.Socket;
 
 import org.apache.http.params.HttpParams;
 
@@ -46,16 +45,6 @@ import org.apache.http.params.HttpParams;
  */
 public interface HttpServerConnection extends HttpConnection {
 
-    /**
-     * Binds this connection to an underlying socket.
-     * 
-     * @param socket The underlying socket.
-     * @param params the parameters in effect for this connection
-     * @throws IOException
-     */
-    void bind(Socket socket, HttpParams params) 
-        throws IOException;
-    
     /**
      * Receives the request line and all headers available from this connection.
      * The caller should examine the returned request and decide if to receive a

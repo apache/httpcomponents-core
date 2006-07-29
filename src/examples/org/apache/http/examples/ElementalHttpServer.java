@@ -143,7 +143,7 @@ public class ElementalHttpServer {
             while (!Thread.interrupted()) {
                 try {
                 	Socket socket = this.serversocket.accept();
-                    HttpServerConnection conn = new DefaultHttpServerConnection();
+                    DefaultHttpServerConnection conn = new DefaultHttpServerConnection();
                     System.out.println("Incoming connection from " + socket.getInetAddress());
                     conn.bind(socket, this.params);
                     FileServiceHandler fileServiceHandler = new FileServiceHandler(conn);
