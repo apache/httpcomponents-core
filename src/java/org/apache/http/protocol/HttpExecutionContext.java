@@ -32,7 +32,6 @@ package org.apache.http.protocol;
 import java.util.HashMap;
 import java.util.Map;
 
-
 /**
  * Default implementation of the {@link HttpContext HttpContext}.
  *
