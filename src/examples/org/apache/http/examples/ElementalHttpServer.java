@@ -49,15 +49,18 @@ import org.apache.http.impl.DefaultHttpServerConnection;
 import org.apache.http.params.HttpConnectionParams;
 import org.apache.http.params.HttpParams;
 import org.apache.http.params.HttpProtocolParams;
+import org.apache.http.protocol.HttpContext;
+import org.apache.http.protocol.HttpExecutionContext;
 import org.apache.http.protocol.HttpService;
 import org.apache.http.protocol.ResponseConnControl;
 import org.apache.http.protocol.ResponseContent;
 import org.apache.http.protocol.ResponseDate;
 import org.apache.http.protocol.ResponseServer;
+import org.apache.http.protocol.SyncHttpExecutionContext;
 
 /**
- * <p>
- * </p>
+ * Basic, yet fully functional and spec compliant, HTTP/1.1 file server.
+ * 
  * @author <a href="mailto:oleg at ural.ru">Oleg Kalnichevski</a>
  *
  * @version $Revision$
@@ -74,10 +77,14 @@ public class ElementalHttpServer {
         t.start();
     }
     
-    static class FileServiceHandler extends HttpService {
+    static class HttpFileService extends HttpService {
         
-        public FileServiceHandler(final HttpServerConnection conn) {
-            super(conn);
+        public HttpFileService(final HttpServerConnection conn, final HttpContext context) {
+            super(conn, context);
+            addInterceptor(new ResponseDate());
+            addInterceptor(new ResponseServer());                    
+            addInterceptor(new ResponseContent());
+            addInterceptor(new ResponseConnControl());
         }
 
         protected void doService(final HttpRequest request, final HttpResponse response) 
@@ -86,7 +93,8 @@ public class ElementalHttpServer {
             if (!method.equalsIgnoreCase("GET") && !method.equalsIgnoreCase("HEAD")) {
                 throw new MethodNotSupportedException(method + " method not supported"); 
             }
-            String docroot = (String) request.getParams().getParameter("server.docroot");
+            String docroot = (String) getContext().getAttribute("server.docroot");
+            
             String target = request.getRequestLine().getUri();
             File file = new File(docroot, URLDecoder.decode(target));
             if (!file.exists()) {
@@ -124,7 +132,8 @@ public class ElementalHttpServer {
     static class RequestListenerThread extends Thread {
 
         private final ServerSocket serversocket;
-        private HttpParams params; 
+        private final HttpParams params; 
+        private final HttpContext globalContext;
         
         public RequestListenerThread(int port, final String docroot) throws IOException {
             this.serversocket = new ServerSocket(port);
@@ -134,28 +143,30 @@ public class ElementalHttpServer {
                 .setIntParameter(HttpConnectionParams.SOCKET_BUFFER_SIZE, 8 * 1024)
                 .setBooleanParameter(HttpConnectionParams.STALE_CONNECTION_CHECK, false)
                 .setBooleanParameter(HttpConnectionParams.TCP_NODELAY, true)
-                .setParameter(HttpProtocolParams.ORIGIN_SERVER, "Jakarta-HttpComponents/1.1")
-                .setParameter("server.docroot", docroot);
+                .setParameter(HttpProtocolParams.ORIGIN_SERVER, "Jakarta-HttpComponents/1.1");
+            this.globalContext = new SyncHttpExecutionContext(null);
+            this.globalContext.setAttribute("server.docroot", docroot);
         }
         
         public void run() {
             System.out.println("Listening on port " + this.serversocket.getLocalPort());
             while (!Thread.interrupted()) {
                 try {
+                    // Set up HTTP connection
                 	Socket socket = this.serversocket.accept();
                     DefaultHttpServerConnection conn = new DefaultHttpServerConnection();
                     System.out.println("Incoming connection from " + socket.getInetAddress());
                     conn.bind(socket, this.params);
-                    FileServiceHandler fileServiceHandler = new FileServiceHandler(conn);
 
-                    // Required protocol interceptors
-                    fileServiceHandler.addInterceptor(new ResponseDate());
-                    fileServiceHandler.addInterceptor(new ResponseServer());                    
-                    fileServiceHandler.addInterceptor(new ResponseContent());
-                    fileServiceHandler.addInterceptor(new ResponseConnControl());
-                    
+                    // Set up local HTTP context
+                    HttpContext context = new HttpExecutionContext(this.globalContext);
+
+                    // Set up HTTP service
+                    HttpFileService fileServiceHandler = new HttpFileService(conn, context);
                     fileServiceHandler.setParams(this.params);
-                    Thread t = new ConnectionProcessorThread(fileServiceHandler);
+                    
+                    // Start worker thread
+                    Thread t = new WorkerThread(fileServiceHandler);
                     t.setDaemon(true);
                     t.start();
                 } catch (InterruptedIOException ex) {
@@ -169,11 +180,11 @@ public class ElementalHttpServer {
         }
     }
     
-    static class ConnectionProcessorThread extends Thread {
+    static class WorkerThread extends Thread {
 
         private final HttpService httpservice;
         
-        public ConnectionProcessorThread(final HttpService httpservice) {
+        public WorkerThread(final HttpService httpservice) {
             super();
             this.httpservice = httpservice;
         }
@@ -181,7 +192,7 @@ public class ElementalHttpServer {
         public void run() {
             System.out.println("New connection thread");
             try {
-                while (!Thread.interrupted() && !this.httpservice.isDestroyed() && this.httpservice.isActive()) {
+                while (!this.httpservice.isDestroyed() && this.httpservice.isActive()) {
                     this.httpservice.handleRequest();
                 }
             } finally {
@@ -190,4 +201,5 @@ public class ElementalHttpServer {
         }
 
     }
+    
 }
