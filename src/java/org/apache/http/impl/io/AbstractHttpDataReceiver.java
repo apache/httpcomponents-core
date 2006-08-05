@@ -107,11 +107,7 @@ public abstract class AbstractHttpDataReceiver implements HttpDataReceiver {
                 return -1;
             }
         }
-        int b = this.buffer[this.bufferpos++];
-        if (b < 0) {
-            b = 256 + b;
-        }
-        return b;
+        return this.buffer[this.bufferpos++] & 0xff;
     }
     
     public int read(final byte[] b, int off, int len) throws IOException {
