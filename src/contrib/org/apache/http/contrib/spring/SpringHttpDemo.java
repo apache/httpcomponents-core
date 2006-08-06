@@ -76,7 +76,7 @@ public class SpringHttpDemo {
             System.out.println("<< Response: " + response1.getStatusLine());
             System.out.println(EntityUtils.toString(response1.getEntity()));
             System.out.println("==============");
-            if (connStrategy.keepAlive(response1)) {
+            if (connStrategy.keepAlive(conn, response1)) {
                 System.out.println("Connection kept alive...");
             } else {
                 conn.close();
@@ -87,7 +87,7 @@ public class SpringHttpDemo {
             System.out.println("<< Response: " + response2.getStatusLine());
             System.out.println(EntityUtils.toString(response2.getEntity()));
             System.out.println("==============");
-            if (connStrategy.keepAlive(response2)) {
+            if (connStrategy.keepAlive(conn, response2)) {
                 System.out.println("Connection kept alive...");
             } else {
                 conn.close();

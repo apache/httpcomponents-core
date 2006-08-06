@@ -120,7 +120,7 @@ public class BenchmarkWorker {
                     System.out.println();
                     System.out.println();
                 }
-                if (!keepalive || !this.connstrategy.keepAlive(response)) {
+                if (!keepalive || !this.connstrategy.keepAlive(conn, response)) {
                     conn.close();
                 }
                 stats.setContentLength(contentlen);
