@@ -38,6 +38,7 @@ import org.apache.http.HttpEntityEnclosingRequest;
 import org.apache.http.HttpException;
 import org.apache.http.HttpRequest;
 import org.apache.http.HttpResponse;
+import org.apache.http.HttpResponseFactory;
 import org.apache.http.HttpServerConnection;
 import org.apache.http.HttpStatus;
 import org.apache.http.HttpVersion;
@@ -45,6 +46,7 @@ import org.apache.http.MethodNotSupportedException;
 import org.apache.http.ProtocolException;
 import org.apache.http.UnsupportedHttpVersionException;
 import org.apache.http.impl.DefaultConnectionReuseStrategy;
+import org.apache.http.impl.DefaultHttpResponseFactory;
 import org.apache.http.message.BasicHttpResponse;
 import org.apache.http.params.HttpParams;
 
@@ -58,12 +60,13 @@ import org.apache.http.params.HttpParams;
 public class HttpService extends AbstractHttpProcessor {
 
     private final HttpServerConnection conn;
-    private final ConnectionReuseStrategy connStrategy;
     private final HttpContext context;
 
     private volatile boolean destroyed = false;
     
     private HttpParams params = null;
+    private ConnectionReuseStrategy connStrategy = null;
+    private HttpResponseFactory responseFactory = null;
 
     public HttpService(final HttpServerConnection conn) {
         this(conn, null);
@@ -75,8 +78,23 @@ public class HttpService extends AbstractHttpProcessor {
             throw new IllegalArgumentException("HTTP server connection may not be null");
         }
         this.conn = conn;
-        this.connStrategy = new DefaultConnectionReuseStrategy();
         this.context = new HttpExecutionContext(parentContext);
+        this.connStrategy = new DefaultConnectionReuseStrategy();
+        this.responseFactory = new DefaultHttpResponseFactory();
+    }
+    
+    protected void setConnReuseStrategy(final ConnectionReuseStrategy connStrategy) {
+        if (connStrategy == null) {
+            throw new IllegalArgumentException("Connection reuse strategy may not be null");
+        }
+        this.connStrategy = connStrategy;
+    }
+
+    protected void setResponseFactory(final HttpResponseFactory responseFactory) {
+        if (responseFactory == null) {
+            throw new IllegalArgumentException("Response factory may not be null");
+        }
+        this.responseFactory = responseFactory;
     }
     
     public HttpContext getContext() {
@@ -105,10 +123,18 @@ public class HttpService extends AbstractHttpProcessor {
             
     public void handleRequest() { 
         this.context.setAttribute(HttpExecutionContext.HTTP_CONNECTION, this.conn);
-        BasicHttpResponse response = new BasicHttpResponse();
-        response.getParams().setDefaults(this.params);
+        HttpResponse response;
         try {
             HttpRequest request = this.conn.receiveRequestHeader(this.params);
+            HttpVersion ver = request.getRequestLine().getHttpVersion();
+            if (!ver.lessEquals(HttpVersion.HTTP_1_1)) {
+                // Downgrade protocol version if greater than HTTP/1.1 
+                ver = HttpVersion.HTTP_1_1;
+            }
+
+            response = this.responseFactory.newHttpResponse(ver, HttpStatus.SC_OK);
+            response.getParams().setDefaults(this.params);
+            
             if (request instanceof HttpEntityEnclosingRequest) {
                 if (((HttpEntityEnclosingRequest) request).expectContinue()) {
 
@@ -124,7 +150,7 @@ public class HttpService extends AbstractHttpProcessor {
             }
             preprocessRequest(request, this.context);
             logMessage("Request received");
-            
+
             this.context.setAttribute(HttpExecutionContext.HTTP_REQUEST, request);
             this.context.setAttribute(HttpExecutionContext.HTTP_RESPONSE, response);
             doService(request, response);
@@ -141,6 +167,9 @@ public class HttpService extends AbstractHttpProcessor {
             closeConnection();
             return;
         } catch (HttpException ex) {
+            response = this.responseFactory.newHttpResponse(HttpVersion.HTTP_1_0, 
+                    HttpStatus.SC_INTERNAL_SERVER_ERROR);
+            response.getParams().setDefaults(this.params);
             handleException(ex, response);
         } catch (IOException ex) {
             logIOException(ex);
@@ -183,12 +212,7 @@ public class HttpService extends AbstractHttpProcessor {
     
     protected void doService(final HttpRequest request, final HttpResponse response) 
             throws HttpException, IOException {
-        HttpVersion ver = request.getRequestLine().getHttpVersion();
-        if (ver.lessEquals(HttpVersion.HTTP_1_1)) {
-            response.setStatusCode(HttpStatus.SC_NOT_IMPLEMENTED);
-        } else {
-            response.setStatusLine(HttpVersion.HTTP_1_1, HttpStatus.SC_NOT_IMPLEMENTED);
-        }
+        response.setStatusCode(HttpStatus.SC_NOT_IMPLEMENTED);
     }
     
     protected void logMessage(final String s) {
