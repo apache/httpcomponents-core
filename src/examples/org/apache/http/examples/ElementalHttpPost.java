@@ -112,7 +112,7 @@ public class ElementalHttpPost {
                 System.out.println("<< Response: " + response.getStatusLine());
                 System.out.println(EntityUtils.toString(response.getEntity()));
                 System.out.println("==============");
-                if (!connStrategy.keepAlive(response)) {
+                if (!connStrategy.keepAlive(conn, response)) {
                     conn.close();
                 } else {
                     System.out.println("Connection kept alive...");

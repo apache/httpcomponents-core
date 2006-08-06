@@ -35,6 +35,8 @@ package org.apache.http;
  *
  * @author <a href="mailto:oleg at ural.ru">Oleg Kalnichevski</a>
  *
+ *
+ * <!-- empty lines above to avoid 'svn diff' context problems -->
  * @version $Revision$
  * 
  * @since 4.0
@@ -42,15 +44,25 @@ package org.apache.http;
 public interface ConnectionReuseStrategy {
 
     /**
-     * Tells if the connection used to receive a response should be closed or
-     * kept open. Http processors should close the physical connection if this
-     * method returns false. They should do their best to keep it open if this
-     * method returns true.
-     * 
-     * @param response The response whose connection is concerned.
-     * @return true if the connection is to be kept open, false if it is to be
-     *         closed.
+     * Decides whether a connection can be kept open after a request.
+     * If this method returns <code>false</code>, the caller MUST
+     * close the connection to correctly implement the HTTP protocol.
+     * If it returns <code>true</code>, the caller SHOULD attempt to
+     * keep the connection open for reuse with another request.
+     * <br/>
+     * If the connection is already closed, <code>false</code> is returned.
+     * The stale connection check MUST NOT be triggered by a
+     * connection reuse strategy.
+     *
+     * @param connection
+     *          The connection for which to decide about reuse.
+     * @param response
+     *          The last response received over that connection.
+     *
+     * @return <code>true</code> if the connection is allowed to be reused, or
+     *         <code>false</code> if it MUST NOT be reused
      */
-    boolean keepAlive(HttpResponse response);
+    public boolean keepAlive(HttpConnection connection,
+                             HttpResponse response);
             
 }

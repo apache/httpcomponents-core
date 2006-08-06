@@ -29,6 +29,7 @@
 package org.apache.http.impl;
 
 import org.apache.http.ConnectionReuseStrategy;
+import org.apache.http.HttpConnection;
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpVersion;
 import org.apache.http.StatusLine;
@@ -42,6 +43,14 @@ import junit.framework.TestSuite;
 
 public class TestDefaultConnectionReuseStrategy extends TestCase {
 
+    /** A mock connection that is open and not stale. */
+    private HttpConnection mockConnection;
+
+    /** The reuse strategy to be tested. */
+    private ConnectionReuseStrategy reuseStrategy;
+
+
+
     public TestDefaultConnectionReuseStrategy(String testName) {
         super(testName);
     }
@@ -52,16 +61,39 @@ public class TestDefaultConnectionReuseStrategy extends TestCase {
         return new TestSuite(TestDefaultConnectionReuseStrategy.class);
     }
 
+    public void setUp() {
+        // open and not stale is required for most of the tests here
+        mockConnection = new MockConnection(true, false);
+        reuseStrategy = new DefaultConnectionReuseStrategy();
+    }
+
+    public void tearDown() {
+        mockConnection = null;
+    }
+
+
     // ------------------------------------------------------------------- Main
     public static void main(String args[]) {
         String[] testCaseName = { TestDefaultConnectionReuseStrategy.class.getName() };
         junit.textui.TestRunner.main(testCaseName);
     }
 
-    public void testIllegalResponseArg() throws Exception {
-        ConnectionReuseStrategy s = new DefaultConnectionReuseStrategy();
+    public void testIllegalConnectionArg() throws Exception {
+
+        HttpResponse response =
+            createResponse(HttpVersion.HTTP_1_1, 200, "OK", false, -1);
+
         try {
-            s.keepAlive(null);
+            reuseStrategy.keepAlive(null, response);
+            fail("IllegalArgumentException should have been thrown");
+        } catch (IllegalArgumentException ex) {
+            // expected
+        }
+    }
+
+    public void testIllegalResponseArg() throws Exception {
+        try {
+            reuseStrategy.keepAlive(mockConnection, null);
             fail("IllegalArgumentException should have been thrown");
         } catch (IllegalArgumentException ex) {
             // expected
@@ -69,124 +101,199 @@ public class TestDefaultConnectionReuseStrategy extends TestCase {
     }
 
     public void testNoContentLengthResponseHttp1_0() throws Exception {
-        BasicHttpEntity entity = new BasicHttpEntity();
-        entity.setChunked(false);
-        entity.setContentLength(-1);
-        StatusLine statusline = new BasicStatusLine(HttpVersion.HTTP_1_0, 200, "OK");
-        HttpResponse response = new BasicHttpResponse(statusline);
-        response.setEntity(entity);
+        HttpResponse response =
+            createResponse(HttpVersion.HTTP_1_0, 200, "OK", false, -1);
 
-        ConnectionReuseStrategy s = new DefaultConnectionReuseStrategy();
-        assertFalse(s.keepAlive(response));
+        assertFalse(reuseStrategy.keepAlive(mockConnection, response));
     }
 
     public void testNoContentLengthResponseHttp1_1() throws Exception {
-        BasicHttpEntity entity = new BasicHttpEntity();
-        entity.setChunked(false);
-        entity.setContentLength(-1);
-        StatusLine statusline = new BasicStatusLine(HttpVersion.HTTP_1_1, 200, "OK");
-        HttpResponse response = new BasicHttpResponse(statusline);
-        response.setEntity(entity);
+        HttpResponse response =
+            createResponse(HttpVersion.HTTP_1_1, 200, "OK", false, -1);
 
-        ConnectionReuseStrategy s = new DefaultConnectionReuseStrategy();
-        assertFalse(s.keepAlive(response));
+        assertFalse(reuseStrategy.keepAlive(mockConnection, response));
     }
 
     public void testChunkedContent() throws Exception {
-        BasicHttpEntity entity = new BasicHttpEntity();
-        entity.setChunked(true);
-        entity.setContentLength(-1);
-        StatusLine statusline = new BasicStatusLine(HttpVersion.HTTP_1_1, 200, "OK");
-        HttpResponse response = new BasicHttpResponse(statusline);
-        response.setEntity(entity);
+        HttpResponse response =
+            createResponse(HttpVersion.HTTP_1_1, 200, "OK", true, -1);
 
-        ConnectionReuseStrategy s = new DefaultConnectionReuseStrategy();
-        assertTrue(s.keepAlive(response));
+        assertTrue(reuseStrategy.keepAlive(mockConnection, response));
+    }
+
+    public void testClosedConnection() throws Exception {
+
+        // based on testChunkedContent which is known to return true
+        // the difference is in the mock connection passed here
+        HttpResponse response =
+            createResponse(HttpVersion.HTTP_1_1, 200, "OK", true, -1);
+
+        HttpConnection mockonn = new MockConnection(false, false);
+        assertFalse("closed connection should not be kept alive",
+                    reuseStrategy.keepAlive(mockonn, response));
+    }
+
+    public void testStaleConnection() throws Exception {
+
+        // based on testChunkedContent which is known to return true
+        // the difference is in the mock connection passed here
+        HttpResponse response =
+            createResponse(HttpVersion.HTTP_1_1, 200, "OK", true, -1);
+
+        HttpConnection mockonn = new MockConnection(true, true);
+        assertTrue("stale connection should not be detected",
+                    reuseStrategy.keepAlive(mockonn, response));
     }
 
     public void testIgnoreInvalidKeepAlive() throws Exception {
-        BasicHttpEntity entity = new BasicHttpEntity();
-        entity.setChunked(false);
-        entity.setContentLength(-1);
-        StatusLine statusline = new BasicStatusLine(HttpVersion.HTTP_1_0, 200, "OK");
-        HttpResponse response = new BasicHttpResponse(statusline);
+        HttpResponse response =
+            createResponse(HttpVersion.HTTP_1_0, 200, "OK", false, -1);
         response.addHeader("Connection", "keep-alive");
-        response.setEntity(entity);
 
-        ConnectionReuseStrategy s = new DefaultConnectionReuseStrategy();
-        assertFalse(s.keepAlive(response));
+        assertFalse(reuseStrategy.keepAlive(mockConnection, response));
     }
     
     public void testExplicitClose() throws Exception {
-        BasicHttpEntity entity = new BasicHttpEntity();
-        entity.setChunked(true);
-        entity.setContentLength(-1);
         // Use HTTP 1.1
-        StatusLine statusline = new BasicStatusLine(HttpVersion.HTTP_1_1, 200, "OK");
-        HttpResponse response = new BasicHttpResponse(statusline);
+        HttpResponse response =
+            createResponse(HttpVersion.HTTP_1_1, 200, "OK", true, -1);
         response.addHeader("Connection", "close");
-        response.setEntity(entity);
 
-        ConnectionReuseStrategy s = new DefaultConnectionReuseStrategy();
-        assertFalse(s.keepAlive(response));
+        assertFalse(reuseStrategy.keepAlive(mockConnection, response));
     }
     
     public void testExplicitKeepAlive() throws Exception {
-        BasicHttpEntity entity = new BasicHttpEntity();
-        entity.setChunked(false);
-        entity.setContentLength(10);
         // Use HTTP 1.0
-        StatusLine statusline = new BasicStatusLine(HttpVersion.HTTP_1_0, 200, "OK"); 
-        HttpResponse response = new BasicHttpResponse(statusline);
+        HttpResponse response =
+            createResponse(HttpVersion.HTTP_1_0, 200, "OK", false, 10);
         response.addHeader("Connection", "keep-alive");
-        response.setEntity(entity);
 
-        ConnectionReuseStrategy s = new DefaultConnectionReuseStrategy();
-        assertTrue(s.keepAlive(response));
+        assertTrue(reuseStrategy.keepAlive(mockConnection, response));
     }
 
     public void testHTTP10Default() throws Exception {
-        StatusLine statusline = new BasicStatusLine(HttpVersion.HTTP_1_0, 200, "OK"); 
-        HttpResponse response = new BasicHttpResponse(statusline);
+        HttpResponse response =
+            createResponse(HttpVersion.HTTP_1_0, 200, "OK");
 
-        ConnectionReuseStrategy s = new DefaultConnectionReuseStrategy();
-        assertFalse(s.keepAlive(response));
+        assertFalse(reuseStrategy.keepAlive(mockConnection, response));
     }
     
     public void testHTTP11Default() throws Exception {
-        StatusLine statusline = new BasicStatusLine(HttpVersion.HTTP_1_1, 200, "OK"); 
-        HttpResponse response = new BasicHttpResponse(statusline);
-
-        ConnectionReuseStrategy s = new DefaultConnectionReuseStrategy();
-        assertTrue(s.keepAlive(response));
+        HttpResponse response =
+            createResponse(HttpVersion.HTTP_1_1, 200, "OK");
+        assertTrue(reuseStrategy.keepAlive(mockConnection, response));
     }
 
     public void testFutureHTTP() throws Exception {
-        StatusLine statusline = new BasicStatusLine(new HttpVersion(3, 45), 200, "OK"); 
-        HttpResponse response = new BasicHttpResponse(statusline);
+        HttpResponse response =
+            createResponse(new HttpVersion(3, 45), 200, "OK");
 
-        ConnectionReuseStrategy s = new DefaultConnectionReuseStrategy();
-        assertTrue(s.keepAlive(response));
+        assertTrue(reuseStrategy.keepAlive(mockConnection, response));
     }
     
     public void testBrokenConnectionDirective1() throws Exception {
         // Use HTTP 1.0
-        StatusLine statusline = new BasicStatusLine(HttpVersion.HTTP_1_0, 200, "OK"); 
-        HttpResponse response = new BasicHttpResponse(statusline);
+        HttpResponse response =
+            createResponse(HttpVersion.HTTP_1_0, 200, "OK");
         response.addHeader("Connection", "keep--alive");
 
-        ConnectionReuseStrategy s = new DefaultConnectionReuseStrategy();
-        assertFalse(s.keepAlive(response));
+        assertFalse(reuseStrategy.keepAlive(mockConnection, response));
     }
 
     public void testBrokenConnectionDirective2() throws Exception {
         // Use HTTP 1.0
-        StatusLine statusline = new BasicStatusLine(HttpVersion.HTTP_1_0, 200, "OK"); 
-        HttpResponse response = new BasicHttpResponse(statusline);
+        HttpResponse response =
+            createResponse(HttpVersion.HTTP_1_0, 200, "OK");
         response.addHeader("Connection", null);
 
-        ConnectionReuseStrategy s = new DefaultConnectionReuseStrategy();
-        assertFalse(s.keepAlive(response));
+        assertFalse(reuseStrategy.keepAlive(mockConnection, response));
     }
-}
+
+
+    /**
+     * Creates a response without an entity.
+     *
+     * @param version   the HTTP version
+     * @param status    the status code
+     * @param message   the status message
+     *
+     * @return  a response with the argument attributes, but no headers
+     */
+    private final static HttpResponse createResponse(HttpVersion version,
+                                                     int status,
+                                                     String message) {
+
+        StatusLine statusline = new BasicStatusLine(version, status, message);
+        HttpResponse response = new BasicHttpResponse(statusline);
+
+        return response;
+
+    } // createResponse/empty
+
+
+    /**
+     * Creates a response with an entity.
+     *
+     * @param version   the HTTP version
+     * @param status    the status code
+     * @param message   the status message
+     * @param chunked   whether the entity should indicate chunked encoding
+     * @param length    the content length to be indicated by the entity
+     *
+     * @return  a response with the argument attributes, but no headers
+     */
+    private final static HttpResponse createResponse(HttpVersion version,
+                                                     int status,
+                                                     String message,
+                                                     boolean chunked,
+                                                     int length) {
+
+        BasicHttpEntity entity = new BasicHttpEntity();
+        entity.setChunked(chunked);
+        entity.setContentLength(length);
+        HttpResponse response = createResponse(version, status, message);
+        response.setEntity(entity);
+
+        return response;
+
+    } // createResponse/entity
+
+
+    /**
+     * A mock connection.
+     * This is neither client nor server connection, since the default
+     * strategy is agnostic. It does not allow modification of it's state,
+     * since the strategy is supposed to decide about keep-alive, but not
+     * to modify the connection's state.
+     */
+    private final static class MockConnection implements HttpConnection {
+
+        private boolean iAmOpen;
+        private boolean iAmStale;
+
+        public MockConnection(boolean open, boolean stale) {
+            iAmOpen = open;
+            iAmStale = stale;
+        }
+
+        public final boolean isOpen() {
+            return iAmOpen;
+        }
+
+        public final boolean isStale() {
+            return iAmStale;
+        }
+
+        public final void close() {
+            throw new UnsupportedOperationException
+                ("connection state must not be modified");
+        }
+
+        public final void shutdown() {
+            throw new UnsupportedOperationException
+                ("connection state must not be modified");
+        }
+    } // class MockConnection
+
+} // class TestDefaultConnectionReuseStrategy
 
