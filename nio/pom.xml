@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<project>
+  <modelVersion>4.0.0</modelVersion>
+  <parent>
+    <groupId>org.apache.httpcomponents</groupId>
+    <artifactId>jakarta-httpcore-pom</artifactId>
+    <version>4.0-alpha3-SNAPSHOT</version>
+  </parent>
+  <artifactId>jakarta-httpcore-nio</artifactId>
+  <name>HttpCore (NIO extensions)</name>
+  <inceptionYear>2005</inceptionYear>
+  <description>
+   Core HTTP components (NIO extensions)
+  </description>
+  <url>http://jakarta.apache.org/httpcomponents/httpcore</url>
+  <packaging>jar</packaging>  
+
+  <dependencies>
+    <dependency>
+      <groupId>org.apache.httpcomponents</groupId>
+      <artifactId>jakarta-httpcore</artifactId>
+      <version>${pom.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>junit</groupId>
+      <artifactId>junit</artifactId>
+      <version>3.8.1</version>
+      <scope>test</scope>
+    </dependency>
+  </dependencies>
+
+  <build>
+    <plugins>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-compiler-plugin</artifactId>
+        <configuration>
+          <source>1.4</source>
+          <target>1.4</target>
+          <optimize>true</optimize>
+          <showDeprecations>true</showDeprecations>
+        </configuration>
+      </plugin>
+      <plugin>
+        <artifactId>maven-surefire-plugin</artifactId>
+        <configuration>
+          <includes>
+            <include>**/TestAll.java</include>
+          </includes>
+        </configuration>
+      </plugin>
+    </plugins>
+  </build>
+
+</project>
