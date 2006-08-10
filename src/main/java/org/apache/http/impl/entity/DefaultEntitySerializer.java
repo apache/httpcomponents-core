@@ -50,7 +50,7 @@ import org.apache.http.protocol.HTTP;
  * 
  * @author <a href="mailto:oleg at ural.ru">Oleg Kalnichevski</a>
  *
- * @version $Revision: $
+ * @version $Revision$
  * 
  * @since 4.0
  */
