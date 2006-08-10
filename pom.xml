@@ -6,16 +6,19 @@
   </parent>
   <modelVersion>4.0.0</modelVersion>
   <groupId>org.apache.httpcomponents</groupId>
-  <artifactId>jakarta-httpcore</artifactId>
-  <name>HttpCore</name>
+  <artifactId>jakarta-httpcore-pom</artifactId>
+  <name>HttpCore Project</name>
   <version>4.0-alpha3-SNAPSHOT</version>
   <description>Core components to build HTTP enabled services</description>
   <url>http://jakarta.apache.org/httpcomponents/httpcore</url>
-  <issueManagement>
-    <system>Jira</system>
-    <url>http://issues.apache.org/jira/browse/HTTPCORE</url>
-  </issueManagement>
   <inceptionYear>2005</inceptionYear>
+  <packaging>pom</packaging>
+
+  <organization>
+    <name>Apache Software Foundation</name>
+    <url>http://www.apache.org/</url>
+  </organization>
+
   <licenses>
     <license>
       <name>Apache License</name>
@@ -23,35 +26,25 @@
       <distribution>repo</distribution>
     </license>
   </licenses>
+
+  <issueManagement>
+    <system>Jira</system>
+    <url>http://issues.apache.org/jira/browse/HTTPCORE</url>
+  </issueManagement>
+
   <scm>
     <connection>scm:svn:http://svn.apache.org/repos/asf/jakarta/httpcomponents/httpcore/trunk</connection>
     <developerConnection>scm:svn:http://svn.apache.org/repos/asf/jakarta/httpcomponents/httpcore/trunk</developerConnection>
     <url>http://svn.apache.org/repos/asf/jakarta/httpcomponents/httpcore/trunk</url>
   </scm>
-  <organization>
-    <name>Apache Software Foundation</name>
-    <url>http://www.apache.org/</url>
-  </organization>
+
+  <modules>
+    <module>core</module>
+    <module>nio</module>
+  </modules>
+
   <build>
     <plugins>
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-compiler-plugin</artifactId>
-        <configuration>
-          <source>1.3</source>
-          <target>1.3</target>
-          <optimize>true</optimize>
-          <showDeprecations>true</showDeprecations>
-        </configuration>
-      </plugin>
-      <plugin>
-        <artifactId>maven-surefire-plugin</artifactId>
-        <configuration>
-          <includes>
-            <include>**/TestAll.java</include>
-          </includes>
-        </configuration>
-      </plugin>
       <plugin>
         <artifactId>maven-javadoc-plugin</artifactId>
       </plugin>
@@ -75,14 +68,7 @@
       </plugin>
     </plugins>
   </build>
-  <dependencies>
-    <dependency>
-      <groupId>junit</groupId>
-      <artifactId>junit</artifactId>
-      <version>3.8.1</version>
-      <scope>test</scope>
-    </dependency>
-  </dependencies>
+
   <reporting>
     <plugins>
       <plugin>
@@ -119,6 +105,7 @@
       </plugin>
     </plugins>
   </reporting>
+
   <distributionManagement>
     <site>
       <id>apache.website</id>
@@ -131,4 +118,5 @@
       <url>scp://people.apache.org/www/www.apache.org/dist/maven-repository</url>
     </repository>
   </distributionManagement>
+
 </project>
