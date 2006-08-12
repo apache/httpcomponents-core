@@ -7,7 +7,7 @@
     <version>4.0-alpha3-SNAPSHOT</version>
   </parent>
   <artifactId>jakarta-httpcore-nio</artifactId>
-  <name>HttpCore (NIO extensions)</name>
+  <name>HttpCore (NIO extensions module)</name>
   <inceptionYear>2005</inceptionYear>
   <description>
    Core HTTP components (NIO extensions)

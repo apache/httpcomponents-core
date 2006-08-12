@@ -7,10 +7,10 @@
     <version>4.0-alpha3-SNAPSHOT</version>
   </parent>
   <artifactId>jakarta-httpcore</artifactId>
-  <name>HttpCore</name>
+  <name>HttpCore (Main module)</name>
   <inceptionYear>2005</inceptionYear>
   <description>
-   Core HTTP components (JRE 1.3 compatible)
+   Core HTTP components (Java 1.3 compatible)
   </description>
   <url>http://jakarta.apache.org/httpcomponents/httpcore</url>
   <packaging>jar</packaging>  
