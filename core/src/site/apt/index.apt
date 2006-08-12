@@ -1,0 +1,20 @@
+    ----------
+    HttpComponents HttpCore Main Module
+    ----------
+    ----------
+    ----------
+
+HttpCore (Main Module)
+
+    This is the main module of HttpCore, which contains its public API and the default
+    implementation based on classic java I/O model. The HttpCore API and the default 
+    implementation require Java 1.3 compatible runtime and have no dependency on any 
+    external libraries.
+
+    {{{apidocs/index.html}Javadocs}}
+    
+    {{{xref/index.html}Project sources}}
+    
+    {{{dependencies.html}Dependencies}}    
+    
+    {{{issue-tracking.html}Issue Tracking}}    

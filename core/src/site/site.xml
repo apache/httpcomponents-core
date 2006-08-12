@@ -9,23 +9,19 @@
   <bannerRight>
     <name>HttpComponents HttpCore</name>
     <src>http://jakarta.apache.org/httpcomponents/images/logos/httpcomponents.png</src>
-    <href>http://jakarta.apache.org/httpcomponents/http-core/</href>
+    <href>http://jakarta.apache.org/httpcomponents/http-core/core</href>
   </bannerRight>
 
   <body>
     <links>
       <item name="Apache" href="http://www.apache.org/" />
       <item name="Jakarta" href="http://jakarta.apache.org/"/>
-      <item name="HttpComponents" href=".."/>
+      <item name="HttpComponents" href="../.."/>
+      <item name="HttpCore" href=".."/>
     </links>
 
-    <menu name="HttpComponents">
+    <menu name="HttpCore">
       <item name="Home" href=".."/>
-    </menu>
-    <menu name="HttpCore Overview">
-      <item name="Description" href="index.html"/>
-      <item name="Download" href="download.html"/>
-      <item name="Examples" href="examples.html"/>
     </menu>
     ${reports}
 

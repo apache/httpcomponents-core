@@ -15,6 +15,14 @@
   <url>http://jakarta.apache.org/httpcomponents/httpcore</url>
   <packaging>jar</packaging>  
 
+  <licenses>
+    <license>
+      <name>Apache License</name>
+      <url>../LICENSE.txt</url>
+      <distribution>repo</distribution>
+    </license>
+  </licenses>
+
   <dependencies>
     <dependency>
       <groupId>junit</groupId>
