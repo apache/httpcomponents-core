@@ -39,8 +39,8 @@
   </scm>
 
   <modules>
-    <module>core</module>
-    <module>nio</module>
+    <module>module-main</module>
+    <module>module-nio</module>
   </modules>
 
   <build>
