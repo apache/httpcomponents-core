@@ -1,0 +1,19 @@
+    ----------
+    HttpComponents HttpCore NIO Extensions Module
+    ----------
+    ----------
+    ----------
+
+HttpCore (NIO Extensions Module)
+
+    This module contains optional extensions to the HttpCore API that leverage event driven, 
+    non-blocking I/O (NIO) model. HttpCore NIO extensions require Java 1.4 compatible 
+    runtime and HttpCore main module.
+
+    {{{apidocs/index.html}Javadocs}}
+    
+    {{{xref/index.html}Project sources}}
+    
+    {{{dependencies.html}Dependencies}}    
+    
+    {{{issue-tracking.html}Issue Tracking}}    

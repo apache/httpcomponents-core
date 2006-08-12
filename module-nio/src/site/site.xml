@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<project name="HttpCore">
+  <bannerLeft>
+    <name>Jakarta</name>
+    <src>http://jakarta.apache.org/images/logos/jakarta-logo.png</src>
+    <href>http://jakarta.apache.org/</href>
+  </bannerLeft>
+
+  <bannerRight>
+    <name>HttpComponents HttpCore</name>
+    <src>http://jakarta.apache.org/httpcomponents/images/logos/httpcomponents.png</src>
+    <href>http://jakarta.apache.org/httpcomponents/http-core/core</href>
+  </bannerRight>
+
+  <body>
+    <links>
+      <item name="Apache" href="http://www.apache.org/" />
+      <item name="Jakarta" href="http://jakarta.apache.org/"/>
+      <item name="HttpComponents" href="../.."/>
+      <item name="HttpCore" href=".."/>
+    </links>
+
+    <menu name="HttpCore">
+      <item name="Home" href=".."/>
+    </menu>
+    ${reports}
+
+  </body>
+</project>
