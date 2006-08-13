@@ -47,7 +47,6 @@ import org.apache.http.ProtocolException;
 import org.apache.http.UnsupportedHttpVersionException;
 import org.apache.http.impl.DefaultConnectionReuseStrategy;
 import org.apache.http.impl.DefaultHttpResponseFactory;
-import org.apache.http.message.BasicHttpResponse;
 import org.apache.http.params.HttpParams;
 
 /**
@@ -140,9 +139,8 @@ public class HttpService extends AbstractHttpProcessor {
 
                     logMessage("Expected 100 (Continue)");
                     
-                    BasicHttpResponse ack = new BasicHttpResponse();
+                    HttpResponse ack = this.responseFactory.newHttpResponse(ver, HttpStatus.SC_CONTINUE);
                     ack.getParams().setDefaults(this.params);
-                    ack.setStatusCode(HttpStatus.SC_CONTINUE);
                     this.conn.sendResponseHeader(ack);
                     this.conn.flush();
                 }

@@ -64,7 +64,21 @@ public class TestBasicMessages extends TestCase {
     }
 
     public void testDefaultResponseConstructors() {
-        HttpResponse response = new BasicHttpResponse();
+        HttpResponse response = new BasicHttpResponse(HttpVersion.HTTP_1_0, HttpStatus.SC_BAD_REQUEST);
+        assertNotNull(response.getHttpVersion());
+        assertEquals(HttpVersion.HTTP_1_0, response.getHttpVersion());
+        assertEquals(HttpStatus.SC_BAD_REQUEST, response.getStatusLine().getStatusCode());
+        
+        response = new BasicHttpResponse(new BasicStatusLine(
+                HttpVersion.HTTP_1_1, HttpStatus.SC_INTERNAL_SERVER_ERROR, "whatever"));
+        assertNotNull(response.getHttpVersion());
+        assertEquals(HttpVersion.HTTP_1_1, response.getHttpVersion());
+        assertEquals(HttpStatus.SC_INTERNAL_SERVER_ERROR, response.getStatusLine().getStatusCode());
+        assertEquals("whatever", response.getStatusLine().getReasonPhrase());
+    }
+
+    public void testSetResponseStatus() {
+        HttpResponse response = new BasicHttpResponse(HttpVersion.HTTP_1_1, 200);
         assertNotNull(response.getHttpVersion());
         assertNotNull(response.getStatusLine());
         assertEquals(200, response.getStatusLine().getStatusCode());
@@ -80,44 +94,22 @@ public class TestBasicMessages extends TestCase {
         assertEquals(HttpVersion.HTTP_1_1, response.getHttpVersion());
         assertEquals(HttpStatus.SC_INTERNAL_SERVER_ERROR, response.getStatusLine().getStatusCode());
         assertEquals("whatever", response.getStatusLine().getReasonPhrase());
-    }
-
-    public void testSetResponseStatus() {
-        HttpResponse response = new BasicHttpResponse();
-        response.setStatusCode(200);
-        assertNotNull(response.getHttpVersion());
-        assertNotNull(response.getStatusLine());
-        assertEquals(200, response.getStatusLine().getStatusCode());
         
-        response = new BasicHttpResponse();
-        response.setStatusLine(HttpVersion.HTTP_1_0, HttpStatus.SC_BAD_REQUEST);
-        assertNotNull(response.getHttpVersion());
-        assertEquals(HttpVersion.HTTP_1_0, response.getHttpVersion());
-        assertEquals(HttpStatus.SC_BAD_REQUEST, response.getStatusLine().getStatusCode());
-        
-        response = new BasicHttpResponse();
-        response.setStatusLine(new BasicStatusLine(
-                HttpVersion.HTTP_1_1, HttpStatus.SC_INTERNAL_SERVER_ERROR, "whatever"));
-        assertNotNull(response.getHttpVersion());
-        assertEquals(HttpVersion.HTTP_1_1, response.getHttpVersion());
-        assertEquals(HttpStatus.SC_INTERNAL_SERVER_ERROR, response.getStatusLine().getStatusCode());
-        assertEquals("whatever", response.getStatusLine().getReasonPhrase());
-        
-        response = new BasicHttpResponse();
+        response = new BasicHttpResponse(HttpVersion.HTTP_1_1, HttpStatus.SC_OK);
         try {
             response.setStatusCode(-23);
             fail("IllegalArgumentException should have been thrown");
         } catch (IllegalArgumentException ex) {
             // expected
         }
-        response = new BasicHttpResponse();
+        response = new BasicHttpResponse(HttpVersion.HTTP_1_1, HttpStatus.SC_OK);
         try {
             response.setStatusLine(null, 200);
             fail("IllegalArgumentException should have been thrown");
         } catch (IllegalArgumentException ex) {
             // expected
         }
-        response = new BasicHttpResponse();
+        response = new BasicHttpResponse(HttpVersion.HTTP_1_1, HttpStatus.SC_OK);
         try {
             response.setStatusLine(null);
             fail("IllegalArgumentException should have been thrown");
@@ -127,7 +119,7 @@ public class TestBasicMessages extends TestCase {
     }
     
     public void testSetResponseEntity() {
-        BasicHttpResponse response = new BasicHttpResponse();
+        HttpResponse response = new BasicHttpResponse(HttpVersion.HTTP_1_1, HttpStatus.SC_OK);
         assertNull(response.getEntity());
         
         HttpEntity entity = new BasicHttpEntity();

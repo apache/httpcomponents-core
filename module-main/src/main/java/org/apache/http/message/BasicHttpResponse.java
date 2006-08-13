@@ -31,10 +31,8 @@ package org.apache.http.message;
 
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
-import org.apache.http.HttpStatus;
 import org.apache.http.HttpVersion;
 import org.apache.http.StatusLine;
-import org.apache.http.params.HttpProtocolParams;
 
 /**
  * Basic implementation of an HTTP response that can be modified.
@@ -50,19 +48,17 @@ public class BasicHttpResponse extends AbstractHttpMessage implements HttpRespon
     private StatusLine statusline = null;
     private HttpEntity entity = null;
     
-    public BasicHttpResponse() {
-        super();
-        setStatusCode(HttpStatus.SC_OK);
-    }
-
     public BasicHttpResponse(final StatusLine statusline) {
         super();
-        setStatusLine(statusline);
+        if (statusline == null) {
+            throw new IllegalArgumentException("Status line may not be null");
+        }
+        this.statusline = statusline;
     }
 
     public BasicHttpResponse(final HttpVersion ver, final int code) {
         super();
-        setStatusLine(ver, code);
+        this.statusline = new BasicStatusLine(ver, code);
     }
 
     public HttpVersion getHttpVersion() {
@@ -95,9 +91,8 @@ public class BasicHttpResponse extends AbstractHttpMessage implements HttpRespon
         if (code < 0) {
             throw new IllegalArgumentException("Status line may not be null");
         }
-        this.statusline = new BasicStatusLine(
-                HttpProtocolParams.getVersion(getParams()), 
-                code, HttpStatus.getStatusText(code));
+        HttpVersion ver = this.statusline.getHttpVersion();
+        this.statusline = new BasicStatusLine(ver, code);
     }
     
     public void setEntity(final HttpEntity entity) {
