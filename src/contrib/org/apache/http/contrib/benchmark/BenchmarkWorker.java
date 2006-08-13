@@ -45,10 +45,12 @@ import org.apache.http.protocol.HttpRequestExecutor;
 import org.apache.http.util.EntityUtils;
 
 /**
- * <p>
- * </p>
+ * Worker thread for the {@link HttpBenchmark HttpBenchmark}.
+ *
  * @author <a href="mailto:oleg at ural.ru">Oleg Kalnichevski</a>
  *
+ *
+ * <!-- empty lines above to avoid 'svn diff' context problems -->
  * @version $Revision$
  * 
  * @since 4.0
