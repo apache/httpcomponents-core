@@ -19,7 +19,7 @@
 
 <project name="HttpCore" basedir="." default="package-src">
 <description>
-HttpAsync: Jakarta HttpComponents Core
+Jakarta HttpComponents Core
 </description>
 
 
@@ -276,6 +276,9 @@ Output
             <pathelement location="${junit.jar}"/>
           </classpath>
         </javac>
+        <copy todir="${build.core.main.tests}" filtering="on">
+          <fileset dir="${comp.core.main.tests}" excludes="**/*.java" />
+        </copy>
 </target>
 <target name="clean-tests-main">
 	<delete dir="${build.core.main.tests}" quiet="true" />
@@ -302,6 +305,9 @@ Output
             <pathelement location="${junit.jar}"/>
           </classpath>
         </javac>
+        <copy todir="${build.core.nio.tests}" filtering="on">
+          <fileset dir="${comp.core.nio.tests}" excludes="**/*.java" />
+        </copy>
 </target>
 <target name="clean-tests-nio">
 	<delete dir="${build.core.nio.tests}" quiet="true" />
@@ -484,10 +490,6 @@ Output
      depends="build-init,compile-tests-main,compile-tests-nio"
  description="runs unit tests on HttpCore classes"
 >
-        <copy todir="${build.core.tests}" filtering="on">
-          <fileset dir="${comp.core.main.tests}" excludes="**/*.java" />
-          <fileset dir="${comp.core.nio.tests}" excludes="**/*.java" />
-        </copy>
         <!-- don't use Ant optional JUnit tasks here -->
 
         <java classname="junit.textui.TestRunner"
