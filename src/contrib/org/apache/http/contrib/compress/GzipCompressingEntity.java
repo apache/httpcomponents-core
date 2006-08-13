@@ -41,10 +41,12 @@ import org.apache.http.message.BasicHeader;
 import org.apache.http.protocol.HTTP;
 
 /**
-+  * Wrapping entity that compresses content when {@link #writeTo writing}.
-+  *
+ * Wrapping entity that compresses content when {@link #writeTo writing}.
+ *
  * @author <a href="mailto:oleg at ural.ru">Oleg Kalnichevski</a>
  *
+ *
+ * <!-- empty lines above to avoid 'svn diff' context problems -->
  * @version $Revision$
  * 
  * @since 4.0

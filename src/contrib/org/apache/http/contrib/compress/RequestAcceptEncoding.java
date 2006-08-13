@@ -37,10 +37,12 @@ import org.apache.http.HttpRequestInterceptor;
 import org.apache.http.protocol.HttpContext;
 
 /**
- * <p>
- * </p>
+ * Client-side interceptor to indicate support for Gzip content compression.
+ *
  * @author <a href="mailto:oleg at ural.ru">Oleg Kalnichevski</a>
  *
+ *
+ * <!-- empty lines above to avoid 'svn diff' context problems -->
  * @version $Revision$
  * 
  * @since 4.0

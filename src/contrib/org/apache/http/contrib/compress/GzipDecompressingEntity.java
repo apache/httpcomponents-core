@@ -41,6 +41,8 @@ import org.apache.http.entity.HttpEntityWrapper;
  *
  * @author <a href="mailto:oleg at ural.ru">Oleg Kalnichevski</a>
  *
+ *
+ * <!-- empty lines above to avoid 'svn diff' context problems -->
  * @version $Revision$
  * 
  * @since 4.0

@@ -40,10 +40,12 @@ import org.apache.http.HttpResponseInterceptor;
 import org.apache.http.protocol.HttpContext;
 
 /**
- * <p>
- * </p>
+ * Server-side interceptor to handle Gzip-encoded responses.
+ *
  * @author <a href="mailto:oleg at ural.ru">Oleg Kalnichevski</a>
  *
+ *
+ * <!-- empty lines above to avoid 'svn diff' context problems -->
  * @version $Revision$
  * 
  * @since 4.0
