@@ -58,10 +58,12 @@ import org.apache.http.protocol.RequestUserAgent;
 import org.apache.http.util.EntityUtils;
 
 /**
- * <p>
- * </p>
+ * Elemental example for executing a POST request.
+ *
  * @author <a href="mailto:oleg at ural.ru">Oleg Kalnichevski</a>
  *
+ *
+ * <!-- empty lines above to avoid 'svn diff' context problems -->
  * @version $Revision$
  */
 public class ElementalHttpPost {
