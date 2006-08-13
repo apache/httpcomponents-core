@@ -23,6 +23,12 @@
     </license>
   </licenses>
 
+  <scm>
+    <connection>scm:svn:http://svn.apache.org/repos/asf/jakarta/httpcomponents/httpcore/trunk/module-nio</connection>
+    <developerConnection>scm:svn:http://svn.apache.org/repos/asf/jakarta/httpcomponents/httpcore/trunk/module-nio</developerConnection>
+    <url>http://svn.apache.org/repos/asf/jakarta/httpcomponents/httpcore/trunk/module-nio</url>
+  </scm>
+
   <dependencies>
     <dependency>
       <groupId>org.apache.httpcomponents</groupId>

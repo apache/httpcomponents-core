@@ -13,13 +13,6 @@
   </bannerRight>
 
   <body>
-    <links>
-      <item name="Apache" href="http://www.apache.org/" />
-      <item name="Jakarta" href="http://jakarta.apache.org/"/>
-      <item name="HttpComponents" href="../.."/>
-      <item name="HttpCore" href=".."/>
-    </links>
-
     <menu name="HttpCore">
       <item name="Home" href=".."/>
     </menu>

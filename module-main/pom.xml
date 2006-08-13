@@ -7,7 +7,7 @@
     <version>4.0-alpha3-SNAPSHOT</version>
   </parent>
   <artifactId>jakarta-httpcore</artifactId>
-  <name>HttpCore (Main module)</name>
+  <name>HttpCore (base module)</name>
   <inceptionYear>2005</inceptionYear>
   <description>
    Core HTTP components (Java 1.3 compatible)
@@ -22,6 +22,12 @@
       <distribution>repo</distribution>
     </license>
   </licenses>
+
+  <scm>
+    <connection>scm:svn:http://svn.apache.org/repos/asf/jakarta/httpcomponents/httpcore/trunk/module-main</connection>
+    <developerConnection>scm:svn:http://svn.apache.org/repos/asf/jakarta/httpcomponents/httpcore/trunk/module-main</developerConnection>
+    <url>http://svn.apache.org/repos/asf/jakarta/httpcomponents/httpcore/trunk/module-main</url>
+  </scm>
 
   <dependencies>
     <dependency>
