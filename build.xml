@@ -53,61 +53,22 @@ Jakarta HttpComponents Core
 <property name="comp.core.version"
          value="SNAPSHOT"/>
 
-<!-- external dependencies
-        These are prime candidates for overriding in local.properties.
-        The defaults assume again that you are building from the full tree
-        of HTTP components, and that other components use the default
-        build settings.
-        The '.jar properties must be set to either to a JAR file in which
-        the classes are packaged, or to a directory tree holding them.
+<!-- directory structure of the source tree
+     most of the definitions are in the modules
   -->
-
-<!-- no external dependencies at this time -->
-<!-- @@@ Spring, for contrib code? -->
-
-
-<!-- directory structure of the source tree -->
 <property name="comp.core.home" value="${basedir}"/>
 
-<property name="comp.core.main.home"
-         value="${basedir}/module-main"/>
-<property name="comp.core.main.src"
-         value="${comp.core.main.home}/src/main/java"/>
-<property name="comp.core.main.tests"
-         value="${comp.core.main.home}/src/test/java"/>
-<property name="comp.core.main.xmpls"
-         value="${comp.core.main.home}/src/examples"/>
-
-<property name="comp.core.nio.home"
-         value="${basedir}/module-nio"/>
-<property name="comp.core.nio.src"
-         value="${comp.core.nio.home}/src/main/java"/>
-<property name="comp.core.nio.tests"
-         value="${comp.core.nio.home}/src/test/java"/>
-
-<property name="comp.core.contr"
-         value="${comp.core.home}/src/contrib"/>
+<!-- modules - see there for external dependencies -->
+<import file="module-main/build.xml" />
+<import file="module-nio/build.xml" />
 
 
 <!-- locations for intermediate and final build results
         For consistency with other builds, the temporary files are
         located by default below "target/", final results below "dist/".
-        To simplify this build file, the locations are different from Maven.
   -->
 <property name="build.core.home"
          value="${comp.core.home}/target"/>
-<property name="build.core.main.classes"
-         value="${build.core.home}/classes-main"/>
-<property name="build.core.nio.classes"
-         value="${build.core.home}/classes-nio"/>
-<property name="build.core.main.tests"
-         value="${build.core.home}/tests-main"/>
-<property name="build.core.nio.tests"
-         value="${build.core.home}/tests-nio"/>
-<property name="build.core.main.xmpls"
-         value="${build.core.home}/examples-main"/>
-<property name="build.core.contr"
-         value="${build.core.home}/contrib"/>
 <property name="build.core.clover"
          value="${build.core.home}/clover"/>
 
@@ -149,22 +110,56 @@ Dependencies
   JUnit           ${junit.jar}
   Clover          ${clover.jar}
 
-Source Tree
-  main base       ${comp.core.main.home}
-  main src        ${comp.core.main.src}
-  main tests      ${comp.core.main.tests}
-  main examples   ${comp.core.main.xmpls}
-  NIO  base       ${comp.core.nio.home}
-  NIO  src        ${comp.core.nio.src}
-  NIO  tests      ${comp.core.nio.tests}
-  shared contrib  ${comp.core.contr}
-
 Output
   temp    ${build.core.home}
   final   ${dist.core.home}
   javadoc ${dist.core.api}
 </echo>
+	<antcall target="HttpCoreMain.echo-properties" />
+	<antcall target="HttpCoreNIO.echo-properties" />
 </target>
+
+
+<!-- imported build targets ==================================================
+        These targets are defined in one or more of the modules. They HAVE to
+        be overridden here, because otherwise the ModuleName.target-name alias
+        will not be created by Ant.
+  -->
+
+<target name="compile-src"
+     depends="HttpCoreMain.compile-src,
+              HttpCoreNIO.compile-src"
+/>
+<target name="clean-src"
+     depends="HttpCoreMain.clean-src,
+              HttpCoreNIO.clean-src"
+/>
+
+<target name="compile-tests"
+     depends="HttpCoreMain.compile-tests,
+              HttpCoreNIO.compile-tests"
+/>
+<target name="clean-tests"
+     depends="HttpCoreMain.clean-tests,
+              HttpCoreNIO.clean-tests"
+/>
+
+<target name="compile-examples"
+     depends="HttpCoreMain.compile-examples"
+/>
+<target name="clean-examples"
+     depends="HttpCoreMain.clean-examples"
+/>
+
+<target name="run-tests"
+     depends="HttpCoreMain.run-tests,
+              HttpCoreNIO.run-tests"
+/>
+<target name="run-tests-fs"
+     depends="HttpCoreMain.clean-tests,
+              HttpCoreNIO.clean-tests,
+              run-tests"
+/>
 
 
 <!-- traditional targets ======================================================
@@ -173,10 +168,10 @@ Output
         - "clover" will always recompile the source and tests
   -->
 
-<target name="compile" depends="compile-src-main,compile-src-nio" />
+<target name="compile" depends="compile-src" />
 <target name="package" depends="package-src" />
 <target name="javadoc" depends="javadoc-src" />
-<target name="test"    depends="compile-src-main,compile-src-nio,run-tests" />
+<target name="test"    depends="compile-src,run-tests" />
 <target name="clover"  depends="run-clover" />
 <target name="clean"   depends="clean-build,clean-dist" />
 
@@ -187,16 +182,12 @@ Output
   -->
 
 <target name="compile-all"
-        depends="compile-src-main,compile-src-nio,
-                 compile-tests-main,compile-tests-nio,
-                 compile-examples-main,
+        depends="compile-src,compile-tests,compile-examples,
                  compile-contrib,compile-contrib-bench,compile-contrib-spring"
         description="compiles everything, not from scratch"
 />
 <target name="clean-compile"
-        depends="clean-src-main,clean-src-nio,
-                 clean-tests-main,clean-tests-nio,
-                 clean-examples-main,
+        depends="clean-src,clean-tests,clean-examples,
                  clean-contrib,clean-contrib-bench,clean-contrib-spring"
         description="cleans intermediate files from compilation"
 />
@@ -204,238 +195,6 @@ Output
         depends="clean-compile,compile-all"
         description="compiles everything from scratch"
 />
-
-
-<!-- compile and clean targets ================================================
-        For compiling and recompiling specific parts of HttpCore code.
-        These targets do NOT define dependencies between eachother.
-        Direct invocation of these targets is for those who know what they do!
-  -->
-
-<target name="compile-src-main" depends="build-init">
-
-	<mkdir dir="${build.core.main.classes}" />
-        <javac destdir     ="${build.core.main.classes}"
-               debug       ="${compile.debug}"
-               deprecation ="${compile.deprecation}"
-               optimize    ="${compile.optimize}"
-               source      ="${compile.source}"
-               target      ="${compile.target}"
-               sourcepath  =""
-        >
-          <src>
-            <pathelement location="${comp.core.main.src}"/>
-          </src>
-        </javac>
-</target>
-<target name="clean-src-main">
-	<delete dir="${build.core.classes}" quiet="true" />
-</target>
-
-
-<target name="compile-src-nio" depends="build-init">
-
-	<mkdir dir="${build.core.nio.classes}" />
-        <javac destdir     ="${build.core.nio.classes}"
-               debug       ="${compile.debug}"
-               deprecation ="${compile.deprecation}"
-               optimize    ="${compile.optimize}"
-               source      ="${compile.source}"
-               target      ="${compile.target}"
-               sourcepath  =""
-        >
-          <src>
-            <pathelement location="${comp.core.nio.src}"/>
-          </src>
-          <classpath>
-            <pathelement location="${build.core.main.classes}"/>
-          </classpath>
-        </javac>
-</target>
-<target name="clean-src-nio">
-	<delete dir="${build.core.nio.classes}" quiet="true" />
-</target>
-
-
-<target name="compile-tests-main" depends="build-init">
-
-	<mkdir dir="${build.core.main.tests}" />
-        <javac destdir     ="${build.core.main.tests}"
-               debug       ="${compile.debug}"
-               deprecation ="${compile.deprecation}"
-               optimize    ="${compile.optimize}"
-               source      ="${compile.source}"
-               target      ="${compile.target}"
-               sourcepath  =""
-        >
-          <src>
-            <pathelement path="${comp.core.main.tests}"/>
-          </src>
-          <classpath>
-            <pathelement location="${build.core.main.classes}"/>
-            <pathelement location="${junit.jar}"/>
-          </classpath>
-        </javac>
-        <copy todir="${build.core.main.tests}" filtering="on">
-          <fileset dir="${comp.core.main.tests}" excludes="**/*.java" />
-        </copy>
-</target>
-<target name="clean-tests-main">
-	<delete dir="${build.core.main.tests}" quiet="true" />
-</target>
-
-
-<target name="compile-tests-nio" depends="build-init">
-
-	<mkdir dir="${build.core.nio.tests}" />
-        <javac destdir     ="${build.core.nio.tests}"
-               debug       ="${compile.debug}"
-               deprecation ="${compile.deprecation}"
-               optimize    ="${compile.optimize}"
-               source      ="${compile.source}"
-               target      ="${compile.target}"
-               sourcepath  =""
-        >
-          <src>
-            <pathelement path="${comp.core.nio.tests}"/>
-          </src>
-          <classpath>
-            <pathelement location="${build.core.main.classes}"/>
-            <pathelement location="${build.core.nio.classes}"/>
-            <pathelement location="${junit.jar}"/>
-          </classpath>
-        </javac>
-        <copy todir="${build.core.nio.tests}" filtering="on">
-          <fileset dir="${comp.core.nio.tests}" excludes="**/*.java" />
-        </copy>
-</target>
-<target name="clean-tests-nio">
-	<delete dir="${build.core.nio.tests}" quiet="true" />
-</target>
-
-
-<target name="compile-examples-main" depends="build-init">
-	<mkdir dir="${build.core.main.xmpls}" />
-        <javac destdir     ="${build.core.main.xmpls}"
-               debug       ="${compile.debug}"
-               deprecation ="${compile.deprecation}"
-               optimize    ="${compile.optimize}"
-               source      ="${compile.source}"
-               target      ="${compile.target}"
-               sourcepath  =""
-        >
-          <src>
-            <pathelement path="${comp.core.main.xmpls}"/>
-          </src>
-          <classpath>
-            <pathelement location="${build.core.main.classes}"/>
-          </classpath>
-        </javac>
-</target>
-<target name="clean-examples-main">
-	<delete dir="${build.core.main.xmpls}" quiet="true" />
-</target>
-
-
-<target name="compile-contrib" depends="build-init">
-	<mkdir dir="${build.core.contr}" />
-        <javac destdir     ="${build.core.contr}"
-               debug       ="${compile.debug}"
-               deprecation ="${compile.deprecation}"
-               optimize    ="${compile.optimize}"
-               source      ="${compile.source}"
-               target      ="${compile.target}"
-               sourcepath  =""
-        >
-          <src>
-            <pathelement path="${comp.core.contr}" />
-          </src>
-
-          <include name="org/apache/http/contrib/**" />
-          <exclude name="org/apache/http/contrib/spring/**" />
-          <exclude name="org/apache/http/contrib/benchmark/**" />
-
-          <classpath>
-            <pathelement location="${build.core.main.classes}"/>
-            <pathelement location="${build.core.nio.classes}"/>
-          </classpath>
-        </javac>
-</target>
-<target name="clean-contrib">
-	<delete dir="${build.core.contr}" quiet="true" />
-</target>
-
-
-<target name="warn-no-bench" unless="commons.cli.jar">
-<echo level="warning"
-    message="Can not compile benchmark, ${commons.cli.jar} not defined."
-/>
-</target>
-<target name="compile-contrib-bench" depends="build-init,warn-no-bench"
-        if="commons.cli.jar"
->
-	<mkdir dir="${build.core.contr}" />
-        <javac destdir     ="${build.core.contr}"
-               debug       ="${compile.debug}"
-               deprecation ="${compile.deprecation}"
-               optimize    ="${compile.optimize}"
-               source      ="${compile.source}"
-               target      ="${compile.target}"
-               sourcepath  =""
-        >
-          <src>
-            <pathelement path="${comp.core.contr}" />
-          </src>
-
-          <include name="org/apache/http/contrib/benchmark/**" />
-
-          <classpath>
-            <pathelement location="${build.core.main.classes}"/>
-            <pathelement location="${build.core.nio.classes}"/>
-            <pathelement location="${commons.cli.jar}"/>
-          </classpath>
-        </javac>
-</target>
-<target name="clean-contrib-bench">
-	<delete dir="${build.core.contr}/org/apache/http/contrib/benchmark"
-              quiet="true" />
-</target>
-
-
-<target name="warn-no-spring" unless="spring.jar">
-<echo level="warning"
-    message="Can not compile Spring demo, ${spring.jar} not defined."
-/>
-</target>
-<target name="compile-contrib-spring" depends="build-init,warn-no-spring"
-        if="spring.jar"
->
-	<mkdir dir="${build.core.contr}" />
-        <javac destdir     ="${build.core.contr}"
-               debug       ="${compile.debug}"
-               deprecation ="${compile.deprecation}"
-               optimize    ="${compile.optimize}"
-               source      ="${compile.source}"
-               target      ="${compile.target}"
-               sourcepath  =""
-        >
-          <src>
-            <pathelement path="${comp.core.contr}" />
-          </src>
-
-          <include name="org/apache/http/contrib/spring/**" />
-
-          <classpath>
-            <pathelement location="${build.core.main.classes}"/>
-            <pathelement location="${build.core.nio.classes}"/>
-            <pathelement location="${spring.jar}"/>
-          </classpath>
-        </javac>
-</target>
-<target name="clean-contrib-spring">
-	<delete dir="${build.core.contr}org/apache/http/contrib/spring"
-              quiet="true" />
-</target>
 
 
 <!-- packaging and verification targets =======================================
@@ -451,75 +210,36 @@ Output
   -->
 
 <target name="package-src"
-     depends="dist-init,compile-src-main,compile-src-nio"
+     depends="dist-init,compile-src"
  description="builds the JAR with HttpCore classes"
 >
         <jar destfile="${dist.core.home}/${jar.core.src.name}">
           <!-- manifest? -->
-          <!-- timestamp in meta-inf? -->
           <fileset dir="${build.core.main.classes}" includes="**" />
           <fileset dir="${build.core.nio.classes}"  includes="**" />
         </jar>
 </target>
 <target name="package-src-fs"
-     depends="clean-src-main,clean-src-nio,package-src"
+     depends="clean-src,package-src"
  description="builds the JAR with HttpCore classes, compiling from scratch"
 />
 
 
 <target name="package-addon"
-     depends="dist-init,compile-src-main,compile-src-nio,
-              compile-examples-main,compile-contrib,
+     depends="dist-init,compile-src,
+              compile-examples,compile-contrib,
               compile-contrib-bench,compile-contrib-spring"
  description="builds the JAR with HttpCore examples and contributions"
 >
         <jar destfile="${dist.core.home}/${jar.core.addon.name}">
           <!-- manifest? -->
-          <!-- timestamp in meta-inf? -->
           <fileset dir="${build.core.main.xmpls}" includes="**" />
-          <fileset dir="${build.core.contr}" includes="**" />
+          <fileset dir="${build.core.main.contr}" includes="**" />
         </jar>    
 </target>
 <target name="package-addon-fs"
-     depends="clean-examples-main,clean-contrib,package-addon"
+     depends="clean-examples,clean-contrib,package-addon"
  description="builds the JAR with HttpCore examples and contributions, compiling them from scratch"
-/>
-
-
-<target name="run-tests"
-     depends="build-init,compile-tests-main,compile-tests-nio"
- description="runs unit tests on HttpCore classes"
->
-        <!-- don't use Ant optional JUnit tasks here -->
-
-        <java classname="junit.textui.TestRunner"
-              fork="yes" failonerror="yes"
-        >
-          <arg value="org.apache.http.TestAll"/>
-          <classpath>
-            <pathelement location="${junit.jar}"/>
-            <pathelement location="${clover.jar}"/>
-            <pathelement location="${build.core.main.classes}"/>
-            <pathelement location="${build.core.main.tests}"/>
-          </classpath>
-        </java>
-
-        <java classname="junit.textui.TestRunner"
-              fork="yes" failonerror="yes"
-        >
-          <arg value="org.apache.http.nio.TestNIOHttpTransmitterAndReceiver"/>
-          <classpath>
-            <pathelement location="${junit.jar}"/>
-            <pathelement location="${clover.jar}"/>
-            <pathelement location="${build.core.main.classes}"/>
-            <pathelement location="${build.core.nio.classes}"/>
-            <pathelement location="${build.core.main.tests}"/>
-            <pathelement location="${build.core.nio.tests}"/>
-          </classpath>
-      </java>
-</target>
-<target name="run-tests-fs"
-     depends="clean-build,compile-src-main,compile-src-nio,run-tests"
 />
 
 
@@ -528,8 +248,7 @@ Output
      the Ant environment for Clover instrumentation.
   -->
 <target name="run-clover"
-     depends="clean-build,clover-init,
-              compile-src-main,compile-src-nio,run-tests"
+     depends="clean-build,clover-init,compile-src,run-tests"
  description="runs Clover on HttpCore, recompiling everything from scratch"
 >
     <echoproperties prefix="clover"/>
@@ -600,7 +319,7 @@ Output
           <packageset dir="${comp.core.main.xmpls}">
             <include name="org/apache/http/**" />
           </packageset>
-          <packageset dir="${comp.core.contr}">
+          <packageset dir="${comp.core.main.contr}">
             <include name="org/apache/http/**" />
           </packageset>
 
@@ -640,10 +359,14 @@ Output
 
 <target name="build-init">
         <mkdir dir="${build.core.home}" />
+	<antcall target="HttpCoreMain.build-init" />
+	<antcall target="HttpCoreNIO.build-init" />
 </target>
 <target name="clean-build"
         description="cleans all intermediate files, including test reports"
 >
+	<antcall target="HttpCoreMain.clean-build" />
+	<antcall target="HttpCoreNIO.clean-build" />
         <delete dir="${build.core.home}" quiet="true" />
 </target>
 
