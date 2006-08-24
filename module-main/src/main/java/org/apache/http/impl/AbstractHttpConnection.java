@@ -51,7 +51,7 @@ import org.apache.http.params.HttpParams;
  * 
  * @since 4.0
  */
-abstract class AbstractHttpConnection implements HttpConnection {
+public abstract class AbstractHttpConnection implements HttpConnection {
 
 	/* 
 	 * I/O operations may not be performed if this flag is set to false 

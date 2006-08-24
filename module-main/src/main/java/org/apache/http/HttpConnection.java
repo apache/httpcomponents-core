@@ -43,38 +43,43 @@ import java.io.IOException;
 public interface HttpConnection {
 
     /**
-     * This method will gracefully close the connection. It will attempt to 
-     * flush the transmitter's internal buffer prior to closing the underlying 
-     * socket. This method MAY NOT be called from a different thread to force 
-     * shutdown the connection. Use #shutdown() instead.
-     * 
-     * @see #shutdown()
+     * Closes this connection gracefully.
+     * This method will attempt to  flush the transmitter's
+     * internal buffer prior to closing the underlying socket.
+     * This method MUST NOT be called from a different thread to force 
+     * shutdown of the connection. Use {@link #shutdown shutdown} instead.
      */
-    void close() throws IOException;
+    public void close() throws IOException;
     
     /**
      * Checks if this connection is open.
      * @return true if it is open, false if it is closed.
      */
-    boolean isOpen();
+    public boolean isOpen();
  
     /**
-     * Network connections may get closed during some time of inactivity for several reasons.
-     * The next time a read is attempted on such a connection it will throw an IOException.
-     * This method tries to alleviate this inconvenience by trying to find out if a connection is still
-     * usable. Implementations may do that by attempting a read with a very small timeout. Thus this
-     * method may block for a small indefinite time before returning a result. 
+     * Checks whether this connection has gone down.
+     * Network connections may get closed during some time of inactivity
+     * for several reasons. The next time a read is attempted on such a
+     * connection it will throw an IOException.
+     * This method tries to alleviate this inconvenience by trying to
+     * find out if a connection is still usable. Implementations may do
+     * that by attempting a read with a very small timeout. Thus this
+     * method may block for a small amount of time before returning a result. 
+     * It is therefore an <i>expensive</i> operation.
      * 
-     * @return true if attempts to use this connection are likely to succeed, false if they are likely
-     * to fail and this connection should be closed and discarded.
+     * @return  <code>true</code> if attempts to use this connection are
+     *          likely to succeed, or <code>false</code> if they are likely
+     *          to fail and this connection should be closed
      */
-    boolean isStale();
+    public boolean isStale();
     
     /**
-     * This method will force close the connection. This is the only method, 
-     * which may be called from a different thread to terminate the connection. 
-     * This method will not attempt to flush the transmitter's internal buffer 
-     * prior to closing the underlying socket.
+     * Force-closes this connection.
+     * This is the only method of a connection which may be called
+     * from a different thread to terminate the connection. 
+     * This method will not attempt to flush the transmitter's
+     * internal buffer prior to closing the underlying socket.
      */
-    void shutdown() throws IOException;
+    public void shutdown() throws IOException;
 }
