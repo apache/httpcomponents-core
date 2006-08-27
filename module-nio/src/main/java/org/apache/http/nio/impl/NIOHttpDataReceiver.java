@@ -27,7 +27,7 @@
  *
  */
 
-package org.apache.http.nio;
+package org.apache.http.nio.impl;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;

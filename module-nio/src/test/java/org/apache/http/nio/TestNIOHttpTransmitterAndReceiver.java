@@ -35,8 +35,8 @@ import java.nio.channels.ReadableByteChannel;
 
 import org.apache.http.impl.DefaultHttpParams;
 import org.apache.http.io.CharArrayBuffer;
-import org.apache.http.nio.NIOHttpDataReceiver;
-import org.apache.http.nio.NIOHttpDataTransmitter;
+import org.apache.http.nio.impl.NIOHttpDataReceiver;
+import org.apache.http.nio.impl.NIOHttpDataTransmitter;
 import org.apache.http.nio.mockup.NIOHttpDataReceiverMockup;
 import org.apache.http.nio.mockup.NIOHttpDataTransmitterMockup;
 import org.apache.http.params.HttpParams;
