@@ -48,6 +48,8 @@ This build file is typically imported by the HttpCore main build file.
       location="${comp.core.nio.home}/src/main/java"/>
 <property name="comp.core.nio.tests"
       location="${comp.core.nio.home}/src/test/java"/>
+<property name="comp.core.nio.xmpls"
+      location="${comp.core.nio.home}/src/examples"/>
 
 <!-- need HttpCoreMain, import the build file -->
 <property name="comp.core.main.home"
@@ -64,6 +66,8 @@ This build file is typically imported by the HttpCore main build file.
       location="${build.core.nio.home}/classes"/>
 <property name="build.core.nio.tests"
       location="${build.core.nio.home}/tests"/>
+<property name="build.core.nio.xmpls"
+      location="${build.core.nio.home}/examples"/>
 
 
 <!-- compiler and javadoc setup -->
@@ -87,6 +91,7 @@ Module "NIO"
 Source Tree
   src       ${comp.core.nio.src}
   tests     ${comp.core.nio.tests}
+  examples  ${comp.core.nio.xmpls}
 
 Dependencies
   JUnit     ${junit.jar}
@@ -153,6 +158,30 @@ Output
 </target>
 <target name="clean-tests">
 	<delete dir="${build.core.nio.tests}" quiet="true" />
+</target>
+
+
+<target name="compile-examples" depends="build-init">
+	<mkdir dir="${build.core.nio.xmpls}" />
+        <javac destdir     ="${build.core.nio.xmpls}"
+               debug       ="${compile.debug}"
+               deprecation ="${compile.deprecation}"
+               optimize    ="${compile.optimize}"
+               source      ="${compile.source}"
+               target      ="${compile.target}"
+               sourcepath  =""
+        >
+          <src>
+            <pathelement path="${comp.core.nio.xmpls}"/>
+          </src>
+          <classpath>
+            <pathelement location="${build.core.main.classes}"/>
+            <pathelement location="${build.core.nio.classes}"/>
+          </classpath>
+        </javac>
+</target>
+<target name="clean-examples">
+	<delete dir="${build.core.main.xmpls}" quiet="true" />
 </target>
 
 

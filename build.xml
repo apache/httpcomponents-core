@@ -145,10 +145,12 @@ Output
 />
 
 <target name="compile-examples"
-     depends="HttpCoreMain.compile-examples"
+     depends="HttpCoreMain.compile-examples,
+              HttpCoreNIO.compile-examples"
 />
 <target name="clean-examples"
-     depends="HttpCoreMain.clean-examples"
+     depends="HttpCoreMain.clean-examples,
+              HttpCoreNIO.clean-examples"
 />
 
 <target name="run-tests"
@@ -320,6 +322,9 @@ Output
           <packageset dir="${comp.core.main.xmpls}">
             <include name="org/apache/http/**" />
           </packageset>
+          <packageset dir="${comp.core.nio.xmpls}">
+            <include name="org/apache/http/**" />
+          </packageset>
           <packageset dir="${comp.core.main.contr}">
             <include name="org/apache/http/**" />
           </packageset>
@@ -340,6 +345,7 @@ Output
           </group>
           <group title="Examples">
             <package name="org.apache.http.examples*" />
+            <package name="org.apache.http.nio.examples*" />
           </group>
           <group title="Contributions (unsupported)">
             <package name="org.apache.http.contrib*" />
