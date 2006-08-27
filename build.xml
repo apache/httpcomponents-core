@@ -282,6 +282,7 @@ Output
             <package name="org.apache.http" />
             <package name="org.apache.http.entity" />
             <package name="org.apache.http.io" />
+            <package name="org.apache.http.nio" />
             <package name="org.apache.http.message" />
             <package name="org.apache.http.params" />
             <package name="org.apache.http.protocol" />
@@ -289,7 +290,7 @@ Output
           </group>
           <group title="Implementation">
             <package name="org.apache.http.impl*" />
-            <package name="org.apache.http.nio*" />
+            <package name="org.apache.http.nio.impl*" />
           </group>
 
           <link href="${javadoc.j2sdk.link}"/>
@@ -327,6 +328,7 @@ Output
             <package name="org.apache.http" />
             <package name="org.apache.http.entity" />
             <package name="org.apache.http.io" />
+            <package name="org.apache.http.nio" />
             <package name="org.apache.http.message" />
             <package name="org.apache.http.params" />
             <package name="org.apache.http.protocol" />
@@ -334,7 +336,7 @@ Output
           </group>
           <group title="Implementation">
             <package name="org.apache.http.impl*" />
-            <package name="org.apache.http.nio*" />
+            <package name="org.apache.http.nio.impl*" />
           </group>
           <group title="Examples">
             <package name="org.apache.http.examples*" />
