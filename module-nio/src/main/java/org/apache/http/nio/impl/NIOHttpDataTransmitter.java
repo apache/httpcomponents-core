@@ -71,23 +71,27 @@ public abstract class NIOHttpDataTransmitter implements HttpDataTransmitter {
         this.chbuffer = CharBuffer.allocate(1024);
     }
     
-    public synchronized void reset(final HttpParams params) {
+    public void reset(final HttpParams params) {
         this.charset = Charset.forName(HttpProtocolParams.getHttpElementCharset(params)); 
         this.charencoder = createCharEncoder();
     }
 
     private void doFlushBuffer() throws IOException {
         this.buffer.flip();
-        flushBuffer(this.buffer);
+        flushBuffer();
         this.buffer.compact();
     }
     
-    protected abstract void flushBuffer(ByteBuffer src) throws IOException;
+    protected ByteBuffer getBuffer() {
+        return this.buffer;
+    }
     
-    public synchronized void flush() throws IOException {
+    protected abstract void flushBuffer() throws IOException;
+    
+    public  void flush() throws IOException {
         this.buffer.flip();
         while (this.buffer.hasRemaining()) {
-            flushBuffer(this.buffer);
+            flushBuffer();
         }
         this.buffer.clear();
     }
@@ -99,7 +103,7 @@ public abstract class NIOHttpDataTransmitter implements HttpDataTransmitter {
         return charencoder; 
     }
     
-    public synchronized void write(final byte[] b, int off, int len) throws IOException {
+    public void write(final byte[] b, int off, int len) throws IOException {
         if (b == null) {
             return;
         }
@@ -133,14 +137,14 @@ public abstract class NIOHttpDataTransmitter implements HttpDataTransmitter {
         write(CRLF);
     }
 
-    public synchronized void write(int b) throws IOException {
+    public void write(int b) throws IOException {
         if (!this.buffer.hasRemaining()) {
             doFlushBuffer();
         }
         this.buffer.put((byte)b);
     }
 
-    public synchronized void writeLine(final CharArrayBuffer buffer) throws IOException {
+    public void writeLine(final CharArrayBuffer buffer) throws IOException {
         if (buffer == null) {
             return;
         }

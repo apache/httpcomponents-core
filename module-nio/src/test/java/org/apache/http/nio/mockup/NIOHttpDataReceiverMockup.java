@@ -3,7 +3,6 @@ package org.apache.http.nio.mockup;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
-import java.nio.ByteBuffer;
 import java.nio.channels.Channels;
 import java.nio.channels.ReadableByteChannel;
 
@@ -50,11 +49,8 @@ public class NIOHttpDataReceiverMockup extends NIOHttpDataReceiver {
     
     }
     
-    protected int fillBuffer(final ByteBuffer dst) throws IOException {
-        if (dst == null) {
-            throw new IllegalArgumentException("Byte buffer may not be null");
-        }
-        return this.channel.read(dst);
+    protected int fillBuffer() throws IOException {
+        return this.channel.read(getBuffer());
     }
   
     public boolean isDataAvailable(int timeout) throws IOException {

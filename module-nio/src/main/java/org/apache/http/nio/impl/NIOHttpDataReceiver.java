@@ -70,7 +70,7 @@ public abstract class NIOHttpDataReceiver implements HttpDataReceiver {
         this.chbuffer = CharBuffer.allocate(1024);
     }
 
-    public synchronized void reset(final HttpParams params) {
+    public void reset(final HttpParams params) {
         this.charset = Charset.forName(HttpProtocolParams.getHttpElementCharset(params)); 
         this.chardecoder = createCharDecoder();
     }
@@ -84,18 +84,18 @@ public abstract class NIOHttpDataReceiver implements HttpDataReceiver {
     
     private int doFillBuffer() throws IOException {
         this.buffer.compact();
-        int i = fillBuffer(this.buffer);
+        int i = fillBuffer();
         this.buffer.flip();
         return i;
     }
 
-    protected abstract int fillBuffer(ByteBuffer dst) throws IOException;
-    
-    protected synchronized boolean hasDataInBuffer() {
-        return this.buffer.hasRemaining();
+    protected ByteBuffer getBuffer() {
+        return this.buffer;
     }
     
-    public synchronized int read(final byte[] b, int off, int len) throws IOException {
+    protected abstract int fillBuffer() throws IOException;
+    
+    public int read(final byte[] b, int off, int len) throws IOException {
         if (b == null) {
             return 0;
         }
@@ -114,14 +114,14 @@ public abstract class NIOHttpDataReceiver implements HttpDataReceiver {
         return chunk;
     }
     
-    public synchronized int read(final byte[] b) throws IOException {
+    public int read(final byte[] b) throws IOException {
         if (b == null) {
             return 0;
         }
         return read(b, 0, b.length);
     }
     
-    public synchronized int read() throws IOException {
+    public  int read() throws IOException {
         int noRead = 0;
         if (!this.buffer.hasRemaining()) {
             noRead = doFillBuffer();
@@ -146,7 +146,7 @@ public abstract class NIOHttpDataReceiver implements HttpDataReceiver {
         return -1;
     }
     
-    public synchronized int readLine(final CharArrayBuffer charbuffer) throws IOException {
+    public int readLine(final CharArrayBuffer charbuffer) throws IOException {
         if (charbuffer == null) {
             throw new IllegalArgumentException("Char array buffer may not be null");
         }

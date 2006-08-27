@@ -29,12 +29,14 @@
 
 package org.apache.http.nio;
 
-import java.nio.channels.SelectionKey;
+import java.io.IOException;
 
-public interface EventMask {
+public interface IOConsumer {
 
-    public static final int READ = SelectionKey.OP_READ;
-    public static final int WRITE = SelectionKey.OP_WRITE;
-    public static final int READ_WRITE = READ | WRITE;
+    void consumeInput() throws IOException;
+    
+    void shutdown();
+    
+    void shutdown(final IOException exception);
     
 }

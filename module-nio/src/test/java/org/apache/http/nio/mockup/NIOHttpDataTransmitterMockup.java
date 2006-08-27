@@ -2,7 +2,6 @@ package org.apache.http.nio.mockup;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.nio.ByteBuffer;
 import java.nio.channels.Channels;
 import java.nio.channels.WritableByteChannel;
 
@@ -36,8 +35,8 @@ public class NIOHttpDataTransmitterMockup extends NIOHttpDataTransmitter {
         initBuffer(BUFFER_SIZE);
     }
 
-    protected void flushBuffer(final ByteBuffer src) throws IOException {
-        this.channel.write(src);
+    protected void flushBuffer() throws IOException {
+        this.channel.write(getBuffer());
     }
     
     public byte[] getData() {
