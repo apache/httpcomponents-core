@@ -14,35 +14,16 @@ import org.apache.http.nio.impl.DefaultIOReactor;
 public class ElementalEchoServer {
 
     public static void main(String[] args) throws Exception {
-        if (args.length < 1) {
-            System.err.println("Please specify document root directory");
-            System.exit(1);
+        IOEventDispatch ioEventDispatch = new DefaultIoEventDispatch();
+        IOReactor ioReactor = new DefaultIOReactor(new InetSocketAddress(8080));
+        try {
+            ioReactor.execute(ioEventDispatch);
+        } catch (InterruptedIOException ex) {
+            System.err.println("Interrupted");
+        } catch (IOException e) {
+            System.err.println("I/O error: " + e.getMessage());
         }
-        Thread t = new IOReactorThread(8080, new DefaultIoEventDispatch());
-        t.setDaemon(false);
-        t.start();
-    }
-    
-    static class IOReactorThread extends Thread {
-
-        private final IOReactor ioReactor;
-        private final IOEventDispatch ioEventDispatch;
-        
-        public IOReactorThread(int port, final IOEventDispatch ioEventDispatch) 
-                throws IOException {
-            this.ioReactor = new DefaultIOReactor(new InetSocketAddress(port));
-            this.ioEventDispatch = ioEventDispatch;
-        }
-        
-        public void run() {
-            try {
-                this.ioReactor.execute(this.ioEventDispatch);
-            } catch (InterruptedIOException ex) {
-            } catch (IOException e) {
-                System.err.println("I/O error: " + e.getMessage());
-            }
-        }
-        
+        System.out.println("Shutdown");
     }
     
     static class DefaultIoEventDispatch implements IOEventDispatch {
@@ -65,7 +46,7 @@ public class ElementalEchoServer {
                 }
                 System.out.println("Bytes read: " + bytesRead);
             } catch (IOException ex) {
-                System.out.println("I/O error: " + ex.getMessage());
+                System.err.println("I/O error: " + ex.getMessage());
             }
         }
 
@@ -79,7 +60,7 @@ public class ElementalEchoServer {
                 }
                 System.out.println("Bytes written: " + bytesWritten);
             } catch (IOException ex) {
-                System.out.println("I/O error: " + ex.getMessage());
+                System.err.println("I/O error: " + ex.getMessage());
             }
         }
 
@@ -90,7 +71,6 @@ public class ElementalEchoServer {
         
         public void disconnected(final IOSession session) {
             System.out.println("disconnected");
-            session.close();
         }
     }
     
