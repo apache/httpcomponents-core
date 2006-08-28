@@ -31,6 +31,7 @@ package org.apache.http.nio.impl;
 
 import java.io.IOException;
 import java.net.SocketAddress;
+import java.nio.channels.CancelledKeyException;
 import java.nio.channels.SelectionKey;
 import java.nio.channels.Selector;
 import java.nio.channels.ServerSocketChannel;
@@ -100,13 +101,19 @@ public class DefaultIOReactor implements IOReactor {
         }
     }
     
-    private void processEvents(final Set selectedKeys)
-            throws IOException {
+    private void processEvents(final Set selectedKeys) throws IOException {
         for (Iterator it = selectedKeys.iterator(); it.hasNext(); ) {
             
             SelectionKey key = (SelectionKey) it.next();
+            processEvent(key);
             
-            if (key.isValid() && key.isAcceptable()) {
+        }
+        selectedKeys.clear();
+    }
+
+    private void processEvent(final SelectionKey key) throws IOException {
+        try {
+            if (key.isAcceptable()) {
                 
                 SocketChannel socketChannel = this.serverChannel.accept();
                 if (socketChannel != null) {
@@ -133,7 +140,7 @@ public class DefaultIOReactor implements IOReactor {
                 }
             }
             
-            if (key.isValid() && key.isReadable()) {
+            if (key.isReadable()) {
                 SessionHandle handle = (SessionHandle) key.attachment();
                 IOSession session = handle.getSession();
                 handle.resetLastRead();
@@ -141,7 +148,7 @@ public class DefaultIOReactor implements IOReactor {
                 this.eventDispatch.inputReady(session);
             }
             
-            if (key.isValid() && key.isWritable()) {
+            if (key.isWritable()) {
                 SessionHandle handle = (SessionHandle) key.attachment();
                 IOSession session = handle.getSession();
                 handle.resetLastWrite();
@@ -149,18 +156,16 @@ public class DefaultIOReactor implements IOReactor {
                 this.eventDispatch.outputReady(session);
             }
             
-            if (!key.isValid()) {
-                SessionHandle handle = (SessionHandle) key.attachment();
-                if (handle != null) {
-                    key.attach(null);
-                    IOSession session = handle.getSession();
-                    this.closedSessions.push(session);
-                }
+        } catch (CancelledKeyException ex) {
+            SessionHandle handle = (SessionHandle) key.attachment();
+            if (handle != null) {
+                key.attach(null);
+                IOSession session = handle.getSession();
+                this.closedSessions.push(session);
             }
         }
-        selectedKeys.clear();
     }
-
+    
     private void processSessionTimeouts(final Set keys) {
         long now = System.currentTimeMillis();
         for (Iterator it = keys.iterator(); it.hasNext();) {
