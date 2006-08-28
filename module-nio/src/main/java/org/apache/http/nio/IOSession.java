@@ -38,6 +38,10 @@ public interface IOSession {
     int getEventMask();
     
     void setEventMask(int ops);
+    
+    void setEvent(int op);
+
+    void clearEvent(int op);
 
     void close();
     

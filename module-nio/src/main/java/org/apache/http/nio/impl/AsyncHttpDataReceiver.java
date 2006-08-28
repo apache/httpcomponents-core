@@ -25,14 +25,18 @@ public class AsyncHttpDataReceiver extends NIOHttpDataReceiver implements IOCons
         this.session = session;
         this.mutex = new Object();
         initBuffer(buffersize);
-        // Start receiving input events immediately
-        this.session.setEventMask(EventMask.READ);
     }
     
     public void consumeInput() throws IOException {
         synchronized (this.mutex) {
-            this.session.channel().read(getBuffer());
-            this.mutex.notifyAll();            
+            int noRead = this.session.channel().read(getBuffer());
+            if (noRead == -1) {
+                this.closed = true;
+            }
+            if (noRead != 0) {
+                this.session.clearEvent(EventMask.READ);
+                this.mutex.notifyAll();            
+            }
         }
     }
     
@@ -44,6 +48,7 @@ public class AsyncHttpDataReceiver extends NIOHttpDataReceiver implements IOCons
             ByteBuffer buffer = getBuffer();
             try {
                 while (buffer.position() == 0 && !this.closed) {
+                    this.session.setEvent(EventMask.READ);
                     this.mutex.wait();
                 }
                 
@@ -77,6 +82,9 @@ public class AsyncHttpDataReceiver extends NIOHttpDataReceiver implements IOCons
                 this.mutex.wait(timeout);
             } catch (InterruptedException ex) {
                 throw new IOException("Interrupted while waiting for more data");
+            }
+            if (this.closed) {
+                return false;
             }
             return buffer.position() > 0;
         }

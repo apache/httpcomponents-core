@@ -32,7 +32,7 @@ public class AsyncHttpDataTransmitter extends NIOHttpDataTransmitter implements 
             ByteBuffer buffer = getBuffer();
             this.session.channel().write(buffer);
             if (!buffer.hasRemaining()) {
-                this.session.setEventMask(EventMask.READ);
+                this.session.clearEvent(EventMask.WRITE);
                 this.mutex.notifyAll();            
             }
         }
@@ -42,7 +42,7 @@ public class AsyncHttpDataTransmitter extends NIOHttpDataTransmitter implements 
         if (this.closed) {
             return;
         }
-        this.session.setEventMask(EventMask.READ_WRITE);
+        this.session.setEvent(EventMask.WRITE);
         synchronized (this.mutex) {
             ByteBuffer buffer = getBuffer();
             try {

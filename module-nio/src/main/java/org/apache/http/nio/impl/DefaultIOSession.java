@@ -66,8 +66,26 @@ public class DefaultIOSession implements IOSession {
     }
     
     public void setEventMask(int ops) {
-        this.key.interestOps(ops);
-        this.key.selector().wakeup();
+        synchronized (this.key) {
+            this.key.interestOps(ops);
+            this.key.selector().wakeup();
+        }
+    }
+    
+    public void setEvent(int op) {
+        synchronized (this.key) {
+            int ops = this.key.interestOps();
+            this.key.interestOps(ops | op);
+            this.key.selector().wakeup();
+        }
+    }
+    
+    public void clearEvent(int op) {
+        synchronized (this.key) {
+            int ops = this.key.interestOps();
+            this.key.interestOps(ops & ~op);
+            this.key.selector().wakeup();
+        }
     }
     
     public int getSocketTimeout() {
