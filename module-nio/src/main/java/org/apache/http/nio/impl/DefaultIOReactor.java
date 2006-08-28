@@ -35,7 +35,6 @@ import java.nio.channels.SelectionKey;
 import java.nio.channels.Selector;
 import java.nio.channels.ServerSocketChannel;
 import java.nio.channels.SocketChannel;
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
 
@@ -50,7 +49,8 @@ public class DefaultIOReactor implements IOReactor {
     private volatile boolean closed = false;
     private final ServerSocketChannel serverChannel;
     private final Selector selector;
-    private final Set sessions;
+    private final SessionSet sessions;
+    private final SessionQueue closedSessions;
     private long lastTimeoutCheck;
     
     private IOEventDispatch eventDispatch = null;
@@ -61,7 +61,8 @@ public class DefaultIOReactor implements IOReactor {
         this.serverChannel.configureBlocking(false);
         this.serverChannel.socket().bind(address);
         this.selector = Selector.open();
-        this.sessions = new HashSet();
+        this.sessions = new SessionSet();
+        this.closedSessions = new SessionQueue();
         this.lastTimeoutCheck = System.currentTimeMillis();
     }
     
@@ -89,7 +90,9 @@ public class DefaultIOReactor implements IOReactor {
                         processSessionTimeouts(keys);
                     }
                 }
+                
                 processClosedSessions();
+                
             }
         } finally {
             closeSessions();
@@ -113,7 +116,13 @@ public class DefaultIOReactor implements IOReactor {
                     SelectionKey newkey = socketChannel.register(this.selector, 0);
                     
                     // Set up new session
-                    IOSession session = new DefaultIOSession(newkey);
+                    IOSession session = new DefaultIOSession(newkey, new SessionClosedCallback() {
+
+                        public void sessionClosed(IOSession session) {
+                            closedSessions.push(session);
+                        }
+                        
+                    });
                     this.sessions.add(session);
                     
                     // Attach session handle to the selection key
@@ -145,9 +154,7 @@ public class DefaultIOReactor implements IOReactor {
                 if (handle != null) {
                     key.attach(null);
                     IOSession session = handle.getSession();
-                    this.sessions.remove(session);
-
-                    this.eventDispatch.disconnected(session);
+                    this.closedSessions.push(session);
                 }
             }
         }
@@ -172,19 +179,19 @@ public class DefaultIOReactor implements IOReactor {
     }
 
     private void processClosedSessions() {
-        for (Iterator it = this.sessions.iterator(); it.hasNext(); ) {
-            IOSession session = (IOSession) it.next();
-            if (session.isClosed()) {
-                it.remove();
+        IOSession session;
+        while ((session = this.closedSessions.pop()) != null) {
+            if (this.sessions.remove(session)) {
                 this.eventDispatch.disconnected(session);
             }
         }
     }
-    
+
     private void closeSessions() {
         for (Iterator it = this.sessions.iterator(); it.hasNext(); ) {
             IOSession session = (IOSession) it.next();
-            if (!session.isClosed()) {
+            if (!session.isClosed()) {    
+
                 session.close();
                 this.eventDispatch.disconnected(session);
             }

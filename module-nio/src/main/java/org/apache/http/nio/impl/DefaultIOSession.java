@@ -43,16 +43,18 @@ public class DefaultIOSession implements IOSession {
     private volatile boolean closed = false;
     
     private final SelectionKey key;
+    private final SessionClosedCallback callback;
     private final Map attributes;
     
     private int socketTimeout;
     
-    public DefaultIOSession(final SelectionKey key) {
+    public DefaultIOSession(final SelectionKey key, final SessionClosedCallback callback) {
         super();
         if (key == null) {
             throw new IllegalArgumentException("Selection key may not be null");
         }
         this.key = key;
+        this.callback = callback;
         this.attributes = Collections.synchronizedMap(new HashMap());
         this.socketTimeout = 0;
     }
@@ -107,6 +109,9 @@ public class DefaultIOSession implements IOSession {
         } catch (IOException ex) {
             // Munching exceptions is not nice
             // but in this case it is justified
+        }
+        if (this.callback != null) {
+            this.callback.sessionClosed(this);
         }
         this.key.selector().wakeup();
     }
