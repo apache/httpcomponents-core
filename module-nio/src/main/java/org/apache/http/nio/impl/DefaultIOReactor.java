@@ -53,6 +53,8 @@ public class DefaultIOReactor implements IOReactor {
     private final Set sessions;
     private long lastTimeoutCheck;
     
+    private IOEventDispatch eventDispatch = null;
+    
     public DefaultIOReactor(final SocketAddress address) throws IOException {
         super();
         this.serverChannel = ServerSocketChannel.open();
@@ -64,6 +66,10 @@ public class DefaultIOReactor implements IOReactor {
     }
     
     public synchronized void execute(final IOEventDispatch eventDispatch) throws IOException {
+        if (eventDispatch == null) {
+            throw new IllegalArgumentException("Event dispatcher may not be null");
+        }
+        this.eventDispatch = eventDispatch;
         this.serverChannel.register(this.selector, SelectionKey.OP_ACCEPT);
         try {
             for (;;) {
@@ -72,7 +78,7 @@ public class DefaultIOReactor implements IOReactor {
                     break;
                 }
                 if (readyCount > 0) {
-                    processEvents(this.selector.selectedKeys(), eventDispatch);
+                    processEvents(this.selector.selectedKeys());
                 }
                 
                 long currentTime = System.currentTimeMillis();
@@ -80,22 +86,24 @@ public class DefaultIOReactor implements IOReactor {
                     this.lastTimeoutCheck = currentTime;
                     Set keys = this.selector.keys();
                     if (keys != null) {
-                        processSessionTimeouts(keys, eventDispatch);
+                        processSessionTimeouts(keys);
                     }
-                    processClosedSessions(eventDispatch);
                 }
+                processClosedSessions();
             }
         } finally {
-            closeSessions(eventDispatch);
+            closeSessions();
+            this.eventDispatch = null;
         }
     }
     
-    private void processEvents(final Set selectedKeys, final IOEventDispatch eventDispatch)
+    private void processEvents(final Set selectedKeys)
             throws IOException {
         for (Iterator it = selectedKeys.iterator(); it.hasNext(); ) {
+            
             SelectionKey key = (SelectionKey) it.next();
-            it.remove();
-            if (key.isAcceptable()) {
+            
+            if (key.isValid() && key.isAcceptable()) {
                 
                 SocketChannel socketChannel = this.serverChannel.accept();
                 if (socketChannel != null) {
@@ -112,30 +120,41 @@ public class DefaultIOReactor implements IOReactor {
                     SessionHandle handle = new SessionHandle(session); 
                     newkey.attach(handle);
                     
-                    // Dispatch the event
-                    eventDispatch.connected(session);
+                    this.eventDispatch.connected(session);
                 }
             }
-            if (key.isReadable()) {
+            
+            if (key.isValid() && key.isReadable()) {
                 SessionHandle handle = (SessionHandle) key.attachment();
                 IOSession session = handle.getSession();
                 handle.resetLastRead();
 
-                // Dispatch the event
-                eventDispatch.inputReady(session);
+                this.eventDispatch.inputReady(session);
             }
-            if (key.isWritable()) {
+            
+            if (key.isValid() && key.isWritable()) {
                 SessionHandle handle = (SessionHandle) key.attachment();
                 IOSession session = handle.getSession();
                 handle.resetLastWrite();
                 
-                // Dispatch the event
-                eventDispatch.outputReady(session);
+                this.eventDispatch.outputReady(session);
+            }
+            
+            if (!key.isValid()) {
+                SessionHandle handle = (SessionHandle) key.attachment();
+                if (handle != null) {
+                    key.attach(null);
+                    IOSession session = handle.getSession();
+                    this.sessions.remove(session);
+
+                    this.eventDispatch.disconnected(session);
+                }
             }
         }
+        selectedKeys.clear();
     }
 
-    private void processSessionTimeouts(final Set keys, final IOEventDispatch eventDispatch) {
+    private void processSessionTimeouts(final Set keys) {
         long now = System.currentTimeMillis();
         for (Iterator it = keys.iterator(); it.hasNext();) {
             SelectionKey key = (SelectionKey) it.next();
@@ -145,32 +164,29 @@ public class DefaultIOReactor implements IOReactor {
                 int timeout = session.getSocketTimeout();
                 if (timeout > 0) {
                     if (handle.getLastRead() + timeout < now) {
-                        // Dispatch the event
-                        eventDispatch.timeout(session);
+                        this.eventDispatch.timeout(session);
                     }
                 }
             }
         }
     }
 
-    private void processClosedSessions(final IOEventDispatch eventDispatch) {
+    private void processClosedSessions() {
         for (Iterator it = this.sessions.iterator(); it.hasNext(); ) {
             IOSession session = (IOSession) it.next();
             if (session.isClosed()) {
                 it.remove();
-                // Dispatch the event
-                eventDispatch.disconnected(session);
+                this.eventDispatch.disconnected(session);
             }
         }
     }
     
-    private void closeSessions(final IOEventDispatch eventDispatch) {
+    private void closeSessions() {
         for (Iterator it = this.sessions.iterator(); it.hasNext(); ) {
             IOSession session = (IOSession) it.next();
             if (!session.isClosed()) {
                 session.close();
-                // Dispatch the event
-                eventDispatch.disconnected(session);
+                this.eventDispatch.disconnected(session);
             }
         }
         this.sessions.clear();
