@@ -90,6 +90,7 @@ public class DefaultIOSession implements IOSession {
             // Munching exceptions is not nice
             // but in this case it is justified
         }
+        this.key.selector().wakeup();
     }
     
     public boolean isClosed() {
