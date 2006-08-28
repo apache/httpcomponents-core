@@ -39,6 +39,7 @@ import java.nio.charset.CodingErrorAction;
 
 import org.apache.http.io.CharArrayBuffer;
 import org.apache.http.io.HttpDataReceiver;
+import org.apache.http.params.HttpConnectionParams;
 import org.apache.http.params.HttpParams;
 import org.apache.http.params.HttpProtocolParams;
 import org.apache.http.protocol.HTTP;
@@ -62,6 +63,8 @@ public abstract class NIOHttpDataReceiver implements HttpDataReceiver {
     private CharsetDecoder chardecoder = null;
     private CharBuffer chbuffer = null;
     
+    private int maxLineLen = -1;
+    
     protected void initBuffer(int buffersize) {
         this.buffer = ByteBuffer.allocateDirect(buffersize);
         this.buffer.flip();
@@ -73,6 +76,7 @@ public abstract class NIOHttpDataReceiver implements HttpDataReceiver {
     public void reset(final HttpParams params) {
         this.charset = Charset.forName(HttpProtocolParams.getHttpElementCharset(params)); 
         this.chardecoder = createCharDecoder();
+        this.maxLineLen = params.getIntParameter(HttpConnectionParams.MAX_LINE_LENGTH, -1);
     }
 
     private CharsetDecoder createCharDecoder() {
@@ -121,7 +125,7 @@ public abstract class NIOHttpDataReceiver implements HttpDataReceiver {
         return read(b, 0, b.length);
     }
     
-    public  int read() throws IOException {
+    public int read() throws IOException {
         int noRead = 0;
         if (!this.buffer.hasRemaining()) {
             noRead = doFillBuffer();
@@ -129,11 +133,7 @@ public abstract class NIOHttpDataReceiver implements HttpDataReceiver {
                 return -1; 
             }
         }
-        int b = this.buffer.get();
-        if (b < 0) {
-            b = 256 + b;
-        }
-        return b;
+        return this.buffer.get() & 0xff;
     }
     
     private int locateLF() {
@@ -198,6 +198,9 @@ public abstract class NIOHttpDataReceiver implements HttpDataReceiver {
                 		this.chbuffer.position(), this.chbuffer.remaining());
             }
             this.chbuffer.clear();
+            if (this.maxLineLen > 0 && charbuffer.length() >= this.maxLineLen) {
+                throw new IOException("Maximum line length limit exceeded");
+            }
         }
         // flush the decoder
         this.chardecoder.flush(this.chbuffer);

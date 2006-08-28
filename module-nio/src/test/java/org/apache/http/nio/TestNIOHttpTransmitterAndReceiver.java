@@ -30,6 +30,7 @@ package org.apache.http.nio;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.nio.channels.Channels;
 import java.nio.channels.ReadableByteChannel;
 
@@ -39,6 +40,7 @@ import org.apache.http.nio.impl.NIOHttpDataReceiver;
 import org.apache.http.nio.impl.NIOHttpDataTransmitter;
 import org.apache.http.nio.mockup.NIOHttpDataReceiverMockup;
 import org.apache.http.nio.mockup.NIOHttpDataTransmitterMockup;
+import org.apache.http.params.HttpConnectionParams;
 import org.apache.http.params.HttpParams;
 import org.apache.http.params.HttpProtocolParams;
 
@@ -310,6 +312,28 @@ public class TestNIOHttpTransmitterAndReceiver extends TestCase {
         }
         assertEquals(-1, receiver.read());
         assertEquals(-1, receiver.read());
+    }
+    
+    public void testLineLimit() throws Exception {
+        HttpParams params = new DefaultHttpParams();
+        String s = "a very looooooooooooooooooooooooooooooooooooooong line\r\n     ";
+        byte[] tmp = s.getBytes("US-ASCII"); 
+        NIOHttpDataReceiverMockup receiver1 = new NIOHttpDataReceiverMockup(tmp, 5);
+        // no limit
+        params.setIntParameter(HttpConnectionParams.MAX_LINE_LENGTH, 0);
+        receiver1.reset(params);
+        assertNotNull(receiver1.readLine());
+        
+        NIOHttpDataReceiverMockup receiver2 = new NIOHttpDataReceiverMockup(tmp, 5);
+        // 15 char limit
+        params.setIntParameter(HttpConnectionParams.MAX_LINE_LENGTH, 15);
+        receiver2.reset(params);
+        try {
+            receiver2.readLine();
+            fail("IOException should have been thrown");
+        } catch (IOException ex) {
+            // expected
+        }
     }
 
     static final int SWISS_GERMAN_HELLO [] = {
