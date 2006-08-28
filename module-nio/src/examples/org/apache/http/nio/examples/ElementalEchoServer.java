@@ -45,6 +45,9 @@ public class ElementalEchoServer {
                     session.setEventMask(EventMask.READ_WRITE);
                 }
                 System.out.println("Bytes read: " + bytesRead);
+                if (bytesRead == -1) {
+                    session.close();
+                }
             } catch (IOException ex) {
                 System.err.println("I/O error: " + ex.getMessage());
             }
