@@ -65,12 +65,12 @@ public abstract class NIOHttpDataReceiver implements HttpDataReceiver {
     
     private int maxLineLen = -1;
     
-    protected void initBuffer(int buffersize) {
+    protected void initBuffer(int buffersize, int linebuffersize) {
         this.buffer = ByteBuffer.allocateDirect(buffersize);
         this.buffer.flip();
         this.charset = Charset.forName("US-ASCII");
         this.chardecoder = createCharDecoder();
-        this.chbuffer = CharBuffer.allocate(1024);
+        this.chbuffer = CharBuffer.allocate(linebuffersize);
     }
 
     public void reset(final HttpParams params) {

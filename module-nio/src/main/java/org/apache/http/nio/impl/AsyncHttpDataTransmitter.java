@@ -24,7 +24,11 @@ public class AsyncHttpDataTransmitter extends NIOHttpDataTransmitter implements 
         }
         this.session = session;
         this.mutex = new Object();
-        initBuffer(buffersize);
+        int linebuffersize = buffersize;
+        if (linebuffersize > 512) {
+            linebuffersize = 512;
+        }
+        initBuffer(buffersize, linebuffersize);
     }
 
     public void produceOutput() throws IOException {

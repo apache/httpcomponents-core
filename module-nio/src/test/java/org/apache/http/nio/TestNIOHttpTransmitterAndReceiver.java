@@ -28,11 +28,11 @@
 
 package org.apache.http.nio;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.nio.channels.Channels;
-import java.nio.channels.ReadableByteChannel;
+
+import junit.framework.Test;
+import junit.framework.TestCase;
+import junit.framework.TestSuite;
 
 import org.apache.http.impl.DefaultHttpParams;
 import org.apache.http.io.CharArrayBuffer;
@@ -43,8 +43,6 @@ import org.apache.http.nio.mockup.NIOHttpDataTransmitterMockup;
 import org.apache.http.params.HttpConnectionParams;
 import org.apache.http.params.HttpParams;
 import org.apache.http.params.HttpProtocolParams;
-
-import junit.framework.*;
 
 /**
  * Simple tests for {@link NIOHttpDataTransmitter} and {@link NIOHttpDataReceiver}.
@@ -72,37 +70,6 @@ public class TestNIOHttpTransmitterAndReceiver extends TestCase {
         return new TestSuite(TestNIOHttpTransmitterAndReceiver.class);
     }
 
-    public void testInit() throws Exception {
-        ByteArrayOutputStream out = new ByteArrayOutputStream();
-        new NIOHttpDataTransmitterMockup(Channels.newChannel(out), 10); 
-        try {
-            new NIOHttpDataTransmitterMockup(Channels.newChannel(out), -10); 
-            fail("IllegalArgumentException should have been thrown");
-        } catch (IllegalArgumentException ex) {
-            //expected
-        }
-        try {
-            new NIOHttpDataTransmitterMockup(null, 1024); 
-            fail("IllegalArgumentException should have been thrown");
-        } catch (IllegalArgumentException ex) {
-            //expected
-        }
-        ByteArrayInputStream in = new ByteArrayInputStream(out.toByteArray());
-        new NIOHttpDataReceiverMockup(Channels.newChannel(in), 10); 
-        try {
-            new NIOHttpDataReceiverMockup(Channels.newChannel(in), -10); 
-            fail("IllegalArgumentException should have been thrown");
-        } catch (IllegalArgumentException ex) {
-            //expected
-        }
-        try {
-            new NIOHttpDataReceiverMockup((ReadableByteChannel)null, 1024); 
-            fail("IllegalArgumentException should have been thrown");
-        } catch (IllegalArgumentException ex) {
-            //expected
-        }
-    }
-    
     public void testBasicReadWriteLine() throws Exception {
         
         String[] teststrs = new String[5];
@@ -209,7 +176,7 @@ public class TestNIOHttpTransmitterAndReceiver extends TestCase {
         teststrs[3] = "";
         teststrs[4] = "And goodbye";
         
-        NIOHttpDataTransmitterMockup transmitter = new NIOHttpDataTransmitterMockup(); 
+        NIOHttpDataTransmitterMockup transmitter = new NIOHttpDataTransmitterMockup(32, 8); 
         for (int i = 0; i < teststrs.length; i++) {
             transmitter.writeLine(teststrs[i]);
         }
@@ -218,7 +185,7 @@ public class TestNIOHttpTransmitterAndReceiver extends TestCase {
         transmitter.writeLine((CharArrayBuffer)null);
         transmitter.flush();
         
-        NIOHttpDataReceiverMockup receiver = new NIOHttpDataReceiverMockup(transmitter.getData(), 1024);
+        NIOHttpDataReceiverMockup receiver = new NIOHttpDataReceiverMockup(transmitter.getData(), 32, 8);
 
         assertTrue(receiver.isDataAvailable(0));
         
@@ -318,13 +285,13 @@ public class TestNIOHttpTransmitterAndReceiver extends TestCase {
         HttpParams params = new DefaultHttpParams();
         String s = "a very looooooooooooooooooooooooooooooooooooooong line\r\n     ";
         byte[] tmp = s.getBytes("US-ASCII"); 
-        NIOHttpDataReceiverMockup receiver1 = new NIOHttpDataReceiverMockup(tmp, 5);
+        NIOHttpDataReceiverMockup receiver1 = new NIOHttpDataReceiverMockup(tmp, 5, 5);
         // no limit
         params.setIntParameter(HttpConnectionParams.MAX_LINE_LENGTH, 0);
         receiver1.reset(params);
         assertNotNull(receiver1.readLine());
         
-        NIOHttpDataReceiverMockup receiver2 = new NIOHttpDataReceiverMockup(tmp, 5);
+        NIOHttpDataReceiverMockup receiver2 = new NIOHttpDataReceiverMockup(tmp, 5, 5);
         // 15 char limit
         params.setIntParameter(HttpConnectionParams.MAX_LINE_LENGTH, 15);
         receiver2.reset(params);
@@ -387,4 +354,16 @@ public class TestNIOHttpTransmitterAndReceiver extends TestCase {
         assertNull(receiver.readLine());
     }
 
+    public void testInvalidInput() throws Exception {
+        String s = "line1\r\nline2";
+        byte[] tmp = s.getBytes("US-ASCII"); 
+        NIOHttpDataReceiverMockup receiver1 = new NIOHttpDataReceiverMockup(tmp);
+        try {
+            receiver1.readLine(null);
+            fail("IllegalArgumentException should have been thrown");
+        } catch (IllegalArgumentException ex) {
+            // expected
+        }
+    }
+    
 }

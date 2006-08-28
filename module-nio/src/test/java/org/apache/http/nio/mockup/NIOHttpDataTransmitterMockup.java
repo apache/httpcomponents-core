@@ -20,19 +20,30 @@ public class NIOHttpDataTransmitterMockup extends NIOHttpDataTransmitter {
     
     private final WritableByteChannel channel;
     
-    public NIOHttpDataTransmitterMockup(final WritableByteChannel channel, int buffersize) {
+    public NIOHttpDataTransmitterMockup(
+            final WritableByteChannel channel, 
+            int buffersize,
+            int linebuffersize) {
         super();
         if (channel == null) {
             throw new IllegalArgumentException("Channel may not be null");
         }
         this.channel = channel;
-        initBuffer(buffersize);
+        initBuffer(buffersize, linebuffersize);
+    }
+
+    public NIOHttpDataTransmitterMockup(
+            int buffersize,
+            int linebuffersize) {
+        super();
+        this.channel = Channels.newChannel(this.buffer);
+        initBuffer(buffersize, linebuffersize);
     }
 
     public NIOHttpDataTransmitterMockup() {
         super();
         this.channel = Channels.newChannel(this.buffer);
-        initBuffer(BUFFER_SIZE);
+        initBuffer(BUFFER_SIZE, BUFFER_SIZE);
     }
 
     protected void flushBuffer() throws IOException {

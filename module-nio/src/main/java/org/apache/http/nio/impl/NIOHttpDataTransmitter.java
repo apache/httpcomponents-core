@@ -64,11 +64,11 @@ public abstract class NIOHttpDataTransmitter implements HttpDataTransmitter {
     private CharsetEncoder charencoder = null;
     private CharBuffer chbuffer = null;
 
-    protected void initBuffer(int buffersize) {
+    protected void initBuffer(int buffersize, int linebuffersize) {
         this.buffer = ByteBuffer.allocateDirect(buffersize);
         this.charset = Charset.forName("US-ASCII");
         this.charencoder = createCharEncoder();
-        this.chbuffer = CharBuffer.allocate(1024);
+        this.chbuffer = CharBuffer.allocate(linebuffersize);
     }
     
     public void reset(final HttpParams params) {
@@ -162,7 +162,7 @@ public abstract class NIOHttpDataTransmitter implements HttpDataTransmitter {
                     // terminate the encoding process
                     eol = true;
                 }
-                this.chbuffer.put(buffer.buffer(), offset, offset + l);
+                this.chbuffer.put(buffer.buffer(), offset, l);
                 this.chbuffer.flip();
                 
                 boolean retry = true;
@@ -173,7 +173,6 @@ public abstract class NIOHttpDataTransmitter implements HttpDataTransmitter {
                     }
                     retry = !result.isUnderflow();
                 }
-                
                 this.chbuffer.compact();
                 offset += l;
                 remaining -= l;

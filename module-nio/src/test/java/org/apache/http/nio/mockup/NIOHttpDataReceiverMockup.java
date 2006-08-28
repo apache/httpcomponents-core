@@ -19,28 +19,34 @@ public class NIOHttpDataReceiverMockup extends NIOHttpDataReceiver {
     
     private final ReadableByteChannel channel;
     
-    public NIOHttpDataReceiverMockup(final ReadableByteChannel channel, int buffersize) {
+    public NIOHttpDataReceiverMockup(
+            final ReadableByteChannel channel, 
+            int buffersize, 
+            int linebuffersize) {
         super();
         if (channel == null) {
             throw new IllegalArgumentException("Channel may not be null");
         }
         this.channel = channel;
-        initBuffer(buffersize);
+        initBuffer(buffersize, linebuffersize);
     }
 
     public NIOHttpDataReceiverMockup(final byte[] bytes) {
-        this(bytes, BUFFER_SIZE);
+        this(bytes, BUFFER_SIZE, BUFFER_SIZE);
     }
 
-    public NIOHttpDataReceiverMockup(final byte[] bytes, int buffersize) {
+    public NIOHttpDataReceiverMockup(
+            final byte[] bytes, 
+            int buffersize, 
+            int linebuffersize) {
         super();
         this.channel = Channels.newChannel(new ByteArrayInputStream(bytes));
-        initBuffer(buffersize);
+        initBuffer(buffersize, linebuffersize);
     }
 
     public NIOHttpDataReceiverMockup(final String s, final String charset, int buffersize) 
         throws UnsupportedEncodingException {
-        this(s.getBytes(charset), buffersize);
+        this(s.getBytes(charset), buffersize, buffersize);
     }
     
     public NIOHttpDataReceiverMockup(final String s, final String charset) 
