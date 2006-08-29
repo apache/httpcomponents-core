@@ -38,12 +38,12 @@ import java.nio.channels.ServerSocketChannel;
 import org.apache.http.params.HttpConnectionParams;
 import org.apache.http.params.HttpParams;
 
-public class DefaultIOReactor extends AbstractIOReactor {
+public class DefaultListeningIOReactor extends AbstractIOReactor {
 
     private final ServerSocketChannel serverChannel;
     private final HttpParams params;
     
-    public DefaultIOReactor(final SocketAddress address, final HttpParams params) 
+    public DefaultListeningIOReactor(final SocketAddress address, final HttpParams params) 
             throws IOException {
         super();
         if (params == null) {
