@@ -1,0 +1,82 @@
+package org.apache.http.nio.impl;
+
+import java.io.IOException;
+
+import org.apache.http.impl.AbstractHttpServerConnection;
+import org.apache.http.impl.DefaultHttpRequestFactory;
+import org.apache.http.impl.entity.DefaultEntityDeserializer;
+import org.apache.http.impl.entity.DefaultEntitySerializer;
+import org.apache.http.nio.IOConsumer;
+import org.apache.http.nio.IOProducer;
+import org.apache.http.nio.IOSession;
+import org.apache.http.params.HttpConnectionParams;
+import org.apache.http.params.HttpParams;
+
+public class AsyncHttpServerConnection extends AbstractHttpServerConnection {
+
+    private final IOSession session;
+    private final IOProducer ioProducer;
+    private final IOConsumer ioConsumer;
+    
+    public AsyncHttpServerConnection(final IOSession session, final HttpParams params) {
+        super();
+        if (session == null) {
+            throw new IllegalArgumentException("IO session may not be null");
+        }
+        if (params == null) {
+            throw new IllegalArgumentException("HTTP parameters may not be null");
+        }
+        this.session = session;
+        int buffersize = HttpConnectionParams.getSocketBufferSize(params);
+        
+        AsyncHttpDataReceiver datareceiver = new AsyncHttpDataReceiver(
+                session, buffersize);
+        datareceiver.reset(params);
+        AsyncHttpDataTransmitter datatransmitter = new AsyncHttpDataTransmitter(
+                session, buffersize);
+        datatransmitter.reset(params);
+
+        this.ioConsumer = datareceiver;
+        this.ioProducer = datatransmitter;
+        
+        setHttpDataReceiver(datareceiver);
+        setHttpDataTransmitter(datatransmitter);
+        setRequestFactory(new DefaultHttpRequestFactory());
+        setEntitySerializer(new DefaultEntitySerializer());
+        setEntityDeserializer(new DefaultEntityDeserializer());
+    }
+
+    public IOConsumer getIOConsumer() {
+        return this.ioConsumer;
+    }
+
+    public IOProducer getIOProducer() {
+        return this.ioProducer;
+    }
+
+    protected void assertOpen() throws IllegalStateException {
+        if (this.session.isClosed()) {
+            throw new IllegalStateException("Connection is closed");
+        }
+    }
+
+    public void close() throws IOException {
+        flush();
+        shutdown();
+    }
+
+    public boolean isOpen() {
+        return !this.session.isClosed();
+    }
+
+    public boolean isStale() {
+        return this.session.isClosed();
+    }
+
+    public void shutdown() throws IOException {
+        this.ioProducer.shutdown();
+        this.ioConsumer.shutdown();
+        this.session.close();
+    }
+
+}
