@@ -36,9 +36,7 @@ import org.apache.http.HttpConnection;
 import org.apache.http.impl.io.SocketHttpDataReceiver;
 import org.apache.http.impl.io.SocketHttpDataTransmitter;
 import org.apache.http.io.HttpDataReceiver;
-import org.apache.http.io.HttpDataReceiverFactory;
 import org.apache.http.io.HttpDataTransmitter;
-import org.apache.http.io.HttpDataTransmitterFactory;
 import org.apache.http.params.HttpConnectionParams;
 import org.apache.http.params.HttpParams;
 
@@ -63,30 +61,10 @@ public abstract class AbstractHttpConnection implements HttpConnection {
     protected HttpDataTransmitter datatransmitter = null;
     protected HttpDataReceiver datareceiver = null;
     
-    /*
-     * Dependent interfaces
-     */
-    private HttpDataTransmitterFactory trxfactory = null; 
-    private HttpDataReceiverFactory rcvfactory = null; 
-    
     protected AbstractHttpConnection() {
         super();
     }
     
-    public void setReceiverFactory(final HttpDataReceiverFactory rcvfactory) {
-        if (rcvfactory == null) {
-            throw new IllegalArgumentException("Factory may not be null");
-        }
-        this.rcvfactory = rcvfactory;
-    }
-    
-    public void setTransmitterFactory(final HttpDataTransmitterFactory trxfactory) {
-        if (trxfactory == null) {
-            throw new IllegalArgumentException("Factory may not be null");
-        }
-        this.trxfactory = trxfactory;
-    }
-
     protected void assertNotOpen() {
         if (this.open) {
             throw new IllegalStateException("Connection is already open");
@@ -118,16 +96,8 @@ public abstract class AbstractHttpConnection implements HttpConnection {
         assertNotOpen();
         this.open = true;
         this.socket = socket;
-        if (this.trxfactory != null) {
-            this.datatransmitter = this.trxfactory.create(this.socket); 
-        } else {
-            this.datatransmitter = new SocketHttpDataTransmitter(this.socket, buffersize);
-        }
-        if (this.rcvfactory != null) {
-            this.datareceiver = this.rcvfactory.create(this.socket); 
-        } else {
-            this.datareceiver = new SocketHttpDataReceiver(this.socket, buffersize);
-        }
+        this.datatransmitter = new SocketHttpDataTransmitter(this.socket, buffersize);
+        this.datareceiver = new SocketHttpDataReceiver(this.socket, buffersize);
         this.datatransmitter.reset(params);
         this.datareceiver.reset(params);
     }
