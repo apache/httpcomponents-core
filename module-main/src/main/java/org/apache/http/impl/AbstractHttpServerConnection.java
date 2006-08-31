@@ -165,9 +165,13 @@ public abstract class AbstractHttpServerConnection implements HttpServerConnecti
         request.setHeaders(headers);
     }
 
+    protected void doFlush() throws IOException  {
+        this.datatransmitter.flush();
+    }
+    
     public void flush() throws IOException {
         assertOpen();
-        this.datatransmitter.flush();
+        doFlush();
     }
     
 	public void sendResponseHeader(final HttpResponse response) 

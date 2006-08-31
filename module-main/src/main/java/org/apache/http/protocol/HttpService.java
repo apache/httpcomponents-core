@@ -120,6 +120,14 @@ public class HttpService extends AbstractHttpProcessor {
         }
     }
             
+    protected void shutdownConnection() {
+        try {
+            this.conn.shutdown();
+        } catch (IOException ex) {
+            logIOException(ex);
+        }
+    }
+            
     public void handleRequest() { 
         this.context.setAttribute(HttpExecutionContext.HTTP_CONNECTION, this.conn);
         HttpResponse response;
@@ -162,7 +170,7 @@ public class HttpService extends AbstractHttpProcessor {
             }
         } catch (ConnectionClosedException ex) {
             logMessage("Client closed connection");
-            closeConnection();
+            shutdownConnection();
             return;
         } catch (HttpException ex) {
             response = this.responseFactory.newHttpResponse(HttpVersion.HTTP_1_0, 
@@ -171,7 +179,7 @@ public class HttpService extends AbstractHttpProcessor {
             handleException(ex, response);
         } catch (IOException ex) {
             logIOException(ex);
-            closeConnection();
+            shutdownConnection();
             return;
         }
         try {
@@ -186,7 +194,7 @@ public class HttpService extends AbstractHttpProcessor {
             return;
         } catch (IOException ex) {
             logIOException(ex);
-            closeConnection();
+            shutdownConnection();
             return;
         }
         if (!this.connStrategy.keepAlive(conn, response)) {
