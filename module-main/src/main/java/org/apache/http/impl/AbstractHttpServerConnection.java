@@ -219,4 +219,14 @@ public abstract class AbstractHttpServerConnection implements HttpServerConnecti
         this.datatransmitter.writeLine(this.buffer);
     }
         
+    public boolean isStale() {
+        assertOpen();
+        try {
+            this.datareceiver.isDataAvailable(1);
+            return false;
+        } catch (IOException ex) {
+            return true;
+        }
+    }
+    
 }

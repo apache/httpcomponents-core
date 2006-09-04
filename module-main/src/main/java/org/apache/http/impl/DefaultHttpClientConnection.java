@@ -32,35 +32,17 @@ package org.apache.http.impl;
 import java.io.IOException;
 import java.net.InetAddress;
 import java.net.Socket;
-import java.util.Iterator;
 
-import org.apache.http.Header;
-import org.apache.http.HttpClientConnection;
-import org.apache.http.HttpEntity;
-import org.apache.http.HttpEntityEnclosingRequest;
-import org.apache.http.HttpException;
 import org.apache.http.HttpHost;
-import org.apache.http.HttpRequest;
-import org.apache.http.HttpResponse;
-import org.apache.http.HttpResponseFactory;
-import org.apache.http.NoHttpResponseException;
-import org.apache.http.ProtocolException;
-import org.apache.http.StatusLine;
-import org.apache.http.entity.EntityDeserializer;
-import org.apache.http.entity.EntitySerializer;
-import org.apache.http.impl.entity.DefaultEntitySerializer;
 import org.apache.http.impl.entity.DefaultEntityDeserializer;
-import org.apache.http.io.CharArrayBuffer;
+import org.apache.http.impl.entity.DefaultEntitySerializer;
+import org.apache.http.impl.io.SocketHttpDataReceiver;
+import org.apache.http.impl.io.SocketHttpDataTransmitter;
+import org.apache.http.io.HttpDataReceiver;
+import org.apache.http.io.HttpDataTransmitter;
 import org.apache.http.io.SocketFactory;
-import org.apache.http.message.BasicHeader;
-import org.apache.http.message.BasicRequestLine;
-import org.apache.http.message.BasicStatusLine;
-import org.apache.http.message.BufferedHeader;
 import org.apache.http.params.HttpConnectionParams;
 import org.apache.http.params.HttpParams;
-import org.apache.http.params.HttpProtocolParams;
-import org.apache.http.protocol.HTTP;
-import org.apache.http.util.HeaderUtils;
 
 /**
  * Default implementation of a client-side HTTP connection.
@@ -71,30 +53,18 @@ import org.apache.http.util.HeaderUtils;
  * 
  * @since 4.0
  */
-public class DefaultHttpClientConnection 
-        extends AbstractHttpConnection implements HttpClientConnection {
+public class DefaultHttpClientConnection extends AbstractHttpClientConnection {
 
     private HttpHost targethost = null;
     private InetAddress localAddress = null;
-    private int maxHeaderCount = -1;
 
-    private final CharArrayBuffer buffer; 
-    
-    /*
-     * Dependent interfaces
-     */
-    private HttpResponseFactory responsefactory = null;
-    private EntitySerializer entityserializer = null;
-    private EntityDeserializer entitydeserializer = null;
+    protected volatile boolean open;
+    protected Socket socket = null;
     
     public DefaultHttpClientConnection(final HttpHost targethost, final InetAddress localAddress) {
         super();
         this.targethost = targethost;
         this.localAddress = localAddress;
-        this.buffer = new CharArrayBuffer(128);
-        this.responsefactory = new DefaultHttpResponseFactory();
-        this.entityserializer = new DefaultEntitySerializer();
-        this.entitydeserializer = new DefaultEntityDeserializer();
     }
     
     public DefaultHttpClientConnection(final HttpHost targethost) {
@@ -105,25 +75,16 @@ public class DefaultHttpClientConnection
         this(null, null);
     }
     
-    public void setResponseFactory(final HttpResponseFactory responsefactory) {
-        if (responsefactory == null) {
-            throw new IllegalArgumentException("Factory may not be null");
+    protected void assertNotOpen() {
+        if (this.open) {
+            throw new IllegalStateException("Connection is already open");
         }
-        this.responsefactory = responsefactory;
     }
-
-    public void setEntityDeserializer(final EntityDeserializer entitydeserializer) {
-        if (entitydeserializer == null) {
-            throw new IllegalArgumentException("Entity deserializer may not be null");
+    
+    protected void assertOpen() {
+        if (!this.open) {
+            throw new IllegalStateException("Connection is not open");
         }
-        this.entitydeserializer = entitydeserializer;
-    }
-
-    public void setEntitySerializer(final EntitySerializer entityserializer) {
-        if (entityserializer == null) {
-            throw new IllegalArgumentException("Entity serializer may not be null");
-        }
-        this.entityserializer = entityserializer;
     }
 
     public void open(final HttpParams params) throws IOException {
@@ -140,9 +101,42 @@ public class DefaultHttpClientConnection
                 this.localAddress, 0, 
                 params);
         bind(socket, params);
-        this.maxHeaderCount = params.getIntParameter(HttpConnectionParams.MAX_HEADER_COUNT, -1);
     }
     
+    protected void bind(final Socket socket, final HttpParams params) throws IOException {
+        if (socket == null) {
+            throw new IllegalArgumentException("Socket may not be null");
+        }
+        if (params == null) {
+            throw new IllegalArgumentException("HTTP parameters may not be null");
+        }
+        assertNotOpen();
+        
+        socket.setTcpNoDelay(HttpConnectionParams.getTcpNoDelay(params));
+        socket.setSoTimeout(HttpConnectionParams.getSoTimeout(params));
+        
+        int linger = HttpConnectionParams.getLinger(params);
+        if (linger >= 0) {
+            socket.setSoLinger(linger > 0, linger);
+        }
+
+        this.socket = socket;
+        
+        int buffersize = HttpConnectionParams.getSocketBufferSize(params);
+        HttpDataTransmitter transmitter = new SocketHttpDataTransmitter(socket, buffersize);
+        HttpDataReceiver receiver = new SocketHttpDataReceiver(socket, buffersize);
+        transmitter.reset(params);
+        receiver.reset(params);
+        
+        setHttpDataReceiver(receiver);
+        setHttpDataTransmitter(transmitter);
+        setMaxHeaderCount(params.getIntParameter(HttpConnectionParams.MAX_HEADER_COUNT, -1));
+        setResponseFactory(new DefaultHttpResponseFactory());
+        setEntitySerializer(new DefaultEntitySerializer());
+        setEntityDeserializer(new DefaultEntityDeserializer());
+        this.open = true;
+    }
+
     public HttpHost getTargetHost() {
         return this.targethost;
     }
@@ -164,142 +158,33 @@ public class DefaultHttpClientConnection
         this.localAddress = localAddress;
     }
     
-    public boolean isResponseAvailable(int timeout) throws IOException {
-        assertOpen();
-        return this.datareceiver.isDataAvailable(timeout);
+    public boolean isOpen() {
+        return this.open;
     }
 
-    public void sendRequestHeader(final HttpRequest request) 
-            throws HttpException, IOException {
-        if (request == null) {
-            throw new IllegalArgumentException("HTTP request may not be null");
+    public void shutdown() throws IOException {
+        this.open = false;
+        Socket tmpsocket = this.socket;
+        if (tmpsocket != null) {
+            tmpsocket.close();
         }
-        assertOpen();
-        sendRequestLine(request);
-        sendRequestHeaders(request);
     }
-
-    public void sendRequestEntity(final HttpEntityEnclosingRequest request) 
-            throws HttpException, IOException {
-        if (request == null) {
-            throw new IllegalArgumentException("HTTP request may not be null");
-        }
-        assertOpen();
-        if (request.getEntity() == null) {
+    
+    public void close() throws IOException {
+        if (!this.open) {
             return;
         }
-        this.entityserializer.serialize(
-                this.datatransmitter,
-                request,
-                request.getEntity());
-    }
-
-    public void flush() throws IOException {
-        this.datatransmitter.flush();
-    }
-    
-    protected void sendRequestLine(final HttpRequest request) 
-            throws HttpException, IOException {
-        this.buffer.clear();
-        BasicRequestLine.format(this.buffer, request.getRequestLine());
-        this.datatransmitter.writeLine(this.buffer);
-    }
-
-    protected void sendRequestHeaders(final HttpRequest request) 
-            throws HttpException, IOException {
-        for (Iterator it = request.headerIterator(); it.hasNext(); ) {
-            Header header = (Header) it.next();
-            if (header instanceof BufferedHeader) {
-                // If the header is backed by a buffer, re-use the buffer
-                this.datatransmitter.writeLine(((BufferedHeader)header).getBuffer());
-            } else {
-                this.buffer.clear();
-                BasicHeader.format(this.buffer, header);
-                this.datatransmitter.writeLine(this.buffer);
-            }
-        }
-        this.buffer.clear();
-        this.datatransmitter.writeLine(this.buffer);
-    }
-
-    public HttpResponse receiveResponseHeader(final HttpParams params) 
-            throws HttpException, IOException {
-        if (params == null) {
-            throw new IllegalArgumentException("HTTP parameters may not be null");
-        }
-        assertOpen();
-        HttpResponse response = readResponseStatusLine(params);
-        readResponseHeaders(response);
-        return response;
-    }
-
-    public void receiveResponseEntity(final HttpResponse response)
-            throws HttpException, IOException {
-        if (response == null) {
-            throw new IllegalArgumentException("HTTP response may not be null");
-        }
-        assertOpen();
-        HttpEntity entity = this.entitydeserializer.deserialize(this.datareceiver, response);
-        response.setEntity(entity);
-    }
-    
-    /**
-     * Tests if the string starts with 'HTTP' signature.
-     * @param buffer buffer to test
-     * @return <tt>true</tt> if the line starts with 'HTTP' 
-     *   signature, <tt>false</tt> otherwise.
-     */
-    private static boolean startsWithHTTP(final CharArrayBuffer buffer) {
+        this.open = false;
+        doFlush();
         try {
-            int i = 0;
-            while (HTTP.isWhitespace(buffer.charAt(i))) {
-                ++i;
-            }
-            return buffer.charAt(i) == 'H' 
-                && buffer.charAt(i + 1) == 'T'
-                && buffer.charAt(i + 2) == 'T'
-                && buffer.charAt(i + 3) == 'P';
-        } catch (IndexOutOfBoundsException e) {
-            return false;
+            this.socket.shutdownOutput();
+        } catch (IOException ignore) {
         }
-    }
-    
-    protected HttpResponse readResponseStatusLine(final HttpParams params) 
-                throws HttpException, IOException {
-        // clear the buffer
-        this.buffer.clear();
-        //read out the HTTP status string
-        int maxGarbageLines = params.getIntParameter(
-                HttpProtocolParams.STATUS_LINE_GARBAGE_LIMIT, Integer.MAX_VALUE);
-        int count = 0;
-        do {
-            int i = this.datareceiver.readLine(this.buffer);
-            if (i == -1 && count == 0) {
-                // The server just dropped connection on us
-                throw new NoHttpResponseException("The server " + 
-                        this.targethost.getHostName() + " failed to respond");
-            }
-            if (startsWithHTTP(this.buffer)) {
-                // Got one
-                break;
-            } else if (i == -1 || count >= maxGarbageLines) {
-                // Giving up
-                throw new ProtocolException("The server " + this.targethost.getHostName() + 
-                        " failed to respond with a valid HTTP response");
-            }
-            count++;
-        } while(true);
-        //create the status line from the status string
-        StatusLine statusline = BasicStatusLine.parse(this.buffer, 0, this.buffer.length());
-        HttpResponse response = this.responsefactory.newHttpResponse(statusline);
-        response.getParams().setDefaults(params);
-        return response;
-    }
-
-    protected void readResponseHeaders(final HttpResponse response) 
-            throws HttpException, IOException {
-        Header[] headers = HeaderUtils.parseHeaders(this.datareceiver, this.maxHeaderCount);
-        response.setHeaders(headers);
+        try {
+            this.socket.shutdownInput();
+        } catch (IOException ignore) {
+        }
+        this.socket.close();
     }
     
 }

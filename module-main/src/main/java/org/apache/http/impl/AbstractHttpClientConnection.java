@@ -158,8 +158,13 @@ public abstract class AbstractHttpClientConnection implements HttpClientConnecti
                 request.getEntity());
     }
 
-    public void flush() throws IOException {
+    protected void doFlush() throws IOException {
         this.datatransmitter.flush();
+    }
+    
+    public void flush() throws IOException {
+        assertOpen();
+        doFlush();
     }
     
     protected void sendRequestLine(final HttpRequest request) 
@@ -213,7 +218,7 @@ public abstract class AbstractHttpClientConnection implements HttpClientConnecti
      * @return <tt>true</tt> if the line starts with 'HTTP' 
      *   signature, <tt>false</tt> otherwise.
      */
-    private static boolean startsWithHTTP(final CharArrayBuffer buffer) {
+    protected static boolean startsWithHTTP(final CharArrayBuffer buffer) {
         try {
             int i = 0;
             while (HTTP.isWhitespace(buffer.charAt(i))) {
@@ -263,6 +268,16 @@ public abstract class AbstractHttpClientConnection implements HttpClientConnecti
             throws HttpException, IOException {
         Header[] headers = HeaderUtils.parseHeaders(this.datareceiver, this.maxHeaderCount);
         response.setHeaders(headers);
+    }
+
+    public boolean isStale() {
+        assertOpen();
+        try {
+            this.datareceiver.isDataAvailable(1);
+            return false;
+        } catch (IOException ex) {
+            return true;
+        }
     }
 
 }
