@@ -49,6 +49,8 @@ import org.apache.http.io.SocketFactory;
 import org.apache.http.message.HttpPost;
 import org.apache.http.params.HttpParams;
 import org.apache.http.params.HttpProtocolParams;
+import org.apache.http.protocol.HttpContext;
+import org.apache.http.protocol.HttpExecutionContext;
 import org.apache.http.protocol.HttpRequestExecutor;
 import org.apache.http.protocol.RequestConnControl;
 import org.apache.http.protocol.RequestContent;
@@ -89,6 +91,8 @@ public class ElementalHttpPost {
         httpexecutor.addInterceptor(new RequestUserAgent());
         httpexecutor.addInterceptor(new RequestExpectContinue());
         
+        HttpContext context = new HttpExecutionContext(null);
+        
         HttpHost host = new HttpHost("localhost", 8080);
         HttpClientConnection conn = new DefaultHttpClientConnection(host);
         try {
@@ -107,10 +111,13 @@ public class ElementalHttpPost {
             ConnectionReuseStrategy connStrategy = new DefaultConnectionReuseStrategy();
             
             for (int i = 0; i < requestBodies.length; i++) {
+                if (!conn.isOpen()) {
+                    conn.open(params);
+                }
                 HttpPost request = new HttpPost("/servlets-examples/servlet/RequestInfoExample");
                 request.setEntity(requestBodies[i]);
                 System.out.println(">> Request URI: " + request.getRequestLine().getUri());
-                HttpResponse response = httpexecutor.execute(request, conn);
+                HttpResponse response = httpexecutor.execute(request, conn, context);
                 System.out.println("<< Response: " + response.getStatusLine());
                 System.out.println(EntityUtils.toString(response.getEntity()));
                 System.out.println("==============");

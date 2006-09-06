@@ -35,12 +35,10 @@ import java.net.ProtocolException;
 import org.apache.http.HttpClientConnection;
 import org.apache.http.HttpEntityEnclosingRequest;
 import org.apache.http.HttpException;
-import org.apache.http.HttpHost;
 import org.apache.http.HttpRequest;
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
 import org.apache.http.HttpVersion;
-import org.apache.http.params.HttpConnectionParams;
 import org.apache.http.params.HttpParams;
 
 /**
@@ -58,41 +56,13 @@ public class HttpRequestExecutor extends AbstractHttpProcessor {
 
     protected static final int WAIT_FOR_CONTINUE_MS = 10000;
 
-    /** The context holding the default context information. */    
-    protected final HttpContext defaultContext;
-    
     private HttpParams params = null;
-    private HttpRequestRetryHandler retryhandler = null;
-
-    /**
-     * Create a new request executor with default context information.
-     * The attributes in the argument context will be made available
-     * in the context used for executing a request.
-     *
-     * @param parentContext     the default context information,
-     *                          or <code>null</code>
-     */    
-    public HttpRequestExecutor(final HttpContext parentContext) {
-        super();
-        this.defaultContext = new HttpExecutionContext(parentContext);
-    }
 
     /**
      * Create a new request executor.
      */
     public HttpRequestExecutor() {
-        this(null);
-    }
-
-    /**
-     * Obtain the default context information.
-     * This is not necessarily the same object passed to the constructor,
-     * but the default context information will be available here.
-     *
-     * @return  the context holding the default context information
-     */
-    public final HttpContext getContext() {
-        return this.defaultContext;
+        super();
     }
 
     /**
@@ -111,25 +81,6 @@ public class HttpRequestExecutor extends AbstractHttpProcessor {
      */
     public final void setParams(final HttpParams params) {
         this.params = params;
-    }
-
-    /**
-     * Obtain the retry handler.
-     *
-     * @return  the handler deciding whether a request should be retried
-     */
-    public final HttpRequestRetryHandler getRetryHandler() {
-        return this.retryhandler;
-    }
-
-    /**
-     * Set the retry handler.
-     *
-     * @param retryhandler      the handler to decide whether a request
-     *                          should be retried
-     */
-    public final void setRetryHandler(final HttpRequestRetryHandler retryhandler) {
-        this.retryhandler = retryhandler;
     }
 
     /**
@@ -172,7 +123,8 @@ public class HttpRequestExecutor extends AbstractHttpProcessor {
      */    
     public HttpResponse execute(
             final HttpRequest request,
-            final HttpClientConnection conn) 
+            final HttpClientConnection conn,
+            final HttpContext context) 
                 throws IOException, HttpException {
         if (request == null) {
             throw new IllegalArgumentException("HTTP request may not be null");
@@ -180,53 +132,32 @@ public class HttpRequestExecutor extends AbstractHttpProcessor {
         if (conn == null) {
             throw new IllegalArgumentException("Client connection may not be null");
         }
-
-        //@@@ behavior if proxying - set real target or proxy, or both?
-        this.defaultContext.setAttribute(HttpExecutionContext.HTTP_TARGET_HOST,
-                conn.getTargetHost());
-        this.defaultContext.setAttribute(HttpExecutionContext.HTTP_CONNECTION, 
-                conn);
-        
-        doPrepareRequest(request, this.defaultContext);
-
-        this.defaultContext.setAttribute(HttpExecutionContext.HTTP_REQUEST, 
-                request);
-        
-        HttpResponse response = null;
-        // loop until the method is successfully processed, the retryHandler 
-        // returns false or a non-recoverable exception is thrown
-        for (int execCount = 0; ; execCount++) {
-            try {
-                doEstablishConnection(conn, conn.getTargetHost(),
-                                      request.getParams());
-                response = doSendRequest(request, conn, this.defaultContext);
-                if (response == null) {
-                    response = doReceiveResponse(request, conn,
-                                                 this.defaultContext);
-                }
-                // exit retry loop
-                break;
-            } catch (IOException ex) {
-                conn.close();
-                if (this.retryhandler == null) {
-                    throw ex;
-                }
-                if (!this.retryhandler.retryRequest(ex, execCount, null)) {
-                    throw ex;
-                }
-            } catch (HttpException ex) {
-                conn.close();
-                throw ex;
-            } catch (RuntimeException ex) {
-                conn.close();
-                throw ex;
-            }
+        if (context == null) {
+            throw new IllegalArgumentException("HTTP context may not be null");
         }
 
-        doFinishResponse(response, this.defaultContext);
-
-        return response;
-
+        context.setAttribute(HttpExecutionContext.HTTP_TARGET_HOST, conn.getTargetHost());
+        context.setAttribute(HttpExecutionContext.HTTP_CONNECTION, conn);
+        context.setAttribute(HttpExecutionContext.HTTP_REQUEST, request);
+        
+        try {
+            doPrepareRequest(request, context);
+            HttpResponse response = doSendRequest(request, conn, context);
+            if (response == null) {
+                response = doReceiveResponse(request, conn, context);
+            }
+            doFinishResponse(response, context);
+            return response;
+        } catch (IOException ex) {
+            conn.close();
+            throw ex;
+        } catch (HttpException ex) {
+            conn.close();
+            throw ex;
+        } catch (RuntimeException ex) {
+            conn.close();
+            throw ex;
+        }
     }
 
     /**
@@ -251,55 +182,6 @@ public class HttpRequestExecutor extends AbstractHttpProcessor {
         // link default parameters
         request.getParams().setDefaults(this.params);
         preprocessRequest(request, context);
-    }
-
-    /**
-     * Establish a connection with the target host.
-     *
-     * @param conn      the HTTP connection
-     * @param target    the target host for the request, or
-     *                  <code>null</code> to send to the host already
-     *                  set as the connection target
-     *
-     * @throws HttpException      in case of a problem
-     * @throws IOException        in case of an IO problem
-     */
-    protected void doEstablishConnection(
-            final HttpClientConnection conn,
-            final HttpHost target,
-            final HttpParams params)
-                throws HttpException, IOException {
-        if (conn == null) {
-            throw new IllegalArgumentException("HTTP connection may not be null");
-        }
-        if (target == null) {
-            throw new IllegalArgumentException("Target host may not be null");
-        }
-        if (params == null) {
-            throw new IllegalArgumentException("HTTP parameters may not be null");
-        }
-        // make sure the connection is open and points to the target host
-        if ((target == null) || target.equals(conn.getTargetHost())) {
-            // host and port ok, check whether connection needs to be opened
-            if (HttpConnectionParams.isStaleCheckingEnabled(params)) {
-                if (conn.isOpen() && conn.isStale()) {
-                    conn.close();
-                }
-            }
-            if (!conn.isOpen()) {
-                conn.open(params);
-                //TODO: Implement secure tunnelling (@@@ HttpRequestExecutor) 
-            }
-
-        } else {
-            // wrong target, point connection to target
-            if (conn.isOpen()) {
-                conn.close();
-            }
-            conn.setTargetHost(target);
-            conn.open(params);
-
-        } // if connection points to target else        
     }
 
     /**
