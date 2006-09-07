@@ -29,6 +29,7 @@
 
 package org.apache.http;
 
+import org.apache.http.protocol.HttpContext;
 
 /**
  * Interface for deciding whether a connection should be kept alive.
@@ -50,19 +51,23 @@ public interface ConnectionReuseStrategy {
      * If it returns <code>true</code>, the caller SHOULD attempt to
      * keep the connection open for reuse with another request.
      * <br/>
+     * One can use the HTTP context to retrieve additional objects that 
+     * may be relevant for the keep-alive strategy: the actual HTTP 
+     * connection, the original HTTP request, target host if known, 
+     * number of times the connection has been reused already and so on.
+     * <br/>
      * If the connection is already closed, <code>false</code> is returned.
      * The stale connection check MUST NOT be triggered by a
      * connection reuse strategy.
      *
-     * @param connection
-     *          The connection for which to decide about reuse.
      * @param response
      *          The last response received over that connection.
+     * @param context   the context in which the connection is being 
+     *          used.
      *
      * @return <code>true</code> if the connection is allowed to be reused, or
      *         <code>false</code> if it MUST NOT be reused
      */
-    public boolean keepAlive(HttpConnection connection,
-                             HttpResponse response);
+    boolean keepAlive(HttpResponse response, HttpContext context);
             
 }

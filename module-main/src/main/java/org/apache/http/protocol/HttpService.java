@@ -197,7 +197,7 @@ public class HttpService extends AbstractHttpProcessor {
             shutdownConnection();
             return;
         }
-        if (!this.connStrategy.keepAlive(conn, response)) {
+        if (!this.connStrategy.keepAlive(response, this.context)) {
             closeConnection();
         } else {
             logMessage("Connection kept alive");

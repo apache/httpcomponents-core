@@ -36,6 +36,8 @@ import org.apache.http.StatusLine;
 import org.apache.http.entity.BasicHttpEntity;
 import org.apache.http.message.BasicHttpResponse;
 import org.apache.http.message.BasicStatusLine;
+import org.apache.http.protocol.HttpContext;
+import org.apache.http.protocol.HttpExecutionContext;
 
 import junit.framework.Test;
 import junit.framework.TestCase;
@@ -45,6 +47,9 @@ public class TestDefaultConnectionReuseStrategy extends TestCase {
 
     /** A mock connection that is open and not stale. */
     private HttpConnection mockConnection;
+
+    /** HTTP context. */
+    private HttpContext context;
 
     /** The reuse strategy to be tested. */
     private ConnectionReuseStrategy reuseStrategy;
@@ -65,6 +70,8 @@ public class TestDefaultConnectionReuseStrategy extends TestCase {
         // open and not stale is required for most of the tests here
         mockConnection = new MockConnection(true, false);
         reuseStrategy = new DefaultConnectionReuseStrategy();
+        context = new HttpExecutionContext(null);
+        context.setAttribute(HttpExecutionContext.HTTP_CONNECTION, mockConnection);
     }
 
     public void tearDown() {
@@ -78,22 +85,23 @@ public class TestDefaultConnectionReuseStrategy extends TestCase {
         junit.textui.TestRunner.main(testCaseName);
     }
 
-    public void testIllegalConnectionArg() throws Exception {
+    public void testIllegalResponseArg() throws Exception {
 
-        HttpResponse response =
-            createResponse(HttpVersion.HTTP_1_1, 200, "OK", false, -1);
+        HttpContext context = new HttpExecutionContext(null);
 
         try {
-            reuseStrategy.keepAlive(null, response);
+            reuseStrategy.keepAlive(null, context);
             fail("IllegalArgumentException should have been thrown");
         } catch (IllegalArgumentException ex) {
             // expected
         }
     }
 
-    public void testIllegalResponseArg() throws Exception {
+    public void testIllegalContextArg() throws Exception {
+        HttpResponse response =
+            createResponse(HttpVersion.HTTP_1_1, 200, "OK", false, -1);
         try {
-            reuseStrategy.keepAlive(mockConnection, null);
+            reuseStrategy.keepAlive(response, null);
             fail("IllegalArgumentException should have been thrown");
         } catch (IllegalArgumentException ex) {
             // expected
@@ -104,21 +112,21 @@ public class TestDefaultConnectionReuseStrategy extends TestCase {
         HttpResponse response =
             createResponse(HttpVersion.HTTP_1_0, 200, "OK", false, -1);
 
-        assertFalse(reuseStrategy.keepAlive(mockConnection, response));
+        assertFalse(reuseStrategy.keepAlive(response, context));
     }
 
     public void testNoContentLengthResponseHttp1_1() throws Exception {
         HttpResponse response =
             createResponse(HttpVersion.HTTP_1_1, 200, "OK", false, -1);
 
-        assertFalse(reuseStrategy.keepAlive(mockConnection, response));
+        assertFalse(reuseStrategy.keepAlive(response, context));
     }
 
     public void testChunkedContent() throws Exception {
         HttpResponse response =
             createResponse(HttpVersion.HTTP_1_1, 200, "OK", true, -1);
 
-        assertTrue(reuseStrategy.keepAlive(mockConnection, response));
+        assertTrue(reuseStrategy.keepAlive(response, context));
     }
 
     public void testClosedConnection() throws Exception {
@@ -129,8 +137,9 @@ public class TestDefaultConnectionReuseStrategy extends TestCase {
             createResponse(HttpVersion.HTTP_1_1, 200, "OK", true, -1);
 
         HttpConnection mockonn = new MockConnection(false, false);
+        context.setAttribute(HttpExecutionContext.HTTP_CONNECTION, mockonn);
         assertFalse("closed connection should not be kept alive",
-                    reuseStrategy.keepAlive(mockonn, response));
+                    reuseStrategy.keepAlive(response, context));
     }
 
     public void testStaleConnection() throws Exception {
@@ -141,8 +150,9 @@ public class TestDefaultConnectionReuseStrategy extends TestCase {
             createResponse(HttpVersion.HTTP_1_1, 200, "OK", true, -1);
 
         HttpConnection mockonn = new MockConnection(true, true);
+        context.setAttribute(HttpExecutionContext.HTTP_CONNECTION, mockonn);
         assertTrue("stale connection should not be detected",
-                    reuseStrategy.keepAlive(mockonn, response));
+                    reuseStrategy.keepAlive(response, context));
     }
 
     public void testIgnoreInvalidKeepAlive() throws Exception {
@@ -150,7 +160,7 @@ public class TestDefaultConnectionReuseStrategy extends TestCase {
             createResponse(HttpVersion.HTTP_1_0, 200, "OK", false, -1);
         response.addHeader("Connection", "keep-alive");
 
-        assertFalse(reuseStrategy.keepAlive(mockConnection, response));
+        assertFalse(reuseStrategy.keepAlive(response, context));
     }
     
     public void testExplicitClose() throws Exception {
@@ -159,7 +169,7 @@ public class TestDefaultConnectionReuseStrategy extends TestCase {
             createResponse(HttpVersion.HTTP_1_1, 200, "OK", true, -1);
         response.addHeader("Connection", "close");
 
-        assertFalse(reuseStrategy.keepAlive(mockConnection, response));
+        assertFalse(reuseStrategy.keepAlive(response, context));
     }
     
     public void testExplicitKeepAlive() throws Exception {
@@ -168,27 +178,27 @@ public class TestDefaultConnectionReuseStrategy extends TestCase {
             createResponse(HttpVersion.HTTP_1_0, 200, "OK", false, 10);
         response.addHeader("Connection", "keep-alive");
 
-        assertTrue(reuseStrategy.keepAlive(mockConnection, response));
+        assertTrue(reuseStrategy.keepAlive(response, context));
     }
 
     public void testHTTP10Default() throws Exception {
         HttpResponse response =
             createResponse(HttpVersion.HTTP_1_0, 200, "OK");
 
-        assertFalse(reuseStrategy.keepAlive(mockConnection, response));
+        assertFalse(reuseStrategy.keepAlive(response, context));
     }
     
     public void testHTTP11Default() throws Exception {
         HttpResponse response =
             createResponse(HttpVersion.HTTP_1_1, 200, "OK");
-        assertTrue(reuseStrategy.keepAlive(mockConnection, response));
+        assertTrue(reuseStrategy.keepAlive(response, context));
     }
 
     public void testFutureHTTP() throws Exception {
         HttpResponse response =
             createResponse(new HttpVersion(3, 45), 200, "OK");
 
-        assertTrue(reuseStrategy.keepAlive(mockConnection, response));
+        assertTrue(reuseStrategy.keepAlive(response, context));
     }
     
     public void testBrokenConnectionDirective1() throws Exception {
@@ -197,7 +207,7 @@ public class TestDefaultConnectionReuseStrategy extends TestCase {
             createResponse(HttpVersion.HTTP_1_0, 200, "OK");
         response.addHeader("Connection", "keep--alive");
 
-        assertFalse(reuseStrategy.keepAlive(mockConnection, response));
+        assertFalse(reuseStrategy.keepAlive(response, context));
     }
 
     public void testBrokenConnectionDirective2() throws Exception {
@@ -206,7 +216,7 @@ public class TestDefaultConnectionReuseStrategy extends TestCase {
             createResponse(HttpVersion.HTTP_1_0, 200, "OK");
         response.addHeader("Connection", null);
 
-        assertFalse(reuseStrategy.keepAlive(mockConnection, response));
+        assertFalse(reuseStrategy.keepAlive(response, context));
     }
 
 

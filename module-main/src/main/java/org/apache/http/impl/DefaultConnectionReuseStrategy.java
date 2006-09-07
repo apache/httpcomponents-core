@@ -36,6 +36,8 @@ import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpVersion;
 import org.apache.http.protocol.HTTP;
+import org.apache.http.protocol.HttpContext;
+import org.apache.http.protocol.HttpExecutionContext;
 
 /**
  * Default implementation of a strategy deciding about connection re-use.
@@ -53,16 +55,18 @@ public class DefaultConnectionReuseStrategy implements ConnectionReuseStrategy {
     }
 
     // see interface ConnectionReuseStrategy
-    public boolean keepAlive(final HttpConnection connection,
-                             final HttpResponse response) {
-        if (connection == null) {
-            throw new IllegalArgumentException("connection may not be null");
-        }
+    public boolean keepAlive(final HttpResponse response, final HttpContext context) {
         if (response == null) {
             throw new IllegalArgumentException("HTTP response may not be null");
         }
+        if (context == null) {
+            throw new IllegalArgumentException("HTTP context may not be null");
+        }
+        
+        HttpConnection conn = (HttpConnection) context.getAttribute(
+                HttpExecutionContext.HTTP_CONNECTION);
 
-        if (!connection.isOpen())
+        if (conn != null && !conn.isOpen())
             return false;
         // do NOT check for stale connection, that is an expensive operation
 

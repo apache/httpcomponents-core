@@ -108,7 +108,7 @@ public class ElementalHttpGet {
                 System.out.println("<< Response: " + response.getStatusLine());
                 System.out.println(EntityUtils.toString(response.getEntity()));
                 System.out.println("==============");
-                if (!connStrategy.keepAlive(conn, response)) {
+                if (!connStrategy.keepAlive(response, context)) {
                     conn.close();
                 } else {
                     System.out.println("Connection kept alive...");
