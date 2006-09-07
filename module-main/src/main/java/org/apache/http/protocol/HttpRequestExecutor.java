@@ -193,8 +193,8 @@ public class HttpRequestExecutor extends AbstractHttpProcessor {
      *
      * @param request   the request to send, already
      *                  {@link #doPrepareRequest prepared}
-     * @param conn      the connection over which to send the request, already
-     *                  {@link #doEstablishConnection established}
+     * @param conn      the connection over which to send the request,
+     *                  already established
      * @param context   the context for sending the request
      *
      * @return  a terminal response received as part of an expect-continue

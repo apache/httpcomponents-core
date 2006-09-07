@@ -78,10 +78,8 @@ is a processor for the client side,
 for the server side.
 On the client side, a {@link org.apache.http.protocol.HttpContext context}
 is used to tie together a request, the response to it, and other data
-that might be associated with the request execution. The request executor
-is for use by a single thread only, so it has only
-{@link org.apache.http.protocol.HttpRequestExecutor#getContext one}
-context which will be used subsequently for all request executions.
+that might be associated with the request execution. It is passed to
+the request executor whenever needed.
 </p>
 
 <p>
