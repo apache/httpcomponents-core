@@ -31,7 +31,6 @@ package org.apache.http.protocol;
 
 import java.io.IOException;
 
-import org.apache.http.ConnectionClosedException;
 import org.apache.http.ConnectionReuseStrategy;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpEntityEnclosingRequest;
@@ -58,26 +57,12 @@ import org.apache.http.params.HttpParams;
  */
 public class HttpService extends AbstractHttpProcessor {
 
-    private final HttpServerConnection conn;
-    private final HttpContext context;
-
-    private volatile boolean destroyed = false;
-    
     private HttpParams params = null;
     private ConnectionReuseStrategy connStrategy = null;
     private HttpResponseFactory responseFactory = null;
 
-    public HttpService(final HttpServerConnection conn) {
-        this(conn, null);
-    }
-
-    public HttpService(final HttpServerConnection conn, final HttpContext parentContext) {
+    public HttpService() {
         super();
-        if (conn == null) {
-            throw new IllegalArgumentException("HTTP server connection may not be null");
-        }
-        this.conn = conn;
-        this.context = new HttpExecutionContext(parentContext);
         this.connStrategy = new DefaultConnectionReuseStrategy();
         this.responseFactory = new DefaultHttpResponseFactory();
     }
@@ -96,10 +81,6 @@ public class HttpService extends AbstractHttpProcessor {
         this.responseFactory = responseFactory;
     }
     
-    public HttpContext getContext() {
-        return this.context;
-    }
-
     public HttpParams getParams() {
         return this.params;
     }
@@ -108,31 +89,12 @@ public class HttpService extends AbstractHttpProcessor {
         this.params = params;
     }
     
-    public boolean isActive() {
-        return this.conn.isOpen();
-    }
-    
-    protected void closeConnection() {
-        try {
-            this.conn.close();
-        } catch (IOException ex) {
-            logIOException(ex);
-        }
-    }
-            
-    protected void shutdownConnection() {
-        try {
-            this.conn.shutdown();
-        } catch (IOException ex) {
-            logIOException(ex);
-        }
-    }
-            
-    public void handleRequest() { 
-        this.context.setAttribute(HttpExecutionContext.HTTP_CONNECTION, this.conn);
+    public void handleRequest(final HttpServerConnection conn, final HttpContext context) 
+            throws IOException, HttpException { 
+        context.setAttribute(HttpExecutionContext.HTTP_CONNECTION, conn);
         HttpResponse response;
         try {
-            HttpRequest request = this.conn.receiveRequestHeader(this.params);
+            HttpRequest request = conn.receiveRequestHeader(this.params);
             HttpVersion ver = request.getRequestLine().getHttpVersion();
             if (!ver.lessEquals(HttpVersion.HTTP_1_1)) {
                 // Downgrade protocol version if greater than HTTP/1.1 
@@ -144,22 +106,18 @@ public class HttpService extends AbstractHttpProcessor {
             
             if (request instanceof HttpEntityEnclosingRequest) {
                 if (((HttpEntityEnclosingRequest) request).expectContinue()) {
-
-                    logMessage("Expected 100 (Continue)");
-                    
                     HttpResponse ack = this.responseFactory.newHttpResponse(ver, HttpStatus.SC_CONTINUE);
                     ack.getParams().setDefaults(this.params);
-                    this.conn.sendResponseHeader(ack);
-                    this.conn.flush();
+                    conn.sendResponseHeader(ack);
+                    conn.flush();
                 }
-                this.conn.receiveRequestEntity((HttpEntityEnclosingRequest) request);
+                conn.receiveRequestEntity((HttpEntityEnclosingRequest) request);
             }
-            preprocessRequest(request, this.context);
-            logMessage("Request received");
+            preprocessRequest(request, context);
 
-            this.context.setAttribute(HttpExecutionContext.HTTP_REQUEST, request);
-            this.context.setAttribute(HttpExecutionContext.HTTP_RESPONSE, response);
-            doService(request, response);
+            context.setAttribute(HttpExecutionContext.HTTP_REQUEST, request);
+            context.setAttribute(HttpExecutionContext.HTTP_RESPONSE, response);
+            doService(request, response, context);
             
             if (request instanceof HttpEntityEnclosingRequest) {
                 // Make sure the request content is fully consumed
@@ -168,39 +126,18 @@ public class HttpService extends AbstractHttpProcessor {
                     entity.consumeContent();
                 }
             }
-        } catch (ConnectionClosedException ex) {
-            logMessage("Client closed connection");
-            shutdownConnection();
-            return;
         } catch (HttpException ex) {
             response = this.responseFactory.newHttpResponse(HttpVersion.HTTP_1_0, 
                     HttpStatus.SC_INTERNAL_SERVER_ERROR);
             response.getParams().setDefaults(this.params);
             handleException(ex, response);
-        } catch (IOException ex) {
-            logIOException(ex);
-            shutdownConnection();
-            return;
         }
-        try {
-            postprocessResponse(response, this.context);
-            this.conn.sendResponseHeader(response);
-            this.conn.sendResponseEntity(response);
-            this.conn.flush();
-            logMessage("Response sent");
-        } catch (HttpException ex) {
-            logProtocolException(ex);
-            closeConnection();
-            return;
-        } catch (IOException ex) {
-            logIOException(ex);
-            shutdownConnection();
-            return;
-        }
-        if (!this.connStrategy.keepAlive(response, this.context)) {
-            closeConnection();
-        } else {
-            logMessage("Connection kept alive");
+        postprocessResponse(response, context);
+        conn.sendResponseHeader(response);
+        conn.sendResponseEntity(response);
+        conn.flush();
+        if (!this.connStrategy.keepAlive(response, context)) {
+            conn.close();
         }
     }
     
@@ -216,31 +153,11 @@ public class HttpService extends AbstractHttpProcessor {
         }
     }
     
-    protected void doService(final HttpRequest request, final HttpResponse response) 
-            throws HttpException, IOException {
+    protected void doService(
+            final HttpRequest request, 
+            final HttpResponse response,
+            final HttpContext context) throws HttpException, IOException {
         response.setStatusCode(HttpStatus.SC_NOT_IMPLEMENTED);
     }
     
-    protected void logMessage(final String s) {
-    }
-    
-    protected void logIOException(final IOException ex) {
-    }
-    
-    protected void logProtocolException(final HttpException ex) {
-    }
-    
-    public void destroy() {
-        this.destroyed = true;
-        try {
-            this.conn.shutdown();
-        } catch (IOException ex) {
-            logIOException(ex);
-        }
-    }
-    
-    public boolean isDestroyed() {
-        return this.destroyed;
-    }
-               
 }

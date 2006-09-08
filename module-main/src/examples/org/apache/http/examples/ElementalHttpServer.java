@@ -38,6 +38,7 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.URLDecoder;
 
+import org.apache.http.ConnectionClosedException;
 import org.apache.http.HttpException;
 import org.apache.http.HttpRequest;
 import org.apache.http.HttpResponse;
@@ -82,21 +83,24 @@ public class ElementalHttpServer {
     
     static class HttpFileService extends HttpService {
         
-        public HttpFileService(final HttpServerConnection conn, final HttpContext context) {
-            super(conn, context);
+        public HttpFileService() {
+            super();
             addInterceptor(new ResponseDate());
             addInterceptor(new ResponseServer());                    
             addInterceptor(new ResponseContent());
             addInterceptor(new ResponseConnControl());
         }
 
-        protected void doService(final HttpRequest request, final HttpResponse response) 
-                throws HttpException, IOException {
+        protected void doService(
+                final HttpRequest request, 
+                final HttpResponse response,
+                final HttpContext context) throws HttpException, IOException {
+
             String method = request.getRequestLine().getMethod();
             if (!method.equalsIgnoreCase("GET") && !method.equalsIgnoreCase("HEAD")) {
                 throw new MethodNotSupportedException(method + " method not supported"); 
             }
-            String docroot = (String) getContext().getAttribute("server.docroot");
+            String docroot = (String) context.getAttribute("server.docroot");
             
             String target = request.getRequestLine().getUri();
             
@@ -149,18 +153,6 @@ public class ElementalHttpServer {
             }
         }
         
-        protected void logMessage(final String s) {
-            System.out.println(s);
-        }
-        
-        protected void logIOException(final IOException ex) {
-            System.err.println("IO error: " + ex.getMessage());
-        }
-        
-        protected void logProtocolException(final HttpException ex) {
-            System.err.println("HTTP protocol error: " + ex.getMessage());
-        }
-        
     }
     
     static class RequestListenerThread extends Thread {
@@ -192,15 +184,12 @@ public class ElementalHttpServer {
                     System.out.println("Incoming connection from " + socket.getInetAddress());
                     conn.bind(socket, this.params);
 
-                    // Set up local HTTP context
-                    HttpContext context = new HttpExecutionContext(this.globalContext);
-
                     // Set up HTTP service
-                    HttpFileService fileServiceHandler = new HttpFileService(conn, context);
+                    HttpFileService fileServiceHandler = new HttpFileService();
                     fileServiceHandler.setParams(this.params);
                     
                     // Start worker thread
-                    Thread t = new WorkerThread(fileServiceHandler);
+                    Thread t = new WorkerThread(fileServiceHandler, conn, this.globalContext);
                     t.setDaemon(true);
                     t.start();
                 } catch (InterruptedIOException ex) {
@@ -217,20 +206,35 @@ public class ElementalHttpServer {
     static class WorkerThread extends Thread {
 
         private final HttpService httpservice;
+        private final HttpServerConnection conn;
+        private final HttpContext context;
         
-        public WorkerThread(final HttpService httpservice) {
+        public WorkerThread(
+                final HttpService httpservice, 
+                final HttpServerConnection conn, 
+                final HttpContext parentContext) {
             super();
             this.httpservice = httpservice;
+            this.conn = conn;
+            this.context = new HttpExecutionContext(parentContext);
         }
         
         public void run() {
             System.out.println("New connection thread");
             try {
-                while (!this.httpservice.isDestroyed() && this.httpservice.isActive()) {
-                    this.httpservice.handleRequest();
+                while (!Thread.interrupted() && this.conn.isOpen()) {
+                    this.httpservice.handleRequest(this.conn, this.context);
                 }
+            } catch (ConnectionClosedException ex) {
+                System.err.println("Client closed connection");
+            } catch (IOException ex) {
+                System.err.println("I/O error: " + ex.getMessage());
+            } catch (HttpException ex) {
+                System.err.println("Unrecoverable HTTP protocol violation: " + ex.getMessage());
             } finally {
-                this.httpservice.destroy();
+                try {
+                    this.conn.shutdown();
+                } catch (IOException ignore) {}
             }
         }
 
