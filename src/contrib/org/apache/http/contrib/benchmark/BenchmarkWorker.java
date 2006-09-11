@@ -40,8 +40,16 @@ import org.apache.http.HttpException;
 import org.apache.http.HttpRequest;
 import org.apache.http.HttpResponse;
 import org.apache.http.impl.DefaultConnectionReuseStrategy;
+import org.apache.http.params.HttpParams;
 import org.apache.http.protocol.HTTP;
+import org.apache.http.protocol.HttpContext;
+import org.apache.http.protocol.HttpExecutionContext;
 import org.apache.http.protocol.HttpRequestExecutor;
+import org.apache.http.protocol.RequestConnControl;
+import org.apache.http.protocol.RequestContent;
+import org.apache.http.protocol.RequestExpectContinue;
+import org.apache.http.protocol.RequestTargetHost;
+import org.apache.http.protocol.RequestUserAgent;
 import org.apache.http.util.EntityUtils;
 
 /**
@@ -59,12 +67,25 @@ public class BenchmarkWorker {
 
     private byte[] buffer = new byte[4096];
     private final int verbosity;
+    private final HttpParams params;
+    private final HttpContext context;
     private final HttpRequestExecutor httpexecutor;
     private final ConnectionReuseStrategy connstrategy;
     
-    public BenchmarkWorker(final HttpRequestExecutor httpexecutor, int verbosity) {
+    public BenchmarkWorker(final HttpParams params, int verbosity) {
         super();
-        this.httpexecutor = httpexecutor;
+        this.params = params;
+        this.context = new HttpExecutionContext(null);
+        this.httpexecutor = new HttpRequestExecutor();
+        this.httpexecutor.setParams(params);
+        // Required request interceptors
+        this.httpexecutor.addInterceptor(new RequestContent());
+        this.httpexecutor.addInterceptor(new RequestTargetHost());
+        // Recommended request interceptors
+        this.httpexecutor.addInterceptor(new RequestConnControl());
+        this.httpexecutor.addInterceptor(new RequestUserAgent());
+        this.httpexecutor.addInterceptor(new RequestExpectContinue());
+        
         this.connstrategy = new DefaultConnectionReuseStrategy();
         this.verbosity = verbosity;
     }
@@ -80,7 +101,10 @@ public class BenchmarkWorker {
         for (int i = 0; i < count; i++) {
             try {
                 resetHeader(request);
-                response = this.httpexecutor.execute(request, conn);
+                if (!conn.isOpen()) {
+                    conn.open(this.params);
+                }
+                response = this.httpexecutor.execute(request, conn, this.context);
                 if (this.verbosity >= 3) {
                     System.out.println(">> " + request.getRequestLine().toString());
                     Header[] headers = request.getAllHeaders();
@@ -122,7 +146,7 @@ public class BenchmarkWorker {
                     System.out.println();
                     System.out.println();
                 }
-                if (!keepalive || !this.connstrategy.keepAlive(conn, response)) {
+                if (!keepalive || !this.connstrategy.keepAlive(response, this.context)) {
                     conn.close();
                 }
                 stats.setContentLength(contentlen);

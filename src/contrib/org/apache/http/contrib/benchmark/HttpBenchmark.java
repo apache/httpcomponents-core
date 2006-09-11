@@ -54,12 +54,6 @@ import org.apache.http.params.HttpConnectionParams;
 import org.apache.http.params.HttpParams;
 import org.apache.http.params.HttpProtocolParams;
 import org.apache.http.protocol.HTTP;
-import org.apache.http.protocol.HttpRequestExecutor;
-import org.apache.http.protocol.RequestConnControl;
-import org.apache.http.protocol.RequestContent;
-import org.apache.http.protocol.RequestExpectContinue;
-import org.apache.http.protocol.RequestTargetHost;
-import org.apache.http.protocol.RequestUserAgent;
 
 /**
  * Main program of the HTTP benchmark.
@@ -74,28 +68,14 @@ import org.apache.http.protocol.RequestUserAgent;
  */
 public class HttpBenchmark {
 
-    private static HttpRequestExecutor createRequestExecutor() {
-        HttpParams params = new DefaultHttpParams(null);
-        params.setParameter(HttpProtocolParams.PROTOCOL_VERSION, HttpVersion.HTTP_1_1)
-            .setParameter(HttpProtocolParams.USER_AGENT, "Jakarta HttpComponents")
-            .setBooleanParameter(HttpProtocolParams.USE_EXPECT_CONTINUE, false)
-            .setBooleanParameter(HttpConnectionParams.STALE_CONNECTION_CHECK, false);
-
-        HttpRequestExecutor httpexecutor = new HttpRequestExecutor();
-        httpexecutor.setParams(params);
-
-        // Required request interceptors
-        httpexecutor.addInterceptor(new RequestContent());
-        httpexecutor.addInterceptor(new RequestTargetHost());
-        // Recommended request interceptors
-        httpexecutor.addInterceptor(new RequestConnControl());
-        httpexecutor.addInterceptor(new RequestUserAgent());
-        httpexecutor.addInterceptor(new RequestExpectContinue());
-        return httpexecutor;
-    }
-    
     public static void main(String[] args) throws Exception {
 
+        HttpParams params = new DefaultHttpParams(null);
+        params.setParameter(HttpProtocolParams.PROTOCOL_VERSION, HttpVersion.HTTP_1_1)
+            .setParameter(HttpProtocolParams.USER_AGENT, "Jakarta-HttpComponents-Bench/1.1")
+            .setBooleanParameter(HttpProtocolParams.USE_EXPECT_CONTINUE, false)
+            .setBooleanParameter(HttpConnectionParams.STALE_CONNECTION_CHECK, false);
+        
         Option iopt = new Option("i", false, "Do HEAD requests instead of GET.");
         iopt.setRequired(false);
         
@@ -252,9 +232,7 @@ public class HttpBenchmark {
             }
         }
         
-        // Prepare request executor
-        HttpRequestExecutor executor = createRequestExecutor();
-        BenchmarkWorker worker = new BenchmarkWorker(executor, verbosity);
+        BenchmarkWorker worker = new BenchmarkWorker(params, verbosity);
         
         // Execute
         Stats stats = null;

@@ -38,6 +38,8 @@ import org.apache.http.HttpVersion;
 import org.apache.http.Scheme;
 import org.apache.http.params.HttpParams;
 import org.apache.http.params.HttpProtocolParams;
+import org.apache.http.protocol.HttpContext;
+import org.apache.http.protocol.HttpExecutionContext;
 import org.apache.http.protocol.HttpRequestExecutor;
 import org.apache.http.util.EntityUtils;
 import org.springframework.beans.factory.xml.XmlBeanFactory;
@@ -66,28 +68,36 @@ public class SpringHttpDemo {
         Scheme http = (Scheme) beanfactory.getBean("http-scheme");
         HttpHost host = new HttpHost("www.yahoo.com", 80, http);
 
+        HttpContext context = new HttpExecutionContext(null);
+        
         HttpRequestFactory requestfactory = (HttpRequestFactory) beanfactory.getBean("http-request-factory");
         HttpClientConnection conn = (HttpClientConnection) beanfactory.getBean("http-connection");
         ConnectionReuseStrategy connStrategy = (ConnectionReuseStrategy) beanfactory.getBean("conn-reuse-strategy");
         conn.setTargetHost(host);
         try {
+            if (!conn.isOpen()) {
+                conn.open(params);
+            }
             HttpRequest request1 = requestfactory.newHttpRequest("GET", "/");
-            HttpResponse response1 = httpexec.execute(request1, conn);
+            HttpResponse response1 = httpexec.execute(request1, conn, context);
             System.out.println("<< Response: " + response1.getStatusLine());
             System.out.println(EntityUtils.toString(response1.getEntity()));
             System.out.println("==============");
-            if (connStrategy.keepAlive(conn, response1)) {
+            if (connStrategy.keepAlive(response1, context)) {
                 System.out.println("Connection kept alive...");
             } else {
                 conn.close();
                 System.out.println("Connection closed...");
             }
+            if (!conn.isOpen()) {
+                conn.open(params);
+            }
             HttpRequest request2 = requestfactory.newHttpRequest("GET", "/stuff");
-            HttpResponse response2 = httpexec.execute(request2, conn);
+            HttpResponse response2 = httpexec.execute(request2, conn, context);
             System.out.println("<< Response: " + response2.getStatusLine());
             System.out.println(EntityUtils.toString(response2.getEntity()));
             System.out.println("==============");
-            if (connStrategy.keepAlive(conn, response2)) {
+            if (connStrategy.keepAlive(response2, context)) {
                 System.out.println("Connection kept alive...");
             } else {
                 conn.close();
