@@ -30,6 +30,9 @@
 package org.apache.http.protocol;
 
 import java.io.IOException;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
 
 import org.apache.http.ConnectionReuseStrategy;
 import org.apache.http.HttpEntity;
@@ -60,9 +63,12 @@ public class HttpService extends AbstractHttpProcessor {
     private HttpParams params = null;
     private ConnectionReuseStrategy connStrategy = null;
     private HttpResponseFactory responseFactory = null;
-
+    
+    private final Map handlerMap;
+    
     public HttpService() {
         super();
+        this.handlerMap = new HashMap();
         this.connStrategy = new DefaultConnectionReuseStrategy();
         this.responseFactory = new DefaultHttpResponseFactory();
     }
@@ -87,6 +93,46 @@ public class HttpService extends AbstractHttpProcessor {
     
     public void setParams(final HttpParams params) {
         this.params = params;
+    }
+    
+    public void registerRequestHandler(final String pattern, final HttpRequestHandler handler) {
+        if (pattern == null) {
+            throw new IllegalArgumentException("URI request pattern may not be null");
+        }
+        if (handler == null) {
+            throw new IllegalArgumentException("HTTP request handelr may not be null");
+        }
+        this.handlerMap.put(pattern, handler);
+    }
+    
+    protected HttpRequestHandler lookupHandler(final String requestURI) {
+        // direct match?
+        Object handler = this.handlerMap.get(requestURI);
+        if (handler == null) {
+            // pattern match?
+            String bestMatch = null;
+            for (Iterator it = this.handlerMap.keySet().iterator(); it.hasNext();) {
+                String pattern = (String) it.next();
+                if (matchUriRequestPattern(pattern, requestURI)) {
+                    // we have a match. is it any better?
+                    if (bestMatch == null || bestMatch.length() <= pattern.length()) {
+                        handler = this.handlerMap.get(pattern);
+                        bestMatch = pattern;
+                    }
+                }
+            }
+        }
+        return (HttpRequestHandler) handler;
+    }
+
+    protected boolean matchUriRequestPattern(final String pattern, final String requestUri) {
+        if (pattern.equals("*")) {
+            return true;
+        } else {
+            return 
+            (pattern.endsWith("*") && requestUri.startsWith(pattern.substring(0, pattern.length() - 1))) ||
+            (pattern.startsWith("*") && requestUri.endsWith(pattern.substring(1, pattern.length())));
+        }
     }
     
     public void handleRequest(final HttpServerConnection conn, final HttpContext context) 
@@ -157,7 +203,12 @@ public class HttpService extends AbstractHttpProcessor {
             final HttpRequest request, 
             final HttpResponse response,
             final HttpContext context) throws HttpException, IOException {
-        response.setStatusCode(HttpStatus.SC_NOT_IMPLEMENTED);
+        HttpRequestHandler handler = lookupHandler(request.getRequestLine().getUri());
+        if (handler != null) {
+            handler.handle(request, response, context);
+        } else {
+            response.setStatusCode(HttpStatus.SC_NOT_IMPLEMENTED);
+        }
     }
     
 }

@@ -33,6 +33,7 @@ import org.apache.http.params.HttpParams;
 import org.apache.http.params.HttpProtocolParams;
 import org.apache.http.protocol.HttpContext;
 import org.apache.http.protocol.HttpExecutionContext;
+import org.apache.http.protocol.HttpRequestHandler;
 import org.apache.http.protocol.HttpService;
 import org.apache.http.protocol.ResponseConnControl;
 import org.apache.http.protocol.ResponseContent;
@@ -95,10 +96,16 @@ public class AsyncHttpServerServer {
             session.setAttribute(CONSUMER, conn.getIOConsumer());
             session.setAttribute(PRODUCER, conn.getIOProducer());
             
-            HttpFileService service = new HttpFileService();
-            service.setParams(this.params);
+            // Set up HTTP service
+            HttpService httpService = new HttpService();
+            httpService.addInterceptor(new ResponseDate());
+            httpService.addInterceptor(new ResponseServer());                    
+            httpService.addInterceptor(new ResponseContent());
+            httpService.addInterceptor(new ResponseConnControl());
+            httpService.setParams(this.params);
+            httpService.registerRequestHandler("*", new HttpFileHandler());
             
-            Thread worker = new WorkerThread(service, conn, this.context);
+            Thread worker = new WorkerThread(httpService, conn, this.context);
             session.setAttribute(WORKER, worker);
 
             worker.setDaemon(true);
@@ -143,17 +150,9 @@ public class AsyncHttpServerServer {
         
     }
     
-    static class HttpFileService extends HttpService {
+    static class HttpFileHandler implements HttpRequestHandler  {
         
-        public HttpFileService() {
-            super();
-            addInterceptor(new ResponseDate());
-            addInterceptor(new ResponseServer());                    
-            addInterceptor(new ResponseContent());
-            addInterceptor(new ResponseConnControl());
-        }
-
-        protected void doService(
+        public void handle(
                 final HttpRequest request, 
                 final HttpResponse response,
                 final HttpContext context) throws HttpException, IOException {

@@ -55,6 +55,7 @@ import org.apache.http.params.HttpParams;
 import org.apache.http.params.HttpProtocolParams;
 import org.apache.http.protocol.HttpContext;
 import org.apache.http.protocol.HttpExecutionContext;
+import org.apache.http.protocol.HttpRequestHandler;
 import org.apache.http.protocol.HttpService;
 import org.apache.http.protocol.ResponseConnControl;
 import org.apache.http.protocol.ResponseContent;
@@ -81,17 +82,9 @@ public class ElementalHttpServer {
         t.start();
     }
     
-    static class HttpFileService extends HttpService {
+    static class HttpFileHandler implements HttpRequestHandler  {
         
-        public HttpFileService() {
-            super();
-            addInterceptor(new ResponseDate());
-            addInterceptor(new ResponseServer());                    
-            addInterceptor(new ResponseContent());
-            addInterceptor(new ResponseConnControl());
-        }
-
-        protected void doService(
+        public void handle(
                 final HttpRequest request, 
                 final HttpResponse response,
                 final HttpContext context) throws HttpException, IOException {
@@ -185,11 +178,16 @@ public class ElementalHttpServer {
                     conn.bind(socket, this.params);
 
                     // Set up HTTP service
-                    HttpFileService fileServiceHandler = new HttpFileService();
-                    fileServiceHandler.setParams(this.params);
+                    HttpService httpService = new HttpService();
+                    httpService.addInterceptor(new ResponseDate());
+                    httpService.addInterceptor(new ResponseServer());                    
+                    httpService.addInterceptor(new ResponseContent());
+                    httpService.addInterceptor(new ResponseConnControl());
+                    httpService.setParams(this.params);
+                    httpService.registerRequestHandler("*", new HttpFileHandler());
                     
                     // Start worker thread
-                    Thread t = new WorkerThread(fileServiceHandler, conn, this.globalContext);
+                    Thread t = new WorkerThread(httpService, conn, this.globalContext);
                     t.setDaemon(true);
                     t.start();
                 } catch (InterruptedIOException ex) {
