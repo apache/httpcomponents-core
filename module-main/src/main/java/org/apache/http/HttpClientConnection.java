@@ -30,14 +30,12 @@
 package org.apache.http;
 
 import java.io.IOException;
-import java.net.InetAddress;
 
 import org.apache.http.params.HttpParams;
 
 /**
  * An HTTP connection for use on the client side.
  * It is used for sending requests and receiving responses.
- * TODO add local port
  *
  * @author <a href="mailto:oleg at ural.ru">Oleg Kalnichevski</a>
  *
@@ -55,36 +53,6 @@ public interface HttpClientConnection extends HttpConnection {
      * @return the target host, as set by {@link #setTargetHost setTargetHost}.
      */
     HttpHost getTargetHost();
-    
-    /**
-     * Provides the implementation with the host it is supposed to connect to.
-     * The host must be set prior to a call to
-     * {@link #open(HttpParams) open}.
-     * The target host can only be set as long as the connection is not open.
-     *
-     * @param targethost the host to connect to
-     */
-    void setTargetHost(HttpHost targethost);
-
-    /**
-     * The local address of the connection.
-     * The connection is or will be bound to this address.
-     * 
-     * @return  local address of this connection as set by
-     *          {@link #setLocalAddress setLocalAddress}, or
-     *          <code>null</code> if unspecified
-     */
-    InetAddress getLocalAddress();
-    
-    /**
-     * Sets the local address the connection will be bound to upon opening. The
-     * local address can not only be set as long as the connection is not open.
-     * If no local address is specified it is up to the implementation to
-     * decide.
-     * 
-     * @param localAddress the local bind address or <code>null</code>.
-     */
-    void setLocalAddress(InetAddress localAddress);
     
     /**
      * Opens the connection. Implementations may use additional settings from
