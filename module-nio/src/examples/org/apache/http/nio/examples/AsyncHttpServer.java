@@ -41,7 +41,7 @@ import org.apache.http.protocol.ResponseDate;
 import org.apache.http.protocol.ResponseServer;
 import org.apache.http.protocol.SyncHttpExecutionContext;
 
-public class AsyncHttpServerServer {
+public class AsyncHttpServer {
 
     public static void main(String[] args) throws Exception {
         if (args.length < 1) {
