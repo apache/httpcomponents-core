@@ -29,8 +29,9 @@
 
 package org.apache.http.examples;
 
+import java.net.Socket;
+
 import org.apache.http.ConnectionReuseStrategy;
-import org.apache.http.HttpClientConnection;
 import org.apache.http.HttpHost;
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpVersion;
@@ -88,7 +89,7 @@ public class ElementalHttpGet {
         HttpContext context = new HttpExecutionContext(null);
         
         HttpHost host = new HttpHost("localhost", 8080);
-        HttpClientConnection conn = new DefaultHttpClientConnection(host);
+        DefaultHttpClientConnection conn = new DefaultHttpClientConnection();
         try {
             
             String[] targets = {
@@ -100,7 +101,9 @@ public class ElementalHttpGet {
             
             for (int i = 0; i < targets.length; i++) {
                 if (!conn.isOpen()) {
-                    conn.open(params);
+                    Socket socket = socketfactory.createSocket(
+                            host.getHostName(), host.getPort(), null, 0, params);
+                    conn.bind(socket, host, params);
                 }
                 HttpGet request = new HttpGet(targets[i]);
                 System.out.println(">> Request URI: " + request.getRequestLine().getUri());

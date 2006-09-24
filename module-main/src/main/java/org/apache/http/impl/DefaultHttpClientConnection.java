@@ -30,7 +30,6 @@
 package org.apache.http.impl;
 
 import java.io.IOException;
-import java.net.InetAddress;
 import java.net.Socket;
 
 import org.apache.http.HttpHost;
@@ -40,7 +39,6 @@ import org.apache.http.impl.io.SocketHttpDataReceiver;
 import org.apache.http.impl.io.SocketHttpDataTransmitter;
 import org.apache.http.io.HttpDataReceiver;
 import org.apache.http.io.HttpDataTransmitter;
-import org.apache.http.io.SocketFactory;
 import org.apache.http.params.HttpConnectionParams;
 import org.apache.http.params.HttpParams;
 
@@ -56,23 +54,12 @@ import org.apache.http.params.HttpParams;
 public class DefaultHttpClientConnection extends AbstractHttpClientConnection {
 
     private HttpHost targethost = null;
-    private InetAddress localAddress = null;
 
     protected volatile boolean open;
     protected Socket socket = null;
     
-    public DefaultHttpClientConnection(final HttpHost targethost, final InetAddress localAddress) {
-        super();
-        this.targethost = targethost;
-        this.localAddress = localAddress;
-    }
-    
-    public DefaultHttpClientConnection(final HttpHost targethost) {
-        this(targethost, null);
-    }
-    
     public DefaultHttpClientConnection() {
-        this(null, null);
+        super();
     }
     
     protected void assertNotOpen() {
@@ -87,25 +74,15 @@ public class DefaultHttpClientConnection extends AbstractHttpClientConnection {
         }
     }
 
-    public void open(final HttpParams params) throws IOException {
-        if (params == null) {
-            throw new IllegalArgumentException("HTTP parameters may not be null");
-        }
-        assertNotOpen();
-        if (this.targethost == null) {
-        	throw new IllegalStateException("Target host not specified");
-        }
-        SocketFactory socketfactory = this.targethost.getScheme().getSocketFactory();
-        Socket socket = socketfactory.createSocket(
-                this.targethost.getHostName(), this.targethost.getPort(), 
-                this.localAddress, 0, 
-                params);
-        bind(socket, params);
-    }
-    
-    protected void bind(final Socket socket, final HttpParams params) throws IOException {
+    public void bind(
+            final Socket socket, 
+            final HttpHost targethost, 
+            final HttpParams params) throws IOException {
         if (socket == null) {
             throw new IllegalArgumentException("Socket may not be null");
+        }
+        if (targethost == null) {
+            throw new IllegalArgumentException("Target host may not be null");
         }
         if (params == null) {
             throw new IllegalArgumentException("HTTP parameters may not be null");
@@ -121,6 +98,7 @@ public class DefaultHttpClientConnection extends AbstractHttpClientConnection {
         }
 
         this.socket = socket;
+        this.targethost = targethost;
         
         int buffersize = HttpConnectionParams.getSocketBufferSize(params);
         HttpDataTransmitter transmitter = new SocketHttpDataTransmitter(socket, buffersize);
@@ -139,23 +117,6 @@ public class DefaultHttpClientConnection extends AbstractHttpClientConnection {
 
     public HttpHost getTargetHost() {
         return this.targethost;
-    }
-    
-    public InetAddress getLocalAddress() {
-        return this.localAddress;
-    }
-    
-    public void setTargetHost(final HttpHost targethost) {
-        if (targethost == null) {
-            throw new IllegalArgumentException("Target host may not be null");
-        }
-        assertNotOpen();
-        this.targethost = targethost;
-    }
-
-    public void setLocalAddress(final InetAddress localAddress) {
-        assertNotOpen();
-        this.localAddress = localAddress;
     }
     
     public boolean isOpen() {

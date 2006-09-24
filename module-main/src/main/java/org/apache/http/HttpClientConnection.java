@@ -55,15 +55,6 @@ public interface HttpClientConnection extends HttpConnection {
     HttpHost getTargetHost();
     
     /**
-     * Opens the connection. Implementations may use additional settings from
-     * the HttpParams hierarchy.
-     * 
-     * @param params the parameters in effect for this connection.
-     * @throws IOException
-     */
-    void open(HttpParams params) throws IOException;
-    
-    /**
      * Checks if response data is available from the connection. May wait for
      * the specified time until some data becomes available. Note that some
      * implementations may completely ignore the timeout parameter.

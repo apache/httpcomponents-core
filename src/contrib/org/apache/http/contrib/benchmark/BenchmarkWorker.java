@@ -30,16 +30,19 @@ package org.apache.http.contrib.benchmark;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.Socket;
 import java.util.Iterator;
 
 import org.apache.http.ConnectionReuseStrategy;
 import org.apache.http.Header;
-import org.apache.http.HttpClientConnection;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpException;
+import org.apache.http.HttpHost;
 import org.apache.http.HttpRequest;
 import org.apache.http.HttpResponse;
 import org.apache.http.impl.DefaultConnectionReuseStrategy;
+import org.apache.http.impl.DefaultHttpClientConnection;
+import org.apache.http.io.SocketFactory;
 import org.apache.http.params.HttpParams;
 import org.apache.http.protocol.HTTP;
 import org.apache.http.protocol.HttpContext;
@@ -92,17 +95,22 @@ public class BenchmarkWorker {
     
     public Stats execute(
             final HttpRequest request, 
-            final HttpClientConnection conn, 
+            final HttpHost targetHost, 
             int count,
             boolean keepalive) throws HttpException {
         HttpResponse response = null;
+        DefaultHttpClientConnection conn = new DefaultHttpClientConnection(); 
         Stats stats = new Stats();
         stats.start();
         for (int i = 0; i < count; i++) {
             try {
                 resetHeader(request);
                 if (!conn.isOpen()) {
-                    conn.open(this.params);
+                    SocketFactory socketfactory = targetHost.getScheme().getSocketFactory();
+                    Socket socket = socketfactory.createSocket(
+                            targetHost.getHostName(), targetHost.getPort(), 
+                            null, 0, params);
+                    conn.bind(socket, targetHost, params);
                 }
                 response = this.httpexecutor.execute(request, conn, this.context);
                 if (this.verbosity >= 3) {

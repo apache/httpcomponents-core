@@ -43,7 +43,6 @@ import org.apache.http.HttpRequest;
 import org.apache.http.HttpVersion;
 import org.apache.http.Scheme;
 import org.apache.http.entity.FileEntity;
-import org.apache.http.impl.DefaultHttpClientConnection;
 import org.apache.http.impl.DefaultHttpParams;
 import org.apache.http.impl.io.PlainSocketFactory;
 import org.apache.http.impl.io.SSLSocketFactory;
@@ -186,7 +185,6 @@ public class HttpBenchmark {
                 url.getHost(), 
                 url.getPort(), 
                 Scheme.getScheme(url.getProtocol()));
-        DefaultHttpClientConnection conn = new DefaultHttpClientConnection(host);
         
         // Prepare request
         HttpRequest request = null;
@@ -235,12 +233,7 @@ public class HttpBenchmark {
         BenchmarkWorker worker = new BenchmarkWorker(params, verbosity);
         
         // Execute
-        Stats stats = null;
-        try {
-            stats = worker.execute(request, conn, num, keepAlive);
-        } finally {
-            conn.close();
-        }
+        Stats stats = worker.execute(request, host, num, keepAlive);
         
         // Show the results
         float totalTimeSec = (float)stats.getDuration() / 1000;

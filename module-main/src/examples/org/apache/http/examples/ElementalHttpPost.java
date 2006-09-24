@@ -30,9 +30,9 @@
 package org.apache.http.examples;
 
 import java.io.ByteArrayInputStream;
+import java.net.Socket;
 
 import org.apache.http.ConnectionReuseStrategy;
-import org.apache.http.HttpClientConnection;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpHost;
 import org.apache.http.HttpResponse;
@@ -94,7 +94,7 @@ public class ElementalHttpPost {
         HttpContext context = new HttpExecutionContext(null);
         
         HttpHost host = new HttpHost("localhost", 8080);
-        HttpClientConnection conn = new DefaultHttpClientConnection(host);
+        DefaultHttpClientConnection conn = new DefaultHttpClientConnection();
         try {
             
             HttpEntity[] requestBodies = {
@@ -112,7 +112,9 @@ public class ElementalHttpPost {
             
             for (int i = 0; i < requestBodies.length; i++) {
                 if (!conn.isOpen()) {
-                    conn.open(params);
+                    Socket socket = socketfactory.createSocket(
+                            host.getHostName(), host.getPort(), null, 0, params);
+                    conn.bind(socket, host, params);
                 }
                 HttpPost request = new HttpPost("/servlets-examples/servlet/RequestInfoExample");
                 request.setEntity(requestBodies[i]);
