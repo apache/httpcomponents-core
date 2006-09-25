@@ -112,9 +112,7 @@ public class HttpRequestExecutor extends AbstractHttpProcessor {
      * Synchronously send a request and obtain the response.
      *
      * @param request   the request to send. It will be preprocessed.
-     * @param conn      the connection over which to send.
-     *                  The {@link HttpClientConnection#setTargetHost target}
-     *                  host has to be set before calling this method.
+     * @param conn      the open connection over which to send
      *
      * @return  the response to the request, postprocessed
      *
