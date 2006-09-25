@@ -27,7 +27,7 @@
  *
  */
 
-package org.apache.http.protocol;
+package org.apache.http.impl.protocol;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -39,6 +39,9 @@ import org.apache.http.HttpRequest;
 import org.apache.http.HttpRequestInterceptor;
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpResponseInterceptor;
+import org.apache.http.protocol.HttpContext;
+import org.apache.http.protocol.HttpProcessor;
+
 
 /**
  * Keeps lists of interceptors for processing requests and responses.
@@ -49,7 +52,7 @@ import org.apache.http.HttpResponseInterceptor;
  * 
  * @since 4.0
  */
-public abstract class AbstractHttpProcessor {
+public class DefaultHttpProcessor implements HttpProcessor {
 
     private List requestInterceptors = null; 
     private List responseInterceptors = null; 
@@ -146,7 +149,7 @@ public abstract class AbstractHttpProcessor {
         this.responseInterceptors = null;
     }
     
-    protected void preprocessRequest(
+    public void preprocessRequest(
             final HttpRequest request,
             final HttpContext context) 
                 throws IOException, HttpException {
@@ -158,7 +161,7 @@ public abstract class AbstractHttpProcessor {
         }
     }
 
-    protected void postprocessResponse(
+    public void postprocessResponse(
             final HttpResponse response,
             final HttpContext context) 
                 throws IOException, HttpException {

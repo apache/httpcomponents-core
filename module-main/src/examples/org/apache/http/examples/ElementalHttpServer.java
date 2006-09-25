@@ -50,6 +50,7 @@ import org.apache.http.entity.EntityTemplate;
 import org.apache.http.entity.FileEntity;
 import org.apache.http.impl.DefaultHttpParams;
 import org.apache.http.impl.DefaultHttpServerConnection;
+import org.apache.http.impl.protocol.DefaultHttpProcessor;
 import org.apache.http.params.HttpConnectionParams;
 import org.apache.http.params.HttpParams;
 import org.apache.http.params.HttpProtocolParams;
@@ -177,12 +178,14 @@ public class ElementalHttpServer {
                     System.out.println("Incoming connection from " + socket.getInetAddress());
                     conn.bind(socket, this.params);
 
-                    // Set up HTTP service
-                    HttpService httpService = new HttpService();
-                    httpService.addInterceptor(new ResponseDate());
-                    httpService.addInterceptor(new ResponseServer());                    
-                    httpService.addInterceptor(new ResponseContent());
-                    httpService.addInterceptor(new ResponseConnControl());
+                    // Set up HTTP processor and service
+                    DefaultHttpProcessor httpproc = new DefaultHttpProcessor();
+                    httpproc.addInterceptor(new ResponseDate());
+                    httpproc.addInterceptor(new ResponseServer());
+                    httpproc.addInterceptor(new ResponseContent());
+                    httpproc.addInterceptor(new ResponseConnControl());
+
+                    HttpService httpService = new HttpService(httpproc);
                     httpService.setParams(this.params);
                     httpService.registerRequestHandler("*", new HttpFileHandler());
                     

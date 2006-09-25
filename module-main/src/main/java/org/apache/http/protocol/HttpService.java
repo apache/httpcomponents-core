@@ -58,16 +58,26 @@ import org.apache.http.params.HttpParams;
  *
  * @version $Revision$
  */
-public class HttpService extends AbstractHttpProcessor {
+public class HttpService {
 
     private HttpParams params = null;
+    private final HttpProcessor processor;
     private ConnectionReuseStrategy connStrategy = null;
     private HttpResponseFactory responseFactory = null;
     
     private final Map handlerMap;
     
-    public HttpService() {
-        super();
+    /**
+     * Create a new HTTP service.
+     *
+     * @param proc      the processor to use on requests and responses
+     */
+    public HttpService(HttpProcessor proc) {
+        if (proc == null)
+            throw new IllegalArgumentException
+                ("HTTP processor must not be null.");
+
+        this.processor = proc;
         this.handlerMap = new HashMap();
         this.connStrategy = new DefaultConnectionReuseStrategy();
         this.responseFactory = new DefaultHttpResponseFactory();
@@ -159,7 +169,7 @@ public class HttpService extends AbstractHttpProcessor {
                 }
                 conn.receiveRequestEntity((HttpEntityEnclosingRequest) request);
             }
-            preprocessRequest(request, context);
+            processor.preprocessRequest(request, context);
 
             context.setAttribute(HttpExecutionContext.HTTP_REQUEST, request);
             context.setAttribute(HttpExecutionContext.HTTP_RESPONSE, response);
@@ -178,7 +188,7 @@ public class HttpService extends AbstractHttpProcessor {
             response.getParams().setDefaults(this.params);
             handleException(ex, response);
         }
-        postprocessResponse(response, context);
+        processor.postprocessResponse(response, context);
         conn.sendResponseHeader(response);
         conn.sendResponseEntity(response);
         conn.flush();

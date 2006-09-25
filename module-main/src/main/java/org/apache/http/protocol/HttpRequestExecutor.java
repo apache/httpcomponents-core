@@ -52,17 +52,24 @@ import org.apache.http.params.HttpParams;
  * 
  * @since 4.0
  */
-public class HttpRequestExecutor extends AbstractHttpProcessor {
+public class HttpRequestExecutor {
 
     protected static final int WAIT_FOR_CONTINUE_MS = 10000;
 
-    private HttpParams params = null;
+    private HttpParams params;
+    private final HttpProcessor processor;
 
     /**
      * Create a new request executor.
+     *
+     * @param proc      the processor to use on requests and responses
      */
-    public HttpRequestExecutor() {
-        super();
+    public HttpRequestExecutor(HttpProcessor proc) {
+        if (proc == null)
+            throw new IllegalArgumentException
+                ("HTTP processor must not be null.");
+
+        this.processor = proc;
     }
 
     /**
@@ -179,7 +186,7 @@ public class HttpRequestExecutor extends AbstractHttpProcessor {
         }
         // link default parameters
         request.getParams().setDefaults(this.params);
-        preprocessRequest(request, context);
+        processor.preprocessRequest(request, context);
     }
 
     /**
@@ -333,7 +340,7 @@ public class HttpRequestExecutor extends AbstractHttpProcessor {
         if (context == null) {
             throw new IllegalArgumentException("HTTP context may not be null");
         }
-        postprocessResponse(response, context);
+        processor.postprocessResponse(response, context);
     }
 
 } // class HttpRequestExecutor

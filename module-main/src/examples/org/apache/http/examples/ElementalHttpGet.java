@@ -40,6 +40,7 @@ import org.apache.http.impl.DefaultConnectionReuseStrategy;
 import org.apache.http.impl.DefaultHttpClientConnection;
 import org.apache.http.impl.DefaultHttpParams;
 import org.apache.http.impl.io.PlainSocketFactory;
+import org.apache.http.impl.protocol.DefaultHttpProcessor;
 import org.apache.http.io.SocketFactory;
 import org.apache.http.message.HttpGet;
 import org.apache.http.params.HttpParams;
@@ -75,16 +76,18 @@ public class ElementalHttpGet {
         HttpProtocolParams.setContentCharset(params, "UTF-8");
         HttpProtocolParams.setUserAgent(params, "Jakarta-HttpComponents/1.1");
         HttpProtocolParams.setUseExpectContinue(params, true);
-        
-        HttpRequestExecutor httpexecutor = new HttpRequestExecutor();
-        httpexecutor.setParams(params);
+
+        DefaultHttpProcessor httpproc = new DefaultHttpProcessor();
         // Required protocol interceptors
-        httpexecutor.addInterceptor(new RequestContent());
-        httpexecutor.addInterceptor(new RequestTargetHost());
+        httpproc.addInterceptor(new RequestContent());
+        httpproc.addInterceptor(new RequestTargetHost());
         // Recommended protocol interceptors
-        httpexecutor.addInterceptor(new RequestConnControl());
-        httpexecutor.addInterceptor(new RequestUserAgent());
-        httpexecutor.addInterceptor(new RequestExpectContinue());
+        httpproc.addInterceptor(new RequestConnControl());
+        httpproc.addInterceptor(new RequestUserAgent());
+        httpproc.addInterceptor(new RequestExpectContinue());
+
+        HttpRequestExecutor httpexecutor = new HttpRequestExecutor(httpproc);
+        httpexecutor.setParams(params);
         
         HttpContext context = new HttpExecutionContext(null);
         

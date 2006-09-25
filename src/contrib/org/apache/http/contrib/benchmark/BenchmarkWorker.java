@@ -42,6 +42,7 @@ import org.apache.http.HttpRequest;
 import org.apache.http.HttpResponse;
 import org.apache.http.impl.DefaultConnectionReuseStrategy;
 import org.apache.http.impl.DefaultHttpClientConnection;
+import org.apache.http.impl.protocol.DefaultHttpProcessor;
 import org.apache.http.io.SocketFactory;
 import org.apache.http.params.HttpParams;
 import org.apache.http.protocol.HTTP;
@@ -79,15 +80,18 @@ public class BenchmarkWorker {
         super();
         this.params = params;
         this.context = new HttpExecutionContext(null);
-        this.httpexecutor = new HttpRequestExecutor();
+
+        DefaultHttpProcessor httpproc = new DefaultHttpProcessor();
+        this.httpexecutor = new HttpRequestExecutor(httpproc);
         this.httpexecutor.setParams(params);
+
         // Required request interceptors
-        this.httpexecutor.addInterceptor(new RequestContent());
-        this.httpexecutor.addInterceptor(new RequestTargetHost());
+        httpproc.addInterceptor(new RequestContent());
+        httpproc.addInterceptor(new RequestTargetHost());
         // Recommended request interceptors
-        this.httpexecutor.addInterceptor(new RequestConnControl());
-        this.httpexecutor.addInterceptor(new RequestUserAgent());
-        this.httpexecutor.addInterceptor(new RequestExpectContinue());
+        httpproc.addInterceptor(new RequestConnControl());
+        httpproc.addInterceptor(new RequestUserAgent());
+        httpproc.addInterceptor(new RequestExpectContinue());
         
         this.connstrategy = new DefaultConnectionReuseStrategy();
         this.verbosity = verbosity;

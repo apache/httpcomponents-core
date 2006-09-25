@@ -45,8 +45,8 @@ HTTP components provides an execution framework that sets up
 some of the headers before sending a message, and interprets
 headers when a message has been received.
 <br/>
-An HTTP {@link org.apache.http.protocol.AbstractHttpProcessor processor}
-keeps lists of so-called interceptors that will be executed
+An HTTP {@link org.apache.http.protocol.HttpProcessor processor}
+typically keeps lists of so-called interceptors that will be executed
 before a message is sent and after it has been received.
 An application should initialize a processor, set up the lists
 with the required and desired processors, and then communicate
