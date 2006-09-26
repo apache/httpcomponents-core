@@ -24,8 +24,8 @@
     <constructor-arg index="2"><value>80</value></constructor-arg>
   </bean>
   
-  <bean id="http-executor" 
-    class="org.apache.http.protocol.HttpRequestExecutor" 
+  <bean id="http-processor" 
+    class="org.apache.http.protocol.BasicHttpProcessor" 
     singleton="true" >
     <property name="interceptors">
       <list>
@@ -38,6 +38,12 @@
         <bean class="org.apache.http.protocol.RequestExpectContinue" />
       </list>
     </property>
+  </bean>
+  
+  <bean id="http-executor" 
+    class="org.apache.http.protocol.HttpRequestExecutor" 
+    singleton="true" >
+    <constructor-arg index="0"><ref bean="http-processor"/></constructor-arg>
   </bean>
   
   <bean id="http-request-factory"

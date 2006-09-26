@@ -42,9 +42,9 @@ import org.apache.http.HttpRequest;
 import org.apache.http.HttpResponse;
 import org.apache.http.impl.DefaultConnectionReuseStrategy;
 import org.apache.http.impl.DefaultHttpClientConnection;
-import org.apache.http.impl.protocol.DefaultHttpProcessor;
 import org.apache.http.io.SocketFactory;
 import org.apache.http.params.HttpParams;
+import org.apache.http.protocol.BasicHttpProcessor;
 import org.apache.http.protocol.HTTP;
 import org.apache.http.protocol.HttpContext;
 import org.apache.http.protocol.HttpExecutionContext;
@@ -81,7 +81,7 @@ public class BenchmarkWorker {
         this.params = params;
         this.context = new HttpExecutionContext(null);
 
-        DefaultHttpProcessor httpproc = new DefaultHttpProcessor();
+        BasicHttpProcessor httpproc = new BasicHttpProcessor();
         this.httpexecutor = new HttpRequestExecutor(httpproc);
         this.httpexecutor.setParams(params);
 
