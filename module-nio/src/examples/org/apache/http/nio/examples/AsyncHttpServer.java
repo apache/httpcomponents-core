@@ -31,6 +31,7 @@ import org.apache.http.nio.impl.DefaultListeningIOReactor;
 import org.apache.http.params.HttpConnectionParams;
 import org.apache.http.params.HttpParams;
 import org.apache.http.params.HttpProtocolParams;
+import org.apache.http.protocol.BasicHttpProcessor;
 import org.apache.http.protocol.HttpContext;
 import org.apache.http.protocol.HttpExecutionContext;
 import org.apache.http.protocol.HttpRequestHandler;
@@ -97,11 +98,13 @@ public class AsyncHttpServer {
             session.setAttribute(PRODUCER, conn.getIOProducer());
             
             // Set up HTTP service
-            HttpService httpService = new HttpService();
-            httpService.addInterceptor(new ResponseDate());
-            httpService.addInterceptor(new ResponseServer());                    
-            httpService.addInterceptor(new ResponseContent());
-            httpService.addInterceptor(new ResponseConnControl());
+            BasicHttpProcessor httpProcessor = new BasicHttpProcessor();
+            httpProcessor.addInterceptor(new ResponseDate());
+            httpProcessor.addInterceptor(new ResponseServer());                    
+            httpProcessor.addInterceptor(new ResponseContent());
+            httpProcessor.addInterceptor(new ResponseConnControl());
+
+            HttpService httpService = new HttpService(httpProcessor);
             httpService.setParams(this.params);
             httpService.registerRequestHandler("*", new HttpFileHandler());
             
