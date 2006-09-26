@@ -32,18 +32,10 @@ package org.apache.http.impl;
 import java.io.IOException;
 import java.net.Socket;
 
-import org.apache.http.impl.entity.DefaultEntityDeserializer;
-import org.apache.http.impl.entity.DefaultEntitySerializer;
-import org.apache.http.impl.io.SocketHttpDataReceiver;
-import org.apache.http.impl.io.SocketHttpDataTransmitter;
-import org.apache.http.io.HttpDataReceiver;
-import org.apache.http.io.HttpDataTransmitter;
-import org.apache.http.params.HttpConnectionParams;
 import org.apache.http.params.HttpParams;
 
 /**
- * Default implementation of a server-side HTTP connection that be bound to a 
- * network Socket in order to receive and transmit data.
+ * Default implementation of a server-side HTTP connection.
  *
  * @author <a href="mailto:oleg at ural.ru">Oleg Kalnichevski</a>
  *
@@ -51,88 +43,14 @@ import org.apache.http.params.HttpParams;
  * 
  * @since 4.0
  */
-public class DefaultHttpServerConnection extends AbstractHttpServerConnection {
+public class DefaultHttpServerConnection extends SocketHttpServerConnection {
 
-    protected volatile boolean open;
-    protected Socket socket = null;
-    
     public DefaultHttpServerConnection() {
         super();
     }
-
-    protected void assertNotOpen() {
-        if (this.open) {
-            throw new IllegalStateException("Connection is already open");
-        }
-    }
     
-    protected void assertOpen() {
-        if (!this.open) {
-            throw new IllegalStateException("Connection is not open");
-        }
-    }
-
     public void bind(final Socket socket, final HttpParams params) throws IOException {
-        if (socket == null) {
-            throw new IllegalArgumentException("Socket may not be null");
-        }
-        if (params == null) {
-            throw new IllegalArgumentException("HTTP parameters may not be null");
-        }
-        assertNotOpen();
-
-        socket.setTcpNoDelay(HttpConnectionParams.getTcpNoDelay(params));
-        socket.setSoTimeout(HttpConnectionParams.getSoTimeout(params));
-        
-        int linger = HttpConnectionParams.getLinger(params);
-        if (linger >= 0) {
-            socket.setSoLinger(linger > 0, linger);
-        }
-
-        this.socket = socket;
-        
-        int buffersize = HttpConnectionParams.getSocketBufferSize(params);
-        HttpDataTransmitter transmitter = new SocketHttpDataTransmitter(socket, buffersize);
-        HttpDataReceiver receiver = new SocketHttpDataReceiver(socket, buffersize);
-        transmitter.reset(params);
-        receiver.reset(params);
-        
-        setHttpDataReceiver(receiver);
-        setHttpDataTransmitter(transmitter);
-        setMaxHeaderCount(params.getIntParameter(HttpConnectionParams.MAX_HEADER_COUNT, -1));
-        setRequestFactory(new DefaultHttpRequestFactory());
-        setEntitySerializer(new DefaultEntitySerializer());
-        setEntityDeserializer(new DefaultEntityDeserializer());
-        this.open = true;
-    }
-
-    public boolean isOpen() {
-        return this.open;
-    }
-
-    public void shutdown() throws IOException {
-        this.open = false;
-        Socket tmpsocket = this.socket;
-        if (tmpsocket != null) {
-            tmpsocket.close();
-        }
-    }
-    
-    public void close() throws IOException {
-        if (!this.open) {
-            return;
-        }
-        this.open = false;
-        doFlush();
-        try {
-            this.socket.shutdownOutput();
-        } catch (IOException ignore) {
-        }
-        try {
-            this.socket.shutdownInput();
-        } catch (IOException ignore) {
-        }
-        this.socket.close();
+        super.bind(socket, params);
     }
     
 }
