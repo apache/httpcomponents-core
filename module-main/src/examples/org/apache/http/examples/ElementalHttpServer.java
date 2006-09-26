@@ -50,10 +50,10 @@ import org.apache.http.entity.EntityTemplate;
 import org.apache.http.entity.FileEntity;
 import org.apache.http.impl.DefaultHttpParams;
 import org.apache.http.impl.DefaultHttpServerConnection;
-import org.apache.http.impl.protocol.DefaultHttpProcessor;
 import org.apache.http.params.HttpConnectionParams;
 import org.apache.http.params.HttpParams;
 import org.apache.http.params.HttpProtocolParams;
+import org.apache.http.protocol.BasicHttpProcessor;
 import org.apache.http.protocol.HttpContext;
 import org.apache.http.protocol.HttpExecutionContext;
 import org.apache.http.protocol.HttpRequestHandler;
@@ -179,7 +179,7 @@ public class ElementalHttpServer {
                     conn.bind(socket, this.params);
 
                     // Set up HTTP processor and service
-                    DefaultHttpProcessor httpproc = new DefaultHttpProcessor();
+                    BasicHttpProcessor httpproc = new BasicHttpProcessor();
                     httpproc.addInterceptor(new ResponseDate());
                     httpproc.addInterceptor(new ResponseServer());
                     httpproc.addInterceptor(new ResponseContent());

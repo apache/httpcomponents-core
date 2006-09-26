@@ -40,11 +40,11 @@ import org.apache.http.impl.DefaultConnectionReuseStrategy;
 import org.apache.http.impl.DefaultHttpClientConnection;
 import org.apache.http.impl.DefaultHttpParams;
 import org.apache.http.impl.io.PlainSocketFactory;
-import org.apache.http.impl.protocol.DefaultHttpProcessor;
 import org.apache.http.io.SocketFactory;
 import org.apache.http.message.HttpGet;
 import org.apache.http.params.HttpParams;
 import org.apache.http.params.HttpProtocolParams;
+import org.apache.http.protocol.BasicHttpProcessor;
 import org.apache.http.protocol.HttpContext;
 import org.apache.http.protocol.HttpExecutionContext;
 import org.apache.http.protocol.HttpRequestExecutor;
@@ -77,7 +77,7 @@ public class ElementalHttpGet {
         HttpProtocolParams.setUserAgent(params, "Jakarta-HttpComponents/1.1");
         HttpProtocolParams.setUseExpectContinue(params, true);
 
-        DefaultHttpProcessor httpproc = new DefaultHttpProcessor();
+        BasicHttpProcessor httpproc = new BasicHttpProcessor();
         // Required protocol interceptors
         httpproc.addInterceptor(new RequestContent());
         httpproc.addInterceptor(new RequestTargetHost());

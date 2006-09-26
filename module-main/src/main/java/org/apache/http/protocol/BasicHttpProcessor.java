@@ -27,7 +27,7 @@
  *
  */
 
-package org.apache.http.impl.protocol;
+package org.apache.http.protocol;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -39,8 +39,6 @@ import org.apache.http.HttpRequest;
 import org.apache.http.HttpRequestInterceptor;
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpResponseInterceptor;
-import org.apache.http.protocol.HttpContext;
-import org.apache.http.protocol.HttpProcessor;
 
 
 /**
@@ -52,7 +50,7 @@ import org.apache.http.protocol.HttpProcessor;
  * 
  * @since 4.0
  */
-public class DefaultHttpProcessor implements HttpProcessor {
+public class BasicHttpProcessor implements HttpProcessor {
 
     private List requestInterceptors = null; 
     private List responseInterceptors = null; 
