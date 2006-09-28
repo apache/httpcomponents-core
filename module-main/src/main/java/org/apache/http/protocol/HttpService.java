@@ -47,8 +47,6 @@ import org.apache.http.HttpVersion;
 import org.apache.http.MethodNotSupportedException;
 import org.apache.http.ProtocolException;
 import org.apache.http.UnsupportedHttpVersionException;
-import org.apache.http.impl.DefaultConnectionReuseStrategy;
-import org.apache.http.impl.DefaultHttpResponseFactory;
 import org.apache.http.params.HttpParams;
 
 /**
@@ -60,29 +58,38 @@ import org.apache.http.params.HttpParams;
  */
 public class HttpService {
 
+    private final Map handlerMap;
+    
     private HttpParams params = null;
-    private final HttpProcessor processor;
+    private HttpProcessor processor = null;
     private ConnectionReuseStrategy connStrategy = null;
     private HttpResponseFactory responseFactory = null;
-    
-    private final Map handlerMap;
     
     /**
      * Create a new HTTP service.
      *
-     * @param proc      the processor to use on requests and responses
+     * @param proc             the processor to use on requests and responses
+     * @param connStrategy     the connection reuse strategy
+     * @param responseFactory  the response factory
      */
-    public HttpService(HttpProcessor proc) {
-        if (proc == null)
-            throw new IllegalArgumentException
-                ("HTTP processor must not be null.");
-
-        this.processor = proc;
+    public HttpService(
+            final HttpProcessor proc,
+            final ConnectionReuseStrategy connStrategy,
+            final HttpResponseFactory responseFactory) {
+        super();
         this.handlerMap = new HashMap();
-        this.connStrategy = new DefaultConnectionReuseStrategy();
-        this.responseFactory = new DefaultHttpResponseFactory();
+        setHttpProcessor(proc);
+        setConnReuseStrategy(connStrategy);
+        setResponseFactory(responseFactory);
     }
     
+    protected void setHttpProcessor(final HttpProcessor processor) {
+        if (processor == null) {
+            throw new IllegalArgumentException("HTTP processor may not be null.");
+        }
+        this.processor = processor;
+    }
+
     protected void setConnReuseStrategy(final ConnectionReuseStrategy connStrategy) {
         if (connStrategy == null) {
             throw new IllegalArgumentException("Connection reuse strategy may not be null");

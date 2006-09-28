@@ -20,7 +20,9 @@ import org.apache.http.MethodNotSupportedException;
 import org.apache.http.entity.ContentProducer;
 import org.apache.http.entity.EntityTemplate;
 import org.apache.http.entity.FileEntity;
+import org.apache.http.impl.DefaultConnectionReuseStrategy;
 import org.apache.http.impl.DefaultHttpParams;
+import org.apache.http.impl.DefaultHttpResponseFactory;
 import org.apache.http.nio.IOConsumer;
 import org.apache.http.nio.IOEventDispatch;
 import org.apache.http.nio.IOProducer;
@@ -104,7 +106,10 @@ public class AsyncHttpServer {
             httpProcessor.addInterceptor(new ResponseContent());
             httpProcessor.addInterceptor(new ResponseConnControl());
 
-            HttpService httpService = new HttpService(httpProcessor);
+            HttpService httpService = new HttpService(
+                    httpProcessor, 
+                    new DefaultConnectionReuseStrategy(), 
+                    new DefaultHttpResponseFactory());
             httpService.setParams(this.params);
             httpService.registerRequestHandler("*", new HttpFileHandler());
             

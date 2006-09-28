@@ -48,7 +48,9 @@ import org.apache.http.MethodNotSupportedException;
 import org.apache.http.entity.ContentProducer;
 import org.apache.http.entity.EntityTemplate;
 import org.apache.http.entity.FileEntity;
+import org.apache.http.impl.DefaultConnectionReuseStrategy;
 import org.apache.http.impl.DefaultHttpParams;
+import org.apache.http.impl.DefaultHttpResponseFactory;
 import org.apache.http.impl.DefaultHttpServerConnection;
 import org.apache.http.params.HttpConnectionParams;
 import org.apache.http.params.HttpParams;
@@ -184,8 +186,11 @@ public class ElementalHttpServer {
                     httpproc.addInterceptor(new ResponseServer());
                     httpproc.addInterceptor(new ResponseContent());
                     httpproc.addInterceptor(new ResponseConnControl());
-
-                    HttpService httpService = new HttpService(httpproc);
+                    
+                    HttpService httpService = new HttpService(
+                            httpproc, 
+                            new DefaultConnectionReuseStrategy(), 
+                            new DefaultHttpResponseFactory());
                     httpService.setParams(this.params);
                     httpService.registerRequestHandler("*", new HttpFileHandler());
                     
