@@ -186,7 +186,7 @@ public class HttpRequestExecutor {
         }
         // link default parameters
         request.getParams().setDefaults(this.params);
-        processor.preprocessRequest(request, context);
+        processor.process(request, context);
     }
 
     /**
@@ -340,7 +340,7 @@ public class HttpRequestExecutor {
         if (context == null) {
             throw new IllegalArgumentException("HTTP context may not be null");
         }
-        processor.postprocessResponse(response, context);
+        processor.process(response, context);
     }
 
 } // class HttpRequestExecutor

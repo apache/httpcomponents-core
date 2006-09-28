@@ -147,7 +147,7 @@ public class BasicHttpProcessor implements HttpProcessor {
         this.responseInterceptors = null;
     }
     
-    public void preprocessRequest(
+    public void process(
             final HttpRequest request,
             final HttpContext context) 
                 throws IOException, HttpException {
@@ -159,7 +159,7 @@ public class BasicHttpProcessor implements HttpProcessor {
         }
     }
 
-    public void postprocessResponse(
+    public void process(
             final HttpResponse response,
             final HttpContext context) 
                 throws IOException, HttpException {

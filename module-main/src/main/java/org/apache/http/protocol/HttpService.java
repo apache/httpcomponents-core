@@ -169,7 +169,7 @@ public class HttpService {
                 }
                 conn.receiveRequestEntity((HttpEntityEnclosingRequest) request);
             }
-            processor.preprocessRequest(request, context);
+            processor.process(request, context);
 
             context.setAttribute(HttpExecutionContext.HTTP_REQUEST, request);
             context.setAttribute(HttpExecutionContext.HTTP_RESPONSE, response);
@@ -188,7 +188,7 @@ public class HttpService {
             response.getParams().setDefaults(this.params);
             handleException(ex, response);
         }
-        processor.postprocessResponse(response, context);
+        processor.process(response, context);
         conn.sendResponseHeader(response);
         conn.sendResponseEntity(response);
         conn.flush();

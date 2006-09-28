@@ -48,7 +48,7 @@ import org.apache.http.HttpResponse;
 public interface HttpProcessor {
 
     /**
-     * Preprocesses a request.
+     * Processes a request.
      * On the client side, this step is performed before the request is
      * sent to the server. On the server side, this step is performed
      * on incoming messages before the message body is evaluated.
@@ -59,14 +59,13 @@ public interface HttpProcessor {
      * @throws IOException      in case of an IO problem
      * @throws HttpException    in case of a protocol or other problem
      */
-    void preprocessRequest(HttpRequest request,
-                           HttpContext context) 
+    void process(HttpRequest request, HttpContext context) 
         throws IOException, HttpException
         ;
 
 
     /**
-     * Preprocesses a request.
+     * Processes a request.
      * On the client side, this step is performed before the request is
      * sent to the server. On the server side, this step is performed
      * on incoming messages before the message body is evaluated.
@@ -77,8 +76,7 @@ public interface HttpProcessor {
      * @throws IOException      in case of an IO problem
      * @throws HttpException    in case of a protocol or other problem
      */
-    void postprocessResponse(HttpResponse response,
-                             HttpContext context)
+    void process(HttpResponse response, HttpContext context)
         throws IOException, HttpException
         ;
 
