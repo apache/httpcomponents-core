@@ -35,12 +35,9 @@ import org.apache.http.ConnectionReuseStrategy;
 import org.apache.http.HttpHost;
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpVersion;
-import org.apache.http.Scheme;
 import org.apache.http.impl.DefaultConnectionReuseStrategy;
 import org.apache.http.impl.DefaultHttpClientConnection;
 import org.apache.http.impl.DefaultHttpParams;
-import org.apache.http.impl.io.PlainSocketFactory;
-import org.apache.http.io.SocketFactory;
 import org.apache.http.message.HttpGet;
 import org.apache.http.params.HttpParams;
 import org.apache.http.params.HttpProtocolParams;
@@ -68,9 +65,6 @@ public class ElementalHttpGet {
 
     public static void main(String[] args) throws Exception {
         
-        SocketFactory socketfactory = PlainSocketFactory.getSocketFactory();
-        Scheme.registerScheme("http", new Scheme("http", socketfactory, 80));
-
         HttpParams params = new DefaultHttpParams(null);
         HttpProtocolParams.setVersion(params, HttpVersion.HTTP_1_1);
         HttpProtocolParams.setContentCharset(params, "UTF-8");
@@ -104,8 +98,7 @@ public class ElementalHttpGet {
             
             for (int i = 0; i < targets.length; i++) {
                 if (!conn.isOpen()) {
-                    Socket socket = socketfactory.createSocket(
-                            host.getHostName(), host.getPort(), null, 0, params);
+                    Socket socket = new Socket(host.getHostName(), host.getPort());
                     conn.bind(socket, host, params);
                 }
                 HttpGet request = new HttpGet(targets[i]);
