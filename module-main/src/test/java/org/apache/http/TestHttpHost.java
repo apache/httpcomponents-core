@@ -29,9 +29,6 @@
 
 package org.apache.http;
 
-import org.apache.http.impl.io.PlainSocketFactory;
-import org.apache.http.io.SocketFactory;
-
 import junit.framework.Test;
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
@@ -56,69 +53,38 @@ public class TestHttpHost extends TestCase {
         return new TestSuite(TestHttpHost.class);
     }
 
-    protected void setUp() throws Exception {
-        super.setUp();
-        SocketFactory socketfactory = PlainSocketFactory.getSocketFactory();
-        final Scheme http = new Scheme("http", socketfactory, 80);
-        Scheme.registerScheme("http", http);
-    }
-    
     public void testConstructor() {
-        Scheme http = Scheme.getScheme("http");
         HttpHost host1 = new HttpHost("somehost");
         assertEquals("somehost", host1.getHostName()); 
-        assertEquals(http.getDefaultPort(), host1.getPort()); 
-        assertEquals(http, host1.getScheme()); 
+        assertEquals(-1, host1.getPort()); 
+        assertEquals("http", host1.getSchemeName()); 
         HttpHost host2 = new HttpHost("somehost", 8080);
         assertEquals("somehost", host2.getHostName()); 
         assertEquals(8080, host2.getPort()); 
-        assertEquals(http, host2.getScheme()); 
+        assertEquals("http", host2.getSchemeName()); 
         HttpHost host3 = new HttpHost("somehost", -1);
         assertEquals("somehost", host3.getHostName()); 
-        assertEquals(http.getDefaultPort(), host3.getPort()); 
-        assertEquals(http, host3.getScheme()); 
-        HttpHost host4 = new HttpHost("somehost", 8080, http);
+        assertEquals(-1, host3.getPort()); 
+        assertEquals("http", host3.getSchemeName()); 
+        HttpHost host4 = new HttpHost("somehost", 443, "https");
         assertEquals("somehost", host4.getHostName()); 
-        assertEquals(8080, host4.getPort()); 
-        assertEquals(http, host4.getScheme()); 
+        assertEquals(443, host4.getPort()); 
+        assertEquals("https", host4.getSchemeName()); 
         try {
             new HttpHost(null, -1, null);
             fail("IllegalArgumentException should have been thrown");
         } catch (IllegalArgumentException ex) {
             //expected
         }
-        try {
-            new HttpHost("somehost", -1, null);
-            fail("IllegalArgumentException should have been thrown");
-        } catch (IllegalArgumentException ex) {
-            //expected
-        }
-        ProxyHost proxyhost1 = new ProxyHost("somehost");
-        assertEquals("somehost", proxyhost1.getHostName()); 
-        assertEquals(http.getDefaultPort(), proxyhost1.getPort()); 
-        assertEquals(http, proxyhost1.getScheme()); 
-
-        ProxyHost proxyhost2 = new ProxyHost("somehost", 8080);
-        assertEquals("somehost", proxyhost2.getHostName()); 
-        assertEquals(8080, proxyhost2.getPort()); 
-        assertEquals(http, proxyhost2.getScheme()); 
-
-        ProxyHost proxyhost3 = new ProxyHost(proxyhost2);
-        assertEquals("somehost", proxyhost3.getHostName()); 
-        assertEquals(8080, proxyhost3.getPort()); 
-        assertEquals(http, proxyhost3.getScheme()); 
     }
     
     public void testHashCode() {
-        Scheme http = Scheme.getScheme("http");
-        Scheme myhttp = new Scheme("myhttp", 
-                PlainSocketFactory.getSocketFactory(), 8080);
-        HttpHost host1 = new HttpHost("somehost", 8080, http);
-        HttpHost host2 = new HttpHost("somehost", 80, http);
-        HttpHost host3 = new HttpHost("someotherhost", 8080, http);
-        HttpHost host4 = new HttpHost("somehost", 80, http);
-        HttpHost host5 = new HttpHost("SomeHost", 80, http);
-        HttpHost host6 = new HttpHost("SomeHost", 80, myhttp);
+        HttpHost host1 = new HttpHost("somehost", 8080, "http");
+        HttpHost host2 = new HttpHost("somehost", 80, "http");
+        HttpHost host3 = new HttpHost("someotherhost", 8080, "http");
+        HttpHost host4 = new HttpHost("somehost", 80, "http");
+        HttpHost host5 = new HttpHost("SomeHost", 80, "http");
+        HttpHost host6 = new HttpHost("SomeHost", 80, "myhttp");
 
         assertTrue(host1.hashCode() == host1.hashCode());
         assertTrue(host1.hashCode() != host2.hashCode());
@@ -129,15 +95,12 @@ public class TestHttpHost extends TestCase {
     }
     
     public void testEquals() {
-        Scheme http = Scheme.getScheme("http");
-        Scheme myhttp = new Scheme("myhttp", 
-        		PlainSocketFactory.getSocketFactory(), 8080);
-        HttpHost host1 = new HttpHost("somehost", 8080, http);
-        HttpHost host2 = new HttpHost("somehost", 80, http);
-        HttpHost host3 = new HttpHost("someotherhost", 8080, http);
-        HttpHost host4 = new HttpHost("somehost", 80, http);
-        HttpHost host5 = new HttpHost("SomeHost", 80, http);
-        HttpHost host6 = new HttpHost("SomeHost", 80, myhttp);
+        HttpHost host1 = new HttpHost("somehost", 8080, "http");
+        HttpHost host2 = new HttpHost("somehost", 80, "http");
+        HttpHost host3 = new HttpHost("someotherhost", 8080, "http");
+        HttpHost host4 = new HttpHost("somehost", 80, "http");
+        HttpHost host5 = new HttpHost("SomeHost", 80, "http");
+        HttpHost host6 = new HttpHost("SomeHost", 80, "myhttp");
 
         assertTrue(host1.equals(host1));
         assertFalse(host1.equals(host2));
@@ -150,28 +113,24 @@ public class TestHttpHost extends TestCase {
     }
     
     public void testToString() {
-        Scheme http = Scheme.getScheme("http");
-        Scheme myhttp = new Scheme("myhttp", 
-        		PlainSocketFactory.getSocketFactory(), 8080);
         HttpHost host1 = new HttpHost("somehost");
         assertEquals("http://somehost", host1.toString());
-        HttpHost host2 = new HttpHost("somehost", http.getDefaultPort());
+        HttpHost host2 = new HttpHost("somehost", -1);
         assertEquals("http://somehost", host2.toString());
         HttpHost host3 = new HttpHost("somehost", -1);
         assertEquals("http://somehost", host3.toString());
         HttpHost host4 = new HttpHost("somehost", 8888);
         assertEquals("http://somehost:8888", host4.toString());
-        HttpHost host5 = new HttpHost("somehost", -1, myhttp);
+        HttpHost host5 = new HttpHost("somehost", -1, "myhttp");
         assertEquals("myhttp://somehost", host5.toString());
-        HttpHost host6 = new HttpHost("somehost", 80, myhttp);
+        HttpHost host6 = new HttpHost("somehost", 80, "myhttp");
         assertEquals("myhttp://somehost:80", host6.toString());
     }
 
     public void testToHostString() {
-        Scheme http = Scheme.getScheme("http");
         HttpHost host1 = new HttpHost("somehost");
         assertEquals("somehost", host1.toHostString());
-        HttpHost host2 = new HttpHost("somehost", http.getDefaultPort());
+        HttpHost host2 = new HttpHost("somehost");
         assertEquals("somehost", host2.toHostString());
         HttpHost host3 = new HttpHost("somehost", -1);
         assertEquals("somehost", host3.toHostString());

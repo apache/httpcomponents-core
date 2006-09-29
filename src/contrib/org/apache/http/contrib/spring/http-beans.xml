@@ -13,17 +13,6 @@
     <property name="defaults"><ref bean="global-params"/></property>
   </bean>
 
-  <bean id="socket-factory" 
-    class="org.apache.http.impl.io.PlainSocketFactory" 
-    singleton="true" />
-    
-  <bean id="http-scheme" 
-    class="org.apache.http.Scheme">
-    <constructor-arg index="0"><value>http</value></constructor-arg>
-    <constructor-arg index="1"><ref bean="socket-factory"/></constructor-arg>
-    <constructor-arg index="2"><value>80</value></constructor-arg>
-  </bean>
-  
   <bean id="http-processor" 
     class="org.apache.http.protocol.BasicHttpProcessor" 
     singleton="true" >
@@ -54,11 +43,6 @@
     class="org.apache.http.impl.DefaultHttpResponseFactory" 
     singleton="false" />
   
-  <bean id="http-connection" 
-    class="org.apache.http.impl.DefaultHttpClientConnection" 
-    singleton="false">
-  </bean>
-
   <bean id="conn-reuse-strategy"
     class="org.apache.http.impl.DefaultConnectionReuseStrategy" 
     singleton="true" />

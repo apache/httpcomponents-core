@@ -41,11 +41,8 @@ import org.apache.http.Header;
 import org.apache.http.HttpHost;
 import org.apache.http.HttpRequest;
 import org.apache.http.HttpVersion;
-import org.apache.http.Scheme;
 import org.apache.http.entity.FileEntity;
 import org.apache.http.impl.DefaultHttpParams;
-import org.apache.http.impl.io.PlainSocketFactory;
-import org.apache.http.impl.io.SSLSocketFactory;
 import org.apache.http.message.HttpGet;
 import org.apache.http.message.HttpHead;
 import org.apache.http.message.HttpPost;
@@ -174,17 +171,11 @@ public class HttpBenchmark {
         // Parse the target url 
         URL url = new URL(args[0]); 
         
-        // Register standard protocol schemes 
-        Scheme.registerScheme("http", 
-                new Scheme("http", PlainSocketFactory.getSocketFactory(), 80));
-        Scheme.registerScheme("https", 
-                new Scheme("https", SSLSocketFactory.getSocketFactory(), 443));
-
         // Prepare connection
         HttpHost host = new HttpHost(
                 url.getHost(), 
                 url.getPort(), 
-                Scheme.getScheme(url.getProtocol()));
+                url.getProtocol());
         
         // Prepare request
         HttpRequest request = null;
@@ -248,7 +239,7 @@ public class HttpBenchmark {
         if (host.getPort() > 0) {
             System.out.println(host.getPort());
         } else {
-            System.out.println(host.getScheme().getDefaultPort());
+            System.out.println("80");
         }
         System.out.println();
         System.out.print("Document Path:\t\t");

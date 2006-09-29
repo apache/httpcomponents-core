@@ -37,7 +37,6 @@ import org.apache.http.HttpRequest;
 import org.apache.http.HttpRequestInterceptor;
 import org.apache.http.HttpVersion;
 import org.apache.http.ProtocolException;
-import org.apache.http.params.HttpProtocolParams;
 
 /**
  * A request interceptor that sets the Host header for HTTP/1.1 requests.
@@ -72,11 +71,6 @@ public class RequestTargetHost implements HttpRequestInterceptor {
                 } else {
                     throw new ProtocolException("Target host missing");
                 }
-            }
-            String virtualhost = HttpProtocolParams.getVirtualHost(request.getParams());
-            if (virtualhost != null) {
-                targethost = new HttpHost(virtualhost, 
-                        targethost.getPort(), targethost.getScheme());
             }
             request.addHeader(HTTP.TARGET_HOST, targethost.toHostString());
         }

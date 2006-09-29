@@ -39,10 +39,8 @@ import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
 import org.apache.http.HttpVersion;
 import org.apache.http.ProtocolException;
-import org.apache.http.Scheme;
 import org.apache.http.entity.BasicHttpEntity;
 import org.apache.http.entity.StringEntity;
-import org.apache.http.impl.io.PlainSocketFactory;
 import org.apache.http.message.BasicHeader;
 import org.apache.http.message.BasicHttpEntityEnclosingRequest;
 import org.apache.http.message.BasicHttpRequest;
@@ -339,8 +337,7 @@ public class TestStandardInterceptors extends TestCase {
 
     public void testRequestTargetHostGenerated() throws Exception {
         HttpContext context = new HttpExecutionContext(null);
-        Scheme http = new Scheme("http", PlainSocketFactory.getSocketFactory(), 80);
-        HttpHost host = new HttpHost("somehost", 8080, http);
+        HttpHost host = new HttpHost("somehost", 8080, "http");
         context.setAttribute(HttpExecutionContext.HTTP_TARGET_HOST, host);
         BasicHttpRequest request = new BasicHttpRequest("GET", "/");
         RequestTargetHost interceptor = new RequestTargetHost();
@@ -352,8 +349,7 @@ public class TestStandardInterceptors extends TestCase {
 
     public void testRequestTargetHostNotGenerated() throws Exception {
         HttpContext context = new HttpExecutionContext(null);
-        Scheme http = new Scheme("http", PlainSocketFactory.getSocketFactory(), 80);
-        HttpHost host = new HttpHost("somehost", 8080, http);
+        HttpHost host = new HttpHost("somehost", 8080, "http");
         context.setAttribute(HttpExecutionContext.HTTP_TARGET_HOST, host);
         BasicHttpRequest request = new BasicHttpRequest("GET", "/");
         request.addHeader(new BasicHeader(HTTP.TARGET_HOST, "whatever"));
@@ -384,20 +380,6 @@ public class TestStandardInterceptors extends TestCase {
         } catch (ProtocolException ex) {
             // expected
         }
-    }
-
-    public void testRequestTargetHostVirtualHost() throws Exception {
-        HttpContext context = new HttpExecutionContext(null);
-        Scheme http = new Scheme("http", PlainSocketFactory.getSocketFactory(), 80);
-        HttpHost host = new HttpHost("somehost", 8080, http);
-        context.setAttribute(HttpExecutionContext.HTTP_TARGET_HOST, host);
-        BasicHttpRequest request = new BasicHttpRequest("GET", "/");
-        request.getParams().setParameter(HttpProtocolParams.VIRTUAL_HOST, "whatever");
-        RequestTargetHost interceptor = new RequestTargetHost();
-        interceptor.process(request, context);
-        Header header = request.getFirstHeader(HTTP.TARGET_HOST);
-        assertNotNull(header);
-        assertEquals("whatever:8080", header.getValue());
     }
 
     public void testRequestTargetHostInvalidInput() throws Exception {

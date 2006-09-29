@@ -42,7 +42,6 @@ import org.apache.http.HttpRequest;
 import org.apache.http.HttpResponse;
 import org.apache.http.impl.DefaultConnectionReuseStrategy;
 import org.apache.http.impl.DefaultHttpClientConnection;
-import org.apache.http.io.SocketFactory;
 import org.apache.http.params.HttpParams;
 import org.apache.http.protocol.BasicHttpProcessor;
 import org.apache.http.protocol.HTTP;
@@ -106,14 +105,18 @@ public class BenchmarkWorker {
         DefaultHttpClientConnection conn = new DefaultHttpClientConnection(); 
         Stats stats = new Stats();
         stats.start();
+        
+        String hostname = targetHost.getHostName();
+        int port = targetHost.getPort();
+        if (port == -1) {
+            port = 80;
+        }
+        
         for (int i = 0; i < count; i++) {
             try {
                 resetHeader(request);
                 if (!conn.isOpen()) {
-                    SocketFactory socketfactory = targetHost.getScheme().getSocketFactory();
-                    Socket socket = socketfactory.createSocket(
-                            targetHost.getHostName(), targetHost.getPort(), 
-                            null, 0, params);
+                    Socket socket = new Socket(hostname, port);
                     conn.bind(socket, targetHost, params);
                 }
                 response = this.httpexecutor.execute(request, conn, this.context);

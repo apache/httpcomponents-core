@@ -45,6 +45,8 @@ import org.apache.http.util.LangUtils;
  */
 public class HttpHost {
 
+    public static final String DEFAULT_SCHEME_NAME = "http";
+    
     /** The host to use. */
     private String hostname = null;
 
@@ -52,30 +54,28 @@ public class HttpHost {
     private int port = -1;
 
     /** The scheme */
-    private Scheme scheme = null;
+    private String schemeName = null;
 
     /**
      * Constructor for HttpHost.
      *   
      * @param hostname the hostname (IP or DNS name). Can be <code>null</code>.
      * @param port the port. Value <code>-1</code> can be used to set default scheme port
-     * @param scheme the scheme. Value <code>null</code> can be used to set default scheme
+     * @param schemeName the name of the scheme. Value <code>null</code> can be used to set 
+     *        default scheme
      */
-    public HttpHost(final String hostname, int port, final Scheme scheme) {
+    public HttpHost(final String hostname, int port, final String schemeName) {
         super();
         if (hostname == null) {
             throw new IllegalArgumentException("Host name may not be null");
         }
-        if (scheme == null) {
-            throw new IllegalArgumentException("Protocol may not be null");
-        }
         this.hostname = hostname;
-        this.scheme = scheme;
-        if (port >= 0) {
-            this.port = port;
+        if (schemeName != null) {
+            this.schemeName = schemeName.toLowerCase();
         } else {
-            this.port = this.scheme.getDefaultPort();
+            this.schemeName = DEFAULT_SCHEME_NAME;
         }
+        this.port = port;
     }
 
     /**
@@ -85,7 +85,7 @@ public class HttpHost {
      * @param port the port. Value <code>-1</code> can be used to set default scheme port
      */
     public HttpHost(final String hostname, int port) {
-        this(hostname, port, Scheme.getScheme("http"));
+        this(hostname, port, null);
     }
     
     /**
@@ -94,7 +94,7 @@ public class HttpHost {
      * @param hostname the hostname (IP or DNS name). Can be <code>null</code>.
      */
     public HttpHost(final String hostname) {
-        this(hostname, -1, Scheme.getScheme("http"));
+        this(hostname, -1, null);
     }
     
     /**
@@ -106,7 +106,7 @@ public class HttpHost {
         super();
         this.hostname = httphost.hostname;
         this.port = httphost.port;
-        this.scheme = httphost.scheme;
+        this.schemeName = httphost.schemeName;
     }
 
     /**
@@ -131,8 +131,8 @@ public class HttpHost {
      * Returns the scheme.
      * @return The scheme.
      */
-    public Scheme getScheme() {
-        return this.scheme;
+    public String getSchemeName() {
+        return this.schemeName;
     }
 
     /**
@@ -142,10 +142,10 @@ public class HttpHost {
      */
     public String toURI() {
     	CharArrayBuffer buffer = new CharArrayBuffer(32);        
-        buffer.append(this.scheme.getName());
+        buffer.append(this.schemeName);
         buffer.append("://");
         buffer.append(this.hostname);
-        if (this.port != this.scheme.getDefaultPort()) {
+        if (this.port != -1) {
             buffer.append(':');
             buffer.append(Integer.toString(this.port));
         }
@@ -155,7 +155,7 @@ public class HttpHost {
     public String toHostString() {
     	CharArrayBuffer buffer = new CharArrayBuffer(32);        
         buffer.append(this.hostname);
-        if (this.port != this.scheme.getDefaultPort()) {
+        if (this.port != -1) {
             buffer.append(':');
             buffer.append(Integer.toString(this.port));
         }
@@ -179,7 +179,7 @@ public class HttpHost {
             HttpHost that = (HttpHost) obj;
             return this.hostname.equalsIgnoreCase(that.hostname) 
                 && this.port == that.port
-                && this.scheme.equals(that.scheme);
+                && this.schemeName.equals(that.schemeName);
         } else {
             return false;
         }
@@ -192,7 +192,7 @@ public class HttpHost {
         int hash = LangUtils.HASH_SEED;
         hash = LangUtils.hashCode(hash, this.hostname.toUpperCase());
         hash = LangUtils.hashCode(hash, this.port);
-        hash = LangUtils.hashCode(hash, this.scheme);
+        hash = LangUtils.hashCode(hash, this.schemeName);
         return hash;
     }
 

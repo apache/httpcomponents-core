@@ -36,9 +36,7 @@ import org.apache.http.HttpRequest;
 import org.apache.http.HttpRequestFactory;
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpVersion;
-import org.apache.http.Scheme;
 import org.apache.http.impl.DefaultHttpClientConnection;
-import org.apache.http.io.SocketFactory;
 import org.apache.http.params.HttpParams;
 import org.apache.http.params.HttpProtocolParams;
 import org.apache.http.protocol.HttpContext;
@@ -68,20 +66,16 @@ public class SpringHttpDemo {
         HttpRequestExecutor httpexec = (HttpRequestExecutor)beanfactory.getBean("http-executor");
         httpexec.setParams(params);
         
-        Scheme http = (Scheme) beanfactory.getBean("http-scheme");
-        HttpHost host = new HttpHost("www.yahoo.com", 80, http);
+        HttpHost host = new HttpHost("www.yahoo.com", 80);
 
         HttpContext context = new HttpExecutionContext(null);
+        DefaultHttpClientConnection conn = new DefaultHttpClientConnection();
         
         HttpRequestFactory requestfactory = (HttpRequestFactory) beanfactory.getBean("http-request-factory");
-        DefaultHttpClientConnection conn = (DefaultHttpClientConnection) beanfactory.getBean("http-connection");
         ConnectionReuseStrategy connStrategy = (ConnectionReuseStrategy) beanfactory.getBean("conn-reuse-strategy");
         try {
             if (!conn.isOpen()) {
-                SocketFactory socketfactory = host.getScheme().getSocketFactory();
-                Socket socket = socketfactory.createSocket(
-                        host.getHostName(), host.getPort(), 
-                        null, 0, params);
+                Socket socket = new Socket(host.getHostName(), host.getPort());
                 conn.bind(socket, host, params);
             }
             HttpRequest request1 = requestfactory.newHttpRequest("GET", "/");
@@ -96,10 +90,7 @@ public class SpringHttpDemo {
                 System.out.println("Connection closed...");
             }
             if (!conn.isOpen()) {
-                SocketFactory socketfactory = host.getScheme().getSocketFactory();
-                Socket socket = socketfactory.createSocket(
-                        host.getHostName(), host.getPort(), 
-                        null, 0, params);
+                Socket socket = new Socket(host.getHostName(), host.getPort());
                 conn.bind(socket, host, params);
             }
             HttpRequest request2 = requestfactory.newHttpRequest("GET", "/stuff");

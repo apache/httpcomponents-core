@@ -105,14 +105,6 @@ public final class HttpProtocolParams {
     public static final String STATUS_LINE_GARBAGE_LIMIT = "http.protocol.status-line-garbage-limit";
 
     /**
-     * Defines the virtual host name.
-     * <p>
-     * This parameter expects a value of type {@link java.lang.String}. 
-     * </p>
-     */
-    public static final String VIRTUAL_HOST = "http.virtual-host"; 
-
-    /**
      * Defines whether responses with an invalid <tt>Transfer-Encoding</tt> header should be 
      * rejected.
      * <p>
@@ -237,30 +229,6 @@ public final class HttpProtocolParams {
         params.setParameter(PROTOCOL_VERSION, version);
     }
 
-    /**
-     * Sets the virtual host name.
-     * 
-     * @param hostname The host name
-     */
-    public static void setVirtualHost(final HttpParams params, final String hostname) {
-        if (params == null) {
-            throw new IllegalArgumentException("HTTP parameters may not be null");
-        }
-        params.setParameter(VIRTUAL_HOST, hostname);
-    }
-
-    /**
-     * Returns the virtual host name.
-     * 
-     * @return The virtual host name
-     */
-    public static String getVirtualHost(final HttpParams params) {
-        if (params == null) {
-            throw new IllegalArgumentException("HTTP parameters may not be null");
-        }
-        return (String) params.getParameter(VIRTUAL_HOST);
-    }
-    
     public static String getUserAgent(final HttpParams params) { 
         if (params == null) {
             throw new IllegalArgumentException("HTTP parameters may not be null");
