@@ -34,14 +34,12 @@
 <body>
 The transport layer abstraction of the HTTP components.
 
-This layer is used to transfer messages over sockets.
-Sockets are always created through a
-{@link org.apache.http.io.SocketFactory factory}.
-You can provide factories to create plain sockets,
-{@link org.apache.http.io.SecureSocketFactory secure} sockets
-based on SSL/TLS, sockets that connect over SOCKS hosts,
-sockets that implement bandwidth throttling,
-or whatever else you might think of.
+This layer is used to transfer messages over connections.
+Connections are typically based on sockets: plain or secure,
+direct or via SOCKS hosts, with bandwidth throttling, or
+whatever else you might think of.
+However, opening connections is not within the responsibility
+of HttpCore.
 
 <br/>
 

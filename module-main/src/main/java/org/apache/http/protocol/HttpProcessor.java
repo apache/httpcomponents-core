@@ -33,10 +33,18 @@ import java.io.IOException;
 
 import org.apache.http.HttpException;
 import org.apache.http.HttpRequest;
+import org.apache.http.HttpRequestInterceptor;
 import org.apache.http.HttpResponse;
+import org.apache.http.HttpResponseInterceptor;
+
 
 /**
  * Performs interceptor processing of requests and responses.
+ * Specific interceptors typically interpret or update message headers,
+ * and they may wrap the message entity for example to implement a
+ * specific transport or content encoding.
+ * A <code>HttpProcessor</code> typically maintains a list of
+ * interceptors that will be applied to a request or response.
  *
  * @author <a href="mailto:oleg at ural.ru">Oleg Kalnichevski</a>
  * @author <a href="mailto:rolandw at apache.org">Roland Weber</a>
@@ -45,39 +53,8 @@ import org.apache.http.HttpResponse;
  * 
  * @since 4.0
  */
-public interface HttpProcessor {
+public interface HttpProcessor
+    extends HttpRequestInterceptor, HttpResponseInterceptor {
 
-    /**
-     * Processes a request.
-     * On the client side, this step is performed before the request is
-     * sent to the server. On the server side, this step is performed
-     * on incoming messages before the message body is evaluated.
-     *
-     * @param request   the request to preprocess
-     * @param context   the context for the request
-     *
-     * @throws IOException      in case of an IO problem
-     * @throws HttpException    in case of a protocol or other problem
-     */
-    void process(HttpRequest request, HttpContext context) 
-        throws IOException, HttpException
-        ;
-
-
-    /**
-     * Processes a request.
-     * On the client side, this step is performed before the request is
-     * sent to the server. On the server side, this step is performed
-     * on incoming messages before the message body is evaluated.
-     *
-     * @param response  the response to postprocess
-     * @param context   the context for the request
-     *
-     * @throws IOException      in case of an IO problem
-     * @throws HttpException    in case of a protocol or other problem
-     */
-    void process(HttpResponse response, HttpContext context)
-        throws IOException, HttpException
-        ;
-
+    // no additional methods
 }

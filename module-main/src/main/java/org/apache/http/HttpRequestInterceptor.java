@@ -33,18 +33,34 @@ import java.io.IOException;
 
 import org.apache.http.protocol.HttpContext;
 
+
 /**
- * <p>Provides the possibility to preprocess a request before it is sent
- *  to the server or after it has received on the server side.
- * </p>
+ * Processes a request.
+ * Provides the ability to process a request before it is sent
+ * to the server or after it has received on the server side.
+ *
  * @author <a href="mailto:oleg at ural.ru">Oleg Kalnichevski</a>
  *
+ *
+ * <!-- empty lines above to avoid 'svn diff' context problems -->
  * @version $Revision$
  * 
  * @since 4.0
  */
 public interface HttpRequestInterceptor {
 
+    /**
+     * Processes a request.
+     * On the client side, this step is performed before the request is
+     * sent to the server. On the server side, this step is performed
+     * on incoming messages before the message body is evaluated.
+     *
+     * @param request   the request to preprocess
+     * @param context   the context for the request
+     *
+     * @throws IOException      in case of an IO problem
+     * @throws HttpException    in case of a protocol or other problem
+     */
     void process(HttpRequest request, HttpContext context) 
         throws HttpException, IOException;
     
