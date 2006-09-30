@@ -196,7 +196,7 @@ Output
         <java classname="junit.textui.TestRunner"
               fork="yes" failonerror="yes"
         >
-          <arg value="org.apache.http.nio.TestNIOHttpTransmitterAndReceiver"/>
+          <arg value="org.apache.http.nio.TestAll"/>
           <classpath>
             <pathelement location="${junit.jar}"/>
             <pathelement location="${clover.jar}"/>
