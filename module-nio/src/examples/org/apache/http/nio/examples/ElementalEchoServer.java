@@ -10,7 +10,7 @@ import org.apache.http.nio.EventMask;
 import org.apache.http.nio.IOEventDispatch;
 import org.apache.http.nio.IOSession;
 import org.apache.http.nio.IOReactor;
-import org.apache.http.nio.impl.AbstractIOReactor;
+import org.apache.http.nio.impl.DefaultIOReactor;
 import org.apache.http.params.HttpParams;
 
 public class ElementalEchoServer {
@@ -18,7 +18,7 @@ public class ElementalEchoServer {
     public static void main(String[] args) throws Exception {
         HttpParams params = new DefaultHttpParams(); 
         IOEventDispatch ioEventDispatch = new DefaultIoEventDispatch();
-        IOReactor ioReactor = new AbstractIOReactor(params);
+        IOReactor ioReactor = new DefaultIOReactor(params);
         ioReactor.listen(new InetSocketAddress(8080));
         try {
             ioReactor.execute(ioEventDispatch);

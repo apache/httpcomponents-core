@@ -47,7 +47,7 @@ import org.apache.http.nio.SessionRequest;
 import org.apache.http.params.HttpConnectionParams;
 import org.apache.http.params.HttpParams;
 
-public class AbstractIOReactor implements IOReactor {
+public class DefaultIOReactor implements IOReactor {
 
     public static int TIMEOUT_CHECK_INTERVAL = 1000;
     
@@ -62,7 +62,7 @@ public class AbstractIOReactor implements IOReactor {
     
     private IOEventDispatch eventDispatch = null;
     
-    public AbstractIOReactor(final HttpParams params) throws IOException {
+    public DefaultIOReactor(final HttpParams params) throws IOException {
         super();
         if (params == null) {
             throw new IllegalArgumentException("HTTP parameters may not be null");

@@ -28,7 +28,7 @@ import org.apache.http.nio.IOEventDispatch;
 import org.apache.http.nio.IOProducer;
 import org.apache.http.nio.IOSession;
 import org.apache.http.nio.IOReactor;
-import org.apache.http.nio.impl.AbstractIOReactor;
+import org.apache.http.nio.impl.DefaultIOReactor;
 import org.apache.http.nio.impl.AsyncHttpServerConnection;
 import org.apache.http.params.HttpConnectionParams;
 import org.apache.http.params.HttpParams;
@@ -63,7 +63,7 @@ public class AsyncHttpServer {
         globalContext.setAttribute("server.docroot", args[0]);
         
         IOEventDispatch ioEventDispatch = new DefaultIoEventDispatch(params, globalContext);
-        IOReactor ioReactor = new AbstractIOReactor(params);
+        IOReactor ioReactor = new DefaultIOReactor(params);
         try {
             ioReactor.listen(new InetSocketAddress(8080));
             ioReactor.execute(ioEventDispatch);
