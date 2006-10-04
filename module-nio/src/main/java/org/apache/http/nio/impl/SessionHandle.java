@@ -34,10 +34,10 @@ import org.apache.http.nio.IOSession;
 public class SessionHandle {
 
     private final IOSession session;
-    private final long started;
+    private final long startedTime;
 
-    private long lastRead;
-    private long lastWrite;
+    private long lastReadTime;
+    private long lastWriteTime;
     
     public SessionHandle(final IOSession session) {
         super();
@@ -46,33 +46,33 @@ public class SessionHandle {
         }
         this.session = session;
         long now = System.currentTimeMillis();
-        this.started = now;
-        this.lastRead = now;
-        this.lastWrite = now;
+        this.startedTime = now;
+        this.lastReadTime = now;
+        this.lastWriteTime = now;
     }
 
     public IOSession getSession() {
         return this.session;
     }
 
-    public long getStarted() {
-        return this.started;
+    public long getStartedTime() {
+        return this.startedTime;
     }
 
-    public long getLastRead() {
-        return this.lastRead;
+    public long getLastReadTime() {
+        return this.lastReadTime;
     }
 
-    public long getLastWrite() {
-        return this.lastWrite;
+    public long getLastWriteTime() {
+        return this.lastWriteTime;
     }
     
     public void resetLastRead() {
-        this.lastRead = System.currentTimeMillis();
+        this.lastReadTime = System.currentTimeMillis();
     }
     
     public void resetLastWrite() {
-        this.lastWrite = System.currentTimeMillis();
+        this.lastWriteTime = System.currentTimeMillis();
     }
     
 }

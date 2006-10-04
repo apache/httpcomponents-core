@@ -27,23 +27,28 @@
  *
  */
 
-package org.apache.http.nio;
+package org.apache.http.nio.impl;
 
-import java.io.IOException;
-import java.net.SocketAddress;
+public class SessionRequestHandle {
 
-public interface IOReactor {
-
-    void execute(IOEventDispatch eventDispatch) 
-        throws IOException;
-
-    void shutdown() 
-        throws IOException;
+    private final SessionRequestImpl sessionRequest;
+    private final long requestTime;
     
-    SessionRequest connect(SocketAddress remoteAddress, SocketAddress localAddress) 
-        throws IOException;
-        
-    void listen(SocketAddress address) 
-        throws IOException;
+    public SessionRequestHandle(final SessionRequestImpl sessionRequest) {
+        super();
+        if (sessionRequest == null) {
+            throw new IllegalArgumentException("Session request may not be null");
+        }
+        this.sessionRequest = sessionRequest;
+        this.requestTime = System.currentTimeMillis();
+    }
+    
+    public SessionRequestImpl getSessionRequest() {
+        return this.sessionRequest;
+    }
+    
+    public long getRequestTime() {
+        return this.requestTime;
+    }
     
 }

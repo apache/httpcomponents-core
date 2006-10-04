@@ -28,8 +28,8 @@ import org.apache.http.nio.IOEventDispatch;
 import org.apache.http.nio.IOProducer;
 import org.apache.http.nio.IOSession;
 import org.apache.http.nio.IOReactor;
+import org.apache.http.nio.impl.AbstractIOReactor;
 import org.apache.http.nio.impl.AsyncHttpServerConnection;
-import org.apache.http.nio.impl.DefaultListeningIOReactor;
 import org.apache.http.params.HttpConnectionParams;
 import org.apache.http.params.HttpParams;
 import org.apache.http.params.HttpProtocolParams;
@@ -63,8 +63,9 @@ public class AsyncHttpServer {
         globalContext.setAttribute("server.docroot", args[0]);
         
         IOEventDispatch ioEventDispatch = new DefaultIoEventDispatch(params, globalContext);
-        IOReactor ioReactor = new DefaultListeningIOReactor(new InetSocketAddress(8080), params);
+        IOReactor ioReactor = new AbstractIOReactor(params);
         try {
+            ioReactor.listen(new InetSocketAddress(8080));
             ioReactor.execute(ioEventDispatch);
         } catch (InterruptedIOException ex) {
             System.err.println("Interrupted");

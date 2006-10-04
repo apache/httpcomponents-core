@@ -38,7 +38,7 @@ import java.util.Map;
 
 import org.apache.http.nio.IOSession;
 
-public class DefaultIOSession implements IOSession {
+public class IOSessionImpl implements IOSession {
     
     private volatile boolean closed = false;
     
@@ -48,7 +48,7 @@ public class DefaultIOSession implements IOSession {
     
     private int socketTimeout;
     
-    public DefaultIOSession(final SelectionKey key, final SessionClosedCallback callback) {
+    public IOSessionImpl(final SelectionKey key, final SessionClosedCallback callback) {
         super();
         if (key == null) {
             throw new IllegalArgumentException("Selection key may not be null");

@@ -31,6 +31,7 @@ package org.apache.http.nio.impl;
 
 import java.io.IOException;
 import java.net.Socket;
+import java.net.SocketAddress;
 import java.nio.channels.CancelledKeyException;
 import java.nio.channels.SelectionKey;
 import java.nio.channels.Selector;
@@ -42,44 +43,42 @@ import java.util.Set;
 import org.apache.http.nio.IOEventDispatch;
 import org.apache.http.nio.IOReactor;
 import org.apache.http.nio.IOSession;
+import org.apache.http.nio.SessionRequest;
+import org.apache.http.params.HttpConnectionParams;
+import org.apache.http.params.HttpParams;
 
-public abstract class AbstractIOReactor implements IOReactor {
+public class AbstractIOReactor implements IOReactor {
 
     public static int TIMEOUT_CHECK_INTERVAL = 1000;
     
     private volatile boolean closed = false;
+    
+    private final HttpParams params;
     private final Selector selector;
     private final SessionSet sessions;
     private final SessionQueue closedSessions;
+    
     private long lastTimeoutCheck;
     
     private IOEventDispatch eventDispatch = null;
     
-    public AbstractIOReactor() throws IOException {
+    public AbstractIOReactor(final HttpParams params) throws IOException {
         super();
+        if (params == null) {
+            throw new IllegalArgumentException("HTTP parameters may not be null");
+        }
+        this.params = params;
         this.selector = Selector.open();
         this.sessions = new SessionSet();
         this.closedSessions = new SessionQueue();
         this.lastTimeoutCheck = System.currentTimeMillis();
     }
 
-    protected abstract void onExecute() throws IOException;
-    
-    protected abstract void onShutdown() throws IOException;
-    
-    protected abstract void onNewSocket(Socket socket) throws IOException;
-
-    protected Selector getSelector() {
-        return this.selector;
-    }
-    
-    public synchronized void execute(final IOEventDispatch eventDispatch) throws IOException {
+    public void execute(final IOEventDispatch eventDispatch) throws IOException {
         if (eventDispatch == null) {
             throw new IllegalArgumentException("Event dispatcher may not be null");
         }
         this.eventDispatch = eventDispatch;
-        
-        onExecute();
         
         try {
             for (;;) {
@@ -96,7 +95,7 @@ public abstract class AbstractIOReactor implements IOReactor {
                     this.lastTimeoutCheck = currentTime;
                     Set keys = this.selector.keys();
                     if (keys != null) {
-                        processSessionTimeouts(keys);
+                        processTimeouts(keys);
                     }
                 }
                 
@@ -105,7 +104,6 @@ public abstract class AbstractIOReactor implements IOReactor {
             }
         } finally {
             closeSessions();
-            this.eventDispatch = null;
         }
     }
     
@@ -121,34 +119,50 @@ public abstract class AbstractIOReactor implements IOReactor {
 
     private void processEvent(final SelectionKey key) throws IOException {
         try {
+            
             if (key.isAcceptable()) {
                 
                 ServerSocketChannel serverChannel = (ServerSocketChannel) key.channel();
                 SocketChannel socketChannel = serverChannel.accept();
                 if (socketChannel != null) {
-                    
                     // Configure new socket
                     onNewSocket(socketChannel.socket());
                     // Register new channel with the selector
                     socketChannel.configureBlocking(false);
                     SelectionKey newkey = socketChannel.register(this.selector, 0);
-                    
                     // Set up new session
-                    IOSession session = new DefaultIOSession(newkey, new SessionClosedCallback() {
+                    IOSession session = newSession(newkey);
 
-                        public void sessionClosed(IOSession session) {
-                            closedSessions.push(session);
-                        }
-                        
-                    });
-                    this.sessions.add(session);
-                    
                     // Attach session handle to the selection key
                     SessionHandle handle = new SessionHandle(session); 
                     newkey.attach(handle);
                     
                     this.eventDispatch.connected(session);
                 }
+            }
+            
+            if (key.isConnectable()) {
+
+                SocketChannel socketChannel = (SocketChannel) key.channel();
+                if (socketChannel != null) {
+                    // Configure new socket
+                    onNewSocket(socketChannel.socket());
+                    // Set up new session
+                    IOSession session = newSession(key);
+
+                    // Get request handle
+                    SessionRequestHandle requestHandle = (SessionRequestHandle) key.attachment();
+                    SessionRequestImpl sessionRequest = requestHandle.getSessionRequest();
+                    
+                    // Attach session handle to the selection key
+                    SessionHandle handle = new SessionHandle(session); 
+                    key.attach(handle);
+                    
+                    this.eventDispatch.connected(session);
+                    
+                    sessionRequest.completed(session);
+                }
+
             }
             
             if (key.isReadable()) {
@@ -177,20 +191,56 @@ public abstract class AbstractIOReactor implements IOReactor {
         }
     }
 
-    private void processSessionTimeouts(final Set keys) {
+    private IOSession newSession(final SelectionKey key) throws IOException {
+        IOSession session = new IOSessionImpl(key, new SessionClosedCallback() {
+
+            public void sessionClosed(IOSession session) {
+                closedSessions.push(session);
+            }
+            
+        });
+        session.setSocketTimeout(HttpConnectionParams.getSoTimeout(this.params));
+        this.sessions.add(session);
+        return session;
+    }
+    
+    protected void onNewSocket(final Socket socket) throws IOException {
+        socket.setTcpNoDelay(HttpConnectionParams.getTcpNoDelay(this.params));
+        socket.setSoTimeout(HttpConnectionParams.getSoTimeout(this.params));
+        int linger = HttpConnectionParams.getLinger(this.params);
+        if (linger >= 0) {
+            socket.setSoLinger(linger > 0, linger);
+        }
+    }
+
+    private void processTimeouts(final Set keys) {
         long now = System.currentTimeMillis();
         for (Iterator it = keys.iterator(); it.hasNext();) {
             SelectionKey key = (SelectionKey) it.next();
-            SessionHandle handle = (SessionHandle) key.attachment();
-            if (handle != null) {
+            Object attachment = key.attachment();
+            
+            if (attachment instanceof SessionHandle) {
+                SessionHandle handle = (SessionHandle) key.attachment();
                 IOSession session = handle.getSession();
                 int timeout = session.getSocketTimeout();
                 if (timeout > 0) {
-                    if (handle.getLastRead() + timeout < now) {
+                    if (handle.getLastReadTime() + timeout < now) {
                         this.eventDispatch.timeout(session);
                     }
                 }
             }
+
+            if (attachment instanceof SessionRequestHandle) {
+                SessionRequestHandle handle = (SessionRequestHandle) key.attachment();
+                SessionRequestImpl sessionRequest = handle.getSessionRequest();
+                int timeout = sessionRequest.getConnectTimeout();
+                if (timeout > 0) {
+                    if (handle.getRequestTime() + timeout < now) {
+                        sessionRequest.timeout();
+                    }
+                }
+            }
+            
         }
     }
 
@@ -215,6 +265,34 @@ public abstract class AbstractIOReactor implements IOReactor {
         this.sessions.clear();
     }
     
+    public void listen(
+            final SocketAddress address) throws IOException {
+        ServerSocketChannel serverChannel = ServerSocketChannel.open();
+        serverChannel.configureBlocking(false);
+        serverChannel.socket().bind(address);
+        SelectionKey key = serverChannel.register(this.selector, SelectionKey.OP_ACCEPT);
+        key.attach(null);
+    }
+
+    public SessionRequest connect(
+            final SocketAddress remoteAddress, 
+            final SocketAddress localAddress) throws IOException {
+        SocketChannel socketChannel = SocketChannel.open();
+        socketChannel.configureBlocking(false);
+        if (localAddress != null) {
+            socketChannel.socket().bind(localAddress);
+        }
+        socketChannel.connect(remoteAddress);
+        SelectionKey key = socketChannel.register(this.selector, SelectionKey.OP_CONNECT);
+        
+        SessionRequestImpl sessionRequest = new SessionRequestImpl(key);
+        sessionRequest.setConnectTimeout(HttpConnectionParams.getConnectionTimeout(this.params));
+
+        SessionRequestHandle requestHandle = new SessionRequestHandle(sessionRequest); 
+        key.attach(requestHandle);
+        return sessionRequest;
+    }
+
     public void shutdown() throws IOException {
         if (this.closed) {
             return;
@@ -222,7 +300,6 @@ public abstract class AbstractIOReactor implements IOReactor {
         this.closed = true;
         // Stop dispatching I/O events
         this.selector.close();
-        onShutdown();
     }
-    
+        
 }

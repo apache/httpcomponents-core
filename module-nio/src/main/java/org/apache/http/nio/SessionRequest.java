@@ -29,21 +29,20 @@
 
 package org.apache.http.nio;
 
-import java.io.IOException;
-import java.net.SocketAddress;
+public interface SessionRequest {
 
-public interface IOReactor {
-
-    void execute(IOEventDispatch eventDispatch) 
-        throws IOException;
-
-    void shutdown() 
-        throws IOException;
+    boolean isCompleted();
     
-    SessionRequest connect(SocketAddress remoteAddress, SocketAddress localAddress) 
-        throws IOException;
-        
-    void listen(SocketAddress address) 
-        throws IOException;
+    IOSession getSession();
+
+    void waitFor() throws InterruptedException;
+    
+    void setConnectTimeout(int timeout);
+    
+    int getConnectTimeout();
+    
+    void setCallback(SessionRequestCallback callback);
+    
+    void cancel();
     
 }

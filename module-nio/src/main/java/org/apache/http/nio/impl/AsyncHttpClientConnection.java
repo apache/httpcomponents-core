@@ -30,8 +30,9 @@ package org.apache.http.nio.impl;
 
 import java.io.IOException;
 
-import org.apache.http.impl.AbstractHttpServerConnection;
-import org.apache.http.impl.DefaultHttpRequestFactory;
+import org.apache.http.HttpHost;
+import org.apache.http.impl.AbstractHttpClientConnection;
+import org.apache.http.impl.DefaultHttpResponseFactory;
 import org.apache.http.impl.entity.DefaultEntityDeserializer;
 import org.apache.http.impl.entity.DefaultEntitySerializer;
 import org.apache.http.nio.IOConsumer;
@@ -40,14 +41,21 @@ import org.apache.http.nio.IOSession;
 import org.apache.http.params.HttpConnectionParams;
 import org.apache.http.params.HttpParams;
 
-public class AsyncHttpServerConnection extends AbstractHttpServerConnection {
+public class AsyncHttpClientConnection extends AbstractHttpClientConnection {
 
+    private final HttpHost targetHost;
     private final IOSession session;
     private final IOProducer ioProducer;
     private final IOConsumer ioConsumer;
     
-    public AsyncHttpServerConnection(final IOSession session, final HttpParams params) {
+    public AsyncHttpClientConnection(
+            final HttpHost targetHost, 
+            final IOSession session, 
+            final HttpParams params) {
         super();
+        if (targetHost == null) {
+            throw new IllegalArgumentException("Target host may not be null");
+        }
         if (session == null) {
             throw new IllegalArgumentException("IO session may not be null");
         }
@@ -55,6 +63,7 @@ public class AsyncHttpServerConnection extends AbstractHttpServerConnection {
             throw new IllegalArgumentException("HTTP parameters may not be null");
         }
         this.session = session;
+        this.targetHost = targetHost;
         int buffersize = HttpConnectionParams.getSocketBufferSize(params);
         
         AsyncHttpDataReceiver datareceiver = new AsyncHttpDataReceiver(
@@ -69,11 +78,15 @@ public class AsyncHttpServerConnection extends AbstractHttpServerConnection {
         
         setHttpDataReceiver(datareceiver);
         setHttpDataTransmitter(datatransmitter);
-        setRequestFactory(new DefaultHttpRequestFactory());
+        setResponseFactory(new DefaultHttpResponseFactory());
         setEntitySerializer(new DefaultEntitySerializer());
         setEntityDeserializer(new DefaultEntityDeserializer());
     }
 
+    public HttpHost getTargetHost() {
+        return this.targetHost;
+    }
+    
     public IOConsumer getIOConsumer() {
         return this.ioConsumer;
     }
