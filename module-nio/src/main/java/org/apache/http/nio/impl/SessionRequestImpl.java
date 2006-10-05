@@ -29,26 +29,41 @@
 
 package org.apache.http.nio.impl;
 
+import java.io.IOException;
+import java.net.SocketAddress;
 import java.nio.channels.SelectionKey;
 
 import org.apache.http.nio.SessionRequest;
 import org.apache.http.nio.IOSession;
 import org.apache.http.nio.SessionRequestCallback;
 
-public class SessionRequestImpl implements SessionRequest {
+class SessionRequestImpl implements SessionRequest {
 
     private volatile boolean completed;
 
     private final SelectionKey key;
+    private final SocketAddress remoteAddress;
     
     private int connectTimeout;
     private SessionRequestCallback callback;
     private IOSession session = null;
+    private IOException exception = null;
     
-    public SessionRequestImpl(final SelectionKey key) {
+    public SessionRequestImpl(final SocketAddress remoteAddress, SelectionKey key) {
         super();
+        if (remoteAddress == null) {
+            throw new IllegalArgumentException("Remote address may not be null");
+        }
+        if (key == null) {
+            throw new IllegalArgumentException("Selection key may not be null");
+        }
+        this.remoteAddress = remoteAddress;
         this.key = key;
         this.connectTimeout = 0;
+    }
+    
+    public SocketAddress getRemoteAddress() {
+        return this.remoteAddress;
     }
     
     public boolean isCompleted() {
@@ -72,6 +87,12 @@ public class SessionRequestImpl implements SessionRequest {
         }
     }
     
+    public IOException getException() {
+        synchronized (this) {
+            return this.exception;
+        }
+    }
+    
     public void completed(final IOSession session) {
         if (session == null) {
             throw new IllegalArgumentException("Session may not be null");
@@ -89,16 +110,31 @@ public class SessionRequestImpl implements SessionRequest {
         }
     }
  
-    public synchronized void timeout() {
+    public void failed(final IOException exception) {
+        if (exception == null) {
+            return;
+        }
         if (this.completed) {
             throw new IllegalStateException("Session request already completed");
         }
         this.completed = true;
         synchronized (this) {
+            this.exception = exception;
+            if (this.callback != null) {
+                this.callback.failed(this);
+            }
+            notifyAll();
+        }
+    }
+ 
+    public void timeout() {
+        if (this.completed) {
+            throw new IllegalStateException("Session request already completed");
+        }
+        synchronized (this) {
             if (this.callback != null) {
                 this.callback.timeout(this);
             }
-            notifyAll();
         }
     }
  
@@ -114,16 +150,24 @@ public class SessionRequestImpl implements SessionRequest {
     }
 
     public void setCallback(final SessionRequestCallback callback) {
-        if (this.completed) {
-            throw new IllegalStateException("Session request already completed");
-        }
         synchronized (this) {
             this.callback = callback;
+            if (this.completed) {
+                if (this.session != null) {
+                    callback.completed(this);
+                } else {
+                    callback.timeout(this);
+                }
+            }
         }
     }
 
     public void cancel() {
         this.key.cancel();
+        this.completed = true;
+        synchronized (this) {
+            notifyAll();
+        }
     }
     
 }

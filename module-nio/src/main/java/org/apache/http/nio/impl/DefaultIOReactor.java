@@ -144,24 +144,33 @@ public class DefaultIOReactor implements IOReactor {
             if (key.isConnectable()) {
 
                 SocketChannel socketChannel = (SocketChannel) key.channel();
-                if (socketChannel != null) {
-                    // Configure new socket
-                    onNewSocket(socketChannel.socket());
-                    // Set up new session
-                    IOSession session = newSession(key);
-
-                    // Get request handle
-                    SessionRequestHandle requestHandle = (SessionRequestHandle) key.attachment();
-                    SessionRequestImpl sessionRequest = requestHandle.getSessionRequest();
-                    
-                    // Attach session handle to the selection key
-                    SessionHandle handle = new SessionHandle(session); 
-                    key.attach(handle);
-                    
-                    this.eventDispatch.connected(session);
-                    
-                    sessionRequest.completed(session);
+                // Get request handle
+                SessionRequestHandle requestHandle = (SessionRequestHandle) key.attachment();
+                SessionRequestImpl sessionRequest = requestHandle.getSessionRequest();
+                
+                // Finish connection process
+                try {
+                    socketChannel.finishConnect();
+                } catch (IOException ex) {
+                    sessionRequest.failed(ex);
+                    key.cancel();
+                    return;
                 }
+
+                // Configure new socket
+                onNewSocket(socketChannel.socket());
+                // Set up new session
+                IOSession session = newSession(key);
+
+                // Attach session handle to the selection key
+                SessionHandle handle = new SessionHandle(session); 
+                key.attach(handle);
+                
+                // Fire the request completion notification first
+                sessionRequest.completed(session);
+                
+                // Followed by session connected notification
+                this.eventDispatch.connected(session);
 
             }
             
@@ -182,11 +191,12 @@ public class DefaultIOReactor implements IOReactor {
             }
             
         } catch (CancelledKeyException ex) {
-            SessionHandle handle = (SessionHandle) key.attachment();
-            if (handle != null) {
-                key.attach(null);
+            Object attachment = key.attachment();
+            if (attachment instanceof SessionHandle) {
+                SessionHandle handle = (SessionHandle) attachment;
                 IOSession session = handle.getSession();
                 this.closedSessions.push(session);
+                key.attach(null);
             }
         }
     }
@@ -285,7 +295,7 @@ public class DefaultIOReactor implements IOReactor {
         socketChannel.connect(remoteAddress);
         SelectionKey key = socketChannel.register(this.selector, SelectionKey.OP_CONNECT);
         
-        SessionRequestImpl sessionRequest = new SessionRequestImpl(key);
+        SessionRequestImpl sessionRequest = new SessionRequestImpl(remoteAddress, key);
         sessionRequest.setConnectTimeout(HttpConnectionParams.getConnectionTimeout(this.params));
 
         SessionRequestHandle requestHandle = new SessionRequestHandle(sessionRequest); 

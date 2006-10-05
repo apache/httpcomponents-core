@@ -33,6 +33,8 @@ public interface SessionRequestCallback {
 
     void completed(SessionRequest request);
     
-    void timeout(SessionRequest request);
+    void failed(SessionRequest request);
     
+    void timeout(SessionRequest request);
+
 }

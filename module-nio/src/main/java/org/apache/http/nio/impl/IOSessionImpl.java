@@ -38,7 +38,7 @@ import java.util.Map;
 
 import org.apache.http.nio.IOSession;
 
-public class IOSessionImpl implements IOSession {
+class IOSessionImpl implements IOSession {
     
     private volatile boolean closed = false;
     

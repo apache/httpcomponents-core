@@ -29,11 +29,18 @@
 
 package org.apache.http.nio;
 
+import java.io.IOException;
+import java.net.SocketAddress;
+
 public interface SessionRequest {
 
+    public SocketAddress getRemoteAddress();
+    
     boolean isCompleted();
     
     IOSession getSession();
+    
+    IOException getException();
 
     void waitFor() throws InterruptedException;
     
