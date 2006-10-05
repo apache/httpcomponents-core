@@ -32,7 +32,6 @@ package org.apache.http.impl;
 import java.io.IOException;
 import java.net.Socket;
 
-import org.apache.http.HttpHost;
 import org.apache.http.impl.entity.DefaultEntityDeserializer;
 import org.apache.http.impl.entity.DefaultEntitySerializer;
 import org.apache.http.impl.io.SocketHttpDataReceiver;
@@ -53,8 +52,6 @@ import org.apache.http.params.HttpParams;
  * @since 4.0
  */
 public class SocketHttpClientConnection extends AbstractHttpClientConnection {
-
-    private HttpHost targethost = null;
 
     protected volatile boolean open;
     protected Socket socket = null;
@@ -77,13 +74,9 @@ public class SocketHttpClientConnection extends AbstractHttpClientConnection {
 
     protected void bind(
             final Socket socket, 
-            final HttpHost targethost, 
             final HttpParams params) throws IOException {
         if (socket == null) {
             throw new IllegalArgumentException("Socket may not be null");
-        }
-        if (targethost == null) {
-            throw new IllegalArgumentException("Target host may not be null");
         }
         if (params == null) {
             throw new IllegalArgumentException("HTTP parameters may not be null");
@@ -99,7 +92,6 @@ public class SocketHttpClientConnection extends AbstractHttpClientConnection {
         }
 
         this.socket = socket;
-        this.targethost = targethost;
         
         int buffersize = HttpConnectionParams.getSocketBufferSize(params);
         HttpDataTransmitter transmitter = new SocketHttpDataTransmitter(socket, buffersize);
@@ -116,10 +108,6 @@ public class SocketHttpClientConnection extends AbstractHttpClientConnection {
         this.open = true;
     }
 
-    public HttpHost getTargetHost() {
-        return this.targethost;
-    }
-    
     public boolean isOpen() {
         return this.open;
     }

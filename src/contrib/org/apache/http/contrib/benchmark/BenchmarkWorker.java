@@ -112,12 +112,14 @@ public class BenchmarkWorker {
             port = 80;
         }
         
+        this.context.setAttribute(HttpExecutionContext.HTTP_TARGET_HOST, targetHost);
+        
         for (int i = 0; i < count; i++) {
             try {
                 resetHeader(request);
                 if (!conn.isOpen()) {
                     Socket socket = new Socket(hostname, port);
-                    conn.bind(socket, targetHost, params);
+                    conn.bind(socket, params);
                 }
                 response = this.httpexecutor.execute(request, conn, this.context);
                 if (this.verbosity >= 3) {

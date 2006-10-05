@@ -71,12 +71,14 @@ public class SpringHttpDemo {
         HttpContext context = new HttpExecutionContext(null);
         DefaultHttpClientConnection conn = new DefaultHttpClientConnection();
         
+        context.setAttribute(HttpExecutionContext.HTTP_TARGET_HOST, host);
+        
         HttpRequestFactory requestfactory = (HttpRequestFactory) beanfactory.getBean("http-request-factory");
         ConnectionReuseStrategy connStrategy = (ConnectionReuseStrategy) beanfactory.getBean("conn-reuse-strategy");
         try {
             if (!conn.isOpen()) {
                 Socket socket = new Socket(host.getHostName(), host.getPort());
-                conn.bind(socket, host, params);
+                conn.bind(socket, params);
             }
             HttpRequest request1 = requestfactory.newHttpRequest("GET", "/");
             HttpResponse response1 = httpexec.execute(request1, conn, context);
@@ -91,7 +93,7 @@ public class SpringHttpDemo {
             }
             if (!conn.isOpen()) {
                 Socket socket = new Socket(host.getHostName(), host.getPort());
-                conn.bind(socket, host, params);
+                conn.bind(socket, params);
             }
             HttpRequest request2 = requestfactory.newHttpRequest("GET", "/stuff");
             HttpResponse response2 = httpexec.execute(request2, conn, context);

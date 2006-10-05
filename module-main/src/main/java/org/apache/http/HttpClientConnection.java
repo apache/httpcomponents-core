@@ -48,13 +48,6 @@ import org.apache.http.params.HttpParams;
 public interface HttpClientConnection extends HttpConnection {
 
     /**
-     * Returns the current target host.
-     *
-     * @return the target host of this connection
-     */
-    HttpHost getTargetHost();
-
-    /**
      * Checks if response data is available from the connection. May wait for
      * the specified time until some data becomes available. Note that some
      * implementations may completely ignore the timeout parameter.

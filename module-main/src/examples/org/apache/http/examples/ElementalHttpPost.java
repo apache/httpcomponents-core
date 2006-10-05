@@ -91,7 +91,11 @@ public class ElementalHttpPost {
         HttpContext context = new HttpExecutionContext(null);
         
         HttpHost host = new HttpHost("localhost", 8080);
+        context.setAttribute(HttpExecutionContext.HTTP_TARGET_HOST, host);
+        
         DefaultHttpClientConnection conn = new DefaultHttpClientConnection();
+        ConnectionReuseStrategy connStrategy = new DefaultConnectionReuseStrategy();
+
         try {
             
             HttpEntity[] requestBodies = {
@@ -105,12 +109,10 @@ public class ElementalHttpPost {
                                     .getBytes("UTF-8")), -1)
             };
             
-            ConnectionReuseStrategy connStrategy = new DefaultConnectionReuseStrategy();
-            
             for (int i = 0; i < requestBodies.length; i++) {
                 if (!conn.isOpen()) {
                     Socket socket = new Socket(host.getHostName(), host.getPort());
-                    conn.bind(socket, host, params);
+                    conn.bind(socket, params);
                 }
                 HttpPost request = new HttpPost("/servlets-examples/servlet/RequestInfoExample");
                 request.setEntity(requestBodies[i]);

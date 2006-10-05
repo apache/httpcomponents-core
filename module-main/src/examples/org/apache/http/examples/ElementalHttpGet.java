@@ -84,9 +84,12 @@ public class ElementalHttpGet {
         httpexecutor.setParams(params);
         
         HttpContext context = new HttpExecutionContext(null);
-        
         HttpHost host = new HttpHost("localhost", 8080);
+        context.setAttribute(HttpExecutionContext.HTTP_TARGET_HOST, host);
+
         DefaultHttpClientConnection conn = new DefaultHttpClientConnection();
+        ConnectionReuseStrategy connStrategy = new DefaultConnectionReuseStrategy();
+        
         try {
             
             String[] targets = {
@@ -94,12 +97,10 @@ public class ElementalHttpGet {
                     "/servlets-examples/servlet/RequestInfoExample", 
                     "/somewhere%20in%20pampa"};
             
-            ConnectionReuseStrategy connStrategy = new DefaultConnectionReuseStrategy();
-            
             for (int i = 0; i < targets.length; i++) {
                 if (!conn.isOpen()) {
                     Socket socket = new Socket(host.getHostName(), host.getPort());
-                    conn.bind(socket, host, params);
+                    conn.bind(socket, params);
                 }
                 HttpGet request = new HttpGet(targets[i]);
                 System.out.println(">> Request URI: " + request.getRequestLine().getUri());

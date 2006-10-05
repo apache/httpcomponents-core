@@ -141,7 +141,6 @@ public class HttpRequestExecutor {
             throw new IllegalArgumentException("HTTP context may not be null");
         }
 
-        context.setAttribute(HttpExecutionContext.HTTP_TARGET_HOST, conn.getTargetHost());
         context.setAttribute(HttpExecutionContext.HTTP_CONNECTION, conn);
         context.setAttribute(HttpExecutionContext.HTTP_REQUEST, request);
         

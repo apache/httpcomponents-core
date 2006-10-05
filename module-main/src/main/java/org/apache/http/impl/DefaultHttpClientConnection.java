@@ -32,7 +32,6 @@ package org.apache.http.impl;
 import java.io.IOException;
 import java.net.Socket;
 
-import org.apache.http.HttpHost;
 import org.apache.http.params.HttpParams;
 
 /**
@@ -52,9 +51,8 @@ public class DefaultHttpClientConnection extends SocketHttpClientConnection {
     
     public void bind(
             final Socket socket, 
-            final HttpHost targethost, 
             final HttpParams params) throws IOException {
-        super.bind(socket, targethost, params);
+        super.bind(socket, params);
     }
 
 }
