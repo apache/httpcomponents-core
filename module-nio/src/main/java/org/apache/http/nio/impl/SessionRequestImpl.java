@@ -153,10 +153,10 @@ class SessionRequestImpl implements SessionRequest {
         synchronized (this) {
             this.callback = callback;
             if (this.completed) {
-                if (this.session != null) {
+                if (this.exception != null) {
+                    callback.failed(this);
+                } else if (this.session != null) {
                     callback.completed(this);
-                } else {
-                    callback.timeout(this);
                 }
             }
         }
