@@ -5,7 +5,7 @@ import java.io.IOException;
 import java.nio.channels.Channels;
 import java.nio.channels.WritableByteChannel;
 
-import org.apache.http.nio.impl.NIOHttpDataTransmitter;
+import org.apache.http.nio.impl.AbstractSessionDataTransmitter;
 import org.apache.http.nio.impl.SessionOutputBuffer;
 
 /**
@@ -13,7 +13,7 @@ import org.apache.http.nio.impl.SessionOutputBuffer;
  *
  * @author <a href="mailto:oleg at ural.ru">Oleg Kalnichevski</a>
  */
-public class NIOHttpDataTransmitterMockup extends NIOHttpDataTransmitter {
+public class NIOHttpDataTransmitterMockup extends AbstractSessionDataTransmitter {
 
     public static int BUFFER_SIZE = 16;
     

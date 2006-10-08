@@ -36,7 +36,8 @@ import org.apache.http.nio.IOProducer;
 import org.apache.http.nio.IOSession;
 import org.apache.http.params.HttpParams;
 
-public class AsyncHttpDataTransmitter extends NIOHttpDataTransmitter implements IOProducer {
+public class AsyncHttpDataTransmitter 
+    extends AbstractSessionDataTransmitter implements IOProducer {
     
     private final IOSession session;
     private final Object mutex;

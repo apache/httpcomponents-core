@@ -36,8 +36,8 @@ import junit.framework.TestSuite;
 
 import org.apache.http.impl.DefaultHttpParams;
 import org.apache.http.io.CharArrayBuffer;
-import org.apache.http.nio.impl.NIOHttpDataReceiver;
-import org.apache.http.nio.impl.NIOHttpDataTransmitter;
+import org.apache.http.nio.impl.AbstractSessionDataReceiver;
+import org.apache.http.nio.impl.AbstractSessionDataTransmitter;
 import org.apache.http.nio.mockup.NIOHttpDataReceiverMockup;
 import org.apache.http.nio.mockup.NIOHttpDataTransmitterMockup;
 import org.apache.http.params.HttpConnectionParams;
@@ -45,7 +45,7 @@ import org.apache.http.params.HttpParams;
 import org.apache.http.params.HttpProtocolParams;
 
 /**
- * Simple tests for {@link NIOHttpDataTransmitter} and {@link NIOHttpDataReceiver}.
+ * Simple tests for {@link AbstractSessionDataTransmitter} and {@link AbstractSessionDataReceiver}.
  *
  * @author <a href="mailto:oleg at ural.ru">Oleg Kalnichevski</a>
  * 

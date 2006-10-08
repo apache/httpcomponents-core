@@ -36,7 +36,8 @@ import org.apache.http.nio.IOConsumer;
 import org.apache.http.nio.IOSession;
 import org.apache.http.params.HttpParams;
 
-public class AsyncHttpDataReceiver extends NIOHttpDataReceiver implements IOConsumer {
+public class AsyncHttpDataReceiver 
+    extends AbstractSessionDataReceiver implements IOConsumer {
 
     private final IOSession session;
     private final Object mutex;

@@ -6,7 +6,7 @@ import java.io.UnsupportedEncodingException;
 import java.nio.channels.Channels;
 import java.nio.channels.ReadableByteChannel;
 
-import org.apache.http.nio.impl.NIOHttpDataReceiver;
+import org.apache.http.nio.impl.AbstractSessionDataReceiver;
 import org.apache.http.nio.impl.SessionInputBuffer;
 
 /**
@@ -14,7 +14,7 @@ import org.apache.http.nio.impl.SessionInputBuffer;
  *
  * @author <a href="mailto:oleg at ural.ru">Oleg Kalnichevski</a>
  */
-public class NIOHttpDataReceiverMockup extends NIOHttpDataReceiver {
+public class NIOHttpDataReceiverMockup extends AbstractSessionDataReceiver {
 
     public static int BUFFER_SIZE = 16;
     

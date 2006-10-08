@@ -47,13 +47,13 @@ import org.apache.http.protocol.HTTP;
  * 
  * @since 4.0
  */
-public abstract class NIOHttpDataTransmitter implements HttpDataTransmitter {
+public abstract class AbstractSessionDataTransmitter implements HttpDataTransmitter {
 
     private static final byte[] CRLF = new byte[] {HTTP.CR, HTTP.LF};
 
     private SessionOutputBuffer buffer = null;
 
-    public NIOHttpDataTransmitter(final SessionOutputBuffer buffer) {
+    public AbstractSessionDataTransmitter(final SessionOutputBuffer buffer) {
         super();
         if (buffer == null) {
             throw new IllegalArgumentException("Session output buffer may not be null");

@@ -46,11 +46,11 @@ import org.apache.http.params.HttpParams;
  * 
  * @since 4.0
  */
-public abstract class NIOHttpDataReceiver implements HttpDataReceiver {
+public abstract class AbstractSessionDataReceiver implements HttpDataReceiver {
 
     private SessionInputBuffer buffer = null;
     
-    protected NIOHttpDataReceiver(final SessionInputBuffer buffer) {
+    protected AbstractSessionDataReceiver(final SessionInputBuffer buffer) {
         super();
         if (buffer == null) {
             throw new IllegalArgumentException("Session input buffer may not be null");
