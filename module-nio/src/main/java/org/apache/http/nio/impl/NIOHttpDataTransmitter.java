@@ -30,17 +30,10 @@
 package org.apache.http.nio.impl;
 
 import java.io.IOException;
-import java.nio.ByteBuffer;
-import java.nio.CharBuffer;
-import java.nio.charset.Charset;
-import java.nio.charset.CharsetEncoder;
-import java.nio.charset.CoderResult;
-import java.nio.charset.CodingErrorAction;
 
 import org.apache.http.io.CharArrayBuffer;
 import org.apache.http.io.HttpDataTransmitter;
 import org.apache.http.params.HttpParams;
-import org.apache.http.params.HttpProtocolParams;
 import org.apache.http.protocol.HTTP;
 
 /**
@@ -58,136 +51,46 @@ public abstract class NIOHttpDataTransmitter implements HttpDataTransmitter {
 
     private static final byte[] CRLF = new byte[] {HTTP.CR, HTTP.LF};
 
-    private ByteBuffer buffer = null;
+    private SessionOutputBuffer buffer = null;
 
-    private Charset charset = null;
-    private CharsetEncoder charencoder = null;
-    private CharBuffer chbuffer = null;
-
-    protected void initBuffer(int buffersize, int linebuffersize) {
-        this.buffer = ByteBuffer.allocateDirect(buffersize);
-        this.charset = Charset.forName("US-ASCII");
-        this.charencoder = createCharEncoder();
-        this.chbuffer = CharBuffer.allocate(linebuffersize);
+    public NIOHttpDataTransmitter(final SessionOutputBuffer buffer) {
+        super();
+        if (buffer == null) {
+            throw new IllegalArgumentException("Session output buffer may not be null");
+        }
+        this.buffer = buffer;
     }
     
-    public void reset(final HttpParams params) {
-        this.charset = Charset.forName(HttpProtocolParams.getHttpElementCharset(params)); 
-        this.charencoder = createCharEncoder();
-    }
-
-    private void doFlushBuffer() throws IOException {
-        this.buffer.flip();
-        flushBuffer();
-        this.buffer.compact();
-    }
-    
-    protected ByteBuffer getBuffer() {
+    protected SessionOutputBuffer getBuffer() {
         return this.buffer;
     }
-    
+
+    public void reset(final HttpParams params) {
+        this.buffer.reset(params);
+    }
+
     protected abstract void flushBuffer() throws IOException;
     
     public  void flush() throws IOException {
-        this.buffer.flip();
-        while (this.buffer.hasRemaining()) {
+        while (this.buffer.hasData()) {
             flushBuffer();
         }
-        this.buffer.clear();
-    }
-    
-    private CharsetEncoder createCharEncoder() {
-        CharsetEncoder charencoder = this.charset.newEncoder();
-        charencoder.onMalformedInput(CodingErrorAction.REPLACE); 
-        charencoder.onUnmappableCharacter(CodingErrorAction.REPLACE); 
-        return charencoder; 
     }
     
     public void write(final byte[] b, int off, int len) throws IOException {
-        if (b == null) {
-            return;
-        }
-        int remaining = len;
-        while (remaining > 0) {
-            if (this.buffer.hasRemaining()) {
-                int chunk = len;
-                if (chunk > remaining) {
-                    chunk = remaining;
-                }
-                if (chunk > this.buffer.remaining()) {
-                    chunk = this.buffer.remaining();
-                }
-                this.buffer.put(b, off, chunk);
-                off += chunk;
-                remaining -= chunk; 
-            } else {
-                doFlushBuffer();
-            }
-        }
+        this.buffer.write(b, off, len);
     }
 
     public void write(final byte[] b) throws IOException {
-        if (b == null) {
-            return;
-        }
-        write(b, 0, b.length);
-    }
-
-    private void writeCRLF() throws IOException {
-        write(CRLF);
+        this.buffer.write(b);
     }
 
     public void write(int b) throws IOException {
-        if (!this.buffer.hasRemaining()) {
-            doFlushBuffer();
-        }
-        this.buffer.put((byte)b);
+        this.buffer.write(b);
     }
 
     public void writeLine(final CharArrayBuffer buffer) throws IOException {
-        if (buffer == null) {
-            return;
-        }
-        // Do not bother if the buffer is empty
-        if (buffer.length() > 0 ) {
-        	this.charencoder.reset();
-            // transfer the string in small chunks
-            int remaining = buffer.length();
-            int offset = 0;
-            while (remaining > 0) {
-                int l = this.chbuffer.remaining();
-                boolean eol = false;
-                if (remaining < l) {
-                    l = remaining;
-                    // terminate the encoding process
-                    eol = true;
-                }
-                this.chbuffer.put(buffer.buffer(), offset, l);
-                this.chbuffer.flip();
-                
-                boolean retry = true;
-                while (retry) {
-                    CoderResult result = this.charencoder.encode(this.chbuffer, this.buffer, eol);
-                    if (result.isOverflow()) {
-                        doFlushBuffer();
-                    }
-                    retry = !result.isUnderflow();
-                }
-                this.chbuffer.compact();
-                offset += l;
-                remaining -= l;
-            }
-            // flush the encoder
-            boolean retry = true;
-            while (retry) {
-                CoderResult result = this.charencoder.flush(this.buffer);
-                if (result.isOverflow()) {
-                    doFlushBuffer();
-                }
-                retry = !result.isUnderflow();
-            }
-        }
-        writeCRLF();
+        this.buffer.writeLine(buffer);
     }
 
     public void writeLine(final String s) throws IOException {

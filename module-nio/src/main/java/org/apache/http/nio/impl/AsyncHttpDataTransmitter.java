@@ -29,7 +29,6 @@
 package org.apache.http.nio.impl;
 
 import java.io.IOException;
-import java.nio.ByteBuffer;
 
 import org.apache.http.io.CharArrayBuffer;
 import org.apache.http.nio.EventMask;
@@ -45,25 +44,21 @@ public class AsyncHttpDataTransmitter extends NIOHttpDataTransmitter implements 
     private volatile boolean closed = false;
     private volatile IOException exception = null;
     
-    public AsyncHttpDataTransmitter(final IOSession session, int buffersize) {
-        super();
+    public AsyncHttpDataTransmitter(
+            final IOSession session,
+            final SessionOutputBuffer buffer) {
+        super(buffer);
         if (session == null) {
             throw new IllegalArgumentException("I/O session may not be null");
         }
         this.session = session;
         this.mutex = new Object();
-        int linebuffersize = buffersize;
-        if (linebuffersize > 512) {
-            linebuffersize = 512;
-        }
-        initBuffer(buffersize, linebuffersize);
     }
 
     public void produceOutput() throws IOException {
         synchronized (this.mutex) {
-            ByteBuffer buffer = getBuffer();
-            this.session.channel().write(buffer);
-            if (!buffer.hasRemaining()) {
+            getBuffer().flush(this.session.channel());
+            if (!getBuffer().hasData()) {
                 this.session.clearEvent(EventMask.WRITE);
                 this.mutex.notifyAll();            
             }
@@ -76,9 +71,8 @@ public class AsyncHttpDataTransmitter extends NIOHttpDataTransmitter implements 
         }
         this.session.setEvent(EventMask.WRITE);
         synchronized (this.mutex) {
-            ByteBuffer buffer = getBuffer();
             try {
-                while (buffer.hasRemaining() && !this.closed) {
+                while (getBuffer().hasData() && !this.closed) {
                     this.mutex.wait();
                 }
 

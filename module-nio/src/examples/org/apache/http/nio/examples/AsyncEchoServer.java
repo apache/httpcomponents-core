@@ -13,6 +13,8 @@ import org.apache.http.nio.IOReactor;
 import org.apache.http.nio.impl.DefaultIOReactor;
 import org.apache.http.nio.impl.AsyncHttpDataReceiver;
 import org.apache.http.nio.impl.AsyncHttpDataTransmitter;
+import org.apache.http.nio.impl.SessionInputBuffer;
+import org.apache.http.nio.impl.SessionOutputBuffer;
 import org.apache.http.params.HttpParams;
 
 public class AsyncEchoServer {
@@ -41,9 +43,11 @@ public class AsyncEchoServer {
         public void connected(IOSession session) {
             System.out.println("connected");
             
-            AsyncHttpDataReceiver datareceiver = new AsyncHttpDataReceiver(session, 2048);
+            SessionInputBuffer inbuf = new SessionInputBuffer(2048, 512); 
+            AsyncHttpDataReceiver datareceiver = new AsyncHttpDataReceiver(session, inbuf);
             session.setAttribute(CONSUMER, datareceiver);
-            AsyncHttpDataTransmitter datatransmitter = new AsyncHttpDataTransmitter(session, 2048);
+            SessionOutputBuffer outbuf = new SessionOutputBuffer(2048, 512); 
+            AsyncHttpDataTransmitter datatransmitter = new AsyncHttpDataTransmitter(session, outbuf);
             session.setAttribute(PRODUCER, datatransmitter);
             
             Thread worker = new WorkerThread(session, datareceiver, datatransmitter);

@@ -7,6 +7,7 @@ import java.nio.channels.Channels;
 import java.nio.channels.ReadableByteChannel;
 
 import org.apache.http.nio.impl.NIOHttpDataReceiver;
+import org.apache.http.nio.impl.SessionInputBuffer;
 
 /**
  * {@link HttpDataInputStream} mockup implementation.
@@ -23,12 +24,11 @@ public class NIOHttpDataReceiverMockup extends NIOHttpDataReceiver {
             final ReadableByteChannel channel, 
             int buffersize, 
             int linebuffersize) {
-        super();
+        super(new SessionInputBuffer(buffersize, linebuffersize));
         if (channel == null) {
             throw new IllegalArgumentException("Channel may not be null");
         }
         this.channel = channel;
-        initBuffer(buffersize, linebuffersize);
     }
 
     public NIOHttpDataReceiverMockup(final byte[] bytes) {
@@ -39,9 +39,8 @@ public class NIOHttpDataReceiverMockup extends NIOHttpDataReceiver {
             final byte[] bytes, 
             int buffersize, 
             int linebuffersize) {
-        super();
+        super(new SessionInputBuffer(buffersize, linebuffersize));
         this.channel = Channels.newChannel(new ByteArrayInputStream(bytes));
-        initBuffer(buffersize, linebuffersize);
     }
 
     public NIOHttpDataReceiverMockup(final String s, final String charset, int buffersize) 
@@ -55,8 +54,8 @@ public class NIOHttpDataReceiverMockup extends NIOHttpDataReceiver {
     
     }
     
-    protected int fillBuffer() throws IOException {
-        return this.channel.read(getBuffer());
+    protected int waitForData() throws IOException {
+        return getBuffer().fill(this.channel);
     }
   
     public boolean isDataAvailable(int timeout) throws IOException {

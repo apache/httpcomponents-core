@@ -30,19 +30,10 @@
 package org.apache.http.nio.impl;
 
 import java.io.IOException;
-import java.nio.ByteBuffer;
-import java.nio.CharBuffer;
-import java.nio.charset.Charset;
-import java.nio.charset.CharsetDecoder;
-import java.nio.charset.CoderResult;
-import java.nio.charset.CodingErrorAction;
 
 import org.apache.http.io.CharArrayBuffer;
 import org.apache.http.io.HttpDataReceiver;
-import org.apache.http.params.HttpConnectionParams;
 import org.apache.http.params.HttpParams;
-import org.apache.http.params.HttpProtocolParams;
-import org.apache.http.protocol.HTTP;
 
 /**
  * Abstract data receiver implementation based on <code>java.nio</code>.
@@ -57,65 +48,38 @@ import org.apache.http.protocol.HTTP;
  */
 public abstract class NIOHttpDataReceiver implements HttpDataReceiver {
 
-    private ByteBuffer buffer = null;
+    private SessionInputBuffer buffer = null;
     
-    private Charset charset = null;
-    private CharsetDecoder chardecoder = null;
-    private CharBuffer chbuffer = null;
+    protected NIOHttpDataReceiver(final SessionInputBuffer buffer) {
+        super();
+        if (buffer == null) {
+            throw new IllegalArgumentException("Session input buffer may not be null");
+        }
+        this.buffer = buffer;
+    }
     
-    private int maxLineLen = -1;
-    
-    protected void initBuffer(int buffersize, int linebuffersize) {
-        this.buffer = ByteBuffer.allocateDirect(buffersize);
-        this.buffer.flip();
-        this.charset = Charset.forName("US-ASCII");
-        this.chardecoder = createCharDecoder();
-        this.chbuffer = CharBuffer.allocate(linebuffersize);
+    protected SessionInputBuffer getBuffer() {
+        return this.buffer;
     }
 
     public void reset(final HttpParams params) {
-        this.charset = Charset.forName(HttpProtocolParams.getHttpElementCharset(params)); 
-        this.chardecoder = createCharDecoder();
-        this.maxLineLen = params.getIntParameter(HttpConnectionParams.MAX_LINE_LENGTH, -1);
+        this.buffer.reset(params);
     }
 
-    private CharsetDecoder createCharDecoder() {
-        CharsetDecoder chardecoder = this.charset.newDecoder();
-        chardecoder.onMalformedInput(CodingErrorAction.REPLACE); 
-        chardecoder.onUnmappableCharacter(CodingErrorAction.REPLACE);
-        return chardecoder;
-    }
-    
-    private int doFillBuffer() throws IOException {
-        this.buffer.compact();
-        int i = fillBuffer();
-        this.buffer.flip();
-        return i;
-    }
-
-    protected ByteBuffer getBuffer() {
-        return this.buffer;
-    }
-    
-    protected abstract int fillBuffer() throws IOException;
+    protected abstract int waitForData() throws IOException;
     
     public int read(final byte[] b, int off, int len) throws IOException {
         if (b == null) {
             return 0;
         }
         int noRead = 0;
-        if (!this.buffer.hasRemaining()) {
-            noRead = doFillBuffer();
+        if (!this.buffer.hasData()) {
+            noRead = waitForData();
             if (noRead == -1) {
                 return -1; 
             }
         }
-        int chunk = len;
-        if (chunk > this.buffer.remaining()) {
-            chunk = this.buffer.remaining();
-        }
-        this.buffer.get(b, off, chunk);
-        return chunk;
+        return this.buffer.read(b, off, len);
     }
     
     public int read(final byte[] b) throws IOException {
@@ -127,109 +91,36 @@ public abstract class NIOHttpDataReceiver implements HttpDataReceiver {
     
     public int read() throws IOException {
         int noRead = 0;
-        if (!this.buffer.hasRemaining()) {
-            noRead = doFillBuffer();
+        if (!this.buffer.hasData()) {
+            noRead = waitForData();
             if (noRead == -1) {
                 return -1; 
             }
         }
-        return this.buffer.get() & 0xff;
-    }
-    
-    private int locateLF() {
-        for (int i = this.buffer.position(); i < this.buffer.limit(); i++) {
-            int b = this.buffer.get(i);
-            if (b == HTTP.LF) {
-                return i;
-            }
-        }
-        return -1;
+        return this.buffer.read() & 0xff;
     }
     
     public int readLine(final CharArrayBuffer charbuffer) throws IOException {
         if (charbuffer == null) {
             throw new IllegalArgumentException("Char array buffer may not be null");
         }
+        int len = charbuffer.length();
         int noRead = 0;
-        this.chbuffer.clear();
-        this.chardecoder.reset();
-        boolean retry = true;
-        while (retry) {
-            // attempt to find end of line (LF)
-            int i = locateLF(); 
-            if (i != -1) {
-                // end of line found. 
-                retry = false;
-                // read up to the end of line
-                int origLimit = this.buffer.limit();
-                this.buffer.limit(i + 1);
-                for (;;) {
-                    CoderResult result = this.chardecoder.decode(
-                    		this.buffer, this.chbuffer, true);
-                    if (result.isOverflow()) {
-                        this.chbuffer.flip();
-                        charbuffer.append(this.chbuffer.array(), 
-                        		this.chbuffer.position(), this.chbuffer.remaining());
-                        this.chbuffer.clear();
-                    }
-                    if (result.isUnderflow()) {
-                        break;
-                    }
-                }
-                this.buffer.limit(origLimit);
-            } else {
-                // end of line not found
-                if (this.buffer.hasRemaining()) {
-                    // decode the entire buffer content
-                    this.chardecoder.decode(this.buffer, this.chbuffer, false);
-                }
-                // discard the decoded content
-                noRead = doFillBuffer();
-                if (noRead == -1) {
-                    retry = false;
-                    // terminate the decoding process
-                    this.chardecoder.decode(this.buffer, this.chbuffer, true);
-                }
+        boolean endOfStream = false;
+        while (!this.buffer.readLine(charbuffer, endOfStream)) {
+            if (endOfStream) {
+                break;
             }
-            // append the decoded content to the line buffer
-            this.chbuffer.flip();
-            if (this.chbuffer.hasRemaining()) {
-                charbuffer.append(this.chbuffer.array(), 
-                		this.chbuffer.position(), this.chbuffer.remaining());
-            }
-            this.chbuffer.clear();
-            if (this.maxLineLen > 0 && charbuffer.length() >= this.maxLineLen) {
-                throw new IOException("Maximum line length limit exceeded");
+            noRead = waitForData();
+            if (noRead == -1) {
+                endOfStream = true; 
             }
         }
-        // flush the decoder
-        this.chardecoder.flush(this.chbuffer);
-        this.chbuffer.flip();
-        // append the decoded content to the line buffer
-        if (this.chbuffer.hasRemaining()) {
-            charbuffer.append(this.chbuffer.array(), 
-            		this.chbuffer.position(), this.chbuffer.remaining());
-        }
-        if (noRead == -1 && charbuffer.length() == 0) {
-            // indicate the end of stream
+        int total = charbuffer.length() - len;
+        if (total == 0 && endOfStream) {
             return -1;
-        }
-        // discard LF if found
-        int l = charbuffer.length(); 
-        if (l > 0) {
-            if (charbuffer.charAt(l - 1) == HTTP.LF) {
-                l--;
-                charbuffer.setLength(l);
-            }
-            // discard CR if found
-            if (l > 0) {
-                if (charbuffer.charAt(l - 1) == HTTP.CR) {
-                    l--;
-                    charbuffer.setLength(l);
-                }
-            }
-        }
-        return l;
+        } else 
+            return total;
     }
     
     public String readLine() throws IOException {

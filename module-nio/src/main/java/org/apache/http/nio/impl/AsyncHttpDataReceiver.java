@@ -29,7 +29,6 @@
 package org.apache.http.nio.impl;
 
 import java.io.IOException;
-import java.nio.ByteBuffer;
 
 import org.apache.http.io.CharArrayBuffer;
 import org.apache.http.nio.EventMask;
@@ -45,23 +44,20 @@ public class AsyncHttpDataReceiver extends NIOHttpDataReceiver implements IOCons
     private volatile boolean closed = false;
     private volatile IOException exception = null;
     
-    public AsyncHttpDataReceiver(final IOSession session, int buffersize) {
-        super();
+    public AsyncHttpDataReceiver(
+            final IOSession session, 
+            final SessionInputBuffer buffer) {
+        super(buffer);
         if (session == null) {
             throw new IllegalArgumentException("I/O session may not be null");
         }
         this.session = session;
         this.mutex = new Object();
-        int linebuffersize = buffersize;
-        if (linebuffersize > 512) {
-            linebuffersize = 512;
-        }
-        initBuffer(buffersize, linebuffersize);
     }
     
     public void consumeInput() throws IOException {
         synchronized (this.mutex) {
-            int noRead = this.session.channel().read(getBuffer());
+            int noRead = getBuffer().fill(this.session.channel());
             if (noRead == -1) {
                 this.closed = true;
             }
@@ -72,14 +68,13 @@ public class AsyncHttpDataReceiver extends NIOHttpDataReceiver implements IOCons
         }
     }
     
-    protected int fillBuffer() throws IOException {
+    protected int waitForData() throws IOException {
         if (this.closed) {
             return -1;
         }
         synchronized (this.mutex) {
-            ByteBuffer buffer = getBuffer();
             try {
-                while (buffer.position() == 0 && !this.closed) {
+                while (!getBuffer().hasData() && !this.closed) {
                     this.session.setEvent(EventMask.READ);
                     this.mutex.wait();
                 }
@@ -92,7 +87,7 @@ public class AsyncHttpDataReceiver extends NIOHttpDataReceiver implements IOCons
                 if (this.closed) {
                     return -1;
                 } else {
-                    return buffer.position();
+                    return getBuffer().length();
                 }
                 
             } catch (InterruptedException ex) {
@@ -106,8 +101,7 @@ public class AsyncHttpDataReceiver extends NIOHttpDataReceiver implements IOCons
             return false;
         }
         synchronized (this.mutex) {
-            ByteBuffer buffer = getBuffer();
-            if (buffer.position() > 0) {
+            if (getBuffer().hasData()) {
                 return true;
             }
             try {
@@ -118,7 +112,7 @@ public class AsyncHttpDataReceiver extends NIOHttpDataReceiver implements IOCons
             if (this.closed) {
                 return false;
             }
-            return buffer.position() > 0;
+            return getBuffer().hasData();
         }
     }
     

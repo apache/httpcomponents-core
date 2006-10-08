@@ -6,6 +6,7 @@ import java.nio.channels.Channels;
 import java.nio.channels.WritableByteChannel;
 
 import org.apache.http.nio.impl.NIOHttpDataTransmitter;
+import org.apache.http.nio.impl.SessionOutputBuffer;
 
 /**
  * {@link HttpDataTransmitter} mockup implementation.
@@ -24,30 +25,27 @@ public class NIOHttpDataTransmitterMockup extends NIOHttpDataTransmitter {
             final WritableByteChannel channel, 
             int buffersize,
             int linebuffersize) {
-        super();
+        super(new SessionOutputBuffer(buffersize, linebuffersize));
         if (channel == null) {
             throw new IllegalArgumentException("Channel may not be null");
         }
         this.channel = channel;
-        initBuffer(buffersize, linebuffersize);
     }
 
     public NIOHttpDataTransmitterMockup(
             int buffersize,
             int linebuffersize) {
-        super();
+        super(new SessionOutputBuffer(buffersize, linebuffersize));
         this.channel = Channels.newChannel(this.buffer);
-        initBuffer(buffersize, linebuffersize);
     }
 
     public NIOHttpDataTransmitterMockup() {
-        super();
+        super(new SessionOutputBuffer(BUFFER_SIZE, BUFFER_SIZE));
         this.channel = Channels.newChannel(this.buffer);
-        initBuffer(BUFFER_SIZE, BUFFER_SIZE);
     }
 
     protected void flushBuffer() throws IOException {
-        this.channel.write(getBuffer());
+        getBuffer().flush(this.channel);
     }
     
     public byte[] getData() {

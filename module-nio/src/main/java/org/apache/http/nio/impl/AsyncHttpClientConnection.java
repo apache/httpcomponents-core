@@ -58,12 +58,17 @@ public class AsyncHttpClientConnection extends AbstractHttpClientConnection {
         }
         this.session = session;
         int buffersize = HttpConnectionParams.getSocketBufferSize(params);
+        int linebuffersize = buffersize;
+        if (linebuffersize > 512) {
+            linebuffersize = 512;
+        }
         
-        AsyncHttpDataReceiver datareceiver = new AsyncHttpDataReceiver(
-                session, buffersize);
+        SessionInputBuffer inbuf = new SessionInputBuffer(buffersize, linebuffersize); 
+        AsyncHttpDataReceiver datareceiver = new AsyncHttpDataReceiver(session, inbuf);
         datareceiver.reset(params);
-        AsyncHttpDataTransmitter datatransmitter = new AsyncHttpDataTransmitter(
-                session, buffersize);
+        
+        SessionOutputBuffer outbuf = new SessionOutputBuffer(buffersize, linebuffersize); 
+        AsyncHttpDataTransmitter datatransmitter = new AsyncHttpDataTransmitter(session, outbuf);
         datatransmitter.reset(params);
 
         this.ioConsumer = datareceiver;
