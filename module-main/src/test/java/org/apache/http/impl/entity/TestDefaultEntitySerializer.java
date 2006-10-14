@@ -66,7 +66,8 @@ public class TestDefaultEntitySerializer extends TestCase {
     }
 
     public void testIllegalGenerateArg() throws Exception {
-        EntitySerializer entitywriter = new DefaultEntitySerializer();
+        EntitySerializer entitywriter = new DefaultEntitySerializer(
+                new StrictContentLengthStrategy());
         try {
             entitywriter.serialize(null, null, null);
             fail("IllegalArgumentException should have been thrown");
@@ -92,7 +93,8 @@ public class TestDefaultEntitySerializer extends TestCase {
         HttpMessage message = new HttpMessageMockup();
         message.addHeader("Transfer-Encoding", "Chunked");
 
-        DefaultEntitySerializer entitywriter = new DefaultEntitySerializer();
+        DefaultEntitySerializer entitywriter = new DefaultEntitySerializer(
+                new StrictContentLengthStrategy());
         OutputStream outstream = entitywriter.doSerialize(datatransmitter, message);
         assertNotNull(outstream);
         assertTrue(outstream instanceof ChunkedOutputStream);
@@ -103,7 +105,8 @@ public class TestDefaultEntitySerializer extends TestCase {
         HttpMessage message = new HttpMessageMockup();
         message.addHeader("Transfer-Encoding", "Identity");
 
-        DefaultEntitySerializer entitywriter = new DefaultEntitySerializer();
+        DefaultEntitySerializer entitywriter = new DefaultEntitySerializer(
+                new StrictContentLengthStrategy());
         OutputStream outstream = entitywriter.doSerialize(datatransmitter, message);
         assertNotNull(outstream);
         assertTrue(outstream instanceof IdentityOutputStream);
@@ -114,7 +117,8 @@ public class TestDefaultEntitySerializer extends TestCase {
         HttpMessage message = new HttpMessageMockup();
         message.addHeader("Transfer-Encoding", "whatever");
 
-        DefaultEntitySerializer entitywriter = new DefaultEntitySerializer();
+        DefaultEntitySerializer entitywriter = new DefaultEntitySerializer(
+                new StrictContentLengthStrategy());
         try {
             entitywriter.doSerialize(datatransmitter, message);
             fail("ProtocolException should have been thrown");
@@ -130,7 +134,8 @@ public class TestDefaultEntitySerializer extends TestCase {
                 HttpVersion.HTTP_1_0);
         message.addHeader("Transfer-Encoding", "chunked");
 
-        DefaultEntitySerializer entitywriter = new DefaultEntitySerializer();
+        DefaultEntitySerializer entitywriter = new DefaultEntitySerializer(
+                new StrictContentLengthStrategy());
         try {
             entitywriter.doSerialize(datatransmitter, message);
             fail("ProtocolException should have been thrown");
@@ -143,7 +148,8 @@ public class TestDefaultEntitySerializer extends TestCase {
         HttpDataTransmitter datatransmitter = new HttpDataTransmitterMockup();
         HttpMessage message = new HttpMessageMockup();
         message.addHeader("Content-Length", "100");
-        DefaultEntitySerializer entitywriter = new DefaultEntitySerializer();
+        DefaultEntitySerializer entitywriter = new DefaultEntitySerializer(
+                new StrictContentLengthStrategy());
         OutputStream outstream = entitywriter.doSerialize(datatransmitter, message);
         assertNotNull(outstream);
         assertTrue(outstream instanceof ContentLengthOutputStream);
@@ -154,7 +160,8 @@ public class TestDefaultEntitySerializer extends TestCase {
         HttpMessage message = new HttpMessageMockup();
         message.addHeader("Content-Length", "whatever");
 
-        DefaultEntitySerializer entitywriter = new DefaultEntitySerializer();
+        DefaultEntitySerializer entitywriter = new DefaultEntitySerializer(
+                new StrictContentLengthStrategy());
         try {
             entitywriter.doSerialize(datatransmitter, message);
             fail("ProtocolException should have been thrown");
@@ -166,7 +173,8 @@ public class TestDefaultEntitySerializer extends TestCase {
     public void testEntityNoContentDelimiter() throws Exception {
         HttpDataTransmitter datatransmitter = new HttpDataTransmitterMockup();
         HttpMessage message = new HttpMessageMockup();
-        DefaultEntitySerializer entitywriter = new DefaultEntitySerializer();
+        DefaultEntitySerializer entitywriter = new DefaultEntitySerializer(
+                new StrictContentLengthStrategy());
         OutputStream outstream = entitywriter.doSerialize(datatransmitter, message);
         assertNotNull(outstream);
         assertTrue(outstream instanceof IdentityOutputStream);
@@ -180,7 +188,8 @@ public class TestDefaultEntitySerializer extends TestCase {
         HttpMessage message = new HttpMessageMockup();
         message.addHeader("Content-Length", Integer.toString(content.length));
         
-        DefaultEntitySerializer entitywriter = new DefaultEntitySerializer();
+        DefaultEntitySerializer entitywriter = new DefaultEntitySerializer(
+                new StrictContentLengthStrategy());
         entitywriter.serialize(datatransmitter, message, entity);
         
         byte[] data = datatransmitter.getData();

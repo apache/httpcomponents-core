@@ -2,6 +2,7 @@
  * $HeadURL$
  * $Revision$
  * $Date$
+ *
  * ====================================================================
  *
  *  Copyright 1999-2006 The Apache Software Foundation
@@ -26,28 +27,26 @@
  *
  */
 
-package org.apache.http.impl.entity;
+package org.apache.http.entity;
 
-import junit.framework.*;
+import org.apache.http.HttpException;
+import org.apache.http.HttpMessage;
 
-public class TestAllEntityImpl extends TestCase {
+/**
+ * Represents a strategy to determine the content length based on the properties
+ * of an HTTP message.
+ *
+ * @author <a href="mailto:oleg at ural.ru">Oleg Kalnichevski</a>
+ *
+ * @version $Revision$
+ * 
+ * @since 4.0
+ */
+public interface ContentLengthStrategy {
 
-    public TestAllEntityImpl(String testName) {
-        super(testName);
-    }
-
-    public static Test suite() {
-        TestSuite suite = new TestSuite();
-        suite.addTest(TestDefaultEntitySerializer.suite());
-        suite.addTest(TestDefaultEntityDeserializer.suite());
-        suite.addTest(TestLaxContentLengthStrategy.suite());
-        suite.addTest(TestStrictContentLengthStrategy.suite());
-        return suite;
-    }
-
-    public static void main(String args[]) {
-        String[] testCaseName = { TestAllEntityImpl.class.getName() };
-        junit.textui.TestRunner.main(testCaseName);
-    }
-
+    public static final int IDENTITY         = -1;
+    public static final int CHUNKED          = -2;
+    
+    long determineLength(HttpMessage message) throws HttpException;
+            
 }

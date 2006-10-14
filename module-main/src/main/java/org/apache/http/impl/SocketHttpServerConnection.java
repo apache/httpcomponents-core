@@ -34,6 +34,8 @@ import java.net.Socket;
 
 import org.apache.http.impl.entity.DefaultEntityDeserializer;
 import org.apache.http.impl.entity.DefaultEntitySerializer;
+import org.apache.http.impl.entity.LaxContentLengthStrategy;
+import org.apache.http.impl.entity.StrictContentLengthStrategy;
 import org.apache.http.impl.io.SocketHttpDataReceiver;
 import org.apache.http.impl.io.SocketHttpDataTransmitter;
 import org.apache.http.io.HttpDataReceiver;
@@ -101,8 +103,10 @@ public class SocketHttpServerConnection extends AbstractHttpServerConnection {
         setHttpDataTransmitter(transmitter);
         setMaxHeaderCount(params.getIntParameter(HttpConnectionParams.MAX_HEADER_COUNT, -1));
         setRequestFactory(new DefaultHttpRequestFactory());
-        setEntitySerializer(new DefaultEntitySerializer());
-        setEntityDeserializer(new DefaultEntityDeserializer());
+        setEntitySerializer(new DefaultEntitySerializer(
+                new StrictContentLengthStrategy()));
+        setEntityDeserializer(new DefaultEntityDeserializer(
+                new LaxContentLengthStrategy()));
         this.open = true;
     }
 
