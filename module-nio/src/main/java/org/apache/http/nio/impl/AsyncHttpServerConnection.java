@@ -34,6 +34,8 @@ import org.apache.http.impl.AbstractHttpServerConnection;
 import org.apache.http.impl.DefaultHttpRequestFactory;
 import org.apache.http.impl.entity.DefaultEntityDeserializer;
 import org.apache.http.impl.entity.DefaultEntitySerializer;
+import org.apache.http.impl.entity.LaxContentLengthStrategy;
+import org.apache.http.impl.entity.StrictContentLengthStrategy;
 import org.apache.http.nio.IOConsumer;
 import org.apache.http.nio.IOProducer;
 import org.apache.http.nio.IOSession;
@@ -75,8 +77,10 @@ public class AsyncHttpServerConnection extends AbstractHttpServerConnection {
         setHttpDataReceiver(datareceiver);
         setHttpDataTransmitter(datatransmitter);
         setRequestFactory(new DefaultHttpRequestFactory());
-        setEntitySerializer(new DefaultEntitySerializer());
-        setEntityDeserializer(new DefaultEntityDeserializer());
+        setEntitySerializer(new DefaultEntitySerializer(
+                new StrictContentLengthStrategy()));
+        setEntityDeserializer(new DefaultEntityDeserializer(
+                new LaxContentLengthStrategy()));
     }
 
     public IOConsumer getIOConsumer() {
