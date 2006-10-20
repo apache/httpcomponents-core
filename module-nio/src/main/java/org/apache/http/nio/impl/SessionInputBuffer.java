@@ -37,7 +37,6 @@ import java.nio.charset.CharsetDecoder;
 import java.nio.charset.CoderResult;
 
 import org.apache.http.io.CharArrayBuffer;
-import org.apache.http.params.HttpConnectionParams;
 import org.apache.http.params.HttpParams;
 import org.apache.http.params.HttpProtocolParams;
 import org.apache.http.protocol.HTTP;
@@ -47,7 +46,6 @@ public class SessionInputBuffer extends ExpandableBuffer {
     private CharBuffer charbuffer = null;
     private Charset charset = null;
     private CharsetDecoder chardecoder = null;
-    private int maxLineLen = -1;
     
     public SessionInputBuffer(int buffersize, int linebuffersize) {
         super(buffersize);
@@ -59,7 +57,7 @@ public class SessionInputBuffer extends ExpandableBuffer {
     public void reset(final HttpParams params) {
         this.charset = Charset.forName(HttpProtocolParams.getHttpElementCharset(params)); 
         this.chardecoder = this.charset.newDecoder();
-        this.maxLineLen = params.getIntParameter(HttpConnectionParams.MAX_LINE_LENGTH, -1);
+        clear();
     }
 
     public int fill(final ReadableByteChannel channel) throws IOException {
@@ -74,7 +72,7 @@ public class SessionInputBuffer extends ExpandableBuffer {
         return readNo;
     }
     
-    public int read(final byte[] b, int off, int len) throws IOException {
+    public int read(final byte[] b, int off, int len) {
         if (b == null) {
             return 0;
         };
@@ -87,7 +85,7 @@ public class SessionInputBuffer extends ExpandableBuffer {
         return chunk;
     }
     
-    public int read(final byte[] b) throws IOException {
+    public int read(final byte[] b) {
         if (b == null) {
             return 0;
         }
@@ -95,13 +93,12 @@ public class SessionInputBuffer extends ExpandableBuffer {
         return read(b, 0, b.length);
     }
     
-    public int read() throws IOException {
+    public int read() {
         setOutputMode();
         return this.buffer.get() & 0xff;
     }
     
-    public boolean readLine(final CharArrayBuffer linebuffer, boolean endOfStream) 
-            throws IOException {
+    public boolean readLine(final CharArrayBuffer linebuffer, boolean endOfStream) {
         setOutputMode();
         // See if there is LF char present in the buffer
         int pos = -1;
@@ -119,9 +116,6 @@ public class SessionInputBuffer extends ExpandableBuffer {
                 // No more data. Get the rest
                 pos = this.buffer.limit();
             } else {
-                if (this.maxLineLen > 0 && this.buffer.remaining() >= this.maxLineLen) {
-                    throw new IOException("Maximum line length limit exceeded");
-                }
                 // Either no complete line present in the buffer 
                 // or no more data is expected
                 return false;

@@ -30,6 +30,7 @@
 package org.apache.http.nio.impl;
 
 import java.io.IOException;
+import java.nio.ByteBuffer;
 import java.nio.CharBuffer;
 import java.nio.channels.WritableByteChannel;
 import java.nio.charset.Charset;
@@ -59,6 +60,7 @@ public class SessionOutputBuffer extends ExpandableBuffer {
     public void reset(final HttpParams params) {
         this.charset = Charset.forName(HttpProtocolParams.getHttpElementCharset(params)); 
         this.charencoder = this.charset.newEncoder();
+        clear();
     }
 
     public int flush(final WritableByteChannel channel) throws IOException {
@@ -70,7 +72,17 @@ public class SessionOutputBuffer extends ExpandableBuffer {
         return noWritten;
     }
 
-    public void write(final byte[] b, int off, int len) throws IOException {
+    public void write(final ByteBuffer src) {
+        if (buffer == null) {
+            return;
+        }
+        setInputMode();
+        int requiredCapacity = src.remaining();
+        ensureCapacity(requiredCapacity);
+        this.buffer.put(src);
+    }
+
+    public void write(final byte[] b, int off, int len) {
         if (b == null) {
             return;
         }
@@ -80,14 +92,14 @@ public class SessionOutputBuffer extends ExpandableBuffer {
         this.buffer.put(b, off, len);
     }
 
-    public void write(final byte[] b) throws IOException {
+    public void write(final byte[] b) {
         if (b == null) {
             return;
         }
         write(b, 0, b.length);
     }
 
-    private void writeCRLF() throws IOException {
+    private void writeCRLF() {
         write(CRLF);
     }
 
@@ -98,7 +110,7 @@ public class SessionOutputBuffer extends ExpandableBuffer {
         this.buffer.put((byte)b);
     }
 
-    public void writeLine(final CharArrayBuffer linebuffer) throws IOException {
+    public void writeLine(final CharArrayBuffer linebuffer) {
         if (linebuffer == null) {
             return;
         }

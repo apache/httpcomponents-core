@@ -101,5 +101,10 @@ public class ExpandableBuffer {
         setOutputMode();
         return this.buffer.remaining();
     }
+    
+    protected void clear() {
+        this.buffer.clear();        
+        this.mode = INPUT_MODE;
+    }
         
 }
