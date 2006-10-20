@@ -58,6 +58,6 @@ public interface ContentDecoder {
      * @return <tt>true</tt> if all the content has been consumed, 
      * <tt>false</tt> otherwise.
      */
-    boolean isCompeted();
+    boolean isCompleted();
     
 }

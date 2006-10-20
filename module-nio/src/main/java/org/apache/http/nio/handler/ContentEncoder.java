@@ -64,6 +64,6 @@ public interface ContentEncoder {
      * @return <tt>true</tt> if all the content has been produced, 
      * <tt>false</tt> otherwise.
      */
-    boolean isCompeted();
+    boolean isCompleted();
     
 }
