@@ -59,13 +59,6 @@ public interface NHttpServerConnection extends NHttpConnection {
     void submitResponse(HttpResponse response) throws HttpException;
 
     /**
-     * Submits the 100-continue response to the client.
-     *  
-     * @throws HttpException if the HTTP response violates the HTTP protocol.
-     */
-    void submitContinue() throws HttpException;
-    
-    /**
      * Returns <tt>true</tt> if an HTTP response has been submitted to the 
      * client.
      * 
