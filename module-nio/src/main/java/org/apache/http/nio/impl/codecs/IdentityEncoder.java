@@ -2,6 +2,7 @@
  * $HeadURL$
  * $Revision$
  * $Date$
+ *
  * ====================================================================
  *
  *  Copyright 1999-2006 The Apache Software Foundation
@@ -28,26 +29,28 @@
 
 package org.apache.http.nio.impl.codecs;
 
-import junit.framework.*;
+import java.io.IOException;
+import java.nio.ByteBuffer;
+import java.nio.channels.WritableByteChannel;
 
-public class TestAllImplCodecs extends TestCase {
-
-    public TestAllImplCodecs(String testName) {
-        super(testName);
+public class IdentityEncoder extends AbstractContentEncoder {
+    
+    private final WritableByteChannel channel;
+    
+    public IdentityEncoder(final WritableByteChannel channel) {
+        super();
+        if (channel == null) {
+            throw new IllegalArgumentException("Channel may not be null");
+        }
+        this.channel = channel;
     }
 
-    public static Test suite() {
-        TestSuite suite = new TestSuite();
-        suite.addTest(TestHttpMessageParser.suite());
-        suite.addTest(TestChunkEncoder.suite());
-        suite.addTest(TestLengthDelimitedEncoder.suite());
-        suite.addTest(TestIdentityEncoder.suite());
-        return suite;
+    public int write(final ByteBuffer src) throws IOException {
+        if (src == null) {
+            return 0;
+        }
+        assertNotCompleted();
+        return this.channel.write(src);
     }
-
-    public static void main(String args[]) {
-        String[] testCaseName = { TestAllImplCodecs.class.getName() };
-        junit.textui.TestRunner.main(testCaseName);
-    }
-
+    
 }

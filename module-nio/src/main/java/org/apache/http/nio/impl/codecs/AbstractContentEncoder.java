@@ -2,6 +2,7 @@
  * $HeadURL$
  * $Revision$
  * $Date$
+ *
  * ====================================================================
  *
  *  Copyright 1999-2006 The Apache Software Foundation
@@ -28,26 +29,26 @@
 
 package org.apache.http.nio.impl.codecs;
 
-import junit.framework.*;
+import java.io.IOException;
 
-public class TestAllImplCodecs extends TestCase {
+import org.apache.http.nio.handler.ContentEncoder;
 
-    public TestAllImplCodecs(String testName) {
-        super(testName);
+public abstract class AbstractContentEncoder implements ContentEncoder {
+    
+    protected boolean completed;
+    
+    public boolean isCompleted() {
+        return this.completed;
     }
-
-    public static Test suite() {
-        TestSuite suite = new TestSuite();
-        suite.addTest(TestHttpMessageParser.suite());
-        suite.addTest(TestChunkEncoder.suite());
-        suite.addTest(TestLengthDelimitedEncoder.suite());
-        suite.addTest(TestIdentityEncoder.suite());
-        return suite;
+    
+    public void complete() throws IOException {
+        this.completed = true;
     }
-
-    public static void main(String args[]) {
-        String[] testCaseName = { TestAllImplCodecs.class.getName() };
-        junit.textui.TestRunner.main(testCaseName);
+    
+    protected void assertNotCompleted() {
+        if (this.completed) {
+            throw new IllegalStateException("Decoding process already completed");
+        }
     }
-
+    
 }
