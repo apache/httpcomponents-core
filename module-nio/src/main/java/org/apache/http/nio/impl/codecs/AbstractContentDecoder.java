@@ -2,6 +2,7 @@
  * $HeadURL$
  * $Revision$
  * $Date$
+ *
  * ====================================================================
  *
  *  Copyright 1999-2006 The Apache Software Foundation
@@ -28,29 +29,32 @@
 
 package org.apache.http.nio.impl.codecs;
 
-import junit.framework.*;
+import java.nio.channels.ReadableByteChannel;
 
-public class TestAllImplCodecs extends TestCase {
+import org.apache.http.nio.handler.ContentDecoder;
+import org.apache.http.nio.impl.SessionInputBuffer;
 
-    public TestAllImplCodecs(String testName) {
-        super(testName);
+public abstract class AbstractContentDecoder implements ContentDecoder {
+    
+    protected final ReadableByteChannel channel;
+    protected final SessionInputBuffer buffer;
+    
+    protected boolean completed;
+    
+    public AbstractContentDecoder(final ReadableByteChannel channel, final SessionInputBuffer buffer) {
+        super();
+        if (channel == null) {
+            throw new IllegalArgumentException("Channel may not be null");
+        }
+        if (buffer == null) {
+            throw new IllegalArgumentException("Session input buffer may not be null");
+        }
+        this.buffer = buffer;
+        this.channel = channel;
     }
 
-    public static Test suite() {
-        TestSuite suite = new TestSuite();
-        suite.addTest(TestHttpMessageParser.suite());
-        suite.addTest(TestChunkEncoder.suite());
-        suite.addTest(TestLengthDelimitedEncoder.suite());
-        suite.addTest(TestIdentityEncoder.suite());
-        suite.addTest(TestChunkDecoder.suite());
-        suite.addTest(TestLengthDelimitedDecoder.suite());
-        suite.addTest(TestIdentityDecoder.suite());
-        return suite;
+    public boolean isCompleted() {
+        return this.completed;
     }
-
-    public static void main(String args[]) {
-        String[] testCaseName = { TestAllImplCodecs.class.getName() };
-        junit.textui.TestRunner.main(testCaseName);
-    }
-
+    
 }

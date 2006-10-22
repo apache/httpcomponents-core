@@ -89,7 +89,7 @@ public class TestChunkEncoder extends TestCase {
         String s = baos.toString("US-ASCII");
         
         assertTrue(encoder.isCompleted());
-        assertEquals("5\r\n12345\r\n3\r\n678\r\n2\r\n90\r\n0\r\n", s);
+        assertEquals("5\r\n12345\r\n3\r\n678\r\n2\r\n90\r\n0\r\n\r\n", s);
     }
 
     public void testCodingEmptyBuffer() throws Exception {
@@ -113,7 +113,7 @@ public class TestChunkEncoder extends TestCase {
         String s = baos.toString("US-ASCII");
         
         assertTrue(encoder.isCompleted());
-        assertEquals("5\r\n12345\r\n3\r\n678\r\n2\r\n90\r\n0\r\n", s);
+        assertEquals("5\r\n12345\r\n3\r\n678\r\n2\r\n90\r\n0\r\n\r\n", s);
     }
 
     public void testCodingCompleted() throws Exception {

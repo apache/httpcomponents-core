@@ -71,6 +71,8 @@ public class ChunkEncoder extends AbstractContentEncoder {
         this.lineBuffer.clear();
         this.lineBuffer.append("0");
         this.outbuf.writeLine(this.lineBuffer);
+        this.lineBuffer.clear();
+        this.outbuf.writeLine(this.lineBuffer);
         this.completed = true;
     }
     

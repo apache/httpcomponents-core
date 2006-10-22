@@ -30,6 +30,7 @@
 package org.apache.http.nio.impl;
 
 import java.io.IOException;
+import java.nio.ByteBuffer;
 import java.nio.CharBuffer;
 import java.nio.channels.ReadableByteChannel;
 import java.nio.charset.Charset;
@@ -96,6 +97,26 @@ public class SessionInputBuffer extends ExpandableBuffer {
     public int read() {
         setOutputMode();
         return this.buffer.get() & 0xff;
+    }
+    
+    public int read(final ByteBuffer dst, int maxLen) {
+        if (dst == null) {
+            return 0;
+        }
+        setOutputMode();
+        int len = Math.min(dst.remaining(), maxLen);
+        int chunk = Math.min(this.buffer.remaining(), len);
+        for (int i = 0; i < chunk; i++) {
+            dst.put(this.buffer.get());
+        }
+        return chunk;
+    }
+    
+    public int read(final ByteBuffer dst) {
+        if (dst == null) {
+            return 0;
+        }
+        return read(dst, dst.remaining());
     }
     
     public boolean readLine(final CharArrayBuffer linebuffer, boolean endOfStream) {
