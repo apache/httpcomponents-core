@@ -28,6 +28,8 @@
 
 package org.apache.http.nio.impl;
 
+import org.apache.http.nio.impl.codecs.TestAllImplCodecs;
+
 import junit.framework.*;
 
 public class TestAllImpl extends TestCase {
@@ -39,7 +41,7 @@ public class TestAllImpl extends TestCase {
     public static Test suite() {
         TestSuite suite = new TestSuite();
         suite.addTest(TestSessionBuffers.suite());
-        suite.addTest(TestNIOHttpTransmitterAndReceiver.suite());
+        suite.addTest(TestAllImplCodecs.suite());
         return suite;
     }
 
