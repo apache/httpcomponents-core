@@ -30,7 +30,6 @@
 package org.apache.http.nio.handler;
 
 import org.apache.http.HttpException;
-import org.apache.http.HttpRequest;
 import org.apache.http.HttpResponse;
 
 /**
@@ -40,14 +39,6 @@ import org.apache.http.HttpResponse;
  * @author <a href="mailto:oleg at ural.ru">Oleg Kalnichevski</a>
  */
 public interface NHttpServerConnection extends NHttpConnection {
-
-    /** 
-     * Returns an HTTP request if it is already available. Otherwise returns 
-     * <tt>null</tt>.
-     * 
-     * @return an HTTP request if available. Otherwise returns <tt>null</tt>.
-     */
-    HttpRequest getHttpRequest();
 
     /**
      * Submits the HTTP response to the client.

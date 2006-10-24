@@ -30,6 +30,8 @@
 package org.apache.http.nio.handler;
 
 import org.apache.http.HttpConnection;
+import org.apache.http.HttpRequest;
+import org.apache.http.HttpResponse;
 import org.apache.http.protocol.HttpContext;
 
 /**
@@ -41,6 +43,22 @@ import org.apache.http.protocol.HttpContext;
  */
 public interface NHttpConnection extends HttpConnection {
 
+    /** 
+     * Returns the current HTTP request if one is being received / transmitted.
+     * Otherwise returns <tt>null</tt>.
+     * 
+     * @return an HTTP request if available. Otherwise returns <tt>null</tt>.
+     */
+    HttpRequest getHttpRequest();
+
+    /** 
+     * Returns the current HTTP response if one is being received / transmitted. 
+     * Otherwise returns <tt>null</tt>.
+     * 
+     * @return an HTTP response if available. Otherwise returns <tt>null</tt>.
+     */
+    HttpResponse getHttpResponse();
+    
     /**
      * Requests event notifications to be triggered when the underlying
      * channel is ready for input oprtations.
