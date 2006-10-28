@@ -40,7 +40,8 @@ public interface IOReactor {
     void shutdown() 
         throws IOException;
     
-    SessionRequest connect(SocketAddress remoteAddress, SocketAddress localAddress) 
+    SessionRequest connect(SocketAddress remoteAddress, 
+            SocketAddress localAddress, Object attachment) 
         throws IOException;
         
     void listen(SocketAddress address) 

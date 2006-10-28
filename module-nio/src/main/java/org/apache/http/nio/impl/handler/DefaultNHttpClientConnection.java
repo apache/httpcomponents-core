@@ -37,64 +37,63 @@ import org.apache.http.HttpEntity;
 import org.apache.http.HttpEntityEnclosingRequest;
 import org.apache.http.HttpException;
 import org.apache.http.HttpRequest;
-import org.apache.http.HttpRequestFactory;
 import org.apache.http.HttpResponse;
+import org.apache.http.HttpResponseFactory;
 import org.apache.http.message.BasicHeader;
-import org.apache.http.message.BasicStatusLine;
+import org.apache.http.message.BasicRequestLine;
 import org.apache.http.message.BufferedHeader;
 import org.apache.http.nio.EventMask;
 import org.apache.http.nio.IOSession;
-import org.apache.http.nio.handler.NHttpServerConnection;
-import org.apache.http.nio.handler.NHttpServiceHandler;
-import org.apache.http.nio.impl.codecs.HttpRequestParser;
+import org.apache.http.nio.handler.NHttpClientConnection;
+import org.apache.http.nio.handler.NHttpClientHandler;
+import org.apache.http.nio.impl.codecs.HttpResponseParser;
 import org.apache.http.params.HttpParams;
 
-public class DefaultNHttpServerConnection 
-    extends NHttpConnectionBase implements NHttpServerConnection {
+public class DefaultNHttpClientConnection 
+    extends NHttpConnectionBase implements NHttpClientConnection {
 
-    private HttpRequestParser requestParser;
+    private HttpResponseParser responseParser;
     
-    public DefaultNHttpServerConnection(
+    public DefaultNHttpClientConnection(
             final IOSession session,
-            final HttpRequestFactory requestFactory,
+            final HttpResponseFactory responseFactory,
             final HttpParams params) {
         super(session, params);
-        if (requestFactory == null) {
-            throw new IllegalArgumentException("Request factory may not be null");
+        if (responseFactory == null) {
+            throw new IllegalArgumentException("Response factory may not be null");
         }
-        this.requestParser = new HttpRequestParser(this.inbuf, requestFactory);
+        this.responseParser = new HttpResponseParser(this.inbuf, responseFactory);
     }
 
     private void resetInput() {
-        this.request = null;
+        this.response = null;
         this.contentDecoder = null;
-        this.requestParser.reset();
+        this.responseParser.reset();
     }
     
     private void resetOutput() {
-        this.response = null;
+        this.request = null;
         this.contentEncoder = null;
     }
     
-    public void consumeInput(final NHttpServiceHandler handler) {
+    public void consumeInput(final NHttpClientHandler handler) {
         if (this.closed) {
             this.session.clearEvent(EventMask.READ);
             return;
         }
         try {
-            if (this.request == null) {
-                int bytesRead = this.requestParser.fillBuffer(this.session.channel());
-                this.request = (HttpRequest) this.requestParser.parse(); 
-                if (this.request != null) {
-                    handler.requestReceived(this);
-                    if (this.request instanceof HttpEntityEnclosingRequest) {
-                        // Receive incoming entity
-                        HttpEntity entity = prepareDecoder(this.request);
-                        ((HttpEntityEnclosingRequest)this.request).setEntity(entity);
+            if (this.response == null) {
+                int bytesRead = this.responseParser.fillBuffer(this.session.channel());
+                this.response = (HttpResponse) this.responseParser.parse(); 
+                if (this.response != null) {
+                    handler.responseReceived(this);
+                    
+                    if (this.response.getStatusLine().getStatusCode() >= 200) {
+                        HttpEntity entity = prepareDecoder(this.response);
+                        this.response.setEntity(entity);
                     } else {
-                        // No request entity is expected
-                        // Ready to receive a new request
-                        resetInput();
+                        // Discard the intermediate response
+                        this.response = null;
                     }
                 }
                 if (bytesRead == -1) {
@@ -104,8 +103,8 @@ public class DefaultNHttpServerConnection
             if (this.contentDecoder != null) {
                 handler.inputReady(this, this.contentDecoder);
                 if (this.contentDecoder.isCompleted()) {
-                    // Request entity received
-                    // Ready to receive a new request
+                    // Response entity received
+                    // Ready to receive a new response
                     resetInput();
                 }
             }
@@ -116,7 +115,7 @@ public class DefaultNHttpServerConnection
         }
     }
 
-    public void produceOutput(final NHttpServiceHandler handler) {
+    public void produceOutput(final NHttpClientHandler handler) {
         try {
             if (this.outbuf.hasData()) {
                 this.outbuf.flush(this.session.channel());
@@ -141,17 +140,17 @@ public class DefaultNHttpServerConnection
         }
     }
     
-    public void submitResponse(final HttpResponse response) throws HttpException {
-        if (response == null) {
-            throw new IllegalArgumentException("HTTP response may not be null");
+    public void submitRequest(final HttpRequest request) throws HttpException {
+        if (request == null) {
+            throw new IllegalArgumentException("HTTP request may not be null");
         }
-        if (this.response != null) {
-            throw new HttpException("Response already submitted");
+        if (this.request != null) {
+            throw new HttpException("Request already submitted");
         }
         this.lineBuffer.clear();
-        BasicStatusLine.format(this.lineBuffer, response.getStatusLine());
+        BasicRequestLine.format(this.lineBuffer, request.getRequestLine());
         this.outbuf.writeLine(this.lineBuffer);
-        for (Iterator it = response.headerIterator(); it.hasNext(); ) {
+        for (Iterator it = request.headerIterator(); it.hasNext(); ) {
             Header header = (Header) it.next();
             if (header instanceof BufferedHeader) {
                 // If the header is backed by a buffer, re-use the buffer
@@ -165,15 +164,15 @@ public class DefaultNHttpServerConnection
         this.lineBuffer.clear();
         this.outbuf.writeLine(this.lineBuffer);
 
-        if (response.getStatusLine().getStatusCode() >= 200) {
-            this.response = response;
-            prepareEncoder(response);
+        if (request instanceof HttpEntityEnclosingRequest) {
+            prepareEncoder(request);
         }
+        this.request = request;
         this.session.setEvent(EventMask.WRITE);
     }
 
-    public boolean isResponseSubmitted() {
-        return this.response != null;
+    public boolean isRequestSubmitted() {
+        return this.request != null;
     }
 
 }

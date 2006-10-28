@@ -49,21 +49,27 @@ public class AsyncHttpClient {
             .setBooleanParameter(HttpConnectionParams.TCP_NODELAY, true)
             .setParameter(HttpProtocolParams.USER_AGENT, "Jakarta-HttpComponents-NIO/1.1");
 
-        final IOEventDispatch ioEventDispatch = new DefaultIoEventDispatch(params);
+        final IOEventDispatch ioEventDispatch = new MyIOEventDispatch(params);
         final IOReactor ioReactor = new DefaultIOReactor(params);
 
-        SessionRequestCallback sessionReqCallback = new DefaultSessionRequestCallback(params);
+        SessionRequestCallback sessionReqCallback = new MySessionRequestCallback(params);
         
         SessionRequest req1 = ioReactor.connect(
-                new InetSocketAddress("www.yahoo.com", 80), null);
+                new InetSocketAddress("www.yahoo.com", 80), 
+                null, 
+                new HttpHost("www.yahoo.com"));
         req1.setCallback(sessionReqCallback);
         
         SessionRequest req2 = ioReactor.connect(
-                new InetSocketAddress("www.google.com", 80), null);
+                new InetSocketAddress("www.google.com", 80), 
+                null,
+                new HttpHost("www.google.ch"));
         req2.setCallback(sessionReqCallback);
         
         SessionRequest req3 = ioReactor.connect(
-                new InetSocketAddress("www.apache.org", 80), null);
+                new InetSocketAddress("www.apache.org", 80), 
+                null,
+                new HttpHost("www.apache.org"));
         req3.setCallback(sessionReqCallback);
         
         Thread ioThread = new Thread(new Runnable() {
@@ -94,11 +100,11 @@ public class AsyncHttpClient {
     private static final String TARGET = "TARGET";
     private static final String WORKER = "WORKER";
     
-    static class DefaultSessionRequestCallback implements SessionRequestCallback {
+    static class MySessionRequestCallback implements SessionRequestCallback {
 
         private final HttpParams params;
         
-        public DefaultSessionRequestCallback(final HttpParams params) {
+        public MySessionRequestCallback(final HttpParams params) {
             super();
             if (params == null) {
                 throw new IllegalArgumentException("HTTP parameters may nor be null");
@@ -108,9 +114,7 @@ public class AsyncHttpClient {
         
         public void completed(final SessionRequest request) {
             IOSession session = request.getSession();
-            InetSocketAddress address = (InetSocketAddress) request.getRemoteAddress();
-            
-            HttpHost targetHost = new HttpHost(address.getHostName(), address.getPort()); 
+            HttpHost targetHost = (HttpHost) request.getAttachment(); 
             
             AsyncHttpClientConnection conn = new AsyncHttpClientConnection(session, this.params); 
             session.setAttribute(CONNECTION, conn);
@@ -133,9 +137,9 @@ public class AsyncHttpClient {
 
     }    
     
-    static class DefaultIoEventDispatch implements IOEventDispatch {
+    static class MyIOEventDispatch implements IOEventDispatch {
 
-        public DefaultIoEventDispatch(final HttpParams params) {
+        public MyIOEventDispatch(final HttpParams params) {
             super();
         }
         

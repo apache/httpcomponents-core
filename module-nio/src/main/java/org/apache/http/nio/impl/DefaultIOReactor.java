@@ -166,6 +166,9 @@ public class DefaultIOReactor implements IOReactor {
                 SessionHandle handle = new SessionHandle(session); 
                 key.attach(handle);
                 
+                // Add the session request to the session context
+                session.setAttribute(SessionRequest.ATTRIB_KEY, sessionRequest);
+                
                 // Fire the request completion notification first
                 sessionRequest.completed(session);
                 
@@ -286,7 +289,8 @@ public class DefaultIOReactor implements IOReactor {
 
     public SessionRequest connect(
             final SocketAddress remoteAddress, 
-            final SocketAddress localAddress) throws IOException {
+            final SocketAddress localAddress,
+            final Object attachment) throws IOException {
         SocketChannel socketChannel = SocketChannel.open();
         socketChannel.configureBlocking(false);
         if (localAddress != null) {
@@ -295,7 +299,8 @@ public class DefaultIOReactor implements IOReactor {
         socketChannel.connect(remoteAddress);
         SelectionKey key = socketChannel.register(this.selector, SelectionKey.OP_CONNECT);
         
-        SessionRequestImpl sessionRequest = new SessionRequestImpl(remoteAddress, key);
+        SessionRequestImpl sessionRequest = new SessionRequestImpl(
+                remoteAddress, localAddress, attachment, key);
         sessionRequest.setConnectTimeout(HttpConnectionParams.getConnectionTimeout(this.params));
 
         SessionRequestHandle requestHandle = new SessionRequestHandle(sessionRequest); 

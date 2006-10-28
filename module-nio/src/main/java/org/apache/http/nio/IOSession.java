@@ -29,12 +29,17 @@
 
 package org.apache.http.nio;
 
+import java.net.SocketAddress;
 import java.nio.channels.ByteChannel;
 
 public interface IOSession {
 
     ByteChannel channel();
     
+    SocketAddress getRemoteAddress();    
+    
+    SocketAddress getLocalAddress();    
+
     int getEventMask();
     
     void setEventMask(int ops);

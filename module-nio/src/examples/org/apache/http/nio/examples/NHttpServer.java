@@ -65,9 +65,11 @@ public class NHttpServer {
             .setBooleanParameter(HttpConnectionParams.TCP_NODELAY, true)
             .setParameter(HttpProtocolParams.ORIGIN_SERVER, "Jakarta-HttpComponents-NIO/1.1");
 
-        IOEventDispatch ioEventDispatch = new DefaultServerIOEventDispatch(
-                new MyNHttpServiceHandler(args[0]), params);
         IOReactor ioReactor = new DefaultIOReactor(params);
+
+        NHttpServiceHandler handler = new MyNHttpServiceHandler(args[0], params);
+        IOEventDispatch ioEventDispatch = new DefaultServerIOEventDispatch(handler, params);
+        
         try {
             ioReactor.listen(new InetSocketAddress(8080));
             ioReactor.execute(ioEventDispatch);
@@ -82,15 +84,17 @@ public class NHttpServer {
     public static class MyNHttpServiceHandler implements NHttpServiceHandler {
 
         private final String docRoot;
+        private final HttpParams params;
         private final HttpResponseFactory responseFactory;
         private final ByteBuffer inbuf;
         private final ByteBuffer outbuf;
         private final HttpProcessor httpProcessor;
         private final ConnectionReuseStrategy connStrategy;
         
-        public MyNHttpServiceHandler(final String docRoot) {
+        public MyNHttpServiceHandler(final String docRoot, final HttpParams params) {
             super();
             this.docRoot = docRoot;
+            this.params = params;
             this.responseFactory = new DefaultHttpResponseFactory();
             this.inbuf = ByteBuffer.allocateDirect(2048);
             this.outbuf = ByteBuffer.allocateDirect(2048);
@@ -131,11 +135,11 @@ public class NHttpServer {
                 this.httpProcessor.process(response, conn.getContext());
                 conn.submitResponse(response);
             } catch (HttpException ex) {
-                ex.printStackTrace();
                 shutdownConnection(conn);
+                System.err.println("Unexpected HTTP protocol error: " + ex.getMessage());
             } catch (IOException ex) {
-                ex.printStackTrace();
                 shutdownConnection(conn);
+                System.err.println("I/O error: " + ex.getMessage());
             }
         }
 
@@ -143,6 +147,7 @@ public class NHttpServer {
             HttpRequest request = conn.getHttpRequest();
             HttpVersion ver = request.getRequestLine().getHttpVersion();
             HttpResponse response =  this.responseFactory.newHttpResponse(ver, 200);
+            response.getParams().setDefaults(this.params);
 
             String target = request.getRequestLine().getUri();
             try {
@@ -196,8 +201,8 @@ public class NHttpServer {
                     try {
                         conn.submitResponse(ack);
                     } catch (HttpException ex) {
-                        ex.printStackTrace();
                         shutdownConnection(conn);
+                        System.err.println("Unexpected HTTP protocol error: " + ex.getMessage());
                         return;
                     }
                 }
@@ -215,6 +220,10 @@ public class NHttpServer {
                 //Proceed with service right away
                 service(conn);
             }
+        }
+
+        public void connected(final NHttpServerConnection conn) {
+            System.out.println("New incoming connection");
         }
 
         public void closed(final NHttpServerConnection conn) {
@@ -269,7 +278,7 @@ public class NHttpServer {
                 
             } catch (IOException ex) {
                 shutdownConnection(conn);
-                ex.printStackTrace();
+                System.err.println("I/O error: " + ex.getMessage());
             }
         }
 
@@ -298,7 +307,7 @@ public class NHttpServer {
             
             } catch (IOException ex) {
                 shutdownConnection(conn);
-                ex.printStackTrace();
+                System.err.println("I/O error: " + ex.getMessage());
             }
 
         }

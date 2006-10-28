@@ -74,11 +74,12 @@ public abstract class HttpMessageParser {
         this.message = null;
     }
     
-    public void fillBuffer(final ReadableByteChannel channel) throws IOException {
+    public int fillBuffer(final ReadableByteChannel channel) throws IOException {
         int bytesRead = this.buffer.fill(channel);
         if (bytesRead == -1) {
             this.endOfStream = true;
         }
+        return bytesRead;
     }
     
     protected abstract HttpMessage createMessage(CharArrayBuffer buffer) 

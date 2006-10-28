@@ -34,7 +34,13 @@ import java.net.SocketAddress;
 
 public interface SessionRequest {
 
-    public SocketAddress getRemoteAddress();
+    public static final String ATTRIB_KEY = "http.connection-request";
+
+    SocketAddress getRemoteAddress();
+    
+    SocketAddress getLocalAddress();
+    
+    Object getAttachment();
     
     boolean isCompleted();
     

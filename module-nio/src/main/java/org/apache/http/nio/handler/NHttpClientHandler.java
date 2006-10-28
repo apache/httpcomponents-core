@@ -41,6 +41,15 @@ import org.apache.http.HttpException;
 public interface NHttpClientHandler {
 
     /**
+     * Triggered when a new outgoing connection is created.
+     * 
+     * @param conn closed HTTP connection.
+     * @param attachment an arbitrary object that was attached to the
+     *  session request
+     */
+    void connected(NHttpClientConnection conn, Object attachment);
+    
+    /**
      * Triggered when an HTTP response is received. The connection
      * passed as a parameter to this method is guaranteed to return
      * a valid HTTP response object.

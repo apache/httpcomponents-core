@@ -41,6 +41,13 @@ import org.apache.http.HttpException;
 public interface NHttpServiceHandler {
 
     /**
+     * Triggered when a new incoming connection is created.
+     * 
+     * @param conn closed HTTP connection.
+     */
+    void connected(NHttpServerConnection conn);
+    
+    /**
      * Triggered when a new HTTP request is received. The connection
      * passed as a parameter to this method is guaranteed to return
      * a valid HTTP request object.

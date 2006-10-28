@@ -30,8 +30,11 @@
 package org.apache.http.nio.impl;
 
 import java.io.IOException;
+import java.net.SocketAddress;
 import java.nio.channels.ByteChannel;
+import java.nio.channels.Channel;
 import java.nio.channels.SelectionKey;
+import java.nio.channels.SocketChannel;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
@@ -63,6 +66,24 @@ class IOSessionImpl implements IOSession {
         return (ByteChannel) this.key.channel();
     }
     
+    public SocketAddress getLocalAddress() {
+        Channel channel = this.key.channel();
+        if (channel instanceof SocketChannel) {
+            return ((SocketChannel)channel).socket().getLocalSocketAddress();
+        } else {
+            return null;
+        }
+    }
+
+    public SocketAddress getRemoteAddress() {
+        Channel channel = this.key.channel();
+        if (channel instanceof SocketChannel) {
+            return ((SocketChannel)channel).socket().getRemoteSocketAddress();
+        } else {
+            return null;
+        }
+    }
+
     public int getEventMask() {
         return this.key.interestOps();
     }
