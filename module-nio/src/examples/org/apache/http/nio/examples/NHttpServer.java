@@ -300,6 +300,7 @@ public class NHttpServer {
                 }
 
                 if (encoder.isCompleted()) {
+                    channel.close();
                     if (!this.connStrategy.keepAlive(response, context)) {
                         conn.close();
                     }
