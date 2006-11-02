@@ -199,4 +199,14 @@ public class SessionInputBuffer extends ExpandableBuffer {
         return true;
     }
     
+    public String readLine(boolean endOfStream) {
+        CharArrayBuffer charbuffer = new CharArrayBuffer(64);
+        boolean found = readLine(charbuffer, endOfStream);
+        if (found) {
+            return charbuffer.toString();
+        } else {
+            return null;
+        }
+    }
+    
 }

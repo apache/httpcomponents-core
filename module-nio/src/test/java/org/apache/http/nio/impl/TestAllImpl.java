@@ -40,7 +40,7 @@ public class TestAllImpl extends TestCase {
 
     public static Test suite() {
         TestSuite suite = new TestSuite();
-        suite.addTest(TestSessionBuffers.suite());
+        suite.addTest(TestSessionInOutBuffers.suite());
         suite.addTest(TestAllImplCodecs.suite());
         return suite;
     }
