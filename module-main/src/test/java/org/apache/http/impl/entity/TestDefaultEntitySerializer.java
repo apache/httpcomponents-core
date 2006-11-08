@@ -38,7 +38,6 @@ import org.apache.http.HttpMessage;
 import org.apache.http.HttpVersion;
 import org.apache.http.ProtocolException;
 import org.apache.http.entity.ByteArrayEntity;
-import org.apache.http.entity.EntitySerializer;
 import org.apache.http.io.ChunkedOutputStream;
 import org.apache.http.io.ContentLengthOutputStream;
 import org.apache.http.io.HttpDataTransmitter;
@@ -66,7 +65,7 @@ public class TestDefaultEntitySerializer extends TestCase {
     }
 
     public void testIllegalGenerateArg() throws Exception {
-        EntitySerializer entitywriter = new DefaultEntitySerializer(
+        DefaultEntitySerializer entitywriter = new DefaultEntitySerializer(
                 new StrictContentLengthStrategy());
         try {
             entitywriter.serialize(null, null, null);

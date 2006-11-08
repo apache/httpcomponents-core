@@ -43,8 +43,10 @@ import org.apache.http.HttpResponseFactory;
 import org.apache.http.NoHttpResponseException;
 import org.apache.http.ProtocolException;
 import org.apache.http.StatusLine;
-import org.apache.http.entity.EntityDeserializer;
-import org.apache.http.entity.EntitySerializer;
+import org.apache.http.impl.entity.DefaultEntityDeserializer;
+import org.apache.http.impl.entity.DefaultEntitySerializer;
+import org.apache.http.impl.entity.LaxContentLengthStrategy;
+import org.apache.http.impl.entity.StrictContentLengthStrategy;
 import org.apache.http.io.CharArrayBuffer;
 import org.apache.http.io.HttpDataReceiver;
 import org.apache.http.io.HttpDataTransmitter;
@@ -72,19 +74,23 @@ public abstract class AbstractHttpClientConnection implements HttpClientConnecti
     private int maxHeaderCount = -1;
 
     private final CharArrayBuffer buffer; 
+    private final DefaultEntitySerializer entityserializer;
+    private final DefaultEntityDeserializer entitydeserializer;
     
     /*
      * Dependent interfaces
      */
     private HttpResponseFactory responsefactory = null;
-    private EntitySerializer entityserializer = null;
-    private EntityDeserializer entitydeserializer = null;
     private HttpDataReceiver datareceiver = null;
     private HttpDataTransmitter datatransmitter = null;
 
     public AbstractHttpClientConnection() {
         super();
         this.buffer = new CharArrayBuffer(128);
+        this.entityserializer = new DefaultEntitySerializer(
+                new StrictContentLengthStrategy());
+        this.entitydeserializer = new DefaultEntityDeserializer(
+                new LaxContentLengthStrategy());
     }
     
     protected abstract void assertOpen() throws IllegalStateException;
@@ -98,20 +104,6 @@ public abstract class AbstractHttpClientConnection implements HttpClientConnecti
             throw new IllegalArgumentException("Factory may not be null");
         }
         this.responsefactory = responsefactory;
-    }
-
-    protected void setEntityDeserializer(final EntityDeserializer entitydeserializer) {
-        if (entitydeserializer == null) {
-            throw new IllegalArgumentException("Entity deserializer may not be null");
-        }
-        this.entitydeserializer = entitydeserializer;
-    }
-
-    protected void setEntitySerializer(final EntitySerializer entityserializer) {
-        if (entityserializer == null) {
-            throw new IllegalArgumentException("Entity serializer may not be null");
-        }
-        this.entityserializer = entityserializer;
     }
 
     protected void setHttpDataReceiver(final HttpDataReceiver datareceiver) {

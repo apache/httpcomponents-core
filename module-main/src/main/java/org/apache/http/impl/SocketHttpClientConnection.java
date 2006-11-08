@@ -32,10 +32,6 @@ package org.apache.http.impl;
 import java.io.IOException;
 import java.net.Socket;
 
-import org.apache.http.impl.entity.DefaultEntityDeserializer;
-import org.apache.http.impl.entity.DefaultEntitySerializer;
-import org.apache.http.impl.entity.LaxContentLengthStrategy;
-import org.apache.http.impl.entity.StrictContentLengthStrategy;
 import org.apache.http.impl.io.SocketHttpDataReceiver;
 import org.apache.http.impl.io.SocketHttpDataTransmitter;
 import org.apache.http.io.HttpDataReceiver;
@@ -105,10 +101,6 @@ public class SocketHttpClientConnection extends AbstractHttpClientConnection {
         setHttpDataTransmitter(transmitter);
         setMaxHeaderCount(params.getIntParameter(HttpConnectionParams.MAX_HEADER_COUNT, -1));
         setResponseFactory(new DefaultHttpResponseFactory());
-        setEntitySerializer(new DefaultEntitySerializer(
-                new StrictContentLengthStrategy()));
-        setEntityDeserializer(new DefaultEntityDeserializer(
-                new LaxContentLengthStrategy()));
         this.open = true;
     }
 
