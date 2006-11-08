@@ -55,11 +55,11 @@ import org.apache.http.protocol.HTTP;
  * 
  * @since 4.0
  */
-public class DefaultEntityDeserializer {
+public class EntityDeserializer {
 
     private final ContentLengthStrategy lenStrategy;
     
-    public DefaultEntityDeserializer(final ContentLengthStrategy lenStrategy) {
+    public EntityDeserializer(final ContentLengthStrategy lenStrategy) {
         super();
         if (lenStrategy == null) {
             throw new IllegalArgumentException("Content length strategy may not be null");

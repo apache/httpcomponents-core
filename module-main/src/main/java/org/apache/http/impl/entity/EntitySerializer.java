@@ -53,11 +53,11 @@ import org.apache.http.io.IdentityOutputStream;
  * 
  * @since 4.0
  */
-public class DefaultEntitySerializer {
+public class EntitySerializer {
 
     private final ContentLengthStrategy lenStrategy;
     
-    public DefaultEntitySerializer(final ContentLengthStrategy lenStrategy) {
+    public EntitySerializer(final ContentLengthStrategy lenStrategy) {
         super();
         if (lenStrategy == null) {
             throw new IllegalArgumentException("Content length strategy may not be null");

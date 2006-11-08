@@ -48,12 +48,12 @@ public class TestStrictContentLengthStrategy extends TestCase {
     // ------------------------------------------------------- TestCase Methods
 
     public static Test suite() {
-        return new TestSuite(TestDefaultEntitySerializer.class);
+        return new TestSuite(TestStrictContentLengthStrategy.class);
     }
 
     // ------------------------------------------------------------------- Main
     public static void main(String args[]) {
-        String[] testCaseName = { TestDefaultEntitySerializer.class.getName() };
+        String[] testCaseName = { TestStrictContentLengthStrategy.class.getName() };
         junit.textui.TestRunner.main(testCaseName);
     }
 

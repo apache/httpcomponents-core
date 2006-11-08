@@ -38,8 +38,8 @@ public class TestAllEntityImpl extends TestCase {
 
     public static Test suite() {
         TestSuite suite = new TestSuite();
-        suite.addTest(TestDefaultEntitySerializer.suite());
-        suite.addTest(TestDefaultEntityDeserializer.suite());
+        suite.addTest(TestEntitySerializer.suite());
+        suite.addTest(TestEntityDeserializer.suite());
         suite.addTest(TestLaxContentLengthStrategy.suite());
         suite.addTest(TestStrictContentLengthStrategy.suite());
         return suite;

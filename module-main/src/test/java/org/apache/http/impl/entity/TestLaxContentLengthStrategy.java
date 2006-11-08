@@ -47,12 +47,12 @@ public class TestLaxContentLengthStrategy extends TestCase {
     // ------------------------------------------------------- TestCase Methods
 
     public static Test suite() {
-        return new TestSuite(TestDefaultEntityDeserializer.class);
+        return new TestSuite(TestLaxContentLengthStrategy.class);
     }
 
     // ------------------------------------------------------------------- Main
     public static void main(String args[]) {
-        String[] testCaseName = { TestDefaultEntityDeserializer.class.getName() };
+        String[] testCaseName = { TestLaxContentLengthStrategy.class.getName() };
         junit.textui.TestRunner.main(testCaseName);
     }
 
@@ -81,7 +81,7 @@ public class TestLaxContentLengthStrategy extends TestCase {
         message.addHeader("Content-Type", "unknown");
         message.addHeader("Transfer-Encoding", "identity");
         message.addHeader("Content-Length", "plain wrong");
-        assertEquals(ContentLengthStrategy.CHUNKED, lenStrategy.determineLength(message));
+        assertEquals(ContentLengthStrategy.IDENTITY, lenStrategy.determineLength(message));
     }
 
     public void testEntityWithUnsupportedTransferEncoding() throws Exception {

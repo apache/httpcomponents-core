@@ -42,8 +42,8 @@ import org.apache.http.HttpRequestFactory;
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpServerConnection;
 import org.apache.http.RequestLine;
-import org.apache.http.impl.entity.DefaultEntityDeserializer;
-import org.apache.http.impl.entity.DefaultEntitySerializer;
+import org.apache.http.impl.entity.EntityDeserializer;
+import org.apache.http.impl.entity.EntitySerializer;
 import org.apache.http.impl.entity.LaxContentLengthStrategy;
 import org.apache.http.impl.entity.StrictContentLengthStrategy;
 import org.apache.http.io.CharArrayBuffer;
@@ -71,8 +71,8 @@ public abstract class AbstractHttpServerConnection implements HttpServerConnecti
     private int maxHeaderCount = -1;
     
     private final CharArrayBuffer buffer; 
-    private final DefaultEntitySerializer entityserializer;
-    private final DefaultEntityDeserializer entitydeserializer;
+    private final EntitySerializer entityserializer;
+    private final EntityDeserializer entitydeserializer;
     
     /*
      * Dependent interfaces
@@ -84,9 +84,9 @@ public abstract class AbstractHttpServerConnection implements HttpServerConnecti
     public AbstractHttpServerConnection() {
         super();
         this.buffer = new CharArrayBuffer(128);
-        this.entityserializer = new DefaultEntitySerializer(
+        this.entityserializer = new EntitySerializer(
                 new StrictContentLengthStrategy());
-        this.entitydeserializer = new DefaultEntityDeserializer(
+        this.entitydeserializer = new EntityDeserializer(
                 new LaxContentLengthStrategy());
     }
     
