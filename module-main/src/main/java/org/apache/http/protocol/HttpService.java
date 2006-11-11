@@ -30,9 +30,6 @@
 package org.apache.http.protocol;
 
 import java.io.IOException;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.Map;
 
 import org.apache.http.ConnectionReuseStrategy;
 import org.apache.http.HttpEntity;
@@ -58,10 +55,9 @@ import org.apache.http.params.HttpParams;
  */
 public class HttpService {
 
-    private final Map handlerMap;
-    
     private HttpParams params = null;
     private HttpProcessor processor = null;
+    private HttpRequestHandlerResolver handlerResolver;
     private ConnectionReuseStrategy connStrategy = null;
     private HttpResponseFactory responseFactory = null;
     
@@ -77,79 +73,42 @@ public class HttpService {
             final ConnectionReuseStrategy connStrategy,
             final HttpResponseFactory responseFactory) {
         super();
-        this.handlerMap = new HashMap();
         setHttpProcessor(proc);
         setConnReuseStrategy(connStrategy);
         setResponseFactory(responseFactory);
     }
     
-    protected void setHttpProcessor(final HttpProcessor processor) {
+    public void setHttpProcessor(final HttpProcessor processor) {
         if (processor == null) {
             throw new IllegalArgumentException("HTTP processor may not be null.");
         }
         this.processor = processor;
     }
 
-    protected void setConnReuseStrategy(final ConnectionReuseStrategy connStrategy) {
+    public void setConnReuseStrategy(final ConnectionReuseStrategy connStrategy) {
         if (connStrategy == null) {
             throw new IllegalArgumentException("Connection reuse strategy may not be null");
         }
         this.connStrategy = connStrategy;
     }
 
-    protected void setResponseFactory(final HttpResponseFactory responseFactory) {
+    public void setResponseFactory(final HttpResponseFactory responseFactory) {
         if (responseFactory == null) {
             throw new IllegalArgumentException("Response factory may not be null");
         }
         this.responseFactory = responseFactory;
     }
     
+    public void setHandlerResolver(final HttpRequestHandlerResolver handlerResolver) {
+        this.handlerResolver = handlerResolver;
+    }
+
     public HttpParams getParams() {
         return this.params;
     }
     
     public void setParams(final HttpParams params) {
         this.params = params;
-    }
-    
-    public void registerRequestHandler(final String pattern, final HttpRequestHandler handler) {
-        if (pattern == null) {
-            throw new IllegalArgumentException("URI request pattern may not be null");
-        }
-        if (handler == null) {
-            throw new IllegalArgumentException("HTTP request handelr may not be null");
-        }
-        this.handlerMap.put(pattern, handler);
-    }
-    
-    protected HttpRequestHandler lookupHandler(final String requestURI) {
-        // direct match?
-        Object handler = this.handlerMap.get(requestURI);
-        if (handler == null) {
-            // pattern match?
-            String bestMatch = null;
-            for (Iterator it = this.handlerMap.keySet().iterator(); it.hasNext();) {
-                String pattern = (String) it.next();
-                if (matchUriRequestPattern(pattern, requestURI)) {
-                    // we have a match. is it any better?
-                    if (bestMatch == null || bestMatch.length() <= pattern.length()) {
-                        handler = this.handlerMap.get(pattern);
-                        bestMatch = pattern;
-                    }
-                }
-            }
-        }
-        return (HttpRequestHandler) handler;
-    }
-
-    protected boolean matchUriRequestPattern(final String pattern, final String requestUri) {
-        if (pattern.equals("*")) {
-            return true;
-        } else {
-            return 
-            (pattern.endsWith("*") && requestUri.startsWith(pattern.substring(0, pattern.length() - 1))) ||
-            (pattern.startsWith("*") && requestUri.endsWith(pattern.substring(1, pattern.length())));
-        }
     }
     
     public void handleRequest(final HttpServerConnection conn, final HttpContext context) 
@@ -220,7 +179,11 @@ public class HttpService {
             final HttpRequest request, 
             final HttpResponse response,
             final HttpContext context) throws HttpException, IOException {
-        HttpRequestHandler handler = lookupHandler(request.getRequestLine().getUri());
+        HttpRequestHandler handler = null;
+        if (this.handlerResolver != null) {
+            String requestURI = request.getRequestLine().getUri();
+            handler = this.handlerResolver.lookup(requestURI);
+        }
         if (handler != null) {
             handler.handle(request, response, context);
         } else {

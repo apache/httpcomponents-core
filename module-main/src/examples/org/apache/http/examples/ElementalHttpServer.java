@@ -59,6 +59,7 @@ import org.apache.http.protocol.BasicHttpProcessor;
 import org.apache.http.protocol.HttpContext;
 import org.apache.http.protocol.HttpExecutionContext;
 import org.apache.http.protocol.HttpRequestHandler;
+import org.apache.http.protocol.HttpRequestHandlerRegistry;
 import org.apache.http.protocol.HttpService;
 import org.apache.http.protocol.ResponseConnControl;
 import org.apache.http.protocol.ResponseContent;
@@ -180,19 +181,24 @@ public class ElementalHttpServer {
                     System.out.println("Incoming connection from " + socket.getInetAddress());
                     conn.bind(socket, this.params);
 
-                    // Set up HTTP processor and service
+                    // Set up the HTTP protocol processor
                     BasicHttpProcessor httpproc = new BasicHttpProcessor();
                     httpproc.addInterceptor(new ResponseDate());
                     httpproc.addInterceptor(new ResponseServer());
                     httpproc.addInterceptor(new ResponseContent());
                     httpproc.addInterceptor(new ResponseConnControl());
                     
+                    // Set up request handlers
+                    HttpRequestHandlerRegistry reqistry = new HttpRequestHandlerRegistry();
+                    reqistry.register("*", new HttpFileHandler());
+                    
+                    // Set up the HTTP service
                     HttpService httpService = new HttpService(
                             httpproc, 
                             new DefaultConnectionReuseStrategy(), 
                             new DefaultHttpResponseFactory());
                     httpService.setParams(this.params);
-                    httpService.registerRequestHandler("*", new HttpFileHandler());
+                    httpService.setHandlerResolver(reqistry);
                     
                     // Start worker thread
                     Thread t = new WorkerThread(httpService, conn, this.globalContext);
