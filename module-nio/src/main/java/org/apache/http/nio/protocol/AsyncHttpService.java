@@ -2,6 +2,7 @@ package org.apache.http.nio.protocol;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
 
 import org.apache.http.ConnectionReuseStrategy;
 import org.apache.http.HttpEntity;
@@ -22,9 +23,7 @@ import org.apache.http.nio.ContentEncoder;
 import org.apache.http.nio.ContentIOControl;
 import org.apache.http.nio.NHttpServerConnection;
 import org.apache.http.nio.buffer.ContentInputBuffer;
-import org.apache.http.nio.buffer.ContentInputStream;
 import org.apache.http.nio.buffer.ContentOutputBuffer;
-import org.apache.http.nio.buffer.ContentOutputStream;
 import org.apache.http.params.HttpParams;
 import org.apache.http.protocol.HttpContext;
 import org.apache.http.protocol.HttpExecutionContext;
@@ -252,4 +251,65 @@ public class AsyncHttpService {
         }
     }
     
+    private static class ContentInputStream extends InputStream {
+
+        private final ContentInputBuffer buffer;
+        
+        public ContentInputStream(final ContentInputBuffer buffer) {
+            super();
+            if (buffer == null) {
+                throw new IllegalArgumentException("Input buffer may not be null");
+            }
+            this.buffer = buffer;
+        }
+        
+        public int read(final byte[] b, int off, int len) throws IOException {
+            return this.buffer.read(b, off, len);
+        }
+        
+        public int read(final byte[] b) throws IOException {
+            return this.buffer.read(b);
+        }
+        
+        public int read() throws IOException {
+            return this.buffer.read();
+        }
+
+    }    
+
+    private static class ContentOutputStream extends OutputStream {
+
+        private final ContentOutputBuffer buffer;
+        
+        public ContentOutputStream(final ContentOutputBuffer buffer) {
+            super();
+            if (buffer == null) {
+                throw new IllegalArgumentException("Output buffer may not be null");
+            }
+            this.buffer = buffer;
+        }
+
+        public void close() throws IOException {
+            this.buffer.flush();
+            this.buffer.shutdown();
+        }
+
+        public void flush() throws IOException {
+            this.buffer.flush();
+        }
+
+        public void write(byte[] b, int off, int len) throws IOException {
+            this.buffer.write(b, off, len);
+        }
+
+        public void write(byte[] b) throws IOException {
+            this.buffer.write(b);
+        }
+
+        public void write(int b) throws IOException {
+            this.buffer.write(b);
+        }
+
+    }
+
 }
