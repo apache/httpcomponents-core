@@ -34,7 +34,7 @@ import java.util.List;
 
 import org.apache.http.HeaderElement;
 import org.apache.http.NameValuePair;
-import org.apache.http.io.CharArrayBuffer;
+import org.apache.http.util.CharArrayBuffer;
 import org.apache.http.util.LangUtils;
 
 /**

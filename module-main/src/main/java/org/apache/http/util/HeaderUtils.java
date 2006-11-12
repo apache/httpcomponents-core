@@ -35,7 +35,6 @@ import java.util.ArrayList;
 import org.apache.http.Header;
 import org.apache.http.HttpException;
 import org.apache.http.ProtocolException;
-import org.apache.http.io.CharArrayBuffer;
 import org.apache.http.io.HttpDataReceiver;
 import org.apache.http.message.BufferedHeader;
 

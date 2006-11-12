@@ -41,7 +41,6 @@ import org.apache.http.entity.BasicHttpEntity;
 import org.apache.http.entity.ContentLengthStrategy;
 import org.apache.http.impl.entity.LaxContentLengthStrategy;
 import org.apache.http.impl.entity.StrictContentLengthStrategy;
-import org.apache.http.io.CharArrayBuffer;
 import org.apache.http.nio.EventMask;
 import org.apache.http.nio.IOSession;
 import org.apache.http.nio.handler.ContentDecoder;
@@ -60,6 +59,7 @@ import org.apache.http.params.HttpParams;
 import org.apache.http.protocol.HTTP;
 import org.apache.http.protocol.HttpContext;
 import org.apache.http.protocol.SyncHttpExecutionContext;
+import org.apache.http.util.CharArrayBuffer;
 
 public class NHttpConnectionBase implements NHttpConnection {
 

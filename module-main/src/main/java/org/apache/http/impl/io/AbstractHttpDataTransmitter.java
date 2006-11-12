@@ -32,12 +32,12 @@ package org.apache.http.impl.io;
 import java.io.IOException;
 import java.io.OutputStream;
 
-import org.apache.http.io.ByteArrayBuffer;
-import org.apache.http.io.CharArrayBuffer;
 import org.apache.http.io.HttpDataTransmitter;
 import org.apache.http.params.HttpParams;
 import org.apache.http.params.HttpProtocolParams;
 import org.apache.http.protocol.HTTP;
+import org.apache.http.util.ByteArrayBuffer;
+import org.apache.http.util.CharArrayBuffer;
 
 /**
  * Abstract base class for data transmitters using traditional IO.

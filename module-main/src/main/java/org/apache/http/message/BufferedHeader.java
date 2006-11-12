@@ -31,7 +31,7 @@ package org.apache.http.message;
 
 import org.apache.http.Header;
 import org.apache.http.HeaderElement;
-import org.apache.http.io.CharArrayBuffer;
+import org.apache.http.util.CharArrayBuffer;
 
 /**
  * This class represents a raw HTTP header whose content is parsed 'on demand' only when 

@@ -31,7 +31,7 @@ package org.apache.http.message;
 
 import org.apache.http.Header;
 import org.apache.http.HeaderElement;
-import org.apache.http.io.CharArrayBuffer;
+import org.apache.http.util.CharArrayBuffer;
 
 /**
  * Represents an HTTP header field.

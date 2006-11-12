@@ -37,10 +37,10 @@ import java.nio.charset.Charset;
 import java.nio.charset.CharsetDecoder;
 import java.nio.charset.CoderResult;
 
-import org.apache.http.io.CharArrayBuffer;
 import org.apache.http.params.HttpParams;
 import org.apache.http.params.HttpProtocolParams;
 import org.apache.http.protocol.HTTP;
+import org.apache.http.util.CharArrayBuffer;
 
 public class SessionInputBuffer extends ExpandableBuffer {
     

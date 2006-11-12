@@ -32,8 +32,8 @@ import org.apache.http.HttpException;
 import org.apache.http.HttpStatus;
 import org.apache.http.HttpVersion;
 import org.apache.http.StatusLine;
-import org.apache.http.io.CharArrayBuffer;
 import org.apache.http.message.BasicStatusLine;
+import org.apache.http.util.CharArrayBuffer;
 
 import junit.framework.*;
 

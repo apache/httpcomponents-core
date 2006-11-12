@@ -33,9 +33,9 @@ import org.apache.http.HttpException;
 import org.apache.http.HttpMessage;
 import org.apache.http.HttpResponseFactory;
 import org.apache.http.StatusLine;
-import org.apache.http.io.CharArrayBuffer;
 import org.apache.http.message.BasicStatusLine;
 import org.apache.http.nio.impl.SessionInputBuffer;
+import org.apache.http.util.CharArrayBuffer;
 
 public class HttpResponseParser extends HttpMessageParser {
     

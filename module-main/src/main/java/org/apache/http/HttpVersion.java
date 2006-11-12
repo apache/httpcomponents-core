@@ -29,7 +29,7 @@
 
 package org.apache.http;
 
-import org.apache.http.io.CharArrayBuffer;
+import org.apache.http.util.CharArrayBuffer;
 
 /**
  *  <p>HTTP version, as specified in RFC 2616.</p>

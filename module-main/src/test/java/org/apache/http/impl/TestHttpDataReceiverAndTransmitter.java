@@ -38,13 +38,13 @@ import junit.framework.TestCase;
 import junit.framework.TestSuite;
 
 import org.apache.http.impl.DefaultHttpParams;
-import org.apache.http.io.CharArrayBuffer;
 import org.apache.http.mockup.HttpDataReceiverMockup;
 import org.apache.http.mockup.HttpDataTransmitterMockup;
 import org.apache.http.params.HttpConnectionParams;
 import org.apache.http.params.HttpParams;
 import org.apache.http.params.HttpProtocolParams;
 import org.apache.http.protocol.HTTP;
+import org.apache.http.util.CharArrayBuffer;
 
 public class TestHttpDataReceiverAndTransmitter extends TestCase {
 

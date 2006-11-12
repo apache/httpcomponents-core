@@ -34,7 +34,9 @@ import java.io.InputStream;
 
 import org.apache.http.Header;
 import org.apache.http.HttpException;
+import org.apache.http.MalformedChunkCodingException;
 import org.apache.http.protocol.HTTP;
+import org.apache.http.util.CharArrayBuffer;
 import org.apache.http.util.ExceptionUtils;
 import org.apache.http.util.HeaderUtils;
 

@@ -41,9 +41,9 @@ import junit.framework.TestCase;
 import junit.framework.TestSuite;
 
 import org.apache.http.impl.DefaultHttpParams;
-import org.apache.http.io.CharArrayBuffer;
 import org.apache.http.params.HttpParams;
 import org.apache.http.params.HttpProtocolParams;
+import org.apache.http.util.CharArrayBuffer;
 
 /**
  * Simple tests for {@link SessionInputBuffer} and {@link SessionOutputBuffer}.

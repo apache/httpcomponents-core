@@ -27,7 +27,7 @@
  *
  */
 
-package org.apache.http.io;
+package org.apache.http.util;
 
 /**
  * A resizable byte array.

@@ -37,8 +37,6 @@ import java.io.Reader;
 import org.apache.http.HeaderElement;
 import org.apache.http.HttpEntity;
 import org.apache.http.NameValuePair;
-import org.apache.http.io.ByteArrayBuffer;
-import org.apache.http.io.CharArrayBuffer;
 import org.apache.http.protocol.HTTP;
 
 /**

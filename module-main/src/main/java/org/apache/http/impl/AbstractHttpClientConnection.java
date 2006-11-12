@@ -47,7 +47,6 @@ import org.apache.http.impl.entity.EntityDeserializer;
 import org.apache.http.impl.entity.EntitySerializer;
 import org.apache.http.impl.entity.LaxContentLengthStrategy;
 import org.apache.http.impl.entity.StrictContentLengthStrategy;
-import org.apache.http.io.CharArrayBuffer;
 import org.apache.http.io.HttpDataReceiver;
 import org.apache.http.io.HttpDataTransmitter;
 import org.apache.http.message.BasicHeader;
@@ -57,6 +56,7 @@ import org.apache.http.message.BufferedHeader;
 import org.apache.http.params.HttpParams;
 import org.apache.http.params.HttpProtocolParams;
 import org.apache.http.protocol.HTTP;
+import org.apache.http.util.CharArrayBuffer;
 import org.apache.http.util.HeaderUtils;
 
 /**

@@ -27,7 +27,7 @@
  *
  */
 
-package org.apache.http.io;
+package org.apache.http;
 
 import java.io.IOException;
 

@@ -34,8 +34,8 @@ import java.util.Iterator;
 import java.util.List;
 
 import org.apache.http.Header;
-import org.apache.http.io.CharArrayBuffer;
 import org.apache.http.message.BasicHeader;
+import org.apache.http.util.CharArrayBuffer;
 
 /**
  * A class for combining a set of headers.  This class allows for multiple

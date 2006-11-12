@@ -36,11 +36,11 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.http.Header;
-import org.apache.http.io.CharArrayBuffer;
-import org.apache.http.io.MalformedChunkCodingException;
+import org.apache.http.MalformedChunkCodingException;
 import org.apache.http.message.BufferedHeader;
 import org.apache.http.nio.impl.SessionInputBuffer;
 import org.apache.http.protocol.HTTP;
+import org.apache.http.util.CharArrayBuffer;
 
 public class ChunkDecoder extends AbstractContentDecoder {
     

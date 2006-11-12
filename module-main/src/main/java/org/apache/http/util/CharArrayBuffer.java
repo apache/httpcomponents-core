@@ -27,7 +27,7 @@
  *
  */
 
-package org.apache.http.io;
+package org.apache.http.util;
 
 import org.apache.http.protocol.HTTP;
 
