@@ -26,28 +26,24 @@
  *
  */
 
-package org.apache.http.nio.impl;
-
-import org.apache.http.nio.impl.codecs.TestAllImplCodecs;
-import org.apache.http.nio.impl.reactor.TestAllImplReactor;
+package org.apache.http.nio.impl.reactor;
 
 import junit.framework.*;
 
-public class TestAllImpl extends TestCase {
+public class TestAllImplReactor extends TestCase {
 
-    public TestAllImpl(String testName) {
+    public TestAllImplReactor(String testName) {
         super(testName);
     }
 
     public static Test suite() {
         TestSuite suite = new TestSuite();
-        suite.addTest(TestAllImplReactor.suite());
-        suite.addTest(TestAllImplCodecs.suite());
+        suite.addTest(TestSessionInOutBuffers.suite());
         return suite;
     }
 
     public static void main(String args[]) {
-        String[] testCaseName = { TestAllImpl.class.getName() };
+        String[] testCaseName = { TestAllImplReactor.class.getName() };
         junit.textui.TestRunner.main(testCaseName);
     }
 

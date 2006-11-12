@@ -26,7 +26,7 @@
  *
  */
 
-package org.apache.http.nio.impl;
+package org.apache.http.nio.impl.reactor;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;

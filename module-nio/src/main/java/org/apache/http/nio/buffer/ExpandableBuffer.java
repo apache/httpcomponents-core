@@ -27,7 +27,7 @@
  *
  */
 
-package org.apache.http.nio.content;
+package org.apache.http.nio.buffer;
 
 import java.nio.ByteBuffer;
 
