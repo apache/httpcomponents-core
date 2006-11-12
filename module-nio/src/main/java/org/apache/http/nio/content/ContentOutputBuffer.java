@@ -26,7 +26,7 @@
  * <http://www.apache.org/>.
  *
  */
-package org.apache.http.nio.impl;
+package org.apache.http.nio.content;
 
 import java.io.IOException;
 
