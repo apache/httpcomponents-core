@@ -65,7 +65,6 @@ import org.apache.http.protocol.ResponseConnControl;
 import org.apache.http.protocol.ResponseContent;
 import org.apache.http.protocol.ResponseDate;
 import org.apache.http.protocol.ResponseServer;
-import org.apache.http.protocol.SyncHttpExecutionContext;
 
 /**
  * Basic, yet fully functional and spec compliant, HTTP/1.1 file server.
@@ -88,6 +87,13 @@ public class ElementalHttpServer {
     
     static class HttpFileHandler implements HttpRequestHandler  {
         
+        private final String docRoot;
+        
+        public HttpFileHandler(final String docRoot) {
+            super();
+            this.docRoot = docRoot;
+        }
+        
         public void handle(
                 final HttpRequest request, 
                 final HttpResponse response,
@@ -97,11 +103,9 @@ public class ElementalHttpServer {
             if (!method.equalsIgnoreCase("GET") && !method.equalsIgnoreCase("HEAD")) {
                 throw new MethodNotSupportedException(method + " method not supported"); 
             }
-            String docroot = (String) context.getAttribute("server.docroot");
-            
             String target = request.getRequestLine().getUri();
             
-            final File file = new File(docroot, URLDecoder.decode(target));
+            final File file = new File(this.docRoot, URLDecoder.decode(target));
             if (!file.exists()) {
 
                 response.setStatusCode(HttpStatus.SC_NOT_FOUND);
@@ -156,7 +160,7 @@ public class ElementalHttpServer {
 
         private final ServerSocket serversocket;
         private final HttpParams params; 
-        private final HttpContext globalContext;
+        private final String docRoot;
         
         public RequestListenerThread(int port, final String docroot) throws IOException {
             this.serversocket = new ServerSocket(port);
@@ -167,8 +171,7 @@ public class ElementalHttpServer {
                 .setBooleanParameter(HttpConnectionParams.STALE_CONNECTION_CHECK, false)
                 .setBooleanParameter(HttpConnectionParams.TCP_NODELAY, true)
                 .setParameter(HttpProtocolParams.ORIGIN_SERVER, "Jakarta-HttpComponents/1.1");
-            this.globalContext = new SyncHttpExecutionContext(null);
-            this.globalContext.setAttribute("server.docroot", docroot);
+            this.docRoot = docroot;
         }
         
         public void run() {
@@ -190,7 +193,7 @@ public class ElementalHttpServer {
                     
                     // Set up request handlers
                     HttpRequestHandlerRegistry reqistry = new HttpRequestHandlerRegistry();
-                    reqistry.register("*", new HttpFileHandler());
+                    reqistry.register("*", new HttpFileHandler(this.docRoot));
                     
                     // Set up the HTTP service
                     HttpService httpService = new HttpService(
@@ -201,7 +204,7 @@ public class ElementalHttpServer {
                     httpService.setHandlerResolver(reqistry);
                     
                     // Start worker thread
-                    Thread t = new WorkerThread(httpService, conn, this.globalContext);
+                    Thread t = new WorkerThread(httpService, conn);
                     t.setDaemon(true);
                     t.start();
                 } catch (InterruptedIOException ex) {
@@ -219,23 +222,21 @@ public class ElementalHttpServer {
 
         private final HttpService httpservice;
         private final HttpServerConnection conn;
-        private final HttpContext context;
         
         public WorkerThread(
                 final HttpService httpservice, 
-                final HttpServerConnection conn, 
-                final HttpContext parentContext) {
+                final HttpServerConnection conn) {
             super();
             this.httpservice = httpservice;
             this.conn = conn;
-            this.context = new HttpExecutionContext(parentContext);
         }
         
         public void run() {
             System.out.println("New connection thread");
+            HttpContext context = new HttpExecutionContext(null);
             try {
                 while (!Thread.interrupted() && this.conn.isOpen()) {
-                    this.httpservice.handleRequest(this.conn, this.context);
+                    this.httpservice.handleRequest(this.conn, context);
                 }
             } catch (ConnectionClosedException ex) {
                 System.err.println("Client closed connection");

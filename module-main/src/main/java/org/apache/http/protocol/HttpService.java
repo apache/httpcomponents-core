@@ -57,7 +57,7 @@ public class HttpService {
 
     private HttpParams params = null;
     private HttpProcessor processor = null;
-    private HttpRequestHandlerResolver handlerResolver;
+    private HttpRequestHandlerResolver handlerResolver = null;
     private ConnectionReuseStrategy connStrategy = null;
     private HttpResponseFactory responseFactory = null;
     
