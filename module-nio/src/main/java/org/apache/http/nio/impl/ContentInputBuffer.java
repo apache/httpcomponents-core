@@ -30,8 +30,8 @@ package org.apache.http.nio.impl;
 
 import java.io.IOException;
 
-import org.apache.http.nio.handler.ContentDecoder;
-import org.apache.http.nio.handler.ContentIOControl;
+import org.apache.http.nio.ContentDecoder;
+import org.apache.http.nio.ContentIOControl;
 
 public class ContentInputBuffer extends ExpandableBuffer {
 

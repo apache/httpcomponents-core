@@ -1,10 +1,10 @@
 package org.apache.http.nio.impl.handler;
 
 import org.apache.http.impl.DefaultHttpResponseFactory;
-import org.apache.http.nio.IOEventDispatch;
-import org.apache.http.nio.IOSession;
-import org.apache.http.nio.SessionRequest;
-import org.apache.http.nio.handler.NHttpClientHandler;
+import org.apache.http.nio.NHttpClientHandler;
+import org.apache.http.nio.reactor.IOEventDispatch;
+import org.apache.http.nio.reactor.IOSession;
+import org.apache.http.nio.reactor.SessionRequest;
 import org.apache.http.params.HttpParams;
 
 public class DefaultClientIOEventDispatch implements IOEventDispatch {

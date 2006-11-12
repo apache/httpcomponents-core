@@ -29,12 +29,32 @@
 
 package org.apache.http.nio;
 
-public interface SessionRequestCallback {
+import org.apache.http.HttpException;
+import org.apache.http.HttpRequest;
 
-    void completed(SessionRequest request);
-    
-    void failed(SessionRequest request);
-    
-    void timeout(SessionRequest request);
+/**
+ * Abstract non-blocking client-side HTTP connection. It can be used to
+ * submit HTTP requests and asynchronously receive HTTP responses. 
+ * 
+ * @author <a href="mailto:oleg at ural.ru">Oleg Kalnichevski</a>
+ */
+public interface NHttpClientConnection extends NHttpConnection {
 
+    /**
+     * Submits the HTTP request to the target server.
+     *  
+     * @param request HTTP request
+     * @throws HttpException if the HTTP request violates the HTTP protocol.
+     */
+    void submitRequest(HttpRequest request) throws HttpException;
+
+    /**
+     * Returns <tt>true</tt> if an HTTP request has been submitted to the 
+     * target server.
+     * 
+     * @return <tt>true</tt> if an HTTP request has been submitted, 
+     * <tt>false</tt> otherwise. 
+     */
+    boolean isRequestSubmitted();
+    
 }

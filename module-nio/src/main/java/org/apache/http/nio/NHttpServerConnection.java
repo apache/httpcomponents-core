@@ -29,12 +29,33 @@
 
 package org.apache.http.nio;
 
-import java.nio.channels.SelectionKey;
+import org.apache.http.HttpException;
+import org.apache.http.HttpResponse;
 
-public interface EventMask {
+/**
+ * Abstract non-blocking server-side HTTP connection. It can be used to
+ * receive HTTP requests and asynchronously submit HTTP responses. 
+ * 
+ * @author <a href="mailto:oleg at ural.ru">Oleg Kalnichevski</a>
+ */
+public interface NHttpServerConnection extends NHttpConnection {
 
-    public static final int READ = SelectionKey.OP_READ;
-    public static final int WRITE = SelectionKey.OP_WRITE;
-    public static final int READ_WRITE = READ | WRITE;
+    /**
+     * Submits the HTTP response to the client.
+     *  
+     * @param response HTTP response
+     * 
+     * @throws HttpException if the HTTP response violates the HTTP protocol.
+     */
+    void submitResponse(HttpResponse response) throws HttpException;
+
+    /**
+     * Returns <tt>true</tt> if an HTTP response has been submitted to the 
+     * client.
+     * 
+     * @return <tt>true</tt> if an HTTP response has been submitted, 
+     * <tt>false</tt> otherwise. 
+     */
+    boolean isResponseSubmitted();
     
 }

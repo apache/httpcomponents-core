@@ -27,41 +27,35 @@
  *
  */
 
-package org.apache.http.nio.handler;
+package org.apache.http.nio;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
 
 /**
- * Abstract HTTP content encoder. HTTP content encoders can be used
- * to apply the required coding transformation and write entity 
- * content to the underlying channel in small chunks.
+ * Abstract HTTP content decoder. HTTP content decoders can be used
+ * to read entity content from the underlying channel in small
+ * chunks and apply the required coding transformation.
  * 
  * @author <a href="mailto:oleg at ural.ru">Oleg Kalnichevski</a>
  */
-public interface ContentEncoder {
+public interface ContentDecoder {
 
     /**
-     * Writes a portion of entity content to the underlying channel.
+     * Reads a portion of content from the underlying channel
      * 
-     * @param src The buffer from which content is to be retrieved
-     * @return The number of bytes read, possibly zero
-     * @throws IOException if I/O error occurs while writing content
+     * @param dst The buffer into which entity content is to be transferred
+     * @return The number of bytes read, possibly zero, or -1 if the 
+     * channel has reached end-of-stream
+     * @throws IOException if I/O error occurs while reading content
      */
-    int write(ByteBuffer src) throws IOException;
-
-    /**
-     * Terminates the content stream.
-     * 
-     * @throws IOException if I/O error occurs while writing content
-     */
-    void complete() throws IOException;
+    int read(ByteBuffer dst) throws IOException;
     
     /**
-     * Returns <tt>true</tt> if the entity has been transferred in its
+     * Returns <tt>true</tt> if the entity has been received in its
      * entirety.
      * 
-     * @return <tt>true</tt> if all the content has been produced, 
+     * @return <tt>true</tt> if all the content has been consumed, 
      * <tt>false</tt> otherwise.
      */
     boolean isCompleted();

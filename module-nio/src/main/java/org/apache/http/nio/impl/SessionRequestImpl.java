@@ -33,9 +33,9 @@ import java.io.IOException;
 import java.net.SocketAddress;
 import java.nio.channels.SelectionKey;
 
-import org.apache.http.nio.SessionRequest;
-import org.apache.http.nio.IOSession;
-import org.apache.http.nio.SessionRequestCallback;
+import org.apache.http.nio.reactor.IOSession;
+import org.apache.http.nio.reactor.SessionRequest;
+import org.apache.http.nio.reactor.SessionRequestCallback;
 
 class SessionRequestImpl implements SessionRequest {
 

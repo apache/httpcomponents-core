@@ -27,18 +27,14 @@
  *
  */
 
-package org.apache.http.nio;
+package org.apache.http.nio.reactor;
 
-public interface IOEventDispatch {
+public interface SessionRequestCallback {
+
+    void completed(SessionRequest request);
     
-    void connected(IOSession session);
+    void failed(SessionRequest request);
     
-    void inputReady(IOSession session);
-    
-    void outputReady(IOSession session);
-    
-    void timeout(IOSession session);
-    
-    void disconnected(IOSession session);
-    
+    void timeout(SessionRequest request);
+
 }

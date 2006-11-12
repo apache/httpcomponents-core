@@ -27,24 +27,35 @@
  *
  */
 
-package org.apache.http.nio;
+package org.apache.http.nio.reactor;
 
 import java.io.IOException;
 import java.net.SocketAddress;
 
-public interface IOReactor {
+public interface SessionRequest {
 
-    void execute(IOEventDispatch eventDispatch) 
-        throws IOException;
+    public static final String ATTRIB_KEY = "http.connection-request";
 
-    void shutdown() 
-        throws IOException;
+    SocketAddress getRemoteAddress();
     
-    SessionRequest connect(SocketAddress remoteAddress, 
-            SocketAddress localAddress, Object attachment) 
-        throws IOException;
-        
-    void listen(SocketAddress address) 
-        throws IOException;
+    SocketAddress getLocalAddress();
+    
+    Object getAttachment();
+    
+    boolean isCompleted();
+    
+    IOSession getSession();
+    
+    IOException getException();
+
+    void waitFor() throws InterruptedException;
+    
+    void setConnectTimeout(int timeout);
+    
+    int getConnectTimeout();
+    
+    void setCallback(SessionRequestCallback callback);
+    
+    void cancel();
     
 }

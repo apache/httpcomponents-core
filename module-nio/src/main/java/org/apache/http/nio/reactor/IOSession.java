@@ -27,34 +27,39 @@
  *
  */
 
-package org.apache.http.nio.handler;
+package org.apache.http.nio.reactor;
 
-import org.apache.http.HttpException;
-import org.apache.http.HttpRequest;
+import java.net.SocketAddress;
+import java.nio.channels.ByteChannel;
 
-/**
- * Abstract non-blocking client-side HTTP connection. It can be used to
- * submit HTTP requests and asynchronously receive HTTP responses. 
- * 
- * @author <a href="mailto:oleg at ural.ru">Oleg Kalnichevski</a>
- */
-public interface NHttpClientConnection extends NHttpConnection {
+public interface IOSession {
 
-    /**
-     * Submits the HTTP request to the target server.
-     *  
-     * @param request HTTP request
-     * @throws HttpException if the HTTP request violates the HTTP protocol.
-     */
-    void submitRequest(HttpRequest request) throws HttpException;
-
-    /**
-     * Returns <tt>true</tt> if an HTTP request has been submitted to the 
-     * target server.
-     * 
-     * @return <tt>true</tt> if an HTTP request has been submitted, 
-     * <tt>false</tt> otherwise. 
-     */
-    boolean isRequestSubmitted();
+    ByteChannel channel();
     
+    SocketAddress getRemoteAddress();    
+    
+    SocketAddress getLocalAddress();    
+
+    int getEventMask();
+    
+    void setEventMask(int ops);
+    
+    void setEvent(int op);
+
+    void clearEvent(int op);
+
+    void close();
+    
+    boolean isClosed();
+
+    int getSocketTimeout();
+    
+    void setSocketTimeout(int timeout);
+    
+    void setAttribute(String name, Object obj);
+    
+    Object getAttribute(String name);
+    
+    Object removeAttribute(String name);
+
 }

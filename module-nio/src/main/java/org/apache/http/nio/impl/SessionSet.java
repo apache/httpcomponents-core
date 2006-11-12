@@ -33,7 +33,7 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
 
-import org.apache.http.nio.IOSession;
+import org.apache.http.nio.reactor.IOSession;
 
 public class SessionSet {
     

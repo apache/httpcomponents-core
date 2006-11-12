@@ -27,39 +27,14 @@
  *
  */
 
-package org.apache.http.nio.handler;
+package org.apache.http.nio.reactor;
 
-/**
- * Content input/output control interface. It can be used to request or
- * temporarily suspend event notifications that are triggered when the underlying
- * channel is ready for input / output operations. 
- * 
- * @author <a href="mailto:oleg at ural.ru">Oleg Kalnichevski</a>
- */
-public interface ContentIOControl {
+import java.nio.channels.SelectionKey;
 
-    /**
-     * Requests event notifications to be triggered when the underlying
-     * channel is ready for input oprtations.
-     */
-    void requestInput();
-    
-    /**
-     * Suspends event notifications about the underlying channel being 
-     * ready for input operations.
-     */
-    void suspendInput();
-    
-    /**
-     * Requests event notifications to be triggered when the underlying
-     * channel is ready for output oprtations.
-     */
-    void requestOutput();
-    
-    /**
-     * Suspends event notifications about the underlying channel being 
-     * ready for output operations.
-     */
-    void suspendOutput();
+public interface EventMask {
+
+    public static final int READ = SelectionKey.OP_READ;
+    public static final int WRITE = SelectionKey.OP_WRITE;
+    public static final int READ_WRITE = READ | WRITE;
     
 }

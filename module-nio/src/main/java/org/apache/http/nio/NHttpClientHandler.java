@@ -27,45 +27,47 @@
  *
  */
 
-package org.apache.http.nio.handler;
+package org.apache.http.nio;
 
 import java.io.IOException;
 
 import org.apache.http.HttpException;
 
 /**
- * Abstract server-side HTTP event handler.   
+ * Abstract client-side HTTP event handler.   
  * 
  * @author <a href="mailto:oleg at ural.ru">Oleg Kalnichevski</a>
  */
-public interface NHttpServiceHandler {
+public interface NHttpClientHandler {
 
     /**
-     * Triggered when a new incoming connection is created.
+     * Triggered when a new outgoing connection is created.
      * 
      * @param conn closed HTTP connection.
+     * @param attachment an arbitrary object that was attached to the
+     *  session request
      */
-    void connected(NHttpServerConnection conn);
+    void connected(NHttpClientConnection conn, Object attachment);
     
     /**
-     * Triggered when a new HTTP request is received. The connection
+     * Triggered when an HTTP response is received. The connection
      * passed as a parameter to this method is guaranteed to return
-     * a valid HTTP request object.
+     * a valid HTTP response object.
      * <p/>
-     * If the request received encloses a request entity this method will 
+     * If the response received encloses a response entity this method will 
      * be followed a series of 
-     * {@link #inputReady(NHttpServerConnection, ContentDecoder)} calls
-     * to transfer the request content.
+     * {@link #inputReady(NHttpClientConnection, ContentDecoder)} calls
+     * to transfer the response content.
      * 
-     * @see NHttpServerConnection
+     * @see NHttpClientConnection
      * 
-     * @param conn HTTP connection that contains a new HTTP request
+     * @param conn HTTP connection that contains an HTTP response
      */
-    void requestReceived(NHttpServerConnection conn);
-
+    void responseReceived(NHttpClientConnection conn);
+    
     /**
      * Triggered when the underlying channel is ready for reading a
-     * new portion of the request entity through the corresponding 
+     * new portion of the response entity through the corresponding 
      * content decoder. 
      * <p/>
      * If the content consumer is unable to process the incoming content,
@@ -76,14 +78,14 @@ public interface NHttpServiceHandler {
      * @see ContentDecoder
      *  
      * @param conn HTTP connection that can produce a new portion of the
-     * incoming request content.
+     * incoming response content.
      * @param decoder The content decoder to use to read content.
      */
-    void inputReady(NHttpServerConnection conn, ContentDecoder decoder);
+    void inputReady(NHttpClientConnection conn, ContentDecoder decoder);
     
     /**
      * Triggered when the underlying channel is ready for writing a
-     * next portion of the response entity through the corresponding 
+     * next portion of the request entity through the corresponding 
      * content encoder. 
      * <p/>
      * If the content producer is unable to generate the outgoing content,
@@ -94,11 +96,11 @@ public interface NHttpServiceHandler {
      * @see ContentEncoder
      *  
      * @param conn HTTP connection that can accommodate a new portion 
-     * of the outgoing response content.
+     * of the outgoing request content.
      * @param encoder The content encoder to use to write content.
      */
-    void outputReady(NHttpServerConnection conn, ContentEncoder encoder);
-
+    void outputReady(NHttpClientConnection conn, ContentEncoder encoder);
+    
     /**
      * Triggered when an I/O error occurrs while reading from or writing
      * to the underlying channel.
@@ -106,30 +108,30 @@ public interface NHttpServiceHandler {
      * @param conn HTTP connection that caused an I/O error
      * @param ex I/O exception
      */
-    void exception(NHttpServerConnection conn, IOException ex);
+    void exception(NHttpClientConnection conn, IOException ex);
     
     /**
      * Triggered when an HTTP protocol violation occurs while receiving 
-     * an HTTP request.
+     * an HTTP response.
      * 
      * @param conn HTTP connection that caused an HTTP protocol violation
      * @param ex HTTP protocol violation exception
      */
-    void exception(NHttpServerConnection conn, HttpException ex);
-
+    void exception(NHttpClientConnection conn, HttpException ex);
+    
     /**
      * Triggered when no input is detected on this connection over the
      * maximum period of inactivity.
      * 
      * @param conn HTTP connection that caused timeout condition.
      */
-    void timeout(NHttpServerConnection conn);
+    void timeout(NHttpClientConnection conn);
     
     /**
      * Triggered when the connection is closed.
      * 
      * @param conn closed HTTP connection.
      */
-    void closed(NHttpServerConnection conn);
-        
+    void closed(NHttpClientConnection conn);
+    
 }

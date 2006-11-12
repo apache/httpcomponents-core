@@ -40,10 +40,10 @@ import java.nio.channels.SocketChannel;
 import java.util.Iterator;
 import java.util.Set;
 
-import org.apache.http.nio.IOEventDispatch;
-import org.apache.http.nio.IOReactor;
-import org.apache.http.nio.IOSession;
-import org.apache.http.nio.SessionRequest;
+import org.apache.http.nio.reactor.IOEventDispatch;
+import org.apache.http.nio.reactor.IOReactor;
+import org.apache.http.nio.reactor.IOSession;
+import org.apache.http.nio.reactor.SessionRequest;
 import org.apache.http.params.HttpConnectionParams;
 import org.apache.http.params.HttpParams;
 

@@ -27,35 +27,42 @@
  *
  */
 
-package org.apache.http.nio.handler;
+package org.apache.http.nio;
 
-import org.apache.http.HttpException;
+import org.apache.http.HttpConnection;
+import org.apache.http.HttpRequest;
 import org.apache.http.HttpResponse;
+import org.apache.http.protocol.HttpContext;
 
 /**
- * Abstract non-blocking server-side HTTP connection. It can be used to
- * receive HTTP requests and asynchronously submit HTTP responses. 
+ * Abstract non-blocking HTTP connection interface. It contains the current
+ * HTTP context, as well as the actual HTTP request and HTTP response objects
+ * that are being received / transferred over this connection.
  * 
  * @author <a href="mailto:oleg at ural.ru">Oleg Kalnichevski</a>
  */
-public interface NHttpServerConnection extends NHttpConnection {
+public interface NHttpConnection extends HttpConnection, ContentIOControl {
 
-    /**
-     * Submits the HTTP response to the client.
-     *  
-     * @param response HTTP response
+    /** 
+     * Returns the current HTTP request if one is being received / transmitted.
+     * Otherwise returns <tt>null</tt>.
      * 
-     * @throws HttpException if the HTTP response violates the HTTP protocol.
+     * @return an HTTP request if available. Otherwise returns <tt>null</tt>.
      */
-    void submitResponse(HttpResponse response) throws HttpException;
+    HttpRequest getHttpRequest();
 
-    /**
-     * Returns <tt>true</tt> if an HTTP response has been submitted to the 
-     * client.
+    /** 
+     * Returns the current HTTP response if one is being received / transmitted. 
+     * Otherwise returns <tt>null</tt>.
      * 
-     * @return <tt>true</tt> if an HTTP response has been submitted, 
-     * <tt>false</tt> otherwise. 
+     * @return an HTTP response if available. Otherwise returns <tt>null</tt>.
      */
-    boolean isResponseSubmitted();
+    HttpResponse getHttpResponse();
+    
+    /**
+     * Returns an HTTP execution context associated with this connection.
+     * @return HTTP context
+     */
+    HttpContext getContext();
     
 }

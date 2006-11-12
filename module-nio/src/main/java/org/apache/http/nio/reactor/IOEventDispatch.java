@@ -27,39 +27,18 @@
  *
  */
 
-package org.apache.http.nio;
+package org.apache.http.nio.reactor;
 
-import java.net.SocketAddress;
-import java.nio.channels.ByteChannel;
-
-public interface IOSession {
-
-    ByteChannel channel();
+public interface IOEventDispatch {
     
-    SocketAddress getRemoteAddress();    
+    void connected(IOSession session);
     
-    SocketAddress getLocalAddress();    
-
-    int getEventMask();
+    void inputReady(IOSession session);
     
-    void setEventMask(int ops);
+    void outputReady(IOSession session);
     
-    void setEvent(int op);
-
-    void clearEvent(int op);
-
-    void close();
+    void timeout(IOSession session);
     
-    boolean isClosed();
-
-    int getSocketTimeout();
+    void disconnected(IOSession session);
     
-    void setSocketTimeout(int timeout);
-    
-    void setAttribute(String name, Object obj);
-    
-    Object getAttribute(String name);
-    
-    Object removeAttribute(String name);
-
 }

@@ -39,7 +39,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.apache.http.nio.IOSession;
+import org.apache.http.nio.reactor.IOSession;
 
 class IOSessionImpl implements IOSession {
     

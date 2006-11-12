@@ -31,7 +31,7 @@ package org.apache.http.nio.impl.codecs;
 
 import java.nio.channels.ReadableByteChannel;
 
-import org.apache.http.nio.handler.ContentDecoder;
+import org.apache.http.nio.ContentDecoder;
 import org.apache.http.nio.impl.SessionInputBuffer;
 
 public abstract class AbstractContentDecoder implements ContentDecoder {

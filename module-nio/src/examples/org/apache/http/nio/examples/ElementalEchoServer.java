@@ -6,11 +6,11 @@ import java.net.InetSocketAddress;
 import java.nio.ByteBuffer;
 
 import org.apache.http.impl.DefaultHttpParams;
-import org.apache.http.nio.EventMask;
-import org.apache.http.nio.IOEventDispatch;
-import org.apache.http.nio.IOSession;
-import org.apache.http.nio.IOReactor;
 import org.apache.http.nio.impl.DefaultIOReactor;
+import org.apache.http.nio.reactor.EventMask;
+import org.apache.http.nio.reactor.IOEventDispatch;
+import org.apache.http.nio.reactor.IOReactor;
+import org.apache.http.nio.reactor.IOSession;
 import org.apache.http.params.HttpParams;
 
 public class ElementalEchoServer {

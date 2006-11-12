@@ -42,11 +42,11 @@ import org.apache.http.HttpResponse;
 import org.apache.http.message.BasicHeader;
 import org.apache.http.message.BasicStatusLine;
 import org.apache.http.message.BufferedHeader;
-import org.apache.http.nio.EventMask;
-import org.apache.http.nio.IOSession;
-import org.apache.http.nio.handler.NHttpServerConnection;
-import org.apache.http.nio.handler.NHttpServiceHandler;
+import org.apache.http.nio.NHttpServerConnection;
+import org.apache.http.nio.NHttpServiceHandler;
 import org.apache.http.nio.impl.codecs.HttpRequestParser;
+import org.apache.http.nio.reactor.EventMask;
+import org.apache.http.nio.reactor.IOSession;
 import org.apache.http.params.HttpParams;
 
 public class DefaultNHttpServerConnection 

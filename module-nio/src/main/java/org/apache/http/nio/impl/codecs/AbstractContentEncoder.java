@@ -31,7 +31,7 @@ package org.apache.http.nio.impl.codecs;
 
 import java.io.IOException;
 
-import org.apache.http.nio.handler.ContentEncoder;
+import org.apache.http.nio.ContentEncoder;
 
 public abstract class AbstractContentEncoder implements ContentEncoder {
     

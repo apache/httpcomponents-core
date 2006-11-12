@@ -29,7 +29,7 @@
 
 package org.apache.http.nio.impl;
 
-import org.apache.http.nio.IOSession;
+import org.apache.http.nio.reactor.IOSession;
 
 public class SessionHandle {
 
