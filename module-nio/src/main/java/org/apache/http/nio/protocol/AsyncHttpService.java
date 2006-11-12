@@ -1,4 +1,4 @@
-package org.apache.http.nio.handler;
+package org.apache.http.nio.protocol;
 
 import java.io.IOException;
 import java.io.InputStream;
