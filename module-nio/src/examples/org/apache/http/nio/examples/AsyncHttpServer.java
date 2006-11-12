@@ -10,11 +10,9 @@ import java.net.SocketTimeoutException;
 import java.net.URLDecoder;
 
 import org.apache.http.ConnectionClosedException;
-import org.apache.http.HttpConnection;
 import org.apache.http.HttpException;
 import org.apache.http.HttpRequest;
 import org.apache.http.HttpResponse;
-import org.apache.http.HttpServerConnection;
 import org.apache.http.HttpStatus;
 import org.apache.http.MethodNotSupportedException;
 import org.apache.http.entity.ContentProducer;
@@ -23,26 +21,26 @@ import org.apache.http.entity.FileEntity;
 import org.apache.http.impl.DefaultConnectionReuseStrategy;
 import org.apache.http.impl.DefaultHttpParams;
 import org.apache.http.impl.DefaultHttpResponseFactory;
-import org.apache.http.nio.IOConsumer;
 import org.apache.http.nio.IOEventDispatch;
-import org.apache.http.nio.IOProducer;
-import org.apache.http.nio.IOSession;
 import org.apache.http.nio.IOReactor;
+import org.apache.http.nio.handler.AsyncHttpService;
+import org.apache.http.nio.handler.ContentDecoder;
+import org.apache.http.nio.handler.ContentEncoder;
+import org.apache.http.nio.handler.NHttpServerConnection;
+import org.apache.http.nio.handler.NHttpServiceHandler;
 import org.apache.http.nio.impl.DefaultIOReactor;
-import org.apache.http.nio.impl.AsyncHttpServerConnection;
+import org.apache.http.nio.impl.handler.DefaultServerIOEventDispatch;
 import org.apache.http.params.HttpConnectionParams;
 import org.apache.http.params.HttpParams;
 import org.apache.http.params.HttpProtocolParams;
 import org.apache.http.protocol.BasicHttpProcessor;
 import org.apache.http.protocol.HttpContext;
-import org.apache.http.protocol.HttpExecutionContext;
 import org.apache.http.protocol.HttpRequestHandler;
-import org.apache.http.protocol.HttpService;
+import org.apache.http.protocol.HttpRequestHandlerRegistry;
 import org.apache.http.protocol.ResponseConnControl;
 import org.apache.http.protocol.ResponseContent;
 import org.apache.http.protocol.ResponseDate;
 import org.apache.http.protocol.ResponseServer;
-import org.apache.http.protocol.SyncHttpExecutionContext;
 
 public class AsyncHttpServer {
 
@@ -59,11 +57,15 @@ public class AsyncHttpServer {
             .setBooleanParameter(HttpConnectionParams.TCP_NODELAY, true)
             .setParameter(HttpProtocolParams.ORIGIN_SERVER, "Jakarta-HttpComponents-NIO/1.1");
 
-        HttpContext globalContext = new SyncHttpExecutionContext(null);
-        globalContext.setAttribute("server.docroot", args[0]);
-        
-        IOEventDispatch ioEventDispatch = new DefaultIoEventDispatch(params, globalContext);
         IOReactor ioReactor = new DefaultIOReactor(params);
+
+        // Set up request handlers
+        HttpRequestHandlerRegistry reqistry = new HttpRequestHandlerRegistry();
+        reqistry.register("*", new HttpFileHandler(args[0]));
+        
+        MyNHttpServiceHandler handler = new MyNHttpServiceHandler(reqistry, params);
+        IOEventDispatch ioEventDispatch = new DefaultServerIOEventDispatch(handler, params);
+        
         try {
             ioReactor.listen(new InetSocketAddress(8080));
             ioReactor.execute(ioEventDispatch);
@@ -74,92 +76,15 @@ public class AsyncHttpServer {
         }
         System.out.println("Shutdown");
     }
-    
-    static class DefaultIoEventDispatch implements IOEventDispatch {
 
-        private static final String CONSUMER = "CONSUMER";
-        private static final String PRODUCER = "PRODUCER";
-        private static final String CONNECTION = "CONNECTION";
-        private static final String WORKER = "WORKER";
-        
-        private final HttpParams params;
-        private final HttpContext context;
-        
-        public DefaultIoEventDispatch(final HttpParams params, final HttpContext context) {
-            super();
-            if (params == null) {
-                throw new IllegalArgumentException("HTTP parameters may nor be null");
-            }
-            this.params = params;
-            this.context = context;
-        }
-        
-        public void connected(IOSession session) {
-            AsyncHttpServerConnection conn = new AsyncHttpServerConnection(session, this.params); 
-            session.setAttribute(CONNECTION, conn);
-            session.setAttribute(CONSUMER, conn.getIOConsumer());
-            session.setAttribute(PRODUCER, conn.getIOProducer());
-            
-            // Set up HTTP service
-            BasicHttpProcessor httpProcessor = new BasicHttpProcessor();
-            httpProcessor.addInterceptor(new ResponseDate());
-            httpProcessor.addInterceptor(new ResponseServer());                    
-            httpProcessor.addInterceptor(new ResponseContent());
-            httpProcessor.addInterceptor(new ResponseConnControl());
-
-            HttpService httpService = new HttpService(
-                    httpProcessor, 
-                    new DefaultConnectionReuseStrategy(), 
-                    new DefaultHttpResponseFactory());
-            httpService.setParams(this.params);
-            httpService.registerRequestHandler("*", new HttpFileHandler());
-            
-            Thread worker = new WorkerThread(httpService, conn, this.context);
-            session.setAttribute(WORKER, worker);
-
-            worker.setDaemon(true);
-            worker.start();
-            session.setSocketTimeout(20000);
-        }
-
-        public void inputReady(final IOSession session) {
-            IOConsumer consumer = (IOConsumer) session.getAttribute(CONSUMER);
-            try {
-                consumer.consumeInput();
-            } catch (IOException ex) {
-                consumer.shutdown(ex);
-            }
-        }
-
-        public void outputReady(final IOSession session) {
-            IOProducer producer = (IOProducer) session.getAttribute(PRODUCER);
-            try {
-                producer.produceOutput();
-            } catch (IOException ex) {
-                producer.shutdown(ex);
-            }
-        }
-
-        public void timeout(final IOSession session) {
-            IOConsumer consumer = (IOConsumer) session.getAttribute(CONSUMER);
-            consumer.shutdown(new SocketTimeoutException("Socket read timeout"));
-        }
-        
-        public void disconnected(final IOSession session) {
-            HttpConnection conn = (HttpConnection) session.getAttribute(CONNECTION);
-            try {
-                conn.shutdown();
-            } catch (IOException ex) {
-                System.err.println("I/O error while shutting down connection");
-            }
-            
-            Thread worker = (Thread) session.getAttribute(WORKER);
-            worker.interrupt();
-        }
-        
-    }
-    
     static class HttpFileHandler implements HttpRequestHandler  {
+        
+        private final String docRoot;
+        
+        public HttpFileHandler(final String docRoot) {
+            super();
+            this.docRoot = docRoot;
+        }
         
         public void handle(
                 final HttpRequest request, 
@@ -170,11 +95,9 @@ public class AsyncHttpServer {
             if (!method.equalsIgnoreCase("GET") && !method.equalsIgnoreCase("HEAD")) {
                 throw new MethodNotSupportedException(method + " method not supported"); 
             }
-            String docroot = (String) context.getAttribute("server.docroot");
-            
             String target = request.getRequestLine().getUri();
             
-            final File file = new File(docroot, URLDecoder.decode(target, "UTF-8"));
+            final File file = new File(this.docRoot, URLDecoder.decode(target, "UTF-8"));
             if (!file.exists()) {
 
                 response.setStatusCode(HttpStatus.SC_NOT_FOUND);
@@ -225,28 +148,132 @@ public class AsyncHttpServer {
         
     }
     
+    public static class MyNHttpServiceHandler implements NHttpServiceHandler {
+        
+        private static final String HTTP_ASYNC_SERVICE = "http.async-service";
+        
+        final private HttpRequestHandlerRegistry reqistry;
+        final private HttpParams params;
+        
+        public MyNHttpServiceHandler(
+                final HttpRequestHandlerRegistry reqistry, 
+                final HttpParams params) {
+            super();
+            this.reqistry = reqistry;
+            this.params = params;
+        }
+        
+        private void shutdownConnection(final NHttpServerConnection conn) {
+            try {
+                conn.shutdown();
+            } catch (IOException ignore) {
+            }
+        }
+
+        public void connected(final NHttpServerConnection conn) {
+            // Set up the HTTP protocol processor
+            BasicHttpProcessor httpproc = new BasicHttpProcessor();
+            httpproc.addInterceptor(new ResponseDate());
+            httpproc.addInterceptor(new ResponseServer());
+            httpproc.addInterceptor(new ResponseContent());
+            httpproc.addInterceptor(new ResponseConnControl());
+
+            // Set up the HTTP service
+            AsyncHttpService httpService = new AsyncHttpService(
+                    conn,
+                    httpproc,
+                    new DefaultConnectionReuseStrategy(), 
+                    new DefaultHttpResponseFactory());
+            httpService.setParams(this.params);
+            httpService.setHandlerResolver(this.reqistry);
+            
+            conn.getContext().setAttribute(HTTP_ASYNC_SERVICE, httpService);
+        }
+
+        public void closed(final NHttpServerConnection conn) {
+            AsyncHttpService httpService = (AsyncHttpService) conn.getContext()
+                .getAttribute(HTTP_ASYNC_SERVICE);
+            httpService.shutdown();
+        }
+
+        public void exception(final NHttpServerConnection conn, final HttpException httpex) {
+            AsyncHttpService httpService = (AsyncHttpService) conn.getContext()
+                .getAttribute(HTTP_ASYNC_SERVICE);
+            try {
+                httpService.handleException(conn, httpex);
+            } catch (IOException ex) {
+                httpService.shutdown(ex);
+                shutdownConnection(conn);
+            } catch (HttpException ex) {
+                System.err.println("Unexpected HTTP protocol error: " + ex.getMessage());
+                httpService.shutdown();
+                shutdownConnection(conn);
+            }
+        }
+
+        public void exception(final NHttpServerConnection conn, final IOException ioex) {
+            AsyncHttpService httpService = (AsyncHttpService) conn.getContext()
+                .getAttribute(HTTP_ASYNC_SERVICE);
+            httpService.shutdown(ioex);
+            shutdownConnection(conn);
+        }
+
+        public void timeout(final NHttpServerConnection conn) {
+            exception(conn, new SocketTimeoutException("Socket timeout"));
+        }
+
+        public void requestReceived(final NHttpServerConnection conn) {
+            AsyncHttpService httpService = (AsyncHttpService) conn.getContext()
+                .getAttribute(HTTP_ASYNC_SERVICE);
+            
+            // BIG FAT UGLY WARNING!
+            // Do NOT start a new thread per request in real world applications!
+            // Do make sure to use a thread pool  
+            WorkerThread worker = new WorkerThread(httpService, conn); 
+            worker.setDaemon(true);
+            worker.start();
+        }
+
+        public void inputReady(final NHttpServerConnection conn, final ContentDecoder decoder) {
+            AsyncHttpService httpService = (AsyncHttpService) conn.getContext()
+                .getAttribute(HTTP_ASYNC_SERVICE);
+            try {
+                httpService.consumeContent(decoder);
+            } catch (IOException ex) {
+                httpService.shutdown(ex);
+                shutdownConnection(conn);
+            }
+        }
+
+        public void outputReady(NHttpServerConnection conn, ContentEncoder encoder) {
+            AsyncHttpService httpService = (AsyncHttpService) conn.getContext()
+                .getAttribute(HTTP_ASYNC_SERVICE);
+            try {
+                httpService.produceContent(encoder);
+            } catch (IOException ex) {
+                httpService.shutdown(ex);
+                shutdownConnection(conn);
+            }
+        }
+    }
+
     static class WorkerThread extends Thread {
 
-        private final HttpService httpservice;
-        private final HttpServerConnection conn;
-        private final HttpContext context;
+        private final AsyncHttpService httpService;
+        private final NHttpServerConnection conn;
         
         public WorkerThread(
-                final HttpService httpservice, 
-                final HttpServerConnection conn, 
-                final HttpContext parentContext) {
+                final AsyncHttpService httpService,
+                final NHttpServerConnection conn) {
             super();
-            this.httpservice = httpservice;
+            this.httpService = httpService;
             this.conn = conn;
-            this.context = new HttpExecutionContext(parentContext);
         }
         
         public void run() {
-            System.out.println("New connection thread");
+            System.out.println("New request thread");
             try {
-                while (!Thread.interrupted() && this.conn.isOpen()) {
-                    this.httpservice.handleRequest(this.conn, this.context);
-                }
+                this.httpService.handleRequest(this.conn);
             } catch (ConnectionClosedException ex) {
                 System.err.println("Client closed connection");
             } catch (IOException ex) {

@@ -82,32 +82,20 @@ public class SessionOutputBuffer extends ExpandableBuffer {
         this.buffer.put(src);
     }
 
-    public void write(final byte[] b, int off, int len) {
+    private void write(final byte[] b) {
         if (b == null) {
             return;
         }
         setInputMode();
+        int off = 0;
+        int len = b.length;
         int requiredCapacity = this.buffer.position() + len;
         ensureCapacity(requiredCapacity);
         this.buffer.put(b, off, len);
     }
 
-    public void write(final byte[] b) {
-        if (b == null) {
-            return;
-        }
-        write(b, 0, b.length);
-    }
-
     private void writeCRLF() {
         write(CRLF);
-    }
-
-    public void write(int b) throws IOException {
-        setInputMode();
-        int requiredCapacity = this.buffer.position() + 1;
-        ensureCapacity(requiredCapacity);
-        this.buffer.put((byte)b);
     }
 
     public void writeLine(final CharArrayBuffer linebuffer) {

@@ -123,27 +123,19 @@ public class NHttpConnectionBase implements NHttpConnection {
     }
 
     public void requestInput() {
-        if (this.contentDecoder != null) {
-            this.session.setEvent(EventMask.READ);
-        }
+        this.session.setEvent(EventMask.READ);
     }
 
     public void requestOutput() {
-        if (this.contentEncoder != null) {
-            this.session.setEvent(EventMask.WRITE);
-        }
+        this.session.setEvent(EventMask.WRITE);
     }
 
     public void suspendInput() {
-        if (this.contentDecoder != null) {
-            this.session.clearEvent(EventMask.READ);
-        }
+        this.session.clearEvent(EventMask.READ);
     }
 
     public void suspendOutput() {
-        if (this.contentEncoder != null) {
-            this.session.clearEvent(EventMask.WRITE);
-        }
+        this.session.clearEvent(EventMask.WRITE);
     }
 
     protected HttpEntity prepareDecoder(final HttpMessage message) throws HttpException {

@@ -73,27 +73,6 @@ public class SessionInputBuffer extends ExpandableBuffer {
         return readNo;
     }
     
-    public int read(final byte[] b, int off, int len) {
-        if (b == null) {
-            return 0;
-        };
-        setOutputMode();
-        int chunk = len;
-        if (chunk > this.buffer.remaining()) {
-            chunk = this.buffer.remaining();
-        }
-        this.buffer.get(b, off, chunk);
-        return chunk;
-    }
-    
-    public int read(final byte[] b) {
-        if (b == null) {
-            return 0;
-        }
-        setOutputMode();
-        return read(b, 0, b.length);
-    }
-    
     public int read() {
         setOutputMode();
         return this.buffer.get() & 0xff;

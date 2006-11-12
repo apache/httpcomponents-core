@@ -27,16 +27,42 @@
  *
  */
 
-package org.apache.http.nio;
+package org.apache.http.nio.impl;
 
 import java.io.IOException;
+import java.io.OutputStream;
 
-public interface IOProducer {
+public class ContentOutputStream extends OutputStream {
 
-    void produceOutput() throws IOException;
+    private final ContentOutputBuffer buffer;
     
-    void shutdown();
-    
-    void shutdown(final IOException exception);
-    
+    public ContentOutputStream(final ContentOutputBuffer buffer) {
+        super();
+        if (buffer == null) {
+            throw new IllegalArgumentException("Output buffer may not be null");
+        }
+        this.buffer = buffer;
+    }
+
+    public void close() throws IOException {
+        this.buffer.flush();
+        this.buffer.shutdown();
+    }
+
+    public void flush() throws IOException {
+        this.buffer.flush();
+    }
+
+    public void write(byte[] b, int off, int len) throws IOException {
+        this.buffer.write(b, off, len);
+    }
+
+    public void write(byte[] b) throws IOException {
+        this.buffer.write(b);
+    }
+
+    public void write(int b) throws IOException {
+        this.buffer.write(b);
+    }
+
 }

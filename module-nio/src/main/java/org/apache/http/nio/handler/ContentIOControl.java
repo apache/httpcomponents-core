@@ -29,40 +29,37 @@
 
 package org.apache.http.nio.handler;
 
-import org.apache.http.HttpConnection;
-import org.apache.http.HttpRequest;
-import org.apache.http.HttpResponse;
-import org.apache.http.protocol.HttpContext;
-
 /**
- * Abstract non-blocking HTTP connection interface. It contains the current
- * HTTP context, as well as the actual HTTP request and HTTP response objects
- * that are being received / transferred over this connection.
+ * Content input/output control interface. It can be used to request or
+ * temporarily suspend event notifications that are triggered when the underlying
+ * channel is ready for input / output operations. 
  * 
  * @author <a href="mailto:oleg at ural.ru">Oleg Kalnichevski</a>
  */
-public interface NHttpConnection extends HttpConnection, ContentIOControl {
+public interface ContentIOControl {
 
-    /** 
-     * Returns the current HTTP request if one is being received / transmitted.
-     * Otherwise returns <tt>null</tt>.
-     * 
-     * @return an HTTP request if available. Otherwise returns <tt>null</tt>.
+    /**
+     * Requests event notifications to be triggered when the underlying
+     * channel is ready for input oprtations.
      */
-    HttpRequest getHttpRequest();
-
-    /** 
-     * Returns the current HTTP response if one is being received / transmitted. 
-     * Otherwise returns <tt>null</tt>.
-     * 
-     * @return an HTTP response if available. Otherwise returns <tt>null</tt>.
-     */
-    HttpResponse getHttpResponse();
+    void requestInput();
     
     /**
-     * Returns an HTTP execution context associated with this connection.
-     * @return HTTP context
+     * Suspends event notifications about the underlying channel being 
+     * ready for input operations.
      */
-    HttpContext getContext();
+    void suspendInput();
+    
+    /**
+     * Requests event notifications to be triggered when the underlying
+     * channel is ready for output oprtations.
+     */
+    void requestOutput();
+    
+    /**
+     * Suspends event notifications about the underlying channel being 
+     * ready for output operations.
+     */
+    void suspendOutput();
     
 }

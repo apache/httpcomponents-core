@@ -27,16 +27,33 @@
  *
  */
 
-package org.apache.http.nio;
+package org.apache.http.nio.impl;
 
 import java.io.IOException;
+import java.io.InputStream;
 
-public interface IOConsumer {
+public class ContentInputStream extends InputStream {
 
-    void consumeInput() throws IOException;
+    private final ContentInputBuffer buffer;
     
-    void shutdown();
+    public ContentInputStream(final ContentInputBuffer buffer) {
+        super();
+        if (buffer == null) {
+            throw new IllegalArgumentException("Input buffer may not be null");
+        }
+        this.buffer = buffer;
+    }
     
-    void shutdown(final IOException exception);
+    public int read(final byte[] b, int off, int len) throws IOException {
+        return this.buffer.read(b, off, len);
+    }
     
+    public int read(final byte[] b) throws IOException {
+        return this.buffer.read(b);
+    }
+    
+    public int read() throws IOException {
+        return this.buffer.read();
+    }
+
 }

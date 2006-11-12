@@ -31,6 +31,7 @@ package org.apache.http.nio.impl;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.UnsupportedEncodingException;
+import java.nio.ByteBuffer;
 import java.nio.channels.Channels;
 import java.nio.channels.ReadableByteChannel;
 import java.nio.channels.WritableByteChannel;
@@ -221,12 +222,10 @@ public class TestSessionInOutBuffers extends TestCase {
 
     public void testComplexReadWriteLine() throws Exception {
         SessionOutputBuffer outbuf = new SessionOutputBuffer(1024, 16); 
-        outbuf.write(new byte[] {'a', '\n'});
-        outbuf.write(new byte[] {'\r', '\n'});
-        outbuf.write(new byte[] {'\r', '\r', '\n'});
-        outbuf.write(new byte[] {'\n'});
-        //these write operations should have no effect
-        outbuf.write(null, 0, 12);
+        outbuf.write(ByteBuffer.wrap(new byte[] {'a', '\n'}));
+        outbuf.write(ByteBuffer.wrap(new byte[] {'\r', '\n'}));
+        outbuf.write(ByteBuffer.wrap(new byte[] {'\r', '\r', '\n'}));
+        outbuf.write(ByteBuffer.wrap(new byte[] {'\n'}));
         
         StringBuffer buffer = new StringBuffer();
         for (int i = 0; i < 14; i++) {
@@ -234,7 +233,7 @@ public class TestSessionInOutBuffers extends TestCase {
         }
         String s1 = buffer.toString();
         buffer.append("\r\n");
-        outbuf.write(buffer.toString().getBytes("US-ASCII"));
+        outbuf.write(ByteBuffer.wrap(buffer.toString().getBytes("US-ASCII")));
 
         buffer.setLength(0);
         for (int i = 0; i < 15; i++) {
@@ -242,7 +241,7 @@ public class TestSessionInOutBuffers extends TestCase {
         }
         String s2 = buffer.toString();
         buffer.append("\r\n");
-        outbuf.write(buffer.toString().getBytes("US-ASCII"));
+        outbuf.write(ByteBuffer.wrap(buffer.toString().getBytes("US-ASCII")));
 
         buffer.setLength(0);
         for (int i = 0; i < 16; i++) {
@@ -250,9 +249,9 @@ public class TestSessionInOutBuffers extends TestCase {
         }
         String s3 = buffer.toString();
         buffer.append("\r\n");
-        outbuf.write(buffer.toString().getBytes("US-ASCII"));
+        outbuf.write(ByteBuffer.wrap(buffer.toString().getBytes("US-ASCII")));
 
-        outbuf.write(new byte[] {'a'});
+        outbuf.write(ByteBuffer.wrap(new byte[] {'a'}));
         
         ByteArrayOutputStream outstream = new ByteArrayOutputStream(); 
         WritableByteChannel outChannel = newChannel(outstream);
@@ -275,86 +274,13 @@ public class TestSessionInOutBuffers extends TestCase {
         assertNull(inbuf.readLine(true));
     }
     
-    public void testReadWriteBytes() throws Exception {
+    public void testReadOneByte() throws Exception {
         // make the buffer larger than that of transmitter
         byte[] out = new byte[40];
         for (int i = 0; i < out.length; i++) {
             out[i] = (byte)('0' + i);
         }
-        SessionOutputBuffer outbuf = new SessionOutputBuffer(16, 16); 
-        int off = 0;
-        int remaining = out.length;
-        while (remaining > 0) {
-            int chunk = 10;
-            if (chunk > remaining) {
-                chunk = remaining;
-            }
-            outbuf.write(out, off, chunk);
-            off += chunk;
-            remaining -= chunk;
-        }
-        
-        ByteArrayOutputStream outstream = new ByteArrayOutputStream(); 
-        WritableByteChannel outChannel = newChannel(outstream);
-        outbuf.flush(outChannel);
-
-        byte[] tmp = outstream.toByteArray();
-        assertEquals(out.length, tmp.length);
-        for (int i = 0; i < out.length; i++) {
-            assertEquals(out[i], tmp[i]);
-        }
-        
-        ReadableByteChannel channel = newChannel(tmp);        
-        SessionInputBuffer inbuf = new SessionInputBuffer(1024, 16);
-        while (inbuf.fill(channel) > 0) {
-        }
-
-        // these read operations will have no effect
-        assertEquals(0, inbuf.read(null, 0, 10));
-        
-        byte[] in = new byte[40];
-        off = 0;
-        remaining = in.length;
-        while (remaining > 0) {
-            int chunk = 10;
-            if (chunk > remaining) {
-                chunk = remaining;
-            }
-            int l = inbuf.read(in, off, chunk);
-            if (l == -1) {
-                break;
-            }
-            off += l;
-            remaining -= l;
-        }
-        for (int i = 0; i < out.length; i++) {
-            assertEquals(out[i], in[i]);
-        }
-        assertEquals(0, inbuf.read(tmp));
-    }
-    
-    public void testReadWriteByte() throws Exception {
-        // make the buffer larger than that of transmitter
-        byte[] out = new byte[40];
-        for (int i = 0; i < out.length; i++) {
-            out[i] = (byte)('0' + i);
-        }
-        SessionOutputBuffer outbuf = new SessionOutputBuffer(16, 16); 
-        for (int i = 0; i < out.length; i++) {
-            outbuf.write(out[i]);
-        }
-
-        ByteArrayOutputStream outstream = new ByteArrayOutputStream(); 
-        WritableByteChannel outChannel = newChannel(outstream);
-        outbuf.flush(outChannel);
-
-        byte[] tmp = outstream.toByteArray();
-        assertEquals(out.length, tmp.length);
-        for (int i = 0; i < out.length; i++) {
-            assertEquals(out[i], tmp[i]);
-        }
-        
-        ReadableByteChannel channel = newChannel(tmp);        
+        ReadableByteChannel channel = newChannel(out);        
         SessionInputBuffer inbuf = new SessionInputBuffer(16, 16);
         while (inbuf.fill(channel) > 0) {
         }
