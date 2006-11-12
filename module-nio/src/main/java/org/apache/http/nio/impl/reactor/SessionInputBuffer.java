@@ -37,7 +37,7 @@ import java.nio.charset.Charset;
 import java.nio.charset.CharsetDecoder;
 import java.nio.charset.CoderResult;
 
-import org.apache.http.nio.buffer.ExpandableBuffer;
+import org.apache.http.nio.util.ExpandableBuffer;
 import org.apache.http.params.HttpParams;
 import org.apache.http.params.HttpProtocolParams;
 import org.apache.http.protocol.HTTP;

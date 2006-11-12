@@ -1,7 +1,7 @@
 /*
- * $HeadURL$
- * $Revision$
- * $Date$
+ * $HeadURL:https://svn.apache.org/repos/asf/jakarta/httpcomponents/httpcore/trunk/module-nio/src/main/java/org/apache/http/nio/buffer/ExpandableBuffer.java $
+ * $Revision:473999 $
+ * $Date:2006-11-12 17:31:38 +0000 (Sun, 12 Nov 2006) $
  *
  * ====================================================================
  *
@@ -27,7 +27,7 @@
  *
  */
 
-package org.apache.http.nio.buffer;
+package org.apache.http.nio.util;
 
 import java.nio.ByteBuffer;
 
