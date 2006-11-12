@@ -37,7 +37,7 @@ import junit.framework.Test;
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
 
-import org.apache.http.nio.impl.SessionOutputBuffer;
+import org.apache.http.nio.impl.reactor.SessionOutputBuffer;
 import org.apache.http.util.EncodingUtils;
 
 /**

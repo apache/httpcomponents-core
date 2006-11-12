@@ -27,52 +27,28 @@
  *
  */
 
-package org.apache.http.nio.impl;
+package org.apache.http.nio.impl.reactor;
 
-import org.apache.http.nio.reactor.IOSession;
+public class SessionRequestHandle {
 
-public class SessionHandle {
-
-    private final IOSession session;
-    private final long startedTime;
-
-    private long lastReadTime;
-    private long lastWriteTime;
+    private final SessionRequestImpl sessionRequest;
+    private final long requestTime;
     
-    public SessionHandle(final IOSession session) {
+    public SessionRequestHandle(final SessionRequestImpl sessionRequest) {
         super();
-        if (session == null) {
-            throw new IllegalArgumentException("Session may not be null");
+        if (sessionRequest == null) {
+            throw new IllegalArgumentException("Session request may not be null");
         }
-        this.session = session;
-        long now = System.currentTimeMillis();
-        this.startedTime = now;
-        this.lastReadTime = now;
-        this.lastWriteTime = now;
-    }
-
-    public IOSession getSession() {
-        return this.session;
-    }
-
-    public long getStartedTime() {
-        return this.startedTime;
-    }
-
-    public long getLastReadTime() {
-        return this.lastReadTime;
-    }
-
-    public long getLastWriteTime() {
-        return this.lastWriteTime;
+        this.sessionRequest = sessionRequest;
+        this.requestTime = System.currentTimeMillis();
     }
     
-    public void resetLastRead() {
-        this.lastReadTime = System.currentTimeMillis();
+    public SessionRequestImpl getSessionRequest() {
+        return this.sessionRequest;
     }
     
-    public void resetLastWrite() {
-        this.lastWriteTime = System.currentTimeMillis();
+    public long getRequestTime() {
+        return this.requestTime;
     }
     
 }

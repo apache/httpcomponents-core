@@ -27,12 +27,43 @@
  *
  */
 
-package org.apache.http.nio.impl;
+package org.apache.http.nio.impl.reactor;
+
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.Set;
 
 import org.apache.http.nio.reactor.IOSession;
 
-public interface SessionClosedCallback {
+public class SessionSet {
+    
+    private final Set set;
+    
+    public SessionSet() {
+        super();
+        this.set = new HashSet();
+    }
 
-    void sessionClosed(IOSession session);
+    public void add(final IOSession session) {
+        if (session == null) {
+            return;
+        }
+        this.set.add(session);
+    }
+
+    public boolean remove(final IOSession session) {
+        if (session == null) {
+            return false;
+        }
+        return this.set.remove(session);
+    }
+
+    public void clear() {
+        this.set.clear();
+    }
+
+    public Iterator iterator() {
+        return this.set.iterator();
+    }
     
 }

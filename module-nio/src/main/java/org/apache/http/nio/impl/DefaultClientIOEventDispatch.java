@@ -1,4 +1,4 @@
-package org.apache.http.nio.impl.handler;
+package org.apache.http.nio.impl;
 
 import org.apache.http.impl.DefaultHttpResponseFactory;
 import org.apache.http.nio.NHttpClientHandler;

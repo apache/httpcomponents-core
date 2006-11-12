@@ -27,7 +27,7 @@
  *
  */
 
-package org.apache.http.nio.impl;
+package org.apache.http.nio.impl.reactor;
 
 import java.io.IOException;
 import java.net.Socket;

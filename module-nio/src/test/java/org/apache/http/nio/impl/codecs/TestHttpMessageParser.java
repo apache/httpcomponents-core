@@ -44,9 +44,9 @@ import org.apache.http.HttpResponseFactory;
 import org.apache.http.HttpVersion;
 import org.apache.http.impl.DefaultHttpRequestFactory;
 import org.apache.http.impl.DefaultHttpResponseFactory;
-import org.apache.http.nio.impl.SessionInputBuffer;
 import org.apache.http.nio.impl.codecs.HttpMessageParser;
 import org.apache.http.nio.impl.codecs.HttpRequestParser;
+import org.apache.http.nio.impl.reactor.SessionInputBuffer;
 
 /**
  * Simple tests for {@link HttpMessageParser}.

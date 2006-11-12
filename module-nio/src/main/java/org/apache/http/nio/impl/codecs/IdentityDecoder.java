@@ -33,7 +33,7 @@ import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.channels.ReadableByteChannel;
 
-import org.apache.http.nio.impl.SessionInputBuffer;
+import org.apache.http.nio.impl.reactor.SessionInputBuffer;
 
 public class IdentityDecoder extends AbstractContentDecoder {
     

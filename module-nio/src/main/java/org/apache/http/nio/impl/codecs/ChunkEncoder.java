@@ -31,7 +31,7 @@ package org.apache.http.nio.impl.codecs;
 
 import java.nio.ByteBuffer;
 
-import org.apache.http.nio.impl.SessionOutputBuffer;
+import org.apache.http.nio.impl.reactor.SessionOutputBuffer;
 import org.apache.http.util.CharArrayBuffer;
 
 public class ChunkEncoder extends AbstractContentEncoder {

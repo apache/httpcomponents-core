@@ -27,43 +27,52 @@
  *
  */
 
-package org.apache.http.nio.impl;
-
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.Set;
+package org.apache.http.nio.impl.reactor;
 
 import org.apache.http.nio.reactor.IOSession;
 
-public class SessionSet {
+public class SessionHandle {
+
+    private final IOSession session;
+    private final long startedTime;
+
+    private long lastReadTime;
+    private long lastWriteTime;
     
-    private final Set set;
-    
-    public SessionSet() {
+    public SessionHandle(final IOSession session) {
         super();
-        this.set = new HashSet();
-    }
-
-    public void add(final IOSession session) {
         if (session == null) {
-            return;
+            throw new IllegalArgumentException("Session may not be null");
         }
-        this.set.add(session);
+        this.session = session;
+        long now = System.currentTimeMillis();
+        this.startedTime = now;
+        this.lastReadTime = now;
+        this.lastWriteTime = now;
     }
 
-    public boolean remove(final IOSession session) {
-        if (session == null) {
-            return false;
-        }
-        return this.set.remove(session);
+    public IOSession getSession() {
+        return this.session;
     }
 
-    public void clear() {
-        this.set.clear();
+    public long getStartedTime() {
+        return this.startedTime;
     }
 
-    public Iterator iterator() {
-        return this.set.iterator();
+    public long getLastReadTime() {
+        return this.lastReadTime;
+    }
+
+    public long getLastWriteTime() {
+        return this.lastWriteTime;
+    }
+    
+    public void resetLastRead() {
+        this.lastReadTime = System.currentTimeMillis();
+    }
+    
+    public void resetLastWrite() {
+        this.lastWriteTime = System.currentTimeMillis();
     }
     
 }

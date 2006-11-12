@@ -38,7 +38,7 @@ import junit.framework.TestSuite;
 
 import org.apache.http.Header;
 import org.apache.http.MalformedChunkCodingException;
-import org.apache.http.nio.impl.SessionInputBuffer;
+import org.apache.http.nio.impl.reactor.SessionInputBuffer;
 import org.apache.http.nio.mockup.ReadableByteChannelMockup;
 
 /**

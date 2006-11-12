@@ -27,28 +27,12 @@
  *
  */
 
-package org.apache.http.nio.impl;
+package org.apache.http.nio.impl.reactor;
 
-public class SessionRequestHandle {
+import org.apache.http.nio.reactor.IOSession;
 
-    private final SessionRequestImpl sessionRequest;
-    private final long requestTime;
-    
-    public SessionRequestHandle(final SessionRequestImpl sessionRequest) {
-        super();
-        if (sessionRequest == null) {
-            throw new IllegalArgumentException("Session request may not be null");
-        }
-        this.sessionRequest = sessionRequest;
-        this.requestTime = System.currentTimeMillis();
-    }
-    
-    public SessionRequestImpl getSessionRequest() {
-        return this.sessionRequest;
-    }
-    
-    public long getRequestTime() {
-        return this.requestTime;
-    }
+public interface SessionClosedCallback {
+
+    void sessionClosed(IOSession session);
     
 }

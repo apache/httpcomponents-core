@@ -27,7 +27,7 @@
  *
  */
 
-package org.apache.http.nio.impl.handler;
+package org.apache.http.nio.impl;
 
 import java.io.IOException;
 
@@ -44,14 +44,14 @@ import org.apache.http.impl.entity.StrictContentLengthStrategy;
 import org.apache.http.nio.ContentDecoder;
 import org.apache.http.nio.ContentEncoder;
 import org.apache.http.nio.NHttpConnection;
-import org.apache.http.nio.impl.SessionInputBuffer;
-import org.apache.http.nio.impl.SessionOutputBuffer;
 import org.apache.http.nio.impl.codecs.ChunkDecoder;
 import org.apache.http.nio.impl.codecs.ChunkEncoder;
 import org.apache.http.nio.impl.codecs.IdentityDecoder;
 import org.apache.http.nio.impl.codecs.IdentityEncoder;
 import org.apache.http.nio.impl.codecs.LengthDelimitedDecoder;
 import org.apache.http.nio.impl.codecs.LengthDelimitedEncoder;
+import org.apache.http.nio.impl.reactor.SessionInputBuffer;
+import org.apache.http.nio.impl.reactor.SessionOutputBuffer;
 import org.apache.http.nio.reactor.EventMask;
 import org.apache.http.nio.reactor.IOSession;
 import org.apache.http.params.HttpConnectionParams;
