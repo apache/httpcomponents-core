@@ -66,17 +66,17 @@ public class NHttpConnectionBase implements NHttpConnection {
     protected final IOSession session;
     protected final HttpContext context;
     
-    protected ContentLengthStrategy incomingContentStrategy;
-    protected ContentLengthStrategy outgoingContentStrategy;
+    protected final ContentLengthStrategy incomingContentStrategy;
+    protected final ContentLengthStrategy outgoingContentStrategy;
     
     protected final SessionInputBuffer inbuf;
     protected final SessionOutputBuffer outbuf;
     protected final CharArrayBuffer lineBuffer;
     
-    protected ContentDecoder contentDecoder;
-    protected ContentEncoder contentEncoder;
-    protected HttpRequest request;
-    protected HttpResponse response;
+    protected volatile ContentDecoder contentDecoder;
+    protected volatile ContentEncoder contentEncoder;
+    protected volatile HttpRequest request;
+    protected volatile HttpResponse response;
     
     protected volatile boolean closed;
     
@@ -123,19 +123,27 @@ public class NHttpConnectionBase implements NHttpConnection {
     }
 
     public void requestInput() {
-        this.session.setEvent(EventMask.READ);
+        if (this.contentEncoder != null) {
+            this.session.setEvent(EventMask.READ);
+        }
     }
 
     public void requestOutput() {
-        this.session.setEvent(EventMask.WRITE);
+        if (this.contentDecoder != null) {
+            this.session.setEvent(EventMask.WRITE);
+        }
     }
 
     public void suspendInput() {
-        this.session.clearEvent(EventMask.READ);
+        if (this.contentEncoder != null) {
+            this.session.clearEvent(EventMask.READ);
+        }
     }
 
     public void suspendOutput() {
-        this.session.clearEvent(EventMask.WRITE);
+        if (this.contentDecoder != null) {
+            this.session.clearEvent(EventMask.WRITE);
+        }
     }
 
     protected HttpEntity prepareDecoder(final HttpMessage message) throws HttpException {

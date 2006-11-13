@@ -79,11 +79,11 @@ public class ContentOutputBuffer extends ExpandableBuffer {
     }
     
     protected void flushBuffer() throws IOException {
-        this.ioctrl.requestOutput();
         synchronized (this.mutex) {
             setOutputMode();
             try {
                 while (hasData() && !this.shutdown) {
+                    this.ioctrl.requestOutput();
                     this.mutex.wait();
                 }
 

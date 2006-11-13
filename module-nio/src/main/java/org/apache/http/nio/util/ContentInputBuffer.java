@@ -70,7 +70,7 @@ public class ContentInputBuffer extends ExpandableBuffer {
             int total = 0;
             int bytesRead = 0;
             while ((bytesRead = decoder.read(this.buffer)) > 0) {
-                total =+ bytesRead;
+                total += bytesRead;
             }
             if (bytesRead == -1 || decoder.isCompleted()) {
                 this.endOfStream = true;

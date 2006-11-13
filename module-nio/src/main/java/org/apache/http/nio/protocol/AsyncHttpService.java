@@ -20,7 +20,6 @@ import org.apache.http.entity.BasicHttpEntity;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.nio.ContentDecoder;
 import org.apache.http.nio.ContentEncoder;
-import org.apache.http.nio.ContentIOControl;
 import org.apache.http.nio.NHttpServerConnection;
 import org.apache.http.nio.util.ContentInputBuffer;
 import org.apache.http.nio.util.ContentOutputBuffer;
@@ -43,13 +42,20 @@ public class AsyncHttpService {
     private ConnectionReuseStrategy connStrategy = null;
     
     public AsyncHttpService(
-            final ContentIOControl ioControl,
+            final ContentInputBuffer inbuffer,
+            final ContentOutputBuffer outbuffer,
             final HttpProcessor proc,
             final ConnectionReuseStrategy connStrategy,
             final HttpResponseFactory responseFactory) {
         super();
-        this.inbuffer = new ContentInputBuffer(20480, ioControl); 
-        this.outbuffer = new ContentOutputBuffer(20480, ioControl); 
+        if (inbuffer == null) {
+            throw new IllegalArgumentException("Content input buffer may not be null");
+        }
+        if (outbuffer == null) {
+            throw new IllegalArgumentException("Content output buffer may not be null");
+        }
+        this.inbuffer = inbuffer; 
+        this.outbuffer = outbuffer; 
         setHttpProcessor(proc);
         setConnReuseStrategy(connStrategy);
         setResponseFactory(responseFactory);
@@ -98,14 +104,12 @@ public class AsyncHttpService {
         this.outbuffer.shutdown(ex);
     }
     
-    public void handleRequest(final NHttpServerConnection conn) 
+    public void handleRequest(final HttpRequest request, final NHttpServerConnection conn) 
                 throws HttpException, IOException {
         // Reset buffers
         this.inbuffer.reset();
         this.outbuffer.reset();
-        // Get the incoming request
         HttpContext parentContext = conn.getContext();
-        HttpRequest request = conn.getHttpRequest();
         HttpVersion ver = request.getRequestLine().getHttpVersion();
         if (!ver.lessEquals(HttpVersion.HTTP_1_1)) {
             // Downgrade protocol version if greater than HTTP/1.1 
@@ -183,19 +187,10 @@ public class AsyncHttpService {
         // Reset buffers
         this.inbuffer.reset();
         this.outbuffer.reset();
-        // Geenrate response
-        HttpRequest request = conn.getHttpRequest();
+        // Generate response
         HttpContext context = conn.getContext();
-        HttpVersion ver = HttpVersion.HTTP_1_1;
-        if (request != null) {
-            ver = request.getRequestLine().getHttpVersion();
-        }
-        if (!ver.lessEquals(HttpVersion.HTTP_1_1)) {
-            // Downgrade protocol version if greater than HTTP/1.1 
-            ver = HttpVersion.HTTP_1_1;
-        }
-        
-        HttpResponse response = this.responseFactory.newHttpResponse(ver, HttpStatus.SC_OK);
+        HttpResponse response = this.responseFactory.newHttpResponse(
+                HttpVersion.HTTP_1_0, HttpStatus.SC_OK);
         response.getParams().setDefaults(this.params);
         
         if (ex instanceof MethodNotSupportedException) {

@@ -10,6 +10,8 @@ import java.net.SocketTimeoutException;
 import java.net.URLDecoder;
 
 import org.apache.http.ConnectionClosedException;
+import org.apache.http.HttpEntity;
+import org.apache.http.HttpEntityEnclosingRequest;
 import org.apache.http.HttpException;
 import org.apache.http.HttpRequest;
 import org.apache.http.HttpResponse;
@@ -30,6 +32,8 @@ import org.apache.http.nio.impl.reactor.DefaultIOReactor;
 import org.apache.http.nio.protocol.AsyncHttpService;
 import org.apache.http.nio.reactor.IOEventDispatch;
 import org.apache.http.nio.reactor.IOReactor;
+import org.apache.http.nio.util.ContentInputBuffer;
+import org.apache.http.nio.util.ContentOutputBuffer;
 import org.apache.http.params.HttpConnectionParams;
 import org.apache.http.params.HttpParams;
 import org.apache.http.params.HttpProtocolParams;
@@ -41,6 +45,7 @@ import org.apache.http.protocol.ResponseConnControl;
 import org.apache.http.protocol.ResponseContent;
 import org.apache.http.protocol.ResponseDate;
 import org.apache.http.protocol.ResponseServer;
+import org.apache.http.util.EntityUtils;
 
 public class AsyncHttpServer {
 
@@ -52,7 +57,7 @@ public class AsyncHttpServer {
         HttpParams params = new DefaultHttpParams(null);
         params
             .setIntParameter(HttpConnectionParams.SO_TIMEOUT, 5000)
-            .setIntParameter(HttpConnectionParams.SOCKET_BUFFER_SIZE, 8 * 1024)
+            .setIntParameter(HttpConnectionParams.SOCKET_BUFFER_SIZE, 1024)
             .setBooleanParameter(HttpConnectionParams.STALE_CONNECTION_CHECK, false)
             .setBooleanParameter(HttpConnectionParams.TCP_NODELAY, true)
             .setParameter(HttpProtocolParams.ORIGIN_SERVER, "Jakarta-HttpComponents-NIO/1.1");
@@ -91,12 +96,18 @@ public class AsyncHttpServer {
                 final HttpResponse response,
                 final HttpContext context) throws HttpException, IOException {
 
-            String method = request.getRequestLine().getMethod();
-            if (!method.equalsIgnoreCase("GET") && !method.equalsIgnoreCase("HEAD")) {
+            String method = request.getRequestLine().getMethod().toUpperCase();
+            if (!method.equals("GET") && !method.equals("HEAD") && !method.equals("POST")) {
                 throw new MethodNotSupportedException(method + " method not supported"); 
             }
-            String target = request.getRequestLine().getUri();
+
+            if (request instanceof HttpEntityEnclosingRequest) {
+                HttpEntity entity = ((HttpEntityEnclosingRequest) request).getEntity();
+                byte[] entityContent = EntityUtils.toByteArray(entity);
+                System.out.println("Incoming entity content (bytes): " + entityContent.length);
+            }
             
+            String target = request.getRequestLine().getUri();
             final File file = new File(this.docRoot, URLDecoder.decode(target, "UTF-8"));
             if (!file.exists()) {
 
@@ -151,6 +162,7 @@ public class AsyncHttpServer {
     public static class MyNHttpServiceHandler implements NHttpServiceHandler {
         
         private static final String HTTP_ASYNC_SERVICE = "http.async-service";
+        private static final String HTTP_WORKER_THREAD = "http.worker-thread";
         
         final private HttpRequestHandlerRegistry reqistry;
         final private HttpParams params;
@@ -178,9 +190,14 @@ public class AsyncHttpServer {
             httpproc.addInterceptor(new ResponseContent());
             httpproc.addInterceptor(new ResponseConnControl());
 
+            // Allocate large content input / output buffers
+            ContentInputBuffer inbuffer = new ContentInputBuffer(20480, conn); 
+            ContentOutputBuffer outbuffer = new ContentOutputBuffer(20480, conn); 
+            
             // Set up the HTTP service
             AsyncHttpService httpService = new AsyncHttpService(
-                    conn,
+                    inbuffer,
+                    outbuffer,
                     httpproc,
                     new DefaultConnectionReuseStrategy(), 
                     new DefaultHttpResponseFactory());
@@ -223,13 +240,35 @@ public class AsyncHttpServer {
         }
 
         public void requestReceived(final NHttpServerConnection conn) {
+            HttpRequest request = conn.getHttpRequest();
             AsyncHttpService httpService = (AsyncHttpService) conn.getContext()
                 .getAttribute(HTTP_ASYNC_SERVICE);
+            WorkerThread worker = (WorkerThread) conn.getContext()
+                .getAttribute(HTTP_WORKER_THREAD);
             
             // BIG FAT UGLY WARNING!
-            // Do NOT start a new thread per request in real world applications!
-            // Do make sure to use a thread pool  
-            WorkerThread worker = new WorkerThread(httpService, conn); 
+            // =====================
+            // (1) This sample application employs an over-simplistic 
+            //     thread synchronization. In the life applications
+            //     consider implementing a proper connection locking
+            //     mechanism to ensure that only one worker thread
+            //     can have access to an HTTP connection at a time
+            //
+            // (2) Do NOT start a new thread per request in real life 
+            //     applications! Do make sure to use a thread pool.
+            //
+            
+            if (worker != null) {
+                try {
+                    worker.join();
+                } catch (InterruptedException ex) {
+                    return;
+                }
+            }
+            
+            worker = new WorkerThread(httpService, request, conn); 
+            conn.getContext().setAttribute(HTTP_WORKER_THREAD, worker);
+            
             worker.setDaemon(true);
             worker.start();
         }
@@ -260,31 +299,31 @@ public class AsyncHttpServer {
     static class WorkerThread extends Thread {
 
         private final AsyncHttpService httpService;
+        private final HttpRequest request;
         private final NHttpServerConnection conn;
         
         public WorkerThread(
                 final AsyncHttpService httpService,
+                final HttpRequest request,
                 final NHttpServerConnection conn) {
             super();
             this.httpService = httpService;
+            this.request = request;
             this.conn = conn;
         }
         
         public void run() {
             System.out.println("New request thread");
             try {
-                this.httpService.handleRequest(this.conn);
+                this.httpService.handleRequest(this.request, this.conn);
             } catch (ConnectionClosedException ex) {
                 System.err.println("Client closed connection");
             } catch (IOException ex) {
                 System.err.println("I/O error: " + ex.getMessage());
             } catch (HttpException ex) {
                 System.err.println("Unrecoverable HTTP protocol violation: " + ex.getMessage());
-            } finally {
-                try {
-                    this.conn.shutdown();
-                } catch (IOException ignore) {}
             }
+            System.out.println("Request thread terminated");
         }
 
     }
