@@ -87,12 +87,13 @@ public class DefaultNHttpServerConnection
                 int bytesRead = this.requestParser.fillBuffer(this.session.channel());
                 this.request = (HttpRequest) this.requestParser.parse(); 
                 if (this.request != null) {
-                    handler.requestReceived(this);
                     if (this.request instanceof HttpEntityEnclosingRequest) {
                         // Receive incoming entity
                         HttpEntity entity = prepareDecoder(this.request);
                         ((HttpEntityEnclosingRequest)this.request).setEntity(entity);
-                    } else {
+                    }
+                    handler.requestReceived(this);
+                    if (this.contentDecoder == null) {
                         // No request entity is expected
                         // Ready to receive a new request
                         resetInput();

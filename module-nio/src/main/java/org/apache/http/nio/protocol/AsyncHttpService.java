@@ -106,9 +106,6 @@ public class AsyncHttpService {
     
     public void handleRequest(final HttpRequest request, final NHttpServerConnection conn) 
                 throws HttpException, IOException {
-        // Reset buffers
-        this.inbuffer.reset();
-        this.outbuffer.reset();
         HttpContext parentContext = conn.getContext();
         HttpVersion ver = request.getRequestLine().getHttpVersion();
         if (!ver.lessEquals(HttpVersion.HTTP_1_1)) {
@@ -177,16 +174,16 @@ public class AsyncHttpService {
         }
 
         // Test if the connection can be reused
-        if (!this.connStrategy.keepAlive(response, context)) {
+        if (this.connStrategy.keepAlive(response, context)) {
+            this.inbuffer.reset();
+            this.outbuffer.reset();
+        } else {
             conn.close();
         }
     }
     
     public void handleException(final NHttpServerConnection conn, final HttpException ex)
                 throws HttpException, IOException {
-        // Reset buffers
-        this.inbuffer.reset();
-        this.outbuffer.reset();
         // Generate response
         HttpContext context = conn.getContext();
         HttpResponse response = this.responseFactory.newHttpResponse(
@@ -216,10 +213,12 @@ public class AsyncHttpService {
         outstream.flush();
 
         // Test if the connection can be reused
-        if (!this.connStrategy.keepAlive(response, context)) {
+        if (this.connStrategy.keepAlive(response, context)) {
+            this.inbuffer.reset();
+            this.outbuffer.reset();
+        } else {
             conn.close();
         }
-    
     }
     
     public void consumeContent(final ContentDecoder decoder) throws IOException {

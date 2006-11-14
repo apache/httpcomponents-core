@@ -73,8 +73,8 @@ public class ContentInputBuffer extends ExpandableBuffer {
             }
             if (bytesRead > 0) {
                 this.ioctrl.suspendInput();
-                this.mutex.notifyAll();            
             }
+            this.mutex.notifyAll();            
         }
     }
     
