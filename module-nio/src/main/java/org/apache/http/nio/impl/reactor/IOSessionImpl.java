@@ -89,6 +89,9 @@ class IOSessionImpl implements IOSession {
     }
     
     public void setEventMask(int ops) {
+        if (this.closed) {
+            return;
+        }
         synchronized (this.key) {
             this.key.interestOps(ops);
             this.key.selector().wakeup();
@@ -96,6 +99,9 @@ class IOSessionImpl implements IOSession {
     }
     
     public void setEvent(int op) {
+        if (this.closed) {
+            return;
+        }
         synchronized (this.key) {
             int ops = this.key.interestOps();
             this.key.interestOps(ops | op);
@@ -104,6 +110,9 @@ class IOSessionImpl implements IOSession {
     }
     
     public void clearEvent(int op) {
+        if (this.closed) {
+            return;
+        }
         synchronized (this.key) {
             int ops = this.key.interestOps();
             this.key.interestOps(ops & ~op);

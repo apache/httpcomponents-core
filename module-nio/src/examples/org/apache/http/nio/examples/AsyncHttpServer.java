@@ -57,7 +57,7 @@ public class AsyncHttpServer {
         HttpParams params = new DefaultHttpParams(null);
         params
             .setIntParameter(HttpConnectionParams.SO_TIMEOUT, 5000)
-            .setIntParameter(HttpConnectionParams.SOCKET_BUFFER_SIZE, 1024)
+            .setIntParameter(HttpConnectionParams.SOCKET_BUFFER_SIZE, 8 * 1024)
             .setBooleanParameter(HttpConnectionParams.STALE_CONNECTION_CHECK, false)
             .setBooleanParameter(HttpConnectionParams.TCP_NODELAY, true)
             .setParameter(HttpProtocolParams.ORIGIN_SERVER, "Jakarta-HttpComponents-NIO/1.1");

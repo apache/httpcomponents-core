@@ -69,6 +69,7 @@ public class DefaultNHttpServerConnection
         this.request = null;
         this.contentDecoder = null;
         this.requestParser.reset();
+        this.session.setEvent(EventMask.READ);
     }
     
     private void resetOutput() {

@@ -123,25 +123,25 @@ public class NHttpConnectionBase implements NHttpConnection {
     }
 
     public void requestInput() {
-        if (this.contentEncoder != null) {
+        if (this.contentDecoder != null) {
             this.session.setEvent(EventMask.READ);
         }
     }
 
     public void requestOutput() {
-        if (this.contentDecoder != null) {
+        if (this.contentEncoder != null) {
             this.session.setEvent(EventMask.WRITE);
         }
     }
 
     public void suspendInput() {
-        if (this.contentEncoder != null) {
+        if (this.contentDecoder != null) {
             this.session.clearEvent(EventMask.READ);
         }
     }
 
     public void suspendOutput() {
-        if (this.contentDecoder != null) {
+        if (this.contentEncoder != null) {
             this.session.clearEvent(EventMask.WRITE);
         }
     }

@@ -67,15 +67,11 @@ public class ContentInputBuffer extends ExpandableBuffer {
         }
         synchronized (this.mutex) {
             setInputMode();
-            int total = 0;
-            int bytesRead = 0;
-            while ((bytesRead = decoder.read(this.buffer)) > 0) {
-                total += bytesRead;
-            }
+            int bytesRead = decoder.read(this.buffer);
             if (bytesRead == -1 || decoder.isCompleted()) {
                 this.endOfStream = true;
             }
-            if (total > 0) {
+            if (bytesRead > 0) {
                 this.ioctrl.suspendInput();
                 this.mutex.notifyAll();            
             }
