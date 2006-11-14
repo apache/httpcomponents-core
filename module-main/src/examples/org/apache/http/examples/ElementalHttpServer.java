@@ -39,6 +39,8 @@ import java.net.Socket;
 import java.net.URLDecoder;
 
 import org.apache.http.ConnectionClosedException;
+import org.apache.http.HttpEntity;
+import org.apache.http.HttpEntityEnclosingRequest;
 import org.apache.http.HttpException;
 import org.apache.http.HttpRequest;
 import org.apache.http.HttpResponse;
@@ -65,6 +67,7 @@ import org.apache.http.protocol.ResponseConnControl;
 import org.apache.http.protocol.ResponseContent;
 import org.apache.http.protocol.ResponseDate;
 import org.apache.http.protocol.ResponseServer;
+import org.apache.http.util.EntityUtils;
 
 /**
  * Basic, yet fully functional and spec compliant, HTTP/1.1 file server.
@@ -99,11 +102,17 @@ public class ElementalHttpServer {
                 final HttpResponse response,
                 final HttpContext context) throws HttpException, IOException {
 
-            String method = request.getRequestLine().getMethod();
-            if (!method.equalsIgnoreCase("GET") && !method.equalsIgnoreCase("HEAD")) {
+            String method = request.getRequestLine().getMethod().toUpperCase();
+            if (!method.equals("GET") && !method.equals("HEAD") && !method.equals("POST")) {
                 throw new MethodNotSupportedException(method + " method not supported"); 
             }
             String target = request.getRequestLine().getUri();
+
+            if (request instanceof HttpEntityEnclosingRequest) {
+                HttpEntity entity = ((HttpEntityEnclosingRequest) request).getEntity();
+                byte[] entityContent = EntityUtils.toByteArray(entity);
+                System.out.println("Incoming entity content (bytes): " + entityContent.length);
+            }
             
             final File file = new File(this.docRoot, URLDecoder.decode(target));
             if (!file.exists()) {
