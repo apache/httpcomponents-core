@@ -27,43 +27,15 @@
  *
  */
 
-package org.apache.http.nio.impl.reactor;
+package org.apache.http.nio.reactor;
 
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.Set;
+import java.io.IOException;
+import java.net.SocketAddress;
 
-import org.apache.http.nio.reactor.IOSession;
+public interface ConnectingIOReactor extends IOReactor {
 
-public class SessionSet {
-    
-    private final Set set;
-    
-    public SessionSet() {
-        super();
-        this.set = new HashSet();
-    }
-
-    public synchronized void add(final IOSession session) {
-        if (session == null) {
-            return;
-        }
-        this.set.add(session);
-    }
-
-    public synchronized boolean remove(final IOSession session) {
-        if (session == null) {
-            return false;
-        }
-        return this.set.remove(session);
-    }
-
-    public synchronized void clear() {
-        this.set.clear();
-    }
-
-    public Iterator iterator() {
-        return this.set.iterator();
-    }
-    
+    SessionRequest connect(SocketAddress remoteAddress, 
+            SocketAddress localAddress, Object attachment) 
+        throws IOException;
+        
 }

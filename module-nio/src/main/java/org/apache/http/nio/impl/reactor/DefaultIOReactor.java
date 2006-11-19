@@ -40,14 +40,15 @@ import java.nio.channels.SocketChannel;
 import java.util.Iterator;
 import java.util.Set;
 
+import org.apache.http.nio.reactor.ConnectingIOReactor;
 import org.apache.http.nio.reactor.IOEventDispatch;
-import org.apache.http.nio.reactor.IOReactor;
 import org.apache.http.nio.reactor.IOSession;
+import org.apache.http.nio.reactor.ListeningIOReactor;
 import org.apache.http.nio.reactor.SessionRequest;
 import org.apache.http.params.HttpConnectionParams;
 import org.apache.http.params.HttpParams;
 
-public class DefaultIOReactor implements IOReactor {
+public class DefaultIOReactor implements ListeningIOReactor, ConnectingIOReactor {
 
     public static int TIMEOUT_CHECK_INTERVAL = 1000;
     
@@ -267,15 +268,17 @@ public class DefaultIOReactor implements IOReactor {
     }
 
     private void closeSessions() {
-        for (Iterator it = this.sessions.iterator(); it.hasNext(); ) {
-            IOSession session = (IOSession) it.next();
-            if (!session.isClosed()) {    
+        synchronized (this.sessions) {
+            for (Iterator it = this.sessions.iterator(); it.hasNext(); ) {
+                IOSession session = (IOSession) it.next();
+                if (!session.isClosed()) {    
 
-                session.close();
-                this.eventDispatch.disconnected(session);
+                    session.close();
+                    this.eventDispatch.disconnected(session);
+                }
             }
+            this.sessions.clear();
         }
-        this.sessions.clear();
     }
     
     public void listen(
