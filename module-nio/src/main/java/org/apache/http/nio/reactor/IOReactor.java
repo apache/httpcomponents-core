@@ -30,7 +30,6 @@
 package org.apache.http.nio.reactor;
 
 import java.io.IOException;
-import java.net.SocketAddress;
 
 public interface IOReactor {
 
@@ -38,13 +37,6 @@ public interface IOReactor {
         throws IOException;
 
     void shutdown() 
-        throws IOException;
-    
-    SessionRequest connect(SocketAddress remoteAddress, 
-            SocketAddress localAddress, Object attachment) 
-        throws IOException;
-        
-    void listen(SocketAddress address) 
         throws IOException;
     
 }
