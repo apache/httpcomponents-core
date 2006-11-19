@@ -25,8 +25,8 @@ import org.apache.http.nio.NHttpClientConnection;
 import org.apache.http.nio.NHttpClientHandler;
 import org.apache.http.nio.impl.DefaultClientIOEventDispatch;
 import org.apache.http.nio.impl.reactor.DefaultIOReactor;
+import org.apache.http.nio.reactor.ConnectingIOReactor;
 import org.apache.http.nio.reactor.IOEventDispatch;
-import org.apache.http.nio.reactor.IOReactor;
 import org.apache.http.nio.reactor.SessionRequest;
 import org.apache.http.params.HttpConnectionParams;
 import org.apache.http.params.HttpParams;
@@ -55,7 +55,7 @@ public class NHttpClient {
             .setBooleanParameter(HttpConnectionParams.TCP_NODELAY, true)
             .setParameter(HttpProtocolParams.USER_AGENT, "Jakarta-HttpComponents-NIO/1.1");
 
-        IOReactor ioReactor = new DefaultIOReactor(params);
+        ConnectingIOReactor ioReactor = new DefaultIOReactor(params);
 
         SessionRequest[] reqs = new SessionRequest[3];
         reqs[0] = ioReactor.connect(

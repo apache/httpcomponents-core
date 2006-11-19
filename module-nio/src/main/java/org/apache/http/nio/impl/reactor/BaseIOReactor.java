@@ -30,24 +30,15 @@
 package org.apache.http.nio.impl.reactor;
 
 import java.io.IOException;
-import java.net.Socket;
 import java.nio.channels.SelectionKey;
 import java.nio.channels.SocketChannel;
 
 import org.apache.http.nio.reactor.IOSession;
-import org.apache.http.params.HttpConnectionParams;
-import org.apache.http.params.HttpParams;
 
 public class BaseIOReactor extends AbstractIOReactor {
 
-    private final HttpParams params;
-    
-    public BaseIOReactor(final HttpParams params) throws IOException {
+    public BaseIOReactor() throws IOException {
         super();
-        if (params == null) {
-            throw new IllegalArgumentException("HTTP parameters may not be null");
-        }
-        this.params = params;
     }
 
     protected void acceptable(final SelectionKey key) {
@@ -86,14 +77,7 @@ public class BaseIOReactor extends AbstractIOReactor {
         }
     }
 
-    public void addChannel(final SocketChannel channel) throws IOException {
-        Socket socket = channel.socket();
-        socket.setTcpNoDelay(HttpConnectionParams.getTcpNoDelay(this.params));
-        socket.setSoTimeout(HttpConnectionParams.getSoTimeout(this.params));
-        int linger = HttpConnectionParams.getLinger(this.params);
-        if (linger >= 0) {
-            socket.setSoLinger(linger > 0, linger);
-        }
+    protected void addChannel(final SocketChannel channel) throws IOException {
         SelectionKey key = registerChannel(channel);
 
         IOSession session = newSession(key);

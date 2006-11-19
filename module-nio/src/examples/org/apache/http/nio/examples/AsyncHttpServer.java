@@ -31,7 +31,7 @@ import org.apache.http.nio.impl.DefaultServerIOEventDispatch;
 import org.apache.http.nio.impl.reactor.DefaultIOReactor;
 import org.apache.http.nio.protocol.AsyncHttpService;
 import org.apache.http.nio.reactor.IOEventDispatch;
-import org.apache.http.nio.reactor.IOReactor;
+import org.apache.http.nio.reactor.ListeningIOReactor;
 import org.apache.http.nio.util.ContentInputBuffer;
 import org.apache.http.nio.util.ContentOutputBuffer;
 import org.apache.http.params.HttpConnectionParams;
@@ -62,7 +62,7 @@ public class AsyncHttpServer {
             .setBooleanParameter(HttpConnectionParams.TCP_NODELAY, true)
             .setParameter(HttpProtocolParams.ORIGIN_SERVER, "Jakarta-HttpComponents-NIO/1.1");
 
-        IOReactor ioReactor = new DefaultIOReactor(params);
+        ListeningIOReactor ioReactor = new DefaultIOReactor(params);
 
         // Set up request handlers
         HttpRequestHandlerRegistry reqistry = new HttpRequestHandlerRegistry();

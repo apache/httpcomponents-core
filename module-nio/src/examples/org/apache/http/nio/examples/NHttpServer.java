@@ -35,7 +35,7 @@ import org.apache.http.nio.NHttpServiceHandler;
 import org.apache.http.nio.impl.DefaultServerIOEventDispatch;
 import org.apache.http.nio.impl.reactor.DefaultIOReactor;
 import org.apache.http.nio.reactor.IOEventDispatch;
-import org.apache.http.nio.reactor.IOReactor;
+import org.apache.http.nio.reactor.ListeningIOReactor;
 import org.apache.http.params.HttpConnectionParams;
 import org.apache.http.params.HttpParams;
 import org.apache.http.params.HttpProtocolParams;
@@ -65,7 +65,7 @@ public class NHttpServer {
             .setBooleanParameter(HttpConnectionParams.TCP_NODELAY, true)
             .setParameter(HttpProtocolParams.ORIGIN_SERVER, "Jakarta-HttpComponents-NIO/1.1");
 
-        IOReactor ioReactor = new DefaultIOReactor(params);
+        ListeningIOReactor ioReactor = new DefaultIOReactor(params);
 
         NHttpServiceHandler handler = new MyNHttpServiceHandler(args[0], params);
         IOEventDispatch ioEventDispatch = new DefaultServerIOEventDispatch(handler, params);

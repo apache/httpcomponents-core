@@ -79,7 +79,7 @@ public abstract class AbstractIOReactor implements IOReactor {
         return channel.register(this.selector, 0);
     }
     
-    protected IOSession newSession(final SelectionKey key) throws IOException {
+    protected IOSession newSession(final SelectionKey key) {
         IOSession session = new IOSessionImpl(key, new SessionClosedCallback() {
 
             public void sessionClosed(IOSession session) {
@@ -91,7 +91,7 @@ public abstract class AbstractIOReactor implements IOReactor {
         return session;
     }
     
-    public void execute(final IOEventDispatch eventDispatch) throws IOException {
+    public void execute(final IOEventDispatch eventDispatch) {
         if (eventDispatch == null) {
             throw new IllegalArgumentException("Event dispatcher may not be null");
         }
@@ -99,7 +99,13 @@ public abstract class AbstractIOReactor implements IOReactor {
         
         try {
             for (;;) {
-                int readyCount = this.selector.select(TIMEOUT_CHECK_INTERVAL);
+                
+                int readyCount = 0;
+                try {
+                    readyCount = this.selector.select(TIMEOUT_CHECK_INTERVAL);
+                } catch (IOException ex) {
+                    this.closed = true;
+                }
                 if (this.closed) {
                     break;
                 }
@@ -124,7 +130,7 @@ public abstract class AbstractIOReactor implements IOReactor {
         }
     }
     
-    private void processEvents(final Set selectedKeys) throws IOException {
+    private void processEvents(final Set selectedKeys) {
         for (Iterator it = selectedKeys.iterator(); it.hasNext(); ) {
             
             SelectionKey key = (SelectionKey) it.next();
@@ -134,7 +140,7 @@ public abstract class AbstractIOReactor implements IOReactor {
         selectedKeys.clear();
     }
 
-    private void processEvent(final SelectionKey key) throws IOException {
+    private void processEvent(final SelectionKey key) {
         try {
             if (key.isAcceptable()) {
                 acceptable(key);
