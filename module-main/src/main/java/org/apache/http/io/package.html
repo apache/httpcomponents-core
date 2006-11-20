@@ -45,7 +45,7 @@ of HttpCore.
 
 The data {@link org.apache.http.io.HttpDataTransmitter transmitter}
 and {@link org.apache.http.io.HttpDataReceiver receiver} interfaces
-with the respective factories provide an abstraction from
+provide an abstraction from
 <code>java.io</code> and <code>java.nio</code>.
 These interfaces are adapted to the plain
 {@link org.apache.http.io.HttpDataOutputStream output} and
@@ -58,10 +58,6 @@ There are implementations of the transport encodings used by HTTP,
 in particular the chunked encoding for
 {@link org.apache.http.io.ChunkedOutputStream sending} and
 {@link org.apache.http.io.ChunkedInputStream receiving} entities.
-The helper classes for resizable
-{@link org.apache.http.io.ByteArrayBuffer byte} and
-{@link org.apache.http.io.CharArrayBuffer char} arrays
-might be useful elsewhere, too.
 
 
 </body>
