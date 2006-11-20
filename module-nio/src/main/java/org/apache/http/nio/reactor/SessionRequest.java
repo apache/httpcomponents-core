@@ -34,8 +34,6 @@ import java.net.SocketAddress;
 
 public interface SessionRequest {
 
-    public static final String ATTRIB_KEY = "http.connection-request";
-
     SocketAddress getRemoteAddress();
     
     SocketAddress getLocalAddress();

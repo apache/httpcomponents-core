@@ -27,41 +27,32 @@
  *
  */
 
-package org.apache.http.nio.reactor;
+package org.apache.http.nio.impl.reactor;
 
-import java.net.SocketAddress;
-import java.nio.channels.ByteChannel;
+import java.util.LinkedList;
 
-public interface IOSession {
+public class ChannelQueue {
+    
+    private final LinkedList list;
+    
+    public ChannelQueue() {
+        super();
+        this.list = new LinkedList();
+    }
 
-    public static final String ATTACHMENT_KEY = "http.session.attachment";
+    public synchronized void push(final ChannelEntry entry) {
+        if (entry == null) {
+            return;
+        }
+        this.list.addLast(entry);
+    }
 
-    ByteChannel channel();
+    public synchronized ChannelEntry pop() {
+        if (!this.list.isEmpty()) {
+            return (ChannelEntry) this.list.removeFirst();
+        } else {
+            return null;
+        }
+    }
     
-    SocketAddress getRemoteAddress();    
-    
-    SocketAddress getLocalAddress();    
-
-    int getEventMask();
-    
-    void setEventMask(int ops);
-    
-    void setEvent(int op);
-
-    void clearEvent(int op);
-
-    void close();
-    
-    boolean isClosed();
-
-    int getSocketTimeout();
-    
-    void setSocketTimeout(int timeout);
-    
-    void setAttribute(String name, Object obj);
-    
-    Object getAttribute(String name);
-    
-    Object removeAttribute(String name);
-
 }

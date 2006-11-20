@@ -50,6 +50,7 @@ public abstract class AbstractIOReactor implements IOReactor {
     private final Selector selector;
     private final SessionSet sessions;
     private final SessionQueue closedSessions;
+    private final ChannelQueue newChannels;
     
     private long lastTimeoutCheck;
     
@@ -60,6 +61,7 @@ public abstract class AbstractIOReactor implements IOReactor {
         this.selector = Selector.open();
         this.sessions = new SessionSet();
         this.closedSessions = new SessionQueue();
+        this.newChannels = new ChannelQueue();
         this.lastTimeoutCheck = System.currentTimeMillis();
     }
 
@@ -73,25 +75,19 @@ public abstract class AbstractIOReactor implements IOReactor {
     
     protected abstract void timeoutCheck(SelectionKey key, long now);
 
-    protected SelectionKey registerChannel(final SocketChannel channel) 
-            throws IOException {
-        channel.configureBlocking(false);
-        return channel.register(this.selector, 0);
+    protected abstract void keyCreated(final SelectionKey key, final IOSession session);
+    
+    protected abstract IOSession keyCancelled(final SelectionKey key);
+    
+    public void addChannel(final ChannelEntry channelEntry) {
+        if (channelEntry == null) {
+            throw new IllegalArgumentException("Channel entry may not be null");
+        }
+        this.newChannels.push(channelEntry);
+        this.selector.wakeup();
     }
     
-    protected IOSession newSession(final SelectionKey key) {
-        IOSession session = new IOSessionImpl(key, new SessionClosedCallback() {
-
-            public void sessionClosed(IOSession session) {
-                closedSessions.push(session);
-            }
-            
-        });
-        this.sessions.add(session);
-        return session;
-    }
-    
-    public void execute(final IOEventDispatch eventDispatch) {
+    public void execute(final IOEventDispatch eventDispatch) throws IOException {
         if (eventDispatch == null) {
             throw new IllegalArgumentException("Event dispatcher may not be null");
         }
@@ -100,15 +96,13 @@ public abstract class AbstractIOReactor implements IOReactor {
         try {
             for (;;) {
                 
-                int readyCount = 0;
-                try {
-                    readyCount = this.selector.select(TIMEOUT_CHECK_INTERVAL);
-                } catch (IOException ex) {
-                    this.closed = true;
-                }
+                int readyCount = this.selector.select(TIMEOUT_CHECK_INTERVAL);
                 if (this.closed) {
                     break;
                 }
+
+                processNewChannels();
+                
                 if (readyCount > 0) {
                     processEvents(this.selector.selectedKeys());
                 }
@@ -155,13 +149,11 @@ public abstract class AbstractIOReactor implements IOReactor {
                 writable(key);
             }
         } catch (CancelledKeyException ex) {
-            Object attachment = key.attachment();
-            if (attachment instanceof SessionHandle) {
-                SessionHandle handle = (SessionHandle) attachment;
-                IOSession session = handle.getSession();
+            IOSession session = keyCancelled(key);
+            if (session != null) {
                 this.closedSessions.push(session);
-                key.attach(null);
             }
+            key.attach(null);
         }
     }
 
@@ -170,6 +162,29 @@ public abstract class AbstractIOReactor implements IOReactor {
         for (Iterator it = keys.iterator(); it.hasNext();) {
             SelectionKey key = (SelectionKey) it.next();
             timeoutCheck(key, now);
+        }
+    }
+
+    private void processNewChannels() throws IOException {
+        ChannelEntry entry;
+        while ((entry = this.newChannels.pop()) != null) {
+            
+            SocketChannel channel = entry.getChannel();
+            channel.configureBlocking(false);
+            SelectionKey key = channel.register(this.selector, 0);
+
+            IOSession session = new IOSessionImpl(key, new SessionClosedCallback() {
+
+                public void sessionClosed(IOSession session) {
+                    closedSessions.push(session);
+                }
+                
+            });
+            session.setAttribute(IOSession.ATTACHMENT_KEY, entry.getAttachment());
+            session.setSocketTimeout(channel.socket().getSoTimeout());
+            this.sessions.add(session);
+            keyCreated(key, session);
+            this.eventDispatch.connected(session);
         }
     }
 

@@ -31,7 +31,6 @@ package org.apache.http.nio.impl.reactor;
 
 import java.io.IOException;
 import java.io.InterruptedIOException;
-import java.nio.channels.SocketChannel;
 
 import org.apache.http.nio.reactor.IOEventDispatch;
 import org.apache.http.nio.reactor.IOReactor;
@@ -40,7 +39,7 @@ public abstract class AbstractMultiworkerIOReactor implements IOReactor {
 
     private final int workerCount;
     private final BaseIOReactor[] ioReactors;
-    private final Thread[] threads;
+    private final WorkerThread[] threads;
     
     private int currentWorker = 0;
     
@@ -51,16 +50,13 @@ public abstract class AbstractMultiworkerIOReactor implements IOReactor {
         }
         this.workerCount = workerCount;
         this.ioReactors = new BaseIOReactor[workerCount];
-        this.threads = new Thread[workerCount];
+        this.threads = new WorkerThread[workerCount];
         for (int i = 0; i < this.ioReactors.length; i++) {
             this.ioReactors[i] = new BaseIOReactor();
         }
     }
 
     protected void startWorkers(final IOEventDispatch eventDispatch) {
-        if (eventDispatch == null) {
-            throw new IllegalArgumentException("Event dispatcher may not be null");
-        }
         for (int i = 0; i < this.workerCount; i++) {
             BaseIOReactor ioReactor = this.ioReactors[i];
             this.threads[i] = new WorkerThread(ioReactor, eventDispatch);
@@ -83,15 +79,29 @@ public abstract class AbstractMultiworkerIOReactor implements IOReactor {
         }
     }
     
-    protected void addChannel(final SocketChannel channel) throws IOException {
+    protected void verifyWorkers() throws IOException {
+        for (int i = 0; i < this.workerCount; i++) {
+            WorkerThread worker = this.threads[i];
+            if (!worker.isAlive()) {
+                IOException ex = worker.getException();
+                if (ex != null) {
+                    throw ex;
+                }
+            }
+        }
+    }
+    
+    protected void addChannel(final ChannelEntry entry) throws IOException {
         // Distribute new channels among the workers
-        this.ioReactors[this.currentWorker++ % this.workerCount].addChannel(channel);
+        this.ioReactors[this.currentWorker++ % this.workerCount].addChannel(entry);
     }
         
     static class WorkerThread extends Thread {
 
         final BaseIOReactor ioReactor;
         final IOEventDispatch eventDispatch;
+        
+        private volatile IOException exception;
         
         public WorkerThread(final BaseIOReactor ioReactor, final IOEventDispatch eventDispatch) {
             super();
@@ -102,12 +112,19 @@ public abstract class AbstractMultiworkerIOReactor implements IOReactor {
         public void run() {
             try {
                 this.ioReactor.execute(this.eventDispatch);
+            } catch (IOException ex) {
+                this.exception = ex;
             } finally {
                 try {
                     this.ioReactor.shutdown();
-                } catch (IOException ignore) {
+                } catch (IOException ex2) {
+                    this.exception = ex2;
                 }
             }
+        }
+        
+        public IOException getException() {
+            return this.exception;
         }
         
     }

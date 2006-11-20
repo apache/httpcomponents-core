@@ -27,41 +27,34 @@
  *
  */
 
-package org.apache.http.nio.reactor;
+package org.apache.http.nio.impl.reactor;
 
-import java.net.SocketAddress;
-import java.nio.channels.ByteChannel;
+import java.nio.channels.SocketChannel;
 
-public interface IOSession {
+public class ChannelEntry {
 
-    public static final String ATTACHMENT_KEY = "http.session.attachment";
+    private final SocketChannel channel;
+    private final Object attachment;
+    
+    public ChannelEntry(final SocketChannel channel, final Object attachment) {
+        super();
+        if (channel == null) {
+            throw new IllegalArgumentException("Socket channel may not be null");
+        }
+        this.channel = channel;
+        this.attachment = attachment;
+    }
 
-    ByteChannel channel();
-    
-    SocketAddress getRemoteAddress();    
-    
-    SocketAddress getLocalAddress();    
+    public ChannelEntry(final SocketChannel channel) {
+        this(channel, null);
+    }
 
-    int getEventMask();
-    
-    void setEventMask(int ops);
-    
-    void setEvent(int op);
+    public Object getAttachment() {
+        return this.attachment;
+    }
 
-    void clearEvent(int op);
-
-    void close();
+    public SocketChannel getChannel() {
+        return this.channel;
+    }
     
-    boolean isClosed();
-
-    int getSocketTimeout();
-    
-    void setSocketTimeout(int timeout);
-    
-    void setAttribute(String name, Object obj);
-    
-    Object getAttribute(String name);
-    
-    Object removeAttribute(String name);
-
 }

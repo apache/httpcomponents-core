@@ -31,7 +31,6 @@ package org.apache.http.nio.impl.reactor;
 
 import java.io.IOException;
 import java.nio.channels.SelectionKey;
-import java.nio.channels.SocketChannel;
 
 import org.apache.http.nio.reactor.IOSession;
 
@@ -77,14 +76,19 @@ public class BaseIOReactor extends AbstractIOReactor {
         }
     }
 
-    protected void addChannel(final SocketChannel channel) throws IOException {
-        SelectionKey key = registerChannel(channel);
-
-        IOSession session = newSession(key);
+    protected void keyCreated(final SelectionKey key, final IOSession session) {
         SessionHandle handle = new SessionHandle(session); 
         key.attach(handle);
-        
-        this.eventDispatch.connected(session);
+    }
+    
+    protected IOSession keyCancelled(final SelectionKey key) {
+        Object attachment = key.attachment();
+        if (attachment instanceof SessionHandle) {
+            SessionHandle handle = (SessionHandle) attachment;
+            return handle.getSession();
+        } else {
+            return null;
+        }
     }
     
 }

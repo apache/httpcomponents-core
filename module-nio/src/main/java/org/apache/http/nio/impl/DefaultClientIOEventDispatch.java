@@ -4,7 +4,6 @@ import org.apache.http.impl.DefaultHttpResponseFactory;
 import org.apache.http.nio.NHttpClientHandler;
 import org.apache.http.nio.reactor.IOEventDispatch;
 import org.apache.http.nio.reactor.IOSession;
-import org.apache.http.nio.reactor.SessionRequest;
 import org.apache.http.params.HttpParams;
 
 public class DefaultClientIOEventDispatch implements IOEventDispatch {
@@ -33,9 +32,8 @@ public class DefaultClientIOEventDispatch implements IOEventDispatch {
                 this.params); 
         session.setAttribute(NHTTP_CONN, conn);
         
-        SessionRequest request = (SessionRequest) session.getAttribute(SessionRequest.ATTRIB_KEY);
-        
-        this.handler.connected(conn, request.getAttachment());
+        Object attachment = session.getAttribute(IOSession.ATTACHMENT_KEY);
+        this.handler.connected(conn, attachment);
     }
 
     public void disconnected(final IOSession session) {
