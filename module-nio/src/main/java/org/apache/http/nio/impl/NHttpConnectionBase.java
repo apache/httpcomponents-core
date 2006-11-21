@@ -30,10 +30,14 @@
 package org.apache.http.nio.impl;
 
 import java.io.IOException;
+import java.net.InetAddress;
+import java.net.InetSocketAddress;
+import java.net.SocketAddress;
 
 import org.apache.http.Header;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpException;
+import org.apache.http.HttpInetConnection;
 import org.apache.http.HttpMessage;
 import org.apache.http.HttpRequest;
 import org.apache.http.HttpResponse;
@@ -61,7 +65,7 @@ import org.apache.http.protocol.HttpContext;
 import org.apache.http.protocol.SyncHttpExecutionContext;
 import org.apache.http.util.CharArrayBuffer;
 
-public class NHttpConnectionBase implements NHttpConnection {
+public class NHttpConnectionBase implements NHttpConnection, HttpInetConnection {
 
     protected final IOSession session;
     protected final HttpContext context;
@@ -200,6 +204,24 @@ public class NHttpConnectionBase implements NHttpConnection {
 
     public boolean isStale() {
         return this.session.isClosed();
+    }
+    
+    public InetAddress getLocalAddress() {
+        SocketAddress address = this.session.getLocalAddress();
+        if (address instanceof InetSocketAddress) {
+            return ((InetSocketAddress) address).getAddress();
+        } else {
+            return null;
+        }
+    }
+
+    public InetAddress getRemoteAddress() {
+        SocketAddress address = this.session.getRemoteAddress();
+        if (address instanceof InetSocketAddress) {
+            return ((InetSocketAddress) address).getAddress();
+        } else {
+            return null;
+        }
     }
 
     public void shutdown() throws IOException {
