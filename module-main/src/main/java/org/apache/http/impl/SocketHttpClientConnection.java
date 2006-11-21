@@ -30,8 +30,10 @@
 package org.apache.http.impl;
 
 import java.io.IOException;
+import java.net.InetAddress;
 import java.net.Socket;
 
+import org.apache.http.HttpInetConnection;
 import org.apache.http.impl.io.SocketHttpDataReceiver;
 import org.apache.http.impl.io.SocketHttpDataTransmitter;
 import org.apache.http.io.HttpDataReceiver;
@@ -49,7 +51,8 @@ import org.apache.http.params.HttpParams;
  * 
  * @since 4.0
  */
-public class SocketHttpClientConnection extends AbstractHttpClientConnection {
+public class SocketHttpClientConnection 
+        extends AbstractHttpClientConnection implements HttpInetConnection {
 
     protected volatile boolean open;
     protected Socket socket = null;
@@ -106,6 +109,22 @@ public class SocketHttpClientConnection extends AbstractHttpClientConnection {
 
     public boolean isOpen() {
         return this.open;
+    }
+
+    public InetAddress getLocalAddress() {
+        if (this.socket != null) {
+            return this.socket.getLocalAddress();
+        } else {
+            return null;
+        }
+    }
+
+    public InetAddress getRemoteAddress() {
+        if (this.socket != null) {
+            return this.socket.getInetAddress();
+        } else {
+            return null;
+        }
     }
 
     public void shutdown() throws IOException {
