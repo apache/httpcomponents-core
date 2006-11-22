@@ -34,16 +34,20 @@ import java.nio.channels.SelectionKey;
 import java.util.Iterator;
 import java.util.Set;
 
+import org.apache.http.nio.reactor.EventMask;
 import org.apache.http.nio.reactor.IOSession;
+import org.apache.http.nio.reactor.SessionBufferStatus;
 
 public class BaseIOReactor extends AbstractIOReactor {
 
     private final long timeoutCheckInterval;
+    private SessionSet bufferingSessions;
     
     private long lastTimeoutCheck;
     
     public BaseIOReactor(long selectTimeout) throws IOException {
         super(selectTimeout);
+        this.bufferingSessions = new SessionSet();
         this.timeoutCheckInterval = selectTimeout;
         this.lastTimeoutCheck = System.currentTimeMillis();
     }
@@ -60,6 +64,12 @@ public class BaseIOReactor extends AbstractIOReactor {
         handle.resetLastRead();
 
         this.eventDispatch.inputReady(session);
+        SessionBufferStatus bufStatus = session.getBufferStatus();
+        if (bufStatus != null) {
+            if (bufStatus.hasBufferedInput()) {
+                this.bufferingSessions.add(session);
+            }
+        }
     }
 
     protected void writable(final SelectionKey key) {
@@ -78,6 +88,29 @@ public class BaseIOReactor extends AbstractIOReactor {
                 for (Iterator it = keys.iterator(); it.hasNext();) {
                     SelectionKey key = (SelectionKey) it.next();
                     timeoutCheck(key, currentTime);
+                }
+            }
+        }
+        synchronized (this.bufferingSessions) {
+            if (!this.bufferingSessions.isEmpty()) {
+                for (Iterator it = this.bufferingSessions.iterator(); it.hasNext(); ) {
+                    IOSession session = (IOSession) it.next();
+                    SessionBufferStatus bufStatus = session.getBufferStatus();
+                    if (bufStatus != null) {
+                        if (!bufStatus.hasBufferedInput()) {
+                            it.remove();
+                            continue;
+                        }
+                    }
+                    int ops = session.getEventMask();
+                    if ((ops & EventMask.READ) > 0) {
+                        this.eventDispatch.inputReady(session);
+                        if (bufStatus != null) {
+                            if (!bufStatus.hasBufferedInput()) {
+                                it.remove();
+                            }
+                        }
+                    }
                 }
             }
         }

@@ -115,6 +115,7 @@ public class NHttpConnectionBase
         this.outgoingContentStrategy = new StrictContentLengthStrategy();
         
         this.closed = false;
+        this.session.setBufferStatus(this);
         this.session.setEvent(EventMask.READ);
     }
 

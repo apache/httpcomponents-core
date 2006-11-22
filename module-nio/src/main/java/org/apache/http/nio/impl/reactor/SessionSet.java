@@ -62,6 +62,10 @@ public class SessionSet {
         this.set.clear();
     }
 
+    public synchronized boolean isEmpty() {
+        return this.set.isEmpty();
+    }
+    
     public Iterator iterator() {
         return this.set.iterator();
     }
