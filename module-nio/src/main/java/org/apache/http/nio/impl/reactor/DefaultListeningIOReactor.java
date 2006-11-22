@@ -57,7 +57,7 @@ public class DefaultListeningIOReactor extends AbstractMultiworkerIOReactor
     
     public DefaultListeningIOReactor(int workerCount, final HttpParams params) 
             throws IOException {
-        super(workerCount);
+        super(TIMEOUT_CHECK_INTERVAL, workerCount);
         if (params == null) {
             throw new IllegalArgumentException("HTTP parameters may not be null");
         }

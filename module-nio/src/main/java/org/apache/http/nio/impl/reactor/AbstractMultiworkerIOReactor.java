@@ -43,7 +43,7 @@ public abstract class AbstractMultiworkerIOReactor implements IOReactor {
     
     private int currentWorker = 0;
     
-    public AbstractMultiworkerIOReactor(int workerCount) throws IOException {
+    public AbstractMultiworkerIOReactor(long selectTimeout, int workerCount) throws IOException {
         super();
         if (workerCount <= 0) {
             throw new IllegalArgumentException("Worker count may not be negative or zero");
@@ -52,7 +52,7 @@ public abstract class AbstractMultiworkerIOReactor implements IOReactor {
         this.ioReactors = new BaseIOReactor[workerCount];
         this.threads = new WorkerThread[workerCount];
         for (int i = 0; i < this.ioReactors.length; i++) {
-            this.ioReactors[i] = new BaseIOReactor();
+            this.ioReactors[i] = new BaseIOReactor(selectTimeout);
         }
     }
 

@@ -31,13 +31,21 @@ package org.apache.http.nio.impl.reactor;
 
 import java.io.IOException;
 import java.nio.channels.SelectionKey;
+import java.util.Iterator;
+import java.util.Set;
 
 import org.apache.http.nio.reactor.IOSession;
 
 public class BaseIOReactor extends AbstractIOReactor {
 
-    public BaseIOReactor() throws IOException {
-        super();
+    private final long timeoutCheckInterval;
+    
+    private long lastTimeoutCheck;
+    
+    public BaseIOReactor(long selectTimeout) throws IOException {
+        super(selectTimeout);
+        this.timeoutCheckInterval = selectTimeout;
+        this.lastTimeoutCheck = System.currentTimeMillis();
     }
 
     protected void acceptable(final SelectionKey key) {
@@ -60,6 +68,19 @@ public class BaseIOReactor extends AbstractIOReactor {
         handle.resetLastWrite();
         
         this.eventDispatch.outputReady(session);
+    }
+    
+    protected void validate(final Set keys) {
+        long currentTime = System.currentTimeMillis();
+        if( (currentTime - this.lastTimeoutCheck) >= this.timeoutCheckInterval) {
+            this.lastTimeoutCheck = currentTime;
+            if (keys != null) {
+                for (Iterator it = keys.iterator(); it.hasNext();) {
+                    SelectionKey key = (SelectionKey) it.next();
+                    timeoutCheck(key, currentTime);
+                }
+            }
+        }
     }
 
     protected void timeoutCheck(final SelectionKey key, long now) {

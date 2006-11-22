@@ -43,26 +43,26 @@ import org.apache.http.nio.reactor.IOSession;
 
 public abstract class AbstractIOReactor implements IOReactor {
 
-    public static int TIMEOUT_CHECK_INTERVAL = 1000;
-    
     private volatile boolean closed = false;
     
+    private final long selectTimeout;
     private final Selector selector;
     private final SessionSet sessions;
     private final SessionQueue closedSessions;
     private final ChannelQueue newChannels;
     
-    private long lastTimeoutCheck;
-    
     protected IOEventDispatch eventDispatch = null;
     
-    public AbstractIOReactor() throws IOException {
+    public AbstractIOReactor(long selectTimeout) throws IOException {
         super();
+        if (selectTimeout <= 0) {
+            throw new IllegalArgumentException("Select timeout may not be negative or zero");
+        }
+        this.selectTimeout = selectTimeout;
         this.selector = Selector.open();
         this.sessions = new SessionSet();
         this.closedSessions = new SessionQueue();
         this.newChannels = new ChannelQueue();
-        this.lastTimeoutCheck = System.currentTimeMillis();
     }
 
     protected abstract void acceptable(SelectionKey key);
@@ -75,6 +75,8 @@ public abstract class AbstractIOReactor implements IOReactor {
     
     protected abstract void timeoutCheck(SelectionKey key, long now);
 
+    protected abstract void validate(Set keys);
+    
     protected abstract void keyCreated(final SelectionKey key, final IOSession session);
     
     protected abstract IOSession keyCancelled(final SelectionKey key);
@@ -96,7 +98,7 @@ public abstract class AbstractIOReactor implements IOReactor {
         try {
             for (;;) {
                 
-                int readyCount = this.selector.select(TIMEOUT_CHECK_INTERVAL);
+                int readyCount = this.selector.select(this.selectTimeout);
                 if (this.closed) {
                     break;
                 }
@@ -107,14 +109,7 @@ public abstract class AbstractIOReactor implements IOReactor {
                     processEvents(this.selector.selectedKeys());
                 }
                 
-                long currentTime = System.currentTimeMillis();
-                if( (currentTime - this.lastTimeoutCheck) >= TIMEOUT_CHECK_INTERVAL) {
-                    this.lastTimeoutCheck = currentTime;
-                    Set keys = this.selector.keys();
-                    if (keys != null) {
-                        processTimeouts(keys);
-                    }
-                }
+                validate(this.selector.keys());
                 
                 processClosedSessions();
                 
@@ -154,14 +149,6 @@ public abstract class AbstractIOReactor implements IOReactor {
                 this.closedSessions.push(session);
             }
             key.attach(null);
-        }
-    }
-
-    private void processTimeouts(final Set keys) {
-        long now = System.currentTimeMillis();
-        for (Iterator it = keys.iterator(); it.hasNext();) {
-            SelectionKey key = (SelectionKey) it.next();
-            timeoutCheck(key, now);
         }
     }
 
