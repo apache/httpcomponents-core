@@ -115,6 +115,9 @@ public class DefaultNHttpServerConnection
             handler.exception(this, ex);
         } catch (HttpException ex) {
             handler.exception(this, ex);
+        } finally {
+            // Finally set buffered input flag
+            this.hasBufferedInput = this.contentDecoder != null && this.inbuf.hasData();
         }
     }
 
@@ -140,6 +143,9 @@ public class DefaultNHttpServerConnection
             }
         } catch (IOException ex) {
             handler.exception(this, ex);
+        } finally {
+            // Finally set the buffered output flag
+            this.hasBufferedOutput = this.contentEncoder != null && this.outbuf.hasData();
         }
     }
     

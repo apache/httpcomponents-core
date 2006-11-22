@@ -1,7 +1,7 @@
 /*
  * $HeadURL$
  * $Revision$
- * $Date$
+ * $Date:
  *
  * ====================================================================
  *
@@ -29,43 +29,15 @@
 
 package org.apache.http.nio.reactor;
 
-import java.net.SocketAddress;
-import java.nio.channels.ByteChannel;
+/**
+ * Interface to query the status of session I/O buffers. 
+ * 
+ * @author <a href="mailto:oleg at ural.ru">Oleg Kalnichevski</a>
+ */
+public interface SessionBufferStatus {
 
-public interface IOSession {
-
-    public static final String ATTACHMENT_KEY = "http.session.attachment";
-
-    ByteChannel channel();
+    boolean hasBufferedInput();
     
-    SocketAddress getRemoteAddress();    
-    
-    SocketAddress getLocalAddress();    
-
-    int getEventMask();
-    
-    void setEventMask(int ops);
-    
-    void setEvent(int op);
-
-    void clearEvent(int op);
-
-    void close();
-    
-    boolean isClosed();
-
-    int getSocketTimeout();
-    
-    void setSocketTimeout(int timeout);
-    
-    SessionBufferStatus getBufferStatus();
-    
-    void setBufferStatus(SessionBufferStatus status);
-    
-    void setAttribute(String name, Object obj);
-    
-    Object getAttribute(String name);
-    
-    Object removeAttribute(String name);
+    boolean hasBufferedOutput();
 
 }

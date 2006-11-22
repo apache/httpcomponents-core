@@ -40,6 +40,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.apache.http.nio.reactor.IOSession;
+import org.apache.http.nio.reactor.SessionBufferStatus;
 
 class IOSessionImpl implements IOSession {
     
@@ -49,6 +50,7 @@ class IOSessionImpl implements IOSession {
     private final SessionClosedCallback callback;
     private final Map attributes;
     
+    private SessionBufferStatus bufferStatus;
     private int socketTimeout;
     
     public IOSessionImpl(final SelectionKey key, final SessionClosedCallback callback) {
@@ -150,6 +152,14 @@ class IOSessionImpl implements IOSession {
         return this.closed || !this.key.isValid();
     }
     
+    public SessionBufferStatus getBufferStatus() {
+        return this.bufferStatus;
+    }
+
+    public void setBufferStatus(final SessionBufferStatus bufferStatus) {
+        this.bufferStatus = bufferStatus;
+    }
+    
     public Object getAttribute(final String name) {
         return this.attributes.get(name);
     }
@@ -161,5 +171,5 @@ class IOSessionImpl implements IOSession {
     public void setAttribute(final String name, final Object obj) {
         this.attributes.put(name, obj);
     }
-    
+
 }

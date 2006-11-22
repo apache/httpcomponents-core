@@ -63,6 +63,9 @@ public class DefaultNHttpClientConnection
             throw new IllegalArgumentException("Response factory may not be null");
         }
         this.responseParser = new HttpResponseParser(this.inbuf, responseFactory);
+        this.hasBufferedInput = false;
+        this.hasBufferedOutput = false;
+        this.session.setBufferStatus(this);
     }
 
     private void resetInput() {
@@ -112,6 +115,9 @@ public class DefaultNHttpClientConnection
             handler.exception(this, ex);
         } catch (HttpException ex) {
             handler.exception(this, ex);
+        } finally {
+            // Finally set buffered input flag
+            this.hasBufferedInput = this.contentDecoder != null && this.inbuf.hasData();
         }
     }
 
@@ -137,6 +143,9 @@ public class DefaultNHttpClientConnection
             }
         } catch (IOException ex) {
             handler.exception(this, ex);
+        } finally {
+            // Finally set buffered output flag
+            this.hasBufferedOutput = this.contentEncoder != null && this.outbuf.hasData();
         }
     }
     

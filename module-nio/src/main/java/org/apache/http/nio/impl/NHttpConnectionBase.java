@@ -58,6 +58,7 @@ import org.apache.http.nio.impl.reactor.SessionInputBuffer;
 import org.apache.http.nio.impl.reactor.SessionOutputBuffer;
 import org.apache.http.nio.reactor.EventMask;
 import org.apache.http.nio.reactor.IOSession;
+import org.apache.http.nio.reactor.SessionBufferStatus;
 import org.apache.http.params.HttpConnectionParams;
 import org.apache.http.params.HttpParams;
 import org.apache.http.protocol.HTTP;
@@ -65,7 +66,8 @@ import org.apache.http.protocol.HttpContext;
 import org.apache.http.protocol.SyncHttpExecutionContext;
 import org.apache.http.util.CharArrayBuffer;
 
-public class NHttpConnectionBase implements NHttpConnection, HttpInetConnection {
+public class NHttpConnectionBase 
+        implements NHttpConnection, HttpInetConnection, SessionBufferStatus {
 
     protected final IOSession session;
     protected final HttpContext context;
@@ -78,7 +80,9 @@ public class NHttpConnectionBase implements NHttpConnection, HttpInetConnection 
     protected final CharArrayBuffer lineBuffer;
     
     protected volatile ContentDecoder contentDecoder;
+    protected volatile boolean hasBufferedInput;
     protected volatile ContentEncoder contentEncoder;
+    protected volatile boolean hasBufferedOutput;
     protected volatile HttpRequest request;
     protected volatile HttpResponse response;
     
@@ -187,6 +191,14 @@ public class NHttpConnectionBase implements NHttpConnection, HttpInetConnection 
         } else {
             this.contentEncoder = new LengthDelimitedEncoder(this.session.channel(), len);
         }
+    }
+
+    public boolean hasBufferedInput() {
+        return this.hasBufferedInput;
+    }
+
+    public boolean hasBufferedOutput() {
+        return this.hasBufferedOutput;
     }
 
     public void close() throws IOException {
