@@ -207,7 +207,7 @@ public class BasicStatusLine implements StatusLine {
         buffer.append(this.httpVersion);
         buffer.append(' ');
         buffer.append(Integer.toString(this.statusCode));
-        if (this.reasonPhrase != null && !this.reasonPhrase.equals("")) {
+        if (this.reasonPhrase != null && this.reasonPhrase.length() > 0) {
             buffer.append(' ');
             buffer.append(this.reasonPhrase);
         }

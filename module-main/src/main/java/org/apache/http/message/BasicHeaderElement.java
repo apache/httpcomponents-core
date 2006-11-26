@@ -218,7 +218,7 @@ public class BasicHeaderElement implements HeaderElement {
             } else if (cur == indexTo - 1) {
                 element = parse(buffer, from, indexTo);
             }
-            if (element != null && !(element.getName().equals("") && element.getValue() == null)) {
+            if (element != null && !(element.getName().length() == 0 && element.getValue() == null)) {
                 elements.add(element);
             }
             if (escaped) {

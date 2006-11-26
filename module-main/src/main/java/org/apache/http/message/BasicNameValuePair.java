@@ -174,7 +174,7 @@ public class BasicNameValuePair implements NameValuePair {
             } else if (cur == indexTo - 1) {
                 param = parse(buffer, from, indexTo);
             }
-            if (param != null && !(param.getName().equals("") && param.getValue() == null)) {
+            if (param != null && !(param.getName().length() == 0 && param.getValue() == null)) {
                 params.add(param);
             }
             if (escaped) {

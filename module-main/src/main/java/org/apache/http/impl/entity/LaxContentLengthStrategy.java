@@ -199,7 +199,7 @@ public class LaxContentLengthStrategy implements ContentLengthStrategy {
                 // Currently only chunk and identity are supported
                 for (int i = 0; i < encodings.length; i++) {
                     String encoding = encodings[i].getName();
-                    if (encoding != null && !encoding.equals("") 
+                    if (encoding != null && encoding.length() > 0 
                         && !encoding.equalsIgnoreCase(HTTP.CHUNK_CODING)
                         && !encoding.equalsIgnoreCase(HTTP.IDENTITY_CODING)) {
                         throw new ProtocolException("Unsupported transfer encoding: " + encoding);

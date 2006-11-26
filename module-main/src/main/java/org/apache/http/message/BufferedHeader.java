@@ -78,7 +78,7 @@ public class BufferedHeader implements Header {
             throw new IllegalArgumentException("Invalid header: " + buffer.toString());
         }
         String s = buffer.substringTrimmed(0, colon);
-        if (s.equals("")) {
+        if (s.length() == 0) {
             throw new IllegalArgumentException("Invalid header: " + buffer.toString());
         }
         this.buffer = buffer;
