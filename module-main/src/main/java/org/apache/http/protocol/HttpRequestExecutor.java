@@ -54,6 +54,7 @@ import org.apache.http.params.HttpParams;
  */
 public class HttpRequestExecutor {
 
+    //TODO make this value customizable, just use this as a default
     protected static final int WAIT_FOR_CONTINUE_MS = 10000;
 
     private HttpParams params;

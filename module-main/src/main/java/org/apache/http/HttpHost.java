@@ -44,7 +44,7 @@ import org.apache.http.util.LangUtils;
  * @since 3.0 
  */
 public class HttpHost {
-
+    /** The default scheme is "http". */
     public static final String DEFAULT_SCHEME_NAME = "http";
     
     /** The host to use. */
