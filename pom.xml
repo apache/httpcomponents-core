@@ -6,8 +6,8 @@
   </parent>
   <modelVersion>4.0.0</modelVersion>
   <groupId>org.apache.httpcomponents</groupId>
-  <artifactId>jakarta-httpcore-pom</artifactId>
-  <name>HttpCore Project</name>
+  <artifactId>httpcore</artifactId>
+  <name>HttpComponents Core</name>
   <version>4.0-alpha3-SNAPSHOT</version>
   <description>Core components to build HTTP enabled services</description>
   <url>http://jakarta.apache.org/httpcomponents/httpcore</url>
@@ -97,11 +97,6 @@
       <name>Apache Web Site</name>
       <url>scp://people.apache.org/www/jakarta.apache.org/httpcomponents/http-core</url>
     </site>
-    <repository>
-      <id>apache.releases</id>
-      <name>Apache Release Repository</name>
-      <url>scp://people.apache.org/www/www.apache.org/dist/maven-repository</url>
-    </repository>
   </distributionManagement>
 
 </project>
