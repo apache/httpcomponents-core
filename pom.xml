@@ -91,12 +91,4 @@
     </plugins>
   </reporting>
 
-  <distributionManagement>
-    <site>
-      <id>apache.website</id>
-      <name>Apache Web Site</name>
-      <url>scp://people.apache.org/www/jakarta.apache.org/httpcomponents/http-core</url>
-    </site>
-  </distributionManagement>
-
 </project>
