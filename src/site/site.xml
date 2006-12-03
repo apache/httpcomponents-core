@@ -31,7 +31,6 @@
       <item name="Base" href="jakarta-httpcore/index.html"/>
       <item name="NIO extensions" href="jakarta-httpcore-nio/index.html"/>
     </menu>
-    ${reports}
 
   </body>
 </project>

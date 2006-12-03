@@ -8,21 +8,34 @@ HttpCore Downloads
 
     The latest release available for download:
 
-    {{{http://jakarta.apache.org/site/downloads/downloads_httpcomponents-httpcore.cgi}4.0-alpha2}} - 
+    {{{http://jakarta.apache.org/site/downloads/downloads_httpcomponents-httpcore.cgi}4.0-alpha3}} - 
     {{{http://www.apache.org/dist/jakarta/httpcomponents/httpcore/RELEASE_NOTES.txt}Release Notes}} -
     {{{http://www.apache.org/dist/java-repository/httpcomponents-httpcore/licenses/LICENSE.txt}License}}
+
+Dependency management with Maven
 
     If you are using {{{http://maven.apache.org}Maven}} for your project, you can create a dependency 
     in your {{{http://maven.apache.org/guides/introduction/introduction-to-the-pom.html}pom.xml}} 
     by adding the following block to the dependency descriptor:
 
+* HttpComponents Core
+
 -------------------------
   <dependency>
     <groupId>org.apache.httpcomponents</groupId>
     <artifactId>jakarta-httpcore</artifactId>
-    <version>4.0-alpha2</version>
+    <version>4.0-alpha3</version>
     <scope>compile</scope>
   </dependency>
 -------------------------
 
-    THe list of project dependencies can be found {{{dependencies.html}here}} 
+* HttpComponents Core NIO extensions
+
+-------------------------
+  <dependency>
+    <groupId>org.apache.httpcomponents</groupId>
+    <artifactId>jakarta-httpcore-nio</artifactId>
+    <version>4.0-alpha3</version>
+    <scope>compile</scope>
+  </dependency>
+-------------------------
