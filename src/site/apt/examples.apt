@@ -17,7 +17,7 @@ HttpCore Examples
 
     * {{{http://svn.apache.org/repos/asf/jakarta/httpcomponents/httpcore/trunk/module-main/src/examples/org/apache/http/examples/ElementalHttpServer.java}Basic HTTP server}}
     
-    This is an example of a simple, but fully functional HTTP/1.1 server written with only a few dozens 
+    This is an example of a simple but fully functional HTTP/1.1 server written with only a few dozen 
     lines of Java code.
 
     * {{{http://svn.apache.org/repos/asf/jakarta/httpcomponents/httpcore/trunk/module-nio/src/examples/org/apache/http/nio/examples/NHttpServer.java}Basic non-blocking HTTP server}}
@@ -31,8 +31,8 @@ HttpCore Examples
 
     * {{{http://svn.apache.org/repos/asf/jakarta/httpcomponents/httpcore/trunk/src/contrib/org/apache/http/contrib/compress/}Content compression}}
 
-    These request / response interceptors implement client- and server-side content compression / 
-    decompression logic. They can be simply added to any existing HTTP processor to make it content 
-    compression enabled. If you use a IoC container to initialize HTTP processors, you will not even 
+    These request/response interceptors implement client- and server-side content
+    compression/decompression logic. They can simply be added to any existing HTTP processor to enable it for 
+    content compression. If you use an IoC container to initialize HTTP processors, you do not even 
     have to recompile your application.
 
