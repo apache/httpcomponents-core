@@ -11,12 +11,13 @@
             <include>LICENSE.txt</include>
             <include>NOTICE.txt</include>
             <include>RELEASE_NOTES.txt</include>
-            <include>pom.xml</include>
+            <include>**/*.xml</include>
+            <include>**/src/**</include>
           </includes>
-        </fileSet>
-        <fileSet>
-          <directory>src</directory>
-          <outputDirectory>src</outputDirectory>
+          <excludes>
+            <exclude>**/target/**</exclude>
+            <exclude>**/.*/**</exclude>
+          </excludes>
         </fileSet>
     </fileSets>
 </assembly>

@@ -13,20 +13,43 @@
             <include>RELEASE_NOTES.txt</include>
           </includes>
         </fileSet>
+        <!-- Base module -->
         <fileSet>
-          <directory>target</directory>
+          <directory>module-main/target</directory>
           <outputDirectory>lib</outputDirectory>
           <includes>
             <include>*.jar</include>
           </includes>
         </fileSet>
         <fileSet>
-          <directory>target/javadoc</directory>
-          <outputDirectory>javadoc</outputDirectory>
+          <directory>module-main/target/site/apidocs</directory>
+          <outputDirectory>javadoc/httpcore</outputDirectory>
         </fileSet>
         <fileSet>
-          <directory>src/examples</directory>
+          <directory>module-main/src/examples/</directory>
           <outputDirectory>examples</outputDirectory>
+          <includes>
+            <include>**/*.java</include>
+          </includes>
+        </fileSet>
+        <!-- NIO extensions module -->
+        <fileSet>
+          <directory>module-nio/target</directory>
+          <outputDirectory>lib</outputDirectory>
+          <includes>
+            <include>*.jar</include>
+          </includes>
+        </fileSet>
+        <fileSet>
+          <directory>module-nio/target/site/apidocs</directory>
+          <outputDirectory>javadoc/httpcore-nio</outputDirectory>
+        </fileSet>
+        <fileSet>
+          <directory>module-nio/src/examples/</directory>
+          <outputDirectory>examples</outputDirectory>
+          <includes>
+            <include>**/*.java</include>
+          </includes>
         </fileSet>
     </fileSets>
 </assembly>
