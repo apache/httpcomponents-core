@@ -71,23 +71,43 @@
 
   <reporting>
     <plugins>
+
+       <plugin>
+         <groupId>org.apache.maven.plugins</groupId>
+         <artifactId>maven-project-info-reports-plugin</artifactId>
+         <reportSets>
+           <reportSet>
+             <reports>
+               <report>project-team</report>
+               <report>mailing-list</report>
+               <report>issue-tracking</report>
+               <report>scm</report>
+             </reports>
+           </reportSet>
+         </reportSets>
+      </plugin>
+
       <plugin>
         <artifactId>maven-clover-plugin</artifactId>
         <configuration>
-          <licenseFile>${clover.license}</licenseFile>
+          <licenseLocation>${clover.license}</licenseLocation>
         </configuration>
       </plugin>
+
       <plugin>
         <artifactId>maven-javadoc-plugin</artifactId>
       </plugin>
+
       <plugin>
         <groupId>org.codehaus.mojo</groupId>
         <artifactId>jxr-maven-plugin</artifactId>
       </plugin>
+
       <plugin>
         <groupId>org.codehaus.mojo</groupId>
         <artifactId>surefire-report-maven-plugin</artifactId>
       </plugin>
+
     </plugins>
   </reporting>
 
