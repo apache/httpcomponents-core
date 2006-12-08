@@ -32,6 +32,7 @@ package org.apache.http.impl;
 import java.io.IOException;
 import java.net.InetAddress;
 import java.net.Socket;
+import java.net.SocketException;
 
 import org.apache.http.HttpInetConnection;
 import org.apache.http.impl.io.SocketHttpDataReceiver;
@@ -125,6 +126,13 @@ public class SocketHttpClientConnection
         }
     }
 
+    public void setSocketTimeout(int timeout) throws SocketException {
+        assertOpen();
+        if (this.socket != null) {
+            this.socket.setSoTimeout(timeout);
+        }
+    }
+    
     public void shutdown() throws IOException {
         this.open = false;
         Socket tmpsocket = this.socket;
