@@ -50,6 +50,7 @@ public class DefaultHttpServerConnection extends SocketHttpServerConnection {
     }
     
     public void bind(final Socket socket, final HttpParams params) throws IOException {
+        assertNotOpen();
         super.bind(socket, params);
     }
     

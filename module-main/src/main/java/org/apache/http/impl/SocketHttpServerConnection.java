@@ -80,8 +80,6 @@ public class SocketHttpServerConnection extends
         if (params == null) {
             throw new IllegalArgumentException("HTTP parameters may not be null");
         }
-        assertNotOpen();
-
         socket.setTcpNoDelay(HttpConnectionParams.getTcpNoDelay(params));
         socket.setSoTimeout(HttpConnectionParams.getSoTimeout(params));
         
