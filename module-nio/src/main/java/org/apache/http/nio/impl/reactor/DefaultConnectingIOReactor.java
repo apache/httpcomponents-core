@@ -173,14 +173,15 @@ public class DefaultConnectingIOReactor extends AbstractMultiworkerIOReactor
             socketChannel.socket().bind(localAddress);
         }
         socketChannel.connect(remoteAddress);
-        SelectionKey key = socketChannel.register(this.selector, SelectionKey.OP_CONNECT);
-        
+        SelectionKey key = socketChannel.register(this.selector, 0);
+
         SessionRequestImpl sessionRequest = new SessionRequestImpl(
                 remoteAddress, localAddress, attachment, key);
         sessionRequest.setConnectTimeout(HttpConnectionParams.getConnectionTimeout(this.params));
 
         SessionRequestHandle requestHandle = new SessionRequestHandle(sessionRequest); 
         key.attach(requestHandle);
+        key.interestOps(SelectionKey.OP_CONNECT);
         return sessionRequest;
     }
 

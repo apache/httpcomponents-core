@@ -1,3 +1,10 @@
+Changes since release 4.0 Alpha 3
+-------------------
+
+* [HTTPCORE-23] Fixed threading bug in DefaultConnectingIOReactor.
+  Contributed by Asankha C. Perera <asankha at wso2.com>
+
+
 Release 4.0 Alpha 3
 -------------------
 
