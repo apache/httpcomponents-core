@@ -1,6 +1,12 @@
 Changes since release 4.0 Alpha 3
 -------------------
 
+* [HTTPCORE-24] Fixed bug in non-blocking connection implementations, which 
+  prevented the session buffer from being correctly flushed when the content 
+  coding process has been completed.
+  Contributed by Oleg Kalnichevski <olegk at apache.org>
+
+Contributed by Asankha C. Perera <asankha at wso2.com> and Oleg Kalnichevski
 * [HTTPCORE-23] Fixed threading bug in DefaultConnectingIOReactor.
   Contributed by Asankha C. Perera <asankha at wso2.com>
 

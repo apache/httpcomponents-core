@@ -201,6 +201,12 @@ public class NHttpConnectionBase
     public boolean hasBufferedOutput() {
         return this.hasBufferedOutput;
     }
+    
+    protected void assertNotClosed() {
+        if (this.closed) {
+            throw new IllegalStateException("Connection is closed");
+        }
+    }
 
     public void close() throws IOException {
         this.closed = true;

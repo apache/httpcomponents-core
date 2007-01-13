@@ -129,6 +129,7 @@ public class DefaultNHttpClientConnection
             if (!this.outbuf.hasData()) {
                 if (this.closed) {
                     this.session.close();
+                    resetOutput();
                 } else {
                     if (this.contentEncoder != null) {
                         handler.outputReady(this, this.contentEncoder);
@@ -137,7 +138,7 @@ public class DefaultNHttpClientConnection
                         }
                     }
                 }
-                if (this.contentEncoder == null) {
+                if (this.contentEncoder == null && !this.outbuf.hasData()) {
                     this.session.clearEvent(EventMask.WRITE);
                 }
             }
@@ -153,6 +154,7 @@ public class DefaultNHttpClientConnection
         if (request == null) {
             throw new IllegalArgumentException("HTTP request may not be null");
         }
+        assertNotClosed();
         if (this.request != null) {
             throw new HttpException("Request already submitted");
         }
