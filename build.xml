@@ -310,7 +310,7 @@ Output
           <link href="${javadoc.j2sdk.link}"/>
 
           <doctitle>${comp.core.title}</doctitle>
-          <bottom>Copyright (c) 2005-2006 - Apache Software Foundation</bottom>
+          <bottom>Copyright (c) 2005-2007 - Apache Software Foundation</bottom>
         </javadoc>
 </target>
 
@@ -370,7 +370,7 @@ Output
           <link href="${javadoc.j2sdk.link}"/>
 
           <doctitle>${comp.core.title}</doctitle>
-          <bottom>Copyright (c) 2005-2006 - Apache Software Foundation</bottom>
+          <bottom>Copyright (c) 2005-2007 - Apache Software Foundation</bottom>
         </javadoc>
 </target>
 
