@@ -2,6 +2,7 @@
  * $HeadURL$
  * $Revision$
  * $Date$
+ *
  * ====================================================================
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
@@ -28,30 +29,40 @@
  *
  */
 
-package org.apache.http.nio;
+package org.apache.http.nio.mockup;
 
-import org.apache.http.nio.impl.TestAllImpl;
-import org.apache.http.nio.util.TestAllUtil;
+import java.io.IOException;
+import java.nio.ByteBuffer;
+import java.nio.channels.ReadableByteChannel;
 
-import junit.framework.*;
+import org.apache.http.nio.ContentDecoder;
 
-public class TestAll extends TestCase {
-
-    public TestAll(String testName) {
-        super(testName);
+public class MockupDecoder implements ContentDecoder {
+    
+    private final ReadableByteChannel channel;
+    private boolean completed;
+    
+    public MockupDecoder(final ReadableByteChannel channel) {
+        super();
+        this.channel = channel;
     }
 
-    public static Test suite() {
-        TestSuite suite = new TestSuite();
-        suite.addTest(TestAllImpl.suite());
-        suite.addTest(TestAllUtil.suite());
-        
-        return suite;
+    public int read(final ByteBuffer dst) throws IOException {
+        if (dst == null) {
+            throw new IllegalArgumentException("Byte buffer may not be null");
+        }
+        if (this.completed) {
+            return -1;
+        }
+        int bytesRead = this.channel.read(dst);
+        if (bytesRead == -1) {
+            this.completed = true;
+        }
+        return bytesRead;
     }
 
-    public static void main(String args[]) {
-        String[] testCaseName = { TestAll.class.getName() };
-        junit.textui.TestRunner.main(testCaseName);
+    public boolean isCompleted() {
+        return this.completed;
     }
-
+    
 }

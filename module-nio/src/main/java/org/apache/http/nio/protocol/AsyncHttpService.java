@@ -52,8 +52,8 @@ import org.apache.http.entity.StringEntity;
 import org.apache.http.nio.ContentDecoder;
 import org.apache.http.nio.ContentEncoder;
 import org.apache.http.nio.NHttpServerConnection;
-import org.apache.http.nio.util.ContentInputBuffer;
-import org.apache.http.nio.util.ContentOutputBuffer;
+import org.apache.http.nio.util.SharedInputBuffer;
+import org.apache.http.nio.util.SharedOutputBuffer;
 import org.apache.http.params.HttpParams;
 import org.apache.http.protocol.HttpContext;
 import org.apache.http.protocol.HttpExecutionContext;
@@ -63,8 +63,8 @@ import org.apache.http.protocol.HttpRequestHandlerResolver;
 
 public class AsyncHttpService {
 
-    private final ContentInputBuffer inbuffer; 
-    private final ContentOutputBuffer outbuffer; 
+    private final SharedInputBuffer inbuffer; 
+    private final SharedOutputBuffer outbuffer; 
     
     private HttpParams params = null;
     private HttpResponseFactory responseFactory = null;
@@ -73,8 +73,8 @@ public class AsyncHttpService {
     private ConnectionReuseStrategy connStrategy = null;
     
     public AsyncHttpService(
-            final ContentInputBuffer inbuffer,
-            final ContentOutputBuffer outbuffer,
+            final SharedInputBuffer inbuffer,
+            final SharedOutputBuffer outbuffer,
             final HttpProcessor proc,
             final ConnectionReuseStrategy connStrategy,
             final HttpResponseFactory responseFactory) {
@@ -278,9 +278,9 @@ public class AsyncHttpService {
     
     private static class ContentInputStream extends InputStream {
 
-        private final ContentInputBuffer buffer;
+        private final SharedInputBuffer buffer;
         
-        public ContentInputStream(final ContentInputBuffer buffer) {
+        public ContentInputStream(final SharedInputBuffer buffer) {
             super();
             if (buffer == null) {
                 throw new IllegalArgumentException("Input buffer may not be null");
@@ -304,9 +304,9 @@ public class AsyncHttpService {
 
     private static class ContentOutputStream extends OutputStream {
 
-        private final ContentOutputBuffer buffer;
+        private final SharedOutputBuffer buffer;
         
-        public ContentOutputStream(final ContentOutputBuffer buffer) {
+        public ContentOutputStream(final SharedOutputBuffer buffer) {
             super();
             if (buffer == null) {
                 throw new IllegalArgumentException("Output buffer may not be null");

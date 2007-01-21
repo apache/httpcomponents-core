@@ -1,5 +1,5 @@
 /*
- * $HeadURL:https://svn.apache.org/repos/asf/jakarta/httpcomponents/httpcore/trunk/module-nio/src/main/java/org/apache/http/nio/buffer/ContentOutputBuffer.java $
+ * $HeadURL:https://svn.apache.org/repos/asf/jakarta/httpcomponents/httpcore/trunk/module-nio/src/main/java/org/apache/http/nio/buffer/ContentInputBuffer.java $
  * $Revision:473999 $
  * $Date:2006-11-12 17:31:38 +0000 (Sun, 12 Nov 2006) $
  *
@@ -32,11 +32,11 @@ package org.apache.http.nio.util;
 
 import java.io.IOException;
 
-import org.apache.http.nio.ContentEncoder;
+import org.apache.http.nio.ContentDecoder;
 import org.apache.http.nio.ContentIOControl;
 
-public class ContentOutputBuffer extends ExpandableBuffer {
-    
+public class SharedInputBuffer extends ExpandableBuffer {
+
     private final ContentIOControl ioctrl;
     private final Object mutex;
     
@@ -44,7 +44,7 @@ public class ContentOutputBuffer extends ExpandableBuffer {
     private volatile boolean endOfStream = false;
     private volatile IOException exception = null;
     
-    public ContentOutputBuffer(int buffersize, final ContentIOControl ioctrl) {
+    public SharedInputBuffer(int buffersize, final ContentIOControl ioctrl) {
         super(buffersize);
         if (ioctrl == null) {
             throw new IllegalArgumentException("I/O content control may not be null");
@@ -52,7 +52,7 @@ public class ContentOutputBuffer extends ExpandableBuffer {
         this.ioctrl = ioctrl;
         this.mutex = new Object();
     }
-
+    
     public void reset() {
         if (this.shutdown) {
             return;
@@ -63,37 +63,38 @@ public class ContentOutputBuffer extends ExpandableBuffer {
         }
     }
     
-    public void produceContent(final ContentEncoder encoder) throws IOException {
+    public void consumeContent(final ContentDecoder decoder) throws IOException {
         if (this.shutdown) {
             return;
         }
         synchronized (this.mutex) {
-            setOutputMode();
-            encoder.write(this.buffer);
-            if (!hasData()) {
-                if (this.endOfStream) {
-                    encoder.complete();
-                }
-                this.ioctrl.suspendOutput();
-                this.mutex.notifyAll();            
+            setInputMode();
+            int totalRead = 0;
+            int bytesRead;
+            while ((bytesRead = decoder.read(this.buffer)) > 0) {
+                totalRead += bytesRead; 
             }
+            if (bytesRead == -1 || decoder.isCompleted()) {
+                this.endOfStream = true;
+            }
+            if (totalRead > 0) {
+                this.ioctrl.suspendInput();
+            }
+            this.mutex.notifyAll();            
         }
     }
     
-    protected void flushBuffer() throws IOException {
+    protected void waitForData() throws IOException {
         synchronized (this.mutex) {
-            setOutputMode();
             try {
-                while (hasData() && !this.shutdown) {
-                    this.ioctrl.requestOutput();
+                while (!hasData() && !this.endOfStream && !this.shutdown) {
+                    this.ioctrl.requestInput();
                     this.mutex.wait();
                 }
-
                 IOException ex = this.exception;
                 if (ex != null) {
                     throw ex;
                 }
-                
             } catch (InterruptedException ex) {
                 throw new IOException("Interrupted while waiting for more data");
             }
@@ -114,58 +115,62 @@ public class ContentOutputBuffer extends ExpandableBuffer {
         this.exception = exception;
         shutdown();
     }
+    
+    protected boolean isShutdown() {
+        return this.shutdown;
+    }
 
-    public void write(final byte[] b, int off, int len) throws IOException {
-        if (b == null) {
-            return;
-        }
-        if (this.shutdown || this.endOfStream) {
-            return;
+    protected boolean isEndOfStream() {
+        return this.shutdown || (!hasData() && this.endOfStream);
+    }
+
+    public int read() throws IOException {
+        if (this.shutdown) {
+            return -1;
         }
         synchronized (this.mutex) {
-            setInputMode();
-            int remaining = len;
-            while (remaining > 0) {
-                if (!this.buffer.hasRemaining()) {
-                    flushBuffer();
-                    setInputMode();
-                }
-                int chunk = Math.min(remaining, this.buffer.remaining());
-                this.buffer.put(b, off, chunk);
-                remaining -= chunk;
-                off += chunk;
+            if (!hasData()) {
+                waitForData();
             }
+            if (isEndOfStream()) {
+                return -1; 
+            }
+            return this.buffer.get() & 0xff;
         }
     }
 
-    public void write(final byte[] b) throws IOException {
+    public int read(final byte[] b, int off, int len) throws IOException {
+        if (this.shutdown) {
+            return -1;
+        }
         if (b == null) {
-            return;
-        }
-        write(b, 0, b.length);
-    }
-
-    public void write(int b) throws IOException {
-        if (this.shutdown || this.endOfStream) {
-            return;
+            return 0;
         }
         synchronized (this.mutex) {
-            setInputMode();
-            if (!this.buffer.hasRemaining()) {
-                flushBuffer();
-                setInputMode();
+            if (!hasData()) {
+                waitForData();
             }
-            this.buffer.put((byte)b);
+            if (isEndOfStream()) {
+                return -1; 
+            }
+            setOutputMode();
+            int chunk = len;
+            if (chunk > this.buffer.remaining()) {
+                chunk = this.buffer.remaining();
+            }
+            this.buffer.get(b, off, chunk);
+            return chunk;
         }
     }
 
-    public void flush() throws IOException {
-        flushBuffer();
+    public int read(final byte[] b) throws IOException {
+        if (this.shutdown) {
+            return -1;
+        }
+        if (b == null) {
+            return 0;
+        }
+        return read(b, 0, b.length);
     }
-    
-    public void close() throws IOException {
-        this.endOfStream = true;
-        flushBuffer();
-    }
-    
+
 }

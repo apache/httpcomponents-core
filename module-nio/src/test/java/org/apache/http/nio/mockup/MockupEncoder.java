@@ -2,6 +2,7 @@
  * $HeadURL$
  * $Revision$
  * $Date$
+ *
  * ====================================================================
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
@@ -28,30 +29,43 @@
  *
  */
 
-package org.apache.http.nio;
+package org.apache.http.nio.mockup;
 
-import org.apache.http.nio.impl.TestAllImpl;
-import org.apache.http.nio.util.TestAllUtil;
+import java.io.IOException;
+import java.nio.ByteBuffer;
+import java.nio.channels.WritableByteChannel;
 
-import junit.framework.*;
+import org.apache.http.nio.impl.codecs.AbstractContentEncoder;
 
-public class TestAll extends TestCase {
-
-    public TestAll(String testName) {
-        super(testName);
+public class MockupEncoder extends AbstractContentEncoder {
+    
+    private final WritableByteChannel channel;
+    private boolean completed;
+    
+    public MockupEncoder(final WritableByteChannel channel) {
+        super();
+        if (channel == null) {
+            throw new IllegalArgumentException("Channel may not be null");
+        }
+        this.channel = channel;
     }
 
-    public static Test suite() {
-        TestSuite suite = new TestSuite();
-        suite.addTest(TestAllImpl.suite());
-        suite.addTest(TestAllUtil.suite());
-        
-        return suite;
+    public boolean isCompleted() {
+        return this.completed;
     }
-
-    public static void main(String args[]) {
-        String[] testCaseName = { TestAll.class.getName() };
-        junit.textui.TestRunner.main(testCaseName);
+    
+    public void complete() throws IOException {
+        this.completed = true;
     }
-
+    
+    public int write(final ByteBuffer src) throws IOException {
+        if (src == null) {
+            return 0;
+        }
+        if (this.completed) {
+            throw new IllegalStateException("Decoding process already completed");
+        }
+        return this.channel.write(src);
+    }
+    
 }

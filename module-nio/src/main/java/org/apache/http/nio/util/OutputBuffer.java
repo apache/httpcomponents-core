@@ -2,6 +2,7 @@
  * $HeadURL$
  * $Revision$
  * $Date$
+ *
  * ====================================================================
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
@@ -27,31 +28,43 @@
  * <http://www.apache.org/>.
  *
  */
+package org.apache.http.nio.util;
 
-package org.apache.http.nio;
+import java.io.IOException;
 
-import org.apache.http.nio.impl.TestAllImpl;
-import org.apache.http.nio.util.TestAllUtil;
+import org.apache.http.nio.ContentEncoder;
 
-import junit.framework.*;
-
-public class TestAll extends TestCase {
-
-    public TestAll(String testName) {
-        super(testName);
+public class OutputBuffer extends ExpandableBuffer {
+    
+    public OutputBuffer(int buffersize) {
+        super(buffersize);
     }
 
-    public static Test suite() {
-        TestSuite suite = new TestSuite();
-        suite.addTest(TestAllImpl.suite());
-        suite.addTest(TestAllUtil.suite());
-        
-        return suite;
+    public void produceContent(final ContentEncoder encoder) throws IOException {
+        setOutputMode();
+        encoder.write(this.buffer);
+    }
+    
+    public void write(final byte[] b, int off, int len) throws IOException {
+        if (b == null) {
+            return;
+        }
+        setInputMode();
+        ensureCapacity(this.capacity() + len);
+        this.buffer.put(b, off, len);
     }
 
-    public static void main(String args[]) {
-        String[] testCaseName = { TestAll.class.getName() };
-        junit.textui.TestRunner.main(testCaseName);
+    public void write(final byte[] b) throws IOException {
+        if (b == null) {
+            return;
+        }
+        write(b, 0, b.length);
     }
 
+    public void write(int b) throws IOException {
+        setInputMode();
+        ensureCapacity(this.capacity() + 1);
+        this.buffer.put((byte)b);
+    }
+    
 }

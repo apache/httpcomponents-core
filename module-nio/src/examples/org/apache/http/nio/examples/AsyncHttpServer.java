@@ -32,8 +32,8 @@ import org.apache.http.nio.impl.reactor.DefaultListeningIOReactor;
 import org.apache.http.nio.protocol.AsyncHttpService;
 import org.apache.http.nio.reactor.IOEventDispatch;
 import org.apache.http.nio.reactor.ListeningIOReactor;
-import org.apache.http.nio.util.ContentInputBuffer;
-import org.apache.http.nio.util.ContentOutputBuffer;
+import org.apache.http.nio.util.SharedInputBuffer;
+import org.apache.http.nio.util.SharedOutputBuffer;
 import org.apache.http.params.HttpConnectionParams;
 import org.apache.http.params.HttpParams;
 import org.apache.http.params.HttpProtocolParams;
@@ -191,8 +191,8 @@ public class AsyncHttpServer {
             httpproc.addInterceptor(new ResponseConnControl());
 
             // Allocate large content input / output buffers
-            ContentInputBuffer inbuffer = new ContentInputBuffer(20480, conn); 
-            ContentOutputBuffer outbuffer = new ContentOutputBuffer(20480, conn); 
+            SharedInputBuffer inbuffer = new SharedInputBuffer(20480, conn); 
+            SharedOutputBuffer outbuffer = new SharedOutputBuffer(20480, conn); 
             
             // Set up the HTTP service
             AsyncHttpService httpService = new AsyncHttpService(

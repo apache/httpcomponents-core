@@ -28,29 +28,24 @@
  *
  */
 
-package org.apache.http.nio;
-
-import org.apache.http.nio.impl.TestAllImpl;
-import org.apache.http.nio.util.TestAllUtil;
+package org.apache.http.nio.util;
 
 import junit.framework.*;
 
-public class TestAll extends TestCase {
+public class TestAllUtil extends TestCase {
 
-    public TestAll(String testName) {
+    public TestAllUtil(String testName) {
         super(testName);
     }
 
     public static Test suite() {
         TestSuite suite = new TestSuite();
-        suite.addTest(TestAllImpl.suite());
-        suite.addTest(TestAllUtil.suite());
-        
+        suite.addTest(TestBuffers.suite());
         return suite;
     }
 
     public static void main(String args[]) {
-        String[] testCaseName = { TestAll.class.getName() };
+        String[] testCaseName = { TestAllUtil.class.getName() };
         junit.textui.TestRunner.main(testCaseName);
     }
 
