@@ -1,54 +1,45 @@
 package org.apache.http.nio.examples;
 
-import java.io.ByteArrayOutputStream;
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.InterruptedIOException;
-import java.io.UnsupportedEncodingException;
+import java.io.OutputStream;
+import java.io.OutputStreamWriter;
+import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.URLDecoder;
-import java.nio.ByteBuffer;
-import java.nio.channels.Channels;
-import java.nio.channels.ReadableByteChannel;
-import java.nio.channels.WritableByteChannel;
 
-import org.apache.http.ConnectionReuseStrategy;
-import org.apache.http.HttpConnection;
+import org.apache.http.HttpEntity;
 import org.apache.http.HttpEntityEnclosingRequest;
 import org.apache.http.HttpException;
 import org.apache.http.HttpRequest;
 import org.apache.http.HttpResponse;
-import org.apache.http.HttpResponseFactory;
 import org.apache.http.HttpStatus;
-import org.apache.http.HttpVersion;
-import org.apache.http.entity.ByteArrayEntity;
+import org.apache.http.MethodNotSupportedException;
+import org.apache.http.entity.ContentProducer;
+import org.apache.http.entity.EntityTemplate;
 import org.apache.http.entity.FileEntity;
 import org.apache.http.impl.DefaultConnectionReuseStrategy;
 import org.apache.http.impl.DefaultHttpParams;
 import org.apache.http.impl.DefaultHttpResponseFactory;
-import org.apache.http.nio.ContentDecoder;
-import org.apache.http.nio.ContentEncoder;
-import org.apache.http.nio.NHttpServerConnection;
-import org.apache.http.nio.NHttpServiceHandler;
 import org.apache.http.nio.impl.DefaultServerIOEventDispatch;
 import org.apache.http.nio.impl.reactor.DefaultListeningIOReactor;
+import org.apache.http.nio.protocol.EventListener;
+import org.apache.http.nio.protocol.BufferingHttpServiceHandler;
 import org.apache.http.nio.reactor.IOEventDispatch;
 import org.apache.http.nio.reactor.ListeningIOReactor;
 import org.apache.http.params.HttpConnectionParams;
 import org.apache.http.params.HttpParams;
 import org.apache.http.params.HttpProtocolParams;
 import org.apache.http.protocol.BasicHttpProcessor;
-import org.apache.http.protocol.HTTP;
 import org.apache.http.protocol.HttpContext;
-import org.apache.http.protocol.HttpExecutionContext;
-import org.apache.http.protocol.HttpProcessor;
+import org.apache.http.protocol.HttpRequestHandler;
+import org.apache.http.protocol.HttpRequestHandlerRegistry;
 import org.apache.http.protocol.ResponseConnControl;
 import org.apache.http.protocol.ResponseContent;
 import org.apache.http.protocol.ResponseDate;
 import org.apache.http.protocol.ResponseServer;
-import org.apache.http.util.EncodingUtils;
+import org.apache.http.util.EntityUtils;
 
 public class NHttpServer {
 
@@ -65,11 +56,29 @@ public class NHttpServer {
             .setBooleanParameter(HttpConnectionParams.TCP_NODELAY, true)
             .setParameter(HttpProtocolParams.ORIGIN_SERVER, "Jakarta-HttpComponents-NIO/1.1");
 
-        ListeningIOReactor ioReactor = new DefaultListeningIOReactor(2, params);
-
-        NHttpServiceHandler handler = new MyNHttpServiceHandler(args[0], params);
-        IOEventDispatch ioEventDispatch = new DefaultServerIOEventDispatch(handler, params);
+        BasicHttpProcessor httpproc = new BasicHttpProcessor();
+        httpproc.addInterceptor(new ResponseDate());
+        httpproc.addInterceptor(new ResponseServer());
+        httpproc.addInterceptor(new ResponseContent());
+        httpproc.addInterceptor(new ResponseConnControl());
         
+        BufferingHttpServiceHandler handler = new BufferingHttpServiceHandler(
+                httpproc,
+                new DefaultHttpResponseFactory(),
+                new DefaultConnectionReuseStrategy(),
+                params);
+        
+        // Set up request handlers
+        HttpRequestHandlerRegistry reqistry = new HttpRequestHandlerRegistry();
+        reqistry.register("*", new HttpFileHandler(args[0]));
+        
+        handler.setHandlerResolver(reqistry);
+        
+        // Provide an event logger
+        handler.setEventListener(new EventLogger());
+        
+        IOEventDispatch ioEventDispatch = new DefaultServerIOEventDispatch(handler, params);
+        ListeningIOReactor ioReactor = new DefaultListeningIOReactor(2, params);
         try {
             ioReactor.listen(new InetSocketAddress(8080));
             ioReactor.execute(ioEventDispatch);
@@ -81,243 +90,105 @@ public class NHttpServer {
         System.out.println("Shutdown");
     }
 
-    public static class MyNHttpServiceHandler implements NHttpServiceHandler {
-
-        private final String docRoot;
-        private final HttpParams params;
-        private final HttpResponseFactory responseFactory;
-        private final ByteBuffer inbuf;
-        private final ByteBuffer outbuf;
-        private final HttpProcessor httpProcessor;
-        private final ConnectionReuseStrategy connStrategy;
+    static class HttpFileHandler implements HttpRequestHandler  {
         
-        public MyNHttpServiceHandler(final String docRoot, final HttpParams params) {
+        private final String docRoot;
+        
+        public HttpFileHandler(final String docRoot) {
             super();
             this.docRoot = docRoot;
-            this.params = params;
-            this.responseFactory = new DefaultHttpResponseFactory();
-            this.inbuf = ByteBuffer.allocateDirect(2048);
-            this.outbuf = ByteBuffer.allocateDirect(2048);
-            BasicHttpProcessor httpProcessor = new BasicHttpProcessor();
-            httpProcessor.addInterceptor(new ResponseDate());
-            httpProcessor.addInterceptor(new ResponseServer());                    
-            httpProcessor.addInterceptor(new ResponseContent());
-            httpProcessor.addInterceptor(new ResponseConnControl());
-            this.httpProcessor = httpProcessor;
-            this.connStrategy = new DefaultConnectionReuseStrategy();
         }
         
-        private void shutdownConnection(final HttpConnection conn) {
-            try {
-                conn.shutdown();
-            } catch (IOException ignore) {
+        public void handle(
+                final HttpRequest request, 
+                final HttpResponse response,
+                final HttpContext context) throws HttpException, IOException {
+
+            String method = request.getRequestLine().getMethod().toUpperCase();
+            if (!method.equals("GET") && !method.equals("HEAD") && !method.equals("POST")) {
+                throw new MethodNotSupportedException(method + " method not supported"); 
             }
-        }
-        
-        private void commitResponse(
-                final NHttpServerConnection conn,
-                final HttpResponse response) {
-            try {
 
-                ReadableByteChannel channel = null;
-                if (response.getEntity() != null) {
-                    InputStream instream = response.getEntity().getContent(); 
-                    if (instream instanceof FileInputStream) {
-                        channel = ((FileInputStream)instream).getChannel();
-                    } else {
-                        channel = Channels.newChannel(instream);
-                    }
-                    
-                }
-                
-                conn.getContext().setAttribute("out-channel", channel);
-                
-                this.httpProcessor.process(response, conn.getContext());
-                conn.submitResponse(response);
-            } catch (HttpException ex) {
-                shutdownConnection(conn);
-                System.err.println("Unexpected HTTP protocol error: " + ex.getMessage());
-            } catch (IOException ex) {
-                shutdownConnection(conn);
-                System.err.println("I/O error: " + ex.getMessage());
-            }
-        }
-
-        private void service(final NHttpServerConnection conn) {
-            HttpRequest request = conn.getHttpRequest();
-            HttpVersion ver = request.getRequestLine().getHttpVersion();
-            HttpResponse response =  this.responseFactory.newHttpResponse(ver, 200);
-            response.getParams().setDefaults(this.params);
-
-            String target = request.getRequestLine().getUri();
-            try {
-
-                File file = new File(this.docRoot, URLDecoder.decode(target, "UTF-8"));
-                if (!file.exists()) {
-                    
-                    response.setStatusCode(HttpStatus.SC_NOT_FOUND);
-                    byte[] msg = EncodingUtils.getAsciiBytes(
-                            file.getName() + ": not found");
-                    ByteArrayEntity entity = new ByteArrayEntity(msg);
-                    entity.setContentType("text/plain; charset=US-ASCII");
-                    response.setEntity(entity);
-                    
-                } else if (!file.canRead() || file.isDirectory()) {
-
-                    response.setStatusCode(HttpStatus.SC_FORBIDDEN);
-                    byte[] msg = EncodingUtils.getAsciiBytes(
-                            file.getName() + ": access denied");
-                    ByteArrayEntity entity = new ByteArrayEntity(msg);
-                    entity.setContentType("text/plain; charset=US-ASCII");
-                    response.setEntity(entity);
-
-                } else {
-
-                    FileEntity entity = new FileEntity(file, "text/html");
-                    response.setEntity(entity);
-                    
-                }
-                
-            } catch (UnsupportedEncodingException ex) {
-                throw new Error("UTF-8 not supported");
-            }
-            
-            HttpContext context = conn.getContext();
-            context.setAttribute(HttpExecutionContext.HTTP_REQUEST, request);
-            context.setAttribute(HttpExecutionContext.HTTP_RESPONSE, response);
-            context.setAttribute(HttpExecutionContext.HTTP_CONNECTION, conn);
-            
-            commitResponse(conn, response);
-            
-        }
-        
-        public void requestReceived(final NHttpServerConnection conn) {
-            HttpRequest request = conn.getHttpRequest();
-            HttpVersion ver = request.getRequestLine().getHttpVersion();
             if (request instanceof HttpEntityEnclosingRequest) {
-                
-                if (((HttpEntityEnclosingRequest) request).expectContinue()) {
-                    HttpResponse ack = this.responseFactory.newHttpResponse(ver, 100);
-                    try {
-                        conn.submitResponse(ack);
-                    } catch (HttpException ex) {
-                        shutdownConnection(conn);
-                        System.err.println("Unexpected HTTP protocol error: " + ex.getMessage());
-                        return;
-                    }
-                }
-                
-                // Request content is expected. 
-                ByteArrayOutputStream bytestream = new ByteArrayOutputStream();
-                WritableByteChannel channel = Channels.newChannel(bytestream);
-                
-                HttpContext context = conn.getContext();
-                context.setAttribute("in-buffer", bytestream);
-                context.setAttribute("in-channel", channel);
-                // Wait until the request content is fully received
-            } else {
-                // No request content is expected. 
-                //Proceed with service right away
-                service(conn);
+                HttpEntity entity = ((HttpEntityEnclosingRequest) request).getEntity();
+                byte[] entityContent = EntityUtils.toByteArray(entity);
+                System.out.println("Incoming entity content (bytes): " + entityContent.length);
             }
-        }
-
-        public void connected(final NHttpServerConnection conn) {
-            System.out.println("New incoming connection");
-        }
-
-        public void closed(final NHttpServerConnection conn) {
-            System.out.println("Connection closed");
-        }
-
-        public void exception(final NHttpServerConnection conn, final HttpException ex) {
-            HttpRequest request = conn.getHttpRequest();
-            HttpVersion ver = request.getRequestLine().getHttpVersion();
-            HttpResponse response =  this.responseFactory.newHttpResponse(
-                    ver, HttpStatus.SC_BAD_REQUEST);
-            byte[] msg = EncodingUtils.getAsciiBytes(
-                    "Malformed HTTP request: " + ex.getMessage());
-            ByteArrayEntity entity = new ByteArrayEntity(msg);
-            entity.setContentType("text/plain; charset=US-ASCII");
-            response.setEntity(entity);
-            commitResponse(conn, response);
-        }
-
-        public void exception(NHttpServerConnection conn, IOException ex) {
-            System.err.println("I/O error: " + ex.getMessage());
-            shutdownConnection(conn);
-        }
-
-        public void inputReady(final NHttpServerConnection conn, final ContentDecoder decoder) {
-
-            HttpRequest request = conn.getHttpRequest();
-            HttpContext context = conn.getContext();
-            WritableByteChannel channel = (WritableByteChannel) context
-                .getAttribute("in-channel");
-
-            try {
-                while (decoder.read(this.inbuf) > 0) {
-                    this.inbuf.flip();
-                    channel.write(this.inbuf);
-                    this.inbuf.compact();
-                }
-                if (decoder.isCompleted()) {
-                    // Request entity has been fully received
-                    
-                    ByteArrayOutputStream bytestream = (ByteArrayOutputStream) context
-                        .getAttribute("in-buffer");
-                    byte[] content = bytestream.toByteArray();
-                    
-                    ByteArrayEntity entity = new ByteArrayEntity(content);
-                    entity.setContentType(request.getFirstHeader(HTTP.CONTENT_TYPE));
-                    
-                    ((HttpEntityEnclosingRequest) request).setEntity(entity);
-                    
-                    service(conn);
-                }
-                
-            } catch (IOException ex) {
-                shutdownConnection(conn);
-                System.err.println("I/O error: " + ex.getMessage());
-            }
-        }
-
-        public void outputReady(final NHttpServerConnection conn, final ContentEncoder encoder) {
-
-            HttpContext context = conn.getContext();
-            HttpResponse response = conn.getHttpResponse();
-            ReadableByteChannel channel = (ReadableByteChannel) context
-                .getAttribute("out-channel");
-
-            try {
-                int bytesRead = channel.read(this.outbuf);
-                if (bytesRead == -1) {
-                    encoder.complete();
-                } else {
-                    this.outbuf.flip();
-                    encoder.write(this.outbuf);
-                    this.outbuf.compact();
-                }
-
-                if (encoder.isCompleted()) {
-                    channel.close();
-                    if (!this.connStrategy.keepAlive(response, context)) {
-                        conn.close();
-                    }
-                }
             
-            } catch (IOException ex) {
-                shutdownConnection(conn);
-                System.err.println("I/O error: " + ex.getMessage());
+            String target = request.getRequestLine().getUri();
+            final File file = new File(this.docRoot, URLDecoder.decode(target, "UTF-8"));
+            if (!file.exists()) {
+
+                response.setStatusCode(HttpStatus.SC_NOT_FOUND);
+                EntityTemplate body = new EntityTemplate(new ContentProducer() {
+                    
+                    public void writeTo(final OutputStream outstream) throws IOException {
+                        OutputStreamWriter writer = new OutputStreamWriter(outstream, "UTF-8"); 
+                        writer.write("<html><body><h1>");
+                        writer.write("File ");
+                        writer.write(file.getPath());
+                        writer.write(" not found");
+                        writer.write("</h1></body></html>");
+                        writer.flush();
+                    }
+                    
+                });
+                body.setContentType("text/html; charset=UTF-8");
+                response.setEntity(body);
+                System.out.println("File " + file.getPath() + " not found");
+                
+            } else if (!file.canRead() || file.isDirectory()) {
+                
+                response.setStatusCode(HttpStatus.SC_FORBIDDEN);
+                EntityTemplate body = new EntityTemplate(new ContentProducer() {
+                    
+                    public void writeTo(final OutputStream outstream) throws IOException {
+                        OutputStreamWriter writer = new OutputStreamWriter(outstream, "UTF-8"); 
+                        writer.write("<html><body><h1>");
+                        writer.write("Access denied");
+                        writer.write("</h1></body></html>");
+                        writer.flush();
+                    }
+                    
+                });
+                body.setContentType("text/html; charset=UTF-8");
+                response.setEntity(body);
+                System.out.println("Cannot read file " + file.getPath());
+                
+            } else {
+                
+                response.setStatusCode(HttpStatus.SC_OK);
+                FileEntity body = new FileEntity(file, "text/html");
+                response.setEntity(body);
+                System.out.println("Serving file " + file.getPath());
+                
             }
-
-        }
-
-        public void timeout(final NHttpServerConnection conn) {
-            System.err.println("Timeout");
-            shutdownConnection(conn);
         }
         
     }
     
+    static class EventLogger implements EventListener {
+
+        public void connectionOpen(final InetAddress address) {
+            System.out.println("Connection open: " + address);
+        }
+
+        public void connectionTimeout(final InetAddress address) {
+            System.out.println("Connection timed out: " + address);
+        }
+
+        public void connectionClosed(InetAddress address) {
+            System.out.println("Connection closed: " + address);
+        }
+
+        public void fatalIOException(IOException ex) {
+            System.err.println("I/O error: " + ex.getMessage());
+        }
+
+        public void fatalProtocolException(HttpException ex) {
+            System.err.println("HTTP error: " + ex.getMessage());
+        }
+        
+    }
+        
 }

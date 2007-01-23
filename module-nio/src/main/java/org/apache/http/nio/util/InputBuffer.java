@@ -34,7 +34,7 @@ import java.io.IOException;
 
 import org.apache.http.nio.ContentDecoder;
 
-public class InputBuffer extends ExpandableBuffer {
+public class InputBuffer extends ExpandableBuffer implements ContentInputBuffer {
 
     private boolean endOfStream = false;
     
@@ -105,4 +105,7 @@ public class InputBuffer extends ExpandableBuffer {
         return read(b, 0, b.length);
     }
 
+    public void shutdown() {
+    }
+    
 }

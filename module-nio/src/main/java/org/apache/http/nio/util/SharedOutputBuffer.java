@@ -35,14 +35,13 @@ import java.io.IOException;
 import org.apache.http.nio.ContentEncoder;
 import org.apache.http.nio.ContentIOControl;
 
-public class SharedOutputBuffer extends ExpandableBuffer {
+public class SharedOutputBuffer extends ExpandableBuffer implements ContentOutputBuffer {
     
     private final ContentIOControl ioctrl;
     private final Object mutex;
     
     private volatile boolean shutdown = false;
     private volatile boolean endOfStream = false;
-    private volatile IOException exception = null;
     
     public SharedOutputBuffer(int buffersize, final ContentIOControl ioctrl) {
         super(buffersize);
@@ -88,12 +87,6 @@ public class SharedOutputBuffer extends ExpandableBuffer {
                     this.ioctrl.requestOutput();
                     this.mutex.wait();
                 }
-
-                IOException ex = this.exception;
-                if (ex != null) {
-                    throw ex;
-                }
-                
             } catch (InterruptedException ex) {
                 throw new IOException("Interrupted while waiting for more data");
             }
@@ -108,11 +101,6 @@ public class SharedOutputBuffer extends ExpandableBuffer {
         synchronized (this.mutex) {
             this.mutex.notifyAll();
         }
-    }
-
-    public void shutdown(final IOException exception) {
-        this.exception = exception;
-        shutdown();
     }
 
     public void write(final byte[] b, int off, int len) throws IOException {

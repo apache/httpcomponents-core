@@ -28,53 +28,39 @@
  * <http://www.apache.org/>.
  *
  */
-package org.apache.http.nio.util;
+
+package org.apache.http.nio.impl.entity;
 
 import java.io.IOException;
+import java.io.InputStream;
 
-import org.apache.http.nio.ContentEncoder;
+import org.apache.http.nio.util.ContentInputBuffer;
 
-public class OutputBuffer extends ExpandableBuffer implements ContentOutputBuffer {
+public class ContentInputStream extends InputStream {
+
+    private final ContentInputBuffer buffer;
     
-    public OutputBuffer(int buffersize) {
-        super(buffersize);
-    }
-
-    public void produceContent(final ContentEncoder encoder) throws IOException {
-        setOutputMode();
-        encoder.write(this.buffer);
-    }
-    
-    public void write(final byte[] b, int off, int len) throws IOException {
-        if (b == null) {
-            return;
+    public ContentInputStream(final ContentInputBuffer buffer) {
+        super();
+        if (buffer == null) {
+            throw new IllegalArgumentException("Input buffer may not be null");
         }
-        setInputMode();
-        ensureCapacity(this.capacity() + len);
-        this.buffer.put(b, off, len);
+        this.buffer = buffer;
     }
-
-    public void write(final byte[] b) throws IOException {
+    
+    public int read(final byte[] b, int off, int len) throws IOException {
+        return this.buffer.read(b, off, len);
+    }
+    
+    public int read(final byte[] b) throws IOException {
         if (b == null) {
-            return;
+            return 0;
         }
-        write(b, 0, b.length);
+        return this.buffer.read(b, 0, b.length);
+    }
+    
+    public int read() throws IOException {
+        return this.buffer.read();
     }
 
-    public void write(int b) throws IOException {
-        setInputMode();
-        ensureCapacity(this.capacity() + 1);
-        this.buffer.put((byte)b);
-    }
-    
-    public void clear() {
-        super.clear();        
-    }
-    
-    public void flush() {
-    }
-
-    public void shutdown() {
-    }
-    
 }

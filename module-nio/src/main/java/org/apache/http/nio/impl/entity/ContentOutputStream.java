@@ -28,53 +28,48 @@
  * <http://www.apache.org/>.
  *
  */
-package org.apache.http.nio.util;
+
+package org.apache.http.nio.impl.entity;
 
 import java.io.IOException;
+import java.io.OutputStream;
 
-import org.apache.http.nio.ContentEncoder;
+import org.apache.http.nio.util.ContentOutputBuffer;
 
-public class OutputBuffer extends ExpandableBuffer implements ContentOutputBuffer {
+public class ContentOutputStream extends OutputStream {
+
+    private final ContentOutputBuffer buffer;
     
-    public OutputBuffer(int buffersize) {
-        super(buffersize);
+    public ContentOutputStream(final ContentOutputBuffer buffer) {
+        super();
+        if (buffer == null) {
+            throw new IllegalArgumentException("Output buffer may not be null");
+        }
+        this.buffer = buffer;
     }
 
-    public void produceContent(final ContentEncoder encoder) throws IOException {
-        setOutputMode();
-        encoder.write(this.buffer);
+    public void close() throws IOException {
+        this.buffer.flush();
+        this.buffer.shutdown();
     }
-    
-    public void write(final byte[] b, int off, int len) throws IOException {
+
+    public void flush() throws IOException {
+        this.buffer.flush();
+    }
+
+    public void write(byte[] b, int off, int len) throws IOException {
+        this.buffer.write(b, off, len);
+    }
+
+    public void write(byte[] b) throws IOException {
         if (b == null) {
             return;
         }
-        setInputMode();
-        ensureCapacity(this.capacity() + len);
-        this.buffer.put(b, off, len);
-    }
-
-    public void write(final byte[] b) throws IOException {
-        if (b == null) {
-            return;
-        }
-        write(b, 0, b.length);
+        this.buffer.write(b, 0, b.length);
     }
 
     public void write(int b) throws IOException {
-        setInputMode();
-        ensureCapacity(this.capacity() + 1);
-        this.buffer.put((byte)b);
-    }
-    
-    public void clear() {
-        super.clear();        
-    }
-    
-    public void flush() {
+        this.buffer.write(b);
     }
 
-    public void shutdown() {
-    }
-    
 }

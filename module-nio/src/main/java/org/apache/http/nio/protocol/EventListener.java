@@ -28,53 +28,30 @@
  * <http://www.apache.org/>.
  *
  */
-package org.apache.http.nio.util;
+
+package org.apache.http.nio.protocol;
 
 import java.io.IOException;
+import java.net.InetAddress;
 
-import org.apache.http.nio.ContentEncoder;
+import org.apache.http.HttpException;
 
-public class OutputBuffer extends ExpandableBuffer implements ContentOutputBuffer {
-    
-    public OutputBuffer(int buffersize) {
-        super(buffersize);
-    }
+/**
+ * Event listener used by HTTP protocol layer to report fatal
+ * exceptions and events that may need to be logged.
+ * 
+ * @author <a href="mailto:oleg at ural.ru">Oleg Kalnichevski</a>
+ */
+public interface EventListener {
 
-    public void produceContent(final ContentEncoder encoder) throws IOException {
-        setOutputMode();
-        encoder.write(this.buffer);
-    }
-    
-    public void write(final byte[] b, int off, int len) throws IOException {
-        if (b == null) {
-            return;
-        }
-        setInputMode();
-        ensureCapacity(this.capacity() + len);
-        this.buffer.put(b, off, len);
-    }
+    void fatalIOException(IOException ex);
 
-    public void write(final byte[] b) throws IOException {
-        if (b == null) {
-            return;
-        }
-        write(b, 0, b.length);
-    }
+    void fatalProtocolException(HttpException ex);
 
-    public void write(int b) throws IOException {
-        setInputMode();
-        ensureCapacity(this.capacity() + 1);
-        this.buffer.put((byte)b);
-    }
-    
-    public void clear() {
-        super.clear();        
-    }
-    
-    public void flush() {
-    }
+    void connectionOpen(InetAddress address);
 
-    public void shutdown() {
-    }
+    void connectionClosed(InetAddress address);
+
+    void connectionTimeout(InetAddress address);
     
 }

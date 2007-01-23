@@ -28,53 +28,19 @@
  * <http://www.apache.org/>.
  *
  */
+
 package org.apache.http.nio.util;
 
 import java.io.IOException;
 
-import org.apache.http.nio.ContentEncoder;
+public interface ContentOutputBuffer {
 
-public class OutputBuffer extends ExpandableBuffer implements ContentOutputBuffer {
-    
-    public OutputBuffer(int buffersize) {
-        super(buffersize);
-    }
+    void shutdown() throws IOException;
 
-    public void produceContent(final ContentEncoder encoder) throws IOException {
-        setOutputMode();
-        encoder.write(this.buffer);
-    }
-    
-    public void write(final byte[] b, int off, int len) throws IOException {
-        if (b == null) {
-            return;
-        }
-        setInputMode();
-        ensureCapacity(this.capacity() + len);
-        this.buffer.put(b, off, len);
-    }
+    public void flush() throws IOException;
 
-    public void write(final byte[] b) throws IOException {
-        if (b == null) {
-            return;
-        }
-        write(b, 0, b.length);
-    }
+    void write(byte[] b, int off, int len) throws IOException;
 
-    public void write(int b) throws IOException {
-        setInputMode();
-        ensureCapacity(this.capacity() + 1);
-        this.buffer.put((byte)b);
-    }
-    
-    public void clear() {
-        super.clear();        
-    }
-    
-    public void flush() {
-    }
-
-    public void shutdown() {
-    }
+    void write(int b) throws IOException;
     
 }
