@@ -29,7 +29,7 @@
  *
  */
 
-package org.apache.http.nio.util;
+package org.apache.http.nio.impl;
 
 import java.nio.ByteBuffer;
 

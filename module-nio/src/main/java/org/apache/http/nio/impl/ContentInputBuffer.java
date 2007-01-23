@@ -2,6 +2,7 @@
  * $HeadURL$
  * $Revision$
  * $Date$
+ *
  * ====================================================================
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
@@ -28,25 +29,16 @@
  *
  */
 
-package org.apache.http.nio.util;
+package org.apache.http.nio.impl;
 
-import junit.framework.*;
+import java.io.IOException;
 
-public class TestAllUtil extends TestCase {
+public interface ContentInputBuffer {
 
-    public TestAllUtil(String testName) {
-        super(testName);
-    }
+    void shutdown() throws IOException;
 
-    public static Test suite() {
-        TestSuite suite = new TestSuite();
-        suite.addTest(TestBuffers.suite());
-        return suite;
-    }
-
-    public static void main(String args[]) {
-        String[] testCaseName = { TestAllUtil.class.getName() };
-        junit.textui.TestRunner.main(testCaseName);
-    }
-
+    int read(byte[] b, int off, int len) throws IOException;
+    
+    int read() throws IOException;
+    
 }

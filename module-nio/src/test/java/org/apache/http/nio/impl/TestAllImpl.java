@@ -45,6 +45,7 @@ public class TestAllImpl extends TestCase {
         TestSuite suite = new TestSuite();
         suite.addTest(TestAllImplReactor.suite());
         suite.addTest(TestAllImplCodecs.suite());
+        suite.addTest(TestBuffers.suite());
         return suite;
     }
 
