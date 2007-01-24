@@ -124,10 +124,14 @@ public class DefaultConnectingIOReactor extends AbstractMultiworkerIOReactor
                 }
                 key.cancel();
                 if (channel.isConnected()) {
-                    prepareSocket(channel.socket());
-                    Object attachment = sessionRequest.getAttachment();
-                    ChannelEntry entry = new ChannelEntry(channel, attachment); 
-                    addChannel(entry);
+                    try {
+                        prepareSocket(channel.socket());
+                        Object attachment = sessionRequest.getAttachment();
+                        ChannelEntry entry = new ChannelEntry(channel, attachment); 
+                        addChannel(entry);
+                    } catch (IOException ex) {
+                        sessionRequest.failed(ex);
+                    }
                 }
             }
                         
