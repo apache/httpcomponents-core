@@ -29,13 +29,32 @@
  *
  */
 
-package org.apache.http.nio.reactor;
+package org.apache.http.nio.impl.reactor;
 
-import java.net.SocketAddress;
+import java.util.LinkedList;
 
-public interface ConnectingIOReactor extends IOReactor {
+public class SessionRequestQueue {
+    
+    private final LinkedList list;
+    
+    public SessionRequestQueue() {
+        super();
+        this.list = new LinkedList();
+    }
 
-    SessionRequest connect(SocketAddress remoteAddress, 
-            SocketAddress localAddress, Object attachment);
-        
+    public synchronized void push(final SessionRequestImpl entry) {
+        if (entry == null) {
+            return;
+        }
+        this.list.addLast(entry);
+    }
+
+    public synchronized SessionRequestImpl pop() {
+        if (!this.list.isEmpty()) {
+            return (SessionRequestImpl) this.list.removeFirst();
+        } else {
+            return null;
+        }
+    }
+    
 }

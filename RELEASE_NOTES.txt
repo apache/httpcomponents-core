@@ -1,5 +1,8 @@
 Changes since release 4.0 Alpha 3
 -------------------
+* [HTTPCORE-28]: DefaultConnectingIOReactor now maintains a queue of connect 
+  requests and registers new sessions with the selector on the I/O thread.
+  Contributed by Oleg Kalnichevski <olegk at apache.org>
 
 * [HTTPCORE-29] DefaultConnectingIOReactor changed to ensure IOExceptions 
   are correctly propagated to the caller, if an exception is thrown while 

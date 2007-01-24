@@ -42,8 +42,8 @@ import org.apache.http.nio.reactor.SessionRequestCallback;
 class SessionRequestImpl implements SessionRequest {
 
     private volatile boolean completed;
+    private volatile SelectionKey key;
 
-    private final SelectionKey key;
     private final SocketAddress remoteAddress;
     private final SocketAddress localAddress;
     private final Object attachment;
@@ -56,19 +56,14 @@ class SessionRequestImpl implements SessionRequest {
     public SessionRequestImpl(
             final SocketAddress remoteAddress,
             final SocketAddress localAddress,
-            final Object attachment,
-            final SelectionKey key) {
+            final Object attachment) {
         super();
         if (remoteAddress == null) {
             throw new IllegalArgumentException("Remote address may not be null");
         }
-        if (key == null) {
-            throw new IllegalArgumentException("Selection key may not be null");
-        }
         this.remoteAddress = remoteAddress;
         this.localAddress = localAddress;
         this.attachment = attachment;
-        this.key = key;
         this.connectTimeout = 0;
     }
     
@@ -163,7 +158,9 @@ class SessionRequestImpl implements SessionRequest {
     public void setConnectTimeout(int timeout) {
         if (this.connectTimeout != timeout) {
             this.connectTimeout = timeout;
-            this.key.selector().wakeup();
+            if (this.key != null) {
+                this.key.selector().wakeup();
+            }
         }
     }
 
@@ -179,9 +176,15 @@ class SessionRequestImpl implements SessionRequest {
             }
         }
     }
+    
+    protected void setKey(final SelectionKey key) {
+        this.key = key;
+    }
 
     public void cancel() {
-        this.key.cancel();
+        if (this.key != null) {
+            this.key.cancel();
+        }
         this.completed = true;
         synchronized (this) {
             notifyAll();

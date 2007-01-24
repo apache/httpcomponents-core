@@ -56,6 +56,7 @@ public class DefaultConnectingIOReactor extends AbstractMultiworkerIOReactor
     
     private final HttpParams params;
     private final Selector selector;
+    private final SessionRequestQueue requestQueue;
     
     private long lastTimeoutCheck;
     
@@ -67,6 +68,7 @@ public class DefaultConnectingIOReactor extends AbstractMultiworkerIOReactor
         }
         this.params = params;
         this.selector = Selector.open();
+        this.requestQueue = new SessionRequestQueue();
         this.lastTimeoutCheck = System.currentTimeMillis();
     }
 
@@ -80,6 +82,9 @@ public class DefaultConnectingIOReactor extends AbstractMultiworkerIOReactor
             if (this.closed) {
                 break;
             }
+            
+            processSessionRequests();
+            
             if (readyCount > 0) {
                 processEvents(this.selector.selectedKeys());
             }
@@ -172,23 +177,37 @@ public class DefaultConnectingIOReactor extends AbstractMultiworkerIOReactor
     public SessionRequest connect(
             final SocketAddress remoteAddress, 
             final SocketAddress localAddress,
-            final Object attachment) throws IOException {
-        SocketChannel socketChannel = SocketChannel.open();
-        socketChannel.configureBlocking(false);
-        if (localAddress != null) {
-            socketChannel.socket().bind(localAddress);
-        }
-        socketChannel.connect(remoteAddress);
-        SelectionKey key = socketChannel.register(this.selector, 0);
+            final Object attachment) {
 
         SessionRequestImpl sessionRequest = new SessionRequestImpl(
-                remoteAddress, localAddress, attachment, key);
+                remoteAddress, localAddress, attachment);
         sessionRequest.setConnectTimeout(HttpConnectionParams.getConnectionTimeout(this.params));
-
-        SessionRequestHandle requestHandle = new SessionRequestHandle(sessionRequest); 
-        key.attach(requestHandle);
-        key.interestOps(SelectionKey.OP_CONNECT);
+        
+        this.requestQueue.push(sessionRequest);
+        this.selector.wakeup();
+        
         return sessionRequest;
+    }
+    
+    private void processSessionRequests() throws IOException {
+        SessionRequestImpl request;
+        while ((request = this.requestQueue.pop()) != null) {
+            if (request.isCompleted()) {
+                continue;
+            }
+            SocketChannel socketChannel = SocketChannel.open();
+            socketChannel.configureBlocking(false);
+            if (request.getLocalAddress() != null) {
+                socketChannel.socket().bind(request.getLocalAddress());
+            }
+            socketChannel.connect(request.getRemoteAddress());
+            SelectionKey key = socketChannel.register(this.selector, 0);
+            request.setKey(key);
+
+            SessionRequestHandle requestHandle = new SessionRequestHandle(request); 
+            key.attach(requestHandle);
+            key.interestOps(SelectionKey.OP_CONNECT);
+        }
     }
 
     public void shutdown() throws IOException {

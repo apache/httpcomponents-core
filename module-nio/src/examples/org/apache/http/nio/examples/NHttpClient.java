@@ -46,21 +46,7 @@ public class NHttpClient {
             .setBooleanParameter(HttpConnectionParams.TCP_NODELAY, true)
             .setParameter(HttpProtocolParams.USER_AGENT, "Jakarta-HttpComponents-NIO/1.1");
 
-        ConnectingIOReactor ioReactor = new DefaultConnectingIOReactor(2, params);
-
-        SessionRequest[] reqs = new SessionRequest[3];
-        reqs[0] = ioReactor.connect(
-                new InetSocketAddress("www.yahoo.com", 80), 
-                null, 
-                new HttpHost("www.yahoo.com"));
-        reqs[1] = ioReactor.connect(
-                new InetSocketAddress("www.google.com", 80), 
-                null,
-                new HttpHost("www.google.ch"));
-        reqs[2] = ioReactor.connect(
-                new InetSocketAddress("www.apache.org", 80), 
-                null,
-                new HttpHost("www.apache.org"));
+        final ConnectingIOReactor ioReactor = new DefaultConnectingIOReactor(2, params);
 
         BasicHttpProcessor httpproc = new BasicHttpProcessor();
         httpproc.addInterceptor(new RequestContent());
@@ -77,16 +63,38 @@ public class NHttpClient {
 
         handler.setEventListener(new EventLogger());
         
-        IOEventDispatch ioEventDispatch = new DefaultClientIOEventDispatch(handler, params);
+        final IOEventDispatch ioEventDispatch = new DefaultClientIOEventDispatch(handler, params);
         
-        try {
-            ioReactor.execute(ioEventDispatch);
-        } catch (InterruptedIOException ex) {
-            System.err.println("Interrupted");
-        } catch (IOException e) {
-            System.err.println("I/O error: " + e.getMessage());
-        }
-        System.out.println("Shutdown");
+        Thread t = new Thread(new Runnable() {
+         
+            public void run() {
+                try {
+                    ioReactor.execute(ioEventDispatch);
+                } catch (InterruptedIOException ex) {
+                    System.err.println("Interrupted");
+                } catch (IOException e) {
+                    System.err.println("I/O error: " + e.getMessage());
+                }
+                System.out.println("Shutdown");
+            }
+            
+        });
+        t.start();
+
+        SessionRequest[] reqs = new SessionRequest[3];
+        reqs[0] = ioReactor.connect(
+                new InetSocketAddress("www.yahoo.com", 80), 
+                null, 
+                new HttpHost("www.yahoo.com"));
+        reqs[1] = ioReactor.connect(
+                new InetSocketAddress("www.google.com", 80), 
+                null,
+                new HttpHost("www.google.ch"));
+        reqs[2] = ioReactor.connect(
+                new InetSocketAddress("www.apache.org", 80), 
+                null,
+                new HttpHost("www.apache.org"));
+        
     }
     
     static class MyHttpRequestExecutionHandler implements HttpRequestExecutionHandler {
@@ -137,7 +145,11 @@ public class NHttpClient {
     
     static class EventLogger implements EventListener {
 
+        private int openNo = 0;
+        private int closedNo = 0;
+        
         public void connectionOpen(final InetAddress address) {
+            this.openNo++;
             System.out.println("Connection open: " + address);
         }
 
@@ -147,6 +159,10 @@ public class NHttpClient {
 
         public void connectionClosed(InetAddress address) {
             System.out.println("Connection closed: " + address);
+            this.closedNo++;
+            if (this.openNo == this.closedNo) {
+                System.exit(0);
+            }
         }
 
         public void fatalIOException(IOException ex) {
