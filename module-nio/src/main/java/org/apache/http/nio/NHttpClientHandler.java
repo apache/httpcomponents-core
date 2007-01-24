@@ -52,6 +52,15 @@ public interface NHttpClientHandler {
     void connected(NHttpClientConnection conn, Object attachment);
     
     /**
+     * Triggered when the connection is ready to send an HTTP request.
+     * 
+     * @see NHttpClientConnection
+     * 
+     * @param conn HTTP connection that contains an HTTP response
+     */
+    void requestReady(NHttpClientConnection conn);
+
+    /**
      * Triggered when an HTTP response is received. The connection
      * passed as a parameter to this method is guaranteed to return
      * a valid HTTP response object.

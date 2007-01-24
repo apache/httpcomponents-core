@@ -367,9 +367,11 @@ public class BufferingHttpServiceHandler implements NHttpServiceHandler {
 
         if (response.getEntity() != null) {
             HttpEntity entity = response.getEntity();
-            OutputStream outstream = new ContentOutputStream(outbuffer);
-            entity.writeTo(outstream);
-            outstream.flush();
+            if (entity != null) {
+                OutputStream outstream = new ContentOutputStream(outbuffer);
+                entity.writeTo(outstream);
+                outstream.flush();
+            }
         }
     }
 

@@ -150,6 +150,10 @@ public class DefaultNHttpClientConnection
             // Finally set buffered output flag
             this.hasBufferedOutput = this.contentEncoder != null && this.outbuf.hasData();
         }
+
+        if (this.request == null && !this.closed) {
+            handler.requestReady(this);
+        }
     }
     
     public void submitRequest(final HttpRequest request) throws HttpException {
@@ -179,8 +183,8 @@ public class DefaultNHttpClientConnection
 
         if (request instanceof HttpEntityEnclosingRequest) {
             prepareEncoder(request);
+            this.request = request;
         }
-        this.request = request;
         this.session.setEvent(EventMask.WRITE);
     }
 
