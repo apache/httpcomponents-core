@@ -32,6 +32,7 @@
 package org.apache.http.nio.impl.reactor;
 
 import java.io.IOException;
+import java.nio.channels.CancelledKeyException;
 import java.nio.channels.SelectionKey;
 import java.util.Iterator;
 import java.util.Set;
@@ -104,14 +105,18 @@ public class BaseIOReactor extends AbstractIOReactor {
                             continue;
                         }
                     }
-                    int ops = session.getEventMask();
-                    if ((ops & EventMask.READ) > 0) {
-                        this.eventDispatch.inputReady(session);
-                        if (bufStatus != null) {
-                            if (!bufStatus.hasBufferedInput()) {
-                                it.remove();
+                    try {
+                        int ops = session.getEventMask();
+                        if ((ops & EventMask.READ) > 0) {
+                            this.eventDispatch.inputReady(session);
+                            if (bufStatus != null) {
+                                if (!bufStatus.hasBufferedInput()) {
+                                    it.remove();
+                                }
                             }
                         }
+                    } catch (CancelledKeyException ex) {
+                        it.remove();
                     }
                 }
             }
