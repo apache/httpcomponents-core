@@ -228,12 +228,30 @@ public class NHttpConnectionBase
         }
     }
 
+    public int getLocalPort() {
+        SocketAddress address = this.session.getLocalAddress();
+        if (address instanceof InetSocketAddress) {
+            return ((InetSocketAddress) address).getPort();
+        } else {
+            return -1;
+        }
+    }
+
     public InetAddress getRemoteAddress() {
         SocketAddress address = this.session.getRemoteAddress();
         if (address instanceof InetSocketAddress) {
             return ((InetSocketAddress) address).getAddress();
         } else {
             return null;
+        }
+    }
+
+    public int getRemotePort() {
+        SocketAddress address = this.session.getRemoteAddress();
+        if (address instanceof InetSocketAddress) {
+            return ((InetSocketAddress) address).getPort();
+        } else {
+            return -1;
         }
     }
 

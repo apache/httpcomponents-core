@@ -120,11 +120,27 @@ public class SocketHttpClientConnection
         }
     }
 
+    public int getLocalPort() {
+        if (this.socket != null) {
+            return this.socket.getLocalPort();
+        } else {
+            return -1;
+        }
+    }
+
     public InetAddress getRemoteAddress() {
         if (this.socket != null) {
             return this.socket.getInetAddress();
         } else {
             return null;
+        }
+    }
+
+    public int getRemotePort() {
+        if (this.socket != null) {
+            return this.socket.getPort();
+        } else {
+            return -1;
         }
     }
 
