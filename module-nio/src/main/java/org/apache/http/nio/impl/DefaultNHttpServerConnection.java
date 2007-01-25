@@ -119,7 +119,7 @@ public class DefaultNHttpServerConnection
             handler.exception(this, ex);
         } finally {
             // Finally set buffered input flag
-            this.hasBufferedInput = this.contentDecoder != null && this.inbuf.hasData();
+            this.hasBufferedInput = this.inbuf.hasData();
         }
     }
 
@@ -148,7 +148,7 @@ public class DefaultNHttpServerConnection
             handler.exception(this, ex);
         } finally {
             // Finally set the buffered output flag
-            this.hasBufferedOutput = this.contentEncoder != null && this.outbuf.hasData();
+            this.hasBufferedOutput = this.outbuf.hasData();
         }
     }
     
