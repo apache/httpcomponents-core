@@ -50,7 +50,7 @@ public class OutputBuffer extends ExpandableBuffer implements ContentOutputBuffe
             return;
         }
         setInputMode();
-        ensureCapacity(this.capacity() + len);
+        ensureCapacity(this.buffer.position() + len);
         this.buffer.put(b, off, len);
     }
 
