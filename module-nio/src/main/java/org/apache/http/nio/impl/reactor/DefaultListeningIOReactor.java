@@ -32,6 +32,7 @@
 package org.apache.http.nio.impl.reactor;
 
 import java.io.IOException;
+import java.io.InterruptedIOException;
 import java.net.Socket;
 import java.net.SocketAddress;
 import java.nio.channels.CancelledKeyException;
@@ -43,6 +44,8 @@ import java.util.Iterator;
 import java.util.Set;
 
 import org.apache.http.nio.reactor.IOEventDispatch;
+import org.apache.http.nio.reactor.IOReactorException;
+import org.apache.http.nio.reactor.IOReactorExceptionHandler;
 import org.apache.http.nio.reactor.ListeningIOReactor;
 import org.apache.http.params.HttpConnectionParams;
 import org.apache.http.params.HttpParams;
@@ -57,24 +60,43 @@ public class DefaultListeningIOReactor extends AbstractMultiworkerIOReactor
     private final HttpParams params;
     private final Selector selector;
     
+    private IOReactorExceptionHandler exceptionHandler;
+    
     public DefaultListeningIOReactor(int workerCount, final HttpParams params) 
-            throws IOException {
+            throws IOReactorException {
         super(TIMEOUT_CHECK_INTERVAL, workerCount);
         if (params == null) {
             throw new IllegalArgumentException("HTTP parameters may not be null");
         }
         this.params = params;
-        this.selector = Selector.open();
+        try {
+            this.selector = Selector.open();
+        } catch (IOException ex) {
+            throw new IOReactorException("Failure opening selector", ex);
+        }
     }
 
+    public void setExceptionHandler(final IOReactorExceptionHandler exceptionHandler) {
+        this.exceptionHandler = exceptionHandler;
+    }
+    
     public void execute(final IOEventDispatch eventDispatch) 
-            throws IOException {
+            throws InterruptedIOException, IOReactorException {
         if (eventDispatch == null) {
             throw new IllegalArgumentException("Event dispatcher may not be null");
         }
         startWorkers(eventDispatch);
         for (;;) {
-            int readyCount = this.selector.select(TIMEOUT_CHECK_INTERVAL);
+
+            int readyCount;
+            try {
+                readyCount = this.selector.select(TIMEOUT_CHECK_INTERVAL);
+            } catch (InterruptedIOException ex) {
+                throw ex;
+            } catch (IOException ex) {
+                throw new IOReactorException("Unexpected selector failure", ex);
+            }
+            
             if (this.closed) {
                 break;
             }
@@ -85,7 +107,8 @@ public class DefaultListeningIOReactor extends AbstractMultiworkerIOReactor
         }
     }
     
-    private void processEvents(final Set selectedKeys) throws IOException {
+    private void processEvents(final Set selectedKeys)
+            throws IOReactorException {
         for (Iterator it = selectedKeys.iterator(); it.hasNext(); ) {
             
             SelectionKey key = (SelectionKey) it.next();
@@ -95,15 +118,30 @@ public class DefaultListeningIOReactor extends AbstractMultiworkerIOReactor
         selectedKeys.clear();
     }
 
-    private void processEvent(final SelectionKey key) throws IOException {
+    private void processEvent(final SelectionKey key) 
+            throws IOReactorException {
         try {
             
             if (key.isAcceptable()) {
                 
                 ServerSocketChannel serverChannel = (ServerSocketChannel) key.channel();
-                SocketChannel socketChannel = serverChannel.accept();
+                SocketChannel socketChannel = null;
+                try {
+                    socketChannel = serverChannel.accept();
+                } catch (IOException ex) {
+                    if (this.exceptionHandler == null || !this.exceptionHandler.handle(ex)) {
+                        throw new IOReactorException("Failure accepting connection", ex);
+                    }
+                }
+                
                 if (socketChannel != null) {
-                    prepareSocket(socketChannel.socket());
+                    try {
+                        prepareSocket(socketChannel.socket());
+                    } catch (IOException ex) {
+                        if (this.exceptionHandler == null || !this.exceptionHandler.handle(ex)) {
+                            throw new IOReactorException("Failure initalizing socket", ex);
+                        }
+                    }
                     ChannelEntry entry = new ChannelEntry(socketChannel); 
                     addChannel(entry);
                 }
@@ -142,5 +180,5 @@ public class DefaultListeningIOReactor extends AbstractMultiworkerIOReactor
         // Stop the workers
         stopWorkers(500);
     }
-        
+
 }

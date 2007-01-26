@@ -31,13 +31,13 @@
 
 package org.apache.http.nio.impl.reactor;
 
-import java.io.IOException;
 import java.nio.channels.CancelledKeyException;
 import java.nio.channels.SelectionKey;
 import java.util.Iterator;
 import java.util.Set;
 
 import org.apache.http.nio.reactor.EventMask;
+import org.apache.http.nio.reactor.IOReactorException;
 import org.apache.http.nio.reactor.IOSession;
 import org.apache.http.nio.reactor.SessionBufferStatus;
 
@@ -48,7 +48,7 @@ public class BaseIOReactor extends AbstractIOReactor {
     
     private long lastTimeoutCheck;
     
-    public BaseIOReactor(long selectTimeout) throws IOException {
+    public BaseIOReactor(long selectTimeout) throws IOReactorException {
         super(selectTimeout);
         this.bufferingSessions = new SessionSet();
         this.timeoutCheckInterval = selectTimeout;

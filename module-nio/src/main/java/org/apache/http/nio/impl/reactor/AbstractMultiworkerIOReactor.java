@@ -31,11 +31,11 @@
 
 package org.apache.http.nio.impl.reactor;
 
-import java.io.IOException;
 import java.io.InterruptedIOException;
 
 import org.apache.http.nio.reactor.IOEventDispatch;
 import org.apache.http.nio.reactor.IOReactor;
+import org.apache.http.nio.reactor.IOReactorException;
 
 public abstract class AbstractMultiworkerIOReactor implements IOReactor {
 
@@ -45,7 +45,8 @@ public abstract class AbstractMultiworkerIOReactor implements IOReactor {
     
     private int currentWorker = 0;
     
-    public AbstractMultiworkerIOReactor(long selectTimeout, int workerCount) throws IOException {
+    public AbstractMultiworkerIOReactor(long selectTimeout, int workerCount) 
+            throws IOReactorException {
         super();
         if (workerCount <= 0) {
             throw new IllegalArgumentException("Worker count may not be negative or zero");
@@ -68,7 +69,8 @@ public abstract class AbstractMultiworkerIOReactor implements IOReactor {
         }
     }
 
-    protected void stopWorkers(int millis) throws IOException {
+    protected void stopWorkers(int millis) 
+            throws InterruptedIOException, IOReactorException {
         for (int i = 0; i < this.workerCount; i++) {
             this.ioReactors[i].shutdown();
         }
@@ -81,19 +83,22 @@ public abstract class AbstractMultiworkerIOReactor implements IOReactor {
         }
     }
     
-    protected void verifyWorkers() throws IOException {
+    protected void verifyWorkers() 
+            throws InterruptedIOException, IOReactorException {
         for (int i = 0; i < this.workerCount; i++) {
             WorkerThread worker = this.threads[i];
             if (!worker.isAlive()) {
-                IOException ex = worker.getException();
-                if (ex != null) {
-                    throw ex;
+                if (worker.getReactorException() != null) {
+                    throw worker.getReactorException();
+                }
+                if (worker.getInterruptedException() != null) {
+                    throw worker.getInterruptedException();
                 }
             }
         }
     }
     
-    protected void addChannel(final ChannelEntry entry) throws IOException {
+    protected void addChannel(final ChannelEntry entry) {
         // Distribute new channels among the workers
         this.ioReactors[this.currentWorker++ % this.workerCount].addChannel(entry);
     }
@@ -103,7 +108,8 @@ public abstract class AbstractMultiworkerIOReactor implements IOReactor {
         final BaseIOReactor ioReactor;
         final IOEventDispatch eventDispatch;
         
-        private volatile IOException exception;
+        private volatile IOReactorException reactorException;
+        private volatile InterruptedIOException interruptedException;
         
         public WorkerThread(final BaseIOReactor ioReactor, final IOEventDispatch eventDispatch) {
             super();
@@ -114,19 +120,27 @@ public abstract class AbstractMultiworkerIOReactor implements IOReactor {
         public void run() {
             try {
                 this.ioReactor.execute(this.eventDispatch);
-            } catch (IOException ex) {
-                this.exception = ex;
+            } catch (InterruptedIOException ex) {
+                this.interruptedException = ex;
+            } catch (IOReactorException ex) {
+                this.reactorException = ex;
             } finally {
                 try {
                     this.ioReactor.shutdown();
-                } catch (IOException ex2) {
-                    this.exception = ex2;
+                } catch (IOReactorException ex2) {
+                    if (this.reactorException == null) {
+                        this.reactorException = ex2;
+                    }
                 }
             }
         }
         
-        public IOException getException() {
-            return this.exception;
+        public IOReactorException getReactorException() {
+            return this.reactorException;
+        }
+
+        public InterruptedIOException getInterruptedException() {
+            return this.interruptedException;
         }
         
     }

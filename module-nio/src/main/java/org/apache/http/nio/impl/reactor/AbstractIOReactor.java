@@ -32,6 +32,7 @@
 package org.apache.http.nio.impl.reactor;
 
 import java.io.IOException;
+import java.io.InterruptedIOException;
 import java.nio.channels.CancelledKeyException;
 import java.nio.channels.ClosedSelectorException;
 import java.nio.channels.SelectionKey;
@@ -42,6 +43,7 @@ import java.util.Set;
 
 import org.apache.http.nio.reactor.IOEventDispatch;
 import org.apache.http.nio.reactor.IOReactor;
+import org.apache.http.nio.reactor.IOReactorException;
 import org.apache.http.nio.reactor.IOSession;
 
 public abstract class AbstractIOReactor implements IOReactor {
@@ -56,16 +58,20 @@ public abstract class AbstractIOReactor implements IOReactor {
     
     protected IOEventDispatch eventDispatch = null;
     
-    public AbstractIOReactor(long selectTimeout) throws IOException {
+    public AbstractIOReactor(long selectTimeout) throws IOReactorException {
         super();
         if (selectTimeout <= 0) {
             throw new IllegalArgumentException("Select timeout may not be negative or zero");
         }
         this.selectTimeout = selectTimeout;
-        this.selector = Selector.open();
         this.sessions = new SessionSet();
         this.closedSessions = new SessionQueue();
         this.newChannels = new ChannelQueue();
+        try {
+            this.selector = Selector.open();
+        } catch (IOException ex) {
+            throw new IOReactorException("Failure opening selector", ex);
+        }
     }
 
     protected abstract void acceptable(SelectionKey key);
@@ -92,7 +98,8 @@ public abstract class AbstractIOReactor implements IOReactor {
         this.selector.wakeup();
     }
     
-    public void execute(final IOEventDispatch eventDispatch) throws IOException {
+    public void execute(final IOEventDispatch eventDispatch) 
+            throws InterruptedIOException, IOReactorException {
         if (eventDispatch == null) {
             throw new IllegalArgumentException("Event dispatcher may not be null");
         }
@@ -101,7 +108,15 @@ public abstract class AbstractIOReactor implements IOReactor {
         try {
             for (;;) {
                 
-                int readyCount = this.selector.select(this.selectTimeout);
+                int readyCount;
+                try {
+                    readyCount = this.selector.select(this.selectTimeout);
+                } catch (InterruptedIOException ex) {
+                    throw ex;
+                } catch (IOException ex) {
+                    throw new IOReactorException("Unexpected selector failure", ex);
+                }
+                
                 if (this.closed) {
                     break;
                 }
@@ -156,13 +171,20 @@ public abstract class AbstractIOReactor implements IOReactor {
         }
     }
 
-    private void processNewChannels() throws IOException {
+    private void processNewChannels() throws IOReactorException {
         ChannelEntry entry;
         while ((entry = this.newChannels.pop()) != null) {
             
-            SocketChannel channel = entry.getChannel();
-            channel.configureBlocking(false);
-            SelectionKey key = channel.register(this.selector, 0);
+            SocketChannel channel;
+            SelectionKey key;
+            try {
+                channel = entry.getChannel();
+                channel.configureBlocking(false);
+                key = channel.register(this.selector, 0);
+            } catch (IOException ex) {
+                throw new IOReactorException("Failure registering channel " +
+                        "with the selector", ex);
+            }
 
             IOSession session = new IOSessionImpl(key, new SessionClosedCallback() {
 
@@ -171,8 +193,18 @@ public abstract class AbstractIOReactor implements IOReactor {
                 }
                 
             });
+            
+            int timeout = 0;
+            try {
+                timeout = channel.socket().getSoTimeout();
+            } catch (IOException ex) {
+                // Very unlikely to happen and is not fatal
+                // as the protocol layer is expected to overwrite
+                // this value anyways
+            }
+            
             session.setAttribute(IOSession.ATTACHMENT_KEY, entry.getAttachment());
-            session.setSocketTimeout(channel.socket().getSoTimeout());
+            session.setSocketTimeout(timeout);
             this.sessions.add(session);
             keyCreated(key, session);
             this.eventDispatch.connected(session);
@@ -202,13 +234,17 @@ public abstract class AbstractIOReactor implements IOReactor {
         }
     }
     
-    public void shutdown() throws IOException {
+    public void shutdown() throws IOReactorException {
         if (this.closed) {
             return;
         }
         this.closed = true;
         // Stop dispatching I/O events
-        this.selector.close();
+        try {
+            this.selector.close();
+        } catch (IOException ex) {
+            throw new IOReactorException("Failure closing selector", ex);
+        }
     }
         
 }

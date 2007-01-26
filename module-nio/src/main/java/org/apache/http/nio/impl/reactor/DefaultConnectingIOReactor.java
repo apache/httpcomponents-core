@@ -32,6 +32,7 @@
 package org.apache.http.nio.impl.reactor;
 
 import java.io.IOException;
+import java.io.InterruptedIOException;
 import java.net.Socket;
 import java.net.SocketAddress;
 import java.nio.channels.CancelledKeyException;
@@ -43,6 +44,7 @@ import java.util.Set;
 
 import org.apache.http.nio.reactor.ConnectingIOReactor;
 import org.apache.http.nio.reactor.IOEventDispatch;
+import org.apache.http.nio.reactor.IOReactorException;
 import org.apache.http.nio.reactor.SessionRequest;
 import org.apache.http.params.HttpConnectionParams;
 import org.apache.http.params.HttpParams;
@@ -61,24 +63,37 @@ public class DefaultConnectingIOReactor extends AbstractMultiworkerIOReactor
     private long lastTimeoutCheck;
     
     public DefaultConnectingIOReactor(int workerCount, final HttpParams params) 
-            throws IOException {
+            throws IOReactorException {
         super(TIMEOUT_CHECK_INTERVAL, workerCount);
         if (params == null) {
             throw new IllegalArgumentException("HTTP parameters may not be null");
         }
         this.params = params;
-        this.selector = Selector.open();
         this.requestQueue = new SessionRequestQueue();
         this.lastTimeoutCheck = System.currentTimeMillis();
+        try {
+            this.selector = Selector.open();
+        } catch (IOException ex) {
+            throw new IOReactorException("Failure opening selector", ex);
+        }
     }
 
-    public void execute(final IOEventDispatch eventDispatch) throws IOException {
+    public void execute(final IOEventDispatch eventDispatch) 
+            throws InterruptedIOException, IOReactorException {
         if (eventDispatch == null) {
             throw new IllegalArgumentException("Event dispatcher may not be null");
         }
         startWorkers(eventDispatch);
         for (;;) {
-            int readyCount = this.selector.select(TIMEOUT_CHECK_INTERVAL);
+            int readyCount;
+            try {
+                readyCount = this.selector.select(TIMEOUT_CHECK_INTERVAL);
+            } catch (InterruptedIOException ex) {
+                throw ex;
+            } catch (IOException ex) {
+                throw new IOReactorException("Unexpected selector failure", ex);
+            }
+
             if (this.closed) {
                 break;
             }
@@ -101,7 +116,7 @@ public class DefaultConnectingIOReactor extends AbstractMultiworkerIOReactor
         }
     }
     
-    private void processEvents(final Set selectedKeys) throws IOException {
+    private void processEvents(final Set selectedKeys) {
         for (Iterator it = selectedKeys.iterator(); it.hasNext(); ) {
             
             SelectionKey key = (SelectionKey) it.next();
@@ -111,7 +126,7 @@ public class DefaultConnectingIOReactor extends AbstractMultiworkerIOReactor
         selectedKeys.clear();
     }
 
-    private void processEvent(final SelectionKey key) throws IOException {
+    private void processEvent(final SelectionKey key) {
         try {
             
             if (key.isConnectable()) {
@@ -189,20 +204,36 @@ public class DefaultConnectingIOReactor extends AbstractMultiworkerIOReactor
         return sessionRequest;
     }
     
-    private void processSessionRequests() throws IOException {
+    private void processSessionRequests() throws IOReactorException {
         SessionRequestImpl request;
         while ((request = this.requestQueue.pop()) != null) {
             if (request.isCompleted()) {
                 continue;
             }
-            SocketChannel socketChannel = SocketChannel.open();
-            socketChannel.configureBlocking(false);
-            if (request.getLocalAddress() != null) {
-                socketChannel.socket().bind(request.getLocalAddress());
+            SocketChannel socketChannel;
+            try {
+                socketChannel = SocketChannel.open();
+                socketChannel.configureBlocking(false);
+            } catch (IOException ex) {
+                throw new IOReactorException("Failure opening socket", ex);
             }
-            socketChannel.connect(request.getRemoteAddress());
-            SelectionKey key = socketChannel.register(this.selector, 0);
-            request.setKey(key);
+            try {
+                if (request.getLocalAddress() != null) {
+                    socketChannel.socket().bind(request.getLocalAddress());
+                }
+                socketChannel.connect(request.getRemoteAddress());
+            } catch (IOException ex) {
+                request.failed(ex);
+            }
+            
+            SelectionKey key;
+            try {
+                key = socketChannel.register(this.selector, 0);
+                request.setKey(key);
+            } catch (IOException ex) {
+                throw new IOReactorException("Failure registering channel " +
+                        "with the selector", ex);
+            }
 
             SessionRequestHandle requestHandle = new SessionRequestHandle(request); 
             key.attach(requestHandle);
