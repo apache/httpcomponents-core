@@ -40,6 +40,7 @@ import org.apache.http.HttpConnection;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpEntityEnclosingRequest;
 import org.apache.http.HttpException;
+import org.apache.http.HttpHost;
 import org.apache.http.HttpInetConnection;
 import org.apache.http.HttpRequest;
 import org.apache.http.HttpResponse;
@@ -116,6 +117,17 @@ public class BufferingHttpClientHandler implements NHttpClientHandler {
     public void connected(final NHttpClientConnection conn, final Object attachment) {
         HttpContext context = conn.getContext();
 
+        // Populate the context with a default HTTP host based on the 
+        // inet address of the target host
+        if (conn instanceof HttpInetConnection) {
+            InetAddress address = ((HttpInetConnection) conn).getRemoteAddress();
+            int port = ((HttpInetConnection) conn).getRemotePort();
+            if (address != null) {
+                HttpHost host = new HttpHost(address.getHostName(), port);
+                context.setAttribute(HttpExecutionContext.HTTP_TARGET_HOST, host);
+            }
+        }
+        
         initialize(conn, attachment);
         
         InputBuffer inbuffer = new InputBuffer(2048); 
