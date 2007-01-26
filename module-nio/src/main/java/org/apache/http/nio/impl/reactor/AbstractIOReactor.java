@@ -33,6 +33,7 @@ package org.apache.http.nio.impl.reactor;
 
 import java.io.IOException;
 import java.nio.channels.CancelledKeyException;
+import java.nio.channels.ClosedSelectorException;
 import java.nio.channels.SelectionKey;
 import java.nio.channels.Selector;
 import java.nio.channels.SocketChannel;
@@ -116,6 +117,7 @@ public abstract class AbstractIOReactor implements IOReactor {
                 processClosedSessions();
                 
             }
+        } catch (ClosedSelectorException ex) {
         } finally {
             closeSessions();
         }
