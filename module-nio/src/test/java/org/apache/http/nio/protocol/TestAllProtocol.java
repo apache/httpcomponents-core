@@ -2,7 +2,6 @@
  * $HeadURL$
  * $Revision$
  * $Date$
- *
  * ====================================================================
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
@@ -29,14 +28,25 @@
  *
  */
 
-package org.apache.http.nio.reactor;
+package org.apache.http.nio.protocol;
 
-import java.io.IOException;
-import java.net.SocketAddress;
+import junit.framework.*;
 
-public interface ListeningIOReactor extends IOReactor {
+public class TestAllProtocol extends TestCase {
 
-    SocketAddress listen(SocketAddress address) 
-        throws IOException;
-    
+    public TestAllProtocol(String testName) {
+        super(testName);
+    }
+
+    public static Test suite() {
+        TestSuite suite = new TestSuite();
+        suite.addTest(TestNIOHttp.suite());
+        return suite;
+    }
+
+    public static void main(String args[]) {
+        String[] testCaseName = { TestAllProtocol.class.getName() };
+        junit.textui.TestRunner.main(testCaseName);
+    }
+
 }

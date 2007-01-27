@@ -33,6 +33,7 @@ package org.apache.http.nio.mockup;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
+import java.net.SocketAddress;
 
 import org.apache.http.impl.DefaultConnectionReuseStrategy;
 import org.apache.http.impl.DefaultHttpResponseFactory;
@@ -58,12 +59,12 @@ import org.apache.http.protocol.ResponseServer;
  */
 public class TestHttpServer extends TestHttpServiceBase {
 
-    private final int port;
     private final HttpRequestHandlerRegistry reqistry;
+    private volatile SocketAddress address;
+    private final Object mutex;
     
-    public TestHttpServer(int port) throws IOException {
+    public TestHttpServer() throws IOException {
         super();
-        this.port = port;
         this.params
             .setIntParameter(HttpConnectionParams.SO_TIMEOUT, 2000)
             .setIntParameter(HttpConnectionParams.SOCKET_BUFFER_SIZE, 8 * 1024)
@@ -73,6 +74,7 @@ public class TestHttpServer extends TestHttpServiceBase {
         
         this.reqistry = new HttpRequestHandlerRegistry();
         this.ioReactor = new DefaultListeningIOReactor(1, this.params);
+        this.mutex = new Object();
     }
     
     public void registerHandler(
@@ -82,6 +84,10 @@ public class TestHttpServer extends TestHttpServiceBase {
     }
     
     protected void execute() throws IOException {
+        synchronized (this.mutex) {
+            this.address = ((ListeningIOReactor) this.ioReactor).listen(new InetSocketAddress(0));
+            this.mutex.notifyAll();
+        }
         BasicHttpProcessor httpproc = new BasicHttpProcessor();
         httpproc.addInterceptor(new ResponseDate());
         httpproc.addInterceptor(new ResponseServer());
@@ -101,9 +107,16 @@ public class TestHttpServer extends TestHttpServiceBase {
         IOEventDispatch ioEventDispatch = new DefaultServerIOEventDispatch(
                 serviceHandler, 
                 this.params);
-        
-        ((ListeningIOReactor) this.ioReactor).listen(new InetSocketAddress(this.port));
         this.ioReactor.execute(ioEventDispatch);
+    }
+    
+    public SocketAddress getSocketAddress() throws InterruptedException {
+        synchronized (this.mutex) {
+            while (this.address == null) {
+                this.mutex.wait();
+            }
+        }
+        return this.address;
     }
     
 }

@@ -39,11 +39,14 @@ import java.util.List;
 import java.util.Random;
 
 import org.apache.http.HttpEntity;
+import org.apache.http.HttpEntityEnclosingRequest;
 import org.apache.http.HttpException;
 import org.apache.http.HttpRequest;
 import org.apache.http.HttpResponse;
 import org.apache.http.entity.ByteArrayEntity;
+import org.apache.http.entity.StringEntity;
 import org.apache.http.message.HttpGet;
+import org.apache.http.message.HttpPost;
 import org.apache.http.nio.NHttpConnection;
 import org.apache.http.nio.mockup.TestHttpClient;
 import org.apache.http.nio.mockup.TestHttpServer;
@@ -87,7 +90,7 @@ public class TestNIOHttp extends TestCase {
     private TestHttpClient client;
     
     protected void setUp() throws Exception {
-        this.server = new TestHttpServer(8888);
+        this.server = new TestHttpServer();
         this.client = new TestHttpClient();
     }
 
@@ -96,7 +99,11 @@ public class TestNIOHttp extends TestCase {
         this.client.shutdown();
     }
 
-    public void testSimpleHttpExchange() throws Exception {
+    /**
+     * This test case executes a series of simple (non-pipelined) GET requests 
+     * over multiple connections. 
+     */
+    public void testSimpleHttpGets() throws Exception {
         
         final int connNo = 3;
         final int reqNo = 20;
@@ -200,17 +207,306 @@ public class TestNIOHttp extends TestCase {
         this.server.start();
         this.client.start();
         
+        InetSocketAddress serverAddress = (InetSocketAddress) this.server.getSocketAddress();
+        
         for (int i = 0; i < responseData.length; i++) {
             this.client.openConnection(
-                    new InetSocketAddress("localhost", 8888), 
+                    new InetSocketAddress("localhost", serverAddress.getPort()), 
                     responseData[i]);
         }
      
         this.client.await(connNo, 1000);
-        assertEquals(3, this.client.getConnCount());
+        assertEquals(connNo, this.client.getConnCount());
         
         this.server.await(connNo, 1000);
-        assertEquals(3, this.server.getConnCount());
+        assertEquals(connNo, this.server.getConnCount());
+
+        for (int c = 0; c < responseData.length; c++) {
+            List receivedPackets = responseData[c];
+            List expectedPackets = testData;
+            assertEquals(receivedPackets.size(), expectedPackets.size());
+            for (int p = 0; p < testData.size(); p++) {
+                byte[] expected = (byte[]) testData.get(p);
+                byte[] received = (byte[]) receivedPackets.get(p);
+                
+                assertEquals(expected.length, received.length);
+                for (int i = 0; i < expected.length; i++) {
+                    assertEquals(expected[i], received[i]);
+                }
+            }
+        }
+        
+    }
+
+    /**
+     * This test case executes a series of simple (non-pipelined) POST requests 
+     * with content length delimited content over multiple connections. 
+     */
+    public void testSimpleHttpPostsWithContentLength() throws Exception {
+        
+        final int connNo = 3;
+        final int reqNo = 20;
+        
+        Random rnd = new Random();
+        
+        // Prepare some random data
+        final List testData = new ArrayList(reqNo);
+        for (int i = 0; i < reqNo; i++) {
+            int size = rnd.nextInt(5000);
+            byte[] data = new byte[size];
+            rnd.nextBytes(data);
+            testData.add(data);
+        }
+        
+        List[] responseData = new List[connNo];
+        for (int i = 0; i < responseData.length; i++) {
+            responseData[i] = new ArrayList();
+        }
+        
+        // Initialize the server-side request handler
+        this.server.registerHandler("*", new HttpRequestHandler() {
+
+            public void handle(
+                    final HttpRequest request, 
+                    final HttpResponse response, 
+                    final HttpContext context) throws HttpException, IOException {
+                
+                if (request instanceof HttpEntityEnclosingRequest) {
+                    HttpEntity incoming = ((HttpEntityEnclosingRequest) request).getEntity();
+                    byte[] data = EntityUtils.toByteArray(incoming);
+                    
+                    ByteArrayEntity outgoing = new ByteArrayEntity(data);
+                    outgoing.setChunked(false);
+                    response.setEntity(outgoing);
+                } else {
+                    StringEntity outgoing = new StringEntity("No content"); 
+                    response.setEntity(outgoing);
+                }
+            }
+            
+        });
+        
+        // Initialize the client side request executor
+        this.client.setHttpRequestExecutionHandler(new HttpRequestExecutionHandler() {
+
+            public void initalizeContext(final HttpContext context, final Object attachment) {
+                context.setAttribute("LIST", (List) attachment);
+                context.setAttribute("STATUS", "ready");
+            }
+
+            public HttpRequest submitRequest(final HttpContext context) {
+                NHttpConnection conn = (NHttpConnection) context.getAttribute(
+                        HttpExecutionContext.HTTP_CONNECTION);
+                String status = (String) context.getAttribute("STATUS");
+                if (!status.equals("ready")) {
+                    return null;
+                }
+                int index = 0;
+                
+                Integer intobj = (Integer) context.getAttribute("INDEX");
+                if (intobj != null) {
+                    index = intobj.intValue();
+                }
+
+                HttpPost post = null;
+                if (index < reqNo) {
+                    post = new HttpPost("/?" + index);
+                    byte[] data = (byte[]) testData.get(index);
+                    ByteArrayEntity outgoing = new ByteArrayEntity(data);
+                    post.setEntity(outgoing);
+                    
+                    context.setAttribute("INDEX", new Integer(index + 1));
+                    context.setAttribute("STATUS", "busy");
+                } else {
+                    try {
+                        conn.close();
+                    } catch (IOException ex) {
+                        ex.printStackTrace();
+                    }
+                }
+                
+                return post;
+            }
+            
+            public void handleResponse(final HttpResponse response, final HttpContext context) {
+                NHttpConnection conn = (NHttpConnection) context.getAttribute(
+                        HttpExecutionContext.HTTP_CONNECTION);
+                
+                List list = (List) context.getAttribute("LIST");
+                try {
+                    HttpEntity entity = response.getEntity();
+                    byte[] data = EntityUtils.toByteArray(entity);
+                    list.add(data);
+                } catch (IOException ex) {
+                    fail(ex.getMessage());
+                }
+
+                context.setAttribute("STATUS", "ready");
+                conn.requestInput();
+            }
+            
+        });
+        
+        this.server.start();
+        this.client.start();
+        
+        InetSocketAddress serverAddress = (InetSocketAddress) this.server.getSocketAddress();
+        
+        for (int i = 0; i < responseData.length; i++) {
+            this.client.openConnection(
+                    new InetSocketAddress("localhost", serverAddress.getPort()), 
+                    responseData[i]);
+        }
+     
+        this.client.await(connNo, 1000);
+        assertEquals(connNo, this.client.getConnCount());
+        
+        this.server.await(connNo, 1000);
+        assertEquals(connNo, this.server.getConnCount());
+
+        for (int c = 0; c < responseData.length; c++) {
+            List receivedPackets = responseData[c];
+            List expectedPackets = testData;
+            assertEquals(receivedPackets.size(), expectedPackets.size());
+            for (int p = 0; p < testData.size(); p++) {
+                byte[] expected = (byte[]) testData.get(p);
+                byte[] received = (byte[]) receivedPackets.get(p);
+                
+                assertEquals(expected.length, received.length);
+                for (int i = 0; i < expected.length; i++) {
+                    assertEquals(expected[i], received[i]);
+                }
+            }
+        }
+        
+    }
+
+    /**
+     * This test case executes a series of simple (non-pipelined) POST requests 
+     * with chunk coded content content over multiple connections. 
+     */
+    public void testSimpleHttpPostsChunked() throws Exception {
+        
+        final int connNo = 3;
+        final int reqNo = 20;
+        
+        Random rnd = new Random();
+        
+        // Prepare some random data
+        final List testData = new ArrayList(reqNo);
+        for (int i = 0; i < reqNo; i++) {
+            int size = rnd.nextInt(20000);
+            byte[] data = new byte[size];
+            rnd.nextBytes(data);
+            testData.add(data);
+        }
+        
+        List[] responseData = new List[connNo];
+        for (int i = 0; i < responseData.length; i++) {
+            responseData[i] = new ArrayList();
+        }
+        
+        // Initialize the server-side request handler
+        this.server.registerHandler("*", new HttpRequestHandler() {
+
+            public void handle(
+                    final HttpRequest request, 
+                    final HttpResponse response, 
+                    final HttpContext context) throws HttpException, IOException {
+                
+                if (request instanceof HttpEntityEnclosingRequest) {
+                    HttpEntity incoming = ((HttpEntityEnclosingRequest) request).getEntity();
+                    byte[] data = EntityUtils.toByteArray(incoming);
+                    ByteArrayEntity outgoing = new ByteArrayEntity(data);
+                    outgoing.setChunked(true);
+                    response.setEntity(outgoing);
+                } else {
+                    StringEntity outgoing = new StringEntity("No content"); 
+                    response.setEntity(outgoing);
+                }
+            }
+            
+        });
+        
+        // Initialize the client side request executor
+        this.client.setHttpRequestExecutionHandler(new HttpRequestExecutionHandler() {
+
+            public void initalizeContext(final HttpContext context, final Object attachment) {
+                context.setAttribute("LIST", (List) attachment);
+                context.setAttribute("STATUS", "ready");
+            }
+
+            public HttpRequest submitRequest(final HttpContext context) {
+                NHttpConnection conn = (NHttpConnection) context.getAttribute(
+                        HttpExecutionContext.HTTP_CONNECTION);
+                String status = (String) context.getAttribute("STATUS");
+                if (!status.equals("ready")) {
+                    return null;
+                }
+                int index = 0;
+                
+                Integer intobj = (Integer) context.getAttribute("INDEX");
+                if (intobj != null) {
+                    index = intobj.intValue();
+                }
+
+                HttpPost post = null;
+                if (index < reqNo) {
+                    post = new HttpPost("/?" + index);
+                    byte[] data = (byte[]) testData.get(index);
+                    ByteArrayEntity outgoing = new ByteArrayEntity(data);
+                    outgoing.setChunked(true);
+                    post.setEntity(outgoing);
+                    
+                    context.setAttribute("INDEX", new Integer(index + 1));
+                    context.setAttribute("STATUS", "busy");
+                } else {
+                    try {
+                        conn.close();
+                    } catch (IOException ex) {
+                        ex.printStackTrace();
+                    }
+                }
+                
+                return post;
+            }
+            
+            public void handleResponse(final HttpResponse response, final HttpContext context) {
+                NHttpConnection conn = (NHttpConnection) context.getAttribute(
+                        HttpExecutionContext.HTTP_CONNECTION);
+                
+                List list = (List) context.getAttribute("LIST");
+                
+                try {
+                    HttpEntity entity = response.getEntity();
+                    byte[] data = EntityUtils.toByteArray(entity);
+                    list.add(data);
+                } catch (IOException ex) {
+                    fail(ex.getMessage());
+                }
+
+                context.setAttribute("STATUS", "ready");
+                conn.requestInput();
+            }
+            
+        });
+        
+        this.server.start();
+        this.client.start();
+        
+        InetSocketAddress serverAddress = (InetSocketAddress) this.server.getSocketAddress();
+        
+        for (int i = 0; i < responseData.length; i++) {
+            this.client.openConnection(
+                    new InetSocketAddress("localhost", serverAddress.getPort()), 
+                    responseData[i]);
+        }
+     
+        this.client.await(connNo, 1000);
+        assertEquals(connNo, this.client.getConnCount());
+        
+        this.server.await(connNo, 1000);
+        assertEquals(connNo, this.server.getConnCount());
 
         for (int c = 0; c < responseData.length; c++) {
             List receivedPackets = responseData[c];

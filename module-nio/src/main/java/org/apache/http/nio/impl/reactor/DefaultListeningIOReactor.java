@@ -161,13 +161,14 @@ public class DefaultListeningIOReactor extends AbstractMultiworkerIOReactor
         }
     }
 
-    public void listen(
+    public SocketAddress listen(
             final SocketAddress address) throws IOException {
         ServerSocketChannel serverChannel = ServerSocketChannel.open();
         serverChannel.configureBlocking(false);
         serverChannel.socket().bind(address);
         SelectionKey key = serverChannel.register(this.selector, SelectionKey.OP_ACCEPT);
         key.attach(null);
+        return serverChannel.socket().getLocalSocketAddress();
     }
 
     public void shutdown() throws IOException {

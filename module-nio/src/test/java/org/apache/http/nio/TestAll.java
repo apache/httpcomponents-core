@@ -31,6 +31,7 @@
 package org.apache.http.nio;
 
 import org.apache.http.nio.impl.TestAllImpl;
+import org.apache.http.nio.protocol.TestAllProtocol;
 
 import junit.framework.*;
 
@@ -43,7 +44,7 @@ public class TestAll extends TestCase {
     public static Test suite() {
         TestSuite suite = new TestSuite();
         suite.addTest(TestAllImpl.suite());
-        
+        suite.addTest(TestAllProtocol.suite());
         return suite;
     }
 
