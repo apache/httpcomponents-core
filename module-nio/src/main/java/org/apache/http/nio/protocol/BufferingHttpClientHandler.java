@@ -323,6 +323,7 @@ public class BufferingHttpClientHandler implements NHttpClientHandler {
                 OutputStream outstream = new ContentOutputStream(outbuffer);
                 entity.writeTo(outstream);
                 outstream.flush();
+                outstream.close();
             }
         }
         

@@ -371,6 +371,7 @@ public class BufferingHttpServiceHandler implements NHttpServiceHandler {
                 OutputStream outstream = new ContentOutputStream(outbuffer);
                 entity.writeTo(outstream);
                 outstream.flush();
+                outstream.close();
             }
         }
     }

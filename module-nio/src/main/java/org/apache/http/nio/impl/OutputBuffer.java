@@ -36,17 +36,26 @@ import org.apache.http.nio.ContentEncoder;
 
 public class OutputBuffer extends ExpandableBuffer implements ContentOutputBuffer {
     
+    private boolean endOfStream;
+    
     public OutputBuffer(int buffersize) {
         super(buffersize);
+        this.endOfStream = false;
     }
 
     public void produceContent(final ContentEncoder encoder) throws IOException {
         setOutputMode();
         encoder.write(this.buffer);
+        if (!hasData() && this.endOfStream) {
+            encoder.complete();
+        }
     }
     
     public void write(final byte[] b, int off, int len) throws IOException {
         if (b == null) {
+            return;
+        }
+        if (this.endOfStream) {
             return;
         }
         setInputMode();
@@ -58,23 +67,31 @@ public class OutputBuffer extends ExpandableBuffer implements ContentOutputBuffe
         if (b == null) {
             return;
         }
+        if (this.endOfStream) {
+            return;
+        }
         write(b, 0, b.length);
     }
 
     public void write(int b) throws IOException {
+        if (this.endOfStream) {
+            return;
+        }
         setInputMode();
         ensureCapacity(this.capacity() + 1);
         this.buffer.put((byte)b);
     }
     
     public void clear() {
-        super.clear();        
+        super.clear();
+        this.endOfStream = false;
     }
     
     public void flush() {
     }
 
     public void shutdown() {
+        this.endOfStream = true;
     }
     
 }
