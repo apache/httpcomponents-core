@@ -80,7 +80,7 @@ public class SessionOutputBuffer extends ExpandableBuffer {
             return;
         }
         setInputMode();
-        int requiredCapacity = src.remaining();
+        int requiredCapacity = this.buffer.position() + src.remaining();
         ensureCapacity(requiredCapacity);
         this.buffer.put(src);
     }
