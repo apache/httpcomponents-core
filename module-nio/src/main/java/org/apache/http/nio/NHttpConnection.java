@@ -67,4 +67,11 @@ public interface NHttpConnection extends HttpConnection, ContentIOControl {
      */
     HttpContext getContext();
     
+    /**
+     * Sets socket timeout value.
+     * 
+     * @param timeout timeout value in milliseconds
+     */
+    void setSocketTimeout(int timeout);
+    
 }
