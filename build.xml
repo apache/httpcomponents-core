@@ -296,11 +296,15 @@ Output
             <package name="org.apache.http" />
             <package name="org.apache.http.entity" />
             <package name="org.apache.http.io" />
-            <package name="org.apache.http.nio" />
             <package name="org.apache.http.message" />
             <package name="org.apache.http.params" />
             <package name="org.apache.http.protocol" />
             <package name="org.apache.http.util" />
+            <package name="org.apache.http.nio" />
+            <package name="org.apache.http.nio.concurrent" />
+            <package name="org.apache.http.nio.params" />
+            <package name="org.apache.http.nio.protocol" />
+            <package name="org.apache.http.nio.reactor" />
           </group>
           <group title="Implementation">
             <package name="org.apache.http.impl*" />
@@ -345,11 +349,15 @@ Output
             <package name="org.apache.http" />
             <package name="org.apache.http.entity" />
             <package name="org.apache.http.io" />
-            <package name="org.apache.http.nio" />
             <package name="org.apache.http.message" />
             <package name="org.apache.http.params" />
             <package name="org.apache.http.protocol" />
             <package name="org.apache.http.util" />
+            <package name="org.apache.http.nio" />
+            <package name="org.apache.http.nio.concurrent" />
+            <package name="org.apache.http.nio.params" />
+            <package name="org.apache.http.nio.protocol" />
+            <package name="org.apache.http.nio.reactor" />
           </group>
           <group title="Implementation">
             <package name="org.apache.http.impl*" />
