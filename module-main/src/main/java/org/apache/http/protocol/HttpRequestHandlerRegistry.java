@@ -34,7 +34,6 @@ package org.apache.http.protocol;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
-import java.util.Properties;
 
 /**
  * Maintains a map of HTTP request handlers keyed by a request URI pattern. 
@@ -77,15 +76,24 @@ public class HttpRequestHandlerRegistry implements HttpRequestHandlerResolver {
         this.handlerMap.remove(pattern);
     }
     
-    public void setHandlers(final Properties props) {
-        if (props == null) {
-            throw new IllegalArgumentException("Properties may not be null");
+    public void setHandlers(final Map map) {
+        if (map == null) {
+            throw new IllegalArgumentException("Map of handlers may not be null");
         }
         this.handlerMap.clear();
-        this.handlerMap.putAll(props);
+        this.handlerMap.putAll(map);
     }
     
-    public HttpRequestHandler lookup(final String requestURI) {
+    public HttpRequestHandler lookup(String requestURI) {
+        if (requestURI == null) {
+            throw new IllegalArgumentException("Request URI may not be null");
+        }
+        //Strip away the query part part if found
+        int index = requestURI.indexOf("?");
+        if (index != -1) {
+            requestURI = requestURI.substring(0, index);
+        }
+        
         // direct match?
         Object handler = this.handlerMap.get(requestURI);
         if (handler == null) {

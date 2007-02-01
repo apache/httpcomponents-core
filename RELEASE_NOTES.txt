@@ -1,5 +1,9 @@
 Changes since release 4.0 Alpha 3
 -------------------
+* [HTTPCORE-36]: Fixed #setHandlers() method and matching of request URIs 
+  with a query part in HttpRequestHandlerRegistry
+  Contributed by Oleg Kalnichevski <olegk at apache.org>
+
 * [HTTPCORE-28]: DefaultConnectingIOReactor now maintains a queue of connect 
   requests and registers new sessions with the selector on the I/O thread.
   Contributed by Oleg Kalnichevski <olegk at apache.org>
