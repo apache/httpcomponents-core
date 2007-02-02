@@ -33,7 +33,7 @@ package org.apache.http.message;
 
 import org.apache.http.Header;
 import org.apache.http.HttpMessage;
-import org.apache.http.impl.DefaultHttpParams;
+import org.apache.http.impl.params.DefaultHttpParams;
 import org.apache.http.mockup.HttpMessageMockup;
 import org.apache.http.params.HttpParams;
 

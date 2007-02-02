@@ -42,7 +42,7 @@ import junit.framework.Test;
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
 
-import org.apache.http.impl.DefaultHttpParams;
+import org.apache.http.impl.params.DefaultHttpParams;
 import org.apache.http.nio.impl.reactor.SessionInputBuffer;
 import org.apache.http.nio.impl.reactor.SessionOutputBuffer;
 import org.apache.http.params.HttpParams;

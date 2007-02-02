@@ -194,7 +194,7 @@ Output
         </javac>
 </target>
 <target name="clean-examples">
-	<delete dir="${build.core.main.xmpls}" quiet="true" />
+	<delete dir="${build.core.nio.xmpls}" quiet="true" />
 </target>
 
 

@@ -35,7 +35,7 @@ import java.io.IOException;
 import java.net.InetAddress;
 
 import org.apache.http.HttpException;
-import org.apache.http.impl.DefaultHttpParams;
+import org.apache.http.impl.params.DefaultHttpParams;
 import org.apache.http.nio.protocol.EventListener;
 import org.apache.http.nio.reactor.IOReactor;
 import org.apache.http.params.HttpParams;

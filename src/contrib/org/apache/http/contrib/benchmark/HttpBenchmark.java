@@ -44,7 +44,7 @@ import org.apache.http.HttpHost;
 import org.apache.http.HttpRequest;
 import org.apache.http.HttpVersion;
 import org.apache.http.entity.FileEntity;
-import org.apache.http.impl.DefaultHttpParams;
+import org.apache.http.impl.params.DefaultHttpParams;
 import org.apache.http.message.HttpGet;
 import org.apache.http.message.HttpHead;
 import org.apache.http.message.HttpPost;

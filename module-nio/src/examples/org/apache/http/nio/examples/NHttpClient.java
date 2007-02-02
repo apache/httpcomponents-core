@@ -11,7 +11,7 @@ import org.apache.http.HttpHost;
 import org.apache.http.HttpRequest;
 import org.apache.http.HttpResponse;
 import org.apache.http.impl.DefaultConnectionReuseStrategy;
-import org.apache.http.impl.DefaultHttpParams;
+import org.apache.http.impl.params.DefaultHttpParams;
 import org.apache.http.message.HttpGet;
 import org.apache.http.nio.impl.DefaultClientIOEventDispatch;
 import org.apache.http.nio.impl.reactor.DefaultConnectingIOReactor;
