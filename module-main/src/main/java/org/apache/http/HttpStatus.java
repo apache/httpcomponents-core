@@ -33,7 +33,7 @@ package org.apache.http;
 
 /**
  * Constants enumerating the HTTP status codes.
- * All status codes defined in RFC1945 (HTTP/1.0, RFC2616 (HTTP/1.1), and
+ * All status codes defined in RFC1945 (HTTP/1.0), RFC2616 (HTTP/1.1), and
  * RFC2518 (WebDAV) are supported.
  * 
  * @see StatusLine

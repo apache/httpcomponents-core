@@ -62,7 +62,7 @@ public class TestHttpVersion extends TestCase {
     // ------------------------------------------------------------------ Tests
     
     public void testHttpVersionParsing() throws Exception {
-        new BasicHttpVersion(1, 1);
+        new HttpVersion(1, 1);
         String s = "HTTP/1.1";
         HttpVersion version = BasicHttpVersion.parse(s);
         assertEquals("HTTP major version number", 1, version.getMajor());

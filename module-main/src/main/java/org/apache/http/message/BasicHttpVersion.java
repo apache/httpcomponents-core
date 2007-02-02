@@ -36,20 +36,8 @@ import org.apache.http.ProtocolException;
 import org.apache.http.protocol.HTTP;
 import org.apache.http.util.CharArrayBuffer;
 
-public class BasicHttpVersion extends HttpVersion {
+public class BasicHttpVersion {
 
-    /**
-     * Create an HTTP protocol version designator.
-     *
-     * @param major   the major version number of the HTTP protocol
-     * @param minor   the minor version number of the HTTP protocol
-     * 
-     * @throws IllegalArgumentException if either major or minor version number is negative
-     */
-    public BasicHttpVersion(int major, int minor) {
-        super(major, minor);
-    }
-    
     /**
      * Parses the textual representation of the given HTTP protocol version.
      * 
