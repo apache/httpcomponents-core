@@ -33,6 +33,7 @@ package org.apache.http.nio.impl.reactor;
 
 import java.io.InterruptedIOException;
 
+import org.apache.http.nio.concurrent.ThreadFactory;
 import org.apache.http.nio.reactor.IOEventDispatch;
 import org.apache.http.nio.reactor.IOReactor;
 import org.apache.http.nio.reactor.IOReactorException;
@@ -40,29 +41,40 @@ import org.apache.http.nio.reactor.IOReactorException;
 public abstract class AbstractMultiworkerIOReactor implements IOReactor {
 
     private final int workerCount;
+    private final ThreadFactory threadFactory;
     private final BaseIOReactor[] ioReactors;
-    private final WorkerThread[] threads;
+    private final Worker[] workers;
+    private final Thread[] threads;
     
     private int currentWorker = 0;
     
-    public AbstractMultiworkerIOReactor(long selectTimeout, int workerCount) 
-            throws IOReactorException {
+    public AbstractMultiworkerIOReactor(
+            long selectTimeout, 
+            int workerCount, 
+            final ThreadFactory threadFactory) throws IOReactorException {
         super();
         if (workerCount <= 0) {
             throw new IllegalArgumentException("Worker count may not be negative or zero");
         }
         this.workerCount = workerCount;
+        if (threadFactory != null) {
+            this.threadFactory = threadFactory;
+        } else {
+            this.threadFactory = new DefaultThreadFactory();
+        }
         this.ioReactors = new BaseIOReactor[workerCount];
-        this.threads = new WorkerThread[workerCount];
         for (int i = 0; i < this.ioReactors.length; i++) {
             this.ioReactors[i] = new BaseIOReactor(selectTimeout);
         }
+        this.workers = new Worker[workerCount];
+        this.threads = new Thread[workerCount];
     }
 
     protected void startWorkers(final IOEventDispatch eventDispatch) {
         for (int i = 0; i < this.workerCount; i++) {
             BaseIOReactor ioReactor = this.ioReactors[i];
-            this.threads[i] = new WorkerThread(ioReactor, eventDispatch);
+            this.workers[i] = new Worker(ioReactor, eventDispatch);
+            this.threads[i] = this.threadFactory.newThread(this.workers[i]);
         }
         for (int i = 0; i < this.workerCount; i++) {
             this.threads[i].start();
@@ -86,8 +98,9 @@ public abstract class AbstractMultiworkerIOReactor implements IOReactor {
     protected void verifyWorkers() 
             throws InterruptedIOException, IOReactorException {
         for (int i = 0; i < this.workerCount; i++) {
-            WorkerThread worker = this.threads[i];
-            if (!worker.isAlive()) {
+            Worker worker = this.workers[i];
+            Thread thread = this.threads[i];
+            if (!thread.isAlive()) {
                 if (worker.getReactorException() != null) {
                     throw worker.getReactorException();
                 }
@@ -103,7 +116,7 @@ public abstract class AbstractMultiworkerIOReactor implements IOReactor {
         this.ioReactors[this.currentWorker++ % this.workerCount].addChannel(entry);
     }
         
-    static class WorkerThread extends Thread {
+    static class Worker implements Runnable {
 
         final BaseIOReactor ioReactor;
         final IOEventDispatch eventDispatch;
@@ -111,7 +124,7 @@ public abstract class AbstractMultiworkerIOReactor implements IOReactor {
         private volatile IOReactorException reactorException;
         private volatile InterruptedIOException interruptedException;
         
-        public WorkerThread(final BaseIOReactor ioReactor, final IOEventDispatch eventDispatch) {
+        public Worker(final BaseIOReactor ioReactor, final IOEventDispatch eventDispatch) {
             super();
             this.ioReactor = ioReactor;
             this.eventDispatch = eventDispatch;
@@ -145,4 +158,12 @@ public abstract class AbstractMultiworkerIOReactor implements IOReactor {
         
     }
 
+    static class DefaultThreadFactory implements ThreadFactory {
+
+        public Thread newThread(final Runnable r) {
+            return new Thread(r, "I/O reactor worker thread");
+        }
+        
+    }
+    
 }

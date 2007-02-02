@@ -43,6 +43,7 @@ import java.nio.channels.SocketChannel;
 import java.util.Iterator;
 import java.util.Set;
 
+import org.apache.http.nio.concurrent.ThreadFactory;
 import org.apache.http.nio.reactor.IOEventDispatch;
 import org.apache.http.nio.reactor.IOReactorException;
 import org.apache.http.nio.reactor.IOReactorExceptionHandler;
@@ -62,9 +63,11 @@ public class DefaultListeningIOReactor extends AbstractMultiworkerIOReactor
     
     private IOReactorExceptionHandler exceptionHandler;
     
-    public DefaultListeningIOReactor(int workerCount, final HttpParams params) 
-            throws IOReactorException {
-        super(TIMEOUT_CHECK_INTERVAL, workerCount);
+    public DefaultListeningIOReactor(
+            int workerCount, 
+            final ThreadFactory threadFactory,
+            final HttpParams params) throws IOReactorException {
+        super(TIMEOUT_CHECK_INTERVAL, workerCount, threadFactory);
         if (params == null) {
             throw new IllegalArgumentException("HTTP parameters may not be null");
         }
@@ -76,6 +79,12 @@ public class DefaultListeningIOReactor extends AbstractMultiworkerIOReactor
         }
     }
 
+    public DefaultListeningIOReactor(
+            int workerCount, 
+            final HttpParams params) throws IOReactorException {
+        this(workerCount, null, params);
+    }
+    
     public void setExceptionHandler(final IOReactorExceptionHandler exceptionHandler) {
         this.exceptionHandler = exceptionHandler;
     }

@@ -64,7 +64,7 @@ public class TestHttpClient extends TestHttpServiceBase {
             .setBooleanParameter(HttpConnectionParams.TCP_NODELAY, true)
             .setParameter(HttpProtocolParams.USER_AGENT, "TEST-CLIENT/1.1");
 
-        this.ioReactor = new DefaultConnectingIOReactor(1, this.params);
+        this.ioReactor = new DefaultConnectingIOReactor(2, this.params);
     }
     
     public void setHttpRequestExecutionHandler(final HttpRequestExecutionHandler handler) {

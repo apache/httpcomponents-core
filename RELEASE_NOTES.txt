@@ -1,5 +1,10 @@
 Changes since release 4.0 Alpha 3
 -------------------
+
+* [HTTPCORE-27]: I/O reactors can now accept a thread factory as an optional
+  parameter.
+  Contributed by Oleg Kalnichevski <olegk at apache.org>
+
 * [HTTPCORE-36]: Fixed #setHandlers() method and matching of request URIs 
   with a query part in HttpRequestHandlerRegistry
   Contributed by Oleg Kalnichevski <olegk at apache.org>

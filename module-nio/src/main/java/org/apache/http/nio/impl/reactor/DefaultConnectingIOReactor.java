@@ -42,6 +42,7 @@ import java.nio.channels.SocketChannel;
 import java.util.Iterator;
 import java.util.Set;
 
+import org.apache.http.nio.concurrent.ThreadFactory;
 import org.apache.http.nio.reactor.ConnectingIOReactor;
 import org.apache.http.nio.reactor.IOEventDispatch;
 import org.apache.http.nio.reactor.IOReactorException;
@@ -62,9 +63,11 @@ public class DefaultConnectingIOReactor extends AbstractMultiworkerIOReactor
     
     private long lastTimeoutCheck;
     
-    public DefaultConnectingIOReactor(int workerCount, final HttpParams params) 
-            throws IOReactorException {
-        super(TIMEOUT_CHECK_INTERVAL, workerCount);
+    public DefaultConnectingIOReactor(
+            int workerCount, 
+            final ThreadFactory threadFactory,
+            final HttpParams params) throws IOReactorException {
+        super(TIMEOUT_CHECK_INTERVAL, workerCount, threadFactory);
         if (params == null) {
             throw new IllegalArgumentException("HTTP parameters may not be null");
         }
@@ -78,6 +81,12 @@ public class DefaultConnectingIOReactor extends AbstractMultiworkerIOReactor
         }
     }
 
+    public DefaultConnectingIOReactor(
+            int workerCount, 
+            final HttpParams params) throws IOReactorException {
+        this(workerCount, null, params);
+    }
+    
     public void execute(final IOEventDispatch eventDispatch) 
             throws InterruptedIOException, IOReactorException {
         if (eventDispatch == null) {

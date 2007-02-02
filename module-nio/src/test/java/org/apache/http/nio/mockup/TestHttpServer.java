@@ -73,7 +73,7 @@ public class TestHttpServer extends TestHttpServiceBase {
             .setParameter(HttpProtocolParams.ORIGIN_SERVER, "TEST-SERVER/1.1");
         
         this.reqistry = new HttpRequestHandlerRegistry();
-        this.ioReactor = new DefaultListeningIOReactor(1, this.params);
+        this.ioReactor = new DefaultListeningIOReactor(2, this.params);
         this.mutex = new Object();
     }
     
