@@ -43,6 +43,8 @@ import org.apache.http.util.CharArrayBuffer;
  */
 public final class HttpVersion implements Comparable, Serializable {
 
+    static final long serialVersionUID = -3164547215216382904L;
+    
     /** Major version number of the HTTP protocol */
     private int major = 0;
 
