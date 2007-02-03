@@ -28,7 +28,7 @@
  *
  */
 
-package org.apache.http.nio.impl.codecs;
+package org.apache.http.impl.nio.codecs;
 
 import junit.framework.*;
 

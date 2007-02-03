@@ -6,7 +6,7 @@ import java.net.InetSocketAddress;
 import java.nio.ByteBuffer;
 
 import org.apache.http.impl.params.DefaultHttpParams;
-import org.apache.http.nio.impl.reactor.DefaultListeningIOReactor;
+import org.apache.http.impl.nio.reactor.DefaultListeningIOReactor;
 import org.apache.http.nio.reactor.EventMask;
 import org.apache.http.nio.reactor.IOEventDispatch;
 import org.apache.http.nio.reactor.IOSession;

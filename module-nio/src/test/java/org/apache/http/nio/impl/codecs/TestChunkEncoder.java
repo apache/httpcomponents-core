@@ -28,7 +28,7 @@
  *
  */
 
-package org.apache.http.nio.impl.codecs;
+package org.apache.http.impl.nio.codecs;
 
 import java.io.ByteArrayOutputStream;
 import java.nio.ByteBuffer;
@@ -39,7 +39,7 @@ import junit.framework.Test;
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
 
-import org.apache.http.nio.impl.reactor.SessionOutputBuffer;
+import org.apache.http.impl.nio.reactor.SessionOutputBuffer;
 import org.apache.http.util.EncodingUtils;
 
 /**

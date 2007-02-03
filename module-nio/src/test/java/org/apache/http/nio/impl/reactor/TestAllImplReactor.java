@@ -28,7 +28,7 @@
  *
  */
 
-package org.apache.http.nio.impl.reactor;
+package org.apache.http.impl.nio.reactor;
 
 import junit.framework.*;
 

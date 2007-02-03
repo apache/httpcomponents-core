@@ -28,7 +28,7 @@
  *
  */
 
-package org.apache.http.nio.impl.codecs;
+package org.apache.http.impl.nio.codecs;
 
 import java.io.ByteArrayInputStream;
 import java.io.UnsupportedEncodingException;
@@ -46,9 +46,9 @@ import org.apache.http.HttpResponseFactory;
 import org.apache.http.HttpVersion;
 import org.apache.http.impl.DefaultHttpRequestFactory;
 import org.apache.http.impl.DefaultHttpResponseFactory;
-import org.apache.http.nio.impl.codecs.HttpMessageParser;
-import org.apache.http.nio.impl.codecs.HttpRequestParser;
-import org.apache.http.nio.impl.reactor.SessionInputBuffer;
+import org.apache.http.impl.nio.codecs.HttpMessageParser;
+import org.apache.http.impl.nio.codecs.HttpRequestParser;
+import org.apache.http.impl.nio.reactor.SessionInputBuffer;
 
 /**
  * Simple tests for {@link HttpMessageParser}.

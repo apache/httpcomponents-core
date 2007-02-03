@@ -35,7 +35,7 @@ import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.channels.WritableByteChannel;
 
-import org.apache.http.nio.impl.codecs.AbstractContentEncoder;
+import org.apache.http.impl.nio.codecs.AbstractContentEncoder;
 
 public class MockupEncoder extends AbstractContentEncoder {
     

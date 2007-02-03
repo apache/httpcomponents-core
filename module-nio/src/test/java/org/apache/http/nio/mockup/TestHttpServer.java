@@ -37,8 +37,8 @@ import java.net.SocketAddress;
 
 import org.apache.http.impl.DefaultConnectionReuseStrategy;
 import org.apache.http.impl.DefaultHttpResponseFactory;
-import org.apache.http.nio.impl.DefaultServerIOEventDispatch;
-import org.apache.http.nio.impl.reactor.DefaultListeningIOReactor;
+import org.apache.http.impl.nio.DefaultServerIOEventDispatch;
+import org.apache.http.impl.nio.reactor.DefaultListeningIOReactor;
 import org.apache.http.nio.protocol.BufferingHttpServiceHandler;
 import org.apache.http.nio.reactor.IOEventDispatch;
 import org.apache.http.nio.reactor.ListeningIOReactor;

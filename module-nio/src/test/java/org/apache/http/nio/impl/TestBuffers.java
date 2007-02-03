@@ -28,7 +28,7 @@
  *
  */
 
-package org.apache.http.nio.impl;
+package org.apache.http.impl.nio;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -38,8 +38,8 @@ import java.nio.channels.WritableByteChannel;
 
 import org.apache.http.nio.ContentDecoder;
 import org.apache.http.nio.ContentEncoder;
-import org.apache.http.nio.impl.InputBuffer;
-import org.apache.http.nio.impl.OutputBuffer;
+import org.apache.http.impl.nio.InputBuffer;
+import org.apache.http.impl.nio.OutputBuffer;
 import org.apache.http.nio.mockup.MockupDecoder;
 import org.apache.http.nio.mockup.MockupEncoder;
 import org.apache.http.nio.mockup.ReadableByteChannelMockup;

@@ -28,7 +28,7 @@
  *
  */
 
-package org.apache.http.nio.impl.codecs;
+package org.apache.http.impl.nio.codecs;
 
 import java.nio.ByteBuffer;
 import java.nio.channels.ReadableByteChannel;
@@ -37,7 +37,7 @@ import junit.framework.Test;
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
 
-import org.apache.http.nio.impl.reactor.SessionInputBuffer;
+import org.apache.http.impl.nio.reactor.SessionInputBuffer;
 import org.apache.http.nio.mockup.ReadableByteChannelMockup;
 
 /**

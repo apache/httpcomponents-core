@@ -35,8 +35,8 @@ import java.io.IOException;
 import java.net.InetSocketAddress;
 
 import org.apache.http.impl.DefaultConnectionReuseStrategy;
-import org.apache.http.nio.impl.DefaultClientIOEventDispatch;
-import org.apache.http.nio.impl.reactor.DefaultConnectingIOReactor;
+import org.apache.http.impl.nio.DefaultClientIOEventDispatch;
+import org.apache.http.impl.nio.reactor.DefaultConnectingIOReactor;
 import org.apache.http.nio.protocol.BufferingHttpClientHandler;
 import org.apache.http.nio.protocol.HttpRequestExecutionHandler;
 import org.apache.http.nio.reactor.ConnectingIOReactor;

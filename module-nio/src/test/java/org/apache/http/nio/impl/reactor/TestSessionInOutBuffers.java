@@ -28,7 +28,7 @@
  *
  */
 
-package org.apache.http.nio.impl.reactor;
+package org.apache.http.impl.nio.reactor;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -43,8 +43,8 @@ import junit.framework.TestCase;
 import junit.framework.TestSuite;
 
 import org.apache.http.impl.params.DefaultHttpParams;
-import org.apache.http.nio.impl.reactor.SessionInputBuffer;
-import org.apache.http.nio.impl.reactor.SessionOutputBuffer;
+import org.apache.http.impl.nio.reactor.SessionInputBuffer;
+import org.apache.http.impl.nio.reactor.SessionOutputBuffer;
 import org.apache.http.params.HttpParams;
 import org.apache.http.params.HttpProtocolParams;
 import org.apache.http.util.CharArrayBuffer;

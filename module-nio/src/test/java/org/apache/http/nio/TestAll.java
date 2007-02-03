@@ -30,7 +30,7 @@
 
 package org.apache.http.nio;
 
-import org.apache.http.nio.impl.TestAllImpl;
+import org.apache.http.impl.nio.TestAllImpl;
 import org.apache.http.nio.protocol.TestAllProtocol;
 
 import junit.framework.*;

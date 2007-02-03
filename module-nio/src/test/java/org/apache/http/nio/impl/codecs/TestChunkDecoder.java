@@ -28,7 +28,7 @@
  *
  */
 
-package org.apache.http.nio.impl.codecs;
+package org.apache.http.impl.nio.codecs;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
@@ -40,7 +40,7 @@ import junit.framework.TestSuite;
 
 import org.apache.http.Header;
 import org.apache.http.MalformedChunkCodingException;
-import org.apache.http.nio.impl.reactor.SessionInputBuffer;
+import org.apache.http.impl.nio.reactor.SessionInputBuffer;
 import org.apache.http.nio.mockup.ReadableByteChannelMockup;
 
 /**

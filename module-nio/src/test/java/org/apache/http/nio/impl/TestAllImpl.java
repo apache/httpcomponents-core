@@ -28,10 +28,10 @@
  *
  */
 
-package org.apache.http.nio.impl;
+package org.apache.http.impl.nio;
 
-import org.apache.http.nio.impl.codecs.TestAllImplCodecs;
-import org.apache.http.nio.impl.reactor.TestAllImplReactor;
+import org.apache.http.impl.nio.codecs.TestAllImplCodecs;
+import org.apache.http.impl.nio.reactor.TestAllImplReactor;
 
 import junit.framework.*;
 
