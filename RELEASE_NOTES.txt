@@ -1,6 +1,9 @@
 Changes since release 4.0 Alpha 3
 -------------------
 
+* [HTTPCORE-38]: Packages nio.impl.* are now impl.nio.*, same for examples.
+  Contributed by Roland Weber <rolandw at apache.org>
+
 * [HTTPCORE-27]: I/O reactors can now accept a thread factory as an optional
   parameter.
   Contributed by Oleg Kalnichevski <olegk at apache.org>
