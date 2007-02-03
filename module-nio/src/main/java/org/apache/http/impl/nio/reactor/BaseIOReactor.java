@@ -94,30 +94,28 @@ public class BaseIOReactor extends AbstractIOReactor {
                 }
             }
         }
-        synchronized (this.bufferingSessions) {
-            if (!this.bufferingSessions.isEmpty()) {
-                for (Iterator it = this.bufferingSessions.iterator(); it.hasNext(); ) {
-                    IOSession session = (IOSession) it.next();
-                    SessionBufferStatus bufStatus = session.getBufferStatus();
-                    if (bufStatus != null) {
-                        if (!bufStatus.hasBufferedInput()) {
-                            it.remove();
-                            continue;
-                        }
+        if (!this.bufferingSessions.isEmpty()) {
+            for (Iterator it = this.bufferingSessions.iterator(); it.hasNext(); ) {
+                IOSession session = (IOSession) it.next();
+                SessionBufferStatus bufStatus = session.getBufferStatus();
+                if (bufStatus != null) {
+                    if (!bufStatus.hasBufferedInput()) {
+                        it.remove();
+                        continue;
                     }
-                    try {
-                        int ops = session.getEventMask();
-                        if ((ops & EventMask.READ) > 0) {
-                            this.eventDispatch.inputReady(session);
-                            if (bufStatus != null) {
-                                if (!bufStatus.hasBufferedInput()) {
-                                    it.remove();
-                                }
+                }
+                try {
+                    int ops = session.getEventMask();
+                    if ((ops & EventMask.READ) > 0) {
+                        this.eventDispatch.inputReady(session);
+                        if (bufStatus != null) {
+                            if (!bufStatus.hasBufferedInput()) {
+                                it.remove();
                             }
                         }
-                    } catch (CancelledKeyException ex) {
-                        it.remove();
                     }
+                } catch (CancelledKeyException ex) {
+                    it.remove();
                 }
             }
         }

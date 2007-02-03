@@ -74,6 +74,10 @@ abstract class TestHttpServiceBase {
         return this.connCount;
     }
     
+    public HttpParams getParams() {
+        return this.params;
+    }
+    
     private void incrementConnCount() {
         synchronized (this.mutex) {
             this.connCount++;

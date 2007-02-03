@@ -46,25 +46,25 @@ public class SessionSet {
         this.set = new HashSet();
     }
 
-    public synchronized void add(final IOSession session) {
+    public void add(final IOSession session) {
         if (session == null) {
             return;
         }
         this.set.add(session);
     }
 
-    public synchronized boolean remove(final IOSession session) {
+    public boolean remove(final IOSession session) {
         if (session == null) {
             return false;
         }
         return this.set.remove(session);
     }
 
-    public synchronized void clear() {
+    public void clear() {
         this.set.clear();
     }
 
-    public synchronized boolean isEmpty() {
+    public boolean isEmpty() {
         return this.set.isEmpty();
     }
     

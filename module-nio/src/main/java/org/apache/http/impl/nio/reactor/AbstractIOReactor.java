@@ -221,17 +221,15 @@ public abstract class AbstractIOReactor implements IOReactor {
     }
 
     private void closeSessions() {
-        synchronized (this.sessions) {
-            for (Iterator it = this.sessions.iterator(); it.hasNext(); ) {
-                IOSession session = (IOSession) it.next();
-                if (!session.isClosed()) {    
+        for (Iterator it = this.sessions.iterator(); it.hasNext(); ) {
+            IOSession session = (IOSession) it.next();
+            if (!session.isClosed()) {    
 
-                    session.close();
-                    this.eventDispatch.disconnected(session);
-                }
+                session.close();
+                this.eventDispatch.disconnected(session);
             }
-            this.sessions.clear();
         }
+        this.sessions.clear();
     }
     
     public void shutdown() throws IOReactorException {
