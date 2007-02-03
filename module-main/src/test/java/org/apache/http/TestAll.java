@@ -33,7 +33,7 @@ package org.apache.http;
 import org.apache.http.entity.TestAllEntity;
 import org.apache.http.impl.TestAllImpl;
 import org.apache.http.impl.entity.TestAllEntityImpl;
-import org.apache.http.io.TestAllIO;
+import org.apache.http.impl.io.TestAllIO;
 import org.apache.http.message.TestAllMessage;
 import org.apache.http.protocol.TestAllProtocol;
 import org.apache.http.util.TestAllUtil;

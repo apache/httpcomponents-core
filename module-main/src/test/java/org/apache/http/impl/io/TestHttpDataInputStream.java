@@ -28,9 +28,10 @@
  *
  */
 
-package org.apache.http.io;
+package org.apache.http.impl.io;
 
 import org.apache.http.impl.io.HttpDataInputStream;
+import org.apache.http.io.HttpDataReceiver;
 import org.apache.http.mockup.HttpDataReceiverMockup;
 
 import junit.framework.Test;

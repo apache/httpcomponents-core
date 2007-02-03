@@ -28,47 +28,41 @@
  *
  */
 
-package org.apache.http.io;
+package org.apache.http.impl.io;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 
-import org.apache.http.impl.io.ContentLengthOutputStream;
+import org.apache.http.impl.io.IdentityOutputStream;
 import org.apache.http.mockup.HttpDataTransmitterMockup;
 
 import junit.framework.Test;
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
 
-public class TestContentLengthOutputStream extends TestCase {
+public class TestIdentityOutputStream extends TestCase {
 
-    public TestContentLengthOutputStream(String testName) {
+    public TestIdentityOutputStream(String testName) {
         super(testName);
     }
 
     // ------------------------------------------------------- TestCase Methods
 
     public static Test suite() {
-        return new TestSuite(TestContentLengthOutputStream.class);
+        return new TestSuite(TestIdentityOutputStream.class);
     }
 
     // ------------------------------------------------------------------- Main
     public static void main(String args[]) {
-        String[] testCaseName = { TestContentLengthOutputStream.class.getName() };
+        String[] testCaseName = { TestIdentityOutputStream.class.getName() };
         junit.textui.TestRunner.main(testCaseName);
     }
 
     public void testConstructors() throws Exception {
-        new ContentLengthOutputStream(new HttpDataTransmitterMockup(), 10L);
+        new IdentityOutputStream(new HttpDataTransmitterMockup());
         try {
-            new ContentLengthOutputStream(null, 10L);
-            fail("IllegalArgumentException should have been thrown");
-        } catch (IllegalArgumentException ex) {
-            // expected
-        }
-        try {
-            new ContentLengthOutputStream(new HttpDataTransmitterMockup(), -10);
+            new IdentityOutputStream(null);
             fail("IllegalArgumentException should have been thrown");
         } catch (IllegalArgumentException ex) {
             // expected
@@ -78,26 +72,22 @@ public class TestContentLengthOutputStream extends TestCase {
     public void testBasics() throws Exception {
     	ByteArrayOutputStream buffer = new ByteArrayOutputStream();
     	HttpDataTransmitterMockup datatransmitter = new HttpDataTransmitterMockup(buffer);
-    	OutputStream out = new ContentLengthOutputStream(datatransmitter, 15L);
+    	OutputStream out = new IdentityOutputStream(datatransmitter);
 
         byte[] tmp = new byte[10];
         out.write(tmp, 0, 10);
-        out.write(1);
-        out.write(tmp, 0, 10);
-        out.write(tmp, 0, 10);
         out.write(tmp);
         out.write(1);
-        out.write(2);
         out.flush();
         out.close();
         byte[] data = datatransmitter.getData();
-        assertEquals(15, data.length);
+        assertEquals(21, data.length);
     }
 
     public void testClose() throws Exception {
     	ByteArrayOutputStream buffer = new ByteArrayOutputStream();
     	HttpDataTransmitterMockup datatransmitter = new HttpDataTransmitterMockup(buffer);
-    	OutputStream out = new ContentLengthOutputStream(datatransmitter, 15L);
+    	OutputStream out = new IdentityOutputStream(datatransmitter);
     	out.close();
     	out.close();
         byte[] tmp = new byte[10];

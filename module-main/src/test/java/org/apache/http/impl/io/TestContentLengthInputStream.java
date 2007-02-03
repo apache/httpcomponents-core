@@ -28,7 +28,7 @@
  *
  */
 
-package org.apache.http.io;
+package org.apache.http.impl.io;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
