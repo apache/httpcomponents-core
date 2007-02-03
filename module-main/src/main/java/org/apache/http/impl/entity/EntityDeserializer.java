@@ -39,9 +39,9 @@ import org.apache.http.HttpException;
 import org.apache.http.HttpMessage;
 import org.apache.http.entity.BasicHttpEntity;
 import org.apache.http.entity.ContentLengthStrategy;
-import org.apache.http.io.ChunkedInputStream;
-import org.apache.http.io.ContentLengthInputStream;
-import org.apache.http.io.HttpDataInputStream;
+import org.apache.http.impl.io.ChunkedInputStream;
+import org.apache.http.impl.io.ContentLengthInputStream;
+import org.apache.http.impl.io.HttpDataInputStream;
 import org.apache.http.io.HttpDataReceiver;
 import org.apache.http.protocol.HTTP;
 

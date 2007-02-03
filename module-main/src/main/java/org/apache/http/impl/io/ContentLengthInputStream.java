@@ -29,10 +29,12 @@
  *
  */
 
-package org.apache.http.io;
+package org.apache.http.impl.io;
 
 import java.io.IOException;
 import java.io.InputStream;
+
+import org.apache.http.io.HttpDataReceiver;
 
 /**
  * <p>

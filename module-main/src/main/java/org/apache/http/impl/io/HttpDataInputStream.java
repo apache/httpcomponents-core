@@ -29,13 +29,15 @@
  *
  */
 
-package org.apache.http.io;
+package org.apache.http.impl.io;
 
 import java.io.IOException;
-import java.io.OutputStream;
+import java.io.InputStream;
+
+import org.apache.http.io.HttpDataReceiver;
 
 /**
- * A stream for writing to a {@link HttpDataTransmitter HttpDataTransmitter}.
+ * A stream for reading from a {@link HttpDataReceiver HttpDataReceiver}.
  *
  * @author <a href="mailto:oleg at ural.ru">Oleg Kalnichevski</a>
  *
@@ -43,45 +45,46 @@ import java.io.OutputStream;
  * 
  * @since 4.0
  */
-public class HttpDataOutputStream extends OutputStream {
+public class HttpDataInputStream extends InputStream {
     
-    private final HttpDataTransmitter datatransmitter;
+    private final HttpDataReceiver datareceiver;
     
     private boolean closed = false;
     
-    public HttpDataOutputStream(final HttpDataTransmitter datatransmitter) {
+    public HttpDataInputStream(final HttpDataReceiver datareceiver) {
         super();
-        if (datatransmitter == null) {
-            throw new IllegalArgumentException("HTTP data transmitter may not be null");
+        if (datareceiver == null) {
+            throw new IllegalArgumentException("HTTP data receiver may not be null");
         }
-        this.datatransmitter = datatransmitter;
+        this.datareceiver = datareceiver;
+    }
+    
+    public int available() throws IOException {
+        if (!this.closed && this.datareceiver.isDataAvailable(10)) {
+            return 1;
+        } else {
+            return 0;
+        }
     }
     
     public void close() throws IOException {
-        if (!this.closed) {
-            this.closed = true;
-            this.datatransmitter.flush();
-        }
+        this.closed = true;
     }
 
-    private void assertNotClosed() {
+    public int read() throws IOException {
         if (this.closed) {
-            throw new IllegalStateException("Stream closed"); 
+            return -1;
+        } else {
+            return this.datareceiver.read();
         }
     }
     
-    public void flush() throws IOException {
-        assertNotClosed();
-        this.datatransmitter.flush();
+    public int read(final byte[] b, int off, int len) throws IOException {
+        if (this.closed) {
+            return -1;
+        } else {
+            return this.datareceiver.read(b, off, len);
+        }
     }
     
-    public void write(final byte[] b, int off, int len) throws IOException {
-        assertNotClosed();
-        this.datatransmitter.write(b, off, len);
-    }
-    
-    public void write(int b) throws IOException {
-        assertNotClosed();
-        this.datatransmitter.write(b);
-    }
 }

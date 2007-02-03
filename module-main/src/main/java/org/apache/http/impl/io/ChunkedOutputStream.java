@@ -29,10 +29,12 @@
  *
  */
 
-package org.apache.http.io;
+package org.apache.http.impl.io;
 
 import java.io.IOException;
 import java.io.OutputStream;
+
+import org.apache.http.io.HttpDataTransmitter;
 
 /**
  * <p>This class implements chunked transfer coding as described in the 

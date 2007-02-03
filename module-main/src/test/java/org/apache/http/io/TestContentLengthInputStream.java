@@ -34,6 +34,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 
+import org.apache.http.impl.io.ContentLengthInputStream;
 import org.apache.http.mockup.HttpDataReceiverMockup;
 import org.apache.http.util.EncodingUtils;
 

@@ -29,13 +29,15 @@
  *
  */
 
-package org.apache.http.io;
+package org.apache.http.impl.io;
 
 import java.io.IOException;
 import java.io.OutputStream;
 
+import org.apache.http.io.HttpDataTransmitter;
+
 /**
- * A stream for writing with an "identity" transport encoding.
+ * A stream wrapper that closes itself after a defined number of bytes.
  *
  * @author <a href="mailto:oleg at ural.ru">Oleg Kalnichevski</a>
  *
@@ -43,22 +45,44 @@ import java.io.OutputStream;
  * 
  * @since 4.0
  */
-public class IdentityOutputStream extends OutputStream {
+public class ContentLengthOutputStream extends OutputStream {
     
     /**
      * Wrapped data transmitter that all calls are delegated to.
      */
     private final HttpDataTransmitter out;
 
+    /**
+     * The maximum number of bytes that can be written the stream. Subsequent
+     * write operations will be ignored.
+     */
+    private final long contentLength;
+
+    /** Total bytes written */
+    private long total = 0;
+
     /** True if the stream is closed. */
     private boolean closed = false;
 
-    public IdentityOutputStream(final HttpDataTransmitter out) {
+    /**
+     * Creates a new length limited stream
+     *
+     * @param out The data transmitter to wrap
+     * @param contentLength The maximum number of bytes that can be written to
+     * the stream. Subsequent write operations will be ignored.
+     * 
+     * @since 4.0
+     */
+    public ContentLengthOutputStream(final HttpDataTransmitter out, long contentLength) {
         super();
         if (out == null) {
             throw new IllegalArgumentException("HTTP data transmitter may not be null");
         }
+        if (contentLength < 0) {
+            throw new IllegalArgumentException("Content length may not be negative");
+        }
         this.out = out;
+        this.contentLength = contentLength;
     }
 
     /**
@@ -81,7 +105,14 @@ public class IdentityOutputStream extends OutputStream {
         if (this.closed) {
             throw new IOException("Attempted write to closed stream.");
         }
-        this.out.write(b, off, len);
+        if (this.total < this.contentLength) {
+            long max = this.contentLength - this.total;
+            if (len > max) {
+                len = (int) max;
+            }
+            this.out.write(b, off, len);
+            this.total += len;
+        }
     }
 
     public void write(byte[] b) throws IOException {
@@ -92,7 +123,10 @@ public class IdentityOutputStream extends OutputStream {
         if (this.closed) {
             throw new IOException("Attempted write to closed stream.");
         }
-        this.out.write(b);
+        if (this.total < this.contentLength) {
+            this.out.write(b);
+            this.total++;
+        }
     }
     
 }

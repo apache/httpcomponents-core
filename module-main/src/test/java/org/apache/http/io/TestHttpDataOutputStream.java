@@ -30,6 +30,7 @@
 
 package org.apache.http.io;
 
+import org.apache.http.impl.io.HttpDataOutputStream;
 import org.apache.http.mockup.HttpDataTransmitterMockup;
 
 import junit.framework.Test;

@@ -38,10 +38,10 @@ import org.apache.http.HttpEntity;
 import org.apache.http.HttpException;
 import org.apache.http.HttpMessage;
 import org.apache.http.entity.ContentLengthStrategy;
-import org.apache.http.io.ChunkedOutputStream;
-import org.apache.http.io.ContentLengthOutputStream;
+import org.apache.http.impl.io.ChunkedOutputStream;
+import org.apache.http.impl.io.ContentLengthOutputStream;
+import org.apache.http.impl.io.IdentityOutputStream;
 import org.apache.http.io.HttpDataTransmitter;
-import org.apache.http.io.IdentityOutputStream;
 
 /**
  * Default implementation of an entity serializer.

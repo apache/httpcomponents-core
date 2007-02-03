@@ -37,5 +37,23 @@
 Default implementations for interfaces in
 {@link org.apache.http.io org.apache.http.io}.
 
+<br/>
+
+The data {@link org.apache.http.io.HttpDataTransmitter transmitter}
+and {@link org.apache.http.io.HttpDataReceiver receiver} interfaces
+provide an abstraction from
+<code>java.io</code> and <code>java.nio</code>.
+These interfaces are adapted to the plain
+{@link org.apache.http.io.HttpDataOutputStream output} and
+{@link org.apache.http.io.HttpDataInputStream input} streams
+used in the {@link org.apache.http core API}.
+
+<br/>
+
+There are implementations of the transport encodings used by HTTP,
+in particular the chunked encoding for
+{@link org.apache.http.io.ChunkedOutputStream sending} and
+{@link org.apache.http.io.ChunkedInputStream receiving} entities.
+
 </body>
 </html>

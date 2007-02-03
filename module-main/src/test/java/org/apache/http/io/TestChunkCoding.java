@@ -37,6 +37,8 @@ import java.io.OutputStream;
 
 import org.apache.http.Header;
 import org.apache.http.MalformedChunkCodingException;
+import org.apache.http.impl.io.ChunkedInputStream;
+import org.apache.http.impl.io.ChunkedOutputStream;
 import org.apache.http.mockup.HttpDataReceiverMockup;
 import org.apache.http.mockup.HttpDataTransmitterMockup;
 import org.apache.http.util.EncodingUtils;

@@ -34,6 +34,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 
+import org.apache.http.impl.io.IdentityOutputStream;
 import org.apache.http.mockup.HttpDataTransmitterMockup;
 
 import junit.framework.Test;

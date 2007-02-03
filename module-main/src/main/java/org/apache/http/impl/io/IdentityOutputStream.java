@@ -29,13 +29,15 @@
  *
  */
 
-package org.apache.http.io;
+package org.apache.http.impl.io;
 
 import java.io.IOException;
-import java.io.InputStream;
+import java.io.OutputStream;
+
+import org.apache.http.io.HttpDataTransmitter;
 
 /**
- * A stream for reading from a {@link HttpDataReceiver HttpDataReceiver}.
+ * A stream for writing with an "identity" transport encoding.
  *
  * @author <a href="mailto:oleg at ural.ru">Oleg Kalnichevski</a>
  *
@@ -43,46 +45,56 @@ import java.io.InputStream;
  * 
  * @since 4.0
  */
-public class HttpDataInputStream extends InputStream {
+public class IdentityOutputStream extends OutputStream {
     
-    private final HttpDataReceiver datareceiver;
-    
+    /**
+     * Wrapped data transmitter that all calls are delegated to.
+     */
+    private final HttpDataTransmitter out;
+
+    /** True if the stream is closed. */
     private boolean closed = false;
-    
-    public HttpDataInputStream(final HttpDataReceiver datareceiver) {
+
+    public IdentityOutputStream(final HttpDataTransmitter out) {
         super();
-        if (datareceiver == null) {
-            throw new IllegalArgumentException("HTTP data receiver may not be null");
+        if (out == null) {
+            throw new IllegalArgumentException("HTTP data transmitter may not be null");
         }
-        this.datareceiver = datareceiver;
-    }
-    
-    public int available() throws IOException {
-        if (!this.closed && this.datareceiver.isDataAvailable(10)) {
-            return 1;
-        } else {
-            return 0;
-        }
-    }
-    
-    public void close() throws IOException {
-        this.closed = true;
+        this.out = out;
     }
 
-    public int read() throws IOException {
-        if (this.closed) {
-            return -1;
-        } else {
-            return this.datareceiver.read();
+    /**
+     * <p>Does not close the underlying socket output.</p>
+     * 
+     * @throws IOException If an I/O problem occurs.
+     */
+    public void close() throws IOException {
+        if (!this.closed) {
+            this.closed = true;
+            this.out.flush();
         }
     }
-    
-    public int read(final byte[] b, int off, int len) throws IOException {
+
+    public void flush() throws IOException {
+        this.out.flush();
+    }
+
+    public void write(byte[] b, int off, int len) throws IOException {
         if (this.closed) {
-            return -1;
-        } else {
-            return this.datareceiver.read(b, off, len);
+            throw new IOException("Attempted write to closed stream.");
         }
+        this.out.write(b, off, len);
+    }
+
+    public void write(byte[] b) throws IOException {
+        write(b, 0, b.length);
+    }
+
+    public void write(int b) throws IOException {
+        if (this.closed) {
+            throw new IOException("Attempted write to closed stream.");
+        }
+        this.out.write(b);
     }
     
 }
