@@ -308,7 +308,6 @@ Output
           </group>
           <group title="Implementation">
             <package name="org.apache.http.impl*" />
-            <package name="org.apache.http.nio.impl*" />
           </group>
 
           <link href="${javadoc.j2sdk.link}"/>
@@ -361,11 +360,9 @@ Output
           </group>
           <group title="Implementation">
             <package name="org.apache.http.impl*" />
-            <package name="org.apache.http.nio.impl*" />
           </group>
           <group title="Examples">
             <package name="org.apache.http.examples*" />
-            <package name="org.apache.http.nio.examples*" />
           </group>
           <group title="Contributions (unsupported)">
             <package name="org.apache.http.contrib*" />
