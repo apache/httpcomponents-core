@@ -38,7 +38,7 @@ import java.lang.reflect.Method;
  * @author <a href="mailto:oleg at ural.ru">Oleg Kalnichevski</a>
  * @author <a href="mailto:laura@lwerner.org">Laura Werner</a>
  * 
- * @since 3.0
+ * @since 4.0
  */
 public class ExceptionUtils {
 

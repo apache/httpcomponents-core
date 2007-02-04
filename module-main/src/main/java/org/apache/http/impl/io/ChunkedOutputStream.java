@@ -37,71 +37,17 @@ import java.io.OutputStream;
 import org.apache.http.io.HttpDataTransmitter;
 
 /**
- * <p>This class implements chunked transfer coding as described in the 
- * <a href="http://www.w3.org/Protocols/rfc2616/rfc2616-sec3.html#sec3.6">Section 3.6.1</a> 
- * of <a href="http://www.w3.org/Protocols/rfc2616/rfc2616.txt">RFC 2616</a>. 
- * Writes are buffered to an internal buffer (2048 default size). Chunks are guaranteed 
- * to be at least as large as the buffer size (except for the last chunk).</p>
+ * Implements chunked transfer coding.
+ * See <a href="http://www.w3.org/Protocols/rfc2616/rfc2616.txt">RFC 2616</a>,
+ * <a href="http://www.w3.org/Protocols/rfc2616/rfc2616-sec3.html#sec3.6">section 3.6.1</a>.
+ * Writes are buffered to an internal buffer (2048 default size).
+ * Chunks are guaranteed to be at least as large as the buffer size
+ * (except for the last chunk).
  * 
- * <h>3.6.1 Chunked Transfer Coding</h>
- * <p>
- * The chunked encoding modifies the body of a message in order to transfer it as a series 
- * of chunks, each with its own size indicator, followed by an OPTIONAL trailer containing 
- * entity-header fields. This allows dynamically produced content to be transferred along 
- * with the information necessary for the recipient to verify that it has received the full 
- * message.
- * </p>
- * <pre>
- *  Chunked-Body   = *chunk
- *                   last-chunk
- *                   trailer
- *                   CRLF
- *
- *  chunk          = chunk-size [ chunk-extension ] CRLF
- *                   chunk-data CRLF
- *  chunk-size     = 1*HEX
- *  last-chunk     = 1*("0") [ chunk-extension ] CRLF
- *
- *  chunk-extension= *( ";" chunk-ext-name [ "=" chunk-ext-val ] )
- *  chunk-ext-name = token
- *  chunk-ext-val  = token | quoted-string
- *  chunk-data     = chunk-size(OCTET)
- *  trailer        = *(entity-header CRLF)
- * </pre>
- * <p>
- * The chunk-size field is a string of hex digits indicating the size of the chunk. The 
- * chunked encoding is ended by any chunk whose size is zero, followed by the trailer, 
- * which is terminated by an empty line.
- * </p>
- * <p>
- * The trailer allows the sender to include additional HTTP header fields at the end 
- * of the message. The Trailer header field can be used to indicate which header fields 
- * are included in a trailer (see section 14.40).
- * </p>
- * <p>
- * A server using chunked transfer-coding in a response MUST NOT use the trailer for any 
- * header fields unless at least one of the following is true:
- * </p>
- * <p>
- * a)the request included a TE header field that indicates "trailers" is acceptable in 
- * the transfer-coding of the response, as described in section 14.39; or,
- * </p>
- * <p>
- * b)the server is the origin server for the response, the trailer fields consist entirely 
- * of optional metadata, and the recipient could use the message (in a manner acceptable 
- * to the origin server) without receiving this metadata. In other words, the origin server 
- * is willing to accept the possibility that the trailer fields might be silently discarded 
- * along the path to the client.
- * </p>
- * <p>
- * This requirement prevents an interoperability failure when the message is being received 
- * by an HTTP/1.1 (or later) proxy and forwarded to an HTTP/1.0 recipient. It avoids a 
- * situation where compliance with the protocol would have necessitated a possibly infinite 
- * buffer on the proxy. 
- * </p>
- * 
- * @author Mohammad Rezaei, Goldman, Sachs & Co.
+ * @author Mohammad Rezaei (Goldman, Sachs &amp; Co.)
  * @author <a href="mailto:oleg at ural.ru">Oleg Kalnichevski</a>
+ * 
+ * @since 4.0
  */
 public class ChunkedOutputStream extends OutputStream {
 
@@ -123,8 +69,6 @@ public class ChunkedOutputStream extends OutputStream {
      * @param out the transmitter to wrap
      * @param bufferSize minimum chunk size (excluding last chunk)
      * @throws IOException
-     * 
-     * @since 3.0
      */
     public ChunkedOutputStream(final HttpDataTransmitter out, int bufferSize)
             throws IOException {
@@ -148,8 +92,6 @@ public class ChunkedOutputStream extends OutputStream {
     /**
      * Writes the cache out onto the underlying stream
      * @throws IOException
-     * 
-     * @since 3.0
      */
     protected void flushCache() throws IOException {
         if (this.cachePosition > 0) {
@@ -167,8 +109,6 @@ public class ChunkedOutputStream extends OutputStream {
      * @param off
      * @param len
      * @throws IOException
-     * 
-     * @since 3.0
      */
     protected void flushCacheWithAppend(byte bufferToAppend[], int off, int len) throws IOException {
         this.out.writeLine(Integer.toHexString(this.cachePosition + len));
@@ -188,8 +128,6 @@ public class ChunkedOutputStream extends OutputStream {
     /**
      * Must be called to ensure the internal cache is flushed and the closing chunk is written.
      * @throws IOException
-     * 
-     * @since 3.0
      */
     public void finish() throws IOException {
         if (!this.wroteLastChunk) {
@@ -214,8 +152,6 @@ public class ChunkedOutputStream extends OutputStream {
      * not split, but rather written out as one large chunk.
      * @param b
      * @throws IOException
-     * 
-     * @since 3.0
      */
     public void write(byte b[]) throws IOException {
         write(b, 0, b.length);

@@ -85,7 +85,7 @@ import org.apache.http.util.LangUtils;
  * <!-- empty lines above to avoid 'svn diff' context problems -->
  * @version $Revision$ $Date$
  * 
- * @since 1.0
+ * @since 4.0
  */
 public class BasicHeaderElement implements HeaderElement {
 
@@ -168,7 +168,6 @@ public class BasicHeaderElement implements HeaderElement {
     /**
      * Get parameters, if any.
      *
-     * @since 2.0
      * @return parameters as an array of {@link NameValuePair}s
      */
     public NameValuePair[] getParameters() {
@@ -186,8 +185,6 @@ public class BasicHeaderElement implements HeaderElement {
      * @param indexTo   where to stop parsing in the buffer
      *
      * @return array of {@link HeaderElement}s.
-     * 
-     * @since 3.0
      */
     public static final HeaderElement[] parseAll(
             final CharArrayBuffer buffer, final int indexFrom, final int indexTo) {
@@ -241,8 +238,6 @@ public class BasicHeaderElement implements HeaderElement {
      * @param s  the string representation of the header value
      *                     (as received from the web server).
      * @return array of {@link HeaderElement}s.
-     * 
-     * @since 3.0
      */
     public static final HeaderElement[] parseAll(final String s) {
         if (s == null) {

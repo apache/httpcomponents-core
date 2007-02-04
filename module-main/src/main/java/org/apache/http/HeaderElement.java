@@ -40,7 +40,7 @@ package org.apache.http;
  * <!-- empty lines above to avoid 'svn diff' context problems -->
  * @version $Revision$ $Date$
  * 
- * @since 1.0
+ * @since 4.0
  */
 public interface HeaderElement {
 

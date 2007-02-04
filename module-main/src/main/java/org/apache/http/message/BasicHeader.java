@@ -60,6 +60,8 @@ import org.apache.http.util.CharArrayBuffer;
  *
  * <!-- empty lines above to avoid 'svn diff' context problems -->
  * @version $Revision$ $Date$
+ * 
+ * @since 4.0
  */
 public class BasicHeader implements Header {
 
@@ -127,8 +129,6 @@ public class BasicHeader implements Header {
      * @see BasicHeaderElement#parseAll
      * 
      * @return an array of header elements
-     * 
-     * @since 3.0
      */
     public HeaderElement[] getElements() {
         if (this.value != null) {

@@ -44,73 +44,18 @@ import org.apache.http.util.ExceptionUtils;
 import org.apache.http.util.HeaderUtils;
 
 /**
- * <p>This class implements chunked transfer coding as described in the 
- * <a href="http://www.w3.org/Protocols/rfc2616/rfc2616-sec3.html#sec3.6">Section 3.6.1</a> 
- * of <a href="http://www.w3.org/Protocols/rfc2616/rfc2616.txt">RFC 2616</a>. 
- * It transparently coalesces chunks of a HTTP stream that uses chunked transfer coding.</p>
- * 
- * <h>3.6.1 Chunked Transfer Coding</h>
- * <p>
- * The chunked encoding modifies the body of a message in order to transfer it as a series 
- * of chunks, each with its own size indicator, followed by an OPTIONAL trailer containing 
- * entity-header fields. This allows dynamically produced content to be transferred along 
- * with the information necessary for the recipient to verify that it has received the full 
- * message.
- * </p>
- * <pre>
- *  Chunked-Body   = *chunk
- *                   last-chunk
- *                   trailer
- *                   CRLF
- *
- *  chunk          = chunk-size [ chunk-extension ] CRLF
- *                   chunk-data CRLF
- *  chunk-size     = 1*HEX
- *  last-chunk     = 1*("0") [ chunk-extension ] CRLF
- *
- *  chunk-extension= *( ";" chunk-ext-name [ "=" chunk-ext-val ] )
- *  chunk-ext-name = token
- *  chunk-ext-val  = token | quoted-string
- *  chunk-data     = chunk-size(OCTET)
- *  trailer        = *(entity-header CRLF)
- * </pre>
- * <p>
- * The chunk-size field is a string of hex digits indicating the size of the chunk. The 
- * chunked encoding is ended by any chunk whose size is zero, followed by the trailer, 
- * which is terminated by an empty line.
- * </p>
- * <p>
- * The trailer allows the sender to include additional HTTP header fields at the end 
- * of the message. The Trailer header field can be used to indicate which header fields 
- * are included in a trailer (see section 14.40).
- * </p>
- * <p>
- * A server using chunked transfer-coding in a response MUST NOT use the trailer for any 
- * header fields unless at least one of the following is true:
- * </p>
- * <p>
- * a)the request included a TE header field that indicates "trailers" is acceptable in 
- * the transfer-coding of the response, as described in section 14.39; or,
- * </p>
- * <p>
- * b)the server is the origin server for the response, the trailer fields consist entirely 
- * of optional metadata, and the recipient could use the message (in a manner acceptable 
- * to the origin server) without receiving this metadata. In other words, the origin server 
- * is willing to accept the possibility that the trailer fields might be silently discarded 
- * along the path to the client.
- * </p>
- * <p>
- * This requirement prevents an interoperability failure when the message is being received 
- * by an HTTP/1.1 (or later) proxy and forwarded to an HTTP/1.0 recipient. It avoids a 
- * situation where compliance with the protocol would have necessitated a possibly infinite 
- * buffer on the proxy. 
- * </p>
+ * Implements chunked transfer coding.
+ * See <a href="http://www.w3.org/Protocols/rfc2616/rfc2616.txt">RFC 2616</a>,
+ * <a href="http://www.w3.org/Protocols/rfc2616/rfc2616-sec3.html#sec3.6">section 3.6.1</a>.
+ * It transparently coalesces chunks of a HTTP stream that uses chunked
+ * transfer coding. After the stream is read to the end, it provides access
+ * to the trailers, if any.
  * <p>
  * Note that this class NEVER closes the underlying stream, even when close
- * gets called.  Instead, it will read until the "end" of its chunking on close,
- * which allows for the seamless invocation of subsequent HTTP 1.1 calls, while
- * not requiring the client to remember to read the entire contents of the
- * response.
+ * gets called.  Instead, it will read until the "end" of its chunking on
+ * close, which allows for the seamless execution of subsequent HTTP 1.1
+ * requests, while not requiring the client to remember to read the entire
+ * contents of the response.
  * </p>
  *
  * @author Ortwin Glueck
@@ -121,7 +66,7 @@ import org.apache.http.util.HeaderUtils;
  * @author Michael Becke
  * @author <a href="mailto:oleg at ural.ru">Oleg Kalnichevski</a>
  *
- * @since 2.0
+ * @since 4.0
  *
  */
 public class ChunkedInputStream extends InputStream {

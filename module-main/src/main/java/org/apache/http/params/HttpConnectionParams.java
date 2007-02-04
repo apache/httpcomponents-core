@@ -32,14 +32,13 @@
 package org.apache.http.params;
 
 /**
- * This class implements an adaptor around the {@link HttpParams} interface
- * to simplify manipulation of the HTTP connection specific parameters.
+ * An adaptor for accessing connection parameters in {@link HttpParams}.
  * 
  * @author <a href="mailto:oleg at ural.ru">Oleg Kalnichevski</a>
  * 
  * @version $Revision$
  * 
- * @since 3.0
+ * @since 4.0
  */
 public final class HttpConnectionParams {
 

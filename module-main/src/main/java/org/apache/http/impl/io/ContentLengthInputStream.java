@@ -37,16 +37,13 @@ import java.io.InputStream;
 import org.apache.http.io.HttpDataReceiver;
 
 /**
- * <p>
- * This class cuts the wrapped InputStream off after a specified number of bytes.
- * </p>
- * <p>
+ * Stream that cuts off after a specified number of bytes.
  * Note that this class NEVER closes the underlying stream, even when close
- * gets called.  Instead, it will read until the "end" of its chunking on close,
- * which allows for the seamless invocation of subsequent HTTP 1.1 calls, while
- * not requiring the client to remember to read the entire contents of the
- * response.
- * </p>
+ * gets called.  Instead, it will read until the "end" of its chunking on
+ * close, which allows for the seamless execution of subsequent HTTP 1.1
+ * requests, while not requiring the client to remember to read the entire
+ * contents of the response.
+ *
  * <p>Implementation note: Choices abound. One approach would pass
  * through the {@link InputStream#mark} and {@link InputStream#reset} calls to
  * the underlying stream.  That's tricky, though, because you then have to
@@ -55,7 +52,8 @@ import org.apache.http.io.HttpDataReceiver;
  * for the readLimit leave room for differing implementations, you might get
  * into a lot of trouble.</p>
  *
- * <p>Alternatively, you could make this class extend {@link java.io.BufferedInputStream}
+ * <p>Alternatively, you could make this class extend
+ * {@link java.io.BufferedInputStream}
  * and then use the protected members of that class to avoid duplicated effort.
  * That solution has the side effect of adding yet another possible layer of
  * buffering.</p>
@@ -67,7 +65,8 @@ import org.apache.http.io.HttpDataReceiver;
  * @author Ortwin Glueck
  * @author Eric Johnson
  * @author <a href="mailto:mbowler@GargoyleSoftware.com">Mike Bowler</a>
- * @since 2.0
+ *
+ * @since 4.0
  */
 public class ContentLengthInputStream extends InputStream {
     
@@ -95,8 +94,6 @@ public class ContentLengthInputStream extends InputStream {
      * @param in The stream to wrap
      * @param contentLength The maximum number of bytes that can be read from
      * the stream. Subsequent read operations will return -1.
-     * 
-     * @since 3.0
      */
     public ContentLengthInputStream(final HttpDataReceiver in, long contentLength) {
         super();

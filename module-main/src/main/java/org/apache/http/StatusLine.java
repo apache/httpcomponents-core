@@ -32,29 +32,17 @@
 package org.apache.http;
 
 /**
- * Represents a Status-Line as returned from a HTTP server.
- *
- * <a href="http://www.ietf.org/rfc/rfc2616.txt">RFC2616</a> states
- * the following regarding the Status-Line:
- * <pre>
- * 6.1 Status-Line
- *
- *  The first line of a Response message is the Status-Line, consisting
- *  of the protocol version followed by a numeric status code and its
- *  associated textual phrase, with each element separated by SP
- *  characters. No CR or LF is allowed except in the final CRLF sequence.
- *
- *      Status-Line = HTTP-Version SP Status-Code SP Reason-Phrase CRLF
- * </pre>
- * <p>
- * This class is immutable and is inherently thread safe.
+ * Represents a status line as returned from a HTTP server.
+ * See <a href="http://www.ietf.org/rfc/rfc2616.txt">RFC2616</a>,
+ * section 6.1.
+ * Implementations are expected to be thread safe.
  *
  * @see HttpStatus
  * @author <a href="mailto:jsdever@apache.org">Jeff Dever</a>
  * @author <a href="mailto:mbowler@GargoyleSoftware.com">Mike Bowler</a>
  * @version $Id$
  * 
- * @since 2.0
+ * @since 4.0
  */
 public interface StatusLine {
 

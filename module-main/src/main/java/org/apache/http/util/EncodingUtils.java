@@ -40,7 +40,7 @@ import org.apache.http.protocol.HTTP;
  * @author Michael Becke
  * @author <a href="mailto:oleg at ural.ru">Oleg Kalnichevski</a>
  * 
- * @since 2.0 final
+ * @since 4.0
  */
 public class EncodingUtils {
 
@@ -54,8 +54,6 @@ public class EncodingUtils {
      * @param length the number of bytes to encode 
      * @param charset the desired character encoding
      * @return The result of the conversion.
-     * 
-     * @since 3.0
      */
     public static String getString(
         final byte[] data, 
@@ -88,8 +86,6 @@ public class EncodingUtils {
      * @param data the byte array to be encoded
      * @param charset the desired character encoding
      * @return The result of the conversion.
-     * 
-     * @since 3.0
      */
     public static String getString(final byte[] data, final String charset) {
         if (data == null) {
@@ -105,8 +101,6 @@ public class EncodingUtils {
      * @param data the string to be encoded
      * @param charset the desired character encoding
      * @return The resulting byte array.
-     * 
-     * @since 3.0
      */
     public static byte[] getBytes(final String data, final String charset) {
 
@@ -130,8 +124,6 @@ public class EncodingUtils {
      *
      * @param data the string to be encoded
      * @return The string as a byte array.
-     * 
-     * @since 3.0
      */
     public static byte[] getAsciiBytes(final String data) {
 
@@ -155,8 +147,6 @@ public class EncodingUtils {
      * @param offset the index of the first byte to encode
      * @param length the number of bytes to encode 
      * @return The string representation of the byte array
-     * 
-     * @since 3.0
      */
     public static String getAsciiString(final byte[] data, int offset, int length) {
 
@@ -178,8 +168,6 @@ public class EncodingUtils {
      *
      * @param data the byte array to be encoded
      * @return The string representation of the byte array
-     * 
-     * @since 3.0
      */
     public static String getAsciiString(final byte[] data) {
         if (data == null) {

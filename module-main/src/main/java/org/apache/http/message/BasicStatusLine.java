@@ -41,29 +41,17 @@ import org.apache.http.impl.EnglishReasonPhraseCatalog;
 
 
 /**
- * Represents a Status-Line as returned from a HTTP server.
- *
- * <a href="http://www.ietf.org/rfc/rfc2616.txt">RFC2616</a> states
- * the following regarding the Status-Line:
- * <pre>
- * 6.1 Status-Line
- *
- *  The first line of a Response message is the Status-Line, consisting
- *  of the protocol version followed by a numeric status code and its
- *  associated textual phrase, with each element separated by SP
- *  characters. No CR or LF is allowed except in the final CRLF sequence.
- *
- *      Status-Line = HTTP-Version SP Status-Code SP Reason-Phrase CRLF
- * </pre>
- * <p>
- * This class is immutable and is inherently thread safe.
+ * Represents a status line as returned from a HTTP server.
+ * See <a href="http://www.ietf.org/rfc/rfc2616.txt">RFC2616</a> section 6.1.
+ * This class is immutable and therefore inherently thread safe.
  *
  * @see HttpStatus
  * @author <a href="mailto:jsdever@apache.org">Jeff Dever</a>
  * @author <a href="mailto:mbowler@GargoyleSoftware.com">Mike Bowler</a>
+ *
  * @version $Id$
  * 
- * @since 2.0
+ * @since 4.0
  */
 public class BasicStatusLine implements StatusLine {
 
@@ -112,8 +100,6 @@ public class BasicStatusLine implements StatusLine {
      * @param indexTo   where to stop parsing in the buffer
      * 
      * @throws HttpException if the status line is invalid
-     * 
-     * @since 4.0 
      */
     public static StatusLine parse(
             final CharArrayBuffer buffer, final int indexFrom, final int indexTo) 

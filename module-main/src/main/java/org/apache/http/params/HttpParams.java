@@ -32,16 +32,17 @@
 package org.apache.http.params;
 
 /**
- * This interface represents a collection of HTTP protocol parameters. Protocol parameters
- * may be linked together to form a hierarchy. If a particular parameter value has not been
- * explicitly defined in the collection itself, its value will be drawn from the parent 
+ * Represents a collection of HTTP protocol and framework parameters.
+ * Parameters may be linked together to form a hierarchy.
+ * If a particular parameter value has not been explicitly defined
+ * in the collection itself, its value will be drawn from the parent 
  * collection of parameters.
  *   
  * @author <a href="mailto:oleg at ural.ru">Oleg Kalnichevski</a>
  * 
  * @version $Revision$
  *
- * @since 3.0
+ * @since 4.0
  */
 public interface HttpParams {
 

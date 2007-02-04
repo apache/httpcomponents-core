@@ -40,13 +40,13 @@ import org.apache.http.message.BasicHeader;
 import org.apache.http.util.CharArrayBuffer;
 
 /**
- * A class for combining a set of headers.  This class allows for multiple
- * headers with the same name and keeps track of the order in which headers were
- * added.
+ * A class for combining a set of headers.
+ * This class allows for multiple headers with the same name and
+ * keeps track of the order in which headers were added.
  * 
  * @author Michael Becke
- * 
- * @since 2.0beta1
+ *
+ * @since 4.0
  */
 public class HeaderGroup {
 
