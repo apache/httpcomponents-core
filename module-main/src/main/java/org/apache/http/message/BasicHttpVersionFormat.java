@@ -36,7 +36,19 @@ import org.apache.http.ProtocolException;
 import org.apache.http.protocol.HTTP;
 import org.apache.http.util.CharArrayBuffer;
 
-public class BasicHttpVersion {
+
+/**
+ * Parser and formatter for {@link HttpVersion HttpVersion}.
+ * 
+ * @author <a href="mailto:oleg@ural.ru">Oleg Kalnichevski</a>
+ *
+ *
+ * <!-- empty lines above to avoid 'svn diff' context problems -->
+ * @version $Revision$
+ * 
+ * @since 4.0
+ */
+public class BasicHttpVersionFormat {
 
     /**
      * Parses the textual representation of the given HTTP protocol version.

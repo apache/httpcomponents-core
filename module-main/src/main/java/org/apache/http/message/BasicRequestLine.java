@@ -130,7 +130,7 @@ public class BasicRequestLine implements RequestLine {
                         buffer.substring(indexFrom, indexTo));
             }
             String uri = buffer.substringTrimmed(i, blank);
-            HttpVersion ver = BasicHttpVersion.parse(buffer, blank, indexTo);
+            HttpVersion ver = BasicHttpVersionFormat.parse(buffer, blank, indexTo);
             return new BasicRequestLine(method, uri, ver);
         } catch (IndexOutOfBoundsException e) {
             throw new ProtocolException("Invalid request line: " + 
@@ -159,7 +159,7 @@ public class BasicRequestLine implements RequestLine {
         buffer.append(' ');
         buffer.append(requestline.getUri());
         buffer.append(' ');
-        BasicHttpVersion.format(buffer, requestline.getHttpVersion());
+        BasicHttpVersionFormat.format(buffer, requestline.getHttpVersion());
     }
  
     public static String format(final RequestLine requestline) {

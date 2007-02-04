@@ -142,7 +142,7 @@ public class BasicStatusLine implements StatusLine {
                         "Unable to parse HTTP-Version from the status line: "
                         + buffer.substring(indexFrom, indexTo));
             }
-            HttpVersion ver = BasicHttpVersion.parse(buffer, i, blank);
+            HttpVersion ver = BasicHttpVersionFormat.parse(buffer, i, blank);
 
             i = blank;
             //advance through spaces
@@ -230,7 +230,7 @@ public class BasicStatusLine implements StatusLine {
         if (statusline == null) {
             throw new IllegalArgumentException("Status line may not be null");
         }
-        BasicHttpVersion.format(buffer, statusline.getHttpVersion());
+        BasicHttpVersionFormat.format(buffer, statusline.getHttpVersion());
         buffer.append(' ');
         buffer.append(Integer.toString(statusline.getStatusCode()));
         if (statusline.getReasonPhrase() != null) {
