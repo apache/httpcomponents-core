@@ -29,11 +29,12 @@
  *
  */
 
-package org.apache.http.nio.concurrent;
+package org.apache.http.util.concurrent;
 
 /**
- * Abstract command executor. This interface is needed in order to
- * avoid direct dependency on java.util.concurrent
+ * Abstract command executor.
+ * This interface is needed in order to avoid direct dependency
+ * on <code>java.util.concurrent</code> in Java 5.
  * 
  * @author <a href="mailto:oleg at ural.ru">Oleg Kalnichevski</a>
  */

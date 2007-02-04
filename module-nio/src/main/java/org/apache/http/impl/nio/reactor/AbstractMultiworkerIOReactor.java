@@ -33,7 +33,7 @@ package org.apache.http.impl.nio.reactor;
 
 import java.io.InterruptedIOException;
 
-import org.apache.http.nio.concurrent.ThreadFactory;
+import org.apache.http.util.concurrent.ThreadFactory;
 import org.apache.http.nio.reactor.IOEventDispatch;
 import org.apache.http.nio.reactor.IOReactor;
 import org.apache.http.nio.reactor.IOReactorException;

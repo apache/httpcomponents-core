@@ -22,7 +22,7 @@ import org.apache.http.entity.FileEntity;
 import org.apache.http.impl.DefaultConnectionReuseStrategy;
 import org.apache.http.impl.DefaultHttpResponseFactory;
 import org.apache.http.impl.params.DefaultHttpParams;
-import org.apache.http.nio.concurrent.Executor;
+import org.apache.http.util.concurrent.Executor;
 import org.apache.http.impl.nio.DefaultServerIOEventDispatch;
 import org.apache.http.impl.nio.reactor.DefaultListeningIOReactor;
 import org.apache.http.nio.params.HttpNIOParams;
