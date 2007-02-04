@@ -50,8 +50,9 @@ import org.apache.http.protocol.HTTP;
  * 
  * @since 4.0
  */
-public class EntityUtils {
-    
+public final class EntityUtils {
+
+    /** Disabled default constructor. */
     private EntityUtils() {
     }
     

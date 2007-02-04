@@ -42,7 +42,7 @@ import org.apache.http.protocol.HTTP;
  * 
  * @since 4.0
  */
-public class EncodingUtils {
+public final class EncodingUtils {
 
     /**
      * Converts the byte array of HTTP content characters to a string. If

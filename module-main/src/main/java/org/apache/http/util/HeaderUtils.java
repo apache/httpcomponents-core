@@ -46,8 +46,9 @@ import org.apache.http.message.BufferedHeader;
  * @author Michael Becke
  * @author <a href="mailto:oleg at ural.ru">Oleg Kalnichevski</a>
  */
-public class HeaderUtils {
-    
+public final class HeaderUtils {
+
+    /** Disabled default constructor. */
     private HeaderUtils() {
     }
 

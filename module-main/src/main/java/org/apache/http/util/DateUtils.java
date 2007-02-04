@@ -46,7 +46,7 @@ import java.util.TimeZone;
  * @author Christopher Brown
  * @author Michael Becke
  */
-public class DateUtils {
+public final class DateUtils {
 
     /**
      * Date format pattern used to parse HTTP date headers in RFC 1123 format.

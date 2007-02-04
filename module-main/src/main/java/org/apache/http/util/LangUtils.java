@@ -39,11 +39,12 @@ package org.apache.http.util;
  * 
  * @since 4.0
  */
-public class LangUtils {
+public final class LangUtils {
     
     public static final int HASH_SEED = 17;
     public static final int HASH_OFFSET = 37;
-    
+
+    /** Disabled default constructor. */
     private LangUtils() {
     }
 
