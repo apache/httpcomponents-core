@@ -33,7 +33,6 @@ package org.apache.http.impl;
 
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpResponseFactory;
-import org.apache.http.HttpStatus;
 import org.apache.http.HttpVersion;
 import org.apache.http.StatusLine;
 import org.apache.http.message.BasicHttpResponse;
