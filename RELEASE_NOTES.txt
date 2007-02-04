@@ -1,6 +1,9 @@
 Changes since release 4.0 Alpha 3
 -------------------
 
+* [HTTPCORE-39]: Refactored HttpStatus, spun off [English]ReasonPhraseFactory.
+  Contributed by Roland Weber <rolandw at apache.org>
+
 * [HTTPCORE-32]: HttpRequestInterceptorList, HttpResponseInterceptorList
   Contributed by Roland Weber <rolandw at apache.org>
 
