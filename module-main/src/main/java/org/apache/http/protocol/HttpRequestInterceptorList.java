@@ -52,7 +52,7 @@ import org.apache.http.HttpRequestInterceptor;
 public interface HttpRequestInterceptorList {
 
     /**
-     * Appends an interceptor to this list.
+     * Appends a request interceptor to this list.
      *
      * @param itcp      the request interceptor to add, or
      *                  <code>null</code> to do nothing
@@ -71,7 +71,7 @@ public interface HttpRequestInterceptorList {
 
 
     /**
-     * Obtains an interceptor of this list.
+     * Obtains a request interceptor from this list.
      *
      * @param index     the index of the interceptor to obtain,
      *                  0 for first
@@ -84,14 +84,14 @@ public interface HttpRequestInterceptorList {
 
 
     /**
-     * Removes all interceptors from this list.
+     * Removes all request interceptors from this list.
      */
     void clearRequestInterceptors()
         ;
 
 
     /**
-     * Sets the interceptors in this list.
+     * Sets the request interceptors in this list.
      * This list will be cleared and re-initialized to contain
      * all request interceptors from the argument list.
      * If the argument list includes elements that are not request

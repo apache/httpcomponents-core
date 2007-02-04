@@ -51,7 +51,7 @@ import org.apache.http.HttpResponseInterceptor;
 public interface HttpResponseInterceptorList {
 
     /**
-     * Appends an interceptor to this list.
+     * Appends a response interceptor to this list.
      *
      * @param itcp      the response interceptor to add, or
      *                  <code>null</code> to do nothing
@@ -70,7 +70,7 @@ public interface HttpResponseInterceptorList {
 
 
     /**
-     * Obtains an interceptor of this list.
+     * Obtains a response interceptor from this list.
      *
      * @param index     the index of the interceptor to obtain,
      *                  0 for first
@@ -83,14 +83,14 @@ public interface HttpResponseInterceptorList {
 
 
     /**
-     * Removes all interceptors from this list.
+     * Removes all response interceptors from this list.
      */
     void clearResponseInterceptors()
         ;
 
 
     /**
-     * Sets the interceptors in this list.
+     * Sets the response interceptors in this list.
      * This list will be cleared and re-initialized to contain
      * all response interceptors from the argument list.
      * If the argument list includes elements that are not response
