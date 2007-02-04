@@ -125,12 +125,14 @@ public class HttpService {
                 ver = HttpVersion.HTTP_1_1;
             }
 
-            response = this.responseFactory.newHttpResponse(ver, HttpStatus.SC_OK);
+            response = this.responseFactory.newHttpResponse
+                (ver, HttpStatus.SC_OK, context);
             response.getParams().setDefaults(this.params);
             
             if (request instanceof HttpEntityEnclosingRequest) {
                 if (((HttpEntityEnclosingRequest) request).expectContinue()) {
-                    HttpResponse ack = this.responseFactory.newHttpResponse(ver, HttpStatus.SC_CONTINUE);
+                    HttpResponse ack = this.responseFactory.newHttpResponse
+                        (ver, HttpStatus.SC_CONTINUE, context);
                     ack.getParams().setDefaults(this.params);
                     conn.sendResponseHeader(ack);
                     conn.flush();
@@ -151,8 +153,9 @@ public class HttpService {
                 }
             }
         } catch (HttpException ex) {
-            response = this.responseFactory.newHttpResponse(HttpVersion.HTTP_1_0, 
-                    HttpStatus.SC_INTERNAL_SERVER_ERROR);
+            response = this.responseFactory.newHttpResponse
+                (HttpVersion.HTTP_1_0, HttpStatus.SC_INTERNAL_SERVER_ERROR,
+                 context);
             response.getParams().setDefaults(this.params);
             handleException(ex, response);
         }

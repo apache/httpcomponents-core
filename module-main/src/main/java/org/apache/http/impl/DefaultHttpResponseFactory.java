@@ -37,6 +37,7 @@ import org.apache.http.HttpVersion;
 import org.apache.http.StatusLine;
 import org.apache.http.message.BasicHttpResponse;
 import org.apache.http.message.BasicStatusLine;
+import org.apache.http.protocol.HttpContext;
 import org.apache.http.ReasonPhraseCatalog;
 import org.apache.http.impl.EnglishReasonPhraseCatalog;
 
@@ -80,12 +81,12 @@ public class DefaultHttpResponseFactory implements HttpResponseFactory {
 
     // non-javadoc, see interface HttpResponseFactory
     public HttpResponse newHttpResponse(final HttpVersion ver,
-                                        final int status) {
+                                        final int status,
+                                        HttpContext context) {
         if (ver == null) {
             throw new IllegalArgumentException("HTTP version may not be null");
         }
-        //@@@ TODO: how to get to the context?
-        final String reason = reasonCatalog.getReason(status, null);
+        final String reason = reasonCatalog.getReason(status, context);
         StatusLine statusline = new BasicStatusLine(ver, status, reason);
         return new BasicHttpResponse(statusline); 
     }

@@ -31,6 +31,9 @@
 
 package org.apache.http;
 
+import org.apache.http.protocol.HttpContext;
+
+
 /**
  * A factory for {@link HttpResponse HttpResponse} objects.
  *
@@ -42,7 +45,8 @@ package org.apache.http;
  */
 public interface HttpResponseFactory {
     
-    HttpResponse newHttpResponse(HttpVersion ver, int status);
+    HttpResponse newHttpResponse(HttpVersion ver, int status,
+                                 HttpContext context);
     
     HttpResponse newHttpResponse(StatusLine statusline);
     

@@ -158,7 +158,7 @@ public class BufferingHttpServiceHandler implements NHttpServiceHandler {
 
             if (request instanceof HttpEntityEnclosingRequest) {
                 if (((HttpEntityEnclosingRequest) request).expectContinue()) {
-                    HttpResponse ack = this.responseFactory.newHttpResponse(ver, 100);
+                    HttpResponse ack = this.responseFactory.newHttpResponse(ver, 100, context);
                     conn.submitResponse(ack);
                 }
                 // Request content is expected. 
@@ -295,7 +295,7 @@ public class BufferingHttpServiceHandler implements NHttpServiceHandler {
         HttpRequest request = conn.getHttpRequest();
         HttpVersion ver = request.getRequestLine().getHttpVersion();
         HttpResponse response =  this.responseFactory.newHttpResponse(
-                ver, HttpStatus.SC_BAD_REQUEST);
+                ver, HttpStatus.SC_BAD_REQUEST, conn.getContext());
 
         int code = HttpStatus.SC_INTERNAL_SERVER_ERROR;
         if (ex instanceof MethodNotSupportedException) {
@@ -326,7 +326,7 @@ public class BufferingHttpServiceHandler implements NHttpServiceHandler {
             ver = HttpVersion.HTTP_1_1;
         }
 
-        HttpResponse response = this.responseFactory.newHttpResponse(ver, HttpStatus.SC_OK);
+        HttpResponse response = this.responseFactory.newHttpResponse(ver, HttpStatus.SC_OK, conn.getContext());
         response.getParams().setDefaults(this.params);
         
         context.setAttribute(HttpExecutionContext.HTTP_REQUEST, request);
