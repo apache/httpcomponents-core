@@ -37,6 +37,8 @@ import org.apache.http.ProtocolException;
 import org.apache.http.StatusLine;
 import org.apache.http.protocol.HTTP;
 import org.apache.http.util.CharArrayBuffer;
+import org.apache.http.impl.EnglishReasonPhraseCatalog;
+
 
 /**
  * Represents a Status-Line as returned from a HTTP server.
@@ -78,7 +80,7 @@ public class BasicStatusLine implements StatusLine {
 
     // ----------------------------------------------------------- Constructors
     /**
-     * Default constructor
+     * Creates a new status line with the given version, status, and reason.
      */
     public BasicStatusLine(final HttpVersion httpVersion, int statusCode, final String reasonPhrase) {
         super();
@@ -93,8 +95,13 @@ public class BasicStatusLine implements StatusLine {
         this.reasonPhrase = reasonPhrase;
     }
 
+    /**
+     * Creates a new status line with the given version and status.
+     */
     public BasicStatusLine(final HttpVersion httpVersion, int statusCode) {
-        this(httpVersion, statusCode, HttpStatus.getStatusText(statusCode));
+        this(httpVersion, statusCode,
+             //@@@ TODO: reason null instead of English?
+             EnglishReasonPhraseCatalog.INSTANCE.getReason(statusCode, null));
     }
 
     /**

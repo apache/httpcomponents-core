@@ -29,40 +29,43 @@
  *
  */
 
-package org.apache.http;
+package org.apache.http.impl;
 
 import junit.framework.*;
 import java.lang.reflect.*;
 
+import org.apache.http.HttpStatus;
+
+
 /**
  *
- * Unit tests for {@link HttpStatus}
+ * Unit tests for {@link EnglishReasonPhraseCatalog}
  *
  * @author Sean C. Sullivan
  */
-public class TestHttpStatus extends TestCase {
+public class TestEnglishReasonPhraseCatalog extends TestCase {
 
     // ------------------------------------------------------------ Constructor
-    public TestHttpStatus(String testName) {
+    public TestEnglishReasonPhraseCatalog(String testName) {
         super(testName);
     }
 
     // ------------------------------------------------------------------- Main
     public static void main(String args[]) {
-        String[] testCaseName = { TestHttpStatus.class.getName() };
+        String[] testCaseName = { TestEnglishReasonPhraseCatalog.class.getName() };
         junit.textui.TestRunner.main(testCaseName);
     }
 
     // ------------------------------------------------------- TestCase Methods
 
     public static Test suite() {
-        return new TestSuite(TestHttpStatus.class);
+        return new TestSuite(TestEnglishReasonPhraseCatalog.class);
     }
 
 
     // ----------------------------------------------------------- Test Methods
 
-    public void testStatusText() throws IllegalAccessException {
+    public void testReasonPhrases() throws IllegalAccessException {
 	Field[] publicFields = HttpStatus.class.getFields();
 
 	assertTrue( publicFields != null );
@@ -81,28 +84,37 @@ public class TestHttpStatus extends TestCase {
 			&& Modifier.isStatic(modifiers) )
 		{
 			final int iValue = f.getInt(null);
-			final String text = HttpStatus.getStatusText(iValue);
-
-			assertTrue( "text is null for HttpStatus." + f.getName(), 
-				(text != null) );
-
-			assertTrue( text.length() > 0 );
+			final String text = EnglishReasonPhraseCatalog.
+                            INSTANCE.getReason(iValue, null);
+			assertTrue("text is null for HttpStatus."+f.getName(), 
+                                   (text != null));
+			assertTrue(text.length() > 0);
 		}
 	}
-
     }
 
-    public void testStatusTextNegative() throws Exception {
+
+    public void testStatusInvalid() throws Exception {
         try {
-            HttpStatus.getStatusText(-1);
-            fail("IllegalArgumentException must have been thrown");
+            EnglishReasonPhraseCatalog.INSTANCE.getReason(-1, null);
+            fail("IllegalArgumentException must have been thrown (-1)");
+        } catch (IllegalArgumentException expected) {
+        }
+        try {
+            EnglishReasonPhraseCatalog.INSTANCE.getReason(99, null);
+            fail("IllegalArgumentException must have been thrown (99)");
+        } catch (IllegalArgumentException expected) {
+        }
+        try {
+            EnglishReasonPhraseCatalog.INSTANCE.getReason(600, null);
+            fail("IllegalArgumentException must have been thrown (600)");
         } catch (IllegalArgumentException expected) {
         }
     }
 
-    public void testStatusTextAll() throws Exception {
-        for (int i = 0; i < 600; i++) {
-            HttpStatus.getStatusText(i);
+    public void testStatusAll() throws Exception {
+        for (int i = 100; i < 600; i++) {
+            EnglishReasonPhraseCatalog.INSTANCE.getReason(i, null);
         }
     }
 }

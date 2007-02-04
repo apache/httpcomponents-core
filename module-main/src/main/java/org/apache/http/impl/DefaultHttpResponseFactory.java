@@ -38,6 +38,8 @@ import org.apache.http.HttpVersion;
 import org.apache.http.StatusLine;
 import org.apache.http.message.BasicHttpResponse;
 import org.apache.http.message.BasicStatusLine;
+import org.apache.http.ReasonPhraseCatalog;
+import org.apache.http.impl.EnglishReasonPhraseCatalog;
 
 /**
  * Default implementation of a factory for creating response objects.
@@ -49,19 +51,48 @@ import org.apache.http.message.BasicStatusLine;
  * @since 4.0
  */
 public class DefaultHttpResponseFactory implements HttpResponseFactory {
-    
-    public DefaultHttpResponseFactory() {
-        super();
+
+    /** The catalog for looking up reason phrases. */
+    protected final ReasonPhraseCatalog reasonCatalog;
+
+
+    /**
+     * Creates a new response factory with the given catalog.
+     *
+     * @param catalog   the catalog of reason phrases
+     */
+    public DefaultHttpResponseFactory(ReasonPhraseCatalog catalog) {
+        if (catalog == null) {
+            throw new IllegalArgumentException
+                ("Reason phrase catalog must not be null.");
+        }
+        this.reasonCatalog = catalog;
     }
 
-    public HttpResponse newHttpResponse(final HttpVersion ver, final int status) {
+    /**
+     * Creates a new response factory with the default catalog.
+     * The default catalog is
+     * {@link EnglishReasonPhraseCatalog EnglishReasonPhraseCatalog}.
+     */
+    public DefaultHttpResponseFactory() {
+        this(EnglishReasonPhraseCatalog.INSTANCE);
+    }
+
+
+    // non-javadoc, see interface HttpResponseFactory
+    public HttpResponse newHttpResponse(final HttpVersion ver,
+                                        final int status) {
         if (ver == null) {
             throw new IllegalArgumentException("HTTP version may not be null");
         }
-        StatusLine statusline = new BasicStatusLine(ver, status, HttpStatus.getStatusText(status)); 
+        //@@@ TODO: how to get to the context?
+        final String reason = reasonCatalog.getReason(status, null);
+        StatusLine statusline = new BasicStatusLine(ver, status, reason);
         return new BasicHttpResponse(statusline); 
     }
-    
+
+
+    // non-javadoc, see interface HttpResponseFactory
     public HttpResponse newHttpResponse(final StatusLine statusline) {
         if (statusline == null) {
             throw new IllegalArgumentException("Status line may not be null");
