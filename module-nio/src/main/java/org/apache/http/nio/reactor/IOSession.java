@@ -60,9 +60,11 @@ public interface IOSession {
     
     void setSocketTimeout(int timeout);
     
-    SessionBufferStatus getBufferStatus();
-    
     void setBufferStatus(SessionBufferStatus status);
+    
+    boolean hasBufferedInput();
+    
+    boolean hasBufferedOutput();
     
     void setAttribute(String name, Object obj);
     

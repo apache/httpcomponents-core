@@ -39,7 +39,6 @@ import java.util.Set;
 import org.apache.http.nio.reactor.EventMask;
 import org.apache.http.nio.reactor.IOReactorException;
 import org.apache.http.nio.reactor.IOSession;
-import org.apache.http.nio.reactor.SessionBufferStatus;
 
 public class BaseIOReactor extends AbstractIOReactor {
 
@@ -67,11 +66,8 @@ public class BaseIOReactor extends AbstractIOReactor {
         handle.resetLastRead();
 
         this.eventDispatch.inputReady(session);
-        SessionBufferStatus bufStatus = session.getBufferStatus();
-        if (bufStatus != null) {
-            if (bufStatus.hasBufferedInput()) {
-                this.bufferingSessions.add(session);
-            }
+        if (session.hasBufferedInput()) {
+            this.bufferingSessions.add(session);
         }
     }
 
@@ -97,21 +93,16 @@ public class BaseIOReactor extends AbstractIOReactor {
         if (!this.bufferingSessions.isEmpty()) {
             for (Iterator it = this.bufferingSessions.iterator(); it.hasNext(); ) {
                 IOSession session = (IOSession) it.next();
-                SessionBufferStatus bufStatus = session.getBufferStatus();
-                if (bufStatus != null) {
-                    if (!bufStatus.hasBufferedInput()) {
-                        it.remove();
-                        continue;
-                    }
+                if (!session.hasBufferedInput()) {
+                    it.remove();
+                    continue;
                 }
                 try {
                     int ops = session.getEventMask();
                     if ((ops & EventMask.READ) > 0) {
                         this.eventDispatch.inputReady(session);
-                        if (bufStatus != null) {
-                            if (!bufStatus.hasBufferedInput()) {
-                                it.remove();
-                            }
+                        if (!session.hasBufferedInput()) {
+                            it.remove();
                         }
                     }
                 } catch (CancelledKeyException ex) {

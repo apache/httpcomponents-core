@@ -156,8 +156,12 @@ class IOSessionImpl implements IOSession {
         return this.closed || !this.key.isValid();
     }
     
-    public SessionBufferStatus getBufferStatus() {
-        return this.bufferStatus;
+    public boolean hasBufferedInput() {
+        return this.bufferStatus != null && this.bufferStatus.hasBufferedInput();
+    }
+    
+    public boolean hasBufferedOutput() {
+        return this.bufferStatus != null && this.bufferStatus.hasBufferedOutput();
     }
 
     public void setBufferStatus(final SessionBufferStatus bufferStatus) {
