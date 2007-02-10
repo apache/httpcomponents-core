@@ -71,6 +71,7 @@
   <modules>
     <module>module-main</module>
     <module>module-nio</module>
+    <module>module-niossl</module>
   </modules>
 
   <build>
