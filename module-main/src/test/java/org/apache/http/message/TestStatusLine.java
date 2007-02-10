@@ -75,11 +75,6 @@ public class TestStatusLine extends TestCase {
         assertEquals(HttpVersion.HTTP_1_1, statusline.getHttpVersion()); 
         assertEquals(HttpStatus.SC_OK, statusline.getStatusCode()); 
         assertEquals("OK", statusline.getReasonPhrase()); 
-
-        statusline = new BasicStatusLine(HttpVersion.HTTP_1_1, HttpStatus.SC_OK);
-        assertEquals(HttpVersion.HTTP_1_1, statusline.getHttpVersion()); 
-        assertEquals(HttpStatus.SC_OK, statusline.getStatusCode()); 
-        assertEquals("OK", statusline.getReasonPhrase()); 
     }
         
     public void testConstructorInvalidInput() {
@@ -211,7 +206,8 @@ public class TestStatusLine extends TestCase {
         assertEquals("HTTP/1.1 200 OK", s);
         statusline = new BasicStatusLine(HttpVersion.HTTP_1_1, HttpStatus.SC_OK, null);
         s = BasicStatusLine.format(statusline);
-        assertEquals("HTTP/1.1 200", s);
+        assertEquals("HTTP/1.1 200 ", s);
+        // compare with "testParseSuccess" above: trailing space is correct
     }
     
     public void testFormattingInvalidInput() throws Exception {

@@ -253,7 +253,7 @@ public abstract class AbstractHttpClientConnection implements HttpClientConnecti
         } while(true);
         //create the status line from the status string
         StatusLine statusline = BasicStatusLine.parse(this.buffer, 0, this.buffer.length());
-        HttpResponse response = this.responsefactory.newHttpResponse(statusline);
+        HttpResponse response = this.responsefactory.newHttpResponse(statusline, null);
         response.getParams().setDefaults(params);
         return response;
     }

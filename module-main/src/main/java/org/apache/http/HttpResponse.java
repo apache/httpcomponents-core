@@ -31,6 +31,10 @@
 
 package org.apache.http;
 
+
+import java.util.Locale;
+
+
 /**
  * An HTTP response.
  *
@@ -43,44 +47,115 @@ package org.apache.http;
 public interface HttpResponse extends HttpMessage {
 
     /**
-     * Returns the status line that belongs to this response as set by
-     * @link #setStatusLine(StatusLine).
+     * Obtains the status line of this response.
+     * The status line can be set using on of the
+     * {@link #setStatusLine setStatusLine} methods,
+     * or it can be initialized in a constructor.
+     *
+     * @return  the status line, or <code>null</code> if not yet set
      */
     StatusLine getStatusLine();
 
     /**
-     * Sets the status line that belongs to this response.
-     * @param statusline the status line of this response.
+     * Sets the status line of this response.
+     *
+     * @param statusline the status line of this response
      */
     void setStatusLine(StatusLine statusline);
-    
+
     /**
-     * Sets the status line that belongs to this response.
-     * @param ver the HTTP version.
-     * @param code the HTTP status code.
+     * Sets the status line of this response.
+     * The reason phrase will be determined based on the current
+     * {@link #getLocale locale}.
+     *
+     * @param ver       the HTTP version
+     * @param code      the status code
      */
     void setStatusLine(HttpVersion ver, int code);
+
+    /**
+     * Sets the status line of this response with a reason phrase.
+     *
+     * @param ver       the HTTP version
+     * @param code      the status code
+     * @param reason    the reason phrase, or <code>null</code> to omit
+     */
+    void setStatusLine(HttpVersion ver, int code, String reason);
     
     /**
-     * Convenience method that creates and sets a new status line of this
-     * response that is initialized with the specified status code.
+     * Updates the status line of this response with a new status code.
+     * The status line can only be updated if it is available. It must
+     * have been set either explicitly or in a constructor.
+     * <br/>
+     * The reason phrase will be updated according to the new status code,
+     * based on the current {@link #getLocale locale}. It can be set
+     * explicitly using {@link #setReasonPhrase setReasonPhrase}.
      * 
      * @param code the HTTP status code.
+     *
+     * @throws IllegalStateException
+     *          if the status line has not be set
+     *
      * @see HttpStatus
+     * @see #setStatusLine(StatusLine)
+     * @see #setStatusLine(HttpVersion,int)
      */
-    void setStatusCode(int code);
-    
+    void setStatusCode(int code)
+        throws IllegalStateException;
+
     /**
-     * Returns the response entity of this response as set by
-     * @link #setEntity(HttpEntity).
-     * @return the response entity or <code>null</code> if there is none.
+     * Updates the status line of this response with a new reason phrase.
+     * The status line can only be updated if it is available. It must
+     * have been set either explicitly or in a constructor.
+     *
+     * @param reason    the new reason phrase as a single-line string, or
+     *                  <code>null</code> to unset the reason phrase
+     *
+     * @throws IllegalStateException
+     *          if the status line has not be set
+     *
+     * @see #setStatusLine(StatusLine)
+     * @see #setStatusLine(HttpVersion,int)
+     */
+    void setReasonPhrase(String reason)
+        throws IllegalStateException;
+
+    /**
+     * Obtains the message entity of this response, if any.
+     * The entity is provided by calling {@link #setEntity setEntity}.
+     *
+     * @return  the response entity, or
+     *          <code>null</code> if there is none
      */
     HttpEntity getEntity();
     
     /**
      * Associates a response entity with this response.
-     * @param entity the entity to associate with this response.
+     *
+     * @param entity    the entity to associate with this response, or
+     *                  <code>null</code> to unset
      */
     void setEntity(HttpEntity entity);
-    
+
+    /**
+     * Obtains the locale of this response.
+     * The locale is used to determine the reason phrase
+     * for the {@link #setStatusCode status code}.
+     * It can be changed using {@link #setLocale setLocale}.
+     *
+     * @return  the locale of this response, never <code>null</code>
+     */
+    Locale getLocale();
+
+    /**
+     * Changes the locale of this response.
+     * If there is a status line, it's reason phrase will be updated
+     * according to the status code and new locale.
+     *
+     * @param loc       the new locale
+     *
+     * @see #getLocale getLocale
+     * @see #setStatusCode setStatusCode
+     */
+    void setLocale(Locale loc);
 }

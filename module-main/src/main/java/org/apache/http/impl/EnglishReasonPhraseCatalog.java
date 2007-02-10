@@ -31,9 +31,10 @@
 
 package org.apache.http.impl;
 
+import java.util.Locale;
+
 import org.apache.http.HttpStatus;
 import org.apache.http.ReasonPhraseCatalog;
-import org.apache.http.protocol.HttpContext;
 
 
 /**
@@ -74,11 +75,11 @@ public class EnglishReasonPhraseCatalog
      * Obtains the reason phrase for a status code.
      *
      * @param status    the status code, in the range 100-599
-     * @param context   ignored
+     * @param loc       ignored
      *
      * @return  the reason phrase, or <code>null</code>
      */
-    public String getReason(int status, HttpContext context) {
+    public String getReason(int status, Locale loc) {
         if ((status < 100) || (status >= 600)) {
             throw new IllegalArgumentException
                 ("Unknown category for status code " + status + ".");

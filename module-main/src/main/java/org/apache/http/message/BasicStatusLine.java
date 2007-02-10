@@ -37,7 +37,7 @@ import org.apache.http.ProtocolException;
 import org.apache.http.StatusLine;
 import org.apache.http.protocol.HTTP;
 import org.apache.http.util.CharArrayBuffer;
-import org.apache.http.impl.EnglishReasonPhraseCatalog;
+//import org.apache.http.impl.EnglishReasonPhraseCatalog;
 
 
 /**
@@ -69,27 +69,26 @@ public class BasicStatusLine implements StatusLine {
     // ----------------------------------------------------------- Constructors
     /**
      * Creates a new status line with the given version, status, and reason.
+     *
+     * @param httpVersion       the HTTP version of the response
+     * @param statusCode        the status code of the response
+     * @param reasonPhrase      the reason phrase to the status code, or
+     *                          <code>null</code>
      */
-    public BasicStatusLine(final HttpVersion httpVersion, int statusCode, final String reasonPhrase) {
+    public BasicStatusLine(final HttpVersion httpVersion, int statusCode,
+                           final String reasonPhrase) {
         super();
         if (httpVersion == null) {
-            throw new IllegalArgumentException("HTTP version may not be null");
+            throw new IllegalArgumentException
+                ("HTTP version may not be null.");
         }
         if (statusCode < 0) {
-            throw new IllegalArgumentException("Status code may not be negative");
+            throw new IllegalArgumentException
+                ("Status code may not be negative.");
         }
         this.httpVersion = httpVersion;
         this.statusCode = statusCode;
         this.reasonPhrase = reasonPhrase;
-    }
-
-    /**
-     * Creates a new status line with the given version and status.
-     */
-    public BasicStatusLine(final HttpVersion httpVersion, int statusCode) {
-        this(httpVersion, statusCode,
-             //@@@ TODO: reason null instead of English?
-             EnglishReasonPhraseCatalog.INSTANCE.getReason(statusCode, null));
     }
 
     /**
@@ -219,8 +218,8 @@ public class BasicStatusLine implements StatusLine {
         BasicHttpVersionFormat.format(buffer, statusline.getHttpVersion());
         buffer.append(' ');
         buffer.append(Integer.toString(statusline.getStatusCode()));
+        buffer.append(' '); // keep whitespace even if reason phrase is empty
         if (statusline.getReasonPhrase() != null) {
-            buffer.append(' ');
             buffer.append(statusline.getReasonPhrase());
         }
     }

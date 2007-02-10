@@ -31,7 +31,8 @@
 
 package org.apache.http;
 
-import org.apache.http.protocol.HttpContext;
+import java.util.Locale;
+
 
 /**
  * Interface for obtaining reason phrases for HTTP status codes.
@@ -52,12 +53,11 @@ public interface ReasonPhraseCatalog {
      * the language for the reason phrase.
      *
      * @param status    the status code, in the range 100-599
-     * @param context   the context for the response being generated, or
-     *                  <code>null</code> if not available
+     * @param loc       the preferred locale for the reason phrase
      *
      * @return  the reason phrase, or <code>null</code> if unknown
      */
-    public String getReason(int status, HttpContext context)
+    public String getReason(int status, Locale loc)
         ;
 
 }

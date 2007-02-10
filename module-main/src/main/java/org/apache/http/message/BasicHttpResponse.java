@@ -31,13 +31,18 @@
 
 package org.apache.http.message;
 
+import java.util.Locale;
+
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpVersion;
 import org.apache.http.StatusLine;
+import org.apache.http.ReasonPhraseCatalog;
+
 
 /**
  * Basic implementation of an HTTP response that can be modified.
+ * This implementation makes sure that there always is a status line.
  *
  * @author <a href="mailto:oleg at ural.ru">Oleg Kalnichevski</a>
  *
@@ -45,60 +50,155 @@ import org.apache.http.StatusLine;
  * 
  * @since 4.0
  */
-public class BasicHttpResponse extends AbstractHttpMessage implements HttpResponse {
-    
-    private StatusLine statusline = null;
-    private HttpEntity entity = null;
-    
-    public BasicHttpResponse(final StatusLine statusline) {
+public class BasicHttpResponse extends AbstractHttpMessage
+    implements HttpResponse {
+
+    private StatusLine          statusline;
+    private HttpEntity          entity;
+    private ReasonPhraseCatalog reasonCatalog;
+    private Locale              locale;
+
+
+    /**
+     * Creates a new response.
+     * This is the constructor to which all others map.
+     *
+     * @param statusline        the status line
+     * @param catalog           the reason phrase catalog, or
+     *                          <code>null</code> to disable automatic
+     *                          reason phrase lookup
+     * @param locale            the locale for looking up reason phrases, or
+     *                          <code>null</code> for the system locale
+     */
+    public BasicHttpResponse(final StatusLine statusline,
+                             final ReasonPhraseCatalog catalog,
+                             final Locale locale) {
         super();
         if (statusline == null) {
-            throw new IllegalArgumentException("Status line may not be null");
+            throw new IllegalArgumentException("Status line may not be null.");
         }
-        this.statusline = statusline;
+        this.statusline    = statusline;
+        this.reasonCatalog = catalog;
+        this.locale        = (locale != null) ? locale : Locale.getDefault();
     }
 
-    public BasicHttpResponse(final HttpVersion ver, final int code) {
-        super();
-        this.statusline = new BasicStatusLine(ver, code);
+    /**
+     * Creates a response from a status line.
+     * The response will not have a reason phrase catalog and
+     * use the system default locale.
+     *
+     * @param statusline        the status line
+     */
+    public BasicHttpResponse(final StatusLine statusline) {
+        this(statusline, null, null);
     }
 
+    /**
+     * Creates a response from elements of a status line.
+     * The response will not have a reason phrase catalog and
+     * use the system default locale.
+     *
+     * @param ver       the HTTP version of the response
+     * @param code      the status code of the response
+     * @param reason    the reason phrase to the status code, or
+     *                  <code>null</code>
+     */
+    public BasicHttpResponse(final HttpVersion ver,
+                             final int code,
+                             final String reason) {
+        this(new BasicStatusLine(ver, code, reason), null, null);
+    }
+
+
+    // non-javadoc, see interface HttpResponse
     public HttpVersion getHttpVersion() {
         return this.statusline.getHttpVersion();
     }
-    
+
+    // non-javadoc, see interface HttpResponse
     public StatusLine getStatusLine() {
         return this.statusline; 
     }
 
+    // non-javadoc, see interface HttpResponse
     public HttpEntity getEntity() {
         return this.entity;
     }
 
+    // non-javadoc, see interface HttpResponse
+    public Locale getLocale() {
+        return this.locale;
+    }
+
+    // non-javadoc, see interface HttpResponse
     public void setStatusLine(final StatusLine statusline) {
         if (statusline == null) {
             throw new IllegalArgumentException("Status line may not be null");
         }
         this.statusline = statusline;
     }
-    
+
+    // non-javadoc, see interface HttpResponse
     public void setStatusLine(final HttpVersion ver, final int code) {
-        if (ver == null) {
-            throw new IllegalArgumentException("HTTP version may not be null");
-        }
-        this.statusline = new BasicStatusLine(ver, code);
+        // arguments checked in BasicStatusLine constructor
+        this.statusline = new BasicStatusLine(ver, code, getReason(code));
     }
-    
+
+    // non-javadoc, see interface HttpResponse
+    public void setStatusLine(final HttpVersion ver, final int code,
+                              final String reason) {
+        // arguments checked in BasicStatusLine constructor
+        this.statusline = new BasicStatusLine(ver, code, reason);
+    }
+
+    // non-javadoc, see interface HttpResponse
     public void setStatusCode(int code) {
-        if (code < 0) {
-            throw new IllegalArgumentException("Status line may not be null");
-        }
+        // argument checked in BasicStatusLine constructor
         HttpVersion ver = this.statusline.getHttpVersion();
-        this.statusline = new BasicStatusLine(ver, code);
+        this.statusline = new BasicStatusLine(ver, code, getReason(code));
     }
-    
+
+    // non-javadoc, see interface HttpResponse
+    public void setReasonPhrase(String reason) {
+
+        if ((reason != null) && ((reason.indexOf('\n') >= 0) ||
+                                 (reason.indexOf('\r') >= 0))
+            ) {
+            throw new IllegalArgumentException("Line break in reason phrase.");
+        }
+        this.statusline = new BasicStatusLine(this.statusline.getHttpVersion(),
+                                              this.statusline.getStatusCode(),
+                                              reason);
+    }
+
+    // non-javadoc, see interface HttpResponse
     public void setEntity(final HttpEntity entity) {
         this.entity = entity;
     }
-    
+
+    // non-javadoc, see interface HttpResponse
+    public void setLocale(Locale loc) {
+        if (loc == null) {
+            throw new IllegalArgumentException("Locale may not be null.");
+        }
+        this.locale = loc;
+        final int code = this.statusline.getStatusCode();
+        this.statusline = new BasicStatusLine
+            (this.statusline.getHttpVersion(), code, getReason(code));
+    }
+
+    /**
+     * Looks up a reason phrase.
+     * This method evaluates the currently set catalog and locale.
+     * It also handles a missing catalog.
+     *
+     * @param code      the status code for which to look up the reason
+     *
+     * @return  the reason phrase, or <code>null</code> if there is none
+     */
+    protected String getReason(int code) {
+        return (this.reasonCatalog == null) ?
+            null : this.reasonCatalog.getReason(code, this.locale);
+    }
+
 }

@@ -31,6 +31,8 @@
 
 package org.apache.http.impl;
 
+import java.util.Locale;
+
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpResponseFactory;
 import org.apache.http.HttpVersion;
@@ -86,17 +88,34 @@ public class DefaultHttpResponseFactory implements HttpResponseFactory {
         if (ver == null) {
             throw new IllegalArgumentException("HTTP version may not be null");
         }
-        final String reason = reasonCatalog.getReason(status, context);
+        final Locale loc      = determineLocale(context);
+        final String reason   = reasonCatalog.getReason(status, loc);
         StatusLine statusline = new BasicStatusLine(ver, status, reason);
-        return new BasicHttpResponse(statusline); 
+        return new BasicHttpResponse(statusline, reasonCatalog, loc); 
     }
 
 
     // non-javadoc, see interface HttpResponseFactory
-    public HttpResponse newHttpResponse(final StatusLine statusline) {
+    public HttpResponse newHttpResponse(final StatusLine statusline,
+                                        HttpContext context) {
         if (statusline == null) {
             throw new IllegalArgumentException("Status line may not be null");
         }
-        return new BasicHttpResponse(statusline); 
+        final Locale loc = determineLocale(context);
+        return new BasicHttpResponse(statusline, reasonCatalog, loc);
+    }
+
+
+    /**
+     * Determines the locale of the response.
+     * The implementation in this class always returns the default locale.
+     *
+     * @param context   the context from which to determine the locale, or
+     *                  <code>null</code> to use the default locale
+     *
+     * @return  the locale for the response, never <code>null</code>
+     */
+    protected Locale determineLocale(HttpContext context) {
+        return Locale.getDefault();
     }
 }

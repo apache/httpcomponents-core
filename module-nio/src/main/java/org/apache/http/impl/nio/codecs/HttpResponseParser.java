@@ -56,7 +56,7 @@ public class HttpResponseParser extends HttpMessageParser {
     protected HttpMessage createMessage(final CharArrayBuffer buffer) 
             throws HttpException {
         StatusLine statusline = BasicStatusLine.parse(buffer, 0, buffer.length());
-        return this.responseFactory.newHttpResponse(statusline);
+        return this.responseFactory.newHttpResponse(statusline, null);
     }
 
 }

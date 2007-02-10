@@ -66,7 +66,7 @@ public class TestBasicMessages extends TestCase {
     }
 
     public void testDefaultResponseConstructors() {
-        HttpResponse response = new BasicHttpResponse(HttpVersion.HTTP_1_0, HttpStatus.SC_BAD_REQUEST);
+        HttpResponse response = new BasicHttpResponse(HttpVersion.HTTP_1_0, HttpStatus.SC_BAD_REQUEST, "Bad Request");
         assertNotNull(response.getHttpVersion());
         assertEquals(HttpVersion.HTTP_1_0, response.getHttpVersion());
         assertEquals(HttpStatus.SC_BAD_REQUEST, response.getStatusLine().getStatusCode());
@@ -80,12 +80,12 @@ public class TestBasicMessages extends TestCase {
     }
 
     public void testSetResponseStatus() {
-        HttpResponse response = new BasicHttpResponse(HttpVersion.HTTP_1_1, 200);
+        HttpResponse response = new BasicHttpResponse(HttpVersion.HTTP_1_1, 200, "OK");
         assertNotNull(response.getHttpVersion());
         assertNotNull(response.getStatusLine());
         assertEquals(200, response.getStatusLine().getStatusCode());
         
-        response = new BasicHttpResponse(HttpVersion.HTTP_1_0, HttpStatus.SC_BAD_REQUEST);
+        response = new BasicHttpResponse(HttpVersion.HTTP_1_0, HttpStatus.SC_BAD_REQUEST, "Bad Request");
         assertNotNull(response.getHttpVersion());
         assertEquals(HttpVersion.HTTP_1_0, response.getHttpVersion());
         assertEquals(HttpStatus.SC_BAD_REQUEST, response.getStatusLine().getStatusCode());
@@ -97,21 +97,21 @@ public class TestBasicMessages extends TestCase {
         assertEquals(HttpStatus.SC_INTERNAL_SERVER_ERROR, response.getStatusLine().getStatusCode());
         assertEquals("whatever", response.getStatusLine().getReasonPhrase());
         
-        response = new BasicHttpResponse(HttpVersion.HTTP_1_1, HttpStatus.SC_OK);
+        response = new BasicHttpResponse(HttpVersion.HTTP_1_1, HttpStatus.SC_OK, "OK");
         try {
             response.setStatusCode(-23);
             fail("IllegalArgumentException should have been thrown");
         } catch (IllegalArgumentException ex) {
             // expected
         }
-        response = new BasicHttpResponse(HttpVersion.HTTP_1_1, HttpStatus.SC_OK);
+        response = new BasicHttpResponse(HttpVersion.HTTP_1_1, HttpStatus.SC_OK, "OK");
         try {
             response.setStatusLine(null, 200);
             fail("IllegalArgumentException should have been thrown");
         } catch (IllegalArgumentException ex) {
             // expected
         }
-        response = new BasicHttpResponse(HttpVersion.HTTP_1_1, HttpStatus.SC_OK);
+        response = new BasicHttpResponse(HttpVersion.HTTP_1_1, HttpStatus.SC_OK, "OK");
         try {
             response.setStatusLine(null);
             fail("IllegalArgumentException should have been thrown");
@@ -121,7 +121,7 @@ public class TestBasicMessages extends TestCase {
     }
     
     public void testSetResponseEntity() {
-        HttpResponse response = new BasicHttpResponse(HttpVersion.HTTP_1_1, HttpStatus.SC_OK);
+        HttpResponse response = new BasicHttpResponse(HttpVersion.HTTP_1_1, HttpStatus.SC_OK, "OK");
         assertNull(response.getEntity());
         
         HttpEntity entity = new BasicHttpEntity();
