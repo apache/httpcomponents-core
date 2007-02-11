@@ -180,7 +180,7 @@ public class BasicHttpParams implements HttpParams, Serializable {
         return getParameter(name) != null;
     }
         
-    public boolean isParameterSetLocally(final String name) {
+    public synchronized boolean isParameterSetLocally(final String name) {
         return this.parameters != null && this.parameters.get(name) != null;
     }
         
@@ -195,7 +195,7 @@ public class BasicHttpParams implements HttpParams, Serializable {
     /**
      * Removes all parameters from this collection. 
      */
-    public void clear() {
+    public synchronized void clear() {
         this.parameters = null;
     }
 
