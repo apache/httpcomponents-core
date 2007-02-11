@@ -51,8 +51,6 @@ import org.apache.http.nio.NHttpClientConnection;
 import org.apache.http.nio.NHttpClientHandler;
 import org.apache.http.nio.util.InputBuffer;
 import org.apache.http.nio.util.OutputBuffer;
-import org.apache.http.impl.nio.entity.BufferedContent;
-import org.apache.http.impl.nio.entity.ContentOutputStream;
 import org.apache.http.params.HttpParams;
 import org.apache.http.protocol.HttpContext;
 import org.apache.http.protocol.HttpExecutionContext;

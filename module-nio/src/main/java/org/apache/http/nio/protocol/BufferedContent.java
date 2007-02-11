@@ -29,7 +29,7 @@
  *
  */
 
-package org.apache.http.impl.nio.entity;
+package org.apache.http.nio.protocol;
 
 import org.apache.http.Header;
 import org.apache.http.HttpEntity;
@@ -38,7 +38,7 @@ import org.apache.http.HttpResponse;
 import org.apache.http.entity.BasicHttpEntity;
 import org.apache.http.nio.util.ContentInputBuffer;
 
-public class BufferedContent extends BasicHttpEntity {
+class BufferedContent extends BasicHttpEntity {
 
     /** The wrapped entity. */
     private HttpEntity wrappedEntity;

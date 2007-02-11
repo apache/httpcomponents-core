@@ -55,8 +55,6 @@ import org.apache.http.nio.NHttpConnection;
 import org.apache.http.nio.NHttpServerConnection;
 import org.apache.http.nio.NHttpServiceHandler;
 import org.apache.http.util.concurrent.Executor;
-import org.apache.http.impl.nio.entity.BufferedContent;
-import org.apache.http.impl.nio.entity.ContentOutputStream;
 import org.apache.http.nio.params.HttpNIOParams;
 import org.apache.http.nio.util.SharedInputBuffer;
 import org.apache.http.nio.util.SharedOutputBuffer;
