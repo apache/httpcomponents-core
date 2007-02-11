@@ -44,7 +44,7 @@ import org.apache.http.HttpHost;
 import org.apache.http.HttpRequest;
 import org.apache.http.HttpVersion;
 import org.apache.http.entity.FileEntity;
-import org.apache.http.impl.params.DefaultHttpParams;
+import org.apache.http.params.BasicHttpParams;
 import org.apache.http.message.HttpGet;
 import org.apache.http.message.HttpHead;
 import org.apache.http.message.HttpPost;
@@ -68,7 +68,7 @@ public class HttpBenchmark {
 
     public static void main(String[] args) throws Exception {
 
-        HttpParams params = new DefaultHttpParams(null);
+        HttpParams params = new BasicHttpParams(null);
         params.setParameter(HttpProtocolParams.PROTOCOL_VERSION, HttpVersion.HTTP_1_1)
             .setParameter(HttpProtocolParams.USER_AGENT, "Jakarta-HttpComponents-Bench/1.1")
             .setBooleanParameter(HttpProtocolParams.USE_EXPECT_CONTINUE, false)

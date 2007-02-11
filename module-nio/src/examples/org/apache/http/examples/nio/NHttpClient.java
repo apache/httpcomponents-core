@@ -11,7 +11,7 @@ import org.apache.http.HttpHost;
 import org.apache.http.HttpRequest;
 import org.apache.http.HttpResponse;
 import org.apache.http.impl.DefaultConnectionReuseStrategy;
-import org.apache.http.impl.params.DefaultHttpParams;
+import org.apache.http.params.BasicHttpParams;
 import org.apache.http.message.HttpGet;
 import org.apache.http.impl.nio.DefaultClientIOEventDispatch;
 import org.apache.http.impl.nio.reactor.DefaultConnectingIOReactor;
@@ -37,7 +37,7 @@ import org.apache.http.util.EntityUtils;
 public class NHttpClient {
 
     public static void main(String[] args) throws Exception {
-        HttpParams params = new DefaultHttpParams(null);
+        HttpParams params = new BasicHttpParams(null);
         params
             .setIntParameter(HttpConnectionParams.SO_TIMEOUT, 5000)
             .setIntParameter(HttpConnectionParams.CONNECTION_TIMEOUT, 10000)

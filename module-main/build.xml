@@ -153,6 +153,22 @@ Output
           <src>
             <pathelement location="${comp.core.main.src}"/>
           </src>
+          <exclude name="org/apache/http/impl/**" />
+        </javac>
+
+        <javac destdir     ="${build.core.main.classes}"
+               debug       ="${compile.debug}"
+               deprecation ="${compile.deprecation}"
+               optimize    ="${compile.optimize}"
+               encoding    ="UTF-8"
+               source      ="${compile.core.main.source}"
+               target      ="${compile.core.main.target}"
+               sourcepath  =""
+        >
+          <src>
+            <pathelement location="${comp.core.main.src}"/>
+          </src>
+          <include name="org/apache/http/impl/**" />
         </javac>
 </target>
 <target name="clean-src">

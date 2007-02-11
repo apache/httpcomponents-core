@@ -40,7 +40,6 @@ public class TestAllImpl extends TestCase {
 
     public static Test suite() {
         TestSuite suite = new TestSuite();
-        suite.addTest(TestHeaderGroup.suite());
         suite.addTest(TestHttpDataReceiverAndTransmitter.suite());
         suite.addTest(TestDefaultConnectionReuseStrategy.suite());
         suite.addTest(TestEnglishReasonPhraseCatalog.suite());

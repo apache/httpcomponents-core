@@ -42,7 +42,7 @@ import junit.framework.Test;
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
 
-import org.apache.http.impl.params.DefaultHttpParams;
+import org.apache.http.params.BasicHttpParams;
 import org.apache.http.impl.nio.reactor.SessionInputBuffer;
 import org.apache.http.impl.nio.reactor.SessionOutputBuffer;
 import org.apache.http.params.HttpParams;
@@ -322,7 +322,7 @@ public class TestSessionInOutBuffers extends TestCase {
         String s2 = constructString(RUSSIAN_HELLO);
         String s3 = "Like hello and stuff";
         
-        HttpParams params = new DefaultHttpParams(null);
+        HttpParams params = new BasicHttpParams(null);
         HttpProtocolParams.setHttpElementCharset(params, "UTF-8");
         
         SessionOutputBuffer outbuf = new SessionOutputBuffer(1024, 16);

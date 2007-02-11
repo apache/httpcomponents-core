@@ -35,7 +35,7 @@ import java.io.IOException;
 import java.net.InetAddress;
 
 import org.apache.http.HttpException;
-import org.apache.http.impl.params.DefaultHttpParams;
+import org.apache.http.params.BasicHttpParams;
 import org.apache.http.nio.protocol.EventListener;
 import org.apache.http.nio.reactor.IOReactor;
 import org.apache.http.params.HttpParams;
@@ -52,7 +52,7 @@ abstract class TestHttpServiceBase {
     public TestHttpServiceBase() {
         super();
         this.mutex = new Object();
-        this.params = new DefaultHttpParams(null);
+        this.params = new BasicHttpParams(null);
     }
     
     protected abstract void execute() throws IOException;

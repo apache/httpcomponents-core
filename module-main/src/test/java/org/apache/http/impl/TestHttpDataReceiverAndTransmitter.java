@@ -39,7 +39,7 @@ import junit.framework.Test;
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
 
-import org.apache.http.impl.params.DefaultHttpParams;
+import org.apache.http.params.BasicHttpParams;
 import org.apache.http.mockup.HttpDataReceiverMockup;
 import org.apache.http.mockup.HttpDataTransmitterMockup;
 import org.apache.http.params.HttpConnectionParams;
@@ -313,7 +313,7 @@ public class TestHttpDataReceiverAndTransmitter extends TestCase {
     }
 
     public void testLineLimit() throws Exception {
-        HttpParams params = new DefaultHttpParams();
+        HttpParams params = new BasicHttpParams();
         String s = "a very looooooooooooooooooooooooooooooooooooooong line\r\n     ";
         byte[] tmp = s.getBytes("US-ASCII"); 
         HttpDataReceiverMockup receiver1 = new HttpDataReceiverMockup(tmp, 5);
@@ -358,7 +358,7 @@ public class TestHttpDataReceiverAndTransmitter extends TestCase {
         String s2 = constructString(RUSSIAN_HELLO);
         String s3 = "Like hello and stuff";
         
-        HttpParams params = new DefaultHttpParams(null);
+        HttpParams params = new BasicHttpParams(null);
         HttpProtocolParams.setHttpElementCharset(params, "UTF-8");
         
         HttpDataTransmitterMockup transmitter = new HttpDataTransmitterMockup();
@@ -394,7 +394,7 @@ public class TestHttpDataReceiverAndTransmitter extends TestCase {
     public void testNonAsciiReadWriteLine() throws Exception {
         String s1 = constructString(SWISS_GERMAN_HELLO);
         
-        HttpParams params = new DefaultHttpParams(null);
+        HttpParams params = new BasicHttpParams(null);
         HttpProtocolParams.setHttpElementCharset(params, HTTP.ISO_8859_1);
         
         HttpDataTransmitterMockup transmitter = new HttpDataTransmitterMockup();

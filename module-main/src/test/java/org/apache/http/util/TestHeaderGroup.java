@@ -29,7 +29,7 @@
  *
  */
 
-package org.apache.http.impl;
+package org.apache.http.util;
 
 import java.util.Iterator;
 

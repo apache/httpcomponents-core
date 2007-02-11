@@ -33,7 +33,7 @@ package org.apache.http.message;
 
 import org.apache.http.Header;
 import org.apache.http.HttpMessage;
-import org.apache.http.impl.params.DefaultHttpParams;
+import org.apache.http.params.BasicHttpParams;
 import org.apache.http.mockup.HttpMessageMockup;
 import org.apache.http.params.HttpParams;
 
@@ -131,7 +131,7 @@ public class TestAbstractMessage extends TestCase {
     public void testParameters() {
         HttpMessage message = new HttpMessageMockup();
         assertNotNull(message.getParams());
-        HttpParams params = new DefaultHttpParams();
+        HttpParams params = new BasicHttpParams();
         message.setParams(params);
         assertTrue(params == message.getParams());
     }

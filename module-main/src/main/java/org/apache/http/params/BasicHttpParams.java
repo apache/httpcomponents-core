@@ -29,7 +29,7 @@
  *
  */
 
-package org.apache.http.impl.params;
+package org.apache.http.params;
 
 import java.io.Serializable;
 import java.util.HashMap;
@@ -47,14 +47,14 @@ import org.apache.http.params.HttpParams;
  * 
  * @version $Revision$
  */
-public class DefaultHttpParams implements HttpParams, Serializable {
+public class BasicHttpParams implements HttpParams, Serializable {
 
-	static final long serialVersionUID = -8296449161405728403L;
+    static final long serialVersionUID = -8296449161405728403L;
 	
-    /** The set of default values to defer to */
+    /** The set of default values to defer to. */
     private HttpParams defaults = null;
 
-    /** Hash map of HTTP parameters that this collection contains */
+    /** Map of HTTP parameters that this collection contains. */
     private HashMap parameters = null;
     
     /**
@@ -66,12 +66,12 @@ public class DefaultHttpParams implements HttpParams, Serializable {
      * @param defaults the parent collection to defer to, if a parameter
      * is not explictly set in the collection itself.
      */
-    public DefaultHttpParams(final HttpParams defaults) {
+    public BasicHttpParams(final HttpParams defaults) {
         super();
         this.defaults = defaults; 
     }
     
-    public DefaultHttpParams() {
+    public BasicHttpParams() {
         this(null);
     }
 
