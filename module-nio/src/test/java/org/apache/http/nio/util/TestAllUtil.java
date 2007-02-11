@@ -1,7 +1,7 @@
 /*
- * $HeadURL:https://svn.apache.org/repos/asf/jakarta/httpcomponents/httpcore/trunk/module-nio/src/test/java/org/apache/http/impl/nio/TestAllImpl.java $
- * $Revision:503277 $
- * $Date:2007-02-03 18:22:45 +0000 (Sat, 03 Feb 2007) $
+ * $HeadURL$
+ * $Revision$
+ * $Date$
  * ====================================================================
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
@@ -28,28 +28,24 @@
  *
  */
 
-package org.apache.http.impl.nio;
-
-import org.apache.http.impl.nio.codecs.TestAllImplCodecs;
-import org.apache.http.impl.nio.reactor.TestAllImplReactor;
+package org.apache.http.nio.util;
 
 import junit.framework.*;
 
-public class TestAllImpl extends TestCase {
+public class TestAllUtil extends TestCase {
 
-    public TestAllImpl(String testName) {
+    public TestAllUtil(String testName) {
         super(testName);
     }
 
     public static Test suite() {
         TestSuite suite = new TestSuite();
-        suite.addTest(TestAllImplReactor.suite());
-        suite.addTest(TestAllImplCodecs.suite());
+        suite.addTest(TestBuffers.suite());
         return suite;
     }
 
     public static void main(String args[]) {
-        String[] testCaseName = { TestAllImpl.class.getName() };
+        String[] testCaseName = { TestAllUtil.class.getName() };
         junit.textui.TestRunner.main(testCaseName);
     }
 

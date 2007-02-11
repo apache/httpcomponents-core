@@ -1,7 +1,7 @@
 /*
- * $HeadURL$
- * $Revision$
- * $Date$
+ * $HeadURL:https://svn.apache.org/repos/asf/jakarta/httpcomponents/httpcore/trunk/module-nio/src/test/java/org/apache/http/impl/nio/TestBuffers.java $
+ * $Revision:503277 $
+ * $Date:2007-02-03 18:22:45 +0000 (Sat, 03 Feb 2007) $
  * ====================================================================
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
@@ -28,7 +28,7 @@
  *
  */
 
-package org.apache.http.impl.nio;
+package org.apache.http.nio.util;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -38,11 +38,11 @@ import java.nio.channels.WritableByteChannel;
 
 import org.apache.http.nio.ContentDecoder;
 import org.apache.http.nio.ContentEncoder;
-import org.apache.http.impl.nio.InputBuffer;
-import org.apache.http.impl.nio.OutputBuffer;
 import org.apache.http.nio.mockup.MockupDecoder;
 import org.apache.http.nio.mockup.MockupEncoder;
 import org.apache.http.nio.mockup.ReadableByteChannelMockup;
+import org.apache.http.nio.util.InputBuffer;
+import org.apache.http.nio.util.OutputBuffer;
 import org.apache.http.util.EncodingUtils;
 
 import junit.framework.Test;
@@ -54,7 +54,7 @@ import junit.framework.TestSuite;
  *
  * @author <a href="mailto:oleg at ural.ru">Oleg Kalnichevski</a>
  * 
- * @version $Id$
+ * @version $Id:TestBuffers.java 503277 2007-02-03 18:22:45 +0000 (Sat, 03 Feb 2007) olegk $
  */
 public class TestBuffers extends TestCase {
 

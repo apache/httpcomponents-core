@@ -34,7 +34,7 @@ package org.apache.http.impl.nio.entity;
 import java.io.IOException;
 import java.io.InputStream;
 
-import org.apache.http.impl.nio.ContentInputBuffer;
+import org.apache.http.nio.util.ContentInputBuffer;
 
 public class ContentInputStream extends InputStream {
 

@@ -36,7 +36,7 @@ import org.apache.http.HttpEntity;
 import org.apache.http.HttpEntityEnclosingRequest;
 import org.apache.http.HttpResponse;
 import org.apache.http.entity.BasicHttpEntity;
-import org.apache.http.impl.nio.ContentInputBuffer;
+import org.apache.http.nio.util.ContentInputBuffer;
 
 public class BufferedContent extends BasicHttpEntity {
 
