@@ -147,6 +147,7 @@ class IOSessionImpl implements IOSession {
         if (this.callback != null) {
             this.callback.sessionClosed(this);
         }
+        this.attributes.clear();
         if (this.key.selector().isOpen()) {
             this.key.selector().wakeup();
         }
