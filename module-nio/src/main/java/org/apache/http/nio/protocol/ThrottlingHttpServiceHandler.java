@@ -339,11 +339,10 @@ public class ThrottlingHttpServiceHandler implements NHttpServiceHandler {
     private HttpResponse handleException(
             final NHttpServerConnection conn,
             final HttpException ex) {
-        HttpRequest request = conn.getHttpRequest();
-        HttpVersion ver = request.getRequestLine().getHttpVersion();
-        HttpResponse response =  this.responseFactory.newHttpResponse(
-                ver, HttpStatus.SC_BAD_REQUEST, conn.getContext());
 
+        HttpRequest request = conn.getHttpRequest();
+        HttpContext context = conn.getContext();
+        
         int code = HttpStatus.SC_INTERNAL_SERVER_ERROR;
         if (ex instanceof MethodNotSupportedException) {
             code = HttpStatus.SC_NOT_IMPLEMENTED;
@@ -352,8 +351,15 @@ public class ThrottlingHttpServiceHandler implements NHttpServiceHandler {
         } else if (ex instanceof ProtocolException) {
             code = HttpStatus.SC_BAD_REQUEST;
         }
-        
-        response.setStatusLine(HttpVersion.HTTP_1_0, code);
+
+        HttpVersion ver;
+        if (request != null) {
+            ver = request.getRequestLine().getHttpVersion(); 
+        } else {
+            ver = HttpVersion.HTTP_1_0;
+        }
+        HttpResponse response =  this.responseFactory.newHttpResponse(ver, code, context);
+
         byte[] msg = EncodingUtils.getAsciiBytes(ex.getMessage());
         ByteArrayEntity entity = new ByteArrayEntity(msg);
         entity.setContentType("text/plain; charset=US-ASCII");
