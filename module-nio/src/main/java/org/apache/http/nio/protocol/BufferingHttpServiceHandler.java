@@ -77,8 +77,7 @@ import org.apache.http.util.EncodingUtils;
  */
 public class BufferingHttpServiceHandler implements NHttpServiceHandler {
 
-    private static final String IN_BUF = "http.nio.in-buffer";
-    private static final String OUT_BUF = "http.nio.out-buffer";
+    private static final String CONN_STATE = "http.nio.conn-state";
     
     private HttpParams params;
     private HttpProcessor httpProcessor;
@@ -131,11 +130,9 @@ public class BufferingHttpServiceHandler implements NHttpServiceHandler {
     public void connected(final NHttpServerConnection conn) {
         HttpContext context = conn.getContext();
 
-        InputBuffer inbuffer = new InputBuffer(2048); 
-        OutputBuffer outbuffer = new OutputBuffer(2048);
-        
-        context.setAttribute(IN_BUF, inbuffer);
-        context.setAttribute(OUT_BUF, outbuffer);
+        ConnState connState = new ConnState(); 
+
+        context.setAttribute(CONN_STATE, connState);
 
         if (this.eventListener != null) {
             InetAddress address = null;
@@ -156,12 +153,9 @@ public class BufferingHttpServiceHandler implements NHttpServiceHandler {
             ver = HttpVersion.HTTP_1_1;
         }
 
-        InputBuffer inbuffer = (InputBuffer) context.getAttribute(IN_BUF);
-        OutputBuffer outbuffer = (OutputBuffer) context.getAttribute(OUT_BUF);
+        ConnState connState = (ConnState) context.getAttribute(CONN_STATE);
 
-        // Clean the buffers just in case
-        inbuffer.clear();
-        outbuffer.clear();
+        connState.clear();
         
         try {
 
@@ -236,15 +230,16 @@ public class BufferingHttpServiceHandler implements NHttpServiceHandler {
         HttpContext context = conn.getContext();
         HttpRequest request = conn.getHttpRequest();
 
-        InputBuffer inbuffer = (InputBuffer) context.getAttribute(IN_BUF);
+        ConnState connState = (ConnState) context.getAttribute(CONN_STATE);
+        InputBuffer buffer = connState.getInbuffer();
 
         try {
-            inbuffer.consumeContent(decoder);
+            buffer.consumeContent(decoder);
             if (decoder.isCompleted()) {
                 // Request entity has been fully received
 
                 // Create a wrapper entity instead of the original one
-                BufferedContent.wrapEntity((HttpEntityEnclosingRequest) request, inbuffer);
+                BufferedContent.wrapEntity((HttpEntityEnclosingRequest) request, buffer);
                 processRequest(conn, request);
             }
             
@@ -265,11 +260,13 @@ public class BufferingHttpServiceHandler implements NHttpServiceHandler {
 
         HttpContext context = conn.getContext();
         HttpResponse response = conn.getHttpResponse();
-        OutputBuffer outbuffer = (OutputBuffer) context.getAttribute(OUT_BUF);
+
+        ConnState connState = (ConnState) context.getAttribute(CONN_STATE);
+        OutputBuffer buffer = connState.getOutbuffer();
 
         try {
             
-            outbuffer.produceContent(encoder);
+            buffer.produceContent(encoder);
             if (encoder.isCompleted()) {
                 if (!this.connStrategy.keepAlive(response, context)) {
                     conn.close();
@@ -379,7 +376,9 @@ public class BufferingHttpServiceHandler implements NHttpServiceHandler {
             final HttpResponse response) throws IOException, HttpException {
 
         HttpContext context = conn.getContext();
-        OutputBuffer outbuffer = (OutputBuffer) context.getAttribute(OUT_BUF);
+
+        ConnState connState = (ConnState) context.getAttribute(CONN_STATE);
+        OutputBuffer buffer = connState.getOutbuffer();
 
         this.httpProcessor.process(response, context);
         conn.submitResponse(response);
@@ -387,7 +386,7 @@ public class BufferingHttpServiceHandler implements NHttpServiceHandler {
         if (response.getEntity() != null) {
             HttpEntity entity = response.getEntity();
             if (entity != null) {
-                OutputStream outstream = new ContentOutputStream(outbuffer);
+                OutputStream outstream = new ContentOutputStream(buffer);
                 entity.writeTo(outstream);
                 outstream.flush();
                 outstream.close();
@@ -395,4 +394,30 @@ public class BufferingHttpServiceHandler implements NHttpServiceHandler {
         }
     }
 
+    private static class ConnState {
+        
+        private final InputBuffer inbuffer; 
+        private final OutputBuffer outbuffer;
+        
+        public ConnState() {
+            super();
+            this.inbuffer = new InputBuffer(2048);
+            this.outbuffer = new OutputBuffer(2048);
+        }
+
+        public InputBuffer getInbuffer() {
+            return this.inbuffer;
+        }
+
+        public OutputBuffer getOutbuffer() {
+            return this.outbuffer;
+        }
+        
+        public void clear() {
+            this.inbuffer.clear();
+            this.outbuffer.clear();
+        }
+        
+    }
+        
 }
