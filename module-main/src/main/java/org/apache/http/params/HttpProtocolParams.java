@@ -143,6 +143,16 @@ public final class HttpProtocolParams {
     public static final String USE_EXPECT_CONTINUE = "http.protocol.expect-continue"; 
 
     /**
+     * <p>
+     * Defines the maximum period of time in milliseconds the client should spend
+     * waiting for a 100-continue response.
+     * </p>
+     * 
+     * This parameter expects a value of type {@link Integer}.
+     */
+    public static final String WAIT_FOR_CONTINUE = "http.protocol.wait-for-continue";
+    
+    /**
      */
     private HttpProtocolParams() {
         super();

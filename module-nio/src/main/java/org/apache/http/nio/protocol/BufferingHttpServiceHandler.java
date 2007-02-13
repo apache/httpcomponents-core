@@ -59,6 +59,7 @@ import org.apache.http.nio.util.OutputBuffer;
 import org.apache.http.params.HttpParams;
 import org.apache.http.protocol.HttpContext;
 import org.apache.http.protocol.HttpExecutionContext;
+import org.apache.http.protocol.HttpExpectationVerifier;
 import org.apache.http.protocol.HttpProcessor;
 import org.apache.http.protocol.HttpRequestHandler;
 import org.apache.http.protocol.HttpRequestHandlerResolver;
@@ -84,6 +85,7 @@ public class BufferingHttpServiceHandler implements NHttpServiceHandler {
     private HttpResponseFactory responseFactory;
     private ConnectionReuseStrategy connStrategy;
     private HttpRequestHandlerResolver handlerResolver;
+    private HttpExpectationVerifier expectationVerifier;
     private EventListener eventListener;
     
     public BufferingHttpServiceHandler(
@@ -118,6 +120,10 @@ public class BufferingHttpServiceHandler implements NHttpServiceHandler {
         this.handlerResolver = handlerResolver;
     }
 
+    public void setExpectationVerifier(final HttpExpectationVerifier expectationVerifier) {
+        this.expectationVerifier = expectationVerifier;
+    }
+
     public HttpParams getParams() {
         return this.params;
     }
@@ -143,7 +149,12 @@ public class BufferingHttpServiceHandler implements NHttpServiceHandler {
     public void requestReceived(final NHttpServerConnection conn) {
         HttpContext context = conn.getContext();
         HttpRequest request = conn.getHttpRequest();
+
         HttpVersion ver = request.getRequestLine().getHttpVersion();
+        if (!ver.lessEquals(HttpVersion.HTTP_1_1)) {
+            // Downgrade protocol version if greater than HTTP/1.1 
+            ver = HttpVersion.HTTP_1_1;
+        }
 
         InputBuffer inbuffer = (InputBuffer) context.getAttribute(IN_BUF);
         OutputBuffer outbuffer = (OutputBuffer) context.getAttribute(OUT_BUF);
@@ -156,7 +167,12 @@ public class BufferingHttpServiceHandler implements NHttpServiceHandler {
 
             if (request instanceof HttpEntityEnclosingRequest) {
                 if (((HttpEntityEnclosingRequest) request).expectContinue()) {
-                    HttpResponse ack = this.responseFactory.newHttpResponse(ver, 100, context);
+                    HttpResponse ack = this.responseFactory.newHttpResponse(
+                            ver, HttpStatus.SC_CONTINUE, context);
+                    ack.getParams().setDefaults(this.params);
+                    if (this.expectationVerifier != null) {
+                        this.expectationVerifier.verify(request, ack, context);
+                    }
                     conn.submitResponse(ack);
                 }
                 // Request content is expected. 

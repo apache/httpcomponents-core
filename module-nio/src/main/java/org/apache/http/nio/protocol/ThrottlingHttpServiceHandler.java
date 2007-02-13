@@ -61,6 +61,7 @@ import org.apache.http.nio.util.SharedOutputBuffer;
 import org.apache.http.params.HttpParams;
 import org.apache.http.protocol.HttpContext;
 import org.apache.http.protocol.HttpExecutionContext;
+import org.apache.http.protocol.HttpExpectationVerifier;
 import org.apache.http.protocol.HttpProcessor;
 import org.apache.http.protocol.HttpRequestHandler;
 import org.apache.http.protocol.HttpRequestHandlerResolver;
@@ -93,6 +94,7 @@ public class ThrottlingHttpServiceHandler implements NHttpServiceHandler {
     private HttpResponseFactory responseFactory;
     private ConnectionReuseStrategy connStrategy;
     private HttpRequestHandlerResolver handlerResolver;
+    private HttpExpectationVerifier expectationVerifier;
     private EventListener eventListener;
     private Executor executor;
     
@@ -131,6 +133,10 @@ public class ThrottlingHttpServiceHandler implements NHttpServiceHandler {
 
     public void setHandlerResolver(final HttpRequestHandlerResolver handlerResolver) {
         this.handlerResolver = handlerResolver;
+    }
+
+    public void setExpectationVerifier(final HttpExpectationVerifier expectationVerifier) {
+        this.expectationVerifier = expectationVerifier;
     }
 
     public HttpParams getParams() {
@@ -228,6 +234,12 @@ public class ThrottlingHttpServiceHandler implements NHttpServiceHandler {
         final HttpContext context = conn.getContext();
         final HttpRequest request = conn.getHttpRequest();
 
+        HttpVersion ver = request.getRequestLine().getHttpVersion();
+        if (!ver.lessEquals(HttpVersion.HTTP_1_1)) {
+            // Downgrade protocol version if greater than HTTP/1.1 
+            ver = HttpVersion.HTTP_1_1;
+        }
+
         SharedInputBuffer inbuffer = (SharedInputBuffer) context.getAttribute(IN_BUF);
         SharedOutputBuffer outbuffer = (SharedOutputBuffer) context.getAttribute(OUT_BUF);
 
@@ -237,9 +249,13 @@ public class ThrottlingHttpServiceHandler implements NHttpServiceHandler {
 
         if (request instanceof HttpEntityEnclosingRequest) {
             if (((HttpEntityEnclosingRequest) request).expectContinue()) {
-                HttpVersion ver = request.getRequestLine().getHttpVersion();
-                HttpResponse ack = this.responseFactory.newHttpResponse(ver, 100, context);
                 try {
+                    HttpResponse ack = this.responseFactory.newHttpResponse(
+                            ver, HttpStatus.SC_CONTINUE, context);
+                    ack.getParams().setDefaults(this.params);
+                    if (this.expectationVerifier != null) {
+                        this.expectationVerifier.verify(request, ack, context);
+                    }
                     conn.submitResponse(ack);
                 } catch (HttpException ex) {
                     shutdownConnection(conn);

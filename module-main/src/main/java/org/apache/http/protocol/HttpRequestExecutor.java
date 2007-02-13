@@ -42,6 +42,7 @@ import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
 import org.apache.http.HttpVersion;
 import org.apache.http.params.HttpParams;
+import org.apache.http.params.HttpProtocolParams;
 
 /**
  * Sends HTTP requests and receives the responses.
@@ -55,9 +56,6 @@ import org.apache.http.params.HttpParams;
  * @since 4.0
  */
 public class HttpRequestExecutor {
-
-    //TODO make this value customizable, just use this as a default
-    protected static final int WAIT_FOR_CONTINUE_MS = 10000;
 
     private HttpParams params;
     private final HttpProcessor processor;
@@ -231,28 +229,26 @@ public class HttpRequestExecutor {
 
         conn.sendRequestHeader(request);
         if (request instanceof HttpEntityEnclosingRequest) {
-            HttpEntityEnclosingRequest entityEnclRequest =
-                (HttpEntityEnclosingRequest) request;
-
             // Check for expect-continue handshake. We have to flush the
             // headers and wait for an 100-continue response to handle it.
             // If we get a different response, we must not send the entity.
             boolean sendentity = true;
             final HttpVersion ver = request.getRequestLine().getHttpVersion();
-            if (entityEnclRequest.expectContinue() &&
+            if (((HttpEntityEnclosingRequest) request).expectContinue() &&
                 ver.greaterEquals(HttpVersion.HTTP_1_1)) {
 
                 conn.flush();
                 // As suggested by RFC 2616 section 8.2.3, we don't wait for a
                 // 100-continue response forever. On timeout, send the entity.
-                if (conn.isResponseAvailable(WAIT_FOR_CONTINUE_MS)) {
+                int tms = params.getIntParameter(HttpProtocolParams.WAIT_FOR_CONTINUE, 2000);
+                
+                if (conn.isResponseAvailable(tms)) {
                     response = conn.receiveResponseHeader(request.getParams());
                     if (canResponseHaveBody(request, response)) {
                         conn.receiveResponseEntity(response);
                     }
                     int status = response.getStatusLine().getStatusCode();
                     if (status < 200) {
-                        //@@@ TODO: is this in line with RFC 2616, 10.1?
                         if (status != HttpStatus.SC_CONTINUE) {
                             throw new ProtocolException(
                                     "Unexpected response: " + response.getStatusLine());
@@ -265,7 +261,7 @@ public class HttpRequestExecutor {
                 }
             }
             if (sendentity) {
-                conn.sendRequestEntity(entityEnclRequest);
+                conn.sendRequestEntity((HttpEntityEnclosingRequest) request);
             }
         }
         conn.flush();

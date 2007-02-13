@@ -62,6 +62,7 @@ public class HttpService {
     private HttpRequestHandlerResolver handlerResolver = null;
     private ConnectionReuseStrategy connStrategy = null;
     private HttpResponseFactory responseFactory = null;
+    private HttpExpectationVerifier expectationVerifier = null;
     
     /**
      * Create a new HTTP service.
@@ -105,6 +106,10 @@ public class HttpService {
         this.handlerResolver = handlerResolver;
     }
 
+    public void setExpectationVerifier(final HttpExpectationVerifier expectationVerifier) {
+        this.expectationVerifier = expectationVerifier;
+    }
+
     public HttpParams getParams() {
         return this.params;
     }
@@ -134,6 +139,9 @@ public class HttpService {
                     HttpResponse ack = this.responseFactory.newHttpResponse
                         (ver, HttpStatus.SC_CONTINUE, context);
                     ack.getParams().setDefaults(this.params);
+                    if (this.expectationVerifier != null) {
+                        this.expectationVerifier.verify(request, ack, context);
+                    }
                     conn.sendResponseHeader(ack);
                     conn.flush();
                 }

@@ -131,7 +131,7 @@ public class SSLClientIOEventDispatch implements IOEventDispatch {
                 if (sslSession.isAppOutputReady()) {
                     conn.produceOutput(this.handler);
                 }
-                sslSession.outboudTransport();
+                sslSession.outboundTransport();
             }
         } catch (IOException ex) {
             this.handler.exception(conn, ex);

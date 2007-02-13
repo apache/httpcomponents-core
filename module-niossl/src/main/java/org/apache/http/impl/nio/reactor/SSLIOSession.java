@@ -237,7 +237,7 @@ public class SSLIOSession implements IOSession, SessionBufferStatus {
         updateEventMask();
     }
     
-    public synchronized void outboudTransport() throws IOException {
+    public synchronized void outboundTransport() throws IOException {
         sendEncryptedData();
         doHandshake();
         updateEventMask();
