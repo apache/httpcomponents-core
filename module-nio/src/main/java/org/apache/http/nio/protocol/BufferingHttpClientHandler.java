@@ -49,6 +49,8 @@ import org.apache.http.nio.ContentDecoder;
 import org.apache.http.nio.ContentEncoder;
 import org.apache.http.nio.NHttpClientConnection;
 import org.apache.http.nio.NHttpClientHandler;
+import org.apache.http.nio.util.ContentInputBuffer;
+import org.apache.http.nio.util.ContentOutputBuffer;
 import org.apache.http.nio.util.InputBuffer;
 import org.apache.http.nio.util.OutputBuffer;
 import org.apache.http.params.HttpParams;
@@ -127,7 +129,9 @@ public class BufferingHttpClientHandler implements NHttpClientHandler {
         
         initialize(conn, attachment);
         
-        ConnState connState = new ConnState(); 
+        ClientConnState connState = new ClientConnState(
+                new InputBuffer(2048),
+                new OutputBuffer(2048)); 
 
         context.setAttribute(CONN_STATE, connState);
 
@@ -169,8 +173,8 @@ public class BufferingHttpClientHandler implements NHttpClientHandler {
     public void requestReady(final NHttpClientConnection conn) {
         HttpContext context = conn.getContext();
 
-        ConnState connState = (ConnState) context.getAttribute(CONN_STATE);
-        OutputBuffer buffer = connState.getOutbuffer();
+        ClientConnState connState = (ClientConnState) context.getAttribute(CONN_STATE);
+        ContentOutputBuffer buffer = connState.getOutbuffer();
         
         try {
             
@@ -192,8 +196,8 @@ public class BufferingHttpClientHandler implements NHttpClientHandler {
     public void inputReady(final NHttpClientConnection conn, final ContentDecoder decoder) {
         HttpContext context = conn.getContext();
 
-        ConnState connState = (ConnState) context.getAttribute(CONN_STATE);
-        InputBuffer buffer = connState.getInbuffer();
+        ClientConnState connState = (ClientConnState) context.getAttribute(CONN_STATE);
+        ContentInputBuffer buffer = connState.getInbuffer();
 
         try {
 
@@ -202,8 +206,9 @@ public class BufferingHttpClientHandler implements NHttpClientHandler {
 
                 processResponse(conn, buffer);
 
-                connState.clear();
                 // Ready for another request
+                connState.reset();
+
                 conn.requestOutput();                
             }
             
@@ -223,8 +228,8 @@ public class BufferingHttpClientHandler implements NHttpClientHandler {
     public void outputReady(final NHttpClientConnection conn, final ContentEncoder encoder) {
         HttpContext context = conn.getContext();
 
-        ConnState connState = (ConnState) context.getAttribute(CONN_STATE);
-        OutputBuffer buffer = connState.getOutbuffer();
+        ClientConnState connState = (ClientConnState) context.getAttribute(CONN_STATE);
+        ContentOutputBuffer buffer = connState.getOutbuffer();
 
         try {
             
@@ -244,8 +249,8 @@ public class BufferingHttpClientHandler implements NHttpClientHandler {
         HttpRequest request = (HttpRequest) context.getAttribute(
                 HttpExecutionContext.HTTP_REQUEST);
 
-        ConnState connState = (ConnState) context.getAttribute(CONN_STATE);
-        InputBuffer buffer = connState.getInbuffer();
+        ClientConnState connState = (ClientConnState) context.getAttribute(CONN_STATE);
+        ContentInputBuffer buffer = connState.getInbuffer();
         
         if (response.getStatusLine().getStatusCode() < HttpStatus.SC_OK) {
             // Just ignore 1xx responses;
@@ -256,9 +261,10 @@ public class BufferingHttpClientHandler implements NHttpClientHandler {
             try {
                 
                 processResponse(conn, buffer);
-                // Clean up buffers just in case
-                connState.clear();
+                
                 // Ready for another request
+                connState.reset();
+
                 conn.requestOutput();                
                 
             } catch (IOException ex) {
@@ -297,7 +303,7 @@ public class BufferingHttpClientHandler implements NHttpClientHandler {
     
     private void submitRequest(
             final NHttpClientConnection conn, 
-            final OutputBuffer outbuffer) throws IOException, HttpException {
+            final ContentOutputBuffer outbuffer) throws IOException, HttpException {
         
         HttpContext context = conn.getContext();
         HttpRequest request = this.execHandler.submitRequest(context);
@@ -341,7 +347,7 @@ public class BufferingHttpClientHandler implements NHttpClientHandler {
     
     private void processResponse(
             final NHttpClientConnection conn, 
-            final InputBuffer inbuffer) throws IOException, HttpException {
+            final ContentInputBuffer inbuffer) throws IOException, HttpException {
 
         HttpContext context = conn.getContext();
         HttpResponse response = conn.getHttpResponse();
@@ -356,32 +362,6 @@ public class BufferingHttpClientHandler implements NHttpClientHandler {
         
         if (!this.connStrategy.keepAlive(response, context)) {
             conn.close();
-        }
-        
-    }
-    
-    private static class ConnState {
-        
-        private final InputBuffer inbuffer; 
-        private final OutputBuffer outbuffer;
-        
-        public ConnState() {
-            super();
-            this.inbuffer = new InputBuffer(2048);
-            this.outbuffer = new OutputBuffer(2048);
-        }
-
-        public InputBuffer getInbuffer() {
-            return this.inbuffer;
-        }
-
-        public OutputBuffer getOutbuffer() {
-            return this.outbuffer;
-        }
-        
-        public void clear() {
-            this.inbuffer.clear();
-            this.outbuffer.clear();
         }
         
     }

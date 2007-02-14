@@ -51,12 +51,13 @@ import org.apache.http.UnsupportedHttpVersionException;
 import org.apache.http.entity.ByteArrayEntity;
 import org.apache.http.nio.ContentDecoder;
 import org.apache.http.nio.ContentEncoder;
-import org.apache.http.nio.ContentIOControl;
 import org.apache.http.nio.NHttpConnection;
 import org.apache.http.nio.NHttpServerConnection;
 import org.apache.http.nio.NHttpServiceHandler;
 import org.apache.http.util.concurrent.Executor;
 import org.apache.http.nio.params.HttpNIOParams;
+import org.apache.http.nio.util.ContentInputBuffer;
+import org.apache.http.nio.util.ContentOutputBuffer;
 import org.apache.http.nio.util.SharedInputBuffer;
 import org.apache.http.nio.util.SharedOutputBuffer;
 import org.apache.http.params.HttpParams;
@@ -151,7 +152,9 @@ public class ThrottlingHttpServiceHandler implements NHttpServiceHandler {
             bufsize = 20480;
         }
         
-        ConnState connState = new ConnState(bufsize, conn); 
+        ServerConnState connState = new ServerConnState(
+                new SharedInputBuffer(bufsize, conn),
+                new SharedOutputBuffer(bufsize, conn)); 
 
         context.setAttribute(CONN_STATE, connState);
 
@@ -167,7 +170,7 @@ public class ThrottlingHttpServiceHandler implements NHttpServiceHandler {
     public void closed(final NHttpServerConnection conn) {
         HttpContext context = conn.getContext();
         
-        ConnState connState = (ConnState) context.getAttribute(CONN_STATE);
+        ServerConnState connState = (ServerConnState) context.getAttribute(CONN_STATE);
 
         connState.shutdown();
         
@@ -236,10 +239,10 @@ public class ThrottlingHttpServiceHandler implements NHttpServiceHandler {
             ver = HttpVersion.HTTP_1_1;
         }
 
-        ConnState connState = (ConnState) context.getAttribute(CONN_STATE);
-        SharedInputBuffer buffer = connState.getInbuffer();
+        ServerConnState connState = (ServerConnState) context.getAttribute(CONN_STATE);
+        ContentInputBuffer buffer = connState.getInbuffer();
 
-        connState.clear();
+        connState.reset();
 
         if (request instanceof HttpEntityEnclosingRequest) {
             if (((HttpEntityEnclosingRequest) request).expectContinue()) {
@@ -290,8 +293,8 @@ public class ThrottlingHttpServiceHandler implements NHttpServiceHandler {
     public void inputReady(final NHttpServerConnection conn, final ContentDecoder decoder) {
         HttpContext context = conn.getContext();
 
-        ConnState connState = (ConnState) context.getAttribute(CONN_STATE);
-        SharedInputBuffer buffer = connState.getInbuffer();
+        ServerConnState connState = (ServerConnState) context.getAttribute(CONN_STATE);
+        ContentInputBuffer buffer = connState.getInbuffer();
         
         try {
             
@@ -309,8 +312,8 @@ public class ThrottlingHttpServiceHandler implements NHttpServiceHandler {
         HttpContext context = conn.getContext();
         HttpResponse response = conn.getHttpResponse();
 
-        ConnState connState = (ConnState) context.getAttribute(CONN_STATE);
-        SharedOutputBuffer buffer = connState.getOutbuffer();
+        ServerConnState connState = (ServerConnState) context.getAttribute(CONN_STATE);
+        ContentOutputBuffer buffer = connState.getOutbuffer();
         
         try {
 
@@ -332,7 +335,7 @@ public class ThrottlingHttpServiceHandler implements NHttpServiceHandler {
     private void shutdownConnection(final NHttpConnection conn) {
         HttpContext context = conn.getContext();
 
-        ConnState connState = (ConnState) context.getAttribute(CONN_STATE);
+        ServerConnState connState = (ServerConnState) context.getAttribute(CONN_STATE);
         
         try {
             conn.shutdown();
@@ -421,8 +424,8 @@ public class ThrottlingHttpServiceHandler implements NHttpServiceHandler {
 
         HttpContext context = conn.getContext();
 
-        ConnState connState = (ConnState) context.getAttribute(CONN_STATE);
-        SharedOutputBuffer buffer = connState.getOutbuffer();
+        ServerConnState connState = (ServerConnState) context.getAttribute(CONN_STATE);
+        ContentOutputBuffer buffer = connState.getOutbuffer();
 
         this.httpProcessor.process(response, context);
         conn.submitResponse(response);
@@ -434,37 +437,6 @@ public class ThrottlingHttpServiceHandler implements NHttpServiceHandler {
             outstream.flush();
             outstream.close();
         }
-    }
-
-    private static class ConnState {
-        
-        private final SharedInputBuffer inbuffer; 
-        private final SharedOutputBuffer outbuffer;
-
-        public ConnState(int bufferSize, final ContentIOControl ioControl) {
-            super();
-            this.inbuffer = new SharedInputBuffer(bufferSize, ioControl);
-            this.outbuffer = new SharedOutputBuffer(bufferSize, ioControl);
-        }
-
-        public SharedInputBuffer getInbuffer() {
-            return this.inbuffer;
-        }
-
-        public SharedOutputBuffer getOutbuffer() {
-            return this.outbuffer;
-        }
-        
-        public void shutdown() {
-            this.inbuffer.shutdown();
-            this.outbuffer.shutdown();
-        }
-
-        public void clear() {
-            this.inbuffer.reset();
-            this.outbuffer.reset();
-        }
-        
     }
     
 }

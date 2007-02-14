@@ -43,12 +43,13 @@ public class OutputBuffer extends ExpandableBuffer implements ContentOutputBuffe
         this.endOfStream = false;
     }
 
-    public void produceContent(final ContentEncoder encoder) throws IOException {
+    public int produceContent(final ContentEncoder encoder) throws IOException {
         setOutputMode();
-        encoder.write(this.buffer);
+        int bytesWritten = encoder.write(this.buffer);
         if (!hasData() && this.endOfStream) {
             encoder.complete();
         }
+        return bytesWritten;
     }
     
     public void write(final byte[] b, int off, int len) throws IOException {
@@ -82,7 +83,7 @@ public class OutputBuffer extends ExpandableBuffer implements ContentOutputBuffe
         this.buffer.put((byte)b);
     }
     
-    public void clear() {
+    public void reset() {
         super.clear();
         this.endOfStream = false;
     }

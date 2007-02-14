@@ -62,13 +62,13 @@ public class SharedOutputBuffer extends ExpandableBuffer implements ContentOutpu
         }
     }
     
-    public void produceContent(final ContentEncoder encoder) throws IOException {
+    public int produceContent(final ContentEncoder encoder) throws IOException {
         if (this.shutdown) {
-            return;
+            return -1;
         }
         synchronized (this.mutex) {
             setOutputMode();
-            encoder.write(this.buffer);
+            int bytesWritten = encoder.write(this.buffer);
             if (!hasData()) {
                 if (this.endOfStream) {
                     encoder.complete();
@@ -76,6 +76,7 @@ public class SharedOutputBuffer extends ExpandableBuffer implements ContentOutpu
                 this.ioctrl.suspendOutput();
                 this.mutex.notifyAll();            
             }
+            return bytesWritten;
         }
     }
     

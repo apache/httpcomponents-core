@@ -54,6 +54,8 @@ import org.apache.http.nio.ContentEncoder;
 import org.apache.http.nio.NHttpConnection;
 import org.apache.http.nio.NHttpServerConnection;
 import org.apache.http.nio.NHttpServiceHandler;
+import org.apache.http.nio.util.ContentInputBuffer;
+import org.apache.http.nio.util.ContentOutputBuffer;
 import org.apache.http.nio.util.InputBuffer;
 import org.apache.http.nio.util.OutputBuffer;
 import org.apache.http.params.HttpParams;
@@ -130,7 +132,9 @@ public class BufferingHttpServiceHandler implements NHttpServiceHandler {
     public void connected(final NHttpServerConnection conn) {
         HttpContext context = conn.getContext();
 
-        ConnState connState = new ConnState(); 
+        ServerConnState connState = new ServerConnState(
+                new InputBuffer(2048),
+                new OutputBuffer(2048)); 
 
         context.setAttribute(CONN_STATE, connState);
 
@@ -153,9 +157,9 @@ public class BufferingHttpServiceHandler implements NHttpServiceHandler {
             ver = HttpVersion.HTTP_1_1;
         }
 
-        ConnState connState = (ConnState) context.getAttribute(CONN_STATE);
+        ServerConnState connState = (ServerConnState) context.getAttribute(CONN_STATE);
 
-        connState.clear();
+        connState.reset();
         
         try {
 
@@ -230,8 +234,8 @@ public class BufferingHttpServiceHandler implements NHttpServiceHandler {
         HttpContext context = conn.getContext();
         HttpRequest request = conn.getHttpRequest();
 
-        ConnState connState = (ConnState) context.getAttribute(CONN_STATE);
-        InputBuffer buffer = connState.getInbuffer();
+        ServerConnState connState = (ServerConnState) context.getAttribute(CONN_STATE);
+        ContentInputBuffer buffer = connState.getInbuffer();
 
         try {
             buffer.consumeContent(decoder);
@@ -261,8 +265,8 @@ public class BufferingHttpServiceHandler implements NHttpServiceHandler {
         HttpContext context = conn.getContext();
         HttpResponse response = conn.getHttpResponse();
 
-        ConnState connState = (ConnState) context.getAttribute(CONN_STATE);
-        OutputBuffer buffer = connState.getOutbuffer();
+        ServerConnState connState = (ServerConnState) context.getAttribute(CONN_STATE);
+        ContentOutputBuffer buffer = connState.getOutbuffer();
 
         try {
             
@@ -377,8 +381,8 @@ public class BufferingHttpServiceHandler implements NHttpServiceHandler {
 
         HttpContext context = conn.getContext();
 
-        ConnState connState = (ConnState) context.getAttribute(CONN_STATE);
-        OutputBuffer buffer = connState.getOutbuffer();
+        ServerConnState connState = (ServerConnState) context.getAttribute(CONN_STATE);
+        ContentOutputBuffer buffer = connState.getOutbuffer();
 
         this.httpProcessor.process(response, context);
         conn.submitResponse(response);
@@ -394,30 +398,4 @@ public class BufferingHttpServiceHandler implements NHttpServiceHandler {
         }
     }
 
-    private static class ConnState {
-        
-        private final InputBuffer inbuffer; 
-        private final OutputBuffer outbuffer;
-        
-        public ConnState() {
-            super();
-            this.inbuffer = new InputBuffer(2048);
-            this.outbuffer = new OutputBuffer(2048);
-        }
-
-        public InputBuffer getInbuffer() {
-            return this.inbuffer;
-        }
-
-        public OutputBuffer getOutbuffer() {
-            return this.outbuffer;
-        }
-        
-        public void clear() {
-            this.inbuffer.clear();
-            this.outbuffer.clear();
-        }
-        
-    }
-        
 }

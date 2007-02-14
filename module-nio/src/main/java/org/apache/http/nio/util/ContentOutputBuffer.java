@@ -33,10 +33,16 @@ package org.apache.http.nio.util;
 
 import java.io.IOException;
 
+import org.apache.http.nio.ContentEncoder;
+
 public interface ContentOutputBuffer {
 
-    void shutdown() throws IOException;
+    int produceContent(ContentEncoder encoder) throws IOException;
+    
+    void shutdown();
 
+    void reset();
+    
     public void flush() throws IOException;
 
     void write(byte[] b, int off, int len) throws IOException;

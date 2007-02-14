@@ -33,10 +33,16 @@ package org.apache.http.nio.util;
 
 import java.io.IOException;
 
+import org.apache.http.nio.ContentDecoder;
+
 public interface ContentInputBuffer {
 
-    void shutdown() throws IOException;
+    int consumeContent(ContentDecoder decoder) throws IOException;
+    
+    void shutdown();
 
+    void reset();
+    
     int read(byte[] b, int off, int len) throws IOException;
     
     int read() throws IOException;

@@ -62,9 +62,9 @@ public class SharedInputBuffer extends ExpandableBuffer implements ContentInputB
         }
     }
     
-    public void consumeContent(final ContentDecoder decoder) throws IOException {
+    public int consumeContent(final ContentDecoder decoder) throws IOException {
         if (this.shutdown) {
-            return;
+            return -1;
         }
         synchronized (this.mutex) {
             setInputMode();
@@ -79,7 +79,17 @@ public class SharedInputBuffer extends ExpandableBuffer implements ContentInputB
             if (totalRead > 0) {
                 this.ioctrl.suspendInput();
             }
-            this.mutex.notifyAll();            
+            this.mutex.notifyAll();
+            
+            if (totalRead > 0) {
+                return totalRead;
+            } else {
+                if (this.endOfStream) {
+                    return -1;
+                } else {
+                    return 0;
+                }
+            }
         }
     }
     

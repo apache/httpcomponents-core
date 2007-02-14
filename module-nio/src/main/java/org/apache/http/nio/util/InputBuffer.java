@@ -42,7 +42,7 @@ public class InputBuffer extends ExpandableBuffer implements ContentInputBuffer 
         super(buffersize);
     }
     
-    public void clear() {
+    public void reset() {
         this.endOfStream = false;
         super.clear();
     }
