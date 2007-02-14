@@ -69,12 +69,19 @@ public class SharedOutputBuffer extends ExpandableBuffer implements ContentOutpu
         synchronized (this.mutex) {
             setOutputMode();
             int bytesWritten = encoder.write(this.buffer);
+            if (encoder.isCompleted()) {
+                this.endOfStream = true;
+            }
             if (!hasData()) {
-                if (this.endOfStream) {
+                // No more buffered content
+                // If at the end of the stream
+                if (this.endOfStream && !encoder.isCompleted()) {
                     encoder.complete();
+                } else {
+                    // suspend output events
+                    this.ioctrl.suspendOutput();
+                    this.mutex.notifyAll();            
                 }
-                this.ioctrl.suspendOutput();
-                this.mutex.notifyAll();            
             }
             return bytesWritten;
         }
@@ -108,9 +115,6 @@ public class SharedOutputBuffer extends ExpandableBuffer implements ContentOutpu
         if (b == null) {
             return;
         }
-        if (this.shutdown || this.endOfStream) {
-            return;
-        }
         synchronized (this.mutex) {
             setInputMode();
             int remaining = len;
@@ -135,9 +139,6 @@ public class SharedOutputBuffer extends ExpandableBuffer implements ContentOutpu
     }
 
     public void write(int b) throws IOException {
-        if (this.shutdown || this.endOfStream) {
-            return;
-        }
         synchronized (this.mutex) {
             setInputMode();
             if (!this.buffer.hasRemaining()) {
@@ -152,9 +153,9 @@ public class SharedOutputBuffer extends ExpandableBuffer implements ContentOutpu
         flushBuffer();
     }
     
-    public void close() throws IOException {
+    public void writeCompleted() throws IOException {
         this.endOfStream = true;
-        flushBuffer();
+        this.ioctrl.requestOutput();
     }
     
 }

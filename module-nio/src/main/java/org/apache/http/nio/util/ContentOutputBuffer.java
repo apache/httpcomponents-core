@@ -49,4 +49,6 @@ public interface ContentOutputBuffer {
 
     void write(int b) throws IOException;
     
+    void writeCompleted() throws IOException;
+    
 }

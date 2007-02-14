@@ -91,6 +91,10 @@ public class SimpleOutputBuffer extends ExpandableBuffer implements ContentOutpu
     public void flush() {
     }
 
+    public void writeCompleted() {
+        this.endOfStream = true;
+    }
+    
     public void shutdown() {
         this.endOfStream = true;
     }
