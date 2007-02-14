@@ -51,8 +51,8 @@ import org.apache.http.nio.NHttpClientConnection;
 import org.apache.http.nio.NHttpClientHandler;
 import org.apache.http.nio.util.ContentInputBuffer;
 import org.apache.http.nio.util.ContentOutputBuffer;
-import org.apache.http.nio.util.InputBuffer;
-import org.apache.http.nio.util.OutputBuffer;
+import org.apache.http.nio.util.SimpleInputBuffer;
+import org.apache.http.nio.util.SimpleOutputBuffer;
 import org.apache.http.params.HttpParams;
 import org.apache.http.protocol.HttpContext;
 import org.apache.http.protocol.HttpExecutionContext;
@@ -130,8 +130,8 @@ public class BufferingHttpClientHandler implements NHttpClientHandler {
         initialize(conn, attachment);
         
         ClientConnState connState = new ClientConnState(
-                new InputBuffer(2048),
-                new OutputBuffer(2048)); 
+                new SimpleInputBuffer(2048),
+                new SimpleOutputBuffer(2048)); 
 
         context.setAttribute(CONN_STATE, connState);
 

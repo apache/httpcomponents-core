@@ -41,8 +41,8 @@ import org.apache.http.nio.ContentEncoder;
 import org.apache.http.nio.mockup.MockupDecoder;
 import org.apache.http.nio.mockup.MockupEncoder;
 import org.apache.http.nio.mockup.ReadableByteChannelMockup;
-import org.apache.http.nio.util.InputBuffer;
-import org.apache.http.nio.util.OutputBuffer;
+import org.apache.http.nio.util.SimpleInputBuffer;
+import org.apache.http.nio.util.SimpleOutputBuffer;
 import org.apache.http.util.EncodingUtils;
 
 import junit.framework.Test;
@@ -81,7 +81,7 @@ public class TestBuffers extends TestCase {
         
         ContentDecoder decoder = new MockupDecoder(channel); 
         
-        InputBuffer buffer = new InputBuffer(4);
+        SimpleInputBuffer buffer = new SimpleInputBuffer(4);
         int count = buffer.consumeContent(decoder);
         assertEquals(16, count);
         assertTrue(decoder.isCompleted());
@@ -104,7 +104,7 @@ public class TestBuffers extends TestCase {
         assertEquals(-1, buffer.read(b2, 0, b2.length));
         assertTrue(buffer.isEndOfStream());
         
-        buffer.clear();
+        buffer.reset();
         assertFalse(buffer.isEndOfStream());
     }
 
@@ -114,7 +114,7 @@ public class TestBuffers extends TestCase {
         
         ContentEncoder encoder = new MockupEncoder(channel);
         
-        OutputBuffer buffer = new OutputBuffer(4); 
+        SimpleOutputBuffer buffer = new SimpleOutputBuffer(4); 
         
         buffer.write(EncodingUtils.getAsciiBytes("stuff"));
         buffer.write(';');
@@ -129,13 +129,13 @@ public class TestBuffers extends TestCase {
     }
 
     public void testInputBufferNullInput() throws IOException {
-        InputBuffer buffer = new InputBuffer(4);
+        SimpleInputBuffer buffer = new SimpleInputBuffer(4);
         assertEquals(0, buffer.read(null));
         assertEquals(0, buffer.read(null, 0, 0));
     }
     
     public void testOutputBufferNullInput() throws IOException {
-        OutputBuffer buffer = new OutputBuffer(4);
+        SimpleOutputBuffer buffer = new SimpleOutputBuffer(4);
         buffer.write(null);
         buffer.write(null, 0, 10);
         assertFalse(buffer.hasData());

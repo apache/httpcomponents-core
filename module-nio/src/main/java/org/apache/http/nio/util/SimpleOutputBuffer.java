@@ -34,11 +34,11 @@ import java.io.IOException;
 
 import org.apache.http.nio.ContentEncoder;
 
-public class OutputBuffer extends ExpandableBuffer implements ContentOutputBuffer {
+public class SimpleOutputBuffer extends ExpandableBuffer implements ContentOutputBuffer {
     
     private boolean endOfStream;
     
-    public OutputBuffer(int buffersize) {
+    public SimpleOutputBuffer(int buffersize) {
         super(buffersize);
         this.endOfStream = false;
     }

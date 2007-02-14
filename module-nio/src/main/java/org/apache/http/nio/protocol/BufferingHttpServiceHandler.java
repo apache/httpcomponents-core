@@ -56,8 +56,8 @@ import org.apache.http.nio.NHttpServerConnection;
 import org.apache.http.nio.NHttpServiceHandler;
 import org.apache.http.nio.util.ContentInputBuffer;
 import org.apache.http.nio.util.ContentOutputBuffer;
-import org.apache.http.nio.util.InputBuffer;
-import org.apache.http.nio.util.OutputBuffer;
+import org.apache.http.nio.util.SimpleInputBuffer;
+import org.apache.http.nio.util.SimpleOutputBuffer;
 import org.apache.http.params.HttpParams;
 import org.apache.http.protocol.HttpContext;
 import org.apache.http.protocol.HttpExecutionContext;
@@ -133,8 +133,8 @@ public class BufferingHttpServiceHandler implements NHttpServiceHandler {
         HttpContext context = conn.getContext();
 
         ServerConnState connState = new ServerConnState(
-                new InputBuffer(2048),
-                new OutputBuffer(2048)); 
+                new SimpleInputBuffer(2048),
+                new SimpleOutputBuffer(2048)); 
 
         context.setAttribute(CONN_STATE, connState);
 
