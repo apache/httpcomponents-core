@@ -33,8 +33,6 @@ package org.apache.http.nio.protocol;
 
 import org.apache.http.Header;
 import org.apache.http.HttpEntity;
-import org.apache.http.HttpEntityEnclosingRequest;
-import org.apache.http.HttpResponse;
 import org.apache.http.entity.BasicHttpEntity;
 import org.apache.http.nio.util.ContentInputBuffer;
 
@@ -66,30 +64,6 @@ class BufferedContent extends BasicHttpEntity {
 
     public Header getContentEncoding() {
         return this.wrappedEntity.getContentEncoding();
-    }
-
-    public static void wrapEntity(
-            final HttpEntityEnclosingRequest request, 
-            final ContentInputBuffer buffer) {
-        if (request == null) {
-            throw new IllegalArgumentException("HTTP request may not be null");
-        }
-        if (request.getEntity() != null) {
-            BufferedContent entity = new BufferedContent(request.getEntity(), buffer); 
-            request.setEntity(entity);
-        }
-    }
-
-    public static void wrapEntity(
-            final HttpResponse response, 
-            final ContentInputBuffer buffer) {
-        if (response == null) {
-            throw new IllegalArgumentException("HTTP response may not be null");
-        }
-        if (response.getEntity() != null) {
-            BufferedContent entity = new BufferedContent(response.getEntity(), buffer); 
-            response.setEntity(entity);
-        }
     }
     
 }

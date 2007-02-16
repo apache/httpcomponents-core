@@ -124,6 +124,11 @@ public class DefaultNHttpServerConnection
     }
 
     public void produceOutput(final NHttpServiceHandler handler) {
+        
+        if (!this.closed && this.response == null) {
+            handler.responseReady(this);
+        }
+        
         try {
             if (this.outbuf.hasData()) {
                 this.outbuf.flush(this.session.channel());
@@ -132,6 +137,7 @@ public class DefaultNHttpServerConnection
                 if (this.closed) {
                     this.session.close();
                     resetOutput();
+                    return;
                 } else {
                     if (this.contentEncoder != null) {
                         handler.outputReady(this, this.contentEncoder);

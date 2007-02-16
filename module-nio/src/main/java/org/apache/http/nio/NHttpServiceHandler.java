@@ -84,6 +84,15 @@ public interface NHttpServiceHandler {
     void inputReady(NHttpServerConnection conn, ContentDecoder decoder);
     
     /**
+     * Triggered when the connection is ready to send an HTTP response.
+     * 
+     * @see NHttpServerConnection
+     * 
+     * @param conn HTTP connection that contains an HTTP response
+     */
+    void responseReady(NHttpServerConnection conn);
+
+    /**
      * Triggered when the underlying channel is ready for writing a
      * next portion of the response entity through the corresponding 
      * content encoder. 

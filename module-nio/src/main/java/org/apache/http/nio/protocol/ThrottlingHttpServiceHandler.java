@@ -51,6 +51,7 @@ import org.apache.http.UnsupportedHttpVersionException;
 import org.apache.http.entity.ByteArrayEntity;
 import org.apache.http.nio.ContentDecoder;
 import org.apache.http.nio.ContentEncoder;
+import org.apache.http.nio.ContentIOControl;
 import org.apache.http.nio.NHttpConnection;
 import org.apache.http.nio.NHttpServerConnection;
 import org.apache.http.nio.NHttpServiceHandler;
@@ -185,13 +186,18 @@ public class ThrottlingHttpServiceHandler implements NHttpServiceHandler {
     
     public void exception(final NHttpServerConnection conn, final HttpException httpex) {
 
+        final HttpContext context = conn.getContext();
+        final ServerConnState connState = (ServerConnState) context.getAttribute(CONN_STATE);
+        
         this.executor.execute(new Runnable() {
             
             public void run() {
                 try {
-                    
-                    HttpResponse response = handleException(conn, httpex);
-                    commitResponse(conn, response);
+
+                    HttpContext context = new HttpExecutionContext(conn.getContext());
+                    context.setAttribute(HttpExecutionContext.HTTP_CONNECTION, conn);
+                    handleException(connState, httpex, context);
+                    commitResponse(connState, conn);
                     
                 } catch (IOException ex) {
                     shutdownConnection(conn);
@@ -230,8 +236,8 @@ public class ThrottlingHttpServiceHandler implements NHttpServiceHandler {
     }
 
     public void requestReceived(final NHttpServerConnection conn) {
-        final HttpContext context = conn.getContext();
-        final HttpRequest request = conn.getHttpRequest();
+        HttpContext context = conn.getContext();
+        HttpRequest request = conn.getHttpRequest();
 
         HttpVersion ver = request.getRequestLine().getHttpVersion();
         if (!ver.lessEquals(HttpVersion.HTTP_1_1)) {
@@ -239,13 +245,16 @@ public class ThrottlingHttpServiceHandler implements NHttpServiceHandler {
             ver = HttpVersion.HTTP_1_1;
         }
 
-        ServerConnState connState = (ServerConnState) context.getAttribute(CONN_STATE);
-        ContentInputBuffer buffer = connState.getInbuffer();
+        final ServerConnState connState = (ServerConnState) context.getAttribute(CONN_STATE);
 
-        connState.reset();
+        connState.resetInput();
+        connState.setRequest(request);
+        connState.setInputState(ServerConnState.REQUEST_RECEIVED);
 
         if (request instanceof HttpEntityEnclosingRequest) {
-            if (((HttpEntityEnclosingRequest) request).expectContinue()) {
+            HttpEntityEnclosingRequest entityReq = (HttpEntityEnclosingRequest) request;
+            
+            if (entityReq.expectContinue()) {
                 try {
                     HttpResponse ack = this.responseFactory.newHttpResponse(
                             ver, HttpStatus.SC_CONTINUE, context);
@@ -262,16 +271,23 @@ public class ThrottlingHttpServiceHandler implements NHttpServiceHandler {
                     return;
                 }
             }
+            
             // Create a wrapper entity instead of the original one
-            BufferedContent.wrapEntity((HttpEntityEnclosingRequest) request, buffer);
+            if (entityReq.getEntity() != null) {
+                entityReq.setEntity(new BufferedContent(
+                        entityReq.getEntity(), 
+                        connState.getInbuffer()));
+            }
         }
         
         this.executor.execute(new Runnable() {
             
             public void run() {
                 try {
-                    
-                    processRequest(conn, request);
+                    HttpContext context = new HttpExecutionContext(conn.getContext());
+                    context.setAttribute(HttpExecutionContext.HTTP_CONNECTION, conn);
+                    handleRequest(connState, context);
+                    commitResponse(connState, conn);
                     
                 } catch (IOException ex) {
                     shutdownConnection(conn);
@@ -295,15 +311,48 @@ public class ThrottlingHttpServiceHandler implements NHttpServiceHandler {
 
         ServerConnState connState = (ServerConnState) context.getAttribute(CONN_STATE);
         ContentInputBuffer buffer = connState.getInbuffer();
+
+        // Update connection state
+        connState.setInputState(ServerConnState.REQUEST_BODY_STREAM);
         
         try {
             
             buffer.consumeContent(decoder);
+            if (decoder.isCompleted()) {
+                connState.setInputState(ServerConnState.REQUEST_BODY_DONE);
+            }
             
         } catch (IOException ex) {
             shutdownConnection(conn);
             if (this.eventListener != null) {
                 this.eventListener.fatalIOException(ex);
+            }
+        }
+    }
+    
+    public void responseReady(final NHttpServerConnection conn) {
+        HttpContext context = conn.getContext();
+
+        ServerConnState connState = (ServerConnState) context.getAttribute(CONN_STATE);
+        HttpResponse response = connState.getResponse();
+        if (connState.getOutputState() != ServerConnState.RESPONSE_SENT 
+                && response != null 
+                && !conn.isResponseSubmitted()) {
+            try {
+                conn.submitResponse(response);
+
+                // Notify the worker thread of the connection state
+                // change
+                synchronized (connState) {
+                    connState.setOutputState(ServerConnState.RESPONSE_SENT);
+                    connState.notifyAll();
+                }
+                
+            } catch (HttpException ex) {
+                shutdownConnection(conn);
+                if (eventListener != null) {
+                    eventListener.fatalProtocolException(ex);
+                }
             }
         }
     }
@@ -315,10 +364,21 @@ public class ThrottlingHttpServiceHandler implements NHttpServiceHandler {
         ServerConnState connState = (ServerConnState) context.getAttribute(CONN_STATE);
         ContentOutputBuffer buffer = connState.getOutbuffer();
         
+        // Update connection state
+        connState.setOutputState(ServerConnState.RESPONSE_BODY_STREAM);
+        
         try {
 
             buffer.produceContent(encoder);
             if (encoder.isCompleted()) {
+
+                // Notify the worker thread of the connection state
+                // change
+                synchronized (connState) {
+                    connState.setOutputState(ServerConnState.RESPONSE_BODY_DONE);
+                    connState.notifyAll();
+                }
+                
                 if (!this.connStrategy.keepAlive(response, context)) {
                     conn.close();
                 }
@@ -346,12 +406,12 @@ public class ThrottlingHttpServiceHandler implements NHttpServiceHandler {
         }
     }
     
-    private HttpResponse handleException(
-            final NHttpServerConnection conn,
-            final HttpException ex) {
+    private void handleException(
+            final ServerConnState connState,
+            final HttpException ex,
+            final HttpContext context) throws HttpException, IOException {
 
-        HttpRequest request = conn.getHttpRequest();
-        HttpContext context = conn.getContext();
+        HttpRequest request = connState.getRequest();
         
         int code = HttpStatus.SC_INTERNAL_SERVER_ERROR;
         if (ex instanceof MethodNotSupportedException) {
@@ -375,13 +435,16 @@ public class ThrottlingHttpServiceHandler implements NHttpServiceHandler {
         entity.setContentType("text/plain; charset=US-ASCII");
         response.setEntity(entity);
 
-        return response;
+        this.httpProcessor.process(response, context);
+        
+        connState.setResponse(response);
     }
     
-    private void processRequest(
-            final NHttpServerConnection conn,
-            final HttpRequest request) throws HttpException, IOException {
-        HttpContext context = conn.getContext();
+    private void handleRequest(
+            final ServerConnState connState,
+            final HttpContext context) throws HttpException, IOException {
+
+        HttpRequest request = connState.getRequest();
         HttpVersion ver = request.getRequestLine().getHttpVersion();
 
         if (!ver.lessEquals(HttpVersion.HTTP_1_1)) {
@@ -389,11 +452,10 @@ public class ThrottlingHttpServiceHandler implements NHttpServiceHandler {
             ver = HttpVersion.HTTP_1_1;
         }
 
-        HttpResponse response = this.responseFactory.newHttpResponse(ver, HttpStatus.SC_OK, conn.getContext());
+        HttpResponse response = this.responseFactory.newHttpResponse(ver, HttpStatus.SC_OK, context);
         response.getParams().setDefaults(this.params);
         
         context.setAttribute(HttpExecutionContext.HTTP_REQUEST, request);
-        context.setAttribute(HttpExecutionContext.HTTP_CONNECTION, conn);
         context.setAttribute(HttpExecutionContext.HTTP_RESPONSE, response);
         
         try {
@@ -410,32 +472,55 @@ public class ThrottlingHttpServiceHandler implements NHttpServiceHandler {
             } else {
                 response.setStatusCode(HttpStatus.SC_NOT_IMPLEMENTED);
             }
-            
+
         } catch (HttpException ex) {
-            response = handleException(conn, ex);
+            handleException(connState, ex ,context);
+            return;
         }
 
-        commitResponse(conn, response);
+        this.httpProcessor.process(response, context);
+        
+        connState.setResponse(response);
     }
     
     private void commitResponse(
-            final NHttpServerConnection conn,
-            final HttpResponse response) throws IOException, HttpException {
+            final ServerConnState connState,
+            final ContentIOControl ioControl) throws IOException, HttpException {
 
-        HttpContext context = conn.getContext();
-
-        ServerConnState connState = (ServerConnState) context.getAttribute(CONN_STATE);
-        ContentOutputBuffer buffer = connState.getOutbuffer();
-
-        this.httpProcessor.process(response, context);
-        conn.submitResponse(response);
-
+        // Response is ready to be committed
+        HttpResponse response = connState.getResponse();
+        
+        int expectedSate;
         if (response.getEntity() != null) {
-            HttpEntity entity = response.getEntity();
+            ContentOutputBuffer buffer = connState.getOutbuffer();
             OutputStream outstream = new ContentOutputStream(buffer);
+
+            HttpEntity entity = response.getEntity();
             entity.writeTo(outstream);
             outstream.flush();
             outstream.close();
+            expectedSate = ServerConnState.RESPONSE_BODY_DONE;
+        } else {
+            ioControl.requestOutput();
+            expectedSate = ServerConnState.RESPONSE_SENT;
+        }
+        
+        // and wait until the I/O thread completes sending the
+        // response and the connection state transitions to the 
+        // expected state
+        synchronized (connState) {
+            try {
+                for (;;) {
+                    int currentState = connState.getOutputState();
+                    if (currentState == expectedSate || currentState == ServerConnState.SHUTDOWN) {
+                        break;
+                    }
+                    connState.wait();
+                }
+                connState.resetOutput();
+            } catch (InterruptedException ex) {
+                connState.shutdown();
+            }
         }
     }
     

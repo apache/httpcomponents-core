@@ -352,7 +352,11 @@ public class BufferingHttpClientHandler implements NHttpClientHandler {
         HttpContext context = conn.getContext();
         HttpResponse response = conn.getHttpResponse();
         // Create a wrapper entity instead of the original one
-        BufferedContent.wrapEntity(response, inbuffer);
+        if (response.getEntity() != null) {
+            response.setEntity(new BufferedContent(
+                    response.getEntity(), 
+                    inbuffer));
+        }
         
         context.setAttribute(HttpExecutionContext.HTTP_RESPONSE, response);
         

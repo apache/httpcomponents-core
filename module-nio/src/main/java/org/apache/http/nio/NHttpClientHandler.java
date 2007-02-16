@@ -56,7 +56,7 @@ public interface NHttpClientHandler {
      * 
      * @see NHttpClientConnection
      * 
-     * @param conn HTTP connection that contains an HTTP response
+     * @param conn HTTP connection that is ready to send an HTTP request
      */
     void requestReady(NHttpClientConnection conn);
 

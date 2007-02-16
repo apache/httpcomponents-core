@@ -50,7 +50,6 @@ class ContentOutputStream extends OutputStream {
 
     public void close() throws IOException {
         this.buffer.writeCompleted();
-        this.buffer.flush();
     }
 
     public void flush() throws IOException {

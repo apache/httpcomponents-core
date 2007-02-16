@@ -151,16 +151,19 @@ public class BufferingHttpServiceHandler implements NHttpServiceHandler {
         HttpContext context = conn.getContext();
         HttpRequest request = conn.getHttpRequest();
 
+        ServerConnState connState = (ServerConnState) context.getAttribute(CONN_STATE);
+
+        // Update connection state
+        connState.resetInput();
+        connState.setRequest(request);
+        connState.setInputState(ServerConnState.REQUEST_RECEIVED);
+        
         HttpVersion ver = request.getRequestLine().getHttpVersion();
         if (!ver.lessEquals(HttpVersion.HTTP_1_1)) {
             // Downgrade protocol version if greater than HTTP/1.1 
             ver = HttpVersion.HTTP_1_1;
         }
 
-        ServerConnState connState = (ServerConnState) context.getAttribute(CONN_STATE);
-
-        connState.reset();
-        
         try {
 
             if (request instanceof HttpEntityEnclosingRequest) {
@@ -192,6 +195,7 @@ public class BufferingHttpServiceHandler implements NHttpServiceHandler {
                 this.eventListener.fatalProtocolException(ex);
             }
         }
+        
     }
 
     public void closed(final NHttpServerConnection conn) {
@@ -237,13 +241,22 @@ public class BufferingHttpServiceHandler implements NHttpServiceHandler {
         ServerConnState connState = (ServerConnState) context.getAttribute(CONN_STATE);
         ContentInputBuffer buffer = connState.getInbuffer();
 
+        // Update connection state
+        connState.setInputState(ServerConnState.REQUEST_BODY_STREAM);
+        
         try {
             buffer.consumeContent(decoder);
             if (decoder.isCompleted()) {
                 // Request entity has been fully received
+                connState.setInputState(ServerConnState.REQUEST_BODY_DONE);
 
                 // Create a wrapper entity instead of the original one
-                BufferedContent.wrapEntity((HttpEntityEnclosingRequest) request, buffer);
+                HttpEntityEnclosingRequest entityReq = (HttpEntityEnclosingRequest) request;
+                if (entityReq.getEntity() != null) {
+                    entityReq.setEntity(new BufferedContent(
+                            entityReq.getEntity(), 
+                            connState.getInbuffer()));
+                }
                 processRequest(conn, request);
             }
             
@@ -260,6 +273,9 @@ public class BufferingHttpServiceHandler implements NHttpServiceHandler {
         }
     }
 
+    public void responseReady(final NHttpServerConnection conn) {
+    }
+
     public void outputReady(final NHttpServerConnection conn, final ContentEncoder encoder) {
 
         HttpContext context = conn.getContext();
@@ -268,10 +284,14 @@ public class BufferingHttpServiceHandler implements NHttpServiceHandler {
         ServerConnState connState = (ServerConnState) context.getAttribute(CONN_STATE);
         ContentOutputBuffer buffer = connState.getOutbuffer();
 
+        // Update connection state
+        connState.setOutputState(ServerConnState.RESPONSE_BODY_STREAM);
+        
         try {
             
             buffer.produceContent(encoder);
             if (encoder.isCompleted()) {
+                connState.setOutputState(ServerConnState.RESPONSE_BODY_DONE);
                 if (!this.connStrategy.keepAlive(response, context)) {
                     conn.close();
                 }
@@ -385,8 +405,14 @@ public class BufferingHttpServiceHandler implements NHttpServiceHandler {
         ContentOutputBuffer buffer = connState.getOutbuffer();
 
         this.httpProcessor.process(response, context);
+
         conn.submitResponse(response);
 
+        // Update connection state
+        connState.resetOutput();
+        connState.setResponse(response);
+        connState.setInputState(ServerConnState.RESPONSE_SENT);
+        
         if (response.getEntity() != null) {
             HttpEntity entity = response.getEntity();
             if (entity != null) {

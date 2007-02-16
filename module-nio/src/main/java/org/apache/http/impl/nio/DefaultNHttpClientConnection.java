@@ -132,6 +132,7 @@ public class DefaultNHttpClientConnection
                 if (this.closed) {
                     this.session.close();
                     resetOutput();
+                    return;
                 } else {
                     if (this.contentEncoder != null) {
                         handler.outputReady(this, this.contentEncoder);
