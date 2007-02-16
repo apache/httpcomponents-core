@@ -487,6 +487,28 @@ public class ThrottlingHttpServiceHandler implements NHttpServiceHandler {
             final ServerConnState connState,
             final ContentIOControl ioControl) throws IOException, HttpException {
 
+        // Make sure the connection is ready for output
+        // (the previous worker thread terminated)
+        synchronized (connState) {
+            try {
+                for (;;) {
+                    int currentState = connState.getOutputState();
+                    if (currentState == ServerConnState.READY) {
+                        break;
+                    }
+                    if (currentState == ServerConnState.SHUTDOWN) {
+                        break;
+                    }
+                    connState.wait();
+                }
+            } catch (InterruptedException ex) {
+                connState.shutdown();
+            }
+            if (connState.getOutputState() == ServerConnState.SHUTDOWN) {
+                return;
+            }
+        }
+        
         // Response is ready to be committed
         HttpResponse response = connState.getResponse();
         
@@ -512,7 +534,10 @@ public class ThrottlingHttpServiceHandler implements NHttpServiceHandler {
             try {
                 for (;;) {
                     int currentState = connState.getOutputState();
-                    if (currentState == expectedSate || currentState == ServerConnState.SHUTDOWN) {
+                    if (currentState == expectedSate) {
+                        break;
+                    }
+                    if (currentState == ServerConnState.SHUTDOWN) {
                         break;
                     }
                     connState.wait();
