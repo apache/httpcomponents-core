@@ -118,36 +118,62 @@ public class HttpService {
         this.params = params;
     }
     
-    public void handleRequest(final HttpServerConnection conn, final HttpContext context) 
-            throws IOException, HttpException { 
+    public void handleRequest(
+            final HttpServerConnection conn, 
+            final HttpContext context) throws IOException, HttpException { 
+        
         context.setAttribute(HttpExecutionContext.HTTP_CONNECTION, conn);
-        HttpResponse response;
-        try {
-            HttpRequest request = conn.receiveRequestHeader(this.params);
-            HttpVersion ver = request.getRequestLine().getHttpVersion();
-            if (!ver.lessEquals(HttpVersion.HTTP_1_1)) {
-                // Downgrade protocol version if greater than HTTP/1.1 
-                ver = HttpVersion.HTTP_1_1;
-            }
 
-            response = this.responseFactory.newHttpResponse
-                (ver, HttpStatus.SC_OK, context);
-            response.getParams().setDefaults(this.params);
-            
-            if (request instanceof HttpEntityEnclosingRequest) {
-                if (((HttpEntityEnclosingRequest) request).expectContinue()) {
-                    HttpResponse ack = this.responseFactory.newHttpResponse
-                        (ver, HttpStatus.SC_CONTINUE, context);
-                    ack.getParams().setDefaults(this.params);
-                    if (this.expectationVerifier != null) {
-                        this.expectationVerifier.verify(request, ack, context);
+        HttpRequest request = conn.receiveRequestHeader(this.params);
+        HttpVersion ver = request.getRequestLine().getHttpVersion();
+        if (!ver.lessEquals(HttpVersion.HTTP_1_1)) {
+            // Downgrade protocol version if greater than HTTP/1.1 
+            ver = HttpVersion.HTTP_1_1;
+        }
+
+        HttpResponse response;
+        
+        if (request instanceof HttpEntityEnclosingRequest) {
+            if (((HttpEntityEnclosingRequest) request).expectContinue()) {
+                response = this.responseFactory.newHttpResponse(ver, 
+                        HttpStatus.SC_CONTINUE, context);
+                response.getParams().setDefaults(this.params);
+                
+                if (this.expectationVerifier != null) {
+                    try {
+                        this.expectationVerifier.verify(request, response, context);
+                    } catch (HttpException ex) {
+                        response = this.responseFactory.newHttpResponse(HttpVersion.HTTP_1_0, 
+                                HttpStatus.SC_INTERNAL_SERVER_ERROR, context);
+                        response.getParams().setDefaults(this.params);
+                        handleException(ex, response);
                     }
-                    conn.sendResponseHeader(ack);
-                    conn.flush();
                 }
-                conn.receiveRequestEntity((HttpEntityEnclosingRequest) request);
+                if (response.getStatusLine().getStatusCode() < 200) {
+                    // Send 1xx response indicating the server expections
+                    // have been met
+                    conn.sendResponseHeader(response);
+                    conn.flush();
+                } else {
+                    // The request does not meet the server expections
+                    this.processor.process(response, context);
+                    conn.sendResponseHeader(response);
+                    conn.sendResponseEntity(response);
+                    conn.flush();
+                    if (!this.connStrategy.keepAlive(response, context)) {
+                        conn.close();
+                    }
+                    return;
+                }
             }
-            processor.process(request, context);
+            conn.receiveRequestEntity((HttpEntityEnclosingRequest) request);
+        }
+
+        response = this.responseFactory.newHttpResponse(ver, HttpStatus.SC_OK, context);
+        response.getParams().setDefaults(this.params);
+        
+        try {
+            this.processor.process(request, context);
 
             context.setAttribute(HttpExecutionContext.HTTP_REQUEST, request);
             context.setAttribute(HttpExecutionContext.HTTP_RESPONSE, response);
@@ -167,7 +193,7 @@ public class HttpService {
             response.getParams().setDefaults(this.params);
             handleException(ex, response);
         }
-        processor.process(response, context);
+        this.processor.process(response, context);
         conn.sendResponseHeader(response);
         conn.sendResponseEntity(response);
         conn.flush();
