@@ -164,17 +164,38 @@ public class BufferingHttpServiceHandler implements NHttpServiceHandler {
             ver = HttpVersion.HTTP_1_1;
         }
 
+        HttpResponse response;
+        
         try {
 
             if (request instanceof HttpEntityEnclosingRequest) {
                 if (((HttpEntityEnclosingRequest) request).expectContinue()) {
-                    HttpResponse ack = this.responseFactory.newHttpResponse(
+                    response = this.responseFactory.newHttpResponse(
                             ver, HttpStatus.SC_CONTINUE, context);
-                    ack.getParams().setDefaults(this.params);
+                    response.getParams().setDefaults(this.params);
+                    
                     if (this.expectationVerifier != null) {
-                        this.expectationVerifier.verify(request, ack, context);
+                        try {
+                            this.expectationVerifier.verify(request, response, context);
+                        } catch (HttpException ex) {
+                            response = this.responseFactory.newHttpResponse(
+                                    HttpVersion.HTTP_1_0, 
+                                    HttpStatus.SC_INTERNAL_SERVER_ERROR, 
+                                    context);
+                            response.getParams().setDefaults(this.params);
+                            handleException(ex, response);
+                        }
                     }
-                    conn.submitResponse(ack);
+                    
+                    if (response.getStatusLine().getStatusCode() < 200) {
+                        // Send 1xx response indicating the server expections
+                        // have been met
+                        conn.submitResponse(response);
+                    } else {
+                        // The request does not meet the server expections
+                        sendResponse(conn, response);
+                        return;
+                    }
                 }
                 // Request content is expected. 
                 // Wait until the request content is fully received
@@ -209,10 +230,13 @@ public class BufferingHttpServiceHandler implements NHttpServiceHandler {
     }
 
     public void exception(final NHttpServerConnection conn, final HttpException httpex) {
+        HttpContext context = conn.getContext();
         try {
-            
-            HttpResponse response = handleException(conn, httpex);
-            commitResponse(conn, response);
+            HttpResponse response = this.responseFactory.newHttpResponse(
+                    HttpVersion.HTTP_1_0, HttpStatus.SC_INTERNAL_SERVER_ERROR, context);
+            response.getParams().setDefaults(this.params);
+            handleException(httpex, response);
+            sendResponse(conn, response);
             
         } catch (IOException ex) {
             shutdownConnection(conn);
@@ -323,13 +347,7 @@ public class BufferingHttpServiceHandler implements NHttpServiceHandler {
         }
     }
     
-    private HttpResponse handleException(
-            final NHttpServerConnection conn,
-            final HttpException ex) {
-
-        HttpRequest request = conn.getHttpRequest();
-        HttpContext context = conn.getContext();
-
+    private void handleException(final HttpException ex, final HttpResponse response) {
         int code = HttpStatus.SC_INTERNAL_SERVER_ERROR;
         if (ex instanceof MethodNotSupportedException) {
             code = HttpStatus.SC_NOT_IMPLEMENTED;
@@ -338,20 +356,12 @@ public class BufferingHttpServiceHandler implements NHttpServiceHandler {
         } else if (ex instanceof ProtocolException) {
             code = HttpStatus.SC_BAD_REQUEST;
         }
+        response.setStatusCode(code);
         
-        HttpVersion ver;
-        if (request != null) {
-            ver = request.getRequestLine().getHttpVersion(); 
-        } else {
-            ver = HttpVersion.HTTP_1_0;
-        }
-        HttpResponse response =  this.responseFactory.newHttpResponse(ver, code, context);
-
         byte[] msg = EncodingUtils.getAsciiBytes(ex.getMessage());
         ByteArrayEntity entity = new ByteArrayEntity(msg);
         entity.setContentType("text/plain; charset=US-ASCII");
         response.setEntity(entity);
-        return response;
     }
     
     private void processRequest(
@@ -389,13 +399,16 @@ public class BufferingHttpServiceHandler implements NHttpServiceHandler {
             }
             
         } catch (HttpException ex) {
-            response = handleException(conn, ex);
+            response = this.responseFactory.newHttpResponse(HttpVersion.HTTP_1_0, 
+                    HttpStatus.SC_INTERNAL_SERVER_ERROR, context);
+            response.getParams().setDefaults(this.params);
+            handleException(ex, response);
         }
 
-        commitResponse(conn, response);
+        sendResponse(conn, response);
     }
 
-    private void commitResponse(
+    private void sendResponse(
             final NHttpServerConnection conn,
             final HttpResponse response) throws IOException, HttpException {
 
