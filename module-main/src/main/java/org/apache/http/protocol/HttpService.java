@@ -46,7 +46,9 @@ import org.apache.http.HttpVersion;
 import org.apache.http.MethodNotSupportedException;
 import org.apache.http.ProtocolException;
 import org.apache.http.UnsupportedHttpVersionException;
+import org.apache.http.entity.ByteArrayEntity;
 import org.apache.http.params.HttpParams;
+import org.apache.http.util.EncodingUtils;
 
 /**
  * Minimalistic server-side implementation of an HTTP processor.
@@ -172,11 +174,11 @@ public class HttpService {
         response = this.responseFactory.newHttpResponse(ver, HttpStatus.SC_OK, context);
         response.getParams().setDefaults(this.params);
         
+        context.setAttribute(HttpExecutionContext.HTTP_REQUEST, request);
+        context.setAttribute(HttpExecutionContext.HTTP_RESPONSE, response);
+
         try {
             this.processor.process(request, context);
-
-            context.setAttribute(HttpExecutionContext.HTTP_REQUEST, request);
-            context.setAttribute(HttpExecutionContext.HTTP_RESPONSE, response);
             doService(request, response, context);
             
             if (request instanceof HttpEntityEnclosingRequest) {
@@ -212,6 +214,10 @@ public class HttpService {
         } else {
             response.setStatusCode(HttpStatus.SC_INTERNAL_SERVER_ERROR);
         }
+        byte[] msg = EncodingUtils.getAsciiBytes(ex.getMessage());
+        ByteArrayEntity entity = new ByteArrayEntity(msg);
+        entity.setContentType("text/plain; charset=US-ASCII");
+        response.setEntity(entity);
     }
     
     protected void doService(

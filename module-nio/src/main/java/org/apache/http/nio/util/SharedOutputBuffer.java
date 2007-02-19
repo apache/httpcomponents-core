@@ -113,7 +113,6 @@ public class SharedOutputBuffer extends ExpandableBuffer implements ContentOutpu
         }
         synchronized (this.mutex) {
             if (this.shutdown || this.state == CLOSING || this.state == CLOSED) {
-                System.err.println("state: " + this.state);
                 throw new IllegalStateException("Buffer already closed for writing");
             }
             this.state = STREAMING;
