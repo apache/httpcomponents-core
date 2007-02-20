@@ -31,6 +31,8 @@
 
 package org.apache.http.nio.protocol;
 
+import org.apache.http.HttpRequest;
+import org.apache.http.HttpResponse;
 import org.apache.http.nio.util.ContentInputBuffer;
 import org.apache.http.nio.util.ContentOutputBuffer;
 
@@ -41,11 +43,26 @@ import org.apache.http.nio.util.ContentOutputBuffer;
  * @author <a href="mailto:oleg at ural.ru">Oleg Kalnichevski</a>
  *
  */
-
-public class ClientConnState {
+class ClientConnState {
+    
+    public static final int SHUTDOWN                   = -1;
+    public static final int READY                      = 0;
+    public static final int REQUEST_SENT               = 1;
+    public static final int EXPECT_CONTINUE            = 2;
+    public static final int REQUEST_BODY_STREAM        = 4;
+    public static final int REQUEST_BODY_DONE          = 8;
+    public static final int RESPONSE_RECEIVED          = 16;
+    public static final int RESPONSE_BODY_STREAM       = 32;
+    public static final int RESPONSE_BODY_DONE         = 64;
     
     private final ContentInputBuffer inbuffer; 
     private final ContentOutputBuffer outbuffer;
+
+    private volatile int inputState;
+    private volatile int outputState;
+    
+    private volatile HttpRequest request;
+    private volatile HttpResponse response;
 
     public ClientConnState(
             final ContentInputBuffer inbuffer,
@@ -69,14 +86,55 @@ public class ClientConnState {
         return this.outbuffer;
     }
     
+    public int getInputState() {
+        return this.inputState;
+    }
+
+    public void setInputState(int inputState) {
+        this.inputState = inputState;
+    }
+
+    public int getOutputState() {
+        return this.outputState;
+    }
+
+    public void setOutputState(int outputState) {
+        this.outputState = outputState;
+    }
+
+    public HttpRequest getRequest() {
+        return this.request;
+    }
+
+    public void setRequest(final HttpRequest request) {
+        this.request = request;
+    }
+
+    public HttpResponse getResponse() {
+        return this.response;
+    }
+
+    public void setResponse(final HttpResponse response) {
+        this.response = response;
+    }
+
     public void shutdown() {
         this.inbuffer.shutdown();
         this.outbuffer.shutdown();
+        this.inputState = SHUTDOWN;
+        this.outputState = SHUTDOWN;
     }
 
-    public void reset() {
+    public void resetInput() {
         this.inbuffer.reset();
-        this.outbuffer.reset();
+        this.response = null;
+        this.inputState = READY;
     }
     
+    public void resetOutput() {
+        this.outbuffer.reset();
+        this.request = null;
+        this.outputState = READY;
+    }
+        
 }

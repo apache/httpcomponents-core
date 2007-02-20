@@ -174,11 +174,10 @@ public class BufferingHttpClientHandler implements NHttpClientHandler {
         HttpContext context = conn.getContext();
 
         ClientConnState connState = (ClientConnState) context.getAttribute(CONN_STATE);
-        ContentOutputBuffer buffer = connState.getOutbuffer();
         
         try {
             
-            submitRequest(conn, buffer);                
+            submitRequest(conn, connState);                
             
         } catch (IOException ex) {
             shutdownConnection(conn);
@@ -197,6 +196,8 @@ public class BufferingHttpClientHandler implements NHttpClientHandler {
         HttpContext context = conn.getContext();
 
         ClientConnState connState = (ClientConnState) context.getAttribute(CONN_STATE);
+        
+        connState.setInputState(ClientConnState.RESPONSE_BODY_STREAM);
         ContentInputBuffer buffer = connState.getInbuffer();
 
         try {
@@ -204,12 +205,12 @@ public class BufferingHttpClientHandler implements NHttpClientHandler {
             buffer.consumeContent(decoder);
             if (decoder.isCompleted()) {
 
-                processResponse(conn, buffer);
-
+                connState.setInputState(ClientConnState.RESPONSE_BODY_DONE);
+                processResponse(conn, connState);
                 // Ready for another request
-                connState.reset();
-
-                conn.requestOutput();                
+                connState.resetInput();
+                conn.requestOutput();
+                
             }
             
         } catch (IOException ex) {
@@ -229,11 +230,18 @@ public class BufferingHttpClientHandler implements NHttpClientHandler {
         HttpContext context = conn.getContext();
 
         ClientConnState connState = (ClientConnState) context.getAttribute(CONN_STATE);
+        
+        connState.setInputState(ClientConnState.REQUEST_BODY_STREAM);
         ContentOutputBuffer buffer = connState.getOutbuffer();
 
         try {
             
             buffer.produceContent(encoder);
+            if (encoder.isCompleted()) {
+
+                connState.setInputState(ClientConnState.REQUEST_BODY_DONE);
+                
+            }
             
         } catch (IOException ex) {
             shutdownConnection(conn);
@@ -246,11 +254,12 @@ public class BufferingHttpClientHandler implements NHttpClientHandler {
     public void responseReceived(final NHttpClientConnection conn) {
         HttpContext context = conn.getContext();
         HttpResponse response = conn.getHttpResponse();
-        HttpRequest request = (HttpRequest) context.getAttribute(
-                HttpExecutionContext.HTTP_REQUEST);
 
         ClientConnState connState = (ClientConnState) context.getAttribute(CONN_STATE);
-        ContentInputBuffer buffer = connState.getInbuffer();
+        
+        connState.setResponse(response);
+        connState.setInputState(ClientConnState.RESPONSE_RECEIVED);
+        HttpRequest request = connState.getRequest();
         
         if (response.getStatusLine().getStatusCode() < HttpStatus.SC_OK) {
             // Just ignore 1xx responses;
@@ -260,11 +269,9 @@ public class BufferingHttpClientHandler implements NHttpClientHandler {
         if (!canResponseHaveBody(request, response)) {
             try {
                 
-                processResponse(conn, buffer);
-                
+                processResponse(conn, connState);
                 // Ready for another request
-                connState.reset();
-
+                connState.resetOutput();
                 conn.requestOutput();                
                 
             } catch (IOException ex) {
@@ -303,7 +310,9 @@ public class BufferingHttpClientHandler implements NHttpClientHandler {
     
     private void submitRequest(
             final NHttpClientConnection conn, 
-            final ContentOutputBuffer outbuffer) throws IOException, HttpException {
+            final ClientConnState connState) throws IOException, HttpException {
+        
+        connState.resetOutput();
         
         HttpContext context = conn.getContext();
         HttpRequest request = this.execHandler.submitRequest(context);
@@ -314,27 +323,26 @@ public class BufferingHttpClientHandler implements NHttpClientHandler {
         request.getParams().setDefaults(this.params);
         
         context.setAttribute(HttpExecutionContext.HTTP_REQUEST, request);
-
         this.httpProcessor.process(request, context);
-        
+        connState.setRequest(request);
         conn.submitRequest(request);
+        connState.setOutputState(ClientConnState.REQUEST_SENT);
         
         if (request instanceof HttpEntityEnclosingRequest) {
             HttpEntity entity = ((HttpEntityEnclosingRequest) request).getEntity();
             if (entity != null) {
-                OutputStream outstream = new ContentOutputStream(outbuffer);
+                OutputStream outstream = new ContentOutputStream(connState.getOutbuffer());
                 entity.writeTo(outstream);
                 outstream.flush();
                 outstream.close();
             }
         }
-        
     }
     
     protected boolean canResponseHaveBody(
             final HttpRequest request, final HttpResponse response) {
 
-        if ("HEAD".equalsIgnoreCase(request.getRequestLine().getMethod())) {
+        if (request != null && "HEAD".equalsIgnoreCase(request.getRequestLine().getMethod())) {
             return false;
         }
         
@@ -347,7 +355,7 @@ public class BufferingHttpClientHandler implements NHttpClientHandler {
     
     private void processResponse(
             final NHttpClientConnection conn, 
-            final ContentInputBuffer inbuffer) throws IOException, HttpException {
+            final ClientConnState connState) throws IOException, HttpException {
 
         HttpContext context = conn.getContext();
         HttpResponse response = conn.getHttpResponse();
@@ -355,7 +363,7 @@ public class BufferingHttpClientHandler implements NHttpClientHandler {
         if (response.getEntity() != null) {
             response.setEntity(new BufferedContent(
                     response.getEntity(), 
-                    inbuffer));
+                    connState.getInbuffer()));
         }
         
         context.setAttribute(HttpExecutionContext.HTTP_RESPONSE, response);

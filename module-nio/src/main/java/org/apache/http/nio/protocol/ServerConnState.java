@@ -43,7 +43,7 @@ import org.apache.http.nio.util.ContentOutputBuffer;
  * @author <a href="mailto:oleg at ural.ru">Oleg Kalnichevski</a>
  *
  */
-public class ServerConnState {
+class ServerConnState {
    
     public static final int SHUTDOWN                   = -1;
     public static final int READY                      = 0;
