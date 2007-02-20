@@ -43,7 +43,7 @@ import org.apache.http.protocol.HttpContext;
  * 
  * @author <a href="mailto:oleg at ural.ru">Oleg Kalnichevski</a>
  */
-public interface NHttpConnection extends HttpConnection, ContentIOControl {
+public interface NHttpConnection extends HttpConnection, IOControl {
 
     /** 
      * Returns the current HTTP request if one is being received / transmitted.

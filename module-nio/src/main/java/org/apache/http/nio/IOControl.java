@@ -32,13 +32,13 @@
 package org.apache.http.nio;
 
 /**
- * Content input/output control interface. It can be used to request or
+ * Connection input/output control interface. It can be used to request or
  * temporarily suspend event notifications that are triggered when the underlying
  * channel is ready for input / output operations. 
  * 
  * @author <a href="mailto:oleg at ural.ru">Oleg Kalnichevski</a>
  */
-public interface ContentIOControl {
+public interface IOControl {
 
     /**
      * Requests event notifications to be triggered when the underlying

@@ -33,7 +33,7 @@ package org.apache.http.nio.util;
 import java.io.IOException;
 
 import org.apache.http.nio.ContentEncoder;
-import org.apache.http.nio.ContentIOControl;
+import org.apache.http.nio.IOControl;
 
 public class SharedOutputBuffer extends ExpandableBuffer implements ContentOutputBuffer {
 
@@ -42,13 +42,13 @@ public class SharedOutputBuffer extends ExpandableBuffer implements ContentOutpu
     private static final int CLOSING    = 2;
     private static final int CLOSED     = 4;
     
-    private final ContentIOControl ioctrl;
+    private final IOControl ioctrl;
     private final Object mutex;
     
     private volatile boolean shutdown = false;
     private volatile int state;
     
-    public SharedOutputBuffer(int buffersize, final ContentIOControl ioctrl) {
+    public SharedOutputBuffer(int buffersize, final IOControl ioctrl) {
         super(buffersize);
         if (ioctrl == null) {
             throw new IllegalArgumentException("I/O content control may not be null");

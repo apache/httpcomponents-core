@@ -33,17 +33,17 @@ package org.apache.http.nio.util;
 import java.io.IOException;
 
 import org.apache.http.nio.ContentDecoder;
-import org.apache.http.nio.ContentIOControl;
+import org.apache.http.nio.IOControl;
 
 public class SharedInputBuffer extends ExpandableBuffer implements ContentInputBuffer {
 
-    private final ContentIOControl ioctrl;
+    private final IOControl ioctrl;
     private final Object mutex;
     
     private volatile boolean shutdown = false;
     private volatile boolean endOfStream = false;
     
-    public SharedInputBuffer(int buffersize, final ContentIOControl ioctrl) {
+    public SharedInputBuffer(int buffersize, final IOControl ioctrl) {
         super(buffersize);
         if (ioctrl == null) {
             throw new IllegalArgumentException("I/O content control may not be null");

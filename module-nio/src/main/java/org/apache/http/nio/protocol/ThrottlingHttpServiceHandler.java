@@ -52,7 +52,7 @@ import org.apache.http.UnsupportedHttpVersionException;
 import org.apache.http.entity.ByteArrayEntity;
 import org.apache.http.nio.ContentDecoder;
 import org.apache.http.nio.ContentEncoder;
-import org.apache.http.nio.ContentIOControl;
+import org.apache.http.nio.IOControl;
 import org.apache.http.nio.NHttpConnection;
 import org.apache.http.nio.NHttpServerConnection;
 import org.apache.http.nio.NHttpServiceHandler;
@@ -528,7 +528,7 @@ public class ThrottlingHttpServiceHandler implements NHttpServiceHandler {
     
     private void commitResponse(
             final ServerConnState connState,
-            final ContentIOControl ioControl) throws IOException, HttpException {
+            final IOControl ioControl) throws IOException, HttpException {
 
         waitForOutput(connState, ServerConnState.READY);
         
