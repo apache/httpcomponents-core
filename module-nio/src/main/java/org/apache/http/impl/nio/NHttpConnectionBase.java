@@ -259,6 +259,10 @@ public class NHttpConnectionBase
         this.session.setSocketTimeout(timeout);
     }
 
+    public int getSocketTimeout() {
+        return this.session.getSocketTimeout();
+    }
+
     public void shutdown() throws IOException {
         this.closed = true;
         this.session.close();

@@ -142,13 +142,31 @@ public class SocketHttpServerConnection extends
         }
     }
 
-    public void setSocketTimeout(int timeout) throws SocketException {
+    public void setSocketTimeout(int timeout) {
         assertOpen();
         if (this.socket != null) {
-            this.socket.setSoTimeout(timeout);
+            try {
+                this.socket.setSoTimeout(timeout);
+            } catch (SocketException ignore) {
+                // It is not quite clear from the Sun's documentation if there are any 
+                // other legitimate cases for a socket exception to be thrown when setting 
+                // SO_TIMEOUT besides the socket being already closed
+            }
         }
     }
     
+    public int getSocketTimeout() {
+        if (this.socket != null) {
+            try {
+                return this.socket.getSoTimeout();
+            } catch (SocketException ignore) {
+                return -1;
+            }
+        } else {
+            return -1;
+        }
+    }
+
     public void shutdown() throws IOException {
         this.open = false;
         Socket tmpsocket = this.socket;

@@ -292,6 +292,13 @@ public class TestDefaultConnectionReuseStrategy extends TestCase {
             return iAmOpen;
         }
 
+        public void setSocketTimeout(int timeout) {
+        }
+
+        public int getSocketTimeout() {
+            return -1;
+        }
+
         public final boolean isStale() {
             return iAmStale;
         }
@@ -305,6 +312,7 @@ public class TestDefaultConnectionReuseStrategy extends TestCase {
             throw new UnsupportedOperationException
                 ("connection state must not be modified");
         }
+        
     } // class MockConnection
 
 } // class TestDefaultConnectionReuseStrategy

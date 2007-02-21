@@ -64,6 +64,8 @@ class ClientConnState {
     private volatile HttpRequest request;
     private volatile HttpResponse response;
 
+    private int timeout;
+    
     public ClientConnState(
             final ContentInputBuffer inbuffer,
             final ContentOutputBuffer outbuffer) {
@@ -118,6 +120,14 @@ class ClientConnState {
         this.response = response;
     }
 
+    public int getTimeout() {
+        return this.timeout;
+    }
+
+    public void setTimeout(int timeout) {
+        this.timeout = timeout;
+    }
+        
     public void shutdown() {
         this.inbuffer.shutdown();
         this.outbuffer.shutdown();
@@ -136,5 +146,5 @@ class ClientConnState {
         this.request = null;
         this.outputState = READY;
     }
-        
+
 }

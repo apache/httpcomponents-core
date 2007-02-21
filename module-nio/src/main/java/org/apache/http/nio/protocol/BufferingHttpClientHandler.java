@@ -54,6 +54,7 @@ import org.apache.http.nio.util.ContentOutputBuffer;
 import org.apache.http.nio.util.SimpleInputBuffer;
 import org.apache.http.nio.util.SimpleOutputBuffer;
 import org.apache.http.params.HttpParams;
+import org.apache.http.params.HttpProtocolParams;
 import org.apache.http.protocol.HttpContext;
 import org.apache.http.protocol.HttpExecutionContext;
 import org.apache.http.protocol.HttpProcessor;
@@ -207,9 +208,6 @@ public class BufferingHttpClientHandler implements NHttpClientHandler {
 
                 connState.setInputState(ClientConnState.RESPONSE_BODY_DONE);
                 processResponse(conn, connState);
-                // Ready for another request
-                connState.resetInput();
-                conn.requestOutput();
                 
             }
             
@@ -253,42 +251,61 @@ public class BufferingHttpClientHandler implements NHttpClientHandler {
 
     public void responseReceived(final NHttpClientConnection conn) {
         HttpContext context = conn.getContext();
-        HttpResponse response = conn.getHttpResponse();
-
         ClientConnState connState = (ClientConnState) context.getAttribute(CONN_STATE);
-        
-        connState.setResponse(response);
-        connState.setInputState(ClientConnState.RESPONSE_RECEIVED);
+
+        HttpResponse response = conn.getHttpResponse();
         HttpRequest request = connState.getRequest();
         
-        if (response.getStatusLine().getStatusCode() < HttpStatus.SC_OK) {
-            // Just ignore 1xx responses;
-            return;
-        }
-        
-        if (!canResponseHaveBody(request, response)) {
-            try {
-                
+        try {
+            
+            int statusCode = response.getStatusLine().getStatusCode();
+            if (statusCode < HttpStatus.SC_OK) {
+                // 1xx intermediate response
+                if (statusCode == HttpStatus.SC_CONTINUE 
+                        && connState.getOutputState() == ClientConnState.EXPECT_CONTINUE) {
+                    continueRequest(conn, connState);
+                }
+                return;
+            } else {
+                connState.setResponse(response);
+                connState.setInputState(ClientConnState.RESPONSE_RECEIVED);
+            }
+            
+            if (!canResponseHaveBody(request, response)) {
                 processResponse(conn, connState);
-                // Ready for another request
-                connState.resetOutput();
-                conn.requestOutput();                
-                
-            } catch (IOException ex) {
-                shutdownConnection(conn);
-                if (this.eventListener != null) {
-                    this.eventListener.fatalIOException(ex);
-                }
-            } catch (HttpException ex) {
-                shutdownConnection(conn);
-                if (this.eventListener != null) {
-                    this.eventListener.fatalProtocolException(ex);
-                }
+            }
+            
+        } catch (IOException ex) {
+            shutdownConnection(conn);
+            if (this.eventListener != null) {
+                this.eventListener.fatalIOException(ex);
+            }
+        } catch (HttpException ex) {
+            shutdownConnection(conn);
+            if (this.eventListener != null) {
+                this.eventListener.fatalProtocolException(ex);
             }
         }
     }
 
     public void timeout(final NHttpClientConnection conn) {
+        HttpContext context = conn.getContext();
+        ClientConnState connState = (ClientConnState) context.getAttribute(CONN_STATE);
+
+        try {
+            
+            if (connState.getOutputState() == ClientConnState.EXPECT_CONTINUE) {
+                continueRequest(conn, connState);
+                return;
+            }
+            
+        } catch (IOException ex) {
+            shutdownConnection(conn);
+            if (this.eventListener != null) {
+                this.eventListener.fatalIOException(ex);
+            }
+        }
+        
         shutdownConnection(conn);
         if (this.eventListener != null) {
             InetAddress address = null;
@@ -329,17 +346,45 @@ public class BufferingHttpClientHandler implements NHttpClientHandler {
         connState.setOutputState(ClientConnState.REQUEST_SENT);
         
         if (request instanceof HttpEntityEnclosingRequest) {
-            HttpEntity entity = ((HttpEntityEnclosingRequest) request).getEntity();
-            if (entity != null) {
-                OutputStream outstream = new ContentOutputStream(connState.getOutbuffer());
-                entity.writeTo(outstream);
-                outstream.flush();
-                outstream.close();
+            if (((HttpEntityEnclosingRequest) request).expectContinue()) {
+                int timeout = conn.getSocketTimeout();
+                connState.setTimeout(timeout);
+                timeout = this.params.getIntParameter(
+                        HttpProtocolParams.WAIT_FOR_CONTINUE, 3000);
+                conn.setSocketTimeout(timeout);
+                connState.setOutputState(ClientConnState.EXPECT_CONTINUE);
+            } else {
+                prepareRequestBody((HttpEntityEnclosingRequest) request, connState);
             }
         }
     }
     
-    protected boolean canResponseHaveBody(
+    private void continueRequest(
+            final NHttpClientConnection conn, 
+            final ClientConnState connState) throws IOException {
+
+        HttpRequest request = connState.getRequest();
+
+        int timeout = connState.getTimeout();
+        conn.setSocketTimeout(timeout);
+
+        prepareRequestBody((HttpEntityEnclosingRequest) request, connState);
+        connState.setOutputState(ClientConnState.REQUEST_SENT);
+    }
+    
+    private void prepareRequestBody(
+            final HttpEntityEnclosingRequest request,
+            final ClientConnState connState) throws IOException {
+        HttpEntity entity = request.getEntity();
+        if (entity != null) {
+            OutputStream outstream = new ContentOutputStream(connState.getOutbuffer());
+            entity.writeTo(outstream);
+            outstream.flush();
+            outstream.close();
+        }
+    }
+    
+    private boolean canResponseHaveBody(
             final HttpRequest request, final HttpResponse response) {
 
         if (request != null && "HEAD".equalsIgnoreCase(request.getRequestLine().getMethod())) {
@@ -358,7 +403,8 @@ public class BufferingHttpClientHandler implements NHttpClientHandler {
             final ClientConnState connState) throws IOException, HttpException {
 
         HttpContext context = conn.getContext();
-        HttpResponse response = conn.getHttpResponse();
+        HttpResponse response = connState.getResponse();
+        
         // Create a wrapper entity instead of the original one
         if (response.getEntity() != null) {
             response.setEntity(new BufferedContent(
@@ -374,8 +420,12 @@ public class BufferingHttpClientHandler implements NHttpClientHandler {
         
         if (!this.connStrategy.keepAlive(response, context)) {
             conn.close();
+            connState.shutdown();
+        } else {
+            // Ready for another request
+            connState.resetInput();
+            conn.requestOutput();
         }
-        
     }
     
 }

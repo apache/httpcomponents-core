@@ -67,11 +67,4 @@ public interface NHttpConnection extends HttpConnection, IOControl {
      */
     HttpContext getContext();
     
-    /**
-     * Sets socket timeout value.
-     * 
-     * @param timeout timeout value in milliseconds
-     */
-    void setSocketTimeout(int timeout);
-    
 }

@@ -77,6 +77,22 @@ public interface HttpConnection {
     public boolean isStale();
     
     /**
+     * Sets the socket timeout value.
+     * 
+     * @param timeout timeout value in milliseconds
+     */
+    void setSocketTimeout(int timeout);
+    
+    /**
+     * Returns the socket timeout value.
+     * 
+     * @return positive value in milliseconds if a timeout is set, 
+     * <code>0</code> if timeout is disabled or <code>-1</code> if 
+     * timeout is undefined.
+     */
+    int getSocketTimeout();
+
+    /**
      * Force-closes this connection.
      * This is the only method of a connection which may be called
      * from a different thread to terminate the connection. 
