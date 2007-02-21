@@ -229,6 +229,11 @@ public class BufferingHttpClientHandler implements NHttpClientHandler {
 
         ClientConnState connState = (ClientConnState) context.getAttribute(CONN_STATE);
         
+        if (connState.getOutputState() == ClientConnState.EXPECT_CONTINUE) {
+            conn.suspendOutput();
+            return;
+        }
+        
         connState.setInputState(ClientConnState.REQUEST_BODY_STREAM);
         ContentOutputBuffer buffer = connState.getOutbuffer();
 
@@ -369,6 +374,7 @@ public class BufferingHttpClientHandler implements NHttpClientHandler {
         conn.setSocketTimeout(timeout);
 
         prepareRequestBody((HttpEntityEnclosingRequest) request, connState);
+        conn.requestOutput();
         connState.setOutputState(ClientConnState.REQUEST_SENT);
     }
     

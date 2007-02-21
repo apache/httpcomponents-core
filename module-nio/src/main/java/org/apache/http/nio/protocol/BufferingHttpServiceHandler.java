@@ -194,7 +194,6 @@ public class BufferingHttpServiceHandler implements NHttpServiceHandler {
                     } else {
                         // The request does not meet the server expections
                         sendResponse(conn, response);
-                        return;
                     }
                 }
                 // Request content is expected. 

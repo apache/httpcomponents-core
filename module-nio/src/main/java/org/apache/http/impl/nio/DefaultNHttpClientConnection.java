@@ -98,6 +98,7 @@ public class DefaultNHttpClientConnection
                         this.response.setEntity(entity);
                     } else {
                         // Discard the intermediate response
+                        this.responseParser.reset();
                         this.response = null;
                     }
                 }
