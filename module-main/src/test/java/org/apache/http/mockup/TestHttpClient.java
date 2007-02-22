@@ -42,6 +42,7 @@ import org.apache.http.HttpResponse;
 import org.apache.http.HttpVersion;
 import org.apache.http.impl.DefaultConnectionReuseStrategy;
 import org.apache.http.params.BasicHttpParams;
+import org.apache.http.params.HttpConnectionParams;
 import org.apache.http.params.HttpParams;
 import org.apache.http.params.HttpProtocolParams;
 import org.apache.http.protocol.BasicHttpProcessor;
@@ -66,6 +67,8 @@ public class TestHttpClient {
         super();
         this.params = new BasicHttpParams(null);
         this.params
+            .setIntParameter(HttpConnectionParams.SO_TIMEOUT, 5000)
+            .setBooleanParameter(HttpConnectionParams.STALE_CONNECTION_CHECK, false)
             .setParameter(HttpProtocolParams.PROTOCOL_VERSION, HttpVersion.HTTP_1_1)
             .setParameter(HttpProtocolParams.USER_AGENT, "TEST-CLIENT/1.1");
 

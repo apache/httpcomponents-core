@@ -126,68 +126,76 @@ public class HttpService {
         
         context.setAttribute(HttpExecutionContext.HTTP_CONNECTION, conn);
 
-        HttpRequest request = conn.receiveRequestHeader(this.params);
-        HttpVersion ver = request.getRequestLine().getHttpVersion();
-        if (!ver.lessEquals(HttpVersion.HTTP_1_1)) {
-            // Downgrade protocol version if greater than HTTP/1.1 
-            ver = HttpVersion.HTTP_1_1;
-        }
-
-        HttpResponse response;
+        HttpResponse response = null;
         
-        if (request instanceof HttpEntityEnclosingRequest) {
-            if (((HttpEntityEnclosingRequest) request).expectContinue()) {
-                response = this.responseFactory.newHttpResponse(ver, 
-                        HttpStatus.SC_CONTINUE, context);
-                response.getParams().setDefaults(this.params);
-                
-                if (this.expectationVerifier != null) {
-                    try {
-                        this.expectationVerifier.verify(request, response, context);
-                    } catch (HttpException ex) {
-                        response = this.responseFactory.newHttpResponse(HttpVersion.HTTP_1_0, 
-                                HttpStatus.SC_INTERNAL_SERVER_ERROR, context);
-                        response.getParams().setDefaults(this.params);
-                        handleException(ex, response);
+        try {
+
+            HttpRequest request = conn.receiveRequestHeader(this.params);
+            HttpVersion ver = request.getRequestLine().getHttpVersion();
+            if (!ver.lessEquals(HttpVersion.HTTP_1_1)) {
+                // Downgrade protocol version if greater than HTTP/1.1 
+                ver = HttpVersion.HTTP_1_1;
+            }
+
+            boolean receiveEntity = false;
+            boolean runService = true;
+
+            if (request instanceof HttpEntityEnclosingRequest) {
+                receiveEntity = true;
+                if (((HttpEntityEnclosingRequest) request).expectContinue()) {
+                    response = this.responseFactory.newHttpResponse(ver, 
+                            HttpStatus.SC_CONTINUE, context);
+                    response.getParams().setDefaults(this.params);
+                    
+                    if (this.expectationVerifier != null) {
+                        try {
+                            this.expectationVerifier.verify(request, response, context);
+                        } catch (HttpException ex) {
+                            response = this.responseFactory.newHttpResponse(HttpVersion.HTTP_1_0, 
+                                    HttpStatus.SC_INTERNAL_SERVER_ERROR, context);
+                            response.getParams().setDefaults(this.params);
+                            handleException(ex, response);
+                        }
                     }
-                }
-                if (response.getStatusLine().getStatusCode() < 200) {
-                    // Send 1xx response indicating the server expections
-                    // have been met
-                    conn.sendResponseHeader(response);
-                    conn.flush();
-                } else {
-                    // The request does not meet the server expections
-                    this.processor.process(response, context);
-                    conn.sendResponseHeader(response);
-                    conn.sendResponseEntity(response);
-                    conn.flush();
-                    if (!this.connStrategy.keepAlive(response, context)) {
-                        conn.close();
+                    if (response.getStatusLine().getStatusCode() < 200) {
+                        // Send 1xx response indicating the server expections
+                        // have been met
+                        conn.sendResponseHeader(response);
+                        conn.flush();
+                        response = null;
+                    } else {
+                        // The request does not meet the server expections
+                        runService = false;
+                        receiveEntity = false;
                     }
-                    return;
                 }
             }
-            conn.receiveRequestEntity((HttpEntityEnclosingRequest) request);
-        }
 
-        response = this.responseFactory.newHttpResponse(ver, HttpStatus.SC_OK, context);
-        response.getParams().setDefaults(this.params);
-        
-        context.setAttribute(HttpExecutionContext.HTTP_REQUEST, request);
-        context.setAttribute(HttpExecutionContext.HTTP_RESPONSE, response);
+            if (receiveEntity) {
+                conn.receiveRequestEntity((HttpEntityEnclosingRequest) request);
+            }
 
-        try {
-            this.processor.process(request, context);
-            doService(request, response, context);
+            if (response == null) {
+                response = this.responseFactory.newHttpResponse(ver, HttpStatus.SC_OK, context);
+                response.getParams().setDefaults(this.params);
+            }
             
-            if (request instanceof HttpEntityEnclosingRequest) {
+            if (runService) {
+                context.setAttribute(HttpExecutionContext.HTTP_REQUEST, request);
+                context.setAttribute(HttpExecutionContext.HTTP_RESPONSE, response);
+
+                this.processor.process(request, context);
+                doService(request, response, context);
+            }
+
+            if (receiveEntity) {
                 // Make sure the request content is fully consumed
                 HttpEntity entity = ((HttpEntityEnclosingRequest)request).getEntity();
                 if (entity != null) {
                     entity.consumeContent();
                 }
             }
+            
         } catch (HttpException ex) {
             response = this.responseFactory.newHttpResponse
                 (HttpVersion.HTTP_1_0, HttpStatus.SC_INTERNAL_SERVER_ERROR,
@@ -195,10 +203,12 @@ public class HttpService {
             response.getParams().setDefaults(this.params);
             handleException(ex, response);
         }
+        
         this.processor.process(response, context);
         conn.sendResponseHeader(response);
         conn.sendResponseEntity(response);
         conn.flush();
+        
         if (!this.connStrategy.keepAlive(response, context)) {
             conn.close();
         }
