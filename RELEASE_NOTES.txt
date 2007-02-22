@@ -1,6 +1,14 @@
 Changes since release 4.0 Alpha 3
 -------------------
 
+* [HTTPCORE-42]: Added server side API for the expectation verification. 
+  Improved support for the 'expect: continue' handshake in HttpCore and 
+  HttpCore NIO.
+  Contributed by Oleg Kalnichevski <olegk at apache.org>
+
+* [HTTPCORE-26]: Added SSL support for HttpCore NIO.
+  Contributed by Oleg Kalnichevski <olegk at apache.org>
+
 * [HTTPCORE-40]: API classes no longer reference impl classes in module-main.
   Contributed by Roland Weber <rolandw at apache.org>
 
