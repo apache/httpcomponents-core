@@ -59,4 +59,11 @@ public interface NHttpClientConnection extends NHttpConnection {
      */
     boolean isRequestSubmitted();
     
+    /**
+     * Cancels pending HTTP request if it failed the target server expections
+     * (the target server responded with non 1xx status code during the
+     * 'expect: continue' handshake.
+     */
+    void cancelRequest();
+    
 }

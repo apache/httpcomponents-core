@@ -38,11 +38,13 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
+import org.apache.http.Header;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpEntityEnclosingRequest;
 import org.apache.http.HttpException;
 import org.apache.http.HttpRequest;
 import org.apache.http.HttpResponse;
+import org.apache.http.HttpStatus;
 import org.apache.http.HttpVersion;
 import org.apache.http.entity.ByteArrayEntity;
 import org.apache.http.entity.StringEntity;
@@ -55,7 +57,9 @@ import org.apache.http.nio.protocol.HttpRequestExecutionHandler;
 import org.apache.http.params.HttpProtocolParams;
 import org.apache.http.protocol.HttpContext;
 import org.apache.http.protocol.HttpExecutionContext;
+import org.apache.http.protocol.HttpExpectationVerifier;
 import org.apache.http.protocol.HttpRequestHandler;
+import org.apache.http.util.EncodingUtils;
 import org.apache.http.util.EntityUtils;
 
 import junit.framework.Test;
@@ -220,8 +224,8 @@ public class TestNIOHttp extends TestCase {
         this.client.await(connNo, 1000);
         assertEquals(connNo, this.client.getConnCount());
         
-        this.server.await(connNo, 1000);
-        assertEquals(connNo, this.server.getConnCount());
+        this.client.shutdown();
+        this.server.shutdown();
 
         for (int c = 0; c < responseData.length; c++) {
             List receivedPackets = responseData[c];
@@ -363,8 +367,8 @@ public class TestNIOHttp extends TestCase {
         this.client.await(connNo, 1000);
         assertEquals(connNo, this.client.getConnCount());
         
-        this.server.await(connNo, 1000);
-        assertEquals(connNo, this.server.getConnCount());
+        this.client.shutdown();
+        this.server.shutdown();
 
         for (int c = 0; c < responseData.length; c++) {
             List receivedPackets = responseData[c];
@@ -507,8 +511,8 @@ public class TestNIOHttp extends TestCase {
         this.client.await(connNo, 1000);
         assertEquals(connNo, this.client.getConnCount());
         
-        this.server.await(connNo, 1000);
-        assertEquals(connNo, this.server.getConnCount());
+        this.client.shutdown();
+        this.server.shutdown();
 
         for (int c = 0; c < responseData.length; c++) {
             List receivedPackets = responseData[c];
@@ -654,8 +658,8 @@ public class TestNIOHttp extends TestCase {
         this.client.await(connNo, 1000);
         assertEquals(connNo, this.client.getConnCount());
         
-        this.server.await(connNo, 1000);
-        assertEquals(connNo, this.server.getConnCount());
+        this.client.shutdown();
+        this.server.shutdown();
 
         for (int c = 0; c < responseData.length; c++) {
             List receivedPackets = responseData[c];
@@ -800,8 +804,8 @@ public class TestNIOHttp extends TestCase {
         this.client.await(connNo, 1000);
         assertEquals(connNo, this.client.getConnCount());
         
-        this.server.await(connNo, 1000);
-        assertEquals(connNo, this.server.getConnCount());
+        this.client.shutdown();
+        this.server.shutdown();
 
         for (int c = 0; c < responseData.length; c++) {
             List receivedPackets = responseData[c];
@@ -820,5 +824,142 @@ public class TestNIOHttp extends TestCase {
         
     }
 
+    /**
+     * This test case executes a series of simple (non-pipelined) POST requests 
+     * over multiple connections that do not meet the target server expectations. 
+     */
+    public void testHttpPostsWithExpectationVerification() throws Exception {
+        
+        final int reqNo = 3;
+        final List responses = new ArrayList(reqNo);
+        
+        // Initialize the server-side request handler
+        this.server.registerHandler("*", new HttpRequestHandler() {
+
+            public void handle(
+                    final HttpRequest request, 
+                    final HttpResponse response, 
+                    final HttpContext context) throws HttpException, IOException {
+                
+                StringEntity outgoing = new StringEntity("No content"); 
+                response.setEntity(outgoing);
+            }
+            
+        });
+        
+        this.server.setExpectationVerifier(new HttpExpectationVerifier() {
+
+            public void verify(
+                    final HttpRequest request, 
+                    final HttpResponse response, 
+                    final HttpContext context) throws HttpException {
+                Header someheader = request.getFirstHeader("Secret");
+                if (someheader != null) {
+                    int secretNumber;
+                    try {
+                        secretNumber = Integer.parseInt(someheader.getValue());
+                    } catch (NumberFormatException ex) {
+                        response.setStatusCode(HttpStatus.SC_BAD_REQUEST);
+                        return;
+                    }
+                    if (secretNumber < 2) {
+                        response.setStatusCode(HttpStatus.SC_EXPECTATION_FAILED);
+                        ByteArrayEntity outgoing = new ByteArrayEntity(
+                                EncodingUtils.getAsciiBytes("Wrong secret number")); 
+                        response.setEntity(outgoing);
+                    }
+                }
+            }
+            
+        });
+
+        // Activate 'expect: continue' handshake
+        this.client.getParams().setBooleanParameter(HttpProtocolParams.USE_EXPECT_CONTINUE, true);
+        // Initialize the client side request executor
+        this.client.setHttpRequestExecutionHandler(new HttpRequestExecutionHandler() {
+
+            public void initalizeContext(final HttpContext context, final Object attachment) {
+                context.setAttribute("LIST", (List) attachment);
+                context.setAttribute("STATUS", "ready");
+            }
+
+            public HttpRequest submitRequest(final HttpContext context) {
+                NHttpConnection conn = (NHttpConnection) context.getAttribute(
+                        HttpExecutionContext.HTTP_CONNECTION);
+                String status = (String) context.getAttribute("STATUS");
+                if (!status.equals("ready")) {
+                    return null;
+                }
+                int index = 0;
+                
+                Integer intobj = (Integer) context.getAttribute("INDEX");
+                if (intobj != null) {
+                    index = intobj.intValue();
+                }
+
+                HttpPost post = null;
+                if (index < reqNo) {
+                    post = new HttpPost("/");
+                    post.addHeader("Secret", Integer.toString(index));
+                    ByteArrayEntity outgoing = new ByteArrayEntity(
+                            EncodingUtils.getAsciiBytes("No content")); 
+                    post.setEntity(outgoing);
+                    
+                    context.setAttribute("INDEX", new Integer(index + 1));
+                    context.setAttribute("STATUS", "busy");
+                } else {
+                    try {
+                        conn.close();
+                    } catch (IOException ex) {
+                        ex.printStackTrace();
+                    }
+                }
+                
+                return post;
+            }
+            
+            public void handleResponse(final HttpResponse response, final HttpContext context) {
+                NHttpConnection conn = (NHttpConnection) context.getAttribute(
+                        HttpExecutionContext.HTTP_CONNECTION);
+                
+                HttpEntity entity = response.getEntity();
+                if (entity != null) {
+                    try {
+                        entity.consumeContent();
+                    } catch (IOException ex) {
+                        fail(ex.getMessage());
+                    }
+                }
+                
+                List list = (List) context.getAttribute("LIST");
+                list.add(response);
+                context.setAttribute("STATUS", "ready");
+                conn.requestInput();
+            }
+            
+        });
+        
+        this.server.start();
+        this.client.start();
+        
+        InetSocketAddress serverAddress = (InetSocketAddress) this.server.getSocketAddress();
+        
+        this.client.openConnection(
+                new InetSocketAddress("localhost", serverAddress.getPort()), 
+                responses);
+     
+        this.client.await(1, 1000);
+        
+        this.client.shutdown();
+        this.server.shutdown();
+
+        assertEquals(reqNo, responses.size());
+        HttpResponse response = (HttpResponse) responses.get(0);
+        assertEquals(HttpStatus.SC_EXPECTATION_FAILED, response.getStatusLine().getStatusCode());
+        response = (HttpResponse) responses.get(1);
+        assertEquals(HttpStatus.SC_EXPECTATION_FAILED, response.getStatusLine().getStatusCode());
+        response = (HttpResponse) responses.get(2);
+        assertEquals(HttpStatus.SC_OK, response.getStatusLine().getStatusCode());
+    }
     
 }

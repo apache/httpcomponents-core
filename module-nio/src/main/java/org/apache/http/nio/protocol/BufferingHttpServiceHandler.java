@@ -193,6 +193,8 @@ public class BufferingHttpServiceHandler implements NHttpServiceHandler {
                         conn.submitResponse(response);
                     } else {
                         // The request does not meet the server expections
+                        conn.cancelRequest();
+                        connState.resetInput();
                         sendResponse(conn, response);
                     }
                 }

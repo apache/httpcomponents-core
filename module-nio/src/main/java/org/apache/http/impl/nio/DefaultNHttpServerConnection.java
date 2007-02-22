@@ -194,4 +194,8 @@ public class DefaultNHttpServerConnection
         return this.response != null;
     }
 
+    public void cancelRequest() {
+        resetInput();
+    }
+    
 }

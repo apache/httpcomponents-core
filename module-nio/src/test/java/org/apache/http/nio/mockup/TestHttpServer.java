@@ -45,6 +45,7 @@ import org.apache.http.nio.reactor.ListeningIOReactor;
 import org.apache.http.params.HttpConnectionParams;
 import org.apache.http.params.HttpProtocolParams;
 import org.apache.http.protocol.BasicHttpProcessor;
+import org.apache.http.protocol.HttpExpectationVerifier;
 import org.apache.http.protocol.HttpRequestHandler;
 import org.apache.http.protocol.HttpRequestHandlerRegistry;
 import org.apache.http.protocol.ResponseConnControl;
@@ -60,6 +61,7 @@ import org.apache.http.protocol.ResponseServer;
 public class TestHttpServer extends TestHttpServiceBase {
 
     private final HttpRequestHandlerRegistry reqistry;
+    private HttpExpectationVerifier expectationVerifier;
     private volatile SocketAddress address;
     private final Object mutex;
     
@@ -83,6 +85,10 @@ public class TestHttpServer extends TestHttpServiceBase {
         this.reqistry.register(pattern, handler);
     }
     
+    public void setExpectationVerifier(final HttpExpectationVerifier expectationVerifier) {
+        this.expectationVerifier = expectationVerifier;
+    }
+    
     protected void execute() throws IOException {
         synchronized (this.mutex) {
             this.address = ((ListeningIOReactor) this.ioReactor).listen(new InetSocketAddress(0));
@@ -101,7 +107,7 @@ public class TestHttpServer extends TestHttpServiceBase {
                 this.params);
         
         serviceHandler.setEventListener(new EventLogger());
-        
+        serviceHandler.setExpectationVerifier(this.expectationVerifier);
         serviceHandler.setHandlerResolver(this.reqistry);
         
         IOEventDispatch ioEventDispatch = new DefaultServerIOEventDispatch(
