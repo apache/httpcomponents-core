@@ -125,6 +125,11 @@ public class DefaultNHttpClientConnection
     }
 
     public void produceOutput(final NHttpClientHandler handler) {
+
+        if (this.request == null && !this.closed) {
+            handler.requestReady(this);
+        }
+        
         try {
             if (this.outbuf.hasData()) {
                 this.outbuf.flush(this.session.channel());
@@ -151,10 +156,6 @@ public class DefaultNHttpClientConnection
         } finally {
             // Finally set buffered output flag
             this.hasBufferedOutput = this.outbuf.hasData();
-        }
-
-        if (this.request == null && !this.closed) {
-            handler.requestReady(this);
         }
     }
     
