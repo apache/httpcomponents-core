@@ -33,8 +33,10 @@ package org.apache.http.impl.nio.reactor;
 
 import java.io.IOException;
 import java.io.InterruptedIOException;
+import java.net.InetSocketAddress;
 import java.net.Socket;
 import java.net.SocketAddress;
+import java.net.UnknownHostException;
 import java.nio.channels.CancelledKeyException;
 import java.nio.channels.SelectionKey;
 import java.nio.channels.Selector;
@@ -213,6 +215,18 @@ public class DefaultConnectingIOReactor extends AbstractMultiworkerIOReactor
         return sessionRequest;
     }
     
+    private void validateAddress(final SocketAddress address) throws UnknownHostException {
+        if (address == null) {
+            return;
+        }
+        if (address instanceof InetSocketAddress) {
+            InetSocketAddress endpoint = (InetSocketAddress) address;
+            if (endpoint.isUnresolved()) {
+                throw new UnknownHostException(endpoint.getHostName());
+            }
+        }
+    }
+    
     private void processSessionRequests() throws IOReactorException {
         SessionRequestImpl request;
         while ((request = this.requestQueue.pop()) != null) {
@@ -227,12 +241,16 @@ public class DefaultConnectingIOReactor extends AbstractMultiworkerIOReactor
                 throw new IOReactorException("Failure opening socket", ex);
             }
             try {
+                validateAddress(request.getLocalAddress());
+                validateAddress(request.getRemoteAddress());
+                
                 if (request.getLocalAddress() != null) {
                     socketChannel.socket().bind(request.getLocalAddress());
                 }
                 socketChannel.connect(request.getRemoteAddress());
             } catch (IOException ex) {
                 request.failed(ex);
+                return;
             }
             
             SelectionKey key;

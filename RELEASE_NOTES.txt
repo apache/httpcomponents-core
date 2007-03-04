@@ -1,6 +1,11 @@
 Changes since release 4.0 Alpha 3
 -------------------
 
+* [HTTPCORE-49]: DefaultConnectingIOReactor can now correctly handle 
+  unresolved socket addresses. It no longer terminates with the 
+  UnresolvedAddressException runtime exception.
+  Contributed by Oleg Kalnichevski <olegk at apache.org>
+
 * [HTTPCORE-42]: Added server side API for the expectation verification. 
   Improved support for the 'expect: continue' handshake in HttpCore and 
   HttpCore NIO.
