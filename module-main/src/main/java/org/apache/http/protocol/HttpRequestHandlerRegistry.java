@@ -103,7 +103,9 @@ public class HttpRequestHandlerRegistry implements HttpRequestHandlerResolver {
                 String pattern = (String) it.next();
                 if (matchUriRequestPattern(pattern, requestURI)) {
                     // we have a match. is it any better?
-                    if (bestMatch == null || bestMatch.length() <= pattern.length()) {
+                    if (bestMatch == null 
+                            || (bestMatch.length() < pattern.length())
+                            || (bestMatch.length() == pattern.length() && pattern.endsWith("*"))) {
                         handler = this.handlerMap.get(pattern);
                         bestMatch = pattern;
                     }

@@ -194,6 +194,21 @@ public class TestHttpRequestHandlerRegistry extends TestCase {
         assertTrue(def == h);
     }
 
+    public void testSuffixPatternOverPrefixPatternMatch() throws Exception {
+        HttpRequestHandler h1 = new DummyHttpRequestHandler();
+        HttpRequestHandler h2 = new DummyHttpRequestHandler();
+        
+        HttpRequestHandlerRegistry registry = new HttpRequestHandlerRegistry();
+        registry.register("/ma*", h1);
+        registry.register("*tch", h2);
+        
+        HttpRequestHandler h;
+        
+        h = registry.lookup("/match");
+        assertNotNull(h);
+        assertTrue(h1 == h);
+    }
+
     public void testInvalidInput() throws Exception {
         HttpRequestHandlerRegistry registry = new HttpRequestHandlerRegistry();
         try {
