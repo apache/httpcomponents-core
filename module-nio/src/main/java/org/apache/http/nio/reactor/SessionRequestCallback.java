@@ -39,4 +39,6 @@ public interface SessionRequestCallback {
     
     void timeout(SessionRequest request);
 
+    void cancelled(SessionRequest request);
+    
 }

@@ -187,6 +187,9 @@ class SessionRequestImpl implements SessionRequest {
         }
         this.completed = true;
         synchronized (this) {
+            if (this.callback != null) {
+                this.callback.cancelled(this);
+            }
             notifyAll();
         }
     }
