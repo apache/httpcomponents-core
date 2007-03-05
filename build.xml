@@ -50,8 +50,6 @@ Jakarta HttpComponents Core
         External dependencies for which there is no default location:
           junit.jar           - for test and clover targets
           clover.jar          - for clover target
-          commons.cli.jar     - for contrib-bench
-          spring.jar          - for contrib-spring
   -->
 <property name="local.properties" location="../project/build.properties" />
 <property file="${local.properties}" />
@@ -196,13 +194,11 @@ Output
   -->
 
 <target name="compile-all"
-        depends="compile-src,compile-tests,compile-examples,
-                 compile-contrib,compile-contrib-bench,compile-contrib-spring"
+        depends="compile-src,compile-tests,compile-examples"
         description="compiles everything, not from scratch"
 />
 <target name="clean-compile"
-        depends="clean-src,clean-tests,clean-examples,
-                 clean-contrib,clean-contrib-bench,clean-contrib-spring"
+        depends="clean-src,clean-tests,clean-examples"
         description="cleans intermediate files from compilation"
 />
 <target name="compile-all-fs"
@@ -236,24 +232,6 @@ Output
 <target name="package-src-fs"
      depends="clean-src,package-src"
  description="builds the JAR with HttpCore classes, compiling from scratch"
-/>
-
-
-<target name="package-addon"
-     depends="dist-init,compile-src,
-              compile-examples,compile-contrib,
-              compile-contrib-bench,compile-contrib-spring"
- description="builds the JAR with HttpCore examples and contributions"
->
-        <jar destfile="${dist.core.home}/${jar.core.addon.name}">
-          <!-- manifest? -->
-          <fileset dir="${build.core.main.xmpls}" includes="**" />
-          <fileset dir="${build.core.main.contr}" includes="**" />
-        </jar>    
-</target>
-<target name="package-addon-fs"
-     depends="clean-examples,clean-contrib,package-addon"
- description="builds the JAR with HttpCore examples and contributions, compiling them from scratch"
 />
 
 
@@ -312,65 +290,6 @@ Output
           <bottom>Copyright (c) 2005-2007 - Apache Software Foundation</bottom>
         </javadoc>
 </target>
-
-
-<target name="javadoc-addon"
-        description="generates JavaDoc including examples and contributions"
->
-        <mkdir dir="${dist.core.api}" />
-        <javadoc destdir="${dist.core.api}"
-                  access="${javadoc.access}"
-                 version="true"
-                  author="true"
-             windowtitle="${comp.core.title} (Version ${comp.core.version})"
-        >
-          <packageset dir="${comp.core.main.src}">
-            <include name="org/apache/http/**" />
-          </packageset>
-          <packageset dir="${comp.core.nio.src}">
-            <include name="org/apache/http/**" />
-          </packageset>
-          <packageset dir="${comp.core.main.xmpls}">
-            <include name="org/apache/http/**" />
-          </packageset>
-          <packageset dir="${comp.core.nio.xmpls}">
-            <include name="org/apache/http/**" />
-          </packageset>
-          <packageset dir="${comp.core.main.contr}">
-            <include name="org/apache/http/**" />
-          </packageset>
-
-          <group title="API">
-            <package name="org.apache.http" />
-            <package name="org.apache.http.entity" />
-            <package name="org.apache.http.io" />
-            <package name="org.apache.http.message" />
-            <package name="org.apache.http.params" />
-            <package name="org.apache.http.protocol" />
-            <package name="org.apache.http.util*" />
-            <package name="org.apache.http.nio*" />
-          </group>
-          <group title="Implementation">
-            <package name="org.apache.http.impl*" />
-          </group>
-          <group title="Examples">
-            <package name="org.apache.http.examples*" />
-          </group>
-          <group title="Contributions (unsupported)">
-            <package name="org.apache.http.contrib*" />
-          </group>
-    
-          <classpath>
-            <pathelement location="${commons.cli.jar}" />
-            <pathelement location="${spring.jar}" />
-          </classpath>
-          <link href="${javadoc.j2sdk.link}"/>
-
-          <doctitle>${comp.core.title}</doctitle>
-          <bottom>Copyright (c) 2005-2007 - Apache Software Foundation</bottom>
-        </javadoc>
-</target>
-
 
 <!-- generic and helper targets =========================================== -->
 
