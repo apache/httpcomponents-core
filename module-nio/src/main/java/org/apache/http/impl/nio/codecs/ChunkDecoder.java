@@ -226,5 +226,13 @@ public class ChunkDecoder extends AbstractContentDecoder {
             return new Header[] {};
         }
     }
+
+    public String toString() {
+        StringBuffer buffer = new StringBuffer();
+        buffer.append("Chunk decoder (completed: ");
+        buffer.append(this.completed);
+        buffer.append(")");
+        return buffer.toString();
+    }
     
 }

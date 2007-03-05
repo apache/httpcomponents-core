@@ -55,5 +55,19 @@ public class DefaultHttpServerConnection extends SocketHttpServerConnection {
         assertNotOpen();
         super.bind(socket, params);
     }
+
+    public String toString() {
+        StringBuffer buffer = new StringBuffer();
+        buffer.append("HTTP server connection (");
+        if (isOpen()) {
+            buffer.append(this.socket.getLocalAddress());
+            buffer.append("->");
+            buffer.append(this.socket.getInetAddress());
+        } else {
+            buffer.append("closed");
+        }
+        buffer.append(")");
+        return buffer.toString();
+    }
     
 }

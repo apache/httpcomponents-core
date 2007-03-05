@@ -54,5 +54,13 @@ public class IdentityEncoder extends AbstractContentEncoder {
         assertNotCompleted();
         return this.channel.write(src);
     }
+ 
+    public String toString() {
+        StringBuffer buffer = new StringBuffer();
+        buffer.append("Identity encoder (completed: ");
+        buffer.append(this.completed);
+        buffer.append(")");
+        return buffer.toString();
+    }
     
 }

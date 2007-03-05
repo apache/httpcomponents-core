@@ -78,4 +78,12 @@ public class ChunkEncoder extends AbstractContentEncoder {
         this.completed = true;
     }
     
+    public String toString() {
+        StringBuffer buffer = new StringBuffer();
+        buffer.append("Chunk encoder (completed: ");
+        buffer.append(this.completed);
+        buffer.append(")");
+        return buffer.toString();
+    }
+    
 }
