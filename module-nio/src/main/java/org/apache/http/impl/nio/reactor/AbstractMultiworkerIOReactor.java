@@ -45,6 +45,8 @@ public abstract class AbstractMultiworkerIOReactor implements IOReactor {
     private final BaseIOReactor[] ioReactors;
     private final Worker[] workers;
     private final Thread[] threads;
+
+    private volatile boolean shutdown;
     
     private int currentWorker = 0;
     
@@ -77,18 +79,31 @@ public abstract class AbstractMultiworkerIOReactor implements IOReactor {
             this.threads[i] = this.threadFactory.newThread(this.workers[i]);
         }
         for (int i = 0; i < this.workerCount; i++) {
+            if (this.shutdown) {
+                return;
+            }
             this.threads[i].start();
         }
     }
 
     protected void stopWorkers(int millis) 
             throws InterruptedIOException, IOReactorException {
+        if (this.shutdown) {
+            return;
+        }
+        this.shutdown = true;
         for (int i = 0; i < this.workerCount; i++) {
-            this.ioReactors[i].shutdown();
+            BaseIOReactor reactor = this.ioReactors[i];
+            if (reactor != null) {
+                reactor.shutdown();
+            }
         }
         for (int i = 0; i < this.workerCount; i++) {
             try {
-                this.threads[i].join(millis);
+                Thread t = this.threads[i];
+                if (t != null) {
+                    t.join(millis);
+                }
             } catch (InterruptedException ex) {
                 throw new InterruptedIOException(ex.getMessage());
             }
@@ -97,6 +112,9 @@ public abstract class AbstractMultiworkerIOReactor implements IOReactor {
     
     protected void verifyWorkers() 
             throws InterruptedIOException, IOReactorException {
+        if (this.shutdown) {
+            return;
+        }
         for (int i = 0; i < this.workerCount; i++) {
             Worker worker = this.workers[i];
             Thread thread = this.threads[i];
@@ -160,8 +178,10 @@ public abstract class AbstractMultiworkerIOReactor implements IOReactor {
 
     static class DefaultThreadFactory implements ThreadFactory {
 
+        private static int COUNT = 0;
+        
         public Thread newThread(final Runnable r) {
-            return new Thread(r, "I/O reactor worker thread");
+            return new Thread(r, "I/O reactor worker thread " + (++COUNT));
         }
         
     }
