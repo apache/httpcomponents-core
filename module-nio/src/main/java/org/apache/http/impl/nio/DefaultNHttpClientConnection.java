@@ -201,15 +201,13 @@ public class DefaultNHttpClientConnection
     
     public String toString() {
         StringBuffer buffer = new StringBuffer();
-        buffer.append("HTTP client connection (");
+        buffer.append("[");
         if (isOpen()) {
-            buffer.append(this.session.getLocalAddress());
-            buffer.append("->");
             buffer.append(this.session.getRemoteAddress());
         } else {
             buffer.append("closed");
         }
-        buffer.append(")");
+        buffer.append("]");
         return buffer.toString();
     }
     

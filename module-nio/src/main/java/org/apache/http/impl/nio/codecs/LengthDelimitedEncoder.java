@@ -81,13 +81,13 @@ public class LengthDelimitedEncoder extends AbstractContentEncoder {
 
     public String toString() {
         StringBuffer buffer = new StringBuffer();
-        buffer.append("Length delimited encoder (content length: ");
+        buffer.append("[content length: ");
         buffer.append(this.contentLength);
         buffer.append("; pos: ");
         buffer.append(this.len);
         buffer.append("; completed: ");
         buffer.append(this.completed);
-        buffer.append(")");
+        buffer.append("]");
         return buffer.toString();
     }
     

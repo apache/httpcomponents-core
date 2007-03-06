@@ -180,4 +180,19 @@ class IOSessionImpl implements IOSession {
         this.attributes.put(name, obj);
     }
 
+    public String toString() {
+        StringBuffer buffer = new StringBuffer();
+        buffer.append("[");
+        if (this.key.isValid()) {
+            buffer.append("event mask: ");
+            buffer.append(this.key.interestOps());
+            buffer.append("; ready ops: ");
+            buffer.append(this.key.readyOps());
+        } else {
+            buffer.append("invalid");
+        }
+        buffer.append("]");
+        return buffer.toString();
+    }
+
 }
