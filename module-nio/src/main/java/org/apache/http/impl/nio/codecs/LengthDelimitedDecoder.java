@@ -78,6 +78,10 @@ public class LengthDelimitedDecoder extends AbstractContentDecoder {
                 bytesRead = this.channel.read(dst);
             }
         }
+        if (bytesRead == -1) {
+            this.completed = true;
+            return -1;
+        }
         this.len += bytesRead;
         if (this.len >= this.contentLength) {
             this.completed = true;
