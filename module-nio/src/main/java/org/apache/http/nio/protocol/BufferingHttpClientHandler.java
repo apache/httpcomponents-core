@@ -130,10 +130,7 @@ public class BufferingHttpClientHandler implements NHttpClientHandler {
         
         initialize(conn, attachment);
         
-        ClientConnState connState = new ClientConnState(
-                new SimpleInputBuffer(2048),
-                new SimpleOutputBuffer(2048)); 
-
+        ClientConnState connState = new ClientConnState(); 
         context.setAttribute(CONN_STATE, connState);
 
         if (this.eventListener != null) {
@@ -441,11 +438,103 @@ public class BufferingHttpClientHandler implements NHttpClientHandler {
         
         if (!this.connStrategy.keepAlive(response, context)) {
             conn.close();
-            connState.shutdown();
         } else {
             // Ready for another request
             connState.resetInput();
             conn.requestOutput();
+        }
+    }
+    
+    static class ClientConnState {
+        
+        public static final int READY                      = 0;
+        public static final int REQUEST_SENT               = 1;
+        public static final int EXPECT_CONTINUE            = 2;
+        public static final int REQUEST_BODY_STREAM        = 4;
+        public static final int REQUEST_BODY_DONE          = 8;
+        public static final int RESPONSE_RECEIVED          = 16;
+        public static final int RESPONSE_BODY_STREAM       = 32;
+        public static final int RESPONSE_BODY_DONE         = 64;
+        
+        private SimpleInputBuffer inbuffer; 
+        private ContentOutputBuffer outbuffer;
+
+        private volatile int inputState;
+        private volatile int outputState;
+        
+        private volatile HttpRequest request;
+        private volatile HttpResponse response;
+
+        private int timeout;
+        
+        public ClientConnState() {
+            super();
+        }
+
+        public ContentInputBuffer getInbuffer() {
+            if (this.inbuffer == null) {
+                this.inbuffer = new SimpleInputBuffer(2048);
+            }
+            return this.inbuffer;
+        }
+
+        public ContentOutputBuffer getOutbuffer() {
+            if (this.outbuffer == null) {
+                this.outbuffer = new SimpleOutputBuffer(2048);
+            }
+            return this.outbuffer;
+        }
+        
+        public int getInputState() {
+            return this.inputState;
+        }
+
+        public void setInputState(int inputState) {
+            this.inputState = inputState;
+        }
+
+        public int getOutputState() {
+            return this.outputState;
+        }
+
+        public void setOutputState(int outputState) {
+            this.outputState = outputState;
+        }
+
+        public HttpRequest getRequest() {
+            return this.request;
+        }
+
+        public void setRequest(final HttpRequest request) {
+            this.request = request;
+        }
+
+        public HttpResponse getResponse() {
+            return this.response;
+        }
+
+        public void setResponse(final HttpResponse response) {
+            this.response = response;
+        }
+
+        public int getTimeout() {
+            return this.timeout;
+        }
+
+        public void setTimeout(int timeout) {
+            this.timeout = timeout;
+        }
+            
+        public void resetInput() {
+            this.inbuffer = null;
+            this.response = null;
+            this.inputState = READY;
+        }
+        
+        public void resetOutput() {
+            this.outbuffer = null;
+            this.request = null;
+            this.outputState = READY;
         }
     }
     

@@ -39,8 +39,6 @@ public interface ContentInputBuffer {
 
     int consumeContent(ContentDecoder decoder) throws IOException;
     
-    void shutdown();
-
     void reset();
     
     int read(byte[] b, int off, int len) throws IOException;

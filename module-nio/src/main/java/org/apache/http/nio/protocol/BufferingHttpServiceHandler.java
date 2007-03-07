@@ -132,10 +132,7 @@ public class BufferingHttpServiceHandler implements NHttpServiceHandler {
     public void connected(final NHttpServerConnection conn) {
         HttpContext context = conn.getContext();
 
-        ServerConnState connState = new ServerConnState(
-                new SimpleInputBuffer(2048),
-                new SimpleOutputBuffer(2048)); 
-
+        ServerConnState connState = new ServerConnState(); 
         context.setAttribute(CONN_STATE, connState);
 
         if (this.eventListener != null) {
@@ -317,6 +314,7 @@ public class BufferingHttpServiceHandler implements NHttpServiceHandler {
             buffer.produceContent(encoder);
             if (encoder.isCompleted()) {
                 connState.setOutputState(ServerConnState.RESPONSE_BODY_DONE);
+                connState.resetOutput();
                 if (!this.connStrategy.keepAlive(response, context)) {
                     conn.close();
                 }
@@ -423,9 +421,8 @@ public class BufferingHttpServiceHandler implements NHttpServiceHandler {
         conn.submitResponse(response);
 
         // Update connection state
-        connState.resetOutput();
         connState.setResponse(response);
-        connState.setInputState(ServerConnState.RESPONSE_SENT);
+        connState.setOutputState(ServerConnState.RESPONSE_SENT);
         
         if (response.getEntity() != null) {
             HttpEntity entity = response.getEntity();
@@ -435,7 +432,94 @@ public class BufferingHttpServiceHandler implements NHttpServiceHandler {
                 outstream.flush();
                 outstream.close();
             }
+        } else {
+            connState.resetOutput();
         }
     }
 
+    static class ServerConnState {
+        
+        public static final int READY                      = 0;
+        public static final int REQUEST_RECEIVED           = 1;
+        public static final int REQUEST_BODY_STREAM        = 2;
+        public static final int REQUEST_BODY_DONE          = 4;
+        public static final int RESPONSE_SENT              = 8;
+        public static final int RESPONSE_BODY_STREAM       = 16;
+        public static final int RESPONSE_BODY_DONE         = 32;
+        
+        private SimpleInputBuffer inbuffer; 
+        private ContentOutputBuffer outbuffer;
+
+        private volatile int inputState;
+        private volatile int outputState;
+        
+        private volatile HttpRequest request;
+        private volatile HttpResponse response;
+        
+        public ServerConnState() {
+            super();
+            this.inputState = READY;
+            this.outputState = READY;
+        }
+
+        public ContentInputBuffer getInbuffer() {
+            if (this.inbuffer == null) {
+                this.inbuffer = new SimpleInputBuffer(2048);
+            }
+            return this.inbuffer;
+        }
+
+        public ContentOutputBuffer getOutbuffer() {
+            if (this.outbuffer == null) {
+                this.outbuffer = new SimpleOutputBuffer(2048);
+            }
+            return this.outbuffer;
+        }
+        
+        public int getInputState() {
+            return this.inputState;
+        }
+
+        public void setInputState(int inputState) {
+            this.inputState = inputState;
+        }
+
+        public int getOutputState() {
+            return this.outputState;
+        }
+
+        public void setOutputState(int outputState) {
+            this.outputState = outputState;
+        }
+
+        public HttpRequest getRequest() {
+            return this.request;
+        }
+
+        public void setRequest(final HttpRequest request) {
+            this.request = request;
+        }
+
+        public HttpResponse getResponse() {
+            return this.response;
+        }
+
+        public void setResponse(final HttpResponse response) {
+            this.response = response;
+        }
+
+        public void resetInput() {
+            this.inbuffer = null;
+            this.request = null;
+            this.inputState = READY;
+        }
+        
+        public void resetOutput() {
+            this.outbuffer = null;
+            this.response = null;
+            this.outputState = READY;
+        }
+        
+    }
+    
 }

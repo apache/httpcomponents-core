@@ -39,8 +39,6 @@ public interface ContentOutputBuffer {
 
     int produceContent(ContentEncoder encoder) throws IOException;
     
-    void shutdown();
-
     void reset();
     
     public void flush() throws IOException;
