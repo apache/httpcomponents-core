@@ -49,6 +49,7 @@ import org.apache.http.nio.reactor.ConnectingIOReactor;
 import org.apache.http.nio.reactor.IOEventDispatch;
 import org.apache.http.nio.reactor.IOReactorException;
 import org.apache.http.nio.reactor.SessionRequest;
+import org.apache.http.nio.reactor.SessionRequestCallback;
 import org.apache.http.params.HttpConnectionParams;
 import org.apache.http.params.HttpParams;
 
@@ -203,10 +204,11 @@ public class DefaultConnectingIOReactor extends AbstractMultiworkerIOReactor
     public SessionRequest connect(
             final SocketAddress remoteAddress, 
             final SocketAddress localAddress,
-            final Object attachment) {
+            final Object attachment,
+            final SessionRequestCallback callback) {
 
         SessionRequestImpl sessionRequest = new SessionRequestImpl(
-                remoteAddress, localAddress, attachment);
+                remoteAddress, localAddress, attachment, callback);
         sessionRequest.setConnectTimeout(HttpConnectionParams.getConnectionTimeout(this.params));
         
         this.requestQueue.push(sessionRequest);

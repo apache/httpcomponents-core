@@ -47,16 +47,17 @@ class SessionRequestImpl implements SessionRequest {
     private final SocketAddress remoteAddress;
     private final SocketAddress localAddress;
     private final Object attachment;
+    private final SessionRequestCallback callback;
     
     private int connectTimeout;
-    private SessionRequestCallback callback;
     private IOSession session = null;
     private IOException exception = null;
     
     public SessionRequestImpl(
             final SocketAddress remoteAddress,
             final SocketAddress localAddress,
-            final Object attachment) {
+            final Object attachment,
+            final SessionRequestCallback callback) {
         super();
         if (remoteAddress == null) {
             throw new IllegalArgumentException("Remote address may not be null");
@@ -64,6 +65,7 @@ class SessionRequestImpl implements SessionRequest {
         this.remoteAddress = remoteAddress;
         this.localAddress = localAddress;
         this.attachment = attachment;
+        this.callback = callback;
         this.connectTimeout = 0;
     }
     
@@ -164,19 +166,6 @@ class SessionRequestImpl implements SessionRequest {
         }
     }
 
-    public void setCallback(final SessionRequestCallback callback) {
-        synchronized (this) {
-            this.callback = callback;
-            if (this.completed) {
-                if (this.exception != null) {
-                    callback.failed(this);
-                } else if (this.session != null) {
-                    callback.completed(this);
-                }
-            }
-        }
-    }
-    
     protected void setKey(final SelectionKey key) {
         this.key = key;
     }

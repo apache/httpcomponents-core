@@ -96,7 +96,7 @@ public class TestHttpClient extends TestHttpServiceBase {
     
     public void openConnection(final InetSocketAddress address, final Object attachment) {
         ((ConnectingIOReactor) this.ioReactor).connect(
-                address, null, attachment);
+                address, null, attachment, null);
     }
     
 }

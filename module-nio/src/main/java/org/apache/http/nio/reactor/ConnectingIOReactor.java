@@ -35,7 +35,10 @@ import java.net.SocketAddress;
 
 public interface ConnectingIOReactor extends IOReactor {
 
-    SessionRequest connect(SocketAddress remoteAddress, 
-            SocketAddress localAddress, Object attachment);
+    SessionRequest connect(
+            SocketAddress remoteAddress, 
+            SocketAddress localAddress, 
+            Object attachment,
+            SessionRequestCallback callback);
         
 }

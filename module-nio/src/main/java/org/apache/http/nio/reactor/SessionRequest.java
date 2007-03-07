@@ -54,8 +54,6 @@ public interface SessionRequest {
     
     int getConnectTimeout();
     
-    void setCallback(SessionRequestCallback callback);
-    
     void cancel();
     
 }

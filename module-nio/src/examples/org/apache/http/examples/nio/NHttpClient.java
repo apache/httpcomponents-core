@@ -85,15 +85,18 @@ public class NHttpClient {
         reqs[0] = ioReactor.connect(
                 new InetSocketAddress("www.yahoo.com", 80), 
                 null, 
-                new HttpHost("www.yahoo.com"));
+                new HttpHost("www.yahoo.com"),
+                null);
         reqs[1] = ioReactor.connect(
                 new InetSocketAddress("www.google.com", 80), 
                 null,
-                new HttpHost("www.google.ch"));
+                new HttpHost("www.google.ch"),
+                null);
         reqs[2] = ioReactor.connect(
                 new InetSocketAddress("www.apache.org", 80), 
                 null,
-                new HttpHost("www.apache.org"));
+                new HttpHost("www.apache.org"),
+                null);
         
     }
     
