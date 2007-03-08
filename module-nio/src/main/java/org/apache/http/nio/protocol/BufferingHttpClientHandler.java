@@ -172,6 +172,9 @@ public class BufferingHttpClientHandler implements NHttpClientHandler {
         HttpContext context = conn.getContext();
 
         ClientConnState connState = (ClientConnState) context.getAttribute(CONN_STATE);
+        if (connState.getInputState() != ClientConnState.READY) {
+            return;
+        }
         
         try {
             
@@ -459,11 +462,11 @@ public class BufferingHttpClientHandler implements NHttpClientHandler {
         private SimpleInputBuffer inbuffer; 
         private ContentOutputBuffer outbuffer;
 
-        private volatile int inputState;
-        private volatile int outputState;
+        private int inputState;
+        private int outputState;
         
-        private volatile HttpRequest request;
-        private volatile HttpResponse response;
+        private HttpRequest request;
+        private HttpResponse response;
 
         private int timeout;
         

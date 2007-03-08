@@ -200,6 +200,7 @@ public class BufferingHttpServiceHandler implements NHttpServiceHandler {
             } else {
                 // No request content is expected. 
                 // Process request right away
+                conn.suspendInput();
                 processRequest(conn, request);
             }
             
@@ -279,6 +280,7 @@ public class BufferingHttpServiceHandler implements NHttpServiceHandler {
                             entityReq.getEntity(), 
                             connState.getInbuffer()));
                 }
+                conn.suspendInput();
                 processRequest(conn, request);
             }
             
@@ -317,6 +319,8 @@ public class BufferingHttpServiceHandler implements NHttpServiceHandler {
                 connState.resetOutput();
                 if (!this.connStrategy.keepAlive(response, context)) {
                     conn.close();
+                } else {
+                    conn.requestInput();
                 }
             }
             
@@ -421,7 +425,6 @@ public class BufferingHttpServiceHandler implements NHttpServiceHandler {
         conn.submitResponse(response);
 
         // Update connection state
-        connState.setResponse(response);
         connState.setOutputState(ServerConnState.RESPONSE_SENT);
         
         if (response.getEntity() != null) {
@@ -434,6 +437,7 @@ public class BufferingHttpServiceHandler implements NHttpServiceHandler {
             }
         } else {
             connState.resetOutput();
+            conn.requestInput();
         }
     }
 
@@ -450,11 +454,10 @@ public class BufferingHttpServiceHandler implements NHttpServiceHandler {
         private SimpleInputBuffer inbuffer; 
         private ContentOutputBuffer outbuffer;
 
-        private volatile int inputState;
-        private volatile int outputState;
+        private int inputState;
+        private int outputState;
         
-        private volatile HttpRequest request;
-        private volatile HttpResponse response;
+        private HttpRequest request;
         
         public ServerConnState() {
             super();
@@ -500,14 +503,6 @@ public class BufferingHttpServiceHandler implements NHttpServiceHandler {
             this.request = request;
         }
 
-        public HttpResponse getResponse() {
-            return this.response;
-        }
-
-        public void setResponse(final HttpResponse response) {
-            this.response = response;
-        }
-
         public void resetInput() {
             this.inbuffer = null;
             this.request = null;
@@ -516,7 +511,6 @@ public class BufferingHttpServiceHandler implements NHttpServiceHandler {
         
         public void resetOutput() {
             this.outbuffer = null;
-            this.response = null;
             this.outputState = READY;
         }
         
