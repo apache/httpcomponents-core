@@ -221,11 +221,11 @@ public class SSLIOSession implements IOSession, SessionBufferStatus {
     public synchronized boolean isAppInputReady() throws IOException {
         int bytesRead = receiveEncryptedData();
         if (bytesRead == -1) {
-            return false;
+            this.closed = true;
         }
         doHandshake();
         decryptData();
-        return this.inPlain.position() > 0;
+        return this.session.hasBufferedInput() || this.inPlain.position() > 0;
     }
     
     public synchronized boolean isAppOutputReady() throws IOException {
@@ -381,32 +381,24 @@ public class SSLIOSession implements IOSession, SessionBufferStatus {
         this.session.setAttribute(name, obj);
     }
     
-    // These methods can be used by super classes to query the state of the SSL session
-    
-    protected HandshakeStatus getHandshakeStatus() {
-        return this.sslEngine.getHandshakeStatus();
+    @Override
+    public String toString() {
+        StringBuffer buffer = new StringBuffer();
+        buffer.append(this.session);
+        buffer.append("[SSL handshake status: ");
+        buffer.append(this.sslEngine.getHandshakeStatus());
+        buffer.append("][");
+        buffer.append(this.inEncrypted.position());
+        buffer.append("][");
+        buffer.append(this.inPlain.position());
+        buffer.append("][");
+        buffer.append(this.outEncrypted.position());
+        buffer.append("][");
+        buffer.append(this.outPlain.position());
+        buffer.append("]");
+        return buffer.toString();
     }
 
-    protected int getSessionEventMask() {
-        return this.session.getEventMask();
-    }
-
-    protected int getInEncryptedLength() {
-        return this.inEncrypted.position();
-    }
-
-    protected int getOutEncryptedLength() {
-        return this.outEncrypted.position();
-    }
-    
-    protected int getInPlainLength() {
-        return this.inPlain.position();
-    }
-
-    protected int getOutPlainLength() {
-        return this.outPlain.position();
-    }
-    
     private class InternalByteChannel implements ByteChannel {
 
         public int write(final ByteBuffer src) throws IOException {
