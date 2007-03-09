@@ -222,6 +222,7 @@ public class SSLIOSession implements IOSession, SessionBufferStatus {
         int bytesRead = receiveEncryptedData();
         if (bytesRead == -1) {
             this.closed = true;
+            return false;
         }
         doHandshake();
         decryptData();
