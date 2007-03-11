@@ -128,7 +128,8 @@ public class NHttpSSLServer {
         
         IOEventDispatch ioEventDispatch = new SSLServerIOEventDispatch(
                 handler, 
-                sslcontext, 
+                sslcontext,
+                null,
                 params);
         
         ListeningIOReactor ioReactor = new DefaultListeningIOReactor(2, params);

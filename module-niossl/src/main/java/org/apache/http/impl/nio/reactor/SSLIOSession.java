@@ -47,6 +47,7 @@ import javax.net.ssl.SSLEngineResult.Status;
 import org.apache.http.nio.reactor.EventMask;
 import org.apache.http.nio.reactor.IOSession;
 import org.apache.http.nio.reactor.SessionBufferStatus;
+import org.apache.http.params.HttpParams;
 
 /**
  * A decorator class intended to transparently extend an {@link IOSession} 
@@ -63,6 +64,7 @@ public class SSLIOSession implements IOSession, SessionBufferStatus {
     private final ByteBuffer inPlain;
     private final ByteBuffer outPlain;
     private final InternalByteChannel channel;
+    private final SSLIOSessionHandler handler;
     
     private int appEventMask;
     private SessionBufferStatus appBufferStatus;
@@ -71,7 +73,8 @@ public class SSLIOSession implements IOSession, SessionBufferStatus {
     
     public SSLIOSession(
             final IOSession session, 
-            final SSLContext sslContext) {
+            final SSLContext sslContext, 
+            final SSLIOSessionHandler handler) {
         super();
         if (session == null) {
             throw new IllegalArgumentException("IO session may not be null");
@@ -82,6 +85,7 @@ public class SSLIOSession implements IOSession, SessionBufferStatus {
         this.session = session;
         this.appEventMask = session.getEventMask();
         this.channel = new InternalByteChannel();
+        this.handler = handler;
         
         // Override the status buffer interface
         this.session.setBufferStatus(this);
@@ -106,10 +110,31 @@ public class SSLIOSession implements IOSession, SessionBufferStatus {
         this.outPlain = ByteBuffer.allocateDirect(appBuffersize);
     }
     
-    public synchronized void initialize(boolean clientMode) throws SSLException {
-        this.sslEngine.setUseClientMode(clientMode);
+    public synchronized void initialize(
+            final SSLMode mode, 
+            final HttpParams params) throws SSLException {
+        if (params == null) {
+            throw new IllegalArgumentException("HTTP parameters may not be null");
+        }
+        switch (mode) {
+        case CLIENT:
+            this.sslEngine.setUseClientMode(true);
+            break;
+        case SERVER:
+            this.sslEngine.setUseClientMode(false);
+            break;
+        }
+        if (this.handler != null) {
+            this.handler.initalize(this.sslEngine, params);
+        }
         this.sslEngine.beginHandshake();
         doHandshake();
+
+        if (this.handler != null) {
+            this.handler.verify(
+                    this.session.getRemoteAddress(), 
+                    this.sslEngine.getSession());
+        }
     }
     
     private void doHandshake() throws SSLException {
@@ -419,5 +444,5 @@ public class SSLIOSession implements IOSession, SessionBufferStatus {
         }
         
     }
-    
+
 }

@@ -51,10 +51,12 @@ public class SSLClientIOEventDispatch implements IOEventDispatch {
     private final NHttpClientHandler handler;
     private final HttpParams params;
     private final SSLContext sslcontext;
+    private final SSLIOSessionHandler sslHandler;
     
     public SSLClientIOEventDispatch(
             final NHttpClientHandler handler,
             final SSLContext sslcontext,
+            final SSLIOSessionHandler sslHandler,
             final HttpParams params) {
         super();
         if (handler == null) {
@@ -69,13 +71,22 @@ public class SSLClientIOEventDispatch implements IOEventDispatch {
         this.handler = handler;
         this.params = params;
         this.sslcontext = sslcontext;
+        this.sslHandler = sslHandler;
+    }
+    
+    public SSLClientIOEventDispatch(
+            final NHttpClientHandler handler,
+            final SSLContext sslcontext,
+            final HttpParams params) {
+        this(handler, sslcontext, null, params);
     }
     
     public void connected(final IOSession session) {
 
         SSLIOSession sslSession = new SSLIOSession(
                 session, 
-                this.sslcontext); 
+                this.sslcontext,
+                this.sslHandler); 
         
         DefaultNHttpClientConnection conn = new DefaultNHttpClientConnection(
                 sslSession, 
@@ -89,7 +100,7 @@ public class SSLClientIOEventDispatch implements IOEventDispatch {
         this.handler.connected(conn, attachment);
 
         try {
-            sslSession.initialize(true);
+            sslSession.initialize(SSLMode.CLIENT, this.params);
         } catch (SSLException ex) {
             this.handler.exception(conn, ex);
             sslSession.shutdown();
