@@ -36,23 +36,31 @@ import java.nio.channels.SocketChannel;
 public class ChannelEntry {
 
     private final SocketChannel channel;
-    private final Object attachment;
+    private final SessionRequestImpl sessionRequest;
     
-    public ChannelEntry(final SocketChannel channel, final Object attachment) {
+    public ChannelEntry(final SocketChannel channel, final SessionRequestImpl sessionRequest) {
         super();
         if (channel == null) {
             throw new IllegalArgumentException("Socket channel may not be null");
         }
         this.channel = channel;
-        this.attachment = attachment;
+        this.sessionRequest = sessionRequest;
     }
 
     public ChannelEntry(final SocketChannel channel) {
         this(channel, null);
     }
 
+    public SessionRequestImpl getSessionRequest() {
+        return this.sessionRequest;
+    }
+
     public Object getAttachment() {
-        return this.attachment;
+        if (this.sessionRequest != null) {
+            return this.sessionRequest.getAttachment();
+        } else {
+            return null;
+        }
     }
 
     public SocketChannel getChannel() {

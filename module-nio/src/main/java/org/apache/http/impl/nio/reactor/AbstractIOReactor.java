@@ -208,6 +208,11 @@ public abstract class AbstractIOReactor implements IOReactor {
             this.sessions.add(session);
             keyCreated(key, session);
             this.eventDispatch.connected(session);
+            
+            SessionRequestImpl sessionRequest = entry.getSessionRequest();
+            if (sessionRequest != null) {
+                sessionRequest.completed(session);
+            }
         }
     }
 
