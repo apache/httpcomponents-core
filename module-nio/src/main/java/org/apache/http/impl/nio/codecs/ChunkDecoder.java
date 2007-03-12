@@ -150,14 +150,16 @@ public class ChunkDecoder extends AbstractContentDecoder {
             return -1;
         }
         
-        int bytesRead = this.buffer.fill(this.channel);
-        if (bytesRead == -1) {
-            this.endOfStream = true;
-        }
-        
         int totalRead = 0;
         while (this.state != COMPLETED) {
 
+            if (!this.buffer.hasData() || this.chunkSize == -1) {
+                int bytesRead = this.buffer.fill(this.channel);
+                if (bytesRead == -1) {
+                    this.endOfStream = true;
+                }
+            }
+            
             switch (this.state) {
             case READ_CONTENT:
                 
@@ -173,6 +175,7 @@ public class ChunkDecoder extends AbstractContentDecoder {
                     }
                     if (this.chunkSize == 0) {
                         // Last chunk. Read footers
+                        this.chunkSize = -1;
                         this.state = READ_FOOTERS;
                         break;
                     }

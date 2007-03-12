@@ -110,8 +110,15 @@ public class TestChunkDecoder extends TestCase {
         ChunkDecoder decoder = new ChunkDecoder(channel, inbuf);
         
         ByteBuffer dst = ByteBuffer.allocate(1024); 
+
+        int bytesRead = 0;
+        while (dst.hasRemaining() && !decoder.isCompleted()) {
+            int i = decoder.read(dst);
+            if (i > 0) {
+                bytesRead += i;
+            }
+        }
         
-        int bytesRead = decoder.read(dst);
         assertEquals(26, bytesRead);
         assertEquals("12345678901234561234512345", convert(dst));
         
@@ -137,31 +144,24 @@ public class TestChunkDecoder extends TestCase {
         SessionInputBuffer inbuf = new SessionInputBuffer(1024, 256); 
         ChunkDecoder decoder = new ChunkDecoder(channel, inbuf);
         
-        ByteBuffer dst = ByteBuffer.allocate(4); 
+        ByteBuffer dst = ByteBuffer.allocate(1024); 
+        ByteBuffer tmp = ByteBuffer.allocate(4); 
+
+        int bytesRead = 0;
+        while (dst.hasRemaining() && !decoder.isCompleted()) {
+            int i = decoder.read(tmp);
+            if (i > 0) {
+                bytesRead += i;
+            }
+            tmp.flip();
+            dst.put(tmp);
+            tmp.compact();
+        }
         
-        int bytesRead = decoder.read(dst);
-        assertEquals(4, bytesRead);
-        assertEquals("0123", convert(dst));
-        assertFalse(decoder.isCompleted());
-
-        dst.clear();
-        bytesRead = decoder.read(dst);
-        assertEquals(4, bytesRead);
-        assertEquals("4567", convert(dst));
-        assertFalse(decoder.isCompleted());
-
-        dst.clear();
-        bytesRead = decoder.read(dst);
-        assertEquals(4, bytesRead);
-        assertEquals("89ab", convert(dst));
-        assertFalse(decoder.isCompleted());
-
-        dst.clear();
-        bytesRead = decoder.read(dst);
-        assertEquals(4, bytesRead);
-        assertEquals("cdef", convert(dst));
+        assertEquals(16, bytesRead);
+        assertEquals("0123456789abcdef", convert(dst));
         assertTrue(decoder.isCompleted());
-        
+
         dst.clear();
         bytesRead = decoder.read(dst);
         assertEquals(-1, bytesRead);
@@ -187,52 +187,19 @@ public class TestChunkDecoder extends TestCase {
         ByteBuffer dst = ByteBuffer.allocate(1024); 
         
         ChunkDecoder decoder = new ChunkDecoder(channel, inbuf);
-        int bytesRead = decoder.read(dst);
-        assertEquals(0, bytesRead);
-        assertFalse(decoder.isCompleted());
         
-        bytesRead = decoder.read(dst);
-        assertEquals(0, bytesRead);
-        assertFalse(decoder.isCompleted());
-
-        bytesRead = decoder.read(dst);
-        assertEquals(15, bytesRead);
-        assertEquals("123456789012345", convert(dst));
-        assertFalse(decoder.isCompleted());
-
-        dst.clear();
-        bytesRead = decoder.read(dst);
-        assertEquals(3, bytesRead);
-        assertEquals("612", convert(dst));
-        assertFalse(decoder.isCompleted());
-
-        dst.clear();
-        bytesRead = decoder.read(dst);
-        assertEquals(3, bytesRead);
-        assertEquals("345", convert(dst));
-        assertFalse(decoder.isCompleted());
-
-        dst.clear();
-        bytesRead = decoder.read(dst);
-        assertEquals(6, bytesRead);
-        assertEquals("abcdef", convert(dst));
-        assertFalse(decoder.isCompleted());
-
-        dst.clear();
-        bytesRead = decoder.read(dst);
-        assertEquals(0, bytesRead);
-        assertFalse(decoder.isCompleted());
-
-        dst.clear();
-        bytesRead = decoder.read(dst);
-        assertEquals(0, bytesRead);
-        assertFalse(decoder.isCompleted());
-
-        dst.clear();
-        bytesRead = decoder.read(dst);
-        assertEquals(0, bytesRead);
+        int bytesRead = 0;
+        while (dst.hasRemaining() && !decoder.isCompleted()) {
+            int i = decoder.read(dst);
+            if (i > 0) {
+                bytesRead += i;
+            }
+        }
+        
+        assertEquals(27, bytesRead);
+        assertEquals("123456789012345612345abcdef", convert(dst));
         assertTrue(decoder.isCompleted());
-
+        
         Header[] footers = decoder.getFooters();
         assertEquals(2, footers.length);
         assertEquals("Footer1", footers[0].getName());
@@ -332,14 +299,17 @@ public class TestChunkDecoder extends TestCase {
         ChunkDecoder decoder = new ChunkDecoder(channel, inbuf);
         
         ByteBuffer dst = ByteBuffer.allocate(1024); 
+
+        int bytesRead = 0;
+        while (dst.hasRemaining() && !decoder.isCompleted()) {
+            int i = decoder.read(dst);
+            if (i > 0) {
+                bytesRead += i;
+            }
+        }
         
-        int bytesRead = decoder.read(dst);
         assertEquals(26, bytesRead);
         assertEquals("12345678901234561234512345", convert(dst));
-        assertFalse(decoder.isCompleted());
-        
-        bytesRead = decoder.read(dst);
-        assertEquals(0, bytesRead);
         assertTrue(decoder.isCompleted());
     }
 
@@ -353,14 +323,17 @@ public class TestChunkDecoder extends TestCase {
         ChunkDecoder decoder = new ChunkDecoder(channel, inbuf);
         
         ByteBuffer dst = ByteBuffer.allocate(1024); 
+
+        int bytesRead = 0;
+        while (dst.hasRemaining() && !decoder.isCompleted()) {
+            int i = decoder.read(dst);
+            if (i > 0) {
+                bytesRead += i;
+            }
+        }
         
-        int bytesRead = decoder.read(dst);
         assertEquals(26, bytesRead);
         assertEquals("12345678901234561234512345", convert(dst));
-        assertFalse(decoder.isCompleted());
-        
-        bytesRead = decoder.read(dst);
-        assertEquals(0, bytesRead);
         assertTrue(decoder.isCompleted());
     }
 
