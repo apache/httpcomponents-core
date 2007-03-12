@@ -207,11 +207,17 @@ public abstract class AbstractIOReactor implements IOReactor {
             session.setSocketTimeout(timeout);
             this.sessions.add(session);
             keyCreated(key, session);
-            this.eventDispatch.connected(session);
-            
-            SessionRequestImpl sessionRequest = entry.getSessionRequest();
-            if (sessionRequest != null) {
-                sessionRequest.completed(session);
+
+            try {
+                this.eventDispatch.connected(session);
+                
+                SessionRequestImpl sessionRequest = entry.getSessionRequest();
+                if (sessionRequest != null) {
+                    sessionRequest.completed(session);
+                }
+            } catch (CancelledKeyException ex) {
+                this.closedSessions.push(session);
+                key.attach(null);
             }
         }
     }
