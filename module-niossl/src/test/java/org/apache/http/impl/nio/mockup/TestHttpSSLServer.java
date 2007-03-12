@@ -85,7 +85,7 @@ public class TestHttpSSLServer extends TestHttpSSLServiceBase {
         this.sslcontext.init(keymanagers, null, null);
         
         this.params
-            .setIntParameter(HttpConnectionParams.SO_TIMEOUT, 2000)
+            .setIntParameter(HttpConnectionParams.SO_TIMEOUT, 15000)
             .setIntParameter(HttpConnectionParams.SOCKET_BUFFER_SIZE, 8 * 1024)
             .setBooleanParameter(HttpConnectionParams.STALE_CONNECTION_CHECK, false)
             .setBooleanParameter(HttpConnectionParams.TCP_NODELAY, true)

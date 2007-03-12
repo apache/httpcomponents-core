@@ -105,8 +105,8 @@ public class TestNIOSSLHttp extends TestCase {
      * This test case executes a series of simple (non-pipelined) GET requests 
      * over multiple connections. 
      */
-   @SuppressWarnings("unchecked")
-   public void testSimpleHttpGets() throws Exception {
+    @SuppressWarnings("unchecked")
+    public void testSimpleHttpGets() throws Exception {
         
         final int connNo = 3;
         final int reqNo = 20;
@@ -155,36 +155,17 @@ public class TestNIOSSLHttp extends TestCase {
 
             public void initalizeContext(final HttpContext context, final Object attachment) {
                 context.setAttribute("LIST", (List) attachment);
-                context.setAttribute("STATUS", "ready");
+                context.setAttribute("REQ-COUNT", new Integer(0));
+                context.setAttribute("RES-COUNT", new Integer(0));
             }
 
             public HttpRequest submitRequest(final HttpContext context) {
-                NHttpConnection conn = (NHttpConnection) context.getAttribute(
-                        HttpExecutionContext.HTTP_CONNECTION);
-                String status = (String) context.getAttribute("STATUS");
-                if (!status.equals("ready")) {
-                    return null;
-                }
-                int index = 0;
-                
-                Integer intobj = (Integer) context.getAttribute("INDEX");
-                if (intobj != null) {
-                    index = intobj.intValue();
-                }
-
+                int i = ((Integer) context.getAttribute("REQ-COUNT")).intValue();
                 HttpGet get = null;
-                if (index < reqNo) {
-                    get = new HttpGet("/?" + index);
-                    context.setAttribute("INDEX", new Integer(index + 1));
-                    context.setAttribute("STATUS", "busy");
-                } else {
-                    try {
-                        conn.close();
-                    } catch (IOException ex) {
-                        ex.printStackTrace();
-                    }
+                if (i < reqNo) {
+                    get = new HttpGet("/?" + i);
+                    context.setAttribute("REQ-COUNT", new Integer(i + 1));
                 }
-                
                 return get;
             }
             
@@ -193,6 +174,10 @@ public class TestNIOSSLHttp extends TestCase {
                         HttpExecutionContext.HTTP_CONNECTION);
                 
                 List list = (List) context.getAttribute("LIST");
+                int i = ((Integer) context.getAttribute("RES-COUNT")).intValue();
+                i++;
+                context.setAttribute("RES-COUNT", new Integer(i));
+
                 try {
                     HttpEntity entity = response.getEntity();
                     byte[] data = EntityUtils.toByteArray(entity);
@@ -201,8 +186,15 @@ public class TestNIOSSLHttp extends TestCase {
                     fail(ex.getMessage());
                 }
 
-                context.setAttribute("STATUS", "ready");
-                conn.requestInput();
+                if (i < reqNo) {
+                    conn.requestInput();
+                } else {
+                    try {
+                        conn.close();
+                    } catch (IOException ex) {
+                        fail(ex.getMessage());
+                    }
+                }
             }
             
         });
@@ -221,13 +213,13 @@ public class TestNIOSSLHttp extends TestCase {
         this.client.await(connNo, 1000);
         assertEquals(connNo, this.client.getConnCount());
         
-        this.server.await(connNo, 1000);
-        assertEquals(connNo, this.server.getConnCount());
+        this.client.shutdown();
+        this.server.shutdown();
 
         for (int c = 0; c < responseData.length; c++) {
             List receivedPackets = responseData[c];
             List expectedPackets = testData;
-            assertEquals(receivedPackets.size(), expectedPackets.size());
+            assertEquals(expectedPackets.size(), receivedPackets.size());
             for (int p = 0; p < testData.size(); p++) {
                 byte[] expected = (byte[]) testData.get(p);
                 byte[] received = (byte[]) receivedPackets.get(p);
@@ -295,40 +287,21 @@ public class TestNIOSSLHttp extends TestCase {
 
             public void initalizeContext(final HttpContext context, final Object attachment) {
                 context.setAttribute("LIST", (List) attachment);
-                context.setAttribute("STATUS", "ready");
+                context.setAttribute("REQ-COUNT", new Integer(0));
+                context.setAttribute("RES-COUNT", new Integer(0));
             }
 
             public HttpRequest submitRequest(final HttpContext context) {
-                NHttpConnection conn = (NHttpConnection) context.getAttribute(
-                        HttpExecutionContext.HTTP_CONNECTION);
-                String status = (String) context.getAttribute("STATUS");
-                if (!status.equals("ready")) {
-                    return null;
-                }
-                int index = 0;
-                
-                Integer intobj = (Integer) context.getAttribute("INDEX");
-                if (intobj != null) {
-                    index = intobj.intValue();
-                }
-
+                int i = ((Integer) context.getAttribute("REQ-COUNT")).intValue();
                 HttpPost post = null;
-                if (index < reqNo) {
-                    post = new HttpPost("/?" + index);
-                    byte[] data = (byte[]) testData.get(index);
+                if (i < reqNo) {
+                    post = new HttpPost("/?" + i);
+                    byte[] data = (byte[]) testData.get(i);
                     ByteArrayEntity outgoing = new ByteArrayEntity(data);
                     post.setEntity(outgoing);
                     
-                    context.setAttribute("INDEX", new Integer(index + 1));
-                    context.setAttribute("STATUS", "busy");
-                } else {
-                    try {
-                        conn.close();
-                    } catch (IOException ex) {
-                        ex.printStackTrace();
-                    }
+                    context.setAttribute("REQ-COUNT", new Integer(i + 1));
                 }
-                
                 return post;
             }
             
@@ -337,6 +310,10 @@ public class TestNIOSSLHttp extends TestCase {
                         HttpExecutionContext.HTTP_CONNECTION);
                 
                 List list = (List) context.getAttribute("LIST");
+                int i = ((Integer) context.getAttribute("RES-COUNT")).intValue();
+                i++;
+                context.setAttribute("RES-COUNT", new Integer(i));
+
                 try {
                     HttpEntity entity = response.getEntity();
                     byte[] data = EntityUtils.toByteArray(entity);
@@ -345,8 +322,15 @@ public class TestNIOSSLHttp extends TestCase {
                     fail(ex.getMessage());
                 }
 
-                context.setAttribute("STATUS", "ready");
-                conn.requestInput();
+                if (i < reqNo) {
+                    conn.requestInput();
+                } else {
+                    try {
+                        conn.close();
+                    } catch (IOException ex) {
+                        fail(ex.getMessage());
+                    }
+                }
             }
             
         });
@@ -365,13 +349,13 @@ public class TestNIOSSLHttp extends TestCase {
         this.client.await(connNo, 1000);
         assertEquals(connNo, this.client.getConnCount());
         
-        this.server.await(connNo, 1000);
-        assertEquals(connNo, this.server.getConnCount());
+        this.client.shutdown();
+        this.server.shutdown();
 
         for (int c = 0; c < responseData.length; c++) {
             List receivedPackets = responseData[c];
             List expectedPackets = testData;
-            assertEquals(receivedPackets.size(), expectedPackets.size());
+            assertEquals(expectedPackets.size(), receivedPackets.size());
             for (int p = 0; p < testData.size(); p++) {
                 byte[] expected = (byte[]) testData.get(p);
                 byte[] received = (byte[]) receivedPackets.get(p);
@@ -438,41 +422,22 @@ public class TestNIOSSLHttp extends TestCase {
 
             public void initalizeContext(final HttpContext context, final Object attachment) {
                 context.setAttribute("LIST", (List) attachment);
-                context.setAttribute("STATUS", "ready");
+                context.setAttribute("REQ-COUNT", new Integer(0));
+                context.setAttribute("RES-COUNT", new Integer(0));
             }
 
             public HttpRequest submitRequest(final HttpContext context) {
-                NHttpConnection conn = (NHttpConnection) context.getAttribute(
-                        HttpExecutionContext.HTTP_CONNECTION);
-                String status = (String) context.getAttribute("STATUS");
-                if (!status.equals("ready")) {
-                    return null;
-                }
-                int index = 0;
-                
-                Integer intobj = (Integer) context.getAttribute("INDEX");
-                if (intobj != null) {
-                    index = intobj.intValue();
-                }
-
+                int i = ((Integer) context.getAttribute("REQ-COUNT")).intValue();
                 HttpPost post = null;
-                if (index < reqNo) {
-                    post = new HttpPost("/?" + index);
-                    byte[] data = (byte[]) testData.get(index);
+                if (i < reqNo) {
+                    post = new HttpPost("/?" + i);
+                    byte[] data = (byte[]) testData.get(i);
                     ByteArrayEntity outgoing = new ByteArrayEntity(data);
                     outgoing.setChunked(true);
                     post.setEntity(outgoing);
                     
-                    context.setAttribute("INDEX", new Integer(index + 1));
-                    context.setAttribute("STATUS", "busy");
-                } else {
-                    try {
-                        conn.close();
-                    } catch (IOException ex) {
-                        ex.printStackTrace();
-                    }
+                    context.setAttribute("REQ-COUNT", new Integer(i + 1));
                 }
-                
                 return post;
             }
             
@@ -481,6 +446,9 @@ public class TestNIOSSLHttp extends TestCase {
                         HttpExecutionContext.HTTP_CONNECTION);
                 
                 List list = (List) context.getAttribute("LIST");
+                int i = ((Integer) context.getAttribute("RES-COUNT")).intValue();
+                i++;
+                context.setAttribute("RES-COUNT", new Integer(i));
                 
                 try {
                     HttpEntity entity = response.getEntity();
@@ -490,8 +458,15 @@ public class TestNIOSSLHttp extends TestCase {
                     fail(ex.getMessage());
                 }
 
-                context.setAttribute("STATUS", "ready");
-                conn.requestInput();
+                if (i < reqNo) {
+                    conn.requestInput();
+                } else {
+                    try {
+                        conn.close();
+                    } catch (IOException ex) {
+                        fail(ex.getMessage());
+                    }
+                }
             }
             
         });
@@ -510,13 +485,13 @@ public class TestNIOSSLHttp extends TestCase {
         this.client.await(connNo, 1000);
         assertEquals(connNo, this.client.getConnCount());
         
-        this.server.await(connNo, 1000);
-        assertEquals(connNo, this.server.getConnCount());
+        this.client.shutdown();
+        this.server.shutdown();
 
         for (int c = 0; c < responseData.length; c++) {
             List receivedPackets = responseData[c];
             List expectedPackets = testData;
-            assertEquals(receivedPackets.size(), expectedPackets.size());
+            assertEquals(expectedPackets.size(), receivedPackets.size());
             for (int p = 0; p < testData.size(); p++) {
                 byte[] expected = (byte[]) testData.get(p);
                 byte[] received = (byte[]) receivedPackets.get(p);
@@ -588,48 +563,33 @@ public class TestNIOSSLHttp extends TestCase {
 
             public void initalizeContext(final HttpContext context, final Object attachment) {
                 context.setAttribute("LIST", (List) attachment);
-                context.setAttribute("STATUS", "ready");
+                context.setAttribute("REQ-COUNT", new Integer(0));
+                context.setAttribute("RES-COUNT", new Integer(0));
             }
 
             public HttpRequest submitRequest(final HttpContext context) {
-                NHttpConnection conn = (NHttpConnection) context.getAttribute(
-                        HttpExecutionContext.HTTP_CONNECTION);
-                String status = (String) context.getAttribute("STATUS");
-                if (!status.equals("ready")) {
-                    return null;
-                }
-                int index = 0;
-                
-                Integer intobj = (Integer) context.getAttribute("INDEX");
-                if (intobj != null) {
-                    index = intobj.intValue();
-                }
-
+                int i = ((Integer) context.getAttribute("REQ-COUNT")).intValue();
                 HttpPost post = null;
-                if (index < reqNo) {
-                    post = new HttpPost("/?" + index);
-                    byte[] data = (byte[]) testData.get(index);
+                if (i < reqNo) {
+                    post = new HttpPost("/?" + i);
+                    byte[] data = (byte[]) testData.get(i);
                     ByteArrayEntity outgoing = new ByteArrayEntity(data);
                     post.setEntity(outgoing);
                     
-                    context.setAttribute("INDEX", new Integer(index + 1));
-                    context.setAttribute("STATUS", "busy");
-                } else {
-                    try {
-                        conn.close();
-                    } catch (IOException ex) {
-                        ex.printStackTrace();
-                    }
+                    context.setAttribute("REQ-COUNT", new Integer(i + 1));
                 }
-                
                 return post;
             }
             
             public void handleResponse(final HttpResponse response, final HttpContext context) {
                 NHttpConnection conn = (NHttpConnection) context.getAttribute(
                         HttpExecutionContext.HTTP_CONNECTION);
-                
+
                 List list = (List) context.getAttribute("LIST");
+                int i = ((Integer) context.getAttribute("RES-COUNT")).intValue();
+                i++;
+                context.setAttribute("RES-COUNT", new Integer(i));
+
                 try {
                     HttpEntity entity = response.getEntity();
                     byte[] data = EntityUtils.toByteArray(entity);
@@ -638,8 +598,15 @@ public class TestNIOSSLHttp extends TestCase {
                     fail(ex.getMessage());
                 }
 
-                context.setAttribute("STATUS", "ready");
-                conn.requestInput();
+                if (i < reqNo) {
+                    conn.requestInput();
+                } else {
+                    try {
+                        conn.close();
+                    } catch (IOException ex) {
+                        fail(ex.getMessage());
+                    }
+                }
             }
             
         });
@@ -658,13 +625,13 @@ public class TestNIOSSLHttp extends TestCase {
         this.client.await(connNo, 1000);
         assertEquals(connNo, this.client.getConnCount());
         
-        this.server.await(connNo, 1000);
-        assertEquals(connNo, this.server.getConnCount());
+        this.client.shutdown();
+        this.server.shutdown();
 
         for (int c = 0; c < responseData.length; c++) {
             List receivedPackets = responseData[c];
             List expectedPackets = testData;
-            assertEquals(receivedPackets.size(), expectedPackets.size());
+            assertEquals(expectedPackets.size(), receivedPackets.size());
             for (int p = 0; p < testData.size(); p++) {
                 byte[] expected = (byte[]) testData.get(p);
                 byte[] received = (byte[]) receivedPackets.get(p);
@@ -677,6 +644,5 @@ public class TestNIOSSLHttp extends TestCase {
         }
         
     }
-
     
 }
