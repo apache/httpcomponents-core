@@ -113,7 +113,7 @@ class SessionRequestImpl implements SessionRequest {
             throw new IllegalArgumentException("Session may not be null");
         }
         if (this.completed) {
-            throw new IllegalStateException("Session request already completed");
+            return;
         }
         this.completed = true;
         synchronized (this) {
@@ -130,7 +130,7 @@ class SessionRequestImpl implements SessionRequest {
             return;
         }
         if (this.completed) {
-            throw new IllegalStateException("Session request already completed");
+            return;
         }
         this.completed = true;
         synchronized (this) {
@@ -144,7 +144,7 @@ class SessionRequestImpl implements SessionRequest {
  
     public void timeout() {
         if (this.completed) {
-            throw new IllegalStateException("Session request already completed");
+            return;
         }
         synchronized (this) {
             if (this.callback != null) {
@@ -171,10 +171,13 @@ class SessionRequestImpl implements SessionRequest {
     }
 
     public void cancel() {
+        if (this.completed) {
+            return;
+        }
+        this.completed = true;
         if (this.key != null) {
             this.key.cancel();
         }
-        this.completed = true;
         synchronized (this) {
             if (this.callback != null) {
                 this.callback.cancelled(this);
