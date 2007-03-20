@@ -97,6 +97,26 @@
           </descriptors>
         </configuration>
       </plugin>
+
+      <plugin>
+        <artifactId>maven-clover-plugin</artifactId>
+        <configuration>
+          <flushPolicy>threaded</flushPolicy>
+          <flushInterval>100</flushInterval>
+          <targetPercentage>50%</targetPercentage>
+        </configuration>
+        <executions>
+          <execution>
+            <id>site</id>
+            <phase>pre-site</phase>
+            <goals>
+              <goal>instrument</goal>
+              <goal>aggregate</goal>
+            </goals>
+          </execution>
+        </executions>
+      </plugin>
+
     </plugins>
   </build>
 
@@ -104,7 +124,6 @@
     <plugins>
 
        <plugin>
-         <groupId>org.apache.maven.plugins</groupId>
          <artifactId>maven-project-info-reports-plugin</artifactId>
          <reportSets>
            <reportSet>
@@ -121,6 +140,7 @@
       <plugin>
         <artifactId>maven-clover-plugin</artifactId>
         <configuration>
+          <jdk>1.5</jdk>
           <licenseLocation>${clover.license}</licenseLocation>
         </configuration>
       </plugin>
@@ -130,13 +150,11 @@
       </plugin>
 
       <plugin>
-        <groupId>org.codehaus.mojo</groupId>
-        <artifactId>jxr-maven-plugin</artifactId>
+        <artifactId>maven-jxr-plugin</artifactId>
       </plugin>
 
       <plugin>
-        <groupId>org.codehaus.mojo</groupId>
-        <artifactId>surefire-report-maven-plugin</artifactId>
+        <artifactId>maven-surefire-report-plugin</artifactId>
       </plugin>
 
     </plugins>
