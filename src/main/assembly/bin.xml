@@ -51,5 +51,24 @@
             <include>**/*.java</include>
           </includes>
         </fileSet>
+        <!-- NIOSSL extensions module -->
+        <fileSet>
+          <directory>module-niossl/target</directory>
+          <outputDirectory>lib</outputDirectory>
+          <includes>
+            <include>*.jar</include>
+          </includes>
+        </fileSet>
+        <fileSet>
+          <directory>module-niossl/target/site/apidocs</directory>
+          <outputDirectory>javadoc/httpcore-niossl</outputDirectory>
+        </fileSet>
+        <fileSet>
+          <directory>module-niossl/src/examples/</directory>
+          <outputDirectory>examples</outputDirectory>
+          <includes>
+            <include>**/*.java</include>
+          </includes>
+        </fileSet>
     </fileSets>
 </assembly>
