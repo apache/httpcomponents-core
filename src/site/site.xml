@@ -60,6 +60,7 @@
     <menu name="Modules">
       <item name="Base" href="jakarta-httpcore/index.html"/>
       <item name="NIO extensions" href="jakarta-httpcore-nio/index.html"/>
+      <item name="NIOSSL extensions" href="jakarta-httpcore-niossl/index.html"/>
     </menu>
 
   </body>
