@@ -33,8 +33,10 @@ package org.apache.http.impl.nio.reactor;
 
 import java.io.IOException;
 import java.net.SocketAddress;
+import java.nio.ByteBuffer;
 import java.nio.channels.ByteChannel;
 import java.nio.channels.Channel;
+import java.nio.channels.ClosedChannelException;
 import java.nio.channels.SelectionKey;
 import java.nio.channels.SocketChannel;
 import java.util.Collections;
@@ -49,6 +51,7 @@ class IOSessionImpl implements IOSession {
     private volatile boolean closed = false;
     
     private final SelectionKey key;
+    private final ByteChannel channel;
     private final SessionClosedCallback callback;
     private final Map attributes;
     
@@ -61,13 +64,14 @@ class IOSessionImpl implements IOSession {
             throw new IllegalArgumentException("Selection key may not be null");
         }
         this.key = key;
+        this.channel = new ChannelAdaptor((ByteChannel) this.key.channel());
         this.callback = callback;
         this.attributes = Collections.synchronizedMap(new HashMap());
         this.socketTimeout = 0;
     }
     
     public ByteChannel channel() {
-        return (ByteChannel) this.key.channel();
+        return this.channel;
     }
     
     public SocketAddress getLocalAddress() {
@@ -193,6 +197,53 @@ class IOSessionImpl implements IOSession {
         }
         buffer.append("]");
         return buffer.toString();
+    }
+    
+    private class ChannelAdaptor implements ByteChannel {
+
+        private final ByteChannel channel;
+        
+        public ChannelAdaptor(final ByteChannel channel) {
+            super();
+            this.channel = channel;
+        }
+        
+        public int write(final ByteBuffer src) throws IOException {
+            if (IOSessionImpl.this.isClosed()) {
+                return 0;
+            }
+            try {
+                return this.channel.write(src);
+            } catch (ClosedChannelException ex) {
+                IOSessionImpl.this.close();
+                return 0;
+            }
+        }
+
+        public int read(final ByteBuffer dst) throws IOException {
+            if (IOSessionImpl.this.isClosed()) {
+                return -1;
+            }
+            try {
+                return this.channel.read(dst);
+            } catch (ClosedChannelException ex) {
+                IOSessionImpl.this.close();
+                return -1;
+            }
+        }
+
+        public void close() throws IOException {
+            this.channel.close();
+        }
+
+        public boolean isOpen() {
+            return this.channel.isOpen();
+        }
+
+        public String toString() {
+            return this.channel.toString();
+        }
+        
     }
 
 }
