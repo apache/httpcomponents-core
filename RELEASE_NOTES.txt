@@ -1,3 +1,10 @@
+Changes since 4.0 Alpha 4
+
+* [HTTPCORE-56]: DefaultConnectingIOReactor no longer terminates due to a
+  CancelledKeyException, if a session request gets canceled before selection
+  key is fully initialized. 
+  Contributed by Oleg Kalnichevski <olegk at apache.org>
+
 Release 4.0 Alpha 4
 -------------------
 

@@ -264,8 +264,12 @@ public class DefaultConnectingIOReactor extends AbstractMultiworkerIOReactor
             }
 
             SessionRequestHandle requestHandle = new SessionRequestHandle(request); 
-            key.attach(requestHandle);
-            key.interestOps(SelectionKey.OP_CONNECT);
+            try {
+                key.attach(requestHandle);
+                key.interestOps(SelectionKey.OP_CONNECT);
+            } catch (CancelledKeyException ex) {
+                // Ignore cancelled keys
+            }
         }
     }
 
