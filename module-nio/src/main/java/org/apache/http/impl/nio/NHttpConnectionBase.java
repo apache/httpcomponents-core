@@ -36,6 +36,7 @@ import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.SocketAddress;
 
+import org.apache.http.ConnectionClosedException;
 import org.apache.http.Header;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpException;
@@ -196,9 +197,9 @@ public class NHttpConnectionBase
         return this.hasBufferedOutput;
     }
     
-    protected void assertNotClosed() {
+    protected void assertNotClosed() throws IOException {
         if (this.closed) {
-            throw new IllegalStateException("Connection is closed");
+            throw new ConnectionClosedException("Connection is closed");
         }
     }
 

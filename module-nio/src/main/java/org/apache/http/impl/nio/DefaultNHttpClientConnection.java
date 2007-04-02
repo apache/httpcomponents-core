@@ -159,7 +159,7 @@ public class DefaultNHttpClientConnection
         }
     }
     
-    public void submitRequest(final HttpRequest request) throws HttpException {
+    public void submitRequest(final HttpRequest request) throws IOException, HttpException {
         if (request == null) {
             throw new IllegalArgumentException("HTTP request may not be null");
         }

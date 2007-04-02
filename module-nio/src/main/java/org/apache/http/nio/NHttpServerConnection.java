@@ -31,6 +31,8 @@
 
 package org.apache.http.nio;
 
+import java.io.IOException;
+
 import org.apache.http.HttpException;
 import org.apache.http.HttpResponse;
 
@@ -47,9 +49,10 @@ public interface NHttpServerConnection extends NHttpConnection {
      *  
      * @param response HTTP response
      * 
+     * @throws IOException if I/O error occurs while submitting the response
      * @throws HttpException if the HTTP response violates the HTTP protocol.
      */
-    void submitResponse(HttpResponse response) throws HttpException;
+    void submitResponse(HttpResponse response) throws IOException, HttpException;
 
     /**
      * Returns <tt>true</tt> if an HTTP response has been submitted to the 

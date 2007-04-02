@@ -157,7 +157,7 @@ public class DefaultNHttpServerConnection
         }
     }
     
-    public void submitResponse(final HttpResponse response) throws HttpException {
+    public void submitResponse(final HttpResponse response) throws IOException, HttpException {
         if (response == null) {
             throw new IllegalArgumentException("HTTP response may not be null");
         }

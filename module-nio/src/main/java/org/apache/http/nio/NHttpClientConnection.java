@@ -31,6 +31,8 @@
 
 package org.apache.http.nio;
 
+import java.io.IOException;
+
 import org.apache.http.HttpException;
 import org.apache.http.HttpRequest;
 
@@ -46,9 +48,10 @@ public interface NHttpClientConnection extends NHttpConnection {
      * Submits the HTTP request to the target server.
      *  
      * @param request HTTP request
+     * @throws IOException if I/O error occurs while submitting the request
      * @throws HttpException if the HTTP request violates the HTTP protocol.
      */
-    void submitRequest(HttpRequest request) throws HttpException;
+    void submitRequest(HttpRequest request) throws IOException, HttpException;
 
     /**
      * Returns <tt>true</tt> if an HTTP request has been submitted to the 

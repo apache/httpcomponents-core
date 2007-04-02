@@ -310,6 +310,11 @@ public class ThrottlingHttpServiceHandler implements NHttpServiceHandler {
                     connState.notifyAll();
                 }
                 
+            } catch (IOException ex) {
+                shutdownConnection(conn);
+                if (eventListener != null) {
+                    eventListener.fatalIOException(ex);
+                }
             } catch (HttpException ex) {
                 shutdownConnection(conn);
                 if (eventListener != null) {
