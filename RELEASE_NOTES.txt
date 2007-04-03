@@ -1,5 +1,10 @@
 Changes since 4.0 Alpha 4
 
+* [HTTPCORE-58]: NIO HTTP connections changed to throw checked 
+  ConnectionClosedException instead of unchecked IllegalStateException when 
+  an attempt is made to perform an I/O operation on a closed conection
+  Contributed by Oleg Kalnichevski <olegk at apache.org>
+
 * [HTTPCORE-56]: DefaultConnectingIOReactor no longer terminates due to a
   CancelledKeyException, if a session request gets canceled before selection
   key is fully initialized. 
