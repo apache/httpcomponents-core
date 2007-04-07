@@ -94,20 +94,31 @@ public class SocketHttpClientConnection
         }
 
         this.socket = socket;
-        
-        int buffersize = HttpConnectionParams.getSocketBufferSize(params);
-        HttpDataTransmitter transmitter = new SocketHttpDataTransmitter(socket, buffersize);
-        HttpDataReceiver receiver = new SocketHttpDataReceiver(socket, buffersize);
-        transmitter.reset(params);
-        receiver.reset(params);
-        
-        setHttpDataReceiver(receiver);
-        setHttpDataTransmitter(transmitter);
+
+        setHttpDataReceiver(createHttpDataReceiver(params));
+        setHttpDataTransmitter(createHttpDataTransmitter(params));
         setMaxHeaderCount(params.getIntParameter(HttpConnectionParams.MAX_HEADER_COUNT, -1));
         setResponseFactory(new DefaultHttpResponseFactory());
+        
         this.open = true;
     }
 
+    protected HttpDataTransmitter createHttpDataTransmitter(
+            final HttpParams params) throws IOException {
+        int buffersize = HttpConnectionParams.getSocketBufferSize(params);
+        HttpDataTransmitter transmitter = new SocketHttpDataTransmitter(this.socket, buffersize);
+        transmitter.reset(params);
+        return transmitter;
+    }
+    
+    protected HttpDataReceiver createHttpDataReceiver(
+            final HttpParams params) throws IOException {
+        int buffersize = HttpConnectionParams.getSocketBufferSize(params);
+        HttpDataReceiver receiver =  new SocketHttpDataReceiver(this.socket, buffersize);
+        receiver.reset(params);
+        return receiver;
+    }
+    
     public boolean isOpen() {
         return this.open;
     }
