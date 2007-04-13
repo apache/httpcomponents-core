@@ -42,9 +42,9 @@ import org.apache.http.HttpRequest;
 import org.apache.http.HttpResponse;
 import org.apache.http.impl.DefaultConnectionReuseStrategy;
 import org.apache.http.params.BasicHttpParams;
-import org.apache.http.message.HttpGet;
 import org.apache.http.impl.nio.DefaultClientIOEventDispatch;
 import org.apache.http.impl.nio.reactor.DefaultConnectingIOReactor;
+import org.apache.http.message.BasicHttpRequest;
 import org.apache.http.nio.protocol.BufferingHttpClientHandler;
 import org.apache.http.nio.protocol.EventListener;
 import org.apache.http.nio.protocol.HttpRequestExecutionHandler;
@@ -152,7 +152,7 @@ public class NHttpClient {
                 System.out.println("--------------");
                 System.out.println("Sending request to " + targetHost);
                 System.out.println("--------------");
-                return new HttpGet("/");
+                return new BasicHttpRequest("GET", "/");
             } else {
                 // Return null to terminate the connection
                 return null;
