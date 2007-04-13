@@ -44,10 +44,9 @@ import org.apache.http.HttpHost;
 import org.apache.http.HttpRequest;
 import org.apache.http.HttpVersion;
 import org.apache.http.entity.FileEntity;
+import org.apache.http.message.BasicHttpEntityEnclosingRequest;
+import org.apache.http.message.BasicHttpRequest;
 import org.apache.http.params.BasicHttpParams;
-import org.apache.http.message.HttpGet;
-import org.apache.http.message.HttpHead;
-import org.apache.http.message.HttpPost;
 import org.apache.http.params.HttpConnectionParams;
 import org.apache.http.params.HttpParams;
 import org.apache.http.params.HttpProtocolParams;
@@ -195,14 +194,15 @@ public class HttpBenchmark {
             if (file.length() > 100000) {
                 entity.setChunked(true);
             }
-            HttpPost httppost = new HttpPost(url.getPath());
+            BasicHttpEntityEnclosingRequest httppost = 
+                new BasicHttpEntityEnclosingRequest("POST", url.getPath());
             httppost.setEntity(entity);
             request = httppost;
         } else if (cmd.hasOption('i')) {
-            HttpHead httphead = new HttpHead(url.getPath());
+            BasicHttpRequest httphead = new BasicHttpRequest("HEAD", url.getPath());
             request = httphead;
         } else {
-            HttpGet httpget = new HttpGet(url.getPath());
+            BasicHttpRequest httpget = new BasicHttpRequest("GET", url.getPath());
             request = httpget;
         }
         if (!keepAlive) {
