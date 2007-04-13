@@ -37,7 +37,6 @@ import junit.framework.TestSuite;
 
 import org.apache.http.Header;
 import org.apache.http.HttpEntity;
-import org.apache.http.HttpEntityEnclosingRequest;
 import org.apache.http.HttpRequest;
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
@@ -188,27 +187,6 @@ public class TestBasicMessages extends TestCase {
         assertFalse(request.expectContinue());
         request.addHeader("Expect", "100-Continue");
         assertTrue(request.expectContinue()); 
-    }
-
-    public void testDefaultGetMethodConstructor() {
-        HttpRequest request = new HttpGet("/");
-        assertEquals("/", request.getRequestLine().getUri());
-        assertEquals("GET", request.getRequestLine().getMethod());
-        assertFalse(request instanceof HttpEntityEnclosingRequest);
-    }
-    
-    public void testDefaultPostMethodConstructor() {
-        HttpRequest request = new HttpPost("/");
-        assertEquals("/", request.getRequestLine().getUri());
-        assertEquals("POST", request.getRequestLine().getMethod());
-        assertTrue(request instanceof HttpEntityEnclosingRequest);
-    }
-
-    public void testDefaultHeadMethodConstructor() {
-        HttpRequest request = new HttpHead("/");
-        assertEquals("/", request.getRequestLine().getUri());
-        assertEquals("HEAD", request.getRequestLine().getMethod());
-        assertFalse(request instanceof HttpEntityEnclosingRequest);
     }
 
 }

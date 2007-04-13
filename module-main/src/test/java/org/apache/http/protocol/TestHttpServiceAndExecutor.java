@@ -48,8 +48,8 @@ import org.apache.http.HttpVersion;
 import org.apache.http.entity.ByteArrayEntity;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.DefaultHttpClientConnection;
-import org.apache.http.message.HttpGet;
-import org.apache.http.message.HttpPost;
+import org.apache.http.message.BasicHttpEntityEnclosingRequest;
+import org.apache.http.message.BasicHttpRequest;
 import org.apache.http.mockup.TestHttpClient;
 import org.apache.http.mockup.TestHttpServer;
 import org.apache.http.params.HttpProtocolParams;
@@ -92,7 +92,7 @@ public class TestHttpServiceAndExecutor extends TestCase {
     /**
      * This test case executes a series of simple GET requests 
      */
-    public void testSimpleHttpGets() throws Exception {
+    public void testSimpleBasicHttpRequests() throws Exception {
         
         int reqNo = 20;
         
@@ -139,7 +139,7 @@ public class TestHttpServiceAndExecutor extends TestCase {
                     conn.bind(socket, this.client.getParams());
                 }
                 
-                HttpGet get = new HttpGet("/?" + r);
+                BasicHttpRequest get = new BasicHttpRequest("GET", "/?" + r);
                 HttpResponse response = this.client.execute(get, host, conn);
                 byte[] received = EntityUtils.toByteArray(response.getEntity());
                 byte[] expected = (byte[]) testData.get(r);
@@ -212,7 +212,7 @@ public class TestHttpServiceAndExecutor extends TestCase {
                     conn.bind(socket, this.client.getParams());
                 }
                 
-                HttpPost post = new HttpPost("/");
+                BasicHttpEntityEnclosingRequest post = new BasicHttpEntityEnclosingRequest("POST", "/");
                 byte[] data = (byte[]) testData.get(r);
                 ByteArrayEntity outgoing = new ByteArrayEntity(data);
                 post.setEntity(outgoing);
@@ -289,7 +289,7 @@ public class TestHttpServiceAndExecutor extends TestCase {
                     conn.bind(socket, this.client.getParams());
                 }
                 
-                HttpPost post = new HttpPost("/");
+                BasicHttpEntityEnclosingRequest post = new BasicHttpEntityEnclosingRequest("POST", "/");
                 byte[] data = (byte[]) testData.get(r);
                 ByteArrayEntity outgoing = new ByteArrayEntity(data);
                 outgoing.setChunked(true);
@@ -370,7 +370,7 @@ public class TestHttpServiceAndExecutor extends TestCase {
                     conn.bind(socket, this.client.getParams());
                 }
                 
-                HttpPost post = new HttpPost("/");
+                BasicHttpEntityEnclosingRequest post = new BasicHttpEntityEnclosingRequest("POST", "/");
                 byte[] data = (byte[]) testData.get(r);
                 ByteArrayEntity outgoing = new ByteArrayEntity(data);
                 post.setEntity(outgoing);
@@ -451,7 +451,7 @@ public class TestHttpServiceAndExecutor extends TestCase {
                     conn.bind(socket, this.client.getParams());
                 }
                 
-                HttpPost post = new HttpPost("/");
+                BasicHttpEntityEnclosingRequest post = new BasicHttpEntityEnclosingRequest("POST", "/");
                 byte[] data = (byte[]) testData.get(r);
                 ByteArrayEntity outgoing = new ByteArrayEntity(data);
                 outgoing.setChunked(true);
@@ -538,7 +538,7 @@ public class TestHttpServiceAndExecutor extends TestCase {
                     conn.bind(socket, this.client.getParams());
                 }
                 
-                HttpPost post = new HttpPost("/");
+                BasicHttpEntityEnclosingRequest post = new BasicHttpEntityEnclosingRequest("POST", "/");
                 post.addHeader("Secret", Integer.toString(r));
                 ByteArrayEntity outgoing = new ByteArrayEntity(
                         EncodingUtils.getAsciiBytes("No content")); 

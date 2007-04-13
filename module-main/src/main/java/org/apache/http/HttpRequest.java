@@ -48,6 +48,4 @@ public interface HttpRequest extends HttpMessage {
      */
     RequestLine getRequestLine();
     
-    //TODO add a setter for request line?
-    
 }

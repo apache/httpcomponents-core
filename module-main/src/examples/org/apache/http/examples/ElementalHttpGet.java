@@ -40,7 +40,7 @@ import org.apache.http.HttpVersion;
 import org.apache.http.impl.DefaultConnectionReuseStrategy;
 import org.apache.http.impl.DefaultHttpClientConnection;
 import org.apache.http.params.BasicHttpParams;
-import org.apache.http.message.HttpGet;
+import org.apache.http.message.BasicHttpRequest;
 import org.apache.http.params.HttpParams;
 import org.apache.http.params.HttpProtocolParams;
 import org.apache.http.protocol.BasicHttpProcessor;
@@ -104,7 +104,7 @@ public class ElementalHttpGet {
                     Socket socket = new Socket(host.getHostName(), host.getPort());
                     conn.bind(socket, params);
                 }
-                HttpGet request = new HttpGet(targets[i]);
+                BasicHttpRequest request = new BasicHttpRequest("GET", targets[i]);
                 System.out.println(">> Request URI: " + request.getRequestLine().getUri());
                 HttpResponse response = httpexecutor.execute(request, conn, context);
                 System.out.println("<< Response: " + response.getStatusLine());

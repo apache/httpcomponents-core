@@ -45,7 +45,7 @@ import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.DefaultConnectionReuseStrategy;
 import org.apache.http.impl.DefaultHttpClientConnection;
 import org.apache.http.params.BasicHttpParams;
-import org.apache.http.message.HttpPost;
+import org.apache.http.message.BasicHttpEntityEnclosingRequest;
 import org.apache.http.params.HttpParams;
 import org.apache.http.params.HttpProtocolParams;
 import org.apache.http.protocol.BasicHttpProcessor;
@@ -116,7 +116,8 @@ public class ElementalHttpPost {
                     Socket socket = new Socket(host.getHostName(), host.getPort());
                     conn.bind(socket, params);
                 }
-                HttpPost request = new HttpPost("/servlets-examples/servlet/RequestInfoExample");
+                BasicHttpEntityEnclosingRequest request = new BasicHttpEntityEnclosingRequest("POST", 
+                        "/servlets-examples/servlet/RequestInfoExample");
                 request.setEntity(requestBodies[i]);
                 System.out.println(">> Request URI: " + request.getRequestLine().getUri());
                 HttpResponse response = httpexecutor.execute(request, conn, context);
