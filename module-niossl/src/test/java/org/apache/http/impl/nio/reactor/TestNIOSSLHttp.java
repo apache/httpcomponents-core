@@ -48,8 +48,8 @@ import org.apache.http.entity.ByteArrayEntity;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.nio.mockup.TestHttpSSLClient;
 import org.apache.http.impl.nio.mockup.TestHttpSSLServer;
-import org.apache.http.message.HttpGet;
-import org.apache.http.message.HttpPost;
+import org.apache.http.message.BasicHttpRequest;
+import org.apache.http.message.BasicHttpEntityEnclosingRequest;
 import org.apache.http.nio.NHttpConnection;
 import org.apache.http.nio.protocol.HttpRequestExecutionHandler;
 import org.apache.http.params.HttpProtocolParams;
@@ -161,9 +161,9 @@ public class TestNIOSSLHttp extends TestCase {
 
             public HttpRequest submitRequest(final HttpContext context) {
                 int i = ((Integer) context.getAttribute("REQ-COUNT")).intValue();
-                HttpGet get = null;
+                BasicHttpRequest get = null;
                 if (i < reqNo) {
-                    get = new HttpGet("/?" + i);
+                    get = new BasicHttpRequest("GET", "/?" + i);
                     context.setAttribute("REQ-COUNT", new Integer(i + 1));
                 }
                 return get;
@@ -238,7 +238,7 @@ public class TestNIOSSLHttp extends TestCase {
      * with content length delimited content over multiple connections. 
      */
     @SuppressWarnings("unchecked")
-    public void testSimpleHttpPostsWithContentLength() throws Exception {
+    public void testSimpleBasicHttpEntityEnclosingRequestsWithContentLength() throws Exception {
         
         final int connNo = 3;
         final int reqNo = 20;
@@ -293,9 +293,9 @@ public class TestNIOSSLHttp extends TestCase {
 
             public HttpRequest submitRequest(final HttpContext context) {
                 int i = ((Integer) context.getAttribute("REQ-COUNT")).intValue();
-                HttpPost post = null;
+                BasicHttpEntityEnclosingRequest post = null;
                 if (i < reqNo) {
-                    post = new HttpPost("/?" + i);
+                    post = new BasicHttpEntityEnclosingRequest("POST", "/?" + i);
                     byte[] data = (byte[]) testData.get(i);
                     ByteArrayEntity outgoing = new ByteArrayEntity(data);
                     post.setEntity(outgoing);
@@ -374,7 +374,7 @@ public class TestNIOSSLHttp extends TestCase {
      * with chunk coded content content over multiple connections. 
      */
     @SuppressWarnings("unchecked")
-    public void testSimpleHttpPostsChunked() throws Exception {
+    public void testSimpleBasicHttpEntityEnclosingRequestsChunked() throws Exception {
         
         final int connNo = 3;
         final int reqNo = 20;
@@ -428,9 +428,9 @@ public class TestNIOSSLHttp extends TestCase {
 
             public HttpRequest submitRequest(final HttpContext context) {
                 int i = ((Integer) context.getAttribute("REQ-COUNT")).intValue();
-                HttpPost post = null;
+                BasicHttpEntityEnclosingRequest post = null;
                 if (i < reqNo) {
-                    post = new HttpPost("/?" + i);
+                    post = new BasicHttpEntityEnclosingRequest("POST", "/?" + i);
                     byte[] data = (byte[]) testData.get(i);
                     ByteArrayEntity outgoing = new ByteArrayEntity(data);
                     outgoing.setChunked(true);
@@ -510,7 +510,7 @@ public class TestNIOSSLHttp extends TestCase {
      * POST requests over multiple persistent connections. 
      */
     @SuppressWarnings("unchecked")
-    public void testSimpleHttpPostsHTTP10() throws Exception {
+    public void testSimpleBasicHttpEntityEnclosingRequestsHTTP10() throws Exception {
         
         final int connNo = 3;
         final int reqNo = 20;
@@ -569,9 +569,9 @@ public class TestNIOSSLHttp extends TestCase {
 
             public HttpRequest submitRequest(final HttpContext context) {
                 int i = ((Integer) context.getAttribute("REQ-COUNT")).intValue();
-                HttpPost post = null;
+                BasicHttpEntityEnclosingRequest post = null;
                 if (i < reqNo) {
-                    post = new HttpPost("/?" + i);
+                    post = new BasicHttpEntityEnclosingRequest("POST", "/?" + i);
                     byte[] data = (byte[]) testData.get(i);
                     ByteArrayEntity outgoing = new ByteArrayEntity(data);
                     post.setEntity(outgoing);
