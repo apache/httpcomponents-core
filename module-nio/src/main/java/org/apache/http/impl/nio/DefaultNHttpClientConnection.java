@@ -193,10 +193,6 @@ public class DefaultNHttpClientConnection
         return this.request != null;
     }
 
-    public void cancelRequest() {
-        resetOutput();
-    }
-    
     public String toString() {
         StringBuffer buffer = new StringBuffer();
         buffer.append("[");
