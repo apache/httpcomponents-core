@@ -38,6 +38,10 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
+import junit.framework.Test;
+import junit.framework.TestCase;
+import junit.framework.TestSuite;
+
 import org.apache.http.Header;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpEntityEnclosingRequest;
@@ -53,7 +57,6 @@ import org.apache.http.message.BasicHttpRequest;
 import org.apache.http.nio.NHttpConnection;
 import org.apache.http.nio.mockup.TestHttpClient;
 import org.apache.http.nio.mockup.TestHttpServer;
-import org.apache.http.nio.protocol.HttpRequestExecutionHandler;
 import org.apache.http.params.HttpProtocolParams;
 import org.apache.http.protocol.HttpContext;
 import org.apache.http.protocol.HttpExecutionContext;
@@ -61,10 +64,6 @@ import org.apache.http.protocol.HttpExpectationVerifier;
 import org.apache.http.protocol.HttpRequestHandler;
 import org.apache.http.util.EncodingUtils;
 import org.apache.http.util.EntityUtils;
-
-import junit.framework.Test;
-import junit.framework.TestCase;
-import junit.framework.TestSuite;
 
 /**
  * HttpCore NIO integration tests.
@@ -911,6 +910,161 @@ public class TestNIOHttp extends TestCase {
         assertEquals(HttpStatus.SC_EXPECTATION_FAILED, response.getStatusLine().getStatusCode());
         response = (HttpResponse) responses.get(2);
         assertEquals(HttpStatus.SC_OK, response.getStatusLine().getStatusCode());
+    }
+    
+    /**
+     * This test case executes a series of simple (non-pipelined) HEAD requests 
+     * over multiple connections. 
+     */
+    public void testSimpleHttpHeads() throws Exception {
+        
+        final int connNo = 3;
+        final int reqNo = 20;
+        
+        final String[] method = new String[1];
+        
+        Random rnd = new Random();
+        
+        // Prepare some random data
+        final List testData = new ArrayList(reqNo);
+        for (int i = 0; i < reqNo; i++) {
+            int size = rnd.nextInt(5000);
+            byte[] data = new byte[size];
+            rnd.nextBytes(data);
+            testData.add(data);
+        }
+        
+        List[] responseData = new List[connNo];
+        for (int i = 0; i < responseData.length; i++) {
+            responseData[i] = new ArrayList();
+        }
+        
+        // Initialize the server-side request handler
+        this.server.registerHandler("*", new HttpRequestHandler() {
+
+            public void handle(
+                    final HttpRequest request, 
+                    final HttpResponse response, 
+                    final HttpContext context) throws HttpException, IOException {
+                
+                String s = request.getRequestLine().getUri();
+                URI uri;
+                try {
+                    uri = new URI(s);
+                } catch (URISyntaxException ex) {
+                    throw new HttpException("Invalid request URI: " + s);
+                }
+                int index = Integer.parseInt(uri.getQuery());
+
+                byte[] data = (byte []) testData.get(index);
+                ByteArrayEntity entity = new ByteArrayEntity(data); 
+                response.setEntity(entity);
+            }
+            
+        });
+        
+        // Initialize the client side request executor
+        this.client.setHttpRequestExecutionHandler(new HttpRequestExecutionHandler() {
+
+            public void initalizeContext(final HttpContext context, final Object attachment) {
+                context.setAttribute("LIST", (List) attachment);
+                context.setAttribute("REQ-COUNT", new Integer(0));
+                context.setAttribute("RES-COUNT", new Integer(0));
+            }
+
+            public HttpRequest submitRequest(final HttpContext context) {
+                int i = ((Integer) context.getAttribute("REQ-COUNT")).intValue();
+                BasicHttpEntityEnclosingRequest request = null;
+                if (i < reqNo) {
+                    request = new BasicHttpEntityEnclosingRequest(method[0], "/?" + i);
+                    context.setAttribute("REQ-COUNT", new Integer(i + 1));
+                }
+                return request;
+            }
+            
+            public void handleResponse(final HttpResponse response, final HttpContext context) {
+                NHttpConnection conn = (NHttpConnection) context.getAttribute(
+                        HttpExecutionContext.HTTP_CONNECTION);
+                
+                List list = (List) context.getAttribute("LIST");
+                int i = ((Integer) context.getAttribute("RES-COUNT")).intValue();
+                i++;
+                context.setAttribute("RES-COUNT", new Integer(i));
+
+                list.add(response);
+
+                if (i < reqNo) {
+                    conn.requestInput();
+                } else {
+                    try {
+                        conn.close();
+                    } catch (IOException ex) {
+                        fail(ex.getMessage());
+                    }
+                }
+            }
+            
+        });
+        
+        this.server.start();
+        this.client.start();
+        
+        InetSocketAddress serverAddress = (InetSocketAddress) this.server.getSocketAddress();
+
+        method[0] = "GET";
+        
+        for (int i = 0; i < responseData.length; i++) {
+            this.client.openConnection(
+                    new InetSocketAddress("localhost", serverAddress.getPort()), 
+                    responseData[i]);
+        }
+     
+        this.client.await(connNo, 1000);
+        assertEquals(connNo, this.client.getConnCount());
+
+        List[] responseDataGET = responseData; 
+
+        method[0] = "HEAD";
+
+        responseData = new List[connNo];
+        for (int i = 0; i < responseData.length; i++) {
+            responseData[i] = new ArrayList();
+        }
+        
+        for (int i = 0; i < responseData.length; i++) {
+            this.client.openConnection(
+                    new InetSocketAddress("localhost", serverAddress.getPort()), 
+                    responseData[i]);
+        }
+     
+        this.client.await(connNo * 2, 1000);
+        assertEquals(connNo * 2, this.client.getConnCount());
+        
+        this.client.shutdown();
+        this.server.shutdown();
+
+        for (int c = 0; c < responseData.length; c++) {
+            List headResponses = responseData[c];
+            List getResponses = responseDataGET[c];
+            List expectedPackets = testData;
+            assertEquals(expectedPackets.size(), headResponses.size());
+            assertEquals(expectedPackets.size(), getResponses.size());
+            for (int p = 0; p < testData.size(); p++) {
+                HttpResponse getResponse = (HttpResponse) getResponses.get(p);
+                HttpResponse headResponse = (HttpResponse) headResponses.get(p);
+                assertEquals(null, headResponse.getEntity());
+                
+                Header[] getHeaders = getResponse.getAllHeaders();
+                Header[] headHeaders = headResponse.getAllHeaders();
+                assertEquals(getHeaders.length, headHeaders.length);
+                for (int j = 0; j < getHeaders.length; j++) {
+                    if ("Date".equals(getHeaders[j].getName())) {
+                        continue;
+                    }
+                    assertEquals(getHeaders[j].toString(), headHeaders[j].toString());
+                }
+            }
+        }
     }
     
 }

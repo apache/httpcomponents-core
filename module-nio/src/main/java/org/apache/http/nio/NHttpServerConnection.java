@@ -64,10 +64,15 @@ public interface NHttpServerConnection extends NHttpConnection {
     boolean isResponseSubmitted();
     
     /**
-     * Cancels pending HTTP request if it failed the target server expections
-     * (the target server responded with non 1xx status code during the
-     * 'expect: continue' handshake).
+     * Resets output state. This method can be used to prematurely terminate
+     * processing of the incoming HTTP request. 
      */
-    void cancelRequest();
+    void resetInput();
+    
+    /**
+     * Resets input state. This method can be used to prematurely terminate 
+     * processing of the outgoing HTTP response.
+     */
+    void resetOutput();
     
 }

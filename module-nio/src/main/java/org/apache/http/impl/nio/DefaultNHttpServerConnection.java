@@ -67,13 +67,13 @@ public class DefaultNHttpServerConnection
         this.requestParser = new HttpRequestParser(this.inbuf, requestFactory);
     }
 
-    private void resetInput() {
+    public void resetInput() {
         this.request = null;
         this.contentDecoder = null;
         this.requestParser.reset();
     }
     
-    private void resetOutput() {
+    public void resetOutput() {
         this.response = null;
         this.contentEncoder = null;
     }
@@ -182,7 +182,8 @@ public class DefaultNHttpServerConnection
         this.lineBuffer.clear();
         this.outbuf.writeLine(this.lineBuffer);
 
-        if (response.getStatusLine().getStatusCode() >= 200) {
+        if (response.getStatusLine().getStatusCode() >= 200 
+                && response.getEntity() != null) {
             this.response = response;
             prepareEncoder(response);
         }
@@ -193,10 +194,6 @@ public class DefaultNHttpServerConnection
         return this.response != null;
     }
 
-    public void cancelRequest() {
-        resetInput();
-    }
-    
     public String toString() {
         StringBuffer buffer = new StringBuffer();
         buffer.append("[");

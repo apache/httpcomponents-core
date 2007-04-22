@@ -70,13 +70,13 @@ public class DefaultNHttpClientConnection
         this.session.setBufferStatus(this);
     }
 
-    private void resetInput() {
+    public void resetInput() {
         this.response = null;
         this.contentDecoder = null;
         this.responseParser.reset();
     }
     
-    private void resetOutput() {
+    public void resetOutput() {
         this.request = null;
         this.contentEncoder = null;
     }
@@ -91,15 +91,13 @@ public class DefaultNHttpClientConnection
                 int bytesRead = this.responseParser.fillBuffer(this.session.channel());
                 this.response = (HttpResponse) this.responseParser.parse(); 
                 if (this.response != null) {
-                    handler.responseReceived(this);
-                    
                     if (this.response.getStatusLine().getStatusCode() >= 200) {
                         HttpEntity entity = prepareDecoder(this.response);
                         this.response.setEntity(entity);
-                    } else {
-                        // Discard the intermediate response
-                        this.responseParser.reset();
-                        this.response = null;
+                    }
+                    handler.responseReceived(this);
+                    if (this.contentDecoder == null) {
+                        resetInput();
                     }
                 }
                 if (bytesRead == -1) {

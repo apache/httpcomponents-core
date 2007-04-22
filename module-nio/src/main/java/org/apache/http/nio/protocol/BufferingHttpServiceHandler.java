@@ -190,7 +190,7 @@ public class BufferingHttpServiceHandler implements NHttpServiceHandler {
                         conn.submitResponse(response);
                     } else {
                         // The request does not meet the server expections
-                        conn.cancelRequest();
+                        conn.resetInput();
                         connState.resetInput();
                         sendResponse(conn, response);
                     }
@@ -422,23 +422,39 @@ public class BufferingHttpServiceHandler implements NHttpServiceHandler {
 
         this.httpProcessor.process(response, context);
 
+        if (!canResponseHaveBody(connState.getRequest(), response)) {
+            response.setEntity(null);
+        }
+        
         conn.submitResponse(response);
 
         // Update connection state
         connState.setOutputState(ServerConnState.RESPONSE_SENT);
-        
-        if (response.getEntity() != null) {
-            HttpEntity entity = response.getEntity();
-            if (entity != null) {
-                OutputStream outstream = new ContentOutputStream(buffer);
-                entity.writeTo(outstream);
-                outstream.flush();
-                outstream.close();
-            }
+
+        HttpEntity entity = response.getEntity();
+        if (entity != null) {
+            OutputStream outstream = new ContentOutputStream(buffer);
+            entity.writeTo(outstream);
+            outstream.flush();
+            outstream.close();
         } else {
             connState.resetOutput();
             conn.requestInput();
         }
+    }
+
+    private boolean canResponseHaveBody(
+            final HttpRequest request, final HttpResponse response) {
+
+        if (request != null && "HEAD".equalsIgnoreCase(request.getRequestLine().getMethod())) {
+            return false;
+        }
+        
+        int status = response.getStatusLine().getStatusCode(); 
+        return status >= HttpStatus.SC_OK 
+            && status != HttpStatus.SC_NO_CONTENT 
+            && status != HttpStatus.SC_NOT_MODIFIED
+            && status != HttpStatus.SC_RESET_CONTENT; 
     }
 
     static class ServerConnState {

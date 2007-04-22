@@ -279,8 +279,9 @@ public class BufferingHttpClientHandler implements NHttpClientHandler {
                     cancelRequest(conn, connState);
                 }
             }
-            
             if (!canResponseHaveBody(request, response)) {
+                conn.resetInput();
+                response.setEntity(null);
                 processResponse(conn, connState);
             }
             
@@ -389,7 +390,7 @@ public class BufferingHttpClientHandler implements NHttpClientHandler {
         int timeout = connState.getTimeout();
         conn.setSocketTimeout(timeout);
 
-        conn.cancelRequest();
+        conn.resetOutput();
         connState.resetOutput();
     }
     
@@ -426,7 +427,6 @@ public class BufferingHttpClientHandler implements NHttpClientHandler {
         HttpContext context = conn.getContext();
         HttpResponse response = connState.getResponse();
         
-        // Create a wrapper entity instead of the original one
         if (response.getEntity() != null) {
             response.setEntity(new BufferedContent(
                     response.getEntity(), 
