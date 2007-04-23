@@ -36,7 +36,7 @@ import java.nio.channels.FileChannel;
 import org.apache.http.nio.ContentEncoder;
 
 /**
- * A content encoder capable of writing data directly to a {@link FileChannel}
+ * A content encoder capable of transferring data directly from a {@link FileChannel}
  */
 public interface FileContentEncoder extends ContentEncoder {
     

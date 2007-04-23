@@ -35,7 +35,7 @@ import java.io.IOException;
 import java.nio.channels.FileChannel;
 
 /**
- * A content decoder capable of reading data directly from a {@link FileChannel}
+ * A content decoder capable of transferring data directly to a {@link FileChannel}
  */
 public interface FileContentDecoder extends ContentDecoder {
     
