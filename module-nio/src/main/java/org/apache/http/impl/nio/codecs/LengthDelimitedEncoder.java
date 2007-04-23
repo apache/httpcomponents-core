@@ -33,9 +33,12 @@ package org.apache.http.impl.nio.codecs;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
+import java.nio.channels.FileChannel;
 import java.nio.channels.WritableByteChannel;
+import org.apache.http.nio.FileContentEncoder;
 
-public class LengthDelimitedEncoder extends AbstractContentEncoder {
+public class LengthDelimitedEncoder extends AbstractContentEncoder 
+        implements FileContentEncoder {
     
     private final WritableByteChannel channel;
     private final long contentLength;
@@ -79,6 +82,26 @@ public class LengthDelimitedEncoder extends AbstractContentEncoder {
         return bytesWritten;
     }
 
+    public long write(final FileChannel fileChannel, long position, long count) throws IOException {
+        if (fileChannel == null) {
+            return 0;
+        }
+        assertNotCompleted();
+        int lenRemaining = (int) (this.contentLength - this.len);
+        
+        long bytesWritten;
+        if (count > lenRemaining) {
+            bytesWritten = fileChannel.transferTo(position, lenRemaining, this.channel);
+        } else {
+            bytesWritten = fileChannel.transferTo(position, count, this.channel);
+        }
+        this.len += bytesWritten;
+        if (this.len >= this.contentLength) {
+            this.completed = true;
+        }
+        return bytesWritten;
+    }
+    
     public String toString() {
         StringBuffer buffer = new StringBuffer();
         buffer.append("[content length: ");

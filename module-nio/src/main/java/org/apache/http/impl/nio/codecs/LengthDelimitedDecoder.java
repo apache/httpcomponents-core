@@ -33,11 +33,14 @@ package org.apache.http.impl.nio.codecs;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
+import java.nio.channels.FileChannel;
 import java.nio.channels.ReadableByteChannel;
 
 import org.apache.http.impl.nio.reactor.SessionInputBuffer;
+import org.apache.http.nio.FileContentDecoder;
 
-public class LengthDelimitedDecoder extends AbstractContentDecoder {
+public class LengthDelimitedDecoder extends AbstractContentDecoder 
+        implements FileContentDecoder {
     
     private final long contentLength;
     
@@ -88,6 +91,40 @@ public class LengthDelimitedDecoder extends AbstractContentDecoder {
         }
         return bytesRead;
     }
+    
+    public long read(final FileChannel fileChannel, long position, long count) throws IOException {
+        if (fileChannel == null) {
+            return 0;
+        }
+        if (this.completed) {
+            return 0;
+        }
+        
+        int lenRemaining = (int) (this.contentLength - this.len);
+        
+        long bytesRead;
+        if (this.buffer.hasData()) {
+            int maxLen = Math.min(lenRemaining, this.buffer.length());
+            ByteBuffer tmpDst = ByteBuffer.allocate(maxLen);
+            this.buffer.read(tmpDst, maxLen);
+            bytesRead = fileChannel.write(tmpDst);
+        } else {
+            if (count > lenRemaining) {
+                bytesRead = fileChannel.transferFrom(this.channel, position, lenRemaining);
+            } else {
+                bytesRead = fileChannel.transferFrom(this.channel, position, count);
+            }
+        }
+        if (bytesRead == 0) {
+            this.completed = true;
+            return 0;
+        }
+        this.len += bytesRead;
+        if (this.len >= this.contentLength) {
+            this.completed = true;
+        }
+        return bytesRead;
+    }
 
     public String toString() {
         StringBuffer buffer = new StringBuffer();
@@ -100,5 +137,4 @@ public class LengthDelimitedDecoder extends AbstractContentDecoder {
         buffer.append("]");
         return buffer.toString();
     }
-    
 }

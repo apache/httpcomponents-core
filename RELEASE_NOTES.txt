@@ -1,5 +1,10 @@
 Changes since 4.0 Alpha 4
 
+* [HTTPCORE-43]: Support for FileChannel#transferFrom() and 
+  FileChannel#transferTo() methods. Direct coping from and to FileChannel is 
+  expected to improve performance of file bound operations
+  Andrea Selva <selva.andre at gmail.com>
+
 * [HTTPCORE-66]: Fixed handling of HTTP HEAD methods
   Contributed by Steffen Pingel <spingel at limewire.com> and 
   Oleg Kalnichevski <olegk at apache.org>

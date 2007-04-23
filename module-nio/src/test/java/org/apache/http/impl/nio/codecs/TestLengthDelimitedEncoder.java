@@ -31,8 +31,13 @@
 package org.apache.http.impl.nio.codecs;
 
 import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.OutputStreamWriter;
 import java.nio.ByteBuffer;
 import java.nio.channels.Channels;
+import java.nio.channels.FileChannel;
 import java.nio.channels.WritableByteChannel;
 
 import junit.framework.Test;
@@ -145,5 +150,110 @@ public class TestLengthDelimitedEncoder extends TestCase {
             // ignore
         }
     }
+    
+    /* ----------------- FileChannel Part testing --------------------------- */
+    public void testCodingBeyondContentLimitFromFile() throws Exception {
+        ByteArrayOutputStream baos = new ByteArrayOutputStream(); 
+        LengthDelimitedEncoder encoder = new LengthDelimitedEncoder(newChannel(baos), 16);
+               
+        File tmpFile = File.createTempFile("testFile", "txt");
+        FileOutputStream fout = new FileOutputStream(tmpFile);
+        OutputStreamWriter wrtout = new OutputStreamWriter(fout);
+        
+        wrtout.write("stuff;");
+        wrtout.write("more stuff; and a lot more stuff");
+        
+        wrtout.flush();
+        wrtout.close();
+        
+        FileChannel fchannel = new FileInputStream(tmpFile).getChannel();
+        
+        encoder.write(fchannel, 0, 20);
+        
+        String s = baos.toString("US-ASCII");
+        
+        assertTrue(encoder.isCompleted());
+        assertEquals("stuff;more stuff", s);
+        
+        tmpFile.delete();
+    }
+    
+    
+    public void testCodingEmptyFile() throws Exception {
+        ByteArrayOutputStream baos = new ByteArrayOutputStream(); 
+        LengthDelimitedEncoder encoder = new LengthDelimitedEncoder(newChannel(baos), 16);
+        encoder.write(wrap("stuff;"));
 
+        //Create an empty file
+        File tmpFile = File.createTempFile("testFile", "txt");
+        FileOutputStream fout = new FileOutputStream(tmpFile);
+        OutputStreamWriter wrtout = new OutputStreamWriter(fout);
+        
+        wrtout.flush();
+        wrtout.close();
+        
+        FileChannel fchannel = new FileInputStream(tmpFile).getChannel();
+        
+        encoder.write(fchannel, 0, 20);
+                
+        encoder.write(wrap("more stuff"));
+        
+        String s = baos.toString("US-ASCII");
+        
+        assertTrue(encoder.isCompleted());
+        assertEquals("stuff;more stuff", s);
+        
+        tmpFile.delete();
+    }
+
+    public void testCodingCompletedFromFile() throws Exception {
+        ByteArrayOutputStream baos = new ByteArrayOutputStream(); 
+        LengthDelimitedEncoder encoder = new LengthDelimitedEncoder(newChannel(baos), 5);
+        encoder.write(wrap("stuff"));
+
+        File tmpFile = File.createTempFile("testFile", "txt");
+        FileOutputStream fout = new FileOutputStream(tmpFile);
+        OutputStreamWriter wrtout = new OutputStreamWriter(fout);
+        
+        wrtout.write("more stuff");
+        
+        wrtout.flush();
+        wrtout.close();
+        
+        try {
+            FileChannel fchannel = new FileInputStream(tmpFile).getChannel();
+            encoder.write(fchannel, 0, 10);
+            fail("IllegalStateException should have been thrown");
+        } catch (IllegalStateException ex) {
+            // ignore
+        } finally {
+            tmpFile.delete();
+        }
+    }
+    
+    public void testCodingFromFileSmaller() throws Exception {
+        ByteArrayOutputStream baos = new ByteArrayOutputStream(); 
+        LengthDelimitedEncoder encoder = new LengthDelimitedEncoder(newChannel(baos), 16);
+               
+        File tmpFile = File.createTempFile("testFile", "txt");
+        FileOutputStream fout = new FileOutputStream(tmpFile);
+        OutputStreamWriter wrtout = new OutputStreamWriter(fout);
+        
+        wrtout.write("stuff;");
+        wrtout.write("more stuff;");
+        
+        wrtout.flush();
+        wrtout.close();
+        
+        FileChannel fchannel = new FileInputStream(tmpFile).getChannel();
+        
+        encoder.write(fchannel, 0, 20);
+        
+        String s = baos.toString("US-ASCII");
+        
+        assertTrue(encoder.isCompleted());
+        assertEquals("stuff;more stuff", s);
+        
+        tmpFile.delete();
+    }
 }

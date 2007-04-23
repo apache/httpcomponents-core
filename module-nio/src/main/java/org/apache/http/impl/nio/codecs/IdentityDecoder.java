@@ -33,11 +33,14 @@ package org.apache.http.impl.nio.codecs;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
+import java.nio.channels.FileChannel;
 import java.nio.channels.ReadableByteChannel;
 
 import org.apache.http.impl.nio.reactor.SessionInputBuffer;
+import org.apache.http.nio.FileContentDecoder;
 
-public class IdentityDecoder extends AbstractContentDecoder {
+public class IdentityDecoder extends AbstractContentDecoder 
+        implements FileContentDecoder {
     
     public IdentityDecoder(final ReadableByteChannel channel, final SessionInputBuffer buffer) {
         super(channel, buffer);
@@ -58,6 +61,29 @@ public class IdentityDecoder extends AbstractContentDecoder {
             bytesRead = this.channel.read(dst);
         }
         if (bytesRead == -1) {
+            this.completed = true;
+        }
+        return bytesRead;
+    }
+    
+    public long read(final FileChannel fileChannel, long position, long count) throws IOException {
+        if (fileChannel == null) {
+            return 0;
+        }
+        if (this.completed) {
+            return 0;
+        }
+        
+        long bytesRead;
+        if (this.buffer.hasData()) {
+            ByteBuffer tmpDst = ByteBuffer.allocate((int)count);
+            this.buffer.read(tmpDst);
+            tmpDst.flip();
+            bytesRead = fileChannel.write(tmpDst);
+        } else {
+            bytesRead = fileChannel.transferFrom(this.channel, position, count);
+        }
+        if (bytesRead == 0) {
             this.completed = true;
         }
         return bytesRead;

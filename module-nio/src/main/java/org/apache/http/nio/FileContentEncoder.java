@@ -29,49 +29,32 @@
  *
  */
 
-package org.apache.http.impl.nio.codecs;
+package org.apache.http.nio;
 
 import java.io.IOException;
-import java.nio.ByteBuffer;
 import java.nio.channels.FileChannel;
-import java.nio.channels.WritableByteChannel;
-import org.apache.http.nio.FileContentEncoder;
+import org.apache.http.nio.ContentEncoder;
 
-public class IdentityEncoder extends AbstractContentEncoder 
-        implements FileContentEncoder {
+/**
+ * A content encoder capable of writing data directly to a {@link FileChannel}
+ */
+public interface FileContentEncoder extends ContentEncoder {
     
-    private final WritableByteChannel channel;
-    
-    public IdentityEncoder(final WritableByteChannel channel) {
-        super();
-        if (channel == null) {
-            throw new IllegalArgumentException("Channel may not be null");
-        }
-        this.channel = channel;
-    }
-
-    public int write(final ByteBuffer src) throws IOException {
-        if (src == null) {
-            return 0;
-        }
-        assertNotCompleted();
-        return this.channel.write(src);
-    }
- 
-    public long write(final FileChannel filechannel, long position, long count) throws IOException {
-        if (channel == null) {
-            return 0;
-        }
-        assertNotCompleted();
-        return filechannel.transferTo(position, count, this.channel);
-    } 
-    
-    public String toString() {
-        StringBuffer buffer = new StringBuffer();
-        buffer.append("[identity; completed: ");
-        buffer.append(this.completed);
-        buffer.append("]");
-        return buffer.toString();
-    }
+    /**
+     * Transfers a portion of entity content from the given file channel 
+     * to the underlying network channel.
+     * 
+     * @param channel, the source FileChannel to transfer data from.
+     * @param  position
+     *         The position within the file at which the transfer is to begin;
+     *         must be non-negative
+     * @param  count
+     *         The maximum number of bytes to be transferred; must be
+     *         non-negative
+     *@throws IOException, if some I/O error occurs.
+     * @return  The number of bytes, possibly zero,
+     *          that were actually transferred
+     */
+    long write(FileChannel channel, long position, long count) throws IOException;
     
 }

@@ -30,7 +30,13 @@
 
 package org.apache.http.impl.nio.codecs;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.InputStreamReader;
 import java.nio.ByteBuffer;
+import java.nio.CharBuffer;
+import java.nio.channels.FileChannel;
 import java.nio.channels.ReadableByteChannel;
 
 import junit.framework.Test;
@@ -73,6 +79,17 @@ public class TestIdentityDecoder extends TestCase {
             buffer.append((char)(src.get() & 0xff));
         }
         return buffer.toString();
+    }
+    
+    private static String readFromFile(File file, int numChars) throws Exception {
+        FileInputStream fin = new FileInputStream(file);
+        InputStreamReader rdin = new InputStreamReader(fin);
+                
+        CharBuffer cb = CharBuffer.allocate(numChars);
+        rdin.read(cb);
+        
+        fin.close();
+        return cb.flip().toString();
     }
 
     public void testBasicDecoding() throws Exception {
@@ -155,6 +172,74 @@ public class TestIdentityDecoder extends TestCase {
         } catch (IllegalArgumentException ex) {
             // expected
         }
+    }
+    
+    
+    
+    public void testBasicDecodingFile() throws Exception {
+        ReadableByteChannel channel = new ReadableByteChannelMockup(
+                new String[] {"stuff;", "more stuff"}, "US-ASCII"); 
+        
+        SessionInputBuffer inbuf = new SessionInputBuffer(1024, 256); 
+        IdentityDecoder decoder = new IdentityDecoder(channel, inbuf); 
+        
+        File tmpFile = File.createTempFile("testFile", ".txt");
+        FileChannel fchannel = new FileOutputStream(tmpFile).getChannel();
+            
+        long bytesRead = decoder.read(fchannel, 0, 6);
+        assertEquals(6, bytesRead);
+        assertEquals("stuff;", readFromFile(tmpFile, 6));
+        assertFalse(decoder.isCompleted());
+        
+        bytesRead = decoder.read(fchannel,0 , 10);
+        assertEquals(10, bytesRead);
+        assertEquals("more stuff", readFromFile(tmpFile, 10));
+        assertFalse(decoder.isCompleted());
+        
+        bytesRead = decoder.read(fchannel, 0, 1);
+        assertEquals(0, bytesRead);
+        assertTrue(decoder.isCompleted());
+        
+        bytesRead = decoder.read(fchannel, 0, 1);
+        assertEquals(0, bytesRead);
+        assertTrue(decoder.isCompleted());
+        
+        tmpFile.delete();
+    }
+    
+    public void testDecodingFromSessionBufferFile() throws Exception {
+        ReadableByteChannel channel = new ReadableByteChannelMockup(
+                new String[] {"stuff;", "more stuff"}, "US-ASCII"); 
+        
+        SessionInputBuffer inbuf = new SessionInputBuffer(1024, 256);
+        inbuf.fill(channel);
+        
+        assertEquals(6, inbuf.length());
+        
+        IdentityDecoder decoder = new IdentityDecoder(channel, inbuf); 
+        
+        File tmpFile = File.createTempFile("testFile", ".txt");
+        FileChannel fchannel = new FileOutputStream(tmpFile).getChannel();
+            
+        long bytesRead = decoder.read(fchannel, 0, 6);
+        assertEquals(6, bytesRead);
+        assertEquals("stuff;", readFromFile(tmpFile, 6));
+        assertFalse(decoder.isCompleted());
+        
+        bytesRead = decoder.read(fchannel,0 , 10);
+        assertEquals(10, bytesRead);
+        assertEquals("more stuff", readFromFile(tmpFile, 10));
+        assertFalse(decoder.isCompleted());
+        
+        bytesRead = decoder.read(fchannel, 0, 1);
+        assertEquals(0, bytesRead);
+        assertTrue(decoder.isCompleted());
+        
+        bytesRead = decoder.read(fchannel, 0, 1);
+        assertEquals(0, bytesRead);
+        assertTrue(decoder.isCompleted());
+        
+        tmpFile.delete();
     }
     
 }
