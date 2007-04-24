@@ -33,13 +33,11 @@ package org.apache.http.nio.protocol;
 
 import java.io.IOException;
 import java.io.OutputStream;
-import java.net.InetAddress;
 
 import org.apache.http.ConnectionReuseStrategy;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpEntityEnclosingRequest;
 import org.apache.http.HttpException;
-import org.apache.http.HttpInetConnection;
 import org.apache.http.HttpRequest;
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpResponseFactory;
@@ -136,11 +134,7 @@ public class BufferingHttpServiceHandler implements NHttpServiceHandler {
         context.setAttribute(CONN_STATE, connState);
 
         if (this.eventListener != null) {
-            InetAddress address = null;
-            if (conn instanceof HttpInetConnection) {
-                address = ((HttpInetConnection) conn).getRemoteAddress();
-            }
-            this.eventListener.connectionOpen(address);
+            this.eventListener.connectionOpen(conn);
         }
     }
 
@@ -207,12 +201,12 @@ public class BufferingHttpServiceHandler implements NHttpServiceHandler {
         } catch (IOException ex) {
             shutdownConnection(conn);
             if (this.eventListener != null) {
-                this.eventListener.fatalIOException(ex);
+                this.eventListener.fatalIOException(ex, conn);
             }
         } catch (HttpException ex) {
             shutdownConnection(conn);
             if (this.eventListener != null) {
-                this.eventListener.fatalProtocolException(ex);
+                this.eventListener.fatalProtocolException(ex, conn);
             }
         }
         
@@ -220,11 +214,7 @@ public class BufferingHttpServiceHandler implements NHttpServiceHandler {
 
     public void closed(final NHttpServerConnection conn) {
         if (this.eventListener != null) {
-            InetAddress address = null;
-            if (conn instanceof HttpInetConnection) {
-                address = ((HttpInetConnection) conn).getRemoteAddress();
-            }
-            this.eventListener.connectionClosed(address);
+            this.eventListener.connectionClosed(conn);
         }
     }
 
@@ -240,12 +230,12 @@ public class BufferingHttpServiceHandler implements NHttpServiceHandler {
         } catch (IOException ex) {
             shutdownConnection(conn);
             if (this.eventListener != null) {
-                this.eventListener.fatalIOException(ex);
+                this.eventListener.fatalIOException(ex, conn);
             }
         } catch (HttpException ex) {
             shutdownConnection(conn);
             if (this.eventListener != null) {
-                this.eventListener.fatalProtocolException(ex);
+                this.eventListener.fatalProtocolException(ex, conn);
             }
         }
     }
@@ -253,7 +243,7 @@ public class BufferingHttpServiceHandler implements NHttpServiceHandler {
     public void exception(final NHttpServerConnection conn, final IOException ex) {
         shutdownConnection(conn);
         if (this.eventListener != null) {
-            this.eventListener.fatalIOException(ex);
+            this.eventListener.fatalIOException(ex, conn);
         }
     }
 
@@ -287,12 +277,12 @@ public class BufferingHttpServiceHandler implements NHttpServiceHandler {
         } catch (IOException ex) {
             shutdownConnection(conn);
             if (this.eventListener != null) {
-                this.eventListener.fatalIOException(ex);
+                this.eventListener.fatalIOException(ex, conn);
             }
         } catch (HttpException ex) {
             shutdownConnection(conn);
             if (this.eventListener != null) {
-                this.eventListener.fatalProtocolException(ex);
+                this.eventListener.fatalProtocolException(ex, conn);
             }
         }
     }
@@ -327,7 +317,7 @@ public class BufferingHttpServiceHandler implements NHttpServiceHandler {
         } catch (IOException ex) {
             shutdownConnection(conn);
             if (this.eventListener != null) {
-                this.eventListener.fatalIOException(ex);
+                this.eventListener.fatalIOException(ex, conn);
             }
         }
     }
@@ -335,11 +325,7 @@ public class BufferingHttpServiceHandler implements NHttpServiceHandler {
     public void timeout(final NHttpServerConnection conn) {
         shutdownConnection(conn);
         if (this.eventListener != null) {
-            InetAddress address = null;
-            if (conn instanceof HttpInetConnection) {
-                address = ((HttpInetConnection) conn).getRemoteAddress();
-            }
-            this.eventListener.connectionTimeout(address);
+            this.eventListener.connectionTimeout(conn);
         }
     }
 

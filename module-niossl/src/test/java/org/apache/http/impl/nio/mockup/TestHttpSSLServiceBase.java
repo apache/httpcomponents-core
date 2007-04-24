@@ -32,10 +32,10 @@
 package org.apache.http.impl.nio.mockup;
 
 import java.io.IOException;
-import java.net.InetAddress;
 
 import org.apache.http.HttpException;
 import org.apache.http.params.BasicHttpParams;
+import org.apache.http.nio.NHttpConnection;
 import org.apache.http.nio.protocol.EventListener;
 import org.apache.http.nio.reactor.IOReactor;
 import org.apache.http.params.HttpParams;
@@ -107,21 +107,21 @@ abstract class TestHttpSSLServiceBase {
 
     protected class EventLogger implements EventListener {
 
-        public void connectionOpen(final InetAddress address) {
+        public void connectionOpen(final NHttpConnection conn) {
         }
 
-        public void connectionTimeout(final InetAddress address) {
+        public void connectionTimeout(final NHttpConnection conn) {
         }
 
-        public void connectionClosed(InetAddress address) {
+        public void connectionClosed(final NHttpConnection conn) {
             incrementConnCount();
         }
 
-        public void fatalIOException(IOException ex) {
+        public void fatalIOException(final IOException ex, final NHttpConnection conn) {
             ex.printStackTrace();
         }
 
-        public void fatalProtocolException(HttpException ex) {
+        public void fatalProtocolException(final HttpException ex, final NHttpConnection conn) {
             ex.printStackTrace();
         }
         

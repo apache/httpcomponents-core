@@ -32,7 +32,6 @@ package org.apache.http.examples.nio;
 
 import java.io.IOException;
 import java.io.InterruptedIOException;
-import java.net.InetAddress;
 import java.net.InetSocketAddress;
 
 import org.apache.http.HttpEntity;
@@ -45,6 +44,7 @@ import org.apache.http.params.BasicHttpParams;
 import org.apache.http.impl.nio.DefaultClientIOEventDispatch;
 import org.apache.http.impl.nio.reactor.DefaultConnectingIOReactor;
 import org.apache.http.message.BasicHttpRequest;
+import org.apache.http.nio.NHttpConnection;
 import org.apache.http.nio.protocol.BufferingHttpClientHandler;
 import org.apache.http.nio.protocol.EventListener;
 import org.apache.http.nio.protocol.HttpRequestExecutionHandler;
@@ -181,28 +181,28 @@ public class NHttpClient {
         private int openNo = 0;
         private int closedNo = 0;
         
-        public void connectionOpen(final InetAddress address) {
+        public void connectionOpen(final NHttpConnection conn) {
             this.openNo++;
-            System.out.println("Connection open: " + address);
+            System.out.println("Connection open: " + conn);
         }
 
-        public void connectionTimeout(final InetAddress address) {
-            System.out.println("Connection timed out: " + address);
+        public void connectionTimeout(final NHttpConnection conn) {
+            System.out.println("Connection timed out: " + conn);
         }
 
-        public void connectionClosed(InetAddress address) {
-            System.out.println("Connection closed: " + address);
+        public void connectionClosed(final NHttpConnection conn) {
+            System.out.println("Connection closed: " + conn);
             this.closedNo++;
             if (this.openNo == this.closedNo) {
                 System.exit(0);
             }
         }
 
-        public void fatalIOException(IOException ex) {
+        public void fatalIOException(final IOException ex, final NHttpConnection conn) {
             System.err.println("I/O error: " + ex.getMessage());
         }
 
-        public void fatalProtocolException(HttpException ex) {
+        public void fatalProtocolException(final HttpException ex, final NHttpConnection conn) {
             System.err.println("HTTP error: " + ex.getMessage());
         }
         

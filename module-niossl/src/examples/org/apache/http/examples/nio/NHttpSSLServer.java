@@ -36,7 +36,6 @@ import java.io.IOException;
 import java.io.InterruptedIOException;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
-import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.URL;
 import java.net.URLDecoder;
@@ -61,6 +60,7 @@ import org.apache.http.impl.DefaultHttpResponseFactory;
 import org.apache.http.params.BasicHttpParams;
 import org.apache.http.impl.nio.reactor.DefaultListeningIOReactor;
 import org.apache.http.impl.nio.reactor.SSLServerIOEventDispatch;
+import org.apache.http.nio.NHttpConnection;
 import org.apache.http.nio.protocol.EventListener;
 import org.apache.http.nio.protocol.BufferingHttpServiceHandler;
 import org.apache.http.nio.reactor.IOEventDispatch;
@@ -223,23 +223,23 @@ public class NHttpSSLServer {
     
     static class EventLogger implements EventListener {
 
-        public void connectionOpen(final InetAddress address) {
-            System.out.println("Connection open: " + address);
+        public void connectionOpen(final NHttpConnection conn) {
+            System.out.println("Connection open: " + conn);
         }
 
-        public void connectionTimeout(final InetAddress address) {
-            System.out.println("Connection timed out: " + address);
+        public void connectionTimeout(final NHttpConnection conn) {
+            System.out.println("Connection timed out: " + conn);
         }
 
-        public void connectionClosed(InetAddress address) {
-            System.out.println("Connection closed: " + address);
+        public void connectionClosed(final NHttpConnection conn) {
+            System.out.println("Connection closed: " + conn);
         }
 
-        public void fatalIOException(IOException ex) {
+        public void fatalIOException(final IOException ex, final NHttpConnection conn) {
             System.err.println("I/O error: " + ex.getMessage());
         }
 
-        public void fatalProtocolException(HttpException ex) {
+        public void fatalProtocolException(final HttpException ex, final NHttpConnection conn) {
             System.err.println("HTTP error: " + ex.getMessage());
         }
         

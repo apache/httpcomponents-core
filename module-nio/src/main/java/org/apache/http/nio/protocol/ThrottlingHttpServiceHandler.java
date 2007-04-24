@@ -34,13 +34,11 @@ package org.apache.http.nio.protocol;
 import java.io.IOException;
 import java.io.InterruptedIOException;
 import java.io.OutputStream;
-import java.net.InetAddress;
 
 import org.apache.http.ConnectionReuseStrategy;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpEntityEnclosingRequest;
 import org.apache.http.HttpException;
-import org.apache.http.HttpInetConnection;
 import org.apache.http.HttpRequest;
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpResponseFactory;
@@ -56,7 +54,6 @@ import org.apache.http.nio.IOControl;
 import org.apache.http.nio.NHttpConnection;
 import org.apache.http.nio.NHttpServerConnection;
 import org.apache.http.nio.NHttpServiceHandler;
-import org.apache.http.util.concurrent.Executor;
 import org.apache.http.nio.params.HttpNIOParams;
 import org.apache.http.nio.util.ContentInputBuffer;
 import org.apache.http.nio.util.ContentOutputBuffer;
@@ -70,6 +67,7 @@ import org.apache.http.protocol.HttpProcessor;
 import org.apache.http.protocol.HttpRequestHandler;
 import org.apache.http.protocol.HttpRequestHandlerResolver;
 import org.apache.http.util.EncodingUtils;
+import org.apache.http.util.concurrent.Executor;
 
 /**
  * HTTP service handler implementation that allocates content buffers of limited 
@@ -157,11 +155,7 @@ public class ThrottlingHttpServiceHandler implements NHttpServiceHandler {
         context.setAttribute(CONN_STATE, connState);
 
         if (this.eventListener != null) {
-            InetAddress address = null;
-            if (conn instanceof HttpInetConnection) {
-                address = ((HttpInetConnection) conn).getRemoteAddress();
-            }
-            this.eventListener.connectionOpen(address);
+            this.eventListener.connectionOpen(conn);
         }
     }
 
@@ -173,11 +167,7 @@ public class ThrottlingHttpServiceHandler implements NHttpServiceHandler {
         connState.shutdown();
         
         if (this.eventListener != null) {
-            InetAddress address = null;
-            if (conn instanceof HttpInetConnection) {
-                address = ((HttpInetConnection) conn).getRemoteAddress();
-            }
-            this.eventListener.connectionClosed(address);
+            this.eventListener.connectionClosed(conn);
         }
     }
     
@@ -199,12 +189,12 @@ public class ThrottlingHttpServiceHandler implements NHttpServiceHandler {
                 } catch (IOException ex) {
                     shutdownConnection(conn);
                     if (eventListener != null) {
-                        eventListener.fatalIOException(ex);
+                        eventListener.fatalIOException(ex, conn);
                     }
                 } catch (HttpException ex) {
                     shutdownConnection(conn);
                     if (eventListener != null) {
-                        eventListener.fatalProtocolException(ex);
+                        eventListener.fatalProtocolException(ex, conn);
                     }
                 }
             }
@@ -216,7 +206,7 @@ public class ThrottlingHttpServiceHandler implements NHttpServiceHandler {
         shutdownConnection(conn);
         
         if (this.eventListener != null) {
-            this.eventListener.fatalIOException(ex);
+            this.eventListener.fatalIOException(ex, conn);
         }
     }
 
@@ -224,11 +214,7 @@ public class ThrottlingHttpServiceHandler implements NHttpServiceHandler {
         shutdownConnection(conn);
 
         if (this.eventListener != null) {
-            InetAddress address = null;
-            if (conn instanceof HttpInetConnection) {
-                address = ((HttpInetConnection) conn).getRemoteAddress();
-            }
-            this.eventListener.connectionTimeout(address);
+            this.eventListener.connectionTimeout(conn);
         }
     }
 
@@ -254,12 +240,12 @@ public class ThrottlingHttpServiceHandler implements NHttpServiceHandler {
                 } catch (IOException ex) {
                     shutdownConnection(conn);
                     if (eventListener != null) {
-                        eventListener.fatalIOException(ex);
+                        eventListener.fatalIOException(ex, conn);
                     }
                 } catch (HttpException ex) {
                     shutdownConnection(conn);
                     if (eventListener != null) {
-                        eventListener.fatalProtocolException(ex);
+                        eventListener.fatalProtocolException(ex, conn);
                     }
                 }
             }
@@ -287,7 +273,7 @@ public class ThrottlingHttpServiceHandler implements NHttpServiceHandler {
         } catch (IOException ex) {
             shutdownConnection(conn);
             if (this.eventListener != null) {
-                this.eventListener.fatalIOException(ex);
+                this.eventListener.fatalIOException(ex, conn);
             }
         }
     }
@@ -313,12 +299,12 @@ public class ThrottlingHttpServiceHandler implements NHttpServiceHandler {
             } catch (IOException ex) {
                 shutdownConnection(conn);
                 if (eventListener != null) {
-                    eventListener.fatalIOException(ex);
+                    eventListener.fatalIOException(ex, conn);
                 }
             } catch (HttpException ex) {
                 shutdownConnection(conn);
                 if (eventListener != null) {
-                    eventListener.fatalProtocolException(ex);
+                    eventListener.fatalProtocolException(ex, conn);
                 }
             }
         }
@@ -354,7 +340,7 @@ public class ThrottlingHttpServiceHandler implements NHttpServiceHandler {
         } catch (IOException ex) {
             shutdownConnection(conn);
             if (this.eventListener != null) {
-                this.eventListener.fatalIOException(ex);
+                this.eventListener.fatalIOException(ex, conn);
             }
         }
     }

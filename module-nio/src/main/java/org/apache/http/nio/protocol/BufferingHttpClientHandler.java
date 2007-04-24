@@ -134,11 +134,7 @@ public class BufferingHttpClientHandler implements NHttpClientHandler {
         context.setAttribute(CONN_STATE, connState);
 
         if (this.eventListener != null) {
-            InetAddress address = null;
-            if (conn instanceof HttpInetConnection) {
-                address = ((HttpInetConnection) conn).getRemoteAddress();
-            }
-            this.eventListener.connectionOpen(address);
+            this.eventListener.connectionOpen(conn);
         }
         
         requestReady(conn);        
@@ -146,25 +142,21 @@ public class BufferingHttpClientHandler implements NHttpClientHandler {
 
     public void closed(final NHttpClientConnection conn) {
         if (this.eventListener != null) {
-            InetAddress address = null;
-            if (conn instanceof HttpInetConnection) {
-                address = ((HttpInetConnection) conn).getRemoteAddress();
-            }
-            this.eventListener.connectionClosed(address);
+            this.eventListener.connectionClosed(conn);
         }
     }
 
     public void exception(final NHttpClientConnection conn, final HttpException ex) {
         shutdownConnection(conn);
         if (this.eventListener != null) {
-            this.eventListener.fatalProtocolException(ex);
+            this.eventListener.fatalProtocolException(ex, conn);
         }
     }
 
     public void exception(final NHttpClientConnection conn, final IOException ex) {
         shutdownConnection(conn);
         if (this.eventListener != null) {
-            this.eventListener.fatalIOException(ex);
+            this.eventListener.fatalIOException(ex, conn);
         }
     }
     
@@ -183,12 +175,12 @@ public class BufferingHttpClientHandler implements NHttpClientHandler {
         } catch (IOException ex) {
             shutdownConnection(conn);
             if (this.eventListener != null) {
-                this.eventListener.fatalIOException(ex);
+                this.eventListener.fatalIOException(ex, conn);
             }
         } catch (HttpException ex) {
             shutdownConnection(conn);
             if (this.eventListener != null) {
-                this.eventListener.fatalProtocolException(ex);
+                this.eventListener.fatalProtocolException(ex, conn);
             }
         }
     }
@@ -214,12 +206,12 @@ public class BufferingHttpClientHandler implements NHttpClientHandler {
         } catch (IOException ex) {
             shutdownConnection(conn);
             if (this.eventListener != null) {
-                this.eventListener.fatalIOException(ex);
+                this.eventListener.fatalIOException(ex, conn);
             }
         } catch (HttpException ex) {
             shutdownConnection(conn);
             if (this.eventListener != null) {
-                this.eventListener.fatalProtocolException(ex);
+                this.eventListener.fatalProtocolException(ex, conn);
             }
         }
     }
@@ -249,7 +241,7 @@ public class BufferingHttpClientHandler implements NHttpClientHandler {
         } catch (IOException ex) {
             shutdownConnection(conn);
             if (this.eventListener != null) {
-                this.eventListener.fatalIOException(ex);
+                this.eventListener.fatalIOException(ex, conn);
             }
         }
     }
@@ -288,12 +280,12 @@ public class BufferingHttpClientHandler implements NHttpClientHandler {
         } catch (IOException ex) {
             shutdownConnection(conn);
             if (this.eventListener != null) {
-                this.eventListener.fatalIOException(ex);
+                this.eventListener.fatalIOException(ex, conn);
             }
         } catch (HttpException ex) {
             shutdownConnection(conn);
             if (this.eventListener != null) {
-                this.eventListener.fatalProtocolException(ex);
+                this.eventListener.fatalProtocolException(ex, conn);
             }
         }
     }
@@ -312,17 +304,13 @@ public class BufferingHttpClientHandler implements NHttpClientHandler {
         } catch (IOException ex) {
             shutdownConnection(conn);
             if (this.eventListener != null) {
-                this.eventListener.fatalIOException(ex);
+                this.eventListener.fatalIOException(ex, conn);
             }
         }
         
         shutdownConnection(conn);
         if (this.eventListener != null) {
-            InetAddress address = null;
-            if (conn instanceof HttpInetConnection) {
-                address = ((HttpInetConnection) conn).getRemoteAddress();
-            }
-            this.eventListener.connectionTimeout(address);
+            this.eventListener.connectionTimeout(conn);
         }
     }
     

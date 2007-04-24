@@ -1,5 +1,8 @@
 Changes since 4.0 Alpha 4
 
+* [HTTPCORE-67]: Improved event listener interface
+  Oleg Kalnichevski <olegk at apache.org>
+
 * [HTTPCORE-43]: Support for FileChannel#transferFrom() and 
   FileChannel#transferTo() methods. Direct coping from and to FileChannel is 
   expected to improve performance of file bound operations

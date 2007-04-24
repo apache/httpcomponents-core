@@ -32,9 +32,9 @@
 package org.apache.http.nio.protocol;
 
 import java.io.IOException;
-import java.net.InetAddress;
 
 import org.apache.http.HttpException;
+import org.apache.http.nio.NHttpConnection;
 
 /**
  * Event listener used by HTTP protocol layer to report fatal
@@ -44,14 +44,14 @@ import org.apache.http.HttpException;
  */
 public interface EventListener {
 
-    void fatalIOException(IOException ex);
+    void fatalIOException(IOException ex, NHttpConnection conn);
 
-    void fatalProtocolException(HttpException ex);
+    void fatalProtocolException(HttpException ex, NHttpConnection conn);
 
-    void connectionOpen(InetAddress address);
+    void connectionOpen(NHttpConnection conn);
 
-    void connectionClosed(InetAddress address);
+    void connectionClosed(NHttpConnection conn);
 
-    void connectionTimeout(InetAddress address);
+    void connectionTimeout(NHttpConnection conn);
     
 }
