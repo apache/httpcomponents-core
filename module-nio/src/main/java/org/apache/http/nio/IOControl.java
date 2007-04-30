@@ -31,6 +31,8 @@
 
 package org.apache.http.nio;
 
+import java.io.IOException;
+
 /**
  * Connection input/output control interface. It can be used to request or
  * temporarily suspend event notifications that are triggered when the underlying
@@ -63,5 +65,12 @@ public interface IOControl {
      * ready for output operations.
      */
     void suspendOutput();
+    
+    /**
+     * Shuts down the underlying channel.
+     * 
+     * @throws IOException
+     */
+    void shutdown() throws IOException;
     
 }
