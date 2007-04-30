@@ -95,7 +95,7 @@ public class NHttpReverseProxy {
             .setParameter(HttpProtocolParams.USER_AGENT, "Jakarta-HttpComponents-NIO/1.1");
 
         // Target host
-        HttpHost targetHost = new HttpHost("localhost", 80); 
+        HttpHost targetHost = new HttpHost("localhost", 8080); 
         
         final ConnectingIOReactor connectingIOReactor = new DefaultConnectingIOReactor(
                 1, params);
@@ -303,11 +303,11 @@ public class NHttpReverseProxy {
 
                     if (decoder.isCompleted()) {
                         // Update connection state
-                        connState.setOriginState(ConnState.REQUEST_BODY_DONE);
+                        connState.setClientState(ConnState.REQUEST_BODY_DONE);
                         // Suspend client input
                         conn.suspendInput();
                     } else {
-                        connState.setOriginState(ConnState.REQUEST_BODY_STREAM);
+                        connState.setClientState(ConnState.REQUEST_BODY_STREAM);
                     }
                     
                 } catch (IOException ex) {
@@ -629,7 +629,7 @@ public class NHttpReverseProxy {
                 }
                 try {
                     
-                    ByteBuffer src = connState.getOutBuffer();
+                    ByteBuffer src = connState.getInBuffer();
                     src.flip();
                     if (src.hasRemaining()) {
                         int bytesWritten = encoder.write(src);
