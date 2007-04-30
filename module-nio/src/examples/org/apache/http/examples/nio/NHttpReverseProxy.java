@@ -85,18 +85,29 @@ import org.apache.http.protocol.ResponseServer;
 public class NHttpReverseProxy {
 
     public static void main(String[] args) throws Exception {
+        
+        if (args.length < 1) {
+            System.out.println("Usage: NHttpReverseProxy <hostname> [port]");
+            System.exit(1);
+        }
+        String hostname = args[0];
+        int port = 80;
+        if (args.length > 1) {
+            port = Integer.parseInt(args[1]);
+        }
+        
+        // Target host
+        HttpHost targetHost = new HttpHost(hostname, port); 
+        
         HttpParams params = new BasicHttpParams();
         params
-            .setIntParameter(HttpConnectionParams.SO_TIMEOUT, 5000)
+            .setIntParameter(HttpConnectionParams.SO_TIMEOUT, 30000)
             .setIntParameter(HttpConnectionParams.SOCKET_BUFFER_SIZE, 8 * 1024)
             .setBooleanParameter(HttpConnectionParams.STALE_CONNECTION_CHECK, false)
             .setBooleanParameter(HttpConnectionParams.TCP_NODELAY, true)
             .setParameter(HttpProtocolParams.ORIGIN_SERVER, "Jakarta-HttpComponents-NIO/1.1")
             .setParameter(HttpProtocolParams.USER_AGENT, "Jakarta-HttpComponents-NIO/1.1");
 
-        // Target host
-        HttpHost targetHost = new HttpHost("localhost", 8080); 
-        
         final ConnectingIOReactor connectingIOReactor = new DefaultConnectingIOReactor(
                 1, params);
 
@@ -298,10 +309,13 @@ public class NHttpReverseProxy {
                     // If there is some content in the input buffer make sure origin 
                     // output is active
                     if (dst.position() > 0) {
-                        connState.getOriginIOControl().requestOutput();
+                        if (connState.getOriginIOControl() != null) {
+                            connState.getOriginIOControl().requestOutput();
+                        }
                     }
 
                     if (decoder.isCompleted()) {
+                        System.out.println(conn + ": client conn request body received");
                         // Update connection state
                         connState.setClientState(ConnState.REQUEST_BODY_DONE);
                         // Suspend client input
@@ -323,6 +337,10 @@ public class NHttpReverseProxy {
             ConnState connState = (ConnState) context.getAttribute(ConnState.ATTRIB);
 
             synchronized (connState) {
+                if (connState.getClientState() == ConnState.IDLE) {
+                    // Fired prematurely
+                    return;
+                }
                 // Validate connection state
                 if (connState.getClientState() != ConnState.REQUEST_RECEIVED
                         && connState.getClientState() != ConnState.REQUEST_BODY_DONE) {
@@ -433,6 +451,7 @@ public class NHttpReverseProxy {
 
                     // Update connection state
                     if (encoder.isCompleted()) {
+                        System.out.println(conn + ": client conn response body sent");
                         connState.setClientState(ConnState.RESPONSE_BODY_DONE);
                         if (!this.connStrategy.keepAlive(response, context)) {
                             conn.close();
@@ -648,6 +667,7 @@ public class NHttpReverseProxy {
                     }
                     // Update connection state
                     if (encoder.isCompleted()) {
+                        System.out.println(conn + ": origin conn request body sent");
                         connState.setOriginState(ConnState.REQUEST_BODY_DONE);
                     } else {
                         connState.setOriginState(ConnState.REQUEST_BODY_STREAM);
@@ -754,6 +774,7 @@ public class NHttpReverseProxy {
                     }
                     
                     if (decoder.isCompleted()) {
+                        System.out.println(conn + ": origin conn response body received");
                         connState.setOriginState(ConnState.RESPONSE_BODY_DONE);
                         if (!this.connStrategy.keepAlive(response, context)) {
                             conn.close();
@@ -893,8 +914,8 @@ public class NHttpReverseProxy {
             return this.clientState;
         }
 
-        public void setClientState(int clientState) {
-            this.clientState = clientState;
+        public void setClientState(int state) {
+            this.clientState = state;
         }
 
         public void reset() {
