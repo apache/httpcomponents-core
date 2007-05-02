@@ -39,7 +39,7 @@ import org.apache.http.nio.reactor.IOSession;
 import org.apache.http.nio.reactor.SessionRequest;
 import org.apache.http.nio.reactor.SessionRequestCallback;
 
-class SessionRequestImpl implements SessionRequest {
+public class SessionRequestImpl implements SessionRequest {
 
     private volatile boolean completed;
     private volatile SelectionKey key;

@@ -46,7 +46,7 @@ import java.util.Map;
 import org.apache.http.nio.reactor.IOSession;
 import org.apache.http.nio.reactor.SessionBufferStatus;
 
-class IOSessionImpl implements IOSession {
+public class IOSessionImpl implements IOSession {
     
     private volatile boolean closed = false;
     
