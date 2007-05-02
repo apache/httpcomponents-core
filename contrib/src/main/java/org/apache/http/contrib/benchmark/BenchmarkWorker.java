@@ -30,45 +30,31 @@
  */
 package org.apache.http.contrib.benchmark;
 
+import org.apache.http.*;
+import org.apache.http.impl.DefaultConnectionReuseStrategy;
+import org.apache.http.impl.DefaultHttpClientConnection;
+import org.apache.http.params.HttpParams;
+import org.apache.http.protocol.*;
+import org.apache.http.util.EntityUtils;
+
+import javax.net.ssl.SSLSocketFactory;
+import javax.net.SocketFactory;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.Socket;
 import java.util.Iterator;
-
-import org.apache.http.ConnectionReuseStrategy;
-import org.apache.http.Header;
-import org.apache.http.HttpEntity;
-import org.apache.http.HttpException;
-import org.apache.http.HttpHost;
-import org.apache.http.HttpRequest;
-import org.apache.http.HttpResponse;
-import org.apache.http.impl.DefaultConnectionReuseStrategy;
-import org.apache.http.impl.DefaultHttpClientConnection;
-import org.apache.http.params.HttpParams;
-import org.apache.http.protocol.BasicHttpProcessor;
-import org.apache.http.protocol.HTTP;
-import org.apache.http.protocol.HttpContext;
-import org.apache.http.protocol.HttpExecutionContext;
-import org.apache.http.protocol.HttpRequestExecutor;
-import org.apache.http.protocol.RequestConnControl;
-import org.apache.http.protocol.RequestContent;
-import org.apache.http.protocol.RequestExpectContinue;
-import org.apache.http.protocol.RequestTargetHost;
-import org.apache.http.protocol.RequestUserAgent;
-import org.apache.http.util.EntityUtils;
 
 /**
  * Worker thread for the {@link HttpBenchmark HttpBenchmark}.
  *
  * @author <a href="mailto:oleg at ural.ru">Oleg Kalnichevski</a>
  *
- *
  * <!-- empty lines above to avoid 'svn diff' context problems -->
  * @version $Revision$
  * 
  * @since 4.0
  */
-public class BenchmarkWorker {
+public class BenchmarkWorker implements Runnable {
 
     private byte[] buffer = new byte[4096];
     private final int verbosity;
@@ -76,11 +62,22 @@ public class BenchmarkWorker {
     private final HttpContext context;
     private final HttpRequestExecutor httpexecutor;
     private final ConnectionReuseStrategy connstrategy;
-    
-    public BenchmarkWorker(final HttpParams params, int verbosity) {
+    private final HttpRequest request;
+    private final HttpHost targetHost;
+    private final int count;
+    private final boolean keepalive;
+    private final Stats stats = new Stats();
+
+    public BenchmarkWorker(final HttpParams params, int verbosity, final HttpRequest request,
+        final HttpHost targetHost, int count, boolean keepalive) {
+
         super();
         this.params = params;
         this.context = new HttpExecutionContext(null);
+        this.request = request;
+        this.targetHost = targetHost;
+        this.count = count;
+        this.keepalive = keepalive;
 
         BasicHttpProcessor httpproc = new BasicHttpProcessor();
         this.httpexecutor = new HttpRequestExecutor(httpproc);
@@ -93,56 +90,59 @@ public class BenchmarkWorker {
         httpproc.addInterceptor(new RequestConnControl());
         httpproc.addInterceptor(new RequestUserAgent());
         httpproc.addInterceptor(new RequestExpectContinue());
-        
+
         this.connstrategy = new DefaultConnectionReuseStrategy();
         this.verbosity = verbosity;
     }
-    
-    public Stats execute(
-            final HttpRequest request, 
-            final HttpHost targetHost, 
-            int count,
-            boolean keepalive) throws HttpException {
+
+    public void run() {
+
         HttpResponse response = null;
-        DefaultHttpClientConnection conn = new DefaultHttpClientConnection(); 
-        Stats stats = new Stats();
-        stats.start();
-        
+        DefaultHttpClientConnection conn = new DefaultHttpClientConnection();
+
         String hostname = targetHost.getHostName();
         int port = targetHost.getPort();
         if (port == -1) {
             port = 80;
         }
-        
+
         this.context.setAttribute(HttpExecutionContext.HTTP_TARGET_HOST, targetHost);
-        
-        for (int i = 0; i < count; i++) {
+        stats.start();
+
+        for (int i=0; i < count; i++) {
+
             try {
                 resetHeader(request);
                 if (!conn.isOpen()) {
-                    Socket socket = new Socket(hostname, port);
+                    Socket socket = null;
+                    if ("https".equals(targetHost.getSchemeName())) {
+                        SocketFactory socketFactory = SSLSocketFactory.getDefault();
+                        socket = socketFactory.createSocket(hostname, port);
+                    } else {
+                        socket = new Socket(hostname, port);
+                    }
                     conn.bind(socket, params);
                 }
-                response = this.httpexecutor.execute(request, conn, this.context);
-                if (this.verbosity >= 3) {
-                    System.out.println(">> " + request.getRequestLine().toString());
-                    Header[] headers = request.getAllHeaders();
-                    for (int h = 0; h < headers.length; h++) {
-                        System.out.println(">> " + headers[h].toString());
+
+                try {
+                    response = this.httpexecutor.execute(request, conn, this.context);
+                } catch (HttpException e) {
+                    stats.incWriteErrors();
+                    if (this.verbosity >= 2) {
+                        System.err.println("Failed HTTP request : " + e.getMessage());
                     }
-                    System.out.println();
+                    continue;
                 }
-                if (this.verbosity >= 2) {
-                    System.out.println(response.getStatusLine().getStatusCode());
+
+                verboseOutput(response);
+
+                if (response.getStatusLine().getStatusCode() == HttpStatus.SC_OK) {
+                    stats.incSuccessCount();
+                } else {
+                    stats.incFailureCount();
+                    continue;
                 }
-                if (this.verbosity >= 3) {
-                    System.out.println("<< " + response.getStatusLine().toString());
-                    Header[] headers = response.getAllHeaders();
-                    for (int h = 0; h < headers.length; h++) {
-                        System.out.println("<< " + headers[h].toString());
-                    }
-                    System.out.println();
-                }
+
                 HttpEntity entity = response.getEntity();
                 String charset = EntityUtils.getContentCharSet(entity);
                 if (charset == null) {
@@ -153,47 +153,77 @@ public class BenchmarkWorker {
                     InputStream instream = entity.getContent();
                     int l = 0;
                     while ((l = instream.read(this.buffer)) != -1) {
-                        stats.incTotal(l);
+                        stats.incTotalBytesRecv(l);
                         contentlen += l;
                         if (this.verbosity >= 4) {
                             String s = new String(this.buffer, 0, l, charset);
                             System.out.print(s);
                         }
                     }
+                    instream.close();
                 }
+
                 if (this.verbosity >= 4) {
                     System.out.println();
                     System.out.println();
                 }
+
                 if (!keepalive || !this.connstrategy.keepAlive(response, this.context)) {
                     conn.close();
                 }
                 stats.setContentLength(contentlen);
-                stats.incSuccessCount();
+
             } catch (IOException ex) {
+                ex.printStackTrace();
                 stats.incFailureCount();
                 if (this.verbosity >= 2) {
                     System.err.println("I/O error: " + ex.getMessage());
                 }
             }
+
         }
         stats.finish();
+
         if (response != null) {
             Header header = response.getFirstHeader("Server");
             if (header != null) {
                 stats.setServerName(header.getValue());
             }
         }
-        return stats;
+    }
+
+    private void verboseOutput(HttpResponse response) {
+        if (this.verbosity >= 3) {
+            System.out.println(">> " + request.getRequestLine().toString());
+            Header[] headers = request.getAllHeaders();
+            for (int h = 0; h < headers.length; h++) {
+                System.out.println(">> " + headers[h].toString());
+            }
+            System.out.println();
+        }
+        if (this.verbosity >= 2) {
+            System.out.println(response.getStatusLine().getStatusCode());
+        }
+        if (this.verbosity >= 3) {
+            System.out.println("<< " + response.getStatusLine().toString());
+            Header[] headers = response.getAllHeaders();
+            for (int h = 0; h < headers.length; h++) {
+                System.out.println("<< " + headers[h].toString());
+            }
+            System.out.println();
+        }
     }
 
     private static void resetHeader(final HttpRequest request) {
-        for (Iterator it = request.headerIterator(); it.hasNext(); ) {
+        for (Iterator it = request.headerIterator(); it.hasNext();) {
             Header header = (Header) it.next();
             if (!(header instanceof DefaultHeader)) {
                 it.remove();
             }
         }
     }
-    
+
+    public Stats getStats() {
+        return stats;
+    }
 }

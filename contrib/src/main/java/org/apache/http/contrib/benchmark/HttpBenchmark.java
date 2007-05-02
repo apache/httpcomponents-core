@@ -35,8 +35,6 @@ import java.net.URL;
 
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
-import org.apache.commons.cli.HelpFormatter;
-import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.PosixParser;
 import org.apache.http.Header;
@@ -52,11 +50,15 @@ import org.apache.http.params.HttpParams;
 import org.apache.http.params.HttpProtocolParams;
 import org.apache.http.protocol.HTTP;
 
+import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.ThreadFactory;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
+
 /**
  * Main program of the HTTP benchmark.
  *
  * @author <a href="mailto:oleg at ural.ru">Oleg Kalnichevski</a>
- *
  *
  * <!-- empty lines above to avoid 'svn diff' context problems -->
  * @version $Revision$
@@ -65,212 +67,126 @@ import org.apache.http.protocol.HTTP;
  */
 public class HttpBenchmark {
 
+    private HttpParams params = getHttpParams();
+    private HttpRequest[] request = null;
+    private HttpHost host = null;
+    protected int verbosity = 0;
+    protected boolean keepAlive = false;
+    protected int requests = 1;
+    protected int threads = 1;
+    protected URL url = null;
+    protected File postFile = null;
+    protected String contentType = null;
+    protected String[] headers = null;
+    protected boolean doHeadInsteadOfGet = false;
+    private long contentLength = -1;
+
     public static void main(String[] args) throws Exception {
 
+        Options options = CommandLineUtils.getOptions();
+        CommandLineParser parser = new PosixParser();
+        CommandLine cmd = parser.parse(options, args);
+
+        if (args.length == 0 || cmd.hasOption('h') || cmd.getArgs().length != 1) {
+            CommandLineUtils.showUsage(options);
+            System.exit(1);
+        }
+
+        HttpBenchmark httpBenchmark = new HttpBenchmark();
+        CommandLineUtils.parseCommandLine(cmd, httpBenchmark);
+        httpBenchmark.execute();
+    }
+
+
+    private void prepare() {
+        host = new HttpHost(url.getHost(), url.getPort(), url.getProtocol());
+
+        // Prepare requests for each thread
+        request = new HttpRequest[threads];
+
+        if (postFile != null) {
+            FileEntity entity = new FileEntity(postFile, contentType);
+            contentLength = entity.getContentLength();
+            if (postFile.length() > 100000) {
+                entity.setChunked(true);
+            }
+
+            for (int i = 0; i < threads; i++) {
+                BasicHttpEntityEnclosingRequest httppost = new BasicHttpEntityEnclosingRequest("POST", url.getPath());
+                httppost.setEntity(entity);
+                request[i] = httppost;
+            }
+
+        } else if (doHeadInsteadOfGet) {
+            for (int i = 0; i < threads; i++) {
+                request[i] = new BasicHttpRequest("HEAD", url.getPath());
+            }
+
+        } else {
+            for (int i = 0; i < threads; i++) {
+                request[i] = new BasicHttpRequest("GET", url.getPath());
+            }
+        }
+
+        if (!keepAlive) {
+            for (int i = 0; i < threads; i++) {
+                request[i].addHeader(new DefaultHeader(HTTP.CONN_DIRECTIVE, HTTP.CONN_CLOSE));
+            }
+        }
+
+        for (int i = 0; i < headers.length; i++) {
+            String s = headers[i];
+            int pos = s.indexOf(':');
+            if (pos != -1) {
+                Header header = new DefaultHeader(s.substring(0, pos).trim(), s.substring(pos + 1));
+                for (int j = 0; j < threads; j++) {
+                    request[j].addHeader(header);
+                }
+            }
+        }
+    }
+
+    private void execute() {
+
+        prepare();
+
+        ThreadPoolExecutor workerPool = new ThreadPoolExecutor(
+            threads, threads, 5, TimeUnit.SECONDS,
+            new LinkedBlockingQueue<Runnable>(),
+            new ThreadFactory() {
+                
+                public Thread newThread(Runnable r) {
+                    return new Thread(r, "ClientPool");
+                }
+                
+            });
+        workerPool.prestartAllCoreThreads();
+
+        BenchmarkWorker[] workers = new BenchmarkWorker[threads];
+        for (int i = 0; i < threads; i++) {
+            workers[i] = new BenchmarkWorker(params, verbosity, request[i], host, requests, keepAlive);
+            workerPool.execute(workers[i]);
+        }
+
+        while (workerPool.getCompletedTaskCount() < threads) {
+            Thread.yield();
+            try {
+                Thread.sleep(1000);
+            } catch (InterruptedException ignore) {
+            }
+        }
+
+        workerPool.shutdown();
+        ResultProcessor.printResults(workers, host, url.toString(), contentLength);
+    }
+
+    private static HttpParams getHttpParams() {
         HttpParams params = new BasicHttpParams(null);
         params.setParameter(HttpProtocolParams.PROTOCOL_VERSION, HttpVersion.HTTP_1_1)
             .setParameter(HttpProtocolParams.USER_AGENT, "Jakarta-HttpComponents-Bench/1.1")
             .setBooleanParameter(HttpProtocolParams.USE_EXPECT_CONTINUE, false)
             .setBooleanParameter(HttpConnectionParams.STALE_CONNECTION_CHECK, false);
-        
-        Option iopt = new Option("i", false, "Do HEAD requests instead of GET.");
-        iopt.setRequired(false);
-        
-        Option kopt = new Option("k", false, "Enable the HTTP KeepAlive feature, " +
-                "i.e., perform multiple requests within one HTTP session. " +
-                "Default is no KeepAlive");
-        kopt.setRequired(false);
-        
-        Option nopt = new Option("n", true, "Number of requests to perform for the " +
-                "benchmarking session. The default is to just perform a single " +
-                "request which usually leads to non-representative benchmarking " +
-                "results.");
-        nopt.setRequired(false);
-        nopt.setArgName("requests");
-        
-        Option popt = new Option("p", true, "File containing data to POST.");
-        popt.setRequired(false);
-        popt.setArgName("POST-file");
-
-        Option Topt = new Option("T", true, "Content-type header to use for POST data.");
-        Topt.setRequired(false);
-        Topt.setArgName("content-type");
-
-        Option Hopt = new Option("H", true, "Add arbitrary header line, " +
-                "eg. 'Accept-Encoding: gzip' inserted after all normal " +
-                "header lines. (repeatable)");
-        Hopt.setRequired(false);
-        Hopt.setArgName("header");
-
-        Option vopt = new Option("v", true, "Set verbosity level - 4 and above " +
-                "prints response content, 3 and above prints " +
-                "information on headers, 2 and above prints response codes (404, 200, " +
-                "etc.), 1 and above prints warnings and info.");
-        vopt.setRequired(false);
-        vopt.setArgName("verbosity");
-
-        Option hopt = new Option("h", false, "Display usage information.");
-        nopt.setRequired(false);
-        
-        Options options = new Options();
-        options.addOption(iopt);
-        options.addOption(kopt);
-        options.addOption(nopt);
-        options.addOption(popt);
-        options.addOption(Topt);
-        options.addOption(vopt);
-        options.addOption(Hopt);
-        options.addOption(hopt);
-
-        if (args.length == 0) {
-            showUsage(options);
-            System.exit(1);
-        }
-        
-        CommandLineParser parser = new PosixParser();
-        CommandLine cmd = parser.parse(options, args);
-        
-        if (cmd.hasOption('h')) {
-            showUsage(options);
-            System.exit(1);
-        }
-        
-        int verbosity = 0;
-        if(cmd.hasOption('v')) {
-            String s = cmd.getOptionValue('v');
-            try {
-                verbosity = Integer.parseInt(s);
-            } catch (NumberFormatException ex) {
-                System.err.println("Invalid verbosity level: " + s);
-                showUsage(options);
-                System.exit(-1);
-            }
-        }
-        
-        boolean keepAlive = false;
-        if(cmd.hasOption('k')) {
-            keepAlive = true;
-        }
-        
-        int num = 1;
-        if(cmd.hasOption('n')) {
-            String s = cmd.getOptionValue('n');
-            try {
-                num = Integer.parseInt(s);
-            } catch (NumberFormatException ex) {
-                System.err.println("Invalid number of requests: " + s);
-                showUsage(options);
-                System.exit(-1);
-            }
-        }
-
-        args = cmd.getArgs();
-        if (args.length != 1) {
-            showUsage(options);
-            System.exit(-1);
-        }
-        // Parse the target url 
-        URL url = new URL(args[0]); 
-        
-        // Prepare connection
-        HttpHost host = new HttpHost(
-                url.getHost(), 
-                url.getPort(), 
-                url.getProtocol());
-        
-        // Prepare request
-        HttpRequest request = null;
-        if (cmd.hasOption('p')) {
-            File file = new File(cmd.getOptionValue('p'));
-            if (!file.exists()) {
-                System.err.println("File not found: " + file);
-                System.exit(-1);
-            }
-            String contenttype = null;
-            if (cmd.hasOption('T')) {
-                contenttype = cmd.getOptionValue('T'); 
-            }
-            FileEntity entity = new FileEntity(file, contenttype);
-            if (file.length() > 100000) {
-                entity.setChunked(true);
-            }
-            BasicHttpEntityEnclosingRequest httppost = 
-                new BasicHttpEntityEnclosingRequest("POST", url.getPath());
-            httppost.setEntity(entity);
-            request = httppost;
-        } else if (cmd.hasOption('i')) {
-            BasicHttpRequest httphead = new BasicHttpRequest("HEAD", url.getPath());
-            request = httphead;
-        } else {
-            BasicHttpRequest httpget = new BasicHttpRequest("GET", url.getPath());
-            request = httpget;
-        }
-        if (!keepAlive) {
-            request.addHeader(new DefaultHeader(HTTP.CONN_DIRECTIVE, HTTP.CONN_CLOSE));
-        }
-
-        if(cmd.hasOption('H')) {
-            String[] strs = cmd.getOptionValues('H');
-            for (int i = 0; i < strs.length; i++) {
-                String s = strs[i];
-                int pos = s.indexOf(':');
-                if (pos != -1) {
-                    Header header = new DefaultHeader(
-                            s.substring(0, pos).trim(),
-                            s.substring(pos + 1));
-                    request.addHeader(header);
-                }
-            }
-        }
-        
-        BenchmarkWorker worker = new BenchmarkWorker(params, verbosity);
-        
-        // Execute
-        Stats stats = worker.execute(request, host, num, keepAlive);
-        
-        // Show the results
-        float totalTimeSec = (float)stats.getDuration() / 1000;
-        float reqsPerSec = (float)stats.getSuccessCount() / totalTimeSec; 
-        float timePerReqMs = (float)stats.getDuration() / (float)stats.getSuccessCount(); 
-        
-        System.out.print("Server Software:\t");
-        System.out.println(stats.getServerName());
-        System.out.print("Server Hostname:\t");
-        System.out.println(host.getHostName());
-        System.out.print("Server Port:\t\t");
-        if (host.getPort() > 0) {
-            System.out.println(host.getPort());
-        } else {
-            System.out.println("80");
-        }
-        System.out.println();
-        System.out.print("Document Path:\t\t");
-        System.out.println(request.getRequestLine().getUri());
-        System.out.print("Document Length:\t");
-        System.out.print(stats.getContentLength());
-        System.out.println(" bytes");
-        System.out.println();
-        System.out.print("Time taken for tests:\t");
-        System.out.print(totalTimeSec);
-        System.out.println(" seconds");
-        System.out.print("Complete requests:\t");
-        System.out.println(stats.getSuccessCount());
-        System.out.print("Failed requests:\t");
-        System.out.println(stats.getFailureCount());
-        System.out.print("Content transferred:\t");
-        System.out.print(stats.getTotal());
-        System.out.println(" bytes");
-        System.out.print("Requests per second:\t");
-        System.out.print(reqsPerSec);
-        System.out.println(" [#/sec] (mean)");
-        System.out.print("Time per request:\t");
-        System.out.print(timePerReqMs);
-        System.out.println(" [ms] (mean)");
+        return params;
     }
 
-    private static void showUsage(final Options options) {
-        HelpFormatter formatter = new HelpFormatter();
-        formatter.printHelp("HttpBenchmark [options] [http://]hostname[:port]/path", options);
-    }
-    
 }

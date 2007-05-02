@@ -42,24 +42,25 @@ package org.apache.http.contrib.benchmark;
  */
 public class Stats {
 
-    private long startTime = -1;
-    private long finishTime = -1;
+    private long startTime = -1;    // nano seconds - does not represent an actual time
+    private long finishTime = -1;   // nano seconds - does not represent an actual time
     private int successCount = 0;
     private int failureCount = 0;
+    private int writeErrors = 0;
     private String serverName = null;
-    private long total = 0;
+    private long totalBytesRecv = 0;
     private long contentLength = -1;
-    
+
     public Stats() {
         super();
     }
 
     public void start() {
-        this.startTime = System.currentTimeMillis();
+        this.startTime = System.nanoTime();
     }
 
     public void finish() {
-        this.finishTime = System.currentTimeMillis();
+        this.finishTime = System.nanoTime();
     }
 
     public long getFinishTime() {
@@ -70,17 +71,21 @@ public class Stats {
         return this.startTime;
     }
 
+    /**
+     * Total execution time measured in nano seconds
+     *
+     * @return
+     */
     public long getDuration() {
-        if (this.startTime < 0 || this.finishTime < 0) {
-            throw new IllegalStateException();
-        }
-        return this.finishTime - this.startTime; 
+        // we are using System.nanoTime() and the return values could be negative
+        // but its only the difference that we are concerned about
+        return this.finishTime - this.startTime;
     }
-    
+
     public void incSuccessCount() {
         this.successCount++;
     }
-    
+
     public void incFailureCount() {
         this.failureCount++;
     }
@@ -89,18 +94,26 @@ public class Stats {
         return this.failureCount;
     }
 
+    public void incWriteErrors() {
+        this.writeErrors++;
+    }
+
+    public int getWriteErrors() {
+        return this.writeErrors;
+    }
+
     public int getSuccessCount() {
         return this.successCount;
     }
 
-    public long getTotal() {
-        return this.total;
+    public long getTotalBytesRecv() {
+        return this.totalBytesRecv;
     }
-    
-    public void incTotal(int n) {
-        this.total += n;
+
+    public void incTotalBytesRecv(int n) {
+        this.totalBytesRecv += n;
     }
-    
+
     public long getContentLength() {
         return this.contentLength;
     }
@@ -115,6 +128,6 @@ public class Stats {
 
     public void setServerName(final String serverName) {
         this.serverName = serverName;
-    }   
-    
+    }
+
 }
