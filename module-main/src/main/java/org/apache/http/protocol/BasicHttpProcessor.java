@@ -223,4 +223,20 @@ public class BasicHttpProcessor implements
         }
     }
     
+    /**
+     * Creates a copy of this instance
+     * 
+     * @return new instance of the BasicHttpProcessor
+     */
+    public BasicHttpProcessor copy() {
+        BasicHttpProcessor clone = new BasicHttpProcessor();
+        if (this.requestInterceptors != null) {
+            clone.requestInterceptors = new ArrayList(this.requestInterceptors);
+        }
+        if (this.responseInterceptors != null) {
+            clone.responseInterceptors = new ArrayList(this.responseInterceptors);
+        }
+        return clone;
+    }
+    
 }
