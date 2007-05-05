@@ -66,7 +66,6 @@ public class SpringHttpDemo {
         HttpParams params = (HttpParams) beanfactory.getBean("params");
         
         HttpRequestExecutor httpexec = (HttpRequestExecutor)beanfactory.getBean("http-executor");
-        httpexec.setParams(params);
         
         HttpHost host = new HttpHost("www.yahoo.com", 80);
 

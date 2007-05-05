@@ -61,7 +61,7 @@
   <bean id="http-executor" 
     class="org.apache.http.protocol.HttpRequestExecutor" 
     singleton="true" >
-    <constructor-arg index="0"><ref bean="http-processor"/></constructor-arg>
+    <constructor-arg index="0"><ref bean="params"/></constructor-arg>
   </bean>
   
   <bean id="http-request-factory"

@@ -87,16 +87,17 @@ public class ElementalHttpPost {
         httpproc.addInterceptor(new RequestUserAgent());
         httpproc.addInterceptor(new RequestExpectContinue());
         
-        HttpRequestExecutor httpexecutor = new HttpRequestExecutor(httpproc);
-        httpexecutor.setParams(params);
+        HttpRequestExecutor httpexecutor = new HttpRequestExecutor(params);
 
         HttpContext context = new HttpExecutionContext(null);
         
         HttpHost host = new HttpHost("localhost", 8080);
-        context.setAttribute(HttpExecutionContext.HTTP_TARGET_HOST, host);
         
         DefaultHttpClientConnection conn = new DefaultHttpClientConnection();
         ConnectionReuseStrategy connStrategy = new DefaultConnectionReuseStrategy();
+
+        context.setAttribute(HttpExecutionContext.HTTP_CONNECTION, conn);
+        context.setAttribute(HttpExecutionContext.HTTP_TARGET_HOST, host);
 
         try {
             
@@ -120,7 +121,13 @@ public class ElementalHttpPost {
                         "/servlets-examples/servlet/RequestInfoExample");
                 request.setEntity(requestBodies[i]);
                 System.out.println(">> Request URI: " + request.getRequestLine().getUri());
+
+                context.setAttribute(HttpExecutionContext.HTTP_REQUEST, request);
+                
+                httpexecutor.preProcess(request, httpproc, context);
                 HttpResponse response = httpexecutor.execute(request, conn, context);
+                httpexecutor.postProcess(response, httpproc, context);
+                
                 System.out.println("<< Response: " + response.getStatusLine());
                 System.out.println(EntityUtils.toString(response.getEntity()));
                 System.out.println("==============");

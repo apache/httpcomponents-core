@@ -112,7 +112,8 @@ public class HttpBenchmark {
             }
 
             for (int i = 0; i < threads; i++) {
-                BasicHttpEntityEnclosingRequest httppost = new BasicHttpEntityEnclosingRequest("POST", url.getPath());
+                BasicHttpEntityEnclosingRequest httppost = 
+                    new BasicHttpEntityEnclosingRequest("POST", url.getPath());
                 httppost.setEntity(entity);
                 request[i] = httppost;
             }
@@ -134,13 +135,15 @@ public class HttpBenchmark {
             }
         }
 
-        for (int i = 0; i < headers.length; i++) {
-            String s = headers[i];
-            int pos = s.indexOf(':');
-            if (pos != -1) {
-                Header header = new DefaultHeader(s.substring(0, pos).trim(), s.substring(pos + 1));
-                for (int j = 0; j < threads; j++) {
-                    request[j].addHeader(header);
+        if (headers != null) {
+            for (int i = 0; i < headers.length; i++) {
+                String s = headers[i];
+                int pos = s.indexOf(':');
+                if (pos != -1) {
+                    Header header = new DefaultHeader(s.substring(0, pos).trim(), s.substring(pos + 1));
+                    for (int j = 0; j < threads; j++) {
+                        request[j].addHeader(header);
+                    }
                 }
             }
         }
@@ -164,7 +167,13 @@ public class HttpBenchmark {
 
         BenchmarkWorker[] workers = new BenchmarkWorker[threads];
         for (int i = 0; i < threads; i++) {
-            workers[i] = new BenchmarkWorker(params, verbosity, request[i], host, requests, keepAlive);
+            workers[i] = new BenchmarkWorker(
+                    params, 
+                    verbosity, 
+                    request[i], 
+                    host, 
+                    requests, 
+                    keepAlive);
             workerPool.execute(workers[i]);
         }
 

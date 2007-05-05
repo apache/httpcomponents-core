@@ -60,6 +60,7 @@ public class BenchmarkWorker implements Runnable {
     private final int verbosity;
     private final HttpParams params;
     private final HttpContext context;
+    private final BasicHttpProcessor httpProcessor;
     private final HttpRequestExecutor httpexecutor;
     private final ConnectionReuseStrategy connstrategy;
     private final HttpRequest request;
@@ -68,8 +69,13 @@ public class BenchmarkWorker implements Runnable {
     private final boolean keepalive;
     private final Stats stats = new Stats();
 
-    public BenchmarkWorker(final HttpParams params, int verbosity, final HttpRequest request,
-        final HttpHost targetHost, int count, boolean keepalive) {
+    public BenchmarkWorker(
+            final HttpParams params, 
+            int verbosity, 
+            final HttpRequest request,
+            final HttpHost targetHost, 
+            int count, 
+            boolean keepalive) {
 
         super();
         this.params = params;
@@ -79,17 +85,16 @@ public class BenchmarkWorker implements Runnable {
         this.count = count;
         this.keepalive = keepalive;
 
-        BasicHttpProcessor httpproc = new BasicHttpProcessor();
-        this.httpexecutor = new HttpRequestExecutor(httpproc);
-        this.httpexecutor.setParams(params);
+        this.httpProcessor = new BasicHttpProcessor();
+        this.httpexecutor = new HttpRequestExecutor(params);
 
         // Required request interceptors
-        httpproc.addInterceptor(new RequestContent());
-        httpproc.addInterceptor(new RequestTargetHost());
+        this.httpProcessor.addInterceptor(new RequestContent());
+        this.httpProcessor.addInterceptor(new RequestTargetHost());
         // Recommended request interceptors
-        httpproc.addInterceptor(new RequestConnControl());
-        httpproc.addInterceptor(new RequestUserAgent());
-        httpproc.addInterceptor(new RequestExpectContinue());
+        this.httpProcessor.addInterceptor(new RequestConnControl());
+        this.httpProcessor.addInterceptor(new RequestUserAgent());
+        this.httpProcessor.addInterceptor(new RequestExpectContinue());
 
         this.connstrategy = new DefaultConnectionReuseStrategy();
         this.verbosity = verbosity;
@@ -106,7 +111,11 @@ public class BenchmarkWorker implements Runnable {
             port = 80;
         }
 
-        this.context.setAttribute(HttpExecutionContext.HTTP_TARGET_HOST, targetHost);
+        // Populate the execution context
+        this.context.setAttribute(HttpExecutionContext.HTTP_CONNECTION, conn);
+        this.context.setAttribute(HttpExecutionContext.HTTP_TARGET_HOST, this.targetHost);
+        this.context.setAttribute(HttpExecutionContext.HTTP_REQUEST, this.request);
+
         stats.start();
 
         for (int i=0; i < count; i++) {
@@ -125,7 +134,13 @@ public class BenchmarkWorker implements Runnable {
                 }
 
                 try {
-                    response = this.httpexecutor.execute(request, conn, this.context);
+                    // Prepare request
+                    this.httpexecutor.preProcess(this.request, this.httpProcessor, this.context);
+                    // Execute request and get a response
+                    response = this.httpexecutor.execute(this.request, conn, this.context);
+                    // Finalize response
+                    this.httpexecutor.postProcess(response, this.httpProcessor, this.context);
+                    
                 } catch (HttpException e) {
                     stats.incWriteErrors();
                     if (this.verbosity >= 2) {

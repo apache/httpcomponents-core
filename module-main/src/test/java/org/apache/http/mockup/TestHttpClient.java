@@ -81,8 +81,7 @@ public class TestHttpClient {
         this.httpproc.addInterceptor(new RequestUserAgent());
         this.httpproc.addInterceptor(new RequestExpectContinue());
 
-        this.httpexecutor = new HttpRequestExecutor(this.httpproc);
-        this.httpexecutor.setParams(this.params);
+        this.httpexecutor = new HttpRequestExecutor(this.params);
         this.connStrategy = new DefaultConnectionReuseStrategy();
         this.context = new HttpExecutionContext(null);
     }
@@ -95,8 +94,13 @@ public class TestHttpClient {
             final HttpRequest request,
             final HttpHost targetHost,
             final HttpClientConnection conn) throws HttpException, IOException {
+        this.context.setAttribute(HttpExecutionContext.HTTP_REQUEST, request);
         this.context.setAttribute(HttpExecutionContext.HTTP_TARGET_HOST, targetHost);
-        return this.httpexecutor.execute(request, conn, this.context);
+        this.context.setAttribute(HttpExecutionContext.HTTP_CONNECTION, conn);
+        this.httpexecutor.preProcess(request, this.httpproc, this.context);
+        HttpResponse response = this.httpexecutor.execute(request, conn, this.context);
+        this.httpexecutor.postProcess(response, this.httpproc, this.context);
+        return response;
     }
     
     public boolean keepAlive(final HttpResponse response) {

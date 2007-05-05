@@ -57,20 +57,14 @@ import org.apache.http.params.HttpProtocolParams;
  */
 public class HttpRequestExecutor {
 
-    private HttpParams params;
-    private final HttpProcessor processor;
+    private final HttpParams params;
 
     /**
      * Create a new request executor.
-     *
-     * @param proc      the processor to use on requests and responses
      */
-    public HttpRequestExecutor(HttpProcessor proc) {
-        if (proc == null)
-            throw new IllegalArgumentException
-                ("HTTP processor must not be null.");
-
-        this.processor = proc;
+    public HttpRequestExecutor(final HttpParams params) {
+        super();
+        this.params = params;
     }
 
     /**
@@ -80,15 +74,6 @@ public class HttpRequestExecutor {
      */
     public final HttpParams getParams() {
         return this.params;
-    }
-
-    /**
-     * Set new parameters for executing requests.
-     *
-     * @param params    the new parameters to use from now on
-     */
-    public final void setParams(final HttpParams params) {
-        this.params = params;
     }
 
     /**
@@ -142,16 +127,11 @@ public class HttpRequestExecutor {
             throw new IllegalArgumentException("HTTP context may not be null");
         }
 
-        context.setAttribute(HttpExecutionContext.HTTP_CONNECTION, conn);
-        context.setAttribute(HttpExecutionContext.HTTP_REQUEST, request);
-        
         try {
-            doPrepareRequest(request, context);
             HttpResponse response = doSendRequest(request, conn, context);
             if (response == null) {
                 response = doReceiveResponse(request, conn, context);
             }
-            doFinishResponse(response, context);
             return response;
         } catch (IOException ex) {
             conn.close();
@@ -169,17 +149,22 @@ public class HttpRequestExecutor {
      * Prepare a request for sending.
      *
      * @param request   the request to prepare
+     * @param processor the processor to use
      * @param context   the context for sending the request
      *
      * @throws HttpException      in case of a protocol or processing problem
      * @throws IOException        in case of an I/O problem
      */
-    protected void doPrepareRequest(
-            final HttpRequest          request,
-            final HttpContext          context)
+    public void preProcess(
+            final HttpRequest request,
+            final HttpProcessor processor,
+            final HttpContext context)
                 throws HttpException, IOException {
         if (request == null) {
             throw new IllegalArgumentException("HTTP request may not be null");
+        }
+        if (processor == null) {
+            throw new IllegalArgumentException("HTTP processor may not be null");
         }
         if (context == null) {
             throw new IllegalArgumentException("HTTP context may not be null");
@@ -323,17 +308,22 @@ public class HttpRequestExecutor {
      * connection over which the response is coming in.
      *
      * @param response  the response object to finish
+     * @param processor the processor to use
      * @param context   the context for post-processing the response
      *
      * @throws HttpException      in case of a protocol or processing problem
      * @throws IOException        in case of an I/O problem
      */
-    protected void doFinishResponse(
+    public void postProcess(
             final HttpResponse response,
+            final HttpProcessor processor,
             final HttpContext context)
                 throws HttpException, IOException {
         if (response == null) {
             throw new IllegalArgumentException("HTTP response may not be null");
+        }
+        if (processor == null) {
+            throw new IllegalArgumentException("HTTP processor may not be null");
         }
         if (context == null) {
             throw new IllegalArgumentException("HTTP context may not be null");
