@@ -35,6 +35,7 @@ import java.io.IOException;
 import java.io.InputStream;
 
 import org.apache.http.io.HttpDataReceiver;
+import org.apache.http.io.HttpTransportMetrics;
 import org.apache.http.params.HttpConnectionParams;
 import org.apache.http.params.HttpParams;
 import org.apache.http.params.HttpProtocolParams;
@@ -48,7 +49,8 @@ import org.apache.http.util.CharArrayBuffer;
  * @author <a href="mailto:oleg at ural.ru">Oleg Kalnichevski</a>
  *
  */
-public abstract class AbstractHttpDataReceiver implements HttpDataReceiver {
+public abstract class AbstractHttpDataReceiver 
+    implements HttpDataReceiver, HttpTransportMetrics {
 
     private InputStream instream;
     private byte[] buffer;
@@ -60,6 +62,8 @@ public abstract class AbstractHttpDataReceiver implements HttpDataReceiver {
     private String charset = HTTP.US_ASCII;
     private boolean ascii = true;
     private int maxLineLen = -1;
+    
+    private long bytesTransferred = 0;
     
     protected void init(final InputStream instream, int buffersize) {
         if (instream == null) {
@@ -93,6 +97,7 @@ public abstract class AbstractHttpDataReceiver implements HttpDataReceiver {
             return -1;
         } else {
             this.bufferlen = off + l;
+            this.bytesTransferred += l;
             return l;
         }
     }
@@ -256,6 +261,14 @@ public abstract class AbstractHttpDataReceiver implements HttpDataReceiver {
         this.ascii = this.charset.equalsIgnoreCase(HTTP.US_ASCII)
                      || this.charset.equalsIgnoreCase(HTTP.ASCII);
         this.maxLineLen = params.getIntParameter(HttpConnectionParams.MAX_LINE_LENGTH, -1);
+    }
+    
+    public long getBytesTransferred() {
+        return this.bytesTransferred;
+    }
+    
+    public void resetCounts() {
+        this.bytesTransferred = 0;
     }
     
 }
