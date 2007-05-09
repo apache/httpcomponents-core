@@ -134,4 +134,12 @@ public class HttpConnectionMetricsImpl implements HttpConnectionMetrics {
         this.metricsCache.put(metricName, obj);
     }
     
+    public void reset() {
+        requestCount = 0;
+        responseCount = 0;
+        sentBytesCount = 0;
+        receivedBytesCount = 0;
+        this.metricsCache = null;
+    }
+    
 }

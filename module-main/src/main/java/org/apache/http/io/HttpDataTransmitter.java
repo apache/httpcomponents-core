@@ -63,4 +63,6 @@ public interface HttpDataTransmitter {
     
     void flush() throws IOException;
     
+    HttpTransportMetrics getMetrics();
+    
 }

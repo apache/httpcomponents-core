@@ -71,4 +71,10 @@ public interface HttpConnectionMetrics {
      */
     Object getMetric(String metricName);
     
+    /**
+     * Resets the counts
+     *
+     */
+    void reset();
+    
 }

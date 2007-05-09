@@ -29,18 +29,36 @@
  *
  */
 
-package org.apache.http.io;
+package org.apache.http.impl.io;
 
-public interface HttpTransportMetrics {
+import org.apache.http.io.HttpTransportMetrics;
+
+/**
+ * This interface is the point to access the information about the status 
+ * of {@link HttpDataReceiver} or {@link HttpDataTransmitter}.
+ */
+public class HttpTransportMetricsImpl implements HttpTransportMetrics {
+
+    private long bytesTransferred = 0;
     
-    /**
-     * Returns the number of bytes trasferred.
-     */
-    long getBytesTransferred(); 
+    public HttpTransportMetricsImpl() {
+        super();
+    }
     
-    /**
-     * Resets the counts
-     */
-    void reset();
+    public long getBytesTransferred() {
+        return this.bytesTransferred;
+    }
+
+    public void setBytesTransferred(long count) {
+        this.bytesTransferred = count;
+    }
+
+    public void incrementBytesTransferred(long count) {
+        this.bytesTransferred += count;
+    }
+
+    public void reset() {
+        this.bytesTransferred = 0;
+    }
     
 }

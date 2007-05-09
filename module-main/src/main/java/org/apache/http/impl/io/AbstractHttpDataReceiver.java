@@ -49,8 +49,7 @@ import org.apache.http.util.CharArrayBuffer;
  * @author <a href="mailto:oleg at ural.ru">Oleg Kalnichevski</a>
  *
  */
-public abstract class AbstractHttpDataReceiver 
-    implements HttpDataReceiver, HttpTransportMetrics {
+public abstract class AbstractHttpDataReceiver implements HttpDataReceiver {
 
     private InputStream instream;
     private byte[] buffer;
@@ -63,7 +62,7 @@ public abstract class AbstractHttpDataReceiver
     private boolean ascii = true;
     private int maxLineLen = -1;
     
-    private long bytesTransferred = 0;
+    private HttpTransportMetricsImpl metrics;
     
     protected void init(final InputStream instream, int buffersize) {
         if (instream == null) {
@@ -77,6 +76,7 @@ public abstract class AbstractHttpDataReceiver
         this.bufferpos = 0;
         this.bufferlen = 0;
         this.linebuffer = new ByteArrayBuffer(buffersize);
+        this.metrics = new HttpTransportMetricsImpl();
     }
     
     protected int fillBuffer() throws IOException {
@@ -97,7 +97,7 @@ public abstract class AbstractHttpDataReceiver
             return -1;
         } else {
             this.bufferlen = off + l;
-            this.bytesTransferred += l;
+            this.metrics.incrementBytesTransferred(l);
             return l;
         }
     }
@@ -262,13 +262,9 @@ public abstract class AbstractHttpDataReceiver
                      || this.charset.equalsIgnoreCase(HTTP.ASCII);
         this.maxLineLen = params.getIntParameter(HttpConnectionParams.MAX_LINE_LENGTH, -1);
     }
-    
-    public long getBytesTransferred() {
-        return this.bytesTransferred;
-    }
-    
-    public void resetCounts() {
-        this.bytesTransferred = 0;
+
+    public HttpTransportMetrics getMetrics() {
+        return this.metrics;
     }
     
 }

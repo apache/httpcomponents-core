@@ -48,8 +48,7 @@ import org.apache.http.util.CharArrayBuffer;
  * @author <a href="mailto:oleg at ural.ru">Oleg Kalnichevski</a>
  *
  */
-public abstract class AbstractHttpDataTransmitter 
-    implements HttpDataTransmitter, HttpTransportMetrics {
+public abstract class AbstractHttpDataTransmitter implements HttpDataTransmitter {
 
     private static final byte[] CRLF = new byte[] {HTTP.CR, HTTP.LF};
     
@@ -61,7 +60,7 @@ public abstract class AbstractHttpDataTransmitter
     private String charset = HTTP.US_ASCII;
     private boolean ascii = true;
     
-    private long bytesTransferred = 0;
+    private HttpTransportMetricsImpl metrics;
     
     protected void init(final OutputStream outstream, int buffersize) {
         if (outstream == null) {
@@ -72,13 +71,15 @@ public abstract class AbstractHttpDataTransmitter
         }
         this.outstream = outstream;
         this.buffer = new ByteArrayBuffer(buffersize);
+        this.metrics = new HttpTransportMetricsImpl();
     }
     
     protected void flushBuffer() throws IOException {
-        if (this.buffer.length() > 0) {
-            this.outstream.write(this.buffer.buffer(), 0, this.buffer.length());
-            this.bytesTransferred += this.buffer.length();
+        int len = this.buffer.length();
+        if (len > 0) {
+            this.outstream.write(this.buffer.buffer(), 0, len);
             this.buffer.clear();
+            this.metrics.incrementBytesTransferred(len);
         }
     }
     
@@ -99,7 +100,7 @@ public abstract class AbstractHttpDataTransmitter
             flushBuffer();
             // write directly to the out stream
             this.outstream.write(b, off, len);
-            this.bytesTransferred += len;
+            this.metrics.incrementBytesTransferred(len);
         } else {
             // Do not let the buffer grow unnecessarily
             int freecapacity = this.buffer.capacity() - this.buffer.length();
@@ -169,13 +170,9 @@ public abstract class AbstractHttpDataTransmitter
         this.ascii = this.charset.equalsIgnoreCase(HTTP.US_ASCII)
                      || this.charset.equalsIgnoreCase(HTTP.ASCII);
     }
-    
-    public long getBytesTransferred() {
-        return this.bytesTransferred;
-    }
-    
-    public void resetCounts() {
-        this.bytesTransferred = 0;
+
+    public HttpTransportMetrics getMetrics() {
+        return this.metrics;
     }
     
 }

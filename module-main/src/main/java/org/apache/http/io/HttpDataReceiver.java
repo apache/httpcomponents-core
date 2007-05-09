@@ -63,4 +63,6 @@ public interface HttpDataReceiver {
     
     boolean isDataAvailable(int timeout) throws IOException; 
 
+    HttpTransportMetrics getMetrics();
+    
 }
