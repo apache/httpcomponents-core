@@ -85,6 +85,9 @@ public class DefaultConnectionReuseStrategy implements ConnectionReuseStrategy {
         }
         // Check for 'Connection' directive
         Header connheader = response.getFirstHeader(HTTP.CONN_DIRECTIVE);
+        if (connheader == null) {
+            connheader = response.getFirstHeader("Proxy-Connection");
+        }
         if (connheader != null) {
             String conndirective = connheader.getValue(); 
             if (HTTP.CONN_CLOSE.equalsIgnoreCase(conndirective)) {
