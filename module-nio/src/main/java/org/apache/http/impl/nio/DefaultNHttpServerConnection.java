@@ -124,7 +124,7 @@ public class DefaultNHttpServerConnection
 
     public void produceOutput(final NHttpServiceHandler handler) {
         
-        if (!this.closed && this.response == null) {
+        if (!this.closed && this.response == null && !this.outbuf.hasData()) {
             handler.responseReady(this);
         }
         

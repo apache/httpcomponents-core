@@ -124,7 +124,7 @@ public class DefaultNHttpClientConnection
 
     public void produceOutput(final NHttpClientHandler handler) {
 
-        if (this.request == null && !this.closed) {
+        if (this.request == null && !this.closed && !this.outbuf.hasData()) {
             handler.requestReady(this);
         }
         
