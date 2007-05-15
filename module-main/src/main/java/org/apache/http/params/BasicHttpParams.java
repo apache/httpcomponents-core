@@ -94,7 +94,7 @@ public class BasicHttpParams implements HttpParams, Serializable {
             return param;
         } else {
             // If not, see if defaults are available
-            if (this.defaults != null) {
+            if (this.defaults != null && this.defaults != this) {
                 // Return default parameter value
                 return this.defaults.getParameter(name);
             } else {
