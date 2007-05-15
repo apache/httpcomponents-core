@@ -49,6 +49,8 @@ import org.apache.http.nio.ContentDecoder;
 import org.apache.http.nio.ContentEncoder;
 import org.apache.http.nio.NHttpClientConnection;
 import org.apache.http.nio.NHttpClientHandler;
+import org.apache.http.nio.entity.ContentBufferEntity;
+import org.apache.http.nio.entity.ContentOutputStream;
 import org.apache.http.nio.util.ContentInputBuffer;
 import org.apache.http.nio.util.ContentOutputBuffer;
 import org.apache.http.nio.util.SimpleInputBuffer;
@@ -416,7 +418,7 @@ public class BufferingHttpClientHandler implements NHttpClientHandler {
         HttpResponse response = connState.getResponse();
         
         if (response.getEntity() != null) {
-            response.setEntity(new BufferedContent(
+            response.setEntity(new ContentBufferEntity(
                     response.getEntity(), 
                     connState.getInbuffer()));
         }

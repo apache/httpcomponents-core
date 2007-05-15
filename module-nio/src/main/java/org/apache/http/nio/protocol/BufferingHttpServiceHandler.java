@@ -52,6 +52,8 @@ import org.apache.http.nio.ContentEncoder;
 import org.apache.http.nio.NHttpConnection;
 import org.apache.http.nio.NHttpServerConnection;
 import org.apache.http.nio.NHttpServiceHandler;
+import org.apache.http.nio.entity.ContentBufferEntity;
+import org.apache.http.nio.entity.ContentOutputStream;
 import org.apache.http.nio.util.ContentInputBuffer;
 import org.apache.http.nio.util.ContentOutputBuffer;
 import org.apache.http.nio.util.SimpleInputBuffer;
@@ -266,7 +268,7 @@ public class BufferingHttpServiceHandler implements NHttpServiceHandler {
                 // Create a wrapper entity instead of the original one
                 HttpEntityEnclosingRequest entityReq = (HttpEntityEnclosingRequest) request;
                 if (entityReq.getEntity() != null) {
-                    entityReq.setEntity(new BufferedContent(
+                    entityReq.setEntity(new ContentBufferEntity(
                             entityReq.getEntity(), 
                             connState.getInbuffer()));
                 }

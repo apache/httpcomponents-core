@@ -54,6 +54,8 @@ import org.apache.http.nio.IOControl;
 import org.apache.http.nio.NHttpConnection;
 import org.apache.http.nio.NHttpServerConnection;
 import org.apache.http.nio.NHttpServiceHandler;
+import org.apache.http.nio.entity.ContentBufferEntity;
+import org.apache.http.nio.entity.ContentOutputStream;
 import org.apache.http.nio.params.HttpNIOParams;
 import org.apache.http.nio.util.ContentInputBuffer;
 import org.apache.http.nio.util.ContentOutputBuffer;
@@ -472,7 +474,7 @@ public class ThrottlingHttpServiceHandler implements NHttpServiceHandler {
 
             // Create a wrapper entity instead of the original one
             if (entityReq.getEntity() != null) {
-                entityReq.setEntity(new BufferedContent(
+                entityReq.setEntity(new ContentBufferEntity(
                         entityReq.getEntity(), 
                         connState.getInbuffer()));
             }

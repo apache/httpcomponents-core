@@ -29,46 +29,38 @@
  *
  */
 
-package org.apache.http.nio.protocol;
+package org.apache.http.nio.entity;
 
 import java.io.IOException;
-import java.io.OutputStream;
+import java.io.InputStream;
 
-import org.apache.http.nio.util.ContentOutputBuffer;
+import org.apache.http.nio.util.ContentInputBuffer;
 
-class ContentOutputStream extends OutputStream {
+public class ContentInputStream extends InputStream {
 
-    private final ContentOutputBuffer buffer;
+    private final ContentInputBuffer buffer;
     
-    public ContentOutputStream(final ContentOutputBuffer buffer) {
+    public ContentInputStream(final ContentInputBuffer buffer) {
         super();
         if (buffer == null) {
-            throw new IllegalArgumentException("Output buffer may not be null");
+            throw new IllegalArgumentException("Input buffer may not be null");
         }
         this.buffer = buffer;
     }
-
-    public void close() throws IOException {
-        this.buffer.writeCompleted();
+    
+    public int read(final byte[] b, int off, int len) throws IOException {
+        return this.buffer.read(b, off, len);
     }
-
-    public void flush() throws IOException {
-        this.buffer.flush();
-    }
-
-    public void write(byte[] b, int off, int len) throws IOException {
-        this.buffer.write(b, off, len);
-    }
-
-    public void write(byte[] b) throws IOException {
+    
+    public int read(final byte[] b) throws IOException {
         if (b == null) {
-            return;
+            return 0;
         }
-        this.buffer.write(b, 0, b.length);
+        return this.buffer.read(b, 0, b.length);
     }
-
-    public void write(int b) throws IOException {
-        this.buffer.write(b);
+    
+    public int read() throws IOException {
+        return this.buffer.read();
     }
 
 }

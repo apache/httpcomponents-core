@@ -29,19 +29,19 @@
  *
  */
 
-package org.apache.http.nio.protocol;
+package org.apache.http.nio.entity;
 
 import org.apache.http.Header;
 import org.apache.http.HttpEntity;
 import org.apache.http.entity.BasicHttpEntity;
 import org.apache.http.nio.util.ContentInputBuffer;
 
-class BufferedContent extends BasicHttpEntity {
+public class ContentBufferEntity extends BasicHttpEntity {
 
     /** The wrapped entity. */
     private HttpEntity wrappedEntity;
     
-    public BufferedContent(final HttpEntity entity, final ContentInputBuffer buffer) {
+    public ContentBufferEntity(final HttpEntity entity, final ContentInputBuffer buffer) {
         super();
         if (entity == null) {
             throw new IllegalArgumentException("HTTP entity may not be null");
