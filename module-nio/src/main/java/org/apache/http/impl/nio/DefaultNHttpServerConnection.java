@@ -142,6 +142,7 @@ public class DefaultNHttpServerConnection
                         handler.outputReady(this, this.contentEncoder);
                         if (this.contentEncoder.isCompleted()) {
                             resetOutput();
+                            return;
                         }
                     }
                 }
