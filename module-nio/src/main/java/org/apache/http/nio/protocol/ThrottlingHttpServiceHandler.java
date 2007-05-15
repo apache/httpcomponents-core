@@ -147,10 +147,8 @@ public class ThrottlingHttpServiceHandler implements NHttpServiceHandler {
     public void connected(final NHttpServerConnection conn) {
         HttpContext context = conn.getContext();
 
-        int bufsize = HttpNIOParams.getContentBufferSize(this.params);
-        if (bufsize < 0) {
-            bufsize = 20480;
-        }
+        int bufsize = this.params.getIntParameter(
+                HttpNIOParams.CONTENT_BUFFER_SIZE, 20480);
         ServerConnState connState = new ServerConnState(bufsize, conn); 
         context.setAttribute(CONN_STATE, connState);
 

@@ -64,7 +64,7 @@ public final class HttpNIOParams {
         if (params == null) {
             throw new IllegalArgumentException("HTTP parameters may not be null");
         }
-        return params.getIntParameter(CONTENT_BUFFER_SIZE, -1);
+        return params.getIntParameter(CONTENT_BUFFER_SIZE, 1024);
     }
     
     public static void setContentBufferSize(final HttpParams params, int size) {
