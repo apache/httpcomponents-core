@@ -1,5 +1,11 @@
 Changes since 4.0 Alpha 4
 
+* [HTTPCORE-75]: DefaultNHttpServerConnection and DefaultNHttpClientConnection 
+  now correctly terminate the underlying I/O session when closed. 
+  BufferingHttpServiceHandler now correctly applies connection keep-alive 
+  strategy when sending a response with no content body.
+  Contributed by Steffen Pingel <spingel at limewire.com>
+
 * [HTTPCORE-73]: Fixed bug preventing NHttpServiceHandler#responseReady and 
   NHttpClientHandler#requestReady events from being fired if the HTTP message 
   has no content body.

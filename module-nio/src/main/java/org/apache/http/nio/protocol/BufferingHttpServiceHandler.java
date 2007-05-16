@@ -427,7 +427,11 @@ public class BufferingHttpServiceHandler implements NHttpServiceHandler {
             outstream.close();
         } else {
             connState.resetOutput();
-            conn.requestInput();
+            if (!this.connStrategy.keepAlive(response, context)) {
+                conn.close();
+            } else {
+                conn.requestInput();
+            }
         }
     }
 

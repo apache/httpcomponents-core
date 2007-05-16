@@ -142,11 +142,14 @@ public class DefaultNHttpServerConnection
                 }
                 
                 if (this.contentEncoder == null && !this.outbuf.hasData()) {
+                    if (this.closed) {
+                        this.session.close();
+                        return;
+                    }
+                    
                     this.session.clearEvent(EventMask.WRITE);
                
-                    if (!this.closed) {
-                        handler.responseReady(this);
-                    }
+                    handler.responseReady(this);
                 }
             }
         } catch (IOException ex) {
