@@ -123,11 +123,6 @@ public class DefaultNHttpServerConnection
     }
 
     public void produceOutput(final NHttpServiceHandler handler) {
-        
-        if (!this.closed && this.response == null && !this.outbuf.hasData()) {
-            handler.responseReady(this);
-        }
-        
         try {
             if (this.outbuf.hasData()) {
                 this.outbuf.flush(this.session.channel());
@@ -142,12 +137,16 @@ public class DefaultNHttpServerConnection
                         handler.outputReady(this, this.contentEncoder);
                         if (this.contentEncoder.isCompleted()) {
                             resetOutput();
-                            return;
                         }
                     }
                 }
+                
                 if (this.contentEncoder == null && !this.outbuf.hasData()) {
                     this.session.clearEvent(EventMask.WRITE);
+               
+                    if (!this.closed) {
+                        handler.responseReady(this);
+                    }
                 }
             }
         } catch (IOException ex) {

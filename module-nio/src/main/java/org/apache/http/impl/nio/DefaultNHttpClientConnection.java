@@ -124,10 +124,6 @@ public class DefaultNHttpClientConnection
 
     public void produceOutput(final NHttpClientHandler handler) {
 
-        if (this.request == null && !this.closed && !this.outbuf.hasData()) {
-            handler.requestReady(this);
-        }
-        
         try {
             if (this.outbuf.hasData()) {
                 this.outbuf.flush(this.session.channel());
@@ -142,12 +138,16 @@ public class DefaultNHttpClientConnection
                         handler.outputReady(this, this.contentEncoder);
                         if (this.contentEncoder.isCompleted()) {
                             resetOutput();
-                            return;
                         }
                     }
                 }
+                
                 if (this.contentEncoder == null && !this.outbuf.hasData()) {
                     this.session.clearEvent(EventMask.WRITE);
+                    
+                    if (!this.closed) {
+                        handler.requestReady(this);
+                    }
                 }
             }
         } catch (IOException ex) {

@@ -1,12 +1,17 @@
 Changes since 4.0 Alpha 4
 
+* [HTTPCORE-73]: Fixed bug preventing NHttpServiceHandler#responseReady and 
+  NHttpClientHandler#requestReady events from being fired if the HTTP message 
+  has no content body.
+  Contributed by Steffen Pingel <spingel at limewire.com>
+
 * [HTTPCORE-67]: Improved event listener interface
-  Oleg Kalnichevski <olegk at apache.org>
+  Contributed by Oleg Kalnichevski <olegk at apache.org>
 
 * [HTTPCORE-43]: Support for FileChannel#transferFrom() and 
   FileChannel#transferTo() methods. Direct coping from and to FileChannel is 
   expected to improve performance of file bound operations
-  Andrea Selva <selva.andre at gmail.com>
+  Contributed by Andrea Selva <selva.andre at gmail.com>
 
 * [HTTPCORE-66]: Fixed handling of HTTP HEAD methods
   Contributed by Steffen Pingel <spingel at limewire.com> and 
