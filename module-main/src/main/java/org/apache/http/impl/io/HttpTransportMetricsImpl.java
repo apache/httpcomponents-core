@@ -34,8 +34,7 @@ package org.apache.http.impl.io;
 import org.apache.http.io.HttpTransportMetrics;
 
 /**
- * This interface is the point to access the information about the status 
- * of {@link HttpDataReceiver} or {@link HttpDataTransmitter}.
+ * Default implementation of {@link HttpTransportMetrics}.
  */
 public class HttpTransportMetricsImpl implements HttpTransportMetrics {
 

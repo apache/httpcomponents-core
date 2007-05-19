@@ -182,7 +182,7 @@ public class HttpRequestExecutor {
      * data coming in over the connection.
      *
      * @param request   the request to send, already
-     *                  {@link #doPrepareRequest prepared}
+     *                  {@link #preProcess preprocessed}
      * @param conn      the connection over which to send the request,
      *                  already established
      * @param context   the context for sending the request
