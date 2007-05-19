@@ -68,7 +68,7 @@ public class BasicHttpParams implements HttpParams, Serializable {
      */
     public BasicHttpParams(final HttpParams defaults) {
         super();
-        this.defaults = defaults; 
+        setDefaults(defaults); // perform ancestor check
     }
     
     public BasicHttpParams() {
@@ -80,6 +80,19 @@ public class BasicHttpParams implements HttpParams, Serializable {
     }
     
     public synchronized void setDefaults(final HttpParams params) {
+
+        // check we're not becoming our own defaults, directly or indirectly
+        // that would trigger an endless loop when looking up an unknown param
+        HttpParams ancestor = params;
+        while (ancestor != null) {
+            // check for object identity, not .equals
+            if (ancestor == this) {
+                throw new IllegalArgumentException
+                    ("cyclic default params detected");
+            }
+            ancestor = ancestor.getDefaults();
+        }
+
         this.defaults = params;
     }
     
@@ -94,7 +107,7 @@ public class BasicHttpParams implements HttpParams, Serializable {
             return param;
         } else {
             // If not, see if defaults are available
-            if (this.defaults != null && this.defaults != this) {
+            if (this.defaults != null) {
                 // Return default parameter value
                 return this.defaults.getParameter(name);
             } else {
