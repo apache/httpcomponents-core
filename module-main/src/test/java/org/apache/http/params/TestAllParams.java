@@ -28,48 +28,24 @@
  *
  */
 
-package org.apache.http;
-
-import org.apache.http.entity.TestAllEntity;
-import org.apache.http.impl.TestAllImpl;
-import org.apache.http.impl.entity.TestAllEntityImpl;
-import org.apache.http.impl.io.TestAllIO;
-import org.apache.http.message.TestAllMessage;
-import org.apache.http.params.TestAllParams;
-import org.apache.http.protocol.TestAllProtocol;
-import org.apache.http.util.TestAllUtil;
+package org.apache.http.params;
 
 import junit.framework.*;
 
-public class TestAll extends TestCase {
+public class TestAllParams extends TestCase {
 
-    public TestAll(String testName) {
+    public TestAllParams(String testName) {
         super(testName);
     }
 
     public static Test suite() {
         TestSuite suite = new TestSuite();
-        
-        suite.addTest(TestAllUtil.suite());
-        suite.addTest(TestAllParams.suite());
-        
-        suite.addTest(TestHttpExceptions.suite());
-        suite.addTest(TestHttpVersion.suite());
-        suite.addTest(TestHttpHost.suite());
-
-        suite.addTest(TestAllMessage.suite());
-        suite.addTest(TestAllIO.suite());
-        suite.addTest(TestAllEntity.suite());
-        suite.addTest(TestAllImpl.suite());
-        suite.addTest(TestAllEntityImpl.suite());
-        
-        suite.addTest(TestAllProtocol.suite());
-        
+        suite.addTest(TestBasicHttpParams.suite());
         return suite;
     }
 
     public static void main(String args[]) {
-        String[] testCaseName = { TestAll.class.getName() };
+        String[] testCaseName = { TestAllParams.class.getName() };
         junit.textui.TestRunner.main(testCaseName);
     }
 

@@ -32,7 +32,9 @@
 package org.apache.http.params;
 
 import java.io.Serializable;
+import java.util.Map;
 import java.util.HashMap;
+import java.util.Iterator;
 
 import org.apache.http.params.HttpParams;
 
@@ -212,4 +214,46 @@ public class BasicHttpParams implements HttpParams, Serializable {
         this.parameters = null;
     }
 
+
+    /**
+     * Creates a copy of these parameters.
+     * The implementation here instantiates {@link BasicHttpParams}
+     * with the same default parameters as this object, then calls
+     * {@link #copyParams(HttpParams)} to populate the copy.
+     * <br/>
+     * Derived classes which have to change the class that is
+     * instantiated can override this method here. Derived classes
+     * which have to change how the copy is populated can override
+     * {@link #copyParams(HttpParams)}.
+     *
+     * @return  a new set of params holding a copy of the
+     *          <i>local</i> parameters in this object.
+     *          Defaults parameters available via {@link #getDefaults}
+     *          are <i>not</i> copied.
+     */
+    public HttpParams copy() {
+        BasicHttpParams bhp = new BasicHttpParams(this.defaults);
+        copyParams(bhp);
+        return bhp;
+    }
+
+    /**
+     * Copies the locally defined parameters to the argument parameters.
+     * Default parameters accessible via {@link #getDefaults}
+     * are <i>not</i> copied.
+     * This method is called from {@link #copyParams()}.
+     *
+     * @param target    the parameters to which to copy
+     */
+    protected void copyParams(HttpParams target) {
+        if (this.parameters == null)
+            return;
+
+        Iterator iter = parameters.entrySet().iterator();
+        while (iter.hasNext()) {
+            Map.Entry me = (Map.Entry) iter.next();
+            if (me.getKey() instanceof String)
+                target.setParameter((String)me.getKey(), me.getValue());
+        }
+    }
 }
