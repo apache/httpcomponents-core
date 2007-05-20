@@ -1,5 +1,8 @@
 Changes since 4.0 Alpha 4
 
+* [HTTPCORE-71]: HttpParams can be copied.
+  Contributed by Roland Weber <rolandw at apache.org>
+
 * [HTTPCORE-75]: DefaultNHttpServerConnection and DefaultNHttpClientConnection 
   now correctly terminate the underlying I/O session when closed. 
   BufferingHttpServiceHandler now correctly applies connection keep-alive 

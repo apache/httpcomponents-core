@@ -92,7 +92,14 @@ public interface HttpParams {
      * @param value parameter value
      */ 
     HttpParams setParameter(String name, Object value);
-    
+
+    /**
+     * Creates a copy of these parameters.
+     *
+     * @return  a new set of parameters holding the same values as this one
+     */
+    HttpParams copy();
+
     /** 
      * Returns a {@link Long} parameter value with the given name. 
      * If the parameter is not explicitly defined in this collection, its 
