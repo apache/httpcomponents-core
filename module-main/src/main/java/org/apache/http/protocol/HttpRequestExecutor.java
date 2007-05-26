@@ -169,8 +169,6 @@ public class HttpRequestExecutor {
         if (context == null) {
             throw new IllegalArgumentException("HTTP context may not be null");
         }
-        // link default parameters
-        request.getParams().setDefaults(this.params);
         processor.process(request, context);
     }
 

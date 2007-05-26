@@ -97,6 +97,7 @@ public class TestHttpClient {
         this.context.setAttribute(HttpExecutionContext.HTTP_REQUEST, request);
         this.context.setAttribute(HttpExecutionContext.HTTP_TARGET_HOST, targetHost);
         this.context.setAttribute(HttpExecutionContext.HTTP_CONNECTION, conn);
+        request.getParams().setDefaults(httpexecutor.getParams());
         this.httpexecutor.preProcess(request, this.httpproc, this.context);
         HttpResponse response = this.httpexecutor.execute(request, conn, this.context);
         this.httpexecutor.postProcess(response, this.httpproc, this.context);

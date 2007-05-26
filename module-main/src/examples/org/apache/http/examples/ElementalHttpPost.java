@@ -123,7 +123,7 @@ public class ElementalHttpPost {
                 System.out.println(">> Request URI: " + request.getRequestLine().getUri());
 
                 context.setAttribute(HttpExecutionContext.HTTP_REQUEST, request);
-                
+                request.setParams(httpexecutor.getParams());
                 httpexecutor.preProcess(request, httpproc, context);
                 HttpResponse response = httpexecutor.execute(request, conn, context);
                 httpexecutor.postProcess(response, httpproc, context);
