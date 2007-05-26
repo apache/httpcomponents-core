@@ -44,21 +44,22 @@ import org.apache.http.params.HttpParams;
  * If a particular parameter value has not been explicitly defined
  * in the collection itself, its value will be drawn from the parent 
  * collection of parameters.
+ * <br/>
+ * <b>WARNING:</b> Handling of default parameters is currently
+ * subject to discussions, and may be changed signifcantly.
  * 
  * @author <a href="mailto:oleg at ural.ru">Oleg Kalnichevski</a>
  * 
  * @version $Revision$
  */
-public class BasicHttpParams implements HttpParams, Serializable {
+public class BasicHttpParams extends AbstractHttpParams
+    implements HttpParams, Serializable {
 
-    static final long serialVersionUID = -8296449161405728403L;
-	
-    /** The set of default values to defer to. */
-    private HttpParams defaults = null;
+    static final long serialVersionUID = 4571099216197814749L;
 
     /** Map of HTTP parameters that this collection contains. */
-    private HashMap parameters = null;
-    
+    private HashMap parameters;
+
     /**
      * Creates a new collection of parameters with the given parent. 
      * The collection will defer to its parent for a default value 
@@ -72,32 +73,11 @@ public class BasicHttpParams implements HttpParams, Serializable {
         super();
         setDefaults(defaults); // perform ancestor check
     }
-    
+
     public BasicHttpParams() {
         this(null);
     }
 
-    public synchronized HttpParams getDefaults() {
-        return this.defaults;
-    }
-    
-    public synchronized void setDefaults(final HttpParams params) {
-
-        // check we're not becoming our own defaults, directly or indirectly
-        // that would trigger an endless loop when looking up an unknown param
-        HttpParams ancestor = params;
-        while (ancestor != null) {
-            // check for object identity, not .equals
-            if (ancestor == this) {
-                throw new IllegalArgumentException
-                    ("cyclic default params detected");
-            }
-            ancestor = ancestor.getDefaults();
-        }
-
-        this.defaults = params;
-    }
-    
     public synchronized Object getParameter(final String name) {
         // See if the parameter has been explicitly defined
         Object param = null;
@@ -139,58 +119,6 @@ public class BasicHttpParams implements HttpParams, Serializable {
         }
     }
 
-    public long getLongParameter(final String name, long defaultValue) { 
-        Object param = getParameter(name);
-        if (param == null) {
-            return defaultValue;
-        }
-        return ((Long)param).longValue();
-    }
-    
-    public HttpParams setLongParameter(final String name, long value) {
-        setParameter(name, new Long(value));
-        return this;
-    }
-
-    public int getIntParameter(final String name, int defaultValue) { 
-        Object param = getParameter(name);
-        if (param == null) {
-            return defaultValue;
-        }
-        return ((Integer)param).intValue();
-    }
-    
-    public HttpParams setIntParameter(final String name, int value) {
-        setParameter(name, new Integer(value));
-        return this;
-    }
-
-    public double getDoubleParameter(final String name, double defaultValue) { 
-        Object param = getParameter(name);
-        if (param == null) {
-            return defaultValue;
-        }
-        return ((Double)param).doubleValue();
-    }
-    
-    public HttpParams setDoubleParameter(final String name, double value) {
-        setParameter(name, new Double(value));
-        return this;
-    }
-
-    public boolean getBooleanParameter(final String name, boolean defaultValue) { 
-        Object param = getParameter(name);
-        if (param == null) {
-            return defaultValue;
-        }
-        return ((Boolean)param).booleanValue();
-    }
-    
-    public HttpParams setBooleanParameter(final String name, boolean value) {
-        setParameter(name, value ? Boolean.TRUE : Boolean.FALSE);
-        return this;
-    }
-
     public boolean isParameterSet(final String name) {
         return getParameter(name) != null;
     }
@@ -199,16 +127,8 @@ public class BasicHttpParams implements HttpParams, Serializable {
         return this.parameters != null && this.parameters.get(name) != null;
     }
         
-    public boolean isParameterTrue(final String name) {
-        return getBooleanParameter(name, false);
-    }
-        
-    public boolean isParameterFalse(final String name) {
-        return !getBooleanParameter(name, false);
-    }
-
     /**
-     * Removes all parameters from this collection. 
+     * Removes all parameters from this collection.
      */
     public synchronized void clear() {
         this.parameters = null;
@@ -241,7 +161,7 @@ public class BasicHttpParams implements HttpParams, Serializable {
      * Copies the locally defined parameters to the argument parameters.
      * Default parameters accessible via {@link #getDefaults}
      * are <i>not</i> copied.
-     * This method is called from {@link #copyParams()}.
+     * This method is called from {@link #copy()}.
      *
      * @param target    the parameters to which to copy
      */
