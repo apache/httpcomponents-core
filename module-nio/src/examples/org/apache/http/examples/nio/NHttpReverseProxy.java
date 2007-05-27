@@ -360,7 +360,7 @@ public class NHttpReverseProxy {
                     response.removeHeaders(HTTP.CONN_DIRECTIVE);
                     response.removeHeaders("Keep-Alive");
                     
-                    response.getParams().setDefaults(this.params);
+                    response.setParams(this.params);
                     
                     // Pre-process HTTP request
                     context.setAttribute(HttpExecutionContext.HTTP_CONNECTION, conn);
@@ -500,7 +500,7 @@ public class NHttpReverseProxy {
             try {
                 HttpResponse response = this.responseFactory.newHttpResponse(
                         HttpVersion.HTTP_1_0, HttpStatus.SC_BAD_REQUEST, context);
-                response.getParams().setDefaults(this.params);
+                response.setParams(this.params);
                 response.addHeader(HTTP.CONN_DIRECTIVE, HTTP.CONN_CLOSE);
                 // Pre-process HTTP request
                 context.setAttribute(HttpExecutionContext.HTTP_CONNECTION, conn);
@@ -611,7 +611,7 @@ public class NHttpReverseProxy {
                 
                 try {
                     
-                    request.getParams().setDefaults(this.params);
+                    request.setParams(this.params);
                     
                     // Pre-process HTTP request
                     context.setAttribute(HttpExecutionContext.HTTP_CONNECTION, conn);

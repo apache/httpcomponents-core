@@ -131,6 +131,7 @@ public class HttpService {
         try {
 
             HttpRequest request = conn.receiveRequestHeader(this.params);
+            request.getParams().setDefaults(this.params);
             HttpVersion ver = request.getRequestLine().getHttpVersion();
             if (!ver.lessEquals(HttpVersion.HTTP_1_1)) {
                 // Downgrade protocol version if greater than HTTP/1.1 

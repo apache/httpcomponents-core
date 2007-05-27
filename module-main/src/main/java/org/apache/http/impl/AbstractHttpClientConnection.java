@@ -56,7 +56,6 @@ import org.apache.http.message.BasicRequestLine;
 import org.apache.http.message.BasicStatusLine;
 import org.apache.http.message.BufferedHeader;
 import org.apache.http.params.HttpParams;
-import org.apache.http.params.HttpProtocolParams;
 import org.apache.http.protocol.HTTP;
 import org.apache.http.util.CharArrayBuffer;
 import org.apache.http.util.HeaderUtils;
@@ -74,6 +73,7 @@ import org.apache.http.util.HeaderUtils;
 public abstract class AbstractHttpClientConnection implements HttpClientConnection {
 
     private int maxHeaderCount = -1;
+    private int maxGarbageLines = -1;
 
     private final CharArrayBuffer buffer; 
     private final EntitySerializer entityserializer;
@@ -99,6 +99,10 @@ public abstract class AbstractHttpClientConnection implements HttpClientConnecti
 
     protected void setMaxHeaderCount(int maxHeaderCount) {
         this.maxHeaderCount = maxHeaderCount;
+    }
+    
+    protected void setMaxGarbageLines(int maxGarbageLines) {
+        this.maxGarbageLines = maxGarbageLines;
     }
     
     protected void setResponseFactory(final HttpResponseFactory responsefactory) {
@@ -195,7 +199,7 @@ public abstract class AbstractHttpClientConnection implements HttpClientConnecti
         readResponseHeaders(response);
         return response;
     }
-
+    
     public void receiveResponseEntity(final HttpResponse response)
             throws HttpException, IOException {
         if (response == null) {
@@ -232,8 +236,6 @@ public abstract class AbstractHttpClientConnection implements HttpClientConnecti
         // clear the buffer
         this.buffer.clear();
         //read out the HTTP status string
-        int maxGarbageLines = params.getIntParameter(
-                HttpProtocolParams.STATUS_LINE_GARBAGE_LIMIT, Integer.MAX_VALUE);
         int count = 0;
         do {
             int i = this.datareceiver.readLine(this.buffer);
@@ -244,7 +246,7 @@ public abstract class AbstractHttpClientConnection implements HttpClientConnecti
             if (startsWithHTTP(this.buffer)) {
                 // Got one
                 break;
-            } else if (i == -1 || count >= maxGarbageLines) {
+            } else if (i == -1 || count >= this.maxGarbageLines) {
                 // Giving up
                 throw new ProtocolException("The server failed to respond with a " +
                         "valid HTTP response");
@@ -253,9 +255,7 @@ public abstract class AbstractHttpClientConnection implements HttpClientConnecti
         } while(true);
         //create the status line from the status string
         StatusLine statusline = BasicStatusLine.parse(this.buffer, 0, this.buffer.length());
-        HttpResponse response = this.responsefactory.newHttpResponse(statusline, null);
-        response.getParams().setDefaults(params);
-        return response;
+        return this.responsefactory.newHttpResponse(statusline, null);
     }
 
     protected void readResponseHeaders(final HttpResponse response) 

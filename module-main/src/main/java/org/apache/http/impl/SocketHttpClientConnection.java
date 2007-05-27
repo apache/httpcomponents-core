@@ -97,7 +97,10 @@ public class SocketHttpClientConnection
 
         setHttpDataReceiver(createHttpDataReceiver(params));
         setHttpDataTransmitter(createHttpDataTransmitter(params));
-        setMaxHeaderCount(params.getIntParameter(HttpConnectionParams.MAX_HEADER_COUNT, -1));
+        setMaxHeaderCount(params.getIntParameter(
+                HttpConnectionParams.MAX_HEADER_COUNT, -1));
+        setMaxGarbageLines(params.getIntParameter(
+                HttpConnectionParams.MAX_STATUS_LINE_GARBAGE, Integer.MAX_VALUE));
         setResponseFactory(new DefaultHttpResponseFactory());
         
         this.open = true;

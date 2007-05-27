@@ -148,9 +148,7 @@ public abstract class AbstractHttpServerConnection implements HttpServerConnecti
             throw new ConnectionClosedException("Client closed connection"); 
         }
         RequestLine requestline = BasicRequestLine.parse(this.buffer, 0, this.buffer.length());
-        HttpRequest request = this.requestfactory.newHttpRequest(requestline);
-        request.getParams().setDefaults(params);
-        return request;
+        return this.requestfactory.newHttpRequest(requestline);
     }
     
     protected void receiveRequestHeaders(final HttpRequest request) 
