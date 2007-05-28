@@ -226,7 +226,7 @@ public class HttpRequestExecutor {
                 int tms = params.getIntParameter(HttpProtocolParams.WAIT_FOR_CONTINUE, 2000);
                 
                 if (conn.isResponseAvailable(tms)) {
-                    response = conn.receiveResponseHeader(request.getParams());
+                    response = conn.receiveResponseHeader();
                     if (canResponseHaveBody(request, response)) {
                         conn.receiveResponseEntity(response);
                     }
@@ -286,7 +286,7 @@ public class HttpRequestExecutor {
 
         while (response == null || statuscode < HttpStatus.SC_OK) {
 
-            response = conn.receiveResponseHeader(request.getParams());
+            response = conn.receiveResponseHeader();
             if (canResponseHaveBody(request, response)) {
                 conn.receiveResponseEntity(response);
             }

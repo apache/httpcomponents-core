@@ -33,8 +33,6 @@ package org.apache.http;
 
 import java.io.IOException;
 
-import org.apache.http.params.HttpParams;
-
 /**
  * An HTTP connection for use on the client side.
  * It is used for sending requests and receiving responses.
@@ -85,13 +83,12 @@ public interface HttpClientConnection extends HttpConnection {
      * this connection. The caller should examine the HttpResponse object to
      * find out if it should try to receive a response entity as well.
      * 
-     * @param params the parameters in effect
      * @return a new HttpResponse object with status line and headers
      *         initialized.
      * @throws HttpException
      * @throws IOException
      */
-    HttpResponse receiveResponseHeader(HttpParams params) 
+    HttpResponse receiveResponseHeader() 
         throws HttpException, IOException;
 
     /**

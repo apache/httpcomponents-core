@@ -130,7 +130,7 @@ public class HttpService {
         
         try {
 
-            HttpRequest request = conn.receiveRequestHeader(this.params);
+            HttpRequest request = conn.receiveRequestHeader();
             request.getParams().setDefaults(this.params);
             HttpVersion ver = request.getRequestLine().getHttpVersion();
             if (!ver.lessEquals(HttpVersion.HTTP_1_1)) {

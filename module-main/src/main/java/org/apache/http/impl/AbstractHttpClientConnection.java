@@ -55,7 +55,6 @@ import org.apache.http.message.BasicHeader;
 import org.apache.http.message.BasicRequestLine;
 import org.apache.http.message.BasicStatusLine;
 import org.apache.http.message.BufferedHeader;
-import org.apache.http.params.HttpParams;
 import org.apache.http.protocol.HTTP;
 import org.apache.http.util.CharArrayBuffer;
 import org.apache.http.util.HeaderUtils;
@@ -189,13 +188,10 @@ public abstract class AbstractHttpClientConnection implements HttpClientConnecti
         this.datatransmitter.writeLine(this.buffer);
     }
 
-    public HttpResponse receiveResponseHeader(final HttpParams params) 
+    public HttpResponse receiveResponseHeader() 
             throws HttpException, IOException {
-        if (params == null) {
-            throw new IllegalArgumentException("HTTP parameters may not be null");
-        }
         assertOpen();
-        HttpResponse response = readResponseStatusLine(params);
+        HttpResponse response = readResponseStatusLine();
         readResponseHeaders(response);
         return response;
     }
@@ -231,7 +227,7 @@ public abstract class AbstractHttpClientConnection implements HttpClientConnecti
         }
     }
     
-    protected HttpResponse readResponseStatusLine(final HttpParams params) 
+    protected HttpResponse readResponseStatusLine() 
                 throws HttpException, IOException {
         // clear the buffer
         this.buffer.clear();
