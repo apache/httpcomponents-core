@@ -56,6 +56,7 @@ import org.apache.http.nio.util.ContentOutputBuffer;
 import org.apache.http.nio.util.SimpleInputBuffer;
 import org.apache.http.nio.util.SimpleOutputBuffer;
 import org.apache.http.params.HttpParams;
+import org.apache.http.params.HttpParamsLinker;
 import org.apache.http.params.HttpProtocolParams;
 import org.apache.http.protocol.HttpContext;
 import org.apache.http.protocol.HttpExecutionContext;
@@ -253,6 +254,8 @@ public class BufferingHttpClientHandler implements NHttpClientHandler {
         ClientConnState connState = (ClientConnState) context.getAttribute(CONN_STATE);
 
         HttpResponse response = conn.getHttpResponse();
+        HttpParamsLinker.link(response, this.params);
+        
         HttpRequest request = connState.getRequest();
         
         try {
@@ -337,7 +340,7 @@ public class BufferingHttpClientHandler implements NHttpClientHandler {
             return;
         }
         
-        request.getParams().setDefaults(this.params);
+        HttpParamsLinker.link(request, this.params);
         
         context.setAttribute(HttpExecutionContext.HTTP_REQUEST, request);
         this.httpProcessor.process(request, context);

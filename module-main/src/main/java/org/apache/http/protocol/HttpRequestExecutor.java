@@ -41,7 +41,6 @@ import org.apache.http.HttpRequest;
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
 import org.apache.http.HttpVersion;
-import org.apache.http.params.HttpParams;
 import org.apache.http.params.HttpProtocolParams;
 
 /**
@@ -57,23 +56,11 @@ import org.apache.http.params.HttpProtocolParams;
  */
 public class HttpRequestExecutor {
 
-    private final HttpParams params;
-
     /**
      * Create a new request executor.
      */
-    public HttpRequestExecutor(final HttpParams params) {
+    public HttpRequestExecutor() {
         super();
-        this.params = params;
-    }
-
-    /**
-     * Obtain the parameters for executing requests.
-     *
-     * @return  the currently installed parameters
-     */
-    public final HttpParams getParams() {
-        return this.params;
     }
 
     /**
@@ -223,7 +210,8 @@ public class HttpRequestExecutor {
                 conn.flush();
                 // As suggested by RFC 2616 section 8.2.3, we don't wait for a
                 // 100-continue response forever. On timeout, send the entity.
-                int tms = params.getIntParameter(HttpProtocolParams.WAIT_FOR_CONTINUE, 2000);
+                int tms = request.getParams().getIntParameter(
+                        HttpProtocolParams.WAIT_FOR_CONTINUE, 2000);
                 
                 if (conn.isResponseAvailable(tms)) {
                     response = conn.receiveResponseHeader();

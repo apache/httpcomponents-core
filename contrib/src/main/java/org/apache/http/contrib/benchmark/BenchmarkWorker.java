@@ -30,19 +30,37 @@
  */
 package org.apache.http.contrib.benchmark;
 
-import org.apache.http.*;
-import org.apache.http.impl.DefaultConnectionReuseStrategy;
-import org.apache.http.impl.DefaultHttpClientConnection;
-import org.apache.http.params.HttpParams;
-import org.apache.http.protocol.*;
-import org.apache.http.util.EntityUtils;
-
-import javax.net.ssl.SSLSocketFactory;
-import javax.net.SocketFactory;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.Socket;
 import java.util.Iterator;
+
+import javax.net.SocketFactory;
+import javax.net.ssl.SSLSocketFactory;
+
+import org.apache.http.ConnectionReuseStrategy;
+import org.apache.http.Header;
+import org.apache.http.HttpEntity;
+import org.apache.http.HttpException;
+import org.apache.http.HttpHost;
+import org.apache.http.HttpRequest;
+import org.apache.http.HttpResponse;
+import org.apache.http.HttpStatus;
+import org.apache.http.impl.DefaultConnectionReuseStrategy;
+import org.apache.http.impl.DefaultHttpClientConnection;
+import org.apache.http.params.HttpParams;
+import org.apache.http.params.HttpParamsLinker;
+import org.apache.http.protocol.BasicHttpProcessor;
+import org.apache.http.protocol.HTTP;
+import org.apache.http.protocol.HttpContext;
+import org.apache.http.protocol.HttpExecutionContext;
+import org.apache.http.protocol.HttpRequestExecutor;
+import org.apache.http.protocol.RequestConnControl;
+import org.apache.http.protocol.RequestContent;
+import org.apache.http.protocol.RequestExpectContinue;
+import org.apache.http.protocol.RequestTargetHost;
+import org.apache.http.protocol.RequestUserAgent;
+import org.apache.http.util.EntityUtils;
 
 /**
  * Worker thread for the {@link HttpBenchmark HttpBenchmark}.
@@ -86,7 +104,7 @@ public class BenchmarkWorker implements Runnable {
         this.keepalive = keepalive;
 
         this.httpProcessor = new BasicHttpProcessor();
-        this.httpexecutor = new HttpRequestExecutor(params);
+        this.httpexecutor = new HttpRequestExecutor();
 
         // Required request interceptors
         this.httpProcessor.addInterceptor(new RequestContent());
@@ -117,8 +135,8 @@ public class BenchmarkWorker implements Runnable {
         this.context.setAttribute(HttpExecutionContext.HTTP_REQUEST, this.request);
 
         stats.start();
-
-        for (int i=0; i < count; i++) {
+        HttpParamsLinker.link(this.request, this.params);
+        for (int i = 0; i < count; i++) {
 
             try {
                 resetHeader(request);

@@ -47,60 +47,11 @@ import org.apache.http.params.HttpParams;
 public abstract class AbstractHttpParams implements HttpParams {
 
     /**
-     * The optional set of default values to defer to.
-     * <br/>
-     * <b>WARNING:</b> Handling of default parameters is currently
-     * subject to discussions, and may be changed signifcantly.
-     */
-    protected HttpParams defaults;
-
-    /**
      * Instantiates parameters.
      */
     protected AbstractHttpParams() {
         super();
     }
-
-
-
-    /**
-     * Obtains default parameters, if set.
-     * <br/>
-     * <b>WARNING:</b> Handling of default parameters is currently
-     * subject to discussions, and may be changed signifcantly.
-     *
-     * @return  the defaults, or <code>null</code>
-     */
-    public synchronized HttpParams getDefaults() {
-        return this.defaults;
-    }
-    
-    /**
-     * Provides default parameters.
-     * <br/>
-     * <b>WARNING:</b> Handling of default parameters is currently
-     * subject to discussions, and may be changed signifcantly.
-     *
-     * @param params    the new defaults, or <code>null</code> to unset
-     */
-    public synchronized void setDefaults(final HttpParams params) {
-
-        // check we're not becoming our own defaults, directly or indirectly
-        // that would trigger an endless loop when looking up an unknown param
-        HttpParams ancestor = params;
-        while (ancestor != null) {
-            // check for object identity, not .equals
-            if (ancestor == this) {
-                throw new IllegalArgumentException
-                    ("cyclic default params detected");
-            }
-            ancestor = ancestor.getDefaults();
-        }
-
-        this.defaults = params;
-    }
-
-
 
     public long getLongParameter(final String name, long defaultValue) { 
         Object param = getParameter(name);

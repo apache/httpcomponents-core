@@ -62,6 +62,7 @@ import org.apache.http.nio.util.ContentOutputBuffer;
 import org.apache.http.nio.util.SharedInputBuffer;
 import org.apache.http.nio.util.SharedOutputBuffer;
 import org.apache.http.params.HttpParams;
+import org.apache.http.params.HttpParamsLinker;
 import org.apache.http.protocol.HttpContext;
 import org.apache.http.protocol.HttpExecutionContext;
 import org.apache.http.protocol.HttpExpectationVerifier;
@@ -220,7 +221,9 @@ public class ThrottlingHttpServiceHandler implements NHttpServiceHandler {
 
     public void requestReceived(final NHttpServerConnection conn) {
         HttpContext context = conn.getContext();
+        
         HttpRequest request = conn.getHttpRequest();
+        HttpParamsLinker.link(request, this.params);
 
         final ServerConnState connState = (ServerConnState) context.getAttribute(CONN_STATE);
 
@@ -444,7 +447,7 @@ public class ThrottlingHttpServiceHandler implements NHttpServiceHandler {
                         ver, 
                         HttpStatus.SC_CONTINUE, 
                         context);
-                response.getParams().setDefaults(this.params);
+                HttpParamsLinker.link(response, this.params);
                 if (this.expectationVerifier != null) {
                     try {
                         this.expectationVerifier.verify(request, response, context);
@@ -484,7 +487,7 @@ public class ThrottlingHttpServiceHandler implements NHttpServiceHandler {
                 ver, 
                 HttpStatus.SC_OK, 
                 context);
-        response.getParams().setDefaults(this.params);
+        HttpParamsLinker.link(response, this.params);
 
         context.setAttribute(HttpExecutionContext.HTTP_RESPONSE, response);
         

@@ -48,6 +48,7 @@ import org.apache.http.ProtocolException;
 import org.apache.http.UnsupportedHttpVersionException;
 import org.apache.http.entity.ByteArrayEntity;
 import org.apache.http.params.HttpParams;
+import org.apache.http.params.HttpParamsLinker;
 import org.apache.http.util.EncodingUtils;
 
 /**
@@ -131,7 +132,8 @@ public class HttpService {
         try {
 
             HttpRequest request = conn.receiveRequestHeader();
-            request.getParams().setDefaults(this.params);
+            HttpParamsLinker.link(request, this.params);
+            
             HttpVersion ver = request.getRequestLine().getHttpVersion();
             if (!ver.lessEquals(HttpVersion.HTTP_1_1)) {
                 // Downgrade protocol version if greater than HTTP/1.1 
@@ -146,7 +148,7 @@ public class HttpService {
                 if (((HttpEntityEnclosingRequest) request).expectContinue()) {
                     response = this.responseFactory.newHttpResponse(ver, 
                             HttpStatus.SC_CONTINUE, context);
-                    response.getParams().setDefaults(this.params);
+                    HttpParamsLinker.link(request, this.params);
                     
                     if (this.expectationVerifier != null) {
                         try {
@@ -154,7 +156,7 @@ public class HttpService {
                         } catch (HttpException ex) {
                             response = this.responseFactory.newHttpResponse(HttpVersion.HTTP_1_0, 
                                     HttpStatus.SC_INTERNAL_SERVER_ERROR, context);
-                            response.getParams().setDefaults(this.params);
+                            HttpParamsLinker.link(request, this.params);
                             handleException(ex, response);
                         }
                     }
@@ -178,7 +180,7 @@ public class HttpService {
 
             if (response == null) {
                 response = this.responseFactory.newHttpResponse(ver, HttpStatus.SC_OK, context);
-                response.getParams().setDefaults(this.params);
+                HttpParamsLinker.link(request, this.params);
             }
             
             if (runService) {
@@ -201,7 +203,7 @@ public class HttpService {
             response = this.responseFactory.newHttpResponse
                 (HttpVersion.HTTP_1_0, HttpStatus.SC_INTERNAL_SERVER_ERROR,
                  context);
-            response.getParams().setDefaults(this.params);
+            HttpParamsLinker.link(response, this.params);
             handleException(ex, response);
         }
         

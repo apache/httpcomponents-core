@@ -33,12 +33,6 @@ package org.apache.http.params;
 
 /**
  * Represents a collection of HTTP protocol and framework parameters.
- * <br/>
- * <b>WARNING:</b> This interface includes methods for building hierarchies of
- * parameters. These methods are clearly marked as <i>not part of the API</i>.
- * The handling of default parameters is currently subject to discussions and
- * may be changed signifcantly, or removed. Do not try to evaluate, build or
- * modify parameter hierarchies in your application.
  *   
  * @author <a href="mailto:oleg at ural.ru">Oleg Kalnichevski</a>
  * 
@@ -48,38 +42,6 @@ package org.apache.http.params;
  */
 public interface HttpParams {
 
-    /**
-     * <b>WARNING:</b> This method is not part of the API. 
-     * It is exclusively for internal use by the HTTP Components framework.
-     * Do not call it in your application. Do not try to evaluate, build or
-     * modify parameter hierarchies in your application.
-     * <br/>
-     *
-     * Returns the parent collection that the collection may defer to
-     * for a default value if a particular parameter is not explicitly set.
-     * 
-     * @return the parent collection, or <code>null</code>
-     * 
-     * @see #setDefaults(HttpParams)
-     */
-    HttpParams getDefaults();
-
-    /** 
-     * <b>WARNING:</b> This method is not part of the API. 
-     * It is exclusively for internal use by the HTTP Components framework.
-     * Do not call it in your application. Do not try to evaluate, build or
-     * modify parameter hierarchies in your application.
-     * <br/>
-     *
-     * Provides the parent collection that this collection may defer to
-     * for a default value if a particular parameter is not explicitly set.
-     * 
-     * @param params the parent collection, or <code>null</code>
-     * 
-     * @see #getDefaults()
-     */
-    void setDefaults(HttpParams params);
-    
     /** 
      * Returns a parameter value with the given name. If the parameter is
      * not explicitly defined in this collection, its value will be drawn 
@@ -215,24 +177,6 @@ public interface HttpParams {
      * otherwise.
      */
     boolean isParameterSet(String name);
-        
-    /**
-     * <b>WARNING:</b> This method is not part of the API. 
-     * It is exclusively for internal use by the HTTP Components framework.
-     * Do not call it in your application. Do not try to evaluate, build or
-     * modify parameter hierarchies in your application.
-     * <br/>
-     * 
-     * @param name      the parameter name
-     * 
-     * @return  <tt>true</tt> if the parameter is set locally,
-     *          <tt>false</tt> otherwise
-     *
-     * @see #getDefaults()
-     * @see #setDefaults(HttpParams)
-     */
-    boolean isParameterSetLocally(String name);
-
         
     /**
      * Returns <tt>true</tt> if the parameter is set and is <tt>true</tt>, <tt>false</tt>

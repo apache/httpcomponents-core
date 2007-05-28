@@ -82,7 +82,7 @@ public class ElementalHttpGet {
         httpproc.addInterceptor(new RequestUserAgent());
         httpproc.addInterceptor(new RequestExpectContinue());
 
-        HttpRequestExecutor httpexecutor = new HttpRequestExecutor(params);
+        HttpRequestExecutor httpexecutor = new HttpRequestExecutor();
         
         HttpContext context = new HttpExecutionContext(null);
         HttpHost host = new HttpHost("localhost", 8080);
@@ -109,7 +109,7 @@ public class ElementalHttpGet {
                 System.out.println(">> Request URI: " + request.getRequestLine().getUri());
                 
                 context.setAttribute(HttpExecutionContext.HTTP_REQUEST, request);
-                request.setParams(httpexecutor.getParams());
+                request.setParams(params);
                 httpexecutor.preProcess(request, httpproc, context);
                 HttpResponse response = httpexecutor.execute(request, conn, context);
                 httpexecutor.postProcess(response, httpproc, context);

@@ -44,18 +44,20 @@ import org.apache.http.params.HttpParams;
  * If a particular parameter value has not been explicitly defined
  * in the collection itself, its value will be drawn from the parent 
  * collection of parameters.
- * <br/>
- * <b>WARNING:</b> Handling of default parameters is currently
- * subject to discussions, and may be changed signifcantly.
  * 
  * @author <a href="mailto:oleg at ural.ru">Oleg Kalnichevski</a>
  * 
  * @version $Revision$
  */
 public class BasicHttpParams extends AbstractHttpParams
-    implements HttpParams, Serializable {
+    implements HttpLinkedParams, Serializable {
 
     static final long serialVersionUID = 4571099216197814749L;
+
+    /**
+     * The optional set of default values to defer to.
+     */
+    protected HttpParams defaults;
 
     /** Map of HTTP parameters that this collection contains. */
     private HashMap parameters;
@@ -74,8 +76,27 @@ public class BasicHttpParams extends AbstractHttpParams
         setDefaults(defaults); // perform ancestor check
     }
 
+    
     public BasicHttpParams() {
         this(null);
+    }
+
+    /**
+     * Obtains default parameters, if set.
+     *
+     * @return  the defaults, or <code>null</code>
+     */
+    public synchronized HttpParams getDefaults() {
+        return this.defaults;
+    }
+    
+    /**
+     * Provides default parameters.
+     *
+     * @param params    the new defaults, or <code>null</code> to unset
+     */
+    public synchronized void setDefaults(final HttpParams params) {
+        this.defaults = params;
     }
 
     public synchronized Object getParameter(final String name) {
@@ -176,4 +197,5 @@ public class BasicHttpParams extends AbstractHttpParams
                 target.setParameter((String)me.getKey(), me.getValue());
         }
     }
+    
 }

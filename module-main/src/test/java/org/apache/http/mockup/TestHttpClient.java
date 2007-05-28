@@ -44,6 +44,7 @@ import org.apache.http.impl.DefaultConnectionReuseStrategy;
 import org.apache.http.params.BasicHttpParams;
 import org.apache.http.params.HttpConnectionParams;
 import org.apache.http.params.HttpParams;
+import org.apache.http.params.HttpParamsLinker;
 import org.apache.http.params.HttpProtocolParams;
 import org.apache.http.protocol.BasicHttpProcessor;
 import org.apache.http.protocol.HttpContext;
@@ -81,7 +82,7 @@ public class TestHttpClient {
         this.httpproc.addInterceptor(new RequestUserAgent());
         this.httpproc.addInterceptor(new RequestExpectContinue());
 
-        this.httpexecutor = new HttpRequestExecutor(this.params);
+        this.httpexecutor = new HttpRequestExecutor();
         this.connStrategy = new DefaultConnectionReuseStrategy();
         this.context = new HttpExecutionContext(null);
     }
@@ -97,9 +98,10 @@ public class TestHttpClient {
         this.context.setAttribute(HttpExecutionContext.HTTP_REQUEST, request);
         this.context.setAttribute(HttpExecutionContext.HTTP_TARGET_HOST, targetHost);
         this.context.setAttribute(HttpExecutionContext.HTTP_CONNECTION, conn);
-        request.getParams().setDefaults(httpexecutor.getParams());
+        HttpParamsLinker.link(request, params);
         this.httpexecutor.preProcess(request, this.httpproc, this.context);
         HttpResponse response = this.httpexecutor.execute(request, conn, this.context);
+        HttpParamsLinker.link(response, params);
         this.httpexecutor.postProcess(response, this.httpproc, this.context);
         return response;
     }
