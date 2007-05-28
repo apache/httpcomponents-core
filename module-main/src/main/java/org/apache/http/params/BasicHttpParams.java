@@ -76,7 +76,6 @@ public class BasicHttpParams extends AbstractHttpParams
         setDefaults(defaults); // perform ancestor check
     }
 
-    
     public BasicHttpParams() {
         this(null);
     }
@@ -86,7 +85,7 @@ public class BasicHttpParams extends AbstractHttpParams
      *
      * @return  the defaults, or <code>null</code>
      */
-    public synchronized HttpParams getDefaults() {
+    public HttpParams getDefaults() {
         return this.defaults;
     }
     
@@ -95,11 +94,11 @@ public class BasicHttpParams extends AbstractHttpParams
      *
      * @param params    the new defaults, or <code>null</code> to unset
      */
-    public synchronized void setDefaults(final HttpParams params) {
+    public void setDefaults(final HttpParams params) {
         this.defaults = params;
     }
 
-    public synchronized Object getParameter(final String name) {
+    public Object getParameter(final String name) {
         // See if the parameter has been explicitly defined
         Object param = null;
         if (this.parameters != null) {
@@ -120,7 +119,7 @@ public class BasicHttpParams extends AbstractHttpParams
         }
     }
 
-    public synchronized HttpParams setParameter(final String name, final Object value) {
+    public HttpParams setParameter(final String name, final Object value) {
         if (this.parameters == null) {
             this.parameters = new HashMap();
         }
@@ -134,7 +133,7 @@ public class BasicHttpParams extends AbstractHttpParams
      * @param names array of parameter name
      * @param value parameter value
      */ 
-    public synchronized void setParameters(final String[] names, final Object value) {
+    public void setParameters(final String[] names, final Object value) {
         for (int i = 0; i < names.length; i++) {
             setParameter(names[i], value);
         }
@@ -144,17 +143,16 @@ public class BasicHttpParams extends AbstractHttpParams
         return getParameter(name) != null;
     }
         
-    public synchronized boolean isParameterSetLocally(final String name) {
+    public boolean isParameterSetLocally(final String name) {
         return this.parameters != null && this.parameters.get(name) != null;
     }
         
     /**
      * Removes all parameters from this collection.
      */
-    public synchronized void clear() {
+    public void clear() {
         this.parameters = null;
     }
-
 
     /**
      * Creates a copy of these parameters.
