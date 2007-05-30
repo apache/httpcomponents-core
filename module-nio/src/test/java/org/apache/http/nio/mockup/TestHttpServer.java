@@ -33,96 +33,85 @@ package org.apache.http.nio.mockup;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
-import java.net.SocketAddress;
 
-import org.apache.http.impl.DefaultConnectionReuseStrategy;
-import org.apache.http.impl.DefaultHttpResponseFactory;
-import org.apache.http.impl.nio.DefaultServerIOEventDispatch;
 import org.apache.http.impl.nio.reactor.DefaultListeningIOReactor;
-import org.apache.http.nio.protocol.BufferingHttpServiceHandler;
 import org.apache.http.nio.reactor.IOEventDispatch;
 import org.apache.http.nio.reactor.ListeningIOReactor;
-import org.apache.http.params.HttpConnectionParams;
-import org.apache.http.params.HttpProtocolParams;
-import org.apache.http.protocol.BasicHttpProcessor;
-import org.apache.http.protocol.HttpExpectationVerifier;
-import org.apache.http.protocol.HttpRequestHandler;
-import org.apache.http.protocol.HttpRequestHandlerRegistry;
-import org.apache.http.protocol.ResponseConnControl;
-import org.apache.http.protocol.ResponseContent;
-import org.apache.http.protocol.ResponseDate;
-import org.apache.http.protocol.ResponseServer;
+import org.apache.http.params.HttpParams;
 
 /**
  * Trivial test server based on HttpCore NIO
  * 
  * @author Oleg Kalnichevski
  */
-public class TestHttpServer extends TestHttpServiceBase {
+public class TestHttpServer {
 
-    private final HttpRequestHandlerRegistry reqistry;
-    private HttpExpectationVerifier expectationVerifier;
-    private volatile SocketAddress address;
-    private final Object mutex;
+    private final ListeningIOReactor ioReactor;
+    private final HttpParams params;
+    private final Object socketMutex;
+
+    private volatile IOReactorThread thread;
+    private volatile InetSocketAddress address;
     
-    public TestHttpServer() throws IOException {
+    public TestHttpServer(final HttpParams params) throws IOException {
         super();
-        this.params
-            .setIntParameter(HttpConnectionParams.SO_TIMEOUT, 2000)
-            .setIntParameter(HttpConnectionParams.SOCKET_BUFFER_SIZE, 8 * 1024)
-            .setBooleanParameter(HttpConnectionParams.STALE_CONNECTION_CHECK, false)
-            .setBooleanParameter(HttpConnectionParams.TCP_NODELAY, true)
-            .setParameter(HttpProtocolParams.ORIGIN_SERVER, "TEST-SERVER/1.1");
-        
-        this.reqistry = new HttpRequestHandlerRegistry();
-        this.ioReactor = new DefaultListeningIOReactor(2, this.params);
-        this.mutex = new Object();
+        this.ioReactor = new DefaultListeningIOReactor(2, params);
+        this.params = params;
+        this.socketMutex = new Object();
+    }
+
+    public HttpParams getParams() {
+        return this.params;
     }
     
-    public void registerHandler(
-            final String pattern, 
-            final HttpRequestHandler handler) {
-        this.reqistry.register(pattern, handler);
-    }
-    
-    public void setExpectationVerifier(final HttpExpectationVerifier expectationVerifier) {
-        this.expectationVerifier = expectationVerifier;
-    }
-    
-    protected void execute() throws IOException {
-        synchronized (this.mutex) {
-            this.address = ((ListeningIOReactor) this.ioReactor).listen(new InetSocketAddress(0));
-            this.mutex.notifyAll();
+    private void execute(final IOEventDispatch ioEventDispatch) throws IOException {
+        synchronized (this.socketMutex) {
+            this.address = (InetSocketAddress) this.ioReactor.listen(
+                    new InetSocketAddress(0));
+            this.socketMutex.notifyAll();
         }
-        BasicHttpProcessor httpproc = new BasicHttpProcessor();
-        httpproc.addInterceptor(new ResponseDate());
-        httpproc.addInterceptor(new ResponseServer());
-        httpproc.addInterceptor(new ResponseContent());
-        httpproc.addInterceptor(new ResponseConnControl());
-        
-        BufferingHttpServiceHandler serviceHandler = new BufferingHttpServiceHandler(
-                httpproc,
-                new DefaultHttpResponseFactory(),
-                new DefaultConnectionReuseStrategy(),
-                this.params);
-        
-        serviceHandler.setEventListener(new EventLogger());
-        serviceHandler.setExpectationVerifier(this.expectationVerifier);
-        serviceHandler.setHandlerResolver(this.reqistry);
-        
-        IOEventDispatch ioEventDispatch = new DefaultServerIOEventDispatch(
-                serviceHandler, 
-                this.params);
         this.ioReactor.execute(ioEventDispatch);
     }
     
-    public SocketAddress getSocketAddress() throws InterruptedException {
-        synchronized (this.mutex) {
+    public InetSocketAddress getSocketAddress() throws InterruptedException {
+        synchronized (this.socketMutex) {
             while (this.address == null) {
-                this.mutex.wait();
+                this.socketMutex.wait();
             }
         }
         return this.address;
     }
+
+    public void start(final IOEventDispatch ioEventDispatch) {
+        this.thread = new IOReactorThread(ioEventDispatch);
+        this.thread.start();
+    }
+    
+    public void shutdown() throws IOException {
+        this.ioReactor.shutdown();
+        try {
+            this.thread.join(500);
+        } catch (InterruptedException ignore) {
+        }
+    }
+    
+    private class IOReactorThread extends Thread {
+
+        private final IOEventDispatch ioEventDispatch;
+        
+        public IOReactorThread(final IOEventDispatch ioEventDispatch) {
+            super();
+            this.ioEventDispatch = ioEventDispatch;
+        }
+        
+        public void run() {
+            try {
+                execute(this.ioEventDispatch);
+            } catch (IOException ex) {
+                ex.printStackTrace();
+            }
+        }
+
+    }    
     
 }

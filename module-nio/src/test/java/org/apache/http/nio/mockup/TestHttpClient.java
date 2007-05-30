@@ -34,69 +34,66 @@ package org.apache.http.nio.mockup;
 import java.io.IOException;
 import java.net.InetSocketAddress;
 
-import org.apache.http.impl.DefaultConnectionReuseStrategy;
-import org.apache.http.impl.nio.DefaultClientIOEventDispatch;
 import org.apache.http.impl.nio.reactor.DefaultConnectingIOReactor;
-import org.apache.http.nio.protocol.BufferingHttpClientHandler;
-import org.apache.http.nio.protocol.HttpRequestExecutionHandler;
 import org.apache.http.nio.reactor.ConnectingIOReactor;
 import org.apache.http.nio.reactor.IOEventDispatch;
-import org.apache.http.params.HttpConnectionParams;
-import org.apache.http.params.HttpProtocolParams;
-import org.apache.http.protocol.BasicHttpProcessor;
-import org.apache.http.protocol.RequestConnControl;
-import org.apache.http.protocol.RequestContent;
-import org.apache.http.protocol.RequestExpectContinue;
-import org.apache.http.protocol.RequestTargetHost;
-import org.apache.http.protocol.RequestUserAgent;
+import org.apache.http.params.HttpParams;
 
-public class TestHttpClient extends TestHttpServiceBase {
+public class TestHttpClient {
 
-    private HttpRequestExecutionHandler execHandler;
+    private final ConnectingIOReactor ioReactor;
+    private final HttpParams params;
     
-    public TestHttpClient() throws IOException {
+    private volatile IOReactorThread thread;
+
+    public TestHttpClient(final HttpParams params) throws IOException {
         super();
-        this.params
-            .setIntParameter(HttpConnectionParams.SO_TIMEOUT, 2000)
-            .setIntParameter(HttpConnectionParams.CONNECTION_TIMEOUT, 2000)
-            .setIntParameter(HttpConnectionParams.SOCKET_BUFFER_SIZE, 8 * 1024)
-            .setBooleanParameter(HttpConnectionParams.STALE_CONNECTION_CHECK, false)
-            .setBooleanParameter(HttpConnectionParams.TCP_NODELAY, true)
-            .setParameter(HttpProtocolParams.USER_AGENT, "TEST-CLIENT/1.1");
+        this.ioReactor = new DefaultConnectingIOReactor(2, params);
+        this.params = params;
+    }
 
-        this.ioReactor = new DefaultConnectingIOReactor(2, this.params);
+    public HttpParams getParams() {
+        return this.params;
     }
     
-    public void setHttpRequestExecutionHandler(final HttpRequestExecutionHandler handler) {
-        this.execHandler = handler;
-    }
-    
-    protected void execute() throws IOException {
-        BasicHttpProcessor httpproc = new BasicHttpProcessor();
-        httpproc.addInterceptor(new RequestContent());
-        httpproc.addInterceptor(new RequestTargetHost());
-        httpproc.addInterceptor(new RequestConnControl());
-        httpproc.addInterceptor(new RequestUserAgent());
-        httpproc.addInterceptor(new RequestExpectContinue());
-        
-        BufferingHttpClientHandler clientHandler = new BufferingHttpClientHandler(
-                httpproc,
-                this.execHandler,
-                new DefaultConnectionReuseStrategy(),
-                this.params);
-        
-        clientHandler.setEventListener(new EventLogger());
-
-        IOEventDispatch ioEventDispatch = new DefaultClientIOEventDispatch(
-                clientHandler, 
-                this.params);
-        
+    private void execute(final IOEventDispatch ioEventDispatch) throws IOException {
         this.ioReactor.execute(ioEventDispatch);
     }
     
     public void openConnection(final InetSocketAddress address, final Object attachment) {
-        ((ConnectingIOReactor) this.ioReactor).connect(
-                address, null, attachment, null);
+        this.ioReactor.connect(address, null, attachment, null);
     }
+ 
+    public void start(final IOEventDispatch ioEventDispatch) {
+        this.thread = new IOReactorThread(ioEventDispatch);
+        this.thread.start();
+    }
+    
+    public void shutdown() throws IOException {
+        this.ioReactor.shutdown();
+        try {
+            this.thread.join(500);
+        } catch (InterruptedException ignore) {
+        }
+    }
+    
+    private class IOReactorThread extends Thread {
+
+        private final IOEventDispatch ioEventDispatch;
+        
+        public IOReactorThread(final IOEventDispatch ioEventDispatch) {
+            super();
+            this.ioEventDispatch = ioEventDispatch;
+        }
+        
+        public void run() {
+            try {
+                execute(this.ioEventDispatch);
+            } catch (IOException ex) {
+                ex.printStackTrace();
+            }
+        }
+
+    }    
     
 }
