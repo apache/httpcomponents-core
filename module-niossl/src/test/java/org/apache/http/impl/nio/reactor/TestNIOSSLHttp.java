@@ -46,16 +46,39 @@ import org.apache.http.HttpResponse;
 import org.apache.http.HttpVersion;
 import org.apache.http.entity.ByteArrayEntity;
 import org.apache.http.entity.StringEntity;
+import org.apache.http.impl.DefaultConnectionReuseStrategy;
+import org.apache.http.impl.DefaultHttpResponseFactory;
+import org.apache.http.impl.nio.mockup.CountingEventListener;
+import org.apache.http.impl.nio.mockup.SimpleHttpRequestHandlerResolver;
 import org.apache.http.impl.nio.mockup.TestHttpSSLClient;
 import org.apache.http.impl.nio.mockup.TestHttpSSLServer;
 import org.apache.http.message.BasicHttpRequest;
 import org.apache.http.message.BasicHttpEntityEnclosingRequest;
+import org.apache.http.nio.NHttpClientHandler;
 import org.apache.http.nio.NHttpConnection;
+import org.apache.http.nio.NHttpServiceHandler;
+import org.apache.http.nio.protocol.BufferingHttpClientHandler;
+import org.apache.http.nio.protocol.BufferingHttpServiceHandler;
+import org.apache.http.nio.protocol.EventListener;
 import org.apache.http.nio.protocol.HttpRequestExecutionHandler;
+import org.apache.http.params.BasicHttpParams;
+import org.apache.http.params.HttpConnectionParams;
+import org.apache.http.params.HttpParams;
 import org.apache.http.params.HttpProtocolParams;
+import org.apache.http.protocol.BasicHttpProcessor;
 import org.apache.http.protocol.HttpContext;
 import org.apache.http.protocol.HttpExecutionContext;
+import org.apache.http.protocol.HttpExpectationVerifier;
 import org.apache.http.protocol.HttpRequestHandler;
+import org.apache.http.protocol.RequestConnControl;
+import org.apache.http.protocol.RequestContent;
+import org.apache.http.protocol.RequestExpectContinue;
+import org.apache.http.protocol.RequestTargetHost;
+import org.apache.http.protocol.RequestUserAgent;
+import org.apache.http.protocol.ResponseConnControl;
+import org.apache.http.protocol.ResponseContent;
+import org.apache.http.protocol.ResponseDate;
+import org.apache.http.protocol.ResponseServer;
 import org.apache.http.util.EntityUtils;
 
 import junit.framework.Test;
@@ -92,8 +115,26 @@ public class TestNIOSSLHttp extends TestCase {
     private TestHttpSSLClient client;
     
     protected void setUp() throws Exception {
-        this.server = new TestHttpSSLServer();
-        this.client = new TestHttpSSLClient();
+        HttpParams serverParams = new BasicHttpParams();
+        serverParams
+            .setIntParameter(HttpConnectionParams.SO_TIMEOUT, 2000)
+            .setIntParameter(HttpConnectionParams.SOCKET_BUFFER_SIZE, 8 * 1024)
+            .setBooleanParameter(HttpConnectionParams.STALE_CONNECTION_CHECK, false)
+            .setBooleanParameter(HttpConnectionParams.TCP_NODELAY, true)
+            .setParameter(HttpProtocolParams.ORIGIN_SERVER, "TEST-SERVER/1.1");
+        
+        this.server = new TestHttpSSLServer(serverParams);
+        
+        HttpParams clientParams = new BasicHttpParams();
+        clientParams
+            .setIntParameter(HttpConnectionParams.SO_TIMEOUT, 2000)
+            .setIntParameter(HttpConnectionParams.CONNECTION_TIMEOUT, 2000)
+            .setIntParameter(HttpConnectionParams.SOCKET_BUFFER_SIZE, 8 * 1024)
+            .setBooleanParameter(HttpConnectionParams.STALE_CONNECTION_CHECK, false)
+            .setBooleanParameter(HttpConnectionParams.TCP_NODELAY, true)
+            .setParameter(HttpProtocolParams.USER_AGENT, "TEST-CLIENT/1.1");
+        
+        this.client = new TestHttpSSLClient(clientParams);
     }
 
     protected void tearDown() throws Exception {
@@ -101,6 +142,51 @@ public class TestNIOSSLHttp extends TestCase {
         this.client.shutdown();
     }
 
+    private NHttpServiceHandler createHttpServiceHandler(
+            final HttpRequestHandler requestHandler,
+            final HttpExpectationVerifier expectationVerifier,
+            final EventListener eventListener) {
+        BasicHttpProcessor httpproc = new BasicHttpProcessor();
+        httpproc.addInterceptor(new ResponseDate());
+        httpproc.addInterceptor(new ResponseServer());
+        httpproc.addInterceptor(new ResponseContent());
+        httpproc.addInterceptor(new ResponseConnControl());
+
+        BufferingHttpServiceHandler serviceHandler = new BufferingHttpServiceHandler(
+                httpproc,
+                new DefaultHttpResponseFactory(),
+                new DefaultConnectionReuseStrategy(),
+                this.server.getParams());
+
+        serviceHandler.setHandlerResolver(
+                new SimpleHttpRequestHandlerResolver(requestHandler));
+        serviceHandler.setExpectationVerifier(expectationVerifier);
+        serviceHandler.setEventListener(eventListener);
+        
+        return serviceHandler;
+    }
+    
+    private NHttpClientHandler createHttpClientHandler(
+            final HttpRequestExecutionHandler requestExecutionHandler,
+            final EventListener eventListener) {
+        BasicHttpProcessor httpproc = new BasicHttpProcessor();
+        httpproc.addInterceptor(new RequestContent());
+        httpproc.addInterceptor(new RequestTargetHost());
+        httpproc.addInterceptor(new RequestConnControl());
+        httpproc.addInterceptor(new RequestUserAgent());
+        httpproc.addInterceptor(new RequestExpectContinue());
+        
+        BufferingHttpClientHandler clientHandler = new BufferingHttpClientHandler(
+                httpproc,
+                requestExecutionHandler,
+                new DefaultConnectionReuseStrategy(),
+                this.client.getParams());
+
+        clientHandler.setEventListener(eventListener);
+
+        return clientHandler;
+    }
+    
     /**
      * This test case executes a series of simple (non-pipelined) GET requests 
      * over multiple connections. 
@@ -127,8 +213,7 @@ public class TestNIOSSLHttp extends TestCase {
             responseData[i] = new ArrayList();
         }
         
-        // Initialize the server-side request handler
-        this.server.registerHandler("*", new HttpRequestHandler() {
+        HttpRequestHandler requestHandler = new HttpRequestHandler() {
 
             public void handle(
                     final HttpRequest request, 
@@ -148,10 +233,9 @@ public class TestNIOSSLHttp extends TestCase {
                 response.setEntity(entity);
             }
             
-        });
+        };
         
-        // Initialize the client side request executor
-        this.client.setHttpRequestExecutionHandler(new HttpRequestExecutionHandler() {
+        HttpRequestExecutionHandler requestExecutionHandler = new HttpRequestExecutionHandler() {
 
             public void initalizeContext(final HttpContext context, final Object attachment) {
                 context.setAttribute("LIST", (List) attachment);
@@ -197,10 +281,22 @@ public class TestNIOSSLHttp extends TestCase {
                 }
             }
             
-        });
+        };
         
-        this.server.start();
-        this.client.start();
+        CountingEventListener serverEventListener = new CountingEventListener();
+        CountingEventListener clientEventListener = new CountingEventListener();
+        
+        NHttpServiceHandler serviceHandler = createHttpServiceHandler(
+                requestHandler, 
+                null,
+                serverEventListener);
+
+        NHttpClientHandler clientHandler = createHttpClientHandler(
+                requestExecutionHandler, 
+                clientEventListener);
+
+        this.server.start(serviceHandler);
+        this.client.start(clientHandler);
         
         InetSocketAddress serverAddress = (InetSocketAddress) this.server.getSocketAddress();
         
@@ -210,8 +306,8 @@ public class TestNIOSSLHttp extends TestCase {
                     responseData[i]);
         }
      
-        this.client.await(connNo, 1000);
-        assertEquals(connNo, this.client.getConnCount());
+        clientEventListener.await(connNo, 1000);
+        assertEquals(connNo, clientEventListener.getConnCount());
         
         this.client.shutdown();
         this.server.shutdown();
@@ -259,8 +355,7 @@ public class TestNIOSSLHttp extends TestCase {
             responseData[i] = new ArrayList();
         }
         
-        // Initialize the server-side request handler
-        this.server.registerHandler("*", new HttpRequestHandler() {
+        HttpRequestHandler requestHandler = new HttpRequestHandler() {
 
             public void handle(
                     final HttpRequest request, 
@@ -280,10 +375,9 @@ public class TestNIOSSLHttp extends TestCase {
                 }
             }
             
-        });
+        };
         
-        // Initialize the client side request executor
-        this.client.setHttpRequestExecutionHandler(new HttpRequestExecutionHandler() {
+        HttpRequestExecutionHandler requestExecutionHandler = new HttpRequestExecutionHandler() {
 
             public void initalizeContext(final HttpContext context, final Object attachment) {
                 context.setAttribute("LIST", (List) attachment);
@@ -333,10 +427,22 @@ public class TestNIOSSLHttp extends TestCase {
                 }
             }
             
-        });
+        };
         
-        this.server.start();
-        this.client.start();
+        CountingEventListener serverEventListener = new CountingEventListener();
+        CountingEventListener clientEventListener = new CountingEventListener();
+        
+        NHttpServiceHandler serviceHandler = createHttpServiceHandler(
+                requestHandler, 
+                null,
+                serverEventListener);
+
+        NHttpClientHandler clientHandler = createHttpClientHandler(
+                requestExecutionHandler, 
+                clientEventListener);
+
+        this.server.start(serviceHandler);
+        this.client.start(clientHandler);
         
         InetSocketAddress serverAddress = (InetSocketAddress) this.server.getSocketAddress();
         
@@ -346,8 +452,8 @@ public class TestNIOSSLHttp extends TestCase {
                     responseData[i]);
         }
      
-        this.client.await(connNo, 1000);
-        assertEquals(connNo, this.client.getConnCount());
+        clientEventListener.await(connNo, 1000);
+        assertEquals(connNo, clientEventListener.getConnCount());
         
         this.client.shutdown();
         this.server.shutdown();
@@ -395,8 +501,7 @@ public class TestNIOSSLHttp extends TestCase {
             responseData[i] = new ArrayList();
         }
         
-        // Initialize the server-side request handler
-        this.server.registerHandler("*", new HttpRequestHandler() {
+        HttpRequestHandler requestHandler = new HttpRequestHandler() {
 
             public void handle(
                     final HttpRequest request, 
@@ -415,10 +520,9 @@ public class TestNIOSSLHttp extends TestCase {
                 }
             }
             
-        });
+        };
         
-        // Initialize the client side request executor
-        this.client.setHttpRequestExecutionHandler(new HttpRequestExecutionHandler() {
+        HttpRequestExecutionHandler requestExecutionHandler = new HttpRequestExecutionHandler() {
 
             public void initalizeContext(final HttpContext context, final Object attachment) {
                 context.setAttribute("LIST", (List) attachment);
@@ -469,10 +573,22 @@ public class TestNIOSSLHttp extends TestCase {
                 }
             }
             
-        });
+        };
         
-        this.server.start();
-        this.client.start();
+        CountingEventListener serverEventListener = new CountingEventListener();
+        CountingEventListener clientEventListener = new CountingEventListener();
+        
+        NHttpServiceHandler serviceHandler = createHttpServiceHandler(
+                requestHandler, 
+                null,
+                serverEventListener);
+
+        NHttpClientHandler clientHandler = createHttpClientHandler(
+                requestExecutionHandler, 
+                clientEventListener);
+
+        this.server.start(serviceHandler);
+        this.client.start(clientHandler);
         
         InetSocketAddress serverAddress = (InetSocketAddress) this.server.getSocketAddress();
         
@@ -482,8 +598,8 @@ public class TestNIOSSLHttp extends TestCase {
                     responseData[i]);
         }
      
-        this.client.await(connNo, 1000);
-        assertEquals(connNo, this.client.getConnCount());
+        clientEventListener.await(connNo, 1000);
+        assertEquals(connNo, clientEventListener.getConnCount());
         
         this.client.shutdown();
         this.server.shutdown();
@@ -531,8 +647,7 @@ public class TestNIOSSLHttp extends TestCase {
             responseData[i] = new ArrayList();
         }
         
-        // Initialize the server-side request handler
-        this.server.registerHandler("*", new HttpRequestHandler() {
+        HttpRequestHandler requestHandler = new HttpRequestHandler() {
             
 
             public void handle(
@@ -553,13 +668,13 @@ public class TestNIOSSLHttp extends TestCase {
                 }
             }
             
-        });
+        };
         
-        // Initialize the client side request executor
         // Set protocol level to HTTP/1.0
         this.client.getParams().setParameter(
                 HttpProtocolParams.PROTOCOL_VERSION, HttpVersion.HTTP_1_0);
-        this.client.setHttpRequestExecutionHandler(new HttpRequestExecutionHandler() {
+        
+        HttpRequestExecutionHandler requestExecutionHandler = new HttpRequestExecutionHandler() {
 
             public void initalizeContext(final HttpContext context, final Object attachment) {
                 context.setAttribute("LIST", (List) attachment);
@@ -609,10 +724,22 @@ public class TestNIOSSLHttp extends TestCase {
                 }
             }
             
-        });
+        };
         
-        this.server.start();
-        this.client.start();
+        CountingEventListener serverEventListener = new CountingEventListener();
+        CountingEventListener clientEventListener = new CountingEventListener();
+        
+        NHttpServiceHandler serviceHandler = createHttpServiceHandler(
+                requestHandler, 
+                null,
+                serverEventListener);
+
+        NHttpClientHandler clientHandler = createHttpClientHandler(
+                requestExecutionHandler, 
+                clientEventListener);
+
+        this.server.start(serviceHandler);
+        this.client.start(clientHandler);
         
         InetSocketAddress serverAddress = (InetSocketAddress) this.server.getSocketAddress();
         
@@ -622,8 +749,8 @@ public class TestNIOSSLHttp extends TestCase {
                     responseData[i]);
         }
      
-        this.client.await(connNo, 1000);
-        assertEquals(connNo, this.client.getConnCount());
+        clientEventListener.await(connNo, 1000);
+        assertEquals(connNo, clientEventListener.getConnCount());
         
         this.client.shutdown();
         this.server.shutdown();

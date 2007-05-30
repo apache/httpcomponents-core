@@ -40,29 +40,26 @@ import javax.net.ssl.SSLContext;
 import javax.net.ssl.TrustManager;
 import javax.net.ssl.TrustManagerFactory;
 
-import org.apache.http.impl.DefaultConnectionReuseStrategy;
 import org.apache.http.impl.nio.reactor.DefaultConnectingIOReactor;
 import org.apache.http.impl.nio.reactor.SSLClientIOEventDispatch;
-import org.apache.http.nio.protocol.BufferingHttpClientHandler;
-import org.apache.http.nio.protocol.HttpRequestExecutionHandler;
+import org.apache.http.nio.NHttpClientHandler;
 import org.apache.http.nio.reactor.ConnectingIOReactor;
 import org.apache.http.nio.reactor.IOEventDispatch;
-import org.apache.http.params.HttpConnectionParams;
-import org.apache.http.params.HttpProtocolParams;
-import org.apache.http.protocol.BasicHttpProcessor;
-import org.apache.http.protocol.RequestConnControl;
-import org.apache.http.protocol.RequestContent;
-import org.apache.http.protocol.RequestExpectContinue;
-import org.apache.http.protocol.RequestTargetHost;
-import org.apache.http.protocol.RequestUserAgent;
+import org.apache.http.params.HttpParams;
 
-public class TestHttpSSLClient extends TestHttpSSLServiceBase {
+public class TestHttpSSLClient {
 
     private final SSLContext sslcontext;
-    private HttpRequestExecutionHandler execHandler;
+    private final ConnectingIOReactor ioReactor;
+    private final HttpParams params;
     
-    public TestHttpSSLClient() throws Exception {
+    private volatile IOReactorThread thread;
+
+    
+    public TestHttpSSLClient(final HttpParams params) throws Exception {
         super();
+        this.params = params;
+        this.ioReactor = new DefaultConnectingIOReactor(2, this.params);
         
         ClassLoader cl = getClass().getClassLoader();
         URL url = cl.getResource("test.keystore");
@@ -74,38 +71,13 @@ public class TestHttpSSLClient extends TestHttpSSLServiceBase {
         TrustManager[] trustmanagers = tmfactory.getTrustManagers(); 
         this.sslcontext = SSLContext.getInstance("TLS");
         this.sslcontext.init(null, trustmanagers, null);
-        
-        this.params
-            .setIntParameter(HttpConnectionParams.SO_TIMEOUT, 15000)
-            .setIntParameter(HttpConnectionParams.CONNECTION_TIMEOUT, 15000)
-            .setIntParameter(HttpConnectionParams.SOCKET_BUFFER_SIZE, 8 * 1024)
-            .setBooleanParameter(HttpConnectionParams.STALE_CONNECTION_CHECK, false)
-            .setBooleanParameter(HttpConnectionParams.TCP_NODELAY, true)
-            .setParameter(HttpProtocolParams.USER_AGENT, "TEST-SSL-CLIENT/1.1");
-
-        this.ioReactor = new DefaultConnectingIOReactor(2, this.params);
     }
     
-    public void setHttpRequestExecutionHandler(final HttpRequestExecutionHandler handler) {
-        this.execHandler = handler;
+    public HttpParams getParams() {
+        return this.params;
     }
     
-    protected void execute() throws IOException {
-        BasicHttpProcessor httpproc = new BasicHttpProcessor();
-        httpproc.addInterceptor(new RequestContent());
-        httpproc.addInterceptor(new RequestTargetHost());
-        httpproc.addInterceptor(new RequestConnControl());
-        httpproc.addInterceptor(new RequestUserAgent());
-        httpproc.addInterceptor(new RequestExpectContinue());
-        
-        BufferingHttpClientHandler clientHandler = new BufferingHttpClientHandler(
-                httpproc,
-                this.execHandler,
-                new DefaultConnectionReuseStrategy(),
-                this.params);
-        
-        clientHandler.setEventListener(new EventLogger());
-
+    private void execute(final NHttpClientHandler clientHandler) throws IOException {
         IOEventDispatch ioEventDispatch = new SSLClientIOEventDispatch(
                 clientHandler, 
                 this.sslcontext,
@@ -115,8 +87,39 @@ public class TestHttpSSLClient extends TestHttpSSLServiceBase {
     }
     
     public void openConnection(final InetSocketAddress address, final Object attachment) {
-        ((ConnectingIOReactor) this.ioReactor).connect(
-                address, null, attachment, null);
+        this.ioReactor.connect(address, null, attachment, null);
     }
+ 
+    public void start(final NHttpClientHandler clientHandler) {
+        this.thread = new IOReactorThread(clientHandler);
+        this.thread.start();
+    }
+    
+    public void shutdown() throws IOException {
+        this.ioReactor.shutdown();
+        try {
+            this.thread.join(500);
+        } catch (InterruptedException ignore) {
+        }
+    }
+    
+    private class IOReactorThread extends Thread {
+
+        private final NHttpClientHandler clientHandler;
+        
+        public IOReactorThread(final NHttpClientHandler clientHandler) {
+            super();
+            this.clientHandler = clientHandler;
+        }
+        
+        public void run() {
+            try {
+                execute(this.clientHandler);
+            } catch (IOException ex) {
+                ex.printStackTrace();
+            }
+        }
+
+    }    
     
 }
