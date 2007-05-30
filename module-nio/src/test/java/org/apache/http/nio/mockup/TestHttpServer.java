@@ -34,7 +34,9 @@ package org.apache.http.nio.mockup;
 import java.io.IOException;
 import java.net.InetSocketAddress;
 
+import org.apache.http.impl.nio.DefaultServerIOEventDispatch;
 import org.apache.http.impl.nio.reactor.DefaultListeningIOReactor;
+import org.apache.http.nio.NHttpServiceHandler;
 import org.apache.http.nio.reactor.IOEventDispatch;
 import org.apache.http.nio.reactor.ListeningIOReactor;
 import org.apache.http.params.HttpParams;
@@ -64,12 +66,17 @@ public class TestHttpServer {
         return this.params;
     }
     
-    private void execute(final IOEventDispatch ioEventDispatch) throws IOException {
+    private void execute(final NHttpServiceHandler serviceHandler) throws IOException {
         synchronized (this.socketMutex) {
             this.address = (InetSocketAddress) this.ioReactor.listen(
                     new InetSocketAddress(0));
             this.socketMutex.notifyAll();
         }
+        
+        IOEventDispatch ioEventDispatch = new DefaultServerIOEventDispatch(
+                serviceHandler, 
+                this.params);
+        
         this.ioReactor.execute(ioEventDispatch);
     }
     
@@ -82,8 +89,8 @@ public class TestHttpServer {
         return this.address;
     }
 
-    public void start(final IOEventDispatch ioEventDispatch) {
-        this.thread = new IOReactorThread(ioEventDispatch);
+    public void start(final NHttpServiceHandler serviceHandler) {
+        this.thread = new IOReactorThread(serviceHandler);
         this.thread.start();
     }
     
@@ -97,16 +104,16 @@ public class TestHttpServer {
     
     private class IOReactorThread extends Thread {
 
-        private final IOEventDispatch ioEventDispatch;
+        private final NHttpServiceHandler serviceHandler;
         
-        public IOReactorThread(final IOEventDispatch ioEventDispatch) {
+        public IOReactorThread(final NHttpServiceHandler serviceHandler) {
             super();
-            this.ioEventDispatch = ioEventDispatch;
+            this.serviceHandler = serviceHandler;
         }
         
         public void run() {
             try {
-                execute(this.ioEventDispatch);
+                execute(this.serviceHandler);
             } catch (IOException ex) {
                 ex.printStackTrace();
             }

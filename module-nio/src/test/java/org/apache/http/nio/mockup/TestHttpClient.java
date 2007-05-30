@@ -34,7 +34,9 @@ package org.apache.http.nio.mockup;
 import java.io.IOException;
 import java.net.InetSocketAddress;
 
+import org.apache.http.impl.nio.DefaultClientIOEventDispatch;
 import org.apache.http.impl.nio.reactor.DefaultConnectingIOReactor;
+import org.apache.http.nio.NHttpClientHandler;
 import org.apache.http.nio.reactor.ConnectingIOReactor;
 import org.apache.http.nio.reactor.IOEventDispatch;
 import org.apache.http.params.HttpParams;
@@ -56,7 +58,11 @@ public class TestHttpClient {
         return this.params;
     }
     
-    private void execute(final IOEventDispatch ioEventDispatch) throws IOException {
+    private void execute(final NHttpClientHandler clientHandler) throws IOException {
+        IOEventDispatch ioEventDispatch = new DefaultClientIOEventDispatch(
+                clientHandler, 
+                this.params);        
+        
         this.ioReactor.execute(ioEventDispatch);
     }
     
@@ -64,8 +70,8 @@ public class TestHttpClient {
         this.ioReactor.connect(address, null, attachment, null);
     }
  
-    public void start(final IOEventDispatch ioEventDispatch) {
-        this.thread = new IOReactorThread(ioEventDispatch);
+    public void start(final NHttpClientHandler clientHandler) {
+        this.thread = new IOReactorThread(clientHandler);
         this.thread.start();
     }
     
@@ -79,16 +85,16 @@ public class TestHttpClient {
     
     private class IOReactorThread extends Thread {
 
-        private final IOEventDispatch ioEventDispatch;
+        private final NHttpClientHandler clientHandler;
         
-        public IOReactorThread(final IOEventDispatch ioEventDispatch) {
+        public IOReactorThread(final NHttpClientHandler clientHandler) {
             super();
-            this.ioEventDispatch = ioEventDispatch;
+            this.clientHandler = clientHandler;
         }
         
         public void run() {
             try {
-                execute(this.ioEventDispatch);
+                execute(this.clientHandler);
             } catch (IOException ex) {
                 ex.printStackTrace();
             }

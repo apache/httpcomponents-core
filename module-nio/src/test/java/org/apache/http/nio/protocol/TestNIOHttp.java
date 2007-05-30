@@ -54,8 +54,6 @@ import org.apache.http.entity.ByteArrayEntity;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.DefaultConnectionReuseStrategy;
 import org.apache.http.impl.DefaultHttpResponseFactory;
-import org.apache.http.impl.nio.DefaultClientIOEventDispatch;
-import org.apache.http.impl.nio.DefaultServerIOEventDispatch;
 import org.apache.http.message.BasicHttpEntityEnclosingRequest;
 import org.apache.http.message.BasicHttpRequest;
 import org.apache.http.nio.NHttpClientHandler;
@@ -65,7 +63,6 @@ import org.apache.http.nio.mockup.CountingEventListener;
 import org.apache.http.nio.mockup.SimpleHttpRequestHandlerResolver;
 import org.apache.http.nio.mockup.TestHttpClient;
 import org.apache.http.nio.mockup.TestHttpServer;
-import org.apache.http.nio.reactor.IOEventDispatch;
 import org.apache.http.params.BasicHttpParams;
 import org.apache.http.params.HttpConnectionParams;
 import org.apache.http.params.HttpParams;
@@ -292,20 +289,12 @@ public class TestNIOHttp extends TestCase {
                 null,
                 serverEventListener);
 
-        IOEventDispatch serverEventDispatch = new DefaultServerIOEventDispatch(
-                serviceHandler, 
-                this.server.getParams());
-        
         NHttpClientHandler clientHandler = createHttpClientHandler(
                 requestExecutionHandler, 
                 clientEventListener);
 
-        IOEventDispatch clientEventDispatch = new DefaultClientIOEventDispatch(
-                clientHandler, 
-                this.client.getParams());        
-        
-        this.server.start(serverEventDispatch);
-        this.client.start(clientEventDispatch);
+        this.server.start(serviceHandler);
+        this.client.start(clientHandler);
         
         InetSocketAddress serverAddress = (InetSocketAddress) this.server.getSocketAddress();
         
@@ -445,20 +434,12 @@ public class TestNIOHttp extends TestCase {
                 null,
                 serverEventListener);
 
-        IOEventDispatch serverEventDispatch = new DefaultServerIOEventDispatch(
-                serviceHandler, 
-                this.server.getParams());
-        
         NHttpClientHandler clientHandler = createHttpClientHandler(
                 requestExecutionHandler, 
                 clientEventListener);
 
-        IOEventDispatch clientEventDispatch = new DefaultClientIOEventDispatch(
-                clientHandler, 
-                this.client.getParams());        
-        
-        this.server.start(serverEventDispatch);
-        this.client.start(clientEventDispatch);
+        this.server.start(serviceHandler);
+        this.client.start(clientHandler);
         
         InetSocketAddress serverAddress = (InetSocketAddress) this.server.getSocketAddress();
         
@@ -598,20 +579,12 @@ public class TestNIOHttp extends TestCase {
                 null,
                 serverEventListener);
 
-        IOEventDispatch serverEventDispatch = new DefaultServerIOEventDispatch(
-                serviceHandler, 
-                this.server.getParams());
-        
         NHttpClientHandler clientHandler = createHttpClientHandler(
                 requestExecutionHandler, 
                 clientEventListener);
 
-        IOEventDispatch clientEventDispatch = new DefaultClientIOEventDispatch(
-                clientHandler, 
-                this.client.getParams());        
-        
-        this.server.start(serverEventDispatch);
-        this.client.start(clientEventDispatch);
+        this.server.start(serviceHandler);
+        this.client.start(clientHandler);
         
         InetSocketAddress serverAddress = (InetSocketAddress) this.server.getSocketAddress();
         
@@ -756,20 +729,12 @@ public class TestNIOHttp extends TestCase {
                 null,
                 serverEventListener);
 
-        IOEventDispatch serverEventDispatch = new DefaultServerIOEventDispatch(
-                serviceHandler, 
-                this.server.getParams());
-        
         NHttpClientHandler clientHandler = createHttpClientHandler(
                 requestExecutionHandler, 
                 clientEventListener);
 
-        IOEventDispatch clientEventDispatch = new DefaultClientIOEventDispatch(
-                clientHandler, 
-                this.client.getParams());        
-        
-        this.server.start(serverEventDispatch);
-        this.client.start(clientEventDispatch);
+        this.server.start(serviceHandler);
+        this.client.start(clientHandler);
         
         InetSocketAddress serverAddress = (InetSocketAddress) this.server.getSocketAddress();
         
@@ -912,20 +877,12 @@ public class TestNIOHttp extends TestCase {
                 null,
                 serverEventListener);
 
-        IOEventDispatch serverEventDispatch = new DefaultServerIOEventDispatch(
-                serviceHandler, 
-                this.server.getParams());
-        
         NHttpClientHandler clientHandler = createHttpClientHandler(
                 requestExecutionHandler, 
                 clientEventListener);
 
-        IOEventDispatch clientEventDispatch = new DefaultClientIOEventDispatch(
-                clientHandler, 
-                this.client.getParams());        
-        
-        this.server.start(serverEventDispatch);
-        this.client.start(clientEventDispatch);
+        this.server.start(serviceHandler);
+        this.client.start(clientHandler);
         
         InetSocketAddress serverAddress = (InetSocketAddress) this.server.getSocketAddress();
         
@@ -1073,20 +1030,12 @@ public class TestNIOHttp extends TestCase {
                 expectationVerifier,
                 serverEventListener);
 
-        IOEventDispatch serverEventDispatch = new DefaultServerIOEventDispatch(
-                serviceHandler, 
-                this.server.getParams());
-        
         NHttpClientHandler clientHandler = createHttpClientHandler(
                 requestExecutionHandler, 
                 clientEventListener);
 
-        IOEventDispatch clientEventDispatch = new DefaultClientIOEventDispatch(
-                clientHandler, 
-                this.client.getParams());        
-        
-        this.server.start(serverEventDispatch);
-        this.client.start(clientEventDispatch);
+        this.server.start(serviceHandler);
+        this.client.start(clientHandler);
         
         InetSocketAddress serverAddress = (InetSocketAddress) this.server.getSocketAddress();
         
@@ -1208,20 +1157,12 @@ public class TestNIOHttp extends TestCase {
                 null,
                 serverEventListener);
 
-        IOEventDispatch serverEventDispatch = new DefaultServerIOEventDispatch(
-                serviceHandler, 
-                this.server.getParams());
-        
         NHttpClientHandler clientHandler = createHttpClientHandler(
                 requestExecutionHandler, 
                 clientEventListener);
 
-        IOEventDispatch clientEventDispatch = new DefaultClientIOEventDispatch(
-                clientHandler, 
-                this.client.getParams());        
-        
-        this.server.start(serverEventDispatch);
-        this.client.start(clientEventDispatch);
+        this.server.start(serviceHandler);
+        this.client.start(clientHandler);
         
         InetSocketAddress serverAddress = (InetSocketAddress) this.server.getSocketAddress();
 
