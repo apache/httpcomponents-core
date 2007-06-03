@@ -87,7 +87,8 @@ public class SharedOutputBuffer extends ExpandableBuffer implements ContentOutpu
                 if (this.state == CLOSING && !encoder.isCompleted()) {
                     encoder.complete();
                     this.state = CLOSED;
-                } else {
+                } 
+                if (this.state == STREAMING) {
                     // suspend output events
                     this.ioctrl.suspendOutput();
                 }
@@ -167,10 +168,13 @@ public class SharedOutputBuffer extends ExpandableBuffer implements ContentOutpu
     }
     
     public void writeCompleted() throws IOException {
+        if (this.state == CLOSING || this.state == CLOSED) {
+            return;
+        }
         synchronized (this.mutex) {
             this.state = CLOSING;
             try {
-                while (hasData() && this.state != CLOSED && !this.shutdown) {
+                while (this.state != CLOSED && !this.shutdown) {
                     this.ioctrl.requestOutput();
                     this.mutex.wait();
                 }
