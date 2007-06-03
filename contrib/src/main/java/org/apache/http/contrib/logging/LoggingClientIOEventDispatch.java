@@ -32,7 +32,6 @@
 package org.apache.http.contrib.logging;
 
 import org.apache.http.impl.DefaultHttpResponseFactory;
-import org.apache.http.impl.nio.DefaultNHttpClientConnection;
 import org.apache.http.nio.NHttpClientHandler;
 import org.apache.http.nio.reactor.IOEventDispatch;
 import org.apache.http.nio.reactor.IOSession;
@@ -58,7 +57,7 @@ public class LoggingClientIOEventDispatch implements IOEventDispatch {
     }
     
     public void connected(final IOSession session) {
-        DefaultNHttpClientConnection conn = new DefaultNHttpClientConnection(
+        LoggingNHttpClientConnection conn = new LoggingNHttpClientConnection(
                 new LoggingIOSession(session), 
                 new DefaultHttpResponseFactory(),
                 this.params); 
@@ -69,25 +68,25 @@ public class LoggingClientIOEventDispatch implements IOEventDispatch {
     }
 
     public void disconnected(final IOSession session) {
-        DefaultNHttpClientConnection conn = (DefaultNHttpClientConnection) session.getAttribute(
+        LoggingNHttpClientConnection conn = (LoggingNHttpClientConnection) session.getAttribute(
                 NHTTP_CONN);
         this.handler.closed(conn);
     }
 
     public void inputReady(final IOSession session) {
-        DefaultNHttpClientConnection conn = (DefaultNHttpClientConnection) session.getAttribute(
+        LoggingNHttpClientConnection conn = (LoggingNHttpClientConnection) session.getAttribute(
                 NHTTP_CONN);
         conn.consumeInput(this.handler);
     }
 
     public void outputReady(final IOSession session) {
-        DefaultNHttpClientConnection conn = (DefaultNHttpClientConnection) session.getAttribute(
+        LoggingNHttpClientConnection conn = (LoggingNHttpClientConnection) session.getAttribute(
                 NHTTP_CONN);
         conn.produceOutput(this.handler);
     }
 
     public void timeout(final IOSession session) {
-        DefaultNHttpClientConnection conn = (DefaultNHttpClientConnection) session.getAttribute(
+        LoggingNHttpClientConnection conn = (LoggingNHttpClientConnection) session.getAttribute(
                 NHTTP_CONN);
         this.handler.timeout(conn);
     }

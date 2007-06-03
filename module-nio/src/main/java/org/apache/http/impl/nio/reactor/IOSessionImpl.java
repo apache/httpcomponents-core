@@ -184,14 +184,31 @@ public class IOSessionImpl implements IOSession {
         this.attributes.put(name, obj);
     }
 
+    private static void formatOps(final StringBuffer buffer, int ops) {
+        buffer.append('[');
+        if ((ops & SelectionKey.OP_READ) > 0) {
+            buffer.append('r');
+        }
+        if ((ops & SelectionKey.OP_WRITE) > 0) {
+            buffer.append('w');
+        }
+        if ((ops & SelectionKey.OP_ACCEPT) > 0) {
+            buffer.append('a');
+        }
+        if ((ops & SelectionKey.OP_CONNECT) > 0) {
+            buffer.append('c');
+        }
+        buffer.append(']');
+    }
+    
     public String toString() {
         StringBuffer buffer = new StringBuffer();
         buffer.append("[");
         if (this.key.isValid()) {
-            buffer.append("event mask: ");
-            buffer.append(this.key.interestOps());
+            buffer.append("interested ops: ");
+            formatOps(buffer, this.key.interestOps());
             buffer.append("; ready ops: ");
-            buffer.append(this.key.readyOps());
+            formatOps(buffer, this.key.readyOps());
         } else {
             buffer.append("invalid");
         }

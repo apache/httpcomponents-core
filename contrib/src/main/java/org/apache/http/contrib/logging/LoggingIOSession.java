@@ -35,6 +35,7 @@ import java.io.IOException;
 import java.net.SocketAddress;
 import java.nio.ByteBuffer;
 import java.nio.channels.ByteChannel;
+import java.nio.channels.SelectionKey;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -83,10 +84,29 @@ public class LoggingIOSession implements IOSession {
         return this.session.getEventMask();
     }
 
+    private static String formatOps(int ops) {
+        StringBuffer buffer = new StringBuffer(6);
+        buffer.append('[');
+        if ((ops & SelectionKey.OP_READ) > 0) {
+            buffer.append('r');
+        }
+        if ((ops & SelectionKey.OP_WRITE) > 0) {
+            buffer.append('w');
+        }
+        if ((ops & SelectionKey.OP_ACCEPT) > 0) {
+            buffer.append('a');
+        }
+        if ((ops & SelectionKey.OP_CONNECT) > 0) {
+            buffer.append('c');
+        }
+        buffer.append(']');
+        return buffer.toString();
+    }
+    
     public void setEventMask(int ops) {
         if (this.log.isDebugEnabled()) {
             this.log.debug("I/O session " + this.id + " " + this.session + ": Set event mask " 
-                    + ops);
+                    + formatOps(ops));
         }
         this.session.setEventMask(ops);
     }
@@ -94,7 +114,7 @@ public class LoggingIOSession implements IOSession {
     public void setEvent(int op) {
         if (this.log.isDebugEnabled()) {
             this.log.debug("I/O session " + this.id + " " + this.session + ": Set event " 
-                    + op);
+                    + formatOps(op));
         }
         this.session.setEvent(op);
     }
@@ -102,7 +122,7 @@ public class LoggingIOSession implements IOSession {
     public void clearEvent(int op) {
         if (this.log.isDebugEnabled()) {
             this.log.debug("I/O session " + this.id + " " + this.session + ": Clear event " 
-                    + op);
+                    + formatOps(op));
         }
         this.session.clearEvent(op);
     }
