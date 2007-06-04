@@ -37,16 +37,11 @@ import org.apache.http.nio.IOControl;
 
 public class SharedOutputBuffer extends ExpandableBuffer implements ContentOutputBuffer {
 
-    private static final int READY      = 0;
-    private static final int STREAMING  = 1;
-    private static final int CLOSING    = 2;
-    private static final int CLOSED     = 4;
-    
     private final IOControl ioctrl;
     private final Object mutex;
     
     private volatile boolean shutdown = false;
-    private volatile int state;
+    private volatile boolean endOfStream;
     
     public SharedOutputBuffer(int buffersize, final IOControl ioctrl) {
         super(buffersize);
@@ -55,7 +50,7 @@ public class SharedOutputBuffer extends ExpandableBuffer implements ContentOutpu
         }
         this.ioctrl = ioctrl;
         this.mutex = new Object();
-        this.state = READY;
+        this.endOfStream = false;
     }
 
     public void reset() {
@@ -64,7 +59,7 @@ public class SharedOutputBuffer extends ExpandableBuffer implements ContentOutpu
         }
         synchronized (this.mutex) {
             clear();
-            this.state = READY;
+            this.endOfStream = false;
         }
     }
     
@@ -78,17 +73,16 @@ public class SharedOutputBuffer extends ExpandableBuffer implements ContentOutpu
             if (hasData()) {
                 bytesWritten = encoder.write(this.buffer);
                 if (encoder.isCompleted()) {
-                    this.state = CLOSED;
+                    this.endOfStream = false;
                 }
             }
             if (!hasData()) {
                 // No more buffered content
                 // If at the end of the stream, terminate
-                if (this.state == CLOSING && !encoder.isCompleted()) {
+                if (this.endOfStream && !encoder.isCompleted()) {
                     encoder.complete();
-                    this.state = CLOSED;
                 } 
-                if (this.state == STREAMING) {
+                if (!this.endOfStream) {
                     // suspend output events
                     this.ioctrl.suspendOutput();
                 }
@@ -113,15 +107,14 @@ public class SharedOutputBuffer extends ExpandableBuffer implements ContentOutpu
             return;
         }
         synchronized (this.mutex) {
-            if (this.shutdown || this.state == CLOSING || this.state == CLOSED) {
+            if (this.shutdown || this.endOfStream) {
                 throw new IllegalStateException("Buffer already closed for writing");
             }
-            this.state = STREAMING;
             setInputMode();
             int remaining = len;
             while (remaining > 0) {
                 if (!this.buffer.hasRemaining()) {
-                    flush();
+                    flushContent();
                     setInputMode();
                 }
                 int chunk = Math.min(remaining, this.buffer.remaining());
@@ -141,13 +134,12 @@ public class SharedOutputBuffer extends ExpandableBuffer implements ContentOutpu
 
     public void write(int b) throws IOException {
         synchronized (this.mutex) {
-            if (this.shutdown || this.state == CLOSING || this.state == CLOSED) {
+            if (this.shutdown || this.endOfStream) {
                 throw new IllegalStateException("Buffer already closed for writing");
             }
-            this.state = STREAMING;
             setInputMode();
             if (!this.buffer.hasRemaining()) {
-                flush();
+                flushContent();
                 setInputMode();
             }
             this.buffer.put((byte)b);
@@ -155,6 +147,9 @@ public class SharedOutputBuffer extends ExpandableBuffer implements ContentOutpu
     }
 
     public void flush() throws IOException {
+    }
+
+    private void flushContent() throws IOException {
         synchronized (this.mutex) {
             try {
                 while (hasData() && !this.shutdown) {
@@ -168,20 +163,11 @@ public class SharedOutputBuffer extends ExpandableBuffer implements ContentOutpu
     }
     
     public void writeCompleted() throws IOException {
-        if (this.state == CLOSING || this.state == CLOSED) {
+        if (this.endOfStream) {
             return;
         }
-        synchronized (this.mutex) {
-            this.state = CLOSING;
-            try {
-                while (this.state != CLOSED && !this.shutdown) {
-                    this.ioctrl.requestOutput();
-                    this.mutex.wait();
-                }
-            } catch (InterruptedException ex) {
-                throw new IOException("Interrupted while closing the content buffer");
-            }
-        }
+        this.endOfStream = true;
+        this.ioctrl.requestOutput();
     }
     
 }

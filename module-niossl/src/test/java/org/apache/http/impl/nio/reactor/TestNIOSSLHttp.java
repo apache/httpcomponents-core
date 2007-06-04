@@ -117,7 +117,7 @@ public class TestNIOSSLHttp extends TestCase {
     protected void setUp() throws Exception {
         HttpParams serverParams = new BasicHttpParams();
         serverParams
-            .setIntParameter(HttpConnectionParams.SO_TIMEOUT, 2000)
+            .setIntParameter(HttpConnectionParams.SO_TIMEOUT, 30000)
             .setIntParameter(HttpConnectionParams.SOCKET_BUFFER_SIZE, 8 * 1024)
             .setBooleanParameter(HttpConnectionParams.STALE_CONNECTION_CHECK, false)
             .setBooleanParameter(HttpConnectionParams.TCP_NODELAY, true)
@@ -127,7 +127,7 @@ public class TestNIOSSLHttp extends TestCase {
         
         HttpParams clientParams = new BasicHttpParams();
         clientParams
-            .setIntParameter(HttpConnectionParams.SO_TIMEOUT, 2000)
+            .setIntParameter(HttpConnectionParams.SO_TIMEOUT, 30000)
             .setIntParameter(HttpConnectionParams.CONNECTION_TIMEOUT, 2000)
             .setIntParameter(HttpConnectionParams.SOCKET_BUFFER_SIZE, 8 * 1024)
             .setBooleanParameter(HttpConnectionParams.STALE_CONNECTION_CHECK, false)
