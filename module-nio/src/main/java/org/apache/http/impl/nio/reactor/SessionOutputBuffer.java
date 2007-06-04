@@ -35,6 +35,7 @@ import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.CharBuffer;
 import java.nio.channels.WritableByteChannel;
+import java.nio.charset.CharacterCodingException;
 import java.nio.charset.Charset;
 import java.nio.charset.CharsetEncoder;
 import java.nio.charset.CoderResult;
@@ -101,7 +102,7 @@ public class SessionOutputBuffer extends ExpandableBuffer {
         write(CRLF);
     }
 
-    public void writeLine(final CharArrayBuffer linebuffer) {
+    public void writeLine(final CharArrayBuffer linebuffer) throws CharacterCodingException {
         if (linebuffer == null) {
             return;
         }
@@ -126,6 +127,9 @@ public class SessionOutputBuffer extends ExpandableBuffer {
                 boolean retry = true;
                 while (retry) {
                     CoderResult result = this.charencoder.encode(this.charbuffer, this.buffer, eol);
+                    if (result.isError()) {
+                        result.throwException();
+                    }
                     if (result.isOverflow()) {
                         expand();
                     }

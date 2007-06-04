@@ -37,6 +37,7 @@ import java.nio.ByteBuffer;
 import java.nio.channels.Channels;
 import java.nio.channels.ReadableByteChannel;
 import java.nio.channels.WritableByteChannel;
+import java.nio.charset.CharacterCodingException;
 
 import junit.framework.Test;
 import junit.framework.TestCase;
@@ -352,6 +353,28 @@ public class TestSessionInOutBuffers extends TestCase {
             assertEquals(s2, inbuf.readLine(true));
             assertEquals(s3, inbuf.readLine(true));
         }
+    }
+
+    public void testMalformedCharacters() throws Exception {
+        String s1 = constructString(SWISS_GERMAN_HELLO);       
+        SessionOutputBuffer outbuf = new SessionOutputBuffer(1024, 16);
+        try {
+            outbuf.writeLine(s1);
+            fail("Expected CharacterCodingException");
+        } catch (CharacterCodingException expected) {
+        }
+        
+        byte[] tmp = s1.getBytes("ISO-8859-1");        
+        ReadableByteChannel channel = newChannel(tmp);        
+        SessionInputBuffer inbuf = new SessionInputBuffer(16, 16);
+        while (inbuf.fill(channel) > 0) {
+        }
+        
+        try {
+            String s = inbuf.readLine(true);
+            fail("Expected CharacterCodingException, got '" + s + "'");
+        } catch (CharacterCodingException expected) {
+        }            
     }
 
 }

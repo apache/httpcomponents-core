@@ -31,6 +31,7 @@
 
 package org.apache.http.impl.nio.codecs;
 
+import java.io.IOException;
 import java.nio.ByteBuffer;
 
 import org.apache.http.impl.nio.reactor.SessionOutputBuffer;
@@ -50,7 +51,7 @@ public class ChunkEncoder extends AbstractContentEncoder {
         this.lineBuffer = new CharArrayBuffer(16);
     }
 
-    public int write(final ByteBuffer src) {
+    public int write(final ByteBuffer src) throws IOException {
         if (src == null) {
             return 0;
         }
@@ -68,7 +69,7 @@ public class ChunkEncoder extends AbstractContentEncoder {
         return chunk;
     }
 
-    public void complete() {
+    public void complete() throws IOException {
         assertNotCompleted();
         this.lineBuffer.clear();
         this.lineBuffer.append("0");

@@ -35,6 +35,7 @@ import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.CharBuffer;
 import java.nio.channels.ReadableByteChannel;
+import java.nio.charset.CharacterCodingException;
 import java.nio.charset.Charset;
 import java.nio.charset.CharsetDecoder;
 import java.nio.charset.CoderResult;
@@ -101,7 +102,7 @@ public class SessionInputBuffer extends ExpandableBuffer {
         return read(dst, dst.remaining());
     }
     
-    public boolean readLine(final CharArrayBuffer linebuffer, boolean endOfStream) {
+    public boolean readLine(final CharArrayBuffer linebuffer, boolean endOfStream) throws CharacterCodingException {
         setOutputMode();
         // See if there is LF char present in the buffer
         int pos = -1;
@@ -138,6 +139,9 @@ public class SessionInputBuffer extends ExpandableBuffer {
                     this.buffer, 
                     this.charbuffer, 
                     true);
+            if (result.isError()) {
+                result.throwException();
+            }
             if (result.isOverflow()) {
                 this.charbuffer.flip();
                 linebuffer.append(
@@ -181,7 +185,7 @@ public class SessionInputBuffer extends ExpandableBuffer {
         return true;
     }
     
-    public String readLine(boolean endOfStream) {
+    public String readLine(boolean endOfStream) throws CharacterCodingException {
         CharArrayBuffer charbuffer = new CharArrayBuffer(64);
         boolean found = readLine(charbuffer, endOfStream);
         if (found) {
