@@ -392,44 +392,20 @@ public class ThrottlingHttpServiceHandler implements NHttpServiceHandler {
         }
     }
     
-    private HttpResponse handleException(
-            final ServerConnState connState,
-            final NHttpServerConnection conn,
-            final HttpException ex,
-            final HttpContext context) throws HttpException, IOException {
-
-        HttpRequest request = connState.getRequest();
-
-        context.setAttribute(HttpExecutionContext.HTTP_CONNECTION, conn);
-        context.setAttribute(HttpExecutionContext.HTTP_REQUEST, request);
-        
-        HttpVersion ver;
-        if (request != null) {
-            ver = request.getRequestLine().getHttpVersion(); 
-        } else {
-            ver = HttpVersion.HTTP_1_0;
-        }
-        int code = HttpStatus.SC_INTERNAL_SERVER_ERROR;
+    private void handleException(final HttpException ex, final HttpResponse response) {
         if (ex instanceof MethodNotSupportedException) {
-            code = HttpStatus.SC_NOT_IMPLEMENTED;
+            response.setStatusCode(HttpStatus.SC_NOT_IMPLEMENTED);
         } else if (ex instanceof UnsupportedHttpVersionException) {
-            code = HttpStatus.SC_HTTP_VERSION_NOT_SUPPORTED;
+            response.setStatusCode(HttpStatus.SC_HTTP_VERSION_NOT_SUPPORTED);
         } else if (ex instanceof ProtocolException) {
-            code = HttpStatus.SC_BAD_REQUEST;
+            response.setStatusCode(HttpStatus.SC_BAD_REQUEST);
+        } else {
+            response.setStatusCode(HttpStatus.SC_INTERNAL_SERVER_ERROR);
         }
-        
-        HttpResponse response =  this.responseFactory.newHttpResponse(
-                ver, 
-                code, 
-                context);
-
-        HttpParamsLinker.link(response, this.params);
-        
         byte[] msg = EncodingUtils.getAsciiBytes(ex.getMessage());
         ByteArrayEntity entity = new ByteArrayEntity(msg);
         entity.setContentType("text/plain; charset=US-ASCII");
         response.setEntity(entity);
-        return response;
     }
     
     private void handleRequest(
@@ -467,7 +443,10 @@ public class ThrottlingHttpServiceHandler implements NHttpServiceHandler {
                     try {
                         this.expectationVerifier.verify(request, response, context);
                     } catch (HttpException ex) {
-                        response = handleException(connState, conn, ex ,context);
+                        response = this.responseFactory.newHttpResponse(HttpVersion.HTTP_1_0, 
+                                HttpStatus.SC_INTERNAL_SERVER_ERROR, context);
+                        HttpParamsLinker.link(request, this.params);
+                        handleException(ex, response);
                     }
                 }
             
@@ -523,7 +502,10 @@ public class ThrottlingHttpServiceHandler implements NHttpServiceHandler {
                 }
 
             } catch (HttpException ex) {
-                response = handleException(connState, conn, ex ,context);
+                response = this.responseFactory.newHttpResponse(HttpVersion.HTTP_1_0, 
+                        HttpStatus.SC_INTERNAL_SERVER_ERROR, context);
+                HttpParamsLinker.link(request, this.params);
+                handleException(ex, response);
             }
         }
 

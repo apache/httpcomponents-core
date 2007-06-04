@@ -140,11 +140,8 @@ public class HttpService {
                 ver = HttpVersion.HTTP_1_1;
             }
 
-            boolean receiveEntity = false;
-            boolean runService = true;
-
             if (request instanceof HttpEntityEnclosingRequest) {
-                receiveEntity = true;
+
                 if (((HttpEntityEnclosingRequest) request).expectContinue()) {
                     response = this.responseFactory.newHttpResponse(ver, 
                             HttpStatus.SC_CONTINUE, context);
@@ -166,33 +163,26 @@ public class HttpService {
                         conn.sendResponseHeader(response);
                         conn.flush();
                         response = null;
-                    } else {
-                        // The request does not meet the server expections
-                        runService = false;
-                        receiveEntity = false;
+                        conn.receiveRequestEntity((HttpEntityEnclosingRequest) request);
                     }
+                } else {
+                    conn.receiveRequestEntity((HttpEntityEnclosingRequest) request);
                 }
-            }
-
-            if (receiveEntity) {
-                conn.receiveRequestEntity((HttpEntityEnclosingRequest) request);
             }
 
             if (response == null) {
                 response = this.responseFactory.newHttpResponse(ver, HttpStatus.SC_OK, context);
                 HttpParamsLinker.link(request, this.params);
-            }
-            
-            if (runService) {
+
                 context.setAttribute(HttpExecutionContext.HTTP_REQUEST, request);
                 context.setAttribute(HttpExecutionContext.HTTP_RESPONSE, response);
 
                 this.processor.process(request, context);
                 doService(request, response, context);
             }
-
-            if (receiveEntity) {
-                // Make sure the request content is fully consumed
+            
+            // Make sure the request content is fully consumed
+            if (request instanceof HttpEntityEnclosingRequest) {
                 HttpEntity entity = ((HttpEntityEnclosingRequest)request).getEntity();
                 if (entity != null) {
                     entity.consumeContent();
