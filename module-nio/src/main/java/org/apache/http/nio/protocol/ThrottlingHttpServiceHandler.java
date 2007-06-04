@@ -543,6 +543,10 @@ public class ThrottlingHttpServiceHandler implements NHttpServiceHandler {
 
         this.httpProcessor.process(response, context);
 
+        if (!canResponseHaveBody(request, response)) {
+            response.setEntity(null);
+        }
+        
         connState.setResponse(response);
         // Response is ready to be committed
         conn.requestOutput();
@@ -558,6 +562,20 @@ public class ThrottlingHttpServiceHandler implements NHttpServiceHandler {
         }
     }
     
+    private boolean canResponseHaveBody(
+            final HttpRequest request, final HttpResponse response) {
+
+        if (request != null && "HEAD".equalsIgnoreCase(request.getRequestLine().getMethod())) {
+            return false;
+        }
+        
+        int status = response.getStatusLine().getStatusCode(); 
+        return status >= HttpStatus.SC_OK 
+            && status != HttpStatus.SC_NO_CONTENT 
+            && status != HttpStatus.SC_NOT_MODIFIED
+            && status != HttpStatus.SC_RESET_CONTENT; 
+    }
+
     static class ServerConnState {
         
         public static final int SHUTDOWN                   = -1;
