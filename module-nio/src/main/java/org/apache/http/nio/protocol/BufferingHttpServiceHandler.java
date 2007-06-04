@@ -230,6 +230,7 @@ public class BufferingHttpServiceHandler implements NHttpServiceHandler {
                     HttpVersion.HTTP_1_0, HttpStatus.SC_INTERNAL_SERVER_ERROR, context);
             HttpParamsLinker.link(response, this.params);
             handleException(httpex, response);
+            response.setEntity(null);
             sendResponse(conn, response);
             
         } catch (IOException ex) {

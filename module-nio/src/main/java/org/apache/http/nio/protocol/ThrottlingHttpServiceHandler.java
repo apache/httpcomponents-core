@@ -172,12 +172,41 @@ public class ThrottlingHttpServiceHandler implements NHttpServiceHandler {
         }
     }
     
-    public void exception(final NHttpServerConnection conn, final HttpException ex) {
-        shutdownConnection(conn);
+    public void exception(final NHttpServerConnection conn, final HttpException httpex) {
+        HttpContext context = conn.getContext();
         
-        if (this.eventListener != null) {
-            this.eventListener.fatalProtocolException(ex, conn);
+        ServerConnState connState = (ServerConnState) context.getAttribute(CONN_STATE);
+        
+        try {
+
+            HttpResponse response = this.responseFactory.newHttpResponse(
+                    HttpVersion.HTTP_1_0, 
+                    HttpStatus.SC_INTERNAL_SERVER_ERROR, 
+                    context);
+            HttpParamsLinker.link(response, this.params);
+            handleException(httpex, response);
+            response.setEntity(null);
+            
+            this.httpProcessor.process(response, context);
+            
+            synchronized (connState) {
+                connState.setResponse(response);
+                // Response is ready to be committed
+                conn.requestOutput();
+            }
+            
+        } catch (IOException ex) {
+            shutdownConnection(conn);
+            if (eventListener != null) {
+                eventListener.fatalIOException(ex, conn);
+            }
+        } catch (HttpException ex) {
+            shutdownConnection(conn);
+            if (eventListener != null) {
+                eventListener.fatalProtocolException(ex, conn);
+            }
         }
+
     }
 
     public void exception(final NHttpServerConnection conn, final IOException ex) {
@@ -278,11 +307,14 @@ public class ThrottlingHttpServiceHandler implements NHttpServiceHandler {
         HttpContext context = conn.getContext();
 
         ServerConnState connState = (ServerConnState) context.getAttribute(CONN_STATE);
-        HttpResponse response = connState.getResponse();
-        if (connState.getOutputState() == ServerConnState.READY 
-                && response != null 
-                && !conn.isResponseSubmitted()) {
-            try {
+
+        try {
+        
+            HttpResponse response = connState.getResponse();
+            if (connState.getOutputState() == ServerConnState.READY 
+                    && response != null 
+                    && !conn.isResponseSubmitted()) {
+
                 conn.submitResponse(response);
 
                 synchronized (connState) {
@@ -305,17 +337,17 @@ public class ThrottlingHttpServiceHandler implements NHttpServiceHandler {
                     
                     connState.notifyAll();
                 }
-                
-            } catch (IOException ex) {
-                shutdownConnection(conn);
-                if (eventListener != null) {
-                    eventListener.fatalIOException(ex, conn);
-                }
-            } catch (HttpException ex) {
-                shutdownConnection(conn);
-                if (eventListener != null) {
-                    eventListener.fatalProtocolException(ex, conn);
-                }
+            }
+
+        } catch (IOException ex) {
+            shutdownConnection(conn);
+            if (eventListener != null) {
+                eventListener.fatalIOException(ex, conn);
+            }
+        } catch (HttpException ex) {
+            shutdownConnection(conn);
+            if (eventListener != null) {
+                eventListener.fatalProtocolException(ex, conn);
             }
         }
     }
@@ -504,7 +536,7 @@ public class ThrottlingHttpServiceHandler implements NHttpServiceHandler {
             } catch (HttpException ex) {
                 response = this.responseFactory.newHttpResponse(HttpVersion.HTTP_1_0, 
                         HttpStatus.SC_INTERNAL_SERVER_ERROR, context);
-                HttpParamsLinker.link(request, this.params);
+                HttpParamsLinker.link(response, this.params);
                 handleException(ex, response);
             }
         }
