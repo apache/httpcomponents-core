@@ -143,6 +143,9 @@ public class SessionOutputBuffer extends ExpandableBuffer {
             boolean retry = true;
             while (retry) {
                 CoderResult result = this.charencoder.flush(this.buffer);
+                if (result.isError()) {
+                    result.throwException();
+                }
                 if (result.isOverflow()) {
                     expand();
                 }
