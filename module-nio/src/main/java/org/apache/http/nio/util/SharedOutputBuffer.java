@@ -31,6 +31,7 @@
 package org.apache.http.nio.util;
 
 import java.io.IOException;
+import java.io.InterruptedIOException;
 
 import org.apache.http.nio.ContentEncoder;
 import org.apache.http.nio.IOControl;
@@ -152,7 +153,10 @@ public class SharedOutputBuffer extends ExpandableBuffer implements ContentOutpu
     private void flushContent() throws IOException {
         synchronized (this.mutex) {
             try {
-                while (hasData() && !this.shutdown) {
+                while (hasData()) {
+                    if (this.shutdown) {
+                        throw new InterruptedIOException("Output operation aborted");
+                    }
                     this.ioctrl.requestOutput();
                     this.mutex.wait();
                 }

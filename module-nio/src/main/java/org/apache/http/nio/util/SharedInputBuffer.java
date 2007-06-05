@@ -31,6 +31,7 @@
 package org.apache.http.nio.util;
 
 import java.io.IOException;
+import java.io.InterruptedIOException;
 
 import org.apache.http.nio.ContentDecoder;
 import org.apache.http.nio.IOControl;
@@ -96,7 +97,10 @@ public class SharedInputBuffer extends ExpandableBuffer implements ContentInputB
     protected void waitForData() throws IOException {
         synchronized (this.mutex) {
             try {
-                while (!hasData() && !this.endOfStream && !this.shutdown) {
+                while (!hasData() && !this.endOfStream) {
+                    if (this.shutdown) {
+                        throw new InterruptedIOException("Input operation aborted");
+                    }
                     this.ioctrl.requestInput();
                     this.mutex.wait();
                 }
