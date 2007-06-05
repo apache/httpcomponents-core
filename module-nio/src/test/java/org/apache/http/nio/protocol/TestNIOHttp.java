@@ -35,9 +35,11 @@ import java.net.InetSocketAddress;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
+import java.util.Enumeration;
 import java.util.List;
 import java.util.Random;
 
+import junit.extensions.TestSetup;
 import junit.framework.Test;
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
@@ -61,6 +63,7 @@ import org.apache.http.nio.NHttpConnection;
 import org.apache.http.nio.NHttpServiceHandler;
 import org.apache.http.nio.mockup.CountingEventListener;
 import org.apache.http.nio.mockup.SimpleHttpRequestHandlerResolver;
+import org.apache.http.nio.mockup.SimpleThreadPoolExecutor;
 import org.apache.http.nio.mockup.TestHttpClient;
 import org.apache.http.nio.mockup.TestHttpServer;
 import org.apache.http.params.BasicHttpParams;
@@ -93,9 +96,31 @@ import org.apache.http.util.EntityUtils;
  */
 public class TestNIOHttp extends TestCase {
 
+    private static final int MODE_BUFFERING    = 0;
+    private static final int MODE_THROTTLING   = 1;
+    
+    private int clientMode = MODE_BUFFERING;
+    private int serverMode = MODE_BUFFERING;
+    
     // ------------------------------------------------------------ Constructor
     public TestNIOHttp(String testName) {
         super(testName);
+    }
+
+    public int getClientMode() {
+        return this.clientMode;
+    }
+
+    public void setClientMode(int clientMode) {
+        this.clientMode = clientMode;
+    }
+
+    public int getServerMode() {
+        return this.serverMode;
+    }
+
+    public void setServerMode(int serverMode) {
+        this.serverMode = serverMode;
     }
 
     // ------------------------------------------------------------------- Main
@@ -104,14 +129,41 @@ public class TestNIOHttp extends TestCase {
         junit.textui.TestRunner.main(testCaseName);
     }
 
+    static class ServerModeDecorator extends TestSetup {
+
+        private int mode;
+        
+        public ServerModeDecorator(final TestNIOHttp test, int mode) {
+            super(test);
+            this.mode = mode;
+        }
+                
+        protected void setUp() throws Exception {
+            TestNIOHttp testcase = (TestNIOHttp)getTest();
+            testcase.setServerMode(this.mode);
+        }  
+    }
+    
     // ------------------------------------------------------- TestCase Methods
 
     public static Test suite() {
-        return new TestSuite(TestNIOHttp.class);
+        TestSuite source = new TestSuite(TestNIOHttp.class);
+        
+        TestSuite suite = new TestSuite();
+        for (Enumeration en = source.tests(); en.hasMoreElements(); ) {
+            TestNIOHttp test = (TestNIOHttp) en.nextElement();
+            suite.addTest(new ServerModeDecorator(test, MODE_BUFFERING));            
+        }
+        for (Enumeration en = source.tests(); en.hasMoreElements(); ) {
+            TestNIOHttp test = (TestNIOHttp) en.nextElement();
+            suite.addTest(new ServerModeDecorator(test, MODE_THROTTLING));            
+        }
+        return suite;
     }
 
     private TestHttpServer server;
     private TestHttpClient client;
+    private SimpleThreadPoolExecutor executor;
     
     protected void setUp() throws Exception {
         HttpParams serverParams = new BasicHttpParams();
@@ -134,9 +186,11 @@ public class TestNIOHttp extends TestCase {
             .setParameter(HttpProtocolParams.USER_AGENT, "TEST-CLIENT/1.1");
         
         this.client = new TestHttpClient(clientParams);
+        this.executor = new SimpleThreadPoolExecutor();
     }
 
     protected void tearDown() throws Exception {
+        this.executor.shutdown();
         this.server.shutdown();
         this.client.shutdown();
     }
@@ -151,18 +205,36 @@ public class TestNIOHttp extends TestCase {
         httpproc.addInterceptor(new ResponseContent());
         httpproc.addInterceptor(new ResponseConnControl());
 
-        BufferingHttpServiceHandler serviceHandler = new BufferingHttpServiceHandler(
-                httpproc,
-                new DefaultHttpResponseFactory(),
-                new DefaultConnectionReuseStrategy(),
-                this.server.getParams());
+        if (this.serverMode == MODE_BUFFERING) {
+            BufferingHttpServiceHandler serviceHandler = new BufferingHttpServiceHandler(
+                    httpproc,
+                    new DefaultHttpResponseFactory(),
+                    new DefaultConnectionReuseStrategy(),
+                    this.server.getParams());
 
-        serviceHandler.setHandlerResolver(
-                new SimpleHttpRequestHandlerResolver(requestHandler));
-        serviceHandler.setExpectationVerifier(expectationVerifier);
-        serviceHandler.setEventListener(eventListener);
-        
-        return serviceHandler;
+            serviceHandler.setHandlerResolver(
+                    new SimpleHttpRequestHandlerResolver(requestHandler));
+            serviceHandler.setExpectationVerifier(expectationVerifier);
+            serviceHandler.setEventListener(eventListener);
+            
+            return serviceHandler;
+        }
+        if (this.serverMode == MODE_THROTTLING) {
+            ThrottlingHttpServiceHandler serviceHandler = new ThrottlingHttpServiceHandler(
+                    httpproc,
+                    new DefaultHttpResponseFactory(),
+                    new DefaultConnectionReuseStrategy(),
+                    this.executor,
+                    this.server.getParams());
+
+            serviceHandler.setHandlerResolver(
+                    new SimpleHttpRequestHandlerResolver(requestHandler));
+            serviceHandler.setExpectationVerifier(expectationVerifier);
+            serviceHandler.setEventListener(eventListener);
+            
+            return serviceHandler;
+        }
+        throw new IllegalStateException();
     }
     
     private NHttpClientHandler createHttpClientHandler(

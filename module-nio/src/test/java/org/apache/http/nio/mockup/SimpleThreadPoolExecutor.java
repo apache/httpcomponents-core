@@ -119,7 +119,7 @@ public class SimpleThreadPoolExecutor implements Executor {
         
         public Thread lease() {
             if (this.shutdown) {
-                throw new IllegalArgumentException("Thread pool shut down");
+                throw new IllegalStateException("Thread pool shut down");
             }
             synchronized (this) {
                 if (!this.available.isEmpty()) {
@@ -133,9 +133,6 @@ public class SimpleThreadPoolExecutor implements Executor {
         }
         
         public void release(final Thread t) {
-            if (this.shutdown) {
-                throw new IllegalArgumentException("Thread pool shut down");
-            }
             synchronized (this) {
                 if (this.leased.contains(t)) {
                     this.leased.remove(t);
@@ -212,7 +209,6 @@ public class SimpleThreadPoolExecutor implements Executor {
                 }
             } catch (InterruptedException ex) {
             } finally {
-                System.err.println(this + ": terminate");
                 this.pool.remove(this);
             }
         }
