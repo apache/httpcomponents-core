@@ -33,10 +33,10 @@
   <modelVersion>4.0.0</modelVersion>
   <parent>
     <groupId>org.apache.httpcomponents</groupId>
-    <artifactId>httpcore</artifactId>
+    <artifactId>core</artifactId>
     <version>4.0-alpha5-SNAPSHOT</version>
   </parent>
-  <artifactId>jakarta-httpcore-niossl</artifactId>
+  <artifactId>httpcore-niossl</artifactId>
   <name>HttpCore (NIO SSL extensions module)</name>
   <inceptionYear>2005</inceptionYear>
   <description>
@@ -62,12 +62,12 @@
   <dependencies>
     <dependency>
       <groupId>org.apache.httpcomponents</groupId>
-      <artifactId>jakarta-httpcore</artifactId>
+      <artifactId>httpcore</artifactId>
       <version>${pom.version}</version>
     </dependency>
     <dependency>
       <groupId>org.apache.httpcomponents</groupId>
-      <artifactId>jakarta-httpcore-nio</artifactId>
+      <artifactId>httpcore-nio</artifactId>
       <version>${pom.version}</version>
     </dependency>
     <dependency>

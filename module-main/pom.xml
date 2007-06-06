@@ -33,10 +33,10 @@
   <modelVersion>4.0.0</modelVersion>
   <parent>
     <groupId>org.apache.httpcomponents</groupId>
-    <artifactId>httpcore</artifactId>
+    <artifactId>core</artifactId>
     <version>4.0-alpha5-SNAPSHOT</version>
   </parent>
-  <artifactId>jakarta-httpcore</artifactId>
+  <artifactId>httpcore</artifactId>
   <name>HttpCore (base module)</name>
   <inceptionYear>2005</inceptionYear>
   <description>
