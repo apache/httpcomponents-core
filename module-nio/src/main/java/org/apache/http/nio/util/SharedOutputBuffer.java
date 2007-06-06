@@ -44,8 +44,8 @@ public class SharedOutputBuffer extends ExpandableBuffer implements ContentOutpu
     private volatile boolean shutdown = false;
     private volatile boolean endOfStream;
     
-    public SharedOutputBuffer(int buffersize, final IOControl ioctrl) {
-        super(buffersize);
+    public SharedOutputBuffer(int buffersize, final IOControl ioctrl, final ByteBufferAllocator allocator) {
+        super(buffersize, allocator);
         if (ioctrl == null) {
             throw new IllegalArgumentException("I/O content control may not be null");
         }

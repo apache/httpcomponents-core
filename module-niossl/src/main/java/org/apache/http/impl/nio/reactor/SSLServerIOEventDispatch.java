@@ -41,6 +41,8 @@ import org.apache.http.impl.nio.DefaultNHttpServerConnection;
 import org.apache.http.nio.NHttpServiceHandler;
 import org.apache.http.nio.reactor.IOEventDispatch;
 import org.apache.http.nio.reactor.IOSession;
+import org.apache.http.nio.util.ByteBufferAllocator;
+import org.apache.http.nio.util.DirectByteBufferAllocator;
 import org.apache.http.params.HttpParams;
 
 public class SSLServerIOEventDispatch implements IOEventDispatch {
@@ -51,12 +53,14 @@ public class SSLServerIOEventDispatch implements IOEventDispatch {
     private final NHttpServiceHandler handler;
     private final SSLContext sslcontext;
     private final SSLIOSessionHandler sslHandler;
+    private final ByteBufferAllocator allocator;
     private final HttpParams params;
     
     public SSLServerIOEventDispatch(
             final NHttpServiceHandler handler,
             final SSLContext sslcontext,
             final SSLIOSessionHandler sslHandler,
+            final ByteBufferAllocator allocator,
             final HttpParams params) {
         super();
         if (handler == null) {
@@ -65,6 +69,9 @@ public class SSLServerIOEventDispatch implements IOEventDispatch {
         if (sslcontext == null) {
             throw new IllegalArgumentException("SSL context may not be null");
         }
+        if (allocator == null) {
+            throw new IllegalArgumentException("ByteBuffer allocator may not be null");
+        }
         if (params == null) {
             throw new IllegalArgumentException("HTTP parameters may not be null");
         }
@@ -72,13 +79,14 @@ public class SSLServerIOEventDispatch implements IOEventDispatch {
         this.params = params;
         this.sslcontext = sslcontext;
         this.sslHandler = sslHandler;
+        this.allocator = allocator;
     }
     
     public SSLServerIOEventDispatch(
             final NHttpServiceHandler handler,
             final SSLContext sslcontext,
             final HttpParams params) {
-        this(handler, sslcontext, null, params);
+        this(handler, sslcontext, null, new DirectByteBufferAllocator(), params);
     }
     
     public void connected(final IOSession session) {
@@ -91,6 +99,7 @@ public class SSLServerIOEventDispatch implements IOEventDispatch {
         DefaultNHttpServerConnection conn = new DefaultNHttpServerConnection(
                 sslSession, 
                 new DefaultHttpRequestFactory(),
+                this.allocator,
                 this.params); 
         
         session.setAttribute(NHTTP_CONN, conn);

@@ -44,8 +44,8 @@ public class SharedInputBuffer extends ExpandableBuffer implements ContentInputB
     private volatile boolean shutdown = false;
     private volatile boolean endOfStream = false;
     
-    public SharedInputBuffer(int buffersize, final IOControl ioctrl) {
-        super(buffersize);
+    public SharedInputBuffer(int buffersize, final IOControl ioctrl, final ByteBufferAllocator allocator) {
+        super(buffersize, allocator);
         if (ioctrl == null) {
             throw new IllegalArgumentException("I/O content control may not be null");
         }

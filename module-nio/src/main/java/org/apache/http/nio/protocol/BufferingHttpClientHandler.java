@@ -51,8 +51,10 @@ import org.apache.http.nio.NHttpClientConnection;
 import org.apache.http.nio.NHttpClientHandler;
 import org.apache.http.nio.entity.ContentBufferEntity;
 import org.apache.http.nio.entity.ContentOutputStream;
+import org.apache.http.nio.util.ByteBufferAllocator;
 import org.apache.http.nio.util.ContentInputBuffer;
 import org.apache.http.nio.util.ContentOutputBuffer;
+import org.apache.http.nio.util.DirectByteBufferAllocator;
 import org.apache.http.nio.util.SimpleInputBuffer;
 import org.apache.http.nio.util.SimpleOutputBuffer;
 import org.apache.http.params.HttpParams;
@@ -81,6 +83,7 @@ public class BufferingHttpClientHandler implements NHttpClientHandler {
     private HttpRequestExecutionHandler execHandler;
     private ConnectionReuseStrategy connStrategy;
     private EventListener eventListener;
+    private ByteBufferAllocator allocator;
     
     public BufferingHttpClientHandler(
             final HttpProcessor httpProcessor, 
@@ -104,6 +107,7 @@ public class BufferingHttpClientHandler implements NHttpClientHandler {
         this.execHandler = execHandler;
         this.connStrategy = connStrategy;
         this.params = params;
+        this.allocator = new DirectByteBufferAllocator();
     }
     
     public void setEventListener(final EventListener eventListener) {
@@ -115,6 +119,13 @@ public class BufferingHttpClientHandler implements NHttpClientHandler {
             conn.shutdown();
         } catch (IOException ignore) {
         }
+    }
+    
+    public void setByteBufferAllocator(final ByteBufferAllocator allocator) {
+        if (allocator == null) {
+            throw new IllegalArgumentException("ByteBuffer allocator may not be null");
+        }
+        this.allocator = allocator;
     }
     
     public void connected(final NHttpClientConnection conn, final Object attachment) {
@@ -133,7 +144,7 @@ public class BufferingHttpClientHandler implements NHttpClientHandler {
         
         initialize(conn, attachment);
         
-        ClientConnState connState = new ClientConnState(); 
+        ClientConnState connState = new ClientConnState(allocator); 
         context.setAttribute(CONN_STATE, connState);
 
         if (this.eventListener != null) {
@@ -462,21 +473,23 @@ public class BufferingHttpClientHandler implements NHttpClientHandler {
         private HttpResponse response;
 
         private int timeout;
+        private final ByteBufferAllocator allocator;
         
-        public ClientConnState() {
+        public ClientConnState(final ByteBufferAllocator allocator) {
             super();
+            this.allocator = allocator;
         }
 
         public ContentInputBuffer getInbuffer() {
             if (this.inbuffer == null) {
-                this.inbuffer = new SimpleInputBuffer(2048);
+                this.inbuffer = new SimpleInputBuffer(2048, allocator);
             }
             return this.inbuffer;
         }
 
         public ContentOutputBuffer getOutbuffer() {
             if (this.outbuffer == null) {
-                this.outbuffer = new SimpleOutputBuffer(2048);
+                this.outbuffer = new SimpleOutputBuffer(2048, allocator);
             }
             return this.outbuffer;
         }

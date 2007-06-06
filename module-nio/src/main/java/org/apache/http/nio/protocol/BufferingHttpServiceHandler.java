@@ -54,8 +54,10 @@ import org.apache.http.nio.NHttpServerConnection;
 import org.apache.http.nio.NHttpServiceHandler;
 import org.apache.http.nio.entity.ContentBufferEntity;
 import org.apache.http.nio.entity.ContentOutputStream;
+import org.apache.http.nio.util.ByteBufferAllocator;
 import org.apache.http.nio.util.ContentInputBuffer;
 import org.apache.http.nio.util.ContentOutputBuffer;
+import org.apache.http.nio.util.DirectByteBufferAllocator;
 import org.apache.http.nio.util.SimpleInputBuffer;
 import org.apache.http.nio.util.SimpleOutputBuffer;
 import org.apache.http.params.HttpParams;
@@ -89,6 +91,7 @@ public class BufferingHttpServiceHandler implements NHttpServiceHandler {
     private HttpRequestHandlerResolver handlerResolver;
     private HttpExpectationVerifier expectationVerifier;
     private EventListener eventListener;
+    private ByteBufferAllocator allocator;
     
     public BufferingHttpServiceHandler(
             final HttpProcessor httpProcessor, 
@@ -112,6 +115,14 @@ public class BufferingHttpServiceHandler implements NHttpServiceHandler {
         this.connStrategy = connStrategy;
         this.responseFactory = responseFactory;
         this.params = params;
+        this.allocator = new DirectByteBufferAllocator();
+    }
+
+    public void setByteBufferAllocator(final ByteBufferAllocator allocator) {
+        if (allocator == null) {
+            throw new IllegalArgumentException("ByteBuffer allocator may not be null");
+        }
+        this.allocator = allocator;
     }
 
     public void setEventListener(final EventListener eventListener) {
@@ -133,7 +144,7 @@ public class BufferingHttpServiceHandler implements NHttpServiceHandler {
     public void connected(final NHttpServerConnection conn) {
         HttpContext context = conn.getContext();
 
-        ServerConnState connState = new ServerConnState(); 
+        ServerConnState connState = new ServerConnState(allocator); 
         context.setAttribute(CONN_STATE, connState);
 
         if (this.eventListener != null) {
@@ -473,23 +484,25 @@ public class BufferingHttpServiceHandler implements NHttpServiceHandler {
         private int outputState;
         
         private HttpRequest request;
+        private final ByteBufferAllocator allocator;
         
-        public ServerConnState() {
+        public ServerConnState(final ByteBufferAllocator allocator) {
             super();
             this.inputState = READY;
             this.outputState = READY;
+            this.allocator = allocator;
         }
 
         public ContentInputBuffer getInbuffer() {
             if (this.inbuffer == null) {
-                this.inbuffer = new SimpleInputBuffer(2048);
+                this.inbuffer = new SimpleInputBuffer(2048, allocator);
             }
             return this.inbuffer;
         }
 
         public ContentOutputBuffer getOutbuffer() {
             if (this.outbuffer == null) {
-                this.outbuffer = new SimpleOutputBuffer(2048);
+                this.outbuffer = new SimpleOutputBuffer(2048, allocator);
             }
             return this.outbuffer;
         }

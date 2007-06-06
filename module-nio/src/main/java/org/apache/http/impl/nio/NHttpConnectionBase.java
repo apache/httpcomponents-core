@@ -62,6 +62,7 @@ import org.apache.http.impl.nio.reactor.SessionOutputBuffer;
 import org.apache.http.nio.reactor.EventMask;
 import org.apache.http.nio.reactor.IOSession;
 import org.apache.http.nio.reactor.SessionBufferStatus;
+import org.apache.http.nio.util.ByteBufferAllocator;
 import org.apache.http.params.HttpConnectionParams;
 import org.apache.http.params.HttpParams;
 import org.apache.http.protocol.HTTP;
@@ -91,7 +92,10 @@ public class NHttpConnectionBase
     
     protected volatile boolean closed;
     
-    public NHttpConnectionBase(final IOSession session, final HttpParams params) {
+    public NHttpConnectionBase(
+            final IOSession session,
+            final ByteBufferAllocator allocator,
+            final HttpParams params) {
         super();
         if (session == null) {
             throw new IllegalArgumentException("I/O session may not be null");
@@ -108,9 +112,9 @@ public class NHttpConnectionBase
             linebuffersize = 512;
         }
         
-        this.inbuf = new SessionInputBuffer(buffersize, linebuffersize); 
+        this.inbuf = new SessionInputBuffer(buffersize, linebuffersize, allocator); 
         this.inbuf.reset(params);
-        this.outbuf = new SessionOutputBuffer(buffersize, linebuffersize); 
+        this.outbuf = new SessionOutputBuffer(buffersize, linebuffersize, allocator); 
         this.outbuf.reset(params);
         this.lineBuffer = new CharArrayBuffer(64); 
         

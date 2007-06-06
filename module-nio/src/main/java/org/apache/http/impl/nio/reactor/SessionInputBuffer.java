@@ -40,6 +40,8 @@ import java.nio.charset.Charset;
 import java.nio.charset.CharsetDecoder;
 import java.nio.charset.CoderResult;
 
+import org.apache.http.nio.util.ByteBufferAllocator;
+import org.apache.http.nio.util.DirectByteBufferAllocator;
 import org.apache.http.nio.util.ExpandableBuffer;
 import org.apache.http.params.HttpParams;
 import org.apache.http.params.HttpProtocolParams;
@@ -52,13 +54,17 @@ public class SessionInputBuffer extends ExpandableBuffer {
     private Charset charset = null;
     private CharsetDecoder chardecoder = null;
     
-    public SessionInputBuffer(int buffersize, int linebuffersize) {
-        super(buffersize);
+    public SessionInputBuffer(int buffersize, int linebuffersize, final ByteBufferAllocator allocator) {
+        super(buffersize, allocator);
         this.charbuffer = CharBuffer.allocate(linebuffersize);
         this.charset = Charset.forName("US-ASCII");
         this.chardecoder = this.charset.newDecoder();
     }
 
+    public SessionInputBuffer(int buffersize, int linebuffersize) {
+        this(buffersize, linebuffersize, new DirectByteBufferAllocator());
+    }
+    
     public void reset(final HttpParams params) {
         this.charset = Charset.forName(HttpProtocolParams.getHttpElementCharset(params)); 
         this.chardecoder = this.charset.newDecoder();

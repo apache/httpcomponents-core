@@ -41,6 +41,7 @@ import org.apache.http.HttpRequest;
 import org.apache.http.HttpResponseFactory;
 import org.apache.http.impl.nio.DefaultNHttpClientConnection;
 import org.apache.http.nio.reactor.IOSession;
+import org.apache.http.nio.util.ByteBufferAllocator;
 import org.apache.http.params.HttpParams;
 
 public class LoggingNHttpClientConnection extends DefaultNHttpClientConnection {
@@ -51,8 +52,9 @@ public class LoggingNHttpClientConnection extends DefaultNHttpClientConnection {
     public LoggingNHttpClientConnection(
             final IOSession session,
             final HttpResponseFactory responseFactory,
+            final ByteBufferAllocator allocator,
             final HttpParams params) {
-        super(session, responseFactory, params);
+        super(session, responseFactory, allocator, params);
         this.log = LogFactory.getLog(DefaultNHttpClientConnection.class);
         this.headerlog = LogFactory.getLog("org.apache.http.headers");
     }

@@ -57,8 +57,10 @@ import org.apache.http.nio.NHttpServiceHandler;
 import org.apache.http.nio.entity.ContentBufferEntity;
 import org.apache.http.nio.entity.ContentOutputStream;
 import org.apache.http.nio.params.HttpNIOParams;
+import org.apache.http.nio.util.ByteBufferAllocator;
 import org.apache.http.nio.util.ContentInputBuffer;
 import org.apache.http.nio.util.ContentOutputBuffer;
+import org.apache.http.nio.util.DirectByteBufferAllocator;
 import org.apache.http.nio.util.SharedInputBuffer;
 import org.apache.http.nio.util.SharedOutputBuffer;
 import org.apache.http.params.HttpParams;
@@ -101,6 +103,7 @@ public class ThrottlingHttpServiceHandler implements NHttpServiceHandler {
     private HttpExpectationVerifier expectationVerifier;
     private EventListener eventListener;
     private Executor executor;
+    private ByteBufferAllocator allocator;
     
     public ThrottlingHttpServiceHandler(
             final HttpProcessor httpProcessor, 
@@ -129,6 +132,7 @@ public class ThrottlingHttpServiceHandler implements NHttpServiceHandler {
         this.responseFactory = responseFactory;
         this.executor = executor;
         this.params = params;
+        this.allocator = new DirectByteBufferAllocator();
     }
 
     public void setEventListener(final EventListener eventListener) {
@@ -143,6 +147,13 @@ public class ThrottlingHttpServiceHandler implements NHttpServiceHandler {
         this.expectationVerifier = expectationVerifier;
     }
 
+    public void setByteBufferAllocator(final ByteBufferAllocator allocator) {
+        if (allocator == null) {
+            throw new IllegalArgumentException("ByteBuffer allocator may not be null");
+        }
+        this.allocator = allocator;
+    }
+
     public HttpParams getParams() {
         return this.params;
     }
@@ -152,7 +163,7 @@ public class ThrottlingHttpServiceHandler implements NHttpServiceHandler {
 
         int bufsize = this.params.getIntParameter(
                 HttpNIOParams.CONTENT_BUFFER_SIZE, 20480);
-        ServerConnState connState = new ServerConnState(bufsize, conn); 
+        ServerConnState connState = new ServerConnState(bufsize, conn, allocator); 
         context.setAttribute(CONN_STATE, connState);
 
         if (this.eventListener != null) {
@@ -596,10 +607,10 @@ public class ThrottlingHttpServiceHandler implements NHttpServiceHandler {
         private volatile HttpRequest request;
         private volatile HttpResponse response;
         
-        public ServerConnState(int bufsize, final IOControl ioControl) {
+        public ServerConnState(int bufsize, final IOControl ioControl, final ByteBufferAllocator allocator) {
             super();
-            this.inbuffer = new SharedInputBuffer(bufsize, ioControl);
-            this.outbuffer = new SharedOutputBuffer(bufsize, ioControl);
+            this.inbuffer = new SharedInputBuffer(bufsize, ioControl, allocator);
+            this.outbuffer = new SharedOutputBuffer(bufsize, ioControl, allocator);
             this.inputState = READY;
             this.outputState = READY;
         }

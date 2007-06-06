@@ -1,5 +1,9 @@
 Changes since 4.0 Alpha 4
 
+* [HTTPCORE-78]: Added ByteBufferAllocator interface that can be used to apply 
+  different ByteArray allocation strategies to session and content buffers.
+  Contributed by Steffen Pingel <spingel at limewire.com>
+
 * [HTTPCORE-77]: The result of CharsetDecoder#decode() and CharsetEncoder#encode() 
   was not checked for errors resulting in an infinite loop in 
   SessionInputBuffer#readLine() and SessionOutputBuffer#writeLine() 

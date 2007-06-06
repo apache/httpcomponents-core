@@ -32,6 +32,7 @@ package org.apache.http.nio.util;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.nio.ByteBuffer;
 import java.nio.channels.Channels;
 import java.nio.channels.ReadableByteChannel;
 import java.nio.channels.WritableByteChannel;
@@ -81,7 +82,7 @@ public class TestBuffers extends TestCase {
         
         ContentDecoder decoder = new MockupDecoder(channel); 
         
-        SimpleInputBuffer buffer = new SimpleInputBuffer(4);
+        SimpleInputBuffer buffer = new SimpleInputBuffer(4, new DirectByteBufferAllocator());
         int count = buffer.consumeContent(decoder);
         assertEquals(16, count);
         assertTrue(decoder.isCompleted());
@@ -114,7 +115,7 @@ public class TestBuffers extends TestCase {
         
         ContentEncoder encoder = new MockupEncoder(channel);
         
-        SimpleOutputBuffer buffer = new SimpleOutputBuffer(4); 
+        SimpleOutputBuffer buffer = new SimpleOutputBuffer(4, new DirectByteBufferAllocator()); 
         
         buffer.write(EncodingUtils.getAsciiBytes("stuff"));
         buffer.write(';');
@@ -129,16 +130,52 @@ public class TestBuffers extends TestCase {
     }
 
     public void testInputBufferNullInput() throws IOException {
-        SimpleInputBuffer buffer = new SimpleInputBuffer(4);
+        SimpleInputBuffer buffer = new SimpleInputBuffer(4, new DirectByteBufferAllocator());
         assertEquals(0, buffer.read(null));
         assertEquals(0, buffer.read(null, 0, 0));
     }
     
     public void testOutputBufferNullInput() throws IOException {
-        SimpleOutputBuffer buffer = new SimpleOutputBuffer(4);
+        SimpleOutputBuffer buffer = new SimpleOutputBuffer(4, new DirectByteBufferAllocator());
         buffer.write(null);
         buffer.write(null, 0, 10);
         assertFalse(buffer.hasData());
     }
+    
+    public void testDirectByteBufferAllocator() {
+        DirectByteBufferAllocator allocator = new DirectByteBufferAllocator();
+        ByteBuffer buffer = allocator.allocate(1);
+        assertNotNull(buffer);
+        assertTrue(buffer.isDirect());
+        assertEquals(0, buffer.position());
+        assertEquals(1, buffer.limit());
+        assertEquals(1, buffer.capacity());
+        
+        buffer = allocator.allocate(2048);
+        assertTrue(buffer.isDirect());
+        assertEquals(0, buffer.position());
+        assertEquals(2048, buffer.limit());
+        assertEquals(2048, buffer.capacity());
+        
+        buffer = allocator.allocate(0);
+        assertTrue(buffer.isDirect());
+        assertEquals(0, buffer.position());
+        assertEquals(0, buffer.limit());
+        assertEquals(0, buffer.capacity());
+    }
 
+    public void testCustomByteBufferAllocator() {
+        ExpandableBuffer buffer = new ExpandableBuffer(1024, new ByteBufferAllocator() {
+            public ByteBuffer allocate(int size) {
+                return ByteBuffer.allocate(size);
+            }            
+        });
+        assertEquals(1024, buffer.capacity());
+        assertFalse(buffer.buffer.isDirect());
+        buffer.ensureCapacity(4000);
+        assertFalse(buffer.buffer.isDirect());
+        assertEquals(4000, buffer.capacity());
+        buffer.ensureCapacity(5000);
+    }
+    
 }

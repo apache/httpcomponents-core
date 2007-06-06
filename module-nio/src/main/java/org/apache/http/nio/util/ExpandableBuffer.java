@@ -40,10 +40,15 @@ public class ExpandableBuffer {
     
     private int mode;
     protected ByteBuffer buffer = null;
+    private final ByteBufferAllocator allocator;
 
-    public ExpandableBuffer(int buffersize) {
+    public ExpandableBuffer(int buffersize, final ByteBufferAllocator allocator) {
         super();
-        this.buffer = ByteBuffer.allocateDirect(buffersize);
+        if (allocator == null) {
+            throw new IllegalArgumentException("ByteBuffer allocator may not be null");
+        }
+        this.allocator = allocator;
+        this.buffer = allocator.allocate(buffersize);
         this.mode = INPUT_MODE;
     }
 
@@ -71,7 +76,7 @@ public class ExpandableBuffer {
     
     private void expandCapacity(int capacity) {
         ByteBuffer oldbuffer = this.buffer;
-        this.buffer = ByteBuffer.allocateDirect(capacity);
+        this.buffer = allocator.allocate(capacity);
         oldbuffer.flip();
         this.buffer.put(oldbuffer);
     }

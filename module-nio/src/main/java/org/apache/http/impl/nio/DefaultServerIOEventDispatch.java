@@ -35,6 +35,8 @@ import org.apache.http.impl.DefaultHttpRequestFactory;
 import org.apache.http.nio.NHttpServiceHandler;
 import org.apache.http.nio.reactor.IOEventDispatch;
 import org.apache.http.nio.reactor.IOSession;
+import org.apache.http.nio.util.ByteBufferAllocator;
+import org.apache.http.nio.util.DirectByteBufferAllocator;
 import org.apache.http.params.HttpParams;
 
 public class DefaultServerIOEventDispatch implements IOEventDispatch {
@@ -42,24 +44,39 @@ public class DefaultServerIOEventDispatch implements IOEventDispatch {
     private static final String NHTTP_CONN = "NHTTP_CONN";
     
     private final NHttpServiceHandler handler;
+    private final ByteBufferAllocator allocator;
     private final HttpParams params;
     
-    public DefaultServerIOEventDispatch(final NHttpServiceHandler handler, final HttpParams params) {
+    public DefaultServerIOEventDispatch(
+            final NHttpServiceHandler handler,
+            final ByteBufferAllocator allocator,
+            final HttpParams params) {
         super();
         if (handler == null) {
             throw new IllegalArgumentException("HTTP service handler may not be null");
+        }
+        if (allocator == null) {
+            throw new IllegalArgumentException("ByteBuffer allocator may not be null");
         }
         if (params == null) {
             throw new IllegalArgumentException("HTTP parameters may not be null");
         }
         this.handler = handler;
+        this.allocator = allocator;
         this.params = params;
+    }
+    
+    public DefaultServerIOEventDispatch(
+            final NHttpServiceHandler handler, 
+            final HttpParams params) {
+        this(handler, new DirectByteBufferAllocator(), params);
     }
     
     public void connected(final IOSession session) {
         DefaultNHttpServerConnection conn = new DefaultNHttpServerConnection(
                 session, 
                 new DefaultHttpRequestFactory(),
+                this.allocator,
                 this.params); 
         session.setAttribute(NHTTP_CONN, conn);
         this.handler.connected(conn);

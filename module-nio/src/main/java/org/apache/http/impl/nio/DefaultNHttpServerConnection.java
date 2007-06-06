@@ -49,6 +49,7 @@ import org.apache.http.nio.NHttpServiceHandler;
 import org.apache.http.impl.nio.codecs.HttpRequestParser;
 import org.apache.http.nio.reactor.EventMask;
 import org.apache.http.nio.reactor.IOSession;
+import org.apache.http.nio.util.ByteBufferAllocator;
 import org.apache.http.params.HttpParams;
 
 public class DefaultNHttpServerConnection 
@@ -59,8 +60,9 @@ public class DefaultNHttpServerConnection
     public DefaultNHttpServerConnection(
             final IOSession session,
             final HttpRequestFactory requestFactory,
+            final ByteBufferAllocator allocator,
             final HttpParams params) {
-        super(session, params);
+        super(session, allocator, params);
         if (requestFactory == null) {
             throw new IllegalArgumentException("Request factory may not be null");
         }

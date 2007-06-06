@@ -38,8 +38,8 @@ public class SimpleOutputBuffer extends ExpandableBuffer implements ContentOutpu
     
     private boolean endOfStream;
     
-    public SimpleOutputBuffer(int buffersize) {
-        super(buffersize);
+    public SimpleOutputBuffer(int buffersize, final ByteBufferAllocator allocator) {
+        super(buffersize, allocator);
         this.endOfStream = false;
     }
 
