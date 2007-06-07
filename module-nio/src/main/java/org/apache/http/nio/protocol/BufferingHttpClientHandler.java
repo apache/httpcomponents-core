@@ -78,17 +78,19 @@ public class BufferingHttpClientHandler implements NHttpClientHandler {
 
     private static final String CONN_STATE = "http.nio.conn-state";
     
-    private HttpParams params;
-    private HttpProcessor httpProcessor;
+    private final HttpProcessor httpProcessor;
+    private final ConnectionReuseStrategy connStrategy;
+    private final ByteBufferAllocator allocator;
+    private final HttpParams params;
+    
     private HttpRequestExecutionHandler execHandler;
-    private ConnectionReuseStrategy connStrategy;
     private EventListener eventListener;
-    private ByteBufferAllocator allocator;
     
     public BufferingHttpClientHandler(
             final HttpProcessor httpProcessor, 
             final HttpRequestExecutionHandler execHandler,
             final ConnectionReuseStrategy connStrategy,
+            final ByteBufferAllocator allocator,
             final HttpParams params) {
         super();
         if (httpProcessor == null) {
@@ -100,6 +102,9 @@ public class BufferingHttpClientHandler implements NHttpClientHandler {
         if (connStrategy == null) {
             throw new IllegalArgumentException("Connection reuse strategy may not be null");
         }
+        if (allocator == null) {
+            throw new IllegalArgumentException("ByteBuffer allocator may not be null");
+        }
         if (params == null) {
             throw new IllegalArgumentException("HTTP parameters may not be null");
         }
@@ -107,7 +112,16 @@ public class BufferingHttpClientHandler implements NHttpClientHandler {
         this.execHandler = execHandler;
         this.connStrategy = connStrategy;
         this.params = params;
-        this.allocator = new DirectByteBufferAllocator();
+        this.allocator = allocator;
+    }
+    
+    public BufferingHttpClientHandler(
+            final HttpProcessor httpProcessor, 
+            final HttpRequestExecutionHandler execHandler,
+            final ConnectionReuseStrategy connStrategy,
+            final HttpParams params) {
+        this(httpProcessor, execHandler, connStrategy, 
+                new DirectByteBufferAllocator(), params);
     }
     
     public void setEventListener(final EventListener eventListener) {
@@ -119,13 +133,6 @@ public class BufferingHttpClientHandler implements NHttpClientHandler {
             conn.shutdown();
         } catch (IOException ignore) {
         }
-    }
-    
-    public void setByteBufferAllocator(final ByteBufferAllocator allocator) {
-        if (allocator == null) {
-            throw new IllegalArgumentException("ByteBuffer allocator may not be null");
-        }
-        this.allocator = allocator;
     }
     
     public void connected(final NHttpClientConnection conn, final Object attachment) {

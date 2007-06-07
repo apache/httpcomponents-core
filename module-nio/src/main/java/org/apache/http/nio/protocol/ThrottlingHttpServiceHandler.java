@@ -95,20 +95,22 @@ public class ThrottlingHttpServiceHandler implements NHttpServiceHandler {
 
     private static final String CONN_STATE = "http.nio.conn-state";
     
-    private HttpParams params;
-    private HttpProcessor httpProcessor;
-    private HttpResponseFactory responseFactory;
-    private ConnectionReuseStrategy connStrategy;
+    private final HttpProcessor httpProcessor;
+    private final HttpResponseFactory responseFactory;
+    private final ConnectionReuseStrategy connStrategy;
+    private final Executor executor;
+    private final ByteBufferAllocator allocator;
+    private final HttpParams params;
+
     private HttpRequestHandlerResolver handlerResolver;
     private HttpExpectationVerifier expectationVerifier;
     private EventListener eventListener;
-    private Executor executor;
-    private ByteBufferAllocator allocator;
     
     public ThrottlingHttpServiceHandler(
             final HttpProcessor httpProcessor, 
             final HttpResponseFactory responseFactory,
             final ConnectionReuseStrategy connStrategy,
+            final ByteBufferAllocator allocator,
             final Executor executor,
             final HttpParams params) {
         super();
@@ -121,6 +123,9 @@ public class ThrottlingHttpServiceHandler implements NHttpServiceHandler {
         if (responseFactory == null) {
             throw new IllegalArgumentException("Response factory may not be null");
         }
+        if (allocator == null) {
+            throw new IllegalArgumentException("ByteBuffer allocator may not be null");
+        }
         if (executor == null) {
             throw new IllegalArgumentException("Executor may not be null");
         }
@@ -130,9 +135,19 @@ public class ThrottlingHttpServiceHandler implements NHttpServiceHandler {
         this.httpProcessor = httpProcessor;
         this.connStrategy = connStrategy;
         this.responseFactory = responseFactory;
+        this.allocator = allocator;
         this.executor = executor;
         this.params = params;
-        this.allocator = new DirectByteBufferAllocator();
+    }
+
+    public ThrottlingHttpServiceHandler(
+            final HttpProcessor httpProcessor, 
+            final HttpResponseFactory responseFactory,
+            final ConnectionReuseStrategy connStrategy,
+            final Executor executor,
+            final HttpParams params) {
+        this(httpProcessor, responseFactory, connStrategy, 
+                new DirectByteBufferAllocator(), executor, params);
     }
 
     public void setEventListener(final EventListener eventListener) {
@@ -145,13 +160,6 @@ public class ThrottlingHttpServiceHandler implements NHttpServiceHandler {
 
     public void setExpectationVerifier(final HttpExpectationVerifier expectationVerifier) {
         this.expectationVerifier = expectationVerifier;
-    }
-
-    public void setByteBufferAllocator(final ByteBufferAllocator allocator) {
-        if (allocator == null) {
-            throw new IllegalArgumentException("ByteBuffer allocator may not be null");
-        }
-        this.allocator = allocator;
     }
 
     public HttpParams getParams() {
