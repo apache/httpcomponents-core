@@ -54,6 +54,8 @@ public interface IOSession {
 
     void close();
     
+    void shutdown();
+    
     boolean isClosed();
 
     int getSocketTimeout();

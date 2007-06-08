@@ -270,7 +270,7 @@ public class NHttpConnectionBase
 
     public void shutdown() throws IOException {
         this.closed = true;
-        this.session.close();
+        this.session.shutdown();
     }
     
 }

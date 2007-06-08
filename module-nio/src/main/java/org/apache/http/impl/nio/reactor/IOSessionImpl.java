@@ -160,6 +160,12 @@ public class IOSessionImpl implements IOSession {
         return this.closed || !this.key.isValid();
     }
     
+    public void shutdown() {
+        // For this type of session, a close() does exactly
+        // what we need and nothing more.
+        close();
+    }
+    
     public boolean hasBufferedInput() {
         return this.bufferStatus != null && this.bufferStatus.hasBufferedInput();
     }

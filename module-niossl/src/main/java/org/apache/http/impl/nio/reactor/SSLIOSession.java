@@ -342,7 +342,7 @@ public class SSLIOSession implements IOSession, SessionBufferStatus {
     
     public void shutdown() {
         this.closed = true;
-        this.session.close();
+        this.session.shutdown();
     }
 
     public ByteChannel channel() {

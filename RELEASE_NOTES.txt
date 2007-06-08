@@ -1,5 +1,9 @@
 Changes since 4.0 Alpha 4
 
+* [HTTPCORE-76]: Added IOSession#shutdown() method intended to force-close
+  I/O sessions (primarily needed to terminate hang SSL connections).
+  Contributed by Sandeep Tamhankar <sandman at electric-cloud.com>
+
 * [HTTPCORE-78]: Added ByteBufferAllocator interface that can be used to apply 
   different ByteArray allocation strategies to session and content buffers.
   Use heap bound implementation for short-lived or variable in length (requiring 
