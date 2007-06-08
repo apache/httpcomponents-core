@@ -54,7 +54,7 @@ import org.apache.http.nio.entity.ContentOutputStream;
 import org.apache.http.nio.util.ByteBufferAllocator;
 import org.apache.http.nio.util.ContentInputBuffer;
 import org.apache.http.nio.util.ContentOutputBuffer;
-import org.apache.http.nio.util.DirectByteBufferAllocator;
+import org.apache.http.nio.util.HeapByteBufferAllocator;
 import org.apache.http.nio.util.SimpleInputBuffer;
 import org.apache.http.nio.util.SimpleOutputBuffer;
 import org.apache.http.params.HttpParams;
@@ -121,7 +121,7 @@ public class BufferingHttpClientHandler implements NHttpClientHandler {
             final ConnectionReuseStrategy connStrategy,
             final HttpParams params) {
         this(httpProcessor, execHandler, connStrategy, 
-                new DirectByteBufferAllocator(), params);
+                new HeapByteBufferAllocator(), params);
     }
     
     public void setEventListener(final EventListener eventListener) {

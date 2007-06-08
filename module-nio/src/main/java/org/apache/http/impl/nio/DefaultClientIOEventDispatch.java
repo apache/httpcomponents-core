@@ -36,7 +36,7 @@ import org.apache.http.nio.NHttpClientHandler;
 import org.apache.http.nio.reactor.IOEventDispatch;
 import org.apache.http.nio.reactor.IOSession;
 import org.apache.http.nio.util.ByteBufferAllocator;
-import org.apache.http.nio.util.DirectByteBufferAllocator;
+import org.apache.http.nio.util.HeapByteBufferAllocator;
 import org.apache.http.params.HttpParams;
 
 public class DefaultClientIOEventDispatch implements IOEventDispatch {
@@ -69,7 +69,7 @@ public class DefaultClientIOEventDispatch implements IOEventDispatch {
     public DefaultClientIOEventDispatch(
             final NHttpClientHandler handler, 
             final HttpParams params) {
-        this(handler, new DirectByteBufferAllocator(), params);
+        this(handler, new HeapByteBufferAllocator(), params);
     }
     
     public void connected(final IOSession session) {

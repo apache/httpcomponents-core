@@ -41,8 +41,8 @@ import java.nio.charset.CharsetDecoder;
 import java.nio.charset.CoderResult;
 
 import org.apache.http.nio.util.ByteBufferAllocator;
-import org.apache.http.nio.util.DirectByteBufferAllocator;
 import org.apache.http.nio.util.ExpandableBuffer;
+import org.apache.http.nio.util.HeapByteBufferAllocator;
 import org.apache.http.params.HttpParams;
 import org.apache.http.params.HttpProtocolParams;
 import org.apache.http.protocol.HTTP;
@@ -62,7 +62,7 @@ public class SessionInputBuffer extends ExpandableBuffer {
     }
 
     public SessionInputBuffer(int buffersize, int linebuffersize) {
-        this(buffersize, linebuffersize, new DirectByteBufferAllocator());
+        this(buffersize, linebuffersize, new HeapByteBufferAllocator());
     }
     
     public void reset(final HttpParams params) {

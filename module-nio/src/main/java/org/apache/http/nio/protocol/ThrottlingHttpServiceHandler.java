@@ -98,8 +98,8 @@ public class ThrottlingHttpServiceHandler implements NHttpServiceHandler {
     private final HttpProcessor httpProcessor;
     private final HttpResponseFactory responseFactory;
     private final ConnectionReuseStrategy connStrategy;
-    private final Executor executor;
     private final ByteBufferAllocator allocator;
+    private final Executor executor;
     private final HttpParams params;
 
     private HttpRequestHandlerResolver handlerResolver;
@@ -615,7 +615,10 @@ public class ThrottlingHttpServiceHandler implements NHttpServiceHandler {
         private volatile HttpRequest request;
         private volatile HttpResponse response;
         
-        public ServerConnState(int bufsize, final IOControl ioControl, final ByteBufferAllocator allocator) {
+        public ServerConnState(
+                int bufsize, 
+                final IOControl ioControl, 
+                final ByteBufferAllocator allocator) {
             super();
             this.inbuffer = new SharedInputBuffer(bufsize, ioControl, allocator);
             this.outbuffer = new SharedOutputBuffer(bufsize, ioControl, allocator);

@@ -37,18 +37,16 @@ import java.nio.channels.Channels;
 import java.nio.channels.ReadableByteChannel;
 import java.nio.channels.WritableByteChannel;
 
+import junit.framework.Test;
+import junit.framework.TestCase;
+import junit.framework.TestSuite;
+
 import org.apache.http.nio.ContentDecoder;
 import org.apache.http.nio.ContentEncoder;
 import org.apache.http.nio.mockup.MockupDecoder;
 import org.apache.http.nio.mockup.MockupEncoder;
 import org.apache.http.nio.mockup.ReadableByteChannelMockup;
-import org.apache.http.nio.util.SimpleInputBuffer;
-import org.apache.http.nio.util.SimpleOutputBuffer;
 import org.apache.http.util.EncodingUtils;
-
-import junit.framework.Test;
-import junit.framework.TestCase;
-import junit.framework.TestSuite;
 
 /**
  * Buffer tests.
@@ -164,18 +162,26 @@ public class TestBuffers extends TestCase {
         assertEquals(0, buffer.capacity());
     }
 
-    public void testCustomByteBufferAllocator() {
-        ExpandableBuffer buffer = new ExpandableBuffer(1024, new ByteBufferAllocator() {
-            public ByteBuffer allocate(int size) {
-                return ByteBuffer.allocate(size);
-            }            
-        });
-        assertEquals(1024, buffer.capacity());
-        assertFalse(buffer.buffer.isDirect());
-        buffer.ensureCapacity(4000);
-        assertFalse(buffer.buffer.isDirect());
-        assertEquals(4000, buffer.capacity());
-        buffer.ensureCapacity(5000);
+    public void testHeapByteBufferAllocator() {
+        HeapByteBufferAllocator allocator = new HeapByteBufferAllocator();
+        ByteBuffer buffer = allocator.allocate(1);
+        assertNotNull(buffer);
+        assertFalse(buffer.isDirect());
+        assertEquals(0, buffer.position());
+        assertEquals(1, buffer.limit());
+        assertEquals(1, buffer.capacity());
+        
+        buffer = allocator.allocate(2048);
+        assertFalse(buffer.isDirect());
+        assertEquals(0, buffer.position());
+        assertEquals(2048, buffer.limit());
+        assertEquals(2048, buffer.capacity());
+        
+        buffer = allocator.allocate(0);
+        assertFalse(buffer.isDirect());
+        assertEquals(0, buffer.position());
+        assertEquals(0, buffer.limit());
+        assertEquals(0, buffer.capacity());
     }
     
 }

@@ -42,7 +42,7 @@ import org.apache.http.nio.NHttpClientHandler;
 import org.apache.http.nio.reactor.IOEventDispatch;
 import org.apache.http.nio.reactor.IOSession;
 import org.apache.http.nio.util.ByteBufferAllocator;
-import org.apache.http.nio.util.DirectByteBufferAllocator;
+import org.apache.http.nio.util.HeapByteBufferAllocator;
 import org.apache.http.params.HttpParams;
 
 public class SSLClientIOEventDispatch implements IOEventDispatch {
@@ -86,7 +86,7 @@ public class SSLClientIOEventDispatch implements IOEventDispatch {
             final NHttpClientHandler handler,
             final SSLContext sslcontext,
             final HttpParams params) {
-        this(handler, sslcontext, null, new DirectByteBufferAllocator(), params);
+        this(handler, sslcontext, null, new HeapByteBufferAllocator(), params);
     }
     
     public void connected(final IOSession session) {
