@@ -191,7 +191,33 @@ public class BufferingHttpClientHandler implements NHttpClientHandler {
         
         try {
             
-            submitRequest(conn, connState);                
+            HttpRequest request = this.execHandler.submitRequest(context);
+            if (request == null) {
+                return;
+            }
+            
+            HttpParamsLinker.link(request, this.params);
+            
+            context.setAttribute(HttpExecutionContext.HTTP_REQUEST, request);
+            this.httpProcessor.process(request, context);
+            connState.setRequest(request);
+            conn.submitRequest(request);
+            connState.setOutputState(ClientConnState.REQUEST_SENT);
+            
+            if (request instanceof HttpEntityEnclosingRequest) {
+                if (((HttpEntityEnclosingRequest) request).expectContinue()) {
+                    int timeout = conn.getSocketTimeout();
+                    connState.setTimeout(timeout);
+                    timeout = this.params.getIntParameter(
+                            HttpProtocolParams.WAIT_FOR_CONTINUE, 3000);
+                    conn.setSocketTimeout(timeout);
+                    connState.setOutputState(ClientConnState.EXPECT_CONTINUE);
+                } else {
+                    prepareRequestBody(
+                            (HttpEntityEnclosingRequest) request, 
+                            connState);
+                }
+            }
             
         } catch (IOException ex) {
             shutdownConnection(conn);
@@ -210,18 +236,16 @@ public class BufferingHttpClientHandler implements NHttpClientHandler {
         HttpContext context = conn.getContext();
 
         ClientConnState connState = (ClientConnState) context.getAttribute(CONN_STATE);
-        
-        connState.setInputState(ClientConnState.RESPONSE_BODY_STREAM);
         ContentInputBuffer buffer = connState.getInbuffer();
 
         try {
 
             buffer.consumeContent(decoder);
             if (decoder.isCompleted()) {
-
                 connState.setInputState(ClientConnState.RESPONSE_BODY_DONE);
                 processResponse(conn, connState);
-                
+            } else {
+                connState.setInputState(ClientConnState.RESPONSE_BODY_STREAM);
             }
             
         } catch (IOException ex) {
@@ -241,22 +265,20 @@ public class BufferingHttpClientHandler implements NHttpClientHandler {
         HttpContext context = conn.getContext();
 
         ClientConnState connState = (ClientConnState) context.getAttribute(CONN_STATE);
-        
-        if (connState.getOutputState() == ClientConnState.EXPECT_CONTINUE) {
-            conn.suspendOutput();
-            return;
-        }
-        
-        connState.setInputState(ClientConnState.REQUEST_BODY_STREAM);
         ContentOutputBuffer buffer = connState.getOutbuffer();
-
+        
         try {
+
+            if (connState.getOutputState() == ClientConnState.EXPECT_CONTINUE) {
+                conn.suspendOutput();
+                return;
+            }
             
             buffer.produceContent(encoder);
             if (encoder.isCompleted()) {
-
                 connState.setInputState(ClientConnState.REQUEST_BODY_DONE);
-                
+            } else {
+                connState.setInputState(ClientConnState.REQUEST_BODY_STREAM);
             }
             
         } catch (IOException ex) {
@@ -346,40 +368,6 @@ public class BufferingHttpClientHandler implements NHttpClientHandler {
         this.execHandler.initalizeContext(context, attachment);
     }
     
-    private void submitRequest(
-            final NHttpClientConnection conn, 
-            final ClientConnState connState) throws IOException, HttpException {
-        
-        connState.resetOutput();
-        
-        HttpContext context = conn.getContext();
-        HttpRequest request = this.execHandler.submitRequest(context);
-        if (request == null) {
-            return;
-        }
-        
-        HttpParamsLinker.link(request, this.params);
-        
-        context.setAttribute(HttpExecutionContext.HTTP_REQUEST, request);
-        this.httpProcessor.process(request, context);
-        connState.setRequest(request);
-        conn.submitRequest(request);
-        connState.setOutputState(ClientConnState.REQUEST_SENT);
-        
-        if (request instanceof HttpEntityEnclosingRequest) {
-            if (((HttpEntityEnclosingRequest) request).expectContinue()) {
-                int timeout = conn.getSocketTimeout();
-                connState.setTimeout(timeout);
-                timeout = this.params.getIntParameter(
-                        HttpProtocolParams.WAIT_FOR_CONTINUE, 3000);
-                conn.setSocketTimeout(timeout);
-                connState.setOutputState(ClientConnState.EXPECT_CONTINUE);
-            } else {
-                prepareRequestBody((HttpEntityEnclosingRequest) request, connState);
-            }
-        }
-    }
-    
     private void continueRequest(
             final NHttpClientConnection conn, 
             final ClientConnState connState) throws IOException {
@@ -455,6 +443,7 @@ public class BufferingHttpClientHandler implements NHttpClientHandler {
         } else {
             // Ready for another request
             connState.resetInput();
+            connState.resetOutput();
             conn.requestOutput();
         }
     }
