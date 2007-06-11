@@ -298,11 +298,12 @@ public class ThrottlingHttpServiceHandler implements NHttpServiceHandler {
         HttpContext context = conn.getContext();
 
         ServerConnState connState = (ServerConnState) context.getAttribute(CONN_STATE);
-        ContentInputBuffer buffer = connState.getInbuffer();
-
+        
         try {
 
             synchronized (connState) {
+                ContentInputBuffer buffer = connState.getInbuffer();
+
                 buffer.consumeContent(decoder);
                 if (decoder.isCompleted()) {
                     connState.setInputState(ServerConnState.REQUEST_BODY_DONE);
@@ -329,14 +330,13 @@ public class ThrottlingHttpServiceHandler implements NHttpServiceHandler {
 
         try {
         
-            HttpResponse response = connState.getResponse();
-            if (connState.getOutputState() == ServerConnState.READY 
-                    && response != null 
-                    && !conn.isResponseSubmitted()) {
+            synchronized (connState) {
+                HttpResponse response = connState.getResponse();
+                if (connState.getOutputState() == ServerConnState.READY 
+                        && response != null 
+                        && !conn.isResponseSubmitted()) {
 
-                conn.submitResponse(response);
-
-                synchronized (connState) {
+                    conn.submitResponse(response);
                     int statusCode = response.getStatusLine().getStatusCode();
                     HttpEntity entity = response.getEntity();
 
@@ -353,9 +353,9 @@ public class ThrottlingHttpServiceHandler implements NHttpServiceHandler {
                     } else {
                         connState.setOutputState(ServerConnState.RESPONSE_SENT);
                     }
-                    
-                    connState.notifyAll();
                 }
+                
+                connState.notifyAll();
             }
 
         } catch (IOException ex) {
@@ -375,12 +375,12 @@ public class ThrottlingHttpServiceHandler implements NHttpServiceHandler {
         HttpContext context = conn.getContext();
 
         ServerConnState connState = (ServerConnState) context.getAttribute(CONN_STATE);
-        ContentOutputBuffer buffer = connState.getOutbuffer();
         
         try {
 
             synchronized (connState) {
                 HttpResponse response = connState.getResponse();
+                ContentOutputBuffer buffer = connState.getOutbuffer();
                 
                 buffer.produceContent(encoder);
                 if (encoder.isCompleted()) {

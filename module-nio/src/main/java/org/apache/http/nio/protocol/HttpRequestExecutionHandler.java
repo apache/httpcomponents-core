@@ -31,6 +31,8 @@
 
 package org.apache.http.nio.protocol;
 
+import java.io.IOException;
+
 import org.apache.http.HttpRequest;
 import org.apache.http.HttpResponse;
 import org.apache.http.nio.reactor.ConnectingIOReactor;
@@ -82,6 +84,7 @@ public interface HttpRequestExecutionHandler {
      * @param response the HTTP response to be processed
      * @param context the actual HTTP context
      */
-    void handleResponse(HttpResponse response, HttpContext context);
+    void handleResponse(HttpResponse response, HttpContext context) 
+        throws IOException;
     
 }
