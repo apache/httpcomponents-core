@@ -138,6 +138,13 @@ public class LoggingIOSession implements IOSession {
         return this.session.isClosed();
     }
 
+    public void shutdown() {
+        if (this.log.isDebugEnabled()) {
+            this.log.debug("I/O session " + this.id + " " + this.session + ": Shutdown");
+        }
+        this.session.shutdown();
+    }
+
     public int getSocketTimeout() {
         return this.session.getSocketTimeout();
     }
