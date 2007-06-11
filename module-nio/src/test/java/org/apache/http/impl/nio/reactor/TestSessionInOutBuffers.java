@@ -377,4 +377,10 @@ public class TestSessionInOutBuffers extends TestCase {
         }            
     }
 
+    public void testInputMatchesBufferLength() throws Exception {
+        String s1 = "abcde";        
+        SessionOutputBuffer outbuf = new SessionOutputBuffer(1024, 5);
+        outbuf.writeLine(s1);
+    }
+    
 }

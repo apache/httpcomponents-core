@@ -122,7 +122,7 @@ public class SessionOutputBuffer extends ExpandableBuffer {
             while (remaining > 0) {
                 int l = this.charbuffer.remaining();
                 boolean eol = false;
-                if (remaining < l) {
+                if (remaining <= l) {
                     l = remaining;
                     // terminate the encoding process
                     eol = true;
