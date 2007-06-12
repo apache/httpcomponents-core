@@ -131,16 +131,19 @@ public class TestNIOHttp extends TestCase {
 
     static class ServerModeDecorator extends TestSetup {
 
-        private int mode;
+        private int clientMode;
+        private int serverMode;
         
-        public ServerModeDecorator(final TestNIOHttp test, int mode) {
+        public ServerModeDecorator(final TestNIOHttp test, int clientMode, int serverMode) {
             super(test);
-            this.mode = mode;
+            this.clientMode = clientMode;
+            this.serverMode = serverMode;
         }
                 
         protected void setUp() throws Exception {
             TestNIOHttp testcase = (TestNIOHttp)getTest();
-            testcase.setServerMode(this.mode);
+            testcase.setServerMode(this.serverMode);
+            testcase.setClientMode(this.clientMode);
         }  
     }
     
@@ -152,11 +155,19 @@ public class TestNIOHttp extends TestCase {
         TestSuite suite = new TestSuite();
         for (Enumeration en = source.tests(); en.hasMoreElements(); ) {
             TestNIOHttp test = (TestNIOHttp) en.nextElement();
-            suite.addTest(new ServerModeDecorator(test, MODE_BUFFERING));            
+            suite.addTest(new ServerModeDecorator(test, MODE_BUFFERING, MODE_BUFFERING));            
         }
         for (Enumeration en = source.tests(); en.hasMoreElements(); ) {
             TestNIOHttp test = (TestNIOHttp) en.nextElement();
-            suite.addTest(new ServerModeDecorator(test, MODE_THROTTLING));            
+            suite.addTest(new ServerModeDecorator(test, MODE_THROTTLING, MODE_BUFFERING));            
+        }
+        for (Enumeration en = source.tests(); en.hasMoreElements(); ) {
+            TestNIOHttp test = (TestNIOHttp) en.nextElement();
+            suite.addTest(new ServerModeDecorator(test, MODE_BUFFERING, MODE_THROTTLING));            
+        }
+        for (Enumeration en = source.tests(); en.hasMoreElements(); ) {
+            TestNIOHttp test = (TestNIOHttp) en.nextElement();
+            suite.addTest(new ServerModeDecorator(test, MODE_THROTTLING, MODE_THROTTLING));            
         }
         return suite;
     }
@@ -246,16 +257,29 @@ public class TestNIOHttp extends TestCase {
         httpproc.addInterceptor(new RequestConnControl());
         httpproc.addInterceptor(new RequestUserAgent());
         httpproc.addInterceptor(new RequestExpectContinue());
-        
-        BufferingHttpClientHandler clientHandler = new BufferingHttpClientHandler(
-                httpproc,
-                requestExecutionHandler,
-                new DefaultConnectionReuseStrategy(),
-                this.client.getParams());
 
-        clientHandler.setEventListener(eventListener);
+        if (this.clientMode == MODE_BUFFERING) {
+            BufferingHttpClientHandler clientHandler = new BufferingHttpClientHandler(
+                    httpproc,
+                    requestExecutionHandler,
+                    new DefaultConnectionReuseStrategy(),
+                    this.client.getParams());
 
-        return clientHandler;
+            clientHandler.setEventListener(eventListener);
+            return clientHandler;
+        }
+        if (this.clientMode == MODE_THROTTLING) {
+            ThrottlingHttpClientHandler clientHandler = new ThrottlingHttpClientHandler(
+                    httpproc,
+                    requestExecutionHandler,
+                    new DefaultConnectionReuseStrategy(),
+                    this.executor,
+                    this.client.getParams());
+
+            clientHandler.setEventListener(eventListener);
+            return clientHandler;
+        }
+        throw new IllegalStateException();
     }
     
     /**
