@@ -312,7 +312,9 @@ public class ThrottlingHttpClientHandler implements NHttpClientHandler {
                     connState.setInputState(ClientConnState.RESPONSE_RECEIVED);
                     
                     if (connState.getOutputState() == ClientConnState.EXPECT_CONTINUE) {
-                        cancelRequest(conn, connState);
+                        int timeout = connState.getTimeout();
+                        conn.setSocketTimeout(timeout);
+                        conn.resetOutput();
                     }
                 }
                 if (!canResponseHaveBody(request, response)) {
@@ -429,17 +431,6 @@ public class ThrottlingHttpClientHandler implements NHttpClientHandler {
                 (HttpEntityEnclosingRequest) request,
                 connState,
                 conn);
-    }
-    
-    private void cancelRequest(
-            final NHttpClientConnection conn, 
-            final ClientConnState connState) throws IOException {
-
-        int timeout = connState.getTimeout();
-        conn.setSocketTimeout(timeout);
-
-        conn.resetOutput();
-        connState.resetOutput();
     }
     
     private boolean canResponseHaveBody(
