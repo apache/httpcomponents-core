@@ -185,7 +185,7 @@ public class BufferingHttpClientHandler implements NHttpClientHandler {
         HttpContext context = conn.getContext();
 
         ClientConnState connState = (ClientConnState) context.getAttribute(CONN_STATE);
-        if (connState.getInputState() != ClientConnState.READY) {
+        if (connState.getOutputState() != ClientConnState.READY) {
             return;
         }
         
