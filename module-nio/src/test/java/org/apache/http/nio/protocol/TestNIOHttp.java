@@ -1189,9 +1189,9 @@ public class TestNIOHttp extends TestCase {
 
             public HttpRequest submitRequest(final HttpContext context) {
                 int i = ((Integer) context.getAttribute("REQ-COUNT")).intValue();
-                BasicHttpEntityEnclosingRequest request = null;
+                BasicHttpRequest request = null;
                 if (i < reqNo) {
-                    request = new BasicHttpEntityEnclosingRequest(method[0], "/?" + i);
+                    request = new BasicHttpRequest(method[0], "/?" + i);
                     context.setAttribute("REQ-COUNT", new Integer(i + 1));
                 }
                 return request;
