@@ -107,13 +107,12 @@ public class LoggingNHttpClientHandler implements NHttpClientHandler {
     }
 
     public void responseReceived(final NHttpClientConnection conn) {
+        HttpResponse response = conn.getHttpResponse();
         if (this.log.isDebugEnabled()) {
-            HttpResponse response = conn.getHttpResponse();
             this.log.debug("HTTP connection " + conn + ": " + response.getStatusLine());
         }
         this.handler.responseReceived(conn);
         if (this.headerlog.isDebugEnabled()) {
-            HttpResponse response = conn.getHttpResponse();
             this.headerlog.debug("<< " + response.getStatusLine().toString());
             Header[] headers = response.getAllHeaders();
             for (int i = 0; i < headers.length; i++) {

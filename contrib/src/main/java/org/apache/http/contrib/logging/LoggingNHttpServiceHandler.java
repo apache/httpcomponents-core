@@ -90,13 +90,12 @@ public class LoggingNHttpServiceHandler implements NHttpServiceHandler {
     }
 
     public void requestReceived(final NHttpServerConnection conn) {
+        HttpRequest request = conn.getHttpRequest();
         if (this.log.isDebugEnabled()) {
-            HttpRequest request = conn.getHttpRequest();
             this.log.debug("HTTP connection " + conn + ": " + request.getRequestLine());
         }
         this.handler.requestReceived(conn);
         if (this.headerlog.isDebugEnabled()) {
-            HttpRequest request = conn.getHttpRequest();
             this.headerlog.debug(">> " + request.getRequestLine().toString());
             Header[] headers = request.getAllHeaders();
             for (int i = 0; i < headers.length; i++) {
