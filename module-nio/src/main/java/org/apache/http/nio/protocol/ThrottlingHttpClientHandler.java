@@ -32,6 +32,7 @@
 package org.apache.http.nio.protocol;
 
 import java.io.IOException;
+import java.io.InterruptedIOException;
 import java.io.OutputStream;
 import java.net.InetAddress;
 
@@ -53,6 +54,7 @@ import org.apache.http.nio.NHttpClientHandler;
 import org.apache.http.nio.entity.ContentBufferEntity;
 import org.apache.http.nio.entity.ContentOutputStream;
 import org.apache.http.nio.params.HttpNIOParams;
+import org.apache.http.nio.protocol.ThrottlingHttpServiceHandler.ServerConnState;
 import org.apache.http.nio.util.ByteBufferAllocator;
 import org.apache.http.nio.util.ContentInputBuffer;
 import org.apache.http.nio.util.ContentOutputBuffer;
@@ -242,6 +244,8 @@ public class ThrottlingHttpClientHandler implements NHttpClientHandler {
                                 conn);
                     }
                 }
+                
+                connState.notifyAll();
             }
             
         } catch (IOException ex) {
@@ -276,6 +280,8 @@ public class ThrottlingHttpClientHandler implements NHttpClientHandler {
                 } else {
                     connState.setInputState(ClientConnState.REQUEST_BODY_STREAM);
                 }
+
+                connState.notifyAll();
             }
             
         } catch (IOException ex) {
@@ -317,16 +323,14 @@ public class ThrottlingHttpClientHandler implements NHttpClientHandler {
                         conn.resetOutput();
                     }
                 }
+                
                 if (!canResponseHaveBody(request, response)) {
                     conn.resetInput();
                     response.setEntity(null);
+                    connState.setInputState(ClientConnState.RESPONSE_DONE);
                     
                     if (!this.connStrategy.keepAlive(response, context)) {
                         conn.close();
-                    } else {
-                        // Ready for another request
-                        connState.resetInput();
-                        connState.resetOutput();
                     }
                 }
 
@@ -341,6 +345,8 @@ public class ThrottlingHttpClientHandler implements NHttpClientHandler {
                 this.httpProcessor.process(response, context);
                 
                 handleResponse(response, connState, conn);
+                
+                connState.notifyAll();
             }
             
         } catch (IOException ex) {
@@ -369,12 +375,15 @@ public class ThrottlingHttpClientHandler implements NHttpClientHandler {
                 buffer.consumeContent(decoder);
                 if (decoder.isCompleted()) {
                     connState.setInputState(ClientConnState.RESPONSE_BODY_DONE);
+                    
                     if (!this.connStrategy.keepAlive(response, context)) {
                         conn.close();
                     }
                 } else {
                     connState.setInputState(ClientConnState.RESPONSE_BODY_STREAM);
                 }
+
+                connState.notifyAll();
             }
             
         } catch (IOException ex) {
@@ -391,9 +400,13 @@ public class ThrottlingHttpClientHandler implements NHttpClientHandler {
 
         try {
             
-            if (connState.getOutputState() == ClientConnState.EXPECT_CONTINUE) {
-                connState.setOutputState(ClientConnState.REQUEST_SENT);
-                continueRequest(conn, connState);
+            synchronized (connState) {
+                if (connState.getOutputState() == ClientConnState.EXPECT_CONTINUE) {
+                    connState.setOutputState(ClientConnState.REQUEST_SENT);
+                    continueRequest(conn, connState);
+                    
+                    connState.notifyAll();
+                }
             }
             
         } catch (IOException ex) {
@@ -477,7 +490,7 @@ public class ThrottlingHttpClientHandler implements NHttpClientHandler {
             });
         }
     }
-
+    
     private void handleResponse(
             final HttpResponse response,
             final ClientConnState connState,
@@ -491,7 +504,24 @@ public class ThrottlingHttpClientHandler implements NHttpClientHandler {
                 try {
 
                     execHandler.handleResponse(response, context);
+                    
                     synchronized (connState) {
+                        
+                        try {
+                            for (;;) {
+                                int currentState = connState.getInputState();
+                                if (currentState == ClientConnState.RESPONSE_DONE) {
+                                    break;
+                                }
+                                if (currentState == ServerConnState.SHUTDOWN) {
+                                    throw new InterruptedIOException("Service interrupted");
+                                }
+                                connState.wait();
+                            }
+                        } catch (InterruptedException ex) {
+                            connState.shutdown();
+                        }
+                        
                         connState.resetInput();
                         connState.resetOutput();
                         conn.requestOutput();
@@ -520,6 +550,7 @@ public class ThrottlingHttpClientHandler implements NHttpClientHandler {
         public static final int RESPONSE_RECEIVED          = 16;
         public static final int RESPONSE_BODY_STREAM       = 32;
         public static final int RESPONSE_BODY_DONE         = 64;
+        public static final int RESPONSE_DONE              = 64;
         
         private final SharedInputBuffer inbuffer; 
         private final SharedOutputBuffer outbuffer;
