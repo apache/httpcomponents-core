@@ -1,7 +1,12 @@
 Changes since 4.0 Alpha 4
 
+* Added HTTP client handler implementation that allocates fixed size content 
+  buffers upon initialization and is capable of throttling the rate of I/O events 
+  in order to make sure those content buffers do not get overflown.
+  Contributed by Oleg Kalnichevski <olegk at apache.org>
+
 * [HTTPCORE-76]: Added IOSession#shutdown() method intended to force-close
-  I/O sessions (primarily needed to terminate hang SSL connections).
+  I/O sessions (primarily needed to terminate hung SSL connections).
   Contributed by Sandeep Tamhankar <sandman at electric-cloud.com>
 
 * [HTTPCORE-78]: Added ByteBufferAllocator interface that can be used to apply 
