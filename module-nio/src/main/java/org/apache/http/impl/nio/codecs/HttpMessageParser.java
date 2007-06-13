@@ -58,7 +58,10 @@ public abstract class HttpMessageParser {
     private CharArrayBuffer lineBuf;
     private final List headerBufs;
 
-    public HttpMessageParser(final SessionInputBuffer buffer) {
+    private int maxLineLen;
+    private int maxHeaderCount;
+
+    public HttpMessageParser(final SessionInputBuffer buffer, int maxLineLen, int maxHeaderCount) {
         super();
         if (buffer == null) {
             throw new IllegalArgumentException("Session input buffer may not be null");
@@ -67,6 +70,8 @@ public abstract class HttpMessageParser {
         this.state = READ_HEAD_LINE;
         this.endOfStream = false;
         this.headerBufs = new ArrayList();        
+        this.maxLineLen = maxLineLen;
+        this.maxHeaderCount = maxHeaderCount;
     }
     
     public void reset() {
@@ -91,7 +96,7 @@ public abstract class HttpMessageParser {
         this.message = createMessage(this.lineBuf);
     }
     
-    private void parseHeader() {
+    private void parseHeader() throws IOException {
         CharArrayBuffer current = this.lineBuf;
         int count = this.headerBufs.size();
         if ((this.lineBuf.charAt(0) == ' ' || this.lineBuf.charAt(0) == '\t') && count > 0) {
@@ -104,6 +109,9 @@ public abstract class HttpMessageParser {
                     break;
                 }
                 i++;
+            }
+            if (this.maxLineLen > 0 && previous.length() + 1 + current.length() - i > this.maxLineLen) {
+                throw new IOException("Maximum line length limit exceeded");
             }
             previous.append(' ');
             previous.append(current, i, current.length() - i);
@@ -120,9 +128,14 @@ public abstract class HttpMessageParser {
             } else {
                 this.lineBuf.clear();
             }
-            if (!this.buffer.readLine(this.lineBuf, this.endOfStream)) {
+            boolean lineComplete = this.buffer.readLine(this.lineBuf, this.endOfStream);
+            if (this.maxLineLen > 0 && this.lineBuf.length() > this.maxLineLen) {
+                throw new IOException("Maximum line length limit exceeded");
+            }
+            if (!lineComplete) {
                 break;
             }
+
             switch (this.state) {
             case READ_HEAD_LINE:
                 parseHeadLine();
@@ -130,6 +143,10 @@ public abstract class HttpMessageParser {
                 break;
             case READ_HEADERS:
                 if (this.lineBuf.length() > 0) {
+                    if (this.maxHeaderCount > 0 && headerBufs.size() >= this.maxHeaderCount) {
+                        throw new IOException("Maximum header count exceeded");
+                    }
+                    
                     parseHeader();
                 } else {
                     this.state = COMPLETED;

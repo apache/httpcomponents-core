@@ -50,6 +50,7 @@ import org.apache.http.impl.nio.codecs.HttpRequestParser;
 import org.apache.http.nio.reactor.EventMask;
 import org.apache.http.nio.reactor.IOSession;
 import org.apache.http.nio.util.ByteBufferAllocator;
+import org.apache.http.params.HttpConnectionParams;
 import org.apache.http.params.HttpParams;
 
 public class DefaultNHttpServerConnection 
@@ -66,7 +67,11 @@ public class DefaultNHttpServerConnection
         if (requestFactory == null) {
             throw new IllegalArgumentException("Request factory may not be null");
         }
-        this.requestParser = new HttpRequestParser(this.inbuf, requestFactory);
+        this.requestParser = new HttpRequestParser(
+                this.inbuf,
+                params.getIntParameter(HttpConnectionParams.MAX_LINE_LENGTH, -1),
+                params.getIntParameter(HttpConnectionParams.MAX_HEADER_COUNT, -1),
+                requestFactory);
     }
 
     public void resetInput() {

@@ -31,6 +31,7 @@
 package org.apache.http.impl.nio.codecs;
 
 import java.io.ByteArrayInputStream;
+import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.nio.channels.Channels;
 import java.nio.channels.ReadableByteChannel;
@@ -46,8 +47,6 @@ import org.apache.http.HttpResponseFactory;
 import org.apache.http.HttpVersion;
 import org.apache.http.impl.DefaultHttpRequestFactory;
 import org.apache.http.impl.DefaultHttpResponseFactory;
-import org.apache.http.impl.nio.codecs.HttpMessageParser;
-import org.apache.http.impl.nio.codecs.HttpRequestParser;
 import org.apache.http.impl.nio.reactor.SessionInputBuffer;
 
 /**
@@ -320,6 +319,75 @@ public class TestHttpMessageParser extends TestCase {
             fail("IllegalArgumentException should have been thrown");
         } catch (IllegalArgumentException ex) {
             // ignore
+        }
+    }
+
+    public void testLineLimitForStatus() throws Exception {
+        SessionInputBuffer inbuf = new SessionInputBuffer(1024, 128); 
+        HttpRequestFactory requestFactory = new DefaultHttpRequestFactory();
+        HttpRequestParser requestParser = new HttpRequestParser(inbuf, 0, -1, requestFactory);
+
+        requestParser.fillBuffer(newChannel("GET /whatever HTTP/1.0\r\nHeader: one\r\n\r\n"));
+        requestParser.parse();
+        requestParser.reset();
+
+        requestParser = new HttpRequestParser(inbuf, 15, -1, requestFactory);
+        try {
+            requestParser.fillBuffer(newChannel("GET /loooooooooooooooong HTTP/1.0\r\nHeader: one\r\n\r\n"));
+            requestParser.parse();
+            fail("IOException should have been thrown");
+        } catch (IOException expected) {
+        }
+    }
+
+    public void testLineLimitForHeader() throws Exception {
+        SessionInputBuffer inbuf = new SessionInputBuffer(1024, 128); 
+        HttpRequestFactory requestFactory = new DefaultHttpRequestFactory();
+        HttpRequestParser requestParser = new HttpRequestParser(inbuf, 0, -1, requestFactory);
+
+        requestParser.fillBuffer(newChannel("GET /whatever HTTP/1.0\r\nHeader: one\r\n\r\n"));
+        requestParser.parse();
+        requestParser.reset();
+
+        requestParser = new HttpRequestParser(inbuf, 15, -1, requestFactory);
+        requestParser.fillBuffer(newChannel("GET / HTTP/1.0\r\nHeader: 9012345\r\n\r\n"));
+        requestParser.parse();
+        requestParser.reset();
+        try {
+            requestParser.fillBuffer(newChannel("GET / HTTP/1.0\r\nHeader: 90123456\r\n\r\n"));
+            requestParser.parse();
+            fail("IOException should have been thrown");
+        } catch (IOException expected) {
+        }
+    }
+
+    public void testLineLimitForFoldedHeader() throws Exception {
+        SessionInputBuffer inbuf = new SessionInputBuffer(1024, 128); 
+        HttpRequestFactory requestFactory = new DefaultHttpRequestFactory();
+        HttpRequestParser requestParser = new HttpRequestParser(inbuf, 15, 2, requestFactory);
+
+        try {
+            requestParser.fillBuffer(newChannel("GET / HTTP/1.0\r\nHeader: 9012345\r\n 23456789012345\r\n 23456789012345\r\n 23456789012345\r\n\r\n"));
+            requestParser.parse();
+            fail("IOException should have been thrown");
+        } catch (IOException expected) {
+        }
+    }
+
+    public void testMaxHeaderCount() throws Exception {
+        SessionInputBuffer inbuf = new SessionInputBuffer(1024, 128); 
+        HttpRequestFactory requestFactory = new DefaultHttpRequestFactory();
+        HttpRequestParser requestParser = new HttpRequestParser(inbuf, -1, 2, requestFactory);
+
+        requestParser.fillBuffer(newChannel("GET /whatever HTTP/1.0\r\nHeader: one\r\nHeader: two\r\n\r\n"));
+        requestParser.parse();
+        requestParser.reset();
+
+        try {
+            requestParser.fillBuffer(newChannel("GET /whatever HTTP/1.0\r\nHeader: one\r\nHeader: two\r\nHeader: three\r\n\r\n"));
+            requestParser.parse();
+            fail("IOException should have been thrown");
+        } catch (IOException expected) {
         }
     }
 

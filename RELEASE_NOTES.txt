@@ -1,5 +1,9 @@
 Changes since 4.0 Alpha 4
 
+* [HTTPCORE-81]: Maximum line length and maximum header counts parameters are now 
+  correctly enforced in both base and NIO modules.
+  Contributed by Steffen Pingel <spingel at limewire.com>
+
 * Added HTTP client handler implementation that allocates fixed size content 
   buffers upon initialization and is capable of throttling the rate of I/O events 
   in order to make sure those content buffers do not get overflown.

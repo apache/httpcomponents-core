@@ -45,12 +45,20 @@ public class HttpRequestParser extends HttpMessageParser {
     
     public HttpRequestParser(
             final SessionInputBuffer buffer,
+            int maxLineLen, 
+            int maxHeaderCount,
             final HttpRequestFactory requestFactory) {
-        super(buffer);
+        super(buffer, maxLineLen, maxHeaderCount);
         if (requestFactory == null) {
             throw new IllegalArgumentException("Request factory may not be null");
         }
         this.requestFactory = requestFactory;
+    }
+
+    public HttpRequestParser(
+            final SessionInputBuffer buffer,
+            final HttpRequestFactory requestFactory) {
+        this(buffer, -1, -1, requestFactory);
     }
 
     protected HttpMessage createMessage(final CharArrayBuffer buffer) 

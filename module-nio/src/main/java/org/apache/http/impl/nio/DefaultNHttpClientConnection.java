@@ -50,6 +50,7 @@ import org.apache.http.impl.nio.codecs.HttpResponseParser;
 import org.apache.http.nio.reactor.EventMask;
 import org.apache.http.nio.reactor.IOSession;
 import org.apache.http.nio.util.ByteBufferAllocator;
+import org.apache.http.params.HttpConnectionParams;
 import org.apache.http.params.HttpParams;
 
 public class DefaultNHttpClientConnection 
@@ -66,7 +67,11 @@ public class DefaultNHttpClientConnection
         if (responseFactory == null) {
             throw new IllegalArgumentException("Response factory may not be null");
         }
-        this.responseParser = new HttpResponseParser(this.inbuf, responseFactory);
+        this.responseParser = new HttpResponseParser(
+                this.inbuf,
+                params.getIntParameter(HttpConnectionParams.MAX_LINE_LENGTH, -1),
+                params.getIntParameter(HttpConnectionParams.MAX_HEADER_COUNT, -1),
+                responseFactory);
         this.hasBufferedInput = false;
         this.hasBufferedOutput = false;
         this.session.setBufferStatus(this);
