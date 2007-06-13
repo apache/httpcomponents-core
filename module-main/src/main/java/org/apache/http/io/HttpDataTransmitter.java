@@ -49,7 +49,7 @@ import org.apache.http.util.CharArrayBuffer;
  */
 public interface HttpDataTransmitter {
 
-    void reset(HttpParams params);
+    void configure(HttpParams params);
 
     void write(byte[] b, int off, int len) throws IOException;
     

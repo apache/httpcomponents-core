@@ -110,7 +110,7 @@ public class SocketHttpClientConnection
             final HttpParams params) throws IOException {
         int buffersize = HttpConnectionParams.getSocketBufferSize(params);
         HttpDataTransmitter transmitter = new SocketHttpDataTransmitter(this.socket, buffersize);
-        transmitter.reset(params);
+        transmitter.configure(params);
         return transmitter;
     }
     
@@ -118,7 +118,7 @@ public class SocketHttpClientConnection
             final HttpParams params) throws IOException {
         int buffersize = HttpConnectionParams.getSocketBufferSize(params);
         HttpDataReceiver receiver =  new SocketHttpDataReceiver(this.socket, buffersize);
-        receiver.reset(params);
+        receiver.configure(params);
         return receiver;
     }
     

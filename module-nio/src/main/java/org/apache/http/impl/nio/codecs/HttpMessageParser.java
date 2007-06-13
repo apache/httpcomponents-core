@@ -40,6 +40,8 @@ import org.apache.http.HttpException;
 import org.apache.http.HttpMessage;
 import org.apache.http.ProtocolException;
 import org.apache.http.message.BufferedHeader;
+import org.apache.http.params.HttpConnectionParams;
+import org.apache.http.params.HttpParams;
 import org.apache.http.impl.nio.reactor.SessionInputBuffer;
 import org.apache.http.util.CharArrayBuffer;
 
@@ -58,10 +60,10 @@ public abstract class HttpMessageParser {
     private CharArrayBuffer lineBuf;
     private final List headerBufs;
 
-    private int maxLineLen;
-    private int maxHeaderCount;
+    private int maxLineLen = -1;
+    private int maxHeaderCount = -1;
 
-    public HttpMessageParser(final SessionInputBuffer buffer, int maxLineLen, int maxHeaderCount) {
+    public HttpMessageParser(final SessionInputBuffer buffer) {
         super();
         if (buffer == null) {
             throw new IllegalArgumentException("Session input buffer may not be null");
@@ -70,8 +72,13 @@ public abstract class HttpMessageParser {
         this.state = READ_HEAD_LINE;
         this.endOfStream = false;
         this.headerBufs = new ArrayList();        
-        this.maxLineLen = maxLineLen;
-        this.maxHeaderCount = maxHeaderCount;
+    }
+    
+    public void configure(final HttpParams params) {
+        this.maxLineLen = params.getIntParameter(
+                HttpConnectionParams.MAX_LINE_LENGTH, -1);
+        this.maxHeaderCount = params.getIntParameter(
+                HttpConnectionParams.MAX_HEADER_COUNT, -1);
     }
     
     public void reset() {

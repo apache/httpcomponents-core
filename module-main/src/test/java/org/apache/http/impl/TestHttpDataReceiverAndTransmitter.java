@@ -319,13 +319,13 @@ public class TestHttpDataReceiverAndTransmitter extends TestCase {
         HttpDataReceiverMockup receiver1 = new HttpDataReceiverMockup(tmp, 5);
         // no limit
         params.setIntParameter(HttpConnectionParams.MAX_LINE_LENGTH, 0);
-        receiver1.reset(params);
+        receiver1.configure(params);
         assertNotNull(receiver1.readLine());
         
         HttpDataReceiverMockup receiver2 = new HttpDataReceiverMockup(tmp, 5);
         // 15 char limit
         params.setIntParameter(HttpConnectionParams.MAX_LINE_LENGTH, 15);
-        receiver2.reset(params);
+        receiver2.configure(params);
         try {
             receiver2.readLine();
             fail("IOException should have been thrown");
@@ -362,7 +362,7 @@ public class TestHttpDataReceiverAndTransmitter extends TestCase {
         HttpProtocolParams.setHttpElementCharset(params, "UTF-8");
         
         HttpDataTransmitterMockup transmitter = new HttpDataTransmitterMockup();
-        transmitter.reset(params);
+        transmitter.configure(params);
 
         CharArrayBuffer chbuffer = new CharArrayBuffer(16); 
         for (int i = 0; i < 10; i++) {
@@ -380,7 +380,7 @@ public class TestHttpDataReceiverAndTransmitter extends TestCase {
         
         HttpDataReceiverMockup receiver = new HttpDataReceiverMockup(
         		transmitter.getData());
-        receiver.reset(params);
+        receiver.configure(params);
 
         for (int i = 0; i < 10; i++) {
             assertEquals(s1, receiver.readLine());
@@ -398,7 +398,7 @@ public class TestHttpDataReceiverAndTransmitter extends TestCase {
         HttpProtocolParams.setHttpElementCharset(params, HTTP.ISO_8859_1);
         
         HttpDataTransmitterMockup transmitter = new HttpDataTransmitterMockup();
-        transmitter.reset(params);
+        transmitter.configure(params);
 
         CharArrayBuffer chbuffer = new CharArrayBuffer(16); 
         for (int i = 0; i < 10; i++) {
@@ -411,7 +411,7 @@ public class TestHttpDataReceiverAndTransmitter extends TestCase {
         HttpDataReceiverMockup receiver = new HttpDataReceiverMockup(
                 transmitter.getData());
         HttpProtocolParams.setHttpElementCharset(params, HTTP.ISO_8859_1);
-        receiver.reset(params);
+        receiver.configure(params);
 
         for (int i = 0; i < 10; i++) {
             assertEquals(s1, receiver.readLine());

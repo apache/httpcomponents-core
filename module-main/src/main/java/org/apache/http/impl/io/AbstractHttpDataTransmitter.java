@@ -165,7 +165,7 @@ public abstract class AbstractHttpDataTransmitter implements HttpDataTransmitter
         write(CRLF);
     }
     
-    public void reset(final HttpParams params) {
+    public void configure(final HttpParams params) {
         this.charset = HttpProtocolParams.getHttpElementCharset(params); 
         this.ascii = this.charset.equalsIgnoreCase(HTTP.US_ASCII)
                      || this.charset.equalsIgnoreCase(HTTP.ASCII);

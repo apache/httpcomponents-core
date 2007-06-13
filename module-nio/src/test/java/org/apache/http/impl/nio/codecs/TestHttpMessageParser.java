@@ -48,6 +48,9 @@ import org.apache.http.HttpVersion;
 import org.apache.http.impl.DefaultHttpRequestFactory;
 import org.apache.http.impl.DefaultHttpResponseFactory;
 import org.apache.http.impl.nio.reactor.SessionInputBuffer;
+import org.apache.http.params.BasicHttpParams;
+import org.apache.http.params.HttpConnectionParams;
+import org.apache.http.params.HttpParams;
 
 /**
  * Simple tests for {@link HttpMessageParser}.
@@ -323,15 +326,19 @@ public class TestHttpMessageParser extends TestCase {
     }
 
     public void testLineLimitForStatus() throws Exception {
+        HttpParams params = new BasicHttpParams();
         SessionInputBuffer inbuf = new SessionInputBuffer(1024, 128); 
         HttpRequestFactory requestFactory = new DefaultHttpRequestFactory();
-        HttpRequestParser requestParser = new HttpRequestParser(inbuf, 0, -1, requestFactory);
+        HttpRequestParser requestParser = new HttpRequestParser(inbuf, requestFactory);
 
+        params.setIntParameter(HttpConnectionParams.MAX_LINE_LENGTH, 0);
+        requestParser.configure(params);        
         requestParser.fillBuffer(newChannel("GET /whatever HTTP/1.0\r\nHeader: one\r\n\r\n"));
         requestParser.parse();
         requestParser.reset();
 
-        requestParser = new HttpRequestParser(inbuf, 15, -1, requestFactory);
+        params.setIntParameter(HttpConnectionParams.MAX_LINE_LENGTH, 15);
+        requestParser.configure(params);        
         try {
             requestParser.fillBuffer(newChannel("GET /loooooooooooooooong HTTP/1.0\r\nHeader: one\r\n\r\n"));
             requestParser.parse();
@@ -341,15 +348,19 @@ public class TestHttpMessageParser extends TestCase {
     }
 
     public void testLineLimitForHeader() throws Exception {
+        HttpParams params = new BasicHttpParams();
         SessionInputBuffer inbuf = new SessionInputBuffer(1024, 128); 
         HttpRequestFactory requestFactory = new DefaultHttpRequestFactory();
-        HttpRequestParser requestParser = new HttpRequestParser(inbuf, 0, -1, requestFactory);
+        HttpRequestParser requestParser = new HttpRequestParser(inbuf, requestFactory);
 
+        params.setIntParameter(HttpConnectionParams.MAX_LINE_LENGTH, 0);
+        requestParser.configure(params);
         requestParser.fillBuffer(newChannel("GET /whatever HTTP/1.0\r\nHeader: one\r\n\r\n"));
         requestParser.parse();
         requestParser.reset();
 
-        requestParser = new HttpRequestParser(inbuf, 15, -1, requestFactory);
+        params.setIntParameter(HttpConnectionParams.MAX_LINE_LENGTH, 15);
+        requestParser.configure(params);
         requestParser.fillBuffer(newChannel("GET / HTTP/1.0\r\nHeader: 9012345\r\n\r\n"));
         requestParser.parse();
         requestParser.reset();
@@ -362,10 +373,14 @@ public class TestHttpMessageParser extends TestCase {
     }
 
     public void testLineLimitForFoldedHeader() throws Exception {
+        HttpParams params = new BasicHttpParams();
         SessionInputBuffer inbuf = new SessionInputBuffer(1024, 128); 
         HttpRequestFactory requestFactory = new DefaultHttpRequestFactory();
-        HttpRequestParser requestParser = new HttpRequestParser(inbuf, 15, 2, requestFactory);
+        HttpRequestParser requestParser = new HttpRequestParser(inbuf, requestFactory);
 
+        params.setIntParameter(HttpConnectionParams.MAX_HEADER_COUNT, 2);
+        params.setIntParameter(HttpConnectionParams.MAX_LINE_LENGTH, 15);        
+        requestParser.configure(params);
         try {
             requestParser.fillBuffer(newChannel("GET / HTTP/1.0\r\nHeader: 9012345\r\n 23456789012345\r\n 23456789012345\r\n 23456789012345\r\n\r\n"));
             requestParser.parse();
@@ -375,10 +390,13 @@ public class TestHttpMessageParser extends TestCase {
     }
 
     public void testMaxHeaderCount() throws Exception {
+        HttpParams params = new BasicHttpParams();
         SessionInputBuffer inbuf = new SessionInputBuffer(1024, 128); 
         HttpRequestFactory requestFactory = new DefaultHttpRequestFactory();
-        HttpRequestParser requestParser = new HttpRequestParser(inbuf, -1, 2, requestFactory);
+        HttpRequestParser requestParser = new HttpRequestParser(inbuf, requestFactory);
 
+        params.setIntParameter(HttpConnectionParams.MAX_HEADER_COUNT, 2);
+        requestParser.configure(params);
         requestParser.fillBuffer(newChannel("GET /whatever HTTP/1.0\r\nHeader: one\r\nHeader: two\r\n\r\n"));
         requestParser.parse();
         requestParser.reset();

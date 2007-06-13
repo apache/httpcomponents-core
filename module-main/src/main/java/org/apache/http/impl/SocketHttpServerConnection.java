@@ -96,8 +96,8 @@ public class SocketHttpServerConnection extends
         int buffersize = HttpConnectionParams.getSocketBufferSize(params);
         HttpDataTransmitter transmitter = new SocketHttpDataTransmitter(socket, buffersize);
         HttpDataReceiver receiver = new SocketHttpDataReceiver(socket, buffersize);
-        transmitter.reset(params);
-        receiver.reset(params);
+        transmitter.configure(params);
+        receiver.configure(params);
         
         setHttpDataReceiver(receiver);
         setHttpDataTransmitter(transmitter);
