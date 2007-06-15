@@ -66,8 +66,7 @@ public class DefaultNHttpClientConnection
         if (responseFactory == null) {
             throw new IllegalArgumentException("Response factory may not be null");
         }
-        this.responseParser = new HttpResponseParser(this.inbuf, responseFactory);
-        this.responseParser.configure(params);
+        this.responseParser = new HttpResponseParser(this.inbuf, responseFactory, params);
         this.hasBufferedInput = false;
         this.hasBufferedOutput = false;
         this.session.setBufferStatus(this);

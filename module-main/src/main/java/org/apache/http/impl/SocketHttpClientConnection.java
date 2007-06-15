@@ -57,8 +57,8 @@ import org.apache.http.params.HttpParams;
 public class SocketHttpClientConnection 
         extends AbstractHttpClientConnection implements HttpInetConnection {
 
-    protected volatile boolean open;
-    protected Socket socket = null;
+    private volatile boolean open;
+    private Socket socket = null;
     
     public SocketHttpClientConnection() {
         super();
@@ -76,6 +76,20 @@ public class SocketHttpClientConnection
         }
     }
 
+    protected HttpDataReceiver createHttpDataReceiver(
+            final Socket socket, 
+            int buffersize,
+            final HttpParams params) throws IOException {
+        return new SocketHttpDataReceiver(socket, buffersize, params);
+    }
+    
+    protected HttpDataTransmitter createHttpDataTransmitter(
+            final Socket socket, 
+            int buffersize,
+            final HttpParams params) throws IOException {
+        return new SocketHttpDataTransmitter(socket, buffersize, params);
+    }
+    
     protected void bind(
             final Socket socket, 
             final HttpParams params) throws IOException {
@@ -95,35 +109,22 @@ public class SocketHttpClientConnection
 
         this.socket = socket;
 
-        setHttpDataReceiver(createHttpDataReceiver(params));
-        setHttpDataTransmitter(createHttpDataTransmitter(params));
-        setMaxHeaderCount(params.getIntParameter(
-                HttpConnectionParams.MAX_HEADER_COUNT, -1));
-        setMaxGarbageLines(params.getIntParameter(
-                HttpConnectionParams.MAX_STATUS_LINE_GARBAGE, Integer.MAX_VALUE));
-        setResponseFactory(new DefaultHttpResponseFactory());
+        int buffersize = HttpConnectionParams.getSocketBufferSize(params);
+
+        init(
+                createHttpDataReceiver(socket, buffersize, params), 
+                createHttpDataTransmitter(socket, buffersize, params),
+                params);
         
         this.open = true;
     }
 
-    protected HttpDataTransmitter createHttpDataTransmitter(
-            final HttpParams params) throws IOException {
-        int buffersize = HttpConnectionParams.getSocketBufferSize(params);
-        HttpDataTransmitter transmitter = new SocketHttpDataTransmitter(this.socket, buffersize);
-        transmitter.configure(params);
-        return transmitter;
-    }
-    
-    protected HttpDataReceiver createHttpDataReceiver(
-            final HttpParams params) throws IOException {
-        int buffersize = HttpConnectionParams.getSocketBufferSize(params);
-        HttpDataReceiver receiver =  new SocketHttpDataReceiver(this.socket, buffersize);
-        receiver.configure(params);
-        return receiver;
-    }
-    
     public boolean isOpen() {
         return this.open;
+    }
+    
+    protected Socket getSocket() {
+        return this.socket;
     }
 
     public InetAddress getLocalAddress() {

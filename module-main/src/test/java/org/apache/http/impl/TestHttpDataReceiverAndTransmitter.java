@@ -70,7 +70,7 @@ public class TestHttpDataReceiverAndTransmitter extends TestCase {
         ByteArrayOutputStream out = new ByteArrayOutputStream();
         new HttpDataTransmitterMockup(out); 
         try {
-            new HttpDataTransmitterMockup(null); 
+            new HttpDataTransmitterMockup(null, new BasicHttpParams()); 
             fail("IllegalArgumentException should have been thrown");
         } catch (IllegalArgumentException ex) {
             //expected
@@ -316,16 +316,14 @@ public class TestHttpDataReceiverAndTransmitter extends TestCase {
         HttpParams params = new BasicHttpParams();
         String s = "a very looooooooooooooooooooooooooooooooooooooong line\r\n     ";
         byte[] tmp = s.getBytes("US-ASCII"); 
-        HttpDataReceiverMockup receiver1 = new HttpDataReceiverMockup(tmp, 5);
         // no limit
         params.setIntParameter(HttpConnectionParams.MAX_LINE_LENGTH, 0);
-        receiver1.configure(params);
+        HttpDataReceiverMockup receiver1 = new HttpDataReceiverMockup(tmp, 5, params);
         assertNotNull(receiver1.readLine());
         
-        HttpDataReceiverMockup receiver2 = new HttpDataReceiverMockup(tmp, 5);
         // 15 char limit
         params.setIntParameter(HttpConnectionParams.MAX_LINE_LENGTH, 15);
-        receiver2.configure(params);
+        HttpDataReceiverMockup receiver2 = new HttpDataReceiverMockup(tmp, 5, params);
         try {
             receiver2.readLine();
             fail("IOException should have been thrown");
@@ -361,8 +359,7 @@ public class TestHttpDataReceiverAndTransmitter extends TestCase {
         HttpParams params = new BasicHttpParams(null);
         HttpProtocolParams.setHttpElementCharset(params, "UTF-8");
         
-        HttpDataTransmitterMockup transmitter = new HttpDataTransmitterMockup();
-        transmitter.configure(params);
+        HttpDataTransmitterMockup transmitter = new HttpDataTransmitterMockup(params);
 
         CharArrayBuffer chbuffer = new CharArrayBuffer(16); 
         for (int i = 0; i < 10; i++) {
@@ -379,8 +376,7 @@ public class TestHttpDataReceiverAndTransmitter extends TestCase {
         transmitter.flush();
         
         HttpDataReceiverMockup receiver = new HttpDataReceiverMockup(
-        		transmitter.getData());
-        receiver.configure(params);
+        		transmitter.getData(), params);
 
         for (int i = 0; i < 10; i++) {
             assertEquals(s1, receiver.readLine());
@@ -397,8 +393,7 @@ public class TestHttpDataReceiverAndTransmitter extends TestCase {
         HttpParams params = new BasicHttpParams(null);
         HttpProtocolParams.setHttpElementCharset(params, HTTP.ISO_8859_1);
         
-        HttpDataTransmitterMockup transmitter = new HttpDataTransmitterMockup();
-        transmitter.configure(params);
+        HttpDataTransmitterMockup transmitter = new HttpDataTransmitterMockup(params);
 
         CharArrayBuffer chbuffer = new CharArrayBuffer(16); 
         for (int i = 0; i < 10; i++) {
@@ -409,9 +404,9 @@ public class TestHttpDataReceiverAndTransmitter extends TestCase {
         transmitter.flush();
         
         HttpDataReceiverMockup receiver = new HttpDataReceiverMockup(
-                transmitter.getData());
+                transmitter.getData(),
+                params);
         HttpProtocolParams.setHttpElementCharset(params, HTTP.ISO_8859_1);
-        receiver.configure(params);
 
         for (int i = 0; i < 10; i++) {
             assertEquals(s1, receiver.readLine());

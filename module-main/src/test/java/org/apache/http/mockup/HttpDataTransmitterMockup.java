@@ -35,6 +35,8 @@ import java.io.ByteArrayOutputStream;
 import java.io.OutputStream;
 
 import org.apache.http.impl.io.AbstractHttpDataTransmitter;
+import org.apache.http.params.BasicHttpParams;
+import org.apache.http.params.HttpParams;
 
 /**
  * {@link HttpDataTransmitter} mockup implementation.
@@ -46,18 +48,39 @@ public class HttpDataTransmitterMockup extends AbstractHttpDataTransmitter {
     private ByteArrayOutputStream buffer = new ByteArrayOutputStream();
     public static int BUFFER_SIZE = 16;
     
-    public HttpDataTransmitterMockup(final OutputStream outstream, int buffersize) {
+    public HttpDataTransmitterMockup(
+            final OutputStream outstream, 
+            int buffersize,
+            final HttpParams params) {
         super();
-        init(outstream, buffersize);
+        init(outstream, buffersize, params);
     }
 
-    public HttpDataTransmitterMockup(final ByteArrayOutputStream buffer) {
-        this(buffer, BUFFER_SIZE);
+    public HttpDataTransmitterMockup(
+            final OutputStream outstream, 
+            int buffersize) {
+        this(outstream, buffersize, new BasicHttpParams());
+    }
+
+    public HttpDataTransmitterMockup(
+            final ByteArrayOutputStream buffer,
+            final HttpParams params) {
+        this(buffer, BUFFER_SIZE, params);
         this.buffer = buffer;
     }
 
+    public HttpDataTransmitterMockup(
+            final ByteArrayOutputStream buffer) {
+        this(buffer, BUFFER_SIZE, new BasicHttpParams());
+        this.buffer = buffer;
+    }
+
+    public HttpDataTransmitterMockup(final HttpParams params) {
+        this(new ByteArrayOutputStream(), params);
+    }
+
     public HttpDataTransmitterMockup() {
-        this(new ByteArrayOutputStream());
+        this(new ByteArrayOutputStream(), new BasicHttpParams());
     }
 
     public byte[] getData() {

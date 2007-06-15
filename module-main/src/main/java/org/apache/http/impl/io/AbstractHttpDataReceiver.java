@@ -64,18 +64,25 @@ public abstract class AbstractHttpDataReceiver implements HttpDataReceiver {
     
     private HttpTransportMetricsImpl metrics;
     
-    protected void init(final InputStream instream, int buffersize) {
+    protected void init(final InputStream instream, int buffersize, final HttpParams params) {
         if (instream == null) {
             throw new IllegalArgumentException("Input stream may not be null");
         }
         if (buffersize <= 0) {
             throw new IllegalArgumentException("Buffer size may not be negative or zero");
         }
+        if (params == null) {
+            throw new IllegalArgumentException("HTTP parameters may not be null");
+        }
         this.instream = instream;
         this.buffer = new byte[buffersize];
         this.bufferpos = 0;
         this.bufferlen = 0;
         this.linebuffer = new ByteArrayBuffer(buffersize);
+        this.charset = HttpProtocolParams.getHttpElementCharset(params);
+        this.ascii = this.charset.equalsIgnoreCase(HTTP.US_ASCII)
+                     || this.charset.equalsIgnoreCase(HTTP.ASCII);
+        this.maxLineLen = params.getIntParameter(HttpConnectionParams.MAX_LINE_LENGTH, -1);
         this.metrics = new HttpTransportMetricsImpl();
     }
     
@@ -256,13 +263,6 @@ public abstract class AbstractHttpDataReceiver implements HttpDataReceiver {
         }
     }
     
-    public void configure(final HttpParams params) {
-        this.charset = HttpProtocolParams.getHttpElementCharset(params);
-        this.ascii = this.charset.equalsIgnoreCase(HTTP.US_ASCII)
-                     || this.charset.equalsIgnoreCase(HTTP.ASCII);
-        this.maxLineLen = params.getIntParameter(HttpConnectionParams.MAX_LINE_LENGTH, -1);
-    }
-
     public HttpTransportMetrics getMetrics() {
         return this.metrics;
     }

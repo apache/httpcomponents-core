@@ -55,6 +55,8 @@ import org.apache.http.message.BasicHeader;
 import org.apache.http.message.BasicRequestLine;
 import org.apache.http.message.BasicStatusLine;
 import org.apache.http.message.BufferedHeader;
+import org.apache.http.params.HttpConnectionParams;
+import org.apache.http.params.HttpParams;
 import org.apache.http.protocol.HTTP;
 import org.apache.http.util.CharArrayBuffer;
 import org.apache.http.util.HeaderUtils;
@@ -71,58 +73,49 @@ import org.apache.http.util.HeaderUtils;
  */
 public abstract class AbstractHttpClientConnection implements HttpClientConnection {
 
-    private int maxHeaderCount = -1;
-    private int maxGarbageLines = -1;
-
     private final CharArrayBuffer buffer; 
     private final EntitySerializer entityserializer;
     private final EntityDeserializer entitydeserializer;
+    private final HttpResponseFactory responsefactory;
     
-    /*
-     * Dependent interfaces
-     */
-    private HttpResponseFactory responsefactory = null;
     private HttpDataReceiver datareceiver = null;
     private HttpDataTransmitter datatransmitter = null;
+
+    private int maxHeaderCount = -1;
+    private int maxGarbageLines = -1;
 
     public AbstractHttpClientConnection() {
         super();
         this.buffer = new CharArrayBuffer(128);
-        this.entityserializer = new EntitySerializer(
-                new StrictContentLengthStrategy());
-        this.entitydeserializer = new EntityDeserializer(
-                new LaxContentLengthStrategy());
+        this.entityserializer = createEntitySerializer();
+        this.entitydeserializer = createEntityDeserializer();
+        this.responsefactory = createHttpResponseFactory();
     }
     
     protected abstract void assertOpen() throws IllegalStateException;
 
-    protected void setMaxHeaderCount(int maxHeaderCount) {
-        this.maxHeaderCount = maxHeaderCount;
-    }
-    
-    protected void setMaxGarbageLines(int maxGarbageLines) {
-        this.maxGarbageLines = maxGarbageLines;
-    }
-    
-    protected void setResponseFactory(final HttpResponseFactory responsefactory) {
-        if (responsefactory == null) {
-            throw new IllegalArgumentException("Factory may not be null");
-        }
-        this.responsefactory = responsefactory;
+    protected EntityDeserializer createEntityDeserializer() {
+        return new EntityDeserializer(new LaxContentLengthStrategy());
     }
 
-    protected void setHttpDataReceiver(final HttpDataReceiver datareceiver) {
-        if (datareceiver == null) {
-            throw new IllegalArgumentException("HTTP data receiver may not be null");
-        }
+    protected EntitySerializer createEntitySerializer() {
+        return new EntitySerializer(new StrictContentLengthStrategy());
+    }
+
+    protected HttpResponseFactory createHttpResponseFactory() {
+        return new DefaultHttpResponseFactory();
+    }
+
+    protected void init(
+            final HttpDataReceiver datareceiver,
+            final HttpDataTransmitter datatransmitter,
+            final HttpParams params) {
         this.datareceiver = datareceiver;
-    }
-
-    protected void setHttpDataTransmitter(final HttpDataTransmitter datatransmitter) {
-        if (datatransmitter == null) {
-            throw new IllegalArgumentException("HTTP data transmitter may not be null");
-        }
         this.datatransmitter = datatransmitter;
+        this.maxHeaderCount = params.getIntParameter(
+                HttpConnectionParams.MAX_HEADER_COUNT, -1);
+        this.maxGarbageLines = params.getIntParameter(
+                HttpConnectionParams.MAX_STATUS_LINE_GARBAGE, Integer.MAX_VALUE);
     }
     
     public boolean isResponseAvailable(int timeout) throws IOException {

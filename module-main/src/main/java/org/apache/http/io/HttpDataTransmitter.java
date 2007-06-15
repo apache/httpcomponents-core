@@ -33,7 +33,6 @@ package org.apache.http.io;
 
 import java.io.IOException;
 
-import org.apache.http.params.HttpParams;
 import org.apache.http.util.CharArrayBuffer;
 
 /**
@@ -48,8 +47,6 @@ import org.apache.http.util.CharArrayBuffer;
  * @since 4.0
  */
 public interface HttpDataTransmitter {
-
-    void configure(HttpParams params);
 
     void write(byte[] b, int off, int len) throws IOException;
     

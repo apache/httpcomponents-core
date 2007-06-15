@@ -66,8 +66,7 @@ public class DefaultNHttpServerConnection
         if (requestFactory == null) {
             throw new IllegalArgumentException("Request factory may not be null");
         }
-        this.requestParser = new HttpRequestParser(this.inbuf, requestFactory);
-        this.requestParser.configure(params);
+        this.requestParser = new HttpRequestParser(this.inbuf, requestFactory, params);
     }
 
     public void resetInput() {

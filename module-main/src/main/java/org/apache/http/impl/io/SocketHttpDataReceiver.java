@@ -35,6 +35,8 @@ import java.io.IOException;
 import java.io.InterruptedIOException;
 import java.net.Socket;
 
+import org.apache.http.params.HttpParams;
+
 
 /**
  * A data receiver using a Java {@link Socket} and traditional IO.
@@ -73,7 +75,10 @@ public class SocketHttpDataReceiver extends AbstractHttpDataReceiver {
     
     private final Socket socket;
     
-    public SocketHttpDataReceiver(final Socket socket, int buffersize) throws IOException {
+    public SocketHttpDataReceiver(
+            final Socket socket, 
+            int buffersize, 
+            final HttpParams params) throws IOException {
         super();
         if (socket == null) {
             throw new IllegalArgumentException("Socket may not be null");
@@ -85,7 +90,7 @@ public class SocketHttpDataReceiver extends AbstractHttpDataReceiver {
         if (buffersize < 1024) {
             buffersize = 1024;
         }
-        init(socket.getInputStream(), buffersize);
+        init(socket.getInputStream(), buffersize, params);
     }
     
     public boolean isDataAvailable(int timeout) throws IOException {

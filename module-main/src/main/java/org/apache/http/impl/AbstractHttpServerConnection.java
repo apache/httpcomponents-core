@@ -54,6 +54,8 @@ import org.apache.http.message.BasicHeader;
 import org.apache.http.message.BasicRequestLine;
 import org.apache.http.message.BasicStatusLine;
 import org.apache.http.message.BufferedHeader;
+import org.apache.http.params.HttpConnectionParams;
+import org.apache.http.params.HttpParams;
 import org.apache.http.util.CharArrayBuffer;
 import org.apache.http.util.HeaderUtils;
 
@@ -69,55 +71,48 @@ import org.apache.http.util.HeaderUtils;
  */
 public abstract class AbstractHttpServerConnection implements HttpServerConnection {
 
-    private int maxHeaderCount = -1;
-    
     private final CharArrayBuffer buffer; 
     private final EntitySerializer entityserializer;
     private final EntityDeserializer entitydeserializer;
+    private final HttpRequestFactory requestfactory; 
     
-    /*
-     * Dependent interfaces
-     */
-    private HttpRequestFactory requestfactory = null; 
     private HttpDataReceiver datareceiver = null;
     private HttpDataTransmitter datatransmitter = null;
 
+    private int maxHeaderCount = -1;
+    
     public AbstractHttpServerConnection() {
         super();
         this.buffer = new CharArrayBuffer(128);
-        this.entityserializer = new EntitySerializer(
-                new StrictContentLengthStrategy());
-        this.entitydeserializer = new EntityDeserializer(
-                new LaxContentLengthStrategy());
+        this.entityserializer = createEntitySerializer();
+        this.entitydeserializer = createEntityDeserializer();
+        this.requestfactory = createHttpRequestFactory();
     }
     
     protected abstract void assertOpen() throws IllegalStateException;
 
-    protected void setMaxHeaderCount(int maxHeaderCount) {
-        this.maxHeaderCount = maxHeaderCount;
+    protected EntityDeserializer createEntityDeserializer() {
+        return new EntityDeserializer(new LaxContentLengthStrategy());
+    }
+
+    protected EntitySerializer createEntitySerializer() {
+        return new EntitySerializer(new StrictContentLengthStrategy());
+    }
+
+    protected HttpRequestFactory createHttpRequestFactory() {
+        return new DefaultHttpRequestFactory();
+    }
+
+    protected void init(
+            final HttpDataReceiver datareceiver,
+            final HttpDataTransmitter datatransmitter,
+            final HttpParams params) {
+        this.datareceiver = datareceiver;
+        this.datatransmitter = datatransmitter;
+        this.maxHeaderCount = params.getIntParameter(
+                HttpConnectionParams.MAX_HEADER_COUNT, -1);
     }
     
-    protected void setRequestFactory(final HttpRequestFactory requestfactory) {
-        if (requestfactory == null) {
-            throw new IllegalArgumentException("Factory may not be null");
-        }
-        this.requestfactory = requestfactory;
-    }
-
-    protected void setHttpDataReceiver(final HttpDataReceiver datareceiver) {
-        if (datareceiver == null) {
-            throw new IllegalArgumentException("HTTP data receiver may not be null");
-        }
-        this.datareceiver = datareceiver;
-    }
-
-    protected void setHttpDataTransmitter(final HttpDataTransmitter datatransmitter) {
-        if (datatransmitter == null) {
-            throw new IllegalArgumentException("HTTP data transmitter may not be null");
-        }
-        this.datatransmitter = datatransmitter;
-    }
-
     public HttpRequest receiveRequestHeader() 
             throws HttpException, IOException {
         assertOpen();

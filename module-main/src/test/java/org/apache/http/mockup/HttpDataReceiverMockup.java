@@ -37,6 +37,8 @@ import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
 
 import org.apache.http.impl.io.AbstractHttpDataReceiver;
+import org.apache.http.params.BasicHttpParams;
+import org.apache.http.params.HttpParams;
 
 /**
  * {@link HttpDataInputStream} mockup implementation.
@@ -47,27 +49,74 @@ public class HttpDataReceiverMockup extends AbstractHttpDataReceiver {
 
     public static int BUFFER_SIZE = 16;
     
-    public HttpDataReceiverMockup(final InputStream instream, int buffersize) {
+    public HttpDataReceiverMockup(
+            final InputStream instream, 
+            int buffersize, 
+            final HttpParams params) {
         super();
-        init(instream, buffersize);
+        init(instream, buffersize, params);
     }
 
-    public HttpDataReceiverMockup(final byte[] bytes) {
-        this(bytes, BUFFER_SIZE);
+    public HttpDataReceiverMockup(
+            final InputStream instream, 
+            int buffersize) {
+        this(instream, buffersize, new BasicHttpParams());
     }
 
-    public HttpDataReceiverMockup(final byte[] bytes, int buffersize) {
-        this(new ByteArrayInputStream(bytes), buffersize);
+    public HttpDataReceiverMockup(
+            final byte[] bytes, 
+            final HttpParams params) {
+        this(bytes, BUFFER_SIZE, params);
     }
 
-    public HttpDataReceiverMockup(final String s, final String charset, int buffersize) 
+    public HttpDataReceiverMockup(
+            final byte[] bytes) {
+        this(bytes, BUFFER_SIZE, new BasicHttpParams());
+    }
+
+    public HttpDataReceiverMockup(
+            final byte[] bytes, 
+            int buffersize, 
+            final HttpParams params) {
+        this(new ByteArrayInputStream(bytes), buffersize, params);
+    }
+
+    public HttpDataReceiverMockup(
+            final byte[] bytes, 
+            int buffersize) {
+        this(new ByteArrayInputStream(bytes), buffersize, new BasicHttpParams());
+    }
+
+    public HttpDataReceiverMockup(
+            final String s, 
+            final String charset, 
+            int buffersize,
+            final HttpParams params) 
         throws UnsupportedEncodingException {
-        this(s.getBytes(charset), buffersize);
+        this(s.getBytes(charset), buffersize, params);
     }
     
-    public HttpDataReceiverMockup(final String s, final String charset) 
+    public HttpDataReceiverMockup(
+            final String s, 
+            final String charset, 
+            int buffersize) 
         throws UnsupportedEncodingException {
-        this(s.getBytes(charset));
+        this(s.getBytes(charset), buffersize, new BasicHttpParams());
+    }
+    
+    public HttpDataReceiverMockup(
+            final String s, 
+            final String charset,
+            final HttpParams params) 
+        throws UnsupportedEncodingException {
+        this(s.getBytes(charset), params);
+    }
+    
+    public HttpDataReceiverMockup(
+            final String s, 
+            final String charset) 
+        throws UnsupportedEncodingException {
+        this(s.getBytes(charset), new BasicHttpParams());
     
     }
     

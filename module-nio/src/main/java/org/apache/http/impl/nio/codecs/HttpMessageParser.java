@@ -63,22 +63,25 @@ public abstract class HttpMessageParser {
     private int maxLineLen = -1;
     private int maxHeaderCount = -1;
 
-    public HttpMessageParser(final SessionInputBuffer buffer) {
+    public HttpMessageParser(final SessionInputBuffer buffer, final HttpParams params) {
         super();
         if (buffer == null) {
             throw new IllegalArgumentException("Session input buffer may not be null");
+        }
+        if (buffer == null) {
+            throw new IllegalArgumentException("HTTP parameters may not be null");
         }
         this.buffer = buffer;
         this.state = READ_HEAD_LINE;
         this.endOfStream = false;
         this.headerBufs = new ArrayList();        
-    }
-    
-    public void configure(final HttpParams params) {
         this.maxLineLen = params.getIntParameter(
                 HttpConnectionParams.MAX_LINE_LENGTH, -1);
         this.maxHeaderCount = params.getIntParameter(
                 HttpConnectionParams.MAX_HEADER_COUNT, -1);
+    }
+    
+    public void configure() {
     }
     
     public void reset() {

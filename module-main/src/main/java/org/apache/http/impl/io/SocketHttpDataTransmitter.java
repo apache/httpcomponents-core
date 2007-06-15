@@ -34,6 +34,8 @@ package org.apache.http.impl.io;
 import java.io.IOException;
 import java.net.Socket;
 
+import org.apache.http.params.HttpParams;
+
 
 /**
  * A data transmitter using a Java {@link Socket} and traditional IO.
@@ -46,7 +48,10 @@ import java.net.Socket;
  */
 public class SocketHttpDataTransmitter extends AbstractHttpDataTransmitter {
 
-    public SocketHttpDataTransmitter(final Socket socket, int buffersize) throws IOException {
+    public SocketHttpDataTransmitter(
+            final Socket socket, 
+            int buffersize,
+            final HttpParams params) throws IOException {
         super();
         if (socket == null) {
             throw new IllegalArgumentException("Socket may not be null");
@@ -57,7 +62,7 @@ public class SocketHttpDataTransmitter extends AbstractHttpDataTransmitter {
         if (buffersize < 1024) {
             buffersize = 1024;
         }
-        init(socket.getOutputStream(), buffersize);
+        init(socket.getOutputStream(), buffersize, params);
     }
     
 }

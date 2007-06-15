@@ -109,7 +109,7 @@ public class SSLClientIOEventDispatch implements IOEventDispatch {
         this.handler.connected(conn, attachment);
 
         try {
-            sslSession.initialize(SSLMode.CLIENT, this.params);
+            sslSession.bind(SSLMode.CLIENT, this.params);
         } catch (SSLException ex) {
             this.handler.exception(conn, ex);
             sslSession.shutdown();

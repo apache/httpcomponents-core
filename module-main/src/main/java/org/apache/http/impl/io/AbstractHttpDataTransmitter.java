@@ -62,15 +62,21 @@ public abstract class AbstractHttpDataTransmitter implements HttpDataTransmitter
     
     private HttpTransportMetricsImpl metrics;
     
-    protected void init(final OutputStream outstream, int buffersize) {
+    protected void init(final OutputStream outstream, int buffersize, final HttpParams params) {
         if (outstream == null) {
             throw new IllegalArgumentException("Input stream may not be null");
         }
         if (buffersize <= 0) {
             throw new IllegalArgumentException("Buffer size may not be negative or zero");
         }
+        if (params == null) {
+            throw new IllegalArgumentException("HTTP parameters may not be null");
+        }
         this.outstream = outstream;
         this.buffer = new ByteArrayBuffer(buffersize);
+        this.charset = HttpProtocolParams.getHttpElementCharset(params); 
+        this.ascii = this.charset.equalsIgnoreCase(HTTP.US_ASCII)
+                     || this.charset.equalsIgnoreCase(HTTP.ASCII);
         this.metrics = new HttpTransportMetricsImpl();
     }
     
@@ -165,12 +171,6 @@ public abstract class AbstractHttpDataTransmitter implements HttpDataTransmitter
         write(CRLF);
     }
     
-    public void configure(final HttpParams params) {
-        this.charset = HttpProtocolParams.getHttpElementCharset(params); 
-        this.ascii = this.charset.equalsIgnoreCase(HTTP.US_ASCII)
-                     || this.charset.equalsIgnoreCase(HTTP.ASCII);
-    }
-
     public HttpTransportMetrics getMetrics() {
         return this.metrics;
     }

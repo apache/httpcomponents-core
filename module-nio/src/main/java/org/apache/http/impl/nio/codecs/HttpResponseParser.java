@@ -36,6 +36,7 @@ import org.apache.http.HttpMessage;
 import org.apache.http.HttpResponseFactory;
 import org.apache.http.StatusLine;
 import org.apache.http.message.BasicStatusLine;
+import org.apache.http.params.HttpParams;
 import org.apache.http.impl.nio.reactor.SessionInputBuffer;
 import org.apache.http.util.CharArrayBuffer;
 
@@ -45,8 +46,9 @@ public class HttpResponseParser extends HttpMessageParser {
     
     public HttpResponseParser(
             final SessionInputBuffer buffer,
-            final HttpResponseFactory responseFactory) {
-        super(buffer);
+            final HttpResponseFactory responseFactory,
+            final HttpParams params) {
+        super(buffer, params);
         if (responseFactory == null) {
             throw new IllegalArgumentException("Response factory may not be null");
         }

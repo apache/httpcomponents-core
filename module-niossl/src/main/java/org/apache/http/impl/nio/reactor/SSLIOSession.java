@@ -110,7 +110,7 @@ public class SSLIOSession implements IOSession, SessionBufferStatus {
         this.outPlain = ByteBuffer.allocateDirect(appBuffersize);
     }
     
-    public synchronized void initialize(
+    public synchronized void bind(
             final SSLMode mode, 
             final HttpParams params) throws SSLException {
         if (params == null) {

@@ -57,8 +57,8 @@ import org.apache.http.params.HttpParams;
 public class SocketHttpServerConnection extends 
         AbstractHttpServerConnection implements HttpInetConnection {
 
-    protected volatile boolean open;
-    protected Socket socket = null;
+    private volatile boolean open;
+    private Socket socket = null;
     
     public SocketHttpServerConnection() {
         super();
@@ -75,7 +75,21 @@ public class SocketHttpServerConnection extends
             throw new IllegalStateException("Connection is not open");
         }
     }
-
+    
+    protected HttpDataReceiver createHttpDataReceiver(
+            final Socket socket, 
+            int buffersize,
+            final HttpParams params) throws IOException {
+        return new SocketHttpDataReceiver(socket, buffersize, params);
+    }
+    
+    protected HttpDataTransmitter createHttpDataTransmitter(
+            final Socket socket, 
+            int buffersize,
+            final HttpParams params) throws IOException {
+        return new SocketHttpDataTransmitter(socket, buffersize, params);
+    }
+    
     protected void bind(final Socket socket, final HttpParams params) throws IOException {
         if (socket == null) {
             throw new IllegalArgumentException("Socket may not be null");
@@ -94,16 +108,17 @@ public class SocketHttpServerConnection extends
         this.socket = socket;
         
         int buffersize = HttpConnectionParams.getSocketBufferSize(params);
-        HttpDataTransmitter transmitter = new SocketHttpDataTransmitter(socket, buffersize);
-        HttpDataReceiver receiver = new SocketHttpDataReceiver(socket, buffersize);
-        transmitter.configure(params);
-        receiver.configure(params);
         
-        setHttpDataReceiver(receiver);
-        setHttpDataTransmitter(transmitter);
-        setMaxHeaderCount(params.getIntParameter(HttpConnectionParams.MAX_HEADER_COUNT, -1));
-        setRequestFactory(new DefaultHttpRequestFactory());
+        init(
+                createHttpDataReceiver(socket, buffersize, params), 
+                createHttpDataTransmitter(socket, buffersize, params),
+                params);
+        
         this.open = true;
+    }
+
+    protected Socket getSocket() {
+        return this.socket;
     }
 
     public boolean isOpen() {
