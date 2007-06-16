@@ -271,8 +271,7 @@ public class ThrottlingHttpServiceHandler implements NHttpServiceHandler {
                 public void run() {
                     try {
 
-                        HttpContext context = new HttpExecutionContext(conn.getContext());
-                        handleRequest(connState, conn, request, context);
+                        handleRequest(connState, conn);
                         
                     } catch (IOException ex) {
                         shutdownConnection(conn);
@@ -461,11 +460,12 @@ public class ThrottlingHttpServiceHandler implements NHttpServiceHandler {
     
     private void handleRequest(
             final ServerConnState connState,
-            final NHttpServerConnection conn,
-            final HttpRequest request,
-            final HttpContext context) throws HttpException, IOException {
+            final NHttpServerConnection conn) throws HttpException, IOException {
 
         waitForOutputState(connState, ServerConnState.READY);
+
+        HttpContext context = conn.getContext();
+        HttpRequest request = connState.getRequest();
         
         HttpParamsLinker.link(request, this.params);
         
