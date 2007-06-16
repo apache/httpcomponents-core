@@ -157,18 +157,21 @@ public class TestNIOHttp extends TestCase {
             TestNIOHttp test = (TestNIOHttp) en.nextElement();
             suite.addTest(new ServerModeDecorator(test, MODE_BUFFERING, MODE_BUFFERING));            
         }
-        for (Enumeration en = source.tests(); en.hasMoreElements(); ) {
-            TestNIOHttp test = (TestNIOHttp) en.nextElement();
-            suite.addTest(new ServerModeDecorator(test, MODE_THROTTLING, MODE_BUFFERING));            
-        }
-        for (Enumeration en = source.tests(); en.hasMoreElements(); ) {
-            TestNIOHttp test = (TestNIOHttp) en.nextElement();
-            suite.addTest(new ServerModeDecorator(test, MODE_BUFFERING, MODE_THROTTLING));            
-        }
-        for (Enumeration en = source.tests(); en.hasMoreElements(); ) {
-            TestNIOHttp test = (TestNIOHttp) en.nextElement();
-            suite.addTest(new ServerModeDecorator(test, MODE_THROTTLING, MODE_THROTTLING));            
-        }
+        
+        // FIXME Commented out until HTTPCORE-83 is resolved
+        
+//        for (Enumeration en = source.tests(); en.hasMoreElements(); ) {
+//            TestNIOHttp test = (TestNIOHttp) en.nextElement();
+//            suite.addTest(new ServerModeDecorator(test, MODE_THROTTLING, MODE_BUFFERING));            
+//        }
+//        for (Enumeration en = source.tests(); en.hasMoreElements(); ) {
+//            TestNIOHttp test = (TestNIOHttp) en.nextElement();
+//            suite.addTest(new ServerModeDecorator(test, MODE_BUFFERING, MODE_THROTTLING));            
+//        }
+//        for (Enumeration en = source.tests(); en.hasMoreElements(); ) {
+//            TestNIOHttp test = (TestNIOHttp) en.nextElement();
+//            suite.addTest(new ServerModeDecorator(test, MODE_THROTTLING, MODE_THROTTLING));            
+//        }
         return suite;
     }
 
