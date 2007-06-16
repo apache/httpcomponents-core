@@ -85,7 +85,20 @@ public abstract class NHttpHandlerBase {
         this.eventListener = eventListener;
     }
 
-    protected void shutdownConnection(final HttpConnection conn) {
+    protected void closeConnection(final HttpConnection conn, final Throwable cause) {
+        try {
+            // Try to close it nicely
+            conn.close();
+        } catch (IOException ex) {
+            try {
+                // Just shut the damn thing down
+                conn.shutdown();
+            } catch (IOException ignore) {
+            }
+        }
+    }
+    
+    protected void shutdownConnection(final HttpConnection conn, final Throwable cause) {
         try {
             conn.shutdown();
         } catch (IOException ignore) {

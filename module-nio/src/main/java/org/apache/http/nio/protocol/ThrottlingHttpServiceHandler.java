@@ -127,12 +127,6 @@ public class ThrottlingHttpServiceHandler extends NHttpServiceHandlerBase {
     }
 
     public void closed(final NHttpServerConnection conn) {
-        HttpContext context = conn.getContext();
-        
-        ServerConnState connState = (ServerConnState) context.getAttribute(CONN_STATE);
-
-        connState.shutdown();
-        
         if (this.eventListener != null) {
             this.eventListener.connectionClosed(conn);
         }
@@ -162,17 +156,16 @@ public class ThrottlingHttpServiceHandler extends NHttpServiceHandlerBase {
             }
             
         } catch (IOException ex) {
-            shutdownConnection(conn);
+            shutdownConnection(conn, ex);
             if (eventListener != null) {
                 eventListener.fatalIOException(ex, conn);
             }
         } catch (HttpException ex) {
-            shutdownConnection(conn);
+            closeConnection(conn, ex);
             if (eventListener != null) {
                 eventListener.fatalProtocolException(ex, conn);
             }
         }
-
     }
 
     public void requestReceived(final NHttpServerConnection conn) {
@@ -205,12 +198,12 @@ public class ThrottlingHttpServiceHandler extends NHttpServiceHandlerBase {
                         handleRequest(connState, conn);
                         
                     } catch (IOException ex) {
-                        shutdownConnection(conn);
+                        shutdownConnection(conn, ex);
                         if (eventListener != null) {
                             eventListener.fatalIOException(ex, conn);
                         }
                     } catch (HttpException ex) {
-                        shutdownConnection(conn);
+                        shutdownConnection(conn, ex);
                         if (eventListener != null) {
                             eventListener.fatalProtocolException(ex, conn);
                         }
@@ -245,7 +238,7 @@ public class ThrottlingHttpServiceHandler extends NHttpServiceHandlerBase {
             }
             
         } catch (IOException ex) {
-            shutdownConnection(conn);
+            shutdownConnection(conn, ex);
             if (this.eventListener != null) {
                 this.eventListener.fatalIOException(ex, conn);
             }
@@ -289,12 +282,12 @@ public class ThrottlingHttpServiceHandler extends NHttpServiceHandlerBase {
             }
 
         } catch (IOException ex) {
-            shutdownConnection(conn);
+            shutdownConnection(conn, ex);
             if (eventListener != null) {
                 eventListener.fatalIOException(ex, conn);
             }
         } catch (HttpException ex) {
-            shutdownConnection(conn);
+            closeConnection(conn, ex);
             if (eventListener != null) {
                 eventListener.fatalProtocolException(ex, conn);
             }
@@ -331,27 +324,13 @@ public class ThrottlingHttpServiceHandler extends NHttpServiceHandlerBase {
             }
             
         } catch (IOException ex) {
-            shutdownConnection(conn);
+            shutdownConnection(conn, ex);
             if (this.eventListener != null) {
                 this.eventListener.fatalIOException(ex, conn);
             }
         }
     }
  
-    private void shutdownConnection(final NHttpConnection conn) {
-        HttpContext context = conn.getContext();
-
-        ServerConnState connState = (ServerConnState) context.getAttribute(CONN_STATE);
-        
-        try {
-            conn.shutdown();
-        } catch (IOException ignore) {
-        }
-        if (connState != null) {
-            connState.shutdown();
-        }
-    }
-    
     private void waitForOutputState(
             final ServerConnState connState, 
             int expectedState) throws InterruptedIOException {
@@ -509,6 +488,18 @@ public class ThrottlingHttpServiceHandler extends NHttpServiceHandlerBase {
             entity.writeTo(outstream);
             outstream.flush();
             outstream.close();
+        }
+    }
+    
+    protected void shutdownConnection(final NHttpConnection conn, final Throwable cause) {
+        HttpContext context = conn.getContext();
+
+        ServerConnState connState = (ServerConnState) context.getAttribute(CONN_STATE);
+        
+        super.shutdownConnection(conn, cause);
+        
+        if (connState != null) {
+            connState.shutdown();
         }
     }
     

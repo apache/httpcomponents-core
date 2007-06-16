@@ -83,7 +83,7 @@ public abstract class NHttpServiceHandlerBase extends NHttpHandlerBase
     }
 
     public void exception(final NHttpServerConnection conn, final IOException ex) {
-        shutdownConnection(conn);
+        shutdownConnection(conn, ex);
         
         if (this.eventListener != null) {
             this.eventListener.fatalIOException(ex, conn);
@@ -91,7 +91,7 @@ public abstract class NHttpServiceHandlerBase extends NHttpHandlerBase
     }
 
     public void timeout(final NHttpServerConnection conn) {
-        shutdownConnection(conn);
+        closeConnection(conn, null);
 
         if (this.eventListener != null) {
             this.eventListener.connectionTimeout(conn);

@@ -49,6 +49,7 @@ import org.apache.http.nio.ContentDecoder;
 import org.apache.http.nio.ContentEncoder;
 import org.apache.http.nio.IOControl;
 import org.apache.http.nio.NHttpClientConnection;
+import org.apache.http.nio.NHttpConnection;
 import org.apache.http.nio.entity.ContentBufferEntity;
 import org.apache.http.nio.entity.ContentOutputStream;
 import org.apache.http.nio.params.HttpNIOParams;
@@ -193,12 +194,12 @@ public class ThrottlingHttpClientHandler extends NHttpClientHandlerBase {
             }
             
         } catch (IOException ex) {
-            shutdownConnection(conn);
+            shutdownConnection(conn, ex);
             if (this.eventListener != null) {
                 this.eventListener.fatalIOException(ex, conn);
             }
         } catch (HttpException ex) {
-            shutdownConnection(conn);
+            closeConnection(conn, ex);
             if (this.eventListener != null) {
                 this.eventListener.fatalProtocolException(ex, conn);
             }
@@ -229,7 +230,7 @@ public class ThrottlingHttpClientHandler extends NHttpClientHandlerBase {
             }
             
         } catch (IOException ex) {
-            shutdownConnection(conn);
+            shutdownConnection(conn, ex);
             if (this.eventListener != null) {
                 this.eventListener.fatalIOException(ex, conn);
             }
@@ -294,12 +295,12 @@ public class ThrottlingHttpClientHandler extends NHttpClientHandlerBase {
             }
             
         } catch (IOException ex) {
-            shutdownConnection(conn);
+            shutdownConnection(conn, ex);
             if (this.eventListener != null) {
                 this.eventListener.fatalIOException(ex, conn);
             }
         } catch (HttpException ex) {
-            shutdownConnection(conn);
+            closeConnection(conn, ex);
             if (this.eventListener != null) {
                 this.eventListener.fatalProtocolException(ex, conn);
             }
@@ -331,7 +332,7 @@ public class ThrottlingHttpClientHandler extends NHttpClientHandlerBase {
             }
             
         } catch (IOException ex) {
-            shutdownConnection(conn);
+            shutdownConnection(conn, ex);
             if (this.eventListener != null) {
                 this.eventListener.fatalIOException(ex, conn);
             }
@@ -354,13 +355,13 @@ public class ThrottlingHttpClientHandler extends NHttpClientHandlerBase {
             }
             
         } catch (IOException ex) {
-            shutdownConnection(conn);
+            shutdownConnection(conn, ex);
             if (this.eventListener != null) {
                 this.eventListener.fatalIOException(ex, conn);
             }
         }
         
-        shutdownConnection(conn);
+        closeConnection(conn, null);
         if (this.eventListener != null) {
             this.eventListener.connectionTimeout(conn);
         }
@@ -410,7 +411,7 @@ public class ThrottlingHttpClientHandler extends NHttpClientHandlerBase {
                         outstream.close();
                         
                     } catch (IOException ex) {
-                        shutdownConnection(conn);
+                        shutdownConnection(conn, ex);
                         if (eventListener != null) {
                             eventListener.fatalIOException(ex, conn);
                         }
@@ -458,7 +459,7 @@ public class ThrottlingHttpClientHandler extends NHttpClientHandlerBase {
                     }
                     
                 } catch (IOException ex) {
-                    shutdownConnection(conn);
+                    shutdownConnection(conn, ex);
                     if (eventListener != null) {
                         eventListener.fatalIOException(ex, conn);
                     }
@@ -467,6 +468,18 @@ public class ThrottlingHttpClientHandler extends NHttpClientHandlerBase {
             
         });
         
+    }
+    
+    protected void shutdownConnection(final NHttpConnection conn, final Throwable cause) {
+        HttpContext context = conn.getContext();
+
+        ClientConnState connState = (ClientConnState) context.getAttribute(CONN_STATE);
+        
+        super.shutdownConnection(conn, cause);
+        
+        if (connState != null) {
+            connState.shutdown();
+        }
     }
     
     static class ClientConnState {

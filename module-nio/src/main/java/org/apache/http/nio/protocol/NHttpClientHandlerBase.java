@@ -66,14 +66,14 @@ public abstract class NHttpClientHandlerBase extends NHttpHandlerBase
     }
 
     public void exception(final NHttpClientConnection conn, final HttpException ex) {
-        shutdownConnection(conn);
+        closeConnection(conn, ex);
         if (this.eventListener != null) {
             this.eventListener.fatalProtocolException(ex, conn);
         }
     }
 
     public void exception(final NHttpClientConnection conn, final IOException ex) {
-        shutdownConnection(conn);
+        shutdownConnection(conn, ex);
         if (this.eventListener != null) {
             this.eventListener.fatalIOException(ex, conn);
         }
