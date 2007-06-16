@@ -53,7 +53,6 @@ import org.apache.http.nio.ContentEncoder;
 import org.apache.http.nio.IOControl;
 import org.apache.http.nio.NHttpConnection;
 import org.apache.http.nio.NHttpServerConnection;
-import org.apache.http.nio.NHttpServiceHandler;
 import org.apache.http.nio.entity.ContentBufferEntity;
 import org.apache.http.nio.entity.ContentOutputStream;
 import org.apache.http.nio.params.HttpNIOParams;
@@ -67,10 +66,8 @@ import org.apache.http.params.HttpParams;
 import org.apache.http.params.HttpParamsLinker;
 import org.apache.http.protocol.HttpContext;
 import org.apache.http.protocol.HttpExecutionContext;
-import org.apache.http.protocol.HttpExpectationVerifier;
 import org.apache.http.protocol.HttpProcessor;
 import org.apache.http.protocol.HttpRequestHandler;
-import org.apache.http.protocol.HttpRequestHandlerResolver;
 import org.apache.http.util.EncodingUtils;
 import org.apache.http.util.concurrent.Executor;
 
@@ -91,20 +88,9 @@ import org.apache.http.util.concurrent.Executor;
  * @author <a href="mailto:oleg at ural.ru">Oleg Kalnichevski</a>
  *
  */
-public class ThrottlingHttpServiceHandler implements NHttpServiceHandler {
+public class ThrottlingHttpServiceHandler extends NHttpServiceHandlerBase {
 
-    private static final String CONN_STATE = "http.nio.conn-state";
-    
-    private final HttpProcessor httpProcessor;
-    private final HttpResponseFactory responseFactory;
-    private final ConnectionReuseStrategy connStrategy;
-    private final ByteBufferAllocator allocator;
-    private final Executor executor;
-    private final HttpParams params;
-
-    private HttpRequestHandlerResolver handlerResolver;
-    private HttpExpectationVerifier expectationVerifier;
-    private EventListener eventListener;
+    protected final Executor executor;
     
     public ThrottlingHttpServiceHandler(
             final HttpProcessor httpProcessor, 
@@ -113,31 +99,8 @@ public class ThrottlingHttpServiceHandler implements NHttpServiceHandler {
             final ByteBufferAllocator allocator,
             final Executor executor,
             final HttpParams params) {
-        super();
-        if (httpProcessor == null) {
-            throw new IllegalArgumentException("HTTP processor may not be null.");
-        }
-        if (connStrategy == null) {
-            throw new IllegalArgumentException("Connection reuse strategy may not be null");
-        }
-        if (responseFactory == null) {
-            throw new IllegalArgumentException("Response factory may not be null");
-        }
-        if (allocator == null) {
-            throw new IllegalArgumentException("ByteBuffer allocator may not be null");
-        }
-        if (executor == null) {
-            throw new IllegalArgumentException("Executor may not be null");
-        }
-        if (params == null) {
-            throw new IllegalArgumentException("HTTP parameters may not be null");
-        }
-        this.httpProcessor = httpProcessor;
-        this.connStrategy = connStrategy;
-        this.responseFactory = responseFactory;
-        this.allocator = allocator;
+        super(httpProcessor, responseFactory, connStrategy, allocator, params);
         this.executor = executor;
-        this.params = params;
     }
 
     public ThrottlingHttpServiceHandler(
@@ -150,22 +113,6 @@ public class ThrottlingHttpServiceHandler implements NHttpServiceHandler {
                 new DirectByteBufferAllocator(), executor, params);
     }
 
-    public void setEventListener(final EventListener eventListener) {
-        this.eventListener = eventListener;
-    }
-
-    public void setHandlerResolver(final HttpRequestHandlerResolver handlerResolver) {
-        this.handlerResolver = handlerResolver;
-    }
-
-    public void setExpectationVerifier(final HttpExpectationVerifier expectationVerifier) {
-        this.expectationVerifier = expectationVerifier;
-    }
-
-    public HttpParams getParams() {
-        return this.params;
-    }
-    
     public void connected(final NHttpServerConnection conn) {
         HttpContext context = conn.getContext();
 
@@ -226,22 +173,6 @@ public class ThrottlingHttpServiceHandler implements NHttpServiceHandler {
             }
         }
 
-    }
-
-    public void exception(final NHttpServerConnection conn, final IOException ex) {
-        shutdownConnection(conn);
-        
-        if (this.eventListener != null) {
-            this.eventListener.fatalIOException(ex, conn);
-        }
-    }
-
-    public void timeout(final NHttpServerConnection conn) {
-        shutdownConnection(conn);
-
-        if (this.eventListener != null) {
-            this.eventListener.connectionTimeout(conn);
-        }
     }
 
     public void requestReceived(final NHttpServerConnection conn) {
@@ -581,20 +512,6 @@ public class ThrottlingHttpServiceHandler implements NHttpServiceHandler {
         }
     }
     
-    private boolean canResponseHaveBody(
-            final HttpRequest request, final HttpResponse response) {
-
-        if (request != null && "HEAD".equalsIgnoreCase(request.getRequestLine().getMethod())) {
-            return false;
-        }
-        
-        int status = response.getStatusLine().getStatusCode(); 
-        return status >= HttpStatus.SC_OK 
-            && status != HttpStatus.SC_NO_CONTENT 
-            && status != HttpStatus.SC_NOT_MODIFIED
-            && status != HttpStatus.SC_RESET_CONTENT; 
-    }
-
     static class ServerConnState {
         
         public static final int SHUTDOWN                   = -1;

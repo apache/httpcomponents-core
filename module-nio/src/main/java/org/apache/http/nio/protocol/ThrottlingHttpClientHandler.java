@@ -37,7 +37,6 @@ import java.io.OutputStream;
 import java.net.InetAddress;
 
 import org.apache.http.ConnectionReuseStrategy;
-import org.apache.http.HttpConnection;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpEntityEnclosingRequest;
 import org.apache.http.HttpException;
@@ -50,7 +49,6 @@ import org.apache.http.nio.ContentDecoder;
 import org.apache.http.nio.ContentEncoder;
 import org.apache.http.nio.IOControl;
 import org.apache.http.nio.NHttpClientConnection;
-import org.apache.http.nio.NHttpClientHandler;
 import org.apache.http.nio.entity.ContentBufferEntity;
 import org.apache.http.nio.entity.ContentOutputStream;
 import org.apache.http.nio.params.HttpNIOParams;
@@ -86,18 +84,9 @@ import org.apache.http.util.concurrent.Executor;
  * @author <a href="mailto:oleg at ural.ru">Oleg Kalnichevski</a>
  *
  */
-public class ThrottlingHttpClientHandler implements NHttpClientHandler {
+public class ThrottlingHttpClientHandler extends NHttpClientHandlerBase {
 
-    private static final String CONN_STATE = "http.nio.conn-state";
-    
-    private final HttpProcessor httpProcessor;
-    private final ConnectionReuseStrategy connStrategy;
-    private final ByteBufferAllocator allocator;
-    private final Executor executor;
-    private final HttpParams params;
-    
-    private HttpRequestExecutionHandler execHandler;
-    private EventListener eventListener;
+    protected final Executor executor;
     
     public ThrottlingHttpClientHandler(
             final HttpProcessor httpProcessor, 
@@ -106,31 +95,11 @@ public class ThrottlingHttpClientHandler implements NHttpClientHandler {
             final ByteBufferAllocator allocator,
             final Executor executor,
             final HttpParams params) {
-        super();
-        if (httpProcessor == null) {
-            throw new IllegalArgumentException("HTTP processor may not be null.");
-        }
-        if (execHandler == null) {
-            throw new IllegalArgumentException("HTTP request execution handler may not be null.");
-        }
-        if (connStrategy == null) {
-            throw new IllegalArgumentException("Connection reuse strategy may not be null");
-        }
-        if (allocator == null) {
-            throw new IllegalArgumentException("ByteBuffer allocator may not be null");
-        }
+        super(httpProcessor, execHandler, connStrategy, allocator, params);
         if (executor == null) {
             throw new IllegalArgumentException("Executor may not be null");
         }
-        if (params == null) {
-            throw new IllegalArgumentException("HTTP parameters may not be null");
-        }
-        this.httpProcessor = httpProcessor;
-        this.execHandler = execHandler;
-        this.connStrategy = connStrategy;
-        this.allocator = allocator;
         this.executor = executor;
-        this.params = params;
     }
     
     public ThrottlingHttpClientHandler(
@@ -141,17 +110,6 @@ public class ThrottlingHttpClientHandler implements NHttpClientHandler {
             final HttpParams params) {
         this(httpProcessor, execHandler, connStrategy, 
                 new DirectByteBufferAllocator(), executor, params);
-    }
-    
-    public void setEventListener(final EventListener eventListener) {
-        this.eventListener = eventListener;
-    }
-
-    private void shutdownConnection(final HttpConnection conn) {
-        try {
-            conn.shutdown();
-        } catch (IOException ignore) {
-        }
     }
     
     public void connected(final NHttpClientConnection conn, final Object attachment) {
@@ -188,20 +146,6 @@ public class ThrottlingHttpClientHandler implements NHttpClientHandler {
         }
     }
 
-    public void exception(final NHttpClientConnection conn, final HttpException ex) {
-        shutdownConnection(conn);
-        if (this.eventListener != null) {
-            this.eventListener.fatalProtocolException(ex, conn);
-        }
-    }
-
-    public void exception(final NHttpClientConnection conn, final IOException ex) {
-        shutdownConnection(conn);
-        if (this.eventListener != null) {
-            this.eventListener.fatalIOException(ex, conn);
-        }
-    }
-    
     public void requestReady(final NHttpClientConnection conn) {
         HttpContext context = conn.getContext();
 
@@ -444,20 +388,6 @@ public class ThrottlingHttpClientHandler implements NHttpClientHandler {
                 (HttpEntityEnclosingRequest) request,
                 connState,
                 conn);
-    }
-    
-    private boolean canResponseHaveBody(
-            final HttpRequest request, final HttpResponse response) {
-
-        if (request != null && "HEAD".equalsIgnoreCase(request.getRequestLine().getMethod())) {
-            return false;
-        }
-        
-        int status = response.getStatusLine().getStatusCode(); 
-        return status >= HttpStatus.SC_OK 
-            && status != HttpStatus.SC_NO_CONTENT 
-            && status != HttpStatus.SC_NOT_MODIFIED
-            && status != HttpStatus.SC_RESET_CONTENT; 
     }
     
     private void sendRequestBody(
