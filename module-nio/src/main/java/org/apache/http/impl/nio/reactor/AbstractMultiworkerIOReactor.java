@@ -40,12 +40,13 @@ import org.apache.http.nio.reactor.IOReactorException;
 
 public abstract class AbstractMultiworkerIOReactor implements IOReactor {
 
+    private final long selectTimeout;
     private final int workerCount;
     private final ThreadFactory threadFactory;
     private final BaseIOReactor[] ioReactors;
     private final Worker[] workers;
     private final Thread[] threads;
-
+    
     private volatile boolean shutdown;
     
     private int currentWorker = 0;
@@ -58,6 +59,7 @@ public abstract class AbstractMultiworkerIOReactor implements IOReactor {
         if (workerCount <= 0) {
             throw new IllegalArgumentException("Worker count may not be negative or zero");
         }
+        this.selectTimeout = selectTimeout;
         this.workerCount = workerCount;
         if (threadFactory != null) {
             this.threadFactory = threadFactory;
@@ -72,6 +74,10 @@ public abstract class AbstractMultiworkerIOReactor implements IOReactor {
         this.threads = new Thread[workerCount];
     }
 
+    protected long getSelectTimeout() {
+        return this.selectTimeout;
+    }
+    
     protected void startWorkers(final IOEventDispatch eventDispatch) {
         for (int i = 0; i < this.workerCount; i++) {
             BaseIOReactor ioReactor = this.ioReactors[i];

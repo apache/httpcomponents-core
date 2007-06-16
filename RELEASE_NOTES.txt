@@ -1,5 +1,14 @@
 Changes since 4.0 Alpha 4
 
+* [HTTPCORE-63] Made I/O select interval configurable for all default I/O
+  reactor implementations.
+  Contributed by Oleg Kalnichevski <olegk at apache.org> and 
+  Anders Wallgren <anders_wallgren at alum.mit.edu>
+
+* [HTTPCORE-82] Revised linking of HttpParams to reduce potential for misuse. 
+  Method #setDefaults() removed from the HttpParams interface.
+  Contributed by Roland Weber <rolandw at apache.org>
+
 * [HTTPCORE-81]: Maximum line length and maximum header counts parameters are now 
   correctly enforced in both base and NIO modules. Fixed maximum line length check
   when parsing folded header lines.

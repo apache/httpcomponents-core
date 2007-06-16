@@ -44,6 +44,7 @@ import java.util.Iterator;
 import java.util.Set;
 
 import org.apache.http.util.concurrent.ThreadFactory;
+import org.apache.http.nio.params.HttpNIOParams;
 import org.apache.http.nio.reactor.IOEventDispatch;
 import org.apache.http.nio.reactor.IOReactorException;
 import org.apache.http.nio.reactor.IOReactorExceptionHandler;
@@ -54,8 +55,6 @@ import org.apache.http.params.HttpParams;
 public class DefaultListeningIOReactor extends AbstractMultiworkerIOReactor 
         implements ListeningIOReactor {
 
-    public static int TIMEOUT_CHECK_INTERVAL = 1000;
-    
     private volatile boolean closed = false;
     
     private final HttpParams params;
@@ -67,10 +66,7 @@ public class DefaultListeningIOReactor extends AbstractMultiworkerIOReactor
             int workerCount, 
             final ThreadFactory threadFactory,
             final HttpParams params) throws IOReactorException {
-        super(TIMEOUT_CHECK_INTERVAL, workerCount, threadFactory);
-        if (params == null) {
-            throw new IllegalArgumentException("HTTP parameters may not be null");
-        }
+        super(HttpNIOParams.getSelectInterval(params), workerCount, threadFactory);
         this.params = params;
         try {
             this.selector = Selector.open();
@@ -99,7 +95,7 @@ public class DefaultListeningIOReactor extends AbstractMultiworkerIOReactor
 
             int readyCount;
             try {
-                readyCount = this.selector.select(TIMEOUT_CHECK_INTERVAL);
+                readyCount = this.selector.select(getSelectTimeout());
             } catch (InterruptedIOException ex) {
                 throw ex;
             } catch (IOException ex) {

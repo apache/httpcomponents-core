@@ -45,6 +45,7 @@ import java.util.Iterator;
 import java.util.Set;
 
 import org.apache.http.util.concurrent.ThreadFactory;
+import org.apache.http.nio.params.HttpNIOParams;
 import org.apache.http.nio.reactor.ConnectingIOReactor;
 import org.apache.http.nio.reactor.IOEventDispatch;
 import org.apache.http.nio.reactor.IOReactorException;
@@ -56,8 +57,6 @@ import org.apache.http.params.HttpParams;
 public class DefaultConnectingIOReactor extends AbstractMultiworkerIOReactor 
         implements ConnectingIOReactor {
 
-    public static int TIMEOUT_CHECK_INTERVAL = 1000;
-    
     private volatile boolean closed = false;
     
     private final HttpParams params;
@@ -70,10 +69,7 @@ public class DefaultConnectingIOReactor extends AbstractMultiworkerIOReactor
             int workerCount, 
             final ThreadFactory threadFactory,
             final HttpParams params) throws IOReactorException {
-        super(TIMEOUT_CHECK_INTERVAL, workerCount, threadFactory);
-        if (params == null) {
-            throw new IllegalArgumentException("HTTP parameters may not be null");
-        }
+        super(HttpNIOParams.getSelectInterval(params), workerCount, threadFactory);
         this.params = params;
         this.requestQueue = new SessionRequestQueue();
         this.lastTimeoutCheck = System.currentTimeMillis();
@@ -99,7 +95,7 @@ public class DefaultConnectingIOReactor extends AbstractMultiworkerIOReactor
         for (;;) {
             int readyCount;
             try {
-                readyCount = this.selector.select(TIMEOUT_CHECK_INTERVAL);
+                readyCount = this.selector.select(getSelectTimeout());
             } catch (InterruptedIOException ex) {
                 throw ex;
             } catch (IOException ex) {
@@ -117,7 +113,7 @@ public class DefaultConnectingIOReactor extends AbstractMultiworkerIOReactor
             }
             
             long currentTime = System.currentTimeMillis();
-            if( (currentTime - this.lastTimeoutCheck) >= TIMEOUT_CHECK_INTERVAL) {
+            if( (currentTime - this.lastTimeoutCheck) >= getSelectTimeout()) {
                 this.lastTimeoutCheck = currentTime;
                 Set keys = this.selector.keys();
                 if (keys != null) {
