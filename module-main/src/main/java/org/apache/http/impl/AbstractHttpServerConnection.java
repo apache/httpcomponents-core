@@ -80,6 +80,7 @@ public abstract class AbstractHttpServerConnection implements HttpServerConnecti
     private HttpDataTransmitter datatransmitter = null;
 
     private int maxHeaderCount = -1;
+    private int maxLineLen = -1;
     
     public AbstractHttpServerConnection() {
         super();
@@ -111,6 +112,8 @@ public abstract class AbstractHttpServerConnection implements HttpServerConnecti
         this.datatransmitter = datatransmitter;
         this.maxHeaderCount = params.getIntParameter(
                 HttpConnectionParams.MAX_HEADER_COUNT, -1);
+        this.maxLineLen = params.getIntParameter(
+                HttpConnectionParams.MAX_LINE_LENGTH, -1);
     }
     
     public HttpRequest receiveRequestHeader() 
@@ -144,7 +147,10 @@ public abstract class AbstractHttpServerConnection implements HttpServerConnecti
     
     protected void receiveRequestHeaders(final HttpRequest request) 
             throws HttpException, IOException {
-        Header[] headers = HeaderUtils.parseHeaders(this.datareceiver, this.maxHeaderCount);
+        Header[] headers = HeaderUtils.parseHeaders(
+                this.datareceiver, 
+                this.maxHeaderCount,
+                this.maxLineLen);
         request.setHeaders(headers);
     }
 

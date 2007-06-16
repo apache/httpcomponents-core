@@ -1,7 +1,8 @@
 Changes since 4.0 Alpha 4
 
 * [HTTPCORE-81]: Maximum line length and maximum header counts parameters are now 
-  correctly enforced in both base and NIO modules.
+  correctly enforced in both base and NIO modules. Fixed maximum line length check
+  when parsing folded header lines.
   Contributed by Steffen Pingel <spingel at limewire.com>
 
 * Added HTTP client handler implementation that allocates fixed size content 

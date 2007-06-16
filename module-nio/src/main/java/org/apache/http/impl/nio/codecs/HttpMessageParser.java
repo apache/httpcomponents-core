@@ -120,7 +120,8 @@ public abstract class HttpMessageParser {
                 }
                 i++;
             }
-            if (this.maxLineLen > 0 && previous.length() + 1 + current.length() - i > this.maxLineLen) {
+            if (this.maxLineLen > 0 
+                    && previous.length() + 1 + current.length() - i > this.maxLineLen) {
                 throw new IOException("Maximum line length limit exceeded");
             }
             previous.append(' ');

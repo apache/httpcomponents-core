@@ -66,8 +66,10 @@ public final class HeaderUtils {
      * @throws HttpException
      * @throws IOException
      */
-    public static Header[] parseHeaders(final HttpDataReceiver datareceiver, int maxCount) 
-            throws HttpException, IOException {
+    public static Header[] parseHeaders(
+            final HttpDataReceiver datareceiver,
+            int maxHeaderCount,
+            int maxLineLen) throws HttpException, IOException {
         if (datareceiver == null) {
             throw new IllegalArgumentException("HTTP data receiver may not be null");
         }
@@ -100,6 +102,10 @@ public final class HeaderUtils {
                     }
                     i++;
                 }
+                if (maxLineLen > 0 
+                        && previous.length() + 1 + current.length() - i > maxLineLen) {
+                    throw new IOException("Maximum line length limit exceeded");
+                }
                 previous.append(' ');
                 previous.append(current, i, current.length() - i);
             } else {
@@ -107,7 +113,7 @@ public final class HeaderUtils {
                 previous = current;
                 current = null;
             }
-            if (maxCount > 0 && headerLines.size() >= maxCount) {
+            if (maxHeaderCount > 0 && headerLines.size() >= maxHeaderCount) {
                 throw new IOException("Maximum header count exceeded");
             }
         }
@@ -125,7 +131,7 @@ public final class HeaderUtils {
 
     public static Header[] parseHeaders(final HttpDataReceiver datareceiver) 
         throws HttpException, IOException {
-        return parseHeaders(datareceiver, -1);
+        return parseHeaders(datareceiver, -1, -1);
     }
     
 }

@@ -82,6 +82,7 @@ public abstract class AbstractHttpClientConnection implements HttpClientConnecti
     private HttpDataTransmitter datatransmitter = null;
 
     private int maxHeaderCount = -1;
+    private int maxLineLen = -1;
     private int maxGarbageLines = -1;
 
     public AbstractHttpClientConnection() {
@@ -114,6 +115,8 @@ public abstract class AbstractHttpClientConnection implements HttpClientConnecti
         this.datatransmitter = datatransmitter;
         this.maxHeaderCount = params.getIntParameter(
                 HttpConnectionParams.MAX_HEADER_COUNT, -1);
+        this.maxLineLen = params.getIntParameter(
+                HttpConnectionParams.MAX_LINE_LENGTH, -1);
         this.maxGarbageLines = params.getIntParameter(
                 HttpConnectionParams.MAX_STATUS_LINE_GARBAGE, Integer.MAX_VALUE);
     }
@@ -249,7 +252,10 @@ public abstract class AbstractHttpClientConnection implements HttpClientConnecti
 
     protected void readResponseHeaders(final HttpResponse response) 
             throws HttpException, IOException {
-        Header[] headers = HeaderUtils.parseHeaders(this.datareceiver, this.maxHeaderCount);
+        Header[] headers = HeaderUtils.parseHeaders(
+                this.datareceiver, 
+                this.maxHeaderCount,
+                this.maxLineLen);
         response.setHeaders(headers);
     }
 

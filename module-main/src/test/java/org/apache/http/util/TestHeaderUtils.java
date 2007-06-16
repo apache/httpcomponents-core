@@ -184,12 +184,27 @@ public class TestHeaderUtils extends TestCase {
             "\r\n"; 
         HttpDataReceiver receiver = new HttpDataReceiverMockup(s, "US-ASCII");
         try {
-            HeaderUtils.parseHeaders(receiver, 2);
+            HeaderUtils.parseHeaders(receiver, 2, -1);
             fail("IOException should have been thrown");
         } catch (IOException ex) {
             // expected
         }
     }
-        
+
+    public void testMaxHeaderCountForFoldedHeader() throws Exception {
+        String s = 
+            "header1: stuff\r\n" + 
+            " stuff \r\n" + 
+            " stuff\r\n" + 
+            "\r\n"; 
+        HttpDataReceiver receiver = new HttpDataReceiverMockup(s, "US-ASCII");
+        try {
+            HeaderUtils.parseHeaders(receiver, 2, 15);
+            fail("IOException should have been thrown");
+        } catch (IOException ex) {
+            // expected
+        }
+    }
+
 }
 
