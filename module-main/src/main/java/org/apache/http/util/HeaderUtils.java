@@ -57,10 +57,12 @@ public final class HeaderUtils {
      * format as given in Section 3.1 of RFC 822, RFC-2616 Section 4 and 19.3.
      *  
      * @param datareceiver HTTP data receiver
-     * @param maxCount maximum number of headers allowed. If the number of headers 
-     *        received from the data stream exceeds maxCount value, an IOException 
-     *        will be thrown. Setting this parameter to a negative value or zero 
-     *        will disable the check.   
+     * @param maxHeaderCount maximum number of headers allowed. If the number
+     *  of headers received from the data stream exceeds maxCount value, an
+     *  IOException will be thrown. Setting this parameter to a negative value
+     *  or zero  will disable the check.
+     * @param maxLineLen maximum number of characters for a header line,
+     *                   including the continuation lines
      * @return array of HTTP headers
      * 
      * @throws HttpException
