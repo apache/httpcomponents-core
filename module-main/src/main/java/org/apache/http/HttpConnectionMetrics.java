@@ -32,8 +32,7 @@
 package org.apache.http;
 
 /**
- * This interface is the point to access the information about the status 
- * of {@link HttpConnection}.
+ * The point of access to the statistics of an {@link HttpConnection}.
  */
 public interface HttpConnectionMetrics {
 
