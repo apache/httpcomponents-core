@@ -33,6 +33,7 @@ package org.apache.http.impl;
 
 import java.util.HashMap;
 import org.apache.http.HttpConnectionMetrics;
+import org.apache.http.io.HttpTransportMetrics;
 
 /**
  * Implementation of the metrics interface.
@@ -44,68 +45,56 @@ public class HttpConnectionMetricsImpl implements HttpConnectionMetrics {
     public static final String SENT_BYTES_COUNT = "http.sent-bytes-count";
     public static final String RECEIVED_BYTES_COUNT = "http.received-bytes-count";
     
+    private final HttpTransportMetrics inTransportMetric;
+    private final HttpTransportMetrics outTransportMetric;
     private long requestCount = 0;
     private long responseCount = 0;
-    private long sentBytesCount = 0;
-    private long receivedBytesCount = 0;
     
     /**
      * The cache map for all metrics values.
      */
     private HashMap metricsCache;
     
-    public HttpConnectionMetricsImpl() {
+    public HttpConnectionMetricsImpl(
+            final HttpTransportMetrics inTransportMetric,
+            final HttpTransportMetrics outTransportMetric) {
         super();
+        this.inTransportMetric = inTransportMetric;
+        this.outTransportMetric = outTransportMetric;
     }
     
     /* ------------------  Public interface method -------------------------- */
 
+    public long getReceivedBytesCount() {
+        if (this.inTransportMetric != null) {
+            return this.inTransportMetric.getBytesTransferred();
+        } else {
+            return -1;
+        }
+    }
+
+    public long getSentBytesCount() {
+        if (this.outTransportMetric != null) {
+            return this.outTransportMetric.getBytesTransferred();
+        } else {
+            return -1;
+        }
+    }
+    
     public long getRequestCount() {
-        return requestCount;
+        return this.requestCount;
     }
     
-    public void setRequestCount(long count) {
-        requestCount = count;
-    }
-    
-    public void incrementRequestCount(long count) {
-        requestCount += count;
+    public void incrementRequestCount() {
+        this.requestCount++;
     }
     
     public long getResponseCount() {
-        return responseCount;
+        return this.responseCount;
     }
     
-    public void setResponseCount(long count) {
-        responseCount = count;
-    }
-    
-    public void incrementResponseCount(long count) {
-        responseCount += count;
-    }
-    
-    public long getSentBytesCount() {
-        return sentBytesCount;
-    }
-    
-    public void setSentBytesCount(long count) {
-        sentBytesCount = count;
-    }
-    
-    public void incrementSentBytesCount(long count) {
-        sentBytesCount += count;
-    }
-    
-    public long getReceivedBytesCount() {
-        return receivedBytesCount;
-    }
-    
-    public void setReceivedBytesCount(long count) {
-        receivedBytesCount = count;
-    }
-    
-    public void incrementReceivedBytesCount(long count) {
-        receivedBytesCount += count;
+    public void incrementResponseCount() {
+        this.responseCount++;
     }
     
     public Object getMetric(final String metricName) {
@@ -119,9 +108,17 @@ public class HttpConnectionMetricsImpl implements HttpConnectionMetrics {
             } else if (RESPONSE_COUNT.equals(metricName)) {
                 value = new Long(responseCount);
             } else if (RECEIVED_BYTES_COUNT.equals(metricName)) {
-                value = new Long(receivedBytesCount);
+                if (this.inTransportMetric != null) {
+                    return new Long(this.inTransportMetric.getBytesTransferred());
+                } else {
+                    return null;
+                }
             } else if (SENT_BYTES_COUNT.equals(metricName)) {
-                value = new Long(sentBytesCount);
+                if (this.outTransportMetric != null) {
+                    return new Long(this.outTransportMetric.getBytesTransferred());
+                } else {
+                    return null;
+                }
             }
         }
         return value;
@@ -135,11 +132,15 @@ public class HttpConnectionMetricsImpl implements HttpConnectionMetrics {
     }
     
     public void reset() {
-        requestCount = 0;
-        responseCount = 0;
-        sentBytesCount = 0;
-        receivedBytesCount = 0;
+        if (this.outTransportMetric != null) {
+            this.outTransportMetric.reset();
+        }
+        if (this.inTransportMetric != null) {
+            this.inTransportMetric.reset();
+        }
+        this.requestCount = 0;
+        this.responseCount = 0;
         this.metricsCache = null;
     }
-    
+
 }

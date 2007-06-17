@@ -36,6 +36,7 @@ import java.util.Iterator;
 
 import org.apache.http.Header;
 import org.apache.http.HttpClientConnection;
+import org.apache.http.HttpConnectionMetrics;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpEntityEnclosingRequest;
 import org.apache.http.HttpException;
@@ -85,6 +86,8 @@ public abstract class AbstractHttpClientConnection implements HttpClientConnecti
     private int maxLineLen = -1;
     private int maxGarbageLines = -1;
 
+    private HttpConnectionMetricsImpl metrics;
+    
     public AbstractHttpClientConnection() {
         super();
         this.buffer = new CharArrayBuffer(128);
@@ -111,6 +114,12 @@ public abstract class AbstractHttpClientConnection implements HttpClientConnecti
             final HttpDataReceiver datareceiver,
             final HttpDataTransmitter datatransmitter,
             final HttpParams params) {
+        if (datareceiver == null) {
+            throw new IllegalArgumentException("HTTP data receiver may not be null");
+        }
+        if (datatransmitter == null) {
+            throw new IllegalArgumentException("HTTP data transmitter may not be null");
+        }
         this.datareceiver = datareceiver;
         this.datatransmitter = datatransmitter;
         this.maxHeaderCount = params.getIntParameter(
@@ -119,6 +128,9 @@ public abstract class AbstractHttpClientConnection implements HttpClientConnecti
                 HttpConnectionParams.MAX_LINE_LENGTH, -1);
         this.maxGarbageLines = params.getIntParameter(
                 HttpConnectionParams.MAX_STATUS_LINE_GARBAGE, Integer.MAX_VALUE);
+        this.metrics = new HttpConnectionMetricsImpl(
+                datareceiver.getMetrics(),
+                datatransmitter.getMetrics());
     }
     
     public boolean isResponseAvailable(int timeout) throws IOException {
@@ -134,6 +146,7 @@ public abstract class AbstractHttpClientConnection implements HttpClientConnecti
         assertOpen();
         sendRequestLine(request);
         sendRequestHeaders(request);
+        this.metrics.incrementRequestCount();
     }
 
     public void sendRequestEntity(final HttpEntityEnclosingRequest request) 
@@ -189,6 +202,7 @@ public abstract class AbstractHttpClientConnection implements HttpClientConnecti
         assertOpen();
         HttpResponse response = readResponseStatusLine();
         readResponseHeaders(response);
+        this.metrics.incrementResponseCount();
         return response;
     }
     
@@ -267,6 +281,10 @@ public abstract class AbstractHttpClientConnection implements HttpClientConnecti
         } catch (IOException ex) {
             return true;
         }
+    }
+    
+    public HttpConnectionMetrics getMetrics() {
+        return this.metrics;
     }
 
 }

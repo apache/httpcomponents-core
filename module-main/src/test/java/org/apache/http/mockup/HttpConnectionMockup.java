@@ -34,6 +34,7 @@ package org.apache.http.mockup;
 import java.io.IOException;
 
 import org.apache.http.HttpConnection;
+import org.apache.http.HttpConnectionMetrics;
 
 /**
  * {@link HttpConnection} mockup implementation.
@@ -69,6 +70,10 @@ public class HttpConnectionMockup implements HttpConnection {
     
     public boolean isStale() {
         return false;
+    }
+    
+    public HttpConnectionMetrics getMetrics() {
+        return null;
     }
 
 }

@@ -36,6 +36,7 @@ import java.util.Iterator;
 
 import org.apache.http.ConnectionClosedException;
 import org.apache.http.Header;
+import org.apache.http.HttpConnectionMetrics;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpEntityEnclosingRequest;
 import org.apache.http.HttpException;
@@ -82,6 +83,8 @@ public abstract class AbstractHttpServerConnection implements HttpServerConnecti
     private int maxHeaderCount = -1;
     private int maxLineLen = -1;
     
+    private HttpConnectionMetricsImpl metrics;
+    
     public AbstractHttpServerConnection() {
         super();
         this.buffer = new CharArrayBuffer(128);
@@ -108,12 +111,21 @@ public abstract class AbstractHttpServerConnection implements HttpServerConnecti
             final HttpDataReceiver datareceiver,
             final HttpDataTransmitter datatransmitter,
             final HttpParams params) {
+        if (datareceiver == null) {
+            throw new IllegalArgumentException("HTTP data receiver may not be null");
+        }
+        if (datatransmitter == null) {
+            throw new IllegalArgumentException("HTTP data transmitter may not be null");
+        }
         this.datareceiver = datareceiver;
         this.datatransmitter = datatransmitter;
         this.maxHeaderCount = params.getIntParameter(
                 HttpConnectionParams.MAX_HEADER_COUNT, -1);
         this.maxLineLen = params.getIntParameter(
                 HttpConnectionParams.MAX_LINE_LENGTH, -1);
+        this.metrics = new HttpConnectionMetricsImpl(
+                datareceiver.getMetrics(),
+                datatransmitter.getMetrics());
     }
     
     public HttpRequest receiveRequestHeader() 
@@ -218,4 +230,8 @@ public abstract class AbstractHttpServerConnection implements HttpServerConnecti
         }
     }
     
+    public HttpConnectionMetrics getMetrics() {
+        return this.metrics;
+    }
+
 }

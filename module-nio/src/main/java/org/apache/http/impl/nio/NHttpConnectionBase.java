@@ -38,6 +38,7 @@ import java.net.SocketAddress;
 
 import org.apache.http.ConnectionClosedException;
 import org.apache.http.Header;
+import org.apache.http.HttpConnectionMetrics;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpException;
 import org.apache.http.HttpInetConnection;
@@ -271,6 +272,10 @@ public class NHttpConnectionBase
     public void shutdown() throws IOException {
         this.closed = true;
         this.session.shutdown();
+    }
+
+    public HttpConnectionMetrics getMetrics() {
+        return null;
     }
     
 }

@@ -32,6 +32,7 @@ package org.apache.http.impl;
 
 import org.apache.http.ConnectionReuseStrategy;
 import org.apache.http.HttpConnection;
+import org.apache.http.HttpConnectionMetrics;
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpVersion;
 import org.apache.http.StatusLine;
@@ -311,6 +312,10 @@ public class TestDefaultConnectionReuseStrategy extends TestCase {
         public final void shutdown() {
             throw new UnsupportedOperationException
                 ("connection state must not be modified");
+        }
+
+        public HttpConnectionMetrics getMetrics() {
+            return null;
         }
         
     } // class MockConnection

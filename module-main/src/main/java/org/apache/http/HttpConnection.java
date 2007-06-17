@@ -100,4 +100,11 @@ public interface HttpConnection {
      * internal buffer prior to closing the underlying socket.
      */
     public void shutdown() throws IOException;
+    
+    /**
+     * Returns a collection of connection metrcis
+     * @return HttpConnectionMetrics
+     */
+    HttpConnectionMetrics getMetrics();
+    
 }
