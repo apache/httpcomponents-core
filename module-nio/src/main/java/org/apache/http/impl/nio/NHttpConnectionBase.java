@@ -47,6 +47,7 @@ import org.apache.http.HttpRequest;
 import org.apache.http.HttpResponse;
 import org.apache.http.entity.BasicHttpEntity;
 import org.apache.http.entity.ContentLengthStrategy;
+import org.apache.http.impl.HttpConnectionMetricsImpl;
 import org.apache.http.impl.entity.LaxContentLengthStrategy;
 import org.apache.http.impl.entity.StrictContentLengthStrategy;
 import org.apache.http.nio.ContentDecoder;
@@ -83,6 +84,7 @@ public class NHttpConnectionBase
     protected final SessionInputBuffer inbuf;
     protected final SessionOutputBuffer outbuf;
     protected final CharArrayBuffer lineBuffer;
+    protected final HttpConnectionMetricsImpl metrics;
     
     protected volatile ContentDecoder contentDecoder;
     protected volatile boolean hasBufferedInput;
@@ -90,7 +92,7 @@ public class NHttpConnectionBase
     protected volatile boolean hasBufferedOutput;
     protected volatile HttpRequest request;
     protected volatile HttpResponse response;
-    
+
     protected volatile boolean closed;
     
     public NHttpConnectionBase(
@@ -121,6 +123,8 @@ public class NHttpConnectionBase
         
         this.incomingContentStrategy = new LaxContentLengthStrategy();
         this.outgoingContentStrategy = new StrictContentLengthStrategy();
+        
+        this.metrics = new HttpConnectionMetricsImpl(null, null);
         
         this.closed = false;
         this.session.setBufferStatus(this);
@@ -275,7 +279,7 @@ public class NHttpConnectionBase
     }
 
     public HttpConnectionMetrics getMetrics() {
-        return null;
+        return this.metrics;
     }
     
 }

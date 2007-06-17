@@ -95,6 +95,7 @@ public class DefaultNHttpServerConnection
                         HttpEntity entity = prepareDecoder(this.request);
                         ((HttpEntityEnclosingRequest)this.request).setEntity(entity);
                     }
+                    this.metrics.incrementRequestCount();
                     handler.requestReceived(this);
                     if (this.contentDecoder == null) {
                         // No request entity is expected
@@ -187,11 +188,14 @@ public class DefaultNHttpServerConnection
         this.lineBuffer.clear();
         this.outbuf.writeLine(this.lineBuffer);
 
-        if (response.getStatusLine().getStatusCode() >= 200 
-                && response.getEntity() != null) {
-            this.response = response;
-            prepareEncoder(response);
+        if (response.getStatusLine().getStatusCode() >= 200) {
+            this.metrics.incrementRequestCount();
+            if (response.getEntity() != null) {
+                this.response = response;
+                prepareEncoder(response);
+            }
         }
+
         this.session.setEvent(EventMask.WRITE);
     }
 

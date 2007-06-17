@@ -202,7 +202,9 @@ public abstract class AbstractHttpClientConnection implements HttpClientConnecti
         assertOpen();
         HttpResponse response = readResponseStatusLine();
         readResponseHeaders(response);
-        this.metrics.incrementResponseCount();
+        if (response.getStatusLine().getStatusCode() >= 200) {
+            this.metrics.incrementResponseCount();
+        }
         return response;
     }
     

@@ -96,6 +96,7 @@ public class DefaultNHttpClientConnection
                     if (this.response.getStatusLine().getStatusCode() >= 200) {
                         HttpEntity entity = prepareDecoder(this.response);
                         this.response.setEntity(entity);
+                        this.metrics.incrementRequestCount();
                     }
                     handler.responseReceived(this);
                     if (this.contentDecoder == null) {
@@ -192,6 +193,7 @@ public class DefaultNHttpClientConnection
             prepareEncoder(request);
             this.request = request;
         }
+        this.metrics.incrementRequestCount();
         this.session.setEvent(EventMask.WRITE);
     }
 

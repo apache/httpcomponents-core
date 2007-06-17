@@ -133,6 +133,7 @@ public abstract class AbstractHttpServerConnection implements HttpServerConnecti
         assertOpen();
         HttpRequest request = receiveRequestLine();
         receiveRequestHeaders(request);
+        this.metrics.incrementRequestCount();
         return request;
     }
     
@@ -183,6 +184,9 @@ public abstract class AbstractHttpServerConnection implements HttpServerConnecti
         assertOpen();
         sendResponseStatusLine(response);
         sendResponseHeaders(response);
+        if (response.getStatusLine().getStatusCode() >= 200) {
+            this.metrics.incrementResponseCount();
+        }
     }
 
     public void sendResponseEntity(final HttpResponse response) 
