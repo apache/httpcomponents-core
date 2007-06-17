@@ -57,7 +57,7 @@ public interface HttpRequestExecutionHandler {
      * made. The attachment may optionally contain some state information
      * required in order to correctly initalize the HTTP context.
      * 
-     * @see ConnectingIOReactor#connect(java.net.SocketAddress, java.net.SocketAddress, Object)
+     * @see ConnectingIOReactor#connect
      * 
      * @param context the actual HTTP context
      * @param attachment the object passed to the connecting I/O reactor

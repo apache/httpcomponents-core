@@ -44,7 +44,7 @@ public interface FileContentEncoder extends ContentEncoder {
      * Transfers a portion of entity content from the given file channel 
      * to the underlying network channel.
      * 
-     * @param channel, the source FileChannel to transfer data from.
+     * @param  channel the source FileChannel to transfer data from.
      * @param  position
      *         The position within the file at which the transfer is to begin;
      *         must be non-negative
