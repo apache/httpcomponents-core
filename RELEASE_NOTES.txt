@@ -1,5 +1,8 @@
 Changes since 4.0 Alpha 4
 
+* [HTTPCORE-84] Removed DateUtils/DateParseException from core.
+  Contributed by Roland Weber <rolandw at apache.org>
+
 * [HTTPCORE-63] Made I/O select interval configurable for all default I/O
   reactor implementations.
   Contributed by Oleg Kalnichevski <olegk at apache.org> and 
