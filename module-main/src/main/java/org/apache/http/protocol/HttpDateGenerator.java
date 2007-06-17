@@ -35,8 +35,8 @@ import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
+import java.util.TimeZone;
 
-import org.apache.http.util.DateUtils;
 
 /**
  * Generates a date in the format required by the HTTP protocol.
@@ -49,6 +49,14 @@ import org.apache.http.util.DateUtils;
  */
 public class HttpDateGenerator {
 
+    /** Date format pattern used to generate the header in RFC 1123 format. */
+    public static final
+        String PATTERN_RFC1123 = "EEE, dd MMM yyyy HH:mm:ss zzz";
+
+    /** The time zone to use in the date header. */
+    public static final TimeZone GMT = TimeZone.getTimeZone("GMT");
+
+
     private final DateFormat dateformat;
     
     private long dateAsLong = 0L;
@@ -56,8 +64,8 @@ public class HttpDateGenerator {
 
     public HttpDateGenerator() {
         super();
-        this.dateformat = new SimpleDateFormat(DateUtils.PATTERN_RFC1123, Locale.US);
-        this.dateformat.setTimeZone(DateUtils.GMT);
+        this.dateformat = new SimpleDateFormat(PATTERN_RFC1123, Locale.US);
+        this.dateformat.setTimeZone(GMT);
     }
     
     public synchronized String getCurrentDate() {
