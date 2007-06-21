@@ -455,7 +455,9 @@ public class ThrottlingHttpClientHandler extends NHttpClientHandlerBase {
                         
                         connState.resetInput();
                         connState.resetOutput();
-                        conn.requestOutput();
+                        if (conn.isOpen()) {
+                            conn.requestOutput();
+                        }
                     }
                     
                 } catch (IOException ex) {

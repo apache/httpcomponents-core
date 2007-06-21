@@ -157,21 +157,18 @@ public class TestNIOHttp extends TestCase {
             TestNIOHttp test = (TestNIOHttp) en.nextElement();
             suite.addTest(new ServerModeDecorator(test, MODE_BUFFERING, MODE_BUFFERING));            
         }
-        
-        // FIXME Commented out until HTTPCORE-83 is resolved
-        
-//        for (Enumeration en = source.tests(); en.hasMoreElements(); ) {
-//            TestNIOHttp test = (TestNIOHttp) en.nextElement();
-//            suite.addTest(new ServerModeDecorator(test, MODE_THROTTLING, MODE_BUFFERING));            
-//        }
-//        for (Enumeration en = source.tests(); en.hasMoreElements(); ) {
-//            TestNIOHttp test = (TestNIOHttp) en.nextElement();
-//            suite.addTest(new ServerModeDecorator(test, MODE_BUFFERING, MODE_THROTTLING));            
-//        }
-//        for (Enumeration en = source.tests(); en.hasMoreElements(); ) {
-//            TestNIOHttp test = (TestNIOHttp) en.nextElement();
-//            suite.addTest(new ServerModeDecorator(test, MODE_THROTTLING, MODE_THROTTLING));            
-//        }
+        for (Enumeration en = source.tests(); en.hasMoreElements(); ) {
+            TestNIOHttp test = (TestNIOHttp) en.nextElement();
+            suite.addTest(new ServerModeDecorator(test, MODE_THROTTLING, MODE_BUFFERING));            
+        }
+        for (Enumeration en = source.tests(); en.hasMoreElements(); ) {
+            TestNIOHttp test = (TestNIOHttp) en.nextElement();
+            suite.addTest(new ServerModeDecorator(test, MODE_BUFFERING, MODE_THROTTLING));            
+        }
+        for (Enumeration en = source.tests(); en.hasMoreElements(); ) {
+            TestNIOHttp test = (TestNIOHttp) en.nextElement();
+            suite.addTest(new ServerModeDecorator(test, MODE_THROTTLING, MODE_THROTTLING));            
+        }
         return suite;
     }
 
@@ -182,7 +179,7 @@ public class TestNIOHttp extends TestCase {
     protected void setUp() throws Exception {
         HttpParams serverParams = new BasicHttpParams();
         serverParams
-            .setIntParameter(HttpConnectionParams.SO_TIMEOUT, 2000)
+            .setIntParameter(HttpConnectionParams.SO_TIMEOUT, 5000)
             .setIntParameter(HttpConnectionParams.SOCKET_BUFFER_SIZE, 8 * 1024)
             .setBooleanParameter(HttpConnectionParams.STALE_CONNECTION_CHECK, false)
             .setBooleanParameter(HttpConnectionParams.TCP_NODELAY, true)
@@ -192,7 +189,7 @@ public class TestNIOHttp extends TestCase {
         
         HttpParams clientParams = new BasicHttpParams();
         clientParams
-            .setIntParameter(HttpConnectionParams.SO_TIMEOUT, 2000)
+            .setIntParameter(HttpConnectionParams.SO_TIMEOUT, 5000)
             .setIntParameter(HttpConnectionParams.CONNECTION_TIMEOUT, 2000)
             .setIntParameter(HttpConnectionParams.SOCKET_BUFFER_SIZE, 8 * 1024)
             .setBooleanParameter(HttpConnectionParams.STALE_CONNECTION_CHECK, false)

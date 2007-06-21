@@ -222,7 +222,7 @@ public class NHttpConnectionBase
     }
 
     public boolean isOpen() {
-        return !this.closed;
+        return !this.closed && !this.session.isClosed();
     }
 
     public boolean isStale() {

@@ -269,9 +269,6 @@ public class ThrottlingHttpServiceHandler extends NHttpServiceHandlerBase {
 
                         if (!this.connStrategy.keepAlive(response, context)) {
                             conn.close();
-                        } else {
-                            // Ready for new request
-                            conn.requestInput();
                         }
                     } else {
                         connState.setOutputState(ServerConnState.RESPONSE_SENT);
@@ -312,9 +309,6 @@ public class ThrottlingHttpServiceHandler extends NHttpServiceHandlerBase {
 
                     if (!this.connStrategy.keepAlive(response, context)) {
                         conn.close();
-                    } else {
-                        // Ready for new request
-                        conn.requestInput();
                     }
                 } else {
                     connState.setOutputState(ServerConnState.RESPONSE_BODY_STREAM);
@@ -488,6 +482,9 @@ public class ThrottlingHttpServiceHandler extends NHttpServiceHandlerBase {
             entity.writeTo(outstream);
             outstream.flush();
             outstream.close();
+        }
+        if (conn.isOpen()) {
+            conn.requestInput();
         }
     }
     

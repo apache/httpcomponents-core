@@ -74,7 +74,7 @@ public class SharedOutputBuffer extends ExpandableBuffer implements ContentOutpu
             if (hasData()) {
                 bytesWritten = encoder.write(this.buffer);
                 if (encoder.isCompleted()) {
-                    this.endOfStream = false;
+                    this.endOfStream = true;
                 }
             }
             if (!hasData()) {
