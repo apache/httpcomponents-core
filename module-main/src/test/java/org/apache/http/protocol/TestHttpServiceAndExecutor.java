@@ -57,6 +57,7 @@ import org.apache.http.util.EncodingUtils;
 import org.apache.http.util.EntityUtils;
 
 import junit.framework.*;
+import org.apache.http.HttpConnectionMetrics;
 
 public class TestHttpServiceAndExecutor extends TestCase {
 
@@ -152,6 +153,12 @@ public class TestHttpServiceAndExecutor extends TestCase {
                     conn.close();
                 }
             }
+            
+            //Verify the connection metrics
+            HttpConnectionMetrics cm = conn.getMetrics();
+            assertEquals(reqNo, cm.getRequestCount());
+            assertEquals(reqNo, cm.getResponseCount());
+            
         } finally {
             conn.close();
             this.server.shutdown();
@@ -229,6 +236,11 @@ public class TestHttpServiceAndExecutor extends TestCase {
                     conn.close();
                 }
             }
+            //Verify the connection metrics
+            HttpConnectionMetrics cm = conn.getMetrics();
+            assertEquals(reqNo, cm.getRequestCount());
+            assertEquals(reqNo, cm.getResponseCount());
+            
         } finally {
             conn.close();
             this.server.shutdown();
@@ -307,6 +319,10 @@ public class TestHttpServiceAndExecutor extends TestCase {
                     conn.close();
                 }
             }
+            //Verify the connection metrics
+            HttpConnectionMetrics cm = conn.getMetrics();
+            assertEquals(reqNo, cm.getRequestCount());
+            assertEquals(reqNo, cm.getResponseCount());
         } finally {
             conn.close();
             this.server.shutdown();
@@ -388,6 +404,11 @@ public class TestHttpServiceAndExecutor extends TestCase {
                     conn.close();
                 }
             }
+            
+            //Verify the connection metrics
+            HttpConnectionMetrics cm = conn.getMetrics();
+            assertEquals(reqNo, cm.getRequestCount());
+            assertEquals(reqNo, cm.getResponseCount());
         } finally {
             conn.close();
             this.server.shutdown();
@@ -469,11 +490,17 @@ public class TestHttpServiceAndExecutor extends TestCase {
                     conn.close();
                 }
             }
+            
+            //Verify the connection metrics
+            HttpConnectionMetrics cm = conn.getMetrics();
+            assertEquals(reqNo, cm.getRequestCount());
+            assertEquals(reqNo, cm.getResponseCount());
         } finally {
             conn.close();
             this.server.shutdown();
         }
     }
+    
     
     /**
      * This test case executes a series of simple POST requests that do not 
@@ -560,6 +587,10 @@ public class TestHttpServiceAndExecutor extends TestCase {
                     conn.close();
                 }
             }
+            //Verify the connection metrics
+            HttpConnectionMetrics cm = conn.getMetrics();
+            assertEquals(reqNo, cm.getRequestCount());
+            assertEquals(reqNo, cm.getResponseCount());
         } finally {
             conn.close();
             this.server.shutdown();

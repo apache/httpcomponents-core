@@ -38,6 +38,7 @@ import java.io.InputStream;
 import junit.framework.Test;
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
+import org.apache.http.io.HttpTransportMetrics;
 
 import org.apache.http.params.BasicHttpParams;
 import org.apache.http.mockup.HttpDataReceiverMockup;
@@ -124,14 +125,26 @@ public class TestHttpDataReceiverAndTransmitter extends TestCase {
         transmitter.writeLine((CharArrayBuffer)null);
         transmitter.flush();
         
+        HttpTransportMetrics tmetrics = transmitter.getMetrics();
+        long writedBytes = tmetrics.getBytesTransferred();
+        long expWrited = 0;
+        for (int i = 0; i < teststrs.length; i++) {
+            expWrited += (teststrs[i].length() + 2/*CRLF*/);
+        }
+        assertEquals(expWrited, writedBytes);
+        
         HttpDataReceiverMockup receiver = new HttpDataReceiverMockup(
         		transmitter.getData());
 
         for (int i = 0; i < teststrs.length; i++) {
             assertEquals(teststrs[i], receiver.readLine());
         }
+        
         assertNull(receiver.readLine());
         assertNull(receiver.readLine());
+        tmetrics = receiver.getMetrics();
+        long readedBytes = tmetrics.getBytesTransferred();
+        assertEquals(expWrited, readedBytes);
     }
 
     public void testComplexReadWriteLine() throws Exception {
@@ -146,6 +159,9 @@ public class TestHttpDataReceiverAndTransmitter extends TestCase {
         
         transmitter.flush();
 
+        long writedBytes = transmitter.getMetrics().getBytesTransferred();
+        assertEquals(8, writedBytes);
+        
         StringBuffer buffer = new StringBuffer();
         for (int i = 0; i < 14; i++) {
             buffer.append("a");
@@ -154,6 +170,8 @@ public class TestHttpDataReceiverAndTransmitter extends TestCase {
         buffer.append("\r\n");
         transmitter.write(buffer.toString().getBytes("US-ASCII"));
         transmitter.flush();
+        writedBytes = transmitter.getMetrics().getBytesTransferred();
+        assertEquals(8 + 14 +2, writedBytes);
 
         buffer.setLength(0);
         for (int i = 0; i < 15; i++) {
@@ -163,6 +181,8 @@ public class TestHttpDataReceiverAndTransmitter extends TestCase {
         buffer.append("\r\n");
         transmitter.write(buffer.toString().getBytes("US-ASCII"));
         transmitter.flush();
+        writedBytes = transmitter.getMetrics().getBytesTransferred();
+        assertEquals(8 + 14 + 2 + 15 + 2 , writedBytes);
 
         buffer.setLength(0);
         for (int i = 0; i < 16; i++) {
@@ -172,9 +192,13 @@ public class TestHttpDataReceiverAndTransmitter extends TestCase {
         buffer.append("\r\n");
         transmitter.write(buffer.toString().getBytes("US-ASCII"));
         transmitter.flush();
+        writedBytes = transmitter.getMetrics().getBytesTransferred();
+        assertEquals(8 + 14 + 2 + 15 + 2 + 16 + 2, writedBytes);
 
         transmitter.write(new byte[] {'a'});
         transmitter.flush();
+        writedBytes = transmitter.getMetrics().getBytesTransferred();
+        assertEquals(8 + 14 + 2 + 15 + 2 + 16 + 2 + 1, writedBytes);
         
         HttpDataReceiverMockup receiver = new HttpDataReceiverMockup(
         		transmitter.getData());
@@ -189,6 +213,8 @@ public class TestHttpDataReceiverAndTransmitter extends TestCase {
         assertEquals("a", receiver.readLine());
         assertNull(receiver.readLine());
         assertNull(receiver.readLine());
+        long received = receiver.getMetrics().getBytesTransferred();
+        assertEquals(writedBytes, received);
     }
     
     public void testBasicReadWriteLineLargeBuffer() throws Exception {
@@ -218,6 +244,13 @@ public class TestHttpDataReceiverAndTransmitter extends TestCase {
         transmitter.writeLine((CharArrayBuffer)null);
         transmitter.flush();
         
+        long writedBytes = transmitter.getMetrics().getBytesTransferred();
+        long expWrited = 0;
+        for (int i = 0; i < teststrs.length; i++) {
+            expWrited += (teststrs[i].length() + 2/*CRLF*/);
+        }
+        assertEquals(expWrited, writedBytes);
+        
         HttpDataReceiverMockup receiver = new HttpDataReceiverMockup(
         		transmitter.getData(), 1024);
 
@@ -226,6 +259,8 @@ public class TestHttpDataReceiverAndTransmitter extends TestCase {
         }
         assertNull(receiver.readLine());
         assertNull(receiver.readLine());
+        long readedBytes = receiver.getMetrics().getBytesTransferred();
+        assertEquals(expWrited, readedBytes);
     }
 
     public void testReadWriteBytes() throws Exception {
@@ -247,6 +282,8 @@ public class TestHttpDataReceiverAndTransmitter extends TestCase {
             remaining -= chunk;
         }
         transmitter.flush();
+        long writedBytes = transmitter.getMetrics().getBytesTransferred();
+        assertEquals(out.length, writedBytes);
 
         byte[] tmp = transmitter.getData();
         assertEquals(out.length, tmp.length);
@@ -259,6 +296,8 @@ public class TestHttpDataReceiverAndTransmitter extends TestCase {
         // these read operations will have no effect
         assertEquals(0, receiver.read(null, 0, 10));
         assertEquals(0, receiver.read(null));        
+        long receivedBytes = receiver.getMetrics().getBytesTransferred();
+        assertEquals(0, receivedBytes);
         
         byte[] in = new byte[40];
         off = 0;
@@ -280,6 +319,8 @@ public class TestHttpDataReceiverAndTransmitter extends TestCase {
         }
         assertEquals(-1, receiver.read(tmp));
         assertEquals(-1, receiver.read(tmp));
+        receivedBytes = receiver.getMetrics().getBytesTransferred();
+        assertEquals(out.length, receivedBytes);
     }
     
     public void testReadWriteByte() throws Exception {
@@ -293,6 +334,8 @@ public class TestHttpDataReceiverAndTransmitter extends TestCase {
             transmitter.write(out[i]);
         }
         transmitter.flush();
+        long writedBytes = transmitter.getMetrics().getBytesTransferred();
+        assertEquals(out.length, writedBytes);
 
         byte[] tmp = transmitter.getData();
         assertEquals(out.length, tmp.length);
@@ -310,6 +353,8 @@ public class TestHttpDataReceiverAndTransmitter extends TestCase {
         }
         assertEquals(-1, receiver.read());
         assertEquals(-1, receiver.read());
+        long readedBytes = receiver.getMetrics().getBytesTransferred();
+        assertEquals(out.length, readedBytes);
     }
 
     public void testLineLimit() throws Exception {
@@ -320,6 +365,8 @@ public class TestHttpDataReceiverAndTransmitter extends TestCase {
         params.setIntParameter(HttpConnectionParams.MAX_LINE_LENGTH, 0);
         HttpDataReceiverMockup receiver1 = new HttpDataReceiverMockup(tmp, 5, params);
         assertNotNull(receiver1.readLine());
+        long readedBytes = receiver1.getMetrics().getBytesTransferred();
+        assertEquals(60, readedBytes);
         
         // 15 char limit
         params.setIntParameter(HttpConnectionParams.MAX_LINE_LENGTH, 15);
@@ -329,6 +376,8 @@ public class TestHttpDataReceiverAndTransmitter extends TestCase {
             fail("IOException should have been thrown");
         } catch (IOException ex) {
             // expected
+            readedBytes = receiver2.getMetrics().getBytesTransferred();
+            assertEquals(20, readedBytes);
         }
     }
 
@@ -374,6 +423,11 @@ public class TestHttpDataReceiverAndTransmitter extends TestCase {
             transmitter.writeLine(chbuffer);
         }
         transmitter.flush();
+        long writedBytes = transmitter.getMetrics().getBytesTransferred();
+        long expBytes = ((s1.toString().getBytes("UTF-8").length + 2)+
+                (s2.toString().getBytes("UTF-8").length + 2) +
+                (s3.toString().getBytes("UTF-8").length + 2)) * 10;
+        assertEquals(expBytes, writedBytes);
         
         HttpDataReceiverMockup receiver = new HttpDataReceiverMockup(
         		transmitter.getData(), params);
@@ -385,6 +439,8 @@ public class TestHttpDataReceiverAndTransmitter extends TestCase {
         }
         assertNull(receiver.readLine());
         assertNull(receiver.readLine());
+        long readedBytes = receiver.getMetrics().getBytesTransferred();
+        assertEquals(expBytes, readedBytes);
     }
 
     public void testNonAsciiReadWriteLine() throws Exception {
@@ -402,6 +458,9 @@ public class TestHttpDataReceiverAndTransmitter extends TestCase {
             transmitter.writeLine(chbuffer);
         }
         transmitter.flush();
+        long writedBytes = transmitter.getMetrics().getBytesTransferred();
+        long expBytes = ((s1.toString().getBytes(HTTP.ISO_8859_1).length + 2)) * 10;
+        assertEquals(expBytes, writedBytes);
         
         HttpDataReceiverMockup receiver = new HttpDataReceiverMockup(
                 transmitter.getData(),
@@ -413,6 +472,8 @@ public class TestHttpDataReceiverAndTransmitter extends TestCase {
         }
         assertNull(receiver.readLine());
         assertNull(receiver.readLine());
+        long readedBytes = receiver.getMetrics().getBytesTransferred();
+        assertEquals(expBytes, readedBytes);
     }
 
     public void testInvalidCharArrayBuffer() throws Exception {
@@ -422,6 +483,8 @@ public class TestHttpDataReceiverAndTransmitter extends TestCase {
             fail("IllegalArgumentException should have been thrown");
         } catch (IllegalArgumentException ex) {
             //expected
+            long readedBytes = receiver.getMetrics().getBytesTransferred();
+            assertEquals(0, readedBytes);
         }
     }
     
