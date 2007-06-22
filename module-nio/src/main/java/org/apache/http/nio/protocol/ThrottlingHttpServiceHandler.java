@@ -175,9 +175,6 @@ public class ThrottlingHttpServiceHandler extends NHttpServiceHandlerBase {
         final ServerConnState connState = (ServerConnState) context.getAttribute(CONN_STATE);
 
         synchronized (connState) {
-            connState.setInputState(ServerConnState.REQUEST_RECEIVED);
-            connState.setRequest(request);
-
             boolean contentExpected = false;
             if (request instanceof HttpEntityEnclosingRequest) {
                 HttpEntity entity = ((HttpEntityEnclosingRequest) request).getEntity();
@@ -195,7 +192,7 @@ public class ThrottlingHttpServiceHandler extends NHttpServiceHandlerBase {
                 public void run() {
                     try {
 
-                        handleRequest(connState, conn);
+                        handleRequest(request, connState, conn);
                         
                     } catch (IOException ex) {
                         shutdownConnection(conn, ex);
@@ -264,9 +261,10 @@ public class ThrottlingHttpServiceHandler extends NHttpServiceHandlerBase {
                     HttpEntity entity = response.getEntity();
 
                     if (statusCode >= 200 && entity == null) {
-                        connState.resetOutput();
-                        connState.resetInput();
+                        connState.setOutputState(ServerConnState.RESPONSE_DONE);
                         if (!connState.isWorkerRunning()) {
+                            connState.resetOutput();
+                            connState.resetInput();
                             conn.requestInput();
                         }
 
@@ -307,10 +305,11 @@ public class ThrottlingHttpServiceHandler extends NHttpServiceHandlerBase {
                 
                 buffer.produceContent(encoder);
                 if (encoder.isCompleted()) {
-                    connState.resetOutput();
-                    connState.resetInput();
+                    connState.setOutputState(ServerConnState.RESPONSE_BODY_DONE);
 
                     if (!connState.isWorkerRunning()) {
+                        connState.resetOutput();
+                        connState.resetInput();
                         conn.requestInput();
                     }
 
@@ -349,11 +348,11 @@ public class ThrottlingHttpServiceHandler extends NHttpServiceHandlerBase {
     }
     
     private void handleRequest(
+            final HttpRequest request,
             final ServerConnState connState,
             final NHttpServerConnection conn) throws HttpException, IOException {
 
         HttpContext context = conn.getContext();
-        HttpRequest request = null;
 
         // Block until previous request is fully processed and 
         // the worker thread no longer holds the shared buffer
@@ -373,10 +372,12 @@ public class ThrottlingHttpServiceHandler extends NHttpServiceHandlerBase {
                 connState.shutdown();
                 return;
             }
+            connState.setInputState(ServerConnState.REQUEST_RECEIVED);
+            connState.setRequest(request);
             connState.setWorkerRunning(true);
-            request = connState.getRequest();
-            HttpParamsLinker.link(request, this.params);
         }
+
+        HttpParamsLinker.link(request, this.params);
 
         context.setAttribute(HttpExecutionContext.HTTP_CONNECTION, conn);
         context.setAttribute(HttpExecutionContext.HTTP_REQUEST, request);
@@ -507,7 +508,10 @@ public class ThrottlingHttpServiceHandler extends NHttpServiceHandlerBase {
         }
         
         synchronized (connState) {
-            if (connState.getOutputState() == ServerConnState.READY && conn.isOpen()) {
+            if (connState.getOutputState() == ServerConnState.RESPONSE_DONE 
+                    && conn.isOpen()) {
+                connState.resetInput();
+                connState.resetOutput();
                 conn.requestInput();
             }
             connState.setWorkerRunning(false);
@@ -536,6 +540,8 @@ public class ThrottlingHttpServiceHandler extends NHttpServiceHandlerBase {
         public static final int REQUEST_BODY_DONE          = 4;
         public static final int RESPONSE_SENT              = 8;
         public static final int RESPONSE_BODY_STREAM       = 16;
+        public static final int RESPONSE_BODY_DONE         = 32;
+        public static final int RESPONSE_DONE              = 32;
         
         private final SharedInputBuffer inbuffer; 
         private final SharedOutputBuffer outbuffer;
