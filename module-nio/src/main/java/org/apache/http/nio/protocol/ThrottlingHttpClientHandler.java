@@ -403,12 +403,38 @@ public class ThrottlingHttpClientHandler extends NHttpClientHandlerBase {
                 public void run() {
                     try {
 
+                        // Block until previous request is fully processed and 
+                        // the worker thread no longer holds the shared buffer
+                        synchronized (connState) {
+                            try {
+                                for (;;) {
+                                    int currentState = connState.getOutputState();
+                                    if (!connState.isWorkerRunning()) {
+                                        break;
+                                    }
+                                    if (currentState == ServerConnState.SHUTDOWN) {
+                                        throw new InterruptedIOException("Service interrupted");
+                                    }
+                                    connState.wait();
+                                }
+                            } catch (InterruptedException ex) {
+                                connState.shutdown();
+                                return;
+                            }
+                            connState.setWorkerRunning(true);
+                        }
+                        
                         HttpEntity entity = request.getEntity();
                         OutputStream outstream = new ContentOutputStream(
                                 connState.getOutbuffer());
                         entity.writeTo(outstream);
                         outstream.flush();
                         outstream.close();
+
+                        synchronized (connState) {
+                            connState.setWorkerRunning(false);
+                            connState.notifyAll();
+                        }
                         
                     } catch (IOException ex) {
                         shutdownConnection(conn, ex);
@@ -434,6 +460,27 @@ public class ThrottlingHttpClientHandler extends NHttpClientHandlerBase {
             public void run() {
                 try {
 
+                    // Block until previous request is fully processed and 
+                    // the worker thread no longer holds the shared buffer
+                    synchronized (connState) {
+                        try {
+                            for (;;) {
+                                int currentState = connState.getOutputState();
+                                if (!connState.isWorkerRunning()) {
+                                    break;
+                                }
+                                if (currentState == ServerConnState.SHUTDOWN) {
+                                    throw new InterruptedIOException("Service interrupted");
+                                }
+                                connState.wait();
+                            }
+                        } catch (InterruptedException ex) {
+                            connState.shutdown();
+                            return;
+                        }
+                        connState.setWorkerRunning(true);
+                    }
+                    
                     execHandler.handleResponse(response, context);
                     
                     synchronized (connState) {
@@ -458,6 +505,8 @@ public class ThrottlingHttpClientHandler extends NHttpClientHandlerBase {
                         if (conn.isOpen()) {
                             conn.requestOutput();
                         }
+                        connState.setWorkerRunning(false);
+                        connState.notifyAll();
                     }
                     
                 } catch (IOException ex) {
@@ -500,13 +549,15 @@ public class ThrottlingHttpClientHandler extends NHttpClientHandlerBase {
         private final SharedInputBuffer inbuffer; 
         private final SharedOutputBuffer outbuffer;
 
-        private int inputState;
-        private int outputState;
+        private volatile int inputState;
+        private volatile int outputState;
         
-        private HttpRequest request;
-        private HttpResponse response;
+        private volatile HttpRequest request;
+        private volatile HttpResponse response;
 
-        private int timeout;
+        private volatile int timeout;
+
+        private volatile boolean workerRunning; 
         
         public ClientConnState(
                 int bufsize, 
@@ -567,6 +618,14 @@ public class ThrottlingHttpClientHandler extends NHttpClientHandlerBase {
             this.timeout = timeout;
         }
             
+        public boolean isWorkerRunning() {
+            return this.workerRunning;
+        }
+
+        public void setWorkerRunning(boolean b) {
+            this.workerRunning = b;
+        }
+
         public void shutdown() {
             this.inbuffer.shutdown();
             this.outbuffer.shutdown();

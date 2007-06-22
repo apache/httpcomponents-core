@@ -175,8 +175,8 @@ public class ThrottlingHttpServiceHandler extends NHttpServiceHandlerBase {
         final ServerConnState connState = (ServerConnState) context.getAttribute(CONN_STATE);
 
         synchronized (connState) {
-            connState.setRequest(request);
             connState.setInputState(ServerConnState.REQUEST_RECEIVED);
+            connState.setRequest(request);
 
             boolean contentExpected = false;
             if (request instanceof HttpEntityEnclosingRequest) {
@@ -266,6 +266,9 @@ public class ThrottlingHttpServiceHandler extends NHttpServiceHandlerBase {
                     if (statusCode >= 200 && entity == null) {
                         connState.resetOutput();
                         connState.resetInput();
+                        if (!connState.isWorkerRunning()) {
+                            conn.requestInput();
+                        }
 
                         if (!this.connStrategy.keepAlive(response, context)) {
                             conn.close();
@@ -307,6 +310,10 @@ public class ThrottlingHttpServiceHandler extends NHttpServiceHandlerBase {
                     connState.resetOutput();
                     connState.resetInput();
 
+                    if (!connState.isWorkerRunning()) {
+                        conn.requestInput();
+                    }
+
                     if (!this.connStrategy.keepAlive(response, context)) {
                         conn.close();
                     }
@@ -325,27 +332,6 @@ public class ThrottlingHttpServiceHandler extends NHttpServiceHandlerBase {
         }
     }
  
-    private void waitForOutputState(
-            final ServerConnState connState, 
-            int expectedState) throws InterruptedIOException {
-        synchronized (connState) {
-            try {
-                for (;;) {
-                    int currentState = connState.getOutputState();
-                    if (currentState == expectedState) {
-                        break;
-                    }
-                    if (currentState == ServerConnState.SHUTDOWN) {
-                        throw new InterruptedIOException("Service interrupted");
-                    }
-                    connState.wait();
-                }
-            } catch (InterruptedException ex) {
-                connState.shutdown();
-            }
-        }
-    }
-    
     private void handleException(final HttpException ex, final HttpResponse response) {
         if (ex instanceof MethodNotSupportedException) {
             response.setStatusCode(HttpStatus.SC_NOT_IMPLEMENTED);
@@ -366,13 +352,32 @@ public class ThrottlingHttpServiceHandler extends NHttpServiceHandlerBase {
             final ServerConnState connState,
             final NHttpServerConnection conn) throws HttpException, IOException {
 
-        waitForOutputState(connState, ServerConnState.READY);
-
         HttpContext context = conn.getContext();
-        HttpRequest request = connState.getRequest();
-        
-        HttpParamsLinker.link(request, this.params);
-        
+        HttpRequest request = null;
+
+        // Block until previous request is fully processed and 
+        // the worker thread no longer holds the shared buffer
+        synchronized (connState) {
+            try {
+                for (;;) {
+                    int currentState = connState.getOutputState();
+                    if (!connState.isWorkerRunning()) {
+                        break;
+                    }
+                    if (currentState == ServerConnState.SHUTDOWN) {
+                        throw new InterruptedIOException("Service interrupted");
+                    }
+                    connState.wait();
+                }
+            } catch (InterruptedException ex) {
+                connState.shutdown();
+                return;
+            }
+            connState.setWorkerRunning(true);
+            request = connState.getRequest();
+            HttpParamsLinker.link(request, this.params);
+        }
+
         context.setAttribute(HttpExecutionContext.HTTP_CONNECTION, conn);
         context.setAttribute(HttpExecutionContext.HTTP_REQUEST, request);
 
@@ -386,9 +391,9 @@ public class ThrottlingHttpServiceHandler extends NHttpServiceHandlerBase {
         HttpResponse response = null;
 
         if (request instanceof HttpEntityEnclosingRequest) {
-            HttpEntityEnclosingRequest entityReq = (HttpEntityEnclosingRequest) request;
+            HttpEntityEnclosingRequest eeRequest = (HttpEntityEnclosingRequest) request;
             
-            if (entityReq.expectContinue()) {
+            if (eeRequest.expectContinue()) {
                 response = this.responseFactory.newHttpResponse(
                         ver, 
                         HttpStatus.SC_CONTINUE, 
@@ -412,24 +417,41 @@ public class ThrottlingHttpServiceHandler extends NHttpServiceHandlerBase {
                     synchronized (connState) {
                         connState.setResponse(response);
                         conn.requestOutput();
-                        waitForOutputState(connState, ServerConnState.RESPONSE_SENT);
+                        
+                        // Block until 1xx response is sent to the client
+                        try {
+                            for (;;) {
+                                int currentState = connState.getOutputState();
+                                if (currentState == ServerConnState.RESPONSE_SENT) {
+                                    break;
+                                }
+                                if (currentState == ServerConnState.SHUTDOWN) {
+                                    throw new InterruptedIOException("Service interrupted");
+                                }
+                                connState.wait();
+                            }
+                        } catch (InterruptedException ex) {
+                            connState.shutdown();
+                            return;
+                        }
                         connState.resetOutput();
+                        response = null;
                     }
-                    response = null;
                 } else {
-                    // Discard entity
+                    // Discard request entity
                     conn.resetInput();
-                    entityReq.setEntity(null);
+                    eeRequest.setEntity(null);
                 }
 
             }
 
             // Create a wrapper entity instead of the original one
-            if (entityReq.getEntity() != null) {
-                entityReq.setEntity(new ContentBufferEntity(
-                        entityReq.getEntity(), 
+            if (eeRequest.getEntity() != null) {
+                eeRequest.setEntity(new ContentBufferEntity(
+                        eeRequest.getEntity(), 
                         connState.getInbuffer()));
             }
+            
         }
 
         if (response == null) {
@@ -483,8 +505,13 @@ public class ThrottlingHttpServiceHandler extends NHttpServiceHandlerBase {
             outstream.flush();
             outstream.close();
         }
-        if (conn.isOpen()) {
-            conn.requestInput();
+        
+        synchronized (connState) {
+            if (connState.getOutputState() == ServerConnState.READY && conn.isOpen()) {
+                conn.requestInput();
+            }
+            connState.setWorkerRunning(false);
+            connState.notifyAll();
         }
     }
     
@@ -509,7 +536,6 @@ public class ThrottlingHttpServiceHandler extends NHttpServiceHandlerBase {
         public static final int REQUEST_BODY_DONE          = 4;
         public static final int RESPONSE_SENT              = 8;
         public static final int RESPONSE_BODY_STREAM       = 16;
-        public static final int RESPONSE_BODY_DONE         = 32;
         
         private final SharedInputBuffer inbuffer; 
         private final SharedOutputBuffer outbuffer;
@@ -519,6 +545,8 @@ public class ThrottlingHttpServiceHandler extends NHttpServiceHandlerBase {
         
         private volatile HttpRequest request;
         private volatile HttpResponse response;
+        
+        private volatile boolean workerRunning; 
         
         public ServerConnState(
                 int bufsize, 
@@ -569,6 +597,14 @@ public class ThrottlingHttpServiceHandler extends NHttpServiceHandlerBase {
 
         public void setResponse(final HttpResponse response) {
             this.response = response;
+        }
+
+        public boolean isWorkerRunning() {
+            return this.workerRunning;
+        }
+
+        public void setWorkerRunning(boolean b) {
+            this.workerRunning = b;
         }
 
         public void shutdown() {
