@@ -33,7 +33,7 @@
   <modelVersion>4.0.0</modelVersion>
   <parent>
     <groupId>org.apache.httpcomponents</groupId>
-    <artifactId>core</artifactId>
+    <artifactId>httpcomponents-core</artifactId>
     <version>4.0-alpha5-SNAPSHOT</version>
   </parent>
   <artifactId>httpcore</artifactId>
