@@ -39,7 +39,7 @@
   <bannerRight>
     <name>HttpComponents HttpCore</name>
     <src>http://jakarta.apache.org/httpcomponents/images/logos/httpcomponents.png</src>
-    <href>http://jakarta.apache.org/httpcomponents/http-core/</href>
+    <href>http://jakarta.apache.org/httpcomponents/httpcomponents-core/</href>
   </bannerRight>
 
   <body>
@@ -58,9 +58,9 @@
       <item name="Examples" href="examples.html"/>
     </menu>
     <menu name="Modules">
-      <item name="Base" href="jakarta-httpcore/index.html"/>
-      <item name="NIO extensions" href="jakarta-httpcore-nio/index.html"/>
-      <item name="NIOSSL extensions" href="jakarta-httpcore-niossl/index.html"/>
+      <item name="HttpCore" href="httpcore/index.html"/>
+      <item name="HttpCore NIO" href="httpcore-nio/index.html"/>
+      <item name="HttpCore NIOSSL" href="httpcore-niossl/index.html"/>
     </menu>
 
   </body>

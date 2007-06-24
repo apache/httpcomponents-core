@@ -17,19 +17,19 @@ Modules
 
 * HttpCore base module
 
-    The {{{jakarta-httpcore/index.html}Base}} module contains the HttpCore public API and the 
+    The {{{httpcore/index.html}Base}} module contains the HttpCore public API and the 
     default implementation based on the classic (blocking) Java I/O model. It 
     requires a Java 1.3 compatible runtime and has no dependency on any external libraries.
 
 * HttpCore NIO extensions
 
-    HttpCore {{{jakarta-httpcore-nio/index.html}NIO extensions}} contain optional 
+    HttpCore {{{httpcore-nio/index.html}NIO extensions}} contain optional 
     components that leverage the event driven, non-blocking I/O (NIO) model. HttpCore NIO 
     extensions require a Java 1.4 compatible runtime and the HttpCore base module.
 
 * HttpCore NIOSSL extensions
 
-    HttpCore {{{jakarta-httpcore-niossl/index.html}NIOSSL extensions}} provide optional 
+    HttpCore {{{httpcore-niossl/index.html}NIOSSL extensions}} provide optional 
     components enabling HttpCore {{{jakarta-httpcore-nio/index.html}NIO}} to transparently
     encrypt data in transit using SSL/TLS protocol.
 
