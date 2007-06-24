@@ -34,21 +34,85 @@
         <format>zip</format>
     </formats>
     <fileSets>
+        <!-- Release materials -->
         <fileSet>
           <includes>
             <include>README.txt</include>
             <include>LICENSE.txt</include>
             <include>NOTICE.txt</include>
             <include>RELEASE_NOTES.txt</include>
-            <include>**/*.xml</include>
-            <include>**/src/**</include>
           </includes>
+          <lineEnding>crlf</lineEnding>
+        </fileSet>
+        <!-- Build files -->
+        <fileSet>
+          <includes>
+            <include>*.xml</include>
+          </includes>
+          <lineEnding>crlf</lineEnding>
+        </fileSet>
+        <!-- Base module source and text resources -->
+        <fileSet>
+          <directory>module-main/src</directory>
+          <outputDirectory>module-main/src</outputDirectory>
+          <lineEnding>crlf</lineEnding>
           <excludes>
-            <exclude>contrib/**</exclude>
-            <exclude>**/target/**</exclude>
-            <exclude>**/site/**</exclude>
-            <exclude>**/.*/**</exclude>
+            <exclude>site/**</exclude>
           </excludes>
+        </fileSet>
+        <!-- Base module build files -->
+        <fileSet>
+          <directory>module-main</directory>
+          <outputDirectory>module-main</outputDirectory>
+          <lineEnding>crlf</lineEnding>
+          <includes>
+            <include>*.xml</include>
+          </includes>
+        </fileSet>
+        <!-- NIO module source and text resources -->
+        <fileSet>
+          <directory>module-nio/src</directory>
+          <outputDirectory>module-nio/src</outputDirectory>
+          <lineEnding>crlf</lineEnding>
+          <excludes>
+            <exclude>site/**</exclude>
+          </excludes>
+        </fileSet>
+        <!-- NIO module build files -->
+        <fileSet>
+          <directory>module-nio</directory>
+          <outputDirectory>module-nio</outputDirectory>
+          <lineEnding>crlf</lineEnding>
+          <includes>
+            <include>*.xml</include>
+          </includes>
+        </fileSet>
+        <!-- NIO SSL module source and text resources -->
+        <fileSet>
+          <directory>module-niossl/src</directory>
+          <outputDirectory>module-niossl/src</outputDirectory>
+          <lineEnding>crlf</lineEnding>
+          <excludes>
+            <exclude>site/**</exclude>
+            <exclude>test/resources/*.keystore</exclude>
+          </excludes>
+        </fileSet>
+        <!-- NIO SSL module binary resources -->
+        <fileSet>
+          <directory>module-niossl/src</directory>
+          <outputDirectory>module-niossl/src</outputDirectory>
+          <includes>
+            <include>test/resources/*.keystore</include>
+          </includes>
+        </fileSet>
+        <!-- NIO SSL module build files -->
+        <fileSet>
+          <directory>module-niossl</directory>
+          <outputDirectory>module-niossl</outputDirectory>
+          <lineEnding>crlf</lineEnding>
+          <includes>
+            <include>*.xml</include>
+          </includes>
         </fileSet>
     </fileSets>
 </assembly>
