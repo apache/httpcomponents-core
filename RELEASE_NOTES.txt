@@ -1,4 +1,13 @@
-Changes since 4.0 Alpha 4
+Release 4.0 Alpha 5
+-------------------
+
+The fifth ALPHA version of HttpComponents Core has been released. This release
+delivers a number of incremental improvements across the board in all modules 
+and adds several performance oriented features such as ability to transfer 
+data directly between a file and a socket channels. 
+
+HttpCore is almost fully feature complete now and we are likely to freeze 
+the public APIs as of next release (BETA1). 
 
 * [HTTPCORE-87] RuntimeExcpetions thrown in I/O worker threads are now correctly 
   propagated to the I/O reactor.
