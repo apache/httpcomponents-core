@@ -28,9 +28,8 @@
    <http://www.apache.org/>.
  -->
 <assembly>
-    <id>src</id>
+    <id>src-win</id>
     <formats>
-        <format>tar.gz</format>
         <format>zip</format>
     </formats>
     <fileSets>

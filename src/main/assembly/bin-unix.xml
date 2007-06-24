@@ -28,10 +28,9 @@
    <http://www.apache.org/>.
  -->
 <assembly>
-    <id>bin</id>
+    <id>bin-unix</id>
     <formats>
         <format>tar.gz</format>
-        <format>zip</format>
     </formats>
     <fileSets>
         <fileSet>
@@ -41,7 +40,7 @@
             <include>NOTICE.txt</include>
             <include>RELEASE_NOTES.txt</include>
           </includes>
-          <lineEnding>crlf</lineEnding>
+          <lineEnding>lf</lineEnding>
         </fileSet>
         <!-- Base module -->
         <fileSet>
@@ -58,7 +57,7 @@
         <fileSet>
           <directory>module-main/src/examples/</directory>
           <outputDirectory>examples</outputDirectory>
-          <lineEnding>crlf</lineEnding>
+          <lineEnding>lf</lineEnding>
           <includes>
             <include>**/*.java</include>
           </includes>
@@ -78,7 +77,7 @@
         <fileSet>
           <directory>module-nio/src/examples/</directory>
           <outputDirectory>examples</outputDirectory>
-          <lineEnding>crlf</lineEnding>
+          <lineEnding>lf</lineEnding>
           <includes>
             <include>**/*.java</include>
           </includes>
@@ -98,7 +97,7 @@
         <fileSet>
           <directory>module-niossl/src/examples/</directory>
           <outputDirectory>examples</outputDirectory>
-          <lineEnding>crlf</lineEnding>
+          <lineEnding>lf</lineEnding>
           <includes>
             <include>**/*.java</include>
           </includes>
