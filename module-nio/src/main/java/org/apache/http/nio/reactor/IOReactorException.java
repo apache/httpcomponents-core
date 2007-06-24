@@ -41,7 +41,7 @@ public class IOReactorException extends IOException {
 
     private static final long serialVersionUID = 6986850002663481135L;
 
-    public IOReactorException(final String message, final IOException cause) {
+    public IOReactorException(final String message, final Exception cause) {
         super(message);
         if (cause != null) {
             initCause(cause);

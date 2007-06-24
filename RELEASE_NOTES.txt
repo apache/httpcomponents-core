@@ -1,5 +1,9 @@
 Changes since 4.0 Alpha 4
 
+* [HTTPCORE-87] RuntimeExcpetions thrown in I/O worker threads are now correctly 
+  propagated to the I/O reactor.
+  Contributed by Oleg Kalnichevski <olegk at apache.org>
+
 * [HTTPCORE-84]: Removed DateUtils/DateParseException from core.
   Contributed by Roland Weber <rolandw at apache.org>
 

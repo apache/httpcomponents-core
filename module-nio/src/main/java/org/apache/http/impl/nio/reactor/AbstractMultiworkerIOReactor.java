@@ -125,11 +125,15 @@ public abstract class AbstractMultiworkerIOReactor implements IOReactor {
             Worker worker = this.workers[i];
             Thread thread = this.threads[i];
             if (!thread.isAlive()) {
-                if (worker.getReactorException() != null) {
-                    throw worker.getReactorException();
-                }
-                if (worker.getInterruptedException() != null) {
-                    throw worker.getInterruptedException();
+                Exception ex = worker.getException();
+                if (ex instanceof IOReactorException) {
+                    throw (IOReactorException) ex;
+                } else if (ex instanceof InterruptedIOException) {
+                    throw (InterruptedIOException) ex;
+                } else if (ex instanceof RuntimeException) {
+                    throw (RuntimeException) ex;
+                } else {
+                    throw new IOReactorException(ex.getMessage(), ex);
                 }
             }
         }
@@ -145,8 +149,7 @@ public abstract class AbstractMultiworkerIOReactor implements IOReactor {
         final BaseIOReactor ioReactor;
         final IOEventDispatch eventDispatch;
         
-        private volatile IOReactorException reactorException;
-        private volatile InterruptedIOException interruptedException;
+        private volatile Exception exception;
         
         public Worker(final BaseIOReactor ioReactor, final IOEventDispatch eventDispatch) {
             super();
@@ -158,28 +161,26 @@ public abstract class AbstractMultiworkerIOReactor implements IOReactor {
             try {
                 this.ioReactor.execute(this.eventDispatch);
             } catch (InterruptedIOException ex) {
-                this.interruptedException = ex;
+                this.exception = ex;
             } catch (IOReactorException ex) {
-                this.reactorException = ex;
+                this.exception = ex;
+            } catch (RuntimeException ex) {
+                this.exception = ex;
             } finally {
                 try {
                     this.ioReactor.shutdown();
                 } catch (IOReactorException ex2) {
-                    if (this.reactorException == null) {
-                        this.reactorException = ex2;
+                    if (this.exception == null) {
+                        this.exception = ex2;
                     }
                 }
             }
         }
         
-        public IOReactorException getReactorException() {
-            return this.reactorException;
+        public Exception getException() {
+            return this.exception;
         }
 
-        public InterruptedIOException getInterruptedException() {
-            return this.interruptedException;
-        }
-        
     }
 
     static class DefaultThreadFactory implements ThreadFactory {
