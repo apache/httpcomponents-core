@@ -244,7 +244,13 @@ public class DefaultConnectingIOReactor extends AbstractMultiworkerIOReactor
                 if (request.getLocalAddress() != null) {
                     socketChannel.socket().bind(request.getLocalAddress());
                 }
-                socketChannel.connect(request.getRemoteAddress());
+                boolean connected = socketChannel.connect(request.getRemoteAddress());
+                if (connected) {
+                    prepareSocket(socketChannel.socket());
+                    ChannelEntry entry = new ChannelEntry(socketChannel, request); 
+                    addChannel(entry);
+                    return;
+                }
             } catch (IOException ex) {
                 request.failed(ex);
                 return;
