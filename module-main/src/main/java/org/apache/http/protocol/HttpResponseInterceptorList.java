@@ -53,13 +53,21 @@ public interface HttpResponseInterceptorList {
     /**
      * Appends a response interceptor to this list.
      *
-     * @param itcp      the response interceptor to add, or
-     *                  <code>null</code> to do nothing
+     * @param itcp      the response interceptor to add
      */
     void addResponseInterceptor(HttpResponseInterceptor itcp)
         ;
 
-
+    /**
+     * Inserts a response interceptor at the specified index.
+     *
+     * @param itcp      the response interceptor to add
+     * @param index     the index to insert the interceptor at 
+     *                  or MAX_INTEGER to insert last. 
+     */
+    void addResponseInterceptor(HttpResponseInterceptor itcp, int index);
+    
+    
     /**
      * Obtains the current size of this list.
      *
@@ -88,7 +96,15 @@ public interface HttpResponseInterceptorList {
     void clearResponseInterceptors()
         ;
 
+    
+    /**
+     * Removes all response interceptor of the specified class
+     *
+     * @param clazz  the class of the instances to be removed.
+     */
+    void removeResponseInterceptorByClass(Class clazz);
 
+    
     /**
      * Sets the response interceptors in this list.
      * This list will be cleared and re-initialized to contain

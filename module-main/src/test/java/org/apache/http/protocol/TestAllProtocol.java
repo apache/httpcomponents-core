@@ -44,6 +44,7 @@ public class TestAllProtocol extends TestCase {
         suite.addTest(TestStandardInterceptors.suite());
         suite.addTest(TestHttpRequestHandlerRegistry.suite());
         suite.addTest(TestHttpServiceAndExecutor.suite());
+        suite.addTest(TestBasicHttpProcessor.suite());
         return suite;
     }
 

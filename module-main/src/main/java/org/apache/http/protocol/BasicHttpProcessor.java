@@ -33,6 +33,7 @@ package org.apache.http.protocol;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
 import org.apache.http.HttpException;
@@ -45,6 +46,7 @@ import org.apache.http.HttpResponseInterceptor;
  * Keeps lists of interceptors for processing requests and responses.
  *
  * @author <a href="mailto:oleg at ural.ru">Oleg Kalnichevski</a>
+ * @author Andrea Selva
  *
  * @version $Revision$
  * 
@@ -68,43 +70,112 @@ public class BasicHttpProcessor implements
         }
         this.requestInterceptors.add(itcp);
     }
+    
+    // non-Javadoc, see interface HttpRequestInterceptorList
+    public void addRequestInterceptor(final HttpRequestInterceptor itcp, int index) {
+        
+        if (itcp == null) {
+            return;
+        }
+        if (this.requestInterceptors == null) {
+            this.requestInterceptors = new ArrayList();
+        }
+        
+        if (index == Integer.MAX_VALUE) {
+            // Add last
+            this.requestInterceptors.add(this.requestInterceptors.size() - 1, itcp);
+        } else {
+            // Insert at preferred index
+            this.requestInterceptors.add(index, itcp);
+        }
+    }
+    
 
+    public void addResponseInterceptor(HttpResponseInterceptor itcp, int index) {
+         if (itcp == null) {
+            return;
+        }
+        if (this.responseInterceptors == null) {
+            this.responseInterceptors = new ArrayList();
+        }
+        
+        if (index == Integer.MAX_VALUE) {
+            // Add last
+            this.responseInterceptors.add(this.responseInterceptors.size() - 1, itcp);
+        } else {
+            // Insert at preferred index
+            this.responseInterceptors.add(index, itcp);
+        }
+    }
+    
+    
+    // non-Javadoc, see interface HttpRequestInterceptorList
+    public void removeRequestInterceptorByClass(final Class clazz) {
+        if (this.requestInterceptors == null) {
+            return;
+        }
+        for (Iterator it = this.requestInterceptors.iterator(); it.hasNext(); ) {
+            Object request = it.next();
+            if (request.getClass().equals(clazz)) {
+                it.remove();
+            }
+        }
+    }
+    
+    // non-Javadoc, see interface HttpResponseInterceptorList
+    public void removeResponseInterceptorByClass(final Class clazz) {
+        if (this.responseInterceptors == null) {
+            return;
+        }
+        for (Iterator it = this.responseInterceptors.iterator(); it.hasNext(); ) {
+            Object request = it.next();
+            if (request.getClass().equals(clazz)) {
+                it.remove();
+            }
+        }
+    }
+    
     /**
      * Same as {@link #addRequestInterceptor addRequestInterceptor}.
      *
      * @param interceptor       the interceptor to add
      */
     public final
-        void addInterceptor(final HttpRequestInterceptor interceptor) {
+            void addInterceptor(final HttpRequestInterceptor interceptor) {
         addRequestInterceptor(interceptor);
     }
-
-
+    
+     public final
+            void addInterceptor(final HttpRequestInterceptor interceptor, int index) {
+        addRequestInterceptor(interceptor, index);
+    }
+    
+    
     // non-Javadoc, see interface HttpRequestInterceptorList
     public int getRequestInterceptorCount() {
         return (this.requestInterceptors == null) ?
             0 : this.requestInterceptors.size();
     }
-
-
+    
+    
     // non-Javadoc, see interface HttpRequestInterceptorList
     public HttpRequestInterceptor getRequestInterceptor(int index) {
         
         if ((this.requestInterceptors == null) ||
-            (index < 0) || (index >= this.requestInterceptors.size()))
+                (index < 0) || (index >= this.requestInterceptors.size()))
             return null;
-
+        
         return (HttpRequestInterceptor) this.requestInterceptors.get(index);
     }
-
-
+    
+    
     // non-Javadoc, see interface HttpRequestInterceptorList
     public void clearRequestInterceptors() {
         this.requestInterceptors = null;
     }
-
-
-
+    
+    
+    
     // non-Javadoc, see interface HttpResponseInterceptorList
     public void addResponseInterceptor(final HttpResponseInterceptor itcp) {
         if (itcp == null) {
@@ -115,42 +186,47 @@ public class BasicHttpProcessor implements
         }
         this.responseInterceptors.add(itcp);
     }
-
+    
     /**
      * Same as {@link #addResponseInterceptor addResponseInterceptor}.
      *
      * @param interceptor       the interceptor to add
      */
     public final
-        void addInterceptor(final HttpResponseInterceptor interceptor) {
+            void addInterceptor(final HttpResponseInterceptor interceptor) {
         addResponseInterceptor(interceptor);
     }
-
-
+    
+    public final void addInterceptor(final HttpResponseInterceptor interceptor, int index) {
+        addResponseInterceptor(interceptor, index);
+    }
+      
+    
+    
     // non-Javadoc, see interface HttpResponseInterceptorList
     public int getResponseInterceptorCount() {
         return (this.responseInterceptors == null) ?
             0 : this.responseInterceptors.size();
     }
-
-
+    
+    
     // non-Javadoc, see interface HttpResponseInterceptorList
     public HttpResponseInterceptor getResponseInterceptor(int index) {
         
         if ((this.responseInterceptors == null) ||
-            (index < 0) || (index >= this.responseInterceptors.size()))
+                (index < 0) || (index >= this.responseInterceptors.size()))
             return null;
-
+        
         return (HttpResponseInterceptor) this.responseInterceptors.get(index);
     }
-
-
+    
+    
     // non-Javadoc, see interface HttpResponseInterceptorList
     public void clearResponseInterceptors() {
         this.responseInterceptors = null;
     }
-
-
+    
+    
     /**
      * Sets the interceptor lists.
      * First, both interceptor lists maintained by this processor
@@ -188,7 +264,7 @@ public class BasicHttpProcessor implements
             }
         }
     }
-
+    
     /**
      * Clears both interceptor lists maintained by this processor.
      */
@@ -196,12 +272,12 @@ public class BasicHttpProcessor implements
         clearRequestInterceptors();
         clearResponseInterceptors();
     }
-
+    
     // non-Javadoc, see interface HttpRequestInterceptor (via HttpProcessor)
     public void process(
             final HttpRequest request,
-            final HttpContext context) 
-                throws IOException, HttpException {
+            final HttpContext context)
+            throws IOException, HttpException {
         if (this.requestInterceptors != null) {
             for (int i = 0; i < this.requestInterceptors.size(); i++) {
                 HttpRequestInterceptor interceptor = (HttpRequestInterceptor) this.requestInterceptors.get(i);
@@ -209,12 +285,12 @@ public class BasicHttpProcessor implements
             }
         }
     }
-
+    
     // non-Javadoc, see interface HttpResponseInterceptor (via HttpProcessor)
     public void process(
             final HttpResponse response,
-            final HttpContext context) 
-                throws IOException, HttpException {
+            final HttpContext context)
+            throws IOException, HttpException {
         if (this.responseInterceptors != null) {
             for (int i = 0; i < this.responseInterceptors.size(); i++) {
                 HttpResponseInterceptor interceptor = (HttpResponseInterceptor) this.responseInterceptors.get(i);
@@ -225,7 +301,7 @@ public class BasicHttpProcessor implements
     
     /**
      * Creates a copy of this instance
-     * 
+     *
      * @return new instance of the BasicHttpProcessor
      */
     public BasicHttpProcessor copy() {
@@ -238,5 +314,5 @@ public class BasicHttpProcessor implements
         }
         return clone;
     }
-    
+ 
 }

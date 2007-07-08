@@ -31,12 +31,9 @@
 
 package org.apache.http.protocol;
 
-
 import java.util.List;
 
 import org.apache.http.HttpRequestInterceptor;
-
-
 
 /**
  * Provides access to an ordered list of request interceptors.
@@ -54,13 +51,22 @@ public interface HttpRequestInterceptorList {
     /**
      * Appends a request interceptor to this list.
      *
-     * @param itcp      the request interceptor to add, or
-     *                  <code>null</code> to do nothing
+     * @param itcp      the request interceptor to add
      */
     void addRequestInterceptor(HttpRequestInterceptor itcp)
         ;
 
 
+    /**
+     * Inserts a request interceptor at the specified index.
+     *
+     * @param itcp      the request interceptor to add
+     * @param index     the index to insert the interceptor at 
+     *                  or MAX_INTEGER to insert last. 
+     */
+    void addRequestInterceptor(HttpRequestInterceptor itcp, int index);
+    
+    
     /**
      * Obtains the current size of this list.
      *
@@ -90,6 +96,14 @@ public interface HttpRequestInterceptorList {
         ;
 
 
+    /**
+     * Removes all request interceptor of the specified class
+     *
+     * @param clazz  the class of the instances to be removed.
+     */
+    void removeRequestInterceptorByClass(Class clazz);
+    
+    
     /**
      * Sets the request interceptors in this list.
      * This list will be cleared and re-initialized to contain

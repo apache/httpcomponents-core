@@ -1,5 +1,9 @@
 Changes since release 4.0 Alpha 5
 
+* [HTTPCORE-88] Added convenience methods to HttpRequestInterceptorList, 
+  HttpResponseInterceptorList interfaces
+  Contributed by Andrea Selva <selva.andre at gmail.com>
+
 * [HTTPCORE-89]: Fixed bug in DefaultConnectingIOReactor causing incorrect 
   handling of local (immediate) connections on some platforms (affects Sun 
   Solaris 2.9 / Sparc and likely other Solaris 2.x platforms)
