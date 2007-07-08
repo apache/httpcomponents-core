@@ -64,7 +64,7 @@
 
   <scm>
     <connection>scm:svn:http://svn.apache.org/repos/asf/jakarta/httpcomponents/httpcore/trunk</connection>
-    <developerConnection>scm:svn:http://svn.apache.org/repos/asf/jakarta/httpcomponents/httpcore/trunk</developerConnection>
+    <developerConnection>scm:svn:https://svn.apache.org/repos/asf/jakarta/httpcomponents/httpcore/trunk</developerConnection>
     <url>http://svn.apache.org/repos/asf/jakarta/httpcomponents/httpcore/trunk</url>
   </scm>
 
