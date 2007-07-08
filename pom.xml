@@ -40,7 +40,7 @@
   <name>HttpComponents Core</name>
   <version>4.0-alpha6-SNAPSHOT</version>
   <description>Core components to build HTTP enabled services</description>
-  <url>http://jakarta.apache.org/httpcomponents/httpcore</url>
+  <url>http://jakarta.apache.org/httpcomponents/httpcomponents-core/</url>
   <inceptionYear>2005</inceptionYear>
   <packaging>pom</packaging>
 

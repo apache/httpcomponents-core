@@ -42,7 +42,7 @@
   <description>
    HttpComponents Core (NIO extensions)
   </description>
-  <url>http://jakarta.apache.org/httpcomponents/httpcore</url>
+  <url>http://jakarta.apache.org/httpcomponents/httpcomponents-core/</url>
   <packaging>jar</packaging>  
 
   <licenses>
