@@ -39,6 +39,16 @@ import java.nio.channels.ReadableByteChannel;
 import org.apache.http.impl.nio.reactor.SessionInputBuffer;
 import org.apache.http.nio.FileContentDecoder;
 
+/**
+ * Content-Length delimited decoder implementation.
+ *
+ * @author <a href="mailto:oleg at ural.ru">Oleg Kalnichevski</a>
+ * @author Andrea Selva
+ *
+ * @version $Revision$
+ * 
+ * @since 4.0
+ */
 public class LengthDelimitedDecoder extends AbstractContentDecoder 
         implements FileContentDecoder {
     

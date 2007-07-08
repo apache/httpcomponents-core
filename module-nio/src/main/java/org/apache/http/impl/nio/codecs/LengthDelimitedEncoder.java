@@ -37,6 +37,16 @@ import java.nio.channels.FileChannel;
 import java.nio.channels.WritableByteChannel;
 import org.apache.http.nio.FileContentEncoder;
 
+/**
+ * Content-Length delimited encoder implementation.
+ *
+ * @author <a href="mailto:oleg at ural.ru">Oleg Kalnichevski</a>
+ * @author Andrea Selva
+ *
+ * @version $Revision$
+ * 
+ * @since 4.0
+ */
 public class LengthDelimitedEncoder extends AbstractContentEncoder 
         implements FileContentEncoder {
     
