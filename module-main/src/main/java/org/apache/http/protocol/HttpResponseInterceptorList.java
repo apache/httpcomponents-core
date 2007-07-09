@@ -62,8 +62,9 @@ public interface HttpResponseInterceptorList {
      * Inserts a response interceptor at the specified index.
      *
      * @param itcp      the response interceptor to add
-     * @param index     the index to insert the interceptor at 
-     *                  or MAX_INTEGER to insert last. 
+     * @param index     the index to insert the interceptor at.
+     *                  If the index exceeds the size of the list,
+     *                  the interceptor is appended at the end of the list.
      */
     void addResponseInterceptor(HttpResponseInterceptor itcp, int index);
     
