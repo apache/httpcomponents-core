@@ -1,5 +1,9 @@
 Changes since release 4.0 Alpha 5
 
+* [HTTPCORE-90] Version detection based on build-time properties
+  Contributed by Oleg Kalnichevski <olegk at apache.org> and 
+  Roland Weber <rolandw at apache.org>
+
 * [HTTPCORE-88] Added convenience methods to HttpRequestInterceptorList, 
   HttpResponseInterceptorList interfaces
   Contributed by Andrea Selva <selva.andre at gmail.com>
