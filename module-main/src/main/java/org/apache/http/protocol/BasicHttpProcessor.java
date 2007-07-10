@@ -82,10 +82,10 @@ public class BasicHttpProcessor implements
         }
 
         if (this.requestInterceptors == null) {
+            if (index > 0) {
+                throw new IndexOutOfBoundsException(String.valueOf(index));
+            }
             this.requestInterceptors = new ArrayList();
-        }
-        if (index > this.requestInterceptors.size()) {
-            index = this.requestInterceptors.size();
         }
         this.requestInterceptors.add(index, itcp);
     }
@@ -96,15 +96,15 @@ public class BasicHttpProcessor implements
         if (index < 0) {
             throw new IndexOutOfBoundsException(String.valueOf(index));
         }
-         if (itcp == null) {
+        if (itcp == null) {
             return;
         }
 
         if (this.responseInterceptors == null) {
+            if (index > 0) {
+                throw new IndexOutOfBoundsException(String.valueOf(index));
+            }
             this.responseInterceptors = new ArrayList();
-        }
-        if (index > this.responseInterceptors.size()) {
-            index = this.responseInterceptors.size();
         }
         this.responseInterceptors.add(index, itcp);
     }
