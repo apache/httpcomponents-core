@@ -32,6 +32,14 @@
     <formats>
         <format>zip</format>
     </formats>
+    <moduleSets>
+        <moduleSet>
+          <binaries>
+            <outputDirectory>/lib</outputDirectory>
+            <unpack>false</unpack>
+          </binaries>
+        </moduleSet>
+    </moduleSets>
     <fileSets>
         <fileSet>
           <includes>
@@ -43,13 +51,6 @@
           <lineEnding>crlf</lineEnding>
         </fileSet>
         <!-- Base module -->
-        <fileSet>
-          <directory>module-main/target</directory>
-          <outputDirectory>lib</outputDirectory>
-          <includes>
-            <include>*.jar</include>
-          </includes>
-        </fileSet>
         <fileSet>
           <directory>module-main/target/site/apidocs</directory>
           <outputDirectory>javadoc/httpcore</outputDirectory>
@@ -64,13 +65,6 @@
         </fileSet>
         <!-- NIO extensions module -->
         <fileSet>
-          <directory>module-nio/target</directory>
-          <outputDirectory>lib</outputDirectory>
-          <includes>
-            <include>*.jar</include>
-          </includes>
-        </fileSet>
-        <fileSet>
           <directory>module-nio/target/site/apidocs</directory>
           <outputDirectory>javadoc/httpcore-nio</outputDirectory>
         </fileSet>
@@ -83,13 +77,6 @@
           </includes>
         </fileSet>
         <!-- NIOSSL extensions module -->
-        <fileSet>
-          <directory>module-niossl/target</directory>
-          <outputDirectory>lib</outputDirectory>
-          <includes>
-            <include>*.jar</include>
-          </includes>
-        </fileSet>
         <fileSet>
           <directory>module-niossl/target/site/apidocs</directory>
           <outputDirectory>javadoc/httpcore-niossl</outputDirectory>
