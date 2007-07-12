@@ -771,6 +771,41 @@ public class TestStandardInterceptors extends TestCase {
             // expected
         }
     }
+
+    public void testRequestDateGenerated() throws Exception {
+        HttpContext context = new HttpExecutionContext(null);
+        BasicHttpRequest request =
+            new BasicHttpEntityEnclosingRequest("POST", "/");
+        //BasicHttpRequest request = new BasicHttpRequest("GET", "/");
+
+        RequestDate interceptor = new RequestDate();
+        interceptor.process(request, context);
+        Header h1 = request.getFirstHeader(HTTP.DATE_DIRECTIVE);
+        assertNotNull(h1);
+        interceptor.process(request, context);
+        Header h2 = request.getFirstHeader(HTTP.DATE_DIRECTIVE);
+        assertNotNull(h2);
+    }
+        
+    public void testRequestDateNotGenerated() throws Exception {
+        HttpContext context = new HttpExecutionContext(null);
+        BasicHttpRequest request = new BasicHttpRequest("GET", "/");
+
+        RequestDate interceptor = new RequestDate();
+        interceptor.process(request, context);
+        Header h1 = request.getFirstHeader(HTTP.DATE_DIRECTIVE);
+        assertNull(h1);
+    }
+        
+    public void testRequestDateInvalidInput() throws Exception {
+        RequestDate interceptor = new RequestDate();
+        try {
+            interceptor.process(null, null);
+            fail("IllegalArgumentException should have been thrown");
+        } catch (IllegalArgumentException ex) {
+            // expected
+        }
+    }
             
     public void testResponseServerGenerated() throws Exception {
         HttpContext context = new HttpExecutionContext(null);

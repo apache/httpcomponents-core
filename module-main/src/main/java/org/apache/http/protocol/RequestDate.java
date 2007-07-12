@@ -34,13 +34,13 @@ package org.apache.http.protocol;
 import java.io.IOException;
 
 import org.apache.http.HttpException;
-import org.apache.http.HttpResponse;
-import org.apache.http.HttpResponseInterceptor;
-import org.apache.http.HttpStatus;
+import org.apache.http.HttpRequest;
+import org.apache.http.HttpEntityEnclosingRequest;
+import org.apache.http.HttpRequestInterceptor;
 
 /**
- * A response interceptor that adds a Date header.
- * For use on the server side.
+ * A request interceptor that adds a Date header.
+ * For use on the client side.
  *
  * @author <a href="mailto:oleg at ural.ru">Oleg Kalnichevski</a>
  *
@@ -48,24 +48,23 @@ import org.apache.http.HttpStatus;
  * 
  * @since 4.0
  */
-public class ResponseDate implements HttpResponseInterceptor {
+public class RequestDate implements HttpRequestInterceptor {
 
     private static final HttpDateGenerator DATE_GENERATOR = new HttpDateGenerator(); 
     
-    public ResponseDate() {
+    public RequestDate() {
         super();
     }
 
-    public void process(final HttpResponse response, final HttpContext context) 
+    public void process(final HttpRequest request, final HttpContext context) 
             throws HttpException, IOException {
-        if (response == null) {
+        if (request == null) {
             throw new IllegalArgumentException
-                ("HTTP response may not be null.");
+                ("HTTP request may not be null.");
         }
-        int status = response.getStatusLine().getStatusCode();
-        if (status >= HttpStatus.SC_OK) {
+        if (request instanceof HttpEntityEnclosingRequest) {
             String httpdate = DATE_GENERATOR.getCurrentDate();
-            response.setHeader(HTTP.DATE_DIRECTIVE, httpdate); 
+            request.setHeader(HTTP.DATE_DIRECTIVE, httpdate); 
         }
     }
     
