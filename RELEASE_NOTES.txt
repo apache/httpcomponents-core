@@ -1,5 +1,8 @@
 Changes since release 4.0 Alpha 5
 
+* [HTTPCORE-91] new interceptor RequestDate, renamed constants in protocol.HTTP
+  Contributed by Roland Weber <rolandw at apache.org>
+
 * [HTTPCORE-90] Version detection based on build-time properties
   Contributed by Oleg Kalnichevski <olegk at apache.org> and 
   Roland Weber <rolandw at apache.org>
