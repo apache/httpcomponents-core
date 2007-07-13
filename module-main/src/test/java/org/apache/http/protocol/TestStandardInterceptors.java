@@ -745,10 +745,10 @@ public class TestStandardInterceptors extends TestCase {
         HttpResponse response = new BasicHttpResponse(HttpVersion.HTTP_1_1, HttpStatus.SC_OK, "OK");
         ResponseDate interceptor = new ResponseDate();
         interceptor.process(response, context);
-        Header h1 = response.getFirstHeader(HTTP.DATE_DIRECTIVE);
+        Header h1 = response.getFirstHeader(HTTP.DATE_HEADER);
         assertNotNull(h1);
         interceptor.process(response, context);
-        Header h2 = response.getFirstHeader(HTTP.DATE_DIRECTIVE);
+        Header h2 = response.getFirstHeader(HTTP.DATE_HEADER);
         assertNotNull(h2);
     }
         
@@ -758,7 +758,7 @@ public class TestStandardInterceptors extends TestCase {
         response.setStatusCode(199);
         ResponseDate interceptor = new ResponseDate();
         interceptor.process(response, context);
-        Header h1 = response.getFirstHeader(HTTP.DATE_DIRECTIVE);
+        Header h1 = response.getFirstHeader(HTTP.DATE_HEADER);
         assertNull(h1);
     }
         
@@ -780,10 +780,10 @@ public class TestStandardInterceptors extends TestCase {
 
         RequestDate interceptor = new RequestDate();
         interceptor.process(request, context);
-        Header h1 = request.getFirstHeader(HTTP.DATE_DIRECTIVE);
+        Header h1 = request.getFirstHeader(HTTP.DATE_HEADER);
         assertNotNull(h1);
         interceptor.process(request, context);
-        Header h2 = request.getFirstHeader(HTTP.DATE_DIRECTIVE);
+        Header h2 = request.getFirstHeader(HTTP.DATE_HEADER);
         assertNotNull(h2);
     }
         
@@ -793,7 +793,7 @@ public class TestStandardInterceptors extends TestCase {
 
         RequestDate interceptor = new RequestDate();
         interceptor.process(request, context);
-        Header h1 = request.getFirstHeader(HTTP.DATE_DIRECTIVE);
+        Header h1 = request.getFirstHeader(HTTP.DATE_HEADER);
         assertNull(h1);
     }
         
@@ -813,7 +813,7 @@ public class TestStandardInterceptors extends TestCase {
         response.getParams().setParameter(HttpProtocolParams.ORIGIN_SERVER, "some server");
         ResponseServer interceptor = new ResponseServer();
         interceptor.process(response, context);
-        Header h1 = response.getFirstHeader(HTTP.SERVER_DIRECTIVE);
+        Header h1 = response.getFirstHeader(HTTP.SERVER_HEADER);
         assertNotNull(h1);
         assertEquals("some server", h1.getValue());
     }
@@ -822,10 +822,10 @@ public class TestStandardInterceptors extends TestCase {
         HttpContext context = new HttpExecutionContext(null);
         HttpResponse response = new BasicHttpResponse(HttpVersion.HTTP_1_1, HttpStatus.SC_OK, "OK");
         response.getParams().setParameter(HttpProtocolParams.ORIGIN_SERVER, "some server");
-        response.addHeader(new BasicHeader(HTTP.SERVER_DIRECTIVE, "whatever"));
+        response.addHeader(new BasicHeader(HTTP.SERVER_HEADER, "whatever"));
         ResponseServer interceptor = new ResponseServer();
         interceptor.process(response, context);
-        Header h1 = response.getFirstHeader(HTTP.SERVER_DIRECTIVE);
+        Header h1 = response.getFirstHeader(HTTP.SERVER_HEADER);
         assertNotNull(h1);
         assertEquals("whatever", h1.getValue());
     }
@@ -835,7 +835,7 @@ public class TestStandardInterceptors extends TestCase {
         HttpResponse response = new BasicHttpResponse(HttpVersion.HTTP_1_1, HttpStatus.SC_OK, "OK");
         ResponseServer interceptor = new ResponseServer();
         interceptor.process(response, context);
-        Header h1 = response.getFirstHeader(HTTP.SERVER_DIRECTIVE);
+        Header h1 = response.getFirstHeader(HTTP.SERVER_HEADER);
         assertNull(h1);
     }
         

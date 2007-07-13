@@ -356,7 +356,6 @@ public class NHttpReverseProxy {
                     // Remove connection specific headers
                     response.removeHeaders(HTTP.CONTENT_LEN);
                     response.removeHeaders(HTTP.TRANSFER_ENCODING);
-                    response.removeHeaders(HTTP.SERVER_DIRECTIVE);
                     response.removeHeaders(HTTP.CONN_DIRECTIVE);
                     response.removeHeaders("Keep-Alive");
                     

@@ -59,11 +59,11 @@ public class ResponseServer implements HttpResponseInterceptor {
         if (response == null) {
             throw new IllegalArgumentException("HTTP request may not be null");
         }
-        if (!response.containsHeader(HTTP.SERVER_DIRECTIVE)) {
+        if (!response.containsHeader(HTTP.SERVER_HEADER)) {
             String s = (String) response.getParams().getParameter(
                     HttpProtocolParams.ORIGIN_SERVER);
             if (s != null) {
-                response.addHeader(HTTP.SERVER_DIRECTIVE, s); 
+                response.addHeader(HTTP.SERVER_HEADER, s);
             }
         }
     }

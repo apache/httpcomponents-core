@@ -56,8 +56,8 @@ public final class HTTP {
     public static final String CONN_DIRECTIVE = "Connection";
     public static final String TARGET_HOST = "Host";
     public static final String USER_AGENT = "User-Agent";
-    public static final String DATE_DIRECTIVE = "Date";
-    public static final String SERVER_DIRECTIVE = "Server";
+    public static final String DATE_HEADER = "Date";
+    public static final String SERVER_HEADER = "Server";
     
     /** HTTP expectations */
     public static final String EXPECT_CONTINUE = "100-Continue";
