@@ -44,6 +44,8 @@ import junit.framework.Test;
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
 
+import org.apache.http.impl.io.HttpTransportMetricsImpl;
+import org.apache.http.impl.nio.reactor.SessionOutputBuffer;
 import org.apache.http.util.EncodingUtils;
 
 /**
@@ -82,7 +84,12 @@ public class TestLengthDelimitedEncoder extends TestCase {
     
     public void testBasicCoding() throws Exception {
         ByteArrayOutputStream baos = new ByteArrayOutputStream(); 
-        LengthDelimitedEncoder encoder = new LengthDelimitedEncoder(newChannel(baos), 16);
+        WritableByteChannel channel = newChannel(baos);
+        SessionOutputBuffer outbuf = new SessionOutputBuffer(1024, 128);
+        HttpTransportMetricsImpl metrics = new HttpTransportMetricsImpl();
+
+        LengthDelimitedEncoder encoder = new LengthDelimitedEncoder(
+                channel, outbuf, metrics, 16);
         encoder.write(wrap("stuff;"));
         encoder.write(wrap("more stuff"));
         
@@ -94,7 +101,12 @@ public class TestLengthDelimitedEncoder extends TestCase {
     
     public void testCodingBeyondContentLimit() throws Exception {
         ByteArrayOutputStream baos = new ByteArrayOutputStream(); 
-        LengthDelimitedEncoder encoder = new LengthDelimitedEncoder(newChannel(baos), 16);
+        WritableByteChannel channel = newChannel(baos);
+        SessionOutputBuffer outbuf = new SessionOutputBuffer(1024, 128);
+        HttpTransportMetricsImpl metrics = new HttpTransportMetricsImpl();
+
+        LengthDelimitedEncoder encoder = new LengthDelimitedEncoder(
+                channel, outbuf, metrics, 16);
         encoder.write(wrap("stuff;"));
         encoder.write(wrap("more stuff; and a lot more stuff"));
         
@@ -106,7 +118,12 @@ public class TestLengthDelimitedEncoder extends TestCase {
     
     public void testCodingEmptyBuffer() throws Exception {
         ByteArrayOutputStream baos = new ByteArrayOutputStream(); 
-        LengthDelimitedEncoder encoder = new LengthDelimitedEncoder(newChannel(baos), 16);
+        WritableByteChannel channel = newChannel(baos);
+        SessionOutputBuffer outbuf = new SessionOutputBuffer(1024, 128);
+        HttpTransportMetricsImpl metrics = new HttpTransportMetricsImpl();
+
+        LengthDelimitedEncoder encoder = new LengthDelimitedEncoder(
+                channel, outbuf, metrics, 16);
         encoder.write(wrap("stuff;"));
 
         ByteBuffer empty = ByteBuffer.allocate(100);
@@ -124,7 +141,12 @@ public class TestLengthDelimitedEncoder extends TestCase {
 
     public void testCodingCompleted() throws Exception {
         ByteArrayOutputStream baos = new ByteArrayOutputStream(); 
-        LengthDelimitedEncoder encoder = new LengthDelimitedEncoder(newChannel(baos), 5);
+        WritableByteChannel channel = newChannel(baos);
+        SessionOutputBuffer outbuf = new SessionOutputBuffer(1024, 128);
+        HttpTransportMetricsImpl metrics = new HttpTransportMetricsImpl();
+
+        LengthDelimitedEncoder encoder = new LengthDelimitedEncoder(
+                channel, outbuf, metrics, 5);
         encoder.write(wrap("stuff"));
 
         try {
@@ -135,26 +157,15 @@ public class TestLengthDelimitedEncoder extends TestCase {
         }
     }
 
-    public void testInvalidConstructor() {
-        try {
-            new LengthDelimitedEncoder(null, 10);
-            fail("IllegalArgumentException should have been thrown");
-        } catch (IllegalArgumentException ex) {
-            // ignore
-        }
-        ByteArrayOutputStream baos = new ByteArrayOutputStream(); 
-        try {
-            new LengthDelimitedEncoder(newChannel(baos), -10);
-            fail("IllegalArgumentException should have been thrown");
-        } catch (IllegalArgumentException ex) {
-            // ignore
-        }
-    }
-    
     /* ----------------- FileChannel Part testing --------------------------- */
     public void testCodingBeyondContentLimitFromFile() throws Exception {
         ByteArrayOutputStream baos = new ByteArrayOutputStream(); 
-        LengthDelimitedEncoder encoder = new LengthDelimitedEncoder(newChannel(baos), 16);
+        WritableByteChannel channel = newChannel(baos);
+        SessionOutputBuffer outbuf = new SessionOutputBuffer(1024, 128);
+        HttpTransportMetricsImpl metrics = new HttpTransportMetricsImpl();
+
+        LengthDelimitedEncoder encoder = new LengthDelimitedEncoder(
+                channel, outbuf, metrics, 16);
                
         File tmpFile = File.createTempFile("testFile", "txt");
         FileOutputStream fout = new FileOutputStream(tmpFile);
@@ -181,7 +192,12 @@ public class TestLengthDelimitedEncoder extends TestCase {
     
     public void testCodingEmptyFile() throws Exception {
         ByteArrayOutputStream baos = new ByteArrayOutputStream(); 
-        LengthDelimitedEncoder encoder = new LengthDelimitedEncoder(newChannel(baos), 16);
+        WritableByteChannel channel = newChannel(baos);
+        SessionOutputBuffer outbuf = new SessionOutputBuffer(1024, 128);
+        HttpTransportMetricsImpl metrics = new HttpTransportMetricsImpl();
+
+        LengthDelimitedEncoder encoder = new LengthDelimitedEncoder(
+                channel, outbuf, metrics, 16);
         encoder.write(wrap("stuff;"));
 
         //Create an empty file
@@ -208,7 +224,12 @@ public class TestLengthDelimitedEncoder extends TestCase {
 
     public void testCodingCompletedFromFile() throws Exception {
         ByteArrayOutputStream baos = new ByteArrayOutputStream(); 
-        LengthDelimitedEncoder encoder = new LengthDelimitedEncoder(newChannel(baos), 5);
+        WritableByteChannel channel = newChannel(baos);
+        SessionOutputBuffer outbuf = new SessionOutputBuffer(1024, 128);
+        HttpTransportMetricsImpl metrics = new HttpTransportMetricsImpl();
+
+        LengthDelimitedEncoder encoder = new LengthDelimitedEncoder(
+                channel, outbuf, metrics, 5);
         encoder.write(wrap("stuff"));
 
         File tmpFile = File.createTempFile("testFile", "txt");
@@ -233,7 +254,12 @@ public class TestLengthDelimitedEncoder extends TestCase {
     
     public void testCodingFromFileSmaller() throws Exception {
         ByteArrayOutputStream baos = new ByteArrayOutputStream(); 
-        LengthDelimitedEncoder encoder = new LengthDelimitedEncoder(newChannel(baos), 16);
+        WritableByteChannel channel = newChannel(baos);
+        SessionOutputBuffer outbuf = new SessionOutputBuffer(1024, 128);
+        HttpTransportMetricsImpl metrics = new HttpTransportMetricsImpl();
+
+        LengthDelimitedEncoder encoder = new LengthDelimitedEncoder(
+                channel, outbuf, metrics, 16);
                
         File tmpFile = File.createTempFile("testFile", "txt");
         FileOutputStream fout = new FileOutputStream(tmpFile);
@@ -256,4 +282,37 @@ public class TestLengthDelimitedEncoder extends TestCase {
         
         tmpFile.delete();
     }
+    
+    public void testInvalidConstructor() {
+        ByteArrayOutputStream baos = new ByteArrayOutputStream(); 
+        WritableByteChannel channel = newChannel(baos);
+        SessionOutputBuffer outbuf = new SessionOutputBuffer(1024, 128);
+        HttpTransportMetricsImpl metrics = new HttpTransportMetricsImpl();
+
+        try {
+            new LengthDelimitedEncoder(null, null, null, 10);
+            fail("IllegalArgumentException should have been thrown");
+        } catch (IllegalArgumentException ex) {
+            // ignore
+        }
+        try {
+            new LengthDelimitedEncoder(channel, null, null, 10);
+            fail("IllegalArgumentException should have been thrown");
+        } catch (IllegalArgumentException ex) {
+            // ignore
+        }
+        try {
+            new LengthDelimitedEncoder(channel, outbuf, null, 10);
+            fail("IllegalArgumentException should have been thrown");
+        } catch (IllegalArgumentException ex) {
+            // ignore
+        }
+        try {
+            new LengthDelimitedEncoder(channel, outbuf, metrics, -10);
+            fail("IllegalArgumentException should have been thrown");
+        } catch (IllegalArgumentException ex) {
+            // ignore
+        }
+    }
+
 }

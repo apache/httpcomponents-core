@@ -33,21 +33,21 @@ package org.apache.http.impl.nio.codecs;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
+import java.nio.channels.WritableByteChannel;
 
+import org.apache.http.impl.io.HttpTransportMetricsImpl;
 import org.apache.http.impl.nio.reactor.SessionOutputBuffer;
 import org.apache.http.util.CharArrayBuffer;
 
 public class ChunkEncoder extends AbstractContentEncoder {
     
-    private final SessionOutputBuffer outbuf;
     private final CharArrayBuffer lineBuffer;
     
-    public ChunkEncoder(final SessionOutputBuffer outbuf) {
-        super();
-        if (outbuf == null) {
-            throw new IllegalArgumentException("Session output buffer may not be null");
-        }
-        this.outbuf = outbuf;
+    public ChunkEncoder(
+            final WritableByteChannel channel, 
+            final SessionOutputBuffer buffer,
+            final HttpTransportMetricsImpl metrics) {
+        super(channel, buffer, metrics);
         this.lineBuffer = new CharArrayBuffer(16);
     }
 
@@ -62,10 +62,10 @@ public class ChunkEncoder extends AbstractContentEncoder {
         }
         this.lineBuffer.clear();
         this.lineBuffer.append(Integer.toHexString(chunk));
-        this.outbuf.writeLine(this.lineBuffer);
-        this.outbuf.write(src);
+        this.buffer.writeLine(this.lineBuffer);
+        this.buffer.write(src);
         this.lineBuffer.clear();
-        this.outbuf.writeLine(this.lineBuffer);
+        this.buffer.writeLine(this.lineBuffer);
         return chunk;
     }
 
@@ -73,9 +73,9 @@ public class ChunkEncoder extends AbstractContentEncoder {
         assertNotCompleted();
         this.lineBuffer.clear();
         this.lineBuffer.append("0");
-        this.outbuf.writeLine(this.lineBuffer);
+        this.buffer.writeLine(this.lineBuffer);
         this.lineBuffer.clear();
-        this.outbuf.writeLine(this.lineBuffer);
+        this.buffer.writeLine(this.lineBuffer);
         this.completed = true;
     }
     

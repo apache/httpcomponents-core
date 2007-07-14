@@ -43,6 +43,7 @@ import junit.framework.Test;
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
 
+import org.apache.http.impl.io.HttpTransportMetricsImpl;
 import org.apache.http.impl.nio.reactor.SessionInputBuffer;
 import org.apache.http.nio.mockup.ReadableByteChannelMockup;
 
@@ -97,7 +98,9 @@ public class TestLengthDelimitedDecoder extends TestCase {
                 new String[] {"stuff;", "more stuff"}, "US-ASCII"); 
         
         SessionInputBuffer inbuf = new SessionInputBuffer(1024, 256); 
-        LengthDelimitedDecoder decoder = new LengthDelimitedDecoder(channel, inbuf, 16); 
+        HttpTransportMetricsImpl metrics = new HttpTransportMetricsImpl();
+        LengthDelimitedDecoder decoder = new LengthDelimitedDecoder(
+                channel, inbuf, metrics, 16); 
         
         ByteBuffer dst = ByteBuffer.allocate(1024); 
         
@@ -125,7 +128,9 @@ public class TestLengthDelimitedDecoder extends TestCase {
                         "more stuff; and a lot more stuff"}, "US-ASCII"); 
         
         SessionInputBuffer inbuf = new SessionInputBuffer(1024, 256); 
-        LengthDelimitedDecoder decoder = new LengthDelimitedDecoder(channel, inbuf, 16); 
+        HttpTransportMetricsImpl metrics = new HttpTransportMetricsImpl();
+        LengthDelimitedDecoder decoder = new LengthDelimitedDecoder(
+                channel, inbuf, metrics, 16); 
         
         ByteBuffer dst = ByteBuffer.allocate(1024); 
         
@@ -151,7 +156,9 @@ public class TestLengthDelimitedDecoder extends TestCase {
                 new String[] {"stuff;", "more stuff"}, "US-ASCII"); 
         
         SessionInputBuffer inbuf = new SessionInputBuffer(1024, 256); 
-        LengthDelimitedDecoder decoder = new LengthDelimitedDecoder(channel, inbuf, 16); 
+        HttpTransportMetricsImpl metrics = new HttpTransportMetricsImpl();
+        LengthDelimitedDecoder decoder = new LengthDelimitedDecoder(
+                channel, inbuf, metrics, 16); 
         
         ByteBuffer dst = ByteBuffer.allocate(4); 
         
@@ -195,11 +202,14 @@ public class TestLengthDelimitedDecoder extends TestCase {
                 new String[] {"stuff;", "more stuff"}, "US-ASCII"); 
         
         SessionInputBuffer inbuf = new SessionInputBuffer(1024, 256);
+        HttpTransportMetricsImpl metrics = new HttpTransportMetricsImpl();
+
         inbuf.fill(channel);
         
         assertEquals(6, inbuf.length());
         
-        LengthDelimitedDecoder decoder = new LengthDelimitedDecoder(channel, inbuf, 16); 
+        LengthDelimitedDecoder decoder = new LengthDelimitedDecoder(
+                channel, inbuf, metrics, 16); 
         
         ByteBuffer dst = ByteBuffer.allocate(1024); 
         
@@ -227,12 +237,15 @@ public class TestLengthDelimitedDecoder extends TestCase {
                         "more stuff; and a lot more stuff"}, "US-ASCII"); 
         
         SessionInputBuffer inbuf = new SessionInputBuffer(1024, 256);
+        HttpTransportMetricsImpl metrics = new HttpTransportMetricsImpl();
+
         inbuf.fill(channel);
         inbuf.fill(channel);
         
         assertEquals(38, inbuf.length());
         
-        LengthDelimitedDecoder decoder = new LengthDelimitedDecoder(channel, inbuf, 16); 
+        LengthDelimitedDecoder decoder = new LengthDelimitedDecoder(
+                channel, inbuf, metrics, 16); 
         
         ByteBuffer dst = ByteBuffer.allocate(1024); 
         
@@ -247,55 +260,15 @@ public class TestLengthDelimitedDecoder extends TestCase {
         assertTrue(decoder.isCompleted());
     }
 
-    public void testInvalidConstructor() {
-        ReadableByteChannel channel = new ReadableByteChannelMockup(
-                new String[] {"stuff;", "more stuff"}, "US-ASCII"); 
-        
-        SessionInputBuffer inbuf = new SessionInputBuffer(1024, 256); 
-        try {
-            new LengthDelimitedDecoder(null, null, 10);
-            fail("IllegalArgumentException should have been thrown");
-        } catch (IllegalArgumentException ex) {
-            // ignore
-        }
-        try {
-            new LengthDelimitedDecoder(channel, null, 10);
-            fail("IllegalArgumentException should have been thrown");
-        } catch (IllegalArgumentException ex) {
-            // ignore
-        }
-        try {
-            new LengthDelimitedDecoder(channel, inbuf, -10);
-            fail("IllegalArgumentException should have been thrown");
-        } catch (IllegalArgumentException ex) {
-            // ignore
-        }
-    }
-
-    public void testInvalidInput() throws Exception {
-        String s = "stuff";
-        ReadableByteChannel channel = new ReadableByteChannelMockup(
-                new String[] {s}, "US-ASCII"); 
-    
-        SessionInputBuffer inbuf = new SessionInputBuffer(1024, 256); 
-        LengthDelimitedDecoder decoder = new LengthDelimitedDecoder(channel, inbuf, 3);
-        
-        try {
-            decoder.read(null);
-            fail("IllegalArgumentException should have been thrown");
-        } catch (IllegalArgumentException ex) {
-            // expected
-        }
-    }
-    
-    
     // ----------------------------------------------------- Test read
     public void testBasicDecodingFile() throws Exception {
         ReadableByteChannel channel = new ReadableByteChannelMockup(
                 new String[] {"stuff;", "more stuff"}, "US-ASCII"); 
         
         SessionInputBuffer inbuf = new SessionInputBuffer(1024, 256); 
-        LengthDelimitedDecoder decoder = new LengthDelimitedDecoder(channel, inbuf, 16); 
+        HttpTransportMetricsImpl metrics = new HttpTransportMetricsImpl();
+        LengthDelimitedDecoder decoder = new LengthDelimitedDecoder(
+                channel, inbuf, metrics, 16); 
         
         File tmpFile = File.createTempFile("testFile", ".txt");
         FileChannel fchannel = new FileOutputStream(tmpFile).getChannel();
@@ -324,7 +297,9 @@ public class TestLengthDelimitedDecoder extends TestCase {
                         "more stuff; and a lot more stuff"}, "US-ASCII"); 
         
         SessionInputBuffer inbuf = new SessionInputBuffer(1024, 256); 
-        LengthDelimitedDecoder decoder = new LengthDelimitedDecoder(channel, inbuf, 16); 
+        HttpTransportMetricsImpl metrics = new HttpTransportMetricsImpl();
+        LengthDelimitedDecoder decoder = new LengthDelimitedDecoder(
+                channel, inbuf, metrics, 16); 
         
         File tmpFile = File.createTempFile("testFile", ".txt");
         FileChannel fchannel = new FileOutputStream(tmpFile).getChannel();
@@ -346,5 +321,54 @@ public class TestLengthDelimitedDecoder extends TestCase {
         tmpFile.delete();
     }
     
+    public void testInvalidConstructor() {
+        ReadableByteChannel channel = new ReadableByteChannelMockup(
+                new String[] {"stuff;", "more stuff"}, "US-ASCII"); 
+        
+        SessionInputBuffer inbuf = new SessionInputBuffer(1024, 256); 
+        HttpTransportMetricsImpl metrics = new HttpTransportMetricsImpl();
+        try {
+            new LengthDelimitedDecoder(null, null, null, 10);
+            fail("IllegalArgumentException should have been thrown");
+        } catch (IllegalArgumentException ex) {
+            // ignore
+        }
+        try {
+            new LengthDelimitedDecoder(channel, null, null, 10);
+            fail("IllegalArgumentException should have been thrown");
+        } catch (IllegalArgumentException ex) {
+            // ignore
+        }
+        try {
+            new LengthDelimitedDecoder(channel, inbuf, null, 10);
+            fail("IllegalArgumentException should have been thrown");
+        } catch (IllegalArgumentException ex) {
+            // ignore
+        }
+        try {
+            new LengthDelimitedDecoder(channel, inbuf, metrics, -10);
+            fail("IllegalArgumentException should have been thrown");
+        } catch (IllegalArgumentException ex) {
+            // ignore
+        }
+    }
+
+    public void testInvalidInput() throws Exception {
+        String s = "stuff";
+        ReadableByteChannel channel = new ReadableByteChannelMockup(
+                new String[] {s}, "US-ASCII"); 
+    
+        SessionInputBuffer inbuf = new SessionInputBuffer(1024, 256); 
+        HttpTransportMetricsImpl metrics = new HttpTransportMetricsImpl();
+        LengthDelimitedDecoder decoder = new LengthDelimitedDecoder(
+                channel, inbuf, metrics, 3);
+        
+        try {
+            decoder.read(null);
+            fail("IllegalArgumentException should have been thrown");
+        } catch (IllegalArgumentException ex) {
+            // expected
+        }
+    }
     
 }

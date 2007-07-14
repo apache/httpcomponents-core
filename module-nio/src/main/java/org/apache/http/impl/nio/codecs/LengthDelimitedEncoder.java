@@ -35,6 +35,9 @@ import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.channels.FileChannel;
 import java.nio.channels.WritableByteChannel;
+
+import org.apache.http.impl.io.HttpTransportMetricsImpl;
+import org.apache.http.impl.nio.reactor.SessionOutputBuffer;
 import org.apache.http.nio.FileContentEncoder;
 
 /**
@@ -50,20 +53,19 @@ import org.apache.http.nio.FileContentEncoder;
 public class LengthDelimitedEncoder extends AbstractContentEncoder 
         implements FileContentEncoder {
     
-    private final WritableByteChannel channel;
     private final long contentLength;
     
     private long len;
 
-    public LengthDelimitedEncoder(final WritableByteChannel channel, long contentLength) {
-        super();
-        if (channel == null) {
-            throw new IllegalArgumentException("Channel may not be null");
-        }
+    public LengthDelimitedEncoder(
+            final WritableByteChannel channel, 
+            final SessionOutputBuffer buffer,
+            final HttpTransportMetricsImpl metrics,
+            long contentLength) {
+        super(channel, buffer, metrics);
         if (contentLength < 0) {
             throw new IllegalArgumentException("Content length may not be negative");
-        }
-        this.channel = channel;
+        }        
         this.contentLength = contentLength;
         this.len = 0;
     }
@@ -85,6 +87,9 @@ public class LengthDelimitedEncoder extends AbstractContentEncoder
         } else {
             bytesWritten = this.channel.write(src);
         }
+        if (bytesWritten > 0) {
+            this.metrics.incrementBytesTransferred(bytesWritten);
+        }
         this.len += bytesWritten;
         if (this.len >= this.contentLength) {
             this.completed = true;
@@ -104,6 +109,9 @@ public class LengthDelimitedEncoder extends AbstractContentEncoder
             bytesWritten = fileChannel.transferTo(position, lenRemaining, this.channel);
         } else {
             bytesWritten = fileChannel.transferTo(position, count, this.channel);
+        }
+        if (bytesWritten > 0) {
+            this.metrics.incrementBytesTransferred(bytesWritten);
         }
         this.len += bytesWritten;
         if (this.len >= this.contentLength) {

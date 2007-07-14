@@ -40,6 +40,7 @@ import java.util.List;
 import org.apache.http.Header;
 import org.apache.http.MalformedChunkCodingException;
 import org.apache.http.message.BufferedHeader;
+import org.apache.http.impl.io.HttpTransportMetricsImpl;
 import org.apache.http.impl.nio.reactor.SessionInputBuffer;
 import org.apache.http.protocol.HTTP;
 import org.apache.http.util.CharArrayBuffer;
@@ -62,8 +63,11 @@ public class ChunkDecoder extends AbstractContentDecoder {
     
     private Header[] footers;
     
-    public ChunkDecoder(final ReadableByteChannel channel, final SessionInputBuffer buffer) {
-        super(channel, buffer);
+    public ChunkDecoder(            
+            final ReadableByteChannel channel, 
+            final SessionInputBuffer buffer,
+            final HttpTransportMetricsImpl metrics) {
+        super(channel, buffer, metrics);
         this.state = READ_CONTENT;
         this.chunkSize = -1;
         this.pos = 0;
@@ -155,6 +159,9 @@ public class ChunkDecoder extends AbstractContentDecoder {
 
             if (!this.buffer.hasData() || this.chunkSize == -1) {
                 int bytesRead = this.buffer.fill(this.channel);
+                if (bytesRead > 0) {
+                    this.metrics.incrementBytesTransferred(bytesRead);
+                }
                 if (bytesRead == -1) {
                     this.endOfStream = true;
                 }

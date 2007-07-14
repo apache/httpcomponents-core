@@ -91,12 +91,15 @@ public class DefaultNHttpClientConnection
         try {
             if (this.response == null) {
                 int bytesRead = this.responseParser.fillBuffer(this.session.channel());
+                if (bytesRead > 0) {
+                    this.inTransportMetrics.incrementBytesTransferred(bytesRead);
+                }
                 this.response = (HttpResponse) this.responseParser.parse(); 
                 if (this.response != null) {
                     if (this.response.getStatusLine().getStatusCode() >= 200) {
                         HttpEntity entity = prepareDecoder(this.response);
                         this.response.setEntity(entity);
-                        this.metrics.incrementRequestCount();
+                        this.connMetrics.incrementRequestCount();
                     }
                     handler.responseReceived(this);
                     if (this.contentDecoder == null) {
@@ -129,7 +132,10 @@ public class DefaultNHttpClientConnection
 
         try {
             if (this.outbuf.hasData()) {
-                this.outbuf.flush(this.session.channel());
+                int bytesWritten = this.outbuf.flush(this.session.channel());
+                if (bytesWritten > 0) {
+                    this.outTransportMetrics.incrementBytesTransferred(bytesWritten);
+                }
             }
             if (!this.outbuf.hasData()) {
                 if (this.closed) {
@@ -193,7 +199,7 @@ public class DefaultNHttpClientConnection
             prepareEncoder(request);
             this.request = request;
         }
-        this.metrics.incrementRequestCount();
+        this.connMetrics.incrementRequestCount();
         this.session.setEvent(EventMask.WRITE);
     }
 

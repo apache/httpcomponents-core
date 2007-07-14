@@ -41,6 +41,8 @@ import junit.framework.Test;
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
 
+import org.apache.http.impl.io.HttpTransportMetricsImpl;
+import org.apache.http.impl.nio.reactor.SessionOutputBuffer;
 import org.apache.http.nio.ContentDecoder;
 import org.apache.http.nio.ContentEncoder;
 import org.apache.http.nio.mockup.MockupDecoder;
@@ -110,8 +112,10 @@ public class TestBuffers extends TestCase {
     public void testOutputBufferOperations() throws IOException {
         ByteArrayOutputStream outstream = new ByteArrayOutputStream();
         WritableByteChannel channel = Channels.newChannel(outstream);
+        SessionOutputBuffer outbuf = new SessionOutputBuffer(1024, 128);
+        HttpTransportMetricsImpl metrics = new HttpTransportMetricsImpl();
         
-        ContentEncoder encoder = new MockupEncoder(channel);
+        ContentEncoder encoder = new MockupEncoder(channel, outbuf, metrics);
         
         SimpleOutputBuffer buffer = new SimpleOutputBuffer(4, new DirectByteBufferAllocator()); 
         

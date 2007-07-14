@@ -43,6 +43,7 @@ import junit.framework.Test;
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
 
+import org.apache.http.impl.io.HttpTransportMetricsImpl;
 import org.apache.http.impl.nio.reactor.SessionInputBuffer;
 import org.apache.http.nio.mockup.ReadableByteChannelMockup;
 
@@ -97,7 +98,8 @@ public class TestIdentityDecoder extends TestCase {
                 new String[] {"stuff;", "more stuff"}, "US-ASCII"); 
         
         SessionInputBuffer inbuf = new SessionInputBuffer(1024, 256); 
-        IdentityDecoder decoder = new IdentityDecoder(channel, inbuf); 
+        HttpTransportMetricsImpl metrics = new HttpTransportMetricsImpl();
+        IdentityDecoder decoder = new IdentityDecoder(channel, inbuf, metrics); 
         
         ByteBuffer dst = ByteBuffer.allocate(1024); 
         
@@ -128,11 +130,13 @@ public class TestIdentityDecoder extends TestCase {
                 new String[] {"stuff;", "more stuff"}, "US-ASCII"); 
         
         SessionInputBuffer inbuf = new SessionInputBuffer(1024, 256);
+        HttpTransportMetricsImpl metrics = new HttpTransportMetricsImpl();
+        
         inbuf.fill(channel);
         
         assertEquals(6, inbuf.length());
         
-        IdentityDecoder decoder = new IdentityDecoder(channel, inbuf); 
+        IdentityDecoder decoder = new IdentityDecoder(channel, inbuf, metrics); 
         
         ByteBuffer dst = ByteBuffer.allocate(1024); 
         
@@ -158,30 +162,13 @@ public class TestIdentityDecoder extends TestCase {
         assertTrue(decoder.isCompleted());
     }
 
-    public void testInvalidInput() throws Exception {
-        String s = "stuff";
-        ReadableByteChannel channel = new ReadableByteChannelMockup(
-                new String[] {s}, "US-ASCII"); 
-    
-        SessionInputBuffer inbuf = new SessionInputBuffer(1024, 256); 
-        IdentityDecoder decoder = new IdentityDecoder(channel, inbuf);
-        
-        try {
-            decoder.read(null);
-            fail("IllegalArgumentException should have been thrown");
-        } catch (IllegalArgumentException ex) {
-            // expected
-        }
-    }
-    
-    
-    
     public void testBasicDecodingFile() throws Exception {
         ReadableByteChannel channel = new ReadableByteChannelMockup(
                 new String[] {"stuff;", "more stuff"}, "US-ASCII"); 
         
         SessionInputBuffer inbuf = new SessionInputBuffer(1024, 256); 
-        IdentityDecoder decoder = new IdentityDecoder(channel, inbuf); 
+        HttpTransportMetricsImpl metrics = new HttpTransportMetricsImpl();
+        IdentityDecoder decoder = new IdentityDecoder(channel, inbuf, metrics); 
         
         File tmpFile = File.createTempFile("testFile", ".txt");
         FileChannel fchannel = new FileOutputStream(tmpFile).getChannel();
@@ -212,11 +199,13 @@ public class TestIdentityDecoder extends TestCase {
                 new String[] {"stuff;", "more stuff"}, "US-ASCII"); 
         
         SessionInputBuffer inbuf = new SessionInputBuffer(1024, 256);
+        HttpTransportMetricsImpl metrics = new HttpTransportMetricsImpl();
+
         inbuf.fill(channel);
         
         assertEquals(6, inbuf.length());
         
-        IdentityDecoder decoder = new IdentityDecoder(channel, inbuf); 
+        IdentityDecoder decoder = new IdentityDecoder(channel, inbuf, metrics); 
         
         File tmpFile = File.createTempFile("testFile", ".txt");
         FileChannel fchannel = new FileOutputStream(tmpFile).getChannel();
@@ -240,6 +229,48 @@ public class TestIdentityDecoder extends TestCase {
         assertTrue(decoder.isCompleted());
         
         tmpFile.delete();
+    }
+
+    public void testInvalidConstructor() {
+        ReadableByteChannel channel = new ReadableByteChannelMockup(
+                new String[] {"stuff;", "more stuff"}, "US-ASCII"); 
+        
+        SessionInputBuffer inbuf = new SessionInputBuffer(1024, 256); 
+        try {
+            new IdentityDecoder(null, null, null);
+            fail("IllegalArgumentException should have been thrown");
+        } catch (IllegalArgumentException ex) {
+            // ignore
+        }
+        try {
+            new IdentityDecoder(channel, null, null);
+            fail("IllegalArgumentException should have been thrown");
+        } catch (IllegalArgumentException ex) {
+            // ignore
+        }
+        try {
+            new IdentityDecoder(channel, inbuf, null);
+            fail("IllegalArgumentException should have been thrown");
+        } catch (IllegalArgumentException ex) {
+            // ignore
+        }
+    }
+    
+    public void testInvalidInput() throws Exception {
+        String s = "stuff";
+        ReadableByteChannel channel = new ReadableByteChannelMockup(
+                new String[] {s}, "US-ASCII"); 
+    
+        SessionInputBuffer inbuf = new SessionInputBuffer(1024, 256); 
+        HttpTransportMetricsImpl metrics = new HttpTransportMetricsImpl();
+        IdentityDecoder decoder = new IdentityDecoder(channel, inbuf, metrics);
+        
+        try {
+            decoder.read(null);
+            fail("IllegalArgumentException should have been thrown");
+        } catch (IllegalArgumentException ex) {
+            // expected
+        }
     }
     
 }

@@ -36,6 +36,7 @@ import java.nio.ByteBuffer;
 import java.nio.channels.FileChannel;
 import java.nio.channels.ReadableByteChannel;
 
+import org.apache.http.impl.io.HttpTransportMetricsImpl;
 import org.apache.http.impl.nio.reactor.SessionInputBuffer;
 import org.apache.http.nio.FileContentDecoder;
 
@@ -59,8 +60,9 @@ public class LengthDelimitedDecoder extends AbstractContentDecoder
     public LengthDelimitedDecoder(
             final ReadableByteChannel channel, 
             final SessionInputBuffer buffer,
+            final HttpTransportMetricsImpl metrics,
             long contentLength) {
-        super(channel, buffer);
+        super(channel, buffer, metrics);
         if (contentLength < 0) {
             throw new IllegalArgumentException("Content length may not be negative");
         }
@@ -89,6 +91,9 @@ public class LengthDelimitedDecoder extends AbstractContentDecoder
                 dst.limit(oldLimit);
             } else {
                 bytesRead = this.channel.read(dst);
+            }
+            if (bytesRead > 0) {
+                this.metrics.incrementBytesTransferred(bytesRead);
             }
         }
         if (bytesRead == -1) {
@@ -123,6 +128,9 @@ public class LengthDelimitedDecoder extends AbstractContentDecoder
                 bytesRead = fileChannel.transferFrom(this.channel, position, lenRemaining);
             } else {
                 bytesRead = fileChannel.transferFrom(this.channel, position, count);
+            }
+            if (bytesRead > 0) {
+                this.metrics.incrementBytesTransferred(bytesRead);
             }
         }
         if (bytesRead == 0) {

@@ -50,6 +50,7 @@ import org.apache.http.entity.ContentLengthStrategy;
 import org.apache.http.impl.HttpConnectionMetricsImpl;
 import org.apache.http.impl.entity.LaxContentLengthStrategy;
 import org.apache.http.impl.entity.StrictContentLengthStrategy;
+import org.apache.http.impl.io.HttpTransportMetricsImpl;
 import org.apache.http.nio.ContentDecoder;
 import org.apache.http.nio.ContentEncoder;
 import org.apache.http.nio.NHttpConnection;
@@ -84,7 +85,10 @@ public class NHttpConnectionBase
     protected final SessionInputBuffer inbuf;
     protected final SessionOutputBuffer outbuf;
     protected final CharArrayBuffer lineBuffer;
-    protected final HttpConnectionMetricsImpl metrics;
+    
+    protected final HttpTransportMetricsImpl inTransportMetrics;
+    protected final HttpTransportMetricsImpl outTransportMetrics;
+    protected final HttpConnectionMetricsImpl connMetrics;
     
     protected volatile ContentDecoder contentDecoder;
     protected volatile boolean hasBufferedInput;
@@ -124,7 +128,11 @@ public class NHttpConnectionBase
         this.incomingContentStrategy = new LaxContentLengthStrategy();
         this.outgoingContentStrategy = new StrictContentLengthStrategy();
         
-        this.metrics = new HttpConnectionMetricsImpl(null, null);
+        this.inTransportMetrics = new HttpTransportMetricsImpl();
+        this.outTransportMetrics = new HttpTransportMetricsImpl();
+        this.connMetrics = new HttpConnectionMetricsImpl(
+                this.inTransportMetrics, 
+                this.outTransportMetrics);
         
         this.closed = false;
         this.session.setBufferStatus(this);
@@ -163,15 +171,25 @@ public class NHttpConnectionBase
         BasicHttpEntity entity = new BasicHttpEntity();
         long len = this.incomingContentStrategy.determineLength(message);
         if (len == ContentLengthStrategy.CHUNKED) {
-            this.contentDecoder = new ChunkDecoder(this.session.channel(), this.inbuf);
+            this.contentDecoder = new ChunkDecoder(
+                    this.session.channel(), 
+                    this.inbuf, 
+                    this.inTransportMetrics);
             entity.setChunked(true);
             entity.setContentLength(-1);
         } else if (len == ContentLengthStrategy.IDENTITY) {
-            this.contentDecoder = new IdentityDecoder(this.session.channel(), this.inbuf);
+            this.contentDecoder = new IdentityDecoder(
+                    this.session.channel(), 
+                    this.inbuf, 
+                    this.inTransportMetrics);
             entity.setChunked(false);
             entity.setContentLength(-1);
         } else {
-            this.contentDecoder = new LengthDelimitedDecoder(this.session.channel(), this.inbuf, len);
+            this.contentDecoder = new LengthDelimitedDecoder(
+                    this.session.channel(), 
+                    this.inbuf, 
+                    this.inTransportMetrics,
+                    len);
             entity.setChunked(false);
             entity.setContentLength(len);
         }
@@ -190,11 +208,21 @@ public class NHttpConnectionBase
     protected void prepareEncoder(final HttpMessage message) throws HttpException {
         long len = this.outgoingContentStrategy.determineLength(message);
         if (len == ContentLengthStrategy.CHUNKED) {
-            this.contentEncoder = new ChunkEncoder(this.outbuf);
+            this.contentEncoder = new ChunkEncoder(
+                    this.session.channel(),
+                    this.outbuf,
+                    this.outTransportMetrics);
         } else if (len == ContentLengthStrategy.IDENTITY) {
-            this.contentEncoder = new IdentityEncoder(this.session.channel());
+            this.contentEncoder = new IdentityEncoder(
+                    this.session.channel(),
+                    this.outbuf,
+                    this.outTransportMetrics);
         } else {
-            this.contentEncoder = new LengthDelimitedEncoder(this.session.channel(), len);
+            this.contentEncoder = new LengthDelimitedEncoder(
+                    this.session.channel(),
+                    this.outbuf,
+                    this.outTransportMetrics,
+                    len);
         }
     }
 
@@ -279,7 +307,7 @@ public class NHttpConnectionBase
     }
 
     public HttpConnectionMetrics getMetrics() {
-        return this.metrics;
+        return this.connMetrics;
     }
     
 }

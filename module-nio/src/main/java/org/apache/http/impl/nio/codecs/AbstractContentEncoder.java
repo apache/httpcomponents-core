@@ -32,13 +32,39 @@
 package org.apache.http.impl.nio.codecs;
 
 import java.io.IOException;
+import java.nio.channels.WritableByteChannel;
 
+import org.apache.http.impl.io.HttpTransportMetricsImpl;
+import org.apache.http.impl.nio.reactor.SessionOutputBuffer;
 import org.apache.http.nio.ContentEncoder;
 
 public abstract class AbstractContentEncoder implements ContentEncoder {
+
+    protected final WritableByteChannel channel;
+    protected final SessionOutputBuffer buffer;
+    protected final HttpTransportMetricsImpl metrics;
     
     protected boolean completed;
     
+    public AbstractContentEncoder(
+            final WritableByteChannel channel, 
+            final SessionOutputBuffer buffer,
+            final HttpTransportMetricsImpl metrics) {
+        super();
+        if (channel == null) {
+            throw new IllegalArgumentException("Channel may not be null");
+        }
+        if (buffer == null) {
+            throw new IllegalArgumentException("Session input buffer may not be null");
+        }        
+        if (metrics == null) {
+            throw new IllegalArgumentException("Transport metrics may not be null");
+        }        
+        this.buffer = buffer;
+        this.channel = channel;
+        this.metrics = metrics;
+    }
+
     public boolean isCompleted() {
         return this.completed;
     }

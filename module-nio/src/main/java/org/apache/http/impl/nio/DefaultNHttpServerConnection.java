@@ -88,6 +88,9 @@ public class DefaultNHttpServerConnection
         try {
             if (this.request == null) {
                 int bytesRead = this.requestParser.fillBuffer(this.session.channel());
+                if (bytesRead > 0) {
+                    this.inTransportMetrics.incrementBytesTransferred(bytesRead);
+                }
                 this.request = (HttpRequest) this.requestParser.parse(); 
                 if (this.request != null) {
                     if (this.request instanceof HttpEntityEnclosingRequest) {
@@ -95,7 +98,7 @@ public class DefaultNHttpServerConnection
                         HttpEntity entity = prepareDecoder(this.request);
                         ((HttpEntityEnclosingRequest)this.request).setEntity(entity);
                     }
-                    this.metrics.incrementRequestCount();
+                    this.connMetrics.incrementRequestCount();
                     handler.requestReceived(this);
                     if (this.contentDecoder == null) {
                         // No request entity is expected
@@ -128,7 +131,10 @@ public class DefaultNHttpServerConnection
     public void produceOutput(final NHttpServiceHandler handler) {
         try {
             if (this.outbuf.hasData()) {
-                this.outbuf.flush(this.session.channel());
+                int bytesWritten = this.outbuf.flush(this.session.channel());
+                if (bytesWritten > 0) {
+                    this.outTransportMetrics.incrementBytesTransferred(bytesWritten);
+                }
             }
             if (!this.outbuf.hasData()) {
                 if (this.closed) {
@@ -189,7 +195,7 @@ public class DefaultNHttpServerConnection
         this.outbuf.writeLine(this.lineBuffer);
 
         if (response.getStatusLine().getStatusCode() >= 200) {
-            this.metrics.incrementRequestCount();
+            this.connMetrics.incrementRequestCount();
             if (response.getEntity() != null) {
                 this.response = response;
                 prepareEncoder(response);

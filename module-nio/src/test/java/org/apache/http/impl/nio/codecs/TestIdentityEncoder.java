@@ -39,6 +39,8 @@ import junit.framework.Test;
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
 
+import org.apache.http.impl.io.HttpTransportMetricsImpl;
+import org.apache.http.impl.nio.reactor.SessionOutputBuffer;
 import org.apache.http.util.EncodingUtils;
 
 /**
@@ -76,8 +78,12 @@ public class TestIdentityEncoder extends TestCase {
     }
     
     public void testBasicCoding() throws Exception {
-        ByteArrayOutputStream baos = new ByteArrayOutputStream(); 
-        IdentityEncoder encoder = new IdentityEncoder(newChannel(baos));
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        WritableByteChannel channel = newChannel(baos);
+        SessionOutputBuffer outbuf = new SessionOutputBuffer(1024, 128);
+        HttpTransportMetricsImpl metrics = new HttpTransportMetricsImpl();
+
+        IdentityEncoder encoder = new IdentityEncoder(channel, outbuf, metrics);
         encoder.write(wrap("stuff"));
         encoder.complete();
         
@@ -89,7 +95,11 @@ public class TestIdentityEncoder extends TestCase {
     
     public void testCodingEmptyBuffer() throws Exception {
         ByteArrayOutputStream baos = new ByteArrayOutputStream(); 
-        IdentityEncoder encoder = new IdentityEncoder(newChannel(baos));
+        WritableByteChannel channel = newChannel(baos);
+        SessionOutputBuffer outbuf = new SessionOutputBuffer(1024, 128);
+        HttpTransportMetricsImpl metrics = new HttpTransportMetricsImpl();
+
+        IdentityEncoder encoder = new IdentityEncoder(channel, outbuf, metrics);
         encoder.write(wrap("stuff"));
         
         ByteBuffer empty = ByteBuffer.allocate(100);
@@ -107,7 +117,11 @@ public class TestIdentityEncoder extends TestCase {
 
     public void testCodingCompleted() throws Exception {
         ByteArrayOutputStream baos = new ByteArrayOutputStream(); 
-        IdentityEncoder encoder = new IdentityEncoder(newChannel(baos));
+        WritableByteChannel channel = newChannel(baos);
+        SessionOutputBuffer outbuf = new SessionOutputBuffer(1024, 128);
+        HttpTransportMetricsImpl metrics = new HttpTransportMetricsImpl();
+
+        IdentityEncoder encoder = new IdentityEncoder(channel, outbuf, metrics);
         encoder.write(wrap("stuff"));
         encoder.complete();
 
@@ -120,12 +134,28 @@ public class TestIdentityEncoder extends TestCase {
     }
 
     public void testInvalidConstructor() {
+        ByteArrayOutputStream baos = new ByteArrayOutputStream(); 
+        WritableByteChannel channel = newChannel(baos);
+        SessionOutputBuffer outbuf = new SessionOutputBuffer(1024, 128);
+
         try {
-            new IdentityEncoder(null);
+            new IdentityEncoder(null, null, null);
+            fail("IllegalArgumentException should have been thrown");
+        } catch (IllegalArgumentException ex) {
+            // ignore
+        }
+        try {
+            new IdentityEncoder(channel, null, null);
+            fail("IllegalArgumentException should have been thrown");
+        } catch (IllegalArgumentException ex) {
+            // ignore
+        }
+        try {
+            new IdentityEncoder(channel, outbuf, null);
             fail("IllegalArgumentException should have been thrown");
         } catch (IllegalArgumentException ex) {
             // ignore
         }
     }
-
+    
 }

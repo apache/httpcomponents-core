@@ -36,6 +36,7 @@ import java.nio.ByteBuffer;
 import java.nio.channels.FileChannel;
 import java.nio.channels.ReadableByteChannel;
 
+import org.apache.http.impl.io.HttpTransportMetricsImpl;
 import org.apache.http.impl.nio.reactor.SessionInputBuffer;
 import org.apache.http.nio.FileContentDecoder;
 
@@ -52,8 +53,11 @@ import org.apache.http.nio.FileContentDecoder;
 public class IdentityDecoder extends AbstractContentDecoder 
         implements FileContentDecoder {
     
-    public IdentityDecoder(final ReadableByteChannel channel, final SessionInputBuffer buffer) {
-        super(channel, buffer);
+    public IdentityDecoder(
+            final ReadableByteChannel channel, 
+            final SessionInputBuffer buffer,
+            final HttpTransportMetricsImpl metrics) {
+        super(channel, buffer, metrics);
     }
 
     public int read(final ByteBuffer dst) throws IOException {
@@ -69,6 +73,9 @@ public class IdentityDecoder extends AbstractContentDecoder
             bytesRead = this.buffer.read(dst);
         } else {
             bytesRead = this.channel.read(dst);
+            if (bytesRead > 0) {
+                this.metrics.incrementBytesTransferred(bytesRead);
+            }
         }
         if (bytesRead == -1) {
             this.completed = true;
@@ -76,7 +83,10 @@ public class IdentityDecoder extends AbstractContentDecoder
         return bytesRead;
     }
     
-    public long read(final FileChannel fileChannel, long position, long count) throws IOException {
+    public long read(
+            final FileChannel fileChannel, 
+            long position, 
+            long count) throws IOException {
         if (fileChannel == null) {
             return 0;
         }
@@ -92,6 +102,9 @@ public class IdentityDecoder extends AbstractContentDecoder
             bytesRead = fileChannel.write(tmpDst);
         } else {
             bytesRead = fileChannel.transferFrom(this.channel, position, count);
+            if (bytesRead > 0) {
+                this.metrics.incrementBytesTransferred(bytesRead);
+            }
         }
         if (bytesRead == 0) {
             this.completed = true;

@@ -35,19 +35,19 @@ import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.channels.WritableByteChannel;
 
+import org.apache.http.impl.io.HttpTransportMetricsImpl;
 import org.apache.http.impl.nio.codecs.AbstractContentEncoder;
+import org.apache.http.impl.nio.reactor.SessionOutputBuffer;
 
 public class MockupEncoder extends AbstractContentEncoder {
     
-    private final WritableByteChannel channel;
     private boolean completed;
     
-    public MockupEncoder(final WritableByteChannel channel) {
-        super();
-        if (channel == null) {
-            throw new IllegalArgumentException("Channel may not be null");
-        }
-        this.channel = channel;
+    public MockupEncoder(
+            final WritableByteChannel channel, 
+            final SessionOutputBuffer buffer,
+            final HttpTransportMetricsImpl metrics) {
+        super(channel, buffer, metrics);
     }
 
     public boolean isCompleted() {

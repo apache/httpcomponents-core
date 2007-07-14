@@ -34,25 +34,34 @@ package org.apache.http.impl.nio.codecs;
 import java.nio.channels.ReadableByteChannel;
 
 import org.apache.http.nio.ContentDecoder;
+import org.apache.http.impl.io.HttpTransportMetricsImpl;
 import org.apache.http.impl.nio.reactor.SessionInputBuffer;
 
 public abstract class AbstractContentDecoder implements ContentDecoder {
     
     protected final ReadableByteChannel channel;
     protected final SessionInputBuffer buffer;
+    protected final HttpTransportMetricsImpl metrics;
     
     protected boolean completed;
     
-    public AbstractContentDecoder(final ReadableByteChannel channel, final SessionInputBuffer buffer) {
+    public AbstractContentDecoder(
+            final ReadableByteChannel channel, 
+            final SessionInputBuffer buffer,
+            final HttpTransportMetricsImpl metrics) {
         super();
         if (channel == null) {
             throw new IllegalArgumentException("Channel may not be null");
         }
         if (buffer == null) {
             throw new IllegalArgumentException("Session input buffer may not be null");
-        }
+        }        
+        if (metrics == null) {
+            throw new IllegalArgumentException("Transport metrics may not be null");
+        }        
         this.buffer = buffer;
         this.channel = channel;
+        this.metrics = metrics;
     }
 
     public boolean isCompleted() {

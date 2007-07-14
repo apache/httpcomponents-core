@@ -1,5 +1,9 @@
 Changes since release 4.0 Alpha 5
 
+* [HTTPCORE-21] Transport and connection metrics
+  Contributed by Andrea Selva <selva.andre at gmail.com> and 
+  Oleg Kalnichevski <olegk at apache.org>
+
 * [HTTPCORE-91] new interceptor RequestDate, renamed constants in protocol.HTTP
   Contributed by Roland Weber <rolandw at apache.org>
 

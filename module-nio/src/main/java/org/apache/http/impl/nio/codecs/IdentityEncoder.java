@@ -35,6 +35,9 @@ import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.channels.FileChannel;
 import java.nio.channels.WritableByteChannel;
+
+import org.apache.http.impl.io.HttpTransportMetricsImpl;
+import org.apache.http.impl.nio.reactor.SessionOutputBuffer;
 import org.apache.http.nio.FileContentEncoder;
 
 /**
@@ -50,14 +53,11 @@ import org.apache.http.nio.FileContentEncoder;
 public class IdentityEncoder extends AbstractContentEncoder 
         implements FileContentEncoder {
     
-    private final WritableByteChannel channel;
-    
-    public IdentityEncoder(final WritableByteChannel channel) {
-        super();
-        if (channel == null) {
-            throw new IllegalArgumentException("Channel may not be null");
-        }
-        this.channel = channel;
+    public IdentityEncoder(
+            final WritableByteChannel channel, 
+            final SessionOutputBuffer buffer,
+            final HttpTransportMetricsImpl metrics) {
+        super(channel, buffer, metrics);
     }
 
     public int write(final ByteBuffer src) throws IOException {
@@ -65,15 +65,26 @@ public class IdentityEncoder extends AbstractContentEncoder
             return 0;
         }
         assertNotCompleted();
-        return this.channel.write(src);
+        int bytesWritten = this.channel.write(src);
+        if (bytesWritten > 0) {
+            this.metrics.incrementBytesTransferred(bytesWritten);
+        }
+        return bytesWritten;
     }
  
-    public long write(final FileChannel filechannel, long position, long count) throws IOException {
-        if (channel == null) {
+    public long write(
+            final FileChannel filechannel, 
+            long position, 
+            long count) throws IOException {
+        if (filechannel == null) {
             return 0;
         }
         assertNotCompleted();
-        return filechannel.transferTo(position, count, this.channel);
+        long bytesWritten = filechannel.transferTo(position, count, this.channel);
+        if (bytesWritten > 0) {
+            this.metrics.incrementBytesTransferred(bytesWritten);
+        }
+        return bytesWritten;
     } 
     
     public String toString() {

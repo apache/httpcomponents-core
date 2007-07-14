@@ -39,6 +39,7 @@ import junit.framework.Test;
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
 
+import org.apache.http.impl.io.HttpTransportMetricsImpl;
 import org.apache.http.impl.nio.reactor.SessionOutputBuffer;
 import org.apache.http.util.EncodingUtils;
 
@@ -77,16 +78,18 @@ public class TestChunkEncoder extends TestCase {
     }
     
     public void testBasicCoding() throws Exception {
+        ByteArrayOutputStream baos = new ByteArrayOutputStream(); 
+        WritableByteChannel channel = newChannel(baos);
         SessionOutputBuffer outbuf = new SessionOutputBuffer(1024, 128);
-        ChunkEncoder encoder = new ChunkEncoder(outbuf);
+        HttpTransportMetricsImpl metrics = new HttpTransportMetricsImpl();
+        ChunkEncoder encoder = new ChunkEncoder(channel, outbuf, metrics);
         
         encoder.write(wrap("12345"));
         encoder.write(wrap("678"));
         encoder.write(wrap("90"));
         encoder.complete();
         
-        ByteArrayOutputStream baos = new ByteArrayOutputStream(); 
-        outbuf.flush(newChannel(baos));
+        outbuf.flush(channel);
         
         String s = baos.toString("US-ASCII");
         
@@ -95,8 +98,11 @@ public class TestChunkEncoder extends TestCase {
     }
 
     public void testCodingEmptyBuffer() throws Exception {
+        ByteArrayOutputStream baos = new ByteArrayOutputStream(); 
+        WritableByteChannel channel = newChannel(baos);
         SessionOutputBuffer outbuf = new SessionOutputBuffer(1024, 128);
-        ChunkEncoder encoder = new ChunkEncoder(outbuf);
+        HttpTransportMetricsImpl metrics = new HttpTransportMetricsImpl();
+        ChunkEncoder encoder = new ChunkEncoder(channel, outbuf, metrics);
         
         encoder.write(wrap("12345"));
         encoder.write(wrap("678"));
@@ -109,8 +115,7 @@ public class TestChunkEncoder extends TestCase {
         
         encoder.complete();
         
-        ByteArrayOutputStream baos = new ByteArrayOutputStream(); 
-        outbuf.flush(newChannel(baos));
+        outbuf.flush(channel);
         
         String s = baos.toString("US-ASCII");
         
@@ -119,8 +124,11 @@ public class TestChunkEncoder extends TestCase {
     }
 
     public void testCodingCompleted() throws Exception {
+        ByteArrayOutputStream baos = new ByteArrayOutputStream(); 
+        WritableByteChannel channel = newChannel(baos);
         SessionOutputBuffer outbuf = new SessionOutputBuffer(1024, 128);
-        ChunkEncoder encoder = new ChunkEncoder(outbuf);
+        HttpTransportMetricsImpl metrics = new HttpTransportMetricsImpl();
+        ChunkEncoder encoder = new ChunkEncoder(channel, outbuf, metrics);
         
         encoder.write(wrap("12345"));
         encoder.write(wrap("678"));
@@ -142,8 +150,24 @@ public class TestChunkEncoder extends TestCase {
     }
 
     public void testInvalidConstructor() {
+        ByteArrayOutputStream baos = new ByteArrayOutputStream(); 
+        WritableByteChannel channel = newChannel(baos);
+        SessionOutputBuffer outbuf = new SessionOutputBuffer(1024, 128);
+
         try {
-            new ChunkEncoder(null);
+            new ChunkEncoder(null, null, null);
+            fail("IllegalArgumentException should have been thrown");
+        } catch (IllegalArgumentException ex) {
+            // ignore
+        }
+        try {
+            new ChunkEncoder(channel, null, null);
+            fail("IllegalArgumentException should have been thrown");
+        } catch (IllegalArgumentException ex) {
+            // ignore
+        }
+        try {
+            new ChunkEncoder(channel, outbuf, null);
             fail("IllegalArgumentException should have been thrown");
         } catch (IllegalArgumentException ex) {
             // ignore
