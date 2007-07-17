@@ -140,7 +140,9 @@ public abstract class HttpMessageParser {
                 this.lineBuf.clear();
             }
             boolean lineComplete = this.buffer.readLine(this.lineBuf, this.endOfStream);
-            if (this.maxLineLen > 0 && this.lineBuf.length() > this.maxLineLen) {
+            if (this.maxLineLen > 0 && 
+                    (this.lineBuf.length() > this.maxLineLen || 
+                            (!lineComplete && this.buffer.length() > this.maxLineLen))) {
                 throw new IOException("Maximum line length limit exceeded");
             }
             if (!lineComplete) {

@@ -1,5 +1,8 @@
 Changes since release 4.0 Alpha 5
 
+* [HTTPCORE-102] Exceeding of maximum line length limit detected late
+  Contributed by Steffen Pingel <spingel at limewire.com>
+
 * [HTTPCORE-21] Transport and connection metrics
   Contributed by Andrea Selva <selva.andre at gmail.com> and 
   Oleg Kalnichevski <olegk at apache.org>

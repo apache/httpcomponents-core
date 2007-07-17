@@ -417,4 +417,22 @@ public class TestHttpMessageParser extends TestCase {
         }
     }
 
+    public void testDetectLineLimitEarly() throws Exception {
+        HttpParams params = new BasicHttpParams();
+        SessionInputBuffer inbuf = new SessionInputBuffer(2, 128); 
+        HttpRequestFactory requestFactory = new DefaultHttpRequestFactory();
+
+        params.setIntParameter(HttpConnectionParams.MAX_LINE_LENGTH, 2);
+        HttpRequestParser requestParser = new HttpRequestParser(inbuf, requestFactory, params);
+        ReadableByteChannel channel = newChannel("GET / HTTP/1.0\r\nHeader: one\r\n\r\n");
+        assertEquals(2, requestParser.fillBuffer(channel));
+        assertNull(requestParser.parse());
+        assertEquals(4, requestParser.fillBuffer(channel));
+        try {
+            requestParser.parse();
+            fail("IOException should have been thrown");
+        } catch (IOException expected) {
+        }
+    }
+
 }
