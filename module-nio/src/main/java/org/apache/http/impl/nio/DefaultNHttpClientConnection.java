@@ -90,11 +90,14 @@ public class DefaultNHttpClientConnection
         }
         try {
             if (this.response == null) {
-                int bytesRead = this.responseParser.fillBuffer(this.session.channel());
-                if (bytesRead > 0) {
-                    this.inTransportMetrics.incrementBytesTransferred(bytesRead);
-                }
-                this.response = (HttpResponse) this.responseParser.parse(); 
+                int bytesRead;
+                do {
+                    bytesRead = this.responseParser.fillBuffer(this.session.channel());
+                    if (bytesRead > 0) {
+                        this.inTransportMetrics.incrementBytesTransferred(bytesRead);
+                    }
+                    this.response = (HttpResponse) this.responseParser.parse();
+                } while (bytesRead > 0 && this.response == null);
                 if (this.response != null) {
                     if (this.response.getStatusLine().getStatusCode() >= 200) {
                         HttpEntity entity = prepareDecoder(this.response);

@@ -87,11 +87,14 @@ public class DefaultNHttpServerConnection
         }
         try {
             if (this.request == null) {
-                int bytesRead = this.requestParser.fillBuffer(this.session.channel());
-                if (bytesRead > 0) {
-                    this.inTransportMetrics.incrementBytesTransferred(bytesRead);
-                }
-                this.request = (HttpRequest) this.requestParser.parse(); 
+                int bytesRead;
+                do {
+                    bytesRead = this.requestParser.fillBuffer(this.session.channel());
+                    if (bytesRead > 0) {
+                        this.inTransportMetrics.incrementBytesTransferred(bytesRead);
+                    }
+                    this.request = (HttpRequest) this.requestParser.parse();
+                } while (bytesRead > 0 && this.request == null);                
                 if (this.request != null) {
                     if (this.request instanceof HttpEntityEnclosingRequest) {
                         // Receive incoming entity

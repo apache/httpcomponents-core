@@ -1,5 +1,10 @@
 Changes since release 4.0 Alpha 5
 
+* [HTTPCORE-103] NIO connections now attempt to consume all available session 
+  data while parsing HTTP messages. This can  potentially improve performance 
+  of non-blocking SSL connections.
+  Contributed by Steffen Pingel <spingel at limewire.com>
+
 * [HTTPCORE-102] Exceeding of maximum line length limit detected late
   Contributed by Steffen Pingel <spingel at limewire.com>
 
