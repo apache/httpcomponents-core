@@ -31,9 +31,6 @@
 
 package org.apache.http.protocol;
 
-import java.util.HashMap;
-import java.util.Map;
-
 /**
  * {@link HttpContext Context} attribute names for protocol execution.
  *
