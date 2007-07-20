@@ -31,12 +31,11 @@
 
 package org.apache.http.protocol;
 
+import java.util.HashMap;
+import java.util.Map;
+
 /**
- * A context for executing a request.
- * The context is used to tie together the request, the response,
- * and optional application data. It is also used for internal data.
- * Attribute names starting with the prefix "http." are
- * {@link #RESERVED_PREFIX reserved} for internal data.
+ * {@link HttpContext Context} attribute names for protocol execution.
  *
  * @author <a href="mailto:oleg at ural.ru">Oleg Kalnichevski</a>
  *
@@ -44,15 +43,13 @@ package org.apache.http.protocol;
  * 
  * @since 4.0
  */
-public interface HttpContext {
-
-    /** The prefix reserved for use by HTTP components. "http." */
-    public static final String RESERVED_PREFIX  = "http.";
+public interface ExecutionContext {
     
-    Object getAttribute(String id);
+    public static final String HTTP_CONNECTION  = "http.connection"; 
+    public static final String HTTP_REQUEST     = "http.request"; 
+    public static final String HTTP_RESPONSE    = "http.response"; 
+    public static final String HTTP_TARGET_HOST = "http.target_host"; 
+    public static final String HTTP_PROXY_HOST  = "http.proxy_host"; 
+    public static final String HTTP_REQ_SENT    = "http.request_sent"; 
 
-    void setAttribute(String id, Object obj);
-
-    Object removeAttribute(String id);
-    
 }

@@ -70,7 +70,7 @@ import org.apache.http.params.HttpProtocolParams;
 import org.apache.http.protocol.BasicHttpProcessor;
 import org.apache.http.protocol.HTTP;
 import org.apache.http.protocol.HttpContext;
-import org.apache.http.protocol.HttpExecutionContext;
+import org.apache.http.protocol.ExecutionContext;
 import org.apache.http.protocol.HttpProcessor;
 import org.apache.http.protocol.RequestConnControl;
 import org.apache.http.protocol.RequestContent;
@@ -362,8 +362,8 @@ public class NHttpReverseProxy {
                     response.setParams(this.params);
                     
                     // Pre-process HTTP request
-                    context.setAttribute(HttpExecutionContext.HTTP_CONNECTION, conn);
-                    context.setAttribute(HttpExecutionContext.HTTP_REQUEST, request);
+                    context.setAttribute(ExecutionContext.HTTP_CONNECTION, conn);
+                    context.setAttribute(ExecutionContext.HTTP_REQUEST, request);
                     this.httpProcessor.process(response, context);
                     
                     conn.submitResponse(response);
@@ -502,8 +502,8 @@ public class NHttpReverseProxy {
                 response.setParams(this.params);
                 response.addHeader(HTTP.CONN_DIRECTIVE, HTTP.CONN_CLOSE);
                 // Pre-process HTTP request
-                context.setAttribute(HttpExecutionContext.HTTP_CONNECTION, conn);
-                context.setAttribute(HttpExecutionContext.HTTP_REQUEST, null);
+                context.setAttribute(ExecutionContext.HTTP_CONNECTION, conn);
+                context.setAttribute(ExecutionContext.HTTP_REQUEST, null);
                 this.httpProcessor.process(response, context);
                 
                 conn.submitResponse(response);
@@ -613,8 +613,8 @@ public class NHttpReverseProxy {
                     request.setParams(this.params);
                     
                     // Pre-process HTTP request
-                    context.setAttribute(HttpExecutionContext.HTTP_CONNECTION, conn);
-                    context.setAttribute(HttpExecutionContext.HTTP_TARGET_HOST, targetHost);
+                    context.setAttribute(ExecutionContext.HTTP_CONNECTION, conn);
+                    context.setAttribute(ExecutionContext.HTTP_TARGET_HOST, targetHost);
 
                     this.httpProcessor.process(request, context);
                     // and send it to the origin server

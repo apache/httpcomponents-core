@@ -72,7 +72,7 @@ import org.apache.http.params.HttpParams;
 import org.apache.http.params.HttpProtocolParams;
 import org.apache.http.protocol.BasicHttpProcessor;
 import org.apache.http.protocol.HttpContext;
-import org.apache.http.protocol.HttpExecutionContext;
+import org.apache.http.protocol.ExecutionContext;
 import org.apache.http.protocol.HttpExpectationVerifier;
 import org.apache.http.protocol.HttpRequestHandler;
 import org.apache.http.protocol.RequestConnControl;
@@ -349,7 +349,7 @@ public class TestNIOHttp extends TestCase {
             
             public void handleResponse(final HttpResponse response, final HttpContext context) {
                 NHttpConnection conn = (NHttpConnection) context.getAttribute(
-                        HttpExecutionContext.HTTP_CONNECTION);
+                        ExecutionContext.HTTP_CONNECTION);
                 
                 List list = (List) context.getAttribute("LIST");
                 int i = ((Integer) context.getAttribute("RES-COUNT")).intValue();
@@ -494,7 +494,7 @@ public class TestNIOHttp extends TestCase {
             
             public void handleResponse(final HttpResponse response, final HttpContext context) {
                 NHttpConnection conn = (NHttpConnection) context.getAttribute(
-                        HttpExecutionContext.HTTP_CONNECTION);
+                        ExecutionContext.HTTP_CONNECTION);
                 
                 List list = (List) context.getAttribute("LIST");
                 int i = ((Integer) context.getAttribute("RES-COUNT")).intValue();
@@ -639,7 +639,7 @@ public class TestNIOHttp extends TestCase {
             
             public void handleResponse(final HttpResponse response, final HttpContext context) {
                 NHttpConnection conn = (NHttpConnection) context.getAttribute(
-                        HttpExecutionContext.HTTP_CONNECTION);
+                        ExecutionContext.HTTP_CONNECTION);
                 
                 List list = (List) context.getAttribute("LIST");
                 int i = ((Integer) context.getAttribute("RES-COUNT")).intValue();
@@ -789,7 +789,7 @@ public class TestNIOHttp extends TestCase {
             
             public void handleResponse(final HttpResponse response, final HttpContext context) {
                 NHttpConnection conn = (NHttpConnection) context.getAttribute(
-                        HttpExecutionContext.HTTP_CONNECTION);
+                        ExecutionContext.HTTP_CONNECTION);
 
                 List list = (List) context.getAttribute("LIST");
                 int i = ((Integer) context.getAttribute("RES-COUNT")).intValue();
@@ -937,7 +937,7 @@ public class TestNIOHttp extends TestCase {
             
             public void handleResponse(final HttpResponse response, final HttpContext context) {
                 NHttpConnection conn = (NHttpConnection) context.getAttribute(
-                        HttpExecutionContext.HTTP_CONNECTION);
+                        ExecutionContext.HTTP_CONNECTION);
                 
                 List list = (List) context.getAttribute("LIST");
                 int i = ((Integer) context.getAttribute("RES-COUNT")).intValue();
@@ -1087,7 +1087,7 @@ public class TestNIOHttp extends TestCase {
             
             public void handleResponse(final HttpResponse response, final HttpContext context) {
                 NHttpConnection conn = (NHttpConnection) context.getAttribute(
-                        HttpExecutionContext.HTTP_CONNECTION);
+                        ExecutionContext.HTTP_CONNECTION);
                 
                 List list = (List) context.getAttribute("LIST");
                 int i = ((Integer) context.getAttribute("RES-COUNT")).intValue();
@@ -1223,7 +1223,7 @@ public class TestNIOHttp extends TestCase {
             
             public void handleResponse(final HttpResponse response, final HttpContext context) {
                 NHttpConnection conn = (NHttpConnection) context.getAttribute(
-                        HttpExecutionContext.HTTP_CONNECTION);
+                        ExecutionContext.HTTP_CONNECTION);
                 
                 List list = (List) context.getAttribute("LIST");
                 int i = ((Integer) context.getAttribute("RES-COUNT")).intValue();

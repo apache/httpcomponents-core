@@ -43,16 +43,12 @@ import java.util.Map;
  * 
  * @since 4.0
  */
-public class HttpExecutionContext implements HttpContext {
-    
-    public static final String HTTP_TARGET_HOST = "http.target_host"; 
-    public static final String HTTP_PROXY_HOST  = "http.proxy_host"; 
-    public static final String HTTP_REQ_SENT    = "http.request_sent"; 
+public class BasicHttpContext implements HttpContext {
     
     private final HttpContext parentContext;
     private Map map = null;
     
-    public HttpExecutionContext(final HttpContext parentContext) {
+    public BasicHttpContext(final HttpContext parentContext) {
         super();
         this.parentContext = parentContext;
     }

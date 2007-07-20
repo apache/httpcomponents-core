@@ -53,7 +53,8 @@ import org.apache.http.params.HttpParamsLinker;
 import org.apache.http.protocol.BasicHttpProcessor;
 import org.apache.http.protocol.HTTP;
 import org.apache.http.protocol.HttpContext;
-import org.apache.http.protocol.HttpExecutionContext;
+import org.apache.http.protocol.BasicHttpContext;
+import org.apache.http.protocol.ExecutionContext;
 import org.apache.http.protocol.HttpRequestExecutor;
 import org.apache.http.protocol.RequestConnControl;
 import org.apache.http.protocol.RequestContent;
@@ -97,7 +98,7 @@ public class BenchmarkWorker implements Runnable {
 
         super();
         this.params = params;
-        this.context = new HttpExecutionContext(null);
+        this.context = new BasicHttpContext(null);
         this.request = request;
         this.targetHost = targetHost;
         this.count = count;
@@ -130,9 +131,9 @@ public class BenchmarkWorker implements Runnable {
         }
 
         // Populate the execution context
-        this.context.setAttribute(HttpExecutionContext.HTTP_CONNECTION, conn);
-        this.context.setAttribute(HttpExecutionContext.HTTP_TARGET_HOST, this.targetHost);
-        this.context.setAttribute(HttpExecutionContext.HTTP_REQUEST, this.request);
+        this.context.setAttribute(ExecutionContext.HTTP_CONNECTION, conn);
+        this.context.setAttribute(ExecutionContext.HTTP_TARGET_HOST, this.targetHost);
+        this.context.setAttribute(ExecutionContext.HTTP_REQUEST, this.request);
 
         stats.start();
         HttpParamsLinker.link(this.request, this.params);

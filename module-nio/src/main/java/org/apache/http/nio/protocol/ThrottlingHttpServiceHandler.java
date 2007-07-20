@@ -65,7 +65,7 @@ import org.apache.http.nio.util.SharedOutputBuffer;
 import org.apache.http.params.HttpParams;
 import org.apache.http.params.HttpParamsLinker;
 import org.apache.http.protocol.HttpContext;
-import org.apache.http.protocol.HttpExecutionContext;
+import org.apache.http.protocol.ExecutionContext;
 import org.apache.http.protocol.HttpProcessor;
 import org.apache.http.protocol.HttpRequestHandler;
 import org.apache.http.util.EncodingUtils;
@@ -379,8 +379,8 @@ public class ThrottlingHttpServiceHandler extends NHttpServiceHandlerBase {
 
         HttpParamsLinker.link(request, this.params);
 
-        context.setAttribute(HttpExecutionContext.HTTP_CONNECTION, conn);
-        context.setAttribute(HttpExecutionContext.HTTP_REQUEST, request);
+        context.setAttribute(ExecutionContext.HTTP_CONNECTION, conn);
+        context.setAttribute(ExecutionContext.HTTP_REQUEST, request);
 
         HttpVersion ver = request.getRequestLine().getHttpVersion();
 
@@ -462,7 +462,7 @@ public class ThrottlingHttpServiceHandler extends NHttpServiceHandlerBase {
                     context);
             HttpParamsLinker.link(response, this.params);
 
-            context.setAttribute(HttpExecutionContext.HTTP_RESPONSE, response);
+            context.setAttribute(ExecutionContext.HTTP_RESPONSE, response);
             
             try {
 

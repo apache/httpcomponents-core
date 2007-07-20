@@ -40,7 +40,8 @@ import org.apache.http.entity.BasicHttpEntity;
 import org.apache.http.message.BasicHttpResponse;
 import org.apache.http.message.BasicStatusLine;
 import org.apache.http.protocol.HttpContext;
-import org.apache.http.protocol.HttpExecutionContext;
+import org.apache.http.protocol.BasicHttpContext;
+import org.apache.http.protocol.ExecutionContext;
 
 import junit.framework.Test;
 import junit.framework.TestCase;
@@ -73,8 +74,8 @@ public class TestDefaultConnectionReuseStrategy extends TestCase {
         // open and not stale is required for most of the tests here
         mockConnection = new MockConnection(true, false);
         reuseStrategy = new DefaultConnectionReuseStrategy();
-        context = new HttpExecutionContext(null);
-        context.setAttribute(HttpExecutionContext.HTTP_CONNECTION, mockConnection);
+        context = new BasicHttpContext(null);
+        context.setAttribute(ExecutionContext.HTTP_CONNECTION, mockConnection);
     }
 
     public void tearDown() {
@@ -90,7 +91,7 @@ public class TestDefaultConnectionReuseStrategy extends TestCase {
 
     public void testIllegalResponseArg() throws Exception {
 
-        HttpContext context = new HttpExecutionContext(null);
+        HttpContext context = new BasicHttpContext(null);
 
         try {
             reuseStrategy.keepAlive(null, context);
@@ -140,7 +141,7 @@ public class TestDefaultConnectionReuseStrategy extends TestCase {
             createResponse(HttpVersion.HTTP_1_1, 200, "OK", true, -1);
 
         HttpConnection mockonn = new MockConnection(false, false);
-        context.setAttribute(HttpExecutionContext.HTTP_CONNECTION, mockonn);
+        context.setAttribute(ExecutionContext.HTTP_CONNECTION, mockonn);
         assertFalse("closed connection should not be kept alive",
                     reuseStrategy.keepAlive(response, context));
     }
@@ -153,7 +154,7 @@ public class TestDefaultConnectionReuseStrategy extends TestCase {
             createResponse(HttpVersion.HTTP_1_1, 200, "OK", true, -1);
 
         HttpConnection mockonn = new MockConnection(true, true);
-        context.setAttribute(HttpExecutionContext.HTTP_CONNECTION, mockonn);
+        context.setAttribute(ExecutionContext.HTTP_CONNECTION, mockonn);
         assertTrue("stale connection should not be detected",
                     reuseStrategy.keepAlive(response, context));
     }

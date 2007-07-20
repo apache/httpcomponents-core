@@ -65,7 +65,7 @@ public class RequestTargetHost implements HttpRequestInterceptor {
         }
         if (!request.containsHeader(HTTP.TARGET_HOST)) {
             HttpHost targethost = (HttpHost) context
-                .getAttribute(HttpExecutionContext.HTTP_TARGET_HOST);
+                .getAttribute(ExecutionContext.HTTP_TARGET_HOST);
             if (targethost == null) {
                 HttpVersion ver = request.getRequestLine().getHttpVersion();
                 if (ver.lessEquals(HttpVersion.HTTP_1_0)) {

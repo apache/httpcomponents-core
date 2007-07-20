@@ -39,7 +39,7 @@ import org.apache.http.HttpResponse;
 import org.apache.http.HttpVersion;
 import org.apache.http.protocol.HTTP;
 import org.apache.http.protocol.HttpContext;
-import org.apache.http.protocol.HttpExecutionContext;
+import org.apache.http.protocol.ExecutionContext;
 
 /**
  * Default implementation of a strategy deciding about connection re-use.
@@ -65,8 +65,8 @@ public class DefaultConnectionReuseStrategy implements ConnectionReuseStrategy {
             throw new IllegalArgumentException("HTTP context may not be null");
         }
         
-        HttpConnection conn = (HttpConnection) context.getAttribute(
-                HttpExecutionContext.HTTP_CONNECTION);
+        HttpConnection conn = (HttpConnection)
+            context.getAttribute(ExecutionContext.HTTP_CONNECTION);
 
         if (conn != null && !conn.isOpen())
             return false;

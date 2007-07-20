@@ -32,6 +32,9 @@ package org.apache.http.protocol;
 
 import junit.framework.*;
 
+
+// the name of this test is historic, the implementation classes of HttpContext
+// have been renamed to BasicHttpContext and SyncBasicHttpContext
 public class TestHttpExecutionContext extends TestCase {
 
     // ------------------------------------------------------------ Constructor
@@ -52,8 +55,8 @@ public class TestHttpExecutionContext extends TestCase {
     }
 
     public void testContextOperations() {
-        HttpContext parentContext = new SyncHttpExecutionContext(null); 
-        HttpContext currentContext = new SyncHttpExecutionContext(parentContext); 
+        HttpContext parentContext = new SyncBasicHttpContext(null); 
+        HttpContext currentContext = new SyncBasicHttpContext(parentContext); 
 
         parentContext.setAttribute("param1", "1");
         parentContext.setAttribute("param2", "2");
@@ -81,14 +84,14 @@ public class TestHttpExecutionContext extends TestCase {
     }
 
     public void testEmptyContextOperations() {
-        HttpContext currentContext = new SyncHttpExecutionContext(null); 
+        HttpContext currentContext = new SyncBasicHttpContext(null); 
         assertEquals(null, currentContext.getAttribute("param1"));
         currentContext.removeAttribute("param1");
         assertEquals(null, currentContext.getAttribute("param1"));
     }
 
     public void testContextInvalidInput() throws Exception {
-        HttpContext currentContext = new SyncHttpExecutionContext(null); 
+        HttpContext currentContext = new SyncBasicHttpContext(null); 
         try {
             currentContext.setAttribute(null, null);
             fail("IllegalArgumentException should have been thrown");

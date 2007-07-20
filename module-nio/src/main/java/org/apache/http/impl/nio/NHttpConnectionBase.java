@@ -70,7 +70,7 @@ import org.apache.http.params.HttpConnectionParams;
 import org.apache.http.params.HttpParams;
 import org.apache.http.protocol.HTTP;
 import org.apache.http.protocol.HttpContext;
-import org.apache.http.protocol.SyncHttpExecutionContext;
+import org.apache.http.protocol.SyncBasicHttpContext;
 import org.apache.http.util.CharArrayBuffer;
 
 public class NHttpConnectionBase 
@@ -111,7 +111,7 @@ public class NHttpConnectionBase
             throw new IllegalArgumentException("HTTP params may not be null");
         }
         this.session = session;
-        this.context = new SyncHttpExecutionContext(null);
+        this.context = new SyncBasicHttpContext(null);
         
         int buffersize = HttpConnectionParams.getSocketBufferSize(params);
         int linebuffersize = buffersize;

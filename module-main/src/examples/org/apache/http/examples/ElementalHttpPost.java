@@ -50,7 +50,8 @@ import org.apache.http.params.HttpParams;
 import org.apache.http.params.HttpProtocolParams;
 import org.apache.http.protocol.BasicHttpProcessor;
 import org.apache.http.protocol.HttpContext;
-import org.apache.http.protocol.HttpExecutionContext;
+import org.apache.http.protocol.BasicHttpContext;
+import org.apache.http.protocol.ExecutionContext;
 import org.apache.http.protocol.HttpRequestExecutor;
 import org.apache.http.protocol.RequestConnControl;
 import org.apache.http.protocol.RequestContent;
@@ -89,15 +90,15 @@ public class ElementalHttpPost {
         
         HttpRequestExecutor httpexecutor = new HttpRequestExecutor();
 
-        HttpContext context = new HttpExecutionContext(null);
+        HttpContext context = new BasicHttpContext(null);
         
         HttpHost host = new HttpHost("localhost", 8080);
         
         DefaultHttpClientConnection conn = new DefaultHttpClientConnection();
         ConnectionReuseStrategy connStrategy = new DefaultConnectionReuseStrategy();
 
-        context.setAttribute(HttpExecutionContext.HTTP_CONNECTION, conn);
-        context.setAttribute(HttpExecutionContext.HTTP_TARGET_HOST, host);
+        context.setAttribute(ExecutionContext.HTTP_CONNECTION, conn);
+        context.setAttribute(ExecutionContext.HTTP_TARGET_HOST, host);
 
         try {
             
@@ -122,7 +123,7 @@ public class ElementalHttpPost {
                 request.setEntity(requestBodies[i]);
                 System.out.println(">> Request URI: " + request.getRequestLine().getUri());
 
-                context.setAttribute(HttpExecutionContext.HTTP_REQUEST, request);
+                context.setAttribute(ExecutionContext.HTTP_REQUEST, request);
                 request.setParams(params);
                 httpexecutor.preProcess(request, httpproc, context);
                 HttpResponse response = httpexecutor.execute(request, conn, context);

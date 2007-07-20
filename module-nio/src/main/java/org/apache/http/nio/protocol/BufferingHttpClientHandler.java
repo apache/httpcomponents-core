@@ -59,7 +59,7 @@ import org.apache.http.params.HttpParams;
 import org.apache.http.params.HttpParamsLinker;
 import org.apache.http.params.HttpProtocolParams;
 import org.apache.http.protocol.HttpContext;
-import org.apache.http.protocol.HttpExecutionContext;
+import org.apache.http.protocol.ExecutionContext;
 import org.apache.http.protocol.HttpProcessor;
 
 /**
@@ -102,7 +102,7 @@ public class BufferingHttpClientHandler extends NHttpClientHandlerBase {
             int port = ((HttpInetConnection) conn).getRemotePort();
             if (address != null) {
                 HttpHost host = new HttpHost(address.getHostName(), port);
-                context.setAttribute(HttpExecutionContext.HTTP_TARGET_HOST, host);
+                context.setAttribute(ExecutionContext.HTTP_TARGET_HOST, host);
             }
         }
         
@@ -141,7 +141,7 @@ public class BufferingHttpClientHandler extends NHttpClientHandlerBase {
             
             HttpParamsLinker.link(request, this.params);
             
-            context.setAttribute(HttpExecutionContext.HTTP_REQUEST, request);
+            context.setAttribute(ExecutionContext.HTTP_REQUEST, request);
             this.httpProcessor.process(request, context);
             connState.setRequest(request);
             conn.submitRequest(request);
@@ -307,7 +307,7 @@ public class BufferingHttpClientHandler extends NHttpClientHandlerBase {
             final Object attachment) {
         HttpContext context = conn.getContext();
 
-        context.setAttribute(HttpExecutionContext.HTTP_CONNECTION, conn);
+        context.setAttribute(ExecutionContext.HTTP_CONNECTION, conn);
         this.execHandler.initalizeContext(context, attachment);
     }
     
@@ -361,7 +361,7 @@ public class BufferingHttpClientHandler extends NHttpClientHandlerBase {
                     connState.getInbuffer()));
         }
         
-        context.setAttribute(HttpExecutionContext.HTTP_RESPONSE, response);
+        context.setAttribute(ExecutionContext.HTTP_RESPONSE, response);
         
         this.httpProcessor.process(response, context);
         

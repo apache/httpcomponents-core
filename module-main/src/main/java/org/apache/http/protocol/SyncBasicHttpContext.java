@@ -32,7 +32,7 @@
 package org.apache.http.protocol;
 
 /**
- * Thread-safe extension of the {@link HttpExecutionContext}.
+ * Thread-safe extension of the {@link BasicHttpContext}.
  *
  * @author <a href="mailto:oleg at ural.ru">Oleg Kalnichevski</a>
  *
@@ -40,9 +40,9 @@ package org.apache.http.protocol;
  * 
  * @since 4.0
  */
-public class SyncHttpExecutionContext extends HttpExecutionContext {
+public class SyncBasicHttpContext extends BasicHttpContext {
     
-    public SyncHttpExecutionContext(final HttpContext parentContext) {
+    public SyncBasicHttpContext(final HttpContext parentContext) {
         super(parentContext);
     }
     

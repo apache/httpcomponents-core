@@ -125,7 +125,7 @@ public class HttpService {
             final HttpServerConnection conn, 
             final HttpContext context) throws IOException, HttpException { 
         
-        context.setAttribute(HttpExecutionContext.HTTP_CONNECTION, conn);
+        context.setAttribute(ExecutionContext.HTTP_CONNECTION, conn);
 
         HttpResponse response = null;
         
@@ -174,8 +174,8 @@ public class HttpService {
                 response = this.responseFactory.newHttpResponse(ver, HttpStatus.SC_OK, context);
                 HttpParamsLinker.link(request, this.params);
 
-                context.setAttribute(HttpExecutionContext.HTTP_REQUEST, request);
-                context.setAttribute(HttpExecutionContext.HTTP_RESPONSE, response);
+                context.setAttribute(ExecutionContext.HTTP_REQUEST, request);
+                context.setAttribute(ExecutionContext.HTTP_RESPONSE, response);
 
                 this.processor.process(request, context);
                 doService(request, response, context);

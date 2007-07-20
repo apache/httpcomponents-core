@@ -1,5 +1,8 @@
 Changes since release 4.0 Alpha 5
 
+* [HTTPCORE-100] revised HttpContext hierarchy
+  Contributed by Roland Weber <rolandw at apache.org>
+
 * [HTTPCORE-103] NIO connections now attempt to consume all available session 
   data while parsing HTTP messages. This can  potentially improve performance 
   of non-blocking SSL connections.

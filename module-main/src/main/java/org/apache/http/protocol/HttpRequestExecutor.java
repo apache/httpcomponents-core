@@ -195,7 +195,7 @@ public class HttpRequestExecutor {
         }
 
         HttpResponse response = null;
-        context.setAttribute(HttpExecutionContext.HTTP_REQ_SENT, Boolean.FALSE);
+        context.setAttribute(ExecutionContext.HTTP_REQ_SENT, Boolean.FALSE);
 
         conn.sendRequestHeader(request);
         if (request instanceof HttpEntityEnclosingRequest) {
@@ -236,7 +236,7 @@ public class HttpRequestExecutor {
             }
         }
         conn.flush();
-        context.setAttribute(HttpExecutionContext.HTTP_REQ_SENT, Boolean.TRUE);
+        context.setAttribute(ExecutionContext.HTTP_REQ_SENT, Boolean.TRUE);
         return response;
     } 
 

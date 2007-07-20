@@ -91,7 +91,8 @@ public class ResponseConnControl implements HttpResponseInterceptor {
             }
         }
         // Drop connection if requested by the client
-        HttpRequest request = (HttpRequest) context.getAttribute(HttpContext.HTTP_REQUEST);
+        HttpRequest request = (HttpRequest)
+            context.getAttribute(ExecutionContext.HTTP_REQUEST);
         if (request != null) {
             Header header = request.getFirstHeader(HTTP.CONN_DIRECTIVE);
             if (header != null) {

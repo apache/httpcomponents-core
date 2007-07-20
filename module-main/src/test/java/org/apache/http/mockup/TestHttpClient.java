@@ -48,7 +48,8 @@ import org.apache.http.params.HttpParamsLinker;
 import org.apache.http.params.HttpProtocolParams;
 import org.apache.http.protocol.BasicHttpProcessor;
 import org.apache.http.protocol.HttpContext;
-import org.apache.http.protocol.HttpExecutionContext;
+import org.apache.http.protocol.BasicHttpContext;
+import org.apache.http.protocol.ExecutionContext;
 import org.apache.http.protocol.HttpRequestExecutor;
 import org.apache.http.protocol.RequestConnControl;
 import org.apache.http.protocol.RequestContent;
@@ -84,7 +85,7 @@ public class TestHttpClient {
 
         this.httpexecutor = new HttpRequestExecutor();
         this.connStrategy = new DefaultConnectionReuseStrategy();
-        this.context = new HttpExecutionContext(null);
+        this.context = new BasicHttpContext(null);
     }
 
     public HttpParams getParams() {
@@ -95,9 +96,9 @@ public class TestHttpClient {
             final HttpRequest request,
             final HttpHost targetHost,
             final HttpClientConnection conn) throws HttpException, IOException {
-        this.context.setAttribute(HttpExecutionContext.HTTP_REQUEST, request);
-        this.context.setAttribute(HttpExecutionContext.HTTP_TARGET_HOST, targetHost);
-        this.context.setAttribute(HttpExecutionContext.HTTP_CONNECTION, conn);
+        this.context.setAttribute(ExecutionContext.HTTP_REQUEST, request);
+        this.context.setAttribute(ExecutionContext.HTTP_TARGET_HOST, targetHost);
+        this.context.setAttribute(ExecutionContext.HTTP_CONNECTION, conn);
         HttpParamsLinker.link(request, params);
         this.httpexecutor.preProcess(request, this.httpproc, this.context);
         HttpResponse response = this.httpexecutor.execute(request, conn, this.context);

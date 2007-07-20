@@ -56,7 +56,7 @@ import org.apache.http.params.HttpParams;
 import org.apache.http.params.HttpProtocolParams;
 import org.apache.http.protocol.BasicHttpProcessor;
 import org.apache.http.protocol.HttpContext;
-import org.apache.http.protocol.HttpExecutionContext;
+import org.apache.http.protocol.ExecutionContext;
 import org.apache.http.protocol.RequestConnControl;
 import org.apache.http.protocol.RequestContent;
 import org.apache.http.protocol.RequestExpectContinue;
@@ -134,12 +134,12 @@ public class NHttpClient {
 
         public void initalizeContext(final HttpContext context, final Object attachment) {
             HttpHost targetHost = (HttpHost) attachment;
-            context.setAttribute(HttpExecutionContext.HTTP_TARGET_HOST, targetHost);
+            context.setAttribute(ExecutionContext.HTTP_TARGET_HOST, targetHost);
         }
 
         public HttpRequest submitRequest(final HttpContext context) {
             HttpHost targetHost = (HttpHost) context.getAttribute(
-                    HttpExecutionContext.HTTP_TARGET_HOST);
+                    ExecutionContext.HTTP_TARGET_HOST);
             Integer countObj = (Integer) context.getAttribute(
                     "request-count");
             int counter = 0; 
