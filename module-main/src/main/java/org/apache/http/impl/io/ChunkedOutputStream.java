@@ -34,7 +34,7 @@ package org.apache.http.impl.io;
 import java.io.IOException;
 import java.io.OutputStream;
 
-import org.apache.http.io.HttpDataTransmitter;
+import org.apache.http.io.SessionOutputBuffer;
 
 /**
  * Implements chunked transfer coding.
@@ -52,7 +52,7 @@ import org.apache.http.io.HttpDataTransmitter;
 public class ChunkedOutputStream extends OutputStream {
 
     // ----------------------------------------------------- Instance Variables
-    private final HttpDataTransmitter out;
+    private final SessionOutputBuffer out;
 
     private byte[] cache;
 
@@ -65,12 +65,12 @@ public class ChunkedOutputStream extends OutputStream {
     
     // ----------------------------------------------------------- Constructors
     /**
-     * Wraps a stream and chunks the output.
-     * @param out the transmitter to wrap
+     * Wraps a session output buffer and chunks the output.
+     * @param out the session output buffer to wrap
      * @param bufferSize minimum chunk size (excluding last chunk)
      * @throws IOException
      */
-    public ChunkedOutputStream(final HttpDataTransmitter out, int bufferSize)
+    public ChunkedOutputStream(final SessionOutputBuffer out, int bufferSize)
             throws IOException {
         super();
         this.cache = new byte[bufferSize];
@@ -78,14 +78,14 @@ public class ChunkedOutputStream extends OutputStream {
     }
 
     /**
-     * Wraps a data transmitter and chunks the output. The default buffer size of 2048 was 
-     * chosen because the chunk overhead is less than 0.5%
+     * Wraps a session output buffer and chunks the output. The default buffer 
+     * size of 2048 was chosen because the chunk overhead is less than 0.5%
      * @param datatransmitter the transmitter to wrap
      * @throws IOException
      */
-    public ChunkedOutputStream(final HttpDataTransmitter datatransmitter) 
+    public ChunkedOutputStream(final SessionOutputBuffer out) 
             throws IOException {
-        this(datatransmitter, 2048);
+        this(out, 2048);
     }
 
     // ----------------------------------------------------------- Internal methods

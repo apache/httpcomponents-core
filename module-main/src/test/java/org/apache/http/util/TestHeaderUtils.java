@@ -37,7 +37,7 @@ import org.apache.http.Header;
 import org.apache.http.HeaderElement;
 import org.apache.http.NameValuePair;
 import org.apache.http.ProtocolException;
-import org.apache.http.io.HttpDataReceiver;
+import org.apache.http.io.SessionInputBuffer;
 import org.apache.http.message.BufferedHeader;
 import org.apache.http.mockup.HttpDataReceiverMockup;
 
@@ -89,7 +89,7 @@ public class TestHeaderUtils extends TestCase {
             "\t and even more stuff\r\n" +  
             "     \r\n" +  
             "\r\n"; 
-        HttpDataReceiver receiver = new HttpDataReceiverMockup(s, "US-ASCII"); 
+        SessionInputBuffer receiver = new HttpDataReceiverMockup(s, "US-ASCII"); 
         Header[] headers = HeaderUtils.parseHeaders(receiver);
         assertNotNull(headers);
         assertEquals(3, headers.length);
@@ -112,7 +112,7 @@ public class TestHeaderUtils extends TestCase {
         String s = 
             "header1  : stuff; param1 = value1; param2 = \"value 2\" \r\n" + 
             "\r\n"; 
-        HttpDataReceiver receiver = new HttpDataReceiverMockup(s, "US-ASCII"); 
+        SessionInputBuffer receiver = new HttpDataReceiverMockup(s, "US-ASCII"); 
         Header[] headers = HeaderUtils.parseHeaders(receiver);
         assertNotNull(headers);
         assertEquals(1, headers.length);
@@ -135,7 +135,7 @@ public class TestHeaderUtils extends TestCase {
         String s = "    stuff\r\n" + 
             "header1: stuff\r\n" + 
             "\r\n"; 
-        HttpDataReceiver receiver = new HttpDataReceiverMockup(s, "US-ASCII");
+        SessionInputBuffer receiver = new HttpDataReceiverMockup(s, "US-ASCII");
         try {
             HeaderUtils.parseHeaders(receiver);
             fail("ProtocolException should have been thrown");
@@ -158,7 +158,7 @@ public class TestHeaderUtils extends TestCase {
         String s = 
             "    header1: stuff\r\n" + 
             "header2  : stuff \r\n"; 
-        HttpDataReceiver receiver = new HttpDataReceiverMockup(s, "US-ASCII"); 
+        SessionInputBuffer receiver = new HttpDataReceiverMockup(s, "US-ASCII"); 
         Header[] headers = HeaderUtils.parseHeaders(receiver);
         assertNotNull(headers);
         assertEquals(2, headers.length);
@@ -170,7 +170,7 @@ public class TestHeaderUtils extends TestCase {
     
     public void testEmptyDataStream() throws Exception {
         String s = ""; 
-        HttpDataReceiver receiver = new HttpDataReceiverMockup(s, "US-ASCII"); 
+        SessionInputBuffer receiver = new HttpDataReceiverMockup(s, "US-ASCII"); 
         Header[] headers = HeaderUtils.parseHeaders(receiver);
         assertNotNull(headers);
         assertEquals(0, headers.length);
@@ -182,7 +182,7 @@ public class TestHeaderUtils extends TestCase {
             "header2: stuff \r\n" + 
             "header3: stuff\r\n" + 
             "\r\n"; 
-        HttpDataReceiver receiver = new HttpDataReceiverMockup(s, "US-ASCII");
+        SessionInputBuffer receiver = new HttpDataReceiverMockup(s, "US-ASCII");
         try {
             HeaderUtils.parseHeaders(receiver, 2, -1);
             fail("IOException should have been thrown");
@@ -197,7 +197,7 @@ public class TestHeaderUtils extends TestCase {
             " stuff \r\n" + 
             " stuff\r\n" + 
             "\r\n"; 
-        HttpDataReceiver receiver = new HttpDataReceiverMockup(s, "US-ASCII");
+        SessionInputBuffer receiver = new HttpDataReceiverMockup(s, "US-ASCII");
         try {
             HeaderUtils.parseHeaders(receiver, 2, 15);
             fail("IOException should have been thrown");

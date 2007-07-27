@@ -36,9 +36,7 @@ import java.io.IOException;
 import org.apache.http.util.CharArrayBuffer;
 
 /**
- * Interface for receiving data.
- * Unlike {@link java.io.InputStream}, this interface is tailored
- * to the needs of the HTTP components.
+ * Session input buffer for blocking connection.
  *
  * @author <a href="mailto:oleg at ural.ru">Oleg Kalnichevski</a>
  *
@@ -46,7 +44,7 @@ import org.apache.http.util.CharArrayBuffer;
  * 
  * @since 4.0
  */
-public interface HttpDataReceiver {
+public interface SessionInputBuffer {
     
     int read(byte[] b, int off, int len) throws IOException; 
     

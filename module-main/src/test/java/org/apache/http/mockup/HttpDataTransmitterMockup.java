@@ -39,7 +39,7 @@ import org.apache.http.params.BasicHttpParams;
 import org.apache.http.params.HttpParams;
 
 /**
- * {@link HttpDataTransmitter} mockup implementation.
+ * {@link SessionOutputBuffer} mockup implementation.
  *
  * @author <a href="mailto:oleg at ural.ru">Oleg Kalnichevski</a>
  */

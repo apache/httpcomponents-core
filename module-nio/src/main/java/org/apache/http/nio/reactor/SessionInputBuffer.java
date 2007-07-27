@@ -29,62 +29,37 @@
  *
  */
 
-package org.apache.http.impl.io;
+package org.apache.http.nio.reactor;
 
 import java.io.IOException;
-import java.io.InputStream;
+import java.nio.ByteBuffer;
+import java.nio.channels.ReadableByteChannel;
+import java.nio.charset.CharacterCodingException;
 
-import org.apache.http.io.SessionInputBuffer;
+import org.apache.http.util.CharArrayBuffer;
 
 /**
- * A stream for reading from a {@link SessionInputBuffer session input buffer}.
+ * Session input buffer for non-blocking connection.
  *
  * @author <a href="mailto:oleg at ural.ru">Oleg Kalnichevski</a>
  *
- * @version $Revision$
- * 
  * @since 4.0
  */
-public class HttpDataInputStream extends InputStream {
+public interface SessionInputBuffer {
     
-    private final SessionInputBuffer in;
+    int fill(ReadableByteChannel channel) 
+        throws IOException;
     
-    private boolean closed = false;
+    int read();
     
-    public HttpDataInputStream(final SessionInputBuffer in) {
-        super();
-        if (in == null) {
-            throw new IllegalArgumentException("Session input buffer may not be null");
-        }
-        this.in = in;
-    }
+    int read(ByteBuffer dst, int maxLen);
     
-    public int available() throws IOException {
-        if (!this.closed && this.in.isDataAvailable(10)) {
-            return 1;
-        } else {
-            return 0;
-        }
-    }
+    int read(ByteBuffer dst);
     
-    public void close() throws IOException {
-        this.closed = true;
-    }
-
-    public int read() throws IOException {
-        if (this.closed) {
-            return -1;
-        } else {
-            return this.in.read();
-        }
-    }
+    boolean readLine(CharArrayBuffer linebuffer, boolean endOfStream) 
+        throws CharacterCodingException;
     
-    public int read(final byte[] b, int off, int len) throws IOException {
-        if (this.closed) {
-            return -1;
-        } else {
-            return this.in.read(b, off, len);
-        }
-    }
+    String readLine(boolean endOfStream) 
+        throws CharacterCodingException;
     
 }

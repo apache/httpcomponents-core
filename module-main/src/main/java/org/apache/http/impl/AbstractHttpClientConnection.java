@@ -50,8 +50,8 @@ import org.apache.http.impl.entity.EntityDeserializer;
 import org.apache.http.impl.entity.EntitySerializer;
 import org.apache.http.impl.entity.LaxContentLengthStrategy;
 import org.apache.http.impl.entity.StrictContentLengthStrategy;
-import org.apache.http.io.HttpDataReceiver;
-import org.apache.http.io.HttpDataTransmitter;
+import org.apache.http.io.SessionInputBuffer;
+import org.apache.http.io.SessionOutputBuffer;
 import org.apache.http.message.BasicHeader;
 import org.apache.http.message.BasicRequestLine;
 import org.apache.http.message.BasicStatusLine;
@@ -64,7 +64,7 @@ import org.apache.http.util.HeaderUtils;
 
 /**
  * Abstract client-side HTTP connection capable of transmitting and receiving data
- * using arbitrary {@link HttpDataReceiver} and {@link HttpDataTransmitter}
+ * using arbitrary {@link SessionInputBuffer} and {@link SessionOutputBuffer}
  *
  * @author <a href="mailto:oleg at ural.ru">Oleg Kalnichevski</a>
  *
@@ -79,8 +79,8 @@ public abstract class AbstractHttpClientConnection implements HttpClientConnecti
     private final EntityDeserializer entitydeserializer;
     private final HttpResponseFactory responsefactory;
     
-    private HttpDataReceiver datareceiver = null;
-    private HttpDataTransmitter datatransmitter = null;
+    private SessionInputBuffer inbuffer = null;
+    private SessionOutputBuffer outbuffer = null;
 
     private int maxHeaderCount = -1;
     private int maxLineLen = -1;
@@ -111,17 +111,17 @@ public abstract class AbstractHttpClientConnection implements HttpClientConnecti
     }
 
     protected void init(
-            final HttpDataReceiver datareceiver,
-            final HttpDataTransmitter datatransmitter,
+            final SessionInputBuffer inbuffer,
+            final SessionOutputBuffer outbuffer,
             final HttpParams params) {
-        if (datareceiver == null) {
-            throw new IllegalArgumentException("HTTP data receiver may not be null");
+        if (inbuffer == null) {
+            throw new IllegalArgumentException("Input session buffer may not be null");
         }
-        if (datatransmitter == null) {
-            throw new IllegalArgumentException("HTTP data transmitter may not be null");
+        if (outbuffer == null) {
+            throw new IllegalArgumentException("Output session buffer may not be null");
         }
-        this.datareceiver = datareceiver;
-        this.datatransmitter = datatransmitter;
+        this.inbuffer = inbuffer;
+        this.outbuffer = outbuffer;
         this.maxHeaderCount = params.getIntParameter(
                 HttpConnectionParams.MAX_HEADER_COUNT, -1);
         this.maxLineLen = params.getIntParameter(
@@ -129,13 +129,13 @@ public abstract class AbstractHttpClientConnection implements HttpClientConnecti
         this.maxGarbageLines = params.getIntParameter(
                 HttpConnectionParams.MAX_STATUS_LINE_GARBAGE, Integer.MAX_VALUE);
         this.metrics = new HttpConnectionMetricsImpl(
-                datareceiver.getMetrics(),
-                datatransmitter.getMetrics());
+                inbuffer.getMetrics(),
+                outbuffer.getMetrics());
     }
     
     public boolean isResponseAvailable(int timeout) throws IOException {
         assertOpen();
-        return this.datareceiver.isDataAvailable(timeout);
+        return this.inbuffer.isDataAvailable(timeout);
     }
 
     public void sendRequestHeader(final HttpRequest request) 
@@ -159,13 +159,13 @@ public abstract class AbstractHttpClientConnection implements HttpClientConnecti
             return;
         }
         this.entityserializer.serialize(
-                this.datatransmitter,
+                this.outbuffer,
                 request,
                 request.getEntity());
     }
 
     protected void doFlush() throws IOException {
-        this.datatransmitter.flush();
+        this.outbuffer.flush();
     }
     
     public void flush() throws IOException {
@@ -177,7 +177,7 @@ public abstract class AbstractHttpClientConnection implements HttpClientConnecti
             throws HttpException, IOException {
         this.buffer.clear();
         BasicRequestLine.format(this.buffer, request.getRequestLine());
-        this.datatransmitter.writeLine(this.buffer);
+        this.outbuffer.writeLine(this.buffer);
     }
 
     protected void sendRequestHeaders(final HttpRequest request) 
@@ -186,15 +186,15 @@ public abstract class AbstractHttpClientConnection implements HttpClientConnecti
             Header header = (Header) it.next();
             if (header instanceof BufferedHeader) {
                 // If the header is backed by a buffer, re-use the buffer
-                this.datatransmitter.writeLine(((BufferedHeader)header).getBuffer());
+                this.outbuffer.writeLine(((BufferedHeader)header).getBuffer());
             } else {
                 this.buffer.clear();
                 BasicHeader.format(this.buffer, header);
-                this.datatransmitter.writeLine(this.buffer);
+                this.outbuffer.writeLine(this.buffer);
             }
         }
         this.buffer.clear();
-        this.datatransmitter.writeLine(this.buffer);
+        this.outbuffer.writeLine(this.buffer);
     }
 
     public HttpResponse receiveResponseHeader() 
@@ -214,7 +214,7 @@ public abstract class AbstractHttpClientConnection implements HttpClientConnecti
             throw new IllegalArgumentException("HTTP response may not be null");
         }
         assertOpen();
-        HttpEntity entity = this.entitydeserializer.deserialize(this.datareceiver, response);
+        HttpEntity entity = this.entitydeserializer.deserialize(this.inbuffer, response);
         response.setEntity(entity);
     }
     
@@ -246,7 +246,7 @@ public abstract class AbstractHttpClientConnection implements HttpClientConnecti
         //read out the HTTP status string
         int count = 0;
         do {
-            int i = this.datareceiver.readLine(this.buffer);
+            int i = this.inbuffer.readLine(this.buffer);
             if (i == -1 && count == 0) {
                 // The server just dropped connection on us
                 throw new NoHttpResponseException("The target server failed to respond");
@@ -269,7 +269,7 @@ public abstract class AbstractHttpClientConnection implements HttpClientConnecti
     protected void readResponseHeaders(final HttpResponse response) 
             throws HttpException, IOException {
         Header[] headers = HeaderUtils.parseHeaders(
-                this.datareceiver, 
+                this.inbuffer, 
                 this.maxHeaderCount,
                 this.maxLineLen);
         response.setHeaders(headers);
@@ -278,7 +278,7 @@ public abstract class AbstractHttpClientConnection implements HttpClientConnecti
     public boolean isStale() {
         assertOpen();
         try {
-            this.datareceiver.isDataAvailable(1);
+            this.inbuffer.isDataAvailable(1);
             return false;
         } catch (IOException ex) {
             return true;

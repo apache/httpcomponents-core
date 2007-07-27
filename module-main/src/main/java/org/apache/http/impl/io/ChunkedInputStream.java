@@ -37,7 +37,7 @@ import java.io.InputStream;
 import org.apache.http.Header;
 import org.apache.http.HttpException;
 import org.apache.http.MalformedChunkCodingException;
-import org.apache.http.io.HttpDataReceiver;
+import org.apache.http.io.SessionInputBuffer;
 import org.apache.http.protocol.HTTP;
 import org.apache.http.util.CharArrayBuffer;
 import org.apache.http.util.ExceptionUtils;
@@ -71,8 +71,8 @@ import org.apache.http.util.HeaderUtils;
  */
 public class ChunkedInputStream extends InputStream {
 
-    /** The data receiver that we're wrapping */
-    private HttpDataReceiver in;
+    /** The session input buffer */
+    private SessionInputBuffer in;
 
     private final CharArrayBuffer buffer;
     
@@ -93,10 +93,10 @@ public class ChunkedInputStream extends InputStream {
     
     private Header[] footers = new Header[] {};
 
-    public ChunkedInputStream(final HttpDataReceiver in) {
+    public ChunkedInputStream(final SessionInputBuffer in) {
         super();
         if (in == null) {
-            throw new IllegalArgumentException("InputStream parameter may not be null");
+            throw new IllegalArgumentException("Session input buffer may not be null");
         }
         this.in = in;
         this.pos = 0;

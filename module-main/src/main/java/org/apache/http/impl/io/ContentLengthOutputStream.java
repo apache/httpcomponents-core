@@ -34,7 +34,7 @@ package org.apache.http.impl.io;
 import java.io.IOException;
 import java.io.OutputStream;
 
-import org.apache.http.io.HttpDataTransmitter;
+import org.apache.http.io.SessionOutputBuffer;
 
 /**
  * A stream wrapper that closes itself after a defined number of bytes.
@@ -48,9 +48,9 @@ import org.apache.http.io.HttpDataTransmitter;
 public class ContentLengthOutputStream extends OutputStream {
     
     /**
-     * Wrapped data transmitter that all calls are delegated to.
+     * Wrapped session outbut buffer.
      */
-    private final HttpDataTransmitter out;
+    private final SessionOutputBuffer out;
 
     /**
      * The maximum number of bytes that can be written the stream. Subsequent
@@ -73,10 +73,10 @@ public class ContentLengthOutputStream extends OutputStream {
      * 
      * @since 4.0
      */
-    public ContentLengthOutputStream(final HttpDataTransmitter out, long contentLength) {
+    public ContentLengthOutputStream(final SessionOutputBuffer out, long contentLength) {
         super();
         if (out == null) {
-            throw new IllegalArgumentException("HTTP data transmitter may not be null");
+            throw new IllegalArgumentException("Session output buffer may not be null");
         }
         if (contentLength < 0) {
             throw new IllegalArgumentException("Content length may not be negative");

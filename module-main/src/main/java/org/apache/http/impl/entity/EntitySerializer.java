@@ -41,7 +41,7 @@ import org.apache.http.entity.ContentLengthStrategy;
 import org.apache.http.impl.io.ChunkedOutputStream;
 import org.apache.http.impl.io.ContentLengthOutputStream;
 import org.apache.http.impl.io.IdentityOutputStream;
-import org.apache.http.io.HttpDataTransmitter;
+import org.apache.http.io.SessionOutputBuffer;
 
 /**
  * Default implementation of an entity serializer.
@@ -68,24 +68,24 @@ public class EntitySerializer {
     }
 
     protected OutputStream doSerialize(
-            final HttpDataTransmitter datatransmitter,
+            final SessionOutputBuffer outbuffer,
             final HttpMessage message) throws HttpException, IOException {
         long len = this.lenStrategy.determineLength(message);
         if (len == ContentLengthStrategy.CHUNKED) {
-            return new ChunkedOutputStream(datatransmitter);
+            return new ChunkedOutputStream(outbuffer);
         } else if (len == ContentLengthStrategy.IDENTITY) {
-            return new IdentityOutputStream(datatransmitter);
+            return new IdentityOutputStream(outbuffer);
         } else {
-            return new ContentLengthOutputStream(datatransmitter, len);
+            return new ContentLengthOutputStream(outbuffer, len);
         }
     }
 
     public void serialize(
-            final HttpDataTransmitter datatransmitter,
+            final SessionOutputBuffer outbuffer,
             final HttpMessage message,
             final HttpEntity entity) throws HttpException, IOException {
-        if (datatransmitter == null) {
-            throw new IllegalArgumentException("HTTP data transmitter may not be null");
+        if (outbuffer == null) {
+            throw new IllegalArgumentException("Session output buffer may not be null");
         }
         if (message == null) {
             throw new IllegalArgumentException("HTTP message may not be null");
@@ -93,7 +93,7 @@ public class EntitySerializer {
         if (entity == null) {
             throw new IllegalArgumentException("HTTP entity may not be null");
         }
-        OutputStream outstream = doSerialize(datatransmitter, message);
+        OutputStream outstream = doSerialize(outbuffer, message);
         entity.writeTo(outstream);
         outstream.close();
     }

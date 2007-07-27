@@ -42,7 +42,7 @@ import org.apache.http.entity.ContentLengthStrategy;
 import org.apache.http.impl.io.ChunkedInputStream;
 import org.apache.http.impl.io.ContentLengthInputStream;
 import org.apache.http.impl.io.HttpDataInputStream;
-import org.apache.http.io.HttpDataReceiver;
+import org.apache.http.io.SessionInputBuffer;
 import org.apache.http.protocol.HTTP;
 
 /**
@@ -70,30 +70,23 @@ public class EntityDeserializer {
     }
 
     protected BasicHttpEntity doDeserialize(
-            final HttpDataReceiver datareceiver,
+            final SessionInputBuffer inbuffer,
             final HttpMessage message) throws HttpException, IOException {
-        if (datareceiver == null) {
-            throw new IllegalArgumentException("HTTP data receiver may not be null");
-        }
-        if (message == null) {
-            throw new IllegalArgumentException("HTTP message may not be null");
-        }
-
         BasicHttpEntity entity = new BasicHttpEntity();
         
         long len = this.lenStrategy.determineLength(message);
         if (len == ContentLengthStrategy.CHUNKED) {
             entity.setChunked(true);
             entity.setContentLength(-1);
-            entity.setContent(new ChunkedInputStream(datareceiver));
+            entity.setContent(new ChunkedInputStream(inbuffer));
         } else if (len == ContentLengthStrategy.IDENTITY) {
             entity.setChunked(false);
             entity.setContentLength(-1);
-            entity.setContent(new HttpDataInputStream(datareceiver));                            
+            entity.setContent(new HttpDataInputStream(inbuffer));                            
         } else {
             entity.setChunked(false);
             entity.setContentLength(len);
-            entity.setContent(new ContentLengthInputStream(datareceiver, len));
+            entity.setContent(new ContentLengthInputStream(inbuffer, len));
         }
         
         Header contentTypeHeader = message.getFirstHeader(HTTP.CONTENT_TYPE);
@@ -108,9 +101,15 @@ public class EntityDeserializer {
     }
         
     public HttpEntity deserialize(
-            final HttpDataReceiver datareceiver,
+            final SessionInputBuffer inbuffer,
             final HttpMessage message) throws HttpException, IOException {
-        return doDeserialize(datareceiver, message);
+        if (inbuffer == null) {
+            throw new IllegalArgumentException("Session input buffer may not be null");
+        }
+        if (message == null) {
+            throw new IllegalArgumentException("HTTP message may not be null");
+        }
+        return doDeserialize(inbuffer, message);
     }
     
 }

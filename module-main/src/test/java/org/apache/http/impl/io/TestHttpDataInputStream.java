@@ -31,7 +31,7 @@
 package org.apache.http.impl.io;
 
 import org.apache.http.impl.io.HttpDataInputStream;
-import org.apache.http.io.HttpDataReceiver;
+import org.apache.http.io.SessionInputBuffer;
 import org.apache.http.mockup.HttpDataReceiverMockup;
 
 import junit.framework.Test;
@@ -63,7 +63,7 @@ public class TestHttpDataInputStream extends TestCase {
     }
 
     public void testConstructor() throws Exception {
-        HttpDataReceiver receiver = new HttpDataReceiverMockup(new byte[] {});
+        SessionInputBuffer receiver = new HttpDataReceiverMockup(new byte[] {});
         new HttpDataInputStream(receiver);
         try {
             new HttpDataInputStream(null);

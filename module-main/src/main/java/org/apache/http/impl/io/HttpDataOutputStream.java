@@ -34,10 +34,10 @@ package org.apache.http.impl.io;
 import java.io.IOException;
 import java.io.OutputStream;
 
-import org.apache.http.io.HttpDataTransmitter;
+import org.apache.http.io.SessionOutputBuffer;
 
 /**
- * A stream for writing to a {@link HttpDataTransmitter HttpDataTransmitter}.
+ * A stream for writing to a {@link SessionOutputBuffer session output buffer}.
  *
  * @author <a href="mailto:oleg at ural.ru">Oleg Kalnichevski</a>
  *
@@ -47,22 +47,22 @@ import org.apache.http.io.HttpDataTransmitter;
  */
 public class HttpDataOutputStream extends OutputStream {
     
-    private final HttpDataTransmitter datatransmitter;
+    private final SessionOutputBuffer out;
     
     private boolean closed = false;
     
-    public HttpDataOutputStream(final HttpDataTransmitter datatransmitter) {
+    public HttpDataOutputStream(final SessionOutputBuffer out) {
         super();
-        if (datatransmitter == null) {
-            throw new IllegalArgumentException("HTTP data transmitter may not be null");
+        if (out == null) {
+            throw new IllegalArgumentException("Session output buffer may not be null");
         }
-        this.datatransmitter = datatransmitter;
+        this.out = out;
     }
     
     public void close() throws IOException {
         if (!this.closed) {
             this.closed = true;
-            this.datatransmitter.flush();
+            this.out.flush();
         }
     }
 
@@ -74,16 +74,16 @@ public class HttpDataOutputStream extends OutputStream {
     
     public void flush() throws IOException {
         assertNotClosed();
-        this.datatransmitter.flush();
+        this.out.flush();
     }
     
     public void write(final byte[] b, int off, int len) throws IOException {
         assertNotClosed();
-        this.datatransmitter.write(b, off, len);
+        this.out.write(b, off, len);
     }
     
     public void write(int b) throws IOException {
         assertNotClosed();
-        this.datatransmitter.write(b);
+        this.out.write(b);
     }
 }

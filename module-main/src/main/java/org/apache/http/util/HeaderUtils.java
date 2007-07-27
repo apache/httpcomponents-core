@@ -37,7 +37,7 @@ import java.util.ArrayList;
 import org.apache.http.Header;
 import org.apache.http.HttpException;
 import org.apache.http.ProtocolException;
-import org.apache.http.io.HttpDataReceiver;
+import org.apache.http.io.SessionInputBuffer;
 import org.apache.http.message.BufferedHeader;
 
 /**
@@ -56,7 +56,7 @@ public final class HeaderUtils {
      * Parses HTTP headers from the data receiver stream according to the generic 
      * format as given in Section 3.1 of RFC 822, RFC-2616 Section 4 and 19.3.
      *  
-     * @param datareceiver HTTP data receiver
+     * @param inbuffer Session input buffer
      * @param maxHeaderCount maximum number of headers allowed. If the number
      *  of headers received from the data stream exceeds maxCount value, an
      *  IOException will be thrown. Setting this parameter to a negative value
@@ -69,11 +69,11 @@ public final class HeaderUtils {
      * @throws IOException
      */
     public static Header[] parseHeaders(
-            final HttpDataReceiver datareceiver,
+            final SessionInputBuffer inbuffer,
             int maxHeaderCount,
             int maxLineLen) throws HttpException, IOException {
-        if (datareceiver == null) {
-            throw new IllegalArgumentException("HTTP data receiver may not be null");
+        if (inbuffer == null) {
+            throw new IllegalArgumentException("Session input buffer may not be null");
         }
         ArrayList headerLines = new ArrayList();
 
@@ -85,7 +85,7 @@ public final class HeaderUtils {
             } else {
                 current.clear();
             }
-            int l = datareceiver.readLine(current);
+            int l = inbuffer.readLine(current);
             if (l == -1 || current.length() < 1) {
                 break;
             }
@@ -131,7 +131,7 @@ public final class HeaderUtils {
         return headers;
     }
 
-    public static Header[] parseHeaders(final HttpDataReceiver datareceiver) 
+    public static Header[] parseHeaders(final SessionInputBuffer datareceiver) 
         throws HttpException, IOException {
         return parseHeaders(datareceiver, -1, -1);
     }

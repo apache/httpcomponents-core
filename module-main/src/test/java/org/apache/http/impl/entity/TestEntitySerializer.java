@@ -43,7 +43,7 @@ import org.apache.http.entity.ByteArrayEntity;
 import org.apache.http.impl.io.ChunkedOutputStream;
 import org.apache.http.impl.io.ContentLengthOutputStream;
 import org.apache.http.impl.io.IdentityOutputStream;
-import org.apache.http.io.HttpDataTransmitter;
+import org.apache.http.io.SessionOutputBuffer;
 import org.apache.http.mockup.HttpDataTransmitterMockup;
 import org.apache.http.mockup.HttpMessageMockup;
 import org.apache.http.params.HttpProtocolParams;
@@ -90,7 +90,7 @@ public class TestEntitySerializer extends TestCase {
     }
 
     public void testEntityWithChunkTransferEncoding() throws Exception {
-        HttpDataTransmitter datatransmitter = new HttpDataTransmitterMockup();
+        SessionOutputBuffer datatransmitter = new HttpDataTransmitterMockup();
         HttpMessage message = new HttpMessageMockup();
         message.addHeader("Transfer-Encoding", "Chunked");
 
@@ -102,7 +102,7 @@ public class TestEntitySerializer extends TestCase {
     }
 
     public void testEntityWithIdentityTransferEncoding() throws Exception {
-        HttpDataTransmitter datatransmitter = new HttpDataTransmitterMockup();
+        SessionOutputBuffer datatransmitter = new HttpDataTransmitterMockup();
         HttpMessage message = new HttpMessageMockup();
         message.addHeader("Transfer-Encoding", "Identity");
 
@@ -114,7 +114,7 @@ public class TestEntitySerializer extends TestCase {
     }
     
     public void testEntityWithInvalidTransferEncoding() throws Exception {
-        HttpDataTransmitter datatransmitter = new HttpDataTransmitterMockup();
+        SessionOutputBuffer datatransmitter = new HttpDataTransmitterMockup();
         HttpMessage message = new HttpMessageMockup();
         message.addHeader("Transfer-Encoding", "whatever");
 
@@ -129,7 +129,7 @@ public class TestEntitySerializer extends TestCase {
     }
     
     public void testEntityWithInvalidChunkEncodingAndHTTP10() throws Exception {
-        HttpDataTransmitter datatransmitter = new HttpDataTransmitterMockup();
+        SessionOutputBuffer datatransmitter = new HttpDataTransmitterMockup();
         HttpMessage message = new HttpMessageMockup();
         message.getParams().setParameter(HttpProtocolParams.PROTOCOL_VERSION, 
                 HttpVersion.HTTP_1_0);
@@ -146,7 +146,7 @@ public class TestEntitySerializer extends TestCase {
     }
     
     public void testEntityWithContentLength() throws Exception {
-        HttpDataTransmitter datatransmitter = new HttpDataTransmitterMockup();
+        SessionOutputBuffer datatransmitter = new HttpDataTransmitterMockup();
         HttpMessage message = new HttpMessageMockup();
         message.addHeader("Content-Length", "100");
         EntitySerializer entitywriter = new EntitySerializer(
@@ -157,7 +157,7 @@ public class TestEntitySerializer extends TestCase {
     }
     
     public void testEntityWithInvalidContentLength() throws Exception {
-        HttpDataTransmitter datatransmitter = new HttpDataTransmitterMockup();
+        SessionOutputBuffer datatransmitter = new HttpDataTransmitterMockup();
         HttpMessage message = new HttpMessageMockup();
         message.addHeader("Content-Length", "whatever");
 
@@ -172,7 +172,7 @@ public class TestEntitySerializer extends TestCase {
     }
 
     public void testEntityNoContentDelimiter() throws Exception {
-        HttpDataTransmitter datatransmitter = new HttpDataTransmitterMockup();
+        SessionOutputBuffer datatransmitter = new HttpDataTransmitterMockup();
         HttpMessage message = new HttpMessageMockup();
         EntitySerializer entitywriter = new EntitySerializer(
                 new StrictContentLengthStrategy());

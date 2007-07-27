@@ -49,8 +49,8 @@ import org.apache.http.impl.entity.EntityDeserializer;
 import org.apache.http.impl.entity.EntitySerializer;
 import org.apache.http.impl.entity.LaxContentLengthStrategy;
 import org.apache.http.impl.entity.StrictContentLengthStrategy;
-import org.apache.http.io.HttpDataReceiver;
-import org.apache.http.io.HttpDataTransmitter;
+import org.apache.http.io.SessionInputBuffer;
+import org.apache.http.io.SessionOutputBuffer;
 import org.apache.http.message.BasicHeader;
 import org.apache.http.message.BasicRequestLine;
 import org.apache.http.message.BasicStatusLine;
@@ -62,7 +62,7 @@ import org.apache.http.util.HeaderUtils;
 
 /**
  * Abstract server-side HTTP connection capable of transmitting and receiving data
- * using arbitrary {@link HttpDataReceiver} and {@link HttpDataTransmitter}
+ * using arbitrary {@link SessionInputBuffer} and {@link SessionOutputBuffer}
  *
  * @author <a href="mailto:oleg at ural.ru">Oleg Kalnichevski</a>
  *
@@ -77,8 +77,8 @@ public abstract class AbstractHttpServerConnection implements HttpServerConnecti
     private final EntityDeserializer entitydeserializer;
     private final HttpRequestFactory requestfactory; 
     
-    private HttpDataReceiver datareceiver = null;
-    private HttpDataTransmitter datatransmitter = null;
+    private SessionInputBuffer inbuffer = null;
+    private SessionOutputBuffer outbuffer = null;
 
     private int maxHeaderCount = -1;
     private int maxLineLen = -1;
@@ -108,24 +108,24 @@ public abstract class AbstractHttpServerConnection implements HttpServerConnecti
     }
 
     protected void init(
-            final HttpDataReceiver datareceiver,
-            final HttpDataTransmitter datatransmitter,
+            final SessionInputBuffer inbuffer,
+            final SessionOutputBuffer outbuffer,
             final HttpParams params) {
-        if (datareceiver == null) {
-            throw new IllegalArgumentException("HTTP data receiver may not be null");
+        if (inbuffer == null) {
+            throw new IllegalArgumentException("Input session buffer may not be null");
         }
-        if (datatransmitter == null) {
-            throw new IllegalArgumentException("HTTP data transmitter may not be null");
+        if (outbuffer == null) {
+            throw new IllegalArgumentException("Output session buffer may not be null");
         }
-        this.datareceiver = datareceiver;
-        this.datatransmitter = datatransmitter;
+        this.inbuffer = inbuffer;
+        this.outbuffer = outbuffer;
         this.maxHeaderCount = params.getIntParameter(
                 HttpConnectionParams.MAX_HEADER_COUNT, -1);
         this.maxLineLen = params.getIntParameter(
                 HttpConnectionParams.MAX_LINE_LENGTH, -1);
         this.metrics = new HttpConnectionMetricsImpl(
-                datareceiver.getMetrics(),
-                datatransmitter.getMetrics());
+                inbuffer.getMetrics(),
+                outbuffer.getMetrics());
     }
     
     public HttpRequest receiveRequestHeader() 
@@ -143,14 +143,14 @@ public abstract class AbstractHttpServerConnection implements HttpServerConnecti
             throw new IllegalArgumentException("HTTP request may not be null");
         }
         assertOpen();
-        HttpEntity entity = this.entitydeserializer.deserialize(this.datareceiver, request);
+        HttpEntity entity = this.entitydeserializer.deserialize(this.inbuffer, request);
         request.setEntity(entity);
     }
 
     protected HttpRequest receiveRequestLine()
             throws HttpException, IOException {
         this.buffer.clear();
-        int i = this.datareceiver.readLine(this.buffer);
+        int i = this.inbuffer.readLine(this.buffer);
         if (i == -1) {
             throw new ConnectionClosedException("Client closed connection"); 
         }
@@ -161,14 +161,14 @@ public abstract class AbstractHttpServerConnection implements HttpServerConnecti
     protected void receiveRequestHeaders(final HttpRequest request) 
             throws HttpException, IOException {
         Header[] headers = HeaderUtils.parseHeaders(
-                this.datareceiver, 
+                this.inbuffer, 
                 this.maxHeaderCount,
                 this.maxLineLen);
         request.setHeaders(headers);
     }
 
     protected void doFlush() throws IOException  {
-        this.datatransmitter.flush();
+        this.outbuffer.flush();
     }
     
     public void flush() throws IOException {
@@ -195,7 +195,7 @@ public abstract class AbstractHttpServerConnection implements HttpServerConnecti
             return;
         }
         this.entityserializer.serialize(
-                this.datatransmitter,
+                this.outbuffer,
                 response,
                 response.getEntity());
     }
@@ -204,7 +204,7 @@ public abstract class AbstractHttpServerConnection implements HttpServerConnecti
             throws HttpException, IOException {
         this.buffer.clear();
         BasicStatusLine.format(this.buffer, response.getStatusLine());
-        this.datatransmitter.writeLine(this.buffer);
+        this.outbuffer.writeLine(this.buffer);
     }
 
     protected void sendResponseHeaders(final HttpResponse response) 
@@ -213,21 +213,21 @@ public abstract class AbstractHttpServerConnection implements HttpServerConnecti
             Header header = (Header) it.next();
             if (header instanceof BufferedHeader) {
                 // If the header is backed by a buffer, re-use the buffer
-                this.datatransmitter.writeLine(((BufferedHeader)header).getBuffer());
+                this.outbuffer.writeLine(((BufferedHeader)header).getBuffer());
             } else {
                 this.buffer.clear();
                 BasicHeader.format(this.buffer, header);
-                this.datatransmitter.writeLine(this.buffer);
+                this.outbuffer.writeLine(this.buffer);
             }
         }
         this.buffer.clear();
-        this.datatransmitter.writeLine(this.buffer);
+        this.outbuffer.writeLine(this.buffer);
     }
         
     public boolean isStale() {
         assertOpen();
         try {
-            this.datareceiver.isDataAvailable(1);
+            this.inbuffer.isDataAvailable(1);
             return false;
         } catch (IOException ex) {
             return true;

@@ -34,7 +34,7 @@ package org.apache.http.impl.io;
 import java.io.IOException;
 import java.io.InputStream;
 
-import org.apache.http.io.HttpDataReceiver;
+import org.apache.http.io.SessionInputBuffer;
 
 /**
  * Stream that cuts off after a specified number of bytes.
@@ -86,16 +86,16 @@ public class ContentLengthInputStream extends InputStream {
     /**
      * Wrapped input stream that all calls are delegated to.
      */
-    private HttpDataReceiver in = null;
+    private SessionInputBuffer in = null;
 
     /**
      * Creates a new length limited stream
      *
-     * @param in The stream to wrap
+     * @param in The session input buffer to wrap
      * @param contentLength The maximum number of bytes that can be read from
      * the stream. Subsequent read operations will return -1.
      */
-    public ContentLengthInputStream(final HttpDataReceiver in, long contentLength) {
+    public ContentLengthInputStream(final SessionInputBuffer in, long contentLength) {
         super();
         if (in == null) {
             throw new IllegalArgumentException("Input stream may not be null");

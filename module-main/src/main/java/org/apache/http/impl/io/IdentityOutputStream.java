@@ -34,7 +34,7 @@ package org.apache.http.impl.io;
 import java.io.IOException;
 import java.io.OutputStream;
 
-import org.apache.http.io.HttpDataTransmitter;
+import org.apache.http.io.SessionOutputBuffer;
 
 /**
  * A stream for writing with an "identity" transport encoding.
@@ -48,17 +48,17 @@ import org.apache.http.io.HttpDataTransmitter;
 public class IdentityOutputStream extends OutputStream {
     
     /**
-     * Wrapped data transmitter that all calls are delegated to.
+     * Wrapped session output buffer.
      */
-    private final HttpDataTransmitter out;
+    private final SessionOutputBuffer out;
 
     /** True if the stream is closed. */
     private boolean closed = false;
 
-    public IdentityOutputStream(final HttpDataTransmitter out) {
+    public IdentityOutputStream(final SessionOutputBuffer out) {
         super();
         if (out == null) {
-            throw new IllegalArgumentException("HTTP data transmitter may not be null");
+            throw new IllegalArgumentException("Session output buffer may not be null");
         }
         this.out = out;
     }

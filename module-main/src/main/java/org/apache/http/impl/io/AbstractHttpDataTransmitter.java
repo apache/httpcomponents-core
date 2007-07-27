@@ -34,7 +34,7 @@ package org.apache.http.impl.io;
 import java.io.IOException;
 import java.io.OutputStream;
 
-import org.apache.http.io.HttpDataTransmitter;
+import org.apache.http.io.SessionOutputBuffer;
 import org.apache.http.io.HttpTransportMetrics;
 import org.apache.http.params.HttpParams;
 import org.apache.http.params.HttpProtocolParams;
@@ -48,7 +48,7 @@ import org.apache.http.util.CharArrayBuffer;
  * @author <a href="mailto:oleg at ural.ru">Oleg Kalnichevski</a>
  *
  */
-public abstract class AbstractHttpDataTransmitter implements HttpDataTransmitter {
+public abstract class AbstractHttpDataTransmitter implements SessionOutputBuffer {
 
     private static final byte[] CRLF = new byte[] {HTTP.CR, HTTP.LF};
     

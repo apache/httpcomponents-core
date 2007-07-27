@@ -34,7 +34,7 @@ package org.apache.http.impl.io;
 import java.io.IOException;
 import java.io.InputStream;
 
-import org.apache.http.io.HttpDataReceiver;
+import org.apache.http.io.SessionInputBuffer;
 import org.apache.http.io.HttpTransportMetrics;
 import org.apache.http.params.HttpConnectionParams;
 import org.apache.http.params.HttpParams;
@@ -49,7 +49,7 @@ import org.apache.http.util.CharArrayBuffer;
  * @author <a href="mailto:oleg at ural.ru">Oleg Kalnichevski</a>
  *
  */
-public abstract class AbstractHttpDataReceiver implements HttpDataReceiver {
+public abstract class AbstractHttpDataReceiver implements SessionInputBuffer {
 
     private InputStream instream;
     private byte[] buffer;

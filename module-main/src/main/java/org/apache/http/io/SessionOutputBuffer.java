@@ -36,9 +36,7 @@ import java.io.IOException;
 import org.apache.http.util.CharArrayBuffer;
 
 /**
- * Interface for sending data.
- * Unlike {@link java.io.OutputStream}, this interface is tailored
- * to the needs of the HTTP components.
+ * Session output buffer for blocking connection.
  *
  * @author <a href="mailto:oleg at ural.ru">Oleg Kalnichevski</a>
  *
@@ -46,7 +44,7 @@ import org.apache.http.util.CharArrayBuffer;
  * 
  * @since 4.0
  */
-public interface HttpDataTransmitter {
+public interface SessionOutputBuffer {
 
     void write(byte[] b, int off, int len) throws IOException;
     
