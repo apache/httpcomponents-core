@@ -35,7 +35,7 @@ import java.io.IOException;
 import java.io.InputStream;
 
 import org.apache.http.impl.io.ContentLengthInputStream;
-import org.apache.http.mockup.HttpDataReceiverMockup;
+import org.apache.http.mockup.SessionInputBufferMockup;
 import org.apache.http.util.EncodingUtils;
 
 import junit.framework.Test;
@@ -63,7 +63,7 @@ public class TestContentLengthInputStream extends TestCase {
     private static final String CONTENT_CHARSET = "ISO-8859-1";
         
     public void testConstructors() throws Exception {
-        new ContentLengthInputStream(new HttpDataReceiverMockup(new byte[] {}), 10);
+        new ContentLengthInputStream(new SessionInputBufferMockup(new byte[] {}), 10);
         try {
             new ContentLengthInputStream(null, 10);
             fail("IllegalArgumentException should have been thrown");
@@ -71,7 +71,7 @@ public class TestContentLengthInputStream extends TestCase {
             // expected
         }
         try {
-            new ContentLengthInputStream(new HttpDataReceiverMockup(new byte[] {}), -10);
+            new ContentLengthInputStream(new SessionInputBufferMockup(new byte[] {}), -10);
             fail("IllegalArgumentException should have been thrown");
         } catch (IllegalArgumentException ex) {
             // expected
@@ -80,7 +80,7 @@ public class TestContentLengthInputStream extends TestCase {
 
     public void testBasics() throws IOException {
         String correct = "1234567890123456";
-        InputStream in = new ContentLengthInputStream(new HttpDataReceiverMockup(
+        InputStream in = new ContentLengthInputStream(new SessionInputBufferMockup(
             EncodingUtils.getBytes(correct, CONTENT_CHARSET)), 10L);
         ByteArrayOutputStream out = new ByteArrayOutputStream();
 
@@ -95,30 +95,30 @@ public class TestContentLengthInputStream extends TestCase {
     }
 
     public void testSkip() throws IOException {
-        InputStream in = new ContentLengthInputStream(new HttpDataReceiverMockup(new byte[20]), 10L);
+        InputStream in = new ContentLengthInputStream(new SessionInputBufferMockup(new byte[20]), 10L);
         assertEquals(10, in.skip(10));
         assertTrue(in.read() == -1);
 
-        in = new ContentLengthInputStream(new HttpDataReceiverMockup(new byte[20]), 10L);
+        in = new ContentLengthInputStream(new SessionInputBufferMockup(new byte[20]), 10L);
         in.read();
         assertEquals(9, in.skip(10));
         assertTrue(in.read() == -1);
 
-        in = new ContentLengthInputStream(new HttpDataReceiverMockup(new byte[20]), 2L);
+        in = new ContentLengthInputStream(new SessionInputBufferMockup(new byte[20]), 2L);
         in.read();
         in.read();
         assertTrue(in.skip(10) <= 0);
         assertTrue(in.skip(-1) == 0);
         assertTrue(in.read() == -1);
         
-        in = new ContentLengthInputStream(new HttpDataReceiverMockup(new byte[2]), 4L);
+        in = new ContentLengthInputStream(new SessionInputBufferMockup(new byte[2]), 4L);
         in.read();
         assertTrue(in.skip(2) == 1);
     }
 
     public void testClose() throws IOException {
         String correct = "1234567890123456";
-        InputStream in = new ContentLengthInputStream(new HttpDataReceiverMockup(
+        InputStream in = new ContentLengthInputStream(new SessionInputBufferMockup(
             EncodingUtils.getBytes(correct, CONTENT_CHARSET)), 10L);
         in.close();
         in.close();

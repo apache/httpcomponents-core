@@ -41,9 +41,9 @@ import org.apache.http.HttpMessage;
 import org.apache.http.ProtocolException;
 import org.apache.http.impl.io.ChunkedInputStream;
 import org.apache.http.impl.io.ContentLengthInputStream;
-import org.apache.http.impl.io.HttpDataInputStream;
+import org.apache.http.impl.io.IdentityInputStream;
 import org.apache.http.io.SessionInputBuffer;
-import org.apache.http.mockup.HttpDataReceiverMockup;
+import org.apache.http.mockup.SessionInputBufferMockup;
 import org.apache.http.mockup.HttpMessageMockup;
 import org.apache.http.params.HttpProtocolParams;
 
@@ -75,7 +75,7 @@ public class TestEntityDeserializer extends TestCase {
             // expected
         }
         try {
-            entitygen.deserialize(new HttpDataReceiverMockup(new byte[] {}) , null);
+            entitygen.deserialize(new SessionInputBufferMockup(new byte[] {}) , null);
             fail("IllegalArgumentException should have been thrown");
         } catch (IllegalArgumentException ex) {
             // expected
@@ -83,7 +83,7 @@ public class TestEntityDeserializer extends TestCase {
     }
 
     public void testEntityWithTransferEncoding() throws Exception {
-        SessionInputBuffer datareceiver = new HttpDataReceiverMockup("0\r\n", "US-ASCII");
+        SessionInputBuffer datareceiver = new SessionInputBufferMockup("0\r\n", "US-ASCII");
         HttpMessage message = new HttpMessageMockup();
         
         // lenient mode 
@@ -110,7 +110,7 @@ public class TestEntityDeserializer extends TestCase {
 
     public void testEntityWithIdentityTransferEncoding() throws Exception {
         SessionInputBuffer datareceiver = 
-        	new HttpDataReceiverMockup(new byte[] {});
+        	new SessionInputBufferMockup(new byte[] {});
         HttpMessage message = new HttpMessageMockup();
         
         // lenient mode 
@@ -127,7 +127,7 @@ public class TestEntityDeserializer extends TestCase {
     }
 
     public void testEntityWithUnsupportedTransferEncoding() throws Exception {
-        SessionInputBuffer datareceiver = new HttpDataReceiverMockup("0\r\n", "US-ASCII");
+        SessionInputBuffer datareceiver = new SessionInputBufferMockup("0\r\n", "US-ASCII");
         HttpMessage message = new HttpMessageMockup();
         
         // lenient mode 
@@ -154,7 +154,7 @@ public class TestEntityDeserializer extends TestCase {
     }
 
     public void testChunkedTransferEncodingMustBeLast() throws Exception {
-        SessionInputBuffer datareceiver = new HttpDataReceiverMockup("0\r\n", "US-ASCII");
+        SessionInputBuffer datareceiver = new SessionInputBufferMockup("0\r\n", "US-ASCII");
         HttpMessage message = new HttpMessageMockup();
         
         // lenient mode 
@@ -181,7 +181,7 @@ public class TestEntityDeserializer extends TestCase {
     }
 
     public void testEntityWithContentLength() throws Exception {
-        SessionInputBuffer datareceiver = new HttpDataReceiverMockup(new byte[] {});
+        SessionInputBuffer datareceiver = new SessionInputBufferMockup(new byte[] {});
         HttpMessage message = new HttpMessageMockup();
         
         // lenient mode 
@@ -198,7 +198,7 @@ public class TestEntityDeserializer extends TestCase {
     }
 
     public void testEntityWithMultipleContentLength() throws Exception {
-        SessionInputBuffer datareceiver = new HttpDataReceiverMockup(new byte[] {'0'});
+        SessionInputBuffer datareceiver = new SessionInputBufferMockup(new byte[] {'0'});
         HttpMessage message = new HttpMessageMockup();
 
         // lenient mode 
@@ -228,7 +228,7 @@ public class TestEntityDeserializer extends TestCase {
     }
     
     public void testEntityWithMultipleContentLengthSomeWrong() throws Exception {
-        SessionInputBuffer datareceiver = new HttpDataReceiverMockup(new byte[] {'0'});
+        SessionInputBuffer datareceiver = new SessionInputBufferMockup(new byte[] {'0'});
         HttpMessage message = new HttpMessageMockup();
 
         // lenient mode 
@@ -258,7 +258,7 @@ public class TestEntityDeserializer extends TestCase {
     }
     
     public void testEntityWithMultipleContentLengthAllWrong() throws Exception {
-        SessionInputBuffer datareceiver = new HttpDataReceiverMockup(new byte[] {'0'});
+        SessionInputBuffer datareceiver = new SessionInputBufferMockup(new byte[] {'0'});
         HttpMessage message = new HttpMessageMockup();
 
         // lenient mode 
@@ -275,7 +275,7 @@ public class TestEntityDeserializer extends TestCase {
         InputStream instream = entity.getContent();
         assertNotNull(instream);
         assertFalse(instream instanceof ContentLengthInputStream);
-        assertTrue(instream instanceof HttpDataInputStream);
+        assertTrue(instream instanceof IdentityInputStream);
         
         // strict mode 
         message.getParams().setBooleanParameter(HttpProtocolParams.STRICT_TRANSFER_ENCODING, true);
@@ -288,7 +288,7 @@ public class TestEntityDeserializer extends TestCase {
     }
 
     public void testEntityWithInvalidContentLength() throws Exception {
-        SessionInputBuffer datareceiver = new HttpDataReceiverMockup(new byte[] {'0'});
+        SessionInputBuffer datareceiver = new SessionInputBufferMockup(new byte[] {'0'});
         HttpMessage message = new HttpMessageMockup();
 
         // lenient mode 
@@ -304,7 +304,7 @@ public class TestEntityDeserializer extends TestCase {
         InputStream instream = entity.getContent();
         assertNotNull(instream);
         assertFalse(instream instanceof ContentLengthInputStream);
-        assertTrue(instream instanceof HttpDataInputStream);
+        assertTrue(instream instanceof IdentityInputStream);
         
         // strict mode 
         message.getParams().setBooleanParameter(HttpProtocolParams.STRICT_TRANSFER_ENCODING, true);
@@ -317,7 +317,7 @@ public class TestEntityDeserializer extends TestCase {
     }
 
     public void testEntityNeitherContentLengthNorTransferEncoding() throws Exception {
-        SessionInputBuffer datareceiver = new HttpDataReceiverMockup(new byte[] {'0'});
+        SessionInputBuffer datareceiver = new SessionInputBufferMockup(new byte[] {'0'});
         HttpMessage message = new HttpMessageMockup();
 
         // lenient mode 
@@ -332,11 +332,11 @@ public class TestEntityDeserializer extends TestCase {
         assertNotNull(instream);
         assertFalse(instream instanceof ContentLengthInputStream);
         assertFalse(instream instanceof ChunkedInputStream);
-        assertTrue(instream instanceof HttpDataInputStream);
+        assertTrue(instream instanceof IdentityInputStream);
     }
 
     public void testEntityContentType() throws Exception {
-        SessionInputBuffer datareceiver = new HttpDataReceiverMockup(new byte[] {'0'});
+        SessionInputBuffer datareceiver = new SessionInputBufferMockup(new byte[] {'0'});
         HttpMessage message = new HttpMessageMockup();
 
         message.addHeader("Content-Type", "stuff");
@@ -349,7 +349,7 @@ public class TestEntityDeserializer extends TestCase {
     }
 
     public void testEntityContentEncoding() throws Exception {
-        SessionInputBuffer datareceiver = new HttpDataReceiverMockup(new byte[] {'0'});
+        SessionInputBuffer datareceiver = new SessionInputBufferMockup(new byte[] {'0'});
         HttpMessage message = new HttpMessageMockup();
 
         message.addHeader("Content-Encoding", "what not");

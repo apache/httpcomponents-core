@@ -34,7 +34,7 @@ package org.apache.http.mockup;
 import java.io.ByteArrayOutputStream;
 import java.io.OutputStream;
 
-import org.apache.http.impl.io.AbstractHttpDataTransmitter;
+import org.apache.http.impl.io.AbstractSessionOutputBuffer;
 import org.apache.http.params.BasicHttpParams;
 import org.apache.http.params.HttpParams;
 
@@ -43,12 +43,12 @@ import org.apache.http.params.HttpParams;
  *
  * @author <a href="mailto:oleg at ural.ru">Oleg Kalnichevski</a>
  */
-public class HttpDataTransmitterMockup extends AbstractHttpDataTransmitter {
+public class SessionOutputBufferMockup extends AbstractSessionOutputBuffer {
 
     private ByteArrayOutputStream buffer = new ByteArrayOutputStream();
     public static int BUFFER_SIZE = 16;
     
-    public HttpDataTransmitterMockup(
+    public SessionOutputBufferMockup(
             final OutputStream outstream, 
             int buffersize,
             final HttpParams params) {
@@ -56,30 +56,30 @@ public class HttpDataTransmitterMockup extends AbstractHttpDataTransmitter {
         init(outstream, buffersize, params);
     }
 
-    public HttpDataTransmitterMockup(
+    public SessionOutputBufferMockup(
             final OutputStream outstream, 
             int buffersize) {
         this(outstream, buffersize, new BasicHttpParams());
     }
 
-    public HttpDataTransmitterMockup(
+    public SessionOutputBufferMockup(
             final ByteArrayOutputStream buffer,
             final HttpParams params) {
         this(buffer, BUFFER_SIZE, params);
         this.buffer = buffer;
     }
 
-    public HttpDataTransmitterMockup(
+    public SessionOutputBufferMockup(
             final ByteArrayOutputStream buffer) {
         this(buffer, BUFFER_SIZE, new BasicHttpParams());
         this.buffer = buffer;
     }
 
-    public HttpDataTransmitterMockup(final HttpParams params) {
+    public SessionOutputBufferMockup(final HttpParams params) {
         this(new ByteArrayOutputStream(), params);
     }
 
-    public HttpDataTransmitterMockup() {
+    public SessionOutputBufferMockup() {
         this(new ByteArrayOutputStream(), new BasicHttpParams());
     }
 

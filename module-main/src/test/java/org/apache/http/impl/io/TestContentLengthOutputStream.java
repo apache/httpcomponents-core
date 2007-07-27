@@ -35,7 +35,7 @@ import java.io.IOException;
 import java.io.OutputStream;
 
 import org.apache.http.impl.io.ContentLengthOutputStream;
-import org.apache.http.mockup.HttpDataTransmitterMockup;
+import org.apache.http.mockup.SessionOutputBufferMockup;
 
 import junit.framework.Test;
 import junit.framework.TestCase;
@@ -60,7 +60,7 @@ public class TestContentLengthOutputStream extends TestCase {
     }
 
     public void testConstructors() throws Exception {
-        new ContentLengthOutputStream(new HttpDataTransmitterMockup(), 10L);
+        new ContentLengthOutputStream(new SessionOutputBufferMockup(), 10L);
         try {
             new ContentLengthOutputStream(null, 10L);
             fail("IllegalArgumentException should have been thrown");
@@ -68,7 +68,7 @@ public class TestContentLengthOutputStream extends TestCase {
             // expected
         }
         try {
-            new ContentLengthOutputStream(new HttpDataTransmitterMockup(), -10);
+            new ContentLengthOutputStream(new SessionOutputBufferMockup(), -10);
             fail("IllegalArgumentException should have been thrown");
         } catch (IllegalArgumentException ex) {
             // expected
@@ -77,7 +77,7 @@ public class TestContentLengthOutputStream extends TestCase {
 
     public void testBasics() throws Exception {
     	ByteArrayOutputStream buffer = new ByteArrayOutputStream();
-    	HttpDataTransmitterMockup datatransmitter = new HttpDataTransmitterMockup(buffer);
+    	SessionOutputBufferMockup datatransmitter = new SessionOutputBufferMockup(buffer);
     	OutputStream out = new ContentLengthOutputStream(datatransmitter, 15L);
 
         byte[] tmp = new byte[10];
@@ -96,7 +96,7 @@ public class TestContentLengthOutputStream extends TestCase {
 
     public void testClose() throws Exception {
     	ByteArrayOutputStream buffer = new ByteArrayOutputStream();
-    	HttpDataTransmitterMockup datatransmitter = new HttpDataTransmitterMockup(buffer);
+    	SessionOutputBufferMockup datatransmitter = new SessionOutputBufferMockup(buffer);
     	OutputStream out = new ContentLengthOutputStream(datatransmitter, 15L);
     	out.close();
     	out.close();

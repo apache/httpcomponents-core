@@ -41,57 +41,57 @@ import junit.framework.TestSuite;
 import org.apache.http.io.HttpTransportMetrics;
 
 import org.apache.http.params.BasicHttpParams;
-import org.apache.http.mockup.HttpDataReceiverMockup;
-import org.apache.http.mockup.HttpDataTransmitterMockup;
+import org.apache.http.mockup.SessionInputBufferMockup;
+import org.apache.http.mockup.SessionOutputBufferMockup;
 import org.apache.http.params.HttpConnectionParams;
 import org.apache.http.params.HttpParams;
 import org.apache.http.params.HttpProtocolParams;
 import org.apache.http.protocol.HTTP;
 import org.apache.http.util.CharArrayBuffer;
 
-public class TestHttpDataReceiverAndTransmitter extends TestCase {
+public class TestSessionBuffers extends TestCase {
 
-    public TestHttpDataReceiverAndTransmitter(String testName) {
+    public TestSessionBuffers(String testName) {
         super(testName);
     }
 
     // ------------------------------------------------------- TestCase Methods
 
     public static Test suite() {
-        return new TestSuite(TestHttpDataReceiverAndTransmitter.class);
+        return new TestSuite(TestSessionBuffers.class);
     }
 
     // ------------------------------------------------------------------- Main
     public static void main(String args[]) {
-        String[] testCaseName = { TestHttpDataReceiverAndTransmitter.class.getName() };
+        String[] testCaseName = { TestSessionBuffers.class.getName() };
         junit.textui.TestRunner.main(testCaseName);
     }
 
     public void testInit() throws Exception {
         ByteArrayOutputStream out = new ByteArrayOutputStream();
-        new HttpDataTransmitterMockup(out); 
+        new SessionOutputBufferMockup(out); 
         try {
-            new HttpDataTransmitterMockup(null, new BasicHttpParams()); 
+            new SessionOutputBufferMockup(null, new BasicHttpParams()); 
             fail("IllegalArgumentException should have been thrown");
         } catch (IllegalArgumentException ex) {
             //expected
         }
         ByteArrayInputStream in = new ByteArrayInputStream(out.toByteArray());
-        new HttpDataReceiverMockup(in, 10); 
+        new SessionInputBufferMockup(in, 10); 
         try {
-            new HttpDataReceiverMockup(in, -10); 
+            new SessionInputBufferMockup(in, -10); 
             fail("IllegalArgumentException should have been thrown");
         } catch (IllegalArgumentException ex) {
             //expected
         }
         try {
-            new HttpDataTransmitterMockup(out, -10); 
+            new SessionOutputBufferMockup(out, -10); 
             fail("IllegalArgumentException should have been thrown");
         } catch (IllegalArgumentException ex) {
             //expected
         }
         try {
-            new HttpDataReceiverMockup((InputStream)null, 1024); 
+            new SessionInputBufferMockup((InputStream)null, 1024); 
             fail("IllegalArgumentException should have been thrown");
         } catch (IllegalArgumentException ex) {
             //expected
@@ -114,18 +114,18 @@ public class TestHttpDataReceiverAndTransmitter extends TestCase {
         teststrs[4] = "And goodbye";
         
         CharArrayBuffer chbuffer = new CharArrayBuffer(16); 
-        HttpDataTransmitterMockup transmitter = new HttpDataTransmitterMockup(); 
+        SessionOutputBufferMockup outbuffer = new SessionOutputBufferMockup(); 
         for (int i = 0; i < teststrs.length; i++) {
             chbuffer.clear();
             chbuffer.append(teststrs[i]);
-            transmitter.writeLine(chbuffer);
+            outbuffer.writeLine(chbuffer);
         }
         //these write operations should have no effect
-        transmitter.writeLine((String)null);
-        transmitter.writeLine((CharArrayBuffer)null);
-        transmitter.flush();
+        outbuffer.writeLine((String)null);
+        outbuffer.writeLine((CharArrayBuffer)null);
+        outbuffer.flush();
         
-        HttpTransportMetrics tmetrics = transmitter.getMetrics();
+        HttpTransportMetrics tmetrics = outbuffer.getMetrics();
         long writedBytes = tmetrics.getBytesTransferred();
         long expWrited = 0;
         for (int i = 0; i < teststrs.length; i++) {
@@ -133,33 +133,33 @@ public class TestHttpDataReceiverAndTransmitter extends TestCase {
         }
         assertEquals(expWrited, writedBytes);
         
-        HttpDataReceiverMockup receiver = new HttpDataReceiverMockup(
-        		transmitter.getData());
+        SessionInputBufferMockup inbuffer = new SessionInputBufferMockup(
+        		outbuffer.getData());
 
         for (int i = 0; i < teststrs.length; i++) {
-            assertEquals(teststrs[i], receiver.readLine());
+            assertEquals(teststrs[i], inbuffer.readLine());
         }
         
-        assertNull(receiver.readLine());
-        assertNull(receiver.readLine());
-        tmetrics = receiver.getMetrics();
+        assertNull(inbuffer.readLine());
+        assertNull(inbuffer.readLine());
+        tmetrics = inbuffer.getMetrics();
         long readedBytes = tmetrics.getBytesTransferred();
         assertEquals(expWrited, readedBytes);
     }
 
     public void testComplexReadWriteLine() throws Exception {
-        HttpDataTransmitterMockup transmitter = new HttpDataTransmitterMockup(); 
-        transmitter.write(new byte[] {'a', '\n'});
-        transmitter.write(new byte[] {'\r', '\n'});
-        transmitter.write(new byte[] {'\r', '\r', '\n'});
-        transmitter.write(new byte[] {'\n'});
+        SessionOutputBufferMockup outbuffer = new SessionOutputBufferMockup(); 
+        outbuffer.write(new byte[] {'a', '\n'});
+        outbuffer.write(new byte[] {'\r', '\n'});
+        outbuffer.write(new byte[] {'\r', '\r', '\n'});
+        outbuffer.write(new byte[] {'\n'});
         //these write operations should have no effect
-        transmitter.write(null);
-        transmitter.write(null, 0, 12);
+        outbuffer.write(null);
+        outbuffer.write(null, 0, 12);
         
-        transmitter.flush();
+        outbuffer.flush();
 
-        long writedBytes = transmitter.getMetrics().getBytesTransferred();
+        long writedBytes = outbuffer.getMetrics().getBytesTransferred();
         assertEquals(8, writedBytes);
         
         StringBuffer buffer = new StringBuffer();
@@ -168,9 +168,9 @@ public class TestHttpDataReceiverAndTransmitter extends TestCase {
         }
         String s1 = buffer.toString();
         buffer.append("\r\n");
-        transmitter.write(buffer.toString().getBytes("US-ASCII"));
-        transmitter.flush();
-        writedBytes = transmitter.getMetrics().getBytesTransferred();
+        outbuffer.write(buffer.toString().getBytes("US-ASCII"));
+        outbuffer.flush();
+        writedBytes = outbuffer.getMetrics().getBytesTransferred();
         assertEquals(8 + 14 +2, writedBytes);
 
         buffer.setLength(0);
@@ -179,9 +179,9 @@ public class TestHttpDataReceiverAndTransmitter extends TestCase {
         }
         String s2 = buffer.toString();
         buffer.append("\r\n");
-        transmitter.write(buffer.toString().getBytes("US-ASCII"));
-        transmitter.flush();
-        writedBytes = transmitter.getMetrics().getBytesTransferred();
+        outbuffer.write(buffer.toString().getBytes("US-ASCII"));
+        outbuffer.flush();
+        writedBytes = outbuffer.getMetrics().getBytesTransferred();
         assertEquals(8 + 14 + 2 + 15 + 2 , writedBytes);
 
         buffer.setLength(0);
@@ -190,30 +190,30 @@ public class TestHttpDataReceiverAndTransmitter extends TestCase {
         }
         String s3 = buffer.toString();
         buffer.append("\r\n");
-        transmitter.write(buffer.toString().getBytes("US-ASCII"));
-        transmitter.flush();
-        writedBytes = transmitter.getMetrics().getBytesTransferred();
+        outbuffer.write(buffer.toString().getBytes("US-ASCII"));
+        outbuffer.flush();
+        writedBytes = outbuffer.getMetrics().getBytesTransferred();
         assertEquals(8 + 14 + 2 + 15 + 2 + 16 + 2, writedBytes);
 
-        transmitter.write(new byte[] {'a'});
-        transmitter.flush();
-        writedBytes = transmitter.getMetrics().getBytesTransferred();
+        outbuffer.write(new byte[] {'a'});
+        outbuffer.flush();
+        writedBytes = outbuffer.getMetrics().getBytesTransferred();
         assertEquals(8 + 14 + 2 + 15 + 2 + 16 + 2 + 1, writedBytes);
         
-        HttpDataReceiverMockup receiver = new HttpDataReceiverMockup(
-        		transmitter.getData());
+        SessionInputBufferMockup inbuffer = new SessionInputBufferMockup(
+        		outbuffer.getData());
 
-        assertEquals("a", receiver.readLine());
-        assertEquals("", receiver.readLine());
-        assertEquals("\r", receiver.readLine());
-        assertEquals("", receiver.readLine());
-        assertEquals(s1, receiver.readLine());
-        assertEquals(s2, receiver.readLine());
-        assertEquals(s3, receiver.readLine());
-        assertEquals("a", receiver.readLine());
-        assertNull(receiver.readLine());
-        assertNull(receiver.readLine());
-        long received = receiver.getMetrics().getBytesTransferred();
+        assertEquals("a", inbuffer.readLine());
+        assertEquals("", inbuffer.readLine());
+        assertEquals("\r", inbuffer.readLine());
+        assertEquals("", inbuffer.readLine());
+        assertEquals(s1, inbuffer.readLine());
+        assertEquals(s2, inbuffer.readLine());
+        assertEquals(s3, inbuffer.readLine());
+        assertEquals("a", inbuffer.readLine());
+        assertNull(inbuffer.readLine());
+        assertNull(inbuffer.readLine());
+        long received = inbuffer.getMetrics().getBytesTransferred();
         assertEquals(writedBytes, received);
     }
     
@@ -233,43 +233,43 @@ public class TestHttpDataReceiverAndTransmitter extends TestCase {
         teststrs[4] = "And goodbye";
         
         CharArrayBuffer chbuffer = new CharArrayBuffer(16); 
-        HttpDataTransmitterMockup transmitter = new HttpDataTransmitterMockup(); 
+        SessionOutputBufferMockup outbuffer = new SessionOutputBufferMockup(); 
         for (int i = 0; i < teststrs.length; i++) {
             chbuffer.clear();
             chbuffer.append(teststrs[i]);
-            transmitter.writeLine(chbuffer);
+            outbuffer.writeLine(chbuffer);
         }
         //these write operations should have no effect
-        transmitter.writeLine((String)null);
-        transmitter.writeLine((CharArrayBuffer)null);
-        transmitter.flush();
+        outbuffer.writeLine((String)null);
+        outbuffer.writeLine((CharArrayBuffer)null);
+        outbuffer.flush();
         
-        long writedBytes = transmitter.getMetrics().getBytesTransferred();
+        long writedBytes = outbuffer.getMetrics().getBytesTransferred();
         long expWrited = 0;
         for (int i = 0; i < teststrs.length; i++) {
             expWrited += (teststrs[i].length() + 2/*CRLF*/);
         }
         assertEquals(expWrited, writedBytes);
         
-        HttpDataReceiverMockup receiver = new HttpDataReceiverMockup(
-        		transmitter.getData(), 1024);
+        SessionInputBufferMockup inbuffer = new SessionInputBufferMockup(
+        		outbuffer.getData(), 1024);
 
         for (int i = 0; i < teststrs.length; i++) {
-            assertEquals(teststrs[i], receiver.readLine());
+            assertEquals(teststrs[i], inbuffer.readLine());
         }
-        assertNull(receiver.readLine());
-        assertNull(receiver.readLine());
-        long readedBytes = receiver.getMetrics().getBytesTransferred();
+        assertNull(inbuffer.readLine());
+        assertNull(inbuffer.readLine());
+        long readedBytes = inbuffer.getMetrics().getBytesTransferred();
         assertEquals(expWrited, readedBytes);
     }
 
     public void testReadWriteBytes() throws Exception {
-        // make the buffer larger than that of transmitter
+        // make the buffer larger than that of outbuffer
         byte[] out = new byte[40];
         for (int i = 0; i < out.length; i++) {
             out[i] = (byte)('0' + i);
         }
-        HttpDataTransmitterMockup transmitter = new HttpDataTransmitterMockup();
+        SessionOutputBufferMockup outbuffer = new SessionOutputBufferMockup();
         int off = 0;
         int remaining = out.length;
         while (remaining > 0) {
@@ -277,26 +277,26 @@ public class TestHttpDataReceiverAndTransmitter extends TestCase {
             if (chunk > remaining) {
                 chunk = remaining;
             }
-            transmitter.write(out, off, chunk);
+            outbuffer.write(out, off, chunk);
             off += chunk;
             remaining -= chunk;
         }
-        transmitter.flush();
-        long writedBytes = transmitter.getMetrics().getBytesTransferred();
+        outbuffer.flush();
+        long writedBytes = outbuffer.getMetrics().getBytesTransferred();
         assertEquals(out.length, writedBytes);
 
-        byte[] tmp = transmitter.getData();
+        byte[] tmp = outbuffer.getData();
         assertEquals(out.length, tmp.length);
         for (int i = 0; i < out.length; i++) {
             assertEquals(out[i], tmp[i]);
         }
         
-        HttpDataReceiverMockup receiver = new HttpDataReceiverMockup(tmp);
+        SessionInputBufferMockup inbuffer = new SessionInputBufferMockup(tmp);
 
         // these read operations will have no effect
-        assertEquals(0, receiver.read(null, 0, 10));
-        assertEquals(0, receiver.read(null));        
-        long receivedBytes = receiver.getMetrics().getBytesTransferred();
+        assertEquals(0, inbuffer.read(null, 0, 10));
+        assertEquals(0, inbuffer.read(null));        
+        long receivedBytes = inbuffer.getMetrics().getBytesTransferred();
         assertEquals(0, receivedBytes);
         
         byte[] in = new byte[40];
@@ -307,7 +307,7 @@ public class TestHttpDataReceiverAndTransmitter extends TestCase {
             if (chunk > remaining) {
                 chunk = remaining;
             }
-            int l = receiver.read(in, off, chunk);
+            int l = inbuffer.read(in, off, chunk);
             if (l == -1) {
                 break;
             }
@@ -317,43 +317,43 @@ public class TestHttpDataReceiverAndTransmitter extends TestCase {
         for (int i = 0; i < out.length; i++) {
             assertEquals(out[i], in[i]);
         }
-        assertEquals(-1, receiver.read(tmp));
-        assertEquals(-1, receiver.read(tmp));
-        receivedBytes = receiver.getMetrics().getBytesTransferred();
+        assertEquals(-1, inbuffer.read(tmp));
+        assertEquals(-1, inbuffer.read(tmp));
+        receivedBytes = inbuffer.getMetrics().getBytesTransferred();
         assertEquals(out.length, receivedBytes);
     }
     
     public void testReadWriteByte() throws Exception {
-        // make the buffer larger than that of transmitter
+        // make the buffer larger than that of outbuffer
         byte[] out = new byte[40];
         for (int i = 0; i < out.length; i++) {
             out[i] = (byte)(120 + i);
         }
-        HttpDataTransmitterMockup transmitter = new HttpDataTransmitterMockup();
+        SessionOutputBufferMockup outbuffer = new SessionOutputBufferMockup();
         for (int i = 0; i < out.length; i++) {
-            transmitter.write(out[i]);
+            outbuffer.write(out[i]);
         }
-        transmitter.flush();
-        long writedBytes = transmitter.getMetrics().getBytesTransferred();
+        outbuffer.flush();
+        long writedBytes = outbuffer.getMetrics().getBytesTransferred();
         assertEquals(out.length, writedBytes);
 
-        byte[] tmp = transmitter.getData();
+        byte[] tmp = outbuffer.getData();
         assertEquals(out.length, tmp.length);
         for (int i = 0; i < out.length; i++) {
             assertEquals(out[i], tmp[i]);
         }
         
-        HttpDataReceiverMockup receiver = new HttpDataReceiverMockup(tmp);
+        SessionInputBufferMockup inbuffer = new SessionInputBufferMockup(tmp);
         byte[] in = new byte[40];
         for (int i = 0; i < in.length; i++) {
-            in[i] = (byte)receiver.read();
+            in[i] = (byte)inbuffer.read();
         }
         for (int i = 0; i < out.length; i++) {
             assertEquals(out[i], in[i]);
         }
-        assertEquals(-1, receiver.read());
-        assertEquals(-1, receiver.read());
-        long readedBytes = receiver.getMetrics().getBytesTransferred();
+        assertEquals(-1, inbuffer.read());
+        assertEquals(-1, inbuffer.read());
+        long readedBytes = inbuffer.getMetrics().getBytesTransferred();
         assertEquals(out.length, readedBytes);
     }
 
@@ -363,20 +363,20 @@ public class TestHttpDataReceiverAndTransmitter extends TestCase {
         byte[] tmp = s.getBytes("US-ASCII"); 
         // no limit
         params.setIntParameter(HttpConnectionParams.MAX_LINE_LENGTH, 0);
-        HttpDataReceiverMockup receiver1 = new HttpDataReceiverMockup(tmp, 5, params);
-        assertNotNull(receiver1.readLine());
-        long readedBytes = receiver1.getMetrics().getBytesTransferred();
+        SessionInputBufferMockup inbuffer1 = new SessionInputBufferMockup(tmp, 5, params);
+        assertNotNull(inbuffer1.readLine());
+        long readedBytes = inbuffer1.getMetrics().getBytesTransferred();
         assertEquals(60, readedBytes);
         
         // 15 char limit
         params.setIntParameter(HttpConnectionParams.MAX_LINE_LENGTH, 15);
-        HttpDataReceiverMockup receiver2 = new HttpDataReceiverMockup(tmp, 5, params);
+        SessionInputBufferMockup inbuffer2 = new SessionInputBufferMockup(tmp, 5, params);
         try {
-            receiver2.readLine();
+            inbuffer2.readLine();
             fail("IOException should have been thrown");
         } catch (IOException ex) {
             // expected
-            readedBytes = receiver2.getMetrics().getBytesTransferred();
+            readedBytes = inbuffer2.getMetrics().getBytesTransferred();
             assertEquals(20, readedBytes);
         }
     }
@@ -408,38 +408,38 @@ public class TestHttpDataReceiverAndTransmitter extends TestCase {
         HttpParams params = new BasicHttpParams(null);
         HttpProtocolParams.setHttpElementCharset(params, "UTF-8");
         
-        HttpDataTransmitterMockup transmitter = new HttpDataTransmitterMockup(params);
+        SessionOutputBufferMockup outbuffer = new SessionOutputBufferMockup(params);
 
         CharArrayBuffer chbuffer = new CharArrayBuffer(16); 
         for (int i = 0; i < 10; i++) {
             chbuffer.clear();
             chbuffer.append(s1);
-            transmitter.writeLine(chbuffer);
+            outbuffer.writeLine(chbuffer);
             chbuffer.clear();
             chbuffer.append(s2);
-            transmitter.writeLine(chbuffer);
+            outbuffer.writeLine(chbuffer);
             chbuffer.clear();
             chbuffer.append(s3);
-            transmitter.writeLine(chbuffer);
+            outbuffer.writeLine(chbuffer);
         }
-        transmitter.flush();
-        long writedBytes = transmitter.getMetrics().getBytesTransferred();
+        outbuffer.flush();
+        long writedBytes = outbuffer.getMetrics().getBytesTransferred();
         long expBytes = ((s1.toString().getBytes("UTF-8").length + 2)+
                 (s2.toString().getBytes("UTF-8").length + 2) +
                 (s3.toString().getBytes("UTF-8").length + 2)) * 10;
         assertEquals(expBytes, writedBytes);
         
-        HttpDataReceiverMockup receiver = new HttpDataReceiverMockup(
-        		transmitter.getData(), params);
+        SessionInputBufferMockup inbuffer = new SessionInputBufferMockup(
+        		outbuffer.getData(), params);
 
         for (int i = 0; i < 10; i++) {
-            assertEquals(s1, receiver.readLine());
-            assertEquals(s2, receiver.readLine());
-            assertEquals(s3, receiver.readLine());
+            assertEquals(s1, inbuffer.readLine());
+            assertEquals(s2, inbuffer.readLine());
+            assertEquals(s3, inbuffer.readLine());
         }
-        assertNull(receiver.readLine());
-        assertNull(receiver.readLine());
-        long readedBytes = receiver.getMetrics().getBytesTransferred();
+        assertNull(inbuffer.readLine());
+        assertNull(inbuffer.readLine());
+        long readedBytes = inbuffer.getMetrics().getBytesTransferred();
         assertEquals(expBytes, readedBytes);
     }
 
@@ -449,41 +449,41 @@ public class TestHttpDataReceiverAndTransmitter extends TestCase {
         HttpParams params = new BasicHttpParams(null);
         HttpProtocolParams.setHttpElementCharset(params, HTTP.ISO_8859_1);
         
-        HttpDataTransmitterMockup transmitter = new HttpDataTransmitterMockup(params);
+        SessionOutputBufferMockup outbuffer = new SessionOutputBufferMockup(params);
 
         CharArrayBuffer chbuffer = new CharArrayBuffer(16); 
         for (int i = 0; i < 10; i++) {
             chbuffer.clear();
             chbuffer.append(s1);
-            transmitter.writeLine(chbuffer);
+            outbuffer.writeLine(chbuffer);
         }
-        transmitter.flush();
-        long writedBytes = transmitter.getMetrics().getBytesTransferred();
+        outbuffer.flush();
+        long writedBytes = outbuffer.getMetrics().getBytesTransferred();
         long expBytes = ((s1.toString().getBytes(HTTP.ISO_8859_1).length + 2)) * 10;
         assertEquals(expBytes, writedBytes);
         
-        HttpDataReceiverMockup receiver = new HttpDataReceiverMockup(
-                transmitter.getData(),
+        SessionInputBufferMockup inbuffer = new SessionInputBufferMockup(
+                outbuffer.getData(),
                 params);
         HttpProtocolParams.setHttpElementCharset(params, HTTP.ISO_8859_1);
 
         for (int i = 0; i < 10; i++) {
-            assertEquals(s1, receiver.readLine());
+            assertEquals(s1, inbuffer.readLine());
         }
-        assertNull(receiver.readLine());
-        assertNull(receiver.readLine());
-        long readedBytes = receiver.getMetrics().getBytesTransferred();
+        assertNull(inbuffer.readLine());
+        assertNull(inbuffer.readLine());
+        long readedBytes = inbuffer.getMetrics().getBytesTransferred();
         assertEquals(expBytes, readedBytes);
     }
 
     public void testInvalidCharArrayBuffer() throws Exception {
-        HttpDataReceiverMockup receiver = new HttpDataReceiverMockup(new byte[] {});
+        SessionInputBufferMockup inbuffer = new SessionInputBufferMockup(new byte[] {});
         try {
-            receiver.readLine(null); 
+            inbuffer.readLine(null); 
             fail("IllegalArgumentException should have been thrown");
         } catch (IllegalArgumentException ex) {
             //expected
-            long readedBytes = receiver.getMetrics().getBytesTransferred();
+            long readedBytes = inbuffer.getMetrics().getBytesTransferred();
             assertEquals(0, readedBytes);
         }
     }

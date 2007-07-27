@@ -44,12 +44,13 @@ import org.apache.http.util.ByteArrayBuffer;
 import org.apache.http.util.CharArrayBuffer;
 
 /**
- * Abstract base class for data receivers using traditional IO.
+ * Abstract base class for session input buffers that stream data 
+ * from a {@link InputStream}.
  *
  * @author <a href="mailto:oleg at ural.ru">Oleg Kalnichevski</a>
  *
  */
-public abstract class AbstractHttpDataReceiver implements SessionInputBuffer {
+public abstract class AbstractSessionInputBuffer implements SessionInputBuffer {
 
     private InputStream instream;
     private byte[] buffer;

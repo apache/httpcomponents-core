@@ -30,43 +30,43 @@
 
 package org.apache.http.impl.io;
 
-import org.apache.http.impl.io.HttpDataInputStream;
+import org.apache.http.impl.io.IdentityInputStream;
 import org.apache.http.io.SessionInputBuffer;
-import org.apache.http.mockup.HttpDataReceiverMockup;
+import org.apache.http.mockup.SessionInputBufferMockup;
 
 import junit.framework.Test;
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
 
 /**
- * Simple tests for {@link HttpDataInputStream}.
+ * Simple tests for {@link IdentityInputStream}.
  *
  * @author <a href="mailto:oleg at ural.ru">Oleg Kalnichevski</a>
  */
-public class TestHttpDataInputStream extends TestCase {
+public class TestIdentitynputStream extends TestCase {
 
     // ------------------------------------------------------------ Constructor
-    public TestHttpDataInputStream(String testName) {
+    public TestIdentitynputStream(String testName) {
         super(testName);
     }
 
     // ------------------------------------------------------------------- Main
     public static void main(String args[]) {
-        String[] testCaseName = { TestHttpDataInputStream.class.getName() };
+        String[] testCaseName = { TestIdentitynputStream.class.getName() };
         junit.textui.TestRunner.main(testCaseName);
     }
 
     // ------------------------------------------------------- TestCase Methods
 
     public static Test suite() {
-        return new TestSuite(TestHttpDataInputStream.class);
+        return new TestSuite(TestIdentitynputStream.class);
     }
 
     public void testConstructor() throws Exception {
-        SessionInputBuffer receiver = new HttpDataReceiverMockup(new byte[] {});
-        new HttpDataInputStream(receiver);
+        SessionInputBuffer receiver = new SessionInputBufferMockup(new byte[] {});
+        new IdentityInputStream(receiver);
         try {
-            new HttpDataInputStream(null);
+            new IdentityInputStream(null);
             fail("IllegalArgumentException should have been thrown");
         } catch (IllegalArgumentException ex) {
             //expected
@@ -75,8 +75,8 @@ public class TestHttpDataInputStream extends TestCase {
     
     public void testBasicRead() throws Exception {
         byte[] input = new byte[] {'a', 'b', 'c'};
-        HttpDataReceiverMockup receiver = new HttpDataReceiverMockup(input);
-        HttpDataInputStream instream = new HttpDataInputStream(receiver);
+        SessionInputBufferMockup receiver = new SessionInputBufferMockup(input);
+        IdentityInputStream instream = new IdentityInputStream(receiver);
         byte[] tmp = new byte[2];
         assertEquals(2, instream.read(tmp, 0, tmp.length));
         assertEquals('a', tmp[0]);
@@ -90,8 +90,8 @@ public class TestHttpDataInputStream extends TestCase {
     
     public void testClosedCondition() throws Exception {
         byte[] input = new byte[] {'a', 'b', 'c'};
-        HttpDataReceiverMockup receiver = new HttpDataReceiverMockup(input);
-        HttpDataInputStream instream = new HttpDataInputStream(receiver);
+        SessionInputBufferMockup receiver = new SessionInputBufferMockup(input);
+        IdentityInputStream instream = new IdentityInputStream(receiver);
 
         instream.close();
         instream.close();
@@ -106,8 +106,8 @@ public class TestHttpDataInputStream extends TestCase {
 
     public void testAvailable() throws Exception {
         byte[] input = new byte[] {'a', 'b', 'c'};
-        HttpDataReceiverMockup receiver = new HttpDataReceiverMockup(input);
-        HttpDataInputStream instream = new HttpDataInputStream(receiver);
+        SessionInputBufferMockup receiver = new SessionInputBufferMockup(input);
+        IdentityInputStream instream = new IdentityInputStream(receiver);
         assertTrue(instream.available() > 0);        
     }
     

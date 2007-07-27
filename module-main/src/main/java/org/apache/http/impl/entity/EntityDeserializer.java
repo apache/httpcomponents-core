@@ -41,7 +41,7 @@ import org.apache.http.entity.BasicHttpEntity;
 import org.apache.http.entity.ContentLengthStrategy;
 import org.apache.http.impl.io.ChunkedInputStream;
 import org.apache.http.impl.io.ContentLengthInputStream;
-import org.apache.http.impl.io.HttpDataInputStream;
+import org.apache.http.impl.io.IdentityInputStream;
 import org.apache.http.io.SessionInputBuffer;
 import org.apache.http.protocol.HTTP;
 
@@ -82,7 +82,7 @@ public class EntityDeserializer {
         } else if (len == ContentLengthStrategy.IDENTITY) {
             entity.setChunked(false);
             entity.setContentLength(-1);
-            entity.setContent(new HttpDataInputStream(inbuffer));                            
+            entity.setContent(new IdentityInputStream(inbuffer));                            
         } else {
             entity.setChunked(false);
             entity.setContentLength(len);

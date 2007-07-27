@@ -32,12 +32,13 @@
 package org.apache.http.impl.io;
 
 import java.io.IOException;
-import java.io.InputStream;
+import java.net.Socket;
 
-import org.apache.http.io.SessionInputBuffer;
+import org.apache.http.params.HttpParams;
+
 
 /**
- * A stream for reading from a {@link SessionInputBuffer session input buffer}.
+ * {@link Socket} bound session output buffer.
  *
  * @author <a href="mailto:oleg at ural.ru">Oleg Kalnichevski</a>
  *
@@ -45,46 +46,23 @@ import org.apache.http.io.SessionInputBuffer;
  * 
  * @since 4.0
  */
-public class HttpDataInputStream extends InputStream {
-    
-    private final SessionInputBuffer in;
-    
-    private boolean closed = false;
-    
-    public HttpDataInputStream(final SessionInputBuffer in) {
-        super();
-        if (in == null) {
-            throw new IllegalArgumentException("Session input buffer may not be null");
-        }
-        this.in = in;
-    }
-    
-    public int available() throws IOException {
-        if (!this.closed && this.in.isDataAvailable(10)) {
-            return 1;
-        } else {
-            return 0;
-        }
-    }
-    
-    public void close() throws IOException {
-        this.closed = true;
-    }
+public class SocketOutputBuffer extends AbstractSessionOutputBuffer {
 
-    public int read() throws IOException {
-        if (this.closed) {
-            return -1;
-        } else {
-            return this.in.read();
+    public SocketOutputBuffer(
+            final Socket socket, 
+            int buffersize,
+            final HttpParams params) throws IOException {
+        super();
+        if (socket == null) {
+            throw new IllegalArgumentException("Socket may not be null");
         }
-    }
-    
-    public int read(final byte[] b, int off, int len) throws IOException {
-        if (this.closed) {
-            return -1;
-        } else {
-            return this.in.read(b, off, len);
+        if (buffersize < 0) {
+            buffersize = socket.getReceiveBufferSize();
         }
+        if (buffersize < 1024) {
+            buffersize = 1024;
+        }
+        init(socket.getOutputStream(), buffersize, params);
     }
     
 }

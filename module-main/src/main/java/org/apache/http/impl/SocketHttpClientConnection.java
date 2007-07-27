@@ -37,8 +37,8 @@ import java.net.Socket;
 import java.net.SocketException;
 
 import org.apache.http.HttpInetConnection;
-import org.apache.http.impl.io.SocketHttpDataReceiver;
-import org.apache.http.impl.io.SocketHttpDataTransmitter;
+import org.apache.http.impl.io.SocketInputBuffer;
+import org.apache.http.impl.io.SocketOutputBuffer;
 import org.apache.http.io.SessionInputBuffer;
 import org.apache.http.io.SessionOutputBuffer;
 import org.apache.http.params.HttpConnectionParams;
@@ -80,14 +80,14 @@ public class SocketHttpClientConnection
             final Socket socket, 
             int buffersize,
             final HttpParams params) throws IOException {
-        return new SocketHttpDataReceiver(socket, buffersize, params);
+        return new SocketInputBuffer(socket, buffersize, params);
     }
     
     protected SessionOutputBuffer createSessionOutputBuffer(
             final Socket socket, 
             int buffersize,
             final HttpParams params) throws IOException {
-        return new SocketHttpDataTransmitter(socket, buffersize, params);
+        return new SocketOutputBuffer(socket, buffersize, params);
     }
     
     protected void bind(

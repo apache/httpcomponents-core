@@ -36,20 +36,20 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
 
-import org.apache.http.impl.io.AbstractHttpDataReceiver;
+import org.apache.http.impl.io.AbstractSessionInputBuffer;
 import org.apache.http.params.BasicHttpParams;
 import org.apache.http.params.HttpParams;
 
 /**
- * {@link HttpDataInputStream} mockup implementation.
+ * {@link IdentityInputStream} mockup implementation.
  *
  * @author <a href="mailto:oleg at ural.ru">Oleg Kalnichevski</a>
  */
-public class HttpDataReceiverMockup extends AbstractHttpDataReceiver {
+public class SessionInputBufferMockup extends AbstractSessionInputBuffer {
 
     public static int BUFFER_SIZE = 16;
     
-    public HttpDataReceiverMockup(
+    public SessionInputBufferMockup(
             final InputStream instream, 
             int buffersize, 
             final HttpParams params) {
@@ -57,37 +57,37 @@ public class HttpDataReceiverMockup extends AbstractHttpDataReceiver {
         init(instream, buffersize, params);
     }
 
-    public HttpDataReceiverMockup(
+    public SessionInputBufferMockup(
             final InputStream instream, 
             int buffersize) {
         this(instream, buffersize, new BasicHttpParams());
     }
 
-    public HttpDataReceiverMockup(
+    public SessionInputBufferMockup(
             final byte[] bytes, 
             final HttpParams params) {
         this(bytes, BUFFER_SIZE, params);
     }
 
-    public HttpDataReceiverMockup(
+    public SessionInputBufferMockup(
             final byte[] bytes) {
         this(bytes, BUFFER_SIZE, new BasicHttpParams());
     }
 
-    public HttpDataReceiverMockup(
+    public SessionInputBufferMockup(
             final byte[] bytes, 
             int buffersize, 
             final HttpParams params) {
         this(new ByteArrayInputStream(bytes), buffersize, params);
     }
 
-    public HttpDataReceiverMockup(
+    public SessionInputBufferMockup(
             final byte[] bytes, 
             int buffersize) {
         this(new ByteArrayInputStream(bytes), buffersize, new BasicHttpParams());
     }
 
-    public HttpDataReceiverMockup(
+    public SessionInputBufferMockup(
             final String s, 
             final String charset, 
             int buffersize,
@@ -96,7 +96,7 @@ public class HttpDataReceiverMockup extends AbstractHttpDataReceiver {
         this(s.getBytes(charset), buffersize, params);
     }
     
-    public HttpDataReceiverMockup(
+    public SessionInputBufferMockup(
             final String s, 
             final String charset, 
             int buffersize) 
@@ -104,7 +104,7 @@ public class HttpDataReceiverMockup extends AbstractHttpDataReceiver {
         this(s.getBytes(charset), buffersize, new BasicHttpParams());
     }
     
-    public HttpDataReceiverMockup(
+    public SessionInputBufferMockup(
             final String s, 
             final String charset,
             final HttpParams params) 
@@ -112,7 +112,7 @@ public class HttpDataReceiverMockup extends AbstractHttpDataReceiver {
         this(s.getBytes(charset), params);
     }
     
-    public HttpDataReceiverMockup(
+    public SessionInputBufferMockup(
             final String s, 
             final String charset) 
         throws UnsupportedEncodingException {

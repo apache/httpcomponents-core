@@ -32,12 +32,12 @@
 package org.apache.http.impl.io;
 
 import java.io.IOException;
-import java.io.OutputStream;
+import java.io.InputStream;
 
-import org.apache.http.io.SessionOutputBuffer;
+import org.apache.http.io.SessionInputBuffer;
 
 /**
- * A stream for writing to a {@link SessionOutputBuffer session output buffer}.
+ * A stream for reading from a {@link SessionInputBuffer session input buffer}.
  *
  * @author <a href="mailto:oleg at ural.ru">Oleg Kalnichevski</a>
  *
@@ -45,45 +45,46 @@ import org.apache.http.io.SessionOutputBuffer;
  * 
  * @since 4.0
  */
-public class HttpDataOutputStream extends OutputStream {
+public class IdentityInputStream extends InputStream {
     
-    private final SessionOutputBuffer out;
+    private final SessionInputBuffer in;
     
     private boolean closed = false;
     
-    public HttpDataOutputStream(final SessionOutputBuffer out) {
+    public IdentityInputStream(final SessionInputBuffer in) {
         super();
-        if (out == null) {
-            throw new IllegalArgumentException("Session output buffer may not be null");
+        if (in == null) {
+            throw new IllegalArgumentException("Session input buffer may not be null");
         }
-        this.out = out;
+        this.in = in;
+    }
+    
+    public int available() throws IOException {
+        if (!this.closed && this.in.isDataAvailable(10)) {
+            return 1;
+        } else {
+            return 0;
+        }
     }
     
     public void close() throws IOException {
-        if (!this.closed) {
-            this.closed = true;
-            this.out.flush();
-        }
+        this.closed = true;
     }
 
-    private void assertNotClosed() {
+    public int read() throws IOException {
         if (this.closed) {
-            throw new IllegalStateException("Stream closed"); 
+            return -1;
+        } else {
+            return this.in.read();
         }
     }
     
-    public void flush() throws IOException {
-        assertNotClosed();
-        this.out.flush();
+    public int read(final byte[] b, int off, int len) throws IOException {
+        if (this.closed) {
+            return -1;
+        } else {
+            return this.in.read(b, off, len);
+        }
     }
     
-    public void write(final byte[] b, int off, int len) throws IOException {
-        assertNotClosed();
-        this.out.write(b, off, len);
-    }
-    
-    public void write(int b) throws IOException {
-        assertNotClosed();
-        this.out.write(b);
-    }
 }

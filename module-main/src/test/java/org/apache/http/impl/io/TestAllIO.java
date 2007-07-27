@@ -40,11 +40,10 @@ public class TestAllIO extends TestCase {
 
     public static Test suite() {
         TestSuite suite = new TestSuite();
-        suite.addTest(TestHttpDataInputStream.suite());
-        suite.addTest(TestHttpDataOutputStream.suite());
         suite.addTest(TestChunkCoding.suite());
         suite.addTest(TestContentLengthInputStream.suite());
         suite.addTest(TestContentLengthOutputStream.suite());
+        suite.addTest(TestIdentitynputStream.suite());
         suite.addTest(TestIdentityOutputStream.suite());
         return suite;
     }

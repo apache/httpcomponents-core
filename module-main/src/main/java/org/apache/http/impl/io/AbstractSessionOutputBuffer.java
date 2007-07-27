@@ -43,12 +43,13 @@ import org.apache.http.util.ByteArrayBuffer;
 import org.apache.http.util.CharArrayBuffer;
 
 /**
- * Abstract base class for data transmitters using traditional IO.
+ * Abstract base class for session output buffers that stream data
+ * to an {@link OutputStream}. 
  *
  * @author <a href="mailto:oleg at ural.ru">Oleg Kalnichevski</a>
  *
  */
-public abstract class AbstractHttpDataTransmitter implements SessionOutputBuffer {
+public abstract class AbstractSessionOutputBuffer implements SessionOutputBuffer {
 
     private static final byte[] CRLF = new byte[] {HTTP.CR, HTTP.LF};
     

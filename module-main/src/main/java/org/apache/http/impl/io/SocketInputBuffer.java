@@ -39,7 +39,7 @@ import org.apache.http.params.HttpParams;
 
 
 /**
- * A data receiver using a Java {@link Socket} and traditional IO.
+ * {@link Socket} bound session input buffer.
  *
  * @author <a href="mailto:oleg at ural.ru">Oleg Kalnichevski</a>
  *
@@ -47,7 +47,7 @@ import org.apache.http.params.HttpParams;
  * 
  * @since 4.0
  */
-public class SocketHttpDataReceiver extends AbstractHttpDataReceiver {
+public class SocketInputBuffer extends AbstractSessionInputBuffer {
 
     static private final Class SOCKET_TIMEOUT_CLASS = SocketTimeoutExceptionClass();
 
@@ -75,7 +75,7 @@ public class SocketHttpDataReceiver extends AbstractHttpDataReceiver {
     
     private final Socket socket;
     
-    public SocketHttpDataReceiver(
+    public SocketInputBuffer(
             final Socket socket, 
             int buffersize, 
             final HttpParams params) throws IOException {

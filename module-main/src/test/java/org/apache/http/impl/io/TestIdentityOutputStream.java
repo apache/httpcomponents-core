@@ -35,7 +35,7 @@ import java.io.IOException;
 import java.io.OutputStream;
 
 import org.apache.http.impl.io.IdentityOutputStream;
-import org.apache.http.mockup.HttpDataTransmitterMockup;
+import org.apache.http.mockup.SessionOutputBufferMockup;
 
 import junit.framework.Test;
 import junit.framework.TestCase;
@@ -60,7 +60,7 @@ public class TestIdentityOutputStream extends TestCase {
     }
 
     public void testConstructors() throws Exception {
-        new IdentityOutputStream(new HttpDataTransmitterMockup());
+        new IdentityOutputStream(new SessionOutputBufferMockup());
         try {
             new IdentityOutputStream(null);
             fail("IllegalArgumentException should have been thrown");
@@ -71,7 +71,7 @@ public class TestIdentityOutputStream extends TestCase {
 
     public void testBasics() throws Exception {
     	ByteArrayOutputStream buffer = new ByteArrayOutputStream();
-    	HttpDataTransmitterMockup datatransmitter = new HttpDataTransmitterMockup(buffer);
+    	SessionOutputBufferMockup datatransmitter = new SessionOutputBufferMockup(buffer);
     	OutputStream out = new IdentityOutputStream(datatransmitter);
 
         byte[] tmp = new byte[10];
@@ -86,7 +86,7 @@ public class TestIdentityOutputStream extends TestCase {
 
     public void testClose() throws Exception {
     	ByteArrayOutputStream buffer = new ByteArrayOutputStream();
-    	HttpDataTransmitterMockup datatransmitter = new HttpDataTransmitterMockup(buffer);
+    	SessionOutputBufferMockup datatransmitter = new SessionOutputBufferMockup(buffer);
     	OutputStream out = new IdentityOutputStream(datatransmitter);
     	out.close();
     	out.close();
@@ -104,6 +104,56 @@ public class TestIdentityOutputStream extends TestCase {
             // expected
         }
     }
+    
+    public void testConstructor() throws Exception {
+        SessionOutputBufferMockup transmitter = new SessionOutputBufferMockup();
+        new IdentityOutputStream(transmitter);
+        try {
+            new IdentityOutputStream(null);
+            fail("IllegalArgumentException should have been thrown");
+        } catch (IllegalArgumentException ex) {
+            //expected
+        }
+    }
+    
+    public void testBasicWrite() throws Exception {
+        SessionOutputBufferMockup transmitter = new SessionOutputBufferMockup();
+        IdentityOutputStream outstream = new IdentityOutputStream(transmitter);
+        outstream.write(new byte[] {'a', 'b'}, 0, 2);
+        outstream.write('c');
+        outstream.flush();
+        
+        byte[] input = transmitter.getData();
+        
+        assertNotNull(input);
+        byte[] expected = new byte[] {'a', 'b', 'c'};
+        assertEquals(expected.length, input.length);
+        for (int i = 0; i < expected.length; i++) {
+            assertEquals(expected[i], input[i]);
+        }
+    }
+    
+    public void testClosedCondition() throws Exception {
+        SessionOutputBufferMockup transmitter = new SessionOutputBufferMockup();
+        IdentityOutputStream outstream = new IdentityOutputStream(transmitter);
+        outstream.close();
+        outstream.close();
+        
+        try {
+            byte[] tmp = new byte[2];
+            outstream.write(tmp, 0, tmp.length);
+            fail("IOException should have been thrown");
+        } catch (IOException e) {
+            //expected
+        }
+        try {
+            outstream.write('a');
+            fail("IOException should have been thrown");
+        } catch (IOException e) {
+            //expected
+        }
+    }
+
     
 }
 
