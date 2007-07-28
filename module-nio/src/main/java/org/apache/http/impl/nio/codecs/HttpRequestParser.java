@@ -36,8 +36,8 @@ import org.apache.http.HttpMessage;
 import org.apache.http.HttpRequestFactory;
 import org.apache.http.RequestLine;
 import org.apache.http.message.BasicRequestLine;
+import org.apache.http.nio.reactor.SessionInputBuffer;
 import org.apache.http.params.HttpParams;
-import org.apache.http.impl.nio.reactor.SessionInputBuffer;
 import org.apache.http.util.CharArrayBuffer;
 
 public class HttpRequestParser extends HttpMessageParser {

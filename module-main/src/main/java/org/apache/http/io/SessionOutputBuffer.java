@@ -36,7 +36,7 @@ import java.io.IOException;
 import org.apache.http.util.CharArrayBuffer;
 
 /**
- * Session output buffer for blocking connection.
+ * Session output buffer for blocking connections.
  *
  * @author <a href="mailto:oleg at ural.ru">Oleg Kalnichevski</a>
  *

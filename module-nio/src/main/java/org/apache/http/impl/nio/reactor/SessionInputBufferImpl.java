@@ -40,6 +40,7 @@ import java.nio.charset.Charset;
 import java.nio.charset.CharsetDecoder;
 import java.nio.charset.CoderResult;
 
+import org.apache.http.nio.reactor.SessionInputBuffer;
 import org.apache.http.nio.util.ByteBufferAllocator;
 import org.apache.http.nio.util.ExpandableBuffer;
 import org.apache.http.nio.util.HeapByteBufferAllocator;
@@ -48,29 +49,30 @@ import org.apache.http.params.HttpProtocolParams;
 import org.apache.http.protocol.HTTP;
 import org.apache.http.util.CharArrayBuffer;
 
-public class SessionInputBuffer extends ExpandableBuffer {
+public class SessionInputBufferImpl extends ExpandableBuffer implements SessionInputBuffer {
     
     private CharBuffer charbuffer = null;
     private Charset charset = null;
     private CharsetDecoder chardecoder = null;
     
-    public SessionInputBuffer(int buffersize, int linebuffersize, final ByteBufferAllocator allocator) {
+    public SessionInputBufferImpl(
+            int buffersize, 
+            int linebuffersize, 
+            final ByteBufferAllocator allocator,
+            final HttpParams params) {
         super(buffersize, allocator);
         this.charbuffer = CharBuffer.allocate(linebuffersize);
-        this.charset = Charset.forName("US-ASCII");
-        this.chardecoder = this.charset.newDecoder();
-    }
-
-    public SessionInputBuffer(int buffersize, int linebuffersize) {
-        this(buffersize, linebuffersize, new HeapByteBufferAllocator());
-    }
-    
-    public void reset(final HttpParams params) {
         this.charset = Charset.forName(HttpProtocolParams.getHttpElementCharset(params)); 
         this.chardecoder = this.charset.newDecoder();
-        clear();
     }
 
+    public SessionInputBufferImpl(
+            int buffersize, 
+            int linebuffersize, 
+            final HttpParams params) {
+        this(buffersize, linebuffersize, new HeapByteBufferAllocator(), params);
+    }
+    
     public int fill(final ReadableByteChannel channel) throws IOException {
         if (channel == null) {
             throw new IllegalArgumentException("Channel may not be null");

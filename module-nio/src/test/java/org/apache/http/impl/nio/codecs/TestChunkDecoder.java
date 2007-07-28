@@ -41,8 +41,11 @@ import junit.framework.TestSuite;
 import org.apache.http.Header;
 import org.apache.http.MalformedChunkCodingException;
 import org.apache.http.impl.io.HttpTransportMetricsImpl;
-import org.apache.http.impl.nio.reactor.SessionInputBuffer;
+import org.apache.http.impl.nio.reactor.SessionInputBufferImpl;
 import org.apache.http.nio.mockup.ReadableByteChannelMockup;
+import org.apache.http.nio.reactor.SessionInputBuffer;
+import org.apache.http.params.BasicHttpParams;
+import org.apache.http.params.HttpParams;
 
 /**
  * Simple tests for {@link ChunkDecoder}.
@@ -83,8 +86,9 @@ public class TestChunkDecoder extends TestCase {
         String s = "5\r\n01234\r\n5\r\n56789\r\n6\r\nabcdef\r\n0\r\n\r\n";
         ReadableByteChannel channel = new ReadableByteChannelMockup(
                 new String[] {s}, "US-ASCII"); 
+        HttpParams params = new BasicHttpParams();
         
-        SessionInputBuffer inbuf = new SessionInputBuffer(1024, 256);
+        SessionInputBuffer inbuf = new SessionInputBufferImpl(1024, 256, params);
         HttpTransportMetricsImpl metrics = new HttpTransportMetricsImpl();
         ChunkDecoder decoder = new ChunkDecoder(channel, inbuf, metrics);
         
@@ -107,8 +111,9 @@ public class TestChunkDecoder extends TestCase {
                 "5\r\n12345\r\n5\r\n12345\r\n0\r\nFooter1: abcde\r\nFooter2: fghij\r\n\r\n";
         ReadableByteChannel channel = new ReadableByteChannelMockup(
                 new String[] {s}, "US-ASCII"); 
-    
-        SessionInputBuffer inbuf = new SessionInputBuffer(1024, 256); 
+        HttpParams params = new BasicHttpParams();
+        
+        SessionInputBuffer inbuf = new SessionInputBufferImpl(1024, 256, params); 
         HttpTransportMetricsImpl metrics = new HttpTransportMetricsImpl();
         ChunkDecoder decoder = new ChunkDecoder(channel, inbuf, metrics);
         
@@ -143,8 +148,9 @@ public class TestChunkDecoder extends TestCase {
         String s2 = "9\r\n6\r\nabcdef\r\n0\r\n\r\n";
         ReadableByteChannel channel = new ReadableByteChannelMockup(
                 new String[] {s1, s2}, "US-ASCII"); 
+        HttpParams params = new BasicHttpParams();
         
-        SessionInputBuffer inbuf = new SessionInputBuffer(1024, 256); 
+        SessionInputBuffer inbuf = new SessionInputBufferImpl(1024, 256, params); 
         HttpTransportMetricsImpl metrics = new HttpTransportMetricsImpl();
         ChunkDecoder decoder = new ChunkDecoder(channel, inbuf, metrics);
         
@@ -186,8 +192,9 @@ public class TestChunkDecoder extends TestCase {
         };
         ReadableByteChannel channel = new ReadableByteChannelMockup(
                 chunks, "US-ASCII"); 
+        HttpParams params = new BasicHttpParams();
     
-        SessionInputBuffer inbuf = new SessionInputBuffer(1024, 256); 
+        SessionInputBuffer inbuf = new SessionInputBufferImpl(1024, 256, params); 
         HttpTransportMetricsImpl metrics = new HttpTransportMetricsImpl();
         ByteBuffer dst = ByteBuffer.allocate(1024); 
         
@@ -222,8 +229,9 @@ public class TestChunkDecoder extends TestCase {
         String s = "5\r\n01234\r\n5zz\r\n56789\r\n6\r\nabcdef\r\n0\r\n\r\n";
         ReadableByteChannel channel = new ReadableByteChannelMockup(
                 new String[] {s}, "US-ASCII"); 
+        HttpParams params = new BasicHttpParams();
         
-        SessionInputBuffer inbuf = new SessionInputBuffer(1024, 256); 
+        SessionInputBuffer inbuf = new SessionInputBufferImpl(1024, 256, params); 
         HttpTransportMetricsImpl metrics = new HttpTransportMetricsImpl();
         ChunkDecoder decoder = new ChunkDecoder(channel, inbuf, metrics);
         
@@ -241,8 +249,9 @@ public class TestChunkDecoder extends TestCase {
         String s = "5\r\n01234\r\n5\r\n56789\n\r6\r\nabcdef\r\n0\r\n\r\n";
         ReadableByteChannel channel = new ReadableByteChannelMockup(
                 new String[] {s}, "US-ASCII"); 
+        HttpParams params = new BasicHttpParams();
         
-        SessionInputBuffer inbuf = new SessionInputBuffer(1024, 256); 
+        SessionInputBuffer inbuf = new SessionInputBufferImpl(1024, 256, params); 
         HttpTransportMetricsImpl metrics = new HttpTransportMetricsImpl();
         ChunkDecoder decoder = new ChunkDecoder(channel, inbuf, metrics);
         
@@ -261,8 +270,9 @@ public class TestChunkDecoder extends TestCase {
                 "5\r\n12345\r\n5\r\n12345\r\n0\r\nFooter1: abcde\r\n   \r\n  fghij\r\n\r\n";
         ReadableByteChannel channel = new ReadableByteChannelMockup(
                 new String[] {s}, "US-ASCII"); 
+        HttpParams params = new BasicHttpParams();
     
-        SessionInputBuffer inbuf = new SessionInputBuffer(1024, 256); 
+        SessionInputBuffer inbuf = new SessionInputBufferImpl(1024, 256, params); 
         HttpTransportMetricsImpl metrics = new HttpTransportMetricsImpl();
         ChunkDecoder decoder = new ChunkDecoder(channel, inbuf, metrics);
         
@@ -283,8 +293,9 @@ public class TestChunkDecoder extends TestCase {
                 "5\r\n12345\r\n5\r\n12345\r\n0\r\nFooter1 abcde\r\n\r\n";
         ReadableByteChannel channel = new ReadableByteChannelMockup(
                 new String[] {s}, "US-ASCII"); 
+        HttpParams params = new BasicHttpParams();
     
-        SessionInputBuffer inbuf = new SessionInputBuffer(1024, 256); 
+        SessionInputBuffer inbuf = new SessionInputBufferImpl(1024, 256, params); 
         HttpTransportMetricsImpl metrics = new HttpTransportMetricsImpl();
         ChunkDecoder decoder = new ChunkDecoder(channel, inbuf, metrics);
         
@@ -303,8 +314,9 @@ public class TestChunkDecoder extends TestCase {
                 "5\r\n12345\r\n5\r\n12345";
         ReadableByteChannel channel = new ReadableByteChannelMockup(
                 new String[] {s}, "US-ASCII"); 
+        HttpParams params = new BasicHttpParams();
     
-        SessionInputBuffer inbuf = new SessionInputBuffer(1024, 256); 
+        SessionInputBuffer inbuf = new SessionInputBufferImpl(1024, 256, params); 
         HttpTransportMetricsImpl metrics = new HttpTransportMetricsImpl();
         ChunkDecoder decoder = new ChunkDecoder(channel, inbuf, metrics);
         
@@ -328,8 +340,9 @@ public class TestChunkDecoder extends TestCase {
                 "5\r\n12345\r\n5\r\n12345\r\n0\r\n";
         ReadableByteChannel channel = new ReadableByteChannelMockup(
                 new String[] {s}, "US-ASCII"); 
+        HttpParams params = new BasicHttpParams();
     
-        SessionInputBuffer inbuf = new SessionInputBuffer(1024, 256); 
+        SessionInputBuffer inbuf = new SessionInputBufferImpl(1024, 256, params); 
         HttpTransportMetricsImpl metrics = new HttpTransportMetricsImpl();
         ChunkDecoder decoder = new ChunkDecoder(channel, inbuf, metrics);
         
@@ -351,8 +364,9 @@ public class TestChunkDecoder extends TestCase {
     public void testInvalidConstructor() {
         ReadableByteChannel channel = new ReadableByteChannelMockup(
                 new String[] {"stuff;", "more stuff"}, "US-ASCII"); 
+        HttpParams params = new BasicHttpParams();
         
-        SessionInputBuffer inbuf = new SessionInputBuffer(1024, 256); 
+        SessionInputBuffer inbuf = new SessionInputBufferImpl(1024, 256, params); 
         try {
             new ChunkDecoder(null, null, null);
             fail("IllegalArgumentException should have been thrown");
@@ -378,8 +392,9 @@ public class TestChunkDecoder extends TestCase {
                 "5\r\n12345\r\n5\r\n12345\r\n0\r\nFooter1 abcde\r\n\r\n";
         ReadableByteChannel channel = new ReadableByteChannelMockup(
                 new String[] {s}, "US-ASCII"); 
+        HttpParams params = new BasicHttpParams();
     
-        SessionInputBuffer inbuf = new SessionInputBuffer(1024, 256); 
+        SessionInputBuffer inbuf = new SessionInputBufferImpl(1024, 256, params); 
         HttpTransportMetricsImpl metrics = new HttpTransportMetricsImpl();
         ChunkDecoder decoder = new ChunkDecoder(channel, inbuf, metrics);
         

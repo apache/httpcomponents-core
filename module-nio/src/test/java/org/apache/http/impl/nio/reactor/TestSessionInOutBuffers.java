@@ -43,9 +43,9 @@ import junit.framework.Test;
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
 
+import org.apache.http.nio.reactor.SessionInputBuffer;
+import org.apache.http.nio.reactor.SessionOutputBuffer;
 import org.apache.http.params.BasicHttpParams;
-import org.apache.http.impl.nio.reactor.SessionInputBuffer;
-import org.apache.http.impl.nio.reactor.SessionOutputBuffer;
 import org.apache.http.params.HttpParams;
 import org.apache.http.params.HttpProtocolParams;
 import org.apache.http.util.CharArrayBuffer;
@@ -96,7 +96,8 @@ public class TestSessionInOutBuffers extends TestCase {
 
     public void testReadLineChunks() throws Exception {
         
-        SessionInputBuffer inbuf = new SessionInputBuffer(16, 16);
+        HttpParams params = new BasicHttpParams();
+        SessionInputBuffer inbuf = new SessionInputBufferImpl(16, 16, params);
         
         ReadableByteChannel channel = newChannel("One\r\nTwo\r\nThree");
         
@@ -134,8 +135,9 @@ public class TestSessionInOutBuffers extends TestCase {
     
     public void testWriteLineChunks() throws Exception {
         
-        SessionOutputBuffer outbuf = new SessionOutputBuffer(16, 16);
-        SessionInputBuffer inbuf = new SessionInputBuffer(16, 16);
+        HttpParams params = new BasicHttpParams();
+        SessionOutputBuffer outbuf = new SessionOutputBufferImpl(16, 16, params);
+        SessionInputBuffer inbuf = new SessionInputBufferImpl(16, 16, params);
         
         ReadableByteChannel inChannel = newChannel("One\r\nTwo\r\nThree");
         
@@ -201,7 +203,9 @@ public class TestSessionInOutBuffers extends TestCase {
         teststrs[3] = "";
         teststrs[4] = "And goodbye";
         
-        SessionOutputBuffer outbuf = new SessionOutputBuffer(1024, 16); 
+        HttpParams params = new BasicHttpParams();
+        
+        SessionOutputBuffer outbuf = new SessionOutputBufferImpl(1024, 16, params); 
         for (int i = 0; i < teststrs.length; i++) {
             outbuf.writeLine(teststrs[i]);
         }
@@ -215,7 +219,7 @@ public class TestSessionInOutBuffers extends TestCase {
 
         ReadableByteChannel channel = newChannel(outstream.toByteArray());
         
-        SessionInputBuffer inbuf = new SessionInputBuffer(1024, 16);
+        SessionInputBuffer inbuf = new SessionInputBufferImpl(1024, 16, params);
         inbuf.fill(channel);
         
         for (int i = 0; i < teststrs.length; i++) {
@@ -226,7 +230,9 @@ public class TestSessionInOutBuffers extends TestCase {
     }
 
     public void testComplexReadWriteLine() throws Exception {
-        SessionOutputBuffer outbuf = new SessionOutputBuffer(1024, 16); 
+        HttpParams params = new BasicHttpParams();
+        
+        SessionOutputBuffer outbuf = new SessionOutputBufferImpl(1024, 16, params); 
         outbuf.write(ByteBuffer.wrap(new byte[] {'a', '\n'}));
         outbuf.write(ByteBuffer.wrap(new byte[] {'\r', '\n'}));
         outbuf.write(ByteBuffer.wrap(new byte[] {'\r', '\r', '\n'}));
@@ -264,7 +270,7 @@ public class TestSessionInOutBuffers extends TestCase {
 
         ReadableByteChannel channel = newChannel(outstream.toByteArray());
 
-        SessionInputBuffer inbuf = new SessionInputBuffer(1024, 16);
+        SessionInputBuffer inbuf = new SessionInputBufferImpl(1024, 16, params);
         inbuf.fill(channel);
         
         assertEquals("a", inbuf.readLine(true));
@@ -286,7 +292,8 @@ public class TestSessionInOutBuffers extends TestCase {
             out[i] = (byte)('0' + i);
         }
         ReadableByteChannel channel = newChannel(out);        
-        SessionInputBuffer inbuf = new SessionInputBuffer(16, 16);
+        HttpParams params = new BasicHttpParams();
+        SessionInputBuffer inbuf = new SessionInputBufferImpl(16, 16, params);
         while (inbuf.fill(channel) > 0) {
         }
 
@@ -323,11 +330,10 @@ public class TestSessionInOutBuffers extends TestCase {
         String s2 = constructString(RUSSIAN_HELLO);
         String s3 = "Like hello and stuff";
         
-        HttpParams params = new BasicHttpParams(null);
+        HttpParams params = new BasicHttpParams();
         HttpProtocolParams.setHttpElementCharset(params, "UTF-8");
         
-        SessionOutputBuffer outbuf = new SessionOutputBuffer(1024, 16);
-        outbuf.reset(params);
+        SessionOutputBuffer outbuf = new SessionOutputBufferImpl(1024, 16, params);
         
         for (int i = 0; i < 10; i++) {
             outbuf.writeLine(s1);
@@ -342,8 +348,7 @@ public class TestSessionInOutBuffers extends TestCase {
         byte[] tmp = outstream.toByteArray();
         
         ReadableByteChannel channel = newChannel(tmp);        
-        SessionInputBuffer inbuf = new SessionInputBuffer(16, 16);
-        inbuf.reset(params);
+        SessionInputBuffer inbuf = new SessionInputBufferImpl(16, 16, params);
         
         while (inbuf.fill(channel) > 0) {
         }
@@ -356,8 +361,9 @@ public class TestSessionInOutBuffers extends TestCase {
     }
 
     public void testMalformedCharacters() throws Exception {
+        HttpParams params = new BasicHttpParams();
         String s1 = constructString(SWISS_GERMAN_HELLO);       
-        SessionOutputBuffer outbuf = new SessionOutputBuffer(1024, 16);
+        SessionOutputBuffer outbuf = new SessionOutputBufferImpl(1024, 16, params);
         try {
             outbuf.writeLine(s1);
             fail("Expected CharacterCodingException");
@@ -366,7 +372,7 @@ public class TestSessionInOutBuffers extends TestCase {
         
         byte[] tmp = s1.getBytes("ISO-8859-1");        
         ReadableByteChannel channel = newChannel(tmp);        
-        SessionInputBuffer inbuf = new SessionInputBuffer(16, 16);
+        SessionInputBuffer inbuf = new SessionInputBufferImpl(16, 16, params);
         while (inbuf.fill(channel) > 0) {
         }
         
@@ -378,8 +384,9 @@ public class TestSessionInOutBuffers extends TestCase {
     }
 
     public void testInputMatchesBufferLength() throws Exception {
+        HttpParams params = new BasicHttpParams();
         String s1 = "abcde";        
-        SessionOutputBuffer outbuf = new SessionOutputBuffer(1024, 5);
+        SessionOutputBuffer outbuf = new SessionOutputBufferImpl(1024, 5, params);
         outbuf.writeLine(s1);
     }
     

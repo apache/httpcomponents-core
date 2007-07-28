@@ -60,8 +60,8 @@ import org.apache.http.impl.nio.codecs.IdentityDecoder;
 import org.apache.http.impl.nio.codecs.IdentityEncoder;
 import org.apache.http.impl.nio.codecs.LengthDelimitedDecoder;
 import org.apache.http.impl.nio.codecs.LengthDelimitedEncoder;
-import org.apache.http.impl.nio.reactor.SessionInputBuffer;
-import org.apache.http.impl.nio.reactor.SessionOutputBuffer;
+import org.apache.http.impl.nio.reactor.SessionInputBufferImpl;
+import org.apache.http.impl.nio.reactor.SessionOutputBufferImpl;
 import org.apache.http.nio.reactor.EventMask;
 import org.apache.http.nio.reactor.IOSession;
 import org.apache.http.nio.reactor.SessionBufferStatus;
@@ -82,8 +82,8 @@ public class NHttpConnectionBase
     protected final ContentLengthStrategy incomingContentStrategy;
     protected final ContentLengthStrategy outgoingContentStrategy;
     
-    protected final SessionInputBuffer inbuf;
-    protected final SessionOutputBuffer outbuf;
+    protected final SessionInputBufferImpl inbuf;
+    protected final SessionOutputBufferImpl outbuf;
     protected final CharArrayBuffer lineBuffer;
     
     protected final HttpTransportMetricsImpl inTransportMetrics;
@@ -119,10 +119,8 @@ public class NHttpConnectionBase
             linebuffersize = 512;
         }
         
-        this.inbuf = new SessionInputBuffer(buffersize, linebuffersize, allocator); 
-        this.inbuf.reset(params);
-        this.outbuf = new SessionOutputBuffer(buffersize, linebuffersize, allocator); 
-        this.outbuf.reset(params);
+        this.inbuf = new SessionInputBufferImpl(buffersize, linebuffersize, allocator, params); 
+        this.outbuf = new SessionOutputBufferImpl(buffersize, linebuffersize, allocator, params); 
         this.lineBuffer = new CharArrayBuffer(64); 
         
         this.incomingContentStrategy = new LaxContentLengthStrategy();

@@ -39,13 +39,17 @@ import java.nio.charset.CharacterCodingException;
 import org.apache.http.util.CharArrayBuffer;
 
 /**
- * Session input buffer for non-blocking connection.
+ * Session input buffer for non-blocking connections.
  *
  * @author <a href="mailto:oleg at ural.ru">Oleg Kalnichevski</a>
  *
  * @since 4.0
  */
 public interface SessionInputBuffer {
+    
+    boolean hasData();
+    
+    int length();
     
     int fill(ReadableByteChannel channel) 
         throws IOException;

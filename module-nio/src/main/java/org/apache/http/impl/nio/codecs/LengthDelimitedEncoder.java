@@ -37,8 +37,8 @@ import java.nio.channels.FileChannel;
 import java.nio.channels.WritableByteChannel;
 
 import org.apache.http.impl.io.HttpTransportMetricsImpl;
-import org.apache.http.impl.nio.reactor.SessionOutputBuffer;
 import org.apache.http.nio.FileContentEncoder;
+import org.apache.http.nio.reactor.SessionOutputBuffer;
 
 /**
  * Content-Length delimited encoder implementation.

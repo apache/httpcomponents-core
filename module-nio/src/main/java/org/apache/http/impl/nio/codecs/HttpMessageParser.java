@@ -40,9 +40,9 @@ import org.apache.http.HttpException;
 import org.apache.http.HttpMessage;
 import org.apache.http.ProtocolException;
 import org.apache.http.message.BufferedHeader;
+import org.apache.http.nio.reactor.SessionInputBuffer;
 import org.apache.http.params.HttpConnectionParams;
 import org.apache.http.params.HttpParams;
-import org.apache.http.impl.nio.reactor.SessionInputBuffer;
 import org.apache.http.util.CharArrayBuffer;
 
 public abstract class HttpMessageParser {

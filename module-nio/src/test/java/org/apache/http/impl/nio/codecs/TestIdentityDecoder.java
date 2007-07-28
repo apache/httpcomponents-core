@@ -44,8 +44,11 @@ import junit.framework.TestCase;
 import junit.framework.TestSuite;
 
 import org.apache.http.impl.io.HttpTransportMetricsImpl;
-import org.apache.http.impl.nio.reactor.SessionInputBuffer;
+import org.apache.http.impl.nio.reactor.SessionInputBufferImpl;
 import org.apache.http.nio.mockup.ReadableByteChannelMockup;
+import org.apache.http.nio.reactor.SessionInputBuffer;
+import org.apache.http.params.BasicHttpParams;
+import org.apache.http.params.HttpParams;
 
 /**
  * Simple tests for {@link LengthDelimitedDecoder}.
@@ -96,8 +99,9 @@ public class TestIdentityDecoder extends TestCase {
     public void testBasicDecoding() throws Exception {
         ReadableByteChannel channel = new ReadableByteChannelMockup(
                 new String[] {"stuff;", "more stuff"}, "US-ASCII"); 
+        HttpParams params = new BasicHttpParams();
         
-        SessionInputBuffer inbuf = new SessionInputBuffer(1024, 256); 
+        SessionInputBuffer inbuf = new SessionInputBufferImpl(1024, 256, params); 
         HttpTransportMetricsImpl metrics = new HttpTransportMetricsImpl();
         IdentityDecoder decoder = new IdentityDecoder(channel, inbuf, metrics); 
         
@@ -128,8 +132,9 @@ public class TestIdentityDecoder extends TestCase {
     public void testDecodingFromSessionBuffer() throws Exception {
         ReadableByteChannel channel = new ReadableByteChannelMockup(
                 new String[] {"stuff;", "more stuff"}, "US-ASCII"); 
+        HttpParams params = new BasicHttpParams();
         
-        SessionInputBuffer inbuf = new SessionInputBuffer(1024, 256);
+        SessionInputBuffer inbuf = new SessionInputBufferImpl(1024, 256, params);
         HttpTransportMetricsImpl metrics = new HttpTransportMetricsImpl();
         
         inbuf.fill(channel);
@@ -165,8 +170,9 @@ public class TestIdentityDecoder extends TestCase {
     public void testBasicDecodingFile() throws Exception {
         ReadableByteChannel channel = new ReadableByteChannelMockup(
                 new String[] {"stuff;", "more stuff"}, "US-ASCII"); 
+        HttpParams params = new BasicHttpParams();
         
-        SessionInputBuffer inbuf = new SessionInputBuffer(1024, 256); 
+        SessionInputBuffer inbuf = new SessionInputBufferImpl(1024, 256, params); 
         HttpTransportMetricsImpl metrics = new HttpTransportMetricsImpl();
         IdentityDecoder decoder = new IdentityDecoder(channel, inbuf, metrics); 
         
@@ -197,8 +203,9 @@ public class TestIdentityDecoder extends TestCase {
     public void testDecodingFromSessionBufferFile() throws Exception {
         ReadableByteChannel channel = new ReadableByteChannelMockup(
                 new String[] {"stuff;", "more stuff"}, "US-ASCII"); 
+        HttpParams params = new BasicHttpParams();
         
-        SessionInputBuffer inbuf = new SessionInputBuffer(1024, 256);
+        SessionInputBuffer inbuf = new SessionInputBufferImpl(1024, 256, params);
         HttpTransportMetricsImpl metrics = new HttpTransportMetricsImpl();
 
         inbuf.fill(channel);
@@ -234,8 +241,9 @@ public class TestIdentityDecoder extends TestCase {
     public void testInvalidConstructor() {
         ReadableByteChannel channel = new ReadableByteChannelMockup(
                 new String[] {"stuff;", "more stuff"}, "US-ASCII"); 
+        HttpParams params = new BasicHttpParams();
         
-        SessionInputBuffer inbuf = new SessionInputBuffer(1024, 256); 
+        SessionInputBuffer inbuf = new SessionInputBufferImpl(1024, 256, params); 
         try {
             new IdentityDecoder(null, null, null);
             fail("IllegalArgumentException should have been thrown");
@@ -260,8 +268,9 @@ public class TestIdentityDecoder extends TestCase {
         String s = "stuff";
         ReadableByteChannel channel = new ReadableByteChannelMockup(
                 new String[] {s}, "US-ASCII"); 
+        HttpParams params = new BasicHttpParams();
     
-        SessionInputBuffer inbuf = new SessionInputBuffer(1024, 256); 
+        SessionInputBuffer inbuf = new SessionInputBufferImpl(1024, 256, params); 
         HttpTransportMetricsImpl metrics = new HttpTransportMetricsImpl();
         IdentityDecoder decoder = new IdentityDecoder(channel, inbuf, metrics);
         

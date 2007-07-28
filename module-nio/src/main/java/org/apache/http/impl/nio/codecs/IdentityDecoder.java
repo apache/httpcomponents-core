@@ -37,8 +37,8 @@ import java.nio.channels.FileChannel;
 import java.nio.channels.ReadableByteChannel;
 
 import org.apache.http.impl.io.HttpTransportMetricsImpl;
-import org.apache.http.impl.nio.reactor.SessionInputBuffer;
 import org.apache.http.nio.FileContentDecoder;
+import org.apache.http.nio.reactor.SessionInputBuffer;
 
 /**
  * Identity decoder implementation.

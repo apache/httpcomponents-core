@@ -47,7 +47,8 @@ import org.apache.http.HttpResponseFactory;
 import org.apache.http.HttpVersion;
 import org.apache.http.impl.DefaultHttpRequestFactory;
 import org.apache.http.impl.DefaultHttpResponseFactory;
-import org.apache.http.impl.nio.reactor.SessionInputBuffer;
+import org.apache.http.impl.nio.reactor.SessionInputBufferImpl;
+import org.apache.http.nio.reactor.SessionInputBuffer;
 import org.apache.http.params.BasicHttpParams;
 import org.apache.http.params.HttpConnectionParams;
 import org.apache.http.params.HttpParams;
@@ -90,7 +91,7 @@ public class TestHttpMessageParser extends TestCase {
 
     public void testSimpleParsing() throws Exception {
         HttpParams params = new BasicHttpParams();
-        SessionInputBuffer inbuf = new SessionInputBuffer(1024, 128); 
+        SessionInputBuffer inbuf = new SessionInputBufferImpl(1024, 128, params); 
         HttpRequestFactory requestFactory = new DefaultHttpRequestFactory();
         HttpRequestParser requestParser = new HttpRequestParser(inbuf, requestFactory, params);
         requestParser.fillBuffer(newChannel("GET /whatever HTTP/1.1\r\nSome header: stuff\r\n\r\n"));
@@ -102,7 +103,7 @@ public class TestHttpMessageParser extends TestCase {
 
     public void testParsingChunkedMessages() throws Exception {
         HttpParams params = new BasicHttpParams();
-        SessionInputBuffer inbuf = new SessionInputBuffer(1024, 128); 
+        SessionInputBuffer inbuf = new SessionInputBufferImpl(1024, 128, params); 
         HttpRequestFactory requestFactory = new DefaultHttpRequestFactory();
         HttpRequestParser requestParser = new HttpRequestParser(inbuf, requestFactory, params);
 
@@ -123,7 +124,7 @@ public class TestHttpMessageParser extends TestCase {
 
     public void testParsingFoldedHeaders() throws Exception {
         HttpParams params = new BasicHttpParams();
-        SessionInputBuffer inbuf = new SessionInputBuffer(1024, 128); 
+        SessionInputBuffer inbuf = new SessionInputBufferImpl(1024, 128, params); 
         HttpRequestFactory requestFactory = new DefaultHttpRequestFactory();
         HttpRequestParser requestParser = new HttpRequestParser(inbuf, requestFactory, params);
 
@@ -153,7 +154,7 @@ public class TestHttpMessageParser extends TestCase {
     
     public void testParsingBadlyFoldedFirstHeader() throws Exception {
         HttpParams params = new BasicHttpParams();
-        SessionInputBuffer inbuf = new SessionInputBuffer(1024, 128); 
+        SessionInputBuffer inbuf = new SessionInputBufferImpl(1024, 128, params); 
         HttpRequestFactory requestFactory = new DefaultHttpRequestFactory();
         HttpRequestParser requestParser = new HttpRequestParser(inbuf, requestFactory, params);
 
@@ -180,7 +181,7 @@ public class TestHttpMessageParser extends TestCase {
     
     public void testParsingEmptyFoldedHeader() throws Exception {
         HttpParams params = new BasicHttpParams();
-        SessionInputBuffer inbuf = new SessionInputBuffer(1024, 128); 
+        SessionInputBuffer inbuf = new SessionInputBufferImpl(1024, 128, params); 
         HttpRequestFactory requestFactory = new DefaultHttpRequestFactory();
         HttpRequestParser requestParser = new HttpRequestParser(inbuf, requestFactory, params);
 
@@ -210,7 +211,7 @@ public class TestHttpMessageParser extends TestCase {
     
     public void testParsingIncompleteRequestLine() throws Exception {
         HttpParams params = new BasicHttpParams();
-        SessionInputBuffer inbuf = new SessionInputBuffer(1024, 128); 
+        SessionInputBuffer inbuf = new SessionInputBufferImpl(1024, 128, params); 
         HttpRequestFactory requestFactory = new DefaultHttpRequestFactory();
         HttpRequestParser requestParser = new HttpRequestParser(inbuf, requestFactory, params);
         
@@ -224,7 +225,7 @@ public class TestHttpMessageParser extends TestCase {
     
     public void testParsingIncompleteHeader() throws Exception {
         HttpParams params = new BasicHttpParams();
-        SessionInputBuffer inbuf = new SessionInputBuffer(1024, 128); 
+        SessionInputBuffer inbuf = new SessionInputBufferImpl(1024, 128, params); 
         HttpRequestFactory requestFactory = new DefaultHttpRequestFactory();
         HttpRequestParser requestParser = new HttpRequestParser(inbuf, requestFactory, params);
         
@@ -239,7 +240,7 @@ public class TestHttpMessageParser extends TestCase {
     
     public void testParsingInvalidRequestLine() throws Exception {
         HttpParams params = new BasicHttpParams();
-        SessionInputBuffer inbuf = new SessionInputBuffer(1024, 128); 
+        SessionInputBuffer inbuf = new SessionInputBufferImpl(1024, 128, params); 
         HttpRequestFactory requestFactory = new DefaultHttpRequestFactory();
         HttpRequestParser requestParser = new HttpRequestParser(inbuf, requestFactory, params);
         
@@ -255,7 +256,7 @@ public class TestHttpMessageParser extends TestCase {
     
     public void testParsingInvalidStatusLine() throws Exception {
         HttpParams params = new BasicHttpParams();
-        SessionInputBuffer inbuf = new SessionInputBuffer(1024, 128); 
+        SessionInputBuffer inbuf = new SessionInputBufferImpl(1024, 128, params); 
         HttpResponseFactory responseFactory = new DefaultHttpResponseFactory();
         HttpResponseParser responseParser = new HttpResponseParser(inbuf, responseFactory, params);
         
@@ -271,7 +272,7 @@ public class TestHttpMessageParser extends TestCase {
     
     public void testParsingInvalidHeader() throws Exception {
         HttpParams params = new BasicHttpParams();
-        SessionInputBuffer inbuf = new SessionInputBuffer(1024, 128); 
+        SessionInputBuffer inbuf = new SessionInputBufferImpl(1024, 128, params); 
         HttpResponseFactory responseFactory = new DefaultHttpResponseFactory();
         HttpResponseParser responseParser = new HttpResponseParser(inbuf, responseFactory, params);
         
@@ -287,7 +288,7 @@ public class TestHttpMessageParser extends TestCase {
     
     public void testResetParser() throws Exception {
         HttpParams params = new BasicHttpParams();
-        SessionInputBuffer inbuf = new SessionInputBuffer(1024, 128); 
+        SessionInputBuffer inbuf = new SessionInputBufferImpl(1024, 128, params); 
         HttpRequestFactory requestFactory = new DefaultHttpRequestFactory();
         HttpRequestParser requestParser = new HttpRequestParser(inbuf, requestFactory, params);
         
@@ -310,7 +311,7 @@ public class TestHttpMessageParser extends TestCase {
     
     public void testInvalidConstructor() {
         HttpParams params = new BasicHttpParams();
-        SessionInputBuffer inbuf = new SessionInputBuffer(1024, 128); 
+        SessionInputBuffer inbuf = new SessionInputBufferImpl(1024, 128, params); 
         try {
             new HttpRequestParser(null, null, params);
             fail("IllegalArgumentException should have been thrown");
@@ -339,7 +340,7 @@ public class TestHttpMessageParser extends TestCase {
 
     public void testLineLimitForStatus() throws Exception {
         HttpParams params = new BasicHttpParams();
-        SessionInputBuffer inbuf = new SessionInputBuffer(1024, 128); 
+        SessionInputBuffer inbuf = new SessionInputBufferImpl(1024, 128, params); 
         HttpRequestFactory requestFactory = new DefaultHttpRequestFactory();
 
         params.setIntParameter(HttpConnectionParams.MAX_LINE_LENGTH, 0);
@@ -360,7 +361,7 @@ public class TestHttpMessageParser extends TestCase {
 
     public void testLineLimitForHeader() throws Exception {
         HttpParams params = new BasicHttpParams();
-        SessionInputBuffer inbuf = new SessionInputBuffer(1024, 128); 
+        SessionInputBuffer inbuf = new SessionInputBufferImpl(1024, 128, params); 
         HttpRequestFactory requestFactory = new DefaultHttpRequestFactory();
 
         params.setIntParameter(HttpConnectionParams.MAX_LINE_LENGTH, 0);
@@ -384,7 +385,7 @@ public class TestHttpMessageParser extends TestCase {
 
     public void testLineLimitForFoldedHeader() throws Exception {
         HttpParams params = new BasicHttpParams();
-        SessionInputBuffer inbuf = new SessionInputBuffer(1024, 128); 
+        SessionInputBuffer inbuf = new SessionInputBufferImpl(1024, 128, params); 
         HttpRequestFactory requestFactory = new DefaultHttpRequestFactory();
 
         params.setIntParameter(HttpConnectionParams.MAX_HEADER_COUNT, 2);
@@ -400,7 +401,7 @@ public class TestHttpMessageParser extends TestCase {
 
     public void testMaxHeaderCount() throws Exception {
         HttpParams params = new BasicHttpParams();
-        SessionInputBuffer inbuf = new SessionInputBuffer(1024, 128); 
+        SessionInputBuffer inbuf = new SessionInputBufferImpl(1024, 128, params); 
         HttpRequestFactory requestFactory = new DefaultHttpRequestFactory();
 
         params.setIntParameter(HttpConnectionParams.MAX_HEADER_COUNT, 2);
@@ -419,7 +420,7 @@ public class TestHttpMessageParser extends TestCase {
 
     public void testDetectLineLimitEarly() throws Exception {
         HttpParams params = new BasicHttpParams();
-        SessionInputBuffer inbuf = new SessionInputBuffer(2, 128); 
+        SessionInputBuffer inbuf = new SessionInputBufferImpl(2, 128, params); 
         HttpRequestFactory requestFactory = new DefaultHttpRequestFactory();
 
         params.setIntParameter(HttpConnectionParams.MAX_LINE_LENGTH, 2);

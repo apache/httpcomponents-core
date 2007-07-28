@@ -39,7 +39,7 @@ import java.nio.charset.CharacterCodingException;
 import org.apache.http.util.CharArrayBuffer;
 
 /**
- * Session output buffer for non-blocking connection.
+ * Session output buffer for non-blocking connections.
  *
  * @author <a href="mailto:oleg at ural.ru">Oleg Kalnichevski</a>
  *
@@ -47,6 +47,10 @@ import org.apache.http.util.CharArrayBuffer;
  */
 public interface SessionOutputBuffer {
 
+    boolean hasData();
+    
+    int length();
+    
     int flush(WritableByteChannel channel) 
         throws IOException;
 

@@ -35,8 +35,8 @@ import java.io.IOException;
 import java.nio.channels.WritableByteChannel;
 
 import org.apache.http.impl.io.HttpTransportMetricsImpl;
-import org.apache.http.impl.nio.reactor.SessionOutputBuffer;
 import org.apache.http.nio.ContentEncoder;
+import org.apache.http.nio.reactor.SessionOutputBuffer;
 
 public abstract class AbstractContentEncoder implements ContentEncoder {
 

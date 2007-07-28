@@ -36,7 +36,7 @@ import java.io.IOException;
 import org.apache.http.util.CharArrayBuffer;
 
 /**
- * Session input buffer for blocking connection.
+ * Session input buffer for blocking connections.
  *
  * @author <a href="mailto:oleg at ural.ru">Oleg Kalnichevski</a>
  *

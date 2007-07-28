@@ -40,6 +40,7 @@ import java.nio.charset.Charset;
 import java.nio.charset.CharsetEncoder;
 import java.nio.charset.CoderResult;
 
+import org.apache.http.nio.reactor.SessionOutputBuffer;
 import org.apache.http.nio.util.ByteBufferAllocator;
 import org.apache.http.nio.util.ExpandableBuffer;
 import org.apache.http.nio.util.HeapByteBufferAllocator;
@@ -48,7 +49,7 @@ import org.apache.http.params.HttpProtocolParams;
 import org.apache.http.protocol.HTTP;
 import org.apache.http.util.CharArrayBuffer;
 
-public class SessionOutputBuffer extends ExpandableBuffer {
+public class SessionOutputBufferImpl extends ExpandableBuffer implements SessionOutputBuffer {
 
     private static final byte[] CRLF = new byte[] {HTTP.CR, HTTP.LF};
 
@@ -56,20 +57,25 @@ public class SessionOutputBuffer extends ExpandableBuffer {
     private Charset charset = null;
     private CharsetEncoder charencoder = null;
     
-    public SessionOutputBuffer(int buffersize, int linebuffersize, final ByteBufferAllocator allocator) {
+    public SessionOutputBufferImpl(
+            int buffersize, 
+            int linebuffersize, 
+            final ByteBufferAllocator allocator,
+            final HttpParams params) {
         super(buffersize, allocator);
         this.charbuffer = CharBuffer.allocate(linebuffersize);
-        this.charset = Charset.forName("US-ASCII");
+        this.charset = Charset.forName(HttpProtocolParams.getHttpElementCharset(params)); 
         this.charencoder = this.charset.newEncoder();
     }
 
-    public SessionOutputBuffer(int buffersize, int linebuffersize) {
-        this(buffersize, linebuffersize, new HeapByteBufferAllocator());
+    public SessionOutputBufferImpl(
+            int buffersize, 
+            int linebuffersize, 
+            final HttpParams params) {
+        this(buffersize, linebuffersize, new HeapByteBufferAllocator(), params);
     }
 
     public void reset(final HttpParams params) {
-        this.charset = Charset.forName(HttpProtocolParams.getHttpElementCharset(params)); 
-        this.charencoder = this.charset.newEncoder();
         clear();
     }
 

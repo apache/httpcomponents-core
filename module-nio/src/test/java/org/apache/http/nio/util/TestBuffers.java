@@ -42,12 +42,15 @@ import junit.framework.TestCase;
 import junit.framework.TestSuite;
 
 import org.apache.http.impl.io.HttpTransportMetricsImpl;
-import org.apache.http.impl.nio.reactor.SessionOutputBuffer;
+import org.apache.http.impl.nio.reactor.SessionOutputBufferImpl;
 import org.apache.http.nio.ContentDecoder;
 import org.apache.http.nio.ContentEncoder;
 import org.apache.http.nio.mockup.MockupDecoder;
 import org.apache.http.nio.mockup.MockupEncoder;
 import org.apache.http.nio.mockup.ReadableByteChannelMockup;
+import org.apache.http.nio.reactor.SessionOutputBuffer;
+import org.apache.http.params.BasicHttpParams;
+import org.apache.http.params.HttpParams;
 import org.apache.http.util.EncodingUtils;
 
 /**
@@ -112,7 +115,8 @@ public class TestBuffers extends TestCase {
     public void testOutputBufferOperations() throws IOException {
         ByteArrayOutputStream outstream = new ByteArrayOutputStream();
         WritableByteChannel channel = Channels.newChannel(outstream);
-        SessionOutputBuffer outbuf = new SessionOutputBuffer(1024, 128);
+        HttpParams params = new BasicHttpParams();
+        SessionOutputBuffer outbuf = new SessionOutputBufferImpl(1024, 128, params);
         HttpTransportMetricsImpl metrics = new HttpTransportMetricsImpl();
         
         ContentEncoder encoder = new MockupEncoder(channel, outbuf, metrics);

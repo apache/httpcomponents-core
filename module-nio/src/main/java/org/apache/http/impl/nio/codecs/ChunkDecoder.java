@@ -40,8 +40,8 @@ import java.util.List;
 import org.apache.http.Header;
 import org.apache.http.MalformedChunkCodingException;
 import org.apache.http.message.BufferedHeader;
+import org.apache.http.nio.reactor.SessionInputBuffer;
 import org.apache.http.impl.io.HttpTransportMetricsImpl;
-import org.apache.http.impl.nio.reactor.SessionInputBuffer;
 import org.apache.http.protocol.HTTP;
 import org.apache.http.util.CharArrayBuffer;
 
