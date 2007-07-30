@@ -97,14 +97,6 @@ public class SocketHttpServerConnection extends
         if (params == null) {
             throw new IllegalArgumentException("HTTP parameters may not be null");
         }
-        socket.setTcpNoDelay(HttpConnectionParams.getTcpNoDelay(params));
-        socket.setSoTimeout(HttpConnectionParams.getSoTimeout(params));
-        
-        int linger = HttpConnectionParams.getLinger(params);
-        if (linger >= 0) {
-            socket.setSoLinger(linger > 0, linger);
-        }
-
         this.socket = socket;
         
         int buffersize = HttpConnectionParams.getSocketBufferSize(params);
