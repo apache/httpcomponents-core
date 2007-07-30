@@ -1,5 +1,8 @@
 Changes since release 4.0 Alpha 5
 
+* [HTTPCORE-105] Consistent class names in base and NIO modules
+  Oleg Kalnichevski <olegk at apache.org>
+
 * [HTTPCORE-100] revised HttpContext hierarchy
   Contributed by Roland Weber <rolandw at apache.org>
 
