@@ -31,34 +31,23 @@
 
 package org.apache.http.impl.nio.codecs;
 
-import org.apache.http.HttpException;
 import org.apache.http.HttpMessage;
-import org.apache.http.HttpRequestFactory;
-import org.apache.http.RequestLine;
+import org.apache.http.HttpRequest;
 import org.apache.http.message.BasicRequestLine;
-import org.apache.http.nio.reactor.SessionInputBuffer;
+import org.apache.http.nio.reactor.SessionOutputBuffer;
 import org.apache.http.params.HttpParams;
 import org.apache.http.util.CharArrayBuffer;
 
-public class HttpRequestParser extends AbstractMessageParser {
-    
-    private final HttpRequestFactory requestFactory;
-    
-    public HttpRequestParser(
-            final SessionInputBuffer buffer, 
-            final HttpRequestFactory requestFactory,
-            final HttpParams params) {
-        super(buffer, params);
-        if (requestFactory == null) {
-            throw new IllegalArgumentException("Request factory may not be null");
-        }
-        this.requestFactory = requestFactory;
-    }
+public class HttpRequestWriter extends AbstractMessageWriter {
 
-    protected HttpMessage createMessage(final CharArrayBuffer buffer) 
-            throws HttpException {
-        RequestLine requestLine = BasicRequestLine.parse(buffer, 0, buffer.length());
-        return this.requestFactory.newHttpRequest(requestLine);
+    public HttpRequestWriter(final SessionOutputBuffer buffer, final HttpParams params) {
+        super(buffer, params);
+    }
+    
+    protected void writeHeadLine(
+            final CharArrayBuffer lineBuffer, 
+            final HttpMessage message) {
+        BasicRequestLine.format(lineBuffer, ((HttpRequest) message).getRequestLine());
     }
 
 }

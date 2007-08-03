@@ -71,7 +71,6 @@ import org.apache.http.params.HttpParams;
 import org.apache.http.protocol.HTTP;
 import org.apache.http.protocol.HttpContext;
 import org.apache.http.protocol.SyncBasicHttpContext;
-import org.apache.http.util.CharArrayBuffer;
 
 public class NHttpConnectionBase 
         implements NHttpConnection, HttpInetConnection, SessionBufferStatus {
@@ -84,7 +83,6 @@ public class NHttpConnectionBase
     
     protected final SessionInputBufferImpl inbuf;
     protected final SessionOutputBufferImpl outbuf;
-    protected final CharArrayBuffer lineBuffer;
     
     protected final HttpTransportMetricsImpl inTransportMetrics;
     protected final HttpTransportMetricsImpl outTransportMetrics;
@@ -121,7 +119,6 @@ public class NHttpConnectionBase
         
         this.inbuf = new SessionInputBufferImpl(buffersize, linebuffersize, allocator, params); 
         this.outbuf = new SessionOutputBufferImpl(buffersize, linebuffersize, allocator, params); 
-        this.lineBuffer = new CharArrayBuffer(64); 
         
         this.incomingContentStrategy = new LaxContentLengthStrategy();
         this.outgoingContentStrategy = new StrictContentLengthStrategy();

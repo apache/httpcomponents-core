@@ -40,7 +40,7 @@ import org.apache.http.nio.reactor.SessionInputBuffer;
 import org.apache.http.params.HttpParams;
 import org.apache.http.util.CharArrayBuffer;
 
-public class HttpResponseParser extends HttpMessageParser {
+public class HttpResponseParser extends AbstractMessageParser {
     
     private final HttpResponseFactory responseFactory;
     

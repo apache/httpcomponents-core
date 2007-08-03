@@ -32,21 +32,19 @@
 package org.apache.http.impl.nio;
 
 import java.io.IOException;
-import java.util.Iterator;
 
-import org.apache.http.Header;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpEntityEnclosingRequest;
 import org.apache.http.HttpException;
 import org.apache.http.HttpRequest;
 import org.apache.http.HttpRequestFactory;
 import org.apache.http.HttpResponse;
-import org.apache.http.message.BasicHeader;
-import org.apache.http.message.BasicStatusLine;
-import org.apache.http.message.BufferedHeader;
+import org.apache.http.impl.nio.codecs.HttpRequestParser;
+import org.apache.http.impl.nio.codecs.HttpResponseWriter;
+import org.apache.http.nio.NHttpMessageParser;
+import org.apache.http.nio.NHttpMessageWriter;
 import org.apache.http.nio.NHttpServerConnection;
 import org.apache.http.nio.NHttpServiceHandler;
-import org.apache.http.impl.nio.codecs.HttpRequestParser;
 import org.apache.http.nio.reactor.EventMask;
 import org.apache.http.nio.reactor.IOSession;
 import org.apache.http.nio.util.ByteBufferAllocator;
@@ -55,7 +53,8 @@ import org.apache.http.params.HttpParams;
 public class DefaultNHttpServerConnection 
     extends NHttpConnectionBase implements NHttpServerConnection {
 
-    private HttpRequestParser requestParser;
+    private NHttpMessageParser requestParser;
+    private NHttpMessageWriter responseWriter;
     
     public DefaultNHttpServerConnection(
             final IOSession session,
@@ -67,6 +66,7 @@ public class DefaultNHttpServerConnection
             throw new IllegalArgumentException("Request factory may not be null");
         }
         this.requestParser = new HttpRequestParser(this.inbuf, requestFactory, params);
+        this.responseWriter = new HttpResponseWriter(this.outbuf, params);
     }
 
     public void resetInput() {
@@ -78,6 +78,7 @@ public class DefaultNHttpServerConnection
     public void resetOutput() {
         this.response = null;
         this.contentEncoder = null;
+        this.responseWriter.reset();
     }
     
     public void consumeInput(final NHttpServiceHandler handler) {
@@ -180,22 +181,7 @@ public class DefaultNHttpServerConnection
         if (this.response != null) {
             throw new HttpException("Response already submitted");
         }
-        this.lineBuffer.clear();
-        BasicStatusLine.format(this.lineBuffer, response.getStatusLine());
-        this.outbuf.writeLine(this.lineBuffer);
-        for (Iterator it = response.headerIterator(); it.hasNext(); ) {
-            Header header = (Header) it.next();
-            if (header instanceof BufferedHeader) {
-                // If the header is backed by a buffer, re-use the buffer
-                this.outbuf.writeLine(((BufferedHeader)header).getBuffer());
-            } else {
-                this.lineBuffer.clear();
-                BasicHeader.format(this.lineBuffer, header);
-                this.outbuf.writeLine(this.lineBuffer);
-            }
-        }
-        this.lineBuffer.clear();
-        this.outbuf.writeLine(this.lineBuffer);
+        this.responseWriter.write(response);
 
         if (response.getStatusLine().getStatusCode() >= 200) {
             this.connMetrics.incrementRequestCount();

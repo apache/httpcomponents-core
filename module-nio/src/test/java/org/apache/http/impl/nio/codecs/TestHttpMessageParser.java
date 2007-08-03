@@ -54,7 +54,7 @@ import org.apache.http.params.HttpConnectionParams;
 import org.apache.http.params.HttpParams;
 
 /**
- * Simple tests for {@link HttpMessageParser}.
+ * Simple tests for {@link AbstractMessageParser}.
  *
  * @author <a href="mailto:oleg at ural.ru">Oleg Kalnichevski</a>
  * 

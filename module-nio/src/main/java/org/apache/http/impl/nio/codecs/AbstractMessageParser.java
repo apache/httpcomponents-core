@@ -40,14 +40,15 @@ import org.apache.http.HttpException;
 import org.apache.http.HttpMessage;
 import org.apache.http.ProtocolException;
 import org.apache.http.message.BufferedHeader;
+import org.apache.http.nio.NHttpMessageParser;
 import org.apache.http.nio.reactor.SessionInputBuffer;
 import org.apache.http.params.HttpConnectionParams;
 import org.apache.http.params.HttpParams;
 import org.apache.http.util.CharArrayBuffer;
 
-public abstract class HttpMessageParser {
+public abstract class AbstractMessageParser implements NHttpMessageParser {
     
-    private final SessionInputBuffer buffer;    
+    private final SessionInputBuffer sessionBuffer;    
     
     private static final int READ_HEAD_LINE = 0;
     private static final int READ_HEADERS   = 1;
@@ -63,15 +64,15 @@ public abstract class HttpMessageParser {
     private int maxLineLen = -1;
     private int maxHeaderCount = -1;
 
-    public HttpMessageParser(final SessionInputBuffer buffer, final HttpParams params) {
+    public AbstractMessageParser(final SessionInputBuffer buffer, final HttpParams params) {
         super();
         if (buffer == null) {
             throw new IllegalArgumentException("Session input buffer may not be null");
         }
-        if (buffer == null) {
+        if (params == null) {
             throw new IllegalArgumentException("HTTP parameters may not be null");
         }
-        this.buffer = buffer;
+        this.sessionBuffer = buffer;
         this.state = READ_HEAD_LINE;
         this.endOfStream = false;
         this.headerBufs = new ArrayList();        
@@ -79,9 +80,6 @@ public abstract class HttpMessageParser {
                 HttpConnectionParams.MAX_LINE_LENGTH, -1);
         this.maxHeaderCount = params.getIntParameter(
                 HttpConnectionParams.MAX_HEADER_COUNT, -1);
-    }
-    
-    public void configure() {
     }
     
     public void reset() {
@@ -92,7 +90,7 @@ public abstract class HttpMessageParser {
     }
     
     public int fillBuffer(final ReadableByteChannel channel) throws IOException {
-        int bytesRead = this.buffer.fill(channel);
+        int bytesRead = this.sessionBuffer.fill(channel);
         if (bytesRead == -1) {
             this.endOfStream = true;
         }
@@ -139,10 +137,10 @@ public abstract class HttpMessageParser {
             } else {
                 this.lineBuf.clear();
             }
-            boolean lineComplete = this.buffer.readLine(this.lineBuf, this.endOfStream);
+            boolean lineComplete = this.sessionBuffer.readLine(this.lineBuf, this.endOfStream);
             if (this.maxLineLen > 0 && 
                     (this.lineBuf.length() > this.maxLineLen || 
-                            (!lineComplete && this.buffer.length() > this.maxLineLen))) {
+                            (!lineComplete && this.sessionBuffer.length() > this.maxLineLen))) {
                 throw new IOException("Maximum line length limit exceeded");
             }
             if (!lineComplete) {
@@ -166,7 +164,7 @@ public abstract class HttpMessageParser {
                 }
                 break;
             }
-            if (this.endOfStream && !this.buffer.hasData()) {
+            if (this.endOfStream && !this.sessionBuffer.hasData()) {
                 this.state = COMPLETED;
             }
         }

@@ -29,36 +29,31 @@
  *
  */
 
-package org.apache.http.impl.nio.codecs;
+package org.apache.http.nio;
+
+import java.io.IOException;
+import java.nio.channels.ReadableByteChannel;
 
 import org.apache.http.HttpException;
 import org.apache.http.HttpMessage;
-import org.apache.http.HttpRequestFactory;
-import org.apache.http.RequestLine;
-import org.apache.http.message.BasicRequestLine;
-import org.apache.http.nio.reactor.SessionInputBuffer;
-import org.apache.http.params.HttpParams;
-import org.apache.http.util.CharArrayBuffer;
 
-public class HttpRequestParser extends AbstractMessageParser {
+/**
+ * Abstract HTTP message parser for non-blocking connections.
+ *
+ * @author <a href="mailto:oleg at ural.ru">Oleg Kalnichevski</a>
+ *
+ * @version $Revision$
+ * 
+ * @since 4.0
+ */
+public interface NHttpMessageParser {
     
-    private final HttpRequestFactory requestFactory;
+    void reset();
     
-    public HttpRequestParser(
-            final SessionInputBuffer buffer, 
-            final HttpRequestFactory requestFactory,
-            final HttpParams params) {
-        super(buffer, params);
-        if (requestFactory == null) {
-            throw new IllegalArgumentException("Request factory may not be null");
-        }
-        this.requestFactory = requestFactory;
-    }
+    int fillBuffer(ReadableByteChannel channel) 
+        throws IOException;    
 
-    protected HttpMessage createMessage(final CharArrayBuffer buffer) 
-            throws HttpException {
-        RequestLine requestLine = BasicRequestLine.parse(buffer, 0, buffer.length());
-        return this.requestFactory.newHttpRequest(requestLine);
-    }
+    HttpMessage parse()
+        throws IOException, HttpException;
 
 }
