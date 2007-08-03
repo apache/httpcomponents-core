@@ -47,6 +47,8 @@ import org.apache.http.nio.NHttpServerConnection;
 import org.apache.http.nio.NHttpServiceHandler;
 import org.apache.http.nio.reactor.EventMask;
 import org.apache.http.nio.reactor.IOSession;
+import org.apache.http.nio.reactor.SessionInputBuffer;
+import org.apache.http.nio.reactor.SessionOutputBuffer;
 import org.apache.http.nio.util.ByteBufferAllocator;
 import org.apache.http.params.HttpParams;
 
@@ -65,10 +67,23 @@ public class DefaultNHttpServerConnection
         if (requestFactory == null) {
             throw new IllegalArgumentException("Request factory may not be null");
         }
-        this.requestParser = new HttpRequestParser(this.inbuf, requestFactory, params);
-        this.responseWriter = new HttpResponseWriter(this.outbuf, params);
+        this.requestParser = createRequestParser(this.inbuf, requestFactory, params);
+        this.responseWriter = createResponseWriter(this.outbuf, params);
     }
 
+    protected NHttpMessageParser createRequestParser(
+            final SessionInputBuffer buffer,
+            final HttpRequestFactory requestFactory,
+            final HttpParams params) {
+        return new HttpRequestParser(buffer, requestFactory, params);
+    }
+    
+    protected HttpResponseWriter createResponseWriter(
+            final SessionOutputBuffer buffer,
+            final HttpParams params) {
+        return new HttpResponseWriter(buffer, params);
+    }
+    
     public void resetInput() {
         this.request = null;
         this.contentDecoder = null;
