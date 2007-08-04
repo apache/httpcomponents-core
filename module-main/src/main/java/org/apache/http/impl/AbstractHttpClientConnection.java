@@ -72,8 +72,7 @@ public abstract class AbstractHttpClientConnection implements HttpClientConnecti
     private SessionOutputBuffer outbuffer = null;
     private HttpMessageParser responseParser = null;
     private HttpMessageWriter requestWriter = null;
-
-    private HttpConnectionMetricsImpl metrics;
+    private HttpConnectionMetricsImpl metrics = null;
     
     public AbstractHttpClientConnection() {
         super();
@@ -121,7 +120,9 @@ public abstract class AbstractHttpClientConnection implements HttpClientConnecti
         this.inbuffer = inbuffer;
         this.outbuffer = outbuffer;
         this.responseParser = createResponseParser(
-                inbuffer, createHttpResponseFactory(), params);
+                inbuffer, 
+                createHttpResponseFactory(), 
+                params);
         this.requestWriter = createRequestWriter(
                 outbuffer, params);
         this.metrics = new HttpConnectionMetricsImpl(

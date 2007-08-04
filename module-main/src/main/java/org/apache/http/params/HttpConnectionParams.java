@@ -130,26 +130,6 @@ public final class HttpConnectionParams {
     public static final String MAX_HEADER_COUNT = "http.connection.max-header-count";
     
     /**
-     * Defines the maximum number of ignorable lines before we expect
-     * a HTTP response's status code.
-     * <p>
-     * With HTTP/1.1 persistent connections, the problem arises that
-     * broken scripts could return a wrong Content-Length
-     * (there are more bytes sent than specified).<br />
-     * Unfortunately, in some cases, this is not possible after the bad response,
-     * but only before the next one. <br />
-     * So, HttpClient must be able to skip those surplus lines this way.
-     * </p>
-     * <p>
-     * Set this to 0 to disallow any garbage/empty lines before the status line.<br />
-     * To specify no limit, use {@link java.lang.Integer#MAX_VALUE} (default in lenient mode).
-     * </p>
-     *  
-     * This parameter expects a value of type {@link Integer}.
-     */
-    public static final String MAX_STATUS_LINE_GARBAGE = "http.connection.max-status-line-garbage";
-
-    /**
      */
     private HttpConnectionParams() {
         super();

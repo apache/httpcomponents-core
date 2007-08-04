@@ -72,8 +72,7 @@ public abstract class AbstractHttpServerConnection implements HttpServerConnecti
     private SessionOutputBuffer outbuffer = null;
     private HttpMessageParser requestParser = null;
     private HttpMessageWriter responseWriter = null;
-
-    private HttpConnectionMetricsImpl metrics;
+    private HttpConnectionMetricsImpl metrics = null;
     
     public AbstractHttpServerConnection() {
         super();
@@ -120,8 +119,10 @@ public abstract class AbstractHttpServerConnection implements HttpServerConnecti
         }
         this.inbuffer = inbuffer;
         this.outbuffer = outbuffer;
-        this.requestParser = createRequestParser(inbuffer, 
-                createHttpRequestFactory(), params);
+        this.requestParser = createRequestParser(
+                inbuffer, 
+                createHttpRequestFactory(), 
+                params);
         this.responseWriter = createResponseWriter(
                 outbuffer, params);
         this.metrics = new HttpConnectionMetricsImpl(

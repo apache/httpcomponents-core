@@ -37,20 +37,16 @@ import org.apache.http.HttpException;
 import org.apache.http.HttpMessage;
 import org.apache.http.HttpResponseFactory;
 import org.apache.http.NoHttpResponseException;
-import org.apache.http.ProtocolException;
 import org.apache.http.StatusLine;
 import org.apache.http.io.SessionInputBuffer;
 import org.apache.http.message.BasicStatusLine;
-import org.apache.http.params.HttpConnectionParams;
 import org.apache.http.params.HttpParams;
-import org.apache.http.protocol.HTTP;
 import org.apache.http.util.CharArrayBuffer;
 
 public class HttpResponseParser extends AbstractMessageParser {
     
     private final HttpResponseFactory responseFactory;
     private final CharArrayBuffer lineBuf;
-    private final int maxGarbageLines;
     
     public HttpResponseParser(
             final SessionInputBuffer buffer,
@@ -62,53 +58,15 @@ public class HttpResponseParser extends AbstractMessageParser {
         }
         this.responseFactory = responseFactory;
         this.lineBuf = new CharArrayBuffer(128);
-        this.maxGarbageLines = params.getIntParameter(
-                HttpConnectionParams.MAX_STATUS_LINE_GARBAGE, Integer.MAX_VALUE);
     }
 
-    /**
-     * Tests if the string starts with 'HTTP' signature.
-     * @param buffer buffer to test
-     * @return <tt>true</tt> if the line starts with 'HTTP' 
-     *   signature, <tt>false</tt> otherwise.
-     */
-    protected static boolean startsWithHTTP(final CharArrayBuffer buffer) {
-        try {
-            int i = 0;
-            while (HTTP.isWhitespace(buffer.charAt(i))) {
-                ++i;
-            }
-            return buffer.charAt(i) == 'H' 
-                && buffer.charAt(i + 1) == 'T'
-                && buffer.charAt(i + 2) == 'T'
-                && buffer.charAt(i + 3) == 'P';
-        } catch (IndexOutOfBoundsException e) {
-            return false;
-        }
-    }
-    
     protected HttpMessage parseHead(
             final SessionInputBuffer sessionBuffer) throws IOException, HttpException {
-        // clear the buffer
         this.lineBuf.clear();
-        //read out the HTTP status string
-        int count = 0;
-        do {
-            int i = sessionBuffer.readLine(this.lineBuf);
-            if (i == -1 && count == 0) {
-                // The server just dropped connection on us
-                throw new NoHttpResponseException("The target server failed to respond");
-            }
-            if (startsWithHTTP(this.lineBuf)) {
-                // Got one
-                break;
-            } else if (i == -1 || count >= this.maxGarbageLines) {
-                // Giving up
-                throw new ProtocolException("The server failed to respond with a " +
-                        "valid HTTP response");
-            }
-            count++;
-        } while(true);
+        int i = sessionBuffer.readLine(this.lineBuf);
+        if (i == -1) {
+            throw new NoHttpResponseException("The target server failed to respond");
+        }
         //create the status line from the status string
         StatusLine statusline = BasicStatusLine.parse(this.lineBuf, 0, this.lineBuf.length());
         return this.responseFactory.newHttpResponse(statusline, null);
