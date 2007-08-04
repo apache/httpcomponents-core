@@ -29,7 +29,7 @@
  *
  */
 
-package org.apache.http;
+package org.apache.http.io;
 
 import java.io.IOException;
 
@@ -37,7 +37,7 @@ import org.apache.http.HttpException;
 import org.apache.http.HttpMessage;
 
 /**
- * Abstract HTTP message writer for blocking connections.
+ * Abstract HTTP message parser for blocking connections.
  *
  * @author <a href="mailto:oleg at ural.ru">Oleg Kalnichevski</a>
  *
@@ -45,9 +45,9 @@ import org.apache.http.HttpMessage;
  * 
  * @since 4.0
  */
-public interface HttpMessageWriter {
+public interface HttpMessageParser {
     
-    void write(HttpMessage message)
+    HttpMessage parse()
         throws IOException, HttpException;
-    
+
 }
