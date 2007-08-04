@@ -29,16 +29,18 @@
  *
  */
 
-package org.apache.http.util;
+package org.apache.http.impl.io;
 
 import java.io.IOException;
 import java.util.ArrayList;
 
 import org.apache.http.Header;
 import org.apache.http.HttpException;
+import org.apache.http.HttpMessageParser;
 import org.apache.http.ProtocolException;
 import org.apache.http.io.SessionInputBuffer;
 import org.apache.http.message.BufferedHeader;
+import org.apache.http.util.CharArrayBuffer;
 
 /**
  * A utility class for processing HTTP headers.
@@ -46,10 +48,11 @@ import org.apache.http.message.BufferedHeader;
  * @author Michael Becke
  * @author <a href="mailto:oleg at ural.ru">Oleg Kalnichevski</a>
  */
-public final class HeaderUtils {
+public abstract class AbstractMessageParser implements HttpMessageParser {
 
     /** Disabled default constructor. */
-    private HeaderUtils() {
+    public AbstractMessageParser() {
+        super();
     }
 
     /**
@@ -131,9 +134,9 @@ public final class HeaderUtils {
         return headers;
     }
 
-    public static Header[] parseHeaders(final SessionInputBuffer datareceiver) 
+    public static Header[] parseHeaders(final SessionInputBuffer inbuffer) 
         throws HttpException, IOException {
-        return parseHeaders(datareceiver, -1, -1);
+        return parseHeaders(inbuffer, -1, -1);
     }
     
 }

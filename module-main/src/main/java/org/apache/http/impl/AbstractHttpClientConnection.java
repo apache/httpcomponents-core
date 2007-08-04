@@ -50,6 +50,7 @@ import org.apache.http.impl.entity.EntityDeserializer;
 import org.apache.http.impl.entity.EntitySerializer;
 import org.apache.http.impl.entity.LaxContentLengthStrategy;
 import org.apache.http.impl.entity.StrictContentLengthStrategy;
+import org.apache.http.impl.io.AbstractMessageParser;
 import org.apache.http.io.SessionInputBuffer;
 import org.apache.http.io.SessionOutputBuffer;
 import org.apache.http.message.BasicHeader;
@@ -60,7 +61,6 @@ import org.apache.http.params.HttpConnectionParams;
 import org.apache.http.params.HttpParams;
 import org.apache.http.protocol.HTTP;
 import org.apache.http.util.CharArrayBuffer;
-import org.apache.http.util.HeaderUtils;
 
 /**
  * Abstract client-side HTTP connection capable of transmitting and receiving data
@@ -268,7 +268,7 @@ public abstract class AbstractHttpClientConnection implements HttpClientConnecti
 
     protected void readResponseHeaders(final HttpResponse response) 
             throws HttpException, IOException {
-        Header[] headers = HeaderUtils.parseHeaders(
+        Header[] headers = AbstractMessageParser.parseHeaders(
                 this.inbuffer, 
                 this.maxHeaderCount,
                 this.maxLineLen);

@@ -45,6 +45,7 @@ public class TestAllIO extends TestCase {
         suite.addTest(TestContentLengthOutputStream.suite());
         suite.addTest(TestIdentitynputStream.suite());
         suite.addTest(TestIdentityOutputStream.suite());
+        suite.addTest(TestMessageParser.suite());
         return suite;
     }
 

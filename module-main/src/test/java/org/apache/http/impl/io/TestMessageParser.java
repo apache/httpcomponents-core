@@ -29,7 +29,7 @@
  *
  */
 
-package org.apache.http.util;
+package org.apache.http.impl.io;
 
 import java.io.IOException;
 
@@ -50,24 +50,24 @@ import junit.framework.TestSuite;
  *
  * @author <a href="mailto:oleg at ural.ru">Oleg Kalnichevski</a>
  */
-public class TestHeaderUtils extends TestCase {
+public class TestMessageParser extends TestCase {
 
-    public TestHeaderUtils(String testName) {
+    public TestMessageParser(String testName) {
         super(testName);
     }
 
     public static void main(String args[]) {
-        String[] testCaseName = { TestHeaderUtils.class.getName() };
+        String[] testCaseName = { TestMessageParser.class.getName() };
         junit.textui.TestRunner.main(testCaseName);
     }
 
     public static Test suite() {
-        return new TestSuite(TestHeaderUtils.class);
+        return new TestSuite(TestMessageParser.class);
     }
 
     public void testInvalidInput() throws Exception {
         try {
-            HeaderUtils.parseHeaders(null);
+            AbstractMessageParser.parseHeaders(null);
             fail("IllegalArgumentException should have been thrown");
         } catch (IllegalArgumentException ex) {
             // expected
@@ -90,7 +90,7 @@ public class TestHeaderUtils extends TestCase {
             "     \r\n" +  
             "\r\n"; 
         SessionInputBuffer receiver = new SessionInputBufferMockup(s, "US-ASCII"); 
-        Header[] headers = HeaderUtils.parseHeaders(receiver);
+        Header[] headers = AbstractMessageParser.parseHeaders(receiver);
         assertNotNull(headers);
         assertEquals(3, headers.length);
         assertEquals("header1", headers[0].getName());
@@ -113,7 +113,7 @@ public class TestHeaderUtils extends TestCase {
             "header1  : stuff; param1 = value1; param2 = \"value 2\" \r\n" + 
             "\r\n"; 
         SessionInputBuffer receiver = new SessionInputBufferMockup(s, "US-ASCII"); 
-        Header[] headers = HeaderUtils.parseHeaders(receiver);
+        Header[] headers = AbstractMessageParser.parseHeaders(receiver);
         assertNotNull(headers);
         assertEquals(1, headers.length);
         assertEquals("header1  : stuff; param1 = value1; param2 = \"value 2\" ", headers[0].toString());
@@ -137,7 +137,7 @@ public class TestHeaderUtils extends TestCase {
             "\r\n"; 
         SessionInputBuffer receiver = new SessionInputBufferMockup(s, "US-ASCII");
         try {
-            HeaderUtils.parseHeaders(receiver);
+            AbstractMessageParser.parseHeaders(receiver);
             fail("ProtocolException should have been thrown");
         } catch (ProtocolException ex) {
             // expected
@@ -147,7 +147,7 @@ public class TestHeaderUtils extends TestCase {
             "\r\n"; 
         receiver = new SessionInputBufferMockup(s, "US-ASCII");
         try {
-            HeaderUtils.parseHeaders(receiver);
+            AbstractMessageParser.parseHeaders(receiver);
             fail("ProtocolException should have been thrown");
         } catch (ProtocolException ex) {
             // expected
@@ -159,7 +159,7 @@ public class TestHeaderUtils extends TestCase {
             "    header1: stuff\r\n" + 
             "header2  : stuff \r\n"; 
         SessionInputBuffer receiver = new SessionInputBufferMockup(s, "US-ASCII"); 
-        Header[] headers = HeaderUtils.parseHeaders(receiver);
+        Header[] headers = AbstractMessageParser.parseHeaders(receiver);
         assertNotNull(headers);
         assertEquals(2, headers.length);
         assertEquals("header1", headers[0].getName());
@@ -171,7 +171,7 @@ public class TestHeaderUtils extends TestCase {
     public void testEmptyDataStream() throws Exception {
         String s = ""; 
         SessionInputBuffer receiver = new SessionInputBufferMockup(s, "US-ASCII"); 
-        Header[] headers = HeaderUtils.parseHeaders(receiver);
+        Header[] headers = AbstractMessageParser.parseHeaders(receiver);
         assertNotNull(headers);
         assertEquals(0, headers.length);
     }
@@ -184,7 +184,7 @@ public class TestHeaderUtils extends TestCase {
             "\r\n"; 
         SessionInputBuffer receiver = new SessionInputBufferMockup(s, "US-ASCII");
         try {
-            HeaderUtils.parseHeaders(receiver, 2, -1);
+            AbstractMessageParser.parseHeaders(receiver, 2, -1);
             fail("IOException should have been thrown");
         } catch (IOException ex) {
             // expected
@@ -199,7 +199,7 @@ public class TestHeaderUtils extends TestCase {
             "\r\n"; 
         SessionInputBuffer receiver = new SessionInputBufferMockup(s, "US-ASCII");
         try {
-            HeaderUtils.parseHeaders(receiver, 2, 15);
+            AbstractMessageParser.parseHeaders(receiver, 2, 15);
             fail("IOException should have been thrown");
         } catch (IOException ex) {
             // expected

@@ -2,6 +2,7 @@
  * $HeadURL$
  * $Revision$
  * $Date$
+ *
  * ====================================================================
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
@@ -28,31 +29,25 @@
  *
  */
 
-package org.apache.http.util;
+package org.apache.http;
 
-import junit.framework.*;
+import java.io.IOException;
 
-public class TestAllUtil extends TestCase {
+import org.apache.http.HttpException;
+import org.apache.http.HttpMessage;
 
-    public TestAllUtil(String testName) {
-        super(testName);
-    }
-
-    public static Test suite() {
-        TestSuite suite = new TestSuite();
-        suite.addTest(TestLangUtils.suite());
-        suite.addTest(TestExceptionUtils.suite());
-        suite.addTest(TestEncodingUtils.suite());
-        suite.addTest(TestEntityUtils.suite());
-        suite.addTest(TestHeaderGroup.suite());
-        suite.addTest(TestByteArrayBuffer.suite());
-        suite.addTest(TestCharArrayBuffer.suite());
-        return suite;
-    }
-
-    public static void main(String args[]) {
-        String[] testCaseName = { TestAllUtil.class.getName() };
-        junit.textui.TestRunner.main(testCaseName);
-    }
-
+/**
+ * Abstract HTTP message writer for blocking connections.
+ *
+ * @author <a href="mailto:oleg at ural.ru">Oleg Kalnichevski</a>
+ *
+ * @version $Revision$
+ * 
+ * @since 4.0
+ */
+public interface HttpMessageWriter {
+    
+    void write(HttpMessage message)
+        throws IOException, HttpException;
+    
 }
