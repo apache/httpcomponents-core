@@ -36,23 +36,42 @@ import java.util.ArrayList;
 
 import org.apache.http.Header;
 import org.apache.http.HttpException;
+import org.apache.http.HttpMessage;
 import org.apache.http.ProtocolException;
 import org.apache.http.io.HttpMessageParser;
 import org.apache.http.io.SessionInputBuffer;
 import org.apache.http.message.BufferedHeader;
+import org.apache.http.params.HttpConnectionParams;
+import org.apache.http.params.HttpParams;
 import org.apache.http.util.CharArrayBuffer;
 
 /**
- * A utility class for processing HTTP headers.
+ * Message parser base class.
  * 
  * @author Michael Becke
  * @author <a href="mailto:oleg at ural.ru">Oleg Kalnichevski</a>
  */
 public abstract class AbstractMessageParser implements HttpMessageParser {
 
-    /** Disabled default constructor. */
-    public AbstractMessageParser() {
+    private final SessionInputBuffer sessionBuffer;
+    private final int maxHeaderCount;
+    private final int maxLineLen;
+
+    public AbstractMessageParser(
+            final SessionInputBuffer buffer,
+            final HttpParams params) {
         super();
+        if (buffer == null) {
+            throw new IllegalArgumentException("Session input buffer may not be null");
+        }
+        if (buffer == null) {
+            throw new IllegalArgumentException("HTTP parameters may not be null");
+        }
+        this.sessionBuffer = buffer;
+        this.maxHeaderCount = params.getIntParameter(
+                HttpConnectionParams.MAX_HEADER_COUNT, -1);
+        this.maxLineLen = params.getIntParameter(
+                HttpConnectionParams.MAX_LINE_LENGTH, -1);
     }
 
     /**
@@ -137,6 +156,19 @@ public abstract class AbstractMessageParser implements HttpMessageParser {
     public static Header[] parseHeaders(final SessionInputBuffer inbuffer) 
         throws HttpException, IOException {
         return parseHeaders(inbuffer, -1, -1);
+    }
+
+    protected abstract HttpMessage parseHead(SessionInputBuffer sessionBuffer) 
+        throws IOException, HttpException;
+
+    public HttpMessage parse() throws IOException, HttpException {
+        HttpMessage message = parseHead(this.sessionBuffer);
+        Header[] headers = AbstractMessageParser.parseHeaders(
+                this.sessionBuffer, 
+                this.maxHeaderCount,
+                this.maxLineLen);
+        message.setHeaders(headers);
+        return message;
     }
     
 }

@@ -55,8 +55,8 @@ import org.apache.http.params.HttpParams;
 public class DefaultNHttpServerConnection 
     extends NHttpConnectionBase implements NHttpServerConnection {
 
-    private NHttpMessageParser requestParser;
-    private NHttpMessageWriter responseWriter;
+    private final NHttpMessageParser requestParser;
+    private final NHttpMessageWriter responseWriter;
     
     public DefaultNHttpServerConnection(
             final IOSession session,
@@ -78,7 +78,7 @@ public class DefaultNHttpServerConnection
         return new HttpRequestParser(buffer, requestFactory, params);
     }
     
-    protected HttpResponseWriter createResponseWriter(
+    protected NHttpMessageWriter createResponseWriter(
             final SessionOutputBuffer buffer,
             final HttpParams params) {
         return new HttpResponseWriter(buffer, params);

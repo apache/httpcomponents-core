@@ -32,9 +32,7 @@
 package org.apache.http.impl;
 
 import java.io.IOException;
-import java.util.Iterator;
 
-import org.apache.http.Header;
 import org.apache.http.HttpClientConnection;
 import org.apache.http.HttpConnectionMetrics;
 import org.apache.http.HttpEntity;
@@ -43,24 +41,17 @@ import org.apache.http.HttpException;
 import org.apache.http.HttpRequest;
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpResponseFactory;
-import org.apache.http.NoHttpResponseException;
-import org.apache.http.ProtocolException;
-import org.apache.http.StatusLine;
 import org.apache.http.impl.entity.EntityDeserializer;
 import org.apache.http.impl.entity.EntitySerializer;
 import org.apache.http.impl.entity.LaxContentLengthStrategy;
 import org.apache.http.impl.entity.StrictContentLengthStrategy;
-import org.apache.http.impl.io.AbstractMessageParser;
+import org.apache.http.impl.io.HttpRequestWriter;
+import org.apache.http.impl.io.HttpResponseParser;
+import org.apache.http.io.HttpMessageParser;
+import org.apache.http.io.HttpMessageWriter;
 import org.apache.http.io.SessionInputBuffer;
 import org.apache.http.io.SessionOutputBuffer;
-import org.apache.http.message.BasicHeader;
-import org.apache.http.message.BasicRequestLine;
-import org.apache.http.message.BasicStatusLine;
-import org.apache.http.message.BufferedHeader;
-import org.apache.http.params.HttpConnectionParams;
 import org.apache.http.params.HttpParams;
-import org.apache.http.protocol.HTTP;
-import org.apache.http.util.CharArrayBuffer;
 
 /**
  * Abstract client-side HTTP connection capable of transmitting and receiving data
@@ -74,26 +65,20 @@ import org.apache.http.util.CharArrayBuffer;
  */
 public abstract class AbstractHttpClientConnection implements HttpClientConnection {
 
-    private final CharArrayBuffer buffer; 
     private final EntitySerializer entityserializer;
     private final EntityDeserializer entitydeserializer;
-    private final HttpResponseFactory responsefactory;
     
     private SessionInputBuffer inbuffer = null;
     private SessionOutputBuffer outbuffer = null;
-
-    private int maxHeaderCount = -1;
-    private int maxLineLen = -1;
-    private int maxGarbageLines = -1;
+    private HttpMessageParser responseParser = null;
+    private HttpMessageWriter requestWriter = null;
 
     private HttpConnectionMetricsImpl metrics;
     
     public AbstractHttpClientConnection() {
         super();
-        this.buffer = new CharArrayBuffer(128);
         this.entityserializer = createEntitySerializer();
         this.entitydeserializer = createEntityDeserializer();
-        this.responsefactory = createHttpResponseFactory();
     }
     
     protected abstract void assertOpen() throws IllegalStateException;
@@ -110,6 +95,19 @@ public abstract class AbstractHttpClientConnection implements HttpClientConnecti
         return new DefaultHttpResponseFactory();
     }
 
+    protected HttpMessageParser createResponseParser(
+            final SessionInputBuffer buffer,
+            final HttpResponseFactory responseFactory,
+            final HttpParams params) {
+        return new HttpResponseParser(buffer, responseFactory, params);
+    }
+
+    protected HttpMessageWriter createRequestWriter(
+            final SessionOutputBuffer buffer,
+            final HttpParams params) {
+        return new HttpRequestWriter(buffer, params);
+    }
+    
     protected void init(
             final SessionInputBuffer inbuffer,
             final SessionOutputBuffer outbuffer,
@@ -122,12 +120,10 @@ public abstract class AbstractHttpClientConnection implements HttpClientConnecti
         }
         this.inbuffer = inbuffer;
         this.outbuffer = outbuffer;
-        this.maxHeaderCount = params.getIntParameter(
-                HttpConnectionParams.MAX_HEADER_COUNT, -1);
-        this.maxLineLen = params.getIntParameter(
-                HttpConnectionParams.MAX_LINE_LENGTH, -1);
-        this.maxGarbageLines = params.getIntParameter(
-                HttpConnectionParams.MAX_STATUS_LINE_GARBAGE, Integer.MAX_VALUE);
+        this.responseParser = createResponseParser(
+                inbuffer, createHttpResponseFactory(), params);
+        this.requestWriter = createRequestWriter(
+                outbuffer, params);
         this.metrics = new HttpConnectionMetricsImpl(
                 inbuffer.getMetrics(),
                 outbuffer.getMetrics());
@@ -144,8 +140,7 @@ public abstract class AbstractHttpClientConnection implements HttpClientConnecti
             throw new IllegalArgumentException("HTTP request may not be null");
         }
         assertOpen();
-        sendRequestLine(request);
-        sendRequestHeaders(request);
+        this.requestWriter.write(request);
         this.metrics.incrementRequestCount();
     }
 
@@ -173,35 +168,10 @@ public abstract class AbstractHttpClientConnection implements HttpClientConnecti
         doFlush();
     }
     
-    protected void sendRequestLine(final HttpRequest request) 
-            throws HttpException, IOException {
-        this.buffer.clear();
-        BasicRequestLine.format(this.buffer, request.getRequestLine());
-        this.outbuffer.writeLine(this.buffer);
-    }
-
-    protected void sendRequestHeaders(final HttpRequest request) 
-            throws HttpException, IOException {
-        for (Iterator it = request.headerIterator(); it.hasNext(); ) {
-            Header header = (Header) it.next();
-            if (header instanceof BufferedHeader) {
-                // If the header is backed by a buffer, re-use the buffer
-                this.outbuffer.writeLine(((BufferedHeader)header).getBuffer());
-            } else {
-                this.buffer.clear();
-                BasicHeader.format(this.buffer, header);
-                this.outbuffer.writeLine(this.buffer);
-            }
-        }
-        this.buffer.clear();
-        this.outbuffer.writeLine(this.buffer);
-    }
-
     public HttpResponse receiveResponseHeader() 
             throws HttpException, IOException {
         assertOpen();
-        HttpResponse response = readResponseStatusLine();
-        readResponseHeaders(response);
+        HttpResponse response = (HttpResponse) this.responseParser.parse();
         if (response.getStatusLine().getStatusCode() >= 200) {
             this.metrics.incrementResponseCount();
         }
@@ -218,63 +188,6 @@ public abstract class AbstractHttpClientConnection implements HttpClientConnecti
         response.setEntity(entity);
     }
     
-    /**
-     * Tests if the string starts with 'HTTP' signature.
-     * @param buffer buffer to test
-     * @return <tt>true</tt> if the line starts with 'HTTP' 
-     *   signature, <tt>false</tt> otherwise.
-     */
-    protected static boolean startsWithHTTP(final CharArrayBuffer buffer) {
-        try {
-            int i = 0;
-            while (HTTP.isWhitespace(buffer.charAt(i))) {
-                ++i;
-            }
-            return buffer.charAt(i) == 'H' 
-                && buffer.charAt(i + 1) == 'T'
-                && buffer.charAt(i + 2) == 'T'
-                && buffer.charAt(i + 3) == 'P';
-        } catch (IndexOutOfBoundsException e) {
-            return false;
-        }
-    }
-    
-    protected HttpResponse readResponseStatusLine() 
-                throws HttpException, IOException {
-        // clear the buffer
-        this.buffer.clear();
-        //read out the HTTP status string
-        int count = 0;
-        do {
-            int i = this.inbuffer.readLine(this.buffer);
-            if (i == -1 && count == 0) {
-                // The server just dropped connection on us
-                throw new NoHttpResponseException("The target server failed to respond");
-            }
-            if (startsWithHTTP(this.buffer)) {
-                // Got one
-                break;
-            } else if (i == -1 || count >= this.maxGarbageLines) {
-                // Giving up
-                throw new ProtocolException("The server failed to respond with a " +
-                        "valid HTTP response");
-            }
-            count++;
-        } while(true);
-        //create the status line from the status string
-        StatusLine statusline = BasicStatusLine.parse(this.buffer, 0, this.buffer.length());
-        return this.responsefactory.newHttpResponse(statusline, null);
-    }
-
-    protected void readResponseHeaders(final HttpResponse response) 
-            throws HttpException, IOException {
-        Header[] headers = AbstractMessageParser.parseHeaders(
-                this.inbuffer, 
-                this.maxHeaderCount,
-                this.maxLineLen);
-        response.setHeaders(headers);
-    }
-
     public boolean isStale() {
         assertOpen();
         try {
