@@ -36,6 +36,7 @@ import java.io.InterruptedIOException;
 import java.net.Socket;
 import java.net.SocketAddress;
 import java.nio.channels.CancelledKeyException;
+import java.nio.channels.Channel;
 import java.nio.channels.SelectionKey;
 import java.nio.channels.Selector;
 import java.nio.channels.ServerSocketChannel;
@@ -168,6 +169,9 @@ public class DefaultListeningIOReactor extends AbstractMultiworkerIOReactor
 
     public SocketAddress listen(
             final SocketAddress address) throws IOException {
+        if (this.closed) {
+            throw new IllegalStateException("I/O reactor has been shut down");
+        }
         ServerSocketChannel serverChannel = ServerSocketChannel.open();
         serverChannel.configureBlocking(false);
         serverChannel.socket().bind(address);
@@ -181,8 +185,22 @@ public class DefaultListeningIOReactor extends AbstractMultiworkerIOReactor
             return;
         }
         this.closed = true;
+        
+        // Close out all channels
+        Set keys = this.selector.keys();
+        for (Iterator it = keys.iterator(); it.hasNext(); ) {
+            try {
+                SelectionKey key = (SelectionKey) it.next();
+                Channel channel = key.channel();
+                if (channel != null) {
+                    channel.close();
+                }
+            } catch (IOException ignore) {
+            }
+        }
         // Stop dispatching I/O events
         this.selector.close();
+        
         // Stop the workers
         stopWorkers(500);
     }

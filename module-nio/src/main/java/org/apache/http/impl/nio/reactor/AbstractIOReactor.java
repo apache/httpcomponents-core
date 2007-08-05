@@ -34,6 +34,7 @@ package org.apache.http.impl.nio.reactor;
 import java.io.IOException;
 import java.io.InterruptedIOException;
 import java.nio.channels.CancelledKeyException;
+import java.nio.channels.Channel;
 import java.nio.channels.ClosedSelectorException;
 import java.nio.channels.SelectionKey;
 import java.nio.channels.Selector;
@@ -248,6 +249,18 @@ public abstract class AbstractIOReactor implements IOReactor {
             return;
         }
         this.closed = true;
+        // Close out all channels
+        Set keys = this.selector.keys();
+        for (Iterator it = keys.iterator(); it.hasNext(); ) {
+            try {
+                SelectionKey key = (SelectionKey) it.next();
+                Channel channel = key.channel();
+                if (channel != null) {
+                    channel.close();
+                }
+            } catch (IOException ignore) {
+            }
+        }
         // Stop dispatching I/O events
         try {
             this.selector.close();
