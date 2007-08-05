@@ -276,7 +276,6 @@ public class TestNIOSSLHttp extends TestCase {
                     try {
                         conn.close();
                     } catch (IOException ex) {
-                        fail(ex.getMessage());
                     }
                 }
             }
@@ -306,7 +305,7 @@ public class TestNIOSSLHttp extends TestCase {
                     responseData[i]);
         }
      
-        clientEventListener.await(connNo, 1000);
+        clientEventListener.await(connNo, 10000);
         assertEquals(connNo, clientEventListener.getConnCount());
         
         this.client.shutdown();
@@ -422,7 +421,6 @@ public class TestNIOSSLHttp extends TestCase {
                     try {
                         conn.close();
                     } catch (IOException ex) {
-                        fail(ex.getMessage());
                     }
                 }
             }
@@ -452,7 +450,7 @@ public class TestNIOSSLHttp extends TestCase {
                     responseData[i]);
         }
      
-        clientEventListener.await(connNo, 1000);
+        clientEventListener.await(connNo, 10000);
         assertEquals(connNo, clientEventListener.getConnCount());
         
         this.client.shutdown();
@@ -568,7 +566,6 @@ public class TestNIOSSLHttp extends TestCase {
                     try {
                         conn.close();
                     } catch (IOException ex) {
-                        fail(ex.getMessage());
                     }
                 }
             }
@@ -598,7 +595,7 @@ public class TestNIOSSLHttp extends TestCase {
                     responseData[i]);
         }
      
-        clientEventListener.await(connNo, 1000);
+        clientEventListener.await(connNo, 10000);
         assertEquals(connNo, clientEventListener.getConnCount());
         
         this.client.shutdown();
@@ -719,7 +716,6 @@ public class TestNIOSSLHttp extends TestCase {
                     try {
                         conn.close();
                     } catch (IOException ex) {
-                        fail(ex.getMessage());
                     }
                 }
             }
@@ -749,7 +745,7 @@ public class TestNIOSSLHttp extends TestCase {
                     responseData[i]);
         }
      
-        clientEventListener.await(connNo, 1000);
+        clientEventListener.await(connNo, 10000);
         assertEquals(connNo, clientEventListener.getConnCount());
         
         this.client.shutdown();

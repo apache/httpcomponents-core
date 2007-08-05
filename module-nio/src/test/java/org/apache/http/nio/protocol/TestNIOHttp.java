@@ -370,7 +370,6 @@ public class TestNIOHttp extends TestCase {
                     try {
                         conn.close();
                     } catch (IOException ex) {
-                        fail(ex.getMessage());
                     }
                 }
             }
@@ -400,7 +399,7 @@ public class TestNIOHttp extends TestCase {
                     responseData[i]);
         }
      
-        clientEventListener.await(connNo, 1000);
+        clientEventListener.await(connNo, 10000);
         assertEquals(connNo, clientEventListener.getConnCount());
         
         this.client.shutdown();
@@ -515,7 +514,6 @@ public class TestNIOHttp extends TestCase {
                     try {
                         conn.close();
                     } catch (IOException ex) {
-                        fail(ex.getMessage());
                     }
                 }
             }
@@ -545,7 +543,7 @@ public class TestNIOHttp extends TestCase {
                     responseData[i]);
         }
      
-        clientEventListener.await(connNo, 1000);
+        clientEventListener.await(connNo, 10000);
         assertEquals(connNo, clientEventListener.getConnCount());
         
         this.client.shutdown();
@@ -660,7 +658,6 @@ public class TestNIOHttp extends TestCase {
                     try {
                         conn.close();
                     } catch (IOException ex) {
-                        fail(ex.getMessage());
                     }
                 }
             }
@@ -690,7 +687,7 @@ public class TestNIOHttp extends TestCase {
                     responseData[i]);
         }
      
-        clientEventListener.await(connNo, 1000);
+        clientEventListener.await(connNo, 10000);
         assertEquals(connNo, clientEventListener.getConnCount());
         
         this.client.shutdown();
@@ -810,7 +807,6 @@ public class TestNIOHttp extends TestCase {
                     try {
                         conn.close();
                     } catch (IOException ex) {
-                        fail(ex.getMessage());
                     }
                 }
             }
@@ -840,7 +836,7 @@ public class TestNIOHttp extends TestCase {
                     responseData[i]);
         }
      
-        clientEventListener.await(connNo, 1000);
+        clientEventListener.await(connNo, 10000);
         assertEquals(connNo, clientEventListener.getConnCount());
         
         this.client.shutdown();
@@ -958,7 +954,6 @@ public class TestNIOHttp extends TestCase {
                     try {
                         conn.close();
                     } catch (IOException ex) {
-                        fail(ex.getMessage());
                     }
                 }
             }
@@ -988,7 +983,7 @@ public class TestNIOHttp extends TestCase {
                     responseData[i]);
         }
      
-        clientEventListener.await(connNo, 1000);
+        clientEventListener.await(connNo, 10000);
         assertEquals(connNo, clientEventListener.getConnCount());
         
         this.client.shutdown();
@@ -1111,7 +1106,6 @@ public class TestNIOHttp extends TestCase {
                     try {
                         conn.close();
                     } catch (IOException ex) {
-                        fail(ex.getMessage());
                     }
                 }
             }
@@ -1238,7 +1232,6 @@ public class TestNIOHttp extends TestCase {
                     try {
                         conn.close();
                     } catch (IOException ex) {
-                        fail(ex.getMessage());
                     }
                 }
             }
@@ -1270,7 +1263,7 @@ public class TestNIOHttp extends TestCase {
                     responseData[i]);
         }
      
-        clientEventListener.await(connNo, 1000);
+        clientEventListener.await(connNo, 10000);
         assertEquals(connNo, clientEventListener.getConnCount());
 
         List[] responseDataGET = responseData; 
@@ -1288,7 +1281,7 @@ public class TestNIOHttp extends TestCase {
                     responseData[i]);
         }
      
-        clientEventListener.await(connNo * 2, 1000);
+        clientEventListener.await(connNo * 2, 10000);
         assertEquals(connNo * 2, clientEventListener.getConnCount());
         
         this.client.shutdown();
