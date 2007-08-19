@@ -64,7 +64,7 @@ public abstract class AbstractMessageParser implements HttpMessageParser {
         if (buffer == null) {
             throw new IllegalArgumentException("Session input buffer may not be null");
         }
-        if (buffer == null) {
+        if (params == null) {
             throw new IllegalArgumentException("HTTP parameters may not be null");
         }
         this.sessionBuffer = buffer;
