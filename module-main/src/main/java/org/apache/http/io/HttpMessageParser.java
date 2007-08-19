@@ -37,7 +37,7 @@ import org.apache.http.HttpException;
 import org.apache.http.HttpMessage;
 
 /**
- * Abstract HTTP message parser for blocking connections.
+ * Generic message parser interface.
  *
  * @author <a href="mailto:oleg at ural.ru">Oleg Kalnichevski</a>
  *
