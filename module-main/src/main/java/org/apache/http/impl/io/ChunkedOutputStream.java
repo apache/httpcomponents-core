@@ -80,7 +80,8 @@ public class ChunkedOutputStream extends OutputStream {
     /**
      * Wraps a session output buffer and chunks the output. The default buffer 
      * size of 2048 was chosen because the chunk overhead is less than 0.5%
-     * @param datatransmitter the transmitter to wrap
+     *
+     * @param out       the output buffer to wrap
      * @throws IOException
      */
     public ChunkedOutputStream(final SessionOutputBuffer out) 
