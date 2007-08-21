@@ -37,7 +37,7 @@ import org.apache.http.ProtocolException;
 import org.apache.http.StatusLine;
 import org.apache.http.protocol.HTTP;
 import org.apache.http.util.CharArrayBuffer;
-//import org.apache.http.impl.EnglishReasonPhraseCatalog;
+
 
 
 /**
@@ -89,88 +89,6 @@ public class BasicStatusLine implements StatusLine {
         this.httpVersion = httpVersion;
         this.statusCode = statusCode;
         this.reasonPhrase = reasonPhrase;
-    }
-
-    /**
-     * Parses the status line returned from the HTTP server.
-     *
-     * @param buffer    the buffer from which to parse
-     * @param indexFrom where to start parsing in the buffer
-     * @param indexTo   where to stop parsing in the buffer
-     * 
-     * @throws HttpException if the status line is invalid
-     */
-    public static StatusLine parse(
-            final CharArrayBuffer buffer, final int indexFrom, final int indexTo) 
-            throws ProtocolException {
-        if (buffer == null) {
-            throw new IllegalArgumentException("Char array buffer may not be null");
-        }
-        if (indexFrom < 0) {
-            throw new IndexOutOfBoundsException();
-        }
-        if (indexTo > buffer.length()) {
-            throw new IndexOutOfBoundsException();
-        }
-        if (indexFrom > indexTo) {
-            throw new IndexOutOfBoundsException();
-        }
-        try {
-            int i = indexFrom;
-            //handle the HTTP-Version
-            while (HTTP.isWhitespace(buffer.charAt(i))) {
-                i++;
-            }            
-            int blank = buffer.indexOf(' ', i, indexTo);
-            if (blank <= 0) {
-                throw new ProtocolException(
-                        "Unable to parse HTTP-Version from the status line: "
-                        + buffer.substring(indexFrom, indexTo));
-            }
-            HttpVersion ver = BasicHttpVersionFormat.parse(buffer, i, blank);
-
-            i = blank;
-            //advance through spaces
-            while (HTTP.isWhitespace(buffer.charAt(i))) {
-                i++;
-            }            
-
-            //handle the Status-Code
-            blank = buffer.indexOf(' ', i, indexTo);
-            if (blank < 0) {
-                blank = indexTo;
-            }
-            int statusCode = 0;
-            try {
-                statusCode = Integer.parseInt(buffer.substringTrimmed(i, blank));
-            } catch (NumberFormatException e) {
-                throw new ProtocolException(
-                    "Unable to parse status code from status line: " 
-                    + buffer.substring(indexFrom, indexTo));
-            }
-            //handle the Reason-Phrase
-            i = blank;
-            String reasonPhrase = null;
-            if (i < indexTo) {
-                reasonPhrase = buffer.substringTrimmed(i, indexTo);
-            } else {
-                reasonPhrase = "";
-            }
-            return new BasicStatusLine(ver, statusCode, reasonPhrase);
-        } catch (IndexOutOfBoundsException e) {
-            throw new ProtocolException("Invalid status line: " + 
-                    buffer.substring(indexFrom, indexTo)); 
-        }
-    }
-
-    public static final StatusLine parse(final String s)
-            throws ProtocolException {
-        if (s == null) {
-            throw new IllegalArgumentException("String may not be null");
-        }
-        CharArrayBuffer buffer = new CharArrayBuffer(s.length()); 
-        buffer.append(s);
-        return parse(buffer, 0, buffer.length());
     }
 
     // --------------------------------------------------------- Public Methods

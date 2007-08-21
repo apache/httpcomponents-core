@@ -33,6 +33,7 @@ package org.apache.http.message;
 import org.apache.http.HttpException;
 import org.apache.http.HttpVersion;
 import org.apache.http.RequestLine;
+import org.apache.http.StatusLine;
 import org.apache.http.message.BasicRequestLine;
 import org.apache.http.util.CharArrayBuffer;
 
@@ -82,7 +83,7 @@ public class TestBasicLineParser extends TestCase {
         assertEquals("/stuff", requestline.getUri());
         assertEquals(HttpVersion.HTTP_1_1, requestline.getHttpVersion());
 
-        //this is not strictly valid, but is lienent
+        //this is not strictly valid, but is lenient
         requestline = BasicLineParser.parseRequestLine
             ("\rGET /stuff HTTP/1.1", null);
         assertEquals("GET", requestline.getMethod());
@@ -94,22 +95,30 @@ public class TestBasicLineParser extends TestCase {
         try {
             BasicLineParser.parseRequestLine("    ", null);
             fail();
-        } catch (HttpException e) { /* expected */ }
+        } catch (HttpException e) {
+            // expected
+        }
 
         try {
             BasicLineParser.parseRequestLine("  GET", null);
             fail();
-        } catch (HttpException e) { /* expected */ }
+        } catch (HttpException e) {
+            // expected
+        }
 
         try {
             BasicLineParser.parseRequestLine("GET /stuff", null);
             fail();
-        } catch (HttpException e) { /* expected */ }
+        } catch (HttpException e) {
+            // expected
+        }
 
         try {
             BasicLineParser.parseRequestLine("GET/stuff HTTP/1.1", null);
             fail();
-        } catch (HttpException e) { /* expected */ }
+        } catch (HttpException e) {
+            // expected
+        }
     }
 
     public void testRLParseInvalidInput() throws Exception {
@@ -141,6 +150,130 @@ public class TestBasicLineParser extends TestCase {
         }
         try {
             BasicLineParser.DEFAULT.parseRequestLine(buffer, 2, 1);
+            fail("IllegalArgumentException should have been thrown");
+        } catch (IndexOutOfBoundsException ex) {
+            // expected
+        }
+    }
+
+
+        
+    public void testSLParseSuccess() throws Exception {
+        //typical status line
+        StatusLine statusLine = BasicLineParser.parseStatusLine
+            ("HTTP/1.1 200 OK", null);
+        assertEquals("HTTP/1.1 200 OK", statusLine.toString());
+        assertEquals(HttpVersion.HTTP_1_1, statusLine.getHttpVersion());
+        assertEquals(200, statusLine.getStatusCode());
+        assertEquals("OK", statusLine.getReasonPhrase());
+
+        //status line with multi word reason phrase
+        statusLine = BasicLineParser.parseStatusLine
+            ("HTTP/1.1 404 Not Found", null);
+        assertEquals(404, statusLine.getStatusCode());
+        assertEquals("Not Found", statusLine.getReasonPhrase());
+
+        //reason phrase can be anyting
+        statusLine = BasicLineParser.parseStatusLine
+            ("HTTP/1.1 404 Non Trouve", null);
+        assertEquals("Non Trouve", statusLine.getReasonPhrase());
+
+        //its ok to end with a \n\r
+        statusLine = BasicLineParser.parseStatusLine
+            ("HTTP/1.1 404 Not Found\r\n", null);
+        assertEquals("Not Found", statusLine.getReasonPhrase());
+
+        //this is valid according to the Status-Line BNF
+        statusLine = BasicLineParser.parseStatusLine
+            ("HTTP/1.1 200 ", null);
+        assertEquals(200, statusLine.getStatusCode());
+        assertEquals("", statusLine.getReasonPhrase());
+
+        //this is not strictly valid, but is lenient
+        statusLine = BasicLineParser.parseStatusLine
+            ("HTTP/1.1 200", null);
+        assertEquals(200, statusLine.getStatusCode());
+        assertEquals("", statusLine.getReasonPhrase());
+
+        //this is not strictly valid, but is lenient
+        statusLine = BasicLineParser.parseStatusLine
+            ("HTTP/1.1     200 OK", null);
+        assertEquals(200, statusLine.getStatusCode());
+        assertEquals("OK", statusLine.getReasonPhrase());
+
+        //this is not strictly valid, but is lenient
+        statusLine = BasicLineParser.parseStatusLine
+            ("\rHTTP/1.1 200 OK", null);
+        assertEquals(200, statusLine.getStatusCode());
+        assertEquals("OK", statusLine.getReasonPhrase());
+        assertEquals(HttpVersion.HTTP_1_1, statusLine.getHttpVersion());
+
+        //this is not strictly valid, but is lenient
+        statusLine = BasicLineParser.parseStatusLine
+            ("  HTTP/1.1 200 OK", null);
+        assertEquals(200, statusLine.getStatusCode());
+        assertEquals("OK", statusLine.getReasonPhrase());
+        assertEquals(HttpVersion.HTTP_1_1, statusLine.getHttpVersion());
+    }
+
+    public void testSLParseFailure() throws Exception {
+        try {
+            BasicLineParser.parseStatusLine("xxx 200 OK", null);
+            fail();
+        } catch (HttpException e) {
+            // expected
+        }
+
+        try {
+            BasicLineParser.parseStatusLine("HTTP/1.1 xxx OK", null);
+            fail();
+        } catch (HttpException e) {
+            // expected
+        }
+
+        try {
+            BasicLineParser.parseStatusLine("HTTP/1.1    ", null);
+            fail();
+        } catch (HttpException e) {
+            // expected
+        }
+        try {
+            BasicLineParser.parseStatusLine("HTTP/1.1", null);
+            fail();
+        } catch (HttpException e) {
+            // expected
+        }
+    }
+
+    public void testSLParseInvalidInput() throws Exception {
+        CharArrayBuffer buffer = new CharArrayBuffer(32);
+        buffer.append("HTTP/1.1 200 OK");
+        try {
+            BasicLineParser.parseStatusLine(null, null);
+            fail("IllegalArgumentException should have been thrown");
+        } catch (IllegalArgumentException ex) {
+            // expected
+        }
+        try {
+            BasicLineParser.DEFAULT.parseStatusLine(null, 0, 0);
+            fail("IllegalArgumentException should have been thrown");
+        } catch (IllegalArgumentException ex) {
+            // expected
+        }
+        try {
+            BasicLineParser.DEFAULT.parseStatusLine(buffer, -1, 0);
+            fail("IllegalArgumentException should have been thrown");
+        } catch (IndexOutOfBoundsException ex) {
+            // expected
+        }
+        try {
+            BasicLineParser.DEFAULT.parseStatusLine(buffer, 0, 1000);
+            fail("IllegalArgumentException should have been thrown");
+        } catch (IndexOutOfBoundsException ex) {
+            // expected
+        }
+        try {
+            BasicLineParser.DEFAULT.parseStatusLine(buffer, 2, 1);
             fail("IllegalArgumentException should have been thrown");
         } catch (IndexOutOfBoundsException ex) {
             // expected
