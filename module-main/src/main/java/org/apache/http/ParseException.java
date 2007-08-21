@@ -62,13 +62,4 @@ public class ParseException extends RuntimeException {
         super(message);
     }
 
-    /**
-     * Creates a {@link ParseException} with a detail message and root cause.
-     * 
-     * @param message the exception detail message, or <code>null</code>
-     * @param cause the root cause of this exception, or <tt>null</tt>
-     */
-    public ParseException(String message, Throwable cause) {
-        super(message, cause);
-    }
 }

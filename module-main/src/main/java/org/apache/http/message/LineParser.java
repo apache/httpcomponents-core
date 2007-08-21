@@ -68,9 +68,9 @@ public interface LineParser {
      *
      * @throws ProtocolException        in case of a parse error
      */
-    public HttpVersion parseProtocolVersion(final CharArrayBuffer buffer,
-                                            final int indexFrom,
-                                            final int indexTo) 
+    HttpVersion parseProtocolVersion(CharArrayBuffer buffer,
+                                     int indexFrom,
+                                     int indexTo) 
         throws ProtocolException
         ;
 
@@ -84,9 +84,9 @@ public interface LineParser {
      *
      * @throws ProtocolException        in case of a parse error
      */
-    public RequestLine parseRequestLine(final CharArrayBuffer buffer,
-                                        final int indexFrom,
-                                        final int indexTo)
+    RequestLine parseRequestLine(CharArrayBuffer buffer,
+                                 int indexFrom,
+                                 int indexTo)
         throws ProtocolException
         ;
 
@@ -100,9 +100,9 @@ public interface LineParser {
      *
      * @throws ProtocolException        in case of a parse error
      */
-    public StatusLine parseStatusLine(final CharArrayBuffer buffer,
-                                      final int indexFrom,
-                                      final int indexTo) 
+    StatusLine parseStatusLine(CharArrayBuffer buffer,
+                               int indexFrom,
+                               int indexTo) 
         throws ProtocolException
         ;
 
@@ -122,7 +122,7 @@ public interface LineParser {
      *
      * @throws ProtocolException        in case of a parse error
      */
-    public Header parseHeader(CharArrayBuffer buffer)
+    Header parseHeader(CharArrayBuffer buffer)
         throws ProtocolException
         ;
 

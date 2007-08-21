@@ -31,8 +31,6 @@
 
 package org.apache.http.message;
 
-
-import org.apache.http.HttpStatus;
 import org.apache.http.HttpVersion;
 import org.apache.http.ParseException;
 import org.apache.http.ProtocolException;

@@ -86,9 +86,9 @@ public interface HeaderValueParser {
      *
      * @throws ParseException        in case of a parse error
      */
-    public HeaderElement[] parseElements(final CharArrayBuffer buffer,
-                                         final int indexFrom,
-                                         final int indexTo)
+    HeaderElement[] parseElements(CharArrayBuffer buffer,
+                                  int indexFrom,
+                                  int indexTo)
         throws ParseException
         ;
 
@@ -173,9 +173,9 @@ public interface HeaderValueParser {
      *
      * @throws ParseException        in case of a parse error
      */
-    public NameValuePair[] parseParameters(final CharArrayBuffer buffer,
-                                           final int indexFrom,
-                                           final int indexTo)
+    NameValuePair[] parseParameters(CharArrayBuffer buffer,
+                                    int indexFrom,
+                                    int indexTo)
         throws ParseException
         ;
 
