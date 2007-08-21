@@ -32,6 +32,7 @@ package org.apache.http.message;
 
 import org.apache.http.HttpException;
 import org.apache.http.HttpVersion;
+import org.apache.http.ProtocolException;
 import org.apache.http.RequestLine;
 import org.apache.http.StatusLine;
 import org.apache.http.message.BasicRequestLine;
@@ -274,6 +275,137 @@ public class TestBasicLineParser extends TestCase {
         }
         try {
             BasicLineParser.DEFAULT.parseStatusLine(buffer, 2, 1);
+            fail("IllegalArgumentException should have been thrown");
+        } catch (IndexOutOfBoundsException ex) {
+            // expected
+        }
+    }
+
+
+    
+    public void testHttpVersionParsing() throws Exception {
+        new HttpVersion(1, 1);
+        String s = "HTTP/1.1";
+        HttpVersion version = BasicLineParser.parseProtocolVersion(s, null);
+        assertEquals("HTTP major version number", 1, version.getMajor());
+        assertEquals("HTTP minor version number", 1, version.getMinor());
+        assertEquals("HTTP version number", s, version.toString());
+
+        s = "HTTP/123.4567";
+        version = BasicLineParser.parseProtocolVersion(s, null);
+        assertEquals("HTTP major version number", 123, version.getMajor());
+        assertEquals("HTTP minor version number", 4567, version.getMinor());
+        assertEquals("HTTP version number", s, version.toString());
+    }
+
+    public void testInvalidHttpVersionParsing() throws Exception {
+        try {
+            BasicLineParser.parseProtocolVersion(null, null);
+            fail("IllegalArgumentException should have been thrown");
+        } catch (IllegalArgumentException e) {
+            //expected
+        }
+        try {
+            BasicLineParser.parseProtocolVersion
+                ("    ", null);
+            fail("ProtocolException should have been thrown");
+        } catch (ProtocolException e) {
+            //expected
+        }
+        try {
+            BasicLineParser.parseProtocolVersion
+                ("HTT", null);
+            fail("ProtocolException should have been thrown");
+        } catch (ProtocolException e) {
+            //expected
+        }
+        try {
+            BasicLineParser.parseProtocolVersion
+                ("crap", null);
+            fail("ProtocolException should have been thrown");
+        } catch (ProtocolException e) {
+            //expected
+        }
+        try {
+            BasicLineParser.parseProtocolVersion
+                ("HTTP/crap", null);
+            fail("ProtocolException should have been thrown");
+        } catch (ProtocolException e) {
+            //expected
+        }
+        try {
+            BasicLineParser.parseProtocolVersion
+                ("HTTP/1", null);
+            fail("ProtocolException should have been thrown");
+        } catch (ProtocolException e) {
+            //expected
+        }
+        try {
+            BasicLineParser.parseProtocolVersion
+                ("HTTP/1234   ", null);
+            fail("ProtocolException should have been thrown");
+        } catch (ProtocolException e) {
+            //expected
+        }
+        try {
+            BasicLineParser.parseProtocolVersion
+                ("HTTP/1.", null);
+            fail("ProtocolException should have been thrown");
+        } catch (ProtocolException e) {
+            //expected
+        }
+        try {
+            BasicLineParser.parseProtocolVersion
+                ("HTTP/1.1 crap", null);
+            fail("ProtocolException should have been thrown");
+        } catch (ProtocolException e) {
+            //expected
+        }
+        try {
+            BasicLineParser.parseProtocolVersion
+                ("HTTP/whatever.whatever whatever", null);
+            fail("ProtocolException should have been thrown");
+        } catch (ProtocolException e) {
+            //expected
+        }
+        try {
+            BasicLineParser.parseProtocolVersion
+                ("HTTP/1.whatever whatever", null);
+            fail("ProtocolException should have been thrown");
+        } catch (ProtocolException e) {
+            //expected
+        }
+    }
+
+    public void testHttpVersionParsingInvalidInput() throws Exception {
+        CharArrayBuffer buffer = new CharArrayBuffer(32);
+        buffer.append("HTTP/1.1");
+        try {
+            BasicLineParser.parseProtocolVersion(null, null);
+            fail("IllegalArgumentException should have been thrown");
+        } catch (IllegalArgumentException ex) {
+            // expected
+        }
+        try {
+            BasicLineParser.DEFAULT.parseProtocolVersion(null, 0, 0);
+            fail("IllegalArgumentException should have been thrown");
+        } catch (IllegalArgumentException ex) {
+            // expected
+        }
+        try {
+            BasicLineParser.DEFAULT.parseProtocolVersion(buffer, -1, 0);
+            fail("IllegalArgumentException should have been thrown");
+        } catch (IndexOutOfBoundsException ex) {
+            // expected
+        }
+        try {
+            BasicLineParser.DEFAULT.parseProtocolVersion(buffer, 0, 1000);
+            fail("IllegalArgumentException should have been thrown");
+        } catch (IndexOutOfBoundsException ex) {
+            // expected
+        }
+        try {
+            BasicLineParser.DEFAULT.parseProtocolVersion(buffer, 2, 1);
             fail("IllegalArgumentException should have been thrown");
         } catch (IndexOutOfBoundsException ex) {
             // expected

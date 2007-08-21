@@ -50,77 +50,9 @@ import org.apache.http.util.CharArrayBuffer;
  */
 public class BasicHttpVersionFormat {
 
-    /**
-     * Parses the textual representation of the given HTTP protocol version.
-     * 
-     * @return HTTP protocol version.
-     * 
-     * @throws ProtocolException if the string is not a valid HTTP protocol version. 
-     */
-    public static HttpVersion parse(
-            final CharArrayBuffer buffer, final int indexFrom, final int indexTo) 
-            throws ProtocolException {
-        if (buffer == null) {
-            throw new IllegalArgumentException("Char array buffer may not be null");
-        }
-        if (indexFrom < 0) {
-            throw new IndexOutOfBoundsException();
-        }
-        if (indexTo > buffer.length()) {
-            throw new IndexOutOfBoundsException();
-        }
-        if (indexFrom > indexTo) {
-            throw new IndexOutOfBoundsException();
-        }
-        try {
-            int major, minor;
-
-            int i = indexFrom;
-            while (HTTP.isWhitespace(buffer.charAt(i))) {
-                i++;
-            }            
-            if (buffer.charAt(i    ) != 'H' 
-             || buffer.charAt(i + 1) != 'T'
-             || buffer.charAt(i + 2) != 'T'
-             || buffer.charAt(i + 3) != 'P'
-             || buffer.charAt(i + 4) != '/') {
-                throw new ProtocolException("Not a valid HTTP version string: " + 
-                        buffer.substring(indexFrom, indexTo));
-            }
-            i += 5;
-            int period = buffer.indexOf('.', i, indexTo);
-            if (period == -1) {
-                throw new ProtocolException("Invalid HTTP version number: " + 
-                        buffer.substring(indexFrom, indexTo));
-            }
-            try {
-                major = Integer.parseInt(buffer.substringTrimmed(i, period)); 
-            } catch (NumberFormatException e) {
-                throw new ProtocolException("Invalid HTTP major version number: " + 
-                        buffer.substring(indexFrom, indexTo));
-            }
-            try {
-                minor = Integer.parseInt(buffer.substringTrimmed(period + 1, indexTo)); 
-            } catch (NumberFormatException e) {
-                throw new ProtocolException("Invalid HTTP minor version number: " + 
-                        buffer.substring(indexFrom, indexTo));
-            }
-            return new HttpVersion(major, minor);
-            
-        } catch (IndexOutOfBoundsException e) {
-            throw new ProtocolException("Invalid HTTP version string: " + 
-                    buffer.substring(indexFrom, indexTo)); 
-        }
-    }
-
-    public static final HttpVersion parse(final String s)
-            throws ProtocolException {
-        if (s == null) {
-            throw new IllegalArgumentException("String may not be null");
-        }
-        CharArrayBuffer buffer = new CharArrayBuffer(s.length()); 
-        buffer.append(s);
-        return parse(buffer, 0, buffer.length());
+    /** Disabled default constructor. */
+    private BasicHttpVersionFormat() {
+        // no body
     }
 
     public static void format(final CharArrayBuffer buffer, final HttpVersion ver) {
