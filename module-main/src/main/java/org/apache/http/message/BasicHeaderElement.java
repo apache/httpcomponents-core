@@ -71,10 +71,6 @@ import org.apache.http.util.LangUtils;
  * both a name/value pair (value may be <tt>null</tt>) and optionally
  * a set of additional parameters.
  * </p>
- * <p>
- * This class also exposes a {@link #parse} method for parsing a
- * {@link org.apache.http.Header} value into an array of elements.
- * </p>
  *
  * @author <a href="mailto:bcholmes@interlog.com">B.C. Holmes</a>
  * @author <a href="mailto:jericho@thinkfree.com">Park, Sung-Gu</a>

@@ -381,7 +381,7 @@ public class BasicHeaderValueParser implements HeaderValueParser {
 
     /**
      * Creates a name-value pair.
-     * Called from {@link #parseNameValue}.
+     * Called from {@link #parseNameValuePair}.
      *
      * @param name      the name
      * @param value     the value, or <code>null</code>

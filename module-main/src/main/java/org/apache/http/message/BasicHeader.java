@@ -126,7 +126,7 @@ public class BasicHeader implements Header {
     /**
      * Returns an array of {@link HeaderElement}s constructed from my value.
      *
-     * @see BasicHeaderElement#parseAll
+     * @see BasicHeaderValueParser#parseElements
      * 
      * @return an array of header elements
      */

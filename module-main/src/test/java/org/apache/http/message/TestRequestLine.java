@@ -77,92 +77,13 @@ public class TestRequestLine extends TestCase {
             fail("IllegalArgumentException should have been thrown");
         } catch (IllegalArgumentException e) { /* expected */ }
         try {
-            new BasicRequestLine("GEt", null, HttpVersion.HTTP_1_1);
+            new BasicRequestLine("GET", null, HttpVersion.HTTP_1_1);
             fail("IllegalArgumentException should have been thrown");
         } catch (IllegalArgumentException e) { /* expected */ }
         try {
             new BasicRequestLine("GET", "/stuff", (HttpVersion)null);
             fail("IllegalArgumentException should have been thrown");
         } catch (IllegalArgumentException e) { /* expected */ }
-    }
-        
-    public void testParseSuccess() throws Exception {
-        //typical request line
-        RequestLine requestline = BasicRequestLine.parse("GET /stuff HTTP/1.1");
-        assertEquals("GET /stuff HTTP/1.1", requestline.toString());
-        assertEquals("GET", requestline.getMethod());
-        assertEquals("/stuff", requestline.getUri());
-        assertEquals(HttpVersion.HTTP_1_1, requestline.getHttpVersion());
-
-        //Lots of blanks
-        requestline = BasicRequestLine.parse("  GET    /stuff   HTTP/1.1   ");
-        assertEquals("GET /stuff HTTP/1.1", requestline.toString());
-        assertEquals("GET", requestline.getMethod());
-        assertEquals("/stuff", requestline.getUri());
-        assertEquals(HttpVersion.HTTP_1_1, requestline.getHttpVersion());
-
-        //this is not strictly valid, but is lienent
-        requestline = BasicRequestLine.parse("\rGET /stuff HTTP/1.1");
-        assertEquals("GET", requestline.getMethod());
-        assertEquals("/stuff", requestline.getUri());
-        assertEquals(HttpVersion.HTTP_1_1, requestline.getHttpVersion());
-    }
-
-    public void testParseFailure() throws Exception {
-        try {
-            BasicRequestLine.parse("    ");
-            fail();
-        } catch (HttpException e) { /* expected */ }
-
-        try {
-            BasicRequestLine.parse("  GET");
-            fail();
-        } catch (HttpException e) { /* expected */ }
-
-        try {
-            BasicRequestLine.parse("GET /stuff");
-            fail();
-        } catch (HttpException e) { /* expected */ }
-
-        try {
-            BasicRequestLine.parse("GET/stuff HTTP/1.1");
-            fail();
-        } catch (HttpException e) { /* expected */ }
-    }
-
-    public void testParseInvalidInput() throws Exception {
-        CharArrayBuffer buffer = new CharArrayBuffer(32);
-        buffer.append("GET /stuff HTTP/1.1");
-        try {
-            BasicRequestLine.parse(null, 0, 0);
-            fail("IllegalArgumentException should have been thrown");
-        } catch (IllegalArgumentException ex) {
-            // expected
-        }
-        try {
-            BasicRequestLine.parse(null);
-            fail("IllegalArgumentException should have been thrown");
-        } catch (IllegalArgumentException ex) {
-            // expected
-        }
-        try {
-            BasicRequestLine.parse(buffer, -1, 0);
-            fail("IllegalArgumentException should have been thrown");
-        } catch (IndexOutOfBoundsException ex) {
-            // expected
-        }
-        try {
-            BasicRequestLine.parse(buffer, 0, 1000);
-            fail("IllegalArgumentException should have been thrown");
-        } catch (IndexOutOfBoundsException ex) {
-            // expected
-        }
-        try {
-            BasicRequestLine.parse(buffer, 2, 1);
-            fail("IllegalArgumentException should have been thrown");
-        } catch (IndexOutOfBoundsException ex) {
-            // expected
-        }
     }
 
     public void testFormatting() throws Exception {

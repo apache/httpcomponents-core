@@ -78,6 +78,25 @@ public class BasicLineParser implements LineParser {
     // public default constructor
 
 
+    public final static
+        HttpVersion parseProtocolVersion(String value,
+                                         LineParser parser)
+        throws ProtocolException {
+
+        if (value == null) {
+            throw new IllegalArgumentException
+                ("Value to parse may not be null.");
+        }
+
+        if (parser == null)
+            parser = BasicLineParser.DEFAULT;
+
+        CharArrayBuffer buffer = new CharArrayBuffer(value.length());
+        buffer.append(value);
+        return parser.parseProtocolVersion(buffer, 0, buffer.length());
+    }
+
+
     // non-javadoc, see interface LineParser
     public HttpVersion parseProtocolVersion(final CharArrayBuffer buffer,
                                             final int indexFrom,
@@ -153,6 +172,26 @@ public class BasicLineParser implements LineParser {
     }
 
 
+
+    public final static
+        RequestLine parseRequestLine(String value,
+                                     LineParser parser)
+        throws ProtocolException {
+
+        if (value == null) {
+            throw new IllegalArgumentException
+                ("Value to parse may not be null.");
+        }
+
+        if (parser == null)
+            parser = BasicLineParser.DEFAULT;
+
+        CharArrayBuffer buffer = new CharArrayBuffer(value.length());
+        buffer.append(value);
+        return parser.parseRequestLine(buffer, 0, buffer.length());
+    }
+
+
     /**
      * Parses a request line.
      *
@@ -225,6 +264,26 @@ public class BasicLineParser implements LineParser {
                                             String uri,
                                             HttpVersion ver) {
         return new BasicRequestLine(method, uri, ver);
+    }
+
+
+
+    public final static
+        StatusLine parseStatusLine(String value,
+                                   LineParser parser)
+        throws ProtocolException {
+
+        if (value == null) {
+            throw new IllegalArgumentException
+                ("Value to parse may not be null.");
+        }
+
+        if (parser == null)
+            parser = BasicLineParser.DEFAULT;
+
+        CharArrayBuffer buffer = new CharArrayBuffer(value.length());
+        buffer.append(value);
+        return parser.parseStatusLine(buffer, 0, buffer.length());
     }
 
 
@@ -312,6 +371,26 @@ public class BasicLineParser implements LineParser {
     protected StatusLine createStatusLine(HttpVersion ver,
                                           int status, String reason) {
         return new BasicStatusLine(ver, status, reason);
+    }
+
+
+
+    public final static
+        Header parseHeader(String value, 
+                           LineParser parser)
+        throws ProtocolException {
+
+        if (value == null) {
+            throw new IllegalArgumentException
+                ("Value to parse may not be null.");
+        }
+
+        if (parser == null)
+            parser = BasicLineParser.DEFAULT;
+
+        CharArrayBuffer buffer = new CharArrayBuffer(value.length());
+        buffer.append(value);
+        return parser.parseHeader(buffer);
     }
 
 
