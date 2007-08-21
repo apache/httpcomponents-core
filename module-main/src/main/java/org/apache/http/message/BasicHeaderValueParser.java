@@ -300,6 +300,33 @@ public class BasicHeaderValueParser implements HeaderValueParser {
 
 
     /**
+     * Parses a name-value-pair with the given parser.
+     *
+     * @param value     the NVP to parse
+     * @param parser    the parser to use, or <code>null</code> for default
+     *
+     * @return  the parsed name-value pair
+     */
+    public final static
+       NameValuePair parseNameValuePair(String value,
+                                        HeaderValueParser parser)
+        throws ParseException {
+
+        if (value == null) {
+            throw new IllegalArgumentException
+                ("Value to parse may not be null.");
+        }
+
+        if (parser == null)
+            parser = BasicHeaderValueParser.DEFAULT;
+
+        CharArrayBuffer buffer = new CharArrayBuffer(value.length());
+        buffer.append(value);
+        return parser.parseNameValuePair(buffer, 0, buffer.length());
+    }
+
+
+    /**
      * Parses a name=value specification, where the = and value are optional.
      *
      * @param buffer    the buffer holding the name-value pair to parse
@@ -307,9 +334,9 @@ public class BasicHeaderValueParser implements HeaderValueParser {
      * @return  the name-value pair, where the value is <code>null</code>
      *          if no value is specified
      */
-    protected NameValuePair parseNameValuePair(final CharArrayBuffer buffer,
-                                               final int indexFrom,
-                                               final int indexTo) {
+    public NameValuePair parseNameValuePair(final CharArrayBuffer buffer,
+                                            final int indexFrom,
+                                            final int indexTo) {
 
         if (buffer == null) {
             throw new IllegalArgumentException
@@ -354,7 +381,7 @@ public class BasicHeaderValueParser implements HeaderValueParser {
 
     /**
      * Creates a name-value pair.
-     * Called from {@link #parseNameValuePair}.
+     * Called from {@link #parseNameValue}.
      *
      * @param name      the name
      * @param value     the value, or <code>null</code>

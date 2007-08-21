@@ -197,5 +197,22 @@ public interface HeaderValueParser {
         throws ParseException
         ;
 
+
+    /**
+     * Parses a name=value specification, where the = and value are optional.
+     *
+     * @param buffer    the buffer holding the name-value pair to parse
+     *
+     * @return  the name-value pair, where the value is <code>null</code>
+     *          if no value is specified
+     *
+     * @throws ParseException        in case of a parse error
+     */
+    NameValuePair parseNameValuePair(CharArrayBuffer buffer,
+                                     int indexFrom,
+                                     int indexTo)
+        throws ParseException
+        ;
+
 }
 

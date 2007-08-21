@@ -101,7 +101,7 @@ public class TestBasicHeaderValueParser extends TestCase {
         assertEquals(" value8",elements[2].getParameters()[1].getValue());
     }
 
-    public void testParseEscaped() {
+    public void testParseHEEscaped() {
         String s = 
           "test1 =  \"\\\"stuff\\\"\", test2= \"\\\\\", test3 = \"stuff, stuff\"";
         HeaderElement[] elements = BasicHeaderValueParser.parseElements(s, null);
@@ -114,25 +114,25 @@ public class TestBasicHeaderValueParser extends TestCase {
         assertEquals("stuff, stuff", elements[2].getValue());
     }
 
-    public void testFringeCase1() throws Exception {
+    public void testHEFringeCase1() throws Exception {
         String headerValue = "name1 = value1,";
         HeaderElement[] elements = BasicHeaderValueParser.parseElements(headerValue, null);
         assertEquals("Number of elements", 1, elements.length);
     }
 
-    public void testFringeCase2() throws Exception {
+    public void testHEFringeCase2() throws Exception {
         String headerValue = "name1 = value1, ";
         HeaderElement[] elements = BasicHeaderValueParser.parseElements(headerValue, null);
         assertEquals("Number of elements", 1, elements.length);
     }
 
-    public void testFringeCase3() throws Exception {
+    public void testHEFringeCase3() throws Exception {
         String headerValue = ",, ,, ,";
         HeaderElement[] elements = BasicHeaderValueParser.parseElements(headerValue, null);
         assertEquals("Number of elements", 0, elements.length);
     }
 
-    public void testInvalidInput() throws Exception {
+    public void testHEInvalidInput() throws Exception {
         CharArrayBuffer buffer = new CharArrayBuffer(32);
         buffer.append("name = value");
         try {
@@ -188,6 +188,151 @@ public class TestBasicHeaderValueParser extends TestCase {
         }
         try {
             BasicHeaderValueParser.DEFAULT.parseHeaderElement(buffer, 2, 1);
+            fail("IllegalArgumentException should have been thrown");
+        } catch (IndexOutOfBoundsException ex) {
+            // expected
+        }
+    }
+
+
+    
+    public void testNVParse() {
+        String s = "test";
+        NameValuePair param =
+            BasicHeaderValueParser.parseNameValuePair(s, null);
+        assertEquals("test", param.getName());
+        assertEquals(null, param.getValue());
+
+        s = "test=stuff";
+        param = BasicHeaderValueParser.parseNameValuePair(s, null);
+        assertEquals("test", param.getName());
+        assertEquals("stuff", param.getValue());
+        
+        s = "   test  =   stuff ";
+        param = BasicHeaderValueParser.parseNameValuePair(s, null);
+        assertEquals("test", param.getName());
+        assertEquals("stuff", param.getValue());
+        
+        s = "test  = \"stuff\"";
+        param = BasicHeaderValueParser.parseNameValuePair(s, null);
+        assertEquals("test", param.getName());
+        assertEquals("stuff", param.getValue());
+        
+        s = "test  = \"  stuff\\\"\"";
+        param = BasicHeaderValueParser.parseNameValuePair(s, null);
+        assertEquals("test", param.getName());
+        assertEquals("  stuff\\\"", param.getValue());
+        
+        s = "  test";
+        param = BasicHeaderValueParser.parseNameValuePair(s, null);
+        assertEquals("test", param.getName());
+        assertEquals(null, param.getValue());
+
+        s = "  ";
+        param = BasicHeaderValueParser.parseNameValuePair(s, null);
+        assertEquals("", param.getName());
+        assertEquals(null, param.getValue());
+
+        s = " = stuff ";
+        param = BasicHeaderValueParser.parseNameValuePair(s, null);
+        assertEquals("", param.getName());
+        assertEquals("stuff", param.getValue());
+    }
+
+    public void testNVParseAll() {
+        String s = 
+          "test; test1 =  stuff   ; test2 =  \"stuff; stuff\"; test3=\"stuff";
+        NameValuePair[] params =
+            BasicHeaderValueParser.parseParameters(s, null);
+        assertEquals("test", params[0].getName());
+        assertEquals(null, params[0].getValue());
+        assertEquals("test1", params[1].getName());
+        assertEquals("stuff", params[1].getValue());
+        assertEquals("test2", params[2].getName());
+        assertEquals("stuff; stuff", params[2].getValue());
+        assertEquals("test3", params[3].getName());
+        assertEquals("\"stuff", params[3].getValue());
+
+        s = "  ";
+        params = BasicHeaderValueParser.parseParameters(s, null);
+        assertEquals(0, params.length);
+    }
+
+    public void testNVParseEscaped() {
+        String s = 
+          "test1 =  \"\\\"stuff\\\"\"; test2= \"\\\\\"; test3 = \"stuff; stuff\"";
+        NameValuePair[] params =
+            BasicHeaderValueParser.parseParameters(s, null);
+        assertEquals(3, params.length);
+        assertEquals("test1", params[0].getName());
+        assertEquals("\\\"stuff\\\"", params[0].getValue());
+        assertEquals("test2", params[1].getName());
+        assertEquals("\\\\", params[1].getValue());
+        assertEquals("test3", params[2].getName());
+        assertEquals("stuff; stuff", params[2].getValue());
+    }
+
+    public void testNVParseInvalidInput() throws Exception {
+        CharArrayBuffer buffer = new CharArrayBuffer(32);
+        buffer.append("name = value");
+
+        try {
+            BasicHeaderValueParser.parseParameters(null, null);
+            fail("IllegalArgumentException should have been thrown");
+        } catch (IllegalArgumentException ex) {
+            // expected
+        }
+        try {
+            BasicHeaderValueParser.DEFAULT.parseParameters(null, 0, 0);
+            fail("IllegalArgumentException should have been thrown");
+        } catch (IllegalArgumentException ex) {
+            // expected
+        }
+        try {
+            BasicHeaderValueParser.DEFAULT.parseParameters(buffer, -1, 0);
+            fail("IllegalArgumentException should have been thrown");
+        } catch (IndexOutOfBoundsException ex) {
+            // expected
+        }
+        try {
+            BasicHeaderValueParser.DEFAULT.parseParameters(buffer, 0, 1000);
+            fail("IllegalArgumentException should have been thrown");
+        } catch (IndexOutOfBoundsException ex) {
+            // expected
+        }
+        try {
+            BasicHeaderValueParser.DEFAULT.parseParameters(buffer, 2, 1);
+            fail("IllegalArgumentException should have been thrown");
+        } catch (IndexOutOfBoundsException ex) {
+            // expected
+        }
+
+        try {
+            BasicHeaderValueParser.parseNameValuePair(null, null);
+            fail("IllegalArgumentException should have been thrown");
+        } catch (IllegalArgumentException ex) {
+            // expected
+        }
+        try {
+            BasicHeaderValueParser.DEFAULT.parseNameValuePair(null, 0, 0);
+            fail("IllegalArgumentException should have been thrown");
+        } catch (IllegalArgumentException ex) {
+            // expected
+        }
+        try {
+            BasicHeaderValueParser.DEFAULT.parseNameValuePair(buffer, -1, 0);
+            fail("IllegalArgumentException should have been thrown");
+        } catch (IndexOutOfBoundsException ex) {
+            // expected
+        }
+        try {
+            BasicHeaderValueParser.DEFAULT.parseNameValuePair(buffer, 0, 1000);
+            fail("IllegalArgumentException should have been thrown");
+        } catch (IndexOutOfBoundsException ex) {
+            // expected
+        }
+        try {
+            BasicHeaderValueParser.DEFAULT.parseNameValuePair(buffer, 2, 1);
             fail("IllegalArgumentException should have been thrown");
         } catch (IndexOutOfBoundsException ex) {
             // expected
