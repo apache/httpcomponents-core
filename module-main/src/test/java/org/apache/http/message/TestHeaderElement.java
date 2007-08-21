@@ -68,7 +68,7 @@ public class TestHeaderElement extends TestCase {
         return new TestSuite(TestHeaderElement.class);
     }
 
-    public void testConstructor() throws Exception {
+    public void testConstructor3() throws Exception {
         HeaderElement element = new BasicHeaderElement("name", "value", 
                 new NameValuePair[] {
                     new BasicNameValuePair("param1", "value1"),
@@ -88,9 +88,11 @@ public class TestHeaderElement extends TestCase {
         assertEquals(0, element.getParameters().length);
     }
 
-    public void testCharArrayConstructor() throws Exception {
+
+    public void testConstructor1() throws Exception {
         String s = "name = value; param1 = value1";
-        HeaderElement element = BasicHeaderElement.parse(s); 
+        NameValuePair[] nvps = BasicHeaderValueParser.parseParameters(s, null);
+        HeaderElement element = new BasicHeaderElement(nvps);
         assertEquals("name", element.getName());
         assertEquals("value", element.getValue());
         assertEquals(1, element.getParameters().length);
@@ -105,139 +107,12 @@ public class TestHeaderElement extends TestCase {
             //expected
         }
     }
-    
-    public void testParseHeaderElements() throws Exception {
-        String headerValue = "name1 = value1; name2; name3=\"value3\" , name4=value4; " +
-            "name5=value5, name6= ; name7 = value7; name8 = \" value8\"";
-        HeaderElement[] elements = BasicHeaderElement.parseAll(headerValue);
-        // there are 3 elements
-        assertEquals(3,elements.length);
-        // 1st element
-        assertEquals("name1",elements[0].getName());
-        assertEquals("value1",elements[0].getValue());
-        // 1st element has 2 getParameters()
-        assertEquals(2,elements[0].getParameters().length);
-        assertEquals("name2",elements[0].getParameters()[0].getName());
-        assertEquals(null, elements[0].getParameters()[0].getValue());
-        assertEquals("name3",elements[0].getParameters()[1].getName());
-        assertEquals("value3",elements[0].getParameters()[1].getValue());
-        // 2nd element
-        assertEquals("name4",elements[1].getName());
-        assertEquals("value4",elements[1].getValue());
-        // 2nd element has 1 parameter
-        assertEquals(1,elements[1].getParameters().length);
-        assertEquals("name5",elements[1].getParameters()[0].getName());
-        assertEquals("value5",elements[1].getParameters()[0].getValue());
-        // 3rd element
-        assertEquals("name6",elements[2].getName());
-        assertEquals("",elements[2].getValue());
-        // 3rd element has 2 getParameters()
-        assertEquals(2,elements[2].getParameters().length);
-        assertEquals("name7",elements[2].getParameters()[0].getName());
-        assertEquals("value7",elements[2].getParameters()[0].getValue());
-        assertEquals("name8",elements[2].getParameters()[1].getName());
-        assertEquals(" value8",elements[2].getParameters()[1].getValue());
-    }
 
-    public void testParseEscaped() {
-        String s = 
-          "test1 =  \"\\\"stuff\\\"\", test2= \"\\\\\", test3 = \"stuff, stuff\"";
-        HeaderElement[] elements = BasicHeaderElement.parseAll(s);
-        assertEquals(3, elements.length);
-        assertEquals("test1", elements[0].getName());
-        assertEquals("\\\"stuff\\\"", elements[0].getValue());
-        assertEquals("test2", elements[1].getName());
-        assertEquals("\\\\", elements[1].getValue());
-        assertEquals("test3", elements[2].getName());
-        assertEquals("stuff, stuff", elements[2].getValue());
-    }
-
-    public void testFringeCase1() throws Exception {
-        String headerValue = "name1 = value1,";
-        HeaderElement[] elements = BasicHeaderElement.parseAll(headerValue);
-        assertEquals("Number of elements", 1, elements.length);
-    }
-
-    public void testFringeCase2() throws Exception {
-        String headerValue = "name1 = value1, ";
-        HeaderElement[] elements = BasicHeaderElement.parseAll(headerValue);
-        assertEquals("Number of elements", 1, elements.length);
-    }
-
-    public void testFringeCase3() throws Exception {
-        String headerValue = ",, ,, ,";
-        HeaderElement[] elements = BasicHeaderElement.parseAll(headerValue);
-        assertEquals("Number of elements", 0, elements.length);
-    }
-
-    public void testInvalidInput() throws Exception {
-        CharArrayBuffer buffer = new CharArrayBuffer(32);
-        buffer.append("name = value");
-        try {
-            BasicHeaderElement.parseAll(null, 0, 0);
-            fail("IllegalArgumentException should have been thrown");
-        } catch (IllegalArgumentException ex) {
-            // expected
-        }
-        try {
-            BasicHeaderElement.parseAll(null);
-            fail("IllegalArgumentException should have been thrown");
-        } catch (IllegalArgumentException ex) {
-            // expected
-        }
-        try {
-            BasicHeaderElement.parseAll(buffer, -1, 0);
-            fail("IllegalArgumentException should have been thrown");
-        } catch (IndexOutOfBoundsException ex) {
-            // expected
-        }
-        try {
-            BasicHeaderElement.parseAll(buffer, 0, 1000);
-            fail("IllegalArgumentException should have been thrown");
-        } catch (IndexOutOfBoundsException ex) {
-            // expected
-        }
-        try {
-            BasicHeaderElement.parseAll(buffer, 2, 1);
-            fail("IllegalArgumentException should have been thrown");
-        } catch (IndexOutOfBoundsException ex) {
-            // expected
-        }
-        try {
-            BasicHeaderElement.parse(null, 0, 0);
-            fail("IllegalArgumentException should have been thrown");
-        } catch (IllegalArgumentException ex) {
-            // expected
-        }
-        try {
-            BasicHeaderElement.parse(null);
-            fail("IllegalArgumentException should have been thrown");
-        } catch (IllegalArgumentException ex) {
-            // expected
-        }
-        try {
-            BasicHeaderElement.parse(buffer, -1, 0);
-            fail("IllegalArgumentException should have been thrown");
-        } catch (IndexOutOfBoundsException ex) {
-            // expected
-        }
-        try {
-            BasicHeaderElement.parse(buffer, 0, 1000);
-            fail("IllegalArgumentException should have been thrown");
-        } catch (IndexOutOfBoundsException ex) {
-            // expected
-        }
-        try {
-            BasicHeaderElement.parse(buffer, 2, 1);
-            fail("IllegalArgumentException should have been thrown");
-        } catch (IndexOutOfBoundsException ex) {
-            // expected
-        }
-    }
-    
     public void testParamByName() throws Exception {
-        String s = "name = value; param1 = value1; param2 = value2";
-        HeaderElement element = BasicHeaderElement.parse(s); 
+        CharArrayBuffer buffer = new CharArrayBuffer(64);
+        buffer.append("name = value; param1 = value1; param2 = value2");
+        HeaderElement element = BasicHeaderValueParser.DEFAULT
+            .parseHeaderElement(buffer, 0, buffer.length()); 
         assertEquals("value1", element.getParameterByName("param1").getValue());
         assertEquals("value2", element.getParameterByName("param2").getValue());
         assertNull(element.getParameterByName("param3"));
@@ -303,11 +178,21 @@ public class TestHeaderElement extends TestCase {
     }
     
     public void testToString() {
+        CharArrayBuffer buffer = new CharArrayBuffer(64);
         String s = "name=value; param1=value1; param2=value2";
-        HeaderElement element = BasicHeaderElement.parse(s);
+        buffer.append(s);
+
+
+        HeaderElement element = BasicHeaderValueParser.DEFAULT
+            .parseHeaderElement(buffer, 0, buffer.length());
         assertEquals(s, element.toString());
+
         s = "name; param1=value1; param2=value2";
-        element = BasicHeaderElement.parse(s);
+        buffer.clear();
+        buffer.append(s);
+
+        element = BasicHeaderValueParser.DEFAULT
+            .parseHeaderElement(buffer, 0, buffer.length());
         assertEquals(s, element.toString());
     }
     

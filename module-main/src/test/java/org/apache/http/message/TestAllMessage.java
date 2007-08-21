@@ -43,6 +43,7 @@ public class TestAllMessage extends TestCase {
         suite.addTest(TestNameValuePair.suite());
         suite.addTest(TestHeader.suite());
         suite.addTest(TestHeaderElement.suite());
+        suite.addTest(TestBasicHeaderValueParser.suite());
         suite.addTest(TestStatusLine.suite());
         suite.addTest(TestRequestLine.suite());
         suite.addTest(TestHttpVersion.suite());

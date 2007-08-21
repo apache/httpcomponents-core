@@ -37,6 +37,7 @@ import java.util.ArrayList;
 
 import org.apache.http.HeaderElement;
 import org.apache.http.NameValuePair;
+import org.apache.http.ParseException;
 import org.apache.http.protocol.HTTP;
 import org.apache.http.util.CharArrayBuffer;
 
@@ -72,6 +73,33 @@ public class BasicHeaderValueParser implements HeaderValueParser {
 
 
     // public default constructor
+
+
+    /**
+     * Parses elements with the given parser.
+     *
+     * @param value     the header value to parse
+     * @param parser    the parser to use, or <code>null</code> for default
+     *
+     * @return  array holding the header elements, never <code>null</code>
+     */
+    public final static
+        HeaderElement[] parseElements(String value,
+                                      HeaderValueParser parser)
+        throws ParseException {
+
+        if (value == null) {
+            throw new IllegalArgumentException
+                ("Value to parse may not be null.");
+        }
+
+        if (parser == null)
+            parser = BasicHeaderValueParser.DEFAULT;
+
+        CharArrayBuffer buffer = new CharArrayBuffer(value.length());
+        buffer.append(value);
+        return parser.parseElements(buffer, 0, buffer.length());
+    }
 
 
     // non-javadoc, see interface HeaderValueParser
@@ -127,13 +155,38 @@ public class BasicHeaderValueParser implements HeaderValueParser {
 
 
     /**
-     * Parses a single header element.
-     * A header element consist of a semicolon-separate list
-     * of name=value definitions.
+     * Parses an element with the given parser.
+     *
+     * @param value     the header element to parse
+     * @param parser    the parser to use, or <code>null</code> for default
+     *
+     * @return  the parsed header element
      */
-    protected HeaderElement parseHeaderElement(final CharArrayBuffer buffer,
-                                               final int indexFrom,
-                                               final int indexTo) {
+    public final static
+        HeaderElement parseHeaderElement(String value,
+                                         HeaderValueParser parser)
+        throws ParseException {
+
+        if (value == null) {
+            throw new IllegalArgumentException
+                ("Value to parse may not be null.");
+        }
+
+        if (parser == null)
+            parser = BasicHeaderValueParser.DEFAULT;
+
+        CharArrayBuffer buffer = new CharArrayBuffer(value.length());
+        buffer.append(value);
+        return parser.parseHeaderElement(buffer, 0, buffer.length());
+    }
+
+
+
+
+    // non-javadoc, see interface HeaderValueParser
+    public HeaderElement parseHeaderElement(final CharArrayBuffer buffer,
+                                            final int indexFrom,
+                                            final int indexTo) {
 
         if (buffer == null) {
             throw new IllegalArgumentException
@@ -163,6 +216,33 @@ public class BasicHeaderValueParser implements HeaderValueParser {
      */
     protected HeaderElement createHeaderElement(NameValuePair[] nvps) {
         return new BasicHeaderElement(nvps);
+    }
+
+
+    /**
+     * Parses parameters with the given parser.
+     *
+     * @param value     the parameter list to parse
+     * @param parser    the parser to use, or <code>null</code> for default
+     *
+     * @return  array holding the parameters, never <code>null</code>
+     */
+    public final static
+        NameValuePair[] parseParameters(String value,
+                                        HeaderValueParser parser)
+        throws ParseException {
+
+        if (value == null) {
+            throw new IllegalArgumentException
+                ("Value to parse may not be null.");
+        }
+
+        if (parser == null)
+            parser = BasicHeaderValueParser.DEFAULT;
+
+        CharArrayBuffer buffer = new CharArrayBuffer(value.length());
+        buffer.append(value);
+        return parser.parseParameters(buffer, 0, buffer.length());
     }
 
 

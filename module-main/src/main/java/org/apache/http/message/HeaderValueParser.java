@@ -94,6 +94,24 @@ public interface HeaderValueParser {
 
 
     /**
+     * Parses a single header element.
+     * A header element consist of a semicolon-separate list
+     * of name=value definitions.
+     *
+     * @param buffer    buffer holding the element to parse
+     *
+     * @return  the parsed element
+     *
+     * @throws ParseException        in case of a parse error
+     */
+    HeaderElement parseHeaderElement(CharArrayBuffer buffer,
+                                     int indexFrom,
+                                     int indexTo)
+        throws ParseException
+        ;
+
+
+    /**
      * Parses a list of name-value pairs.
      * These lists are used to specify parameters to a header element.
      * Parse errors are indicated as <code>RuntimeException</code>.

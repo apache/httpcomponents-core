@@ -132,7 +132,8 @@ public class BasicHeader implements Header {
      */
     public HeaderElement[] getElements() {
         if (this.value != null) {
-            return BasicHeaderElement.parseAll(this.value);
+            // result intentionally not cached, it's probably not used again
+            return BasicHeaderValueParser.parseElements(this.value, null);
         } else {
             return new HeaderElement[] {}; 
         }
