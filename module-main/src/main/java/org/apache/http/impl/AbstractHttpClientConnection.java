@@ -98,7 +98,8 @@ public abstract class AbstractHttpClientConnection implements HttpClientConnecti
             final SessionInputBuffer buffer,
             final HttpResponseFactory responseFactory,
             final HttpParams params) {
-        return new HttpResponseParser(buffer, responseFactory, params);
+        //@@@ how to configure the parser?
+        return new HttpResponseParser(buffer, null, responseFactory, params);
     }
 
     protected HttpMessageWriter createRequestWriter(

@@ -29,37 +29,46 @@
  *
  */
 
-package org.apache.http.impl.nio.codecs;
+package org.apache.http;
 
-import org.apache.http.HttpException;
-import org.apache.http.HttpMessage;
-import org.apache.http.HttpRequestFactory;
-import org.apache.http.RequestLine;
-import org.apache.http.message.LineParser;
-import org.apache.http.nio.reactor.SessionInputBuffer;
-import org.apache.http.params.HttpParams;
-import org.apache.http.util.CharArrayBuffer;
+/**
+ * Indicates a parse error.
+ * Parse errors when receiving a message will typically trigger
+ * {@link ProtocolException}. Parse errors that do not occur during
+ * protocol execution may be handled differently.
+ * This is an unchecked exceptions, since there are cases where
+ * the data to be parsed has been generated and is therefore
+ * known to be parseable.
+ * 
+ * @since 4.0
+ */
+public class ParseException extends RuntimeException {
 
-public class HttpRequestParser extends AbstractMessageParser {
-    
-    private final HttpRequestFactory requestFactory;
-    
-    public HttpRequestParser(
-            final SessionInputBuffer buffer, 
-            final LineParser parser,
-            final HttpRequestFactory requestFactory,
-            final HttpParams params) {
-        super(buffer, parser, params);
-        if (requestFactory == null) {
-            throw new IllegalArgumentException("Request factory may not be null");
-        }
-        this.requestFactory = requestFactory;
+    private static final long serialVersionUID = -1714832601648789035L;
+
+    /**
+     * Creates a {@link ParseException} without details.
+     */
+    public ParseException() {
+        super();
     }
 
-    protected HttpMessage createMessage(final CharArrayBuffer buffer) 
-            throws HttpException {
-        RequestLine requestLine = lineParser.parseRequestLine(buffer, 0, buffer.length());
-        return this.requestFactory.newHttpRequest(requestLine);
+    /**
+     * Creates a {@link ParseException} with a detail message.
+     * 
+     * @param message the exception detail message, or <code>null</code>
+     */
+    public ParseException(String message) {
+        super(message);
     }
 
+    /**
+     * Creates a {@link ParseException} with a detail message and root cause.
+     * 
+     * @param message the exception detail message, or <code>null</code>
+     * @param cause the root cause of this exception, or <tt>null</tt>
+     */
+    public ParseException(String message, Throwable cause) {
+        super(message, cause);
+    }
 }

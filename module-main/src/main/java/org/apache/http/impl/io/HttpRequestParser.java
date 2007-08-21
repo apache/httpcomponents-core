@@ -39,7 +39,7 @@ import org.apache.http.HttpMessage;
 import org.apache.http.HttpRequestFactory;
 import org.apache.http.RequestLine;
 import org.apache.http.io.SessionInputBuffer;
-import org.apache.http.message.BasicRequestLine;
+import org.apache.http.message.LineParser;
 import org.apache.http.params.HttpParams;
 import org.apache.http.util.CharArrayBuffer;
 
@@ -50,9 +50,10 @@ public class HttpRequestParser extends AbstractMessageParser {
     
     public HttpRequestParser(
             final SessionInputBuffer buffer, 
+            final LineParser parser,
             final HttpRequestFactory requestFactory,
             final HttpParams params) {
-        super(buffer, params);
+        super(buffer, parser, params);
         if (requestFactory == null) {
             throw new IllegalArgumentException("Request factory may not be null");
         }
@@ -67,7 +68,7 @@ public class HttpRequestParser extends AbstractMessageParser {
         if (i == -1) {
             throw new ConnectionClosedException("Client closed connection"); 
         }
-        RequestLine requestline = BasicRequestLine.parse(this.lineBuf, 0, this.lineBuf.length());
+        RequestLine requestline = lineParser.parseRequestLine(this.lineBuf, 0, this.lineBuf.length());
         return this.requestFactory.newHttpRequest(requestline);
     }
     

@@ -42,6 +42,7 @@ import org.apache.http.MalformedChunkCodingException;
 import org.apache.http.message.BufferedHeader;
 import org.apache.http.nio.reactor.SessionInputBuffer;
 import org.apache.http.impl.io.HttpTransportMetricsImpl;
+import org.apache.http.ParseException;
 import org.apache.http.protocol.HTTP;
 import org.apache.http.util.CharArrayBuffer;
 
@@ -137,8 +138,8 @@ public class ChunkDecoder extends AbstractContentDecoder {
             for (int i = 0; i < this.trailerBufs.size(); i++) {
                 CharArrayBuffer buffer = (CharArrayBuffer) this.trailerBufs.get(i);
                 try {
-                    this.footers[i] = new BufferedHeader(buffer);
-                } catch (IllegalArgumentException ex) {
+                    this.footers[i] = new BufferedHeader(buffer, null);
+                } catch (ParseException ex) {
                     throw new IOException(ex.getMessage());
                 }
             }

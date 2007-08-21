@@ -33,6 +33,7 @@ package org.apache.http.message;
 
 import org.apache.http.Header;
 import org.apache.http.HeaderElement;
+import org.apache.http.ParseException;
 import org.apache.http.util.CharArrayBuffer;
 
 /**
@@ -62,6 +63,11 @@ public class BufferedHeader implements Header {
      */
     private final int valuePos;
 
+    /**
+     * The parser for the header value, or <code>null</code>.
+     */
+    private HeaderValueParser parser;
+
 
     /**
      * Creates a new header from a buffer.
@@ -69,24 +75,40 @@ public class BufferedHeader implements Header {
      * the value only if it is accessed.
      *
      * @param buffer    the buffer containing the header to represent
+     * @param parser    the header value parser, or <code>null</code>
+     *
+     * @throws ParseException   in case of a parse error
      */
-    public BufferedHeader(final CharArrayBuffer buffer) {
+    public BufferedHeader(final CharArrayBuffer buffer,
+                          final HeaderValueParser parser)
+        throws ParseException {
+
         super();
         if (buffer == null) {
-            throw new IllegalArgumentException("Char array buffer may not be null");
+            throw new IllegalArgumentException
+                ("Char array buffer may not be null");
         }
         int colon = buffer.indexOf(':');
         if (colon == -1) {
-            throw new IllegalArgumentException("Invalid header: " + buffer.toString());
+            throw new ParseException
+                ("Invalid header: " + buffer.toString());
         }
         String s = buffer.substringTrimmed(0, colon);
         if (s.length() == 0) {
-            throw new IllegalArgumentException("Invalid header: " + buffer.toString());
+            throw new ParseException
+                ("Invalid header: " + buffer.toString());
         }
         this.buffer = buffer;
         this.name = s;
         this.valuePos = colon + 1;
+        this.parser = parser;
     }
+
+    public BufferedHeader(final CharArrayBuffer buffer)
+        throws ParseException {
+        this(buffer, null);
+    }
+
 
     public String getName() {
         return this.name;
@@ -95,15 +117,27 @@ public class BufferedHeader implements Header {
     public String getValue() {
         return this.buffer.substringTrimmed(this.valuePos, this.buffer.length());
     }
-    
+
+    public HeaderValueParser getParser() {
+        return this.parser;
+    }
+
+    public void setParser(HeaderValueParser parser) {
+        this.parser = parser;
+    }
+
     public HeaderElement[] getElements() {
-        return BasicHeaderElement.parseAll(this.buffer, this.valuePos, this.buffer.length());
+        HeaderValueParser hvp = this.parser;
+        if (hvp == null)
+            hvp = BasicHeaderValueParser.DEFAULT;
+        return hvp.parseElements(this.buffer,
+                                 this.valuePos, this.buffer.length());
     }
 
     public int getValuePos() {
         return this.valuePos;
     }
-    
+
     public CharArrayBuffer getBuffer() {
         return this.buffer;
     }

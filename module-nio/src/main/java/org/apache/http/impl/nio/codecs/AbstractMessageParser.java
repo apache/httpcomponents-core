@@ -39,7 +39,8 @@ import java.util.List;
 import org.apache.http.HttpException;
 import org.apache.http.HttpMessage;
 import org.apache.http.ProtocolException;
-import org.apache.http.message.BufferedHeader;
+import org.apache.http.message.LineParser;
+import org.apache.http.message.BasicLineParser;
 import org.apache.http.nio.NHttpMessageParser;
 import org.apache.http.nio.reactor.SessionInputBuffer;
 import org.apache.http.params.HttpConnectionParams;
@@ -63,8 +64,9 @@ public abstract class AbstractMessageParser implements NHttpMessageParser {
 
     private int maxLineLen = -1;
     private int maxHeaderCount = -1;
+    protected final LineParser lineParser;
 
-    public AbstractMessageParser(final SessionInputBuffer buffer, final HttpParams params) {
+    public AbstractMessageParser(final SessionInputBuffer buffer, final LineParser parser, final HttpParams params) {
         super();
         if (buffer == null) {
             throw new IllegalArgumentException("Session input buffer may not be null");
@@ -80,6 +82,7 @@ public abstract class AbstractMessageParser implements NHttpMessageParser {
                 HttpConnectionParams.MAX_LINE_LENGTH, -1);
         this.maxHeaderCount = params.getIntParameter(
                 HttpConnectionParams.MAX_HEADER_COUNT, -1);
+        this.lineParser = (parser != null) ? parser : BasicLineParser.DEFAULT;
     }
     
     public void reset() {
@@ -172,7 +175,7 @@ public abstract class AbstractMessageParser implements NHttpMessageParser {
             for (int i = 0; i < this.headerBufs.size(); i++) {
                 CharArrayBuffer buffer = (CharArrayBuffer) this.headerBufs.get(i);
                 try {
-                    this.message.addHeader(new BufferedHeader(buffer));
+                    this.message.addHeader(lineParser.parseHeader(buffer));
                 } catch (IllegalArgumentException ex) {
                     throw new ProtocolException(ex.getMessage());
                 }

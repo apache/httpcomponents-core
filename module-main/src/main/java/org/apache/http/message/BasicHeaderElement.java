@@ -93,7 +93,7 @@ public class BasicHeaderElement implements HeaderElement {
     private final String value;
     private final NameValuePair[] parameters;
 
-    private BasicHeaderElement(final NameValuePair[] nvps) {
+    public BasicHeaderElement(final NameValuePair[] nvps) {
         super();
         if (nvps.length > 0) {
             NameValuePair nvp = nvps[0];
