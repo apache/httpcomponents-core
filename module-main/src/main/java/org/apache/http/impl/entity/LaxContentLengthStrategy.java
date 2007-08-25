@@ -35,6 +35,7 @@ import org.apache.http.Header;
 import org.apache.http.HeaderElement;
 import org.apache.http.HttpException;
 import org.apache.http.HttpMessage;
+import org.apache.http.ParseException;
 import org.apache.http.ProtocolException;
 import org.apache.http.entity.ContentLengthStrategy;
 import org.apache.http.params.HttpParams;
@@ -196,7 +197,14 @@ public class LaxContentLengthStrategy implements ContentLengthStrategy {
         // We use Transfer-Encoding if present and ignore Content-Length.
         // RFC2616, 4.4 item number 3
         if (transferEncodingHeader != null) {
-            HeaderElement[] encodings = transferEncodingHeader.getElements();
+            HeaderElement[] encodings = null;
+            try {
+                encodings = transferEncodingHeader.getElements();
+            } catch (ParseException px) {
+                throw new ProtocolException
+                    ("Invalid Transfer-Encoding header value: " +
+                     transferEncodingHeader, px);
+            }
             if (strict) {
                 // Currently only chunk and identity are supported
                 for (int i = 0; i < encodings.length; i++) {

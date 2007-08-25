@@ -39,6 +39,7 @@ import java.io.Reader;
 import org.apache.http.HeaderElement;
 import org.apache.http.HttpEntity;
 import org.apache.http.NameValuePair;
+import org.apache.http.ParseException;
 import org.apache.http.protocol.HTTP;
 
 /**
@@ -84,7 +85,9 @@ public final class EntityUtils {
         return buffer.toByteArray();
     }
         
-    public static String getContentCharSet(final HttpEntity entity) {
+    public static String getContentCharSet(final HttpEntity entity)
+        throws ParseException {
+
         if (entity == null) {
             throw new IllegalArgumentException("HTTP entity may not be null");
         }
@@ -102,7 +105,7 @@ public final class EntityUtils {
     }
 
     public static String toString(
-            final HttpEntity entity, final String defaultCharset) throws IOException {
+            final HttpEntity entity, final String defaultCharset) throws IOException, ParseException {
         if (entity == null) {
             throw new IllegalArgumentException("HTTP entity may not be null");
         }

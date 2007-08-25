@@ -59,6 +59,6 @@ public interface Header {
     
     String getValue();
 
-    HeaderElement[] getElements();
+    HeaderElement[] getElements() throws ParseException;
     
 }

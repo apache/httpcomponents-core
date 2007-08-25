@@ -33,6 +33,7 @@ package org.apache.http.message;
 
 import org.apache.http.Header;
 import org.apache.http.HeaderElement;
+import org.apache.http.ParseException;
 import org.apache.http.util.CharArrayBuffer;
 
 /**
@@ -129,8 +130,10 @@ public class BasicHeader implements Header {
      * @see BasicHeaderValueParser#parseElements
      * 
      * @return an array of header elements
+     *
+     * @throws ParseException   in case of a parse error
      */
-    public HeaderElement[] getElements() {
+    public HeaderElement[] getElements() throws ParseException {
         if (this.value != null) {
             // result intentionally not cached, it's probably not used again
             return BasicHeaderValueParser.parseElements(this.value, null);

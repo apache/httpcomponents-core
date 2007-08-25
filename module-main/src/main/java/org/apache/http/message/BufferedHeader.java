@@ -126,7 +126,7 @@ public class BufferedHeader implements Header {
         this.parser = parser;
     }
 
-    public HeaderElement[] getElements() {
+    public HeaderElement[] getElements() throws ParseException {
         HeaderValueParser hvp = this.parser;
         if (hvp == null)
             hvp = BasicHeaderValueParser.DEFAULT;
