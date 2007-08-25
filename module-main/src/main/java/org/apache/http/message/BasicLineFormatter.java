@@ -91,8 +91,8 @@ public class BasicLineFormatter implements LineFormatter {
 
 
     // non-javadoc, see interface LineFormatter
-    public CharArrayBuffer formatRequestLine(RequestLine reqline,
-                                             CharArrayBuffer buffer) {
+    public CharArrayBuffer formatRequestLine(CharArrayBuffer buffer,
+                                             RequestLine reqline) {
 
         CharArrayBuffer result = initBuffer(buffer);
         BasicRequestLine.format(result, reqline); //@@@ move code here
@@ -102,18 +102,35 @@ public class BasicLineFormatter implements LineFormatter {
 
 
     // non-javadoc, see interface LineFormatter
-    public CharArrayBuffer formatStatusLine(StatusLine statline,
-                                            CharArrayBuffer buffer) {
+    public CharArrayBuffer formatStatusLine(CharArrayBuffer buffer,
+                                            StatusLine statline) {
         CharArrayBuffer result = initBuffer(buffer);
         BasicStatusLine.format(result, statline); //@@@ move code here
         return result;
     }
 
 
+    /**
+     * Formats a header.
+     *
+     * @param header            the header to format
+     * @param formatter         the formatter to use, or
+     *                          <code>null</code> for the
+     *                          {@link #DEFAULT default}
+     *
+     * @return  the formatted header
+     */
+    public final static String formatHeader(final Header header,
+                                            LineFormatter formatter) {
+        if (formatter == null)
+            formatter = BasicLineFormatter.DEFAULT;
+        return formatter.formatHeader(null, header).toString();
+    }
+
 
     // non-javadoc, see interface LineFormatter
-    public CharArrayBuffer formatHeader(Header header,
-                                        CharArrayBuffer buffer) {
+    public CharArrayBuffer formatHeader(CharArrayBuffer buffer,
+                                        Header header) {
         if (header == null) {
             throw new IllegalArgumentException
                 ("Header must not be null.");
@@ -125,11 +142,38 @@ public class BasicLineFormatter implements LineFormatter {
             result = ((BufferedHeader)header).getBuffer();
         } else {
             result = initBuffer(buffer);
-            BasicHeader.format(result, header); //@@@ move code here
+            doFormatHeader(result, header);
         }
         return result;
 
     } // formatHeader
+
+
+    /**
+     * Actually formats a header.
+     * Called from {@link #formatHeader}.
+     *
+     * @param buffer    the empty buffer into which to format,
+     *                  never <code>null</code>
+     * @param header    the header to format, never <code>null</code>
+     */
+    protected void doFormatHeader(CharArrayBuffer buffer,
+                                  Header header) {
+        final String name = header.getName();
+        final String value = header.getValue();
+
+        int len = name.length() + 2;
+        if (value != null) {
+            len += value.length();
+        }
+        buffer.ensureCapacity(len);
+
+        buffer.append(name);
+        buffer.append(": ");
+        if (value != null) {
+            buffer.append(value);
+        }
+    }
 
 
 } // class BasicLineFormatter

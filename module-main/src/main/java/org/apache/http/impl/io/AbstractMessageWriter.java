@@ -76,7 +76,7 @@ public abstract class AbstractMessageWriter implements HttpMessageWriter {
         for (Iterator it = message.headerIterator(); it.hasNext(); ) {
             Header header = (Header) it.next();
             this.sessionBuffer.writeLine
-                (lineFormatter.formatHeader(header, this.lineBuf));
+                (lineFormatter.formatHeader(this.lineBuf, header));
         }
         this.lineBuf.clear();
         this.sessionBuffer.writeLine(this.lineBuf);

@@ -115,13 +115,8 @@ public class BasicHeader implements Header {
      * @return a string
      */
     public String toString() {
-        CharArrayBuffer buffer = new CharArrayBuffer(32);
-        buffer.append(this.name);
-        buffer.append(": ");
-        if (this.value != null) {
-            buffer.append(this.value);
-        }
-        return buffer.toString();
+        // no need for non-default formatting in toString()
+        return BasicLineFormatter.DEFAULT.formatHeader(null, this).toString();
     }
 
     /**
@@ -140,37 +135,6 @@ public class BasicHeader implements Header {
         } else {
             return new HeaderElement[] {}; 
         }
-    }
-
-    /**
-     * Formats a Header into a header line. The <code>header</code> is
-     * directly appended to <code>buffer</code>; no newline characters are
-     * inserted (folding).
-     * 
-     * @param buffer the buffer to append to
-     * @param header the header to format
-     */
-    /*public@@@*/ static void format(final CharArrayBuffer buffer, final Header header) {
-        if (buffer == null) {
-            throw new IllegalArgumentException("String buffer may not be null");
-        }
-        if (header == null) {
-            throw new IllegalArgumentException("Header may not be null");
-        }
-        buffer.append(header.getName());
-        buffer.append(": ");
-        if (header.getValue() != null) {
-            buffer.append(header.getValue());
-        }
-    }
- 
-    /**
-     * @see #format(CharArrayBuffer, Header)
-     */
-    /*public@@@*/ static String format(final Header header) {
-        CharArrayBuffer buffer = new CharArrayBuffer(32);
-        format(buffer, header);
-        return buffer.toString();
     }
 
 }

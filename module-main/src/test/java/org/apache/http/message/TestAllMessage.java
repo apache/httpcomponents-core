@@ -48,6 +48,7 @@ public class TestAllMessage extends TestCase {
         suite.addTest(TestRequestLine.suite());
         suite.addTest(TestHttpVersion.suite());
         suite.addTest(TestBasicLineParser.suite());
+        suite.addTest(TestBasicLineFormatter.suite());
         suite.addTest(TestAbstractMessage.suite());
         suite.addTest(TestBasicMessages.suite());
 

@@ -52,7 +52,7 @@ public class HttpRequestWriter extends AbstractMessageWriter {
         throws IOException {
 
         final CharArrayBuffer buffer = lineFormatter.formatRequestLine
-            (((HttpRequest) message).getRequestLine(), this.lineBuf);
+            (this.lineBuf, ((HttpRequest) message).getRequestLine());
         this.sessionBuffer.writeLine(buffer);
     }
 

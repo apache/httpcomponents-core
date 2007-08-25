@@ -74,33 +74,32 @@ public interface LineFormatter {
     /**
      * Formats a request line.
      *
-     * @param reqline   the request line to format
      * @param buffer    a buffer available for formatting, or
      *                  <code>null</code>.
      *                  The buffer will be cleared before use.
+     * @param reqline   the request line to format
      *
      * @return  the formatted request line
      */
-    CharArrayBuffer formatRequestLine(RequestLine reqline,
-                                      CharArrayBuffer buffer) 
+    CharArrayBuffer formatRequestLine(CharArrayBuffer buffer,
+                                      RequestLine reqline) 
         ;
 
 
     /**
      * Formats a status line.
      *
-     * @param statline  the status line to format
      * @param buffer    a buffer available for formatting, or
      *                  <code>null</code>.
      *                  The buffer will be cleared before use.
-     * @param buffer    a buffer holding the line to parse
+     * @param statline  the status line to format
      *
      * @return  the formatted status line
      *
      * @throws ParseException        in case of a parse error
      */
-    CharArrayBuffer formatStatusLine(StatusLine statline,
-                                     CharArrayBuffer buffer) 
+    CharArrayBuffer formatStatusLine(CharArrayBuffer buffer,
+                                     StatusLine statline) 
         ;
 
 
@@ -113,17 +112,18 @@ public interface LineFormatter {
      * <br/>
      * See the class comment for details about the buffer argument.
      *
-     * @param header    the header to format
      * @param buffer    a buffer available for formatting, or
      *                  <code>null</code>.
      *                  The buffer will be cleared before use.
+     * @param header    the header to format
      *
      * @return  a buffer holding the formatted header, never <code>null</code>.
      *          The returned buffer may be different from the argument buffer.
      *
      * @throws ParseException        in case of a parse error
      */
-    CharArrayBuffer formatHeader(Header header, CharArrayBuffer buffer)
+    CharArrayBuffer formatHeader(CharArrayBuffer buffer,
+                                 Header header)
         ;
 
 }

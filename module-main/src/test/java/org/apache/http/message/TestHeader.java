@@ -105,31 +105,7 @@ public class TestHeader extends TestCase {
         elements = header.getElements();
         assertNotNull(elements); 
         assertEquals(0, elements.length); 
-    }    
- 
-    public void testHeaderFormatting() throws Exception {
-        Header header1 = new BasicHeader("name", "value");
-        String s = BasicHeader.format(header1); 
-        assertEquals("name: value", s);
-        Header header2 = new BasicHeader("name", null);
-        s = BasicHeader.format(header2); 
-        assertEquals("name: ", s);
     }
-    
-    public void testHeaderFormattingInvalidInput() throws Exception {
-        try {
-            BasicHeader.format(null, new BasicHeader("name", "value"));
-            fail("IllegalArgumentException should habe been thrown");
-        } catch (IllegalArgumentException ex) {
-            // expected
-        }
-        try {
-            BasicHeader.format(new CharArrayBuffer(10), (Header) null);
-            fail("IllegalArgumentException should habe been thrown");
-        } catch (IllegalArgumentException ex) {
-            // expected
-        }
-    }
-        
+
 }
 
