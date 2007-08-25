@@ -141,7 +141,8 @@ public final class EntityUtils {
         return buffer.toString();
     }
 
-    public static String toString(final HttpEntity entity) throws IOException {
+    public static String toString(final HttpEntity entity)
+        throws IOException, ParseException {
         return toString(entity, null);
     }
     
