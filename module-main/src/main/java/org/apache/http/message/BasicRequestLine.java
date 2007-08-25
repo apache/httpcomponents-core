@@ -90,12 +90,8 @@ public class BasicRequestLine implements RequestLine {
     }
 
     public String toString() {
-        CharArrayBuffer buffer = new CharArrayBuffer(64);
-        buffer.append(this.method);
-        buffer.append(' ');
-        buffer.append(this.uri);
-        buffer.append(' ');
-        buffer.append(this.httpversion);
-        return buffer.toString();
+        // no need for non-default formatting in toString()
+        return BasicLineFormatter.DEFAULT
+            .formatRequestLine(null, this).toString();
     }
 }

@@ -66,6 +66,31 @@ public class TestBasicLineFormatter extends TestCase {
     }
 
 
+
+    public void testHttpVersionFormatting() throws Exception {
+        String s = BasicLineFormatter.formatProtocolVersion
+            (HttpVersion.HTTP_1_1, null);
+        assertEquals("HTTP/1.1", s);
+    }
+    
+    public void testHttpVersionFormattingInvalidInput() throws Exception {
+        try {
+            BasicLineFormatter.formatProtocolVersion
+                (null, BasicLineFormatter.DEFAULT);
+            fail("IllegalArgumentException should habe been thrown");
+        } catch (IllegalArgumentException ex) {
+            // expected
+        }
+        try {
+            BasicLineFormatter.DEFAULT.appendProtocolVersion
+                (new CharArrayBuffer(10), (HttpVersion) null);
+            fail("IllegalArgumentException should habe been thrown");
+        } catch (IllegalArgumentException ex) {
+            // expected
+        }
+    }
+
+
     public void testRLFormatting() throws Exception {
         RequestLine requestline = new BasicRequestLine("GET", "/stuff", HttpVersion.HTTP_1_1);
         String s = BasicLineFormatter.formatRequestLine(requestline, null);
