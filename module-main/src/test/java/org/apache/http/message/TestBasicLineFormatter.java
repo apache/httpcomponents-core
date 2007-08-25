@@ -65,6 +65,31 @@ public class TestBasicLineFormatter extends TestCase {
         return new TestSuite(TestBasicLineFormatter.class);
     }
 
+
+    public void testRLFormatting() throws Exception {
+        RequestLine requestline = new BasicRequestLine("GET", "/stuff", HttpVersion.HTTP_1_1);
+        String s = BasicLineFormatter.formatRequestLine(requestline, null);
+        assertEquals("GET /stuff HTTP/1.1", s);
+    }
+    
+    public void testRLFormattingInvalidInput() throws Exception {
+        try {
+            BasicLineFormatter.formatRequestLine
+                (null, BasicLineFormatter.DEFAULT);
+            fail("IllegalArgumentException should habe been thrown");
+        } catch (IllegalArgumentException ex) {
+            // expected
+        }
+        try {
+            BasicLineFormatter.DEFAULT.formatRequestLine
+                (new CharArrayBuffer(10), (RequestLine) null);
+            fail("IllegalArgumentException should habe been thrown");
+        } catch (IllegalArgumentException ex) {
+            // expected
+        }
+    }
+
+
     
     public void testSLFormatting() throws Exception {
         StatusLine statusline = new BasicStatusLine(HttpVersion.HTTP_1_1, HttpStatus.SC_OK, "OK");

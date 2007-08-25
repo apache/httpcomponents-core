@@ -85,26 +85,4 @@ public class TestRequestLine extends TestCase {
             fail("IllegalArgumentException should have been thrown");
         } catch (IllegalArgumentException e) { /* expected */ }
     }
-
-    public void testFormatting() throws Exception {
-        RequestLine requestline = new BasicRequestLine("GET", "/stuff", HttpVersion.HTTP_1_1);
-        String s = BasicRequestLine.format(requestline);
-        assertEquals("GET /stuff HTTP/1.1", s);
-    }
-    
-    public void testFormattingInvalidInput() throws Exception {
-        try {
-            BasicRequestLine.format(null, new BasicRequestLine("GET", "/stuff", HttpVersion.HTTP_1_1));
-            fail("IllegalArgumentException should habe been thrown");
-        } catch (IllegalArgumentException ex) {
-            // expected
-        }
-        try {
-            BasicRequestLine.format(new CharArrayBuffer(10), (RequestLine) null);
-            fail("IllegalArgumentException should habe been thrown");
-        } catch (IllegalArgumentException ex) {
-            // expected
-        }
-    }
-    
 }

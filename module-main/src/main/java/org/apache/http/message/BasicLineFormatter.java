@@ -136,13 +136,63 @@ public class BasicLineFormatter implements LineFormatter {
     }
 
 
+
+    /**
+     * Formats a request line.
+     *
+     * @param reqline           the request line to format
+     * @param formatter         the formatter to use, or
+     *                          <code>null</code> for the
+     *                          {@link #DEFAULT default}
+     *
+     * @return  the formatted request line
+     */
+    public final static String formatRequestLine(final RequestLine reqline,
+                                                 LineFormatter formatter) {
+        if (formatter == null)
+            formatter = BasicLineFormatter.DEFAULT;
+        return formatter.formatRequestLine(null, reqline).toString();
+    }
+
+
     // non-javadoc, see interface LineFormatter
     public CharArrayBuffer formatRequestLine(CharArrayBuffer buffer,
                                              RequestLine reqline) {
+        if (reqline == null) {
+            throw new IllegalArgumentException
+                ("Request line must not be null.");
+        }
 
         CharArrayBuffer result = initBuffer(buffer);
-        BasicRequestLine.format(result, reqline); //@@@ move code here
+        doFormatRequestLine(result, reqline);
+
         return result;
+    }
+
+
+    /**
+     * Actually formats a request line.
+     * Called from {@link #formatRequestLine}.
+     *
+     * @param buffer    the empty buffer into which to format,
+     *                  never <code>null</code>
+     * @param reqline   the request line to format, never <code>null</code>
+     */
+    protected void doFormatRequestLine(CharArrayBuffer buffer,
+                                       RequestLine reqline) {
+        final String method = reqline.getMethod();
+        final String uri    = reqline.getUri();
+        //@@@ let the protocol version length be guessed elsewhere
+        //@@@ guess the length in an extra method?
+        // room for "GET /index.html HTTP/1.1"
+        int len = method.length() + 1 + uri.length() + 1 + 8;
+        buffer.ensureCapacity(len);
+
+        buffer.append(method);
+        buffer.append(' ');
+        buffer.append(uri);
+        buffer.append(' ');
+        appendProtocolVersion(buffer, reqline.getHttpVersion());
     }
 
 
@@ -186,7 +236,7 @@ public class BasicLineFormatter implements LineFormatter {
      *
      * @param buffer    the empty buffer into which to format,
      *                  never <code>null</code>
-     * @param header    the status line to format, never <code>null</code>
+     * @param statline  the status line to format, never <code>null</code>
      */
     protected void doFormatStatusLine(CharArrayBuffer buffer,
                                       StatusLine statline) {

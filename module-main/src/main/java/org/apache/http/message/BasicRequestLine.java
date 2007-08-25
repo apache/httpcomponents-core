@@ -56,18 +56,23 @@ public class BasicRequestLine implements RequestLine {
     private final String method;
     private final String uri;
 
-    public BasicRequestLine(final String method, final String uri, final HttpVersion httpversion) {
-        	super();
-        	if (method == null) {
-        	    throw new IllegalArgumentException("Method may not be null");
-        	}
-        	if (uri == null) {
-        		throw new IllegalArgumentException("URI may not be null");
-        	}
-        	if (httpversion == null) {
-        		throw new IllegalArgumentException("HTTP version may not be null");
-        	}
-        	this.method = method;
+    public BasicRequestLine(final String method,
+                            final String uri,
+                            final HttpVersion httpversion) {
+        super();
+        if (method == null) {
+            throw new IllegalArgumentException
+                ("Method must not be null.");
+        }
+        if (uri == null) {
+            throw new IllegalArgumentException
+                ("URI must not be null.");
+        }
+        if (httpversion == null) {
+            throw new IllegalArgumentException
+                ("HTTP version must not be null.");
+        }
+        this.method = method;
         this.uri = uri;
         this.httpversion = httpversion;
     }
@@ -93,25 +98,4 @@ public class BasicRequestLine implements RequestLine {
         buffer.append(this.httpversion);
         return buffer.toString();
     }
-    
-    /*public@@@*/ static void format(final CharArrayBuffer buffer, final RequestLine requestline) {
-        if (buffer == null) {
-            throw new IllegalArgumentException("String buffer may not be null");
-        }
-        if (requestline == null) {
-            throw new IllegalArgumentException("Request line may not be null");
-        }
-        buffer.append(requestline.getMethod());
-        buffer.append(' ');
-        buffer.append(requestline.getUri());
-        buffer.append(' ');
-        BasicHttpVersionFormat.format(buffer, requestline.getHttpVersion());
-    }
- 
-    /*public@@@*/ static String format(final RequestLine requestline) {
-        CharArrayBuffer buffer = new CharArrayBuffer(64);
-        format(buffer, requestline);
-        return buffer.toString();
-    }
-    
 }
