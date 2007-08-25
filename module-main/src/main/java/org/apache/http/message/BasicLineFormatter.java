@@ -119,8 +119,7 @@ public class BasicLineFormatter implements LineFormatter {
 
         // can't use initBuffer, that would clear the argument!
         CharArrayBuffer result = buffer;
-        //@@@ guess the length in an extra method
-        final int len = 8; // room for "HTTP/1.1"
+        final int len = estimateProtocolVersionLen(version);
         if (result == null) {
             result = new CharArrayBuffer(len);
         } else {
@@ -135,6 +134,19 @@ public class BasicLineFormatter implements LineFormatter {
         return result;
     }
 
+
+    /**
+     * Guesses the length of a formatted protocol version.
+     * Needed to guess the length of a formatted request or status line.
+     *
+     * @param version   the protocol version to format, or <code>null</code>
+     *
+     * @return  the estimated length of the formatted protocol version,
+     *          in characters
+     */
+    protected int estimateProtocolVersionLen(HttpVersion version) {
+        return 8; // room for "HTTP/1.1"
+    }
 
 
     /**
@@ -182,10 +194,10 @@ public class BasicLineFormatter implements LineFormatter {
                                        RequestLine reqline) {
         final String method = reqline.getMethod();
         final String uri    = reqline.getUri();
-        //@@@ let the protocol version length be guessed elsewhere
-        //@@@ guess the length in an extra method?
+
         // room for "GET /index.html HTTP/1.1"
-        int len = method.length() + 1 + uri.length() + 1 + 8;
+        int len = method.length() + 1 + uri.length() + 1 + 
+            estimateProtocolVersionLen(reqline.getHttpVersion());
         buffer.ensureCapacity(len);
 
         buffer.append(method);
@@ -240,9 +252,9 @@ public class BasicLineFormatter implements LineFormatter {
      */
     protected void doFormatStatusLine(CharArrayBuffer buffer,
                                       StatusLine statline) {
-        //@@@ let the protocol version length be guessed elsewhere
-        //@@@ guess the length in an extra method?
-        int len = 8 + 1 + 3 + 1; // room for "HTTP/1.1 200 "
+
+        int len = estimateProtocolVersionLen(statline.getHttpVersion())
+            + 1 + 3 + 1; // room for "HTTP/1.1 200 "
         final String reason = statline.getReasonPhrase();
         if (reason != null) {
             len += reason.length();
