@@ -30,9 +30,8 @@
 
 package org.apache.http.message;
 
-import org.apache.http.HttpException;
 import org.apache.http.HttpVersion;
-import org.apache.http.ProtocolException;
+import org.apache.http.ParseException;
 import org.apache.http.RequestLine;
 import org.apache.http.StatusLine;
 import org.apache.http.message.BasicRequestLine;
@@ -96,28 +95,28 @@ public class TestBasicLineParser extends TestCase {
         try {
             BasicLineParser.parseRequestLine("    ", null);
             fail();
-        } catch (HttpException e) {
+        } catch (ParseException e) {
             // expected
         }
 
         try {
             BasicLineParser.parseRequestLine("  GET", null);
             fail();
-        } catch (HttpException e) {
+        } catch (ParseException e) {
             // expected
         }
 
         try {
             BasicLineParser.parseRequestLine("GET /stuff", null);
             fail();
-        } catch (HttpException e) {
+        } catch (ParseException e) {
             // expected
         }
 
         try {
             BasicLineParser.parseRequestLine("GET/stuff HTTP/1.1", null);
             fail();
-        } catch (HttpException e) {
+        } catch (ParseException e) {
             // expected
         }
     }
@@ -221,27 +220,27 @@ public class TestBasicLineParser extends TestCase {
         try {
             BasicLineParser.parseStatusLine("xxx 200 OK", null);
             fail();
-        } catch (HttpException e) {
+        } catch (ParseException e) {
             // expected
         }
 
         try {
             BasicLineParser.parseStatusLine("HTTP/1.1 xxx OK", null);
             fail();
-        } catch (HttpException e) {
+        } catch (ParseException e) {
             // expected
         }
 
         try {
             BasicLineParser.parseStatusLine("HTTP/1.1    ", null);
             fail();
-        } catch (HttpException e) {
+        } catch (ParseException e) {
             // expected
         }
         try {
             BasicLineParser.parseStatusLine("HTTP/1.1", null);
             fail();
-        } catch (HttpException e) {
+        } catch (ParseException e) {
             // expected
         }
     }
@@ -308,71 +307,71 @@ public class TestBasicLineParser extends TestCase {
         try {
             BasicLineParser.parseProtocolVersion
                 ("    ", null);
-            fail("ProtocolException should have been thrown");
-        } catch (ProtocolException e) {
+            fail("ParseException should have been thrown");
+        } catch (ParseException e) {
             //expected
         }
         try {
             BasicLineParser.parseProtocolVersion
                 ("HTT", null);
-            fail("ProtocolException should have been thrown");
-        } catch (ProtocolException e) {
+            fail("ParseException should have been thrown");
+        } catch (ParseException e) {
             //expected
         }
         try {
             BasicLineParser.parseProtocolVersion
                 ("crap", null);
-            fail("ProtocolException should have been thrown");
-        } catch (ProtocolException e) {
+            fail("ParseException should have been thrown");
+        } catch (ParseException e) {
             //expected
         }
         try {
             BasicLineParser.parseProtocolVersion
                 ("HTTP/crap", null);
-            fail("ProtocolException should have been thrown");
-        } catch (ProtocolException e) {
+            fail("ParseException should have been thrown");
+        } catch (ParseException e) {
             //expected
         }
         try {
             BasicLineParser.parseProtocolVersion
                 ("HTTP/1", null);
-            fail("ProtocolException should have been thrown");
-        } catch (ProtocolException e) {
+            fail("ParseException should have been thrown");
+        } catch (ParseException e) {
             //expected
         }
         try {
             BasicLineParser.parseProtocolVersion
                 ("HTTP/1234   ", null);
-            fail("ProtocolException should have been thrown");
-        } catch (ProtocolException e) {
+            fail("ParseException should have been thrown");
+        } catch (ParseException e) {
             //expected
         }
         try {
             BasicLineParser.parseProtocolVersion
                 ("HTTP/1.", null);
-            fail("ProtocolException should have been thrown");
-        } catch (ProtocolException e) {
+            fail("ParseException should have been thrown");
+        } catch (ParseException e) {
             //expected
         }
         try {
             BasicLineParser.parseProtocolVersion
                 ("HTTP/1.1 crap", null);
-            fail("ProtocolException should have been thrown");
-        } catch (ProtocolException e) {
+            fail("ParseException should have been thrown");
+        } catch (ParseException e) {
             //expected
         }
         try {
             BasicLineParser.parseProtocolVersion
                 ("HTTP/whatever.whatever whatever", null);
-            fail("ProtocolException should have been thrown");
-        } catch (ProtocolException e) {
+            fail("ParseException should have been thrown");
+        } catch (ParseException e) {
             //expected
         }
         try {
             BasicLineParser.parseProtocolVersion
                 ("HTTP/1.whatever whatever", null);
-            fail("ProtocolException should have been thrown");
-        } catch (ProtocolException e) {
+            fail("ParseException should have been thrown");
+        } catch (ParseException e) {
             //expected
         }
     }
