@@ -92,32 +92,7 @@ public class TestStatusLine extends TestCase {
         StatusLine statusline = new BasicStatusLine(HttpVersion.HTTP_1_1, HttpStatus.SC_OK, "OK");
         assertEquals("HTTP/1.1 200 OK", statusline.toString());
         statusline = new BasicStatusLine(HttpVersion.HTTP_1_1, HttpStatus.SC_OK, null);
-        assertEquals("HTTP/1.1 200", statusline.toString());
+        // toString uses default formatting, hence the trailing space
+        assertEquals("HTTP/1.1 200 ", statusline.toString());
     }
-    
-    public void testFormatting() throws Exception {
-        StatusLine statusline = new BasicStatusLine(HttpVersion.HTTP_1_1, HttpStatus.SC_OK, "OK");
-        String s = BasicStatusLine.format(statusline);
-        assertEquals("HTTP/1.1 200 OK", s);
-        statusline = new BasicStatusLine(HttpVersion.HTTP_1_1, HttpStatus.SC_OK, null);
-        s = BasicStatusLine.format(statusline);
-        assertEquals("HTTP/1.1 200 ", s);
-        // compare with "testParseSuccess" above: trailing space is correct
-    }
-    
-    public void testFormattingInvalidInput() throws Exception {
-        try {
-            BasicStatusLine.format(null, new BasicStatusLine(HttpVersion.HTTP_1_1, HttpStatus.SC_OK, "OK"));
-            fail("IllegalArgumentException should habe been thrown");
-        } catch (IllegalArgumentException ex) {
-            // expected
-        }
-        try {
-            BasicStatusLine.format(new CharArrayBuffer(10), (StatusLine) null);
-            fail("IllegalArgumentException should habe been thrown");
-        } catch (IllegalArgumentException ex) {
-            // expected
-        }
-    }
-    
 }

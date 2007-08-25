@@ -30,9 +30,11 @@
 
 package org.apache.http.message;
 
-import org.apache.http.Header;
+import org.apache.http.HttpVersion;
+import org.apache.http.HttpStatus;
 import org.apache.http.RequestLine;
 import org.apache.http.StatusLine;
+import org.apache.http.Header;
 import org.apache.http.util.CharArrayBuffer;
 
 import junit.framework.*;
@@ -63,6 +65,34 @@ public class TestBasicLineFormatter extends TestCase {
         return new TestSuite(TestBasicLineFormatter.class);
     }
 
+    
+    public void testSLFormatting() throws Exception {
+        StatusLine statusline = new BasicStatusLine(HttpVersion.HTTP_1_1, HttpStatus.SC_OK, "OK");
+        String s = BasicLineFormatter.formatStatusLine(statusline, null);
+        assertEquals("HTTP/1.1 200 OK", s);
+        statusline = new BasicStatusLine(HttpVersion.HTTP_1_1, HttpStatus.SC_OK, null);
+        s = BasicLineFormatter.formatStatusLine(statusline, null);
+        assertEquals("HTTP/1.1 200 ", s);
+        // see "testSLParseSuccess" in TestBasicLineParser:
+        // trailing space is correct
+    }
+    
+    public void testSLFormattingInvalidInput() throws Exception {
+        try {
+            BasicLineFormatter.formatStatusLine
+                (null, BasicLineFormatter.DEFAULT);
+            fail("IllegalArgumentException should habe been thrown");
+        } catch (IllegalArgumentException ex) {
+            // expected
+        }
+        try {
+            BasicLineFormatter.DEFAULT.formatStatusLine
+                (new CharArrayBuffer(10), (StatusLine) null);
+            fail("IllegalArgumentException should habe been thrown");
+        } catch (IllegalArgumentException ex) {
+            // expected
+        }
+    }
 
 
     public void testHeaderFormatting() throws Exception {
@@ -84,7 +114,7 @@ public class TestBasicLineFormatter extends TestCase {
         }
         try {
             BasicLineFormatter.DEFAULT.formatHeader
-                (new CharArrayBuffer(10), null);
+                (new CharArrayBuffer(10), (Header) null);
             fail("IllegalArgumentException should habe been thrown");
         } catch (IllegalArgumentException ex) {
             // expected

@@ -115,37 +115,8 @@ public class BasicStatusLine implements StatusLine {
     }
 
     public String toString() {
-    	CharArrayBuffer buffer = new CharArrayBuffer(64);        
-        buffer.append(this.httpVersion);
-        buffer.append(' ');
-        buffer.append(Integer.toString(this.statusCode));
-        if (this.reasonPhrase != null && this.reasonPhrase.length() > 0) {
-            buffer.append(' ');
-            buffer.append(this.reasonPhrase);
-        }
-        return buffer.toString();
+        // no need for non-default formatting in toString()
+        return BasicLineFormatter.DEFAULT
+            .formatStatusLine(null, this).toString();
     }
-    
-    /*public@@@*/ static void format(final CharArrayBuffer buffer, final StatusLine statusline) {
-        if (buffer == null) {
-            throw new IllegalArgumentException("String buffer may not be null");
-        }
-        if (statusline == null) {
-            throw new IllegalArgumentException("Status line may not be null");
-        }
-        BasicHttpVersionFormat.format(buffer, statusline.getHttpVersion());
-        buffer.append(' ');
-        buffer.append(Integer.toString(statusline.getStatusCode()));
-        buffer.append(' '); // keep whitespace even if reason phrase is empty
-        if (statusline.getReasonPhrase() != null) {
-            buffer.append(statusline.getReasonPhrase());
-        }
-    }
- 
-    /*public@@@*/ static String format(final StatusLine statusline) {
-        CharArrayBuffer buffer = new CharArrayBuffer(32);
-        format(buffer, statusline);
-        return buffer.toString();
-    }
-    
 }

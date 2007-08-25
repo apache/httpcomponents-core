@@ -119,6 +119,7 @@ public class BasicLineFormatter implements LineFormatter {
 
         // can't use initBuffer, that would clear the argument!
         CharArrayBuffer result = buffer;
+        //@@@ guess the length in an extra method
         final int len = 8; // room for "HTTP/1.1"
         if (result == null) {
             result = new CharArrayBuffer(len);
@@ -146,12 +147,65 @@ public class BasicLineFormatter implements LineFormatter {
 
 
 
+    /**
+     * Formats a status line.
+     *
+     * @param statline          the status line to format
+     * @param formatter         the formatter to use, or
+     *                          <code>null</code> for the
+     *                          {@link #DEFAULT default}
+     *
+     * @return  the formatted status line
+     */
+    public final static String formatStatusLine(final StatusLine statline,
+                                                LineFormatter formatter) {
+        if (formatter == null)
+            formatter = BasicLineFormatter.DEFAULT;
+        return formatter.formatStatusLine(null, statline).toString();
+    }
+
+
     // non-javadoc, see interface LineFormatter
     public CharArrayBuffer formatStatusLine(CharArrayBuffer buffer,
                                             StatusLine statline) {
+        if (statline == null) {
+            throw new IllegalArgumentException
+                ("Status line must not be null.");
+        }
+
         CharArrayBuffer result = initBuffer(buffer);
-        BasicStatusLine.format(result, statline); //@@@ move code here
+        doFormatStatusLine(result, statline);
+
         return result;
+    }
+
+
+    /**
+     * Actually formats a status line.
+     * Called from {@link #formatStatusLine}.
+     *
+     * @param buffer    the empty buffer into which to format,
+     *                  never <code>null</code>
+     * @param header    the status line to format, never <code>null</code>
+     */
+    protected void doFormatStatusLine(CharArrayBuffer buffer,
+                                      StatusLine statline) {
+        //@@@ let the protocol version length be guessed elsewhere
+        //@@@ guess the length in an extra method?
+        int len = 8 + 1 + 3 + 1; // room for "HTTP/1.1 200 "
+        final String reason = statline.getReasonPhrase();
+        if (reason != null) {
+            len += reason.length();
+        }
+        buffer.ensureCapacity(len);
+
+        appendProtocolVersion(buffer, statline.getHttpVersion());
+        buffer.append(' ');
+        buffer.append(Integer.toString(statline.getStatusCode()));
+        buffer.append(' '); // keep whitespace even if reason phrase is empty
+        if (reason != null) {
+            buffer.append(reason);
+        }
     }
 
 

@@ -87,6 +87,8 @@ public interface LineFormatter {
      *
      * @return  a buffer with the formatted protocol version appended.
      *          The caller is allowed to modify the result buffer.
+     *          If the <code>buffer</code> argument is not <code>null</code>,
+     *          the returned buffer is the argument buffer.
      */
     CharArrayBuffer appendProtocolVersion(CharArrayBuffer buffer,
                                           HttpVersion version)
