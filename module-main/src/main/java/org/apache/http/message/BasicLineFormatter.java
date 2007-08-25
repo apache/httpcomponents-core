@@ -90,6 +90,51 @@ public class BasicLineFormatter implements LineFormatter {
     }
 
 
+    /**
+     * Formats a protocol version.
+     *
+     * @param version           the protocol version to format
+     * @param formatter         the formatter to use, or
+     *                          <code>null</code> for the
+     *                          {@link #DEFAULT default}
+     *
+     * @return  the formatted protocol version
+     */
+    public final static
+        String formatProtocolVersion(final HttpVersion version,
+                                     LineFormatter formatter) {
+        if (formatter == null)
+            formatter = BasicLineFormatter.DEFAULT;
+        return formatter.appendProtocolVersion(null, version).toString();
+    }
+
+
+    // non-javadoc, see interface LineFormatter
+    public CharArrayBuffer appendProtocolVersion(CharArrayBuffer buffer,
+                                                 HttpVersion version) {
+        if (version == null) {
+            throw new IllegalArgumentException
+                ("Protocol version must not be null.");
+        }
+
+        // can't use initBuffer, that would clear the argument!
+        CharArrayBuffer result = buffer;
+        final int len = 8; // room for "HTTP/1.1"
+        if (result == null) {
+            result = new CharArrayBuffer(len);
+        } else {
+            result.ensureCapacity(len);
+        }
+
+        result.append("HTTP/"); 
+        result.append(Integer.toString(version.getMajor())); 
+        result.append('.'); 
+        result.append(Integer.toString(version.getMinor())); 
+
+        return result;
+    }
+
+
     // non-javadoc, see interface LineFormatter
     public CharArrayBuffer formatRequestLine(CharArrayBuffer buffer,
                                              RequestLine reqline) {

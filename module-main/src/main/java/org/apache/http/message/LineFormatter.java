@@ -53,7 +53,8 @@ import org.apache.http.util.CharArrayBuffer;
  * In order to avoid unnecessary creation of temporary objects,
  * a buffer can be passed as argument to all formatting methods.
  * The implementation may or may not actually use that buffer for formatting.
- * If it is used, the buffer will first be cleared.
+ * If it is used, the buffer will first be cleared by the
+ * <code>formatXXX</code> methods.
  * The argument buffer can always be re-used after the call. The buffer
  * returned as the result, if it is different from the argument buffer,
  * MUST NOT be modified.
@@ -69,6 +70,27 @@ import org.apache.http.util.CharArrayBuffer;
  * @since 4.0
  */
 public interface LineFormatter {
+
+
+
+    /**
+     * Formats a protocol version.
+     * This method does <i>not</i> follow the general contract for
+     * <code>buffer</code> arguments.
+     * It does <i>not</i> clear the argument buffer, but appends instead.
+     * The returned buffer can always be modified by the caller.
+     * Because of these differing conventions, it is not named
+     * <code>formatProtocolVersion</code>.
+     *
+     * @param buffer    a buffer to which to append, or <code>null</code>
+     * @param version   the protocol version to format
+     *
+     * @return  a buffer with the formatted protocol version appended.
+     *          The caller is allowed to modify the result buffer.
+     */
+    CharArrayBuffer appendProtocolVersion(CharArrayBuffer buffer,
+                                          HttpVersion version)
+        ;
 
 
     /**
