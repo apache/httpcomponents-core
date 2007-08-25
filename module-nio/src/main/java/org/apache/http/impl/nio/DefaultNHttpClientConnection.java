@@ -85,7 +85,8 @@ public class DefaultNHttpClientConnection
     protected NHttpMessageWriter createRequestWriter(
             final SessionOutputBuffer buffer,
             final HttpParams params) {
-        return new HttpRequestWriter(buffer, params);
+        //@@@ how to configure the formatter?
+        return new HttpRequestWriter(buffer, null, params);
     }
     
     public void resetInput() {

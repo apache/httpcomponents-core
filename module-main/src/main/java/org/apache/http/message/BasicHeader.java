@@ -150,7 +150,7 @@ public class BasicHeader implements Header {
      * @param buffer the buffer to append to
      * @param header the header to format
      */
-    public static void format(final CharArrayBuffer buffer, final Header header) {
+    /*public@@@*/ static void format(final CharArrayBuffer buffer, final Header header) {
         if (buffer == null) {
             throw new IllegalArgumentException("String buffer may not be null");
         }
@@ -167,7 +167,7 @@ public class BasicHeader implements Header {
     /**
      * @see #format(CharArrayBuffer, Header)
      */
-    public static String format(final Header header) {
+    /*public@@@*/ static String format(final Header header) {
         CharArrayBuffer buffer = new CharArrayBuffer(32);
         format(buffer, header);
         return buffer.toString();

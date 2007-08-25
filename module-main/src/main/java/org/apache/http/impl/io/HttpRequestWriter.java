@@ -31,23 +31,29 @@
 
 package org.apache.http.impl.io;
 
+import java.io.IOException;
+
 import org.apache.http.HttpMessage;
 import org.apache.http.HttpRequest;
 import org.apache.http.io.SessionOutputBuffer;
-import org.apache.http.message.BasicRequestLine;
+import org.apache.http.message.LineFormatter;
 import org.apache.http.params.HttpParams;
 import org.apache.http.util.CharArrayBuffer;
 
 public class HttpRequestWriter extends AbstractMessageWriter {
 
-    public HttpRequestWriter(final SessionOutputBuffer buffer, final HttpParams params) {
-        super(buffer, params);
+    public HttpRequestWriter(final SessionOutputBuffer buffer,
+                             final LineFormatter formatter,
+                             final HttpParams params) {
+        super(buffer, formatter, params);
     }
     
-    protected void writeHeadLine(
-            final CharArrayBuffer lineBuffer, 
-            final HttpMessage message) {
-        BasicRequestLine.format(lineBuffer, ((HttpRequest) message).getRequestLine());
+    protected void writeHeadLine(final HttpMessage message)
+        throws IOException {
+
+        final CharArrayBuffer buffer = lineFormatter.formatRequestLine
+            (((HttpRequest) message).getRequestLine(), this.lineBuf);
+        this.sessionBuffer.writeLine(buffer);
     }
 
 }

@@ -94,7 +94,7 @@ public class BasicRequestLine implements RequestLine {
         return buffer.toString();
     }
     
-    public static void format(final CharArrayBuffer buffer, final RequestLine requestline) {
+    /*public@@@*/ static void format(final CharArrayBuffer buffer, final RequestLine requestline) {
         if (buffer == null) {
             throw new IllegalArgumentException("String buffer may not be null");
         }
@@ -108,7 +108,7 @@ public class BasicRequestLine implements RequestLine {
         BasicHttpVersionFormat.format(buffer, requestline.getHttpVersion());
     }
  
-    public static String format(final RequestLine requestline) {
+    /*public@@@*/ static String format(final RequestLine requestline) {
         CharArrayBuffer buffer = new CharArrayBuffer(64);
         format(buffer, requestline);
         return buffer.toString();

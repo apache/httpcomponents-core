@@ -105,7 +105,8 @@ public abstract class AbstractHttpClientConnection implements HttpClientConnecti
     protected HttpMessageWriter createRequestWriter(
             final SessionOutputBuffer buffer,
             final HttpParams params) {
-        return new HttpRequestWriter(buffer, params);
+        //@@@ how to configure the formatter?
+        return new HttpRequestWriter(buffer, null, params);
     }
     
     protected void init(

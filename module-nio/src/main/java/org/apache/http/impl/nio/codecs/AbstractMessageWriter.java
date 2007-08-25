@@ -37,8 +37,8 @@ import java.util.Iterator;
 import org.apache.http.Header;
 import org.apache.http.HttpException;
 import org.apache.http.HttpMessage;
-import org.apache.http.message.BasicHeader;
-import org.apache.http.message.BufferedHeader;
+import org.apache.http.message.LineFormatter;
+import org.apache.http.message.BasicLineFormatter;
 import org.apache.http.nio.NHttpMessageWriter;
 import org.apache.http.nio.reactor.SessionOutputBuffer;
 import org.apache.http.params.HttpParams;
@@ -46,41 +46,39 @@ import org.apache.http.util.CharArrayBuffer;
 
 public abstract class AbstractMessageWriter implements NHttpMessageWriter {
     
-    private final SessionOutputBuffer sessionBuffer;    
-    private final CharArrayBuffer lineBuf;
-    
-    public AbstractMessageWriter(final SessionOutputBuffer buffer, final HttpParams params) {
+    protected final SessionOutputBuffer sessionBuffer;    
+    protected final CharArrayBuffer lineBuf;
+    protected final LineFormatter lineFormatter;
+
+    public AbstractMessageWriter(final SessionOutputBuffer buffer,
+                                 final LineFormatter formatter,
+                                 final HttpParams params) {
         super();
         if (buffer == null) {
             throw new IllegalArgumentException("Session input buffer may not be null");
         }
         this.sessionBuffer = buffer;
-        this.lineBuf = new CharArrayBuffer(64); 
+        this.lineBuf = new CharArrayBuffer(64);
+        this.lineFormatter = (formatter != null) ?
+            formatter : BasicLineFormatter.DEFAULT;
     }
     
     public void reset() {
     }
     
-    protected abstract void writeHeadLine(CharArrayBuffer lineBuffer, HttpMessage message);
+    protected abstract void writeHeadLine(HttpMessage message)
+        throws IOException;
 
     public void write(
             final HttpMessage message) throws IOException, HttpException {
         if (message == null) {
             throw new IllegalArgumentException("HTTP message may not be null");
         }
-        this.lineBuf.clear();
-        writeHeadLine(this.lineBuf, message);
-        this.sessionBuffer.writeLine(this.lineBuf);
+        writeHeadLine(message);
         for (Iterator it = message.headerIterator(); it.hasNext(); ) {
             Header header = (Header) it.next();
-            if (header instanceof BufferedHeader) {
-                // If the header is backed by a buffer, re-use the buffer
-                this.sessionBuffer.writeLine(((BufferedHeader)header).getBuffer());
-            } else {
-                this.lineBuf.clear();
-                BasicHeader.format(this.lineBuf, header);
-                this.sessionBuffer.writeLine(this.lineBuf);
-            }
+            this.sessionBuffer.writeLine
+                (lineFormatter.formatHeader(header, this.lineBuf));
         }
         this.lineBuf.clear();
         this.sessionBuffer.writeLine(this.lineBuf);

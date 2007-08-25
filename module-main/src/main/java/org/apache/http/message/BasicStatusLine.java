@@ -126,7 +126,7 @@ public class BasicStatusLine implements StatusLine {
         return buffer.toString();
     }
     
-    public static void format(final CharArrayBuffer buffer, final StatusLine statusline) {
+    /*public@@@*/ static void format(final CharArrayBuffer buffer, final StatusLine statusline) {
         if (buffer == null) {
             throw new IllegalArgumentException("String buffer may not be null");
         }
@@ -142,7 +142,7 @@ public class BasicStatusLine implements StatusLine {
         }
     }
  
-    public static String format(final StatusLine statusline) {
+    /*public@@@*/ static String format(final StatusLine statusline) {
         CharArrayBuffer buffer = new CharArrayBuffer(32);
         format(buffer, statusline);
         return buffer.toString();
