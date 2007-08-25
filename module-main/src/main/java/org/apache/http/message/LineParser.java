@@ -33,7 +33,7 @@ package org.apache.http.message;
 
 
 import org.apache.http.HttpVersion;
-import org.apache.http.ProtocolException;
+import org.apache.http.ParseException;
 import org.apache.http.RequestLine;
 import org.apache.http.StatusLine;
 import org.apache.http.Header;
@@ -66,12 +66,12 @@ public interface LineParser {
      * 
      * @return  the parsed protocol version
      *
-     * @throws ProtocolException        in case of a parse error
+     * @throws ParseException        in case of a parse error
      */
     HttpVersion parseProtocolVersion(CharArrayBuffer buffer,
                                      int indexFrom,
                                      int indexTo) 
-        throws ProtocolException
+        throws ParseException
         ;
 
 
@@ -82,12 +82,12 @@ public interface LineParser {
      *
      * @return  the parsed request line
      *
-     * @throws ProtocolException        in case of a parse error
+     * @throws ParseException        in case of a parse error
      */
     RequestLine parseRequestLine(CharArrayBuffer buffer,
                                  int indexFrom,
                                  int indexTo)
-        throws ProtocolException
+        throws ParseException
         ;
 
 
@@ -98,12 +98,12 @@ public interface LineParser {
      *
      * @return  the parsed status line
      *
-     * @throws ProtocolException        in case of a parse error
+     * @throws ParseException        in case of a parse error
      */
     StatusLine parseStatusLine(CharArrayBuffer buffer,
                                int indexFrom,
                                int indexTo) 
-        throws ProtocolException
+        throws ParseException
         ;
 
 
@@ -120,10 +120,10 @@ public interface LineParser {
      *          The returned object MAY be a wrapper for the argument buffer.
      *          The argument buffer MUST NOT be re-used or changed afterwards.
      *
-     * @throws ProtocolException        in case of a parse error
+     * @throws ParseException        in case of a parse error
      */
     Header parseHeader(CharArrayBuffer buffer)
-        throws ProtocolException
+        throws ParseException
         ;
 
 

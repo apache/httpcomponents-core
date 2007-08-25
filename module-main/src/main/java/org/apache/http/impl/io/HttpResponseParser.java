@@ -38,6 +38,7 @@ import org.apache.http.HttpMessage;
 import org.apache.http.HttpResponseFactory;
 import org.apache.http.NoHttpResponseException;
 import org.apache.http.StatusLine;
+import org.apache.http.ParseException;
 import org.apache.http.io.SessionInputBuffer;
 import org.apache.http.message.LineParser;
 import org.apache.http.params.HttpParams;
@@ -62,7 +63,9 @@ public class HttpResponseParser extends AbstractMessageParser {
     }
 
     protected HttpMessage parseHead(
-            final SessionInputBuffer sessionBuffer) throws IOException, HttpException {
+            final SessionInputBuffer sessionBuffer)
+        throws IOException, HttpException, ParseException {
+
         this.lineBuf.clear();
         int i = sessionBuffer.readLine(this.lineBuf);
         if (i == -1) {

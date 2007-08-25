@@ -33,7 +33,6 @@ package org.apache.http.message;
 
 import org.apache.http.HttpVersion;
 import org.apache.http.ParseException;
-import org.apache.http.ProtocolException;
 import org.apache.http.RequestLine;
 import org.apache.http.StatusLine;
 import org.apache.http.Header;
@@ -81,7 +80,7 @@ public class BasicLineParser implements LineParser {
     public final static
         HttpVersion parseProtocolVersion(String value,
                                          LineParser parser)
-        throws ProtocolException {
+        throws ParseException {
 
         if (value == null) {
             throw new IllegalArgumentException
@@ -101,7 +100,7 @@ public class BasicLineParser implements LineParser {
     public HttpVersion parseProtocolVersion(final CharArrayBuffer buffer,
                                             final int indexFrom,
                                             final int indexTo) 
-        throws ProtocolException {
+        throws ParseException {
 
         if (buffer == null) {
             throw new IllegalArgumentException
@@ -128,31 +127,33 @@ public class BasicLineParser implements LineParser {
              || buffer.charAt(i + 2) != 'T'
              || buffer.charAt(i + 3) != 'P'
              || buffer.charAt(i + 4) != '/') {
-                throw new ProtocolException("Not a valid HTTP version string: " + 
+                throw new ParseException("Not a valid HTTP version string: " + 
                         buffer.substring(indexFrom, indexTo));
             }
             i += 5;
             int period = buffer.indexOf('.', i, indexTo);
             if (period == -1) {
-                throw new ProtocolException("Invalid HTTP version number: " + 
+                throw new ParseException("Invalid HTTP version number: " + 
                         buffer.substring(indexFrom, indexTo));
             }
             try {
                 major = Integer.parseInt(buffer.substringTrimmed(i, period)); 
             } catch (NumberFormatException e) {
-                throw new ProtocolException("Invalid HTTP major version number: " + 
-                        buffer.substring(indexFrom, indexTo));
+                throw new ParseException
+                    ("Invalid HTTP major version number: " + 
+                     buffer.substring(indexFrom, indexTo));
             }
             try {
                 minor = Integer.parseInt(buffer.substringTrimmed(period + 1, indexTo)); 
             } catch (NumberFormatException e) {
-                throw new ProtocolException("Invalid HTTP minor version number: " + 
-                        buffer.substring(indexFrom, indexTo));
+                throw new ParseException(
+                    "Invalid HTTP minor version number: " + 
+                    buffer.substring(indexFrom, indexTo));
             }
             return createProtocolVersion(major, minor);
             
         } catch (IndexOutOfBoundsException e) {
-            throw new ProtocolException("Invalid HTTP version string: " + 
+            throw new ParseException("Invalid HTTP version string: " + 
                     buffer.substring(indexFrom, indexTo)); 
         }
     } // parseProtocolVersion
@@ -176,7 +177,7 @@ public class BasicLineParser implements LineParser {
     public final static
         RequestLine parseRequestLine(String value,
                                      LineParser parser)
-        throws ProtocolException {
+        throws ParseException {
 
         if (value == null) {
             throw new IllegalArgumentException
@@ -199,12 +200,12 @@ public class BasicLineParser implements LineParser {
      *
      * @return  the parsed request line
      *
-     * @throws ProtocolException        in case of a parse error
+     * @throws ParseException        in case of a parse error
      */
     public RequestLine parseRequestLine(final CharArrayBuffer buffer,
                                         final int indexFrom,
                                         final int indexTo)
-        throws ProtocolException {
+        throws ParseException {
 
         if (buffer == null) {
             throw new IllegalArgumentException
@@ -227,7 +228,7 @@ public class BasicLineParser implements LineParser {
             }
             int blank = buffer.indexOf(' ', i, indexTo);
             if (blank < 0) {
-                throw new ProtocolException("Invalid request line: " + 
+                throw new ParseException("Invalid request line: " + 
                         buffer.substring(indexFrom, indexTo));
             }
             String method = buffer.substringTrimmed(i, blank);
@@ -237,15 +238,15 @@ public class BasicLineParser implements LineParser {
             }
             blank = buffer.indexOf(' ', i, indexTo);
             if (blank < 0) {
-                throw new ProtocolException("Invalid request line: " + 
+                throw new ParseException("Invalid request line: " + 
                         buffer.substring(indexFrom, indexTo));
             }
             String uri = buffer.substringTrimmed(i, blank);
             HttpVersion ver = parseProtocolVersion(buffer, blank, indexTo);
             return createRequestLine(method, uri, ver);
         } catch (IndexOutOfBoundsException e) {
-            throw new ProtocolException("Invalid request line: " + 
-                                        buffer.substring(indexFrom, indexTo)); 
+            throw new ParseException("Invalid request line: " + 
+                                     buffer.substring(indexFrom, indexTo)); 
         }
     } // parseRequestLine
 
@@ -271,7 +272,7 @@ public class BasicLineParser implements LineParser {
     public final static
         StatusLine parseStatusLine(String value,
                                    LineParser parser)
-        throws ProtocolException {
+        throws ParseException {
 
         if (value == null) {
             throw new IllegalArgumentException
@@ -291,7 +292,7 @@ public class BasicLineParser implements LineParser {
     public StatusLine parseStatusLine(final CharArrayBuffer buffer,
                                       final int indexFrom,
                                       final int indexTo) 
-        throws ProtocolException {
+        throws ParseException {
 
         if (buffer == null) {
             throw new IllegalArgumentException
@@ -315,7 +316,7 @@ public class BasicLineParser implements LineParser {
             }            
             int blank = buffer.indexOf(' ', i, indexTo);
             if (blank <= 0) {
-                throw new ProtocolException(
+                throw new ParseException(
                         "Unable to parse HTTP-Version from the status line: "
                         + buffer.substring(indexFrom, indexTo));
             }
@@ -337,7 +338,7 @@ public class BasicLineParser implements LineParser {
                 statusCode =
                     Integer.parseInt(buffer.substringTrimmed(i, blank));
             } catch (NumberFormatException e) {
-                throw new ProtocolException(
+                throw new ParseException(
                     "Unable to parse status code from status line: " 
                     + buffer.substring(indexFrom, indexTo));
             }
@@ -352,8 +353,8 @@ public class BasicLineParser implements LineParser {
             return createStatusLine(ver, statusCode, reasonPhrase);
 
         } catch (IndexOutOfBoundsException e) {
-            throw new ProtocolException("Invalid status line: " + 
-                                        buffer.substring(indexFrom, indexTo)); 
+            throw new ParseException("Invalid status line: " + 
+                                     buffer.substring(indexFrom, indexTo)); 
         }
     } // parseStatusLine
 
@@ -378,7 +379,7 @@ public class BasicLineParser implements LineParser {
     public final static
         Header parseHeader(String value, 
                            LineParser parser)
-        throws ProtocolException {
+        throws ParseException {
 
         if (value == null) {
             throw new IllegalArgumentException
@@ -396,16 +397,10 @@ public class BasicLineParser implements LineParser {
 
     // non-javadoc, see interface LineParser
     public Header parseHeader(CharArrayBuffer buffer)
-        throws ProtocolException {
+        throws ParseException {
 
-        Header result = null;
-        try {
-            // the actual parser code is in the constructor of BufferedHeader
-            result = new BufferedHeader(buffer, getHeaderValueParser());
-        } catch (ParseException px) {
-            throw new ProtocolException(px.getMessage(), px);
-        }
-        return result;
+        // the actual parser code is in the constructor of BufferedHeader
+        return new BufferedHeader(buffer, getHeaderValueParser());
     }
 
 

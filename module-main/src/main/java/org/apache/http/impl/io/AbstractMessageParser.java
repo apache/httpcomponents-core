@@ -37,6 +37,7 @@ import java.util.ArrayList;
 import org.apache.http.Header;
 import org.apache.http.HttpException;
 import org.apache.http.HttpMessage;
+import org.apache.http.ParseException;
 import org.apache.http.ProtocolException;
 import org.apache.http.io.HttpMessageParser;
 import org.apache.http.io.SessionInputBuffer;
@@ -157,7 +158,7 @@ public abstract class AbstractMessageParser implements HttpMessageParser {
             CharArrayBuffer buffer = (CharArrayBuffer) headerLines.get(i);
             try {
                 headers[i] = parser.parseHeader(buffer);
-            } catch (IllegalArgumentException ex) {
+            } catch (ParseException ex) {
                 throw new ProtocolException(ex.getMessage());
             }
         }
@@ -177,10 +178,15 @@ public abstract class AbstractMessageParser implements HttpMessageParser {
     }
 
     protected abstract HttpMessage parseHead(SessionInputBuffer sessionBuffer) 
-        throws IOException, HttpException;
+        throws IOException, HttpException, ParseException;
 
     public HttpMessage parse() throws IOException, HttpException {
-        HttpMessage message = parseHead(this.sessionBuffer);
+        HttpMessage message = null;
+        try {
+            message = parseHead(this.sessionBuffer);
+        } catch (ParseException px) {
+            throw new ProtocolException(px.getMessage(), px);
+        }
         Header[] headers = AbstractMessageParser.parseHeaders(
                 this.sessionBuffer, 
                 this.maxHeaderCount,

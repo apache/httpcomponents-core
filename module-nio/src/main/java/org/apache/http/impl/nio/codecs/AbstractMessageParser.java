@@ -38,6 +38,7 @@ import java.util.List;
 
 import org.apache.http.HttpException;
 import org.apache.http.HttpMessage;
+import org.apache.http.ParseException;
 import org.apache.http.ProtocolException;
 import org.apache.http.message.LineParser;
 import org.apache.http.message.BasicLineParser;
@@ -101,9 +102,9 @@ public abstract class AbstractMessageParser implements NHttpMessageParser {
     }
     
     protected abstract HttpMessage createMessage(CharArrayBuffer buffer) 
-        throws HttpException;
+        throws HttpException, ParseException;
     
-    private void parseHeadLine() throws HttpException {
+    private void parseHeadLine() throws HttpException, ParseException {
         this.message = createMessage(this.lineBuf);
     }
     
@@ -152,7 +153,11 @@ public abstract class AbstractMessageParser implements NHttpMessageParser {
 
             switch (this.state) {
             case READ_HEAD_LINE:
-                parseHeadLine();
+                try {
+                    parseHeadLine();
+                } catch (ParseException px) {
+                    throw new ProtocolException(px.getMessage(), px);
+                }
                 this.state = READ_HEADERS;
                 break;
             case READ_HEADERS:
@@ -176,8 +181,8 @@ public abstract class AbstractMessageParser implements NHttpMessageParser {
                 CharArrayBuffer buffer = (CharArrayBuffer) this.headerBufs.get(i);
                 try {
                     this.message.addHeader(lineParser.parseHeader(buffer));
-                } catch (IllegalArgumentException ex) {
-                    throw new ProtocolException(ex.getMessage());
+                } catch (ParseException ex) {
+                    throw new ProtocolException(ex.getMessage(), ex);
                 }
             }
             return this.message;
