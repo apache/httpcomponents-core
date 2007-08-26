@@ -51,6 +51,8 @@ import org.apache.http.io.HttpMessageParser;
 import org.apache.http.io.HttpMessageWriter;
 import org.apache.http.io.SessionInputBuffer;
 import org.apache.http.io.SessionOutputBuffer;
+import org.apache.http.message.LineParser;
+import org.apache.http.message.LineFormatter;
 import org.apache.http.params.HttpParams;
 
 /**
@@ -73,6 +75,13 @@ public abstract class AbstractHttpServerConnection implements HttpServerConnecti
     private HttpMessageParser requestParser = null;
     private HttpMessageWriter responseWriter = null;
     private HttpConnectionMetricsImpl metrics = null;
+
+    /** The line parser to use, or <code>null</code> for the default parser. */
+    private LineParser lineParser;
+
+    /** The line formatter to use, or <code>null</code> for the default formatter. */
+    private LineFormatter lineFormatter;
+
     
     public AbstractHttpServerConnection() {
         super();
@@ -98,16 +107,56 @@ public abstract class AbstractHttpServerConnection implements HttpServerConnecti
             final SessionInputBuffer buffer,
             final HttpRequestFactory requestFactory,
             final HttpParams params) {
-        //@@@ how to configure the parser?
-        return new HttpRequestParser(buffer, null, requestFactory, params);
+        return new HttpRequestParser(buffer, lineParser, requestFactory, params);
     }
     
     protected HttpMessageWriter createResponseWriter(
             final SessionOutputBuffer buffer,
             final HttpParams params) {
-        //@@@ how to configure the formatter?
-        return new HttpResponseWriter(buffer, null, params);
+        return new HttpResponseWriter(buffer, lineFormatter, params);
     }
+
+
+    /**
+     * Obtains the line parser to be used for receiving messages.
+     *
+     * @return  the line parser, or <code>null</code> for the default
+     */
+    public final LineParser getLineParser() {
+        return lineParser;
+    }
+
+    /**
+     * Specifies the line parser to use when receiving messages.
+     *
+     * @param parser    the line parser to use, or
+     *                  <code>null</code> for the default
+     */
+    public final void setLineParser(LineParser parser) {
+        lineParser = parser;
+    }
+
+
+    /**
+     * Obtains the line formatter to be used for receiving messages.
+     *
+     * @return  the line formatter, or <code>null</code> for the default
+     */
+    public final LineFormatter getLineFormatter() {
+        return lineFormatter;
+    }
+
+    /**
+     * Specifies the line formatter to use when receiving messages.
+     *
+     * @param formatter    the line formatter to use, or
+     *                  <code>null</code> for the default
+     */
+    public final void setLineFormatter(LineFormatter formatter) {
+        lineFormatter = formatter;
+    }
+
+
     
     protected void init(
             final SessionInputBuffer inbuffer,
