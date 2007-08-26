@@ -51,6 +51,9 @@ public interface HeaderElement {
     NameValuePair[] getParameters();
     
     NameValuePair getParameterByName(String name);
-    
+
+    int getParameterCount();
+
+    NameValuePair getParameter(int index);
 }
 

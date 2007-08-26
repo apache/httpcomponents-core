@@ -163,12 +163,38 @@ public class BasicHeaderElement implements HeaderElement {
 
     /**
      * Get parameters, if any.
+     * The returned array is created for each invocation and can
+     * be modified by the caller without affecting this header element.
      *
      * @return parameters as an array of {@link NameValuePair}s
      */
     public NameValuePair[] getParameters() {
         return (NameValuePair[])this.parameters.clone();
     }
+
+
+    /**
+     * Obtains the number of parameters.
+     *
+     * @return  the number of parameters
+     */
+    public int getParameterCount() {
+        return this.parameters.length;
+    }
+
+
+    /**
+     * Obtains the parameter with the given index.
+     *
+     * @param index     the index of the parameter, 0-based
+     *
+     * @return  the parameter with the given index
+     */
+    public NameValuePair getParameter(int index) {
+        // ArrayIndexOutOfBoundsException is appropriate
+        return this.parameters[index];
+    }
+
 
     // --------------------------------------------------------- Public Methods
 
