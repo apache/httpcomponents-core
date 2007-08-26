@@ -239,7 +239,8 @@ public class ChunkedInputStream extends InputStream {
      */
     private void parseTrailerHeaders() throws IOException {
         try {
-            this.footers = AbstractMessageParser.parseHeaders(in);
+            this.footers = AbstractMessageParser.parseHeaders
+                (in, -1, -1, null);
         } catch (HttpException e) {
             IOException ioe = new MalformedChunkCodingException("Invalid footer: " 
                     + e.getMessage());

@@ -67,7 +67,8 @@ public class TestMessageParser extends TestCase {
 
     public void testInvalidInput() throws Exception {
         try {
-            AbstractMessageParser.parseHeaders(null);
+            // the first argument must not be null
+            AbstractMessageParser.parseHeaders(null, -1, -1, null);
             fail("IllegalArgumentException should have been thrown");
         } catch (IllegalArgumentException ex) {
             // expected
@@ -90,7 +91,8 @@ public class TestMessageParser extends TestCase {
             "     \r\n" +  
             "\r\n"; 
         SessionInputBuffer receiver = new SessionInputBufferMockup(s, "US-ASCII"); 
-        Header[] headers = AbstractMessageParser.parseHeaders(receiver);
+        Header[] headers = AbstractMessageParser.parseHeaders
+            (receiver, -1, -1, null);
         assertNotNull(headers);
         assertEquals(3, headers.length);
         assertEquals("header1", headers[0].getName());
@@ -113,7 +115,8 @@ public class TestMessageParser extends TestCase {
             "header1  : stuff; param1 = value1; param2 = \"value 2\" \r\n" + 
             "\r\n"; 
         SessionInputBuffer receiver = new SessionInputBufferMockup(s, "US-ASCII"); 
-        Header[] headers = AbstractMessageParser.parseHeaders(receiver);
+        Header[] headers = AbstractMessageParser.parseHeaders
+            (receiver, -1, -1, null);
         assertNotNull(headers);
         assertEquals(1, headers.length);
         assertEquals("header1  : stuff; param1 = value1; param2 = \"value 2\" ", headers[0].toString());
@@ -137,7 +140,7 @@ public class TestMessageParser extends TestCase {
             "\r\n"; 
         SessionInputBuffer receiver = new SessionInputBufferMockup(s, "US-ASCII");
         try {
-            AbstractMessageParser.parseHeaders(receiver);
+            AbstractMessageParser.parseHeaders(receiver, -1, -1, null);
             fail("ProtocolException should have been thrown");
         } catch (ProtocolException ex) {
             // expected
@@ -147,7 +150,7 @@ public class TestMessageParser extends TestCase {
             "\r\n"; 
         receiver = new SessionInputBufferMockup(s, "US-ASCII");
         try {
-            AbstractMessageParser.parseHeaders(receiver);
+            AbstractMessageParser.parseHeaders(receiver, -1, -1, null);
             fail("ProtocolException should have been thrown");
         } catch (ProtocolException ex) {
             // expected
@@ -159,7 +162,8 @@ public class TestMessageParser extends TestCase {
             "    header1: stuff\r\n" + 
             "header2  : stuff \r\n"; 
         SessionInputBuffer receiver = new SessionInputBufferMockup(s, "US-ASCII"); 
-        Header[] headers = AbstractMessageParser.parseHeaders(receiver);
+        Header[] headers = AbstractMessageParser.parseHeaders
+            (receiver, -1, -1, null);
         assertNotNull(headers);
         assertEquals(2, headers.length);
         assertEquals("header1", headers[0].getName());
@@ -171,7 +175,8 @@ public class TestMessageParser extends TestCase {
     public void testEmptyDataStream() throws Exception {
         String s = ""; 
         SessionInputBuffer receiver = new SessionInputBufferMockup(s, "US-ASCII"); 
-        Header[] headers = AbstractMessageParser.parseHeaders(receiver);
+        Header[] headers = AbstractMessageParser.parseHeaders
+            (receiver, -1, -1, null);
         assertNotNull(headers);
         assertEquals(0, headers.length);
     }
@@ -184,7 +189,7 @@ public class TestMessageParser extends TestCase {
             "\r\n"; 
         SessionInputBuffer receiver = new SessionInputBufferMockup(s, "US-ASCII");
         try {
-            AbstractMessageParser.parseHeaders(receiver, 2, -1);
+            AbstractMessageParser.parseHeaders(receiver, 2, -1, null);
             fail("IOException should have been thrown");
         } catch (IOException ex) {
             // expected
@@ -199,7 +204,7 @@ public class TestMessageParser extends TestCase {
             "\r\n"; 
         SessionInputBuffer receiver = new SessionInputBufferMockup(s, "US-ASCII");
         try {
-            AbstractMessageParser.parseHeaders(receiver, 2, 15);
+            AbstractMessageParser.parseHeaders(receiver, 2, 15, null);
             fail("IOException should have been thrown");
         } catch (IOException ex) {
             // expected

@@ -165,18 +165,6 @@ public abstract class AbstractMessageParser implements HttpMessageParser {
         return headers;
     }
 
-    public static Header[] parseHeaders(
-            final SessionInputBuffer inbuffer,
-            int maxHeaderCount,
-            int maxLineLen) throws HttpException, IOException {
-        return parseHeaders(inbuffer, maxHeaderCount, maxLineLen, null);
-    }
-
-    public static Header[] parseHeaders(final SessionInputBuffer inbuffer) 
-        throws HttpException, IOException {
-        return parseHeaders(inbuffer, -1, -1, null);
-    }
-
     protected abstract HttpMessage parseHead(SessionInputBuffer sessionBuffer) 
         throws IOException, HttpException, ParseException;
 
