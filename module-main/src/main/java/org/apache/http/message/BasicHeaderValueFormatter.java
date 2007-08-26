@@ -31,6 +31,7 @@
 
 package org.apache.http.message;
 
+import org.apache.http.HeaderElement;
 import org.apache.http.NameValuePair;
 import org.apache.http.util.CharArrayBuffer;
 
@@ -80,7 +81,161 @@ public class BasicHeaderValueFormatter implements HeaderValueFormatter {
     // public default constructor
 
 
-    //         throw new UnsupportedOperationException("@@@");
+
+    /**
+     * Formats an array of header elements.
+     *
+     * @param elems     the header elements to format
+     * @param quote     <code>true</code> to always format with quoted values,
+     *                  <code>false</code> to use quotes only when necessary
+     * @param formatter         the formatter to use, or <code>null</code>
+     *                          for the {@link #DEFAULT default}
+     *
+     * @return  the formatted header elements
+     */
+    public final static
+        String formatElements(final HeaderElement[] elems,
+                              final boolean quote,
+                              HeaderValueFormatter formatter) {
+        if (formatter == null)
+            formatter = BasicHeaderValueFormatter.DEFAULT;
+        return formatter.formatElements(null, elems, quote).toString();
+    }
+
+
+    // non-javadoc, see interface HeaderValueFormatter
+    public CharArrayBuffer formatElements(CharArrayBuffer buffer,
+                                          final HeaderElement[] elems,
+                                          final boolean quote) {
+        if (elems == null) {
+            throw new IllegalArgumentException
+                ("Header element array must not be null.");
+        }
+
+        int len = estimateElementsLen(elems);
+        if (buffer == null) {
+            buffer = new CharArrayBuffer(len);
+        } else {
+            buffer.ensureCapacity(len);
+        }
+
+        for (int i=0; i<elems.length; i++) {
+            if (i > 0) {
+                buffer.append(", ");
+            }
+            formatHeaderElement(buffer, elems[i], quote);
+        }
+
+        return buffer;
+    }
+
+
+    /**
+     * Estimates the length of formatted header elements.
+     *
+     * @param elems     the header elements to format, or <code>null</code>
+     *
+     * @return  a length estimate, in number of characters
+     */
+    protected int estimateElementsLen(HeaderElement[] elems) {
+        if ((elems == null) || (elems.length < 1))
+            return 0;
+
+        int result = (elems.length-1) * 2; // elements separated by ", "
+        for (int i=0; i<elems.length; i++) {
+            result += estimateHeaderElementLen(elems[i]);
+        }
+
+        return result;
+    }
+
+
+
+    /**
+     * Formats a header element.
+     *
+     * @param elem      the header element to format
+     * @param quote     <code>true</code> to always format with quoted values,
+     *                  <code>false</code> to use quotes only when necessary
+     * @param formatter         the formatter to use, or <code>null</code>
+     *                          for the {@link #DEFAULT default}
+     *
+     * @return  the formatted header element
+     */
+    public final static
+        String formatHeaderElement(final HeaderElement elem,
+                                   final boolean quote,
+                                   HeaderValueFormatter formatter) {
+        if (formatter == null)
+            formatter = BasicHeaderValueFormatter.DEFAULT;
+        return formatter.formatHeaderElement(null, elem, quote).toString();
+    }
+
+
+    // non-javadoc, see interface HeaderValueFormatter
+    public CharArrayBuffer formatHeaderElement(CharArrayBuffer buffer,
+                                               final HeaderElement elem,
+                                               final boolean quote) {
+        if (elem == null) {
+            throw new IllegalArgumentException
+                ("Header element must not be null.");
+        }
+
+        int len = estimateHeaderElementLen(elem);
+        if (buffer == null) {
+            buffer = new CharArrayBuffer(len);
+        } else {
+            buffer.ensureCapacity(len);
+        }
+
+        buffer.append(elem.getName());
+        final String value = elem.getValue();
+        if (value != null) {
+            buffer.append('=');
+            doFormatValue(buffer, value, quote);
+        }
+
+        final int parcnt = elem.getParameterCount();
+        if (parcnt > 0) {
+            for (int i=0; i<parcnt; i++) {
+                buffer.append("; ");
+                formatNameValuePair(buffer, elem.getParameter(i), quote);
+            }
+        }
+
+        return buffer;
+    }
+
+
+    /**
+     * Estimates the length of a formatted header element.
+     *
+     * @param elem      the header element to format, or <code>null</code>
+     *
+     * @return  a length estimate, in number of characters
+     */
+    protected int estimateHeaderElementLen(HeaderElement elem) {
+        if (elem == null)
+            return 0;
+
+        int result = elem.getName().length(); // name
+        final String value = elem.getValue();
+        if (value != null) {
+            // assume quotes, but no escaped characters
+            result += 3 + value.length(); // ="value"
+        }
+
+        final int parcnt = elem.getParameterCount();
+        if (parcnt > 0) {
+            for (int i=0; i<parcnt; i++) {
+                result += 2 +                   // ; <param>
+                    estimateNameValuePairLen(elem.getParameter(i));
+            }
+        }
+
+        return result;
+    }
+
 
 
 
@@ -223,6 +378,7 @@ public class BasicHeaderValueFormatter implements HeaderValueFormatter {
 
     /**
      * Actually formats the value of a name-value pair.
+     * This does not include a leading = character.
      * Called from {@link #formatNameValuePair formatNameValuePair}.
      *
      * @param buffer    the buffer to append to, never <code>null</code>
