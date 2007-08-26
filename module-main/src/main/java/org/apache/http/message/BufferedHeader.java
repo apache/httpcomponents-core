@@ -31,14 +31,14 @@
 
 package org.apache.http.message;
 
-import org.apache.http.Header;
+import org.apache.http.FormattedHeader;
 import org.apache.http.HeaderElement;
 import org.apache.http.ParseException;
 import org.apache.http.util.CharArrayBuffer;
 
 /**
- * This class represents a raw HTTP header whose content is parsed 'on demand' only when 
- * the header value needs to be consumed.
+ * This class represents a raw HTTP header whose content is parsed 'on demand'
+ * only when the header value needs to be consumed.
  * 
  * @author <a href="mailto:oleg at ural.ru">Oleg Kalnichevski</a>
  *
@@ -46,7 +46,7 @@ import org.apache.http.util.CharArrayBuffer;
  * <!-- empty lines above to avoid 'svn diff' context problems -->
  * @version $Revision$ $Date$
  */
-public class BufferedHeader implements Header {
+public class BufferedHeader implements FormattedHeader {
 
     /**
      * Header name.

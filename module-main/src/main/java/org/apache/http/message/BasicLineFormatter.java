@@ -36,6 +36,7 @@ import org.apache.http.HttpVersion;
 import org.apache.http.RequestLine;
 import org.apache.http.StatusLine;
 import org.apache.http.Header;
+import org.apache.http.FormattedHeader;
 import org.apache.http.util.CharArrayBuffer;
 
 
@@ -298,9 +299,9 @@ public class BasicLineFormatter implements LineFormatter {
         }
         CharArrayBuffer result = null;
 
-        if (header instanceof BufferedHeader) {
+        if (header instanceof FormattedHeader) {
             // If the header is backed by a buffer, re-use the buffer
-            result = ((BufferedHeader)header).getBuffer();
+            result = ((FormattedHeader)header).getBuffer();
         } else {
             result = initBuffer(buffer);
             doFormatHeader(result, header);
