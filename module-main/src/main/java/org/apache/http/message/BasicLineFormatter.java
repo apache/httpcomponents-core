@@ -50,11 +50,14 @@ import org.apache.http.util.CharArrayBuffer;
  * on any specific IO mechanism.
  * Instances of this interface are expected to be stateless and thread-safe.
  *
- * @author <a href="mailto:rolandw AT apache.org">Roland Weber</a>
+ * @author <a href="mailto:remm@apache.org">Remy Maucherat</a>
+ * @author <a href="mailto:mbowler@GargoyleSoftware.com">Mike Bowler</a>
+ * @author <a href="mailto:jsdever@apache.org">Jeff Dever</a>
+ * @author <a href="mailto:oleg at ural.ru">Oleg Kalnichevski</a>
  *
  *
  * <!-- empty lines above to avoid 'svn diff' context problems -->
- * @version $Revision$ $Date$
+ * @version $Revision$
  *
  * @since 4.0
  */
