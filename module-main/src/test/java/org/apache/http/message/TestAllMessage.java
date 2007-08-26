@@ -44,6 +44,7 @@ public class TestAllMessage extends TestCase {
         suite.addTest(TestHeader.suite());
         suite.addTest(TestHeaderElement.suite());
         suite.addTest(TestBasicHeaderValueParser.suite());
+        suite.addTest(TestBasicHeaderValueFormatter.suite());
         suite.addTest(TestStatusLine.suite());
         suite.addTest(TestRequestLine.suite());
         suite.addTest(TestBasicLineParser.suite());

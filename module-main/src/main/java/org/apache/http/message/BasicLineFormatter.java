@@ -54,6 +54,7 @@ import org.apache.http.util.CharArrayBuffer;
  * @author <a href="mailto:mbowler@GargoyleSoftware.com">Mike Bowler</a>
  * @author <a href="mailto:jsdever@apache.org">Jeff Dever</a>
  * @author <a href="mailto:oleg at ural.ru">Oleg Kalnichevski</a>
+ * @author and others
  *
  *
  * <!-- empty lines above to avoid 'svn diff' context problems -->

@@ -185,12 +185,13 @@ public class BasicHeaderElement implements HeaderElement {
         buffer.append(element.getName());
         if (element.getValue() != null) {
             buffer.append("=");
-            buffer.append(element.getValue());
+            buffer.append(element.getValue()); //@@@ quoting?
         }
         NameValuePair[] params = element.getParameters();
         for (int i = 0; i < params.length; i++) {
             buffer.append("; ");
-            BasicNameValuePair.format(buffer, params[i], false);
+            BasicHeaderValueFormatter.DEFAULT.formatNameValuePair
+                (buffer, params[i], false);
         }
     }
     

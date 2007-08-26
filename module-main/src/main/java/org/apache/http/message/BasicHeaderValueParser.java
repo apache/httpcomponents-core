@@ -56,7 +56,7 @@ import org.apache.http.util.CharArrayBuffer;
  *
  *
  * <!-- empty lines above to avoid 'svn diff' context problems -->
- * @version $Revision$ $Date$
+ * @version $Revision$
  *
  * @since 4.0
  */
@@ -64,8 +64,8 @@ public class BasicHeaderValueParser implements HeaderValueParser {
 
     /**
      * A default instance of this class, for use as default or fallback.
-     * Note that {@link BasicLineParser} is not a singleton, there can
-     * be many instances of the class itself and of derived classes.
+     * Note that {@link BasicHeaderValueParser} is not a singleton, there
+     * can be many instances of the class itself and of derived classes.
      * The instance here provides non-customized, default behavior.
      */
     public final static

@@ -145,157 +145,6 @@ public class BasicNameValuePair implements NameValuePair {
         return this.value;
     }
 
-
-    /**
-     * Special characters that can be used as separators in HTTP parameters.
-     * These special characters MUST be in a quoted string to be used within
-     * a parameter value 
-     */
-    private static final char[] SEPARATORS   = {
-            '(', ')', '<', '>', '@', 
-            ',', ';', ':', '\\', '"', 
-            '/', '[', ']', '?', '=',
-            '{', '}', ' ', '\t'
-            };
-    
-    /**
-     * Unsafe special characters that must be escaped using the backslash
-     * character
-     */
-    private static final char[] UNSAFE_CHARS = {
-            '"', '\\'
-            };
-    
-    private static boolean isOneOf(char[] chars, char ch) {
-        for (int i = 0; i < chars.length; i++) {
-            if (ch == chars[i]) {
-                return true;
-            }
-        }
-        return false;
-    }
-    
-    private static boolean isUnsafeChar(char ch) {
-        return isOneOf(UNSAFE_CHARS, ch);
-    }
-    
-    private static boolean isSeparator(char ch) {
-        return isOneOf(SEPARATORS, ch);
-    }
-
-    private static void format(
-            final CharArrayBuffer buffer, 
-            final String value, 
-            boolean alwaysUseQuotes) {
-        boolean unsafe = false;
-        if (alwaysUseQuotes) {
-            unsafe = true;
-        } else {
-            for (int i = 0; i < value.length(); i++) {
-                if (isSeparator(value.charAt(i))) {
-                    unsafe = true;
-                    break;
-                }
-            }
-        }
-        if (unsafe) buffer.append('"');
-        for (int i = 0; i < value.length(); i++) {
-            char ch = value.charAt(i);
-            if (isUnsafeChar(ch)) {
-                buffer.append('\\');
-            }
-            buffer.append(ch);
-        }
-        if (unsafe) buffer.append('"');
-    }
-    
-    /**
-     * Produces textual representaion of the attribute/value pair using 
-     * formatting rules defined in RFC 2616
-     *  
-     * @param buffer output buffer 
-     * @param param the parameter to be formatted
-     * @param alwaysUseQuotes <tt>true</tt> if the parameter values must 
-     * always be enclosed in quotation marks, <tt>false</tt> otherwise
-     */
-    public static void format(
-            final CharArrayBuffer buffer, 
-            final NameValuePair param, 
-            boolean alwaysUseQuotes) {
-        if (buffer == null) {
-            throw new IllegalArgumentException("String buffer may not be null");
-        }
-        if (param == null) {
-            throw new IllegalArgumentException("Parameter may not be null");
-        }
-        buffer.append(param.getName());
-        String value = param.getValue();
-        if (value != null) {
-            buffer.append("=");
-            format(buffer, value, alwaysUseQuotes);
-        }
-    }
-    
-    /**
-     * Produces textual representaion of the attribute/value pairs using 
-     * formatting rules defined in RFC 2616
-     *  
-     * @param buffer output buffer 
-     * @param params the parameters to be formatted
-     * @param alwaysUseQuotes <tt>true</tt> if the parameter values must 
-     * always be enclosed in quotation marks, <tt>false</tt> otherwise
-     */
-    public static void formatAll(
-            final CharArrayBuffer buffer, 
-            final NameValuePair[] params, 
-            boolean alwaysUseQuotes) {
-        if (buffer == null) {
-            throw new IllegalArgumentException("String buffer may not be null");
-        }
-        if (params == null) {
-            throw new IllegalArgumentException("Array of parameter may not be null");
-        }
-        for (int i = 0; i < params.length; i++) {
-            if (i > 0) {
-                buffer.append("; ");
-            }
-            format(buffer, params[i], alwaysUseQuotes);
-        }
-    }
-    
-    /**
-     * Produces textual representaion of the attribute/value pair using 
-     * formatting rules defined in RFC 2616
-     *  
-     * @param param the parameter to be formatted
-     * @param alwaysUseQuotes <tt>true</tt> if the parameter values must 
-     * always be enclosed in quotation marks, <tt>false</tt> otherwise
-     * 
-     * @return RFC 2616 conformant textual representaion of the 
-     * attribute/value pair
-     */
-    public static String format(final NameValuePair param, boolean alwaysUseQuotes) {
-        CharArrayBuffer buffer = new CharArrayBuffer(16);
-        format(buffer, param, alwaysUseQuotes);
-        return buffer.toString();
-    }
-    
-    /**
-     * Produces textual representaion of the attribute/value pair using 
-     * formatting rules defined in RFC 2616
-     *  
-     * @param params the parameters to be formatted
-     * @param alwaysUseQuotes <tt>true</tt> if the parameter values must 
-     * always be enclosed in quotation marks, <tt>false</tt> otherwise
-     * 
-     * @return RFC 2616 conformant textual representaion of the 
-     * attribute/value pair
-     */
-    public static String formatAll(final NameValuePair[] params, boolean alwaysUseQuotes) {
-        CharArrayBuffer buffer = new CharArrayBuffer(16);
-        formatAll(buffer, params, alwaysUseQuotes);
-        return buffer.toString();
-    }
     
     /**
      * Get a string representation of this pair.
@@ -303,11 +152,17 @@ public class BasicNameValuePair implements NameValuePair {
      * @return A string representation.
      */
     public String toString() {
-        CharArrayBuffer buffer = new CharArrayBuffer(16);
+        // don't call complex default formatting for a simple toString
+
+        int len = this.name.length();
+        if (this.value != null)
+            len += 1 + this.value.length();
+        CharArrayBuffer buffer = new CharArrayBuffer(len);
+
         buffer.append(this.name);
         if (this.value != null) {
             buffer.append("=");
-            format(buffer, this.value, false);
+            buffer.append(this.value);
         }
         return buffer.toString();
     }

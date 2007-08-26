@@ -1,5 +1,5 @@
 /*
- * $Header$
+ * $HeadURL$
  * $Revision$
  * $Date$
  * ====================================================================
@@ -44,7 +44,7 @@ import junit.framework.*;
  * @author Rodney Waldhoff
  * @author <a href="mailto:bcholmes@interlog.com">B.C. Holmes</a>
  * @author <a href="mailto:jericho@thinkfree.com">Park, Sung-Gu</a>
- * @author <a href="mailto:oleg at ural.ru">oleg Kalnichevski</a>
+ * @author <a href="mailto:oleg at ural.ru">Oleg Kalnichevski</a>
  * @author and others
  * @version $Id$
  */
