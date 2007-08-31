@@ -118,10 +118,8 @@ public class BasicLineParser implements LineParser {
         try {
             int major, minor;
 
-            int i = indexFrom;
-            while (HTTP.isWhitespace(buffer.charAt(i))) {
-                i++;
-            }            
+            int i = skipWhitespace(buffer, indexFrom);
+
             if (buffer.charAt(i    ) != 'H' 
              || buffer.charAt(i + 1) != 'T'
              || buffer.charAt(i + 2) != 'T'
@@ -174,6 +172,42 @@ public class BasicLineParser implements LineParser {
 
 
 
+    // non-javadoc, see interface LineParser
+    public boolean hasProtocolVersion(final CharArrayBuffer buffer,
+                                      int index) {
+        if (buffer == null) {
+            throw new IllegalArgumentException
+                ("Char array buffer may not be null");
+        }
+        if (index >= buffer.length()) {
+            throw new IndexOutOfBoundsException();
+        }
+
+        if (buffer.length() < 8)
+            return false; // not long enough for "HTTP/1.1"
+
+        if (index < 0) {
+            // end of line, no tolerance for trailing whitespace
+            index = buffer.length()-8;
+        } else if (index == 0) {
+            // beginning of line, tolerate leading whitespace
+            index = skipWhitespace(buffer, index);
+
+        } // else within line, don't tolerate whitespace
+
+
+        if (index + 8 > buffer.length())
+            return false;
+
+        // just check for the protocol name, no need to analyse the version
+        return buffer.charAt(index    ) == 'H' 
+            && buffer.charAt(index + 1) == 'T'
+            && buffer.charAt(index + 2) == 'T'
+            && buffer.charAt(index + 3) == 'P';
+    }
+
+
+
     public final static
         RequestLine parseRequestLine(String value,
                                      LineParser parser)
@@ -222,20 +256,15 @@ public class BasicLineParser implements LineParser {
         }
 
         try {
-            int i = indexFrom;
-            while (HTTP.isWhitespace(buffer.charAt(i))) {
-                i++;
-            }
+            int i = skipWhitespace(buffer, indexFrom);
             int blank = buffer.indexOf(' ', i, indexTo);
             if (blank < 0) {
                 throw new ParseException("Invalid request line: " + 
                         buffer.substring(indexFrom, indexTo));
             }
             String method = buffer.substringTrimmed(i, blank);
-            i = blank;
-            while (HTTP.isWhitespace(buffer.charAt(i))) {
-                i++;
-            }
+
+            i = skipWhitespace(buffer, blank);
             blank = buffer.indexOf(' ', i, indexTo);
             if (blank < 0) {
                 throw new ParseException("Invalid request line: " + 
@@ -309,11 +338,8 @@ public class BasicLineParser implements LineParser {
         }
 
         try {
-            int i = indexFrom;
-            //handle the HTTP-Version
-            while (HTTP.isWhitespace(buffer.charAt(i))) {
-                i++;
-            }            
+            // handle the HTTP-Version
+            int i = skipWhitespace(buffer, indexFrom);
             int blank = buffer.indexOf(' ', i, indexTo);
             if (blank <= 0) {
                 throw new ParseException(
@@ -322,13 +348,8 @@ public class BasicLineParser implements LineParser {
             }
             HttpVersion ver = parseProtocolVersion(buffer, i, blank);
 
-            i = blank;
-            //advance through spaces
-            while (HTTP.isWhitespace(buffer.charAt(i))) {
-                i++;
-            }            
-
-            //handle the Status-Code
+            // handle the Status-Code
+            i = skipWhitespace(buffer, blank);
             blank = buffer.indexOf(' ', i, indexTo);
             if (blank < 0) {
                 blank = indexTo;
@@ -413,6 +434,24 @@ public class BasicLineParser implements LineParser {
      */
     protected HeaderValueParser getHeaderValueParser() {
         return null;
+    }
+
+
+    /**
+     * Helper to skip whitespace.
+     *
+     * @param buffer    the buffer in which to skip whitespace
+     * @param index     the index at which to start skipping
+     *
+     * @return  the index after the whitespace. This is the argument index
+     *          if there was no whitespace. It is the end of the buffer if
+     *          the rest of the line is whitespace.
+     */
+    protected int skipWhitespace(CharArrayBuffer buffer, int index) {
+        while (HTTP.isWhitespace(buffer.charAt(index))) {
+            index++;
+        }
+        return index;
     }
 
 

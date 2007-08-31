@@ -78,6 +78,29 @@ public interface LineParser {
 
 
     /**
+     * Checks whether there likely is a protocol version in a line.
+     * This method implements a <i>heuristic</i> to check for a
+     * likely protocol version specification. It does <i>not</i>
+     * guarantee that {@link #parseProtocolVersion} would not
+     * detect a parse error.
+     * This can be used to detect garbage lines before a request
+     * or status line.
+     *
+     * @param buffer    a buffer holding the line to inspect
+     * @param index     the index at which to check for a protocol version, or
+     *                  negative for "end of line". Whether the check tolerates
+     *                  whitespace before or after the protocol version is
+     *                  implementation dependent.
+     *
+     * @return  <code>true</code> if there is a protocol version at the
+     *          argument index (possibly ignoring whitespace),
+     *          <code>false</code> otherwise
+     */
+    boolean hasProtocolVersion(CharArrayBuffer buffer, int index)
+        ;
+
+
+    /**
      * Parses a request line.
      *
      * @param buffer    a buffer holding the line to parse
