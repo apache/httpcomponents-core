@@ -34,14 +34,11 @@ package org.apache.http.nio.protocol;
 import java.io.IOException;
 import java.io.InterruptedIOException;
 import java.io.OutputStream;
-import java.net.InetAddress;
 
 import org.apache.http.ConnectionReuseStrategy;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpEntityEnclosingRequest;
 import org.apache.http.HttpException;
-import org.apache.http.HttpHost;
-import org.apache.http.HttpInetConnection;
 import org.apache.http.HttpRequest;
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
@@ -63,8 +60,8 @@ import org.apache.http.nio.util.SharedOutputBuffer;
 import org.apache.http.params.HttpParams;
 import org.apache.http.params.HttpParamsLinker;
 import org.apache.http.params.HttpProtocolParams;
-import org.apache.http.protocol.HttpContext;
 import org.apache.http.protocol.ExecutionContext;
+import org.apache.http.protocol.HttpContext;
 import org.apache.http.protocol.HttpProcessor;
 import org.apache.http.util.concurrent.Executor;
 
@@ -116,17 +113,6 @@ public class ThrottlingHttpClientHandler extends NHttpClientHandlerBase {
     public void connected(final NHttpClientConnection conn, final Object attachment) {
         HttpContext context = conn.getContext();
 
-        // Populate the context with a default HTTP host based on the 
-        // inet address of the target host
-        if (conn instanceof HttpInetConnection) {
-            InetAddress address = ((HttpInetConnection) conn).getRemoteAddress();
-            int port = ((HttpInetConnection) conn).getRemotePort();
-            if (address != null) {
-                HttpHost host = new HttpHost(address.getHostName(), port);
-                context.setAttribute(ExecutionContext.HTTP_TARGET_HOST, host);
-            }
-        }
-        
         initialize(conn, attachment);
         
         int bufsize = this.params.getIntParameter(

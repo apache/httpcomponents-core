@@ -32,9 +32,12 @@
 package org.apache.http.protocol;
 
 import java.io.IOException;
+import java.net.InetAddress;
 
+import org.apache.http.HttpConnection;
 import org.apache.http.HttpException;
 import org.apache.http.HttpHost;
+import org.apache.http.HttpInetConnection;
 import org.apache.http.HttpRequest;
 import org.apache.http.HttpRequestInterceptor;
 import org.apache.http.HttpVersion;
@@ -67,11 +70,24 @@ public class RequestTargetHost implements HttpRequestInterceptor {
             HttpHost targethost = (HttpHost) context
                 .getAttribute(ExecutionContext.HTTP_TARGET_HOST);
             if (targethost == null) {
-                HttpVersion ver = request.getRequestLine().getHttpVersion();
-                if (ver.lessEquals(HttpVersion.HTTP_1_0)) {
-                    return;
-                } else {
-                    throw new ProtocolException("Target host missing");
+                HttpConnection conn = (HttpConnection) context
+                    .getAttribute(ExecutionContext.HTTP_CONNECTION);
+                if (conn instanceof HttpInetConnection) {
+                    // Populate the context with a default HTTP host based on the 
+                    // inet address of the target host
+                    InetAddress address = ((HttpInetConnection) conn).getRemoteAddress();
+                    int port = ((HttpInetConnection) conn).getRemotePort();
+                    if (address != null) {
+                        targethost = new HttpHost(address.getHostName(), port);
+                    }
+                }
+                if (targethost == null) {
+                    HttpVersion ver = request.getRequestLine().getHttpVersion();
+                    if (ver.lessEquals(HttpVersion.HTTP_1_0)) {
+                        return;
+                    } else {
+                        throw new ProtocolException("Target host missing");
+                    }
                 }
             }
             request.addHeader(HTTP.TARGET_HOST, targethost.toHostString());

@@ -1,5 +1,9 @@
 Changes since release 4.0 Alpha 5
 
+* [HTTPCORE-113] Removed unnecessary target hostname resolution from non-blocking client 
+  protocol handlers.
+  Oleg Kalnichevski <olegk at apache.org>
+
 * [HTTPCORE-108] Close all channels registered with the I/O reactor during 
   shutdown. Fixed the problem with DefaultListeningIOReactor not releasing
   socket ports until JVM is restarted.
