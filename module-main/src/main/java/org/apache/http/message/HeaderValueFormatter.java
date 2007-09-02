@@ -59,49 +59,6 @@ import org.apache.http.util.CharArrayBuffer;
  */
 public interface HeaderValueFormatter {
 
-    /* *
-     * Parses a header value into elements.
-     * Parse errors are indicated as <code>RuntimeException</code>.
-     * <p>
-     * Some HTTP headers (such as the set-cookie header) have values that
-     * can be decomposed into multiple elements. In order to be processed
-     * by this parser, such headers must be in the following form:
-     * </p>
-     * <pre>
-     * header  = [ element ] *( "," [ element ] )
-     * element = name [ "=" [ value ] ] *( ";" [ param ] )
-     * param   = name [ "=" [ value ] ]
-     *
-     * name    = token
-     * value   = ( token | quoted-string )
-     *
-     * token         = 1*&lt;any char except "=", ",", ";", &lt;"&gt; and
-     *                       white space&gt;
-     * quoted-string = &lt;"&gt; *( text | quoted-char ) &lt;"&gt;
-     * text          = any char except &lt;"&gt;
-     * quoted-char   = "\" char
-     * </pre>
-     * <p>
-     * Any amount of white space is allowed between any part of the
-     * header, element or param and is ignored. A missing value in any
-     * element or param will be stored as the empty {@link String};
-     * if the "=" is also missing <var>null</var> will be stored instead.
-     * </p>
-     *
-     * @param buffer    buffer holding the header value to parse
-     *
-     * @return  an array holding all elements of the header value
-     *
-     * @throws ParseException        in case of a parse error
-     * /
-    HeaderElement[] parseElements(CharArrayBuffer buffer,
-                                  int indexFrom,
-                                  int indexTo)
-        throws ParseException
-        ;
-    */
-
-
     /**
      * Formats an array of header elements.
      *

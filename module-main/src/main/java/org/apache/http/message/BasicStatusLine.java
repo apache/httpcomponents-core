@@ -33,10 +33,7 @@ package org.apache.http.message;
 
 import org.apache.http.HttpStatus;
 import org.apache.http.HttpVersion;
-import org.apache.http.ProtocolException;
 import org.apache.http.StatusLine;
-import org.apache.http.protocol.HTTP;
-import org.apache.http.util.CharArrayBuffer;
 
 
 

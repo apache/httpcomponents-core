@@ -31,14 +31,12 @@
 
 package org.apache.http.message;
 
-import org.apache.http.Header;
-import org.apache.http.HeaderElement;
-import org.apache.http.message.BasicHeader;
-import org.apache.http.util.CharArrayBuffer;
-
 import junit.framework.Test;
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
+
+import org.apache.http.Header;
+import org.apache.http.HeaderElement;
 
 /**
  * Unit tests for {@link Header}.

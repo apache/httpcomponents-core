@@ -116,14 +116,13 @@ public abstract class AbstractHttpServerConnection implements HttpServerConnecti
         return new HttpResponseWriter(buffer, lineFormatter, params);
     }
 
-
     /**
      * Obtains the line parser to be used for receiving messages.
      *
      * @return  the line parser, or <code>null</code> for the default
      */
     public final LineParser getLineParser() {
-        return lineParser;
+        return this.lineParser;
     }
 
     /**
@@ -132,10 +131,9 @@ public abstract class AbstractHttpServerConnection implements HttpServerConnecti
      * @param parser    the line parser to use, or
      *                  <code>null</code> for the default
      */
-    public final void setLineParser(LineParser parser) {
-        lineParser = parser;
+    public final void setLineParser(final LineParser parser) {
+        this.lineParser = parser;
     }
-
 
     /**
      * Obtains the line formatter to be used for receiving messages.
@@ -143,7 +141,7 @@ public abstract class AbstractHttpServerConnection implements HttpServerConnecti
      * @return  the line formatter, or <code>null</code> for the default
      */
     public final LineFormatter getLineFormatter() {
-        return lineFormatter;
+        return this.lineFormatter;
     }
 
     /**
@@ -152,11 +150,9 @@ public abstract class AbstractHttpServerConnection implements HttpServerConnecti
      * @param formatter    the line formatter to use, or
      *                  <code>null</code> for the default
      */
-    public final void setLineFormatter(LineFormatter formatter) {
-        lineFormatter = formatter;
+    public final void setLineFormatter(final LineFormatter formatter) {
+        this.lineFormatter = formatter;
     }
-
-
     
     protected void init(
             final SessionInputBuffer inbuffer,

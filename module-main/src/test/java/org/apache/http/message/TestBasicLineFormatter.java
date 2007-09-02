@@ -30,14 +30,16 @@
 
 package org.apache.http.message;
 
-import org.apache.http.HttpVersion;
+import junit.framework.Test;
+import junit.framework.TestCase;
+import junit.framework.TestSuite;
+
+import org.apache.http.Header;
 import org.apache.http.HttpStatus;
+import org.apache.http.HttpVersion;
 import org.apache.http.RequestLine;
 import org.apache.http.StatusLine;
-import org.apache.http.Header;
 import org.apache.http.util.CharArrayBuffer;
-
-import junit.framework.*;
 
 /**
  * Tests for {@link BasicLineFormatter}.

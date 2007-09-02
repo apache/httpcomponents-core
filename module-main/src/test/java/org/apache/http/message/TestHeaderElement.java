@@ -32,13 +32,13 @@
 
 package org.apache.http.message;
 
+import junit.framework.Test;
+import junit.framework.TestCase;
+import junit.framework.TestSuite;
+
 import org.apache.http.HeaderElement;
 import org.apache.http.NameValuePair;
-import org.apache.http.message.BasicHeaderElement;
-import org.apache.http.message.BasicNameValuePair;
 import org.apache.http.util.CharArrayBuffer;
-
-import junit.framework.*;
 
 /**
  * Simple tests for {@link HeaderElement}.

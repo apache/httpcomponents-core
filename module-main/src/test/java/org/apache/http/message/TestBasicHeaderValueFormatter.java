@@ -32,11 +32,12 @@
 
 package org.apache.http.message;
 
+import junit.framework.Test;
+import junit.framework.TestCase;
+import junit.framework.TestSuite;
+
 import org.apache.http.HeaderElement;
 import org.apache.http.NameValuePair;
-import org.apache.http.util.CharArrayBuffer;
-
-import junit.framework.*;
 
 /**
  * Tests for header value formatting.

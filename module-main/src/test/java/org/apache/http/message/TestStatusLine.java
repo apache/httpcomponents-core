@@ -30,14 +30,13 @@
 
 package org.apache.http.message;
 
-import org.apache.http.HttpException;
+import junit.framework.Test;
+import junit.framework.TestCase;
+import junit.framework.TestSuite;
+
 import org.apache.http.HttpStatus;
 import org.apache.http.HttpVersion;
 import org.apache.http.StatusLine;
-import org.apache.http.message.BasicStatusLine;
-import org.apache.http.util.CharArrayBuffer;
-
-import junit.framework.*;
 
 /**
  * Simple tests for {@link StatusLine}.

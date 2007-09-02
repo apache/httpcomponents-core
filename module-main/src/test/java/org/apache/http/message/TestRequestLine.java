@@ -30,13 +30,12 @@
 
 package org.apache.http.message;
 
-import org.apache.http.HttpException;
+import junit.framework.Test;
+import junit.framework.TestCase;
+import junit.framework.TestSuite;
+
 import org.apache.http.HttpVersion;
 import org.apache.http.RequestLine;
-import org.apache.http.message.BasicRequestLine;
-import org.apache.http.util.CharArrayBuffer;
-
-import junit.framework.*;
 
 /**
  * Simple tests for {@link RequestLine}.

@@ -34,7 +34,6 @@ package org.apache.http.message;
 import org.apache.http.Header;
 import org.apache.http.HeaderElement;
 import org.apache.http.ParseException;
-import org.apache.http.util.CharArrayBuffer;
 
 /**
  * Represents an HTTP header field.

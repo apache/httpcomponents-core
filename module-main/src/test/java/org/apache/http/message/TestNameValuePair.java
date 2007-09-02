@@ -31,13 +31,11 @@
 
 package org.apache.http.message;
 
-import org.apache.http.NameValuePair;
-import org.apache.http.message.BasicNameValuePair;
-import org.apache.http.util.CharArrayBuffer;
-
 import junit.framework.Test;
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
+
+import org.apache.http.NameValuePair;
 
 /**
  * Unit tests for {@link NameValuePair}.

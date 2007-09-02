@@ -30,7 +30,9 @@
 
 package org.apache.http.message;
 
-import junit.framework.*;
+import junit.framework.Test;
+import junit.framework.TestCase;
+import junit.framework.TestSuite;
 
 public class TestAllMessage extends TestCase {
 

@@ -30,14 +30,15 @@
 
 package org.apache.http.message;
 
+import junit.framework.Test;
+import junit.framework.TestCase;
+import junit.framework.TestSuite;
+
 import org.apache.http.HttpVersion;
 import org.apache.http.ParseException;
 import org.apache.http.RequestLine;
 import org.apache.http.StatusLine;
-import org.apache.http.message.BasicRequestLine;
 import org.apache.http.util.CharArrayBuffer;
-
-import junit.framework.*;
 
 /**
  * Tests for {@link BasicLineParser}.
