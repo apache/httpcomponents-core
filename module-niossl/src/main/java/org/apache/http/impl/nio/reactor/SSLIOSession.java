@@ -256,7 +256,7 @@ public class SSLIOSession implements IOSession, SessionBufferStatus {
         }
         doHandshake();
         decryptData();
-        return this.session.hasBufferedInput() || this.inPlain.position() > 0;
+        return this.inPlain.position() > 0;
     }
     
     public synchronized boolean isAppOutputReady() throws IOException {
