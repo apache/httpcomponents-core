@@ -85,9 +85,13 @@ public class NHttpClient {
         httpproc.addInterceptor(new RequestUserAgent());
         httpproc.addInterceptor(new RequestExpectContinue());
         
+        // We are going to use this object to synchronize between the 
+        // I/O event and main threads
+        RequestCount requestCount = new RequestCount(3);
+        
         BufferingHttpClientHandler handler = new BufferingHttpClientHandler(
                 httpproc,
-                new MyHttpRequestExecutionHandler(),
+                new MyHttpRequestExecutionHandler(requestCount),
                 new DefaultConnectionReuseStrategy(),
                 params);
 
@@ -111,7 +115,7 @@ public class NHttpClient {
         });
         t.start();
 
-        SessionRequest[] reqs = new SessionRequest[3];
+        SessionRequest[] reqs = new SessionRequest[requestCount.getValue()];
         reqs[0] = ioReactor.connect(
                 new InetSocketAddress("www.yahoo.com", 80), 
                 null, 
@@ -127,11 +131,33 @@ public class NHttpClient {
                 null,
                 new HttpHost("www.apache.org"),
                 null);
+     
+        // Block until all connections signal
+        // completion of the request execution
+        synchronized (requestCount) {
+            while (requestCount.getValue() > 0) {
+                requestCount.wait();
+            }
+        }
+
+        System.out.println("Shutting down I/O reactor");
         
+        ioReactor.shutdown();
+        
+        System.out.println("Done");
     }
     
     static class MyHttpRequestExecutionHandler implements HttpRequestExecutionHandler {
 
+        private final static String DONE = "done";
+        
+        private final RequestCount requestCount;
+        
+        public MyHttpRequestExecutionHandler(final RequestCount requestCount) {
+            super();
+            this.requestCount = requestCount;
+        }
+        
         public void initalizeContext(final HttpContext context, final Object attachment) {
             HttpHost targetHost = (HttpHost) attachment;
             context.setAttribute(ExecutionContext.HTTP_TARGET_HOST, targetHost);
@@ -140,21 +166,18 @@ public class NHttpClient {
         public HttpRequest submitRequest(final HttpContext context) {
             HttpHost targetHost = (HttpHost) context.getAttribute(
                     ExecutionContext.HTTP_TARGET_HOST);
-            Integer countObj = (Integer) context.getAttribute(
-                    "request-count");
-            int counter = 0; 
-            if (countObj != null) {
-                counter = countObj.intValue(); 
-            }
-            counter++;
-            context.setAttribute("request-count", new Integer(counter));
-            if (counter < 3) {
+            Object token = context.getAttribute(DONE);
+            if (token == null) {
+                // Stick some object into the context
+                context.setAttribute(DONE, Boolean.TRUE);
+
                 System.out.println("--------------");
                 System.out.println("Sending request to " + targetHost);
                 System.out.println("--------------");
+                
                 return new BasicHttpRequest("GET", "/");
             } else {
-                // Return null to terminate the connection
+                // No new request to submit
                 return null;
             }
         }
@@ -172,17 +195,19 @@ public class NHttpClient {
             } catch (IOException ex) {
                 System.err.println("I/O error: " + ex.getMessage());
             }
+
+            // Signal completion of the request execution
+            synchronized (this.requestCount) {
+                this.requestCount.decrement();
+                this.requestCount.notifyAll();
+            }
         }
         
     }
     
     static class EventLogger implements EventListener {
 
-        private int openNo = 0;
-        private int closedNo = 0;
-        
         public void connectionOpen(final NHttpConnection conn) {
-            this.openNo++;
             System.out.println("Connection open: " + conn);
         }
 
@@ -192,10 +217,6 @@ public class NHttpClient {
 
         public void connectionClosed(final NHttpConnection conn) {
             System.out.println("Connection closed: " + conn);
-            this.closedNo++;
-            if (this.openNo == this.closedNo) {
-                System.exit(0);
-            }
         }
 
         public void fatalIOException(final IOException ex, final NHttpConnection conn) {
@@ -207,5 +228,23 @@ public class NHttpClient {
         }
         
     }
+
+    static class RequestCount {
         
+        private int value;
+        
+        public RequestCount(int initialValue) {
+            this.value = initialValue;
+        }
+        
+        public int getValue() {
+            return this.value;
+        }
+        
+        public void decrement() {
+            this.value--;
+        }
+        
+    }
+    
 }
