@@ -134,6 +134,10 @@ public class LoggingIOSession implements IOSession {
         this.session.close();
     }
 
+    public int getStatus() {
+        return this.session.getStatus();
+    }
+
     public boolean isClosed() {
         return this.session.isClosed();
     }

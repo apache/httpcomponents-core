@@ -38,6 +38,10 @@ public interface IOSession {
 
     public static final String ATTACHMENT_KEY = "http.session.attachment";
 
+    public static final int ACTIVE       = 0;
+    public static final int CLOSING      = 1;
+    public static final int CLOSED       = Integer.MAX_VALUE;
+    
     ByteChannel channel();
     
     SocketAddress getRemoteAddress();    
@@ -55,6 +59,8 @@ public interface IOSession {
     void close();
     
     void shutdown();
+    
+    int getStatus();
     
     boolean isClosed();
 

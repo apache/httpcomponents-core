@@ -46,7 +46,7 @@ import org.apache.http.nio.reactor.SessionBufferStatus;
 
 public class IOSessionImpl implements IOSession {
     
-    private volatile boolean closed = false;
+    private volatile int status;
     
     private final SelectionKey key;
     private final ByteChannel channel;
@@ -66,6 +66,7 @@ public class IOSessionImpl implements IOSession {
         this.callback = callback;
         this.attributes = Collections.synchronizedMap(new HashMap());
         this.socketTimeout = 0;
+        this.status = ACTIVE;
     }
     
     public ByteChannel channel() {
@@ -95,7 +96,7 @@ public class IOSessionImpl implements IOSession {
     }
     
     public void setEventMask(int ops) {
-        if (this.closed) {
+        if (this.status == CLOSED) {
             return;
         }
         synchronized (this.key) {
@@ -105,7 +106,7 @@ public class IOSessionImpl implements IOSession {
     }
     
     public void setEvent(int op) {
-        if (this.closed) {
+        if (this.status == CLOSED) {
             return;
         }
         synchronized (this.key) {
@@ -116,7 +117,7 @@ public class IOSessionImpl implements IOSession {
     }
     
     public void clearEvent(int op) {
-        if (this.closed) {
+        if (this.status == CLOSED) {
             return;
         }
         synchronized (this.key) {
@@ -135,10 +136,10 @@ public class IOSessionImpl implements IOSession {
     }
     
     public void close() {
-        if (this.closed) {
+        if (this.status == CLOSED) {
             return;
         }
-        this.closed = true;
+        this.status = CLOSED;
         this.key.cancel();
         try {
             this.key.channel().close();
@@ -154,8 +155,12 @@ public class IOSessionImpl implements IOSession {
         }
     }
     
+    public int getStatus() {
+        return this.status;
+    }
+
     public boolean isClosed() {
-        return this.closed || !this.key.isValid();
+        return this.status == CLOSED || !this.key.isValid();
     }
     
     public void shutdown() {

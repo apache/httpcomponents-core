@@ -69,7 +69,7 @@ public class SSLIOSession implements IOSession, SessionBufferStatus {
     private int appEventMask;
     private SessionBufferStatus appBufferStatus;
     
-    private volatile boolean closed;
+    private volatile int status;
     
     public SSLIOSession(
             final IOSession session, 
@@ -146,7 +146,7 @@ public class SSLIOSession implements IOSession, SessionBufferStatus {
                     handshaking = false;
                 }
                 if (result.getStatus() == Status.CLOSED) {
-                    this.closed = true;
+                    this.status = CLOSED;
                 }
                 break;
             case NEED_UNWRAP:
@@ -158,7 +158,7 @@ public class SSLIOSession implements IOSession, SessionBufferStatus {
                     handshaking = false;
                 }
                 if (result.getStatus() == Status.CLOSED) {
-                    this.closed = true;
+                    this.status = CLOSED;
                 }
                 break;
             case NEED_TASK:
@@ -239,7 +239,7 @@ public class SSLIOSession implements IOSession, SessionBufferStatus {
             SSLEngineResult result = this.sslEngine.unwrap(this.inEncrypted, this.inPlain);
             this.inEncrypted.compact();
             if (result.getStatus() == Status.CLOSED) {
-                this.closed = true;
+                this.status = CLOSED;
             }
             if (result.getStatus() == Status.OK) {
                 decrypted = true;
@@ -251,7 +251,7 @@ public class SSLIOSession implements IOSession, SessionBufferStatus {
     public synchronized boolean isAppInputReady() throws IOException {
         int bytesRead = receiveEncryptedData();
         if (bytesRead == -1) {
-            this.closed = true;
+            this.status = CLOSED;
             return false;
         }
         doHandshake();
@@ -260,7 +260,7 @@ public class SSLIOSession implements IOSession, SessionBufferStatus {
     }
     
     public synchronized boolean isAppOutputReady() throws IOException {
-        return !this.closed
+        return this.status != CLOSED
             && this.sslEngine.getHandshakeStatus() == HandshakeStatus.NOT_HANDSHAKING;
     }
     
@@ -278,7 +278,7 @@ public class SSLIOSession implements IOSession, SessionBufferStatus {
         if (src == null) {
             throw new IllegalArgumentException("Byte buffer may not be null");
         }
-        if (this.closed) {
+        if (this.status == CLOSED) {
             return -1;
         }
         if (this.outPlain.position() > 0) {
@@ -289,7 +289,7 @@ public class SSLIOSession implements IOSession, SessionBufferStatus {
         if (this.outPlain.position() == 0) {
             SSLEngineResult result = this.sslEngine.wrap(src, this.outEncrypted);
             if (result.getStatus() == Status.CLOSED) {
-                this.closed = true;
+                this.status = CLOSED;
             }
             return result.bytesConsumed();
         } else {
@@ -301,7 +301,7 @@ public class SSLIOSession implements IOSession, SessionBufferStatus {
         if (dst == null) {
             throw new IllegalArgumentException("Byte buffer may not be null");
         }
-        if (this.closed) {
+        if (this.status == CLOSED) {
             return -1;
         }
         if (this.inPlain.position() > 0) {
@@ -318,18 +318,22 @@ public class SSLIOSession implements IOSession, SessionBufferStatus {
     }
     
     public void close() {
-        if (this.closed) {
+        if (this.status == CLOSED) {
             return;
         }
-        this.closed = true;
+        this.status = CLOSED;
         synchronized(this) {
             this.sslEngine.closeOutbound();
             updateEventMask();
         }
     }
+    
+    public int getStatus() {
+        return this.status;
+    }
 
     public boolean isClosed() {
-        return this.closed;
+        return this.status == CLOSED;
     }
 
     public synchronized boolean isInboundDone() {
@@ -341,7 +345,7 @@ public class SSLIOSession implements IOSession, SessionBufferStatus {
     }
     
     public void shutdown() {
-        this.closed = true;
+        this.status = CLOSED;
         this.session.shutdown();
     }
 
