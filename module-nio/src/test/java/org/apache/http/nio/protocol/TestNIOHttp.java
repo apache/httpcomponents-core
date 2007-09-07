@@ -337,6 +337,9 @@ public class TestNIOHttp extends TestCase {
                 context.setAttribute("RES-COUNT", new Integer(0));
             }
 
+            public void finalizeContext(final HttpContext context) {
+            }
+
             public HttpRequest submitRequest(final HttpContext context) {
                 int i = ((Integer) context.getAttribute("REQ-COUNT")).intValue();
                 BasicHttpRequest get = null;
@@ -475,6 +478,9 @@ public class TestNIOHttp extends TestCase {
                 context.setAttribute("LIST", (List) attachment);
                 context.setAttribute("REQ-COUNT", new Integer(0));
                 context.setAttribute("RES-COUNT", new Integer(0));
+            }
+
+            public void finalizeContext(final HttpContext context) {
             }
 
             public HttpRequest submitRequest(final HttpContext context) {
@@ -618,6 +624,9 @@ public class TestNIOHttp extends TestCase {
                 context.setAttribute("LIST", (List) attachment);
                 context.setAttribute("REQ-COUNT", new Integer(0));
                 context.setAttribute("RES-COUNT", new Integer(0));
+            }
+
+            public void finalizeContext(final HttpContext context) {
             }
 
             public HttpRequest submitRequest(final HttpContext context) {
@@ -770,6 +779,9 @@ public class TestNIOHttp extends TestCase {
                 context.setAttribute("RES-COUNT", new Integer(0));
             }
 
+            public void finalizeContext(final HttpContext context) {
+            }
+
             public HttpRequest submitRequest(final HttpContext context) {
                 int i = ((Integer) context.getAttribute("REQ-COUNT")).intValue();
                 BasicHttpEntityEnclosingRequest post = null;
@@ -914,6 +926,9 @@ public class TestNIOHttp extends TestCase {
                 context.setAttribute("LIST", (List) attachment);
                 context.setAttribute("REQ-COUNT", new Integer(0));
                 context.setAttribute("RES-COUNT", new Integer(0));
+            }
+
+            public void finalizeContext(final HttpContext context) {
             }
 
             public HttpRequest submitRequest(final HttpContext context) {
@@ -1065,6 +1080,9 @@ public class TestNIOHttp extends TestCase {
                 context.setAttribute("RES-COUNT", new Integer(0));
             }
 
+            public void finalizeContext(final HttpContext context) {
+            }
+
             public HttpRequest submitRequest(final HttpContext context) {
                 int i = ((Integer) context.getAttribute("REQ-COUNT")).intValue();
                 BasicHttpEntityEnclosingRequest post = null;
@@ -1203,6 +1221,9 @@ public class TestNIOHttp extends TestCase {
                 context.setAttribute("LIST", (List) attachment);
                 context.setAttribute("REQ-COUNT", new Integer(0));
                 context.setAttribute("RES-COUNT", new Integer(0));
+            }
+
+            public void finalizeContext(final HttpContext context) {
             }
 
             public HttpRequest submitRequest(final HttpContext context) {

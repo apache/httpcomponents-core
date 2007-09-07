@@ -149,7 +149,8 @@ public class NHttpClient {
     
     static class MyHttpRequestExecutionHandler implements HttpRequestExecutionHandler {
 
-        private final static String DONE = "done";
+        private final static String REQUEST_SENT       = "request-sent";
+        private final static String RESPONSE_RECEIVED  = "response-received";
         
         private final RequestCount requestCount;
         
@@ -162,14 +163,25 @@ public class NHttpClient {
             HttpHost targetHost = (HttpHost) attachment;
             context.setAttribute(ExecutionContext.HTTP_TARGET_HOST, targetHost);
         }
+        
+        public void finalizeContext(final HttpContext context) {
+            Object flag = context.getAttribute(RESPONSE_RECEIVED);
+            if (flag == null) {
+                // Signal completion of the request execution
+                synchronized (this.requestCount) {
+                    this.requestCount.decrement();
+                    this.requestCount.notifyAll();
+                }
+            }
+        }
 
         public HttpRequest submitRequest(final HttpContext context) {
             HttpHost targetHost = (HttpHost) context.getAttribute(
                     ExecutionContext.HTTP_TARGET_HOST);
-            Object token = context.getAttribute(DONE);
-            if (token == null) {
+            Object flag = context.getAttribute(REQUEST_SENT);
+            if (flag == null) {
                 // Stick some object into the context
-                context.setAttribute(DONE, Boolean.TRUE);
+                context.setAttribute(REQUEST_SENT, Boolean.TRUE);
 
                 System.out.println("--------------");
                 System.out.println("Sending request to " + targetHost);
@@ -196,6 +208,8 @@ public class NHttpClient {
                 System.err.println("I/O error: " + ex.getMessage());
             }
 
+            context.setAttribute(RESPONSE_RECEIVED, Boolean.TRUE);
+            
             // Signal completion of the request execution
             synchronized (this.requestCount) {
                 this.requestCount.decrement();

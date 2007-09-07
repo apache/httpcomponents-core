@@ -87,4 +87,13 @@ public interface HttpRequestExecutionHandler {
     void handleResponse(HttpResponse response, HttpContext context) 
         throws IOException;
     
+    /**
+     * Triggered when the connection is terminated. This event can be used
+     * to release objects stored in the context or perform some other kind 
+     * of cleanup.
+     * 
+     * @param context the actual HTTP context
+     */
+    void finalizeContext(HttpContext context);
+    
 }
