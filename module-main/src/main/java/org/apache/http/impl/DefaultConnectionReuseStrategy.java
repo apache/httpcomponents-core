@@ -99,7 +99,7 @@ public class DefaultConnectionReuseStrategy implements ConnectionReuseStrategy {
             }
         }
         // Resorting to protocol version default close connection policy
-        return ver.greaterEquals(HttpVersion.HTTP_1_1);
+        return !ver.lessEquals(HttpVersion.HTTP_1_0);
     }
             
 }

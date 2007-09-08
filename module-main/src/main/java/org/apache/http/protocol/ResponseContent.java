@@ -72,7 +72,7 @@ public class ResponseContent implements HttpResponseInterceptor {
         HttpEntity entity = response.getEntity();
         if (entity != null) {
             long len = entity.getContentLength();
-            if (entity.isChunked() && ver.greaterEquals(HttpVersion.HTTP_1_1)) {
+            if (entity.isChunked() && !ver.lessEquals(HttpVersion.HTTP_1_0)) {
                 response.addHeader(HTTP.TRANSFER_ENCODING, HTTP.CHUNK_CODING);
             } else if (len >= 0) {
                 response.addHeader(HTTP.CONTENT_LEN, Long.toString(entity.getContentLength()));

@@ -67,7 +67,7 @@ public class RequestExpectContinue implements HttpRequestInterceptor {
             if (entity != null && entity.getContentLength() != 0) { 
                 HttpVersion ver = request.getRequestLine().getHttpVersion();
                 if (HttpProtocolParams.useExpectContinue(request.getParams()) 
-                        && ver.greaterEquals(HttpVersion.HTTP_1_1)) {
+                        && !ver.lessEquals(HttpVersion.HTTP_1_0)) {
                     request.addHeader(HTTP.EXPECT_DIRECTIVE, HTTP.EXPECT_CONTINUE);
                 }
             }

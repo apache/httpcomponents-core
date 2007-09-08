@@ -205,7 +205,7 @@ public class HttpRequestExecutor {
             boolean sendentity = true;
             final HttpVersion ver = request.getRequestLine().getHttpVersion();
             if (((HttpEntityEnclosingRequest) request).expectContinue() &&
-                ver.greaterEquals(HttpVersion.HTTP_1_1)) {
+                !ver.lessEquals(HttpVersion.HTTP_1_0)) {
 
                 conn.flush();
                 // As suggested by RFC 2616 section 8.2.3, we don't wait for a

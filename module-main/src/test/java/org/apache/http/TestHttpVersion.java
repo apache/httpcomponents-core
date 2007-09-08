@@ -83,16 +83,28 @@ public class TestHttpVersion extends TestCase {
 
         assertFalse(ver1.equals(new Float(1.1)));
         
-        try {
-            ver1.equals(null);
-            fail("IllegalArgumentException should have been thrown");
-        } catch (IllegalArgumentException e) {
-        }
-
         assertTrue((new HttpVersion(0, 9)).equals(HttpVersion.HTTP_0_9));
         assertTrue((new HttpVersion(1, 0)).equals(HttpVersion.HTTP_1_0));
         assertTrue((new HttpVersion(1, 1)).equals(HttpVersion.HTTP_1_1));
         assertFalse((new HttpVersion(1, 1)).equals(HttpVersion.HTTP_1_0));
+
+        assertTrue
+            ((new ProtocolVersion("HTTP", 0, 9)).equals(HttpVersion.HTTP_0_9));
+        assertTrue
+            ((new ProtocolVersion("HTTP", 1, 0)).equals(HttpVersion.HTTP_1_0));
+        assertTrue
+            ((new ProtocolVersion("HTTP", 1, 1)).equals(HttpVersion.HTTP_1_1));
+        assertFalse
+            ((new ProtocolVersion("http", 1, 1)).equals(HttpVersion.HTTP_1_1));
+
+        assertTrue
+            (HttpVersion.HTTP_0_9.equals(new ProtocolVersion("HTTP", 0, 9)));
+        assertTrue
+            (HttpVersion.HTTP_1_0.equals(new ProtocolVersion("HTTP", 1, 0)));
+        assertTrue
+            (HttpVersion.HTTP_1_1.equals(new ProtocolVersion("HTTP", 1, 1)));
+        assertFalse
+            (HttpVersion.HTTP_1_1.equals(new ProtocolVersion("http", 1, 1)));
     }
 
     public void testHttpVersionComparison() {
@@ -100,9 +112,9 @@ public class TestHttpVersion extends TestCase {
         assertTrue(HttpVersion.HTTP_0_9.greaterEquals(HttpVersion.HTTP_0_9));
         assertFalse(HttpVersion.HTTP_0_9.greaterEquals(HttpVersion.HTTP_1_0));
         
-        assertTrue(HttpVersion.HTTP_1_0.compareTo((Object)HttpVersion.HTTP_1_1) < 0);
-        assertTrue(HttpVersion.HTTP_1_0.compareTo((Object)HttpVersion.HTTP_0_9) > 0);
-        assertTrue(HttpVersion.HTTP_1_0.compareTo((Object)HttpVersion.HTTP_1_0) == 0);
+        assertTrue(HttpVersion.HTTP_1_0.compareToVersion(HttpVersion.HTTP_1_1) < 0);
+        assertTrue(HttpVersion.HTTP_1_0.compareToVersion(HttpVersion.HTTP_0_9) > 0);
+        assertTrue(HttpVersion.HTTP_1_0.compareToVersion(HttpVersion.HTTP_1_0) == 0);
    }
     
 }
