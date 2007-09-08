@@ -249,11 +249,11 @@ public class SSLIOSession implements IOSession, SessionBufferStatus {
         doHandshake();
         decryptData();
         // Some decrypted data is available or at the end of stream
-        return this.inPlain.position() > 0 || this.status == CLOSED;
+        return this.inPlain.position() > 0 || this.status != ACTIVE;
     }
     
     public synchronized boolean isAppOutputReady() throws IOException {
-        return this.status != CLOSED
+        return this.status == ACTIVE
             && this.sslEngine.getHandshakeStatus() == HandshakeStatus.NOT_HANDSHAKING;
     }
     
@@ -275,7 +275,7 @@ public class SSLIOSession implements IOSession, SessionBufferStatus {
         if (src == null) {
             throw new IllegalArgumentException("Byte buffer may not be null");
         }
-        if (this.status == CLOSED) {
+        if (this.status != ACTIVE) {
             return -1;
         }
         if (this.outPlain.position() > 0) {
@@ -298,7 +298,7 @@ public class SSLIOSession implements IOSession, SessionBufferStatus {
         if (dst == null) {
             throw new IllegalArgumentException("Byte buffer may not be null");
         }
-        if (this.status == CLOSED) {
+        if (this.status != ACTIVE) {
             return -1;
         }
         if (this.inPlain.position() > 0) {
@@ -315,22 +315,27 @@ public class SSLIOSession implements IOSession, SessionBufferStatus {
     }
     
     public void close() {
-        if (this.status == CLOSED) {
+        if (this.status != ACTIVE) {
             return;
         }
-        this.status = CLOSED;
+        this.status = CLOSING;
         synchronized(this) {
             this.sslEngine.closeOutbound();
             updateEventMask();
         }
     }
     
+    public void shutdown() {
+        this.status = CLOSED;
+        this.session.shutdown();
+    }
+
     public int getStatus() {
         return this.status;
     }
 
     public boolean isClosed() {
-        return this.status == CLOSED;
+        return this.status != ACTIVE;
     }
 
     public synchronized boolean isInboundDone() {
@@ -341,11 +346,6 @@ public class SSLIOSession implements IOSession, SessionBufferStatus {
         return this.sslEngine.isOutboundDone();
     }
     
-    public void shutdown() {
-        this.status = CLOSED;
-        this.session.shutdown();
-    }
-
     public ByteChannel channel() {
         return this.channel;
     }
