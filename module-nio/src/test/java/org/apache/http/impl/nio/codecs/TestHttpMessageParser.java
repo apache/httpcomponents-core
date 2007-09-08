@@ -220,7 +220,7 @@ public class TestHttpMessageParser extends TestCase {
         requestParser.fillBuffer(channel);
         HttpRequest request = (HttpRequest) requestParser.parse();
         assertNotNull(request);
-        assertEquals(HttpVersion.HTTP_1_0, request.getRequestLine().getHttpVersion());
+        assertEquals(HttpVersion.HTTP_1_0, request.getRequestLine().getProtocolVersion());
     }
     
     public void testParsingIncompleteHeader() throws Exception {

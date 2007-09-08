@@ -48,9 +48,9 @@ import org.apache.http.params.HttpParams;
 public interface HttpMessage {
     
     /**
-     * Returns the HTTP version this message is compatible with.
+     * Returns the protocol version this message is compatible with.
      */
-    HttpVersion getHttpVersion();
+    ProtocolVersion getProtocolVersion();
 
     /**
      * Checks if a certain header is present in this message. Header values are

@@ -31,7 +31,7 @@
 
 package org.apache.http.mockup;
 
-import org.apache.http.HttpVersion;
+import org.apache.http.ProtocolVersion;
 import org.apache.http.message.AbstractHttpMessage;
 import org.apache.http.params.HttpProtocolParams;
 
@@ -46,7 +46,7 @@ public class HttpMessageMockup extends AbstractHttpMessage {
         super();
     }
 
-    public HttpVersion getHttpVersion() {
+    public ProtocolVersion getProtocolVersion() {
         return HttpProtocolParams.getVersion(this.getParams());
     }
     

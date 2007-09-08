@@ -39,6 +39,7 @@ import org.apache.http.HttpResponse;
 import org.apache.http.HttpResponseInterceptor;
 import org.apache.http.HttpStatus;
 import org.apache.http.HttpVersion;
+import org.apache.http.ProtocolVersion;
 import org.apache.http.ProtocolException;
 
 /**
@@ -68,7 +69,7 @@ public class ResponseContent implements HttpResponseInterceptor {
         if (response.containsHeader(HTTP.CONTENT_LEN)) {
             throw new ProtocolException("Content-Length header already present");
         }
-        HttpVersion ver = response.getStatusLine().getHttpVersion();
+        ProtocolVersion ver = response.getStatusLine().getProtocolVersion();
         HttpEntity entity = response.getEntity();
         if (entity != null) {
             long len = entity.getContentLength();

@@ -39,6 +39,7 @@ import org.apache.http.HttpException;
 import org.apache.http.HttpRequest;
 import org.apache.http.HttpRequestInterceptor;
 import org.apache.http.HttpVersion;
+import org.apache.http.ProtocolVersion;
 import org.apache.http.params.HttpProtocolParams;
 
 /**
@@ -65,7 +66,7 @@ public class RequestExpectContinue implements HttpRequestInterceptor {
             HttpEntity entity = ((HttpEntityEnclosingRequest)request).getEntity();
             // Do not send the expect header if request body is known to be empty
             if (entity != null && entity.getContentLength() != 0) { 
-                HttpVersion ver = request.getRequestLine().getHttpVersion();
+                ProtocolVersion ver = request.getRequestLine().getProtocolVersion();
                 if (HttpProtocolParams.useExpectContinue(request.getParams()) 
                         && !ver.lessEquals(HttpVersion.HTTP_1_0)) {
                     request.addHeader(HTTP.EXPECT_DIRECTIVE, HTTP.EXPECT_CONTINUE);

@@ -392,7 +392,7 @@ public class TestHttpServiceAndExecutor extends TestCase {
                 post.setEntity(outgoing);
 
                 HttpResponse response = this.client.execute(post, host, conn);
-                assertEquals(HttpVersion.HTTP_1_0, response.getStatusLine().getHttpVersion());
+                assertEquals(HttpVersion.HTTP_1_0, response.getStatusLine().getProtocolVersion());
                 byte[] received = EntityUtils.toByteArray(response.getEntity());
                 byte[] expected = (byte[]) testData.get(r);
                 

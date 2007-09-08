@@ -35,6 +35,7 @@ import org.apache.http.Header;
 import org.apache.http.HttpException;
 import org.apache.http.HttpMessage;
 import org.apache.http.HttpVersion;
+import org.apache.http.ProtocolVersion;
 import org.apache.http.ProtocolException;
 import org.apache.http.entity.ContentLengthStrategy;
 import org.apache.http.protocol.HTTP;
@@ -189,10 +190,10 @@ public class StrictContentLengthStrategy implements ContentLengthStrategy {
         if (transferEncodingHeader != null) {
             String s = transferEncodingHeader.getValue();
             if (HTTP.CHUNK_CODING.equalsIgnoreCase(s)) {
-                if (message.getHttpVersion().lessEquals(HttpVersion.HTTP_1_0)) {
+                if (message.getProtocolVersion().lessEquals(HttpVersion.HTTP_1_0)) {
                     throw new ProtocolException(
                             "Chunked transfer encoding not allowed for " + 
-                            message.getHttpVersion());
+                            message.getProtocolVersion());
                 }
                 return CHUNKED;
             } else if (HTTP.IDENTITY_CODING.equalsIgnoreCase(s)) {

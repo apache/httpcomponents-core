@@ -46,7 +46,7 @@ public interface RequestLine {
 
     String getMethod();
 
-    HttpVersion getHttpVersion();
+    ProtocolVersion getProtocolVersion();
 
     String getUri();
     

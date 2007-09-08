@@ -48,7 +48,7 @@ public interface HttpResponseFactory {
     /**
      * Creates a new response from status line elements.
      *
-     * @param ver       the HTTP version
+     * @param ver       the protocol version
      * @param status    the status code
      * @param context   the context from which to determine the locale
      *                  for looking up a reason phrase to the status code, or
@@ -56,7 +56,7 @@ public interface HttpResponseFactory {
      *
      * @return  the new response with an initialized status line
      */    
-    HttpResponse newHttpResponse(HttpVersion ver, int status,
+    HttpResponse newHttpResponse(ProtocolVersion ver, int status,
                                  HttpContext context);
     
     /**

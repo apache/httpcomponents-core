@@ -41,6 +41,7 @@ import org.apache.http.HttpResponse;
 import org.apache.http.HttpResponseInterceptor;
 import org.apache.http.HttpStatus;
 import org.apache.http.HttpVersion;
+import org.apache.http.ProtocolVersion;
 
 /**
  * A response interceptor that suggests connection keep-alive to the client.
@@ -83,7 +84,7 @@ public class ResponseConnControl implements HttpResponseInterceptor {
         // if the content body cannot be correctly delimited
         HttpEntity entity = response.getEntity();
         if (entity != null) {
-            HttpVersion ver = response.getStatusLine().getHttpVersion();
+            ProtocolVersion ver = response.getStatusLine().getProtocolVersion();
             if (entity.getContentLength() < 0 && 
                     (!entity.isChunked() || ver.lessEquals(HttpVersion.HTTP_1_0))) {
                 response.setHeader(HTTP.CONN_DIRECTIVE, HTTP.CONN_CLOSE);

@@ -71,7 +71,7 @@ public interface HttpResponse extends HttpMessage {
      * @param ver       the HTTP version
      * @param code      the status code
      */
-    void setStatusLine(HttpVersion ver, int code);
+    void setStatusLine(ProtocolVersion ver, int code);
 
     /**
      * Sets the status line of this response with a reason phrase.
@@ -80,7 +80,7 @@ public interface HttpResponse extends HttpMessage {
      * @param code      the status code
      * @param reason    the reason phrase, or <code>null</code> to omit
      */
-    void setStatusLine(HttpVersion ver, int code, String reason);
+    void setStatusLine(ProtocolVersion ver, int code, String reason);
     
     /**
      * Updates the status line of this response with a new status code.
@@ -98,7 +98,7 @@ public interface HttpResponse extends HttpMessage {
      *
      * @see HttpStatus
      * @see #setStatusLine(StatusLine)
-     * @see #setStatusLine(HttpVersion,int)
+     * @see #setStatusLine(ProtocolVersion,int)
      */
     void setStatusCode(int code)
         throws IllegalStateException;
@@ -115,7 +115,7 @@ public interface HttpResponse extends HttpMessage {
      *          if the status line has not be set
      *
      * @see #setStatusLine(StatusLine)
-     * @see #setStatusLine(HttpVersion,int)
+     * @see #setStatusLine(ProtocolVersion,int)
      */
     void setReasonPhrase(String reason)
         throws IllegalStateException;

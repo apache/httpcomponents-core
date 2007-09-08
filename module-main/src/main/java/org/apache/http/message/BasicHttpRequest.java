@@ -32,7 +32,7 @@
 package org.apache.http.message;
 
 import org.apache.http.HttpRequest;
-import org.apache.http.HttpVersion;
+import org.apache.http.ProtocolVersion;
 import org.apache.http.RequestLine;
 import org.apache.http.params.HttpProtocolParams;
 
@@ -64,7 +64,7 @@ public class BasicHttpRequest extends AbstractHttpMessage implements HttpRequest
         this.requestline = null;
     }
 
-    public BasicHttpRequest(final String method, final String uri, final HttpVersion ver) {
+    public BasicHttpRequest(final String method, final String uri, final ProtocolVersion ver) {
         this(new BasicRequestLine(method, uri, ver));
     }
 
@@ -78,9 +78,9 @@ public class BasicHttpRequest extends AbstractHttpMessage implements HttpRequest
         this.uri = requestline.getUri();
     }
 
-    public HttpVersion getHttpVersion() {
+    public ProtocolVersion getProtocolVersion() {
         if (this.requestline != null) {
-            return this.requestline.getHttpVersion();
+            return this.requestline.getProtocolVersion();
         } else {
             return HttpProtocolParams.getVersion(getParams());
         }
@@ -90,7 +90,7 @@ public class BasicHttpRequest extends AbstractHttpMessage implements HttpRequest
         if (this.requestline != null) {
             return this.requestline;
         } else {
-            HttpVersion ver = HttpProtocolParams.getVersion(getParams());
+            ProtocolVersion ver = HttpProtocolParams.getVersion(getParams());
             return new BasicRequestLine(this.method, this.uri, ver);
         }
     }

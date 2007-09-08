@@ -35,7 +35,7 @@ import java.util.Locale;
 
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpResponseFactory;
-import org.apache.http.HttpVersion;
+import org.apache.http.ProtocolVersion;
 import org.apache.http.StatusLine;
 import org.apache.http.message.BasicHttpResponse;
 import org.apache.http.message.BasicStatusLine;
@@ -82,7 +82,7 @@ public class DefaultHttpResponseFactory implements HttpResponseFactory {
 
 
     // non-javadoc, see interface HttpResponseFactory
-    public HttpResponse newHttpResponse(final HttpVersion ver,
+    public HttpResponse newHttpResponse(final ProtocolVersion ver,
                                         final int status,
                                         HttpContext context) {
         if (ver == null) {

@@ -45,6 +45,7 @@ import org.apache.http.HttpResponseFactory;
 import org.apache.http.HttpStatus;
 import org.apache.http.HttpVersion;
 import org.apache.http.MethodNotSupportedException;
+import org.apache.http.ProtocolVersion;
 import org.apache.http.ProtocolException;
 import org.apache.http.UnsupportedHttpVersionException;
 import org.apache.http.entity.ByteArrayEntity;
@@ -382,7 +383,7 @@ public class ThrottlingHttpServiceHandler extends NHttpServiceHandlerBase {
         context.setAttribute(ExecutionContext.HTTP_CONNECTION, conn);
         context.setAttribute(ExecutionContext.HTTP_REQUEST, request);
 
-        HttpVersion ver = request.getRequestLine().getHttpVersion();
+        ProtocolVersion ver = request.getRequestLine().getProtocolVersion();
 
         if (!ver.lessEquals(HttpVersion.HTTP_1_1)) {
             // Downgrade protocol version if greater than HTTP/1.1 

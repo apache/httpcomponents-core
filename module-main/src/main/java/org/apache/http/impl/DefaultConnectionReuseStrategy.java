@@ -37,6 +37,7 @@ import org.apache.http.Header;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpVersion;
+import org.apache.http.ProtocolVersion;
 import org.apache.http.protocol.HTTP;
 import org.apache.http.protocol.HttpContext;
 import org.apache.http.protocol.ExecutionContext;
@@ -73,7 +74,7 @@ public class DefaultConnectionReuseStrategy implements ConnectionReuseStrategy {
         // do NOT check for stale connection, that is an expensive operation
 
         HttpEntity entity = response.getEntity();
-        HttpVersion ver = response.getStatusLine().getHttpVersion();
+        ProtocolVersion ver = response.getStatusLine().getProtocolVersion();
         if (entity != null) {
             if (entity.getContentLength() < 0) {
                 if (!entity.isChunked() || ver.lessEquals(HttpVersion.HTTP_1_0)) {

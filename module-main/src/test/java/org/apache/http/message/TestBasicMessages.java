@@ -66,33 +66,33 @@ public class TestBasicMessages extends TestCase {
 
     public void testDefaultResponseConstructors() {
         HttpResponse response = new BasicHttpResponse(HttpVersion.HTTP_1_0, HttpStatus.SC_BAD_REQUEST, "Bad Request");
-        assertNotNull(response.getHttpVersion());
-        assertEquals(HttpVersion.HTTP_1_0, response.getHttpVersion());
+        assertNotNull(response.getProtocolVersion());
+        assertEquals(HttpVersion.HTTP_1_0, response.getProtocolVersion());
         assertEquals(HttpStatus.SC_BAD_REQUEST, response.getStatusLine().getStatusCode());
         
         response = new BasicHttpResponse(new BasicStatusLine(
                 HttpVersion.HTTP_1_1, HttpStatus.SC_INTERNAL_SERVER_ERROR, "whatever"));
-        assertNotNull(response.getHttpVersion());
-        assertEquals(HttpVersion.HTTP_1_1, response.getHttpVersion());
+        assertNotNull(response.getProtocolVersion());
+        assertEquals(HttpVersion.HTTP_1_1, response.getProtocolVersion());
         assertEquals(HttpStatus.SC_INTERNAL_SERVER_ERROR, response.getStatusLine().getStatusCode());
         assertEquals("whatever", response.getStatusLine().getReasonPhrase());
     }
 
     public void testSetResponseStatus() {
         HttpResponse response = new BasicHttpResponse(HttpVersion.HTTP_1_1, 200, "OK");
-        assertNotNull(response.getHttpVersion());
+        assertNotNull(response.getProtocolVersion());
         assertNotNull(response.getStatusLine());
         assertEquals(200, response.getStatusLine().getStatusCode());
         
         response = new BasicHttpResponse(HttpVersion.HTTP_1_0, HttpStatus.SC_BAD_REQUEST, "Bad Request");
-        assertNotNull(response.getHttpVersion());
-        assertEquals(HttpVersion.HTTP_1_0, response.getHttpVersion());
+        assertNotNull(response.getProtocolVersion());
+        assertEquals(HttpVersion.HTTP_1_0, response.getProtocolVersion());
         assertEquals(HttpStatus.SC_BAD_REQUEST, response.getStatusLine().getStatusCode());
         
         response = new BasicHttpResponse(new BasicStatusLine(
                 HttpVersion.HTTP_1_1, HttpStatus.SC_INTERNAL_SERVER_ERROR, "whatever"));
-        assertNotNull(response.getHttpVersion());
-        assertEquals(HttpVersion.HTTP_1_1, response.getHttpVersion());
+        assertNotNull(response.getProtocolVersion());
+        assertEquals(HttpVersion.HTTP_1_1, response.getProtocolVersion());
         assertEquals(HttpStatus.SC_INTERNAL_SERVER_ERROR, response.getStatusLine().getStatusCode());
         assertEquals("whatever", response.getStatusLine().getReasonPhrase());
         
@@ -130,12 +130,12 @@ public class TestBasicMessages extends TestCase {
 
     public void testDefaultRequestConstructors() {
         HttpRequest request = new BasicHttpRequest("WHATEVER", "/");
-        assertNotNull(request.getHttpVersion());
+        assertNotNull(request.getProtocolVersion());
         assertEquals("WHATEVER", request.getRequestLine().getMethod());
         assertEquals("/", request.getRequestLine().getUri());
 
         request = new BasicHttpRequest("GET", "/", HttpVersion.HTTP_1_0);
-        assertEquals(HttpVersion.HTTP_1_0, request.getHttpVersion());
+        assertEquals(HttpVersion.HTTP_1_0, request.getProtocolVersion());
         assertEquals("GET", request.getRequestLine().getMethod());
         assertEquals("/", request.getRequestLine().getUri());
 
@@ -161,12 +161,12 @@ public class TestBasicMessages extends TestCase {
     
     public void testDefaultEntityEnclosingRequestConstructors() {
         BasicHttpEntityEnclosingRequest request = new BasicHttpEntityEnclosingRequest("GET", "/");
-        assertNotNull(request.getHttpVersion());
+        assertNotNull(request.getProtocolVersion());
         assertEquals("GET", request.getRequestLine().getMethod());
         assertEquals("/", request.getRequestLine().getUri());
 
         request = new BasicHttpEntityEnclosingRequest("GET", "/", HttpVersion.HTTP_1_0);
-        assertEquals(HttpVersion.HTTP_1_0, request.getHttpVersion());
+        assertEquals(HttpVersion.HTTP_1_0, request.getProtocolVersion());
         assertEquals("GET", request.getRequestLine().getMethod());
         assertEquals("/", request.getRequestLine().getUri());
     }

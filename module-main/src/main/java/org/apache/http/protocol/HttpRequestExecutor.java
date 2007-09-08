@@ -41,6 +41,7 @@ import org.apache.http.HttpRequest;
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
 import org.apache.http.HttpVersion;
+import org.apache.http.ProtocolVersion;
 import org.apache.http.params.HttpProtocolParams;
 
 /**
@@ -203,7 +204,8 @@ public class HttpRequestExecutor {
             // headers and wait for an 100-continue response to handle it.
             // If we get a different response, we must not send the entity.
             boolean sendentity = true;
-            final HttpVersion ver = request.getRequestLine().getHttpVersion();
+            final ProtocolVersion ver =
+                request.getRequestLine().getProtocolVersion();
             if (((HttpEntityEnclosingRequest) request).expectContinue() &&
                 !ver.lessEquals(HttpVersion.HTTP_1_0)) {
 

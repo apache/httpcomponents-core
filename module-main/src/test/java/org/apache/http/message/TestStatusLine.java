@@ -71,7 +71,7 @@ public class TestStatusLine extends TestCase {
 
     public void testConstructor() {
         StatusLine statusline = new BasicStatusLine(HttpVersion.HTTP_1_1, HttpStatus.SC_OK, "OK");
-        assertEquals(HttpVersion.HTTP_1_1, statusline.getHttpVersion()); 
+        assertEquals(HttpVersion.HTTP_1_1, statusline.getProtocolVersion()); 
         assertEquals(HttpStatus.SC_OK, statusline.getStatusCode()); 
         assertEquals("OK", statusline.getReasonPhrase()); 
     }

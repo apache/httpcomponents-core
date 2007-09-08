@@ -36,6 +36,7 @@ import junit.framework.TestSuite;
 
 import org.apache.http.HttpRequest;
 import org.apache.http.HttpVersion;
+import org.apache.http.ProtocolVersion;
 import org.apache.http.message.BasicHttpRequest;
 import org.apache.http.params.HttpProtocolParams;
 
@@ -80,14 +81,14 @@ public class TestBasicRequest extends TestCase {
                 HttpProtocolParams.PROTOCOL_VERSION, HttpVersion.HTTP_1_0);
         assertEquals("GET", request.getRequestLine().getMethod());
         assertEquals("/stuff", request.getRequestLine().getUri());
-        assertEquals(HttpVersion.HTTP_1_0, request.getRequestLine().getHttpVersion());
+        assertEquals(HttpVersion.HTTP_1_0, request.getRequestLine().getProtocolVersion());
     }
 
     public void testRequestLine2() throws Exception {
         HttpRequest request = new BasicHttpRequest("GET", "/stuff", HttpVersion.HTTP_1_0);
         assertEquals("GET", request.getRequestLine().getMethod());
         assertEquals("/stuff", request.getRequestLine().getUri());
-        assertEquals(HttpVersion.HTTP_1_0, request.getRequestLine().getHttpVersion());
+        assertEquals(HttpVersion.HTTP_1_0, request.getRequestLine().getProtocolVersion());
     }
 
 }

@@ -32,7 +32,7 @@
 package org.apache.http.message;
 
 import org.apache.http.HttpStatus;
-import org.apache.http.HttpVersion;
+import org.apache.http.ProtocolVersion;
 import org.apache.http.StatusLine;
 
 
@@ -54,37 +54,37 @@ public class BasicStatusLine implements StatusLine {
 
     // ----------------------------------------------------- Instance Variables
 
-    /** The HTTP-Version. */
-    private final HttpVersion httpVersion;
+    /** The protocol version. */
+    private final ProtocolVersion protoVersion;
 
-    /** The Status-Code. */
+    /** The status code. */
     private final int statusCode;
 
-    /** The Reason-Phrase. */
+    /** The reason phrase. */
     private final String reasonPhrase;
 
     // ----------------------------------------------------------- Constructors
     /**
      * Creates a new status line with the given version, status, and reason.
      *
-     * @param httpVersion       the HTTP version of the response
+     * @param version           the protocol version of the response
      * @param statusCode        the status code of the response
      * @param reasonPhrase      the reason phrase to the status code, or
      *                          <code>null</code>
      */
-    public BasicStatusLine(final HttpVersion httpVersion, int statusCode,
+    public BasicStatusLine(final ProtocolVersion version, int statusCode,
                            final String reasonPhrase) {
         super();
-        if (httpVersion == null) {
+        if (version == null) {
             throw new IllegalArgumentException
-                ("HTTP version may not be null.");
+                ("Protocol version may not be null.");
         }
         if (statusCode < 0) {
             throw new IllegalArgumentException
                 ("Status code may not be negative.");
         }
-        this.httpVersion = httpVersion;
-        this.statusCode = statusCode;
+        this.protoVersion = version;
+        this.statusCode   = statusCode;
         this.reasonPhrase = reasonPhrase;
     }
 
@@ -100,8 +100,8 @@ public class BasicStatusLine implements StatusLine {
     /**
      * @return the HTTP-Version
      */
-    public HttpVersion getHttpVersion() {
-        return this.httpVersion;
+    public ProtocolVersion getProtocolVersion() {
+        return this.protoVersion;
     }
 
     /**

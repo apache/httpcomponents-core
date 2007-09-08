@@ -35,6 +35,7 @@ import junit.framework.TestCase;
 import junit.framework.TestSuite;
 
 import org.apache.http.HttpVersion;
+import org.apache.http.ProtocolVersion;
 import org.apache.http.ParseException;
 import org.apache.http.RequestLine;
 import org.apache.http.StatusLine;
@@ -74,7 +75,7 @@ public class TestBasicLineParser extends TestCase {
         assertEquals("GET /stuff HTTP/1.1", requestline.toString());
         assertEquals("GET", requestline.getMethod());
         assertEquals("/stuff", requestline.getUri());
-        assertEquals(HttpVersion.HTTP_1_1, requestline.getHttpVersion());
+        assertEquals(HttpVersion.HTTP_1_1, requestline.getProtocolVersion());
 
         //Lots of blanks
         requestline = BasicLineParser.parseRequestLine
@@ -82,14 +83,14 @@ public class TestBasicLineParser extends TestCase {
         assertEquals("GET /stuff HTTP/1.1", requestline.toString());
         assertEquals("GET", requestline.getMethod());
         assertEquals("/stuff", requestline.getUri());
-        assertEquals(HttpVersion.HTTP_1_1, requestline.getHttpVersion());
+        assertEquals(HttpVersion.HTTP_1_1, requestline.getProtocolVersion());
 
         //this is not strictly valid, but is lenient
         requestline = BasicLineParser.parseRequestLine
             ("\rGET /stuff HTTP/1.1", null);
         assertEquals("GET", requestline.getMethod());
         assertEquals("/stuff", requestline.getUri());
-        assertEquals(HttpVersion.HTTP_1_1, requestline.getHttpVersion());
+        assertEquals(HttpVersion.HTTP_1_1, requestline.getProtocolVersion());
     }
 
     public void testRLParseFailure() throws Exception {
@@ -164,7 +165,7 @@ public class TestBasicLineParser extends TestCase {
         StatusLine statusLine = BasicLineParser.parseStatusLine
             ("HTTP/1.1 200 OK", null);
         assertEquals("HTTP/1.1 200 OK", statusLine.toString());
-        assertEquals(HttpVersion.HTTP_1_1, statusLine.getHttpVersion());
+        assertEquals(HttpVersion.HTTP_1_1, statusLine.getProtocolVersion());
         assertEquals(200, statusLine.getStatusCode());
         assertEquals("OK", statusLine.getReasonPhrase());
 
@@ -207,14 +208,14 @@ public class TestBasicLineParser extends TestCase {
             ("\rHTTP/1.1 200 OK", null);
         assertEquals(200, statusLine.getStatusCode());
         assertEquals("OK", statusLine.getReasonPhrase());
-        assertEquals(HttpVersion.HTTP_1_1, statusLine.getHttpVersion());
+        assertEquals(HttpVersion.HTTP_1_1, statusLine.getProtocolVersion());
 
         //this is not strictly valid, but is lenient
         statusLine = BasicLineParser.parseStatusLine
             ("  HTTP/1.1 200 OK", null);
         assertEquals(200, statusLine.getStatusCode());
         assertEquals("OK", statusLine.getReasonPhrase());
-        assertEquals(HttpVersion.HTTP_1_1, statusLine.getHttpVersion());
+        assertEquals(HttpVersion.HTTP_1_1, statusLine.getProtocolVersion());
     }
 
     public void testSLParseFailure() throws Exception {

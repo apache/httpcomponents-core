@@ -32,7 +32,7 @@
 package org.apache.http.message;
 
 
-import org.apache.http.HttpVersion;
+import org.apache.http.ProtocolVersion;
 import org.apache.http.RequestLine;
 import org.apache.http.StatusLine;
 import org.apache.http.Header;
@@ -106,7 +106,7 @@ public class BasicLineFormatter implements LineFormatter {
      * @return  the formatted protocol version
      */
     public final static
-        String formatProtocolVersion(final HttpVersion version,
+        String formatProtocolVersion(final ProtocolVersion version,
                                      LineFormatter formatter) {
         if (formatter == null)
             formatter = BasicLineFormatter.DEFAULT;
@@ -116,7 +116,7 @@ public class BasicLineFormatter implements LineFormatter {
 
     // non-javadoc, see interface LineFormatter
     public CharArrayBuffer appendProtocolVersion(CharArrayBuffer buffer,
-                                                 HttpVersion version) {
+                                                 ProtocolVersion version) {
         if (version == null) {
             throw new IllegalArgumentException
                 ("Protocol version must not be null.");
@@ -131,7 +131,8 @@ public class BasicLineFormatter implements LineFormatter {
             result.ensureCapacity(len);
         }
 
-        result.append("HTTP/"); 
+        result.append(version.getProtocol());
+        result.append('/'); 
         result.append(Integer.toString(version.getMajor())); 
         result.append('.'); 
         result.append(Integer.toString(version.getMinor())); 
@@ -149,8 +150,8 @@ public class BasicLineFormatter implements LineFormatter {
      * @return  the estimated length of the formatted protocol version,
      *          in characters
      */
-    protected int estimateProtocolVersionLen(HttpVersion version) {
-        return 8; // room for "HTTP/1.1"
+    protected int estimateProtocolVersionLen(ProtocolVersion version) {
+        return version.getProtocol().length() + 4; // room for "HTTP/1.1"
     }
 
 
@@ -202,14 +203,14 @@ public class BasicLineFormatter implements LineFormatter {
 
         // room for "GET /index.html HTTP/1.1"
         int len = method.length() + 1 + uri.length() + 1 + 
-            estimateProtocolVersionLen(reqline.getHttpVersion());
+            estimateProtocolVersionLen(reqline.getProtocolVersion());
         buffer.ensureCapacity(len);
 
         buffer.append(method);
         buffer.append(' ');
         buffer.append(uri);
         buffer.append(' ');
-        appendProtocolVersion(buffer, reqline.getHttpVersion());
+        appendProtocolVersion(buffer, reqline.getProtocolVersion());
     }
 
 
@@ -258,7 +259,7 @@ public class BasicLineFormatter implements LineFormatter {
     protected void doFormatStatusLine(CharArrayBuffer buffer,
                                       StatusLine statline) {
 
-        int len = estimateProtocolVersionLen(statline.getHttpVersion())
+        int len = estimateProtocolVersionLen(statline.getProtocolVersion())
             + 1 + 3 + 1; // room for "HTTP/1.1 200 "
         final String reason = statline.getReasonPhrase();
         if (reason != null) {
@@ -266,7 +267,7 @@ public class BasicLineFormatter implements LineFormatter {
         }
         buffer.ensureCapacity(len);
 
-        appendProtocolVersion(buffer, statline.getHttpVersion());
+        appendProtocolVersion(buffer, statline.getProtocolVersion());
         buffer.append(' ');
         buffer.append(Integer.toString(statline.getStatusCode()));
         buffer.append(' '); // keep whitespace even if reason phrase is empty

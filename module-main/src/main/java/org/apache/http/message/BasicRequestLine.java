@@ -31,7 +31,7 @@
 
 package org.apache.http.message;
 
-import org.apache.http.HttpVersion;
+import org.apache.http.ProtocolVersion;
 import org.apache.http.RequestLine;
 
 /**
@@ -49,13 +49,13 @@ import org.apache.http.RequestLine;
  */
 public class BasicRequestLine implements RequestLine {
 
-    private final HttpVersion httpversion;
+    private final ProtocolVersion protoversion;
     private final String method;
     private final String uri;
 
     public BasicRequestLine(final String method,
                             final String uri,
-                            final HttpVersion httpversion) {
+                            final ProtocolVersion version) {
         super();
         if (method == null) {
             throw new IllegalArgumentException
@@ -65,21 +65,21 @@ public class BasicRequestLine implements RequestLine {
             throw new IllegalArgumentException
                 ("URI must not be null.");
         }
-        if (httpversion == null) {
+        if (version == null) {
             throw new IllegalArgumentException
-                ("HTTP version must not be null.");
+                ("Protocol version must not be null.");
         }
         this.method = method;
         this.uri = uri;
-        this.httpversion = httpversion;
+        this.protoversion = version;
     }
 
     public String getMethod() {
         return this.method;
     }
 
-    public HttpVersion getHttpVersion() {
-        return this.httpversion;
+    public ProtocolVersion getProtocolVersion() {
+        return this.protoversion;
     }
 
     public String getUri() {

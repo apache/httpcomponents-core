@@ -35,7 +35,7 @@ import java.util.Locale;
 
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
-import org.apache.http.HttpVersion;
+import org.apache.http.ProtocolVersion;
 import org.apache.http.StatusLine;
 import org.apache.http.ReasonPhraseCatalog;
 
@@ -98,21 +98,21 @@ public class BasicHttpResponse extends AbstractHttpMessage
      * The response will not have a reason phrase catalog and
      * use the system default locale.
      *
-     * @param ver       the HTTP version of the response
+     * @param ver       the protocol version of the response
      * @param code      the status code of the response
      * @param reason    the reason phrase to the status code, or
      *                  <code>null</code>
      */
-    public BasicHttpResponse(final HttpVersion ver,
+    public BasicHttpResponse(final ProtocolVersion ver,
                              final int code,
                              final String reason) {
         this(new BasicStatusLine(ver, code, reason), null, null);
     }
 
 
-    // non-javadoc, see interface HttpResponse
-    public HttpVersion getHttpVersion() {
-        return this.statusline.getHttpVersion();
+    // non-javadoc, see interface HttpMessage
+    public ProtocolVersion getProtocolVersion() {
+        return this.statusline.getProtocolVersion();
     }
 
     // non-javadoc, see interface HttpResponse
@@ -139,13 +139,13 @@ public class BasicHttpResponse extends AbstractHttpMessage
     }
 
     // non-javadoc, see interface HttpResponse
-    public void setStatusLine(final HttpVersion ver, final int code) {
+    public void setStatusLine(final ProtocolVersion ver, final int code) {
         // arguments checked in BasicStatusLine constructor
         this.statusline = new BasicStatusLine(ver, code, getReason(code));
     }
 
     // non-javadoc, see interface HttpResponse
-    public void setStatusLine(final HttpVersion ver, final int code,
+    public void setStatusLine(final ProtocolVersion ver, final int code,
                               final String reason) {
         // arguments checked in BasicStatusLine constructor
         this.statusline = new BasicStatusLine(ver, code, reason);
@@ -154,7 +154,7 @@ public class BasicHttpResponse extends AbstractHttpMessage
     // non-javadoc, see interface HttpResponse
     public void setStatusCode(int code) {
         // argument checked in BasicStatusLine constructor
-        HttpVersion ver = this.statusline.getHttpVersion();
+        ProtocolVersion ver = this.statusline.getProtocolVersion();
         this.statusline = new BasicStatusLine(ver, code, getReason(code));
     }
 
@@ -166,7 +166,7 @@ public class BasicHttpResponse extends AbstractHttpMessage
             ) {
             throw new IllegalArgumentException("Line break in reason phrase.");
         }
-        this.statusline = new BasicStatusLine(this.statusline.getHttpVersion(),
+        this.statusline = new BasicStatusLine(this.statusline.getProtocolVersion(),
                                               this.statusline.getStatusCode(),
                                               reason);
     }
@@ -184,7 +184,7 @@ public class BasicHttpResponse extends AbstractHttpMessage
         this.locale = loc;
         final int code = this.statusline.getStatusCode();
         this.statusline = new BasicStatusLine
-            (this.statusline.getHttpVersion(), code, getReason(code));
+            (this.statusline.getProtocolVersion(), code, getReason(code));
     }
 
     /**

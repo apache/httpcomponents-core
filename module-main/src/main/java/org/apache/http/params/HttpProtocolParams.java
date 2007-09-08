@@ -32,6 +32,7 @@
 package org.apache.http.params;
 
 import org.apache.http.HttpVersion;
+import org.apache.http.ProtocolVersion;
 import org.apache.http.protocol.HTTP;
 
 /**
@@ -47,9 +48,9 @@ import org.apache.http.protocol.HTTP;
 public final class HttpProtocolParams {
 
     /**
-     * Defines the {@link HttpVersion HTTP protocol version} used per default.
+     * Defines the {@link ProtocolVersion protocol version} used per default.
      * <p>
-     * This parameter expects a value of type {@link HttpVersion}.
+     * This parameter expects a value of type {@link ProtocolVersion}.
      * </p>
      */
     public static final String PROTOCOL_VERSION = "http.protocol.version"; 
@@ -193,11 +194,11 @@ public final class HttpProtocolParams {
     }
 
     /**
-     * Returns {@link HttpVersion HTTP protocol version} to be used per default. 
+     * Returns {@link ProtocolVersion protocol version} to be used per default. 
      *
-     * @return {@link HttpVersion HTTP protocol version}
+     * @return {@link ProtocolVersion protocol version}
      */
-    public static HttpVersion getVersion(final HttpParams params) { 
+    public static ProtocolVersion getVersion(final HttpParams params) { 
         if (params == null) {
             throw new IllegalArgumentException("HTTP parameters may not be null");
         }
@@ -205,16 +206,16 @@ public final class HttpProtocolParams {
         if (param == null) {
             return HttpVersion.HTTP_1_1;
         }
-        return (HttpVersion)param;
+        return (ProtocolVersion)param;
     }
     
     /**
-     * Assigns the {@link HttpVersion HTTP protocol version} to be used by the 
+     * Assigns the {@link ProtocolVersion protocol version} to be used by the 
      * HTTP methods that this collection of parameters applies to. 
      *
-     * @param version the {@link HttpVersion HTTP protocol version}
+     * @param version the {@link ProtocolVersion protocol version}
      */
-    public static void setVersion(final HttpParams params, final HttpVersion version) {
+    public static void setVersion(final HttpParams params, final ProtocolVersion version) {
         if (params == null) {
             throw new IllegalArgumentException("HTTP parameters may not be null");
         }

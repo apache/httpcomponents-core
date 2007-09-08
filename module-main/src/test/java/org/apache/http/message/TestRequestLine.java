@@ -67,7 +67,7 @@ public class TestRequestLine extends TestCase {
         RequestLine requestline = new BasicRequestLine("GET", "/stuff", HttpVersion.HTTP_1_1);
         assertEquals("GET", requestline.getMethod()); 
         assertEquals("/stuff", requestline.getUri()); 
-        assertEquals(HttpVersion.HTTP_1_1, requestline.getHttpVersion()); 
+        assertEquals(HttpVersion.HTTP_1_1, requestline.getProtocolVersion()); 
     }
         
     public void testConstructorInvalidInput() {

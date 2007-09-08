@@ -44,6 +44,7 @@ import org.apache.http.HttpResponseFactory;
 import org.apache.http.HttpStatus;
 import org.apache.http.HttpVersion;
 import org.apache.http.MethodNotSupportedException;
+import org.apache.http.ProtocolVersion;
 import org.apache.http.ProtocolException;
 import org.apache.http.UnsupportedHttpVersionException;
 import org.apache.http.entity.ByteArrayEntity;
@@ -122,7 +123,7 @@ public class BufferingHttpServiceHandler extends NHttpServiceHandlerBase
         connState.setRequest(request);
         connState.setInputState(ServerConnState.REQUEST_RECEIVED);
         
-        HttpVersion ver = request.getRequestLine().getHttpVersion();
+        ProtocolVersion ver = request.getRequestLine().getProtocolVersion();
         if (!ver.lessEquals(HttpVersion.HTTP_1_1)) {
             // Downgrade protocol version if greater than HTTP/1.1 
             ver = HttpVersion.HTTP_1_1;
@@ -311,7 +312,7 @@ public class BufferingHttpServiceHandler extends NHttpServiceHandlerBase
             final HttpRequest request) throws IOException, HttpException {
         
         HttpContext context = conn.getContext();
-        HttpVersion ver = request.getRequestLine().getHttpVersion();
+        ProtocolVersion ver = request.getRequestLine().getProtocolVersion();
 
         if (!ver.lessEquals(HttpVersion.HTTP_1_1)) {
             // Downgrade protocol version if greater than HTTP/1.1 

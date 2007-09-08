@@ -39,6 +39,7 @@ import org.apache.http.HttpException;
 import org.apache.http.HttpRequest;
 import org.apache.http.HttpRequestInterceptor;
 import org.apache.http.HttpVersion;
+import org.apache.http.ProtocolVersion;
 import org.apache.http.ProtocolException;
 
 /**
@@ -68,7 +69,7 @@ public class RequestContent implements HttpRequestInterceptor {
             if (request.containsHeader(HTTP.CONTENT_LEN)) {
                 throw new ProtocolException("Content-Length header already present");
             }
-            HttpVersion ver = request.getRequestLine().getHttpVersion();
+            ProtocolVersion ver = request.getRequestLine().getProtocolVersion();
             HttpEntity entity = ((HttpEntityEnclosingRequest)request).getEntity();
             if (entity == null) {
                 request.addHeader(HTTP.CONTENT_LEN, "0");

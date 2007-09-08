@@ -41,6 +41,7 @@ import org.apache.http.HttpInetConnection;
 import org.apache.http.HttpRequest;
 import org.apache.http.HttpRequestInterceptor;
 import org.apache.http.HttpVersion;
+import org.apache.http.ProtocolVersion;
 import org.apache.http.ProtocolException;
 
 /**
@@ -82,7 +83,7 @@ public class RequestTargetHost implements HttpRequestInterceptor {
                     }
                 }
                 if (targethost == null) {
-                    HttpVersion ver = request.getRequestLine().getHttpVersion();
+                    ProtocolVersion ver = request.getRequestLine().getProtocolVersion();
                     if (ver.lessEquals(HttpVersion.HTTP_1_0)) {
                         return;
                     } else {

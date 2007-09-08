@@ -32,7 +32,7 @@
 package org.apache.http.message;
 
 
-import org.apache.http.HttpVersion;
+import org.apache.http.ProtocolVersion;
 import org.apache.http.RequestLine;
 import org.apache.http.StatusLine;
 import org.apache.http.Header;
@@ -91,7 +91,7 @@ public interface LineFormatter {
      *          the returned buffer is the argument buffer.
      */
     CharArrayBuffer appendProtocolVersion(CharArrayBuffer buffer,
-                                          HttpVersion version)
+                                          ProtocolVersion version)
         ;
 
 
