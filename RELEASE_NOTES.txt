@@ -1,5 +1,8 @@
 Changes since release 4.0 Alpha 5
 
+* [HTTPCORE-110] refactored message parsing and formatting logic
+  Contributed by Roland Weber <rolandw at apache.org>
+
 * [HTTPCORE-113] Removed unnecessary target hostname resolution from non-blocking client 
   protocol handlers.
   Oleg Kalnichevski <olegk at apache.org>

@@ -78,14 +78,14 @@ public class DefaultNHttpClientConnection
             final SessionInputBuffer buffer,
             final HttpResponseFactory responseFactory,
             final HttpParams params) {
-        //@@@ how to configure the parser?
+        // override in derived class to specify a line parser
         return new HttpResponseParser(buffer, null, responseFactory, params);
     }
 
     protected NHttpMessageWriter createRequestWriter(
             final SessionOutputBuffer buffer,
             final HttpParams params) {
-        //@@@ how to configure the formatter?
+        // override in derived class to specify a line formatter
         return new HttpRequestWriter(buffer, null, params);
     }
     
