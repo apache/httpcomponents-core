@@ -36,7 +36,6 @@ import junit.framework.TestSuite;
 
 import org.apache.http.HttpRequest;
 import org.apache.http.HttpVersion;
-import org.apache.http.ProtocolVersion;
 import org.apache.http.message.BasicHttpRequest;
 import org.apache.http.params.HttpProtocolParams;
 

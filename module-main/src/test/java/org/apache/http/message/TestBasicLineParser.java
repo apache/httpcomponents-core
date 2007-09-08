@@ -35,7 +35,6 @@ import junit.framework.TestCase;
 import junit.framework.TestSuite;
 
 import org.apache.http.HttpVersion;
-import org.apache.http.ProtocolVersion;
 import org.apache.http.ParseException;
 import org.apache.http.RequestLine;
 import org.apache.http.StatusLine;

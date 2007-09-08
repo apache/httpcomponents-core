@@ -1,5 +1,8 @@
 Changes since release 4.0 Alpha 5
 
+* [HTTPCORE-114]: Fixed incorrect handling of the end-of-stream condition in SSLIOSession. 
+  Oleg Kalnichevski <olegk at apache.org>
+
 * [HTTPCORE-110] refactored message parsing and formatting logic
   Contributed by Roland Weber <rolandw at apache.org>
 

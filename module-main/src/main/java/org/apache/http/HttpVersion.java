@@ -32,7 +32,6 @@
 package org.apache.http;
 
 import java.io.Serializable;
-import org.apache.http.util.CharArrayBuffer;
 
 /**
  * Represents an HTTP version, as specified in RFC 2616.

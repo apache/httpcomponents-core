@@ -222,14 +222,7 @@ public class SSLIOSession implements IOSession, SessionBufferStatus {
     }
 
     private int receiveEncryptedData() throws IOException {
-        int bytesRead = this.session.channel().read(this.inEncrypted);
-        if (bytesRead == -1) {
-            this.session.close();
-        }
-        if (this.sslEngine.isInboundDone() && this.sslEngine.isOutboundDone()) {
-            this.session.close();
-        }
-        return bytesRead;
+        return this.session.channel().read(this.inEncrypted);
     }
     
     private boolean decryptData() throws SSLException {
@@ -252,11 +245,11 @@ public class SSLIOSession implements IOSession, SessionBufferStatus {
         int bytesRead = receiveEncryptedData();
         if (bytesRead == -1) {
             this.status = CLOSED;
-            return false;
         }
         doHandshake();
         decryptData();
-        return this.inPlain.position() > 0;
+        // Some decrypted data is available or at the end of stream
+        return this.inPlain.position() > 0 || this.status == CLOSED;
     }
     
     public synchronized boolean isAppOutputReady() throws IOException {
@@ -265,7 +258,11 @@ public class SSLIOSession implements IOSession, SessionBufferStatus {
     }
     
     public synchronized void inboundTransport() throws IOException {
-        updateEventMask();
+        if (this.status == CLOSED) {
+            this.session.close();
+        } else {
+            updateEventMask();
+        }
     }
     
     public synchronized void outboundTransport() throws IOException {

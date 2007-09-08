@@ -130,7 +130,7 @@ public class SSLClientIOEventDispatch implements IOEventDispatch {
                 SSL_SESSION);
         try {
             synchronized (sslSession) {
-                while (sslSession.isAppInputReady()) {
+                if (sslSession.isAppInputReady()) {
                     conn.consumeInput(this.handler);
                 }
                 sslSession.inboundTransport();
