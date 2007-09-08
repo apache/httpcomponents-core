@@ -46,6 +46,7 @@ import org.apache.http.HttpResponse;
 import org.apache.http.HttpResponseFactory;
 import org.apache.http.HttpStatus;
 import org.apache.http.HttpVersion;
+import org.apache.http.ProtocolVersion;
 import org.apache.http.impl.DefaultConnectionReuseStrategy;
 import org.apache.http.impl.DefaultHttpResponseFactory;
 import org.apache.http.impl.nio.DefaultClientIOEventDispatch;
@@ -246,7 +247,7 @@ public class NHttpReverseProxy {
                         System.out.println(conn +  ": [client] >> " + headers[i].toString());
                     }
                     
-                    HttpVersion ver = request.getRequestLine().getHttpVersion();
+                    ProtocolVersion ver = request.getRequestLine().getProtocolVersion();
                     if (!ver.lessEquals(HttpVersion.HTTP_1_1)) {
                         // Downgrade protocol version if greater than HTTP/1.1 
                         ver = HttpVersion.HTTP_1_1;
