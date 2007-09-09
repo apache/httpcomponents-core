@@ -70,4 +70,35 @@ public final class HttpVersion extends ProtocolVersion
         super(HTTP, major, minor);
     }
 
+
+    /**
+     * Obtains a specific HTTP version.
+     *
+     * @param major     the major version
+     * @param minor     the minor version
+     *
+     * @return  an instance of {@link HttpVersion} with the argument version
+     */
+    public ProtocolVersion forVersion(int major, int minor) {
+
+        if ((major == this.major) && (minor == this.minor)) {
+            return this;
+        }
+
+        if (major == 1) {
+            if (minor == 0) {
+                return HTTP_1_0;
+            }
+            if (minor == 1) {
+                return HTTP_1_1;
+            }
+        }
+        if ((major == 0) && (minor == 9)) {
+            return HTTP_0_9;
+        }
+
+        // argument checking is done in the constructor
+        return new HttpVersion(major, minor);
+    }
+
 }

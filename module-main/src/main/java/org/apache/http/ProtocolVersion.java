@@ -122,6 +122,32 @@ public class ProtocolVersion implements Serializable {
 
 
     /**
+     * Obtains a specific version of this protocol.
+     * This can be used by derived classes to instantiate themselves instead
+     * of the base class, and to define constants for commonly used versions.
+     * <br/>
+     * The default implementation in this class returns <code>this</code>
+     * if the version matches, and creates a new {@link ProtocolVersion}
+     * otherwise.
+     *
+     * @param major     the major version
+     * @param minor     the minor version
+     *
+     * @return  a protocol version with the same protocol name
+     *          and the argument version
+     */
+    public ProtocolVersion forVersion(int major, int minor) {
+
+        if ((major == this.major) && (minor == this.minor)) {
+            return this;
+        }
+
+        // argument checking is done in the constructor
+        return new ProtocolVersion(this.protocol, major, minor);
+    }
+
+
+    /**
      * Obtains a hash code consistent with {@link #equals}.
      *
      * @return  the hashcode of this protocol version
