@@ -32,7 +32,7 @@
 package org.apache.http.message;
 
 
-import org.apache.http.HttpVersion;
+import org.apache.http.ProtocolVersion;
 import org.apache.http.ParseException;
 import org.apache.http.RequestLine;
 import org.apache.http.StatusLine;
@@ -70,9 +70,9 @@ public interface LineParser {
      *
      * @throws ParseException        in case of a parse error
      */
-    HttpVersion parseProtocolVersion(CharArrayBuffer buffer,
-                                     int indexFrom,
-                                     int indexTo) 
+    ProtocolVersion parseProtocolVersion(CharArrayBuffer buffer,
+                                         int indexFrom,
+                                         int indexTo) 
         throws ParseException
         ;
 

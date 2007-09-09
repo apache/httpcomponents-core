@@ -284,15 +284,19 @@ public class TestBasicLineParser extends TestCase {
 
     
     public void testHttpVersionParsing() throws Exception {
-        new HttpVersion(1, 1);
+
         String s = "HTTP/1.1";
-        HttpVersion version = BasicLineParser.parseProtocolVersion(s, null);
+        HttpVersion version = (HttpVersion)
+            BasicLineParser.parseProtocolVersion(s, null);
+        assertEquals("HTTP protocol name", "HTTP", version.getProtocol());
         assertEquals("HTTP major version number", 1, version.getMajor());
         assertEquals("HTTP minor version number", 1, version.getMinor());
         assertEquals("HTTP version number", s, version.toString());
 
         s = "HTTP/123.4567";
-        version = BasicLineParser.parseProtocolVersion(s, null);
+        version = (HttpVersion)
+            BasicLineParser.parseProtocolVersion(s, null);
+        assertEquals("HTTP protocol name", "HTTP", version.getProtocol());
         assertEquals("HTTP major version number", 123, version.getMajor());
         assertEquals("HTTP minor version number", 4567, version.getMinor());
         assertEquals("HTTP version number", s, version.toString());

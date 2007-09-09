@@ -32,6 +32,7 @@
 package org.apache.http.message;
 
 import org.apache.http.HttpVersion;
+import org.apache.http.ProtocolVersion;
 import org.apache.http.ParseException;
 import org.apache.http.RequestLine;
 import org.apache.http.StatusLine;
@@ -73,13 +74,40 @@ public class BasicLineParser implements LineParser {
     public final static BasicLineParser DEFAULT = new BasicLineParser();
 
 
+    /**
+     * A version of the protocol to parse.
+     * The version is typically not relevant, but the protocol name.
+     */
+    protected final ProtocolVersion protocol;
 
-    // public default constructor
+
+    /**
+     * Creates a new line parser for the given HTTP-like protocol.
+     *
+     * @param proto     a version of the protocol to parse, or
+     *                  <code>null</code> for HTTP. The actual version
+     *                  is not relevant, only the protocol name.
+     */
+    public BasicLineParser(ProtocolVersion proto) {
+        if (proto == null) {
+            proto = HttpVersion.HTTP_1_1;
+        }
+        this.protocol = proto;
+    }
+
+
+    /**
+     * Creates a new line parser for HTTP.
+     */
+    public BasicLineParser() {
+        this(null);
+    }
+
 
 
     public final static
-        HttpVersion parseProtocolVersion(String value,
-                                         LineParser parser)
+        ProtocolVersion parseProtocolVersion(String value,
+                                             LineParser parser)
         throws ParseException {
 
         if (value == null) {
@@ -97,9 +125,9 @@ public class BasicLineParser implements LineParser {
 
 
     // non-javadoc, see interface LineParser
-    public HttpVersion parseProtocolVersion(final CharArrayBuffer buffer,
-                                            final int indexFrom,
-                                            final int indexTo) 
+    public ProtocolVersion parseProtocolVersion(final CharArrayBuffer buffer,
+                                                final int indexFrom,
+                                                final int indexTo) 
         throws ParseException {
 
         if (buffer == null) {
@@ -115,45 +143,63 @@ public class BasicLineParser implements LineParser {
         if (indexFrom > indexTo) {
             throw new IndexOutOfBoundsException();
         }
-        try {
-            int major, minor;
 
-            int i = skipWhitespace(buffer, indexFrom);
 
-            if (buffer.charAt(i    ) != 'H' 
-             || buffer.charAt(i + 1) != 'T'
-             || buffer.charAt(i + 2) != 'T'
-             || buffer.charAt(i + 3) != 'P'
-             || buffer.charAt(i + 4) != '/') {
-                throw new ParseException("Not a valid HTTP version string: " + 
-                        buffer.substring(indexFrom, indexTo));
-            }
-            i += 5;
-            int period = buffer.indexOf('.', i, indexTo);
-            if (period == -1) {
-                throw new ParseException("Invalid HTTP version number: " + 
-                        buffer.substring(indexFrom, indexTo));
-            }
-            try {
-                major = Integer.parseInt(buffer.substringTrimmed(i, period)); 
-            } catch (NumberFormatException e) {
-                throw new ParseException
-                    ("Invalid HTTP major version number: " + 
-                     buffer.substring(indexFrom, indexTo));
-            }
-            try {
-                minor = Integer.parseInt(buffer.substringTrimmed(period + 1, indexTo)); 
-            } catch (NumberFormatException e) {
-                throw new ParseException(
-                    "Invalid HTTP minor version number: " + 
-                    buffer.substring(indexFrom, indexTo));
-            }
-            return createProtocolVersion(major, minor);
-            
-        } catch (IndexOutOfBoundsException e) {
-            throw new ParseException("Invalid HTTP version string: " + 
-                    buffer.substring(indexFrom, indexTo)); 
+        final String protoname = this.protocol.getProtocol();
+        final int protolength  = protoname.length();
+
+        int i = skipWhitespace(buffer, indexFrom);
+        // long enough for "HTTP/1.1"?
+        if (i + protolength + 4 > indexTo) {
+            throw new ParseException
+                ("Not a valid protocol version: " +
+                 buffer.substring(indexFrom, indexTo));
         }
+
+        // check the protocol name and slash
+        boolean ok = true;
+        for (int j=0; ok && (j<protolength); j++) {
+            ok = (buffer.charAt(i+j) == protoname.charAt(j));
+        }
+        if (ok) {
+            ok = (buffer.charAt(i+protolength) == '/');
+        }
+        if (!ok) {
+            throw new ParseException
+                ("Not a valid protocol version: " +
+                 buffer.substring(indexFrom, indexTo));
+        }
+
+        i += protolength+1;
+
+        final int period = buffer.indexOf('.', i, indexTo);
+        if (period == -1) {
+            throw new ParseException
+                ("Invalid protocol version number: " + 
+                 buffer.substring(indexFrom, indexTo));
+        }
+
+        int major;
+        try {
+            major = Integer.parseInt(buffer.substringTrimmed(i, period)); 
+        } catch (NumberFormatException e) {
+            throw new ParseException
+                ("Invalid protocol major version number: " + 
+                 buffer.substring(indexFrom, indexTo));
+        }
+
+        int minor;
+        try {
+            minor = Integer.parseInt(buffer.substringTrimmed(period + 1,
+                                                             indexTo)); 
+        } catch (NumberFormatException e) {
+            throw new ParseException(
+                "Invalid protocol minor version number: " + 
+                buffer.substring(indexFrom, indexTo));
+        }
+
+        return createProtocolVersion(major, minor);
+
     } // parseProtocolVersion
 
 
@@ -166,8 +212,8 @@ public class BasicLineParser implements LineParser {
      *
      * @return  the protocol version
      */
-    protected HttpVersion createProtocolVersion(int major, int minor) {
-        return new HttpVersion(major, minor);
+    protected ProtocolVersion createProtocolVersion(int major, int minor) {
+        return protocol.forVersion(major, minor);
     }
 
 
@@ -183,12 +229,17 @@ public class BasicLineParser implements LineParser {
             throw new IndexOutOfBoundsException();
         }
 
-        if (buffer.length() < 8)
+
+        final String protoname = this.protocol.getProtocol();
+        final int  protolength = protoname.length();
+
+        if (buffer.length() < protolength+4)
             return false; // not long enough for "HTTP/1.1"
 
         if (index < 0) {
             // end of line, no tolerance for trailing whitespace
-            index = buffer.length()-8;
+            // this works only for single-digit major and minor version
+            index = buffer.length() -4 -protolength;
         } else if (index == 0) {
             // beginning of line, tolerate leading whitespace
             index = skipWhitespace(buffer, index);
@@ -196,14 +247,20 @@ public class BasicLineParser implements LineParser {
         } // else within line, don't tolerate whitespace
 
 
-        if (index + 8 > buffer.length())
+        if (index + protolength + 4 > buffer.length())
             return false;
 
-        // just check for the protocol name, no need to analyse the version
-        return buffer.charAt(index    ) == 'H' 
-            && buffer.charAt(index + 1) == 'T'
-            && buffer.charAt(index + 2) == 'T'
-            && buffer.charAt(index + 3) == 'P';
+
+        // just check protocol name and slash, no need to analyse the version
+        boolean ok = true;
+        for (int j=0; ok && (j<protolength); j++) {
+            ok = (buffer.charAt(index+j) == protoname.charAt(j));
+        }
+        if (ok) {
+            ok = (buffer.charAt(index+protolength) == '/');
+        }
+
+        return ok;
     }
 
 
@@ -271,7 +328,7 @@ public class BasicLineParser implements LineParser {
                         buffer.substring(indexFrom, indexTo));
             }
             String uri = buffer.substringTrimmed(i, blank);
-            HttpVersion ver = parseProtocolVersion(buffer, blank, indexTo);
+            ProtocolVersion ver = parseProtocolVersion(buffer, blank, indexTo);
             return createRequestLine(method, uri, ver);
         } catch (IndexOutOfBoundsException e) {
             throw new ParseException("Invalid request line: " + 
@@ -292,7 +349,7 @@ public class BasicLineParser implements LineParser {
      */
     protected RequestLine createRequestLine(String method,
                                             String uri,
-                                            HttpVersion ver) {
+                                            ProtocolVersion ver) {
         return new BasicRequestLine(method, uri, ver);
     }
 
@@ -346,7 +403,7 @@ public class BasicLineParser implements LineParser {
                         "Unable to parse HTTP-Version from the status line: "
                         + buffer.substring(indexFrom, indexTo));
             }
-            HttpVersion ver = parseProtocolVersion(buffer, i, blank);
+            ProtocolVersion ver = parseProtocolVersion(buffer, i, blank);
 
             // handle the Status-Code
             i = skipWhitespace(buffer, blank);
@@ -390,7 +447,7 @@ public class BasicLineParser implements LineParser {
      *
      * @return  a new status line with the given data
      */
-    protected StatusLine createStatusLine(HttpVersion ver,
+    protected StatusLine createStatusLine(ProtocolVersion ver,
                                           int status, String reason) {
         return new BasicStatusLine(ver, status, reason);
     }
@@ -448,7 +505,8 @@ public class BasicLineParser implements LineParser {
      *          the rest of the line is whitespace.
      */
     protected int skipWhitespace(CharArrayBuffer buffer, int index) {
-        while (HTTP.isWhitespace(buffer.charAt(index))) {
+        while ((index < buffer.length()) &&
+               HTTP.isWhitespace(buffer.charAt(index))) {
             index++;
         }
         return index;
