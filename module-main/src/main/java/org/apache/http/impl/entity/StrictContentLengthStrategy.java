@@ -184,6 +184,9 @@ public class StrictContentLengthStrategy implements ContentLengthStrategy {
         if (message == null) {
             throw new IllegalArgumentException("HTTP message may not be null");
         }
+        // Although Transfer-Encoding is specified as a list, in practice
+        // it is either missing or has the single value "chunked". So we
+        // treat it as a single-valued header here.
         Header transferEncodingHeader = message.getFirstHeader(HTTP.TRANSFER_ENCODING);
         Header contentLengthHeader = message.getFirstHeader(HTTP.CONTENT_LEN);
         if (transferEncodingHeader != null) {
