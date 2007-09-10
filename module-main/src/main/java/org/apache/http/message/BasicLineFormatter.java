@@ -115,11 +115,11 @@ public class BasicLineFormatter implements LineFormatter {
 
 
     // non-javadoc, see interface LineFormatter
-    public CharArrayBuffer appendProtocolVersion(CharArrayBuffer buffer,
-                                                 ProtocolVersion version) {
+    public CharArrayBuffer appendProtocolVersion(final CharArrayBuffer buffer,
+                                                 final ProtocolVersion version) {
         if (version == null) {
             throw new IllegalArgumentException
-                ("Protocol version must not be null.");
+                ("Protocol version may not be null");
         }
 
         // can't use initBuffer, that would clear the argument!
@@ -150,7 +150,7 @@ public class BasicLineFormatter implements LineFormatter {
      * @return  the estimated length of the formatted protocol version,
      *          in characters
      */
-    protected int estimateProtocolVersionLen(ProtocolVersion version) {
+    protected int estimateProtocolVersionLen(final ProtocolVersion version) {
         return version.getProtocol().length() + 4; // room for "HTTP/1.1"
     }
 
@@ -178,7 +178,7 @@ public class BasicLineFormatter implements LineFormatter {
                                              RequestLine reqline) {
         if (reqline == null) {
             throw new IllegalArgumentException
-                ("Request line must not be null.");
+                ("Request line may not be null");
         }
 
         CharArrayBuffer result = initBuffer(buffer);
@@ -196,8 +196,8 @@ public class BasicLineFormatter implements LineFormatter {
      *                  never <code>null</code>
      * @param reqline   the request line to format, never <code>null</code>
      */
-    protected void doFormatRequestLine(CharArrayBuffer buffer,
-                                       RequestLine reqline) {
+    protected void doFormatRequestLine(final CharArrayBuffer buffer,
+                                       final RequestLine reqline) {
         final String method = reqline.getMethod();
         final String uri    = reqline.getUri();
 
@@ -234,11 +234,11 @@ public class BasicLineFormatter implements LineFormatter {
 
 
     // non-javadoc, see interface LineFormatter
-    public CharArrayBuffer formatStatusLine(CharArrayBuffer buffer,
-                                            StatusLine statline) {
+    public CharArrayBuffer formatStatusLine(final CharArrayBuffer buffer,
+                                            final StatusLine statline) {
         if (statline == null) {
             throw new IllegalArgumentException
-                ("Status line must not be null.");
+                ("Status line may not be null");
         }
 
         CharArrayBuffer result = initBuffer(buffer);
@@ -256,8 +256,8 @@ public class BasicLineFormatter implements LineFormatter {
      *                  never <code>null</code>
      * @param statline  the status line to format, never <code>null</code>
      */
-    protected void doFormatStatusLine(CharArrayBuffer buffer,
-                                      StatusLine statline) {
+    protected void doFormatStatusLine(final CharArrayBuffer buffer,
+                                      final StatusLine statline) {
 
         int len = estimateProtocolVersionLen(statline.getProtocolVersion())
             + 1 + 3 + 1; // room for "HTTP/1.1 200 "
@@ -300,7 +300,7 @@ public class BasicLineFormatter implements LineFormatter {
                                         Header header) {
         if (header == null) {
             throw new IllegalArgumentException
-                ("Header must not be null.");
+                ("Header may not be null");
         }
         CharArrayBuffer result = null;
 
@@ -324,8 +324,8 @@ public class BasicLineFormatter implements LineFormatter {
      *                  never <code>null</code>
      * @param header    the header to format, never <code>null</code>
      */
-    protected void doFormatHeader(CharArrayBuffer buffer,
-                                  Header header) {
+    protected void doFormatHeader(final CharArrayBuffer buffer,
+                                  final Header header) {
         final String name = header.getName();
         final String value = header.getValue();
 

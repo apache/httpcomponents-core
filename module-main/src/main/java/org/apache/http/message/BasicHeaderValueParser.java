@@ -84,13 +84,13 @@ public class BasicHeaderValueParser implements HeaderValueParser {
      * @return  array holding the header elements, never <code>null</code>
      */
     public final static
-        HeaderElement[] parseElements(String value,
+        HeaderElement[] parseElements(final String value,
                                       HeaderValueParser parser)
         throws ParseException {
 
         if (value == null) {
             throw new IllegalArgumentException
-                ("Value to parse may not be null.");
+                ("Value to parse may not be null");
         }
 
         if (parser == null)
@@ -163,13 +163,13 @@ public class BasicHeaderValueParser implements HeaderValueParser {
      * @return  the parsed header element
      */
     public final static
-        HeaderElement parseHeaderElement(String value,
+        HeaderElement parseHeaderElement(final String value,
                                          HeaderValueParser parser)
         throws ParseException {
 
         if (value == null) {
             throw new IllegalArgumentException
-                ("Value to parse may not be null.");
+                ("Value to parse may not be null");
         }
 
         if (parser == null)
@@ -228,13 +228,13 @@ public class BasicHeaderValueParser implements HeaderValueParser {
      * @return  array holding the parameters, never <code>null</code>
      */
     public final static
-        NameValuePair[] parseParameters(String value,
+        NameValuePair[] parseParameters(final String value,
                                         HeaderValueParser parser)
         throws ParseException {
 
         if (value == null) {
             throw new IllegalArgumentException
-                ("Value to parse may not be null.");
+                ("Value to parse may not be null");
         }
 
         if (parser == null)
@@ -308,13 +308,13 @@ public class BasicHeaderValueParser implements HeaderValueParser {
      * @return  the parsed name-value pair
      */
     public final static
-       NameValuePair parseNameValuePair(String value,
+       NameValuePair parseNameValuePair(final String value,
                                         HeaderValueParser parser)
         throws ParseException {
 
         if (value == null) {
             throw new IllegalArgumentException
-                ("Value to parse may not be null.");
+                ("Value to parse may not be null");
         }
 
         if (parser == null)
@@ -388,7 +388,7 @@ public class BasicHeaderValueParser implements HeaderValueParser {
      *
      * @return  a name-value pair representing the arguments
      */
-    protected NameValuePair createNameValuePair(String name, String value) {
+    protected NameValuePair createNameValuePair(final String name, final String value) {
         return new BasicNameValuePair(name, value);
     }
 

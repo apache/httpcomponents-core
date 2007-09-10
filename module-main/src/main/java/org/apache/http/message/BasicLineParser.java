@@ -266,7 +266,7 @@ public class BasicLineParser implements LineParser {
 
 
     public final static
-        RequestLine parseRequestLine(String value,
+        RequestLine parseRequestLine(final String value,
                                      LineParser parser)
         throws ParseException {
 
@@ -347,16 +347,16 @@ public class BasicLineParser implements LineParser {
      *
      * @return  a new status line with the given data
      */
-    protected RequestLine createRequestLine(String method,
-                                            String uri,
-                                            ProtocolVersion ver) {
+    protected RequestLine createRequestLine(final String method,
+                                            final String uri,
+                                            final ProtocolVersion ver) {
         return new BasicRequestLine(method, uri, ver);
     }
 
 
 
     public final static
-        StatusLine parseStatusLine(String value,
+        StatusLine parseStatusLine(final String value,
                                    LineParser parser)
         throws ParseException {
 
@@ -447,21 +447,22 @@ public class BasicLineParser implements LineParser {
      *
      * @return  a new status line with the given data
      */
-    protected StatusLine createStatusLine(ProtocolVersion ver,
-                                          int status, String reason) {
+    protected StatusLine createStatusLine(final ProtocolVersion ver,
+                                          final int status, 
+                                          final String reason) {
         return new BasicStatusLine(ver, status, reason);
     }
 
 
 
     public final static
-        Header parseHeader(String value, 
+        Header parseHeader(final String value, 
                            LineParser parser)
         throws ParseException {
 
         if (value == null) {
             throw new IllegalArgumentException
-                ("Value to parse may not be null.");
+                ("Value to parse may not be null");
         }
 
         if (parser == null)
@@ -504,7 +505,7 @@ public class BasicLineParser implements LineParser {
      *          if there was no whitespace. It is the end of the buffer if
      *          the rest of the line is whitespace.
      */
-    protected int skipWhitespace(CharArrayBuffer buffer, int index) {
+    protected int skipWhitespace(final CharArrayBuffer buffer, int index) {
         while ((index < buffer.length()) &&
                HTTP.isWhitespace(buffer.charAt(index))) {
             index++;

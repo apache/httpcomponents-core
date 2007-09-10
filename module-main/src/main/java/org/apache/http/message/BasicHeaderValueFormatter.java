@@ -137,7 +137,7 @@ public class BasicHeaderValueFormatter implements HeaderValueFormatter {
      *
      * @return  a length estimate, in number of characters
      */
-    protected int estimateElementsLen(HeaderElement[] elems) {
+    protected int estimateElementsLen(final HeaderElement[] elems) {
         if ((elems == null) || (elems.length < 1))
             return 0;
 
@@ -164,7 +164,7 @@ public class BasicHeaderValueFormatter implements HeaderValueFormatter {
      */
     public final static
         String formatHeaderElement(final HeaderElement elem,
-                                   final boolean quote,
+                                   boolean quote,
                                    HeaderValueFormatter formatter) {
         if (formatter == null)
             formatter = BasicHeaderValueFormatter.DEFAULT;
@@ -214,7 +214,7 @@ public class BasicHeaderValueFormatter implements HeaderValueFormatter {
      *
      * @return  a length estimate, in number of characters
      */
-    protected int estimateHeaderElementLen(HeaderElement elem) {
+    protected int estimateHeaderElementLen(final HeaderElement elem) {
         if (elem == null)
             return 0;
 
@@ -294,7 +294,7 @@ public class BasicHeaderValueFormatter implements HeaderValueFormatter {
      *
      * @return  a length estimate, in number of characters
      */
-    protected int estimateParametersLen(NameValuePair[] nvps) {
+    protected int estimateParametersLen(final NameValuePair[] nvps) {
         if ((nvps == null) || (nvps.length < 1))
             return 0;
 
@@ -330,8 +330,8 @@ public class BasicHeaderValueFormatter implements HeaderValueFormatter {
 
     // non-javadoc, see interface HeaderValueFormatter
     public CharArrayBuffer formatNameValuePair(CharArrayBuffer buffer,
-                                               NameValuePair nvp,
-                                               boolean quote) {
+                                               final NameValuePair nvp,
+                                               final boolean quote) {
         if (nvp == null) {
             throw new IllegalArgumentException
                 ("NameValuePair must not be null.");
@@ -362,7 +362,7 @@ public class BasicHeaderValueFormatter implements HeaderValueFormatter {
      *
      * @return  a length estimate, in number of characters
      */
-    protected int estimateNameValuePairLen(NameValuePair nvp) {
+    protected int estimateNameValuePairLen(final NameValuePair nvp) {
         if (nvp == null)
             return 0;
 
