@@ -61,7 +61,8 @@ import org.apache.http.message.BasicHttpRequest;
 import org.apache.http.nio.NHttpClientHandler;
 import org.apache.http.nio.NHttpConnection;
 import org.apache.http.nio.NHttpServiceHandler;
-import org.apache.http.nio.mockup.CountingEventListener;
+import org.apache.http.nio.mockup.RequestCount;
+import org.apache.http.nio.mockup.SimpleEventListener;
 import org.apache.http.nio.mockup.SimpleHttpRequestHandlerResolver;
 import org.apache.http.nio.mockup.SimpleThreadPoolExecutor;
 import org.apache.http.nio.mockup.TestHttpClient;
@@ -201,15 +202,14 @@ public class TestNIOHttp extends TestCase {
     }
 
     protected void tearDown() throws Exception {
-        this.executor.shutdown();
         this.server.shutdown();
         this.client.shutdown();
+        this.executor.shutdown();
     }
     
     private NHttpServiceHandler createHttpServiceHandler(
             final HttpRequestHandler requestHandler,
-            final HttpExpectationVerifier expectationVerifier,
-            final EventListener eventListener) {
+            final HttpExpectationVerifier expectationVerifier) {
         BasicHttpProcessor httpproc = new BasicHttpProcessor();
         httpproc.addInterceptor(new ResponseDate());
         httpproc.addInterceptor(new ResponseServer());
@@ -226,7 +226,7 @@ public class TestNIOHttp extends TestCase {
             serviceHandler.setHandlerResolver(
                     new SimpleHttpRequestHandlerResolver(requestHandler));
             serviceHandler.setExpectationVerifier(expectationVerifier);
-            serviceHandler.setEventListener(eventListener);
+            serviceHandler.setEventListener(new SimpleEventListener());
             
             return serviceHandler;
         }
@@ -241,7 +241,7 @@ public class TestNIOHttp extends TestCase {
             serviceHandler.setHandlerResolver(
                     new SimpleHttpRequestHandlerResolver(requestHandler));
             serviceHandler.setExpectationVerifier(expectationVerifier);
-            serviceHandler.setEventListener(eventListener);
+            serviceHandler.setEventListener(new SimpleEventListener());
             
             return serviceHandler;
         }
@@ -249,8 +249,7 @@ public class TestNIOHttp extends TestCase {
     }
     
     private NHttpClientHandler createHttpClientHandler(
-            final HttpRequestExecutionHandler requestExecutionHandler,
-            final EventListener eventListener) {
+            final HttpRequestExecutionHandler requestExecutionHandler) {
         BasicHttpProcessor httpproc = new BasicHttpProcessor();
         httpproc.addInterceptor(new RequestContent());
         httpproc.addInterceptor(new RequestTargetHost());
@@ -265,7 +264,7 @@ public class TestNIOHttp extends TestCase {
                     new DefaultConnectionReuseStrategy(),
                     this.client.getParams());
 
-            clientHandler.setEventListener(eventListener);
+            clientHandler.setEventListener(new SimpleEventListener());
             return clientHandler;
         }
         if (this.clientMode == MODE_THROTTLING) {
@@ -276,7 +275,7 @@ public class TestNIOHttp extends TestCase {
                     this.executor,
                     this.client.getParams());
 
-            clientHandler.setEventListener(eventListener);
+            clientHandler.setEventListener(new SimpleEventListener());
             return clientHandler;
         }
         throw new IllegalStateException();
@@ -290,6 +289,7 @@ public class TestNIOHttp extends TestCase {
         
         final int connNo = 3;
         final int reqNo = 20;
+        final RequestCount requestCount = new RequestCount(connNo * reqNo); 
         
         Random rnd = new Random();
         
@@ -363,33 +363,25 @@ public class TestNIOHttp extends TestCase {
                     HttpEntity entity = response.getEntity();
                     byte[] data = EntityUtils.toByteArray(entity);
                     list.add(data);
+                    requestCount.decrement();
                 } catch (IOException ex) {
-                    fail(ex.getMessage());
+                    requestCount.abort();
+                    return;
                 }
 
                 if (i < reqNo) {
                     conn.requestInput();
-                } else {
-                    try {
-                        conn.close();
-                    } catch (IOException ex) {
-                    }
                 }
             }
             
         };
-        
-        CountingEventListener serverEventListener = new CountingEventListener();
-        CountingEventListener clientEventListener = new CountingEventListener();
-        
+
         NHttpServiceHandler serviceHandler = createHttpServiceHandler(
                 requestHandler, 
-                null,
-                serverEventListener);
+                null);
 
         NHttpClientHandler clientHandler = createHttpClientHandler(
-                requestExecutionHandler, 
-                clientEventListener);
+                requestExecutionHandler);
 
         this.server.start(serviceHandler);
         this.client.start(clientHandler);
@@ -402,8 +394,8 @@ public class TestNIOHttp extends TestCase {
                     responseData[i]);
         }
      
-        clientEventListener.await(connNo, 10000);
-        assertEquals(connNo, clientEventListener.getConnCount());
+        requestCount.await(10000);
+        assertEquals(0, requestCount.getValue());
         
         this.client.shutdown();
         this.server.shutdown();
@@ -433,6 +425,7 @@ public class TestNIOHttp extends TestCase {
         
         final int connNo = 3;
         final int reqNo = 20;
+        final RequestCount requestCount = new RequestCount(connNo * reqNo); 
         
         Random rnd = new Random();
         
@@ -510,33 +503,25 @@ public class TestNIOHttp extends TestCase {
                     HttpEntity entity = response.getEntity();
                     byte[] data = EntityUtils.toByteArray(entity);
                     list.add(data);
+                    requestCount.decrement();
                 } catch (IOException ex) {
-                    fail(ex.getMessage());
+                    requestCount.abort();
+                    return;
                 }
 
                 if (i < reqNo) {
                     conn.requestInput();
-                } else {
-                    try {
-                        conn.close();
-                    } catch (IOException ex) {
-                    }
                 }
             }
             
         };
         
-        CountingEventListener serverEventListener = new CountingEventListener();
-        CountingEventListener clientEventListener = new CountingEventListener();
-        
         NHttpServiceHandler serviceHandler = createHttpServiceHandler(
                 requestHandler, 
-                null,
-                serverEventListener);
+                null);
 
         NHttpClientHandler clientHandler = createHttpClientHandler(
-                requestExecutionHandler, 
-                clientEventListener);
+                requestExecutionHandler);
 
         this.server.start(serviceHandler);
         this.client.start(clientHandler);
@@ -549,8 +534,8 @@ public class TestNIOHttp extends TestCase {
                     responseData[i]);
         }
      
-        clientEventListener.await(connNo, 10000);
-        assertEquals(connNo, clientEventListener.getConnCount());
+        requestCount.await(10000);
+        assertEquals(0, requestCount.getValue());
         
         this.client.shutdown();
         this.server.shutdown();
@@ -580,6 +565,7 @@ public class TestNIOHttp extends TestCase {
         
         final int connNo = 3;
         final int reqNo = 20;
+        final RequestCount requestCount = new RequestCount(connNo * reqNo); 
         
         Random rnd = new Random();
         
@@ -657,33 +643,25 @@ public class TestNIOHttp extends TestCase {
                     HttpEntity entity = response.getEntity();
                     byte[] data = EntityUtils.toByteArray(entity);
                     list.add(data);
+                    requestCount.decrement();
                 } catch (IOException ex) {
-                    fail(ex.getMessage());
+                    requestCount.abort();
+                    return;
                 }
 
                 if (i < reqNo) {
                     conn.requestInput();
-                } else {
-                    try {
-                        conn.close();
-                    } catch (IOException ex) {
-                    }
                 }
             }
             
         };
         
-        CountingEventListener serverEventListener = new CountingEventListener();
-        CountingEventListener clientEventListener = new CountingEventListener();
-        
         NHttpServiceHandler serviceHandler = createHttpServiceHandler(
                 requestHandler, 
-                null,
-                serverEventListener);
+                null);
 
         NHttpClientHandler clientHandler = createHttpClientHandler(
-                requestExecutionHandler, 
-                clientEventListener);
+                requestExecutionHandler);
 
         this.server.start(serviceHandler);
         this.client.start(clientHandler);
@@ -696,8 +674,11 @@ public class TestNIOHttp extends TestCase {
                     responseData[i]);
         }
      
-        clientEventListener.await(connNo, 10000);
-        assertEquals(connNo, clientEventListener.getConnCount());
+        requestCount.await(10000);
+        if (requestCount.isAborted()) {
+            System.out.println("Test case aborted");
+        }
+        assertEquals(0, requestCount.getValue());
         
         this.client.shutdown();
         this.server.shutdown();
@@ -727,6 +708,7 @@ public class TestNIOHttp extends TestCase {
         
         final int connNo = 3;
         final int reqNo = 20;
+        final RequestCount requestCount = new RequestCount(connNo * reqNo); 
         
         Random rnd = new Random();
         
@@ -809,33 +791,25 @@ public class TestNIOHttp extends TestCase {
                     HttpEntity entity = response.getEntity();
                     byte[] data = EntityUtils.toByteArray(entity);
                     list.add(data);
+                    requestCount.decrement();
                 } catch (IOException ex) {
-                    fail(ex.getMessage());
+                    requestCount.abort();
+                    return;
                 }
 
                 if (i < reqNo) {
                     conn.requestInput();
-                } else {
-                    try {
-                        conn.close();
-                    } catch (IOException ex) {
-                    }
                 }
             }
             
         };
         
-        CountingEventListener serverEventListener = new CountingEventListener();
-        CountingEventListener clientEventListener = new CountingEventListener();
-        
         NHttpServiceHandler serviceHandler = createHttpServiceHandler(
                 requestHandler, 
-                null,
-                serverEventListener);
+                null);
 
         NHttpClientHandler clientHandler = createHttpClientHandler(
-                requestExecutionHandler, 
-                clientEventListener);
+                requestExecutionHandler);
 
         this.server.start(serviceHandler);
         this.client.start(clientHandler);
@@ -848,8 +822,8 @@ public class TestNIOHttp extends TestCase {
                     responseData[i]);
         }
      
-        clientEventListener.await(connNo, 10000);
-        assertEquals(connNo, clientEventListener.getConnCount());
+        requestCount.await(10000);
+        assertEquals(0, requestCount.getValue());
         
         this.client.shutdown();
         this.server.shutdown();
@@ -879,6 +853,7 @@ public class TestNIOHttp extends TestCase {
         
         final int connNo = 3;
         final int reqNo = 20;
+        final RequestCount requestCount = new RequestCount(connNo * reqNo); 
         
         Random rnd = new Random();
         
@@ -959,33 +934,25 @@ public class TestNIOHttp extends TestCase {
                     HttpEntity entity = response.getEntity();
                     byte[] data = EntityUtils.toByteArray(entity);
                     list.add(data);
+                    requestCount.decrement();
                 } catch (IOException ex) {
-                    fail(ex.getMessage());
+                    requestCount.abort();
+                    return;
                 }
 
                 if (i < reqNo) {
                     conn.requestInput();
-                } else {
-                    try {
-                        conn.close();
-                    } catch (IOException ex) {
-                    }
                 }
             }
             
         };
         
-        CountingEventListener serverEventListener = new CountingEventListener();
-        CountingEventListener clientEventListener = new CountingEventListener();
-        
         NHttpServiceHandler serviceHandler = createHttpServiceHandler(
                 requestHandler, 
-                null,
-                serverEventListener);
+                null);
 
         NHttpClientHandler clientHandler = createHttpClientHandler(
-                requestExecutionHandler, 
-                clientEventListener);
+                requestExecutionHandler);
 
         this.server.start(serviceHandler);
         this.client.start(clientHandler);
@@ -998,8 +965,8 @@ public class TestNIOHttp extends TestCase {
                     responseData[i]);
         }
      
-        clientEventListener.await(connNo, 10000);
-        assertEquals(connNo, clientEventListener.getConnCount());
+        requestCount.await(10000);
+        assertEquals(0, requestCount.getValue());
         
         this.client.shutdown();
         this.server.shutdown();
@@ -1028,6 +995,7 @@ public class TestNIOHttp extends TestCase {
     public void testHttpPostsWithExpectationVerification() throws Exception {
         
         final int reqNo = 3;
+        final RequestCount requestCount = new RequestCount(reqNo); 
         final List responses = new ArrayList(reqNo);
         
         HttpRequestHandler requestHandler = new HttpRequestHandler() {
@@ -1112,35 +1080,27 @@ public class TestNIOHttp extends TestCase {
                     try {
                         entity.consumeContent();
                     } catch (IOException ex) {
-                        fail(ex.getMessage());
+                        requestCount.abort();
+                        return;
                     }
                 }
                 
                 list.add(response);
+                requestCount.decrement();
 
                 if (i < reqNo) {
                     conn.requestInput();
-                } else {
-                    try {
-                        conn.close();
-                    } catch (IOException ex) {
-                    }
                 }
             }
             
         };
         
-        CountingEventListener serverEventListener = new CountingEventListener();
-        CountingEventListener clientEventListener = new CountingEventListener();
-        
         NHttpServiceHandler serviceHandler = createHttpServiceHandler(
                 requestHandler, 
-                expectationVerifier,
-                serverEventListener);
+                expectationVerifier);
 
         NHttpClientHandler clientHandler = createHttpClientHandler(
-                requestExecutionHandler, 
-                clientEventListener);
+                requestExecutionHandler);
 
         this.server.start(serviceHandler);
         this.client.start(clientHandler);
@@ -1151,7 +1111,7 @@ public class TestNIOHttp extends TestCase {
                 new InetSocketAddress("localhost", serverAddress.getPort()), 
                 responses);
      
-        clientEventListener.await(1, 1000);
+        requestCount.await(1000);
         
         this.client.shutdown();
         this.server.shutdown();
@@ -1173,6 +1133,7 @@ public class TestNIOHttp extends TestCase {
         
         final int connNo = 3;
         final int reqNo = 20;
+        final RequestCount requestCount = new RequestCount(connNo * reqNo * 2); 
         
         final String[] method = new String[1];
         
@@ -1246,30 +1207,21 @@ public class TestNIOHttp extends TestCase {
                 context.setAttribute("RES-COUNT", new Integer(i));
 
                 list.add(response);
+                requestCount.decrement();
 
                 if (i < reqNo) {
                     conn.requestInput();
-                } else {
-                    try {
-                        conn.close();
-                    } catch (IOException ex) {
-                    }
                 }
             }
             
         };
         
-        CountingEventListener serverEventListener = new CountingEventListener();
-        CountingEventListener clientEventListener = new CountingEventListener();
-        
         NHttpServiceHandler serviceHandler = createHttpServiceHandler(
                 requestHandler, 
-                null,
-                serverEventListener);
+                null);
 
         NHttpClientHandler clientHandler = createHttpClientHandler(
-                requestExecutionHandler, 
-                clientEventListener);
+                requestExecutionHandler);
 
         this.server.start(serviceHandler);
         this.client.start(clientHandler);
@@ -1284,8 +1236,8 @@ public class TestNIOHttp extends TestCase {
                     responseData[i]);
         }
      
-        clientEventListener.await(connNo, 10000);
-        assertEquals(connNo, clientEventListener.getConnCount());
+        requestCount.await(connNo * reqNo, 10000);
+        assertEquals(connNo * reqNo, requestCount.getValue());
 
         List[] responseDataGET = responseData; 
 
@@ -1302,8 +1254,8 @@ public class TestNIOHttp extends TestCase {
                     responseData[i]);
         }
      
-        clientEventListener.await(connNo * 2, 10000);
-        assertEquals(connNo * 2, clientEventListener.getConnCount());
+        requestCount.await(10000);
+        assertEquals(0, requestCount.getValue());
         
         this.client.shutdown();
         this.server.shutdown();

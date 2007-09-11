@@ -29,47 +29,60 @@
  *
  */
 
-package org.apache.http.impl.nio.reactor;
+package org.apache.http.nio.mockup;
 
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.Set;
+public class RequestCount {
 
-import org.apache.http.nio.reactor.IOSession;
-
-public class SessionSet {
+    private volatile boolean aborted;
+    private volatile int value;
     
-    private final Set set;
-    
-    public SessionSet() {
-        super();
-        this.set = new HashSet();
+    public RequestCount(int initialValue) {
+        this.value = initialValue;
+        this.aborted = false;
     }
-
-    public synchronized void add(final IOSession session) {
-        if (session == null) {
-            return;
+    
+    public int getValue() {
+        return this.value;
+    }
+    
+    public void decrement() {
+        synchronized (this) {
+            if (!this.aborted) {
+                this.value--;
+            }
+            notifyAll();
         }
-        this.set.add(session);
     }
 
-    public synchronized boolean remove(final IOSession session) {
-        if (session == null) {
-            return false;
+    public void abort() {
+        synchronized (this) {
+            this.aborted = true;
+            notifyAll();
         }
-        return this.set.remove(session);
     }
 
-    public synchronized void clear() {
-        this.set.clear();
-    }
-
-    public synchronized boolean isEmpty() {
-        return this.set.isEmpty();
+    public boolean isAborted() {
+        return this.aborted;
     }
     
-    public Iterator iterator() {
-        return this.set.iterator();
+    public void await(int count, long timeout) throws InterruptedException {
+        synchronized (this) {
+            long deadline = System.currentTimeMillis() + timeout;
+            long remaining = timeout;
+            while (!this.aborted && this.value > count) {
+                wait(remaining);
+                if (timeout > 0) {
+                    remaining = deadline - System.currentTimeMillis();
+                    if (remaining <= 0) {
+                        break;
+                    }
+                }
+            }
+        }
+    }
+    
+    public void await(long timeout) throws InterruptedException {
+        await(0, timeout);
     }
     
 }
