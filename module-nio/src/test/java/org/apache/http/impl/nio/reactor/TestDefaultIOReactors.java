@@ -46,23 +46,23 @@ import junit.framework.TestSuite;
  * 
  * @version $Id$
  */
-public class TestDefaultListeningIOReactor extends TestCase {
+public class TestDefaultIOReactors extends TestCase {
 
     // ------------------------------------------------------------ Constructor
-    public TestDefaultListeningIOReactor(String testName) {
+    public TestDefaultIOReactors(String testName) {
         super(testName);
     }
 
     // ------------------------------------------------------------------- Main
     public static void main(String args[]) {
-        String[] testCaseName = { TestDefaultListeningIOReactor.class.getName() };
+        String[] testCaseName = { TestDefaultIOReactors.class.getName() };
         junit.textui.TestRunner.main(testCaseName);
     }
 
     // ------------------------------------------------------- TestCase Methods
 
     public static Test suite() {
-        return new TestSuite(TestDefaultListeningIOReactor.class);
+        return new TestSuite(TestDefaultIOReactors.class);
     }
 
     public void testRestart() throws Exception {

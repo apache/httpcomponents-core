@@ -35,6 +35,12 @@ import java.io.IOException;
 
 public interface IOReactor {
 
+    public static final int ACTIVE           = 0;
+    public static final int SHUTTING_DOWN    = 1;
+    public static final int SHUT_DOWN        = 2;
+     
+    int getStatus();
+    
     void execute(IOEventDispatch eventDispatch) 
         throws IOException;
 

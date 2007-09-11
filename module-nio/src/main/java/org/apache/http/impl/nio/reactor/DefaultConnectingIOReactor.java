@@ -299,7 +299,11 @@ public class DefaultConnectingIOReactor extends AbstractMultiworkerIOReactor
         // Stop dispatching I/O events
         this.selector.close();
         // Stop the workers
-        stopWorkers(500);
+        try {
+            stopWorkers(500);
+        } catch (InterruptedException ex) {
+            throw new InterruptedIOException(ex.getMessage());
+        }
     }
         
 }

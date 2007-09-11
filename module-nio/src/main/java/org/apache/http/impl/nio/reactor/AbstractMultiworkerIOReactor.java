@@ -40,14 +40,14 @@ import org.apache.http.nio.reactor.IOReactorException;
 
 public abstract class AbstractMultiworkerIOReactor implements IOReactor {
 
+    private volatile int status;
+    
     private final long selectTimeout;
     private final int workerCount;
     private final ThreadFactory threadFactory;
-    private final BaseIOReactor[] ioReactors;
+    private final BaseIOReactor[] dispatchers;
     private final Worker[] workers;
     private final Thread[] threads;
-    
-    private volatile boolean shutdown;
     
     private int currentWorker = 0;
     
@@ -66,12 +66,17 @@ public abstract class AbstractMultiworkerIOReactor implements IOReactor {
         } else {
             this.threadFactory = new DefaultThreadFactory();
         }
-        this.ioReactors = new BaseIOReactor[workerCount];
-        for (int i = 0; i < this.ioReactors.length; i++) {
-            this.ioReactors[i] = new BaseIOReactor(selectTimeout);
+        this.dispatchers = new BaseIOReactor[workerCount];
+        for (int i = 0; i < this.dispatchers.length; i++) {
+            this.dispatchers[i] = new BaseIOReactor(selectTimeout);
         }
         this.workers = new Worker[workerCount];
         this.threads = new Thread[workerCount];
+        this.status = ACTIVE;
+    }
+
+    public int getStatus() {
+        return this.status;
     }
 
     protected long getSelectTimeout() {
@@ -80,47 +85,46 @@ public abstract class AbstractMultiworkerIOReactor implements IOReactor {
     
     protected void startWorkers(final IOEventDispatch eventDispatch) {
         for (int i = 0; i < this.workerCount; i++) {
-            BaseIOReactor ioReactor = this.ioReactors[i];
-            this.workers[i] = new Worker(ioReactor, eventDispatch);
+            BaseIOReactor dispatcher = this.dispatchers[i];
+            this.workers[i] = new Worker(dispatcher, eventDispatch);
             this.threads[i] = this.threadFactory.newThread(this.workers[i]);
         }
         for (int i = 0; i < this.workerCount; i++) {
-            if (this.shutdown) {
+            if (this.status != ACTIVE) {
                 return;
             }
             this.threads[i].start();
         }
     }
 
-    protected void stopWorkers(int millis) 
-            throws InterruptedIOException, IOReactorException {
-        if (this.shutdown) {
-            return;
-        }
-        this.shutdown = true;
+    protected void stopWorkers(int timeout) 
+            throws InterruptedException, IOReactorException {
+
+        // Attempt to shut down I/O dispatchers gracefully
         for (int i = 0; i < this.workerCount; i++) {
-            BaseIOReactor reactor = this.ioReactors[i];
-            if (reactor != null) {
-                reactor.shutdown();
+            BaseIOReactor dispatcher = this.dispatchers[i];
+            dispatcher.gracefulShutdown();
+        }
+        // Force shut down I/O dispatchers if they fail to terminate
+        // in time
+        for (int i = 0; i < this.workerCount; i++) {
+            BaseIOReactor dispatcher = this.dispatchers[i];
+            dispatcher.awaitShutdown(timeout);
+            if (dispatcher.getStatus() != SHUT_DOWN) {
+                dispatcher.hardShutdown();
             }
         }
+        // Join worker threads
         for (int i = 0; i < this.workerCount; i++) {
-            try {
-                Thread t = this.threads[i];
-                if (t != null) {
-                    t.join(millis);
-                }
-            } catch (InterruptedException ex) {
-                throw new InterruptedIOException(ex.getMessage());
+            Thread t = this.threads[i];
+            if (t != null) {
+                t.join(timeout);
             }
         }
     }
     
     protected void verifyWorkers() 
             throws InterruptedIOException, IOReactorException {
-        if (this.shutdown) {
-            return;
-        }
         for (int i = 0; i < this.workerCount; i++) {
             Worker worker = this.workers[i];
             Thread thread = this.threads[i];
@@ -141,25 +145,25 @@ public abstract class AbstractMultiworkerIOReactor implements IOReactor {
     
     protected void addChannel(final ChannelEntry entry) {
         // Distribute new channels among the workers
-        this.ioReactors[this.currentWorker++ % this.workerCount].addChannel(entry);
+        this.dispatchers[this.currentWorker++ % this.workerCount].addChannel(entry);
     }
         
     static class Worker implements Runnable {
 
-        final BaseIOReactor ioReactor;
+        final BaseIOReactor dispatcher;
         final IOEventDispatch eventDispatch;
         
         private volatile Exception exception;
         
-        public Worker(final BaseIOReactor ioReactor, final IOEventDispatch eventDispatch) {
+        public Worker(final BaseIOReactor dispatcher, final IOEventDispatch eventDispatch) {
             super();
-            this.ioReactor = ioReactor;
+            this.dispatcher = dispatcher;
             this.eventDispatch = eventDispatch;
         }
         
         public void run() {
             try {
-                this.ioReactor.execute(this.eventDispatch);
+                this.dispatcher.execute(this.eventDispatch);
             } catch (InterruptedIOException ex) {
                 this.exception = ex;
             } catch (IOReactorException ex) {
@@ -168,7 +172,9 @@ public abstract class AbstractMultiworkerIOReactor implements IOReactor {
                 this.exception = ex;
             } finally {
                 try {
-                    this.ioReactor.shutdown();
+                    if (this.dispatcher.getStatus() != SHUT_DOWN) {
+                        this.dispatcher.closeChannels();
+                    }
                 } catch (IOReactorException ex2) {
                     if (this.exception == null) {
                         this.exception = ex2;
@@ -188,7 +194,7 @@ public abstract class AbstractMultiworkerIOReactor implements IOReactor {
         private static int COUNT = 0;
         
         public Thread newThread(final Runnable r) {
-            return new Thread(r, "I/O reactor worker thread " + (++COUNT));
+            return new Thread(r, "I/O dispatcher " + (++COUNT));
         }
         
     }

@@ -49,8 +49,9 @@ import org.apache.http.nio.reactor.IOSession;
 
 public abstract class AbstractIOReactor implements IOReactor {
 
-    private volatile boolean closed = false;
+    private volatile int status;
     
+    private final Object shutdownMutex;
     private final long selectTimeout;
     private final Selector selector;
     private final SessionSet sessions;
@@ -73,6 +74,8 @@ public abstract class AbstractIOReactor implements IOReactor {
         } catch (IOException ex) {
             throw new IOReactorException("Failure opening selector", ex);
         }
+        this.shutdownMutex = new Object();
+        this.status = ACTIVE;
     }
 
     protected abstract void acceptable(SelectionKey key);
@@ -91,6 +94,10 @@ public abstract class AbstractIOReactor implements IOReactor {
     
     protected abstract IOSession keyCancelled(final SelectionKey key);
     
+    public int getStatus() {
+        return this.status;
+    }
+
     public void addChannel(final ChannelEntry channelEntry) {
         if (channelEntry == null) {
             throw new IllegalArgumentException("Channel entry may not be null");
@@ -118,7 +125,7 @@ public abstract class AbstractIOReactor implements IOReactor {
                     throw new IOReactorException("Unexpected selector failure", ex);
                 }
                 
-                if (this.closed) {
+                if (this.status == SHUT_DOWN) {
                     break;
                 }
 
@@ -131,11 +138,18 @@ public abstract class AbstractIOReactor implements IOReactor {
                 validate(this.selector.keys());
                 
                 processClosedSessions();
+
+                if (this.status != ACTIVE && this.sessions.isEmpty()) {
+                    break;
+                }
                 
             }
         } catch (ClosedSelectorException ex) {
         } finally {
-            closeSessions();
+            synchronized (this.shutdownMutex) {
+                this.status = SHUT_DOWN;
+                this.shutdownMutex.notifyAll();
+            }
         }
     }
     
@@ -232,23 +246,16 @@ public abstract class AbstractIOReactor implements IOReactor {
         }
     }
 
-    private void closeSessions() {
-        for (Iterator it = this.sessions.iterator(); it.hasNext(); ) {
-            IOSession session = (IOSession) it.next();
-            if (!session.isClosed()) {    
-
+    protected void closeSessions() {
+        synchronized (this.sessions) {
+            for (Iterator it = this.sessions.iterator(); it.hasNext(); ) {
+                IOSession session = (IOSession) it.next();
                 session.close();
-                this.eventDispatch.disconnected(session);
             }
         }
-        this.sessions.clear();
     }
     
-    public void shutdown() throws IOReactorException {
-        if (this.closed) {
-            return;
-        }
-        this.closed = true;
+    protected void closeChannels() throws IOReactorException {
         // Close out all channels
         Set keys = this.selector.keys();
         for (Iterator it = keys.iterator(); it.hasNext(); ) {
@@ -268,5 +275,55 @@ public abstract class AbstractIOReactor implements IOReactor {
             throw new IOReactorException("Failure closing selector", ex);
         }
     }
+    
+    public void gracefulShutdown() {
+        if (this.status != ACTIVE) {
+            // Already shutting down
+            return;
+        }
+        this.status = SHUTTING_DOWN;
+        closeSessions();
+        this.selector.wakeup();
+    }
         
+    public void hardShutdown() throws IOReactorException {
+        if (this.status == SHUT_DOWN) {
+            // Already shut down
+            return;
+        }
+        this.status = SHUT_DOWN;
+        closeChannels();
+    }
+    
+    public void awaitShutdown(long timeout) throws InterruptedException {
+        synchronized (this.shutdownMutex) {
+            long deadline = System.currentTimeMillis() + timeout;
+            long remaining = timeout;
+            while (this.status != SHUT_DOWN) {
+                this.shutdownMutex.wait(remaining);
+                if (timeout > 0) {
+                    remaining = deadline - System.currentTimeMillis();
+                    if (remaining <= 0) {
+                        break;
+                    }
+                }
+            }
+        }
+    }
+        
+    public void shutdown(long gracePeriod) throws IOReactorException {
+        gracefulShutdown();
+        try {
+            awaitShutdown(gracePeriod);
+        } catch (InterruptedException ignore) {
+        }
+        if (this.status != SHUT_DOWN) {
+            hardShutdown();
+        }
+    }
+    
+    public void shutdown() throws IOReactorException {
+        shutdown(1000);
+    }
+    
 }
