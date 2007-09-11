@@ -32,7 +32,6 @@
 package org.apache.http.nio.protocol;
 
 import java.io.IOException;
-import java.io.InterruptedIOException;
 import java.io.OutputStream;
 
 import org.apache.http.ConnectionReuseStrategy;
@@ -365,7 +364,7 @@ public class ThrottlingHttpServiceHandler extends NHttpServiceHandlerBase {
                         break;
                     }
                     if (currentState == ServerConnState.SHUTDOWN) {
-                        throw new InterruptedIOException("Service interrupted");
+                        return;
                     }
                     connState.wait();
                 }
@@ -428,7 +427,7 @@ public class ThrottlingHttpServiceHandler extends NHttpServiceHandlerBase {
                                     break;
                                 }
                                 if (currentState == ServerConnState.SHUTDOWN) {
-                                    throw new InterruptedIOException("Service interrupted");
+                                    return;
                                 }
                                 connState.wait();
                             }
