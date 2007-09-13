@@ -29,7 +29,7 @@
  *
  */
 
-package org.apache.http.nio.mockup;
+package org.apache.http.mockup;
 
 import java.util.HashSet;
 import java.util.Iterator;

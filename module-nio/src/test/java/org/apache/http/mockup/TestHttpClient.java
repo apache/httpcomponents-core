@@ -29,68 +29,49 @@
  *
  */
 
-package org.apache.http.nio.mockup;
+package org.apache.http.mockup;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
 
-import org.apache.http.impl.nio.DefaultServerIOEventDispatch;
-import org.apache.http.impl.nio.reactor.DefaultListeningIOReactor;
-import org.apache.http.nio.NHttpServiceHandler;
+import org.apache.http.impl.nio.DefaultClientIOEventDispatch;
+import org.apache.http.impl.nio.reactor.DefaultConnectingIOReactor;
+import org.apache.http.nio.NHttpClientHandler;
+import org.apache.http.nio.reactor.ConnectingIOReactor;
 import org.apache.http.nio.reactor.IOEventDispatch;
-import org.apache.http.nio.reactor.ListeningIOReactor;
 import org.apache.http.params.HttpParams;
 
-/**
- * Trivial test server based on HttpCore NIO
- * 
- * @author Oleg Kalnichevski
- */
-public class TestHttpServer {
+public class TestHttpClient {
 
-    private final ListeningIOReactor ioReactor;
+    private final ConnectingIOReactor ioReactor;
     private final HttpParams params;
-    private final Object socketMutex;
-
-    private volatile IOReactorThread thread;
-    private volatile InetSocketAddress address;
     
-    public TestHttpServer(final HttpParams params) throws IOException {
+    private volatile IOReactorThread thread;
+
+    public TestHttpClient(final HttpParams params) throws IOException {
         super();
-        this.ioReactor = new DefaultListeningIOReactor(2, params);
+        this.ioReactor = new DefaultConnectingIOReactor(2, params);
         this.params = params;
-        this.socketMutex = new Object();
     }
 
     public HttpParams getParams() {
         return this.params;
     }
     
-    private void execute(final NHttpServiceHandler serviceHandler) throws IOException {
-        synchronized (this.socketMutex) {
-            this.address = (InetSocketAddress) this.ioReactor.listen(
-                    new InetSocketAddress(0));
-            this.socketMutex.notifyAll();
-        }
-        
-        IOEventDispatch ioEventDispatch = new DefaultServerIOEventDispatch(
-                serviceHandler, 
-                this.params);
+    private void execute(final NHttpClientHandler clientHandler) throws IOException {
+        IOEventDispatch ioEventDispatch = new DefaultClientIOEventDispatch(
+                clientHandler, 
+                this.params);        
         
         this.ioReactor.execute(ioEventDispatch);
     }
     
-    public InetSocketAddress getSocketAddress() throws InterruptedException {
-        synchronized (this.socketMutex) {
-            while (this.address == null) {
-                this.socketMutex.wait();
-            }
-        }
-        return this.address;
+    public void openConnection(final InetSocketAddress address, final Object attachment) {
+        this.ioReactor.connect(address, null, attachment, null);
     }
-
-    public void start(final NHttpServiceHandler serviceHandler) {
-        this.thread = new IOReactorThread(serviceHandler);
+ 
+    public void start(final NHttpClientHandler clientHandler) {
+        this.thread = new IOReactorThread(clientHandler);
         this.thread.start();
     }
     
@@ -104,16 +85,16 @@ public class TestHttpServer {
     
     private class IOReactorThread extends Thread {
 
-        private final NHttpServiceHandler serviceHandler;
+        private final NHttpClientHandler clientHandler;
         
-        public IOReactorThread(final NHttpServiceHandler serviceHandler) {
+        public IOReactorThread(final NHttpClientHandler clientHandler) {
             super();
-            this.serviceHandler = serviceHandler;
+            this.clientHandler = clientHandler;
         }
         
         public void run() {
             try {
-                execute(this.serviceHandler);
+                execute(this.clientHandler);
             } catch (IOException ex) {
                 ex.printStackTrace();
             }

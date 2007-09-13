@@ -28,44 +28,22 @@
  * <http://www.apache.org/>.
  *
  */
+package org.apache.http.mockup;
 
-package org.apache.http.nio.mockup;
+import org.apache.http.protocol.HttpRequestHandler;
+import org.apache.http.protocol.HttpRequestHandlerResolver;
 
-import java.io.IOException;
-import java.nio.ByteBuffer;
-import java.nio.channels.WritableByteChannel;
+public class SimpleHttpRequestHandlerResolver implements HttpRequestHandlerResolver {
 
-import org.apache.http.impl.io.HttpTransportMetricsImpl;
-import org.apache.http.impl.nio.codecs.AbstractContentEncoder;
-import org.apache.http.nio.reactor.SessionOutputBuffer;
-
-public class MockupEncoder extends AbstractContentEncoder {
+    private final HttpRequestHandler handler;
     
-    private boolean completed;
-    
-    public MockupEncoder(
-            final WritableByteChannel channel, 
-            final SessionOutputBuffer buffer,
-            final HttpTransportMetricsImpl metrics) {
-        super(channel, buffer, metrics);
-    }
-
-    public boolean isCompleted() {
-        return this.completed;
+    public SimpleHttpRequestHandlerResolver(final HttpRequestHandler handler) {
+        super();
+        this.handler = handler;
     }
     
-    public void complete() throws IOException {
-        this.completed = true;
+    public HttpRequestHandler lookup(final String requestURI) {
+        return this.handler;
     }
-    
-    public int write(final ByteBuffer src) throws IOException {
-        if (src == null) {
-            return 0;
-        }
-        if (this.completed) {
-            throw new IllegalStateException("Decoding process already completed");
-        }
-        return this.channel.write(src);
-    }
-    
+
 }

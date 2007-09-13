@@ -29,40 +29,43 @@
  *
  */
 
-package org.apache.http.nio.mockup;
+package org.apache.http.mockup;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
-import java.nio.channels.ReadableByteChannel;
+import java.nio.channels.WritableByteChannel;
 
-import org.apache.http.nio.ContentDecoder;
+import org.apache.http.impl.io.HttpTransportMetricsImpl;
+import org.apache.http.impl.nio.codecs.AbstractContentEncoder;
+import org.apache.http.nio.reactor.SessionOutputBuffer;
 
-public class MockupDecoder implements ContentDecoder {
+public class MockupEncoder extends AbstractContentEncoder {
     
-    private final ReadableByteChannel channel;
     private boolean completed;
     
-    public MockupDecoder(final ReadableByteChannel channel) {
-        super();
-        this.channel = channel;
-    }
-
-    public int read(final ByteBuffer dst) throws IOException {
-        if (dst == null) {
-            throw new IllegalArgumentException("Byte buffer may not be null");
-        }
-        if (this.completed) {
-            return -1;
-        }
-        int bytesRead = this.channel.read(dst);
-        if (bytesRead == -1) {
-            this.completed = true;
-        }
-        return bytesRead;
+    public MockupEncoder(
+            final WritableByteChannel channel, 
+            final SessionOutputBuffer buffer,
+            final HttpTransportMetricsImpl metrics) {
+        super(channel, buffer, metrics);
     }
 
     public boolean isCompleted() {
         return this.completed;
+    }
+    
+    public void complete() throws IOException {
+        this.completed = true;
+    }
+    
+    public int write(final ByteBuffer src) throws IOException {
+        if (src == null) {
+            return 0;
+        }
+        if (this.completed) {
+            throw new IllegalStateException("Decoding process already completed");
+        }
+        return this.channel.write(src);
     }
     
 }

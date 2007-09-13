@@ -29,62 +29,40 @@
  *
  */
 
-package org.apache.http.nio.mockup;
+package org.apache.http.mockup;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.channels.ReadableByteChannel;
 
-import org.apache.http.util.EncodingUtils;
+import org.apache.http.nio.ContentDecoder;
 
-public class ReadableByteChannelMockup implements ReadableByteChannel {
-
-    private final String[] chunks;
-    private final String charset;
+public class MockupDecoder implements ContentDecoder {
     
-    private int chunkCount = 0;
+    private final ReadableByteChannel channel;
+    private boolean completed;
     
-    private ByteBuffer currentChunk;
-    private boolean closed = false;
-    
-    public ReadableByteChannelMockup(final String[] chunks, final String charset) {
+    public MockupDecoder(final ReadableByteChannel channel) {
         super();
-        this.chunks = chunks;
-        this.charset = charset;
+        this.channel = channel;
     }
 
-    private void prepareChunk() {
-        if (this.currentChunk == null || !this.currentChunk.hasRemaining()) {
-            if (this.chunkCount < this.chunks.length) {
-                String s = this.chunks[this.chunkCount];
-                this.chunkCount++;
-                this.currentChunk = ByteBuffer.wrap(EncodingUtils.getBytes(s, this.charset));
-            } else {
-                this.closed = true;
-            }
-        }
-    }
-    
     public int read(final ByteBuffer dst) throws IOException {
-        prepareChunk();
-        if (this.closed) {
+        if (dst == null) {
+            throw new IllegalArgumentException("Byte buffer may not be null");
+        }
+        if (this.completed) {
             return -1;
         }
-        int i = 0;
-        while (dst.hasRemaining() && this.currentChunk.hasRemaining()) {
-            dst.put(this.currentChunk.get());
-            i++;
+        int bytesRead = this.channel.read(dst);
+        if (bytesRead == -1) {
+            this.completed = true;
         }
-        return i;
+        return bytesRead;
     }
 
-    public void close() throws IOException {
-        this.closed = true;
+    public boolean isCompleted() {
+        return this.completed;
     }
-
-    public boolean isOpen() {
-        return !this.closed;
-    }
-    
     
 }

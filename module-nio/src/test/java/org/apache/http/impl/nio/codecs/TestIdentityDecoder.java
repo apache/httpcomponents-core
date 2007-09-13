@@ -45,7 +45,7 @@ import junit.framework.TestSuite;
 
 import org.apache.http.impl.io.HttpTransportMetricsImpl;
 import org.apache.http.impl.nio.reactor.SessionInputBufferImpl;
-import org.apache.http.nio.mockup.ReadableByteChannelMockup;
+import org.apache.http.mockup.ReadableByteChannelMockup;
 import org.apache.http.nio.reactor.SessionInputBuffer;
 import org.apache.http.params.BasicHttpParams;
 import org.apache.http.params.HttpParams;

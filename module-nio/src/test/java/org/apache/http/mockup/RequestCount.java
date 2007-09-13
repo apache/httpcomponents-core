@@ -29,7 +29,7 @@
  *
  */
 
-package org.apache.http.nio.mockup;
+package org.apache.http.mockup;
 
 public class RequestCount {
 

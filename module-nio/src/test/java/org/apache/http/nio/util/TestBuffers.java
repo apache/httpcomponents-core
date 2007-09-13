@@ -43,11 +43,11 @@ import junit.framework.TestSuite;
 
 import org.apache.http.impl.io.HttpTransportMetricsImpl;
 import org.apache.http.impl.nio.reactor.SessionOutputBufferImpl;
+import org.apache.http.mockup.MockupDecoder;
+import org.apache.http.mockup.MockupEncoder;
+import org.apache.http.mockup.ReadableByteChannelMockup;
 import org.apache.http.nio.ContentDecoder;
 import org.apache.http.nio.ContentEncoder;
-import org.apache.http.nio.mockup.MockupDecoder;
-import org.apache.http.nio.mockup.MockupEncoder;
-import org.apache.http.nio.mockup.ReadableByteChannelMockup;
 import org.apache.http.nio.reactor.SessionOutputBuffer;
 import org.apache.http.params.BasicHttpParams;
 import org.apache.http.params.HttpParams;
