@@ -72,7 +72,7 @@ public abstract class AbstractMultiworkerIOReactor implements IOReactor {
         }
         this.workers = new Worker[workerCount];
         this.threads = new Thread[workerCount];
-        this.status = ACTIVE;
+        this.status = INACTIVE;
     }
 
     public int getStatus() {
@@ -84,6 +84,7 @@ public abstract class AbstractMultiworkerIOReactor implements IOReactor {
     }
     
     protected void startWorkers(final IOEventDispatch eventDispatch) {
+        this.status = ACTIVE;
         for (int i = 0; i < this.workerCount; i++) {
             BaseIOReactor dispatcher = this.dispatchers[i];
             this.workers[i] = new Worker(dispatcher, eventDispatch);
@@ -109,7 +110,9 @@ public abstract class AbstractMultiworkerIOReactor implements IOReactor {
         // in time
         for (int i = 0; i < this.workerCount; i++) {
             BaseIOReactor dispatcher = this.dispatchers[i];
-            dispatcher.awaitShutdown(timeout);
+            if (dispatcher.getStatus() != INACTIVE) {
+                dispatcher.awaitShutdown(timeout);
+            }
             if (dispatcher.getStatus() != SHUT_DOWN) {
                 dispatcher.hardShutdown();
             }

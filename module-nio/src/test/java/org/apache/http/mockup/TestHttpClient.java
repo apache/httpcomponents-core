@@ -1,7 +1,7 @@
 /*
- * $HeadURL$
- * $Revision$
- * $Date$
+ * $HeadURL:https://svn.apache.org/repos/asf/jakarta/httpcomponents/httpcore/trunk/module-nio/src/test/java/org/apache/http/mockup/TestHttpClient.java $
+ * $Revision:575207 $
+ * $Date:2007-09-13 09:57:05 +0200 (Thu, 13 Sep 2007) $
  *
  * ====================================================================
  * Licensed to the Apache Software Foundation (ASF) under one
@@ -78,7 +78,9 @@ public class TestHttpClient {
     public void shutdown() throws IOException {
         this.ioReactor.shutdown();
         try {
-            this.thread.join(500);
+            if (this.thread != null) {
+                this.thread.join(500);
+            }
         } catch (InterruptedException ignore) {
         }
     }

@@ -30,14 +30,28 @@
 
 package org.apache.http.impl.nio.reactor;
 
+import java.io.IOException;
 import java.net.InetSocketAddress;
 
+import junit.framework.Test;
+import junit.framework.TestSuite;
+
+import org.apache.http.HttpCoreNIOTestBase;
+import org.apache.http.HttpException;
+import org.apache.http.HttpRequest;
+import org.apache.http.HttpResponse;
+import org.apache.http.message.BasicHttpRequest;
+import org.apache.http.mockup.RequestCount;
+import org.apache.http.mockup.SimpleEventListener;
+import org.apache.http.nio.NHttpClientHandler;
+import org.apache.http.nio.NHttpConnection;
+import org.apache.http.nio.NHttpServiceHandler;
+import org.apache.http.nio.protocol.EventListener;
+import org.apache.http.nio.protocol.HttpRequestExecutionHandler;
 import org.apache.http.params.BasicHttpParams;
 import org.apache.http.params.HttpParams;
-
-import junit.framework.Test;
-import junit.framework.TestCase;
-import junit.framework.TestSuite;
+import org.apache.http.protocol.HttpContext;
+import org.apache.http.protocol.HttpRequestHandler;
 
 /**
  * Simple tests for {@link DefaultListeningIOReactor}.
@@ -46,7 +60,7 @@ import junit.framework.TestSuite;
  * 
  * @version $Id$
  */
-public class TestDefaultIOReactors extends TestCase {
+public class TestDefaultIOReactors extends HttpCoreNIOTestBase {
 
     // ------------------------------------------------------------ Constructor
     public TestDefaultIOReactors(String testName) {
@@ -65,7 +79,7 @@ public class TestDefaultIOReactors extends TestCase {
         return new TestSuite(TestDefaultIOReactors.class);
     }
 
-    public void testRestart() throws Exception {
+    public void testRestartListeningIOReactor() throws Exception {
         HttpParams params = new BasicHttpParams();
         
         DefaultListeningIOReactor ioReactor = new DefaultListeningIOReactor(1, params);
@@ -75,6 +89,102 @@ public class TestDefaultIOReactors extends TestCase {
         ioReactor = new DefaultListeningIOReactor(1, params);
         ioReactor.listen(new InetSocketAddress(9999));
         ioReactor.shutdown();         
+    }
+    
+    public void testGracefulShutdown() throws Exception {
+
+        // Open some connection and make sure 
+        // they get cleanly closed upon shutdown
+        
+        final int connNo = 10;
+        final RequestCount requestConns = new RequestCount(connNo); 
+        final RequestCount closedServerConns = new RequestCount(connNo); 
+        final RequestCount closedClientConns = new RequestCount(connNo); 
+        
+        HttpRequestHandler requestHandler = new HttpRequestHandler() {
+
+            public void handle(
+                    final HttpRequest request, 
+                    final HttpResponse response, 
+                    final HttpContext context) throws HttpException, IOException {
+            }
+            
+        };
+        
+        HttpRequestExecutionHandler requestExecutionHandler = new HttpRequestExecutionHandler() {
+
+            public void initalizeContext(final HttpContext context, final Object attachment) {
+            }
+
+            public void finalizeContext(final HttpContext context) {
+            }
+
+            public HttpRequest submitRequest(final HttpContext context) {
+                Boolean b = ((Boolean) context.getAttribute("done"));
+                if (b == null) {
+                    BasicHttpRequest get = new BasicHttpRequest("GET", "/");
+                    context.setAttribute("done", Boolean.TRUE);
+                    return get;
+                } else {
+                    return null;
+                }
+            }
+            
+            public void handleResponse(final HttpResponse response, final HttpContext context) {
+                requestConns.decrement();                    
+            }
+            
+        };
+     
+        EventListener serverEventListener = new SimpleEventListener() {
+
+            public void connectionClosed(NHttpConnection conn) {
+                closedServerConns.decrement();
+                super.connectionClosed(conn);
+            }
+            
+        };
+        
+        NHttpServiceHandler serviceHandler = createHttpServiceHandler(
+                requestHandler, 
+                null,
+                serverEventListener);
+        
+        EventListener clientEventListener = new SimpleEventListener() {
+
+            public void connectionClosed(NHttpConnection conn) {
+                closedClientConns.decrement();
+                super.connectionClosed(conn);
+            }
+            
+        };
+        
+        NHttpClientHandler clientHandler = createHttpClientHandler(
+                requestExecutionHandler,
+                clientEventListener);
+
+        this.server.start(serviceHandler);
+        this.client.start(clientHandler);
+        
+        InetSocketAddress serverAddress = (InetSocketAddress) this.server.getSocketAddress();
+        
+        for (int i = 0; i < connNo; i++) {
+            this.client.openConnection(
+                    new InetSocketAddress("localhost", serverAddress.getPort()), 
+                    null);
+        }
+     
+        requestConns.await(10000);
+        assertEquals(0, requestConns.getValue());
+     
+        this.client.shutdown();
+        this.server.shutdown();
+        
+        closedClientConns.await(10000);
+        assertEquals(0, closedClientConns.getValue());
+     
+        closedServerConns.await(10000);
+        assertEquals(0, closedServerConns.getValue());
     }
     
 }

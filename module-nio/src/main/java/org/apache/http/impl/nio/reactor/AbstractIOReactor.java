@@ -75,7 +75,7 @@ public abstract class AbstractIOReactor implements IOReactor {
             throw new IOReactorException("Failure opening selector", ex);
         }
         this.shutdownMutex = new Object();
-        this.status = ACTIVE;
+        this.status = INACTIVE;
     }
 
     protected abstract void acceptable(SelectionKey key);
@@ -112,7 +112,9 @@ public abstract class AbstractIOReactor implements IOReactor {
             throw new IllegalArgumentException("Event dispatcher may not be null");
         }
         this.eventDispatch = eventDispatch;
-        
+
+        this.status = ACTIVE;
+
         try {
             for (;;) {
                 
@@ -312,10 +314,12 @@ public abstract class AbstractIOReactor implements IOReactor {
     }
         
     public void shutdown(long gracePeriod) throws IOReactorException {
-        gracefulShutdown();
-        try {
-            awaitShutdown(gracePeriod);
-        } catch (InterruptedException ignore) {
+        if (this.status != INACTIVE) {
+            gracefulShutdown();
+            try {
+                awaitShutdown(gracePeriod);
+            } catch (InterruptedException ignore) {
+            }
         }
         if (this.status != SHUT_DOWN) {
             hardShutdown();
