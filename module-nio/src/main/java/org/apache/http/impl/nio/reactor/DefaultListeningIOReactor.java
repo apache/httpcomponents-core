@@ -32,48 +32,30 @@
 package org.apache.http.impl.nio.reactor;
 
 import java.io.IOException;
-import java.io.InterruptedIOException;
-import java.net.Socket;
 import java.net.SocketAddress;
 import java.nio.channels.CancelledKeyException;
-import java.nio.channels.Channel;
 import java.nio.channels.SelectionKey;
-import java.nio.channels.Selector;
 import java.nio.channels.ServerSocketChannel;
 import java.nio.channels.SocketChannel;
 import java.util.Iterator;
 import java.util.Set;
 
-import org.apache.http.util.concurrent.ThreadFactory;
-import org.apache.http.nio.params.HttpNIOParams;
-import org.apache.http.nio.reactor.IOEventDispatch;
 import org.apache.http.nio.reactor.IOReactorException;
 import org.apache.http.nio.reactor.IOReactorExceptionHandler;
 import org.apache.http.nio.reactor.ListeningIOReactor;
-import org.apache.http.params.HttpConnectionParams;
 import org.apache.http.params.HttpParams;
+import org.apache.http.util.concurrent.ThreadFactory;
 
 public class DefaultListeningIOReactor extends AbstractMultiworkerIOReactor 
         implements ListeningIOReactor {
 
-    private volatile boolean closed = false;
-    
-    private final HttpParams params;
-    private final Selector selector;
-    
     private IOReactorExceptionHandler exceptionHandler;
     
     public DefaultListeningIOReactor(
             int workerCount, 
             final ThreadFactory threadFactory,
             final HttpParams params) throws IOReactorException {
-        super(HttpNIOParams.getSelectInterval(params), workerCount, threadFactory);
-        this.params = params;
-        try {
-            this.selector = Selector.open();
-        } catch (IOException ex) {
-            throw new IOReactorException("Failure opening selector", ex);
-        }
+        super(workerCount, threadFactory, params);
     }
 
     public DefaultListeningIOReactor(
@@ -86,42 +68,17 @@ public class DefaultListeningIOReactor extends AbstractMultiworkerIOReactor
         this.exceptionHandler = exceptionHandler;
     }
     
-    public void execute(final IOEventDispatch eventDispatch) 
-            throws InterruptedIOException, IOReactorException {
-        if (eventDispatch == null) {
-            throw new IllegalArgumentException("Event dispatcher may not be null");
-        }
-        startWorkers(eventDispatch);
-        for (;;) {
-
-            int readyCount;
-            try {
-                readyCount = this.selector.select(getSelectTimeout());
-            } catch (InterruptedIOException ex) {
-                throw ex;
-            } catch (IOException ex) {
-                throw new IOReactorException("Unexpected selector failure", ex);
+    protected void processEvents(int readyCount) throws IOReactorException {
+        if (readyCount > 0) {
+            Set selectedKeys = this.selector.selectedKeys();
+            for (Iterator it = selectedKeys.iterator(); it.hasNext(); ) {
+                
+                SelectionKey key = (SelectionKey) it.next();
+                processEvent(key);
+                
             }
-            
-            if (this.closed) {
-                break;
-            }
-            if (readyCount > 0) {
-                processEvents(this.selector.selectedKeys());
-            }
-            verifyWorkers();
+            selectedKeys.clear();
         }
-    }
-    
-    private void processEvents(final Set selectedKeys)
-            throws IOReactorException {
-        for (Iterator it = selectedKeys.iterator(); it.hasNext(); ) {
-            
-            SelectionKey key = (SelectionKey) it.next();
-            processEvent(key);
-            
-        }
-        selectedKeys.clear();
     }
 
     private void processEvent(final SelectionKey key) 
@@ -158,18 +115,9 @@ public class DefaultListeningIOReactor extends AbstractMultiworkerIOReactor
         }
     }
 
-    protected void prepareSocket(final Socket socket) throws IOException {
-        socket.setTcpNoDelay(HttpConnectionParams.getTcpNoDelay(this.params));
-        socket.setSoTimeout(HttpConnectionParams.getSoTimeout(this.params));
-        int linger = HttpConnectionParams.getLinger(this.params);
-        if (linger >= 0) {
-            socket.setSoLinger(linger > 0, linger);
-        }
-    }
-
     public SocketAddress listen(
             final SocketAddress address) throws IOException {
-        if (this.closed) {
+        if (this.status > ACTIVE) {
             throw new IllegalStateException("I/O reactor has been shut down");
         }
         ServerSocketChannel serverChannel = ServerSocketChannel.open();
@@ -178,34 +126,6 @@ public class DefaultListeningIOReactor extends AbstractMultiworkerIOReactor
         SelectionKey key = serverChannel.register(this.selector, SelectionKey.OP_ACCEPT);
         key.attach(null);
         return serverChannel.socket().getLocalSocketAddress();
-    }
-
-    public void shutdown() throws IOException {
-        if (this.closed) {
-            return;
-        }
-        this.closed = true;
-        
-        // Close out all channels
-        Set keys = this.selector.keys();
-        for (Iterator it = keys.iterator(); it.hasNext(); ) {
-            try {
-                SelectionKey key = (SelectionKey) it.next();
-                Channel channel = key.channel();
-                if (channel != null) {
-                    channel.close();
-                }
-            } catch (IOException ignore) {
-            }
-        }
-        // Stop dispatching I/O events
-        this.selector.close();
-        // Stop the workers
-        try {
-            stopWorkers(500);
-        } catch (InterruptedException ex) {
-            throw new InterruptedIOException(ex.getMessage());
-        }
     }
 
 }

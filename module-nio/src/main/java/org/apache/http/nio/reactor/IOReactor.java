@@ -45,6 +45,9 @@ public interface IOReactor {
     void execute(IOEventDispatch eventDispatch) 
         throws IOException;
 
+    void shutdown(long gracePeriod) 
+        throws IOException;
+
     void shutdown() 
         throws IOException;
     
