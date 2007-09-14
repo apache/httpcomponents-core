@@ -38,6 +38,10 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
+import junit.framework.Test;
+import junit.framework.TestSuite;
+
+import org.apache.http.HttpCoreNIOSSLTestBase;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpEntityEnclosingRequest;
 import org.apache.http.HttpException;
@@ -46,44 +50,19 @@ import org.apache.http.HttpResponse;
 import org.apache.http.HttpVersion;
 import org.apache.http.entity.ByteArrayEntity;
 import org.apache.http.entity.StringEntity;
-import org.apache.http.impl.DefaultConnectionReuseStrategy;
-import org.apache.http.impl.DefaultHttpResponseFactory;
-import org.apache.http.impl.nio.mockup.CountingEventListener;
-import org.apache.http.impl.nio.mockup.SimpleHttpRequestHandlerResolver;
-import org.apache.http.impl.nio.mockup.TestHttpSSLClient;
-import org.apache.http.impl.nio.mockup.TestHttpSSLServer;
-import org.apache.http.message.BasicHttpRequest;
+import org.apache.http.impl.nio.mockup.SimpleEventListener;
 import org.apache.http.message.BasicHttpEntityEnclosingRequest;
+import org.apache.http.message.BasicHttpRequest;
+import org.apache.http.mockup.RequestCount;
 import org.apache.http.nio.NHttpClientHandler;
 import org.apache.http.nio.NHttpConnection;
 import org.apache.http.nio.NHttpServiceHandler;
-import org.apache.http.nio.protocol.BufferingHttpClientHandler;
-import org.apache.http.nio.protocol.BufferingHttpServiceHandler;
-import org.apache.http.nio.protocol.EventListener;
 import org.apache.http.nio.protocol.HttpRequestExecutionHandler;
-import org.apache.http.params.BasicHttpParams;
-import org.apache.http.params.HttpConnectionParams;
-import org.apache.http.params.HttpParams;
 import org.apache.http.params.HttpProtocolParams;
-import org.apache.http.protocol.BasicHttpProcessor;
-import org.apache.http.protocol.HttpContext;
 import org.apache.http.protocol.ExecutionContext;
-import org.apache.http.protocol.HttpExpectationVerifier;
+import org.apache.http.protocol.HttpContext;
 import org.apache.http.protocol.HttpRequestHandler;
-import org.apache.http.protocol.RequestConnControl;
-import org.apache.http.protocol.RequestContent;
-import org.apache.http.protocol.RequestExpectContinue;
-import org.apache.http.protocol.RequestTargetHost;
-import org.apache.http.protocol.RequestUserAgent;
-import org.apache.http.protocol.ResponseConnControl;
-import org.apache.http.protocol.ResponseContent;
-import org.apache.http.protocol.ResponseDate;
-import org.apache.http.protocol.ResponseServer;
 import org.apache.http.util.EntityUtils;
-
-import junit.framework.Test;
-import junit.framework.TestCase;
-import junit.framework.TestSuite;
 
 /**
  * HttpCore NIO SSL tests.
@@ -92,7 +71,7 @@ import junit.framework.TestSuite;
  * 
  * @version $Id$
  */
-public class TestNIOSSLHttp extends TestCase {
+public class TestNIOSSLHttp extends HttpCoreNIOSSLTestBase {
 
     // ------------------------------------------------------------ Constructor
     public TestNIOSSLHttp(String testName) {
@@ -111,82 +90,6 @@ public class TestNIOSSLHttp extends TestCase {
         return new TestSuite(TestNIOSSLHttp.class);
     }
 
-    private TestHttpSSLServer server;
-    private TestHttpSSLClient client;
-    
-    protected void setUp() throws Exception {
-        HttpParams serverParams = new BasicHttpParams();
-        serverParams
-            .setIntParameter(HttpConnectionParams.SO_TIMEOUT, 30000)
-            .setIntParameter(HttpConnectionParams.SOCKET_BUFFER_SIZE, 8 * 1024)
-            .setBooleanParameter(HttpConnectionParams.STALE_CONNECTION_CHECK, false)
-            .setBooleanParameter(HttpConnectionParams.TCP_NODELAY, true)
-            .setParameter(HttpProtocolParams.ORIGIN_SERVER, "TEST-SERVER/1.1");
-        
-        this.server = new TestHttpSSLServer(serverParams);
-        
-        HttpParams clientParams = new BasicHttpParams();
-        clientParams
-            .setIntParameter(HttpConnectionParams.SO_TIMEOUT, 30000)
-            .setIntParameter(HttpConnectionParams.CONNECTION_TIMEOUT, 2000)
-            .setIntParameter(HttpConnectionParams.SOCKET_BUFFER_SIZE, 8 * 1024)
-            .setBooleanParameter(HttpConnectionParams.STALE_CONNECTION_CHECK, false)
-            .setBooleanParameter(HttpConnectionParams.TCP_NODELAY, true)
-            .setParameter(HttpProtocolParams.USER_AGENT, "TEST-CLIENT/1.1");
-        
-        this.client = new TestHttpSSLClient(clientParams);
-    }
-
-    protected void tearDown() throws Exception {
-        this.server.shutdown();
-        this.client.shutdown();
-    }
-
-    private NHttpServiceHandler createHttpServiceHandler(
-            final HttpRequestHandler requestHandler,
-            final HttpExpectationVerifier expectationVerifier,
-            final EventListener eventListener) {
-        BasicHttpProcessor httpproc = new BasicHttpProcessor();
-        httpproc.addInterceptor(new ResponseDate());
-        httpproc.addInterceptor(new ResponseServer());
-        httpproc.addInterceptor(new ResponseContent());
-        httpproc.addInterceptor(new ResponseConnControl());
-
-        BufferingHttpServiceHandler serviceHandler = new BufferingHttpServiceHandler(
-                httpproc,
-                new DefaultHttpResponseFactory(),
-                new DefaultConnectionReuseStrategy(),
-                this.server.getParams());
-
-        serviceHandler.setHandlerResolver(
-                new SimpleHttpRequestHandlerResolver(requestHandler));
-        serviceHandler.setExpectationVerifier(expectationVerifier);
-        serviceHandler.setEventListener(eventListener);
-        
-        return serviceHandler;
-    }
-    
-    private NHttpClientHandler createHttpClientHandler(
-            final HttpRequestExecutionHandler requestExecutionHandler,
-            final EventListener eventListener) {
-        BasicHttpProcessor httpproc = new BasicHttpProcessor();
-        httpproc.addInterceptor(new RequestContent());
-        httpproc.addInterceptor(new RequestTargetHost());
-        httpproc.addInterceptor(new RequestConnControl());
-        httpproc.addInterceptor(new RequestUserAgent());
-        httpproc.addInterceptor(new RequestExpectContinue());
-        
-        BufferingHttpClientHandler clientHandler = new BufferingHttpClientHandler(
-                httpproc,
-                requestExecutionHandler,
-                new DefaultConnectionReuseStrategy(),
-                this.client.getParams());
-
-        clientHandler.setEventListener(eventListener);
-
-        return clientHandler;
-    }
-    
     /**
      * This test case executes a series of simple (non-pipelined) GET requests 
      * over multiple connections. 
@@ -196,6 +99,7 @@ public class TestNIOSSLHttp extends TestCase {
         
         final int connNo = 3;
         final int reqNo = 20;
+        final RequestCount requestCount = new RequestCount(connNo * reqNo); 
         
         Random rnd = new Random();
         
@@ -269,33 +173,26 @@ public class TestNIOSSLHttp extends TestCase {
                     HttpEntity entity = response.getEntity();
                     byte[] data = EntityUtils.toByteArray(entity);
                     list.add(data);
+                    requestCount.decrement();
                 } catch (IOException ex) {
-                    fail(ex.getMessage());
+                    requestCount.abort();
                 }
 
                 if (i < reqNo) {
                     conn.requestInput();
-                } else {
-                    try {
-                        conn.close();
-                    } catch (IOException ex) {
-                    }
                 }
             }
             
         };
         
-        CountingEventListener serverEventListener = new CountingEventListener();
-        CountingEventListener clientEventListener = new CountingEventListener();
-        
         NHttpServiceHandler serviceHandler = createHttpServiceHandler(
                 requestHandler, 
                 null,
-                serverEventListener);
+                new SimpleEventListener());
 
         NHttpClientHandler clientHandler = createHttpClientHandler(
                 requestExecutionHandler, 
-                clientEventListener);
+                new SimpleEventListener());
 
         this.server.start(serviceHandler);
         this.client.start(clientHandler);
@@ -308,8 +205,8 @@ public class TestNIOSSLHttp extends TestCase {
                     responseData[i]);
         }
      
-        clientEventListener.await(connNo, 10000);
-        assertEquals(connNo, clientEventListener.getConnCount());
+        requestCount.await(10000);
+        assertEquals(0, requestCount.getValue());
         
         this.client.shutdown();
         this.server.shutdown();
@@ -340,6 +237,7 @@ public class TestNIOSSLHttp extends TestCase {
         
         final int connNo = 3;
         final int reqNo = 20;
+        final RequestCount requestCount = new RequestCount(connNo * reqNo); 
         
         Random rnd = new Random();
         
@@ -417,33 +315,26 @@ public class TestNIOSSLHttp extends TestCase {
                     HttpEntity entity = response.getEntity();
                     byte[] data = EntityUtils.toByteArray(entity);
                     list.add(data);
+                    requestCount.decrement();
                 } catch (IOException ex) {
-                    fail(ex.getMessage());
+                    requestCount.abort();
                 }
 
                 if (i < reqNo) {
                     conn.requestInput();
-                } else {
-                    try {
-                        conn.close();
-                    } catch (IOException ex) {
-                    }
                 }
             }
             
         };
         
-        CountingEventListener serverEventListener = new CountingEventListener();
-        CountingEventListener clientEventListener = new CountingEventListener();
-        
         NHttpServiceHandler serviceHandler = createHttpServiceHandler(
                 requestHandler, 
                 null,
-                serverEventListener);
+                new SimpleEventListener());
 
         NHttpClientHandler clientHandler = createHttpClientHandler(
                 requestExecutionHandler, 
-                clientEventListener);
+                new SimpleEventListener());
 
         this.server.start(serviceHandler);
         this.client.start(clientHandler);
@@ -456,8 +347,8 @@ public class TestNIOSSLHttp extends TestCase {
                     responseData[i]);
         }
      
-        clientEventListener.await(connNo, 10000);
-        assertEquals(connNo, clientEventListener.getConnCount());
+        requestCount.await(10000);
+        assertEquals(0, requestCount.getValue());
         
         this.client.shutdown();
         this.server.shutdown();
@@ -488,6 +379,7 @@ public class TestNIOSSLHttp extends TestCase {
         
         final int connNo = 3;
         final int reqNo = 20;
+        final RequestCount requestCount = new RequestCount(connNo * reqNo); 
         
         Random rnd = new Random();
         
@@ -565,24 +457,20 @@ public class TestNIOSSLHttp extends TestCase {
                     HttpEntity entity = response.getEntity();
                     byte[] data = EntityUtils.toByteArray(entity);
                     list.add(data);
+                    requestCount.decrement();
                 } catch (IOException ex) {
-                    fail(ex.getMessage());
+                    requestCount.abort();
                 }
 
                 if (i < reqNo) {
                     conn.requestInput();
-                } else {
-                    try {
-                        conn.close();
-                    } catch (IOException ex) {
-                    }
                 }
             }
             
         };
         
-        CountingEventListener serverEventListener = new CountingEventListener();
-        CountingEventListener clientEventListener = new CountingEventListener();
+        SimpleEventListener serverEventListener = new SimpleEventListener();
+        SimpleEventListener clientEventListener = new SimpleEventListener();
         
         NHttpServiceHandler serviceHandler = createHttpServiceHandler(
                 requestHandler, 
@@ -604,8 +492,8 @@ public class TestNIOSSLHttp extends TestCase {
                     responseData[i]);
         }
      
-        clientEventListener.await(connNo, 10000);
-        assertEquals(connNo, clientEventListener.getConnCount());
+        requestCount.await(10000);
+        assertEquals(0, requestCount.getValue());
         
         this.client.shutdown();
         this.server.shutdown();
@@ -636,6 +524,7 @@ public class TestNIOSSLHttp extends TestCase {
         
         final int connNo = 3;
         final int reqNo = 20;
+        final RequestCount requestCount = new RequestCount(connNo * reqNo); 
         
         Random rnd = new Random();
         
@@ -718,24 +607,20 @@ public class TestNIOSSLHttp extends TestCase {
                     HttpEntity entity = response.getEntity();
                     byte[] data = EntityUtils.toByteArray(entity);
                     list.add(data);
+                    requestCount.decrement();
                 } catch (IOException ex) {
-                    fail(ex.getMessage());
+                    requestCount.abort();
                 }
 
                 if (i < reqNo) {
                     conn.requestInput();
-                } else {
-                    try {
-                        conn.close();
-                    } catch (IOException ex) {
-                    }
                 }
             }
             
         };
         
-        CountingEventListener serverEventListener = new CountingEventListener();
-        CountingEventListener clientEventListener = new CountingEventListener();
+        SimpleEventListener serverEventListener = new SimpleEventListener();
+        SimpleEventListener clientEventListener = new SimpleEventListener();
         
         NHttpServiceHandler serviceHandler = createHttpServiceHandler(
                 requestHandler, 
@@ -757,8 +642,8 @@ public class TestNIOSSLHttp extends TestCase {
                     responseData[i]);
         }
      
-        clientEventListener.await(connNo, 10000);
-        assertEquals(connNo, clientEventListener.getConnCount());
+        requestCount.await(10000);
+        assertEquals(0, requestCount.getValue());
         
         this.client.shutdown();
         this.server.shutdown();

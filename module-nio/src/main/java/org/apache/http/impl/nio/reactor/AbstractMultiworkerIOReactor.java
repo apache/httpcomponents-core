@@ -140,7 +140,7 @@ public abstract class AbstractMultiworkerIOReactor implements IOReactor {
                 throw new IOReactorException("Unexpected selector failure", ex);
             }
             
-            if (this.status == SHUT_DOWN) {
+            if (this.status > ACTIVE) {
                 break;
             }
             processEvents(readyCount);
@@ -157,7 +157,7 @@ public abstract class AbstractMultiworkerIOReactor implements IOReactor {
                         throw (InterruptedIOException) ex;
                     } else if (ex instanceof RuntimeException) {
                         throw (RuntimeException) ex;
-                    } else {
+                    } else if (ex != null) {
                         throw new IOReactorException(ex.getMessage(), ex);
                     }
                 }

@@ -37,31 +37,10 @@ import org.apache.http.HttpException;
 import org.apache.http.nio.NHttpConnection;
 import org.apache.http.nio.protocol.EventListener;
 
-public class CountingEventListener implements EventListener {
+public class SimpleEventListener implements EventListener {
 
-    private volatile int connCount = 0;
-    
-    public CountingEventListener() {
+    public SimpleEventListener() {
         super();
-    }
-    
-    public int getConnCount() {
-        return this.connCount;
-    }
-    
-    private void incrementConnCount() {
-        synchronized (this) {
-            this.connCount++;
-            this.notifyAll();
-        }
-    }
-    
-    public void await(int connCount, long timeout) throws InterruptedException {
-        synchronized (this) {
-            while (this.connCount < connCount) {
-                this.wait(timeout);
-            }
-        }
     }
     
     public void connectionOpen(final NHttpConnection conn) {
@@ -71,7 +50,6 @@ public class CountingEventListener implements EventListener {
     }
 
     public void connectionClosed(final NHttpConnection conn) {
-        incrementConnCount();
     }
 
     public void fatalIOException(final IOException ex, final NHttpConnection conn) {
