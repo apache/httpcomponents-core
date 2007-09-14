@@ -42,6 +42,7 @@ public class TestAll extends TestCase {
         TestSuite suite = new TestSuite();
         suite.addTest(TestNIOSSLHttp.suite());
         suite.addTest(TestBaseIOReactorSSL.suite());
+        suite.addTest(TestDefaultIOReactors.suite());
         return suite;
     }
 

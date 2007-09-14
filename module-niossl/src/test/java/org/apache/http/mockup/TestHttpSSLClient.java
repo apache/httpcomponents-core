@@ -1,7 +1,7 @@
 /*
- * $HeadURL$
- * $Revision$
- * $Date$
+ * $HeadURL:https://svn.apache.org/repos/asf/jakarta/httpcomponents/httpcore/trunk/module-niossl/src/test/java/org/apache/http/mockup/TestHttpSSLClient.java $
+ * $Revision:575703 $
+ * $Date:2007-09-14 16:40:15 +0200 (Fri, 14 Sep 2007) $
  *
  * ====================================================================
  * Licensed to the Apache Software Foundation (ASF) under one
@@ -98,7 +98,9 @@ public class TestHttpSSLClient {
     public void shutdown() throws IOException {
         this.ioReactor.shutdown();
         try {
-            this.thread.join(500);
+            if (this.thread != null) {
+                this.thread.join(500);
+            }
         } catch (InterruptedException ignore) {
         }
     }
