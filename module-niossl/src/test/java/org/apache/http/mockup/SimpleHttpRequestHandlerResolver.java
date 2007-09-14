@@ -28,36 +28,22 @@
  * <http://www.apache.org/>.
  *
  */
+package org.apache.http.mockup;
 
-package org.apache.http.impl.nio.mockup;
+import org.apache.http.protocol.HttpRequestHandler;
+import org.apache.http.protocol.HttpRequestHandlerResolver;
 
-import java.io.IOException;
+public class SimpleHttpRequestHandlerResolver implements HttpRequestHandlerResolver {
 
-import org.apache.http.HttpException;
-import org.apache.http.nio.NHttpConnection;
-import org.apache.http.nio.protocol.EventListener;
-
-public class SimpleEventListener implements EventListener {
-
-    public SimpleEventListener() {
+    private final HttpRequestHandler handler;
+    
+    public SimpleHttpRequestHandlerResolver(final HttpRequestHandler handler) {
         super();
+        this.handler = handler;
     }
     
-    public void connectionOpen(final NHttpConnection conn) {
+    public HttpRequestHandler lookup(final String requestURI) {
+        return this.handler;
     }
 
-    public void connectionTimeout(final NHttpConnection conn) {
-    }
-
-    public void connectionClosed(final NHttpConnection conn) {
-    }
-
-    public void fatalIOException(final IOException ex, final NHttpConnection conn) {
-        ex.printStackTrace();
-    }
-
-    public void fatalProtocolException(final HttpException ex, NHttpConnection conn) {
-        ex.printStackTrace();
-    }
-        
 }

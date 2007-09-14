@@ -5,9 +5,9 @@ import junit.framework.TestCase;
 
 import org.apache.http.impl.DefaultConnectionReuseStrategy;
 import org.apache.http.impl.DefaultHttpResponseFactory;
-import org.apache.http.impl.nio.mockup.SimpleHttpRequestHandlerResolver;
-import org.apache.http.impl.nio.mockup.TestHttpSSLClient;
-import org.apache.http.impl.nio.mockup.TestHttpSSLServer;
+import org.apache.http.mockup.SimpleHttpRequestHandlerResolver;
+import org.apache.http.mockup.TestHttpSSLClient;
+import org.apache.http.mockup.TestHttpSSLServer;
 import org.apache.http.nio.NHttpClientHandler;
 import org.apache.http.nio.NHttpServiceHandler;
 import org.apache.http.nio.protocol.BufferingHttpClientHandler;

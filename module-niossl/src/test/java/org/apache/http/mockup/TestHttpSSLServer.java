@@ -29,7 +29,7 @@
  *
  */
 
-package org.apache.http.impl.nio.mockup;
+package org.apache.http.mockup;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
