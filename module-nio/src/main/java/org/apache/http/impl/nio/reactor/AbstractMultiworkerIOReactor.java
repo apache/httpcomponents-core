@@ -127,40 +127,50 @@ public abstract class AbstractMultiworkerIOReactor implements IOReactor {
             this.threads[i].start();
         }
         
-        for (;;) {
+        try {
 
-            int readyCount;
-            try {
-                readyCount = this.selector.select(this.selectTimeout);
-            } catch (ClosedSelectorException ex) {
-                return;
-            } catch (InterruptedIOException ex) {
-                throw ex;
-            } catch (IOException ex) {
-                throw new IOReactorException("Unexpected selector failure", ex);
-            }
-            
-            if (this.status > ACTIVE) {
-                break;
-            }
-            processEvents(readyCount);
+            for (;;) {
 
-            // Verify I/O dispatchers
-            for (int i = 0; i < this.workerCount; i++) {
-                Worker worker = this.workers[i];
-                Thread thread = this.threads[i];
-                if (!thread.isAlive()) {
-                    Exception ex = worker.getException();
-                    if (ex instanceof IOReactorException) {
-                        throw (IOReactorException) ex;
-                    } else if (ex instanceof InterruptedIOException) {
-                        throw (InterruptedIOException) ex;
-                    } else if (ex instanceof RuntimeException) {
-                        throw (RuntimeException) ex;
-                    } else if (ex != null) {
-                        throw new IOReactorException(ex.getMessage(), ex);
+                int readyCount;
+                try {
+                    readyCount = this.selector.select(this.selectTimeout);
+                } catch (InterruptedIOException ex) {
+                    throw ex;
+                } catch (IOException ex) {
+                    throw new IOReactorException("Unexpected selector failure", ex);
+                }
+                
+                if (this.status > ACTIVE) {
+                    break;
+                }
+                processEvents(readyCount);
+
+                // Verify I/O dispatchers
+                for (int i = 0; i < this.workerCount; i++) {
+                    Worker worker = this.workers[i];
+                    Thread thread = this.threads[i];
+                    if (!thread.isAlive()) {
+                        Exception ex = worker.getException();
+                        if (ex instanceof IOReactorException) {
+                            throw (IOReactorException) ex;
+                        } else if (ex instanceof InterruptedIOException) {
+                            throw (InterruptedIOException) ex;
+                        } else if (ex instanceof RuntimeException) {
+                            throw (RuntimeException) ex;
+                        } else if (ex != null) {
+                            throw new IOReactorException(ex.getMessage(), ex);
+                        }
                     }
                 }
+            }
+
+        } catch (ClosedSelectorException ex) {
+        } finally {
+            // Shutdown
+            try {
+                shutdown(500);
+            } catch (IOException ex) {
+                throw new IOReactorException(ex.getMessage(), ex);
             }
         }
     }

@@ -94,12 +94,28 @@ public class TestHttpServer {
         this.thread.start();
     }
     
+    public int getStatus() {
+        return this.ioReactor.getStatus();
+    }
+    
+    public void join(long timeout) throws InterruptedException {
+        if (this.thread != null) {
+            this.thread.join(timeout);
+        }
+    }
+    
+    public Exception getException() {
+        if (this.thread != null) {
+            return this.thread.getException();
+        } else {
+            return null;
+        }
+    }
+    
     public void shutdown() throws IOException {
         this.ioReactor.shutdown();
         try {
-            if (this.thread != null) {
-                this.thread.join(500);
-            }
+            join(500);
         } catch (InterruptedException ignore) {
         }
     }
@@ -107,6 +123,8 @@ public class TestHttpServer {
     private class IOReactorThread extends Thread {
 
         private final NHttpServiceHandler serviceHandler;
+        
+        private volatile Exception ex;
         
         public IOReactorThread(final NHttpServiceHandler serviceHandler) {
             super();
@@ -117,8 +135,14 @@ public class TestHttpServer {
             try {
                 execute(this.serviceHandler);
             } catch (IOException ex) {
-                ex.printStackTrace();
+                this.ex = ex;
+            } catch (RuntimeException ex) {
+                this.ex = ex;
             }
+        }
+        
+        public Exception getException() {
+            return this.ex;
         }
 
     }    
