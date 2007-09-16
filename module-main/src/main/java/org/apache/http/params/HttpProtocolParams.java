@@ -38,7 +38,11 @@ import org.apache.http.protocol.HTTP;
 /**
  * This class implements an adaptor around the {@link HttpParams} interface
  * to simplify manipulation of the HTTP protocol specific parameters.
- * 
+ * <br/>
+ * Note that the <i>implements</i> relation to {@link CoreProtocolPNames}
+ * is for compatibility with existing application code only. References to
+ * the parameter names should use the interface, not this class.
+ *
  * @author <a href="mailto:oleg at ural.ru">Oleg Kalnichevski</a>
  * 
  * @version $Revision$
@@ -47,7 +51,7 @@ import org.apache.http.protocol.HTTP;
  *
  * @see CoreProtocolPNames
  */
-public final class HttpProtocolParams {
+public final class HttpProtocolParams implements CoreProtocolPNames {
     
     /**
      */

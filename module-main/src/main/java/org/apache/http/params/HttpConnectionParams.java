@@ -33,6 +33,10 @@ package org.apache.http.params;
 
 /**
  * An adaptor for accessing connection parameters in {@link HttpParams}.
+ * <br/>
+ * Note that the <i>implements</i> relation to {@link CoreConnectionPNames}
+ * is for compatibility with existing application code only. References to
+ * the parameter names should use the interface, not this class.
  * 
  * @author <a href="mailto:oleg at ural.ru">Oleg Kalnichevski</a>
  * 
@@ -40,7 +44,7 @@ package org.apache.http.params;
  * 
  * @since 4.0
  */
-public final class HttpConnectionParams {
+public final class HttpConnectionParams implements CoreConnectionPNames {
 
     /**
      */
