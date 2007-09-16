@@ -42,26 +42,10 @@ import org.apache.http.params.HttpParams;
  * @version $Revision$
  * 
  * @since 4.0
+ *
+ * @see NIOReactorPNames
  */
 public final class HttpNIOParams {
-
-    /**
-     * Determines the size of the content input / output buffers used to buffer data
-     * while receiving / transmitting HTTP messages.
-     * <p>
-     * This parameter expects a value of type {@link Integer}.
-     * </p>
-     */
-    public static final String CONTENT_BUFFER_SIZE = "http.nio.content-buffer-size"; 
-
-    /**
-     * Determines the time interval in milliseconds at which the I/O reactor wakes up 
-     * to check for timed out sessions and session requests.
-     * <p>
-     * This parameter expects a value of type {@link Long}.
-     * </p>
-     */
-    public static final String SELECT_INTERVAL = "http.nio.select-interval"; 
 
     private HttpNIOParams() {
         super();
@@ -71,28 +55,32 @@ public final class HttpNIOParams {
         if (params == null) {
             throw new IllegalArgumentException("HTTP parameters may not be null");
         }
-        return params.getIntParameter(CONTENT_BUFFER_SIZE, 1024);
+        return params.getIntParameter
+            (NIOReactorPNames.CONTENT_BUFFER_SIZE, 1024);
     }
     
     public static void setContentBufferSize(final HttpParams params, int size) {
         if (params == null) {
             throw new IllegalArgumentException("HTTP parameters may not be null");
         }
-        params.setIntParameter(CONTENT_BUFFER_SIZE, size);
+        params.setIntParameter
+            (NIOReactorPNames.CONTENT_BUFFER_SIZE, size);
     }
 
     public static long getSelectInterval(final HttpParams params) {
         if (params == null) {
             throw new IllegalArgumentException("HTTP parameters may not be null");
         }
-        return params.getLongParameter(SELECT_INTERVAL, 1000);
+        return params.getLongParameter
+            (NIOReactorPNames.SELECT_INTERVAL, 1000);
     }
     
     public static void setSelectInterval(final HttpParams params, long ms) {
         if (params == null) {
             throw new IllegalArgumentException("HTTP parameters may not be null");
         }
-        params.setLongParameter(SELECT_INTERVAL, ms);
+        params.setLongParameter
+            (NIOReactorPNames.SELECT_INTERVAL, ms);
     }
 
 }

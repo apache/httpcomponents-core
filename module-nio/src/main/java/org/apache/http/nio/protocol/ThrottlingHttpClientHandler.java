@@ -48,7 +48,7 @@ import org.apache.http.nio.NHttpClientConnection;
 import org.apache.http.nio.NHttpConnection;
 import org.apache.http.nio.entity.ContentBufferEntity;
 import org.apache.http.nio.entity.ContentOutputStream;
-import org.apache.http.nio.params.HttpNIOParams;
+import org.apache.http.nio.params.NIOReactorPNames;
 import org.apache.http.nio.protocol.ThrottlingHttpServiceHandler.ServerConnState;
 import org.apache.http.nio.util.ByteBufferAllocator;
 import org.apache.http.nio.util.ContentInputBuffer;
@@ -76,7 +76,7 @@ import org.apache.http.util.concurrent.Executor;
  * which is expected to perform those tasks using dedicated worker threads in 
  * order to avoid blocking the I/O thread.</p>
  * 
- * @see HttpNIOParams#CONTENT_BUFFER_SIZE
+ * @see NIOReactorPNames#CONTENT_BUFFER_SIZE
  * 
  * @author <a href="mailto:oleg at ural.ru">Oleg Kalnichevski</a>
  *
@@ -115,7 +115,7 @@ public class ThrottlingHttpClientHandler extends NHttpClientHandlerBase {
         initialize(conn, attachment);
         
         int bufsize = this.params.getIntParameter(
-                HttpNIOParams.CONTENT_BUFFER_SIZE, 20480);
+                NIOReactorPNames.CONTENT_BUFFER_SIZE, 20480);
         ClientConnState connState = new ClientConnState(bufsize, conn, this.allocator); 
         context.setAttribute(CONN_STATE, connState);
 
