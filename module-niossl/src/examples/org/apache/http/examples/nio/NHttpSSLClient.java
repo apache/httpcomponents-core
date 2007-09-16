@@ -53,9 +53,9 @@ import org.apache.http.nio.reactor.ConnectingIOReactor;
 import org.apache.http.nio.reactor.IOEventDispatch;
 import org.apache.http.nio.reactor.SessionRequest;
 import org.apache.http.params.BasicHttpParams;
-import org.apache.http.params.HttpConnectionParams;
+import org.apache.http.params.CoreConnectionPNames;
 import org.apache.http.params.HttpParams;
-import org.apache.http.params.HttpProtocolParams;
+import org.apache.http.params.CoreProtocolPNames;
 import org.apache.http.protocol.BasicHttpProcessor;
 import org.apache.http.protocol.ExecutionContext;
 import org.apache.http.protocol.HttpContext;
@@ -71,12 +71,12 @@ public class NHttpSSLClient {
     public static void main(String[] args) throws Exception {
         HttpParams params = new BasicHttpParams(null);
         params
-            .setIntParameter(HttpConnectionParams.SO_TIMEOUT, 30000)
-            .setIntParameter(HttpConnectionParams.CONNECTION_TIMEOUT, 30000)
-            .setIntParameter(HttpConnectionParams.SOCKET_BUFFER_SIZE, 8 * 1024)
-            .setBooleanParameter(HttpConnectionParams.STALE_CONNECTION_CHECK, false)
-            .setBooleanParameter(HttpConnectionParams.TCP_NODELAY, true)
-            .setParameter(HttpProtocolParams.USER_AGENT, "Jakarta-HttpComponents-NIO/1.1");
+            .setIntParameter(CoreConnectionPNames.SO_TIMEOUT, 30000)
+            .setIntParameter(CoreConnectionPNames.CONNECTION_TIMEOUT, 30000)
+            .setIntParameter(CoreConnectionPNames.SOCKET_BUFFER_SIZE, 8 * 1024)
+            .setBooleanParameter(CoreConnectionPNames.STALE_CONNECTION_CHECK, false)
+            .setBooleanParameter(CoreConnectionPNames.TCP_NODELAY, true)
+            .setParameter(CoreProtocolPNames.USER_AGENT, "Jakarta-HttpComponents-NIO/1.1");
 
         final ConnectingIOReactor ioReactor = new DefaultConnectingIOReactor(2, params);
 

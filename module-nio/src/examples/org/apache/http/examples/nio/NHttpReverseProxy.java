@@ -65,9 +65,9 @@ import org.apache.http.nio.reactor.ConnectingIOReactor;
 import org.apache.http.nio.reactor.IOEventDispatch;
 import org.apache.http.nio.reactor.ListeningIOReactor;
 import org.apache.http.params.BasicHttpParams;
-import org.apache.http.params.HttpConnectionParams;
+import org.apache.http.params.CoreConnectionPNames;
 import org.apache.http.params.HttpParams;
-import org.apache.http.params.HttpProtocolParams;
+import org.apache.http.params.CoreProtocolPNames;
 import org.apache.http.protocol.BasicHttpProcessor;
 import org.apache.http.protocol.HTTP;
 import org.apache.http.protocol.HttpContext;
@@ -102,12 +102,12 @@ public class NHttpReverseProxy {
         
         HttpParams params = new BasicHttpParams();
         params
-            .setIntParameter(HttpConnectionParams.SO_TIMEOUT, 30000)
-            .setIntParameter(HttpConnectionParams.SOCKET_BUFFER_SIZE, 8 * 1024)
-            .setBooleanParameter(HttpConnectionParams.STALE_CONNECTION_CHECK, false)
-            .setBooleanParameter(HttpConnectionParams.TCP_NODELAY, true)
-            .setParameter(HttpProtocolParams.ORIGIN_SERVER, "Jakarta-HttpComponents-NIO/1.1")
-            .setParameter(HttpProtocolParams.USER_AGENT, "Jakarta-HttpComponents-NIO/1.1");
+            .setIntParameter(CoreConnectionPNames.SO_TIMEOUT, 30000)
+            .setIntParameter(CoreConnectionPNames.SOCKET_BUFFER_SIZE, 8 * 1024)
+            .setBooleanParameter(CoreConnectionPNames.STALE_CONNECTION_CHECK, false)
+            .setBooleanParameter(CoreConnectionPNames.TCP_NODELAY, true)
+            .setParameter(CoreProtocolPNames.ORIGIN_SERVER, "Jakarta-HttpComponents-NIO/1.1")
+            .setParameter(CoreProtocolPNames.USER_AGENT, "Jakarta-HttpComponents-NIO/1.1");
 
         final ConnectingIOReactor connectingIOReactor = new DefaultConnectingIOReactor(
                 1, params);
