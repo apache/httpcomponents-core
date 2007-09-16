@@ -39,7 +39,7 @@ import org.apache.http.ParseException;
 import org.apache.http.ProtocolException;
 import org.apache.http.entity.ContentLengthStrategy;
 import org.apache.http.params.HttpParams;
-import org.apache.http.params.HttpProtocolParams;
+import org.apache.http.params.CoreProtocolPNames;
 import org.apache.http.protocol.HTTP;
 
 /**
@@ -190,7 +190,7 @@ public class LaxContentLengthStrategy implements ContentLengthStrategy {
         }
 
         HttpParams params = message.getParams(); 
-        boolean strict = params.isParameterTrue(HttpProtocolParams.STRICT_TRANSFER_ENCODING);
+        boolean strict = params.isParameterTrue(CoreProtocolPNames.STRICT_TRANSFER_ENCODING);
         
         Header transferEncodingHeader = message.getFirstHeader(HTTP.TRANSFER_ENCODING);
         Header contentLengthHeader = message.getFirstHeader(HTTP.CONTENT_LEN);

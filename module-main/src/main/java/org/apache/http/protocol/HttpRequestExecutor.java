@@ -42,7 +42,7 @@ import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
 import org.apache.http.HttpVersion;
 import org.apache.http.ProtocolVersion;
-import org.apache.http.params.HttpProtocolParams;
+import org.apache.http.params.CoreProtocolPNames;
 
 /**
  * Sends HTTP requests and receives the responses.
@@ -213,7 +213,7 @@ public class HttpRequestExecutor {
                 // As suggested by RFC 2616 section 8.2.3, we don't wait for a
                 // 100-continue response forever. On timeout, send the entity.
                 int tms = request.getParams().getIntParameter(
-                        HttpProtocolParams.WAIT_FOR_CONTINUE, 2000);
+                        CoreProtocolPNames.WAIT_FOR_CONTINUE, 2000);
                 
                 if (conn.isResponseAvailable(tms)) {
                     response = conn.receiveResponseHeader();

@@ -45,7 +45,7 @@ import org.apache.http.params.BasicHttpParams;
 import org.apache.http.params.HttpConnectionParams;
 import org.apache.http.params.HttpParams;
 import org.apache.http.params.HttpParamsLinker;
-import org.apache.http.params.HttpProtocolParams;
+import org.apache.http.params.CoreProtocolPNames;
 import org.apache.http.protocol.BasicHttpProcessor;
 import org.apache.http.protocol.HttpContext;
 import org.apache.http.protocol.BasicHttpContext;
@@ -71,8 +71,8 @@ public class TestHttpClient {
         this.params
             .setIntParameter(HttpConnectionParams.SO_TIMEOUT, 5000)
             .setBooleanParameter(HttpConnectionParams.STALE_CONNECTION_CHECK, false)
-            .setParameter(HttpProtocolParams.PROTOCOL_VERSION, HttpVersion.HTTP_1_1)
-            .setParameter(HttpProtocolParams.USER_AGENT, "TEST-CLIENT/1.1");
+            .setParameter(CoreProtocolPNames.PROTOCOL_VERSION, HttpVersion.HTTP_1_1)
+            .setParameter(CoreProtocolPNames.USER_AGENT, "TEST-CLIENT/1.1");
 
         this.httpproc = new BasicHttpProcessor();
         // Required protocol interceptors

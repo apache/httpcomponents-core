@@ -44,94 +44,10 @@ import org.apache.http.protocol.HTTP;
  * @version $Revision$
  * 
  * @since 4.0
+ *
+ * @see CoreProtocolPNames
  */
 public final class HttpProtocolParams {
-
-    /**
-     * Defines the {@link ProtocolVersion protocol version} used per default.
-     * <p>
-     * This parameter expects a value of type {@link ProtocolVersion}.
-     * </p>
-     */
-    public static final String PROTOCOL_VERSION = "http.protocol.version"; 
-
-    /**
-     * Defines the charset to be used for encoding HTTP protocol elements.
-     * <p>
-     * This parameter expects a value of type {@link String}.
-     * </p>
-     */
-    public static final String HTTP_ELEMENT_CHARSET = "http.protocol.element-charset"; 
-    
-    /**
-     * Defines the charset to be used per default for encoding content body.
-     * <p>
-     * This parameter expects a value of type {@link String}.
-     * </p>
-     */
-    public static final String HTTP_CONTENT_CHARSET = "http.protocol.content-charset"; 
-    
-    /**
-     * Defines the content of the <tt>User-Agent</tt> header.
-     * <p>
-     * This parameter expects a value of type {@link String}.
-     * </p>
-     */
-    public static final String USER_AGENT = "http.useragent"; 
-
-    /**
-     * Defines the content of the <tt>Server</tt> header.
-     * <p>
-     * This parameter expects a value of type {@link String}.
-     * </p>
-     */
-    public static final String ORIGIN_SERVER = "http.origin-server"; 
-
-    /**
-     * Defines whether responses with an invalid <tt>Transfer-Encoding</tt> header should be 
-     * rejected.
-     * <p>
-     * This parameter expects a value of type {@link Boolean}.
-     * </p>
-     */
-    public static final String STRICT_TRANSFER_ENCODING = "http.protocol.strict-transfer-encoding"; 
-
-    /**
-     * <p>
-     * Activates 'Expect: 100-Continue' handshake for the 
-     * entity enclosing methods. The purpose of the 'Expect: 100-Continue'
-     * handshake to allow a client that is sending a request message with 
-     * a request body to determine if the origin server is willing to 
-     * accept the request (based on the request headers) before the client
-     * sends the request body.
-     * </p>
-     * 
-     * <p>
-     * The use of the 'Expect: 100-continue' handshake can result in 
-     * noticable peformance improvement for entity enclosing requests
-     * (such as POST and PUT) that require the target server's 
-     * authentication.
-     * </p>
-     * 
-     * <p>
-     * 'Expect: 100-continue' handshake should be used with 
-     * caution, as it may cause problems with HTTP servers and 
-     * proxies that do not support HTTP/1.1 protocol.
-     * </p>
-     * 
-     * This parameter expects a value of type {@link Boolean}.
-     */
-    public static final String USE_EXPECT_CONTINUE = "http.protocol.expect-continue"; 
-
-    /**
-     * <p>
-     * Defines the maximum period of time in milliseconds the client should spend
-     * waiting for a 100-continue response.
-     * </p>
-     * 
-     * This parameter expects a value of type {@link Integer}.
-     */
-    public static final String WAIT_FOR_CONTINUE = "http.protocol.wait-for-continue";
     
     /**
      */
@@ -147,7 +63,8 @@ public final class HttpProtocolParams {
         if (params == null) {
             throw new IllegalArgumentException("HTTP parameters may not be null");
         }
-        String charset = (String) params.getParameter(HTTP_ELEMENT_CHARSET);
+        String charset = (String) params.getParameter
+            (CoreProtocolPNames.HTTP_ELEMENT_CHARSET);
         if (charset == null) {
             charset = HTTP.DEFAULT_PROTOCOL_CHARSET;
         }
@@ -162,7 +79,7 @@ public final class HttpProtocolParams {
         if (params == null) {
             throw new IllegalArgumentException("HTTP parameters may not be null");
         }
-        params.setParameter(HTTP_ELEMENT_CHARSET, charset);
+        params.setParameter(CoreProtocolPNames.HTTP_ELEMENT_CHARSET, charset);
     }
 
     /**
@@ -174,7 +91,8 @@ public final class HttpProtocolParams {
         if (params == null) {
             throw new IllegalArgumentException("HTTP parameters may not be null");
         }
-        String charset = (String) params.getParameter(HTTP_CONTENT_CHARSET);
+        String charset = (String) params.getParameter
+            (CoreProtocolPNames.HTTP_CONTENT_CHARSET);
         if (charset == null) {
             charset = HTTP.DEFAULT_CONTENT_CHARSET;
         }
@@ -190,7 +108,7 @@ public final class HttpProtocolParams {
         if (params == null) {
             throw new IllegalArgumentException("HTTP parameters may not be null");
         }
-        params.setParameter(HTTP_CONTENT_CHARSET, charset);
+        params.setParameter(CoreProtocolPNames.HTTP_CONTENT_CHARSET, charset);
     }
 
     /**
@@ -202,7 +120,8 @@ public final class HttpProtocolParams {
         if (params == null) {
             throw new IllegalArgumentException("HTTP parameters may not be null");
         }
-        Object param = params.getParameter(PROTOCOL_VERSION);
+        Object param = params.getParameter
+            (CoreProtocolPNames.PROTOCOL_VERSION);
         if (param == null) {
             return HttpVersion.HTTP_1_1;
         }
@@ -219,34 +138,35 @@ public final class HttpProtocolParams {
         if (params == null) {
             throw new IllegalArgumentException("HTTP parameters may not be null");
         }
-        params.setParameter(PROTOCOL_VERSION, version);
+        params.setParameter(CoreProtocolPNames.PROTOCOL_VERSION, version);
     }
 
     public static String getUserAgent(final HttpParams params) { 
         if (params == null) {
             throw new IllegalArgumentException("HTTP parameters may not be null");
         }
-        return (String) params.getParameter(USER_AGENT);
+        return (String) params.getParameter(CoreProtocolPNames.USER_AGENT);
     }
     
     public static void setUserAgent(final HttpParams params, final String useragent) {
         if (params == null) {
             throw new IllegalArgumentException("HTTP parameters may not be null");
         }
-        params.setParameter(USER_AGENT, useragent);
+        params.setParameter(CoreProtocolPNames.USER_AGENT, useragent);
     }
 
     public static boolean useExpectContinue(final HttpParams params) {
         if (params == null) {
             throw new IllegalArgumentException("HTTP parameters may not be null");
         }
-        return params.getBooleanParameter(HttpProtocolParams.USE_EXPECT_CONTINUE, false);
+        return params.getBooleanParameter
+            (CoreProtocolPNames.USE_EXPECT_CONTINUE, false);
     }
     
     public static void setUseExpectContinue(final HttpParams params, boolean b) {
         if (params == null) {
             throw new IllegalArgumentException("HTTP parameters may not be null");
         }
-        params.setBooleanParameter(HttpProtocolParams.USE_EXPECT_CONTINUE, b);
+        params.setBooleanParameter(CoreProtocolPNames.USE_EXPECT_CONTINUE, b);
     }
 }

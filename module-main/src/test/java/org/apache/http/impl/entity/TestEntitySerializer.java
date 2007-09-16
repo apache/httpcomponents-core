@@ -46,7 +46,7 @@ import org.apache.http.impl.io.IdentityOutputStream;
 import org.apache.http.io.SessionOutputBuffer;
 import org.apache.http.mockup.SessionOutputBufferMockup;
 import org.apache.http.mockup.HttpMessageMockup;
-import org.apache.http.params.HttpProtocolParams;
+import org.apache.http.params.CoreProtocolPNames;
 
 public class TestEntitySerializer extends TestCase {
 
@@ -131,7 +131,7 @@ public class TestEntitySerializer extends TestCase {
     public void testEntityWithInvalidChunkEncodingAndHTTP10() throws Exception {
         SessionOutputBuffer datatransmitter = new SessionOutputBufferMockup();
         HttpMessage message = new HttpMessageMockup();
-        message.getParams().setParameter(HttpProtocolParams.PROTOCOL_VERSION, 
+        message.getParams().setParameter(CoreProtocolPNames.PROTOCOL_VERSION, 
                 HttpVersion.HTTP_1_0);
         message.addHeader("Transfer-Encoding", "chunked");
 

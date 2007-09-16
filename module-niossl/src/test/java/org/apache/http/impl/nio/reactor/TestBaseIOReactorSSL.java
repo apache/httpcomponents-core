@@ -57,7 +57,7 @@ import org.apache.http.nio.protocol.EventListener;
 import org.apache.http.params.BasicHttpParams;
 import org.apache.http.params.HttpConnectionParams;
 import org.apache.http.params.HttpParams;
-import org.apache.http.params.HttpProtocolParams;
+import org.apache.http.params.CoreProtocolPNames;
 import org.apache.http.protocol.BasicHttpProcessor;
 import org.apache.http.protocol.HttpContext;
 import org.apache.http.protocol.HttpExpectationVerifier;
@@ -78,7 +78,7 @@ public class TestBaseIOReactorSSL extends TestCase {
             .setIntParameter(HttpConnectionParams.SOCKET_BUFFER_SIZE, 10)
             .setBooleanParameter(HttpConnectionParams.STALE_CONNECTION_CHECK, false)
             .setBooleanParameter(HttpConnectionParams.TCP_NODELAY, true)
-            .setParameter(HttpProtocolParams.ORIGIN_SERVER, "TEST-SERVER/1.1");
+            .setParameter(CoreProtocolPNames.ORIGIN_SERVER, "TEST-SERVER/1.1");
         
         this.server = new TestHttpSSLServer(serverParams);
     }

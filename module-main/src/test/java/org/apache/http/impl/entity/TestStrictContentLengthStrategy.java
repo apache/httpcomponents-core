@@ -39,7 +39,7 @@ import org.apache.http.HttpVersion;
 import org.apache.http.ProtocolException;
 import org.apache.http.entity.ContentLengthStrategy;
 import org.apache.http.mockup.HttpMessageMockup;
-import org.apache.http.params.HttpProtocolParams;
+import org.apache.http.params.CoreProtocolPNames;
 
 public class TestStrictContentLengthStrategy extends TestCase {
 
@@ -91,7 +91,7 @@ public class TestStrictContentLengthStrategy extends TestCase {
     public void testEntityWithInvalidChunkEncodingAndHTTP10() throws Exception {
         ContentLengthStrategy lenStrategy = new StrictContentLengthStrategy();
         HttpMessage message = new HttpMessageMockup();
-        message.getParams().setParameter(HttpProtocolParams.PROTOCOL_VERSION, 
+        message.getParams().setParameter(CoreProtocolPNames.PROTOCOL_VERSION, 
                 HttpVersion.HTTP_1_0);
         message.addHeader("Transfer-Encoding", "chunked");
 

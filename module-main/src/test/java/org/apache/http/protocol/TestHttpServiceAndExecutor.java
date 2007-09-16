@@ -52,7 +52,7 @@ import org.apache.http.message.BasicHttpEntityEnclosingRequest;
 import org.apache.http.message.BasicHttpRequest;
 import org.apache.http.mockup.TestHttpClient;
 import org.apache.http.mockup.TestHttpServer;
-import org.apache.http.params.HttpProtocolParams;
+import org.apache.http.params.CoreProtocolPNames;
 import org.apache.http.util.EncodingUtils;
 import org.apache.http.util.EntityUtils;
 
@@ -374,7 +374,7 @@ public class TestHttpServiceAndExecutor extends TestCase {
         
         // Set protocol level to HTTP/1.0
         this.client.getParams().setParameter(
-                HttpProtocolParams.PROTOCOL_VERSION, HttpVersion.HTTP_1_0);
+                CoreProtocolPNames.PROTOCOL_VERSION, HttpVersion.HTTP_1_0);
         
         DefaultHttpClientConnection conn = new DefaultHttpClientConnection();
         HttpHost host = new HttpHost("localhost", this.server.getPort());
@@ -460,7 +460,7 @@ public class TestHttpServiceAndExecutor extends TestCase {
         this.server.start();
         
         // Activate 'expect: continue' handshake
-        this.client.getParams().setBooleanParameter(HttpProtocolParams.USE_EXPECT_CONTINUE, true);
+        this.client.getParams().setBooleanParameter(CoreProtocolPNames.USE_EXPECT_CONTINUE, true);
         
         DefaultHttpClientConnection conn = new DefaultHttpClientConnection();
         HttpHost host = new HttpHost("localhost", this.server.getPort());
@@ -553,7 +553,7 @@ public class TestHttpServiceAndExecutor extends TestCase {
         this.server.start();
         
         // Activate 'expect: continue' handshake
-        this.client.getParams().setBooleanParameter(HttpProtocolParams.USE_EXPECT_CONTINUE, true);
+        this.client.getParams().setBooleanParameter(CoreProtocolPNames.USE_EXPECT_CONTINUE, true);
         
         DefaultHttpClientConnection conn = new DefaultHttpClientConnection();
         HttpHost host = new HttpHost("localhost", this.server.getPort());

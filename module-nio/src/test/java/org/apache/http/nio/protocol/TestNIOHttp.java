@@ -70,7 +70,7 @@ import org.apache.http.nio.NHttpServiceHandler;
 import org.apache.http.params.BasicHttpParams;
 import org.apache.http.params.HttpConnectionParams;
 import org.apache.http.params.HttpParams;
-import org.apache.http.params.HttpProtocolParams;
+import org.apache.http.params.CoreProtocolPNames;
 import org.apache.http.protocol.BasicHttpProcessor;
 import org.apache.http.protocol.HttpContext;
 import org.apache.http.protocol.ExecutionContext;
@@ -184,7 +184,7 @@ public class TestNIOHttp extends TestCase {
             .setIntParameter(HttpConnectionParams.SOCKET_BUFFER_SIZE, 8 * 1024)
             .setBooleanParameter(HttpConnectionParams.STALE_CONNECTION_CHECK, false)
             .setBooleanParameter(HttpConnectionParams.TCP_NODELAY, true)
-            .setParameter(HttpProtocolParams.ORIGIN_SERVER, "TEST-SERVER/1.1");
+            .setParameter(CoreProtocolPNames.ORIGIN_SERVER, "TEST-SERVER/1.1");
         
         this.server = new TestHttpServer(serverParams);
         
@@ -195,7 +195,7 @@ public class TestNIOHttp extends TestCase {
             .setIntParameter(HttpConnectionParams.SOCKET_BUFFER_SIZE, 8 * 1024)
             .setBooleanParameter(HttpConnectionParams.STALE_CONNECTION_CHECK, false)
             .setBooleanParameter(HttpConnectionParams.TCP_NODELAY, true)
-            .setParameter(HttpProtocolParams.USER_AGENT, "TEST-CLIENT/1.1");
+            .setParameter(CoreProtocolPNames.USER_AGENT, "TEST-CLIENT/1.1");
         
         this.client = new TestHttpClient(clientParams);
         this.executor = new SimpleThreadPoolExecutor();
@@ -751,7 +751,7 @@ public class TestNIOHttp extends TestCase {
         
         // Set protocol level to HTTP/1.0
         this.client.getParams().setParameter(
-                HttpProtocolParams.PROTOCOL_VERSION, HttpVersion.HTTP_1_0);
+                CoreProtocolPNames.PROTOCOL_VERSION, HttpVersion.HTTP_1_0);
         
         HttpRequestExecutionHandler requestExecutionHandler = new HttpRequestExecutionHandler() {
 
@@ -893,7 +893,7 @@ public class TestNIOHttp extends TestCase {
         };
 
         // Activate 'expect: continue' handshake
-        this.client.getParams().setBooleanParameter(HttpProtocolParams.USE_EXPECT_CONTINUE, true);
+        this.client.getParams().setBooleanParameter(CoreProtocolPNames.USE_EXPECT_CONTINUE, true);
         
         HttpRequestExecutionHandler requestExecutionHandler = new HttpRequestExecutionHandler() {
 
@@ -1038,7 +1038,7 @@ public class TestNIOHttp extends TestCase {
         };
 
         // Activate 'expect: continue' handshake
-        this.client.getParams().setBooleanParameter(HttpProtocolParams.USE_EXPECT_CONTINUE, true);
+        this.client.getParams().setBooleanParameter(CoreProtocolPNames.USE_EXPECT_CONTINUE, true);
 
         HttpRequestExecutionHandler requestExecutionHandler = new HttpRequestExecutionHandler() {
 

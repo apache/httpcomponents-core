@@ -58,7 +58,7 @@ import org.apache.http.nio.NHttpClientHandler;
 import org.apache.http.nio.NHttpConnection;
 import org.apache.http.nio.NHttpServiceHandler;
 import org.apache.http.nio.protocol.HttpRequestExecutionHandler;
-import org.apache.http.params.HttpProtocolParams;
+import org.apache.http.params.CoreProtocolPNames;
 import org.apache.http.protocol.ExecutionContext;
 import org.apache.http.protocol.HttpContext;
 import org.apache.http.protocol.HttpRequestHandler;
@@ -567,7 +567,7 @@ public class TestNIOSSLHttp extends HttpCoreNIOSSLTestBase {
         
         // Set protocol level to HTTP/1.0
         this.client.getParams().setParameter(
-                HttpProtocolParams.PROTOCOL_VERSION, HttpVersion.HTTP_1_0);
+                CoreProtocolPNames.PROTOCOL_VERSION, HttpVersion.HTTP_1_0);
         
         HttpRequestExecutionHandler requestExecutionHandler = new HttpRequestExecutionHandler() {
 

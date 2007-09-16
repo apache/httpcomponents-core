@@ -36,7 +36,7 @@ import java.io.IOException;
 import org.apache.http.HttpException;
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpResponseInterceptor;
-import org.apache.http.params.HttpProtocolParams;
+import org.apache.http.params.CoreProtocolPNames;
 
 /**
  * A response interceptor that adds a Server header.
@@ -61,7 +61,7 @@ public class ResponseServer implements HttpResponseInterceptor {
         }
         if (!response.containsHeader(HTTP.SERVER_HEADER)) {
             String s = (String) response.getParams().getParameter(
-                    HttpProtocolParams.ORIGIN_SERVER);
+                    CoreProtocolPNames.ORIGIN_SERVER);
             if (s != null) {
                 response.addHeader(HTTP.SERVER_HEADER, s);
             }

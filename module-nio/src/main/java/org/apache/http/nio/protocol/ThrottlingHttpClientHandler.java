@@ -58,7 +58,7 @@ import org.apache.http.nio.util.SharedInputBuffer;
 import org.apache.http.nio.util.SharedOutputBuffer;
 import org.apache.http.params.HttpParams;
 import org.apache.http.params.HttpParamsLinker;
-import org.apache.http.params.HttpProtocolParams;
+import org.apache.http.params.CoreProtocolPNames;
 import org.apache.http.protocol.ExecutionContext;
 import org.apache.http.protocol.HttpContext;
 import org.apache.http.protocol.HttpProcessor;
@@ -168,7 +168,7 @@ public class ThrottlingHttpClientHandler extends NHttpClientHandlerBase {
                         int timeout = conn.getSocketTimeout();
                         connState.setTimeout(timeout);
                         timeout = this.params.getIntParameter(
-                                HttpProtocolParams.WAIT_FOR_CONTINUE, 3000);
+                                CoreProtocolPNames.WAIT_FOR_CONTINUE, 3000);
                         conn.setSocketTimeout(timeout);
                         connState.setOutputState(ClientConnState.EXPECT_CONTINUE);
                     } else {

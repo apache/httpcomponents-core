@@ -42,7 +42,7 @@ import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
 import org.apache.http.HttpVersion;
 import org.apache.http.entity.BasicHttpEntity;
-import org.apache.http.params.HttpProtocolParams;
+import org.apache.http.params.CoreProtocolPNames;
 
 /**
  * Unit tests for {@link Header}.
@@ -183,7 +183,7 @@ public class TestBasicMessages extends TestCase {
     public void testExpectContinue() {
         BasicHttpEntityEnclosingRequest request = new BasicHttpEntityEnclosingRequest("GET", "/");
         assertFalse(request.expectContinue()); 
-        request.getParams().setBooleanParameter(HttpProtocolParams.USE_EXPECT_CONTINUE, true);
+        request.getParams().setBooleanParameter(CoreProtocolPNames.USE_EXPECT_CONTINUE, true);
         assertFalse(request.expectContinue());
         request.addHeader("Expect", "100-Continue");
         assertTrue(request.expectContinue()); 

@@ -46,7 +46,7 @@ import org.apache.http.nio.protocol.HttpRequestExecutionHandler;
 import org.apache.http.params.BasicHttpParams;
 import org.apache.http.params.HttpConnectionParams;
 import org.apache.http.params.HttpParams;
-import org.apache.http.params.HttpProtocolParams;
+import org.apache.http.params.CoreProtocolPNames;
 import org.apache.http.protocol.BasicHttpProcessor;
 import org.apache.http.protocol.HttpExpectationVerifier;
 import org.apache.http.protocol.HttpRequestHandler;
@@ -81,7 +81,7 @@ public class HttpCoreNIOTestBase extends TestCase {
             .setIntParameter(HttpConnectionParams.SOCKET_BUFFER_SIZE, 8 * 1024)
             .setBooleanParameter(HttpConnectionParams.STALE_CONNECTION_CHECK, false)
             .setBooleanParameter(HttpConnectionParams.TCP_NODELAY, true)
-            .setParameter(HttpProtocolParams.ORIGIN_SERVER, "TEST-SERVER/1.1");
+            .setParameter(CoreProtocolPNames.ORIGIN_SERVER, "TEST-SERVER/1.1");
         
         this.server = new TestHttpServer(serverParams);
         
@@ -92,7 +92,7 @@ public class HttpCoreNIOTestBase extends TestCase {
             .setIntParameter(HttpConnectionParams.SOCKET_BUFFER_SIZE, 8 * 1024)
             .setBooleanParameter(HttpConnectionParams.STALE_CONNECTION_CHECK, false)
             .setBooleanParameter(HttpConnectionParams.TCP_NODELAY, true)
-            .setParameter(HttpProtocolParams.USER_AGENT, "TEST-CLIENT/1.1");
+            .setParameter(CoreProtocolPNames.USER_AGENT, "TEST-CLIENT/1.1");
         
         this.client = new TestHttpClient(clientParams);
     }
