@@ -42,9 +42,11 @@ package org.apache.http.params;
 public interface CoreProtocolPNames {
 
     /**
-     * Defines the {@link ProtocolVersion protocol version} used per default.
+     * Defines the {@link org.apache.http.ProtocolVersion protocol version}
+     * used per default.
      * <p>
-     * This parameter expects a value of type {@link ProtocolVersion}.
+     * This parameter expects a value of type
+     * {@link org.apache.http.ProtocolVersion}.
      * </p>
      */
     public static final String PROTOCOL_VERSION = "http.protocol.version"; 

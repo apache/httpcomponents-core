@@ -44,7 +44,7 @@ import org.apache.http.message.LineParser;
 import org.apache.http.message.BasicLineParser;
 import org.apache.http.nio.NHttpMessageParser;
 import org.apache.http.nio.reactor.SessionInputBuffer;
-import org.apache.http.params.HttpConnectionParams;
+import org.apache.http.params.CoreConnectionPNames;
 import org.apache.http.params.HttpParams;
 import org.apache.http.util.CharArrayBuffer;
 
@@ -80,9 +80,9 @@ public abstract class AbstractMessageParser implements NHttpMessageParser {
         this.endOfStream = false;
         this.headerBufs = new ArrayList();        
         this.maxLineLen = params.getIntParameter(
-                HttpConnectionParams.MAX_LINE_LENGTH, -1);
+                CoreConnectionPNames.MAX_LINE_LENGTH, -1);
         this.maxHeaderCount = params.getIntParameter(
-                HttpConnectionParams.MAX_HEADER_COUNT, -1);
+                CoreConnectionPNames.MAX_HEADER_COUNT, -1);
         this.lineParser = (parser != null) ? parser : BasicLineParser.DEFAULT;
     }
     

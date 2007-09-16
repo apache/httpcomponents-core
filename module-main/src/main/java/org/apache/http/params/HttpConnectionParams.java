@@ -43,93 +43,6 @@ package org.apache.http.params;
 public final class HttpConnectionParams {
 
     /**
-     * Defines the default socket timeout (<tt>SO_TIMEOUT</tt>) in milliseconds which is the 
-     * timeout for waiting for data. A timeout value of zero is interpreted as an infinite 
-     * timeout. This value is used when no socket timeout is set in the 
-     * method parameters. 
-     * <p>
-     * This parameter expects a value of type {@link Integer}.
-     * </p>
-     * @see java.net.SocketOptions#SO_TIMEOUT
-     */
-    public static final String SO_TIMEOUT = "http.socket.timeout"; 
-
-    /**
-     * Determines whether Nagle's algorithm is to be used. The Nagle's algorithm 
-     * tries to conserve bandwidth by minimizing the number of segments that are 
-     * sent. When applications wish to decrease network latency and increase 
-     * performance, they can disable Nagle's algorithm (that is enable TCP_NODELAY). 
-     * Data will be sent earlier, at the cost of an increase in bandwidth consumption. 
-     * <p>
-     * This parameter expects a value of type {@link Boolean}.
-     * </p>
-     * @see java.net.SocketOptions#TCP_NODELAY
-     */
-    public static final String TCP_NODELAY = "http.tcp.nodelay"; 
-
-    /**
-     * Determines the size of the internal socket buffer used to buffer data
-     * while receiving / transmitting HTTP messages.
-     * <p>
-     * This parameter expects a value of type {@link Integer}.
-     * </p>
-     */
-    public static final String SOCKET_BUFFER_SIZE = "http.socket.buffer-size"; 
-
-    /**
-     * Sets SO_LINGER with the specified linger time in seconds. The maximum timeout 
-     * value is platform specific. Value <tt>0</tt> implies that the option is disabled.
-     * Value <tt>-1</tt> implies that the JRE default is used. The setting only affects 
-     * socket close.  
-     * <p>
-     * This parameter expects a value of type {@link Integer}.
-     * </p>
-     * @see java.net.SocketOptions#SO_LINGER
-     */
-    public static final String SO_LINGER = "http.socket.linger"; 
-
-    /**
-     * Determines the timeout until a connection is etablished. A value of zero 
-     * means the timeout is not used. The default value is zero.
-     * <p>
-     * This parameter expects a value of type {@link Integer}.
-     * </p>
-     */
-    public static final String CONNECTION_TIMEOUT = "http.connection.timeout"; 
-
-    /**
-     * Determines whether stale connection check is to be used. Disabling 
-     * stale connection check may result in slight performance improvement 
-     * at the risk of getting an I/O error when executing a request over a
-     * connection that has been closed at the server side. 
-     * <p>
-     * This parameter expects a value of type {@link Boolean}.
-     * </p>
-     */
-    public static final String STALE_CONNECTION_CHECK = "http.connection.stalecheck"; 
-
-    /**
-     * Determines the maximum line length limit. If set to a positive value, any HTTP 
-     * line exceeding this limit will cause an IOException. A negative or zero value
-     * will effectively disable the check.
-     * <p>
-     * This parameter expects a value of type {@link Integer}.
-     * </p>
-     */
-    public static final String MAX_LINE_LENGTH = "http.connection.max-line-length";
-    
-    /**
-     * Determines the maximum HTTP header count allowed. If set to a positive value, 
-     * the number of HTTP headers received from the data stream exceeding this limit 
-     * will cause an IOException. A negative or zero value will effectively disable 
-     * the check. 
-     * <p>
-     * This parameter expects a value of type {@link Integer}.
-     * </p>
-     */
-    public static final String MAX_HEADER_COUNT = "http.connection.max-header-count";
-    
-    /**
      */
     private HttpConnectionParams() {
         super();
@@ -147,7 +60,7 @@ public final class HttpConnectionParams {
         if (params == null) {
             throw new IllegalArgumentException("HTTP parameters may not be null");
         }
-        return params.getIntParameter(SO_TIMEOUT, 0);
+        return params.getIntParameter(CoreConnectionPNames.SO_TIMEOUT, 0);
     }
 
     /**
@@ -162,7 +75,7 @@ public final class HttpConnectionParams {
         if (params == null) {
             throw new IllegalArgumentException("HTTP parameters may not be null");
         }
-        params.setIntParameter(SO_TIMEOUT, timeout);
+        params.setIntParameter(CoreConnectionPNames.SO_TIMEOUT, timeout);
         
     }
 
@@ -176,7 +89,8 @@ public final class HttpConnectionParams {
         if (params == null) {
             throw new IllegalArgumentException("HTTP parameters may not be null");
         }
-        return params.getBooleanParameter(TCP_NODELAY, true);
+        return params.getBooleanParameter
+            (CoreConnectionPNames.TCP_NODELAY, true);
     }
 
     /**
@@ -193,21 +107,22 @@ public final class HttpConnectionParams {
         if (params == null) {
             throw new IllegalArgumentException("HTTP parameters may not be null");
         }
-        params.setBooleanParameter(TCP_NODELAY, value);
+        params.setBooleanParameter(CoreConnectionPNames.TCP_NODELAY, value);
     }
 
     public static int getSocketBufferSize(final HttpParams params) {
         if (params == null) {
             throw new IllegalArgumentException("HTTP parameters may not be null");
         }
-        return params.getIntParameter(SOCKET_BUFFER_SIZE, -1);
+        return params.getIntParameter
+            (CoreConnectionPNames.SOCKET_BUFFER_SIZE, -1);
     }
     
     public static void setSocketBufferSize(final HttpParams params, int size) {
         if (params == null) {
             throw new IllegalArgumentException("HTTP parameters may not be null");
         }
-        params.setIntParameter(SOCKET_BUFFER_SIZE, size);
+        params.setIntParameter(CoreConnectionPNames.SOCKET_BUFFER_SIZE, size);
     }
 
     /**
@@ -220,7 +135,7 @@ public final class HttpConnectionParams {
         if (params == null) {
             throw new IllegalArgumentException("HTTP parameters may not be null");
         }
-        return params.getIntParameter(SO_LINGER, -1);
+        return params.getIntParameter(CoreConnectionPNames.SO_LINGER, -1);
     }
 
     /**
@@ -237,7 +152,7 @@ public final class HttpConnectionParams {
         if (params == null) {
             throw new IllegalArgumentException("HTTP parameters may not be null");
         }
-        params.setIntParameter(SO_LINGER, value);
+        params.setIntParameter(CoreConnectionPNames.SO_LINGER, value);
     }
 
     /**
@@ -250,7 +165,8 @@ public final class HttpConnectionParams {
         if (params == null) {
             throw new IllegalArgumentException("HTTP parameters may not be null");
         }
-        return params.getIntParameter(CONNECTION_TIMEOUT, 0);
+        return params.getIntParameter
+            (CoreConnectionPNames.CONNECTION_TIMEOUT, 0);
     }
 
     /**
@@ -263,7 +179,8 @@ public final class HttpConnectionParams {
         if (params == null) {
             throw new IllegalArgumentException("HTTP parameters may not be null");
         }
-        params.setIntParameter(CONNECTION_TIMEOUT, timeout);
+        params.setIntParameter
+            (CoreConnectionPNames.CONNECTION_TIMEOUT, timeout);
     }
     
     /**
@@ -279,7 +196,8 @@ public final class HttpConnectionParams {
         if (params == null) {
             throw new IllegalArgumentException("HTTP parameters may not be null");
         }
-        return params.getBooleanParameter(STALE_CONNECTION_CHECK, true);
+        return params.getBooleanParameter
+            (CoreConnectionPNames.STALE_CONNECTION_CHECK, true);
     }
 
     /**
@@ -295,7 +213,8 @@ public final class HttpConnectionParams {
         if (params == null) {
             throw new IllegalArgumentException("HTTP parameters may not be null");
         }
-        params.setBooleanParameter(STALE_CONNECTION_CHECK, value);
+        params.setBooleanParameter
+            (CoreConnectionPNames.STALE_CONNECTION_CHECK, value);
     }
     
 }

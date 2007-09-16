@@ -36,7 +36,7 @@ import java.io.InputStream;
 
 import org.apache.http.io.SessionInputBuffer;
 import org.apache.http.io.HttpTransportMetrics;
-import org.apache.http.params.HttpConnectionParams;
+import org.apache.http.params.CoreConnectionPNames;
 import org.apache.http.params.HttpParams;
 import org.apache.http.params.HttpProtocolParams;
 import org.apache.http.protocol.HTTP;
@@ -83,7 +83,7 @@ public abstract class AbstractSessionInputBuffer implements SessionInputBuffer {
         this.charset = HttpProtocolParams.getHttpElementCharset(params);
         this.ascii = this.charset.equalsIgnoreCase(HTTP.US_ASCII)
                      || this.charset.equalsIgnoreCase(HTTP.ASCII);
-        this.maxLineLen = params.getIntParameter(HttpConnectionParams.MAX_LINE_LENGTH, -1);
+        this.maxLineLen = params.getIntParameter(CoreConnectionPNames.MAX_LINE_LENGTH, -1);
         this.metrics = new HttpTransportMetricsImpl();
     }
     

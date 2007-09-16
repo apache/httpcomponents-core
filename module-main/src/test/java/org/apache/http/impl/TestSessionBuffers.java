@@ -43,7 +43,7 @@ import org.apache.http.io.HttpTransportMetrics;
 import org.apache.http.params.BasicHttpParams;
 import org.apache.http.mockup.SessionInputBufferMockup;
 import org.apache.http.mockup.SessionOutputBufferMockup;
-import org.apache.http.params.HttpConnectionParams;
+import org.apache.http.params.CoreConnectionPNames;
 import org.apache.http.params.HttpParams;
 import org.apache.http.params.HttpProtocolParams;
 import org.apache.http.protocol.HTTP;
@@ -362,14 +362,14 @@ public class TestSessionBuffers extends TestCase {
         String s = "a very looooooooooooooooooooooooooooooooooooooong line\r\n     ";
         byte[] tmp = s.getBytes("US-ASCII"); 
         // no limit
-        params.setIntParameter(HttpConnectionParams.MAX_LINE_LENGTH, 0);
+        params.setIntParameter(CoreConnectionPNames.MAX_LINE_LENGTH, 0);
         SessionInputBufferMockup inbuffer1 = new SessionInputBufferMockup(tmp, 5, params);
         assertNotNull(inbuffer1.readLine());
         long readedBytes = inbuffer1.getMetrics().getBytesTransferred();
         assertEquals(60, readedBytes);
         
         // 15 char limit
-        params.setIntParameter(HttpConnectionParams.MAX_LINE_LENGTH, 15);
+        params.setIntParameter(CoreConnectionPNames.MAX_LINE_LENGTH, 15);
         SessionInputBufferMockup inbuffer2 = new SessionInputBufferMockup(tmp, 5, params);
         try {
             inbuffer2.readLine();
