@@ -38,6 +38,7 @@ import java.util.Set;
 
 import org.apache.http.nio.reactor.EventMask;
 import org.apache.http.nio.reactor.IOReactorException;
+import org.apache.http.nio.reactor.IOReactorExceptionHandler;
 import org.apache.http.nio.reactor.IOSession;
 
 public class BaseIOReactor extends AbstractIOReactor {
@@ -47,11 +48,27 @@ public class BaseIOReactor extends AbstractIOReactor {
     
     private long lastTimeoutCheck;
     
+    private IOReactorExceptionHandler exceptionHandler;
+    
     public BaseIOReactor(long selectTimeout) throws IOReactorException {
         super(selectTimeout);
         this.bufferingSessions = new SessionSet();
         this.timeoutCheckInterval = selectTimeout;
         this.lastTimeoutCheck = System.currentTimeMillis();
+    }
+
+    public void setExceptionHandler(IOReactorExceptionHandler exceptionHandler) {
+        this.exceptionHandler = exceptionHandler;
+    }
+
+    protected void processEvent(final SelectionKey key) {
+        try {
+            super.processEvent(key);
+        } catch (RuntimeException ex) {
+            if (this.exceptionHandler == null || !this.exceptionHandler.handle(ex)) {
+                throw ex;
+            }
+        }
     }
 
     protected void acceptable(final SelectionKey key) {

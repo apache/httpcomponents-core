@@ -114,7 +114,13 @@ public class DefaultConnectingIOReactor extends AbstractMultiworkerIOReactor
                 key.cancel();
                 if (channel.isConnected()) {
                     try {
-                        prepareSocket(channel.socket());
+                        try {
+                            prepareSocket(channel.socket());
+                        } catch (IOException ex) {
+                            if (this.exceptionHandler == null || !this.exceptionHandler.handle(ex)) {
+                                throw new IOReactorException("Failure initalizing socket", ex);
+                            }
+                        }
                         ChannelEntry entry = new ChannelEntry(channel, sessionRequest); 
                         addChannel(entry);
                     } catch (IOException ex) {

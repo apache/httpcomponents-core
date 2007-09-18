@@ -1,12 +1,17 @@
 Changes since release 4.0 Alpha 5
 
+* [HTTPCORE-86] Allow for optional handling of runtime exceptions
+  thrown by protocol handlers to ensurev the I/O dispatch thread
+  remains running.
+  Contributed by Oleg Kalnichevski <olegk at apache.org>
+
 * [HTTPCORE-116] moved parameter names to interfaces
   Contributed by Roland Weber <rolandw at apache.org>
 
 * [HTTPCORE-109] Improved shutdown process of the I/O reactors in NIO modules. I/O 
   reactors now attempt to terminate connections gracefully before shutting down the
   underlying socket channels.
-  Oleg Kalnichevski <olegk at apache.org>
+  Contributed by Oleg Kalnichevski <olegk at apache.org>
 
 * [HTTPCORE-107] allow sending and receiving of SIP messages
   Contributed by Roland Weber <rolandw at apache.org>

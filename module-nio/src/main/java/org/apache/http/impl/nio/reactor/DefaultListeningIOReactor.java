@@ -41,7 +41,6 @@ import java.util.Iterator;
 import java.util.Set;
 
 import org.apache.http.nio.reactor.IOReactorException;
-import org.apache.http.nio.reactor.IOReactorExceptionHandler;
 import org.apache.http.nio.reactor.ListeningIOReactor;
 import org.apache.http.params.HttpParams;
 import org.apache.http.util.concurrent.ThreadFactory;
@@ -49,8 +48,6 @@ import org.apache.http.util.concurrent.ThreadFactory;
 public class DefaultListeningIOReactor extends AbstractMultiworkerIOReactor 
         implements ListeningIOReactor {
 
-    private IOReactorExceptionHandler exceptionHandler;
-    
     public DefaultListeningIOReactor(
             int workerCount, 
             final ThreadFactory threadFactory,
@@ -62,10 +59,6 @@ public class DefaultListeningIOReactor extends AbstractMultiworkerIOReactor
             int workerCount, 
             final HttpParams params) throws IOReactorException {
         this(workerCount, null, params);
-    }
-    
-    public void setExceptionHandler(final IOReactorExceptionHandler exceptionHandler) {
-        this.exceptionHandler = exceptionHandler;
     }
     
     protected void processEvents(int readyCount) throws IOReactorException {

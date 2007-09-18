@@ -37,13 +37,13 @@ import java.net.InetSocketAddress;
 import org.apache.http.impl.nio.DefaultClientIOEventDispatch;
 import org.apache.http.impl.nio.reactor.DefaultConnectingIOReactor;
 import org.apache.http.nio.NHttpClientHandler;
-import org.apache.http.nio.reactor.ConnectingIOReactor;
 import org.apache.http.nio.reactor.IOEventDispatch;
+import org.apache.http.nio.reactor.IOReactorExceptionHandler;
 import org.apache.http.params.HttpParams;
 
 public class TestHttpClient {
 
-    private final ConnectingIOReactor ioReactor;
+    private final DefaultConnectingIOReactor ioReactor;
     private final HttpParams params;
     
     private volatile IOReactorThread thread;
@@ -58,6 +58,10 @@ public class TestHttpClient {
         return this.params;
     }
     
+    public void setExceptionHandler(final IOReactorExceptionHandler exceptionHandler) {
+        this.ioReactor.setExceptionHandler(exceptionHandler);
+    }
+
     private void execute(final NHttpClientHandler clientHandler) throws IOException {
         IOEventDispatch ioEventDispatch = new DefaultClientIOEventDispatch(
                 clientHandler, 

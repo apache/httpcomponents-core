@@ -48,6 +48,7 @@ import org.apache.http.nio.params.HttpNIOParams;
 import org.apache.http.nio.reactor.IOEventDispatch;
 import org.apache.http.nio.reactor.IOReactor;
 import org.apache.http.nio.reactor.IOReactorException;
+import org.apache.http.nio.reactor.IOReactorExceptionHandler;
 import org.apache.http.params.HttpConnectionParams;
 import org.apache.http.params.HttpParams;
 
@@ -64,6 +65,8 @@ public abstract class AbstractMultiworkerIOReactor implements IOReactor {
     private final BaseIOReactor[] dispatchers;
     private final Worker[] workers;
     private final Thread[] threads;
+    
+    protected IOReactorExceptionHandler exceptionHandler;
     
     private int currentWorker = 0;
     
@@ -104,6 +107,14 @@ public abstract class AbstractMultiworkerIOReactor implements IOReactor {
         return this.status;
     }
 
+    public void setExceptionHandler(final IOReactorExceptionHandler exceptionHandler) {
+        this.exceptionHandler = exceptionHandler;
+        for (int i = 0; i < this.workerCount; i++) {
+            BaseIOReactor dispatcher = this.dispatchers[i];
+            dispatcher.setExceptionHandler(exceptionHandler);
+        }
+    }
+    
     protected abstract void processEvents(int count) throws IOReactorException;
     
     public void execute(

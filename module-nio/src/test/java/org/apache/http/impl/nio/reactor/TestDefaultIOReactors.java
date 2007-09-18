@@ -49,6 +49,7 @@ import org.apache.http.nio.NHttpServiceHandler;
 import org.apache.http.nio.protocol.EventListener;
 import org.apache.http.nio.protocol.HttpRequestExecutionHandler;
 import org.apache.http.nio.reactor.IOReactor;
+import org.apache.http.nio.reactor.IOReactorExceptionHandler;
 import org.apache.http.params.BasicHttpParams;
 import org.apache.http.params.HttpParams;
 import org.apache.http.protocol.HttpContext;
@@ -255,4 +256,175 @@ public class TestDefaultIOReactors extends HttpCoreNIOTestBase {
         this.server.shutdown();
     }
 
+    public void testUnhandledRuntimeException() throws Exception {
+
+        final RequestCount requestConns = new RequestCount(1); 
+        
+        HttpRequestHandler requestHandler = new HttpRequestHandler() {
+
+            public void handle(
+                    final HttpRequest request, 
+                    final HttpResponse response, 
+                    final HttpContext context) throws HttpException, IOException {
+                throw new IllegalStateException("Oppsie!!!");
+            }
+            
+        };
+        
+        HttpRequestExecutionHandler requestExecutionHandler = new HttpRequestExecutionHandler() {
+
+            public void initalizeContext(final HttpContext context, final Object attachment) {
+            }
+
+            public void finalizeContext(final HttpContext context) {
+            }
+
+            public HttpRequest submitRequest(final HttpContext context) {
+                Boolean b = ((Boolean) context.getAttribute("done"));
+                if (b == null) {
+                    BasicHttpRequest get = new BasicHttpRequest("GET", "/");
+                    context.setAttribute("done", Boolean.TRUE);
+                    return get;
+                } else {
+                    return null;
+                }
+            }
+            
+            public void handleResponse(final HttpResponse response, final HttpContext context) {
+            }
+            
+        };
+     
+        IOReactorExceptionHandler exceptionHandler = new IOReactorExceptionHandler() {
+
+            public boolean handle(final IOException ex) {
+                return false;
+            }
+
+            public boolean handle(final RuntimeException ex) {
+                requestConns.decrement();                    
+                return false;
+            }
+          
+        };
+        
+        NHttpServiceHandler serviceHandler = createHttpServiceHandler(
+                requestHandler, 
+                null,
+                new SimpleEventListener());
+        
+        NHttpClientHandler clientHandler = createHttpClientHandler(
+                requestExecutionHandler,
+                new SimpleEventListener());
+
+        this.server.setExceptionHandler(exceptionHandler);
+        
+        this.server.start(serviceHandler);
+        this.client.start(clientHandler);
+        
+        InetSocketAddress serverAddress = (InetSocketAddress) this.server.getSocketAddress();
+        
+        this.client.openConnection(
+                new InetSocketAddress("localhost", serverAddress.getPort()), 
+                null);
+     
+        requestConns.await(10000);
+        assertEquals(0, requestConns.getValue());
+        
+        this.server.join(20000);
+        
+        Exception ex = this.server.getException();
+        assertNotNull(ex);
+        assertTrue(ex instanceof IllegalStateException);
+        // I/O reactor shut down itself
+        assertEquals(IOReactor.SHUT_DOWN, this.server.getStatus());
+        
+        this.client.shutdown();
+        this.server.shutdown();
+    }
+
+    public void testHandledRuntimeException() throws Exception {
+
+        final RequestCount requestConns = new RequestCount(1); 
+        
+        HttpRequestHandler requestHandler = new HttpRequestHandler() {
+
+            public void handle(
+                    final HttpRequest request, 
+                    final HttpResponse response, 
+                    final HttpContext context) throws HttpException, IOException {
+                throw new IllegalStateException("Oppsie!!!");
+            }
+            
+        };
+        
+        HttpRequestExecutionHandler requestExecutionHandler = new HttpRequestExecutionHandler() {
+
+            public void initalizeContext(final HttpContext context, final Object attachment) {
+            }
+
+            public void finalizeContext(final HttpContext context) {
+            }
+
+            public HttpRequest submitRequest(final HttpContext context) {
+                Boolean b = ((Boolean) context.getAttribute("done"));
+                if (b == null) {
+                    BasicHttpRequest get = new BasicHttpRequest("GET", "/");
+                    context.setAttribute("done", Boolean.TRUE);
+                    return get;
+                } else {
+                    return null;
+                }
+            }
+            
+            public void handleResponse(final HttpResponse response, final HttpContext context) {
+            }
+            
+        };
+     
+        IOReactorExceptionHandler exceptionHandler = new IOReactorExceptionHandler() {
+
+            public boolean handle(final IOException ex) {
+                return false;
+            }
+
+            public boolean handle(final RuntimeException ex) {
+                requestConns.decrement();                    
+                return true;
+            }
+          
+        };
+        
+        NHttpServiceHandler serviceHandler = createHttpServiceHandler(
+                requestHandler, 
+                null,
+                new SimpleEventListener());
+        
+        NHttpClientHandler clientHandler = createHttpClientHandler(
+                requestExecutionHandler,
+                new SimpleEventListener());
+
+        this.server.setExceptionHandler(exceptionHandler);
+        
+        this.server.start(serviceHandler);
+        this.client.start(clientHandler);
+        
+        InetSocketAddress serverAddress = (InetSocketAddress) this.server.getSocketAddress();
+        
+        this.client.openConnection(
+                new InetSocketAddress("localhost", serverAddress.getPort()), 
+                null);
+     
+        requestConns.await(10000);
+        assertEquals(0, requestConns.getValue());
+        
+        this.server.join(1000);
+        
+        assertEquals(IOReactor.ACTIVE, this.server.getStatus());
+        assertNull(this.server.getException());
+        
+        this.client.shutdown();
+        this.server.shutdown();
+    }
+    
 }

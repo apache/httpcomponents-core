@@ -38,7 +38,7 @@ import org.apache.http.impl.nio.DefaultServerIOEventDispatch;
 import org.apache.http.impl.nio.reactor.DefaultListeningIOReactor;
 import org.apache.http.nio.NHttpServiceHandler;
 import org.apache.http.nio.reactor.IOEventDispatch;
-import org.apache.http.nio.reactor.ListeningIOReactor;
+import org.apache.http.nio.reactor.IOReactorExceptionHandler;
 import org.apache.http.params.HttpParams;
 
 /**
@@ -48,7 +48,7 @@ import org.apache.http.params.HttpParams;
  */
 public class TestHttpServer {
 
-    private final ListeningIOReactor ioReactor;
+    private final DefaultListeningIOReactor ioReactor;
     private final HttpParams params;
     private final Object socketMutex;
 
@@ -66,6 +66,10 @@ public class TestHttpServer {
         return this.params;
     }
     
+    public void setExceptionHandler(final IOReactorExceptionHandler exceptionHandler) {
+        this.ioReactor.setExceptionHandler(exceptionHandler);
+    }
+
     private void execute(final NHttpServiceHandler serviceHandler) throws IOException {
         synchronized (this.socketMutex) {
             this.address = (InetSocketAddress) this.ioReactor.listen(

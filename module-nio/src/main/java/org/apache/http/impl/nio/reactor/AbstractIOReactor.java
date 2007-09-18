@@ -165,7 +165,7 @@ public abstract class AbstractIOReactor implements IOReactor {
         selectedKeys.clear();
     }
 
-    private void processEvent(final SelectionKey key) {
+    protected void processEvent(final SelectionKey key) {
         try {
             if (key.isAcceptable()) {
                 acceptable(key);
