@@ -35,7 +35,7 @@ import org.apache.http.params.HttpParams;
 
 /**
  * This class implements an adaptor around the {@link HttpParams} interface
- * to simplify manipulation of the HTTP NIO specific parameters.
+ * to simplify manipulation of the NIO reactor specific parameters.
  * <br/>
  * Note that the <i>implements</i> relation to {@link NIOReactorPNames}
  * is for compatibility with existing application code only. References to
@@ -49,9 +49,9 @@ import org.apache.http.params.HttpParams;
  *
  * @see NIOReactorPNames
  */
-public final class HttpNIOParams {
+public final class NIOReactorParams implements NIOReactorPNames {
 
-    private HttpNIOParams() {
+    private NIOReactorParams() {
         super();
     }
 
@@ -59,32 +59,28 @@ public final class HttpNIOParams {
         if (params == null) {
             throw new IllegalArgumentException("HTTP parameters may not be null");
         }
-        return params.getIntParameter
-            (NIOReactorPNames.CONTENT_BUFFER_SIZE, 1024);
+        return params.getIntParameter(CONTENT_BUFFER_SIZE, 1024);
     }
     
     public static void setContentBufferSize(final HttpParams params, int size) {
         if (params == null) {
             throw new IllegalArgumentException("HTTP parameters may not be null");
         }
-        params.setIntParameter
-            (NIOReactorPNames.CONTENT_BUFFER_SIZE, size);
+        params.setIntParameter(CONTENT_BUFFER_SIZE, size);
     }
 
     public static long getSelectInterval(final HttpParams params) {
         if (params == null) {
             throw new IllegalArgumentException("HTTP parameters may not be null");
         }
-        return params.getLongParameter
-            (NIOReactorPNames.SELECT_INTERVAL, 1000);
+        return params.getLongParameter(SELECT_INTERVAL, 1000);
     }
     
     public static void setSelectInterval(final HttpParams params, long ms) {
         if (params == null) {
             throw new IllegalArgumentException("HTTP parameters may not be null");
         }
-        params.setLongParameter
-            (NIOReactorPNames.SELECT_INTERVAL, ms);
+        params.setLongParameter(SELECT_INTERVAL, ms);
     }
 
 }

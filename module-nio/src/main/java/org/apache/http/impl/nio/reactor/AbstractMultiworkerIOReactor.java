@@ -44,7 +44,7 @@ import java.util.Iterator;
 import java.util.Set;
 
 import org.apache.http.util.concurrent.ThreadFactory;
-import org.apache.http.nio.params.HttpNIOParams;
+import org.apache.http.nio.params.NIOReactorParams;
 import org.apache.http.nio.reactor.IOEventDispatch;
 import org.apache.http.nio.reactor.IOReactor;
 import org.apache.http.nio.reactor.IOReactorException;
@@ -87,7 +87,7 @@ public abstract class AbstractMultiworkerIOReactor implements IOReactor {
             throw new IOReactorException("Failure opening selector", ex);
         }
         this.params = params;
-        this.selectTimeout = HttpNIOParams.getSelectInterval(params);
+        this.selectTimeout = NIOReactorParams.getSelectInterval(params);
         this.workerCount = workerCount;
         if (threadFactory != null) {
             this.threadFactory = threadFactory;
