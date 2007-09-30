@@ -199,6 +199,7 @@ public class DefaultNHttpServerConnection
             throw new HttpException("Response already submitted");
         }
         this.responseWriter.write(response);
+        this.hasBufferedOutput = this.outbuf.hasData();
 
         if (response.getStatusLine().getStatusCode() >= 200) {
             this.connMetrics.incrementRequestCount();

@@ -200,6 +200,7 @@ public class DefaultNHttpClientConnection
             throw new HttpException("Request already submitted");
         }
         this.requestWriter.write(request);
+        this.hasBufferedOutput = this.outbuf.hasData();
 
         if (request instanceof HttpEntityEnclosingRequest) {
             prepareEncoder(request);

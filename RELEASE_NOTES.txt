@@ -1,7 +1,11 @@
 Changes since release 4.0 Alpha 5
 
+* [HTTPCORE-117] Fixed bug preventing NIO connections from closing the I/O session 
+  when pending output (output session buffer is not empty). 
+  Contributed by Oleg Kalnichevski <olegk at apache.org>
+
 * [HTTPCORE-86] Allow for optional handling of runtime exceptions
-  thrown by protocol handlers to ensurev the I/O dispatch thread
+  thrown by protocol handlers to ensure the I/O dispatch thread
   remains running.
   Contributed by Oleg Kalnichevski <olegk at apache.org>
 

@@ -237,11 +237,7 @@ public class NHttpConnectionBase
 
     public void close() throws IOException {
         this.closed = true;
-        if (this.outbuf.hasData()) {
-            this.session.setEvent(EventMask.WRITE);
-        } else {
-            this.session.close();
-        }
+        this.session.close();
     }
 
     public boolean isOpen() {
