@@ -286,10 +286,7 @@ public class BufferingHttpClientHandler extends NHttpClientHandlerBase {
             }
         }
         
-        closeConnection(conn, null);
-        if (this.eventListener != null) {
-            this.eventListener.connectionTimeout(conn);
-        }
+        handleTimeout(conn);
     }
     
     private void initialize(

@@ -91,11 +91,7 @@ public abstract class NHttpServiceHandlerBase extends NHttpHandlerBase
     }
 
     public void timeout(final NHttpServerConnection conn) {
-        closeConnection(conn, null);
-
-        if (this.eventListener != null) {
-            this.eventListener.connectionTimeout(conn);
-        }
+        handleTimeout(conn);
     }
     
 }

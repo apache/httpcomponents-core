@@ -38,6 +38,7 @@ import org.apache.http.HttpConnection;
 import org.apache.http.HttpRequest;
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
+import org.apache.http.nio.NHttpConnection;
 import org.apache.http.nio.util.ByteBufferAllocator;
 import org.apache.http.params.HttpParams;
 import org.apache.http.protocol.HttpProcessor;
@@ -101,6 +102,25 @@ public abstract class NHttpHandlerBase {
     protected void shutdownConnection(final HttpConnection conn, final Throwable cause) {
         try {
             conn.shutdown();
+        } catch (IOException ignore) {
+        }
+    }
+    
+    protected void handleTimeout(final NHttpConnection conn) {
+        try {
+            if (conn.getStatus() == NHttpConnection.ACTIVE) {
+                conn.close();
+                if (conn.getStatus() == NHttpConnection.CLOSING) {
+                    // Give the connection some grace time to
+                    // close itself nicely
+                    conn.setSocketTimeout(250);
+                }
+                if (this.eventListener != null) {
+                    this.eventListener.connectionTimeout(conn);
+                }
+            } else {
+                conn.shutdown();
+            }
         } catch (IOException ignore) {
         }
     }

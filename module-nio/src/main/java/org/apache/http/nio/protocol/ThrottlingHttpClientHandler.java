@@ -340,6 +340,7 @@ public class ThrottlingHttpClientHandler extends NHttpClientHandlerBase {
                     continueRequest(conn, connState);
                     
                     connState.notifyAll();
+                    return;
                 }
             }
             
@@ -349,11 +350,8 @@ public class ThrottlingHttpClientHandler extends NHttpClientHandlerBase {
                 this.eventListener.fatalIOException(ex, conn);
             }
         }
-        
-        closeConnection(conn, null);
-        if (this.eventListener != null) {
-            this.eventListener.connectionTimeout(conn);
-        }
+
+        handleTimeout(conn);
     }
     
     private void initialize(

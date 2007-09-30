@@ -1,6 +1,6 @@
 Changes since release 4.0 Alpha 5
 
-* [HTTPCORE-117] Fixed bug preventing NIO connections from closing the I/O session 
+* [HTTPCORE-117] Fixed bug preventing protocol handlers from closing timed out NIO connection 
   when pending output (output session buffer is not empty). 
   Contributed by Oleg Kalnichevski <olegk at apache.org>
 
