@@ -95,7 +95,7 @@ public class NHttpConnectionBase
     protected volatile HttpRequest request;
     protected volatile HttpResponse response;
 
-    protected volatile boolean closed;
+    protected volatile int status;
     
     public NHttpConnectionBase(
             final IOSession session,
@@ -129,9 +129,13 @@ public class NHttpConnectionBase
                 this.inTransportMetrics, 
                 this.outTransportMetrics);
         
-        this.closed = false;
         this.session.setBufferStatus(this);
         this.session.setEvent(EventMask.READ);
+        this.status = ACTIVE;
+    }
+
+    public int getStatus() {
+        return this.status;
     }
 
     public HttpContext getContext() {
@@ -230,18 +234,26 @@ public class NHttpConnectionBase
     }
     
     protected void assertNotClosed() throws IOException {
-        if (this.closed) {
+        if (this.status != ACTIVE) {
             throw new ConnectionClosedException("Connection is closed");
         }
     }
 
     public void close() throws IOException {
-        this.closed = true;
-        this.session.close();
+        if (this.status != ACTIVE) {
+            return;
+        }
+        this.status = CLOSING;
+        if (this.outbuf.hasData()) {
+            this.session.setEvent(EventMask.WRITE);
+        } else {
+            this.session.close();
+            this.status = CLOSED;
+        }
     }
 
     public boolean isOpen() {
-        return !this.closed && !this.session.isClosed();
+        return this.status == ACTIVE && !this.session.isClosed();
     }
 
     public boolean isStale() {
@@ -293,7 +305,7 @@ public class NHttpConnectionBase
     }
 
     public void shutdown() throws IOException {
-        this.closed = true;
+        this.status = CLOSED;
         this.session.shutdown();
     }
 

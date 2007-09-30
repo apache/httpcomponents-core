@@ -99,7 +99,7 @@ public class DefaultNHttpServerConnection
     }
     
     public void consumeInput(final NHttpServiceHandler handler) {
-        if (this.closed) {
+        if (this.status != ACTIVE) {
             this.session.clearEvent(EventMask.READ);
             return;
         }
@@ -158,8 +158,9 @@ public class DefaultNHttpServerConnection
                 }
             }
             if (!this.outbuf.hasData()) {
-                if (this.closed) {
+                if (this.status == CLOSING) {
                     this.session.close();
+                    this.status = CLOSED;
                     resetOutput();
                     return;
                 } else {
@@ -172,8 +173,9 @@ public class DefaultNHttpServerConnection
                 }
                 
                 if (this.contentEncoder == null && !this.outbuf.hasData()) {
-                    if (this.closed) {
+                    if (this.status == CLOSING) {
                         this.session.close();
+                        this.status = CLOSED;
                         return;
                     }
                     
