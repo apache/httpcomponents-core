@@ -1,5 +1,10 @@
 Changes since release 4.0 Alpha 5
 
+* [HTTPCORE-118] Purge closed sessions prior to opening new ones. This should reduce 
+  chances of running out of memory when opening and closing lots of NIO connections in a 
+  tight loop. 
+  Contributed by Oleg Kalnichevski <olegk at apache.org>
+
 * [HTTPCORE-117] Fixed bug preventing protocol handlers from closing timed out NIO connection 
   when pending output (output session buffer is not empty). 
   Contributed by Oleg Kalnichevski <olegk at apache.org>

@@ -131,8 +131,6 @@ public abstract class AbstractIOReactor implements IOReactor {
                     break;
                 }
 
-                processNewChannels();
-                
                 if (readyCount > 0) {
                     processEvents(this.selector.selectedKeys());
                 }
@@ -141,6 +139,10 @@ public abstract class AbstractIOReactor implements IOReactor {
                 
                 processClosedSessions();
 
+                if (this.status == ACTIVE) {
+                    processNewChannels();
+                }
+                
                 if (this.status != ACTIVE && this.sessions.isEmpty()) {
                     break;
                 }
@@ -258,7 +260,20 @@ public abstract class AbstractIOReactor implements IOReactor {
     }
     
     protected void closeChannels() throws IOReactorException {
-        // Close out all channels
+        // Close out all new channels
+        ChannelEntry entry;
+        while ((entry = this.newChannels.pop()) != null) {
+            SessionRequestImpl sessionRequest = entry.getSessionRequest();
+            if (sessionRequest != null) {
+                sessionRequest.cancel();
+            }
+            SocketChannel channel = entry.getChannel();
+            try {
+                channel.close();
+            } catch (IOException ignore) {
+            }
+        }
+        // Close out all active channels
         Set keys = this.selector.keys();
         for (Iterator it = keys.iterator(); it.hasNext(); ) {
             try {
