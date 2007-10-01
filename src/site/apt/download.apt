@@ -8,7 +8,7 @@ HttpCore Downloads
 
     The latest release available for download:
 
-    {{{http://jakarta.apache.org/site/downloads/downloads_httpcomponents-httpcore.cgi}4.0-alpha5}} - 
+    {{{http://jakarta.apache.org/site/downloads/downloads_httpcomponents-httpcore.cgi}4.0-alpha6}} - 
     {{{http://www.apache.org/dist/jakarta/httpcomponents/httpcore/RELEASE_NOTES.txt}Release Notes}} -
     {{{http://www.apache.org/dist/java-repository/httpcomponents-httpcore/licenses/LICENSE.txt}License}}
 
@@ -24,7 +24,7 @@ Dependency management with Maven
   <dependency>
     <groupId>org.apache.httpcomponents</groupId>
     <artifactId>httpcore</artifactId>
-    <version>4.0-alpha5</version>
+    <version>4.0-alpha6</version>
     <scope>compile</scope>
   </dependency>
 -------------------------
@@ -35,7 +35,7 @@ Dependency management with Maven
   <dependency>
     <groupId>org.apache.httpcomponents</groupId>
     <artifactId>httpcore-nio</artifactId>
-    <version>4.0-alpha5</version>
+    <version>4.0-alpha6</version>
     <scope>compile</scope>
   </dependency>
 -------------------------
@@ -46,7 +46,7 @@ Dependency management with Maven
   <dependency>
     <groupId>org.apache.httpcomponents</groupId>
     <artifactId>httpcore-niossl</artifactId>
-    <version>4.0-alpha5</version>
+    <version>4.0-alpha6</version>
     <scope>compile</scope>
   </dependency>
 -------------------------

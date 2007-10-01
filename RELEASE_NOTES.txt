@@ -1,7 +1,7 @@
 Release 4.0 Alpha 6
 -------------------
 
-The fifth ALPHA version of HttpComponents Core has been released. This release
+The sixth ALPHA version of HttpComponents Core has been released. This release
 sports an improved message parsing and formatting API in the base module and lots 
 of incremental improvements and bug fixes in the NIO and NIOSSL modules. 
 
