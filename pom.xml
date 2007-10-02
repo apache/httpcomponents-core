@@ -71,7 +71,6 @@
   <modules>
     <module>module-main</module>
     <module>module-nio</module>
-    <module>module-niossl</module>
   </modules>
 
   <build>
@@ -162,5 +161,22 @@
 
     </plugins>
   </reporting>
+
+  <profiles>
+     <profile>
+        <id>java5-compat</id>
+        <activation>
+          <!-- 
+            for some bloody reason Maven refuses to recognize 1.5+ as 
+            a valid jdk attribute even though this is supposed to be
+            supported as of Maven 2.0.7 (see MNG-1910)
+          -->
+          <jdk>!1.4</jdk>
+        </activation>
+        <modules>
+          <module>module-niossl</module>
+        </modules>
+     </profile>
+  </profiles>
 
 </project>
