@@ -31,7 +31,8 @@ Modules
 
     HttpCore {{{httpcore-niossl/index.html}NIOSSL extensions}} provide optional 
     components enabling HttpCore {{{jakarta-httpcore-nio/index.html}NIO}} to transparently
-    encrypt data in transit using SSL/TLS protocol.
+    encrypt data in transit using SSL/TLS protocol. HttpCore NIOSSL extensions require a 
+    Java 1.5 compatible runtime and the HttpCore NIO module.
 
 Standards Compliance
 
