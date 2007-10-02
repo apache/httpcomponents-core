@@ -42,7 +42,6 @@ import java.nio.channels.SocketChannel;
 import java.util.Iterator;
 import java.util.Set;
 
-import org.apache.http.nio.reactor.IOEventDispatch;
 import org.apache.http.nio.reactor.IOReactor;
 import org.apache.http.nio.reactor.IOReactorException;
 import org.apache.http.nio.reactor.IOSession;
@@ -57,8 +56,6 @@ public abstract class AbstractIOReactor implements IOReactor {
     private final SessionSet sessions;
     private final SessionQueue closedSessions;
     private final ChannelQueue newChannels;
-    
-    protected IOEventDispatch eventDispatch = null;
     
     public AbstractIOReactor(long selectTimeout) throws IOReactorException {
         super();
@@ -90,9 +87,11 @@ public abstract class AbstractIOReactor implements IOReactor {
 
     protected abstract void validate(Set keys);
     
-    protected abstract void keyCreated(final SelectionKey key, final IOSession session);
+    protected abstract void keyCreated(SelectionKey key, IOSession session);
     
-    protected abstract IOSession keyCancelled(final SelectionKey key);
+    protected abstract IOSession keyCancelled(SelectionKey key);
+    
+    protected abstract void sessionClosed(IOSession session);
     
     public int getStatus() {
         return this.status;
@@ -106,13 +105,7 @@ public abstract class AbstractIOReactor implements IOReactor {
         this.selector.wakeup();
     }
     
-    public void execute(final IOEventDispatch eventDispatch) 
-            throws InterruptedIOException, IOReactorException {
-        if (eventDispatch == null) {
-            throw new IllegalArgumentException("Event dispatcher may not be null");
-        }
-        this.eventDispatch = eventDispatch;
-
+    protected void execute() throws InterruptedIOException, IOReactorException {
         this.status = ACTIVE;
 
         try {
@@ -225,10 +218,9 @@ public abstract class AbstractIOReactor implements IOReactor {
             session.setAttribute(IOSession.ATTACHMENT_KEY, entry.getAttachment());
             session.setSocketTimeout(timeout);
             this.sessions.add(session);
-            keyCreated(key, session);
 
             try {
-                this.eventDispatch.connected(session);
+                keyCreated(key, session);
                 
                 SessionRequestImpl sessionRequest = entry.getSessionRequest();
                 if (sessionRequest != null) {
@@ -245,7 +237,7 @@ public abstract class AbstractIOReactor implements IOReactor {
         IOSession session;
         while ((session = this.closedSessions.pop()) != null) {
             if (this.sessions.remove(session)) {
-                this.eventDispatch.disconnected(session);
+                sessionClosed(session);
             }
         }
     }

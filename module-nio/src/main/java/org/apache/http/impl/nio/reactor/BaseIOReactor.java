@@ -31,12 +31,14 @@
 
 package org.apache.http.impl.nio.reactor;
 
+import java.io.InterruptedIOException;
 import java.nio.channels.CancelledKeyException;
 import java.nio.channels.SelectionKey;
 import java.util.Iterator;
 import java.util.Set;
 
 import org.apache.http.nio.reactor.EventMask;
+import org.apache.http.nio.reactor.IOEventDispatch;
 import org.apache.http.nio.reactor.IOReactorException;
 import org.apache.http.nio.reactor.IOReactorExceptionHandler;
 import org.apache.http.nio.reactor.IOSession;
@@ -48,7 +50,8 @@ public class BaseIOReactor extends AbstractIOReactor {
     
     private long lastTimeoutCheck;
     
-    private IOReactorExceptionHandler exceptionHandler;
+    private IOReactorExceptionHandler exceptionHandler = null;
+    private IOEventDispatch eventDispatch = null;
     
     public BaseIOReactor(long selectTimeout) throws IOReactorException {
         super(selectTimeout);
@@ -57,17 +60,22 @@ public class BaseIOReactor extends AbstractIOReactor {
         this.lastTimeoutCheck = System.currentTimeMillis();
     }
 
+    public void execute(
+            final IOEventDispatch eventDispatch) throws InterruptedIOException, IOReactorException {
+        if (eventDispatch == null) {
+            throw new IllegalArgumentException("Event dispatcher may not be null");
+        }
+        this.eventDispatch = eventDispatch;
+        execute();
+    }
+
     public void setExceptionHandler(IOReactorExceptionHandler exceptionHandler) {
         this.exceptionHandler = exceptionHandler;
     }
 
-    protected void processEvent(final SelectionKey key) {
-        try {
-            super.processEvent(key);
-        } catch (RuntimeException ex) {
-            if (this.exceptionHandler == null || !this.exceptionHandler.handle(ex)) {
-                throw ex;
-            }
+    protected void handleRuntimeException(final RuntimeException ex) {
+        if (this.exceptionHandler == null || !this.exceptionHandler.handle(ex)) {
+            throw ex;
         }
     }
 
@@ -82,7 +90,11 @@ public class BaseIOReactor extends AbstractIOReactor {
         IOSession session = handle.getSession();
         handle.resetLastRead();
 
-        this.eventDispatch.inputReady(session);
+        try {
+            this.eventDispatch.inputReady(session);
+        } catch (RuntimeException ex) {
+            handleRuntimeException(ex);
+        }
         if (session.hasBufferedInput()) {
             this.bufferingSessions.add(session);
         }
@@ -93,7 +105,11 @@ public class BaseIOReactor extends AbstractIOReactor {
         IOSession session = handle.getSession();
         handle.resetLastWrite();
         
-        this.eventDispatch.outputReady(session);
+        try {
+            this.eventDispatch.outputReady(session);
+        } catch (RuntimeException ex) {
+            handleRuntimeException(ex);
+        }
     }
     
     protected void validate(final Set keys) {
@@ -117,7 +133,11 @@ public class BaseIOReactor extends AbstractIOReactor {
                 try {
                     int ops = session.getEventMask();
                     if ((ops & EventMask.READ) > 0) {
-                        this.eventDispatch.inputReady(session);
+                        try {
+                            this.eventDispatch.inputReady(session);
+                        } catch (RuntimeException ex) {
+                            handleRuntimeException(ex);
+                        }
                         if (!session.hasBufferedInput()) {
                             it.remove();
                         }
@@ -137,7 +157,11 @@ public class BaseIOReactor extends AbstractIOReactor {
             int timeout = session.getSocketTimeout();
             if (timeout > 0) {
                 if (handle.getLastReadTime() + timeout < now) {
-                    this.eventDispatch.timeout(session);
+                    try {
+                        this.eventDispatch.timeout(session);
+                    } catch (RuntimeException ex) {
+                        handleRuntimeException(ex);
+                    }
                 }
             }
         }
@@ -146,6 +170,11 @@ public class BaseIOReactor extends AbstractIOReactor {
     protected void keyCreated(final SelectionKey key, final IOSession session) {
         SessionHandle handle = new SessionHandle(session); 
         key.attach(handle);
+        try {
+            this.eventDispatch.connected(session);
+        } catch (RuntimeException ex) {
+            handleRuntimeException(ex);
+        }
     }
     
     protected IOSession keyCancelled(final SelectionKey key) {
@@ -155,6 +184,14 @@ public class BaseIOReactor extends AbstractIOReactor {
             return handle.getSession();
         } else {
             return null;
+        }
+    }
+
+    protected void sessionClosed(final IOSession session) {
+        try {
+            this.eventDispatch.disconnected(session);
+        } catch (RuntimeException ex) {
+            handleRuntimeException(ex);
         }
     }
     
