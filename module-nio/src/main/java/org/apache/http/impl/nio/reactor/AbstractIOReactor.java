@@ -121,26 +121,43 @@ public abstract class AbstractIOReactor implements IOReactor {
                 }
                 
                 if (this.status == SHUT_DOWN) {
+                    // Hard shut down. Exit select loop immediately
                     break;
                 }
 
+                if (this.status == SHUTTING_DOWN) {
+                    // Graceful shutdown in process
+                    // Try to close things out nicely
+                    closeSessions();
+                    closeNewChannels();
+                }
+                
+                // Process selected I/O events 
                 if (readyCount > 0) {
                     processEvents(this.selector.selectedKeys());
                 }
                 
+                // Validate active channels
                 validate(this.selector.keys());
                 
+                // Process closed sessions
                 processClosedSessions();
 
+                // If active process new channels
                 if (this.status == ACTIVE) {
                     processNewChannels();
                 }
                 
-                if (this.status != ACTIVE && this.sessions.isEmpty()) {
+                // Exit select loop if graceful shutdown has been completed
+                if (this.status > ACTIVE && this.sessions.isEmpty()) {
                     break;
                 }
                 
             }
+            
+            // Close remaining active channels and the selector itself
+            closeActiveChannels();
+            
         } catch (ClosedSelectorException ex) {
         } finally {
             synchronized (this.shutdownMutex) {
@@ -251,8 +268,7 @@ public abstract class AbstractIOReactor implements IOReactor {
         }
     }
     
-    protected void closeChannels() throws IOReactorException {
-        // Close out all new channels
+    protected void closeNewChannels() throws IOReactorException {
         ChannelEntry entry;
         while ((entry = this.newChannels.pop()) != null) {
             SessionRequestImpl sessionRequest = entry.getSessionRequest();
@@ -265,7 +281,9 @@ public abstract class AbstractIOReactor implements IOReactor {
             } catch (IOException ignore) {
             }
         }
-        // Close out all active channels
+    }
+    
+    protected void closeActiveChannels() throws IOReactorException {
         Set keys = this.selector.keys();
         for (Iterator it = keys.iterator(); it.hasNext(); ) {
             try {
@@ -277,11 +295,9 @@ public abstract class AbstractIOReactor implements IOReactor {
             } catch (IOException ignore) {
             }
         }
-        // Stop dispatching I/O events
         try {
             this.selector.close();
-        } catch (IOException ex) {
-            throw new IOReactorException("Failure closing selector", ex);
+        } catch (IOException ignore) {
         }
     }
     
@@ -291,7 +307,6 @@ public abstract class AbstractIOReactor implements IOReactor {
             return;
         }
         this.status = SHUTTING_DOWN;
-        closeSessions();
         this.selector.wakeup();
     }
         
@@ -301,7 +316,8 @@ public abstract class AbstractIOReactor implements IOReactor {
             return;
         }
         this.status = SHUT_DOWN;
-        closeChannels();
+        closeNewChannels();
+        closeActiveChannels();
     }
     
     public void awaitShutdown(long timeout) throws InterruptedException {

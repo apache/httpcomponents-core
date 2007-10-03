@@ -285,16 +285,6 @@ public abstract class AbstractMultiworkerIOReactor implements IOReactor {
                 this.exception = ex;
             } catch (RuntimeException ex) {
                 this.exception = ex;
-            } finally {
-                try {
-                    if (this.dispatcher.getStatus() != SHUT_DOWN) {
-                        this.dispatcher.closeChannels();
-                    }
-                } catch (IOReactorException ex2) {
-                    if (this.exception == null) {
-                        this.exception = ex2;
-                    }
-                }
             }
         }
         
