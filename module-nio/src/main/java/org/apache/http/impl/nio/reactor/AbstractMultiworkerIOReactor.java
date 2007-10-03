@@ -191,6 +191,7 @@ public abstract class AbstractMultiworkerIOReactor implements IOReactor {
             return;
         }
         this.status = SHUTTING_DOWN;        
+        this.selector.wakeup();
         
         // Close out all channels
         Set keys = this.selector.keys();
