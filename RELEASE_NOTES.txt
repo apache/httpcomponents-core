@@ -2,19 +2,21 @@ Release 4.0 Alpha 6
 -------------------
 
 The sixth ALPHA version of HttpComponents Core has been released. This release
-sports an improved message parsing and formatting API in the base module and lots 
-of incremental improvements and bug fixes in the NIO and NIOSSL modules. 
+sports an improved message parsing and formatting API in the base module and
+lots of incremental improvements and bug fixes in the NIO and NIOSSL modules.
+Based on the improved API, it is now possible to send and receive SIP messages
+with HttpComponents Core.
 
-HttpCore is now fully feature complete now and we are planning to freeze 
-the public APIs as of next release (BETA1). 
+HttpCore is now feature complete and we are planning to freeze the public APIs
+as of next release (BETA1). 
 
-* [HTTPCORE-118] Purge closed sessions prior to opening new ones. This should reduce 
-  chances of running out of memory when opening and closing lots of NIO connections in a 
-  tight loop. 
+* [HTTPCORE-118] Purge closed sessions prior to opening new ones. This should
+  reduce chances of running out of memory when opening and closing lots of
+  NIO connections in a tight loop. 
   Contributed by Oleg Kalnichevski <olegk at apache.org>
 
-* [HTTPCORE-117] Fixed bug preventing protocol handlers from closing timed out NIO connection 
-  when pending output (output session buffer is not empty). 
+* [HTTPCORE-117] Fixed bug preventing protocol handlers from closing timed out
+  NIO connection when pending output (output session buffer is not empty). 
   Contributed by Oleg Kalnichevski <olegk at apache.org>
 
 * [HTTPCORE-86] Allow for optional handling of runtime exceptions
@@ -25,22 +27,23 @@ the public APIs as of next release (BETA1).
 * [HTTPCORE-116] moved parameter names to interfaces
   Contributed by Roland Weber <rolandw at apache.org>
 
-* [HTTPCORE-109] Improved shutdown process of the I/O reactors in NIO modules. I/O 
-  reactors now attempt to terminate connections gracefully before shutting down the
-  underlying socket channels.
+* [HTTPCORE-109] Improved shutdown process of the I/O reactors in NIO modules.
+  I/O reactors now attempt to terminate connections gracefully before shutting
+  down the underlying socket channels.
   Contributed by Oleg Kalnichevski <olegk at apache.org>
 
 * [HTTPCORE-107] allow sending and receiving of SIP messages
   Contributed by Roland Weber <rolandw at apache.org>
 
-* [HTTPCORE-114]: Fixed incorrect handling of the end-of-stream condition in SSLIOSession. 
+* [HTTPCORE-114]: Fixed incorrect handling of the end-of-stream condition
+  in SSLIOSession. 
   Oleg Kalnichevski <olegk at apache.org>
 
 * [HTTPCORE-110] refactored message parsing and formatting logic
   Contributed by Roland Weber <rolandw at apache.org>
 
-* [HTTPCORE-113] Removed unnecessary target hostname resolution from non-blocking client 
-  protocol handlers.
+* [HTTPCORE-113] Removed unnecessary target hostname resolution from
+  non-blocking client protocol handlers.
   Oleg Kalnichevski <olegk at apache.org>
 
 * [HTTPCORE-108] Close all channels registered with the I/O reactor during 
