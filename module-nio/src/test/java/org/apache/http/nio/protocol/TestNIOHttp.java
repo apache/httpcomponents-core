@@ -35,11 +35,9 @@ import java.net.InetSocketAddress;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
-import java.util.Enumeration;
 import java.util.List;
 import java.util.Random;
 
-import junit.extensions.TestSetup;
 import junit.framework.Test;
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
@@ -69,11 +67,11 @@ import org.apache.http.nio.NHttpConnection;
 import org.apache.http.nio.NHttpServiceHandler;
 import org.apache.http.params.BasicHttpParams;
 import org.apache.http.params.CoreConnectionPNames;
-import org.apache.http.params.HttpParams;
 import org.apache.http.params.CoreProtocolPNames;
+import org.apache.http.params.HttpParams;
 import org.apache.http.protocol.BasicHttpProcessor;
-import org.apache.http.protocol.HttpContext;
 import org.apache.http.protocol.ExecutionContext;
+import org.apache.http.protocol.HttpContext;
 import org.apache.http.protocol.HttpExpectationVerifier;
 import org.apache.http.protocol.HttpRequestHandler;
 import org.apache.http.protocol.RequestConnControl;
@@ -97,31 +95,9 @@ import org.apache.http.util.EntityUtils;
  */
 public class TestNIOHttp extends TestCase {
 
-    private static final int MODE_BUFFERING    = 0;
-    private static final int MODE_THROTTLING   = 1;
-    
-    private int clientMode = MODE_BUFFERING;
-    private int serverMode = MODE_BUFFERING;
-    
     // ------------------------------------------------------------ Constructor
     public TestNIOHttp(String testName) {
         super(testName);
-    }
-
-    public int getClientMode() {
-        return this.clientMode;
-    }
-
-    public void setClientMode(int clientMode) {
-        this.clientMode = clientMode;
-    }
-
-    public int getServerMode() {
-        return this.serverMode;
-    }
-
-    public void setServerMode(int serverMode) {
-        this.serverMode = serverMode;
     }
 
     // ------------------------------------------------------------------- Main
@@ -130,47 +106,10 @@ public class TestNIOHttp extends TestCase {
         junit.textui.TestRunner.main(testCaseName);
     }
 
-    static class ServerModeDecorator extends TestSetup {
-
-        private int clientMode;
-        private int serverMode;
-        
-        public ServerModeDecorator(final TestNIOHttp test, int clientMode, int serverMode) {
-            super(test);
-            this.clientMode = clientMode;
-            this.serverMode = serverMode;
-        }
-                
-        protected void setUp() throws Exception {
-            TestNIOHttp testcase = (TestNIOHttp)getTest();
-            testcase.setServerMode(this.serverMode);
-            testcase.setClientMode(this.clientMode);
-        }  
-    }
-    
     // ------------------------------------------------------- TestCase Methods
 
     public static Test suite() {
-        TestSuite source = new TestSuite(TestNIOHttp.class);
-        
-        TestSuite suite = new TestSuite();
-        for (Enumeration en = source.tests(); en.hasMoreElements(); ) {
-            TestNIOHttp test = (TestNIOHttp) en.nextElement();
-            suite.addTest(new ServerModeDecorator(test, MODE_BUFFERING, MODE_BUFFERING));            
-        }
-        for (Enumeration en = source.tests(); en.hasMoreElements(); ) {
-            TestNIOHttp test = (TestNIOHttp) en.nextElement();
-            suite.addTest(new ServerModeDecorator(test, MODE_THROTTLING, MODE_BUFFERING));            
-        }
-        for (Enumeration en = source.tests(); en.hasMoreElements(); ) {
-            TestNIOHttp test = (TestNIOHttp) en.nextElement();
-            suite.addTest(new ServerModeDecorator(test, MODE_BUFFERING, MODE_THROTTLING));            
-        }
-        for (Enumeration en = source.tests(); en.hasMoreElements(); ) {
-            TestNIOHttp test = (TestNIOHttp) en.nextElement();
-            suite.addTest(new ServerModeDecorator(test, MODE_THROTTLING, MODE_THROTTLING));            
-        }
-        return suite;
+        return new TestSuite(TestNIOHttp.class);
     }
 
     private TestHttpServer server;
@@ -216,36 +155,18 @@ public class TestNIOHttp extends TestCase {
         httpproc.addInterceptor(new ResponseContent());
         httpproc.addInterceptor(new ResponseConnControl());
 
-        if (this.serverMode == MODE_BUFFERING) {
-            BufferingHttpServiceHandler serviceHandler = new BufferingHttpServiceHandler(
-                    httpproc,
-                    new DefaultHttpResponseFactory(),
-                    new DefaultConnectionReuseStrategy(),
-                    this.server.getParams());
+        BufferingHttpServiceHandler serviceHandler = new BufferingHttpServiceHandler(
+                httpproc,
+                new DefaultHttpResponseFactory(),
+                new DefaultConnectionReuseStrategy(),
+                this.server.getParams());
 
-            serviceHandler.setHandlerResolver(
-                    new SimpleHttpRequestHandlerResolver(requestHandler));
-            serviceHandler.setExpectationVerifier(expectationVerifier);
-            serviceHandler.setEventListener(new SimpleEventListener());
-            
-            return serviceHandler;
-        }
-        if (this.serverMode == MODE_THROTTLING) {
-            ThrottlingHttpServiceHandler serviceHandler = new ThrottlingHttpServiceHandler(
-                    httpproc,
-                    new DefaultHttpResponseFactory(),
-                    new DefaultConnectionReuseStrategy(),
-                    this.executor,
-                    this.server.getParams());
-
-            serviceHandler.setHandlerResolver(
-                    new SimpleHttpRequestHandlerResolver(requestHandler));
-            serviceHandler.setExpectationVerifier(expectationVerifier);
-            serviceHandler.setEventListener(new SimpleEventListener());
-            
-            return serviceHandler;
-        }
-        throw new IllegalStateException();
+        serviceHandler.setHandlerResolver(
+                new SimpleHttpRequestHandlerResolver(requestHandler));
+        serviceHandler.setExpectationVerifier(expectationVerifier);
+        serviceHandler.setEventListener(new SimpleEventListener());
+        
+        return serviceHandler;
     }
     
     private NHttpClientHandler createHttpClientHandler(
@@ -257,28 +178,14 @@ public class TestNIOHttp extends TestCase {
         httpproc.addInterceptor(new RequestUserAgent());
         httpproc.addInterceptor(new RequestExpectContinue());
 
-        if (this.clientMode == MODE_BUFFERING) {
-            BufferingHttpClientHandler clientHandler = new BufferingHttpClientHandler(
-                    httpproc,
-                    requestExecutionHandler,
-                    new DefaultConnectionReuseStrategy(),
-                    this.client.getParams());
+        BufferingHttpClientHandler clientHandler = new BufferingHttpClientHandler(
+                httpproc,
+                requestExecutionHandler,
+                new DefaultConnectionReuseStrategy(),
+                this.client.getParams());
 
-            clientHandler.setEventListener(new SimpleEventListener());
-            return clientHandler;
-        }
-        if (this.clientMode == MODE_THROTTLING) {
-            ThrottlingHttpClientHandler clientHandler = new ThrottlingHttpClientHandler(
-                    httpproc,
-                    requestExecutionHandler,
-                    new DefaultConnectionReuseStrategy(),
-                    this.executor,
-                    this.client.getParams());
-
-            clientHandler.setEventListener(new SimpleEventListener());
-            return clientHandler;
-        }
-        throw new IllegalStateException();
+        clientHandler.setEventListener(new SimpleEventListener());
+        return clientHandler;
     }
     
     /**
