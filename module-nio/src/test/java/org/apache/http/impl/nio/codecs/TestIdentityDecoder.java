@@ -35,7 +35,6 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.InputStreamReader;
 import java.nio.ByteBuffer;
-import java.nio.CharBuffer;
 import java.nio.channels.FileChannel;
 import java.nio.channels.ReadableByteChannel;
 
@@ -85,15 +84,25 @@ public class TestIdentityDecoder extends TestCase {
         return buffer.toString();
     }
     
-    private static String readFromFile(File file, int numChars) throws Exception {
-        FileInputStream fin = new FileInputStream(file);
-        InputStreamReader rdin = new InputStreamReader(fin);
-                
-        CharBuffer cb = CharBuffer.allocate(numChars);
-        rdin.read(cb);
-        
-        fin.close();
-        return cb.flip().toString();
+    private static String readFromFile(final File file, int numChars) throws Exception {
+        FileInputStream filestream = new FileInputStream(file);
+        InputStreamReader reader = new InputStreamReader(filestream);
+        try {
+            StringBuffer buffer = new StringBuffer(numChars);
+            char[] tmp = new char[Math.min(2048, numChars)];
+            int remaining = numChars;
+            while (remaining > 0) {
+                int l = reader.read(tmp);
+                if (l == -1) {
+                    break;
+                }
+                buffer.append(tmp, 0, l);
+                remaining =- l;
+            }
+            return buffer.toString();
+        } finally {
+            reader.close();
+        }
     }
 
     public void testBasicDecoding() throws Exception {
