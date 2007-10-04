@@ -36,6 +36,7 @@ import java.util.Iterator;
 import java.util.List;
 
 import org.apache.http.Header;
+import org.apache.http.HeaderIterator;
 import org.apache.http.message.BasicHeader;
 import org.apache.http.util.CharArrayBuffer;
 
@@ -257,7 +258,21 @@ public class HeaderGroup {
      * 
      * @since 4.0
      */
-    public Iterator iterator() {
-        return this.headers.iterator(); 
+    public HeaderIterator iterator() {
+        return new ListHeaderIterator(this.headers, null); 
+    }
+
+    /**
+     * Returns an iterator over the headers with a given name in this group.
+     *
+     * @param name      the name of the headers over which to iterate, or
+     *                  <code>null</code> for all headers
+     *
+     * @return iterator over some headers in this group.
+     * 
+     * @since 4.0
+     */
+    public HeaderIterator iterator(String name) {
+        return new ListHeaderIterator(this.headers, name);
     }
 }

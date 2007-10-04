@@ -162,7 +162,18 @@ public interface HttpMessage {
      * @return Iterator that returns Header objects in the sequence they are
      *         sent over a connection.
      */
-    Iterator headerIterator();
+    HeaderIterator headerIterator();
+
+    /**
+     * Returns an iterator of the headers with a given name.
+     *
+     * @param name      the name of the headers over which to iterate, or
+     *                  <code>null</code> for all headers
+     *
+     * @return Iterator that returns Header objects with the argument name
+     *         in the sequence they are sent over a connection.
+     */
+    HeaderIterator headerIterator(String name);
 
     /**
      * Returns the parameters effective for this message as set by

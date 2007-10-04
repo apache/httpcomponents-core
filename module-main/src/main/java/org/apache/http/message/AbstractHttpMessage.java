@@ -34,6 +34,7 @@ package org.apache.http.message;
 import java.util.Iterator;
 
 import org.apache.http.Header;
+import org.apache.http.HeaderIterator;
 import org.apache.http.HttpMessage;
 import org.apache.http.util.HeaderGroup;
 import org.apache.http.params.HttpParams;
@@ -52,7 +53,7 @@ public abstract class AbstractHttpMessage implements HttpMessage {
     
     private final HeaderGroup headergroup;
     
-    private HttpParams params = null;
+    private HttpParams params;
     
     protected AbstractHttpMessage() {
         super();
@@ -60,30 +61,37 @@ public abstract class AbstractHttpMessage implements HttpMessage {
         this.params = new BasicHttpParams(null);
     }
 
+    // non-javadoc, see interface HttpMessage
     public boolean containsHeader(String name) {
         return this.headergroup.containsHeader(name);
     }
     
+    // non-javadoc, see interface HttpMessage
     public Header[] getHeaders(final String name) {
         return this.headergroup.getHeaders(name);
     }
 
+    // non-javadoc, see interface HttpMessage
     public Header getFirstHeader(final String name) {
         return this.headergroup.getFirstHeader(name);
     }
 
+    // non-javadoc, see interface HttpMessage
     public Header getLastHeader(final String name) {
         return this.headergroup.getLastHeader(name);
     }
 
+    // non-javadoc, see interface HttpMessage
     public Header[] getAllHeaders() {
         return this.headergroup.getAllHeaders();
     }
     
+    // non-javadoc, see interface HttpMessage
     public void addHeader(final Header header) {
         this.headergroup.addHeader(header);
     }
 
+    // non-javadoc, see interface HttpMessage
     public void addHeader(final String name, final String value) {
         if (name == null) {
             throw new IllegalArgumentException("Header name may not be null");
@@ -91,10 +99,12 @@ public abstract class AbstractHttpMessage implements HttpMessage {
         this.headergroup.addHeader(new BasicHeader(name, value));
     }
 
+    // non-javadoc, see interface HttpMessage
     public void setHeader(final Header header) {
         this.headergroup.updateHeader(header);
     }
 
+    // non-javadoc, see interface HttpMessage
     public void setHeader(final String name, final String value) {
         if (name == null) {
             throw new IllegalArgumentException("Header name may not be null");
@@ -102,14 +112,17 @@ public abstract class AbstractHttpMessage implements HttpMessage {
         this.headergroup.updateHeader(new BasicHeader(name, value));
     }
 
+    // non-javadoc, see interface HttpMessage
     public void setHeaders(final Header[] headers) {
         this.headergroup.setHeaders(headers);
     }
 
+    // non-javadoc, see interface HttpMessage
     public void removeHeader(final Header header) {
         this.headergroup.removeHeader(header);
     }
     
+    // non-javadoc, see interface HttpMessage
     public void removeHeaders(final String name) {
         if (name == null) {
             return;
@@ -122,14 +135,22 @@ public abstract class AbstractHttpMessage implements HttpMessage {
         }
     }
     
-    public Iterator headerIterator() {
+    // non-javadoc, see interface HttpMessage
+    public HeaderIterator headerIterator() {
         return this.headergroup.iterator();
     }
+
+    // non-javadoc, see interface HttpMessage
+    public HeaderIterator headerIterator(String name) {
+        return this.headergroup.iterator(name);
+    }
     
+    // non-javadoc, see interface HttpMessage
     public HttpParams getParams() {
         return this.params;
     }
     
+    // non-javadoc, see interface HttpMessage
     public void setParams(final HttpParams params) {
         if (params == null) {
             throw new IllegalArgumentException("HTTP parameters may not be null");
