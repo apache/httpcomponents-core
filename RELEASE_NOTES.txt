@@ -10,6 +10,9 @@ with HttpComponents Core.
 HttpCore is now feature complete and we are planning to freeze the public APIs
 as of next release (BETA1). 
 
+* [HTTPCORE-120] new interface HeaderIterator, available from HttpMessage
+  Contributed by Roland Weber <rolandw at apache.org>
+
 * [HTTPCORE-118] Purge closed sessions prior to opening new ones. This should
   reduce chances of running out of memory when opening and closing lots of
   NIO connections in a tight loop. 
