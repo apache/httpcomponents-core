@@ -31,8 +31,6 @@
 
 package org.apache.http;
 
-import java.util.Iterator;
-
 import org.apache.http.params.HttpParams;
 
 /**
