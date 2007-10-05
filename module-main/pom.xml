@@ -34,7 +34,7 @@
   <parent>
     <groupId>org.apache.httpcomponents</groupId>
     <artifactId>httpcomponents-core</artifactId>
-    <version>4.0-alpha6-SNAPSHOT</version>
+    <version>4.0-alpha6</version>
   </parent>
   <artifactId>httpcore</artifactId>
   <name>HttpCore (base module)</name>
@@ -54,9 +54,9 @@
   </licenses>
 
   <scm>
-    <connection>scm:svn:http://svn.apache.org/repos/asf/jakarta/httpcomponents/httpcore/trunk/module-main</connection>
-    <developerConnection>scm:svn:https://svn.apache.org/repos/asf/jakarta/httpcomponents/httpcore/trunk/module-main</developerConnection>
-    <url>http://svn.apache.org/repos/asf/jakarta/httpcomponents/httpcore/trunk/module-main</url>
+    <connection>scm:svn:http://svn.apache.org/repos/asf/jakarta/httpcomponents/httpcore/tags/4.0-alpha6/module-main</connection>
+    <developerConnection>scm:svn:https://svn.apache.org/repos/asf/jakarta/httpcomponents/httpcore/tags/4.0-alpha6/module-main</developerConnection>
+    <url>http://svn.apache.org/repos/asf/jakarta/httpcomponents/httpcore/tags/4.0-alpha6/module-main</url>
   </scm>
 
   <dependencies>
