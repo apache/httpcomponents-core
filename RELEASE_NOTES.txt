@@ -1,3 +1,9 @@
+Changes since 4.0 Alpha 6
+
+* [HTTPCORE-123] Fixed problem with SSLSession losing buffered data, if the 
+  connection has been closed by the peer.
+  Contributed by Risto Reinpõld <risto.reinpold at gmail.com>
+
 Release 4.0 Alpha 6
 -------------------
 

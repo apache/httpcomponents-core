@@ -271,7 +271,7 @@ public class SSLIOSession implements IOSession, SessionBufferStatus {
         updateEventMask();
     }
     
-    private synchronized int wrap(final ByteBuffer src) throws SSLException {
+    private synchronized int writePlain(final ByteBuffer src) throws SSLException {
         if (src == null) {
             throw new IllegalArgumentException("Byte buffer may not be null");
         }
@@ -294,12 +294,9 @@ public class SSLIOSession implements IOSession, SessionBufferStatus {
         }
     }
     
-    private synchronized int unwrap(final ByteBuffer dst) throws SSLException {
+    private synchronized int readPlain(final ByteBuffer dst) throws SSLException {
         if (dst == null) {
             throw new IllegalArgumentException("Byte buffer may not be null");
-        }
-        if (this.status != ACTIVE) {
-            return -1;
         }
         if (this.inPlain.position() > 0) {
             this.inPlain.flip();
@@ -310,7 +307,11 @@ public class SSLIOSession implements IOSession, SessionBufferStatus {
             this.inPlain.compact();
             return n; 
         } else {
-            return 0;
+            if (this.status == ACTIVE) {
+                return 0;
+            } else {
+                return -1;
+            }
         }
     }
     
@@ -434,11 +435,11 @@ public class SSLIOSession implements IOSession, SessionBufferStatus {
     private class InternalByteChannel implements ByteChannel {
 
         public int write(final ByteBuffer src) throws IOException {
-            return wrap(src);
+            return writePlain(src);
         }
 
         public int read(final ByteBuffer dst) throws IOException {
-            return unwrap(dst);
+            return readPlain(dst);
         }
 
         public void close() throws IOException {
