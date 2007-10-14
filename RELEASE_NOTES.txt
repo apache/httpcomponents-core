@@ -1,5 +1,8 @@
 Changes since 4.0 Alpha 6
 
+* [HTTPCORE-121] new interface HeaderElementIterator
+  Contributed by Andrea Selva <selva.andre at gmail.com>
+
 * [HTTPCORE-123] Fixed problem with SSLSession losing buffered data, if the 
   connection has been closed by the peer.
   Contributed by Risto Reinpõld <risto.reinpold at gmail.com>

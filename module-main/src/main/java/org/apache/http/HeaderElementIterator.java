@@ -2,6 +2,7 @@
  * $HeadURL$
  * $Revision$
  * $Date$
+ *
  * ====================================================================
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
@@ -28,40 +29,33 @@
  *
  */
 
-package org.apache.http.message;
+package org.apache.http;
 
-import junit.framework.Test;
-import junit.framework.TestCase;
-import junit.framework.TestSuite;
+import java.util.Iterator;
 
-public class TestAllMessage extends TestCase {
-
-    public TestAllMessage(String testName) {
-        super(testName);
-    }
-
-    public static Test suite() {
-        TestSuite suite = new TestSuite();
-        suite.addTest(TestNameValuePair.suite());
-        suite.addTest(TestHeader.suite());
-        suite.addTest(TestHeaderElement.suite());
-        suite.addTest(TestBasicHeaderIterator.suite());
-        suite.addTest(TestBasicHeaderElementIterator.suite());
-        suite.addTest(TestBasicHeaderValueParser.suite());
-        suite.addTest(TestBasicHeaderValueFormatter.suite());
-        suite.addTest(TestStatusLine.suite());
-        suite.addTest(TestRequestLine.suite());
-        suite.addTest(TestBasicLineParser.suite());
-        suite.addTest(TestBasicLineFormatter.suite());
-        suite.addTest(TestAbstractMessage.suite());
-        suite.addTest(TestBasicMessages.suite());
-
-        return suite;
-    }
-
-    public static void main(String args[]) {
-        String[] testCaseName = { TestAllMessage.class.getName() };
-        junit.textui.TestRunner.main(testCaseName);
-    }
-
+/**
+ * A type-safe iterator for {@link HeaderElement HeaderElement} objects.
+ * 
+ * @version $Revision$
+ */
+public interface HeaderElementIterator extends Iterator {
+    
+    /**
+     * Indicates whether there is another header element in this 
+     * iteration.
+     *
+     * @return  <code>true</code> if there is another header element,
+     *          <code>false</code> otherwise
+     */
+    boolean hasNext();
+    
+    /**
+     * Obtains the next header element from this iteration.
+     * This method should only be called while {@link #hasNext hasNext}
+     * is true.
+     *
+     * @return  the next header element in this iteration
+     */
+    HeaderElement nextElement();
+    
 }

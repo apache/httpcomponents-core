@@ -29,7 +29,7 @@
  *
  */
 
-package org.apache.http.util;
+package org.apache.http.message;
 
 
 import java.util.List;
@@ -45,7 +45,7 @@ import org.apache.http.HeaderIterator;
  * 
  * @version $Revision$
  */
-public class ListHeaderIterator implements HeaderIterator {
+public class BasicListHeaderIterator implements HeaderIterator {
 
     /**
      * A list of headers to iterate over.
@@ -83,7 +83,7 @@ public class ListHeaderIterator implements HeaderIterator {
      * @param name      the name of the headers over which to iterate, or
      *                  <code>null</code> for any
      */
-    public ListHeaderIterator(List headers, String name) {
+    public BasicListHeaderIterator(List headers, String name) {
         if (headers == null) {
             throw new IllegalArgumentException
                 ("Header list must not be null.");
