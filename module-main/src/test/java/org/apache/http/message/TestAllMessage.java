@@ -43,6 +43,7 @@ public class TestAllMessage extends TestCase {
     public static Test suite() {
         TestSuite suite = new TestSuite();
         suite.addTest(TestNameValuePair.suite());
+        suite.addTest(TestHeaderGroup.suite());
         suite.addTest(TestHeader.suite());
         suite.addTest(TestHeaderElement.suite());
         suite.addTest(TestBasicHeaderIterator.suite());

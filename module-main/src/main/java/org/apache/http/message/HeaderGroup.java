@@ -29,15 +29,13 @@
  *
  */
 
-package org.apache.http.util;
+package org.apache.http.message;
 
 import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.http.Header;
 import org.apache.http.HeaderIterator;
-import org.apache.http.message.BasicHeader;
-import org.apache.http.message.BasicListHeaderIterator;
 import org.apache.http.util.CharArrayBuffer;
 
 /**

@@ -44,7 +44,6 @@ public class TestAllUtil extends TestCase {
         suite.addTest(TestExceptionUtils.suite());
         suite.addTest(TestEncodingUtils.suite());
         suite.addTest(TestEntityUtils.suite());
-        suite.addTest(TestHeaderGroup.suite());
         suite.addTest(TestByteArrayBuffer.suite());
         suite.addTest(TestCharArrayBuffer.suite());
         return suite;

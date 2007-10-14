@@ -36,7 +36,6 @@ import java.util.Iterator;
 import org.apache.http.Header;
 import org.apache.http.HeaderIterator;
 import org.apache.http.HttpMessage;
-import org.apache.http.util.HeaderGroup;
 import org.apache.http.params.HttpParams;
 import org.apache.http.params.BasicHttpParams;
 

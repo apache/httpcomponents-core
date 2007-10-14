@@ -29,12 +29,13 @@
  *
  */
 
-package org.apache.http.util;
+package org.apache.http.message;
 
 import java.util.Iterator;
 
 import org.apache.http.Header;
 import org.apache.http.message.BasicHeader;
+import org.apache.http.message.HeaderGroup;
 
 import junit.framework.Test;
 import junit.framework.TestCase;
