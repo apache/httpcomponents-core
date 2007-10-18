@@ -74,7 +74,6 @@ public class ResponseConnControl implements HttpResponseInterceptor {
         		status == HttpStatus.SC_LENGTH_REQUIRED ||
         		status == HttpStatus.SC_REQUEST_TOO_LONG ||
         		status == HttpStatus.SC_REQUEST_URI_TOO_LONG ||
-        		status == HttpStatus.SC_INTERNAL_SERVER_ERROR ||
         		status == HttpStatus.SC_SERVICE_UNAVAILABLE ||
         		status == HttpStatus.SC_NOT_IMPLEMENTED) {
             response.setHeader(HTTP.CONN_DIRECTIVE, HTTP.CONN_CLOSE);

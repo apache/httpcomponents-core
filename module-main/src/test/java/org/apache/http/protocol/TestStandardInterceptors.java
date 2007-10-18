@@ -550,7 +550,6 @@ public class TestStandardInterceptors extends TestCase {
                 HttpStatus.SC_LENGTH_REQUIRED,
                 HttpStatus.SC_REQUEST_TOO_LONG,
                 HttpStatus.SC_REQUEST_URI_TOO_LONG,
-                HttpStatus.SC_INTERNAL_SERVER_ERROR,
                 HttpStatus.SC_SERVICE_UNAVAILABLE,
                 HttpStatus.SC_NOT_IMPLEMENTED };
         

@@ -1,5 +1,8 @@
 Changes since 4.0 Alpha 6
 
+* Do not include "Connection: close" to 500 responses per default. 
+  Contributed by Oleg Kalnichevski <olegk at apache.org>
+
 * [HTTPCORE-121] new interface HeaderElementIterator
   Contributed by Andrea Selva <selva.andre at gmail.com>
 
