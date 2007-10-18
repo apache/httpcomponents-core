@@ -147,7 +147,7 @@ public class HttpService {
                 if (((HttpEntityEnclosingRequest) request).expectContinue()) {
                     response = this.responseFactory.newHttpResponse(ver, 
                             HttpStatus.SC_CONTINUE, context);
-                    HttpParamsLinker.link(request, this.params);
+                    HttpParamsLinker.link(response, this.params);
                     
                     if (this.expectationVerifier != null) {
                         try {
@@ -155,7 +155,7 @@ public class HttpService {
                         } catch (HttpException ex) {
                             response = this.responseFactory.newHttpResponse(HttpVersion.HTTP_1_0, 
                                     HttpStatus.SC_INTERNAL_SERVER_ERROR, context);
-                            HttpParamsLinker.link(request, this.params);
+                            HttpParamsLinker.link(response, this.params);
                             handleException(ex, response);
                         }
                     }
@@ -174,7 +174,7 @@ public class HttpService {
 
             if (response == null) {
                 response = this.responseFactory.newHttpResponse(ver, HttpStatus.SC_OK, context);
-                HttpParamsLinker.link(request, this.params);
+                HttpParamsLinker.link(response, this.params);
 
                 context.setAttribute(ExecutionContext.HTTP_REQUEST, request);
                 context.setAttribute(ExecutionContext.HTTP_RESPONSE, response);
