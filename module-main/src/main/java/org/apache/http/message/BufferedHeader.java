@@ -130,8 +130,9 @@ public class BufferedHeader implements FormattedHeader {
         HeaderValueParser hvp = this.parser;
         if (hvp == null)
             hvp = BasicHeaderValueParser.DEFAULT;
-        return hvp.parseElements(this.buffer,
-                                 this.valuePos, this.buffer.length());
+        ParserCursor cursor = new ParserCursor(0, this.buffer.length());
+        cursor.updatePos(this.valuePos);
+        return hvp.parseElements(this.buffer, cursor);
     }
 
     public int getValuePos() {

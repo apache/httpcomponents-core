@@ -38,7 +38,6 @@ import junit.framework.TestSuite;
 
 import org.apache.http.HeaderElement;
 import org.apache.http.NameValuePair;
-import org.apache.http.util.CharArrayBuffer;
 
 /**
  * Simple tests for {@link HeaderElement}.
@@ -89,16 +88,6 @@ public class TestHeaderElement extends TestCase {
     }
 
 
-    public void testConstructor1() throws Exception {
-        String s = "name = value; param1 = value1";
-        NameValuePair[] nvps = BasicHeaderValueParser.parseParameters(s, null);
-        HeaderElement element = new BasicHeaderElement(nvps);
-        assertEquals("name", element.getName());
-        assertEquals("value", element.getValue());
-        assertEquals(1, element.getParameters().length);
-        assertEquals("value1", element.getParameterByName("param1").getValue());
-    }
-    
     public void testInvalidName() {
         try {
             new BasicHeaderElement(null, null, null); 
@@ -109,10 +98,8 @@ public class TestHeaderElement extends TestCase {
     }
 
     public void testParamByName() throws Exception {
-        CharArrayBuffer buffer = new CharArrayBuffer(64);
-        buffer.append("name = value; param1 = value1; param2 = value2");
-        HeaderElement element = BasicHeaderValueParser.DEFAULT
-            .parseHeaderElement(buffer, 0, buffer.length()); 
+        String s = "name = value; param1 = value1; param2 = value2";
+        HeaderElement element = BasicHeaderValueParser.parseHeaderElement(s, null); 
         assertEquals("value1", element.getParameterByName("param1").getValue());
         assertEquals("value2", element.getParameterByName("param2").getValue());
         assertNull(element.getParameterByName("param3"));
@@ -178,21 +165,11 @@ public class TestHeaderElement extends TestCase {
     }
     
     public void testToString() {
-        CharArrayBuffer buffer = new CharArrayBuffer(64);
         String s = "name=value; param1=value1; param2=value2";
-        buffer.append(s);
-
-
-        HeaderElement element = BasicHeaderValueParser.DEFAULT
-            .parseHeaderElement(buffer, 0, buffer.length());
+        HeaderElement element = BasicHeaderValueParser.parseHeaderElement(s, null);
         assertEquals(s, element.toString());
-
         s = "name; param1=value1; param2=value2";
-        buffer.clear();
-        buffer.append(s);
-
-        element = BasicHeaderValueParser.DEFAULT
-            .parseHeaderElement(buffer, 0, buffer.length());
+        element = BasicHeaderValueParser.parseHeaderElement(s, null);
         assertEquals(s, element.toString());
     }
 }

@@ -81,17 +81,16 @@ public interface HeaderValueParser {
      * </p>
      *
      * @param buffer    buffer holding the header value to parse
+     * @param cursor    the parser cursor containing the current position and 
+     *                  the bounds within the buffer for the parsing operation
      *
      * @return  an array holding all elements of the header value
      *
      * @throws ParseException        in case of a parse error
      */
-    HeaderElement[] parseElements(CharArrayBuffer buffer,
-                                  int indexFrom,
-                                  int indexTo)
-        throws ParseException
-        ;
-
+    HeaderElement[] parseElements(
+            CharArrayBuffer buffer,
+            ParserCursor cursor) throws ParseException;
 
     /**
      * Parses a single header element.
@@ -99,17 +98,16 @@ public interface HeaderValueParser {
      * of name=value definitions.
      *
      * @param buffer    buffer holding the element to parse
+     * @param cursor    the parser cursor containing the current position and 
+     *                  the bounds within the buffer for the parsing operation
      *
      * @return  the parsed element
      *
      * @throws ParseException        in case of a parse error
      */
-    HeaderElement parseHeaderElement(CharArrayBuffer buffer,
-                                     int indexFrom,
-                                     int indexTo)
-        throws ParseException
-        ;
-
+    HeaderElement parseHeaderElement(
+            CharArrayBuffer buffer,
+            ParserCursor cursor) throws ParseException;
 
     /**
      * Parses a list of name-value pairs.
@@ -186,33 +184,31 @@ public interface HeaderValueParser {
      * </pre> 
      *
      * @param buffer    buffer holding the name-value list to parse
+     * @param cursor    the parser cursor containing the current position and 
+     *                  the bounds within the buffer for the parsing operation
      *
      * @return  an array holding all items of the name-value list
      *
      * @throws ParseException        in case of a parse error
      */
-    NameValuePair[] parseParameters(CharArrayBuffer buffer,
-                                    int indexFrom,
-                                    int indexTo)
-        throws ParseException
-        ;
+    NameValuePair[] parseParameters(
+            CharArrayBuffer buffer,
+            ParserCursor cursor) throws ParseException;
 
 
     /**
      * Parses a name=value specification, where the = and value are optional.
      *
      * @param buffer    the buffer holding the name-value pair to parse
+     * @param cursor    the parser cursor containing the current position and 
+     *                  the bounds within the buffer for the parsing operation
      *
      * @return  the name-value pair, where the value is <code>null</code>
      *          if no value is specified
-     *
-     * @throws ParseException        in case of a parse error
      */
-    NameValuePair parseNameValuePair(CharArrayBuffer buffer,
-                                     int indexFrom,
-                                     int indexTo)
-        throws ParseException
-        ;
-
+    NameValuePair parseNameValuePair(
+            CharArrayBuffer buffer,
+            ParserCursor cursor) throws ParseException;
+    
 }
 

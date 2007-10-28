@@ -86,32 +86,13 @@ public class BasicHeaderElement implements HeaderElement {
     private final String value;
     private final NameValuePair[] parameters;
 
-    public BasicHeaderElement(final NameValuePair[] nvps) {
-        super();
-        if (nvps.length > 0) {
-            NameValuePair nvp = nvps[0];
-            this.name = nvp.getName();
-            this.value = nvp.getValue();
-            int len = nvps.length - 1; 
-            if (len > 0) {
-                this.parameters = new NameValuePair[len];
-                System.arraycopy(nvps, 1, this.parameters, 0, len);
-            } else {
-                this.parameters = new NameValuePair[] {}; 
-            }
-        } else {
-            this.name = "";
-            this.value = null;
-            this.parameters = new NameValuePair[] {}; 
-        }
-    }
-    
     /**
      * Constructor with name, value and parameters.
      *
      * @param name header element name
      * @param value header element value. May be <tt>null</tt>
-     * @param parameters header element parameters. May be <tt>null</tt>
+     * @param parameters header element parameters. May be <tt>null</tt>.
+     *   Parameters are copied by reference, not by value
      */
     public BasicHeaderElement(
             final String name, 
@@ -124,7 +105,7 @@ public class BasicHeaderElement implements HeaderElement {
         this.name = name;
         this.value = value;
         if (parameters != null) {
-            this.parameters = (NameValuePair[])parameters.clone();
+            this.parameters = parameters;
         } else {
             this.parameters = new NameValuePair[] {};
         }
