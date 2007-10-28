@@ -41,6 +41,7 @@ import org.apache.http.StatusLine;
 import org.apache.http.ParseException;
 import org.apache.http.io.SessionInputBuffer;
 import org.apache.http.message.LineParser;
+import org.apache.http.message.ParserCursor;
 import org.apache.http.params.HttpParams;
 import org.apache.http.util.CharArrayBuffer;
 
@@ -72,7 +73,8 @@ public class HttpResponseParser extends AbstractMessageParser {
             throw new NoHttpResponseException("The target server failed to respond");
         }
         //create the status line from the status string
-        StatusLine statusline = lineParser.parseStatusLine(this.lineBuf, 0, this.lineBuf.length());
+        ParserCursor cursor = new ParserCursor(0, this.lineBuf.length());
+        StatusLine statusline = lineParser.parseStatusLine(this.lineBuf, cursor);
         return this.responseFactory.newHttpResponse(statusline, null);
     }
 

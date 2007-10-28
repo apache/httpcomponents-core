@@ -1,5 +1,9 @@
 Changes since 4.0 Alpha 6
 
+* [HTTPCORE-126] Improved HTTP message parsing API and optimized parser
+  implementations. 
+  Contributed by Oleg Kalnichevski <olegk at apache.org>
+
 * Do not include "Connection: close" to 500 responses per default. 
   Contributed by Oleg Kalnichevski <olegk at apache.org>
 

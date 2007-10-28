@@ -41,6 +41,7 @@ import org.apache.http.RequestLine;
 import org.apache.http.ParseException;
 import org.apache.http.io.SessionInputBuffer;
 import org.apache.http.message.LineParser;
+import org.apache.http.message.ParserCursor;
 import org.apache.http.params.HttpParams;
 import org.apache.http.util.CharArrayBuffer;
 
@@ -71,7 +72,8 @@ public class HttpRequestParser extends AbstractMessageParser {
         if (i == -1) {
             throw new ConnectionClosedException("Client closed connection"); 
         }
-        RequestLine requestline = lineParser.parseRequestLine(this.lineBuf, 0, this.lineBuf.length());
+        ParserCursor cursor = new ParserCursor(0, this.lineBuf.length());
+        RequestLine requestline = this.lineParser.parseRequestLine(this.lineBuf, cursor);
         return this.requestFactory.newHttpRequest(requestline);
     }
     

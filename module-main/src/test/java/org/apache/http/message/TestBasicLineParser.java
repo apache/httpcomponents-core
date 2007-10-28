@@ -120,45 +120,15 @@ public class TestBasicLineParser extends TestCase {
         } catch (ParseException e) {
             // expected
         }
-    }
 
-    public void testRLParseInvalidInput() throws Exception {
-        CharArrayBuffer buffer = new CharArrayBuffer(32);
-        buffer.append("GET /stuff HTTP/1.1");
         try {
-            BasicLineParser.parseRequestLine(null, null);
-            fail("IllegalArgumentException should have been thrown");
-        } catch (IllegalArgumentException ex) {
-            // expected
-        }
-        try {
-            BasicLineParser.DEFAULT.parseRequestLine(null, 0, 0);
-            fail("IllegalArgumentException should have been thrown");
-        } catch (IllegalArgumentException ex) {
-            // expected
-        }
-        try {
-            BasicLineParser.DEFAULT.parseRequestLine(buffer, -1, 0);
-            fail("IllegalArgumentException should have been thrown");
-        } catch (IndexOutOfBoundsException ex) {
-            // expected
-        }
-        try {
-            BasicLineParser.DEFAULT.parseRequestLine(buffer, 0, 1000);
-            fail("IllegalArgumentException should have been thrown");
-        } catch (IndexOutOfBoundsException ex) {
-            // expected
-        }
-        try {
-            BasicLineParser.DEFAULT.parseRequestLine(buffer, 2, 1);
-            fail("IllegalArgumentException should have been thrown");
-        } catch (IndexOutOfBoundsException ex) {
+            BasicLineParser.parseRequestLine("GET /stuff HTTP/1.1 Oooooooooooppsie", null);
+            fail();
+        } catch (ParseException e) {
             // expected
         }
     }
 
-
-        
     public void testSLParseSuccess() throws Exception {
         //typical status line
         StatusLine statusLine = BasicLineParser.parseStatusLine
@@ -246,43 +216,6 @@ public class TestBasicLineParser extends TestCase {
         }
     }
 
-    public void testSLParseInvalidInput() throws Exception {
-        CharArrayBuffer buffer = new CharArrayBuffer(32);
-        buffer.append("HTTP/1.1 200 OK");
-        try {
-            BasicLineParser.parseStatusLine(null, null);
-            fail("IllegalArgumentException should have been thrown");
-        } catch (IllegalArgumentException ex) {
-            // expected
-        }
-        try {
-            BasicLineParser.DEFAULT.parseStatusLine(null, 0, 0);
-            fail("IllegalArgumentException should have been thrown");
-        } catch (IllegalArgumentException ex) {
-            // expected
-        }
-        try {
-            BasicLineParser.DEFAULT.parseStatusLine(buffer, -1, 0);
-            fail("IllegalArgumentException should have been thrown");
-        } catch (IndexOutOfBoundsException ex) {
-            // expected
-        }
-        try {
-            BasicLineParser.DEFAULT.parseStatusLine(buffer, 0, 1000);
-            fail("IllegalArgumentException should have been thrown");
-        } catch (IndexOutOfBoundsException ex) {
-            // expected
-        }
-        try {
-            BasicLineParser.DEFAULT.parseStatusLine(buffer, 2, 1);
-            fail("IllegalArgumentException should have been thrown");
-        } catch (IndexOutOfBoundsException ex) {
-            // expected
-        }
-    }
-
-
-    
     public void testHttpVersionParsing() throws Exception {
 
         String s = "HTTP/1.1";
@@ -302,9 +235,41 @@ public class TestBasicLineParser extends TestCase {
         assertEquals("HTTP version number", s, version.toString());
     }
 
+    public void testHttpVersionParsingUsingCursor() throws Exception {
+
+        String s = "HTTP/1.1";
+        CharArrayBuffer buffer = new CharArrayBuffer(16);
+        buffer.append(s);
+        ParserCursor cursor = new ParserCursor(0, s.length());
+        
+        LineParser parser = BasicLineParser.DEFAULT;
+        
+        HttpVersion version = (HttpVersion) parser.parseProtocolVersion(buffer, cursor);
+        assertEquals("HTTP protocol name", "HTTP", version.getProtocol());
+        assertEquals("HTTP major version number", 1, version.getMajor());
+        assertEquals("HTTP minor version number", 1, version.getMinor());
+        assertEquals("HTTP version number", "HTTP/1.1", version.toString());
+        assertEquals(s.length(), cursor.getPos());
+        assertTrue(cursor.atEnd());
+        
+        s = "HTTP/1.123 123";
+        buffer = new CharArrayBuffer(16);
+        buffer.append(s);
+        cursor = new ParserCursor(0, s.length());
+        
+        version = (HttpVersion) parser.parseProtocolVersion(buffer, cursor);
+        assertEquals("HTTP protocol name", "HTTP", version.getProtocol());
+        assertEquals("HTTP major version number", 1, version.getMajor());
+        assertEquals("HTTP minor version number", 123, version.getMinor());
+        assertEquals("HTTP version number", "HTTP/1.123", version.toString());
+        assertEquals(' ', buffer.charAt(cursor.getPos()));
+        assertEquals(s.length() - 4, cursor.getPos());
+        assertFalse(cursor.atEnd());
+    }
+
     public void testInvalidHttpVersionParsing() throws Exception {
         try {
-            BasicLineParser.parseProtocolVersion(null, null);
+            BasicLineParser.parseProtocolVersion((String)null, null);
             fail("IllegalArgumentException should have been thrown");
         } catch (IllegalArgumentException e) {
             //expected
@@ -360,13 +325,6 @@ public class TestBasicLineParser extends TestCase {
         }
         try {
             BasicLineParser.parseProtocolVersion
-                ("HTTP/1.1 crap", null);
-            fail("ParseException should have been thrown");
-        } catch (ParseException e) {
-            //expected
-        }
-        try {
-            BasicLineParser.parseProtocolVersion
                 ("HTTP/whatever.whatever whatever", null);
             fail("ParseException should have been thrown");
         } catch (ParseException e) {
@@ -381,39 +339,4 @@ public class TestBasicLineParser extends TestCase {
         }
     }
 
-    public void testHttpVersionParsingInvalidInput() throws Exception {
-        CharArrayBuffer buffer = new CharArrayBuffer(32);
-        buffer.append("HTTP/1.1");
-        try {
-            BasicLineParser.parseProtocolVersion(null, null);
-            fail("IllegalArgumentException should have been thrown");
-        } catch (IllegalArgumentException ex) {
-            // expected
-        }
-        try {
-            BasicLineParser.DEFAULT.parseProtocolVersion(null, 0, 0);
-            fail("IllegalArgumentException should have been thrown");
-        } catch (IllegalArgumentException ex) {
-            // expected
-        }
-        try {
-            BasicLineParser.DEFAULT.parseProtocolVersion(buffer, -1, 0);
-            fail("IllegalArgumentException should have been thrown");
-        } catch (IndexOutOfBoundsException ex) {
-            // expected
-        }
-        try {
-            BasicLineParser.DEFAULT.parseProtocolVersion(buffer, 0, 1000);
-            fail("IllegalArgumentException should have been thrown");
-        } catch (IndexOutOfBoundsException ex) {
-            // expected
-        }
-        try {
-            BasicLineParser.DEFAULT.parseProtocolVersion(buffer, 2, 1);
-            fail("IllegalArgumentException should have been thrown");
-        } catch (IndexOutOfBoundsException ex) {
-            // expected
-        }
-    }
-    
 }

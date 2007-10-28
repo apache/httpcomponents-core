@@ -65,16 +65,16 @@ public interface LineParser {
      * as well as status lines (first element).
      *
      * @param buffer    a buffer holding the protocol version to parse
+     * @param cursor    the parser cursor containing the current position and 
+     *                  the bounds within the buffer for the parsing operation
      * 
      * @return  the parsed protocol version
      *
      * @throws ParseException        in case of a parse error
      */
-    ProtocolVersion parseProtocolVersion(CharArrayBuffer buffer,
-                                         int indexFrom,
-                                         int indexTo) 
-        throws ParseException
-        ;
+    ProtocolVersion parseProtocolVersion(
+            CharArrayBuffer buffer,
+            ParserCursor cursor) throws ParseException;
 
 
     /**
@@ -87,7 +87,7 @@ public interface LineParser {
      * or status line.
      *
      * @param buffer    a buffer holding the line to inspect
-     * @param index     the index at which to check for a protocol version, or
+     * @param cursor    the cursor at which to check for a protocol version, or
      *                  negative for "end of line". Whether the check tolerates
      *                  whitespace before or after the protocol version is
      *                  implementation dependent.
@@ -96,40 +96,41 @@ public interface LineParser {
      *          argument index (possibly ignoring whitespace),
      *          <code>false</code> otherwise
      */
-    boolean hasProtocolVersion(CharArrayBuffer buffer, int index)
-        ;
+    boolean hasProtocolVersion(
+            CharArrayBuffer buffer, 
+            ParserCursor cursor);
 
 
     /**
      * Parses a request line.
      *
      * @param buffer    a buffer holding the line to parse
+     * @param cursor    the parser cursor containing the current position and 
+     *                  the bounds within the buffer for the parsing operation
      *
      * @return  the parsed request line
      *
      * @throws ParseException        in case of a parse error
      */
-    RequestLine parseRequestLine(CharArrayBuffer buffer,
-                                 int indexFrom,
-                                 int indexTo)
-        throws ParseException
-        ;
+    RequestLine parseRequestLine(
+            CharArrayBuffer buffer,
+            ParserCursor cursor) throws ParseException;
 
 
     /**
      * Parses a status line.
      *
      * @param buffer    a buffer holding the line to parse
+     * @param cursor    the parser cursor containing the current position and 
+     *                  the bounds within the buffer for the parsing operation
      *
      * @return  the parsed status line
      *
      * @throws ParseException        in case of a parse error
      */
-    StatusLine parseStatusLine(CharArrayBuffer buffer,
-                               int indexFrom,
-                               int indexTo) 
-        throws ParseException
-        ;
+    StatusLine parseStatusLine(
+            CharArrayBuffer buffer,
+            ParserCursor cursor) throws ParseException;
 
 
     /**
