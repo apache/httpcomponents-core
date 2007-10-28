@@ -71,8 +71,8 @@ public class BasicHeaderValueParser implements HeaderValueParser {
     public final static
         BasicHeaderValueParser DEFAULT = new BasicHeaderValueParser();
 
-    private char PARAM_DELIMITER                = ';';
-    private char ELEM_DELIMITER                 = ',';
+    private final static char PARAM_DELIMITER                = ';';
+    private final static char ELEM_DELIMITER                 = ',';
     
     // public default constructor
 
