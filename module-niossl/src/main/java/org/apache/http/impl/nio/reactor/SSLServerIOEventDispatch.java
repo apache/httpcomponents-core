@@ -38,6 +38,7 @@ import javax.net.ssl.SSLException;
 
 import org.apache.http.impl.DefaultHttpRequestFactory;
 import org.apache.http.impl.nio.DefaultNHttpServerConnection;
+import org.apache.http.nio.NHttpServerIOTarget;
 import org.apache.http.nio.NHttpServiceHandler;
 import org.apache.http.nio.reactor.IOEventDispatch;
 import org.apache.http.nio.reactor.IOSession;
@@ -50,17 +51,16 @@ public class SSLServerIOEventDispatch implements IOEventDispatch {
     private static final String NHTTP_CONN = "NHTTP_CONN";
     private static final String SSL_SESSION = "SSL_SESSION";
    
+    private final ByteBufferAllocator allocator;
     private final NHttpServiceHandler handler;
     private final SSLContext sslcontext;
     private final SSLIOSessionHandler sslHandler;
-    private final ByteBufferAllocator allocator;
     private final HttpParams params;
     
     public SSLServerIOEventDispatch(
             final NHttpServiceHandler handler,
             final SSLContext sslcontext,
             final SSLIOSessionHandler sslHandler,
-            final ByteBufferAllocator allocator,
             final HttpParams params) {
         super();
         if (handler == null) {
@@ -69,26 +69,35 @@ public class SSLServerIOEventDispatch implements IOEventDispatch {
         if (sslcontext == null) {
             throw new IllegalArgumentException("SSL context may not be null");
         }
-        if (allocator == null) {
-            throw new IllegalArgumentException("ByteBuffer allocator may not be null");
-        }
         if (params == null) {
             throw new IllegalArgumentException("HTTP parameters may not be null");
         }
+        this.allocator = createByteBufferAllocator();
         this.handler = handler;
         this.params = params;
         this.sslcontext = sslcontext;
         this.sslHandler = sslHandler;
-        this.allocator = allocator;
     }
     
     public SSLServerIOEventDispatch(
             final NHttpServiceHandler handler,
             final SSLContext sslcontext,
             final HttpParams params) {
-        this(handler, sslcontext, null, new HeapByteBufferAllocator(), params);
+        this(handler, sslcontext, null, params);
     }
     
+    protected ByteBufferAllocator createByteBufferAllocator() {
+        return new HeapByteBufferAllocator(); 
+    }
+        
+    protected NHttpServerIOTarget createConnection(final IOSession session) {
+        return new DefaultNHttpServerConnection(
+                session, 
+                new DefaultHttpRequestFactory(),
+                this.allocator,
+                this.params); 
+    }
+        
     public void connected(final IOSession session) {
 
         SSLIOSession sslSession = new SSLIOSession(
@@ -96,11 +105,8 @@ public class SSLServerIOEventDispatch implements IOEventDispatch {
                 this.sslcontext,
                 this.sslHandler); 
         
-        DefaultNHttpServerConnection conn = new DefaultNHttpServerConnection(
-                sslSession, 
-                new DefaultHttpRequestFactory(),
-                this.allocator,
-                this.params); 
+        NHttpServerIOTarget conn = createConnection(
+                sslSession); 
         
         session.setAttribute(NHTTP_CONN, conn);
         session.setAttribute(SSL_SESSION, sslSession);
@@ -116,16 +122,18 @@ public class SSLServerIOEventDispatch implements IOEventDispatch {
     }
 
     public void disconnected(final IOSession session) {
-        DefaultNHttpServerConnection conn = (DefaultNHttpServerConnection) session.getAttribute(
-                NHTTP_CONN);
+        NHttpServerIOTarget conn = 
+            (NHttpServerIOTarget) session.getAttribute(NHTTP_CONN);
+
         this.handler.closed(conn);
     }
 
     public void inputReady(final IOSession session) {
-        DefaultNHttpServerConnection conn = (DefaultNHttpServerConnection) session.getAttribute(
-                NHTTP_CONN);
-        SSLIOSession sslSession = (SSLIOSession) session.getAttribute(
-                SSL_SESSION);
+        NHttpServerIOTarget conn = 
+            (NHttpServerIOTarget) session.getAttribute(NHTTP_CONN);
+        SSLIOSession sslSession = 
+            (SSLIOSession) session.getAttribute(SSL_SESSION);
+
         try {
             synchronized (sslSession) {
                 if (sslSession.isAppInputReady()) {
@@ -140,10 +148,11 @@ public class SSLServerIOEventDispatch implements IOEventDispatch {
     }
 
     public void outputReady(final IOSession session) {
-        DefaultNHttpServerConnection conn = (DefaultNHttpServerConnection) session.getAttribute(
-                NHTTP_CONN);
-        SSLIOSession sslSession = (SSLIOSession) session.getAttribute(
-                SSL_SESSION);
+        NHttpServerIOTarget conn = 
+            (NHttpServerIOTarget) session.getAttribute(NHTTP_CONN);
+        SSLIOSession sslSession = 
+            (SSLIOSession) session.getAttribute(SSL_SESSION);
+
         try {
             synchronized (sslSession) {
                 if (sslSession.isAppOutputReady()) {
@@ -158,10 +167,11 @@ public class SSLServerIOEventDispatch implements IOEventDispatch {
     }
 
     public void timeout(final IOSession session) {
-        DefaultNHttpServerConnection conn = (DefaultNHttpServerConnection) session.getAttribute(
-                NHTTP_CONN);
-        SSLIOSession sslSession = (SSLIOSession) session.getAttribute(
-                SSL_SESSION);
+        NHttpServerIOTarget conn = 
+            (NHttpServerIOTarget) session.getAttribute(NHTTP_CONN);
+        SSLIOSession sslSession = 
+            (SSLIOSession) session.getAttribute(SSL_SESSION);
+
         this.handler.timeout(conn);
         synchronized (sslSession) {
             if (sslSession.isOutboundDone() && !sslSession.isInboundDone()) {

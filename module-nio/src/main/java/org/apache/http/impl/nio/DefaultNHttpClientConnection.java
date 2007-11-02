@@ -41,7 +41,7 @@ import org.apache.http.HttpResponse;
 import org.apache.http.HttpResponseFactory;
 import org.apache.http.impl.nio.codecs.HttpRequestWriter;
 import org.apache.http.impl.nio.codecs.HttpResponseParser;
-import org.apache.http.nio.NHttpClientConnection;
+import org.apache.http.nio.NHttpClientIOTarget;
 import org.apache.http.nio.NHttpClientHandler;
 import org.apache.http.nio.NHttpMessageParser;
 import org.apache.http.nio.NHttpMessageWriter;
@@ -53,7 +53,7 @@ import org.apache.http.nio.util.ByteBufferAllocator;
 import org.apache.http.params.HttpParams;
 
 public class DefaultNHttpClientConnection 
-    extends NHttpConnectionBase implements NHttpClientConnection {
+    extends NHttpConnectionBase implements NHttpClientIOTarget {
 
     private final NHttpMessageParser responseParser;
     private final NHttpMessageWriter requestWriter;

@@ -32,6 +32,7 @@
 package org.apache.http.impl.nio;
 
 import org.apache.http.impl.DefaultHttpRequestFactory;
+import org.apache.http.nio.NHttpServerIOTarget;
 import org.apache.http.nio.NHttpServiceHandler;
 import org.apache.http.nio.reactor.IOEventDispatch;
 import org.apache.http.nio.reactor.IOSession;
@@ -43,66 +44,64 @@ public class DefaultServerIOEventDispatch implements IOEventDispatch {
 
     private static final String NHTTP_CONN = "NHTTP_CONN";
     
-    private final NHttpServiceHandler handler;
     private final ByteBufferAllocator allocator;
+    private final NHttpServiceHandler handler;
     private final HttpParams params;
     
     public DefaultServerIOEventDispatch(
             final NHttpServiceHandler handler,
-            final ByteBufferAllocator allocator,
             final HttpParams params) {
         super();
         if (handler == null) {
             throw new IllegalArgumentException("HTTP service handler may not be null");
         }
-        if (allocator == null) {
-            throw new IllegalArgumentException("ByteBuffer allocator may not be null");
-        }
         if (params == null) {
             throw new IllegalArgumentException("HTTP parameters may not be null");
         }
+        this.allocator = createByteBufferAllocator();
         this.handler = handler;
-        this.allocator = allocator;
         this.params = params;
     }
     
-    public DefaultServerIOEventDispatch(
-            final NHttpServiceHandler handler, 
-            final HttpParams params) {
-        this(handler, new HeapByteBufferAllocator(), params);
+    protected ByteBufferAllocator createByteBufferAllocator() {
+        return new HeapByteBufferAllocator(); 
     }
-    
-    public void connected(final IOSession session) {
-        DefaultNHttpServerConnection conn = new DefaultNHttpServerConnection(
+        
+    protected NHttpServerIOTarget createConnection(final IOSession session) {
+        return new DefaultNHttpServerConnection(
                 session, 
                 new DefaultHttpRequestFactory(),
                 this.allocator,
                 this.params); 
+    }
+        
+    public void connected(final IOSession session) {
+        NHttpServerIOTarget conn = createConnection(session);
         session.setAttribute(NHTTP_CONN, conn);
         this.handler.connected(conn);
     }
 
     public void disconnected(final IOSession session) {
-        DefaultNHttpServerConnection conn = (DefaultNHttpServerConnection) session.getAttribute(
-                NHTTP_CONN);
+        NHttpServerIOTarget conn = 
+            (NHttpServerIOTarget) session.getAttribute(NHTTP_CONN);
         this.handler.closed(conn);
     }
 
     public void inputReady(final IOSession session) {
-        DefaultNHttpServerConnection conn = (DefaultNHttpServerConnection) session.getAttribute(
-                NHTTP_CONN);
+        NHttpServerIOTarget conn = 
+            (NHttpServerIOTarget) session.getAttribute(NHTTP_CONN);
         conn.consumeInput(this.handler);
     }
 
     public void outputReady(final IOSession session) {
-        DefaultNHttpServerConnection conn = (DefaultNHttpServerConnection) session.getAttribute(
-                NHTTP_CONN);
+        NHttpServerIOTarget conn = 
+            (NHttpServerIOTarget) session.getAttribute(NHTTP_CONN);
         conn.produceOutput(this.handler);
     }
 
     public void timeout(final IOSession session) {
-        DefaultNHttpServerConnection conn = (DefaultNHttpServerConnection) session.getAttribute(
-                NHTTP_CONN);
+        NHttpServerIOTarget conn = 
+            (NHttpServerIOTarget) session.getAttribute(NHTTP_CONN);
         this.handler.timeout(conn);
     }
 
