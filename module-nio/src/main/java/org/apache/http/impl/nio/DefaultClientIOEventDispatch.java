@@ -78,7 +78,7 @@ public class DefaultClientIOEventDispatch implements IOEventDispatch {
     public void connected(final IOSession session) {
         NHttpClientIOTarget conn = createConnection(session);
         Object attachment = session.getAttribute(IOSession.ATTACHMENT_KEY);
-//        session.setAttribute(NHTTP_CONN, conn);
+        session.setAttribute(NHTTP_CONN, conn);
         this.handler.connected(conn, attachment);
     }
 
