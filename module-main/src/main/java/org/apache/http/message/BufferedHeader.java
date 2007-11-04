@@ -70,7 +70,6 @@ public class BufferedHeader implements FormattedHeader {
      * the value only if it is accessed.
      *
      * @param buffer    the buffer containing the header to represent
-     * @param parser    the header value parser, or <code>null</code>
      *
      * @throws ParseException   in case of a parse error
      */
