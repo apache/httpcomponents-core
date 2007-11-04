@@ -74,7 +74,7 @@ public class TestMessageParser extends TestCase {
             // expected
         }
         try {
-            new BufferedHeader(null, null);
+            new BufferedHeader(null);
             fail("IllegalArgumentException should have been thrown");
         } catch (IllegalArgumentException ex) {
             // expected

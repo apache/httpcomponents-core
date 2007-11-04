@@ -138,7 +138,7 @@ public class ChunkDecoder extends AbstractContentDecoder {
             for (int i = 0; i < this.trailerBufs.size(); i++) {
                 CharArrayBuffer buffer = (CharArrayBuffer) this.trailerBufs.get(i);
                 try {
-                    this.footers[i] = new BufferedHeader(buffer, null);
+                    this.footers[i] = new BufferedHeader(buffer);
                 } catch (ParseException ex) {
                     throw new IOException(ex.getMessage());
                 }

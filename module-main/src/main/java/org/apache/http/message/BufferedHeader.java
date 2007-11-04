@@ -63,11 +63,6 @@ public class BufferedHeader implements FormattedHeader {
      */
     private final int valuePos;
 
-    /**
-     * The parser for the header value, or <code>null</code>.
-     */
-    private HeaderValueParser parser;
-
 
     /**
      * Creates a new header from a buffer.
@@ -79,8 +74,7 @@ public class BufferedHeader implements FormattedHeader {
      *
      * @throws ParseException   in case of a parse error
      */
-    public BufferedHeader(final CharArrayBuffer buffer,
-                          final HeaderValueParser parser)
+    public BufferedHeader(final CharArrayBuffer buffer)
         throws ParseException {
 
         super();
@@ -101,12 +95,6 @@ public class BufferedHeader implements FormattedHeader {
         this.buffer = buffer;
         this.name = s;
         this.valuePos = colon + 1;
-        this.parser = parser;
-    }
-
-    public BufferedHeader(final CharArrayBuffer buffer)
-        throws ParseException {
-        this(buffer, null);
     }
 
 
@@ -118,21 +106,11 @@ public class BufferedHeader implements FormattedHeader {
         return this.buffer.substringTrimmed(this.valuePos, this.buffer.length());
     }
 
-    public HeaderValueParser getParser() {
-        return this.parser;
-    }
-
-    public void setParser(HeaderValueParser parser) {
-        this.parser = parser;
-    }
-
     public HeaderElement[] getElements() throws ParseException {
-        HeaderValueParser hvp = this.parser;
-        if (hvp == null)
-            hvp = BasicHeaderValueParser.DEFAULT;
         ParserCursor cursor = new ParserCursor(0, this.buffer.length());
         cursor.updatePos(this.valuePos);
-        return hvp.parseElements(this.buffer, cursor);
+        return BasicHeaderValueParser.DEFAULT
+            .parseElements(this.buffer, cursor);
     }
 
     public int getValuePos() {

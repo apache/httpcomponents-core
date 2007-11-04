@@ -484,19 +484,7 @@ public class BasicLineParser implements LineParser {
         throws ParseException {
 
         // the actual parser code is in the constructor of BufferedHeader
-        return new BufferedHeader(buffer, getHeaderValueParser());
-    }
-
-
-    /**
-     * Obtains the header value parser to use.
-     * Called by {@link #parseHeader}.
-     *
-     * @return  the header value parser, or
-     *          <code>null</code> for the default
-     */
-    protected HeaderValueParser getHeaderValueParser() {
-        return null;
+        return new BufferedHeader(buffer);
     }
 
 
