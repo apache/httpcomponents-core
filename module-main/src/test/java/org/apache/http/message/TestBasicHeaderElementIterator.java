@@ -1,5 +1,7 @@
 package org.apache.http.message;
 
+import java.util.NoSuchElementException;
+
 import junit.framework.Test;
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
@@ -43,14 +45,34 @@ public class TestBasicHeaderElementIterator extends TestCase {
         };
        
         HeaderElementIterator hei = 
-                new BasicHeaderElementIterator(new BasicHeaderIterator(headers, "Name"));
+                new BasicHeaderElementIterator(
+                        new BasicHeaderIterator(headers, "Name"));
         
+        assertTrue(hei.hasNext());
         HeaderElement elem = (HeaderElement) hei.next();
         assertEquals("The two header values must be equal", 
                 "value0", elem.getName());
+        
+        assertTrue(hei.hasNext());
         elem = (HeaderElement)hei.next();
         assertEquals("The two header values must be equal", 
                 "value1", elem.getName());
+
+        assertFalse(hei.hasNext());
+        try {
+            hei.next();
+            fail("NoSuchElementException should have been thrown");
+        } catch (NoSuchElementException ex) {
+            // expected
+        }
+
+        assertFalse(hei.hasNext());
+        try {
+            hei.next();
+            fail("NoSuchElementException should have been thrown");
+        } catch (NoSuchElementException ex) {
+            // expected
+        }
     }
     
     public void testMultiHeaderSameLine() {
@@ -79,6 +101,34 @@ public class TestBasicHeaderElementIterator extends TestCase {
                 "cookie2", elem.getName());
         assertEquals("The two header values must be equal", 
                 "2", elem.getValue());
+    }
+    
+    public void testFringeCases() {
+        Header[] headers = new Header[]{
+                new BasicHeader("Name", null),
+                new BasicHeader("Name", "    "),
+                new BasicHeader("Name", ",,,")
+        };
+       
+        HeaderElementIterator hei = 
+                new BasicHeaderElementIterator(
+                        new BasicHeaderIterator(headers, "Name"));
+        
+        assertFalse(hei.hasNext());
+        try {
+            hei.next();
+            fail("NoSuchElementException should have been thrown");
+        } catch (NoSuchElementException ex) {
+            // expected
+        }
+
+        assertFalse(hei.hasNext());
+        try {
+            hei.next();
+            fail("NoSuchElementException should have been thrown");
+        } catch (NoSuchElementException ex) {
+            // expected
+        }
     }
     
 }

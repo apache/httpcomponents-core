@@ -32,9 +32,13 @@
 package org.apache.http.message;
 
 import java.util.NoSuchElementException;
+
+import org.apache.http.FormattedHeader;
+import org.apache.http.Header;
 import org.apache.http.HeaderElement;
 import org.apache.http.HeaderElementIterator;
 import org.apache.http.HeaderIterator;
+import org.apache.http.util.CharArrayBuffer;
 
 /**
  * Basic implementation of a {@link HeaderElementIterator}.
@@ -42,64 +46,108 @@ import org.apache.http.HeaderIterator;
  * @version $Revision$
  * 
  * @author Andrea Selva <selva.andre at gmail.com>
+ * @author Oleg Kalnichevski <oleg at ural.ru>
  */
 public class BasicHeaderElementIterator implements HeaderElementIterator {
     
     private final HeaderIterator headerIt;
-
-    private int currentElementIdx = -1;
-    
-    private HeaderElement[] currentElements = null;
+    private final HeaderValueParser parser;
     
     private HeaderElement currentElement = null;
+    private CharArrayBuffer buffer = null;
+    private ParserCursor cursor = null;
     
     /**
      * Creates a new instance of BasicHeaderElementIterator
      */
-    public BasicHeaderElementIterator(final HeaderIterator headerIterator) {
+    public BasicHeaderElementIterator(
+            final HeaderIterator headerIterator,
+            final HeaderValueParser parser) {
         if (headerIterator == null) {
             throw new IllegalArgumentException("Header iterator may not be null");
         }
+        if (parser == null) {
+            throw new IllegalArgumentException("Parser may not be null");
+        }
         this.headerIt = headerIterator;
-        
-        if (this.headerIt.hasNext()) {
-            this.currentElementIdx = 0;
-            this.currentElements = this.headerIt.nextHeader().getElements();
-            this.currentElement = findNext();
-        } 
+        this.parser = parser;
     }
 
+    
+    public BasicHeaderElementIterator(final HeaderIterator headerIterator) {
+        this(headerIterator, BasicHeaderValueParser.DEFAULT);
+    }
 
-    protected HeaderElement findNext() {
-        HeaderElement tmpHeader;
-        
-        if (this.currentElementIdx == this.currentElements.length) {
-            if (!this.headerIt.hasNext()) {
-                return null;
+    
+    private void bufferHeaderValue() {
+        this.cursor = null;
+        this.buffer = null;
+        while (this.headerIt.hasNext()) {
+            Header h = this.headerIt.nextHeader();
+            if (h instanceof FormattedHeader) {
+                this.buffer = ((FormattedHeader) h).getBuffer();
+                this.cursor = new ParserCursor(0, this.buffer.length());
+                this.cursor.updatePos(((FormattedHeader) h).getValuePos());
+                break;
+            } else {
+                String value = h.getValue();
+                if (value != null) {
+                    this.buffer = new CharArrayBuffer(value.length());
+                    this.buffer.append(value);
+                    this.cursor = new ParserCursor(0, this.buffer.length());
+                    break;
+                }
             }
-            this.currentElements = this.headerIt.nextHeader().getElements();
-            this.currentElementIdx = 0;
         }
+    }
 
-        tmpHeader = this.currentElements[this.currentElementIdx++];
-        return tmpHeader;
-         
+    private void parseNextElement() {
+        // loop while there are headers left to parse
+        while (this.headerIt.hasNext() || this.cursor != null) {
+            if (this.cursor == null || this.cursor.atEnd()) {
+                // get next header value
+                bufferHeaderValue();
+            }
+            // Anything buffered?
+            if (this.cursor != null) {
+                // loop while there is data in the buffer 
+                while (!this.cursor.atEnd()) {
+                    HeaderElement e = this.parser.parseHeaderElement(this.buffer, this.cursor);
+                    if (!(e.getName().length() == 0 && e.getValue() == null)) {
+                        // Found something
+                        this.currentElement = e;
+                        return;
+                    }
+                }
+                // if at the end of the buffer
+                if (this.cursor.atEnd()) {
+                    // discard it
+                    this.cursor = null;
+                    this.buffer = null;
+                }
+            }
+        }
     }
     
     public boolean hasNext() {
-        return (this.currentElement != null);
+        if (this.currentElement == null) {
+            parseNextElement();
+        }
+        return this.currentElement != null;
     }
 
     public HeaderElement nextElement() throws NoSuchElementException {
-
-        final HeaderElement current = this.currentElement;
-        if (current == null) {
-            throw new NoSuchElementException("Iteration already finished.");
+        if (this.currentElement == null) {
+            parseNextElement();
         }
 
-        this.currentElement = findNext();
+        if (this.currentElement == null) {
+            throw new NoSuchElementException("No more header elements available");
+        }
 
-        return current;
+        HeaderElement element = this.currentElement;
+        this.currentElement = null;
+        return element;
     }
 
     public final Object next() throws NoSuchElementException {

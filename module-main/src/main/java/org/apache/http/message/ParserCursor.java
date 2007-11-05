@@ -58,7 +58,7 @@ public class ParserCursor {
         }
         this.lowerBound = lowerBound;
         this.upperBound = upperBound;
-        this.pos = 0;
+        this.pos = lowerBound;
     }
 
     public int getLowerBound() {
