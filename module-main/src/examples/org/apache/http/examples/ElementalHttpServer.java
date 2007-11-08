@@ -181,7 +181,7 @@ public class ElementalHttpServer {
                 .setIntParameter(CoreConnectionPNames.SOCKET_BUFFER_SIZE, 8 * 1024)
                 .setBooleanParameter(CoreConnectionPNames.STALE_CONNECTION_CHECK, false)
                 .setBooleanParameter(CoreConnectionPNames.TCP_NODELAY, true)
-                .setParameter(CoreProtocolPNames.ORIGIN_SERVER, "Jakarta-HttpComponents/1.1");
+                .setParameter(CoreProtocolPNames.ORIGIN_SERVER, "HttpComponents/1.1");
             this.docRoot = docroot;
         }
         

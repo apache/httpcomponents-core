@@ -76,7 +76,7 @@ public class ElementalHttpPost {
         HttpParams params = new BasicHttpParams(null);
         HttpProtocolParams.setVersion(params, HttpVersion.HTTP_1_1);
         HttpProtocolParams.setContentCharset(params, "UTF-8");
-        HttpProtocolParams.setUserAgent(params, "Jakarta-HttpComponents/1.1");
+        HttpProtocolParams.setUserAgent(params, "HttpComponents/1.1");
         HttpProtocolParams.setUseExpectContinue(params, true);
         
         BasicHttpProcessor httpproc = new BasicHttpProcessor();

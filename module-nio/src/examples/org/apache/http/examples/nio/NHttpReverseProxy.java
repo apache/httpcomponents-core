@@ -106,8 +106,8 @@ public class NHttpReverseProxy {
             .setIntParameter(CoreConnectionPNames.SOCKET_BUFFER_SIZE, 8 * 1024)
             .setBooleanParameter(CoreConnectionPNames.STALE_CONNECTION_CHECK, false)
             .setBooleanParameter(CoreConnectionPNames.TCP_NODELAY, true)
-            .setParameter(CoreProtocolPNames.ORIGIN_SERVER, "Jakarta-HttpComponents-NIO/1.1")
-            .setParameter(CoreProtocolPNames.USER_AGENT, "Jakarta-HttpComponents-NIO/1.1");
+            .setParameter(CoreProtocolPNames.ORIGIN_SERVER, "HttpComponents/1.1")
+            .setParameter(CoreProtocolPNames.USER_AGENT, "HttpComponents/1.1");
 
         final ConnectingIOReactor connectingIOReactor = new DefaultConnectingIOReactor(
                 1, params);
