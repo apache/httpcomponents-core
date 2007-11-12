@@ -73,14 +73,15 @@ public class IdentityEncoder extends AbstractContentEncoder
     }
  
     public long transfer(
-            final FileChannel filechannel, 
+            final FileChannel src, 
             long position, 
             long count) throws IOException {
-        if (filechannel == null) {
+        
+        if (src == null) {
             return 0;
         }
         assertNotCompleted();
-        long bytesWritten = filechannel.transferTo(position, count, this.channel);
+        long bytesWritten = src.transferTo(position, count, this.channel);
         if (bytesWritten > 0) {
             this.metrics.incrementBytesTransferred(bytesWritten);
         }

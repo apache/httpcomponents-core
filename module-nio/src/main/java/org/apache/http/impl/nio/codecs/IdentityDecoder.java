@@ -84,10 +84,11 @@ public class IdentityDecoder extends AbstractContentDecoder
     }
     
     public long transfer(
-            final FileChannel fileChannel, 
+            final FileChannel dst, 
             long position, 
             long count) throws IOException {
-        if (fileChannel == null) {
+        
+        if (dst == null) {
             return 0;
         }
         if (this.completed) {
@@ -99,9 +100,9 @@ public class IdentityDecoder extends AbstractContentDecoder
             ByteBuffer tmpDst = ByteBuffer.allocate((int)count);
             this.buffer.read(tmpDst);
             tmpDst.flip();
-            bytesRead = fileChannel.write(tmpDst);
+            bytesRead = dst.write(tmpDst);
         } else {
-            bytesRead = fileChannel.transferFrom(this.channel, position, count);
+            bytesRead = dst.transferFrom(this.channel, position, count);
             if (bytesRead > 0) {
                 this.metrics.incrementBytesTransferred(bytesRead);
             }

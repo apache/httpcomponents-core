@@ -97,8 +97,12 @@ public class LengthDelimitedEncoder extends AbstractContentEncoder
         return bytesWritten;
     }
 
-    public long transfer(final FileChannel fileChannel, long position, long count) throws IOException {
-        if (fileChannel == null) {
+    public long transfer(
+            final FileChannel src, 
+            long position, 
+            long count) throws IOException {
+        
+        if (src == null) {
             return 0;
         }
         assertNotCompleted();
@@ -106,10 +110,9 @@ public class LengthDelimitedEncoder extends AbstractContentEncoder
         
         long bytesWritten;
         if (count > lenRemaining) {
-            bytesWritten = fileChannel.transferTo(position, lenRemaining, this.channel);
-        } else {
-            bytesWritten = fileChannel.transferTo(position, count, this.channel);
+            count = lenRemaining;
         }
+        bytesWritten = src.transferTo(position, count, this.channel);
         if (bytesWritten > 0) {
             this.metrics.incrementBytesTransferred(bytesWritten);
         }

@@ -107,8 +107,12 @@ public class LengthDelimitedDecoder extends AbstractContentDecoder
         return bytesRead;
     }
     
-    public long transfer(final FileChannel fileChannel, long position, long count) throws IOException {
-        if (fileChannel == null) {
+    public long transfer(
+            final FileChannel dst, 
+            long position, 
+            long count) throws IOException {
+        
+        if (dst == null) {
             return 0;
         }
         if (this.completed) {
@@ -122,13 +126,12 @@ public class LengthDelimitedDecoder extends AbstractContentDecoder
             int maxLen = Math.min(lenRemaining, this.buffer.length());
             ByteBuffer tmpDst = ByteBuffer.allocate(maxLen);
             this.buffer.read(tmpDst, maxLen);
-            bytesRead = fileChannel.write(tmpDst);
+            bytesRead = dst.write(tmpDst);
         } else {
             if (count > lenRemaining) {
-                bytesRead = fileChannel.transferFrom(this.channel, position, lenRemaining);
-            } else {
-                bytesRead = fileChannel.transferFrom(this.channel, position, count);
+                count = lenRemaining;
             }
+            bytesRead = dst.transferFrom(this.channel, position, count);
             if (bytesRead > 0) {
                 this.metrics.incrementBytesTransferred(bytesRead);
             }
