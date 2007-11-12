@@ -32,8 +32,8 @@ package org.apache.http.impl.nio.codecs;
 
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileOutputStream;
 import java.io.InputStreamReader;
+import java.io.RandomAccessFile;
 import java.nio.ByteBuffer;
 import java.nio.channels.FileChannel;
 import java.nio.channels.ReadableByteChannel;
@@ -84,20 +84,15 @@ public class TestLengthDelimitedDecoder extends TestCase {
         return buffer.toString();
     }
     
-    private static String readFromFile(final File file, int numChars) throws Exception {
+    private static String readFromFile(final File file) throws Exception {
         FileInputStream filestream = new FileInputStream(file);
         InputStreamReader reader = new InputStreamReader(filestream);
         try {
-            StringBuffer buffer = new StringBuffer(numChars);
-            char[] tmp = new char[Math.min(2048, numChars)];
-            int remaining = numChars;
-            while (remaining > 0) {
-                int l = reader.read(tmp);
-                if (l == -1) {
-                    break;
-                }
+            StringBuffer buffer = new StringBuffer();
+            char[] tmp = new char[2048];
+            int l;
+            while ((l = reader.read(tmp)) != -1) {
                 buffer.append(tmp, 0, l);
-                remaining =- l;
             }
             return buffer.toString();
         } finally {
@@ -277,35 +272,67 @@ public class TestLengthDelimitedDecoder extends TestCase {
         assertTrue(decoder.isCompleted());
     }
 
-    // ----------------------------------------------------- Test read
     public void testBasicDecodingFile() throws Exception {
         ReadableByteChannel channel = new ReadableByteChannelMockup(
-                new String[] {"stuff;", "more stuff"}, "US-ASCII"); 
+                new String[] {"stuff; ", "more stuff; ", "a lot more stuff!!!"}, "US-ASCII"); 
         HttpParams params = new BasicHttpParams();
         
         SessionInputBuffer inbuf = new SessionInputBufferImpl(1024, 256, params); 
         HttpTransportMetricsImpl metrics = new HttpTransportMetricsImpl();
         LengthDelimitedDecoder decoder = new LengthDelimitedDecoder(
-                channel, inbuf, metrics, 16); 
+                channel, inbuf, metrics, 36); 
         
-        File tmpFile = File.createTempFile("testFile", ".txt");
-        FileChannel fchannel = new FileOutputStream(tmpFile).getChannel();
+        File fileHandle = File.createTempFile("testFile", ".txt");
+
+        RandomAccessFile testfile = new RandomAccessFile(fileHandle, "rw"); 
+        FileChannel fchannel = testfile.getChannel();
+            
+        long pos = 0;
+        while (!decoder.isCompleted()) {
+            long bytesRead = decoder.transfer(fchannel, pos, 10);
+            if (bytesRead > 0) {
+                pos += bytesRead;
+            }
+        }
         
-        long bytesRead = decoder.transfer(fchannel, 0, 6);
-        assertEquals(6, bytesRead);
-        assertEquals("stuff;", readFromFile(tmpFile, 6));
-        assertFalse(decoder.isCompleted());
+        fchannel.close();
         
-        bytesRead = decoder.transfer(fchannel,0 , 10);
-        assertEquals(10, bytesRead);
-        assertEquals("more stuff", readFromFile(tmpFile, 10));
-        assertTrue(decoder.isCompleted());
+        assertEquals("stuff; more stuff; a lot more stuff!", readFromFile(fileHandle));
         
-        bytesRead = decoder.transfer(fchannel, 0, 1);
-        assertEquals(0, bytesRead);
-        assertTrue(decoder.isCompleted());
+        fileHandle.delete();
+    }
+    
+    public void testDecodingFileWithBufferedSessionData() throws Exception {
+        ReadableByteChannel channel = new ReadableByteChannelMockup(
+                new String[] {"stuff; ", "more stuff; ", "a lot more stuff!!!"}, "US-ASCII"); 
+        HttpParams params = new BasicHttpParams();
         
-        tmpFile.delete();
+        SessionInputBuffer inbuf = new SessionInputBufferImpl(1024, 256, params); 
+        HttpTransportMetricsImpl metrics = new HttpTransportMetricsImpl();
+        LengthDelimitedDecoder decoder = new LengthDelimitedDecoder(
+                channel, inbuf, metrics, 36); 
+        
+        int i = inbuf.fill(channel);
+        assertEquals(7, i);
+        
+        File fileHandle = File.createTempFile("testFile", ".txt");
+
+        RandomAccessFile testfile = new RandomAccessFile(fileHandle, "rw"); 
+        FileChannel fchannel = testfile.getChannel();
+            
+        long pos = 0;
+        while (!decoder.isCompleted()) {
+            long bytesRead = decoder.transfer(fchannel, pos, 10);
+            if (bytesRead > 0) {
+                pos += bytesRead;
+            }
+        }
+        
+        fchannel.close();
+        
+        assertEquals("stuff; more stuff; a lot more stuff!", readFromFile(fileHandle));
+        
+        fileHandle.delete();
     }
     
     public void testCodingBeyondContentLimitFile() throws Exception {
@@ -320,24 +347,23 @@ public class TestLengthDelimitedDecoder extends TestCase {
         LengthDelimitedDecoder decoder = new LengthDelimitedDecoder(
                 channel, inbuf, metrics, 16); 
         
-        File tmpFile = File.createTempFile("testFile", ".txt");
-        FileChannel fchannel = new FileOutputStream(tmpFile).getChannel();
+        File fileHandle = File.createTempFile("testFile", ".txt");
+        RandomAccessFile testfile  = new RandomAccessFile(fileHandle, "rw");
+        FileChannel fchannel = testfile.getChannel();
         
         long bytesRead = decoder.transfer(fchannel, 0, 6);
         assertEquals(6, bytesRead);
-        assertEquals("stuff;", readFromFile(tmpFile, 6));
         assertFalse(decoder.isCompleted());
         
         bytesRead = decoder.transfer(fchannel,0 , 10);
         assertEquals(10, bytesRead);
-        assertEquals("more stuff", readFromFile(tmpFile, 10));
         assertTrue(decoder.isCompleted());
         
         bytesRead = decoder.transfer(fchannel, 0, 1);
-        assertEquals(0, bytesRead);
+        assertEquals(-1, bytesRead);
         assertTrue(decoder.isCompleted());
         
-        tmpFile.delete();
+        fileHandle.delete();
     }
     
     public void testInvalidConstructor() {

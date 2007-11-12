@@ -102,12 +102,16 @@ public class IdentityDecoder extends AbstractContentDecoder
             tmpDst.flip();
             bytesRead = dst.write(tmpDst);
         } else {
-            bytesRead = dst.transferFrom(this.channel, position, count);
+            if (this.channel.isOpen()) {
+                bytesRead = dst.transferFrom(this.channel, position, count);
+            } else {
+                bytesRead = -1;
+            }
             if (bytesRead > 0) {
                 this.metrics.incrementBytesTransferred(bytesRead);
             }
         }
-        if (bytesRead == 0) {
+        if (bytesRead == -1) {
             this.completed = true;
         }
         return bytesRead;

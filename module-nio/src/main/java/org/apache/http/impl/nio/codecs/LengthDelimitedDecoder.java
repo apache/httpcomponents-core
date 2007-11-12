@@ -116,7 +116,7 @@ public class LengthDelimitedDecoder extends AbstractContentDecoder
             return 0;
         }
         if (this.completed) {
-            return 0;
+            return -1;
         }
         
         int lenRemaining = (int) (this.contentLength - this.len);
@@ -126,19 +126,24 @@ public class LengthDelimitedDecoder extends AbstractContentDecoder
             int maxLen = Math.min(lenRemaining, this.buffer.length());
             ByteBuffer tmpDst = ByteBuffer.allocate(maxLen);
             this.buffer.read(tmpDst, maxLen);
+            tmpDst.flip();
             bytesRead = dst.write(tmpDst);
         } else {
             if (count > lenRemaining) {
                 count = lenRemaining;
             }
-            bytesRead = dst.transferFrom(this.channel, position, count);
+            if (this.channel.isOpen()) {
+                bytesRead = dst.transferFrom(this.channel, position, count);
+            } else {
+                bytesRead = -1;
+            }
             if (bytesRead > 0) {
                 this.metrics.incrementBytesTransferred(bytesRead);
             }
         }
-        if (bytesRead == 0) {
+        if (bytesRead == -1) {
             this.completed = true;
-            return 0;
+            return -1;
         }
         this.len += bytesRead;
         if (this.len >= this.contentLength) {

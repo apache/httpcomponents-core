@@ -123,7 +123,7 @@ public class ExpandableBuffer {
         } else {
             sb.append("out");
         }
-        sb.append("pos=");
+        sb.append(" pos=");
         sb.append(this.buffer.position());
         sb.append(" lim=");
         sb.append(this.buffer.limit());
