@@ -113,5 +113,24 @@ public class ExpandableBuffer {
         this.buffer.clear();        
         this.mode = INPUT_MODE;
     }
-        
+
+    public String toString() {
+        StringBuffer sb = new StringBuffer();
+        sb.append("[mode=");
+        int mode = getMode();
+        if (mode == INPUT_MODE) {
+            sb.append("in");
+        } else {
+            sb.append("out");
+        }
+        sb.append("pos=");
+        sb.append(this.buffer.position());
+        sb.append(" lim=");
+        sb.append(this.buffer.limit());
+        sb.append(" cap=");
+        sb.append(this.buffer.capacity());
+        sb.append("]");
+        return sb.toString();
+    }
+    
 }
