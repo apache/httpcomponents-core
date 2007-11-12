@@ -44,7 +44,7 @@ public interface FileContentEncoder extends ContentEncoder {
      * Transfers a portion of entity content from the given file channel 
      * to the underlying network channel.
      * 
-     * @param  channel the source FileChannel to transfer data from.
+     * @param  src the source FileChannel to transfer data from.
      * @param  position
      *         The position within the file at which the transfer is to begin;
      *         must be non-negative
@@ -55,6 +55,6 @@ public interface FileContentEncoder extends ContentEncoder {
      * @return  The number of bytes, possibly zero,
      *          that were actually transferred
      */
-    long write(FileChannel channel, long position, long count) throws IOException;
+    long transfer(FileChannel src, long position, long count) throws IOException;
     
 }

@@ -291,17 +291,17 @@ public class TestLengthDelimitedDecoder extends TestCase {
         File tmpFile = File.createTempFile("testFile", ".txt");
         FileChannel fchannel = new FileOutputStream(tmpFile).getChannel();
         
-        long bytesRead = decoder.read(fchannel, 0, 6);
+        long bytesRead = decoder.transfer(fchannel, 0, 6);
         assertEquals(6, bytesRead);
         assertEquals("stuff;", readFromFile(tmpFile, 6));
         assertFalse(decoder.isCompleted());
         
-        bytesRead = decoder.read(fchannel,0 , 10);
+        bytesRead = decoder.transfer(fchannel,0 , 10);
         assertEquals(10, bytesRead);
         assertEquals("more stuff", readFromFile(tmpFile, 10));
         assertTrue(decoder.isCompleted());
         
-        bytesRead = decoder.read(fchannel, 0, 1);
+        bytesRead = decoder.transfer(fchannel, 0, 1);
         assertEquals(0, bytesRead);
         assertTrue(decoder.isCompleted());
         
@@ -323,17 +323,17 @@ public class TestLengthDelimitedDecoder extends TestCase {
         File tmpFile = File.createTempFile("testFile", ".txt");
         FileChannel fchannel = new FileOutputStream(tmpFile).getChannel();
         
-        long bytesRead = decoder.read(fchannel, 0, 6);
+        long bytesRead = decoder.transfer(fchannel, 0, 6);
         assertEquals(6, bytesRead);
         assertEquals("stuff;", readFromFile(tmpFile, 6));
         assertFalse(decoder.isCompleted());
         
-        bytesRead = decoder.read(fchannel,0 , 10);
+        bytesRead = decoder.transfer(fchannel,0 , 10);
         assertEquals(10, bytesRead);
         assertEquals("more stuff", readFromFile(tmpFile, 10));
         assertTrue(decoder.isCompleted());
         
-        bytesRead = decoder.read(fchannel, 0, 1);
+        bytesRead = decoder.transfer(fchannel, 0, 1);
         assertEquals(0, bytesRead);
         assertTrue(decoder.isCompleted());
         

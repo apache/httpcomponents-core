@@ -83,7 +83,7 @@ public class IdentityDecoder extends AbstractContentDecoder
         return bytesRead;
     }
     
-    public long read(
+    public long transfer(
             final FileChannel fileChannel, 
             long position, 
             long count) throws IOException {

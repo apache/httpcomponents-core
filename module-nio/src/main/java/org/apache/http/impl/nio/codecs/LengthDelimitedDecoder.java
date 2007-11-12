@@ -107,7 +107,7 @@ public class LengthDelimitedDecoder extends AbstractContentDecoder
         return bytesRead;
     }
     
-    public long read(final FileChannel fileChannel, long position, long count) throws IOException {
+    public long transfer(final FileChannel fileChannel, long position, long count) throws IOException {
         if (fileChannel == null) {
             return 0;
         }

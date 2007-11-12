@@ -43,7 +43,7 @@ public interface FileContentDecoder extends ContentDecoder {
      * Transfers a portion of entity content from the underlying network channel
      * into the given file channel.
      * 
-     * @param  channel the target FileChannel to transfer data into.
+     * @param  dst the target FileChannel to transfer data into.
      * @param  position
      *         The position within the file at which the transfer is to begin;
      *         must be non-negative
@@ -54,6 +54,6 @@ public interface FileContentDecoder extends ContentDecoder {
      * @return  The number of bytes, possibly zero,
      *          that were actually transferred
      */
-    long read(FileChannel channel, long position, long count) throws IOException;
+    long transfer(FileChannel dst, long position, long count) throws IOException;
     
 }

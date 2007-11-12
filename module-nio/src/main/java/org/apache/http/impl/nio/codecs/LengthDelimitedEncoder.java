@@ -97,7 +97,7 @@ public class LengthDelimitedEncoder extends AbstractContentEncoder
         return bytesWritten;
     }
 
-    public long write(final FileChannel fileChannel, long position, long count) throws IOException {
+    public long transfer(final FileChannel fileChannel, long position, long count) throws IOException {
         if (fileChannel == null) {
             return 0;
         }

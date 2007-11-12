@@ -187,7 +187,7 @@ public class TestLengthDelimitedEncoder extends TestCase {
         
         FileChannel fchannel = new FileInputStream(tmpFile).getChannel();
         
-        encoder.write(fchannel, 0, 20);
+        encoder.transfer(fchannel, 0, 20);
         
         String s = baos.toString("US-ASCII");
         
@@ -219,7 +219,7 @@ public class TestLengthDelimitedEncoder extends TestCase {
         
         FileChannel fchannel = new FileInputStream(tmpFile).getChannel();
         
-        encoder.write(fchannel, 0, 20);
+        encoder.transfer(fchannel, 0, 20);
                 
         encoder.write(wrap("more stuff"));
         
@@ -253,7 +253,7 @@ public class TestLengthDelimitedEncoder extends TestCase {
         
         try {
             FileChannel fchannel = new FileInputStream(tmpFile).getChannel();
-            encoder.write(fchannel, 0, 10);
+            encoder.transfer(fchannel, 0, 10);
             fail("IllegalStateException should have been thrown");
         } catch (IllegalStateException ex) {
             // ignore
@@ -284,7 +284,7 @@ public class TestLengthDelimitedEncoder extends TestCase {
         
         FileChannel fchannel = new FileInputStream(tmpFile).getChannel();
         
-        encoder.write(fchannel, 0, 20);
+        encoder.transfer(fchannel, 0, 20);
         
         String s = baos.toString("US-ASCII");
         

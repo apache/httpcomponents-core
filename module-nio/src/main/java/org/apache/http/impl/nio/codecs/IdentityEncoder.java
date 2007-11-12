@@ -72,7 +72,7 @@ public class IdentityEncoder extends AbstractContentEncoder
         return bytesWritten;
     }
  
-    public long write(
+    public long transfer(
             final FileChannel filechannel, 
             long position, 
             long count) throws IOException {
