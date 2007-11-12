@@ -124,10 +124,7 @@ public class LengthDelimitedDecoder extends AbstractContentDecoder
         long bytesRead;
         if (this.buffer.hasData()) {
             int maxLen = Math.min(lenRemaining, this.buffer.length());
-            ByteBuffer tmpDst = ByteBuffer.allocate(maxLen);
-            this.buffer.read(tmpDst, maxLen);
-            tmpDst.flip();
-            bytesRead = dst.write(tmpDst);
+            bytesRead = this.buffer.read(dst, maxLen);
         } else {
             if (count > lenRemaining) {
                 count = lenRemaining;

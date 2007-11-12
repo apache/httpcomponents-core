@@ -33,6 +33,7 @@ package org.apache.http.nio.reactor;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
+import java.nio.channels.ReadableByteChannel;
 import java.nio.channels.WritableByteChannel;
 import java.nio.charset.CharacterCodingException;
 
@@ -54,11 +55,15 @@ public interface SessionOutputBuffer {
     int flush(WritableByteChannel channel) 
         throws IOException;
 
-    void write(final ByteBuffer src);
+    void write(ByteBuffer src);
 
+    void write(ReadableByteChannel src) 
+        throws IOException;
+    
     void writeLine(CharArrayBuffer linebuffer) 
         throws CharacterCodingException;
     
-    void writeLine(String s) throws IOException;
+    void writeLine(String s) 
+        throws IOException;
     
 }

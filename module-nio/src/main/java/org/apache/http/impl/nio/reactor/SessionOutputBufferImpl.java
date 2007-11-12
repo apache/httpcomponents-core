@@ -34,6 +34,7 @@ package org.apache.http.impl.nio.reactor;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.CharBuffer;
+import java.nio.channels.ReadableByteChannel;
 import java.nio.channels.WritableByteChannel;
 import java.nio.charset.CharacterCodingException;
 import java.nio.charset.Charset;
@@ -89,13 +90,21 @@ public class SessionOutputBufferImpl extends ExpandableBuffer implements Session
     }
 
     public void write(final ByteBuffer src) {
-        if (buffer == null) {
+        if (src == null) {
             return;
         }
         setInputMode();
         int requiredCapacity = this.buffer.position() + src.remaining();
         ensureCapacity(requiredCapacity);
         this.buffer.put(src);
+    }
+
+    public void write(final ReadableByteChannel src) throws IOException {
+        if (src == null) {
+            return;
+        }
+        setInputMode();
+        src.read(this.buffer);
     }
 
     private void write(final byte[] b) {

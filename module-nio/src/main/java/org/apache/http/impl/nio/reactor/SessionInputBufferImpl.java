@@ -35,6 +35,7 @@ import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.CharBuffer;
 import java.nio.channels.ReadableByteChannel;
+import java.nio.channels.WritableByteChannel;
 import java.nio.charset.CharacterCodingException;
 import java.nio.charset.Charset;
 import java.nio.charset.CharsetDecoder;
@@ -109,8 +110,37 @@ public class SessionInputBufferImpl extends ExpandableBuffer implements SessionI
         }
         return read(dst, dst.remaining());
     }
+
+    public int read(final WritableByteChannel dst, int maxLen) throws IOException {
+        if (dst == null) {
+            return 0;
+        }
+        setOutputMode();
+        int bytesRead;
+        if (this.buffer.remaining() > maxLen) {
+            int oldLimit = this.buffer.limit();
+            int newLimit = oldLimit - (this.buffer.remaining() - maxLen);
+            this.buffer.limit(newLimit);
+            bytesRead = dst.write(this.buffer);
+            this.buffer.limit(oldLimit);
+        } else {
+            bytesRead = dst.write(this.buffer);
+        }
+        return bytesRead;
+    }
     
-    public boolean readLine(final CharArrayBuffer linebuffer, boolean endOfStream) throws CharacterCodingException {
+    public int read(final WritableByteChannel dst) throws IOException {
+        if (dst == null) {
+            return 0;
+        }
+        setOutputMode();
+        return dst.write(this.buffer);
+    }
+    
+    public boolean readLine(
+            final CharArrayBuffer linebuffer, 
+            boolean endOfStream) throws CharacterCodingException {
+        
         setOutputMode();
         // See if there is LF char present in the buffer
         int pos = -1;

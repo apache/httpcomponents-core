@@ -34,6 +34,7 @@ package org.apache.http.nio.reactor;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.channels.ReadableByteChannel;
+import java.nio.channels.WritableByteChannel;
 import java.nio.charset.CharacterCodingException;
 
 import org.apache.http.util.CharArrayBuffer;
@@ -59,6 +60,10 @@ public interface SessionInputBuffer {
     int read(ByteBuffer dst, int maxLen);
     
     int read(ByteBuffer dst);
+    
+    int read(WritableByteChannel dst, int maxLen) throws IOException;
+    
+    int read(WritableByteChannel dst) throws IOException;
     
     boolean readLine(CharArrayBuffer linebuffer, boolean endOfStream) 
         throws CharacterCodingException;

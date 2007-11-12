@@ -97,10 +97,7 @@ public class IdentityDecoder extends AbstractContentDecoder
         
         long bytesRead;
         if (this.buffer.hasData()) {
-            ByteBuffer tmpDst = ByteBuffer.allocate((int)count);
-            this.buffer.read(tmpDst);
-            tmpDst.flip();
-            bytesRead = dst.write(tmpDst);
+            bytesRead = this.buffer.read(dst);
         } else {
             if (this.channel.isOpen()) {
                 bytesRead = dst.transferFrom(this.channel, position, count);
