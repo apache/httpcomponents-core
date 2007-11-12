@@ -1,7 +1,7 @@
 /*
- * $HeadURL:$
- * $Revision:$
- * $Date:$
+ * $HeadURL$
+ * $Revision$
+ * $Date$
  *
  * ====================================================================
  * Licensed to the Apache Software Foundation (ASF) under one
@@ -35,15 +35,19 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InterruptedIOException;
+import java.io.RandomAccessFile;
 import java.io.UnsupportedEncodingException;
 import java.net.InetSocketAddress;
 import java.net.URLDecoder;
 import java.nio.ByteBuffer;
 import java.nio.channels.Channels;
+import java.nio.channels.FileChannel;
 import java.nio.channels.ReadableByteChannel;
 
 import org.apache.http.ConnectionReuseStrategy;
+import org.apache.http.Header;
 import org.apache.http.HttpConnection;
+import org.apache.http.HttpEntity;
 import org.apache.http.HttpEntityEnclosingRequest;
 import org.apache.http.HttpException;
 import org.apache.http.HttpRequest;
@@ -60,14 +64,11 @@ import org.apache.http.impl.nio.DefaultServerIOEventDispatch;
 import org.apache.http.impl.nio.reactor.DefaultListeningIOReactor;
 import org.apache.http.nio.ContentDecoder;
 import org.apache.http.nio.ContentEncoder;
+import org.apache.http.nio.FileContentDecoder;
 import org.apache.http.nio.NHttpServerConnection;
 import org.apache.http.nio.NHttpServiceHandler;
-import org.apache.http.nio.entity.ContentBufferEntity;
 import org.apache.http.nio.reactor.IOEventDispatch;
 import org.apache.http.nio.reactor.ListeningIOReactor;
-import org.apache.http.nio.util.ContentInputBuffer;
-import org.apache.http.nio.util.HeapByteBufferAllocator;
-import org.apache.http.nio.util.SimpleInputBuffer;
 import org.apache.http.params.BasicHttpParams;
 import org.apache.http.params.HttpConnectionParams;
 import org.apache.http.params.HttpParams;
@@ -75,6 +76,7 @@ import org.apache.http.params.HttpParamsLinker;
 import org.apache.http.params.HttpProtocolParams;
 import org.apache.http.protocol.BasicHttpProcessor;
 import org.apache.http.protocol.ExecutionContext;
+import org.apache.http.protocol.HTTP;
 import org.apache.http.protocol.HttpContext;
 import org.apache.http.protocol.HttpProcessor;
 import org.apache.http.protocol.ResponseConnControl;
@@ -119,16 +121,20 @@ public class NHttpFileServer {
     
     static class ConnState {
 
-        private final SimpleInputBuffer inbuf;
+        private final ByteBuffer inbuf;
         private final ByteBuffer outbuf;
+        
+        private File fileHandle;
+        private RandomAccessFile inputFile;
+        private long inputCount;
         
         public ConnState() {
             super();
-            this.inbuf = new SimpleInputBuffer(2048, new HeapByteBufferAllocator());
+            this.inbuf = ByteBuffer.allocateDirect(2048);
             this.outbuf = ByteBuffer.allocateDirect(2048);
         }
 
-        public ContentInputBuffer getInbuf() {
+        public ByteBuffer getInbuf() {
             return this.inbuf;
         }
 
@@ -136,9 +142,41 @@ public class NHttpFileServer {
             return this.outbuf;
         }
 
-        public void reset() {
-            this.inbuf.reset();
+        
+        public File getInputFile() throws IOException {
+            if (this.fileHandle == null) {
+                this.fileHandle = File.createTempFile("tmp", ".tmp", null);
+            }
+            return this.fileHandle;
+        }
+        
+        public FileChannel getInputChannel() throws IOException {
+            if (this.inputFile == null) {
+                this.inputFile = new RandomAccessFile(getInputFile(), "rw");
+            }
+            return this.inputFile.getChannel();
+        }
+        
+        public long getInputCount() {
+            return this.inputCount;
+        }
+        
+        public void incrementInputCount(long count) {
+            this.inputCount += count;
+        }
+        
+        public void reset() throws IOException {
+            this.inbuf.clear();
             this.outbuf.clear();
+            this.inputCount = 0;
+            if (this.inputFile != null) {
+                this.inputFile.close();
+                this.inputFile = null;
+            }
+            if (this.fileHandle != null) {
+                this.fileHandle.delete();
+                this.fileHandle = null;
+            }
         }
         
     }
@@ -181,6 +219,13 @@ public class NHttpFileServer {
         public void closed(final NHttpServerConnection conn) {
             System.out.println("Connection closed");
             HttpContext context = conn.getContext();
+
+            ConnState connState = (ConnState) context.getAttribute(CONN_STATE);
+            try {
+                connState.reset();
+            } catch (IOException ex) {
+                System.err.println("I/O error: " + ex.getMessage());
+            }
             context.setAttribute(CONN_STATE, null);
         }
 
@@ -227,12 +272,13 @@ public class NHttpFileServer {
             HttpContext context = conn.getContext();
             
             ConnState connState = (ConnState) context.getAttribute(CONN_STATE);
-            connState.reset();
             
             HttpRequest request = conn.getHttpRequest();
             ProtocolVersion ver = request.getRequestLine().getProtocolVersion();
 
             try {
+                connState.reset();
+
                 if (request instanceof HttpEntityEnclosingRequest) {
                     
                     HttpEntityEnclosingRequest eeRequest = (HttpEntityEnclosingRequest) request;
@@ -265,11 +311,29 @@ public class NHttpFileServer {
             ConnState connState = (ConnState) context.getAttribute(
                     CONN_STATE);
             
-            ContentInputBuffer inbuf = connState.getInbuf();
             try {
-                inbuf.consumeContent(decoder);
+
+                FileChannel filechannel = connState.getInputChannel();
+                
+                // Test if the decoder is capable of 
+                // direct transfer to file
+                if (decoder instanceof FileContentDecoder) {
+                    long pos = connState.getInputCount();
+                    long transferred = ((FileContentDecoder) decoder).transfer(
+                            filechannel, pos, Integer.MAX_VALUE);
+                    connState.incrementInputCount(transferred);
+                } else {
+                    ByteBuffer buf = connState.getInbuf();
+                    decoder.read(buf);
+                    buf.flip();
+                    int transferred = filechannel.write(buf);
+                    buf.compact();
+                    connState.incrementInputCount(transferred);
+                }
+                
                 if (decoder.isCompleted()) {
                     // Request entity has been fully received
+                    filechannel.close();
                     doService(conn, connState);
                 }
                 
@@ -342,12 +406,13 @@ public class NHttpFileServer {
 
             if (request instanceof HttpEntityEnclosingRequest) {
                 HttpEntityEnclosingRequest eeRequest = (HttpEntityEnclosingRequest) request;
-                // Create a wrapper entity instead of the original one
-                if (eeRequest.getEntity() != null) {
-                    eeRequest.setEntity(new ContentBufferEntity(
-                            eeRequest.getEntity(), 
-                            connState.getInbuf()));
+                Header h = request.getFirstHeader(HTTP.CONTENT_TYPE);
+                String contentType = null;
+                if (h != null) {
+                    contentType = h.getValue();
                 }
+                HttpEntity entity = new FileEntity(connState.getInputFile(), contentType);
+                eeRequest.setEntity(entity);
             }
             
             ProtocolVersion ver = request.getRequestLine().getProtocolVersion();
