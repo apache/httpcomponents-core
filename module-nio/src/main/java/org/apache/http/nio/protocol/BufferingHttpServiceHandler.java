@@ -193,6 +193,13 @@ public class BufferingHttpServiceHandler extends NHttpServiceHandlerBase
     }
 
     public void exception(final NHttpServerConnection conn, final HttpException httpex) {
+        if (conn.isResponseSubmitted()) {
+            if (eventListener != null) {
+                eventListener.fatalProtocolException(httpex, conn);
+            }
+            return;
+        }
+        
         HttpContext context = conn.getContext();
         try {
             HttpResponse response = this.responseFactory.newHttpResponse(

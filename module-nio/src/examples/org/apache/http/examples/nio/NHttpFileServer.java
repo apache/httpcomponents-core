@@ -240,6 +240,11 @@ public class NHttpFileServer {
         }
 
         public void exception(final NHttpServerConnection conn, final HttpException ex) {
+            if (conn.isResponseSubmitted()) {
+                System.err.println("Unexpected HTTP protocol error: " + ex.getMessage());
+                return;
+            }
+            
             HttpContext context = conn.getContext();
             HttpResponse response =  this.responseFactory.newHttpResponse(
                     HttpVersion.HTTP_1_0, HttpStatus.SC_BAD_REQUEST, context);

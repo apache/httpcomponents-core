@@ -142,6 +142,7 @@ public class DefaultNHttpServerConnection
         } catch (IOException ex) {
             handler.exception(this, ex);
         } catch (HttpException ex) {
+            resetInput();
             handler.exception(this, ex);
         } finally {
             // Finally set buffered input flag

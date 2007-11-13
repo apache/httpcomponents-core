@@ -133,6 +133,13 @@ public class ThrottlingHttpServiceHandler extends NHttpServiceHandlerBase {
     }
     
     public void exception(final NHttpServerConnection conn, final HttpException httpex) {
+        if (conn.isResponseSubmitted()) {
+            if (eventListener != null) {
+                eventListener.fatalProtocolException(httpex, conn);
+            }
+            return;
+        }
+        
         HttpContext context = conn.getContext();
         
         ServerConnState connState = (ServerConnState) context.getAttribute(CONN_STATE);
