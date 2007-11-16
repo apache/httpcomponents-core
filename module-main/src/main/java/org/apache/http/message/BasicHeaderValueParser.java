@@ -73,6 +73,10 @@ public class BasicHeaderValueParser implements HeaderValueParser {
 
     private final static char PARAM_DELIMITER                = ';';
     private final static char ELEM_DELIMITER                 = ',';
+    private final static char[] ALL_DELIMITERS               = new char[] {
+                                                                PARAM_DELIMITER, 
+                                                                ELEM_DELIMITER
+                                                                };  
     
     // public default constructor
 
@@ -294,6 +298,23 @@ public class BasicHeaderValueParser implements HeaderValueParser {
     // non-javadoc, see interface HeaderValueParser
     public NameValuePair parseNameValuePair(final CharArrayBuffer buffer,
                                             final ParserCursor cursor) {
+        return parseNameValuePair(buffer, cursor, ALL_DELIMITERS);
+    }
+    
+    private static boolean isOneOf(final char ch, final char[] chs) {
+        if (chs != null) {
+            for (int i = 0; i < chs.length; i++) {
+                if (ch == chs[i]) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+    
+    public NameValuePair parseNameValuePair(final CharArrayBuffer buffer,
+                                            final ParserCursor cursor,
+                                            final char[] delimiters) {
 
         if (buffer == null) {
             throw new IllegalArgumentException("Char array buffer may not be null");
@@ -315,7 +336,7 @@ public class BasicHeaderValueParser implements HeaderValueParser {
             if (ch == '=') {
                 break;
             }
-            if (ch == PARAM_DELIMITER || ch == ELEM_DELIMITER) {
+            if (isOneOf(ch, delimiters)) {
                 terminated = true;
                 break;
             }
@@ -346,8 +367,7 @@ public class BasicHeaderValueParser implements HeaderValueParser {
             if (ch == '"' && !escaped) {
                 qouted = !qouted;
             }
-            if (!qouted && !escaped && 
-                    (ch == PARAM_DELIMITER || ch == ELEM_DELIMITER)) {
+            if (!qouted && !escaped && isOneOf(ch, delimiters)) {
                 terminated = true;
                 break;
             }
