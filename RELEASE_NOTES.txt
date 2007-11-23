@@ -1,5 +1,9 @@
 Changes since 4.0 Alpha 6
 
+* [HTTPCORE-130] Fixed over-synchronization bug leading to a thread deadlock 
+  condition in SSL IOEventDispatch implementations.
+  Contributed by Oleg Kalnichevski <olegk at apache.org>
+
 * [HTTPCORE-37] HttpParams beans
   Contributed by Stojce Dimski <sdmiski at yahoo.it>
 

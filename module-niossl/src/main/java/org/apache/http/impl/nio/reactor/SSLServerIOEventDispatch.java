@@ -135,12 +135,10 @@ public class SSLServerIOEventDispatch implements IOEventDispatch {
             (SSLIOSession) session.getAttribute(SSL_SESSION);
 
         try {
-            synchronized (sslSession) {
-                if (sslSession.isAppInputReady()) {
-                    conn.consumeInput(this.handler);
-                }
-                sslSession.inboundTransport();
+            if (sslSession.isAppInputReady()) {
+                conn.consumeInput(this.handler);
             }
+            sslSession.inboundTransport();
         } catch (IOException ex) {
             this.handler.exception(conn, ex);
             sslSession.shutdown();
@@ -154,12 +152,10 @@ public class SSLServerIOEventDispatch implements IOEventDispatch {
             (SSLIOSession) session.getAttribute(SSL_SESSION);
 
         try {
-            synchronized (sslSession) {
-                if (sslSession.isAppOutputReady()) {
-                    conn.produceOutput(this.handler);
-                }
-                sslSession.outboundTransport();
+            if (sslSession.isAppOutputReady()) {
+                conn.produceOutput(this.handler);
             }
+            sslSession.outboundTransport();
         } catch (IOException ex) {
             this.handler.exception(conn, ex);
             sslSession.shutdown();
