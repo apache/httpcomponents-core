@@ -41,6 +41,7 @@ import java.util.Iterator;
 import java.util.Set;
 
 import org.apache.http.nio.reactor.IOReactorException;
+import org.apache.http.nio.reactor.ListenerEndpoint;
 import org.apache.http.nio.reactor.ListeningIOReactor;
 import org.apache.http.params.HttpParams;
 import org.apache.http.util.concurrent.ThreadFactory;
@@ -48,11 +49,14 @@ import org.apache.http.util.concurrent.ThreadFactory;
 public class DefaultListeningIOReactor extends AbstractMultiworkerIOReactor 
         implements ListeningIOReactor {
 
+    private final ListenerEndpointQueue requestQueue;
+    
     public DefaultListeningIOReactor(
             int workerCount, 
             final ThreadFactory threadFactory,
             final HttpParams params) throws IOReactorException {
         super(workerCount, threadFactory, params);
+        this.requestQueue = new ListenerEndpointQueue();
     }
 
     public DefaultListeningIOReactor(
@@ -62,6 +66,8 @@ public class DefaultListeningIOReactor extends AbstractMultiworkerIOReactor
     }
     
     protected void processEvents(int readyCount) throws IOReactorException {
+        processSessionRequests();
+
         if (readyCount > 0) {
             Set selectedKeys = this.selector.selectedKeys();
             for (Iterator it = selectedKeys.iterator(); it.hasNext(); ) {
@@ -108,17 +114,46 @@ public class DefaultListeningIOReactor extends AbstractMultiworkerIOReactor
         }
     }
 
-    public SocketAddress listen(
-            final SocketAddress address) throws IOException {
+    public ListenerEndpoint listen(final SocketAddress address) {
         if (this.status > ACTIVE) {
             throw new IllegalStateException("I/O reactor has been shut down");
         }
-        ServerSocketChannel serverChannel = ServerSocketChannel.open();
-        serverChannel.configureBlocking(false);
-        serverChannel.socket().bind(address);
-        SelectionKey key = serverChannel.register(this.selector, SelectionKey.OP_ACCEPT);
-        key.attach(null);
-        return serverChannel.socket().getLocalSocketAddress();
+        ListenerEndpointImpl request = new ListenerEndpointImpl(address);
+        this.requestQueue.push(request);
+        this.selector.wakeup();
+        return request;
     }
 
+    private void processSessionRequests() throws IOReactorException {
+        ListenerEndpointImpl request;
+        while ((request = this.requestQueue.pop()) != null) {
+            SocketAddress address = request.getAddress();
+            ServerSocketChannel serverChannel;
+            try {
+                serverChannel = ServerSocketChannel.open();
+                serverChannel.configureBlocking(false);
+            } catch (IOException ex) {
+                throw new IOReactorException("Failure opening server socket", ex);
+            }
+            try {
+                serverChannel.socket().bind(address);
+            } catch (IOException ex) {
+                request.failed(ex);
+                if (this.exceptionHandler == null || !this.exceptionHandler.handle(ex)) {
+                    throw new IOReactorException("Failure binding socket to address " 
+                            + address, ex);
+                }
+            }
+            try {
+                SelectionKey key = serverChannel.register(this.selector, SelectionKey.OP_ACCEPT);
+                key.attach(request);
+                request.setKey(key);
+            } catch (IOException ex) {
+                throw new IOReactorException("Failure registering channel " +
+                        "with the selector", ex);
+            }
+            request.completed(serverChannel.socket().getLocalSocketAddress());
+        }
+    }
+    
 }

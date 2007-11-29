@@ -58,6 +58,7 @@ import org.apache.http.nio.NHttpClientHandler;
 import org.apache.http.nio.NHttpConnection;
 import org.apache.http.nio.NHttpServiceHandler;
 import org.apache.http.nio.protocol.HttpRequestExecutionHandler;
+import org.apache.http.nio.reactor.ListenerEndpoint;
 import org.apache.http.params.CoreProtocolPNames;
 import org.apache.http.protocol.ExecutionContext;
 import org.apache.http.protocol.HttpContext;
@@ -197,7 +198,9 @@ public class TestNIOSSLHttp extends HttpCoreNIOSSLTestBase {
         this.server.start(serviceHandler);
         this.client.start(clientHandler);
         
-        InetSocketAddress serverAddress = (InetSocketAddress) this.server.getSocketAddress();
+        ListenerEndpoint endpoint = this.server.getListenerEndpoint();
+        endpoint.waitFor();
+        InetSocketAddress serverAddress = (InetSocketAddress) endpoint.getAddress();
         
         for (int i = 0; i < responseData.length; i++) {
             this.client.openConnection(
@@ -339,7 +342,9 @@ public class TestNIOSSLHttp extends HttpCoreNIOSSLTestBase {
         this.server.start(serviceHandler);
         this.client.start(clientHandler);
         
-        InetSocketAddress serverAddress = (InetSocketAddress) this.server.getSocketAddress();
+        ListenerEndpoint endpoint = this.server.getListenerEndpoint();
+        endpoint.waitFor();
+        InetSocketAddress serverAddress = (InetSocketAddress) endpoint.getAddress();
         
         for (int i = 0; i < responseData.length; i++) {
             this.client.openConnection(
@@ -484,7 +489,9 @@ public class TestNIOSSLHttp extends HttpCoreNIOSSLTestBase {
         this.server.start(serviceHandler);
         this.client.start(clientHandler);
         
-        InetSocketAddress serverAddress = (InetSocketAddress) this.server.getSocketAddress();
+        ListenerEndpoint endpoint = this.server.getListenerEndpoint();
+        endpoint.waitFor();
+        InetSocketAddress serverAddress = (InetSocketAddress) endpoint.getAddress();
         
         for (int i = 0; i < responseData.length; i++) {
             this.client.openConnection(
@@ -634,7 +641,9 @@ public class TestNIOSSLHttp extends HttpCoreNIOSSLTestBase {
         this.server.start(serviceHandler);
         this.client.start(clientHandler);
         
-        InetSocketAddress serverAddress = (InetSocketAddress) this.server.getSocketAddress();
+        ListenerEndpoint endpoint = this.server.getListenerEndpoint();
+        endpoint.waitFor();
+        InetSocketAddress serverAddress = (InetSocketAddress) endpoint.getAddress();
         
         for (int i = 0; i < responseData.length; i++) {
             this.client.openConnection(

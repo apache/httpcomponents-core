@@ -50,6 +50,7 @@ import org.apache.http.nio.protocol.EventListener;
 import org.apache.http.nio.protocol.HttpRequestExecutionHandler;
 import org.apache.http.nio.reactor.IOReactor;
 import org.apache.http.nio.reactor.IOReactorExceptionHandler;
+import org.apache.http.nio.reactor.ListenerEndpoint;
 import org.apache.http.params.BasicHttpParams;
 import org.apache.http.params.HttpParams;
 import org.apache.http.protocol.HttpContext;
@@ -168,7 +169,10 @@ public class TestDefaultIOReactors extends HttpCoreNIOTestBase {
         this.server.start(serviceHandler);
         this.client.start(clientHandler);
         
-        InetSocketAddress serverAddress = (InetSocketAddress) this.server.getSocketAddress();
+        
+        ListenerEndpoint endpoint = this.server.getListenerEndpoint();
+        endpoint.waitFor();
+        InetSocketAddress serverAddress = (InetSocketAddress) endpoint.getAddress();
         
         for (int i = 0; i < connNo; i++) {
             this.client.openConnection(
@@ -238,7 +242,9 @@ public class TestDefaultIOReactors extends HttpCoreNIOTestBase {
         this.server.start(serviceHandler);
         this.client.start(clientHandler);
         
-        InetSocketAddress serverAddress = (InetSocketAddress) this.server.getSocketAddress();
+        ListenerEndpoint endpoint = this.server.getListenerEndpoint();
+        endpoint.waitFor();
+        InetSocketAddress serverAddress = (InetSocketAddress) endpoint.getAddress();
         
         this.client.openConnection(
                 new InetSocketAddress("localhost", serverAddress.getPort()), 
@@ -322,7 +328,9 @@ public class TestDefaultIOReactors extends HttpCoreNIOTestBase {
         this.server.start(serviceHandler);
         this.client.start(clientHandler);
         
-        InetSocketAddress serverAddress = (InetSocketAddress) this.server.getSocketAddress();
+        ListenerEndpoint endpoint = this.server.getListenerEndpoint();
+        endpoint.waitFor();
+        InetSocketAddress serverAddress = (InetSocketAddress) endpoint.getAddress();
         
         this.client.openConnection(
                 new InetSocketAddress("localhost", serverAddress.getPort()), 
@@ -409,7 +417,9 @@ public class TestDefaultIOReactors extends HttpCoreNIOTestBase {
         this.server.start(serviceHandler);
         this.client.start(clientHandler);
         
-        InetSocketAddress serverAddress = (InetSocketAddress) this.server.getSocketAddress();
+        ListenerEndpoint endpoint = this.server.getListenerEndpoint();
+        endpoint.waitFor();
+        InetSocketAddress serverAddress = (InetSocketAddress) endpoint.getAddress();
         
         this.client.openConnection(
                 new InetSocketAddress("localhost", serverAddress.getPort()), 

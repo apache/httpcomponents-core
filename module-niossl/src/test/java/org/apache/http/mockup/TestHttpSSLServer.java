@@ -44,6 +44,7 @@ import org.apache.http.impl.nio.reactor.DefaultListeningIOReactor;
 import org.apache.http.impl.nio.reactor.SSLServerIOEventDispatch;
 import org.apache.http.nio.NHttpServiceHandler;
 import org.apache.http.nio.reactor.IOEventDispatch;
+import org.apache.http.nio.reactor.ListenerEndpoint;
 import org.apache.http.nio.reactor.ListeningIOReactor;
 import org.apache.http.params.HttpParams;
 
@@ -57,16 +58,14 @@ public class TestHttpSSLServer {
     private final SSLContext sslcontext;
     private final ListeningIOReactor ioReactor;
     private final HttpParams params;
-    private final Object socketMutex;
     
     private volatile IOReactorThread thread;
-    private volatile InetSocketAddress address;
+    private ListenerEndpoint endpoint;
     
     public TestHttpSSLServer(final HttpParams params) throws Exception {
         super();
         this.params = params;
         this.ioReactor = new DefaultListeningIOReactor(2, this.params);
-        this.socketMutex = new Object();
         
         ClassLoader cl = getClass().getClassLoader();
         URL url = cl.getResource("test.keystore");
@@ -85,12 +84,6 @@ public class TestHttpSSLServer {
     }
     
     private void execute(final NHttpServiceHandler serviceHandler) throws IOException {
-        synchronized (this.socketMutex) {
-            this.address = (InetSocketAddress) this.ioReactor.listen(
-                    new InetSocketAddress(0));
-            this.socketMutex.notifyAll();
-        }
-        
         IOEventDispatch ioEventDispatch = new SSLServerIOEventDispatch(
                 serviceHandler, 
                 this.sslcontext,
@@ -98,17 +91,13 @@ public class TestHttpSSLServer {
         
         this.ioReactor.execute(ioEventDispatch);
     }
-    
-    public InetSocketAddress getSocketAddress() throws InterruptedException {
-        synchronized (this.socketMutex) {
-            while (this.address == null) {
-                this.socketMutex.wait();
-            }
-        }
-        return this.address;
+
+    public ListenerEndpoint getListenerEndpoint() {
+        return this.endpoint;
     }
 
     public void start(final NHttpServiceHandler serviceHandler) {
+        this.endpoint = this.ioReactor.listen(new InetSocketAddress(0));
         this.thread = new IOReactorThread(serviceHandler);
         this.thread.start();
     }

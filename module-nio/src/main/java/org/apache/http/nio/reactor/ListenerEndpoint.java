@@ -1,7 +1,7 @@
 /*
- * $HeadURL$
- * $Revision$
- * $Date$
+ * $HeadURL:$
+ * $Revision:$
+ * $Date:$
  *
  * ====================================================================
  * Licensed to the Apache Software Foundation (ASF) under one
@@ -31,10 +31,19 @@
 
 package org.apache.http.nio.reactor;
 
+import java.io.IOException;
 import java.net.SocketAddress;
 
-public interface ListeningIOReactor extends IOReactor {
+public interface ListenerEndpoint {
 
-    ListenerEndpoint listen(SocketAddress address);
+    SocketAddress getAddress();
+    
+    IOException getException();
+
+    void waitFor() throws InterruptedException;
+    
+    boolean isClosed();
+    
+    void close();
     
 }

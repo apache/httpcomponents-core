@@ -29,12 +29,32 @@
  *
  */
 
-package org.apache.http.nio.reactor;
+package org.apache.http.impl.nio.reactor;
 
-import java.net.SocketAddress;
+import java.util.LinkedList;
 
-public interface ListeningIOReactor extends IOReactor {
+public class ListenerEndpointQueue {
+    
+    private final LinkedList list;
+    
+    public ListenerEndpointQueue() {
+        super();
+        this.list = new LinkedList();
+    }
 
-    ListenerEndpoint listen(SocketAddress address);
+    public synchronized void push(final ListenerEndpointImpl entry) {
+        if (entry == null) {
+            return;
+        }
+        this.list.addLast(entry);
+    }
+
+    public synchronized ListenerEndpointImpl pop() {
+        if (!this.list.isEmpty()) {
+            return (ListenerEndpointImpl) this.list.removeFirst();
+        } else {
+            return null;
+        }
+    }
     
 }

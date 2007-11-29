@@ -32,6 +32,7 @@ package org.apache.http.impl.nio.reactor;
 import java.io.BufferedWriter;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
+import java.net.InetSocketAddress;
 import java.net.Socket;
 import java.net.URL;
 import java.security.KeyStore;
@@ -54,6 +55,7 @@ import org.apache.http.mockup.TestHttpSSLServer;
 import org.apache.http.nio.NHttpServiceHandler;
 import org.apache.http.nio.protocol.BufferingHttpServiceHandler;
 import org.apache.http.nio.protocol.EventListener;
+import org.apache.http.nio.reactor.ListenerEndpoint;
 import org.apache.http.params.BasicHttpParams;
 import org.apache.http.params.CoreConnectionPNames;
 import org.apache.http.params.HttpParams;
@@ -145,7 +147,11 @@ public class TestBaseIOReactorSSL extends TestCase {
         SSLContext sslcontext = SSLContext.getInstance("TLS");
         sslcontext.init(null, trustmanagers, null);        
 
-        Socket socket = sslcontext.getSocketFactory().createSocket("localhost", server.getSocketAddress().getPort());
+        ListenerEndpoint endpoint = this.server.getListenerEndpoint();
+        endpoint.waitFor();
+        InetSocketAddress serverAddress = (InetSocketAddress) endpoint.getAddress();
+        
+        Socket socket = sslcontext.getSocketFactory().createSocket("localhost", serverAddress.getPort());
         BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()));
         //            123456789012345678901234567890
         writer.write("GET / HTTP/1.1\r\n");

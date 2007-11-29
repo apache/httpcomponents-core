@@ -65,6 +65,7 @@ import org.apache.http.mockup.TestHttpServer;
 import org.apache.http.nio.NHttpClientHandler;
 import org.apache.http.nio.NHttpConnection;
 import org.apache.http.nio.NHttpServiceHandler;
+import org.apache.http.nio.reactor.ListenerEndpoint;
 import org.apache.http.params.BasicHttpParams;
 import org.apache.http.params.CoreConnectionPNames;
 import org.apache.http.params.CoreProtocolPNames;
@@ -293,7 +294,9 @@ public class TestNIOHttp extends TestCase {
         this.server.start(serviceHandler);
         this.client.start(clientHandler);
         
-        InetSocketAddress serverAddress = (InetSocketAddress) this.server.getSocketAddress();
+        ListenerEndpoint endpoint = this.server.getListenerEndpoint();
+        endpoint.waitFor();
+        InetSocketAddress serverAddress = (InetSocketAddress) endpoint.getAddress();
         
         for (int i = 0; i < responseData.length; i++) {
             this.client.openConnection(
@@ -433,7 +436,9 @@ public class TestNIOHttp extends TestCase {
         this.server.start(serviceHandler);
         this.client.start(clientHandler);
         
-        InetSocketAddress serverAddress = (InetSocketAddress) this.server.getSocketAddress();
+        ListenerEndpoint endpoint = this.server.getListenerEndpoint();
+        endpoint.waitFor();
+        InetSocketAddress serverAddress = (InetSocketAddress) endpoint.getAddress();
         
         for (int i = 0; i < responseData.length; i++) {
             this.client.openConnection(
@@ -573,7 +578,9 @@ public class TestNIOHttp extends TestCase {
         this.server.start(serviceHandler);
         this.client.start(clientHandler);
         
-        InetSocketAddress serverAddress = (InetSocketAddress) this.server.getSocketAddress();
+        ListenerEndpoint endpoint = this.server.getListenerEndpoint();
+        endpoint.waitFor();
+        InetSocketAddress serverAddress = (InetSocketAddress) endpoint.getAddress();
         
         for (int i = 0; i < responseData.length; i++) {
             this.client.openConnection(
@@ -721,7 +728,9 @@ public class TestNIOHttp extends TestCase {
         this.server.start(serviceHandler);
         this.client.start(clientHandler);
         
-        InetSocketAddress serverAddress = (InetSocketAddress) this.server.getSocketAddress();
+        ListenerEndpoint endpoint = this.server.getListenerEndpoint();
+        endpoint.waitFor();
+        InetSocketAddress serverAddress = (InetSocketAddress) endpoint.getAddress();
         
         for (int i = 0; i < responseData.length; i++) {
             this.client.openConnection(
@@ -864,7 +873,9 @@ public class TestNIOHttp extends TestCase {
         this.server.start(serviceHandler);
         this.client.start(clientHandler);
         
-        InetSocketAddress serverAddress = (InetSocketAddress) this.server.getSocketAddress();
+        ListenerEndpoint endpoint = this.server.getListenerEndpoint();
+        endpoint.waitFor();
+        InetSocketAddress serverAddress = (InetSocketAddress) endpoint.getAddress();
         
         for (int i = 0; i < responseData.length; i++) {
             this.client.openConnection(
@@ -1012,7 +1023,9 @@ public class TestNIOHttp extends TestCase {
         this.server.start(serviceHandler);
         this.client.start(clientHandler);
         
-        InetSocketAddress serverAddress = (InetSocketAddress) this.server.getSocketAddress();
+        ListenerEndpoint endpoint = this.server.getListenerEndpoint();
+        endpoint.waitFor();
+        InetSocketAddress serverAddress = (InetSocketAddress) endpoint.getAddress();
         
         this.client.openConnection(
                 new InetSocketAddress("localhost", serverAddress.getPort()), 
@@ -1133,7 +1146,9 @@ public class TestNIOHttp extends TestCase {
         this.server.start(serviceHandler);
         this.client.start(clientHandler);
         
-        InetSocketAddress serverAddress = (InetSocketAddress) this.server.getSocketAddress();
+        ListenerEndpoint endpoint = this.server.getListenerEndpoint();
+        endpoint.waitFor();
+        InetSocketAddress serverAddress = (InetSocketAddress) endpoint.getAddress();
 
         method[0] = "GET";
         
