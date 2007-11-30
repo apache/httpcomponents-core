@@ -33,6 +33,7 @@ package org.apache.http.nio.protocol;
 
 import java.io.IOException;
 import java.io.OutputStream;
+import java.util.concurrent.Executor;
 
 import org.apache.http.ConnectionReuseStrategy;
 import org.apache.http.HttpEntity;
@@ -69,7 +70,6 @@ import org.apache.http.protocol.ExecutionContext;
 import org.apache.http.protocol.HttpProcessor;
 import org.apache.http.protocol.HttpRequestHandler;
 import org.apache.http.util.EncodingUtils;
-import org.apache.http.util.concurrent.Executor;
 
 /**
  * HTTP service handler implementation that allocates content buffers of limited 

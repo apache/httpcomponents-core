@@ -42,8 +42,8 @@ import java.nio.channels.SelectionKey;
 import java.nio.channels.Selector;
 import java.util.Iterator;
 import java.util.Set;
+import java.util.concurrent.ThreadFactory;
 
-import org.apache.http.util.concurrent.ThreadFactory;
 import org.apache.http.nio.params.NIOReactorParams;
 import org.apache.http.nio.reactor.IOEventDispatch;
 import org.apache.http.nio.reactor.IOReactor;
