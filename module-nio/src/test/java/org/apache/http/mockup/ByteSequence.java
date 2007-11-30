@@ -1,7 +1,7 @@
 /*
- * $HeadURL$
- * $Revision$
- * $Date$
+ * $HeadURL:$
+ * $Revision:$
+ * $Date:$
  *
  * ====================================================================
  * Licensed to the Apache Software Foundation (ASF) under one
@@ -29,31 +29,40 @@
  *
  */
 
-package org.apache.http.impl.nio.reactor;
+package org.apache.http.mockup;
 
-import java.util.LinkedList;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Random;
 
-public class ChannelQueue {
+public class ByteSequence {
+
+    private final List<byte []> data;
     
-    private final LinkedList<ChannelEntry> list;
-    
-    public ChannelQueue() {
+    public ByteSequence() {
         super();
-        this.list = new LinkedList<ChannelEntry>();
+        this.data = new ArrayList<byte []>();
+    }
+    
+    public void addBytes(byte[] bytes) {
+        this.data.add(bytes);
+    }
+    
+    public int size() {
+        return this.data.size();
     }
 
-    public synchronized void push(final ChannelEntry entry) {
-        if (entry == null) {
-            return;
-        }
-        this.list.addLast(entry);
+    public byte[] getBytes(int index) {
+        return this.data.get(index);
     }
-
-    public synchronized ChannelEntry pop() {
-        if (!this.list.isEmpty()) {
-            return (ChannelEntry) this.list.removeFirst();
-        } else {
-            return null;
+    
+    public void rnd(int count) {
+        Random rnd = new Random();
+        for (int i = 0; i < count; i++) {
+            int size = rnd.nextInt(5000);
+            byte[] data = new byte[size];
+            rnd.nextBytes(data);
+            this.data.add(data);
         }
     }
     

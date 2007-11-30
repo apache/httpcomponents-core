@@ -61,7 +61,7 @@ public abstract class AbstractMessageParser implements NHttpMessageParser {
 
     private HttpMessage message;
     private CharArrayBuffer lineBuf;
-    private final List headerBufs;
+    private final List<CharArrayBuffer> headerBufs;
 
     private int maxLineLen = -1;
     private int maxHeaderCount = -1;
@@ -78,7 +78,7 @@ public abstract class AbstractMessageParser implements NHttpMessageParser {
         this.sessionBuffer = buffer;
         this.state = READ_HEAD_LINE;
         this.endOfStream = false;
-        this.headerBufs = new ArrayList();        
+        this.headerBufs = new ArrayList<CharArrayBuffer>();        
         this.maxLineLen = params.getIntParameter(
                 CoreConnectionPNames.MAX_LINE_LENGTH, -1);
         this.maxHeaderCount = params.getIntParameter(

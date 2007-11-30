@@ -35,11 +35,11 @@ import java.util.LinkedList;
 
 public class ListenerEndpointQueue {
     
-    private final LinkedList list;
+    private final LinkedList<ListenerEndpointImpl> list;
     
     public ListenerEndpointQueue() {
         super();
-        this.list = new LinkedList();
+        this.list = new LinkedList<ListenerEndpointImpl>();
     }
 
     public synchronized void push(final ListenerEndpointImpl entry) {

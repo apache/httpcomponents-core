@@ -39,11 +39,11 @@ import org.apache.http.nio.reactor.IOSession;
 
 public class SessionSet {
     
-    private final Set set;
+    private final Set<IOSession> set;
     
     public SessionSet() {
         super();
-        this.set = new HashSet();
+        this.set = new HashSet<IOSession>();
     }
 
     public synchronized void add(final IOSession session) {
@@ -68,7 +68,7 @@ public class SessionSet {
         return this.set.isEmpty();
     }
     
-    public Iterator iterator() {
+    public Iterator<IOSession> iterator() {
         return this.set.iterator();
     }
     

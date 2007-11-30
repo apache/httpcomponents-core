@@ -75,7 +75,7 @@ public abstract class AbstractMessageWriter implements NHttpMessageWriter {
             throw new IllegalArgumentException("HTTP message may not be null");
         }
         writeHeadLine(message);
-        for (Iterator it = message.headerIterator(); it.hasNext(); ) {
+        for (Iterator<?> it = message.headerIterator(); it.hasNext(); ) {
             Header header = (Header) it.next();
             this.sessionBuffer.writeLine
                 (lineFormatter.formatHeader(this.lineBuf, header));

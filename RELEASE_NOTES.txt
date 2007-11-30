@@ -1,5 +1,8 @@
 Changes since 4.0 Alpha 6
 
+* HttpCore NIO ported to Java 1.5.
+  Contributed by Oleg Kalnichevski <olegk at apache.org>
+
 * [HTTPCORE-130] Fixed over-synchronization bug leading to a thread deadlock 
   condition in SSL IOEventDispatch implementations.
   Contributed by Oleg Kalnichevski <olegk at apache.org>

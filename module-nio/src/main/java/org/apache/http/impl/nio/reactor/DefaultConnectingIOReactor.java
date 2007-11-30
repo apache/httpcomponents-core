@@ -75,10 +75,10 @@ public class DefaultConnectingIOReactor extends AbstractMultiworkerIOReactor
         processSessionRequests();
         
         if (readyCount > 0) {
-            Set selectedKeys = this.selector.selectedKeys();
-            for (Iterator it = selectedKeys.iterator(); it.hasNext(); ) {
+            Set<SelectionKey> selectedKeys = this.selector.selectedKeys();
+            for (Iterator<SelectionKey> it = selectedKeys.iterator(); it.hasNext(); ) {
                 
-                SelectionKey key = (SelectionKey) it.next();
+                SelectionKey key = it.next();
                 processEvent(key);
                 
             }
@@ -88,7 +88,7 @@ public class DefaultConnectingIOReactor extends AbstractMultiworkerIOReactor
         long currentTime = System.currentTimeMillis();
         if ((currentTime - this.lastTimeoutCheck) >= this.selectTimeout) {
             this.lastTimeoutCheck = currentTime;
-            Set keys = this.selector.keys();
+            Set<SelectionKey> keys = this.selector.keys();
             if (keys != null) {
                 processTimeouts(keys);
             }
@@ -134,10 +134,10 @@ public class DefaultConnectingIOReactor extends AbstractMultiworkerIOReactor
         }
     }
 
-    private void processTimeouts(final Set keys) {
+    private void processTimeouts(final Set<SelectionKey> keys) {
         long now = System.currentTimeMillis();
-        for (Iterator it = keys.iterator(); it.hasNext();) {
-            SelectionKey key = (SelectionKey) it.next();
+        for (Iterator<SelectionKey> it = keys.iterator(); it.hasNext();) {
+            SelectionKey key = it.next();
             Object attachment = key.attachment();
             
             if (attachment instanceof SessionRequestHandle) {

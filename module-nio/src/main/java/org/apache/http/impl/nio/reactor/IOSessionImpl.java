@@ -51,7 +51,7 @@ public class IOSessionImpl implements IOSession {
     private final SelectionKey key;
     private final ByteChannel channel;
     private final SessionClosedCallback callback;
-    private final Map attributes;
+    private final Map<String, Object> attributes;
     
     private SessionBufferStatus bufferStatus;
     private int socketTimeout;
@@ -64,7 +64,7 @@ public class IOSessionImpl implements IOSession {
         this.key = key;
         this.channel = (ByteChannel) this.key.channel();
         this.callback = callback;
-        this.attributes = Collections.synchronizedMap(new HashMap());
+        this.attributes = Collections.synchronizedMap(new HashMap<String, Object>());
         this.socketTimeout = 0;
         this.status = ACTIVE;
     }

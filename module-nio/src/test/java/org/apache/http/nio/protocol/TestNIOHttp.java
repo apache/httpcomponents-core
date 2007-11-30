@@ -36,7 +36,6 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Random;
 
 import junit.framework.Test;
 import junit.framework.TestCase;
@@ -56,10 +55,11 @@ import org.apache.http.impl.DefaultConnectionReuseStrategy;
 import org.apache.http.impl.DefaultHttpResponseFactory;
 import org.apache.http.message.BasicHttpEntityEnclosingRequest;
 import org.apache.http.message.BasicHttpRequest;
+import org.apache.http.mockup.ByteSequence;
 import org.apache.http.mockup.RequestCount;
+import org.apache.http.mockup.ResponseSequence;
 import org.apache.http.mockup.SimpleEventListener;
 import org.apache.http.mockup.SimpleHttpRequestHandlerResolver;
-import org.apache.http.mockup.SimpleThreadPoolExecutor;
 import org.apache.http.mockup.TestHttpClient;
 import org.apache.http.mockup.TestHttpServer;
 import org.apache.http.nio.NHttpClientHandler;
@@ -115,7 +115,6 @@ public class TestNIOHttp extends TestCase {
 
     private TestHttpServer server;
     private TestHttpClient client;
-    private SimpleThreadPoolExecutor executor;
     
     protected void setUp() throws Exception {
         HttpParams serverParams = new BasicHttpParams();
@@ -138,13 +137,11 @@ public class TestNIOHttp extends TestCase {
             .setParameter(CoreProtocolPNames.USER_AGENT, "TEST-CLIENT/1.1");
         
         this.client = new TestHttpClient(clientParams);
-        this.executor = new SimpleThreadPoolExecutor();
     }
 
     protected void tearDown() throws Exception {
         this.server.shutdown();
         this.client.shutdown();
-        this.executor.shutdown();
     }
     
     private NHttpServiceHandler createHttpServiceHandler(
@@ -198,21 +195,12 @@ public class TestNIOHttp extends TestCase {
         final int connNo = 3;
         final int reqNo = 20;
         final RequestCount requestCount = new RequestCount(connNo * reqNo); 
+        final ByteSequence requestData = new ByteSequence();
+        requestData.rnd(reqNo);
         
-        Random rnd = new Random();
-        
-        // Prepare some random data
-        final List testData = new ArrayList(reqNo);
-        for (int i = 0; i < reqNo; i++) {
-            int size = rnd.nextInt(5000);
-            byte[] data = new byte[size];
-            rnd.nextBytes(data);
-            testData.add(data);
-        }
-        
-        List[] responseData = new List[connNo];
-        for (int i = 0; i < responseData.length; i++) {
-            responseData[i] = new ArrayList();
+        List<ByteSequence> responseData = new ArrayList<ByteSequence>(connNo);
+        for (int i = 0; i < connNo; i++) {
+            responseData.add(new ByteSequence());
         }
         
         HttpRequestHandler requestHandler = new HttpRequestHandler() {
@@ -230,8 +218,8 @@ public class TestNIOHttp extends TestCase {
                     throw new HttpException("Invalid request URI: " + s);
                 }
                 int index = Integer.parseInt(uri.getQuery());
-                byte[] data = (byte []) testData.get(index);
-                ByteArrayEntity entity = new ByteArrayEntity(data); 
+                byte[] bytes = requestData.getBytes(index);
+                ByteArrayEntity entity = new ByteArrayEntity(bytes); 
                 response.setEntity(entity);
             }
             
@@ -240,7 +228,7 @@ public class TestNIOHttp extends TestCase {
         HttpRequestExecutionHandler requestExecutionHandler = new HttpRequestExecutionHandler() {
 
             public void initalizeContext(final HttpContext context, final Object attachment) {
-                context.setAttribute("LIST", (List) attachment);
+                context.setAttribute("LIST", (ByteSequence) attachment);
                 context.setAttribute("REQ-COUNT", new Integer(0));
                 context.setAttribute("RES-COUNT", new Integer(0));
             }
@@ -262,7 +250,7 @@ public class TestNIOHttp extends TestCase {
                 NHttpConnection conn = (NHttpConnection) context.getAttribute(
                         ExecutionContext.HTTP_CONNECTION);
                 
-                List list = (List) context.getAttribute("LIST");
+                ByteSequence list = (ByteSequence) context.getAttribute("LIST");
                 int i = ((Integer) context.getAttribute("RES-COUNT")).intValue();
                 i++;
                 context.setAttribute("RES-COUNT", new Integer(i));
@@ -270,7 +258,7 @@ public class TestNIOHttp extends TestCase {
                 try {
                     HttpEntity entity = response.getEntity();
                     byte[] data = EntityUtils.toByteArray(entity);
-                    list.add(data);
+                    list.addBytes(data);
                     requestCount.decrement();
                 } catch (IOException ex) {
                     requestCount.abort();
@@ -298,10 +286,10 @@ public class TestNIOHttp extends TestCase {
         endpoint.waitFor();
         InetSocketAddress serverAddress = (InetSocketAddress) endpoint.getAddress();
         
-        for (int i = 0; i < responseData.length; i++) {
+        for (int i = 0; i < responseData.size(); i++) {
             this.client.openConnection(
                     new InetSocketAddress("localhost", serverAddress.getPort()), 
-                    responseData[i]);
+                    responseData.get(i));
         }
      
         requestCount.await(10000);
@@ -310,13 +298,13 @@ public class TestNIOHttp extends TestCase {
         this.client.shutdown();
         this.server.shutdown();
 
-        for (int c = 0; c < responseData.length; c++) {
-            List receivedPackets = responseData[c];
-            List expectedPackets = testData;
+        for (int c = 0; c < responseData.size(); c++) {
+            ByteSequence receivedPackets = responseData.get(c);
+            ByteSequence expectedPackets = requestData;
             assertEquals(expectedPackets.size(), receivedPackets.size());
-            for (int p = 0; p < testData.size(); p++) {
-                byte[] expected = (byte[]) testData.get(p);
-                byte[] received = (byte[]) receivedPackets.get(p);
+            for (int p = 0; p < requestData.size(); p++) {
+                byte[] expected = requestData.getBytes(p);
+                byte[] received = receivedPackets.getBytes(p);
                 
                 assertEquals(expected.length, received.length);
                 for (int i = 0; i < expected.length; i++) {
@@ -336,21 +324,12 @@ public class TestNIOHttp extends TestCase {
         final int connNo = 3;
         final int reqNo = 20;
         final RequestCount requestCount = new RequestCount(connNo * reqNo); 
+        final ByteSequence requestData = new ByteSequence();
+        requestData.rnd(reqNo);
         
-        Random rnd = new Random();
-        
-        // Prepare some random data
-        final List testData = new ArrayList(reqNo);
-        for (int i = 0; i < reqNo; i++) {
-            int size = rnd.nextInt(5000);
-            byte[] data = new byte[size];
-            rnd.nextBytes(data);
-            testData.add(data);
-        }
-        
-        List[] responseData = new List[connNo];
-        for (int i = 0; i < responseData.length; i++) {
-            responseData[i] = new ArrayList();
+        List<ByteSequence> responseData = new ArrayList<ByteSequence>(connNo);
+        for (int i = 0; i < connNo; i++) {
+            responseData.add(new ByteSequence());
         }
         
         HttpRequestHandler requestHandler = new HttpRequestHandler() {
@@ -378,7 +357,7 @@ public class TestNIOHttp extends TestCase {
         HttpRequestExecutionHandler requestExecutionHandler = new HttpRequestExecutionHandler() {
 
             public void initalizeContext(final HttpContext context, final Object attachment) {
-                context.setAttribute("LIST", (List) attachment);
+                context.setAttribute("LIST", (ByteSequence) attachment);
                 context.setAttribute("REQ-COUNT", new Integer(0));
                 context.setAttribute("RES-COUNT", new Integer(0));
             }
@@ -391,7 +370,8 @@ public class TestNIOHttp extends TestCase {
                 BasicHttpEntityEnclosingRequest post = null;
                 if (i < reqNo) {
                     post = new BasicHttpEntityEnclosingRequest("POST", "/?" + i);
-                    byte[] data = (byte[]) testData.get(i);
+
+                    byte[] data = requestData.getBytes(i);
                     ByteArrayEntity outgoing = new ByteArrayEntity(data);
                     post.setEntity(outgoing);
                     
@@ -404,7 +384,7 @@ public class TestNIOHttp extends TestCase {
                 NHttpConnection conn = (NHttpConnection) context.getAttribute(
                         ExecutionContext.HTTP_CONNECTION);
                 
-                List list = (List) context.getAttribute("LIST");
+                ByteSequence list = (ByteSequence) context.getAttribute("LIST");
                 int i = ((Integer) context.getAttribute("RES-COUNT")).intValue();
                 i++;
                 context.setAttribute("RES-COUNT", new Integer(i));
@@ -412,7 +392,7 @@ public class TestNIOHttp extends TestCase {
                 try {
                     HttpEntity entity = response.getEntity();
                     byte[] data = EntityUtils.toByteArray(entity);
-                    list.add(data);
+                    list.addBytes(data);
                     requestCount.decrement();
                 } catch (IOException ex) {
                     requestCount.abort();
@@ -440,10 +420,10 @@ public class TestNIOHttp extends TestCase {
         endpoint.waitFor();
         InetSocketAddress serverAddress = (InetSocketAddress) endpoint.getAddress();
         
-        for (int i = 0; i < responseData.length; i++) {
+        for (int i = 0; i < responseData.size(); i++) {
             this.client.openConnection(
                     new InetSocketAddress("localhost", serverAddress.getPort()), 
-                    responseData[i]);
+                    responseData.get(i));
         }
      
         requestCount.await(10000);
@@ -452,13 +432,13 @@ public class TestNIOHttp extends TestCase {
         this.client.shutdown();
         this.server.shutdown();
 
-        for (int c = 0; c < responseData.length; c++) {
-            List receivedPackets = responseData[c];
-            List expectedPackets = testData;
+        for (int c = 0; c < responseData.size(); c++) {
+            ByteSequence receivedPackets = responseData.get(c);
+            ByteSequence expectedPackets = requestData;
             assertEquals(expectedPackets.size(), receivedPackets.size());
-            for (int p = 0; p < testData.size(); p++) {
-                byte[] expected = (byte[]) testData.get(p);
-                byte[] received = (byte[]) receivedPackets.get(p);
+            for (int p = 0; p < requestData.size(); p++) {
+                byte[] expected = requestData.getBytes(p);
+                byte[] received = receivedPackets.getBytes(p);
                 
                 assertEquals(expected.length, received.length);
                 for (int i = 0; i < expected.length; i++) {
@@ -478,21 +458,12 @@ public class TestNIOHttp extends TestCase {
         final int connNo = 3;
         final int reqNo = 20;
         final RequestCount requestCount = new RequestCount(connNo * reqNo); 
+        final ByteSequence requestData = new ByteSequence();
+        requestData.rnd(reqNo);
         
-        Random rnd = new Random();
-        
-        // Prepare some random data
-        final List testData = new ArrayList(reqNo);
-        for (int i = 0; i < reqNo; i++) {
-            int size = rnd.nextInt(20000);
-            byte[] data = new byte[size];
-            rnd.nextBytes(data);
-            testData.add(data);
-        }
-        
-        List[] responseData = new List[connNo];
-        for (int i = 0; i < responseData.length; i++) {
-            responseData[i] = new ArrayList();
+        List<ByteSequence> responseData = new ArrayList<ByteSequence>(connNo);
+        for (int i = 0; i < connNo; i++) {
+            responseData.add(new ByteSequence());
         }
         
         HttpRequestHandler requestHandler = new HttpRequestHandler() {
@@ -519,7 +490,7 @@ public class TestNIOHttp extends TestCase {
         HttpRequestExecutionHandler requestExecutionHandler = new HttpRequestExecutionHandler() {
 
             public void initalizeContext(final HttpContext context, final Object attachment) {
-                context.setAttribute("LIST", (List) attachment);
+                context.setAttribute("LIST", (ByteSequence) attachment);
                 context.setAttribute("REQ-COUNT", new Integer(0));
                 context.setAttribute("RES-COUNT", new Integer(0));
             }
@@ -532,7 +503,7 @@ public class TestNIOHttp extends TestCase {
                 BasicHttpEntityEnclosingRequest post = null;
                 if (i < reqNo) {
                     post = new BasicHttpEntityEnclosingRequest("POST", "/?" + i);
-                    byte[] data = (byte[]) testData.get(i);
+                    byte[] data = requestData.getBytes(i);
                     ByteArrayEntity outgoing = new ByteArrayEntity(data);
                     outgoing.setChunked(true);
                     post.setEntity(outgoing);
@@ -546,7 +517,7 @@ public class TestNIOHttp extends TestCase {
                 NHttpConnection conn = (NHttpConnection) context.getAttribute(
                         ExecutionContext.HTTP_CONNECTION);
                 
-                List list = (List) context.getAttribute("LIST");
+                ByteSequence list = (ByteSequence) context.getAttribute("LIST");
                 int i = ((Integer) context.getAttribute("RES-COUNT")).intValue();
                 i++;
                 context.setAttribute("RES-COUNT", new Integer(i));
@@ -554,7 +525,7 @@ public class TestNIOHttp extends TestCase {
                 try {
                     HttpEntity entity = response.getEntity();
                     byte[] data = EntityUtils.toByteArray(entity);
-                    list.add(data);
+                    list.addBytes(data);
                     requestCount.decrement();
                 } catch (IOException ex) {
                     requestCount.abort();
@@ -582,10 +553,10 @@ public class TestNIOHttp extends TestCase {
         endpoint.waitFor();
         InetSocketAddress serverAddress = (InetSocketAddress) endpoint.getAddress();
         
-        for (int i = 0; i < responseData.length; i++) {
+        for (int i = 0; i < responseData.size(); i++) {
             this.client.openConnection(
                     new InetSocketAddress("localhost", serverAddress.getPort()), 
-                    responseData[i]);
+                    responseData.get(i));
         }
      
         requestCount.await(10000);
@@ -597,13 +568,13 @@ public class TestNIOHttp extends TestCase {
         this.client.shutdown();
         this.server.shutdown();
 
-        for (int c = 0; c < responseData.length; c++) {
-            List receivedPackets = responseData[c];
-            List expectedPackets = testData;
+        for (int c = 0; c < responseData.size(); c++) {
+            ByteSequence receivedPackets = responseData.get(c);
+            ByteSequence expectedPackets = requestData;
             assertEquals(expectedPackets.size(), receivedPackets.size());
-            for (int p = 0; p < testData.size(); p++) {
-                byte[] expected = (byte[]) testData.get(p);
-                byte[] received = (byte[]) receivedPackets.get(p);
+            for (int p = 0; p < requestData.size(); p++) {
+                byte[] expected = requestData.getBytes(p);
+                byte[] received = receivedPackets.getBytes(p);
                 
                 assertEquals(expected.length, received.length);
                 for (int i = 0; i < expected.length; i++) {
@@ -623,21 +594,12 @@ public class TestNIOHttp extends TestCase {
         final int connNo = 3;
         final int reqNo = 20;
         final RequestCount requestCount = new RequestCount(connNo * reqNo); 
+        final ByteSequence requestData = new ByteSequence();
+        requestData.rnd(reqNo);
         
-        Random rnd = new Random();
-        
-        // Prepare some random data
-        final List testData = new ArrayList(reqNo);
-        for (int i = 0; i < reqNo; i++) {
-            int size = rnd.nextInt(5000);
-            byte[] data = new byte[size];
-            rnd.nextBytes(data);
-            testData.add(data);
-        }
-        
-        List[] responseData = new List[connNo];
-        for (int i = 0; i < responseData.length; i++) {
-            responseData[i] = new ArrayList();
+        List<ByteSequence> responseData = new ArrayList<ByteSequence>(connNo);
+        for (int i = 0; i < connNo; i++) {
+            responseData.add(new ByteSequence());
         }
         
         HttpRequestHandler requestHandler = new HttpRequestHandler() {
@@ -670,7 +632,7 @@ public class TestNIOHttp extends TestCase {
         HttpRequestExecutionHandler requestExecutionHandler = new HttpRequestExecutionHandler() {
 
             public void initalizeContext(final HttpContext context, final Object attachment) {
-                context.setAttribute("LIST", (List) attachment);
+                context.setAttribute("LIST", (ByteSequence) attachment);
                 context.setAttribute("REQ-COUNT", new Integer(0));
                 context.setAttribute("RES-COUNT", new Integer(0));
             }
@@ -683,7 +645,7 @@ public class TestNIOHttp extends TestCase {
                 BasicHttpEntityEnclosingRequest post = null;
                 if (i < reqNo) {
                     post = new BasicHttpEntityEnclosingRequest("POST", "/?" + i);
-                    byte[] data = (byte[]) testData.get(i);
+                    byte[] data = requestData.getBytes(i);
                     ByteArrayEntity outgoing = new ByteArrayEntity(data);
                     post.setEntity(outgoing);
                     
@@ -696,7 +658,7 @@ public class TestNIOHttp extends TestCase {
                 NHttpConnection conn = (NHttpConnection) context.getAttribute(
                         ExecutionContext.HTTP_CONNECTION);
 
-                List list = (List) context.getAttribute("LIST");
+                ByteSequence list = (ByteSequence) context.getAttribute("LIST");
                 int i = ((Integer) context.getAttribute("RES-COUNT")).intValue();
                 i++;
                 context.setAttribute("RES-COUNT", new Integer(i));
@@ -704,7 +666,7 @@ public class TestNIOHttp extends TestCase {
                 try {
                     HttpEntity entity = response.getEntity();
                     byte[] data = EntityUtils.toByteArray(entity);
-                    list.add(data);
+                    list.addBytes(data);
                     requestCount.decrement();
                 } catch (IOException ex) {
                     requestCount.abort();
@@ -732,10 +694,10 @@ public class TestNIOHttp extends TestCase {
         endpoint.waitFor();
         InetSocketAddress serverAddress = (InetSocketAddress) endpoint.getAddress();
         
-        for (int i = 0; i < responseData.length; i++) {
+        for (int i = 0; i < responseData.size(); i++) {
             this.client.openConnection(
                     new InetSocketAddress("localhost", serverAddress.getPort()), 
-                    responseData[i]);
+                    responseData.get(i));
         }
      
         requestCount.await(10000);
@@ -744,13 +706,13 @@ public class TestNIOHttp extends TestCase {
         this.client.shutdown();
         this.server.shutdown();
 
-        for (int c = 0; c < responseData.length; c++) {
-            List receivedPackets = responseData[c];
-            List expectedPackets = testData;
+        for (int c = 0; c < responseData.size(); c++) {
+            ByteSequence receivedPackets = responseData.get(c);
+            ByteSequence expectedPackets = requestData;
             assertEquals(expectedPackets.size(), receivedPackets.size());
-            for (int p = 0; p < testData.size(); p++) {
-                byte[] expected = (byte[]) testData.get(p);
-                byte[] received = (byte[]) receivedPackets.get(p);
+            for (int p = 0; p < requestData.size(); p++) {
+                byte[] expected = requestData.getBytes(p);
+                byte[] received = receivedPackets.getBytes(p);
                 
                 assertEquals(expected.length, received.length);
                 for (int i = 0; i < expected.length; i++) {
@@ -770,21 +732,12 @@ public class TestNIOHttp extends TestCase {
         final int connNo = 3;
         final int reqNo = 20;
         final RequestCount requestCount = new RequestCount(connNo * reqNo); 
+        final ByteSequence requestData = new ByteSequence();
+        requestData.rnd(reqNo);
         
-        Random rnd = new Random();
-        
-        // Prepare some random data
-        final List testData = new ArrayList(reqNo);
-        for (int i = 0; i < reqNo; i++) {
-            int size = rnd.nextInt(20000);
-            byte[] data = new byte[size];
-            rnd.nextBytes(data);
-            testData.add(data);
-        }
-        
-        List[] responseData = new List[connNo];
-        for (int i = 0; i < responseData.length; i++) {
-            responseData[i] = new ArrayList();
+        List<ByteSequence> responseData = new ArrayList<ByteSequence>(connNo);
+        for (int i = 0; i < connNo; i++) {
+            responseData.add(new ByteSequence());
         }
         
         HttpRequestHandler requestHandler = new HttpRequestHandler() {
@@ -814,7 +767,7 @@ public class TestNIOHttp extends TestCase {
         HttpRequestExecutionHandler requestExecutionHandler = new HttpRequestExecutionHandler() {
 
             public void initalizeContext(final HttpContext context, final Object attachment) {
-                context.setAttribute("LIST", (List) attachment);
+                context.setAttribute("LIST", (ByteSequence) attachment);
                 context.setAttribute("REQ-COUNT", new Integer(0));
                 context.setAttribute("RES-COUNT", new Integer(0));
             }
@@ -827,7 +780,7 @@ public class TestNIOHttp extends TestCase {
                 BasicHttpEntityEnclosingRequest post = null;
                 if (i < reqNo) {
                     post = new BasicHttpEntityEnclosingRequest("POST", "/?" + i);
-                    byte[] data = (byte[]) testData.get(i);
+                    byte[] data = requestData.getBytes(i);
                     ByteArrayEntity outgoing = new ByteArrayEntity(data);
                     outgoing.setChunked(true);
                     post.setEntity(outgoing);
@@ -841,7 +794,7 @@ public class TestNIOHttp extends TestCase {
                 NHttpConnection conn = (NHttpConnection) context.getAttribute(
                         ExecutionContext.HTTP_CONNECTION);
                 
-                List list = (List) context.getAttribute("LIST");
+                ByteSequence list = (ByteSequence) context.getAttribute("LIST");
                 int i = ((Integer) context.getAttribute("RES-COUNT")).intValue();
                 i++;
                 context.setAttribute("RES-COUNT", new Integer(i));
@@ -849,7 +802,7 @@ public class TestNIOHttp extends TestCase {
                 try {
                     HttpEntity entity = response.getEntity();
                     byte[] data = EntityUtils.toByteArray(entity);
-                    list.add(data);
+                    list.addBytes(data);
                     requestCount.decrement();
                 } catch (IOException ex) {
                     requestCount.abort();
@@ -877,10 +830,10 @@ public class TestNIOHttp extends TestCase {
         endpoint.waitFor();
         InetSocketAddress serverAddress = (InetSocketAddress) endpoint.getAddress();
         
-        for (int i = 0; i < responseData.length; i++) {
+        for (int i = 0; i < responseData.size(); i++) {
             this.client.openConnection(
                     new InetSocketAddress("localhost", serverAddress.getPort()), 
-                    responseData[i]);
+                    responseData.get(i));
         }
      
         requestCount.await(10000);
@@ -889,13 +842,13 @@ public class TestNIOHttp extends TestCase {
         this.client.shutdown();
         this.server.shutdown();
 
-        for (int c = 0; c < responseData.length; c++) {
-            List receivedPackets = responseData[c];
-            List expectedPackets = testData;
+        for (int c = 0; c < responseData.size(); c++) {
+            ByteSequence receivedPackets = responseData.get(c);
+            ByteSequence expectedPackets = requestData;
             assertEquals(expectedPackets.size(), receivedPackets.size());
-            for (int p = 0; p < testData.size(); p++) {
-                byte[] expected = (byte[]) testData.get(p);
-                byte[] received = (byte[]) receivedPackets.get(p);
+            for (int p = 0; p < requestData.size(); p++) {
+                byte[] expected = requestData.getBytes(p);
+                byte[] received = receivedPackets.getBytes(p);
                 
                 assertEquals(expected.length, received.length);
                 for (int i = 0; i < expected.length; i++) {
@@ -914,7 +867,7 @@ public class TestNIOHttp extends TestCase {
         
         final int reqNo = 3;
         final RequestCount requestCount = new RequestCount(reqNo); 
-        final List responses = new ArrayList(reqNo);
+        final ResponseSequence responses = new ResponseSequence();
         
         HttpRequestHandler requestHandler = new HttpRequestHandler() {
 
@@ -961,7 +914,7 @@ public class TestNIOHttp extends TestCase {
         HttpRequestExecutionHandler requestExecutionHandler = new HttpRequestExecutionHandler() {
 
             public void initalizeContext(final HttpContext context, final Object attachment) {
-                context.setAttribute("LIST", (List) attachment);
+                context.setAttribute("LIST", (ResponseSequence) attachment);
                 context.setAttribute("REQ-COUNT", new Integer(0));
                 context.setAttribute("RES-COUNT", new Integer(0));
             }
@@ -988,7 +941,7 @@ public class TestNIOHttp extends TestCase {
                 NHttpConnection conn = (NHttpConnection) context.getAttribute(
                         ExecutionContext.HTTP_CONNECTION);
                 
-                List list = (List) context.getAttribute("LIST");
+                ResponseSequence list = (ResponseSequence) context.getAttribute("LIST");
                 int i = ((Integer) context.getAttribute("RES-COUNT")).intValue();
                 i++;
                 context.setAttribute("RES-COUNT", new Integer(i));
@@ -1003,7 +956,7 @@ public class TestNIOHttp extends TestCase {
                     }
                 }
                 
-                list.add(response);
+                list.addResponse(response);
                 requestCount.decrement();
 
                 if (i < reqNo) {
@@ -1037,11 +990,11 @@ public class TestNIOHttp extends TestCase {
         this.server.shutdown();
 
         assertEquals(reqNo, responses.size());
-        HttpResponse response = (HttpResponse) responses.get(0);
+        HttpResponse response = responses.getResponse(0);
         assertEquals(HttpStatus.SC_EXPECTATION_FAILED, response.getStatusLine().getStatusCode());
-        response = (HttpResponse) responses.get(1);
+        response = responses.getResponse(1);
         assertEquals(HttpStatus.SC_EXPECTATION_FAILED, response.getStatusLine().getStatusCode());
-        response = (HttpResponse) responses.get(2);
+        response = responses.getResponse(2);
         assertEquals(HttpStatus.SC_OK, response.getStatusLine().getStatusCode());
     }
     
@@ -1055,23 +1008,19 @@ public class TestNIOHttp extends TestCase {
         final int reqNo = 20;
         final RequestCount requestCount = new RequestCount(connNo * reqNo * 2); 
         
+        final ByteSequence requestData = new ByteSequence();
+        requestData.rnd(reqNo);
+        
+        List<ResponseSequence> responseData1 = new ArrayList<ResponseSequence>(connNo);
+        for (int i = 0; i < connNo; i++) {
+            responseData1.add(new ResponseSequence());
+        }
+        List<ResponseSequence> responseData2 = new ArrayList<ResponseSequence>(connNo);
+        for (int i = 0; i < connNo; i++) {
+            responseData2.add(new ResponseSequence());
+        }
+        
         final String[] method = new String[1];
-        
-        Random rnd = new Random();
-        
-        // Prepare some random data
-        final List testData = new ArrayList(reqNo);
-        for (int i = 0; i < reqNo; i++) {
-            int size = rnd.nextInt(5000);
-            byte[] data = new byte[size];
-            rnd.nextBytes(data);
-            testData.add(data);
-        }
-        
-        List[] responseData = new List[connNo];
-        for (int i = 0; i < responseData.length; i++) {
-            responseData[i] = new ArrayList();
-        }
         
         HttpRequestHandler requestHandler = new HttpRequestHandler() {
 
@@ -1089,7 +1038,7 @@ public class TestNIOHttp extends TestCase {
                 }
                 int index = Integer.parseInt(uri.getQuery());
 
-                byte[] data = (byte []) testData.get(index);
+                byte[] data = requestData.getBytes(index);
                 ByteArrayEntity entity = new ByteArrayEntity(data); 
                 response.setEntity(entity);
             }
@@ -1099,7 +1048,7 @@ public class TestNIOHttp extends TestCase {
         HttpRequestExecutionHandler requestExecutionHandler = new HttpRequestExecutionHandler() {
 
             public void initalizeContext(final HttpContext context, final Object attachment) {
-                context.setAttribute("LIST", (List) attachment);
+                context.setAttribute("LIST", (ResponseSequence) attachment);
                 context.setAttribute("REQ-COUNT", new Integer(0));
                 context.setAttribute("RES-COUNT", new Integer(0));
             }
@@ -1121,12 +1070,12 @@ public class TestNIOHttp extends TestCase {
                 NHttpConnection conn = (NHttpConnection) context.getAttribute(
                         ExecutionContext.HTTP_CONNECTION);
                 
-                List list = (List) context.getAttribute("LIST");
+                ResponseSequence list = (ResponseSequence) context.getAttribute("LIST");
                 int i = ((Integer) context.getAttribute("RES-COUNT")).intValue();
                 i++;
                 context.setAttribute("RES-COUNT", new Integer(i));
 
-                list.add(response);
+                list.addResponse(response);
                 requestCount.decrement();
 
                 if (i < reqNo) {
@@ -1152,29 +1101,23 @@ public class TestNIOHttp extends TestCase {
 
         method[0] = "GET";
         
-        for (int i = 0; i < responseData.length; i++) {
+        for (int i = 0; i < responseData1.size(); i++) {
             this.client.openConnection(
                     new InetSocketAddress("localhost", serverAddress.getPort()), 
-                    responseData[i]);
+                    responseData1.get(i));
         }
      
         requestCount.await(connNo * reqNo, 10000);
         assertEquals(connNo * reqNo, requestCount.getValue());
 
-        List[] responseDataGET = responseData; 
-
         method[0] = "HEAD";
 
-        responseData = new List[connNo];
-        for (int i = 0; i < responseData.length; i++) {
-            responseData[i] = new ArrayList();
-        }
-        
-        for (int i = 0; i < responseData.length; i++) {
+        for (int i = 0; i < responseData2.size(); i++) {
             this.client.openConnection(
                     new InetSocketAddress("localhost", serverAddress.getPort()), 
-                    responseData[i]);
+                    responseData2.get(i));
         }
+     
      
         requestCount.await(10000);
         assertEquals(0, requestCount.getValue());
@@ -1182,15 +1125,15 @@ public class TestNIOHttp extends TestCase {
         this.client.shutdown();
         this.server.shutdown();
 
-        for (int c = 0; c < responseData.length; c++) {
-            List headResponses = responseData[c];
-            List getResponses = responseDataGET[c];
-            List expectedPackets = testData;
+        for (int c = 0; c < connNo; c++) {
+            ResponseSequence getResponses = responseData1.get(c);
+            ResponseSequence headResponses = responseData2.get(c);
+            ByteSequence expectedPackets = requestData;
             assertEquals(expectedPackets.size(), headResponses.size());
             assertEquals(expectedPackets.size(), getResponses.size());
-            for (int p = 0; p < testData.size(); p++) {
-                HttpResponse getResponse = (HttpResponse) getResponses.get(p);
-                HttpResponse headResponse = (HttpResponse) headResponses.get(p);
+            for (int p = 0; p < requestData.size(); p++) {
+                HttpResponse getResponse = getResponses.getResponse(p);
+                HttpResponse headResponse = headResponses.getResponse(p);
                 assertEquals(null, headResponse.getEntity());
                 
                 Header[] getHeaders = getResponse.getAllHeaders();

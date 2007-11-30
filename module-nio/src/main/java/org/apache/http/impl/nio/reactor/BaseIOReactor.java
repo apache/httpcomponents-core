@@ -112,20 +112,20 @@ public class BaseIOReactor extends AbstractIOReactor {
         }
     }
     
-    protected void validate(final Set keys) {
+    protected void validate(final Set<SelectionKey> keys) {
         long currentTime = System.currentTimeMillis();
         if( (currentTime - this.lastTimeoutCheck) >= this.timeoutCheckInterval) {
             this.lastTimeoutCheck = currentTime;
             if (keys != null) {
-                for (Iterator it = keys.iterator(); it.hasNext();) {
-                    SelectionKey key = (SelectionKey) it.next();
+                for (Iterator<SelectionKey> it = keys.iterator(); it.hasNext();) {
+                    SelectionKey key = it.next();
                     timeoutCheck(key, currentTime);
                 }
             }
         }
         if (!this.bufferingSessions.isEmpty()) {
-            for (Iterator it = this.bufferingSessions.iterator(); it.hasNext(); ) {
-                IOSession session = (IOSession) it.next();
+            for (Iterator<IOSession> it = this.bufferingSessions.iterator(); it.hasNext(); ) {
+                IOSession session = it.next();
                 if (!session.hasBufferedInput()) {
                     it.remove();
                     continue;

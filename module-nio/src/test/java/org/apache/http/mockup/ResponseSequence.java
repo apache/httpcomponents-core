@@ -1,7 +1,7 @@
 /*
- * $HeadURL$
- * $Revision$
- * $Date$
+ * $HeadURL:$
+ * $Revision:$
+ * $Date:$
  *
  * ====================================================================
  * Licensed to the Apache Software Foundation (ASF) under one
@@ -29,32 +29,32 @@
  *
  */
 
-package org.apache.http.impl.nio.reactor;
+package org.apache.http.mockup;
 
-import java.util.LinkedList;
+import java.util.ArrayList;
+import java.util.List;
 
-public class ChannelQueue {
+import org.apache.http.HttpResponse;
+
+public class ResponseSequence {
+
+    private final List<HttpResponse> data;
     
-    private final LinkedList<ChannelEntry> list;
-    
-    public ChannelQueue() {
+    public ResponseSequence() {
         super();
-        this.list = new LinkedList<ChannelEntry>();
+        this.data = new ArrayList<HttpResponse>();
+    }
+    
+    public void addResponse(final HttpResponse response) {
+        this.data.add(response);
+    }
+    
+    public int size() {
+        return this.data.size();
     }
 
-    public synchronized void push(final ChannelEntry entry) {
-        if (entry == null) {
-            return;
-        }
-        this.list.addLast(entry);
-    }
-
-    public synchronized ChannelEntry pop() {
-        if (!this.list.isEmpty()) {
-            return (ChannelEntry) this.list.removeFirst();
-        } else {
-            return null;
-        }
+    public HttpResponse getResponse(int index) {
+        return this.data.get(index);
     }
     
 }

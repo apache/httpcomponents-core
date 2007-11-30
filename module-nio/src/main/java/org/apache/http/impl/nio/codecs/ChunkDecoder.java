@@ -60,7 +60,7 @@ public class ChunkDecoder extends AbstractContentDecoder {
     private int chunkSize;
     private int pos;
     
-    private final List trailerBufs;
+    private final List<CharArrayBuffer> trailerBufs;
     
     private Header[] footers;
     
@@ -74,7 +74,7 @@ public class ChunkDecoder extends AbstractContentDecoder {
         this.pos = 0;
         this.endOfChunk = false;
         this.endOfStream = false;
-        this.trailerBufs = new ArrayList();
+        this.trailerBufs = new ArrayList<CharArrayBuffer>();
     }
 
     private void readChunkHead() throws IOException {

@@ -37,11 +37,11 @@ import org.apache.http.nio.reactor.IOSession;
 
 public class SessionQueue {
     
-    private final LinkedList list;
+    private final LinkedList<IOSession> list;
     
     public SessionQueue() {
         super();
-        this.list = new LinkedList();
+        this.list = new LinkedList<IOSession>();
     }
 
     public synchronized void push(final IOSession session) {

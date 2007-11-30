@@ -85,7 +85,7 @@ public abstract class AbstractIOReactor implements IOReactor {
     
     protected abstract void timeoutCheck(SelectionKey key, long now);
 
-    protected abstract void validate(Set keys);
+    protected abstract void validate(Set<SelectionKey> keys);
     
     protected abstract void keyCreated(SelectionKey key, IOSession session);
     
@@ -167,10 +167,10 @@ public abstract class AbstractIOReactor implements IOReactor {
         }
     }
     
-    private void processEvents(final Set selectedKeys) {
-        for (Iterator it = selectedKeys.iterator(); it.hasNext(); ) {
+    private void processEvents(final Set<SelectionKey> selectedKeys) {
+        for (Iterator<SelectionKey> it = selectedKeys.iterator(); it.hasNext(); ) {
             
-            SelectionKey key = (SelectionKey) it.next();
+            SelectionKey key = it.next();
             processEvent(key);
             
         }
@@ -261,8 +261,8 @@ public abstract class AbstractIOReactor implements IOReactor {
 
     protected void closeSessions() {
         synchronized (this.sessions) {
-            for (Iterator it = this.sessions.iterator(); it.hasNext(); ) {
-                IOSession session = (IOSession) it.next();
+            for (Iterator<IOSession> it = this.sessions.iterator(); it.hasNext(); ) {
+                IOSession session = it.next();
                 session.close();
             }
         }
@@ -284,10 +284,10 @@ public abstract class AbstractIOReactor implements IOReactor {
     }
     
     protected void closeActiveChannels() throws IOReactorException {
-        Set keys = this.selector.keys();
-        for (Iterator it = keys.iterator(); it.hasNext(); ) {
+        Set<SelectionKey> keys = this.selector.keys();
+        for (Iterator<SelectionKey> it = keys.iterator(); it.hasNext(); ) {
             try {
-                SelectionKey key = (SelectionKey) it.next();
+                SelectionKey key = it.next();
                 Channel channel = key.channel();
                 if (channel != null) {
                     channel.close();

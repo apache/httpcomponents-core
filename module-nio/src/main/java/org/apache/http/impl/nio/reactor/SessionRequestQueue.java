@@ -35,11 +35,11 @@ import java.util.LinkedList;
 
 public class SessionRequestQueue {
     
-    private final LinkedList list;
+    private final LinkedList<SessionRequestImpl> list;
     
     public SessionRequestQueue() {
         super();
-        this.list = new LinkedList();
+        this.list = new LinkedList<SessionRequestImpl>();
     }
 
     public synchronized void push(final SessionRequestImpl entry) {

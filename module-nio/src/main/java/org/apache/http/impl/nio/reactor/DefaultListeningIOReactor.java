@@ -69,10 +69,10 @@ public class DefaultListeningIOReactor extends AbstractMultiworkerIOReactor
         processSessionRequests();
 
         if (readyCount > 0) {
-            Set selectedKeys = this.selector.selectedKeys();
-            for (Iterator it = selectedKeys.iterator(); it.hasNext(); ) {
+            Set<SelectionKey> selectedKeys = this.selector.selectedKeys();
+            for (Iterator<SelectionKey> it = selectedKeys.iterator(); it.hasNext(); ) {
                 
-                SelectionKey key = (SelectionKey) it.next();
+                SelectionKey key = it.next();
                 processEvent(key);
                 
             }
