@@ -38,7 +38,9 @@ import java.nio.channels.SelectionKey;
 import java.nio.channels.ServerSocketChannel;
 import java.nio.channels.SocketChannel;
 import java.util.Iterator;
+import java.util.Queue;
 import java.util.Set;
+import java.util.concurrent.ConcurrentLinkedQueue;
 
 import org.apache.http.nio.reactor.IOReactorException;
 import org.apache.http.nio.reactor.ListenerEndpoint;
@@ -49,14 +51,14 @@ import org.apache.http.util.concurrent.ThreadFactory;
 public class DefaultListeningIOReactor extends AbstractMultiworkerIOReactor 
         implements ListeningIOReactor {
 
-    private final ListenerEndpointQueue requestQueue;
+    private final Queue<ListenerEndpointImpl> requestQueue;
     
     public DefaultListeningIOReactor(
             int workerCount, 
             final ThreadFactory threadFactory,
             final HttpParams params) throws IOReactorException {
         super(workerCount, threadFactory, params);
-        this.requestQueue = new ListenerEndpointQueue();
+        this.requestQueue = new ConcurrentLinkedQueue<ListenerEndpointImpl>();
     }
 
     public DefaultListeningIOReactor(
@@ -119,14 +121,14 @@ public class DefaultListeningIOReactor extends AbstractMultiworkerIOReactor
             throw new IllegalStateException("I/O reactor has been shut down");
         }
         ListenerEndpointImpl request = new ListenerEndpointImpl(address);
-        this.requestQueue.push(request);
+        this.requestQueue.add(request);
         this.selector.wakeup();
         return request;
     }
 
     private void processSessionRequests() throws IOReactorException {
         ListenerEndpointImpl request;
-        while ((request = this.requestQueue.pop()) != null) {
+        while ((request = this.requestQueue.poll()) != null) {
             SocketAddress address = request.getAddress();
             ServerSocketChannel serverChannel;
             try {

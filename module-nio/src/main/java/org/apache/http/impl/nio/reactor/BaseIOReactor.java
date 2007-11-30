@@ -34,6 +34,7 @@ package org.apache.http.impl.nio.reactor;
 import java.io.InterruptedIOException;
 import java.nio.channels.CancelledKeyException;
 import java.nio.channels.SelectionKey;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
 
@@ -46,7 +47,7 @@ import org.apache.http.nio.reactor.IOSession;
 public class BaseIOReactor extends AbstractIOReactor {
 
     private final long timeoutCheckInterval;
-    private SessionSet bufferingSessions;
+    private final Set<IOSession> bufferingSessions;
     
     private long lastTimeoutCheck;
     
@@ -55,7 +56,7 @@ public class BaseIOReactor extends AbstractIOReactor {
     
     public BaseIOReactor(long selectTimeout) throws IOReactorException {
         super(selectTimeout);
-        this.bufferingSessions = new SessionSet();
+        this.bufferingSessions = new HashSet<IOSession>();
         this.timeoutCheckInterval = selectTimeout;
         this.lastTimeoutCheck = System.currentTimeMillis();
     }

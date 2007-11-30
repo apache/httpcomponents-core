@@ -39,8 +39,12 @@ import java.nio.channels.ClosedSelectorException;
 import java.nio.channels.SelectionKey;
 import java.nio.channels.Selector;
 import java.nio.channels.SocketChannel;
+import java.util.Collections;
+import java.util.HashSet;
 import java.util.Iterator;
+import java.util.Queue;
 import java.util.Set;
+import java.util.concurrent.ConcurrentLinkedQueue;
 
 import org.apache.http.nio.reactor.IOReactor;
 import org.apache.http.nio.reactor.IOReactorException;
@@ -53,9 +57,9 @@ public abstract class AbstractIOReactor implements IOReactor {
     private final Object shutdownMutex;
     private final long selectTimeout;
     private final Selector selector;
-    private final SessionSet sessions;
-    private final SessionQueue closedSessions;
-    private final ChannelQueue newChannels;
+    private final Set<IOSession> sessions;
+    private final Queue<IOSession> closedSessions;
+    private final Queue<ChannelEntry> newChannels;
     
     public AbstractIOReactor(long selectTimeout) throws IOReactorException {
         super();
@@ -63,9 +67,9 @@ public abstract class AbstractIOReactor implements IOReactor {
             throw new IllegalArgumentException("Select timeout may not be negative or zero");
         }
         this.selectTimeout = selectTimeout;
-        this.sessions = new SessionSet();
-        this.closedSessions = new SessionQueue();
-        this.newChannels = new ChannelQueue();
+        this.sessions = Collections.synchronizedSet(new HashSet<IOSession>());
+        this.closedSessions = new ConcurrentLinkedQueue<IOSession>();
+        this.newChannels = new ConcurrentLinkedQueue<ChannelEntry>();
         try {
             this.selector = Selector.open();
         } catch (IOException ex) {
@@ -101,7 +105,7 @@ public abstract class AbstractIOReactor implements IOReactor {
         if (channelEntry == null) {
             throw new IllegalArgumentException("Channel entry may not be null");
         }
-        this.newChannels.push(channelEntry);
+        this.newChannels.add(channelEntry);
         this.selector.wakeup();
     }
     
@@ -194,7 +198,7 @@ public abstract class AbstractIOReactor implements IOReactor {
         } catch (CancelledKeyException ex) {
             IOSession session = keyCancelled(key);
             if (session != null) {
-                this.closedSessions.push(session);
+                this.closedSessions.add(session);
             }
             key.attach(null);
         }
@@ -202,7 +206,7 @@ public abstract class AbstractIOReactor implements IOReactor {
 
     private void processNewChannels() throws IOReactorException {
         ChannelEntry entry;
-        while ((entry = this.newChannels.pop()) != null) {
+        while ((entry = this.newChannels.poll()) != null) {
             
             SocketChannel channel;
             SelectionKey key;
@@ -218,7 +222,7 @@ public abstract class AbstractIOReactor implements IOReactor {
             IOSession session = new IOSessionImpl(key, new SessionClosedCallback() {
 
                 public void sessionClosed(IOSession session) {
-                    closedSessions.push(session);
+                    closedSessions.add(session);
                 }
                 
             });
@@ -244,7 +248,7 @@ public abstract class AbstractIOReactor implements IOReactor {
                     sessionRequest.completed(session);
                 }
             } catch (CancelledKeyException ex) {
-                this.closedSessions.push(session);
+                this.closedSessions.add(session);
                 key.attach(null);
             }
         }
@@ -252,7 +256,7 @@ public abstract class AbstractIOReactor implements IOReactor {
 
     private void processClosedSessions() {
         IOSession session;
-        while ((session = this.closedSessions.pop()) != null) {
+        while ((session = this.closedSessions.poll()) != null) {
             if (this.sessions.remove(session)) {
                 sessionClosed(session);
             }
@@ -270,7 +274,7 @@ public abstract class AbstractIOReactor implements IOReactor {
     
     protected void closeNewChannels() throws IOReactorException {
         ChannelEntry entry;
-        while ((entry = this.newChannels.pop()) != null) {
+        while ((entry = this.newChannels.poll()) != null) {
             SessionRequestImpl sessionRequest = entry.getSessionRequest();
             if (sessionRequest != null) {
                 sessionRequest.cancel();

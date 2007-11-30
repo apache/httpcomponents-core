@@ -39,7 +39,9 @@ import java.nio.channels.CancelledKeyException;
 import java.nio.channels.SelectionKey;
 import java.nio.channels.SocketChannel;
 import java.util.Iterator;
+import java.util.Queue;
 import java.util.Set;
+import java.util.concurrent.ConcurrentLinkedQueue;
 
 import org.apache.http.nio.reactor.ConnectingIOReactor;
 import org.apache.http.nio.reactor.IOReactorException;
@@ -52,7 +54,7 @@ import org.apache.http.util.concurrent.ThreadFactory;
 public class DefaultConnectingIOReactor extends AbstractMultiworkerIOReactor 
         implements ConnectingIOReactor {
 
-    private final SessionRequestQueue requestQueue;
+    private final Queue<SessionRequestImpl> requestQueue;
     
     private long lastTimeoutCheck;
     
@@ -61,7 +63,7 @@ public class DefaultConnectingIOReactor extends AbstractMultiworkerIOReactor
             final ThreadFactory threadFactory,
             final HttpParams params) throws IOReactorException {
         super(workerCount, threadFactory, params);
-        this.requestQueue = new SessionRequestQueue();
+        this.requestQueue = new ConcurrentLinkedQueue<SessionRequestImpl>();
         this.lastTimeoutCheck = System.currentTimeMillis();
     }
 
@@ -167,7 +169,7 @@ public class DefaultConnectingIOReactor extends AbstractMultiworkerIOReactor
                 remoteAddress, localAddress, attachment, callback);
         sessionRequest.setConnectTimeout(HttpConnectionParams.getConnectionTimeout(this.params));
         
-        this.requestQueue.push(sessionRequest);
+        this.requestQueue.add(sessionRequest);
         this.selector.wakeup();
         
         return sessionRequest;
@@ -187,7 +189,7 @@ public class DefaultConnectingIOReactor extends AbstractMultiworkerIOReactor
     
     private void processSessionRequests() throws IOReactorException {
         SessionRequestImpl request;
-        while ((request = this.requestQueue.pop()) != null) {
+        while ((request = this.requestQueue.poll()) != null) {
             if (request.isCompleted()) {
                 continue;
             }
