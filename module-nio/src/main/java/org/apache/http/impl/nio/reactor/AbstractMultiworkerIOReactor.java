@@ -49,12 +49,13 @@ import org.apache.http.nio.reactor.IOEventDispatch;
 import org.apache.http.nio.reactor.IOReactor;
 import org.apache.http.nio.reactor.IOReactorException;
 import org.apache.http.nio.reactor.IOReactorExceptionHandler;
+import org.apache.http.nio.reactor.IOReactorStatus;
 import org.apache.http.params.HttpConnectionParams;
 import org.apache.http.params.HttpParams;
 
 public abstract class AbstractMultiworkerIOReactor implements IOReactor {
 
-    protected volatile int status;
+    protected volatile IOReactorStatus status;
     
     protected final HttpParams params;
     protected final Selector selector;
@@ -100,10 +101,10 @@ public abstract class AbstractMultiworkerIOReactor implements IOReactor {
         }
         this.workers = new Worker[workerCount];
         this.threads = new Thread[workerCount];
-        this.status = INACTIVE;
+        this.status = IOReactorStatus.INACTIVE;
     }
 
-    public int getStatus() {
+    public IOReactorStatus getStatus() {
         return this.status;
     }
 
@@ -123,7 +124,7 @@ public abstract class AbstractMultiworkerIOReactor implements IOReactor {
             throw new IllegalArgumentException("Event dispatcher may not be null");
         }
 
-        this.status = ACTIVE;
+        this.status = IOReactorStatus.ACTIVE;
         
         // Start I/O dispatchers
         for (int i = 0; i < this.workerCount; i++) {
@@ -132,7 +133,7 @@ public abstract class AbstractMultiworkerIOReactor implements IOReactor {
             this.threads[i] = this.threadFactory.newThread(this.workers[i]);
         }
         for (int i = 0; i < this.workerCount; i++) {
-            if (this.status != ACTIVE) {
+            if (this.status != IOReactorStatus.ACTIVE) {
                 return;
             }
             this.threads[i].start();
@@ -151,7 +152,7 @@ public abstract class AbstractMultiworkerIOReactor implements IOReactor {
                     throw new IOReactorException("Unexpected selector failure", ex);
                 }
                 
-                if (this.status > ACTIVE) {
+                if (this.status.compareTo(IOReactorStatus.ACTIVE) > 0) {
                     break;
                 }
                 processEvents(readyCount);
@@ -187,10 +188,10 @@ public abstract class AbstractMultiworkerIOReactor implements IOReactor {
     }
 
     public void shutdown(long gracePeriod) throws IOException {
-        if (this.status > ACTIVE) {
+        if (this.status.compareTo(IOReactorStatus.ACTIVE) > 0) {
             return;
         }
-        this.status = SHUTTING_DOWN;        
+        this.status = IOReactorStatus.SHUTTING_DOWN;        
         this.selector.wakeup();
         
         // Close out all channels
@@ -219,10 +220,10 @@ public abstract class AbstractMultiworkerIOReactor implements IOReactor {
             // in time
             for (int i = 0; i < this.workerCount; i++) {
                 BaseIOReactor dispatcher = this.dispatchers[i];
-                if (dispatcher.getStatus() != INACTIVE) {
+                if (dispatcher.getStatus() != IOReactorStatus.INACTIVE) {
                     dispatcher.awaitShutdown(gracePeriod);
                 }
-                if (dispatcher.getStatus() != SHUT_DOWN) {
+                if (dispatcher.getStatus() != IOReactorStatus.SHUT_DOWN) {
                     dispatcher.hardShutdown();
                 }
             }
@@ -236,7 +237,7 @@ public abstract class AbstractMultiworkerIOReactor implements IOReactor {
         } catch (InterruptedException ex) {
             throw new InterruptedIOException(ex.getMessage());
         } finally {
-            this.status = SHUT_DOWN;        
+            this.status = IOReactorStatus.SHUT_DOWN;        
         }
     }
 

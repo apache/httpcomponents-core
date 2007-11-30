@@ -31,19 +31,11 @@
 
 package org.apache.http.nio.reactor;
 
-import java.io.IOException;
+public enum IOReactorStatus {
 
-public interface IOReactor {
-
-    IOReactorStatus getStatus();
-    
-    void execute(IOEventDispatch eventDispatch) 
-        throws IOException;
-
-    void shutdown(long gracePeriod) 
-        throws IOException;
-
-    void shutdown() 
-        throws IOException;
+    INACTIVE,
+    ACTIVE,
+    SHUTTING_DOWN,
+    SHUT_DOWN;
     
 }

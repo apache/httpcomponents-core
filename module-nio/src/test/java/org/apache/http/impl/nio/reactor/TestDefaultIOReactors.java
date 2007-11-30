@@ -48,8 +48,8 @@ import org.apache.http.nio.NHttpConnection;
 import org.apache.http.nio.NHttpServiceHandler;
 import org.apache.http.nio.protocol.EventListener;
 import org.apache.http.nio.protocol.HttpRequestExecutionHandler;
-import org.apache.http.nio.reactor.IOReactor;
 import org.apache.http.nio.reactor.IOReactorExceptionHandler;
+import org.apache.http.nio.reactor.IOReactorStatus;
 import org.apache.http.nio.reactor.ListenerEndpoint;
 import org.apache.http.params.BasicHttpParams;
 import org.apache.http.params.HttpParams;
@@ -256,7 +256,7 @@ public class TestDefaultIOReactors extends HttpCoreNIOTestBase {
         assertNotNull(ex);
         assertTrue(ex instanceof IllegalStateException);
         // I/O reactor shut down itself
-        assertEquals(IOReactor.SHUT_DOWN, this.server.getStatus());
+        assertEquals(IOReactorStatus.SHUT_DOWN, this.server.getStatus());
         
         this.client.shutdown();
         this.server.shutdown();
@@ -345,7 +345,7 @@ public class TestDefaultIOReactors extends HttpCoreNIOTestBase {
         assertNotNull(ex);
         assertTrue(ex instanceof IllegalStateException);
         // I/O reactor shut down itself
-        assertEquals(IOReactor.SHUT_DOWN, this.server.getStatus());
+        assertEquals(IOReactorStatus.SHUT_DOWN, this.server.getStatus());
         
         this.client.shutdown();
         this.server.shutdown();
@@ -430,7 +430,7 @@ public class TestDefaultIOReactors extends HttpCoreNIOTestBase {
         
         this.server.join(1000);
         
-        assertEquals(IOReactor.ACTIVE, this.server.getStatus());
+        assertEquals(IOReactorStatus.ACTIVE, this.server.getStatus());
         assertNull(this.server.getException());
         
         this.client.shutdown();

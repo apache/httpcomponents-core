@@ -43,6 +43,7 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
 import org.apache.http.nio.reactor.IOReactorException;
+import org.apache.http.nio.reactor.IOReactorStatus;
 import org.apache.http.nio.reactor.ListenerEndpoint;
 import org.apache.http.nio.reactor.ListeningIOReactor;
 import org.apache.http.params.HttpParams;
@@ -117,7 +118,7 @@ public class DefaultListeningIOReactor extends AbstractMultiworkerIOReactor
     }
 
     public ListenerEndpoint listen(final SocketAddress address) {
-        if (this.status > ACTIVE) {
+        if (this.status.compareTo(IOReactorStatus.ACTIVE) > 0) {
             throw new IllegalStateException("I/O reactor has been shut down");
         }
         ListenerEndpointImpl request = new ListenerEndpointImpl(address);

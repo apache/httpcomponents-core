@@ -39,6 +39,7 @@ import org.apache.http.impl.nio.reactor.DefaultConnectingIOReactor;
 import org.apache.http.nio.NHttpClientHandler;
 import org.apache.http.nio.reactor.IOEventDispatch;
 import org.apache.http.nio.reactor.IOReactorExceptionHandler;
+import org.apache.http.nio.reactor.IOReactorStatus;
 import org.apache.http.params.HttpParams;
 
 public class TestHttpClient {
@@ -79,7 +80,7 @@ public class TestHttpClient {
         this.thread.start();
     }
 
-    public int getStatus() {
+    public IOReactorStatus getStatus() {
         return this.ioReactor.getStatus();
     }
     

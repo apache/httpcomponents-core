@@ -45,6 +45,7 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 
 import org.apache.http.nio.reactor.ConnectingIOReactor;
 import org.apache.http.nio.reactor.IOReactorException;
+import org.apache.http.nio.reactor.IOReactorStatus;
 import org.apache.http.nio.reactor.SessionRequest;
 import org.apache.http.nio.reactor.SessionRequestCallback;
 import org.apache.http.params.HttpConnectionParams;
@@ -162,7 +163,7 @@ public class DefaultConnectingIOReactor extends AbstractMultiworkerIOReactor
             final Object attachment,
             final SessionRequestCallback callback) {
 
-        if (this.status > ACTIVE) {
+        if (this.status.compareTo(IOReactorStatus.ACTIVE) > 0) {
             throw new IllegalStateException("I/O reactor has been shut down");
         }
         SessionRequestImpl sessionRequest = new SessionRequestImpl(

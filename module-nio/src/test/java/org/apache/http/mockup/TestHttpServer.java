@@ -39,6 +39,7 @@ import org.apache.http.impl.nio.reactor.DefaultListeningIOReactor;
 import org.apache.http.nio.NHttpServiceHandler;
 import org.apache.http.nio.reactor.IOEventDispatch;
 import org.apache.http.nio.reactor.IOReactorExceptionHandler;
+import org.apache.http.nio.reactor.IOReactorStatus;
 import org.apache.http.nio.reactor.ListenerEndpoint;
 import org.apache.http.params.HttpParams;
 
@@ -91,7 +92,7 @@ public class TestHttpServer {
         this.thread.start();
     }
     
-    public int getStatus() {
+    public IOReactorStatus getStatus() {
         return this.ioReactor.getStatus();
     }
     
