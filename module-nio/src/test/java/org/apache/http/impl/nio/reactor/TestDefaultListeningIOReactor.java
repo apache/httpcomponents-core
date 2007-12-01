@@ -31,7 +31,10 @@
 package org.apache.http.impl.nio.reactor;
 
 import java.io.IOException;
+import java.net.BindException;
 import java.net.InetSocketAddress;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
 
 import junit.framework.Test;
 import junit.framework.TestCase;
@@ -42,6 +45,7 @@ import org.apache.http.impl.DefaultHttpResponseFactory;
 import org.apache.http.impl.nio.DefaultServerIOEventDispatch;
 import org.apache.http.nio.protocol.BufferingHttpServiceHandler;
 import org.apache.http.nio.reactor.IOEventDispatch;
+import org.apache.http.nio.reactor.IOReactorExceptionHandler;
 import org.apache.http.nio.reactor.IOReactorStatus;
 import org.apache.http.nio.reactor.ListenerEndpoint;
 import org.apache.http.nio.reactor.ListeningIOReactor;
@@ -136,6 +140,132 @@ public class TestDefaultListeningIOReactor extends TestCase {
         assertEquals(1, endpoints.length);
         
         assertEquals(9999, ((InetSocketAddress) endpoints[0].getAddress()).getPort());
+        
+        ioreactor.shutdown(1000);
+        t.join(1000);
+        
+        assertEquals(IOReactorStatus.SHUT_DOWN, ioreactor.getStatus());
+    }
+
+    public void testEndpointAlreadyBoundFatal() throws Exception {
+        
+        HttpParams params = new BasicHttpParams();
+        
+        BasicHttpProcessor httpproc = new BasicHttpProcessor();
+        httpproc.addInterceptor(new ResponseDate());
+        httpproc.addInterceptor(new ResponseServer());
+        httpproc.addInterceptor(new ResponseContent());
+        httpproc.addInterceptor(new ResponseConnControl());
+
+        final BufferingHttpServiceHandler serviceHandler = new BufferingHttpServiceHandler(
+                httpproc,
+                new DefaultHttpResponseFactory(),
+                new DefaultConnectionReuseStrategy(),
+                params);
+        
+        final IOEventDispatch eventDispatch = new DefaultServerIOEventDispatch(
+                serviceHandler, 
+                params);
+        
+        final ListeningIOReactor ioreactor = new DefaultListeningIOReactor(1, params);
+        
+        final CountDownLatch latch = new CountDownLatch(1);
+        
+        Thread t = new Thread(new Runnable() {
+            
+            public void run() {
+                try {
+                    ioreactor.execute(eventDispatch);
+                    fail("IOException should have been thrown");
+                } catch (IOException ex) {
+                    latch.countDown();
+                }
+            }
+            
+        });
+        
+        t.start();
+        
+        ListenerEndpoint endpoint1 = ioreactor.listen(new InetSocketAddress(9999));
+        endpoint1.waitFor();
+
+        ListenerEndpoint endpoint2 = ioreactor.listen(new InetSocketAddress(9999));
+        endpoint2.waitFor();
+        assertNotNull(endpoint2.getException());
+
+        // I/O reactor is now expected to be shutting down
+        latch.await(2000, TimeUnit.MILLISECONDS);
+        assertEquals(IOReactorStatus.SHUT_DOWN, ioreactor.getStatus());
+        
+        ListenerEndpoint[] endpoints = ioreactor.getEndpoints();
+        assertNotNull(endpoints);
+        assertEquals(0, endpoints.length);
+        
+        ioreactor.shutdown(1000);
+        t.join(1000);
+        
+        assertEquals(IOReactorStatus.SHUT_DOWN, ioreactor.getStatus());
+    }
+    
+    public void testEndpointAlreadyBoundNonFatal() throws Exception {
+        
+        HttpParams params = new BasicHttpParams();
+        
+        BasicHttpProcessor httpproc = new BasicHttpProcessor();
+        httpproc.addInterceptor(new ResponseDate());
+        httpproc.addInterceptor(new ResponseServer());
+        httpproc.addInterceptor(new ResponseContent());
+        httpproc.addInterceptor(new ResponseConnControl());
+
+        final BufferingHttpServiceHandler serviceHandler = new BufferingHttpServiceHandler(
+                httpproc,
+                new DefaultHttpResponseFactory(),
+                new DefaultConnectionReuseStrategy(),
+                params);
+        
+        final IOEventDispatch eventDispatch = new DefaultServerIOEventDispatch(
+                serviceHandler, 
+                params);
+        
+        final DefaultListeningIOReactor ioreactor = new DefaultListeningIOReactor(1, params);
+        
+        ioreactor.setExceptionHandler(new IOReactorExceptionHandler() {
+
+            public boolean handle(final IOException ex) {
+                return (ex instanceof BindException);
+            }
+
+            public boolean handle(final RuntimeException ex) {
+                return false;
+            }
+            
+        });
+        
+        Thread t = new Thread(new Runnable() {
+            
+            public void run() {
+                try {
+                    ioreactor.execute(eventDispatch);
+                } catch (IOException ex) {
+                    ex.printStackTrace();
+                }
+            }
+            
+        });
+        
+        t.start();
+        
+        ListenerEndpoint endpoint1 = ioreactor.listen(new InetSocketAddress(9999));
+        endpoint1.waitFor();
+
+        ListenerEndpoint endpoint2 = ioreactor.listen(new InetSocketAddress(9999));
+        endpoint2.waitFor();
+        assertNotNull(endpoint2.getException());
+
+        // Sleep a little to make sure the I/O reactor is not shutting down
+        Thread.sleep(500);
+        
+        assertEquals(IOReactorStatus.ACTIVE, ioreactor.getStatus());
         
         ioreactor.shutdown(1000);
         t.join(1000);

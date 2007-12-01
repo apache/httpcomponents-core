@@ -147,6 +147,8 @@ public class DefaultListeningIOReactor extends AbstractMultiworkerIOReactor
                 if (this.exceptionHandler == null || !this.exceptionHandler.handle(ex)) {
                     throw new IOReactorException("Failure binding socket to address " 
                             + address, ex);
+                } else {
+                    return;
                 }
             }
             try {
@@ -163,13 +165,15 @@ public class DefaultListeningIOReactor extends AbstractMultiworkerIOReactor
     
     public ListenerEndpoint[] getEndpoints() {
         List<ListenerEndpoint> list = new ArrayList<ListenerEndpoint>();
-        Set<SelectionKey> keys = this.selector.keys();
-        for (Iterator<SelectionKey> it = keys.iterator(); it.hasNext(); ) {
-            SelectionKey key = it.next();
-            if (key.isValid()) {
-                ListenerEndpoint endpoint = (ListenerEndpoint) key.attachment();
-                if (endpoint != null) {
-                    list.add(endpoint);
+        if (this.selector.isOpen()) {
+            Set<SelectionKey> keys = this.selector.keys();
+            for (Iterator<SelectionKey> it = keys.iterator(); it.hasNext(); ) {
+                SelectionKey key = it.next();
+                if (key.isValid()) {
+                    ListenerEndpoint endpoint = (ListenerEndpoint) key.attachment();
+                    if (endpoint != null) {
+                        list.add(endpoint);
+                    }
                 }
             }
         }
