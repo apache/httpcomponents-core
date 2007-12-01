@@ -1,5 +1,8 @@
 Changes since 4.0 Alpha 6
 
+* HttpCore NIOSSL classes moved to HttpCore NIO.
+  Contributed by Oleg Kalnichevski <olegk at apache.org>
+
 * HttpCore NIO ported to Java 1.5.
   Contributed by Oleg Kalnichevski <olegk at apache.org>
 

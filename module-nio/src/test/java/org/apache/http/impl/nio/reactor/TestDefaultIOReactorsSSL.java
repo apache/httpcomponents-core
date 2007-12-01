@@ -59,23 +59,23 @@ import org.apache.http.protocol.HttpRequestHandler;
  *
  * @author <a href="mailto:oleg at ural.ru">Oleg Kalnichevski</a>
  */
-public class TestDefaultIOReactors extends HttpCoreNIOSSLTestBase {
+public class TestDefaultIOReactorsSSL extends HttpCoreNIOSSLTestBase {
 
     // ------------------------------------------------------------ Constructor
-    public TestDefaultIOReactors(String testName) {
+    public TestDefaultIOReactorsSSL(String testName) {
         super(testName);
     }
 
     // ------------------------------------------------------------------- Main
     public static void main(String args[]) {
-        String[] testCaseName = { TestDefaultIOReactors.class.getName() };
+        String[] testCaseName = { TestDefaultIOReactorsSSL.class.getName() };
         junit.textui.TestRunner.main(testCaseName);
     }
 
     // ------------------------------------------------------- TestCase Methods
 
     public static Test suite() {
-        return new TestSuite(TestDefaultIOReactors.class);
+        return new TestSuite(TestDefaultIOReactorsSSL.class);
     }
 
     public void testRestartListeningIOReactor() throws Exception {

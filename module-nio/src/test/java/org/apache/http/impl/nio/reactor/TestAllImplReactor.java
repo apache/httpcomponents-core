@@ -43,6 +43,8 @@ public class TestAllImplReactor extends TestCase {
         suite.addTest(TestSessionInOutBuffers.suite());
         suite.addTest(TestDefaultIOReactors.suite());
         suite.addTest(TestDefaultListeningIOReactor.suite());
+        suite.addTest(TestBaseIOReactorSSL.suite());
+        suite.addTest(TestDefaultIOReactorsSSL.suite());
         return suite;
     }
 

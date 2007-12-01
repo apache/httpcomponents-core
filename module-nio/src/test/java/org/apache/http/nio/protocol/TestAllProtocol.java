@@ -41,6 +41,7 @@ public class TestAllProtocol extends TestCase {
     public static Test suite() {
         TestSuite suite = new TestSuite();
         suite.addTest(TestNIOHttp.suite());
+        suite.addTest(TestNIOSSLHttp.suite());
         return suite;
     }
 

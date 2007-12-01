@@ -28,7 +28,7 @@
  *
  */
 
-package org.apache.http.impl.nio.reactor;
+package org.apache.http.nio.protocol;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
@@ -97,7 +97,6 @@ public class TestNIOSSLHttp extends HttpCoreNIOSSLTestBase {
      */
     @SuppressWarnings("unchecked")
     public void testSimpleHttpGets() throws Exception {
-        
         final int connNo = 3;
         final int reqNo = 20;
         final RequestCount requestCount = new RequestCount(connNo * reqNo); 
