@@ -51,13 +51,11 @@ import org.apache.http.nio.protocol.HttpRequestExecutionHandler;
 import org.apache.http.nio.reactor.IOReactorExceptionHandler;
 import org.apache.http.nio.reactor.IOReactorStatus;
 import org.apache.http.nio.reactor.ListenerEndpoint;
-import org.apache.http.params.BasicHttpParams;
-import org.apache.http.params.HttpParams;
 import org.apache.http.protocol.HttpContext;
 import org.apache.http.protocol.HttpRequestHandler;
 
 /**
- * Simple tests for {@link DefaultListeningIOReactor}.
+ * Tests for basic I/O functionality.
  *
  * @author <a href="mailto:oleg at ural.ru">Oleg Kalnichevski</a>
  * 
@@ -82,18 +80,6 @@ public class TestDefaultIOReactors extends HttpCoreNIOTestBase {
         return new TestSuite(TestDefaultIOReactors.class);
     }
 
-    public void testRestartListeningIOReactor() throws Exception {
-        HttpParams params = new BasicHttpParams();
-        
-        DefaultListeningIOReactor ioReactor = new DefaultListeningIOReactor(1, params);
-        ioReactor.listen(new InetSocketAddress(9999));
-        ioReactor.shutdown();
-        
-        ioReactor = new DefaultListeningIOReactor(1, params);
-        ioReactor.listen(new InetSocketAddress(9999));
-        ioReactor.shutdown();         
-    }
-    
     public void testGracefulShutdown() throws Exception {
 
         // Open some connection and make sure 
@@ -436,5 +422,5 @@ public class TestDefaultIOReactors extends HttpCoreNIOTestBase {
         this.client.shutdown();
         this.server.shutdown();
     }
-    
+
 }

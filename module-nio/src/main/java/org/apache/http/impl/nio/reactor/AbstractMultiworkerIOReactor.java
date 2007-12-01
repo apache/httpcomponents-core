@@ -195,19 +195,21 @@ public abstract class AbstractMultiworkerIOReactor implements IOReactor {
         this.selector.wakeup();
         
         // Close out all channels
-        Set<SelectionKey> keys = this.selector.keys();
-        for (Iterator<SelectionKey> it = keys.iterator(); it.hasNext(); ) {
-            try {
-                SelectionKey key = it.next();
-                Channel channel = key.channel();
-                if (channel != null) {
-                    channel.close();
+        if (this.selector.isOpen()) {
+            Set<SelectionKey> keys = this.selector.keys();
+            for (Iterator<SelectionKey> it = keys.iterator(); it.hasNext(); ) {
+                try {
+                    SelectionKey key = it.next();
+                    Channel channel = key.channel();
+                    if (channel != null) {
+                        channel.close();
+                    }
+                } catch (IOException ignore) {
                 }
-            } catch (IOException ignore) {
             }
+            // Stop dispatching I/O events
+            this.selector.close();
         }
-        // Stop dispatching I/O events
-        this.selector.close();
 
         // Attempt to shut down I/O dispatchers gracefully
         for (int i = 0; i < this.workerCount; i++) {

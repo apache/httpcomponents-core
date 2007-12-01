@@ -42,6 +42,7 @@ public class TestAllImplReactor extends TestCase {
         TestSuite suite = new TestSuite();
         suite.addTest(TestSessionInOutBuffers.suite());
         suite.addTest(TestDefaultIOReactors.suite());
+        suite.addTest(TestDefaultListeningIOReactor.suite());
         return suite;
     }
 

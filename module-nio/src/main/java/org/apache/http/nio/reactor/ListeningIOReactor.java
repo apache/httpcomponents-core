@@ -37,4 +37,6 @@ public interface ListeningIOReactor extends IOReactor {
 
     ListenerEndpoint listen(SocketAddress address);
     
+    ListenerEndpoint[] getEndpoints();
+    
 }

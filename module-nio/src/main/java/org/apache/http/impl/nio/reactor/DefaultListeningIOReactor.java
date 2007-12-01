@@ -37,7 +37,9 @@ import java.nio.channels.CancelledKeyException;
 import java.nio.channels.SelectionKey;
 import java.nio.channels.ServerSocketChannel;
 import java.nio.channels.SocketChannel;
+import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Queue;
 import java.util.Set;
 import java.util.concurrent.ConcurrentLinkedQueue;
@@ -157,6 +159,21 @@ public class DefaultListeningIOReactor extends AbstractMultiworkerIOReactor
             }
             request.completed(serverChannel.socket().getLocalSocketAddress());
         }
+    }
+    
+    public ListenerEndpoint[] getEndpoints() {
+        List<ListenerEndpoint> list = new ArrayList<ListenerEndpoint>();
+        Set<SelectionKey> keys = this.selector.keys();
+        for (Iterator<SelectionKey> it = keys.iterator(); it.hasNext(); ) {
+            SelectionKey key = it.next();
+            if (key.isValid()) {
+                ListenerEndpoint endpoint = (ListenerEndpoint) key.attachment();
+                if (endpoint != null) {
+                    list.add(endpoint);
+                }
+            }
+        }
+        return list.toArray(new ListenerEndpoint[list.size()]);
     }
     
 }
