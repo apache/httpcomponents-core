@@ -1,5 +1,8 @@
 Changes since 4.0 Alpha 6
 
+* [HTTPCORE-122] new interface TokenIterator and basic implementation
+  Contributed by Roland Weber <rolandw at apache.org>
+
 * HttpCore NIOSSL classes moved to HttpCore NIO.
   Contributed by Oleg Kalnichevski <olegk at apache.org>
 
@@ -13,7 +16,7 @@ Changes since 4.0 Alpha 6
 * [HTTPCORE-37] HttpParams beans
   Contributed by Stojce Dimski <sdmiski at yahoo.it>
 
-* [HTTPCORE-128] Simplified injection of custom NIO connection implementations. 
+* [HTTPCORE-128] Simplified injection of custom NIO connection implementations.
   Contributed by Oleg Kalnichevski <olegk at apache.org>
 
 * [HTTPCORE-126] Improved HTTP message parsing API and optimized parser
