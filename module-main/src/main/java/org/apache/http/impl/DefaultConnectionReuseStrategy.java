@@ -33,7 +33,6 @@ package org.apache.http.impl;
 
 import org.apache.http.ConnectionReuseStrategy;
 import org.apache.http.HttpConnection;
-import org.apache.http.Header;
 import org.apache.http.HeaderIterator;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
@@ -45,7 +44,6 @@ import org.apache.http.protocol.HttpContext;
 import org.apache.http.protocol.ExecutionContext;
 import org.apache.http.TokenIterator;
 import org.apache.http.message.BasicTokenIterator;
-
 
 /**
  * Default implementation of a strategy deciding about connection re-use.

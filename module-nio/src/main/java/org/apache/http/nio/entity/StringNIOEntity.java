@@ -1,7 +1,7 @@
 /*
- * $HeadURL$
- * $Revision$
- * $Date$
+ * $HeadURL:$
+ * $Revision:$
+ * $Date:$
  *
  * ====================================================================
  * Licensed to the Apache Software Foundation (ASF) under one
@@ -29,63 +29,37 @@
  *
  */
 
-package org.apache.http.entity;
+package org.apache.http.nio.entity;
 
-import java.io.ByteArrayInputStream;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
+import java.io.UnsupportedEncodingException;
+import java.nio.channels.Channels;
+import java.nio.channels.ReadableByteChannel;
+
+import org.apache.http.HttpEntity;
+import org.apache.http.entity.StringEntity;
 
 /**
- *  An entity whose content is retrieved from a byte array.
+ * An entity whose content is retrieved from a string. In addition to the 
+ * standard {@link HttpEntity} interface this class also implements NIO specific 
+ * {@link HttpNIOEntity}.
  *
  * @author <a href="mailto:oleg at ural.ru">Oleg Kalnichevski</a>
  *
- * @version $Revision$
+ * @version $Revision:$
  * 
  * @since 4.0
  */
-public class ByteArrayEntity extends AbstractHttpEntity {
+public class StringNIOEntity extends StringEntity implements HttpNIOEntity {
 
-    protected final byte[] content;
-
-    public ByteArrayEntity(final byte[] b) {
-        super();        
-        if (b == null) {
-            throw new IllegalArgumentException("Source byte array may not be null");
-        }
-        this.content = b;
+    public StringNIOEntity(
+            final String s, 
+            String charset) throws UnsupportedEncodingException {
+        super(s, charset);
     }
 
-    public boolean isRepeatable() {
-        return true;
+    public ReadableByteChannel getChannel() throws IOException {
+        return Channels.newChannel(getContent());
     }
 
-    public long getContentLength() {
-        return this.content.length;
-    }
-
-    public InputStream getContent() {
-        return new ByteArrayInputStream(this.content);
-    }
-    
-    public void writeTo(final OutputStream outstream) throws IOException {
-        if (outstream == null) {
-            throw new IllegalArgumentException("Output stream may not be null");
-        }
-        outstream.write(this.content);
-        outstream.flush();
-    }
-
-
-    /**
-     * Tells that this entity is not streaming.
-     *
-     * @return <code>false</code>
-     */
-    public boolean isStreaming() {
-        return false;
-    }
-
-
-} // class ByteArrayEntity
+}

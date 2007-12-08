@@ -38,7 +38,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 
 /**
- * A self-contained entity obtaining content from a file.
+ * An entity whose content is retrieved from a file.
  *
  * @author <a href="mailto:oleg at ural.ru">Oleg Kalnichevski</a>
  *
@@ -48,7 +48,7 @@ import java.io.OutputStream;
  */
 public class FileEntity extends AbstractHttpEntity {
 
-    private final File file; 
+    protected final File file; 
 
     public FileEntity(final File file, final String contentType) {
         super();

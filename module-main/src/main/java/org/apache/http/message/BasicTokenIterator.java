@@ -33,14 +33,9 @@ package org.apache.http.message;
 
 import java.util.NoSuchElementException;
 
-import org.apache.http.FormattedHeader;
-import org.apache.http.Header;
-import org.apache.http.HeaderElement;
 import org.apache.http.HeaderIterator;
-import org.apache.http.TokenIterator;
 import org.apache.http.ParseException;
-
-
+import org.apache.http.TokenIterator;
 
 /**
  * Basic implementation of a {@link TokenIterator}.

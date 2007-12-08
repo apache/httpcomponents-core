@@ -40,7 +40,7 @@ import java.io.UnsupportedEncodingException;
 import org.apache.http.protocol.HTTP;
 
 /**
- * A self-contained entity obtaining content from a string.
+ *  An entity whose content is retrieved from a string.
  *
  * @author <a href="mailto:oleg at ural.ru">Oleg Kalnichevski</a>
  *
@@ -50,7 +50,7 @@ import org.apache.http.protocol.HTTP;
  */
 public class StringEntity extends AbstractHttpEntity {
 
-    private final byte[] content;
+    protected final byte[] content;
 
     public StringEntity(final String s, String charset) 
             throws UnsupportedEncodingException {

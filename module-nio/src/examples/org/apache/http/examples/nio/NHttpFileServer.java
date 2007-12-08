@@ -31,9 +31,7 @@
 package org.apache.http.examples.nio;
 
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.InterruptedIOException;
 import java.io.RandomAccessFile;
 import java.io.UnsupportedEncodingException;
@@ -43,6 +41,7 @@ import java.nio.ByteBuffer;
 import java.nio.channels.Channels;
 import java.nio.channels.FileChannel;
 import java.nio.channels.ReadableByteChannel;
+import java.nio.channels.WritableByteChannel;
 
 import org.apache.http.ConnectionReuseStrategy;
 import org.apache.http.Header;
@@ -56,8 +55,6 @@ import org.apache.http.HttpResponseFactory;
 import org.apache.http.HttpStatus;
 import org.apache.http.HttpVersion;
 import org.apache.http.ProtocolVersion;
-import org.apache.http.entity.ByteArrayEntity;
-import org.apache.http.entity.FileEntity;
 import org.apache.http.impl.DefaultConnectionReuseStrategy;
 import org.apache.http.impl.DefaultHttpResponseFactory;
 import org.apache.http.impl.nio.DefaultServerIOEventDispatch;
@@ -65,8 +62,12 @@ import org.apache.http.impl.nio.reactor.DefaultListeningIOReactor;
 import org.apache.http.nio.ContentDecoder;
 import org.apache.http.nio.ContentEncoder;
 import org.apache.http.nio.FileContentDecoder;
+import org.apache.http.nio.FileContentEncoder;
 import org.apache.http.nio.NHttpServerConnection;
 import org.apache.http.nio.NHttpServiceHandler;
+import org.apache.http.nio.entity.ByteArrayNIOEntity;
+import org.apache.http.nio.entity.FileNIOEntity;
+import org.apache.http.nio.entity.HttpNIOEntity;
 import org.apache.http.nio.reactor.IOEventDispatch;
 import org.apache.http.nio.reactor.ListeningIOReactor;
 import org.apache.http.params.BasicHttpParams;
@@ -117,7 +118,6 @@ public class NHttpFileServer {
     }
 
     private static final String CONN_STATE    = "http.conn-state";
-    private static final String OUT_CHANNEL   = "http.out-channel";
     
     static class ConnState {
 
@@ -126,7 +126,10 @@ public class NHttpFileServer {
         
         private File fileHandle;
         private RandomAccessFile inputFile;
+        private WritableByteChannel inputChannel;
+        private ReadableByteChannel outputChannel;
         private long inputCount;
+        private long outputCount;
         
         public ConnState() {
             super();
@@ -142,7 +145,6 @@ public class NHttpFileServer {
             return this.outbuf;
         }
 
-        
         public File getInputFile() throws IOException {
             if (this.fileHandle == null) {
                 this.fileHandle = File.createTempFile("tmp", ".tmp", null);
@@ -150,11 +152,22 @@ public class NHttpFileServer {
             return this.fileHandle;
         }
         
-        public FileChannel getInputChannel() throws IOException {
+        public WritableByteChannel getInputChannel() throws IOException {
             if (this.inputFile == null) {
                 this.inputFile = new RandomAccessFile(getInputFile(), "rw");
             }
-            return this.inputFile.getChannel();
+            if (this.inputChannel == null) {
+                this.inputChannel = this.inputFile.getChannel();
+            }
+            return this.inputChannel;
+        }
+        
+        public void setOutputChannel(final ReadableByteChannel channel) {
+            this.outputChannel = channel;
+        }
+        
+        public ReadableByteChannel getOutputChannel() {
+            return this.outputChannel;
         }
         
         public long getInputCount() {
@@ -165,10 +178,23 @@ public class NHttpFileServer {
             this.inputCount += count;
         }
         
+        public long getOutputCount() {
+            return this.outputCount;
+        }
+        
+        public void incrementOutputCount(long count) {
+            this.outputCount += count;
+        }
+        
         public void reset() throws IOException {
             this.inbuf.clear();
             this.outbuf.clear();
             this.inputCount = 0;
+            this.outputCount = 0;
+            if (this.inputChannel != null) {
+                this.inputChannel.close();
+                this.inputChannel = null;
+            }
             if (this.inputFile != null) {
                 this.inputFile.close();
                 this.inputFile = null;
@@ -246,6 +272,9 @@ public class NHttpFileServer {
             }
             
             HttpContext context = conn.getContext();
+
+            ConnState connState = (ConnState) context.getAttribute(CONN_STATE);
+            
             HttpResponse response =  this.responseFactory.newHttpResponse(
                     HttpVersion.HTTP_1_0, HttpStatus.SC_BAD_REQUEST, context);
             HttpParamsLinker.link(response, this.params);
@@ -256,7 +285,7 @@ public class NHttpFileServer {
             try {
                 handleException(ex, response, context);
                 this.httpProcessor.process(response, context);
-                commitResponse(conn, response);
+                commitResponse(conn, connState, response);
             } catch (HttpException ex2) {
                 shutdownConnection(conn);
                 System.err.println("Unexpected HTTP protocol error: " + ex2.getMessage());
@@ -315,30 +344,28 @@ public class NHttpFileServer {
 
             ConnState connState = (ConnState) context.getAttribute(
                     CONN_STATE);
-            
             try {
 
-                FileChannel filechannel = connState.getInputChannel();
-                
-                // Test if the decoder is capable of 
-                // direct transfer to file
-                if (decoder instanceof FileContentDecoder) {
+                WritableByteChannel channel = connState.getInputChannel();
+                long transferred;
+
+                // Test if the decoder is capable of direct transfer to file
+                if (decoder instanceof FileContentDecoder && channel instanceof FileChannel) {
                     long pos = connState.getInputCount();
-                    long transferred = ((FileContentDecoder) decoder).transfer(
-                            filechannel, pos, Integer.MAX_VALUE);
-                    connState.incrementInputCount(transferred);
+                    transferred = ((FileContentDecoder) decoder).transfer(
+                            (FileChannel) channel, pos, Integer.MAX_VALUE);
                 } else {
                     ByteBuffer buf = connState.getInbuf();
                     decoder.read(buf);
                     buf.flip();
-                    int transferred = filechannel.write(buf);
+                    transferred = channel.write(buf);
                     buf.compact();
-                    connState.incrementInputCount(transferred);
                 }
+                connState.incrementInputCount(transferred);
                 
                 if (decoder.isCompleted()) {
                     // Request entity has been fully received
-                    filechannel.close();
+                    channel.close();
                     doService(conn, connState);
                 }
                 
@@ -356,21 +383,33 @@ public class NHttpFileServer {
 
             ConnState connState = (ConnState) context.getAttribute(
                     CONN_STATE);
-            ReadableByteChannel channel = (ReadableByteChannel) context.getAttribute(
-                    OUT_CHANNEL);
-
             HttpResponse response = conn.getHttpResponse();
-            ByteBuffer outbuf = connState.getOutbuf();
             try {
-                int bytesRead = channel.read(outbuf);
-                if (bytesRead == -1) {
-                    encoder.complete();
-                } else {
-                    outbuf.flip();
-                    encoder.write(outbuf);
-                    outbuf.compact();
-                }
 
+                ReadableByteChannel channel = connState.getOutputChannel();
+                long transferred;
+
+                // Test if the encoder is capable of direct transfer from file
+                if (encoder instanceof FileContentDecoder && channel instanceof FileChannel) {
+                    long pos = connState.getOutputCount();
+                    transferred = ((FileContentEncoder) encoder).transfer(
+                            (FileChannel) channel, pos, Integer.MAX_VALUE);
+                } else {
+                    ByteBuffer outbuf = connState.getOutbuf();
+                    transferred = channel.read(outbuf);
+                    if (transferred != -1) {
+                        outbuf.flip();
+                        encoder.write(outbuf);
+                        outbuf.compact();
+                    }
+                }
+                if (transferred == -1) {
+                    encoder.complete();
+                }
+                if (transferred > 0) {
+                    connState.incrementOutputCount(transferred);
+                }
+                
                 if (encoder.isCompleted()) {
                     channel.close();
                     if (!this.connStrategy.keepAlive(response, context)) {
@@ -382,23 +421,23 @@ public class NHttpFileServer {
                 shutdownConnection(conn);
                 System.err.println("I/O error: " + ex.getMessage());
             }
-
         }
 
         private void commitResponse(
                 final NHttpServerConnection conn,
+                final ConnState connState,
                 final HttpResponse response) throws HttpException, IOException {
-            ReadableByteChannel channel = null;
-            if (response.getEntity() != null) {
-                InputStream instream = response.getEntity().getContent(); 
-                if (instream instanceof FileInputStream) {
-                    channel = ((FileInputStream)instream).getChannel();
+            
+            HttpEntity entity = response.getEntity();
+            if (entity != null) {
+                ReadableByteChannel channel;
+                if (entity instanceof HttpNIOEntity) {
+                    channel = ((HttpNIOEntity) entity).getChannel();
                 } else {
-                    channel = Channels.newChannel(instream);
+                    channel = Channels.newChannel(entity.getContent());
                 }
-                
+                connState.setOutputChannel(channel);
             }
-            conn.getContext().setAttribute(OUT_CHANNEL, channel);
             conn.submitResponse(response);
         }
 
@@ -416,7 +455,7 @@ public class NHttpFileServer {
                 if (h != null) {
                     contentType = h.getValue();
                 }
-                HttpEntity entity = new FileEntity(connState.getInputFile(), contentType);
+                HttpNIOEntity entity = new FileNIOEntity(connState.getInputFile(), contentType);
                 eeRequest.setEntity(entity);
             }
             
@@ -435,7 +474,7 @@ public class NHttpFileServer {
                 handleException(ex, response, context);
             }
             this.httpProcessor.process(response, context);
-            commitResponse(conn, response);
+            commitResponse(conn, connState, response);
         }
         
         private void handleRequest(
@@ -456,7 +495,7 @@ public class NHttpFileServer {
                 response.setStatusCode(HttpStatus.SC_NOT_FOUND);
                 byte[] msg = EncodingUtils.getAsciiBytes(
                         file.getName() + ": not found");
-                ByteArrayEntity entity = new ByteArrayEntity(msg);
+                ByteArrayNIOEntity entity = new ByteArrayNIOEntity(msg);
                 entity.setContentType("text/plain; charset=US-ASCII");
                 response.setEntity(entity);
                 
@@ -465,13 +504,13 @@ public class NHttpFileServer {
                 response.setStatusCode(HttpStatus.SC_FORBIDDEN);
                 byte[] msg = EncodingUtils.getAsciiBytes(
                         file.getName() + ": access denied");
-                ByteArrayEntity entity = new ByteArrayEntity(msg);
+                ByteArrayNIOEntity entity = new ByteArrayNIOEntity(msg);
                 entity.setContentType("text/plain; charset=US-ASCII");
                 response.setEntity(entity);
 
             } else {
 
-                FileEntity entity = new FileEntity(file, "text/html");
+                FileNIOEntity entity = new FileNIOEntity(file, "text/html");
                 response.setEntity(entity);
                 
             }
@@ -484,7 +523,7 @@ public class NHttpFileServer {
             response.setStatusLine(HttpVersion.HTTP_1_0, HttpStatus.SC_BAD_REQUEST);
             byte[] msg = EncodingUtils.getAsciiBytes(
                     "Malformed HTTP request: " + ex.getMessage());
-            ByteArrayEntity entity = new ByteArrayEntity(msg);
+            ByteArrayNIOEntity entity = new ByteArrayNIOEntity(msg);
             entity.setContentType("text/plain; charset=US-ASCII");
             response.setEntity(entity);
         }
