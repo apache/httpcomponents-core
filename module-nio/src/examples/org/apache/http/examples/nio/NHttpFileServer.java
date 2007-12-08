@@ -93,6 +93,13 @@ public class NHttpFileServer {
             System.err.println("Please specify document root directory");
             System.exit(1);
         }
+        boolean useFileChannels = true;
+        if (args.length >= 2) {
+            String s = args[1];
+            if (s.equalsIgnoreCase("disableFileChannels")) {
+                useFileChannels = false;
+            }
+        }
         HttpParams params = new BasicHttpParams();
         params
             .setIntParameter(HttpConnectionParams.SO_TIMEOUT, 20000)
@@ -103,7 +110,7 @@ public class NHttpFileServer {
 
         ListeningIOReactor ioReactor = new DefaultListeningIOReactor(2, params);
 
-        NHttpServiceHandler handler = new FileServiceHandler(args[0], params);
+        NHttpServiceHandler handler = new FileServiceHandler(args[0], useFileChannels, params);
         IOEventDispatch ioEventDispatch = new DefaultServerIOEventDispatch(handler, params);
         
         try {
@@ -210,14 +217,19 @@ public class NHttpFileServer {
     public static class FileServiceHandler implements NHttpServiceHandler {
 
         private final String docRoot;
+        private boolean useFileChannels;
         private final HttpParams params;
         private final HttpResponseFactory responseFactory;
         private final HttpProcessor httpProcessor;
         private final ConnectionReuseStrategy connStrategy;
         
-        public FileServiceHandler(final String docRoot, final HttpParams params) {
+        public FileServiceHandler(
+                final String docRoot, 
+                boolean useFileChannels, 
+                final HttpParams params) {
             super();
             this.docRoot = docRoot;
+            this.useFileChannels = useFileChannels;
             this.params = params;
             this.responseFactory = new DefaultHttpResponseFactory();
             this.httpProcessor = createProtocolProcessor();
@@ -350,7 +362,9 @@ public class NHttpFileServer {
                 long transferred;
 
                 // Test if the decoder is capable of direct transfer to file
-                if (decoder instanceof FileContentDecoder && channel instanceof FileChannel) {
+                if (this.useFileChannels && 
+                        decoder instanceof FileContentDecoder && 
+                        channel instanceof FileChannel) {
                     long pos = connState.getInputCount();
                     transferred = ((FileContentDecoder) decoder).transfer(
                             (FileChannel) channel, pos, Integer.MAX_VALUE);
@@ -390,7 +404,9 @@ public class NHttpFileServer {
                 long transferred;
 
                 // Test if the encoder is capable of direct transfer from file
-                if (encoder instanceof FileContentDecoder && channel instanceof FileChannel) {
+                if (this.useFileChannels && 
+                        encoder instanceof FileContentEncoder && 
+                        channel instanceof FileChannel) {
                     long pos = connState.getOutputCount();
                     transferred = ((FileContentEncoder) encoder).transfer(
                             (FileChannel) channel, pos, Integer.MAX_VALUE);
