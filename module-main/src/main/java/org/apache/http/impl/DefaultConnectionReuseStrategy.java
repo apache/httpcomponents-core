@@ -34,36 +34,46 @@ package org.apache.http.impl;
 import org.apache.http.ConnectionReuseStrategy;
 import org.apache.http.HttpConnection;
 import org.apache.http.Header;
+import org.apache.http.HeaderIterator;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpVersion;
+import org.apache.http.ParseException;
 import org.apache.http.ProtocolVersion;
 import org.apache.http.protocol.HTTP;
 import org.apache.http.protocol.HttpContext;
 import org.apache.http.protocol.ExecutionContext;
+import org.apache.http.TokenIterator;
+import org.apache.http.message.BasicTokenIterator;
+
 
 /**
  * Default implementation of a strategy deciding about connection re-use.
  *
  * @author <a href="mailto:oleg at ural.ru">Oleg Kalnichevski</a>
+ * @author <a href="mailto:rolandw at apache.org">Roland Weber</a>
  *
  * @version $Revision$
  * 
  * @since 4.0
  */
-public class DefaultConnectionReuseStrategy implements ConnectionReuseStrategy {
+public class DefaultConnectionReuseStrategy
+    implements ConnectionReuseStrategy {
 
     public DefaultConnectionReuseStrategy() {
         super();
     }
 
     // see interface ConnectionReuseStrategy
-    public boolean keepAlive(final HttpResponse response, final HttpContext context) {
+    public boolean keepAlive(final HttpResponse response,
+                             final HttpContext context) {
         if (response == null) {
-            throw new IllegalArgumentException("HTTP response may not be null");
+            throw new IllegalArgumentException
+                ("HTTP response may not be null.");
         }
         if (context == null) {
-            throw new IllegalArgumentException("HTTP context may not be null");
+            throw new IllegalArgumentException
+                ("HTTP context may not be null.");
         }
         
         HttpConnection conn = (HttpConnection)
@@ -73,34 +83,90 @@ public class DefaultConnectionReuseStrategy implements ConnectionReuseStrategy {
             return false;
         // do NOT check for stale connection, that is an expensive operation
 
+        // Check for a self-terminating entity. If the end of the entity will
+        // be indicated by closing the connection, there is no keep-alive.
         HttpEntity entity = response.getEntity();
         ProtocolVersion ver = response.getStatusLine().getProtocolVersion();
         if (entity != null) {
             if (entity.getContentLength() < 0) {
-                if (!entity.isChunked() || ver.lessEquals(HttpVersion.HTTP_1_0)) {
+                if (!entity.isChunked() ||
+                    ver.lessEquals(HttpVersion.HTTP_1_0)) {
                     // if the content length is not known and is not chunk
                     // encoded, the connection cannot be reused
                     return false;
                 }
             }
         }
-        // Check for 'Connection' directive
-        Header connheader = response.getFirstHeader(HTTP.CONN_DIRECTIVE);
-        if (connheader == null) {
-            connheader = response.getFirstHeader("Proxy-Connection");
-        }
-        if (connheader != null) {
-            String conndirective = connheader.getValue(); 
-            if (HTTP.CONN_CLOSE.equalsIgnoreCase(conndirective)) {
+
+        // Check for the "Connection" header. If that is absent, check for
+        // the "Proxy-Connection" header. The latter is an unspecified and
+        // broken but unfortunately common extension of HTTP.
+        HeaderIterator hit = response.headerIterator(HTTP.CONN_DIRECTIVE);
+        if (!hit.hasNext())
+            hit = response.headerIterator("Proxy-Connection");
+
+        // Experimental usage of the "Connection" header in HTTP/1.0 is
+        // documented in RFC 2068, section 19.7.1. A token "keep-alive" is
+        // used to indicate that the connection should be persistent.
+        // Note that the final specification of HTTP/1.1 in RFC 2616 does not
+        // include this information. Neither is the "Connection" header
+        // mentioned in RFC 1945, which informally describes HTTP/1.0.
+        //
+        // RFC 2616 specifies "close" as the only connection token with a
+        // specific meaning: it disables persistent connections.
+        //
+        // The "Proxy-Connection" header is not formally specified anywhere,
+        // but is commonly used to carry one token, "close" or "keep-alive".
+        // The "Connection" header, on the other hand, is defined as a
+        // sequence of tokens, where each token is a header name, and the
+        // token "close" has the above-mentioned additional meaning.
+        //
+        // To get through this mess, we treat the "Proxy-Connection" header
+        // in exactly the same way as the "Connection" header, but only if
+        // the latter is missing. We scan the sequence of tokens for both
+        // "close" and "keep-alive". As "close" is specified by RFC 2068,
+        // it takes precedence and indicates a non-persistent connection.
+        // If there is no "close" but a "keep-alive", we take the hint.
+
+        if (hit.hasNext()) {
+            try {
+                TokenIterator ti = createTokenIterator(hit);
+                boolean keepalive = false;
+                while (ti.hasNext()) {
+                    final String token = ti.nextToken();
+                    if (HTTP.CONN_CLOSE.equalsIgnoreCase(token)) {
+                        return false;
+                    } else if (HTTP.CONN_KEEP_ALIVE.equalsIgnoreCase(token)) {
+                        // continue the loop, there may be a "close" afterwards
+                        keepalive = true;
+                    }
+                }
+                if (keepalive)
+                    return true;
+                // neither "close" nor "keep-alive", use default policy
+
+            } catch (ParseException px) {
+                // invalid connection header means no persistent connection
+                // we don't have logging in HttpCore, so the exception is lost
                 return false;
-            } else if (HTTP.CONN_KEEP_ALIVE.equalsIgnoreCase(conndirective)) {
-                return true;
-            } else {
-                // log unknown directive
             }
         }
-        // Resorting to protocol version default close connection policy
+
+        // default since HTTP/1.1 is persistent, before it was non-persistent
         return !ver.lessEquals(HttpVersion.HTTP_1_0);
     }
-            
+
+
+    /**
+     * Creates a token iterator from a header iterator.
+     * This method can be overridden to replace the implementation of
+     * the token iterator.
+     *
+     * @param hit       the header iterator
+     *
+     * @return  the token iterator
+     */
+    protected TokenIterator createTokenIterator(HeaderIterator hit) {
+        return new BasicTokenIterator(hit);
+    }
 }

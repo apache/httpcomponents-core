@@ -1,5 +1,8 @@
 Changes since 4.0 Alpha 6
 
+* [HTTPCORE-112] DefaultConnectionReuseStrategy interprets token sequences
+  Contributed by Roland Weber <rolandw at apache.org>
+
 * [HTTPCORE-122] new interface TokenIterator and basic implementation
   Contributed by Roland Weber <rolandw at apache.org>
 

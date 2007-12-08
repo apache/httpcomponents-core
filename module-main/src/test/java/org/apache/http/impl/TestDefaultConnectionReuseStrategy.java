@@ -223,6 +223,78 @@ public class TestDefaultConnectionReuseStrategy extends TestCase {
         assertFalse(reuseStrategy.keepAlive(response, context));
     }
 
+    public void testConnectionTokens1() throws Exception {
+        // Use HTTP 1.1
+        HttpResponse response =
+            createResponse(HttpVersion.HTTP_1_1, 200, "OK", true, -1);
+        response.addHeader("Connection", "yadda, cLOSe, dumdy");
+
+        assertFalse(reuseStrategy.keepAlive(response, context));
+    }
+
+    public void testConnectionTokens2() throws Exception {
+        // Use HTTP 1.1
+        HttpResponse response =
+            createResponse(HttpVersion.HTTP_1_1, 200, "OK", true, -1);
+        response.addHeader("Connection", "yadda, kEEP-alive, dumdy");
+
+        assertTrue(reuseStrategy.keepAlive(response, context));
+    }
+
+    public void testConnectionTokens3() throws Exception {
+        // Use HTTP 1.1
+        HttpResponse response =
+            createResponse(HttpVersion.HTTP_1_1, 200, "OK", true, -1);
+        response.addHeader("Connection", "yadda, keep-alive, close, dumdy");
+
+        assertFalse(reuseStrategy.keepAlive(response, context));
+    }
+
+    public void testConnectionTokens4() throws Exception {
+        // Use HTTP 1.1
+        HttpResponse response =
+            createResponse(HttpVersion.HTTP_1_1, 200, "OK", true, -1);
+        response.addHeader("Connection", "yadda, close, dumdy");
+        response.addHeader("Proxy-Connection", "keep-alive");
+
+        // Connection takes precedence over Proxy-Connection
+        assertFalse(reuseStrategy.keepAlive(response, context));
+    }
+
+    public void testConnectionTokens5() throws Exception {
+        // Use HTTP 1.1
+        HttpResponse response =
+            createResponse(HttpVersion.HTTP_1_1, 200, "OK", true, -1);
+        response.addHeader("Connection", "yadda, dumdy");
+        response.addHeader("Proxy-Connection", "close");
+
+        // Connection takes precedence over Proxy-Connection,
+        // even if it doesn't contain a recognized token.
+        // Default for HTTP/1.1 is to keep alive.
+        assertTrue(reuseStrategy.keepAlive(response, context));
+    }
+
+    public void testConnectionTokens6() throws Exception {
+        // Use HTTP 1.1
+        HttpResponse response =
+            createResponse(HttpVersion.HTTP_1_1, 200, "OK", true, -1);
+        response.addHeader("Connection", "");
+        response.addHeader("Proxy-Connection", "close");
+
+        // Connection takes precedence over Proxy-Connection,
+        // even if it is empty. Default for HTTP/1.1 is to keep alive.
+        assertTrue(reuseStrategy.keepAlive(response, context));
+    }
+
+    public void testConnectionTokensInvalid() throws Exception {
+        // Use HTTP 1.1
+        HttpResponse response =
+            createResponse(HttpVersion.HTTP_1_1, 200, "OK", true, -1);
+        response.addHeader("Connection", "keep-alive=true");
+
+        assertFalse(reuseStrategy.keepAlive(response, context));
+    }
+
 
     /**
      * Creates a response without an entity.
