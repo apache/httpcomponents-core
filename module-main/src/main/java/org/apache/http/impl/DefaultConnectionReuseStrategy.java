@@ -47,6 +47,18 @@ import org.apache.http.message.BasicTokenIterator;
 
 /**
  * Default implementation of a strategy deciding about connection re-use.
+ * The default implementation first checks some basics, for example
+ * whether the connection is still open or whether the end of the
+ * request entity can be determined without closing the connection.
+ * If these checks pass, the tokens in the "Connection" header will
+ * be examined. In the absence of a "Connection" header, the
+ * non-standard but commonly used "Proxy-Connection" header takes
+ * it's role. A token "close" indicates that the connection cannot
+ * be reused. If there is no such token, a token "keep-alive" indicates
+ * that the connection should be re-used. If neither token is found,
+ * or if there are no "Connection" headers, the default policy for
+ * the HTTP version is applied. Since HTTP/1.1, connections are re-used
+ * by default. Up until HTTP/1.0, connections are not re-used by default.
  *
  * @author <a href="mailto:oleg at ural.ru">Oleg Kalnichevski</a>
  * @author <a href="mailto:rolandw at apache.org">Roland Weber</a>
