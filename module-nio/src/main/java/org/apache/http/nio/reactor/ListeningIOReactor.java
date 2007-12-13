@@ -32,11 +32,18 @@
 package org.apache.http.nio.reactor;
 
 import java.net.SocketAddress;
+import java.io.IOException;
 
 public interface ListeningIOReactor extends IOReactor {
 
     ListenerEndpoint listen(SocketAddress address);
-    
+
+    void pause()
+        throws IOException;
+
+    void resume()
+        throws IOException;
+
     ListenerEndpoint[] getEndpoints();
     
 }

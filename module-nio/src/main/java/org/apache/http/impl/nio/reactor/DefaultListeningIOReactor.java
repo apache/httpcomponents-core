@@ -55,6 +55,7 @@ public class DefaultListeningIOReactor extends AbstractMultiworkerIOReactor
         implements ListeningIOReactor {
 
     private final Queue<ListenerEndpointImpl> requestQueue;
+    private final Queue<ListenerEndpointImpl> pausedQueue;
     
     public DefaultListeningIOReactor(
             int workerCount, 
@@ -62,6 +63,7 @@ public class DefaultListeningIOReactor extends AbstractMultiworkerIOReactor
             final HttpParams params) throws IOReactorException {
         super(workerCount, threadFactory, params);
         this.requestQueue = new ConcurrentLinkedQueue<ListenerEndpointImpl>();
+        this.pausedQueue = new ConcurrentLinkedQueue<ListenerEndpointImpl>();
     }
 
     public DefaultListeningIOReactor(
@@ -159,7 +161,7 @@ public class DefaultListeningIOReactor extends AbstractMultiworkerIOReactor
                 throw new IOReactorException("Failure registering channel " +
                         "with the selector", ex);
             }
-            request.completed(serverChannel.socket().getLocalSocketAddress());
+            request.completed(serverChannel);
         }
     }
     
@@ -179,5 +181,30 @@ public class DefaultListeningIOReactor extends AbstractMultiworkerIOReactor
         }
         return list.toArray(new ListenerEndpoint[list.size()]);
     }
-    
+
+    public void pause() throws IOException {
+        if (this.selector.isOpen()) {
+            Set<SelectionKey> keys = this.selector.keys();
+            for (Iterator<SelectionKey> it = keys.iterator(); it.hasNext(); ) {
+                SelectionKey key = it.next();
+                if (key.isValid()) {
+                    ListenerEndpointImpl endpoint = (ListenerEndpointImpl) key.attachment();
+                    if (endpoint != null) {
+                        endpoint.close();
+                        this.pausedQueue.add(endpoint);
+                    }
+                }
+            }
+        }
+    }
+
+    public void resume() throws IOException {
+        ListenerEndpointImpl endpoint;
+        while ((endpoint = this.pausedQueue.poll()) != null) {
+            ListenerEndpointImpl request = new ListenerEndpointImpl(endpoint.getAddress());
+            this.requestQueue.add(request);
+        }
+        this.pausedQueue.clear();
+        this.selector.wakeup();
+    }
 }

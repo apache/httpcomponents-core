@@ -34,6 +34,7 @@ package org.apache.http.impl.nio.reactor;
 import java.io.IOException;
 import java.net.SocketAddress;
 import java.nio.channels.SelectionKey;
+import java.nio.channels.ServerSocketChannel;
 
 import org.apache.http.nio.reactor.ListenerEndpoint;
 
@@ -43,6 +44,7 @@ public class ListenerEndpointImpl implements ListenerEndpoint {
     private volatile boolean closed;
     private volatile SelectionKey key;
     private SocketAddress address;
+    private ServerSocketChannel serverChannel = null;
 
     private IOException exception = null;
     
@@ -77,7 +79,7 @@ public class ListenerEndpointImpl implements ListenerEndpoint {
         }
     }
     
-    public void completed(final SocketAddress address) {
+    public void completed(final ServerSocketChannel serverChannel) {
         if (address == null) {
             throw new IllegalArgumentException("Address may not be null");
         }
@@ -86,7 +88,8 @@ public class ListenerEndpointImpl implements ListenerEndpoint {
         }
         this.completed = true;
         synchronized (this) {
-            this.address = address;
+            this.address = serverChannel.socket().getLocalSocketAddress();
+            this.serverChannel = serverChannel;
             notifyAll();
         }
     }
@@ -119,6 +122,11 @@ public class ListenerEndpointImpl implements ListenerEndpoint {
         }
         this.completed = true;
         this.closed = true;
+        if (this.serverChannel != null && this.serverChannel.isOpen()) {
+            try {
+                this.serverChannel.close();
+            } catch (IOException ignore) {}
+        }
         if (this.key != null) {
             this.key.cancel();
         }
