@@ -38,6 +38,7 @@ import java.nio.channels.SelectionKey;
 import java.nio.channels.ServerSocketChannel;
 import java.nio.channels.SocketChannel;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Queue;
@@ -55,7 +56,7 @@ public class DefaultListeningIOReactor extends AbstractMultiworkerIOReactor
         implements ListeningIOReactor {
 
     private final Queue<ListenerEndpointImpl> requestQueue;
-    private final Queue<ListenerEndpointImpl> pausedQueue;
+    private final Set<SocketAddress> pausedEndpoints;
     
     public DefaultListeningIOReactor(
             int workerCount, 
@@ -63,7 +64,7 @@ public class DefaultListeningIOReactor extends AbstractMultiworkerIOReactor
             final HttpParams params) throws IOReactorException {
         super(workerCount, threadFactory, params);
         this.requestQueue = new ConcurrentLinkedQueue<ListenerEndpointImpl>();
-        this.pausedQueue = new ConcurrentLinkedQueue<ListenerEndpointImpl>();
+        this.pausedEndpoints = new HashSet<SocketAddress>();
     }
 
     public DefaultListeningIOReactor(
@@ -191,7 +192,7 @@ public class DefaultListeningIOReactor extends AbstractMultiworkerIOReactor
                     ListenerEndpointImpl endpoint = (ListenerEndpointImpl) key.attachment();
                     if (endpoint != null) {
                         endpoint.close();
-                        this.pausedQueue.add(endpoint);
+                        this.pausedEndpoints.add(endpoint.getAddress());
                     }
                 }
             }
@@ -199,12 +200,12 @@ public class DefaultListeningIOReactor extends AbstractMultiworkerIOReactor
     }
 
     public void resume() throws IOException {
-        ListenerEndpointImpl endpoint;
-        while ((endpoint = this.pausedQueue.poll()) != null) {
-            ListenerEndpointImpl request = new ListenerEndpointImpl(endpoint.getAddress());
+        for (SocketAddress socketAddress: this.pausedEndpoints) {
+            ListenerEndpointImpl request = new ListenerEndpointImpl(socketAddress);
             this.requestQueue.add(request);
         }
-        this.pausedQueue.clear();
+        this.pausedEndpoints.clear();
         this.selector.wakeup();
     }
+    
 }
