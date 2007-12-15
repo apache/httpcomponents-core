@@ -29,7 +29,7 @@
  *
  */
 
-package org.apache.http.impl.nio.reactor;
+package org.apache.http.impl.nio;
 
 import java.io.IOException;
 
@@ -38,7 +38,9 @@ import javax.net.ssl.SSLException;
 
 import org.apache.http.HttpRequestFactory;
 import org.apache.http.impl.DefaultHttpRequestFactory;
-import org.apache.http.impl.nio.DefaultNHttpServerConnection;
+import org.apache.http.impl.nio.reactor.SSLIOSession;
+import org.apache.http.impl.nio.reactor.SSLIOSessionHandler;
+import org.apache.http.impl.nio.reactor.SSLMode;
 import org.apache.http.nio.NHttpServerIOTarget;
 import org.apache.http.nio.NHttpServiceHandler;
 import org.apache.http.nio.reactor.IOEventDispatch;
