@@ -36,6 +36,7 @@ import java.io.IOException;
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.SSLException;
 
+import org.apache.http.HttpResponseFactory;
 import org.apache.http.impl.DefaultHttpResponseFactory;
 import org.apache.http.impl.nio.DefaultNHttpClientConnection;
 import org.apache.http.nio.NHttpClientHandler;
@@ -51,11 +52,11 @@ public class SSLClientIOEventDispatch implements IOEventDispatch {
     private static final String NHTTP_CONN = "NHTTP_CONN";
     private static final String SSL_SESSION = "SSL_SESSION";
     
-    private final ByteBufferAllocator allocator;
-    private final NHttpClientHandler handler;
-    private final SSLContext sslcontext;
-    private final SSLIOSessionHandler sslHandler;
-    private final HttpParams params;
+    protected final ByteBufferAllocator allocator;
+    protected final NHttpClientHandler handler;
+    protected final SSLContext sslcontext;
+    protected final SSLIOSessionHandler sslHandler;
+    protected final HttpParams params;
     
     public SSLClientIOEventDispatch(
             final NHttpClientHandler handler,
@@ -90,10 +91,14 @@ public class SSLClientIOEventDispatch implements IOEventDispatch {
         return new HeapByteBufferAllocator(); 
     }
         
+    protected HttpResponseFactory createHttpResponseFactory() {
+        return new DefaultHttpResponseFactory();
+    }
+    
     protected NHttpClientIOTarget createConnection(final IOSession session) {
         return new DefaultNHttpClientConnection(
                 session, 
-                new DefaultHttpResponseFactory(),
+                createHttpResponseFactory(),
                 this.allocator,
                 this.params); 
     }

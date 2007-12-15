@@ -31,6 +31,7 @@
 
 package org.apache.http.impl.nio;
 
+import org.apache.http.HttpRequestFactory;
 import org.apache.http.impl.DefaultHttpRequestFactory;
 import org.apache.http.nio.NHttpServerIOTarget;
 import org.apache.http.nio.NHttpServiceHandler;
@@ -44,9 +45,9 @@ public class DefaultServerIOEventDispatch implements IOEventDispatch {
 
     private static final String NHTTP_CONN = "NHTTP_CONN";
     
-    private final ByteBufferAllocator allocator;
-    private final NHttpServiceHandler handler;
-    private final HttpParams params;
+    protected final ByteBufferAllocator allocator;
+    protected final NHttpServiceHandler handler;
+    protected final HttpParams params;
     
     public DefaultServerIOEventDispatch(
             final NHttpServiceHandler handler,
@@ -67,10 +68,14 @@ public class DefaultServerIOEventDispatch implements IOEventDispatch {
         return new HeapByteBufferAllocator(); 
     }
         
+    protected HttpRequestFactory createHttpRequestFactory() {
+        return new DefaultHttpRequestFactory(); 
+    }
+        
     protected NHttpServerIOTarget createConnection(final IOSession session) {
         return new DefaultNHttpServerConnection(
                 session, 
-                new DefaultHttpRequestFactory(),
+                createHttpRequestFactory(),
                 this.allocator,
                 this.params); 
     }
