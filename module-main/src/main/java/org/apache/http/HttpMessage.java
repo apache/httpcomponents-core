@@ -74,7 +74,7 @@ public interface HttpMessage {
      * values are ignored. If there is more than one matching header in the
      * message the first element of
      * 
-     * @link #getHeaders(String) is returned.
+     * {@link #getHeaders(String)} is returned.
      * @param name the name of the header to return.
      * @return the first header whose name property equals <code>name</code>.
      */
@@ -85,7 +85,7 @@ public interface HttpMessage {
      * are ignored. If there is more than one matching header in the message the
      * last element of
      * 
-     * @link #getHeaders(String) is returned.
+     * {@link #getHeaders(String)} is returned.
      * @param name the name of the header to return.
      * @return the last header whose name property equals <code>name</code>.
      */
@@ -175,7 +175,7 @@ public interface HttpMessage {
 
     /**
      * Returns the parameters effective for this message as set by
-     * @link #setParams(HttpParams).
+     * {@link #setParams(HttpParams)}.
      */
     HttpParams getParams();
 
