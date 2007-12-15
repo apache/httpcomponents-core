@@ -53,7 +53,7 @@ import org.apache.http.util.CharArrayBuffer;
  * 
  * @version $Revision$
  */
-public class ProtocolVersion implements Serializable {
+public class ProtocolVersion implements Serializable, Cloneable {
 
     private static final long serialVersionUID = 8287599752106796338L;
 
@@ -280,4 +280,8 @@ public class ProtocolVersion implements Serializable {
         return buffer.toString();
     }
 
+    public Object clone() throws CloneNotSupportedException {
+        return super.clone();
+    }
+    
 }

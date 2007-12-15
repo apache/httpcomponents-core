@@ -49,8 +49,8 @@ import org.apache.http.params.HttpParams;
  * 
  * @version $Revision$
  */
-public class BasicHttpParams extends AbstractHttpParams
-    implements HttpLinkedParams, Serializable {
+public final class BasicHttpParams extends AbstractHttpParams
+    implements HttpLinkedParams, Serializable, Cloneable {
 
     static final long serialVersionUID = 4571099216197814749L;
 
@@ -171,11 +171,17 @@ public class BasicHttpParams extends AbstractHttpParams
      *          are <i>not</i> copied.
      */
     public HttpParams copy() {
-        BasicHttpParams bhp = new BasicHttpParams(this.defaults);
-        copyParams(bhp);
-        return bhp;
+        BasicHttpParams clone = new BasicHttpParams(this.defaults);
+        copyParams(clone);
+        return clone;
     }
 
+    public Object clone() throws CloneNotSupportedException {
+        BasicHttpParams clone = (BasicHttpParams) super.clone();
+        copyParams(clone);
+        return clone;
+    }
+ 
     /**
      * Copies the locally defined parameters to the argument parameters.
      * Default parameters accessible via {@link #getDefaults}

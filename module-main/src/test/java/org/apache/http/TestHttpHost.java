@@ -140,4 +140,10 @@ public class TestHttpHost extends TestCase {
         assertEquals("somehost:8888", host4.toHostString());
     }
 
+    public void testCloning() throws Exception {
+        HttpHost orig = new HttpHost("somehost", 8080, "https");
+        HttpHost clone = (HttpHost) orig.clone();
+        assertEquals(orig, clone);
+    }
+    
 }

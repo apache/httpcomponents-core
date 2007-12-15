@@ -84,8 +84,6 @@ public class TestBasicHttpProcessor extends TestCase {
     }
 
     public void testAddTailRequestInterceptorNull() {
-        System.out.println("testAddTailRequestInterceptorNull");
-
         HttpRequestInterceptor itcp = null;
         BasicHttpProcessor instance = new BasicHttpProcessor();
 

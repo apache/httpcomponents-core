@@ -45,7 +45,7 @@ import org.apache.http.util.LangUtils;
  * 
  * @since 4.0
  */
-public class HttpHost {
+public final class HttpHost implements Cloneable {
 
     /** The default scheme is "http". */
     public static final String DEFAULT_SCHEME_NAME = "http";
@@ -209,4 +209,8 @@ public class HttpHost {
         return hash;
     }
 
+    public Object clone() throws CloneNotSupportedException {
+        return super.clone();
+    }
+    
 }

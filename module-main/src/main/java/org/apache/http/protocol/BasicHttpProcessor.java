@@ -52,8 +52,8 @@ import org.apache.http.HttpResponseInterceptor;
  * 
  * @since 4.0
  */
-public class BasicHttpProcessor implements
-    HttpProcessor, HttpRequestInterceptorList, HttpResponseInterceptorList {
+public final class BasicHttpProcessor implements
+    HttpProcessor, HttpRequestInterceptorList, HttpResponseInterceptorList, Cloneable {
 
     protected List requestInterceptors = null; 
     protected List responseInterceptors = null;
@@ -305,6 +305,17 @@ public class BasicHttpProcessor implements
             }
         }
     }
+
+    protected void copyInterceptors(final BasicHttpProcessor target) {
+        if (this.requestInterceptors != null) {
+            target.requestInterceptors =
+                new ArrayList(this.requestInterceptors);
+        }
+        if (this.responseInterceptors != null) {
+            target.responseInterceptors =
+                new ArrayList(this.responseInterceptors);
+        }
+    }
     
     /**
      * Creates a copy of this instance
@@ -313,14 +324,13 @@ public class BasicHttpProcessor implements
      */
     public BasicHttpProcessor copy() {
         BasicHttpProcessor clone = new BasicHttpProcessor();
-        if (this.requestInterceptors != null) {
-            clone.requestInterceptors =
-                new ArrayList(this.requestInterceptors);
-        }
-        if (this.responseInterceptors != null) {
-            clone.responseInterceptors =
-                new ArrayList(this.responseInterceptors);
-        }
+        copyInterceptors(clone);
+        return clone;
+    }
+    
+    public Object clone() throws CloneNotSupportedException {
+        BasicHttpProcessor clone = (BasicHttpProcessor) super.clone();
+        copyInterceptors(clone);
         return clone;
     }
  

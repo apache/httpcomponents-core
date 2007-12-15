@@ -117,5 +117,11 @@ public class TestHttpVersion extends TestCase {
         assertTrue(HttpVersion.HTTP_1_0.compareToVersion(HttpVersion.HTTP_1_0) == 0);
    }
     
+    public void testCloning() throws Exception {
+        HttpVersion orig = HttpVersion.HTTP_1_1;
+        HttpVersion clone = (HttpVersion) orig.clone();
+        assertEquals(orig, clone);
+    }
+    
 }
 
