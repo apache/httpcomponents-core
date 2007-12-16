@@ -105,5 +105,12 @@ public class TestHeader extends TestCase {
         assertEquals(0, elements.length); 
     }
 
+    public void testCloning() throws Exception {
+        BasicHeader orig = new BasicHeader("name1", "value1");
+        BasicHeader clone = (BasicHeader) orig.clone();
+        assertEquals(orig.getName(), clone.getName());
+        assertEquals(orig.getValue(), clone.getValue());
+    }
+    
 }
 

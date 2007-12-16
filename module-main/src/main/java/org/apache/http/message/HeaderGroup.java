@@ -47,7 +47,7 @@ import org.apache.http.util.CharArrayBuffer;
  *
  * @since 4.0
  */
-public class HeaderGroup {
+public class HeaderGroup implements Cloneable {
 
     /** The list of headers for this group, in the order in which they were added */
     private List headers;
@@ -272,6 +272,12 @@ public class HeaderGroup {
      */
     public HeaderIterator iterator(final String name) {
         return new BasicListHeaderIterator(this.headers, name);
+    }
+    
+    public Object clone() throws CloneNotSupportedException {
+        HeaderGroup clone = (HeaderGroup) super.clone();
+        clone.headers = new ArrayList(this.headers);
+        return clone;
     }
     
 }

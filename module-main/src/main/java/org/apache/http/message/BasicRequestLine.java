@@ -47,7 +47,7 @@ import org.apache.http.RequestLine;
  * 
  * @since 4.0
  */
-public class BasicRequestLine implements RequestLine {
+public class BasicRequestLine implements RequestLine, Cloneable {
 
     private final ProtocolVersion protoversion;
     private final String method;
@@ -91,4 +91,9 @@ public class BasicRequestLine implements RequestLine {
         return BasicLineFormatter.DEFAULT
             .formatRequestLine(null, this).toString();
     }
+    
+    public Object clone() throws CloneNotSupportedException {
+        return super.clone();
+    }
+    
 }

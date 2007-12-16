@@ -103,7 +103,7 @@ import org.apache.http.util.LangUtils;
  * @author <a href="mailto:oleg at ural.com">Oleg Kalnichevski</a>
  * 
  */
-public class BasicNameValuePair implements NameValuePair {
+public class BasicNameValuePair implements NameValuePair, Cloneable {
 
     private final String name;
     private final String value;
@@ -182,4 +182,8 @@ public class BasicNameValuePair implements NameValuePair {
         return hash;
     }
     
+    public Object clone() throws CloneNotSupportedException {
+        return super.clone();
+    }
+ 
 }

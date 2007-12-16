@@ -50,7 +50,7 @@ import org.apache.http.StatusLine;
  * 
  * @since 4.0
  */
-public class BasicStatusLine implements StatusLine {
+public class BasicStatusLine implements StatusLine, Cloneable {
 
     // ----------------------------------------------------- Instance Variables
 
@@ -116,4 +116,9 @@ public class BasicStatusLine implements StatusLine {
         return BasicLineFormatter.DEFAULT
             .formatStatusLine(null, this).toString();
     }
+    
+    public Object clone() throws CloneNotSupportedException {
+        return super.clone();
+    }
+    
 }

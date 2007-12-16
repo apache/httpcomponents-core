@@ -63,7 +63,7 @@ import org.apache.http.ParseException;
  * 
  * @since 4.0
  */
-public class BasicHeader implements Header {
+public class BasicHeader implements Header, Cloneable {
 
     /**
      * Header name.
@@ -136,4 +136,8 @@ public class BasicHeader implements Header {
         }
     }
 
+    public Object clone() throws CloneNotSupportedException {
+        return super.clone();
+    }
+ 
 }

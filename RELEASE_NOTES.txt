@@ -1,5 +1,9 @@
 Changes since 4.0 Alpha 6
 
+* [HTTPCORE-133] Clone support for basic HTTP message elements and 
+  non-streaming entities.
+  Contributed by Oleg Kalnichevski <olegk at apache.org>
+
 * [HTTPCORE-127] Improved API for lifecycle management of listening I/O
   reactors. One can now suspend and resume listener endpoints.
   Contributed by Asankha C. Perera <asankha at wso2.com>

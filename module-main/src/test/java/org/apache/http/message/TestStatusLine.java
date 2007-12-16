@@ -94,4 +94,13 @@ public class TestStatusLine extends TestCase {
         // toString uses default formatting, hence the trailing space
         assertEquals("HTTP/1.1 200 ", statusline.toString());
     }
+    
+    public void testCloning() throws Exception {
+        BasicStatusLine orig = new BasicStatusLine(HttpVersion.HTTP_1_1, HttpStatus.SC_OK, "OK");
+        BasicStatusLine clone = (BasicStatusLine) orig.clone();
+        assertEquals(orig.getReasonPhrase(), clone.getReasonPhrase());
+        assertEquals(orig.getStatusCode(), clone.getStatusCode());
+        assertEquals(orig.getProtocolVersion(), clone.getProtocolVersion());
+    }
+    
 }

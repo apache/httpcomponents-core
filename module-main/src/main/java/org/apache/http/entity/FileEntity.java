@@ -46,7 +46,7 @@ import java.io.OutputStream;
  * 
  * @since 4.0
  */
-public class FileEntity extends AbstractHttpEntity {
+public class FileEntity extends AbstractHttpEntity implements Cloneable {
 
     protected final File file; 
 
@@ -95,6 +95,12 @@ public class FileEntity extends AbstractHttpEntity {
      */
     public boolean isStreaming() {
         return false;
+    }
+
+    public Object clone() throws CloneNotSupportedException {
+        // File instance is considered immutable
+        // No need to make a copy of it
+        return super.clone();
     }
 
 } // class FileEntity

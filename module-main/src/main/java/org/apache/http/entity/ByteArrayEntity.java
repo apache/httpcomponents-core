@@ -45,7 +45,7 @@ import java.io.OutputStream;
  * 
  * @since 4.0
  */
-public class ByteArrayEntity extends AbstractHttpEntity {
+public class ByteArrayEntity extends AbstractHttpEntity implements Cloneable {
 
     protected final byte[] content;
 
@@ -87,5 +87,8 @@ public class ByteArrayEntity extends AbstractHttpEntity {
         return false;
     }
 
+    public Object clone() throws CloneNotSupportedException {
+        return super.clone();
+    }
 
 } // class ByteArrayEntity

@@ -84,4 +84,13 @@ public class TestRequestLine extends TestCase {
             fail("IllegalArgumentException should have been thrown");
         } catch (IllegalArgumentException e) { /* expected */ }
     }
+    
+    public void testCloning() throws Exception {
+        BasicRequestLine orig = new BasicRequestLine("GET", "/stuff", HttpVersion.HTTP_1_1);
+        BasicRequestLine clone = (BasicRequestLine) orig.clone();
+        assertEquals(orig.getMethod(), clone.getMethod());
+        assertEquals(orig.getUri(), clone.getUri());
+        assertEquals(orig.getProtocolVersion(), clone.getProtocolVersion());
+    }
+    
 }

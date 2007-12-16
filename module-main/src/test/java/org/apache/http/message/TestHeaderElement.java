@@ -172,4 +172,15 @@ public class TestHeaderElement extends TestCase {
         element = BasicHeaderValueParser.parseHeaderElement(s, null);
         assertEquals(s, element.toString());
     }
+    
+    public void testCloning() throws Exception {
+        BasicHeaderElement orig = new BasicHeaderElement("name", "value", 
+                new NameValuePair[] {
+                    new BasicNameValuePair("param1", "value1"),
+                    new BasicNameValuePair("param2", "value2")
+                } );
+        BasicHeaderElement clone = (BasicHeaderElement) orig.clone();
+        assertEquals(orig, clone);
+    }
+    
 }

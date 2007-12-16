@@ -46,7 +46,7 @@ import org.apache.http.util.CharArrayBuffer;
  * <!-- empty lines above to avoid 'svn diff' context problems -->
  * @version $Revision$ $Date$
  */
-public class BufferedHeader implements FormattedHeader {
+public class BufferedHeader implements FormattedHeader, Cloneable {
 
     /**
      * Header name.
@@ -124,4 +124,10 @@ public class BufferedHeader implements FormattedHeader {
         return this.buffer.toString();
     }
 
+    public Object clone() throws CloneNotSupportedException {
+        // buffer is considered immutable
+        // no need to make a copy of it
+        return super.clone();
+    }
+ 
 }

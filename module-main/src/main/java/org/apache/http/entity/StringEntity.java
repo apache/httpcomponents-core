@@ -48,7 +48,7 @@ import org.apache.http.protocol.HTTP;
  * 
  * @since 4.0
  */
-public class StringEntity extends AbstractHttpEntity {
+public class StringEntity extends AbstractHttpEntity implements Cloneable {
 
     protected final byte[] content;
 
@@ -97,6 +97,10 @@ public class StringEntity extends AbstractHttpEntity {
      */
     public boolean isStreaming() {
         return false;
+    }
+
+    public Object clone() throws CloneNotSupportedException {
+        return super.clone();
     }
 
 } // class StringEntity
