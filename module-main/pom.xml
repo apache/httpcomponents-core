@@ -42,7 +42,7 @@
   <description>
    HttpComponents Core (Java 1.3 compatible)
   </description>
-  <url>http://jakarta.apache.org/httpcomponents/httpcomponents-core/</url>
+  <url>http://hc.apache.org/httpcomponents-core/</url>
   <packaging>jar</packaging>  
 
   <licenses>
@@ -54,9 +54,9 @@
   </licenses>
 
   <scm>
-    <connection>scm:svn:http://svn.apache.org/repos/asf/jakarta/httpcomponents/httpcore/trunk/module-main</connection>
-    <developerConnection>scm:svn:https://svn.apache.org/repos/asf/jakarta/httpcomponents/httpcore/trunk/module-main</developerConnection>
-    <url>http://svn.apache.org/repos/asf/jakarta/httpcomponents/httpcore/trunk/module-main</url>
+    <connection>scm:svn:http://svn.apache.org/repos/asf/httpcomponents/httpcore/trunk/module-main</connection>
+    <developerConnection>scm:svn:https://svn.apache.org/repos/asf/httpcomponents/httpcore/trunk/module-main</developerConnection>
+    <url>http://svn.apache.org/repos/asf/httpcomponents/httpcore/trunk/module-main</url>
   </scm>
 
   <dependencies>
