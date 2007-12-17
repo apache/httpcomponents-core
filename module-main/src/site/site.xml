@@ -7,9 +7,9 @@
   </bannerLeft>
 
   <bannerRight>
-    <name>HttpComponents HttpCore</name>
-    <src>http://jakarta.apache.org/httpcomponents/images/logos/httpcomponents.png</src>
-    <href>http://jakarta.apache.org/httpcomponents/http-core/core</href>
+    <name>HttpComponents</name>
+    <src>http://hc.apache.org/images/logos/httpcomponents.png</src>
+    <href>http://hc.apache.org/</href>
   </bannerRight>
 
   <body>

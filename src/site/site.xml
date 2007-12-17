@@ -38,7 +38,7 @@
 
   <bannerRight>
     <name>HttpComponents</name>
-    <src>../images/logos/httpcomponents.png</src>
+    <src>http://hc.apache.org/images/logos/httpcomponents.png</src>
     <href>http://hc.apache.org/</href>
   </bannerRight>
 
@@ -59,6 +59,11 @@
     <menu name="Modules">
       <item name="HttpCore" href="httpcore/index.html"/>
       <item name="HttpCore NIO" href="httpcore-nio/index.html"/>
+    </menu>
+    <menu name="ASF">
+      <item name="Foundation" href="http://www.apache.org/foundation/"/>
+      <item name="Sponsor Apache" href="http://www.apache.org/foundation/sponsorship.html"/>
+      <item name="Thanks" href="http://www.apache.org/foundation/thanks.html"/>
     </menu>
 
   </body>
