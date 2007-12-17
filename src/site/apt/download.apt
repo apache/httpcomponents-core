@@ -40,13 +40,3 @@ Dependency management with Maven
   </dependency>
 -------------------------
 
-* HttpComponents Core NIOSSL extensions
-
--------------------------
-  <dependency>
-    <groupId>org.apache.httpcomponents</groupId>
-    <artifactId>httpcore-niossl</artifactId>
-    <version>4.0-alpha6</version>
-    <scope>compile</scope>
-  </dependency>
--------------------------
