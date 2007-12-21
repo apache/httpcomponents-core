@@ -8,8 +8,8 @@ HttpCore Downloads
 
     The latest release available for download:
 
-    {{{http://jakarta.apache.org/site/downloads/downloads_httpcomponents-httpcore.cgi}4.0-alpha6}} - 
-    {{{http://www.apache.org/dist/jakarta/httpcomponents/httpcore/RELEASE_NOTES.txt}Release Notes}} -
+    {{{http://hc.apache.org/downloads.cgi}4.0-alpha6}} - 
+    {{{http://www.apache.org/dist/httpcomponents/httpcore/RELEASE_NOTES.txt}Release Notes}} -
     {{{http://www.apache.org/dist/java-repository/httpcomponents-httpcore/licenses/LICENSE.txt}License}}
 
 Dependency management with Maven
