@@ -53,7 +53,7 @@ Modules
 
     HttpCore {{{httpcore-nio/index.html}NIO extensions}} contain optional 
     components that leverage the event driven, non-blocking I/O (NIO) model. HttpCore NIO 
-    extensions require a Java 1.5 compatible runtime and the HttpCore base module.
+    extensions require a Java 5.0 compatible runtime and the HttpCore base module.
 
 Standards Compliance
 
