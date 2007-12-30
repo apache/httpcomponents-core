@@ -33,9 +33,16 @@ package org.apache.http.contrib.sip;
 
 /**
  * Constants enumerating the SIP status codes.
- * All status codes defined in RFC 3261 (SIP/2.0)
- * and RFC 3265 (SIP-Specific Event Notification)
- * are listed.
+ * All status codes registered at
+ * <a href="http://www.iana.org/assignments/sip-parameters">
+ * http://www.iana.org/assignments/sip-parameters
+ * </a>
+ * on 2007-12-30 are listed.
+ * The defining RFCs include RFC 3261 (SIP/2.0),
+ * RFC 3265 (SIP-Specific Event Notification),
+ * RFC 4412 (Communications Resource Priority for SIP),
+ * RFC 4474 (Enhancements for Authenticated Identity Management in SIP),
+ * and others.
  * 
  * @author <a href="mailto:rolandw at apache.org">Roland Weber</a>
  * 
@@ -67,7 +74,7 @@ public interface SipStatus {
     public static final int SC_OK = 200;
 
     /** <tt>202 Accepted</tt>. RFC 3265, section 6.4. */
-    public static final int SC_ACCEPTED = 489;
+    public static final int SC_ACCEPTED = 202;
 
 
     // --- 3xx Redirection ---
@@ -124,6 +131,9 @@ public interface SipStatus {
     /** <tt>410 Gone</tt>. RFC 3261, section 21.4.10. */
     public static final int SC_GONE = 410;
 
+    /** <tt>412 Conditional Request Failed</tt>. RFC 3903, section 11.2.1. */
+    public static final int SC_CONDITIONAL_REQUEST_FAILED = 412;
+
     /** <tt>413 Request Entity Too Large</tt>. RFC 3261, section 21.4.11. */
     public static final int SC_REQUEST_ENTITY_TOO_LARGE = 413;
 
@@ -136,14 +146,38 @@ public interface SipStatus {
     /** <tt>416 Unsupported URI Scheme</tt>. RFC 3261, section 21.4.14. */
     public static final int SC_UNSUPPORTED_URI_SCHEME = 416;
 
+    /** <tt>417 Unknown Resource-Priority</tt>. RFC 4412, section 12.4. */
+    public static final int SC_UNKNOWN_RESOURCE_PRIORITY = 417;
+
     /** <tt>420 Bad Extension</tt>. RFC 3261, section 21.4.15. */
     public static final int SC_BAD_EXTENSION = 420;
 
     /** <tt>421 Extension Required</tt>. RFC 3261, section 21.4.16. */
     public static final int SC_EXTENSION_REQUIRED = 421;
 
+    /** <tt>422 Session Interval Too Small</tt>. RFC 4028, chapter 6. */
+    public static final int SC_SESSION_INTERVAL_TOO_SMALL = 422;
+
     /** <tt>423 Interval Too Brief</tt>. RFC 3261, section 21.4.17. */
     public static final int SC_INTERVAL_TOO_BRIEF = 423;
+
+    /** <tt>428 Use Identity Header</tt>. RFC 4474, section 14.2. */
+    public static final int SC_USE_IDENTITY_HEADER = 428;
+
+    /** <tt>429 Provide Referrer Identity</tt>. RFC 3892, chapter 5. */
+    public static final int SC_PROVIDE_REFERRER_IDENTITY = 429;
+
+    /** <tt>433 Anonymity Disallowed</tt>. RFC 5079, chapter 5. */
+    public static final int SC_ANONYMITY_DISALLOWED = 433;
+
+    /** <tt>436 Bad Identity-Info</tt>. RFC 4474, section 14.3. */
+    public static final int SC_BAD_IDENTITY_INFO = 436;
+
+    /** <tt>437 Unsupported Certificate</tt>. RFC 4474, section 14.4. */
+    public static final int SC_UNSUPPORTED_CERTIFICATE = 437;
+
+    /** <tt>438 Invalid Identity Header</tt>. RFC 4474, section 14.5. */
+    public static final int SC_INVALID_IDENTITY_HEADER = 438;
 
     /** <tt>480 Temporarily Unavailable</tt>. RFC 3261, section 21.4.18. */
     public static final int SC_TEMPORARILY_UNAVAILABLE = 480;
@@ -184,6 +218,9 @@ public interface SipStatus {
     /** <tt>493 Undecipherable</tt>. RFC 3261, section 21.4.28. */
     public static final int SC_UNDECIPHERABLE = 493;
 
+    /** <tt>494 Security Agreement Required</tt>. RFC 3329, section 6.4. */
+    public static final int SC_SECURITY_AGREEMENT_REQUIRED = 494;
+
 
     // --- 5xx Server Failure ---
 
@@ -207,6 +244,9 @@ public interface SipStatus {
 
     /** <tt>513 Message Too Large</tt>. RFC 3261, section 21.5.7. */
     public static final int SC_MESSAGE_TOO_LARGE = 513;
+
+    /** <tt>580 Precondition Failure</tt>. RFC 3312, chapter 8. */
+    public static final int SC_PRECONDITION_FAILURE = 580;
 
 
     // --- 6xx Global Failures ---

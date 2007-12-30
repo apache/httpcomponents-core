@@ -40,9 +40,11 @@ import org.apache.http.ReasonPhraseCatalog;
 
 /**
  * English reason phrases for SIP status codes.
- * All status codes defined in RFC 3261 (SIP/2.0)
- * and RFC 3265 (SIP-Specific Event Notification)
- * are supported.
+ * All status codes defined in {@link SipStatus} are supported.
+ * See <a href="http://www.iana.org/assignments/sip-parameters">
+ * http://www.iana.org/assignments/sip-parameters
+ * </a>
+ * for a full list of registered SIP status codes and the defining RFCs.
  * 
  * @author <a href="mailto:rolandw at apache.org">Roland Weber</a>
  * 
@@ -175,6 +177,8 @@ public class EnglishSipReasonPhraseCatalog
                   "Request Timeout");
         setReason(SipStatus.SC_GONE,
                   "Gone");
+        setReason(SipStatus.SC_CONDITIONAL_REQUEST_FAILED,
+                  "Conditional Request Failed");
         setReason(SipStatus.SC_REQUEST_ENTITY_TOO_LARGE,
                   "Request Entity Too Large");
         setReason(SipStatus.SC_REQUEST_URI_TOO_LONG,
@@ -183,12 +187,28 @@ public class EnglishSipReasonPhraseCatalog
                   "Unsupported Media Type");
         setReason(SipStatus.SC_UNSUPPORTED_URI_SCHEME,
                   "Unsupported URI Scheme");
+        setReason(SipStatus.SC_UNKNOWN_RESOURCE_PRIORITY,
+                  "Unknown Resource-Priority");
         setReason(SipStatus.SC_BAD_EXTENSION,
                   "Bad Extension");
         setReason(SipStatus.SC_EXTENSION_REQUIRED,
                   "Extension Required");
+        setReason(SipStatus.SC_SESSION_INTERVAL_TOO_SMALL,
+                  "Session Interval Too Small");
         setReason(SipStatus.SC_INTERVAL_TOO_BRIEF,
                   "Interval Too Brief");
+        setReason(SipStatus.SC_USE_IDENTITY_HEADER,
+                  "Use Identity Header");
+        setReason(SipStatus.SC_PROVIDE_REFERRER_IDENTITY,
+                  "Provide Referrer Identity");
+        setReason(SipStatus.SC_ANONYMITY_DISALLOWED,
+                  "Anonymity Disallowed");
+        setReason(SipStatus.SC_BAD_IDENTITY_INFO,
+                  "Bad Identity-Info");
+        setReason(SipStatus.SC_UNSUPPORTED_CERTIFICATE,
+                  "Unsupported Certificate");
+        setReason(SipStatus.SC_INVALID_IDENTITY_HEADER,
+                  "Invalid Identity Header");
         setReason(SipStatus.SC_TEMPORARILY_UNAVAILABLE,
                   "Temporarily Unavailable");
         setReason(SipStatus.SC_CALL_TRANSACTION_DOES_NOT_EXIST,
@@ -213,6 +233,8 @@ public class EnglishSipReasonPhraseCatalog
                   "Request Pending");
         setReason(SipStatus.SC_UNDECIPHERABLE,
                   "Undecipherable");
+        setReason(SipStatus.SC_SECURITY_AGREEMENT_REQUIRED,
+                  "Security Agreement Required");
 
 
         // --- 5xx Server Failure ---
@@ -230,6 +252,8 @@ public class EnglishSipReasonPhraseCatalog
                   "Version Not Supported");
         setReason(SipStatus.SC_MESSAGE_TOO_LARGE,
                   "Message Too Large");
+        setReason(SipStatus.SC_PRECONDITION_FAILURE,
+                  "Precondition Failure");
 
 
         // --- 6xx Global Failures ---
