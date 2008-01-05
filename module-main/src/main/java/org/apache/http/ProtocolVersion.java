@@ -55,7 +55,7 @@ import org.apache.http.util.CharArrayBuffer;
  */
 public class ProtocolVersion implements Serializable, Cloneable {
 
-    private static final long serialVersionUID = 8287599752106796338L;
+    private static final long serialVersionUID = 8950662842175091068L;
 
 
     /** Name of the protocol. */

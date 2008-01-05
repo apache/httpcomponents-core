@@ -52,7 +52,7 @@ import org.apache.http.params.HttpParams;
 public final class BasicHttpParams extends AbstractHttpParams
     implements HttpLinkedParams, Serializable, Cloneable {
 
-    private static final long serialVersionUID = 4571099216197814749L;
+    private static final long serialVersionUID = -7086398485908701455L;
 
     /**
      * The optional set of default values to defer to.

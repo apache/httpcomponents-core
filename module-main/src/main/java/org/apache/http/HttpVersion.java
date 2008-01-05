@@ -43,7 +43,7 @@ import java.io.Serializable;
 public final class HttpVersion extends ProtocolVersion
     implements Serializable {
 
-    private static final long serialVersionUID = 8693840424276433600L;
+    private static final long serialVersionUID = -5856653513894415344L;
 
     /** The protocol name. */
     public static final String HTTP = "HTTP";

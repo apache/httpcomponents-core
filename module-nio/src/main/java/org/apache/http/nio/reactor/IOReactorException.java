@@ -39,7 +39,7 @@ import java.io.IOException;
  */
 public class IOReactorException extends IOException {
 
-    private static final long serialVersionUID = 6986850002663481135L;
+    private static final long serialVersionUID = -4248110651729635749L;
 
     public IOReactorException(final String message, final Exception cause) {
         super(message);

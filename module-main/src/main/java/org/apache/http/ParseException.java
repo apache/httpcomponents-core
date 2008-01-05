@@ -44,7 +44,7 @@ package org.apache.http;
  */
 public class ParseException extends RuntimeException {
 
-    private static final long serialVersionUID = -1714832601648789035L;
+    private static final long serialVersionUID = -7288819855864183578L;
 
     /**
      * Creates a {@link ParseException} without details.

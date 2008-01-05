@@ -42,7 +42,8 @@ import org.apache.http.ProtocolException;
  */
 public class UnsupportedHttpVersionException extends ProtocolException {
 
-	static final long serialVersionUID = 6838964812421632743L;
+    private static final long serialVersionUID = -1348448090193107031L;
+
 	
     /**
      * Creates an exception without a detail message.
