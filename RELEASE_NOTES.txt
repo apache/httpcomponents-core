@@ -1,5 +1,8 @@
 Changes since 4.0 Alpha 6
 
+* [HTTPCORE-134] all serialVersionUID attributes are private
+  Contributed by Roland Weber <rolandw at apache.org>
+
 * [HTTPCORE-133] Clone support for basic HTTP message elements and 
   non-streaming entities.
   Contributed by Oleg Kalnichevski <olegk at apache.org>
