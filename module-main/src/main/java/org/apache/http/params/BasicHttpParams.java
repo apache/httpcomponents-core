@@ -127,6 +127,20 @@ public final class BasicHttpParams extends AbstractHttpParams
         return this;
     }
     
+    public boolean removeParameter(String name) {
+        if (this.parameters == null) {
+            return false;
+        }
+        //this is to avoid the case in which the key has a null value
+        if (this.parameters.containsKey(name)) {
+            this.parameters.remove(name);
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    
     /**
      * Assigns the value to all the parameter with the given names
      * 

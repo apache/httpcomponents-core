@@ -69,6 +69,15 @@ public interface HttpParams {
      * @return  a new set of parameters holding the same values as this one
      */
     HttpParams copy();
+    
+    /**
+     * Removes the parameter with the specified name.
+     * 
+     * @param name parameter name
+     * 
+     * @return true if the parameter existed and has been removed, false else.
+     */
+    boolean removeParameter(String name);
 
     /** 
      * Returns a {@link Long} parameter value with the given name. 

@@ -93,5 +93,19 @@ public class TestBasicHttpParams extends TestCase {
         assertEquals("parent parameter not known in copy",
                      "something", copy.getParameter("parent+"));
     }
+    
+    public void testRemoveParam() {
+        BasicHttpParams params = new BasicHttpParams();
+        params.setParameter("param1", "paramValue1");
+        assertTrue("The parameter should be removed successfully", 
+                params.removeParameter("param1"));
+        assertFalse("The parameter should not be present", 
+                params.removeParameter("param1"));
+        
+        //try a remove from an empty params
+        params = new BasicHttpParams();
+        assertFalse("The parameter should not be present", 
+                params.removeParameter("param1"));
+    }
 
 }
