@@ -54,10 +54,18 @@ public abstract class AbstractHttpMessage implements HttpMessage {
     
     private HttpParams params;
     
-    protected AbstractHttpMessage() {
+    protected AbstractHttpMessage(final HttpParams params) {
         super();
         this.headergroup = new HeaderGroup();
-        this.params = new BasicHttpParams(null);
+        if (params != null) {
+            this.params = params;
+        } else {
+            this.params = new BasicHttpParams();
+        }
+    }
+
+    protected AbstractHttpMessage() {
+        this(null);
     }
 
     // non-javadoc, see interface HttpMessage
