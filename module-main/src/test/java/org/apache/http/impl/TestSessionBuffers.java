@@ -405,7 +405,7 @@ public class TestSessionBuffers extends TestCase {
         String s2 = constructString(RUSSIAN_HELLO);
         String s3 = "Like hello and stuff";
         
-        HttpParams params = new BasicHttpParams(null);
+        HttpParams params = new BasicHttpParams();
         HttpProtocolParams.setHttpElementCharset(params, "UTF-8");
         
         SessionOutputBufferMockup outbuffer = new SessionOutputBufferMockup(params);
@@ -446,7 +446,7 @@ public class TestSessionBuffers extends TestCase {
     public void testNonAsciiReadWriteLine() throws Exception {
         String s1 = constructString(SWISS_GERMAN_HELLO);
         
-        HttpParams params = new BasicHttpParams(null);
+        HttpParams params = new BasicHttpParams();
         HttpProtocolParams.setHttpElementCharset(params, HTTP.ISO_8859_1);
         
         SessionOutputBufferMockup outbuffer = new SessionOutputBufferMockup(params);

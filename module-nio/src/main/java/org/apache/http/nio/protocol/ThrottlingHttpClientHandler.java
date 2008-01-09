@@ -57,9 +57,10 @@ import org.apache.http.nio.util.ContentOutputBuffer;
 import org.apache.http.nio.util.DirectByteBufferAllocator;
 import org.apache.http.nio.util.SharedInputBuffer;
 import org.apache.http.nio.util.SharedOutputBuffer;
+import org.apache.http.params.BasicHttpParams;
 import org.apache.http.params.HttpParams;
-import org.apache.http.params.HttpParamsLinker;
 import org.apache.http.params.CoreProtocolPNames;
+import org.apache.http.params.SimpleParamStack;
 import org.apache.http.protocol.ExecutionContext;
 import org.apache.http.protocol.HttpContext;
 import org.apache.http.protocol.HttpProcessor;
@@ -153,7 +154,7 @@ public class ThrottlingHttpClientHandler extends NHttpClientHandlerBase {
                     return;
                 }
                 
-                HttpParamsLinker.link(request, this.params);
+                request.setParams(new SimpleParamStack(request.getParams(), this.params));
                 
                 context.setAttribute(ExecutionContext.HTTP_REQUEST, request);
                 this.httpProcessor.process(request, context);
@@ -234,7 +235,8 @@ public class ThrottlingHttpClientHandler extends NHttpClientHandlerBase {
             
             synchronized (connState) {
                 HttpResponse response = conn.getHttpResponse();
-                HttpParamsLinker.link(response, this.params);
+                response.setParams(
+                        new SimpleParamStack(new BasicHttpParams(), this.params));
                 
                 HttpRequest request = connState.getRequest();
                 

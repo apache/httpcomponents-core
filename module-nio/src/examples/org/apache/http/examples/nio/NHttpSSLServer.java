@@ -97,7 +97,7 @@ public class NHttpSSLServer {
         SSLContext sslcontext = SSLContext.getInstance("TLS");
         sslcontext.init(keymanagers, null, null);
         
-        HttpParams params = new BasicHttpParams(null);
+        HttpParams params = new BasicHttpParams();
         params
             .setIntParameter(CoreConnectionPNames.SO_TIMEOUT, 5000)
             .setIntParameter(CoreConnectionPNames.SOCKET_BUFFER_SIZE, 8 * 1024)

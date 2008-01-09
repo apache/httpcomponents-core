@@ -175,7 +175,7 @@ public class ElementalHttpServer {
         
         public RequestListenerThread(int port, final String docroot) throws IOException {
             this.serversocket = new ServerSocket(port);
-            this.params = new BasicHttpParams(null);
+            this.params = new BasicHttpParams();
             this.params
                 .setIntParameter(CoreConnectionPNames.SO_TIMEOUT, 5000)
                 .setIntParameter(CoreConnectionPNames.SOCKET_BUFFER_SIZE, 8 * 1024)

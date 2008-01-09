@@ -73,7 +73,7 @@ public class ElementalHttpPost {
 
     public static void main(String[] args) throws Exception {
         
-        HttpParams params = new BasicHttpParams(null);
+        HttpParams params = new BasicHttpParams();
         HttpProtocolParams.setVersion(params, HttpVersion.HTTP_1_1);
         HttpProtocolParams.setContentCharset(params, "UTF-8");
         HttpProtocolParams.setUserAgent(params, "HttpComponents/1.1");

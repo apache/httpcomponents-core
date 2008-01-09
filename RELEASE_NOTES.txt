@@ -1,5 +1,8 @@
 Changes since 4.0 Alpha 6
 
+* Replaced HTTP parameter linking with a simple child/parent stack.
+  Contributed by Oleg Kalnichevski <olegk at apache.org>
+
 * [HTTPCORE-134] all serialVersionUID attributes are private
   Contributed by Roland Weber <rolandw at apache.org>
 

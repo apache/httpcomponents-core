@@ -190,7 +190,7 @@ public class HttpBenchmark {
     }
 
     private static HttpParams getHttpParams() {
-        HttpParams params = new BasicHttpParams(null);
+        HttpParams params = new BasicHttpParams();
         params.setParameter(HttpProtocolParams.PROTOCOL_VERSION, HttpVersion.HTTP_1_1)
             .setParameter(HttpProtocolParams.USER_AGENT, "Jakarta-HttpComponents-Bench/1.1")
             .setBooleanParameter(HttpProtocolParams.USE_EXPECT_CONTINUE, false)

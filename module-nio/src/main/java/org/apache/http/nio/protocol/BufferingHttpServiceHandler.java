@@ -60,8 +60,9 @@ import org.apache.http.nio.util.ContentOutputBuffer;
 import org.apache.http.nio.util.HeapByteBufferAllocator;
 import org.apache.http.nio.util.SimpleInputBuffer;
 import org.apache.http.nio.util.SimpleOutputBuffer;
+import org.apache.http.params.BasicHttpParams;
 import org.apache.http.params.HttpParams;
-import org.apache.http.params.HttpParamsLinker;
+import org.apache.http.params.SimpleParamStack;
 import org.apache.http.protocol.HttpContext;
 import org.apache.http.protocol.ExecutionContext;
 import org.apache.http.protocol.HttpProcessor;
@@ -114,7 +115,7 @@ public class BufferingHttpServiceHandler extends NHttpServiceHandlerBase
         HttpContext context = conn.getContext();
         
         HttpRequest request = conn.getHttpRequest();
-        HttpParamsLinker.link(request, this.params);
+        request.setParams(new SimpleParamStack(request.getParams(), this.params));
 
         ServerConnState connState = (ServerConnState) context.getAttribute(CONN_STATE);
 
@@ -137,7 +138,8 @@ public class BufferingHttpServiceHandler extends NHttpServiceHandlerBase
                 if (((HttpEntityEnclosingRequest) request).expectContinue()) {
                     response = this.responseFactory.newHttpResponse(
                             ver, HttpStatus.SC_CONTINUE, context);
-                    HttpParamsLinker.link(response, this.params);
+                    response.setParams(
+                            new SimpleParamStack(new BasicHttpParams(), this.params));
                     
                     if (this.expectationVerifier != null) {
                         try {
@@ -147,7 +149,8 @@ public class BufferingHttpServiceHandler extends NHttpServiceHandlerBase
                                     HttpVersion.HTTP_1_0, 
                                     HttpStatus.SC_INTERNAL_SERVER_ERROR, 
                                     context);
-                            HttpParamsLinker.link(response, this.params);
+                            response.setParams(
+                                    new SimpleParamStack(new BasicHttpParams(), this.params));
                             handleException(ex, response);
                         }
                     }
@@ -204,7 +207,8 @@ public class BufferingHttpServiceHandler extends NHttpServiceHandlerBase
         try {
             HttpResponse response = this.responseFactory.newHttpResponse(
                     HttpVersion.HTTP_1_0, HttpStatus.SC_INTERNAL_SERVER_ERROR, context);
-            HttpParamsLinker.link(response, this.params);
+            response.setParams(
+                    new SimpleParamStack(new BasicHttpParams(), this.params));
             handleException(httpex, response);
             response.setEntity(null);
             sendResponse(conn, response);
@@ -330,7 +334,8 @@ public class BufferingHttpServiceHandler extends NHttpServiceHandlerBase
                 ver, 
                 HttpStatus.SC_OK, 
                 conn.getContext());
-        HttpParamsLinker.link(response, this.params);
+        response.setParams(
+                new SimpleParamStack(new BasicHttpParams(), this.params));
         
         context.setAttribute(ExecutionContext.HTTP_REQUEST, request);
         context.setAttribute(ExecutionContext.HTTP_CONNECTION, conn);
@@ -354,7 +359,8 @@ public class BufferingHttpServiceHandler extends NHttpServiceHandlerBase
         } catch (HttpException ex) {
             response = this.responseFactory.newHttpResponse(HttpVersion.HTTP_1_0, 
                     HttpStatus.SC_INTERNAL_SERVER_ERROR, context);
-            HttpParamsLinker.link(response, this.params);
+            response.setParams(
+                    new SimpleParamStack(new BasicHttpParams(), this.params));
             handleException(ex, response);
         }
 

@@ -58,8 +58,9 @@ public class TestBasicHttpParams extends TestCase {
 
 
     public void testCopyParams() {
-        BasicHttpParams parent = new BasicHttpParams();
-        BasicHttpParams child  = new BasicHttpParams(parent);
+        HttpParams parent = new BasicHttpParams();
+        HttpParams child  = new SimpleParamStack(
+                new BasicHttpParams(), parent);
         parent.setParameter("parent", "something");
         child.setParameter("child", "something");
 

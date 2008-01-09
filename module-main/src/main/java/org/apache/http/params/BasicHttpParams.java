@@ -50,52 +50,15 @@ import org.apache.http.params.HttpParams;
  * @version $Revision$
  */
 public final class BasicHttpParams extends AbstractHttpParams
-    implements HttpLinkedParams, Serializable, Cloneable {
+    implements Serializable, Cloneable {
 
     private static final long serialVersionUID = -7086398485908701455L;
-
-    /**
-     * The optional set of default values to defer to.
-     */
-    protected HttpParams defaults;
 
     /** Map of HTTP parameters that this collection contains. */
     private HashMap parameters;
 
-    /**
-     * Creates a new collection of parameters with the given parent. 
-     * The collection will defer to its parent for a default value 
-     * if a particular parameter is not explicitly set in the collection
-     * itself.
-     * 
-     * @param defaults the parent collection to defer to, if a parameter
-     * is not explictly set in the collection itself.
-     */
-    public BasicHttpParams(final HttpParams defaults) {
-        super();
-        setDefaults(defaults); // perform ancestor check
-    }
-
     public BasicHttpParams() {
-        this(null);
-    }
-
-    /**
-     * Obtains default parameters, if set.
-     *
-     * @return  the defaults, or <code>null</code>
-     */
-    public HttpParams getDefaults() {
-        return this.defaults;
-    }
-    
-    /**
-     * Provides default parameters.
-     *
-     * @param params    the new defaults, or <code>null</code> to unset
-     */
-    public void setDefaults(final HttpParams params) {
-        this.defaults = params;
+        super();
     }
 
     public Object getParameter(final String name) {
@@ -104,19 +67,7 @@ public final class BasicHttpParams extends AbstractHttpParams
         if (this.parameters != null) {
             param = this.parameters.get(name);
         }    
-        if (param != null) {
-            // If so, return
-            return param;
-        } else {
-            // If not, see if defaults are available
-            if (this.defaults != null) {
-                // Return default parameter value
-                return this.defaults.getParameter(name);
-            } else {
-                // Otherwise, return null
-                return null;
-            }
-        }
+        return param;
     }
 
     public HttpParams setParameter(final String name, final Object value) {
@@ -170,22 +121,14 @@ public final class BasicHttpParams extends AbstractHttpParams
 
     /**
      * Creates a copy of these parameters.
-     * The implementation here instantiates {@link BasicHttpParams}
-     * with the same default parameters as this object, then calls
-     * {@link #copyParams(HttpParams)} to populate the copy.
-     * <br/>
-     * Derived classes which have to change the class that is
-     * instantiated can override this method here. Derived classes
-     * which have to change how the copy is populated can override
-     * {@link #copyParams(HttpParams)}.
+     * The implementation here instantiates {@link BasicHttpParams}, 
+     * then calls {@link #copyParams(HttpParams)} to populate the copy.
      *
      * @return  a new set of params holding a copy of the
      *          <i>local</i> parameters in this object.
-     *          Defaults parameters available via {@link #getDefaults}
-     *          are <i>not</i> copied.
      */
     public HttpParams copy() {
-        BasicHttpParams clone = new BasicHttpParams(this.defaults);
+        BasicHttpParams clone = new BasicHttpParams();
         copyParams(clone);
         return clone;
     }
@@ -198,8 +141,6 @@ public final class BasicHttpParams extends AbstractHttpParams
  
     /**
      * Copies the locally defined parameters to the argument parameters.
-     * Default parameters accessible via {@link #getDefaults}
-     * are <i>not</i> copied.
      * This method is called from {@link #copy()}.
      *
      * @param target    the parameters to which to copy

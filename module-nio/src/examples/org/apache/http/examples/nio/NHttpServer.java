@@ -78,7 +78,7 @@ public class NHttpServer {
             System.err.println("Please specify document root directory");
             System.exit(1);
         }
-        HttpParams params = new BasicHttpParams(null);
+        HttpParams params = new BasicHttpParams();
         params
             .setIntParameter(CoreConnectionPNames.SO_TIMEOUT, 5000)
             .setIntParameter(CoreConnectionPNames.SOCKET_BUFFER_SIZE, 8 * 1024)

@@ -57,11 +57,7 @@ public abstract class AbstractHttpMessage implements HttpMessage {
     protected AbstractHttpMessage(final HttpParams params) {
         super();
         this.headergroup = new HeaderGroup();
-        if (params != null) {
-            this.params = params;
-        } else {
-            this.params = new BasicHttpParams();
-        }
+        this.params = params;
     }
 
     protected AbstractHttpMessage() {
@@ -154,6 +150,9 @@ public abstract class AbstractHttpMessage implements HttpMessage {
     
     // non-javadoc, see interface HttpMessage
     public HttpParams getParams() {
+        if (this.params == null) {
+            this.params = new BasicHttpParams();
+        }
         return this.params;
     }
     

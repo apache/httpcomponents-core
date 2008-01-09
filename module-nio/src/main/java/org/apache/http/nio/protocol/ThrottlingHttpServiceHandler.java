@@ -63,8 +63,9 @@ import org.apache.http.nio.util.ContentOutputBuffer;
 import org.apache.http.nio.util.DirectByteBufferAllocator;
 import org.apache.http.nio.util.SharedInputBuffer;
 import org.apache.http.nio.util.SharedOutputBuffer;
+import org.apache.http.params.BasicHttpParams;
 import org.apache.http.params.HttpParams;
-import org.apache.http.params.HttpParamsLinker;
+import org.apache.http.params.SimpleParamStack;
 import org.apache.http.protocol.HttpContext;
 import org.apache.http.protocol.ExecutionContext;
 import org.apache.http.protocol.HttpProcessor;
@@ -150,7 +151,8 @@ public class ThrottlingHttpServiceHandler extends NHttpServiceHandlerBase {
                     HttpVersion.HTTP_1_0, 
                     HttpStatus.SC_INTERNAL_SERVER_ERROR, 
                     context);
-            HttpParamsLinker.link(response, this.params);
+            response.setParams(
+                    new SimpleParamStack(new BasicHttpParams(), this.params));
             handleException(httpex, response);
             response.setEntity(null);
             
@@ -384,7 +386,7 @@ public class ThrottlingHttpServiceHandler extends NHttpServiceHandlerBase {
             connState.setWorkerRunning(true);
         }
 
-        HttpParamsLinker.link(request, this.params);
+        request.setParams(new SimpleParamStack(request.getParams(), this.params));
 
         context.setAttribute(ExecutionContext.HTTP_CONNECTION, conn);
         context.setAttribute(ExecutionContext.HTTP_REQUEST, request);
@@ -406,14 +408,16 @@ public class ThrottlingHttpServiceHandler extends NHttpServiceHandlerBase {
                         ver, 
                         HttpStatus.SC_CONTINUE, 
                         context);
-                HttpParamsLinker.link(response, this.params);
+                response.setParams(
+                        new SimpleParamStack(new BasicHttpParams(), this.params));
                 if (this.expectationVerifier != null) {
                     try {
                         this.expectationVerifier.verify(request, response, context);
                     } catch (HttpException ex) {
                         response = this.responseFactory.newHttpResponse(HttpVersion.HTTP_1_0, 
                                 HttpStatus.SC_INTERNAL_SERVER_ERROR, context);
-                        HttpParamsLinker.link(request, this.params);
+                        response.setParams(
+                                new SimpleParamStack(new BasicHttpParams(), this.params));
                         handleException(ex, response);
                     }
                 }
@@ -467,7 +471,8 @@ public class ThrottlingHttpServiceHandler extends NHttpServiceHandlerBase {
                     ver, 
                     HttpStatus.SC_OK, 
                     context);
-            HttpParamsLinker.link(response, this.params);
+            response.setParams(
+                    new SimpleParamStack(new BasicHttpParams(), this.params));
 
             context.setAttribute(ExecutionContext.HTTP_RESPONSE, response);
             
@@ -489,7 +494,8 @@ public class ThrottlingHttpServiceHandler extends NHttpServiceHandlerBase {
             } catch (HttpException ex) {
                 response = this.responseFactory.newHttpResponse(HttpVersion.HTTP_1_0, 
                         HttpStatus.SC_INTERNAL_SERVER_ERROR, context);
-                HttpParamsLinker.link(response, this.params);
+                response.setParams(
+                        new SimpleParamStack(new BasicHttpParams(), this.params));
                 handleException(ex, response);
             }
         }

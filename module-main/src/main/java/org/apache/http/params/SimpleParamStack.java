@@ -1,7 +1,7 @@
 /*
- * $HeadURL$
- * $Revision$
- * $Date$
+ * $HeadURL:$
+ * $Revision:$
+ * $Date:$
  *
  * ====================================================================
  * Licensed to the Apache Software Foundation (ASF) under one
@@ -31,35 +31,57 @@
 
 package org.apache.http.params;
 
-import org.apache.http.HttpMessage;
 import org.apache.http.params.HttpParams;
 
+
 /**
- * A utility class that can be used to build parameter hierarchies.
- * 
+ * Simple two level stack of HTTP parameters (child/parent).
+ *
  * @author <a href="mailto:oleg at ural.ru">Oleg Kalnichevski</a>
  * 
- * @version $Revision$
+ * @version $Revision:$
  */
-public class HttpParamsLinker {
+public final class SimpleParamStack extends AbstractHttpParams {
 
-    private HttpParamsLinker() {
-    }
+    private final HttpParams params;
+    private final HttpParams parent;
     
-    /**
-     * Builds parameter hierarchy by linking parameters associated with 
-     * the given HTTP message and the given defaults. 
-     * 
-     * @param message HTTP message
-     * @param defaults default HTTP parameters
-     */
-    public static void link(final HttpMessage message, final HttpParams defaults) {
-        if (message == null) {
-            throw new IllegalArgumentException("HTTP message may not be null");
+    public SimpleParamStack(final HttpParams params, final HttpParams parent) {
+        super();
+        if (params == null) {
+            throw new IllegalArgumentException("HTTP parameters may not be null");
         }
-        if (message.getParams() instanceof HttpLinkedParams) {
-            ((HttpLinkedParams) message.getParams()).setDefaults(defaults);
+        this.params = params;
+        this.parent = parent;
+    }
+
+    public HttpParams copy() {
+        HttpParams clone = this.params.copy();
+        return new SimpleParamStack(clone, this.parent);
+    }
+
+    public Object getParameter(final String name) {
+        Object obj = this.params.getParameter(name);
+        if (obj == null && this.parent != null) {
+            obj = this.parent.getParameter(name);
         }
+        return obj;
+    }
+
+    public boolean isParameterSet(final String name) {
+        return this.params.isParameterSet(name);
+    }
+
+    public boolean removeParameter(final String name) {
+        return this.removeParameter(name);
+    }
+
+    public HttpParams setParameter(final String name, final Object value) {
+        return this.params.setParameter(name, value);
+    }
+
+    public HttpParams getParent() {
+        return this.parent;
     }
     
 }

@@ -44,8 +44,8 @@ import org.apache.http.impl.DefaultConnectionReuseStrategy;
 import org.apache.http.params.BasicHttpParams;
 import org.apache.http.params.CoreConnectionPNames;
 import org.apache.http.params.HttpParams;
-import org.apache.http.params.HttpParamsLinker;
 import org.apache.http.params.CoreProtocolPNames;
+import org.apache.http.params.SimpleParamStack;
 import org.apache.http.protocol.BasicHttpProcessor;
 import org.apache.http.protocol.HttpContext;
 import org.apache.http.protocol.BasicHttpContext;
@@ -67,7 +67,7 @@ public class TestHttpClient {
     
     public TestHttpClient() {
         super();
-        this.params = new BasicHttpParams(null);
+        this.params = new BasicHttpParams();
         this.params
             .setIntParameter(CoreConnectionPNames.SO_TIMEOUT, 5000)
             .setBooleanParameter(CoreConnectionPNames.STALE_CONNECTION_CHECK, false)
@@ -99,10 +99,11 @@ public class TestHttpClient {
         this.context.setAttribute(ExecutionContext.HTTP_REQUEST, request);
         this.context.setAttribute(ExecutionContext.HTTP_TARGET_HOST, targetHost);
         this.context.setAttribute(ExecutionContext.HTTP_CONNECTION, conn);
-        HttpParamsLinker.link(request, params);
+
+        request.setParams(new SimpleParamStack(request.getParams(), this.params));
         this.httpexecutor.preProcess(request, this.httpproc, this.context);
         HttpResponse response = this.httpexecutor.execute(request, conn, this.context);
-        HttpParamsLinker.link(response, params);
+        response.setParams(new SimpleParamStack(new BasicHttpParams(), this.params));
         this.httpexecutor.postProcess(response, this.httpproc, this.context);
         return response;
     }

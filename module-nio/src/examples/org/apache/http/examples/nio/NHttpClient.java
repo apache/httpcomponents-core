@@ -67,7 +67,7 @@ import org.apache.http.util.EntityUtils;
 public class NHttpClient {
 
     public static void main(String[] args) throws Exception {
-        HttpParams params = new BasicHttpParams(null);
+        HttpParams params = new BasicHttpParams();
         params
             .setIntParameter(CoreConnectionPNames.SO_TIMEOUT, 5000)
             .setIntParameter(CoreConnectionPNames.CONNECTION_TIMEOUT, 10000)

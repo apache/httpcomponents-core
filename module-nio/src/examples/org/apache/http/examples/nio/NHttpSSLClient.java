@@ -69,7 +69,7 @@ import org.apache.http.util.EntityUtils;
 public class NHttpSSLClient {
 
     public static void main(String[] args) throws Exception {
-        HttpParams params = new BasicHttpParams(null);
+        HttpParams params = new BasicHttpParams();
         params
             .setIntParameter(CoreConnectionPNames.SO_TIMEOUT, 30000)
             .setIntParameter(CoreConnectionPNames.CONNECTION_TIMEOUT, 30000)

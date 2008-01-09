@@ -73,8 +73,8 @@ import org.apache.http.nio.reactor.ListeningIOReactor;
 import org.apache.http.params.BasicHttpParams;
 import org.apache.http.params.HttpConnectionParams;
 import org.apache.http.params.HttpParams;
-import org.apache.http.params.HttpParamsLinker;
 import org.apache.http.params.HttpProtocolParams;
+import org.apache.http.params.SimpleParamStack;
 import org.apache.http.protocol.BasicHttpProcessor;
 import org.apache.http.protocol.ExecutionContext;
 import org.apache.http.protocol.HTTP;
@@ -289,7 +289,7 @@ public class NHttpFileServer {
             
             HttpResponse response =  this.responseFactory.newHttpResponse(
                     HttpVersion.HTTP_1_0, HttpStatus.SC_BAD_REQUEST, context);
-            HttpParamsLinker.link(response, this.params);
+            response.setParams(new SimpleParamStack(new BasicHttpParams(), this.params));
             
             context.setAttribute(ExecutionContext.HTTP_RESPONSE, response);
             context.setAttribute(ExecutionContext.HTTP_CONNECTION, conn);
@@ -462,7 +462,7 @@ public class NHttpFileServer {
                 final ConnState connState) throws HttpException, IOException {
             HttpContext context = conn.getContext();
             HttpRequest request = conn.getHttpRequest();
-            HttpParamsLinker.link(request, this.params);
+            request.setParams(new SimpleParamStack(request.getParams(), this.params));
 
             if (request instanceof HttpEntityEnclosingRequest) {
                 HttpEntityEnclosingRequest eeRequest = (HttpEntityEnclosingRequest) request;
@@ -477,7 +477,7 @@ public class NHttpFileServer {
             
             ProtocolVersion ver = request.getRequestLine().getProtocolVersion();
             HttpResponse response =  this.responseFactory.newHttpResponse(ver, 200, context);
-            HttpParamsLinker.link(response, this.params);
+            response.setParams(new SimpleParamStack(new BasicHttpParams(), this.params));
             
             context.setAttribute(ExecutionContext.HTTP_REQUEST, request);
             context.setAttribute(ExecutionContext.HTTP_RESPONSE, response);
