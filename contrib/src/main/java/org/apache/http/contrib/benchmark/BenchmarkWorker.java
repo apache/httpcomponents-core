@@ -50,7 +50,7 @@ import org.apache.http.impl.DefaultConnectionReuseStrategy;
 import org.apache.http.impl.DefaultHttpClientConnection;
 import org.apache.http.params.BasicHttpParams;
 import org.apache.http.params.HttpParams;
-import org.apache.http.params.SimpleParamStack;
+import org.apache.http.params.DefaultedHttpParams;
 import org.apache.http.protocol.BasicHttpProcessor;
 import org.apache.http.protocol.HTTP;
 import org.apache.http.protocol.HttpContext;
@@ -137,7 +137,7 @@ public class BenchmarkWorker implements Runnable {
         this.context.setAttribute(ExecutionContext.HTTP_REQUEST, this.request);
 
         stats.start();
-        request.setParams(new SimpleParamStack(new BasicHttpParams(), this.params));
+        request.setParams(new DefaultedHttpParams(new BasicHttpParams(), this.params));
         for (int i = 0; i < count; i++) {
 
             try {

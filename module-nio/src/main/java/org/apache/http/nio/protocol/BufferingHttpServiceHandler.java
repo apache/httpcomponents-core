@@ -60,9 +60,8 @@ import org.apache.http.nio.util.ContentOutputBuffer;
 import org.apache.http.nio.util.HeapByteBufferAllocator;
 import org.apache.http.nio.util.SimpleInputBuffer;
 import org.apache.http.nio.util.SimpleOutputBuffer;
-import org.apache.http.params.BasicHttpParams;
 import org.apache.http.params.HttpParams;
-import org.apache.http.params.SimpleParamStack;
+import org.apache.http.params.DefaultedHttpParams;
 import org.apache.http.protocol.HttpContext;
 import org.apache.http.protocol.ExecutionContext;
 import org.apache.http.protocol.HttpProcessor;
@@ -115,7 +114,7 @@ public class BufferingHttpServiceHandler extends NHttpServiceHandlerBase
         HttpContext context = conn.getContext();
         
         HttpRequest request = conn.getHttpRequest();
-        request.setParams(new SimpleParamStack(request.getParams(), this.params));
+        request.setParams(new DefaultedHttpParams(request.getParams(), this.params));
 
         ServerConnState connState = (ServerConnState) context.getAttribute(CONN_STATE);
 
@@ -139,7 +138,7 @@ public class BufferingHttpServiceHandler extends NHttpServiceHandlerBase
                     response = this.responseFactory.newHttpResponse(
                             ver, HttpStatus.SC_CONTINUE, context);
                     response.setParams(
-                            new SimpleParamStack(new BasicHttpParams(), this.params));
+                            new DefaultedHttpParams(response.getParams(), this.params));
                     
                     if (this.expectationVerifier != null) {
                         try {
@@ -150,7 +149,7 @@ public class BufferingHttpServiceHandler extends NHttpServiceHandlerBase
                                     HttpStatus.SC_INTERNAL_SERVER_ERROR, 
                                     context);
                             response.setParams(
-                                    new SimpleParamStack(new BasicHttpParams(), this.params));
+                                    new DefaultedHttpParams(response.getParams(), this.params));
                             handleException(ex, response);
                         }
                     }
@@ -208,7 +207,7 @@ public class BufferingHttpServiceHandler extends NHttpServiceHandlerBase
             HttpResponse response = this.responseFactory.newHttpResponse(
                     HttpVersion.HTTP_1_0, HttpStatus.SC_INTERNAL_SERVER_ERROR, context);
             response.setParams(
-                    new SimpleParamStack(new BasicHttpParams(), this.params));
+                    new DefaultedHttpParams(response.getParams(), this.params));
             handleException(httpex, response);
             response.setEntity(null);
             sendResponse(conn, response);
@@ -335,7 +334,7 @@ public class BufferingHttpServiceHandler extends NHttpServiceHandlerBase
                 HttpStatus.SC_OK, 
                 conn.getContext());
         response.setParams(
-                new SimpleParamStack(new BasicHttpParams(), this.params));
+                new DefaultedHttpParams(response.getParams(), this.params));
         
         context.setAttribute(ExecutionContext.HTTP_REQUEST, request);
         context.setAttribute(ExecutionContext.HTTP_CONNECTION, conn);
@@ -360,7 +359,7 @@ public class BufferingHttpServiceHandler extends NHttpServiceHandlerBase
             response = this.responseFactory.newHttpResponse(HttpVersion.HTTP_1_0, 
                     HttpStatus.SC_INTERNAL_SERVER_ERROR, context);
             response.setParams(
-                    new SimpleParamStack(new BasicHttpParams(), this.params));
+                    new DefaultedHttpParams(response.getParams(), this.params));
             handleException(ex, response);
         }
 

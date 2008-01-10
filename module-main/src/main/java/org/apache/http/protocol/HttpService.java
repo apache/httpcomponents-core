@@ -48,9 +48,8 @@ import org.apache.http.ProtocolException;
 import org.apache.http.ProtocolVersion;
 import org.apache.http.UnsupportedHttpVersionException;
 import org.apache.http.entity.ByteArrayEntity;
-import org.apache.http.params.BasicHttpParams;
 import org.apache.http.params.HttpParams;
-import org.apache.http.params.SimpleParamStack;
+import org.apache.http.params.DefaultedHttpParams;
 import org.apache.http.util.EncodingUtils;
 
 /**
@@ -134,7 +133,8 @@ public class HttpService {
         try {
 
             HttpRequest request = conn.receiveRequestHeader();
-            request.setParams(new SimpleParamStack(new BasicHttpParams(), this.params));
+            request.setParams(
+                    new DefaultedHttpParams(request.getParams(), this.params));
             
             ProtocolVersion ver =
                 request.getRequestLine().getProtocolVersion();
@@ -148,7 +148,8 @@ public class HttpService {
                 if (((HttpEntityEnclosingRequest) request).expectContinue()) {
                     response = this.responseFactory.newHttpResponse(ver, 
                             HttpStatus.SC_CONTINUE, context);
-                    response.setParams(new SimpleParamStack(new BasicHttpParams(), this.params));
+                    response.setParams(
+                            new DefaultedHttpParams(response.getParams(), this.params));
                     
                     if (this.expectationVerifier != null) {
                         try {
@@ -157,7 +158,7 @@ public class HttpService {
                             response = this.responseFactory.newHttpResponse(HttpVersion.HTTP_1_0, 
                                     HttpStatus.SC_INTERNAL_SERVER_ERROR, context);
                             response.setParams(
-                                    new SimpleParamStack(new BasicHttpParams(), this.params));
+                                    new DefaultedHttpParams(response.getParams(), this.params));
                             handleException(ex, response);
                         }
                     }
@@ -176,7 +177,8 @@ public class HttpService {
 
             if (response == null) {
                 response = this.responseFactory.newHttpResponse(ver, HttpStatus.SC_OK, context);
-                response.setParams(new SimpleParamStack(new BasicHttpParams(), this.params));
+                response.setParams(
+                        new DefaultedHttpParams(response.getParams(), this.params));
 
                 context.setAttribute(ExecutionContext.HTTP_REQUEST, request);
                 context.setAttribute(ExecutionContext.HTTP_RESPONSE, response);
@@ -197,7 +199,8 @@ public class HttpService {
             response = this.responseFactory.newHttpResponse
                 (HttpVersion.HTTP_1_0, HttpStatus.SC_INTERNAL_SERVER_ERROR,
                  context);
-            response.setParams(new SimpleParamStack(new BasicHttpParams(), this.params));
+            response.setParams(
+                    new DefaultedHttpParams(response.getParams(), this.params));
             handleException(ex, response);
         }
         

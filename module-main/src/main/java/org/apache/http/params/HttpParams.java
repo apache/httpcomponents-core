@@ -164,16 +164,6 @@ public interface HttpParams {
     HttpParams setBooleanParameter(String name, boolean value);
 
     /**
-     * Checks if a parameter is set.
-     * 
-     * @param name parameter name
-     *
-     * @return <tt>true</tt> if the parameter is set,
-     *         <tt>false</tt> otherwise
-     */
-    boolean isParameterSet(String name);
-
-    /**
      * Checks if a boolean parameter is set to <code>true</code>.
      * 
      * @param name parameter name

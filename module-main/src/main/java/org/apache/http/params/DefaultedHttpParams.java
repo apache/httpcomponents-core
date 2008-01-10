@@ -1,7 +1,7 @@
 /*
- * $HeadURL:$
- * $Revision:$
- * $Date:$
+ * $HeadURL$
+ * $Revision$
+ * $Date$
  *
  * ====================================================================
  * Licensed to the Apache Software Foundation (ASF) under one
@@ -33,55 +33,69 @@ package org.apache.http.params;
 
 import org.apache.http.params.HttpParams;
 
-
 /**
- * Simple two level stack of HTTP parameters (child/parent).
+ * {@link HttpParams} implementation that delegates resolution of a parameter
+ * to the given default {@link HttpParams} instance if the parameter is not 
+ * present in the local one. The state of the local collection can be mutated,
+ * whereas the default collection is treated as read-only.
  *
  * @author <a href="mailto:oleg at ural.ru">Oleg Kalnichevski</a>
  * 
- * @version $Revision:$
+ * @version $Revision$
  */
-public final class SimpleParamStack extends AbstractHttpParams {
+public final class DefaultedHttpParams extends AbstractHttpParams {
 
-    private final HttpParams params;
-    private final HttpParams parent;
+    private final HttpParams local;
+    private final HttpParams defaults;
     
-    public SimpleParamStack(final HttpParams params, final HttpParams parent) {
+    public DefaultedHttpParams(final HttpParams local, final HttpParams defaults) {
         super();
-        if (params == null) {
+        if (local == null) {
             throw new IllegalArgumentException("HTTP parameters may not be null");
         }
-        this.params = params;
-        this.parent = parent;
+        this.local = local;
+        this.defaults = defaults;
     }
 
+    /**
+     * Creates a copy of the local collection with the same default
+     */
     public HttpParams copy() {
-        HttpParams clone = this.params.copy();
-        return new SimpleParamStack(clone, this.parent);
+        HttpParams clone = this.local.copy();
+        return new DefaultedHttpParams(clone, this.defaults);
     }
 
+    /**
+     * Retrieves the value of the parameter from the local collection and, if the 
+     * parameter is not set locally, delegates its resolution to the default 
+     * collection.
+     */
     public Object getParameter(final String name) {
-        Object obj = this.params.getParameter(name);
-        if (obj == null && this.parent != null) {
-            obj = this.parent.getParameter(name);
+        Object obj = this.local.getParameter(name);
+        if (obj == null && this.defaults != null) {
+            obj = this.defaults.getParameter(name);
         }
         return obj;
     }
 
-    public boolean isParameterSet(final String name) {
-        return this.params.isParameterSet(name);
-    }
-
+    /**
+     * Attempts to remove the parameter from the local collection. This method 
+     * <i>does not</i> modify the default collection.
+     */
     public boolean removeParameter(final String name) {
-        return this.removeParameter(name);
+        return this.local.removeParameter(name);
     }
 
+    /**
+     * Sets the parameter in the local collection. This method <i>does not</i> 
+     * modify the default collection.
+     */
     public HttpParams setParameter(final String name, final Object value) {
-        return this.params.setParameter(name, value);
+        return this.local.setParameter(name, value);
     }
 
-    public HttpParams getParent() {
-        return this.parent;
+    public HttpParams getDefaults() {
+        return this.defaults;
     }
     
 }

@@ -52,10 +52,9 @@ import org.apache.http.nio.util.ContentOutputBuffer;
 import org.apache.http.nio.util.HeapByteBufferAllocator;
 import org.apache.http.nio.util.SimpleInputBuffer;
 import org.apache.http.nio.util.SimpleOutputBuffer;
-import org.apache.http.params.BasicHttpParams;
 import org.apache.http.params.HttpParams;
 import org.apache.http.params.CoreProtocolPNames;
-import org.apache.http.params.SimpleParamStack;
+import org.apache.http.params.DefaultedHttpParams;
 import org.apache.http.protocol.ExecutionContext;
 import org.apache.http.protocol.HttpContext;
 import org.apache.http.protocol.HttpProcessor;
@@ -130,7 +129,8 @@ public class BufferingHttpClientHandler extends NHttpClientHandlerBase {
                 return;
             }
             
-            request.setParams(new SimpleParamStack(request.getParams(), this.params));
+            request.setParams(
+                    new DefaultedHttpParams(request.getParams(), this.params));
             
             context.setAttribute(ExecutionContext.HTTP_REQUEST, request);
             this.httpProcessor.process(request, context);
@@ -228,7 +228,8 @@ public class BufferingHttpClientHandler extends NHttpClientHandlerBase {
         ClientConnState connState = (ClientConnState) context.getAttribute(CONN_STATE);
 
         HttpResponse response = conn.getHttpResponse();
-        response.setParams(new SimpleParamStack(new BasicHttpParams(), this.params));
+        response.setParams(
+                new DefaultedHttpParams(response.getParams(), this.params));
         
         HttpRequest request = connState.getRequest();
         
