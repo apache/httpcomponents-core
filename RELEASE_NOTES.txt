@@ -1,5 +1,9 @@
 Changes since 4.0 Alpha 6
 
+* [HTTPCORE-137] DefaultHttpRequestFactory extended to support all methods 
+  specified in RFC 2616 (except CONNECT).
+  Contributed by Oleg Kalnichevski <olegk at apache.org>
+
 * Replaced HTTP parameter linking with a simple child/parent stack.
   Contributed by Oleg Kalnichevski <olegk at apache.org>
 
