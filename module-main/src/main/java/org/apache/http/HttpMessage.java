@@ -72,11 +72,13 @@ public interface HttpMessage {
     /**
      * Returns the first header with a specified name of this message. Header
      * values are ignored. If there is more than one matching header in the
-     * message the first element of
+     * message the first element of {@link #getHeaders(String)} is returned.
+     * If there is no matching header in the message <code>null</code> is 
+     * returned.
      * 
-     * {@link #getHeaders(String)} is returned.
      * @param name the name of the header to return.
-     * @return the first header whose name property equals <code>name</code>.
+     * @return the first header whose name property equals <code>name</code>
+     *   or <code>null</code> if no such header could be found.
      */
     Header getFirstHeader(String name);
 
