@@ -33,13 +33,13 @@ package org.apache.http.contrib.benchmark;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.Socket;
-import java.util.Iterator;
 
 import javax.net.SocketFactory;
 import javax.net.ssl.SSLSocketFactory;
 
 import org.apache.http.ConnectionReuseStrategy;
 import org.apache.http.Header;
+import org.apache.http.HeaderIterator;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpException;
 import org.apache.http.HttpHost;
@@ -250,8 +250,8 @@ public class BenchmarkWorker implements Runnable {
     }
 
     private static void resetHeader(final HttpRequest request) {
-        for (Iterator it = request.headerIterator(); it.hasNext();) {
-            Header header = (Header) it.next();
+        for (HeaderIterator it = request.headerIterator(); it.hasNext();) {
+            Header header = it.nextHeader();
             if (!(header instanceof DefaultHeader)) {
                 it.remove();
             }
