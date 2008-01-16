@@ -76,18 +76,5 @@
             <include>**/*.java</include>
           </includes>
         </fileSet>
-        <!-- NIOSSL extensions module -->
-        <fileSet>
-          <directory>module-niossl/target/site/apidocs</directory>
-          <outputDirectory>javadoc/httpcore-niossl</outputDirectory>
-        </fileSet>
-        <fileSet>
-          <directory>module-niossl/src/examples/</directory>
-          <outputDirectory>examples</outputDirectory>
-          <lineEnding>crlf</lineEnding>
-          <includes>
-            <include>**/*.java</include>
-          </includes>
-        </fileSet>
     </fileSets>
 </assembly>

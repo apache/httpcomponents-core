@@ -76,39 +76,20 @@
           <lineEnding>lf</lineEnding>
           <excludes>
             <exclude>site/**</exclude>
+            <exclude>test/resources/*.keystore</exclude>
           </excludes>
+        </fileSet>
+        <fileSet>
+          <directory>module-nio/src</directory>
+          <outputDirectory>module-nio/src</outputDirectory>
+          <includes>
+            <include>test/resources/*.keystore</include>
+          </includes>
         </fileSet>
         <!-- NIO module build files -->
         <fileSet>
           <directory>module-nio</directory>
           <outputDirectory>module-nio</outputDirectory>
-          <lineEnding>lf</lineEnding>
-          <includes>
-            <include>*.xml</include>
-          </includes>
-        </fileSet>
-        <!-- NIO SSL module source and text resources -->
-        <fileSet>
-          <directory>module-niossl/src</directory>
-          <outputDirectory>module-niossl/src</outputDirectory>
-          <lineEnding>lf</lineEnding>
-          <excludes>
-            <exclude>site/**</exclude>
-            <exclude>test/resources/*.keystore</exclude>
-          </excludes>
-        </fileSet>
-        <!-- NIO SSL module binary resources -->
-        <fileSet>
-          <directory>module-niossl/src</directory>
-          <outputDirectory>module-niossl/src</outputDirectory>
-          <includes>
-            <include>test/resources/*.keystore</include>
-          </includes>
-        </fileSet>
-        <!-- NIO SSL module build files -->
-        <fileSet>
-          <directory>module-niossl</directory>
-          <outputDirectory>module-niossl</outputDirectory>
           <lineEnding>lf</lineEnding>
           <includes>
             <include>*.xml</include>
