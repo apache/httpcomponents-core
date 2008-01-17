@@ -113,7 +113,7 @@ public abstract class AbstractMessageParser implements NHttpMessageParser {
         int count = this.headerBufs.size();
         if ((this.lineBuf.charAt(0) == ' ' || this.lineBuf.charAt(0) == '\t') && count > 0) {
             // Handle folded header line
-            CharArrayBuffer previous = (CharArrayBuffer)this.headerBufs.get(count - 1);
+            CharArrayBuffer previous = this.headerBufs.get(count - 1);
             int i = 0;
             while (i < current.length()) {
                 char ch = current.charAt(i);
@@ -178,7 +178,7 @@ public abstract class AbstractMessageParser implements NHttpMessageParser {
         }
         if (this.state == COMPLETED) {
             for (int i = 0; i < this.headerBufs.size(); i++) {
-                CharArrayBuffer buffer = (CharArrayBuffer) this.headerBufs.get(i);
+                CharArrayBuffer buffer = this.headerBufs.get(i);
                 try {
                     this.message.addHeader(lineParser.parseHeader(buffer));
                 } catch (ParseException ex) {

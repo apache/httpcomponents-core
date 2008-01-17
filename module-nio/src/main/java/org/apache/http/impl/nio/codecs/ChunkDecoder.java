@@ -114,7 +114,7 @@ public class ChunkDecoder extends AbstractContentDecoder {
         int count = this.trailerBufs.size();
         if ((this.lineBuf.charAt(0) == ' ' || this.lineBuf.charAt(0) == '\t') && count > 0) {
             // Handle folded header line
-            CharArrayBuffer previous = (CharArrayBuffer)this.trailerBufs.get(count - 1);
+            CharArrayBuffer previous = this.trailerBufs.get(count - 1);
             int i = 0;
             while (i < current.length()) {
                 char ch = current.charAt(i);
@@ -136,7 +136,7 @@ public class ChunkDecoder extends AbstractContentDecoder {
         if (count > 0) {
             this.footers = new Header[this.trailerBufs.size()];
             for (int i = 0; i < this.trailerBufs.size(); i++) {
-                CharArrayBuffer buffer = (CharArrayBuffer) this.trailerBufs.get(i);
+                CharArrayBuffer buffer = this.trailerBufs.get(i);
                 try {
                     this.footers[i] = new BufferedHeader(buffer);
                 } catch (ParseException ex) {
