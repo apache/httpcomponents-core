@@ -40,7 +40,7 @@ public interface IOReactor {
     void execute(IOEventDispatch eventDispatch) 
         throws IOException;
 
-    void shutdown(long gracePeriod) 
+    void shutdown(long waitMs) 
         throws IOException;
 
     void shutdown() 
