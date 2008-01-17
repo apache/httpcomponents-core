@@ -114,7 +114,8 @@ public class TestHttpSSLClient {
             this.clientHandler = clientHandler;
         }
         
-        public void run() {
+        @Override
+		public void run() {
             try {
                 execute(this.clientHandler);
             } catch (IOException ex) {

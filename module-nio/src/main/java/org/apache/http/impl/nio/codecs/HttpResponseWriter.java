@@ -48,7 +48,8 @@ public class HttpResponseWriter extends AbstractMessageWriter {
         super(buffer, formatter, params);
     }
     
-    protected void writeHeadLine(final HttpMessage message)
+    @Override
+	protected void writeHeadLine(final HttpMessage message)
         throws IOException {
 
         final CharArrayBuffer buffer = lineFormatter.formatStatusLine

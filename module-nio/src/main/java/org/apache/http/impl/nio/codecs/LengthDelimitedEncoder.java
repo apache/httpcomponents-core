@@ -123,7 +123,8 @@ public class LengthDelimitedEncoder extends AbstractContentEncoder
         return bytesWritten;
     }
     
-    public String toString() {
+    @Override
+	public String toString() {
         StringBuffer buffer = new StringBuffer();
         buffer.append("[content length: ");
         buffer.append(this.contentLength);

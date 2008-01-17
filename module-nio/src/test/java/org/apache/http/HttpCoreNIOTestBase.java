@@ -74,7 +74,8 @@ public class HttpCoreNIOTestBase extends TestCase {
     protected TestHttpServer server;
     protected TestHttpClient client;
     
-    protected void setUp() throws Exception {
+    @Override
+	protected void setUp() throws Exception {
         HttpParams serverParams = new BasicHttpParams();
         serverParams
             .setIntParameter(CoreConnectionPNames.SO_TIMEOUT, 5000)
@@ -97,7 +98,8 @@ public class HttpCoreNIOTestBase extends TestCase {
         this.client = new TestHttpClient(clientParams);
     }
 
-    protected void tearDown() throws Exception {
+    @Override
+	protected void tearDown() throws Exception {
         this.server.shutdown();
         this.client.shutdown();
     }

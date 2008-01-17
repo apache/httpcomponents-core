@@ -129,7 +129,8 @@ public class TestHttpServer {
             this.serviceHandler = serviceHandler;
         }
         
-        public void run() {
+        @Override
+		public void run() {
             try {
                 execute(this.serviceHandler);
             } catch (IOException ex) {

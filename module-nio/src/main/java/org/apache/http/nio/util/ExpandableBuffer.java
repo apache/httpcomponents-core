@@ -114,7 +114,8 @@ public class ExpandableBuffer {
         this.mode = INPUT_MODE;
     }
 
-    public String toString() {
+    @Override
+	public String toString() {
         StringBuffer sb = new StringBuffer();
         sb.append("[mode=");
         int mode = getMode();

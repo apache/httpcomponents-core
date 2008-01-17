@@ -50,19 +50,23 @@ public class ContentBufferEntity extends BasicHttpEntity {
         setContent(new ContentInputStream(buffer));
     }
 
-    public boolean isChunked() {
+    @Override
+	public boolean isChunked() {
         return this.wrappedEntity.isChunked();
     }
 
-    public long getContentLength() {
+    @Override
+	public long getContentLength() {
         return this.wrappedEntity.getContentLength();
     }
 
-    public Header getContentType() {
+    @Override
+	public Header getContentType() {
         return this.wrappedEntity.getContentType();
     }
 
-    public Header getContentEncoding() {
+    @Override
+	public Header getContentEncoding() {
         return this.wrappedEntity.getContentEncoding();
     }
     

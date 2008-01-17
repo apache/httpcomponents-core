@@ -219,7 +219,8 @@ public class DefaultNHttpServerConnection
         return this.response != null;
     }
 
-    public String toString() {
+    @Override
+	public String toString() {
         StringBuffer buffer = new StringBuffer();
         buffer.append("[");
         if (isOpen()) {

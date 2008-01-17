@@ -58,7 +58,8 @@ public class HttpRequestParser extends AbstractMessageParser {
         this.requestFactory = requestFactory;
     }
 
-    protected HttpMessage createMessage(final CharArrayBuffer buffer) 
+    @Override
+	protected HttpMessage createMessage(final CharArrayBuffer buffer) 
             throws HttpException, ParseException {
         ParserCursor cursor = new ParserCursor(0, buffer.length());
         RequestLine requestLine = lineParser.parseRequestLine(buffer, cursor);

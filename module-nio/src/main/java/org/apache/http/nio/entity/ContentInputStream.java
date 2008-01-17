@@ -48,18 +48,21 @@ public class ContentInputStream extends InputStream {
         this.buffer = buffer;
     }
     
-    public int read(final byte[] b, int off, int len) throws IOException {
+    @Override
+	public int read(final byte[] b, int off, int len) throws IOException {
         return this.buffer.read(b, off, len);
     }
     
-    public int read(final byte[] b) throws IOException {
+    @Override
+	public int read(final byte[] b) throws IOException {
         if (b == null) {
             return 0;
         }
         return this.buffer.read(b, 0, b.length);
     }
     
-    public int read() throws IOException {
+    @Override
+	public int read() throws IOException {
         return this.buffer.read();
     }
 

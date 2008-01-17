@@ -137,7 +137,8 @@ public class TestDefaultIOReactorsSSL extends HttpCoreNIOSSLTestBase {
      
         EventListener serverEventListener = new SimpleEventListener() {
 
-            public void connectionClosed(NHttpConnection conn) {
+            @Override
+			public void connectionClosed(NHttpConnection conn) {
                 closedServerConns.decrement();
                 super.connectionClosed(conn);
             }
@@ -151,7 +152,8 @@ public class TestDefaultIOReactorsSSL extends HttpCoreNIOSSLTestBase {
         
         EventListener clientEventListener = new SimpleEventListener() {
 
-            public void connectionClosed(NHttpConnection conn) {
+            @Override
+			public void connectionClosed(NHttpConnection conn) {
                 closedClientConns.decrement();
                 super.connectionClosed(conn);
             }

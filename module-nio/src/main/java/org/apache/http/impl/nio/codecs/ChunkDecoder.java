@@ -238,7 +238,8 @@ public class ChunkDecoder extends AbstractContentDecoder {
         }
     }
 
-    public String toString() {
+    @Override
+	public String toString() {
         StringBuffer buffer = new StringBuffer();
         buffer.append("[chunk-coded; completed: ");
         buffer.append(this.completed);
