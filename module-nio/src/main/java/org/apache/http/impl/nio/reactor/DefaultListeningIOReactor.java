@@ -180,12 +180,14 @@ public class DefaultListeningIOReactor extends AbstractMultiworkerIOReactor
         List<ListenerEndpoint> list = new ArrayList<ListenerEndpoint>();
         if (this.selector.isOpen()) {
             Set<SelectionKey> keys = this.selector.keys();
-            for (Iterator<SelectionKey> it = keys.iterator(); it.hasNext(); ) {
-                SelectionKey key = it.next();
-                if (key.isValid()) {
-                    ListenerEndpoint endpoint = (ListenerEndpoint) key.attachment();
-                    if (endpoint != null) {
-                        list.add(endpoint);
+            synchronized (keys) {
+                for (Iterator<SelectionKey> it = keys.iterator(); it.hasNext(); ) {
+                    SelectionKey key = it.next();
+                    if (key.isValid()) {
+                        ListenerEndpoint endpoint = (ListenerEndpoint) key.attachment();
+                        if (endpoint != null) {
+                            list.add(endpoint);
+                        }
                     }
                 }
             }
@@ -196,13 +198,15 @@ public class DefaultListeningIOReactor extends AbstractMultiworkerIOReactor
     public void pause() throws IOException {
         if (this.selector.isOpen()) {
             Set<SelectionKey> keys = this.selector.keys();
-            for (Iterator<SelectionKey> it = keys.iterator(); it.hasNext(); ) {
-                SelectionKey key = it.next();
-                if (key.isValid()) {
-                    ListenerEndpointImpl endpoint = (ListenerEndpointImpl) key.attachment();
-                    if (endpoint != null) {
-                        endpoint.close();
-                        this.pausedEndpoints.add(endpoint.getAddress());
+            synchronized (keys) {
+                for (Iterator<SelectionKey> it = keys.iterator(); it.hasNext(); ) {
+                    SelectionKey key = it.next();
+                    if (key.isValid()) {
+                        ListenerEndpointImpl endpoint = (ListenerEndpointImpl) key.attachment();
+                        if (endpoint != null) {
+                            endpoint.close();
+                            this.pausedEndpoints.add(endpoint.getAddress());
+                        }
                     }
                 }
             }

@@ -101,7 +101,7 @@ public class DefaultConnectingIOReactor extends AbstractMultiworkerIOReactor
         if ((currentTime - this.lastTimeoutCheck) >= this.selectTimeout) {
             this.lastTimeoutCheck = currentTime;
             Set<SelectionKey> keys = this.selector.keys();
-            if (keys != null) {
+            synchronized (keys) {
                 processTimeouts(keys);
             }
         }

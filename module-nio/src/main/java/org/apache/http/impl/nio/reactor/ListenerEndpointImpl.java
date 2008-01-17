@@ -43,8 +43,8 @@ public class ListenerEndpointImpl implements ListenerEndpoint {
     private volatile boolean completed;
     private volatile boolean closed;
     private volatile SelectionKey key;
-    private SocketAddress address;
-    private ServerSocketChannel serverChannel = null;
+    private volatile SocketAddress address;
+    private volatile ServerSocketChannel serverChannel = null;
 
     private IOException exception = null;
     
