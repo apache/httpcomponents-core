@@ -1,7 +1,7 @@
 /*
- * $HeadURL:$
- * $Revision:$
- * $Date:$
+ * $HeadURL$
+ * $Revision$
+ * $Date$
  *
  * ====================================================================
  * Licensed to the Apache Software Foundation (ASF) under one
@@ -104,6 +104,16 @@ public class ListenerEndpointImpl implements ListenerEndpoint {
         this.completed = true;
         synchronized (this) {
             this.exception = exception;
+            notifyAll();
+        }
+    }
+ 
+    public void cancel() {
+        if (this.completed) {
+            return;
+        }
+        this.completed = true;
+        synchronized (this) {
             notifyAll();
         }
     }

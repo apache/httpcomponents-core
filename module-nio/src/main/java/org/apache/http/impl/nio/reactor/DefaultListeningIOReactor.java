@@ -73,6 +73,16 @@ public class DefaultListeningIOReactor extends AbstractMultiworkerIOReactor
         this(workerCount, null, params);
     }
     
+    
+    @Override
+    protected void cancelRequests() throws IOReactorException {
+        ListenerEndpointImpl request;
+        while ((request = this.requestQueue.poll()) != null) {
+            request.cancel();
+        }
+    }
+
+    @Override
     protected void processEvents(int readyCount) throws IOReactorException {
         processSessionRequests();
 

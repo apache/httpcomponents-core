@@ -117,6 +117,7 @@ public abstract class AbstractMultiworkerIOReactor implements IOReactor {
     }
     
     protected abstract void processEvents(int count) throws IOReactorException;
+    protected abstract void cancelRequests() throws IOReactorException;
     
     public void execute(
             final IOEventDispatch eventDispatch) throws InterruptedIOException, IOReactorException {
@@ -191,7 +192,8 @@ public abstract class AbstractMultiworkerIOReactor implements IOReactor {
         if (this.status.compareTo(IOReactorStatus.ACTIVE) > 0) {
             return;
         }
-        this.status = IOReactorStatus.SHUTTING_DOWN;        
+        this.status = IOReactorStatus.SHUTTING_DOWN;
+        cancelRequests();        
         this.selector.wakeup();
         
         // Close out all channels

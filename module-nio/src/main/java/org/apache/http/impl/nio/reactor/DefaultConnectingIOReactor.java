@@ -74,6 +74,17 @@ public class DefaultConnectingIOReactor extends AbstractMultiworkerIOReactor
         this(workerCount, null, params);
     }
     
+    @Override
+    protected void cancelRequests() throws IOReactorException {
+        SessionRequestImpl request;
+        while ((request = this.requestQueue.poll()) != null) {
+            if (!request.isCompleted()) {
+                request.cancel();
+            }
+        }
+    }
+
+    @Override
     protected void processEvents(int readyCount) throws IOReactorException {
         processSessionRequests();
         
