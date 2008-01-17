@@ -62,6 +62,10 @@ public class ListenerEndpointImpl implements ListenerEndpoint {
         }
     }
     
+    public boolean isCompleted() {
+        return this.completed;
+    }
+    
     public IOException getException() {
         synchronized (this) {
             return this.exception;
