@@ -47,7 +47,7 @@ public final class ExceptionUtils {
 
     /**
      * Returns a <code>Method<code> allowing access to
-     * {@link Throwable.initCause(Throwable) initCause} method of {@link Throwable},
+     * {@link Throwable#initCause(Throwable) initCause} method of {@link Throwable},
      * or <code>null</code> if the method
      * does not exist.
      * 

@@ -139,7 +139,7 @@ public final class BasicHttpProcessor implements
     }
     
     /**
-     * Same as {@link #addRequestInterceptor addRequestInterceptor}.
+     * Same as {@link #addRequestInterceptor(HttpRequestInterceptor) addRequestInterceptor}.
      *
      * @param interceptor       the interceptor to add
      */
@@ -192,7 +192,7 @@ public final class BasicHttpProcessor implements
     }
     
     /**
-     * Same as {@link #addResponseInterceptor addResponseInterceptor}.
+     * Same as {@link #addResponseInterceptor(HttpResponseInterceptor) addResponseInterceptor}.
      *
      * @param interceptor       the interceptor to add
      */
