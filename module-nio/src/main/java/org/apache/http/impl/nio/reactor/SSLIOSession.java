@@ -435,19 +435,19 @@ public class SSLIOSession implements IOSession, SessionBufferStatus {
     private class InternalByteChannel implements ByteChannel {
 
         public int write(final ByteBuffer src) throws IOException {
-            return writePlain(src);
+            return SSLIOSession.this.writePlain(src);
         }
 
         public int read(final ByteBuffer dst) throws IOException {
-            return readPlain(dst);
+            return SSLIOSession.this.readPlain(dst);
         }
 
         public void close() throws IOException {
-            close();
+            SSLIOSession.this.close();
         }
 
         public boolean isOpen() {
-            return !isClosed();
+            return !SSLIOSession.this.isClosed();
         }
         
     }
