@@ -91,7 +91,7 @@ public abstract class AbstractMultiworkerIOReactor implements IOReactor {
         }
         this.params = params;
         this.selectTimeout = NIOReactorParams.getSelectInterval(params);
-        this.gracePeriod = 500;
+        this.gracePeriod = NIOReactorParams.getGracePeriod(params);
         this.shutdownMutex = new Object();
         this.workerCount = workerCount;
         if (threadFactory != null) {
@@ -200,16 +200,14 @@ public abstract class AbstractMultiworkerIOReactor implements IOReactor {
         // Close out all channels
         if (this.selector.isOpen()) {
             Set<SelectionKey> keys = this.selector.keys();
-            synchronized (keys) {
-                for (Iterator<SelectionKey> it = keys.iterator(); it.hasNext(); ) {
-                    try {
-                        SelectionKey key = it.next();
-                        Channel channel = key.channel();
-                        if (channel != null) {
-                            channel.close();
-                        }
-                    } catch (IOException ignore) {
+            for (Iterator<SelectionKey> it = keys.iterator(); it.hasNext(); ) {
+                try {
+                    SelectionKey key = it.next();
+                    Channel channel = key.channel();
+                    if (channel != null) {
+                        channel.close();
                     }
+                } catch (IOException ignore) {
                 }
             }
             // Stop dispatching I/O events

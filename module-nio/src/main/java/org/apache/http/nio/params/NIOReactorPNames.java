@@ -54,12 +54,20 @@ public interface NIOReactorPNames {
 
     /**
      * Determines the time interval in milliseconds at which the
-     * I/O reactor wakes up 
-     * to check for timed out sessions and session requests.
+     * I/O reactor wakes up to check for timed out sessions and session requests.
      * <p>
      * This parameter expects a value of type {@link Long}.
      * </p>
      */
     public static final String SELECT_INTERVAL = "http.nio.select-interval"; 
+
+    /**
+     * Determines the grace period the I/O reactors are expected to block
+     * waiting for individual worker threads to terminate cleanly.
+     * <p>
+     * This parameter expects a value of type {@link Long}.
+     * </p>
+     */
+    public static final String GRACE_PERIOD = "http.nio.grace-period"; 
 
 }

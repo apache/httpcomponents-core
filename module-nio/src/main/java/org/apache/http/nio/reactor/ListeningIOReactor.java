@@ -32,6 +32,7 @@
 package org.apache.http.nio.reactor;
 
 import java.net.SocketAddress;
+import java.util.Set;
 import java.io.IOException;
 
 public interface ListeningIOReactor extends IOReactor {
@@ -44,6 +45,6 @@ public interface ListeningIOReactor extends IOReactor {
     void resume()
         throws IOException;
 
-    ListenerEndpoint[] getEndpoints();
+    Set<ListenerEndpoint> getEndpoints();
     
 }

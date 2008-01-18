@@ -83,4 +83,18 @@ public final class NIOReactorParams implements NIOReactorPNames {
         params.setLongParameter(SELECT_INTERVAL, ms);
     }
 
+    public static long getGracePeriod(final HttpParams params) {
+        if (params == null) {
+            throw new IllegalArgumentException("HTTP parameters may not be null");
+        }
+        return params.getLongParameter(GRACE_PERIOD, 500);
+    }
+    
+    public static void setGracePeriod(final HttpParams params, long ms) {
+        if (params == null) {
+            throw new IllegalArgumentException("HTTP parameters may not be null");
+        }
+        params.setLongParameter(GRACE_PERIOD, ms);
+    }
+
 }

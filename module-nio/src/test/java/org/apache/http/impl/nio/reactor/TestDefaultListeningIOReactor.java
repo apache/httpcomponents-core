@@ -33,6 +33,7 @@ package org.apache.http.impl.nio.reactor;
 import java.io.IOException;
 import java.net.BindException;
 import java.net.InetSocketAddress;
+import java.util.Set;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
@@ -118,9 +119,9 @@ public class TestDefaultListeningIOReactor extends TestCase {
         
         t.start();
         
-        ListenerEndpoint[] endpoints = ioreactor.getEndpoints();
+        Set<ListenerEndpoint> endpoints = ioreactor.getEndpoints();
         assertNotNull(endpoints);
-        assertEquals(0, endpoints.length);
+        assertEquals(0, endpoints.size());
         
         ListenerEndpoint port9998 = ioreactor.listen(new InetSocketAddress(9998));
         port9998.waitFor();
@@ -130,15 +131,17 @@ public class TestDefaultListeningIOReactor extends TestCase {
 
         endpoints = ioreactor.getEndpoints();
         assertNotNull(endpoints);
-        assertEquals(2, endpoints.length);
+        assertEquals(2, endpoints.size());
         
         port9998.close();
 
         endpoints = ioreactor.getEndpoints();
         assertNotNull(endpoints);
-        assertEquals(1, endpoints.length);
+        assertEquals(1, endpoints.size());
         
-        assertEquals(9999, ((InetSocketAddress) endpoints[0].getAddress()).getPort());
+        ListenerEndpoint endpoint = endpoints.iterator().next();
+        
+        assertEquals(9999, ((InetSocketAddress) endpoint.getAddress()).getPort());
         
         ioreactor.shutdown(1000);
         t.join(1000);
@@ -196,9 +199,9 @@ public class TestDefaultListeningIOReactor extends TestCase {
         latch.await(2000, TimeUnit.MILLISECONDS);
         assertEquals(IOReactorStatus.SHUT_DOWN, ioreactor.getStatus());
         
-        ListenerEndpoint[] endpoints = ioreactor.getEndpoints();
+        Set<ListenerEndpoint> endpoints = ioreactor.getEndpoints();
         assertNotNull(endpoints);
-        assertEquals(0, endpoints.length);
+        assertEquals(0, endpoints.size());
         
         ioreactor.shutdown(1000);
         t.join(1000);

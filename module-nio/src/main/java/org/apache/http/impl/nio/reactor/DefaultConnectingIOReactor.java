@@ -101,9 +101,7 @@ public class DefaultConnectingIOReactor extends AbstractMultiworkerIOReactor
         if ((currentTime - this.lastTimeoutCheck) >= this.selectTimeout) {
             this.lastTimeoutCheck = currentTime;
             Set<SelectionKey> keys = this.selector.keys();
-            synchronized (keys) {
-                processTimeouts(keys);
-            }
+            processTimeouts(keys);
         }
     }
 
@@ -129,8 +127,10 @@ public class DefaultConnectingIOReactor extends AbstractMultiworkerIOReactor
                         try {
                             prepareSocket(channel.socket());
                         } catch (IOException ex) {
-                            if (this.exceptionHandler == null || !this.exceptionHandler.handle(ex)) {
-                                throw new IOReactorException("Failure initalizing socket", ex);
+                            if (this.exceptionHandler == null 
+                                    || !this.exceptionHandler.handle(ex)) {
+                                throw new IOReactorException(
+                                        "Failure initalizing socket", ex);
                             }
                         }
                         ChannelEntry entry = new ChannelEntry(channel, sessionRequest); 

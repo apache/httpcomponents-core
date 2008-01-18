@@ -117,6 +117,7 @@ public class ListenerEndpointImpl implements ListenerEndpoint {
             return;
         }
         this.completed = true;
+        this.closed = true;
         synchronized (this) {
             notifyAll();
         }

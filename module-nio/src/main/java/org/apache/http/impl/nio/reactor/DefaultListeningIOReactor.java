@@ -37,10 +37,9 @@ import java.nio.channels.CancelledKeyException;
 import java.nio.channels.SelectionKey;
 import java.nio.channels.ServerSocketChannel;
 import java.nio.channels.SocketChannel;
-import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Iterator;
-import java.util.List;
 import java.util.Queue;
 import java.util.Set;
 import java.util.concurrent.ConcurrentLinkedQueue;
@@ -56,7 +55,10 @@ public class DefaultListeningIOReactor extends AbstractMultiworkerIOReactor
         implements ListeningIOReactor {
 
     private final Queue<ListenerEndpointImpl> requestQueue;
+    private final Set<ListenerEndpointImpl> endpoints;
     private final Set<SocketAddress> pausedEndpoints;
+    
+    private volatile boolean paused;
     
     public DefaultListeningIOReactor(
             int workerCount, 
@@ -64,6 +66,7 @@ public class DefaultListeningIOReactor extends AbstractMultiworkerIOReactor
             final HttpParams params) throws IOReactorException {
         super(workerCount, threadFactory, params);
         this.requestQueue = new ConcurrentLinkedQueue<ListenerEndpointImpl>();
+        this.endpoints = Collections.synchronizedSet(new HashSet<ListenerEndpointImpl>());
         this.pausedEndpoints = new HashSet<SocketAddress>();
     }
 
@@ -84,7 +87,9 @@ public class DefaultListeningIOReactor extends AbstractMultiworkerIOReactor
 
     @Override
     protected void processEvents(int readyCount) throws IOReactorException {
-        processSessionRequests();
+        if (!this.paused) {
+            processSessionRequests();
+        }
 
         if (readyCount > 0) {
             Set<SelectionKey> selectedKeys = this.selector.selectedKeys();
@@ -109,8 +114,10 @@ public class DefaultListeningIOReactor extends AbstractMultiworkerIOReactor
                 try {
                     socketChannel = serverChannel.accept();
                 } catch (IOException ex) {
-                    if (this.exceptionHandler == null || !this.exceptionHandler.handle(ex)) {
-                        throw new IOReactorException("Failure accepting connection", ex);
+                    if (this.exceptionHandler == null 
+                            || !this.exceptionHandler.handle(ex)) {
+                        throw new IOReactorException(
+                                "Failure accepting connection", ex);
                     }
                 }
                 
@@ -118,8 +125,10 @@ public class DefaultListeningIOReactor extends AbstractMultiworkerIOReactor
                     try {
                         prepareSocket(socketChannel.socket());
                     } catch (IOException ex) {
-                        if (this.exceptionHandler == null || !this.exceptionHandler.handle(ex)) {
-                            throw new IOReactorException("Failure initalizing socket", ex);
+                        if (this.exceptionHandler == null || 
+                                !this.exceptionHandler.handle(ex)) {
+                            throw new IOReactorException(
+                                    "Failure initalizing socket", ex);
                         }
                     }
                     ChannelEntry entry = new ChannelEntry(socketChannel); 
@@ -128,6 +137,8 @@ public class DefaultListeningIOReactor extends AbstractMultiworkerIOReactor
             }
             
         } catch (CancelledKeyException ex) {
+            ListenerEndpointImpl endpoint = (ListenerEndpointImpl) key.attachment();
+            this.endpoints.remove(endpoint);
             key.attach(null);
         }
     }
@@ -172,50 +183,51 @@ public class DefaultListeningIOReactor extends AbstractMultiworkerIOReactor
                 throw new IOReactorException("Failure registering channel " +
                         "with the selector", ex);
             }
+            
+            this.endpoints.add(request);
             request.completed(serverChannel);
         }
     }
     
-    public ListenerEndpoint[] getEndpoints() {
-        List<ListenerEndpoint> list = new ArrayList<ListenerEndpoint>();
-        if (this.selector.isOpen()) {
-            Set<SelectionKey> keys = this.selector.keys();
-            this.selector.wakeup();
-            synchronized (keys) {
-                for (Iterator<SelectionKey> it = keys.iterator(); it.hasNext(); ) {
-                    SelectionKey key = it.next();
-                    if (key.isValid()) {
-                        ListenerEndpoint endpoint = (ListenerEndpoint) key.attachment();
-                        if (endpoint != null) {
-                            list.add(endpoint);
-                        }
-                    }
+    public Set<ListenerEndpoint> getEndpoints() {
+        Set<ListenerEndpoint> set = new HashSet<ListenerEndpoint>();
+        synchronized (this.endpoints) {
+            Iterator<ListenerEndpointImpl> it = this.endpoints.iterator();
+            while (it.hasNext()) {
+                ListenerEndpoint endpoint = it.next();
+                if (!endpoint.isClosed()) {
+                    set.add(endpoint);
+                } else {
+                    it.remove();
                 }
             }
         }
-        return list.toArray(new ListenerEndpoint[list.size()]);
+        return set;
     }
 
     public void pause() throws IOException {
-        if (this.selector.isOpen()) {
-            Set<SelectionKey> keys = this.selector.keys();
-            this.selector.wakeup();
-            synchronized (keys) {
-                for (Iterator<SelectionKey> it = keys.iterator(); it.hasNext(); ) {
-                    SelectionKey key = it.next();
-                    if (key.isValid()) {
-                        ListenerEndpointImpl endpoint = (ListenerEndpointImpl) key.attachment();
-                        if (endpoint != null) {
-                            endpoint.close();
-                            this.pausedEndpoints.add(endpoint.getAddress());
-                        }
-                    }
+        if (this.paused) {
+            return;
+        }
+        this.paused = true;
+        synchronized (this.endpoints) {
+            Iterator<ListenerEndpointImpl> it = this.endpoints.iterator();
+            while (it.hasNext()) {
+                ListenerEndpoint endpoint = it.next();
+                if (!endpoint.isClosed()) {
+                    endpoint.close();
+                    this.pausedEndpoints.add(endpoint.getAddress());
                 }
             }
+            this.endpoints.clear();
         }
     }
 
     public void resume() throws IOException {
+        if (!this.paused) {
+            return;
+        }
+        this.paused = false;
         for (SocketAddress socketAddress: this.pausedEndpoints) {
             ListenerEndpointImpl request = new ListenerEndpointImpl(socketAddress);
             this.requestQueue.add(request);
