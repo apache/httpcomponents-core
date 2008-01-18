@@ -462,6 +462,9 @@ Class changed: org.apache.http.impl.nio.reactor.AbstractMultiworkerIOReactor
 
   Methods added:
     public AbstractMultiworkerIOReactor(int, java.util.concurrent.ThreadFactory, org.apache.http.params.HttpParams) throws org.apache.http.nio.reactor.IOReactorException;
+    protected void awaitShutdown(long) throws java.lang.InterruptedException;
+    protected abstract void cancelRequests() throws org.apache.http.nio.reactor.IOReactorException;
+    protected void doShutdown() throws java.io.IOException;
     public org.apache.http.nio.reactor.IOReactorStatus getStatus();
 
 Class changed: org.apache.http.impl.nio.reactor.DefaultConnectingIOReactor
@@ -470,6 +473,7 @@ Class changed: org.apache.http.impl.nio.reactor.DefaultConnectingIOReactor
 
   Methods added:
     public DefaultConnectingIOReactor(int, java.util.concurrent.ThreadFactory, org.apache.http.params.HttpParams) throws org.apache.http.nio.reactor.IOReactorException;
+    protected void cancelRequests() throws org.apache.http.nio.reactor.IOReactorException;
 
 Class changed: org.apache.http.impl.nio.reactor.DefaultListeningIOReactor
   Methods removed:
@@ -478,7 +482,8 @@ Class changed: org.apache.http.impl.nio.reactor.DefaultListeningIOReactor
 
   Methods added:
     public DefaultListeningIOReactor(int, java.util.concurrent.ThreadFactory, org.apache.http.params.HttpParams) throws org.apache.http.nio.reactor.IOReactorException;
-    public org.apache.http.nio.reactor.ListenerEndpoint[] getEndpoints();
+    protected void cancelRequests() throws org.apache.http.nio.reactor.IOReactorException;
+    public java.util.Set getEndpoints();
     public org.apache.http.nio.reactor.ListenerEndpoint listen(java.net.SocketAddress);
     public void pause() throws java.io.IOException;
     public void resume() throws java.io.IOException;
@@ -505,6 +510,15 @@ Class changed: org.apache.http.nio.FileContentEncoder
 
   Methods added:
     public abstract long transfer(java.nio.channels.FileChannel, long, long) throws java.io.IOException;
+
+Class changed: org.apache.http.nio.params.NIOReactorPNames
+  Fields added:
+    public final static java.lang.String GRACE_PERIOD = http.nio.grace-period;
+
+Class changed: org.apache.http.nio.params.NIOReactorParams
+  Methods added:
+    public static long getGracePeriod(org.apache.http.params.HttpParams);
+    public static void setGracePeriod(org.apache.http.params.HttpParams, long);
 
 Class changed: org.apache.http.nio.protocol.ThrottlingHttpClientHandler
   Methods removed:
@@ -542,7 +556,7 @@ Class changed: org.apache.http.nio.reactor.ListeningIOReactor
     public abstract java.net.SocketAddress listen(java.net.SocketAddress) throws java.io.IOException;
 
   Methods added:
-    public abstract org.apache.http.nio.reactor.ListenerEndpoint[] getEndpoints();
+    public abstract java.util.Set getEndpoints();
     public abstract org.apache.http.nio.reactor.ListenerEndpoint listen(java.net.SocketAddress);
     public abstract void pause() throws java.io.IOException;
     public abstract void resume() throws java.io.IOException;
