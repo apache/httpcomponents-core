@@ -180,6 +180,7 @@ public class DefaultListeningIOReactor extends AbstractMultiworkerIOReactor
         List<ListenerEndpoint> list = new ArrayList<ListenerEndpoint>();
         if (this.selector.isOpen()) {
             Set<SelectionKey> keys = this.selector.keys();
+            this.selector.wakeup();
             synchronized (keys) {
                 for (Iterator<SelectionKey> it = keys.iterator(); it.hasNext(); ) {
                     SelectionKey key = it.next();
@@ -198,6 +199,7 @@ public class DefaultListeningIOReactor extends AbstractMultiworkerIOReactor
     public void pause() throws IOException {
         if (this.selector.isOpen()) {
             Set<SelectionKey> keys = this.selector.keys();
+            this.selector.wakeup();
             synchronized (keys) {
                 for (Iterator<SelectionKey> it = keys.iterator(); it.hasNext(); ) {
                     SelectionKey key = it.next();
