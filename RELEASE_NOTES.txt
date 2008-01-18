@@ -17,6 +17,10 @@ providing better test coverage, documentation and performance optimizations.
 Changelog:
 ----------
 
+* [HTTPCORE-141] Session request timeout in DefaultConnectingIOReactor
+  invalidates the request.
+  Contributed by Oleg Kalnichevski <olegk at apache.org>
+
 * [HTTPCORE-137] DefaultHttpRequestFactory extended to support all methods 
   specified in RFC 2616 (except CONNECT).
   Contributed by Oleg Kalnichevski <olegk at apache.org>

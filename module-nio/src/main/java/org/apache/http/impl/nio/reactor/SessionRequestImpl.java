@@ -146,6 +146,10 @@ public class SessionRequestImpl implements SessionRequest {
         if (this.completed) {
             return;
         }
+        this.completed = true;
+        if (this.key != null) {
+            this.key.cancel();
+        }
         synchronized (this) {
             if (this.callback != null) {
                 this.callback.timeout(this);
