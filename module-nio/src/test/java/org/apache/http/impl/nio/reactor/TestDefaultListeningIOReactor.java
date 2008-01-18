@@ -111,7 +111,6 @@ public class TestDefaultListeningIOReactor extends TestCase {
                 try {
                     ioreactor.execute(eventDispatch);
                 } catch (IOException ex) {
-                    ex.printStackTrace();
                 }
             }
             
@@ -247,7 +246,6 @@ public class TestDefaultListeningIOReactor extends TestCase {
                 try {
                     ioreactor.execute(eventDispatch);
                 } catch (IOException ex) {
-                    ex.printStackTrace();
                 }
             }
             
