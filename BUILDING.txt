@@ -5,9 +5,8 @@ Building HttpComponents Core
 --------------
 HttpCore utilizes Maven 2 as a distribution management and packaging tool. Version 2.0.7 or above is
 recommended. Maven 2 requires JDK 1.4 or above in order to execute. However, JDK 1.5 or above is
-required in order to compile some modules (such as NIOSSL) and we generally recommend a 1.5 
-compatible JDK be used to build HttpComponents Core packages. Java 1.5 dependent modules will be
-excluded when managing the distribution with an older JDK.
+required in order to compile some modules (such as NIO extensions) and we generally recommend a 1.5 
+compatible JDK be used to build HttpComponents Core packages.
 
 Maven installation and configuration instructions can be found here:
 
@@ -29,7 +28,6 @@ The resultant packages can be found in the target folders of their respective mo
 
 module-main/target/httpcore-<VERSION>.jar
 module-nio/target/httpcore-nio-<VERSION>.jar
-module-niossl/target/httpcore-niossl-<VERSION>.jar
 
 where <VERSION> is the release version
 

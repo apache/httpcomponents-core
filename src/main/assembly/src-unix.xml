@@ -51,14 +51,17 @@
           </includes>
           <lineEnding>lf</lineEnding>
         </fileSet>
+        <!-- Site and assembly descriptors -->
+        <fileSet>
+          <directory>src</directory>
+          <outputDirectory>src</outputDirectory>
+          <lineEnding>lf</lineEnding>
+        </fileSet>
         <!-- Base module source and text resources -->
         <fileSet>
           <directory>module-main/src</directory>
           <outputDirectory>module-main/src</outputDirectory>
           <lineEnding>lf</lineEnding>
-          <excludes>
-            <exclude>site/**</exclude>
-          </excludes>
         </fileSet>
         <!-- Base module build files -->
         <fileSet>
@@ -75,7 +78,6 @@
           <outputDirectory>module-nio/src</outputDirectory>
           <lineEnding>lf</lineEnding>
           <excludes>
-            <exclude>site/**</exclude>
             <exclude>test/resources/*.keystore</exclude>
           </excludes>
         </fileSet>
