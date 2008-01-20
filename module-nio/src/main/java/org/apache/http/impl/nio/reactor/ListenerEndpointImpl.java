@@ -33,8 +33,8 @@ package org.apache.http.impl.nio.reactor;
 
 import java.io.IOException;
 import java.net.SocketAddress;
+import java.nio.channels.Channel;
 import java.nio.channels.SelectionKey;
-import java.nio.channels.ServerSocketChannel;
 
 import org.apache.http.nio.reactor.ListenerEndpoint;
 
@@ -44,22 +44,23 @@ public class ListenerEndpointImpl implements ListenerEndpoint {
     private volatile boolean closed;
     private volatile SelectionKey key;
     private volatile SocketAddress address;
-    private volatile ServerSocketChannel serverChannel = null;
+    private volatile IOException exception;
 
-    private IOException exception = null;
+    private final ListenerEndpointClosedCallback callback;
     
-    public ListenerEndpointImpl(final SocketAddress address) {
+    public ListenerEndpointImpl(
+            final SocketAddress address,
+            final ListenerEndpointClosedCallback callback) {
         super();
         if (address == null) {
             throw new IllegalArgumentException("Address may not be null");
         }
         this.address = address;
+        this.callback = callback;
     }
     
     public SocketAddress getAddress() {
-        synchronized (this) {
-            return this.address;
-        }
+        return this.address;
     }
     
     public boolean isCompleted() {
@@ -67,9 +68,7 @@ public class ListenerEndpointImpl implements ListenerEndpoint {
     }
     
     public IOException getException() {
-        synchronized (this) {
-            return this.exception;
-        }
+        return this.exception;
     }
     
     public void waitFor() throws InterruptedException {
@@ -83,7 +82,7 @@ public class ListenerEndpointImpl implements ListenerEndpoint {
         }
     }
     
-    public void completed(final ServerSocketChannel serverChannel) {
+    public void completed(final SocketAddress address) {
         if (address == null) {
             throw new IllegalArgumentException("Address may not be null");
         }
@@ -92,8 +91,7 @@ public class ListenerEndpointImpl implements ListenerEndpoint {
         }
         this.completed = true;
         synchronized (this) {
-            this.address = serverChannel.socket().getLocalSocketAddress();
-            this.serverChannel = serverChannel;
+            this.address = address;
             notifyAll();
         }
     }
@@ -137,13 +135,17 @@ public class ListenerEndpointImpl implements ListenerEndpoint {
         }
         this.completed = true;
         this.closed = true;
-        if (this.serverChannel != null && this.serverChannel.isOpen()) {
-            try {
-                this.serverChannel.close();
-            } catch (IOException ignore) {}
-        }
         if (this.key != null) {
             this.key.cancel();
+            Channel channel = this.key.channel();
+            if (channel.isOpen()) {
+                try {
+                    channel.close();
+                } catch (IOException ignore) {}
+            }
+        }
+        if (this.callback != null) {
+            this.callback.endpointClosed(this);
         }
         synchronized (this) {
             notifyAll();

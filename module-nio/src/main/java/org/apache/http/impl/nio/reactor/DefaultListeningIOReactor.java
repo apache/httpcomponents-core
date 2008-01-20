@@ -34,6 +34,7 @@ package org.apache.http.impl.nio.reactor;
 import java.io.IOException;
 import java.net.SocketAddress;
 import java.nio.channels.CancelledKeyException;
+import java.nio.channels.ClosedChannelException;
 import java.nio.channels.SelectionKey;
 import java.nio.channels.ServerSocketChannel;
 import java.nio.channels.SocketChannel;
@@ -113,9 +114,16 @@ public class DefaultListeningIOReactor extends AbstractMultiworkerIOReactor
                 SocketChannel socketChannel = null;
                 try {
                     socketChannel = serverChannel.accept();
+                } catch (ClosedChannelException ex) {
+                    // On MS Windows for some inexplicable reason a key can be returned by 
+                    // the selector as valid and acceptable even after it has been canceled. 
+                    // An attempt to accept a connection from that channel, however, causes 
+                    // an ClosedChannelException
+                    key.cancel();
+                    socketChannel = null;
                 } catch (IOException ex) {
-                    if (this.exceptionHandler == null 
-                            || !this.exceptionHandler.handle(ex)) {
+                    if (this.exceptionHandler == null || 
+                            !this.exceptionHandler.handle(ex)) {
                         throw new IOReactorException(
                                 "Failure accepting connection", ex);
                     }
@@ -137,17 +145,30 @@ public class DefaultListeningIOReactor extends AbstractMultiworkerIOReactor
             }
             
         } catch (CancelledKeyException ex) {
-            ListenerEndpointImpl endpoint = (ListenerEndpointImpl) key.attachment();
+            ListenerEndpoint endpoint = (ListenerEndpoint) key.attachment();
             this.endpoints.remove(endpoint);
             key.attach(null);
         }
     }
 
+    private ListenerEndpointImpl createEnppoint(final SocketAddress address) {
+        ListenerEndpointImpl endpoint = new ListenerEndpointImpl(
+                address,
+                new ListenerEndpointClosedCallback() {
+
+                    public void endpointClosed(final ListenerEndpoint endpoint) {
+                        endpoints.remove(endpoint);
+                    }
+                    
+                });
+        return endpoint;
+    }
+    
     public ListenerEndpoint listen(final SocketAddress address) {
         if (this.status.compareTo(IOReactorStatus.ACTIVE) > 0) {
             throw new IllegalStateException("I/O reactor has been shut down");
         }
-        ListenerEndpointImpl request = new ListenerEndpointImpl(address);
+        ListenerEndpointImpl request = createEnppoint(address);
         this.requestQueue.add(request);
         this.selector.wakeup();
         return request;
@@ -185,7 +206,7 @@ public class DefaultListeningIOReactor extends AbstractMultiworkerIOReactor
             }
             
             this.endpoints.add(request);
-            request.completed(serverChannel);
+            request.completed(serverChannel.socket().getLocalSocketAddress());
         }
     }
     
@@ -228,8 +249,8 @@ public class DefaultListeningIOReactor extends AbstractMultiworkerIOReactor
             return;
         }
         this.paused = false;
-        for (SocketAddress socketAddress: this.pausedEndpoints) {
-            ListenerEndpointImpl request = new ListenerEndpointImpl(socketAddress);
+        for (SocketAddress address: this.pausedEndpoints) {
+            ListenerEndpointImpl request = createEnppoint(address);
             this.requestQueue.add(request);
         }
         this.pausedEndpoints.clear();
