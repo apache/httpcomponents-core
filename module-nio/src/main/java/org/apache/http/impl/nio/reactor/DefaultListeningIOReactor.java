@@ -34,7 +34,6 @@ package org.apache.http.impl.nio.reactor;
 import java.io.IOException;
 import java.net.SocketAddress;
 import java.nio.channels.CancelledKeyException;
-import java.nio.channels.ClosedChannelException;
 import java.nio.channels.SelectionKey;
 import java.nio.channels.ServerSocketChannel;
 import java.nio.channels.SocketChannel;
@@ -114,13 +113,6 @@ public class DefaultListeningIOReactor extends AbstractMultiworkerIOReactor
                 SocketChannel socketChannel = null;
                 try {
                     socketChannel = serverChannel.accept();
-                } catch (ClosedChannelException ex) {
-                    // On MS Windows for some inexplicable reason a key can be returned by 
-                    // the selector as valid and acceptable even after it has been canceled. 
-                    // An attempt to accept a connection from that channel, however, causes 
-                    // an ClosedChannelException
-                    key.cancel();
-                    socketChannel = null;
                 } catch (IOException ex) {
                     if (this.exceptionHandler == null || 
                             !this.exceptionHandler.handle(ex)) {
