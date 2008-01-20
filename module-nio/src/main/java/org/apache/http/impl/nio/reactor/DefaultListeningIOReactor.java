@@ -143,7 +143,7 @@ public class DefaultListeningIOReactor extends AbstractMultiworkerIOReactor
         }
     }
 
-    private ListenerEndpointImpl createEnppoint(final SocketAddress address) {
+    private ListenerEndpointImpl createEndpoint(final SocketAddress address) {
         ListenerEndpointImpl endpoint = new ListenerEndpointImpl(
                 address,
                 new ListenerEndpointClosedCallback() {
@@ -160,7 +160,7 @@ public class DefaultListeningIOReactor extends AbstractMultiworkerIOReactor
         if (this.status.compareTo(IOReactorStatus.ACTIVE) > 0) {
             throw new IllegalStateException("I/O reactor has been shut down");
         }
-        ListenerEndpointImpl request = createEnppoint(address);
+        ListenerEndpointImpl request = createEndpoint(address);
         this.requestQueue.add(request);
         this.selector.wakeup();
         return request;
@@ -242,7 +242,7 @@ public class DefaultListeningIOReactor extends AbstractMultiworkerIOReactor
         }
         this.paused = false;
         for (SocketAddress address: this.pausedEndpoints) {
-            ListenerEndpointImpl request = createEnppoint(address);
+            ListenerEndpointImpl request = createEndpoint(address);
             this.requestQueue.add(request);
         }
         this.pausedEndpoints.clear();
