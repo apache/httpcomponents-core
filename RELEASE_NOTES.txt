@@ -355,6 +355,8 @@ Class added:
 Class added: 
   public org.apache.http.impl.nio.SSLServerIOEventDispatch extends java.lang.Object implements org.apache.http.nio.reactor.IOEventDispatch
 Class added: 
+  public abstract org.apache.http.impl.nio.reactor.ListenerEndpointClosedCallback extends java.lang.Object
+Class added: 
   public org.apache.http.impl.nio.reactor.ListenerEndpointImpl extends java.lang.Object implements org.apache.http.nio.reactor.ListenerEndpoint
 Class added: 
   public org.apache.http.impl.nio.reactor.SSLIOSession extends java.lang.Object implements org.apache.http.nio.reactor.IOSession, org.apache.http.nio.reactor.SessionBufferStatus
