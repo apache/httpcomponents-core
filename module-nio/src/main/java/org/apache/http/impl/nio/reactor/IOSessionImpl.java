@@ -99,10 +99,8 @@ public class IOSessionImpl implements IOSession {
         if (this.status == CLOSED) {
             return;
         }
-        synchronized (this.key) {
-            this.key.interestOps(ops);
-            this.key.selector().wakeup();
-        }
+        this.key.interestOps(ops);
+        this.key.selector().wakeup();
     }
     
     public void setEvent(int op) {
@@ -112,8 +110,8 @@ public class IOSessionImpl implements IOSession {
         synchronized (this.key) {
             int ops = this.key.interestOps();
             this.key.interestOps(ops | op);
-            this.key.selector().wakeup();
         }
+        this.key.selector().wakeup();
     }
     
     public void clearEvent(int op) {
@@ -123,8 +121,8 @@ public class IOSessionImpl implements IOSession {
         synchronized (this.key) {
             int ops = this.key.interestOps();
             this.key.interestOps(ops & ~op);
-            this.key.selector().wakeup();
         }
+        this.key.selector().wakeup();
     }
     
     public int getSocketTimeout() {
