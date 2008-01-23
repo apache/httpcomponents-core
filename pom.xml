@@ -81,6 +81,10 @@
       </plugin>
       <plugin>
         <artifactId>maven-site-plugin</artifactId>
+        <!-- The version 2.0-beta6 of the site plugin seems utterly broken. Force the previous version
+          that at least kind of worked. Damn you Maven!!!!
+        --> 
+        <version>2.0-beta-5</version>
       </plugin>
       <plugin>
         <artifactId>maven-release-plugin</artifactId>

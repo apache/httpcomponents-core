@@ -42,10 +42,7 @@
   </bannerRight>
 
   <body>
-    <menu name="HttpCore">
-      <item name="Home" href=".."/>
-    </menu>
-    ${reports}
-
+    <menu ref="parent"/>
+    <menu ref="reports"/>
   </body>
 </project>
