@@ -127,6 +127,13 @@ public class ThrottlingHttpServiceHandler extends NHttpServiceHandlerBase {
     }
 
     public void closed(final NHttpServerConnection conn) {
+        HttpContext context = conn.getContext();
+        ServerConnState connState = (ServerConnState) context.getAttribute(CONN_STATE);
+        
+        if (connState != null) {
+            connState.shutdown();
+        }
+
         if (this.eventListener != null) {
             this.eventListener.connectionClosed(conn);
         }

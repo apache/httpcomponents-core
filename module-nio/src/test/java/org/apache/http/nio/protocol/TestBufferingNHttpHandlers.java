@@ -94,23 +94,23 @@ import org.apache.http.util.EntityUtils;
  * 
  * @version $Id$
  */
-public class TestNIOHttp extends TestCase {
+public class TestBufferingNHttpHandlers extends TestCase {
 
     // ------------------------------------------------------------ Constructor
-    public TestNIOHttp(String testName) {
+    public TestBufferingNHttpHandlers(String testName) {
         super(testName);
     }
 
     // ------------------------------------------------------------------- Main
     public static void main(String args[]) {
-        String[] testCaseName = { TestNIOHttp.class.getName() };
+        String[] testCaseName = { TestBufferingNHttpHandlers.class.getName() };
         junit.textui.TestRunner.main(testCaseName);
     }
 
     // ------------------------------------------------------- TestCase Methods
 
     public static Test suite() {
-        return new TestSuite(TestNIOHttp.class);
+        return new TestSuite(TestBufferingNHttpHandlers.class);
     }
 
     private TestHttpServer server;
