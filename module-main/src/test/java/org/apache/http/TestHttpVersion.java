@@ -78,8 +78,8 @@ public class TestHttpVersion extends TestCase {
         assertEquals(ver1.hashCode(), ver2.hashCode());
         assertTrue(ver1.equals(ver1));
         assertTrue(ver1.equals(ver2));
-        assertTrue(ver1.equals((Object)ver1));
-        assertTrue(ver1.equals((Object)ver2));
+        assertTrue(ver1.equals(ver1));
+        assertTrue(ver1.equals(ver2));
 
         assertFalse(ver1.equals(new Float(1.1)));
         
