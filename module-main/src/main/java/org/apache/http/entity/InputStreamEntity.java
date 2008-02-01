@@ -53,7 +53,8 @@ public class InputStreamEntity extends AbstractHttpEntity {
     private boolean consumed = false;
 
     public InputStreamEntity(final InputStream instream, long length) {
-        super();        if (instream == null) {
+        super();        
+        if (instream == null) {
             throw new IllegalArgumentException("Source input stream may not be null");
         }
         this.content = instream;
