@@ -105,7 +105,7 @@ public class BufferingHttpClientHandler extends NHttpClientHandlerBase {
     }
 
     @Override
-	public void closed(final NHttpClientConnection conn) {
+    public void closed(final NHttpClientConnection conn) {
         HttpContext context = conn.getContext();
 
         this.execHandler.finalizeContext(context);

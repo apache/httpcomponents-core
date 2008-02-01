@@ -41,7 +41,7 @@ import org.apache.http.nio.reactor.SessionOutputBuffer;
 
 public class MockupEncoder extends AbstractContentEncoder {
     
-	// TODO? remove this field and the complete() and isCompleted() methods
+    // TODO? remove this field and the complete() and isCompleted() methods
     private boolean completed;
     
     public MockupEncoder(
@@ -52,12 +52,12 @@ public class MockupEncoder extends AbstractContentEncoder {
     }
 
     @Override
-	public boolean isCompleted() {
+    public boolean isCompleted() {
         return this.completed;
     }
     
     @Override
-	public void complete() throws IOException {
+    public void complete() throws IOException {
         this.completed = true;
     }
     

@@ -70,7 +70,7 @@ public class ChunkEncoder extends AbstractContentEncoder {
     }
 
     @Override
-	public void complete() throws IOException {
+    public void complete() throws IOException {
         assertNotCompleted();
         this.lineBuffer.clear();
         this.lineBuffer.append("0");
@@ -81,7 +81,7 @@ public class ChunkEncoder extends AbstractContentEncoder {
     }
     
     @Override
-	public String toString() {
+    public String toString() {
         StringBuffer buffer = new StringBuffer();
         buffer.append("[chunk-coded; completed: ");
         buffer.append(this.completed);

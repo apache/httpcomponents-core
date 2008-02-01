@@ -74,7 +74,7 @@ public class TestBaseIOReactorSSL extends TestCase {
     private TestHttpSSLServer server;
 
     @Override
-	protected void setUp() throws Exception {
+    protected void setUp() throws Exception {
         HttpParams serverParams = new BasicHttpParams();
         serverParams
             .setIntParameter(CoreConnectionPNames.SO_TIMEOUT, 5000)
@@ -87,7 +87,7 @@ public class TestBaseIOReactorSSL extends TestCase {
     }
 
     @Override
-	protected void tearDown() throws Exception {
+    protected void tearDown() throws Exception {
         this.server.shutdown();
     }
 

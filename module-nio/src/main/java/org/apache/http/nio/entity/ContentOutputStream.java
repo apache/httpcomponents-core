@@ -49,22 +49,22 @@ public class ContentOutputStream extends OutputStream {
     }
 
     @Override
-	public void close() throws IOException {
+    public void close() throws IOException {
         this.buffer.writeCompleted();
     }
 
     @Override
-	public void flush() throws IOException {
+    public void flush() throws IOException {
         this.buffer.flush();
     }
 
     @Override
-	public void write(byte[] b, int off, int len) throws IOException {
+    public void write(byte[] b, int off, int len) throws IOException {
         this.buffer.write(b, off, len);
     }
 
     @Override
-	public void write(byte[] b) throws IOException {
+    public void write(byte[] b) throws IOException {
         if (b == null) {
             return;
         }
@@ -72,7 +72,7 @@ public class ContentOutputStream extends OutputStream {
     }
 
     @Override
-	public void write(int b) throws IOException {
+    public void write(int b) throws IOException {
         this.buffer.write(b);
     }
 

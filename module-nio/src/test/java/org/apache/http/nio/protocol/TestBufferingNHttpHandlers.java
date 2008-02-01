@@ -117,7 +117,7 @@ public class TestBufferingNHttpHandlers extends TestCase {
     private TestHttpClient client;
     
     @Override
-	protected void setUp() throws Exception {
+    protected void setUp() throws Exception {
         HttpParams serverParams = new BasicHttpParams();
         serverParams
             .setIntParameter(CoreConnectionPNames.SO_TIMEOUT, 5000)
@@ -141,7 +141,7 @@ public class TestBufferingNHttpHandlers extends TestCase {
     }
 
     @Override
-	protected void tearDown() throws Exception {
+    protected void tearDown() throws Exception {
         this.server.shutdown();
         this.client.shutdown();
     }

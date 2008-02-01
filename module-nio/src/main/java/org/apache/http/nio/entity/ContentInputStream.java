@@ -49,12 +49,12 @@ public class ContentInputStream extends InputStream {
     }
     
     @Override
-	public int read(final byte[] b, int off, int len) throws IOException {
+    public int read(final byte[] b, int off, int len) throws IOException {
         return this.buffer.read(b, off, len);
     }
     
     @Override
-	public int read(final byte[] b) throws IOException {
+    public int read(final byte[] b) throws IOException {
         if (b == null) {
             return 0;
         }
@@ -62,7 +62,7 @@ public class ContentInputStream extends InputStream {
     }
     
     @Override
-	public int read() throws IOException {
+    public int read() throws IOException {
         return this.buffer.read();
     }
 

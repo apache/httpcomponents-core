@@ -130,7 +130,7 @@ public class TestHttpServer {
         }
         
         @Override
-		public void run() {
+        public void run() {
             try {
                 execute(this.serviceHandler);
             } catch (IOException ex) {

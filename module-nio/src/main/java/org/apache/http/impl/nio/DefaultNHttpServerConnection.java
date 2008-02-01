@@ -220,7 +220,7 @@ public class DefaultNHttpServerConnection
     }
 
     @Override
-	public String toString() {
+    public String toString() {
         StringBuffer buffer = new StringBuffer();
         buffer.append("[");
         if (isOpen()) {

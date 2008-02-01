@@ -49,7 +49,7 @@ public class HttpRequestWriter extends AbstractMessageWriter {
     }
     
     @Override
-	protected void writeHeadLine(final HttpMessage message)
+    protected void writeHeadLine(final HttpMessage message)
         throws IOException {
 
         final CharArrayBuffer buffer = lineFormatter.formatRequestLine

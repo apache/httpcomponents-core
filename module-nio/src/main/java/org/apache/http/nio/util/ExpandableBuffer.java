@@ -115,7 +115,7 @@ public class ExpandableBuffer {
     }
 
     @Override
-	public String toString() {
+    public String toString() {
         StringBuffer sb = new StringBuffer();
         sb.append("[mode=");
         int mode = getMode();

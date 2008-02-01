@@ -128,7 +128,7 @@ public class TestDefaultIOReactors extends HttpCoreNIOTestBase {
         EventListener serverEventListener = new SimpleEventListener() {
 
             @Override
-			public void connectionClosed(NHttpConnection conn) {
+            public void connectionClosed(NHttpConnection conn) {
                 closedServerConns.decrement();
                 super.connectionClosed(conn);
             }
@@ -143,7 +143,7 @@ public class TestDefaultIOReactors extends HttpCoreNIOTestBase {
         EventListener clientEventListener = new SimpleEventListener() {
 
             @Override
-			public void connectionClosed(NHttpConnection conn) {
+            public void connectionClosed(NHttpConnection conn) {
                 closedClientConns.decrement();
                 super.connectionClosed(conn);
             }
