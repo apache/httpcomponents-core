@@ -130,7 +130,7 @@ public class SessionOutputBufferImpl extends ExpandableBuffer implements Session
         // Do not bother if the buffer is empty
         if (linebuffer.length() > 0 ) {
             setInputMode();
-        	this.charencoder.reset();
+            this.charencoder.reset();
             // transfer the string in small chunks
             int remaining = linebuffer.length();
             int offset = 0;
