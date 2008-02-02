@@ -33,6 +33,7 @@ package org.apache.http.impl.nio.reactor;
 
 import java.io.IOException;
 import java.net.SocketAddress;
+import java.nio.channels.Channel;
 import java.nio.channels.SelectionKey;
 
 import org.apache.http.nio.reactor.IOSession;
@@ -149,6 +150,12 @@ public class SessionRequestImpl implements SessionRequest {
         this.completed = true;
         if (this.key != null) {
             this.key.cancel();
+            Channel channel = this.key.channel();
+            if (channel.isOpen()) {
+                try {
+                    channel.close();
+                } catch (IOException ignore) {}
+            }
         }
         synchronized (this) {
             if (this.callback != null) {
@@ -181,6 +188,12 @@ public class SessionRequestImpl implements SessionRequest {
         this.completed = true;
         if (this.key != null) {
             this.key.cancel();
+            Channel channel = this.key.channel();
+            if (channel.isOpen()) {
+                try {
+                    channel.close();
+                } catch (IOException ignore) {}
+            }
         }
         synchronized (this) {
             if (this.callback != null) {

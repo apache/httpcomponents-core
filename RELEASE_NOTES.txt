@@ -1,7 +1,11 @@
 Changes since 4.0 Beta 1
 -------------------
 
-* [HTTPCORE-140] Fixed timeout handling in ThrottlingHttpServiceHandler
+* [HTTPCORE-143] Ensure the underlying channel is closed if the session 
+  request is canceled or times out.
+  Oleg Kalnichevski <olegk at apache.org> 
+
+* [HTTPCORE-140] Fixed timeout handling in ThrottlingHttpServiceHandler.
   Contributed by Lorenzo Moretti <moznerol at hotmail.com> and 
   Oleg Kalnichevski <olegk at apache.org> 
 
