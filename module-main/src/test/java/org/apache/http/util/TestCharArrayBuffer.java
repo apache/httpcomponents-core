@@ -59,83 +59,83 @@ public class TestCharArrayBuffer extends TestCase {
     }
 
     public void testConstructor() throws Exception {
-    	CharArrayBuffer buffer = new CharArrayBuffer(16);
-    	assertEquals(16, buffer.capacity()); 
-    	assertEquals(0, buffer.length());
+        CharArrayBuffer buffer = new CharArrayBuffer(16);
+        assertEquals(16, buffer.capacity()); 
+        assertEquals(0, buffer.length());
         assertNotNull(buffer.buffer());
         assertEquals(16, buffer.buffer().length);
-    	try {
-    		new CharArrayBuffer(-1);
-    		fail("IllegalArgumentException should have been thrown");
-    	} catch (IllegalArgumentException ex) {
-    		// expected
-    	}
+        try {
+            new CharArrayBuffer(-1);
+            fail("IllegalArgumentException should have been thrown");
+        } catch (IllegalArgumentException ex) {
+            // expected
+        }
     }
     
     public void testSimpleAppend() throws Exception {
-    	CharArrayBuffer buffer = new CharArrayBuffer(16);
-    	assertEquals(16, buffer.capacity()); 
-    	assertEquals(0, buffer.length());
-    	char[] b1 = buffer.toCharArray();
-    	assertNotNull(b1);
-    	assertEquals(0, b1.length);
-    	assertTrue(buffer.isEmpty());
+        CharArrayBuffer buffer = new CharArrayBuffer(16);
+        assertEquals(16, buffer.capacity()); 
+        assertEquals(0, buffer.length());
+        char[] b1 = buffer.toCharArray();
+        assertNotNull(b1);
+        assertEquals(0, b1.length);
+        assertTrue(buffer.isEmpty());
         assertFalse(buffer.isFull());
-    	
-    	char[] tmp = new char[] { '1', '2', '3', '4'};
-    	buffer.append(tmp, 0, tmp.length);
-    	assertEquals(16, buffer.capacity()); 
-    	assertEquals(4, buffer.length());
-    	assertFalse(buffer.isEmpty());
+        
+        char[] tmp = new char[] { '1', '2', '3', '4'};
+        buffer.append(tmp, 0, tmp.length);
+        assertEquals(16, buffer.capacity()); 
+        assertEquals(4, buffer.length());
+        assertFalse(buffer.isEmpty());
         assertFalse(buffer.isFull());
-    	
-    	char[] b2 = buffer.toCharArray();
-    	assertNotNull(b2);
-    	assertEquals(4, b2.length);
-    	for (int i = 0; i < tmp.length; i++) {
-        	assertEquals(tmp[i], b2[i]);
-        	assertEquals(tmp[i], buffer.charAt(i));
-    	}
-    	assertEquals("1234", buffer.toString());
-    	
-    	buffer.clear();
-    	assertEquals(16, buffer.capacity()); 
-    	assertEquals(0, buffer.length());
-    	assertTrue(buffer.isEmpty());
+        
+        char[] b2 = buffer.toCharArray();
+        assertNotNull(b2);
+        assertEquals(4, b2.length);
+        for (int i = 0; i < tmp.length; i++) {
+            assertEquals(tmp[i], b2[i]);
+            assertEquals(tmp[i], buffer.charAt(i));
+        }
+        assertEquals("1234", buffer.toString());
+        
+        buffer.clear();
+        assertEquals(16, buffer.capacity()); 
+        assertEquals(0, buffer.length());
+        assertTrue(buffer.isEmpty());
         assertFalse(buffer.isFull());
     }
     
     public void testExpandAppend() throws Exception {
-    	CharArrayBuffer buffer = new CharArrayBuffer(4);
-    	assertEquals(4, buffer.capacity()); 
-    	
-    	char[] tmp = new char[] { '1', '2', '3', '4'};
-    	buffer.append(tmp, 0, 2);
-    	buffer.append(tmp, 0, 4);
-    	buffer.append(tmp, 0, 0);
+        CharArrayBuffer buffer = new CharArrayBuffer(4);
+        assertEquals(4, buffer.capacity()); 
+        
+        char[] tmp = new char[] { '1', '2', '3', '4'};
+        buffer.append(tmp, 0, 2);
+        buffer.append(tmp, 0, 4);
+        buffer.append(tmp, 0, 0);
 
-    	assertEquals(8, buffer.capacity()); 
-    	assertEquals(6, buffer.length());
-    	
-    	buffer.append(tmp, 0, 4);
-    	
-    	assertEquals(16, buffer.capacity()); 
-    	assertEquals(10, buffer.length());
-    	
-    	assertEquals("1212341234", buffer.toString());
+        assertEquals(8, buffer.capacity()); 
+        assertEquals(6, buffer.length());
+        
+        buffer.append(tmp, 0, 4);
+        
+        assertEquals(16, buffer.capacity()); 
+        assertEquals(10, buffer.length());
+        
+        assertEquals("1212341234", buffer.toString());
     }
 
     public void testAppendString() throws Exception {
-    	CharArrayBuffer buffer = new CharArrayBuffer(8);
-    	buffer.append("stuff");
-    	buffer.append(" and more stuff");
-    	assertEquals("stuff and more stuff", buffer.toString());
+        CharArrayBuffer buffer = new CharArrayBuffer(8);
+        buffer.append("stuff");
+        buffer.append(" and more stuff");
+        assertEquals("stuff and more stuff", buffer.toString());
     }
     
     public void testAppendNullString() throws Exception {
-    	CharArrayBuffer buffer = new CharArrayBuffer(8);
-    	buffer.append((String)null);
-    	assertEquals("null", buffer.toString());
+        CharArrayBuffer buffer = new CharArrayBuffer(8);
+        buffer.append((String)null);
+        assertEquals("null", buffer.toString());
     }
     
     public void testAppendCharArrayBuffer() throws Exception {
@@ -155,73 +155,73 @@ public class TestCharArrayBuffer extends TestCase {
     }
     
     public void testAppendSingleChar() throws Exception {
-    	CharArrayBuffer buffer = new CharArrayBuffer(4);
-    	buffer.append('1');
-    	buffer.append('2');
-    	buffer.append('3');
-    	buffer.append('4');
-    	buffer.append('5');
-    	buffer.append('6');
-    	assertEquals("123456", buffer.toString());
+        CharArrayBuffer buffer = new CharArrayBuffer(4);
+        buffer.append('1');
+        buffer.append('2');
+        buffer.append('3');
+        buffer.append('4');
+        buffer.append('5');
+        buffer.append('6');
+        assertEquals("123456", buffer.toString());
     }
     
     public void testInvalidCharArrayAppend() throws Exception {
-    	CharArrayBuffer buffer = new CharArrayBuffer(4);
-    	buffer.append((char[])null, 0, 0);
+        CharArrayBuffer buffer = new CharArrayBuffer(4);
+        buffer.append((char[])null, 0, 0);
 
-    	char[] tmp = new char[] { '1', '2', '3', '4'};
-    	try {
-        	buffer.append(tmp, -1, 0);
-    		fail("IndexOutOfBoundsException should have been thrown");
-    	} catch (IndexOutOfBoundsException ex) {
-    		// expected
-    	}
-    	try {
-        	buffer.append(tmp, 0, -1);
-    		fail("IndexOutOfBoundsException should have been thrown");
-    	} catch (IndexOutOfBoundsException ex) {
-    		// expected
-    	}
-    	try {
-        	buffer.append(tmp, 0, 8);
-    		fail("IndexOutOfBoundsException should have been thrown");
-    	} catch (IndexOutOfBoundsException ex) {
-    		// expected
-    	}
-    	try {
-        	buffer.append(tmp, 10, Integer.MAX_VALUE);
-    		fail("IndexOutOfBoundsException should have been thrown");
-    	} catch (IndexOutOfBoundsException ex) {
-    		// expected
-    	}
-    	try {
-        	buffer.append(tmp, 2, 4);
-    		fail("IndexOutOfBoundsException should have been thrown");
-    	} catch (IndexOutOfBoundsException ex) {
-    		// expected
-    	}
+        char[] tmp = new char[] { '1', '2', '3', '4'};
+        try {
+            buffer.append(tmp, -1, 0);
+            fail("IndexOutOfBoundsException should have been thrown");
+        } catch (IndexOutOfBoundsException ex) {
+            // expected
+        }
+        try {
+            buffer.append(tmp, 0, -1);
+            fail("IndexOutOfBoundsException should have been thrown");
+        } catch (IndexOutOfBoundsException ex) {
+            // expected
+        }
+        try {
+            buffer.append(tmp, 0, 8);
+            fail("IndexOutOfBoundsException should have been thrown");
+        } catch (IndexOutOfBoundsException ex) {
+            // expected
+        }
+        try {
+            buffer.append(tmp, 10, Integer.MAX_VALUE);
+            fail("IndexOutOfBoundsException should have been thrown");
+        } catch (IndexOutOfBoundsException ex) {
+            // expected
+        }
+        try {
+            buffer.append(tmp, 2, 4);
+            fail("IndexOutOfBoundsException should have been thrown");
+        } catch (IndexOutOfBoundsException ex) {
+            // expected
+        }
     }
 
     public void testSetLength() throws Exception {
-    	CharArrayBuffer buffer = new CharArrayBuffer(4);
-    	buffer.setLength(2);
-    	assertEquals(2, buffer.length());
+        CharArrayBuffer buffer = new CharArrayBuffer(4);
+        buffer.setLength(2);
+        assertEquals(2, buffer.length());
     }
     
     public void testSetInvalidLength() throws Exception {
-    	CharArrayBuffer buffer = new CharArrayBuffer(4);
-    	try {
-        	buffer.setLength(-2);
-    		fail("IndexOutOfBoundsException should have been thrown");
-    	} catch (IndexOutOfBoundsException ex) {
-    		// expected
-    	}
-    	try {
-        	buffer.setLength(200);
-    		fail("IndexOutOfBoundsException should have been thrown");
-    	} catch (IndexOutOfBoundsException ex) {
-    		// expected
-    	}
+        CharArrayBuffer buffer = new CharArrayBuffer(4);
+        try {
+            buffer.setLength(-2);
+            fail("IndexOutOfBoundsException should have been thrown");
+        } catch (IndexOutOfBoundsException ex) {
+            // expected
+        }
+        try {
+            buffer.setLength(200);
+            fail("IndexOutOfBoundsException should have been thrown");
+        } catch (IndexOutOfBoundsException ex) {
+            // expected
+        }
     }
 
     public void testEnsureCapacity() throws Exception {

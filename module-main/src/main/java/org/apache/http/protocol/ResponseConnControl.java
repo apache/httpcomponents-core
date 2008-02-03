@@ -70,12 +70,12 @@ public class ResponseConnControl implements HttpResponseInterceptor {
         // Always drop connection after certain type of responses
         int status = response.getStatusLine().getStatusCode();
         if (status == HttpStatus.SC_BAD_REQUEST ||
-        		status == HttpStatus.SC_REQUEST_TIMEOUT ||
-        		status == HttpStatus.SC_LENGTH_REQUIRED ||
-        		status == HttpStatus.SC_REQUEST_TOO_LONG ||
-        		status == HttpStatus.SC_REQUEST_URI_TOO_LONG ||
-        		status == HttpStatus.SC_SERVICE_UNAVAILABLE ||
-        		status == HttpStatus.SC_NOT_IMPLEMENTED) {
+                status == HttpStatus.SC_REQUEST_TIMEOUT ||
+                status == HttpStatus.SC_LENGTH_REQUIRED ||
+                status == HttpStatus.SC_REQUEST_TOO_LONG ||
+                status == HttpStatus.SC_REQUEST_URI_TOO_LONG ||
+                status == HttpStatus.SC_SERVICE_UNAVAILABLE ||
+                status == HttpStatus.SC_NOT_IMPLEMENTED) {
             response.setHeader(HTTP.CONN_DIRECTIVE, HTTP.CONN_CLOSE);
             return;
         }

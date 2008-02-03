@@ -61,7 +61,7 @@ public class TestAbstractHttpEntity extends TestCase {
     }
 
     public void testContentType() throws Exception {
-    	HttpEntityMockup httpentity = new HttpEntityMockup();
+        HttpEntityMockup httpentity = new HttpEntityMockup();
         httpentity.setContentType(new BasicHeader(HTTP.CONTENT_TYPE, HTTP.PLAIN_TEXT_TYPE));
         assertEquals(HTTP.CONTENT_TYPE, httpentity.getContentType().getName());
         assertEquals(HTTP.PLAIN_TEXT_TYPE, httpentity.getContentType().getValue());

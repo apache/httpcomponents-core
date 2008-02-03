@@ -162,7 +162,7 @@ public abstract class AbstractHttpServerConnection implements HttpServerConnecti
         doFlush();
     }
     
-	public void sendResponseHeader(final HttpResponse response) 
+    public void sendResponseHeader(final HttpResponse response) 
             throws HttpException, IOException {
         if (response == null) {
             throw new IllegalArgumentException("HTTP response may not be null");

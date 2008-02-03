@@ -62,15 +62,15 @@ public class TestBasicHttpEntity extends TestCase {
     }
 
     public void testBasics() throws Exception {
-    	
-    	byte[] bytes = "Message content".getBytes(HTTP.US_ASCII);
-    	InputStream content = new ByteArrayInputStream(bytes);
-    	BasicHttpEntity httpentity = new BasicHttpEntity();
-    	httpentity.setContent(content);
-    	httpentity.setContentLength(bytes.length);
-    	
-    	assertEquals(bytes.length, httpentity.getContentLength());
-    	assertFalse(httpentity.isRepeatable());
+        
+        byte[] bytes = "Message content".getBytes(HTTP.US_ASCII);
+        InputStream content = new ByteArrayInputStream(bytes);
+        BasicHttpEntity httpentity = new BasicHttpEntity();
+        httpentity.setContent(content);
+        httpentity.setContentLength(bytes.length);
+        
+        assertEquals(bytes.length, httpentity.getContentLength());
+        assertFalse(httpentity.isRepeatable());
         assertTrue(httpentity.isStreaming());
     }
     
@@ -105,19 +105,19 @@ public class TestBasicHttpEntity extends TestCase {
     }
     
     public void testWriteTo() throws Exception {
-    	byte[] bytes = "Message content".getBytes(HTTP.US_ASCII);
-    	InputStream content = new ByteArrayInputStream(bytes);
-    	BasicHttpEntity httpentity = new BasicHttpEntity();
-    	httpentity.setContent(content);
-    	
-    	ByteArrayOutputStream out = new ByteArrayOutputStream();
-    	httpentity.writeTo(out);
-    	byte[] bytes2 = out.toByteArray();
-    	assertNotNull(bytes2);
-    	assertEquals(bytes.length, bytes2.length);
-    	for (int i = 0; i < bytes.length; i++) {
-    		assertEquals(bytes[i], bytes2[i]);
-    	}
+        byte[] bytes = "Message content".getBytes(HTTP.US_ASCII);
+        InputStream content = new ByteArrayInputStream(bytes);
+        BasicHttpEntity httpentity = new BasicHttpEntity();
+        httpentity.setContent(content);
+        
+        ByteArrayOutputStream out = new ByteArrayOutputStream();
+        httpentity.writeTo(out);
+        byte[] bytes2 = out.toByteArray();
+        assertNotNull(bytes2);
+        assertEquals(bytes.length, bytes2.length);
+        for (int i = 0; i < bytes.length; i++) {
+            assertEquals(bytes[i], bytes2[i]);
+        }
         out = new ByteArrayOutputStream();
         try {
             httpentity.writeTo(out);
@@ -126,7 +126,7 @@ public class TestBasicHttpEntity extends TestCase {
             // expected
         }
 
-    	httpentity.setContent(null);
+        httpentity.setContent(null);
         out = new ByteArrayOutputStream();
         try {
             httpentity.writeTo(out);
@@ -135,12 +135,12 @@ public class TestBasicHttpEntity extends TestCase {
             // expected
         }
 
-    	try {
-    		httpentity.writeTo(null);
-    		fail("IllegalArgumentException should have been thrown");
-    	} catch (IllegalArgumentException ex) {
-    		// expected
-    	}
+        try {
+            httpentity.writeTo(null);
+            fail("IllegalArgumentException should have been thrown");
+        } catch (IllegalArgumentException ex) {
+            // expected
+        }
     }
 
     public void testConsumeContent() throws Exception {

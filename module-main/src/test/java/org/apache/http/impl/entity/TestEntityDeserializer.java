@@ -110,7 +110,7 @@ public class TestEntityDeserializer extends TestCase {
 
     public void testEntityWithIdentityTransferEncoding() throws Exception {
         SessionInputBuffer datareceiver = 
-        	new SessionInputBufferMockup(new byte[] {});
+            new SessionInputBufferMockup(new byte[] {});
         HttpMessage message = new HttpMessageMockup();
         
         // lenient mode 

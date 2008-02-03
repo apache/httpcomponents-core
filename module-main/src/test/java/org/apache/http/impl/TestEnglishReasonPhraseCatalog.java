@@ -66,31 +66,31 @@ public class TestEnglishReasonPhraseCatalog extends TestCase {
     // ----------------------------------------------------------- Test Methods
 
     public void testReasonPhrases() throws IllegalAccessException {
-	Field[] publicFields = HttpStatus.class.getFields();
+    Field[] publicFields = HttpStatus.class.getFields();
 
-	assertTrue( publicFields != null );
+    assertTrue( publicFields != null );
 
-	assertTrue( publicFields.length > 0 );
+    assertTrue( publicFields.length > 0 );
 
-	for (int i = 0; i < publicFields.length; i++)
-	{
-		final Field f = publicFields[i];
+    for (int i = 0; i < publicFields.length; i++)
+    {
+        final Field f = publicFields[i];
 
-		final int modifiers = f.getModifiers();
+        final int modifiers = f.getModifiers();
 
-		if ( (f.getType() == int.class)
-			&& Modifier.isPublic(modifiers)
-			&& Modifier.isFinal(modifiers)
-			&& Modifier.isStatic(modifiers) )
-		{
-			final int iValue = f.getInt(null);
-			final String text = EnglishReasonPhraseCatalog.
+        if ( (f.getType() == int.class)
+            && Modifier.isPublic(modifiers)
+            && Modifier.isFinal(modifiers)
+            && Modifier.isStatic(modifiers) )
+        {
+            final int iValue = f.getInt(null);
+            final String text = EnglishReasonPhraseCatalog.
                             INSTANCE.getReason(iValue, null);
-			assertTrue("text is null for HttpStatus."+f.getName(), 
+            assertTrue("text is null for HttpStatus."+f.getName(), 
                                    (text != null));
-			assertTrue(text.length() > 0);
-		}
-	}
+            assertTrue(text.length() > 0);
+        }
+    }
     }
 
 

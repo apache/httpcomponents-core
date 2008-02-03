@@ -50,8 +50,8 @@ public interface HttpEntityEnclosingRequest extends HttpRequest {
      * @return true if the expect continue handshake should be used, false if
      * not.
      */
-	boolean expectContinue();
-	
+    boolean expectContinue();
+    
     /**
      * Hands the entity to the request.
      * @param entity the entity to send.

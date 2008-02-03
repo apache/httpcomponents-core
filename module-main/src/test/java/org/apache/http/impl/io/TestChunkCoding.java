@@ -192,7 +192,7 @@ public class TestChunkCoding extends TestCase {
         out.close();
         out.close();
         try {
-        	out.write(new byte[] {1,2,3});
+            out.write(new byte[] {1,2,3});
             fail("IOException should have been thrown");
         } catch (IOException ex) {
             // expected
@@ -332,7 +332,7 @@ public class TestChunkCoding extends TestCase {
     }
 
     public void testChunkedOutputStream() throws IOException {
-    	SessionOutputBufferMockup buffer = new SessionOutputBufferMockup();
+        SessionOutputBufferMockup buffer = new SessionOutputBufferMockup();
         ChunkedOutputStream out = new ChunkedOutputStream(buffer, 2);
         out.write('1');  
         out.write('2');  
@@ -366,7 +366,7 @@ public class TestChunkCoding extends TestCase {
     }
 
     public void testChunkedOutputStreamLargeChunk() throws IOException {
-    	SessionOutputBufferMockup buffer = new SessionOutputBufferMockup();
+        SessionOutputBufferMockup buffer = new SessionOutputBufferMockup();
         ChunkedOutputStream out = new ChunkedOutputStream(buffer, 2);
         out.write(new byte[] {'1', '2', '3', '4'});
         out.finish();
@@ -394,7 +394,7 @@ public class TestChunkCoding extends TestCase {
     public void testChunkedOutputStreamSmallChunk() throws IOException {
         ByteArrayOutputStream buffer = new ByteArrayOutputStream();
         ChunkedOutputStream out = new ChunkedOutputStream(
-        		new SessionOutputBufferMockup(buffer), 2);
+                new SessionOutputBufferMockup(buffer), 2);
         out.write('1');  
         out.finish();
         out.close();

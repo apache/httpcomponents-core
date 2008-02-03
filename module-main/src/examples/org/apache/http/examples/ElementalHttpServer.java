@@ -190,7 +190,7 @@ public class ElementalHttpServer {
             while (!Thread.interrupted()) {
                 try {
                     // Set up HTTP connection
-                	Socket socket = this.serversocket.accept();
+                    Socket socket = this.serversocket.accept();
                     DefaultHttpServerConnection conn = new DefaultHttpServerConnection();
                     System.out.println("Incoming connection from " + socket.getInetAddress());
                     conn.bind(socket, this.params);

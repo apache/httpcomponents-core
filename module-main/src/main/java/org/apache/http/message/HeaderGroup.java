@@ -148,8 +148,8 @@ public class HeaderGroup implements Cloneable {
         } else if (headers.length == 1) {
             return headers[0];
         } else {
-        	CharArrayBuffer valueBuffer = new CharArrayBuffer(128);
-        	valueBuffer.append(headers[0].getValue());
+            CharArrayBuffer valueBuffer = new CharArrayBuffer(128);
+            valueBuffer.append(headers[0].getValue());
             for (int i = 1; i < headers.length; i++) {
                 valueBuffer.append(", ");
                 valueBuffer.append(headers[i].getValue());

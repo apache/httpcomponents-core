@@ -97,17 +97,17 @@ public class DefaultHttpRequestFactory implements HttpRequestFactory {
     }
 
     public HttpRequest newHttpRequest(final String method, final String uri)
-			throws MethodNotSupportedException {
+            throws MethodNotSupportedException {
         if (isOneOf(RFC2616_COMMON_METHODS, method)) {
             return new BasicHttpRequest(method, uri); 
         } else if (isOneOf(RFC2616_ENTITY_ENC_METHODS, method)) {
             return new BasicHttpEntityEnclosingRequest(method, uri); 
         } else if (isOneOf(RFC2616_SPECIAL_METHODS, method)) {
             return new BasicHttpRequest(method, uri); 
-		} else {
-			throw new MethodNotSupportedException(method
-					+ " method not supported");
-		}
+        } else {
+            throw new MethodNotSupportedException(method
+                    + " method not supported");
+        }
     }
     
 }

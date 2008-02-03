@@ -44,7 +44,7 @@ package org.apache.http;
 public class MethodNotSupportedException extends HttpException {
 
     private static final long serialVersionUID = 3365359036840171201L;
-	
+    
     /**
      * Creates a new MethodNotSupportedException with the specified detail message.
      * 

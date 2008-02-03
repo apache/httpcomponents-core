@@ -134,7 +134,7 @@ public class TestSessionBuffers extends TestCase {
         assertEquals(expWrited, writedBytes);
         
         SessionInputBufferMockup inbuffer = new SessionInputBufferMockup(
-        		outbuffer.getData());
+                outbuffer.getData());
 
         for (int i = 0; i < teststrs.length; i++) {
             assertEquals(teststrs[i], inbuffer.readLine());
@@ -201,7 +201,7 @@ public class TestSessionBuffers extends TestCase {
         assertEquals(8 + 14 + 2 + 15 + 2 + 16 + 2 + 1, writedBytes);
         
         SessionInputBufferMockup inbuffer = new SessionInputBufferMockup(
-        		outbuffer.getData());
+                outbuffer.getData());
 
         assertEquals("a", inbuffer.readLine());
         assertEquals("", inbuffer.readLine());
@@ -252,7 +252,7 @@ public class TestSessionBuffers extends TestCase {
         assertEquals(expWrited, writedBytes);
         
         SessionInputBufferMockup inbuffer = new SessionInputBufferMockup(
-        		outbuffer.getData(), 1024);
+                outbuffer.getData(), 1024);
 
         for (int i = 0; i < teststrs.length; i++) {
             assertEquals(teststrs[i], inbuffer.readLine());
@@ -430,7 +430,7 @@ public class TestSessionBuffers extends TestCase {
         assertEquals(expBytes, writedBytes);
         
         SessionInputBufferMockup inbuffer = new SessionInputBufferMockup(
-        		outbuffer.getData(), params);
+                outbuffer.getData(), params);
 
         for (int i = 0; i < 10; i++) {
             assertEquals(s1, inbuffer.readLine());

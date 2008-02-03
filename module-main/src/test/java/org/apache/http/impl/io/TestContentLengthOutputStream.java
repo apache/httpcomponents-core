@@ -76,9 +76,9 @@ public class TestContentLengthOutputStream extends TestCase {
     }
 
     public void testBasics() throws Exception {
-    	ByteArrayOutputStream buffer = new ByteArrayOutputStream();
-    	SessionOutputBufferMockup datatransmitter = new SessionOutputBufferMockup(buffer);
-    	OutputStream out = new ContentLengthOutputStream(datatransmitter, 15L);
+        ByteArrayOutputStream buffer = new ByteArrayOutputStream();
+        SessionOutputBufferMockup datatransmitter = new SessionOutputBufferMockup(buffer);
+        OutputStream out = new ContentLengthOutputStream(datatransmitter, 15L);
 
         byte[] tmp = new byte[10];
         out.write(tmp, 0, 10);
@@ -95,14 +95,14 @@ public class TestContentLengthOutputStream extends TestCase {
     }
 
     public void testClose() throws Exception {
-    	ByteArrayOutputStream buffer = new ByteArrayOutputStream();
-    	SessionOutputBufferMockup datatransmitter = new SessionOutputBufferMockup(buffer);
-    	OutputStream out = new ContentLengthOutputStream(datatransmitter, 15L);
-    	out.close();
-    	out.close();
+        ByteArrayOutputStream buffer = new ByteArrayOutputStream();
+        SessionOutputBufferMockup datatransmitter = new SessionOutputBufferMockup(buffer);
+        OutputStream out = new ContentLengthOutputStream(datatransmitter, 15L);
+        out.close();
+        out.close();
         byte[] tmp = new byte[10];
         try {
-        	out.write(tmp);
+            out.write(tmp);
             fail("IOException should have been thrown");
         } catch (IOException ex) {
             // expected

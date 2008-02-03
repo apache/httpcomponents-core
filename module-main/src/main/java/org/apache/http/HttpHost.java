@@ -152,7 +152,7 @@ public final class HttpHost implements Cloneable {
      * @return the host URI
      */
     public String toURI() {
-    	CharArrayBuffer buffer = new CharArrayBuffer(32);        
+        CharArrayBuffer buffer = new CharArrayBuffer(32);        
         buffer.append(this.schemeName);
         buffer.append("://");
         buffer.append(this.hostname);
@@ -170,7 +170,7 @@ public final class HttpHost implements Cloneable {
      * @return  the host string, for example <code>localhost:8080</code>
      */
     public String toHostString() {
-    	CharArrayBuffer buffer = new CharArrayBuffer(32);        
+        CharArrayBuffer buffer = new CharArrayBuffer(32);        
         buffer.append(this.hostname);
         if (this.port != -1) {
             buffer.append(':');
