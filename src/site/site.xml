@@ -47,7 +47,9 @@
       <item name="Apache" href="http://www.apache.org/" />
     </links>
 
-    <menu ref="parent"/>
+    <menu name="HttpComponents">
+      <item name="Home" href=".."/>
+    </menu>
     <menu name="HttpCore Overview">
       <item name="Description" href="index.html"/>
       <item name="Download" href="download.html"/>
