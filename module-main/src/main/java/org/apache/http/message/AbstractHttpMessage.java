@@ -50,9 +50,9 @@ import org.apache.http.params.BasicHttpParams;
  */
 public abstract class AbstractHttpMessage implements HttpMessage {
     
-    private final HeaderGroup headergroup;
+    protected HeaderGroup headergroup;
     
-    private HttpParams params;
+    protected HttpParams params;
     
     protected AbstractHttpMessage(final HttpParams params) {
         super();
