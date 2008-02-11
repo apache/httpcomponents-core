@@ -28,6 +28,7 @@
    information on the Apache Software Foundation, please see
    <http://www.apache.org/>.
  -->
+
 <project name="HttpCore">
   <bannerLeft>
     <name>Apache</name>
@@ -42,7 +43,17 @@
   </bannerRight>
 
   <body>
-    <menu ref="parent"/>
-    <menu ref="reports"/>
+    <menu name="HttpComponents">
+      <item name="Home" href="../.."/>
+    </menu>
+    <menu name="HttpCore Overview">
+      <item name="Description" href="../index.html"/>
+      <item name="Download" href="../download.html"/>
+      <item name="Examples" href="../examples.html"/>
+    </menu>
+    <menu name="Modules">
+      <item name="HttpCore" href="index.html"/>
+      <item name="HttpCore NIO" href="../httpcore-nio/index.html"/>
+    </menu>
   </body>
 </project>
