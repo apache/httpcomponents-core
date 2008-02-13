@@ -194,7 +194,9 @@ public abstract class AbstractHttpClientConnection implements HttpClientConnecti
     }
     
     public boolean isStale() {
-        assertOpen();
+        if (!isOpen()) {
+            return true;
+        }
         try {
             this.inbuffer.isDataAvailable(1);
             return false;
