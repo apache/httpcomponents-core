@@ -38,7 +38,7 @@ HttpCore Downloads
 
     {{{http://hc.apache.org/downloads.cgi}4.0-beta1}} - 
     {{{http://www.apache.org/dist/httpcomponents/httpcore/RELEASE_NOTES.txt}Release Notes}} -
-    {{{http://www.apache.org/dist/java-repository/httpcomponents-httpcore/licenses/LICENSE.txt}License}}
+    {{{http://www.apache.org/licenses/LICENSE-2.0.html}License}}
 
 Dependency management with Maven
 
@@ -67,4 +67,3 @@ Dependency management with Maven
     <scope>compile</scope>
   </dependency>
 -------------------------
-
