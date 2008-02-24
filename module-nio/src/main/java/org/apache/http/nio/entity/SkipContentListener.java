@@ -32,35 +32,41 @@
 package org.apache.http.nio.entity;
 
 import java.io.IOException;
-import java.io.UnsupportedEncodingException;
-import java.nio.channels.Channels;
-import java.nio.channels.ReadableByteChannel;
+import java.nio.ByteBuffer;
 
-import org.apache.http.HttpEntity;
-import org.apache.http.entity.StringEntity;
+import org.apache.http.nio.ContentDecoder;
+import org.apache.http.nio.IOControl;
+import org.apache.http.nio.util.ByteBufferAllocator;
 
 /**
- * An entity whose content is retrieved from a string. In addition to the 
- * standard {@link HttpEntity} interface this class also implements NIO specific 
- * {@link HttpNIOEntity}.
- *
- * @author <a href="mailto:oleg at ural.ru">Oleg Kalnichevski</a>
- *
- * @version $Revision$
- * 
- * @since 4.0
+ * A simple {@link ContentListener} that reads and ignores all content.
  */
-@Deprecated
-public class StringNIOEntity extends StringEntity implements HttpNIOEntity {
+public class SkipContentListener implements ContentListener {
 
-    public StringNIOEntity(
-            final String s, 
-            String charset) throws UnsupportedEncodingException {
-        super(s, charset);
+    private final ByteBuffer buffer;
+
+    public SkipContentListener(final ByteBufferAllocator allocator) {
+        super();
+        if (allocator == null) {
+            throw new IllegalArgumentException("ByteBuffer allocator may not be null");
+        }
+        this.buffer = allocator.allocate(2048);
     }
 
-    public ReadableByteChannel getChannel() throws IOException {
-        return Channels.newChannel(getContent());
+    public void contentAvailable(
+            final ContentDecoder decoder,
+            final IOControl ioctrl) throws IOException {
+        int totalRead = 0;
+        int lastRead;
+        do {
+            buffer.clear();
+            lastRead = decoder.read(buffer);
+            if (lastRead > 0)
+                totalRead += lastRead;
+        } while (lastRead > 0);
+    }
+
+    public void finished() {
     }
 
 }

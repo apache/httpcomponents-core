@@ -32,35 +32,28 @@
 package org.apache.http.nio.entity;
 
 import java.io.IOException;
-import java.io.UnsupportedEncodingException;
-import java.nio.channels.Channels;
-import java.nio.channels.ReadableByteChannel;
 
 import org.apache.http.HttpEntity;
-import org.apache.http.entity.StringEntity;
+import org.apache.http.nio.ContentEncoder;
+import org.apache.http.nio.IOControl;
 
 /**
- * An entity whose content is retrieved from a string. In addition to the 
- * standard {@link HttpEntity} interface this class also implements NIO specific 
- * {@link HttpNIOEntity}.
+ * An {@link NHttpEntity} that writes content to a {@link ContentEncoder}.
  *
- * @author <a href="mailto:oleg at ural.ru">Oleg Kalnichevski</a>
- *
- * @version $Revision$
- * 
- * @since 4.0
+ * @author <a href="mailto:sberlin at gmail.com">Sam Berlin</a>
  */
-@Deprecated
-public class StringNIOEntity extends StringEntity implements HttpNIOEntity {
+public interface ProducingNHttpEntity extends HttpEntity {
 
-    public StringNIOEntity(
-            final String s, 
-            String charset) throws UnsupportedEncodingException {
-        super(s, charset);
-    }
+    /**
+     * Notification that content should be written to the encoder.
+     * When all content is finished, this <b>MUST</b> call {@link ContentEncoder#complete()}.
+     * Failure to do so could result in the entity never being written.
+     */
+    void produceContent(ContentEncoder encoder, IOControl ioctrl) throws IOException;
 
-    public ReadableByteChannel getChannel() throws IOException {
-        return Channels.newChannel(getContent());
-    }
+    /**
+     * Notification that any resources allocated for writing can be released.
+     */
+    void finish();
 
 }

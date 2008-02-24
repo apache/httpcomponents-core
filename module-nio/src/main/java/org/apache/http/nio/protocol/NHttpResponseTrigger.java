@@ -29,38 +29,30 @@
  *
  */
 
-package org.apache.http.nio.entity;
+package org.apache.http.nio.protocol;
 
 import java.io.IOException;
-import java.io.UnsupportedEncodingException;
-import java.nio.channels.Channels;
-import java.nio.channels.ReadableByteChannel;
 
-import org.apache.http.HttpEntity;
-import org.apache.http.entity.StringEntity;
+import org.apache.http.HttpException;
+import org.apache.http.HttpResponse;
 
-/**
- * An entity whose content is retrieved from a string. In addition to the 
- * standard {@link HttpEntity} interface this class also implements NIO specific 
- * {@link HttpNIOEntity}.
- *
- * @author <a href="mailto:oleg at ural.ru">Oleg Kalnichevski</a>
- *
- * @version $Revision$
- * 
- * @since 4.0
- */
-@Deprecated
-public class StringNIOEntity extends StringEntity implements HttpNIOEntity {
+public interface NHttpResponseTrigger {
 
-    public StringNIOEntity(
-            final String s, 
-            String charset) throws UnsupportedEncodingException {
-        super(s, charset);
-    }
+    /**
+     * Submits a response for sending.
+     */
+    void submitResponse(HttpResponse response);
 
-    public ReadableByteChannel getChannel() throws IOException {
-        return Channels.newChannel(getContent());
-    }
+    /**
+     * Submits a protocol exception that was generated while
+     * processing a request.
+     */
+    void handleException(HttpException ex);
+
+    /**
+     * Submits an IOException that was generated while
+     * processing a request.
+     */
+    void handleException(IOException ex);
 
 }

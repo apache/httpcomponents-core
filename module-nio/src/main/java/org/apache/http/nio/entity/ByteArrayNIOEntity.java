@@ -1,7 +1,7 @@
 /*
- * $HeadURL:$
- * $Revision:$
- * $Date:$
+ * $HeadURL$
+ * $Revision$
+ * $Date$
  *
  * ====================================================================
  * Licensed to the Apache Software Foundation (ASF) under one
@@ -45,10 +45,11 @@ import org.apache.http.entity.ByteArrayEntity;
  *
  * @author <a href="mailto:oleg at ural.ru">Oleg Kalnichevski</a>
  *
- * @version $Revision:$
+ * @version $Revision$
  * 
  * @since 4.0
  */
+@Deprecated
 public class ByteArrayNIOEntity extends ByteArrayEntity implements HttpNIOEntity {
 
     public ByteArrayNIOEntity(final byte[] b) {

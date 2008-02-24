@@ -1,7 +1,7 @@
 /*
- * $HeadURL:$
- * $Revision:$
- * $Date:$
+ * $HeadURL$
+ * $Revision$
+ * $Date$
  *
  * ====================================================================
  * Licensed to the Apache Software Foundation (ASF) under one
@@ -46,10 +46,11 @@ import org.apache.http.entity.FileEntity;
  *
  * @author <a href="mailto:oleg at ural.ru">Oleg Kalnichevski</a>
  *
- * @version $Revision:$
+ * @version $Revision$
  * 
  * @since 4.0
  */
+@Deprecated
 public class FileNIOEntity extends FileEntity implements HttpNIOEntity {
 
     public FileNIOEntity(final File file, final String contentType) {

@@ -31,12 +31,10 @@
 
 package org.apache.http.protocol;
 
-import java.util.HashMap;
-import java.util.Iterator;
 import java.util.Map;
 
 /**
- * Maintains a map of HTTP request handlers keyed by a request URI pattern. 
+ * Maintains a map of HTTP request handlers keyed by a request URI pattern.
  * {@link HttpRequestHandler} instances can be looked up by request URI
  * using the {@link HttpRequestHandlerResolver} interface.<br/>
  * Patterns may have three formats:
@@ -52,77 +50,33 @@ import java.util.Map;
  */
 public class HttpRequestHandlerRegistry implements HttpRequestHandlerResolver {
 
-    private final Map handlerMap;
-    
+    private final UriPatternMatcher matcher;
+
     public HttpRequestHandlerRegistry() {
-        super();
-        this.handlerMap = new HashMap();
-    }
-    
-    public void register(final String pattern, final HttpRequestHandler handler) {
-        if (pattern == null) {
-            throw new IllegalArgumentException("URI request pattern may not be null");
-        }
-        if (handler == null) {
-            throw new IllegalArgumentException("HTTP request handelr may not be null");
-        }
-        this.handlerMap.put(pattern, handler);
-    }
-    
-    public void unregister(final String pattern) {
-        if (pattern == null) {
-            return;
-        }
-        this.handlerMap.remove(pattern);
-    }
-    
-    public void setHandlers(final Map map) {
-        if (map == null) {
-            throw new IllegalArgumentException("Map of handlers may not be null");
-        }
-        this.handlerMap.clear();
-        this.handlerMap.putAll(map);
-    }
-    
-    public HttpRequestHandler lookup(String requestURI) {
-        if (requestURI == null) {
-            throw new IllegalArgumentException("Request URI may not be null");
-        }
-        //Strip away the query part part if found
-        int index = requestURI.indexOf("?");
-        if (index != -1) {
-            requestURI = requestURI.substring(0, index);
-        }
-        
-        // direct match?
-        Object handler = this.handlerMap.get(requestURI);
-        if (handler == null) {
-            // pattern match?
-            String bestMatch = null;
-            for (Iterator it = this.handlerMap.keySet().iterator(); it.hasNext();) {
-                String pattern = (String) it.next();
-                if (matchUriRequestPattern(pattern, requestURI)) {
-                    // we have a match. is it any better?
-                    if (bestMatch == null 
-                            || (bestMatch.length() < pattern.length())
-                            || (bestMatch.length() == pattern.length() && pattern.endsWith("*"))) {
-                        handler = this.handlerMap.get(pattern);
-                        bestMatch = pattern;
-                    }
-                }
-            }
-        }
-        return (HttpRequestHandler) handler;
+        matcher = new UriPatternMatcher();
     }
 
-    protected boolean matchUriRequestPattern(final String pattern, final String requestUri) {
-        if (pattern.equals("*")) {
-            return true;
-        } else {
-            return 
-            (pattern.endsWith("*") && requestUri.startsWith(pattern.substring(0, pattern.length() - 1))) ||
-            (pattern.startsWith("*") && requestUri.endsWith(pattern.substring(1, pattern.length())));
-        }
+    public void register(final String pattern, final HttpRequestHandler handler) {
+        matcher.register(pattern, handler);
     }
-    
+
+    public void unregister(final String pattern) {
+        matcher.unregister(pattern);
+    }
+
+    public void setHandlers(final Map map) {
+        matcher.setHandlers(map);
+    }
+
+    public HttpRequestHandler lookup(final String requestURI) {
+        return (HttpRequestHandler) matcher.lookup(requestURI);
+    }
+
+    /**
+     * @deprecated
+     */
+    protected boolean matchUriRequestPattern(final String pattern, final String requestUri) {
+        return matcher.matchUriRequestPattern(pattern, requestUri);
+    }
+
 }

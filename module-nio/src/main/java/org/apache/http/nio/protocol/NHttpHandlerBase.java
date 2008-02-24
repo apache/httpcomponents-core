@@ -34,7 +34,6 @@ package org.apache.http.nio.protocol;
 import java.io.IOException;
 
 import org.apache.http.ConnectionReuseStrategy;
-import org.apache.http.HttpConnection;
 import org.apache.http.HttpRequest;
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
@@ -46,16 +45,16 @@ import org.apache.http.protocol.HttpProcessor;
 public abstract class NHttpHandlerBase {
 
     protected static final String CONN_STATE = "http.nio.conn-state";
-    
+
     protected final HttpProcessor httpProcessor;
     protected final ConnectionReuseStrategy connStrategy;
     protected final ByteBufferAllocator allocator;
     protected final HttpParams params;
-    
+
     protected EventListener eventListener;
-    
+
     public NHttpHandlerBase(
-            final HttpProcessor httpProcessor, 
+            final HttpProcessor httpProcessor,
             final ConnectionReuseStrategy connStrategy,
             final ByteBufferAllocator allocator,
             final HttpParams params) {
@@ -81,12 +80,12 @@ public abstract class NHttpHandlerBase {
     public HttpParams getParams() {
         return this.params;
     }
-    
+
     public void setEventListener(final EventListener eventListener) {
         this.eventListener = eventListener;
     }
 
-    protected void closeConnection(final HttpConnection conn, final Throwable cause) {
+    protected void closeConnection(final NHttpConnection conn, final Throwable cause) {
         try {
             // Try to close it nicely
             conn.close();
@@ -98,14 +97,14 @@ public abstract class NHttpHandlerBase {
             }
         }
     }
-    
-    protected void shutdownConnection(final HttpConnection conn, final Throwable cause) {
+
+    protected void shutdownConnection(final NHttpConnection conn, final Throwable cause) {
         try {
             conn.shutdown();
         } catch (IOException ignore) {
         }
     }
-    
+
     protected void handleTimeout(final NHttpConnection conn) {
         try {
             if (conn.getStatus() == NHttpConnection.ACTIVE) {
@@ -124,19 +123,19 @@ public abstract class NHttpHandlerBase {
         } catch (IOException ignore) {
         }
     }
-    
+
     protected boolean canResponseHaveBody(
             final HttpRequest request, final HttpResponse response) {
 
         if (request != null && "HEAD".equalsIgnoreCase(request.getRequestLine().getMethod())) {
             return false;
         }
-        
-        int status = response.getStatusLine().getStatusCode(); 
-        return status >= HttpStatus.SC_OK 
-            && status != HttpStatus.SC_NO_CONTENT 
+
+        int status = response.getStatusLine().getStatusCode();
+        return status >= HttpStatus.SC_OK
+            && status != HttpStatus.SC_NO_CONTENT
             && status != HttpStatus.SC_NOT_MODIFIED
-            && status != HttpStatus.SC_RESET_CONTENT; 
+            && status != HttpStatus.SC_RESET_CONTENT;
     }
-    
+
 }

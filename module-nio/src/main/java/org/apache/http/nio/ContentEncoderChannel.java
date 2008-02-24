@@ -1,7 +1,7 @@
 /*
- * $HeadURL$
- * $Revision$
- * $Date$
+ * $HeadURL:$
+ * $Revision:$
+ * $Date:$
  *
  * ====================================================================
  * Licensed to the Apache Software Foundation (ASF) under one
@@ -29,38 +29,36 @@
  *
  */
 
-package org.apache.http.nio.entity;
+package org.apache.http.nio;
 
 import java.io.IOException;
-import java.io.UnsupportedEncodingException;
-import java.nio.channels.Channels;
-import java.nio.channels.ReadableByteChannel;
+import java.nio.ByteBuffer;
+import java.nio.channels.WritableByteChannel;
 
-import org.apache.http.HttpEntity;
-import org.apache.http.entity.StringEntity;
+import org.apache.http.nio.ContentEncoder;
 
 /**
- * An entity whose content is retrieved from a string. In addition to the 
- * standard {@link HttpEntity} interface this class also implements NIO specific 
- * {@link HttpNIOEntity}.
+ * A {@link WritableByteChannel} that delegates to a {@link ContentEncoder}.
+ * Attempts to close this channel are ignored, and isOpen always returns true.
  *
- * @author <a href="mailto:oleg at ural.ru">Oleg Kalnichevski</a>
- *
- * @version $Revision$
- * 
- * @since 4.0
+ * @author <a href="mailto:sberlin at gmail.com">Sam Berlin</a>
  */
-@Deprecated
-public class StringNIOEntity extends StringEntity implements HttpNIOEntity {
+public class ContentEncoderChannel implements WritableByteChannel {
 
-    public StringNIOEntity(
-            final String s, 
-            String charset) throws UnsupportedEncodingException {
-        super(s, charset);
+    private final ContentEncoder contentEncoder;
+
+    public ContentEncoderChannel(ContentEncoder contentEncoder) {
+        this.contentEncoder = contentEncoder;
     }
 
-    public ReadableByteChannel getChannel() throws IOException {
-        return Channels.newChannel(getContent());
+    public int write(ByteBuffer src) throws IOException {
+        return contentEncoder.write(src);
+    }
+
+    public void close() {}
+
+    public boolean isOpen() {
+        return true;
     }
 
 }

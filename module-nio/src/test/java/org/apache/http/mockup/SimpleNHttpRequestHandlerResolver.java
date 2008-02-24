@@ -1,7 +1,7 @@
 /*
- * $HeadURL$
- * $Revision$
- * $Date$
+ * $HeadURL:$
+ * $Revision:$
+ * $Date:$
  *
  * ====================================================================
  * Licensed to the Apache Software Foundation (ASF) under one
@@ -28,39 +28,21 @@
  * <http://www.apache.org/>.
  *
  */
+package org.apache.http.mockup;
 
-package org.apache.http.nio.entity;
+import org.apache.http.nio.protocol.NHttpRequestHandler;
+import org.apache.http.nio.protocol.NHttpRequestHandlerResolver;
 
-import java.io.IOException;
-import java.io.UnsupportedEncodingException;
-import java.nio.channels.Channels;
-import java.nio.channels.ReadableByteChannel;
+public class SimpleNHttpRequestHandlerResolver implements NHttpRequestHandlerResolver {
 
-import org.apache.http.HttpEntity;
-import org.apache.http.entity.StringEntity;
+    private final NHttpRequestHandler handler;
 
-/**
- * An entity whose content is retrieved from a string. In addition to the 
- * standard {@link HttpEntity} interface this class also implements NIO specific 
- * {@link HttpNIOEntity}.
- *
- * @author <a href="mailto:oleg at ural.ru">Oleg Kalnichevski</a>
- *
- * @version $Revision$
- * 
- * @since 4.0
- */
-@Deprecated
-public class StringNIOEntity extends StringEntity implements HttpNIOEntity {
-
-    public StringNIOEntity(
-            final String s, 
-            String charset) throws UnsupportedEncodingException {
-        super(s, charset);
+    public SimpleNHttpRequestHandlerResolver(final NHttpRequestHandler handler) {
+        this.handler = handler;
     }
 
-    public ReadableByteChannel getChannel() throws IOException {
-        return Channels.newChannel(getContent());
+    public NHttpRequestHandler lookup(final String requestURI) {
+        return this.handler;
     }
 
 }

@@ -36,25 +36,20 @@ import java.io.IOException;
 import org.apache.http.ConnectionReuseStrategy;
 import org.apache.http.HttpException;
 import org.apache.http.nio.NHttpClientConnection;
+import org.apache.http.nio.NHttpClientHandler;
 import org.apache.http.nio.util.ByteBufferAllocator;
 import org.apache.http.params.HttpParams;
 import org.apache.http.protocol.HttpProcessor;
 
-public abstract class NHttpClientHandlerBase extends AbstractNHttpClientHandler {
+public abstract class AbstractNHttpClientHandler extends NHttpHandlerBase
+                                             implements NHttpClientHandler {
 
-    protected HttpRequestExecutionHandler execHandler;
-
-    public NHttpClientHandlerBase(
+    public AbstractNHttpClientHandler(
             final HttpProcessor httpProcessor,
-            final HttpRequestExecutionHandler execHandler,
             final ConnectionReuseStrategy connStrategy,
             final ByteBufferAllocator allocator,
             final HttpParams params) {
         super(httpProcessor, connStrategy, allocator, params);
-        if (execHandler == null) {
-            throw new IllegalArgumentException("HTTP request execution handler may not be null.");
-        }
-        this.execHandler = execHandler;
     }
 
     public void closed(final NHttpClientConnection conn) {

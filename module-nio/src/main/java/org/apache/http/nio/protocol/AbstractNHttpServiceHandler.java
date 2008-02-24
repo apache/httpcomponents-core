@@ -1,7 +1,7 @@
 /*
- * $HeadURL$
- * $Revision$
- * $Date$
+ * $HeadURL:$
+ * $Revision:$
+ * $Date:$
  *
  * ====================================================================
  * Licensed to the Apache Software Foundation (ASF) under one
@@ -34,47 +34,58 @@ package org.apache.http.nio.protocol;
 import java.io.IOException;
 
 import org.apache.http.ConnectionReuseStrategy;
-import org.apache.http.HttpException;
-import org.apache.http.nio.NHttpClientConnection;
+import org.apache.http.HttpResponseFactory;
+import org.apache.http.nio.NHttpServerConnection;
+import org.apache.http.nio.NHttpServiceHandler;
 import org.apache.http.nio.util.ByteBufferAllocator;
+import org.apache.http.nio.util.HeapByteBufferAllocator;
 import org.apache.http.params.HttpParams;
+import org.apache.http.protocol.HttpExpectationVerifier;
 import org.apache.http.protocol.HttpProcessor;
 
-public abstract class NHttpClientHandlerBase extends AbstractNHttpClientHandler {
+public abstract class AbstractNHttpServiceHandler extends NHttpHandlerBase
+        implements NHttpServiceHandler {
 
-    protected HttpRequestExecutionHandler execHandler;
+    protected final HttpResponseFactory responseFactory;
 
-    public NHttpClientHandlerBase(
+    protected HttpExpectationVerifier expectationVerifier;
+
+    public AbstractNHttpServiceHandler(
             final HttpProcessor httpProcessor,
-            final HttpRequestExecutionHandler execHandler,
+            final HttpResponseFactory responseFactory,
             final ConnectionReuseStrategy connStrategy,
             final ByteBufferAllocator allocator,
             final HttpParams params) {
         super(httpProcessor, connStrategy, allocator, params);
-        if (execHandler == null) {
-            throw new IllegalArgumentException("HTTP request execution handler may not be null.");
+        if (responseFactory == null) {
+            throw new IllegalArgumentException("Response factory may not be null");
         }
-        this.execHandler = execHandler;
+        this.responseFactory = responseFactory;
     }
 
-    public void closed(final NHttpClientConnection conn) {
-        if (this.eventListener != null) {
-            this.eventListener.connectionClosed(conn);
-        }
+    public AbstractNHttpServiceHandler(
+            final HttpProcessor httpProcessor,
+            final HttpResponseFactory responseFactory,
+            final ConnectionReuseStrategy connStrategy,
+            final HttpParams params) {
+        this(httpProcessor, responseFactory, connStrategy,
+                new HeapByteBufferAllocator(), params);
     }
 
-    public void exception(final NHttpClientConnection conn, final HttpException ex) {
-        closeConnection(conn, ex);
-        if (this.eventListener != null) {
-            this.eventListener.fatalProtocolException(ex, conn);
-        }
+    public void setExpectationVerifier(final HttpExpectationVerifier expectationVerifier) {
+        this.expectationVerifier = expectationVerifier;
     }
 
-    public void exception(final NHttpClientConnection conn, final IOException ex) {
+    public void exception(final NHttpServerConnection conn, final IOException ex) {
         shutdownConnection(conn, ex);
+
         if (this.eventListener != null) {
             this.eventListener.fatalIOException(ex, conn);
         }
+    }
+
+    public void timeout(final NHttpServerConnection conn) {
+        handleTimeout(conn);
     }
 
 }

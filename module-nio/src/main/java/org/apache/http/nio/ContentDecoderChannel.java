@@ -1,7 +1,7 @@
 /*
- * $HeadURL$
- * $Revision$
- * $Date$
+ * $HeadURL:$
+ * $Revision:$
+ * $Date:$
  *
  * ====================================================================
  * Licensed to the Apache Software Foundation (ASF) under one
@@ -29,38 +29,34 @@
  *
  */
 
-package org.apache.http.nio.entity;
+package org.apache.http.nio;
 
 import java.io.IOException;
-import java.io.UnsupportedEncodingException;
-import java.nio.channels.Channels;
+import java.nio.ByteBuffer;
 import java.nio.channels.ReadableByteChannel;
 
-import org.apache.http.HttpEntity;
-import org.apache.http.entity.StringEntity;
-
 /**
- * An entity whose content is retrieved from a string. In addition to the 
- * standard {@link HttpEntity} interface this class also implements NIO specific 
- * {@link HttpNIOEntity}.
+ * A {@link ReadableByteChannel} that delegates to a {@link ContentDecoder}.
+ * Attempts to close this channel are ignored, and isOpen always returns true.
  *
- * @author <a href="mailto:oleg at ural.ru">Oleg Kalnichevski</a>
- *
- * @version $Revision$
- * 
- * @since 4.0
+ * @author <a href="mailto:sberlin at gmail.com">Sam Berlin</a>
  */
-@Deprecated
-public class StringNIOEntity extends StringEntity implements HttpNIOEntity {
+public class ContentDecoderChannel implements ReadableByteChannel {
 
-    public StringNIOEntity(
-            final String s, 
-            String charset) throws UnsupportedEncodingException {
-        super(s, charset);
+    private final ContentDecoder decoder;
+
+    public ContentDecoderChannel(ContentDecoder decoder) {
+        this.decoder = decoder;
     }
 
-    public ReadableByteChannel getChannel() throws IOException {
-        return Channels.newChannel(getContent());
+    public int read(ByteBuffer dst) throws IOException {
+        return decoder.read(dst);
+    }
+
+    public void close() {}
+
+    public boolean isOpen() {
+        return true;
     }
 
 }
