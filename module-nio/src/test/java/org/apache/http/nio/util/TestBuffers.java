@@ -135,6 +135,20 @@ public class TestBuffers extends TestCase {
         assertEquals("stuff;more stuff", EncodingUtils.getAsciiString(content));
     }
 
+    public void testBufferInfo() throws Exception {
+        SimpleOutputBuffer buffer = new SimpleOutputBuffer(8, new DirectByteBufferAllocator());
+        BufferInfo bufferinfo = (BufferInfo) buffer; 
+        
+        assertEquals(0, bufferinfo.length());
+        assertEquals(8, bufferinfo.available());
+        buffer.write(new byte[] {'1', '2', '3', '4'});
+        assertEquals(4, bufferinfo.length());
+        assertEquals(4, bufferinfo.available());
+        buffer.write(new byte[] {'1', '2', '3', '4', '5', '6', '7', '8'});
+        assertEquals(12, bufferinfo.length());
+        assertEquals(0, bufferinfo.available());
+    }
+    
     public void testInputBufferNullInput() throws IOException {
         SimpleInputBuffer buffer = new SimpleInputBuffer(4, new DirectByteBufferAllocator());
         assertEquals(0, buffer.read(null));

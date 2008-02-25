@@ -33,7 +33,7 @@ package org.apache.http.nio.util;
 
 import java.nio.ByteBuffer;
 
-public class ExpandableBuffer {
+public class ExpandableBuffer implements BufferInfo {
     
     public final static int INPUT_MODE = 0;
     public final static int OUTPUT_MODE = 1;
@@ -106,6 +106,11 @@ public class ExpandableBuffer {
     
     public int length() {
         setOutputMode();
+        return this.buffer.remaining();
+    }
+    
+    public int available() {
+        setInputMode();
         return this.buffer.remaining();
     }
     
