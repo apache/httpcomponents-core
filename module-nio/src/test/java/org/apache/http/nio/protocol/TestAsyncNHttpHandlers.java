@@ -1271,5 +1271,380 @@ public class TestAsyncNHttpHandlers extends TestCase {
             }
         }
     }
+    
+    /**
+     * This test executes a series of delayed GETs, ensuring the
+     * {@link NHttpResponseTrigger} works correctly.
+     */
+    public void testDelayedHttpGets() throws Exception {
+
+        final int connNo = 3;
+        final int reqNo = 20;
+        final RequestCount requestCount = new RequestCount(connNo * reqNo);
+        final ByteSequence requestData = new ByteSequence();
+        requestData.rnd(reqNo);
+
+        List<ByteSequence> responseData = new ArrayList<ByteSequence>(connNo);
+        for (int i = 0; i < connNo; i++) {
+            responseData.add(new ByteSequence());
+        }
+
+        NHttpRequestHandler requestHandler = new NHttpRequestHandler() {
+
+            public ConsumingNHttpEntity entityRequest(
+                    final HttpEntityEnclosingRequest request,
+                    final HttpContext context) {
+                return null;
+            }
+            
+            public void handle(HttpRequest request, final HttpResponse response,
+                    final NHttpResponseTrigger trigger, HttpContext context)
+                    throws HttpException, IOException {
+                String s = request.getRequestLine().getUri();
+                URI uri;
+                try {
+                    uri = new URI(s);
+                } catch (URISyntaxException ex) {
+                    throw new HttpException("Invalid request URI: " + s);
+                }
+                int index = Integer.parseInt(uri.getQuery());
+                final byte[] bytes = requestData.getBytes(index);
+                new Thread() {
+                    public void run() {
+                        // Wait a bit, to make sure this is delayed.
+                        try { Thread.sleep(10); } catch(InterruptedException ie) {}
+                        // Set the entity after delaying...
+                        NByteArrayEntity entity = new NByteArrayEntity(bytes);
+                        response.setEntity(entity);
+                        trigger.submitResponse(response);
+                    }
+                }.start();
+            }
+
+        };
+
+        NHttpRequestExecutionHandler requestExecutionHandler = new NHttpRequestExecutionHandler() {
+
+            public void initalizeContext(final HttpContext context, final Object attachment) {
+                context.setAttribute("LIST", (ByteSequence) attachment);
+                context.setAttribute("REQ-COUNT", new Integer(0));
+                context.setAttribute("RES-COUNT", new Integer(0));
+            }
+
+            public void finalizeContext(final HttpContext context) {
+            }
+
+            public HttpRequest submitRequest(final HttpContext context) {
+                int i = ((Integer) context.getAttribute("REQ-COUNT")).intValue();
+                BasicHttpRequest get = null;
+                if (i < reqNo) {
+                    get = new BasicHttpRequest("GET", "/?" + i);
+                    context.setAttribute("REQ-COUNT", new Integer(i + 1));
+                }
+                return get;
+            }
+
+            public ConsumingNHttpEntity responseEntity(
+                    final HttpResponse response,
+                    final HttpContext context) throws IOException {
+                return new BufferingNHttpEntity(response.getEntity(),
+                        new HeapByteBufferAllocator());
+            }
+
+            public void handleResponse(final HttpResponse response, final HttpContext context) {
+                NHttpConnection conn = (NHttpConnection) context.getAttribute(
+                        ExecutionContext.HTTP_CONNECTION);
+
+                ByteSequence list = (ByteSequence) context.getAttribute("LIST");
+                int i = ((Integer) context.getAttribute("RES-COUNT")).intValue();
+                i++;
+                context.setAttribute("RES-COUNT", new Integer(i));
+
+                try {
+                    HttpEntity entity = response.getEntity();
+                    byte[] data = EntityUtils.toByteArray(entity);
+                    list.addBytes(data);
+                    requestCount.decrement();
+                } catch (IOException ex) {
+                    requestCount.abort();
+                    return;
+                }
+
+                if (i < reqNo) {
+                    conn.requestInput();
+                }
+            }
+
+        };
+
+        NHttpServiceHandler serviceHandler = createHttpServiceHandler(
+                requestHandler,
+                null);
+
+        NHttpClientHandler clientHandler = createHttpClientHandler(
+                requestExecutionHandler);
+
+        this.server.start(serviceHandler);
+        this.client.start(clientHandler);
+
+        ListenerEndpoint endpoint = this.server.getListenerEndpoint();
+        endpoint.waitFor();
+        InetSocketAddress serverAddress = (InetSocketAddress) endpoint.getAddress();
+
+        for (int i = 0; i < responseData.size(); i++) {
+            this.client.openConnection(
+                    new InetSocketAddress("localhost", serverAddress.getPort()),
+                    responseData.get(i));
+        }
+
+        requestCount.await(10000);
+        assertEquals(0, requestCount.getValue());
+
+        this.client.shutdown();
+        this.server.shutdown();
+
+        for (int c = 0; c < responseData.size(); c++) {
+            ByteSequence receivedPackets = responseData.get(c);
+            ByteSequence expectedPackets = requestData;
+            assertEquals(expectedPackets.size(), receivedPackets.size());
+            for (int p = 0; p < requestData.size(); p++) {
+                byte[] expected = requestData.getBytes(p);
+                byte[] received = receivedPackets.getBytes(p);
+
+                assertEquals(expected.length, received.length);
+                for (int i = 0; i < expected.length; i++) {
+                    assertEquals(expected[i], received[i]);
+                }
+            }
+        }
+
+    }
+    
+    /**
+     * This test ensures that HttpExceptions work correctly when immediate.
+     */
+    public void testHttpException() throws Exception {
+
+        final int connNo = 3;
+        final int reqNo = 20;
+        final RequestCount requestCount = new RequestCount(connNo * reqNo);
+
+        NHttpRequestHandler requestHandler = new SimpleNHttpRequestHandler() {
+
+            public ConsumingNHttpEntity entityRequest(
+                    final HttpEntityEnclosingRequest request,
+                    final HttpContext context) {
+                return null;
+            }
+            
+            public void handle(HttpRequest request, final HttpResponse response,
+                    HttpContext context)
+                    throws HttpException, IOException {
+                try {
+                    URI uri = new URI(request.getRequestLine().getUri());
+                    throw new HttpException("Error: " + uri.getQuery());
+                } catch(URISyntaxException uri) {
+                    throw new IOException();
+                }
+            }
+
+        };
+
+        NHttpRequestExecutionHandler requestExecutionHandler = new NHttpRequestExecutionHandler() {
+
+            public void initalizeContext(final HttpContext context, final Object attachment) {
+                context.setAttribute("REQ-COUNT", new Integer(0));
+                context.setAttribute("RES-COUNT", new Integer(0));
+            }
+
+            public void finalizeContext(final HttpContext context) {
+            }
+
+            public HttpRequest submitRequest(final HttpContext context) {
+                int i = ((Integer) context.getAttribute("REQ-COUNT")).intValue();
+                BasicHttpRequest get = null;
+                if (i < reqNo) {
+                    get = new BasicHttpRequest("GET", "/?" + i);
+                    context.setAttribute("REQ-COUNT", new Integer(i + 1));
+                }
+                return get;
+            }
+
+            public ConsumingNHttpEntity responseEntity(
+                    final HttpResponse response,
+                    final HttpContext context) throws IOException {
+                return new BufferingNHttpEntity(response.getEntity(),
+                        new HeapByteBufferAllocator());
+            }
+
+            public void handleResponse(final HttpResponse response, final HttpContext context) {
+                NHttpConnection conn = (NHttpConnection) context.getAttribute(
+                        ExecutionContext.HTTP_CONNECTION);
+                
+                int i = ((Integer) context.getAttribute("RES-COUNT")).intValue();
+                i++;
+                context.setAttribute("RES-COUNT", new Integer(i));
+
+                try {
+                    HttpEntity entity = response.getEntity();
+                    String data = EntityUtils.toString(entity);
+                    if(!data.equals("Error: " + (i-1)))
+                        throw new IOException();
+                    requestCount.decrement();
+                } catch (IOException ex) {
+                    requestCount.abort();
+                    return;
+                }
+
+                if (i < reqNo) {
+                    conn.requestInput();
+                }
+            }
+
+        };
+
+        NHttpServiceHandler serviceHandler = createHttpServiceHandler(
+                requestHandler,
+                null);
+
+        NHttpClientHandler clientHandler = createHttpClientHandler(
+                requestExecutionHandler);
+
+        this.server.start(serviceHandler);
+        this.client.start(clientHandler);
+
+        ListenerEndpoint endpoint = this.server.getListenerEndpoint();
+        endpoint.waitFor();
+        InetSocketAddress serverAddress = (InetSocketAddress) endpoint.getAddress();
+
+        for (int i = 0; i < connNo; i++) {
+            this.client.openConnection(
+                    new InetSocketAddress("localhost", serverAddress.getPort()),
+                    null);
+        }
+
+        requestCount.await(10000);
+        assertEquals(0, requestCount.getValue());
+
+        this.client.shutdown();
+        this.server.shutdown();
+
+    }
+    
+    /**
+     * This test ensures that HttpExceptions work correctly when they are delayed by a trigger.
+     */
+    public void testDelayedHttpException() throws Exception {
+
+        final int connNo = 3;
+        final int reqNo = 20;
+        final RequestCount requestCount = new RequestCount(connNo * reqNo);
+
+        NHttpRequestHandler requestHandler = new NHttpRequestHandler() {
+
+            public ConsumingNHttpEntity entityRequest(
+                    final HttpEntityEnclosingRequest request,
+                    final HttpContext context) {
+                return null;
+            }
+            public void handle(final HttpRequest request, HttpResponse response,
+                    final NHttpResponseTrigger trigger, HttpContext context)
+                    throws HttpException, IOException {
+                new Thread() {
+                    public void run() {
+                        try { Thread.sleep(10); } catch(InterruptedException ie) {};
+                        try {
+                            URI uri = new URI(request.getRequestLine().getUri());
+                            trigger.handleException(new HttpException("Error: " + uri.getQuery()));
+                        } catch(URISyntaxException uri) {
+                            trigger.handleException(new IOException());
+                        }
+                    }
+                }.start();
+            }
+
+        };
+
+        NHttpRequestExecutionHandler requestExecutionHandler = new NHttpRequestExecutionHandler() {
+
+            public void initalizeContext(final HttpContext context, final Object attachment) {
+                context.setAttribute("REQ-COUNT", new Integer(0));
+                context.setAttribute("RES-COUNT", new Integer(0));
+            }
+
+            public void finalizeContext(final HttpContext context) {
+            }
+
+            public HttpRequest submitRequest(final HttpContext context) {
+                int i = ((Integer) context.getAttribute("REQ-COUNT")).intValue();
+                BasicHttpRequest get = null;
+                if (i < reqNo) {
+                    get = new BasicHttpRequest("GET", "/?" + i);
+                    context.setAttribute("REQ-COUNT", new Integer(i + 1));
+                }
+                return get;
+            }
+
+            public ConsumingNHttpEntity responseEntity(
+                    final HttpResponse response,
+                    final HttpContext context) throws IOException {
+                return new BufferingNHttpEntity(response.getEntity(),
+                        new HeapByteBufferAllocator());
+            }
+
+            public void handleResponse(final HttpResponse response, final HttpContext context) {
+                NHttpConnection conn = (NHttpConnection) context.getAttribute(
+                        ExecutionContext.HTTP_CONNECTION);
+                
+                int i = ((Integer) context.getAttribute("RES-COUNT")).intValue();
+                i++;
+                context.setAttribute("RES-COUNT", new Integer(i));
+
+                try {
+                    HttpEntity entity = response.getEntity();
+                    String data = EntityUtils.toString(entity);
+                    if(!data.equals("Error: " + (i-1)))
+                        throw new IOException();
+                    requestCount.decrement();
+                } catch (IOException ex) {
+                    requestCount.abort();
+                    return;
+                }
+
+                if (i < reqNo) {
+                    conn.requestInput();
+                }
+            }
+
+        };
+
+        NHttpServiceHandler serviceHandler = createHttpServiceHandler(
+                requestHandler,
+                null);
+
+        NHttpClientHandler clientHandler = createHttpClientHandler(
+                requestExecutionHandler);
+
+        this.server.start(serviceHandler);
+        this.client.start(clientHandler);
+
+        ListenerEndpoint endpoint = this.server.getListenerEndpoint();
+        endpoint.waitFor();
+        InetSocketAddress serverAddress = (InetSocketAddress) endpoint.getAddress();
+
+        for (int i = 0; i < connNo; i++) {
+            this.client.openConnection(
+                    new InetSocketAddress("localhost", serverAddress.getPort()),
+                    null);
+        }
+
+        requestCount.await(10000);
+        assertEquals(0, requestCount.getValue());
+
+        this.client.shutdown();
+        this.server.shutdown();
+
+    }
+    
 
 }

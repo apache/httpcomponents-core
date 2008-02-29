@@ -302,7 +302,6 @@ public class AsyncNHttpServiceHandler extends AbstractNHttpServiceHandler
         }
 
         HttpRequest request = connState.getRequest();
-        HttpResponse response = null;
 
         try {
 
@@ -313,7 +312,7 @@ public class AsyncNHttpServiceHandler extends AbstractNHttpServiceHandler
 
             HttpException httpex = connState.getHttpExepction();
             if (httpex != null) {
-                response = this.responseFactory.newHttpResponse(HttpVersion.HTTP_1_0,
+                HttpResponse response = this.responseFactory.newHttpResponse(HttpVersion.HTTP_1_0,
                         HttpStatus.SC_INTERNAL_SERVER_ERROR, context);
                 response.setParams(
                         new DefaultedHttpParams(response.getParams(), this.params));
@@ -321,7 +320,7 @@ public class AsyncNHttpServiceHandler extends AbstractNHttpServiceHandler
                 connState.setResponse(response);
             }
 
-            response = connState.getResponse();
+            HttpResponse response = connState.getResponse();
             if (response != null) {
                 connState.setHandled(true);
                 sendResponse(conn, request, response);
@@ -400,14 +399,13 @@ public class AsyncNHttpServiceHandler extends AbstractNHttpServiceHandler
             ver = HttpVersion.HTTP_1_1;
         }
 
-        HttpResponse response = null;
+        NHttpResponseTrigger trigger = new ResponseTriggerImpl(connState, conn);
         try {
-
             this.httpProcessor.process(request, context);
 
             NHttpRequestHandler handler = connState.getRequestHandler();
             if (handler != null) {
-                response = this.responseFactory.newHttpResponse(
+                HttpResponse response = this.responseFactory.newHttpResponse(
                         ver, HttpStatus.SC_OK, context);
                 response.setParams(
                         new DefaultedHttpParams(response.getParams(), this.params));
@@ -415,26 +413,18 @@ public class AsyncNHttpServiceHandler extends AbstractNHttpServiceHandler
                 handler.handle(
                         request,
                         response,
-                        new ResponseTriggerImpl(connState, conn),
+                        trigger,
                         context);
             } else {
-                response = this.responseFactory.newHttpResponse(ver,
+                HttpResponse response = this.responseFactory.newHttpResponse(ver,
                         HttpStatus.SC_NOT_IMPLEMENTED, context);
                 response.setParams(
                         new DefaultedHttpParams(response.getParams(), this.params));
+                trigger.submitResponse(response);
             }
 
         } catch (HttpException ex) {
-            response = this.responseFactory.newHttpResponse(HttpVersion.HTTP_1_0,
-                    HttpStatus.SC_INTERNAL_SERVER_ERROR, context);
-            response.setParams(
-                    new DefaultedHttpParams(response.getParams(), this.params));
-            handleException(ex, response);
-        }
-        if (response != null) {
-            connState.setResponse(response);
-            sendResponse(conn, request, response);
-            connState.setHandled(true);
+            trigger.handleException(ex);
         }
     }
 
@@ -513,6 +503,7 @@ public class AsyncNHttpServiceHandler extends AbstractNHttpServiceHandler
             finishInput();
             this.request = null;
             finishOutput();
+            this.handled = false;
             this.response = null;
             this.ioex = null;
             this.httpex = null;
