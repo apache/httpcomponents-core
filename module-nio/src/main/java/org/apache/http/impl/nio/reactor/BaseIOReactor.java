@@ -48,12 +48,12 @@ public class BaseIOReactor extends AbstractIOReactor {
 
     private final long timeoutCheckInterval;
     private final Set<IOSession> bufferingSessions;
-    
+
     private long lastTimeoutCheck;
-    
+
     private IOReactorExceptionHandler exceptionHandler = null;
     private IOEventDispatch eventDispatch = null;
-    
+
     public BaseIOReactor(long selectTimeout) throws IOReactorException {
         super(selectTimeout);
         this.bufferingSessions = new HashSet<IOSession>();
@@ -109,14 +109,14 @@ public class BaseIOReactor extends AbstractIOReactor {
         SessionHandle handle = (SessionHandle) key.attachment();
         IOSession session = handle.getSession();
         handle.resetLastWrite();
-        
+
         try {
             this.eventDispatch.outputReady(session);
         } catch (RuntimeException ex) {
             handleRuntimeException(ex);
         }
     }
-    
+
     @Override
     protected void validate(final Set<SelectionKey> keys) {
         long currentTime = System.currentTimeMillis();
@@ -163,7 +163,7 @@ public class BaseIOReactor extends AbstractIOReactor {
             IOSession session = handle.getSession();
             int timeout = session.getSocketTimeout();
             if (timeout > 0) {
-                if (handle.getLastReadTime() + timeout < now) {
+                if (handle.getLastAccessTime() + timeout < now) {
                     try {
                         this.eventDispatch.timeout(session);
                     } catch (RuntimeException ex) {
@@ -176,7 +176,7 @@ public class BaseIOReactor extends AbstractIOReactor {
 
     @Override
     protected void keyCreated(final SelectionKey key, final IOSession session) {
-        SessionHandle handle = new SessionHandle(session); 
+        SessionHandle handle = new SessionHandle(session);
         key.attach(handle);
         try {
             this.eventDispatch.connected(session);
@@ -184,7 +184,7 @@ public class BaseIOReactor extends AbstractIOReactor {
             handleRuntimeException(ex);
         }
     }
-    
+
     @Override
     protected IOSession keyCancelled(final SelectionKey key) {
         Object attachment = key.attachment();
@@ -204,5 +204,5 @@ public class BaseIOReactor extends AbstractIOReactor {
             handleRuntimeException(ex);
         }
     }
-    
+
 }

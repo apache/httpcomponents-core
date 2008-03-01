@@ -40,7 +40,8 @@ public class SessionHandle {
 
     private long lastReadTime;
     private long lastWriteTime;
-    
+    private long lastAccessTime;
+
     public SessionHandle(final IOSession session) {
         super();
         if (session == null) {
@@ -51,6 +52,7 @@ public class SessionHandle {
         this.startedTime = now;
         this.lastReadTime = now;
         this.lastWriteTime = now;
+        this.lastAccessTime = now;
     }
 
     public IOSession getSession() {
@@ -68,13 +70,21 @@ public class SessionHandle {
     public long getLastWriteTime() {
         return this.lastWriteTime;
     }
-    
+
+    public long getLastAccessTime() {
+        return this.lastAccessTime;
+    }
+
     public void resetLastRead() {
-        this.lastReadTime = System.currentTimeMillis();
+        long now = System.currentTimeMillis();
+        this.lastReadTime = now;
+        this.lastAccessTime = now;
     }
-    
+
     public void resetLastWrite() {
-        this.lastWriteTime = System.currentTimeMillis();
+        long now = System.currentTimeMillis();
+        this.lastWriteTime = now;
+        this.lastAccessTime = now;
     }
-    
+
 }

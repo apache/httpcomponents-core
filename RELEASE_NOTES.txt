@@ -1,7 +1,12 @@
 Changes since 4.0 Beta 1
 -------------------
 
-* [HTTPCORE-147] Improved asynchronous server and client HTTP protocol 
+* [HTTPCORE-149] I/O reactors now count period of inactivity since the
+  time of the last read or write operation. Previously only read 
+  operations resulted in timeout counter reset.
+  Contributed by Oleg Kalnichevski <olegk at apache.org> 
+
+* [HTTPCORE-148] Improved asynchronous server and client HTTP protocol 
   handler implementations.
   Contributed by Sam Berlin <sberlin at gmail.com> 
 
