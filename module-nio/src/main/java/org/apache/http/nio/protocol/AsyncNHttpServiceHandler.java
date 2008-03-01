@@ -358,6 +358,7 @@ public class AsyncNHttpServiceHandler extends AbstractNHttpServiceHandler
                     connState.reset();
                     conn.requestInput();
                 }
+                responseComplete(response, context);
             }
 
         } catch (IOException ex) {
@@ -451,7 +452,11 @@ public class AsyncNHttpServiceHandler extends AbstractNHttpServiceHandler
         if (entity != null) {
             ProducingNHttpEntity producingEntity = (ProducingNHttpEntity) entity;
             connState.setProducingEntity(producingEntity);
-        } else {
+        }
+
+        conn.submitResponse(response);
+
+        if (entity == null) {
             if (!this.connStrategy.keepAlive(response, context)) {
                 conn.close();
             } else {
@@ -459,9 +464,17 @@ public class AsyncNHttpServiceHandler extends AbstractNHttpServiceHandler
                 connState.reset();
                 conn.requestInput();
             }
+            responseComplete(response, context);
         }
+    }
 
-        conn.submitResponse(response);
+    /**
+     * Signals that this response has been fully sent. This will be called after
+     * submitting the response to a connection, if there is no entity in the
+     * response. If there is an entity, it will be called after the entity has
+     * completed.
+     */
+    protected void responseComplete(HttpResponse response, HttpContext context) {
     }
 
     private NHttpRequestHandler getRequestHandler(HttpRequest request) {

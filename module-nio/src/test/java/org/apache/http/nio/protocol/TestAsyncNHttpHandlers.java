@@ -1277,7 +1277,6 @@ public class TestAsyncNHttpHandlers extends TestCase {
      * {@link NHttpResponseTrigger} works correctly.
      */
     public void testDelayedHttpGets() throws Exception {
-
         final int connNo = 3;
         final int reqNo = 20;
         final RequestCount requestCount = new RequestCount(connNo * reqNo);
@@ -1647,4 +1646,87 @@ public class TestAsyncNHttpHandlers extends TestCase {
     }
     
 
+    /**
+     * This test makes sure that if no service handler is installed, things still work.
+     */
+    public void testNoServiceHandler() throws Exception {
+
+        final int connNo = 3;
+        final int reqNo = 1;
+        final RequestCount requestCount = new RequestCount(connNo * reqNo);
+
+        NHttpRequestExecutionHandler requestExecutionHandler = new NHttpRequestExecutionHandler() {
+
+            public void initalizeContext(final HttpContext context, final Object attachment) {
+                context.setAttribute("REQ-COUNT", new Integer(0));
+                context.setAttribute("RES-COUNT", new Integer(0));
+            }
+
+            public void finalizeContext(final HttpContext context) {
+            }
+
+            public HttpRequest submitRequest(final HttpContext context) {
+                int i = ((Integer) context.getAttribute("REQ-COUNT")).intValue();
+                BasicHttpRequest get = null;
+                if (i < reqNo) {
+                    get = new BasicHttpRequest("GET", "/?" + i);
+                    context.setAttribute("REQ-COUNT", new Integer(i + 1));
+                }
+                return get;
+            }
+
+            public ConsumingNHttpEntity responseEntity(
+                    final HttpResponse response,
+                    final HttpContext context) throws IOException {
+                return new BufferingNHttpEntity(response.getEntity(),
+                        new HeapByteBufferAllocator());
+            }
+
+            public void handleResponse(final HttpResponse response, final HttpContext context) {
+                NHttpConnection conn = (NHttpConnection) context.getAttribute(
+                        ExecutionContext.HTTP_CONNECTION);
+                
+                int i = ((Integer) context.getAttribute("RES-COUNT")).intValue();
+                i++;
+                context.setAttribute("RES-COUNT", new Integer(i));
+
+                if(response.getStatusLine().getStatusCode() == 501)
+                    requestCount.decrement();
+                else
+                    requestCount.abort();
+
+                if (i < reqNo) {
+                    conn.requestInput();
+                }
+            }
+
+        };
+
+        NHttpServiceHandler serviceHandler = createHttpServiceHandler(
+                null,
+                null);
+
+        NHttpClientHandler clientHandler = createHttpClientHandler(
+                requestExecutionHandler);
+
+        this.server.start(serviceHandler);
+        this.client.start(clientHandler);
+
+        ListenerEndpoint endpoint = this.server.getListenerEndpoint();
+        endpoint.waitFor();
+        InetSocketAddress serverAddress = (InetSocketAddress) endpoint.getAddress();
+
+        for (int i = 0; i < connNo; i++) {
+            this.client.openConnection(
+                    new InetSocketAddress("localhost", serverAddress.getPort()),
+                    null);
+        }
+
+        requestCount.await(10000);
+        assertEquals(0, requestCount.getValue());
+
+        this.client.shutdown();
+        this.server.shutdown();
+
+    }
 }
