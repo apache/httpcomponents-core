@@ -165,13 +165,17 @@ public class NHttpFileServer {
             final File file = new File(this.docRoot, URLDecoder.decode(target, "UTF-8"));
             if (!file.exists()) {
                 response.setStatusCode(HttpStatus.SC_NOT_FOUND);
-                NStringEntity entity = new NStringEntity("<html><body><h1>File" +
-                        file.getPath() + " not found</h1></body></html>", "UTF-8");
+                NStringEntity entity = new NStringEntity(
+                        "<html><body><h1>File" + file.getPath() +
+                        " not found</h1></body></html>",
+                        "UTF-8");
                 entity.setContentType("text/html; charset=UTF-8");
                 response.setEntity(entity);
             } else if (!file.canRead() || file.isDirectory()) {
                 response.setStatusCode(HttpStatus.SC_FORBIDDEN);
-                NStringEntity entity = new NStringEntity("<html><body><h1>Access denied</h1></body></html>", "UTF-8");
+                NStringEntity entity = new NStringEntity(
+                        "<html><body><h1>Access denied</h1></body></html>",
+                        "UTF-8");
                 entity.setContentType("text/html; charset=UTF-8");
                 response.setEntity(entity);
             } else {

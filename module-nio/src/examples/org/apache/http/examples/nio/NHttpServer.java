@@ -33,8 +33,6 @@ package org.apache.http.examples.nio;
 import java.io.File;
 import java.io.IOException;
 import java.io.InterruptedIOException;
-import java.io.OutputStream;
-import java.io.OutputStreamWriter;
 import java.net.InetSocketAddress;
 import java.net.URLDecoder;
 
@@ -45,22 +43,21 @@ import org.apache.http.HttpRequest;
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
 import org.apache.http.MethodNotSupportedException;
-import org.apache.http.entity.ContentProducer;
-import org.apache.http.entity.EntityTemplate;
-import org.apache.http.entity.FileEntity;
 import org.apache.http.impl.DefaultConnectionReuseStrategy;
 import org.apache.http.impl.DefaultHttpResponseFactory;
-import org.apache.http.params.BasicHttpParams;
 import org.apache.http.impl.nio.DefaultServerIOEventDispatch;
 import org.apache.http.impl.nio.reactor.DefaultListeningIOReactor;
 import org.apache.http.nio.NHttpConnection;
-import org.apache.http.nio.protocol.EventListener;
+import org.apache.http.nio.entity.NFileEntity;
+import org.apache.http.nio.entity.NStringEntity;
 import org.apache.http.nio.protocol.BufferingHttpServiceHandler;
+import org.apache.http.nio.protocol.EventListener;
 import org.apache.http.nio.reactor.IOEventDispatch;
 import org.apache.http.nio.reactor.ListeningIOReactor;
+import org.apache.http.params.BasicHttpParams;
 import org.apache.http.params.CoreConnectionPNames;
-import org.apache.http.params.HttpParams;
 import org.apache.http.params.CoreProtocolPNames;
+import org.apache.http.params.HttpParams;
 import org.apache.http.protocol.BasicHttpProcessor;
 import org.apache.http.protocol.HttpContext;
 import org.apache.http.protocol.HttpRequestHandler;
@@ -91,22 +88,22 @@ public class NHttpServer {
         httpproc.addInterceptor(new ResponseServer());
         httpproc.addInterceptor(new ResponseContent());
         httpproc.addInterceptor(new ResponseConnControl());
-        
+
         BufferingHttpServiceHandler handler = new BufferingHttpServiceHandler(
                 httpproc,
                 new DefaultHttpResponseFactory(),
                 new DefaultConnectionReuseStrategy(),
                 params);
-        
+
         // Set up request handlers
         HttpRequestHandlerRegistry reqistry = new HttpRequestHandlerRegistry();
         reqistry.register("*", new HttpFileHandler(args[0]));
-        
+
         handler.setHandlerResolver(reqistry);
-        
+
         // Provide an event logger
         handler.setEventListener(new EventLogger());
-        
+
         IOEventDispatch ioEventDispatch = new DefaultServerIOEventDispatch(handler, params);
         ListeningIOReactor ioReactor = new DefaultListeningIOReactor(2, params);
         try {
@@ -121,22 +118,22 @@ public class NHttpServer {
     }
 
     static class HttpFileHandler implements HttpRequestHandler  {
-        
+
         private final String docRoot;
-        
+
         public HttpFileHandler(final String docRoot) {
             super();
             this.docRoot = docRoot;
         }
-        
+
         public void handle(
-                final HttpRequest request, 
+                final HttpRequest request,
                 final HttpResponse response,
                 final HttpContext context) throws HttpException, IOException {
 
             String method = request.getRequestLine().getMethod().toUpperCase();
             if (!method.equals("GET") && !method.equals("HEAD") && !method.equals("POST")) {
-                throw new MethodNotSupportedException(method + " method not supported"); 
+                throw new MethodNotSupportedException(method + " method not supported");
             }
 
             if (request instanceof HttpEntityEnclosingRequest) {
@@ -144,59 +141,41 @@ public class NHttpServer {
                 byte[] entityContent = EntityUtils.toByteArray(entity);
                 System.out.println("Incoming entity content (bytes): " + entityContent.length);
             }
-            
+
             String target = request.getRequestLine().getUri();
             final File file = new File(this.docRoot, URLDecoder.decode(target, "UTF-8"));
             if (!file.exists()) {
 
                 response.setStatusCode(HttpStatus.SC_NOT_FOUND);
-                EntityTemplate body = new EntityTemplate(new ContentProducer() {
-                    
-                    public void writeTo(final OutputStream outstream) throws IOException {
-                        OutputStreamWriter writer = new OutputStreamWriter(outstream, "UTF-8"); 
-                        writer.write("<html><body><h1>");
-                        writer.write("File ");
-                        writer.write(file.getPath());
-                        writer.write(" not found");
-                        writer.write("</h1></body></html>");
-                        writer.flush();
-                    }
-                    
-                });
-                body.setContentType("text/html; charset=UTF-8");
-                response.setEntity(body);
+                NStringEntity entity = new NStringEntity(
+                        "<html><body><h1>File" + file.getPath() +
+                        " not found</h1></body></html>", "UTF-8");
+                entity.setContentType("text/html; charset=UTF-8");
+                response.setEntity(entity);
                 System.out.println("File " + file.getPath() + " not found");
-                
+
             } else if (!file.canRead() || file.isDirectory()) {
-                
+
                 response.setStatusCode(HttpStatus.SC_FORBIDDEN);
-                EntityTemplate body = new EntityTemplate(new ContentProducer() {
-                    
-                    public void writeTo(final OutputStream outstream) throws IOException {
-                        OutputStreamWriter writer = new OutputStreamWriter(outstream, "UTF-8"); 
-                        writer.write("<html><body><h1>");
-                        writer.write("Access denied");
-                        writer.write("</h1></body></html>");
-                        writer.flush();
-                    }
-                    
-                });
-                body.setContentType("text/html; charset=UTF-8");
-                response.setEntity(body);
+                NStringEntity entity = new NStringEntity(
+                        "<html><body><h1>Access denied</h1></body></html>",
+                        "UTF-8");
+                entity.setContentType("text/html; charset=UTF-8");
+                response.setEntity(entity);
                 System.out.println("Cannot read file " + file.getPath());
-                
+
             } else {
-                
+
                 response.setStatusCode(HttpStatus.SC_OK);
-                FileEntity body = new FileEntity(file, "text/html");
+                NFileEntity body = new NFileEntity(file, "text/html");
                 response.setEntity(body);
                 System.out.println("Serving file " + file.getPath());
-                
+
             }
         }
-        
+
     }
-    
+
     static class EventLogger implements EventListener {
 
         public void connectionOpen(final NHttpConnection conn) {
@@ -218,7 +197,7 @@ public class NHttpServer {
         public void fatalProtocolException(final HttpException ex, final NHttpConnection conn) {
             System.err.println("HTTP error: " + ex.getMessage());
         }
-        
+
     }
-        
+
 }

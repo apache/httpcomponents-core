@@ -69,6 +69,10 @@ public class NFileEntity extends AbstractHttpEntity implements ProducingNHttpEnt
         setContentType(contentType);
     }
 
+    public NFileEntity(final File file, final String contentType) {
+        this(file, contentType, true);
+    }
+
     public void finish() {
         try {
             if(fileChannel != null)

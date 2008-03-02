@@ -49,8 +49,6 @@ import org.apache.http.HttpRequest;
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
 import org.apache.http.HttpVersion;
-import org.apache.http.entity.ByteArrayEntity;
-import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.DefaultConnectionReuseStrategy;
 import org.apache.http.impl.DefaultHttpResponseFactory;
 import org.apache.http.message.BasicHttpEntityEnclosingRequest;
@@ -65,6 +63,8 @@ import org.apache.http.mockup.TestHttpServer;
 import org.apache.http.nio.NHttpClientHandler;
 import org.apache.http.nio.NHttpConnection;
 import org.apache.http.nio.NHttpServiceHandler;
+import org.apache.http.nio.entity.NByteArrayEntity;
+import org.apache.http.nio.entity.NStringEntity;
 import org.apache.http.nio.reactor.ListenerEndpoint;
 import org.apache.http.params.BasicHttpParams;
 import org.apache.http.params.CoreConnectionPNames;
@@ -91,7 +91,7 @@ import org.apache.http.util.EntityUtils;
  * HttpCore NIO integration tests.
  *
  * @author <a href="mailto:oleg at ural.ru">Oleg Kalnichevski</a>
- * 
+ *
  * @version $Id$
  */
 public class TestBufferingNHttpHandlers extends TestCase {
@@ -115,7 +115,7 @@ public class TestBufferingNHttpHandlers extends TestCase {
 
     private TestHttpServer server;
     private TestHttpClient client;
-    
+
     @Override
     protected void setUp() throws Exception {
         HttpParams serverParams = new BasicHttpParams();
@@ -125,9 +125,9 @@ public class TestBufferingNHttpHandlers extends TestCase {
             .setBooleanParameter(CoreConnectionPNames.STALE_CONNECTION_CHECK, false)
             .setBooleanParameter(CoreConnectionPNames.TCP_NODELAY, true)
             .setParameter(CoreProtocolPNames.ORIGIN_SERVER, "TEST-SERVER/1.1");
-        
+
         this.server = new TestHttpServer(serverParams);
-        
+
         HttpParams clientParams = new BasicHttpParams();
         clientParams
             .setIntParameter(CoreConnectionPNames.SO_TIMEOUT, 5000)
@@ -136,7 +136,7 @@ public class TestBufferingNHttpHandlers extends TestCase {
             .setBooleanParameter(CoreConnectionPNames.STALE_CONNECTION_CHECK, false)
             .setBooleanParameter(CoreConnectionPNames.TCP_NODELAY, true)
             .setParameter(CoreProtocolPNames.USER_AGENT, "TEST-CLIENT/1.1");
-        
+
         this.client = new TestHttpClient(clientParams);
     }
 
@@ -145,7 +145,7 @@ public class TestBufferingNHttpHandlers extends TestCase {
         this.server.shutdown();
         this.client.shutdown();
     }
-    
+
     private NHttpServiceHandler createHttpServiceHandler(
             final HttpRequestHandler requestHandler,
             final HttpExpectationVerifier expectationVerifier) {
@@ -165,10 +165,10 @@ public class TestBufferingNHttpHandlers extends TestCase {
                 new SimpleHttpRequestHandlerResolver(requestHandler));
         serviceHandler.setExpectationVerifier(expectationVerifier);
         serviceHandler.setEventListener(new SimpleEventListener());
-        
+
         return serviceHandler;
     }
-    
+
     private NHttpClientHandler createHttpClientHandler(
             final HttpRequestExecutionHandler requestExecutionHandler) {
         BasicHttpProcessor httpproc = new BasicHttpProcessor();
@@ -187,31 +187,31 @@ public class TestBufferingNHttpHandlers extends TestCase {
         clientHandler.setEventListener(new SimpleEventListener());
         return clientHandler;
     }
-    
+
     /**
-     * This test case executes a series of simple (non-pipelined) GET requests 
-     * over multiple connections. 
+     * This test case executes a series of simple (non-pipelined) GET requests
+     * over multiple connections.
      */
     public void testSimpleHttpGets() throws Exception {
-        
+
         final int connNo = 3;
         final int reqNo = 20;
-        final RequestCount requestCount = new RequestCount(connNo * reqNo); 
+        final RequestCount requestCount = new RequestCount(connNo * reqNo);
         final ByteSequence requestData = new ByteSequence();
         requestData.rnd(reqNo);
-        
+
         List<ByteSequence> responseData = new ArrayList<ByteSequence>(connNo);
         for (int i = 0; i < connNo; i++) {
             responseData.add(new ByteSequence());
         }
-        
+
         HttpRequestHandler requestHandler = new HttpRequestHandler() {
 
             public void handle(
-                    final HttpRequest request, 
-                    final HttpResponse response, 
+                    final HttpRequest request,
+                    final HttpResponse response,
                     final HttpContext context) throws HttpException, IOException {
-                
+
                 String s = request.getRequestLine().getUri();
                 URI uri;
                 try {
@@ -221,12 +221,12 @@ public class TestBufferingNHttpHandlers extends TestCase {
                 }
                 int index = Integer.parseInt(uri.getQuery());
                 byte[] bytes = requestData.getBytes(index);
-                ByteArrayEntity entity = new ByteArrayEntity(bytes); 
+                NByteArrayEntity entity = new NByteArrayEntity(bytes);
                 response.setEntity(entity);
             }
-            
+
         };
-        
+
         HttpRequestExecutionHandler requestExecutionHandler = new HttpRequestExecutionHandler() {
 
             public void initalizeContext(final HttpContext context, final Object attachment) {
@@ -247,11 +247,11 @@ public class TestBufferingNHttpHandlers extends TestCase {
                 }
                 return get;
             }
-            
+
             public void handleResponse(final HttpResponse response, final HttpContext context) {
                 NHttpConnection conn = (NHttpConnection) context.getAttribute(
                         ExecutionContext.HTTP_CONNECTION);
-                
+
                 ByteSequence list = (ByteSequence) context.getAttribute("LIST");
                 int i = ((Integer) context.getAttribute("RES-COUNT")).intValue();
                 i++;
@@ -271,11 +271,11 @@ public class TestBufferingNHttpHandlers extends TestCase {
                     conn.requestInput();
                 }
             }
-            
+
         };
 
         NHttpServiceHandler serviceHandler = createHttpServiceHandler(
-                requestHandler, 
+                requestHandler,
                 null);
 
         NHttpClientHandler clientHandler = createHttpClientHandler(
@@ -283,20 +283,20 @@ public class TestBufferingNHttpHandlers extends TestCase {
 
         this.server.start(serviceHandler);
         this.client.start(clientHandler);
-        
+
         ListenerEndpoint endpoint = this.server.getListenerEndpoint();
         endpoint.waitFor();
         InetSocketAddress serverAddress = (InetSocketAddress) endpoint.getAddress();
-        
+
         for (int i = 0; i < responseData.size(); i++) {
             this.client.openConnection(
-                    new InetSocketAddress("localhost", serverAddress.getPort()), 
+                    new InetSocketAddress("localhost", serverAddress.getPort()),
                     responseData.get(i));
         }
-     
+
         requestCount.await(10000);
         assertEquals(0, requestCount.getValue());
-        
+
         this.client.shutdown();
         this.server.shutdown();
 
@@ -307,55 +307,55 @@ public class TestBufferingNHttpHandlers extends TestCase {
             for (int p = 0; p < requestData.size(); p++) {
                 byte[] expected = requestData.getBytes(p);
                 byte[] received = receivedPackets.getBytes(p);
-                
+
                 assertEquals(expected.length, received.length);
                 for (int i = 0; i < expected.length; i++) {
                     assertEquals(expected[i], received[i]);
                 }
             }
         }
-        
+
     }
 
     /**
-     * This test case executes a series of simple (non-pipelined) POST requests 
-     * with content length delimited content over multiple connections. 
+     * This test case executes a series of simple (non-pipelined) POST requests
+     * with content length delimited content over multiple connections.
      */
     public void testSimpleHttpPostsWithContentLength() throws Exception {
-        
+
         final int connNo = 3;
         final int reqNo = 20;
-        final RequestCount requestCount = new RequestCount(connNo * reqNo); 
+        final RequestCount requestCount = new RequestCount(connNo * reqNo);
         final ByteSequence requestData = new ByteSequence();
         requestData.rnd(reqNo);
-        
+
         List<ByteSequence> responseData = new ArrayList<ByteSequence>(connNo);
         for (int i = 0; i < connNo; i++) {
             responseData.add(new ByteSequence());
         }
-        
+
         HttpRequestHandler requestHandler = new HttpRequestHandler() {
 
             public void handle(
-                    final HttpRequest request, 
-                    final HttpResponse response, 
+                    final HttpRequest request,
+                    final HttpResponse response,
                     final HttpContext context) throws HttpException, IOException {
-                
+
                 if (request instanceof HttpEntityEnclosingRequest) {
                     HttpEntity incoming = ((HttpEntityEnclosingRequest) request).getEntity();
                     byte[] data = EntityUtils.toByteArray(incoming);
-                    
-                    ByteArrayEntity outgoing = new ByteArrayEntity(data);
+
+                    NByteArrayEntity outgoing = new NByteArrayEntity(data);
                     outgoing.setChunked(false);
                     response.setEntity(outgoing);
                 } else {
-                    StringEntity outgoing = new StringEntity("No content"); 
+                    NStringEntity outgoing = new NStringEntity("No content");
                     response.setEntity(outgoing);
                 }
             }
-            
+
         };
-        
+
         HttpRequestExecutionHandler requestExecutionHandler = new HttpRequestExecutionHandler() {
 
             public void initalizeContext(final HttpContext context, final Object attachment) {
@@ -374,18 +374,18 @@ public class TestBufferingNHttpHandlers extends TestCase {
                     post = new BasicHttpEntityEnclosingRequest("POST", "/?" + i);
 
                     byte[] data = requestData.getBytes(i);
-                    ByteArrayEntity outgoing = new ByteArrayEntity(data);
+                    NByteArrayEntity outgoing = new NByteArrayEntity(data);
                     post.setEntity(outgoing);
-                    
+
                     context.setAttribute("REQ-COUNT", new Integer(i + 1));
                 }
                 return post;
             }
-            
+
             public void handleResponse(final HttpResponse response, final HttpContext context) {
                 NHttpConnection conn = (NHttpConnection) context.getAttribute(
                         ExecutionContext.HTTP_CONNECTION);
-                
+
                 ByteSequence list = (ByteSequence) context.getAttribute("LIST");
                 int i = ((Integer) context.getAttribute("RES-COUNT")).intValue();
                 i++;
@@ -405,11 +405,11 @@ public class TestBufferingNHttpHandlers extends TestCase {
                     conn.requestInput();
                 }
             }
-            
+
         };
-        
+
         NHttpServiceHandler serviceHandler = createHttpServiceHandler(
-                requestHandler, 
+                requestHandler,
                 null);
 
         NHttpClientHandler clientHandler = createHttpClientHandler(
@@ -417,20 +417,20 @@ public class TestBufferingNHttpHandlers extends TestCase {
 
         this.server.start(serviceHandler);
         this.client.start(clientHandler);
-        
+
         ListenerEndpoint endpoint = this.server.getListenerEndpoint();
         endpoint.waitFor();
         InetSocketAddress serverAddress = (InetSocketAddress) endpoint.getAddress();
-        
+
         for (int i = 0; i < responseData.size(); i++) {
             this.client.openConnection(
-                    new InetSocketAddress("localhost", serverAddress.getPort()), 
+                    new InetSocketAddress("localhost", serverAddress.getPort()),
                     responseData.get(i));
         }
-     
+
         requestCount.await(10000);
         assertEquals(0, requestCount.getValue());
-        
+
         this.client.shutdown();
         this.server.shutdown();
 
@@ -441,54 +441,54 @@ public class TestBufferingNHttpHandlers extends TestCase {
             for (int p = 0; p < requestData.size(); p++) {
                 byte[] expected = requestData.getBytes(p);
                 byte[] received = receivedPackets.getBytes(p);
-                
+
                 assertEquals(expected.length, received.length);
                 for (int i = 0; i < expected.length; i++) {
                     assertEquals(expected[i], received[i]);
                 }
             }
         }
-        
+
     }
 
     /**
-     * This test case executes a series of simple (non-pipelined) POST requests 
-     * with chunk coded content content over multiple connections. 
+     * This test case executes a series of simple (non-pipelined) POST requests
+     * with chunk coded content content over multiple connections.
      */
     public void testSimpleHttpPostsChunked() throws Exception {
-        
+
         final int connNo = 3;
         final int reqNo = 20;
-        final RequestCount requestCount = new RequestCount(connNo * reqNo); 
+        final RequestCount requestCount = new RequestCount(connNo * reqNo);
         final ByteSequence requestData = new ByteSequence();
         requestData.rnd(reqNo);
-        
+
         List<ByteSequence> responseData = new ArrayList<ByteSequence>(connNo);
         for (int i = 0; i < connNo; i++) {
             responseData.add(new ByteSequence());
         }
-        
+
         HttpRequestHandler requestHandler = new HttpRequestHandler() {
 
             public void handle(
-                    final HttpRequest request, 
-                    final HttpResponse response, 
+                    final HttpRequest request,
+                    final HttpResponse response,
                     final HttpContext context) throws HttpException, IOException {
-                
+
                 if (request instanceof HttpEntityEnclosingRequest) {
                     HttpEntity incoming = ((HttpEntityEnclosingRequest) request).getEntity();
                     byte[] data = EntityUtils.toByteArray(incoming);
-                    ByteArrayEntity outgoing = new ByteArrayEntity(data);
+                    NByteArrayEntity outgoing = new NByteArrayEntity(data);
                     outgoing.setChunked(true);
                     response.setEntity(outgoing);
                 } else {
-                    StringEntity outgoing = new StringEntity("No content"); 
+                    NStringEntity outgoing = new NStringEntity("No content");
                     response.setEntity(outgoing);
                 }
             }
-            
+
         };
-        
+
         HttpRequestExecutionHandler requestExecutionHandler = new HttpRequestExecutionHandler() {
 
             public void initalizeContext(final HttpContext context, final Object attachment) {
@@ -506,24 +506,24 @@ public class TestBufferingNHttpHandlers extends TestCase {
                 if (i < reqNo) {
                     post = new BasicHttpEntityEnclosingRequest("POST", "/?" + i);
                     byte[] data = requestData.getBytes(i);
-                    ByteArrayEntity outgoing = new ByteArrayEntity(data);
+                    NByteArrayEntity outgoing = new NByteArrayEntity(data);
                     outgoing.setChunked(true);
                     post.setEntity(outgoing);
-                    
+
                     context.setAttribute("REQ-COUNT", new Integer(i + 1));
                 }
                 return post;
             }
-            
+
             public void handleResponse(final HttpResponse response, final HttpContext context) {
                 NHttpConnection conn = (NHttpConnection) context.getAttribute(
                         ExecutionContext.HTTP_CONNECTION);
-                
+
                 ByteSequence list = (ByteSequence) context.getAttribute("LIST");
                 int i = ((Integer) context.getAttribute("RES-COUNT")).intValue();
                 i++;
                 context.setAttribute("RES-COUNT", new Integer(i));
-                
+
                 try {
                     HttpEntity entity = response.getEntity();
                     byte[] data = EntityUtils.toByteArray(entity);
@@ -538,11 +538,11 @@ public class TestBufferingNHttpHandlers extends TestCase {
                     conn.requestInput();
                 }
             }
-            
+
         };
-        
+
         NHttpServiceHandler serviceHandler = createHttpServiceHandler(
-                requestHandler, 
+                requestHandler,
                 null);
 
         NHttpClientHandler clientHandler = createHttpClientHandler(
@@ -550,23 +550,23 @@ public class TestBufferingNHttpHandlers extends TestCase {
 
         this.server.start(serviceHandler);
         this.client.start(clientHandler);
-        
+
         ListenerEndpoint endpoint = this.server.getListenerEndpoint();
         endpoint.waitFor();
         InetSocketAddress serverAddress = (InetSocketAddress) endpoint.getAddress();
-        
+
         for (int i = 0; i < responseData.size(); i++) {
             this.client.openConnection(
-                    new InetSocketAddress("localhost", serverAddress.getPort()), 
+                    new InetSocketAddress("localhost", serverAddress.getPort()),
                     responseData.get(i));
         }
-     
+
         requestCount.await(10000);
         if (requestCount.isAborted()) {
             System.out.println("Test case aborted");
         }
         assertEquals(0, requestCount.getValue());
-        
+
         this.client.shutdown();
         this.server.shutdown();
 
@@ -577,60 +577,60 @@ public class TestBufferingNHttpHandlers extends TestCase {
             for (int p = 0; p < requestData.size(); p++) {
                 byte[] expected = requestData.getBytes(p);
                 byte[] received = receivedPackets.getBytes(p);
-                
+
                 assertEquals(expected.length, received.length);
                 for (int i = 0; i < expected.length; i++) {
                     assertEquals(expected[i], received[i]);
                 }
             }
         }
-        
+
     }
 
     /**
-     * This test case executes a series of simple (non-pipelined) HTTP/1.0 
-     * POST requests over multiple persistent connections. 
+     * This test case executes a series of simple (non-pipelined) HTTP/1.0
+     * POST requests over multiple persistent connections.
      */
     public void testSimpleHttpPostsHTTP10() throws Exception {
-        
+
         final int connNo = 3;
         final int reqNo = 20;
-        final RequestCount requestCount = new RequestCount(connNo * reqNo); 
+        final RequestCount requestCount = new RequestCount(connNo * reqNo);
         final ByteSequence requestData = new ByteSequence();
         requestData.rnd(reqNo);
-        
+
         List<ByteSequence> responseData = new ArrayList<ByteSequence>(connNo);
         for (int i = 0; i < connNo; i++) {
             responseData.add(new ByteSequence());
         }
-        
+
         HttpRequestHandler requestHandler = new HttpRequestHandler() {
-            
+
 
             public void handle(
-                    final HttpRequest request, 
-                    final HttpResponse response, 
+                    final HttpRequest request,
+                    final HttpResponse response,
                     final HttpContext context) throws HttpException, IOException {
-                
+
                 if (request instanceof HttpEntityEnclosingRequest) {
                     HttpEntity incoming = ((HttpEntityEnclosingRequest) request).getEntity();
                     byte[] data = EntityUtils.toByteArray(incoming);
-                    
-                    ByteArrayEntity outgoing = new ByteArrayEntity(data);
+
+                    NByteArrayEntity outgoing = new NByteArrayEntity(data);
                     outgoing.setChunked(false);
                     response.setEntity(outgoing);
                 } else {
-                    StringEntity outgoing = new StringEntity("No content"); 
+                    NStringEntity outgoing = new NStringEntity("No content");
                     response.setEntity(outgoing);
                 }
             }
-            
+
         };
-        
+
         // Set protocol level to HTTP/1.0
         this.client.getParams().setParameter(
                 CoreProtocolPNames.PROTOCOL_VERSION, HttpVersion.HTTP_1_0);
-        
+
         HttpRequestExecutionHandler requestExecutionHandler = new HttpRequestExecutionHandler() {
 
             public void initalizeContext(final HttpContext context, final Object attachment) {
@@ -648,14 +648,14 @@ public class TestBufferingNHttpHandlers extends TestCase {
                 if (i < reqNo) {
                     post = new BasicHttpEntityEnclosingRequest("POST", "/?" + i);
                     byte[] data = requestData.getBytes(i);
-                    ByteArrayEntity outgoing = new ByteArrayEntity(data);
+                    NByteArrayEntity outgoing = new NByteArrayEntity(data);
                     post.setEntity(outgoing);
-                    
+
                     context.setAttribute("REQ-COUNT", new Integer(i + 1));
                 }
                 return post;
             }
-            
+
             public void handleResponse(final HttpResponse response, final HttpContext context) {
                 NHttpConnection conn = (NHttpConnection) context.getAttribute(
                         ExecutionContext.HTTP_CONNECTION);
@@ -679,11 +679,11 @@ public class TestBufferingNHttpHandlers extends TestCase {
                     conn.requestInput();
                 }
             }
-            
+
         };
-        
+
         NHttpServiceHandler serviceHandler = createHttpServiceHandler(
-                requestHandler, 
+                requestHandler,
                 null);
 
         NHttpClientHandler clientHandler = createHttpClientHandler(
@@ -691,20 +691,20 @@ public class TestBufferingNHttpHandlers extends TestCase {
 
         this.server.start(serviceHandler);
         this.client.start(clientHandler);
-        
+
         ListenerEndpoint endpoint = this.server.getListenerEndpoint();
         endpoint.waitFor();
         InetSocketAddress serverAddress = (InetSocketAddress) endpoint.getAddress();
-        
+
         for (int i = 0; i < responseData.size(); i++) {
             this.client.openConnection(
-                    new InetSocketAddress("localhost", serverAddress.getPort()), 
+                    new InetSocketAddress("localhost", serverAddress.getPort()),
                     responseData.get(i));
         }
-     
+
         requestCount.await(10000);
         assertEquals(0, requestCount.getValue());
-        
+
         this.client.shutdown();
         this.server.shutdown();
 
@@ -715,57 +715,57 @@ public class TestBufferingNHttpHandlers extends TestCase {
             for (int p = 0; p < requestData.size(); p++) {
                 byte[] expected = requestData.getBytes(p);
                 byte[] received = receivedPackets.getBytes(p);
-                
+
                 assertEquals(expected.length, received.length);
                 for (int i = 0; i < expected.length; i++) {
                     assertEquals(expected[i], received[i]);
                 }
             }
         }
-        
+
     }
 
     /**
-     * This test case executes a series of simple (non-pipelined) POST requests 
-     * over multiple connections using the 'expect: continue' handshake. 
+     * This test case executes a series of simple (non-pipelined) POST requests
+     * over multiple connections using the 'expect: continue' handshake.
      */
     public void testHttpPostsWithExpectContinue() throws Exception {
-        
+
         final int connNo = 3;
         final int reqNo = 20;
-        final RequestCount requestCount = new RequestCount(connNo * reqNo); 
+        final RequestCount requestCount = new RequestCount(connNo * reqNo);
         final ByteSequence requestData = new ByteSequence();
         requestData.rnd(reqNo);
-        
+
         List<ByteSequence> responseData = new ArrayList<ByteSequence>(connNo);
         for (int i = 0; i < connNo; i++) {
             responseData.add(new ByteSequence());
         }
-        
+
         HttpRequestHandler requestHandler = new HttpRequestHandler() {
 
             public void handle(
-                    final HttpRequest request, 
-                    final HttpResponse response, 
+                    final HttpRequest request,
+                    final HttpResponse response,
                     final HttpContext context) throws HttpException, IOException {
-                
+
                 if (request instanceof HttpEntityEnclosingRequest) {
                     HttpEntity incoming = ((HttpEntityEnclosingRequest) request).getEntity();
                     byte[] data = EntityUtils.toByteArray(incoming);
-                    ByteArrayEntity outgoing = new ByteArrayEntity(data);
+                    NByteArrayEntity outgoing = new NByteArrayEntity(data);
                     outgoing.setChunked(true);
                     response.setEntity(outgoing);
                 } else {
-                    StringEntity outgoing = new StringEntity("No content"); 
+                    NStringEntity outgoing = new NStringEntity("No content");
                     response.setEntity(outgoing);
                 }
             }
-            
+
         };
 
         // Activate 'expect: continue' handshake
         this.client.getParams().setBooleanParameter(CoreProtocolPNames.USE_EXPECT_CONTINUE, true);
-        
+
         HttpRequestExecutionHandler requestExecutionHandler = new HttpRequestExecutionHandler() {
 
             public void initalizeContext(final HttpContext context, final Object attachment) {
@@ -783,24 +783,24 @@ public class TestBufferingNHttpHandlers extends TestCase {
                 if (i < reqNo) {
                     post = new BasicHttpEntityEnclosingRequest("POST", "/?" + i);
                     byte[] data = requestData.getBytes(i);
-                    ByteArrayEntity outgoing = new ByteArrayEntity(data);
+                    NByteArrayEntity outgoing = new NByteArrayEntity(data);
                     outgoing.setChunked(true);
                     post.setEntity(outgoing);
-                    
+
                     context.setAttribute("REQ-COUNT", new Integer(i + 1));
                 }
                 return post;
             }
-            
+
             public void handleResponse(final HttpResponse response, final HttpContext context) {
                 NHttpConnection conn = (NHttpConnection) context.getAttribute(
                         ExecutionContext.HTTP_CONNECTION);
-                
+
                 ByteSequence list = (ByteSequence) context.getAttribute("LIST");
                 int i = ((Integer) context.getAttribute("RES-COUNT")).intValue();
                 i++;
                 context.setAttribute("RES-COUNT", new Integer(i));
-                
+
                 try {
                     HttpEntity entity = response.getEntity();
                     byte[] data = EntityUtils.toByteArray(entity);
@@ -815,11 +815,11 @@ public class TestBufferingNHttpHandlers extends TestCase {
                     conn.requestInput();
                 }
             }
-            
+
         };
-        
+
         NHttpServiceHandler serviceHandler = createHttpServiceHandler(
-                requestHandler, 
+                requestHandler,
                 null);
 
         NHttpClientHandler clientHandler = createHttpClientHandler(
@@ -827,20 +827,20 @@ public class TestBufferingNHttpHandlers extends TestCase {
 
         this.server.start(serviceHandler);
         this.client.start(clientHandler);
-        
+
         ListenerEndpoint endpoint = this.server.getListenerEndpoint();
         endpoint.waitFor();
         InetSocketAddress serverAddress = (InetSocketAddress) endpoint.getAddress();
-        
+
         for (int i = 0; i < responseData.size(); i++) {
             this.client.openConnection(
-                    new InetSocketAddress("localhost", serverAddress.getPort()), 
+                    new InetSocketAddress("localhost", serverAddress.getPort()),
                     responseData.get(i));
         }
-     
+
         requestCount.await(10000);
         assertEquals(0, requestCount.getValue());
-        
+
         this.client.shutdown();
         this.server.shutdown();
 
@@ -851,44 +851,44 @@ public class TestBufferingNHttpHandlers extends TestCase {
             for (int p = 0; p < requestData.size(); p++) {
                 byte[] expected = requestData.getBytes(p);
                 byte[] received = receivedPackets.getBytes(p);
-                
+
                 assertEquals(expected.length, received.length);
                 for (int i = 0; i < expected.length; i++) {
                     assertEquals(expected[i], received[i]);
                 }
             }
         }
-        
+
     }
 
     /**
-     * This test case executes a series of simple (non-pipelined) POST requests 
-     * over multiple connections that do not meet the target server expectations. 
+     * This test case executes a series of simple (non-pipelined) POST requests
+     * over multiple connections that do not meet the target server expectations.
      */
     public void testHttpPostsWithExpectationVerification() throws Exception {
-        
+
         final int reqNo = 3;
-        final RequestCount requestCount = new RequestCount(reqNo); 
+        final RequestCount requestCount = new RequestCount(reqNo);
         final ResponseSequence responses = new ResponseSequence();
-        
+
         HttpRequestHandler requestHandler = new HttpRequestHandler() {
 
             public void handle(
-                    final HttpRequest request, 
-                    final HttpResponse response, 
+                    final HttpRequest request,
+                    final HttpResponse response,
                     final HttpContext context) throws HttpException, IOException {
-                
-                StringEntity outgoing = new StringEntity("No content"); 
+
+                NStringEntity outgoing = new NStringEntity("No content");
                 response.setEntity(outgoing);
             }
-            
+
         };
-        
+
         HttpExpectationVerifier expectationVerifier = new HttpExpectationVerifier() {
 
             public void verify(
-                    final HttpRequest request, 
-                    final HttpResponse response, 
+                    final HttpRequest request,
+                    final HttpResponse response,
                     final HttpContext context) throws HttpException {
                 Header someheader = request.getFirstHeader("Secret");
                 if (someheader != null) {
@@ -901,13 +901,13 @@ public class TestBufferingNHttpHandlers extends TestCase {
                     }
                     if (secretNumber < 2) {
                         response.setStatusCode(HttpStatus.SC_EXPECTATION_FAILED);
-                        ByteArrayEntity outgoing = new ByteArrayEntity(
-                                EncodingUtils.getAsciiBytes("Wrong secret number")); 
+                        NByteArrayEntity outgoing = new NByteArrayEntity(
+                                EncodingUtils.getAsciiBytes("Wrong secret number"));
                         response.setEntity(outgoing);
                     }
                 }
             }
-            
+
         };
 
         // Activate 'expect: continue' handshake
@@ -930,24 +930,24 @@ public class TestBufferingNHttpHandlers extends TestCase {
                 if (i < reqNo) {
                     post = new BasicHttpEntityEnclosingRequest("POST", "/");
                     post.addHeader("Secret", Integer.toString(i));
-                    ByteArrayEntity outgoing = new ByteArrayEntity(
-                            EncodingUtils.getAsciiBytes("No content")); 
+                    NByteArrayEntity outgoing = new NByteArrayEntity(
+                            EncodingUtils.getAsciiBytes("No content"));
                     post.setEntity(outgoing);
-                    
+
                     context.setAttribute("REQ-COUNT", new Integer(i + 1));
                 }
                 return post;
             }
-            
+
             public void handleResponse(final HttpResponse response, final HttpContext context) {
                 NHttpConnection conn = (NHttpConnection) context.getAttribute(
                         ExecutionContext.HTTP_CONNECTION);
-                
+
                 ResponseSequence list = (ResponseSequence) context.getAttribute("LIST");
                 int i = ((Integer) context.getAttribute("RES-COUNT")).intValue();
                 i++;
                 context.setAttribute("RES-COUNT", new Integer(i));
-                
+
                 HttpEntity entity = response.getEntity();
                 if (entity != null) {
                     try {
@@ -957,7 +957,7 @@ public class TestBufferingNHttpHandlers extends TestCase {
                         return;
                     }
                 }
-                
+
                 list.addResponse(response);
                 requestCount.decrement();
 
@@ -965,11 +965,11 @@ public class TestBufferingNHttpHandlers extends TestCase {
                     conn.requestInput();
                 }
             }
-            
+
         };
-        
+
         NHttpServiceHandler serviceHandler = createHttpServiceHandler(
-                requestHandler, 
+                requestHandler,
                 expectationVerifier);
 
         NHttpClientHandler clientHandler = createHttpClientHandler(
@@ -977,17 +977,17 @@ public class TestBufferingNHttpHandlers extends TestCase {
 
         this.server.start(serviceHandler);
         this.client.start(clientHandler);
-        
+
         ListenerEndpoint endpoint = this.server.getListenerEndpoint();
         endpoint.waitFor();
         InetSocketAddress serverAddress = (InetSocketAddress) endpoint.getAddress();
-        
+
         this.client.openConnection(
-                new InetSocketAddress("localhost", serverAddress.getPort()), 
+                new InetSocketAddress("localhost", serverAddress.getPort()),
                 responses);
-     
+
         requestCount.await(1000);
-        
+
         this.client.shutdown();
         this.server.shutdown();
 
@@ -999,20 +999,20 @@ public class TestBufferingNHttpHandlers extends TestCase {
         response = responses.getResponse(2);
         assertEquals(HttpStatus.SC_OK, response.getStatusLine().getStatusCode());
     }
-    
+
     /**
-     * This test case executes a series of simple (non-pipelined) HEAD requests 
-     * over multiple connections. 
+     * This test case executes a series of simple (non-pipelined) HEAD requests
+     * over multiple connections.
      */
     public void testSimpleHttpHeads() throws Exception {
-        
+
         final int connNo = 3;
         final int reqNo = 20;
-        final RequestCount requestCount = new RequestCount(connNo * reqNo * 2); 
-        
+        final RequestCount requestCount = new RequestCount(connNo * reqNo * 2);
+
         final ByteSequence requestData = new ByteSequence();
         requestData.rnd(reqNo);
-        
+
         List<ResponseSequence> responseData1 = new ArrayList<ResponseSequence>(connNo);
         for (int i = 0; i < connNo; i++) {
             responseData1.add(new ResponseSequence());
@@ -1021,16 +1021,16 @@ public class TestBufferingNHttpHandlers extends TestCase {
         for (int i = 0; i < connNo; i++) {
             responseData2.add(new ResponseSequence());
         }
-        
+
         final String[] method = new String[1];
-        
+
         HttpRequestHandler requestHandler = new HttpRequestHandler() {
 
             public void handle(
-                    final HttpRequest request, 
-                    final HttpResponse response, 
+                    final HttpRequest request,
+                    final HttpResponse response,
                     final HttpContext context) throws HttpException, IOException {
-                
+
                 String s = request.getRequestLine().getUri();
                 URI uri;
                 try {
@@ -1041,12 +1041,12 @@ public class TestBufferingNHttpHandlers extends TestCase {
                 int index = Integer.parseInt(uri.getQuery());
 
                 byte[] data = requestData.getBytes(index);
-                ByteArrayEntity entity = new ByteArrayEntity(data); 
+                NByteArrayEntity entity = new NByteArrayEntity(data);
                 response.setEntity(entity);
             }
-            
+
         };
-        
+
         HttpRequestExecutionHandler requestExecutionHandler = new HttpRequestExecutionHandler() {
 
             public void initalizeContext(final HttpContext context, final Object attachment) {
@@ -1067,11 +1067,11 @@ public class TestBufferingNHttpHandlers extends TestCase {
                 }
                 return request;
             }
-            
+
             public void handleResponse(final HttpResponse response, final HttpContext context) {
                 NHttpConnection conn = (NHttpConnection) context.getAttribute(
                         ExecutionContext.HTTP_CONNECTION);
-                
+
                 ResponseSequence list = (ResponseSequence) context.getAttribute("LIST");
                 int i = ((Integer) context.getAttribute("RES-COUNT")).intValue();
                 i++;
@@ -1084,11 +1084,11 @@ public class TestBufferingNHttpHandlers extends TestCase {
                     conn.requestInput();
                 }
             }
-            
+
         };
-        
+
         NHttpServiceHandler serviceHandler = createHttpServiceHandler(
-                requestHandler, 
+                requestHandler,
                 null);
 
         NHttpClientHandler clientHandler = createHttpClientHandler(
@@ -1096,19 +1096,19 @@ public class TestBufferingNHttpHandlers extends TestCase {
 
         this.server.start(serviceHandler);
         this.client.start(clientHandler);
-        
+
         ListenerEndpoint endpoint = this.server.getListenerEndpoint();
         endpoint.waitFor();
         InetSocketAddress serverAddress = (InetSocketAddress) endpoint.getAddress();
 
         method[0] = "GET";
-        
+
         for (int i = 0; i < responseData1.size(); i++) {
             this.client.openConnection(
-                    new InetSocketAddress("localhost", serverAddress.getPort()), 
+                    new InetSocketAddress("localhost", serverAddress.getPort()),
                     responseData1.get(i));
         }
-     
+
         requestCount.await(connNo * reqNo, 10000);
         assertEquals(connNo * reqNo, requestCount.getValue());
 
@@ -1116,14 +1116,14 @@ public class TestBufferingNHttpHandlers extends TestCase {
 
         for (int i = 0; i < responseData2.size(); i++) {
             this.client.openConnection(
-                    new InetSocketAddress("localhost", serverAddress.getPort()), 
+                    new InetSocketAddress("localhost", serverAddress.getPort()),
                     responseData2.get(i));
         }
-     
-     
+
+
         requestCount.await(10000);
         assertEquals(0, requestCount.getValue());
-        
+
         this.client.shutdown();
         this.server.shutdown();
 
@@ -1137,7 +1137,7 @@ public class TestBufferingNHttpHandlers extends TestCase {
                 HttpResponse getResponse = getResponses.getResponse(p);
                 HttpResponse headResponse = headResponses.getResponse(p);
                 assertEquals(null, headResponse.getEntity());
-                
+
                 Header[] getHeaders = getResponse.getAllHeaders();
                 Header[] headHeaders = headResponse.getAllHeaders();
                 assertEquals(getHeaders.length, headHeaders.length);
@@ -1150,5 +1150,5 @@ public class TestBufferingNHttpHandlers extends TestCase {
             }
         }
     }
-    
+
 }

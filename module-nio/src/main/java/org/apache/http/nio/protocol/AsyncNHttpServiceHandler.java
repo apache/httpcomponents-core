@@ -54,6 +54,7 @@ import org.apache.http.nio.NHttpServiceHandler;
 import org.apache.http.nio.entity.ConsumingNHttpEntity;
 import org.apache.http.nio.entity.ConsumingNHttpEntityTemplate;
 import org.apache.http.nio.entity.NByteArrayEntity;
+import org.apache.http.nio.entity.NHttpEntityWrapper;
 import org.apache.http.nio.entity.ProducingNHttpEntity;
 import org.apache.http.nio.entity.SkipContentListener;
 import org.apache.http.nio.util.ByteBufferAllocator;
@@ -346,7 +347,7 @@ public class AsyncNHttpServiceHandler extends AbstractNHttpServiceHandler
         HttpResponse response = conn.getHttpResponse();
 
         try {
-            ProducingNHttpEntity entity = (ProducingNHttpEntity) response.getEntity();
+            ProducingNHttpEntity entity = connState.getProducingEntity();
             entity.produceContent(encoder, conn);
 
             if (encoder.isCompleted()) {
@@ -450,8 +451,11 @@ public class AsyncNHttpServiceHandler extends AbstractNHttpServiceHandler
 
         HttpEntity entity = response.getEntity();
         if (entity != null) {
-            ProducingNHttpEntity producingEntity = (ProducingNHttpEntity) entity;
-            connState.setProducingEntity(producingEntity);
+            if (entity instanceof ProducingNHttpEntity) {
+                connState.setProducingEntity((ProducingNHttpEntity) entity);
+            } else {
+                connState.setProducingEntity(new NHttpEntityWrapper(entity));
+            }
         }
 
         conn.submitResponse(response);
