@@ -31,10 +31,13 @@
 
 package org.apache.http.mockup;
 
+import java.io.IOException;
+
 public class RequestCount {
 
     private volatile boolean aborted;
     private volatile int value;
+    private volatile Exception ex;
     
     public RequestCount(int initialValue) {
         this.value = initialValue;
@@ -61,11 +64,19 @@ public class RequestCount {
         }
     }
 
+    public void failure(final Exception ex) {
+        synchronized (this) {
+            this.aborted = true;
+            this.ex = ex;
+            notifyAll();
+        }
+    }
+
     public boolean isAborted() {
         return this.aborted;
     }
     
-    public void await(int count, long timeout) throws InterruptedException {
+    public void await(int count, long timeout) throws InterruptedException, IOException {
         synchronized (this) {
             long deadline = System.currentTimeMillis() + timeout;
             long remaining = timeout;
@@ -79,9 +90,18 @@ public class RequestCount {
                 }
             }
         }
+        if (this.ex != null) {
+            if (this.ex instanceof IOException) {
+                throw (IOException) this.ex;
+            } else if (this.ex instanceof RuntimeException) {
+                throw (RuntimeException) this.ex;
+            } else {
+                throw new RuntimeException("Unexpected exception", ex);
+            }
+        }
     }
     
-    public void await(long timeout) throws InterruptedException {
+    public void await(long timeout) throws InterruptedException, IOException {
         await(0, timeout);
     }
     

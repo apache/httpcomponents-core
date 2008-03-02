@@ -55,6 +55,7 @@ public class TestHttpSSLClient {
     
     private volatile IOReactorThread thread;
 
+    private volatile RequestCount requestCount;
     
     public TestHttpSSLClient(final HttpParams params) throws Exception {
         super();
@@ -77,6 +78,10 @@ public class TestHttpSSLClient {
         return this.params;
     }
     
+    public void setRequestCount(final RequestCount requestCount) {
+        this.requestCount = requestCount;
+    }
+
     private void execute(final NHttpClientHandler clientHandler) throws IOException {
         IOEventDispatch ioEventDispatch = new SSLClientIOEventDispatch(
                 clientHandler, 
@@ -95,6 +100,14 @@ public class TestHttpSSLClient {
         this.thread.start();
     }
     
+    public Exception getException() {
+        if (this.thread != null) {
+            return this.thread.getException();
+        } else {
+            return null;
+        }
+    }
+    
     public void shutdown() throws IOException {
         this.ioReactor.shutdown();
         try {
@@ -109,6 +122,8 @@ public class TestHttpSSLClient {
 
         private final NHttpClientHandler clientHandler;
         
+        private volatile Exception ex;
+        
         public IOReactorThread(final NHttpClientHandler clientHandler) {
             super();
             this.clientHandler = clientHandler;
@@ -118,9 +133,16 @@ public class TestHttpSSLClient {
         public void run() {
             try {
                 execute(this.clientHandler);
-            } catch (IOException ex) {
-                ex.printStackTrace();
+            } catch (Exception ex) {
+                this.ex = ex;
+                if (requestCount != null) {
+                    requestCount.failure(ex);
+                }
             }
+        }
+        
+        public Exception getException() {
+            return this.ex;
         }
 
     }    

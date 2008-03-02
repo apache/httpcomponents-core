@@ -324,6 +324,9 @@ public class TestAsyncNHttpHandlers extends TestCase {
         NHttpClientHandler clientHandler = createHttpClientHandler(
                 requestExecutionHandler);
 
+        this.server.setRequestCount(requestCount);
+        this.client.setRequestCount(requestCount);
+        
         this.server.start(serviceHandler);
         this.client.start(clientHandler);
 
@@ -469,6 +472,9 @@ public class TestAsyncNHttpHandlers extends TestCase {
         NHttpClientHandler clientHandler = createHttpClientHandler(
                 requestExecutionHandler);
 
+        this.server.setRequestCount(requestCount);
+        this.client.setRequestCount(requestCount);
+        
         this.server.start(serviceHandler);
         this.client.start(clientHandler);
 
@@ -616,6 +622,9 @@ public class TestAsyncNHttpHandlers extends TestCase {
         NHttpClientHandler clientHandler = createHttpClientHandler(
                 requestExecutionHandler);
 
+        this.server.setRequestCount(requestCount);
+        this.client.setRequestCount(requestCount);
+        
         this.server.start(serviceHandler);
         this.client.start(clientHandler);
 
@@ -769,6 +778,9 @@ public class TestAsyncNHttpHandlers extends TestCase {
         NHttpClientHandler clientHandler = createHttpClientHandler(
                 requestExecutionHandler);
 
+        this.server.setRequestCount(requestCount);
+        this.client.setRequestCount(requestCount);
+        
         this.server.start(serviceHandler);
         this.client.start(clientHandler);
 
@@ -1083,6 +1095,9 @@ public class TestAsyncNHttpHandlers extends TestCase {
         NHttpClientHandler clientHandler = createHttpClientHandler(
                 requestExecutionHandler);
 
+        this.server.setRequestCount(requestCount);
+        this.client.setRequestCount(requestCount);
+        
         this.server.start(serviceHandler);
         this.client.start(clientHandler);
 
@@ -1215,6 +1230,9 @@ public class TestAsyncNHttpHandlers extends TestCase {
         NHttpClientHandler clientHandler = createHttpClientHandler(
                 requestExecutionHandler);
 
+        this.server.setRequestCount(requestCount);
+        this.client.setRequestCount(requestCount);
+        
         this.server.start(serviceHandler);
         this.client.start(clientHandler);
 
@@ -1383,6 +1401,9 @@ public class TestAsyncNHttpHandlers extends TestCase {
         NHttpClientHandler clientHandler = createHttpClientHandler(
                 requestExecutionHandler);
 
+        this.server.setRequestCount(requestCount);
+        this.client.setRequestCount(requestCount);
+        
         this.server.start(serviceHandler);
         this.client.start(clientHandler);
 
@@ -1509,6 +1530,9 @@ public class TestAsyncNHttpHandlers extends TestCase {
         NHttpClientHandler clientHandler = createHttpClientHandler(
                 requestExecutionHandler);
 
+        this.server.setRequestCount(requestCount);
+        this.client.setRequestCount(requestCount);
+        
         this.server.start(serviceHandler);
         this.client.start(clientHandler);
 
@@ -1624,6 +1648,9 @@ public class TestAsyncNHttpHandlers extends TestCase {
         NHttpClientHandler clientHandler = createHttpClientHandler(
                 requestExecutionHandler);
 
+        this.server.setRequestCount(requestCount);
+        this.client.setRequestCount(requestCount);
+        
         this.server.start(serviceHandler);
         this.client.start(clientHandler);
 
@@ -1709,6 +1736,9 @@ public class TestAsyncNHttpHandlers extends TestCase {
         NHttpClientHandler clientHandler = createHttpClientHandler(
                 requestExecutionHandler);
 
+        this.server.setRequestCount(requestCount);
+        this.client.setRequestCount(requestCount);
+        
         this.server.start(serviceHandler);
         this.client.start(clientHandler);
 

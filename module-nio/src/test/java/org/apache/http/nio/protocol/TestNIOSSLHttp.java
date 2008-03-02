@@ -185,9 +185,12 @@ public class TestNIOSSLHttp extends HttpCoreNIOSSLTestBase {
                 requestExecutionHandler, 
                 new SimpleEventListener());
 
+        this.server.setRequestCount(requestCount);
+        this.client.setRequestCount(requestCount);
+        
         this.server.start(serviceHandler);
         this.client.start(clientHandler);
-        
+
         ListenerEndpoint endpoint = this.server.getListenerEndpoint();
         endpoint.waitFor();
         InetSocketAddress serverAddress = (InetSocketAddress) endpoint.getAddress();
@@ -320,9 +323,12 @@ public class TestNIOSSLHttp extends HttpCoreNIOSSLTestBase {
                 requestExecutionHandler, 
                 new SimpleEventListener());
 
+        this.server.setRequestCount(requestCount);
+        this.client.setRequestCount(requestCount);
+        
         this.server.start(serviceHandler);
         this.client.start(clientHandler);
-        
+
         ListenerEndpoint endpoint = this.server.getListenerEndpoint();
         endpoint.waitFor();
         InetSocketAddress serverAddress = (InetSocketAddress) endpoint.getAddress();
@@ -458,9 +464,12 @@ public class TestNIOSSLHttp extends HttpCoreNIOSSLTestBase {
                 requestExecutionHandler, 
                 clientEventListener);
 
+        this.server.setRequestCount(requestCount);
+        this.client.setRequestCount(requestCount);
+        
         this.server.start(serviceHandler);
         this.client.start(clientHandler);
-        
+
         ListenerEndpoint endpoint = this.server.getListenerEndpoint();
         endpoint.waitFor();
         InetSocketAddress serverAddress = (InetSocketAddress) endpoint.getAddress();
@@ -601,9 +610,12 @@ public class TestNIOSSLHttp extends HttpCoreNIOSSLTestBase {
                 requestExecutionHandler, 
                 clientEventListener);
 
+        this.server.setRequestCount(requestCount);
+        this.client.setRequestCount(requestCount);
+        
         this.server.start(serviceHandler);
         this.client.start(clientHandler);
-        
+
         ListenerEndpoint endpoint = this.server.getListenerEndpoint();
         endpoint.waitFor();
         InetSocketAddress serverAddress = (InetSocketAddress) endpoint.getAddress();
