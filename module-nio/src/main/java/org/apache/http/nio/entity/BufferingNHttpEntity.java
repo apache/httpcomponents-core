@@ -79,7 +79,6 @@ public class BufferingNHttpEntity extends HttpEntityWrapper implements
 
     @Override
     public void consumeContent() throws IOException {
-        throw new UnsupportedOperationException("Does not support #consumeContent");
     }
 
     @Override

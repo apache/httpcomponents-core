@@ -120,7 +120,6 @@ public class TestBufferingNHttpHandlers extends TestCase {
     protected void setUp() throws Exception {
         HttpParams serverParams = new BasicHttpParams();
         serverParams
-            .setIntParameter(CoreConnectionPNames.SO_TIMEOUT, 5000)
             .setIntParameter(CoreConnectionPNames.SOCKET_BUFFER_SIZE, 8 * 1024)
             .setBooleanParameter(CoreConnectionPNames.STALE_CONNECTION_CHECK, false)
             .setBooleanParameter(CoreConnectionPNames.TCP_NODELAY, true)
@@ -130,8 +129,6 @@ public class TestBufferingNHttpHandlers extends TestCase {
 
         HttpParams clientParams = new BasicHttpParams();
         clientParams
-            .setIntParameter(CoreConnectionPNames.SO_TIMEOUT, 5000)
-            .setIntParameter(CoreConnectionPNames.CONNECTION_TIMEOUT, 2000)
             .setIntParameter(CoreConnectionPNames.SOCKET_BUFFER_SIZE, 8 * 1024)
             .setBooleanParameter(CoreConnectionPNames.STALE_CONNECTION_CHECK, false)
             .setBooleanParameter(CoreConnectionPNames.TCP_NODELAY, true)
@@ -986,7 +983,7 @@ public class TestBufferingNHttpHandlers extends TestCase {
                 new InetSocketAddress("localhost", serverAddress.getPort()),
                 responses);
 
-        requestCount.await(1000);
+        requestCount.await(1000000);
 
         this.client.shutdown();
         this.server.shutdown();

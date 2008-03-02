@@ -45,6 +45,7 @@ import org.apache.http.nio.ContentEncoder;
 import org.apache.http.nio.NHttpClientConnection;
 import org.apache.http.nio.entity.ConsumingNHttpEntity;
 import org.apache.http.nio.entity.ConsumingNHttpEntityTemplate;
+import org.apache.http.nio.entity.NHttpEntityWrapper;
 import org.apache.http.nio.entity.ProducingNHttpEntity;
 import org.apache.http.nio.entity.SkipContentListener;
 import org.apache.http.nio.util.ByteBufferAllocator;
@@ -147,9 +148,13 @@ public class AsyncNHttpClientHandler extends AbstractNHttpClientHandler {
             connState.setOutputState(ClientConnState.REQUEST_SENT);
 
             if (request instanceof HttpEntityEnclosingRequest) {
-                HttpEntityEnclosingRequest entityReq = (HttpEntityEnclosingRequest)request;
-                ProducingNHttpEntity entity = (ProducingNHttpEntity)entityReq.getEntity();
-                connState.setProducingEntity(entity);
+                HttpEntityEnclosingRequest entityReq = (HttpEntityEnclosingRequest) request;
+                HttpEntity entity = entityReq.getEntity();
+                if (entity instanceof ProducingNHttpEntity) {
+                    connState.setProducingEntity((ProducingNHttpEntity) entity);
+                } else {
+                    connState.setProducingEntity(new NHttpEntityWrapper(entity));
+                }
 
                 if (entityReq.expectContinue()) {
                     int timeout = conn.getSocketTimeout();

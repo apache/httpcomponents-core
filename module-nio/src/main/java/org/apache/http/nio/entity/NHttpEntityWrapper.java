@@ -78,7 +78,7 @@ public class NHttpEntityWrapper
         this.buffer.flip();
         encoder.write(this.buffer);
         this.buffer.compact();
-        if (i == -1) {
+        if (i == -1 && !this.buffer.hasRemaining()) {
             encoder.complete();
             this.channel.close();
         }

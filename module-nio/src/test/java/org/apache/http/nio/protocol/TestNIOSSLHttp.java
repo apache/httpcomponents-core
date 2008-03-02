@@ -47,8 +47,6 @@ import org.apache.http.HttpException;
 import org.apache.http.HttpRequest;
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpVersion;
-import org.apache.http.entity.ByteArrayEntity;
-import org.apache.http.entity.StringEntity;
 import org.apache.http.message.BasicHttpEntityEnclosingRequest;
 import org.apache.http.message.BasicHttpRequest;
 import org.apache.http.mockup.ByteSequence;
@@ -57,6 +55,8 @@ import org.apache.http.mockup.SimpleEventListener;
 import org.apache.http.nio.NHttpClientHandler;
 import org.apache.http.nio.NHttpConnection;
 import org.apache.http.nio.NHttpServiceHandler;
+import org.apache.http.nio.entity.NByteArrayEntity;
+import org.apache.http.nio.entity.NStringEntity;
 import org.apache.http.nio.protocol.HttpRequestExecutionHandler;
 import org.apache.http.nio.reactor.ListenerEndpoint;
 import org.apache.http.params.CoreProtocolPNames;
@@ -124,7 +124,7 @@ public class TestNIOSSLHttp extends HttpCoreNIOSSLTestBase {
                 }
                 int index = Integer.parseInt(uri.getQuery());
                 byte[] bytes = requestData.getBytes(index);
-                ByteArrayEntity entity = new ByteArrayEntity(bytes); 
+                NByteArrayEntity entity = new NByteArrayEntity(bytes); 
                 response.setEntity(entity);
             }
             
@@ -250,11 +250,11 @@ public class TestNIOSSLHttp extends HttpCoreNIOSSLTestBase {
                     HttpEntity incoming = ((HttpEntityEnclosingRequest) request).getEntity();
                     byte[] data = EntityUtils.toByteArray(incoming);
                     
-                    ByteArrayEntity outgoing = new ByteArrayEntity(data);
+                    NByteArrayEntity outgoing = new NByteArrayEntity(data);
                     outgoing.setChunked(false);
                     response.setEntity(outgoing);
                 } else {
-                    StringEntity outgoing = new StringEntity("No content"); 
+                    NStringEntity outgoing = new NStringEntity("No content"); 
                     response.setEntity(outgoing);
                 }
             }
@@ -278,7 +278,7 @@ public class TestNIOSSLHttp extends HttpCoreNIOSSLTestBase {
                 if (i < reqNo) {
                     post = new BasicHttpEntityEnclosingRequest("POST", "/?" + i);
                     byte[] bytes = requestData.getBytes(i);
-                    ByteArrayEntity outgoing = new ByteArrayEntity(bytes);
+                    NByteArrayEntity outgoing = new NByteArrayEntity(bytes);
                     post.setEntity(outgoing);
                     
                     context.setAttribute("REQ-COUNT", new Integer(i + 1));
@@ -384,11 +384,11 @@ public class TestNIOSSLHttp extends HttpCoreNIOSSLTestBase {
                 if (request instanceof HttpEntityEnclosingRequest) {
                     HttpEntity incoming = ((HttpEntityEnclosingRequest) request).getEntity();
                     byte[] data = EntityUtils.toByteArray(incoming);
-                    ByteArrayEntity outgoing = new ByteArrayEntity(data);
+                    NByteArrayEntity outgoing = new NByteArrayEntity(data);
                     outgoing.setChunked(true);
                     response.setEntity(outgoing);
                 } else {
-                    StringEntity outgoing = new StringEntity("No content"); 
+                    NStringEntity outgoing = new NStringEntity("No content"); 
                     response.setEntity(outgoing);
                 }
             }
@@ -412,7 +412,7 @@ public class TestNIOSSLHttp extends HttpCoreNIOSSLTestBase {
                 if (i < reqNo) {
                     post = new BasicHttpEntityEnclosingRequest("POST", "/?" + i);
                     byte[] bytes = requestData.getBytes(i);
-                    ByteArrayEntity outgoing = new ByteArrayEntity(bytes);
+                    NByteArrayEntity outgoing = new NByteArrayEntity(bytes);
                     outgoing.setChunked(true);
                     post.setEntity(outgoing);
                     
@@ -524,11 +524,11 @@ public class TestNIOSSLHttp extends HttpCoreNIOSSLTestBase {
                     HttpEntity incoming = ((HttpEntityEnclosingRequest) request).getEntity();
                     byte[] data = EntityUtils.toByteArray(incoming);
                     
-                    ByteArrayEntity outgoing = new ByteArrayEntity(data);
+                    NByteArrayEntity outgoing = new NByteArrayEntity(data);
                     outgoing.setChunked(false);
                     response.setEntity(outgoing);
                 } else {
-                    StringEntity outgoing = new StringEntity("No content"); 
+                    NStringEntity outgoing = new NStringEntity("No content"); 
                     response.setEntity(outgoing);
                 }
             }
@@ -556,7 +556,7 @@ public class TestNIOSSLHttp extends HttpCoreNIOSSLTestBase {
                 if (i < reqNo) {
                     post = new BasicHttpEntityEnclosingRequest("POST", "/?" + i);
                     byte[] bytes = requestData.getBytes(i);
-                    ByteArrayEntity outgoing = new ByteArrayEntity(bytes);
+                    NByteArrayEntity outgoing = new NByteArrayEntity(bytes);
                     post.setEntity(outgoing);
                     
                     context.setAttribute("REQ-COUNT", new Integer(i + 1));

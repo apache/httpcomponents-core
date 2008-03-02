@@ -32,30 +32,20 @@
 package org.apache.http.nio.protocol;
 
 import java.io.IOException;
-import java.io.OutputStream;
 
 import org.apache.http.ConnectionReuseStrategy;
-import org.apache.http.HttpEntity;
-import org.apache.http.HttpEntityEnclosingRequest;
 import org.apache.http.HttpException;
 import org.apache.http.HttpRequest;
 import org.apache.http.HttpResponse;
-import org.apache.http.HttpStatus;
 import org.apache.http.nio.ContentDecoder;
 import org.apache.http.nio.ContentEncoder;
 import org.apache.http.nio.NHttpClientConnection;
-import org.apache.http.nio.entity.ContentBufferEntity;
-import org.apache.http.nio.entity.ContentOutputStream;
+import org.apache.http.nio.NHttpClientHandler;
+import org.apache.http.nio.entity.BufferingNHttpEntity;
+import org.apache.http.nio.entity.ConsumingNHttpEntity;
 import org.apache.http.nio.util.ByteBufferAllocator;
-import org.apache.http.nio.util.ContentInputBuffer;
-import org.apache.http.nio.util.ContentOutputBuffer;
 import org.apache.http.nio.util.HeapByteBufferAllocator;
-import org.apache.http.nio.util.SimpleInputBuffer;
-import org.apache.http.nio.util.SimpleOutputBuffer;
 import org.apache.http.params.HttpParams;
-import org.apache.http.params.CoreProtocolPNames;
-import org.apache.http.params.DefaultedHttpParams;
-import org.apache.http.protocol.ExecutionContext;
 import org.apache.http.protocol.HttpContext;
 import org.apache.http.protocol.HttpProcessor;
 
@@ -69,7 +59,9 @@ import org.apache.http.protocol.HttpProcessor;
  * @author <a href="mailto:oleg at ural.ru">Oleg Kalnichevski</a>
  *
  */
-public class BufferingHttpClientHandler extends NHttpClientHandlerBase {
+public class BufferingHttpClientHandler implements NHttpClientHandler {
+
+    private final AsyncNHttpClientHandler asyncHandler;
 
     public BufferingHttpClientHandler(
             final HttpProcessor httpProcessor, 
@@ -77,7 +69,12 @@ public class BufferingHttpClientHandler extends NHttpClientHandlerBase {
             final ConnectionReuseStrategy connStrategy,
             final ByteBufferAllocator allocator,
             final HttpParams params) {
-        super(httpProcessor, execHandler, connStrategy, allocator, params);
+        this.asyncHandler = new AsyncNHttpClientHandler(
+                httpProcessor,
+                new ExecutionHandlerAdaptor(execHandler),
+                connStrategy,
+                allocator,
+                params);
     }
     
     public BufferingHttpClientHandler(
@@ -89,378 +86,80 @@ public class BufferingHttpClientHandler extends NHttpClientHandlerBase {
                 new HeapByteBufferAllocator(), params);
     }
     
-    public void connected(final NHttpClientConnection conn, final Object attachment) {
-        HttpContext context = conn.getContext();
-
-        initialize(conn, attachment);
-        
-        ClientConnState connState = new ClientConnState(allocator); 
-        context.setAttribute(CONN_STATE, connState);
-
-        if (this.eventListener != null) {
-            this.eventListener.connectionOpen(conn);
-        }
-        
-        requestReady(conn);        
+    public void setEventListener(final EventListener eventListener) {
+        this.asyncHandler.setEventListener(eventListener);
     }
 
-    @Override
-    public void closed(final NHttpClientConnection conn) {
-        HttpContext context = conn.getContext();
+    public void connected(final NHttpClientConnection conn, final Object attachment) {
+        this.asyncHandler.connected(conn, attachment);
+    }
 
-        this.execHandler.finalizeContext(context);
-        
-        // TODO - replace with super.closed(conn); ?
-        if (this.eventListener != null) {
-            this.eventListener.connectionClosed(conn);
-        }
+    public void closed(final NHttpClientConnection conn) {
+        this.asyncHandler.closed(conn);
     }
 
     public void requestReady(final NHttpClientConnection conn) {
-        HttpContext context = conn.getContext();
-
-        ClientConnState connState = (ClientConnState) context.getAttribute(CONN_STATE);
-        if (connState.getOutputState() != ClientConnState.READY) {
-            return;
-        }
-        
-        try {
-            
-            HttpRequest request = this.execHandler.submitRequest(context);
-            if (request == null) {
-                return;
-            }
-            
-            request.setParams(
-                    new DefaultedHttpParams(request.getParams(), this.params));
-            
-            context.setAttribute(ExecutionContext.HTTP_REQUEST, request);
-            this.httpProcessor.process(request, context);
-            connState.setRequest(request);
-            conn.submitRequest(request);
-            connState.setOutputState(ClientConnState.REQUEST_SENT);
-            
-            if (request instanceof HttpEntityEnclosingRequest) {
-                if (((HttpEntityEnclosingRequest) request).expectContinue()) {
-                    int timeout = conn.getSocketTimeout();
-                    connState.setTimeout(timeout);
-                    timeout = this.params.getIntParameter(
-                            CoreProtocolPNames.WAIT_FOR_CONTINUE, 3000);
-                    conn.setSocketTimeout(timeout);
-                    connState.setOutputState(ClientConnState.EXPECT_CONTINUE);
-                } else {
-                    prepareRequestBody(
-                            (HttpEntityEnclosingRequest) request, 
-                            connState);
-                }
-            }
-            
-        } catch (IOException ex) {
-            shutdownConnection(conn, ex);
-            if (this.eventListener != null) {
-                this.eventListener.fatalIOException(ex, conn);
-            }
-        } catch (HttpException ex) {
-            closeConnection(conn, ex);
-            if (this.eventListener != null) {
-                this.eventListener.fatalProtocolException(ex, conn);
-            }
-        }
+        this.asyncHandler.requestReady(conn);
     }
 
     public void inputReady(final NHttpClientConnection conn, final ContentDecoder decoder) {
-        HttpContext context = conn.getContext();
-
-        ClientConnState connState = (ClientConnState) context.getAttribute(CONN_STATE);
-        ContentInputBuffer buffer = connState.getInbuffer();
-
-        try {
-
-            buffer.consumeContent(decoder);
-            if (decoder.isCompleted()) {
-                connState.setInputState(ClientConnState.RESPONSE_BODY_DONE);
-                processResponse(conn, connState);
-            } else {
-                connState.setInputState(ClientConnState.RESPONSE_BODY_STREAM);
-            }
-            
-        } catch (IOException ex) {
-            shutdownConnection(conn, ex);
-            if (this.eventListener != null) {
-                this.eventListener.fatalIOException(ex, conn);
-            }
-        } catch (HttpException ex) {
-            closeConnection(conn, ex);
-            if (this.eventListener != null) {
-                this.eventListener.fatalProtocolException(ex, conn);
-            }
-        }
+        this.asyncHandler.inputReady(conn, decoder);
     }
 
     public void outputReady(final NHttpClientConnection conn, final ContentEncoder encoder) {
-        HttpContext context = conn.getContext();
-
-        ClientConnState connState = (ClientConnState) context.getAttribute(CONN_STATE);
-        ContentOutputBuffer buffer = connState.getOutbuffer();
-        
-        try {
-
-            if (connState.getOutputState() == ClientConnState.EXPECT_CONTINUE) {
-                conn.suspendOutput();
-                return;
-            }
-            
-            buffer.produceContent(encoder);
-            if (encoder.isCompleted()) {
-                connState.setInputState(ClientConnState.REQUEST_BODY_DONE);
-            } else {
-                connState.setInputState(ClientConnState.REQUEST_BODY_STREAM);
-            }
-            
-        } catch (IOException ex) {
-            shutdownConnection(conn, ex);
-            if (this.eventListener != null) {
-                this.eventListener.fatalIOException(ex, conn);
-            }
-        }
+        this.asyncHandler.outputReady(conn, encoder);
     }
 
     public void responseReceived(final NHttpClientConnection conn) {
-        HttpContext context = conn.getContext();
-        ClientConnState connState = (ClientConnState) context.getAttribute(CONN_STATE);
+        this.asyncHandler.responseReceived(conn);
+    }
 
-        HttpResponse response = conn.getHttpResponse();
-        response.setParams(
-                new DefaultedHttpParams(response.getParams(), this.params));
-        
-        HttpRequest request = connState.getRequest();
-        
-        try {
-            
-            int statusCode = response.getStatusLine().getStatusCode();
-            if (statusCode < HttpStatus.SC_OK) {
-                // 1xx intermediate response
-                if (statusCode == HttpStatus.SC_CONTINUE 
-                        && connState.getOutputState() == ClientConnState.EXPECT_CONTINUE) {
-                    continueRequest(conn, connState);
-                }
-                return;
-            } else {
-                connState.setResponse(response);
-                connState.setInputState(ClientConnState.RESPONSE_RECEIVED);
-                
-                if (connState.getOutputState() == ClientConnState.EXPECT_CONTINUE) {
-                    cancelRequest(conn, connState);
-                }
-            }
-            if (!canResponseHaveBody(request, response)) {
-                conn.resetInput();
-                response.setEntity(null);
-                processResponse(conn, connState);
-            }
-            
-        } catch (IOException ex) {
-            shutdownConnection(conn, ex);
-            if (this.eventListener != null) {
-                this.eventListener.fatalIOException(ex, conn);
-            }
-        } catch (HttpException ex) {
-            closeConnection(conn, ex);
-            if (this.eventListener != null) {
-                this.eventListener.fatalProtocolException(ex, conn);
-            }
-        }
+    public void exception(final NHttpClientConnection conn, final HttpException httpex) {
+        this.asyncHandler.exception(conn, httpex);
+    }
+
+    public void exception(final NHttpClientConnection conn, final IOException ioex) {
+        this.asyncHandler.exception(conn, ioex);
     }
 
     public void timeout(final NHttpClientConnection conn) {
-        HttpContext context = conn.getContext();
-        ClientConnState connState = (ClientConnState) context.getAttribute(CONN_STATE);
-
-        try {
-            
-            if (connState.getOutputState() == ClientConnState.EXPECT_CONTINUE) {
-                continueRequest(conn, connState);
-                return;
-            }
-            
-        } catch (IOException ex) {
-            shutdownConnection(conn, ex);
-            if (this.eventListener != null) {
-                this.eventListener.fatalIOException(ex, conn);
-            }
-        }
-        
-        handleTimeout(conn);
+        this.asyncHandler.timeout(conn);
     }
     
-    private void initialize(
-            final NHttpClientConnection conn,
-            final Object attachment) {
-        HttpContext context = conn.getContext();
-
-        context.setAttribute(ExecutionContext.HTTP_CONNECTION, conn);
-        this.execHandler.initalizeContext(context, attachment);
-    }
-    
-    private void continueRequest(
-            final NHttpClientConnection conn, 
-            final ClientConnState connState) throws IOException {
-
-        HttpRequest request = connState.getRequest();
-
-        int timeout = connState.getTimeout();
-        conn.setSocketTimeout(timeout);
-
-        prepareRequestBody((HttpEntityEnclosingRequest) request, connState);
-        conn.requestOutput();
-        connState.setOutputState(ClientConnState.REQUEST_SENT);
-    }
-    
-    private void cancelRequest(
-            final NHttpClientConnection conn, 
-            final ClientConnState connState) throws IOException {
-
-        int timeout = connState.getTimeout();
-        conn.setSocketTimeout(timeout);
-
-        conn.resetOutput();
-        connState.resetOutput();
-    }
-    
-    private void prepareRequestBody(
-            final HttpEntityEnclosingRequest request,
-            final ClientConnState connState) throws IOException {
-        HttpEntity entity = request.getEntity();
-        if (entity != null) {
-            OutputStream outstream = new ContentOutputStream(connState.getOutbuffer());
-            entity.writeTo(outstream);
-            outstream.flush();
-            outstream.close();
-        }
-    }
-    
-    private void processResponse(
-            final NHttpClientConnection conn, 
-            final ClientConnState connState) throws IOException, HttpException {
-
-        HttpContext context = conn.getContext();
-        HttpResponse response = connState.getResponse();
+    static class ExecutionHandlerAdaptor implements NHttpRequestExecutionHandler {
         
-        if (response.getEntity() != null) {
-            response.setEntity(new ContentBufferEntity(
-                    response.getEntity(), 
-                    connState.getInbuffer()));
-        }
+        private final HttpRequestExecutionHandler execHandler;
         
-        context.setAttribute(ExecutionContext.HTTP_RESPONSE, response);
-        
-        this.httpProcessor.process(response, context);
-        
-        this.execHandler.handleResponse(response, context);
-        
-        if (!this.connStrategy.keepAlive(response, context)) {
-            conn.close();
-        } else {
-            // Ready for another request
-            connState.resetInput();
-            connState.resetOutput();
-            conn.requestOutput();
-        }
-    }
-    
-    static class ClientConnState {
-        
-        public static final int READY                      = 0;
-        public static final int REQUEST_SENT               = 1;
-        public static final int EXPECT_CONTINUE            = 2;
-        public static final int REQUEST_BODY_STREAM        = 4;
-        public static final int REQUEST_BODY_DONE          = 8;
-        public static final int RESPONSE_RECEIVED          = 16;
-        public static final int RESPONSE_BODY_STREAM       = 32;
-        public static final int RESPONSE_BODY_DONE         = 64;
-        
-        private SimpleInputBuffer inbuffer; 
-        private ContentOutputBuffer outbuffer;
-
-        private int inputState;
-        private int outputState;
-        
-        private HttpRequest request;
-        private HttpResponse response;
-
-        private int timeout;
-        private final ByteBufferAllocator allocator;
-        
-        public ClientConnState(final ByteBufferAllocator allocator) {
+        public ExecutionHandlerAdaptor(final HttpRequestExecutionHandler execHandler) {
             super();
-            this.allocator = allocator;
+            this.execHandler = execHandler;
         }
 
-        public ContentInputBuffer getInbuffer() {
-            if (this.inbuffer == null) {
-                this.inbuffer = new SimpleInputBuffer(2048, allocator);
-            }
-            return this.inbuffer;
+        public void initalizeContext(final HttpContext context, final Object attachment) {
+            this.execHandler.initalizeContext(context, attachment);
+        }
+        public void finalizeContext(final HttpContext context) {
+            this.execHandler.finalizeContext(context);
         }
 
-        public ContentOutputBuffer getOutbuffer() {
-            if (this.outbuffer == null) {
-                this.outbuffer = new SimpleOutputBuffer(2048, allocator);
-            }
-            return this.outbuffer;
+        public HttpRequest submitRequest(final HttpContext context) {
+            return this.execHandler.submitRequest(context);
         }
         
-        public int getInputState() {
-            return this.inputState;
+        public ConsumingNHttpEntity responseEntity(
+                final HttpResponse response, 
+                final HttpContext context) throws IOException {
+            return new BufferingNHttpEntity(
+                    response.getEntity(),
+                    new HeapByteBufferAllocator());
         }
 
-        public void setInputState(int inputState) {
-            this.inputState = inputState;
+        public void handleResponse(
+                final HttpResponse response, 
+                final HttpContext context) throws IOException {
+            this.execHandler.handleResponse(response, context);
         }
 
-        public int getOutputState() {
-            return this.outputState;
-        }
-
-        public void setOutputState(int outputState) {
-            this.outputState = outputState;
-        }
-
-        public HttpRequest getRequest() {
-            return this.request;
-        }
-
-        public void setRequest(final HttpRequest request) {
-            this.request = request;
-        }
-
-        public HttpResponse getResponse() {
-            return this.response;
-        }
-
-        public void setResponse(final HttpResponse response) {
-            this.response = response;
-        }
-
-        public int getTimeout() {
-            return this.timeout;
-        }
-
-        public void setTimeout(int timeout) {
-            this.timeout = timeout;
-        }
-            
-        public void resetInput() {
-            this.inbuffer = null;
-            this.response = null;
-            this.inputState = READY;
-        }
-        
-        public void resetOutput() {
-            this.outbuffer = null;
-            this.request = null;
-            this.outputState = READY;
-        }
     }
     
 }

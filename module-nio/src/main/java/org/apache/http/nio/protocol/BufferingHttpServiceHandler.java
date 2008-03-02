@@ -111,12 +111,12 @@ public class BufferingHttpServiceHandler implements NHttpServiceHandler {
         this.asyncHandler.connected(conn);
     }
 
-    public void requestReceived(final NHttpServerConnection conn) {
-        this.asyncHandler.requestReceived(conn);
-    }
-
     public void closed(final NHttpServerConnection conn) {
         this.asyncHandler.closed(conn);
+    }
+
+    public void requestReceived(final NHttpServerConnection conn) {
+        this.asyncHandler.requestReceived(conn);
     }
 
     public void inputReady(final NHttpServerConnection conn, final ContentDecoder decoder) {
