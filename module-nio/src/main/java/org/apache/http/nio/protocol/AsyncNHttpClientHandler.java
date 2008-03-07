@@ -150,10 +150,12 @@ public class AsyncNHttpClientHandler extends AbstractNHttpClientHandler {
             if (request instanceof HttpEntityEnclosingRequest) {
                 HttpEntityEnclosingRequest entityReq = (HttpEntityEnclosingRequest) request;
                 HttpEntity entity = entityReq.getEntity();
-                if (entity instanceof ProducingNHttpEntity) {
-                    connState.setProducingEntity((ProducingNHttpEntity) entity);
-                } else {
-                    connState.setProducingEntity(new NHttpEntityWrapper(entity));
+                if (entity != null) {
+                    if (entity instanceof ProducingNHttpEntity) {
+                        connState.setProducingEntity((ProducingNHttpEntity) entity);
+                    } else {
+                        connState.setProducingEntity(new NHttpEntityWrapper(entity));
+                    }
                 }
 
                 if (entityReq.expectContinue()) {
