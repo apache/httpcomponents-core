@@ -100,6 +100,52 @@ public class TestChunkEncoder extends TestCase {
         assertTrue(encoder.isCompleted());
         assertEquals("5\r\n12345\r\n3\r\n678\r\n2\r\n90\r\n0\r\n\r\n", s);
     }
+    
+    public void testChunkNoExceed() throws Exception {
+        ByteArrayOutputStream baos = new ByteArrayOutputStream(); 
+        WritableByteChannel channel = newChannel(baos);
+        HttpParams params = new BasicHttpParams();
+        SessionOutputBuffer outbuf = new SessionOutputBufferImpl(1024, 16, params);
+        HttpTransportMetricsImpl metrics = new HttpTransportMetricsImpl();
+        ChunkEncoder encoder = new ChunkEncoder(channel, outbuf, metrics);
+        encoder.write(wrap("1234"));
+        encoder.complete();
+        
+        outbuf.flush(channel);
+        
+        String s = baos.toString("US-ASCII");
+        
+        assertTrue(encoder.isCompleted());
+        assertEquals("4\r\n1234\r\n0\r\n\r\n", s);    
+    }
+    
+    
+    public void testChunkExceed() throws Exception {
+        ByteArrayOutputStream baos = new ByteArrayOutputStream(); 
+        WritableByteChannel channel = newChannel(baos);
+        HttpParams params = new BasicHttpParams();
+        SessionOutputBuffer outbuf = new SessionOutputBufferImpl(16, 16, params);
+        HttpTransportMetricsImpl metrics = new HttpTransportMetricsImpl();
+        ChunkEncoder encoder = new ChunkEncoder(channel, outbuf, metrics);
+        
+        ByteBuffer src = wrap("0123456789ABCDEF");
+        
+        encoder.write(src);
+        assertTrue(src.hasRemaining());
+        assertEquals(10, src.remaining());
+
+        encoder.write(src);
+        assertTrue(src.hasRemaining());
+        assertEquals(4, src.remaining());
+
+        encoder.write(src);
+        assertFalse(src.hasRemaining());
+        
+        outbuf.flush(channel);
+        String s = baos.toString("US-ASCII");
+        assertEquals("6\r\n012345\r\n6\r\n6789AB\r\n4\r\nCDEF\r\n", s);    
+        
+    }
 
     public void testCodingEmptyBuffer() throws Exception {
         ByteArrayOutputStream baos = new ByteArrayOutputStream(); 

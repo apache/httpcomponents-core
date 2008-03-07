@@ -37,11 +37,14 @@ import java.nio.channels.WritableByteChannel;
 
 import org.apache.http.impl.io.HttpTransportMetricsImpl;
 import org.apache.http.nio.reactor.SessionOutputBuffer;
+import org.apache.http.nio.util.BufferInfo;
 import org.apache.http.util.CharArrayBuffer;
 
 public class ChunkEncoder extends AbstractContentEncoder {
     
     private final CharArrayBuffer lineBuffer;
+    
+    private final BufferInfo bufferinfo;
     
     public ChunkEncoder(
             final WritableByteChannel channel, 
@@ -49,6 +52,7 @@ public class ChunkEncoder extends AbstractContentEncoder {
             final HttpTransportMetricsImpl metrics) {
         super(channel, buffer, metrics);
         this.lineBuffer = new CharArrayBuffer(16);
+        this.bufferinfo = (BufferInfo) buffer;
     }
 
     public int write(final ByteBuffer src) throws IOException {
@@ -60,10 +64,36 @@ public class ChunkEncoder extends AbstractContentEncoder {
         if (chunk == 0) {
             return 0;
         }
-        this.lineBuffer.clear();
-        this.lineBuffer.append(Integer.toHexString(chunk));
-        this.buffer.writeLine(this.lineBuffer);
-        this.buffer.write(src);
+        
+        long bytesWritten = this.buffer.flush(this.channel);
+        if (bytesWritten > 0) {
+            this.metrics.incrementBytesTransferred(bytesWritten);
+        }
+        int avail = this.bufferinfo.available();
+        if (avail == 0) {
+            return 0;
+        }
+
+        // subtract the length of the longest chunk header
+        // 12345678\r\n
+        avail -= 10;
+
+        if (avail < chunk) {
+            // write no more than 'avail' bytes
+            this.lineBuffer.clear();
+            this.lineBuffer.append(Integer.toHexString(avail));
+            this.buffer.writeLine(this.lineBuffer);
+            int oldlimit = src.limit();
+            src.limit(src.position() + avail);
+            this.buffer.write(src);
+            src.limit(oldlimit);
+        } else {
+            // write all
+            this.lineBuffer.clear();
+            this.lineBuffer.append(Integer.toHexString(chunk));
+            this.buffer.writeLine(this.lineBuffer);
+            this.buffer.write(src);
+        }
         this.lineBuffer.clear();
         this.buffer.writeLine(this.lineBuffer);
         return chunk;

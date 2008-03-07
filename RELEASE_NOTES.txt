@@ -1,6 +1,12 @@
 Changes since 4.0 Beta 1
 -------------------
 
+* [HTTPCORE-92] ChunkEncoder splits input data larger than available space 
+  in the session output buffer into smaller chunks instead of expanding 
+  the buffer. 
+  Contributed by Andrea Selva <selva.andrea at gmail.com> and 
+  Oleg Kalnichevski <olegk at apache.org> 
+
 * [HTTPCORE-149] I/O reactors now count period of inactivity since the
   time of the last read or write operation. Previously only read 
   operations resulted in timeout counter reset.
@@ -89,7 +95,7 @@ Changelog:
   Contributed by Oleg Kalnichevski <olegk at apache.org>
 
 * [HTTPCORE-121] new interface HeaderElementIterator
-  Contributed by Andrea Selva <selva.andre at gmail.com>
+  Contributed by Andrea Selva <selva.andrea at gmail.com>
 
 * [HTTPCORE-123] Fixed problem with SSLSession losing buffered data, if the 
   connection has been closed by the peer.
