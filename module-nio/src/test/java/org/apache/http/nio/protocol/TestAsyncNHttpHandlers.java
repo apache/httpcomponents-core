@@ -1759,4 +1759,130 @@ public class TestAsyncNHttpHandlers extends TestCase {
         this.server.shutdown();
 
     }
+    
+    /**
+     * This test case executes a series of simple (non-pipelined) POST requests
+     * with no entities on the client side, to ensure they are sent properly,
+     * and the server can read them.
+     */
+    public void testHttpPostWithNoEntities() throws Exception {
+
+        final int connNo = 3;
+        final int reqNo = 20;
+        final RequestCount requestCount = new RequestCount(connNo * reqNo);
+
+        NHttpRequestHandler requestHandler = new SimpleNHttpRequestHandler() {
+
+            public ConsumingNHttpEntity entityRequest(
+                    final HttpEntityEnclosingRequest request,
+                    final HttpContext context) throws HttpException, IOException {
+                return new BufferingNHttpEntity(
+                        request.getEntity(),
+                        new HeapByteBufferAllocator());
+            }
+
+            public void handle(
+                    final HttpRequest request,
+                    final HttpResponse response,
+                    final HttpContext context) throws HttpException, IOException {
+                if (request instanceof HttpEntityEnclosingRequest) {
+                    HttpEntity entity = ((HttpEntityEnclosingRequest) request).getEntity();
+                    byte[] b = EntityUtils.toByteArray(entity);
+                    if(b.length != 0)
+                        response.setEntity(new NStringEntity("Error!"));
+                    else
+                        response.setEntity(null);
+                } else {
+                    response.setEntity(null);
+                }
+            }
+        };
+
+        NHttpRequestExecutionHandler requestExecutionHandler = new NHttpRequestExecutionHandler() {
+
+            public void initalizeContext(final HttpContext context, final Object attachment) {
+                context.setAttribute("REQ-COUNT", new Integer(0));
+                context.setAttribute("RES-COUNT", new Integer(0));
+            }
+
+            public void finalizeContext(final HttpContext context) {
+            }
+
+            public ConsumingNHttpEntity responseEntity(
+                    final HttpResponse response,
+                    final HttpContext context) throws IOException {
+                return new BufferingNHttpEntity(response.getEntity(),
+                        new HeapByteBufferAllocator());
+            }
+
+            public HttpRequest submitRequest(final HttpContext context) {
+                int i = ((Integer) context.getAttribute("REQ-COUNT")).intValue();
+                BasicHttpEntityEnclosingRequest post = null;
+                if (i < reqNo) {
+                    post = new BasicHttpEntityEnclosingRequest("POST", "/?" + i);
+                    context.setAttribute("REQ-COUNT", new Integer(i + 1));
+                }
+                return post;
+            }
+
+            public void handleResponse(final HttpResponse response, final HttpContext context) {
+                NHttpConnection conn = (NHttpConnection) context.getAttribute(
+                        ExecutionContext.HTTP_CONNECTION);
+
+                int i = ((Integer) context.getAttribute("RES-COUNT")).intValue();
+                i++;
+                context.setAttribute("RES-COUNT", new Integer(i));
+
+                try {
+                    HttpEntity entity = response.getEntity();
+                    byte[] data = EntityUtils.toByteArray(entity);
+                    if(data.length > 0)
+                        requestCount.abort();
+                    else
+                        requestCount.decrement();
+                } catch (IOException ex) {
+                    requestCount.abort();
+                    return;
+                }
+
+                if (i < reqNo) {
+                    conn.requestInput();
+                }
+            }
+
+        };
+
+        NHttpServiceHandler serviceHandler = createHttpServiceHandler(
+                requestHandler,
+                null);
+
+        NHttpClientHandler clientHandler = createHttpClientHandler(
+                requestExecutionHandler);
+
+        this.server.setRequestCount(requestCount);
+        this.client.setRequestCount(requestCount);
+        
+        this.server.start(serviceHandler);
+        this.client.start(clientHandler);
+        
+        
+
+        ListenerEndpoint endpoint = this.server.getListenerEndpoint();
+        endpoint.waitFor();
+        
+        InetSocketAddress serverAddress = (InetSocketAddress) endpoint.getAddress();
+
+        for (int i = 0; i < connNo; i++) {
+            this.client.openConnection(
+                    new InetSocketAddress("localhost", serverAddress.getPort()),
+                    null);
+        }
+
+        requestCount.await(10000);
+        assertEquals(0, requestCount.getValue());
+
+        this.client.shutdown();
+        this.server.shutdown();
+
+    }
 }

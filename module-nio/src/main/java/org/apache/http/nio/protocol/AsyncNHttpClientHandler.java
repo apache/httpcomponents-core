@@ -143,29 +143,32 @@ public class AsyncNHttpClientHandler extends AbstractNHttpClientHandler {
 
             context.setAttribute(ExecutionContext.HTTP_REQUEST, request);
             this.httpProcessor.process(request, context);
+            
+            HttpEntityEnclosingRequest entityReq = null;
+            HttpEntity entity = null;
+            
+            if (request instanceof HttpEntityEnclosingRequest) {
+                entityReq = (HttpEntityEnclosingRequest) request;
+                entity = entityReq.getEntity();
+            }
+
+            if (entity instanceof ProducingNHttpEntity) {
+                connState.setProducingEntity((ProducingNHttpEntity) entity);
+            } else if (entity != null) {
+                connState.setProducingEntity(new NHttpEntityWrapper(entity));
+            }
+            
             connState.setRequest(request);
             conn.submitRequest(request);
             connState.setOutputState(ClientConnState.REQUEST_SENT);
 
-            if (request instanceof HttpEntityEnclosingRequest) {
-                HttpEntityEnclosingRequest entityReq = (HttpEntityEnclosingRequest) request;
-                HttpEntity entity = entityReq.getEntity();
-                if (entity != null) {
-                    if (entity instanceof ProducingNHttpEntity) {
-                        connState.setProducingEntity((ProducingNHttpEntity) entity);
-                    } else {
-                        connState.setProducingEntity(new NHttpEntityWrapper(entity));
-                    }
-                }
-
-                if (entityReq.expectContinue()) {
-                    int timeout = conn.getSocketTimeout();
-                    connState.setTimeout(timeout);
-                    timeout = this.params.getIntParameter(
-                            CoreProtocolPNames.WAIT_FOR_CONTINUE, 3000);
-                    conn.setSocketTimeout(timeout);
-                    connState.setOutputState(ClientConnState.EXPECT_CONTINUE);
-                }
+            if (entityReq != null && entityReq.expectContinue()) {
+                int timeout = conn.getSocketTimeout();
+                connState.setTimeout(timeout);
+                timeout = this.params.getIntParameter(
+                        CoreProtocolPNames.WAIT_FOR_CONTINUE, 3000);
+                conn.setSocketTimeout(timeout);
+                connState.setOutputState(ClientConnState.EXPECT_CONTINUE);
             }
 
         } catch (IOException ex) {

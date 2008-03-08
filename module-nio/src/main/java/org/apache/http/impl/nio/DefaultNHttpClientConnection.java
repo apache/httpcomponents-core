@@ -205,7 +205,8 @@ public class DefaultNHttpClientConnection
         this.requestWriter.write(request);
         this.hasBufferedOutput = this.outbuf.hasData();
 
-        if (request instanceof HttpEntityEnclosingRequest) {
+        if (request instanceof HttpEntityEnclosingRequest
+                && ((HttpEntityEnclosingRequest) request).getEntity() != null) {
             prepareEncoder(request);
             this.request = request;
         }
