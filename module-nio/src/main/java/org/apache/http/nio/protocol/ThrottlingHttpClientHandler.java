@@ -46,6 +46,7 @@ import org.apache.http.nio.ContentDecoder;
 import org.apache.http.nio.ContentEncoder;
 import org.apache.http.nio.IOControl;
 import org.apache.http.nio.NHttpClientConnection;
+import org.apache.http.nio.NHttpClientHandler;
 import org.apache.http.nio.NHttpConnection;
 import org.apache.http.nio.entity.ContentBufferEntity;
 import org.apache.http.nio.entity.ContentOutputStream;
@@ -81,8 +82,10 @@ import org.apache.http.protocol.HttpProcessor;
  * @author <a href="mailto:oleg at ural.ru">Oleg Kalnichevski</a>
  *
  */
-public class ThrottlingHttpClientHandler extends NHttpClientHandlerBase {
+public class ThrottlingHttpClientHandler extends NHttpHandlerBase
+                                         implements NHttpClientHandler {
 
+    protected HttpRequestExecutionHandler execHandler;
     protected final Executor executor;
     
     public ThrottlingHttpClientHandler(
@@ -92,10 +95,14 @@ public class ThrottlingHttpClientHandler extends NHttpClientHandlerBase {
             final ByteBufferAllocator allocator,
             final Executor executor,
             final HttpParams params) {
-        super(httpProcessor, execHandler, connStrategy, allocator, params);
+        super(httpProcessor, connStrategy, allocator, params);
+        if (execHandler == null) {
+            throw new IllegalArgumentException("HTTP request execution handler may not be null.");
+        }
         if (executor == null) {
             throw new IllegalArgumentException("Executor may not be null");
         }
+        this.execHandler = execHandler;
         this.executor = executor;
     }
     
@@ -126,18 +133,31 @@ public class ThrottlingHttpClientHandler extends NHttpClientHandlerBase {
         requestReady(conn);        
     }
 
-    @Override
     public void closed(final NHttpClientConnection conn) {
         HttpContext context = conn.getContext();
 
         this.execHandler.finalizeContext(context);
         
-        // TODO - replace with super.closed(conn); ?
         if (this.eventListener != null) {
             this.eventListener.connectionClosed(conn);
         }
     }
 
+    public void exception(final NHttpClientConnection conn, final HttpException ex) {
+        closeConnection(conn, ex);
+        if (this.eventListener != null) {
+            this.eventListener.fatalProtocolException(ex, conn);
+        }
+    }
+
+    public void exception(final NHttpClientConnection conn, final IOException ex) {
+        shutdownConnection(conn, ex);
+        if (this.eventListener != null) {
+            this.eventListener.fatalIOException(ex, conn);
+        }
+    }
+
+    
     public void requestReady(final NHttpClientConnection conn) {
         HttpContext context = conn.getContext();
 

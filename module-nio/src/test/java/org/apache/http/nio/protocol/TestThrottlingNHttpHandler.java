@@ -1,7 +1,7 @@
 /*
- * $HeadURL:$
- * $Revision:$
- * $Date:$
+ * $HeadURL$
+ * $Revision$
+ * $Date$
  * ====================================================================
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
@@ -82,7 +82,7 @@ import org.apache.http.protocol.ResponseServer;
  *
  * @author <a href="mailto:oleg at ural.ru">Oleg Kalnichevski</a>
  * 
- * @version $Id:$
+ * @version $Id$
  */
 public class TestThrottlingNHttpHandler extends TestCase {
 
@@ -149,7 +149,7 @@ public class TestThrottlingNHttpHandler extends TestCase {
         httpproc.addInterceptor(new ResponseContent());
         httpproc.addInterceptor(new ResponseConnControl());
 
-        NHttpServiceHandlerBase serviceHandler = new ThrottlingHttpServiceHandler(
+        ThrottlingHttpServiceHandler serviceHandler = new ThrottlingHttpServiceHandler(
                 httpproc,
                 new DefaultHttpResponseFactory(),
                 new DefaultConnectionReuseStrategy(),

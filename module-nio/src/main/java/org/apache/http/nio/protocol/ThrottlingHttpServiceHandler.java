@@ -54,6 +54,7 @@ import org.apache.http.nio.ContentEncoder;
 import org.apache.http.nio.IOControl;
 import org.apache.http.nio.NHttpConnection;
 import org.apache.http.nio.NHttpServerConnection;
+import org.apache.http.nio.NHttpServiceHandler;
 import org.apache.http.nio.entity.ContentBufferEntity;
 import org.apache.http.nio.entity.ContentOutputStream;
 import org.apache.http.nio.params.NIOReactorPNames;
@@ -67,8 +68,10 @@ import org.apache.http.params.HttpParams;
 import org.apache.http.params.DefaultedHttpParams;
 import org.apache.http.protocol.HttpContext;
 import org.apache.http.protocol.ExecutionContext;
+import org.apache.http.protocol.HttpExpectationVerifier;
 import org.apache.http.protocol.HttpProcessor;
 import org.apache.http.protocol.HttpRequestHandler;
+import org.apache.http.protocol.HttpRequestHandlerResolver;
 import org.apache.http.util.EncodingUtils;
 
 /**
@@ -88,9 +91,14 @@ import org.apache.http.util.EncodingUtils;
  * @author <a href="mailto:oleg at ural.ru">Oleg Kalnichevski</a>
  *
  */
-public class ThrottlingHttpServiceHandler extends NHttpServiceHandlerBase {
+public class ThrottlingHttpServiceHandler extends NHttpHandlerBase
+                                          implements NHttpServiceHandler {
 
+    protected final HttpResponseFactory responseFactory;
     protected final Executor executor;
+
+    protected HttpRequestHandlerResolver handlerResolver;
+    protected HttpExpectationVerifier expectationVerifier;
     
     public ThrottlingHttpServiceHandler(
             final HttpProcessor httpProcessor, 
@@ -99,7 +107,14 @@ public class ThrottlingHttpServiceHandler extends NHttpServiceHandlerBase {
             final ByteBufferAllocator allocator,
             final Executor executor,
             final HttpParams params) {
-        super(httpProcessor, responseFactory, connStrategy, allocator, params);
+        super(httpProcessor, connStrategy, allocator, params);
+        if (responseFactory == null) {
+            throw new IllegalArgumentException("Response factory may not be null");
+        }
+        if (executor == null) {
+            throw new IllegalArgumentException("Executor may not be null");
+        }
+        this.responseFactory = responseFactory;
         this.executor = executor;
     }
 
@@ -111,6 +126,14 @@ public class ThrottlingHttpServiceHandler extends NHttpServiceHandlerBase {
             final HttpParams params) {
         this(httpProcessor, responseFactory, connStrategy, 
                 new DirectByteBufferAllocator(), executor, params);
+    }
+
+    public void setHandlerResolver(final HttpRequestHandlerResolver handlerResolver) {
+        this.handlerResolver = handlerResolver;
+    }
+    
+    public void setExpectationVerifier(final HttpExpectationVerifier expectationVerifier) {
+        this.expectationVerifier = expectationVerifier;
     }
 
     public void connected(final NHttpServerConnection conn) {
@@ -181,6 +204,18 @@ public class ThrottlingHttpServiceHandler extends NHttpServiceHandlerBase {
                 eventListener.fatalProtocolException(ex, conn);
             }
         }
+    }
+
+    public void exception(final NHttpServerConnection conn, final IOException ex) {
+        shutdownConnection(conn, ex);
+
+        if (this.eventListener != null) {
+            this.eventListener.fatalIOException(ex, conn);
+        }
+    }
+
+    public void timeout(final NHttpServerConnection conn) {
+        handleTimeout(conn);
     }
 
     public void requestReceived(final NHttpServerConnection conn) {

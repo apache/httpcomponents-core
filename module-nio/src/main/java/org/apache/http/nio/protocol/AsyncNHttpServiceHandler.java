@@ -63,6 +63,7 @@ import org.apache.http.params.DefaultedHttpParams;
 import org.apache.http.params.HttpParams;
 import org.apache.http.protocol.ExecutionContext;
 import org.apache.http.protocol.HttpContext;
+import org.apache.http.protocol.HttpExpectationVerifier;
 import org.apache.http.protocol.HttpProcessor;
 import org.apache.http.util.EncodingUtils;
 
@@ -92,10 +93,13 @@ import org.apache.http.util.EncodingUtils;
  * @author <a href="mailto:sberlin at gmail.com">Sam Berlin</a>
  * @author Steffen Pingel
  */
-public class AsyncNHttpServiceHandler extends AbstractNHttpServiceHandler
-                                         implements NHttpServiceHandler {
+public class AsyncNHttpServiceHandler extends NHttpHandlerBase
+                                      implements NHttpServiceHandler {
+
+    protected final HttpResponseFactory responseFactory;
 
     protected NHttpRequestHandlerResolver handlerResolver;
+    protected HttpExpectationVerifier expectationVerifier;
 
     public AsyncNHttpServiceHandler(
             final HttpProcessor httpProcessor,
@@ -103,7 +107,11 @@ public class AsyncNHttpServiceHandler extends AbstractNHttpServiceHandler
             final ConnectionReuseStrategy connStrategy,
             final ByteBufferAllocator allocator,
             final HttpParams params) {
-        super(httpProcessor, responseFactory, connStrategy, allocator, params);
+        super(httpProcessor, connStrategy, allocator, params);
+        if (responseFactory == null) {
+            throw new IllegalArgumentException("Response factory may not be null");
+        }
+        this.responseFactory = responseFactory;
     }
 
     public AsyncNHttpServiceHandler(
@@ -113,6 +121,10 @@ public class AsyncNHttpServiceHandler extends AbstractNHttpServiceHandler
             final HttpParams params) {
         this(httpProcessor, responseFactory, connStrategy,
                 new HeapByteBufferAllocator(), params);
+    }
+
+    public void setExpectationVerifier(final HttpExpectationVerifier expectationVerifier) {
+        this.expectationVerifier = expectationVerifier;
     }
 
     public void setHandlerResolver(final NHttpRequestHandlerResolver handlerResolver) {
@@ -264,6 +276,18 @@ public class AsyncNHttpServiceHandler extends AbstractNHttpServiceHandler
                 this.eventListener.fatalProtocolException(ex, conn);
             }
         }
+    }
+
+    public void exception(final NHttpServerConnection conn, final IOException ex) {
+        shutdownConnection(conn, ex);
+
+        if (this.eventListener != null) {
+            this.eventListener.fatalIOException(ex, conn);
+        }
+    }
+
+    public void timeout(final NHttpServerConnection conn) {
+        handleTimeout(conn);
     }
 
     public void inputReady(final NHttpServerConnection conn, final ContentDecoder decoder) {

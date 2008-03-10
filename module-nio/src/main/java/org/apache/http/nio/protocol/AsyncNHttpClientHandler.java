@@ -43,6 +43,7 @@ import org.apache.http.HttpStatus;
 import org.apache.http.nio.ContentDecoder;
 import org.apache.http.nio.ContentEncoder;
 import org.apache.http.nio.NHttpClientConnection;
+import org.apache.http.nio.NHttpClientHandler;
 import org.apache.http.nio.entity.ConsumingNHttpEntity;
 import org.apache.http.nio.entity.ConsumingNHttpEntityTemplate;
 import org.apache.http.nio.entity.NHttpEntityWrapper;
@@ -68,7 +69,8 @@ import org.apache.http.protocol.HttpProcessor;
  * @author <a href="mailto:sberlin at gmail.com">Sam Berlin</a>
  *
  */
-public class AsyncNHttpClientHandler extends AbstractNHttpClientHandler {
+public class AsyncNHttpClientHandler extends NHttpHandlerBase
+                                     implements NHttpClientHandler {
 
     protected NHttpRequestExecutionHandler execHandler;
 
@@ -109,7 +111,6 @@ public class AsyncNHttpClientHandler extends AbstractNHttpClientHandler {
         requestReady(conn);
     }
 
-    @Override
     public void closed(final NHttpClientConnection conn) {
         HttpContext context = conn.getContext();
 
@@ -123,6 +124,20 @@ public class AsyncNHttpClientHandler extends AbstractNHttpClientHandler {
         }
     }
 
+    public void exception(final NHttpClientConnection conn, final HttpException ex) {
+        closeConnection(conn, ex);
+        if (this.eventListener != null) {
+            this.eventListener.fatalProtocolException(ex, conn);
+        }
+    }
+
+    public void exception(final NHttpClientConnection conn, final IOException ex) {
+        shutdownConnection(conn, ex);
+        if (this.eventListener != null) {
+            this.eventListener.fatalIOException(ex, conn);
+        }
+    }
+    
     public void requestReady(final NHttpClientConnection conn) {
         HttpContext context = conn.getContext();
 

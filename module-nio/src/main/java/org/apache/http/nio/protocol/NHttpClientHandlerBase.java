@@ -31,12 +31,19 @@
 
 package org.apache.http.nio.protocol;
 
+import java.io.IOException;
+
 import org.apache.http.ConnectionReuseStrategy;
+import org.apache.http.HttpException;
+import org.apache.http.nio.NHttpClientConnection;
+import org.apache.http.nio.NHttpClientHandler;
 import org.apache.http.nio.util.ByteBufferAllocator;
 import org.apache.http.params.HttpParams;
 import org.apache.http.protocol.HttpProcessor;
 
-public abstract class NHttpClientHandlerBase extends AbstractNHttpClientHandler {
+@Deprecated
+public abstract class NHttpClientHandlerBase extends NHttpHandlerBase
+                                             implements NHttpClientHandler {
 
     protected HttpRequestExecutionHandler execHandler;
 
@@ -51,6 +58,26 @@ public abstract class NHttpClientHandlerBase extends AbstractNHttpClientHandler 
             throw new IllegalArgumentException("HTTP request execution handler may not be null.");
         }
         this.execHandler = execHandler;
+    }
+
+    public void closed(final NHttpClientConnection conn) {
+        if (this.eventListener != null) {
+            this.eventListener.connectionClosed(conn);
+        }
+    }
+
+    public void exception(final NHttpClientConnection conn, final HttpException ex) {
+        closeConnection(conn, ex);
+        if (this.eventListener != null) {
+            this.eventListener.fatalProtocolException(ex, conn);
+        }
+    }
+
+    public void exception(final NHttpClientConnection conn, final IOException ex) {
+        shutdownConnection(conn, ex);
+        if (this.eventListener != null) {
+            this.eventListener.fatalIOException(ex, conn);
+        }
     }
 
 }
