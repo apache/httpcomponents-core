@@ -88,7 +88,8 @@ import org.apache.http.util.EncodingUtils;
 import org.apache.http.util.EntityUtils;
 
 /**
- * HttpCore NIO integration tests.
+ * HttpCore NIO integration tests using buffering versions of the 
+ * protocol handlers.
  *
  * @author <a href="mailto:oleg at ural.ru">Oleg Kalnichevski</a>
  *
