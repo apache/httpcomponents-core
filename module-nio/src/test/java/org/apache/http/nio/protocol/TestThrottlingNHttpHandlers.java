@@ -102,25 +102,25 @@ import org.apache.http.util.EntityUtils;
  * 
  * @version $Id$
  */
-public class TestThrottlingNHttpHandler extends TestCase {
+public class TestThrottlingNHttpHandlers extends TestCase {
 
     private static final int DEFAULT_SERVER_SO_TIMEOUT = 5000;
     
     // ------------------------------------------------------------ Constructor
-    public TestThrottlingNHttpHandler(String testName) {
+    public TestThrottlingNHttpHandlers(String testName) {
         super(testName);
     }
 
     // ------------------------------------------------------------------- Main
     public static void main(String args[]) {
-        String[] testCaseName = { TestThrottlingNHttpHandler.class.getName() };
+        String[] testCaseName = { TestThrottlingNHttpHandlers.class.getName() };
         junit.textui.TestRunner.main(testCaseName);
     }
 
     // ------------------------------------------------------- TestCase Methods
 
     public static Test suite() {
-        return new TestSuite(TestThrottlingNHttpHandler.class);
+        return new TestSuite(TestThrottlingNHttpHandlers.class);
     }
 
     private TestHttpServer server;

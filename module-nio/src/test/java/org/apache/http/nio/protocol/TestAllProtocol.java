@@ -41,7 +41,7 @@ public class TestAllProtocol extends TestCase {
     public static Test suite() {
         TestSuite suite = new TestSuite();
         suite.addTest(TestBufferingNHttpHandlers.suite());
-        suite.addTest(TestThrottlingNHttpHandler.suite());
+        suite.addTest(TestThrottlingNHttpHandlers.suite());
         suite.addTest(TestNIOSSLHttp.suite());
         suite.addTest(TestAsyncNHttpHandlers.suite());
         return suite;
