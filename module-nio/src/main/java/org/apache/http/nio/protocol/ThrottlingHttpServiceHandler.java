@@ -301,6 +301,15 @@ public class ThrottlingHttpServiceHandler extends NHttpHandlerBase
         try {
         
             synchronized (connState) {
+                
+                if (connState.isExpectationFailed()) {
+                    // Server expection failed
+                    // Well-behaved client will not be sending
+                    // a request body
+                    conn.resetInput();
+                    connState.setExpectationFailed(false);
+                }
+                
                 HttpResponse response = connState.getResponse();
                 if (connState.getOutputState() == ServerConnState.READY 
                         && response != null 
@@ -462,12 +471,11 @@ public class ThrottlingHttpServiceHandler extends NHttpHandlerBase
                         handleException(ex, response);
                     }
                 }
-            
-                if (response.getStatusLine().getStatusCode() < 200) {
-                    
-                    // Send 1xx response indicating the server expections
-                    // have been met
-                    synchronized (connState) {
+
+                synchronized (connState) {
+                    if (response.getStatusLine().getStatusCode() < 200) {
+                        // Send 1xx response indicating the server expections
+                        // have been met
                         connState.setResponse(response);
                         conn.requestOutput();
                         
@@ -489,13 +497,13 @@ public class ThrottlingHttpServiceHandler extends NHttpHandlerBase
                         }
                         connState.resetOutput();
                         response = null;
+                    } else {
+                        // Discard request entity
+                        eeRequest.setEntity(null);
+                        conn.suspendInput();
+                        connState.setExpectationFailed(true);
                     }
-                } else {
-                    // Discard request entity
-                    conn.resetInput();
-                    eeRequest.setEntity(null);
                 }
-
             }
 
             // Create a wrapper entity instead of the original one
@@ -541,6 +549,14 @@ public class ThrottlingHttpServiceHandler extends NHttpHandlerBase
             }
         }
 
+        if (request instanceof HttpEntityEnclosingRequest) {
+            HttpEntityEnclosingRequest eeRequest = (HttpEntityEnclosingRequest) request;
+            HttpEntity entity = eeRequest.getEntity();
+            if (entity != null) {
+                entity.consumeContent();
+            }
+        }
+        
         this.httpProcessor.process(response, context);
 
         if (!canResponseHaveBody(request, response)) {
@@ -605,7 +621,8 @@ public class ThrottlingHttpServiceHandler extends NHttpHandlerBase
         
         private volatile HttpRequest request;
         private volatile HttpResponse response;
-        
+
+        private volatile boolean expectationFailure;
         private volatile boolean workerRunning; 
         
         public ServerConnState(
@@ -667,6 +684,14 @@ public class ThrottlingHttpServiceHandler extends NHttpHandlerBase
             this.workerRunning = b;
         }
 
+        public boolean isExpectationFailed() {
+            return expectationFailure;
+        }
+
+        public void setExpectationFailed(boolean b) {
+            this.expectationFailure = b;
+        }
+
         public void shutdown() {
             this.inbuffer.shutdown();
             this.outbuffer.shutdown();
@@ -678,6 +703,7 @@ public class ThrottlingHttpServiceHandler extends NHttpHandlerBase
             this.inbuffer.reset();
             this.request = null;
             this.inputState = READY;
+            this.expectationFailure = false;
         }
         
         public void resetOutput() {

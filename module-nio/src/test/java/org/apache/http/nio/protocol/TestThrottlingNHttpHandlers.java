@@ -611,12 +611,12 @@ public class TestThrottlingNHttpHandlers extends TestCase {
         }
         assertEquals(0, requestCount.getValue());
 
-        this.client.shutdown();
-        this.server.shutdown();
-
         this.execService.shutdown();
         this.execService.awaitTermination(10, TimeUnit.SECONDS);
         
+        this.client.shutdown();
+        this.server.shutdown();
+
         for (int c = 0; c < responseData.size(); c++) {
             ByteSequence receivedPackets = responseData.get(c);
             ByteSequence expectedPackets = requestData;
@@ -900,6 +900,9 @@ public class TestThrottlingNHttpHandlers extends TestCase {
         requestCount.await(10000);
         assertEquals(0, requestCount.getValue());
 
+        this.execService.shutdown();
+        this.execService.awaitTermination(10, TimeUnit.SECONDS);
+        
         this.client.shutdown();
         this.server.shutdown();
 
@@ -1193,6 +1196,9 @@ public class TestThrottlingNHttpHandlers extends TestCase {
 
         requestCount.await(10000);
 
+        this.execService.shutdown();
+        this.execService.awaitTermination(10, TimeUnit.SECONDS);
+        
         this.client.shutdown();
         this.server.shutdown();
 
@@ -1334,6 +1340,9 @@ public class TestThrottlingNHttpHandlers extends TestCase {
         requestCount.await(10000);
         assertEquals(0, requestCount.getValue());
 
+        this.execService.shutdown();
+        this.execService.awaitTermination(10, TimeUnit.SECONDS);
+        
         this.client.shutdown();
         this.server.shutdown();
 
@@ -1359,6 +1368,142 @@ public class TestThrottlingNHttpHandlers extends TestCase {
                 }
             }
         }
+    }
+
+    /**
+     * This test case tests if the protocol handler can correctly deal
+     * with requests with partially consumed content.
+     */
+    public void testSimpleHttpPostsContentNotConsumed() throws Exception {
+
+        final int connNo = 3;
+        final int reqNo = 20;
+        final RequestCount requestCount = new RequestCount(connNo * reqNo);
+        final ByteSequence requestData = new ByteSequence();
+        requestData.rnd(reqNo);
+
+        List<ResponseSequence> responseData = new ArrayList<ResponseSequence>(connNo);
+        for (int i = 0; i < connNo; i++) {
+            responseData.add(new ResponseSequence());
+        }
+        
+        HttpRequestHandler requestHandler = new HttpRequestHandler() {
+
+            public void handle(
+                    final HttpRequest request,
+                    final HttpResponse response,
+                    final HttpContext context) throws HttpException, IOException {
+
+                // Request content body has not been consumed!!!
+                response.setStatusCode(HttpStatus.SC_INTERNAL_SERVER_ERROR);
+                NStringEntity outgoing = new NStringEntity("Ooopsie");
+                response.setEntity(outgoing);
+            }
+
+        };
+        
+        HttpRequestExecutionHandler requestExecutionHandler = new HttpRequestExecutionHandler() {
+
+            public void initalizeContext(final HttpContext context, final Object attachment) {
+                context.setAttribute("LIST", (ResponseSequence) attachment);
+                context.setAttribute("REQ-COUNT", new Integer(0));
+                context.setAttribute("RES-COUNT", new Integer(0));
+            }
+
+            public void finalizeContext(final HttpContext context) {
+            }
+
+            public HttpRequest submitRequest(final HttpContext context) {
+                int i = ((Integer) context.getAttribute("REQ-COUNT")).intValue();
+                BasicHttpEntityEnclosingRequest post = null;
+                if (i < reqNo) {
+                    post = new BasicHttpEntityEnclosingRequest("POST", "/?" + i);
+                    byte[] data = requestData.getBytes(i);
+                    NByteArrayEntity outgoing = new NByteArrayEntity(data);
+                    outgoing.setChunked(i % 2 == 0);
+                    post.setEntity(outgoing);
+
+                    context.setAttribute("REQ-COUNT", new Integer(i + 1));
+                }
+                return post;
+            }
+
+            public void handleResponse(final HttpResponse response, final HttpContext context) {
+                NHttpConnection conn = (NHttpConnection) context.getAttribute(
+                        ExecutionContext.HTTP_CONNECTION);
+
+                ResponseSequence list = (ResponseSequence) context.getAttribute("LIST");
+                int i = ((Integer) context.getAttribute("RES-COUNT")).intValue();
+                i++;
+                context.setAttribute("RES-COUNT", new Integer(i));
+
+                HttpEntity entity = response.getEntity();
+                if (entity != null) {
+                    try {
+                        entity.consumeContent();
+                    } catch (IOException ex) {
+                        requestCount.abort();
+                        return;
+                    }
+                }
+
+                list.addResponse(response);
+                requestCount.decrement();
+
+                if (i < reqNo) {
+                    conn.requestInput();
+                }
+            }
+            
+        };
+
+        NHttpServiceHandler serviceHandler = createHttpServiceHandler(
+                requestHandler,
+                null,
+                this.execService);
+
+        NHttpClientHandler clientHandler = createHttpClientHandler(
+                requestExecutionHandler,
+                this.execService);
+
+        this.server.setRequestCount(requestCount);
+        this.client.setRequestCount(requestCount);
+        
+        this.server.start(serviceHandler);
+        this.client.start(clientHandler);
+
+        ListenerEndpoint endpoint = this.server.getListenerEndpoint();
+        endpoint.waitFor();
+        InetSocketAddress serverAddress = (InetSocketAddress) endpoint.getAddress();
+
+        for (int i = 0; i < responseData.size(); i++) {
+            this.client.openConnection(
+                    new InetSocketAddress("localhost", serverAddress.getPort()),
+                    responseData.get(i));
+        }
+
+        requestCount.await(10000);
+        if (requestCount.isAborted()) {
+            System.out.println("Test case aborted");
+        }
+        assertEquals(0, requestCount.getValue());
+
+        this.client.shutdown();
+        this.server.shutdown();
+
+        this.execService.shutdown();
+        this.execService.awaitTermination(10, TimeUnit.SECONDS);
+        
+        for (int c = 0; c < responseData.size(); c++) {
+            ResponseSequence receivedPackets = responseData.get(c);
+            for (int p = 0; p < requestData.size(); p++) {
+                HttpResponse received = receivedPackets.getResponse(p);
+                assertNotNull(received);
+                assertEquals(HttpStatus.SC_INTERNAL_SERVER_ERROR, 
+                        received.getStatusLine().getStatusCode());
+            }
+        }
+
     }
 
 }
