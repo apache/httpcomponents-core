@@ -54,7 +54,6 @@ public class SSLServerIOEventDispatch implements IOEventDispatch {
     private static final String NHTTP_CONN = "NHTTP_CONN";
     private static final String SSL_SESSION = "SSL_SESSION";
    
-    protected final ByteBufferAllocator allocator;
     protected final NHttpServiceHandler handler;
     protected final SSLContext sslcontext;
     protected final SSLIOSessionHandler sslHandler;
@@ -75,7 +74,6 @@ public class SSLServerIOEventDispatch implements IOEventDispatch {
         if (params == null) {
             throw new IllegalArgumentException("HTTP parameters may not be null");
         }
-        this.allocator = createByteBufferAllocator();
         this.handler = handler;
         this.params = params;
         this.sslcontext = sslcontext;
@@ -101,13 +99,20 @@ public class SSLServerIOEventDispatch implements IOEventDispatch {
         return new DefaultNHttpServerConnection(
                 session, 
                 createHttpRequestFactory(),
-                this.allocator,
+                createByteBufferAllocator(),
                 this.params); 
     }
         
+    protected SSLIOSession createSSLIOSession(
+            final IOSession session,
+            final SSLContext sslcontext,
+            final SSLIOSessionHandler sslHandler) {
+        return new SSLIOSession(session, sslcontext, sslHandler); 
+    }
+    
     public void connected(final IOSession session) {
 
-        SSLIOSession sslSession = new SSLIOSession(
+        SSLIOSession sslSession = createSSLIOSession(
                 session, 
                 this.sslcontext,
                 this.sslHandler); 
