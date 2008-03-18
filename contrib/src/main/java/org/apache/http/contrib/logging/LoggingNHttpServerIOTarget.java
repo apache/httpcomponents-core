@@ -32,19 +32,22 @@
 package org.apache.http.contrib.logging;
 
 import java.io.IOException;
+import java.net.InetAddress;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.http.Header;
 import org.apache.http.HttpConnectionMetrics;
 import org.apache.http.HttpException;
+import org.apache.http.HttpInetConnection;
 import org.apache.http.HttpRequest;
 import org.apache.http.HttpResponse;
 import org.apache.http.nio.NHttpServerIOTarget;
 import org.apache.http.nio.NHttpServiceHandler;
 import org.apache.http.protocol.HttpContext;
 
-public class LoggingNHttpServerIOTarget implements NHttpServerIOTarget {
+public class LoggingNHttpServerIOTarget 
+    implements NHttpServerIOTarget, HttpInetConnection {
 
     private final NHttpServerIOTarget target;
     private final Log log;
@@ -154,4 +157,41 @@ public class LoggingNHttpServerIOTarget implements NHttpServerIOTarget {
         this.target.produceOutput(handler);
     }
     
+    public InetAddress getLocalAddress() {
+      if (this.target instanceof HttpInetConnection) {
+          return ((HttpInetConnection) this.target).getLocalAddress();
+      } else {
+          return null;
+      }
+  }
+
+  public int getLocalPort() {
+      if (this.target instanceof HttpInetConnection) {
+          return ((HttpInetConnection) this.target).getLocalPort();
+      } else {
+          return -1;
+      }
+  }
+
+  public InetAddress getRemoteAddress() {
+      if (this.target instanceof HttpInetConnection) {
+          return ((HttpInetConnection) this.target).getRemoteAddress();
+      } else {
+          return null;
+      }
+  }
+
+  public int getRemotePort() {
+      if (this.target instanceof HttpInetConnection) {
+          return ((HttpInetConnection) this.target).getRemotePort();
+      } else {
+          return -1;
+      }
+  }
+  
+  @Override
+  public String toString() {
+      return this.target.toString();
+  }
+  
 }
