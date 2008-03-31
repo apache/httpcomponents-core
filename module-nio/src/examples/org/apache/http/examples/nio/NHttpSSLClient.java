@@ -33,6 +33,7 @@ package org.apache.http.examples.nio;
 import java.io.IOException;
 import java.io.InterruptedIOException;
 import java.net.InetSocketAddress;
+import java.util.concurrent.CountDownLatch;
 
 import javax.net.ssl.SSLContext;
 
@@ -52,6 +53,7 @@ import org.apache.http.nio.protocol.HttpRequestExecutionHandler;
 import org.apache.http.nio.reactor.ConnectingIOReactor;
 import org.apache.http.nio.reactor.IOEventDispatch;
 import org.apache.http.nio.reactor.SessionRequest;
+import org.apache.http.nio.reactor.SessionRequestCallback;
 import org.apache.http.params.BasicHttpParams;
 import org.apache.http.params.CoreConnectionPNames;
 import org.apache.http.params.HttpParams;
@@ -93,7 +95,7 @@ public class NHttpSSLClient {
         
         // We are going to use this object to synchronize between the 
         // I/O event and main threads
-        RequestCount requestCount = new RequestCount(3);
+        CountDownLatch requestCount = new CountDownLatch(3);
         
         BufferingHttpClientHandler handler = new BufferingHttpClientHandler(
                 httpproc,
@@ -124,30 +126,26 @@ public class NHttpSSLClient {
         });
         t.start();
 
-        SessionRequest[] reqs = new SessionRequest[requestCount.getValue()];
+        SessionRequest[] reqs = new SessionRequest[3];
         reqs[0] = ioReactor.connect(
                 new InetSocketAddress("www.netscape.com", 443), 
                 null, 
                 new HttpHost("www.netscape.com", 443),
-                null);
+                new MySessionRequestCallback(requestCount));
         reqs[1] = ioReactor.connect(
                 new InetSocketAddress("www.verisign.com", 443), 
                 null,
                 new HttpHost("www.verisign.com", 443),
-                null);
+                new MySessionRequestCallback(requestCount));
         reqs[2] = ioReactor.connect(
                 new InetSocketAddress("www.yahoo.com", 443), 
                 null,
                 new HttpHost("www.yahoo.com", 443),
-                null);
+                new MySessionRequestCallback(requestCount));
      
         // Block until all connections signal
         // completion of the request execution
-        synchronized (requestCount) {
-            while (requestCount.getValue() > 0) {
-                requestCount.wait();
-            }
-        }
+        requestCount.await();
 
         System.out.println("Shutting down I/O reactor");
         
@@ -161,9 +159,9 @@ public class NHttpSSLClient {
         private final static String REQUEST_SENT       = "request-sent";
         private final static String RESPONSE_RECEIVED  = "response-received";
         
-        private final RequestCount requestCount;
+        private final CountDownLatch requestCount;
         
-        public MyHttpRequestExecutionHandler(final RequestCount requestCount) {
+        public MyHttpRequestExecutionHandler(final CountDownLatch requestCount) {
             super();
             this.requestCount = requestCount;
         }
@@ -177,10 +175,7 @@ public class NHttpSSLClient {
             Object flag = context.getAttribute(RESPONSE_RECEIVED);
             if (flag == null) {
                 // Signal completion of the request execution
-                synchronized (this.requestCount) {
-                    this.requestCount.decrement();
-                    this.requestCount.notifyAll();
-                }
+                this.requestCount.countDown();
             }
         }
 
@@ -220,10 +215,33 @@ public class NHttpSSLClient {
             context.setAttribute(RESPONSE_RECEIVED, Boolean.TRUE);
             
             // Signal completion of the request execution
-            synchronized (this.requestCount) {
-                this.requestCount.decrement();
-                this.requestCount.notifyAll();
-            }
+            this.requestCount.countDown();
+        }
+        
+    }
+    
+    static class MySessionRequestCallback implements SessionRequestCallback {
+
+        private final CountDownLatch requestCount;        
+        
+        public MySessionRequestCallback(final CountDownLatch requestCount) {
+            super();
+            this.requestCount = requestCount;
+        }
+        
+        public void cancelled(final SessionRequest request) {
+            this.requestCount.countDown();
+        }
+
+        public void completed(final SessionRequest request) {
+        }
+
+        public void failed(final SessionRequest request) {
+            this.requestCount.countDown();
+        }
+
+        public void timeout(final SessionRequest request) {
+            this.requestCount.countDown();
         }
         
     }
@@ -252,22 +270,4 @@ public class NHttpSSLClient {
         
     }
 
-    static class RequestCount {
-        
-        private int value;
-        
-        public RequestCount(int initialValue) {
-            this.value = initialValue;
-        }
-        
-        public int getValue() {
-            return this.value;
-        }
-        
-        public void decrement() {
-            this.value--;
-        }
-        
-    }
-    
 }
