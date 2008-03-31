@@ -353,11 +353,16 @@ public class NHttpReverseProxy {
                     if (response == null) {
                         throw new IllegalStateException("HTTP request is null");
                     }
-                    // Remove connection specific headers
+                    // Remove hop-by-hop headers
                     response.removeHeaders(HTTP.CONTENT_LEN);
                     response.removeHeaders(HTTP.TRANSFER_ENCODING);
                     response.removeHeaders(HTTP.CONN_DIRECTIVE);
                     response.removeHeaders("Keep-Alive");
+                    response.removeHeaders("Proxy-Authenticate");
+                    response.removeHeaders("Proxy-Authorization");
+                    response.removeHeaders("TE");
+                    response.removeHeaders("Trailers");
+                    response.removeHeaders("Upgrade");
                     
                     response.setParams(
                             new DefaultedHttpParams(response.getParams(), this.params));
@@ -615,13 +620,18 @@ public class NHttpReverseProxy {
                     throw new IllegalStateException("HTTP request is null");
                 }
                 
-                // Remove connection specific headers
+                // Remove hop-by-hop headers
                 request.removeHeaders(HTTP.CONTENT_LEN);
                 request.removeHeaders(HTTP.TRANSFER_ENCODING);
-                request.removeHeaders(HTTP.TARGET_HOST);
                 request.removeHeaders(HTTP.CONN_DIRECTIVE);
-                request.removeHeaders(HTTP.USER_AGENT);
                 request.removeHeaders("Keep-Alive");
+                request.removeHeaders("Proxy-Authenticate");
+                request.removeHeaders("Proxy-Authorization");
+                request.removeHeaders("TE");
+                request.removeHeaders("Trailers");
+                request.removeHeaders("Upgrade");
+                // Remove host header
+                request.removeHeaders(HTTP.TARGET_HOST);
                 
                 HttpHost targetHost = proxyTask.getTarget();
                 
