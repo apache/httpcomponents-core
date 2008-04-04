@@ -171,10 +171,11 @@ public class ChunkedOutputStream extends OutputStream {
     }
 
     /**
-     * Flushes the underlying stream, but leaves the internal buffer alone.
+     * Flushes the content buffer and the underlying stream.
      * @throws IOException
      */
     public void flush() throws IOException {
+        flushCache();
         this.out.flush();
     }
 
