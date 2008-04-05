@@ -41,8 +41,6 @@ import org.apache.http.io.SessionOutputBuffer;
  * See <a href="http://www.w3.org/Protocols/rfc2616/rfc2616.txt">RFC 2616</a>,
  * <a href="http://www.w3.org/Protocols/rfc2616/rfc2616-sec3.html#sec3.6">section 3.6.1</a>.
  * Writes are buffered to an internal buffer (2048 default size).
- * Chunks are guaranteed to be at least as large as the buffer size
- * (except for the last chunk).
  * 
  * @author Mohammad Rezaei (Goldman, Sachs &amp; Co.)
  * @author <a href="mailto:oleg at ural.ru">Oleg Kalnichevski</a>
