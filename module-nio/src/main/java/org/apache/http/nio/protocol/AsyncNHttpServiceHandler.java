@@ -237,8 +237,13 @@ public class AsyncNHttpServiceHandler extends NHttpHandlerBase
         HttpContext context = conn.getContext();
 
         ServerConnState connState = (ServerConnState) context.getAttribute(CONN_STATE);
-        connState.reset();
-
+        try {
+            connState.reset();
+        } catch (IOException ex) {
+            if (this.eventListener != null) {
+                this.eventListener.fatalIOException(ex, conn);
+            }
+        }
         if (this.eventListener != null) {
             this.eventListener.connectionClosed(conn);
         }
@@ -526,21 +531,21 @@ public class AsyncNHttpServiceHandler extends NHttpHandlerBase
         private volatile HttpException httpex;
         private volatile boolean handled;
 
-        public void finishInput() {
+        public void finishInput() throws IOException {
             if (this.consumingEntity != null) {
                 this.consumingEntity.finish();
                 this.consumingEntity = null;
             }
         }
 
-        public void finishOutput() {
+        public void finishOutput() throws IOException {
             if (this.producingEntity != null) {
                 this.producingEntity.finish();
                 this.producingEntity = null;
             }
         }
 
-        public void reset() {
+        public void reset() throws IOException {
             finishInput();
             this.request = null;
             finishOutput();

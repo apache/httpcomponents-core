@@ -54,6 +54,6 @@ public interface ProducingNHttpEntity extends HttpEntity {
     /**
      * Notification that any resources allocated for writing can be released.
      */
-    void finish();
+    void finish() throws IOException;
 
 }

@@ -3,6 +3,7 @@ Changes since 4.0 Beta 1
 
 * [HTTPCORE-157] ChunkedOutputStream#flush() now behaves consistently with the 
   specification of OutputStream#flush().
+  Oleg Kalnichevski <olegk at apache.org> 
 
 * [HTTPCORE-147] Fixed handling of requests with partially consumed content
   in ThrottlingHttpServiceHandler.

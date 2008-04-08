@@ -115,7 +115,13 @@ public class AsyncNHttpClientHandler extends NHttpHandlerBase
         HttpContext context = conn.getContext();
 
         ClientConnState connState = (ClientConnState) context.getAttribute(CONN_STATE);
-        connState.reset();
+        try {
+            connState.reset();
+        } catch (IOException ex) {
+            if (this.eventListener != null) {
+                this.eventListener.fatalIOException(ex, conn);
+            }
+        }
 
         this.execHandler.finalizeContext(context);
 
@@ -447,7 +453,7 @@ public class AsyncNHttpClientHandler extends NHttpHandlerBase
             this.timeout = timeout;
         }
 
-        public void resetInput() {
+        public void resetInput() throws IOException {
             this.response = null;
             if (this.consumingEntity != null) {
                 this.consumingEntity.finish();
@@ -455,7 +461,7 @@ public class AsyncNHttpClientHandler extends NHttpHandlerBase
             }
         }
 
-        public void resetOutput() {
+        public void resetOutput() throws IOException {
             this.request = null;
             if (this.producingEntity != null) {
                 this.producingEntity.finish();
@@ -464,7 +470,7 @@ public class AsyncNHttpClientHandler extends NHttpHandlerBase
             this.outputState = READY;
         }
 
-        public void reset() {
+        public void reset() throws IOException {
             resetInput();
             resetOutput();
         }

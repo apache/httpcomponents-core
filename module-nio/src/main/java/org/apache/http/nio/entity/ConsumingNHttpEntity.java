@@ -52,6 +52,6 @@ public interface ConsumingNHttpEntity extends HttpEntity {
     /**
      * Notification that any resources allocated for reading can be released.
      */
-    void finish();
+    void finish() throws IOException;
 
 }

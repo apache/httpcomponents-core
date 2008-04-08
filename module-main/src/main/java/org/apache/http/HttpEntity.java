@@ -173,13 +173,15 @@ public interface HttpEntity {
     boolean isStreaming(); // don't expect an exception here
 
     /**
-     * Consumes the remaining content of a streamed entity.
+     * TODO: The name of this method is misnomer. It will be renamed to
+     * #finish() in the next major release.
+     * <br/>
      * This method is called to indicate that the content of this entity
-     * is no longer required.
-     * Streamed entities should dispose of the remaining content, if any.
-     * Self-contained entities can release allocated resources, but
-     * are not required to do anything.
-     * Wrapping entities should delegate this call to the wrapped entity.
+     * is no longer required. All entity implementations are expected to
+     * release all allocated resources as a result of this method 
+     * invocation. Content streaming entities are also expected to 
+     * dispose of the remaining content, if any. Wrapping entities should 
+     * delegate this call to the wrapped entity.
      * <br/>
      * This method is of particular importance for entities being
      * received from a {@link HttpConnection connection}. The entity
