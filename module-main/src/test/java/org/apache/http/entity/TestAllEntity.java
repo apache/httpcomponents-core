@@ -49,6 +49,7 @@ public class TestAllEntity extends TestCase {
         suite.addTest(TestHttpEntityWrapper.suite());
         suite.addTest(TestBufferedHttpEntity.suite());
         suite.addTest(TestEntityTemplate.suite());
+        suite.addTest(TestSerializableEntity.suite());
         return suite;
     }
 
