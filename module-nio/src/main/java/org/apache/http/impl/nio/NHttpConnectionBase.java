@@ -75,7 +75,6 @@ import org.apache.http.protocol.SyncBasicHttpContext;
 public class NHttpConnectionBase 
         implements NHttpConnection, HttpInetConnection, SessionBufferStatus {
 
-    protected final IOSession session;
     protected final HttpContext context;
     
     protected final ContentLengthStrategy incomingContentStrategy;
@@ -88,6 +87,7 @@ public class NHttpConnectionBase
     protected final HttpTransportMetricsImpl outTransportMetrics;
     protected final HttpConnectionMetricsImpl connMetrics;
     
+    protected IOSession session;
     protected volatile ContentDecoder contentDecoder;
     protected volatile boolean hasBufferedInput;
     protected volatile ContentEncoder contentEncoder;
