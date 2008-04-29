@@ -333,7 +333,7 @@ public abstract class AbstractMultiworkerIOReactor implements IOReactor {
 
     static class DefaultThreadFactory implements ThreadFactory {
 
-        private static int COUNT = 0;
+        private static volatile int COUNT = 0;
         
         public Thread newThread(final Runnable r) {
             return new Thread(r, "I/O dispatcher " + (++COUNT));
