@@ -70,7 +70,7 @@ import org.apache.http.io.SessionInputBuffer;
  */
 public class ContentLengthInputStream extends InputStream {
     
-    private static int BUFFER_SIZE = 2048;
+    private static final int BUFFER_SIZE = 2048;
     /**
      * The maximum number of bytes that can be read from the stream. Subsequent
      * read operations will return -1.

@@ -46,7 +46,7 @@ import org.apache.http.params.HttpParams;
 public class SessionOutputBufferMockup extends AbstractSessionOutputBuffer {
 
     private ByteArrayOutputStream buffer = new ByteArrayOutputStream();
-    public static int BUFFER_SIZE = 16;
+    public static final int BUFFER_SIZE = 16;
     
     public SessionOutputBufferMockup(
             final OutputStream outstream, 

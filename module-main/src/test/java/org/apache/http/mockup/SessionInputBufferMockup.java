@@ -47,7 +47,7 @@ import org.apache.http.params.HttpParams;
  */
 public class SessionInputBufferMockup extends AbstractSessionInputBuffer {
 
-    public static int BUFFER_SIZE = 16;
+    public static final int BUFFER_SIZE = 16;
     
     public SessionInputBufferMockup(
             final InputStream instream, 

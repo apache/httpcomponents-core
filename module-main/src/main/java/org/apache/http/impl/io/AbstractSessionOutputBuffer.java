@@ -53,7 +53,7 @@ public abstract class AbstractSessionOutputBuffer implements SessionOutputBuffer
 
     private static final byte[] CRLF = new byte[] {HTTP.CR, HTTP.LF};
     
-    private static int MAX_CHUNK = 256;
+    private static final int MAX_CHUNK = 256;
     
     private OutputStream outstream;
     private ByteArrayBuffer buffer;
