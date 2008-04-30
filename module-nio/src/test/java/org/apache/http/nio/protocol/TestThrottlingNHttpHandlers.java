@@ -665,6 +665,7 @@ public class TestThrottlingNHttpHandlers extends TestCase {
             
             public void execute(final Runnable command) {
                 new Thread() {
+                    @Override
                     public void run() {
                         command.run();
                         synchronized (serverExpectations) {

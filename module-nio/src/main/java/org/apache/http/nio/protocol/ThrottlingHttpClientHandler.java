@@ -532,6 +532,7 @@ public class ThrottlingHttpClientHandler extends NHttpHandlerBase
         
     }
     
+    @Override
     protected void shutdownConnection(final NHttpConnection conn, final Throwable cause) {
         HttpContext context = conn.getContext();
 

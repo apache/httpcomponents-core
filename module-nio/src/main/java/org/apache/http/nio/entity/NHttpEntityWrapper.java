@@ -55,18 +55,22 @@ public class NHttpEntityWrapper
         this.buffer = ByteBuffer.allocate(4096);
     }
 
+    @Override
     public InputStream getContent() throws IOException, IllegalStateException {
         throw new UnsupportedOperationException("Does not support blocking methods");
     }
 
+    @Override
     public boolean isStreaming() {
         return true;
     }
 
+    @Override
     public void writeTo(OutputStream out) throws IOException {
         throw new UnsupportedOperationException("Does not support blocking methods");
     }
 
+    @Override
     public void consumeContent() throws IOException, UnsupportedOperationException {
         throw new UnsupportedOperationException("Does not support blocking methods");
     }

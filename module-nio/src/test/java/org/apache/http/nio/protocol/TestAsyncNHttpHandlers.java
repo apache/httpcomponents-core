@@ -244,6 +244,7 @@ public class TestAsyncNHttpHandlers extends TestCase {
                 return null;
             }
 
+            @Override
             public void handle(
                     final HttpRequest request,
                     final HttpResponse response,
@@ -391,6 +392,7 @@ public class TestAsyncNHttpHandlers extends TestCase {
                         new HeapByteBufferAllocator());
             }
 
+            @Override
             public void handle(
                     final HttpRequest request,
                     final HttpResponse response,
@@ -539,6 +541,7 @@ public class TestAsyncNHttpHandlers extends TestCase {
                         new HeapByteBufferAllocator());
             }
 
+            @Override
             public void handle(
                     final HttpRequest request,
                     final HttpResponse response,
@@ -692,6 +695,7 @@ public class TestAsyncNHttpHandlers extends TestCase {
                         new HeapByteBufferAllocator());
             }
 
+            @Override
             public void handle(
                     final HttpRequest request,
                     final HttpResponse response,
@@ -845,6 +849,7 @@ public class TestAsyncNHttpHandlers extends TestCase {
                         new HeapByteBufferAllocator());
             }
 
+            @Override
             public void handle(
                     final HttpRequest request,
                     final HttpResponse response,
@@ -988,6 +993,7 @@ public class TestAsyncNHttpHandlers extends TestCase {
                         new HeapByteBufferAllocator());
             }
 
+            @Override
             public void handle(
                     final HttpRequest request,
                     final HttpResponse response,
@@ -1157,6 +1163,7 @@ public class TestAsyncNHttpHandlers extends TestCase {
                         new HeapByteBufferAllocator());
             }
 
+            @Override
             public void handle(
                     final HttpRequest request,
                     final HttpResponse response,
@@ -1327,6 +1334,7 @@ public class TestAsyncNHttpHandlers extends TestCase {
                 int index = Integer.parseInt(uri.getQuery());
                 final byte[] bytes = requestData.getBytes(index);
                 new Thread() {
+                    @Override
                     public void run() {
                         // Wait a bit, to make sure this is delayed.
                         try { Thread.sleep(10); } catch(InterruptedException ie) {}
@@ -1457,6 +1465,7 @@ public class TestAsyncNHttpHandlers extends TestCase {
                 return null;
             }
             
+            @Override
             public void handle(HttpRequest request, final HttpResponse response,
                     HttpContext context)
                     throws HttpException, IOException {
@@ -1574,6 +1583,7 @@ public class TestAsyncNHttpHandlers extends TestCase {
                     final NHttpResponseTrigger trigger, HttpContext context)
                     throws HttpException, IOException {
                 new Thread() {
+                    @Override
                     public void run() {
                         try { Thread.sleep(10); } catch(InterruptedException ie) {};
                         try {
@@ -1781,6 +1791,7 @@ public class TestAsyncNHttpHandlers extends TestCase {
                         new HeapByteBufferAllocator());
             }
 
+            @Override
             public void handle(
                     final HttpRequest request,
                     final HttpResponse response,
