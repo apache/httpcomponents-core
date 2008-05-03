@@ -36,7 +36,7 @@ import junit.framework.TestCase;
 import junit.framework.TestSuite;
 
 /**
- * Unit tests for {@link LangUtil}.
+ * Unit tests for {@link LangUtils}.
  *
  * @author <a href="mailto:oleg at ural.ru">Oleg Kalnichevski</a>
  */

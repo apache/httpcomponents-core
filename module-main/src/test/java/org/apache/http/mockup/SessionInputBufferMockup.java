@@ -41,7 +41,7 @@ import org.apache.http.params.BasicHttpParams;
 import org.apache.http.params.HttpParams;
 
 /**
- * {@link IdentityInputStream} mockup implementation.
+ * {@link org.apache.http.impl.io.IdentityInputStream} mockup implementation.
  *
  * @author <a href="mailto:oleg at ural.ru">Oleg Kalnichevski</a>
  */

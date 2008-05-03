@@ -36,7 +36,7 @@ import org.apache.http.message.AbstractHttpMessage;
 import org.apache.http.params.HttpProtocolParams;
 
 /**
- *  {@link HttpMessage} mockup implementation.
+ *  {@link org.apache.http.HttpMessage} mockup implementation.
  *  
  * @author <a href="mailto:oleg at ural.ru">Oleg Kalnichevski</a>
  */

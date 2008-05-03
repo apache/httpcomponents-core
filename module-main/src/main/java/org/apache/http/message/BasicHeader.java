@@ -121,7 +121,7 @@ public class BasicHeader implements Header, Cloneable {
     /**
      * Returns an array of {@link HeaderElement}s constructed from my value.
      *
-     * @see BasicHeaderValueParser#parseElements
+     * @see BasicHeaderValueParser#parseElements(String, HeaderValueParser)
      * 
      * @return an array of header elements
      *

@@ -48,7 +48,7 @@ public interface HttpResponse extends HttpMessage {
 
     /**
      * Obtains the status line of this response.
-     * The status line can be set using on of the
+     * The status line can be set using one of the
      * {@link #setStatusLine setStatusLine} methods,
      * or it can be initialized in a constructor.
      *

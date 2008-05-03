@@ -40,7 +40,7 @@ import junit.framework.TestSuite;
 import org.apache.http.protocol.HTTP;
 
 /**
- * Unit tests for {@link WrappedEntity}.
+ * Unit tests for {@link HttpEntityWrapper}.
  *
  * @author <a href="mailto:oleg at ural.ru">Oleg Kalnichevski</a>
  */
