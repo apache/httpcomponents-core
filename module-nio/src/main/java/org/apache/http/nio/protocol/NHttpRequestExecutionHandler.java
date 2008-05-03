@@ -44,7 +44,7 @@ import org.apache.http.protocol.HttpContext;
  * HTTP request execution handler can be used by client-side protocol handlers
  * to trigger the submission of a new HTTP request and the processing of an HTTP
  * response. When a new response entity is available for consumption,
- * {@link #responseEntity(HttpRequest, HttpResponse, HttpContext)} is called.
+ * {@link #responseEntity(HttpResponse, HttpContext)} is called.
  * After the {@link ConsumingNHttpEntity} consumes the response body,
  * {@link #handleResponse(HttpResponse, HttpContext)} is notified that the
  * response is fully read.

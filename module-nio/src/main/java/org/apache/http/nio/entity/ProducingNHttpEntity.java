@@ -38,7 +38,7 @@ import org.apache.http.nio.ContentEncoder;
 import org.apache.http.nio.IOControl;
 
 /**
- * An {@link NHttpEntity} that writes content to a {@link ContentEncoder}.
+ * An {@link HttpEntity} that writes content to a {@link ContentEncoder}.
  *
  * @author <a href="mailto:sberlin at gmail.com">Sam Berlin</a>
  */
