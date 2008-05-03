@@ -31,6 +31,8 @@
 
 package org.apache.http;
 
+import java.util.Locale;
+
 import org.apache.http.util.CharArrayBuffer;
 import org.apache.http.util.LangUtils;
 
@@ -81,9 +83,9 @@ public final class HttpHost implements Cloneable {
             throw new IllegalArgumentException("Host name may not be null");
         }
         this.hostname   = hostname;
-        this.lcHostname = hostname.toLowerCase();
+        this.lcHostname = hostname.toLowerCase(Locale.ENGLISH);
         if (scheme != null) {
-            this.schemeName = scheme.toLowerCase();
+            this.schemeName = scheme.toLowerCase(Locale.ENGLISH);
         } else {
             this.schemeName = DEFAULT_SCHEME_NAME;
         }

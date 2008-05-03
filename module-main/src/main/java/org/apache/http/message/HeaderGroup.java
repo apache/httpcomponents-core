@@ -33,6 +33,7 @@ package org.apache.http.message;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 
 import org.apache.http.Header;
 import org.apache.http.HeaderIterator;
@@ -155,7 +156,7 @@ public class HeaderGroup implements Cloneable {
                 valueBuffer.append(headers[i].getValue());
             }
             
-            return new BasicHeader(name.toLowerCase(), valueBuffer.toString());
+            return new BasicHeader(name.toLowerCase(Locale.ENGLISH), valueBuffer.toString());
         }
     }
     

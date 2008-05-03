@@ -39,6 +39,7 @@ import java.io.OutputStreamWriter;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.URLDecoder;
+import java.util.Locale;
 
 import org.apache.http.ConnectionClosedException;
 import org.apache.http.HttpEntity;
@@ -104,7 +105,7 @@ public class ElementalHttpServer {
                 final HttpResponse response,
                 final HttpContext context) throws HttpException, IOException {
 
-            String method = request.getRequestLine().getMethod().toUpperCase();
+            String method = request.getRequestLine().getMethod().toUpperCase(Locale.ENGLISH);
             if (!method.equals("GET") && !method.equals("HEAD") && !method.equals("POST")) {
                 throw new MethodNotSupportedException(method + " method not supported"); 
             }
