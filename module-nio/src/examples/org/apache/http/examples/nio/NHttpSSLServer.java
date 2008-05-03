@@ -40,6 +40,7 @@ import java.net.InetSocketAddress;
 import java.net.URL;
 import java.net.URLDecoder;
 import java.security.KeyStore;
+import java.util.Locale;
 
 import javax.net.ssl.KeyManager;
 import javax.net.ssl.KeyManagerFactory;
@@ -157,7 +158,7 @@ public class NHttpSSLServer {
                 final HttpResponse response,
                 final HttpContext context) throws HttpException, IOException {
 
-            String method = request.getRequestLine().getMethod().toUpperCase();
+            String method = request.getRequestLine().getMethod().toUpperCase(Locale.ENGLISH);
             if (!method.equals("GET") && !method.equals("HEAD") && !method.equals("POST")) {
                 throw new MethodNotSupportedException(method + " method not supported"); 
             }
