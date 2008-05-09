@@ -31,65 +31,49 @@
 
 package org.apache.http.protocol;
 
-import java.util.HashMap;
-import java.util.Map;
-
 /**
- * Default implementation of the {@link HttpContext HttpContext}.
+ * {@link HttpContext} implementation that delegates resolution of an attribute
+ * to the given default {@link HttpContext} instance if the attribute is not 
+ * present in the local one. The state of the local context can be mutated,
+ * whereas the default context is treated as read-only.
  *
  * @author <a href="mailto:oleg at ural.ru">Oleg Kalnichevski</a>
- *
- * @version $Revision$
  * 
- * @since 4.0
+ * @version $Revision$
  */
-public class BasicHttpContext implements HttpContext {
+public final class DefaultedHttpContext implements HttpContext {
+
+    private final HttpContext local;
+    private final HttpContext defaults;
     
-    private final HttpContext parentContext;
-    private Map map = null;
-    
-    public BasicHttpContext() {
-        this(null);
-    }
-    
-    public BasicHttpContext(final HttpContext parentContext) {
+    public DefaultedHttpContext(final HttpContext local, final HttpContext defaults) {
         super();
-        this.parentContext = parentContext;
+        if (local == null) {
+            throw new IllegalArgumentException("HTTP context may not be null");
+        }
+        this.local = local;
+        this.defaults = defaults;
     }
-    
+
     public Object getAttribute(final String id) {
-        if (id == null) {
-            throw new IllegalArgumentException("Id may not be null");
+        Object obj = this.local.getAttribute(id);
+        if (obj == null) {
+            return this.defaults.getAttribute(id);
+        } else {
+            return obj;
         }
-        Object obj = null;
-        if (this.map != null) {
-            obj = this.map.get(id);
-        }
-        if (obj == null && this.parentContext != null) {
-            obj = this.parentContext.getAttribute(id);
-        }
-        return obj;
+    }
+
+    public Object removeAttribute(final String id) {
+        return this.local.removeAttribute(id);
     }
 
     public void setAttribute(final String id, final Object obj) {
-        if (id == null) {
-            throw new IllegalArgumentException("Id may not be null");
-        }
-        if (this.map == null) {
-            this.map = new HashMap();
-        }
-        this.map.put(id, obj);
-    }
-    
-    public Object removeAttribute(final String id) {
-        if (id == null) {
-            throw new IllegalArgumentException("Id may not be null");
-        }
-        if (this.map != null) {
-            return this.map.remove(id);
-        } else {
-            return null;
-        }
+        this.local.setAttribute(id, obj);
     }
 
+    public HttpContext getDefaults() {
+        return this.defaults;
+    }
+    
 }
