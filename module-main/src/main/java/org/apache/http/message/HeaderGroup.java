@@ -275,6 +275,17 @@ public class HeaderGroup implements Cloneable {
         return new BasicListHeaderIterator(this.headers, name);
     }
     
+    /**
+     * Returns a copy of this object
+     * 
+     * @return copy of this object
+     */
+    public HeaderGroup copy() {
+        HeaderGroup clone = new HeaderGroup();
+        clone.headers.addAll(this.headers);
+        return clone;
+    }
+    
     public Object clone() throws CloneNotSupportedException {
         HeaderGroup clone = (HeaderGroup) super.clone();
         clone.headers = new ArrayList(this.headers);
