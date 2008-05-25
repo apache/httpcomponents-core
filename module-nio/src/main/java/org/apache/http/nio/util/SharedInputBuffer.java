@@ -77,7 +77,7 @@ public class SharedInputBuffer extends ExpandableBuffer implements ContentInputB
             if (bytesRead == -1 || decoder.isCompleted()) {
                 this.endOfStream = true;
             }
-            if (totalRead > 0) {
+            if (!this.buffer.hasRemaining()) {
                 this.ioctrl.suspendInput();
             }
             this.mutex.notifyAll();
