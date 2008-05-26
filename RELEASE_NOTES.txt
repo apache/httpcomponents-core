@@ -1,5 +1,8 @@
 Changes since 4.0 Beta 1
 -------------------
+* Fixed concurrency bug in the ThrottlingHttpServerHandler protocol handler.
+  Oleg Kalnichevski <olegk at apache.org> 
+
 * Fixed bug in SharedInputBuffer that caused input events to be
   incorrectly suspended.
   Contributed by Asankha C. Perera <asankha at wso2.com>

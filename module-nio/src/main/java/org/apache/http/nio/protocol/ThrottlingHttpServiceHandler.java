@@ -154,7 +154,10 @@ public class ThrottlingHttpServiceHandler extends NHttpHandlerBase
         ServerConnState connState = (ServerConnState) context.getAttribute(CONN_STATE);
         
         if (connState != null) {
-            connState.shutdown();
+            synchronized (connState) {
+                connState.shutdown();
+                connState.notifyAll();
+            }
         }
 
         if (this.eventListener != null) {
@@ -299,9 +302,8 @@ public class ThrottlingHttpServiceHandler extends NHttpHandlerBase
         ServerConnState connState = (ServerConnState) context.getAttribute(CONN_STATE);
 
         try {
-        
-            synchronized (connState) {
-                
+            
+            synchronized (connState) {                
                 if (connState.isExpectationFailed()) {
                     // Server expection failed
                     // Well-behaved client will not be sending
@@ -321,11 +323,6 @@ public class ThrottlingHttpServiceHandler extends NHttpHandlerBase
 
                     if (statusCode >= 200 && entity == null) {
                         connState.setOutputState(ServerConnState.RESPONSE_DONE);
-                        if (!connState.isWorkerRunning()) {
-                            connState.resetOutput();
-                            connState.resetInput();
-                            conn.requestInput();
-                        }
 
                         if (!this.connStrategy.keepAlive(response, context)) {
                             conn.close();
@@ -365,12 +362,6 @@ public class ThrottlingHttpServiceHandler extends NHttpHandlerBase
                 buffer.produceContent(encoder);
                 if (encoder.isCompleted()) {
                     connState.setOutputState(ServerConnState.RESPONSE_BODY_DONE);
-
-                    if (!connState.isWorkerRunning()) {
-                        connState.resetOutput();
-                        connState.resetInput();
-                        conn.requestInput();
-                    }
 
                     if (!this.connStrategy.keepAlive(response, context)) {
                         conn.close();
@@ -419,7 +410,7 @@ public class ThrottlingHttpServiceHandler extends NHttpHandlerBase
             try {
                 for (;;) {
                     int currentState = connState.getOutputState();
-                    if (!connState.isWorkerRunning()) {
+                    if (currentState == ServerConnState.READY) {
                         break;
                     }
                     if (currentState == ServerConnState.SHUTDOWN) {
@@ -433,7 +424,6 @@ public class ThrottlingHttpServiceHandler extends NHttpHandlerBase
             }
             connState.setInputState(ServerConnState.REQUEST_RECEIVED);
             connState.setRequest(request);
-            connState.setWorkerRunning(true);
         }
 
         request.setParams(new DefaultedHttpParams(request.getParams(), this.params));
@@ -557,6 +547,9 @@ public class ThrottlingHttpServiceHandler extends NHttpHandlerBase
             }
         }
         
+        // It should be safe to reset the input state at this point
+        connState.resetInput();
+        
         this.httpProcessor.process(response, context);
 
         if (!canResponseHaveBody(request, response)) {
@@ -578,13 +571,23 @@ public class ThrottlingHttpServiceHandler extends NHttpHandlerBase
         }
         
         synchronized (connState) {
-            if (connState.getOutputState() == ServerConnState.RESPONSE_DONE 
-                    && conn.isOpen()) {
-                connState.resetInput();
-                connState.resetOutput();
-                conn.requestInput();
+            try {
+                for (;;) {
+                    int currentState = connState.getOutputState();
+                    if (currentState == ServerConnState.RESPONSE_DONE) {
+                        break;
+                    }
+                    if (currentState == ServerConnState.SHUTDOWN) {
+                        return;
+                    }
+                    connState.wait();
+                }
+            } catch (InterruptedException ex) {
+                connState.shutdown();
+                return;
             }
-            connState.setWorkerRunning(false);
+            connState.resetOutput();
+            conn.requestInput();
             connState.notifyAll();
         }
     }
@@ -624,7 +627,6 @@ public class ThrottlingHttpServiceHandler extends NHttpHandlerBase
         private volatile HttpResponse response;
 
         private volatile boolean expectationFailure;
-        private volatile boolean workerRunning; 
         
         public ServerConnState(
                 int bufsize, 
@@ -677,14 +679,6 @@ public class ThrottlingHttpServiceHandler extends NHttpHandlerBase
             this.response = response;
         }
 
-        public boolean isWorkerRunning() {
-            return this.workerRunning;
-        }
-
-        public void setWorkerRunning(boolean b) {
-            this.workerRunning = b;
-        }
-
         public boolean isExpectationFailed() {
             return expectationFailure;
         }
@@ -704,13 +698,13 @@ public class ThrottlingHttpServiceHandler extends NHttpHandlerBase
             this.inbuffer.reset();
             this.request = null;
             this.inputState = READY;
-            this.expectationFailure = false;
         }
         
         public void resetOutput() {
             this.outbuffer.reset();
             this.response = null;
             this.outputState = READY;
+            this.expectationFailure = false;
         }
         
     }    

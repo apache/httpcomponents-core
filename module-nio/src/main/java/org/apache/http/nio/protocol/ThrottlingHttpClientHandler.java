@@ -47,7 +47,6 @@ import org.apache.http.nio.ContentEncoder;
 import org.apache.http.nio.IOControl;
 import org.apache.http.nio.NHttpClientConnection;
 import org.apache.http.nio.NHttpClientHandler;
-import org.apache.http.nio.NHttpConnection;
 import org.apache.http.nio.entity.ContentBufferEntity;
 import org.apache.http.nio.entity.ContentOutputStream;
 import org.apache.http.nio.params.NIOReactorPNames;
@@ -135,7 +134,19 @@ public class ThrottlingHttpClientHandler extends NHttpHandlerBase
 
     public void closed(final NHttpClientConnection conn) {
         HttpContext context = conn.getContext();
+        ClientConnState connState = (ClientConnState) context.getAttribute(CONN_STATE);
+        
+        if (connState != null) {
+            synchronized (connState) {
+                connState.shutdown();
+                connState.notifyAll();
+            }
+        }
 
+        if (this.eventListener != null) {
+            this.eventListener.connectionClosed(conn);
+        }
+        
         this.execHandler.finalizeContext(context);
         
         if (this.eventListener != null) {
@@ -530,19 +541,6 @@ public class ThrottlingHttpClientHandler extends NHttpHandlerBase
             
         });
         
-    }
-    
-    @Override
-    protected void shutdownConnection(final NHttpConnection conn, final Throwable cause) {
-        HttpContext context = conn.getContext();
-
-        ClientConnState connState = (ClientConnState) context.getAttribute(CONN_STATE);
-        
-        super.shutdownConnection(conn, cause);
-        
-        if (connState != null) {
-            connState.shutdown();
-        }
     }
     
     static class ClientConnState {
