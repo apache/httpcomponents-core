@@ -45,12 +45,12 @@ import org.apache.http.nio.reactor.IOSession;
 import org.apache.http.nio.util.ByteBufferAllocator;
 import org.apache.http.params.HttpParams;
 
-public class LoggingNHttpClientIOTarget extends DefaultNHttpClientConnection {
+public class LoggingNHttpClientConnection extends DefaultNHttpClientConnection {
 
     private final Log log;
     private final Log headerlog;
     
-    public LoggingNHttpClientIOTarget(
+    public LoggingNHttpClientConnection(
         final IOSession session,
         final HttpResponseFactory responseFactory,
         final ByteBufferAllocator allocator,
