@@ -32,113 +32,49 @@
 package org.apache.http.contrib.logging;
 
 import java.io.IOException;
-import java.net.InetAddress;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.http.Header;
-import org.apache.http.HttpConnectionMetrics;
 import org.apache.http.HttpException;
-import org.apache.http.HttpInetConnection;
 import org.apache.http.HttpRequest;
-import org.apache.http.HttpResponse;
+import org.apache.http.HttpResponseFactory;
+import org.apache.http.impl.nio.DefaultNHttpClientConnection;
 import org.apache.http.nio.NHttpClientHandler;
-import org.apache.http.nio.NHttpClientIOTarget;
-import org.apache.http.protocol.HttpContext;
+import org.apache.http.nio.reactor.IOSession;
+import org.apache.http.nio.util.ByteBufferAllocator;
+import org.apache.http.params.HttpParams;
 
-public class LoggingNHttpClientIOTarget 
-    implements NHttpClientIOTarget, HttpInetConnection {
+public class LoggingNHttpClientIOTarget extends DefaultNHttpClientConnection {
 
-    private final NHttpClientIOTarget target;
     private final Log log;
     private final Log headerlog;
     
-    public LoggingNHttpClientIOTarget(final NHttpClientIOTarget target) {
-        super();
-        this.target = target;
-        this.log = LogFactory.getLog(target.getClass());
+    public LoggingNHttpClientIOTarget(
+        final IOSession session,
+        final HttpResponseFactory responseFactory,
+        final ByteBufferAllocator allocator,
+        final HttpParams params) {
+        super(session, responseFactory, allocator, params);
+        this.log = LogFactory.getLog(getClass());
         this.headerlog = LogFactory.getLog("org.apache.http.headers");
-    }
-
-    public void requestInput() {
-        this.target.requestInput();
-    }
-
-    public void requestOutput() {
-        this.target.requestOutput();
-    }
-
-    public void suspendInput() {
-        this.target.suspendInput();
-    }
-
-    public void suspendOutput() {
-        this.target.suspendOutput();
     }
 
     public void close() throws IOException {
         this.log.debug("Close connection");        
-        this.target.close();
-    }
-
-    public HttpConnectionMetrics getMetrics() {
-        return this.target.getMetrics();
-    }
-
-    public int getSocketTimeout() {
-        return this.target.getSocketTimeout();
-    }
-
-    public boolean isOpen() {
-        return this.target.isOpen();
-    }
-
-    public boolean isStale() {
-        return this.target.isStale();
-    }
-
-    public void setSocketTimeout(int timeout) {
-        this.target.setSocketTimeout(timeout);
+        super.close();
     }
 
     public void shutdown() throws IOException {
         this.log.debug("Shutdown connection");        
-        this.target.shutdown();
-    }
-
-    public HttpContext getContext() {
-        return this.target.getContext();
-    }
-
-    public HttpRequest getHttpRequest() {
-        return this.target.getHttpRequest();
-    }
-
-    public HttpResponse getHttpResponse() {
-        return this.target.getHttpResponse();
-    }
-
-    public int getStatus() {
-        return this.target.getStatus();
-    }
-
-    public boolean isRequestSubmitted() {
-        return this.target.isRequestSubmitted();
-    }
-
-    public void resetInput() {
-        this.target.resetInput();
-    }
-
-    public void resetOutput() {
-        this.target.resetOutput();
+        super.shutdown();
     }
 
     public void submitRequest(final HttpRequest request) throws IOException, HttpException {
         if (this.log.isDebugEnabled()) {
             this.log.debug("HTTP connection " + this + ": "  + request.getRequestLine().toString());
         }
-        this.target.submitRequest(request);
+        super.submitRequest(request);
         if (this.headerlog.isDebugEnabled()) {
             this.headerlog.debug(">> " + request.getRequestLine().toString());
             Header[] headers = request.getAllHeaders();
@@ -150,49 +86,12 @@ public class LoggingNHttpClientIOTarget
 
     public void consumeInput(final NHttpClientHandler handler) {
         this.log.debug("Consume input");        
-        this.target.consumeInput(handler);
+        super.consumeInput(handler);
     }
 
     public void produceOutput(final NHttpClientHandler handler) {
         this.log.debug("Produce output");        
-        this.target.produceOutput(handler);
+        super.produceOutput(handler);
     }
     
-    public InetAddress getLocalAddress() {
-      if (this.target instanceof HttpInetConnection) {
-          return ((HttpInetConnection) this.target).getLocalAddress();
-      } else {
-          return null;
-      }
-  }
-
-  public int getLocalPort() {
-      if (this.target instanceof HttpInetConnection) {
-          return ((HttpInetConnection) this.target).getLocalPort();
-      } else {
-          return -1;
-      }
-  }
-
-  public InetAddress getRemoteAddress() {
-      if (this.target instanceof HttpInetConnection) {
-          return ((HttpInetConnection) this.target).getRemoteAddress();
-      } else {
-          return null;
-      }
-  }
-
-  public int getRemotePort() {
-      if (this.target instanceof HttpInetConnection) {
-          return ((HttpInetConnection) this.target).getRemotePort();
-      } else {
-          return -1;
-      }
-  }
-  
-  @Override
-  public String toString() {
-      return this.target.toString();
-  }
-  
 }
