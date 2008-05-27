@@ -1626,7 +1626,7 @@ public class TestThrottlingNHttpHandlers extends TestCase {
                     null);
         }
 
-        requestCount.await(10000);
+        requestCount.await(30000);
         if (requestCount.isAborted()) {
             System.out.println("Test case aborted");
         }
