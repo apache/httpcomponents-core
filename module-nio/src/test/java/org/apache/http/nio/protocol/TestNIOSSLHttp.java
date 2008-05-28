@@ -136,9 +136,9 @@ public class TestNIOSSLHttp extends HttpCoreNIOSSLTestBase {
         HttpRequestExecutionHandler requestExecutionHandler = new HttpRequestExecutionHandler() {
 
             public void initalizeContext(final HttpContext context, final Object attachment) {
-                context.setAttribute("LIST", (ByteSequence) attachment);
-                context.setAttribute("REQ-COUNT", new Integer(0));
-                context.setAttribute("RES-COUNT", new Integer(0));
+                context.setAttribute("LIST", attachment);
+                context.setAttribute("REQ-COUNT", Integer.valueOf(0));
+                context.setAttribute("RES-COUNT", Integer.valueOf(0));
             }
 
             public void finalizeContext(final HttpContext context) {
@@ -149,7 +149,7 @@ public class TestNIOSSLHttp extends HttpCoreNIOSSLTestBase {
                 BasicHttpRequest get = null;
                 if (i < reqNo) {
                     get = new BasicHttpRequest("GET", "/?" + i);
-                    context.setAttribute("REQ-COUNT", new Integer(i + 1));
+                    context.setAttribute("REQ-COUNT", Integer.valueOf(i + 1));
                 }
                 return get;
             }
@@ -161,7 +161,7 @@ public class TestNIOSSLHttp extends HttpCoreNIOSSLTestBase {
                 ByteSequence list = (ByteSequence) context.getAttribute("LIST");
                 int i = ((Integer) context.getAttribute("RES-COUNT")).intValue();
                 i++;
-                context.setAttribute("RES-COUNT", new Integer(i));
+                context.setAttribute("RES-COUNT", Integer.valueOf(i));
 
                 try {
                     HttpEntity entity = response.getEntity();
@@ -270,9 +270,9 @@ public class TestNIOSSLHttp extends HttpCoreNIOSSLTestBase {
         HttpRequestExecutionHandler requestExecutionHandler = new HttpRequestExecutionHandler() {
 
             public void initalizeContext(final HttpContext context, final Object attachment) {
-                context.setAttribute("LIST", (ByteSequence) attachment);
-                context.setAttribute("REQ-COUNT", new Integer(0));
-                context.setAttribute("RES-COUNT", new Integer(0));
+                context.setAttribute("LIST", attachment);
+                context.setAttribute("REQ-COUNT", Integer.valueOf(0));
+                context.setAttribute("RES-COUNT", Integer.valueOf(0));
             }
 
             public void finalizeContext(final HttpContext context) {
@@ -287,7 +287,7 @@ public class TestNIOSSLHttp extends HttpCoreNIOSSLTestBase {
                     NByteArrayEntity outgoing = new NByteArrayEntity(bytes);
                     post.setEntity(outgoing);
                     
-                    context.setAttribute("REQ-COUNT", new Integer(i + 1));
+                    context.setAttribute("REQ-COUNT", Integer.valueOf(i + 1));
                 }
                 return post;
             }
@@ -299,7 +299,7 @@ public class TestNIOSSLHttp extends HttpCoreNIOSSLTestBase {
                 ByteSequence list = (ByteSequence) context.getAttribute("LIST");
                 int i = ((Integer) context.getAttribute("RES-COUNT")).intValue();
                 i++;
-                context.setAttribute("RES-COUNT", new Integer(i));
+                context.setAttribute("RES-COUNT", Integer.valueOf(i));
 
                 try {
                     HttpEntity entity = response.getEntity();
@@ -407,9 +407,9 @@ public class TestNIOSSLHttp extends HttpCoreNIOSSLTestBase {
         HttpRequestExecutionHandler requestExecutionHandler = new HttpRequestExecutionHandler() {
 
             public void initalizeContext(final HttpContext context, final Object attachment) {
-                context.setAttribute("LIST", (ByteSequence) attachment);
-                context.setAttribute("REQ-COUNT", new Integer(0));
-                context.setAttribute("RES-COUNT", new Integer(0));
+                context.setAttribute("LIST", attachment);
+                context.setAttribute("REQ-COUNT", Integer.valueOf(0));
+                context.setAttribute("RES-COUNT", Integer.valueOf(0));
             }
 
             public void finalizeContext(final HttpContext context) {
@@ -425,7 +425,7 @@ public class TestNIOSSLHttp extends HttpCoreNIOSSLTestBase {
                     outgoing.setChunked(true);
                     post.setEntity(outgoing);
                     
-                    context.setAttribute("REQ-COUNT", new Integer(i + 1));
+                    context.setAttribute("REQ-COUNT", Integer.valueOf(i + 1));
                 }
                 return post;
             }
@@ -437,7 +437,7 @@ public class TestNIOSSLHttp extends HttpCoreNIOSSLTestBase {
                 ByteSequence list = (ByteSequence) context.getAttribute("LIST");
                 int i = ((Integer) context.getAttribute("RES-COUNT")).intValue();
                 i++;
-                context.setAttribute("RES-COUNT", new Integer(i));
+                context.setAttribute("RES-COUNT", Integer.valueOf(i));
                 
                 try {
                     HttpEntity entity = response.getEntity();
@@ -554,9 +554,9 @@ public class TestNIOSSLHttp extends HttpCoreNIOSSLTestBase {
         HttpRequestExecutionHandler requestExecutionHandler = new HttpRequestExecutionHandler() {
 
             public void initalizeContext(final HttpContext context, final Object attachment) {
-                context.setAttribute("LIST", (ByteSequence) attachment);
-                context.setAttribute("REQ-COUNT", new Integer(0));
-                context.setAttribute("RES-COUNT", new Integer(0));
+                context.setAttribute("LIST", attachment);
+                context.setAttribute("REQ-COUNT", Integer.valueOf(0));
+                context.setAttribute("RES-COUNT", Integer.valueOf(0));
             }
 
             public void finalizeContext(final HttpContext context) {
@@ -571,7 +571,7 @@ public class TestNIOSSLHttp extends HttpCoreNIOSSLTestBase {
                     NByteArrayEntity outgoing = new NByteArrayEntity(bytes);
                     post.setEntity(outgoing);
                     
-                    context.setAttribute("REQ-COUNT", new Integer(i + 1));
+                    context.setAttribute("REQ-COUNT", Integer.valueOf(i + 1));
                 }
                 return post;
             }
@@ -583,7 +583,7 @@ public class TestNIOSSLHttp extends HttpCoreNIOSSLTestBase {
                 ByteSequence list = (ByteSequence) context.getAttribute("LIST");
                 int i = ((Integer) context.getAttribute("RES-COUNT")).intValue();
                 i++;
-                context.setAttribute("RES-COUNT", new Integer(i));
+                context.setAttribute("RES-COUNT", Integer.valueOf(i));
 
                 try {
                     HttpEntity entity = response.getEntity();
@@ -695,9 +695,9 @@ public class TestNIOSSLHttp extends HttpCoreNIOSSLTestBase {
         HttpRequestExecutionHandler requestExecutionHandler = new HttpRequestExecutionHandler() {
 
             public void initalizeContext(final HttpContext context, final Object attachment) {
-                context.setAttribute("LIST", (ByteSequence) attachment);
-                context.setAttribute("REQ-COUNT", new Integer(0));
-                context.setAttribute("RES-COUNT", new Integer(0));
+                context.setAttribute("LIST", attachment);
+                context.setAttribute("REQ-COUNT", Integer.valueOf(0));
+                context.setAttribute("RES-COUNT", Integer.valueOf(0));
             }
 
             public void finalizeContext(final HttpContext context) {
@@ -713,7 +713,7 @@ public class TestNIOSSLHttp extends HttpCoreNIOSSLTestBase {
                     outgoing.setChunked(true);
                     post.setEntity(outgoing);
                     
-                    context.setAttribute("REQ-COUNT", new Integer(i + 1));
+                    context.setAttribute("REQ-COUNT", Integer.valueOf(i + 1));
                 }
                 return post;
             }
@@ -725,7 +725,7 @@ public class TestNIOSSLHttp extends HttpCoreNIOSSLTestBase {
                 ByteSequence list = (ByteSequence) context.getAttribute("LIST");
                 int i = ((Integer) context.getAttribute("RES-COUNT")).intValue();
                 i++;
-                context.setAttribute("RES-COUNT", new Integer(i));
+                context.setAttribute("RES-COUNT", Integer.valueOf(i));
                 
                 try {
                     HttpEntity entity = response.getEntity();

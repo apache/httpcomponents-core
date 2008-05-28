@@ -267,9 +267,9 @@ public class TestAsyncNHttpHandlers extends TestCase {
         NHttpRequestExecutionHandler requestExecutionHandler = new NHttpRequestExecutionHandler() {
 
             public void initalizeContext(final HttpContext context, final Object attachment) {
-                context.setAttribute("LIST", (ByteSequence) attachment);
-                context.setAttribute("REQ-COUNT", new Integer(0));
-                context.setAttribute("RES-COUNT", new Integer(0));
+                context.setAttribute("LIST", attachment);
+                context.setAttribute("REQ-COUNT", Integer.valueOf(0));
+                context.setAttribute("RES-COUNT", Integer.valueOf(0));
             }
 
             public void finalizeContext(final HttpContext context) {
@@ -280,7 +280,7 @@ public class TestAsyncNHttpHandlers extends TestCase {
                 BasicHttpRequest get = null;
                 if (i < reqNo) {
                     get = new BasicHttpRequest("GET", "/?" + i);
-                    context.setAttribute("REQ-COUNT", new Integer(i + 1));
+                    context.setAttribute("REQ-COUNT", Integer.valueOf(i + 1));
                 }
                 return get;
             }
@@ -299,7 +299,7 @@ public class TestAsyncNHttpHandlers extends TestCase {
                 ByteSequence list = (ByteSequence) context.getAttribute("LIST");
                 int i = ((Integer) context.getAttribute("RES-COUNT")).intValue();
                 i++;
-                context.setAttribute("RES-COUNT", new Integer(i));
+                context.setAttribute("RES-COUNT", Integer.valueOf(i));
 
                 try {
                     HttpEntity entity = response.getEntity();
@@ -411,9 +411,9 @@ public class TestAsyncNHttpHandlers extends TestCase {
         NHttpRequestExecutionHandler requestExecutionHandler = new NHttpRequestExecutionHandler() {
 
             public void initalizeContext(final HttpContext context, final Object attachment) {
-                context.setAttribute("LIST", (ByteSequence) attachment);
-                context.setAttribute("REQ-COUNT", new Integer(0));
-                context.setAttribute("RES-COUNT", new Integer(0));
+                context.setAttribute("LIST", attachment);
+                context.setAttribute("REQ-COUNT", Integer.valueOf(0));
+                context.setAttribute("RES-COUNT", Integer.valueOf(0));
             }
 
             public void finalizeContext(final HttpContext context) {
@@ -436,7 +436,7 @@ public class TestAsyncNHttpHandlers extends TestCase {
                     NByteArrayEntity outgoing = new NByteArrayEntity(data);
                     post.setEntity(outgoing);
 
-                    context.setAttribute("REQ-COUNT", new Integer(i + 1));
+                    context.setAttribute("REQ-COUNT", Integer.valueOf(i + 1));
                 }
                 return post;
             }
@@ -448,7 +448,7 @@ public class TestAsyncNHttpHandlers extends TestCase {
                 ByteSequence list = (ByteSequence) context.getAttribute("LIST");
                 int i = ((Integer) context.getAttribute("RES-COUNT")).intValue();
                 i++;
-                context.setAttribute("RES-COUNT", new Integer(i));
+                context.setAttribute("RES-COUNT", Integer.valueOf(i));
 
                 try {
                     HttpEntity entity = response.getEntity();
@@ -562,9 +562,9 @@ public class TestAsyncNHttpHandlers extends TestCase {
         NHttpRequestExecutionHandler requestExecutionHandler = new NHttpRequestExecutionHandler() {
 
             public void initalizeContext(final HttpContext context, final Object attachment) {
-                context.setAttribute("LIST", (ByteSequence) attachment);
-                context.setAttribute("REQ-COUNT", new Integer(0));
-                context.setAttribute("RES-COUNT", new Integer(0));
+                context.setAttribute("LIST", attachment);
+                context.setAttribute("REQ-COUNT", Integer.valueOf(0));
+                context.setAttribute("RES-COUNT", Integer.valueOf(0));
             }
 
             public void finalizeContext(final HttpContext context) {
@@ -587,7 +587,7 @@ public class TestAsyncNHttpHandlers extends TestCase {
                     outgoing.setChunked(true);
                     post.setEntity(outgoing);
 
-                    context.setAttribute("REQ-COUNT", new Integer(i + 1));
+                    context.setAttribute("REQ-COUNT", Integer.valueOf(i + 1));
                 }
                 return post;
             }
@@ -599,7 +599,7 @@ public class TestAsyncNHttpHandlers extends TestCase {
                 ByteSequence list = (ByteSequence) context.getAttribute("LIST");
                 int i = ((Integer) context.getAttribute("RES-COUNT")).intValue();
                 i++;
-                context.setAttribute("RES-COUNT", new Integer(i));
+                context.setAttribute("RES-COUNT", Integer.valueOf(i));
 
                 try {
                     HttpEntity entity = response.getEntity();
@@ -720,9 +720,9 @@ public class TestAsyncNHttpHandlers extends TestCase {
         NHttpRequestExecutionHandler requestExecutionHandler = new NHttpRequestExecutionHandler() {
 
             public void initalizeContext(final HttpContext context, final Object attachment) {
-                context.setAttribute("LIST", (ByteSequence) attachment);
-                context.setAttribute("REQ-COUNT", new Integer(0));
-                context.setAttribute("RES-COUNT", new Integer(0));
+                context.setAttribute("LIST", attachment);
+                context.setAttribute("REQ-COUNT", Integer.valueOf(0));
+                context.setAttribute("RES-COUNT", Integer.valueOf(0));
             }
 
             public void finalizeContext(final HttpContext context) {
@@ -744,7 +744,7 @@ public class TestAsyncNHttpHandlers extends TestCase {
                     NByteArrayEntity outgoing = new NByteArrayEntity(data);
                     post.setEntity(outgoing);
 
-                    context.setAttribute("REQ-COUNT", new Integer(i + 1));
+                    context.setAttribute("REQ-COUNT", Integer.valueOf(i + 1));
                 }
                 return post;
             }
@@ -756,7 +756,7 @@ public class TestAsyncNHttpHandlers extends TestCase {
                 ByteSequence list = (ByteSequence) context.getAttribute("LIST");
                 int i = ((Integer) context.getAttribute("RES-COUNT")).intValue();
                 i++;
-                context.setAttribute("RES-COUNT", new Integer(i));
+                context.setAttribute("RES-COUNT", Integer.valueOf(i));
 
                 try {
                     HttpEntity entity = response.getEntity();
@@ -873,9 +873,9 @@ public class TestAsyncNHttpHandlers extends TestCase {
         NHttpRequestExecutionHandler requestExecutionHandler = new NHttpRequestExecutionHandler() {
 
             public void initalizeContext(final HttpContext context, final Object attachment) {
-                context.setAttribute("LIST", (ByteSequence) attachment);
-                context.setAttribute("REQ-COUNT", new Integer(0));
-                context.setAttribute("RES-COUNT", new Integer(0));
+                context.setAttribute("LIST", attachment);
+                context.setAttribute("REQ-COUNT", Integer.valueOf(0));
+                context.setAttribute("RES-COUNT", Integer.valueOf(0));
             }
 
             public void finalizeContext(final HttpContext context) {
@@ -898,7 +898,7 @@ public class TestAsyncNHttpHandlers extends TestCase {
                     outgoing.setChunked(true);
                     post.setEntity(outgoing);
 
-                    context.setAttribute("REQ-COUNT", new Integer(i + 1));
+                    context.setAttribute("REQ-COUNT", Integer.valueOf(i + 1));
                 }
                 return post;
             }
@@ -910,7 +910,7 @@ public class TestAsyncNHttpHandlers extends TestCase {
                 ByteSequence list = (ByteSequence) context.getAttribute("LIST");
                 int i = ((Integer) context.getAttribute("RES-COUNT")).intValue();
                 i++;
-                context.setAttribute("RES-COUNT", new Integer(i));
+                context.setAttribute("RES-COUNT", Integer.valueOf(i));
 
                 try {
                     HttpEntity entity = response.getEntity();
@@ -1035,9 +1035,9 @@ public class TestAsyncNHttpHandlers extends TestCase {
         NHttpRequestExecutionHandler requestExecutionHandler = new NHttpRequestExecutionHandler() {
 
             public void initalizeContext(final HttpContext context, final Object attachment) {
-                context.setAttribute("LIST", (ResponseSequence) attachment);
-                context.setAttribute("REQ-COUNT", new Integer(0));
-                context.setAttribute("RES-COUNT", new Integer(0));
+                context.setAttribute("LIST", attachment);
+                context.setAttribute("REQ-COUNT", Integer.valueOf(0));
+                context.setAttribute("RES-COUNT", Integer.valueOf(0));
             }
 
             public void finalizeContext(final HttpContext context) {
@@ -1060,7 +1060,7 @@ public class TestAsyncNHttpHandlers extends TestCase {
                             EncodingUtils.getAsciiBytes("No content"));
                     post.setEntity(outgoing);
 
-                    context.setAttribute("REQ-COUNT", new Integer(i + 1));
+                    context.setAttribute("REQ-COUNT", Integer.valueOf(i + 1));
                 }
                 return post;
             }
@@ -1072,7 +1072,7 @@ public class TestAsyncNHttpHandlers extends TestCase {
                 ResponseSequence list = (ResponseSequence) context.getAttribute("LIST");
                 int i = ((Integer) context.getAttribute("RES-COUNT")).intValue();
                 i++;
-                context.setAttribute("RES-COUNT", new Integer(i));
+                context.setAttribute("RES-COUNT", Integer.valueOf(i));
 
                 HttpEntity entity = response.getEntity();
                 if (entity != null) {
@@ -1186,9 +1186,9 @@ public class TestAsyncNHttpHandlers extends TestCase {
         NHttpRequestExecutionHandler requestExecutionHandler = new NHttpRequestExecutionHandler() {
 
             public void initalizeContext(final HttpContext context, final Object attachment) {
-                context.setAttribute("LIST", (ResponseSequence) attachment);
-                context.setAttribute("REQ-COUNT", new Integer(0));
-                context.setAttribute("RES-COUNT", new Integer(0));
+                context.setAttribute("LIST", attachment);
+                context.setAttribute("REQ-COUNT", Integer.valueOf(0));
+                context.setAttribute("RES-COUNT", Integer.valueOf(0));
             }
 
             public void finalizeContext(final HttpContext context) {
@@ -1206,7 +1206,7 @@ public class TestAsyncNHttpHandlers extends TestCase {
                 BasicHttpRequest request = null;
                 if (i < reqNo) {
                     request = new BasicHttpRequest(method[0], "/?" + i);
-                    context.setAttribute("REQ-COUNT", new Integer(i + 1));
+                    context.setAttribute("REQ-COUNT", Integer.valueOf(i + 1));
                 }
                 return request;
             }
@@ -1218,7 +1218,7 @@ public class TestAsyncNHttpHandlers extends TestCase {
                 ResponseSequence list = (ResponseSequence) context.getAttribute("LIST");
                 int i = ((Integer) context.getAttribute("RES-COUNT")).intValue();
                 i++;
-                context.setAttribute("RES-COUNT", new Integer(i));
+                context.setAttribute("RES-COUNT", Integer.valueOf(i));
 
                 list.addResponse(response);
                 requestCount.decrement();
@@ -1351,9 +1351,9 @@ public class TestAsyncNHttpHandlers extends TestCase {
         NHttpRequestExecutionHandler requestExecutionHandler = new NHttpRequestExecutionHandler() {
 
             public void initalizeContext(final HttpContext context, final Object attachment) {
-                context.setAttribute("LIST", (ByteSequence) attachment);
-                context.setAttribute("REQ-COUNT", new Integer(0));
-                context.setAttribute("RES-COUNT", new Integer(0));
+                context.setAttribute("LIST", attachment);
+                context.setAttribute("REQ-COUNT", Integer.valueOf(0));
+                context.setAttribute("RES-COUNT", Integer.valueOf(0));
             }
 
             public void finalizeContext(final HttpContext context) {
@@ -1364,7 +1364,7 @@ public class TestAsyncNHttpHandlers extends TestCase {
                 BasicHttpRequest get = null;
                 if (i < reqNo) {
                     get = new BasicHttpRequest("GET", "/?" + i);
-                    context.setAttribute("REQ-COUNT", new Integer(i + 1));
+                    context.setAttribute("REQ-COUNT", Integer.valueOf(i + 1));
                 }
                 return get;
             }
@@ -1383,7 +1383,7 @@ public class TestAsyncNHttpHandlers extends TestCase {
                 ByteSequence list = (ByteSequence) context.getAttribute("LIST");
                 int i = ((Integer) context.getAttribute("RES-COUNT")).intValue();
                 i++;
-                context.setAttribute("RES-COUNT", new Integer(i));
+                context.setAttribute("RES-COUNT", Integer.valueOf(i));
 
                 try {
                     HttpEntity entity = response.getEntity();
@@ -1482,8 +1482,8 @@ public class TestAsyncNHttpHandlers extends TestCase {
         NHttpRequestExecutionHandler requestExecutionHandler = new NHttpRequestExecutionHandler() {
 
             public void initalizeContext(final HttpContext context, final Object attachment) {
-                context.setAttribute("REQ-COUNT", new Integer(0));
-                context.setAttribute("RES-COUNT", new Integer(0));
+                context.setAttribute("REQ-COUNT", Integer.valueOf(0));
+                context.setAttribute("RES-COUNT", Integer.valueOf(0));
             }
 
             public void finalizeContext(final HttpContext context) {
@@ -1494,7 +1494,7 @@ public class TestAsyncNHttpHandlers extends TestCase {
                 BasicHttpRequest get = null;
                 if (i < reqNo) {
                     get = new BasicHttpRequest("GET", "/?" + i);
-                    context.setAttribute("REQ-COUNT", new Integer(i + 1));
+                    context.setAttribute("REQ-COUNT", Integer.valueOf(i + 1));
                 }
                 return get;
             }
@@ -1512,7 +1512,7 @@ public class TestAsyncNHttpHandlers extends TestCase {
                 
                 int i = ((Integer) context.getAttribute("RES-COUNT")).intValue();
                 i++;
-                context.setAttribute("RES-COUNT", new Integer(i));
+                context.setAttribute("RES-COUNT", Integer.valueOf(i));
 
                 try {
                     HttpEntity entity = response.getEntity();
@@ -1585,7 +1585,7 @@ public class TestAsyncNHttpHandlers extends TestCase {
                 new Thread() {
                     @Override
                     public void run() {
-                        try { Thread.sleep(10); } catch(InterruptedException ie) {};
+                        try { Thread.sleep(10); } catch(InterruptedException ie) {}
                         try {
                             URI uri = new URI(request.getRequestLine().getUri());
                             trigger.handleException(new HttpException("Error: " + uri.getQuery()));
@@ -1601,8 +1601,8 @@ public class TestAsyncNHttpHandlers extends TestCase {
         NHttpRequestExecutionHandler requestExecutionHandler = new NHttpRequestExecutionHandler() {
 
             public void initalizeContext(final HttpContext context, final Object attachment) {
-                context.setAttribute("REQ-COUNT", new Integer(0));
-                context.setAttribute("RES-COUNT", new Integer(0));
+                context.setAttribute("REQ-COUNT", Integer.valueOf(0));
+                context.setAttribute("RES-COUNT", Integer.valueOf(0));
             }
 
             public void finalizeContext(final HttpContext context) {
@@ -1613,7 +1613,7 @@ public class TestAsyncNHttpHandlers extends TestCase {
                 BasicHttpRequest get = null;
                 if (i < reqNo) {
                     get = new BasicHttpRequest("GET", "/?" + i);
-                    context.setAttribute("REQ-COUNT", new Integer(i + 1));
+                    context.setAttribute("REQ-COUNT", Integer.valueOf(i + 1));
                 }
                 return get;
             }
@@ -1631,7 +1631,7 @@ public class TestAsyncNHttpHandlers extends TestCase {
                 
                 int i = ((Integer) context.getAttribute("RES-COUNT")).intValue();
                 i++;
-                context.setAttribute("RES-COUNT", new Integer(i));
+                context.setAttribute("RES-COUNT", Integer.valueOf(i));
 
                 try {
                     HttpEntity entity = response.getEntity();
@@ -1695,8 +1695,8 @@ public class TestAsyncNHttpHandlers extends TestCase {
         NHttpRequestExecutionHandler requestExecutionHandler = new NHttpRequestExecutionHandler() {
 
             public void initalizeContext(final HttpContext context, final Object attachment) {
-                context.setAttribute("REQ-COUNT", new Integer(0));
-                context.setAttribute("RES-COUNT", new Integer(0));
+                context.setAttribute("REQ-COUNT", Integer.valueOf(0));
+                context.setAttribute("RES-COUNT", Integer.valueOf(0));
             }
 
             public void finalizeContext(final HttpContext context) {
@@ -1707,7 +1707,7 @@ public class TestAsyncNHttpHandlers extends TestCase {
                 BasicHttpRequest get = null;
                 if (i < reqNo) {
                     get = new BasicHttpRequest("GET", "/?" + i);
-                    context.setAttribute("REQ-COUNT", new Integer(i + 1));
+                    context.setAttribute("REQ-COUNT", Integer.valueOf(i + 1));
                 }
                 return get;
             }
@@ -1725,7 +1725,7 @@ public class TestAsyncNHttpHandlers extends TestCase {
                 
                 int i = ((Integer) context.getAttribute("RES-COUNT")).intValue();
                 i++;
-                context.setAttribute("RES-COUNT", new Integer(i));
+                context.setAttribute("RES-COUNT", Integer.valueOf(i));
 
                 if(response.getStatusLine().getStatusCode() == 501)
                     requestCount.decrement();
@@ -1812,8 +1812,8 @@ public class TestAsyncNHttpHandlers extends TestCase {
         NHttpRequestExecutionHandler requestExecutionHandler = new NHttpRequestExecutionHandler() {
 
             public void initalizeContext(final HttpContext context, final Object attachment) {
-                context.setAttribute("REQ-COUNT", new Integer(0));
-                context.setAttribute("RES-COUNT", new Integer(0));
+                context.setAttribute("REQ-COUNT", Integer.valueOf(0));
+                context.setAttribute("RES-COUNT", Integer.valueOf(0));
             }
 
             public void finalizeContext(final HttpContext context) {
@@ -1831,7 +1831,7 @@ public class TestAsyncNHttpHandlers extends TestCase {
                 BasicHttpEntityEnclosingRequest post = null;
                 if (i < reqNo) {
                     post = new BasicHttpEntityEnclosingRequest("POST", "/?" + i);
-                    context.setAttribute("REQ-COUNT", new Integer(i + 1));
+                    context.setAttribute("REQ-COUNT", Integer.valueOf(i + 1));
                 }
                 return post;
             }
@@ -1842,7 +1842,7 @@ public class TestAsyncNHttpHandlers extends TestCase {
 
                 int i = ((Integer) context.getAttribute("RES-COUNT")).intValue();
                 i++;
-                context.setAttribute("RES-COUNT", new Integer(i));
+                context.setAttribute("RES-COUNT", Integer.valueOf(i));
 
                 try {
                     HttpEntity entity = response.getEntity();

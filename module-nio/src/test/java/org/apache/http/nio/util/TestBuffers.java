@@ -137,7 +137,7 @@ public class TestBuffers extends TestCase {
 
     public void testBufferInfo() throws Exception {
         SimpleOutputBuffer buffer = new SimpleOutputBuffer(8, new DirectByteBufferAllocator());
-        BufferInfo bufferinfo = (BufferInfo) buffer; 
+        BufferInfo bufferinfo = buffer; 
         
         assertEquals(0, bufferinfo.length());
         assertEquals(8, bufferinfo.available());
