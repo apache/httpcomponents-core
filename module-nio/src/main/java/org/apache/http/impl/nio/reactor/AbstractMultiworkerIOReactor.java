@@ -82,7 +82,7 @@ public abstract class AbstractMultiworkerIOReactor implements IOReactor {
             throw new IllegalArgumentException("Worker count may not be negative or zero");
         }
         if (params == null) {
-            throw new IllegalArgumentException("HTTP parameters may not be negative or zero");
+            throw new IllegalArgumentException("HTTP parameters may not be null");
         }
         try {
             this.selector = Selector.open();
