@@ -184,6 +184,13 @@ public class SSLIOSession implements IOSession, SessionBufferStatus {
     }
 
     private void updateEventMask() {
+        if (this.sslEngine.isInboundDone() && this.sslEngine.isOutboundDone()) {
+            this.status = CLOSED;
+        }
+        if (this.status == CLOSED) {
+            this.session.close();
+            return;
+        }
         // Need to toggle the event mask for this channel?
         int oldMask = this.session.getEventMask();
         int newMask = oldMask;
@@ -214,10 +221,6 @@ public class SSLIOSession implements IOSession, SessionBufferStatus {
         this.outEncrypted.flip();
         int bytesWritten = this.session.channel().write(this.outEncrypted);
         this.outEncrypted.compact();
-        
-        if (this.sslEngine.isInboundDone() && this.sslEngine.isOutboundDone()) {
-            this.session.close();
-        }
         return bytesWritten;
     }
 
@@ -256,13 +259,9 @@ public class SSLIOSession implements IOSession, SessionBufferStatus {
         return this.status == ACTIVE
             && this.sslEngine.getHandshakeStatus() == HandshakeStatus.NOT_HANDSHAKING;
     }
-    
+
     public synchronized void inboundTransport() throws IOException {
-        if (this.status == CLOSED) {
-            this.session.close();
-        } else {
-            updateEventMask();
-        }
+        updateEventMask();
     }
     
     public synchronized void outboundTransport() throws IOException {
