@@ -278,9 +278,13 @@ public class AsyncNHttpClientHandler extends NHttpHandlerBase
                     cancelRequest(conn, connState);
                 }
             }
+
+            context.setAttribute(ExecutionContext.HTTP_RESPONSE, response);
+            
             if (!canResponseHaveBody(request, response)) {
                 conn.resetInput();
                 response.setEntity(null);
+                this.httpProcessor.process(response, context);
                 processResponse(conn, connState);
             } else {
                 HttpEntity entity = response.getEntity();
@@ -293,6 +297,7 @@ public class AsyncNHttpClientHandler extends NHttpHandlerBase
                     }
                     response.setEntity(consumingEntity);
                     connState.setConsumingEntity(consumingEntity);
+                    this.httpProcessor.process(response, context);
                 }
             }
 
@@ -368,10 +373,6 @@ public class AsyncNHttpClientHandler extends NHttpHandlerBase
 
         HttpContext context = conn.getContext();
         HttpResponse response = connState.getResponse();
-
-        context.setAttribute(ExecutionContext.HTTP_RESPONSE, response);
-
-        this.httpProcessor.process(response, context);
 
         this.execHandler.handleResponse(response, context);
 
