@@ -1,5 +1,15 @@
 Changes since 4.0 Beta 1
 -------------------
+* Changed behavior of IdentityDecoder & LengthDelimitedDecoder to throw
+  an IOException if data is attempted to be written beyond the length
+  of a FileChannel.  Previously would write nothing.
+  Sam Berlin <sberlin at apache.org>
+
+* Fixed bug in LengthDelimitedDecoder & IdentityDecoder that caused transfers
+  to a FileChannel to overwrite arbitrary parts of the file, if data was
+  buffered in SessionInputBuffer.
+  Sam Berlin <sberlin at apache.org>
+
 * Fixed concurrency bug in the ThrottlingHttpServerHandler protocol handler.
   Oleg Kalnichevski <olegk at apache.org> 
 

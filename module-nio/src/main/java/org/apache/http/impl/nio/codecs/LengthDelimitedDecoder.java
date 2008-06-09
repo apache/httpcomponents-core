@@ -124,12 +124,18 @@ public class LengthDelimitedDecoder extends AbstractContentDecoder
         long bytesRead;
         if (this.buffer.hasData()) {
             int maxLen = Math.min(lenRemaining, this.buffer.length());
+            dst.position(position);
             bytesRead = this.buffer.read(dst, maxLen);
         } else {
             if (count > lenRemaining) {
                 count = lenRemaining;
             }
             if (this.channel.isOpen()) {
+                if(dst.size() < position)
+                    throw new IOException("FileChannel.size() [" + dst.size() + 
+                                          "] < position [" + position + 
+                                          "].  Please grow the file before writing.");
+                
                 bytesRead = dst.transferFrom(this.channel, position, count);
             } else {
                 bytesRead = -1;

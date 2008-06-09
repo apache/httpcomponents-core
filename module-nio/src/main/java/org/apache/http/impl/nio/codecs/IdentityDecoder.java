@@ -97,9 +97,15 @@ public class IdentityDecoder extends AbstractContentDecoder
         
         long bytesRead;
         if (this.buffer.hasData()) {
+            dst.position(position);
             bytesRead = this.buffer.read(dst);
         } else {
             if (this.channel.isOpen()) {
+                if(dst.size() < position)
+                    throw new IOException("FileChannel.size() [" + dst.size() + 
+                                          "] < position [" + position + 
+                                          "].  Please grow the file before writing.");
+                
                 bytesRead = dst.transferFrom(this.channel, position, count);
             } else {
                 bytesRead = -1;
