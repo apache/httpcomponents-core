@@ -168,6 +168,8 @@ public class SSLIOSession implements IOSession, SessionBufferStatus {
             case NOT_HANDSHAKING:
                 handshaking = false;
                 break;
+            case FINISHED:
+                break;
             }
         }
 
@@ -203,6 +205,10 @@ public class SSLIOSession implements IOSession, SessionBufferStatus {
             break;
         case NOT_HANDSHAKING:
             newMask = this.appEventMask;
+            break;
+        case NEED_TASK:
+            break;
+        case FINISHED:
             break;
         }
         
