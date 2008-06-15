@@ -181,6 +181,9 @@ public abstract class AbstractMultiworkerIOReactor implements IOReactor {
             }
 
         } catch (ClosedSelectorException ex) {
+            // Ignore this exception and attempt to shut down the reactor 
+            // in an orderly fashion. An I/O exception will result in the 
+            // reactor is an inconsistent state
         } finally {
             try {
                 doShutdown();
