@@ -10,18 +10,22 @@ HttpCore base module has had very few changes.
 
 All upstream projects dependent on HttpCore NIO are strongly advised to upgrade.
 
+* [HTTPCORE-163] Fixed AbstractMultiworkerIOReactor#execute() to correctly 
+  propagate the original I/O exception in case of an abnormal termination. 
+  Contributed by Patrick Moore <patmoore at ieee.org> 
+
 * Changed behavior of IdentityDecoder & LengthDelimitedDecoder to throw
   an IOException if data is attempted to be written beyond the length
   of a FileChannel.  Previously would write nothing.
-  Sam Berlin <sberlin at apache.org>
+  Contributed by Sam Berlin <sberlin at apache.org>
 
 * Fixed bug in LengthDelimitedDecoder & IdentityDecoder that caused transfers
   to a FileChannel to overwrite arbitrary parts of the file, if data was
   buffered in SessionInputBuffer.
-  Sam Berlin <sberlin at apache.org>
+  Contributed by Sam Berlin <sberlin at apache.org>
 
 * Fixed concurrency bug in the ThrottlingHttpServerHandler protocol handler.
-  Oleg Kalnichevski <olegk at apache.org> 
+  Contributed by Oleg Kalnichevski <olegk at apache.org> 
 
 * Fixed bug in SharedInputBuffer that caused input events to be
   incorrectly suspended.

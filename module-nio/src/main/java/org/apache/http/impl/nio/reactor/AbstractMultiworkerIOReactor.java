@@ -142,6 +142,7 @@ public abstract class AbstractMultiworkerIOReactor implements IOReactor {
             this.threads[i].start();
         }
         
+        boolean completed = false;
         try {
 
             for (;;) {
@@ -155,6 +156,7 @@ public abstract class AbstractMultiworkerIOReactor implements IOReactor {
                 }
                 
                 if (this.status.compareTo(IOReactorStatus.ACTIVE) > 0) {
+                    completed = true;
                     break;
                 }
                 processEvents(readyCount);
@@ -180,11 +182,12 @@ public abstract class AbstractMultiworkerIOReactor implements IOReactor {
 
         } catch (ClosedSelectorException ex) {
         } finally {
-            // Shutdown
             try {
                 doShutdown();
             } catch (IOException ex) {
-                throw new IOReactorException(ex.getMessage(), ex);
+                if (completed) {
+                    throw new IOReactorException(ex.getMessage(), ex);
+                }
             }
         }
     }
