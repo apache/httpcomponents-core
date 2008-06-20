@@ -61,7 +61,7 @@ or authentication. It defines a framework for plugging in these features.
     <category rdf:resource="http://projects.apache.org/category/network-client" />
     <category rdf:resource="http://projects.apache.org/category/network-server" />
 
-    <!-- multiple releases can be listed, each in it's own section -->
+    <!-- Multiple releases can be listed, each in its own section -->
     <release>
       <Version>
         <name>HttpComponents Core 4.0-alpha6</name>
