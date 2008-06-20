@@ -64,9 +64,19 @@ or authentication. It defines a framework for plugging in these features.
     <!-- multiple releases can be listed, each in it's own section -->
     <release>
       <Version>
-        <name>httpcomponents-core-4.0-alpha6</name>
+        <name>HttpComponents Core 4.0-alpha6</name>
         <created>2007-10-09</created>
         <revision>4.0-alpha6</revision>
+      </Version>
+      <Version>
+        <name>HttpComponents Core 4.0-beta1</name>
+        <created>2008-01-24</created>
+        <revision>4.0-beta1</revision>
+      </Version>
+      <Version>
+        <name>HttpComponents Core 4.0-beta2</name>
+        <created>2008-06-22</created>
+        <revision>4.0-beta2</revision>
       </Version>
     </release>
 
