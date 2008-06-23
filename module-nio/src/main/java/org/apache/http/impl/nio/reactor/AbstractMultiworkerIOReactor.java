@@ -257,7 +257,8 @@ public abstract class AbstractMultiworkerIOReactor implements IOReactor {
 
     protected void addChannel(final ChannelEntry entry) {
         // Distribute new channels among the workers
-        this.dispatchers[this.currentWorker++ % this.workerCount].addChannel(entry);
+        int i = Math.abs(this.currentWorker++ % this.workerCount);
+        this.dispatchers[i].addChannel(entry);
     }
     
     protected SelectionKey registerChannel(
