@@ -96,6 +96,9 @@ public class BaseIOReactor extends AbstractIOReactor {
 
         try {
             this.eventDispatch.inputReady(session);
+        } catch (CancelledKeyException ex) {
+            queueClosedSession(session);
+            key.attach(null);
         } catch (RuntimeException ex) {
             handleRuntimeException(ex);
         }
@@ -112,6 +115,9 @@ public class BaseIOReactor extends AbstractIOReactor {
 
         try {
             this.eventDispatch.outputReady(session);
+        } catch (CancelledKeyException ex) {
+            queueClosedSession(session);
+            key.attach(null);
         } catch (RuntimeException ex) {
             handleRuntimeException(ex);
         }
@@ -136,20 +142,19 @@ public class BaseIOReactor extends AbstractIOReactor {
                     it.remove();
                     continue;
                 }
-                try {
-                    int ops = session.getEventMask();
-                    if ((ops & EventMask.READ) > 0) {
-                        try {
-                            this.eventDispatch.inputReady(session);
-                        } catch (RuntimeException ex) {
-                            handleRuntimeException(ex);
-                        }
-                        if (!session.hasBufferedInput()) {
-                            it.remove();
-                        }
+                int ops = session.getEventMask();
+                if ((ops & EventMask.READ) > 0) {
+                    try {
+                        this.eventDispatch.inputReady(session);
+                    } catch (CancelledKeyException ex) {
+                        it.remove();
+                        queueClosedSession(session);
+                    } catch (RuntimeException ex) {
+                        handleRuntimeException(ex);
                     }
-                } catch (CancelledKeyException ex) {
-                    it.remove();
+                    if (!session.hasBufferedInput()) {
+                        it.remove();
+                    }
                 }
             }
         }
@@ -166,6 +171,9 @@ public class BaseIOReactor extends AbstractIOReactor {
                 if (handle.getLastAccessTime() + timeout < now) {
                     try {
                         this.eventDispatch.timeout(session);
+                    } catch (CancelledKeyException ex) {
+                        queueClosedSession(session);
+                        key.attach(null);
                     } catch (RuntimeException ex) {
                         handleRuntimeException(ex);
                     }
@@ -175,18 +183,21 @@ public class BaseIOReactor extends AbstractIOReactor {
     }
 
     @Override
-    protected void keyCreated(final SelectionKey key, final IOSession session) {
+    protected void sessionCreated(final SelectionKey key, final IOSession session) {
         SessionHandle handle = new SessionHandle(session);
         key.attach(handle);
         try {
             this.eventDispatch.connected(session);
+        } catch (CancelledKeyException ex) {
+            queueClosedSession(session);
+            key.attach(null);
         } catch (RuntimeException ex) {
             handleRuntimeException(ex);
         }
     }
 
     @Override
-    protected IOSession keyCancelled(final SelectionKey key) {
+    protected IOSession getSession(final SelectionKey key) {
         Object attachment = key.attachment();
         if (attachment instanceof SessionHandle) {
             SessionHandle handle = (SessionHandle) attachment;
@@ -200,6 +211,8 @@ public class BaseIOReactor extends AbstractIOReactor {
     protected void sessionClosed(final IOSession session) {
         try {
             this.eventDispatch.disconnected(session);
+        } catch (CancelledKeyException ex) {
+            // ignore
         } catch (RuntimeException ex) {
             handleRuntimeException(ex);
         }

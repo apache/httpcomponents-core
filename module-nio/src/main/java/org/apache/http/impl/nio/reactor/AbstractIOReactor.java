@@ -92,9 +92,9 @@ public abstract class AbstractIOReactor implements IOReactor {
 
     protected abstract void validate(Set<SelectionKey> keys);
     
-    protected abstract void keyCreated(SelectionKey key, IOSession session);
+    protected abstract void sessionCreated(SelectionKey key, IOSession session);
     
-    protected abstract IOSession keyCancelled(SelectionKey key);
+    protected abstract IOSession getSession(SelectionKey key);
     
     protected abstract void sessionClosed(IOSession session);
     
@@ -198,14 +198,19 @@ public abstract class AbstractIOReactor implements IOReactor {
                 writable(key);
             }
         } catch (CancelledKeyException ex) {
-            IOSession session = keyCancelled(key);
-            if (session != null) {
-                this.closedSessions.add(session);
-            }
+            IOSession session = getSession(key);
+            queueClosedSession(session);            
             key.attach(null);
         }
     }
 
+    protected void queueClosedSession(final IOSession session) {
+        if (session != null) {
+            this.closedSessions.add(session);
+        }
+    }
+    
+    
     private void processNewChannels() throws IOReactorException {
         ChannelEntry entry;
         while ((entry = this.newChannels.poll()) != null) {
@@ -243,7 +248,7 @@ public abstract class AbstractIOReactor implements IOReactor {
             this.sessions.add(session);
 
             try {
-                keyCreated(key, session);
+                sessionCreated(key, session);
                 
                 SessionRequestImpl sessionRequest = entry.getSessionRequest();
                 if (sessionRequest != null) {
@@ -260,7 +265,11 @@ public abstract class AbstractIOReactor implements IOReactor {
         IOSession session;
         while ((session = this.closedSessions.poll()) != null) {
             if (this.sessions.remove(session)) {
-                sessionClosed(session);
+                try {
+                    sessionClosed(session);
+                } catch (CancelledKeyException ex) {
+                    // ignore and move on
+                }
             }
         }
     }
