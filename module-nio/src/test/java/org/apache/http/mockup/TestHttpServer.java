@@ -33,9 +33,11 @@ package org.apache.http.mockup;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
+import java.util.List;
 
 import org.apache.http.impl.nio.DefaultServerIOEventDispatch;
 import org.apache.http.impl.nio.reactor.DefaultListeningIOReactor;
+import org.apache.http.impl.nio.reactor.ExceptionEvent;
 import org.apache.http.nio.NHttpServiceHandler;
 import org.apache.http.nio.reactor.IOEventDispatch;
 import org.apache.http.nio.reactor.IOReactorExceptionHandler;
@@ -100,6 +102,10 @@ public class TestHttpServer {
     
     public IOReactorStatus getStatus() {
         return this.ioReactor.getStatus();
+    }
+    
+    public List<ExceptionEvent> getAuditLog() {
+        return this.ioReactor.getAuditLog();
     }
     
     public void join(long timeout) throws InterruptedException {

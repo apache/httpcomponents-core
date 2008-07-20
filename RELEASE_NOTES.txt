@@ -1,6 +1,11 @@
 Changes since 4.0 Beta2
 -------------------
 
+* [HTTPCORE-166] NIO reactors now maintain an audit log of fatal exceptions,
+  which can be used to examine the cause and problems experienced during 
+  the shutdown process.
+  Contributed by Oleg Kalnichevski <olegk at apache.org> 
+
 * [HTTPCORE-165] Improved handling of CancelledKeyException in I/O reactors
   Contributed by Oleg Kalnichevski <olegk at apache.org> 
 

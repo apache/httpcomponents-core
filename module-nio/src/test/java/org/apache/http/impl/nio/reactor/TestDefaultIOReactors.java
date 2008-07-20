@@ -32,6 +32,7 @@ package org.apache.http.impl.nio.reactor;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
+import java.util.List;
 
 import junit.framework.Test;
 import junit.framework.TestSuite;
@@ -48,6 +49,7 @@ import org.apache.http.nio.NHttpConnection;
 import org.apache.http.nio.NHttpServiceHandler;
 import org.apache.http.nio.protocol.EventListener;
 import org.apache.http.nio.protocol.HttpRequestExecutionHandler;
+import org.apache.http.nio.reactor.IOReactorException;
 import org.apache.http.nio.reactor.IOReactorExceptionHandler;
 import org.apache.http.nio.reactor.IOReactorStatus;
 import org.apache.http.nio.reactor.ListenerEndpoint;
@@ -242,7 +244,14 @@ public class TestDefaultIOReactors extends HttpCoreNIOTestBase {
         
         Exception ex = this.server.getException();
         assertNotNull(ex);
-        assertTrue(ex instanceof IllegalStateException);
+        assertTrue(ex instanceof IOReactorException);
+        assertNotNull(ex.getCause());
+        assertTrue(ex.getCause() instanceof IllegalStateException);
+        
+        List<ExceptionEvent> auditlog = this.server.getAuditLog();
+        assertNotNull(auditlog);
+        assertEquals(1, auditlog.size());
+        
         // I/O reactor shut down itself
         assertEquals(IOReactorStatus.SHUT_DOWN, this.server.getStatus());
         
@@ -331,7 +340,14 @@ public class TestDefaultIOReactors extends HttpCoreNIOTestBase {
         
         Exception ex = this.server.getException();
         assertNotNull(ex);
-        assertTrue(ex instanceof IllegalStateException);
+        assertTrue(ex instanceof IOReactorException);
+        assertNotNull(ex.getCause());
+        assertTrue(ex.getCause() instanceof IllegalStateException);
+
+        List<ExceptionEvent> auditlog = this.server.getAuditLog();
+        assertNotNull(auditlog);
+        assertEquals(1, auditlog.size());
+        
         // I/O reactor shut down itself
         assertEquals(IOReactorStatus.SHUT_DOWN, this.server.getStatus());
         

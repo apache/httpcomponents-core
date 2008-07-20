@@ -35,6 +35,7 @@ import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.net.URL;
 import java.security.KeyStore;
+import java.util.List;
 
 import javax.net.ssl.KeyManager;
 import javax.net.ssl.KeyManagerFactory;
@@ -42,10 +43,11 @@ import javax.net.ssl.SSLContext;
 
 import org.apache.http.impl.nio.SSLServerIOEventDispatch;
 import org.apache.http.impl.nio.reactor.DefaultListeningIOReactor;
+import org.apache.http.impl.nio.reactor.ExceptionEvent;
 import org.apache.http.nio.NHttpServiceHandler;
 import org.apache.http.nio.reactor.IOEventDispatch;
+import org.apache.http.nio.reactor.IOReactorStatus;
 import org.apache.http.nio.reactor.ListenerEndpoint;
-import org.apache.http.nio.reactor.ListeningIOReactor;
 import org.apache.http.params.HttpParams;
 
 /**
@@ -56,7 +58,7 @@ import org.apache.http.params.HttpParams;
 public class TestHttpSSLServer {
 
     private final SSLContext sslcontext;
-    private final ListeningIOReactor ioReactor;
+    private final DefaultListeningIOReactor ioReactor;
     private final HttpParams params;
     
     private volatile IOReactorThread thread;
@@ -83,6 +85,14 @@ public class TestHttpSSLServer {
     
     public HttpParams getParams() {
         return this.params;
+    }
+    
+    public IOReactorStatus getStatus() {
+        return this.ioReactor.getStatus();
+    }
+    
+    public List<ExceptionEvent> getAuditLog() {
+        return this.ioReactor.getAuditLog();
     }
     
     public void setRequestCount(final RequestCount requestCount) {

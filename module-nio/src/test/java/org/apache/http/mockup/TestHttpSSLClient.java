@@ -35,6 +35,7 @@ import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.net.URL;
 import java.security.KeyStore;
+import java.util.List;
 
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.TrustManager;
@@ -42,15 +43,16 @@ import javax.net.ssl.TrustManagerFactory;
 
 import org.apache.http.impl.nio.SSLClientIOEventDispatch;
 import org.apache.http.impl.nio.reactor.DefaultConnectingIOReactor;
+import org.apache.http.impl.nio.reactor.ExceptionEvent;
 import org.apache.http.nio.NHttpClientHandler;
-import org.apache.http.nio.reactor.ConnectingIOReactor;
 import org.apache.http.nio.reactor.IOEventDispatch;
+import org.apache.http.nio.reactor.IOReactorStatus;
 import org.apache.http.params.HttpParams;
 
 public class TestHttpSSLClient {
 
     private final SSLContext sslcontext;
-    private final ConnectingIOReactor ioReactor;
+    private final DefaultConnectingIOReactor ioReactor;
     private final HttpParams params;
     
     private volatile IOReactorThread thread;
@@ -76,6 +78,14 @@ public class TestHttpSSLClient {
     
     public HttpParams getParams() {
         return this.params;
+    }
+    
+    public IOReactorStatus getStatus() {
+        return this.ioReactor.getStatus();
+    }
+    
+    public List<ExceptionEvent> getAuditLog() {
+        return this.ioReactor.getAuditLog();
     }
     
     public void setRequestCount(final RequestCount requestCount) {
