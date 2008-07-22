@@ -76,14 +76,14 @@ public class SocketHttpServerConnection extends
         }
     }
     
-    protected SessionInputBuffer createHttpDataReceiver(
+    protected SessionInputBuffer createSessionInputBuffer(
             final Socket socket, 
             int buffersize,
             final HttpParams params) throws IOException {
         return new SocketInputBuffer(socket, buffersize, params);
     }
     
-    protected SessionOutputBuffer createHttpDataTransmitter(
+    protected SessionOutputBuffer createSessionOutputBuffer(
             final Socket socket, 
             int buffersize,
             final HttpParams params) throws IOException {
@@ -102,8 +102,8 @@ public class SocketHttpServerConnection extends
         int buffersize = HttpConnectionParams.getSocketBufferSize(params);
         
         init(
-                createHttpDataReceiver(socket, buffersize, params), 
-                createHttpDataTransmitter(socket, buffersize, params),
+                createSessionInputBuffer(socket, buffersize, params), 
+                createSessionOutputBuffer(socket, buffersize, params),
                 params);
         
         this.open = true;

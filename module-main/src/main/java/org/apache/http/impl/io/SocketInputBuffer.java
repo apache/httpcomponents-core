@@ -35,6 +35,7 @@ import java.io.IOException;
 import java.io.InterruptedIOException;
 import java.net.Socket;
 
+import org.apache.http.io.EofSensor;
 import org.apache.http.params.HttpParams;
 
 
@@ -47,7 +48,7 @@ import org.apache.http.params.HttpParams;
  * 
  * @since 4.0
  */
-public class SocketInputBuffer extends AbstractSessionInputBuffer {
+public class SocketInputBuffer extends AbstractSessionInputBuffer implements EofSensor {
 
     static private final Class SOCKET_TIMEOUT_CLASS = SocketTimeoutExceptionClass();
 
@@ -75,6 +76,8 @@ public class SocketInputBuffer extends AbstractSessionInputBuffer {
     
     private final Socket socket;
     
+    private boolean eof;
+    
     public SocketInputBuffer(
             final Socket socket, 
             int buffersize, 
@@ -84,6 +87,7 @@ public class SocketInputBuffer extends AbstractSessionInputBuffer {
             throw new IllegalArgumentException("Socket may not be null");
         }
         this.socket = socket;
+        this.eof = false;
         if (buffersize < 0) {
             buffersize = socket.getReceiveBufferSize();
         }
@@ -93,6 +97,12 @@ public class SocketInputBuffer extends AbstractSessionInputBuffer {
         init(socket.getInputStream(), buffersize, params);
     }
     
+    protected int fillBuffer() throws IOException {
+        int i = super.fillBuffer();
+        this.eof = i == -1;
+        return i;
+    }
+
     public boolean isDataAvailable(int timeout) throws IOException {
         boolean result = hasBufferedData();
         if (!result) {
@@ -110,6 +120,10 @@ public class SocketInputBuffer extends AbstractSessionInputBuffer {
             }
         }
         return result;
+    }
+
+    public boolean isEof() {
+        return this.eof;
     }    
-        
+    
 }

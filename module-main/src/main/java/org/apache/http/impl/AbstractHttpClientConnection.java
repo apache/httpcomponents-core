@@ -47,6 +47,7 @@ import org.apache.http.impl.entity.LaxContentLengthStrategy;
 import org.apache.http.impl.entity.StrictContentLengthStrategy;
 import org.apache.http.impl.io.HttpRequestWriter;
 import org.apache.http.impl.io.HttpResponseParser;
+import org.apache.http.io.EofSensor;
 import org.apache.http.io.HttpMessageParser;
 import org.apache.http.io.HttpMessageWriter;
 import org.apache.http.io.SessionInputBuffer;
@@ -70,11 +71,10 @@ public abstract class AbstractHttpClientConnection implements HttpClientConnecti
     
     private SessionInputBuffer inbuffer = null;
     private SessionOutputBuffer outbuffer = null;
+    private EofSensor eofSensor = null;
     private HttpMessageParser responseParser = null;
     private HttpMessageWriter requestWriter = null;
     private HttpConnectionMetricsImpl metrics = null;
-
-
 
     public AbstractHttpClientConnection() {
         super();
@@ -123,6 +123,9 @@ public abstract class AbstractHttpClientConnection implements HttpClientConnecti
         }
         this.inbuffer = inbuffer;
         this.outbuffer = outbuffer;
+        if (inbuffer instanceof EofSensor) {
+            this.eofSensor = (EofSensor) inbuffer;
+        }
         this.responseParser = createResponseParser(
                 inbuffer, 
                 createHttpResponseFactory(), 
@@ -193,13 +196,20 @@ public abstract class AbstractHttpClientConnection implements HttpClientConnecti
         response.setEntity(entity);
     }
     
+    protected boolean isEof() {
+        return this.eofSensor != null && this.eofSensor.isEof();
+    }
+    
     public boolean isStale() {
         if (!isOpen()) {
             return true;
         }
+        if (isEof()) {
+            return true;
+        }
         try {
             this.inbuffer.isDataAvailable(1);
-            return false;
+            return isEof();
         } catch (IOException ex) {
             return true;
         }
