@@ -31,6 +31,8 @@
 
 package org.apache.http.message;
 
+import java.io.Serializable;
+
 import org.apache.http.NameValuePair;
 import org.apache.http.util.CharArrayBuffer;
 import org.apache.http.util.LangUtils;
@@ -103,7 +105,9 @@ import org.apache.http.util.LangUtils;
  * @author <a href="mailto:oleg at ural.com">Oleg Kalnichevski</a>
  * 
  */
-public class BasicNameValuePair implements NameValuePair, Cloneable {
+public class BasicNameValuePair implements NameValuePair, Cloneable, Serializable {
+
+    private static final long serialVersionUID = -6437800749411518984L;
 
     private final String name;
     private final String value;
@@ -149,18 +153,17 @@ public class BasicNameValuePair implements NameValuePair, Cloneable {
      */
     public String toString() {
         // don't call complex default formatting for a simple toString
-
-        int len = this.name.length();
-        if (this.value != null)
-            len += 1 + this.value.length();
-        CharArrayBuffer buffer = new CharArrayBuffer(len);
-
-        buffer.append(this.name);
-        if (this.value != null) {
+    	
+    	if (this.value == null) {
+            return name;
+    	} else {
+    		int len = this.name.length() + 1 + this.value.length();
+            CharArrayBuffer buffer = new CharArrayBuffer(len);
+            buffer.append(this.name);
             buffer.append("=");
             buffer.append(this.value);
+            return buffer.toString();
         }
-        return buffer.toString();
     }
 
     public boolean equals(final Object object) {
