@@ -35,6 +35,7 @@ import java.io.IOException;
 import java.io.InterruptedIOException;
 import java.nio.channels.CancelledKeyException;
 import java.nio.channels.Channel;
+import java.nio.channels.ClosedChannelException;
 import java.nio.channels.ClosedSelectorException;
 import java.nio.channels.SelectionKey;
 import java.nio.channels.Selector;
@@ -221,6 +222,13 @@ public abstract class AbstractIOReactor implements IOReactor {
                 channel = entry.getChannel();
                 channel.configureBlocking(false);
                 key = channel.register(this.selector, 0);
+            } catch (ClosedChannelException ex) {
+                SessionRequestImpl sessionRequest = entry.getSessionRequest();
+                if (sessionRequest != null) {
+                    sessionRequest.failed(ex);
+                }
+                return;
+
             } catch (IOException ex) {
                 throw new IOReactorException("Failure registering channel " +
                         "with the selector", ex);

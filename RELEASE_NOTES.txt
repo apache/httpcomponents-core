@@ -1,5 +1,10 @@
-Changes since 4.0 Beta2
+Changes since 4.0 Beta 2
 -------------------
+
+* [HTTPCORE-169] Fixed bug causing connecting I/O reactors to shut down due to
+  ClosedChannelException if a pending session request is cancelled before the new
+  channel has been registered with the selector.
+  Contributed by Anders Wallgren <anders_wallgren at alum.mit.edu>
 
 * [HTTPCORE-167] Fixed handling the end of stream (EOF) condition in the #isStale() 
   check of blocking HTTP connections.
