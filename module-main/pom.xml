@@ -37,7 +37,7 @@
     <version>4.0-beta3-SNAPSHOT</version>
   </parent>
   <artifactId>httpcore</artifactId>
-  <name>HttpCore (base module)</name>
+  <name>HttpCore</name>
   <inceptionYear>2005</inceptionYear>
   <description>
    HttpComponents Core (Java 1.3 compatible)
@@ -48,7 +48,7 @@
   <licenses>
     <license>
       <name>Apache License</name>
-      <url>../LICENSE.txt</url>
+      <url>http://www.apache.org/licenses/LICENSE-2.0.html</url>
       <distribution>repo</distribution>
     </license>
   </licenses>
@@ -109,6 +109,17 @@
           <includes>
             <include>**/TestAll.java</include>
           </includes>
+        </configuration>
+      </plugin>
+      <plugin>
+        <groupId>org.apache.felix</groupId>
+        <artifactId>maven-bundle-plugin</artifactId>
+        <extensions>true</extensions>
+        <configuration>
+          <instructions>
+            <Bundle-Name>Apache ${pom.name}</Bundle-Name>
+            <Export-Package>org.apache.http.*</Export-Package>
+          </instructions>
         </configuration>
       </plugin>
     </plugins>
