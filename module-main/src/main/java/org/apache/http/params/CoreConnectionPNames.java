@@ -42,10 +42,9 @@ package org.apache.http.params;
 public interface CoreConnectionPNames {
 
     /**
-     * Defines the default socket timeout (<tt>SO_TIMEOUT</tt>) in milliseconds which is the 
+     * Defines the socket timeout (<tt>SO_TIMEOUT</tt>) in milliseconds which is the 
      * timeout for waiting for data. A timeout value of zero is interpreted as an infinite 
-     * timeout. This value is used when no socket timeout is set in the 
-     * method parameters. 
+     * timeout. 
      * <p>
      * This parameter expects a value of type {@link Integer}.
      * </p>
@@ -88,8 +87,8 @@ public interface CoreConnectionPNames {
     public static final String SO_LINGER = "http.socket.linger"; 
 
     /**
-     * Determines the timeout until a connection is etablished. A value of zero 
-     * means the timeout is not used. The default value is zero.
+     * Determines the timeout in milliseconds until a connection is established. A timeout 
+     * value of zero is interpreted as an infinite timeout.
      * <p>
      * This parameter expects a value of type {@link Integer}.
      * </p>
