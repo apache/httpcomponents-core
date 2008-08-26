@@ -55,8 +55,8 @@ import org.apache.http.params.HttpParams;
 public class DefaultNHttpClientConnection 
     extends NHttpConnectionBase implements NHttpClientIOTarget {
 
-    private final NHttpMessageParser responseParser;
-    private final NHttpMessageWriter requestWriter;
+    protected final NHttpMessageParser responseParser;
+    protected final NHttpMessageWriter requestWriter;
     
     public DefaultNHttpClientConnection(
             final IOSession session,
