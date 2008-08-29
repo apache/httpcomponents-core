@@ -155,7 +155,7 @@ public class ThrottlingHttpServiceHandler extends NHttpHandlerBase
         
         if (connState != null) {
             synchronized (connState) {
-                connState.shutdown();
+                connState.close();
                 connState.notifyAll();
             }
         }
@@ -685,6 +685,19 @@ public class ThrottlingHttpServiceHandler extends NHttpHandlerBase
 
         public void setExpectationFailed(boolean b) {
             this.expectationFailure = b;
+        }
+
+        public void close() {
+            try {
+                this.inbuffer.close();
+            } catch (IOException ignore) {
+            }
+            try {
+                this.outbuffer.close();
+            } catch (IOException ignore) {
+            }
+            this.inputState = SHUTDOWN;
+            this.outputState = SHUTDOWN;
         }
 
         public void shutdown() {

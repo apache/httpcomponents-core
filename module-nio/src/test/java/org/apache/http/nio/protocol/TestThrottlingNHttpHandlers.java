@@ -680,8 +680,6 @@ public class TestThrottlingNHttpHandlers extends TestCase {
             
         };
         
-        // additional expectation: server-side processing ends with an exception.
-        final Exception handlerException = new Exception();
         HttpRequestHandler requestHandler = new HttpRequestHandler() {
             public void handle(
                     HttpRequest request,
@@ -691,7 +689,6 @@ public class TestThrottlingNHttpHandlers extends TestCase {
                     ((HttpEntityEnclosingRequest) request).getEntity().getContent().read();
                     response.setStatusCode(HttpStatus.SC_OK);
                 } catch (Exception e){
-                    handlerException.initCause(e);
                 }
             }
         };
@@ -764,10 +761,6 @@ public class TestThrottlingNHttpHandlers extends TestCase {
                 assertTrue(serverExpectations.get(COMMAND_FINISHED));
             }
         }
-        
-        // ensure server-side processing was aborted
-        assertNotNull(handlerException.getCause());
-        assertEquals(InterruptedIOException.class, handlerException.getCause().getClass());
         
         this.execService.shutdown();
         this.execService.awaitTermination(10, TimeUnit.SECONDS);
