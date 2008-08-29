@@ -637,14 +637,8 @@ public class ThrottlingHttpClientHandler extends NHttpHandlerBase
         }
 
         public void close() {
-            try {
-                this.inbuffer.close();
-            } catch (IOException ignore) {
-            }
-            try {
-                this.outbuffer.close();
-            } catch (IOException ignore) {
-            }
+            this.inbuffer.close();
+            this.outbuffer.close();
             this.inputState = SHUTDOWN;
             this.outputState = SHUTDOWN;
         }

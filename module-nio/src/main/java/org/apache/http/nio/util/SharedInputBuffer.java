@@ -110,7 +110,7 @@ public class SharedInputBuffer extends ExpandableBuffer implements ContentInputB
         }
     }
 
-    public void close() throws IOException {
+    public void close() {
         if (this.shutdown) {
             return;
         }

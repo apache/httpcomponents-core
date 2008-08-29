@@ -32,7 +32,6 @@ package org.apache.http.nio.protocol;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.InterruptedIOException;
 import java.io.PipedInputStream;
 import java.io.PipedOutputStream;
 import java.net.InetSocketAddress;
