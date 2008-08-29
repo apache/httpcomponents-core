@@ -189,12 +189,16 @@ public class SocketHttpServerConnection extends
         this.open = false;
         doFlush();
         try {
-            this.socket.shutdownOutput();
-        } catch (IOException ignore) {
-        }
-        try {
-            this.socket.shutdownInput();
-        } catch (IOException ignore) {
+            try {
+                this.socket.shutdownOutput();
+            } catch (IOException ignore) {
+            }
+            try {
+                this.socket.shutdownInput();
+            } catch (IOException ignore) {
+            }
+        } catch (UnsupportedOperationException ignore) {
+            // if one isn't supported, the other one isn't either
         }
         this.socket.close();
     }
