@@ -167,11 +167,13 @@ public class SharedOutputBuffer extends ExpandableBuffer implements ContentOutpu
     }
     
     public void writeCompleted() throws IOException {
-        if (this.endOfStream) {
-            return;
+        synchronized (this.mutex) {
+            if (this.endOfStream) {
+                return;
+            }
+            this.endOfStream = true;
+            this.ioctrl.requestOutput();
         }
-        this.endOfStream = true;
-        this.ioctrl.requestOutput();
     }
     
 }
