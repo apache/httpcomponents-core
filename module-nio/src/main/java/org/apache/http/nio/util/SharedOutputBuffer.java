@@ -93,6 +93,13 @@ public class SharedOutputBuffer extends ExpandableBuffer implements ContentOutpu
         }
     }
     
+    public void close() throws IOException {
+        if (this.shutdown) {
+            return;
+        }
+        writeCompleted();
+    }
+
     public void shutdown() {
         if (this.shutdown) {
             return;

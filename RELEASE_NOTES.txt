@@ -1,6 +1,13 @@
 Changes since 4.0 Beta 2
 -------------------
 
+* [HTTPCORE-172] Added #close() method to SharedInputBuffer and 
+  SharedOutputBuffer. The purpose of the new method is to close the buffer 
+  in case of normal / orderly termination of the underlying HTTP connection. 
+  Use #shutdown() method to force-close the buffer in case of abnormal / 
+  exceptional termination of the underlying connection.
+  Contributed by Oleg Kalnichevski <olegk at apache.org> 
+
 * [HTTPCORE-170] Fixed race condition in SharedOutputBuffer.
   Contributed by Jason Walton <Jason.Walton at alcatel-lucent.com>
 
