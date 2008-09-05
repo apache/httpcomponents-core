@@ -58,7 +58,7 @@ public class BasicHttpEntityEnclosingRequest
 
     public BasicHttpEntityEnclosingRequest(final String method, final String uri, 
             final ProtocolVersion ver) {
-        this(new BasicRequestLine(method, uri, ver));
+        super(method, uri, ver);
     }
 
     public BasicHttpEntityEnclosingRequest(final RequestLine requestline) {
