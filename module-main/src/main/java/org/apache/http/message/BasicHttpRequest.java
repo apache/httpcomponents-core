@@ -47,12 +47,12 @@ import org.apache.http.params.HttpProtocolParams;
  */
 public class BasicHttpRequest extends AbstractHttpMessage implements HttpRequest {
     
-    private RequestLine requestline;
-    private String method;
-    private String uri;
-    private ProtocolVersion ver;
+    private final String method;
+    private final String uri;
         
-    public BasicHttpRequest(final String method, final String uri, final ProtocolVersion ver) {
+    private RequestLine requestline;
+
+    public BasicHttpRequest(final String method, final String uri) {
         super();
         if (method == null) {
             throw new IllegalArgumentException("Method name may not be null");
@@ -62,8 +62,11 @@ public class BasicHttpRequest extends AbstractHttpMessage implements HttpRequest
         }
         this.method = method;
         this.uri = uri;
-        this.ver = ver;
         this.requestline = null;
+    }
+
+    public BasicHttpRequest(final String method, final String uri, final ProtocolVersion ver) {
+        this(new BasicRequestLine(method, uri, ver));
     }
 
     public BasicHttpRequest(final RequestLine requestline) {
@@ -74,39 +77,18 @@ public class BasicHttpRequest extends AbstractHttpMessage implements HttpRequest
         this.requestline = requestline;
         this.method = requestline.getMethod();
         this.uri = requestline.getUri();
-        this.ver = requestline.getProtocolVersion();
-    }
-
-    public BasicHttpRequest(final String method, final String uri) {
-        this(method, uri, null);
     }
 
     public ProtocolVersion getProtocolVersion() {
-        if (this.ver == null) {
-            this.ver = HttpProtocolParams.getVersion(getParams());
-        }
-        return this.ver;
+        return getRequestLine().getProtocolVersion();
     }
     
     public RequestLine getRequestLine() {
         if (this.requestline == null) {
-            this.requestline = new BasicRequestLine(this.method, this.uri, 
-                    getProtocolVersion());
+            ProtocolVersion ver = HttpProtocolParams.getVersion(getParams());
+            this.requestline = new BasicRequestLine(this.method, this.uri, ver);
         }
         return this.requestline;
-    }
-    
-    public void setUri(final String uri) {
-        if (uri == null) {
-            throw new IllegalArgumentException("Request URI may not be null");
-        }
-        this.uri = uri;
-        this.requestline = null;
-    }
-    
-    public void setProtocolVersion(final ProtocolVersion ver) {
-        this.ver = ver;
-        this.requestline = null;
     }
     
 }
