@@ -57,6 +57,12 @@ public class RequestConnControl implements HttpRequestInterceptor {
         if (request == null) {
             throw new IllegalArgumentException("HTTP request may not be null");
         }
+        
+        String method = request.getRequestLine().getMethod();
+        if (method.equalsIgnoreCase("CONNECT")) {
+            return;
+        }
+        
         if (!request.containsHeader(HTTP.CONN_DIRECTIVE)) {
             // Default policy is to keep connection alive
             // whenever possible

@@ -67,6 +67,12 @@ public class RequestTargetHost implements HttpRequestInterceptor {
         if (context == null) {
             throw new IllegalArgumentException("HTTP context may not be null");
         }
+        
+        String method = request.getRequestLine().getMethod();
+        if (method.equalsIgnoreCase("CONNECT")) {
+            return;
+        }
+        
         if (!request.containsHeader(HTTP.TARGET_HOST)) {
             HttpHost targethost = (HttpHost) context
                 .getAttribute(ExecutionContext.HTTP_TARGET_HOST);
