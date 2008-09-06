@@ -142,7 +142,16 @@ public class BaseIOReactor extends AbstractIOReactor {
                     it.remove();
                     continue;
                 }
-                int ops = session.getEventMask();
+                
+                int ops = 0;
+                try {
+                    ops = session.getEventMask();
+                } catch (CancelledKeyException ex) {
+                    it.remove();
+                    queueClosedSession(session);
+                    continue;
+                }
+                
                 if ((ops & EventMask.READ) > 0) {
                     try {
                         this.eventDispatch.inputReady(session);

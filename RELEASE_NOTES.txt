@@ -1,6 +1,10 @@
 Changes since 4.0 Beta 2
 -------------------
 
+* CancelledKeyException thrown in BaseIOReactor#validate() no longer causes 
+  a premature I/O reactor shutdown. 
+  Contributed by Oleg Kalnichevski <olegk at apache.org> 
+
 * [HTTPCORE-172] Added #close() method to SharedInputBuffer and 
   SharedOutputBuffer. The purpose of the new method is to close the buffer 
   in case of normal / orderly termination of the underlying HTTP connection. 
