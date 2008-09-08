@@ -90,11 +90,11 @@ public class BenchmarkWorker implements Runnable {
     private final Stats stats = new Stats();
 
     public BenchmarkWorker(
-            final HttpParams params, 
-            int verbosity, 
+            final HttpParams params,
+            int verbosity,
             final HttpRequest request,
-            final HttpHost targetHost, 
-            int count, 
+            final HttpHost targetHost,
+            int count,
             boolean keepalive) {
 
         super();
@@ -160,7 +160,7 @@ public class BenchmarkWorker implements Runnable {
                     response = this.httpexecutor.execute(this.request, conn, this.context);
                     // Finalize response
                     this.httpexecutor.postProcess(response, this.httpProcessor, this.context);
-                    
+
                 } catch (HttpException e) {
                     stats.incWriteErrors();
                     if (this.verbosity >= 2) {
@@ -223,6 +223,16 @@ public class BenchmarkWorker implements Runnable {
             Header header = response.getFirstHeader("Server");
             if (header != null) {
                 stats.setServerName(header.getValue());
+            }
+        }
+
+        try {
+            conn.close();
+        } catch (IOException ex) {
+            ex.printStackTrace();
+            stats.incFailureCount();
+            if (this.verbosity >= 2) {
+                System.err.println("I/O error: " + ex.getMessage());
             }
         }
     }
