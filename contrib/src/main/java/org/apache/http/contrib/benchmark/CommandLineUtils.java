@@ -45,6 +45,9 @@ public class CommandLineUtils {
         Option iopt = new Option("i", false, "Do HEAD requests instead of GET.");
         iopt.setRequired(false);
 
+        Option oopt = new Option("o", false, "Use HTTP/S 1.0");
+        oopt.setRequired(false);
+
         Option kopt = new Option("k", false, "Enable the HTTP KeepAlive feature, " +
             "i.e., perform multiple requests within one HTTP session. " +
             "Default is no KeepAlive");
@@ -70,9 +73,13 @@ public class CommandLineUtils {
         Topt.setRequired(false);
         Topt.setArgName("content-type");
 
+        Option topt = new Option("t", true, "Client side socket timeout (in ms) - default 60 Secs");
+        topt.setRequired(false);
+        topt.setArgName("socket-Timeout");
+
         Option Hopt = new Option("H", true, "Add arbitrary header line, " +
             "eg. 'Accept-Encoding: gzip' inserted after all normal " +
-            "header lines. (repeatable)");
+            "header lines. (repeatable as -H \"h1: v1\",\"h2: v2\" etc)");
         Hopt.setRequired(false);
         Hopt.setArgName("header");
 
@@ -96,6 +103,8 @@ public class CommandLineUtils {
         options.addOption(vopt);
         options.addOption(Hopt);
         options.addOption(hopt);
+        options.addOption(topt);
+        options.addOption(oopt);
         return options;
     }
 
@@ -154,7 +163,21 @@ public class CommandLineUtils {
         }
 
         if (cmd.hasOption('H')) {
-            httpBenchmark.headers = cmd.getOptionValues('H');
+            String headerStr = cmd.getOptionValue('H');
+            httpBenchmark.headers = headerStr.split(",");
+        }
+
+        if (cmd.hasOption('t')) {
+            String t = cmd.getOptionValue('t');
+            try {
+                httpBenchmark.socketTimeout = Integer.parseInt(t);
+            } catch (NumberFormatException ex) {
+                printError("Invalid socket timeout: " + t);
+            }
+        }
+
+        if (cmd.hasOption('o')) {
+            httpBenchmark.useHttp1_0 = true;
         }
     }
 

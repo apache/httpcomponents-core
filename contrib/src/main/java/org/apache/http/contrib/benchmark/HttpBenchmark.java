@@ -67,7 +67,7 @@ import java.util.concurrent.TimeUnit;
  */
 public class HttpBenchmark {
 
-    private HttpParams params = getHttpParams();
+    private HttpParams params = null;
     private HttpRequest[] request = null;
     private HttpHost host = null;
     protected int verbosity = 0;
@@ -80,6 +80,8 @@ public class HttpBenchmark {
     protected String[] headers = null;
     protected boolean doHeadInsteadOfGet = false;
     private long contentLength = -1;
+    protected int socketTimeout = 60000;
+    protected boolean useHttp1_0 = false;
 
     public static void main(String[] args) throws Exception {
 
@@ -99,6 +101,9 @@ public class HttpBenchmark {
 
 
     private void prepare() {
+        // prepare http params
+        params = getHttpParams(socketTimeout, useHttp1_0);
+
         host = new HttpHost(url.getHost(), url.getPort(), url.getProtocol());
 
         // Prepare requests for each thread
@@ -189,12 +194,14 @@ public class HttpBenchmark {
         ResultProcessor.printResults(workers, host, url.toString(), contentLength);
     }
 
-    private static HttpParams getHttpParams() {
+    private HttpParams getHttpParams(int socketTimeout, boolean useHttp1_0) {
         HttpParams params = new BasicHttpParams();
-        params.setParameter(HttpProtocolParams.PROTOCOL_VERSION, HttpVersion.HTTP_1_1)
+        params.setParameter(HttpProtocolParams.PROTOCOL_VERSION,
+            useHttp1_0 ? HttpVersion.HTTP_1_0 : HttpVersion.HTTP_1_1)
             .setParameter(HttpProtocolParams.USER_AGENT, "Jakarta-HttpComponents-Bench/1.1")
             .setBooleanParameter(HttpProtocolParams.USE_EXPECT_CONTINUE, false)
-            .setBooleanParameter(HttpConnectionParams.STALE_CONNECTION_CHECK, false);
+            .setBooleanParameter(HttpConnectionParams.STALE_CONNECTION_CHECK, false)
+            .setIntParameter(HttpConnectionParams.SO_TIMEOUT, socketTimeout);
         return params;
     }
 
