@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
-<!--
+<!-- 
    $HeadURL$
    $Revision$
    $Date$
@@ -36,14 +36,14 @@
     <artifactId>httpcomponents-core</artifactId>
     <version>4.0-beta3-SNAPSHOT</version>
   </parent>
-  <artifactId>httpcore-nio</artifactId>
-  <name>HttpCore NIO</name>
+  <artifactId>httpcore-osgi</artifactId>
+  <name>HttpCore OSGi bundle</name>
   <inceptionYear>2005</inceptionYear>
   <description>
-   HttpComponents Core (NIO extensions)
+   HttpComponents Core (OSGi bundle)
   </description>
   <url>http://hc.apache.org/httpcomponents-core/</url>
-  <packaging>jar</packaging>  
+  <packaging>bundle</packaging>  
 
   <licenses>
     <license>
@@ -53,12 +53,6 @@
     </license>
   </licenses>
 
-  <scm>
-    <connection>scm:svn:http://svn.apache.org/repos/asf/httpcomponents/httpcore/trunk/module-nio</connection>
-    <developerConnection>scm:svn:https://svn.apache.org/repos/asf/httpcomponents/httpcore/trunk/module-nio</developerConnection>
-    <url>http://svn.apache.org/repos/asf/httpcomponents/httpcore/trunk/module-nio</url>
-  </scm>
-
   <dependencies>
     <dependency>
       <groupId>org.apache.httpcomponents</groupId>
@@ -66,77 +60,34 @@
       <version>${pom.version}</version>
     </dependency>
     <dependency>
-      <groupId>junit</groupId>
-      <artifactId>junit</artifactId>
-      <version>3.8.1</version>
-      <scope>test</scope>
+      <groupId>org.apache.httpcomponents</groupId>
+      <artifactId>httpcore-nio</artifactId>
+      <version>${pom.version}</version>
     </dependency>
   </dependencies>
 
   <properties>
     <maven.compile.source>1.5</maven.compile.source>
     <maven.compile.target>1.5</maven.compile.target>
-    <maven.compile.optimize>true</maven.compile.optimize>
-    <maven.compile.deprecation>true</maven.compile.deprecation>
   </properties>
 
   <build>
-    <resources>
-      <resource>
-        <directory>src/main/resources</directory>
-        <filtering>false</filtering>
-        <includes>
-            <include>META-INF/*</include>
-        </includes>
-      </resource>
-      <resource>
-        <directory>src/main/resources</directory>
-        <filtering>true</filtering>
-        <includes>
-            <include>**/*.properties</include>
-        </includes>
-      </resource>
-    </resources>
     <plugins>
       <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-compiler-plugin</artifactId>
+        <groupId>org.apache.felix</groupId>
+        <artifactId>maven-bundle-plugin</artifactId>
+        <extensions>true</extensions>
         <configuration>
-          <source>${maven.compile.source}</source>
-          <target>${maven.compile.target}</target>
-          <optimize>${maven.compile.optimize}</optimize>
-          <showDeprecations>${maven.compile.deprecation}</showDeprecations>
-        </configuration>
-      </plugin>
-      <plugin>
-        <artifactId>maven-surefire-plugin</artifactId>
-        <configuration>
-          <includes>
-            <include>**/TestAll.java</include>
-          </includes>
+          <instructions>
+            <Bundle-Name>Apache ${pom.name}</Bundle-Name>
+            <Bundle-SymbolicName>${pomartifactId}</Bundle-SymbolicName>
+            <_exportcontents>org.apache.http.*</_exportcontents>
+            <Embed-Dependency>*;scope=compile|runtime;inline=false</Embed-Dependency>
+          </instructions>
         </configuration>
       </plugin>
     </plugins>
+    <finalName>org.apache.httpcore_${pom.version}</finalName>
   </build>
-
-  <reporting>
-    <plugins>
-
-       <plugin>
-         <groupId>org.apache.maven.plugins</groupId>
-         <artifactId>maven-project-info-reports-plugin</artifactId>
-         <reportSets>
-           <reportSet>
-             <reports>
-               <report>dependencies</report>
-               <report>issue-tracking</report>
-               <report>scm</report>
-             </reports>
-           </reportSet>
-         </reportSets>
-      </plugin>
-
-    </plugins>
-  </reporting>
 
 </project>

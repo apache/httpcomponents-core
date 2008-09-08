@@ -72,6 +72,7 @@
   <modules>
     <module>module-main</module>
     <module>module-nio</module>
+    <module>module-osgi-bundle</module>
   </modules>
 
   <build>

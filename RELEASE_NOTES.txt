@@ -1,6 +1,9 @@
 Changes since 4.0 Beta 2
 -------------------
 
+* [HTTPCORE-125] OSGi bundle containing HttpCore & HttpCore NIO jars. 
+  Contributed by Oleg Kalnichevski <olegk at apache.org> 
+
 * CancelledKeyException thrown in BaseIOReactor#validate() no longer causes 
   a premature I/O reactor shutdown. 
   Contributed by Oleg Kalnichevski <olegk at apache.org> 

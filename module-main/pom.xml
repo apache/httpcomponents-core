@@ -111,17 +111,6 @@
           </includes>
         </configuration>
       </plugin>
-      <plugin>
-        <groupId>org.apache.felix</groupId>
-        <artifactId>maven-bundle-plugin</artifactId>
-        <extensions>true</extensions>
-        <configuration>
-          <instructions>
-            <Bundle-Name>Apache ${pom.name}</Bundle-Name>
-            <Export-Package>org.apache.http.*</Export-Package>
-          </instructions>
-        </configuration>
-      </plugin>
     </plugins>
   </build>
 
