@@ -28,13 +28,18 @@
    <http://www.apache.org/>.
  -->
 <assembly>
-    <id>bin-unix</id>
+    <id>bin</id>
     <formats>
         <format>tar.gz</format>
+        <format>zip</format>
     </formats>
     <moduleSets>
         <moduleSet>
+          <excludes>
+            <exclude>org.apache.httpcomponents:httpcore-osgi</exclude>
+          </excludes>
           <binaries>
+            <includeDependencies>false</includeDependencies>
             <outputDirectory>/lib</outputDirectory>
             <unpack>false</unpack>
           </binaries>
@@ -42,36 +47,32 @@
     </moduleSets>
     <fileSets>
         <fileSet>
+          <directory></directory>
+          <outputDirectory>/</outputDirectory>
           <includes>
             <include>README.txt</include>
             <include>LICENSE.txt</include>
             <include>NOTICE.txt</include>
             <include>RELEASE_NOTES.txt</include>
           </includes>
-          <lineEnding>lf</lineEnding>
         </fileSet>
-        <!-- Base module -->
+        <!-- Javadocs -->
         <fileSet>
-          <directory>module-main/target/site/apidocs</directory>
-          <outputDirectory>javadoc/httpcore</outputDirectory>
+          <directory>target/site/apidocs</directory>
+          <outputDirectory>javadoc</outputDirectory>
         </fileSet>
+        <!-- Examples: base module -->
         <fileSet>
           <directory>module-main/src/examples/</directory>
           <outputDirectory>examples</outputDirectory>
-          <lineEnding>lf</lineEnding>
           <includes>
             <include>**/*.java</include>
           </includes>
         </fileSet>
-        <!-- NIO extensions module -->
-        <fileSet>
-          <directory>module-nio/target/site/apidocs</directory>
-          <outputDirectory>javadoc/httpcore-nio</outputDirectory>
-        </fileSet>
+        <!-- Examples: NIO module -->
         <fileSet>
           <directory>module-nio/src/examples/</directory>
           <outputDirectory>examples</outputDirectory>
-          <lineEnding>lf</lineEnding>
           <includes>
             <include>**/*.java</include>
           </includes>
