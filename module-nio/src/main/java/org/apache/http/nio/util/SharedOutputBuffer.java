@@ -42,7 +42,7 @@ public class SharedOutputBuffer extends ExpandableBuffer implements ContentOutpu
     private final Object mutex;
     
     private volatile boolean shutdown = false;
-    private volatile boolean endOfStream;
+    private volatile boolean endOfStream = false;
     
     public SharedOutputBuffer(int buffersize, final IOControl ioctrl, final ByteBufferAllocator allocator) {
         super(buffersize, allocator);
@@ -51,7 +51,6 @@ public class SharedOutputBuffer extends ExpandableBuffer implements ContentOutpu
         }
         this.ioctrl = ioctrl;
         this.mutex = new Object();
-        this.endOfStream = false;
     }
 
     public void reset() {
