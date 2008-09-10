@@ -80,14 +80,14 @@
         <configuration>
           <instructions>
             <Bundle-Name>Apache ${pom.name}</Bundle-Name>
-            <Bundle-SymbolicName>${pomartifactId}</Bundle-SymbolicName>
+            <Bundle-SymbolicName>${pom.groupId}.httpcore</Bundle-SymbolicName>
             <_exportcontents>org.apache.http.*</_exportcontents>
             <Embed-Dependency>*;scope=compile|runtime;inline=false</Embed-Dependency>
           </instructions>
         </configuration>
       </plugin>
     </plugins>
-    <finalName>org.apache.httpcore_${pom.version}</finalName>
+    <finalName>org.apache.httpcomponents.httpcore_${pom.version}</finalName>
   </build>
 
 </project>
