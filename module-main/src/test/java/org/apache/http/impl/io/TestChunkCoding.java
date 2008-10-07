@@ -205,6 +205,17 @@ public class TestChunkCoding extends TestCase {
         }
     }
 
+    // Missing closing chunk
+    public void testChunkedInputStreamNoClosingChunk() throws IOException {
+        String s = "5\r\n01234\r\n";
+        ChunkedInputStream in = new ChunkedInputStream(
+                new SessionInputBufferMockup(
+                        EncodingUtils.getBytes(s, CONTENT_CHARSET)));
+        byte[] tmp = new byte[5];
+        assertEquals(5, in.read(tmp));
+        assertEquals(-1, in.read());
+    }
+
     // Missing \r\n at the end of the first chunk
     public void testCorruptChunkedInputStreamMissingCRLF() throws IOException {
         String s = "5\r\n012345\r\n56789\r\n0\r\n";
@@ -230,18 +241,6 @@ public class TestChunkCoding extends TestCase {
         InputStream in = new ChunkedInputStream(
                 new SessionInputBufferMockup(
                         EncodingUtils.getBytes(s, CONTENT_CHARSET)));
-        try {
-            in.read();
-            fail("MalformedChunkCodingException should have been thrown");
-        } catch(MalformedChunkCodingException e) {
-            /* expected exception */
-        }
-    }
-
-    // Missing closing chunk
-    public void testCorruptChunkedInputStreamNoClosingChunk() throws IOException {
-        InputStream in = new ChunkedInputStream(
-                new SessionInputBufferMockup(new byte[] {}));
         try {
             in.read();
             fail("MalformedChunkCodingException should have been thrown");

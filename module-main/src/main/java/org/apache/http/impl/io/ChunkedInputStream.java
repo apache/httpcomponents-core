@@ -219,8 +219,7 @@ public class ChunkedInputStream extends InputStream {
         this.buffer.clear();
         int i = this.in.readLine(this.buffer);
         if (i == -1) {
-            throw new MalformedChunkCodingException(
-                    "Chunked stream ended unexpectedly");
+            return 0;
         }
         int separator = this.buffer.indexOf(';');
         if (separator < 0) {

@@ -1,6 +1,10 @@
 Changes since 4.0 Beta 2
 -------------------
 
+* [HTTPCORE-173] Tolerate missing closing chunk if the chunk coded content 
+  is terminated by the end of stream (EOF) condition.
+  Contributed by Oleg Kalnichevski <olegk at apache.org> 
+
 * [HTTPCORE-174] Position is incremented twice in ContentLengthInputStream#skip(long) 
   Contributed by Ildar Safarov <ildar.safarov at gmail.com> 
 
