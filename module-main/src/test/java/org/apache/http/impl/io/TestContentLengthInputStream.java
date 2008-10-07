@@ -114,6 +114,10 @@ public class TestContentLengthInputStream extends TestCase {
         in = new ContentLengthInputStream(new SessionInputBufferMockup(new byte[2]), 4L);
         in.read();
         assertTrue(in.skip(2) == 1);
+
+        in = new ContentLengthInputStream(new SessionInputBufferMockup(new byte[20]), 10L);
+        in.skip(5);
+        assertEquals(5, in.read(new byte[20]));
     }
 
     public void testClose() throws IOException {

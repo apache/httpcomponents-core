@@ -1,6 +1,9 @@
 Changes since 4.0 Beta 2
 -------------------
 
+* [HTTPCORE-174] Position is incremented twice in ContentLengthInputStream#skip(long) 
+  Contributed by Ildar Safarov <ildar.safarov at gmail.com> 
+
 * [HTTPCORE-125] OSGi bundle containing HttpCore & HttpCore NIO jars. 
   Contributed by Oleg Kalnichevski <olegk at apache.org> 
 

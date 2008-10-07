@@ -214,7 +214,6 @@ public class ContentLengthInputStream extends InputStream {
             count += l;
             remaining -= l;
         }
-        this.pos += count;
         return count;
     }
 }
