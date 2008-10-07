@@ -127,6 +127,7 @@ public class ElementalHttpPost {
                 request.setParams(params);
                 httpexecutor.preProcess(request, httpproc, context);
                 HttpResponse response = httpexecutor.execute(request, conn, context);
+                response.setParams(params);
                 httpexecutor.postProcess(response, httpproc, context);
                 
                 System.out.println("<< Response: " + response.getStatusLine());

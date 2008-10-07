@@ -172,7 +172,7 @@ public class ElementalHttpServer {
 
         private final ServerSocket serversocket;
         private final HttpParams params; 
-        private final String docRoot;
+        private final HttpService httpService;
         
         public RequestListenerThread(int port, final String docroot) throws IOException {
             this.serversocket = new ServerSocket(port);
@@ -183,7 +183,25 @@ public class ElementalHttpServer {
                 .setBooleanParameter(CoreConnectionPNames.STALE_CONNECTION_CHECK, false)
                 .setBooleanParameter(CoreConnectionPNames.TCP_NODELAY, true)
                 .setParameter(CoreProtocolPNames.ORIGIN_SERVER, "HttpComponents/1.1");
-            this.docRoot = docroot;
+
+            // Set up the HTTP protocol processor
+            BasicHttpProcessor httpproc = new BasicHttpProcessor();
+            httpproc.addInterceptor(new ResponseDate());
+            httpproc.addInterceptor(new ResponseServer());
+            httpproc.addInterceptor(new ResponseContent());
+            httpproc.addInterceptor(new ResponseConnControl());
+            
+            // Set up request handlers
+            HttpRequestHandlerRegistry reqistry = new HttpRequestHandlerRegistry();
+            reqistry.register("*", new HttpFileHandler(docroot));
+            
+            // Set up the HTTP service
+            this.httpService = new HttpService(
+                    httpproc, 
+                    new DefaultConnectionReuseStrategy(), 
+                    new DefaultHttpResponseFactory());
+            this.httpService.setParams(this.params);
+            this.httpService.setHandlerResolver(reqistry);
         }
         
         public void run() {
@@ -196,27 +214,8 @@ public class ElementalHttpServer {
                     System.out.println("Incoming connection from " + socket.getInetAddress());
                     conn.bind(socket, this.params);
 
-                    // Set up the HTTP protocol processor
-                    BasicHttpProcessor httpproc = new BasicHttpProcessor();
-                    httpproc.addInterceptor(new ResponseDate());
-                    httpproc.addInterceptor(new ResponseServer());
-                    httpproc.addInterceptor(new ResponseContent());
-                    httpproc.addInterceptor(new ResponseConnControl());
-                    
-                    // Set up request handlers
-                    HttpRequestHandlerRegistry reqistry = new HttpRequestHandlerRegistry();
-                    reqistry.register("*", new HttpFileHandler(this.docRoot));
-                    
-                    // Set up the HTTP service
-                    HttpService httpService = new HttpService(
-                            httpproc, 
-                            new DefaultConnectionReuseStrategy(), 
-                            new DefaultHttpResponseFactory());
-                    httpService.setParams(this.params);
-                    httpService.setHandlerResolver(reqistry);
-                    
                     // Start worker thread
-                    Thread t = new WorkerThread(httpService, conn);
+                    Thread t = new WorkerThread(this.httpService, conn);
                     t.setDaemon(true);
                     t.start();
                 } catch (InterruptedIOException ex) {
