@@ -115,7 +115,26 @@
           <tarLongFileMode>gnu</tarLongFileMode>
         </configuration>
       </plugin>
-
+      <plugin>
+        <artifactId>maven-antrun-plugin</artifactId>
+        <inherited>false</inherited>
+        <configuration>
+          <tasks>
+            <ant antfile="src/main/assembly/build.xml">
+              <property name="target" value="${project.build.directory}"/>
+              <property name="package.zip" value="${pom.artifactId}-${pom.version}-bin.zip"/>
+            </ant>
+            <ant antfile="src/main/assembly/build.xml">
+              <property name="target" value="${project.build.directory}"/>
+              <property name="package.zip" value="${pom.artifactId}-${pom.version}-src.zip"/>
+            </ant>
+            <ant antfile="src/main/assembly/build.xml">
+              <property name="target" value="${project.build.directory}"/>
+              <property name="package.zip" value="${pom.artifactId}-${pom.version}-osgi-bin.zip"/>
+            </ant>
+          </tasks>
+        </configuration>
+      </plugin>
       <plugin>
         <artifactId>maven-clover-plugin</artifactId>
         <configuration>

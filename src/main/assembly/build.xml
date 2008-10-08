@@ -1,0 +1,12 @@
+<project name="assembly-postprocess" default="fixzip" basedir=".">
+  <target name="fixzip">
+    <property name="tmp.dir" location="${target}/tmp"/>    
+    <property name="zip.file" location="${target}/${package.zip}"/>    
+    <delete dir="${tmp.dir}" />
+    <unzip src="${zip.file}" dest="${tmp.dir}"/>
+    <fixcrlf srcdir="${tmp.dir}" eol="dos" eof="remove"
+        includes="**/*.txt, **/*.xml, **/*.properties, **/*.java, **/*.html, **/*.css" />
+    <zip destfile="${zip.file}" basedir="${tmp.dir}" duplicate="preserve" />
+    <delete dir="${tmp.dir}" />
+  </target>  
+</project>
