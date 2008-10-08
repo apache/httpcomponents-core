@@ -45,7 +45,7 @@ public interface NHttpServiceHandler {
     /**
      * Triggered when a new incoming connection is created.
      * 
-     * @param conn closed HTTP connection.
+     * @param conn new incoming connection HTTP connection.
      */
     void connected(NHttpServerConnection conn);
     

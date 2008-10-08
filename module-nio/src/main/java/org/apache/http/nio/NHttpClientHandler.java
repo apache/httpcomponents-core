@@ -45,7 +45,7 @@ public interface NHttpClientHandler {
     /**
      * Triggered when a new outgoing connection is created.
      * 
-     * @param conn closed HTTP connection.
+     * @param conn new outgoing HTTP connection.
      * @param attachment an arbitrary object that was attached to the
      *  session request
      */
