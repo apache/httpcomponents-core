@@ -63,13 +63,23 @@ Class changed: org.apache.http.impl.AbstractHttpServerConnection
     protected boolean isEof();
 
 Class changed: org.apache.http.impl.SocketHttpServerConnection
-  Methods removed:
-    protected org.apache.http.io.SessionInputBuffer createHttpDataReceiver(java.net.Socket, int, org.apache.http.params.HttpParams) throws java.io.IOException;
-    protected org.apache.http.io.SessionOutputBuffer createHttpDataTransmitter(java.net.Socket, int, org.apache.http.params.HttpParams) throws java.io.IOException;
-
   Methods added:
     protected org.apache.http.io.SessionInputBuffer createSessionInputBuffer(java.net.Socket, int, org.apache.http.params.HttpParams) throws java.io.IOException;
     protected org.apache.http.io.SessionOutputBuffer createSessionOutputBuffer(java.net.Socket, int, org.apache.http.params.HttpParams) throws java.io.IOException;
+
+  Method changed:
+  old:
+    protected org.apache.http.io.SessionInputBuffer createHttpDataReceiver(java.net.Socket, int, org.apache.http.params.HttpParams) throws java.io.IOException;
+
+  new:
+    deprecated: protected org.apache.http.io.SessionInputBuffer createHttpDataReceiver(java.net.Socket, int, org.apache.http.params.HttpParams) throws java.io.IOException;
+
+  Method changed:
+  old:
+    protected org.apache.http.io.SessionOutputBuffer createHttpDataTransmitter(java.net.Socket, int, org.apache.http.params.HttpParams) throws java.io.IOException;
+
+  new:
+    deprecated: protected org.apache.http.io.SessionOutputBuffer createHttpDataTransmitter(java.net.Socket, int, org.apache.http.params.HttpParams) throws java.io.IOException;
 
 Class changed: org.apache.http.impl.io.SocketInputBuffer
   Methods added:
