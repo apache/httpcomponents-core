@@ -39,7 +39,7 @@
   <groupId>org.apache.httpcomponents</groupId>
   <artifactId>httpcomponents-core</artifactId>
   <name>HttpComponents Core</name>
-  <version>4.0-beta3-SNAPSHOT</version>
+  <version>4.0-beta3</version>
   <description>Core components to build HTTP enabled services</description>
   <url>http://hc.apache.org/httpcomponents-core/</url>
   <inceptionYear>2005</inceptionYear>
@@ -64,9 +64,9 @@
   </issueManagement>
 
   <scm>
-    <connection>scm:svn:http://svn.apache.org/repos/asf/httpcomponents/httpcore/trunk</connection>
-    <developerConnection>scm:svn:https://svn.apache.org/repos/asf/httpcomponents/httpcore/trunk</developerConnection>
-    <url>http://svn.apache.org/repos/asf/httpcomponents/httpcore/trunk</url>
+    <connection>scm:svn:http://svn.apache.org/repos/asf/httpcomponents/httpcore/tags/4.0-beta3</connection>
+    <developerConnection>scm:svn:https://svn.apache.org/repos/asf/httpcomponents/httpcore/tags/4.0-beta3</developerConnection>
+    <url>http://svn.apache.org/repos/asf/httpcomponents/httpcore/tags/4.0-beta3</url>
   </scm>
 
   <modules>
@@ -121,16 +121,16 @@
         <configuration>
           <tasks>
             <ant antfile="src/main/assembly/build.xml">
-              <property name="target" value="${project.build.directory}"/>
-              <property name="package.zip" value="${pom.artifactId}-${pom.version}-bin.zip"/>
+              <property name="target" value="${project.build.directory}" />
+              <property name="package.zip" value="${pom.artifactId}-${pom.version}-bin.zip" />
             </ant>
             <ant antfile="src/main/assembly/build.xml">
-              <property name="target" value="${project.build.directory}"/>
-              <property name="package.zip" value="${pom.artifactId}-${pom.version}-src.zip"/>
+              <property name="target" value="${project.build.directory}" />
+              <property name="package.zip" value="${pom.artifactId}-${pom.version}-src.zip" />
             </ant>
             <ant antfile="src/main/assembly/build.xml">
-              <property name="target" value="${project.build.directory}"/>
-              <property name="package.zip" value="${pom.artifactId}-${pom.version}-osgi-bin.zip"/>
+              <property name="target" value="${project.build.directory}" />
+              <property name="package.zip" value="${pom.artifactId}-${pom.version}-osgi-bin.zip" />
             </ant>
           </tasks>
         </configuration>

@@ -40,6 +40,7 @@
           <outputDirectory>/</outputDirectory>
           <excludes>
             <exclude>**/.*</exclude>
+            <exclude>**/.*/**</exclude>
             <exclude>**/bin/**</exclude>
             <exclude>**/target/**</exclude>
             <exclude>**/local/**</exclude>
