@@ -265,6 +265,26 @@ public class TestChunkDecoder extends TestCase {
         }
     }
 
+    public void testMalformedChunkTruncatedChunk() throws Exception {
+        String s = "3\r\n12";
+        ReadableByteChannel channel = new ReadableByteChannelMockup(
+                new String[] {s}, "US-ASCII"); 
+        HttpParams params = new BasicHttpParams();
+        
+        SessionInputBuffer inbuf = new SessionInputBufferImpl(1024, 256, params); 
+        HttpTransportMetricsImpl metrics = new HttpTransportMetricsImpl();
+        ChunkDecoder decoder = new ChunkDecoder(channel, inbuf, metrics);
+        
+        ByteBuffer dst = ByteBuffer.allocate(1024); 
+        assertEquals(2, decoder.read(dst));
+        try {
+            decoder.read(dst);
+            fail("MalformedChunkCodingException should have been thrown");
+        } catch (MalformedChunkCodingException ex) {
+            // expected
+        }
+    }
+
     public void testFoldedFooters() throws Exception {
         String s = "10;key=\"value\"\r\n1234567890123456\r\n" +
                 "5\r\n12345\r\n5\r\n12345\r\n0\r\nFooter1: abcde\r\n   \r\n  fghij\r\n\r\n";

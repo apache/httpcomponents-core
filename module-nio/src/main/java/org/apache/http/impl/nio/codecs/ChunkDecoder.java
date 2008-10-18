@@ -188,9 +188,11 @@ public class ChunkDecoder extends AbstractContentDecoder {
                         break;
                     }
                 }
-                
                 int maxLen = this.chunkSize - this.pos;
                 int len = this.buffer.read(dst, maxLen);
+                if (maxLen > 0 && len == 0 && this.endOfStream) {
+                    throw new MalformedChunkCodingException("Truncated chunk");
+                }
                 this.pos += len;
                 totalRead += len;
                 

@@ -127,8 +127,11 @@ public class ChunkedInputStream extends InputStream {
                 return -1;
             }
         }
-        pos++;
-        return in.read();
+        int b = in.read();
+        if (b != -1) {
+            pos++;
+        }
+        return b;
     }
 
     /**
@@ -158,9 +161,13 @@ public class ChunkedInputStream extends InputStream {
             }
         }
         len = Math.min(len, chunkSize - pos);
-        int count = in.read(b, off, len);
-        pos += count;
-        return count;
+        int bytesRead = in.read(b, off, len);
+        if (bytesRead != -1) {
+            pos += bytesRead;
+            return bytesRead;
+        } else {
+            throw new MalformedChunkCodingException("Truncated chunk");
+        }
     }
 
     /**

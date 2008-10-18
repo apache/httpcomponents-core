@@ -277,6 +277,22 @@ public class TestChunkCoding extends TestCase {
         }
     }
 
+    // Truncated chunk
+    public void testCorruptChunkedInputStreamTruncatedChunk() throws IOException {
+        String s = "3\r\n12";
+        InputStream in = new ChunkedInputStream(
+                new SessionInputBufferMockup(
+                        EncodingUtils.getBytes(s, CONTENT_CHARSET)));
+        byte[] buffer = new byte[300];
+        assertEquals(2, in.read(buffer));
+        try {
+            in.read(buffer);
+            fail("MalformedChunkCodingException should have been thrown");
+        } catch(MalformedChunkCodingException e) {
+            /* expected exception */
+        }
+    }
+
     // Invalid footer
     public void testCorruptChunkedInputStreamInvalidFooter() throws IOException {
         String s = "1\r\n0\r\n0\r\nstuff\r\n";
@@ -306,7 +322,7 @@ public class TestChunkCoding extends TestCase {
         assertEquals(0, out.size());
     }
     
-    public void testChunkedConsitance() throws IOException {
+    public void testChunkedConsistence() throws IOException {
         String input = "76126;27823abcd;:q38a-\nkjc\rk%1ad\tkh/asdui\r\njkh+?\\suweb";
         ByteArrayOutputStream buffer = new ByteArrayOutputStream();
         OutputStream out = new ChunkedOutputStream(new SessionOutputBufferMockup(buffer));
