@@ -49,7 +49,9 @@ public class ConsumingNHttpEntityTemplate
 
     private final ContentListener contentListener;
 
-    public ConsumingNHttpEntityTemplate(final HttpEntity httpEntity, final ContentListener contentListener) {
+    public ConsumingNHttpEntityTemplate(
+            final HttpEntity httpEntity, 
+            final ContentListener contentListener) {
         super(httpEntity);
         this.contentListener = contentListener;
     }
@@ -59,7 +61,7 @@ public class ConsumingNHttpEntityTemplate
     }
 
     @Override
-    public InputStream getContent() throws IOException, IllegalStateException {
+    public InputStream getContent() throws IOException, UnsupportedOperationException {
         throw new UnsupportedOperationException("Does not support blocking methods");
     }
 
@@ -69,13 +71,19 @@ public class ConsumingNHttpEntityTemplate
     }
 
     @Override
-    public void writeTo(OutputStream out) throws IOException {
+    public void writeTo(OutputStream out) throws IOException, UnsupportedOperationException {
         throw new UnsupportedOperationException("Does not support blocking methods");
     }
 
+    /**
+     * This method is equivalent to the {@link #finish()} method.
+     * <br/> 
+     * TODO: The name of this method is misnomer. It will be renamed to
+     * #finish() in the next major release.
+     */
     @Override
-    public void consumeContent() throws IOException, UnsupportedOperationException {
-        throw new UnsupportedOperationException("Does not support blocking methods");
+    public void consumeContent() throws IOException {
+        finish();
     }
 
     public void consumeContent(
