@@ -45,7 +45,11 @@ import org.apache.http.nio.IOControl;
 public interface ProducingNHttpEntity extends HttpEntity {
 
     /**
-     * Notification that content should be written to the encoder.
+     * Notification that content should be written to the encoder. 
+     * {@link IOControl} instance passed as a parameter to the method can be 
+     * used to suspend output events if the entity is temporarily unable to 
+     * produce more content.
+     * <b/>
      * When all content is finished, this <b>MUST</b> call {@link ContentEncoder#complete()}.
      * Failure to do so could result in the entity never being written.
      */
