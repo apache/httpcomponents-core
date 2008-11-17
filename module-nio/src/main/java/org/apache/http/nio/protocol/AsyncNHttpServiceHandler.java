@@ -68,26 +68,32 @@ import org.apache.http.protocol.HttpProcessor;
 import org.apache.http.util.EncodingUtils;
 
 /**
- * HTTP service handler implementation that works with
+ * Fully asynchronous HTTP service handler implementation that works with
  * {@link ConsumingNHttpEntity} and {@link ProducingNHttpEntity}. The contents
  * of HTTP headers are stored in memory, HTTP entities are streamed directly
  * from the entities to the underlying channel (and vice versa).
- * <p>
- * When using this, it is important to ensure that entities supplied for writing
- * implement ProducingNHttpEntity. Doing so will allow the entity to be written
- * out asynchronously. If entities supplied for writing do not implement
- * ProducingNHttpEntity, a delegate is added that buffers the entire contents in
- * memory. Additionally, the buffering might take place in the I/O thread, which
- * could cause I/O to block temporarily. For best results, ensure that all
- * entities set on {@link HttpResponse HttpResponses} from
- * {@link NHttpRequestHandler NHttpRequestHandlers} implement
- * ProducingNHttpEntity.
- * <p>
- * If incoming requests are entity requests, NHttpRequestHandlers are expected
- * to return a ConsumingNHttpEntity for reading the content. After the entity is
- * finished reading the data,
+ * <p/>
+ * When using class, it is important to ensure that entities supplied for writing
+ * implement {@link ProducingNHttpEntity}. Doing so will allow the entity to be 
+ * written out asynchronously. If entities supplied for writing do not implement
+ * {@link ProducingNHttpEntity}, a delegate is added that buffers the entire 
+ * contents in memory. Additionally, the buffering might take place in the I/O 
+ * thread, which could cause I/O to block temporarily. For best results, ensure 
+ * that all entities set on {@link HttpResponse}s from  
+ * {@link NHttpRequestHandler}s implement {@link ProducingNHttpEntity}.
+ * <p/>
+ * If incoming requests enclose a content entity, {@link NHttpRequestHandler}s 
+ * are expected to return a {@link ConsumingNHttpEntity} for reading the 
+ * content. After the entity is finished reading the data,
  * {@link NHttpRequestHandler#handle(HttpRequest, HttpResponse, NHttpResponseTrigger, HttpContext)}
  * is called to generate a response.
+ * <p/>
+ * Individual {@link NHttpRequestHandler} do not have to submit a response 
+ * immediately. They can defer transmission of the HTTP response back to the 
+ * client without blocking the I/O thread and to delegate the processing the 
+ * HTTP request to a worker thread. The worker thread in its turn can use an 
+ * instance of {@link NHttpResponseTrigger} passed as a parameter to submit 
+ * a response as at a later point of time once the response becomes available.
  *
  * @author <a href="mailto:oleg at ural.ru">Oleg Kalnichevski</a>
  * @author <a href="mailto:sberlin at gmail.com">Sam Berlin</a>
