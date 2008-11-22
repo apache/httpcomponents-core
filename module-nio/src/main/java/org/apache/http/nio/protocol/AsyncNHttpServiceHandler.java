@@ -68,18 +68,21 @@ import org.apache.http.protocol.HttpProcessor;
 import org.apache.http.util.EncodingUtils;
 
 /**
- * Fully asynchronous HTTP service handler implementation that works with
- * {@link ConsumingNHttpEntity} and {@link ProducingNHttpEntity}. The contents
- * of HTTP headers are stored in memory, HTTP entities are streamed directly
- * from the entities to the underlying channel (and vice versa).
+ * Fully asynchronous HTTP server side protocol handler implementation that 
+ * implements the essential requirements of the HTTP protocol for the server 
+ * side message processing as described by RFC 2616. It is capable of processing 
+ * HTTP requests with nearly constant memory footprint. Only HTTP message heads 
+ * are stored in memory, while content of message bodies is streamed directly 
+ * from the entity to the underlying channel (and vice versa) 
+ * {@link ConsumingNHttpEntity} and {@link ProducingNHttpEntity} interfaces.
  * <p/>
- * When using class, it is important to ensure that entities supplied for writing
- * implement {@link ProducingNHttpEntity}. Doing so will allow the entity to be 
- * written out asynchronously. If entities supplied for writing do not implement
- * {@link ProducingNHttpEntity}, a delegate is added that buffers the entire 
- * contents in memory. Additionally, the buffering might take place in the I/O 
- * thread, which could cause I/O to block temporarily. For best results, ensure 
- * that all entities set on {@link HttpResponse}s from  
+ * When using this class, it is important to ensure that entities supplied for 
+ * writing implement {@link ProducingNHttpEntity}. Doing so will allow the 
+ * entity to be written out asynchronously. If entities supplied for writing do 
+ * not implement {@link ProducingNHttpEntity}, a delegate is added that buffers 
+ * the entire contents in memory. Additionally, the buffering might take place 
+ * in the I/O thread, which could cause I/O to block temporarily. For best 
+ * results, ensure that all entities set on {@link HttpResponse}s from  
  * {@link NHttpRequestHandler}s implement {@link ProducingNHttpEntity}.
  * <p/>
  * If incoming requests enclose a content entity, {@link NHttpRequestHandler}s 
@@ -88,12 +91,15 @@ import org.apache.http.util.EncodingUtils;
  * {@link NHttpRequestHandler#handle(HttpRequest, HttpResponse, NHttpResponseTrigger, HttpContext)}
  * is called to generate a response.
  * <p/>
- * Individual {@link NHttpRequestHandler} do not have to submit a response 
+ * Individual {@link NHttpRequestHandler}s do not have to submit a response 
  * immediately. They can defer transmission of the HTTP response back to the 
  * client without blocking the I/O thread and to delegate the processing the 
  * HTTP request to a worker thread. The worker thread in its turn can use an 
  * instance of {@link NHttpResponseTrigger} passed as a parameter to submit 
  * a response as at a later point of time once the response becomes available.
+ *
+ * @see ConsumingNHttpEntity
+ * @see ProducingNHttpEntity
  *
  * @author <a href="mailto:oleg at ural.ru">Oleg Kalnichevski</a>
  * @author <a href="mailto:sberlin at gmail.com">Sam Berlin</a>

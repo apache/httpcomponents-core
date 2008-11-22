@@ -59,15 +59,36 @@ import org.apache.http.protocol.HttpContext;
 import org.apache.http.protocol.HttpProcessor;
 
 /**
- * HTTP client handler implementation that asynchronously reads & writes out the
- * content of messages.
+ * Fully asynchronous HTTP client side protocol handler that implements the 
+ * essential requirements of the HTTP protocol for the server side message 
+ * processing as described by RFC 2616. It is capable of executing HTTP requests 
+ * with nearly constant memory footprint. Only HTTP message heads are stored in 
+ * memory, while content of message bodies is streamed directly from the entity 
+ * to the underlying channel (and vice versa) using {@link ConsumingNHttpEntity}
+ * and {@link ProducingNHttpEntity} interfaces.
+ * 
+ * When using this implementation, it is important to ensure that entities 
+ * supplied for writing implement !ProducingNHttpEntity. Doing so will allow 
+ * the entity to be written out asynchronously. If entities supplied for writing 
+ * do not implement the {@link ProducingNHttpEntity} interface, a delegate is 
+ * added that buffers the entire contents in memory. Additionally, the 
+ * buffering might take place in the I/O dispatch thread, which could cause I/O 
+ * to block temporarily. For best results, one must ensure that all entities 
+ * set on {@link HttpRequest}s from {@link NHttpRequestExecutionHandler} 
+ * implement {@link ProducingNHttpEntity}.
+ * 
+ * If incoming responses enclose a content entity, 
+ * {@link NHttpRequestExecutionHandler} are expected to return a 
+ * {@link ConsumingNHttpEntity} for reading the content. After the entity is 
+ * finished reading the data, 
+ * {@link NHttpRequestExecutionHandler#handleResponse(HttpResponse, HttpContext)} 
+ * method is called to process the response. 
  *
  * @see ConsumingNHttpEntity
  * @see ProducingNHttpEntity
  *
  * @author <a href="mailto:oleg at ural.ru">Oleg Kalnichevski</a>
  * @author <a href="mailto:sberlin at gmail.com">Sam Berlin</a>
- *
  */
 public class AsyncNHttpClientHandler extends NHttpHandlerBase
                                      implements NHttpClientHandler {
