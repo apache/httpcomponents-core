@@ -65,16 +65,28 @@ import org.apache.http.protocol.HttpContext;
 import org.apache.http.protocol.HttpProcessor;
 
 /**
- * HTTP client handler implementation that allocates content buffers of limited 
- * size upon initialization and is capable of controlling the frequency of I/O 
- * events in order to guarantee those content buffers do not ever get overflown. 
- * This helps ensure near constant memory footprint of HTTP connections and to 
- * avoid the 'out of memory' condition while streaming out response content.
- * 
- * <p>The client handler will delegate the tasks of sending entity enclosing 
- * HTTP requests and processing of HTTP responses to an {@link Executor}, 
- * which is expected to perform those tasks using dedicated worker threads in 
- * order to avoid blocking the I/O thread.</p>
+ * Client protocol handler implementation that provide compatibility with 
+ * the blocking I/O by utilizing shared content buffers and a fairly small pool 
+ * of worker threads. The throttling protocol handler allocates input / output 
+ * buffers of a constant length upon initialization and controls the rate of 
+ * I/O events in order to ensure those content buffers do not ever get 
+ * overflown. This helps ensure nearly constant memory footprint for HTTP 
+ * connections and avoid the out of memory condition while streaming content 
+ * in and out. The {@link HttpRequestExecutionHandler#handleResponse(HttpResponse, HttpContext)}
+ * method will fire immediately when a message is received. The protocol handler 
+ * delegate the task of processing requests and generating response content to 
+ * an {@link Executor}, which is expected to perform those tasks using 
+ * dedicated worker threads in order to avoid blocking the I/O thread.  
+ * <p/>
+ * Usually throttling protocol handlers need only a modest number of worker 
+ * threads, much fewer than the number of concurrent connections. If the length 
+ * of the message is smaller or about the size of the shared content buffer 
+ * worker thread will just store content in the buffer and terminate almost 
+ * immediately without blocking. The I/O dispatch thread in its turn will take 
+ * care of sending out the buffered content asynchronously. The worker thread 
+ * will have to block only when processing large messages and the shared buffer 
+ * fills up. It is generally advisable to allocate shared buffers of a size of 
+ * an average content body for optimal performance.
  * 
  * @see NIOReactorPNames#CONTENT_BUFFER_SIZE
  * 

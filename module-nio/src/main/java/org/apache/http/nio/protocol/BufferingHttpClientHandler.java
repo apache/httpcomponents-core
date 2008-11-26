@@ -32,8 +32,11 @@
 package org.apache.http.nio.protocol;
 
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 
 import org.apache.http.ConnectionReuseStrategy;
+import org.apache.http.HttpEntity;
 import org.apache.http.HttpException;
 import org.apache.http.HttpRequest;
 import org.apache.http.HttpResponse;
@@ -50,11 +53,20 @@ import org.apache.http.protocol.HttpContext;
 import org.apache.http.protocol.HttpProcessor;
 
 /**
- * HTTP client handler implementation that buffers the content of HTTP messages 
- * entirely in memory and executes HTTP requests on the main I/O thread.
- * 
- * <p>This service handler should be used only when dealing with HTTP messages 
- * that are known to be limited in length</p>
+ * Client protocol handler implementation that provides compatibility with the 
+ * blocking I/O by storing the full content of HTTP messages in memory. 
+ * The {@link HttpRequestExecutionHandler#handleResponse(HttpResponse, HttpContext)}
+ * method will fire only when the entire message content has been read into a 
+ * in-memory buffer. Please note that request execution / reponse processing 
+ * take place the main I/O thread and therefore {@link HttpRequestExecutionHandler}
+ * methods should not block indefinitely.
+ * <p/>
+ * When using this protocol handelr {@link HttpEntity}'s content can be 
+ * generated / consumed using standard {@link InputStream} / {@link OutputStream} 
+ * classes.
+ * <p/>
+ * IMPORTANT: This protocol handler should be used only when dealing with HTTP 
+ * messages that are known to be limited in length.
  * 
  * @author <a href="mailto:oleg at ural.ru">Oleg Kalnichevski</a>
  *
