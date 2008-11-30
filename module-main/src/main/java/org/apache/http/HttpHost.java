@@ -31,6 +31,7 @@
 
 package org.apache.http;
 
+import java.io.Serializable;
 import java.util.Locale;
 
 import org.apache.http.util.CharArrayBuffer;
@@ -47,7 +48,8 @@ import org.apache.http.util.LangUtils;
  * 
  * @since 4.0
  */
-public final class HttpHost implements Cloneable {
+//@Immutable
+public final class HttpHost implements Cloneable, Serializable {
 
     /** The default scheme is "http". */
     public static final String DEFAULT_SCHEME_NAME = "http";
