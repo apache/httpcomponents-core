@@ -47,7 +47,7 @@ import org.apache.http.util.VersionInfo;
 public class PrintVersionInfo {
 
     /** A default list of module packages. */
-    public final static String[] MODULE_LIST = {
+    private final static String[] MODULE_LIST = {
         "org.apache.http",              // HttpCore (main)
         "org.apache.http.nio",          // HttpNIO
         "org.apache.http.nio.ssl",      // HttpNIOSSL
