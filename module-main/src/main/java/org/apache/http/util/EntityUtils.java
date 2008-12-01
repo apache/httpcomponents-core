@@ -98,7 +98,7 @@ public final class EntityUtils {
      * 
      * @param entity must not be null
      * @return the character set, or null if not found
-     * @throws ParseException
+     * @throws ParseException if header elements cannot be parsed
      * @throws IllegalArgumentException if entity is null
      */
     public static String getContentCharSet(final HttpEntity entity)
@@ -128,6 +128,7 @@ public final class EntityUtils {
      * @param entity must not be null
      * @param defaultCharset character set to be applied if none found in the entity
      * @return the entity content as a Stting
+     * @throws ParseException if header elements cannot be parsed
      * @throws IllegalArgumentException if entity is null or if content length > Integer.MAX_VALUE
      * @throws IOException if an error occurs reading the input stream
      */
@@ -175,6 +176,7 @@ public final class EntityUtils {
      * 
      * @param entity
      * @return String containing the content.
+     * @throws ParseException if header elements cannot be parsed
      * @throws IllegalArgumentException if entity is null or if content length > Integer.MAX_VALUE
      * @throws IOException if an error occurs reading the input stream
      */
