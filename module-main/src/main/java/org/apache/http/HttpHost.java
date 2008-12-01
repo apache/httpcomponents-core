@@ -51,6 +51,8 @@ import org.apache.http.util.LangUtils;
 //@Immutable
 public final class HttpHost implements Cloneable, Serializable {
 
+    private static final long serialVersionUID = -7529410654042457626L;
+
     /** The default scheme is "http". */
     public static final String DEFAULT_SCHEME_NAME = "http";
     
