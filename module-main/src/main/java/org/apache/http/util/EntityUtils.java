@@ -56,7 +56,15 @@ public final class EntityUtils {
     /** Disabled default constructor. */
     private EntityUtils() {
     }
-    
+
+    /**
+     * Read the contents of an entity and return it as a byte array.
+     * 
+     * @param entity
+     * @return byte array containing the entity content. May be empty; never null.
+     * @throws IOException if an error occurs reading the input stream
+     * @throws IllegalArgumentException if entity is null or if content length > Integer.MAX_VALUE
+     */
     public static byte[] toByteArray(final HttpEntity entity) throws IOException {
         if (entity == null) {
             throw new IllegalArgumentException("HTTP entity may not be null");
@@ -85,6 +93,14 @@ public final class EntityUtils {
         return buffer.toByteArray();
     }
         
+    /**
+     * Get the character set from the entity.
+     * 
+     * @param entity must not be null
+     * @return the character set, or null if not found
+     * @throws ParseException
+     * @throws IllegalArgumentException if entity is null
+     */
     public static String getContentCharSet(final HttpEntity entity)
         throws ParseException {
 
@@ -104,6 +120,17 @@ public final class EntityUtils {
         return charset;
     }
 
+    /**
+     * Get the entity content as a String, using the provided default character set
+     * if none is found in the entity. 
+     * If defaultCharset is null, the default "ISO-8859-1" is used.
+     * 
+     * @param entity must not be null
+     * @param defaultCharset character set to be applied if none found in the entity
+     * @return the entity content as a Stting
+     * @throws IllegalArgumentException if entity is null or if content length > Integer.MAX_VALUE
+     * @throws IOException if an error occurs reading the input stream
+     */
     public static String toString(
             final HttpEntity entity, final String defaultCharset) throws IOException, ParseException {
         if (entity == null) {
@@ -141,6 +168,16 @@ public final class EntityUtils {
         return buffer.toString();
     }
 
+    /**
+     * Read the contents of an entity and return it as a String.
+     * The content is converted using the character set from the entity (if any),
+     * failing that, "ISO-8859-1" is used.
+     * 
+     * @param entity
+     * @return String containing the content.
+     * @throws IllegalArgumentException if entity is null or if content length > Integer.MAX_VALUE
+     * @throws IOException if an error occurs reading the input stream
+     */
     public static String toString(final HttpEntity entity)
         throws IOException, ParseException {
         return toString(entity, null);
