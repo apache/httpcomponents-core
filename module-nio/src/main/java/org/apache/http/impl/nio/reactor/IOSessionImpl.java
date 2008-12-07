@@ -53,7 +53,7 @@ public class IOSessionImpl implements IOSession {
     private final SessionClosedCallback callback;
     private final Map<String, Object> attributes;
     
-    private int interestOps;
+    private volatile int interestOps;
     private SessionBufferStatus bufferStatus;
     private int socketTimeout;
     
@@ -101,8 +101,10 @@ public class IOSessionImpl implements IOSession {
         if (this.status == CLOSED) {
             return;
         }
-        this.interestOps = ops;
-        this.key.interestOps(ops);
+        synchronized (this.key) {
+            this.interestOps = ops;
+            this.key.interestOps(ops);
+        }
         this.key.selector().wakeup();
     }
     
@@ -110,8 +112,10 @@ public class IOSessionImpl implements IOSession {
         if (this.status == CLOSED) {
             return;
         }
-        this.interestOps = this.interestOps | op;
-        this.key.interestOps(this.interestOps);
+        synchronized (this.key) {
+            this.interestOps = this.interestOps | op;
+            this.key.interestOps(this.interestOps);
+        }
         this.key.selector().wakeup();
     }
     
@@ -119,8 +123,10 @@ public class IOSessionImpl implements IOSession {
         if (this.status == CLOSED) {
             return;
         }
-        this.interestOps = this.interestOps & ~op;
-        this.key.interestOps(this.interestOps);
+        synchronized (this.key) {
+            this.interestOps = this.interestOps & ~op;
+            this.key.interestOps(this.interestOps);
+        }
         this.key.selector().wakeup();
     }
     
