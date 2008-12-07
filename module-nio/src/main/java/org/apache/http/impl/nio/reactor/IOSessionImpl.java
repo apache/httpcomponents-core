@@ -53,6 +53,7 @@ public class IOSessionImpl implements IOSession {
     private final SessionClosedCallback callback;
     private final Map<String, Object> attributes;
     
+    private int interestOps;
     private SessionBufferStatus bufferStatus;
     private int socketTimeout;
     
@@ -65,6 +66,7 @@ public class IOSessionImpl implements IOSession {
         this.channel = (ByteChannel) this.key.channel();
         this.callback = callback;
         this.attributes = Collections.synchronizedMap(new HashMap<String, Object>());
+        this.interestOps = key.interestOps();
         this.socketTimeout = 0;
         this.status = ACTIVE;
     }
@@ -92,13 +94,14 @@ public class IOSessionImpl implements IOSession {
     }
 
     public int getEventMask() {
-        return this.key.interestOps();
+        return this.interestOps;
     }
     
     public void setEventMask(int ops) {
         if (this.status == CLOSED) {
             return;
         }
+        this.interestOps = ops;
         this.key.interestOps(ops);
         this.key.selector().wakeup();
     }
@@ -107,10 +110,8 @@ public class IOSessionImpl implements IOSession {
         if (this.status == CLOSED) {
             return;
         }
-        synchronized (this.key) {
-            int ops = this.key.interestOps();
-            this.key.interestOps(ops | op);
-        }
+        this.interestOps = this.interestOps | op;
+        this.key.interestOps(this.interestOps);
         this.key.selector().wakeup();
     }
     
@@ -118,10 +119,8 @@ public class IOSessionImpl implements IOSession {
         if (this.status == CLOSED) {
             return;
         }
-        synchronized (this.key) {
-            int ops = this.key.interestOps();
-            this.key.interestOps(ops & ~op);
-        }
+        this.interestOps = this.interestOps & ~op;
+        this.key.interestOps(this.interestOps);
         this.key.selector().wakeup();
     }
     
