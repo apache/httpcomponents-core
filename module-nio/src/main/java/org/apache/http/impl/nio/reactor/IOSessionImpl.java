@@ -36,6 +36,7 @@ import java.net.SocketAddress;
 import java.nio.channels.ByteChannel;
 import java.nio.channels.Channel;
 import java.nio.channels.SelectionKey;
+import java.nio.channels.Selector;
 import java.nio.channels.SocketChannel;
 import java.util.Collections;
 import java.util.HashMap;
@@ -49,9 +50,11 @@ public class IOSessionImpl implements IOSession {
     private volatile int status;
     
     private final SelectionKey key;
+    private final Selector selector;
     private final ByteChannel channel;
     private final SessionClosedCallback callback;
     private final Map<String, Object> attributes;
+    private final Object mutex;
     
     private volatile int interestOps;
     private SessionBufferStatus bufferStatus;
@@ -63,9 +66,11 @@ public class IOSessionImpl implements IOSession {
             throw new IllegalArgumentException("Selection key may not be null");
         }
         this.key = key;
-        this.channel = (ByteChannel) this.key.channel();
+        this.selector = key.selector();
+        this.channel = (ByteChannel) key.channel();
         this.callback = callback;
         this.attributes = Collections.synchronizedMap(new HashMap<String, Object>());
+        this.mutex = new Object();
         this.interestOps = key.interestOps();
         this.socketTimeout = 0;
         this.status = ACTIVE;
@@ -76,7 +81,7 @@ public class IOSessionImpl implements IOSession {
     }
     
     public SocketAddress getLocalAddress() {
-        Channel channel = this.key.channel();
+        Channel channel = this.channel;
         if (channel instanceof SocketChannel) {
             return ((SocketChannel)channel).socket().getLocalSocketAddress();
         } else {
@@ -85,7 +90,7 @@ public class IOSessionImpl implements IOSession {
     }
 
     public SocketAddress getRemoteAddress() {
-        Channel channel = this.key.channel();
+        Channel channel = this.channel;
         if (channel instanceof SocketChannel) {
             return ((SocketChannel)channel).socket().getRemoteSocketAddress();
         } else {
@@ -101,33 +106,41 @@ public class IOSessionImpl implements IOSession {
         if (this.status == CLOSED) {
             return;
         }
-        synchronized (this.key) {
+        synchronized (this.mutex) {
             this.interestOps = ops;
-            this.key.interestOps(ops);
+            interestOpsChanged();
         }
-        this.key.selector().wakeup();
+        this.selector.wakeup();
     }
     
     public void setEvent(int op) {
         if (this.status == CLOSED) {
             return;
         }
-        synchronized (this.key) {
+        synchronized (this.mutex) {
             this.interestOps = this.interestOps | op;
-            this.key.interestOps(this.interestOps);
+            interestOpsChanged();
         }
-        this.key.selector().wakeup();
+        this.selector.wakeup();
     }
     
     public void clearEvent(int op) {
         if (this.status == CLOSED) {
             return;
         }
-        synchronized (this.key) {
+        synchronized (this.mutex) {
             this.interestOps = this.interestOps & ~op;
-            this.key.interestOps(this.interestOps);
+            interestOpsChanged();
         }
-        this.key.selector().wakeup();
+        this.selector.wakeup();
+    }
+    
+    protected void interestOpsChanged() {
+        applyInterestOps();
+    }
+    
+    protected void applyInterestOps() {
+        this.key.interestOps(this.interestOps);
     }
     
     public int getSocketTimeout() {
@@ -145,7 +158,7 @@ public class IOSessionImpl implements IOSession {
         this.status = CLOSED;
         this.key.cancel();
         try {
-            this.key.channel().close();
+            this.channel.close();
         } catch (IOException ex) {
             // Munching exceptions is not nice
             // but in this case it is justified
@@ -153,8 +166,8 @@ public class IOSessionImpl implements IOSession {
         if (this.callback != null) {
             this.callback.sessionClosed(this);
         }
-        if (this.key.selector().isOpen()) {
-            this.key.selector().wakeup();
+        if (this.selector.isOpen()) {
+            this.selector.wakeup();
         }
     }
     
