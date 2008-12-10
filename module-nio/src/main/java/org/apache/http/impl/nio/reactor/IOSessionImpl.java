@@ -36,7 +36,6 @@ import java.net.SocketAddress;
 import java.nio.channels.ByteChannel;
 import java.nio.channels.Channel;
 import java.nio.channels.SelectionKey;
-import java.nio.channels.Selector;
 import java.nio.channels.SocketChannel;
 import java.util.Collections;
 import java.util.HashMap;
@@ -50,13 +49,10 @@ public class IOSessionImpl implements IOSession {
     private volatile int status;
     
     private final SelectionKey key;
-    private final Selector selector;
     private final ByteChannel channel;
     private final SessionClosedCallback callback;
     private final Map<String, Object> attributes;
-    private final Object mutex;
     
-    private volatile int interestOps;
     private SessionBufferStatus bufferStatus;
     private int socketTimeout;
     
@@ -66,12 +62,9 @@ public class IOSessionImpl implements IOSession {
             throw new IllegalArgumentException("Selection key may not be null");
         }
         this.key = key;
-        this.selector = key.selector();
-        this.channel = (ByteChannel) key.channel();
+        this.channel = (ByteChannel) this.key.channel();
         this.callback = callback;
         this.attributes = Collections.synchronizedMap(new HashMap<String, Object>());
-        this.mutex = new Object();
-        this.interestOps = key.interestOps();
         this.socketTimeout = 0;
         this.status = ACTIVE;
     }
@@ -81,7 +74,7 @@ public class IOSessionImpl implements IOSession {
     }
     
     public SocketAddress getLocalAddress() {
-        Channel channel = this.channel;
+        Channel channel = this.key.channel();
         if (channel instanceof SocketChannel) {
             return ((SocketChannel)channel).socket().getLocalSocketAddress();
         } else {
@@ -90,7 +83,7 @@ public class IOSessionImpl implements IOSession {
     }
 
     public SocketAddress getRemoteAddress() {
-        Channel channel = this.channel;
+        Channel channel = this.key.channel();
         if (channel instanceof SocketChannel) {
             return ((SocketChannel)channel).socket().getRemoteSocketAddress();
         } else {
@@ -99,48 +92,37 @@ public class IOSessionImpl implements IOSession {
     }
 
     public int getEventMask() {
-        return this.interestOps;
+        return this.key.interestOps();
     }
     
     public void setEventMask(int ops) {
         if (this.status == CLOSED) {
             return;
         }
-        synchronized (this.mutex) {
-            this.interestOps = ops;
-            interestOpsChanged();
-        }
-        this.selector.wakeup();
+        this.key.interestOps(ops);
+        this.key.selector().wakeup();
     }
     
     public void setEvent(int op) {
         if (this.status == CLOSED) {
             return;
         }
-        synchronized (this.mutex) {
-            this.interestOps = this.interestOps | op;
-            interestOpsChanged();
+        synchronized (this.key) {
+            int ops = this.key.interestOps();
+            this.key.interestOps(ops | op);
         }
-        this.selector.wakeup();
+        this.key.selector().wakeup();
     }
     
     public void clearEvent(int op) {
         if (this.status == CLOSED) {
             return;
         }
-        synchronized (this.mutex) {
-            this.interestOps = this.interestOps & ~op;
-            interestOpsChanged();
+        synchronized (this.key) {
+            int ops = this.key.interestOps();
+            this.key.interestOps(ops & ~op);
         }
-        this.selector.wakeup();
-    }
-    
-    protected void interestOpsChanged() {
-        applyInterestOps();
-    }
-    
-    protected void applyInterestOps() {
-        this.key.interestOps(this.interestOps);
+        this.key.selector().wakeup();
     }
     
     public int getSocketTimeout() {
@@ -158,7 +140,7 @@ public class IOSessionImpl implements IOSession {
         this.status = CLOSED;
         this.key.cancel();
         try {
-            this.channel.close();
+            this.key.channel().close();
         } catch (IOException ex) {
             // Munching exceptions is not nice
             // but in this case it is justified
@@ -166,8 +148,8 @@ public class IOSessionImpl implements IOSession {
         if (this.callback != null) {
             this.callback.sessionClosed(this);
         }
-        if (this.selector.isOpen()) {
-            this.selector.wakeup();
+        if (this.key.selector().isOpen()) {
+            this.key.selector().wakeup();
         }
     }
     
