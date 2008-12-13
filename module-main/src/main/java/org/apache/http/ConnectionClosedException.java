@@ -34,7 +34,7 @@ package org.apache.http;
 import java.io.IOException;
 
 /**
- * Indicates that a connection has been closed.
+ * Signals that the connection has been closed unexpectedly.
  *
  * @author <a href="mailto:oleg at ural.ru">Oleg Kalnichevski</a>
  *

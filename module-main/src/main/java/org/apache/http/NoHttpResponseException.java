@@ -34,9 +34,7 @@ package org.apache.http;
 import java.io.IOException;
 
 /**
- * <p>
  * Signals that the target server failed to respond with a valid HTTP response.
- * </p>
  * 
  * @author <a href="mailto:oleg at ural.ru">Oleg Kalnichevski</a>
  * 

@@ -34,8 +34,26 @@ package org.apache.http;
 import org.apache.http.params.HttpParams;
 
 /**
- * A generic HTTP message.
- * Holds what is common between requests and responses.
+ * HTTP messages consist of requests from client to server and responses
+ * from server to client.
+ * <pre>
+ *     HTTP-message   = Request | Response     ; HTTP/1.1 messages
+ * </pre>
+ * <p>
+ * HTTP messages use the generic message format of RFC 822 for 
+ * transferring entities (the payload of the message). Both types 
+ * of message consist of a start-line, zero or more header fields 
+ * (also known as "headers"), an empty line (i.e., a line with nothing 
+ * preceding the CRLF) indicating the end of the header fields, 
+ * and possibly a message-body.
+ * </p>
+ * <pre>
+ *      generic-message = start-line
+ *                        *(message-header CRLF)
+ *                        CRLF
+ *                        [ message-body ]
+ *      start-line      = Request-Line | Status-Line
+ * </pre>
  *
  * @author <a href="mailto:oleg at ural.ru">Oleg Kalnichevski</a>
  *

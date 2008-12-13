@@ -41,7 +41,7 @@ import java.io.OutputStream;
  * {@link HttpEntityEnclosingRequest requests} and in
  * {@link HttpResponse responses}, where they are optional.
  * <p>
- * In some places, the JavaDoc distinguishes three kinds of entities,
+ * There are three distinct types of entities in HttpCore,
  * depending on where their {@link #getContent content} originates:
  * <ul>
  * <li><b>streamed</b>: The content is received from a stream, or
@@ -73,7 +73,7 @@ import java.io.OutputStream;
 public interface HttpEntity {
 
     /**
-     * Tells if the entity is capable to produce its data more than once.
+     * Tells if the entity is capable of producing its data more than once.
      * A repeatable entity's getContent() and writeTo(OutputStream) methods
      * can be called more than once whereas a non-repeatable entity's can not.
      * @return true if the entity is repeatable, false otherwise.

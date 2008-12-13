@@ -34,7 +34,8 @@ package org.apache.http;
 import org.apache.http.protocol.HttpContext;
 
 /**
- * Interface for deciding whether a connection should be kept alive.
+ * Interface for deciding whether a connection can be re-used for
+ * subsequent requests and should be kept alive.
  *
  * @author <a href="mailto:oleg at ural.ru">Oleg Kalnichevski</a>
  *
@@ -49,7 +50,7 @@ public interface ConnectionReuseStrategy {
     /**
      * Decides whether a connection can be kept open after a request.
      * If this method returns <code>false</code>, the caller MUST
-     * close the connection to correctly implement the HTTP protocol.
+     * close the connection to correctly comply with the HTTP protocol.
      * If it returns <code>true</code>, the caller SHOULD attempt to
      * keep the connection open for reuse with another request.
      * <br/>

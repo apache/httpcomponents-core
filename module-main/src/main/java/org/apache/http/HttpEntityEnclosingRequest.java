@@ -53,11 +53,17 @@ public interface HttpEntityEnclosingRequest extends HttpRequest {
     boolean expectContinue();
     
     /**
-     * Hands the entity to the request.
+     * Associates the entity with this request.
+     * 
      * @param entity the entity to send.
      */
     void setEntity(HttpEntity entity);
     
+    /**
+     * Returns the entity associated with this request.
+     * 
+     * @return entity
+     */
     HttpEntity getEntity();
     
 }

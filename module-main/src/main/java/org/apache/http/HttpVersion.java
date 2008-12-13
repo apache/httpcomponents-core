@@ -34,7 +34,15 @@ package org.apache.http;
 import java.io.Serializable;
 
 /**
- * Represents an HTTP version, as specified in RFC 2616.
+ * Represents an HTTP version. HTTP uses a "major.minor" numbering 
+ * scheme to indicate versions of the protocol. 
+ * <p>
+ * The version of an HTTP message is indicated by an HTTP-Version field
+ * in the first line of the message.
+ * </p>
+ * <pre>
+ *     HTTP-Version   = "HTTP" "/" 1*DIGIT "." 1*DIGIT
+ * </pre>
  * 
  * @author <a href="mailto:oleg@ural.ru">Oleg Kalnichevski</a>
  * 

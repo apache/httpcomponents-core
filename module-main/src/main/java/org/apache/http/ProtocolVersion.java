@@ -34,19 +34,15 @@ package org.apache.http;
 import java.io.Serializable;
 import org.apache.http.util.CharArrayBuffer;
 
-
 /**
- * Represents a protocol version, as specified in RFC 2616.
- * RFC 2616 specifies only HTTP versions, like "HTTP/1.1" and "HTTP/1.0".
- * RFC 3261 specifies a message format that is identical to HTTP except
- * for the protocol name. It defines a protocol version "SIP/2.0".
- * There are some nitty-gritty differences between the interpretation
- * of versions in HTTP and SIP. In those cases, HTTP takes precedence.
+ * Represents a protocol version. The "major.minor" numbering 
+ * scheme is used to indicate versions of the protocol. 
  * <p>
  * This class defines a protocol version as a combination of
  * protocol name, major version number, and minor version number.
  * Note that {@link #equals} and {@link #hashCode} are defined as
  * final here, they cannot be overridden in derived classes.
+ * </p>
  * 
  * @author <a href="mailto:oleg@ural.ru">Oleg Kalnichevski</a>
  * @author <a href="mailto:rolandw at apache.org">Roland Weber</a>

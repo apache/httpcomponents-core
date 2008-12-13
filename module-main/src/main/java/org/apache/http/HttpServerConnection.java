@@ -34,8 +34,8 @@ package org.apache.http;
 import java.io.IOException;
 
 /**
- * An HTTP connection for use on the server side.
- * Requests are received, responses are sent.
+ * A server-side HTTP connection, which can be used for receiving 
+ * requests and sending responses.
  *
  * @author <a href="mailto:oleg at ural.ru">Oleg Kalnichevski</a>
  *

@@ -31,12 +31,19 @@
 
 package org.apache.http;
 
-
 import java.util.Locale;
 
-
 /**
- * An HTTP response.
+ * After receiving and interpreting a request message, a server responds
+ * with an HTTP response message.
+ * <pre>
+ *     Response      = Status-Line
+ *                     *(( general-header
+ *                      | response-header
+ *                      | entity-header ) CRLF)
+ *                     CRLF
+ *                     [ message-body ]
+ * </pre>
  *
  * @author <a href="mailto:oleg at ural.ru">Oleg Kalnichevski</a>
  *

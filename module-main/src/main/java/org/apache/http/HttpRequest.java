@@ -32,7 +32,17 @@
 package org.apache.http;
 
 /**
- * An HTTP request.
+ * A request message from a client to a server includes, within the
+ * first line of that message, the method to be applied to the resource,
+ * the identifier of the resource, and the protocol version in use.
+ * <pre>
+ *      Request       = Request-Line        
+ *                      *(( general-header        
+ *                       | request-header  
+ *                       | entity-header ) CRLF)
+ *                      CRLF
+ *                      [ message-body ]
+ * </pre>
  *
  * @author <a href="mailto:oleg at ural.ru">Oleg Kalnichevski</a>
  *

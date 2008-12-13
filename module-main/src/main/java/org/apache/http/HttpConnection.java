@@ -46,8 +46,8 @@ public interface HttpConnection {
 
     /**
      * Closes this connection gracefully.
-     * This method will attempt to  flush the transmitter's
-     * internal buffer prior to closing the underlying socket.
+     * This method will attempt to flush the internal output
+     * buffer prior to closing the underlying socket.
      * This method MUST NOT be called from a different thread to force 
      * shutdown of the connection. Use {@link #shutdown shutdown} instead.
      */
@@ -102,7 +102,8 @@ public interface HttpConnection {
     public void shutdown() throws IOException;
     
     /**
-     * Returns a collection of connection metrcis
+     * Returns a collection of connection metrics.
+     * 
      * @return HttpConnectionMetrics
      */
     HttpConnectionMetrics getMetrics();

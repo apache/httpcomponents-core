@@ -36,7 +36,7 @@ import java.util.Iterator;
 
 
 /**
- * A type-safe iterator for {@link Header Header} objects.
+ * A type-safe iterator for {@link Header} objects.
  * 
  * @version $Revision$
  */

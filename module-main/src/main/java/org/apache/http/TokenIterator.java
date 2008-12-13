@@ -31,9 +31,7 @@
 
 package org.apache.http;
 
-
 import java.util.Iterator;
-
 
 /**
  * An iterator for {@link String} tokens.
@@ -51,9 +49,7 @@ public interface TokenIterator extends Iterator {
      * @return  <code>true</code> if there is another token,
      *          <code>false</code> otherwise
      */
-    boolean hasNext()
-        ;
-
+    boolean hasNext();
 
     /**
      * Obtains the next token from this iteration.
@@ -62,6 +58,6 @@ public interface TokenIterator extends Iterator {
      *
      * @return  the next token in this iteration
      */
-    String nextToken()
-        ;
+    String nextToken();
+
 }

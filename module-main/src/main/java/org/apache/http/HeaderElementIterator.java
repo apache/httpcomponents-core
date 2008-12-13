@@ -34,7 +34,7 @@ package org.apache.http;
 import java.util.Iterator;
 
 /**
- * A type-safe iterator for {@link HeaderElement HeaderElement} objects.
+ * A type-safe iterator for {@link HeaderElement} objects.
  * 
  * @version $Revision$
  */
