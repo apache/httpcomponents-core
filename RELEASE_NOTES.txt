@@ -4,6 +4,7 @@ Changes since 4.0 Beta 3
 * [HTTPCORE-175] Chunk decoders no longer accept truncated chunks as valid input.
   Contributed by Oleg Kalnichevski <olegk at apache.org> 
 
+
 Release 4.0 Beta 3
 -------------------
 
