@@ -32,7 +32,7 @@
 package org.apache.http;
 
 /**
- * Indicates a parse error.
+ * Signals a parse error.
  * Parse errors when receiving a message will typically trigger
  * {@link ProtocolException}. Parse errors that do not occur during
  * protocol execution may be handled differently.

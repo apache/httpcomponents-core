@@ -1,7 +1,7 @@
 /*
- * $HeadURL:$
- * $Revision:$
- * $Date:$
+ * $HeadURL$
+ * $Revision$
+ * $Date$
  *
  * ====================================================================
  * Licensed to the Apache Software Foundation (ASF) under one
@@ -39,12 +39,32 @@ import java.io.ObjectOutputStream;
 import java.io.OutputStream;
 import java.io.Serializable;
 
+/**
+ * A streamed entity that obtains its content from a {@link Serializable}.
+ * The content obtained from the {@link Serializable} instance can 
+ * optionally be buffered in a byte array in order to make the
+ * entity self-contained and repeatable.
+ *
+ * @author <a href="mailto:oleg at ural.ru">Oleg Kalnichevski</a>
+ *
+ * @version $Revision$
+ * 
+ * @since 4.0
+ */
 public class SerializableEntity extends AbstractHttpEntity {
     
     private byte[] objSer;
     
     private Serializable objRef;
     
+    /**
+     * Creates new instance of this class.
+     * 
+     * @param ser input 
+     * @param bufferize tells whether the content should be
+     *        stored in an internal buffer
+     * @throws IOException in case of an I/O error
+     */
     public SerializableEntity(Serializable ser, boolean bufferize) throws IOException {
         super();
         if (ser == null) {

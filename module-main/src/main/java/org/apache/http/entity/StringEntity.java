@@ -40,7 +40,8 @@ import java.io.UnsupportedEncodingException;
 import org.apache.http.protocol.HTTP;
 
 /**
- *  An entity whose content is retrieved from a string.
+ * A self contained, repeatable entity that obtains its content from 
+ * a {@link String}.
  *
  * @author <a href="mailto:oleg at ural.ru">Oleg Kalnichevski</a>
  *

@@ -52,8 +52,8 @@ public interface HttpServerConnection extends HttpConnection {
      * 
      * @return a new HttpRequest object whose request line and headers are
      *         initialized.
-     * @throws HttpException
-     * @throws IOException
+     * @throws HttpException in case of HTTP protocol violation
+     * @throws IOException in case of an I/O error
      */
     HttpRequest receiveRequestHeader() 
         throws HttpException, IOException;
@@ -62,8 +62,8 @@ public interface HttpServerConnection extends HttpConnection {
      * Receives the next request entity available from this connection and attaches it to 
      * an existing request. 
      * @param request the request to attach the entity to.
-     * @throws HttpException
-     * @throws IOException
+     * @throws HttpException in case of HTTP protocol violation
+     * @throws IOException in case of an I/O error
      */
     void receiveRequestEntity(HttpEntityEnclosingRequest request) 
         throws HttpException, IOException;
@@ -71,8 +71,8 @@ public interface HttpServerConnection extends HttpConnection {
     /**
      * Sends the response line and headers of a response over this connection.
      * @param response the response whose headers to send.
-     * @throws HttpException
-     * @throws IOException
+     * @throws HttpException in case of HTTP protocol violation
+     * @throws IOException in case of an I/O error
      */
     void sendResponseHeader(HttpResponse response) 
         throws HttpException, IOException;
@@ -80,15 +80,15 @@ public interface HttpServerConnection extends HttpConnection {
     /**
      * Sends the response entity of a response over this connection.
      * @param response the response whose entity to send.
-     * @throws HttpException
-     * @throws IOException
+     * @throws HttpException in case of HTTP protocol violation
+     * @throws IOException in case of an I/O error
      */
     void sendResponseEntity(HttpResponse response) 
         throws HttpException, IOException;
     
     /**
      * Sends all pending buffered data over this connection.
-     * @throws IOException
+     * @throws IOException in case of an I/O error
      */
     void flush()
         throws IOException;

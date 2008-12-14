@@ -35,8 +35,8 @@ import org.apache.http.HttpException;
 import org.apache.http.HttpMessage;
 
 /**
- * Represents a strategy to determine the content length based on the properties
- * of an HTTP message.
+ * Represents a strategy to determine length of the enclosed content entity 
+ * based on properties of the HTTP message.
  *
  * @author <a href="mailto:oleg at ural.ru">Oleg Kalnichevski</a>
  *
@@ -48,7 +48,18 @@ public interface ContentLengthStrategy {
 
     public static final int IDENTITY         = -1;
     public static final int CHUNKED          = -2;
-    
+   
+    /**
+     * Returns length of the given message in bytes. The returned value
+     * must be a non-negative number, {@link #IDENTITY} if the end of the
+     * message will be delimited by the end of connection, or {@link #CHUNKED}
+     * if the message is chunk coded
+     * 
+     * @param message
+     * @return content length, {@link #IDENTITY}, or {@link #CHUNKED}
+     * 
+     * @throws HttpException in case of HTTP protocol violation
+     */
     long determineLength(HttpMessage message) throws HttpException;
             
 }

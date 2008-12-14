@@ -38,7 +38,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 
 /**
- * An entity whose content is retrieved from a file.
+ * A self contained, repeatable entity that obtains its content from a file.
  *
  * @author <a href="mailto:oleg at ural.ru">Oleg Kalnichevski</a>
  *

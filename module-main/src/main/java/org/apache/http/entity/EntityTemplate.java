@@ -36,8 +36,8 @@ import java.io.InputStream;
 import java.io.OutputStream;
 
 /**
- * Entity that delegates the process of content generation to an abstract
- * content producer.
+ * Entity that delegates the process of content generation 
+ * to a {@link ContentProducer}.
  *
  * @author <a href="mailto:oleg at ural.ru">Oleg Kalnichevski</a>
  *

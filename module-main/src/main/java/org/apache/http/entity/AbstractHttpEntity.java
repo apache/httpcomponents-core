@@ -51,27 +51,9 @@ import org.apache.http.protocol.HTTP;
  */
 public abstract class AbstractHttpEntity implements HttpEntity {
 
-    /**
-     * The Content-Type header.
-     * Returned by {@link #getContentType getContentType},
-     * unless that method is overridden.
-     */
     protected Header contentType;
-
-    /**
-     * The Content-Encoding header.
-     * Returned by {@link #getContentEncoding getContentEncoding},
-     * unless that method is overridden.
-     */
     protected Header contentEncoding;
-
-    /**
-     * The 'chunked' flag.
-     * Returned by {@link #isChunked isChunked},
-     * unless that method is overridden.
-     */
     protected boolean chunked;
-
 
     /**
      * Protected default constructor.

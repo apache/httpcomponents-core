@@ -37,7 +37,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 
 /**
- *  An entity whose content is retrieved from a byte array.
+ * A self contained, repeatable entity that obtains its content from a byte array.
  *
  * @author <a href="mailto:oleg at ural.ru">Oleg Kalnichevski</a>
  *

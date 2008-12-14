@@ -34,7 +34,7 @@ package org.apache.http;
 import org.apache.http.ProtocolException;
 
 /**
- * Indicates an unsupported version of the HTTP protocol.
+ * Signals an unsupported version of the HTTP protocol.
  *
  * @author <a href="mailto:oleg at ural.ru">Oleg Kalnichevski</a>
  *

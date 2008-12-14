@@ -33,7 +33,7 @@ package org.apache.http;
 
 
 /**
- * Indicates that an HTTP method is not supported.
+ * Signals that an HTTP method is not supported.
  *
  * @author <a href="mailto:oleg at ural.ru">Oleg Kalnichevski</a>
  *
