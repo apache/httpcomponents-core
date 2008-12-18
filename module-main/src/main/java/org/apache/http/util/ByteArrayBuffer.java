@@ -45,6 +45,11 @@ public final class ByteArrayBuffer  {
     private byte[] buffer;
     private int len;
 
+    /**
+     * Creates an instance of {@link ByteArrayBuffer} with the given initial 
+     * capacity 
+     * @param capacity the capacity
+     */
     public ByteArrayBuffer(int capacity) {
         super();
         if (capacity < 0) {
@@ -58,7 +63,19 @@ public final class ByteArrayBuffer  {
         System.arraycopy(this.buffer, 0, newbuffer, 0, this.len);
         this.buffer = newbuffer;
     }
-    
+
+    /**
+     * Appends <code>len</code> bytes to this buffer from the given source 
+     * array starting at index <code>offset</code>. The capacity of the buffer 
+     * is increased if necessary to accommodate all <code>len</code> bytes. 
+     *
+     * @param   b        the bytes to be appended.
+     * @param   offset   the index of the first byte to append.
+     * @param   len      the number of bytes to append.
+     * @throws IndexOutOfBoundsException if <code>offset</code> if out of 
+     * range, <code>len</code> is negative, or 
+     * <code>offset</code> + <code>len</code> is out of range.  
+     */
     public void append(final byte[] b, int off, int len) {
         if (b == null) {
             return;
@@ -78,6 +95,12 @@ public final class ByteArrayBuffer  {
         this.len = newlen;
     }
 
+    /**
+     * Appends <code>b</code> bytes into this buffer. The capacity of the buffer 
+     * is increased if necessary to accommodate the additional byte. 
+     *
+     * @param   b        the byte to be appended.
+     */
     public void append(int b) {
         int newlen = this.len + 1;
         if (newlen > this.buffer.length) {
@@ -87,6 +110,20 @@ public final class ByteArrayBuffer  {
         this.len = newlen;
     }
 
+    /**
+     * Appends <code>len</code> chars to this buffer from the given source 
+     * array starting at index <code>offset</code>. The capacity of the buffer 
+     * is increased if necessary to accommodate all <code>len</code> chars. 
+     * <p>
+     * The chars are converted to bytes using simple cast.
+     *
+     * @param   b        the chars to be appended.
+     * @param   offset   the index of the first char to append.
+     * @param   len      the number of bytes to append.
+     * @throws IndexOutOfBoundsException if <code>offset</code> if out of 
+     * range, <code>len</code> is negative, or 
+     * <code>offset</code> + <code>len</code> is out of range.  
+     */
     public void append(final char[] b, int off, int len) {
         if (b == null) {
             return;
@@ -109,6 +146,21 @@ public final class ByteArrayBuffer  {
         this.len = newlen;
     }
 
+    /**
+     * Appends <code>len</code> chars to this buffer from the given source 
+     * char array buffer starting at index <code>offset</code>. The capacity 
+     * of the buffer is increased if necessary to accommodate all 
+     * <code>len</code> chars. 
+     * <p>
+     * The chars are converted to bytes using simple cast.
+     *
+     * @param   b        the chars to be appended.
+     * @param   offset   the index of the first char to append.
+     * @param   len      the number of bytes to append.
+     * @throws IndexOutOfBoundsException if <code>offset</code> if out of 
+     * range, <code>len</code> is negative, or 
+     * <code>offset</code> + <code>len</code> is out of range.  
+     */
     public void append(final CharArrayBuffer b, int off, int len) {
         if (b == null) {
             return;
@@ -116,10 +168,18 @@ public final class ByteArrayBuffer  {
         append(b.buffer(), off, len);
     }
     
+    /**
+     * Clears content of the buffer. The underlying byte array is not resized.
+     */
     public void clear() {
         this.len = 0;
     }
-    
+
+    /**
+     * Converts the content of this buffer to an array of bytes. 
+     * 
+     * @return byte array
+     */
     public byte[] toByteArray() {
         byte[] b = new byte[this.len]; 
         if (this.len > 0) {
@@ -128,22 +188,59 @@ public final class ByteArrayBuffer  {
         return b;
     }
     
+    /**
+     * Returns the <code>byte</code> value in this buffer at the specified 
+     * index. The index argument must be greater than or equal to
+     * <code>0</code>, and less than the length of this buffer.
+     *
+     * @param      index   the index of the desired byte value.
+     * @return     the byte value at the specified index.
+     * @throws     IndexOutOfBoundsException  if <code>index</code> is 
+     *             negative or greater than or equal to {@link #length()}.
+     */
     public int byteAt(int i) {
         return this.buffer[i];
     }
     
+    /**
+     * Returns the current capacity. The capacity is the amount of storage 
+     * available for newly appended bytes, beyond which an allocation 
+     * will occur.
+     *
+     * @return  the current capacity
+     */
     public int capacity() {
         return this.buffer.length;
     }
     
+    /**
+     * Returns the length of the buffer (byte count).
+     *
+     * @return  the length of the buffer
+     */
     public int length() {
         return this.len;
     }
 
+    /**
+     * Returns reference to the underlying byte array.
+     * 
+     * @return the byte array.
+     */
     public byte[] buffer() {
         return this.buffer;
     }
         
+    /**
+     * Sets the length of the buffer. The new length value is expected to be 
+     * less than the current capacity and greater than or equal to 
+     * <code>0</code>. 
+     *
+     * @param      len   the new length
+     * @throws     IndexOutOfBoundsException  if the
+     *               <code>len</code> argument is greater than the current 
+     *               capacity of the buffer or less than <code>0</code>.
+     */
     public void setLength(int len) {
         if (len < 0 || len > this.buffer.length) {
             throw new IndexOutOfBoundsException();
@@ -151,10 +248,22 @@ public final class ByteArrayBuffer  {
         this.len = len;
     }
     
+    /**
+     * Returns <code>true</code> if this buffer is empty, that is, its 
+     * {@link #length()} is equal to <code>0</code>.
+     * @return <code>true</code> if this buffer is empty, <code>false</code>
+     *   otherwise. 
+     */
     public boolean isEmpty() {
         return this.len == 0; 
     }
     
+    /**
+     * Returns <code>true</code> if this buffer is full, that is, its 
+     * {@link #length()} is equal to its {@link #capacity()}.
+     * @return <code>true</code> if this buffer is full, <code>false</code>
+     *   otherwise. 
+     */
     public boolean isFull() {
         return this.len == this.buffer.length; 
     }

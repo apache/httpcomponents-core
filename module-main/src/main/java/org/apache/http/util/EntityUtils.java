@@ -43,7 +43,7 @@ import org.apache.http.ParseException;
 import org.apache.http.protocol.HTTP;
 
 /**
- * Static helpers for dealing with {@link HttpEntity entities}.
+ * Static helpers for dealing with {@link HttpEntity}s.
  *
  * @author <a href="mailto:oleg at ural.ru">Oleg Kalnichevski</a>
  *
@@ -53,7 +53,6 @@ import org.apache.http.protocol.HTTP;
  */
 public final class EntityUtils {
 
-    /** Disabled default constructor. */
     private EntityUtils() {
     }
 
@@ -94,7 +93,7 @@ public final class EntityUtils {
     }
         
     /**
-     * Get the character set from the entity.
+     * Obtains character set of the entity, if known.
      * 
      * @param entity must not be null
      * @return the character set, or null if not found

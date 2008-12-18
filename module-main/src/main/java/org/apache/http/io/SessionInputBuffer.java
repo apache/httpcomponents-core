@@ -131,7 +131,6 @@ public interface SessionInputBuffer {
      * Implementing classes can choose a char encoding and a line delimiter 
      * as appropriate. 
      *
-     * @param      buffer   the line buffer.
      * @exception  IOException  if an I/O error occurs.
      */
     String readLine() throws IOException;

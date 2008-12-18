@@ -31,10 +31,14 @@
 
 package org.apache.http.io;
 
+/**
+ * The point of access to the statistics of {@link SessionInputBuffer} or
+ * {@link SessionOutputBuffer}.
+ */
 public interface HttpTransportMetrics {
     
     /**
-     * Returns the number of bytes trasferred.
+     * Returns the number of bytes transferred.
      */
     long getBytesTransferred(); 
     

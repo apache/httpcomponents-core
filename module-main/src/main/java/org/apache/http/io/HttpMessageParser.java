@@ -37,7 +37,8 @@ import org.apache.http.HttpException;
 import org.apache.http.HttpMessage;
 
 /**
- * Generic message parser interface.
+ * Abstract message parser intended to build HTTP messages from an arbitrary 
+ * data source. 
  *
  * @author <a href="mailto:oleg at ural.ru">Oleg Kalnichevski</a>
  *
@@ -47,6 +48,14 @@ import org.apache.http.HttpMessage;
  */
 public interface HttpMessageParser {
     
+    /**
+     * Generates an instance of {@link HttpMessage} from the underlying data
+     * source.
+     * 
+     * @return HTTP message
+     * @throws IOException in case of an I/O error
+     * @throws HttpException in case of HTTP protocol violation
+     */
     HttpMessage parse()
         throws IOException, HttpException;
 
