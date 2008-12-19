@@ -40,9 +40,6 @@ import java.util.ArrayList;
 
 /**
  * Provides access to version information for HTTP components.
- * Instances of this class provide version information for a single module
- * or informal unit, as explained
- * <a href="http://wiki.apache.org/jakarta-httpclient/HttpComponents">here</a>.
  * Static methods are used to extract version information from property
  * files that are automatically packaged with HTTP component release JARs.
  * <br/>

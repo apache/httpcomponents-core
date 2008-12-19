@@ -38,8 +38,13 @@ import org.apache.http.HttpRequest;
 import org.apache.http.io.SessionOutputBuffer;
 import org.apache.http.message.LineFormatter;
 import org.apache.http.params.HttpParams;
-import org.apache.http.util.CharArrayBuffer;
 
+/**
+ * HTTP request writer that serializes its output to an instance 
+ * of {@link SessionOutputBuffer}. 
+ * 
+ * @author <a href="mailto:oleg at ural.ru">Oleg Kalnichevski</a>
+ */
 public class HttpRequestWriter extends AbstractMessageWriter {
 
     public HttpRequestWriter(final SessionOutputBuffer buffer,
@@ -51,9 +56,9 @@ public class HttpRequestWriter extends AbstractMessageWriter {
     protected void writeHeadLine(final HttpMessage message)
         throws IOException {
 
-        final CharArrayBuffer buffer = lineFormatter.formatRequestLine
-            (this.lineBuf, ((HttpRequest) message).getRequestLine());
-        this.sessionBuffer.writeLine(buffer);
+        lineFormatter.formatRequestLine(this.lineBuf, 
+                ((HttpRequest) message).getRequestLine());
+        this.sessionBuffer.writeLine(this.lineBuf);
     }
 
 }

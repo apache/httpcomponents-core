@@ -36,6 +36,7 @@ import java.io.OutputStream;
 
 import org.apache.http.io.SessionOutputBuffer;
 import org.apache.http.io.HttpTransportMetrics;
+import org.apache.http.params.CoreProtocolPNames;
 import org.apache.http.params.HttpParams;
 import org.apache.http.params.HttpProtocolParams;
 import org.apache.http.protocol.HTTP;
@@ -43,11 +44,14 @@ import org.apache.http.util.ByteArrayBuffer;
 import org.apache.http.util.CharArrayBuffer;
 
 /**
- * Abstract base class for session output buffers that stream data
- * to an {@link OutputStream}. 
+ * Abstract base class for session output buffers that stream data to 
+ * an arbitrary {@link OutputStream}. This class buffers small chunks of 
+ * output data in an internal byte array for optimal output performance.
+ * <p>
+ * {@link #writeLine(CharArrayBuffer)} and {@link #writeLine(String)} methods 
+ * of this class use CR-LF as a line delimiter. 
  *
  * @author <a href="mailto:oleg at ural.ru">Oleg Kalnichevski</a>
- *
  */
 public abstract class AbstractSessionOutputBuffer implements SessionOutputBuffer {
 
@@ -63,6 +67,21 @@ public abstract class AbstractSessionOutputBuffer implements SessionOutputBuffer
     
     private HttpTransportMetricsImpl metrics;
     
+    /**
+     * Initializes this session output buffer. 
+     * <p>
+     * The following HTTP parameters affect the initialization:
+     * <p>
+     * The {@link CoreProtocolPNames#HTTP_ELEMENT_CHARSET}
+     * parameter determines the charset to be used for encoding HTTP lines. If 
+     * not specified, <code>US-ASCII</code> will be used per default.
+     *    
+     * @param outstream the destination output stream. 
+     * @param buffersize the size of the internal buffer.
+     * @param params HTTP parameters.
+     * 
+     * @see CoreProtocolPNames#HTTP_ELEMENT_CHARSET
+     */
     protected void init(final OutputStream outstream, int buffersize, final HttpParams params) {
         if (outstream == null) {
             throw new IllegalArgumentException("Input stream may not be null");
@@ -134,6 +153,15 @@ public abstract class AbstractSessionOutputBuffer implements SessionOutputBuffer
         this.buffer.append(b);
     }
     
+    /**
+     * Writes characters from the specified string followed by a line delimiter 
+     * to this session buffer.
+     * <p>
+     * This method uses CR-LF as a line delimiter. 
+     *
+     * @param      s   the line.
+     * @exception  IOException  if an I/O error occurs.
+     */
     public void writeLine(final String s) throws IOException {
         if (s == null) {
             return;
@@ -144,6 +172,15 @@ public abstract class AbstractSessionOutputBuffer implements SessionOutputBuffer
         write(CRLF);
     }
     
+    /**
+     * Writes characters from the specified char array followed by a line 
+     * delimiter to this session buffer.
+     * <p>
+     * This method uses CR-LF as a line delimiter. 
+     *
+     * @param      s the buffer containing chars of the line.
+     * @exception  IOException  if an I/O error occurs.
+     */
     public void writeLine(final CharArrayBuffer s) throws IOException {
         if (s == null) {
             return;

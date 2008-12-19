@@ -35,6 +35,7 @@ import java.io.IOException;
 
 import org.apache.http.HttpException;
 import org.apache.http.HttpMessage;
+import org.apache.http.HttpResponse;
 import org.apache.http.HttpResponseFactory;
 import org.apache.http.NoHttpResponseException;
 import org.apache.http.StatusLine;
@@ -45,11 +46,24 @@ import org.apache.http.message.ParserCursor;
 import org.apache.http.params.HttpParams;
 import org.apache.http.util.CharArrayBuffer;
 
+/**
+ * HTTP response parser that obtain its input from an instance 
+ * of {@link SessionInputBuffer}. 
+ * 
+ * @author <a href="mailto:oleg at ural.ru">Oleg Kalnichevski</a>
+ */
 public class HttpResponseParser extends AbstractMessageParser {
     
     private final HttpResponseFactory responseFactory;
     private final CharArrayBuffer lineBuf;
     
+    /**
+     * @param buffer the session input buffer.
+     * @param parser the line parser.
+     * @param responseFactory the factory to use to create 
+     *    {@link HttpResponse}s.
+     * @param params HTTP parameters.
+     */
     public HttpResponseParser(
             final SessionInputBuffer buffer,
             final LineParser parser,

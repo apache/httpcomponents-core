@@ -37,6 +37,7 @@ import java.io.InputStream;
 import org.apache.http.io.SessionInputBuffer;
 import org.apache.http.io.HttpTransportMetrics;
 import org.apache.http.params.CoreConnectionPNames;
+import org.apache.http.params.CoreProtocolPNames;
 import org.apache.http.params.HttpParams;
 import org.apache.http.params.HttpProtocolParams;
 import org.apache.http.protocol.HTTP;
@@ -44,11 +45,15 @@ import org.apache.http.util.ByteArrayBuffer;
 import org.apache.http.util.CharArrayBuffer;
 
 /**
- * Abstract base class for session input buffers that stream data 
- * from a {@link InputStream}.
+ * Abstract base class for session input buffers that stream data from 
+ * an arbitrary {@link InputStream}. This class buffers input data in 
+ * an internal byte array for optimal input performance.
+ * <p>
+ * {@link #readLine(CharArrayBuffer)} and {@link #readLine()} methods of this 
+ * class treat a lone LF as valid line delimiters in addition to CR-LF required
+ * by the HTTP specification. 
  *
  * @author <a href="mailto:oleg at ural.ru">Oleg Kalnichevski</a>
- *
  */
 public abstract class AbstractSessionInputBuffer implements SessionInputBuffer {
 
@@ -65,6 +70,28 @@ public abstract class AbstractSessionInputBuffer implements SessionInputBuffer {
     
     private HttpTransportMetricsImpl metrics;
     
+    /**
+     * Initializes this session input buffer. 
+     * <p>
+     * The following HTTP parameters affect the initialization:
+     * <p>
+     * The {@link CoreProtocolPNames#HTTP_ELEMENT_CHARSET}
+     * parameter determines the charset to be used for decoding HTTP lines. If 
+     * not specified, <code>US-ASCII</code> will be used per default.
+     * <p>
+     * The {@link CoreConnectionPNames#MAX_LINE_LENGTH} parameter determines 
+     * the maximum line length limit. If set to a positive value, any HTTP 
+     * line exceeding this limit will cause an IOException. A negative or zero 
+     * value will effectively disable the check. Per default the line length 
+     * check is disabled.
+     *    
+     * @param instream the source input stream. 
+     * @param buffersize the size of the internal buffer.
+     * @param params HTTP parameters.
+     * 
+     * @see CoreProtocolPNames#HTTP_ELEMENT_CHARSET
+     * @see CoreConnectionPNames#MAX_LINE_LENGTH
+     */
     protected void init(final InputStream instream, int buffersize, final HttpParams params) {
         if (instream == null) {
             throw new IllegalArgumentException("Input stream may not be null");
@@ -161,6 +188,21 @@ public abstract class AbstractSessionInputBuffer implements SessionInputBuffer {
         return -1;
     }
     
+    /**
+     * Reads a complete line of characters up to a line delimiter from this 
+     * session buffer into the given line buffer. The number of chars actually 
+     * read is returned as an integer. The line delimiter itself is discarded. 
+     * If no char is available because the end of the stream has been reached, 
+     * the value <code>-1</code> is returned. This method blocks until input 
+     * data is available, end of file is detected, or an exception is thrown.
+     * <p>
+     * This method treats a lone LF as a valid line delimiters in addition 
+     * to CR-LF required by the HTTP specification. 
+     *
+     * @param      charbuffer   the line buffer.
+     * @return     one line of characters
+     * @exception  IOException  if an I/O error occurs.
+     */
     public int readLine(final CharArrayBuffer charbuffer) throws IOException {
         if (charbuffer == null) {
             throw new IllegalArgumentException("Char array buffer may not be null");
@@ -204,6 +246,19 @@ public abstract class AbstractSessionInputBuffer implements SessionInputBuffer {
         return lineFromLineBuffer(charbuffer);
     }
     
+    /**
+     * Reads a complete line of characters up to a line delimiter from this 
+     * session buffer. The line delimiter itself is discarded. If no char is 
+     * available because the end of the stream has been reached, 
+     * <code>null</code> is returned. This method blocks until input data is 
+     * available, end of file is detected, or an exception is thrown.
+     * <p>
+     * This method treats a lone LF as a valid line delimiters in addition 
+     * to CR-LF required by the HTTP specification. 
+     * 
+     * @return HTTP line as a string
+     * @exception  IOException  if an I/O error occurs.
+     */
     private int lineFromLineBuffer(final CharArrayBuffer charbuffer) 
             throws IOException {
         // discard LF if found

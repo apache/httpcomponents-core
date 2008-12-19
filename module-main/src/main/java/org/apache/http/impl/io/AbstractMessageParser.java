@@ -48,7 +48,8 @@ import org.apache.http.params.HttpParams;
 import org.apache.http.util.CharArrayBuffer;
 
 /**
- * Message parser base class.
+ * Abstract base class for HTTP message parsers that obtain input from 
+ * an instance of {@link SessionInputBuffer}. 
  * 
  * @author Michael Becke
  * @author <a href="mailto:oleg at ural.ru">Oleg Kalnichevski</a>
@@ -61,6 +62,27 @@ public abstract class AbstractMessageParser implements HttpMessageParser {
     protected final LineParser lineParser;
 
 
+    /**
+     * Creates an instance of this class.
+     * <p>
+     * The following HTTP parameters affect the initialization:
+     * <p>
+     * {@link CoreConnectionPNames#MAX_HEADER_COUNT} parameter determines 
+     * the maximum HTTP header count allowed. If set to a positive value, 
+     * the number of HTTP headers received from the data stream exceeding 
+     * this limit will cause an IOException. A negative or zero value will 
+     * effectively disable the check. Per default the check is disabled. 
+     * <p>
+     * {@link CoreConnectionPNames#MAX_LINE_LENGTH} parameter determines 
+     * the maximum line length limit. If set to a positive value, any HTTP line 
+     * exceeding this limit will cause an IOException. A negative or zero value
+     * will effectively disable the check the check. Per default the check is 
+     * disabled.
+     * 
+     * @param buffer the session input buffer.
+     * @param parser the line parser.
+     * @param params HTTP parameters.
+     */
     public AbstractMessageParser(
             final SessionInputBuffer buffer,
             final LineParser parser,
@@ -88,13 +110,14 @@ public abstract class AbstractMessageParser implements HttpMessageParser {
      * @param maxHeaderCount maximum number of headers allowed. If the number
      *  of headers received from the data stream exceeds maxCount value, an
      *  IOException will be thrown. Setting this parameter to a negative value
-     *  or zero  will disable the check.
+     *  or zero will disable the check.
      * @param maxLineLen maximum number of characters for a header line,
-     *                   including the continuation lines
+     *  including the continuation lines. Setting this parameter to a negative 
+     *  value or zero will disable the check.
      * @return array of HTTP headers
      * 
-     * @throws HttpException
-     * @throws IOException
+     * @throws IOException in case of an I/O error
+     * @throws HttpException in case of HTTP protocol violation
      */
     public static Header[] parseHeaders(
             final SessionInputBuffer inbuffer,
@@ -165,6 +188,20 @@ public abstract class AbstractMessageParser implements HttpMessageParser {
         return headers;
     }
 
+    /**
+     * Subclasses must override this method to generate an instance of 
+     * {@link HttpMessage} based on the initial input from the session buffer.
+     * <p>
+     * Usually this method is expected to read just the very first line or 
+     * the very first valid from the data stream and based on the input generate 
+     * an appropriate instance of {@link HttpMessage}.
+     * 
+     * @param sessionBuffer the session input buffer.
+     * @return HTTP message based on the input from the session buffer.
+     * @throws IOException in case of an I/O error.
+     * @throws HttpException in case of HTTP protocol violation.
+     * @throws ParseException in case of a parse error.
+     */
     protected abstract HttpMessage parseHead(SessionInputBuffer sessionBuffer) 
         throws IOException, HttpException, ParseException;
 

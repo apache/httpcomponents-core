@@ -47,7 +47,8 @@ public final class ByteArrayBuffer  {
 
     /**
      * Creates an instance of {@link ByteArrayBuffer} with the given initial 
-     * capacity 
+     * capacity.
+     * 
      * @param capacity the capacity
      */
     public ByteArrayBuffer(int capacity) {
@@ -66,15 +67,15 @@ public final class ByteArrayBuffer  {
 
     /**
      * Appends <code>len</code> bytes to this buffer from the given source 
-     * array starting at index <code>offset</code>. The capacity of the buffer 
-     * is increased if necessary to accommodate all <code>len</code> bytes. 
+     * array starting at index <code>off</code>. The capacity of the buffer 
+     * is increased, if necessary, to accommodate all <code>len</code> bytes. 
      *
      * @param   b        the bytes to be appended.
-     * @param   offset   the index of the first byte to append.
+     * @param   off      the index of the first byte to append.
      * @param   len      the number of bytes to append.
-     * @throws IndexOutOfBoundsException if <code>offset</code> if out of 
+     * @throws IndexOutOfBoundsException if <code>off</code> if out of 
      * range, <code>len</code> is negative, or 
-     * <code>offset</code> + <code>len</code> is out of range.  
+     * <code>off</code> + <code>len</code> is out of range.  
      */
     public void append(final byte[] b, int off, int len) {
         if (b == null) {
@@ -96,8 +97,8 @@ public final class ByteArrayBuffer  {
     }
 
     /**
-     * Appends <code>b</code> bytes into this buffer. The capacity of the buffer 
-     * is increased if necessary to accommodate the additional byte. 
+     * Appends <code>b</code> byte to this buffer. The capacity of the buffer 
+     * is increased, if necessary, to accommodate the additional byte. 
      *
      * @param   b        the byte to be appended.
      */
@@ -112,17 +113,17 @@ public final class ByteArrayBuffer  {
 
     /**
      * Appends <code>len</code> chars to this buffer from the given source 
-     * array starting at index <code>offset</code>. The capacity of the buffer 
+     * array starting at index <code>off</code>. The capacity of the buffer 
      * is increased if necessary to accommodate all <code>len</code> chars. 
      * <p>
      * The chars are converted to bytes using simple cast.
      *
      * @param   b        the chars to be appended.
-     * @param   offset   the index of the first char to append.
+     * @param   off      the index of the first char to append.
      * @param   len      the number of bytes to append.
-     * @throws IndexOutOfBoundsException if <code>offset</code> if out of 
+     * @throws IndexOutOfBoundsException if <code>off</code> if out of 
      * range, <code>len</code> is negative, or 
-     * <code>offset</code> + <code>len</code> is out of range.  
+     * <code>off</code> + <code>len</code> is out of range.  
      */
     public void append(final char[] b, int off, int len) {
         if (b == null) {
@@ -148,18 +149,18 @@ public final class ByteArrayBuffer  {
 
     /**
      * Appends <code>len</code> chars to this buffer from the given source 
-     * char array buffer starting at index <code>offset</code>. The capacity 
+     * char array buffer starting at index <code>off</code>. The capacity 
      * of the buffer is increased if necessary to accommodate all 
      * <code>len</code> chars. 
      * <p>
      * The chars are converted to bytes using simple cast.
      *
      * @param   b        the chars to be appended.
-     * @param   offset   the index of the first char to append.
+     * @param   off      the index of the first char to append.
      * @param   len      the number of bytes to append.
-     * @throws IndexOutOfBoundsException if <code>offset</code> if out of 
+     * @throws IndexOutOfBoundsException if <code>off</code> if out of 
      * range, <code>len</code> is negative, or 
-     * <code>offset</code> + <code>len</code> is out of range.  
+     * <code>off</code> + <code>len</code> is out of range.  
      */
     public void append(final CharArrayBuffer b, int off, int len) {
         if (b == null) {
@@ -193,7 +194,7 @@ public final class ByteArrayBuffer  {
      * index. The index argument must be greater than or equal to
      * <code>0</code>, and less than the length of this buffer.
      *
-     * @param      index   the index of the desired byte value.
+     * @param      i   the index of the desired byte value.
      * @return     the byte value at the specified index.
      * @throws     IndexOutOfBoundsException  if <code>index</code> is 
      *             negative or greater than or equal to {@link #length()}.

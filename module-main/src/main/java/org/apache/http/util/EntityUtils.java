@@ -126,7 +126,7 @@ public final class EntityUtils {
      * 
      * @param entity must not be null
      * @param defaultCharset character set to be applied if none found in the entity
-     * @return the entity content as a Stting
+     * @return the entity content as a String
      * @throws ParseException if header elements cannot be parsed
      * @throws IllegalArgumentException if entity is null or if content length > Integer.MAX_VALUE
      * @throws IOException if an error occurs reading the input stream

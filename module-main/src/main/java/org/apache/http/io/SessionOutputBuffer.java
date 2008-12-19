@@ -102,7 +102,7 @@ public interface SessionOutputBuffer {
      * Implementing classes can choose a char encoding and a line delimiter 
      * as appropriate. 
      *
-     * @param      buffer   the line.
+     * @param      buffer   the buffer containing chars of the line.
      * @exception  IOException  if an I/O error occurs.
      */
     void writeLine(CharArrayBuffer buffer) throws IOException;
