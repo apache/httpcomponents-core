@@ -44,8 +44,6 @@ import org.apache.http.util.ExceptionUtils;
 
 /**
  * Implements chunked transfer coding.
- * See <a href="http://www.w3.org/Protocols/rfc2616/rfc2616.txt">RFC 2616</a>,
- * <a href="http://www.w3.org/Protocols/rfc2616/rfc2616-sec3.html#sec3.6">section 3.6.1</a>.
  * It transparently coalesces chunks of a HTTP stream that uses chunked
  * transfer coding. After the stream is read to the end, it provides access
  * to the trailers, if any.
@@ -55,7 +53,6 @@ import org.apache.http.util.ExceptionUtils;
  * close, which allows for the seamless execution of subsequent HTTP 1.1
  * requests, while not requiring the client to remember to read the entire
  * contents of the response.
- * </p>
  *
  * @author Ortwin Glueck
  * @author Sean C. Sullivan
@@ -92,6 +89,11 @@ public class ChunkedInputStream extends InputStream {
     
     private Header[] footers = new Header[] {};
 
+    /**
+     * Wraps session input stream and reads chunk coded input.
+     *
+     * @param in The session input buffer
+     */
     public ChunkedInputStream(final SessionInputBuffer in) {
         super();
         if (in == null) {
@@ -112,7 +114,7 @@ public class ChunkedInputStream extends InputStream {
      *
      * @return -1 of the end of the stream has been reached or the next data
      * byte
-     * @throws IOException If an IO problem occurs
+     * @throws IOException in case of an I/O error
      */
     public int read() throws IOException {
         if (this.closed) {
@@ -142,8 +144,7 @@ public class ChunkedInputStream extends InputStream {
      * @param len the maximum number of bytes that can be returned.
      * @return The number of bytes returned or -1 if the end of stream has been
      * reached.
-     * @see java.io.InputStream#read(byte[], int, int)
-     * @throws IOException if an IO problem occurs.
+     * @throws IOException in case of an I/O error
      */
     public int read (byte[] b, int off, int len) throws IOException {
 
@@ -175,8 +176,7 @@ public class ChunkedInputStream extends InputStream {
      * @param b The byte array that will hold the contents from the stream.
      * @return The number of bytes returned or -1 if the end of stream has been
      * reached.
-     * @see java.io.InputStream#read(byte[])
-     * @throws IOException if an IO problem occurs.
+     * @throws IOException in case of an I/O error
      */
     public int read (byte[] b) throws IOException {
         return read(b, 0, b.length);
@@ -184,7 +184,7 @@ public class ChunkedInputStream extends InputStream {
 
     /**
      * Read the next chunk.
-     * @throws IOException If an IO error occurs.
+     * @throws IOException in case of an I/O error
      */
     private void nextChunk() throws IOException {
         chunkSize = getChunkSize();
@@ -241,7 +241,7 @@ public class ChunkedInputStream extends InputStream {
 
     /**
      * Reads and stores the Trailer headers.
-     * @throws IOException If an IO problem occurs
+     * @throws IOException in case of an I/O error
      */
     private void parseTrailerHeaders() throws IOException {
         try {
@@ -259,7 +259,7 @@ public class ChunkedInputStream extends InputStream {
      * Upon close, this reads the remainder of the chunked message,
      * leaving the underlying socket at a position to start reading the
      * next response without scanning.
-     * @throws IOException If an IO problem occurs.
+     * @throws IOException in case of an I/O error
      */
     public void close() throws IOException {
         if (!closed) {
@@ -278,17 +278,6 @@ public class ChunkedInputStream extends InputStream {
         return (Header[])this.footers.clone();
     }
     
-    /**
-     * Exhaust an input stream, reading until EOF has been encountered.
-     *
-     * <p>Note that this function is intended as a non-public utility.
-     * This is a little weird, but it seemed silly to make a utility
-     * class for this one function, so instead it is just static and
-     * shared that way.</p>
-     *
-     * @param inStream The {@link InputStream} to exhaust.
-     * @throws IOException If an IO problem occurs
-     */
     static void exhaustInputStream(final InputStream inStream) throws IOException {
         // read and discard the remainder of the message
         byte buffer[] = new byte[1024];

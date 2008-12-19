@@ -38,9 +38,11 @@ import org.apache.http.io.SessionOutputBuffer;
 
 /**
  * Implements chunked transfer coding.
- * See <a href="http://www.w3.org/Protocols/rfc2616/rfc2616.txt">RFC 2616</a>,
- * <a href="http://www.w3.org/Protocols/rfc2616/rfc2616-sec3.html#sec3.6">section 3.6.1</a>.
  * Writes are buffered to an internal buffer (2048 default size).
+ * <p>
+ * Note that this class NEVER closes the underlying stream, even when close
+ * gets called.  Instead, the stream will be marked as closed and no further 
+ * output will be permitted.
  * 
  * @author Mohammad Rezaei (Goldman, Sachs &amp; Co.)
  * @author <a href="mailto:oleg at ural.ru">Oleg Kalnichevski</a>
@@ -63,10 +65,11 @@ public class ChunkedOutputStream extends OutputStream {
     
     // ----------------------------------------------------------- Constructors
     /**
-     * Wraps a session output buffer and chunks the output.
-     * @param out the session output buffer to wrap
-     * @param bufferSize minimum chunk size (excluding last chunk)
-     * @throws IOException
+     * Wraps a session output buffer and chunk-encodes the output.
+     * 
+     * @param out The session output buffer
+     * @param bufferSize The minimum chunk size (excluding last chunk)
+     * @throws IOException in case of an I/O error
      */
     public ChunkedOutputStream(final SessionOutputBuffer out, int bufferSize)
             throws IOException {
@@ -80,7 +83,7 @@ public class ChunkedOutputStream extends OutputStream {
      * size of 2048 was chosen because the chunk overhead is less than 0.5%
      *
      * @param out       the output buffer to wrap
-     * @throws IOException
+     * @throws IOException in case of an I/O error
      */
     public ChunkedOutputStream(final SessionOutputBuffer out) 
             throws IOException {
@@ -90,7 +93,6 @@ public class ChunkedOutputStream extends OutputStream {
     // ----------------------------------------------------------- Internal methods
     /**
      * Writes the cache out onto the underlying stream
-     * @throws IOException
      */
     protected void flushCache() throws IOException {
         if (this.cachePosition > 0) {
@@ -104,10 +106,6 @@ public class ChunkedOutputStream extends OutputStream {
     /**
      * Writes the cache and bufferToAppend to the underlying stream
      * as one large chunk
-     * @param bufferToAppend
-     * @param off
-     * @param len
-     * @throws IOException
      */
     protected void flushCacheWithAppend(byte bufferToAppend[], int off, int len) throws IOException {
         this.out.writeLine(Integer.toHexString(this.cachePosition + len));
@@ -125,8 +123,9 @@ public class ChunkedOutputStream extends OutputStream {
 
     // ----------------------------------------------------------- Public Methods
     /**
-     * Must be called to ensure the internal cache is flushed and the closing chunk is written.
-     * @throws IOException
+     * Must be called to ensure the internal cache is flushed and the closing 
+     * chunk is written.
+     * @throws IOException in case of an I/O error
      */
     public void finish() throws IOException {
         if (!this.wroteLastChunk) {
@@ -149,13 +148,15 @@ public class ChunkedOutputStream extends OutputStream {
     /**
      * Writes the array. If the array does not fit within the buffer, it is
      * not split, but rather written out as one large chunk.
-     * @param b
-     * @throws IOException
      */
     public void write(byte b[]) throws IOException {
         write(b, 0, b.length);
     }
 
+    /**
+     * Writes the array. If the array does not fit within the buffer, it is
+     * not split, but rather written out as one large chunk.
+     */
     public void write(byte src[], int off, int len) throws IOException {
         if (this.closed) {
             throw new IOException("Attempted write to closed stream.");
@@ -170,7 +171,6 @@ public class ChunkedOutputStream extends OutputStream {
 
     /**
      * Flushes the content buffer and the underlying stream.
-     * @throws IOException
      */
     public void flush() throws IOException {
         flushCache();
@@ -179,7 +179,6 @@ public class ChunkedOutputStream extends OutputStream {
 
     /**
      * Finishes writing to the underlying stream, but does NOT close the underlying stream.
-     * @throws IOException
      */
     public void close() throws IOException {
         if (!this.closed) {

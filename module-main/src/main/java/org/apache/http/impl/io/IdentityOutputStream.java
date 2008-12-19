@@ -37,7 +37,11 @@ import java.io.OutputStream;
 import org.apache.http.io.SessionOutputBuffer;
 
 /**
- * A stream for writing with an "identity" transport encoding.
+ * An output stream that writes data without any transformation.
+ * <p>
+ * Note that this class NEVER closes the underlying stream, even when close
+ * gets called.  Instead, the stream will be marked as closed and no further 
+ * output will be permitted.
  *
  * @author <a href="mailto:oleg at ural.ru">Oleg Kalnichevski</a>
  *

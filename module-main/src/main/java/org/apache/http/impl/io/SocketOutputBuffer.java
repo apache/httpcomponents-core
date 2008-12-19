@@ -34,11 +34,12 @@ package org.apache.http.impl.io;
 import java.io.IOException;
 import java.net.Socket;
 
+import org.apache.http.io.SessionOutputBuffer;
+import org.apache.http.params.CoreProtocolPNames;
 import org.apache.http.params.HttpParams;
 
-
 /**
- * {@link Socket} bound session output buffer.
+ * {@link SessionOutputBuffer} implementation bound to a {@link Socket}.
  *
  * @author <a href="mailto:oleg at ural.ru">Oleg Kalnichevski</a>
  *
@@ -48,6 +49,24 @@ import org.apache.http.params.HttpParams;
  */
 public class SocketOutputBuffer extends AbstractSessionOutputBuffer {
 
+    /**
+     * Creates an instance of this class. 
+     * <p>
+     * The following HTTP parameters affect the initialization:
+     * <p>
+     * The {@link CoreProtocolPNames#HTTP_ELEMENT_CHARSET}
+     * parameter determines the charset to be used for encoding HTTP lines. If 
+     * not specified, <code>US-ASCII</code> will be used per default.
+     *    
+     * @param socket the socket to write data to. 
+     * @param buffersize the size of the internal buffer. If this number is less
+     *   than <code>0</code> it is set to the value of 
+     *   {@link Socket#getSendBufferSize()}. If resultant number is less 
+     *   than <code>1024</code> it is set to <code>1024</code>. 
+     * @param params HTTP parameters.
+     * 
+     * @see CoreProtocolPNames#HTTP_ELEMENT_CHARSET
+     */
     public SocketOutputBuffer(
             final Socket socket, 
             int buffersize,
@@ -57,7 +76,7 @@ public class SocketOutputBuffer extends AbstractSessionOutputBuffer {
             throw new IllegalArgumentException("Socket may not be null");
         }
         if (buffersize < 0) {
-            buffersize = socket.getReceiveBufferSize();
+            buffersize = socket.getSendBufferSize();
         }
         if (buffersize < 1024) {
             buffersize = 1024;

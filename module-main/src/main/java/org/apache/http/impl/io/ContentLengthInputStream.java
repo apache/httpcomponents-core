@@ -37,30 +37,13 @@ import java.io.InputStream;
 import org.apache.http.io.SessionInputBuffer;
 
 /**
- * Stream that cuts off after a specified number of bytes.
+ * Stream that cuts off after a defined number of bytes.
+ * <p>
  * Note that this class NEVER closes the underlying stream, even when close
- * gets called.  Instead, it will read until the "end" of its chunking on
+ * gets called.  Instead, it will read until the "end" of its limit on
  * close, which allows for the seamless execution of subsequent HTTP 1.1
  * requests, while not requiring the client to remember to read the entire
  * contents of the response.
- *
- * <p>Implementation note: Choices abound. One approach would pass
- * through the {@link InputStream#mark} and {@link InputStream#reset} calls to
- * the underlying stream.  That's tricky, though, because you then have to
- * start duplicating the work of keeping track of how much a reset rewinds.
- * Further, you have to watch out for the "readLimit", and since the semantics
- * for the readLimit leave room for differing implementations, you might get
- * into a lot of trouble.</p>
- *
- * <p>Alternatively, you could make this class extend
- * {@link java.io.BufferedInputStream}
- * and then use the protected members of that class to avoid duplicated effort.
- * That solution has the side effect of adding yet another possible layer of
- * buffering.</p>
- *
- * <p>Then, there is the simple choice, which this takes - simply don't
- * support {@link InputStream#mark} and {@link InputStream#reset}.  That choice
- * has the added benefit of keeping this class very simple.</p>
  *
  * @author Ortwin Glueck
  * @author Eric Johnson
@@ -89,9 +72,10 @@ public class ContentLengthInputStream extends InputStream {
     private SessionInputBuffer in = null;
 
     /**
-     * Creates a new length limited stream
+     * Wraps a session input buffer and cuts off output after a defined number 
+     * of bytes.
      *
-     * @param in The session input buffer to wrap
+     * @param in The session input buffer
      * @param contentLength The maximum number of bytes that can be read from
      * the stream. Subsequent read operations will return -1.
      */

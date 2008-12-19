@@ -37,7 +37,11 @@ import java.io.InputStream;
 import org.apache.http.io.SessionInputBuffer;
 
 /**
- * A stream for reading from a {@link SessionInputBuffer session input buffer}.
+ * An input stream that reads data without any transformation.
+ * <p>
+ * Note that this class NEVER closes the underlying stream, even when close
+ * gets called.  Instead, it will read until the end of the stream (until 
+ * <code>-1</code> is returned).
  *
  * @author <a href="mailto:oleg at ural.ru">Oleg Kalnichevski</a>
  *
@@ -51,6 +55,11 @@ public class IdentityInputStream extends InputStream {
     
     private boolean closed = false;
     
+    /**
+     * Wraps session input stream and reads input until the the end of stream.
+     *
+     * @param in The session input buffer
+     */
     public IdentityInputStream(final SessionInputBuffer in) {
         super();
         if (in == null) {

@@ -37,7 +37,11 @@ import java.io.OutputStream;
 import org.apache.http.io.SessionOutputBuffer;
 
 /**
- * A stream wrapper that closes itself after a defined number of bytes.
+ * An output stream that cuts off after a defined number of bytes.
+ * <p>
+ * Note that this class NEVER closes the underlying stream, even when close
+ * gets called.  Instead, the stream will be marked as closed and no further 
+ * output will be permitted.
  *
  * @author <a href="mailto:oleg at ural.ru">Oleg Kalnichevski</a>
  *
@@ -48,7 +52,7 @@ import org.apache.http.io.SessionOutputBuffer;
 public class ContentLengthOutputStream extends OutputStream {
     
     /**
-     * Wrapped session outbut buffer.
+     * Wrapped session output buffer.
      */
     private final SessionOutputBuffer out;
 
@@ -65,9 +69,10 @@ public class ContentLengthOutputStream extends OutputStream {
     private boolean closed = false;
 
     /**
-     * Creates a new length limited stream
+     * Wraps a session output buffer and cuts off output after a defined number 
+     * of bytes.
      *
-     * @param out The data transmitter to wrap
+     * @param out The session output buffer
      * @param contentLength The maximum number of bytes that can be written to
      * the stream. Subsequent write operations will be ignored.
      * 
