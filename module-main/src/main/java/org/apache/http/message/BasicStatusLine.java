@@ -31,20 +31,11 @@
 
 package org.apache.http.message;
 
-import org.apache.http.HttpStatus;
 import org.apache.http.ProtocolVersion;
 import org.apache.http.StatusLine;
 
-
-
 /**
- * Represents a status line as returned from a HTTP server.
- * See <a href="http://www.ietf.org/rfc/rfc2616.txt">RFC2616</a> section 6.1.
- * This class is immutable and therefore inherently thread safe.
- *
- * @see HttpStatus
- * @author <a href="mailto:jsdever@apache.org">Jeff Dever</a>
- * @author <a href="mailto:mbowler@GargoyleSoftware.com">Mike Bowler</a>
+ * Basic implementation of {@link StatusLine}
  *
  * @version $Id$
  * 
@@ -90,23 +81,14 @@ public class BasicStatusLine implements StatusLine, Cloneable {
 
     // --------------------------------------------------------- Public Methods
 
-    /**
-     * @return the Status-Code
-     */
     public int getStatusCode() {
         return this.statusCode;
     }
 
-    /**
-     * @return the HTTP-Version
-     */
     public ProtocolVersion getProtocolVersion() {
         return this.protoVersion;
     }
 
-    /**
-     * @return the Reason-Phrase
-     */
     public String getReasonPhrase() {
         return this.reasonPhrase;
     }

@@ -35,12 +35,7 @@ import org.apache.http.ProtocolVersion;
 import org.apache.http.RequestLine;
 
 /**
- * The first line of an {@link org.apache.http.HttpRequest HttpRequest}.
- * It contains the method, URI, and HTTP version of the request.
- * For details, see RFC 2616.
- *
- * @author <a href="mailto:oleg at ural.ru">Oleg Kalnichevski</a>
- *
+ * Basic implementation of {@link RequestLine}.
  *
  * <!-- empty lines above to avoid 'svn diff' context problems -->
  * @version $Revision$

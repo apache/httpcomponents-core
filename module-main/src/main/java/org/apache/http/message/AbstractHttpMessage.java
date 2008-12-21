@@ -40,7 +40,7 @@ import org.apache.http.params.HttpParams;
 import org.apache.http.params.BasicHttpParams;
 
 /**
- * Basic implementation of an HTTP message that can be modified.
+ * Basic implementation of {@link HttpMessage}.
  *
  * @author <a href="mailto:oleg at ural.ru">Oleg Kalnichevski</a>
  *

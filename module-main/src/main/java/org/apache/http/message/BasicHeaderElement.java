@@ -37,46 +37,9 @@ import org.apache.http.util.CharArrayBuffer;
 import org.apache.http.util.LangUtils;
 
 /**
- * One element of an HTTP header's value.
- * <p>
- * Some HTTP headers (such as the set-cookie header) have values that
- * can be decomposed into multiple elements.  Such headers must be in the
- * following form:
- * </p>
- * <pre>
- * header  = [ element ] *( "," [ element ] )
- * element = name [ "=" [ value ] ] *( ";" [ param ] )
- * param   = name [ "=" [ value ] ]
- *
- * name    = token
- * value   = ( token | quoted-string )
- *
- * token         = 1*&lt;any char except "=", ",", ";", &lt;"&gt; and
- *                       white space&gt;
- * quoted-string = &lt;"&gt; *( text | quoted-char ) &lt;"&gt;
- * text          = any char except &lt;"&gt;
- * quoted-char   = "\" char
- * </pre>
- * <p>
- * Any amount of white space is allowed between any part of the
- * header, element or param and is ignored. A missing value in any
- * element or param will be stored as the empty {@link String};
- * if the "=" is also missing <var>null</var> will be stored instead.
- * </p>
- * <p>
- * This class represents an individual header element, containing
- * both a name/value pair (value may be <tt>null</tt>) and optionally
- * a set of additional parameters.
- * </p>
- *
- * @author <a href="mailto:bcholmes@interlog.com">B.C. Holmes</a>
- * @author <a href="mailto:jericho@thinkfree.com">Park, Sung-Gu</a>
- * @author <a href="mailto:mbowler@GargoyleSoftware.com">Mike Bowler</a>
- * @author <a href="mailto:oleg at ural.com">Oleg Kalnichevski</a>
- *
- *
- * <!-- empty lines above to avoid 'svn diff' context problems -->
- * @version $Revision$ $Date$
+ * Basic implementation of {@link HeaderElement}
+ * 
+ * @version $Revision$
  * 
  * @since 4.0
  */
@@ -121,66 +84,27 @@ public class BasicHeaderElement implements HeaderElement, Cloneable {
        this(name, value, null);
     }
 
-    /**
-     * Returns the name.
-     *
-     * @return String name The name
-     */
     public String getName() {
         return this.name;
     }
 
-    /**
-     * Returns the value.
-     *
-     * @return String value The current value.
-     */
     public String getValue() {
         return this.value;
     }
 
-    /**
-     * Get parameters, if any.
-     * The returned array is created for each invocation and can
-     * be modified by the caller without affecting this header element.
-     *
-     * @return parameters as an array of {@link NameValuePair}s
-     */
     public NameValuePair[] getParameters() {
         return (NameValuePair[])this.parameters.clone();
     }
 
-
-    /**
-     * Obtains the number of parameters.
-     *
-     * @return  the number of parameters
-     */
     public int getParameterCount() {
         return this.parameters.length;
     }
 
-
-    /**
-     * Obtains the parameter with the given index.
-     *
-     * @param index     the index of the parameter, 0-based
-     *
-     * @return  the parameter with the given index
-     */
     public NameValuePair getParameter(int index) {
         // ArrayIndexOutOfBoundsException is appropriate
         return this.parameters[index];
     }
 
-
-    /**
-     * Returns parameter with the given name, if found. Otherwise null 
-     * is returned
-     *
-     * @param name The name to search by.
-     * @return NameValuePair parameter with the given name
-     */
     public NameValuePair getParameterByName(final String name) {
         if (name == null) {
             throw new IllegalArgumentException("Name may not be null");

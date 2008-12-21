@@ -31,7 +31,6 @@
 
 package org.apache.http.message;
 
-
 import java.util.List;
 import java.util.ArrayList;
 
@@ -40,8 +39,6 @@ import org.apache.http.NameValuePair;
 import org.apache.http.ParseException;
 import org.apache.http.protocol.HTTP;
 import org.apache.http.util.CharArrayBuffer;
-
-
 
 /**
  * Basic implementation for parsing header values into elements.

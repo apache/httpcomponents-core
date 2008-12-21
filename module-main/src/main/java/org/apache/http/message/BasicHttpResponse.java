@@ -41,10 +41,7 @@ import org.apache.http.ReasonPhraseCatalog;
 
 
 /**
- * Basic implementation of an HTTP response that can be modified.
- * This implementation makes sure that there always is a status line.
- *
- * @author <a href="mailto:oleg at ural.ru">Oleg Kalnichevski</a>
+ * Basic implementation of {@link HttpResponse}.
  *
  * @version $Revision$
  * 

@@ -40,7 +40,6 @@ import org.apache.http.Header;
 import org.apache.http.protocol.HTTP;
 import org.apache.http.util.CharArrayBuffer;
 
-
 /**
  * Basic parser for lines in the head section of an HTTP message.
  * There are individual methods for parsing a request line, a
@@ -101,7 +100,6 @@ public class BasicLineParser implements LineParser {
     public BasicLineParser() {
         this(null);
     }
-
 
 
     public final static

@@ -31,14 +31,12 @@
 
 package org.apache.http.message;
 
-
 import org.apache.http.ProtocolVersion;
 import org.apache.http.ParseException;
 import org.apache.http.RequestLine;
 import org.apache.http.StatusLine;
 import org.apache.http.Header;
 import org.apache.http.util.CharArrayBuffer;
-
 
 /**
  * Interface for parsing lines in the HEAD section of an HTTP message.
@@ -58,7 +56,6 @@ import org.apache.http.util.CharArrayBuffer;
  */
 public interface LineParser {
 
-
     /**
      * Parses the textual representation of a protocol version.
      * This is needed for parsing request lines (last element)
@@ -75,7 +72,6 @@ public interface LineParser {
     ProtocolVersion parseProtocolVersion(
             CharArrayBuffer buffer,
             ParserCursor cursor) throws ParseException;
-
 
     /**
      * Checks whether there likely is a protocol version in a line.
@@ -100,7 +96,6 @@ public interface LineParser {
             CharArrayBuffer buffer, 
             ParserCursor cursor);
 
-
     /**
      * Parses a request line.
      *
@@ -116,7 +111,6 @@ public interface LineParser {
             CharArrayBuffer buffer,
             ParserCursor cursor) throws ParseException;
 
-
     /**
      * Parses a status line.
      *
@@ -131,7 +125,6 @@ public interface LineParser {
     StatusLine parseStatusLine(
             CharArrayBuffer buffer,
             ParserCursor cursor) throws ParseException;
-
 
     /**
      * Creates a header from a line.
@@ -149,8 +142,6 @@ public interface LineParser {
      * @throws ParseException        in case of a parse error
      */
     Header parseHeader(CharArrayBuffer buffer)
-        throws ParseException
-        ;
-
+        throws ParseException;
 
 }

@@ -31,12 +31,9 @@
 
 package org.apache.http.message;
 
-
 import org.apache.http.HeaderElement;
 import org.apache.http.NameValuePair;
 import org.apache.http.util.CharArrayBuffer;
-
-
 
 /**
  * Interface for formatting elements of a header value.
@@ -74,9 +71,7 @@ public interface HeaderValueFormatter {
      */
     CharArrayBuffer formatElements(CharArrayBuffer buffer,
                                    HeaderElement[] elems,
-                                   boolean quote)
-        ;
-
+                                   boolean quote);
 
     /**
      * Formats one header element.
@@ -93,10 +88,7 @@ public interface HeaderValueFormatter {
      */
     CharArrayBuffer formatHeaderElement(CharArrayBuffer buffer,
                                         HeaderElement elem,
-                                        boolean quote)
-        ;
-
-
+                                        boolean quote);
 
     /**
      * Formats the parameters of a header element.
@@ -115,9 +107,7 @@ public interface HeaderValueFormatter {
      */
     CharArrayBuffer formatParameters(CharArrayBuffer buffer,
                                      NameValuePair[] nvps,
-                                     boolean quote)
-        ;
-
+                                     boolean quote);
 
     /**
      * Formats one name-value pair, where the value is optional.
@@ -134,8 +124,7 @@ public interface HeaderValueFormatter {
      */
     CharArrayBuffer formatNameValuePair(CharArrayBuffer buffer,
                                         NameValuePair nvp,
-                                        boolean quote)
-        ;
+                                        boolean quote);
 
 }
 

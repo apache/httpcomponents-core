@@ -39,9 +39,7 @@ import org.apache.http.RequestLine;
 import org.apache.http.protocol.HTTP;
 
 /**
- * Basic implementation of a request with an entity that can be modified.
- *
- * @author <a href="mailto:oleg at ural.ru">Oleg Kalnichevski</a>
+ * Basic implementation of {@link HttpEntityEnclosingRequest}.
  *
  * @version $Revision$
  * 

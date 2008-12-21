@@ -31,14 +31,12 @@
 
 package org.apache.http.message;
 
-
 import org.apache.http.ProtocolVersion;
 import org.apache.http.RequestLine;
 import org.apache.http.StatusLine;
 import org.apache.http.Header;
 import org.apache.http.FormattedHeader;
 import org.apache.http.util.CharArrayBuffer;
-
 
 /**
  * Interface for formatting elements of the HEAD section of an HTTP message.

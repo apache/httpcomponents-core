@@ -35,7 +35,6 @@ import org.apache.http.HeaderElement;
 import org.apache.http.NameValuePair;
 import org.apache.http.util.CharArrayBuffer;
 
-
 /**
  * Basic implementation for formatting header value elements.
  * Instances of this class are stateless and thread-safe.

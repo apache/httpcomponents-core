@@ -31,13 +31,11 @@
 
 package org.apache.http.message;
 
-
 import org.apache.http.ProtocolVersion;
 import org.apache.http.RequestLine;
 import org.apache.http.StatusLine;
 import org.apache.http.Header;
 import org.apache.http.util.CharArrayBuffer;
-
 
 /**
  * Interface for formatting elements of the HEAD section of an HTTP message.
@@ -71,8 +69,6 @@ import org.apache.http.util.CharArrayBuffer;
  */
 public interface LineFormatter {
 
-
-
     /**
      * Formats a protocol version.
      * This method does <i>not</i> follow the general contract for
@@ -91,9 +87,7 @@ public interface LineFormatter {
      *          the returned buffer is the argument buffer.
      */
     CharArrayBuffer appendProtocolVersion(CharArrayBuffer buffer,
-                                          ProtocolVersion version)
-        ;
-
+                                          ProtocolVersion version);
 
     /**
      * Formats a request line.
@@ -106,9 +100,7 @@ public interface LineFormatter {
      * @return  the formatted request line
      */
     CharArrayBuffer formatRequestLine(CharArrayBuffer buffer,
-                                      RequestLine reqline) 
-        ;
-
+                                      RequestLine reqline);
 
     /**
      * Formats a status line.
@@ -123,9 +115,7 @@ public interface LineFormatter {
      * @throws ParseException        in case of a parse error
      */
     CharArrayBuffer formatStatusLine(CharArrayBuffer buffer,
-                                     StatusLine statline) 
-        ;
-
+                                     StatusLine statline);
 
     /**
      * Formats a header.
@@ -147,7 +137,6 @@ public interface LineFormatter {
      * @throws ParseException        in case of a parse error
      */
     CharArrayBuffer formatHeader(CharArrayBuffer buffer,
-                                 Header header)
-        ;
+                                 Header header);
 
 }
