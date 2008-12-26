@@ -48,8 +48,7 @@ import org.apache.http.ReasonPhraseCatalog;
  * 
  * @version $Revision$
  */
-public class EnglishReasonPhraseCatalog
-    implements ReasonPhraseCatalog {
+public class EnglishReasonPhraseCatalog implements ReasonPhraseCatalog {
 
     // static array with english reason phrases defined below
 

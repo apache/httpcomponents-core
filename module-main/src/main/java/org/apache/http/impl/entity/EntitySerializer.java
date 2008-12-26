@@ -44,10 +44,17 @@ import org.apache.http.impl.io.IdentityOutputStream;
 import org.apache.http.io.SessionOutputBuffer;
 
 /**
- * Default implementation of an entity serializer.
+ * HTTP entity serializer.
  * <p>
- * This entity serializer currently supports only "chunked" and "identitiy" transfer-coding</a>
- * </p>
+ * This entity serializer currently supports "chunked" and "identitiy" 
+ * transfer-coding and content length delimited content.
+ * <p>
+ * This class relies on a specific implementation of 
+ * {@link ContentLengthStrategy} to determine the content length or transfer
+ * encoding of the entity.
+ * <p>
+ * This class writes out the content of {@link HttpEntity} to the data stream
+ * using a transfer coding based on properties on the HTTP message. 
  * 
  * @author <a href="mailto:oleg at ural.ru">Oleg Kalnichevski</a>
  *
@@ -67,6 +74,20 @@ public class EntitySerializer {
         this.lenStrategy = lenStrategy;
     }
 
+    /**
+     * Creates a transfer codec based on properties of the given HTTP message
+     * and returns {@link OutputStream} instance that transparently encodes 
+     * output data as it is being written out to the output stream.      
+     * <p>
+     * This method is called by the public
+     * {@link #serialize(SessionOutputBuffer, HttpMessage, HttpEntity)}.
+     * 
+     * @param outbuffer the session output buffer.
+     * @param message the HTTP message.
+     * @return output stream.
+     * @throws HttpException in case of HTTP protocol violation.
+     * @throws IOException in case of an I/O error.
+     */
     protected OutputStream doSerialize(
             final SessionOutputBuffer outbuffer,
             final HttpMessage message) throws HttpException, IOException {
@@ -80,6 +101,16 @@ public class EntitySerializer {
         }
     }
 
+    /**
+     * Writes out the content of the given HTTP entity to the session output
+     * buffer based on properties of the given HTTP message.
+     * 
+     * @param outbuffer the output session buffer.
+     * @param message the HTTP message.
+     * @param entity the HTTP entity to be written out.
+     * @throws HttpException in case of HTTP protocol violation.
+     * @throws IOException in case of an I/O error.
+     */
     public void serialize(
             final SessionOutputBuffer outbuffer,
             final HttpMessage message,

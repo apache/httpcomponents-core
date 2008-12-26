@@ -44,7 +44,7 @@ import org.apache.http.ReasonPhraseCatalog;
 import org.apache.http.impl.EnglishReasonPhraseCatalog;
 
 /**
- * Default implementation of a factory for creating response objects.
+ * Default factory for creating {@link HttpResponse} objects.
  *
  * @author <a href="mailto:oleg at ural.ru">Oleg Kalnichevski</a>
  *
@@ -73,8 +73,7 @@ public class DefaultHttpResponseFactory implements HttpResponseFactory {
 
     /**
      * Creates a new response factory with the default catalog.
-     * The default catalog is
-     * {@link EnglishReasonPhraseCatalog EnglishReasonPhraseCatalog}.
+     * The default catalog is {@link EnglishReasonPhraseCatalog}.
      */
     public DefaultHttpResponseFactory() {
         this(EnglishReasonPhraseCatalog.INSTANCE);

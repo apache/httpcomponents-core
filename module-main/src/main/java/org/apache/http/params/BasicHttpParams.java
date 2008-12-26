@@ -39,11 +39,10 @@ import java.util.Iterator;
 import org.apache.http.params.HttpParams;
 
 /**
- * This class represents a collection of HTTP protocol parameters.
- * Protocol parameters may be linked together to form a hierarchy.
- * If a particular parameter value has not been explicitly defined
- * in the collection itself, its value will be drawn from the parent 
- * collection of parameters.
+ * Default implementation of {@link HttpParams} interface.
+ * <p>
+ * Please note methods of this class are not synchronized and therefore may
+ * be threading unsafe.
  * 
  * @author <a href="mailto:oleg at ural.ru">Oleg Kalnichevski</a>
  * 

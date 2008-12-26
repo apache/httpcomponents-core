@@ -31,7 +31,6 @@
 
 package org.apache.http.params;
 
-
 /**
  * Defines parameter names for connections in HttpCore.
  * 
@@ -42,9 +41,9 @@ package org.apache.http.params;
 public interface CoreConnectionPNames {
 
     /**
-     * Defines the socket timeout (<tt>SO_TIMEOUT</tt>) in milliseconds which is the 
-     * timeout for waiting for data. A timeout value of zero is interpreted as an infinite 
-     * timeout. 
+     * Defines the socket timeout (<code>SO_TIMEOUT</code>) in milliseconds,
+     * which is the timeout for waiting for data. A timeout value of zero is 
+     * interpreted as an infinite timeout. 
      * <p>
      * This parameter expects a value of type {@link Integer}.
      * </p>
@@ -56,8 +55,9 @@ public interface CoreConnectionPNames {
      * Determines whether Nagle's algorithm is to be used. The Nagle's algorithm 
      * tries to conserve bandwidth by minimizing the number of segments that are 
      * sent. When applications wish to decrease network latency and increase 
-     * performance, they can disable Nagle's algorithm (that is enable TCP_NODELAY). 
-     * Data will be sent earlier, at the cost of an increase in bandwidth consumption. 
+     * performance, they can disable Nagle's algorithm (that is enable 
+     * TCP_NODELAY). Data will be sent earlier, at the cost of an increase 
+     * in bandwidth consumption. 
      * <p>
      * This parameter expects a value of type {@link Boolean}.
      * </p>
@@ -75,10 +75,10 @@ public interface CoreConnectionPNames {
     public static final String SOCKET_BUFFER_SIZE = "http.socket.buffer-size"; 
 
     /**
-     * Sets SO_LINGER with the specified linger time in seconds. The maximum timeout 
-     * value is platform specific. Value <tt>0</tt> implies that the option is disabled.
-     * Value <tt>-1</tt> implies that the JRE default is used. The setting only affects 
-     * socket close.  
+     * Sets SO_LINGER with the specified linger time in seconds. The maximum 
+     * timeout value is platform specific. Value <code>0</code> implies that 
+     * the option is disabled. Value <code>-1</code> implies that the JRE 
+     * default is used. The setting only affects  socket close.  
      * <p>
      * This parameter expects a value of type {@link Integer}.
      * </p>
@@ -87,8 +87,8 @@ public interface CoreConnectionPNames {
     public static final String SO_LINGER = "http.socket.linger"; 
 
     /**
-     * Determines the timeout in milliseconds until a connection is established. A timeout 
-     * value of zero is interpreted as an infinite timeout.
+     * Determines the timeout in milliseconds until a connection is established. 
+     * A timeout value of zero is interpreted as an infinite timeout.
      * <p>
      * This parameter expects a value of type {@link Integer}.
      * </p>
@@ -107,9 +107,9 @@ public interface CoreConnectionPNames {
     public static final String STALE_CONNECTION_CHECK = "http.connection.stalecheck"; 
 
     /**
-     * Determines the maximum line length limit. If set to a positive value, any HTTP 
-     * line exceeding this limit will cause an IOException. A negative or zero value
-     * will effectively disable the check.
+     * Determines the maximum line length limit. If set to a positive value, 
+     * any HTTP line exceeding this limit will cause an IOException. A negative 
+     * or zero value will effectively disable the check.
      * <p>
      * This parameter expects a value of type {@link Integer}.
      * </p>
@@ -117,10 +117,10 @@ public interface CoreConnectionPNames {
     public static final String MAX_LINE_LENGTH = "http.connection.max-line-length";
     
     /**
-     * Determines the maximum HTTP header count allowed. If set to a positive value, 
-     * the number of HTTP headers received from the data stream exceeding this limit 
-     * will cause an IOException. A negative or zero value will effectively disable 
-     * the check. 
+     * Determines the maximum HTTP header count allowed. If set to a positive 
+     * value, the number of HTTP headers received from the data stream exceeding 
+     * this limit will cause an IOException. A negative or zero value will 
+     * effectively disable the check. 
      * <p>
      * This parameter expects a value of type {@link Integer}.
      * </p>

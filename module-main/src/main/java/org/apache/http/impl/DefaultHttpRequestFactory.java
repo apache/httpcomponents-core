@@ -39,7 +39,7 @@ import org.apache.http.message.BasicHttpEntityEnclosingRequest;
 import org.apache.http.message.BasicHttpRequest;
 
 /**
- * Default implementation of a factory for creating request objects.
+ * Default factory for creating {@link HttpRequest} objects.
  *
  * @author <a href="mailto:oleg at ural.ru">Oleg Kalnichevski</a>
  *

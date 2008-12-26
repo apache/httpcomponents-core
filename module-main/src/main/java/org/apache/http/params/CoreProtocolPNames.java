@@ -31,6 +31,7 @@
 
 package org.apache.http.params;
 
+import org.apache.http.ProtocolVersion;
 
 /**
  * Defines parameter names for protocol execution in HttpCore.
@@ -42,11 +43,9 @@ package org.apache.http.params;
 public interface CoreProtocolPNames {
 
     /**
-     * Defines the {@link org.apache.http.ProtocolVersion protocol version}
-     * used per default.
+     * Defines the {@link ProtocolVersion} used per default.
      * <p>
-     * This parameter expects a value of type
-     * {@link org.apache.http.ProtocolVersion}.
+     * This parameter expects a value of type {@link ProtocolVersion}.
      * </p>
      */
     public static final String PROTOCOL_VERSION = "http.protocol.version"; 
@@ -68,7 +67,7 @@ public interface CoreProtocolPNames {
     public static final String HTTP_CONTENT_CHARSET = "http.protocol.content-charset"; 
     
     /**
-     * Defines the content of the <tt>User-Agent</tt> header.
+     * Defines the content of the <code>User-Agent</code> header.
      * <p>
      * This parameter expects a value of type {@link String}.
      * </p>
@@ -76,7 +75,7 @@ public interface CoreProtocolPNames {
     public static final String USER_AGENT = "http.useragent"; 
 
     /**
-     * Defines the content of the <tt>Server</tt> header.
+     * Defines the content of the <code>Server</code> header.
      * <p>
      * This parameter expects a value of type {@link String}.
      * </p>
@@ -84,8 +83,8 @@ public interface CoreProtocolPNames {
     public static final String ORIGIN_SERVER = "http.origin-server"; 
 
     /**
-     * Defines whether responses with an invalid <tt>Transfer-Encoding</tt> header should be 
-     * rejected.
+     * Defines whether responses with an invalid <code>Transfer-Encoding</code> 
+     * header should be rejected.
      * <p>
      * This parameter expects a value of type {@link Boolean}.
      * </p>

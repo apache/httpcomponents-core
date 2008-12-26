@@ -41,6 +41,7 @@ import org.apache.http.HttpRequest;
 import org.apache.http.HttpRequestFactory;
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpServerConnection;
+import org.apache.http.entity.ContentLengthStrategy;
 import org.apache.http.impl.entity.EntityDeserializer;
 import org.apache.http.impl.entity.EntitySerializer;
 import org.apache.http.impl.entity.LaxContentLengthStrategy;
@@ -52,11 +53,14 @@ import org.apache.http.io.HttpMessageParser;
 import org.apache.http.io.HttpMessageWriter;
 import org.apache.http.io.SessionInputBuffer;
 import org.apache.http.io.SessionOutputBuffer;
+import org.apache.http.message.LineFormatter;
+import org.apache.http.message.LineParser;
 import org.apache.http.params.HttpParams;
 
 /**
- * Abstract server-side HTTP connection capable of transmitting and receiving data
- * using arbitrary {@link SessionInputBuffer} and {@link SessionOutputBuffer}
+ * Abstract server-side HTTP connection capable of transmitting and receiving 
+ * data using arbitrary {@link SessionInputBuffer} and 
+ * {@link SessionOutputBuffer} implementations.
  *
  * @author <a href="mailto:oleg at ural.ru">Oleg Kalnichevski</a>
  *
@@ -76,42 +80,126 @@ public abstract class AbstractHttpServerConnection implements HttpServerConnecti
     private HttpMessageWriter responseWriter = null;
     private HttpConnectionMetricsImpl metrics = null;
 
+    /**
+     * Creates an instance of this class.
+     * <p>
+     * This constructor will invoke {@link #createEntityDeserializer()}
+     * and {@link #createEntitySerializer()} methods in order to initialize 
+     * HTTP entity serializer and deserializer implementations for this 
+     * connection. 
+     */
     public AbstractHttpServerConnection() {
         super();
         this.entityserializer = createEntitySerializer();
         this.entitydeserializer = createEntityDeserializer();
     }
     
+    /**
+     * Asserts if the connection is open.
+     * 
+     * @throws IllegalStateException if the connection is not open.
+     */
     protected abstract void assertOpen() throws IllegalStateException;
 
+    /**
+     * Creates an instance of {@link EntityDeserializer} with the 
+     * {@link LaxContentLengthStrategy} implementation to be used for 
+     * de-serializing entities received over this connection. 
+     * <p>
+     * This method can be overridden in super class in order to create instances 
+     * of {@link EntityDeserializer} using a custom 
+     * {@link ContentLengthStrategy}.
+     * 
+     * @return HTTP entity deserializer
+     */
     protected EntityDeserializer createEntityDeserializer() {
         return new EntityDeserializer(new LaxContentLengthStrategy());
     }
 
+    /**
+     * Creates an instance of {@link EntitySerializer} with the
+     * {@link StrictContentLengthStrategy} implementation to be used for
+     * serializing HTTP entities sent over this connection. 
+     * <p>
+     * This method can be overridden in super class in order to create instances 
+     * of {@link EntitySerializer} using a custom {@link ContentLengthStrategy}.
+     * 
+     * @return HTTP entity serialzier.
+     */
     protected EntitySerializer createEntitySerializer() {
         return new EntitySerializer(new StrictContentLengthStrategy());
     }
 
+    /**
+     * Creates an instance of {@link DefaultHttpRequestFactory} to be used 
+     * for creating {@link HttpRequest} objects received by over this 
+     * connection.
+     * <p>
+     * This method can be overridden in super class in order to provide 
+     * a different implementation of the {@link HttpRequestFactory} interface. 
+     * 
+     * @return HTTP request factory.
+     */
     protected HttpRequestFactory createHttpRequestFactory() {
         return new DefaultHttpRequestFactory();
     }
 
+    /**
+     * Creates an instance of {@link HttpMessageParser} to be used for parsing
+     * HTTP requests received over this connection.
+     * <p>
+     * This method can be overridden in super class in order to provide 
+     * a different implementation of the {@link HttpMessageParser} interface or
+     * to pass a different implementation of {@link LineParser} to the 
+     * the default implementation {@link HttpRequestParser}. 
+     * 
+     * @param buffer the session input buffer.
+     * @param requestFactory the HTTP request factory.
+     * @param params HTTP parameters.
+     * @return HTTP message parser.
+     */
     protected HttpMessageParser createRequestParser(
             final SessionInputBuffer buffer,
             final HttpRequestFactory requestFactory,
             final HttpParams params) {
-        // override in derived class to specify a line parser
         return new HttpRequestParser(buffer, null, requestFactory, params);
     }
     
+    /**
+     * Creates an instance of {@link HttpMessageWriter} to be used for 
+     * writing out HTTP responses sent over this connection.
+     * <p>
+     * This method can be overridden in super class in order to provide 
+     * a different implementation of the {@link HttpMessageWriter} interface or
+     * to pass a different implementation of {@link LineFormatter} to the 
+     * the default implementation {@link HttpResponseWriter}. 
+     * 
+     * @param buffer the session output buffer
+     * @param params HTTP parameters
+     * @return HTTP message writer
+     */
     protected HttpMessageWriter createResponseWriter(
             final SessionOutputBuffer buffer,
             final HttpParams params) {
-        // override in derived class to specify a line formatter
         return new HttpResponseWriter(buffer, null, params);
     }
 
-
+    /**
+     * Initializes this connection object with {@link SessionInputBuffer} and
+     * {@link SessionOutputBuffer} instances to be used for sending and 
+     * receiving data. These session buffers can be bound to any arbitrary 
+     * physical output medium. 
+     * <p>
+     * This method will invoke {@link #createHttpRequestFactory},
+     * {@link #createRequestParser(SessionInputBuffer, HttpRequestFactory, HttpParams)}
+     * and {@link #createResponseWriter(SessionOutputBuffer, HttpParams)} 
+     * methods to initialize HTTP request parser and response writer for this
+     * connection. 
+     * 
+     * @param inbuffer the session input buffer.
+     * @param outbuffer the session output buffer.
+     * @param params HTTP parameters.
+     */
     protected void init(
             final SessionInputBuffer inbuffer,
             final SessionOutputBuffer outbuffer,

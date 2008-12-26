@@ -41,12 +41,14 @@ import org.apache.http.impl.io.SocketInputBuffer;
 import org.apache.http.impl.io.SocketOutputBuffer;
 import org.apache.http.io.SessionInputBuffer;
 import org.apache.http.io.SessionOutputBuffer;
+import org.apache.http.params.CoreConnectionPNames;
 import org.apache.http.params.HttpConnectionParams;
 import org.apache.http.params.HttpParams;
 
 /**
- * Implementation of a client-side HTTP connection that can be bound to a 
- * network Socket in order to receive and transmit data.
+ * Implementation of a client-side HTTP connection that can be bound to an 
+ * arbitrary {@link Socket} for receiving data from and transmitting data to
+ * a remote server.
  *
  * @author <a href="mailto:oleg at ural.ru">Oleg Kalnichevski</a>
  *
@@ -76,6 +78,21 @@ public class SocketHttpClientConnection
         }
     }
 
+    /**
+     * Creates an instance of {@link SocketInputBuffer} to be used for 
+     * receiving data from the given {@link Socket}.
+     * <p>
+     * This method can be overridden in super class in order to provide 
+     * a custom implementation of {@link SessionInputBuffer} interface.
+     * 
+     * @see SocketInputBuffer#SocketInputBuffer(Socket, int, HttpParams)
+     * 
+     * @param socket the socket.
+     * @param buffersize the buffer size.
+     * @param params HTTP parameters.
+     * @return session input buffer.
+     * @throws IOException in case of an I/O error.
+     */
     protected SessionInputBuffer createSessionInputBuffer(
             final Socket socket, 
             int buffersize,
@@ -83,6 +100,21 @@ public class SocketHttpClientConnection
         return new SocketInputBuffer(socket, buffersize, params);
     }
     
+    /**
+     * Creates an instance of {@link SessionOutputBuffer} to be used for 
+     * sending data to the given {@link Socket}.
+     * <p>
+     * This method can be overridden in super class in order to provide 
+     * a custom implementation of {@link SocketOutputBuffer} interface.
+     * 
+     * @see SocketOutputBuffer#SocketOutputBuffer(Socket, int, HttpParams)
+     * 
+     * @param socket the socket.
+     * @param buffersize the buffer size.
+     * @param params HTTP parameters.
+     * @return session output buffer.
+     * @throws IOException in case of an I/O error.
+     */
     protected SessionOutputBuffer createSessionOutputBuffer(
             final Socket socket, 
             int buffersize,
@@ -90,6 +122,31 @@ public class SocketHttpClientConnection
         return new SocketOutputBuffer(socket, buffersize, params);
     }
     
+    /**
+     * Binds this connection to the given {@link Socket}. This socket will be 
+     * used by the connection to send and receive data.
+     * <p>
+     * This method will invoke {@link #createSessionInputBuffer(Socket, int, HttpParams)}
+     * and {@link #createSessionOutputBuffer(Socket, int, HttpParams)} methods 
+     * to create session input / output buffers bound to this socket and then 
+     * will invoke {@link #init(SessionInputBuffer, SessionOutputBuffer, HttpParams)} 
+     * method to pass references to those buffers to the underlying HTTP message
+     * parser and formatter. 
+     * <p>
+     * After this method's execution the connection status will be reported
+     * as open and the {@link #isOpen()} will return <code>true</code>.
+     * <p>
+     * The following HTTP parameters affect configuration this connection:
+     * <p>
+     * The {@link CoreConnectionPNames#SOCKET_BUFFER_SIZE}
+     * parameter determines the size of the internal socket buffer. If not 
+     * defined or set to <code>-1</code> the default value will be chosen
+     * automatically.
+     * 
+     * @param socket the socket.
+     * @param params HTTP parameters.
+     * @throws IOException in case of an I/O error.
+     */
     protected void bind(
             final Socket socket, 
             final HttpParams params) throws IOException {
