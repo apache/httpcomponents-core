@@ -43,8 +43,8 @@ import org.apache.http.HttpResponse;
 import org.apache.http.HttpResponseInterceptor;
 
 /**
- * Keeps lists of interceptors for processing requests and responses.
- *
+ * Default implementation of {@link HttpProcessor}.
+ * 
  * @author <a href="mailto:oleg at ural.ru">Oleg Kalnichevski</a>
  * @author Andrea Selva
  *

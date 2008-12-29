@@ -32,8 +32,23 @@
 package org.apache.http.params;
 
 /**
- * Represents a collection of HTTP protocol and framework parameters.
- *   
+ * 
+ * HttpParams interface represents a collection of immutable values that define 
+ * a runtime behavior of a component. HTTP parameters should be simple objects: 
+ * integers, doubles, strings, collections and objects that remain immutable 
+ * at runtime. HttpParams is expected to be used in the 'write once - ready 
+ * many' mode. Once initialized HTTP parameters are not expected to mutate in 
+ * the course of HTTP message processing.
+ * <p>
+ * The purpose of this intreface is to define a behavior of other components. 
+ * Usually each complex component has its own HTTP parameter collection. 
+ * <p>
+ * Instances of this interface can be linked together to form a hierarchy. 
+ * In the simplest form one set of parameters can use content of another one 
+ * to obtain default values of parameters not present in the local set.
+ * 
+ * @see DefaultedHttpParams
+ * 
  * @author <a href="mailto:oleg at ural.ru">Oleg Kalnichevski</a>
  * 
  * @version $Revision$

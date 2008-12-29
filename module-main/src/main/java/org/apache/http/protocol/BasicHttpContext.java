@@ -35,7 +35,10 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * Default implementation of the {@link HttpContext HttpContext}.
+ * Default implementation of {@link HttpContext}.
+ * <p>
+ * Please note methods of this class are not synchronized and therefore may
+ * be threading unsafe.
  *
  * @author <a href="mailto:oleg at ural.ru">Oleg Kalnichevski</a>
  *

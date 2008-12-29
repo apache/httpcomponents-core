@@ -1,7 +1,7 @@
 /*
- * $HeadURL:$
- * $Revision:$
- * $Date:$
+ * $HeadURL$
+ * $Revision$
+ * $Date$
  *
  * ====================================================================
  * Licensed to the Apache Software Foundation (ASF) under one
@@ -31,6 +31,11 @@
 
 package org.apache.http.params;
 
+/**
+ * This is a Java Bean class that can be used to wrap an instance of 
+ * {@link HttpParams} and manipulate HTTP connection parameters using Java Beans 
+ * conventions.
+ */
 public class HttpConnectionParamBean extends HttpAbstractParamBean {
     
     public HttpConnectionParamBean (final HttpParams params) {

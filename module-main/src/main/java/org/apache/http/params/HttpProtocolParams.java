@@ -36,13 +36,8 @@ import org.apache.http.ProtocolVersion;
 import org.apache.http.protocol.HTTP;
 
 /**
- * This class implements an adaptor around the {@link HttpParams} interface
- * to simplify manipulation of the HTTP protocol specific parameters.
- * <br/>
- * Note that the <i>implements</i> relation to {@link CoreProtocolPNames}
- * is for compatibility with existing application code only. References to
- * the parameter names should use the interface, not this class.
- *
+ * Utility class for accessing protocol parameters in {@link HttpParams}.
+ * 
  * @author <a href="mailto:oleg at ural.ru">Oleg Kalnichevski</a>
  * 
  * @version $Revision$
@@ -53,15 +48,16 @@ import org.apache.http.protocol.HTTP;
  */
 public final class HttpProtocolParams implements CoreProtocolPNames {
     
-    /**
-     */
     private HttpProtocolParams() {
         super();
     }
 
     /**
-     * Returns the charset to be used for writing HTTP headers.
-     * @return The charset
+     * Obtains value of the {@link CoreProtocolPNames#HTTP_ELEMENT_CHARSET} parameter.
+     * If not set, defaults to <code>US-ASCII</code>.
+     *  
+     * @param HTTP parameters.
+     * @return HTTP element charset.
      */
     public static String getHttpElementCharset(final HttpParams params) {
         if (params == null) {
@@ -76,8 +72,10 @@ public final class HttpProtocolParams implements CoreProtocolPNames {
     }
     
     /**
-     * Sets the charset to be used for writing HTTP headers.
-     * @param charset The charset
+     * Sets value of the {@link CoreProtocolPNames#HTTP_ELEMENT_CHARSET} parameter.
+     *  
+     * @param HTTP parameters.
+     * @param HTTP element charset.
      */
     public static void setHttpElementCharset(final HttpParams params, final String charset) {
         if (params == null) {
@@ -87,9 +85,11 @@ public final class HttpProtocolParams implements CoreProtocolPNames {
     }
 
     /**
-     * Returns the default charset to be used for writing content body, 
-     * when no charset explicitly specified.
-     * @return The charset
+     * Obtains value of the {@link CoreProtocolPNames#HTTP_CONTENT_CHARSET} parameter.
+     * If not set, defaults to <code>ISO-8859-1</code>.
+     *  
+     * @param HTTP parameters.
+     * @return HTTP content charset.
      */
     public static String getContentCharset(final HttpParams params) {
         if (params == null) {
@@ -104,9 +104,10 @@ public final class HttpProtocolParams implements CoreProtocolPNames {
     }
     
     /**
-     * Sets the default charset to be used for writing content body,
-     * when no charset explicitly specified.
-     * @param charset The charset
+     * Sets value of the {@link CoreProtocolPNames#HTTP_CONTENT_CHARSET} parameter.
+     *  
+     * @param HTTP parameters.
+     * @param HTTP content charset.
      */
     public static void setContentCharset(final HttpParams params, final String charset) {
         if (params == null) {
@@ -116,9 +117,11 @@ public final class HttpProtocolParams implements CoreProtocolPNames {
     }
 
     /**
-     * Returns {@link ProtocolVersion protocol version} to be used per default. 
-     *
-     * @return {@link ProtocolVersion protocol version}
+     * Obtains value of the {@link CoreProtocolPNames#PROTOCOL_VERSION} parameter.
+     * If not set, defaults to {@link HttpVersion#HTTP_1_1}.
+     *  
+     * @param HTTP parameters.
+     * @return HTTP protocol version.
      */
     public static ProtocolVersion getVersion(final HttpParams params) { 
         if (params == null) {
@@ -133,10 +136,10 @@ public final class HttpProtocolParams implements CoreProtocolPNames {
     }
     
     /**
-     * Assigns the {@link ProtocolVersion protocol version} to be used by the 
-     * HTTP methods that this collection of parameters applies to. 
-     *
-     * @param version the {@link ProtocolVersion protocol version}
+     * Sets value of the {@link CoreProtocolPNames#PROTOCOL_VERSION} parameter.
+     *  
+     * @param HTTP parameters.
+     * @param HTTP protocol version.
      */
     public static void setVersion(final HttpParams params, final ProtocolVersion version) {
         if (params == null) {
@@ -145,6 +148,13 @@ public final class HttpProtocolParams implements CoreProtocolPNames {
         params.setParameter(CoreProtocolPNames.PROTOCOL_VERSION, version);
     }
 
+    /**
+     * Obtains value of the {@link CoreProtocolPNames#USER_AGENT} parameter.
+     * If not set, returns <code>null</code>.
+     *  
+     * @param HTTP parameters.
+     * @return User agent string.
+     */
     public static String getUserAgent(final HttpParams params) { 
         if (params == null) {
             throw new IllegalArgumentException("HTTP parameters may not be null");
@@ -152,6 +162,12 @@ public final class HttpProtocolParams implements CoreProtocolPNames {
         return (String) params.getParameter(CoreProtocolPNames.USER_AGENT);
     }
     
+    /**
+     * Sets value of the {@link CoreProtocolPNames#USER_AGENT} parameter.
+     *  
+     * @param HTTP parameters.
+     * @param User agent string.
+     */
     public static void setUserAgent(final HttpParams params, final String useragent) {
         if (params == null) {
             throw new IllegalArgumentException("HTTP parameters may not be null");
@@ -159,6 +175,13 @@ public final class HttpProtocolParams implements CoreProtocolPNames {
         params.setParameter(CoreProtocolPNames.USER_AGENT, useragent);
     }
 
+    /**
+     * Obtains value of the {@link CoreProtocolPNames#USE_EXPECT_CONTINUE} parameter.
+     * If not set, returns <code>false</code>.
+     *  
+     * @param HTTP parameters.
+     * @return User agent string.
+     */
     public static boolean useExpectContinue(final HttpParams params) {
         if (params == null) {
             throw new IllegalArgumentException("HTTP parameters may not be null");
@@ -167,10 +190,17 @@ public final class HttpProtocolParams implements CoreProtocolPNames {
             (CoreProtocolPNames.USE_EXPECT_CONTINUE, false);
     }
     
+    /**
+     * Sets value of the {@link CoreProtocolPNames#USE_EXPECT_CONTINUE} parameter.
+     *  
+     * @param HTTP parameters.
+     * @param User agent string.
+     */
     public static void setUseExpectContinue(final HttpParams params, boolean b) {
         if (params == null) {
             throw new IllegalArgumentException("HTTP parameters may not be null");
         }
         params.setBooleanParameter(CoreProtocolPNames.USE_EXPECT_CONTINUE, b);
     }
+
 }

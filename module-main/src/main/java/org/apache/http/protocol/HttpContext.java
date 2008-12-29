@@ -31,13 +31,19 @@
 
 package org.apache.http.protocol;
 
+import java.util.HashMap;
+
 /**
- * A context for executing a request.
- * The context is used to tie together the request, the response,
- * and optional application data. It is also used for internal data.
- * Attribute names starting with the prefix "http." are
- * {@link #RESERVED_PREFIX reserved} for internal data.
- *
+ * HttpCotext represents execution state of an HTTP process. It is a structure 
+ * that can be used to map an attribute name to an attribute value. Internally 
+ * HTTP context implementations are usually backed by a {@link HashMap}. 
+ * <p>
+ * The primary purpose of the HTTP context is to facilitate information sharing 
+ * among various  logically related components. HTTP context can be used 
+ * to store a processing state for one message or several consecutive messages. 
+ * Multiple logically related messages can participate in a logical session 
+ * if the same context is reused between consecutive messages.
+ * 
  * @author <a href="mailto:oleg at ural.ru">Oleg Kalnichevski</a>
  *
  * @version $Revision$
@@ -49,10 +55,28 @@ public interface HttpContext {
     /** The prefix reserved for use by HTTP components. "http." */
     public static final String RESERVED_PREFIX  = "http.";
     
+    /**
+     * Obtains attribute with the given name.
+     * 
+     * @param id the attribute name.
+     * @return attribute value, or <code>null</code> if not set.
+     */
     Object getAttribute(String id);
 
+    /**
+     * Sets value of the attribute with the given name.
+     * 
+     * @param id the attribute name.
+     * @param obj the attribute value.
+     */
     void setAttribute(String id, Object obj);
 
+    /**
+     * Removes attribute with the given name from the context.
+     * 
+     * @param id the attribute name.
+     * @return attribute value, or <code>null</code> if not set.
+     */
     Object removeAttribute(String id);
     
 }
