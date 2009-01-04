@@ -68,8 +68,8 @@ public interface HttpResponseInterceptor {
      * @param response  the response to postprocess
      * @param context   the context for the request
      *
-     * @throws IOException      in case of an IO problem
-     * @throws HttpException    in case of a protocol or other problem
+     * @throws HttpException in case of an HTTP protocol violation
+     * @throws IOException in case of an I/O error
      */
     void process(HttpResponse response, HttpContext context) 
         throws HttpException, IOException;

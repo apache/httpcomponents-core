@@ -43,8 +43,12 @@ import org.apache.http.ProtocolVersion;
 import org.apache.http.ProtocolException;
 
 /**
- * A response interceptor that sets up entity-related headers.
- * For use on the server side.
+ * ResponseContent is the most important interceptor for outgoing responses. 
+ * It is responsible for delimiting content length by adding 
+ * <code>Content-Length</code> or <code>Transfer-Content</code> headers based 
+ * on the properties of the enclosed entity and the protocol version. 
+ * This interceptor is required for correct functioning of server side protocol 
+ * processors.
  *
  * @author <a href="mailto:oleg at ural.ru">Oleg Kalnichevski</a>
  *

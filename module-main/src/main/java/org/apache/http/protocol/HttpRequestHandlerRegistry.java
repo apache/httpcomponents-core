@@ -35,14 +35,18 @@ import java.util.Map;
 
 /**
  * Maintains a map of HTTP request handlers keyed by a request URI pattern.
- * {@link HttpRequestHandler} instances can be looked up by request URI
- * using the {@link HttpRequestHandlerResolver} interface.<br/>
+ * <br>
  * Patterns may have three formats:
  * <ul>
  *   <li><code>*</code></li>
  *   <li><code>*&lt;uri&gt;</code></li>
  *   <li><code>&lt;uri&gt;*</code></li>
  * </ul>
+ * <br>
+ * This class can be used to resolve an instance of 
+ * {@link HttpRequestHandler} matching a particular request URI. Usually the 
+ * resolved request handler will be used to process the request with the 
+ * specified request URI.
  *
  * @author <a href="mailto:oleg at ural.ru">Oleg Kalnichevski</a>
  *
@@ -56,14 +60,36 @@ public class HttpRequestHandlerRegistry implements HttpRequestHandlerResolver {
         matcher = new UriPatternMatcher();
     }
 
+    /**
+     * Registers the given {@link HttpRequestHandler} as a handler for URIs
+     * matching the given pattern.
+     * 
+     * @param pattern the pattern to register the handler for.
+     * @param handler the handler.
+     */
     public void register(final String pattern, final HttpRequestHandler handler) {
+        if (pattern == null) {
+            throw new IllegalArgumentException("URI request pattern may not be null");
+        }
+        if (handler == null) {
+            throw new IllegalArgumentException("Request handler may not be null");
+        }
         matcher.register(pattern, handler);
     }
 
+    /**
+     * Removes registered handler, if exists, for the given pattern.
+     *  
+     * @param pattern the pattern to unregister the handler for.
+     */
     public void unregister(final String pattern) {
         matcher.unregister(pattern);
     }
 
+    /**
+     * Sets handlers from the given map.
+     * @param map the map containing handlers keyed by their URI patterns.
+     */
     public void setHandlers(final Map map) {
         matcher.setHandlers(map);
     }

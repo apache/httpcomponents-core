@@ -67,6 +67,22 @@ import org.apache.http.HttpResponse;
  */
 public interface HttpExpectationVerifier {
 
+    /**
+     * Verifies whether the given request meets the server's expectations. 
+     * <p>
+     * If the request fails to meet particular criteria, this method can
+     * trigger a terminal response back to the client by setting the status
+     * code of the response object to a value greater or equal to 
+     * <code>200</code>. In this case the client will not have to transmit 
+     * the request body. If the request meets expectations this method can 
+     * terminate without modifying the response object. Per default the status 
+     * code of the response object will be set to <code>100</code>.
+     * 
+     * @param request the HTTP request.
+     * @param response the HTTP response.
+     * @param context the HTTP context.
+     * @throws HttpException in case of an HTTP protocol violation.
+     */
     void verify(HttpRequest request, HttpResponse response, HttpContext context)
             throws HttpException;
     

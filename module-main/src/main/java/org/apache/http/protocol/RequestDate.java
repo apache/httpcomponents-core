@@ -39,8 +39,9 @@ import org.apache.http.HttpEntityEnclosingRequest;
 import org.apache.http.HttpRequestInterceptor;
 
 /**
- * A request interceptor that adds a Date header.
- * For use on the client side.
+ * RequestDate interceptor is responsible for adding <code>Date</code> header 
+ * to the outgoing requests This interceptor is optional for client side 
+ * protocol processors.
  *
  * @author <a href="mailto:oleg at ural.ru">Oleg Kalnichevski</a>
  *

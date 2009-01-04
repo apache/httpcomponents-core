@@ -37,13 +37,16 @@ import java.util.Map;
 
 /**
  * Maintains a map of objects keyed by a request URI pattern.
- * Instances can be looked up by request URI.<br/>
+ * <br>
  * Patterns may have three formats:
  * <ul>
  *   <li><code>*</code></li>
  *   <li><code>*&lt;uri&gt;</code></li>
  *   <li><code>&lt;uri&gt;*</code></li>
  * </ul>
+ * <br>
+ * This class can be used to resolve an object matching a particular request 
+ * URI. 
  *
  * @author <a href="mailto:oleg at ural.ru">Oleg Kalnichevski</a>
  *
@@ -51,38 +54,58 @@ import java.util.Map;
  */
 public class UriPatternMatcher {
 
-    private final Map handlerMap;
+    private final Map map;
 
     public UriPatternMatcher() {
         super();
-        this.handlerMap = new HashMap();
+        this.map = new HashMap();
     }
 
-    public void register(final String pattern, final Object handler) {
+    /**
+     * Registers the given object for URIs matching the given pattern.
+     * 
+     * @param pattern the pattern to register the handler for.
+     * @param obj the object.
+     */
+    public void register(final String pattern, final Object obj) {
         if (pattern == null) {
             throw new IllegalArgumentException("URI request pattern may not be null");
         }
-        if (handler == null) {
-            throw new IllegalArgumentException("HTTP request handelr may not be null");
-        }
-        this.handlerMap.put(pattern, handler);
+        this.map.put(pattern, obj);
     }
 
+    /**
+     * Removes registered object, if exists, for the given pattern.
+     *  
+     * @param pattern the pattern to unregister.
+     */
     public void unregister(final String pattern) {
         if (pattern == null) {
             return;
         }
-        this.handlerMap.remove(pattern);
+        this.map.remove(pattern);
     }
 
+    /**
+     * Sets objects from the given map.
+     * @param map the map containing objects keyed by their URI patterns.
+     * <br>
+     * TODO: deprecate and rename to setObjects()
+     */
     public void setHandlers(final Map map) {
         if (map == null) {
             throw new IllegalArgumentException("Map of handlers may not be null");
         }
-        this.handlerMap.clear();
-        this.handlerMap.putAll(map);
+        this.map.clear();
+        this.map.putAll(map);
     }
 
+    /**
+     * Looks up an object matching the given request URI.
+     * 
+     * @param requestURI the request URI
+     * @return object or <code>null</code> if no match is found.
+     */
     public Object lookup(String requestURI) {
         if (requestURI == null) {
             throw new IllegalArgumentException("Request URI may not be null");
@@ -94,18 +117,18 @@ public class UriPatternMatcher {
         }
 
         // direct match?
-        Object handler = this.handlerMap.get(requestURI);
+        Object handler = this.map.get(requestURI);
         if (handler == null) {
             // pattern match?
             String bestMatch = null;
-            for (Iterator it = this.handlerMap.keySet().iterator(); it.hasNext();) {
+            for (Iterator it = this.map.keySet().iterator(); it.hasNext();) {
                 String pattern = (String) it.next();
                 if (matchUriRequestPattern(pattern, requestURI)) {
                     // we have a match. is it any better?
                     if (bestMatch == null
                             || (bestMatch.length() < pattern.length())
                             || (bestMatch.length() == pattern.length() && pattern.endsWith("*"))) {
-                        handler = this.handlerMap.get(pattern);
+                        handler = this.map.get(pattern);
                         bestMatch = pattern;
                     }
                 }
@@ -114,6 +137,14 @@ public class UriPatternMatcher {
         return handler;
     }
 
+    /**
+     * Tests if the given request URI matches the given pattern.
+     * 
+     * @param pattern the pattern
+     * @param requestUri the request URI
+     * @return <code>true</code> if the request URI matches the pattern,
+     *   <code>false</code> otherwise.
+     */
     protected boolean matchUriRequestPattern(final String pattern, final String requestUri) {
         if (pattern.equals("*")) {
             return true;

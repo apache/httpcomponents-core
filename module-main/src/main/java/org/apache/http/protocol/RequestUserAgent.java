@@ -39,7 +39,8 @@ import org.apache.http.HttpRequestInterceptor;
 import org.apache.http.params.HttpProtocolParams;
 
 /**
- * A request interceptor that adds a User-Agent header.
+ * RequestUserAgent is responsible for adding <code>User-Agent</code> header. 
+ * This interceptor is recommended for client side protocol processors. 
  *
  * @author <a href="mailto:oleg at ural.ru">Oleg Kalnichevski</a>
  *

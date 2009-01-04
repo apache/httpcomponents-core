@@ -44,8 +44,10 @@ import org.apache.http.HttpVersion;
 import org.apache.http.ProtocolVersion;
 
 /**
- * A response interceptor that suggests connection keep-alive to the client.
- * For use on the server side.
+ * ResponseConnControl is responsible for adding <code>Connection</code> header 
+ * to the outgoing responses, which is essential for managing persistence of 
+ * <code>HTTP/1.0</code> connections. This interceptor is recommended for 
+ * server side protocol processors.
  *
  * @author <a href="mailto:oleg at ural.ru">Oleg Kalnichevski</a>
  *

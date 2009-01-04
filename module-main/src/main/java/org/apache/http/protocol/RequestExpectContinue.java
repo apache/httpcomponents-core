@@ -43,7 +43,9 @@ import org.apache.http.ProtocolVersion;
 import org.apache.http.params.HttpProtocolParams;
 
 /**
- * A request interceptor that enables the expect-continue handshake.
+ * RequestExpectContinue is responsible for enabling the 'expect-continue' 
+ * handshake by adding <code>Expect</code> header. This interceptor is 
+ * recommended for client side protocol processors. 
  *
  * @author <a href="mailto:oleg at ural.ru">Oleg Kalnichevski</a>
  *

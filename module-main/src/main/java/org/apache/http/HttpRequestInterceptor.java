@@ -69,8 +69,8 @@ public interface HttpRequestInterceptor {
      * @param request   the request to preprocess
      * @param context   the context for the request
      *
-     * @throws IOException      in case of an IO problem
-     * @throws HttpException    in case of a protocol or other problem
+     * @throws HttpException in case of an HTTP protocol violation
+     * @throws IOException in case of an I/O error
      */
     void process(HttpRequest request, HttpContext context) 
         throws HttpException, IOException;

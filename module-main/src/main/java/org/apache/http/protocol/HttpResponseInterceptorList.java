@@ -31,11 +31,9 @@
 
 package org.apache.http.protocol;
 
-
 import java.util.List;
 
 import org.apache.http.HttpResponseInterceptor;
-
 
 /**
  * Provides access to an ordered list of response interceptors.
@@ -53,28 +51,24 @@ public interface HttpResponseInterceptorList {
     /**
      * Appends a response interceptor to this list.
      *
-     * @param itcp      the response interceptor to add
+     * @param interceptor the response interceptor to add
      */
-    void addResponseInterceptor(HttpResponseInterceptor itcp)
-        ;
+    void addResponseInterceptor(HttpResponseInterceptor interceptor);
 
     /**
      * Inserts a response interceptor at the specified index.
      *
-     * @param itcp      the response interceptor to add
+     * @param interceptor the response interceptor to add
      * @param index     the index to insert the interceptor at
      */
-    void addResponseInterceptor(HttpResponseInterceptor itcp, int index);
-    
+    void addResponseInterceptor(HttpResponseInterceptor interceptor, int index);
     
     /**
      * Obtains the current size of this list.
      *
      * @return  the number of response interceptors in this list
      */
-    int getResponseInterceptorCount()
-        ;
-
+    int getResponseInterceptorCount();
 
     /**
      * Obtains a response interceptor from this list.
@@ -85,17 +79,13 @@ public interface HttpResponseInterceptorList {
      * @return  the interceptor at the given index, or
      *          <code>null</code> if the index is out of range
      */
-    HttpResponseInterceptor getResponseInterceptor(int index)
-        ;
-
+    HttpResponseInterceptor getResponseInterceptor(int index);
 
     /**
      * Removes all response interceptors from this list.
      */
-    void clearResponseInterceptors()
-        ;
+    void clearResponseInterceptors();
 
-    
     /**
      * Removes all response interceptor of the specified class
      *
@@ -103,7 +93,6 @@ public interface HttpResponseInterceptorList {
      */
     void removeResponseInterceptorByClass(Class clazz);
 
-    
     /**
      * Sets the response interceptors in this list.
      * This list will be cleared and re-initialized to contain
@@ -111,11 +100,9 @@ public interface HttpResponseInterceptorList {
      * If the argument list includes elements that are not response
      * interceptors, the behavior is implementation dependent.
      *
-     * @param itcps     the list of response interceptors
+     * @param list the list of response interceptors
      */
-    void setInterceptors(List itcps)
-        ;
+    void setInterceptors(List list);
 
-
-} // interface HttpResponseInterceptorList
+}
 

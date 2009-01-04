@@ -39,8 +39,8 @@ import org.apache.http.HttpResponseInterceptor;
 import org.apache.http.params.CoreProtocolPNames;
 
 /**
- * A response interceptor that adds a Server header.
- * For use on the server side.
+ * ResponseServer is responsible for adding <code>Server</code> header. This 
+ * interceptor is recommended for server side protocol processors. 
  *
  * @author <a href="mailto:oleg at ural.ru">Oleg Kalnichevski</a>
  *

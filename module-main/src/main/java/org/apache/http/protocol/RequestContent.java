@@ -43,8 +43,13 @@ import org.apache.http.ProtocolVersion;
 import org.apache.http.ProtocolException;
 
 /**
- * A request interceptor that decides about the transport encoding.
- *
+ * RequestContent is the most important interceptor for outgoing requests. 
+ * It is responsible for delimiting content length by adding 
+ * <code>Content-Length</code> or <code>Transfer-Content</code> headers based 
+ * on the properties of the enclosed entity and the protocol version. 
+ * This interceptor is required for correct functioning of client side protocol 
+ * processors.
+
  * @author <a href="mailto:oleg at ural.ru">Oleg Kalnichevski</a>
  *
  * @version $Revision$

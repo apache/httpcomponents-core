@@ -38,7 +38,10 @@ import org.apache.http.HttpRequest;
 import org.apache.http.HttpRequestInterceptor;
 
 /**
- * A request interceptor that suggests connection keep-alive to the server.
+ * RequestConnControl is responsible for adding <code>Connection</code> header 
+ * to the outgoing requests, which is essential for managing persistence of 
+ * <code>HTTP/1.0</code> connections. This interceptor is recommended for 
+ * client side protocol processors.
  *
  * @author <a href="mailto:oleg at ural.ru">Oleg Kalnichevski</a>
  *

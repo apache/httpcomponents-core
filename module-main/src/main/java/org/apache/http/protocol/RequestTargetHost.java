@@ -45,7 +45,8 @@ import org.apache.http.ProtocolVersion;
 import org.apache.http.ProtocolException;
 
 /**
- * A request interceptor that sets the Host header for HTTP/1.1 requests.
+ * RequestTargetHost is responsible for adding <code>Host</code> header. This 
+ * interceptor is required for client side protocol processors. 
  *
  * @author <a href="mailto:oleg at ural.ru">Oleg Kalnichevski</a>
  *

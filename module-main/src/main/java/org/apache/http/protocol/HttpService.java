@@ -53,7 +53,21 @@ import org.apache.http.params.DefaultedHttpParams;
 import org.apache.http.util.EncodingUtils;
 
 /**
- * Minimalistic server-side implementation of an HTTP processor.
+ * HttpService is a server side HTTP protocol handler based in the blocking 
+ * I/O model that implements the essential requirements of the HTTP protocol 
+ * for the server side message processing as described by RFC 2616. 
+ * <br>
+ * HttpService relies on {@link HttpProcessor} to generate mandatory protocol 
+ * headers for all outgoing messages and apply common, cross-cutting message 
+ * transformations to all incoming and outgoing messages, whereas individual 
+ * {@link HttpRequestHandler}s are expected to take care of application specific 
+ * content generation and processing.
+ * <br>
+ * HttpService relies on {@link HttpRequestHandler} to resolve matching request 
+ * handler for a particular request URI of an incoming HTTP request.
+ * <br>
+ * HttpService can use optional {@link HttpExpectationVerifier} to ensure that 
+ * incoming requests meet server's expectations.
  *
  * @author <a href="mailto:oleg at ural.ru">Oleg Kalnichevski</a>
  *
@@ -87,7 +101,7 @@ public class HttpService {
     
     public void setHttpProcessor(final HttpProcessor processor) {
         if (processor == null) {
-            throw new IllegalArgumentException("HTTP processor may not be null.");
+            throw new IllegalArgumentException("HTTP processor may not be null");
         }
         this.processor = processor;
     }
@@ -122,6 +136,16 @@ public class HttpService {
         this.params = params;
     }
     
+    /**
+     * Handles receives one HTTP request over the given connection within the 
+     * given execution context and sends a response back to the client.
+     * 
+     * @param conn the active connection to the client
+     * @param context the actual execution context.
+     * @throws IOException in case of an I/O error.
+     * @throws HttpException in case of HTTP protocol violation or a processing 
+     *   problem.
+     */
     public void handleRequest(
             final HttpServerConnection conn, 
             final HttpContext context) throws IOException, HttpException { 
@@ -213,7 +237,15 @@ public class HttpService {
             conn.close();
         }
     }
-    
+
+    /**
+     * Handles the given exception and generates an HTTP response to be sent 
+     * back to the client to inform about the exceptional condition encountered
+     * in the course of the request processing.
+     * 
+     * @param ex the exception.
+     * @param response the HTTP response.
+     */
     protected void handleException(final HttpException ex, final HttpResponse response) {
         if (ex instanceof MethodNotSupportedException) {
             response.setStatusCode(HttpStatus.SC_NOT_IMPLEMENTED);
@@ -230,6 +262,23 @@ public class HttpService {
         response.setEntity(entity);
     }
     
+    /**
+     * The default implementation of this method attempts to resolve an 
+     * {@link HttpRequestHandler} for the request URI of the given request
+     * and, if found, executes its
+     * {@link HttpRequestHandler#handle(HttpRequest, HttpResponse, HttpContext)}
+     * method.
+     * <p>
+     * Super-classes can override this method in order to provide a custom
+     * implementation of the request processing logic.
+     * 
+     * @param request the HTTP request.
+     * @param response the HTTP response.
+     * @param context the execution context.
+     * @throws IOException in case of an I/O error.
+     * @throws HttpException in case of HTTP protocol violation or a processing 
+     *   problem.
+     */
     protected void doService(
             final HttpRequest request, 
             final HttpResponse response,
