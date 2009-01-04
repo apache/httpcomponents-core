@@ -33,6 +33,9 @@ package org.apache.http.nio.reactor;
 
 import java.nio.channels.SelectionKey;
 
+/**
+ * Type of I/O event notifications I/O sessions can declare interest in. 
+ */
 public interface EventMask {
 
     public static final int READ = SelectionKey.OP_READ;
