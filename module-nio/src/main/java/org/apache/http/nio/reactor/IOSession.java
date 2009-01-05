@@ -45,6 +45,8 @@ import java.nio.channels.ByteChannel;
  * the context of the thread to store a session's state. All details about 
  * a particular session must be stored within the session itself, usually 
  * using execution context associated with it. 
+ * <p>
+ * Implementations of this interface are expected to be threading safe.
  *
  * @author <a href="mailto:oleg at ural.ru">Oleg Kalnichevski</a>
  *
@@ -116,30 +118,126 @@ public interface IOSession {
     void clearEvent(int op);
 
     /**
-     * Closes the session and the underlying I/O channel.
+     * Terminates the session gracefully and closes the underlying I/O channel.
+     * This method ensures that session termination handshake, such as the one 
+     * used by the SSL/TLS protocol, is correctly carried out.
      */
     void close();
     
+    /**
+     * Terminates the session by shutting down the underlying I/O channel.
+     */
     void shutdown();
     
+    /**
+     * Returns status of the session:
+     * <p>
+     * {@link #ACTIVE}: session is active.
+     * <p> 
+     * {@link #CLOSING}: session is being closed.
+     * <p> 
+     * {@link #CLOSED}: session has been terminated.
+     * 
+     * @return session status.
+     */
     int getStatus();
     
+    /**
+     * Determines if the session has been terminated.
+     *   
+     * @return <code>true</code> if the session has been terminated,
+     *   <code>false</code> otherwise. 
+     */
     boolean isClosed();
 
+    /**
+     * Returns value of the socket timeout in milliseconds. The value of 
+     * <code>0</code> signifies the session cannot time out.
+     *  
+     * @return socket timeout.
+     */
     int getSocketTimeout();
     
+    /**
+     * Sets value of the socket timeout in milliseconds. The value of 
+     * <code>0</code> signifies the session cannot time out.
+     *  
+     * @param timeout socket timeout.
+     */
     void setSocketTimeout(int timeout);
     
+    /**
+     * Quite often I/O sessions need to maintain internal I/O buffers in order 
+     * to transform input / output data prior to returning it to the consumer or 
+     * writing it to the underlying channel. Memory management in HttpCore NIO 
+     * is based on the fundamental principle that the data consumer can read 
+     * only as much input data as it can process without having to allocate more 
+     * memory. That means, quite often some input data may remain unread in one 
+     * of the internal or external session buffers. The I/O reactor can query 
+     * the status of these session buffers, and make sure the consumer gets 
+     * notified correctly as more data gets stored in one of the session 
+     * buffers, thus allowing the consumer to read the remaining data once it 
+     * is able to process it
+     * <p>
+     * I/O sessions can be made aware of the status of external session buffers 
+     * using the {@link SessionBufferStatus} interface.
+     * 
+     * @param status
+     */
     void setBufferStatus(SessionBufferStatus status);
     
+    /**
+     * Determines if the input buffer associated with the session contains data.
+     * 
+     * @return <code>true</code> if the session input buffer contains data,
+     *   <code>false</code> otherwise.
+     */
     boolean hasBufferedInput();
     
+    /**
+     * Determines if the output buffer associated with the session contains 
+     * data.
+     * 
+     * @return <code>true</code> if the session output buffer contains data,
+     *   <code>false</code> otherwise.
+     */
     boolean hasBufferedOutput();
     
+    /**
+     * This method can be used to associate a particular object with the
+     * session by the given attribute name.
+     * <p>
+     * I/O sessions are not bound to an execution thread, therefore one cannot 
+     * use the context of the thread to store a session's state. All details 
+     * about a particular session must be stored within the session itself.
+     * 
+     * @param name name of the attribute.
+     * @param obj value of the attribute.
+     */
     void setAttribute(String name, Object obj);
     
+    /**
+     * Returns the value of the attribute with the given name. The value can be 
+     * <code>null</code> if not set.
+     * <p>
+     * The value of the session attachment object can be obtained using 
+     * {@link #ATTACHMENT_KEY} name.
+     * 
+     * @see #setAttribute(String, Object)
+     * 
+     * @param name name of the attribute.
+     * @return value of the attribute.
+     */
     Object getAttribute(String name);
     
+    /**
+     * Removes attribute with the given name. 
+     * 
+     * @see #setAttribute(String, Object)
+     * 
+     * @param name name of the attribute to be removed.
+     * @return value of the removed attribute.
+     */
     Object removeAttribute(String name);
 
 }

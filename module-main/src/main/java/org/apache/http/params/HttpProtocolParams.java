@@ -56,7 +56,7 @@ public final class HttpProtocolParams implements CoreProtocolPNames {
      * Obtains value of the {@link CoreProtocolPNames#HTTP_ELEMENT_CHARSET} parameter.
      * If not set, defaults to <code>US-ASCII</code>.
      *  
-     * @param HTTP parameters.
+     * @param params HTTP parameters.
      * @return HTTP element charset.
      */
     public static String getHttpElementCharset(final HttpParams params) {
@@ -74,8 +74,8 @@ public final class HttpProtocolParams implements CoreProtocolPNames {
     /**
      * Sets value of the {@link CoreProtocolPNames#HTTP_ELEMENT_CHARSET} parameter.
      *  
-     * @param HTTP parameters.
-     * @param HTTP element charset.
+     * @param params HTTP parameters.
+     * @param charset HTTP element charset.
      */
     public static void setHttpElementCharset(final HttpParams params, final String charset) {
         if (params == null) {
@@ -88,7 +88,7 @@ public final class HttpProtocolParams implements CoreProtocolPNames {
      * Obtains value of the {@link CoreProtocolPNames#HTTP_CONTENT_CHARSET} parameter.
      * If not set, defaults to <code>ISO-8859-1</code>.
      *  
-     * @param HTTP parameters.
+     * @param params HTTP parameters.
      * @return HTTP content charset.
      */
     public static String getContentCharset(final HttpParams params) {
@@ -106,8 +106,8 @@ public final class HttpProtocolParams implements CoreProtocolPNames {
     /**
      * Sets value of the {@link CoreProtocolPNames#HTTP_CONTENT_CHARSET} parameter.
      *  
-     * @param HTTP parameters.
-     * @param HTTP content charset.
+     * @param params HTTP parameters.
+     * @param charset HTTP content charset.
      */
     public static void setContentCharset(final HttpParams params, final String charset) {
         if (params == null) {
@@ -120,7 +120,7 @@ public final class HttpProtocolParams implements CoreProtocolPNames {
      * Obtains value of the {@link CoreProtocolPNames#PROTOCOL_VERSION} parameter.
      * If not set, defaults to {@link HttpVersion#HTTP_1_1}.
      *  
-     * @param HTTP parameters.
+     * @param params HTTP parameters.
      * @return HTTP protocol version.
      */
     public static ProtocolVersion getVersion(final HttpParams params) { 
@@ -138,8 +138,8 @@ public final class HttpProtocolParams implements CoreProtocolPNames {
     /**
      * Sets value of the {@link CoreProtocolPNames#PROTOCOL_VERSION} parameter.
      *  
-     * @param HTTP parameters.
-     * @param HTTP protocol version.
+     * @param params HTTP parameters.
+     * @param version HTTP protocol version.
      */
     public static void setVersion(final HttpParams params, final ProtocolVersion version) {
         if (params == null) {
@@ -152,7 +152,7 @@ public final class HttpProtocolParams implements CoreProtocolPNames {
      * Obtains value of the {@link CoreProtocolPNames#USER_AGENT} parameter.
      * If not set, returns <code>null</code>.
      *  
-     * @param HTTP parameters.
+     * @param params HTTP parameters.
      * @return User agent string.
      */
     public static String getUserAgent(final HttpParams params) { 
@@ -165,8 +165,8 @@ public final class HttpProtocolParams implements CoreProtocolPNames {
     /**
      * Sets value of the {@link CoreProtocolPNames#USER_AGENT} parameter.
      *  
-     * @param HTTP parameters.
-     * @param User agent string.
+     * @param params HTTP parameters.
+     * @param useragent User agent string.
      */
     public static void setUserAgent(final HttpParams params, final String useragent) {
         if (params == null) {
@@ -179,7 +179,7 @@ public final class HttpProtocolParams implements CoreProtocolPNames {
      * Obtains value of the {@link CoreProtocolPNames#USE_EXPECT_CONTINUE} parameter.
      * If not set, returns <code>false</code>.
      *  
-     * @param HTTP parameters.
+     * @param params HTTP parameters.
      * @return User agent string.
      */
     public static boolean useExpectContinue(final HttpParams params) {
@@ -193,8 +193,8 @@ public final class HttpProtocolParams implements CoreProtocolPNames {
     /**
      * Sets value of the {@link CoreProtocolPNames#USE_EXPECT_CONTINUE} parameter.
      *  
-     * @param HTTP parameters.
-     * @param User agent string.
+     * @param params HTTP parameters.
+     * @param b expect-continue flag.
      */
     public static void setUseExpectContinue(final HttpParams params, boolean b) {
         if (params == null) {

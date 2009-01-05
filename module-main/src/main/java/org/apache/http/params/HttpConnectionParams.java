@@ -50,7 +50,7 @@ public final class HttpConnectionParams implements CoreConnectionPNames {
      * Obtains value of the {@link CoreConnectionPNames#SO_TIMEOUT} parameter.
      * If not set, defaults to <code>0</code>.
      *  
-     * @param HTTP parameters.
+     * @param params HTTP parameters.
      * @return SO_TIMEOUT.
      */
     public static int getSoTimeout(final HttpParams params) {
@@ -63,8 +63,8 @@ public final class HttpConnectionParams implements CoreConnectionPNames {
     /**
      * Sets value of the {@link CoreConnectionPNames#SO_TIMEOUT} parameter. 
      *
-     * @param HTTP parameters.
-     * @param SO_TIMEOUT.
+     * @param params HTTP parameters.
+     * @param timeout SO_TIMEOUT.
      */
     public static void setSoTimeout(final HttpParams params, int timeout) {
         if (params == null) {
@@ -78,7 +78,7 @@ public final class HttpConnectionParams implements CoreConnectionPNames {
      * Obtains value of the {@link CoreConnectionPNames#TCP_NODELAY} parameter.
      * If not set, defaults to <code>true</code>.
      *  
-     * @param HTTP parameters.
+     * @param params HTTP parameters.
      * @return Nagle's algorithm flag
      */
     public static boolean getTcpNoDelay(final HttpParams params) {
@@ -92,8 +92,8 @@ public final class HttpConnectionParams implements CoreConnectionPNames {
     /**
      * Sets value of the {@link CoreConnectionPNames#TCP_NODELAY} parameter.
      *  
-     * @param HTTP parameters.
-     * @param Nagle's algorithm flag
+     * @param params HTTP parameters.
+     * @param value Nagle's algorithm flag
      */
     public static void setTcpNoDelay(final HttpParams params, boolean value) {
         if (params == null) {
@@ -106,7 +106,7 @@ public final class HttpConnectionParams implements CoreConnectionPNames {
      * Obtains value of the {@link CoreConnectionPNames#SOCKET_BUFFER_SIZE} 
      * parameter. If not set, defaults to <code>-1</code>.
      *  
-     * @param HTTP parameters.
+     * @param params HTTP parameters.
      * @return socket buffer size
      */
     public static int getSocketBufferSize(final HttpParams params) {
@@ -121,8 +121,8 @@ public final class HttpConnectionParams implements CoreConnectionPNames {
      * Sets value of the {@link CoreConnectionPNames#SOCKET_BUFFER_SIZE} 
      * parameter. 
      *  
-     * @param HTTP parameters.
-     * @param socket buffer size
+     * @param params HTTP parameters.
+     * @param size socket buffer size
      */
     public static void setSocketBufferSize(final HttpParams params, int size) {
         if (params == null) {
@@ -135,7 +135,7 @@ public final class HttpConnectionParams implements CoreConnectionPNames {
      * Obtains value of the {@link CoreConnectionPNames#SO_LINGER} parameter. 
      * If not set, defaults to <code>-1</code>.
      *  
-     * @param HTTP parameters.
+     * @param params HTTP parameters.
      * @return SO_LINGER.
      */
     public static int getLinger(final HttpParams params) {
@@ -148,8 +148,8 @@ public final class HttpConnectionParams implements CoreConnectionPNames {
     /**
      * Sets value of the {@link CoreConnectionPNames#SO_LINGER} parameter. 
      *  
-     * @param HTTP parameters.
-     * @param SO_LINGER.
+     * @param params HTTP parameters.
+     * @param value SO_LINGER.
      */
     public static void setLinger(final HttpParams params, int value) {
         if (params == null) {
@@ -162,7 +162,7 @@ public final class HttpConnectionParams implements CoreConnectionPNames {
      * Obtains value of the {@link CoreConnectionPNames#CONNECTION_TIMEOUT} 
      * parameter. If not set, defaults to <code>0</code>.
      *  
-     * @param HTTP parameters.
+     * @param params HTTP parameters.
      * @return connect timeout.
      */
     public static int getConnectionTimeout(final HttpParams params) {
@@ -177,8 +177,8 @@ public final class HttpConnectionParams implements CoreConnectionPNames {
      * Sets value of the {@link CoreConnectionPNames#CONNECTION_TIMEOUT} 
      * parameter.
      *  
-     * @param HTTP parameters.
-     * @param connect timeout.
+     * @param params HTTP parameters.
+     * @param timeout connect timeout.
      */
     public static void setConnectionTimeout(final HttpParams params, int timeout) {
         if (params == null) {
@@ -192,7 +192,7 @@ public final class HttpConnectionParams implements CoreConnectionPNames {
      * Obtains value of the {@link CoreConnectionPNames#STALE_CONNECTION_CHECK} 
      * parameter. If not set, defaults to <code>true</code>.
      *  
-     * @param HTTP parameters.
+     * @param params HTTP parameters.
      * @return stale connection check flag.
      */
     public static boolean isStaleCheckingEnabled(final HttpParams params) {
@@ -207,8 +207,8 @@ public final class HttpConnectionParams implements CoreConnectionPNames {
      * Sets value of the {@link CoreConnectionPNames#STALE_CONNECTION_CHECK} 
      * parameter. 
      *  
-     * @param HTTP parameters.
-     * @param stale connection check flag.
+     * @param params HTTP parameters.
+     * @param value stale connection check flag.
      */
     public static void setStaleCheckingEnabled(final HttpParams params, boolean value) {
         if (params == null) {

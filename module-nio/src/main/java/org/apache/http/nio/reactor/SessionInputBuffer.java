@@ -40,7 +40,11 @@ import java.nio.charset.CharacterCodingException;
 import org.apache.http.util.CharArrayBuffer;
 
 /**
- * Session input buffer for non-blocking connections.
+ * Session input buffer for non-blocking connections. This interface facilitates
+ * intermediate buffering of input data streamed from a source channel and 
+ * reading buffered data to a destination, usually {@link ByteBuffer} or 
+ * {@link WritableByteChannel}. This interface also provides methods for reading 
+ * CR-LF delimited lines.
  *
  * @author <a href="mailto:oleg at ural.ru">Oleg Kalnichevski</a>
  *
@@ -48,26 +52,135 @@ import org.apache.http.util.CharArrayBuffer;
  */
 public interface SessionInputBuffer {
     
+    /**
+     * Determines if the buffer contains data.
+     * 
+     * @return <code>true</code> if there is data in the buffer,
+     *   <code>false</code> otherwise.
+     */
     boolean hasData();
     
+    /**
+     * Returns the length of this buffer.
+     * 
+     * @return buffer length.
+     */
     int length();
     
-    int fill(ReadableByteChannel channel) 
-        throws IOException;
+    /**
+     * Makes an attempt to fill the buffer with data from the given 
+     * {@link ReadableByteChannel}. 
+     * 
+     * @param src the source channel
+     * @return The number of bytes read, possibly zero, or <tt>-1</tt> if the
+     *   channel has reached end-of-stream.
+     * @throws IOException in case of an I/O error.
+     */
+    int fill(ReadableByteChannel src) throws IOException;
     
+    /**
+     * Reads one byte from the buffer. If the buffer is empty this method can
+     * throw a runtime exception. The exact type of runtime exception thrown
+     * by this method depends on implementation. 
+     * 
+     * @return one byte
+     */
     int read();
     
+    /**
+     * Reads a sequence of bytes from this buffer into the destination buffer,
+     * up to the given maximum limit. The exact number of bytes transferred 
+     * depends on availability of data in this buffer and capacity of the 
+     * destination buffer, but cannot be more than <code>maxLen</code> value.   
+     * 
+     * @param dst the destination buffer.
+     * @param maxLen the maximum number of bytes to be read. 
+     * @return The number of bytes read, possibly zero.
+     */
     int read(ByteBuffer dst, int maxLen);
     
+    /**
+     * Reads a sequence of bytes from this buffer into the destination buffer.
+     * The exact number of bytes transferred depends on availability of data
+     * in this buffer and capacity of the destination buffer.   
+     * 
+     * @param dst the destination buffer.
+     * @return The number of bytes read, possibly zero.
+     */
     int read(ByteBuffer dst);
     
+    /**
+     * Reads a sequence of bytes from this buffer into the destination channel,
+     * up to the given maximum limit. The exact number of bytes transferred 
+     * depends on availability of data in this buffer, but cannot be more than 
+     * <code>maxLen</code> value.   
+     * 
+     * @param dst the destination channel.
+     * @param maxLen the maximum number of bytes to be read. 
+     * @return The number of bytes read, possibly zero.
+     * @throws IOException in case of an I/O error.
+     */
     int read(WritableByteChannel dst, int maxLen) throws IOException;
     
+    /**
+     * Reads a sequence of bytes from this buffer into the destination channel. 
+     * The exact number of bytes transferred depends on availability of data in 
+     * this buffer.   
+     * 
+     * @param dst the destination channel.
+     * @return The number of bytes read, possibly zero.
+     * @throws IOException in case of an I/O error.
+     */
     int read(WritableByteChannel dst) throws IOException;
     
-    boolean readLine(CharArrayBuffer linebuffer, boolean endOfStream) 
+    /**
+     * Attempts to transfer a complete line of characters up to a line delimiter 
+     * from this buffer to the destination buffer. If a complete line is 
+     * available in the buffer, the sequence of chars is transferred to the 
+     * destination buffer the method returns <code>true</code>. The line 
+     * delimiter itself is discarded. If a complete line is not available in 
+     * the buffer, this method returns <code>false</code> without transferring 
+     * anything to the destination buffer. If <code>endOfStream</code> parameter 
+     * is set to <code>true</code> this method assumes the end of stream has 
+     * been reached and the content currently stored in the buffer should be 
+     * treated as a complete line.  
+     * <p>
+     * Implementing classes can choose a char encoding and a line delimiter 
+     * as appropriate. 
+     * 
+     * @param dst the destination buffer.
+     * @param endOfStream
+     * @return <code>true</code> if a sequence of chars representing a complete
+     *  line has been transferred to the destination buffer, <code>false</code>
+     *  otherwise.
+     *   
+     * @throws CharacterCodingException in case a character encoding or decoding 
+     *   error occurs.
+     */
+    boolean readLine(CharArrayBuffer dst, boolean endOfStream) 
         throws CharacterCodingException;
     
+    /**
+     * Attempts to transfer a complete line of characters up to a line delimiter 
+     * from this buffer to a newly created string. If a complete line is 
+     * available in the buffer, the sequence of chars is transferred to a newly
+     * created string. The line delimiter itself is discarded. If a complete 
+     * line is not available in the buffer, this method returns 
+     * <code>null</code>. If <code>endOfStream</code> parameter 
+     * is set to <code>true</code> this method assumes the end of stream has 
+     * been reached and the content currently stored in the buffer should be 
+     * treated as a complete line.  
+     * <p>
+     * Implementing classes can choose a char encoding and a line delimiter 
+     * as appropriate. 
+     * 
+     * @param endOfStream
+     * @return a string representing a complete line, if available. 
+     * <code>null</code> otherwise.
+     *   
+     * @throws CharacterCodingException in case a character encoding or decoding 
+     *   error occurs.
+     */
     String readLine(boolean endOfStream) 
         throws CharacterCodingException;
     

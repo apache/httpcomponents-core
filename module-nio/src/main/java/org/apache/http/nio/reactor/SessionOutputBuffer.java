@@ -40,7 +40,11 @@ import java.nio.charset.CharacterCodingException;
 import org.apache.http.util.CharArrayBuffer;
 
 /**
- * Session output buffer for non-blocking connections.
+ * Session output buffer for non-blocking connections. This interface 
+ * facilitates intermediate buffering of output data streamed out to 
+ * a destination channel and writing data to the buffer from a source, usually 
+ * {@link ByteBuffer} or {@link ReadableByteChannel}. This interface also 
+ * provides methods for writing CR-LF delimited lines.
  *
  * @author <a href="mailto:oleg at ural.ru">Oleg Kalnichevski</a>
  *

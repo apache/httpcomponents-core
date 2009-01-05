@@ -32,14 +32,27 @@
 package org.apache.http.nio.reactor;
 
 /**
- * Interface to query the status of session I/O buffers. 
+ * SessionBufferStatus interface is intended to query the status of session 
+ * I/O buffers. 
  * 
  * @author <a href="mailto:oleg at ural.ru">Oleg Kalnichevski</a>
  */
 public interface SessionBufferStatus {
 
+    /**
+     * Determines if the session input buffer contains data.
+     * 
+     * @return <code>true</code> if the session input buffer contains data,
+     *   <code>false</code> otherwise.
+     */
     boolean hasBufferedInput();
     
+    /**
+     * Determines if the session output buffer contains data.
+     * 
+     * @return <code>true</code> if the session output buffer contains data,
+     *   <code>false</code> otherwise.
+     */
     boolean hasBufferedOutput();
 
 }

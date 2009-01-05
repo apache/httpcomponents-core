@@ -31,8 +31,6 @@
 
 package org.apache.http.protocol;
 
-import org.apache.http.HttpConnection;
-
 /**
  * {@link HttpContext} attribute names for protocol execution.
  *
@@ -45,32 +43,32 @@ import org.apache.http.HttpConnection;
 public interface ExecutionContext {
 
     /**
-     * Attribute name of a {@link HttpConnection} object that represents 
-     * the actual HTTP connection.
+     * Attribute name of a {@link org.apache.http.HttpConnection} object that 
+     * represents the actual HTTP connection.
      */
     public static final String HTTP_CONNECTION  = "http.connection"; 
 
     /**
-     * Attribute name of a {@link HttpRequest} object that represents 
-     * the actual HTTP request.
+     * Attribute name of a {@link org.apache.http.HttpRequest} object that 
+     * represents the actual HTTP request.
      */
     public static final String HTTP_REQUEST     = "http.request"; 
 
     /**
-     * Attribute name of a {@link HttpResponse} object that represents the 
-     * actual HTTP response.
+     * Attribute name of a {@link org.apache.http.HttpResponse} object that 
+     * represents the actual HTTP response.
      */
     public static final String HTTP_RESPONSE    = "http.response"; 
 
     /**
-     * Attribute name of a {@link HttpHost} object that represents the 
-     * connection target.
+     * Attribute name of a {@link org.apache.http.HttpHost} object that 
+     * represents the connection target.
      */
     public static final String HTTP_TARGET_HOST = "http.target_host"; 
 
     /**
-     * Attribute name of a {@link HttpHost} object that represents the 
-     * connection proxy.
+     * Attribute name of a {@link org.apache.http.HttpHost} object that 
+     * represents the connection proxy.
      */
     public static final String HTTP_PROXY_HOST  = "http.proxy_host"; 
 
