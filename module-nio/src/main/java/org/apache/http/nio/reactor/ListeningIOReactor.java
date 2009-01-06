@@ -35,16 +35,51 @@ import java.net.SocketAddress;
 import java.util.Set;
 import java.io.IOException;
 
+/**
+ * ListeningIOReactor represents an I/O reactor capable of listening for 
+ * incoming connections on one or several ports.
+ *  
+ * @author <a href="mailto:oleg at ural.ru">Oleg Kalnichevski</a>
+ *
+ * @version $Revision$
+ * 
+ */
 public interface ListeningIOReactor extends IOReactor {
 
+    /**
+     * Opens a new listener endpoint with the given socket address. Once 
+     * the endpoint is fully initialized it starts accepting incoming 
+     * connections and propagates I/O activity notifications to the I/O event
+     * dispatcher. 
+     * 
+     * @param address the socket address to listen on.
+     * @return listener endpoint.
+     */
     ListenerEndpoint listen(SocketAddress address);
 
+    /**
+     * Suspends the I/O reactor preventing it from accepting new connections on
+     * all active endpoints.
+     * 
+     * @throws IOException in case of an I/O error.
+     */
     void pause()
         throws IOException;
 
+    /**
+     * Resumes the I/O reactor restoring its ability to accept incoming 
+     * connections on all active endpoints.
+     * 
+     * @throws IOException in case of an I/O error.
+     */
     void resume()
         throws IOException;
 
+    /**
+     * Returns a set of endpoints for this I/O reactor.
+     * 
+     * @return set of endpoints. 
+     */
     Set<ListenerEndpoint> getEndpoints();
     
 }

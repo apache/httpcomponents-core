@@ -36,6 +36,8 @@ package org.apache.http.nio.reactor;
  * I/O buffers. 
  * 
  * @author <a href="mailto:oleg at ural.ru">Oleg Kalnichevski</a>
+ * 
+ * @version $Revision$
  */
 public interface SessionBufferStatus {
 

@@ -44,29 +44,81 @@ import org.apache.http.util.CharArrayBuffer;
  * facilitates intermediate buffering of output data streamed out to 
  * a destination channel and writing data to the buffer from a source, usually 
  * {@link ByteBuffer} or {@link ReadableByteChannel}. This interface also 
- * provides methods for writing CR-LF delimited lines.
+ * provides methods for writing lines of text.
  *
  * @author <a href="mailto:oleg at ural.ru">Oleg Kalnichevski</a>
  *
- * @since 4.0
+ * @version $Revision$
  */
 public interface SessionOutputBuffer {
 
+    /**
+     * Determines if the buffer contains data.
+     * 
+     * @return <code>true</code> if there is data in the buffer,
+     *   <code>false</code> otherwise.
+     */
     boolean hasData();
     
+    /**
+     * Returns the length of this buffer.
+     * 
+     * @return buffer length.
+     */
     int length();
     
+    /**
+     * Makes an attempt to flush the content of this buffer to the given
+     * destination {@link WritableByteChannel}.
+     *  
+     * @param channel the destination channel.
+     * @return The number of bytes written, possibly zero.
+     * @throws IOException in case of an I/O error.
+     */
     int flush(WritableByteChannel channel) 
         throws IOException;
 
+    /**
+     * Copies content of the source buffer into this buffer. The capacity of 
+     * the destination will be expanded in order to accommodate the entire
+     * content of the source buffer.
+     *    
+     * @param src the source buffer.
+     */
     void write(ByteBuffer src);
 
+    /**
+     * Reads a sequence of bytes from the source channel into this buffer.
+     *    
+     * @param src the source channel.
+     */
     void write(ReadableByteChannel src) 
         throws IOException;
     
-    void writeLine(CharArrayBuffer linebuffer) 
+    /**
+     * Copies content of the source buffer into this buffer as one line of text
+     * including a line delimiter. The capacity of the destination will be 
+     * expanded in order to accommodate the entire content of the source buffer.
+     * <p>
+     * The choice of a char encoding and line delimiter sequence is up to the 
+     * specific implementations of this interface. 
+     *    
+     * @param src the source buffer.
+     */
+    void writeLine(CharArrayBuffer src) 
         throws CharacterCodingException;
     
+    /**
+     * Copies content of the given string into this buffer as one line of text
+     * including a line delimiter. 
+     * The capacity of the destination will be expanded in order to accommodate 
+     * the entire string.
+     * <p>
+     * The choice of a char encoding and line delimiter sequence is up to the 
+     * specific implementations of this interface. 
+     *    
+     * @param s the string.
+     */
     void writeLine(String s) 
         throws IOException;
     

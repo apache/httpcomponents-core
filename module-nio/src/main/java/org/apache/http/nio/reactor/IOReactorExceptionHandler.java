@@ -35,16 +35,19 @@ import java.io.IOException;
 
 /**
  * Abstract exception handler intended to deal with potentially recoverable 
- * I/O exceptions thrown by an I/O reactor
+ * I/O exceptions thrown by an I/O reactor.
  * 
  * @author <a href="mailto:oleg at ural.ru">Oleg Kalnichevski</a>
+ *
+ * @version $Revision$
  * 
  */
 public interface IOReactorExceptionHandler {
 
     /**
-     * This method is expected to examine the I/O exception passed as a parameter
-     * and decide whether it is safe to continue execution of the I/O reactor 
+     * This method is expected to examine the I/O exception passed as 
+     * a parameter and decide whether it is safe to continue execution of 
+     * the I/O reactor. 
      * 
      * @param ex potentially recoverable I/O exception 
      * @return <code>true</code> if it is safe to ignore the exception 
@@ -54,8 +57,9 @@ public interface IOReactorExceptionHandler {
     boolean handle(IOException ex); 
     
     /**
-     * This method is expected to examine the runtime exception passed as a parameter
-     * and decide whether it is safe to continue execution of the I/O reactor 
+     * This method is expected to examine the runtime exception passed as 
+     * a parameter and decide whether it is safe to continue execution of 
+     * the I/O reactor. 
      * 
      * @param ex potentially recoverable runtime exception 
      * @return <code>true</code> if it is safe to ignore the exception 

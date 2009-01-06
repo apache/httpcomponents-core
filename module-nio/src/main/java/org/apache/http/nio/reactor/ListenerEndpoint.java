@@ -1,7 +1,7 @@
 /*
- * $HeadURL:$
- * $Revision:$
- * $Date:$
+ * $HeadURL$
+ * $Revision$
+ * $Date$
  *
  * ====================================================================
  * Licensed to the Apache Software Foundation (ASF) under one
@@ -34,16 +34,53 @@ package org.apache.http.nio.reactor;
 import java.io.IOException;
 import java.net.SocketAddress;
 
+/**
+ * ListenerEndpoint interface represents an endpoint used by an I/O reactor
+ * to listen for incoming connection from remote clients.
+ * 
+ * @author <a href="mailto:oleg at ural.ru">Oleg Kalnichevski</a>
+ *
+ * @version $Revision$
+ * 
+ */
 public interface ListenerEndpoint {
 
+    /**
+     * Returns the socket address of this endpoint.
+     * 
+     * @return socket address.
+     */
     SocketAddress getAddress();
     
+    /**
+     * Returns an instance of {@link IOException} thrown during initialization 
+     * of this endpoint or <code>null</code>, if initialization was successful.
+     * 
+     * @return I/O exception object or <code>null</code>.
+     */
     IOException getException();
 
+    /**
+     * Waits for completion of initialization process of this endpoint.
+     * 
+     * @throws InterruptedException in case the initialization process was 
+     *   interrupted.
+     */
     void waitFor() throws InterruptedException;
     
+    /**
+     * Determines if this endpoint has been closed and is no longer listens
+     * for incoming connections.
+     * 
+     * @return <code>true</code> if the endpoint has been closed,
+     *   <code>false</code> otherwise.
+     */
     boolean isClosed();
     
+    /**
+     * Closes this endpoint. The endpoint will stop accepting incoming 
+     * connection.
+     */
     void close();
     
 }

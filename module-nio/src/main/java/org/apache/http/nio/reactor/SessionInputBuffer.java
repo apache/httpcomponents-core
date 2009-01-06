@@ -44,11 +44,11 @@ import org.apache.http.util.CharArrayBuffer;
  * intermediate buffering of input data streamed from a source channel and 
  * reading buffered data to a destination, usually {@link ByteBuffer} or 
  * {@link WritableByteChannel}. This interface also provides methods for reading 
- * CR-LF delimited lines.
+ * lines of text.
  *
  * @author <a href="mailto:oleg at ural.ru">Oleg Kalnichevski</a>
  *
- * @since 4.0
+ * @version $Revision$
  */
 public interface SessionInputBuffer {
     
@@ -145,8 +145,8 @@ public interface SessionInputBuffer {
      * been reached and the content currently stored in the buffer should be 
      * treated as a complete line.  
      * <p>
-     * Implementing classes can choose a char encoding and a line delimiter 
-     * as appropriate. 
+     * The choice of a char encoding and line delimiter sequence is up to the 
+     * specific implementations of this interface. 
      * 
      * @param dst the destination buffer.
      * @param endOfStream
@@ -171,8 +171,8 @@ public interface SessionInputBuffer {
      * been reached and the content currently stored in the buffer should be 
      * treated as a complete line.  
      * <p>
-     * Implementing classes can choose a char encoding and a line delimiter 
-     * as appropriate. 
+     * The choice of a char encoding and line delimiter sequence is up to the 
+     * specific implementations of this interface. 
      * 
      * @param endOfStream
      * @return a string representing a complete line, if available. 

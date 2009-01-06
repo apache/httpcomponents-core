@@ -37,8 +37,7 @@ import org.apache.http.util.CharArrayBuffer;
 
 /**
  * Session output buffer for blocking connections. This interface is similar to 
- * OutputStream class, but it also provides methods for writing CR-LF delimited 
- * lines. 
+ * OutputStream class, but it also provides methods for writing lines of text. 
  * <p>
  * Implementing classes are also expected to manage intermediate data buffering
  * for optimal output performance.  
@@ -87,8 +86,8 @@ public interface SessionOutputBuffer {
      * Writes characters from the specified string followed by a line delimiter 
      * to this session buffer.
      * <p>
-     * Implementing classes can choose a char encoding and a line delimiter 
-     * as appropriate. 
+     * The choice of a char encoding and line delimiter sequence is up to the 
+     * specific implementations of this interface. 
      *
      * @param      s   the line.
      * @exception  IOException  if an I/O error occurs.
@@ -99,8 +98,8 @@ public interface SessionOutputBuffer {
      * Writes characters from the specified char array followed by a line 
      * delimiter to this session buffer.
      * <p>
-     * Implementing classes can choose a char encoding and a line delimiter 
-     * as appropriate. 
+     * The choice of a char encoding and line delimiter sequence is up to the 
+     * specific implementations of this interface. 
      *
      * @param      buffer   the buffer containing chars of the line.
      * @exception  IOException  if an I/O error occurs.

@@ -37,8 +37,7 @@ import org.apache.http.util.CharArrayBuffer;
 
 /**
  * Session input buffer for blocking connections. This interface is similar to 
- * InputStream class, but it also provides methods for reading CR-LF delimited 
- * lines. 
+ * InputStream class, but it also provides methods for reading lines of text. 
  * <p>
  * Implementing classes are also expected to manage intermediate data buffering
  * for optimal input performance.  
@@ -112,8 +111,8 @@ public interface SessionInputBuffer {
      * the value <code>-1</code> is returned. This method blocks until input 
      * data is available, end of file is detected, or an exception is thrown.
      * <p>
-     * Implementing classes can choose a char encoding and a line delimiter 
-     * as appropriate. 
+     * The choice of a char encoding and line delimiter sequence is up to the 
+     * specific implementations of this interface. 
      *
      * @param      buffer   the line buffer.
      * @return     one line of characters
@@ -128,8 +127,8 @@ public interface SessionInputBuffer {
      * <code>null</code> is returned. This method blocks until input data is 
      * available, end of file is detected, or an exception is thrown.
      * <p>
-     * Implementing classes can choose a char encoding and a line delimiter 
-     * as appropriate. 
+     * The choice of a char encoding and line delimiter sequence is up to the 
+     * specific implementations of this interface. 
      * 
      * @return HTTP line as a string
      * @exception  IOException  if an I/O error occurs.
