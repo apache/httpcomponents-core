@@ -221,6 +221,7 @@ public class NHttpClient {
         }
         
         public void cancelled(final SessionRequest request) {
+            System.out.println("Connect request cancelled: " + request.getRemoteAddress());
             this.requestCount.countDown();
         }
 
@@ -228,10 +229,12 @@ public class NHttpClient {
         }
 
         public void failed(final SessionRequest request) {
+            System.out.println("Connect request failed: " + request.getRemoteAddress());
             this.requestCount.countDown();
         }
 
         public void timeout(final SessionRequest request) {
+            System.out.println("Connect request timed out: " + request.getRemoteAddress());
             this.requestCount.countDown();
         }
         
