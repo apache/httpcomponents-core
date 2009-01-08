@@ -40,6 +40,8 @@ import java.nio.ByteBuffer;
  * content to the underlying channel in small chunks.
  * 
  * @author <a href="mailto:oleg at ural.ru">Oleg Kalnichevski</a>
+ *
+ * @version $Revision$
  */
 public interface ContentEncoder {
 
@@ -60,11 +62,11 @@ public interface ContentEncoder {
     void complete() throws IOException;
     
     /**
-     * Returns <tt>true</tt> if the entity has been transferred in its
+     * Returns <code>true</code> if the entity has been transferred in its
      * entirety.
      * 
-     * @return <tt>true</tt> if all the content has been produced, 
-     * <tt>false</tt> otherwise.
+     * @return <code>true</code> if all the content has been produced, 
+     * <code>false</code> otherwise.
      */
     boolean isCompleted();
     

@@ -40,6 +40,8 @@ import java.nio.ByteBuffer;
  * chunks and apply the required coding transformation.
  * 
  * @author <a href="mailto:oleg at ural.ru">Oleg Kalnichevski</a>
+ *
+ * @version $Revision$
  */
 public interface ContentDecoder {
 
@@ -54,11 +56,11 @@ public interface ContentDecoder {
     int read(ByteBuffer dst) throws IOException;
     
     /**
-     * Returns <tt>true</tt> if the entity has been received in its
+     * Returns <code>true</code> if the entity has been received in its
      * entirety.
      * 
-     * @return <tt>true</tt> if all the content has been consumed, 
-     * <tt>false</tt> otherwise.
+     * @return <code>true</code> if all the content has been consumed, 
+     * <code>false</code> otherwise.
      */
     boolean isCompleted();
     

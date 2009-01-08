@@ -1,7 +1,10 @@
+<html>
+<head>
+<!--
 /*
- * $HeadURL$
- * $Revision$
- * $Date$
+ * $HeadURL: $
+ * $Revision: $
+ * $Date: $
  *
  * ====================================================================
  * Licensed to the Apache Software Foundation (ASF) under one
@@ -28,40 +31,13 @@
  * <http://www.apache.org/>.
  *
  */
-
-package org.apache.http.nio;
-
-import java.io.IOException;
-import java.nio.ByteBuffer;
-import java.nio.channels.WritableByteChannel;
-
-import org.apache.http.nio.ContentEncoder;
-
-/**
- * A {@link WritableByteChannel} that delegates to a {@link ContentEncoder}.
- * Attempts to close this channel are ignored, and {@link #isOpen} always 
- * returns <code>true</code>.
- *
- * @author <a href="mailto:sberlin at gmail.com">Sam Berlin</a>
- *
- * @version $Revision$
- */
-public class ContentEncoderChannel implements WritableByteChannel {
-
-    private final ContentEncoder contentEncoder;
-
-    public ContentEncoderChannel(ContentEncoder contentEncoder) {
-        this.contentEncoder = contentEncoder;
-    }
-
-    public int write(ByteBuffer src) throws IOException {
-        return contentEncoder.write(src);
-    }
-
-    public void close() {}
-
-    public boolean isOpen() {
-        return true;
-    }
-
-}
+-->
+</head>
+<body>
+The core HTTP components based on non-blocking I/O model (HttpCore NIO).
+<p/>
+This layer defines interfaces for transferring HTTP messages over non-blocking
+HTTP connections and protocol handlers for processing HTTP messages 
+asynchronously.
+</body>
+</html>

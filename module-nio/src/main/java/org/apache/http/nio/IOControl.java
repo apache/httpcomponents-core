@@ -34,17 +34,22 @@ package org.apache.http.nio;
 import java.io.IOException;
 
 /**
- * Connection input/output control interface. It can be used to request or
- * temporarily suspend event notifications that are triggered when the underlying
- * channel is ready for input / output operations. 
+ * Connection input/output control interface. It can be used to control interest 
+ * in I/O event notifications for non-blocking HTTP connections.
+ * <p>
+ * Implementations of this interface are expected to be threading safe. 
+ * Therefore it can be used to request / suspend I/O event notifications from 
+ * any thread of execution.
  * 
  * @author <a href="mailto:oleg at ural.ru">Oleg Kalnichevski</a>
+ *
+ * @version $Revision$
  */
 public interface IOControl {
 
     /**
      * Requests event notifications to be triggered when the underlying
-     * channel is ready for input oprtations.
+     * channel is ready for input operations.
      */
     void requestInput();
     
@@ -56,7 +61,7 @@ public interface IOControl {
     
     /**
      * Requests event notifications to be triggered when the underlying
-     * channel is ready for output oprtations.
+     * channel is ready for output operations.
      */
     void requestOutput();
     

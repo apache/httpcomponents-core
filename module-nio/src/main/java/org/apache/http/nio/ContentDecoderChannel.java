@@ -1,7 +1,7 @@
 /*
- * $HeadURL:$
- * $Revision:$
- * $Date:$
+ * $HeadURL$
+ * $Revision$
+ * $Date$
  *
  * ====================================================================
  * Licensed to the Apache Software Foundation (ASF) under one
@@ -37,9 +37,12 @@ import java.nio.channels.ReadableByteChannel;
 
 /**
  * A {@link ReadableByteChannel} that delegates to a {@link ContentDecoder}.
- * Attempts to close this channel are ignored, and isOpen always returns true.
+ * Attempts to close this channel are ignored, and {@link #isOpen} always 
+ * returns <code>true</code>.
  *
  * @author <a href="mailto:sberlin at gmail.com">Sam Berlin</a>
+ *
+ * @version $Revision$
  */
 public class ContentDecoderChannel implements ReadableByteChannel {
 
