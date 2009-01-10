@@ -36,9 +36,11 @@ import java.io.IOException;
 import org.apache.http.HttpException;
 
 /**
- * Abstract server-side HTTP event handler.   
+ * Abstract server-side HTTP protocol handler.   
  * 
  * @author <a href="mailto:oleg at ural.ru">Oleg Kalnichevski</a>
+ *
+ * @version $Revision$
  */
 public interface NHttpServiceHandler {
 
@@ -71,11 +73,12 @@ public interface NHttpServiceHandler {
      * content decoder. 
      * <p/>
      * If the content consumer is unable to process the incoming content,
-     * input event notifications can be temorarily suspended using 
-     * {@link NHttpConnection#suspendInput()}.
+     * input event notifications can be temporarily suspended using 
+     * {@link IOControl} interface.
      * 
-     * @see NHttpConnection
+     * @see NHttpServerConnection
      * @see ContentDecoder
+     * @see IOControl
      *  
      * @param conn HTTP connection that can produce a new portion of the
      * incoming request content.
@@ -84,7 +87,9 @@ public interface NHttpServiceHandler {
     void inputReady(NHttpServerConnection conn, ContentDecoder decoder);
     
     /**
-     * Triggered when the connection is ready to send an HTTP response.
+     * Triggered when the connection is ready to accept a new HTTP response. 
+     * The protocol handler does not have to submit a response if it is not 
+     * ready.
      * 
      * @see NHttpServerConnection
      * 
@@ -98,11 +103,12 @@ public interface NHttpServiceHandler {
      * content encoder. 
      * <p/>
      * If the content producer is unable to generate the outgoing content,
-     * output event notifications can be temorarily suspended using 
-     * {@link NHttpConnection#suspendOutput()}.
+     * output event notifications can be temporarily suspended using 
+     * {@link IOControl} interface.
      * 
-     * @see NHttpConnection
+     * @see NHttpServerConnection
      * @see ContentEncoder
+     * @see IOControl
      *  
      * @param conn HTTP connection that can accommodate a new portion 
      * of the outgoing response content.
@@ -111,7 +117,7 @@ public interface NHttpServiceHandler {
     void outputReady(NHttpServerConnection conn, ContentEncoder encoder);
 
     /**
-     * Triggered when an I/O error occurrs while reading from or writing
+     * Triggered when an I/O error occurs while reading from or writing
      * to the underlying channel.
      * 
      * @param conn HTTP connection that caused an I/O error

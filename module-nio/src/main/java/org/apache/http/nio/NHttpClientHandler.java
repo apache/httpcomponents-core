@@ -36,9 +36,11 @@ import java.io.IOException;
 import org.apache.http.HttpException;
 
 /**
- * Abstract client-side HTTP event handler.   
+ * Abstract client-side HTTP protocol handler.   
  * 
  * @author <a href="mailto:oleg at ural.ru">Oleg Kalnichevski</a>
+ *
+ * @version $Revision$
  */
 public interface NHttpClientHandler {
 
@@ -46,17 +48,18 @@ public interface NHttpClientHandler {
      * Triggered when a new outgoing connection is created.
      * 
      * @param conn new outgoing HTTP connection.
-     * @param attachment an arbitrary object that was attached to the
-     *  session request
+     * @param attachment an object that was attached to the session request
      */
     void connected(NHttpClientConnection conn, Object attachment);
     
     /**
-     * Triggered when the connection is ready to send an HTTP request.
+     * Triggered when the connection is ready to accept a new HTTP request. 
+     * The protocol handler does not have to submit a request if it is not 
+     * ready.
      * 
      * @see NHttpClientConnection
      * 
-     * @param conn HTTP connection that is ready to send an HTTP request
+     * @param conn HTTP connection that is ready to accept a new HTTP request.
      */
     void requestReady(NHttpClientConnection conn);
 
@@ -66,7 +69,7 @@ public interface NHttpClientHandler {
      * a valid HTTP response object.
      * <p/>
      * If the response received encloses a response entity this method will 
-     * be followed a series of 
+     * be followed by a series of 
      * {@link #inputReady(NHttpClientConnection, ContentDecoder)} calls
      * to transfer the response content.
      * 
@@ -82,11 +85,12 @@ public interface NHttpClientHandler {
      * content decoder. 
      * <p/>
      * If the content consumer is unable to process the incoming content,
-     * input event notifications can be temorarily suspended using 
-     * {@link NHttpConnection#suspendInput()}.
+     * input event notifications can be temporarily suspended using 
+     * {@link IOControl} interface.
      * 
-     * @see NHttpConnection
+     * @see NHttpClientConnection
      * @see ContentDecoder
+     * @see IOControl
      *  
      * @param conn HTTP connection that can produce a new portion of the
      * incoming response content.
@@ -95,16 +99,16 @@ public interface NHttpClientHandler {
     void inputReady(NHttpClientConnection conn, ContentDecoder decoder);
     
     /**
-     * Triggered when the underlying channel is ready for writing a
-     * next portion of the request entity through the corresponding 
-     * content encoder. 
-     * <p/>
-     * If the content producer is unable to generate the outgoing content,
-     * output event notifications can be temorarily suspended using 
-     * {@link NHttpConnection#suspendOutput()}.
+     * Triggered when the underlying channel is ready for writing a next portion 
+     * of the request entity through the corresponding content encoder. 
+     * <p>
+     * If the content producer is unable to generate the outgoing content, 
+     * output event notifications can be temporarily suspended using 
+     * {@link IOControl} interface. 
      * 
-     * @see NHttpConnection
+     * @see NHttpClientConnection
      * @see ContentEncoder
+     * @see IOControl
      *  
      * @param conn HTTP connection that can accommodate a new portion 
      * of the outgoing request content.
@@ -113,7 +117,7 @@ public interface NHttpClientHandler {
     void outputReady(NHttpClientConnection conn, ContentEncoder encoder);
     
     /**
-     * Triggered when an I/O error occurrs while reading from or writing
+     * Triggered when an I/O error occurs while reading from or writing
      * to the underlying channel.
      * 
      * @param conn HTTP connection that caused an I/O error

@@ -48,11 +48,33 @@ import org.apache.http.HttpMessage;
  */
 public interface NHttpMessageParser {
     
+    /**
+     * Resets the parser. The parser will be ready to start parsing another 
+     * HTTP message.
+     */
     void reset();
     
+    /**
+     * Fills the internal buffer of the parser with input data from the 
+     * given {@link ReadableByteChannel}.
+     * 
+     * @param channel the input channel
+     * @return number of bytes read.
+     * @throws IOException in case of an I/O error.
+     */
     int fillBuffer(ReadableByteChannel channel) 
         throws IOException;    
 
+    /**
+     * Attempts to parse a complete message head from the content of the 
+     * internal buffer. If the message in the input buffer is incomplete
+     * this method will return <code>null</code>.  
+     * 
+     * @return HTTP message head, if available, <code>null</code> otherwise.
+     * @throws IOException in case of an I/O error.
+     * @throws HttpException in case the HTTP message is malformed or
+     *  violates the HTTP protocol.
+     */
     HttpMessage parse()
         throws IOException, HttpException;
 

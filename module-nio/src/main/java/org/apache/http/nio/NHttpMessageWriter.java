@@ -47,8 +47,20 @@ import org.apache.http.HttpMessage;
  */
 public interface NHttpMessageWriter {
     
+    /**
+     * Resets the writer. The writer will be ready to start serializing another 
+     * HTTP message.
+     */
     void reset();
     
+    /**
+     * Serializes out the HTTP message head.
+     * 
+     * @param message HTTP message.
+     * @throws IOException in case of an I/O error.
+     * @throws HttpException in case the HTTP message is malformed or
+     *  violates the HTTP protocol.
+     */
     void write(HttpMessage message)
         throws IOException, HttpException;
     

@@ -37,15 +37,19 @@ import org.apache.http.HttpException;
 import org.apache.http.HttpResponse;
 
 /**
- * Abstract non-blocking server-side HTTP connection. It can be used to
- * receive HTTP requests and asynchronously submit HTTP responses. 
+ * Abstract non-blocking server-side HTTP connection interface. It can be used 
+ * to receive HTTP requests and asynchronously submit HTTP responses. 
+ * 
+ * @see NHttpConnection
  * 
  * @author <a href="mailto:oleg at ural.ru">Oleg Kalnichevski</a>
+ * 
+ * @version $Revision$
  */
 public interface NHttpServerConnection extends NHttpConnection {
 
     /**
-     * Submits the HTTP response to the client.
+     * Submits {link @HttpResponse} to be sent to the client.
      *  
      * @param response HTTP response
      * 
@@ -55,11 +59,11 @@ public interface NHttpServerConnection extends NHttpConnection {
     void submitResponse(HttpResponse response) throws IOException, HttpException;
 
     /**
-     * Returns <tt>true</tt> if an HTTP response has been submitted to the 
+     * Returns <code>true</code> if an HTTP response has been submitted to the 
      * client.
      * 
-     * @return <tt>true</tt> if an HTTP response has been submitted, 
-     * <tt>false</tt> otherwise. 
+     * @return <code>true</code> if an HTTP response has been submitted, 
+     * <code>false</code> otherwise. 
      */
     boolean isResponseSubmitted();
     
