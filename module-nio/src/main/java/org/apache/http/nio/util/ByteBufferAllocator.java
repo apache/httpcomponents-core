@@ -33,8 +33,17 @@ package org.apache.http.nio.util;
 
 import java.nio.ByteBuffer;
 
+/**
+ * Abstract interface to allocate {@link ByteBuffer} instances.
+ */
 public interface ByteBufferAllocator {
     
+    /**
+     * Allocates {@link ByteBuffer} of the given size.
+     *  
+     * @param size the size of the buffer.
+     * @return byte buffer.
+     */
     ByteBuffer allocate(int size);
     
 }

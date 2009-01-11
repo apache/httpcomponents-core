@@ -55,7 +55,6 @@ public class ContentOutputStream extends OutputStream {
 
     @Override
     public void flush() throws IOException {
-        this.buffer.flush();
     }
 
     @Override

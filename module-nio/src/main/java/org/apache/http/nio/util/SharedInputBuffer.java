@@ -36,6 +36,11 @@ import java.io.InterruptedIOException;
 import org.apache.http.nio.ContentDecoder;
 import org.apache.http.nio.IOControl;
 
+/**
+ * Implementation of the {@link ContentInputBuffer} interface that can be 
+ * shared by multiple threads, usually the I/O dispatch of an I/O reactor and
+ * a worker tread. This class is not threading safe.
+ */
 public class SharedInputBuffer extends ExpandableBuffer implements ContentInputBuffer {
 
     private final IOControl ioctrl;

@@ -33,6 +33,10 @@ package org.apache.http.nio.util;
 
 import java.nio.ByteBuffer;
 
+/**
+ * Allocates {@link ByteBuffer} instances using 
+ * {@link ByteBuffer#allocateDirect(int)}.
+ */
 public class DirectByteBufferAllocator implements ByteBufferAllocator {
 
     public ByteBuffer allocate(int size) {
