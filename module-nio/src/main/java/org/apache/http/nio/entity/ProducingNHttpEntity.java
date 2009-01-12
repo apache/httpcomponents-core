@@ -38,7 +38,8 @@ import org.apache.http.nio.ContentEncoder;
 import org.apache.http.nio.IOControl;
 
 /**
- * An {@link HttpEntity} that writes content to a {@link ContentEncoder}.
+ * An {@link HttpEntity} that can stream content out into a 
+ * {@link ContentEncoder}.
  *
  * @author <a href="mailto:sberlin at gmail.com">Sam Berlin</a>
  */
@@ -49,9 +50,12 @@ public interface ProducingNHttpEntity extends HttpEntity {
      * {@link IOControl} instance passed as a parameter to the method can be 
      * used to suspend output events if the entity is temporarily unable to 
      * produce more content.
-     * <b/>
+     * <p>
      * When all content is finished, this <b>MUST</b> call {@link ContentEncoder#complete()}.
      * Failure to do so could result in the entity never being written.
+     * 
+     * @param encoder content encoder.
+     * @param ioctrl I/O control of the underlying connection.
      */
     void produceContent(ContentEncoder encoder, IOControl ioctrl) throws IOException;
 

@@ -45,8 +45,11 @@ import org.apache.http.nio.FileContentEncoder;
 import org.apache.http.nio.IOControl;
 
 /**
- * An entity whose content is retrieved from from a file.
- *
+ * A self contained, repeatable non-blocking entity that retrieves its content 
+ * from a file. This class is mostly used to stream large files of different 
+ * types, so one needs to supply the content type of the file to make sure 
+ * the content can be correctly recognized and processed by the recipient.
+ * 
  * @author <a href="mailto:sberlin at gmail.com">Sam Berlin</a>
  *
  * @version $Revision$
@@ -60,6 +63,17 @@ public class NFileEntity extends AbstractHttpEntity implements ProducingNHttpEnt
     private long idx = -1;
     private boolean useFileChannels;
 
+    /**
+     * Creates new instance of NFileEntity from the given source {@link File}
+     * with the given content type. If <code>useFileChannels</code> is set to
+     * <code>true</code>, the entity will try to use {@link FileContentEncoder}
+     * interface to stream file content directly from the file channel.
+     * 
+     * @param file the source file.
+     * @param contentType the content type of the file.
+     * @param useFileChannels flag whether the direct transfer from the file
+     *   channel should be attempted. 
+     */
     public NFileEntity(final File file, final String contentType, boolean useFileChannels) {
         if (file == null) {
             throw new IllegalArgumentException("File may not be null");

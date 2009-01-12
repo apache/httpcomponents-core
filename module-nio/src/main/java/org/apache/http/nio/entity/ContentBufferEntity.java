@@ -36,11 +36,20 @@ import org.apache.http.HttpEntity;
 import org.apache.http.entity.BasicHttpEntity;
 import org.apache.http.nio.util.ContentInputBuffer;
 
+/**
+ * HTTP entity wrapper whose content is provided by a 
+ * {@link ContentInputBuffer}. 
+ */
 public class ContentBufferEntity extends BasicHttpEntity {
 
-    /** The wrapped entity. */
     private HttpEntity wrappedEntity;
     
+    /**
+     * Creates new instance of ContentBufferEntity.
+     * 
+     * @param entity the original entity.
+     * @param buffer the content buffer.
+     */
     public ContentBufferEntity(final HttpEntity entity, final ContentInputBuffer buffer) {
         super();
         if (entity == null) {

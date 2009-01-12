@@ -43,6 +43,10 @@ import org.apache.http.entity.HttpEntityWrapper;
 import org.apache.http.nio.ContentEncoder;
 import org.apache.http.nio.IOControl;
 
+/**
+ * {@link ProducingNHttpEntity} compatibility adaptor for blocking HTTP 
+ * entities. 
+ */
 public class NHttpEntityWrapper
     extends HttpEntityWrapper implements ProducingNHttpEntity {
 
@@ -55,6 +59,9 @@ public class NHttpEntityWrapper
         this.buffer = ByteBuffer.allocate(4096);
     }
 
+    /**
+     * This method throws {@link UnsupportedOperationException}. 
+     */
     @Override
     public InputStream getContent() throws IOException, UnsupportedOperationException {
         throw new UnsupportedOperationException("Does not support blocking methods");
@@ -65,6 +72,9 @@ public class NHttpEntityWrapper
         return true;
     }
 
+    /**
+     * This method throws {@link UnsupportedOperationException}. 
+     */
     @Override
     public void writeTo(OutputStream out) throws IOException, UnsupportedOperationException {
         throw new UnsupportedOperationException("Does not support blocking methods");

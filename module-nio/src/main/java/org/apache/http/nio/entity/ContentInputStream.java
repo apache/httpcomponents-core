@@ -36,6 +36,9 @@ import java.io.InputStream;
 
 import org.apache.http.nio.util.ContentInputBuffer;
 
+/**
+ * {@link InputStream} adaptor for {@link ContentInputBuffer}. 
+ */
 public class ContentInputStream extends InputStream {
 
     private final ContentInputBuffer buffer;

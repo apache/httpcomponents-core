@@ -52,6 +52,11 @@ import org.apache.http.nio.reactor.IOReactorException;
 import org.apache.http.nio.reactor.IOReactorStatus;
 import org.apache.http.nio.reactor.IOSession;
 
+/**
+ * Generic implementation of {@link IOReactor} that can used as a subclass 
+ * for more specialized I/O reactors. It is based on a single {@link Selector}
+ * instance.
+ */
 public abstract class AbstractIOReactor implements IOReactor {
 
     private volatile IOReactorStatus status;
@@ -63,6 +68,11 @@ public abstract class AbstractIOReactor implements IOReactor {
     private final Queue<IOSession> closedSessions;
     private final Queue<ChannelEntry> newChannels;
     
+    /**
+     * Creates new AbstractIOReactor instance.
+     * @param selectTimeout the select timeout.
+     * @throws IOReactorException in case if a non-recoverable I/O error. 
+     */
     public AbstractIOReactor(long selectTimeout) throws IOReactorException {
         super();
         if (selectTimeout <= 0) {
@@ -81,28 +91,83 @@ public abstract class AbstractIOReactor implements IOReactor {
         this.status = IOReactorStatus.INACTIVE;
     }
 
+    /**
+     * Triggered when the key signals {@link SelectionKey#OP_ACCEPT} readiness.
+     * 
+     * @param key the selection key.
+     */
     protected abstract void acceptable(SelectionKey key);
     
+    /**
+     * Triggered when the key signals {@link SelectionKey#OP_CONNECT} readiness.
+     * 
+     * @param key the selection key.
+     */
     protected abstract void connectable(SelectionKey key);
 
+    /**
+     * Triggered when the key signals {@link SelectionKey#OP_READ} readiness.
+     * 
+     * @param key the selection key.
+     */
     protected abstract void readable(SelectionKey key);
 
+    /**
+     * Triggered when the key signals {@link SelectionKey#OP_WRITE} readiness.
+     * 
+     * @param key the selection key.
+     */
     protected abstract void writable(SelectionKey key);
     
+    /**
+     * Triggered to verify whether the key has not timed out.
+     * 
+     * @param key the selection key.
+     * @param current time as long value.
+     */
     protected abstract void timeoutCheck(SelectionKey key, long now);
 
+    /**
+     * Triggered to validate keys currently registered with the selector.
+     * 
+     * @param keys all selection keys registered with the selector.
+     */
     protected abstract void validate(Set<SelectionKey> keys);
     
+    /**
+     * Triggered when new session has been created.
+     * 
+     * @param key the selection key.
+     * @param session new I/O session.
+     */
     protected abstract void sessionCreated(SelectionKey key, IOSession session);
     
-    protected abstract IOSession getSession(SelectionKey key);
-    
+    /**
+     * Triggered when a session has been closed.
+     * 
+     * @param session closed I/O session.
+     */
     protected abstract void sessionClosed(IOSession session);
+    
+    /**
+     * Obtains {@link IOSession} instance associated with the given selection
+     * key.
+     * 
+     * @param key the selection key.
+     * @return I/O session.
+     */
+    protected abstract IOSession getSession(SelectionKey key);
     
     public IOReactorStatus getStatus() {
         return this.status;
     }
 
+    /**
+     * Adds new channel entry. The channel will be asynchronously registered
+     * with the selector.
+     *  
+     * @param channelEntry the channel entry.
+     */
     public void addChannel(final ChannelEntry channelEntry) {
         if (channelEntry == null) {
             throw new IllegalArgumentException("Channel entry may not be null");
@@ -183,7 +248,12 @@ public abstract class AbstractIOReactor implements IOReactor {
         }
         selectedKeys.clear();
     }
-
+    
+    /**
+     * Processes new event on the given selection key.
+     * 
+     * @param key the selection key that triggered an event.
+     */
     protected void processEvent(final SelectionKey key) {
         try {
             if (key.isAcceptable()) {
@@ -205,6 +275,11 @@ public abstract class AbstractIOReactor implements IOReactor {
         }
     }
 
+    /**
+     * Queues the given I/O session to be processed asynchronously as closed.
+     *  
+     * @param session the closed I/O session.
+     */
     protected void queueClosedSession(final IOSession session) {
         if (session != null) {
             this.closedSessions.add(session);
@@ -282,6 +357,9 @@ public abstract class AbstractIOReactor implements IOReactor {
         }
     }
 
+    /**
+     * Closes out all I/O sessions maintained by this I/O reactor.
+     */
     protected void closeSessions() {
         synchronized (this.sessions) {
             for (Iterator<IOSession> it = this.sessions.iterator(); it.hasNext(); ) {
@@ -291,6 +369,10 @@ public abstract class AbstractIOReactor implements IOReactor {
         }
     }
     
+    /**
+     * Closes out all new channels pending registration with the selector of 
+     * this I/O reactor.
+     */
     protected void closeNewChannels() throws IOReactorException {
         ChannelEntry entry;
         while ((entry = this.newChannels.poll()) != null) {
@@ -306,6 +388,10 @@ public abstract class AbstractIOReactor implements IOReactor {
         }
     }
     
+    /**
+     * Closes out all active channels registered with the selector of 
+     * this I/O reactor.
+     */
     protected void closeActiveChannels() throws IOReactorException {
         Set<SelectionKey> keys = this.selector.keys();
         for (Iterator<SelectionKey> it = keys.iterator(); it.hasNext(); ) {
@@ -324,6 +410,9 @@ public abstract class AbstractIOReactor implements IOReactor {
         }
     }
     
+    /**
+     * Attempts graceful shutdown of this I/O reactor.
+     */
     public void gracefulShutdown() {
         if (this.status != IOReactorStatus.ACTIVE) {
             // Already shutting down
@@ -333,6 +422,9 @@ public abstract class AbstractIOReactor implements IOReactor {
         this.selector.wakeup();
     }
         
+    /**
+     * Attempts force-shutdown of this I/O reactor.
+     */
     public void hardShutdown() throws IOReactorException {
         if (this.status == IOReactorStatus.SHUT_DOWN) {
             // Already shut down
@@ -343,6 +435,13 @@ public abstract class AbstractIOReactor implements IOReactor {
         closeActiveChannels();
     }
     
+    /**
+     * Blocks for the given period of time in milliseconds awaiting 
+     * the completion of the reactor shutdown.
+     *  
+     * @param timeout the maximum wait time.
+     * @throws InterruptedException if interrupted.
+     */
     public void awaitShutdown(long timeout) throws InterruptedException {
         synchronized (this.shutdownMutex) {
             long deadline = System.currentTimeMillis() + timeout;

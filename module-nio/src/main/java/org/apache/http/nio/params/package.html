@@ -1,7 +1,10 @@
+<html>
+<head>
+<!--
 /*
- * $HeadURL$
- * $Revision$
- * $Date$
+ * $HeadURL: http://svn.apache.org/repos/asf/httpcomponents/httpcore/trunk/module-main/src/main/java/org/apache/http/params/package.html $
+ * $Revision: 496070 $
+ * $Date: 2007-01-14 13:18:34 +0100 (Sun, 14 Jan 2007) $
  *
  * ====================================================================
  * Licensed to the Apache Software Foundation (ASF) under one
@@ -28,31 +31,9 @@
  * <http://www.apache.org/>.
  *
  */
-
-package org.apache.http.nio.entity;
-
-import java.io.IOException;
-
-import org.apache.http.nio.ContentDecoder;
-import org.apache.http.nio.IOControl;
-
-/**
- * A listener for available data on a non-blocking {@link ConsumingNHttpEntity}.
- */
-public interface ContentListener {
-
-    /**
-     * Notification that content is available to be read from the decoder.
-     * 
-     * @param decoder content decoder.
-     * @param ioctrl I/O control of the underlying connection.
-     */
-    void contentAvailable(ContentDecoder decoder, IOControl ioctrl) 
-        throws IOException;
-
-    /**
-     * Notification that any resources allocated for reading can be released.
-     */
-    void finished();
-
-}
+-->
+</head>
+<body>
+HTTP parameters for I/O reactors based on NIO model.
+</body>
+</html>

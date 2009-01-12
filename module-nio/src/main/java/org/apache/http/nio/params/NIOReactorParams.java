@@ -34,12 +34,7 @@ package org.apache.http.nio.params;
 import org.apache.http.params.HttpParams;
 
 /**
- * This class implements an adaptor around the {@link HttpParams} interface
- * to simplify manipulation of the NIO reactor specific parameters.
- * <br/>
- * Note that the <i>implements</i> relation to {@link NIOReactorPNames}
- * is for compatibility with existing application code only. References to
- * the parameter names should use the interface, not this class.
+ * Utility class for accessing I/O reactor parameters in {@link HttpParams}.
  * 
  * @author <a href="mailto:oleg at ural.ru">Oleg Kalnichevski</a>
  * 

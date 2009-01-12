@@ -81,13 +81,19 @@ public class BufferingNHttpEntity extends HttpEntityWrapper implements
     public void consumeContent() throws IOException {
     }
 
+    /**
+     * Obtains entity's content as {@link InputStream}.
+     * 
+     *  @throws IllegalStateException if content of the entity has not been
+     *    fully received or has already been consumed. 
+     */
     @Override
     public InputStream getContent() throws IOException {
         if (!this.finished) {
             throw new IllegalStateException("Entity content has not been fully received");
         }
         if (this.consumed) {
-            throw new IllegalStateException("Entity content has not been consumed");
+            throw new IllegalStateException("Entity content has been consumed");
         }
         this.consumed = true;
         return new ContentInputStream(this.buffer);

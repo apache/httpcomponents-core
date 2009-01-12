@@ -36,6 +36,9 @@ import java.io.OutputStream;
 
 import org.apache.http.nio.util.ContentOutputBuffer;
 
+/**
+ * {@link OutputStream} adaptor for {@link ContentOutputBuffer}.
+ */
 public class ContentOutputStream extends OutputStream {
 
     private final ContentOutputBuffer buffer;

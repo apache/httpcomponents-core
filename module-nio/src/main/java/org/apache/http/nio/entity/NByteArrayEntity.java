@@ -43,8 +43,9 @@ import org.apache.http.nio.IOControl;
 import org.apache.http.nio.protocol.AsyncNHttpServiceHandler;
 
 /**
- * An entity whose content is retrieved from a byte array.
- *
+ * A simple self contained, repeatable non-blocking entity that retrieves 
+ * its content from a byte array.
+ * 
  * @author <a href="mailto:sberlin at gmail.com">Sam Berlin</a>
  *
  * @version $Revision$

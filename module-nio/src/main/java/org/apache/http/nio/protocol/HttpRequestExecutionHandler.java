@@ -55,7 +55,7 @@ public interface HttpRequestExecutionHandler {
      * <p>The attachment object is the same object which was passed 
      * to the connecting I/O reactor when the connection request was 
      * made. The attachment may optionally contain some state information
-     * required in order to correctly initalize the HTTP context.
+     * required in order to correctly initialize the HTTP context.
      * 
      * @see ConnectingIOReactor#connect
      * 

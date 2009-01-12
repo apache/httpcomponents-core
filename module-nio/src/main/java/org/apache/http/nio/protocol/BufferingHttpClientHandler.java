@@ -57,14 +57,14 @@ import org.apache.http.protocol.HttpProcessor;
  * blocking I/O by storing the full content of HTTP messages in memory. 
  * The {@link HttpRequestExecutionHandler#handleResponse(HttpResponse, HttpContext)}
  * method will fire only when the entire message content has been read into a 
- * in-memory buffer. Please note that request execution / reponse processing 
- * take place the main I/O thread and therefore {@link HttpRequestExecutionHandler}
- * methods should not block indefinitely.
- * <p/>
- * When using this protocol handelr {@link HttpEntity}'s content can be 
- * generated / consumed using standard {@link InputStream} / {@link OutputStream} 
+ * in-memory buffer. Please note that request execution / response processing 
+ * take place the main I/O thread and therefore 
+ * {@link HttpRequestExecutionHandler} methods should not block indefinitely.
+ * <p>
+ * When using this protocol handler {@link HttpEntity}'s content can be 
+ * generated / consumed using standard {@link InputStream}/{@link OutputStream} 
  * classes.
- * <p/>
+ * <p>
  * IMPORTANT: This protocol handler should be used only when dealing with HTTP 
  * messages that are known to be limited in length.
  * 

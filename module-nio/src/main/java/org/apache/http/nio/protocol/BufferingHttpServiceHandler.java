@@ -65,11 +65,11 @@ import org.apache.http.protocol.HttpRequestHandlerResolver;
  * an in-memory buffer. Please note that request processing take place the 
  * main I/O thread and therefore individual HTTP request handlers should not 
  * block indefinitely. 
- * <p/>
- * When using this protocol handelr {@link HttpEntity}'s content can be 
- * generated / consumed using standard {@link InputStream} / {@link OutputStream} 
+ * <p>
+ * When using this protocol handler {@link HttpEntity}'s content can be 
+ * generated / consumed using standard {@link InputStream}/{@link OutputStream} 
  * classes.
- * <p/>
+ * <p>
  * IMPORTANT: This protocol handler should be used only when dealing with HTTP 
  * messages that are known to be limited in length.
  *

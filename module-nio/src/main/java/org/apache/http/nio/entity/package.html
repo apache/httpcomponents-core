@@ -1,7 +1,10 @@
+<html>
+<head>
+<!--
 /*
- * $HeadURL$
- * $Revision$
- * $Date$
+ * $HeadURL: http://svn.apache.org/repos/asf/httpcomponents/httpcore/trunk/module-main/src/main/java/org/apache/http/entity/package.html $
+ * $Revision: 726457 $
+ * $Date: 2008-12-14 15:55:26 +0100 (Sun, 14 Dec 2008) $
  *
  * ====================================================================
  * Licensed to the Apache Software Foundation (ASF) under one
@@ -28,31 +31,22 @@
  * <http://www.apache.org/>.
  *
  */
+-->
+</head>
+<body>
+Representations for non-blocking HTTP message entities.
 
-package org.apache.http.nio.entity;
-
-import java.io.IOException;
-
-import org.apache.http.nio.ContentDecoder;
-import org.apache.http.nio.IOControl;
-
-/**
- * A listener for available data on a non-blocking {@link ConsumingNHttpEntity}.
- */
-public interface ContentListener {
-
-    /**
-     * Notification that content is available to be read from the decoder.
-     * 
-     * @param decoder content decoder.
-     * @param ioctrl I/O control of the underlying connection.
-     */
-    void contentAvailable(ContentDecoder decoder, IOControl ioctrl) 
-        throws IOException;
-
-    /**
-     * Notification that any resources allocated for reading can be released.
-     */
-    void finished();
-
-}
+An {@link org.apache.http.HttpEntity entity} is the optional content of a
+{@link org.apache.http.HttpMessage message}.
+This package provides a basic selection of entity implementations 
+that can obtain content from
+{@link org.apache.http.nio.entity.NByteArrayEntity byte array},
+{@link org.apache.http.nio.entity.NStringEntity string},
+{@link org.apache.http.nio.entity.NFileEntity file}, or through an
+{@link org.apache.http.nio.entity.NHttpEntityWrapper compatibility adaptor}
+for blocking HTTP entities.
+If a message is received from an open non-blocking connection, usually it is 
+represented by 
+{@link org.apache.http.nio.entity.ConsumingNHttpEntity consuming} entity.
+</body>
+</html>

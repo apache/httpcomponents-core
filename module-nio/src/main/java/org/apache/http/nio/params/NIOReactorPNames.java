@@ -31,9 +31,8 @@
 
 package org.apache.http.nio.params;
 
-
 /**
- * Parameter names for reactors in HttpNIO.
+ * Parameter names for I/O reactors.
  * 
  * @author <a href="mailto:oleg at ural.ru">Oleg Kalnichevski</a>
  * 
