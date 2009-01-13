@@ -47,6 +47,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.concurrent.ThreadFactory;
 
+import org.apache.http.nio.params.NIOReactorPNames;
 import org.apache.http.nio.params.NIOReactorParams;
 import org.apache.http.nio.reactor.IOEventDispatch;
 import org.apache.http.nio.reactor.IOReactor;
@@ -56,6 +57,44 @@ import org.apache.http.nio.reactor.IOReactorStatus;
 import org.apache.http.params.HttpConnectionParams;
 import org.apache.http.params.HttpParams;
 
+/**
+ * Generic implementation of {@link IOReactor} that can run multiple 
+ * {@link BaseIOReactor} instance in separate worker threads and distribute 
+ * newly created I/O session equally across those I/O reactors for a more
+ * optimal resource utilization and a better I/O performance. Usually it is 
+ * recommended to have one worker I/O reactor per physical CPU core.
+ * <p>
+ * <strong>Important note about exception handling</strong>
+ * <p>
+ * Protocol specific exceptions as well as those I/O exceptions thrown in the 
+ * course of interaction with the session's channel are to be expected are to be 
+ * dealt with by specific protocol handlers. These exceptions may result in 
+ * termination of an individual session but should not affect the I/O reactor 
+ * and all other active sessions. There are situations, however, when the I/O 
+ * reactor itself encounters an internal problem such as an I/O exception in 
+ * the underlying NIO classes or an unhandled runtime exception. Those types of 
+ * exceptions are usually fatal and will cause the I/O reactor to shut down 
+ * automatically.
+ * <p>
+ * There is a possibility to override this behavior and prevent I/O reactors 
+ * from shutting down automatically in case of a runtime exception or an I/O 
+ * exception in internal classes. This can be accomplished by providing a custom 
+ * implementation of the {@link IOReactorExceptionHandler} interface. 
+ * <p>
+ * If an I/O reactor is unable to automatically recover from an I/O or a runtime 
+ * exception it will enter the shutdown mode. First off, it cancel all pending 
+ * new session requests. Then it will attempt to close all active I/O sessions 
+ * gracefully giving them some time to flush pending output data and terminate 
+ * cleanly. Lastly, it will forcibly shut down those I/O sessions that still 
+ * remain active after the grace period. This is a fairly complex process, where 
+ * many things can fail at the same time and many different exceptions can be 
+ * thrown in the course of the shutdown process. The I/O reactor will record all 
+ * exceptions thrown during the shutdown process, including the original one 
+ * that actually caused the shutdown in the first place, in an audit log. One 
+ * can obtain the audit log using {@link #getAuditLog()}, examine exceptions
+ * thrown by the I/O reactor prior and in the course of the reactor shutdown 
+ * and decide whether it is safe to restart the I/O reactor.
+ */
 public abstract class AbstractMultiworkerIOReactor implements IOReactor {
 
     protected volatile IOReactorStatus status;
@@ -77,6 +116,24 @@ public abstract class AbstractMultiworkerIOReactor implements IOReactor {
     
     private int currentWorker = 0;
 
+    /**
+     * Creates an instance of AbstractMultiworkerIOReactor.
+     * The following HTTP parameters affect the initialization:
+     * <p>
+     * The {@link NIOReactorPNames#SELECT_INTERVAL} parameter determines the 
+     * time interval in milliseconds at which the I/O reactor wakes up to check 
+     * for timed out sessions and session requests.
+     * <p>
+     * The {@link NIOReactorPNames#GRACE_PERIOD} parameter determines the grace 
+     * period the I/O reactors are expected to block waiting for individual 
+     * worker threads to terminate cleanly.
+     *
+     * @param workerCount number of worker I/O reactors. 
+     * @param threadFactory the factory to create threads. 
+     *   Can be <code>null</code>.
+     * @param params HTTP parameters.
+     * @throws IOReactorException in case if a non-recoverable I/O error. 
+     */
     public AbstractMultiworkerIOReactor(
             int workerCount, 
             final ThreadFactory threadFactory,
@@ -112,7 +169,13 @@ public abstract class AbstractMultiworkerIOReactor implements IOReactor {
     public IOReactorStatus getStatus() {
         return this.status;
     }
-
+    
+    /**
+     * Returns the audit log containing exceptions thrown by the I/O reactor 
+     * prior and in the course of the reactor shutdown.
+     * 
+     * @return audit log.
+     */
     public synchronized List<ExceptionEvent> getAuditLog() {
         if (this.auditLog != null) {
             return new ArrayList<ExceptionEvent>(this.auditLog);
@@ -121,6 +184,14 @@ public abstract class AbstractMultiworkerIOReactor implements IOReactor {
         }
     }
 
+    /**
+     * Adds the given {@link Throwable} object with the given time stamp
+     * to the audit log.
+     * 
+     * @param ex the exception thrown by the I/O reactor.
+     * @param timestamp the time stamp of the exception. Can be 
+     * <code>null</code> in which case the current date / time will be used.
+     */
     protected synchronized void addExceptionEvent(final Throwable ex, Date timestamp) {
         if (ex == null) {
             return;
@@ -134,18 +205,65 @@ public abstract class AbstractMultiworkerIOReactor implements IOReactor {
         this.auditLog.add(new ExceptionEvent(ex, timestamp));
     }
     
+    /**
+     * Adds the given {@link Throwable} object to the audit log.
+     * 
+     * @param ex the exception thrown by the I/O reactor.
+     */
     protected void addExceptionEvent(final Throwable ex) {
         addExceptionEvent(ex, null);
     }
 
+    /**
+     * Sets exception handler for this I/O reactor.
+     * 
+     * @param exceptionHandler the exception handler. 
+     */
     public void setExceptionHandler(final IOReactorExceptionHandler exceptionHandler) {
         this.exceptionHandler = exceptionHandler;
     }
     
+    /**
+     * Triggered to process I/O events available in the selector.
+     * <p>
+     * Super-classes can implement this method to react to the event.
+     * 
+     * @param count event count.
+     * @throws IOReactorException in case if a non-recoverable I/O error. 
+     */
     protected abstract void processEvents(int count) throws IOReactorException;
     
+    /**
+     * Triggered to cancel pending session requests.
+     * <p>
+     * Super-classes can implement this method to react to the event.
+     * 
+     * @throws IOReactorException in case if a non-recoverable I/O error. 
+     */
     protected abstract void cancelRequests() throws IOReactorException;
     
+    /**
+     * Activates the main I/O reactor as well as all worker I/O reactors. 
+     * The I/O main reactor will start reacting to I/O events and triggering 
+     * notification methods. The worker I/O reactor in their turn will start 
+     * reacting to I/O events and dispatch I/O event notifications to the given 
+     * {@link IOEventDispatch} interface.
+     * <p>
+     * This method will enter the infinite I/O select loop on 
+     * the {@link Selector} instance associated with this I/O reactor and used 
+     * to manage creation of new I/O channels. Once a new I/O channel has been
+     * created the processing of I/O events on that channel will be delegated 
+     * to one of the worker I/O reactors.
+     * <p>
+     * The method will remain blocked unto the I/O reactor is shut down or the
+     * execution thread is interrupted. 
+     * 
+     * @see #processEvents(int)
+     * @see #cancelRequests()
+     * 
+     * @throws InterruptedIOException if the dispatch thread is interrupted. 
+     * @throws IOReactorException in case if a non-recoverable I/O error. 
+     */
     public void execute(
             final IOEventDispatch eventDispatch) throws InterruptedIOException, IOReactorException {
         if (eventDispatch == null) {

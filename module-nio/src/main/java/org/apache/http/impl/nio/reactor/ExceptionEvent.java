@@ -1,7 +1,7 @@
 /*
- * $HeadURL:$
- * $Revision:$
- * $Date:$
+ * $HeadURL$
+ * $Revision$
+ * $Date$
  *
  * ====================================================================
  * Licensed to the Apache Software Foundation (ASF) under one
@@ -33,6 +33,9 @@ package org.apache.http.impl.nio.reactor;
 
 import java.util.Date;
 
+/**
+ * A {@link Throwable} instance along with a time stamp. 
+ */
 public class ExceptionEvent {
 
     private final Throwable ex;

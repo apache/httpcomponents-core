@@ -93,6 +93,8 @@ public abstract class AbstractIOReactor implements IOReactor {
 
     /**
      * Triggered when the key signals {@link SelectionKey#OP_ACCEPT} readiness.
+     * <p>
+     * Super-classes can implement this method to react to the event.
      * 
      * @param key the selection key.
      */
@@ -100,6 +102,8 @@ public abstract class AbstractIOReactor implements IOReactor {
     
     /**
      * Triggered when the key signals {@link SelectionKey#OP_CONNECT} readiness.
+     * <p>
+     * Super-classes can implement this method to react to the event.
      * 
      * @param key the selection key.
      */
@@ -107,6 +111,8 @@ public abstract class AbstractIOReactor implements IOReactor {
 
     /**
      * Triggered when the key signals {@link SelectionKey#OP_READ} readiness.
+     * <p>
+     * Super-classes can implement this method to react to the event.
      * 
      * @param key the selection key.
      */
@@ -114,21 +120,31 @@ public abstract class AbstractIOReactor implements IOReactor {
 
     /**
      * Triggered when the key signals {@link SelectionKey#OP_WRITE} readiness.
+     * <p>
+     * Super-classes can implement this method to react to the event.
      * 
      * @param key the selection key.
      */
     protected abstract void writable(SelectionKey key);
     
     /**
-     * Triggered to verify whether the key has not timed out.
+     * Triggered to verify whether the I/O session associated with the 
+     * given selection key has not timed out.
+     * <p>
+     * Super-classes can implement this method to react to the event.
      * 
      * @param key the selection key.
-     * @param current time as long value.
+     * @param now current time as long value.
      */
     protected abstract void timeoutCheck(SelectionKey key, long now);
 
     /**
-     * Triggered to validate keys currently registered with the selector.
+     * Triggered to validate keys currently registered with the selector. This 
+     * method is called after each I/O select loop.
+     * <p>
+     * Super-classes can implement this method to run validity checks on 
+     * active sessions and include additional processing that needs to be
+     * executed after each I/O select loop.
      * 
      * @param keys all selection keys registered with the selector.
      */
@@ -136,6 +152,8 @@ public abstract class AbstractIOReactor implements IOReactor {
     
     /**
      * Triggered when new session has been created.
+     * <p>
+     * Super-classes can implement this method to react to the event.
      * 
      * @param key the selection key.
      * @param session new I/O session.
@@ -144,6 +162,8 @@ public abstract class AbstractIOReactor implements IOReactor {
     
     /**
      * Triggered when a session has been closed.
+     * <p>
+     * Super-classes can implement this method to react to the event.
      * 
      * @param session closed I/O session.
      */
@@ -176,6 +196,28 @@ public abstract class AbstractIOReactor implements IOReactor {
         this.selector.wakeup();
     }
     
+    /**
+     * Activates the I/O reactor. The I/O reactor will start reacting to 
+     * I/O events and triggering notification methods.
+     * <p>
+     * This method will enter the infinite I/O select loop on 
+     * the {@link Selector} instance associated with this I/O reactor.
+     * <p>
+     * The method will remain blocked unto the I/O reactor is shut down or the
+     * execution thread is interrupted. 
+     * 
+     * @see #acceptable(SelectionKey)
+     * @see #connectable(SelectionKey)
+     * @see #readable(SelectionKey)
+     * @see #writable(SelectionKey)
+     * @see #timeoutCheck(SelectionKey, long)
+     * @see #validate(Set)
+     * @see #sessionCreated(SelectionKey, IOSession)
+     * @see #sessionClosed(IOSession)
+     * 
+     * @throws InterruptedIOException if the dispatch thread is interrupted. 
+     * @throws IOReactorException in case if a non-recoverable I/O error. 
+     */
     protected void execute() throws InterruptedIOException, IOReactorException {
         this.status = IOReactorStatus.ACTIVE;
 
