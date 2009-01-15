@@ -70,6 +70,7 @@ public abstract class AbstractIOReactor implements IOReactor {
     
     /**
      * Creates new AbstractIOReactor instance.
+     * 
      * @param selectTimeout the select timeout.
      * @throws IOReactorException in case if a non-recoverable I/O error. 
      */
@@ -354,7 +355,7 @@ public abstract class AbstractIOReactor implements IOReactor {
             IOSession session = new IOSessionImpl(key, new SessionClosedCallback() {
 
                 public void sessionClosed(IOSession session) {
-                    closedSessions.add(session);
+                    queueClosedSession(session);
                 }
                 
             });
@@ -380,7 +381,7 @@ public abstract class AbstractIOReactor implements IOReactor {
                     sessionRequest.completed(session);
                 }
             } catch (CancelledKeyException ex) {
-                this.closedSessions.add(session);
+                queueClosedSession(session);
                 key.attach(null);
             }
         }

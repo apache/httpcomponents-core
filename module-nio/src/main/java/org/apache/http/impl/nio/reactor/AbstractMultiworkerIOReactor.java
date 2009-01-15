@@ -54,6 +54,7 @@ import org.apache.http.nio.reactor.IOReactor;
 import org.apache.http.nio.reactor.IOReactorException;
 import org.apache.http.nio.reactor.IOReactorExceptionHandler;
 import org.apache.http.nio.reactor.IOReactorStatus;
+import org.apache.http.params.CoreConnectionPNames;
 import org.apache.http.params.HttpConnectionParams;
 import org.apache.http.params.HttpParams;
 
@@ -108,7 +109,6 @@ public abstract class AbstractMultiworkerIOReactor implements IOReactor {
     private final BaseIOReactor[] dispatchers;
     private final Worker[] workers;
     private final Thread[] threads;
-    private final long gracePeriod;
     private final Object shutdownMutex;
     
     protected IOReactorExceptionHandler exceptionHandler;
@@ -118,15 +118,6 @@ public abstract class AbstractMultiworkerIOReactor implements IOReactor {
 
     /**
      * Creates an instance of AbstractMultiworkerIOReactor.
-     * The following HTTP parameters affect the initialization:
-     * <p>
-     * The {@link NIOReactorPNames#SELECT_INTERVAL} parameter determines the 
-     * time interval in milliseconds at which the I/O reactor wakes up to check 
-     * for timed out sessions and session requests.
-     * <p>
-     * The {@link NIOReactorPNames#GRACE_PERIOD} parameter determines the grace 
-     * period the I/O reactors are expected to block waiting for individual 
-     * worker threads to terminate cleanly.
      *
      * @param workerCount number of worker I/O reactors. 
      * @param threadFactory the factory to create threads. 
@@ -152,7 +143,6 @@ public abstract class AbstractMultiworkerIOReactor implements IOReactor {
         }
         this.params = params;
         this.selectTimeout = NIOReactorParams.getSelectInterval(params);
-        this.gracePeriod = NIOReactorParams.getGracePeriod(params);
         this.shutdownMutex = new Object();
         this.workerCount = workerCount;
         if (threadFactory != null) {
@@ -224,7 +214,7 @@ public abstract class AbstractMultiworkerIOReactor implements IOReactor {
     }
     
     /**
-     * Triggered to process I/O events available in the selector.
+     * Triggered to process I/O events registered by the main {@link Selector}.
      * <p>
      * Super-classes can implement this method to react to the event.
      * 
@@ -257,6 +247,12 @@ public abstract class AbstractMultiworkerIOReactor implements IOReactor {
      * <p>
      * The method will remain blocked unto the I/O reactor is shut down or the
      * execution thread is interrupted. 
+     * <p>
+     * The following HTTP parameters affect execution of this method:
+     * <p>
+     * The {@link NIOReactorPNames#SELECT_INTERVAL} parameter determines the 
+     * time interval in milliseconds at which the I/O reactor wakes up to check 
+     * for timed out sessions and session requests.
      * 
      * @see #processEvents(int)
      * @see #cancelRequests()
@@ -333,6 +329,22 @@ public abstract class AbstractMultiworkerIOReactor implements IOReactor {
         }
     }
 
+    /**
+     * Activates the shutdown sequence for this reactor. This method will cancel
+     * all pending session requests, close out all active I/O channels, 
+     * make an attempt to terminate all worker I/O reactors gracefully,
+     * and finally force-terminate those I/O reactors that failed to
+     * terminate after the specified grace period.
+     * <p>
+     * The following HTTP parameters affect execution of this method:
+     * <p>
+     * The {@link NIOReactorPNames#GRACE_PERIOD} parameter determines the grace 
+     * period the I/O reactors are expected to block waiting for individual 
+     * worker threads to terminate cleanly.
+     * 
+     * @throws InterruptedIOException if the shutdown sequence has been
+     *   interrupted.
+     */
     protected void doShutdown() throws InterruptedIOException {
         if (this.status.compareTo(IOReactorStatus.SHUTTING_DOWN) >= 0) {
             return;
@@ -375,13 +387,15 @@ public abstract class AbstractMultiworkerIOReactor implements IOReactor {
             dispatcher.gracefulShutdown();
         }
 
+        long gracePeriod = NIOReactorParams.getGracePeriod(this.params);
+        
         try {
             // Force shut down I/O dispatchers if they fail to terminate
             // in time
             for (int i = 0; i < this.workerCount; i++) {
                 BaseIOReactor dispatcher = this.dispatchers[i];
                 if (dispatcher.getStatus() != IOReactorStatus.INACTIVE) {
-                    dispatcher.awaitShutdown(this.gracePeriod);
+                    dispatcher.awaitShutdown(gracePeriod);
                 }
                 if (dispatcher.getStatus() != IOReactorStatus.SHUT_DOWN) {
                     try {
@@ -397,7 +411,7 @@ public abstract class AbstractMultiworkerIOReactor implements IOReactor {
             for (int i = 0; i < this.workerCount; i++) {
                 Thread t = this.threads[i];
                 if (t != null) {
-                    t.join(this.gracePeriod);
+                    t.join(gracePeriod);
                 }
             }
         } catch (InterruptedException ex) {
@@ -410,17 +424,56 @@ public abstract class AbstractMultiworkerIOReactor implements IOReactor {
         }
     }
 
+    /**
+     * Assigns the given channel entry to one of the worker I/O reactors.
+     *  
+     * @param entry the channel entry.
+     */
     protected void addChannel(final ChannelEntry entry) {
         // Distribute new channels among the workers
         int i = Math.abs(this.currentWorker++ % this.workerCount);
         this.dispatchers[i].addChannel(entry);
     }
     
+    /**
+     * Registers the given channel with the main {@link Selector}.
+     * 
+     * @param channel the channel.
+     * @param ops interest ops.
+     * @return  selection key.
+     * @throws ClosedChannelException if the channel has been already closed.
+     */
     protected SelectionKey registerChannel(
             final SelectableChannel channel, int ops) throws ClosedChannelException {
         return channel.register(this.selector, ops);
     }
 
+    /**
+     * Prepares the given {@link Socket} by resetting some of its properties.
+     * <p>
+     * The following HTTP parameters affect execution of this method:
+     * <p>
+     * {@link CoreConnectionPNames#TCP_NODELAY} parameter determines whether 
+     * Nagle's algorithm is to be used. The Nagle's algorithm tries to conserve 
+     * bandwidth by minimizing the number of segments that are sent. When 
+     * applications wish to decrease network latency and increase performance, 
+     * they can disable Nagle's algorithm (that is enable TCP_NODELAY). Data 
+     * will be sent earlier, at the cost of an increase in bandwidth 
+     * consumption.
+     * <p>
+     * {@link CoreConnectionPNames#SO_TIMEOUT} parameter defines the socket 
+     * timeout in milliseconds, which is the timeout for waiting for data. 
+     * A timeout value of zero is interpreted as an infinite timeout.
+     * <p>
+     * {@link CoreConnectionPNames#SO_LINGER} parameter defines linger time 
+     * in seconds. The maximum timeout value is platform specific. Value 
+     * <code>0</code> implies that the option is disabled. Value <code>-1</code>
+     * implies that the JRE default is to be used. The setting only affects 
+     * socket close.
+     *  
+     * @param socket the socket
+     * @throws IOException in case of an I/O error.
+     */
     protected void prepareSocket(final Socket socket) throws IOException {
         socket.setTcpNoDelay(HttpConnectionParams.getTcpNoDelay(this.params));
         socket.setSoTimeout(HttpConnectionParams.getSoTimeout(this.params));
@@ -430,6 +483,15 @@ public abstract class AbstractMultiworkerIOReactor implements IOReactor {
         }
     }
 
+    /**
+     * Blocks for the given period of time in milliseconds awaiting 
+     * the completion of the reactor shutdown. If the value of 
+     * <code>timeout</code> is set to <code>0</code> this method blocks
+     * indefinitely. 
+     *  
+     * @param timeout the maximum wait time.
+     * @throws InterruptedException if interrupted.
+     */
     protected void awaitShutdown(long timeout) throws InterruptedException {
         synchronized (this.shutdownMutex) {
             long deadline = System.currentTimeMillis() + timeout;
