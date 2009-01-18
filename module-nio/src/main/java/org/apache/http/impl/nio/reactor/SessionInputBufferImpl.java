@@ -50,6 +50,14 @@ import org.apache.http.params.HttpProtocolParams;
 import org.apache.http.protocol.HTTP;
 import org.apache.http.util.CharArrayBuffer;
 
+/**
+ * Default implementation of {@link SessionInputBuffer} based on 
+ * the {@link ExpandableBuffer} class.
+ *  
+ * @author <a href="mailto:oleg at ural.ru">Oleg Kalnichevski</a>
+ *
+ * @version $Revision$
+ */
 public class SessionInputBufferImpl extends ExpandableBuffer implements SessionInputBuffer {
     
     private CharBuffer charbuffer = null;

@@ -44,6 +44,13 @@ import java.util.Map;
 import org.apache.http.nio.reactor.IOSession;
 import org.apache.http.nio.reactor.SessionBufferStatus;
 
+/**
+ * Default implementation of {@link IOSession}.
+ * 
+ * @author <a href="mailto:oleg at ural.ru">Oleg Kalnichevski</a>
+ *
+ * @version $Revision$
+ */
 public class IOSessionImpl implements IOSession {
     
     private volatile int status;

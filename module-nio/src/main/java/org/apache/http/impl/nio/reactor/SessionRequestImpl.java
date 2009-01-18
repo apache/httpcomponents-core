@@ -40,6 +40,13 @@ import org.apache.http.nio.reactor.IOSession;
 import org.apache.http.nio.reactor.SessionRequest;
 import org.apache.http.nio.reactor.SessionRequestCallback;
 
+/**
+ * Default implementation of {@link SessionRequest}.
+ * 
+ * @author <a href="mailto:oleg at ural.ru">Oleg Kalnichevski</a>
+ *
+ * @version $Revision$
+ */
 public class SessionRequestImpl implements SessionRequest {
 
     private volatile boolean completed;

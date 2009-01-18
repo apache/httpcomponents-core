@@ -50,6 +50,14 @@ import org.apache.http.params.HttpProtocolParams;
 import org.apache.http.protocol.HTTP;
 import org.apache.http.util.CharArrayBuffer;
 
+/**
+ * Default implementation of {@link SessionOutputBuffer} based on 
+ * the {@link ExpandableBuffer} class.
+ *  
+ * @author <a href="mailto:oleg at ural.ru">Oleg Kalnichevski</a>
+ *
+ * @version $Revision$
+ */
 public class SessionOutputBufferImpl extends ExpandableBuffer implements SessionOutputBuffer {
 
     private static final byte[] CRLF = new byte[] {HTTP.CR, HTTP.LF};

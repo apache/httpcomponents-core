@@ -51,6 +51,15 @@ import org.apache.http.nio.reactor.ListenerEndpoint;
 import org.apache.http.nio.reactor.ListeningIOReactor;
 import org.apache.http.params.HttpParams;
 
+/**
+ * Default implementation of {@link ListeningIOReactor}. This class extends 
+ * {@link AbstractMultiworkerIOReactor} with capability to listen for incoming
+ * connections.
+ *
+ * @author <a href="mailto:oleg at ural.ru">Oleg Kalnichevski</a>
+ *
+ * @version $Revision$
+ */
 public class DefaultListeningIOReactor extends AbstractMultiworkerIOReactor 
         implements ListeningIOReactor {
 

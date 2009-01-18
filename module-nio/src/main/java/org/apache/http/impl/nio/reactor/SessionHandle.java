@@ -33,6 +33,11 @@ package org.apache.http.impl.nio.reactor;
 
 import org.apache.http.nio.reactor.IOSession;
 
+/**
+ * Session handle class used by I/O reactor implementations to keep a reference 
+ * to a {@link IOSession} along with information about time of last I/O 
+ * operations on that session.
+ */
 public class SessionHandle {
 
     private final IOSession session;

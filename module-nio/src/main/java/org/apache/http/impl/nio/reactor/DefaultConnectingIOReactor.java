@@ -52,6 +52,15 @@ import org.apache.http.nio.reactor.SessionRequestCallback;
 import org.apache.http.params.HttpConnectionParams;
 import org.apache.http.params.HttpParams;
 
+/**
+ * Default implementation of {@link ConnectingIOReactor}. This class extends 
+ * {@link AbstractMultiworkerIOReactor} with capability to connect to remote
+ * hosts.
+ *
+ * @author <a href="mailto:oleg at ural.ru">Oleg Kalnichevski</a>
+ *
+ * @version $Revision$
+ */
 public class DefaultConnectingIOReactor extends AbstractMultiworkerIOReactor 
         implements ConnectingIOReactor {
 
