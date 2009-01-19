@@ -38,6 +38,14 @@ import org.apache.http.impl.io.HttpTransportMetricsImpl;
 import org.apache.http.nio.ContentEncoder;
 import org.apache.http.nio.reactor.SessionOutputBuffer;
 
+/**
+ * Abstract {@link ContentEncoder} that serves as a base for all content 
+ * encoder implementations.
+ *
+ * @author <a href="mailto:oleg at ural.ru">Oleg Kalnichevski</a>
+ *
+ * @version $Revision$
+ */
 public abstract class AbstractContentEncoder implements ContentEncoder {
 
     protected final WritableByteChannel channel;
@@ -46,6 +54,14 @@ public abstract class AbstractContentEncoder implements ContentEncoder {
     
     protected boolean completed;
     
+    /**
+     * Creates an instance of this class.
+     * 
+     * @param channel the destination channel.
+     * @param buffer the session output buffer that can be used to store
+     *    session data for intermediate processing.
+     * @param metrics Transport metrics of the underlying HTTP transport.
+     */
     public AbstractContentEncoder(
             final WritableByteChannel channel, 
             final SessionOutputBuffer buffer,

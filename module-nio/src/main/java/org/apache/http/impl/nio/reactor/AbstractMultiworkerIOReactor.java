@@ -95,6 +95,10 @@ import org.apache.http.params.HttpParams;
  * can obtain the audit log using {@link #getAuditLog()}, examine exceptions
  * thrown by the I/O reactor prior and in the course of the reactor shutdown 
  * and decide whether it is safe to restart the I/O reactor.
+ * 
+ * @author <a href="mailto:oleg at ural.ru">Oleg Kalnichevski</a>
+ *
+ * @version $Revision$
  */
 public abstract class AbstractMultiworkerIOReactor implements IOReactor {
 

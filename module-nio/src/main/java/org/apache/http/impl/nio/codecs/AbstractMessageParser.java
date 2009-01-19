@@ -48,6 +48,14 @@ import org.apache.http.params.CoreConnectionPNames;
 import org.apache.http.params.HttpParams;
 import org.apache.http.util.CharArrayBuffer;
 
+/**
+ * Abstract {@link NHttpMessageParser} that serves as a base for all message 
+ * parser implementations.
+ *
+ * @author <a href="mailto:oleg at ural.ru">Oleg Kalnichevski</a>
+ *
+ * @version $Revision$
+ */
 public abstract class AbstractMessageParser implements NHttpMessageParser {
     
     private final SessionInputBuffer sessionBuffer;    
@@ -67,6 +75,27 @@ public abstract class AbstractMessageParser implements NHttpMessageParser {
     private int maxHeaderCount = -1;
     protected final LineParser lineParser;
 
+    /**
+     * Creates an instance of this class.
+     * <p>
+     * The following HTTP parameters affect the initialization:
+     * <p>
+     * {@link CoreConnectionPNames#MAX_HEADER_COUNT} parameter determines 
+     * the maximum HTTP header count allowed. If set to a positive value, 
+     * the number of HTTP headers received from the data stream exceeding 
+     * this limit will cause an IOException. A negative or zero value will 
+     * effectively disable the check. Per default the check is disabled. 
+     * <p>
+     * {@link CoreConnectionPNames#MAX_LINE_LENGTH} parameter determines 
+     * the maximum line length limit. If set to a positive value, any HTTP line 
+     * exceeding this limit will cause an IOException. A negative or zero value
+     * will effectively disable the check the check. Per default the check is 
+     * disabled.
+     * 
+     * @param buffer the session input buffer.
+     * @param parser the line parser.
+     * @param params HTTP parameters.
+     */
     public AbstractMessageParser(final SessionInputBuffer buffer, final LineParser parser, final HttpParams params) {
         super();
         if (buffer == null) {
@@ -101,6 +130,15 @@ public abstract class AbstractMessageParser implements NHttpMessageParser {
         return bytesRead;
     }
     
+    /**
+     * Creates {@link HttpMessage} instance based on the content of the input
+     *  buffer containing the first line of the incoming HTTP message.
+     *  
+     * @param buffer the line buffer.
+     * @return HTTP message.
+     * @throws HttpException in case of HTTP protocol violation
+     * @throws ParseException in case of a parse error.
+     */
     protected abstract HttpMessage createMessage(CharArrayBuffer buffer) 
         throws HttpException, ParseException;
     

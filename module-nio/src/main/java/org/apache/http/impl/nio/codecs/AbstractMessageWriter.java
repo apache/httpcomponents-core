@@ -44,12 +44,27 @@ import org.apache.http.nio.reactor.SessionOutputBuffer;
 import org.apache.http.params.HttpParams;
 import org.apache.http.util.CharArrayBuffer;
 
+/**
+ * Abstract {@link NHttpMessageWriter} that serves as a base for all message 
+ * writer implementations.
+ *
+ * @author <a href="mailto:oleg at ural.ru">Oleg Kalnichevski</a>
+ *
+ * @version $Revision$
+ */
 public abstract class AbstractMessageWriter implements NHttpMessageWriter {
     
     protected final SessionOutputBuffer sessionBuffer;    
     protected final CharArrayBuffer lineBuf;
     protected final LineFormatter lineFormatter;
 
+    /**
+     * Creates an instance of this class.
+     * 
+     * @param buffer the session output buffer.
+     * @param formatter the line formatter.
+     * @param params HTTP parameters.
+     */
     public AbstractMessageWriter(final SessionOutputBuffer buffer,
                                  final LineFormatter formatter,
                                  final HttpParams params) {
@@ -66,6 +81,12 @@ public abstract class AbstractMessageWriter implements NHttpMessageWriter {
     public void reset() {
     }
     
+    /**
+     * Writes out the first line of {@link HttpMessage}.
+     * 
+     * @param message HTTP message.
+     * @throws HttpException in case of HTTP protocol violation
+     */
     protected abstract void writeHeadLine(HttpMessage message)
         throws IOException;
 

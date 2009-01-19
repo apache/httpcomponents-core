@@ -56,6 +56,10 @@ import org.apache.http.nio.reactor.IOSession;
  * Generic implementation of {@link IOReactor} that can used as a subclass 
  * for more specialized I/O reactors. It is based on a single {@link Selector}
  * instance.
+ * 
+ * @author <a href="mailto:oleg at ural.ru">Oleg Kalnichevski</a>
+ *
+ * @version $Revision$
  */
 public abstract class AbstractIOReactor implements IOReactor {
 
