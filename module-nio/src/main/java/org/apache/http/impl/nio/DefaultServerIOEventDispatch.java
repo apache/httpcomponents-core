@@ -89,7 +89,9 @@ public class DefaultServerIOEventDispatch implements IOEventDispatch {
     public void disconnected(final IOSession session) {
         NHttpServerIOTarget conn = 
             (NHttpServerIOTarget) session.getAttribute(NHTTP_CONN);
-        this.handler.closed(conn);
+        if (conn != null) {
+            this.handler.closed(conn);
+        }
     }
 
     public void inputReady(final IOSession session) {

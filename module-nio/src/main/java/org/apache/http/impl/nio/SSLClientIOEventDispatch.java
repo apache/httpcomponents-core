@@ -137,8 +137,9 @@ public class SSLClientIOEventDispatch implements IOEventDispatch {
     public void disconnected(final IOSession session) {
         NHttpClientIOTarget conn = 
             (NHttpClientIOTarget) session.getAttribute(NHTTP_CONN);
-        
-        this.handler.closed(conn);
+        if (conn != null) {
+            this.handler.closed(conn);
+        }
     }
 
     public void inputReady(final IOSession session) {
