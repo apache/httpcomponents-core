@@ -136,7 +136,7 @@ public class SocketHttpClientConnection
      * After this method's execution the connection status will be reported
      * as open and the {@link #isOpen()} will return <code>true</code>.
      * <p>
-     * The following HTTP parameters affect configuration this connection:
+     * The following HTTP parameters affect configuration of this connection:
      * <p>
      * The {@link CoreConnectionPNames#SOCKET_BUFFER_SIZE}
      * parameter determines the size of the internal socket buffer. If not 

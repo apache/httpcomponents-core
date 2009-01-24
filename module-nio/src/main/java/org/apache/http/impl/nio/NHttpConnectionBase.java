@@ -66,12 +66,22 @@ import org.apache.http.nio.reactor.EventMask;
 import org.apache.http.nio.reactor.IOSession;
 import org.apache.http.nio.reactor.SessionBufferStatus;
 import org.apache.http.nio.util.ByteBufferAllocator;
+import org.apache.http.params.CoreConnectionPNames;
 import org.apache.http.params.HttpConnectionParams;
 import org.apache.http.params.HttpParams;
 import org.apache.http.protocol.HTTP;
 import org.apache.http.protocol.HttpContext;
 import org.apache.http.protocol.SyncBasicHttpContext;
 
+/**
+ * This class serves as a base for all {@link NHttpConnection} implementations
+ * and implements functionality common to both client and server 
+ * HTTP connections.
+ * 
+ * @author <a href="mailto:oleg at ural.ru">Oleg Kalnichevski</a>
+ *
+ * @version $Revision$
+ */
 public class NHttpConnectionBase 
         implements NHttpConnection, HttpInetConnection, SessionBufferStatus {
 
@@ -97,6 +107,20 @@ public class NHttpConnectionBase
 
     protected volatile int status;
     
+    /**
+     * Creates a new instance of this class given the underlying I/O session.
+     * <p>
+     * The following HTTP parameters affect configuration of this connection:
+     * <p>
+     * The {@link CoreConnectionPNames#SOCKET_BUFFER_SIZE}
+     * parameter determines the size of the internal socket buffer. If not 
+     * defined or set to <code>-1</code> the default value will be chosen
+     * automatically.
+     * 
+     * @param session the underlying I/O session.
+     * @param allocator byte buffer allocator.
+     * @param params HTTP parameters.
+     */
     public NHttpConnectionBase(
             final IOSession session,
             final ByteBufferAllocator allocator,
@@ -166,6 +190,15 @@ public class NHttpConnectionBase
         this.session.clearEvent(EventMask.WRITE);
     }
 
+    /**
+     * Initializes a specific {@link ContentDecoder} implementation based on the
+     * properties of the given {@link HttpMessage} and generates an instance of
+     * {@link HttpEntity} matching the properties of the content decoder.
+     * 
+     * @param message the HTTP message.
+     * @return HTTP entity.
+     * @throws HttpException in case of an HTTP protocol violation.
+     */
     protected HttpEntity prepareDecoder(final HttpMessage message) throws HttpException {
         BasicHttpEntity entity = new BasicHttpEntity();
         long len = this.incomingContentStrategy.determineLength(message);
@@ -204,6 +237,13 @@ public class NHttpConnectionBase
         return entity;
     }
 
+    /**
+     * Initializes a specific {@link ContentEncoder} implementation based on the
+     * properties of the given {@link HttpMessage}.
+     * 
+     * @param message the HTTP message.
+     * @throws HttpException in case of an HTTP protocol violation.
+     */
     protected void prepareEncoder(final HttpMessage message) throws HttpException {
         long len = this.outgoingContentStrategy.determineLength(message);
         if (len == ContentLengthStrategy.CHUNKED) {
@@ -233,7 +273,13 @@ public class NHttpConnectionBase
         return this.hasBufferedOutput;
     }
     
-    protected void assertNotClosed() throws IOException {
+    /**
+     * Assets if the connection is still open.
+     * 
+     * @throws ConnectionClosedException in case the connection has already 
+     *   been closed.
+     */
+    protected void assertNotClosed() throws ConnectionClosedException {
         if (this.status != ACTIVE) {
             throw new ConnectionClosedException("Connection is closed");
         }

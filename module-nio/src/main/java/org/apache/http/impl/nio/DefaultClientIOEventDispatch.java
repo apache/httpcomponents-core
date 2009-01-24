@@ -31,6 +31,7 @@
 
 package org.apache.http.impl.nio;
 
+import org.apache.http.HttpResponse;
 import org.apache.http.HttpResponseFactory;
 import org.apache.http.impl.DefaultHttpResponseFactory;
 import org.apache.http.nio.NHttpClientIOTarget;
@@ -41,6 +42,14 @@ import org.apache.http.nio.util.ByteBufferAllocator;
 import org.apache.http.nio.util.HeapByteBufferAllocator;
 import org.apache.http.params.HttpParams;
 
+/**
+ * Default implementation of {@link IOEventDispatch} interface for plain 
+ * (unencrypted) client-side HTTP connections.
+ * 
+ * @author <a href="mailto:oleg at ural.ru">Oleg Kalnichevski</a>
+ *
+ * @version $Revision$
+ */
 public class DefaultClientIOEventDispatch implements IOEventDispatch {
 
     private static final String NHTTP_CONN = "NHTTP_CONN";
@@ -49,6 +58,13 @@ public class DefaultClientIOEventDispatch implements IOEventDispatch {
     protected final NHttpClientHandler handler;
     protected final HttpParams params;
 
+    /**
+     * Creates a new instance of this class to be used for dispatching I/O event 
+     * notifications to the given protocol handler.
+     * 
+     * @param handler the client protocol handler.
+     * @param params HTTP parameters.
+     */
     public DefaultClientIOEventDispatch(
             final NHttpClientHandler handler, 
             final HttpParams params) {
@@ -64,14 +80,43 @@ public class DefaultClientIOEventDispatch implements IOEventDispatch {
         this.params = params;
     }
     
+    /**
+     * Creates an instance of {@link HeapByteBufferAllocator} to be used 
+     * by HTTP connections for allocating {@link ByteBuffer} objects.
+     * <p>
+     * This method can be overridden in super class in order to provide 
+     * a different implementation of the {@link ByteBufferAllocator} interface. 
+     * 
+     * @return byte buffer allocator.
+     */
     protected ByteBufferAllocator createByteBufferAllocator() {
         return new HeapByteBufferAllocator(); 
     }
         
+    /**
+     * Creates an instance of {@link DefaultHttpResponseFactory} to be used 
+     * by HTTP connections for creating {@link HttpResponse} objects.
+     * <p>
+     * This method can be overridden in super class in order to provide 
+     * a different implementation of the {@link HttpResponseFactory} interface. 
+     * 
+     * @return HTTP response factory.
+     */
     protected HttpResponseFactory createHttpResponseFactory() {
         return new DefaultHttpResponseFactory();
     }
     
+    /**
+     * Creates an instance of {@link DefaultNHttpClientConnection} based on the
+     * given {@link IOSession}.
+     * <p>
+     * This method can be overridden in super class in order to provide 
+     * a different implementation of the {@link NHttpClientIOTarget} interface. 
+     * 
+     * @param session the underlying I/O session. 
+     * 
+     * @return newly created HTTP connection.
+     */
     protected NHttpClientIOTarget createConnection(final IOSession session) {
         return new DefaultNHttpClientConnection(
                 session, 
