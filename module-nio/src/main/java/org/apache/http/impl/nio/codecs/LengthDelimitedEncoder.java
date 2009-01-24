@@ -41,7 +41,15 @@ import org.apache.http.nio.FileContentEncoder;
 import org.apache.http.nio.reactor.SessionOutputBuffer;
 
 /**
- * Content-Length delimited encoder implementation.
+ * Content encoder that cuts off after a defined number of bytes. This class 
+ * is used to send content of HTTP messages where the end of the content entity 
+ * is determined by the value of the <code>Content-Length header</code>. 
+ * Entities transferred using this stream can be maximum {@link Long#MAX_VALUE}
+ * long. 
+ * <p>
+ * This decoder is optimized to transfer data directly from 
+ * a {@link FileChannel} to the underlying I/O session's channel whenever 
+ * possible avoiding intermediate buffering in the session buffer. 
  *
  * @author <a href="mailto:oleg at ural.ru">Oleg Kalnichevski</a>
  * @author Andrea Selva

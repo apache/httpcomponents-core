@@ -43,10 +43,10 @@ import org.apache.http.util.CharArrayBuffer;
 import org.apache.http.util.ExceptionUtils;
 
 /**
- * Implements chunked transfer coding.
- * It transparently coalesces chunks of a HTTP stream that uses chunked
- * transfer coding. After the stream is read to the end, it provides access
- * to the trailers, if any.
+ * Implements chunked transfer coding. The content is received in small chunks.
+ * Entities transferred using this input stream can be of unlimited length. 
+ * After the stream is read to the end, it provides access to the trailers, 
+ * if any.
  * <p>
  * Note that this class NEVER closes the underlying stream, even when close
  * gets called.  Instead, it will read until the "end" of its chunking on

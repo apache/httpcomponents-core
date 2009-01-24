@@ -37,7 +37,10 @@ import java.io.InputStream;
 import org.apache.http.io.SessionInputBuffer;
 
 /**
- * An input stream that reads data without any transformation.
+ * Input stream that reads data without any transformation. The end of the 
+ * content entity is demarcated by closing the underlying connection 
+ * (EOF condition). Entities transferred using this input stream can be of 
+ * unlimited length. 
  * <p>
  * Note that this class NEVER closes the underlying stream, even when close
  * gets called.  Instead, it will read until the end of the stream (until 

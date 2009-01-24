@@ -54,6 +54,8 @@ import org.apache.http.params.HttpParams;
  * with transport layer security capabilities based on the SSL/TLS protocol. 
  * 
  * @author <a href="mailto:oleg at ural.ru">Oleg Kalnichevski</a>
+ * 
+ * @version $Revision$
  */
 public class SSLIOSession implements IOSession, SessionBufferStatus {
 

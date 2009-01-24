@@ -41,14 +41,19 @@ import org.apache.http.nio.FileContentEncoder;
 import org.apache.http.nio.reactor.SessionOutputBuffer;
 
 /**
- * Identity encoder implementation.
+ * Content encoder that writes data without any transformation. The end of 
+ * the content entity is demarcated by closing the underlying connection 
+ * (EOF condition). Entities transferred using this input stream can be of 
+ * unlimited length. 
+ * <p>
+ * This decoder is optimized to transfer data directly from 
+ * a {@link FileChannel} to the underlying I/O session's channel whenever 
+ * possible avoiding intermediate buffering in the session buffer. 
  *
  * @author <a href="mailto:oleg at ural.ru">Oleg Kalnichevski</a>
  * @author Andrea Selva
  *
  * @version $Revision$
- * 
- * @since 4.0
  */
 public class IdentityEncoder extends AbstractContentEncoder 
         implements FileContentEncoder {

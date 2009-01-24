@@ -36,10 +36,18 @@ import java.io.IOException;
 import org.apache.http.HttpMessage;
 import org.apache.http.HttpRequest;
 import org.apache.http.message.LineFormatter;
+import org.apache.http.nio.NHttpMessageWriter;
 import org.apache.http.nio.reactor.SessionOutputBuffer;
 import org.apache.http.params.HttpParams;
 import org.apache.http.util.CharArrayBuffer;
 
+/**
+ * Default {@link NHttpMessageWriter} implementation for {@link HttpRequest}s.
+ *
+ * @author <a href="mailto:oleg at ural.ru">Oleg Kalnichevski</a>
+ *
+ * @version $Revision$
+ */
 public class HttpRequestWriter extends AbstractMessageWriter {
 
     public HttpRequestWriter(final SessionOutputBuffer buffer,

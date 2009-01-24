@@ -37,7 +37,10 @@ import java.io.OutputStream;
 import org.apache.http.io.SessionOutputBuffer;
 
 /**
- * An output stream that writes data without any transformation.
+ * Output stream that writes data without any transformation. The end of 
+ * the content entity is demarcated by closing the underlying connection 
+ * (EOF condition). Entities transferred using this input stream can be of 
+ * unlimited length. 
  * <p>
  * Note that this class NEVER closes the underlying stream, even when close
  * gets called.  Instead, the stream will be marked as closed and no further 

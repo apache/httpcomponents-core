@@ -33,15 +33,24 @@ package org.apache.http.impl.nio.codecs;
 
 import org.apache.http.HttpException;
 import org.apache.http.HttpMessage;
+import org.apache.http.HttpResponse;
 import org.apache.http.HttpResponseFactory;
 import org.apache.http.StatusLine;
 import org.apache.http.ParseException;
 import org.apache.http.message.LineParser;
 import org.apache.http.message.ParserCursor;
+import org.apache.http.nio.NHttpMessageParser;
 import org.apache.http.nio.reactor.SessionInputBuffer;
 import org.apache.http.params.HttpParams;
 import org.apache.http.util.CharArrayBuffer;
 
+/**
+ * Default {@link NHttpMessageParser} implementation for {@link HttpResponse}s.
+ *
+ * @author <a href="mailto:oleg at ural.ru">Oleg Kalnichevski</a>
+ *
+ * @version $Revision$
+ */
 public class HttpResponseParser extends AbstractMessageParser {
     
     private final HttpResponseFactory responseFactory;

@@ -37,7 +37,8 @@ import java.io.OutputStream;
 import org.apache.http.io.SessionOutputBuffer;
 
 /**
- * Implements chunked transfer coding.
+ * Implements chunked transfer coding. The content is sent in small chunks.
+ * Entities transferred using this output stream can be of unlimited length.
  * Writes are buffered to an internal buffer (2048 default size).
  * <p>
  * Note that this class NEVER closes the underlying stream, even when close
