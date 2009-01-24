@@ -32,7 +32,6 @@
 package org.apache.http.impl.nio;
 
 import java.io.IOException;
-import java.nio.ByteBuffer;
 
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.SSLException;

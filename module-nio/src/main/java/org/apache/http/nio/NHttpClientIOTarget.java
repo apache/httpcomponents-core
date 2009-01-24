@@ -42,8 +42,18 @@ import org.apache.http.nio.reactor.IOEventDispatch;
  */
 public interface NHttpClientIOTarget extends NHttpClientConnection {
     
+    /**
+     * Triggered when the connection is ready to consume input.
+     * 
+     * @param handler the client protocol handler.
+     */
     void consumeInput(NHttpClientHandler handler);
     
+    /**
+     * Triggered when the connection is ready to produce output.
+     * 
+     * @param handler the client protocol handler.
+     */
     void produceOutput(NHttpClientHandler handler);    
 
 }
