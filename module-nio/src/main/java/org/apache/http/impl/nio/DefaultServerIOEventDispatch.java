@@ -31,8 +31,6 @@
 
 package org.apache.http.impl.nio;
 
-import java.nio.ByteBuffer;
-
 import org.apache.http.HttpRequest;
 import org.apache.http.HttpRequestFactory;
 import org.apache.http.impl.DefaultHttpRequestFactory;
@@ -82,15 +80,15 @@ public class DefaultServerIOEventDispatch implements IOEventDispatch {
         this.params = params;
     }
     
-     /**
-      * Creates an instance of {@link HeapByteBufferAllocator} to be used 
-      * by HTTP connections for allocating {@link ByteBuffer} objects.
-      * <p>
-      * This method can be overridden in super class in order to provide 
-      * a different implementation of the {@link ByteBufferAllocator} interface. 
-      * 
-      * @return byte buffer allocator.
-      */
+   /**
+    * Creates an instance of {@link HeapByteBufferAllocator} to be used 
+    * by HTTP connections for allocating {@link java.nio.ByteBuffer} objects.
+    * <p>
+    * This method can be overridden in a super class in order to provide 
+    * a different implementation of the {@link ByteBufferAllocator} interface. 
+    * 
+    * @return byte buffer allocator.
+    */
     protected ByteBufferAllocator createByteBufferAllocator() {
         return new HeapByteBufferAllocator(); 
     }
@@ -99,7 +97,7 @@ public class DefaultServerIOEventDispatch implements IOEventDispatch {
      * Creates an instance of {@link DefaultHttpRequestFactory} to be used 
      * by HTTP connections for creating {@link HttpRequest} objects.
      * <p>
-     * This method can be overridden in super class in order to provide 
+     * This method can be overridden in a super class in order to provide 
      * a different implementation of the {@link HttpRequestFactory} interface. 
      * 
      * @return HTTP request factory.
@@ -112,7 +110,7 @@ public class DefaultServerIOEventDispatch implements IOEventDispatch {
      * Creates an instance of {@link DefaultNHttpServerConnection} based on the
      * given {@link IOSession}.
      * <p>
-     * This method can be overridden in super class in order to provide 
+     * This method can be overridden in a super class in order to provide 
      * a different implementation of the {@link NHttpServerIOTarget} interface. 
      * 
      * @param session the underlying I/O session. 

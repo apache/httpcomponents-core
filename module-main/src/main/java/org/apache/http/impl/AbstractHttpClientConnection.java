@@ -106,8 +106,8 @@ public abstract class AbstractHttpClientConnection implements HttpClientConnecti
      * {@link LaxContentLengthStrategy} implementation to be used for 
      * de-serializing entities received over this connection. 
      * <p>
-     * This method can be overridden in super class in order to create instances 
-     * of {@link EntityDeserializer} using a custom 
+     * This method can be overridden in a super class in order to create 
+     * instances of {@link EntityDeserializer} using a custom 
      * {@link ContentLengthStrategy}.
      * 
      * @return HTTP entity deserializer
@@ -121,8 +121,9 @@ public abstract class AbstractHttpClientConnection implements HttpClientConnecti
      * {@link StrictContentLengthStrategy} implementation to be used for
      * serializing HTTP entities sent over this connection. 
      * <p>
-     * This method can be overridden in super class in order to create instances 
-     * of {@link EntitySerializer} using a custom {@link ContentLengthStrategy}.
+     * This method can be overridden in a super class in order to create 
+     * instances of {@link EntitySerializer} using a custom 
+     * {@link ContentLengthStrategy}.
      * 
      * @return HTTP entity serialzier.
      */
@@ -135,7 +136,7 @@ public abstract class AbstractHttpClientConnection implements HttpClientConnecti
      * for creating {@link HttpResponse} objects received by over this 
      * connection.
      * <p>
-     * This method can be overridden in super class in order to provide 
+     * This method can be overridden in a super class in order to provide 
      * a different implementation of the {@link HttpResponseFactory} interface. 
      * 
      * @return HTTP response factory.
@@ -148,7 +149,7 @@ public abstract class AbstractHttpClientConnection implements HttpClientConnecti
      * Creates an instance of {@link HttpMessageParser} to be used for parsing
      * HTTP responses received over this connection.
      * <p>
-     * This method can be overridden in super class in order to provide 
+     * This method can be overridden in a super class in order to provide 
      * a different implementation of the {@link HttpMessageParser} interface or
      * to pass a different implementation of {@link LineParser} to the 
      * the default implementation {@link HttpResponseParser}. 
@@ -169,7 +170,7 @@ public abstract class AbstractHttpClientConnection implements HttpClientConnecti
      * Creates an instance of {@link HttpMessageWriter} to be used for 
      * writing out HTTP requests sent over this connection.
      * <p>
-     * This method can be overridden in super class in order to provide 
+     * This method can be overridden in a super class in order to provide 
      * a different implementation of the {@link HttpMessageWriter} interface or
      * to pass a different implementation of {@link LineFormatter} to the 
      * the default implementation {@link HttpRequestWriter}. 

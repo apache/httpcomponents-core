@@ -43,6 +43,7 @@ import org.apache.http.impl.nio.codecs.HttpRequestParser;
 import org.apache.http.impl.nio.codecs.HttpResponseWriter;
 import org.apache.http.nio.NHttpMessageParser;
 import org.apache.http.nio.NHttpMessageWriter;
+import org.apache.http.nio.NHttpServerConnection;
 import org.apache.http.nio.NHttpServerIOTarget;
 import org.apache.http.nio.NHttpServiceHandler;
 import org.apache.http.nio.reactor.EventMask;
@@ -50,14 +51,37 @@ import org.apache.http.nio.reactor.IOSession;
 import org.apache.http.nio.reactor.SessionInputBuffer;
 import org.apache.http.nio.reactor.SessionOutputBuffer;
 import org.apache.http.nio.util.ByteBufferAllocator;
+import org.apache.http.params.CoreConnectionPNames;
 import org.apache.http.params.HttpParams;
 
+/**
+ * Default implementation of the {@link NHttpServerConnection} interface.
+ * 
+ * @author <a href="mailto:oleg at ural.ru">Oleg Kalnichevski</a>
+ *
+ * @version $Revision$
+ */
 public class DefaultNHttpServerConnection 
     extends NHttpConnectionBase implements NHttpServerIOTarget {
 
     protected final NHttpMessageParser requestParser;
     protected final NHttpMessageWriter responseWriter;
     
+    /**
+     * Creates a new instance of this class given the underlying I/O session.
+     * <p>
+     * The following HTTP parameters affect configuration of this connection:
+     * <p>
+     * The {@link CoreConnectionPNames#SOCKET_BUFFER_SIZE}
+     * parameter determines the size of the internal socket buffer. If not 
+     * defined or set to <code>-1</code> the default value will be chosen
+     * automatically.
+     * 
+     * @param session the underlying I/O session.
+     * @param requestFactory HTTP request factory.
+     * @param allocator byte buffer allocator.
+     * @param params HTTP parameters.
+     */
     public DefaultNHttpServerConnection(
             final IOSession session,
             final HttpRequestFactory requestFactory,
@@ -71,6 +95,15 @@ public class DefaultNHttpServerConnection
         this.responseWriter = createResponseWriter(this.outbuf, params);
     }
 
+    /**
+     * Creates an instance of {@link HttpRequestParser} to be used 
+     * by this connection for parsing incoming {@link HttpRequest} messages.
+     * <p>
+     * This method can be overridden in a super class in order to provide 
+     * a different implementation of the {@link NHttpMessageParser} interface. 
+     * 
+     * @return HTTP response parser.
+     */
     protected NHttpMessageParser createRequestParser(
             final SessionInputBuffer buffer,
             final HttpRequestFactory requestFactory,
@@ -79,6 +112,16 @@ public class DefaultNHttpServerConnection
         return new HttpRequestParser(buffer, null, requestFactory, params);
     }
     
+    /**
+     * Creates an instance of {@link HttpResponseWriter} to be used 
+     * by this connection for writing out outgoing {@link HttpResponse} 
+     * messages.
+     * <p>
+     * This method can be overridden by a super class in order to provide 
+     * a different implementation of the {@link NHttpMessageWriter} interface. 
+     * 
+     * @return HTTP response parser.
+     */
     protected NHttpMessageWriter createResponseWriter(
             final SessionOutputBuffer buffer,
             final HttpParams params) {

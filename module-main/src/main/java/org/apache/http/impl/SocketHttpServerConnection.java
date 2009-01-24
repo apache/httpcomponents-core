@@ -101,7 +101,7 @@ public class SocketHttpServerConnection extends
      * Creates an instance of {@link SocketInputBuffer} to be used for 
      * receiving data from the given {@link Socket}.
      * <p>
-     * This method can be overridden in super class in order to provide 
+     * This method can be overridden in a super class in order to provide 
      * a custom implementation of {@link SessionInputBuffer} interface.
      * 
      * @see SocketInputBuffer#SocketInputBuffer(Socket, int, HttpParams)
@@ -123,7 +123,7 @@ public class SocketHttpServerConnection extends
      * Creates an instance of {@link SessionOutputBuffer} to be used for 
      * sending data to the given {@link Socket}.
      * <p>
-     * This method can be overridden in super class in order to provide 
+     * This method can be overridden in a super class in order to provide 
      * a custom implementation of {@link SocketOutputBuffer} interface.
      * 
      * @see SocketOutputBuffer#SocketOutputBuffer(Socket, int, HttpParams)

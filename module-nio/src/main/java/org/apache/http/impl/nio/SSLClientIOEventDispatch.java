@@ -119,9 +119,9 @@ public class SSLClientIOEventDispatch implements IOEventDispatch {
     
     /**
      * Creates an instance of {@link HeapByteBufferAllocator} to be used 
-     * by HTTP connections for allocating {@link ByteBuffer} objects.
+     * by HTTP connections for allocating {@link java.nio.ByteBuffer} objects.
      * <p>
-     * This method can be overridden in super class in order to provide 
+     * This method can be overridden in a super class in order to provide 
      * a different implementation of the {@link ByteBufferAllocator} interface. 
      * 
      * @return byte buffer allocator.
@@ -134,7 +134,7 @@ public class SSLClientIOEventDispatch implements IOEventDispatch {
      * Creates an instance of {@link DefaultHttpResponseFactory} to be used 
      * by HTTP connections for creating {@link HttpResponse} objects.
      * <p>
-     * This method can be overridden in super class in order to provide 
+     * This method can be overridden in a super class in order to provide 
      * a different implementation of the {@link HttpResponseFactory} interface. 
      * 
      * @return HTTP response factory.
@@ -147,7 +147,7 @@ public class SSLClientIOEventDispatch implements IOEventDispatch {
      * Creates an instance of {@link DefaultNHttpClientConnection} based on the
      * given SSL {@link IOSession}.
      * <p>
-     * This method can be overridden in super class in order to provide 
+     * This method can be overridden in a super class in order to provide 
      * a different implementation of the {@link NHttpClientIOTarget} interface. 
      * 
      * @param session the underlying SSL I/O session. 
@@ -166,7 +166,7 @@ public class SSLClientIOEventDispatch implements IOEventDispatch {
      * Creates an instance of {@link SSLIOSession} decorating the given
      * {@link IOSession}.
      * <p>
-     * This method can be overridden in super class in order to provide 
+     * This method can be overridden in a super class in order to provide 
      * a different implementation of SSL I/O session. 
      * 
      * @param session the underlying I/O session. 
