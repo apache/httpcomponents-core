@@ -1,0 +1,462 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE preface PUBLIC "-//OASIS//DTD DocBook XML V4.4//EN"
+                 "http://www.oasis-open.org/docbook/xml/4.4/docbookx.dtd">
+<!-- 
+   $HeadURL:$
+   $Revision:$
+   $Date:$
+
+   ====================================================================
+   Licensed to the Apache Software Foundation (ASF) under one
+   or more contributor license agreements.  See the NOTICE file
+   distributed with this work for additional information
+   regarding copyright ownership.  The ASF licenses this file
+   to you under the Apache License, Version 2.0 (the
+   "License"); you may not use this file except in compliance
+   with the License.  You may obtain a copy of the License at
+
+     http://www.apache.org/licenses/LICENSE-2.0
+
+   Unless required by applicable law or agreed to in writing,
+   software distributed under the License is distributed on an
+   "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+   KIND, either express or implied.  See the License for the
+   specific language governing permissions and limitations
+   under the License.
+   ====================================================================
+
+-->
+<chapter id="advanced">
+    <title>Advanced topics</title>
+    <section>
+        <title>HTTP message parsing and formatting framework</title>
+        <para>
+        HTTP message processing framework is designed to be expressive and flexible while remaining 
+        memory efficient and fast. HttpCore HTTP message processing code achieves near zero 
+        intermediate garbage and near zero-copy buffering for its parsing and formatting 
+        operations. The same HTTP message parsing and formatting API and implementations are used 
+        by both the blocking and non-blocking transport implementations, which helps ensure a 
+        consistent behavior of HTTP services regardless of the I/O model.
+        </para>
+        <section>
+            <title>HTTP line parsing and formatting</title>
+            <para>
+            HttpCore utilizes a number of low level components for all its line parsing and 
+            formatting methods. 
+            </para>
+            <para>
+            <classname>CharArrayBuffer</classname> represents a sequence of characters, usually a 
+            single line in an HTTP message stream such as a request line, a status line or a 
+            header. Internally <classname>CharArrayBuffer</classname> is backed by an array of 
+            chars, which can be expanded to accommodate more input if needed. <classname>
+            CharArrayBuffer</classname> also provides a number of utility methods for manipulating 
+            content of the buffer, storing more data and retrieving subsets of data.
+            </para>
+            <programlisting><![CDATA[
+CharArrayBuffer buf = new CharArrayBuffer(64); 
+buf.append("header:  data ");
+int i = buf.indexOf(':');
+String s = buf.substringTrimmed(i + 1, buf.length());
+System.out.println(s);
+System.out.println(s.length());
+]]></programlisting>
+            <para>stdout &gt;</para>
+            <programlisting><![CDATA[
+data
+4
+]]></programlisting>
+            <para>
+            <classname>ParserCursor</classname> represents a context of a parsing operation: the 
+            bounds limiting the scope of the parsing operation and the current position the parsing 
+            operation is expected to start at. 
+            </para>
+            <programlisting><![CDATA[
+CharArrayBuffer buf = new CharArrayBuffer(64); 
+buf.append("header:  data ");
+int i = buf.indexOf(':');
+ParserCursor cursor = new ParserCursor(0, buf.length()); 
+cursor.updatePos(i + 1);
+System.out.println(cursor);
+]]></programlisting>
+            <para>stdout &gt;</para>
+            <programlisting><![CDATA[
+[0>7>14]
+]]></programlisting>
+            <para>
+            <interfacename>LineParser</interfacename> is the interface for parsing lines in the 
+            head section of an HTTP message. There are individual methods for parsing a request 
+            line, a status line, or a header line. The lines to parse are passed in memory, the 
+            parser does not depend on any specific I/O mechanism.
+            </para>
+            <programlisting><![CDATA[
+CharArrayBuffer buf = new CharArrayBuffer(64); 
+buf.append("HTTP/1.1 200");
+ParserCursor cursor = new ParserCursor(0, buf.length()); 
+
+LineParser parser = new BasicLineParser();
+ProtocolVersion ver = parser.parseProtocolVersion(buf, cursor);
+System.out.println(ver);
+System.out.println(buf.substringTrimmed(
+    cursor.getPos(), 
+    cursor.getUpperBound()));
+]]></programlisting>
+            <para>stdout &gt;</para>
+            <programlisting><![CDATA[
+HTTP/1.1
+200
+]]></programlisting>
+            <programlisting><![CDATA[
+CharArrayBuffer buf = new CharArrayBuffer(64); 
+buf.append("HTTP/1.1 200 OK");
+ParserCursor cursor = new ParserCursor(0, buf.length()); 
+LineParser parser = new BasicLineParser();
+StatusLine sl = parser.parseStatusLine(buf, cursor);
+System.out.println(sl.getReasonPhrase());
+]]></programlisting>
+            <para>stdout &gt;</para>
+            <programlisting><![CDATA[
+OK
+]]></programlisting>
+            <para>
+            <interfacename>LineFormatter</interfacename> for formatting elements of the head 
+            section of an HTTP message. This is the complement to <interfacename>LineParser
+            </interfacename>. There are individual methods for formatting a request line, a status 
+            line, or a header line. 
+            </para>
+            <para>
+            Please note the formatting does not include the trailing line break sequence 
+            <literal>CR-LF</literal>.
+            </para>
+            <programlisting><![CDATA[
+CharArrayBuffer buf = new CharArrayBuffer(64); 
+LineFormatter formatter = new BasicLineFormatter();
+formatter.formatRequestLine(buf, 
+    new BasicRequestLine("GET", "/", HttpVersion.HTTP_1_1));
+System.out.println(buf.toString());
+formatter.formatHeader(buf, 
+    new BasicHeader("Content-Type", "text/plain"));
+System.out.println(buf.toString());
+]]></programlisting>
+            <para>stdout &gt;</para>
+            <programlisting><![CDATA[
+GET / HTTP/1.1
+Content-Type: text/plain
+]]></programlisting>
+            <para>
+            <interfacename>HeaderValueParser</interfacename> is the interface for parsing header 
+            values into elements. 
+            </para>
+            <programlisting><![CDATA[
+CharArrayBuffer buf = new CharArrayBuffer(64); 
+HeaderValueParser parser = new BasicHeaderValueParser();
+buf.append("name1=value1; param1=p1, " + 
+    "name2 = \"value2\", name3  = value3");
+ParserCursor cursor = new ParserCursor(0, buf.length()); 
+System.out.println(parser.parseHeaderElement(buf, cursor));
+System.out.println(parser.parseHeaderElement(buf, cursor));
+System.out.println(parser.parseHeaderElement(buf, cursor));
+]]></programlisting>
+            <para>stdout &gt;</para>
+            <programlisting><![CDATA[
+name1=value1; param1=p1
+name2=value2
+name3=value3
+]]></programlisting>
+            <para>
+            <interfacename>HeaderValueFormatter</interfacename> is the interface for formatting 
+            elements of a header value. This is the complement to <interfacename>HeaderValueParser
+            </interfacename>.
+            </para>
+            <programlisting><![CDATA[
+CharArrayBuffer buf = new CharArrayBuffer(64); 
+HeaderValueFormatter formatter = new BasicHeaderValueFormatter();
+HeaderElement[] hes = new HeaderElement[] {
+        new BasicHeaderElement("name1", "value1", 
+                new NameValuePair[] {
+                    new BasicNameValuePair("param1", "p1")} ),
+        new BasicHeaderElement("name2", "value2"), 
+        new BasicHeaderElement("name3", "value3"), 
+};
+formatter.formatElements(buf, hes, true);
+System.out.println(buf.toString());
+]]></programlisting>
+            <para>stdout &gt;</para>
+            <programlisting><![CDATA[
+name1="value1"; param1="p1", name2="value2", name3="value3"
+]]></programlisting>
+        </section>
+        <section>
+            <title>HTTP message streams and session I/O buffers</title>
+            <para>
+            HttpCore provides a number of utility classes for the blocking and non-blocking I/O 
+            models that facilitate the processing of HTTP message streams, simplify handling of 
+            <literal>CR-LF</literal> delimited lines in HTTP messages and manage intermediate data 
+            buffering. 
+            </para>
+            <para>
+            HTTP connection implementations usually rely on session input/output buffers for 
+            reading and writing data from and to an HTTP message stream. Session input/output 
+            buffer implementations are I/O model specific and are optimized either for blocking or 
+            non-blocking operations.
+            </para>
+            <para>
+            Blocking HTTP connections use socket bound session buffers to transfer data. Session 
+            buffer interfaces are similar to <classname>java.io.InputStream</classname> / 
+            <classname>java.io.OutputStream</classname> classes, but they also provide methods for 
+            reading and writing <literal>CR-LF</literal> delimited lines. 
+            </para>
+            <programlisting><![CDATA[
+Socket socket1;
+Socket socket2;
+HttpParams params = new BasicHttpParams(); 
+SessionInputBuffer inbuffer = new SocketInputBuffer(
+    socket1, 4096, params);
+SessionOutputBuffer outbuffer = new SocketOutputBuffer(
+    socket2, 4096, params);
+
+CharArrayBuffer linebuf = new CharArrayBuffer(1024); 
+inbuffer.readLine(linebuf);
+outbuffer.writeLine(linebuf);
+]]></programlisting>
+            <para>
+            Non-blocking HTTP connections use session buffers optimized for reading and writing 
+            data from and to non-blocking NIO channels. NIO session input/output sessions help deal 
+            with <literal>CR-LF</literal> delimited lines in a non-blocking I/O mode.  
+            </para>
+            <programlisting><![CDATA[
+ReadableByteChannel channel1;
+WritableByteChannel channel2;
+
+HttpParams params = new BasicHttpParams(); 
+SessionInputBuffer inbuffer = new SessionInputBufferImpl(
+    4096, 1024, params);
+SessionOutputBuffer outbuffer = new SessionOutputBufferImpl(
+    4096, 1024, params);
+
+CharArrayBuffer linebuf = new CharArrayBuffer(1024); 
+boolean endOfStream = false;
+int bytesRead = inbuffer.fill(channel1);
+if (bytesRead == -1) {
+    endOfStream = true;
+}
+if (inbuffer.readLine(linebuf, endOfStream)) {
+    outbuffer.writeLine(linebuf);
+}
+if (outbuffer.hasData()) {
+    outbuffer.flush(channel2);
+}
+]]></programlisting>
+        </section>
+        <section>
+            <title>HTTP message parsers and formatter</title>
+            <para>
+            HttpCore also provides a coarse-grained facade type of interfaces for parsing and 
+            formatting of HTTP messages. Default implementations of those interfaces build upon the 
+            functionality provided by <interfacename>SessionInputBuffer</interfacename> / 
+            <interfacename>SessionOutputBuffer</interfacename> and <interfacename>HttpLineParser
+            </interfacename>/ <interfacename>HttpLineFormatter</interfacename> implementations.
+            </para>
+            <para>
+            Example of HTTP request parsing / writing for blocking HTTP connections:
+            </para>
+            <programlisting><![CDATA[
+SessionInputBuffer inbuffer;
+SessionOutputBuffer outbuffer;
+
+HttpParams params = new BasicHttpParams();
+
+HttpMessageParser requestParser = new HttpRequestParser(
+        inbuffer, 
+        new BasicLineParser(), 
+        new DefaultHttpRequestFactory(),
+        params); 
+
+HttpRequest request = (HttpRequest) requestParser.parse();
+
+HttpMessageWriter requestWriter = new HttpRequestWriter(
+        outbuffer, 
+        new BasicLineFormatter(), 
+        params);
+
+requestWriter.write(request);
+]]></programlisting>
+            <para>
+            Example of HTTP response parsing / writing for blocking HTTP connections:
+            </para>
+            <programlisting><![CDATA[
+SessionInputBuffer inbuffer;
+SessionOutputBuffer outbuffer;
+
+HttpParams params = new BasicHttpParams();
+
+HttpMessageParser responseParser = new HttpResponseParser(
+        inbuffer, 
+        new BasicLineParser(), 
+        new DefaultHttpResponseFactory(),
+        params); 
+
+HttpResponse response = (HttpResponse) responseParser.parse();
+
+HttpMessageWriter responseWriter = new HttpResponseWriter(
+        outbuffer, 
+        new BasicLineFormatter(), 
+        params);
+
+responseWriter.write(response);
+]]></programlisting>
+            <para>
+            Example of HTTP request parsing / writing for non-blocking HTTP connections:
+            </para>
+            <programlisting><![CDATA[
+SessionInputBuffer inbuffer;
+SessionOutputBuffer outbuffer;
+
+HttpParams params = new BasicHttpParams();
+
+NHttpMessageParser requestParser = new HttpRequestParser(
+        inbuffer, 
+        new BasicLineParser(), 
+        new DefaultHttpRequestFactory(),
+        params); 
+
+HttpRequest request = (HttpRequest) requestParser.parse();
+
+NHttpMessageWriter requestWriter = new HttpRequestWriter(
+        outbuffer, 
+        new BasicLineFormatter(), 
+        params);
+
+requestWriter.write(request);
+]]></programlisting>
+            <para>
+            Example of HTTP response parsing / writing for non-blocking HTTP connections:
+            </para>
+            <programlisting><![CDATA[
+SessionInputBuffer inbuffer;
+SessionOutputBuffer outbuffer;
+
+HttpParams params = new BasicHttpParams();
+
+NHttpMessageParser responseParser = new HttpResponseParser(
+        inbuffer, 
+        new BasicLineParser(), 
+        new DefaultHttpResponseFactory(),
+        params); 
+
+HttpResponse response = (HttpResponse) responseParser.parse();
+
+NHttpMessageWriter responseWriter = new HttpResponseWriter(
+        outbuffer, 
+        new BasicLineFormatter(), 
+        params);
+
+responseWriter.write(response);
+]]></programlisting>
+        </section>
+        <section>
+            <title>HTTP header parsing on demand</title>
+            <para>
+            The default implementations of <interfacename>HttpMessageParser</interfacename> and 
+            <interfacename>NHttpMessageParser</interfacename> interfaces do not parse HTTP headers 
+            immediately. Parsing of header value is deferred until its properties are accessed. 
+            Those headers that are never used by the application will not be parsed at all. The
+            <classname>CharArrayBuffer</classname> backing the header can be obtained through an 
+            optional <interfacename>FormattedHeader</interfacename> interface.
+            </para>
+            <programlisting><![CDATA[
+Header h1 = response.getFirstHeader("Content-Type");
+if (h1 instanceof FormattedHeader) {
+    CharArrayBuffer buf = ((FormattedHeader) h1).getBuffer();
+    System.out.println(buf);
+}
+]]></programlisting>
+        </section>
+    </section>
+    <section>
+        <title>Customizing HTTP connections</title>
+        <para>
+        One can customize the way HTTP connections parse and format HTTP messages by extending the 
+        default implementations and overriding factory methods and replacing the default parser or 
+        formatter implementations with a custom one. 
+        </para>
+        <para>
+        For blocking HTTP connections one also can provide custom implementation of session 
+        input/output buffers.
+        </para>
+        <programlisting><![CDATA[
+class MyDefaultNHttpClientConnection 
+                        extends DefaultNHttpClientConnection {
+
+    public MyDefaultNHttpClientConnection(
+            IOSession session,
+            HttpResponseFactory responseFactory,
+            ByteBufferAllocator allocator,
+            HttpParams params) {
+        super(session, responseFactory, allocator, params);
+    }
+    
+    @Override
+    protected NHttpMessageWriter createRequestWriter(
+            SessionOutputBuffer buffer, 
+            HttpParams params) {
+        return new HttpRequestWriter(
+            buffer, new BasicLineFormatter(), params);
+    }
+
+    @Override
+    protected NHttpMessageParser createResponseParser(
+            SessionInputBuffer buffer, 
+            HttpResponseFactory responseFactory, 
+            HttpParams params) {
+        return new HttpResponseParser(
+            buffer, new BasicLineParser(), responseFactory, params);
+    }
+    
+};
+]]></programlisting>
+        <para>
+        For non-blocking HTTP connection implementation one can replace the default HTTP message 
+        parser and formatter implementations. The session input/output buffer implementations can 
+        be overridden at the I/O reactor level.
+        </para>
+        <programlisting><![CDATA[
+class MyDefaultHttpClientConnection 
+                        extends DefaultHttpClientConnection {
+
+    @Override
+    protected SessionInputBuffer createSessionInputBuffer(
+            Socket socket, 
+            int buffersize, 
+            HttpParams params) throws IOException {
+        return new MySocketInputBuffer(socket, buffersize, params);
+    }
+
+    @Override
+    protected SessionOutputBuffer createSessionOutputBuffer(
+            Socket socket, 
+            int buffersize, 
+            HttpParams params) throws IOException {
+        return new MySocketOutputBuffer(socket, buffersize, params);
+    }
+
+    @Override
+    protected HttpMessageWriter createRequestWriter(
+            SessionOutputBuffer buffer, 
+            HttpParams params) {
+        return new MyHttpRequestWriter(
+            buffer, new BasicLineFormatter(), params);
+    }
+
+    @Override
+    protected HttpMessageParser createResponseParser(
+            SessionInputBuffer buffer, 
+            HttpResponseFactory responseFactory, 
+            HttpParams params) {
+        return new MyHttpResponseParser(
+        buffer, new BasicLineParser(), responseFactory, params);
+    }    
+    
+};
+]]></programlisting>
+    </section>
+</chapter>

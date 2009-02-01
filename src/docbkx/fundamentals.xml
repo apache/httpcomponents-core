@@ -1,0 +1,1215 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE preface PUBLIC "-//OASIS//DTD DocBook XML V4.4//EN"
+                 "http://www.oasis-open.org/docbook/xml/4.4/docbookx.dtd">
+<!-- 
+   $HeadURL:$
+   $Revision:$
+   $Date:$
+
+   ====================================================================
+   Licensed to the Apache Software Foundation (ASF) under one
+   or more contributor license agreements.  See the NOTICE file
+   distributed with this work for additional information
+   regarding copyright ownership.  The ASF licenses this file
+   to you under the Apache License, Version 2.0 (the
+   "License"); you may not use this file except in compliance
+   with the License.  You may obtain a copy of the License at
+
+     http://www.apache.org/licenses/LICENSE-2.0
+
+   Unless required by applicable law or agreed to in writing,
+   software distributed under the License is distributed on an
+   "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+   KIND, either express or implied.  See the License for the
+   specific language governing permissions and limitations
+   under the License.
+   ====================================================================
+
+-->
+<chapter id="fundamentals">
+    <title>Fundamentals</title>
+    <section>
+        <title>HTTP messages</title>
+        <section>
+            <title>Structure</title>
+            <para>
+            A HTTP message consists of a head and an optional body. The message head of an HTTP 
+            request consists of a request line and a collection of header fields. The message head 
+            of an HTTP response consists of a status line and a collection of header fields. All 
+            HTTP messages must include the protocol version. Some HTTP messages can optionally 
+            enclose a content body.
+            </para>
+            <para>
+            HttpCore defines the HTTP message object model that closely follows the definition and 
+            provides an extensive support for serialization (formatting) and deserialization 
+            (parsing) of HTTP message elements.
+            </para>
+        </section>
+        <section>
+            <title>Basic operations</title>
+            <section>
+                <title>HTTP request message</title>
+                <para>
+                HTTP request is a message sent from the client to the server. The first line of 
+                that message includes the method to be applied to the resource, the identifier of
+                the resource, and the protocol version in use.
+                </para>
+                <programlisting><![CDATA[
+HttpRequest request = new BasicHttpRequest("GET", "/", 
+    HttpVersion.HTTP_1_1);
+
+System.out.println(request.getRequestLine().getMethod());
+System.out.println(request.getRequestLine().getUri());
+System.out.println(request.getProtocolVersion());
+System.out.println(request.getRequestLine().toString());
+]]></programlisting>
+                <para>stdout &gt;</para>
+                <programlisting><![CDATA[
+GET
+/
+HTTP/1.1
+GET / HTTP/1.1
+]]></programlisting>
+            </section>
+            <section>
+                <title>HTTP response message</title>
+                <para>
+                HTTP response is a message sent by the server back to the client after having 
+                received and interpreted a request message. The first line of that message 
+                consists of the protocol version followed by a numeric status code and its 
+                associated textual phrase.
+                </para>
+                <programlisting><![CDATA[
+HttpResponse response = new BasicHttpResponse(HttpVersion.HTTP_1_1, 
+    HttpStatus.SC_OK, "OK");
+
+System.out.println(response.getProtocolVersion());
+System.out.println(response.getStatusLine().getStatusCode());
+System.out.println(response.getStatusLine().getReasonPhrase());
+System.out.println(response.getStatusLine().toString());
+]]></programlisting>
+                <para>stdout &gt;</para>
+                <programlisting><![CDATA[
+HTTP/1.1
+200
+OK
+HTTP/1.1 200 OK
+]]></programlisting>
+            </section>
+            <section>
+                <title>HTTP message common properties and methods</title>
+                <para>
+                An HTTP message can contain a number of headers describing properties of the 
+                message such as the content length, content type and so on. HttpCore provides 
+                methods to retrieve, add, remove and enumerate headers. 
+                </para>
+                <programlisting><![CDATA[
+HttpResponse response = new BasicHttpResponse(HttpVersion.HTTP_1_1, 
+    HttpStatus.SC_OK, "OK");
+response.addHeader("Set-Cookie", 
+    "c1=a; path=/; domain=localhost");
+response.addHeader("Set-Cookie", 
+    "c2=b; path=\"/\", c3=c; domain=\"localhost\"");
+Header h1 = response.getFirstHeader("Set-Cookie");
+System.out.println(h1);
+Header h2 = response.getLastHeader("Set-Cookie");
+System.out.println(h2);
+Header[] hs = response.getHeaders("Set-Cookie");
+System.out.println(hs.length);
+]]></programlisting>
+                <para>stdout &gt;</para>
+                <programlisting><![CDATA[
+Set-Cookie: c1=a; path=/; domain=localhost
+Set-Cookie: c2=b; path="/", c3=c; domain="localhost"
+2
+]]></programlisting>
+                <para>
+                There is an efficient way to obtain all headers of a given type using the 
+                <interfacename>HeaderIterator</interfacename> interface.
+                </para>
+                <programlisting><![CDATA[
+HttpResponse response = new BasicHttpResponse(HttpVersion.HTTP_1_1, 
+    HttpStatus.SC_OK, "OK");
+response.addHeader("Set-Cookie", 
+    "c1=a; path=/; domain=localhost");
+response.addHeader("Set-Cookie", 
+    "c2=b; path=\"/\", c3=c; domain=\"localhost\"");
+
+HeaderIterator it = response.headerIterator("Set-Cookie");
+
+while (it.hasNext()) {
+    System.out.println(it.next());
+}
+]]></programlisting>
+                <para>stdout &gt;</para>
+                <programlisting><![CDATA[
+Set-Cookie: c1=a; path=/; domain=localhost
+Set-Cookie: c2=b; path="/", c3=c; domain="localhost"
+]]></programlisting>
+                <para>
+                It also provides convenience methods to parse HTTP messages into individual
+                header elements.
+                </para>
+                <programlisting><![CDATA[
+HttpResponse response = new BasicHttpResponse(HttpVersion.HTTP_1_1, 
+    HttpStatus.SC_OK, "OK");
+response.addHeader("Set-Cookie", 
+    "c1=a; path=/; domain=localhost");
+response.addHeader("Set-Cookie", 
+    "c2=b; path=\"/\", c3=c; domain=\"localhost\"");
+
+HeaderElementIterator it = new BasicHeaderElementIterator(
+        response.headerIterator("Set-Cookie"));
+
+while (it.hasNext()) {
+    HeaderElement elem = it.nextElement(); 
+    System.out.println(elem.getName() + " = " + elem.getValue());
+    NameValuePair[] params = elem.getParameters();
+    for (int i = 0; i < params.length; i++) {
+        System.out.println(" " + params[i]);
+    }
+}
+]]></programlisting>
+                <para>stdout &gt;</para>
+                <programlisting><![CDATA[
+c1 = a
+ path=/
+ domain=localhost
+c2 = b
+ path=/
+c3 = c
+ domain=localhost
+]]></programlisting>
+                <para>
+                HTTP headers get tokenized into individual header elements only on demand. HTTP 
+                headers received over an HTTP connection are stored internally as an array of 
+                chars and parsed lazily only when their properties are accessed. 
+                </para>
+            </section>
+        </section>
+        <section>
+            <title>HTTP entity</title>
+            <para>
+            HTTP messages can carry a content entity associated with the request or response. 
+            Entities can be found in some requests and in some responses, as they are optional. 
+            Requests that use entities are referred to as entity enclosing requests. The HTTP 
+            specification defines two entity enclosing methods: POST and PUT. Responses are 
+            usually expected to enclose a content entity. There are exceptions to this rule such 
+            as responses to HEAD method and 204 No Content, 304 Not Modified, 205 Reset Content 
+            responses.
+            </para>
+            <para>
+            HttpCore distinguishes three kinds of entities, depending on where their content 
+            originates: 
+            </para>
+            <itemizedlist>
+                <listitem>
+                    <formalpara>
+                    <title>streamed:</title>
+                    The content is received from a stream, or generated on the fly. In particular, 
+                    this category includes entities being received from a connection. Streamed 
+                    entities are generally not repeatable.
+                    </formalpara>
+                </listitem>
+                <listitem>
+                    <formalpara>
+                    <title>self-contained:</title>
+                    The content is in memory or obtained by means that are independent from 
+                    a connection or other entity. Self-contained entities are generally repeatable.
+                    </formalpara>
+                </listitem>
+                <listitem>
+                    <formalpara>
+                    <title>wrapping:</title>
+                    The content is obtained from another entity.
+                    </formalpara>
+                </listitem>
+            </itemizedlist>
+            <para>
+            This distinction is important for connection management with incoming entities. For 
+            entities that are created by an application and only sent using the HttpCore framework,
+            the difference between streamed and self-contained is of little importance. In that 
+            case, it is suggested to consider non-repeatable entities as streamed, and those that 
+            are repeatable as self-contained.
+            </para>
+            <section>
+                <title>Repeatable entities</title>
+                <para>
+                An entity can be repeatable, meaning its content can be read more than once. This
+                is only possible with self contained entities (like 
+                <classname>ByteArrayEntity</classname> or <classname>StringEntity</classname>).
+                </para>
+            </section>
+            <section>
+                <title>Using HTTP entities</title>
+                <para>
+                Since an entity can represent both binary and character content, it has support 
+                for character encodings (to support the latter, ie. character content).
+                </para>
+                <para>
+                The entity is created when executing a request with enclosed content or when the 
+                request was successful and the response body is used to send the result back to 
+                the client.
+                </para>
+                <para>
+                To read the content from the entity, one can either retrieve the input stream via 
+                the <methodname>HttpEntity#getContent()</methodname> method, which returns an 
+                <classname>java.io.InputStream</classname>, or one can supply an output stream to 
+                the <methodname>HttpEntity#writeTo(OutputStream)</methodname> method, which will 
+                return once all content has been written to the given stream.
+                </para>
+                <para>
+                The <classname>EntityUtils</classname> class exposes several static methods to 
+                more easily read the content or information from an entity. Instead of reading 
+                the <classname>java.io.InputStream</classname> directly, one can retrieve the whole 
+                content body in a string / byte array by using the methods from this class.
+                </para>
+                <para>
+                When the entity has been received with an incoming message, the methods 
+                <methodname>HttpEntity#getContentType()</methodname> and 
+                <methodname>HttpEntity#getContentLength()</methodname> methods can be used for 
+                reading the common metadata such as <literal>Content-Type</literal> and 
+                <literal>Content-Length</literal> headers (if they are available). Since the 
+                <literal>Content-Type</literal> header can contain a character encoding for text 
+                mime-types like <literal>text/plain</literal> or <literal>text/html</literal>, 
+                the <methodname>HttpEntity#getContentEncoding()</methodname> method is used to 
+                read this information. If the headers aren't available, a length of -1 will be 
+                returned, and <literal>NULL</literal> for the content type. If the 
+                <literal>Content-Type</literal> header is available, a Header object will be 
+                returned.
+                </para>
+                <para>
+                When creating an entity for a outgoing message, this meta data has to be supplied 
+                by the creator of the entity.
+                </para>
+                <programlisting><![CDATA[
+StringEntity myEntity = new StringEntity("important message", 
+    "UTF-8");
+
+System.out.println(myEntity.getContentType());
+System.out.println(myEntity.getContentLength());
+System.out.println(EntityUtils.getContentCharSet(myEntity));
+System.out.println(EntityUtils.toString(myEntity));
+System.out.println(EntityUtils.toByteArray(myEntity).length);
+]]></programlisting>
+                <para>stdout &gt;</para>
+                <programlisting><![CDATA[
+Content-Type: text/plain; charset=UTF-8
+17
+UTF-8
+important message
+17
+]]></programlisting>
+            </section>
+            <section>
+                <title>Ensuring release of low level resources</title>
+                <para>
+                When finished with an entity that relies on an underlying input stream, it's 
+                important to execute the <methodname>HttpEntity#consumeContent()</methodname> 
+                method, so as to consume any available content on the stream, so the connection
+                could be released to any connection pools. If the incoming content is not consumed
+                fully, other requests may fail when this connection is re-used. 
+                </para>
+                <para>
+                Alternatively one can simply check the result of <methodname>
+                HttpEntity#isStreaming()</methodname>, and keep reading from the input stream 
+                until it returns false. 
+                </para>
+                <para>
+                Self contained entities will always return false with <methodname>
+                HttpEntity#isStreaming()</methodname>, as there is no underlying stream it depends 
+                on. For these entities <methodname>HttpEntity#consumeContent()</methodname> will 
+                do nothing, and does not need to be called.
+                </para>
+            </section>
+        </section>
+        <section>
+            <title>Creating entities</title>
+            <para>
+            There are a few ways to create entities. The following implementations are provided 
+            by HttpCore:
+            </para>
+            <itemizedlist>
+                <listitem>
+                    <link linkend="basic-entity">
+                        <classname>BasicHttpEntity</classname>
+                    </link>
+                </listitem>
+                <listitem>
+                    <link linkend="byte-array-entity">
+                        <classname>ByteArrayEntity</classname>
+                    </link>
+                </listitem>
+                <listitem>
+                    <link linkend="string-entity">
+                        <classname>StringEntity</classname>
+                    </link>
+                </listitem>
+                <listitem>
+                    <link linkend="input-stream-entity">
+                        <classname>InputStreamEntity</classname>
+                    </link>
+                </listitem>
+                <listitem>
+                    <link linkend="file-entity">
+                        <classname>FileEntity</classname>
+                    </link>
+                </listitem>
+                <listitem>
+                    <link linkend="entity-template">
+                        <classname>EntityTemplate</classname>
+                    </link>
+                </listitem>
+                <listitem>
+                    <link linkend="entity-wrapper">
+                        <classname>HttpEntityWrapper</classname>
+                    </link>
+                </listitem>
+                <listitem>
+                    <link linkend="buffered-entity">
+                        <classname>BufferedHttpEntity</classname>
+                    </link>
+                    <classname>BufferedHttpEntity</classname>
+                </listitem>
+            </itemizedlist>
+            <section id="basic-entity">
+                <title><classname>BasicHttpEntity</classname></title>
+                <para>
+                This is exactly as the name implies, a basic entity that represents an underlying
+                stream. This is generally used for the entities received from HTTP messages.
+                </para>
+                <para>
+                This entity has an empty constructor. After construction it represents no content, 
+                and has a negative content length.
+                </para>
+                <para>
+                One needs to set the content stream, and optionally the length. This can be done 
+                with the <methodname>BasicHttpEntity#setContent(InputStream)</methodname> and 
+                <methodname>BasicHttpEntity#setContentLength(long)</methodname> methods 
+                respectively.
+                </para>
+                <programlisting><![CDATA[
+BasicHttpEntity myEntity = new BasicHttpEntity();
+myEntity.setContent(someInputStream);
+myEntity.setContentLength(340); // sets the length to 340
+]]></programlisting>
+            </section>
+            <section id="byte-array-entity">
+                <title><classname>ByteArrayEntity</classname></title>
+                <para>
+                <classname>ByteArrayEntity</classname> is a self contained, repeatable entity 
+                that obtains its content from a given byte array. This byte array is supplied 
+                to the constructor.
+                </para>
+                <programlisting><![CDATA[
+String myData = "Hello world on the other side!!";
+ByteArrayEntity myEntity = new ByteArrayEntity(myData.getBytes());
+]]></programlisting>
+            </section>
+            <section id="string-entity">
+                <title><classname>StringEntity</classname></title>
+                <para>
+                <classname>StringEntity</classname> is a self contained, repeatable entity that 
+                obtains its content from a <classname>java.lang.String</classname> object. It has 
+                two constructors, one simply constructs with a given <classname>java.lang.String
+                </classname> object; the other also takes a character encoding for the data in the 
+                string.
+                </para>
+                <programlisting><![CDATA[
+StringBuffer sb = new StringBuffer();
+Map<String, String> env = System.getenv();
+for (Entry<String, String> envEntry : env.entrySet()) {
+    sb.append(envEntry.getKey()).append(": ")
+    .append(envEntry.getValue()).append("\n");
+}
+
+// construct without a character encoding
+HttpEntity myEntity1 = new StringEntity(sb.toString());
+
+// alternatively construct with an encoding
+HttpEntity myEntity2 = new StringEntity(sb.toString(), "UTF-8");
+]]></programlisting>
+            </section>
+            <section id="input-stream-entity">
+                <title><classname>InputStreamEntity</classname></title>
+                <para>
+                <classname>InputStreamEntity</classname> is a streamed, non-repeatable entity that 
+                obtains its content from an input stream. It is constructed by supplying the input 
+                stream and the content length. The content length is used to limit the amount of 
+                data read from the <classname>java.io.InputStream</classname>. If the length matches 
+                the content length available on the input stream, then all data will be sent. 
+                Alternatively a negative content length will read all data from the input stream, 
+                which is the same as supplying the exact content length, so the length is most 
+                often used to limit the length.
+                </para>
+                <programlisting><![CDATA[
+InputStream instream = getSomeInputStream();
+InputStreamEntity myEntity = new InputStreamEntity(instream, 16);
+]]></programlisting>
+            </section>
+            <section id="file-entity">
+                <title><classname>FileEntity</classname></title>
+                <para>
+                <classname>FileEntity</classname> is a self contained, repeatable entity that 
+                obtains its content from a file. Since this is mostly used to stream large files 
+                of different types, one needs to supply the content type of the file, for 
+                instance, sending a zip file would require the content type <literal>
+                application/zip</literal>, for XML <literal>application/xml</literal>.
+                </para>
+                <programlisting><![CDATA[
+HttpEntity entity = new FileEntity(staticFile, 
+    "application/java-archive");
+]]></programlisting>
+            </section>
+            <section id="entity-template">
+                <title><classname>EntityTemplate</classname></title>
+                <para>
+                This is an entity which receives its content from a 
+                <interfacename>ContentProducer</interfacename> interface. Content producers are 
+                objects which produce their content on demand, by writing it out to an output 
+                stream. They are expected to be able produce their content every time they are 
+                requested to do so. So creating a <classname>EntityTemplate</classname>, one is 
+                expected to supply a reference to a content producer, which effectively creates 
+                a repeatable entity.
+                </para>
+                <para>
+                There are no standard !ContentProducers in HttpCore. It is basically just a 
+                convenience interface to allow wrapping up complex logic into an entity. To use 
+                this entity one needs to create a class that implements <interfacename>
+                ContentProducer</interfacename> and override the <methodname>
+                ContentProducer#writeTo(OutputStream)</methodname> method. Then, an instance of 
+                custom <interfacename>ContentProducer</interfacename> will be used to write the 
+                full content body to the output stream. For instance, an HTTP server would serve 
+                static files with the <classname>FileEntity</classname>, but running CGI programs 
+                could be done with a <interfacename>ContentProducer</interfacename>, inside which 
+                one could implement custom logic to supply the content as it becomes available. 
+                This way one does not need to buffer it in a string and then use a <classname>
+                StringEntity</classname> or <classname>ByteArrayEntity</classname>.
+                </para>
+                <programlisting><![CDATA[
+ContentProducer myContentProducer = new ContentProducer() {
+
+    public void writeTo(OutputStream out) throws IOException {
+      out.write("ContentProducer rocks! ".getBytes());
+      out.write(("Time requested: " + new Date()).getBytes());
+    }
+    
+};
+
+HttpEntity myEntity = new EntityTemplate(myContentProducer);
+myEntity.writeTo(System.out);
+]]></programlisting>
+                <para>stdout &gt;</para>
+                <programlisting><![CDATA[
+ContentProducer rocks! Time requested: Fri Sep 05 12:20:22 CEST 2008
+]]></programlisting>
+</section>
+            <section id="entity-wrapper">
+                <title><classname>HttpEntityWrapper</classname></title>
+                <para>
+                This is the base class for creating wrapped entities. The wrapping entity holds 
+                a reference to a wrapped entity and delegates all calls to it. Implementations 
+                of wrapping entities can derive from this class and need to override only those 
+                methods that should not be delegated to the wrapped entity.
+                </para>
+            </section>
+            <section id="buffered-entity">
+                <title><classname>BufferedHttpEntity</classname></title>
+                <para>
+                <classname>BufferedHttpEntity</classname> is a subclass of <classname>
+                HttpEntityWrapper</classname>. It is constructed by supplying another entity. It 
+                reads the content from the supplied entity, and buffers it in memory.
+                </para>
+                <para>
+                This makes it possible to make a repeatable entity, from a non-repeatable entity. 
+                If the supplied entity is already repeated, calls are simply passed through to the 
+                underlying entity.
+                </para>
+                <programlisting><![CDATA[
+myNonRepeatableEntity.setContent(someInputStream);
+BufferedHttpEntity myBufferedEntity = new BufferedHttpEntity(
+  myNonRepeatableEntity);
+]]></programlisting>
+            </section>
+        </section>
+    </section>
+    <section>
+        <title>Blocking HTTP connections</title>
+        <para>
+        HTTP connections are responsible for HTTP message serialization and deserialization. One 
+        should rarely need to use HTTP connection objects directly. There are higher level protocol 
+        components intended for execution and processing of HTTP requests. However, in some cases 
+        direct interaction with HTTP connections may be necessary, for instance, to access 
+        properties such as the connection status, the socket timeout or the local and remote 
+        addresses.
+        </para>
+        <para>
+        It is important to bear in mind that HTTP connections are not thread-safe. It is strongly 
+        recommended to limit all interactions with HTTP connection objects to one thread. The only 
+        method of <interfacename>HttpConnection</interfacename> interface and its sub-interfaces, 
+        which is safe to invoke from another thread, is <methodname> HttpConnection#shutdown()
+        </methodname>.
+        </para>
+        <section>
+            <title>Working with blocking HTTP connections</title>
+            <para>
+            HttpCore does not provide full support for opening connections because the process of 
+            establishing a new connection especially on the client side can be very complex 
+            involving one or several authenticating or/and tunneling proxies. Instead, blocking 
+            HTTP connections can be bound to any arbitrary network socket. 
+            </para>
+            <programlisting><![CDATA[
+Socket socket = new Socket();
+// Initialize socket
+BasicHttpParams params = new BasicHttpParams();
+DefaultHttpClientConnection conn = new DefaultHttpClientConnection();
+conn.bind(socket, params);
+conn.isOpen();
+HttpConnectionMetrics metrics = conn.getMetrics();
+metrics.getRequestCount();
+metrics.getResponseCount();
+metrics.getReceivedBytesCount();
+metrics.getSentBytesCount();
+]]></programlisting>
+            <para>
+            HTTP connection interfaces, both client and server, send and receive messages in two 
+            stages. The message head is transmitted first. Depending on properties of the message 
+            head it may be followed by a message body. Please note it is very important to call 
+            <methodname>HttpEntity#consumeContent()</methodname> to signal that the processing of 
+            the message is complete. HTTP entities that stream out their content directly from the 
+            input stream of the underlying connection must ensure the content of the message body 
+            is fully consumed for that connection to be potentially re-usable.
+            </para>
+            <para>
+            Over-simplified process of client side request execution may look like this:
+            </para>
+            <programlisting><![CDATA[
+Socket socket = new Socket();
+// Initialize socket
+HttpParams params = new BasicHttpParams(); 
+DefaultHttpClientConnection conn = new DefaultHttpClientConnection();
+conn.bind(socket, params);
+HttpRequest request = new BasicHttpRequest("GET", "/");
+conn.sendRequestHeader(request);
+HttpResponse response = conn.receiveResponseHeader();
+conn.receiveResponseEntity(response);
+HttpEntity entity = response.getEntity();
+if (entity != null) {
+    // Do something useful with the entity and, when done, call 
+    // consumeContent() to make sure the connection can be re-used 
+    entity.consumeContent();
+}
+]]></programlisting>
+            <para>
+            Over-simplified process of server side request handling may look like this:
+            </para>
+            <programlisting><![CDATA[
+Socket socket = new Socket();
+// Initialize socket
+HttpParams params = new BasicHttpParams(); 
+DefaultHttpServerConnection conn = new DefaultHttpServerConnection();
+conn.bind(socket, params);
+HttpRequest request = conn.receiveRequestHeader();
+if (request instanceof HttpEntityEnclosingRequest) {
+    conn.receiveRequestEntity((HttpEntityEnclosingRequest) request);
+    HttpEntity entity = ((HttpEntityEnclosingRequest) request)
+        .getEntity();
+    if (entity != null) {
+        // Do something useful with the entity and, when done, 
+        // call consumeContent() to make sure the connection 
+        // can be re-used 
+        entity.consumeContent();
+    }
+}
+HttpResponse response = new BasicHttpResponse(HttpVersion.HTTP_1_1, 
+    200, "OK");
+response.setEntity(new StringEntity("Got it"));
+conn.sendResponseHeader(response);
+conn.sendResponseEntity(response);
+]]></programlisting>
+            <para>
+            Please note that one should rarely need to transmit messages using these low level 
+            methods and should use appropriate higher level HTTP service implementations instead.
+            </para>
+        </section>
+        <section>
+            <title>Content transfer with blocking I/O</title>
+            <para>
+            HTTP connections manage the process of the content transfer using the <interfacename>
+            HttpEntity</interfacename> interface. HTTP connections generate an entity object that 
+            encapsulates the content stream of the incoming message. Please note that <methodname>
+            HttpServerConnection#receiveRequestEntity()</methodname> and <methodname>
+            HttpClientConnection#receiveResponseEntity()</methodname> do not retrieve or buffer any 
+            incoming data. They merely inject an appropriate content codec based on the properties 
+            of the incoming message. The content can be retrieved by reading from the content input 
+            stream of the enclosed entity using <methodname>HttpEntity#getContent()</methodname>. 
+            The incoming data will be decoded automatically completely transparently for the data 
+            consumer. Likewise, HTTP connections rely on <methodname>
+            HttpEntity#writeTo(OutputStream)</methodname> method to generate the content of an 
+            outgoing message. If an outgoing messages encloses an entity, the content will be 
+            encoded automatically based on the properties of the message.
+            </para>
+        </section>
+        <section>
+            <title>Supported content transfer mechanisms</title>
+            <para>
+            Default implementations of HTTP connections support three content transfer mechanisms 
+            defined by the HTTP/1.1 specification:
+            </para>
+            <itemizedlist>
+                <listitem>
+                    <formalpara>
+                    <title><literal>Content-Length</literal> delimited:</title>
+                    The end of the content entity is determined by the value of the <literal>
+                    Content-Length</literal> header. Maximum entity length: <methodname>
+                    Long#MAX_VALUE</methodname>.
+                    </formalpara>
+                </listitem>
+                <listitem>
+                    <formalpara>
+                    <title>Identity coding:</title>
+                    The end of the content entity is demarcated by closing the underlying 
+                    connection (end of stream condition). For obvious reasons the identity encoding 
+                    can only be used on the server side. Max entity length: unlimited.
+                    </formalpara>
+                </listitem>
+                <listitem>
+                    <formalpara>
+                    <title>Chunk coding:</title>
+                    The content is sent in small chunks. Max entity length: unlimited.
+                    </formalpara>
+                </listitem>
+            </itemizedlist>
+            <para>
+            The appropriate content stream class will be created automatically depending on 
+            properties of the entity enclosed with the message.
+            </para>
+        </section>
+        <section>
+            <title>Terminating HTTP connections</title>
+            <para>
+            HTTP connections can be terminated either gracefully by calling <methodname>
+            HttpConnection#close()</methodname> or forcibly by calling <methodname>
+            HttpConnection#shutdown()</methodname>. The former tries to flush all buffered data 
+            prior to terminating the connection and may block indefinitely. The <methodname>
+            HttpConnection#close()</methodname> method is not thread-safe. The latter terminates 
+            the connection without flushing internal buffers and returns control to the caller as 
+            soon as possible without blocking for long. The <methodname>HttpConnection#shutdown()
+            </methodname> method is expected to be thread-safe.
+            </para>
+        </section>
+    </section>
+    <section>
+        <title>HTTP exception handling</title>
+        <para>
+        All HttpCore components potentially throw two types of exceptions: <classname>IOException
+        </classname>in case of an I/O failure such as socket timeout or an socket reset and 
+        <classname>HttpException</classname> that signals an HTTP failure such as a violation of 
+        the HTTP protocol. Usually I/O errors are considered non-fatal and recoverable, whereas 
+        HTTP protocol errors are considered fatal and cannot be automatically recovered from. 
+        </para>
+        <section>
+            <title>Protocol exception</title>
+            <para>
+            <classname>ProtocolException</classname> signals a fatal HTTP protocol violation that 
+            usually results in an immediate termination of the HTTP message processing.
+            </para>
+        </section>
+    </section>
+    <section>
+        <title>HTTP protocol processors</title>
+        <para>
+        HTTP protocol interceptor is a routine that implements a specific aspect of the HTTP 
+        protocol. Usually protocol interceptors are expected to act upon one specific header or a 
+        group of related headers of the incoming message or populate the outgoing message with one 
+        specific header or a group of related headers. Protocol interceptors can also manipulate 
+        content entities enclosed with messages, transparent content compression / decompression 
+        being a good example. Usually this is accomplished by using the 'Decorator' pattern where 
+        a wrapper entity class is used to decorate the original entity. Several protocol 
+        interceptors can be combined to form one logical unit. 
+        </para>
+        <para>
+        HTTP protocol processor is a collection of protocol interceptors that implements the 
+        'Chain of Responsibility' pattern, where each individual protocol interceptor is expected 
+        to work on a particular aspect of the HTTP protocol the interceptor is responsible for. 
+        </para>
+        <para>
+        Usually the order in which interceptors are executed should not matter as long as they do 
+        not depend on a particular state of the execution context. If protocol interceptors have 
+        interdependencies and therefore must be executed in a particular order, they should be 
+        added to the protocol processor in the same sequence as their expected execution order.
+        </para>
+        <para>
+        Protocol interceptors must be implemented as thread-safe. Similarly to servlets, protocol 
+        interceptors should not use instance variables unless access to those variables is 
+        synchronized.
+        </para>
+        <section>
+            <title>Standard protocol interceptors</title>
+            <para>
+            HttpCore comes with a number of most essential protocol interceptors for client and 
+            server HTTP processing.
+            </para>
+            <section>
+                <title><classname>RequestContent</classname></title>
+                <para>
+                <classname>RequestContent</classname> is the most important interceptor for 
+                outgoing requests. It is responsible for delimiting content length by adding 
+                <literal>Content-Length</literal> or <literal>Transfer-Content</literal> headers 
+                based on the properties of the enclosed entity and the protocol version. This 
+                interceptor is required for correct functioning of client side protocol processors.
+                </para>
+            </section>
+            <section>
+                <title><classname>ResponseContent</classname></title>
+                <para>
+                <classname>ResponseContent</classname> is the most important interceptor for 
+                outgoing responses. It is responsible for delimiting content length by adding 
+                <literal>Content-Length</literal> or <literal>Transfer-Content</literal> headers 
+                based on the properties of the enclosed entity and the protocol version. This 
+                interceptor is required for correct functioning of server side protocol processors.
+                </para>
+            </section>
+            <section>
+                <title><classname>RequestConnControl</classname></title>
+                <para>
+                <classname>RequestConnControl</classname> is responsible for adding 
+                <literal>Connection</literal> header to the outgoing requests, which is essential 
+                for managing persistence of <literal>HTTP/1.0</literal> connections. This 
+                interceptor is recommended for client side protocol processors.
+                </para>
+            </section>
+            <section>
+                <title><classname>ResponseConnControl</classname></title>
+                <para>
+                <classname>ResponseConnControl</classname> is responsible for adding 
+                <literal>Connection</literal> header to the outgoing responses, which is essential 
+                for managing persistence of <literal>HTTP/1.0</literal> connections. This 
+                interceptor is recommended for server side protocol processors.
+                </para>
+            </section>
+            <section>
+                <title><classname>RequestDate</classname></title>
+                <para>
+                <classname>RequestDate</classname> is responsible for adding 
+                <literal>Date</literal> header to the outgoing requests This interceptor is 
+                optional for client side protocol processors.
+                </para>
+            </section>
+            <section>
+                <title><classname>ResponseDate</classname></title>
+                <para>
+                <classname>ResponseDate</classname> is responsible for adding 
+                <literal>Date</literal> header to the outgoing responses. This interceptor is 
+                recommended for server side protocol processors.
+                </para>
+            </section>
+            <section>
+                <title><classname>RequestExpectContinue</classname></title>
+                <para>
+                <classname>RequestExpectContinue</classname> is responsible for enabling the 
+                'expect-continue' handshake by adding <literal>Expect</literal> header. This 
+                interceptor is recommended for client side protocol processors. 
+                </para>
+            </section>
+            <section>
+                <title><classname>RequestTargetHost</classname></title>
+                <para>
+                <classname>RequestTargetHost</classname> is responsible for adding 
+                <literal>Host</literal> header. This interceptor is required for client side 
+                protocol processors. 
+                </para>
+            </section>
+            <section>
+                <title><classname>RequestUserAgent</classname></title>
+                <para>
+                <classname>RequestUserAgent</classname> is responsible for adding 
+                <literal>User-Agent</literal> header. This interceptor is recommended for client 
+                side protocol processors. 
+                </para>
+            </section>
+            <section>
+                <title><classname>ResponseServer</classname></title>
+                <para>
+                <classname>ResponseServer</classname> is responsible for adding 
+                <literal>Server</literal> header. This interceptor is recommended for server side 
+                protocol processors. 
+                </para>
+            </section>
+        </section>
+        <section>
+            <title>Working with protocol processors</title>
+            <para>
+            Usually HTTP protocol processors are used to pre-process incoming messages prior to 
+            executing application specific processing logic and to post-process outgoing messages.
+            </para>
+            <programlisting><![CDATA[
+BasicHttpProcessor httpproc = new BasicHttpProcessor();
+// Required protocol interceptors
+httpproc.addInterceptor(new RequestContent());
+httpproc.addInterceptor(new RequestTargetHost());
+// Recommended protocol interceptors
+httpproc.addInterceptor(new RequestConnControl());
+httpproc.addInterceptor(new RequestUserAgent());
+httpproc.addInterceptor(new RequestExpectContinue());
+
+HttpContext context = new BasicHttpContext();
+
+HttpRequest request = new BasicHttpRequest("GET", "/");
+httpproc.process(request, context);
+HttpResponse response = null;
+]]></programlisting>
+            <para>
+            Send the request to the target host and get a response.
+            </para>
+            <programlisting><![CDATA[
+httpproc.process(response, context);
+]]></programlisting>
+        </section>
+        <section>
+            <title>HTTP context</title>
+            <para>
+            Protocol interceptors can collaborate by sharing information - such as a processing 
+            state - through an HTTP execution context. HTTP context is a structure that can be 
+            used to map an attribute name to an attribute value. Internally HTTP context 
+            implementations are usually backed by a <classname>HashMap</classname>. The primary 
+            purpose of the HTTP context is to facilitate information sharing among various 
+            logically related components. HTTP context can be used to store a processing state for 
+            one message or several consecutive messages. Multiple logically related messages can 
+            participate in a logical session if the same context is reused between consecutive 
+            messages.
+            </para>
+            <programlisting><![CDATA[
+BasicHttpProcessor httpproc = new BasicHttpProcessor();
+httpproc.addInterceptor(new HttpRequestInterceptor() {
+
+    public void process(
+            HttpRequest request, 
+            HttpContext context) throws HttpException, IOException {
+        String id = (String) context.getAttribute("session-id");
+        if (id != null) {
+            request.addHeader("Session-ID", id);
+        }
+    }
+    
+    
+});
+HttpRequest request = new BasicHttpRequest("GET", "/");
+httpproc.process(request, context);
+]]></programlisting>
+            <para>
+            <interfacename>HttpContext</interfacename> instances can be linked together to form a 
+            hierarchy. In the simplest form one context can use content of another context to 
+            obtain default values of attributes not present in the local context.
+            </para>
+            <programlisting><![CDATA[
+HttpContext parentContext = new BasicHttpContext(); 
+parentContext.setAttribute("param1", Integer.valueOf(1));
+parentContext.setAttribute("param2", Integer.valueOf(2));
+
+HttpContext localContext = new BasicHttpContext(); 
+localContext.setAttribute("param2", Integer.valueOf(0));
+localContext.setAttribute("param3", Integer.valueOf(3));
+HttpContext stack = new DefaultedHttpContext(localContext, 
+    parentContext); 
+        
+System.out.println(stack.getAttribute("param1"));
+System.out.println(stack.getAttribute("param2"));
+System.out.println(stack.getAttribute("param3"));
+System.out.println(stack.getAttribute("param4"));
+]]></programlisting>
+                <para>stdout &gt;</para>
+                <programlisting><![CDATA[
+1
+0
+3
+null
+]]></programlisting>
+        </section>
+    </section>
+    <section>
+        <title>HTTP parameters</title>
+        <para>
+        <interfacename>HttpParams</interfacename> interface represents a collection of immutable 
+        values that define a runtime behavior of a component. In many ways <interfacename>HttpParams
+        </interfacename> is similar to <interfacename>HttpContext</interfacename>. The main 
+        distinction between the two lies in their use at runtime. Both interfaces represent a 
+        collection of objects that are organized as a map of textual names to object values, but 
+        serve distinct purposes:
+        </para>
+        <itemizedlist>
+            <listitem>
+                <para>
+                <interfacename>HttpParams</interfacename> is intended to contain simple objects: 
+                integers, doubles, strings, collections and objects that remain immutable at 
+                runtime. <interfacename>HttpParams</interfacename> is expected to be used in the 
+                'write once - ready many' mode. <interfacename>HttpContext</interfacename> is 
+                intended to contain complex objects that are very likely to mutate in the course of 
+                HTTP message processing.
+                </para>
+            </listitem>
+            <listitem>
+                <para>
+                The purpose of <interfacename>HttpParams</interfacename> is to define a behavior of 
+                other components. Usually each complex component has its own <interfacename>
+                HttpParams</interfacename> object. The purpose of <interfacename>HttpContext
+                </interfacename> is to represent an execution state of an HTTP process. Usually 
+                the same execution context is shared among many collaborating objects.                     
+                </para>
+            </listitem>
+        </itemizedlist>
+        <para>
+        <interfacename>HttpParams</interfacename>, like <interfacename>HttpContext</interfacename> 
+        can be linked together to form a hierarchy. In the simplest form one set of parameters can 
+        use content of another one to obtain default values of parameters not present in the local 
+        set.
+        </para>
+        <programlisting><![CDATA[
+HttpParams parentParams = new BasicHttpParams(); 
+parentParams.setParameter(CoreProtocolPNames.PROTOCOL_VERSION, 
+    HttpVersion.HTTP_1_0);
+parentParams.setParameter(CoreProtocolPNames.HTTP_CONTENT_CHARSET, 
+    "UTF-8");
+
+HttpParams localParams = new BasicHttpParams(); 
+localParams.setParameter(CoreProtocolPNames.PROTOCOL_VERSION, 
+    HttpVersion.HTTP_1_1);
+localParams.setParameter(CoreProtocolPNames.USE_EXPECT_CONTINUE, 
+    Boolean.FALSE);
+HttpParams stack = new DefaultedHttpParams(localParams, 
+    parentParams); 
+        
+System.out.println(stack.getParameter(
+    CoreProtocolPNames.PROTOCOL_VERSION));
+System.out.println(stack.getParameter(
+    CoreProtocolPNames.HTTP_CONTENT_CHARSET));
+System.out.println(stack.getParameter(
+    CoreProtocolPNames.USE_EXPECT_CONTINUE));
+System.out.println(stack.getParameter(
+    CoreProtocolPNames.USER_AGENT));
+]]></programlisting>
+        <para>stdout &gt;</para>
+        <programlisting><![CDATA[
+HTTP/1.1
+UTF-8
+false
+null
+]]></programlisting>
+        <section>
+            <title>HTTP parameter beans</title>
+            <para>
+            <interfacename>HttpParams</interfacename> interface allows for a great deal of 
+            flexibility in handling configuration of components. Most importantly, new parameters 
+            can be introduced without affecting binary compatibility with older versions. However, 
+            <interfacename>HttpParams</interfacename> also has a certain disadvantage compared to 
+            regular Java beans: <interfacename>HttpParams</interfacename> cannot be assembled using 
+            a DI framework. To mitigate the limitation, HttpCore includes a number of bean classes 
+            that can used in order to initialize <interfacename>HttpParams</interfacename> objects 
+            using standard Java bean conventions. 
+            </para>
+            <programlisting><![CDATA[
+HttpParams params = new BasicHttpParams();
+HttpProtocolParamBean paramsBean = new HttpProtocolParamBean(params);
+paramsBean.setVersion(HttpVersion.HTTP_1_1);
+paramsBean.setContentCharset("UTF-8");
+paramsBean.setUseExpectContinue(true);
+
+System.out.println(params.getParameter(
+    CoreProtocolPNames.PROTOCOL_VERSION));
+System.out.println(params.getParameter(
+    CoreProtocolPNames.HTTP_CONTENT_CHARSET));
+System.out.println(params.getParameter(
+    CoreProtocolPNames.USE_EXPECT_CONTINUE));
+System.out.println(params.getParameter(
+    CoreProtocolPNames.USER_AGENT));
+]]></programlisting>
+        <para>stdout &gt;</para>
+        <programlisting><![CDATA[
+HTTP/1.1
+UTF-8
+false
+null
+]]></programlisting>
+        </section>
+    </section>
+    <section>
+        <title>Blocking HTTP protocol handlers</title>
+        <section>
+            <title>HTTP service</title>
+            <para>
+            <classname>HttpService</classname> is a server side HTTP protocol handler based in the 
+            blocking I/O model that implements the essential requirements of the HTTP protocol for 
+            the server side message processing as described by RFC 2616. 
+            </para>
+            <para>
+            <classname>HttpService</classname> relies on <interfacename>HttpProcessor
+            </interfacename> instance to generate mandatory protocol headers for all outgoing 
+            messages and apply common, cross-cutting message transformations to all incoming and 
+            outgoing messages, whereas HTTP request handlers are expected to take care of 
+            application specific content generation and processing.
+            </para>
+            <programlisting><![CDATA[
+HttpParams params;
+// Initialize HTTP parameters
+HttpProcessor httpproc;
+// Initialize HTTP processor
+
+HttpService httpService = new HttpService(
+        httpproc, 
+        new DefaultConnectionReuseStrategy(), 
+        new DefaultHttpResponseFactory());
+httpService.setParams(params);
+]]></programlisting>
+            <section>
+                <title>HTTP request handlers</title>
+                <para>
+                The <interfacename>HttpRequestHandler</interfacename> interface represents a 
+                routine for processing of a specific group of HTTP requests. <classname>HttpService
+                </classname> is designed to take care of protocol specific aspects, whereas 
+                individual request handlers are expected to take care of application specific HTTP 
+                processing. The main purpose of a request handler is to generate a response object 
+                with a content entity to be sent back to the client in response to the given 
+                request.
+                </para>
+                <programlisting><![CDATA[
+HttpRequestHandler myRequestHandler = new HttpRequestHandler() {
+
+    public void handle(
+            HttpRequest request, 
+            HttpResponse response, 
+            HttpContext context) throws HttpException, IOException {
+        response.setStatusCode(HttpStatus.SC_OK);
+        response.addHeader("Content-Type", "text/plain");
+        response.setEntity(
+            new StringEntity("some important message"));
+    }
+    
+};
+]]></programlisting>
+            </section>
+            <section>
+                <title>Request handler resolver</title>
+                <para>
+                HTTP request handlers are usually managed by a <interfacename>
+                HttpRequestHandlerResolver</interfacename> that matches a request URI to a request 
+                handler. HttpCore includes a very simple implementation of the request handler 
+                resolver based on a trivial pattern matching algorithm: <classname>
+                HttpRequestHandlerRegistry</classname> supports only three formats: 
+                <literal>*</literal>, <literal>&lt;uri&gt;*</literal> and 
+                <literal>*&lt;uri&gt;</literal>.
+                </para>
+                <programlisting><![CDATA[
+HttpService httpService;
+// Initialize HTTP service
+
+HttpRequestHandlerRegistry handlerResolver = 
+    new HttpRequestHandlerRegistry();
+handlerReqistry.register("/service/*", myRequestHandler1);
+handlerReqistry.register("*.do", myRequestHandler2);
+handlerReqistry.register("*", myRequestHandler3);
+
+// Inject handler resolver
+httpService.setHandlerResolver(handlerResolver);
+]]></programlisting>
+                <para>
+                Users are encouraged to provide more sophisticated implementations of 
+                <interfacename>HttpRequestHandlerResolver</interfacename>, for instance, based on 
+                regular expressions.
+                </para>
+            </section>
+            <section>
+                <title>Using HTTP service to handle requests</title>
+                <para>
+                When fully initialized and configured, the <classname>HttpService</classname> can 
+                be used to execute and handle requests for active HTTP connections. The 
+                <methodname>HttpService#handleRequest()</methodname> method reads an incoming 
+                request, generates a response and sends it back to the client. This method can be 
+                executed in a loop to handle multiple requests on a persistent connection. The 
+                <methodname>HttpService#handleRequest()</methodname> method is safe to execute from 
+                multiple threads. This allows processing of requests on several connections 
+                simultaneously, as long as all the protocol interceptors and requests handlers used 
+                by the <classname>HttpService</classname> are thread safe.
+                </para>
+                <programlisting><![CDATA[
+HttpService httpService;
+// Initialize HTTP service
+HttpServerConnection conn;
+// Initialize connection
+HttpContext context;
+// Initialize HTTP context
+
+boolean active = true;
+try {
+    while (active && conn.isOpen()) {
+        httpService.handleRequest(conn, context);
+    }
+} finally {
+    conn.shutdown();
+}
+]]></programlisting>
+            </section>
+        </section>
+        <section>
+            <title>HTTP request executor</title>
+            <para>
+            <classname>HttpRequestExecutor</classname> is a client side HTTP protocol handler based 
+            on the blocking I/O model that implements the essential requirements of the HTTP 
+            protocol for the client side message processing, as described by RFC 2616. 
+            <classname>HttpRequestExecutor</classname> relies on on <interfacename>HttpProcessor
+            </interfacename> instance to generate mandatory protocol headers for all outgoing 
+            messages and apply common, cross-cutting message transformations to all incoming and 
+            outgoing messages. Application specific processing can be implemented outside 
+            <classname>HttpRequestExecutor</classname> once the request has been executed and a 
+            response has been received.
+            </para>
+            <programlisting><![CDATA[
+HttpClientConnection conn;
+// Create connection
+HttpParams params;
+// Initialize HTTP parameters
+HttpProcessor httpproc;
+// Initialize HTTP processor
+HttpContext context;
+// Initialize HTTP context
+
+HttpRequestExecutor httpexecutor = new HttpRequestExecutor();
+
+BasicHttpRequest request = new BasicHttpRequest("GET", "/");
+request.setParams(params);
+httpexecutor.preProcess(request, httpproc, context);
+HttpResponse response = httpexecutor.execute(
+    request, conn, context);
+response.setParams(params);
+httpexecutor.postProcess(response, httpproc, context);
+
+HttpEntity entity = response.getEntity();
+if (entity != null) {
+    entity.consumeContent();
+}
+]]></programlisting>
+            <para>
+            Methods of <classname>HttpRequestExecutor</classname> are safe to execute from multiple 
+            threads. This allows execution of requests on several connections simultaneously, as 
+            long as all the protocol interceptors used by the <classname>HttpRequestExecutor
+            </classname> are thread safe.
+            </para>
+        </section>
+        <section>
+            <title>Connection persistence / re-use</title>
+            <para>
+            The <interfacename>ConnectionReuseStrategy</interfacename> interface is intended to 
+            determine whether the underlying connection can be re-used for processing of further 
+            messages after the transmission of the current message has been completed. The default 
+            connection re-use strategy attempts to keep connections alive whenever possible. 
+            Firstly, it examines the version of the HTTP protocol used to transmit the message. 
+            <literal>HTTP/1.1</literal> connections are persistent by default, while <literal>
+            HTTP/1.0</literal> connections are not. Secondly, it examines the value of the 
+            <literal>Connection</literal> header. The peer can indicate whether it intends to 
+            re-use the connection on the opposite side by sending <literal>Keep-Alive</literal> or 
+            <literal>Close</literal> values in the <literal>Connection</literal> header. Thirdly, 
+            the strategy makes the decision whether the connection is safe to re-use based on the 
+            properties of the enclosed entity, if available.  
+            </para>
+        </section>
+    </section>
+</chapter>
