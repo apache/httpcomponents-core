@@ -182,8 +182,9 @@
           <includes>index.xml</includes>
           <chunkedOutput>true</chunkedOutput>
           <xincludeSupported>true</xincludeSupported>
-          <htmlCustomization>src/docbkx/resources/xsl/html_chunk.xsl</htmlCustomization>
           <foCustomization>src/docbkx/resources/xsl/fopdf.xsl</foCustomization>
+          <htmlCustomization>src/docbkx/resources/xsl/html_chunk.xsl</htmlCustomization>
+          <htmlStylesheet>css/hc-tutorial.css</htmlStylesheet>
           <entities>
             <entity>
               <name>version</name>
