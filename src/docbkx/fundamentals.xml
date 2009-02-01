@@ -473,7 +473,7 @@ HttpEntity entity = new FileEntity(staticFile,
                 a repeatable entity.
                 </para>
                 <para>
-                There are no standard !ContentProducers in HttpCore. It is basically just a 
+                There are no standard ContentProducers in HttpCore. It is basically just a 
                 convenience interface to allow wrapping up complex logic into an entity. To use 
                 this entity one needs to create a class that implements <interfacename>
                 ContentProducer</interfacename> and override the <methodname>
@@ -522,7 +522,7 @@ ContentProducer rocks! Time requested: Fri Sep 05 12:20:22 CEST 2008
                 </para>
                 <para>
                 This makes it possible to make a repeatable entity, from a non-repeatable entity. 
-                If the supplied entity is already repeated, calls are simply passed through to the 
+                If the supplied entity is already repeatable, calls are simply passed through to the 
                 underlying entity.
                 </para>
                 <programlisting><![CDATA[
@@ -546,16 +546,16 @@ BufferedHttpEntity myBufferedEntity = new BufferedHttpEntity(
         <para>
         It is important to bear in mind that HTTP connections are not thread-safe. It is strongly 
         recommended to limit all interactions with HTTP connection objects to one thread. The only 
-        method of <interfacename>HttpConnection</interfacename> interface and its sub-interfaces, 
-        which is safe to invoke from another thread, is <methodname> HttpConnection#shutdown()
+        method of <interfacename>HttpConnection</interfacename> interface and its sub-interfaces 
+        which is safe to invoke from another thread is <methodname> HttpConnection#shutdown()
         </methodname>.
         </para>
         <section>
             <title>Working with blocking HTTP connections</title>
             <para>
             HttpCore does not provide full support for opening connections because the process of 
-            establishing a new connection especially on the client side can be very complex 
-            involving one or several authenticating or/and tunneling proxies. Instead, blocking 
+            establishing a new connection - especially on the client side - can be very complex 
+            when it involves one or more authenticating or/and tunneling proxies. Instead, blocking 
             HTTP connections can be bound to any arbitrary network socket. 
             </para>
             <programlisting><![CDATA[
@@ -695,7 +695,7 @@ conn.sendResponseEntity(response);
             HttpConnection#close()</methodname> method is not thread-safe. The latter terminates 
             the connection without flushing internal buffers and returns control to the caller as 
             soon as possible without blocking for long. The <methodname>HttpConnection#shutdown()
-            </methodname> method is expected to be thread-safe.
+            </methodname> method is thread-safe.
             </para>
         </section>
     </section>
@@ -731,7 +731,7 @@ conn.sendResponseEntity(response);
         <para>
         HTTP protocol processor is a collection of protocol interceptors that implements the 
         'Chain of Responsibility' pattern, where each individual protocol interceptor is expected 
-        to work on a particular aspect of the HTTP protocol the interceptor is responsible for. 
+        to work on the particular aspect of the HTTP protocol it is responsible for. 
         </para>
         <para>
         Usually the order in which interceptors are executed should not matter as long as they do 
@@ -1037,7 +1037,7 @@ null
         <section>
             <title>HTTP service</title>
             <para>
-            <classname>HttpService</classname> is a server side HTTP protocol handler based in the 
+            <classname>HttpService</classname> is a server side HTTP protocol handler based on the 
             blocking I/O model that implements the essential requirements of the HTTP protocol for 
             the server side message processing as described by RFC 2616. 
             </para>
@@ -1113,7 +1113,7 @@ httpService.setHandlerResolver(handlerResolver);
 ]]></programlisting>
                 <para>
                 Users are encouraged to provide more sophisticated implementations of 
-                <interfacename>HttpRequestHandlerResolver</interfacename>, for instance, based on 
+                <interfacename>HttpRequestHandlerResolver</interfacename> - for instance, based on 
                 regular expressions.
                 </para>
             </section>
