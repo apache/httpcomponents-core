@@ -342,8 +342,8 @@ if (sessionRequest.getException() != null) {
 IOSession iosession = sessionRequest.getSession();
 ]]></programlisting>
             <para>
-            <interfacename>SessionRequest</interfacename> implementations are expected to be thread 
-            safe. Session request can be aborted at any time by calling <methodname>
+            <interfacename>SessionRequest</interfacename> implementations are expected to be 
+            thread-safe. Session request can be aborted at any time by calling <methodname>
             IOSession#cancel()</methodname> from another thread of execution.
             </para>
             <programlisting><![CDATA[
@@ -495,7 +495,7 @@ for (ExceptionEvent event: events) {
         <para>
         Effectively non-blocking HTTP connections are wrappers around <interfacename>IOSession
         </interfacename> with HTTP specific functionality. Non-blocking HTTP connections are 
-        stateful and not thread safe. Input / output operations on non-blocking HTTP connections 
+        stateful and not thread-safe. Input / output operations on non-blocking HTTP connections 
         should be restricted to the dispatch events triggered by the I/O event dispatch thread. 
         </para>
         <section>
@@ -505,7 +505,7 @@ for (ExceptionEvent event: events) {
             therefore they need to maintain their own execution context. Each non-blocking HTTP 
             connection has an <interfacename>HttpContext</interfacename> instance associated with 
             it, which can be used to maintain a processing state. The <interfacename>HttpContext
-            </interfacename> instance is thread safe and can be manipulated from multiple threads.
+            </interfacename> instance is thread-safe and can be manipulated from multiple threads.
             </para>
             <programlisting><![CDATA[
 // Get non-blocking HTTP connection
@@ -600,14 +600,14 @@ System.out.println(conn.isResponseSubmitted());
             All non-blocking HTTP connections classes implement <interfacename>IOControl
             </interfacename> interface, which represents a subset of connection functionality for 
             controlling interest in I/O even notifications. <interfacename>IOControl
-            </interfacename> instances are expected to be fully thread safe. Therefore 
+            </interfacename> instances are expected to be fully thread-safe. Therefore 
             <interfacename>IOControl</interfacename> can be used to request / suspend I/O event 
             notifications from any thread. 
             </para>
             <para>
             One must take special precautions when interacting with non-blocking connections. 
             <interfacename>HttpRequest</interfacename> and <interfacename>HttpResponse
-            </interfacename>are not thread safe. It is generally advisable that all input / output 
+            </interfacename>are not thread-safe. It is generally advisable that all input / output 
             operations on a non-blocking connection are executed from the I/O event dispatch 
             thread.   
             </para>
@@ -1284,7 +1284,7 @@ NHttpRequestHandler myRequestHandler = new NHttpRequestHandler() {
 };
 ]]></programlisting>
                 <para>
-                Request handlers must be implemented in a thread safe manner. Similarly to 
+                Request handlers must be implemented in a thread-safe manner. Similarly to 
                 servlets, request handlers should not use instance variables unless access to those 
                 variables are synchronized.
                 </para>
@@ -1345,7 +1345,7 @@ NHttpRequestHandler myRequestHandler = new NHttpRequestHandler() {
 };
 ]]></programlisting>
                 <para>
-                Please note <interfacename>HttpResponse</interfacename> objects are not thread safe 
+                Please note <interfacename>HttpResponse</interfacename> objects are not thread-safe 
                 and may not be modified concurrently. Non-blocking request handlers must ensure 
                 the HTTP response cannot be accessed by more than one thread at a time.
                 </para>
