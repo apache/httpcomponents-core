@@ -1128,7 +1128,7 @@ httpService.setHandlerResolver(handlerResolver);
                 <methodname>HttpService#handleRequest()</methodname> method is safe to execute from 
                 multiple threads. This allows processing of requests on several connections 
                 simultaneously, as long as all the protocol interceptors and requests handlers used 
-                by the <classname>HttpService</classname> are thread safe.
+                by the <classname>HttpService</classname> are thread-safe.
                 </para>
                 <programlisting><![CDATA[
 HttpService httpService;
@@ -1191,7 +1191,7 @@ if (entity != null) {
             Methods of <classname>HttpRequestExecutor</classname> are safe to execute from multiple 
             threads. This allows execution of requests on several connections simultaneously, as 
             long as all the protocol interceptors used by the <classname>HttpRequestExecutor
-            </classname> are thread safe.
+            </classname> are thread-safe.
             </para>
         </section>
         <section>
