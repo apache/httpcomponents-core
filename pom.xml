@@ -191,6 +191,24 @@
               <value>${pom.version}</value>
             </entity>
           </entities>
+          <postProcess>
+            <copy todir="target/site/tutorial">
+              <fileset dir="target/docbkx">
+                <include name="**/*.html"/>
+                <include name="**/*.pdf"/>
+              </fileset>
+            </copy>
+            <copy todir="target/site/tutorial/html">
+              <fileset dir="src/docbkx/resources">
+                <include name="**/*.css"/>
+                <include name="**/*.png"/>
+                <include name="**/*.gif"/>
+                <include name="**/*.jpg"/>
+              </fileset>
+            </copy>
+            <move file="target/site/tutorial/pdf/index.pdf"
+                  tofile="target/site/tutorial/pdf/httpcore-tutorial.pdf" failonerror="false"/>
+          </postProcess>
         </configuration>
       </plugin>
     </plugins>
@@ -211,38 +229,6 @@
              </reports>
            </reportSet>
          </reportSets>
-      </plugin>
-
-      <plugin>
-        <artifactId>maven-clover-plugin</artifactId>
-        <configuration>
-          <jdk>1.5</jdk>
-          <licenseLocation>${clover.license}</licenseLocation>
-        </configuration>
-      </plugin>
-
-      <plugin>
-        <artifactId>maven-javadoc-plugin</artifactId>
-        <configuration>
-          <source>1.5</source>
-          <aggregate>true</aggregate>
-          <links>
-            <link>http://java.sun.com/j2se/1.5.0/docs/api/</link>
-          </links>
-        </configuration>
-      </plugin>
-
-      <plugin>
-        <artifactId>maven-jxr-plugin</artifactId>
-      </plugin>
-
-      <plugin>
-        <artifactId>maven-surefire-report-plugin</artifactId>
-      </plugin>
-
-      <plugin>
-        <groupId>org.codehaus.mojo</groupId>
-        <artifactId>clirr-maven-plugin</artifactId>
       </plugin>
 
     </plugins>
