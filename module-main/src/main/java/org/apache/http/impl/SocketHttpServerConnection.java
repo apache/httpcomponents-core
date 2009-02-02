@@ -59,7 +59,7 @@ public class SocketHttpServerConnection extends
         AbstractHttpServerConnection implements HttpInetConnection {
 
     private volatile boolean open;
-    private Socket socket = null;
+    private volatile Socket socket = null;
     
     public SocketHttpServerConnection() {
         super();
