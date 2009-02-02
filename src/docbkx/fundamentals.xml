@@ -473,7 +473,7 @@ HttpEntity entity = new FileEntity(staticFile,
                 a repeatable entity.
                 </para>
                 <para>
-                There are no standard ContentProducers in HttpCore. It is basically just a 
+                There are no standard content producers in HttpCore. It is basically just a 
                 convenience interface to allow wrapping up complex logic into an entity. To use 
                 this entity one needs to create a class that implements <interfacename>
                 ContentProducer</interfacename> and override the <methodname>
