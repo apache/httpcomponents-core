@@ -279,3 +279,35 @@ div.note * td,
     .programlisting * .lineannotation * {
     color: blue;
 }
+
+.bannerLeft, .bannerRight {
+  font-size: xx-large;
+  font-weight: bold;
+}
+
+.bannerLeft img, .bannerRight img {
+  margin: 0px;
+}
+
+.bannerLeft img {
+  float:left;
+  text-shadow: #7CFC00;
+}
+
+.bannerRight img {
+  float:right;
+  text-shadow: #7CFC00;
+}
+
+.banner {
+  padding: 0px;
+}
+
+.banner img {
+  border: none;
+}
+
+.clear  {
+  clear:both;
+  visibility: hidden;
+}

@@ -94,4 +94,20 @@
             <xsl:apply-templates mode="titlepage.mode"/>
         </div>
     </xsl:template>
+    <!--###################################################
+                     Headers and Footers
+    ################################################### -->
+    <xsl:template name="user.header.navigation">
+        <div class="banner">
+            <a class="bannerLeft" href="http://www.apache.org/"
+               title="Apache Software Foundation">
+                <img style="border:none;" src="images/asf_logo_wide.gif"/>
+            </a>
+            <a class="bannerRight" href="http://hc.apache.org/httpcomponents-core/"
+               title="Apache HttpComponents Core">
+                <img style="border:none;" src="images/hc_logo.png"/>
+            </a>
+            <div class="clear"/>
+        </div>
+    </xsl:template>
 </xsl:stylesheet>
