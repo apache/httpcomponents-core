@@ -57,9 +57,9 @@ public class SessionRequestImpl implements SessionRequest {
     private final Object attachment;
     private final SessionRequestCallback callback;
     
-    private int connectTimeout;
-    private IOSession session = null;
-    private IOException exception = null;
+    private volatile int connectTimeout;
+    private volatile IOSession session = null;
+    private volatile IOException exception = null;
     
     public SessionRequestImpl(
             final SocketAddress remoteAddress,
