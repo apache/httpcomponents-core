@@ -46,11 +46,13 @@ Java libraries for bare-bone HTTP communication,
 including support for NIO.
     </shortdesc>
     <description>
-HttpCore (main) is a library for HTTP communication that can be used
-on either client or server side. A second library, HttpCore-NIO, adds
-support for Java NIO. HttpCore has no dependencies beyond the JVM, but
-also no built-in support for advanced features such as cookie management
-or authentication. It defines a framework for plugging in these features.
+    HttpCore is a set of low level HTTP transport components that can be used to build custom
+    client and server side HTTP services with a minimal footprint. HttpCore supports two I/O 
+    models: blocking I/O model based on the classic Java I/O and non-blocking, event driven I/O 
+    model based on Java NIO.  The blocking I/O model may be more appropriate for data intensive, 
+    low latency scenarios, whereas the non-blocking model may be more appropriate for high latency 
+    scenarios where raw data throughput is less important than the ability to handle thousands of 
+    simultaneous HTTP connections in a resource efficient manner.
     </description>
     <bug-database rdf:resource="http://issues.apache.org/jira/browse/HTTPCORE" />
     <mailing-list rdf:resource="http://httpcomponents.apache.org/mail-lists.html" />
@@ -77,6 +79,11 @@ or authentication. It defines a framework for plugging in these features.
         <name>HttpComponents Core 4.0-beta2</name>
         <created>2008-06-22</created>
         <revision>4.0-beta2</revision>
+      </Version>
+      <Version>
+        <name>HttpComponents Core 4.0-beta3</name>
+        <created>2008-10-19</created>
+        <revision>4.0-beta3</revision>
       </Version>
     </release>
 

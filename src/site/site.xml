@@ -49,6 +49,7 @@
     <menu name="HttpCore Overview">
       <item name="Description" href="index.html"/>
       <item name="Download" href="download.html"/>
+      <item name="Tutorial" href="tutorial/html/index.html"/>
       <item name="Examples" href="examples.html"/>
     </menu>
     <menu name="Modules">
