@@ -31,9 +31,7 @@
 
 package org.apache.http.examples;
 
-
 import org.apache.http.util.VersionInfo;
-
 
 /**
  * Prints version information for debugging purposes.
@@ -48,12 +46,8 @@ public class PrintVersionInfo {
 
     /** A default list of module packages. */
     private final static String[] MODULE_LIST = {
-        "org.apache.http",              // HttpCore (main)
-        "org.apache.http.nio",          // HttpNIO
-        "org.apache.http.nio.ssl",      // HttpNIOSSL
-        "org.apache.http.conn",         // HttpConn
-        "org.apache.http.auth",         // HttpAuth
-        "org.apache.http.cookie",       // HttpCookie
+        "org.apache.http",              // HttpCore
+        "org.apache.http.nio",          // HttpCore NIO
         "org.apache.http.client",       // HttpClient
     };
 
@@ -66,7 +60,6 @@ public class PrintVersionInfo {
      *                  a list of packages for which to get version info.
      */
     public static void main(String args[]) {
-
         String[]    pckgs = (args.length > 0) ? args : MODULE_LIST;
         VersionInfo[] via = VersionInfo.loadVersionInfo(pckgs, null);
         System.out.println("version info for thread context classloader:");

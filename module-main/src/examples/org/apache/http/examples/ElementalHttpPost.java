@@ -62,6 +62,9 @@ import org.apache.http.util.EntityUtils;
 
 /**
  * Elemental example for executing a POST request.
+ * <p>
+ * Please note the purpose of this application is demonstrate the usage of HttpCore APIs.
+ * It is NOT intended to demonstrate the most efficient way of building an HTTP client. 
  *
  * @author <a href="mailto:oleg at ural.ru">Oleg Kalnichevski</a>
  *
@@ -123,7 +126,6 @@ public class ElementalHttpPost {
                 request.setEntity(requestBodies[i]);
                 System.out.println(">> Request URI: " + request.getRequestLine().getUri());
 
-                context.setAttribute(ExecutionContext.HTTP_REQUEST, request);
                 request.setParams(params);
                 httpexecutor.preProcess(request, httpproc, context);
                 HttpResponse response = httpexecutor.execute(request, conn, context);
