@@ -33,7 +33,6 @@ package org.apache.http.examples;
 
 import java.io.IOException;
 import java.io.InterruptedIOException;
-import java.net.InetSocketAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
 
@@ -167,7 +166,7 @@ public class ElementalReverseProxy {
             System.out.println("<< Response: " + response.getStatusLine());
 
             boolean keepalive = this.connStrategy.keepAlive(response, context);
-            context.setAttribute(HTTP_CONN_KEEPALIVE, Boolean.valueOf(keepalive));
+            context.setAttribute(HTTP_CONN_KEEPALIVE, new Boolean(keepalive));
         }
         
     }
@@ -235,13 +234,7 @@ public class ElementalReverseProxy {
                     inconn.bind(insocket, this.params);
 
                     // Set up outgoing HTTP connection
-                    Socket outsocket = new Socket();
-                    
-                    int timeout = this.params.getIntParameter(
-                            CoreConnectionPNames.CONNECTION_TIMEOUT, 0);
-                    outsocket.connect(new InetSocketAddress(
-                            this.target.getHostName(), this.target.getPort()), timeout);
-                    
+                    Socket outsocket = new Socket(this.target.getHostName(), this.target.getPort());
                     DefaultHttpClientConnection outconn = new DefaultHttpClientConnection();
                     outconn.bind(outsocket, this.params);
                     System.out.println("Outgoing connection to " + outsocket.getInetAddress());
