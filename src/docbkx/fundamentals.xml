@@ -865,6 +865,10 @@ HttpResponse response = null;
             <programlisting><![CDATA[
 httpproc.process(response, context);
 ]]></programlisting>
+            <para>
+            Please note the <classname>BasicHttpProcessor</classname> class does not synchronize 
+            access to its internal structures and therefore amy be thread-unsafe.
+            </para>
         </section>
         <section>
             <title>HTTP context</title>
@@ -995,6 +999,10 @@ UTF-8
 false
 null
 ]]></programlisting>
+        <para>
+        Please note the <classname>BasicHttpParams</classname> class does not synchronize access to 
+        its internal structures and therefore amy be thread-unsafe.
+        </para>
         <section>
             <title>HTTP parameter beans</title>
             <para>

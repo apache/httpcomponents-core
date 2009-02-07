@@ -41,8 +41,8 @@ import org.apache.http.params.HttpParams;
 /**
  * Default implementation of {@link HttpParams} interface.
  * <p>
- * Please note methods of this class are not synchronized and therefore may
- * be threading unsafe.
+ * Please note access to the internal structures of this class is not 
+ * synchronized and therefore this class may be thread-unsafe.
  * 
  * @author <a href="mailto:oleg at ural.ru">Oleg Kalnichevski</a>
  * 
