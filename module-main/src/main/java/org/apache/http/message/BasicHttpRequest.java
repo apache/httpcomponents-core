@@ -60,7 +60,7 @@ public class BasicHttpRequest extends AbstractHttpMessage implements HttpRequest
      * <p>
      * The following HTTP parameters affect the initialization:
      * <p>
-     * The {@link CoreProtocolPNames#PROTOCOL_VERSION}
+     * The {@link org.apache.http.params.CoreProtocolPNames#PROTOCOL_VERSION}
      * parameter determines HTTP protocol version to be used for this request.
      * 
      * @param method request method.
