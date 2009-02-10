@@ -65,8 +65,12 @@
           <outputDirectory>tutorial/html</outputDirectory>
         </fileSet>
         <fileSet>
-          <directory>src/docbkx/resources</directory>
-          <outputDirectory>tutorial/html</outputDirectory>
+          <directory>src/docbkx/resources/css</directory>
+          <outputDirectory>tutorial/html/css</outputDirectory>
+        </fileSet>
+        <fileSet>
+          <directory>src/docbkx/resources/images</directory>
+          <outputDirectory>tutorial/html/images</outputDirectory>
         </fileSet>
         <!-- Examples: base module -->
         <fileSet>
