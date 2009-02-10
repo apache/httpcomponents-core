@@ -61,6 +61,11 @@
           <directory>target/site/apidocs</directory>
           <outputDirectory>javadoc</outputDirectory>
         </fileSet>
+        <!-- Tutorial (HTML) -->
+        <fileSet>
+          <directory>target/docbkx/html</directory>
+          <outputDirectory>tutorial/html</outputDirectory>
+        </fileSet>
         <!-- Examples: base module -->
         <fileSet>
           <directory>module-main/src/examples/</directory>
@@ -78,4 +83,12 @@
           </includes>
         </fileSet>
     </fileSets>
+    <files>
+        <!-- Tutorial (PDF) -->
+        <file>
+          <source>target/docbkx/pdf/index.pdf</source>
+          <outputDirectory>tutorial/pdf</outputDirectory>
+          <destName>httpcore-tutorial.pdf</destName>
+        </file>
+    </files>
 </assembly>
