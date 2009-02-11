@@ -41,6 +41,7 @@ import org.apache.http.nio.reactor.IOSession;
 import org.apache.http.nio.util.ByteBufferAllocator;
 import org.apache.http.nio.util.HeapByteBufferAllocator;
 import org.apache.http.params.HttpParams;
+import org.apache.http.protocol.ExecutionContext;
 
 /**
  * Default implementation of {@link IOEventDispatch} interface for plain 
@@ -52,8 +53,6 @@ import org.apache.http.params.HttpParams;
  */
 public class DefaultClientIOEventDispatch implements IOEventDispatch {
 
-    private static final String NHTTP_CONN = "NHTTP_CONN";
-    
     protected final ByteBufferAllocator allocator;
     protected final NHttpClientHandler handler;
     protected final HttpParams params;
@@ -128,13 +127,13 @@ public class DefaultClientIOEventDispatch implements IOEventDispatch {
     public void connected(final IOSession session) {
         NHttpClientIOTarget conn = createConnection(session);
         Object attachment = session.getAttribute(IOSession.ATTACHMENT_KEY);
-        session.setAttribute(NHTTP_CONN, conn);
+        session.setAttribute(ExecutionContext.HTTP_CONNECTION, conn);
         this.handler.connected(conn, attachment);
     }
 
     public void disconnected(final IOSession session) {
         NHttpClientIOTarget conn = 
-            (NHttpClientIOTarget) session.getAttribute(NHTTP_CONN);
+            (NHttpClientIOTarget) session.getAttribute(ExecutionContext.HTTP_CONNECTION);
         if (conn != null) {
             this.handler.closed(conn);
         }
@@ -142,19 +141,19 @@ public class DefaultClientIOEventDispatch implements IOEventDispatch {
 
     public void inputReady(final IOSession session) {
         NHttpClientIOTarget conn = 
-            (NHttpClientIOTarget) session.getAttribute(NHTTP_CONN);
+            (NHttpClientIOTarget) session.getAttribute(ExecutionContext.HTTP_CONNECTION);
         conn.consumeInput(this.handler);
     }
 
     public void outputReady(final IOSession session) {
         NHttpClientIOTarget conn = 
-            (NHttpClientIOTarget) session.getAttribute(NHTTP_CONN);
+            (NHttpClientIOTarget) session.getAttribute(ExecutionContext.HTTP_CONNECTION);
         conn.produceOutput(this.handler);
     }
 
     public void timeout(final IOSession session) {
         NHttpClientIOTarget conn = 
-            (NHttpClientIOTarget) session.getAttribute(NHTTP_CONN);
+            (NHttpClientIOTarget) session.getAttribute(ExecutionContext.HTTP_CONNECTION);
         this.handler.timeout(conn);
     }
 

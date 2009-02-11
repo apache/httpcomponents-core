@@ -49,6 +49,7 @@ import org.apache.http.nio.reactor.IOSession;
 import org.apache.http.nio.util.ByteBufferAllocator;
 import org.apache.http.nio.util.HeapByteBufferAllocator;
 import org.apache.http.params.HttpParams;
+import org.apache.http.protocol.ExecutionContext;
 
 /**
  * Default implementation of {@link IOEventDispatch} interface for SSL
@@ -60,7 +61,6 @@ import org.apache.http.params.HttpParams;
  */
 public class SSLClientIOEventDispatch implements IOEventDispatch {
 
-    private static final String NHTTP_CONN = "NHTTP_CONN";
     private static final String SSL_SESSION = "SSL_SESSION";
     
     protected final NHttpClientHandler handler;
@@ -191,7 +191,7 @@ public class SSLClientIOEventDispatch implements IOEventDispatch {
         NHttpClientIOTarget conn = createConnection(
                 sslSession);
         
-        session.setAttribute(NHTTP_CONN, conn);
+        session.setAttribute(ExecutionContext.HTTP_CONNECTION, conn);
         session.setAttribute(SSL_SESSION, sslSession);
         
         Object attachment = session.getAttribute(IOSession.ATTACHMENT_KEY);
@@ -207,7 +207,7 @@ public class SSLClientIOEventDispatch implements IOEventDispatch {
 
     public void disconnected(final IOSession session) {
         NHttpClientIOTarget conn = 
-            (NHttpClientIOTarget) session.getAttribute(NHTTP_CONN);
+            (NHttpClientIOTarget) session.getAttribute(ExecutionContext.HTTP_CONNECTION);
         if (conn != null) {
             this.handler.closed(conn);
         }
@@ -215,7 +215,7 @@ public class SSLClientIOEventDispatch implements IOEventDispatch {
 
     public void inputReady(final IOSession session) {
         NHttpClientIOTarget conn = 
-            (NHttpClientIOTarget) session.getAttribute(NHTTP_CONN);
+            (NHttpClientIOTarget) session.getAttribute(ExecutionContext.HTTP_CONNECTION);
         SSLIOSession sslSession = 
             (SSLIOSession) session.getAttribute(SSL_SESSION);
 
@@ -232,7 +232,7 @@ public class SSLClientIOEventDispatch implements IOEventDispatch {
 
     public void outputReady(final IOSession session) {
         NHttpClientIOTarget conn = 
-            (NHttpClientIOTarget) session.getAttribute(NHTTP_CONN);
+            (NHttpClientIOTarget) session.getAttribute(ExecutionContext.HTTP_CONNECTION);
         SSLIOSession sslSession = 
             (SSLIOSession) session.getAttribute(SSL_SESSION);
 
@@ -249,7 +249,7 @@ public class SSLClientIOEventDispatch implements IOEventDispatch {
 
     public void timeout(final IOSession session) {
         NHttpClientIOTarget conn = 
-            (NHttpClientIOTarget) session.getAttribute(NHTTP_CONN);
+            (NHttpClientIOTarget) session.getAttribute(ExecutionContext.HTTP_CONNECTION);
         SSLIOSession sslSession = 
             (SSLIOSession) session.getAttribute(SSL_SESSION);
 
