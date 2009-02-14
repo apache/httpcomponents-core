@@ -45,7 +45,6 @@ import org.apache.http.protocol.HTTP;
 /**
  * Static helpers for dealing with {@link HttpEntity}s.
  *
- * @author <a href="mailto:oleg at ural.ru">Oleg Kalnichevski</a>
  *
  * @version $Revision$
  * 

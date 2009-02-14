@@ -35,8 +35,6 @@ import java.lang.reflect.Method;
 /**
  * The home for utility methods that handle various exception-related tasks.
  * 
- * @author <a href="mailto:oleg at ural.ru">Oleg Kalnichevski</a>
- * @author <a href="mailto:laura@lwerner.org">Laura Werner</a>
  * 
  * @since 4.0
  */

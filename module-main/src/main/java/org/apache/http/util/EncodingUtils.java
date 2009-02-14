@@ -37,8 +37,6 @@ import org.apache.http.protocol.HTTP;
 /**
  * The home for utility methods that handle various encoding tasks.
  * 
- * @author Michael Becke
- * @author <a href="mailto:oleg at ural.ru">Oleg Kalnichevski</a>
  * 
  * @since 4.0
  */

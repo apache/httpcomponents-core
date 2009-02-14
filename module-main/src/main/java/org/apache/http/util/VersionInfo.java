@@ -48,8 +48,7 @@ import java.util.ArrayList;
  * Version information is provided for debugging output and interpretation
  * by humans, not for automated processing in applications.
  *
- * @author <a href="mailto:oleg@ural.ru">Oleg Kalnichevski</a>
- * @author and others
+ * @since 4.0
  */
 public class VersionInfo {
 

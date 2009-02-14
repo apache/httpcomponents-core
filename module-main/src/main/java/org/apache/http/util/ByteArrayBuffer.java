@@ -34,7 +34,6 @@ package org.apache.http.util;
 /**
  * A resizable byte array.
  *
- * @author <a href="mailto:oleg@ural.ru">Oleg Kalnichevski</a>
  * 
  * @version $Revision$
  * 
