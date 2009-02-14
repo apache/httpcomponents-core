@@ -54,7 +54,6 @@ import org.apache.http.util.EncodingUtils;
 /**
  * Simple tests for {@link LengthDelimitedEncoder}.
  *
- * @author <a href="mailto:oleg at ural.ru">Oleg Kalnichevski</a>
  * 
  * @version $Id$
  */

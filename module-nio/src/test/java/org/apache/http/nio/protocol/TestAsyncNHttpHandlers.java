@@ -94,8 +94,6 @@ import org.apache.http.util.EntityUtils;
 /**
  * HttpCore NIO integration tests for async handlers.
  *
- * @author <a href="mailto:oleg at ural.ru">Oleg Kalnichevski</a>
- * @author <a href="mailto:sberlin at gmail.com">Sam Berlin</a>
  *
  * @version $Id$
  */

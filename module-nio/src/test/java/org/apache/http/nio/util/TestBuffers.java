@@ -56,7 +56,6 @@ import org.apache.http.util.EncodingUtils;
 /**
  * Buffer tests.
  *
- * @author <a href="mailto:oleg at ural.ru">Oleg Kalnichevski</a>
  * 
  * @version $Id:TestBuffers.java 503277 2007-02-03 18:22:45 +0000 (Sat, 03 Feb 2007) olegk $
  */

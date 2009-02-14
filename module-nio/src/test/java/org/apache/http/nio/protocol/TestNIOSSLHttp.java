@@ -71,7 +71,6 @@ import org.apache.http.util.EntityUtils;
 /**
  * HttpCore NIO SSL tests.
  *
- * @author <a href="mailto:oleg at ural.ru">Oleg Kalnichevski</a>
  * 
  * @version $Id$
  */

@@ -61,7 +61,6 @@ import org.apache.http.protocol.ResponseServer;
 /**
  * Basic tests for {@link DefaultListeningIOReactor}.
  *
- * @author <a href="mailto:oleg at ural.ru">Oleg Kalnichevski</a>
  * 
  * @version $Id$
  */

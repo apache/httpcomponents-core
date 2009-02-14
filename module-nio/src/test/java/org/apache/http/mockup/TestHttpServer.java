@@ -48,7 +48,6 @@ import org.apache.http.params.HttpParams;
 /**
  * Trivial test server based on HttpCore NIO
  * 
- * @author Oleg Kalnichevski
  */
 public class TestHttpServer {
 

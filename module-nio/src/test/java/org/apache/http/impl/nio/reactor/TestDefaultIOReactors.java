@@ -59,7 +59,6 @@ import org.apache.http.protocol.HttpRequestHandler;
 /**
  * Tests for basic I/O functionality.
  *
- * @author <a href="mailto:oleg at ural.ru">Oleg Kalnichevski</a>
  * 
  * @version $Id$
  */

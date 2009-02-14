@@ -57,7 +57,6 @@ import org.apache.http.protocol.HttpRequestHandler;
 /**
  * Basic functionality tests for SSL I/O reactors.
  *
- * @author <a href="mailto:oleg at ural.ru">Oleg Kalnichevski</a>
  */
 public class TestDefaultIOReactorsSSL extends HttpCoreNIOSSLTestBase {
 

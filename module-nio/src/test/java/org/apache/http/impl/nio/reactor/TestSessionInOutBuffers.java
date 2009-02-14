@@ -53,7 +53,6 @@ import org.apache.http.util.CharArrayBuffer;
 /**
  * Simple tests for {@link SessionInputBuffer} and {@link SessionOutputBuffer}.
  *
- * @author <a href="mailto:oleg at ural.ru">Oleg Kalnichevski</a>
  * 
  * @version $Id$
  */

@@ -63,7 +63,6 @@ import org.apache.http.protocol.ResponseServer;
 /**
  * Base class for all HttpCore NIO tests
  *
- * @author <a href="mailto:oleg at ural.ru">Oleg Kalnichevski</a>
  */
 public class HttpCoreNIOTestBase extends TestCase {
 

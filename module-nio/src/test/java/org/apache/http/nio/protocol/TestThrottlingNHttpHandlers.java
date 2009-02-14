@@ -103,7 +103,6 @@ import org.apache.http.util.EntityUtils;
  * HttpCore NIO integration tests using throttling versions of the 
  * protocol handlers.
  *
- * @author <a href="mailto:oleg at ural.ru">Oleg Kalnichevski</a>
  * 
  * @version $Id$
  */
