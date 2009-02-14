@@ -41,7 +41,7 @@ import org.apache.http.nio.IOControl;
  * An {@link HttpEntity} that can stream content out into a 
  * {@link ContentEncoder}.
  *
- * @author <a href="mailto:sberlin at gmail.com">Sam Berlin</a>
+ * @since 4.0
  */
 public interface ProducingNHttpEntity extends HttpEntity {
 

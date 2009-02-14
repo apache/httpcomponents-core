@@ -47,6 +47,8 @@ import org.apache.http.nio.util.SimpleInputBuffer;
  * content can be retrieved as an InputStream via
  * {@link HttpEntity#getContent()}, or written to an output stream via
  * {@link HttpEntity#writeTo(OutputStream)}.
+ *
+ * @since 4.0
  */
 public class BufferingNHttpEntity extends HttpEntityWrapper implements
         ConsumingNHttpEntity {

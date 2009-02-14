@@ -40,6 +40,8 @@ import org.apache.http.nio.util.ByteBufferAllocator;
 
 /**
  * A simple {@link ContentListener} that reads and ignores all content.
+ *
+ * @since 4.0
  */
 public class SkipContentListener implements ContentListener {
 

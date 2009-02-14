@@ -41,7 +41,7 @@ import org.apache.http.nio.IOControl;
  * A non-blocking {@link HttpEntity} that allows content to be streamed from a 
  * {@link ContentDecoder}.
  *
- * @author <a href="mailto:sberlin at gmail.com">Sam Berlin</a>
+ * @since 4.0
  */
 public interface ConsumingNHttpEntity extends HttpEntity {
 

@@ -46,6 +46,8 @@ import org.apache.http.nio.IOControl;
 /**
  * {@link ProducingNHttpEntity} compatibility adaptor for blocking HTTP 
  * entities. 
+ *
+ * @since 4.0
  */
 public class NHttpEntityWrapper
     extends HttpEntityWrapper implements ProducingNHttpEntity {

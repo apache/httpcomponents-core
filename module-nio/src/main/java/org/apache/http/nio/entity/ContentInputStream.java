@@ -38,6 +38,8 @@ import org.apache.http.nio.util.ContentInputBuffer;
 
 /**
  * {@link InputStream} adaptor for {@link ContentInputBuffer}. 
+ *
+ * @since 4.0
  */
 public class ContentInputStream extends InputStream {
 

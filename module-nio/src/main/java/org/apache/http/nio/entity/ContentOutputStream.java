@@ -38,6 +38,8 @@ import org.apache.http.nio.util.ContentOutputBuffer;
 
 /**
  * {@link OutputStream} adaptor for {@link ContentOutputBuffer}.
+ *
+ * @since 4.0
  */
 public class ContentOutputStream extends OutputStream {
 

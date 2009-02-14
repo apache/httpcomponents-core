@@ -50,7 +50,6 @@ import org.apache.http.nio.IOControl;
  * types, so one needs to supply the content type of the file to make sure 
  * the content can be correctly recognized and processed by the recipient.
  * 
- * @author <a href="mailto:sberlin at gmail.com">Sam Berlin</a>
  *
  * @version $Revision$
  *

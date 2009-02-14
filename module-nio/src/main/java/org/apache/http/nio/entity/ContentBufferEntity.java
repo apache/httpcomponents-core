@@ -39,6 +39,8 @@ import org.apache.http.nio.util.ContentInputBuffer;
 /**
  * HTTP entity wrapper whose content is provided by a 
  * {@link ContentInputBuffer}. 
+ *
+ * @since 4.0
  */
 public class ContentBufferEntity extends BasicHttpEntity {
 

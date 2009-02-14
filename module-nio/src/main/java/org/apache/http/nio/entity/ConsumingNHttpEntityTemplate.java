@@ -43,6 +43,8 @@ import org.apache.http.nio.IOControl;
 /**
  * A {@link ConsumingNHttpEntity} that forwards available content to a
  * {@link ContentListener}.
+ *
+ * @since 4.0
  */
 public class ConsumingNHttpEntityTemplate
     extends HttpEntityWrapper implements ConsumingNHttpEntity {

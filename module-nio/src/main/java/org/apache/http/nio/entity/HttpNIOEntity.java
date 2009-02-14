@@ -36,6 +36,9 @@ import java.nio.channels.ReadableByteChannel;
 
 import org.apache.http.HttpEntity;
 
+/**
+ * @since 4.0
+ */
 @Deprecated
 public interface HttpNIOEntity extends HttpEntity  {
 

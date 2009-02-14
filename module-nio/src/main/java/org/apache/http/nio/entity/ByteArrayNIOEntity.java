@@ -43,7 +43,6 @@ import org.apache.http.entity.ByteArrayEntity;
  * standard {@link HttpEntity} interface this class also implements NIO specific 
  * {@link HttpNIOEntity}.
  *
- * @author <a href="mailto:oleg at ural.ru">Oleg Kalnichevski</a>
  *
  * @version $Revision$
  * 
