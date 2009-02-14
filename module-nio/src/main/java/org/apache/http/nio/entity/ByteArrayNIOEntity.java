@@ -43,7 +43,8 @@ import org.apache.http.entity.ByteArrayEntity;
  * standard {@link HttpEntity} interface this class also implements NIO specific 
  * {@link HttpNIOEntity}.
  *
- *
+ * @deprecated Use {@link NByteArrayEntity}
+ * 
  * @version $Revision$
  * 
  * @since 4.0

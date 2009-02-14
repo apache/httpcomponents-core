@@ -44,7 +44,8 @@ import org.apache.http.entity.FileEntity;
  * {@link HttpEntity} interface this class also implements NIO specific 
  * {@link HttpNIOEntity}.
  *
- *
+ * @deprecated Use {@link NFileEntity}
+ * 
  * @version $Revision$
  * 
  * @since 4.0

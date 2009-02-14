@@ -44,6 +44,7 @@ import org.apache.http.entity.StringEntity;
  * standard {@link HttpEntity} interface this class also implements NIO specific 
  * {@link HttpNIOEntity}.
  *
+ * @deprecated Use {@link NStringEntity}
  *
  * @version $Revision$
  * 

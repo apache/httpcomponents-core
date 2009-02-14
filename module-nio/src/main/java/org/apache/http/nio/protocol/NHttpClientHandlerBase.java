@@ -42,6 +42,8 @@ import org.apache.http.params.HttpParams;
 import org.apache.http.protocol.HttpProcessor;
 
 /**
+ * @deprecated No longer used.
+ * 
  * @since 4.0
  */
 @Deprecated

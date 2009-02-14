@@ -45,6 +45,8 @@ import org.apache.http.protocol.HttpProcessor;
 import org.apache.http.protocol.HttpRequestHandlerResolver;
 
 /**
+ * @deprecated No longer used.
+ * 
  * @since 4.0
  */
 @Deprecated

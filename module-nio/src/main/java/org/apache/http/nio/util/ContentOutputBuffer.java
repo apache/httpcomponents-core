@@ -59,6 +59,9 @@ public interface ContentOutputBuffer {
      */
     void reset();
     
+    /**
+     * @deprecated No longer used.
+     */
     @Deprecated
     void flush() throws IOException;
 
