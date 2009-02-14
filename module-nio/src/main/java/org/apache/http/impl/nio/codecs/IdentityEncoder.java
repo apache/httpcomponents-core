@@ -50,10 +50,10 @@ import org.apache.http.nio.reactor.SessionOutputBuffer;
  * a {@link FileChannel} to the underlying I/O session's channel whenever 
  * possible avoiding intermediate buffering in the session buffer. 
  *
- * @author <a href="mailto:oleg at ural.ru">Oleg Kalnichevski</a>
- * @author Andrea Selva
  *
  * @version $Revision$
+ *
+ * @since 4.0
  */
 public class IdentityEncoder extends AbstractContentEncoder 
         implements FileContentEncoder {

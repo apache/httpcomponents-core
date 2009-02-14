@@ -44,9 +44,10 @@ import org.apache.http.util.CharArrayBuffer;
 /**
  * Default {@link NHttpMessageWriter} implementation for {@link HttpResponse}s.
  *
- * @author <a href="mailto:oleg at ural.ru">Oleg Kalnichevski</a>
  *
  * @version $Revision$
+ *
+ * @since 4.0
  */
 public class HttpResponseWriter extends AbstractMessageWriter {
 

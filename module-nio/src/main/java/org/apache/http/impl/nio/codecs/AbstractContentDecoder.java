@@ -41,9 +41,10 @@ import org.apache.http.impl.io.HttpTransportMetricsImpl;
  * Abstract {@link ContentDecoder} that serves as a base for all content 
  * decoder implementations.
  *
- * @author <a href="mailto:oleg at ural.ru">Oleg Kalnichevski</a>
  *
  * @version $Revision$
+ *
+ * @since 4.0
  */
 public abstract class AbstractContentDecoder implements ContentDecoder {
     

@@ -50,10 +50,10 @@ import org.apache.http.nio.reactor.SessionInputBuffer;
  * I/O session's channel to a {@link FileChannel}, whenever 
  * possible avoiding intermediate buffering in the session buffer. 
  *
- * @author <a href="mailto:oleg at ural.ru">Oleg Kalnichevski</a>
- * @author Andrea Selva
  *
  * @version $Revision$
+ *
+ * @since 4.0
  */
 public class IdentityDecoder extends AbstractContentDecoder 
         implements FileContentDecoder {

@@ -48,9 +48,10 @@ import org.apache.http.util.CharArrayBuffer;
  * Abstract {@link NHttpMessageWriter} that serves as a base for all message 
  * writer implementations.
  *
- * @author <a href="mailto:oleg at ural.ru">Oleg Kalnichevski</a>
  *
  * @version $Revision$
+ *
+ * @since 4.0
  */
 public abstract class AbstractMessageWriter implements NHttpMessageWriter {
     

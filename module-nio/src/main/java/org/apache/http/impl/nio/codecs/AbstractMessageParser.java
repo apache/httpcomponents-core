@@ -52,9 +52,10 @@ import org.apache.http.util.CharArrayBuffer;
  * Abstract {@link NHttpMessageParser} that serves as a base for all message 
  * parser implementations.
  *
- * @author <a href="mailto:oleg at ural.ru">Oleg Kalnichevski</a>
  *
  * @version $Revision$
+ *
+ * @since 4.0
  */
 public abstract class AbstractMessageParser implements NHttpMessageParser {
     
