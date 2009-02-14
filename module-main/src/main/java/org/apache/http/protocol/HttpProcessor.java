@@ -50,8 +50,6 @@ import org.apache.http.HttpResponseInterceptor;
  * servlets, protocol interceptors should not use instance variables unless 
  * access to those variables is synchronized.
  *
- * @author <a href="mailto:oleg at ural.ru">Oleg Kalnichevski</a>
- * @author <a href="mailto:rolandw at apache.org">Roland Weber</a>
  *
  * @version $Revision$
  * 

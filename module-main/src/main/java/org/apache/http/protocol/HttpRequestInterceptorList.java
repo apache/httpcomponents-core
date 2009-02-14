@@ -40,7 +40,6 @@ import org.apache.http.HttpRequestInterceptor;
  * Lists are expected to be built upfront and used read-only afterwards
  * for {@link HttpProcessor processing}.
  *
- * @author <a href="mailto:rolandw at apache.org">Roland Weber</a>
  *
  * @version $Revision$
  * 

@@ -49,7 +49,6 @@ import org.apache.http.ProtocolVersion;
  * <code>HTTP/1.0</code> connections. This interceptor is recommended for 
  * server side protocol processors.
  *
- * @author <a href="mailto:oleg at ural.ru">Oleg Kalnichevski</a>
  *
  * @version $Revision$
  * 

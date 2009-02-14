@@ -34,7 +34,6 @@ package org.apache.http.protocol;
 /**
  * {@link HttpContext} attribute names for protocol execution.
  *
- * @author <a href="mailto:oleg at ural.ru">Oleg Kalnichevski</a>
  *
  * @version $Revision$
  * 

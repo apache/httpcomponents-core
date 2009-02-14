@@ -47,7 +47,6 @@ import org.apache.http.params.HttpProtocolParams;
  * handshake by adding <code>Expect</code> header. This interceptor is 
  * recommended for client side protocol processors. 
  *
- * @author <a href="mailto:oleg at ural.ru">Oleg Kalnichevski</a>
  *
  * @version $Revision$
  * 

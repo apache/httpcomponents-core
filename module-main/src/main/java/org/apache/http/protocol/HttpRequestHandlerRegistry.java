@@ -48,9 +48,10 @@ import java.util.Map;
  * resolved request handler will be used to process the request with the 
  * specified request URI.
  *
- * @author <a href="mailto:oleg at ural.ru">Oleg Kalnichevski</a>
  *
  * @version $Revision$
+ *
+ * @since 4.0
  */
 public class HttpRequestHandlerRegistry implements HttpRequestHandlerResolver {
 

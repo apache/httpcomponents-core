@@ -50,7 +50,6 @@ import org.apache.http.ProtocolException;
  * This interceptor is required for correct functioning of client side protocol 
  * processors.
 
- * @author <a href="mailto:oleg at ural.ru">Oleg Kalnichevski</a>
  *
  * @version $Revision$
  * 

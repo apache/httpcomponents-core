@@ -48,9 +48,10 @@ import java.util.Map;
  * This class can be used to resolve an object matching a particular request 
  * URI. 
  *
- * @author <a href="mailto:oleg at ural.ru">Oleg Kalnichevski</a>
  *
  * @version $Revision$
+ *
+ * @since 4.0
  */
 public class UriPatternMatcher {
 

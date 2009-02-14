@@ -59,7 +59,6 @@ import org.apache.http.HttpResponse;
  * status.
  *</p>
  *
- * @author <a href="mailto:oleg at ural.ru">Oleg Kalnichevski</a>
  *
  * @version $Revision$
  * 

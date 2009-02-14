@@ -43,7 +43,6 @@ import org.apache.http.HttpRequestInterceptor;
  * to the outgoing requests This interceptor is optional for client side 
  * protocol processors.
  *
- * @author <a href="mailto:oleg at ural.ru">Oleg Kalnichevski</a>
  *
  * @version $Revision$
  * 

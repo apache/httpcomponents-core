@@ -40,7 +40,6 @@ import java.util.Map;
  * Please note methods of this class are not synchronized and therefore may
  * be threading unsafe.
  *
- * @author <a href="mailto:oleg at ural.ru">Oleg Kalnichevski</a>
  *
  * @version $Revision$
  * 

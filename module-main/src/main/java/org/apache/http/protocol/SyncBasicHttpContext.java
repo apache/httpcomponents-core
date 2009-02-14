@@ -34,7 +34,6 @@ package org.apache.http.protocol;
 /**
  * Thread-safe extension of the {@link BasicHttpContext}.
  *
- * @author <a href="mailto:oleg at ural.ru">Oleg Kalnichevski</a>
  *
  * @version $Revision$
  * 

@@ -45,7 +45,6 @@ import org.apache.http.HttpResponse;
  * handler is to generate a response object with a content entity to be sent 
  * back to the client in response to the given request
  *
- * @author <a href="mailto:oleg at ural.ru">Oleg Kalnichevski</a>
  *
  * @version $Revision$
  * 

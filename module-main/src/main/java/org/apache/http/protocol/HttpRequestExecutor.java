@@ -56,7 +56,6 @@ import org.apache.http.params.CoreProtocolPNames;
  * specific processing can be implemented outside HttpRequestExecutor once the 
  * request has been executed and a response has been received.
  *
- * @author <a href="mailto:oleg at ural.ru">Oleg Kalnichevski</a>
  *
  * @version $Revision$
  * 

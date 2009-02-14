@@ -41,7 +41,6 @@ import java.util.TimeZone;
 /**
  * Generates a date in the format required by the HTTP protocol.
  *
- * @author <a href="mailto:oleg at ural.ru">Oleg Kalnichevski</a>
  *
  * @version $Revision$
  * 

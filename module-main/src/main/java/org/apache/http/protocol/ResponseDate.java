@@ -43,7 +43,6 @@ import org.apache.http.HttpStatus;
  * outgoing responses. This interceptor is recommended for server side protocol 
  * processors.
  * 
- * @author <a href="mailto:oleg at ural.ru">Oleg Kalnichevski</a>
  *
  * @version $Revision$
  * 

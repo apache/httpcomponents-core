@@ -43,7 +43,6 @@ import org.apache.http.HttpRequestInterceptor;
  * <code>HTTP/1.0</code> connections. This interceptor is recommended for 
  * client side protocol processors.
  *
- * @author <a href="mailto:oleg at ural.ru">Oleg Kalnichevski</a>
  *
  * @version $Revision$
  * 

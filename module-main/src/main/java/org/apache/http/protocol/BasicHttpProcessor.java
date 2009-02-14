@@ -48,8 +48,6 @@ import org.apache.http.HttpResponseInterceptor;
  * Please note access to the internal structures of this class is not 
  * synchronized and therefore this class may be thread-unsafe.
  * 
- * @author <a href="mailto:oleg at ural.ru">Oleg Kalnichevski</a>
- * @author Andrea Selva
  *
  * @version $Revision$
  * 

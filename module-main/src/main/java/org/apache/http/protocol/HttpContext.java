@@ -44,7 +44,6 @@ import java.util.HashMap;
  * Multiple logically related messages can participate in a logical session 
  * if the same context is reused between consecutive messages.
  * 
- * @author <a href="mailto:oleg at ural.ru">Oleg Kalnichevski</a>
  *
  * @version $Revision$
  * 
