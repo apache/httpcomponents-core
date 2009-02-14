@@ -36,7 +36,6 @@ import org.apache.http.params.HttpParams;
 /**
  * Utility class for accessing I/O reactor parameters in {@link HttpParams}.
  * 
- * @author <a href="mailto:oleg at ural.ru">Oleg Kalnichevski</a>
  * 
  * @version $Revision$
  * 

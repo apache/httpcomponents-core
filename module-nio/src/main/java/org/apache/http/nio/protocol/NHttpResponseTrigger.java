@@ -46,6 +46,8 @@ import org.apache.http.HttpResponse;
  * thread. The worker thread in its turn can use the instance of 
  * {@link NHttpResponseTrigger} passed as a parameter to submit a response as at
  * a later point of time once the response becomes available.
+ *
+ * @since 4.0
  */
 public interface NHttpResponseTrigger {
 

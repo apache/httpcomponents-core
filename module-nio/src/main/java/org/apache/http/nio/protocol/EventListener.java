@@ -40,7 +40,7 @@ import org.apache.http.nio.NHttpConnection;
  * Event listener used by the HTTP protocol layer to report fatal exceptions 
  * and events that may need to be logged using a logging toolkit.
  * 
- * @author <a href="mailto:oleg at ural.ru">Oleg Kalnichevski</a>
+ * @since 4.0
  */
 public interface EventListener {
 

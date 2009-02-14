@@ -1,7 +1,7 @@
 /*
- * $HeadURL:$
- * $Revision:$
- * $Date:$
+ * $HeadURL$
+ * $Revision$
+ * $Date$
  *
  * ====================================================================
  * Licensed to the Apache Software Foundation (ASF) under one
@@ -42,6 +42,8 @@ import org.apache.http.protocol.HttpContext;
  * A simple implementation of {@link NHttpRequestHandler} that abstracts away
  * the need to use {@link NHttpResponseTrigger}. Implementations need only to
  * implement {@link #handle(HttpRequest, HttpResponse, HttpContext)}.
+ *
+ * @since 4.0
  */
 public abstract class SimpleNHttpRequestHandler implements NHttpRequestHandler {
 

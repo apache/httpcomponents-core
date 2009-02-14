@@ -87,8 +87,7 @@ import org.apache.http.protocol.HttpProcessor;
  * @see ConsumingNHttpEntity
  * @see ProducingNHttpEntity
  *
- * @author <a href="mailto:oleg at ural.ru">Oleg Kalnichevski</a>
- * @author <a href="mailto:sberlin at gmail.com">Sam Berlin</a>
+ * @since 4.0
  */
 public class AsyncNHttpClientHandler extends NHttpHandlerBase
                                      implements NHttpClientHandler {

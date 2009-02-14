@@ -90,8 +90,8 @@ import org.apache.http.protocol.HttpProcessor;
  * 
  * @see NIOReactorPNames#CONTENT_BUFFER_SIZE
  * 
- * @author <a href="mailto:oleg at ural.ru">Oleg Kalnichevski</a>
  *
+ * @since 4.0
  */
 public class ThrottlingHttpClientHandler extends NHttpHandlerBase
                                          implements NHttpClientHandler {

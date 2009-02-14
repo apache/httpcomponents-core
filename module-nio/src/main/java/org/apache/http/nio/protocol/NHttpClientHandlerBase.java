@@ -41,6 +41,9 @@ import org.apache.http.nio.util.ByteBufferAllocator;
 import org.apache.http.params.HttpParams;
 import org.apache.http.protocol.HttpProcessor;
 
+/**
+ * @since 4.0
+ */
 @Deprecated
 public abstract class NHttpClientHandlerBase extends NHttpHandlerBase
                                              implements NHttpClientHandler {

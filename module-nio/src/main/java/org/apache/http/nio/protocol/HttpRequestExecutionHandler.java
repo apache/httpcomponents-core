@@ -43,8 +43,8 @@ import org.apache.http.protocol.HttpContext;
  * to trigger the submission of a new HTTP request and the processing of an 
  * HTTP response.
  * 
- * @author <a href="mailto:oleg at ural.ru">Oleg Kalnichevski</a>
  *
+ * @since 4.0
  */
 public interface HttpRequestExecutionHandler {
 

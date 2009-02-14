@@ -101,9 +101,7 @@ import org.apache.http.util.EncodingUtils;
  * @see ConsumingNHttpEntity
  * @see ProducingNHttpEntity
  *
- * @author <a href="mailto:oleg at ural.ru">Oleg Kalnichevski</a>
- * @author <a href="mailto:sberlin at gmail.com">Sam Berlin</a>
- * @author Steffen Pingel
+ * @since 4.0
  */
 public class AsyncNHttpServiceHandler extends NHttpHandlerBase
                                       implements NHttpServiceHandler {

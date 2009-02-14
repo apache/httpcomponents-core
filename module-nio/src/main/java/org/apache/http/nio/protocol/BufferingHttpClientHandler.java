@@ -68,8 +68,8 @@ import org.apache.http.protocol.HttpProcessor;
  * IMPORTANT: This protocol handler should be used only when dealing with HTTP 
  * messages that are known to be limited in length.
  * 
- * @author <a href="mailto:oleg at ural.ru">Oleg Kalnichevski</a>
  *
+ * @since 4.0
  */
 public class BufferingHttpClientHandler implements NHttpClientHandler {
 

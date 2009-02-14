@@ -100,8 +100,8 @@ import org.apache.http.util.EncodingUtils;
  * 
  * @see NIOReactorPNames#CONTENT_BUFFER_SIZE
  * 
- * @author <a href="mailto:oleg at ural.ru">Oleg Kalnichevski</a>
  *
+ * @since 4.0
  */
 public class ThrottlingHttpServiceHandler extends NHttpHandlerBase
                                           implements NHttpServiceHandler {

@@ -49,8 +49,8 @@ import org.apache.http.protocol.HttpContext;
  * {@link #handleResponse(HttpResponse, HttpContext)} is notified that the
  * response is fully read.
  *
- * @author <a href="mailto:oleg at ural.ru">Oleg Kalnichevski</a>
  *
+ * @since 4.0
  */
 public interface NHttpRequestExecutionHandler {
 

@@ -1,7 +1,7 @@
 /*
- * $HeadURL:$
- * $Revision:$
- * $Date:$
+ * $HeadURL$
+ * $Revision$
+ * $Date$
  *
  * ====================================================================
  * Licensed to the Apache Software Foundation (ASF) under one
@@ -34,6 +34,9 @@ package org.apache.http.nio.params;
 import org.apache.http.params.HttpAbstractParamBean;
 import org.apache.http.params.HttpParams;
 
+/**
+ * @since 4.0
+ */
 public class NIOReactorParamBean extends HttpAbstractParamBean {
     
     public NIOReactorParamBean (final HttpParams params) {

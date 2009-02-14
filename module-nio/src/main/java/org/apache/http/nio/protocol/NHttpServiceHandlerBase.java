@@ -44,6 +44,9 @@ import org.apache.http.protocol.HttpExpectationVerifier;
 import org.apache.http.protocol.HttpProcessor;
 import org.apache.http.protocol.HttpRequestHandlerResolver;
 
+/**
+ * @since 4.0
+ */
 @Deprecated
 public abstract class NHttpServiceHandlerBase extends NHttpHandlerBase
                                               implements NHttpServiceHandler {
