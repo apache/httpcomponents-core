@@ -57,6 +57,10 @@ HttpCore Examples
     This example demonstrates how HttpCore NIO can be used to execute multiple HTTP requests using
     only one I/O thread.
 
+    * {{{http://svn.apache.org/repos/asf/httpcomponents/httpcore/trunk/module-nio/src/examples/org/apache/http/examples/nio/NHttpClientConnManagement.java}Management of non-blocking client connections}}
+    
+    This example demonstrates how to manage reuse of persistent client connections using HttpCore NIO. 
+
     * {{{http://svn.apache.org/repos/asf/httpcomponents/httpcore/trunk/module-nio/src/examples/org/apache/http/examples/nio/NHttpSSLServer.java}Basic non-blocking HTTPS server}}
     
     This example demonstrates the use of HttpCore NIO extensions to build a non-blocking HTTPS/1.1 server.
