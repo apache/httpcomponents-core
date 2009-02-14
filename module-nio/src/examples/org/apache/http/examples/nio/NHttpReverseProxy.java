@@ -89,7 +89,6 @@ import org.apache.http.protocol.ResponseServer;
  * Please note the purpose of this application is demonstrate the usage of HttpCore APIs.
  * It is NOT intended to demonstrate the most efficient way of building an HTTP reverse proxy. 
  * 
- * @author <a href="mailto:oleg at ural.ru">Oleg Kalnichevski</a>
  *
  * @version $Revision$
  */
