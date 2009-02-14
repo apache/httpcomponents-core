@@ -275,7 +275,7 @@ public class ChunkedInputStream extends InputStream {
         // read and discard the remainder of the message
         byte buffer[] = new byte[1024];
         while (inStream.read(buffer) >= 0) {
-            ;
+            // discard data
         }
     }
 
