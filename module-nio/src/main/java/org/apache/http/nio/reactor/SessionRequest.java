@@ -41,9 +41,10 @@ import java.net.SocketAddress;
  * <p>
  * Implementations of this interface are expected to be threading safe.
  * 
- * @author <a href="mailto:oleg at ural.ru">Oleg Kalnichevski</a>
  *
  * @version $Revision$
+ *
+ * @since 4.0
  */
 public interface SessionRequest {
 

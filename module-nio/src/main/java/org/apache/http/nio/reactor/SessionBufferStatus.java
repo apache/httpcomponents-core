@@ -35,9 +35,10 @@ package org.apache.http.nio.reactor;
  * SessionBufferStatus interface is intended to query the status of session 
  * I/O buffers. 
  * 
- * @author <a href="mailto:oleg at ural.ru">Oleg Kalnichevski</a>
  * 
  * @version $Revision$
+ *
+ * @since 4.0
  */
 public interface SessionBufferStatus {
 

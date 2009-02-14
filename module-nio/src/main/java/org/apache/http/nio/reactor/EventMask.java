@@ -35,6 +35,8 @@ import java.nio.channels.SelectionKey;
 
 /**
  * Type of I/O event notifications I/O sessions can declare interest in. 
+ *
+ * @since 4.0
  */
 public interface EventMask {
 

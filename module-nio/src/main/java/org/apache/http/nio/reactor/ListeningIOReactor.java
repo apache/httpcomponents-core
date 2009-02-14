@@ -39,10 +39,10 @@ import java.io.IOException;
  * ListeningIOReactor represents an I/O reactor capable of listening for 
  * incoming connections on one or several ports.
  *  
- * @author <a href="mailto:oleg at ural.ru">Oleg Kalnichevski</a>
  *
  * @version $Revision$
  * 
+ * @since 4.0
  */
 public interface ListeningIOReactor extends IOReactor {
 

@@ -48,10 +48,10 @@ import java.io.IOException;
  * (often as many as several thousands) of I/O sessions or connections. It is 
  * generally recommended to have one dispatch thread per CPU core.
  *
- * @author <a href="mailto:oleg at ural.ru">Oleg Kalnichevski</a>
  *
  * @version $Revision$
  *
+ * @since 4.0
  */
 public interface IOReactor {
 

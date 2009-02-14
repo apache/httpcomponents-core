@@ -37,6 +37,8 @@ import org.apache.http.nio.ContentEncoder;
 /**
  * Simple implementation of the {@link ContentOutputBuffer} interface. 
  * This class is not threading safe.
+ *
+ * @since 4.0
  */
 public class SimpleOutputBuffer extends ExpandableBuffer implements ContentOutputBuffer {
     

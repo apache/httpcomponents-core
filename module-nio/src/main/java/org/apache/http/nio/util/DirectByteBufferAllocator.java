@@ -36,6 +36,8 @@ import java.nio.ByteBuffer;
 /**
  * Allocates {@link ByteBuffer} instances using 
  * {@link ByteBuffer#allocateDirect(int)}.
+ *
+ * @since 4.0
  */
 public class DirectByteBufferAllocator implements ByteBufferAllocator {
 

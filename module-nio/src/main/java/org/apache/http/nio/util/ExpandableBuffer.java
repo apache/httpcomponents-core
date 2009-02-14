@@ -38,9 +38,10 @@ import java.nio.ByteBuffer;
  * interface. Internally, this class is backed by an instance of 
  * {@link ByteBuffer}. 
  * 
- * @author <a href="mailto:oleg at ural.ru">Oleg Kalnichevski</a>
  *
  * @version $Revision$
+ *
+ * @since 4.0
  */
 public class ExpandableBuffer implements BufferInfo {
     

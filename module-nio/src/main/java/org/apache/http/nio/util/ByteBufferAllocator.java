@@ -35,6 +35,8 @@ import java.nio.ByteBuffer;
 
 /**
  * Abstract interface to allocate {@link ByteBuffer} instances.
+ *
+ * @since 4.0
  */
 public interface ByteBufferAllocator {
     

@@ -38,9 +38,10 @@ import org.apache.http.nio.ContentDecoder;
 /**
  * Buffer for storing content streamed out from a {@link ContentDecoder}.
  * 
- * @author <a href="mailto:oleg at ural.ru">Oleg Kalnichevski</a>
  *
  * @version $Revision$
+ *
+ * @since 4.0
  */
 public interface ContentInputBuffer {
 

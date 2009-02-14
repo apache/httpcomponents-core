@@ -36,9 +36,10 @@ package org.apache.http.nio.reactor;
  * completion of session requests asynchronously without having to wait 
  * for it, blocking the current thread of execution. 
  *
- * @author <a href="mailto:oleg at ural.ru">Oleg Kalnichevski</a>
  *
  * @version $Revision$
+ *
+ * @since 4.0
  */
 public interface SessionRequestCallback {
 

@@ -46,9 +46,10 @@ import org.apache.http.util.CharArrayBuffer;
  * {@link ByteBuffer} or {@link ReadableByteChannel}. This interface also 
  * provides methods for writing lines of text.
  *
- * @author <a href="mailto:oleg at ural.ru">Oleg Kalnichevski</a>
  *
  * @version $Revision$
+ *
+ * @since 4.0
  */
 public interface SessionOutputBuffer {
 

@@ -40,6 +40,8 @@ import org.apache.http.nio.IOControl;
  * Implementation of the {@link ContentOutputBuffer} interface that can be 
  * shared by multiple threads, usually the I/O dispatch of an I/O reactor and
  * a worker tread. This class is not threading safe.
+ *
+ * @since 4.0
  */
 public class SharedOutputBuffer extends ExpandableBuffer implements ContentOutputBuffer {
 

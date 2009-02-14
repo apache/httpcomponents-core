@@ -36,6 +36,8 @@ import java.io.IOException;
 /**
  * I/O exception that can be thrown by an I/O reactor. Usually exceptions
  * of this type are fatal and are not recoverable.
+ *
+ * @since 4.0
  */
 public class IOReactorException extends IOException {
 

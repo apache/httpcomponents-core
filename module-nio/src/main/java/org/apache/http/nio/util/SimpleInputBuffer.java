@@ -37,6 +37,8 @@ import org.apache.http.nio.ContentDecoder;
 /**
  * Simple implementation of the {@link ContentInputBuffer} interface. This class
  * is not threading safe.
+ *
+ * @since 4.0
  */
 public class SimpleInputBuffer extends ExpandableBuffer implements ContentInputBuffer {
 

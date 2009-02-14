@@ -33,6 +33,8 @@ package org.apache.http.nio.reactor;
 
 /**
  * IOReactorStatus represents an internal status of an I/O reactor.
+ *
+ * @since 4.0
  */
 public enum IOReactorStatus {
 

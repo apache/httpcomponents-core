@@ -38,9 +38,10 @@ import org.apache.http.nio.ContentEncoder;
 /**
  * Buffer for storing content to be streamed out to a {@link ContentEncoder}.
  * 
- * @author <a href="mailto:oleg at ural.ru">Oleg Kalnichevski</a>
  *
  * @version $Revision$
+ *
+ * @since 4.0
  */
 public interface ContentOutputBuffer {
 

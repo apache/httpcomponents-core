@@ -37,10 +37,10 @@ import java.io.IOException;
  * Abstract exception handler intended to deal with potentially recoverable 
  * I/O exceptions thrown by an I/O reactor.
  * 
- * @author <a href="mailto:oleg at ural.ru">Oleg Kalnichevski</a>
  *
  * @version $Revision$
  * 
+ * @since 4.0
  */
 public interface IOReactorExceptionHandler {
 
