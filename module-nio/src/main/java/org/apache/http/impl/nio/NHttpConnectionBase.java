@@ -78,9 +78,10 @@ import org.apache.http.protocol.SyncBasicHttpContext;
  * and implements functionality common to both client and server 
  * HTTP connections.
  * 
- * @author <a href="mailto:oleg at ural.ru">Oleg Kalnichevski</a>
  *
  * @version $Revision$
+ *
+ * @since 4.0
  */
 public class NHttpConnectionBase 
         implements NHttpConnection, HttpInetConnection, SessionBufferStatus {

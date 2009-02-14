@@ -57,9 +57,10 @@ import org.apache.http.params.HttpParams;
 /**
  * Default implementation of the {@link NHttpServerConnection} interface.
  * 
- * @author <a href="mailto:oleg at ural.ru">Oleg Kalnichevski</a>
  *
  * @version $Revision$
+ *
+ * @since 4.0
  */
 public class DefaultNHttpServerConnection 
     extends NHttpConnectionBase implements NHttpServerIOTarget {
