@@ -113,7 +113,7 @@ public abstract class AbstractMultiworkerIOReactor implements IOReactor {
     private final BaseIOReactor[] dispatchers;
     private final Worker[] workers;
     private final Thread[] threads;
-    private final Object shutdownMutex;
+    private final Object statusLock;
     
     protected IOReactorExceptionHandler exceptionHandler;
     protected List<ExceptionEvent> auditLog;
@@ -147,7 +147,7 @@ public abstract class AbstractMultiworkerIOReactor implements IOReactor {
         }
         this.params = params;
         this.selectTimeout = NIOReactorParams.getSelectInterval(params);
-        this.shutdownMutex = new Object();
+        this.statusLock = new Object();
         this.workerCount = workerCount;
         if (threadFactory != null) {
             this.threadFactory = threadFactory;
@@ -269,19 +269,27 @@ public abstract class AbstractMultiworkerIOReactor implements IOReactor {
         if (eventDispatch == null) {
             throw new IllegalArgumentException("Event dispatcher may not be null");
         }
-
-        this.status = IOReactorStatus.ACTIVE;
-        
-        // Start I/O dispatchers
-        for (int i = 0; i < this.dispatchers.length; i++) {
-            BaseIOReactor dispatcher = new BaseIOReactor(this.selectTimeout);
-            dispatcher.setExceptionHandler(exceptionHandler);
-            this.dispatchers[i] = dispatcher;
-        }
-        for (int i = 0; i < this.workerCount; i++) {
-            BaseIOReactor dispatcher = this.dispatchers[i];
-            this.workers[i] = new Worker(dispatcher, eventDispatch);
-            this.threads[i] = this.threadFactory.newThread(this.workers[i]);
+        synchronized (this.statusLock) {
+            if (this.status.compareTo(IOReactorStatus.SHUTDOWN_REQUEST) >= 0) {
+                this.status = IOReactorStatus.SHUT_DOWN;
+                this.statusLock.notifyAll();
+                return;
+            }
+            if (this.status.compareTo(IOReactorStatus.INACTIVE) != 0) {
+                throw new IllegalStateException("Illegal state: " + this.status);
+            }
+            this.status = IOReactorStatus.ACTIVE;
+            // Start I/O dispatchers
+            for (int i = 0; i < this.dispatchers.length; i++) {
+                BaseIOReactor dispatcher = new BaseIOReactor(this.selectTimeout);
+                dispatcher.setExceptionHandler(exceptionHandler);
+                this.dispatchers[i] = dispatcher;
+            }
+            for (int i = 0; i < this.workerCount; i++) {
+                BaseIOReactor dispatcher = this.dispatchers[i];
+                this.workers[i] = new Worker(dispatcher, eventDispatch);
+                this.threads[i] = this.threadFactory.newThread(this.workers[i]);
+            }
         }
         try {
 
@@ -329,7 +337,11 @@ public abstract class AbstractMultiworkerIOReactor implements IOReactor {
             }
             throw ex;
         } finally {
-            doShutdown();
+            synchronized (this.statusLock) {
+                doShutdown();
+                this.status = IOReactorStatus.SHUT_DOWN;
+                this.statusLock.notifyAll();
+            }
         }
     }
 
@@ -420,11 +432,6 @@ public abstract class AbstractMultiworkerIOReactor implements IOReactor {
             }
         } catch (InterruptedException ex) {
             throw new InterruptedIOException(ex.getMessage());
-        } finally {
-            synchronized (this.shutdownMutex) {
-                this.status = IOReactorStatus.SHUT_DOWN;
-                this.shutdownMutex.notifyAll();
-            }
         }
     }
 
@@ -497,11 +504,11 @@ public abstract class AbstractMultiworkerIOReactor implements IOReactor {
      * @throws InterruptedException if interrupted.
      */
     protected void awaitShutdown(long timeout) throws InterruptedException {
-        synchronized (this.shutdownMutex) {
+        synchronized (this.statusLock) {
             long deadline = System.currentTimeMillis() + timeout;
             long remaining = timeout;
             while (this.status != IOReactorStatus.SHUT_DOWN) {
-                this.shutdownMutex.wait(remaining);
+                this.statusLock.wait(remaining);
                 if (timeout > 0) {
                     remaining = deadline - System.currentTimeMillis();
                     if (remaining <= 0) {
@@ -517,14 +524,16 @@ public abstract class AbstractMultiworkerIOReactor implements IOReactor {
     }
 
     public void shutdown(long waitMs) throws IOException {
-        if (this.status != IOReactorStatus.ACTIVE) {
-            return;
-        }
-        this.status = IOReactorStatus.SHUTDOWN_REQUEST;
-        this.selector.wakeup();
-        try {
-            awaitShutdown(waitMs);
-        } catch (InterruptedException ignore) {
+        synchronized (this.statusLock) {
+            if (this.status.compareTo(IOReactorStatus.ACTIVE) > 0) {
+                return;
+            }
+            this.status = IOReactorStatus.SHUTDOWN_REQUEST;
+            this.selector.wakeup();
+            try {
+                awaitShutdown(waitMs);
+            } catch (InterruptedException ignore) {
+            }
         }
     }
 
