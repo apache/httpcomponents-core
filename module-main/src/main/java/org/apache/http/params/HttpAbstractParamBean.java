@@ -1,7 +1,7 @@
 /*
- * $HeadURL:$
- * $Revision:$
- * $Date:$
+ * $HeadURL$
+ * $Revision$
+ * $Date$
  *
  * ====================================================================
  * Licensed to the Apache Software Foundation (ASF) under one
@@ -31,6 +31,9 @@
 
 package org.apache.http.params;
 
+/**
+ * @since 4.0
+ */
 public abstract class HttpAbstractParamBean {
     
     protected final HttpParams params;

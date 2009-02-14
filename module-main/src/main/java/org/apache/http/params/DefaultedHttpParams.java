@@ -39,9 +39,10 @@ import org.apache.http.params.HttpParams;
  * present in the local one. The state of the local collection can be mutated,
  * whereas the default collection is treated as read-only.
  *
- * @author <a href="mailto:oleg at ural.ru">Oleg Kalnichevski</a>
  * 
  * @version $Revision$
+ *
+ * @since 4.0
  */
 public final class DefaultedHttpParams extends AbstractHttpParams {
 

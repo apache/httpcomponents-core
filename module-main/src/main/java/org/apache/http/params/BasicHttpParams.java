@@ -44,9 +44,10 @@ import org.apache.http.params.HttpParams;
  * Please note access to the internal structures of this class is not 
  * synchronized and therefore this class may be thread-unsafe.
  * 
- * @author <a href="mailto:oleg at ural.ru">Oleg Kalnichevski</a>
  * 
  * @version $Revision$
+ *
+ * @since 4.0
  */
 public final class BasicHttpParams extends AbstractHttpParams
     implements Serializable, Cloneable {

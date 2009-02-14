@@ -37,6 +37,8 @@ import org.apache.http.HttpVersion;
  * This is a Java Bean class that can be used to wrap an instance of 
  * {@link HttpParams} and manipulate HTTP protocol parameters using Java Beans 
  * conventions.
+ *
+ * @since 4.0
  */
 public class HttpProtocolParamBean extends HttpAbstractParamBean {
     

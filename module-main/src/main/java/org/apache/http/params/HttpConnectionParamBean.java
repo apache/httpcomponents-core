@@ -35,6 +35,8 @@ package org.apache.http.params;
  * This is a Java Bean class that can be used to wrap an instance of 
  * {@link HttpParams} and manipulate HTTP connection parameters using Java Beans 
  * conventions.
+ *
+ * @since 4.0
  */
 public class HttpConnectionParamBean extends HttpAbstractParamBean {
     

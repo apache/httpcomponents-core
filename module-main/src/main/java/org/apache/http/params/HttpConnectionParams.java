@@ -34,7 +34,6 @@ package org.apache.http.params;
 /**
  * Utility class for accessing connection parameters in {@link HttpParams}.
  * 
- * @author <a href="mailto:oleg at ural.ru">Oleg Kalnichevski</a>
  * 
  * @version $Revision$
  * 

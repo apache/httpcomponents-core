@@ -49,7 +49,6 @@ package org.apache.http.params;
  * 
  * @see DefaultedHttpParams
  * 
- * @author <a href="mailto:oleg at ural.ru">Oleg Kalnichevski</a>
  * 
  * @version $Revision$
  *
