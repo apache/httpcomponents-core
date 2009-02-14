@@ -53,9 +53,10 @@ import org.apache.http.params.HttpParams;
  * A decorator class intended to transparently extend an {@link IOSession} 
  * with transport layer security capabilities based on the SSL/TLS protocol. 
  * 
- * @author <a href="mailto:oleg at ural.ru">Oleg Kalnichevski</a>
  * 
  * @version $Revision$
+ *
+ * @since 4.0
  */
 public class SSLIOSession implements IOSession, SessionBufferStatus {
 

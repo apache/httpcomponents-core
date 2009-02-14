@@ -54,9 +54,10 @@ import org.apache.http.util.CharArrayBuffer;
  * Default implementation of {@link SessionOutputBuffer} based on 
  * the {@link ExpandableBuffer} class.
  *  
- * @author <a href="mailto:oleg at ural.ru">Oleg Kalnichevski</a>
  *
  * @version $Revision$
+ *
+ * @since 4.0
  */
 public class SessionOutputBufferImpl extends ExpandableBuffer implements SessionOutputBuffer {
 

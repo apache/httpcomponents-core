@@ -43,9 +43,10 @@ import org.apache.http.params.HttpParams;
  * Callback interface that can be used to customize various aspects of 
  * the TLS/SSl protocol.
  *
- * @author <a href="mailto:oleg at ural.ru">Oleg Kalnichevski</a>
  * 
  * @version $Revision$
+ *
+ * @since 4.0
  */
 public interface SSLIOSessionHandler {
 

@@ -37,6 +37,7 @@ import org.apache.http.nio.reactor.SessionRequest;
  * Session request handle class used by I/O reactor implementations to keep 
  * a reference to a {@link SessionRequest} along with the time the request
  * was made.
+ * @since 4.0
  */
 public class SessionRequestHandle {
 

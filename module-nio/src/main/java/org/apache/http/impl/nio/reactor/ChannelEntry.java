@@ -38,9 +38,10 @@ import java.nio.channels.SocketChannel;
  *  represents an outgoing client connection, this entry also contains the
  *  original {@link SessionRequestImpl} used to request it.
  *  
- * @author <a href="mailto:oleg at ural.ru">Oleg Kalnichevski</a>
  *
  * @version $Revision$
+ *
+ * @since 4.0
  */
 public class ChannelEntry {
 

@@ -57,9 +57,10 @@ import org.apache.http.params.HttpParams;
  * {@link AbstractMultiworkerIOReactor} with capability to connect to remote
  * hosts.
  *
- * @author <a href="mailto:oleg at ural.ru">Oleg Kalnichevski</a>
  *
  * @version $Revision$
+ *
+ * @since 4.0
  */
 public class DefaultConnectingIOReactor extends AbstractMultiworkerIOReactor 
         implements ConnectingIOReactor {

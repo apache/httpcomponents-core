@@ -31,6 +31,9 @@
 
 package org.apache.http.impl.nio.reactor;
 
+/**
+ * @since 4.0
+ */
 public enum SSLMode {
 
     CLIENT,

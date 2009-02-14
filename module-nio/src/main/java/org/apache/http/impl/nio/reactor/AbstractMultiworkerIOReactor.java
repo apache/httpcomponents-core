@@ -96,9 +96,10 @@ import org.apache.http.params.HttpParams;
  * thrown by the I/O reactor prior and in the course of the reactor shutdown 
  * and decide whether it is safe to restart the I/O reactor.
  * 
- * @author <a href="mailto:oleg at ural.ru">Oleg Kalnichevski</a>
  *
  * @version $Revision$
+ *
+ * @since 4.0
  */
 public abstract class AbstractMultiworkerIOReactor implements IOReactor {
 

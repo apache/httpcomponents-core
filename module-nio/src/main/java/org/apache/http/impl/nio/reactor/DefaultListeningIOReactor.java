@@ -56,9 +56,10 @@ import org.apache.http.params.HttpParams;
  * {@link AbstractMultiworkerIOReactor} with capability to listen for incoming
  * connections.
  *
- * @author <a href="mailto:oleg at ural.ru">Oleg Kalnichevski</a>
  *
  * @version $Revision$
+ *
+ * @since 4.0
  */
 public class DefaultListeningIOReactor extends AbstractMultiworkerIOReactor 
         implements ListeningIOReactor {

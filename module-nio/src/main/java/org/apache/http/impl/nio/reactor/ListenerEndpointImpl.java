@@ -41,9 +41,10 @@ import org.apache.http.nio.reactor.ListenerEndpoint;
 /**
  * Default implementation of {@link ListenerEndpoint}.
  * 
- * @author <a href="mailto:oleg at ural.ru">Oleg Kalnichevski</a>
  *
  * @version $Revision$
+ *
+ * @since 4.0
  */
 public class ListenerEndpointImpl implements ListenerEndpoint {
 

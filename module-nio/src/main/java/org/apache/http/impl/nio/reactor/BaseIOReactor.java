@@ -51,9 +51,10 @@ import org.apache.http.nio.reactor.IOSession;
  * support for the I/O event dispatching using {@link IOEventDispatch}, 
  * management of buffering sessions, and session timeout handling.
  *   
- * @author <a href="mailto:oleg at ural.ru">Oleg Kalnichevski</a>
  *
  * @version $Revision$
+ *
+ * @since 4.0
  */
 public class BaseIOReactor extends AbstractIOReactor {
 

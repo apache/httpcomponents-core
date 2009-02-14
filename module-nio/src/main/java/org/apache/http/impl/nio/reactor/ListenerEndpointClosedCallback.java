@@ -36,6 +36,8 @@ import org.apache.http.nio.reactor.ListenerEndpoint;
 /**
  * Listener endpoint callback interface used internally by I/O reactor 
  * implementations.
+ *
+ * @since 4.0
  */
 public interface ListenerEndpointClosedCallback {
 

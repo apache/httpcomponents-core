@@ -43,9 +43,10 @@ import org.apache.http.nio.reactor.SessionRequestCallback;
 /**
  * Default implementation of {@link SessionRequest}.
  * 
- * @author <a href="mailto:oleg at ural.ru">Oleg Kalnichevski</a>
  *
  * @version $Revision$
+ *
+ * @since 4.0
  */
 public class SessionRequestImpl implements SessionRequest {
 

@@ -35,6 +35,8 @@ import java.util.Date;
 
 /**
  * A {@link Throwable} instance along with a time stamp. 
+ *
+ * @since 4.0
  */
 public class ExceptionEvent {
 

@@ -47,9 +47,10 @@ import org.apache.http.nio.reactor.SessionBufferStatus;
 /**
  * Default implementation of {@link IOSession}.
  * 
- * @author <a href="mailto:oleg at ural.ru">Oleg Kalnichevski</a>
  *
  * @version $Revision$
+ *
+ * @since 4.0
  */
 public class IOSessionImpl implements IOSession {
     
