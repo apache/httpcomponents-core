@@ -39,7 +39,6 @@ import java.io.OutputStream;
 /**
  * A self contained, repeatable entity that obtains its content from a byte array.
  *
- * @author <a href="mailto:oleg at ural.ru">Oleg Kalnichevski</a>
  *
  * @version $Revision$
  * 

@@ -43,7 +43,6 @@ import org.apache.http.protocol.HTTP;
  * A self contained, repeatable entity that obtains its content from 
  * a {@link String}.
  *
- * @author <a href="mailto:oleg at ural.ru">Oleg Kalnichevski</a>
  *
  * @version $Revision$
  * 

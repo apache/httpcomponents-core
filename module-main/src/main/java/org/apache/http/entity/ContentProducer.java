@@ -40,7 +40,6 @@ import java.io.OutputStream;
  *<p>Content producers are expected to be able to produce their 
  * content multiple times</p>
  *
- * @author <a href="mailto:oleg at ural.ru">Oleg Kalnichevski</a>
  *
  * @version $Revision$
  * 

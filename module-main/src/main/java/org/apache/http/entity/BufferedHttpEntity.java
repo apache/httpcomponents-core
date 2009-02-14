@@ -46,7 +46,6 @@ import org.apache.http.util.EntityUtils;
  * If the wrapped entity is not repeatable, the content is read into a
  * buffer once and provided from there as often as required.
  *
- * @author <a href="mailto:oleg at ural.ru">Oleg Kalnichevski</a>
  *
  * @version $Revision$
  * 

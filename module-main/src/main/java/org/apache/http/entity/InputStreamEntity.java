@@ -39,7 +39,6 @@ import java.io.OutputStream;
  * A streamed, non-repeatable entity that obtains its content from 
  * an {@link InputStream}.
  *
- * @author <a href="mailto:oleg at ural.ru">Oleg Kalnichevski</a>
  *
  * @version $Revision$
  * 

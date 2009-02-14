@@ -43,7 +43,6 @@ import org.apache.http.protocol.HTTP;
  * Provides the commonly used attributes for streamed and self-contained
  * implementations of {@link HttpEntity HttpEntity}.
  *
- * @author <a href="mailto:oleg at ural.ru">Oleg Kalnichevski</a>
  *
  * @version $Revision$
  * 

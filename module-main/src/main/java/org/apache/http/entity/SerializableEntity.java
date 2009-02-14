@@ -45,7 +45,6 @@ import java.io.Serializable;
  * optionally be buffered in a byte array in order to make the
  * entity self-contained and repeatable.
  *
- * @author <a href="mailto:oleg at ural.ru">Oleg Kalnichevski</a>
  *
  * @version $Revision$
  * 
