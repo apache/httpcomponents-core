@@ -42,11 +42,10 @@ import org.apache.http.ReasonPhraseCatalog;
  * All status codes defined in RFC1945 (HTTP/1.0), RFC2616 (HTTP/1.1), and
  * RFC2518 (WebDAV) are supported.
  * 
- * @author Unascribed
- * @author <a href="mailto:mbowler@GargoyleSoftware.com">Mike Bowler</a>
- * @author <a href="mailto:jsdever@apache.org">Jeff Dever</a>
  * 
  * @version $Revision$
+ *
+ * @since 4.0
  */
 public class EnglishReasonPhraseCatalog implements ReasonPhraseCatalog {
 

@@ -62,7 +62,6 @@ import org.apache.http.params.HttpParams;
  * data using arbitrary {@link SessionInputBuffer} and 
  * {@link SessionOutputBuffer} implementations.
  *
- * @author <a href="mailto:oleg at ural.ru">Oleg Kalnichevski</a>
  *
  * @version $Revision$
  * 

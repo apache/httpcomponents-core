@@ -61,8 +61,6 @@ import org.apache.http.message.BasicTokenIterator;
  * re-used by default. Up until <code>HTTP/1.0</code>, connections are not 
  * re-used by default.
  *
- * @author <a href="mailto:oleg at ural.ru">Oleg Kalnichevski</a>
- * @author <a href="mailto:rolandw at apache.org">Roland Weber</a>
  *
  * @version $Revision$
  * 

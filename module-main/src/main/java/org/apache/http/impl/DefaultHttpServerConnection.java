@@ -41,7 +41,6 @@ import org.apache.http.params.HttpParams;
 /**
  * Default implementation of a server-side HTTP connection.
  *
- * @author <a href="mailto:oleg at ural.ru">Oleg Kalnichevski</a>
  *
  * @version $Revision$
  * 

@@ -46,7 +46,6 @@ import org.apache.http.impl.EnglishReasonPhraseCatalog;
 /**
  * Default factory for creating {@link HttpResponse} objects.
  *
- * @author <a href="mailto:oleg at ural.ru">Oleg Kalnichevski</a>
  *
  * @version $Revision$
  * 

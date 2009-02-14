@@ -41,7 +41,6 @@ import org.apache.http.message.BasicHttpRequest;
 /**
  * Default factory for creating {@link HttpRequest} objects.
  *
- * @author <a href="mailto:oleg at ural.ru">Oleg Kalnichevski</a>
  *
  * @version $Revision$
  * 

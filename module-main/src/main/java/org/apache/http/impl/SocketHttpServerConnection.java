@@ -49,7 +49,6 @@ import org.apache.http.params.HttpParams;
  * Implementation of a server-side HTTP connection that can be bound to a 
  * network Socket in order to receive and transmit data.
  *
- * @author <a href="mailto:oleg at ural.ru">Oleg Kalnichevski</a>
  *
  * @version $Revision$
  * 

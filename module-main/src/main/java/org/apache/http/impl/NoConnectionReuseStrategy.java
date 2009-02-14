@@ -39,7 +39,6 @@ import org.apache.http.protocol.HttpContext;
 /**
  * A strategy that never re-uses a connection.
  *
- * @author <a href="mailto:rolandw at apache.org">Roland Weber</a>
  *
  * @version $Revision$
  * 

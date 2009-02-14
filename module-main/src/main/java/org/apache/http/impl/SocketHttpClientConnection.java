@@ -50,7 +50,6 @@ import org.apache.http.params.HttpParams;
  * arbitrary {@link Socket} for receiving data from and transmitting data to
  * a remote server.
  *
- * @author <a href="mailto:oleg at ural.ru">Oleg Kalnichevski</a>
  *
  * @version $Revision$
  * 
