@@ -55,33 +55,22 @@ public final class BasicHttpParams extends AbstractHttpParams
     private static final long serialVersionUID = -7086398485908701455L;
 
     /** Map of HTTP parameters that this collection contains. */
-    private HashMap parameters;
+    private final HashMap parameters = new HashMap();
 
     public BasicHttpParams() {
         super();
     }
 
     public Object getParameter(final String name) {
-        // See if the parameter has been explicitly defined
-        Object param = null;
-        if (this.parameters != null) {
-            param = this.parameters.get(name);
-        }    
-        return param;
+        return this.parameters.get(name);
     }
 
     public HttpParams setParameter(final String name, final Object value) {
-        if (this.parameters == null) {
-            this.parameters = new HashMap();
-        }
         this.parameters.put(name, value);
         return this;
     }
     
     public boolean removeParameter(String name) {
-        if (this.parameters == null) {
-            return false;
-        }
         //this is to avoid the case in which the key has a null value
         if (this.parameters.containsKey(name)) {
             this.parameters.remove(name);
@@ -95,7 +84,7 @@ public final class BasicHttpParams extends AbstractHttpParams
     /**
      * Assigns the value to all the parameter with the given names
      * 
-     * @param names array of parameter name
+     * @param names array of parameter names
      * @param value parameter value
      */ 
     public void setParameters(final String[] names, final Object value) {
@@ -104,19 +93,40 @@ public final class BasicHttpParams extends AbstractHttpParams
         }
     }
 
+    /**
+     * Is the parameter set?
+     * <p>
+     * Uses {@link #getParameter(String)} (which is overrideable) to
+     * fetch the parameter value, if any.
+     * <p>
+     * Also @see {@link #isParameterSetLocally(String)}
+     * 
+     * @param name parameter name
+     * @return true if parameter is defined and non-null
+     */
     public boolean isParameterSet(final String name) {
         return getParameter(name) != null;
     }
         
+    /**
+     * Is the parameter set in this object?
+     * <p>
+     * The parameter value is fetched directly.
+     * <p>
+     * Also @see {@link #isParameterSet(String)}
+     * 
+     * @param name parameter name
+     * @return true if parameter is defined and non-null
+     */
     public boolean isParameterSetLocally(final String name) {
-        return this.parameters != null && this.parameters.get(name) != null;
+        return this.parameters.get(name) != null;
     }
         
     /**
      * Removes all parameters from this collection.
      */
     public void clear() {
-        this.parameters = null;
+        this.parameters.clear();
     }
 
     /**
@@ -146,9 +156,6 @@ public final class BasicHttpParams extends AbstractHttpParams
      * @param target    the parameters to which to copy
      */
     protected void copyParams(HttpParams target) {
-        if (this.parameters == null)
-            return;
-
         Iterator iter = parameters.entrySet().iterator();
         while (iter.hasNext()) {
             Map.Entry me = (Map.Entry) iter.next();
