@@ -37,7 +37,6 @@ import org.apache.http.message.BasicHeader;
 /**
  * Represents a SIP (or HTTP) header field with optional compact name.
  * 
- * @author <a href="mailto:rolandw at apache.org">Roland Weber</a>
  *
  * @version $Revision$
  */

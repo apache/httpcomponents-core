@@ -40,7 +40,6 @@ import org.apache.http.message.BasicLineParser;
 /**
  * Basic parser for lines in the head section of an SIP message.
  *
- * @author <a href="mailto:rolandw at apache.org">Roland Weber</a>
  *
  * @version $Revision$
  */

@@ -41,7 +41,6 @@ import java.util.Collections;
  * Basic implementation of a {@link CompactHeaderMapper}.
  * Header names are assumed to be case insensitive.
  * 
- * @author <a href="mailto:rolandw at apache.org">Roland Weber</a>
  *
  * @version $Revision$
  */

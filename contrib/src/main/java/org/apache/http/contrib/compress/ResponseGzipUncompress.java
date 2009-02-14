@@ -44,8 +44,6 @@ import org.apache.http.protocol.HttpContext;
 /**
  * Client-side interceptor to handle Gzip-compressed responses.
  *
- * @author <a href="mailto:oleg at ural.ru">Oleg Kalnichevski</a>
- *
  *
  * <!-- empty lines above to avoid 'svn diff' context problems -->
  * @version $Revision$

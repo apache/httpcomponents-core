@@ -39,8 +39,6 @@ import org.apache.http.ProtocolVersion;
 /**
  * Represents an SIP version, as specified in RFC 3261.
  * 
- * @author <a href="mailto:oleg@ural.ru">Oleg Kalnichevski</a>
- * @author and others
  * 
  * @version $Revision$
  */

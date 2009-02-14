@@ -67,7 +67,6 @@ import org.apache.http.util.EntityUtils;
 /**
  * Worker thread for the {@link HttpBenchmark HttpBenchmark}.
  *
- * @author <a href="mailto:oleg at ural.ru">Oleg Kalnichevski</a>
  *
  * <!-- empty lines above to avoid 'svn diff' context problems -->
  * @version $Revision$

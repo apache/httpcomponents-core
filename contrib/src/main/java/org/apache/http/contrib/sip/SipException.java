@@ -40,7 +40,6 @@ import org.apache.http.HttpException;
  * This is for protocol errors specific to SIP,
  * as opposed to protocol errors shared with HTTP.
  * 
- * @author <a href="mailto:rolandw at apache.org">Roland Weber</a>
  * 
  * @version $Revision$
  */

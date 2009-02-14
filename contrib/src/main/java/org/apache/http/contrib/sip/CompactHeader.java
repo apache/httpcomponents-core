@@ -48,7 +48,6 @@ import org.apache.http.Header;
  * RFC 3261 does not mandate that. This interface therefore allows for
  * strings as the compact name.
  * 
- * @author <a href="mailto:rolandw at apache.org">Roland Weber</a>
  *
  * @version $Revision$
  */

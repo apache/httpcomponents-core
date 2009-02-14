@@ -46,7 +46,6 @@ import org.apache.http.ReasonPhraseCatalog;
  * </a>
  * for a full list of registered SIP status codes and the defining RFCs.
  * 
- * @author <a href="mailto:rolandw at apache.org">Roland Weber</a>
  * 
  * @version $Revision$
  */

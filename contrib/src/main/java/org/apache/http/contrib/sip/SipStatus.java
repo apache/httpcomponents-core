@@ -44,7 +44,6 @@ package org.apache.http.contrib.sip;
  * RFC 4474 (Enhancements for Authenticated Identity Management in SIP),
  * and others.
  * 
- * @author <a href="mailto:rolandw at apache.org">Roland Weber</a>
  * 
  * @version $Revision$
  */

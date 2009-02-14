@@ -32,7 +32,6 @@ package org.apache.http.contrib.benchmark;
 
 /**
  * Helper to gather statistics for an {@link HttpBenchmark HttpBenchmark}.
- * @author <a href="mailto:oleg at ural.ru">Oleg Kalnichevski</a>
  *
  *
  * <!-- empty lines above to avoid 'svn diff' context problems -->

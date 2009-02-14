@@ -47,7 +47,6 @@ import org.apache.http.nio.NHttpServiceHandler;
  * Decorator class intended to transparently extend an {@link NHttpServiceHandler} 
  * with basic event logging capabilities using Commons Logging. 
  * 
- * @author <a href="mailto:oleg at ural.ru">Oleg Kalnichevski</a>
  */
 public class LoggingNHttpServiceHandler implements NHttpServiceHandler {
 
