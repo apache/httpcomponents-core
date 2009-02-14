@@ -45,8 +45,7 @@ import org.apache.http.util.CharArrayBuffer;
  * 
  * @version $Revision$
  * 
- * @author Andrea Selva <selva.andre at gmail.com>
- * @author Oleg Kalnichevski <oleg at ural.ru>
+ * @since 4.0
  */
 public class BasicHeaderElementIterator implements HeaderElementIterator {
     

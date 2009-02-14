@@ -39,6 +39,8 @@ import org.apache.http.util.LangUtils;
 
 /**
  * Basic implementation of {@link NameValuePair}.
+ *
+ * @since 4.0
  */
 public class BasicNameValuePair implements NameValuePair, Cloneable, Serializable {
 

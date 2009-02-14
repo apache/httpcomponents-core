@@ -42,6 +42,8 @@ import org.apache.http.HeaderIterator;
  * Basic implementation of a {@link HeaderIterator}.
  * 
  * @version $Revision$
+ *
+ * @since 4.0
  */
 public class BasicHeaderIterator implements HeaderIterator {
 

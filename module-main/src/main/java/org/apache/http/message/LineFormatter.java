@@ -59,7 +59,6 @@ import org.apache.http.util.CharArrayBuffer;
  * </p>
  *
  *
- * @author <a href="mailto:rolandw AT apache.org">Roland Weber</a>
  *
  *
  * <!-- empty lines above to avoid 'svn diff' context problems -->

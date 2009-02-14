@@ -40,11 +40,12 @@ import org.apache.http.util.CharArrayBuffer;
  * This class represents a raw HTTP header whose content is parsed 'on demand'
  * only when the header value needs to be consumed.
  * 
- * @author <a href="mailto:oleg at ural.ru">Oleg Kalnichevski</a>
  *
  *
  * <!-- empty lines above to avoid 'svn diff' context problems -->
  * @version $Revision$ $Date$
+ *
+ * @since 4.0
  */
 public class BufferedHeader implements FormattedHeader, Cloneable {
 

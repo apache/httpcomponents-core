@@ -40,7 +40,7 @@ import org.apache.http.util.CharArrayBuffer;
  *  <li>the bounds limiting the scope of the parsing operation</li>
  * </ul>
  * 
- * @author <a href="mailto:oleg at ural.com">Oleg Kalnichevski</a>
+ * @since 4.0
  */
 public class ParserCursor {
 

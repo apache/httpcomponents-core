@@ -46,7 +46,6 @@ import org.apache.http.util.CharArrayBuffer;
  * on any specific IO mechanism.
  * Instances of this interface are expected to be stateless and thread-safe.
  *
- * @author <a href="mailto:rolandw AT apache.org">Roland Weber</a>
  *
  *
  * <!-- empty lines above to avoid 'svn diff' context problems -->

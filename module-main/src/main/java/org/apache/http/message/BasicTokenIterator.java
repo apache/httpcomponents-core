@@ -44,6 +44,8 @@ import org.apache.http.TokenIterator;
  * It extends that definition somewhat beyond US-ASCII.
  * 
  * @version $Revision$
+ *
+ * @since 4.0
  */
 public class BasicTokenIterator implements TokenIterator {
 

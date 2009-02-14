@@ -44,7 +44,6 @@ import org.apache.http.util.CharArrayBuffer;
  * This class allows for multiple headers with the same name and
  * keeps track of the order in which headers were added.
  * 
- * @author Michael Becke
  *
  * @since 4.0
  */

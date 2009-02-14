@@ -42,7 +42,6 @@ import org.apache.http.params.BasicHttpParams;
 /**
  * Basic implementation of {@link HttpMessage}.
  *
- * @author <a href="mailto:oleg at ural.ru">Oleg Kalnichevski</a>
  *
  * @version $Revision$
  * 

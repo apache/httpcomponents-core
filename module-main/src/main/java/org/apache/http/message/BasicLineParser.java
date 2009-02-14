@@ -56,10 +56,7 @@ import org.apache.http.util.CharArrayBuffer;
  * taken from there has not been traced.
  * </p>
  *
- * @author <a href="mailto:jsdever@apache.org">Jeff Dever</a>
- * @author <a href="mailto:mbowler@GargoyleSoftware.com">Mike Bowler</a>
- * @author <a href="mailto:oleg@ural.ru">Oleg Kalnichevski</a>
- * @author and others
+ * @since 4.0
  */
 public class BasicLineParser implements LineParser {
 

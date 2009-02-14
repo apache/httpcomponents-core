@@ -40,7 +40,6 @@ import org.apache.http.HttpMessage;
  * Abstract message parser intended to build HTTP messages from an arbitrary 
  * data source. 
  *
- * @author <a href="mailto:oleg at ural.ru">Oleg Kalnichevski</a>
  *
  * @version $Revision$
  * 

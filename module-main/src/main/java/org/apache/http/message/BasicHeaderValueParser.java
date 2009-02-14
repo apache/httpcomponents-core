@@ -45,11 +45,6 @@ import org.apache.http.util.CharArrayBuffer;
  * Instances of this class are stateless and thread-safe.
  * Derived classes are expected to maintain these properties.
  *
- * @author <a href="mailto:bcholmes@interlog.com">B.C. Holmes</a>
- * @author <a href="mailto:jericho@thinkfree.com">Park, Sung-Gu</a>
- * @author <a href="mailto:mbowler@GargoyleSoftware.com">Mike Bowler</a>
- * @author <a href="mailto:oleg at ural.com">Oleg Kalnichevski</a>
- * @author and others
  *
  *
  * <!-- empty lines above to avoid 'svn diff' context problems -->

@@ -40,7 +40,6 @@ import org.apache.http.HttpMessage;
  * Abstract message writer intended to serialize HTTP messages to an arbitrary 
  * data sink. 
  *
- * @author <a href="mailto:oleg at ural.ru">Oleg Kalnichevski</a>
  *
  * @version $Revision$
  * 
