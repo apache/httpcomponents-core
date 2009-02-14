@@ -39,9 +39,10 @@ import java.nio.ByteBuffer;
  * to read entity content from the underlying channel in small
  * chunks and apply the required coding transformation.
  * 
- * @author <a href="mailto:oleg at ural.ru">Oleg Kalnichevski</a>
  *
  * @version $Revision$
+ *
+ * @since 4.0
  */
 public interface ContentDecoder {
 

@@ -38,7 +38,7 @@ import org.apache.http.nio.reactor.IOEventDispatch;
  * {@link IOEventDispatch} implementations to inform server-side connection 
  * objects of I/O events.
  * 
- * @author <a href="mailto:oleg at ural.ru">Oleg Kalnichevski</a>
+ * @since 4.0
  */
 public interface NHttpServerIOTarget extends NHttpServerConnection {
     

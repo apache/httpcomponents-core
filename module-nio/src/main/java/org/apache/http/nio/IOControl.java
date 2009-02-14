@@ -41,9 +41,10 @@ import java.io.IOException;
  * Therefore it can be used to request / suspend I/O event notifications from 
  * any thread of execution.
  * 
- * @author <a href="mailto:oleg at ural.ru">Oleg Kalnichevski</a>
  *
  * @version $Revision$
+ *
+ * @since 4.0
  */
 public interface IOControl {
 

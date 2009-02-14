@@ -36,6 +36,8 @@ import java.nio.channels.FileChannel;
 
 /**
  * A content decoder capable of transferring data directly to a {@link FileChannel}
+ *
+ * @since 4.0
  */
 public interface FileContentDecoder extends ContentDecoder {
     

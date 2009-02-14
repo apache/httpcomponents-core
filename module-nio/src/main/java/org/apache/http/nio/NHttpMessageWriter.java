@@ -39,7 +39,6 @@ import org.apache.http.HttpMessage;
 /**
  * Abstract HTTP message writer for non-blocking connections.
  *
- * @author <a href="mailto:oleg at ural.ru">Oleg Kalnichevski</a>
  *
  * @version $Revision$
  * 

@@ -50,9 +50,10 @@ import org.apache.http.protocol.HttpContext;
  * However, the {@link IOControl} interface is fully threading safe and can be 
  * manipulated from any thread.
  * 
- * @author <a href="mailto:oleg at ural.ru">Oleg Kalnichevski</a>
  * 
  * @version $Revision$
+ *
+ * @since 4.0
  */
 public interface NHttpConnection extends HttpConnection, IOControl {
 

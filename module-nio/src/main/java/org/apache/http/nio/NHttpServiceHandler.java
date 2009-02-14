@@ -38,9 +38,10 @@ import org.apache.http.HttpException;
 /**
  * Abstract server-side HTTP protocol handler.   
  * 
- * @author <a href="mailto:oleg at ural.ru">Oleg Kalnichevski</a>
  *
  * @version $Revision$
+ *
+ * @since 4.0
  */
 public interface NHttpServiceHandler {
 

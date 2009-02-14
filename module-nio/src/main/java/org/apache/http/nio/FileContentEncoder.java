@@ -37,6 +37,8 @@ import org.apache.http.nio.ContentEncoder;
 
 /**
  * A content encoder capable of transferring data directly from a {@link FileChannel}
+ *
+ * @since 4.0
  */
 public interface FileContentEncoder extends ContentEncoder {
     
