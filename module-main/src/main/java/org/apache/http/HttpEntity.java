@@ -64,7 +64,6 @@ import java.io.OutputStream;
  * to consider non-repeatable entities as streamed, and those that are
  * repeatable (without a huge effort) as self-contained.
  *
- * @author <a href="mailto:oleg at ural.ru">Oleg Kalnichevski</a>
  *
  * @version $Revision$
  * 

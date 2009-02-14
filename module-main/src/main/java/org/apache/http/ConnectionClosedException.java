@@ -36,7 +36,6 @@ import java.io.IOException;
 /**
  * Signals that the connection has been closed unexpectedly.
  *
- * @author <a href="mailto:oleg at ural.ru">Oleg Kalnichevski</a>
  *
  * @version $Revision$
  * 

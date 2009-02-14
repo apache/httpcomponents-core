@@ -37,7 +37,6 @@ import org.apache.http.protocol.HttpContext;
 /**
  * A factory for {@link HttpResponse HttpResponse} objects.
  *
- * @author <a href="mailto:oleg at ural.ru">Oleg Kalnichevski</a>
  *
  * @version $Revision$
  * 

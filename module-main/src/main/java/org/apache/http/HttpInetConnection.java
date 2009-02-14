@@ -36,7 +36,6 @@ import java.net.InetAddress;
 /**
  * An HTTP connection over the Internet Protocol (IP).
  *
- * @author <a href="mailto:oleg at ural.ru">Oleg Kalnichevski</a>
  *
  * @version $Revision$
  * 

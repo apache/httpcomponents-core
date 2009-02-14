@@ -40,6 +40,8 @@ import java.util.Iterator;
  * are plain strings rather than full header elements.
  * 
  * @version $Revision$
+ *
+ * @since 4.0
  */
 public interface TokenIterator extends Iterator {
 

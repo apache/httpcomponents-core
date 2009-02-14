@@ -34,7 +34,6 @@ package org.apache.http;
 /**
  * A request with an entity.
  *
- * @author <a href="mailto:oleg at ural.ru">Oleg Kalnichevski</a>
  *
  * @version $Revision$
  * 

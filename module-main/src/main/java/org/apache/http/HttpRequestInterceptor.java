@@ -50,7 +50,6 @@ import org.apache.http.protocol.HttpContext;
  * servlets, protocol interceptors should not use instance variables unless 
  * access to those variables is synchronized.
  *
- * @author <a href="mailto:oleg at ural.ru">Oleg Kalnichevski</a>
  *
  *
  * <!-- empty lines above to avoid 'svn diff' context problems -->

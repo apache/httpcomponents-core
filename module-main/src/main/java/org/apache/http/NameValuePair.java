@@ -39,8 +39,8 @@ package org.apache.http;
  * value                   = token | quoted-string
  * </pre> 
  * 
- * @author <a href="mailto:oleg at ural.com">Oleg Kalnichevski</a>
  * 
+ * @since 4.0
  */
 public interface NameValuePair {
 

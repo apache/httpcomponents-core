@@ -35,7 +35,6 @@ package org.apache.http;
 /**
  * Signals that an HTTP method is not supported.
  *
- * @author <a href="mailto:oleg at ural.ru">Oleg Kalnichevski</a>
  *
  * @version $Revision$
  * 

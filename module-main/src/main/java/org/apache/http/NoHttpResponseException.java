@@ -36,9 +36,10 @@ import java.io.IOException;
 /**
  * Signals that the target server failed to respond with a valid HTTP response.
  * 
- * @author <a href="mailto:oleg at ural.ru">Oleg Kalnichevski</a>
  * 
  * @version $Revision$
+ *
+ * @since 4.0
  */
 public class NoHttpResponseException extends IOException {
 

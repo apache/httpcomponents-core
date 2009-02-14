@@ -59,7 +59,6 @@ package org.apache.http;
  * element or param will be stored as the empty {@link String};
  * if the "=" is also missing <var>null</var> will be stored instead.
  *
- * @author <a href="mailto:oleg at ural.ru">Oleg Kalnichevski</a>
  *
  *
  * <!-- empty lines above to avoid 'svn diff' context problems -->

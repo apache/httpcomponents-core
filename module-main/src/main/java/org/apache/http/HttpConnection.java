@@ -36,7 +36,6 @@ import java.io.IOException;
 /**
  * A generic HTTP connection, useful on client and server side.
  *
- * @author <a href="mailto:oleg at ural.ru">Oleg Kalnichevski</a>
  *
  * @version $Revision$
  * 

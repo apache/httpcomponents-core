@@ -41,10 +41,6 @@ import org.apache.http.util.LangUtils;
  * Holds all of the variables needed to describe an HTTP connection to a host.
  * This includes remote host name, port and scheme.
  * 
- * @author <a href="mailto:becke@u.washington.edu">Michael Becke</a>
- * @author <a href="mailto:mbowler@GargoyleSoftware.com">Mike Bowler</a>
- * @author <a href="mailto:oleg at ural.ru">Oleg Kalnichevski</a>
- * @author Laura Werner
  * 
  * @since 4.0
  */

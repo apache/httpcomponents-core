@@ -37,7 +37,6 @@ import org.apache.http.protocol.HttpContext;
  * Interface for deciding whether a connection can be re-used for
  * subsequent requests and should be kept alive.
  *
- * @author <a href="mailto:oleg at ural.ru">Oleg Kalnichevski</a>
  *
  *
  * <!-- empty lines above to avoid 'svn diff' context problems -->

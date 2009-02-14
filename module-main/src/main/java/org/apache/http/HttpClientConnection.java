@@ -37,7 +37,6 @@ import java.io.IOException;
  * A client-side HTTP connection, which can be used for sending 
  * requests and receiving responses.
  *
- * @author <a href="mailto:oleg at ural.ru">Oleg Kalnichevski</a>
  *
  *
  * <!-- empty lines above to avoid 'svn diff' context problems -->

@@ -40,7 +40,6 @@ package org.apache.http;
  *      Request-Line   = Method SP Request-URI SP HTTP-Version CRLF
  * </pre>
  *
- * @author <a href="mailto:oleg at ural.ru">Oleg Kalnichevski</a>
  *
  * @version $Revision$
  * 

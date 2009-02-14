@@ -35,6 +35,8 @@ import java.io.IOException;
 
 /**
  * Signals a malformed chunked stream.
+ *
+ * @since 4.0
  */
 public class MalformedChunkCodingException extends IOException {
 

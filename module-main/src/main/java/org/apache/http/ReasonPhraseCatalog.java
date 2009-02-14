@@ -37,7 +37,6 @@ import java.util.Locale;
 /**
  * Interface for obtaining reason phrases for HTTP status codes.
  *
- * @author <a href="mailto:rolandw at apache.org">Roland Weber</a>
  *
  *
  * <!-- empty lines above to avoid 'svn diff' context problems -->

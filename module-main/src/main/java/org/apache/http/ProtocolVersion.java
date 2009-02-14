@@ -44,10 +44,10 @@ import org.apache.http.util.CharArrayBuffer;
  * final here, they cannot be overridden in derived classes.
  * </p>
  * 
- * @author <a href="mailto:oleg@ural.ru">Oleg Kalnichevski</a>
- * @author <a href="mailto:rolandw at apache.org">Roland Weber</a>
  * 
  * @version $Revision$
+ *
+ * @since 4.0
  */
 public class ProtocolVersion implements Serializable, Cloneable {
 

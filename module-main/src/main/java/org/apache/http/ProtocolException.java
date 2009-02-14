@@ -35,7 +35,6 @@ package org.apache.http;
  * Signals that an HTTP protocol violation has occurred.
  * For example a malformed status line or headers, a missing message body, etc.
  * 
- * @author <a href="mailto:laura@lwerner.org">Laura Werner</a>
  * 
  * @since 4.0
  */

@@ -33,6 +33,8 @@ package org.apache.http;
 
 /**
  * The point of access to the statistics of an {@link HttpConnection}.
+ *
+ * @since 4.0
  */
 public interface HttpConnectionMetrics {
 

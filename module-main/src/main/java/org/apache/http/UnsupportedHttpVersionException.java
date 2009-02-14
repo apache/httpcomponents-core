@@ -36,9 +36,10 @@ import org.apache.http.ProtocolException;
 /**
  * Signals an unsupported version of the HTTP protocol.
  *
- * @author <a href="mailto:oleg at ural.ru">Oleg Kalnichevski</a>
  *
  * @version $Revision:379772 $
+ *
+ * @since 4.0
  */
 public class UnsupportedHttpVersionException extends ProtocolException {
 

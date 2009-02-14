@@ -45,7 +45,6 @@ import java.util.Locale;
  *                     [ message-body ]
  * </pre>
  *
- * @author <a href="mailto:oleg at ural.ru">Oleg Kalnichevski</a>
  *
  * @version $Revision$
  * 

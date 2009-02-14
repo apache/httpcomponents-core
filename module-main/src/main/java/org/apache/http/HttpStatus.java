@@ -37,11 +37,10 @@ package org.apache.http;
  * RFC2518 (WebDAV) are listed.
  * 
  * @see StatusLine
- * @author Unascribed
- * @author <a href="mailto:mbowler@GargoyleSoftware.com">Mike Bowler</a>
- * @author <a href="mailto:jsdever@apache.org">Jeff Dever</a>
  * 
  * @version $Revision$
+ *
+ * @since 4.0
  */
 public interface HttpStatus {
 

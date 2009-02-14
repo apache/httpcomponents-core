@@ -36,9 +36,10 @@ import org.apache.http.util.ExceptionUtils;
 /**
  * Signals that an HTTP exception has occurred.
  * 
- * @author Laura Werner
  * 
  * @version $Revision$ $Date$
+ *
+ * @since 4.0
  */
 public class HttpException extends Exception {
 

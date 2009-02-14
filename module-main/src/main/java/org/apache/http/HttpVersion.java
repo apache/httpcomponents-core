@@ -44,9 +44,10 @@ import java.io.Serializable;
  *     HTTP-Version   = "HTTP" "/" 1*DIGIT "." 1*DIGIT
  * </pre>
  * 
- * @author <a href="mailto:oleg@ural.ru">Oleg Kalnichevski</a>
  * 
  * @version $Revision$ $Date$
+ *
+ * @since 4.0
  */
 public final class HttpVersion extends ProtocolVersion
     implements Serializable {

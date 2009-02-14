@@ -49,9 +49,9 @@ package org.apache.http;
  *                      of token, separators, and quoted-string&gt;
  *</pre>
  * 
- * @author <a href="mailto:remm@apache.org">Remy Maucherat</a>
- * @author <a href="mailto:oleg at ural.ru">Oleg Kalnichevski</a>
  * @version $Revision$
+ *
+ * @since 4.0
  */
 public interface Header {
 

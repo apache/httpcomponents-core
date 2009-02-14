@@ -41,6 +41,8 @@ import org.apache.http.util.CharArrayBuffer;
  *
  *
  * @version $Revision$
+ *
+ * @since 4.0
  */
 public interface FormattedHeader extends Header {
 

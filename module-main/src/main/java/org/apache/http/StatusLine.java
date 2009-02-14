@@ -41,8 +41,6 @@ package org.apache.http;
  * </pre>
  * 
  * @see HttpStatus
- * @author <a href="mailto:jsdever@apache.org">Jeff Dever</a>
- * @author <a href="mailto:mbowler@GargoyleSoftware.com">Mike Bowler</a>
  * @version $Id$
  * 
  * @since 4.0
