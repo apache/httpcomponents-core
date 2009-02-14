@@ -43,7 +43,7 @@ import org.apache.http.params.HttpParams;
  * HTTP response writer that serializes its output to an instance 
  * of {@link SessionOutputBuffer}. 
  * 
- * @author <a href="mailto:oleg at ural.ru">Oleg Kalnichevski</a>
+ * @since 4.0
  */
 public class HttpResponseWriter extends AbstractMessageWriter {
 

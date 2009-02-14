@@ -59,7 +59,6 @@ import org.apache.http.protocol.HTTP;
  * properties of the message. The content of the entity will be decoded 
  * transparently for the consumer. 
  * 
- * @author <a href="mailto:oleg at ural.ru">Oleg Kalnichevski</a>
  *
  * @version $Revision$
  * 

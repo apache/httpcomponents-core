@@ -54,13 +54,6 @@ import org.apache.http.util.ExceptionUtils;
  * requests, while not requiring the client to remember to read the entire
  * contents of the response.
  *
- * @author Ortwin Glueck
- * @author Sean C. Sullivan
- * @author Martin Elwin
- * @author Eric Johnson
- * @author <a href="mailto:mbowler@GargoyleSoftware.com">Mike Bowler</a>
- * @author Michael Becke
- * @author <a href="mailto:oleg at ural.ru">Oleg Kalnichevski</a>
  *
  * @since 4.0
  *

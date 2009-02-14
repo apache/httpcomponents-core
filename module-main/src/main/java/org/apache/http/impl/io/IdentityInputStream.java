@@ -46,7 +46,6 @@ import org.apache.http.io.SessionInputBuffer;
  * gets called.  Instead, it will read until the end of the stream (until 
  * <code>-1</code> is returned).
  *
- * @author <a href="mailto:oleg at ural.ru">Oleg Kalnichevski</a>
  *
  * @version $Revision$
  * 

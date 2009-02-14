@@ -50,7 +50,6 @@ import org.apache.http.protocol.HTTP;
  * <p>
  * This class recognizes "chunked" and "identitiy" transfer-coding only.
  * 
- * @author <a href="mailto:oleg at ural.ru">Oleg Kalnichevski</a>
  *
  * @version $Revision$
  * 

@@ -49,9 +49,6 @@ import org.apache.http.io.SessionInputBuffer;
  * requests, while not requiring the client to remember to read the entire
  * contents of the response.
  *
- * @author Ortwin Glueck
- * @author Eric Johnson
- * @author <a href="mailto:mbowler@GargoyleSoftware.com">Mike Bowler</a>
  *
  * @since 4.0
  */

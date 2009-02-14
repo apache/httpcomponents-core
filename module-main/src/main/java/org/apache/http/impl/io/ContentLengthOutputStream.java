@@ -47,7 +47,6 @@ import org.apache.http.io.SessionOutputBuffer;
  * gets called.  Instead, the stream will be marked as closed and no further 
  * output will be permitted.
  *
- * @author <a href="mailto:oleg at ural.ru">Oleg Kalnichevski</a>
  *
  * @version $Revision$
  * 

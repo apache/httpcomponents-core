@@ -51,7 +51,7 @@ import org.apache.http.util.CharArrayBuffer;
  * {@link #writeLine(CharArrayBuffer)} and {@link #writeLine(String)} methods 
  * of this class use CR-LF as a line delimiter. 
  *
- * @author <a href="mailto:oleg at ural.ru">Oleg Kalnichevski</a>
+ * @since 4.0
  */
 public abstract class AbstractSessionOutputBuffer implements SessionOutputBuffer {
 

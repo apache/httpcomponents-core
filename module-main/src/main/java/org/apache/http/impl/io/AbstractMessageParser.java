@@ -51,8 +51,7 @@ import org.apache.http.util.CharArrayBuffer;
  * Abstract base class for HTTP message parsers that obtain input from 
  * an instance of {@link SessionInputBuffer}. 
  * 
- * @author Michael Becke
- * @author <a href="mailto:oleg at ural.ru">Oleg Kalnichevski</a>
+ * @since 4.0
  */
 public abstract class AbstractMessageParser implements HttpMessageParser {
 

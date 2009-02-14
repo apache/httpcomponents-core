@@ -41,7 +41,6 @@ import org.apache.http.params.HttpParams;
 /**
  * {@link SessionOutputBuffer} implementation bound to a {@link Socket}.
  *
- * @author <a href="mailto:oleg at ural.ru">Oleg Kalnichevski</a>
  *
  * @version $Revision$
  * 

@@ -51,7 +51,7 @@ import org.apache.http.util.CharArrayBuffer;
  * HTTP response parser that obtain its input from an instance 
  * of {@link SessionInputBuffer}. 
  * 
- * @author <a href="mailto:oleg at ural.ru">Oleg Kalnichevski</a>
+ * @since 4.0
  */
 public class HttpResponseParser extends AbstractMessageParser {
     

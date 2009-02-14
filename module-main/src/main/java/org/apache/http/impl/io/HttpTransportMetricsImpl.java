@@ -35,6 +35,8 @@ import org.apache.http.io.HttpTransportMetrics;
 
 /**
  * Default implementation of {@link HttpTransportMetrics}.
+ *
+ * @since 4.0
  */
 public class HttpTransportMetricsImpl implements HttpTransportMetrics {
 

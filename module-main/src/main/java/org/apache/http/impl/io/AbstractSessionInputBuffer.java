@@ -53,7 +53,7 @@ import org.apache.http.util.CharArrayBuffer;
  * class treat a lone LF as valid line delimiters in addition to CR-LF required
  * by the HTTP specification. 
  *
- * @author <a href="mailto:oleg at ural.ru">Oleg Kalnichevski</a>
+ * @since 4.0
  */
 public abstract class AbstractSessionInputBuffer implements SessionInputBuffer {
 

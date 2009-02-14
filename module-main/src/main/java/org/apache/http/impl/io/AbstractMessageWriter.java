@@ -48,7 +48,7 @@ import org.apache.http.util.CharArrayBuffer;
  * Abstract base class for HTTP message writers that serialize output to
  * an instance of {@link SessionOutputBuffer}. 
  * 
- * @author <a href="mailto:oleg at ural.ru">Oleg Kalnichevski</a>
+ * @since 4.0
  */
 public abstract class AbstractMessageWriter implements HttpMessageWriter {
     
