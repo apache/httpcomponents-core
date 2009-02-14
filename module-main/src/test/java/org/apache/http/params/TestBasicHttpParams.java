@@ -38,7 +38,6 @@ import junit.framework.TestSuite;
 /**
  * Unit tests for {@link BasicHttpParams}.
  *
- * @author <a href="mailto:rolandw at apache.org">Roland Weber</a>
  */
 public class TestBasicHttpParams extends TestCase {
 

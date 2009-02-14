@@ -41,7 +41,6 @@ import junit.framework.TestSuite;
 /**
  * Unit tests for {@link ByteArrayBuffer}.
  *
- * @author <a href="mailto:oleg at ural.ru">Oleg Kalnichevski</a>
  */
 public class TestByteArrayBuffer extends TestCase {
 

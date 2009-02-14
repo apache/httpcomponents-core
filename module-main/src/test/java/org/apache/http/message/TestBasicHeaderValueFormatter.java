@@ -42,8 +42,6 @@ import org.apache.http.NameValuePair;
 /**
  * Tests for header value formatting.
  *
- * @author <a href="mailto:oleg at ural.ru">Oleg Kalnichevski</a>
- * @author and others
  *
  * @version $Revision$
  */

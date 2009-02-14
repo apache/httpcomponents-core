@@ -40,7 +40,6 @@ import org.apache.http.NameValuePair;
 /**
  * Unit tests for {@link NameValuePair}.
  *
- * @author <a href="mailto:oleg at ural.ru">Oleg Kalnichevski</a>
  */
 public class TestNameValuePair extends TestCase {
 

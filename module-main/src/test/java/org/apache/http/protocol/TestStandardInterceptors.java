@@ -50,7 +50,6 @@ import org.apache.http.message.BasicHttpResponse;
 import org.apache.http.params.CoreProtocolPNames;
 
 /**
- * @author <a href="mailto:oleg at ural.ru">Oleg Kalnichevski</a>
  */
 public class TestStandardInterceptors extends TestCase {
 

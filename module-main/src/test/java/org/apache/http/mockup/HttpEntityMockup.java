@@ -40,7 +40,6 @@ import org.apache.http.entity.AbstractHttpEntity;
 /**
  * {@link AbstractHttpEntity} mockup implementation.
  *
- * @author <a href="mailto:oleg at ural.ru">Oleg Kalnichevski</a>
  */
 public class HttpEntityMockup extends AbstractHttpEntity {
 

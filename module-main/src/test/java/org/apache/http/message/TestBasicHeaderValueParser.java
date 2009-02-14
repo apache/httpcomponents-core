@@ -43,11 +43,6 @@ import org.apache.http.util.CharArrayBuffer;
 /**
  * Tests for header value parsing.
  *
- * @author Rodney Waldhoff
- * @author <a href="mailto:bcholmes@interlog.com">B.C. Holmes</a>
- * @author <a href="mailto:jericho@thinkfree.com">Park, Sung-Gu</a>
- * @author <a href="mailto:oleg at ural.ru">Oleg Kalnichevski</a>
- * @author and others
  * @version $Id$
  */
 public class TestBasicHeaderValueParser extends TestCase {

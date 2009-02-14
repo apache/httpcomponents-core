@@ -44,7 +44,6 @@ import junit.framework.TestSuite;
 /**
  * Unit tests for {@link BasicHttpEntity}.
  *
- * @author <a href="mailto:oleg at ural.ru">Oleg Kalnichevski</a>
  */
 public class TestBasicHttpEntity extends TestCase {
 

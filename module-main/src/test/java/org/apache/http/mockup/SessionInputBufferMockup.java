@@ -43,7 +43,6 @@ import org.apache.http.params.HttpParams;
 /**
  * {@link org.apache.http.impl.io.IdentityInputStream} mockup implementation.
  *
- * @author <a href="mailto:oleg at ural.ru">Oleg Kalnichevski</a>
  */
 public class SessionInputBufferMockup extends AbstractSessionInputBuffer {
 

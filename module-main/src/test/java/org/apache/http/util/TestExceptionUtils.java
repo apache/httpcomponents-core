@@ -38,7 +38,6 @@ import junit.framework.TestSuite;
 /**
  * Unit tests for {@link TestExceptionUtils}.
  *
- * @author <a href="mailto:oleg at ural.ru">Oleg Kalnichevski</a>
  */
 public class TestExceptionUtils extends TestCase {
 

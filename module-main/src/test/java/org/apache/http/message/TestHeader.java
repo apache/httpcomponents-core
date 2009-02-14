@@ -41,7 +41,6 @@ import org.apache.http.HeaderElement;
 /**
  * Unit tests for {@link Header}.
  *
- * @author <a href="mailto:oleg at ural.ru">Oleg Kalnichevski</a>
  */
 public class TestHeader extends TestCase {
 

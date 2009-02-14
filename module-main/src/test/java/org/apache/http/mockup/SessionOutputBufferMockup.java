@@ -41,7 +41,6 @@ import org.apache.http.params.HttpParams;
 /**
  * {@link org.apache.http.io.SessionOutputBuffer} mockup implementation.
  *
- * @author <a href="mailto:oleg at ural.ru">Oleg Kalnichevski</a>
  */
 public class SessionOutputBufferMockup extends AbstractSessionOutputBuffer {
 

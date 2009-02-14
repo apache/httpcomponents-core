@@ -41,7 +41,6 @@ import org.apache.http.HttpStatus;
  *
  * Unit tests for {@link EnglishReasonPhraseCatalog}
  *
- * @author Sean C. Sullivan
  */
 public class TestEnglishReasonPhraseCatalog extends TestCase {
 

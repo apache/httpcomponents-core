@@ -35,7 +35,6 @@ import junit.framework.*;
 /**
  * Simple tests for various HTTP exception classes.
  *
- * @author <a href="mailto:oleg at ural.ru">Oleg Kalnichevski</a>
  *
  * @version $Revision$
  */

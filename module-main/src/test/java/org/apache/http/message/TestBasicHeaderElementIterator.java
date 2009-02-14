@@ -1,7 +1,7 @@
 /*
- * $HeadURL:$
- * $Revision:$
- * $Date:$
+ * $HeadURL$
+ * $Revision$
+ * $Date$
  * ====================================================================
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
@@ -48,7 +48,6 @@ import org.apache.http.message.BasicHeaderIterator;
  * 
  * @version $Revision$
  * 
- * @author Andrea Selva <selva.andre at gmail.com>
  */
 public class TestBasicHeaderElementIterator extends TestCase {
     

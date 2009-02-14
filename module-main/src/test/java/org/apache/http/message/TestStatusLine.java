@@ -41,7 +41,6 @@ import org.apache.http.StatusLine;
 /**
  * Simple tests for {@link StatusLine}.
  *
- * @author <a href="mailto:jsdever@apache.org">Jeff Dever</a>
  * 
  * @version $Id$
  */

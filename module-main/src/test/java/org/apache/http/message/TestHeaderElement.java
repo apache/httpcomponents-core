@@ -42,10 +42,6 @@ import org.apache.http.NameValuePair;
 /**
  * Simple tests for {@link HeaderElement}.
  *
- * @author Rodney Waldhoff
- * @author <a href="mailto:bcholmes@interlog.com">B.C. Holmes</a>
- * @author <a href="mailto:jericho@thinkfree.com">Park, Sung-Gu</a>
- * @author <a href="mailto:oleg at ural.ru">oleg Kalnichevski</a>
  * @version $Id$
  */
 public class TestHeaderElement extends TestCase {

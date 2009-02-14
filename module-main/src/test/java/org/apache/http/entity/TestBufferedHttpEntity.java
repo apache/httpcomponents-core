@@ -43,7 +43,6 @@ import org.apache.http.protocol.HTTP;
 /**
  * Unit tests for {@link BufferedHttpEntity}.
  *
- * @author <a href="mailto:oleg at ural.ru">Oleg Kalnichevski</a>
  */
 public class TestBufferedHttpEntity extends TestCase {
 

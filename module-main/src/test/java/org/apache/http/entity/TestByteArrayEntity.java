@@ -42,7 +42,6 @@ import org.apache.http.protocol.HTTP;
 /**
  * Unit tests for {@link ByteArrayEntity}.
  *
- * @author <a href="mailto:oleg at ural.ru">Oleg Kalnichevski</a>
  */
 public class TestByteArrayEntity extends TestCase {
 

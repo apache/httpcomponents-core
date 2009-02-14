@@ -41,7 +41,6 @@ import junit.framework.TestSuite;
 /**
  * Simple tests for {@link IdentityInputStream}.
  *
- * @author <a href="mailto:oleg at ural.ru">Oleg Kalnichevski</a>
  */
 public class TestIdentitynputStream extends TestCase {
 

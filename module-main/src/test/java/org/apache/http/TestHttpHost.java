@@ -38,7 +38,6 @@ import junit.framework.TestSuite;
 /**
  * Unit tests for {@link HttpHost}.
  *
- * @author <a href="mailto:oleg at ural.ru">Oleg Kalnichevski</a>
  */
 public class TestHttpHost extends TestCase {
 

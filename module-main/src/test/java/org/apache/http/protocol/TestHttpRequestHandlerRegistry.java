@@ -44,7 +44,6 @@ import junit.framework.TestCase;
 import junit.framework.TestSuite;
 
 /**
- * @author <a href="mailto:oleg at ural.ru">Oleg Kalnichevski</a>
  */
 public class TestHttpRequestHandlerRegistry extends TestCase {
 

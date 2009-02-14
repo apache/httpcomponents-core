@@ -38,7 +38,6 @@ import junit.framework.TestSuite;
 /**
  * Test cases for HTTP version class
  *
- * @author <a href="mailto:oleg at ural.ru">Oleg Kalnichevski</a>
  */
 public class TestHttpVersion extends TestCase {
 

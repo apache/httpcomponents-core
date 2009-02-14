@@ -44,7 +44,6 @@ import junit.framework.TestSuite;
 /**
  * Unit tests for {@link InputStreamEntity}.
  *
- * @author <a href="mailto:oleg at ural.ru">Oleg Kalnichevski</a>
  */
 public class TestInputStreamEntity extends TestCase {
 

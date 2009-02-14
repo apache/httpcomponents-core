@@ -44,7 +44,6 @@ import org.apache.http.HttpEntity;
 /**
  * Unit tests for {@link EntityTemplate}.
  *
- * @author <a href="mailto:oleg at ural.ru">Oleg Kalnichevski</a>
  */
 public class TestEntityTemplate extends TestCase {
 

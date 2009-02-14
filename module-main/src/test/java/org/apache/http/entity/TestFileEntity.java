@@ -44,7 +44,6 @@ import org.apache.http.protocol.HTTP;
 /**
  * Unit tests for {@link FileEntity}.
  *
- * @author <a href="mailto:oleg at ural.ru">Oleg Kalnichevski</a>
  */
 public class TestFileEntity extends TestCase {
 

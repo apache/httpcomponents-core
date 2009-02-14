@@ -47,7 +47,6 @@ import org.apache.http.params.CoreProtocolPNames;
 /**
  * Unit tests for {@link Header}.
  *
- * @author <a href="mailto:oleg at ural.ru">Oleg Kalnichevski</a>
  */
 public class TestBasicMessages extends TestCase {
 
