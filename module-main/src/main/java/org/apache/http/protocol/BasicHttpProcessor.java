@@ -264,15 +264,17 @@ public final class BasicHttpProcessor implements
         }
     }
 
+    /**
+     * Sets up the target to have the same list of interceptors
+     * as the current instance.
+     * 
+     * @param target object to be initialised
+     */
     protected void copyInterceptors(final BasicHttpProcessor target) {
-        if (this.requestInterceptors.size() > 0) {
-            target.requestInterceptors.clear();
-            target.requestInterceptors.addAll(this.requestInterceptors);
-        }
-        if (this.responseInterceptors.size() > 0) {
-            target.responseInterceptors.clear();
-            target.responseInterceptors.addAll(this.responseInterceptors);
-        }
+        target.requestInterceptors.clear();
+        target.requestInterceptors.addAll(this.requestInterceptors);
+        target.responseInterceptors.clear();
+        target.responseInterceptors.addAll(this.responseInterceptors);
     }
     
     /**
