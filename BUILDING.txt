@@ -28,6 +28,7 @@ The resultant packages can be found in the target folders of their respective mo
 
 module-main/target/httpcore-<VERSION>.jar
 module-nio/target/httpcore-nio-<VERSION>.jar
+module-osgi-bundle/target/org.apache.httpcomponents.httpcore_<VERSION>.jar
 
 where <VERSION> is the release version
 
@@ -37,4 +38,16 @@ Execute the following command in order to build the distribution assemblies
 
 mvn package assembly:assembly
 
+(5) Building project web site 
+
+Execute the following command in order to generate the project web site:
+
+mvn site -Dclover.license=<path>/clover.license
+
+where <path> is a full path to Clover license file
+
+ASF committers can obtain a copy of Clover license donated to the ASF from the SVN repository
+at the following location:
+
+https://svn.apache.org/repos/private/committers/donated-licenses/clover
 
