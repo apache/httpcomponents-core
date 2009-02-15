@@ -38,7 +38,17 @@ Execute the following command in order to build the distribution assemblies
 
 mvn package assembly:assembly
 
-(5) Building project web site 
+(5) Building documentation 
+
+Execute the following command in order to generate javadoc:
+
+mvn javadoc:javadoc
+
+Execute the following command in order to generate the tutorial in html and pdf formats
+
+mvn docbkx:generate-pdf docbkx:generate-html
+
+(6) Building project web site 
 
 Execute the following command in order to generate the project web site:
 
