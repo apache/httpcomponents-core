@@ -56,9 +56,8 @@ import org.apache.http.HttpResponseInterceptor;
 public final class BasicHttpProcessor implements
     HttpProcessor, HttpRequestInterceptorList, HttpResponseInterceptorList, Cloneable {
 
-    protected List requestInterceptors = null; 
-    protected List responseInterceptors = null;
-
+    protected final List requestInterceptors = new ArrayList(); 
+    protected final List responseInterceptors = new ArrayList();
 
     // non-Javadoc, see interface HttpRequestInterceptorList
     public void addRequestInterceptor(final HttpRequestInterceptor itcp) {
@@ -66,56 +65,32 @@ public final class BasicHttpProcessor implements
         if (itcp == null) {
             return;
         }
-        if (this.requestInterceptors == null) {
-            this.requestInterceptors = new ArrayList();
-        }
         this.requestInterceptors.add(itcp);
     }
     
     // non-Javadoc, see interface HttpRequestInterceptorList
     public void addRequestInterceptor(final HttpRequestInterceptor itcp,
                                       int index) {
-        if (index < 0) {
-            throw new IndexOutOfBoundsException(String.valueOf(index));
-        }
         if (itcp == null) {
             return;
         }
 
-        if (this.requestInterceptors == null) {
-            if (index > 0) {
-                throw new IndexOutOfBoundsException(String.valueOf(index));
-            }
-            this.requestInterceptors = new ArrayList();
-        }
         this.requestInterceptors.add(index, itcp);
     }
     
 
     public void addResponseInterceptor(HttpResponseInterceptor itcp,
                                        int index) {
-        if (index < 0) {
-            throw new IndexOutOfBoundsException(String.valueOf(index));
-        }
         if (itcp == null) {
             return;
         }
 
-        if (this.responseInterceptors == null) {
-            if (index > 0) {
-                throw new IndexOutOfBoundsException(String.valueOf(index));
-            }
-            this.responseInterceptors = new ArrayList();
-        }
         this.responseInterceptors.add(index, itcp);
     }
     
     
     // non-Javadoc, see interface HttpRequestInterceptorList
     public void removeRequestInterceptorByClass(final Class clazz) {
-        if (this.requestInterceptors == null) {
-            return;
-        }
         for (Iterator it = this.requestInterceptors.iterator();
              it.hasNext(); ) {
             Object request = it.next();
@@ -127,9 +102,6 @@ public final class BasicHttpProcessor implements
     
     // non-Javadoc, see interface HttpResponseInterceptorList
     public void removeResponseInterceptorByClass(final Class clazz) {
-        if (this.responseInterceptors == null) {
-            return;
-        }
         for (Iterator it = this.responseInterceptors.iterator();
              it.hasNext(); ) {
             Object request = it.next();
@@ -158,16 +130,14 @@ public final class BasicHttpProcessor implements
     
     // non-Javadoc, see interface HttpRequestInterceptorList
     public int getRequestInterceptorCount() {
-        return (this.requestInterceptors == null) ?
-            0 : this.requestInterceptors.size();
+        return this.requestInterceptors.size();
     }
     
     
     // non-Javadoc, see interface HttpRequestInterceptorList
     public HttpRequestInterceptor getRequestInterceptor(int index) {
         
-        if ((this.requestInterceptors == null) ||
-                (index < 0) || (index >= this.requestInterceptors.size()))
+        if ((index < 0) || (index >= this.requestInterceptors.size()))
             return null;
         
         return (HttpRequestInterceptor) this.requestInterceptors.get(index);
@@ -176,7 +146,7 @@ public final class BasicHttpProcessor implements
     
     // non-Javadoc, see interface HttpRequestInterceptorList
     public void clearRequestInterceptors() {
-        this.requestInterceptors = null;
+        this.requestInterceptors.clear();
     }
     
     
@@ -185,9 +155,6 @@ public final class BasicHttpProcessor implements
     public void addResponseInterceptor(final HttpResponseInterceptor itcp) {
         if (itcp == null) {
             return;
-        }
-        if (this.responseInterceptors == null) {
-            this.responseInterceptors = new ArrayList();
         }
         this.responseInterceptors.add(itcp);
     }
@@ -211,16 +178,14 @@ public final class BasicHttpProcessor implements
     
     // non-Javadoc, see interface HttpResponseInterceptorList
     public int getResponseInterceptorCount() {
-        return (this.responseInterceptors == null) ?
-            0 : this.responseInterceptors.size();
+        return this.responseInterceptors.size();
     }
     
     
     // non-Javadoc, see interface HttpResponseInterceptorList
     public HttpResponseInterceptor getResponseInterceptor(int index) {
         
-        if ((this.responseInterceptors == null) ||
-                (index < 0) || (index >= this.responseInterceptors.size()))
+        if ((index < 0) || (index >= this.responseInterceptors.size()))
             return null;
         
         return (HttpResponseInterceptor) this.responseInterceptors.get(index);
@@ -229,7 +194,7 @@ public final class BasicHttpProcessor implements
     
     // non-Javadoc, see interface HttpResponseInterceptorList
     public void clearResponseInterceptors() {
-        this.responseInterceptors = null;
+        this.responseInterceptors.clear();
     }
     
     
@@ -254,12 +219,8 @@ public final class BasicHttpProcessor implements
         if (list == null) {
             throw new IllegalArgumentException("List must not be null.");
         }
-        if (this.requestInterceptors != null) {
-            this.requestInterceptors.clear();
-        }
-        if (this.responseInterceptors != null) {
-            this.responseInterceptors.clear();
-        }
+        this.requestInterceptors.clear();
+        this.responseInterceptors.clear();
         for (int i = 0; i < list.size(); i++) {
             Object obj = list.get(i);
             if (obj instanceof HttpRequestInterceptor) {
@@ -284,12 +245,10 @@ public final class BasicHttpProcessor implements
             final HttpRequest request,
             final HttpContext context)
             throws IOException, HttpException {
-        if (this.requestInterceptors != null) {
-            for (int i = 0; i < this.requestInterceptors.size(); i++) {
-                HttpRequestInterceptor interceptor =
-                    (HttpRequestInterceptor) this.requestInterceptors.get(i);
-                interceptor.process(request, context);
-            }
+        for (int i = 0; i < this.requestInterceptors.size(); i++) {
+            HttpRequestInterceptor interceptor =
+                (HttpRequestInterceptor) this.requestInterceptors.get(i);
+            interceptor.process(request, context);
         }
     }
     
@@ -298,23 +257,21 @@ public final class BasicHttpProcessor implements
             final HttpResponse response,
             final HttpContext context)
             throws IOException, HttpException {
-        if (this.responseInterceptors != null) {
-            for (int i = 0; i < this.responseInterceptors.size(); i++) {
-                HttpResponseInterceptor interceptor =
-                    (HttpResponseInterceptor) this.responseInterceptors.get(i);
-                interceptor.process(response, context);
-            }
+        for (int i = 0; i < this.responseInterceptors.size(); i++) {
+            HttpResponseInterceptor interceptor =
+                (HttpResponseInterceptor) this.responseInterceptors.get(i);
+            interceptor.process(response, context);
         }
     }
 
     protected void copyInterceptors(final BasicHttpProcessor target) {
-        if (this.requestInterceptors != null) {
-            target.requestInterceptors =
-                new ArrayList(this.requestInterceptors);
+        if (this.requestInterceptors.size() > 0) {
+            target.requestInterceptors.clear();
+            target.requestInterceptors.addAll(this.requestInterceptors);
         }
-        if (this.responseInterceptors != null) {
-            target.responseInterceptors =
-                new ArrayList(this.responseInterceptors);
+        if (this.responseInterceptors.size() > 0) {
+            target.responseInterceptors.clear();
+            target.responseInterceptors.addAll(this.responseInterceptors);
         }
     }
     
