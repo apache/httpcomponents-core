@@ -39,7 +39,7 @@
   <groupId>org.apache.httpcomponents</groupId>
   <artifactId>httpcomponents-core</artifactId>
   <name>HttpComponents Core</name>
-  <version>4.0-beta4-SNAPSHOT</version>
+  <version>4.0</version>
   <description>Core components to build HTTP enabled services</description>
   <url>http://hc.apache.org/httpcomponents-core/</url>
   <inceptionYear>2005</inceptionYear>
@@ -64,9 +64,9 @@
   </issueManagement>
 
   <scm>
-    <connection>scm:svn:http://svn.apache.org/repos/asf/httpcomponents/httpcore/trunk</connection>
-    <developerConnection>scm:svn:https://svn.apache.org/repos/asf/httpcomponents/httpcore/trunk</developerConnection>
-    <url>http://svn.apache.org/repos/asf/httpcomponents/httpcore/trunk</url>
+    <connection>scm:svn:http://svn.apache.org/repos/asf/httpcomponents/httpcore/tags/4.0</connection>
+    <developerConnection>scm:svn:https://svn.apache.org/repos/asf/httpcomponents/httpcore/tags/4.0</developerConnection>
+    <url>http://svn.apache.org/repos/asf/httpcomponents/httpcore/tags/4.0</url>
   </scm>
 
   <modules>
@@ -194,20 +194,19 @@
           <postProcess>
             <copy todir="target/site/tutorial">
               <fileset dir="target/docbkx">
-                <include name="**/*.html"/>
-                <include name="**/*.pdf"/>
+                <include name="**/*.html" />
+                <include name="**/*.pdf" />
               </fileset>
             </copy>
             <copy todir="target/site/tutorial/html">
               <fileset dir="src/docbkx/resources">
-                <include name="**/*.css"/>
-                <include name="**/*.png"/>
-                <include name="**/*.gif"/>
-                <include name="**/*.jpg"/>
+                <include name="**/*.css" />
+                <include name="**/*.png" />
+                <include name="**/*.gif" />
+                <include name="**/*.jpg" />
               </fileset>
             </copy>
-            <move file="target/site/tutorial/pdf/index.pdf"
-                  tofile="target/site/tutorial/pdf/httpcore-tutorial.pdf" failonerror="false"/>
+            <move file="target/site/tutorial/pdf/index.pdf" tofile="target/site/tutorial/pdf/httpcore-tutorial.pdf" failonerror="false" />
           </postProcess>
         </configuration>
       </plugin>
