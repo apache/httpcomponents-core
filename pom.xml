@@ -39,7 +39,7 @@
   <groupId>org.apache.httpcomponents</groupId>
   <artifactId>httpcomponents-core</artifactId>
   <name>HttpComponents Core</name>
-  <version>4.1-SNAPSHOT</version>
+    <version>4.0-beta4-SNAPSHOT</version>
   <description>Core components to build HTTP enabled services</description>
   <url>http://hc.apache.org/httpcomponents-core/</url>
   <inceptionYear>2005</inceptionYear>
