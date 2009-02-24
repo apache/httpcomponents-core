@@ -151,10 +151,10 @@
       </plugin>
 
       <plugin>
-        <artifactId>maven-clover-plugin</artifactId>
+        <groupId>com.atlassian.maven.plugins</groupId>
+        <artifactId>maven-clover2-plugin</artifactId>
         <configuration>
           <jdk>1.5</jdk>
-          <licenseLocation>${clover.license}</licenseLocation>
         </configuration>
       </plugin>
 
