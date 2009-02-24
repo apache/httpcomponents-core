@@ -651,14 +651,14 @@ public class TestThrottlingNHttpHandlers extends TestCase {
         final String COMMAND_FINISHED = "CommandFinished";
         final Map<String, Boolean> serverExpectations = Collections.synchronizedMap(
                 new HashMap<String, Boolean>());
-        serverExpectations.put(COMMAND_FINISHED, false);
+        serverExpectations.put(COMMAND_FINISHED, Boolean.FALSE);
         
         // secondary expectation: not strictly necessary, the test will wait for the 
         // client to finalize the request 
         final String CLIENT_FINALIZED = "ClientFinalized";
         final Map<String, Boolean> clientExpectations = Collections.synchronizedMap(
                 new HashMap<String, Boolean>());
-        clientExpectations.put(CLIENT_FINALIZED, false);
+        clientExpectations.put(CLIENT_FINALIZED, Boolean.FALSE);
         
         // runs the command on a separate thread and updates the server expectation
         Executor executor = new Executor() {
@@ -669,7 +669,7 @@ public class TestThrottlingNHttpHandlers extends TestCase {
                     public void run() {
                         command.run();
                         synchronized (serverExpectations) {
-                            serverExpectations.put(COMMAND_FINISHED, true);
+                            serverExpectations.put(COMMAND_FINISHED, Boolean.TRUE);
                             serverExpectations.notify();
                         }
                     }
@@ -705,7 +705,7 @@ public class TestThrottlingNHttpHandlers extends TestCase {
 
             public void finalizeContext(HttpContext context) {
                 synchronized (clientExpectations) {
-                    clientExpectations.put(CLIENT_FINALIZED, true);
+                    clientExpectations.put(CLIENT_FINALIZED, Boolean.TRUE);
                     clientExpectations.notifyAll();
                 }
             }
@@ -745,18 +745,18 @@ public class TestThrottlingNHttpHandlers extends TestCase {
         
         // wait for the client to invoke finalizeContext().
         synchronized (clientExpectations) {
-            if (!clientExpectations.get(CLIENT_FINALIZED)) {
+            if (!clientExpectations.get(CLIENT_FINALIZED).booleanValue()) {
                 clientExpectations.wait(DEFAULT_SERVER_SO_TIMEOUT);
-                assertTrue(clientExpectations.get(CLIENT_FINALIZED));
+                assertTrue(clientExpectations.get(CLIENT_FINALIZED).booleanValue());
             }
         }
         
         // wait for server to finish the command within a reasonable amount of time.
         // the time constraint is not necessary, it only prevents the test from hanging.
         synchronized (serverExpectations) {
-            if (!serverExpectations.get(COMMAND_FINISHED)) {
+            if (!serverExpectations.get(COMMAND_FINISHED).booleanValue()) {
                 serverExpectations.wait(SHORT_TIMEOUT);
-                assertTrue(serverExpectations.get(COMMAND_FINISHED));
+                assertTrue(serverExpectations.get(COMMAND_FINISHED).booleanValue());
             }
         }
         
