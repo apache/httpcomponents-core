@@ -75,6 +75,11 @@
     <module>module-osgi-bundle</module>
   </modules>
 
+  <properties>
+    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
+  </properties>
+
   <build>
     <plugins>
       <!-- Add NOTICE and LICENSE to generated JAR -->
