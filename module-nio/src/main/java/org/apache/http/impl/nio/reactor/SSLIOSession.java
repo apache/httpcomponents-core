@@ -264,11 +264,17 @@ public class SSLIOSession implements IOSession, SessionBufferStatus {
         return this.inPlain.position() > 0 || this.status != ACTIVE;
     }
     
+    /**
+     * @throws IOException - not thrown currently
+     */
     public synchronized boolean isAppOutputReady() throws IOException {
         return this.status == ACTIVE
             && this.sslEngine.getHandshakeStatus() == HandshakeStatus.NOT_HANDSHAKING;
     }
 
+    /**
+     * @throws IOException - not thrown currently 
+     */
     public synchronized void inboundTransport() throws IOException {
         updateEventMask();
     }
@@ -302,6 +308,9 @@ public class SSLIOSession implements IOSession, SessionBufferStatus {
         }
     }
     
+    /**
+     * @throws SSLException - not thrown currently 
+     */
     private synchronized int readPlain(final ByteBuffer dst) throws SSLException {
         if (dst == null) {
             throw new IllegalArgumentException("Byte buffer may not be null");

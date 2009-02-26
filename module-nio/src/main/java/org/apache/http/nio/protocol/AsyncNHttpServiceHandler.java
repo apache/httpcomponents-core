@@ -426,6 +426,9 @@ public class AsyncNHttpServiceHandler extends NHttpHandlerBase
         response.setEntity(entity);
     }
 
+    /**
+     * @throws HttpException - not thrown currently 
+     */
     private void processRequest(
             final NHttpServerConnection conn,
             final HttpRequest request) throws IOException, HttpException {

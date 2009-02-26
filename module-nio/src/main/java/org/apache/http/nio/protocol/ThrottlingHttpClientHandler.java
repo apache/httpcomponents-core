@@ -425,6 +425,9 @@ public class ThrottlingHttpClientHandler extends NHttpHandlerBase
                 conn);
     }
     
+    /**
+     * @throws IOException - not thrown currently 
+     */
     private void sendRequestBody(
             final HttpEntityEnclosingRequest request,
             final ClientConnState connState,

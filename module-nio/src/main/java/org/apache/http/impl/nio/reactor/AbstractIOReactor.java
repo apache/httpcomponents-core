@@ -420,6 +420,7 @@ public abstract class AbstractIOReactor implements IOReactor {
     /**
      * Closes out all new channels pending registration with the selector of 
      * this I/O reactor.
+     * @throws IOReactorException - not thrown currently
      */
     protected void closeNewChannels() throws IOReactorException {
         ChannelEntry entry;
@@ -439,6 +440,7 @@ public abstract class AbstractIOReactor implements IOReactor {
     /**
      * Closes out all active channels registered with the selector of 
      * this I/O reactor.
+     * @throws IOReactorException - not thrown currently
      */
     protected void closeActiveChannels() throws IOReactorException {
         Set<SelectionKey> keys = this.selector.keys();

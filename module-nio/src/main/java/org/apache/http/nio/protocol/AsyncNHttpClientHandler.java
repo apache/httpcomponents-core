@@ -365,6 +365,9 @@ public class AsyncNHttpClientHandler extends NHttpHandlerBase
         this.execHandler.initalizeContext(context, attachment);
     }
 
+    /**
+     * @throws IOException - not thrown currently 
+     */
     private void continueRequest(
             final NHttpClientConnection conn,
             final ClientConnState connState) throws IOException {
@@ -387,6 +390,9 @@ public class AsyncNHttpClientHandler extends NHttpHandlerBase
         connState.resetOutput();
     }
 
+    /**
+     * @throws HttpException - not thrown currently 
+     */
     private void processResponse(
             final NHttpClientConnection conn,
             final ClientConnState connState) throws IOException, HttpException {
