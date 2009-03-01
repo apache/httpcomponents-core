@@ -1,7 +1,7 @@
 /*
- * $HeadURL:$
- * $Revision:$
- * $Date:$
+ * $HeadURL$
+ * $Revision$
+ * $Date$
  *
  * ====================================================================
  * Licensed to the Apache Software Foundation (ASF) under one
@@ -33,28 +33,37 @@ package org.apache.http.mockup;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 
-import org.apache.http.HttpResponse;
+public class ByteSequence {
 
-public class ResponseSequence {
-
-    private final List<HttpResponse> data;
+    private final List<byte []> data;
     
-    public ResponseSequence() {
+    public ByteSequence() {
         super();
-        this.data = new ArrayList<HttpResponse>();
+        this.data = new ArrayList<byte []>();
     }
     
-    public void addResponse(final HttpResponse response) {
-        this.data.add(response);
+    public void addBytes(byte[] bytes) {
+        this.data.add(bytes);
     }
     
     public int size() {
         return this.data.size();
     }
 
-    public HttpResponse getResponse(int index) {
+    public byte[] getBytes(int index) {
         return this.data.get(index);
+    }
+    
+    public void rnd(int count) {
+        Random rnd = new Random();
+        for (int i = 0; i < count; i++) {
+            int size = rnd.nextInt(5000);
+            byte[] data = new byte[size];
+            rnd.nextBytes(data);
+            this.data.add(data);
+        }
     }
     
 }

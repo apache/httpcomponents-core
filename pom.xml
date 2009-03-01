@@ -70,9 +70,9 @@
   </scm>
 
   <modules>
-    <module>module-main</module>
-    <module>module-nio</module>
-    <module>module-osgi-bundle</module>
+    <module>httpcore</module>
+    <module>httpcore-nio</module>
+    <module>httpcore-osgi</module>
   </modules>
 
   <properties>
