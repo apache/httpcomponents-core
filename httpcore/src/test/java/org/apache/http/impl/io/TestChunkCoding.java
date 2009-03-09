@@ -34,6 +34,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.net.SocketTimeoutException;
 
 import org.apache.http.Header;
 import org.apache.http.MalformedChunkCodingException;
@@ -42,6 +43,7 @@ import org.apache.http.impl.io.ChunkedOutputStream;
 import org.apache.http.io.SessionInputBuffer;
 import org.apache.http.mockup.SessionInputBufferMockup;
 import org.apache.http.mockup.SessionOutputBufferMockup;
+import org.apache.http.mockup.TimeoutByteArrayInputStream;
 import org.apache.http.util.EncodingUtils;
 
 import junit.framework.Test;
@@ -428,6 +430,58 @@ public class TestChunkCoding extends TestCase {
         assertEquals('\n', rawdata[8]);
         assertEquals('\r', rawdata[9]);
         assertEquals('\n', rawdata[10]);
+    }
+
+    public void testResumeOnSocketTimeoutInData() throws IOException {
+        String s = "5\r\n01234\r\n5\r\n5\0006789\r\na\r\n0123\000456789\r\n0\r\n";
+        SessionInputBuffer sessbuf = new SessionInputBufferMockup(
+                new TimeoutByteArrayInputStream(s.getBytes("ISO-8859-1")), 16);
+        InputStream in = new ChunkedInputStream(sessbuf);        
+        
+        byte[] tmp = new byte[3];
+        
+        int bytesRead = 0;
+        int timeouts = 0;
+        
+        int i = 0;
+        while (i != -1) {
+            try {
+                i = in.read(tmp);
+                if (i > 0) {
+                    bytesRead += i;
+                }
+            } catch (SocketTimeoutException ex) {
+                timeouts++;
+            }
+        }
+        assertEquals(20, bytesRead);
+        assertEquals(2, timeouts);
+    }
+    
+    public void testResumeOnSocketTimeoutInChunk() throws IOException {
+        String s = "5\000\r\000\n\00001234\r\n\0005\r\n56789\r\na\r\n0123456789\r\n\0000\r\n";
+        SessionInputBuffer sessbuf = new SessionInputBufferMockup(
+                new TimeoutByteArrayInputStream(s.getBytes("ISO-8859-1")), 16);
+        InputStream in = new ChunkedInputStream(sessbuf);        
+        
+        byte[] tmp = new byte[3];
+        
+        int bytesRead = 0;
+        int timeouts = 0;
+        
+        int i = 0;
+        while (i != -1) {
+            try {
+                i = in.read(tmp);
+                if (i > 0) {
+                    bytesRead += i;
+                }
+            } catch (SocketTimeoutException ex) {
+                timeouts++;
+            }
+        }
+        assertEquals(20, bytesRead);
+        assertEquals(5, timeouts);
     }
 
 }

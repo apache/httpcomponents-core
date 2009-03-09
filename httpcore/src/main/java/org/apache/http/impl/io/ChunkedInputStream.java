@@ -38,7 +38,6 @@ import org.apache.http.Header;
 import org.apache.http.HttpException;
 import org.apache.http.MalformedChunkCodingException;
 import org.apache.http.io.SessionInputBuffer;
-import org.apache.http.protocol.HTTP;
 import org.apache.http.util.CharArrayBuffer;
 import org.apache.http.util.ExceptionUtils;
 
@@ -60,19 +59,22 @@ import org.apache.http.util.ExceptionUtils;
  */
 public class ChunkedInputStream extends InputStream {
 
+    private static final int CHUNK_LEN               = 1;
+    private static final int CHUNK_DATA              = 2;
+    private static final int CHUNK_CRLF              = 3;
+    
     /** The session input buffer */
-    private SessionInputBuffer in;
+    private final SessionInputBuffer in;
 
     private final CharArrayBuffer buffer;
+
+    private int state;
     
     /** The chunk size */
     private int chunkSize;
 
     /** The current position within the current chunk */
     private int pos;
-
-    /** True if we'are at the beginning of stream */
-    private boolean bof = true;
 
     /** True if we've reached the end of stream */
     private boolean eof = false;
@@ -95,6 +97,7 @@ public class ChunkedInputStream extends InputStream {
         this.in = in;
         this.pos = 0;
         this.buffer = new CharArrayBuffer(16);
+        this.state = CHUNK_LEN;
     }
 
     /**
@@ -102,7 +105,7 @@ public class ChunkedInputStream extends InputStream {
      * is followed by a CRLF. The method returns -1 as soon as a chunksize of 0
      * is detected.</p>
      * 
-     * <p> Trailer headers are read automcatically at the end of the stream and
+     * <p> Trailer headers are read automatically at the end of the stream and
      * can be obtained with the getResponseFooters() method.</p>
      *
      * @return -1 of the end of the stream has been reached or the next data
@@ -116,7 +119,7 @@ public class ChunkedInputStream extends InputStream {
         if (this.eof) {
             return -1;
         } 
-        if (this.pos >= this.chunkSize) {
+        if (state != CHUNK_DATA) {
             nextChunk();
             if (this.eof) { 
                 return -1;
@@ -125,6 +128,9 @@ public class ChunkedInputStream extends InputStream {
         int b = in.read();
         if (b != -1) {
             pos++;
+            if (pos >= chunkSize) {
+                state = CHUNK_CRLF;
+            }
         }
         return b;
     }
@@ -148,7 +154,7 @@ public class ChunkedInputStream extends InputStream {
         if (eof) { 
             return -1;
         }
-        if (pos >= chunkSize) {
+        if (state != CHUNK_DATA) {
             nextChunk();
             if (eof) { 
                 return -1;
@@ -158,6 +164,9 @@ public class ChunkedInputStream extends InputStream {
         int bytesRead = in.read(b, off, len);
         if (bytesRead != -1) {
             pos += bytesRead;
+            if (pos >= chunkSize) {
+                state = CHUNK_CRLF;
+            }
             return bytesRead;
         } else {
             throw new MalformedChunkCodingException("Truncated chunk");
@@ -184,7 +193,7 @@ public class ChunkedInputStream extends InputStream {
         if (chunkSize < 0) {
             throw new MalformedChunkCodingException("Negative chunk size");
         }
-        bof = false;
+        state = CHUNK_DATA;
         pos = 0;
         if (chunkSize == 0) {
             eof = true;
@@ -206,29 +215,36 @@ public class ChunkedInputStream extends InputStream {
      * @throws IOException when the chunk size could not be parsed
      */
     private int getChunkSize() throws IOException {
-        // skip CRLF
-        if (!bof) {
-            int cr = in.read();
-            int lf = in.read();
-            if ((cr != HTTP.CR) || (lf != HTTP.LF)) { 
-                throw new MalformedChunkCodingException(
-                    "CRLF expected at end of chunk");
+        int st = this.state;
+        switch (st) {
+        case CHUNK_CRLF:
+            this.buffer.clear();
+            int i = this.in.readLine(this.buffer);
+            if (i == -1) {
+                return 0;
             }
-        }
-        //parse data
-        this.buffer.clear();
-        int i = this.in.readLine(this.buffer);
-        if (i == -1) {
-            return 0;
-        }
-        int separator = this.buffer.indexOf(';');
-        if (separator < 0) {
-            separator = this.buffer.length();
-        }
-        try {
-            return Integer.parseInt(this.buffer.substringTrimmed(0, separator), 16);
-        } catch (NumberFormatException e) {
-            throw new MalformedChunkCodingException("Bad chunk header");
+            if (!this.buffer.isEmpty()) { 
+                throw new MalformedChunkCodingException(
+                    "Unexpected content at the end of chunk");
+            }
+            state = CHUNK_LEN; 
+        case CHUNK_LEN:
+            this.buffer.clear();
+            i = this.in.readLine(this.buffer);
+            if (i == -1) {
+                return 0;
+            }
+            int separator = this.buffer.indexOf(';');
+            if (separator < 0) {
+                separator = this.buffer.length();
+            }
+            try {
+                return Integer.parseInt(this.buffer.substringTrimmed(0, separator), 16);
+            } catch (NumberFormatException e) {
+                throw new MalformedChunkCodingException("Bad chunk header");
+            }
+        default:
+            throw new IllegalStateException("Incontent state");
         }
     }
 

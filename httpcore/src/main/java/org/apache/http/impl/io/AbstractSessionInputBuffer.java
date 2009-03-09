@@ -207,7 +207,6 @@ public abstract class AbstractSessionInputBuffer implements SessionInputBuffer {
         if (charbuffer == null) {
             throw new IllegalArgumentException("Char array buffer may not be null");
         }
-        this.linebuffer.clear();
         int noRead = 0;
         boolean retry = true;
         while (retry) {
@@ -285,6 +284,7 @@ public abstract class AbstractSessionInputBuffer implements SessionInputBuffer {
             String s = new String(this.linebuffer.buffer(), 0, l, this.charset);
             charbuffer.append(s);
         }
+        this.linebuffer.clear();
         return l;
     }
     

@@ -1,3 +1,11 @@
+Changes since 4.0
+-------------------
+
+* [HTTPCORE-190] ChunkedInputStream is now capable of correctly preserving its internal state on 
+  SocketTimeoutExceptions, which makes it possible to continue reading from the stream after a 
+  socket timeout.
+  Contributed by Oleg Kalnichevski <olegk at apache.org> 
+
 Release 4.0
 -------------------
 
@@ -12,10 +20,6 @@ model based on Java NIO.  The blocking I/O model may be more appropriate for dat
 low latency scenarios, whereas the non-blocking model may be more appropriate for high latency 
 scenarios where raw data throughput is less important than the ability to handle thousands of 
 simultaneous HTTP connections in a resource efficient manner.
-
-
-Changes since 4.0 Beta 3
--------------------
 
 * [HTTPCORE-180] Fixed NPE in standard I/O event dispatchers when 
   IOEventDispatch#disconnected fires before the session was fully initialized 
