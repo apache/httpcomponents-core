@@ -33,8 +33,8 @@ package org.apache.http.impl.io;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InterruptedIOException;
 import java.io.OutputStream;
-import java.net.SocketTimeoutException;
 
 import org.apache.http.Header;
 import org.apache.http.MalformedChunkCodingException;
@@ -450,7 +450,7 @@ public class TestChunkCoding extends TestCase {
                 if (i > 0) {
                     bytesRead += i;
                 }
-            } catch (SocketTimeoutException ex) {
+            } catch (InterruptedIOException ex) {
                 timeouts++;
             }
         }
@@ -476,7 +476,7 @@ public class TestChunkCoding extends TestCase {
                 if (i > 0) {
                     bytesRead += i;
                 }
-            } catch (SocketTimeoutException ex) {
+            } catch (InterruptedIOException ex) {
                 timeouts++;
             }
         }

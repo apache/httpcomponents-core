@@ -1,6 +1,11 @@
 Changes since 4.0
 -------------------
 
+* [HTTPCORE-191] Blocking HTTP connections are now capable of correctly preserving their internal 
+  state on SocketTimeoutExceptions, which makes it possible to continue reading from the connection 
+  after a socket timeout.
+  Contributed by Oleg Kalnichevski <olegk at apache.org> 
+
 * [HTTPCORE-190] ChunkedInputStream is now capable of correctly preserving its internal state on 
   SocketTimeoutExceptions, which makes it possible to continue reading from the stream after a 
   socket timeout.

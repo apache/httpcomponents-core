@@ -46,8 +46,7 @@ import junit.framework.TestCase;
 import junit.framework.TestSuite;
 
 /**
- * Unit tests for {@link Header}.
- *
+ * Unit tests for {@link AbstractMessageParser}.
  */
 public class TestMessageParser extends TestCase {
 

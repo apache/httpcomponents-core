@@ -33,6 +33,7 @@ package org.apache.http.impl.io;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.List;
 
 import org.apache.http.Header;
 import org.apache.http.HttpException;
@@ -55,11 +56,17 @@ import org.apache.http.util.CharArrayBuffer;
  */
 public abstract class AbstractMessageParser implements HttpMessageParser {
 
+    private static final int HEAD_LINE    = 0;
+    private static final int HEADERS      = 1;
+    
     private final SessionInputBuffer sessionBuffer;
     private final int maxHeaderCount;
     private final int maxLineLen;
+    private final List headerLines;
     protected final LineParser lineParser;
 
+    private int state;
+    private HttpMessage message;
 
     /**
      * Creates an instance of this class.
@@ -99,6 +106,8 @@ public abstract class AbstractMessageParser implements HttpMessageParser {
         this.maxLineLen = params.getIntParameter(
                 CoreConnectionPNames.MAX_LINE_LENGTH, -1);
         this.lineParser = (parser != null) ? parser : BasicLineParser.DEFAULT;
+        this.headerLines = new ArrayList();
+        this.state = HEAD_LINE;
     }
 
     /**
@@ -114,6 +123,8 @@ public abstract class AbstractMessageParser implements HttpMessageParser {
      *  including the continuation lines. Setting this parameter to a negative 
      *  value or zero will disable the check.
      * @return array of HTTP headers
+     * @param parser line parser to use. Can be <code>null</code>, in which case
+     *  the default implementation of this interface will be used.
      * 
      * @throws IOException in case of an I/O error
      * @throws HttpException in case of HTTP protocol violation
@@ -124,14 +135,52 @@ public abstract class AbstractMessageParser implements HttpMessageParser {
             int maxLineLen,
             LineParser parser)
         throws HttpException, IOException {
+        if (parser == null) {
+            parser = BasicLineParser.DEFAULT;            
+        }
+        List headerLines = new ArrayList();
+        return parseHeaders(inbuffer, maxHeaderCount, maxLineLen, parser, headerLines);
+    }
+
+    /**
+     * Parses HTTP headers from the data receiver stream according to the generic 
+     * format as given in Section 3.1 of RFC 822, RFC-2616 Section 4 and 19.3.
+     *  
+     * @param inbuffer Session input buffer
+     * @param maxHeaderCount maximum number of headers allowed. If the number
+     *  of headers received from the data stream exceeds maxCount value, an
+     *  IOException will be thrown. Setting this parameter to a negative value
+     *  or zero will disable the check.
+     * @param maxLineLen maximum number of characters for a header line,
+     *  including the continuation lines. Setting this parameter to a negative 
+     *  value or zero will disable the check.
+     * @param parser line parser to use.
+     * @param headerLines List of header lines. This list will be used to store 
+     *   intermediate results. This makes it possible to resume parsing of 
+     *   headers in case of a {@link java.io.InterruptedIOException}.
+     *  
+     * @return array of HTTP headers
+     * 
+     * @throws IOException in case of an I/O error
+     * @throws HttpException in case of HTTP protocol violation
+     */
+    public static Header[] parseHeaders(
+            final SessionInputBuffer inbuffer,
+            int maxHeaderCount,
+            int maxLineLen,
+            final LineParser parser,
+            final List headerLines)
+        throws HttpException, IOException {
 
         if (inbuffer == null) {
             throw new IllegalArgumentException("Session input buffer may not be null");
         }
-        if (parser == null)
-            parser = BasicLineParser.DEFAULT;
-
-        ArrayList headerLines = new ArrayList();
+        if (parser == null) {
+            throw new IllegalArgumentException("Line parser may not be null");
+        }
+        if (headerLines == null) {
+            throw new IllegalArgumentException("Header line list may not be null");
+        }
 
         CharArrayBuffer current = null;
         CharArrayBuffer previous = null;
@@ -205,19 +254,31 @@ public abstract class AbstractMessageParser implements HttpMessageParser {
         throws IOException, HttpException, ParseException;
 
     public HttpMessage parse() throws IOException, HttpException {
-        HttpMessage message = null;
-        try {
-            message = parseHead(this.sessionBuffer);
-        } catch (ParseException px) {
-            throw new ProtocolException(px.getMessage(), px);
+        int st = this.state;
+        switch (st) {
+        case HEAD_LINE:
+            try {
+                this.message = parseHead(this.sessionBuffer);
+            } catch (ParseException px) {
+                throw new ProtocolException(px.getMessage(), px);
+            }
+            this.state = HEADERS;         
+        case HEADERS:
+            Header[] headers = AbstractMessageParser.parseHeaders(
+                    this.sessionBuffer, 
+                    this.maxHeaderCount,
+                    this.maxLineLen,
+                    this.lineParser,
+                    this.headerLines);
+            this.message.setHeaders(headers);
+            HttpMessage result = this.message;
+            this.message = null;
+            this.headerLines.clear();
+            this.state = HEAD_LINE;         
+            return result;
+        default:
+            throw new IllegalStateException("Inconsistent parser state");
         }
-        Header[] headers = AbstractMessageParser.parseHeaders(
-                this.sessionBuffer, 
-                this.maxHeaderCount,
-                this.maxLineLen,
-                this.lineParser);
-        message.setHeaders(headers);
-        return message;
     }
     
 }

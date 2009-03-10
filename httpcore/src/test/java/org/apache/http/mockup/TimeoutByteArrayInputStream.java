@@ -33,7 +33,7 @@ package org.apache.http.mockup;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.SocketTimeoutException;
+import java.io.InterruptedIOException;
 
 /**
  * Test class similar to {@link ByteArrayInputStream} that throws if encounters
@@ -65,7 +65,7 @@ public class TimeoutByteArrayInputStream extends InputStream {
         if (v != 0) {
             return v;
         } else {
-            throw new SocketTimeoutException("Timeout");
+            throw new InterruptedIOException("Timeout");
         }
     }
     
@@ -87,7 +87,7 @@ public class TimeoutByteArrayInputStream extends InputStream {
         }
         if ((this.buf[this.pos] & 0xff) == 0) {
             this.pos++;
-            throw new SocketTimeoutException("Timeout");
+            throw new InterruptedIOException("Timeout");
         }
         for (int i = 0; i < len; i++) {
             int v = this.buf[this.pos] & 0xff;
