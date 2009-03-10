@@ -63,6 +63,8 @@ public class ChunkedInputStream extends InputStream {
     private static final int CHUNK_DATA              = 2;
     private static final int CHUNK_CRLF              = 3;
     
+    private static final int BUFFER_SIZE = 2048;
+    
     /** The session input buffer */
     private final SessionInputBuffer in;
 
@@ -244,7 +246,7 @@ public class ChunkedInputStream extends InputStream {
                 throw new MalformedChunkCodingException("Bad chunk header");
             }
         default:
-            throw new IllegalStateException("Incontent state");
+            throw new IllegalStateException("Inconsistent codec state");
         }
     }
 
@@ -274,7 +276,10 @@ public class ChunkedInputStream extends InputStream {
         if (!closed) {
             try {
                 if (!eof) {
-                    exhaustInputStream(this);
+                    // read and discard the remainder of the message
+                    byte buffer[] = new byte[BUFFER_SIZE];
+                    while (read(buffer) >= 0) {
+                    }
                 }
             } finally {
                 eof = true;
@@ -285,14 +290,6 @@ public class ChunkedInputStream extends InputStream {
 
     public Header[] getFooters() {
         return (Header[])this.footers.clone();
-    }
-    
-    static void exhaustInputStream(final InputStream inStream) throws IOException {
-        // read and discard the remainder of the message
-        byte buffer[] = new byte[1024];
-        while (inStream.read(buffer) >= 0) {
-            // discard data
-        }
     }
 
 }
