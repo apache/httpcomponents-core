@@ -36,7 +36,7 @@ package org.apache.http;
  * Parse errors when receiving a message will typically trigger
  * {@link ProtocolException}. Parse errors that do not occur during
  * protocol execution may be handled differently.
- * This is an unchecked exceptions, since there are cases where
+ * This is an unchecked exception, since there are cases where
  * the data to be parsed has been generated and is therefore
  * known to be parseable.
  * 
