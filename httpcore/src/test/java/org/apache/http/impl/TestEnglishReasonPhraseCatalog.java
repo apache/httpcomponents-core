@@ -67,7 +67,7 @@ public class TestEnglishReasonPhraseCatalog extends TestCase {
     public void testReasonPhrases() throws IllegalAccessException {
     Field[] publicFields = HttpStatus.class.getFields();
 
-    assertTrue( publicFields != null );
+    assertNotNull( publicFields );
 
     assertTrue( publicFields.length > 0 );
 
@@ -85,8 +85,7 @@ public class TestEnglishReasonPhraseCatalog extends TestCase {
             final int iValue = f.getInt(null);
             final String text = EnglishReasonPhraseCatalog.
                             INSTANCE.getReason(iValue, null);
-            assertTrue("text is null for HttpStatus."+f.getName(), 
-                                   (text != null));
+            assertNotNull("text is null for HttpStatus."+f.getName(), text);
             assertTrue(text.length() > 0);
         }
     }
