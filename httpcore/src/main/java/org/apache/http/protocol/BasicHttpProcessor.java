@@ -53,11 +53,13 @@ import org.apache.http.HttpResponseInterceptor;
  * 
  * @since 4.0
  */
+//@NotThreadSafe // Lists are not synchronized
 public final class BasicHttpProcessor implements
     HttpProcessor, HttpRequestInterceptorList, HttpResponseInterceptorList, Cloneable {
 
-    protected final List requestInterceptors = new ArrayList(); 
-    protected final List responseInterceptors = new ArrayList();
+    // Don't allow direct access, as nulls are not allowed
+    private final List requestInterceptors = new ArrayList(); 
+    private final List responseInterceptors = new ArrayList();
 
     // non-Javadoc, see interface HttpRequestInterceptorList
     public void addRequestInterceptor(final HttpRequestInterceptor itcp) {
