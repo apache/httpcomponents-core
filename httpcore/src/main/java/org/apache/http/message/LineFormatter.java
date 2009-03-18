@@ -111,7 +111,7 @@ public interface LineFormatter {
      *
      * @return  the formatted status line
      *
-     * @throws ParseException        in case of a parse error
+     * @throws org.apache.http.ParseException        in case of a parse error
      */
     CharArrayBuffer formatStatusLine(CharArrayBuffer buffer,
                                      StatusLine statline);
@@ -133,7 +133,7 @@ public interface LineFormatter {
      * @return  a buffer holding the formatted header, never <code>null</code>.
      *          The returned buffer may be different from the argument buffer.
      *
-     * @throws ParseException        in case of a parse error
+     * @throws org.apache.http.ParseException        in case of a parse error
      */
     CharArrayBuffer formatHeader(CharArrayBuffer buffer,
                                  Header header);
