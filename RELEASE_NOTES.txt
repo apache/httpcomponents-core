@@ -1,6 +1,10 @@
 Changes since 4.0
 -------------------
 
+* [HTTPCORE-193] Fixed problem with SSLIOSession incorrectly handling of end-of-stream condition.  
+  Contributed by Asankha C. Perera <asankha at apache.org> and 
+  Oleg Kalnichevski <olegk at apache.org> 
+
 * [HTTPCORE-191] Blocking HTTP connections are now capable of correctly preserving their internal 
   state on SocketTimeoutExceptions, which makes it possible to continue reading from the connection 
   after a socket timeout.
@@ -125,11 +129,11 @@ All upstream projects dependent on HttpCore NIO are strongly advised to upgrade.
 
 * [HTTPCORE-157] ChunkedOutputStream#flush() now behaves consistently with the 
   specification of OutputStream#flush().
-  Oleg Kalnichevski <olegk at apache.org> 
+  Contributed by Oleg Kalnichevski <olegk at apache.org> 
 
 * [HTTPCORE-147] Fixed handling of requests with partially consumed content
   in ThrottlingHttpServiceHandler.
-  Oleg Kalnichevski <olegk at apache.org> 
+  Contributed by Oleg Kalnichevski <olegk at apache.org> 
 
 * [HTTPCORE-92] ChunkEncoder splits input data larger than available space 
   in the session output buffer into smaller chunks instead of expanding 
