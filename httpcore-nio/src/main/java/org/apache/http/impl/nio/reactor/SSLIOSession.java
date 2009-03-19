@@ -72,6 +72,7 @@ public class SSLIOSession implements IOSession, SessionBufferStatus {
     private int appEventMask;
     private SessionBufferStatus appBufferStatus;
     
+    private boolean endOfStream;
     private volatile int status;
     
     public SSLIOSession(
@@ -163,6 +164,9 @@ public class SSLIOSession implements IOSession, SessionBufferStatus {
                 if (result.getStatus() == Status.CLOSED) {
                     this.status = CLOSED;
                 }
+                if (result.getStatus() == Status.BUFFER_UNDERFLOW && this.endOfStream) {
+                    this.status = CLOSED;
+                }
                 break;
             case NEED_TASK:
                 Runnable r = this.sslEngine.getDelegatedTask();
@@ -246,6 +250,9 @@ public class SSLIOSession implements IOSession, SessionBufferStatus {
             if (result.getStatus() == Status.CLOSED) {
                 this.status = CLOSED;
             }
+            if (result.getStatus() == Status.BUFFER_UNDERFLOW && this.endOfStream) {
+                this.status = CLOSED;
+            }
             if (result.getStatus() == Status.OK) {
                 decrypted = true;
             }
@@ -256,7 +263,7 @@ public class SSLIOSession implements IOSession, SessionBufferStatus {
     public synchronized boolean isAppInputReady() throws IOException {
         int bytesRead = receiveEncryptedData();
         if (bytesRead == -1) {
-            this.status = CLOSED;
+            this.endOfStream = true;
         }
         doHandshake();
         decryptData();
