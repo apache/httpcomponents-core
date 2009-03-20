@@ -36,7 +36,7 @@ import java.io.InputStream;
 import java.io.InterruptedIOException;
 
 /**
- * Test class similar to {@link ByteArrayInputStream} that throws if encounters
+ * Test class similar to {@link java.io.ByteArrayInputStream} that throws if encounters
  * value zero '\000' in the source byte array. 
  */
 public class TimeoutByteArrayInputStream extends InputStream {
