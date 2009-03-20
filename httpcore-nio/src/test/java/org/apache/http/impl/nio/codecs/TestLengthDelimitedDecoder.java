@@ -316,9 +316,15 @@ public class TestLengthDelimitedDecoder extends TestCase {
         
         assertEquals("stuff; more stuff; a lot more stuff!", readFromFile(fileHandle));
         
-        fileHandle.delete();
+        deleteWithCheck(fileHandle);
     }
     
+    private void deleteWithCheck(File handle){
+        if (!handle.delete()){
+            System.err.println("Failed to delete: "+handle.getPath());
+        }
+    }
+
     public void testDecodingFileWithBufferedSessionData() throws Exception {
         ReadableByteChannel channel = new ReadableByteChannelMockup(
                 new String[] {"stuff; ", "more stuff; ", "a lot more stuff!!!"}, "US-ASCII"); 
@@ -350,7 +356,7 @@ public class TestLengthDelimitedDecoder extends TestCase {
         
         assertEquals("stuff; more stuff; a lot more stuff!", readFromFile(fileHandle));
         
-        fileHandle.delete();
+        deleteWithCheck(fileHandle);
     }
     
     public void testDecodingFileWithOffsetAndBufferedSessionData() throws Exception {
@@ -392,7 +398,7 @@ public class TestLengthDelimitedDecoder extends TestCase {
         
         assertEquals("beginning; stuff; more stuff; a lot more stuff!", readFromFile(fileHandle));
         
-        fileHandle.delete();
+        deleteWithCheck(fileHandle);
     }
     
     public void testWriteBeyondFileSize() throws Exception {
@@ -416,7 +422,7 @@ public class TestLengthDelimitedDecoder extends TestCase {
             fail("expected IOException");
         } catch(IOException iox) {}
         
-        fileHandle.delete();
+        deleteWithCheck(fileHandle);
     }
     
     public void testCodingBeyondContentLimitFile() throws Exception {
@@ -450,7 +456,7 @@ public class TestLengthDelimitedDecoder extends TestCase {
         assertTrue(decoder.isCompleted());
         assertEquals(16, metrics.getBytesTransferred());
         
-        fileHandle.delete();
+        deleteWithCheck(fileHandle);
     }
     
     public void testInvalidConstructor() {

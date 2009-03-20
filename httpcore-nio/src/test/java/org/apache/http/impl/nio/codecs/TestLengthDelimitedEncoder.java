@@ -193,9 +193,14 @@ public class TestLengthDelimitedEncoder extends TestCase {
         assertTrue(encoder.isCompleted());
         assertEquals("stuff;more stuff", s);
         
-        tmpFile.delete();
+        deleteWithCheck(tmpFile);
     }
     
+    private void deleteWithCheck(File handle){
+        if (!handle.delete()){
+            System.err.println("Failed to delete: "+handle.getPath());
+        }
+    }
     
     public void testCodingEmptyFile() throws Exception {
         ByteArrayOutputStream baos = new ByteArrayOutputStream(); 
@@ -227,7 +232,7 @@ public class TestLengthDelimitedEncoder extends TestCase {
         assertTrue(encoder.isCompleted());
         assertEquals("stuff;more stuff", s);
         
-        tmpFile.delete();
+        deleteWithCheck(tmpFile);
     }
 
     public void testCodingCompletedFromFile() throws Exception {
@@ -257,7 +262,7 @@ public class TestLengthDelimitedEncoder extends TestCase {
         } catch (IllegalStateException ex) {
             // ignore
         } finally {
-            tmpFile.delete();
+            deleteWithCheck(tmpFile);
         }
     }
     
@@ -290,7 +295,7 @@ public class TestLengthDelimitedEncoder extends TestCase {
         assertTrue(encoder.isCompleted());
         assertEquals("stuff;more stuff", s);
         
-        tmpFile.delete();
+        deleteWithCheck(tmpFile);
     }
     
     public void testInvalidConstructor() {
