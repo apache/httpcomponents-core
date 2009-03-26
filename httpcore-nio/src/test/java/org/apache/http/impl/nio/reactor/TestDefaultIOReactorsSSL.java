@@ -32,6 +32,8 @@ package org.apache.http.impl.nio.reactor;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
 
 import junit.framework.Test;
 import junit.framework.TestSuite;
@@ -40,19 +42,29 @@ import org.apache.http.HttpCoreNIOSSLTestBase;
 import org.apache.http.HttpException;
 import org.apache.http.HttpRequest;
 import org.apache.http.HttpResponse;
+import org.apache.http.impl.DefaultConnectionReuseStrategy;
+import org.apache.http.impl.DefaultHttpResponseFactory;
 import org.apache.http.message.BasicHttpRequest;
-import org.apache.http.mockup.RequestCount;
 import org.apache.http.mockup.SimpleEventListener;
-import org.apache.http.nio.NHttpClientHandler;
+import org.apache.http.mockup.SimpleHttpRequestHandlerResolver;
 import org.apache.http.nio.NHttpConnection;
-import org.apache.http.nio.NHttpServiceHandler;
+import org.apache.http.nio.protocol.BufferingHttpClientHandler;
+import org.apache.http.nio.protocol.BufferingHttpServiceHandler;
 import org.apache.http.nio.protocol.EventListener;
 import org.apache.http.nio.protocol.HttpRequestExecutionHandler;
 import org.apache.http.nio.reactor.ListenerEndpoint;
-import org.apache.http.params.BasicHttpParams;
-import org.apache.http.params.HttpParams;
+import org.apache.http.protocol.BasicHttpProcessor;
 import org.apache.http.protocol.HttpContext;
 import org.apache.http.protocol.HttpRequestHandler;
+import org.apache.http.protocol.RequestConnControl;
+import org.apache.http.protocol.RequestContent;
+import org.apache.http.protocol.RequestExpectContinue;
+import org.apache.http.protocol.RequestTargetHost;
+import org.apache.http.protocol.RequestUserAgent;
+import org.apache.http.protocol.ResponseConnControl;
+import org.apache.http.protocol.ResponseContent;
+import org.apache.http.protocol.ResponseDate;
+import org.apache.http.protocol.ResponseServer;
 
 /**
  * Basic functionality tests for SSL I/O reactors.
@@ -77,27 +89,15 @@ public class TestDefaultIOReactorsSSL extends HttpCoreNIOSSLTestBase {
         return new TestSuite(TestDefaultIOReactorsSSL.class);
     }
 
-    public void testRestartListeningIOReactor() throws Exception {
-        HttpParams params = new BasicHttpParams();
-        
-        DefaultListeningIOReactor ioReactor = new DefaultListeningIOReactor(1, params);
-        ioReactor.listen(new InetSocketAddress(9999));
-        ioReactor.shutdown();
-        
-        ioReactor = new DefaultListeningIOReactor(1, params);
-        ioReactor.listen(new InetSocketAddress(9999));
-        ioReactor.shutdown();         
-    }
-    
     public void testGracefulShutdown() throws Exception {
 
         // Open some connection and make sure 
         // they get cleanly closed upon shutdown
         
         final int connNo = 10;
-        final RequestCount requestConns = new RequestCount(connNo); 
-        final RequestCount closedServerConns = new RequestCount(connNo); 
-        final RequestCount closedClientConns = new RequestCount(connNo); 
+        final CountDownLatch requestConns = new CountDownLatch(connNo); 
+        final CountDownLatch closedServerConns = new CountDownLatch(connNo); 
+        final CountDownLatch closedClientConns = new CountDownLatch(connNo); 
         
         HttpRequestHandler requestHandler = new HttpRequestHandler() {
 
@@ -129,7 +129,7 @@ public class TestDefaultIOReactorsSSL extends HttpCoreNIOSSLTestBase {
             }
             
             public void handleResponse(final HttpResponse response, final HttpContext context) {
-                requestConns.decrement();                    
+                requestConns.countDown();                    
             }
             
         };
@@ -138,31 +138,55 @@ public class TestDefaultIOReactorsSSL extends HttpCoreNIOSSLTestBase {
 
             @Override
             public void connectionClosed(NHttpConnection conn) {
-                closedServerConns.decrement();
+                closedServerConns.countDown();
                 super.connectionClosed(conn);
             }
             
         };
         
-        NHttpServiceHandler serviceHandler = createHttpServiceHandler(
-                requestHandler, 
-                null,
+        BasicHttpProcessor serverHttpProc = new BasicHttpProcessor();
+        serverHttpProc.addInterceptor(new ResponseDate());
+        serverHttpProc.addInterceptor(new ResponseServer());
+        serverHttpProc.addInterceptor(new ResponseContent());
+        serverHttpProc.addInterceptor(new ResponseConnControl());
+
+        BufferingHttpServiceHandler serviceHandler = new BufferingHttpServiceHandler(
+                serverHttpProc,
+                new DefaultHttpResponseFactory(),
+                new DefaultConnectionReuseStrategy(),
+                this.server.getParams());
+
+        serviceHandler.setHandlerResolver(
+                new SimpleHttpRequestHandlerResolver(requestHandler));
+        serviceHandler.setEventListener(
                 serverEventListener);
-        
+
         EventListener clientEventListener = new SimpleEventListener() {
 
             @Override
             public void connectionClosed(NHttpConnection conn) {
-                closedClientConns.decrement();
+                closedClientConns.countDown();
                 super.connectionClosed(conn);
             }
             
         };
         
-        NHttpClientHandler clientHandler = createHttpClientHandler(
-                requestExecutionHandler,
-                clientEventListener);
+        BasicHttpProcessor clientHttpProc = new BasicHttpProcessor();
+        clientHttpProc.addInterceptor(new RequestContent());
+        clientHttpProc.addInterceptor(new RequestTargetHost());
+        clientHttpProc.addInterceptor(new RequestConnControl());
+        clientHttpProc.addInterceptor(new RequestUserAgent());
+        clientHttpProc.addInterceptor(new RequestExpectContinue());
 
+        BufferingHttpClientHandler clientHandler = new BufferingHttpClientHandler(
+                clientHttpProc,
+                requestExecutionHandler,
+                new DefaultConnectionReuseStrategy(),
+                this.client.getParams());
+
+        clientHandler.setEventListener(
+                clientEventListener);
+        
         this.server.start(serviceHandler);
         this.client.start(clientHandler);
         
@@ -176,17 +200,17 @@ public class TestDefaultIOReactorsSSL extends HttpCoreNIOSSLTestBase {
                     null);
         }
      
-        requestConns.await(10000);
-        assertEquals(0, requestConns.getValue());
+        requestConns.await(10000, TimeUnit.MILLISECONDS);
+        assertEquals(0, requestConns.getCount());
      
         this.client.shutdown();
         this.server.shutdown();
         
-        closedClientConns.await(10000);
-        assertEquals(0, closedClientConns.getValue());
+        closedClientConns.await();
+        assertEquals(0, closedClientConns.getCount());
      
-        closedServerConns.await(10000);
-        assertEquals(0, closedServerConns.getValue());
+        closedServerConns.await();
+        assertEquals(0, closedServerConns.getCount());
     }
-    
+
 }

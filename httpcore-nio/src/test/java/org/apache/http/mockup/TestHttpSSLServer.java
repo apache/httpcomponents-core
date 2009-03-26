@@ -64,8 +64,6 @@ public class TestHttpSSLServer {
     private volatile IOReactorThread thread;
     private ListenerEndpoint endpoint;
     
-    private volatile RequestCount requestCount;
-    
     public TestHttpSSLServer(final HttpParams params) throws Exception {
         super();
         this.params = params;
@@ -95,10 +93,6 @@ public class TestHttpSSLServer {
         return this.ioReactor.getAuditLog();
     }
     
-    public void setRequestCount(final RequestCount requestCount) {
-        this.requestCount = requestCount;
-    }
-
     public void setExceptionHandler(final IOReactorExceptionHandler exceptionHandler) {
         this.ioReactor.setExceptionHandler(exceptionHandler);
     }
@@ -163,9 +157,6 @@ public class TestHttpSSLServer {
                 execute(this.serviceHandler);
             } catch (Exception ex) {
                 this.ex = ex;
-                if (requestCount != null) {
-                    requestCount.failure(ex);
-                }
             }
         }
         

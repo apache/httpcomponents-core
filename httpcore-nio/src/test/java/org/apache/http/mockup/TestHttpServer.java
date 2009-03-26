@@ -57,8 +57,6 @@ public class TestHttpServer {
     private volatile IOReactorThread thread;
     private ListenerEndpoint endpoint;
     
-    private volatile RequestCount requestCount;
-    
     public TestHttpServer(final HttpParams params) throws IOException {
         super();
         this.ioReactor = new DefaultListeningIOReactor(2, params);
@@ -69,10 +67,6 @@ public class TestHttpServer {
         return this.params;
     }
     
-    public void setRequestCount(final RequestCount requestCount) {
-        this.requestCount = requestCount;
-    }
-
     public void setExceptionHandler(final IOReactorExceptionHandler exceptionHandler) {
         this.ioReactor.setExceptionHandler(exceptionHandler);
     }
@@ -146,9 +140,6 @@ public class TestHttpServer {
                 execute(this.serviceHandler);
             } catch (Exception ex) {
                 this.ex = ex;
-                if (requestCount != null) {
-                    requestCount.failure(ex);
-                }
             }
         }
         

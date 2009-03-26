@@ -58,8 +58,6 @@ public class TestHttpSSLClient {
     
     private volatile IOReactorThread thread;
 
-    private volatile RequestCount requestCount;
-    
     public TestHttpSSLClient(final HttpParams params) throws Exception {
         super();
         this.params = params;
@@ -89,10 +87,6 @@ public class TestHttpSSLClient {
         return this.ioReactor.getAuditLog();
     }
     
-    public void setRequestCount(final RequestCount requestCount) {
-        this.requestCount = requestCount;
-    }
-
     public void setExceptionHandler(final IOReactorExceptionHandler exceptionHandler) {
         this.ioReactor.setExceptionHandler(exceptionHandler);
     }
@@ -156,9 +150,6 @@ public class TestHttpSSLClient {
                 execute(this.clientHandler);
             } catch (Exception ex) {
                 this.ex = ex;
-                if (requestCount != null) {
-                    requestCount.failure(ex);
-                }
             }
         }
         
