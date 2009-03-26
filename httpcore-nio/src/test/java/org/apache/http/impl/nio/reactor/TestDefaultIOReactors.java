@@ -41,6 +41,7 @@ import org.apache.http.HttpCoreNIOTestBase;
 import org.apache.http.HttpException;
 import org.apache.http.HttpRequest;
 import org.apache.http.HttpResponse;
+import org.apache.http.OoopsieRuntimeException;
 import org.apache.http.message.BasicHttpRequest;
 import org.apache.http.mockup.RequestCount;
 import org.apache.http.mockup.SimpleEventListener;
@@ -190,7 +191,7 @@ public class TestDefaultIOReactors extends HttpCoreNIOTestBase {
                     final HttpRequest request, 
                     final HttpResponse response, 
                     final HttpContext context) throws HttpException, IOException {
-                throw new IllegalStateException("Oppsie!!!");
+                throw new OoopsieRuntimeException();
             }
             
         };
@@ -245,7 +246,7 @@ public class TestDefaultIOReactors extends HttpCoreNIOTestBase {
         assertNotNull(ex);
         assertTrue(ex instanceof IOReactorException);
         assertNotNull(ex.getCause());
-        assertTrue(ex.getCause() instanceof IllegalStateException);
+        assertTrue(ex.getCause() instanceof OoopsieRuntimeException);
         
         List<ExceptionEvent> auditlog = this.server.getAuditLog();
         assertNotNull(auditlog);
@@ -268,7 +269,7 @@ public class TestDefaultIOReactors extends HttpCoreNIOTestBase {
                     final HttpRequest request, 
                     final HttpResponse response, 
                     final HttpContext context) throws HttpException, IOException {
-                throw new IllegalStateException("Oppsie!!!");
+                throw new OoopsieRuntimeException();
             }
             
         };
@@ -341,7 +342,7 @@ public class TestDefaultIOReactors extends HttpCoreNIOTestBase {
         assertNotNull(ex);
         assertTrue(ex instanceof IOReactorException);
         assertNotNull(ex.getCause());
-        assertTrue(ex.getCause() instanceof IllegalStateException);
+        assertTrue(ex.getCause() instanceof OoopsieRuntimeException);
 
         List<ExceptionEvent> auditlog = this.server.getAuditLog();
         assertNotNull(auditlog);

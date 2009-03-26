@@ -30,10 +30,14 @@
 
 package org.apache.http;
 
+import java.io.IOException;
+import java.util.List;
+
 import junit.framework.TestCase;
 
 import org.apache.http.impl.DefaultConnectionReuseStrategy;
 import org.apache.http.impl.DefaultHttpResponseFactory;
+import org.apache.http.impl.nio.reactor.ExceptionEvent;
 import org.apache.http.mockup.SimpleHttpRequestHandlerResolver;
 import org.apache.http.mockup.TestHttpClient;
 import org.apache.http.mockup.TestHttpServer;
@@ -77,32 +81,59 @@ public class HttpCoreNIOTestBase extends TestCase {
     protected void setUp() throws Exception {
         HttpParams serverParams = new BasicHttpParams();
         serverParams
-            .setIntParameter(CoreConnectionPNames.SO_TIMEOUT, 5000)
+            .setIntParameter(CoreConnectionPNames.SO_TIMEOUT, 60000)
             .setIntParameter(CoreConnectionPNames.SOCKET_BUFFER_SIZE, 8 * 1024)
             .setBooleanParameter(CoreConnectionPNames.STALE_CONNECTION_CHECK, false)
             .setBooleanParameter(CoreConnectionPNames.TCP_NODELAY, true)
             .setParameter(CoreProtocolPNames.ORIGIN_SERVER, "TEST-SERVER/1.1");
-        
+
         this.server = new TestHttpServer(serverParams);
-        
+
         HttpParams clientParams = new BasicHttpParams();
         clientParams
-            .setIntParameter(CoreConnectionPNames.SO_TIMEOUT, 5000)
-            .setIntParameter(CoreConnectionPNames.CONNECTION_TIMEOUT, 2000)
+            .setIntParameter(CoreConnectionPNames.SO_TIMEOUT, 60000)
+            .setIntParameter(CoreConnectionPNames.CONNECTION_TIMEOUT, 30000)
             .setIntParameter(CoreConnectionPNames.SOCKET_BUFFER_SIZE, 8 * 1024)
             .setBooleanParameter(CoreConnectionPNames.STALE_CONNECTION_CHECK, false)
             .setBooleanParameter(CoreConnectionPNames.TCP_NODELAY, true)
             .setParameter(CoreProtocolPNames.USER_AGENT, "TEST-CLIENT/1.1");
-        
+
         this.client = new TestHttpClient(clientParams);
     }
 
     @Override
-    protected void tearDown() throws Exception {
-        this.server.shutdown();
-        this.client.shutdown();
+    protected void tearDown() {
+        try {
+            this.client.shutdown();
+        } catch (IOException ex) {
+            ex.printStackTrace();
+        }
+        List<ExceptionEvent> clogs = this.client.getAuditLog();
+        if (clogs != null) {
+            for (ExceptionEvent clog: clogs) {
+                Throwable cause = clog.getCause();
+                if (!(cause instanceof OoopsieRuntimeException)) {
+                    cause.printStackTrace();
+                }
+            }
+        }
+
+        try {
+            this.server.shutdown();
+        } catch (IOException ex) {
+            ex.printStackTrace();
+        }
+        List<ExceptionEvent> slogs = this.server.getAuditLog();
+        if (slogs != null) {
+            for (ExceptionEvent slog: slogs) {
+                Throwable cause = slog.getCause();
+                if (!(cause instanceof OoopsieRuntimeException)) {
+                    cause.printStackTrace();
+                }
+            }
+        }
     }
-    
+
     protected NHttpServiceHandler createHttpServiceHandler(
             final HttpRequestHandler requestHandler,
             final HttpExpectationVerifier expectationVerifier,

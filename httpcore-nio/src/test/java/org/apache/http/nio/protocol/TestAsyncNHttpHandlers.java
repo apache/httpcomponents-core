@@ -32,18 +32,15 @@
 package org.apache.http.nio.protocol;
 
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 import java.net.InetSocketAddress;
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.Queue;
+import java.util.concurrent.ConcurrentLinkedQueue;
 
 import junit.framework.Test;
-import junit.framework.TestCase;
 import junit.framework.TestSuite;
 
-import org.apache.http.Header;
-import org.apache.http.HttpEntity;
+import org.apache.http.HttpCoreNIOTestBase;
 import org.apache.http.HttpEntityEnclosingRequest;
 import org.apache.http.HttpException;
 import org.apache.http.HttpRequest;
@@ -54,29 +51,14 @@ import org.apache.http.impl.DefaultConnectionReuseStrategy;
 import org.apache.http.impl.DefaultHttpResponseFactory;
 import org.apache.http.message.BasicHttpEntityEnclosingRequest;
 import org.apache.http.message.BasicHttpRequest;
-import org.apache.http.mockup.ByteSequence;
-import org.apache.http.mockup.RequestCount;
-import org.apache.http.mockup.ResponseSequence;
 import org.apache.http.mockup.SimpleEventListener;
 import org.apache.http.mockup.SimpleNHttpRequestHandlerResolver;
-import org.apache.http.mockup.TestHttpClient;
-import org.apache.http.mockup.TestHttpServer;
-import org.apache.http.nio.NHttpClientHandler;
-import org.apache.http.nio.NHttpConnection;
-import org.apache.http.nio.NHttpServiceHandler;
-import org.apache.http.nio.entity.BufferingNHttpEntity;
 import org.apache.http.nio.entity.ConsumingNHttpEntity;
 import org.apache.http.nio.entity.NByteArrayEntity;
 import org.apache.http.nio.entity.NStringEntity;
-import org.apache.http.nio.reactor.IOReactorExceptionHandler;
 import org.apache.http.nio.reactor.ListenerEndpoint;
-import org.apache.http.nio.util.HeapByteBufferAllocator;
-import org.apache.http.params.BasicHttpParams;
-import org.apache.http.params.CoreConnectionPNames;
 import org.apache.http.params.CoreProtocolPNames;
-import org.apache.http.params.HttpParams;
 import org.apache.http.protocol.BasicHttpProcessor;
-import org.apache.http.protocol.ExecutionContext;
 import org.apache.http.protocol.HttpContext;
 import org.apache.http.protocol.HttpExpectationVerifier;
 import org.apache.http.protocol.RequestConnControl;
@@ -89,7 +71,6 @@ import org.apache.http.protocol.ResponseContent;
 import org.apache.http.protocol.ResponseDate;
 import org.apache.http.protocol.ResponseServer;
 import org.apache.http.util.EncodingUtils;
-import org.apache.http.util.EntityUtils;
 
 /**
  * HttpCore NIO integration tests for async handlers.
@@ -97,7 +78,7 @@ import org.apache.http.util.EntityUtils;
  *
  * @version $Id$
  */
-public class TestAsyncNHttpHandlers extends TestCase {
+public class TestAsyncNHttpHandlers extends HttpCoreNIOTestBase {
 
     // ------------------------------------------------------------ Constructor
     public TestAsyncNHttpHandlers(String testName) {
@@ -116,215 +97,52 @@ public class TestAsyncNHttpHandlers extends TestCase {
         return new TestSuite(TestAsyncNHttpHandlers.class);
     }
 
-    private TestHttpServer server;
-    private TestHttpClient client;
-
-    @Override
-    protected void setUp() throws Exception {
-        HttpParams serverParams = new BasicHttpParams();
-        serverParams
-            .setIntParameter(CoreConnectionPNames.SO_TIMEOUT, 5000)
-            .setIntParameter(CoreConnectionPNames.SOCKET_BUFFER_SIZE, 8 * 1024)
-            .setBooleanParameter(CoreConnectionPNames.STALE_CONNECTION_CHECK, false)
-            .setBooleanParameter(CoreConnectionPNames.TCP_NODELAY, true)
-            .setParameter(CoreProtocolPNames.ORIGIN_SERVER, "TEST-SERVER/1.1");
-
-        this.server = new TestHttpServer(serverParams);
-        this.server.setExceptionHandler(new IOReactorExceptionHandler() {
-
-            public boolean handle(IOException ex) {
-                ex.printStackTrace();
-                return false;
-            }
-
-            public boolean handle(RuntimeException ex) {
-                ex.printStackTrace();
-                return false;
-            }
-
-        });
-
-        HttpParams clientParams = new BasicHttpParams();
-        clientParams
-            .setIntParameter(CoreConnectionPNames.SO_TIMEOUT, 5000)
-            .setIntParameter(CoreConnectionPNames.CONNECTION_TIMEOUT, 2000)
-            .setIntParameter(CoreConnectionPNames.SOCKET_BUFFER_SIZE, 8 * 1024)
-            .setBooleanParameter(CoreConnectionPNames.STALE_CONNECTION_CHECK, false)
-            .setBooleanParameter(CoreConnectionPNames.TCP_NODELAY, true)
-            .setParameter(CoreProtocolPNames.USER_AGENT, "TEST-CLIENT/1.1");
-
-        this.client = new TestHttpClient(clientParams);
-        this.client.setExceptionHandler(new IOReactorExceptionHandler() {
-
-            public boolean handle(IOException ex) {
-                ex.printStackTrace();
-                return false;
-            }
-
-            public boolean handle(RuntimeException ex) {
-                ex.printStackTrace();
-                return false;
-            }
-
-        });
-    }
-
-    @Override
-    protected void tearDown() throws Exception {
-        this.server.shutdown();
-        this.client.shutdown();
-    }
-
-    private NHttpServiceHandler createHttpServiceHandler(
+    private void executeStandardTest(
             final NHttpRequestHandler requestHandler,
-            final HttpExpectationVerifier expectationVerifier) {
-        BasicHttpProcessor httpproc = new BasicHttpProcessor();
-        httpproc.addInterceptor(new ResponseDate());
-        httpproc.addInterceptor(new ResponseServer());
-        httpproc.addInterceptor(new ResponseContent());
-        httpproc.addInterceptor(new ResponseConnControl());
+            final NHttpRequestExecutionHandler requestExecutionHandler) throws Exception {
+        int connNo = 3;
+        int reqNo = 20;
+        TestJob[] jobs = new TestJob[connNo * reqNo];
+        for (int i = 0; i < jobs.length; i++) {
+            jobs[i] = new TestJob(); 
+        }
+        Queue<TestJob> queue = new ConcurrentLinkedQueue<TestJob>();
+        for (int i = 0; i < jobs.length; i++) {
+            queue.add(jobs[i]); 
+        }
+
+        BasicHttpProcessor serverHttpProc = new BasicHttpProcessor();
+        serverHttpProc.addInterceptor(new ResponseDate());
+        serverHttpProc.addInterceptor(new ResponseServer());
+        serverHttpProc.addInterceptor(new ResponseContent());
+        serverHttpProc.addInterceptor(new ResponseConnControl());
 
         AsyncNHttpServiceHandler serviceHandler = new AsyncNHttpServiceHandler(
-                httpproc,
+                serverHttpProc,
                 new DefaultHttpResponseFactory(),
                 new DefaultConnectionReuseStrategy(),
                 this.server.getParams());
 
         serviceHandler.setHandlerResolver(
                 new SimpleNHttpRequestHandlerResolver(requestHandler));
-        serviceHandler.setExpectationVerifier(expectationVerifier);
-        serviceHandler.setEventListener(new SimpleEventListener());
+        serviceHandler.setEventListener(
+                new SimpleEventListener());
 
-        return serviceHandler;
-    }
-
-    private NHttpClientHandler createHttpClientHandler(
-            final NHttpRequestExecutionHandler requestExecutionHandler) {
-        BasicHttpProcessor httpproc = new BasicHttpProcessor();
-        httpproc.addInterceptor(new RequestContent());
-        httpproc.addInterceptor(new RequestTargetHost());
-        httpproc.addInterceptor(new RequestConnControl());
-        httpproc.addInterceptor(new RequestUserAgent());
-        httpproc.addInterceptor(new RequestExpectContinue());
+        BasicHttpProcessor clientHttpProc = new BasicHttpProcessor();
+        clientHttpProc.addInterceptor(new RequestContent());
+        clientHttpProc.addInterceptor(new RequestTargetHost());
+        clientHttpProc.addInterceptor(new RequestConnControl());
+        clientHttpProc.addInterceptor(new RequestUserAgent());
+        clientHttpProc.addInterceptor(new RequestExpectContinue());
 
         AsyncNHttpClientHandler clientHandler = new AsyncNHttpClientHandler(
-                httpproc,
+                clientHttpProc,
                 requestExecutionHandler,
                 new DefaultConnectionReuseStrategy(),
                 this.client.getParams());
 
-        clientHandler.setEventListener(new SimpleEventListener());
-        return clientHandler;
-    }
-
-    /**
-     * This test case executes a series of simple (non-pipelined) GET requests
-     * over multiple connections. This uses non-blocking output entities.
-     */
-    public void testSimpleHttpGets() throws Exception {
-
-        final int connNo = 3;
-        final int reqNo = 20;
-        final RequestCount requestCount = new RequestCount(connNo * reqNo);
-        final ByteSequence requestData = new ByteSequence();
-        requestData.rnd(reqNo);
-
-        List<ByteSequence> responseData = new ArrayList<ByteSequence>(connNo);
-        for (int i = 0; i < connNo; i++) {
-            responseData.add(new ByteSequence());
-        }
-
-        NHttpRequestHandler requestHandler = new SimpleNHttpRequestHandler() {
-
-            public ConsumingNHttpEntity entityRequest(
-                    final HttpEntityEnclosingRequest request,
-                    final HttpContext context) {
-                return null;
-            }
-
-            @Override
-            public void handle(
-                    final HttpRequest request,
-                    final HttpResponse response,
-                    final HttpContext context) throws HttpException, IOException {
-                String s = request.getRequestLine().getUri();
-                URI uri;
-                try {
-                    uri = new URI(s);
-                } catch (URISyntaxException ex) {
-                    throw new HttpException("Invalid request URI: " + s);
-                }
-                int index = Integer.parseInt(uri.getQuery());
-                byte[] bytes = requestData.getBytes(index);
-                NByteArrayEntity entity = new NByteArrayEntity(bytes);
-                response.setEntity(entity);
-            }
-
-        };
-
-        NHttpRequestExecutionHandler requestExecutionHandler = new NHttpRequestExecutionHandler() {
-
-            public void initalizeContext(final HttpContext context, final Object attachment) {
-                context.setAttribute("LIST", attachment);
-                context.setAttribute("REQ-COUNT", Integer.valueOf(0));
-                context.setAttribute("RES-COUNT", Integer.valueOf(0));
-            }
-
-            public void finalizeContext(final HttpContext context) {
-            }
-
-            public HttpRequest submitRequest(final HttpContext context) {
-                int i = ((Integer) context.getAttribute("REQ-COUNT")).intValue();
-                BasicHttpRequest get = null;
-                if (i < reqNo) {
-                    get = new BasicHttpRequest("GET", "/?" + i);
-                    context.setAttribute("REQ-COUNT", Integer.valueOf(i + 1));
-                }
-                return get;
-            }
-
-            public ConsumingNHttpEntity responseEntity(
-                    final HttpResponse response,
-                    final HttpContext context) throws IOException {
-                return new BufferingNHttpEntity(response.getEntity(),
-                        new HeapByteBufferAllocator());
-            }
-
-            public void handleResponse(final HttpResponse response, final HttpContext context) {
-                NHttpConnection conn = (NHttpConnection) context.getAttribute(
-                        ExecutionContext.HTTP_CONNECTION);
-
-                ByteSequence list = (ByteSequence) context.getAttribute("LIST");
-                int i = ((Integer) context.getAttribute("RES-COUNT")).intValue();
-                i++;
-                context.setAttribute("RES-COUNT", Integer.valueOf(i));
-
-                try {
-                    HttpEntity entity = response.getEntity();
-                    byte[] data = EntityUtils.toByteArray(entity);
-                    list.addBytes(data);
-                    requestCount.decrement();
-                } catch (IOException ex) {
-                    requestCount.abort();
-                    return;
-                }
-
-                if (i < reqNo) {
-                    conn.requestInput();
-                }
-            }
-
-        };
-
-        NHttpServiceHandler serviceHandler = createHttpServiceHandler(
-                requestHandler,
-                null);
-
-        NHttpClientHandler clientHandler = createHttpClientHandler(
-                requestExecutionHandler);
-
-        this.server.setRequestCount(requestCount);
-        this.client.setRequestCount(requestCount);
+        clientHandler.setEventListener(
+                new SimpleEventListener());
         
         this.server.start(serviceHandler);
         this.client.start(clientHandler);
@@ -333,33 +151,39 @@ public class TestAsyncNHttpHandlers extends TestCase {
         endpoint.waitFor();
         InetSocketAddress serverAddress = (InetSocketAddress) endpoint.getAddress();
 
-        for (int i = 0; i < responseData.size(); i++) {
+        for (int i = 0; i < connNo; i++) {
             this.client.openConnection(
                     new InetSocketAddress("localhost", serverAddress.getPort()),
-                    responseData.get(i));
+                    queue);
         }
 
-        requestCount.await(10000);
-        assertEquals(0, requestCount.getValue());
-
-        this.client.shutdown();
-        this.server.shutdown();
-
-        for (int c = 0; c < responseData.size(); c++) {
-            ByteSequence receivedPackets = responseData.get(c);
-            ByteSequence expectedPackets = requestData;
-            assertEquals(expectedPackets.size(), receivedPackets.size());
-            for (int p = 0; p < requestData.size(); p++) {
-                byte[] expected = requestData.getBytes(p);
-                byte[] received = receivedPackets.getBytes(p);
-
-                assertEquals(expected.length, received.length);
-                for (int i = 0; i < expected.length; i++) {
-                    assertEquals(expected[i], received[i]);
-                }
+        for (int i = 0; i < jobs.length; i++) {
+            TestJob testjob = jobs[i];
+            testjob.waitFor();
+            if (testjob.isSuccessful()) {
+                assertEquals(HttpStatus.SC_OK, testjob.getStatusCode());
+                assertEquals(testjob.getExpected(), testjob.getResult());
+            } else {
+                fail(testjob.getFailureMessage());
             }
         }
+    }
+    
+    /**
+     * This test case executes a series of simple (non-pipelined) GET requests
+     * over multiple connections. This uses non-blocking output entities.
+     */
+    public void testHttpGets() throws Exception {
+        NHttpRequestExecutionHandler requestExecutionHandler = new TestRequestExecutionHandler() {
 
+            @Override
+            protected HttpRequest generateRequest(TestJob testjob) {
+                String s = testjob.getPattern() + "x" + testjob.getCount(); 
+                return new BasicHttpRequest("GET", s);
+            }
+            
+        };
+        executeStandardTest(new TestRequestHandler(), requestExecutionHandler);
     }
 
     /**
@@ -367,302 +191,51 @@ public class TestAsyncNHttpHandlers extends TestCase {
      * with content length delimited content over multiple connections.
      * It uses purely asynchronous handlers.
      */
-    public void testSimpleHttpPostsWithContentLength() throws Exception {
-
-        final int connNo = 3;
-        final int reqNo = 20;
-        final RequestCount requestCount = new RequestCount(connNo * reqNo);
-        final ByteSequence requestData = new ByteSequence();
-        requestData.rnd(reqNo);
-
-        List<ByteSequence> responseData = new ArrayList<ByteSequence>(connNo);
-        for (int i = 0; i < connNo; i++) {
-            responseData.add(new ByteSequence());
-        }
-
-        NHttpRequestHandler requestHandler = new SimpleNHttpRequestHandler() {
-
-            public ConsumingNHttpEntity entityRequest(
-                    final HttpEntityEnclosingRequest request,
-                    final HttpContext context) throws HttpException, IOException {
-                return new BufferingNHttpEntity(
-                        request.getEntity(),
-                        new HeapByteBufferAllocator());
-            }
+    public void testHttpPostsWithContentLength() throws Exception {
+        NHttpRequestExecutionHandler requestExecutionHandler = new TestRequestExecutionHandler() {
 
             @Override
-            public void handle(
-                    final HttpRequest request,
-                    final HttpResponse response,
-                    final HttpContext context) throws HttpException, IOException {
-                if (request instanceof HttpEntityEnclosingRequest) {
-                    HttpEntity entity = ((HttpEntityEnclosingRequest) request).getEntity();
-                    byte[] b = EntityUtils.toByteArray(entity);
-                    response.setEntity(new NByteArrayEntity(b));
-                } else {
-                    NStringEntity outgoing = new NStringEntity("No content");
-                    response.setEntity(outgoing);
-                }
-            }
-        };
-
-        NHttpRequestExecutionHandler requestExecutionHandler = new NHttpRequestExecutionHandler() {
-
-            public void initalizeContext(final HttpContext context, final Object attachment) {
-                context.setAttribute("LIST", attachment);
-                context.setAttribute("REQ-COUNT", Integer.valueOf(0));
-                context.setAttribute("RES-COUNT", Integer.valueOf(0));
-            }
-
-            public void finalizeContext(final HttpContext context) {
-            }
-
-            public ConsumingNHttpEntity responseEntity(
-                    final HttpResponse response,
-                    final HttpContext context) throws IOException {
-                return new BufferingNHttpEntity(response.getEntity(),
-                        new HeapByteBufferAllocator());
-            }
-
-            public HttpRequest submitRequest(final HttpContext context) {
-                int i = ((Integer) context.getAttribute("REQ-COUNT")).intValue();
-                BasicHttpEntityEnclosingRequest post = null;
-                if (i < reqNo) {
-                    post = new BasicHttpEntityEnclosingRequest("POST", "/?" + i);
-
-                    byte[] data = requestData.getBytes(i);
-                    NByteArrayEntity outgoing = new NByteArrayEntity(data);
-                    post.setEntity(outgoing);
-
-                    context.setAttribute("REQ-COUNT", Integer.valueOf(i + 1));
-                }
-                return post;
-            }
-
-            public void handleResponse(final HttpResponse response, final HttpContext context) {
-                NHttpConnection conn = (NHttpConnection) context.getAttribute(
-                        ExecutionContext.HTTP_CONNECTION);
-
-                ByteSequence list = (ByteSequence) context.getAttribute("LIST");
-                int i = ((Integer) context.getAttribute("RES-COUNT")).intValue();
-                i++;
-                context.setAttribute("RES-COUNT", Integer.valueOf(i));
-
+            protected HttpRequest generateRequest(TestJob testjob) {
+                String s = testjob.getPattern() + "x" + testjob.getCount(); 
+                HttpEntityEnclosingRequest r = new BasicHttpEntityEnclosingRequest("POST", s);
+                NStringEntity entity = null;
                 try {
-                    HttpEntity entity = response.getEntity();
-                    byte[] data = EntityUtils.toByteArray(entity);
-                    list.addBytes(data);
-                    requestCount.decrement();
-                } catch (IOException ex) {
-                    requestCount.abort();
-                    return;
+                    entity = new NStringEntity(testjob.getExpected(), "US-ASCII");
+                    entity.setChunked(false);
+                } catch (UnsupportedEncodingException ignore) {
                 }
-
-                if (i < reqNo) {
-                    conn.requestInput();
-                }
+                r.setEntity(entity);
+                return r;
             }
-
+            
         };
-
-        NHttpServiceHandler serviceHandler = createHttpServiceHandler(
-                requestHandler,
-                null);
-
-        NHttpClientHandler clientHandler = createHttpClientHandler(
-                requestExecutionHandler);
-
-        this.server.setRequestCount(requestCount);
-        this.client.setRequestCount(requestCount);
-        
-        this.server.start(serviceHandler);
-        this.client.start(clientHandler);
-
-        ListenerEndpoint endpoint = this.server.getListenerEndpoint();
-        endpoint.waitFor();
-        InetSocketAddress serverAddress = (InetSocketAddress) endpoint.getAddress();
-
-        for (int i = 0; i < responseData.size(); i++) {
-            this.client.openConnection(
-                    new InetSocketAddress("localhost", serverAddress.getPort()),
-                    responseData.get(i));
-        }
-
-        requestCount.await(10000);
-        assertEquals(0, requestCount.getValue());
-
-        this.client.shutdown();
-        this.server.shutdown();
-
-        for (int c = 0; c < responseData.size(); c++) {
-            ByteSequence receivedPackets = responseData.get(c);
-            ByteSequence expectedPackets = requestData;
-            assertEquals(expectedPackets.size(), receivedPackets.size());
-            for (int p = 0; p < requestData.size(); p++) {
-                byte[] expected = requestData.getBytes(p);
-                byte[] received = receivedPackets.getBytes(p);
-
-                assertEquals(expected.length, received.length);
-                for (int i = 0; i < expected.length; i++) {
-                    assertEquals(expected[i], received[i]);
-                }
-            }
-        }
-
+        executeStandardTest(new TestRequestHandler(), requestExecutionHandler);
     }
-
 
     /**
      * This test case executes a series of simple (non-pipelined) POST requests
      * with chunk coded content content over multiple connections.  This tests
      * with nonblocking handlers & nonblocking entities.
      */
-    public void testSimpleHttpPostsChunked() throws Exception {
-        final int connNo = 3;
-        final int reqNo = 20;
-        final RequestCount requestCount = new RequestCount(connNo * reqNo);
-        final ByteSequence requestData = new ByteSequence();
-        requestData.rnd(reqNo);
-
-        List<ByteSequence> responseData = new ArrayList<ByteSequence>(connNo);
-        for (int i = 0; i < connNo; i++) {
-            responseData.add(new ByteSequence());
-        }
-
-        NHttpRequestHandler requestHandler = new SimpleNHttpRequestHandler() {
-
-            public ConsumingNHttpEntity entityRequest(
-                    final HttpEntityEnclosingRequest request,
-                    final HttpContext context) throws HttpException, IOException {
-                return new BufferingNHttpEntity(
-                        request.getEntity(),
-                        new HeapByteBufferAllocator());
-            }
+    public void testHttpPostsChunked() throws Exception {
+        NHttpRequestExecutionHandler requestExecutionHandler = new TestRequestExecutionHandler() {
 
             @Override
-            public void handle(
-                    final HttpRequest request,
-                    final HttpResponse response,
-                    final HttpContext context) throws HttpException, IOException {
-                if (request instanceof HttpEntityEnclosingRequest) {
-                    HttpEntity entity = ((HttpEntityEnclosingRequest) request).getEntity();
-                    byte[] b = EntityUtils.toByteArray(entity);
-                    NByteArrayEntity outgoing = new NByteArrayEntity(b);
-                    outgoing.setChunked(true);
-                    response.setEntity(outgoing);
-                } else {
-                    NStringEntity outgoing = new NStringEntity("No content");
-                    response.setEntity(outgoing);
-                }
-            }
-        };
-
-        NHttpRequestExecutionHandler requestExecutionHandler = new NHttpRequestExecutionHandler() {
-
-            public void initalizeContext(final HttpContext context, final Object attachment) {
-                context.setAttribute("LIST", attachment);
-                context.setAttribute("REQ-COUNT", Integer.valueOf(0));
-                context.setAttribute("RES-COUNT", Integer.valueOf(0));
-            }
-
-            public void finalizeContext(final HttpContext context) {
-            }
-
-            public ConsumingNHttpEntity responseEntity(
-                    final HttpResponse response,
-                    final HttpContext context) throws IOException {
-                return new BufferingNHttpEntity(response.getEntity(),
-                        new HeapByteBufferAllocator());
-            }
-
-            public HttpRequest submitRequest(final HttpContext context) {
-                int i = ((Integer) context.getAttribute("REQ-COUNT")).intValue();
-                BasicHttpEntityEnclosingRequest post = null;
-                if (i < reqNo) {
-                    post = new BasicHttpEntityEnclosingRequest("POST", "/?" + i);
-                    byte[] data = requestData.getBytes(i);
-                    NByteArrayEntity outgoing = new NByteArrayEntity(data);
-                    outgoing.setChunked(true);
-                    post.setEntity(outgoing);
-
-                    context.setAttribute("REQ-COUNT", Integer.valueOf(i + 1));
-                }
-                return post;
-            }
-
-            public void handleResponse(final HttpResponse response, final HttpContext context) {
-                NHttpConnection conn = (NHttpConnection) context.getAttribute(
-                        ExecutionContext.HTTP_CONNECTION);
-
-                ByteSequence list = (ByteSequence) context.getAttribute("LIST");
-                int i = ((Integer) context.getAttribute("RES-COUNT")).intValue();
-                i++;
-                context.setAttribute("RES-COUNT", Integer.valueOf(i));
-
+            protected HttpRequest generateRequest(TestJob testjob) {
+                String s = testjob.getPattern() + "x" + testjob.getCount(); 
+                HttpEntityEnclosingRequest r = new BasicHttpEntityEnclosingRequest("POST", s);
+                NStringEntity entity = null;
                 try {
-                    HttpEntity entity = response.getEntity();
-                    byte[] data = EntityUtils.toByteArray(entity);
-                    list.addBytes(data);
-                    requestCount.decrement();
-                } catch (IOException ex) {
-                    requestCount.abort();
-                    return;
+                    entity = new NStringEntity(testjob.getExpected(), "US-ASCII");
+                    entity.setChunked(true);
+                } catch (UnsupportedEncodingException ignore) {
                 }
-
-                if (i < reqNo) {
-                    conn.requestInput();
-                }
+                r.setEntity(entity);
+                return r;
             }
-
+            
         };
-
-        NHttpServiceHandler serviceHandler = createHttpServiceHandler(
-                requestHandler,
-                null);
-
-        NHttpClientHandler clientHandler = createHttpClientHandler(
-                requestExecutionHandler);
-
-        this.server.setRequestCount(requestCount);
-        this.client.setRequestCount(requestCount);
-        
-        this.server.start(serviceHandler);
-        this.client.start(clientHandler);
-
-        ListenerEndpoint endpoint = this.server.getListenerEndpoint();
-        endpoint.waitFor();
-        InetSocketAddress serverAddress = (InetSocketAddress) endpoint.getAddress();
-
-        for (int i = 0; i < responseData.size(); i++) {
-            this.client.openConnection(
-                    new InetSocketAddress("localhost", serverAddress.getPort()),
-                    responseData.get(i));
-        }
-
-        requestCount.await(10000);
-        if (requestCount.isAborted()) {
-            System.out.println("Test case aborted");
-        }
-        assertEquals(0, requestCount.getValue());
-
-        this.client.shutdown();
-        this.server.shutdown();
-
-        for (int c = 0; c < responseData.size(); c++) {
-            ByteSequence receivedPackets = responseData.get(c);
-            ByteSequence expectedPackets = requestData;
-            assertEquals(expectedPackets.size(), receivedPackets.size());
-            for (int p = 0; p < requestData.size(); p++) {
-                byte[] expected = requestData.getBytes(p);
-                byte[] received = receivedPackets.getBytes(p);
-
-                assertEquals(expected.length, received.length);
-                for (int i = 0; i < expected.length; i++) {
-                    assertEquals(expected[i], received[i]);
-                }
-            }
-        }
-
+        executeStandardTest(new TestRequestHandler(), requestExecutionHandler);
     }
 
     /**
@@ -670,153 +243,25 @@ public class TestAsyncNHttpHandlers extends TestCase {
      * POST requests over multiple persistent connections. This tests with nonblocking
      * handlers & entities.
      */
-    public void testSimpleHttpPostsHTTP10() throws Exception {
-
-        final int connNo = 3;
-        final int reqNo = 20;
-        final RequestCount requestCount = new RequestCount(connNo * reqNo);
-        final ByteSequence requestData = new ByteSequence();
-        requestData.rnd(reqNo);
-
-        List<ByteSequence> responseData = new ArrayList<ByteSequence>(connNo);
-        for (int i = 0; i < connNo; i++) {
-            responseData.add(new ByteSequence());
-        }
-
-        NHttpRequestHandler requestHandler = new SimpleNHttpRequestHandler() {
-
-            public ConsumingNHttpEntity entityRequest(
-                    final HttpEntityEnclosingRequest request,
-                    final HttpContext context) throws HttpException, IOException {
-                return new BufferingNHttpEntity(
-                        request.getEntity(),
-                        new HeapByteBufferAllocator());
-            }
+    public void testHttpPostsHTTP10() throws Exception {
+        NHttpRequestExecutionHandler requestExecutionHandler = new TestRequestExecutionHandler() {
 
             @Override
-            public void handle(
-                    final HttpRequest request,
-                    final HttpResponse response,
-                    final HttpContext context) throws HttpException, IOException {
-                if (request instanceof HttpEntityEnclosingRequest) {
-                    HttpEntity entity = ((HttpEntityEnclosingRequest) request).getEntity();
-                    byte[] b = EntityUtils.toByteArray(entity);
-                    NByteArrayEntity outgoing = new NByteArrayEntity(b);
-                    outgoing.setChunked(false);
-                    response.setEntity(outgoing);
-                } else {
-                    NStringEntity outgoing = new NStringEntity("No content");
-                    response.setEntity(outgoing);
-                }
-            }
-        };
-
-        // Set protocol level to HTTP/1.0
-        this.client.getParams().setParameter(
-                CoreProtocolPNames.PROTOCOL_VERSION, HttpVersion.HTTP_1_0);
-
-        NHttpRequestExecutionHandler requestExecutionHandler = new NHttpRequestExecutionHandler() {
-
-            public void initalizeContext(final HttpContext context, final Object attachment) {
-                context.setAttribute("LIST", attachment);
-                context.setAttribute("REQ-COUNT", Integer.valueOf(0));
-                context.setAttribute("RES-COUNT", Integer.valueOf(0));
-            }
-
-            public void finalizeContext(final HttpContext context) {
-            }
-
-            public ConsumingNHttpEntity responseEntity(
-                    final HttpResponse response,
-                    final HttpContext context) throws IOException {
-                return new BufferingNHttpEntity(response.getEntity(),
-                        new HeapByteBufferAllocator());
-            }
-
-            public HttpRequest submitRequest(final HttpContext context) {
-                int i = ((Integer) context.getAttribute("REQ-COUNT")).intValue();
-                BasicHttpEntityEnclosingRequest post = null;
-                if (i < reqNo) {
-                    post = new BasicHttpEntityEnclosingRequest("POST", "/?" + i);
-                    byte[] data = requestData.getBytes(i);
-                    NByteArrayEntity outgoing = new NByteArrayEntity(data);
-                    post.setEntity(outgoing);
-
-                    context.setAttribute("REQ-COUNT", Integer.valueOf(i + 1));
-                }
-                return post;
-            }
-
-            public void handleResponse(final HttpResponse response, final HttpContext context) {
-                NHttpConnection conn = (NHttpConnection) context.getAttribute(
-                        ExecutionContext.HTTP_CONNECTION);
-
-                ByteSequence list = (ByteSequence) context.getAttribute("LIST");
-                int i = ((Integer) context.getAttribute("RES-COUNT")).intValue();
-                i++;
-                context.setAttribute("RES-COUNT", Integer.valueOf(i));
-
+            protected HttpRequest generateRequest(TestJob testjob) {
+                String s = testjob.getPattern() + "x" + testjob.getCount(); 
+                HttpEntityEnclosingRequest r = new BasicHttpEntityEnclosingRequest("POST", s, 
+                        HttpVersion.HTTP_1_0);
+                NStringEntity entity = null;
                 try {
-                    HttpEntity entity = response.getEntity();
-                    byte[] data = EntityUtils.toByteArray(entity);
-                    list.addBytes(data);
-                    requestCount.decrement();
-                } catch (IOException ex) {
-                    requestCount.abort();
-                    return;
+                    entity = new NStringEntity(testjob.getExpected(), "US-ASCII");
+                } catch (UnsupportedEncodingException ignore) {
                 }
-
-                if (i < reqNo) {
-                    conn.requestInput();
-                }
+                r.setEntity(entity);
+                return r;
             }
-
+            
         };
-
-        NHttpServiceHandler serviceHandler = createHttpServiceHandler(
-                requestHandler,
-                null);
-
-        NHttpClientHandler clientHandler = createHttpClientHandler(
-                requestExecutionHandler);
-
-        this.server.setRequestCount(requestCount);
-        this.client.setRequestCount(requestCount);
-        
-        this.server.start(serviceHandler);
-        this.client.start(clientHandler);
-
-        ListenerEndpoint endpoint = this.server.getListenerEndpoint();
-        endpoint.waitFor();
-        InetSocketAddress serverAddress = (InetSocketAddress) endpoint.getAddress();
-
-        for (int i = 0; i < responseData.size(); i++) {
-            this.client.openConnection(
-                    new InetSocketAddress("localhost", serverAddress.getPort()),
-                    responseData.get(i));
-        }
-
-        requestCount.await(10000);
-        assertEquals(0, requestCount.getValue());
-
-        this.client.shutdown();
-        this.server.shutdown();
-
-        for (int c = 0; c < responseData.size(); c++) {
-            ByteSequence receivedPackets = responseData.get(c);
-            ByteSequence expectedPackets = requestData;
-            assertEquals(expectedPackets.size(), receivedPackets.size());
-            for (int p = 0; p < requestData.size(); p++) {
-                byte[] expected = requestData.getBytes(p);
-                byte[] received = receivedPackets.getBytes(p);
-
-                assertEquals(expected.length, received.length);
-                for (int i = 0; i < expected.length; i++) {
-                    assertEquals(expected[i], received[i]);
-                }
-            }
-        }
-
+        executeStandardTest(new TestRequestHandler(), requestExecutionHandler);
     }
 
     /**
@@ -825,282 +270,109 @@ public class TestAsyncNHttpHandlers extends TestCase {
      * uses nonblocking handlers & entities.
      */
     public void testHttpPostsWithExpectContinue() throws Exception {
-
-        final int connNo = 3;
-        final int reqNo = 20;
-        final RequestCount requestCount = new RequestCount(connNo * reqNo);
-        final ByteSequence requestData = new ByteSequence();
-        requestData.rnd(reqNo);
-
-        List<ByteSequence> responseData = new ArrayList<ByteSequence>(connNo);
-        for (int i = 0; i < connNo; i++) {
-            responseData.add(new ByteSequence());
-        }
-
-        NHttpRequestHandler requestHandler = new SimpleNHttpRequestHandler() {
-
-            public ConsumingNHttpEntity entityRequest(
-                    final HttpEntityEnclosingRequest request,
-                    final HttpContext context) throws HttpException, IOException {
-                return new BufferingNHttpEntity(
-                        request.getEntity(),
-                        new HeapByteBufferAllocator());
-            }
+        NHttpRequestExecutionHandler requestExecutionHandler = new TestRequestExecutionHandler() {
 
             @Override
-            public void handle(
-                    final HttpRequest request,
-                    final HttpResponse response,
-                    final HttpContext context) throws HttpException, IOException {
-                if (request instanceof HttpEntityEnclosingRequest) {
-                    HttpEntity entity = ((HttpEntityEnclosingRequest) request).getEntity();
-                    byte[] b = EntityUtils.toByteArray(entity);
-                    NByteArrayEntity outgoing = new NByteArrayEntity(b);
-                    outgoing.setChunked(true);
-                    response.setEntity(outgoing);
-                } else {
-                    NStringEntity outgoing = new NStringEntity("No content");
-                    response.setEntity(outgoing);
-                }
-            }
-        };
-
-        // Activate 'expect: continue' handshake
-        this.client.getParams().setBooleanParameter(CoreProtocolPNames.USE_EXPECT_CONTINUE, true);
-
-        NHttpRequestExecutionHandler requestExecutionHandler = new NHttpRequestExecutionHandler() {
-
-            public void initalizeContext(final HttpContext context, final Object attachment) {
-                context.setAttribute("LIST", attachment);
-                context.setAttribute("REQ-COUNT", Integer.valueOf(0));
-                context.setAttribute("RES-COUNT", Integer.valueOf(0));
-            }
-
-            public void finalizeContext(final HttpContext context) {
-            }
-
-            public ConsumingNHttpEntity responseEntity(
-                    final HttpResponse response,
-                    final HttpContext context) throws IOException {
-                return new BufferingNHttpEntity(response.getEntity(),
-                        new HeapByteBufferAllocator());
-            }
-
-            public HttpRequest submitRequest(final HttpContext context) {
-                int i = ((Integer) context.getAttribute("REQ-COUNT")).intValue();
-                BasicHttpEntityEnclosingRequest post = null;
-                if (i < reqNo) {
-                    post = new BasicHttpEntityEnclosingRequest("POST", "/?" + i);
-                    byte[] data = requestData.getBytes(i);
-                    NByteArrayEntity outgoing = new NByteArrayEntity(data);
-                    outgoing.setChunked(true);
-                    post.setEntity(outgoing);
-
-                    context.setAttribute("REQ-COUNT", Integer.valueOf(i + 1));
-                }
-                return post;
-            }
-
-            public void handleResponse(final HttpResponse response, final HttpContext context) {
-                NHttpConnection conn = (NHttpConnection) context.getAttribute(
-                        ExecutionContext.HTTP_CONNECTION);
-
-                ByteSequence list = (ByteSequence) context.getAttribute("LIST");
-                int i = ((Integer) context.getAttribute("RES-COUNT")).intValue();
-                i++;
-                context.setAttribute("RES-COUNT", Integer.valueOf(i));
-
+            protected HttpRequest generateRequest(TestJob testjob) {
+                String s = testjob.getPattern() + "x" + testjob.getCount(); 
+                HttpEntityEnclosingRequest r = new BasicHttpEntityEnclosingRequest("POST", s);
+                NStringEntity entity = null;
                 try {
-                    HttpEntity entity = response.getEntity();
-                    byte[] data = EntityUtils.toByteArray(entity);
-                    list.addBytes(data);
-                    requestCount.decrement();
-                } catch (IOException ex) {
-                    requestCount.abort();
-                    return;
+                    entity = new NStringEntity(testjob.getExpected(), "US-ASCII");
+                } catch (UnsupportedEncodingException ignore) {
                 }
-
-                if (i < reqNo) {
-                    conn.requestInput();
-                }
+                r.setEntity(entity);
+                r.getParams().setBooleanParameter(CoreProtocolPNames.USE_EXPECT_CONTINUE, true);
+                return r;
             }
-
+            
         };
-
-        NHttpServiceHandler serviceHandler = createHttpServiceHandler(
-                requestHandler,
-                null);
-
-        NHttpClientHandler clientHandler = createHttpClientHandler(
-                requestExecutionHandler);
-
-        this.server.start(serviceHandler);
-        this.client.start(clientHandler);
-
-        ListenerEndpoint endpoint = this.server.getListenerEndpoint();
-        endpoint.waitFor();
-        InetSocketAddress serverAddress = (InetSocketAddress) endpoint.getAddress();
-
-        for (int i = 0; i < responseData.size(); i++) {
-            this.client.openConnection(
-                    new InetSocketAddress("localhost", serverAddress.getPort()),
-                    responseData.get(i));
-        }
-
-        requestCount.await(10000);
-        assertEquals(0, requestCount.getValue());
-
-        this.client.shutdown();
-        this.server.shutdown();
-
-        for (int c = 0; c < responseData.size(); c++) {
-            ByteSequence receivedPackets = responseData.get(c);
-            ByteSequence expectedPackets = requestData;
-            assertEquals(expectedPackets.size(), receivedPackets.size());
-            for (int p = 0; p < requestData.size(); p++) {
-                byte[] expected = requestData.getBytes(p);
-                byte[] received = receivedPackets.getBytes(p);
-
-                assertEquals(expected.length, received.length);
-                for (int i = 0; i < expected.length; i++) {
-                    assertEquals(expected[i], received[i]);
-                }
-            }
-        }
-
+        executeStandardTest(new TestRequestHandler(), requestExecutionHandler);
     }
 
     /**
      * This test case executes a series of simple (non-pipelined) POST requests
-     * over multiple connections that do not meet the target server expectations.
+     * one of which does not meet the target server expectations.
      * This test uses nonblocking entities.
      */
     public void testHttpPostsWithExpectationVerification() throws Exception {
-
-        final int reqNo = 3;
-        final RequestCount requestCount = new RequestCount(reqNo);
-        final ResponseSequence responses = new ResponseSequence();
-
-        NHttpRequestHandler requestHandler = new SimpleNHttpRequestHandler() {
-
-            public ConsumingNHttpEntity entityRequest(
-                    final HttpEntityEnclosingRequest request,
-                    final HttpContext context) throws HttpException, IOException {
-                return new BufferingNHttpEntity(
-                        request.getEntity(),
-                        new HeapByteBufferAllocator());
-            }
-
-            @Override
-            public void handle(
-                    final HttpRequest request,
-                    final HttpResponse response,
-                    final HttpContext context) throws HttpException, IOException {
-                NStringEntity outgoing = new NStringEntity("No content");
-                response.setEntity(outgoing);
-            }
-        };
-
+        TestJob[] jobs = new TestJob[3];
+        jobs[0] = new TestJob("AAAAA", 10); 
+        jobs[1] = new TestJob("AAAAA", 10); 
+        jobs[2] = new TestJob("BBBBB", 20); 
+        Queue<TestJob> queue = new ConcurrentLinkedQueue<TestJob>();
+        for (int i = 0; i < jobs.length; i++) {
+            queue.add(jobs[i]); 
+        }
+        
         HttpExpectationVerifier expectationVerifier = new HttpExpectationVerifier() {
 
             public void verify(
                     final HttpRequest request,
                     final HttpResponse response,
                     final HttpContext context) throws HttpException {
-                Header someheader = request.getFirstHeader("Secret");
-                if (someheader != null) {
-                    int secretNumber;
-                    try {
-                        secretNumber = Integer.parseInt(someheader.getValue());
-                    } catch (NumberFormatException ex) {
-                        response.setStatusCode(HttpStatus.SC_BAD_REQUEST);
-                        return;
-                    }
-                    if (secretNumber < 2) {
-                        response.setStatusCode(HttpStatus.SC_EXPECTATION_FAILED);
-                        NByteArrayEntity outgoing = new NByteArrayEntity(
-                                EncodingUtils.getAsciiBytes("Wrong secret number"));
-                        response.setEntity(outgoing);
-                    }
-                }
-            }
-
-        };
-
-        // Activate 'expect: continue' handshake
-        this.client.getParams().setBooleanParameter(CoreProtocolPNames.USE_EXPECT_CONTINUE, true);
-
-        NHttpRequestExecutionHandler requestExecutionHandler = new NHttpRequestExecutionHandler() {
-
-            public void initalizeContext(final HttpContext context, final Object attachment) {
-                context.setAttribute("LIST", attachment);
-                context.setAttribute("REQ-COUNT", Integer.valueOf(0));
-                context.setAttribute("RES-COUNT", Integer.valueOf(0));
-            }
-
-            public void finalizeContext(final HttpContext context) {
-            }
-
-            public ConsumingNHttpEntity responseEntity(
-                    final HttpResponse response,
-                    final HttpContext context) throws IOException {
-                return new BufferingNHttpEntity(response.getEntity(),
-                        new HeapByteBufferAllocator());
-            }
-
-            public HttpRequest submitRequest(final HttpContext context) {
-                int i = ((Integer) context.getAttribute("REQ-COUNT")).intValue();
-                BasicHttpEntityEnclosingRequest post = null;
-                if (i < reqNo) {
-                    post = new BasicHttpEntityEnclosingRequest("POST", "/");
-                    post.addHeader("Secret", Integer.toString(i));
+                String s = request.getRequestLine().getUri();
+                if (!s.equals("AAAAAx10")) {
+                    response.setStatusCode(HttpStatus.SC_EXPECTATION_FAILED);
                     NByteArrayEntity outgoing = new NByteArrayEntity(
-                            EncodingUtils.getAsciiBytes("No content"));
-                    post.setEntity(outgoing);
-
-                    context.setAttribute("REQ-COUNT", Integer.valueOf(i + 1));
-                }
-                return post;
-            }
-
-            public void handleResponse(final HttpResponse response, final HttpContext context) {
-                NHttpConnection conn = (NHttpConnection) context.getAttribute(
-                        ExecutionContext.HTTP_CONNECTION);
-
-                ResponseSequence list = (ResponseSequence) context.getAttribute("LIST");
-                int i = ((Integer) context.getAttribute("RES-COUNT")).intValue();
-                i++;
-                context.setAttribute("RES-COUNT", Integer.valueOf(i));
-
-                HttpEntity entity = response.getEntity();
-                if (entity != null) {
-                    try {
-                        EntityUtils.toByteArray(entity);
-                    } catch (IOException ex) {
-                        requestCount.abort();
-                        return;
-                    }
-                }
-
-                list.addResponse(response);
-                requestCount.decrement();
-
-                if (i < reqNo) {
-                    conn.requestInput();
+                            EncodingUtils.getAsciiBytes("Expectation failed"));
+                    response.setEntity(outgoing);
                 }
             }
 
         };
 
-        NHttpServiceHandler serviceHandler = createHttpServiceHandler(
-                requestHandler,
+        NHttpRequestExecutionHandler requestExecutionHandler = new TestRequestExecutionHandler() {
+
+            @Override
+            protected HttpRequest generateRequest(TestJob testjob) {
+                String s = testjob.getPattern() + "x" + testjob.getCount(); 
+                HttpEntityEnclosingRequest r = new BasicHttpEntityEnclosingRequest("POST", s);
+                NStringEntity entity = null;
+                try {
+                    entity = new NStringEntity(testjob.getExpected(), "US-ASCII");
+                } catch (UnsupportedEncodingException ignore) {
+                }
+                r.setEntity(entity);
+                r.getParams().setBooleanParameter(CoreProtocolPNames.USE_EXPECT_CONTINUE, true);
+                return r;
+            }
+            
+        };
+        
+        BasicHttpProcessor serverHttpProc = new BasicHttpProcessor();
+        serverHttpProc.addInterceptor(new ResponseDate());
+        serverHttpProc.addInterceptor(new ResponseServer());
+        serverHttpProc.addInterceptor(new ResponseContent());
+        serverHttpProc.addInterceptor(new ResponseConnControl());
+
+        AsyncNHttpServiceHandler serviceHandler = new AsyncNHttpServiceHandler(
+                serverHttpProc,
+                new DefaultHttpResponseFactory(),
+                new DefaultConnectionReuseStrategy(),
+                this.server.getParams());
+
+        serviceHandler.setHandlerResolver(
+                new SimpleNHttpRequestHandlerResolver(new TestRequestHandler()));
+        serviceHandler.setExpectationVerifier(
                 expectationVerifier);
+        serviceHandler.setEventListener(
+                new SimpleEventListener());
 
-        NHttpClientHandler clientHandler = createHttpClientHandler(
-                requestExecutionHandler);
+        BasicHttpProcessor clientHttpProc = new BasicHttpProcessor();
+        clientHttpProc.addInterceptor(new RequestContent());
+        clientHttpProc.addInterceptor(new RequestTargetHost());
+        clientHttpProc.addInterceptor(new RequestConnControl());
+        clientHttpProc.addInterceptor(new RequestUserAgent());
+        clientHttpProc.addInterceptor(new RequestExpectContinue());
 
-        this.server.setRequestCount(requestCount);
-        this.client.setRequestCount(requestCount);
+        AsyncNHttpClientHandler clientHandler = new AsyncNHttpClientHandler(
+                clientHttpProc,
+                requestExecutionHandler,
+                new DefaultConnectionReuseStrategy(),
+                this.client.getParams());
+
+        clientHandler.setEventListener(new SimpleEventListener());
         
         this.server.start(serviceHandler);
         this.client.start(clientHandler);
@@ -1111,132 +383,79 @@ public class TestAsyncNHttpHandlers extends TestCase {
 
         this.client.openConnection(
                 new InetSocketAddress("localhost", serverAddress.getPort()),
-                responses);
+                queue);
 
-        requestCount.await(1000);
-
-        this.client.shutdown();
-        this.server.shutdown();
-
-        assertEquals(reqNo, responses.size());
-        HttpResponse response = responses.getResponse(0);
-        assertEquals(HttpStatus.SC_EXPECTATION_FAILED, response.getStatusLine().getStatusCode());
-        response = responses.getResponse(1);
-        assertEquals(HttpStatus.SC_EXPECTATION_FAILED, response.getStatusLine().getStatusCode());
-        response = responses.getResponse(2);
-        assertEquals(HttpStatus.SC_OK, response.getStatusLine().getStatusCode());
+        for (int i = 0; i < 2; i++) {
+            TestJob testjob = jobs[i];
+            testjob.waitFor();
+            if (testjob.isSuccessful()) {
+                assertEquals(testjob.getExpected(), testjob.getResult());
+            } else {
+                fail(testjob.getFailureMessage());
+            }
+        }
+        TestJob failedExpectation = jobs[2];
+        failedExpectation.waitFor();
+        assertEquals(HttpStatus.SC_EXPECTATION_FAILED, failedExpectation.getStatusCode());
     }
 
     /**
      * This test case executes a series of simple (non-pipelined) HEAD requests
-     * over multiple connections. With nonblocking entities.
+     * over multiple connections. This test uses nonblocking entities.
      */
-    public void testSimpleHttpHeads() throws Exception {
-
-        final int connNo = 3;
-        final int reqNo = 20;
-        final RequestCount requestCount = new RequestCount(connNo * reqNo * 2);
-
-        final ByteSequence requestData = new ByteSequence();
-        requestData.rnd(reqNo);
-
-        List<ResponseSequence> responseData1 = new ArrayList<ResponseSequence>(connNo);
-        for (int i = 0; i < connNo; i++) {
-            responseData1.add(new ResponseSequence());
+    public void testHttpHeads() throws Exception {
+        int connNo = 3;
+        int reqNo = 20;
+        TestJob[] jobs = new TestJob[connNo * reqNo];
+        for (int i = 0; i < jobs.length; i++) {
+            jobs[i] = new TestJob(); 
         }
-        List<ResponseSequence> responseData2 = new ArrayList<ResponseSequence>(connNo);
-        for (int i = 0; i < connNo; i++) {
-            responseData2.add(new ResponseSequence());
+        Queue<TestJob> queue = new ConcurrentLinkedQueue<TestJob>();
+        for (int i = 0; i < jobs.length; i++) {
+            queue.add(jobs[i]); 
         }
 
-        final String[] method = new String[1];
-
-        NHttpRequestHandler requestHandler = new SimpleNHttpRequestHandler() {
-
-            public ConsumingNHttpEntity entityRequest(
-                    final HttpEntityEnclosingRequest request,
-                    final HttpContext context) throws HttpException, IOException {
-                return new BufferingNHttpEntity(
-                        request.getEntity(),
-                        new HeapByteBufferAllocator());
-            }
+        NHttpRequestExecutionHandler requestExecutionHandler = new TestRequestExecutionHandler() {
 
             @Override
-            public void handle(
-                    final HttpRequest request,
-                    final HttpResponse response,
-                    final HttpContext context) throws HttpException, IOException {
-                String s = request.getRequestLine().getUri();
-                URI uri;
-                try {
-                    uri = new URI(s);
-                } catch (URISyntaxException ex) {
-                    throw new HttpException("Invalid request URI: " + s);
-                }
-                int index = Integer.parseInt(uri.getQuery());
-                byte[] bytes = requestData.getBytes(index);
-                NByteArrayEntity entity = new NByteArrayEntity(bytes);
-                response.setEntity(entity);
+            protected HttpRequest generateRequest(TestJob testjob) {
+                String s = testjob.getPattern() + "x" + testjob.getCount(); 
+                return new BasicHttpRequest("HEAD", s);
             }
-
+            
         };
+        
+        BasicHttpProcessor serverHttpProc = new BasicHttpProcessor();
+        serverHttpProc.addInterceptor(new ResponseDate());
+        serverHttpProc.addInterceptor(new ResponseServer());
+        serverHttpProc.addInterceptor(new ResponseContent());
+        serverHttpProc.addInterceptor(new ResponseConnControl());
 
-        NHttpRequestExecutionHandler requestExecutionHandler = new NHttpRequestExecutionHandler() {
+        AsyncNHttpServiceHandler serviceHandler = new AsyncNHttpServiceHandler(
+                serverHttpProc,
+                new DefaultHttpResponseFactory(),
+                new DefaultConnectionReuseStrategy(),
+                this.server.getParams());
 
-            public void initalizeContext(final HttpContext context, final Object attachment) {
-                context.setAttribute("LIST", attachment);
-                context.setAttribute("REQ-COUNT", Integer.valueOf(0));
-                context.setAttribute("RES-COUNT", Integer.valueOf(0));
-            }
+        serviceHandler.setHandlerResolver(
+                new SimpleNHttpRequestHandlerResolver(new TestRequestHandler()));
+        serviceHandler.setEventListener(
+                new SimpleEventListener());
 
-            public void finalizeContext(final HttpContext context) {
-            }
+        BasicHttpProcessor clientHttpProc = new BasicHttpProcessor();
+        clientHttpProc.addInterceptor(new RequestContent());
+        clientHttpProc.addInterceptor(new RequestTargetHost());
+        clientHttpProc.addInterceptor(new RequestConnControl());
+        clientHttpProc.addInterceptor(new RequestUserAgent());
+        clientHttpProc.addInterceptor(new RequestExpectContinue());
 
-            public ConsumingNHttpEntity responseEntity(
-                    final HttpResponse response,
-                    final HttpContext context) throws IOException {
-                return new BufferingNHttpEntity(response.getEntity(),
-                        new HeapByteBufferAllocator());
-            }
+        AsyncNHttpClientHandler clientHandler = new AsyncNHttpClientHandler(
+                clientHttpProc,
+                requestExecutionHandler,
+                new DefaultConnectionReuseStrategy(),
+                this.client.getParams());
 
-            public HttpRequest submitRequest(final HttpContext context) {
-                int i = ((Integer) context.getAttribute("REQ-COUNT")).intValue();
-                BasicHttpRequest request = null;
-                if (i < reqNo) {
-                    request = new BasicHttpRequest(method[0], "/?" + i);
-                    context.setAttribute("REQ-COUNT", Integer.valueOf(i + 1));
-                }
-                return request;
-            }
-
-            public void handleResponse(final HttpResponse response, final HttpContext context) {
-                NHttpConnection conn = (NHttpConnection) context.getAttribute(
-                        ExecutionContext.HTTP_CONNECTION);
-
-                ResponseSequence list = (ResponseSequence) context.getAttribute("LIST");
-                int i = ((Integer) context.getAttribute("RES-COUNT")).intValue();
-                i++;
-                context.setAttribute("RES-COUNT", Integer.valueOf(i));
-
-                list.addResponse(response);
-                requestCount.decrement();
-
-                if (i < reqNo) {
-                    conn.requestInput();
-                }
-            }
-
-        };
-
-        NHttpServiceHandler serviceHandler = createHttpServiceHandler(
-                requestHandler,
-                null);
-
-        NHttpClientHandler clientHandler = createHttpClientHandler(
-                requestExecutionHandler);
-
-        this.server.setRequestCount(requestCount);
-        this.client.setRequestCount(requestCount);
+        clientHandler.setEventListener(new SimpleEventListener());
         
         this.server.start(serviceHandler);
         this.client.start(clientHandler);
@@ -1245,53 +464,20 @@ public class TestAsyncNHttpHandlers extends TestCase {
         endpoint.waitFor();
         InetSocketAddress serverAddress = (InetSocketAddress) endpoint.getAddress();
 
-        method[0] = "GET";
-
-        for (int i = 0; i < responseData1.size(); i++) {
+        for (int i = 0; i < connNo; i++) {
             this.client.openConnection(
                     new InetSocketAddress("localhost", serverAddress.getPort()),
-                    responseData1.get(i));
+                    queue);
         }
 
-        requestCount.await(connNo * reqNo, 10000);
-        assertEquals(connNo * reqNo, requestCount.getValue());
-
-        method[0] = "HEAD";
-
-        for (int i = 0; i < responseData2.size(); i++) {
-            this.client.openConnection(
-                    new InetSocketAddress("localhost", serverAddress.getPort()),
-                    responseData2.get(i));
-        }
-
-
-        requestCount.await(10000);
-        assertEquals(0, requestCount.getValue());
-
-        this.client.shutdown();
-        this.server.shutdown();
-
-        for (int c = 0; c < connNo; c++) {
-            ResponseSequence getResponses = responseData1.get(c);
-            ResponseSequence headResponses = responseData2.get(c);
-            ByteSequence expectedPackets = requestData;
-            assertEquals(expectedPackets.size(), headResponses.size());
-            assertEquals(expectedPackets.size(), getResponses.size());
-            for (int p = 0; p < requestData.size(); p++) {
-                HttpResponse getResponse = getResponses.getResponse(p);
-                HttpResponse headResponse = headResponses.getResponse(p);
-                assertEquals(null, headResponse.getEntity());
-
-                Header[] getHeaders = getResponse.getAllHeaders();
-                Header[] headHeaders = headResponse.getAllHeaders();
-                assertEquals(getHeaders.length, headHeaders.length);
-                for (int j = 0; j < getHeaders.length; j++) {
-                    if ("Date".equals(getHeaders[j].getName())) {
-                        continue;
-                    }
-                    assertEquals(getHeaders[j].toString(), headHeaders[j].toString());
-                }
+        for (int i = 0; i < jobs.length; i++) {
+            TestJob testjob = jobs[i];
+            testjob.waitFor();
+            if (testjob.getFailureMessage() != null) {
+                fail(testjob.getFailureMessage());
             }
+            assertEquals(HttpStatus.SC_OK, testjob.getStatusCode());
+            assertNull(testjob.getResult());
         }
     }
     
@@ -1300,17 +486,7 @@ public class TestAsyncNHttpHandlers extends TestCase {
      * {@link NHttpResponseTrigger} works correctly.
      */
     public void testDelayedHttpGets() throws Exception {
-        final int connNo = 3;
-        final int reqNo = 20;
-        final RequestCount requestCount = new RequestCount(connNo * reqNo);
-        final ByteSequence requestData = new ByteSequence();
-        requestData.rnd(reqNo);
-
-        List<ByteSequence> responseData = new ArrayList<ByteSequence>(connNo);
-        for (int i = 0; i < connNo; i++) {
-            responseData.add(new ByteSequence());
-        }
-
+        
         NHttpRequestHandler requestHandler = new NHttpRequestHandler() {
 
             public ConsumingNHttpEntity entityRequest(
@@ -1319,26 +495,36 @@ public class TestAsyncNHttpHandlers extends TestCase {
                 return null;
             }
             
-            public void handle(HttpRequest request, final HttpResponse response,
-                    final NHttpResponseTrigger trigger, HttpContext context)
-                    throws HttpException, IOException {
+            public void handle(
+                    final HttpRequest request, 
+                    final HttpResponse response,
+                    final NHttpResponseTrigger trigger, 
+                    final HttpContext context) throws HttpException, IOException {
                 String s = request.getRequestLine().getUri();
-                URI uri;
-                try {
-                    uri = new URI(s);
-                } catch (URISyntaxException ex) {
-                    throw new HttpException("Invalid request URI: " + s);
+                int idx = s.indexOf('x');
+                if (idx == -1) {
+                    throw new HttpException("Unexpected request-URI format");
                 }
-                int index = Integer.parseInt(uri.getQuery());
-                final byte[] bytes = requestData.getBytes(index);
+                String pattern = s.substring(0, idx);
+                int count = Integer.parseInt(s.substring(idx + 1, s.length()));
+                
+                StringBuilder buffer = new StringBuilder();
+                for (int i = 0; i < count; i++) {
+                    buffer.append(pattern);
+                }
+                final String content = buffer.toString();
+                
                 new Thread() {
                     @Override
                     public void run() {
                         // Wait a bit, to make sure this is delayed.
                         try { Thread.sleep(10); } catch(InterruptedException ie) {}
                         // Set the entity after delaying...
-                        NByteArrayEntity entity = new NByteArrayEntity(bytes);
-                        response.setEntity(entity);
+                        try {
+                            NStringEntity entity = new NStringEntity(content, "US-ASCII");
+                            response.setEntity(entity);
+                        }  catch (UnsupportedEncodingException ex) {
+                        }
                         trigger.submitResponse(response);
                     }
                 }.start();
@@ -1346,114 +532,22 @@ public class TestAsyncNHttpHandlers extends TestCase {
 
         };
 
-        NHttpRequestExecutionHandler requestExecutionHandler = new NHttpRequestExecutionHandler() {
+        NHttpRequestExecutionHandler requestExecutionHandler = new TestRequestExecutionHandler() {
 
-            public void initalizeContext(final HttpContext context, final Object attachment) {
-                context.setAttribute("LIST", attachment);
-                context.setAttribute("REQ-COUNT", Integer.valueOf(0));
-                context.setAttribute("RES-COUNT", Integer.valueOf(0));
+            @Override
+            protected HttpRequest generateRequest(TestJob testjob) {
+                String s = testjob.getPattern() + "x" + testjob.getCount(); 
+                return new BasicHttpRequest("GET", s);
             }
-
-            public void finalizeContext(final HttpContext context) {
-            }
-
-            public HttpRequest submitRequest(final HttpContext context) {
-                int i = ((Integer) context.getAttribute("REQ-COUNT")).intValue();
-                BasicHttpRequest get = null;
-                if (i < reqNo) {
-                    get = new BasicHttpRequest("GET", "/?" + i);
-                    context.setAttribute("REQ-COUNT", Integer.valueOf(i + 1));
-                }
-                return get;
-            }
-
-            public ConsumingNHttpEntity responseEntity(
-                    final HttpResponse response,
-                    final HttpContext context) throws IOException {
-                return new BufferingNHttpEntity(response.getEntity(),
-                        new HeapByteBufferAllocator());
-            }
-
-            public void handleResponse(final HttpResponse response, final HttpContext context) {
-                NHttpConnection conn = (NHttpConnection) context.getAttribute(
-                        ExecutionContext.HTTP_CONNECTION);
-
-                ByteSequence list = (ByteSequence) context.getAttribute("LIST");
-                int i = ((Integer) context.getAttribute("RES-COUNT")).intValue();
-                i++;
-                context.setAttribute("RES-COUNT", Integer.valueOf(i));
-
-                try {
-                    HttpEntity entity = response.getEntity();
-                    byte[] data = EntityUtils.toByteArray(entity);
-                    list.addBytes(data);
-                    requestCount.decrement();
-                } catch (IOException ex) {
-                    requestCount.abort();
-                    return;
-                }
-
-                if (i < reqNo) {
-                    conn.requestInput();
-                }
-            }
-
+            
         };
-
-        NHttpServiceHandler serviceHandler = createHttpServiceHandler(
-                requestHandler,
-                null);
-
-        NHttpClientHandler clientHandler = createHttpClientHandler(
-                requestExecutionHandler);
-
-        this.server.setRequestCount(requestCount);
-        this.client.setRequestCount(requestCount);
-        
-        this.server.start(serviceHandler);
-        this.client.start(clientHandler);
-
-        ListenerEndpoint endpoint = this.server.getListenerEndpoint();
-        endpoint.waitFor();
-        InetSocketAddress serverAddress = (InetSocketAddress) endpoint.getAddress();
-
-        for (int i = 0; i < responseData.size(); i++) {
-            this.client.openConnection(
-                    new InetSocketAddress("localhost", serverAddress.getPort()),
-                    responseData.get(i));
-        }
-
-        requestCount.await(10000);
-        assertEquals(0, requestCount.getValue());
-
-        this.client.shutdown();
-        this.server.shutdown();
-
-        for (int c = 0; c < responseData.size(); c++) {
-            ByteSequence receivedPackets = responseData.get(c);
-            ByteSequence expectedPackets = requestData;
-            assertEquals(expectedPackets.size(), receivedPackets.size());
-            for (int p = 0; p < requestData.size(); p++) {
-                byte[] expected = requestData.getBytes(p);
-                byte[] received = receivedPackets.getBytes(p);
-
-                assertEquals(expected.length, received.length);
-                for (int i = 0; i < expected.length; i++) {
-                    assertEquals(expected[i], received[i]);
-                }
-            }
-        }
-
+        executeStandardTest(requestHandler, requestExecutionHandler);
     }
     
     /**
      * This test ensures that HttpExceptions work correctly when immediate.
      */
     public void testHttpException() throws Exception {
-
-        final int connNo = 3;
-        final int reqNo = 20;
-        final RequestCount requestCount = new RequestCount(connNo * reqNo);
 
         NHttpRequestHandler requestHandler = new SimpleNHttpRequestHandler() {
 
@@ -1464,81 +558,67 @@ public class TestAsyncNHttpHandlers extends TestCase {
             }
             
             @Override
-            public void handle(HttpRequest request, final HttpResponse response,
-                    HttpContext context)
-                    throws HttpException, IOException {
-                try {
-                    URI uri = new URI(request.getRequestLine().getUri());
-                    throw new HttpException("Error: " + uri.getQuery());
-                } catch(URISyntaxException uri) {
-                    throw new IOException();
-                }
-            }
-
-        };
-
-        NHttpRequestExecutionHandler requestExecutionHandler = new NHttpRequestExecutionHandler() {
-
-            public void initalizeContext(final HttpContext context, final Object attachment) {
-                context.setAttribute("REQ-COUNT", Integer.valueOf(0));
-                context.setAttribute("RES-COUNT", Integer.valueOf(0));
-            }
-
-            public void finalizeContext(final HttpContext context) {
-            }
-
-            public HttpRequest submitRequest(final HttpContext context) {
-                int i = ((Integer) context.getAttribute("REQ-COUNT")).intValue();
-                BasicHttpRequest get = null;
-                if (i < reqNo) {
-                    get = new BasicHttpRequest("GET", "/?" + i);
-                    context.setAttribute("REQ-COUNT", Integer.valueOf(i + 1));
-                }
-                return get;
-            }
-
-            public ConsumingNHttpEntity responseEntity(
+            public void handle(
+                    final HttpRequest request, 
                     final HttpResponse response,
-                    final HttpContext context) throws IOException {
-                return new BufferingNHttpEntity(response.getEntity(),
-                        new HeapByteBufferAllocator());
-            }
-
-            public void handleResponse(final HttpResponse response, final HttpContext context) {
-                NHttpConnection conn = (NHttpConnection) context.getAttribute(
-                        ExecutionContext.HTTP_CONNECTION);
-                
-                int i = ((Integer) context.getAttribute("RES-COUNT")).intValue();
-                i++;
-                context.setAttribute("RES-COUNT", Integer.valueOf(i));
-
-                try {
-                    HttpEntity entity = response.getEntity();
-                    String data = EntityUtils.toString(entity);
-                    if(!data.equals("Error: " + (i-1)))
-                        throw new IOException();
-                    requestCount.decrement();
-                } catch (IOException ex) {
-                    requestCount.abort();
-                    return;
-                }
-
-                if (i < reqNo) {
-                    conn.requestInput();
-                }
+                    final HttpContext context) throws HttpException, IOException {
+                throw new HttpException(request.getRequestLine().getUri());
             }
 
         };
 
-        NHttpServiceHandler serviceHandler = createHttpServiceHandler(
-                requestHandler,
-                null);
+        NHttpRequestExecutionHandler requestExecutionHandler = new TestRequestExecutionHandler() {
 
-        NHttpClientHandler clientHandler = createHttpClientHandler(
-                requestExecutionHandler);
+            @Override
+            protected HttpRequest generateRequest(TestJob testjob) {
+                String s = testjob.getPattern() + "x" + testjob.getCount(); 
+                return new BasicHttpRequest("GET", s);
+            }
+            
+        };
 
-        this.server.setRequestCount(requestCount);
-        this.client.setRequestCount(requestCount);
+        int connNo = 3;
+        int reqNo = 20;
+        TestJob[] jobs = new TestJob[connNo * reqNo];
+        for (int i = 0; i < jobs.length; i++) {
+            jobs[i] = new TestJob(); 
+        }
+        Queue<TestJob> queue = new ConcurrentLinkedQueue<TestJob>();
+        for (int i = 0; i < jobs.length; i++) {
+            queue.add(jobs[i]); 
+        }
+
+        BasicHttpProcessor serverHttpProc = new BasicHttpProcessor();
+        serverHttpProc.addInterceptor(new ResponseDate());
+        serverHttpProc.addInterceptor(new ResponseServer());
+        serverHttpProc.addInterceptor(new ResponseContent());
+        serverHttpProc.addInterceptor(new ResponseConnControl());
+
+        AsyncNHttpServiceHandler serviceHandler = new AsyncNHttpServiceHandler(
+                serverHttpProc,
+                new DefaultHttpResponseFactory(),
+                new DefaultConnectionReuseStrategy(),
+                this.server.getParams());
+
+        serviceHandler.setHandlerResolver(
+                new SimpleNHttpRequestHandlerResolver(requestHandler));
+        serviceHandler.setEventListener(
+                new SimpleEventListener());
+
+        BasicHttpProcessor clientHttpProc = new BasicHttpProcessor();
+        clientHttpProc.addInterceptor(new RequestContent());
+        clientHttpProc.addInterceptor(new RequestTargetHost());
+        clientHttpProc.addInterceptor(new RequestConnControl());
+        clientHttpProc.addInterceptor(new RequestUserAgent());
+        clientHttpProc.addInterceptor(new RequestExpectContinue());
+
+        AsyncNHttpClientHandler clientHandler = new AsyncNHttpClientHandler(
+                clientHttpProc,
+                requestExecutionHandler,
+                new DefaultConnectionReuseStrategy(),
+                this.client.getParams());
+
+        clientHandler.setEventListener(new SimpleEventListener());
         
         this.server.start(serviceHandler);
         this.client.start(clientHandler);
@@ -1550,25 +630,25 @@ public class TestAsyncNHttpHandlers extends TestCase {
         for (int i = 0; i < connNo; i++) {
             this.client.openConnection(
                     new InetSocketAddress("localhost", serverAddress.getPort()),
-                    null);
+                    queue);
         }
 
-        requestCount.await(10000);
-        assertEquals(0, requestCount.getValue());
-
-        this.client.shutdown();
-        this.server.shutdown();
-
+        for (int i = 0; i < jobs.length; i++) {
+            TestJob testjob = jobs[i];
+            testjob.waitFor();
+            if (testjob.isSuccessful()) {
+                assertEquals(HttpStatus.SC_INTERNAL_SERVER_ERROR, testjob.getStatusCode());
+                assertEquals(testjob.getPattern() + "x" + testjob.getCount(), testjob.getResult());
+            } else {
+                fail(testjob.getFailureMessage());
+            }
+        }
     }
     
     /**
      * This test ensures that HttpExceptions work correctly when they are delayed by a trigger.
      */
     public void testDelayedHttpException() throws Exception {
-
-        final int connNo = 3;
-        final int reqNo = 20;
-        final RequestCount requestCount = new RequestCount(connNo * reqNo);
 
         NHttpRequestHandler requestHandler = new NHttpRequestHandler() {
 
@@ -1584,80 +664,66 @@ public class TestAsyncNHttpHandlers extends TestCase {
                     @Override
                     public void run() {
                         try { Thread.sleep(10); } catch(InterruptedException ie) {}
-                        try {
-                            URI uri = new URI(request.getRequestLine().getUri());
-                            trigger.handleException(new HttpException("Error: " + uri.getQuery()));
-                        } catch(URISyntaxException uri) {
-                            trigger.handleException(new IOException());
-                        }
+                        trigger.handleException(
+                                new HttpException(request.getRequestLine().getUri()));
                     }
                 }.start();
             }
 
         };
+        
+        NHttpRequestExecutionHandler requestExecutionHandler = new TestRequestExecutionHandler() {
 
-        NHttpRequestExecutionHandler requestExecutionHandler = new NHttpRequestExecutionHandler() {
-
-            public void initalizeContext(final HttpContext context, final Object attachment) {
-                context.setAttribute("REQ-COUNT", Integer.valueOf(0));
-                context.setAttribute("RES-COUNT", Integer.valueOf(0));
+            @Override
+            protected HttpRequest generateRequest(TestJob testjob) {
+                String s = testjob.getPattern() + "x" + testjob.getCount(); 
+                return new BasicHttpRequest("GET", s);
             }
-
-            public void finalizeContext(final HttpContext context) {
-            }
-
-            public HttpRequest submitRequest(final HttpContext context) {
-                int i = ((Integer) context.getAttribute("REQ-COUNT")).intValue();
-                BasicHttpRequest get = null;
-                if (i < reqNo) {
-                    get = new BasicHttpRequest("GET", "/?" + i);
-                    context.setAttribute("REQ-COUNT", Integer.valueOf(i + 1));
-                }
-                return get;
-            }
-
-            public ConsumingNHttpEntity responseEntity(
-                    final HttpResponse response,
-                    final HttpContext context) throws IOException {
-                return new BufferingNHttpEntity(response.getEntity(),
-                        new HeapByteBufferAllocator());
-            }
-
-            public void handleResponse(final HttpResponse response, final HttpContext context) {
-                NHttpConnection conn = (NHttpConnection) context.getAttribute(
-                        ExecutionContext.HTTP_CONNECTION);
-                
-                int i = ((Integer) context.getAttribute("RES-COUNT")).intValue();
-                i++;
-                context.setAttribute("RES-COUNT", Integer.valueOf(i));
-
-                try {
-                    HttpEntity entity = response.getEntity();
-                    String data = EntityUtils.toString(entity);
-                    if(!data.equals("Error: " + (i-1)))
-                        throw new IOException();
-                    requestCount.decrement();
-                } catch (IOException ex) {
-                    requestCount.abort();
-                    return;
-                }
-
-                if (i < reqNo) {
-                    conn.requestInput();
-                }
-            }
-
+            
         };
 
-        NHttpServiceHandler serviceHandler = createHttpServiceHandler(
-                requestHandler,
-                null);
+        int connNo = 3;
+        int reqNo = 20;
+        TestJob[] jobs = new TestJob[connNo * reqNo];
+        for (int i = 0; i < jobs.length; i++) {
+            jobs[i] = new TestJob(); 
+        }
+        Queue<TestJob> queue = new ConcurrentLinkedQueue<TestJob>();
+        for (int i = 0; i < jobs.length; i++) {
+            queue.add(jobs[i]); 
+        }
 
-        NHttpClientHandler clientHandler = createHttpClientHandler(
-                requestExecutionHandler);
+        BasicHttpProcessor serverHttpProc = new BasicHttpProcessor();
+        serverHttpProc.addInterceptor(new ResponseDate());
+        serverHttpProc.addInterceptor(new ResponseServer());
+        serverHttpProc.addInterceptor(new ResponseContent());
+        serverHttpProc.addInterceptor(new ResponseConnControl());
 
-        this.server.setRequestCount(requestCount);
-        this.client.setRequestCount(requestCount);
+        AsyncNHttpServiceHandler serviceHandler = new AsyncNHttpServiceHandler(
+                serverHttpProc,
+                new DefaultHttpResponseFactory(),
+                new DefaultConnectionReuseStrategy(),
+                this.server.getParams());
+
+        serviceHandler.setHandlerResolver(
+                new SimpleNHttpRequestHandlerResolver(requestHandler));
+        serviceHandler.setEventListener(
+                new SimpleEventListener());
+
+        BasicHttpProcessor clientHttpProc = new BasicHttpProcessor();
+        clientHttpProc.addInterceptor(new RequestContent());
+        clientHttpProc.addInterceptor(new RequestTargetHost());
+        clientHttpProc.addInterceptor(new RequestConnControl());
+        clientHttpProc.addInterceptor(new RequestUserAgent());
+        clientHttpProc.addInterceptor(new RequestExpectContinue());
+
+        AsyncNHttpClientHandler clientHandler = new AsyncNHttpClientHandler(
+                clientHttpProc,
+                requestExecutionHandler,
+                new DefaultConnectionReuseStrategy(),
+                this.client.getParams());
+
+        clientHandler.setEventListener(new SimpleEventListener());
         
         this.server.start(serviceHandler);
         this.client.start(clientHandler);
@@ -1669,83 +735,74 @@ public class TestAsyncNHttpHandlers extends TestCase {
         for (int i = 0; i < connNo; i++) {
             this.client.openConnection(
                     new InetSocketAddress("localhost", serverAddress.getPort()),
-                    null);
+                    queue);
         }
 
-        requestCount.await(10000);
-        assertEquals(0, requestCount.getValue());
-
-        this.client.shutdown();
-        this.server.shutdown();
-
+        for (int i = 0; i < jobs.length; i++) {
+            TestJob testjob = jobs[i];
+            testjob.waitFor();
+            if (testjob.isSuccessful()) {
+                assertEquals(HttpStatus.SC_INTERNAL_SERVER_ERROR, testjob.getStatusCode());
+                assertEquals(testjob.getPattern() + "x" + testjob.getCount(), testjob.getResult());
+            } else {
+                fail(testjob.getFailureMessage());
+            }
+        }
     }
     
-
     /**
      * This test makes sure that if no service handler is installed, things still work.
      */
     public void testNoServiceHandler() throws Exception {
+        NHttpRequestExecutionHandler requestExecutionHandler = new TestRequestExecutionHandler() {
 
-        final int connNo = 3;
-        final int reqNo = 1;
-        final RequestCount requestCount = new RequestCount(connNo * reqNo);
-
-        NHttpRequestExecutionHandler requestExecutionHandler = new NHttpRequestExecutionHandler() {
-
-            public void initalizeContext(final HttpContext context, final Object attachment) {
-                context.setAttribute("REQ-COUNT", Integer.valueOf(0));
-                context.setAttribute("RES-COUNT", Integer.valueOf(0));
+            @Override
+            protected HttpRequest generateRequest(TestJob testjob) {
+                String s = testjob.getPattern() + "x" + testjob.getCount();
+                return new BasicHttpRequest("GET", s);
             }
-
-            public void finalizeContext(final HttpContext context) {
-            }
-
-            public HttpRequest submitRequest(final HttpContext context) {
-                int i = ((Integer) context.getAttribute("REQ-COUNT")).intValue();
-                BasicHttpRequest get = null;
-                if (i < reqNo) {
-                    get = new BasicHttpRequest("GET", "/?" + i);
-                    context.setAttribute("REQ-COUNT", Integer.valueOf(i + 1));
-                }
-                return get;
-            }
-
-            public ConsumingNHttpEntity responseEntity(
-                    final HttpResponse response,
-                    final HttpContext context) throws IOException {
-                return new BufferingNHttpEntity(response.getEntity(),
-                        new HeapByteBufferAllocator());
-            }
-
-            public void handleResponse(final HttpResponse response, final HttpContext context) {
-                NHttpConnection conn = (NHttpConnection) context.getAttribute(
-                        ExecutionContext.HTTP_CONNECTION);
-                
-                int i = ((Integer) context.getAttribute("RES-COUNT")).intValue();
-                i++;
-                context.setAttribute("RES-COUNT", Integer.valueOf(i));
-
-                if(response.getStatusLine().getStatusCode() == 501)
-                    requestCount.decrement();
-                else
-                    requestCount.abort();
-
-                if (i < reqNo) {
-                    conn.requestInput();
-                }
-            }
-
+            
         };
 
-        NHttpServiceHandler serviceHandler = createHttpServiceHandler(
-                null,
-                null);
+        int connNo = 5;
+        TestJob[] jobs = new TestJob[connNo];
+        for (int i = 0; i < jobs.length; i++) {
+            jobs[i] = new TestJob(); 
+        }
+        Queue<TestJob> queue = new ConcurrentLinkedQueue<TestJob>();
+        for (int i = 0; i < jobs.length; i++) {
+            queue.add(jobs[i]); 
+        }
 
-        NHttpClientHandler clientHandler = createHttpClientHandler(
-                requestExecutionHandler);
+        BasicHttpProcessor serverHttpProc = new BasicHttpProcessor();
+        serverHttpProc.addInterceptor(new ResponseDate());
+        serverHttpProc.addInterceptor(new ResponseServer());
+        serverHttpProc.addInterceptor(new ResponseContent());
+        serverHttpProc.addInterceptor(new ResponseConnControl());
 
-        this.server.setRequestCount(requestCount);
-        this.client.setRequestCount(requestCount);
+        AsyncNHttpServiceHandler serviceHandler = new AsyncNHttpServiceHandler(
+                serverHttpProc,
+                new DefaultHttpResponseFactory(),
+                new DefaultConnectionReuseStrategy(),
+                this.server.getParams());
+
+        serviceHandler.setEventListener(
+                new SimpleEventListener());
+
+        BasicHttpProcessor clientHttpProc = new BasicHttpProcessor();
+        clientHttpProc.addInterceptor(new RequestContent());
+        clientHttpProc.addInterceptor(new RequestTargetHost());
+        clientHttpProc.addInterceptor(new RequestConnControl());
+        clientHttpProc.addInterceptor(new RequestUserAgent());
+        clientHttpProc.addInterceptor(new RequestExpectContinue());
+
+        AsyncNHttpClientHandler clientHandler = new AsyncNHttpClientHandler(
+                clientHttpProc,
+                requestExecutionHandler,
+                new DefaultConnectionReuseStrategy(),
+                this.client.getParams());
+
+        clientHandler.setEventListener(new SimpleEventListener());
         
         this.server.start(serviceHandler);
         this.client.start(clientHandler);
@@ -1757,15 +814,20 @@ public class TestAsyncNHttpHandlers extends TestCase {
         for (int i = 0; i < connNo; i++) {
             this.client.openConnection(
                     new InetSocketAddress("localhost", serverAddress.getPort()),
-                    null);
+                    queue);
         }
 
-        requestCount.await(10000);
-        assertEquals(0, requestCount.getValue());
+        for (int i = 0; i < jobs.length; i++) {
+            TestJob testjob = jobs[i];
 
-        this.client.shutdown();
-        this.server.shutdown();
-
+            testjob.waitFor();
+            if (testjob.isSuccessful()) {
+                assertEquals(HttpStatus.SC_NOT_IMPLEMENTED, testjob.getStatusCode());
+                assertEquals("", testjob.getResult());
+            } else {
+                fail(testjob.getFailureMessage());
+            }
+        }
     }
     
     /**
@@ -1774,124 +836,83 @@ public class TestAsyncNHttpHandlers extends TestCase {
      * and the server can read them.
      */
     public void testHttpPostWithNoEntities() throws Exception {
-
-        final int connNo = 3;
-        final int reqNo = 20;
-        final RequestCount requestCount = new RequestCount(connNo * reqNo);
-
-        NHttpRequestHandler requestHandler = new SimpleNHttpRequestHandler() {
-
-            public ConsumingNHttpEntity entityRequest(
-                    final HttpEntityEnclosingRequest request,
-                    final HttpContext context) throws HttpException, IOException {
-                return new BufferingNHttpEntity(
-                        request.getEntity(),
-                        new HeapByteBufferAllocator());
-            }
+        NHttpRequestExecutionHandler requestExecutionHandler = new TestRequestExecutionHandler() {
 
             @Override
-            public void handle(
-                    final HttpRequest request,
-                    final HttpResponse response,
-                    final HttpContext context) throws HttpException, IOException {
-                if (request instanceof HttpEntityEnclosingRequest) {
-                    HttpEntity entity = ((HttpEntityEnclosingRequest) request).getEntity();
-                    byte[] b = EntityUtils.toByteArray(entity);
-                    if(b.length != 0)
-                        response.setEntity(new NStringEntity("Error!"));
-                    else
-                        response.setEntity(null);
-                } else {
-                    response.setEntity(null);
-                }
+            protected HttpRequest generateRequest(TestJob testjob) {
+                String s = testjob.getPattern() + "x" + testjob.getCount(); 
+                HttpEntityEnclosingRequest r = new BasicHttpEntityEnclosingRequest("POST", s);
+                r.setEntity(null);
+                return r;
             }
+            
         };
+        
+        int connNo = 3;
+        int reqNo = 20;
+        TestJob[] jobs = new TestJob[connNo * reqNo];
+        for (int i = 0; i < jobs.length; i++) {
+            jobs[i] = new TestJob(); 
+        }
+        Queue<TestJob> queue = new ConcurrentLinkedQueue<TestJob>();
+        for (int i = 0; i < jobs.length; i++) {
+            queue.add(jobs[i]); 
+        }
 
-        NHttpRequestExecutionHandler requestExecutionHandler = new NHttpRequestExecutionHandler() {
+        BasicHttpProcessor serverHttpProc = new BasicHttpProcessor();
+        serverHttpProc.addInterceptor(new ResponseDate());
+        serverHttpProc.addInterceptor(new ResponseServer());
+        serverHttpProc.addInterceptor(new ResponseContent());
+        serverHttpProc.addInterceptor(new ResponseConnControl());
 
-            public void initalizeContext(final HttpContext context, final Object attachment) {
-                context.setAttribute("REQ-COUNT", Integer.valueOf(0));
-                context.setAttribute("RES-COUNT", Integer.valueOf(0));
-            }
+        AsyncNHttpServiceHandler serviceHandler = new AsyncNHttpServiceHandler(
+                serverHttpProc,
+                new DefaultHttpResponseFactory(),
+                new DefaultConnectionReuseStrategy(),
+                this.server.getParams());
 
-            public void finalizeContext(final HttpContext context) {
-            }
+        serviceHandler.setHandlerResolver(
+                new SimpleNHttpRequestHandlerResolver(new TestRequestHandler()));
+        serviceHandler.setEventListener(
+                new SimpleEventListener());
 
-            public ConsumingNHttpEntity responseEntity(
-                    final HttpResponse response,
-                    final HttpContext context) throws IOException {
-                return new BufferingNHttpEntity(response.getEntity(),
-                        new HeapByteBufferAllocator());
-            }
+        BasicHttpProcessor clientHttpProc = new BasicHttpProcessor();
+        clientHttpProc.addInterceptor(new RequestContent());
+        clientHttpProc.addInterceptor(new RequestTargetHost());
+        clientHttpProc.addInterceptor(new RequestConnControl());
+        clientHttpProc.addInterceptor(new RequestUserAgent());
+        clientHttpProc.addInterceptor(new RequestExpectContinue());
 
-            public HttpRequest submitRequest(final HttpContext context) {
-                int i = ((Integer) context.getAttribute("REQ-COUNT")).intValue();
-                BasicHttpEntityEnclosingRequest post = null;
-                if (i < reqNo) {
-                    post = new BasicHttpEntityEnclosingRequest("POST", "/?" + i);
-                    context.setAttribute("REQ-COUNT", Integer.valueOf(i + 1));
-                }
-                return post;
-            }
+        AsyncNHttpClientHandler clientHandler = new AsyncNHttpClientHandler(
+                clientHttpProc,
+                requestExecutionHandler,
+                new DefaultConnectionReuseStrategy(),
+                this.client.getParams());
 
-            public void handleResponse(final HttpResponse response, final HttpContext context) {
-                NHttpConnection conn = (NHttpConnection) context.getAttribute(
-                        ExecutionContext.HTTP_CONNECTION);
-
-                int i = ((Integer) context.getAttribute("RES-COUNT")).intValue();
-                i++;
-                context.setAttribute("RES-COUNT", Integer.valueOf(i));
-
-                try {
-                    HttpEntity entity = response.getEntity();
-                    byte[] data = EntityUtils.toByteArray(entity);
-                    if(data.length > 0)
-                        requestCount.abort();
-                    else
-                        requestCount.decrement();
-                } catch (IOException ex) {
-                    requestCount.abort();
-                    return;
-                }
-
-                if (i < reqNo) {
-                    conn.requestInput();
-                }
-            }
-
-        };
-
-        NHttpServiceHandler serviceHandler = createHttpServiceHandler(
-                requestHandler,
-                null);
-
-        NHttpClientHandler clientHandler = createHttpClientHandler(
-                requestExecutionHandler);
-
-        this.server.setRequestCount(requestCount);
-        this.client.setRequestCount(requestCount);
+        clientHandler.setEventListener(new SimpleEventListener());
         
         this.server.start(serviceHandler);
         this.client.start(clientHandler);
-        
-        
 
         ListenerEndpoint endpoint = this.server.getListenerEndpoint();
         endpoint.waitFor();
-        
         InetSocketAddress serverAddress = (InetSocketAddress) endpoint.getAddress();
 
         for (int i = 0; i < connNo; i++) {
             this.client.openConnection(
                     new InetSocketAddress("localhost", serverAddress.getPort()),
-                    null);
+                    queue);
         }
 
-        requestCount.await(10000);
-        assertEquals(0, requestCount.getValue());
-
-        this.client.shutdown();
-        this.server.shutdown();
-
+        for (int i = 0; i < jobs.length; i++) {
+            TestJob testjob = jobs[i];
+            testjob.waitFor();
+            if (testjob.isSuccessful()) {
+                assertEquals(HttpStatus.SC_OK, testjob.getStatusCode());
+                assertEquals("", testjob.getResult());
+            } else {
+                fail(testjob.getFailureMessage());
+            }
+        }
     }
 }

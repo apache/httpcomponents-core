@@ -1,7 +1,7 @@
 /*
- * $HeadURL$
- * $Revision$
- * $Date$
+ * $HeadURL:$
+ * $Revision:$
+ * $Date:$
  *
  * ====================================================================
  * Licensed to the Apache Software Foundation (ASF) under one
@@ -29,32 +29,14 @@
  *
  */
 
-package org.apache.http.mockup;
+package org.apache.http;
 
-import java.util.ArrayList;
-import java.util.List;
+public class OoopsieRuntimeException extends RuntimeException {
 
-import org.apache.http.HttpResponse;
+    private static final long serialVersionUID = 662807254163212266L;
 
-public class ResponseSequence {
-
-    private final List<HttpResponse> data;
-    
-    public ResponseSequence() {
-        super();
-        this.data = new ArrayList<HttpResponse>();
-    }
-    
-    public void addResponse(final HttpResponse response) {
-        this.data.add(response);
-    }
-    
-    public int size() {
-        return this.data.size();
-    }
-
-    public HttpResponse getResponse(int index) {
-        return this.data.get(index);
+    public OoopsieRuntimeException() {
+        super("Ooopsie!!!");
     }
     
 }

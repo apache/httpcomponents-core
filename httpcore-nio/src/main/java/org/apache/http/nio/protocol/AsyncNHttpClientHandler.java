@@ -68,7 +68,7 @@ import org.apache.http.protocol.HttpProcessor;
  * and {@link ProducingNHttpEntity} interfaces.
  * 
  * When using this implementation, it is important to ensure that entities 
- * supplied for writing implement !ProducingNHttpEntity. Doing so will allow 
+ * supplied for writing implement {@link ProducingNHttpEntity}. Doing so will allow 
  * the entity to be written out asynchronously. If entities supplied for writing 
  * do not implement the {@link ProducingNHttpEntity} interface, a delegate is 
  * added that buffers the entire contents in memory. Additionally, the 

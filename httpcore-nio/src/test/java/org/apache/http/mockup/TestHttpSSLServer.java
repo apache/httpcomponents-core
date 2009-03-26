@@ -46,6 +46,7 @@ import org.apache.http.impl.nio.reactor.DefaultListeningIOReactor;
 import org.apache.http.impl.nio.reactor.ExceptionEvent;
 import org.apache.http.nio.NHttpServiceHandler;
 import org.apache.http.nio.reactor.IOEventDispatch;
+import org.apache.http.nio.reactor.IOReactorExceptionHandler;
 import org.apache.http.nio.reactor.IOReactorStatus;
 import org.apache.http.nio.reactor.ListenerEndpoint;
 import org.apache.http.params.HttpParams;
@@ -98,6 +99,10 @@ public class TestHttpSSLServer {
         this.requestCount = requestCount;
     }
 
+    public void setExceptionHandler(final IOReactorExceptionHandler exceptionHandler) {
+        this.ioReactor.setExceptionHandler(exceptionHandler);
+    }
+
     private void execute(final NHttpServiceHandler serviceHandler) throws IOException {
         IOEventDispatch ioEventDispatch = new SSLServerIOEventDispatch(
                 serviceHandler, 
@@ -115,6 +120,12 @@ public class TestHttpSSLServer {
         this.endpoint = this.ioReactor.listen(new InetSocketAddress(0));
         this.thread = new IOReactorThread(serviceHandler);
         this.thread.start();
+    }
+    
+    public void join(long timeout) throws InterruptedException {
+        if (this.thread != null) {
+            this.thread.join(timeout);
+        }
     }
     
     public Exception getException() {

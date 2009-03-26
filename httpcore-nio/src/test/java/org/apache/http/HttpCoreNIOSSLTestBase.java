@@ -31,10 +31,14 @@
 package org.apache.http;
 
 
+import java.io.IOException;
+import java.util.List;
+
 import junit.framework.TestCase;
 
 import org.apache.http.impl.DefaultConnectionReuseStrategy;
 import org.apache.http.impl.DefaultHttpResponseFactory;
+import org.apache.http.impl.nio.reactor.ExceptionEvent;
 import org.apache.http.mockup.SimpleHttpRequestHandlerResolver;
 import org.apache.http.mockup.TestHttpSSLClient;
 import org.apache.http.mockup.TestHttpSSLServer;
@@ -99,11 +103,38 @@ public class HttpCoreNIOSSLTestBase extends TestCase {
     }
 
     @Override
-    protected void tearDown() throws Exception {
-        this.server.shutdown();
-        this.client.shutdown();
+    protected void tearDown() {
+        try {
+            this.client.shutdown();
+        } catch (IOException ex) {
+            ex.printStackTrace();
+        }
+        List<ExceptionEvent> clogs = this.client.getAuditLog();
+        if (clogs != null) {
+            for (ExceptionEvent clog: clogs) {
+                Throwable cause = clog.getCause();
+                if (!(cause instanceof OoopsieRuntimeException)) {
+                    cause.printStackTrace();
+                }
+            }
+        }
+
+        try {
+            this.server.shutdown();
+        } catch (IOException ex) {
+            ex.printStackTrace();
+        }
+        List<ExceptionEvent> slogs = this.server.getAuditLog();
+        if (slogs != null) {
+            for (ExceptionEvent slog: slogs) {
+                Throwable cause = slog.getCause();
+                if (!(cause instanceof OoopsieRuntimeException)) {
+                    cause.printStackTrace();
+                }
+            }
+        }
     }
-    
+
     protected NHttpServiceHandler createHttpServiceHandler(
             final HttpRequestHandler requestHandler,
             final HttpExpectationVerifier expectationVerifier,
