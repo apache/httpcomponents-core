@@ -108,6 +108,7 @@ public abstract class AbstractMultiworkerIOReactor implements IOReactor {
     protected final HttpParams params;
     protected final Selector selector;
     protected final long selectTimeout;
+    protected final boolean interestOpsQueueing;
 
     private final int workerCount;
     private final ThreadFactory threadFactory;
@@ -148,6 +149,7 @@ public abstract class AbstractMultiworkerIOReactor implements IOReactor {
         }
         this.params = params;
         this.selectTimeout = NIOReactorParams.getSelectInterval(params);
+        this.interestOpsQueueing = NIOReactorParams.getInterestOpsQueueing(params);
         this.statusLock = new Object();
         this.workerCount = workerCount;
         if (threadFactory != null) {
@@ -282,7 +284,7 @@ public abstract class AbstractMultiworkerIOReactor implements IOReactor {
             this.status = IOReactorStatus.ACTIVE;
             // Start I/O dispatchers
             for (int i = 0; i < this.dispatchers.length; i++) {
-                BaseIOReactor dispatcher = new BaseIOReactor(this.selectTimeout);
+                BaseIOReactor dispatcher = new BaseIOReactor(this.selectTimeout, this.interestOpsQueueing);
                 dispatcher.setExceptionHandler(exceptionHandler);
                 this.dispatchers[i] = dispatcher;
             }

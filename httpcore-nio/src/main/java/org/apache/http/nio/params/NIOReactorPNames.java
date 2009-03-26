@@ -68,4 +68,12 @@ public interface NIOReactorPNames {
      */
     public static final String GRACE_PERIOD = "http.nio.grace-period"; 
 
+    /**
+     * Determines whether interestOps() queueing is enabled for the I/O reactors.
+     * <p>
+     * This parameter expects a value of type {@link Boolean}.
+     * </p>
+     */
+    public static final String INTEREST_OPS_QUEUEING = "http.nio.interest-ops-queueing";
+
 }

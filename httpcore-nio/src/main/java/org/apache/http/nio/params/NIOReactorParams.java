@@ -91,4 +91,18 @@ public final class NIOReactorParams implements NIOReactorPNames {
         params.setLongParameter(GRACE_PERIOD, ms);
     }
 
+    public static boolean getInterestOpsQueueing(final HttpParams params) {
+        if (params == null) {
+            throw new IllegalArgumentException("HTTP parameters may not be null");
+        }
+        return params.getBooleanParameter(INTEREST_OPS_QUEUEING, false);
+    }
+
+    public static void setInterestOpsQueueing(final HttpParams params, boolean interestOpsQueueing) {
+        if (params == null) {
+            throw new IllegalArgumentException("HTTP parameters may not be null");
+        }
+        params.setBooleanParameter(INTEREST_OPS_QUEUEING, interestOpsQueueing);
+    }
+
 }
