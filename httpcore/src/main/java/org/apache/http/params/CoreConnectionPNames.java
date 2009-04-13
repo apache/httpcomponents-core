@@ -42,8 +42,9 @@ public interface CoreConnectionPNames {
 
     /**
      * Defines the socket timeout (<code>SO_TIMEOUT</code>) in milliseconds,
-     * which is the timeout for waiting for data. A timeout value of zero is 
-     * interpreted as an infinite timeout. 
+     * which is the timeout for waiting for data  or, put differently, 
+     * a maximum period inactivity between two consecutive data packets). 
+     * A timeout value of zero is interpreted as an infinite timeout. 
      * <p>
      * This parameter expects a value of type {@link Integer}.
      * </p>
@@ -78,7 +79,7 @@ public interface CoreConnectionPNames {
      * Sets SO_LINGER with the specified linger time in seconds. The maximum 
      * timeout value is platform specific. Value <code>0</code> implies that 
      * the option is disabled. Value <code>-1</code> implies that the JRE 
-     * default is used. The setting only affects  socket close.  
+     * default is used. The setting only affects the socket close operation.  
      * <p>
      * This parameter expects a value of type {@link Integer}.
      * </p>
@@ -96,10 +97,10 @@ public interface CoreConnectionPNames {
     public static final String CONNECTION_TIMEOUT = "http.connection.timeout"; 
 
     /**
-     * Determines whether stale connection check is to be used. Disabling 
-     * stale connection check may result in slight performance improvement 
-     * at the risk of getting an I/O error when executing a request over a
-     * connection that has been closed at the server side. 
+     * Determines whether stale connection check is to be used. The stale 
+     * connection check can cause up to 30 millisecond overhead per request and  
+     * should be used only when appropriate. For performance critical 
+     * operations this check should be disabled.
      * <p>
      * This parameter expects a value of type {@link Boolean}.
      * </p>

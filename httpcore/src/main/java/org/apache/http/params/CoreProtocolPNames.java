@@ -95,7 +95,7 @@ public interface CoreProtocolPNames {
      * <p>
      * Activates 'Expect: 100-Continue' handshake for the 
      * entity enclosing methods. The purpose of the 'Expect: 100-Continue'
-     * handshake to allow a client that is sending a request message with 
+     * handshake is to allow a client that is sending a request message with 
      * a request body to determine if the origin server is willing to 
      * accept the request (based on the request headers) before the client
      * sends the request body.
@@ -103,7 +103,7 @@ public interface CoreProtocolPNames {
      * 
      * <p>
      * The use of the 'Expect: 100-continue' handshake can result in 
-     * noticable peformance improvement for entity enclosing requests
+     * a noticeable performance improvement for entity enclosing requests
      * (such as POST and PUT) that require the target server's 
      * authentication.
      * </p>
