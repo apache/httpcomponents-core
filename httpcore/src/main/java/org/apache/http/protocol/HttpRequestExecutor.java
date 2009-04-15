@@ -95,6 +95,12 @@ public class HttpRequestExecutor {
 
     /**
      * Sends the request and obtain a response.
+     * <p>
+     * The following parameters can be used to customize the behavior 
+     * of this method: 
+     * <ul>
+     *  <li>{@link org.apache.http.params.CoreProtocolPNames#WAIT_FOR_CONTINUE}</li>
+     * </ul>
      *
      * @param request   the request to execute.
      * @param conn      the connection over which to execute the request.
@@ -175,6 +181,12 @@ public class HttpRequestExecutor {
      * If it does not have to handle an expect-continue handshake, it will
      * not use the connection for reading or anything else that depends on
      * data coming in over the connection.
+     * <p>
+     * The following parameters can be used to customize the behavior 
+     * of this method: 
+     * <ul>
+     *  <li>{@link org.apache.http.params.CoreProtocolPNames#WAIT_FOR_CONTINUE}</li>
+     * </ul>
      *
      * @param request   the request to send, already
      *                  {@link #preProcess preprocessed}

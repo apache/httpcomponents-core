@@ -34,7 +34,6 @@ package org.apache.http.impl;
 import java.io.IOException;
 import java.net.Socket;
 
-import org.apache.http.params.CoreConnectionPNames;
 import org.apache.http.params.HttpConnectionParams;
 import org.apache.http.params.HttpParams;
 
@@ -55,23 +54,14 @@ public class DefaultHttpServerConnection extends SocketHttpServerConnection {
     /**
      * {@inheritDoc}
      * <p>
-     * {@link CoreConnectionPNames#TCP_NODELAY} parameter determines whether 
-     * Nagle's algorithm is to be used. The Nagle's algorithm tries to conserve 
-     * bandwidth by minimizing the number of segments that are sent. When 
-     * applications wish to decrease network latency and increase performance, 
-     * they can disable Nagle's algorithm (that is enable TCP_NODELAY). Data 
-     * will be sent earlier, at the cost of an increase in bandwidth 
-     * consumption.
-     * <p>
-     * {@link CoreConnectionPNames#SO_TIMEOUT} parameter defines the socket 
-     * timeout in milliseconds, which is the timeout for waiting for data. 
-     * A timeout value of zero is interpreted as an infinite timeout.
-     * <p>
-     * {@link CoreConnectionPNames#SO_LINGER} parameter defines linger time 
-     * in seconds. The maximum timeout value is platform specific. Value 
-     * <code>0</code> implies that the option is disabled. Value <code>-1</code>
-     * implies that the JRE default is to be used. The setting only affects 
-     * socket close.
+     * The following parameters can be used to customize the behavior 
+     * of this method: 
+     * <ul>
+     *  <li>{@link org.apache.http.params.CoreConnectionPNames#TCP_NODELAY}</li>
+     *  <li>{@link org.apache.http.params.CoreConnectionPNames#SO_TIMEOUT}</li>
+     *  <li>{@link org.apache.http.params.CoreConnectionPNames#SO_LINGER}</li>
+     * </ul>
+     * </p>
      */
     public void bind(final Socket socket, final HttpParams params) throws IOException {
         if (socket == null) {

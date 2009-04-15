@@ -43,7 +43,6 @@ import org.apache.http.ParseException;
 import org.apache.http.io.SessionInputBuffer;
 import org.apache.http.message.LineParser;
 import org.apache.http.message.ParserCursor;
-import org.apache.http.params.CoreConnectionPNames;
 import org.apache.http.params.HttpParams;
 import org.apache.http.util.CharArrayBuffer;
 
@@ -61,19 +60,12 @@ public class HttpRequestParser extends AbstractMessageParser {
     /**
      * Creates an instance of this class.
      * <p>
-     * The following HTTP parameters affect the initialization:
-     * <p>
-     * {@link CoreConnectionPNames#MAX_HEADER_COUNT} parameter determines 
-     * the maximum HTTP header count allowed. If set to a positive value, 
-     * the number of HTTP headers received from the data stream exceeding 
-     * this limit will cause an IOException. A negative or zero value will 
-     * effectively disable the check. Per default the check is disabled. 
-     * <p>
-     * {@link CoreConnectionPNames#MAX_LINE_LENGTH} parameter determines 
-     * the maximum line length limit. If set to a positive value, any HTTP line 
-     * exceeding this limit will cause an IOException. A negative or zero value
-     * will effectively disable the check the check. Per default the check is 
-     * disabled.
+     * The following parameters can be used to customize the behavior 
+     * of this method: 
+     * <ul>
+     *  <li>{@link org.apache.http.params.CoreConnectionPNames#MAX_HEADER_COUNT}</li>
+     *  <li>{@link org.apache.http.params.CoreConnectionPNames#MAX_LINE_LENGTH}</li>
+     * </ul>
      * 
      * @param buffer the session input buffer.
      * @param parser the line parser.

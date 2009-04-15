@@ -53,6 +53,16 @@ public class RequestUserAgent implements HttpRequestInterceptor {
         super();
     }
     
+    /**
+     * {@inheritDoc}
+     * <p>
+     * The following parameters can be used to customize the behavior 
+     * of this method: 
+     * <ul>
+     *  <li>{@link org.apache.http.params.CoreProtocolPNames#USER_AGENT}</li>
+     * </ul>
+     * </p>
+     */
     public void process(final HttpRequest request, final HttpContext context) 
         throws HttpException, IOException {
         if (request == null) {

@@ -36,7 +36,6 @@ import java.io.OutputStream;
 
 import org.apache.http.io.SessionOutputBuffer;
 import org.apache.http.io.HttpTransportMetrics;
-import org.apache.http.params.CoreProtocolPNames;
 import org.apache.http.params.HttpParams;
 import org.apache.http.params.HttpProtocolParams;
 import org.apache.http.protocol.HTTP;
@@ -70,17 +69,16 @@ public abstract class AbstractSessionOutputBuffer implements SessionOutputBuffer
     /**
      * Initializes this session output buffer. 
      * <p>
-     * The following HTTP parameters affect the initialization:
+     * The following parameters can be used to customize the behavior 
+     * of this method: 
+     * <ul>
+     *  <li>{@link org.apache.http.params.CoreProtocolPNames#HTTP_ELEMENT_CHARSET}</li>
+     * </ul>
      * <p>
-     * The {@link CoreProtocolPNames#HTTP_ELEMENT_CHARSET}
-     * parameter determines the charset to be used for encoding HTTP lines. If 
-     * not specified, <code>US-ASCII</code> will be used per default.
      *    
      * @param outstream the destination output stream. 
      * @param buffersize the size of the internal buffer.
      * @param params HTTP parameters.
-     * 
-     * @see CoreProtocolPNames#HTTP_ELEMENT_CHARSET
      */
     protected void init(final OutputStream outstream, int buffersize, final HttpParams params) {
         if (outstream == null) {

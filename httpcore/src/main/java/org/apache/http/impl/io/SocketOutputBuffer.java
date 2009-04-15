@@ -35,7 +35,6 @@ import java.io.IOException;
 import java.net.Socket;
 
 import org.apache.http.io.SessionOutputBuffer;
-import org.apache.http.params.CoreProtocolPNames;
 import org.apache.http.params.HttpParams;
 
 /**
@@ -51,11 +50,11 @@ public class SocketOutputBuffer extends AbstractSessionOutputBuffer {
     /**
      * Creates an instance of this class. 
      * <p>
-     * The following HTTP parameters affect the initialization:
-     * <p>
-     * The {@link CoreProtocolPNames#HTTP_ELEMENT_CHARSET}
-     * parameter determines the charset to be used for encoding HTTP lines. If 
-     * not specified, <code>US-ASCII</code> will be used per default.
+     * The following parameters can be used to customize the behavior 
+     * of this method: 
+     * <ul>
+     *  <li>{@link org.apache.http.params.CoreProtocolPNames#HTTP_ELEMENT_CHARSET}</li>
+     * </ul>
      *    
      * @param socket the socket to write data to. 
      * @param buffersize the size of the internal buffer. If this number is less
@@ -63,8 +62,6 @@ public class SocketOutputBuffer extends AbstractSessionOutputBuffer {
      *   {@link Socket#getSendBufferSize()}. If resultant number is less 
      *   than <code>1024</code> it is set to <code>1024</code>. 
      * @param params HTTP parameters.
-     * 
-     * @see CoreProtocolPNames#HTTP_ELEMENT_CHARSET
      */
     public SocketOutputBuffer(
             final Socket socket, 

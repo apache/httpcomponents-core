@@ -37,8 +37,6 @@ import java.net.Socket;
 
 import org.apache.http.io.EofSensor;
 import org.apache.http.io.SessionInputBuffer;
-import org.apache.http.params.CoreConnectionPNames;
-import org.apache.http.params.CoreProtocolPNames;
 import org.apache.http.params.HttpParams;
 
 /**
@@ -82,17 +80,12 @@ public class SocketInputBuffer extends AbstractSessionInputBuffer implements Eof
     /**
      * Creates an instance of this class. 
      * <p>
-     * The following HTTP parameters affect the initialization:
-     * <p>
-     * The {@link CoreProtocolPNames#HTTP_ELEMENT_CHARSET}
-     * parameter determines the charset to be used for decoding HTTP lines. If 
-     * not specified, <code>US-ASCII</code> will be used per default.
-     * <p>
-     * The {@link CoreConnectionPNames#MAX_LINE_LENGTH} parameter determines 
-     * the maximum line length limit. If set to a positive value, any HTTP 
-     * line exceeding this limit will cause an IOException. A negative or zero 
-     * value will effectively disable the check. Per default the line length 
-     * check is disabled.
+     * The following parameters can be used to customize the behavior 
+     * of this method: 
+     * <ul>
+     *  <li>{@link org.apache.http.params.CoreProtocolPNames#HTTP_ELEMENT_CHARSET}</li>
+     *  <li>{@link org.apache.http.params.CoreConnectionPNames#MAX_LINE_LENGTH}</li>
+     * </ul>
      *    
      * @param socket the socket to read data from. 
      * @param buffersize the size of the internal buffer. If this number is less
@@ -100,9 +93,6 @@ public class SocketInputBuffer extends AbstractSessionInputBuffer implements Eof
      *   {@link Socket#getReceiveBufferSize()}. If resultant number is less 
      *   than <code>1024</code> it is set to <code>1024</code>. 
      * @param params HTTP parameters.
-     * 
-     * @see CoreProtocolPNames#HTTP_ELEMENT_CHARSET
-     * @see CoreConnectionPNames#MAX_LINE_LENGTH
      */
     public SocketInputBuffer(
             final Socket socket, 

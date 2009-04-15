@@ -579,9 +579,8 @@ public abstract class AbstractIOReactor implements IOReactor {
     }
 
     /** 
-     * Adds an {@link org.apache.http.impl.nio.reactor.IOSessionQueueElement IOSessionQueueElement}
-     * to the {@link java.nio.channels.SelectionKey#interestOps(int) interestOps(int)} queue for
-     * this instance. 
+     * Adds an {@link InterestOpEntry} to the interest ops queue for this instance.
+     *  
      * @return <code>true</code> if the operation could be performed successfully, 
      *   <code>false</code> otherwise.
      */

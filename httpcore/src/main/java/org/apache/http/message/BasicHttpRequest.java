@@ -122,6 +122,12 @@ public class BasicHttpRequest extends AbstractHttpMessage implements HttpRequest
      * Returns the request line of this request. If an HTTP protocol version
      * was not explicitly set at the construction time, this method will obtain 
      * it from the {@link HttpParams} instance associated with the object.
+     * <p>
+     * The following parameters can be used to customize the behavior 
+     * of this method: 
+     * <ul>
+     *  <li>{@link org.apache.http.params.CoreProtocolPNames#PROTOCOL_VERSION}</li>
+     * </ul>
      *  
      * @see #BasicHttpRequest(String, String)
      */

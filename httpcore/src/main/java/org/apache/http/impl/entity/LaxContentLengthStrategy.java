@@ -61,6 +61,16 @@ public class LaxContentLengthStrategy implements ContentLengthStrategy {
         super();
     }
 
+    /**
+     * {@inheritDoc}
+     * <p>
+     * The following parameters can be used to customize the behavior 
+     * of this method: 
+     * <ul>
+     *  <li>{@link org.apache.http.params.CoreProtocolPNames#STRICT_TRANSFER_ENCODING}</li>
+     * </ul>
+     * </p>
+     */
     public long determineLength(final HttpMessage message) throws HttpException {
         if (message == null) {
             throw new IllegalArgumentException("HTTP message may not be null");

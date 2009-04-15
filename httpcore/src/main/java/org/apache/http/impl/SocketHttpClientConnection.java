@@ -41,7 +41,6 @@ import org.apache.http.impl.io.SocketInputBuffer;
 import org.apache.http.impl.io.SocketOutputBuffer;
 import org.apache.http.io.SessionInputBuffer;
 import org.apache.http.io.SessionOutputBuffer;
-import org.apache.http.params.CoreConnectionPNames;
 import org.apache.http.params.HttpConnectionParams;
 import org.apache.http.params.HttpParams;
 
@@ -135,12 +134,11 @@ public class SocketHttpClientConnection
      * After this method's execution the connection status will be reported
      * as open and the {@link #isOpen()} will return <code>true</code>.
      * <p>
-     * The following HTTP parameters affect configuration of this connection:
-     * <p>
-     * The {@link CoreConnectionPNames#SOCKET_BUFFER_SIZE}
-     * parameter determines the size of the internal socket buffer. If not 
-     * defined or set to <code>-1</code> the default value will be chosen
-     * automatically.
+     * The following parameters can be used to customize the behavior 
+     * of this method: 
+     * <ul>
+     *  <li>{@link org.apache.http.params.CoreConnectionPNames#SOCKET_BUFFER_SIZE}</li>
+     * </ul>
      * 
      * @param socket the socket.
      * @param params HTTP parameters.

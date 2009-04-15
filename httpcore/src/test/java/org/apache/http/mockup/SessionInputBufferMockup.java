@@ -41,8 +41,7 @@ import org.apache.http.params.BasicHttpParams;
 import org.apache.http.params.HttpParams;
 
 /**
- * {@link org.apache.http.impl.io.IdentityInputStream} mockup implementation.
- *
+ * {@link org.apache.http.io.SessionInputBuffer} mockup implementation.
  */
 public class SessionInputBufferMockup extends AbstractSessionInputBuffer {
 
