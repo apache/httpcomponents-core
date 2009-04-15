@@ -49,9 +49,11 @@ import org.apache.http.protocol.HTTP;
  * parameter of the given message is not set or set to <code>false</code>. 
  * <p>
  * This class recognizes "chunked" and "identitiy" transfer-coding only.
- * 
- *
- * @version $Revision$
+ * <p>
+ * The following parameters can be used to customize the behavior of this class: 
+ * <ul>
+ *  <li>{@link org.apache.http.params.CoreProtocolPNames#STRICT_TRANSFER_ENCODING}</li>
+ * </ul>
  * 
  * @since 4.0
  */
@@ -61,16 +63,6 @@ public class LaxContentLengthStrategy implements ContentLengthStrategy {
         super();
     }
 
-    /**
-     * {@inheritDoc}
-     * <p>
-     * The following parameters can be used to customize the behavior 
-     * of this method: 
-     * <ul>
-     *  <li>{@link org.apache.http.params.CoreProtocolPNames#STRICT_TRANSFER_ENCODING}</li>
-     * </ul>
-     * </p>
-     */
     public long determineLength(final HttpMessage message) throws HttpException {
         if (message == null) {
             throw new IllegalArgumentException("HTTP message may not be null");

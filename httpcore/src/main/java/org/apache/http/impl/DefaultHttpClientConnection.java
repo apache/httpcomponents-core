@@ -39,9 +39,14 @@ import org.apache.http.params.HttpParams;
 
 /**
  * Default implementation of a client-side HTTP connection.
- *
- *
- * @version $Revision$
+ * <p>
+ * The following parameters can be used to customize the behavior of this 
+ * class: 
+ * <ul>
+ *  <li>{@link org.apache.http.params.CoreConnectionPNames#TCP_NODELAY}</li>
+ *  <li>{@link org.apache.http.params.CoreConnectionPNames#SO_TIMEOUT}</li>
+ *  <li>{@link org.apache.http.params.CoreConnectionPNames#SO_LINGER}</li>
+ * </ul>
  * 
  * @since 4.0
  */
@@ -51,18 +56,6 @@ public class DefaultHttpClientConnection extends SocketHttpClientConnection {
         super();
     }
     
-    /**
-     * {@inheritDoc}
-     * <p>
-     * The following parameters can be used to customize the behavior 
-     * of this method: 
-     * <ul>
-     *  <li>{@link org.apache.http.params.CoreConnectionPNames#TCP_NODELAY}</li>
-     *  <li>{@link org.apache.http.params.CoreConnectionPNames#SO_TIMEOUT}</li>
-     *  <li>{@link org.apache.http.params.CoreConnectionPNames#SO_LINGER}</li>
-     * </ul>
-     * </p>
-     */
     public void bind(
             final Socket socket, 
             final HttpParams params) throws IOException {

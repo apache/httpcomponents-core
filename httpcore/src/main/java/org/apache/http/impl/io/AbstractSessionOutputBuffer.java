@@ -49,6 +49,13 @@ import org.apache.http.util.CharArrayBuffer;
  * <p>
  * {@link #writeLine(CharArrayBuffer)} and {@link #writeLine(String)} methods 
  * of this class use CR-LF as a line delimiter. 
+ * <p>
+ * The following parameters can be used to customize the behavior of this 
+ * class: 
+ * <ul>
+ *  <li>{@link org.apache.http.params.CoreProtocolPNames#HTTP_ELEMENT_CHARSET}</li>
+ * </ul>
+ * <p>
  *
  * @since 4.0
  */
@@ -68,13 +75,6 @@ public abstract class AbstractSessionOutputBuffer implements SessionOutputBuffer
     
     /**
      * Initializes this session output buffer. 
-     * <p>
-     * The following parameters can be used to customize the behavior 
-     * of this method: 
-     * <ul>
-     *  <li>{@link org.apache.http.params.CoreProtocolPNames#HTTP_ELEMENT_CHARSET}</li>
-     * </ul>
-     * <p>
      *    
      * @param outstream the destination output stream. 
      * @param buffersize the size of the internal buffer.

@@ -46,9 +46,12 @@ import org.apache.http.params.HttpProtocolParams;
  * RequestExpectContinue is responsible for enabling the 'expect-continue' 
  * handshake by adding <code>Expect</code> header. This interceptor is 
  * recommended for client side protocol processors. 
- *
- *
- * @version $Revision$
+ * <p>
+ * The following parameters can be used to customize the behavior of this 
+ * class: 
+ * <ul>
+ *  <li>{@link org.apache.http.params.CoreProtocolPNames#USE_EXPECT_CONTINUE}</li>
+ * </ul>
  * 
  * @since 4.0
  */
@@ -58,16 +61,6 @@ public class RequestExpectContinue implements HttpRequestInterceptor {
         super();
     }
     
-    /**
-     * {@inheritDoc}
-     * <p>
-     * The following parameters can be used to customize the behavior 
-     * of this method: 
-     * <ul>
-     *  <li>{@link org.apache.http.params.CoreProtocolPNames#USE_EXPECT_CONTINUE}</li>
-     * </ul>
-     * </p>
-     */
     public void process(final HttpRequest request, final HttpContext context) 
             throws HttpException, IOException {
         if (request == null) {

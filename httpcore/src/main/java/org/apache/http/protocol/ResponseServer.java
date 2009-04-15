@@ -41,9 +41,12 @@ import org.apache.http.params.CoreProtocolPNames;
 /**
  * ResponseServer is responsible for adding <code>Server</code> header. This 
  * interceptor is recommended for server side protocol processors. 
- *
- *
- * @version $Revision$
+ * <p>
+ * The following parameters can be used to customize the behavior of this 
+ * class: 
+ * <ul>
+ *  <li>{@link org.apache.http.params.CoreProtocolPNames#ORIGIN_SERVER}</li>
+ * </ul>
  * 
  * @since 4.0
  */
@@ -53,16 +56,6 @@ public class ResponseServer implements HttpResponseInterceptor {
         super();
     }
 
-    /**
-     * {@inheritDoc}
-     * <p>
-     * The following parameters can be used to customize the behavior 
-     * of this method: 
-     * <ul>
-     *  <li>{@link org.apache.http.params.CoreProtocolPNames#ORIGIN_SERVER}</li>
-     * </ul>
-     * </p>
-     */
     public void process(final HttpResponse response, final HttpContext context) 
             throws HttpException, IOException {
         if (response == null) {

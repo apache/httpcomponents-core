@@ -47,9 +47,12 @@ import org.apache.http.params.HttpParams;
 /**
  * Implementation of a server-side HTTP connection that can be bound to a 
  * network Socket in order to receive and transmit data.
- *
- *
- * @version $Revision$
+ * <p>
+ * The following parameters can be used to customize the behavior of this 
+ * class: 
+ * <ul>
+ *  <li>{@link org.apache.http.params.CoreConnectionPNames#SOCKET_BUFFER_SIZE}</li>
+ * </ul>
  * 
  * @since 4.0
  */
@@ -152,12 +155,6 @@ public class SocketHttpServerConnection extends
      * <p>
      * After this method's execution the connection status will be reported
      * as open and the {@link #isOpen()} will return <code>true</code>.
-     * <p>
-     * The following parameters can be used to customize the behavior 
-     * of this method: 
-     * <ul>
-     *  <li>{@link org.apache.http.params.CoreConnectionPNames#SOCKET_BUFFER_SIZE}</li>
-     * </ul>
      * 
      * @param socket the socket.
      * @param params HTTP parameters.

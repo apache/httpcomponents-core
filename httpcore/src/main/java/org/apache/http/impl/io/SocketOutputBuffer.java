@@ -39,9 +39,12 @@ import org.apache.http.params.HttpParams;
 
 /**
  * {@link SessionOutputBuffer} implementation bound to a {@link Socket}.
- *
- *
- * @version $Revision$
+ * <p>
+ * The following parameters can be used to customize the behavior of this 
+ * class: 
+ * <ul>
+ *  <li>{@link org.apache.http.params.CoreProtocolPNames#HTTP_ELEMENT_CHARSET}</li>
+ * </ul>
  * 
  * @since 4.0
  */
@@ -49,12 +52,6 @@ public class SocketOutputBuffer extends AbstractSessionOutputBuffer {
 
     /**
      * Creates an instance of this class. 
-     * <p>
-     * The following parameters can be used to customize the behavior 
-     * of this method: 
-     * <ul>
-     *  <li>{@link org.apache.http.params.CoreProtocolPNames#HTTP_ELEMENT_CHARSET}</li>
-     * </ul>
      *    
      * @param socket the socket to write data to. 
      * @param buffersize the size of the internal buffer. If this number is less

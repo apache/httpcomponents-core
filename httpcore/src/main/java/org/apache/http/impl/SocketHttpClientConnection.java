@@ -48,9 +48,12 @@ import org.apache.http.params.HttpParams;
  * Implementation of a client-side HTTP connection that can be bound to an 
  * arbitrary {@link Socket} for receiving data from and transmitting data to
  * a remote server.
- *
- *
- * @version $Revision$
+ * <p>
+ * The following parameters can be used to customize the behavior of this 
+ * class: 
+ * <ul>
+ *  <li>{@link org.apache.http.params.CoreConnectionPNames#SOCKET_BUFFER_SIZE}</li>
+ * </ul>
  * 
  * @since 4.0
  */
@@ -133,12 +136,6 @@ public class SocketHttpClientConnection
      * <p>
      * After this method's execution the connection status will be reported
      * as open and the {@link #isOpen()} will return <code>true</code>.
-     * <p>
-     * The following parameters can be used to customize the behavior 
-     * of this method: 
-     * <ul>
-     *  <li>{@link org.apache.http.params.CoreConnectionPNames#SOCKET_BUFFER_SIZE}</li>
-     * </ul>
      * 
      * @param socket the socket.
      * @param params HTTP parameters.

@@ -41,9 +41,13 @@ import org.apache.http.params.HttpParams;
 
 /**
  * {@link SessionInputBuffer} implementation bound to a {@link Socket}.
- *
- *
- * @version $Revision$
+ * <p>
+ * The following parameters can be used to customize the behavior of this 
+ * class: 
+ * <ul>
+ *  <li>{@link org.apache.http.params.CoreProtocolPNames#HTTP_ELEMENT_CHARSET}</li>
+ *  <li>{@link org.apache.http.params.CoreConnectionPNames#MAX_LINE_LENGTH}</li>
+ * </ul>
  * 
  * @since 4.0
  */
@@ -79,13 +83,6 @@ public class SocketInputBuffer extends AbstractSessionInputBuffer implements Eof
     
     /**
      * Creates an instance of this class. 
-     * <p>
-     * The following parameters can be used to customize the behavior 
-     * of this method: 
-     * <ul>
-     *  <li>{@link org.apache.http.params.CoreProtocolPNames#HTTP_ELEMENT_CHARSET}</li>
-     *  <li>{@link org.apache.http.params.CoreConnectionPNames#MAX_LINE_LENGTH}</li>
-     * </ul>
      *    
      * @param socket the socket to read data from. 
      * @param buffersize the size of the internal buffer. If this number is less

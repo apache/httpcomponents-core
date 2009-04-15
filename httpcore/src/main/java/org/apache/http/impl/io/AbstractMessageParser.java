@@ -51,6 +51,13 @@ import org.apache.http.util.CharArrayBuffer;
 /**
  * Abstract base class for HTTP message parsers that obtain input from 
  * an instance of {@link SessionInputBuffer}. 
+ * <p>
+ * The following parameters can be used to customize the behavior of this 
+ * class: 
+ * <ul>
+ *  <li>{@link org.apache.http.params.CoreConnectionPNames#MAX_HEADER_COUNT}</li>
+ *  <li>{@link org.apache.http.params.CoreConnectionPNames#MAX_LINE_LENGTH}</li>
+ * </ul>
  * 
  * @since 4.0
  */
@@ -70,13 +77,6 @@ public abstract class AbstractMessageParser implements HttpMessageParser {
 
     /**
      * Creates an instance of this class.
-     * <p>
-     * The following parameters can be used to customize the behavior 
-     * of this method: 
-     * <ul>
-     *  <li>{@link org.apache.http.params.CoreConnectionPNames#MAX_HEADER_COUNT}</li>
-     *  <li>{@link org.apache.http.params.CoreConnectionPNames#MAX_LINE_LENGTH}</li>
-     * </ul>
      * 
      * @param buffer the session input buffer.
      * @param parser the line parser.

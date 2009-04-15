@@ -52,6 +52,13 @@ import org.apache.http.util.CharArrayBuffer;
  * class treat a lone LF as valid line delimiters in addition to CR-LF required
  * by the HTTP specification. 
  *
+ * <p>
+ * The following parameters can be used to customize the behavior of this 
+ * class: 
+ * <ul>
+ *  <li>{@link org.apache.http.params.CoreProtocolPNames#HTTP_ELEMENT_CHARSET}</li>
+ *  <li>{@link org.apache.http.params.CoreConnectionPNames#MAX_LINE_LENGTH}</li>
+ * </ul>
  * @since 4.0
  */
 public abstract class AbstractSessionInputBuffer implements SessionInputBuffer {
@@ -71,13 +78,6 @@ public abstract class AbstractSessionInputBuffer implements SessionInputBuffer {
     
     /**
      * Initializes this session input buffer. 
-     * <p>
-     * The following parameters can be used to customize the behavior 
-     * of this method: 
-     * <ul>
-     *  <li>{@link org.apache.http.params.CoreProtocolPNames#HTTP_ELEMENT_CHARSET}</li>
-     *  <li>{@link org.apache.http.params.CoreConnectionPNames#MAX_LINE_LENGTH}</li>
-     * </ul>
      *    
      * @param instream the source input stream. 
      * @param buffersize the size of the internal buffer.
