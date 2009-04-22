@@ -61,10 +61,12 @@ import org.apache.http.params.HttpParams;
  * Abstract client-side HTTP connection capable of transmitting and receiving 
  * data using arbitrary {@link SessionInputBuffer} and 
  * {@link SessionOutputBuffer} implementations.
- *
- *
- * @version $Revision$
- * 
+ * The following parameters can be used to customize the behavior of this 
+ * class: 
+ * <ul>
+ *  <li>{@link org.apache.http.params.CoreProtocolPNames#STRICT_TRANSFER_ENCODING}</li>
+ *  <li>{@link org.apache.http.params.CoreConnectionPNames#MAX_HEADER_COUNT}</li>
+ * </ul> 
  * @since 4.0
  */
 public abstract class AbstractHttpClientConnection implements HttpClientConnection {
