@@ -58,8 +58,8 @@ public final class BasicHttpProcessor implements
     HttpProcessor, HttpRequestInterceptorList, HttpResponseInterceptorList, Cloneable {
 
     // Don't allow direct access, as nulls are not allowed
-    private final List requestInterceptors = new ArrayList(); 
-    private final List responseInterceptors = new ArrayList();
+    protected final List requestInterceptors = new ArrayList(); 
+    protected final List responseInterceptors = new ArrayList();
 
     // non-Javadoc, see interface HttpRequestInterceptorList
     public void addRequestInterceptor(final HttpRequestInterceptor itcp) {

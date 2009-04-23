@@ -81,6 +81,18 @@ public abstract class AbstractIOReactor implements IOReactor {
      * @param selectTimeout the select timeout.
      * @throws IOReactorException in case if a non-recoverable I/O error. 
      */
+    public AbstractIOReactor(long selectTimeout) throws IOReactorException {
+        this(selectTimeout, false);
+    }
+    
+    /**
+     * Creates new AbstractIOReactor instance.
+     * 
+     * @param selectTimeout the select timeout.
+     * @param interestOpsQueueing Ops queueing flag.
+     * 
+     * @throws IOReactorException in case if a non-recoverable I/O error. 
+     */
     public AbstractIOReactor(long selectTimeout, boolean interestOpsQueueing) throws IOReactorException {
         super();
         if (selectTimeout <= 0) {
