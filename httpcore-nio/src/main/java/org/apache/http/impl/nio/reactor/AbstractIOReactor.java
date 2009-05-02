@@ -420,12 +420,11 @@ public abstract class AbstractIOReactor implements IOReactor {
             this.sessions.add(session);
 
             try {
-                sessionCreated(key, session);
-                
                 SessionRequestImpl sessionRequest = entry.getSessionRequest();
                 if (sessionRequest != null) {
                     sessionRequest.completed(session);
                 }
+                sessionCreated(key, session);
             } catch (CancelledKeyException ex) {
                 queueClosedSession(session);
                 key.attach(null);
