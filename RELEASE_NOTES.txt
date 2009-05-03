@@ -1,6 +1,10 @@
 Changes since 4.0
 -------------------
 
+* SSLIOSession#isAppOutputReady and SSLIOSession#isAppInputReady no longer ignore the application 
+  event mask causing I/O event notifications for unrequested type of events.  
+  Contributed by Oleg Kalnichevski <olegk at apache.org> 
+
 * [HTTPCORE-155] Compatibility mode with IBM JRE and other JREs with naive (broken) implementation 
   of SelectionKey.
   Cotributed by Marc Beyerle <marc.beyerle at de.ibm.com> and Oleg Kalnichevski <olegk at apache.org> 

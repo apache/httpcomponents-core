@@ -36,6 +36,7 @@ import java.net.InetSocketAddress;
 import java.net.SocketAddress;
 import java.nio.ByteBuffer;
 import java.nio.channels.ByteChannel;
+import java.nio.channels.SelectionKey;
 
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.SSLEngine;
@@ -268,14 +269,16 @@ public class SSLIOSession implements IOSession, SessionBufferStatus {
         doHandshake();
         decryptData();
         // Some decrypted data is available or at the end of stream
-        return this.inPlain.position() > 0 || this.status != ACTIVE;
+        return (this.appEventMask & SelectionKey.OP_READ) > 0 
+            && (this.inPlain.position() > 0 || (this.endOfStream && this.status == ACTIVE));
     }
     
     /**
      * @throws IOException - not thrown currently
      */
     public synchronized boolean isAppOutputReady() throws IOException {
-        return this.status == ACTIVE
+        return (this.appEventMask & SelectionKey.OP_WRITE) > 0
+            && this.status == ACTIVE
             && this.sslEngine.getHandshakeStatus() == HandshakeStatus.NOT_HANDSHAKING;
     }
 
@@ -331,10 +334,10 @@ public class SSLIOSession implements IOSession, SessionBufferStatus {
             this.inPlain.compact();
             return n; 
         } else {
-            if (this.status == ACTIVE) {
-                return 0;
-            } else {
+            if (this.endOfStream) {
                 return -1;
+            } else {
+                return 0;
             }
         }
     }
