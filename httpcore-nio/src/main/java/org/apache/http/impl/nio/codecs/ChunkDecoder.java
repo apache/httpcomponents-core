@@ -203,9 +203,9 @@ public class ChunkDecoder extends AbstractContentDecoder {
                 if (maxLen > 0 && len == 0 && this.endOfStream) {
                     this.state = COMPLETED;
                     this.completed = true;
-                	throw new TruncatedChunkException("Truncated chunk "
-                    		+ "( expected size: " + this.chunkSize 
-                    		+ "; actual size: " + this.pos + ")");
+                    throw new TruncatedChunkException("Truncated chunk "
+                            + "( expected size: " + this.chunkSize 
+                            + "; actual size: " + this.pos + ")");
                 }
                 this.pos += len;
                 totalRead += len;

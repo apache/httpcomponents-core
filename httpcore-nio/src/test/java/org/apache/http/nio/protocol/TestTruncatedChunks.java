@@ -126,7 +126,7 @@ public class TestTruncatedChunks extends TestCase {
     static class BrokenChunkEncoder extends AbstractContentEncoder {
 
         private final CharArrayBuffer lineBuffer;
-    	private boolean done;
+        private boolean done;
         
         public BrokenChunkEncoder(
                 final WritableByteChannel channel, 
@@ -136,81 +136,81 @@ public class TestTruncatedChunks extends TestCase {
             this.lineBuffer = new CharArrayBuffer(16);
         }
 
-		public void complete() throws IOException {
-        	this.completed = true;
-		}
+        public void complete() throws IOException {
+            this.completed = true;
+        }
 
-		public int write(ByteBuffer src) throws IOException {
-			int chunk;
-			if (!this.done) {
-	            this.lineBuffer.clear();
-	            this.lineBuffer.append(Integer.toHexString(GARBAGE.length * 10));
-	            this.buffer.writeLine(this.lineBuffer);
-	            this.buffer.write(ByteBuffer.wrap(GARBAGE));
-	            this.done = true;
-	            chunk = GARBAGE.length;
-			} else {
-				chunk = 0;
-			}
-	        long bytesWritten = this.buffer.flush(this.channel);
-	        if (bytesWritten > 0) {
-	            this.metrics.incrementBytesTransferred(bytesWritten);
-	        }
-	        if (!this.buffer.hasData()) {
-	        	this.channel.close();
-	        }
-			return chunk;
-		}
-    	
+        public int write(ByteBuffer src) throws IOException {
+            int chunk;
+            if (!this.done) {
+                this.lineBuffer.clear();
+                this.lineBuffer.append(Integer.toHexString(GARBAGE.length * 10));
+                this.buffer.writeLine(this.lineBuffer);
+                this.buffer.write(ByteBuffer.wrap(GARBAGE));
+                this.done = true;
+                chunk = GARBAGE.length;
+            } else {
+                chunk = 0;
+            }
+            long bytesWritten = this.buffer.flush(this.channel);
+            if (bytesWritten > 0) {
+                this.metrics.incrementBytesTransferred(bytesWritten);
+            }
+            if (!this.buffer.hasData()) {
+                this.channel.close();
+            }
+            return chunk;
+        }
+        
     };
 
     static class CustomServerIOEventDispatch extends DefaultServerIOEventDispatch {
-    	
+        
         public CustomServerIOEventDispatch(
                 final NHttpServiceHandler handler,
                 final HttpParams params) {
             super(handler, params);
         }
 
-		@Override
-		protected NHttpServerIOTarget createConnection(final IOSession session) {
-			
-			return new DefaultNHttpServerConnection(
-					session, 
-					createHttpRequestFactory(), 
-					this.allocator, 
-					this.params) {
+        @Override
+        protected NHttpServerIOTarget createConnection(final IOSession session) {
+            
+            return new DefaultNHttpServerConnection(
+                    session, 
+                    createHttpRequestFactory(), 
+                    this.allocator, 
+                    this.params) {
 
-						@Override
-						protected ContentEncoder createContentEncoder(
-								final long len,
-								final WritableByteChannel channel,
-								final SessionOutputBuffer buffer,
-								final HttpTransportMetricsImpl metrics) {
-							if (len == ContentLengthStrategy.CHUNKED) {
-								return new BrokenChunkEncoder(channel, buffer, metrics);
-							} else {
-								return super.createContentEncoder(len, channel, buffer, metrics);
-							}
-						}
-						
-			};
-		}
-    	
+                        @Override
+                        protected ContentEncoder createContentEncoder(
+                                final long len,
+                                final WritableByteChannel channel,
+                                final SessionOutputBuffer buffer,
+                                final HttpTransportMetricsImpl metrics) {
+                            if (len == ContentLengthStrategy.CHUNKED) {
+                                return new BrokenChunkEncoder(channel, buffer, metrics);
+                            } else {
+                                return super.createContentEncoder(len, channel, buffer, metrics);
+                            }
+                        }
+                        
+            };
+        }
+        
     }
 
     static class CustomTestHttpServer extends TestHttpServer {
         
-    	public CustomTestHttpServer(final HttpParams params) throws IOException {
+        public CustomTestHttpServer(final HttpParams params) throws IOException {
             super(params);
         }
 
-		@Override
-		protected IOEventDispatch createIOEventDispatch(
-				NHttpServiceHandler serviceHandler, HttpParams params) {
-			return new CustomServerIOEventDispatch(serviceHandler, params);
-		}
-    	
+        @Override
+        protected IOEventDispatch createIOEventDispatch(
+                NHttpServiceHandler serviceHandler, HttpParams params) {
+            return new CustomServerIOEventDispatch(serviceHandler, params);
+        }
+        
     }
     
     protected CustomTestHttpServer server;
@@ -270,7 +270,7 @@ public class TestTruncatedChunks extends TestCase {
     }
     
     public void testTruncatedChunkException() throws Exception {
-    	
+        
         NHttpRequestExecutionHandler requestExecutionHandler = new TestRequestExecutionHandler() {
 
             @Override
@@ -318,15 +318,15 @@ public class TestTruncatedChunks extends TestCase {
         clientHandler.setEventListener(
                 new SimpleEventListener() {
 
-					@Override
-					public void fatalIOException(
-							final IOException ex,
-							final NHttpConnection conn) {
-						HttpContext context = conn.getContext();
-						TestJob testjob = (TestJob) context.getAttribute("job");
-						testjob.fail(ex.getMessage(), ex);
-					}
-                	
+                    @Override
+                    public void fatalIOException(
+                            final IOException ex,
+                            final NHttpConnection conn) {
+                        HttpContext context = conn.getContext();
+                        TestJob testjob = (TestJob) context.getAttribute("job");
+                        testjob.fail(ex.getMessage(), ex);
+                    }
+                    
                 });
         
         this.server.start(serviceHandler);
@@ -347,7 +347,7 @@ public class TestTruncatedChunks extends TestCase {
     }
 
     static class LenientNHttpEntity extends HttpEntityWrapper implements ConsumingNHttpEntity {
-    	
+        
         private final static int BUFFER_SIZE = 2048;
 
         private final SimpleInputBuffer buffer;
@@ -364,15 +364,15 @@ public class TestTruncatedChunks extends TestCase {
         public void consumeContent(
                 final ContentDecoder decoder,
                 final IOControl ioctrl) throws IOException {
-        	try {
+            try {
                 this.buffer.consumeContent(decoder);
                 if (decoder.isCompleted()) {
                     this.finished = true;
                 }
-        	} catch (TruncatedChunkException ex) {
-        		this.buffer.shutdown();
+            } catch (TruncatedChunkException ex) {
+                this.buffer.shutdown();
                 this.finished = true;
-        	}
+            }
         }
 
         public void finish() {
@@ -418,11 +418,11 @@ public class TestTruncatedChunks extends TestCase {
                 outstream.write(buffer, 0, l);
             }
         }
-    	
+        
     }
     
     public void testIgnoreTruncatedChunkException() throws Exception {
-    	
+        
         NHttpRequestExecutionHandler requestExecutionHandler = new TestRequestExecutionHandler() {
 
             @Override
@@ -431,13 +431,13 @@ public class TestTruncatedChunks extends TestCase {
                 return new BasicHttpRequest("GET", s);
             }
 
-			@Override
-			public ConsumingNHttpEntity responseEntity(
-					final HttpResponse response, 
-					final HttpContext context) throws IOException {
-		        return new LenientNHttpEntity(response.getEntity(),
-		                new HeapByteBufferAllocator());
-			}
+            @Override
+            public ConsumingNHttpEntity responseEntity(
+                    final HttpResponse response, 
+                    final HttpContext context) throws IOException {
+                return new LenientNHttpEntity(response.getEntity(),
+                        new HeapByteBufferAllocator());
+            }
             
         };
 

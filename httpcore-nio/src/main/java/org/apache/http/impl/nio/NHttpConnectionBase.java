@@ -208,7 +208,7 @@ public class NHttpConnectionBase
         BasicHttpEntity entity = new BasicHttpEntity();
         long len = this.incomingContentStrategy.determineLength(message);
         this.contentDecoder = createChunkDecoder(
-        		len,
+                len,
                 this.session.channel(), 
                 this.inbuf, 
                 this.inTransportMetrics);
@@ -248,8 +248,8 @@ public class NHttpConnectionBase
      * @return content decoder.
      */
     protected ContentDecoder createChunkDecoder(
-    		final long len,    		
-    		final ReadableByteChannel channel, 
+            final long len,    		
+            final ReadableByteChannel channel, 
             final SessionInputBuffer buffer,
             final HttpTransportMetricsImpl metrics) {
         if (len == ContentLengthStrategy.CHUNKED) {
@@ -271,7 +271,7 @@ public class NHttpConnectionBase
     protected void prepareEncoder(final HttpMessage message) throws HttpException {
         long len = this.outgoingContentStrategy.determineLength(message);
         this.contentEncoder = createContentEncoder(
-        		len,
+                len,
                 this.session.channel(),
                 this.outbuf,
                 this.outTransportMetrics);
@@ -291,8 +291,8 @@ public class NHttpConnectionBase
      * @return content encoder.
      */
     protected ContentEncoder createContentEncoder(
-    		final long len,
-    		final WritableByteChannel channel, 
+            final long len,
+            final WritableByteChannel channel, 
             final SessionOutputBuffer buffer,
             final HttpTransportMetricsImpl metrics) {
         if (len == ContentLengthStrategy.CHUNKED) {
