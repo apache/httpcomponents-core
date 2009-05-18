@@ -71,8 +71,13 @@ public class TestHttpServer {
         this.ioReactor.setExceptionHandler(exceptionHandler);
     }
 
+    protected IOEventDispatch createIOEventDispatch(
+    		final NHttpServiceHandler serviceHandler, final HttpParams params) {
+        return new DefaultServerIOEventDispatch(serviceHandler, params);
+    }
+    
     private void execute(final NHttpServiceHandler serviceHandler) throws IOException {
-        IOEventDispatch ioEventDispatch = new DefaultServerIOEventDispatch(
+        IOEventDispatch ioEventDispatch = createIOEventDispatch(
                 serviceHandler, 
                 this.params);
         

@@ -1,6 +1,10 @@
 Changes since 4.0
 -------------------
 
+* [HTTPCORE-195] Truncated chunk-coded streams can now be tolerated by catching and discarding 
+  TruncatedChunkException.
+  Contributed by Oleg Kalnichevski <olegk at apache.org> 
+
 * SSLIOSession#isAppOutputReady and SSLIOSession#isAppInputReady no longer ignore the application 
   event mask causing I/O event notifications for unrequested type of events.  
   Contributed by Oleg Kalnichevski <olegk at apache.org> 

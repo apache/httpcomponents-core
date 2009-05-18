@@ -45,6 +45,7 @@ public class TestJob {
     private volatile int statusCode;
     private volatile String result;
     private volatile String failureMessage;
+    private volatile Exception ex;
     
     public TestJob(int maxCount) {
         super();
@@ -99,6 +100,10 @@ public class TestJob {
         return this.failureMessage;
     }
     
+    public Exception getException() {
+    	return this.ex;
+    }
+    
     public boolean isCompleted() {
         return this.completed;
     }
@@ -113,14 +118,19 @@ public class TestJob {
         notifyAll();
     }
     
-    public synchronized void fail(final String message) {
+    public synchronized void fail(final String message, final Exception ex) {
         if (this.completed) {
             return;
         }
         this.completed = true;
         this.result = null;
         this.failureMessage = message;
+        this.ex = ex;
         notifyAll();
+    }
+    
+    public void fail(final String message) {
+    	fail(message, null);
     }
     
     public synchronized void waitFor() throws InterruptedException {

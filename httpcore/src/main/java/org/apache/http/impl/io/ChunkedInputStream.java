@@ -37,6 +37,7 @@ import java.io.InputStream;
 import org.apache.http.Header;
 import org.apache.http.HttpException;
 import org.apache.http.MalformedChunkCodingException;
+import org.apache.http.TruncatedChunkException;
 import org.apache.http.io.SessionInputBuffer;
 import org.apache.http.util.CharArrayBuffer;
 import org.apache.http.util.ExceptionUtils;
@@ -171,7 +172,10 @@ public class ChunkedInputStream extends InputStream {
             }
             return bytesRead;
         } else {
-            throw new MalformedChunkCodingException("Truncated chunk");
+        	eof = true;
+        	throw new TruncatedChunkException("Truncated chunk "
+            		+ "( expected size: " + chunkSize 
+            		+ "; actual size: " + pos + ")");
         }
     }
 

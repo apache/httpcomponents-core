@@ -35,6 +35,8 @@ import java.io.IOException;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.SocketAddress;
+import java.nio.channels.ReadableByteChannel;
+import java.nio.channels.WritableByteChannel;
 
 import org.apache.http.ConnectionClosedException;
 import org.apache.http.Header;
@@ -65,6 +67,8 @@ import org.apache.http.impl.nio.reactor.SessionOutputBufferImpl;
 import org.apache.http.nio.reactor.EventMask;
 import org.apache.http.nio.reactor.IOSession;
 import org.apache.http.nio.reactor.SessionBufferStatus;
+import org.apache.http.nio.reactor.SessionInputBuffer;
+import org.apache.http.nio.reactor.SessionOutputBuffer;
 import org.apache.http.nio.util.ByteBufferAllocator;
 import org.apache.http.params.CoreConnectionPNames;
 import org.apache.http.params.HttpConnectionParams;
@@ -203,26 +207,18 @@ public class NHttpConnectionBase
     protected HttpEntity prepareDecoder(final HttpMessage message) throws HttpException {
         BasicHttpEntity entity = new BasicHttpEntity();
         long len = this.incomingContentStrategy.determineLength(message);
+        this.contentDecoder = createChunkDecoder(
+        		len,
+                this.session.channel(), 
+                this.inbuf, 
+                this.inTransportMetrics);
         if (len == ContentLengthStrategy.CHUNKED) {
-            this.contentDecoder = new ChunkDecoder(
-                    this.session.channel(), 
-                    this.inbuf, 
-                    this.inTransportMetrics);
             entity.setChunked(true);
             entity.setContentLength(-1);
         } else if (len == ContentLengthStrategy.IDENTITY) {
-            this.contentDecoder = new IdentityDecoder(
-                    this.session.channel(), 
-                    this.inbuf, 
-                    this.inTransportMetrics);
             entity.setChunked(false);
             entity.setContentLength(-1);
         } else {
-            this.contentDecoder = new LengthDelimitedDecoder(
-                    this.session.channel(), 
-                    this.inbuf, 
-                    this.inTransportMetrics,
-                    len);
             entity.setChunked(false);
             entity.setContentLength(len);
         }
@@ -237,6 +233,33 @@ public class NHttpConnectionBase
         }
         return entity;
     }
+    
+    /**
+     * Factory method for {@link ContentDecoder} instances.
+     * 
+     * @since 4.1
+     * 
+     * @param len content length, if known, {@link ContentLengthStrategy#CHUNKED} or
+     *   {@link ContentLengthStrategy#IDENTITY}, if unknown. 
+     * @param channel the session channel.
+     * @param buffer the session buffer.
+     * @param metrics transport metrics.
+     * 
+     * @return content decoder.
+     */
+    protected ContentDecoder createChunkDecoder(
+    		final long len,    		
+    		final ReadableByteChannel channel, 
+            final SessionInputBuffer buffer,
+            final HttpTransportMetricsImpl metrics) {
+        if (len == ContentLengthStrategy.CHUNKED) {
+            return new ChunkDecoder(channel, buffer, metrics);
+        } else if (len == ContentLengthStrategy.IDENTITY) {
+            return new IdentityDecoder(channel, buffer, metrics);
+        } else {
+            return new LengthDelimitedDecoder(channel, buffer, metrics, len);
+        }
+    }
 
     /**
      * Initializes a specific {@link ContentEncoder} implementation based on the
@@ -247,22 +270,37 @@ public class NHttpConnectionBase
      */
     protected void prepareEncoder(final HttpMessage message) throws HttpException {
         long len = this.outgoingContentStrategy.determineLength(message);
+        this.contentEncoder = createContentEncoder(
+        		len,
+                this.session.channel(),
+                this.outbuf,
+                this.outTransportMetrics);
+    }
+    
+    /**
+     * Factory method for {@link ContentEncoder} instances.
+     * 
+     * @since 4.1
+     * 
+     * @param len content length, if known, {@link ContentLengthStrategy#CHUNKED} or
+     *   {@link ContentLengthStrategy#IDENTITY}, if unknown. 
+     * @param channel the session channel.
+     * @param buffer the session buffer.
+     * @param metrics transport metrics.
+     * 
+     * @return content encoder.
+     */
+    protected ContentEncoder createContentEncoder(
+    		final long len,
+    		final WritableByteChannel channel, 
+            final SessionOutputBuffer buffer,
+            final HttpTransportMetricsImpl metrics) {
         if (len == ContentLengthStrategy.CHUNKED) {
-            this.contentEncoder = new ChunkEncoder(
-                    this.session.channel(),
-                    this.outbuf,
-                    this.outTransportMetrics);
+            return new ChunkEncoder(channel, buffer, metrics);
         } else if (len == ContentLengthStrategy.IDENTITY) {
-            this.contentEncoder = new IdentityEncoder(
-                    this.session.channel(),
-                    this.outbuf,
-                    this.outTransportMetrics);
+            return new IdentityEncoder(channel, buffer, metrics);
         } else {
-            this.contentEncoder = new LengthDelimitedEncoder(
-                    this.session.channel(),
-                    this.outbuf,
-                    this.outTransportMetrics,
-                    len);
+            return new LengthDelimitedEncoder(channel, buffer, metrics, len);
         }
     }
 

@@ -97,8 +97,15 @@ public class TestHttpSSLServer {
         this.ioReactor.setExceptionHandler(exceptionHandler);
     }
 
+    protected IOEventDispatch createIOEventDispatch(
+    		final NHttpServiceHandler serviceHandler, 
+            final SSLContext sslcontext,
+    		final HttpParams params) {
+        return new SSLServerIOEventDispatch(serviceHandler, sslcontext, params);
+    }
+    
     private void execute(final NHttpServiceHandler serviceHandler) throws IOException {
-        IOEventDispatch ioEventDispatch = new SSLServerIOEventDispatch(
+        IOEventDispatch ioEventDispatch = createIOEventDispatch(
                 serviceHandler, 
                 this.sslcontext,
                 this.params);

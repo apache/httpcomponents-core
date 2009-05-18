@@ -112,6 +112,7 @@ public class SimpleInputBuffer extends ExpandableBuffer implements ContentInputB
     }
 
     public void shutdown() {
+        this.endOfStream = true;
     }
     
 }

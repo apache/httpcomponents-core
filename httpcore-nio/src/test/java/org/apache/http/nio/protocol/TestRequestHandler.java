@@ -49,6 +49,17 @@ import org.apache.http.util.EntityUtils;
 
 final class TestRequestHandler extends SimpleNHttpRequestHandler implements HttpRequestHandler {
     
+	private final boolean chunking;
+	
+	TestRequestHandler() {
+		this(false);
+	}
+	
+	TestRequestHandler(boolean chunking) {
+		super();
+		this.chunking = chunking;
+	}
+	
     public ConsumingNHttpEntity entityRequest(
             final HttpEntityEnclosingRequest request,
             final HttpContext context) {
@@ -88,6 +99,7 @@ final class TestRequestHandler extends SimpleNHttpRequestHandler implements Http
             content = buffer.toString();
         }
         NStringEntity entity = new NStringEntity(content, "US-ASCII");
+        entity.setChunked(this.chunking);
         response.setEntity(entity);
     }
     

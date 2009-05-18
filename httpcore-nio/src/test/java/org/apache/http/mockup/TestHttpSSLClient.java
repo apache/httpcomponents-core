@@ -90,9 +90,16 @@ public class TestHttpSSLClient {
     public void setExceptionHandler(final IOReactorExceptionHandler exceptionHandler) {
         this.ioReactor.setExceptionHandler(exceptionHandler);
     }
-
+    
+    protected IOEventDispatch createIOEventDispatch(
+    		final NHttpClientHandler clientHandler, 
+            final SSLContext sslcontext,
+    		final HttpParams params) {
+        return new SSLClientIOEventDispatch(clientHandler, sslcontext, params);
+    }
+    
     private void execute(final NHttpClientHandler clientHandler) throws IOException {
-        IOEventDispatch ioEventDispatch = new SSLClientIOEventDispatch(
+        IOEventDispatch ioEventDispatch = createIOEventDispatch(
                 clientHandler, 
                 this.sslcontext,
                 this.params);
