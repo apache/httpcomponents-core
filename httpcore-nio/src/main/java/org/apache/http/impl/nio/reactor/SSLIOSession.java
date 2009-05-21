@@ -244,17 +244,20 @@ public class SSLIOSession implements IOSession, SessionBufferStatus {
     
     private boolean decryptData() throws SSLException {
         boolean decrypted = false;
-        if (this.inEncrypted.position() > 0) {
+        SSLEngineResult.Status opStatus = Status.OK;
+        while (this.inEncrypted.position() > 0 && opStatus == Status.OK) {
             this.inEncrypted.flip();
             SSLEngineResult result = this.sslEngine.unwrap(this.inEncrypted, this.inPlain);
             this.inEncrypted.compact();
-            if (result.getStatus() == Status.CLOSED) {
+            
+            opStatus = result.getStatus();
+            if (opStatus == Status.CLOSED) {
                 this.status = CLOSED;
             }
-            if (result.getStatus() == Status.BUFFER_UNDERFLOW && this.endOfStream) {
+            if (opStatus == Status.BUFFER_UNDERFLOW && this.endOfStream) {
                 this.status = CLOSED;
             }
-            if (result.getStatus() == Status.OK) {
+            if (opStatus == Status.OK) {
                 decrypted = true;
             }
         }
