@@ -354,6 +354,39 @@ public class TestChunkDecoder extends TestCase {
         assertTrue(decoder.isCompleted());
     }
 
+    public void testReadingWitSmallBuffer() throws Exception {
+        String s = "10\r\n1234567890123456\r\n" +
+                "40\r\n12345678901234561234567890123456" +
+                "12345678901234561234567890123456\r\n0\r\n";
+        ReadableByteChannel channel = new ReadableByteChannelMockup(
+                new String[] {s}, "US-ASCII"); 
+        HttpParams params = new BasicHttpParams();
+    
+        SessionInputBuffer inbuf = new SessionInputBufferImpl(1024, 256, params); 
+        HttpTransportMetricsImpl metrics = new HttpTransportMetricsImpl();
+        ChunkDecoder decoder = new ChunkDecoder(channel, inbuf, metrics);
+        
+        ByteBuffer dst = ByteBuffer.allocate(1024); 
+        ByteBuffer tmp = ByteBuffer.allocate(10); 
+
+        int bytesRead = 0;
+        while (dst.hasRemaining() && !decoder.isCompleted()) {
+            int i = decoder.read(tmp);
+            if (i > 0) {
+                bytesRead += i;
+                tmp.flip();
+                dst.put(tmp);
+                tmp.compact();
+            }
+        }
+        
+        assertEquals(80, bytesRead);
+        assertEquals("12345678901234561234567890123456" +
+        		"12345678901234561234567890123456" +
+        		"1234567890123456", convert(dst));
+        assertTrue(decoder.isCompleted());
+    }
+
     public void testEndOfStreamConditionReadingFooters() throws Exception {
         String s = "10\r\n1234567890123456\r\n" +
                 "5\r\n12345\r\n5\r\n12345\r\n0\r\n";

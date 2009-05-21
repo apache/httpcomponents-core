@@ -1,6 +1,10 @@
 Changes since 4.0
 -------------------
 
+* [HTTPCORE-197] Fixed bug causing the non-blocking ChunkDecoder to report some data stream as 
+  truncated under special conditions.
+  Contributed by Denis Rogov <denrogov at gmail.com> and Oleg Kalnichevski <olegk at apache.org> 
+
 * [HTTPCORE-195] Truncated chunk-coded streams can now be tolerated by catching and discarding 
   TruncatedChunkException.
   Contributed by Oleg Kalnichevski <olegk at apache.org> 
