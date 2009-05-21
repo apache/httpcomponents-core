@@ -1,3 +1,17 @@
+Changes since 4.0
+-------------------
+
+* [HTTPCORE-197] Fixed bug causing the non-blocking ChunkDecoder to report some data stream as 
+  truncated under special conditions.
+  Contributed by Denis Rogov <denrogov at gmail.com> and Oleg Kalnichevski <olegk at apache.org> 
+
+* SSLIOSession#isAppOutputReady and SSLIOSession#isAppInputReady no longer ignore the application 
+  event mask causing I/O event notifications for unrequested type of events.  
+  Contributed by Oleg Kalnichevski <olegk at apache.org> 
+
+* [HTTPCORE-193] Fixed problem with SSLIOSession incorrectly handling of end-of-stream condition.  
+  Contributed by Asankha C. Perera <asankha at apache.org> and Oleg Kalnichevski <olegk at apache.org> 
+
 Release 4.0
 -------------------
 
