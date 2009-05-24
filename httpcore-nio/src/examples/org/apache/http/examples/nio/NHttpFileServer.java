@@ -30,10 +30,7 @@
  */
 package org.apache.http.examples.nio;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.InterruptedIOException;
+import java.io.*;
 import java.net.InetSocketAddress;
 import java.net.URLDecoder;
 import java.nio.channels.FileChannel;
@@ -200,15 +197,15 @@ public class NHttpFileServer {
 
     static class FileWriteListener implements ContentListener {
         private final File file;
-        private final FileInputStream inputFile;
+        private final FileOutputStream outputFile;
         private final FileChannel fileChannel;
         private final boolean useFileChannels;
         private long idx = 0;
 
         public FileWriteListener(boolean useFileChannels) throws IOException {
             this.file = File.createTempFile("tmp", ".tmp", null);
-            this.inputFile = new FileInputStream(file);
-            this.fileChannel = inputFile.getChannel();
+            this.outputFile = new FileOutputStream(file, true);
+            this.fileChannel = outputFile.getChannel();
             this.useFileChannels = useFileChannels;
         }
 
@@ -229,7 +226,7 @@ public class NHttpFileServer {
 
         public void finished() {
             try {
-                inputFile.close();
+                outputFile.close();
             } catch(IOException ignored) {}
             try {
                 fileChannel.close();
