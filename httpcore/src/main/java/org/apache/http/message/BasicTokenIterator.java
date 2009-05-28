@@ -42,8 +42,6 @@ import org.apache.http.TokenIterator;
  * This implementation parses <tt>#token<tt> sequences as
  * defined by RFC 2616, section 2.
  * It extends that definition somewhat beyond US-ASCII.
- * 
- * @version $Revision$
  *
  * @since 4.0
  */

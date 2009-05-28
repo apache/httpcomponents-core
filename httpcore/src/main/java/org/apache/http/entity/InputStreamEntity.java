@@ -38,9 +38,6 @@ import java.io.OutputStream;
 /**
  * A streamed, non-repeatable entity that obtains its content from 
  * an {@link InputStream}.
- *
- *
- * @version $Revision$
  * 
  * @since 4.0
  */

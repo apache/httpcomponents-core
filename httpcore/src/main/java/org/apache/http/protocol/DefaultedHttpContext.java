@@ -37,9 +37,6 @@ package org.apache.http.protocol;
  * present in the local one. The state of the local context can be mutated,
  * whereas the default context is treated as read-only.
  *
- * 
- * @version $Revision$
- *
  * @since 4.0
  */
 public final class DefaultedHttpContext implements HttpContext {

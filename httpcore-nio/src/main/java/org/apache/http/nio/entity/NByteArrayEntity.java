@@ -45,9 +45,6 @@ import org.apache.http.nio.protocol.AsyncNHttpServiceHandler;
 /**
  * A simple self contained, repeatable non-blocking entity that retrieves 
  * its content from a byte array.
- * 
- *
- * @version $Revision$
  *
  * @see AsyncNHttpServiceHandler
  * @since 4.0

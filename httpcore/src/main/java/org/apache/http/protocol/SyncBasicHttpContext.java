@@ -33,9 +33,6 @@ package org.apache.http.protocol;
 
 /**
  * Thread-safe extension of the {@link BasicHttpContext}.
- *
- *
- * @version $Revision$
  * 
  * @since 4.0
  */

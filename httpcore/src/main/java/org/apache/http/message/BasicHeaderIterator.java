@@ -31,17 +31,13 @@
 
 package org.apache.http.message;
 
-
 import java.util.NoSuchElementException;
 
 import org.apache.http.Header;
 import org.apache.http.HeaderIterator;
 
-
 /**
  * Basic implementation of a {@link HeaderIterator}.
- * 
- * @version $Revision$
  *
  * @since 4.0
  */

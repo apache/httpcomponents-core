@@ -54,9 +54,6 @@ import org.apache.http.params.HttpParams;
  *                        [ message-body ]
  *      start-line      = Request-Line | Status-Line
  * </pre>
- *
- *
- * @version $Revision$
  * 
  * @since 4.0
  */

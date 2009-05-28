@@ -35,9 +35,6 @@ import java.io.IOException;
 
 /**
  * Signals that the connection has been closed unexpectedly.
- *
- *
- * @version $Revision$
  * 
  * @since 4.0
  */

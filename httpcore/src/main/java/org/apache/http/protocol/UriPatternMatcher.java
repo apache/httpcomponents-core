@@ -48,9 +48,6 @@ import java.util.Map;
  * This class can be used to resolve an object matching a particular request 
  * URI. 
  *
- *
- * @version $Revision$
- *
  * @since 4.0
  */
 public class UriPatternMatcher {

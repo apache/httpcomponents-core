@@ -46,9 +46,6 @@ import org.apache.http.protocol.ExecutionContext;
 /**
  * Default implementation of {@link IOEventDispatch} interface for plain 
  * (unencrypted) server-side HTTP connections.
- * 
- *
- * @version $Revision$
  *
  * @since 4.0
  */

@@ -56,9 +56,6 @@ import org.apache.http.nio.reactor.IOSession;
  * Generic implementation of {@link IOReactor} that can used as a subclass 
  * for more specialized I/O reactors. It is based on a single {@link Selector}
  * instance.
- * 
- *
- * @version $Revision$
  *
  * @since 4.0
  */

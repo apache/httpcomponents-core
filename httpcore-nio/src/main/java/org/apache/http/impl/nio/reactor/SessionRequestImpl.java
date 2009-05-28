@@ -42,9 +42,6 @@ import org.apache.http.nio.reactor.SessionRequestCallback;
 
 /**
  * Default implementation of {@link SessionRequest}.
- * 
- *
- * @version $Revision$
  *
  * @since 4.0
  */

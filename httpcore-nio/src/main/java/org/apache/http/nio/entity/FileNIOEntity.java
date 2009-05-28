@@ -46,8 +46,6 @@ import org.apache.http.entity.FileEntity;
  *
  * @deprecated Use {@link NFileEntity}
  * 
- * @version $Revision$
- * 
  * @since 4.0
  */
 @Deprecated

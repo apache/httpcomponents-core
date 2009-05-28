@@ -39,11 +39,8 @@ import org.apache.http.ProtocolVersion;
 import org.apache.http.StatusLine;
 import org.apache.http.ReasonPhraseCatalog;
 
-
 /**
  * Basic implementation of {@link HttpResponse}.
- *
- * @version $Revision$
  * 
  * @since 4.0
  */

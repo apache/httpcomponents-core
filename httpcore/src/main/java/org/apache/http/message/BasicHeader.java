@@ -36,10 +36,7 @@ import org.apache.http.HeaderElement;
 import org.apache.http.ParseException;
 
 /**
- * 
  * Basic implementation of {@link Header}.
- * 
- * @version $Revision$
  * 
  * @since 4.0
  */

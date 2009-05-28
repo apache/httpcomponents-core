@@ -58,11 +58,6 @@ package org.apache.http;
  * header, element or param and is ignored. A missing value in any
  * element or param will be stored as the empty {@link String};
  * if the "=" is also missing <var>null</var> will be stored instead.
- *
- *
- *
- * <!-- empty lines above to avoid 'svn diff' context problems -->
- * @version $Revision$ $Date$
  * 
  * @since 4.0
  */

@@ -33,9 +33,6 @@ package org.apache.http.util;
 
 /**
  * A resizable byte array.
- *
- * 
- * @version $Revision$
  * 
  * @since 4.0
  */

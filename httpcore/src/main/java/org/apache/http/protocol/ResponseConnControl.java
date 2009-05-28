@@ -48,9 +48,6 @@ import org.apache.http.ProtocolVersion;
  * to the outgoing responses, which is essential for managing persistence of 
  * <code>HTTP/1.0</code> connections. This interceptor is recommended for 
  * server side protocol processors.
- *
- *
- * @version $Revision$
  * 
  * @since 4.0
  */

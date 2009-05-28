@@ -35,9 +35,6 @@ import java.net.InetAddress;
 
 /**
  * An HTTP connection over the Internet Protocol (IP).
- *
- *
- * @version $Revision$
  * 
  * @since 4.0
  */

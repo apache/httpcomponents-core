@@ -50,9 +50,6 @@ import org.apache.http.nio.reactor.SessionInputBuffer;
  * This decoder is optimized to transfer data directly from the underlying 
  * I/O session's channel to a {@link FileChannel}, whenever 
  * possible avoiding intermediate buffering in the session buffer. 
- *
- *
- * @version $Revision$
  * 
  * @since 4.0
  */

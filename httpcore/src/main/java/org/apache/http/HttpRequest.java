@@ -43,9 +43,6 @@ package org.apache.http;
  *                      CRLF
  *                      [ message-body ]
  * </pre>
- *
- *
- * @version $Revision$
  * 
  * @since 4.0
  */

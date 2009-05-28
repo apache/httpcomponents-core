@@ -33,9 +33,6 @@ package org.apache.http.protocol;
 
 /**
  * {@link HttpContext} attribute names for protocol execution.
- *
- *
- * @version $Revision$
  * 
  * @since 4.0
  */

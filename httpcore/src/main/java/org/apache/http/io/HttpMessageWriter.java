@@ -39,9 +39,6 @@ import org.apache.http.HttpMessage;
 /**
  * Abstract message writer intended to serialize HTTP messages to an arbitrary 
  * data sink. 
- *
- *
- * @version $Revision$
  * 
  * @since 4.0
  */

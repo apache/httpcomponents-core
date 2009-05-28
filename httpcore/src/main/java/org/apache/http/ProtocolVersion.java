@@ -43,9 +43,6 @@ import org.apache.http.util.CharArrayBuffer;
  * Note that {@link #equals} and {@link #hashCode} are defined as
  * final here, they cannot be overridden in derived classes.
  * </p>
- * 
- * 
- * @version $Revision$
  *
  * @since 4.0
  */

@@ -42,9 +42,6 @@ import org.apache.http.protocol.HTTP;
  * Abstract base class for entities.
  * Provides the commonly used attributes for streamed and self-contained
  * implementations of {@link HttpEntity HttpEntity}.
- *
- *
- * @version $Revision$
  * 
  * @since 4.0
  */

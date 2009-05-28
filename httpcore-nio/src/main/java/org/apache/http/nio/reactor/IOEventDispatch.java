@@ -39,9 +39,6 @@ package org.apache.http.nio.reactor;
  * dispatch thread for too long, as the I/O reactor will be unable to react to 
  * other events. 
  *
- *
- * @version $Revision$
- *
  * @since 4.0
  */
 public interface IOEventDispatch {

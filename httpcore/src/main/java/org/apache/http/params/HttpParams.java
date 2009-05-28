@@ -32,7 +32,6 @@
 package org.apache.http.params;
 
 /**
- * 
  * HttpParams interface represents a collection of immutable values that define 
  * a runtime behavior of a component. HTTP parameters should be simple objects: 
  * integers, doubles, strings, collections and objects that remain immutable 
@@ -48,9 +47,6 @@ package org.apache.http.params;
  * to obtain default values of parameters not present in the local set.
  * 
  * @see DefaultedHttpParams
- * 
- * 
- * @version $Revision$
  *
  * @since 4.0
  */

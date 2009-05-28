@@ -56,9 +56,6 @@ import org.apache.http.io.SessionOutputBuffer;
  * This class writes out the content of {@link HttpEntity} to the data stream
  * using a transfer coding based on properties on the HTTP message. 
  * 
- *
- * @version $Revision$
- * 
  * @since 4.0
  */
 public class EntitySerializer {

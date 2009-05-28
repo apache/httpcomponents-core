@@ -36,11 +36,6 @@ import java.io.IOException;
 /**
  * A client-side HTTP connection, which can be used for sending 
  * requests and receiving responses.
- *
- *
- *
- * <!-- empty lines above to avoid 'svn diff' context problems -->
- * @version $Revision$
  * 
  * @since 4.0
  */

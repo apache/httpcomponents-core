@@ -34,9 +34,6 @@ package org.apache.http.nio.params;
 /**
  * Parameter names for I/O reactors.
  * 
- * 
- * @version $Revision$
- * 
  * @since 4.0
  */
 public interface NIOReactorPNames {

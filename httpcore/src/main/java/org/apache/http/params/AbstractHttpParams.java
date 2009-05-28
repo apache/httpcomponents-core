@@ -39,9 +39,6 @@ import org.apache.http.params.HttpParams;
  * Type specific setters and getters are mapped to the abstract,
  * generic getters and setters.
  *
- * 
- * @version $Revision$
- *
  * @since 4.0
  */
 public abstract class AbstractHttpParams implements HttpParams {

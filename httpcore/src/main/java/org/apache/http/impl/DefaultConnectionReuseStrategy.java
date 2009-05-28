@@ -60,9 +60,6 @@ import org.apache.http.message.BasicTokenIterator;
  * the HTTP version is applied. Since <code>HTTP/1.1</code>, connections are 
  * re-used by default. Up until <code>HTTP/1.0</code>, connections are not 
  * re-used by default.
- *
- *
- * @version $Revision$
  * 
  * @since 4.0
  */

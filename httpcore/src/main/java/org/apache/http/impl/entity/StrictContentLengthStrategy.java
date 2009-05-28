@@ -47,9 +47,6 @@ import org.apache.http.protocol.HTTP;
  * <p>
  * This class recognizes "chunked" and "identitiy" transfer-coding only.
  * 
- *
- * @version $Revision$
- * 
  * @since 4.0
  */
 public class StrictContentLengthStrategy implements ContentLengthStrategy {

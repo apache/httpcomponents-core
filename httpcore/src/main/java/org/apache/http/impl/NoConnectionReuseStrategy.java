@@ -35,12 +35,8 @@ import org.apache.http.ConnectionReuseStrategy;
 import org.apache.http.HttpResponse;
 import org.apache.http.protocol.HttpContext;
 
-
 /**
  * A strategy that never re-uses a connection.
- *
- *
- * @version $Revision$
  * 
  * @since 4.0
  */

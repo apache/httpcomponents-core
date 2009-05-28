@@ -40,9 +40,6 @@ import org.apache.http.nio.reactor.ListenerEndpoint;
 
 /**
  * Default implementation of {@link ListenerEndpoint}.
- * 
- *
- * @version $Revision$
  *
  * @since 4.0
  */

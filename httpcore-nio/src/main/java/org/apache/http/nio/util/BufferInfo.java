@@ -38,9 +38,6 @@ package org.apache.http.nio.util;
  * methods added to {@link org.apache.http.nio.reactor.SessionOutputBuffer}
  * and {@link org.apache.http.nio.reactor.SessionInputBuffer} interfaces.
  *
- *
- * @version $Revision$
- *
  * @since 4.0
  */
 public interface BufferInfo {

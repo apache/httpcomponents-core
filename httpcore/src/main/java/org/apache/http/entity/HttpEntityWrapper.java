@@ -44,8 +44,6 @@ import org.apache.http.HttpEntity;
  * calls to it. Implementations of wrapping entities can derive
  * from this class and need to override only those methods that
  * should not be delegated to the wrapped entity.
- *
- * @version $Revision$
  * 
  * @since 4.0
  */

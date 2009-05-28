@@ -39,8 +39,6 @@ import org.apache.http.util.LangUtils;
 /**
  * Basic implementation of {@link HeaderElement}
  * 
- * @version $Revision$
- * 
  * @since 4.0
  */
 public class BasicHeaderElement implements HeaderElement, Cloneable {

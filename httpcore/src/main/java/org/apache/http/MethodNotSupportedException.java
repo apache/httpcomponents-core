@@ -34,9 +34,6 @@ package org.apache.http;
 
 /**
  * Signals that an HTTP method is not supported.
- *
- *
- * @version $Revision$
  * 
  * @since 4.0
  */

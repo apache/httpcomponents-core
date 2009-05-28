@@ -38,8 +38,6 @@ import java.util.Iterator;
  * This interface is designed as a complement to
  * {@link HeaderElementIterator}, in cases where the items
  * are plain strings rather than full header elements.
- * 
- * @version $Revision$
  *
  * @since 4.0
  */

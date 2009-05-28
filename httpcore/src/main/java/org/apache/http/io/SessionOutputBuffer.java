@@ -41,9 +41,6 @@ import org.apache.http.util.CharArrayBuffer;
  * <p>
  * Implementing classes are also expected to manage intermediate data buffering
  * for optimal output performance.  
- *
- *
- * @version $Revision$
  * 
  * @since 4.0
  */

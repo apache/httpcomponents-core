@@ -36,8 +36,6 @@ import org.apache.http.ProtocolVersion;
 /**
  * Defines parameter names for protocol execution in HttpCore.
  * 
- * @version $Revision$
- * 
  * @since 4.0
  */
 public interface CoreProtocolPNames {

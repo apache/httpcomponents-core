@@ -33,9 +33,6 @@ package org.apache.http;
 
 /**
  * A factory for {@link HttpRequest HttpRequest} objects.
- *
- *
- * @version $Revision$
  * 
  * @since 4.0
  */

@@ -38,9 +38,6 @@ import org.apache.http.protocol.HTTP;
 /**
  * Utility class for accessing protocol parameters in {@link HttpParams}.
  * 
- * 
- * @version $Revision$
- * 
  * @since 4.0
  *
  * @see CoreProtocolPNames

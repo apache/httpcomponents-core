@@ -58,12 +58,6 @@ import org.apache.http.util.CharArrayBuffer;
  * MUST NOT be modified.
  * </p>
  *
- *
- *
- *
- * <!-- empty lines above to avoid 'svn diff' context problems -->
- * @version $Revision$ $Date$
- *
  * @since 4.0
  */
 public interface LineFormatter {

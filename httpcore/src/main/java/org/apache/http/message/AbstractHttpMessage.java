@@ -41,9 +41,6 @@ import org.apache.http.params.BasicHttpParams;
 
 /**
  * Basic implementation of {@link HttpMessage}.
- *
- *
- * @version $Revision$
  * 
  * @since 4.0
  */

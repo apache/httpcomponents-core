@@ -48,9 +48,6 @@ import org.apache.http.protocol.HttpContext;
  * processing. The main purpose of a request handler is to generate a response 
  * object with a content entity to be sent back to the client in response to 
  * the given request
- *
- *
- * @version $Revision$
  * 
  * @since 4.0
  */

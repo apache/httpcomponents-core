@@ -47,9 +47,6 @@ import org.apache.http.protocol.HTTP;
 /**
  * A simple, self contained, repeatable non-blocking entity that retrieves 
  * its content from a {@link String} object.
- * 
- *
- * @version $Revision$
  *
  * @see AsyncNHttpServiceHandler
  * @since 4.0

@@ -53,9 +53,6 @@ import org.apache.http.util.CharArrayBuffer;
 /**
  * Default implementation of {@link SessionInputBuffer} based on 
  * the {@link ExpandableBuffer} class.
- *  
- *
- * @version $Revision$
  *
  * @since 4.0
  */

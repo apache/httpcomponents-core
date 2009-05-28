@@ -34,9 +34,6 @@ package org.apache.http.params;
 /**
  * Utility class for accessing connection parameters in {@link HttpParams}.
  * 
- * 
- * @version $Revision$
- * 
  * @since 4.0
  */
 public final class HttpConnectionParams implements CoreConnectionPNames {

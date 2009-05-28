@@ -44,9 +44,6 @@ import java.util.HashMap;
  * Multiple logically related messages can participate in a logical session 
  * if the same context is reused between consecutive messages.
  * 
- *
- * @version $Revision$
- * 
  * @since 4.0
  */
 public interface HttpContext {

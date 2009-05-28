@@ -39,9 +39,6 @@ import org.apache.http.HttpResponseInterceptor;
  * Provides access to an ordered list of response interceptors.
  * Lists are expected to be built upfront and used read-only afterwards
  * for {@link HttpProcessor processing}.
- *
- *
- * @version $Revision$
  * 
  * @since 4.0
  */

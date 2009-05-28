@@ -43,9 +43,6 @@ import org.apache.http.params.HttpParams;
  * <p>
  * Please note access to the internal structures of this class is not 
  * synchronized and therefore this class may be thread-unsafe.
- * 
- * 
- * @version $Revision$
  *
  * @since 4.0
  */

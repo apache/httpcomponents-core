@@ -44,9 +44,6 @@ import org.apache.http.protocol.HTTP;
 
 /**
  * Static helpers for dealing with {@link HttpEntity}s.
- *
- *
- * @version $Revision$
  * 
  * @since 4.0
  */

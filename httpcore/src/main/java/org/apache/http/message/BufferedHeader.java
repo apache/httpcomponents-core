@@ -39,11 +39,6 @@ import org.apache.http.util.CharArrayBuffer;
 /**
  * This class represents a raw HTTP header whose content is parsed 'on demand'
  * only when the header value needs to be consumed.
- * 
- *
- *
- * <!-- empty lines above to avoid 'svn diff' context problems -->
- * @version $Revision$ $Date$
  *
  * @since 4.0
  */

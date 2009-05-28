@@ -45,9 +45,6 @@ import org.apache.http.util.EntityUtils;
  * If the wrapped entity is repeatable itself, calls are passed through.
  * If the wrapped entity is not repeatable, the content is read into a
  * buffer once and provided from there as often as required.
- *
- *
- * @version $Revision$
  * 
  * @since 4.0
  */

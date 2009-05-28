@@ -48,10 +48,6 @@ import org.apache.http.util.CharArrayBuffer;
  * In both cases, the caller is allowed to modify the returned buffer.
  * </p>
  *
- *
- * <!-- empty lines above to avoid 'svn diff' context problems -->
- * @version $Revision$
- *
  * @since 4.0
  */
 public interface HeaderValueFormatter {

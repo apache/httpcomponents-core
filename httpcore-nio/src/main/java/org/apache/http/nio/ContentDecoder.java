@@ -38,9 +38,6 @@ import java.nio.ByteBuffer;
  * Abstract HTTP content decoder. HTTP content decoders can be used
  * to read entity content from the underlying channel in small
  * chunks and apply the required coding transformation.
- * 
- *
- * @version $Revision$
  *
  * @since 4.0
  */

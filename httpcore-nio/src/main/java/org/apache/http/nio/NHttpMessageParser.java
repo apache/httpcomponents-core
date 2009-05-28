@@ -39,9 +39,6 @@ import org.apache.http.HttpMessage;
 
 /**
  * Abstract HTTP message parser for non-blocking connections.
- *
- *
- * @version $Revision$
  * 
  * @since 4.0
  */

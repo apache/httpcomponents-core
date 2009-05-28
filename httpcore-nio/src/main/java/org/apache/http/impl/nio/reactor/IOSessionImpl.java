@@ -46,9 +46,6 @@ import org.apache.http.nio.reactor.SessionBufferStatus;
 
 /**
  * Default implementation of {@link IOSession}.
- * 
- *
- * @version $Revision$
  *
  * @since 4.0
  */

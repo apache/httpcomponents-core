@@ -39,11 +39,6 @@ import org.apache.http.util.CharArrayBuffer;
  * Basic implementation for formatting header value elements.
  * Instances of this class are stateless and thread-safe.
  * Derived classes are expected to maintain these properties.
- * 
- *
- *
- * <!-- empty lines above to avoid 'svn diff' context problems -->
- * @version $Revision$
  *
  * @since 4.0
  */

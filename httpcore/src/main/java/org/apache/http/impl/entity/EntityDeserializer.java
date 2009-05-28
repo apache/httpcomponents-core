@@ -59,9 +59,6 @@ import org.apache.http.protocol.HTTP;
  * properties of the message. The content of the entity will be decoded 
  * transparently for the consumer. 
  * 
- *
- * @version $Revision$
- * 
  * @since 4.0
  */
 public class EntityDeserializer {

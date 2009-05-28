@@ -40,8 +40,6 @@ import org.apache.http.HeaderIterator;
 /**
  * Implementation of a {@link HeaderIterator} based on a {@link List}.
  * For use by {@link HeaderGroup}.
- * 
- * @version $Revision$
  *
  * @since 4.0
  */

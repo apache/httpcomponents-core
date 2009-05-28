@@ -42,9 +42,6 @@ import org.apache.http.HttpRequestInterceptor;
  * RequestDate interceptor is responsible for adding <code>Date</code> header 
  * to the outgoing requests This interceptor is optional for client side 
  * protocol processors.
- *
- *
- * @version $Revision$
  * 
  * @since 4.0
  */

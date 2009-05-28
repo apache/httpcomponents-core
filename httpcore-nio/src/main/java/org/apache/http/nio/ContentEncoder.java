@@ -38,9 +38,6 @@ import java.nio.ByteBuffer;
  * Abstract HTTP content encoder. HTTP content encoders can be used
  * to apply the required coding transformation and write entity 
  * content to the underlying channel in small chunks.
- * 
- *
- * @version $Revision$
  *
  * @since 4.0
  */

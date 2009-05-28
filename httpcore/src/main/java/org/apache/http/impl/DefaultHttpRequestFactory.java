@@ -40,9 +40,6 @@ import org.apache.http.message.BasicHttpRequest;
 
 /**
  * Default factory for creating {@link HttpRequest} objects.
- *
- *
- * @version $Revision$
  * 
  * @since 4.0
  */

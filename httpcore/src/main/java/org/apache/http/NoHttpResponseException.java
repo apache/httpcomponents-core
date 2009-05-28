@@ -35,9 +35,6 @@ import java.io.IOException;
 
 /**
  * Signals that the target server failed to respond with a valid HTTP response.
- * 
- * 
- * @version $Revision$
  *
  * @since 4.0
  */

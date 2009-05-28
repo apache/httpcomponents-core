@@ -34,8 +34,6 @@ package org.apache.http.params;
 /**
  * Defines parameter names for connections in HttpCore.
  * 
- * @version $Revision$
- * 
  * @since 4.0
  */
 public interface CoreConnectionPNames {

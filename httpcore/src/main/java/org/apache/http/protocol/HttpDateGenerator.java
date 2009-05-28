@@ -40,9 +40,6 @@ import java.util.TimeZone;
 
 /**
  * Generates a date in the format required by the HTTP protocol.
- *
- *
- * @version $Revision$
  * 
  * @since 4.0
  */

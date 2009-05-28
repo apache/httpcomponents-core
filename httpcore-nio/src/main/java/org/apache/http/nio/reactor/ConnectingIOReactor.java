@@ -36,9 +36,6 @@ import java.net.SocketAddress;
 /**
  * ConnectingIOReactor represents an I/O reactor capable of establishing 
  * connections to remote hosts.
- * 
- *
- * @version $Revision$
  *
  * @since 4.0
  */

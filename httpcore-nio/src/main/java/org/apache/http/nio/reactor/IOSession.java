@@ -47,10 +47,7 @@ import java.nio.channels.ByteChannel;
  * using execution context associated with it. 
  * <p>
  * Implementations of this interface are expected to be threading safe.
- *
- *
- * @version $Revision$
- *
+ * 
  * @since 4.0
  */
 public interface IOSession {

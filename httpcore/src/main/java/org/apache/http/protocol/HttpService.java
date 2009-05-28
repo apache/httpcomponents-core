@@ -69,9 +69,6 @@ import org.apache.http.util.EncodingUtils;
  * HttpService can use optional {@link HttpExpectationVerifier} to ensure that 
  * incoming requests meet server's expectations.
  *
- *
- * @version $Revision$
- *
  * @since 4.0
  */
 public class HttpService {

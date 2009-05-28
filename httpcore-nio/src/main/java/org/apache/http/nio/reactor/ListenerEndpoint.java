@@ -38,9 +38,6 @@ import java.net.SocketAddress;
  * ListenerEndpoint interface represents an endpoint used by an I/O reactor
  * to listen for incoming connection from remote clients.
  * 
- *
- * @version $Revision$
- * 
  * @since 4.0
  */
 public interface ListenerEndpoint {

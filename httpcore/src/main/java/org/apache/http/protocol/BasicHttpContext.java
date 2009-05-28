@@ -39,9 +39,6 @@ import java.util.Map;
  * <p>
  * Please note methods of this class are not synchronized and therefore may
  * be threading unsafe.
- *
- *
- * @version $Revision$
  * 
  * @since 4.0
  */

@@ -45,8 +45,6 @@ import org.apache.http.entity.ByteArrayEntity;
  *
  * @deprecated Use {@link NByteArrayEntity}
  * 
- * @version $Revision$
- * 
  * @since 4.0
  */
 @Deprecated

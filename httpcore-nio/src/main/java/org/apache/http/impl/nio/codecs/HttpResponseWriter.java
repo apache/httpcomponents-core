@@ -44,9 +44,6 @@ import org.apache.http.util.CharArrayBuffer;
 /**
  * Default {@link NHttpMessageWriter} implementation for {@link HttpResponse}s.
  *
- *
- * @version $Revision$
- *
  * @since 4.0
  */
 public class HttpResponseWriter extends AbstractMessageWriter {

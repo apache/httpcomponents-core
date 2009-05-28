@@ -37,9 +37,6 @@ import org.apache.http.HttpException;
 
 /**
  * Abstract client-side HTTP protocol handler.   
- * 
- *
- * @version $Revision$
  *
  * @since 4.0
  */

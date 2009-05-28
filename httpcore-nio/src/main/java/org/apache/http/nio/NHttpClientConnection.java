@@ -41,9 +41,6 @@ import org.apache.http.HttpRequest;
  * to submit HTTP requests and asynchronously receive HTTP responses. 
  * 
  * @see NHttpConnection
- * 
- *
- * @version $Revision$
  *
  * @since 4.0
  */

@@ -49,10 +49,6 @@ import org.apache.http.protocol.HttpContext;
  * Protocol interceptors must be implemented as thread-safe. Similarly to 
  * servlets, protocol interceptors should not use instance variables unless 
  * access to those variables is synchronized.
- *
- *
- * <!-- empty lines above to avoid 'svn diff' context problems -->
- * @version $Revision$
  * 
  * @since 4.0
  */

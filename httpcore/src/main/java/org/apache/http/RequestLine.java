@@ -39,9 +39,6 @@ package org.apache.http;
  * <pre>
  *      Request-Line   = Method SP Request-URI SP HTTP-Version CRLF
  * </pre>
- *
- *
- * @version $Revision$
  * 
  * @since 4.0
  */

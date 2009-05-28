@@ -63,9 +63,6 @@ import java.io.OutputStream;
  * and self-contained is of little importance. In that case, it is suggested
  * to consider non-repeatable entities as streamed, and those that are
  * repeatable (without a huge effort) as self-contained.
- *
- *
- * @version $Revision$
  * 
  * @since 4.0
  */

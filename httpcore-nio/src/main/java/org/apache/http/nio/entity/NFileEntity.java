@@ -49,9 +49,6 @@ import org.apache.http.nio.IOControl;
  * from a file. This class is mostly used to stream large files of different 
  * types, so one needs to supply the content type of the file to make sure 
  * the content can be correctly recognized and processed by the recipient.
- * 
- *
- * @version $Revision$
  *
  * @since 4.0
  */

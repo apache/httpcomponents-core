@@ -42,9 +42,6 @@ import org.apache.http.nio.ContentEncoder;
  * Attempts to close this channel are ignored, and {@link #isOpen} always 
  * returns <code>true</code>.
  *
- *
- * @version $Revision$
- *
  * @since 4.0
  */
 public class ContentEncoderChannel implements WritableByteChannel {

@@ -37,9 +37,6 @@ import org.apache.http.nio.ContentDecoder;
 
 /**
  * Buffer for storing content streamed out from a {@link ContentDecoder}.
- * 
- *
- * @version $Revision$
  *
  * @since 4.0
  */

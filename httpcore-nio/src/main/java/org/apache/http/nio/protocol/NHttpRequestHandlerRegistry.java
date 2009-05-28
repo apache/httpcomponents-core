@@ -50,9 +50,6 @@ import org.apache.http.protocol.UriPatternMatcher;
  * resolved request handler will be used to process the request with the 
  * specified request URI.
  *
- *
- * @version $Revision$
- *
  * @since 4.0
  */
 public class NHttpRequestHandlerRegistry implements NHttpRequestHandlerResolver {

@@ -36,9 +36,6 @@ import java.io.IOException;
 /**
  * A server-side HTTP connection, which can be used for receiving 
  * requests and sending responses.
- *
- *
- * @version $Revision$
  * 
  * @since 4.0
  */

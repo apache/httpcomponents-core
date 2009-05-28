@@ -37,9 +37,6 @@ import java.nio.channels.SocketChannel;
  * {@link SocketChannel} entry maintained by the I/O reactor. If the channel
  *  represents an outgoing client connection, this entry also contains the
  *  original {@link SessionRequestImpl} used to request it.
- *  
- *
- * @version $Revision$
  *
  * @since 4.0
  */

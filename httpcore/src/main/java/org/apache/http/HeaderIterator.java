@@ -31,14 +31,10 @@
 
 package org.apache.http;
 
-
 import java.util.Iterator;
-
 
 /**
  * A type-safe iterator for {@link Header} objects.
- * 
- * @version $Revision$
  *
  * @since 4.0
  */
@@ -50,9 +46,7 @@ public interface HeaderIterator extends Iterator {
      * @return  <code>true</code> if there is another header,
      *          <code>false</code> otherwise
      */
-    boolean hasNext()
-        ;
-
+    boolean hasNext();
 
     /**
      * Obtains the next header from this iteration.
@@ -61,6 +55,6 @@ public interface HeaderIterator extends Iterator {
      *
      * @return  the next header in this iteration
      */
-    Header nextHeader()
-        ;
+    Header nextHeader();
+    
 }

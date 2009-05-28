@@ -47,9 +47,6 @@ import org.apache.http.ProtocolException;
 /**
  * RequestTargetHost is responsible for adding <code>Host</code> header. This 
  * interceptor is required for client side protocol processors. 
- *
- *
- * @version $Revision$
  * 
  * @since 4.0
  */

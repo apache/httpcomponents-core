@@ -33,9 +33,6 @@ package org.apache.http.io;
 
 /**
  * EOF sensor.
- *
- *
- * @version $Revision$
  * 
  * @since 4.0
  */

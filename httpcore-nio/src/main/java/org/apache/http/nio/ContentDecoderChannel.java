@@ -40,9 +40,6 @@ import java.nio.channels.ReadableByteChannel;
  * Attempts to close this channel are ignored, and {@link #isOpen} always 
  * returns <code>true</code>.
  *
- *
- * @version $Revision$
- *
  * @since 4.0
  */
 public class ContentDecoderChannel implements ReadableByteChannel {

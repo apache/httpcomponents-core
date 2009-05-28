@@ -40,9 +40,6 @@ import java.net.SocketAddress;
  * request, to block waiting for its completion, or to cancel the request. 
  * <p>
  * Implementations of this interface are expected to be threading safe.
- * 
- *
- * @version $Revision$
  *
  * @since 4.0
  */

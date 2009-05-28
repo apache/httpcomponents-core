@@ -36,9 +36,6 @@ import org.apache.http.RequestLine;
 
 /**
  * Basic implementation of {@link RequestLine}.
- *
- * <!-- empty lines above to avoid 'svn diff' context problems -->
- * @version $Revision$
  * 
  * @since 4.0
  */

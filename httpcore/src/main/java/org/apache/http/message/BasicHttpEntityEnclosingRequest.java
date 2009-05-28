@@ -40,8 +40,6 @@ import org.apache.http.protocol.HTTP;
 
 /**
  * Basic implementation of {@link HttpEntityEnclosingRequest}.
- *
- * @version $Revision$
  * 
  * @since 4.0
  */

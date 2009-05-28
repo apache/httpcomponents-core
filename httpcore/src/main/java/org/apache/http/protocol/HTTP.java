@@ -34,9 +34,6 @@ package org.apache.http.protocol;
 /**
  * Constants and static helpers related to the HTTP protocol.
  * 
- *
- * @version $Revision$
- * 
  * @since 4.0
  */
 public final class HTTP {

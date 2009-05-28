@@ -48,8 +48,6 @@ package org.apache.http;
  *                      and consisting of either *TEXT or combinations
  *                      of token, separators, and quoted-string&gt;
  *</pre>
- * 
- * @version $Revision$
  *
  * @since 4.0
  */

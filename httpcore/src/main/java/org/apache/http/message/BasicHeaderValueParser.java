@@ -45,11 +45,6 @@ import org.apache.http.util.CharArrayBuffer;
  * Instances of this class are stateless and thread-safe.
  * Derived classes are expected to maintain these properties.
  *
- *
- *
- * <!-- empty lines above to avoid 'svn diff' context problems -->
- * @version $Revision$
- *
  * @since 4.0
  */
 public class BasicHeaderValueParser implements HeaderValueParser {

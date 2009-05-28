@@ -49,9 +49,6 @@ import org.apache.http.ProtocolException;
  * on the properties of the enclosed entity and the protocol version. 
  * This interceptor is required for correct functioning of server side protocol 
  * processors.
- *
- *
- * @version $Revision$
  * 
  * @since 4.0
  */

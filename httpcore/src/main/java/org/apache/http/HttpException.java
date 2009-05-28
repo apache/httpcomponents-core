@@ -35,9 +35,6 @@ import org.apache.http.util.ExceptionUtils;
 
 /**
  * Signals that an HTTP exception has occurred.
- * 
- * 
- * @version $Revision$ $Date$
  *
  * @since 4.0
  */

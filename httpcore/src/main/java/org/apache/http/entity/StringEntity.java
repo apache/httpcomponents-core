@@ -42,9 +42,6 @@ import org.apache.http.protocol.HTTP;
 /**
  * A self contained, repeatable entity that obtains its content from 
  * a {@link String}.
- *
- *
- * @version $Revision$
  * 
  * @since 4.0
  */

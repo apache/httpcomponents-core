@@ -39,9 +39,6 @@ import org.apache.http.HttpMessage;
 /**
  * Abstract message parser intended to build HTTP messages from an arbitrary 
  * data source. 
- *
- *
- * @version $Revision$
  * 
  * @since 4.0
  */

@@ -44,9 +44,6 @@ import java.io.Serializable;
  * The content obtained from the {@link Serializable} instance can 
  * optionally be buffered in a byte array in order to make the
  * entity self-contained and repeatable.
- *
- *
- * @version $Revision$
  * 
  * @since 4.0
  */

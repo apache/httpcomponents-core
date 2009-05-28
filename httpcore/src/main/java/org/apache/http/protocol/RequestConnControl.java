@@ -42,9 +42,6 @@ import org.apache.http.HttpRequestInterceptor;
  * to the outgoing requests, which is essential for managing persistence of 
  * <code>HTTP/1.0</code> connections. This interceptor is recommended for 
  * client side protocol processors.
- *
- *
- * @version $Revision$
  * 
  * @since 4.0
  */

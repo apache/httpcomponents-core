@@ -39,9 +39,6 @@ import java.io.OutputStream;
 
 /**
  * A self contained, repeatable entity that obtains its content from a file.
- *
- *
- * @version $Revision$
  * 
  * @since 4.0
  */

@@ -38,9 +38,6 @@ import java.io.OutputStream;
 /**
  * Entity that delegates the process of content generation 
  * to a {@link ContentProducer}.
- *
- *
- * @version $Revision$
  * 
  * @since 4.0
  */

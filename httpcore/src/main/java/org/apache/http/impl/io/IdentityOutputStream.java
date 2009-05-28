@@ -45,9 +45,6 @@ import org.apache.http.io.SessionOutputBuffer;
  * Note that this class NEVER closes the underlying stream, even when close
  * gets called.  Instead, the stream will be marked as closed and no further 
  * output will be permitted.
- *
- *
- * @version $Revision$
  * 
  * @since 4.0
  */

@@ -40,10 +40,6 @@ import org.apache.http.util.CharArrayBuffer;
  * Interface for parsing header values into elements.
  * Instances of this interface are expected to be stateless and thread-safe.
  *
- *
- * <!-- empty lines above to avoid 'svn diff' context problems -->
- * @version $Revision$ $Date$
- *
  * @since 4.0
  */
 public interface HeaderValueParser {

@@ -36,9 +36,6 @@ import org.apache.http.params.HttpParams;
 /**
  * Utility class for accessing I/O reactor parameters in {@link HttpParams}.
  * 
- * 
- * @version $Revision$
- * 
  * @since 4.0
  *
  * @see NIOReactorPNames

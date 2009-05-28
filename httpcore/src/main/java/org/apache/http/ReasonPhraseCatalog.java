@@ -33,14 +33,8 @@ package org.apache.http;
 
 import java.util.Locale;
 
-
 /**
  * Interface for obtaining reason phrases for HTTP status codes.
- *
- *
- *
- * <!-- empty lines above to avoid 'svn diff' context problems -->
- * @version $Revision$
  * 
  * @since 4.0
  */
@@ -56,7 +50,6 @@ public interface ReasonPhraseCatalog {
      *
      * @return  the reason phrase, or <code>null</code> if unknown
      */
-    public String getReason(int status, Locale loc)
-        ;
+    public String getReason(int status, Locale loc);
 
 }

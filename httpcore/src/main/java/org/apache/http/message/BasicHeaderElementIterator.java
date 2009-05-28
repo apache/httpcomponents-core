@@ -43,8 +43,6 @@ import org.apache.http.util.CharArrayBuffer;
 /**
  * Basic implementation of a {@link HeaderElementIterator}.
  * 
- * @version $Revision$
- * 
  * @since 4.0
  */
 public class BasicHeaderElementIterator implements HeaderElementIterator {

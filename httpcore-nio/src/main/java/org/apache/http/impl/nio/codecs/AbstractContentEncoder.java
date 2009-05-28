@@ -42,9 +42,6 @@ import org.apache.http.nio.reactor.SessionOutputBuffer;
  * Abstract {@link ContentEncoder} that serves as a base for all content 
  * encoder implementations.
  *
- *
- * @version $Revision$
- *
  * @since 4.0
  */
 public abstract class AbstractContentEncoder implements ContentEncoder {

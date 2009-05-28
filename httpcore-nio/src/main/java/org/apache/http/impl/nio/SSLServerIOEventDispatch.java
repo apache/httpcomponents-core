@@ -54,9 +54,6 @@ import org.apache.http.protocol.ExecutionContext;
 /**
  * Default implementation of {@link IOEventDispatch} interface for SSL
  * (encrypted) server-side HTTP connections.
- * 
- *
- * @version $Revision$
  *
  * @since 4.0
  */

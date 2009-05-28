@@ -48,11 +48,6 @@ import org.apache.http.util.CharArrayBuffer;
  * on any specific IO mechanism.
  * Instances of this interface are expected to be stateless and thread-safe.
  *
- *
- *
- * <!-- empty lines above to avoid 'svn diff' context problems -->
- * @version $Revision$
- *
  * @since 4.0
  */
 public class BasicLineFormatter implements LineFormatter {

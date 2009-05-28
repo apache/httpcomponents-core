@@ -50,9 +50,6 @@ import org.apache.http.util.CharArrayBuffer;
 /**
  * Implements chunked transfer coding. The content is received in small chunks.
  * Entities transferred using this encoder can be of unlimited length.
- *  
- *
- * @version $Revision$
  *
  * @since 4.0
  */

@@ -35,9 +35,6 @@ import org.apache.http.protocol.HTTP;
 
 /**
  * A resizable char array.
- *
- * 
- * @version $Revision$
  * 
  * @since 4.0
  */

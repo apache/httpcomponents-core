@@ -33,13 +33,9 @@ package org.apache.http;
 
 import org.apache.http.protocol.HttpContext;
 
-
 /**
  * A factory for {@link HttpResponse HttpResponse} objects.
  *
- *
- * @version $Revision$
- * 
  * @since 4.0
  */
 public interface HttpResponseFactory {

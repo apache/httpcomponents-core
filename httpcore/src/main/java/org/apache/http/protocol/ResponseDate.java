@@ -43,9 +43,6 @@ import org.apache.http.HttpStatus;
  * outgoing responses. This interceptor is recommended for server side protocol 
  * processors.
  * 
- *
- * @version $Revision$
- * 
  * @since 4.0
  */
 public class ResponseDate implements HttpResponseInterceptor {

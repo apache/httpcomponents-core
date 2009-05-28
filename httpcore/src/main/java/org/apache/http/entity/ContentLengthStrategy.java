@@ -37,9 +37,6 @@ import org.apache.http.HttpMessage;
 /**
  * Represents a strategy to determine length of the enclosed content entity 
  * based on properties of the HTTP message.
- *
- *
- * @version $Revision$
  * 
  * @since 4.0
  */

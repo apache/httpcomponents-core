@@ -38,10 +38,7 @@ import org.apache.http.util.CharArrayBuffer;
  * For example when headers are received, the original formatting
  * can be preserved. This allows for the header to be sent without
  * another formatting step.
- *
- *
- * @version $Revision$
- *
+ * 
  * @since 4.0
  */
 public interface FormattedHeader extends Header {

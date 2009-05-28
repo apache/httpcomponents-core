@@ -45,9 +45,6 @@ import org.apache.http.io.SessionInputBuffer;
  * Note that this class NEVER closes the underlying stream, even when close
  * gets called.  Instead, it will read until the end of the stream (until 
  * <code>-1</code> is returned).
- *
- *
- * @version $Revision$
  * 
  * @since 4.0
  */

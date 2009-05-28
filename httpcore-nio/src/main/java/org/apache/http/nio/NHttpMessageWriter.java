@@ -38,9 +38,6 @@ import org.apache.http.HttpMessage;
 
 /**
  * Abstract HTTP message writer for non-blocking connections.
- *
- *
- * @version $Revision$
  * 
  * @since 4.0
  */

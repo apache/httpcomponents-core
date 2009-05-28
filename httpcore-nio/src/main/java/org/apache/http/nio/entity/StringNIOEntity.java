@@ -45,8 +45,6 @@ import org.apache.http.entity.StringEntity;
  * {@link HttpNIOEntity}.
  *
  * @deprecated Use {@link NStringEntity}
- *
- * @version $Revision$
  * 
  * @since 4.0
  */

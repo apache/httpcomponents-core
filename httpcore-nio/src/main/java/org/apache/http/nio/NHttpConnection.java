@@ -49,9 +49,6 @@ import org.apache.http.protocol.HttpContext;
  * restricted to the dispatch events triggered by the I/O event dispatch thread.
  * However, the {@link IOControl} interface is fully threading safe and can be 
  * manipulated from any thread.
- * 
- * 
- * @version $Revision$
  *
  * @since 4.0
  */

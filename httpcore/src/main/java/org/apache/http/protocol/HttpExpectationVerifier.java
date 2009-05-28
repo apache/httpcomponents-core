@@ -58,9 +58,6 @@ import org.apache.http.HttpResponse;
  * or, if there are other problems with the request, some other 4xx
  * status.
  *</p>
- *
- *
- * @version $Revision$
  * 
  * @since 4.0
  */

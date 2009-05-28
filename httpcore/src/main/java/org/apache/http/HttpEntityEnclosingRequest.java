@@ -33,9 +33,6 @@ package org.apache.http;
 
 /**
  * A request with an entity.
- *
- *
- * @version $Revision$
  * 
  * @since 4.0
  */

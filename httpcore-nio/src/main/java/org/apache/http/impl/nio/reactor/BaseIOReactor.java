@@ -50,9 +50,6 @@ import org.apache.http.nio.reactor.IOSession;
  * for more advanced {@link IOReactor} implementations. This class adds
  * support for the I/O event dispatching using {@link IOEventDispatch}, 
  * management of buffering sessions, and session timeout handling.
- *   
- *
- * @version $Revision$
  *
  * @since 4.0
  */

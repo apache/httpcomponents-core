@@ -45,9 +45,6 @@ import org.apache.http.impl.EnglishReasonPhraseCatalog;
 
 /**
  * Default factory for creating {@link HttpResponse} objects.
- *
- *
- * @version $Revision$
  * 
  * @since 4.0
  */

@@ -35,9 +35,6 @@ import java.io.IOException;
 
 /**
  * A generic HTTP connection, useful on client and server side.
- *
- *
- * @version $Revision$
  * 
  * @since 4.0
  */

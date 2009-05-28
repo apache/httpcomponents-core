@@ -37,8 +37,6 @@ package org.apache.http;
  * RFC2518 (WebDAV) are listed.
  * 
  * @see StatusLine
- * 
- * @version $Revision$
  *
  * @since 4.0
  */
