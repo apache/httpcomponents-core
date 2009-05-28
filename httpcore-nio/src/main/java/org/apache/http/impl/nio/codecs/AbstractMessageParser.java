@@ -51,9 +51,13 @@ import org.apache.http.util.CharArrayBuffer;
 /**
  * Abstract {@link NHttpMessageParser} that serves as a base for all message 
  * parser implementations.
- *
- *
- * @version $Revision$
+ * <p>
+ * The following parameters can be used to customize the behavior of this 
+ * class: 
+ * <ul>
+ *  <li>{@link org.apache.http.params.CoreConnectionPNames#MAX_HEADER_COUNT}</li>
+ *  <li>{@link org.apache.http.params.CoreConnectionPNames#MAX_LINE_LENGTH}</li>
+ * </ul>
  *
  * @since 4.0
  */
@@ -78,20 +82,6 @@ public abstract class AbstractMessageParser implements NHttpMessageParser {
 
     /**
      * Creates an instance of this class.
-     * <p>
-     * The following HTTP parameters affect the initialization:
-     * <p>
-     * {@link CoreConnectionPNames#MAX_HEADER_COUNT} parameter determines 
-     * the maximum HTTP header count allowed. If set to a positive value, 
-     * the number of HTTP headers received from the data stream exceeding 
-     * this limit will cause an IOException. A negative or zero value will 
-     * effectively disable the check. Per default the check is disabled. 
-     * <p>
-     * {@link CoreConnectionPNames#MAX_LINE_LENGTH} parameter determines 
-     * the maximum line length limit. If set to a positive value, any HTTP line 
-     * exceeding this limit will cause an IOException. A negative or zero value
-     * will effectively disable the check the check. Per default the check is 
-     * disabled.
      * 
      * @param buffer the session input buffer.
      * @param parser the line parser.

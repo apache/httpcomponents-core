@@ -46,9 +46,13 @@ import org.apache.http.util.CharArrayBuffer;
 
 /**
  * Default {@link NHttpMessageParser} implementation for {@link HttpRequest}s.
- *
- *
- * @version $Revision$
+ * <p>
+ * The following parameters can be used to customize the behavior of this 
+ * class: 
+ * <ul>
+ *  <li>{@link org.apache.http.params.CoreConnectionPNames#MAX_HEADER_COUNT}</li>
+ *  <li>{@link org.apache.http.params.CoreConnectionPNames#MAX_LINE_LENGTH}</li>
+ * </ul>
  *
  * @since 4.0
  */

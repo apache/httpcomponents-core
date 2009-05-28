@@ -36,11 +36,10 @@ import org.apache.http.protocol.HttpContext;
 /**
  * Interface for deciding whether a connection can be re-used for
  * subsequent requests and should be kept alive.
- *
- *
- *
- * <!-- empty lines above to avoid 'svn diff' context problems -->
- * @version $Revision$
+ * <p>
+ * Implementations of this interface must be thread-safe. Access to shared
+ * data must be synchronized as methods of this interface may be executed 
+ * from multiple threads.
  * 
  * @since 4.0
  */

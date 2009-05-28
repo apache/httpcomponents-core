@@ -19,7 +19,7 @@ Changes since 4.0
 
 * [HTTPCORE-155] Compatibility mode with IBM JRE and other JREs with naive (broken) implementation 
   of SelectionKey.
-  Cotributed by Marc Beyerle <marc.beyerle at de.ibm.com> and Oleg Kalnichevski <olegk at apache.org> 
+  Contributed by Marc Beyerle <marc.beyerle at de.ibm.com> and Oleg Kalnichevski <olegk at apache.org> 
 
 * [HTTPCORE-193] Fixed problem with SSLIOSession incorrectly handling of end-of-stream condition.  
   Contributed by Asankha C. Perera <asankha at apache.org> and Oleg Kalnichevski <olegk at apache.org> 

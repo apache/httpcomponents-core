@@ -47,14 +47,12 @@ import java.util.List;
 import java.util.Set;
 import java.util.concurrent.ThreadFactory;
 
-import org.apache.http.nio.params.NIOReactorPNames;
 import org.apache.http.nio.params.NIOReactorParams;
 import org.apache.http.nio.reactor.IOEventDispatch;
 import org.apache.http.nio.reactor.IOReactor;
 import org.apache.http.nio.reactor.IOReactorException;
 import org.apache.http.nio.reactor.IOReactorExceptionHandler;
 import org.apache.http.nio.reactor.IOReactorStatus;
-import org.apache.http.params.CoreConnectionPNames;
 import org.apache.http.params.HttpConnectionParams;
 import org.apache.http.params.HttpParams;
 
@@ -95,9 +93,17 @@ import org.apache.http.params.HttpParams;
  * can obtain the audit log using {@link #getAuditLog()}, examine exceptions
  * thrown by the I/O reactor prior and in the course of the reactor shutdown 
  * and decide whether it is safe to restart the I/O reactor.
- * 
- *
- * @version $Revision$
+ * <p>
+ * The following parameters can be used to customize the behavior of this 
+ * class: 
+ * <ul>
+ *  <li>{@link org.apache.http.params.CoreConnectionPNames#TCP_NODELAY}</li>
+ *  <li>{@link org.apache.http.params.CoreConnectionPNames#SO_TIMEOUT}</li>
+ *  <li>{@link org.apache.http.params.CoreConnectionPNames#SO_LINGER}</li>
+ *  <li>{@link org.apache.http.nio.params.NIOReactorPNames#SELECT_INTERVAL}</li>
+ *  <li>{@link org.apache.http.nio.params.NIOReactorPNames#GRACE_PERIOD}</li>
+ *  <li>{@link org.apache.http.nio.params.NIOReactorPNames#INTEREST_OPS_QUEUEING}</li>
+ * </ul>
  *
  * @since 4.0
  */
@@ -254,12 +260,6 @@ public abstract class AbstractMultiworkerIOReactor implements IOReactor {
      * <p>
      * The method will remain blocked unto the I/O reactor is shut down or the
      * execution thread is interrupted. 
-     * <p>
-     * The following HTTP parameters affect execution of this method:
-     * <p>
-     * The {@link NIOReactorPNames#SELECT_INTERVAL} parameter determines the 
-     * time interval in milliseconds at which the I/O reactor wakes up to check 
-     * for timed out sessions and session requests.
      * 
      * @see #processEvents(int)
      * @see #cancelRequests()
@@ -354,12 +354,6 @@ public abstract class AbstractMultiworkerIOReactor implements IOReactor {
      * make an attempt to terminate all worker I/O reactors gracefully,
      * and finally force-terminate those I/O reactors that failed to
      * terminate after the specified grace period.
-     * <p>
-     * The following HTTP parameters affect execution of this method:
-     * <p>
-     * The {@link NIOReactorPNames#GRACE_PERIOD} parameter determines the grace 
-     * period the I/O reactors are expected to block waiting for individual 
-     * worker threads to terminate cleanly.
      * 
      * @throws InterruptedIOException if the shutdown sequence has been
      *   interrupted.
@@ -464,26 +458,6 @@ public abstract class AbstractMultiworkerIOReactor implements IOReactor {
 
     /**
      * Prepares the given {@link Socket} by resetting some of its properties.
-     * <p>
-     * The following HTTP parameters affect execution of this method:
-     * <p>
-     * {@link CoreConnectionPNames#TCP_NODELAY} parameter determines whether 
-     * Nagle's algorithm is to be used. The Nagle's algorithm tries to conserve 
-     * bandwidth by minimizing the number of segments that are sent. When 
-     * applications wish to decrease network latency and increase performance, 
-     * they can disable Nagle's algorithm (that is enable TCP_NODELAY). Data 
-     * will be sent earlier, at the cost of an increase in bandwidth 
-     * consumption.
-     * <p>
-     * {@link CoreConnectionPNames#SO_TIMEOUT} parameter defines the socket 
-     * timeout in milliseconds, which is the timeout for waiting for data. 
-     * A timeout value of zero is interpreted as an infinite timeout.
-     * <p>
-     * {@link CoreConnectionPNames#SO_LINGER} parameter defines linger time 
-     * in seconds. The maximum timeout value is platform specific. Value 
-     * <code>0</code> implies that the option is disabled. Value <code>-1</code>
-     * implies that the JRE default is to be used. The setting only affects 
-     * socket close.
      *  
      * @param socket the socket
      * @throws IOException in case of an I/O error.

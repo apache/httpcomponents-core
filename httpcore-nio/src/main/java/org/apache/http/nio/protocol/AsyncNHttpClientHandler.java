@@ -83,6 +83,12 @@ import org.apache.http.protocol.HttpProcessor;
  * finished reading the data, 
  * {@link NHttpRequestExecutionHandler#handleResponse(HttpResponse, HttpContext)} 
  * method is called to process the response. 
+ * <p>
+ * The following parameters can be used to customize the behavior of this 
+ * class: 
+ * <ul>
+ *  <li>{@link org.apache.http.params.CoreProtocolPNames#WAIT_FOR_CONTINUE}</li>
+ * </ul>
  *
  * @see ConsumingNHttpEntity
  * @see ProducingNHttpEntity

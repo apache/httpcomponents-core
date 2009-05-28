@@ -56,9 +56,17 @@ import org.apache.http.params.HttpParams;
  * Default implementation of {@link ConnectingIOReactor}. This class extends 
  * {@link AbstractMultiworkerIOReactor} with capability to connect to remote
  * hosts.
- *
- *
- * @version $Revision$
+ * <p>
+ * The following parameters can be used to customize the behavior of this 
+ * class: 
+ * <ul>
+ *  <li>{@link org.apache.http.params.CoreConnectionPNames#TCP_NODELAY}</li>
+ *  <li>{@link org.apache.http.params.CoreConnectionPNames#SO_TIMEOUT}</li>
+ *  <li>{@link org.apache.http.params.CoreConnectionPNames#SO_LINGER}</li>
+ *  <li>{@link org.apache.http.nio.params.NIOReactorPNames#SELECT_INTERVAL}</li>
+ *  <li>{@link org.apache.http.nio.params.NIOReactorPNames#GRACE_PERIOD}</li>
+ *  <li>{@link org.apache.http.nio.params.NIOReactorPNames#INTEREST_OPS_QUEUEING}</li>
+ * </ul>
  *
  * @since 4.0
  */

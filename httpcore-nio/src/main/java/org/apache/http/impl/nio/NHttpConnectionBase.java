@@ -70,7 +70,6 @@ import org.apache.http.nio.reactor.SessionBufferStatus;
 import org.apache.http.nio.reactor.SessionInputBuffer;
 import org.apache.http.nio.reactor.SessionOutputBuffer;
 import org.apache.http.nio.util.ByteBufferAllocator;
-import org.apache.http.params.CoreConnectionPNames;
 import org.apache.http.params.HttpConnectionParams;
 import org.apache.http.params.HttpParams;
 import org.apache.http.protocol.HTTP;
@@ -81,9 +80,12 @@ import org.apache.http.protocol.SyncBasicHttpContext;
  * This class serves as a base for all {@link NHttpConnection} implementations
  * and implements functionality common to both client and server 
  * HTTP connections.
- * 
- *
- * @version $Revision$
+ * <p>
+ * The following parameters can be used to customize the behavior of this 
+ * class: 
+ * <ul>
+ *  <li>{@link org.apache.http.params.CoreConnectionPNames#SOCKET_BUFFER_SIZE}</li>
+ * </ul>
  *
  * @since 4.0
  */
@@ -114,13 +116,6 @@ public class NHttpConnectionBase
     
     /**
      * Creates a new instance of this class given the underlying I/O session.
-     * <p>
-     * The following HTTP parameters affect configuration of this connection:
-     * <p>
-     * The {@link CoreConnectionPNames#SOCKET_BUFFER_SIZE}
-     * parameter determines the size of the internal socket buffer. If not 
-     * defined or set to <code>-1</code> the default value will be chosen
-     * automatically.
      * 
      * @param session the underlying I/O session.
      * @param allocator byte buffer allocator.

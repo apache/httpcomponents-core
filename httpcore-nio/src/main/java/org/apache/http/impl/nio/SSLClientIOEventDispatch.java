@@ -54,9 +54,14 @@ import org.apache.http.protocol.ExecutionContext;
 /**
  * Default implementation of {@link IOEventDispatch} interface for SSL
  * (encrypted) client-side HTTP connections.
- * 
- *
- * @version $Revision$
+ * <p>
+ * The following parameters can be used to customize the behavior of this 
+ * class: 
+ * <ul>
+ *  <li>{@link org.apache.http.params.CoreConnectionPNames#SOCKET_BUFFER_SIZE}</li>
+ *  <li>{@link org.apache.http.params.CoreConnectionPNames#MAX_HEADER_COUNT}</li>
+ *  <li>{@link org.apache.http.params.CoreConnectionPNames#MAX_LINE_LENGTH}</li>
+ * </ul>
  *
  * @since 4.0
  */

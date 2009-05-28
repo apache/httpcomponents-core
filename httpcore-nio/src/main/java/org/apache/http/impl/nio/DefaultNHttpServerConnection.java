@@ -51,14 +51,18 @@ import org.apache.http.nio.reactor.IOSession;
 import org.apache.http.nio.reactor.SessionInputBuffer;
 import org.apache.http.nio.reactor.SessionOutputBuffer;
 import org.apache.http.nio.util.ByteBufferAllocator;
-import org.apache.http.params.CoreConnectionPNames;
 import org.apache.http.params.HttpParams;
 
 /**
  * Default implementation of the {@link NHttpServerConnection} interface.
- * 
- *
- * @version $Revision$
+ * <p>
+ * The following parameters can be used to customize the behavior of this 
+ * class: 
+ * <ul>
+ *  <li>{@link org.apache.http.params.CoreConnectionPNames#SOCKET_BUFFER_SIZE}</li>
+ *  <li>{@link org.apache.http.params.CoreConnectionPNames#MAX_HEADER_COUNT}</li>
+ *  <li>{@link org.apache.http.params.CoreConnectionPNames#MAX_LINE_LENGTH}</li>
+ * </ul>
  *
  * @since 4.0
  */
@@ -70,13 +74,6 @@ public class DefaultNHttpServerConnection
     
     /**
      * Creates a new instance of this class given the underlying I/O session.
-     * <p>
-     * The following HTTP parameters affect configuration of this connection:
-     * <p>
-     * The {@link CoreConnectionPNames#SOCKET_BUFFER_SIZE}
-     * parameter determines the size of the internal socket buffer. If not 
-     * defined or set to <code>-1</code> the default value will be chosen
-     * automatically.
      * 
      * @param session the underlying I/O session.
      * @param requestFactory HTTP request factory.

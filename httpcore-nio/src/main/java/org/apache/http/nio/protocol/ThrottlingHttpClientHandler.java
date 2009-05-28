@@ -87,9 +87,13 @@ import org.apache.http.protocol.HttpProcessor;
  * will have to block only when processing large messages and the shared buffer 
  * fills up. It is generally advisable to allocate shared buffers of a size of 
  * an average content body for optimal performance.
- * 
- * @see NIOReactorPNames#CONTENT_BUFFER_SIZE
- * 
+ * <p>
+ * The following parameters can be used to customize the behavior of this 
+ * class: 
+ * <ul>
+ *  <li>{@link org.apache.http.params.CoreProtocolPNames#WAIT_FOR_CONTINUE}</li>
+ *  <li>{@link org.apache.http.nio.params.NIOReactorPNames#CONTENT_BUFFER_SIZE}</li>
+ * </ul>
  *
  * @since 4.0
  */
