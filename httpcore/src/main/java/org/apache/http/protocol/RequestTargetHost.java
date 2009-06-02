@@ -65,8 +65,9 @@ public class RequestTargetHost implements HttpRequestInterceptor {
             throw new IllegalArgumentException("HTTP context may not be null");
         }
         
+        ProtocolVersion ver = request.getRequestLine().getProtocolVersion();
         String method = request.getRequestLine().getMethod();
-        if (method.equalsIgnoreCase("CONNECT")) {
+        if (method.equalsIgnoreCase("CONNECT") && ver.lessEquals(HttpVersion.HTTP_1_0)) {
             return;
         }
         
@@ -86,7 +87,6 @@ public class RequestTargetHost implements HttpRequestInterceptor {
                     }
                 }
                 if (targethost == null) {
-                    ProtocolVersion ver = request.getRequestLine().getProtocolVersion();
                     if (ver.lessEquals(HttpVersion.HTTP_1_0)) {
                         return;
                     } else {
