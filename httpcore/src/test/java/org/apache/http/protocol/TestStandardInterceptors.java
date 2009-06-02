@@ -399,6 +399,29 @@ public class TestStandardInterceptors extends TestCase {
         }
     }
 
+    public void testRequestTargetHostConnectHttp11() throws Exception {
+        HttpContext context = new BasicHttpContext(null);
+        HttpHost host = new HttpHost("somehost", 8080, "http");
+        context.setAttribute(ExecutionContext.HTTP_TARGET_HOST, host);
+        BasicHttpRequest request = new BasicHttpRequest("CONNECT", "/");
+        RequestTargetHost interceptor = new RequestTargetHost();
+        interceptor.process(request, context);
+        Header header = request.getFirstHeader(HTTP.TARGET_HOST);
+        assertNotNull(header);
+        assertEquals("somehost:8080", header.getValue());
+    }
+
+    public void testRequestTargetHostConnectHttp10() throws Exception {
+        HttpContext context = new BasicHttpContext(null);
+        HttpHost host = new HttpHost("somehost", 8080, "http");
+        context.setAttribute(ExecutionContext.HTTP_TARGET_HOST, host);
+        BasicHttpRequest request = new BasicHttpRequest("CONNECT", "/", HttpVersion.HTTP_1_0);
+        RequestTargetHost interceptor = new RequestTargetHost();
+        interceptor.process(request, context);
+        Header header = request.getFirstHeader(HTTP.TARGET_HOST);
+        assertNull(header);
+    }
+
     public void testRequestUserAgentGenerated() throws Exception {
         HttpContext context = new BasicHttpContext(null);
         BasicHttpRequest request = new BasicHttpRequest("GET", "/");

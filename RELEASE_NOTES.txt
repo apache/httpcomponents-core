@@ -1,6 +1,9 @@
 Changes since 4.0
 -------------------
 
+* [HTTPCORE-198] CONNECT request includes Host header for HTTP 1.1 connections.
+  Contributed by Oleg Kalnichevski <olegk at apache.org> 
+
 * [HTTPCORE-196] SSLIOSession now unwraps encrypted data more aggressively eliminating long
   pauses when receiving data over non-blocking connections.  
   Contributed by Oleg Kalnichevski <olegk at apache.org> 
