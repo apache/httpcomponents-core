@@ -35,8 +35,9 @@ import java.io.IOException;
 import org.apache.http.nio.ContentEncoder;
 
 /**
- * Simple implementation of the {@link ContentOutputBuffer} interface. 
- * This class is not threading safe.
+ * Basic implementation of the {@link ContentOutputBuffer} interface. 
+ * <p>
+ * {@link ContentOutputBuffer} implemented by this class is not thread safe. 
  *
  * @since 4.0
  */

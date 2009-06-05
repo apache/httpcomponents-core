@@ -37,6 +37,8 @@ import java.nio.ByteBuffer;
  * A buffer that expand its capacity on demand using {@link ByteBufferAllocator}
  * interface. Internally, this class is backed by an instance of 
  * {@link ByteBuffer}. 
+ * <p>
+ * This class is not thread safe.
  *
  * @since 4.0
  */

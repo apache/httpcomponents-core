@@ -35,8 +35,9 @@ import java.io.IOException;
 import org.apache.http.nio.ContentDecoder;
 
 /**
- * Simple implementation of the {@link ContentInputBuffer} interface. This class
- * is not threading safe.
+ * Basic implementation of the {@link ContentInputBuffer} interface.
+ * <p>
+ * {@link ContentInputBuffer} implemented by this class is not thread safe. 
  *
  * @since 4.0
  */
