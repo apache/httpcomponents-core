@@ -217,7 +217,7 @@ public class NHttpFileServer {
                         fileChannel, idx, Long.MAX_VALUE);
             } else {
                 transferred = fileChannel.transferFrom(
-                        new ContentDecoderChannel(decoder), idx, Long.MAX_VALUE);
+                        new ContentDecoderChannel(decoder), idx, Integer.MAX_VALUE);
             }
 
             if(transferred > 0)
