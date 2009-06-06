@@ -37,7 +37,7 @@ import org.apache.http.nio.ContentDecoder;
 /**
  * Basic implementation of the {@link ContentInputBuffer} interface.
  * <p>
- * {@link ContentInputBuffer} implemented by this class is not thread safe. 
+ * This class is not thread safe. 
  *
  * @since 4.0
  */
