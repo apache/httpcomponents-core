@@ -142,7 +142,7 @@
         <groupId>com.atlassian.maven.plugins</groupId>
         <artifactId>maven-clover2-plugin</artifactId>
         <configuration>
-          <jdk>1.5</jdk>
+          <jdk>1.4</jdk>
         </configuration>
       </plugin>
 
