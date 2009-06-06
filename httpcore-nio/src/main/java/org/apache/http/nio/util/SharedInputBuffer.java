@@ -41,7 +41,8 @@ import org.apache.http.nio.IOControl;
  * shared by multiple threads, usually the I/O dispatch of an I/O reactor and
  * a worker thread. 
  * <p>
- * {@link ContentInputBuffer} implemented by this class is thread safe. 
+ * Please note this class is thread safe only when used though 
+ * the {@link ContentInputBuffer} interface. 
  *
  * @since 4.0
  */
