@@ -1,5 +1,8 @@
-Changes since 4.0
+Release 4.0.1
 -------------------
+
+This is a patch release addressing a number of issues discovered since the 4.0 release. Users 
+of NIO module are advised to upgrade.
 
 * [HTTPCORE-198] CONNECT request includes Host header for HTTP 1.1 connections.
   Contributed by Oleg Kalnichevski <olegk at apache.org> 
