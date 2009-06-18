@@ -39,7 +39,7 @@
   <groupId>org.apache.httpcomponents</groupId>
   <artifactId>httpcomponents-core</artifactId>
   <name>HttpComponents Core</name>
-  <version>4.0.1</version>
+  <version>4.0.2-SNAPSHOT</version>
   <description>Core components to build HTTP enabled services</description>
   <url>http://hc.apache.org/httpcomponents-core/</url>
   <inceptionYear>2005</inceptionYear>
@@ -64,9 +64,9 @@
   </issueManagement>
 
   <scm>
-    <connection>scm:svn:http://svn.apache.org/repos/asf/httpcomponents/httpcore/tags/4.0.1</connection>
-    <developerConnection>scm:svn:https://svn.apache.org/repos/asf/httpcomponents/httpcore/tags/4.0.1</developerConnection>
-    <url>http://svn.apache.org/repos/asf/httpcomponents/httpcore/tags/4.0.1</url>
+    <connection>scm:svn:http://svn.apache.org/repos/asf/httpcomponents/httpcore/branches/4.0.x</connection>
+    <developerConnection>scm:svn:https://svn.apache.org/repos/asf/httpcomponents/httpcore/branches/4.0.x</developerConnection>
+    <url>http://svn.apache.org/repos/asf/httpcomponents/httpcore/branches/4.0.x</url>
   </scm>
 
   <modules>
