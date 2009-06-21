@@ -1,5 +1,29 @@
-Changes since 4.0
+Changes since 4.0.1
 -------------------
+
+* [HTTPCORE-195] Truncated chunk-coded streams can now be tolerated by catching and discarding 
+  TruncatedChunkException.
+  Contributed by Oleg Kalnichevski <olegk at apache.org> 
+
+* [HTTPCORE-155] Compatibility mode with IBM JRE and other JREs with naive (broken) implementation 
+  of SelectionKey.
+  Contributed by Marc Beyerle <marc.beyerle at de.ibm.com> and Oleg Kalnichevski <olegk at apache.org> 
+
+* [HTTPCORE-191] Blocking HTTP connections are now capable of correctly preserving their internal 
+  state on SocketTimeoutExceptions, which makes it possible to continue reading from the connection 
+  after a socket timeout.
+  Contributed by Oleg Kalnichevski <olegk at apache.org> 
+
+* [HTTPCORE-190] ChunkedInputStream is now capable of correctly preserving its internal state on 
+  SocketTimeoutExceptions, which makes it possible to continue reading from the stream after a 
+  socket timeout.
+  Contributed by Oleg Kalnichevski <olegk at apache.org> 
+
+Release 4.0.1
+-------------------
+
+This is a patch release addressing a number of issues discovered since the 4.0 release. Users 
+of NIO module are advised to upgrade.
 
 * [HTTPCORE-198] CONNECT request includes Host header for HTTP 1.1 connections.
   Contributed by Oleg Kalnichevski <olegk at apache.org> 
@@ -12,31 +36,14 @@ Changes since 4.0
   truncated under special conditions.
   Contributed by Denis Rogov <denrogov at gmail.com> and Oleg Kalnichevski <olegk at apache.org> 
 
-* [HTTPCORE-195] Truncated chunk-coded streams can now be tolerated by catching and discarding 
-  TruncatedChunkException.
-  Contributed by Oleg Kalnichevski <olegk at apache.org> 
-
 * SSLIOSession#isAppOutputReady and SSLIOSession#isAppInputReady no longer ignore the application 
   event mask causing I/O event notifications for unrequested type of events.  
   Contributed by Oleg Kalnichevski <olegk at apache.org> 
 
-* [HTTPCORE-155] Compatibility mode with IBM JRE and other JREs with naive (broken) implementation 
-  of SelectionKey.
-  Contributed by Marc Beyerle <marc.beyerle at de.ibm.com> and Oleg Kalnichevski <olegk at apache.org> 
-
 * [HTTPCORE-193] Fixed problem with SSLIOSession incorrectly handling of end-of-stream condition.  
   Contributed by Asankha C. Perera <asankha at apache.org> and Oleg Kalnichevski <olegk at apache.org> 
 
-* [HTTPCORE-191] Blocking HTTP connections are now capable of correctly preserving their internal 
-  state on SocketTimeoutExceptions, which makes it possible to continue reading from the connection 
-  after a socket timeout.
-  Contributed by Oleg Kalnichevski <olegk at apache.org> 
-
-* [HTTPCORE-190] ChunkedInputStream is now capable of correctly preserving its internal state on 
-  SocketTimeoutExceptions, which makes it possible to continue reading from the stream after a 
-  socket timeout.
-  Contributed by Oleg Kalnichevski <olegk at apache.org> 
-
+  
 Release 4.0
 -------------------
 
