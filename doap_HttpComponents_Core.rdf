@@ -85,6 +85,16 @@ including support for NIO.
         <created>2008-10-19</created>
         <revision>4.0-beta3</revision>
       </Version>
+      <Version>
+        <name>HttpComponents Core 4.0 (GA)</name>
+        <created>2009-02-26</created>
+        <revision>4.0</revision>
+      </Version>
+      <Version>
+        <name>HttpComponents Core 4.0.1 (GA)</name>
+        <created>2009-06-22</created>
+        <revision>4.0.1</revision>
+      </Version>
     </release>
 
     <repository>
