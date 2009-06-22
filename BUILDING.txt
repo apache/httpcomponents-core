@@ -32,13 +32,7 @@ module-osgi-bundle/target/org.apache.httpcomponents.httpcore_<VERSION>.jar
 
 where <VERSION> is the release version
 
-(4) Building distribution assemblies 
-
-Execute the following command in order to build the distribution assemblies
-
-mvn package assembly:assembly
-
-(5) Building documentation 
+(4) Building documentation 
 
 Execute the following command in order to generate javadoc:
 
@@ -48,7 +42,19 @@ Execute the following command in order to generate the tutorial in html and pdf 
 
 mvn docbkx:generate-pdf docbkx:generate-html
 
-(6) Building project web site 
+(5) Building distribution assemblies 
+
+Execute the following command in order to build the distribution assemblies
+
+mvn package assembly:assembly
+
+(6) Fix EOL in source files
+
+Fix the archive files so the source files have the correct EOL settings:
+
+mvn antrun:run
+
+(7) Building project web site 
 
 Execute the following command in order to generate the project web site:
 
