@@ -1,8 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!-- 
-   $HeadURL$
    $Revision$
-   $Date$
 
    ====================================================================
    Licensed to the Apache Software Foundation (ASF) under one
@@ -151,15 +149,15 @@
           <tasks>
             <ant antfile="src/main/assembly/build.xml">
               <property name="target" value="${project.build.directory}" />
-              <property name="package.zip" value="${pom.artifactId}-${pom.version}-bin.zip" />
+              <property name="package.name" value="${pom.artifactId}-${pom.version}-bin" />
             </ant>
             <ant antfile="src/main/assembly/build.xml">
               <property name="target" value="${project.build.directory}" />
-              <property name="package.zip" value="${pom.artifactId}-${pom.version}-src.zip" />
+              <property name="package.name" value="${pom.artifactId}-${pom.version}-src" />
             </ant>
             <ant antfile="src/main/assembly/build.xml">
               <property name="target" value="${project.build.directory}" />
-              <property name="package.zip" value="${pom.artifactId}-${pom.version}-osgi-bin.zip" />
+              <property name="package.name" value="${pom.artifactId}-${pom.version}-osgi-bin" />
             </ant>
           </tasks>
         </configuration>
