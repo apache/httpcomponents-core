@@ -53,6 +53,12 @@ import org.apache.http.util.CharArrayBuffer;
 /**
  * Default implementation of {@link SessionOutputBuffer} based on 
  * the {@link ExpandableBuffer} class.
+ * <p>
+ * The following parameters can be used to customize the behavior of this 
+ * class: 
+ * <ul>
+ *  <li>{@link org.apache.http.params.CoreProtocolPNames#HTTP_ELEMENT_CHARSET}</li>
+ * </ul>
  *
  * @since 4.0
  */
