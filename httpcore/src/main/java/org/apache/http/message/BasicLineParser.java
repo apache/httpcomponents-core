@@ -412,13 +412,20 @@ public class BasicLineParser implements LineParser {
                 blank = indexTo;
             }
             int statusCode = 0;
+            String s = buffer.substringTrimmed(i, blank);
+            for (int j = 0; j < s.length(); j++) {
+                if (!Character.isDigit(s.charAt(j))) {
+                    throw new ParseException(
+                            "Status line contains invalid status code: " 
+                            + buffer.substring(indexFrom, indexTo));
+                }
+            }
             try {
-                statusCode =
-                    Integer.parseInt(buffer.substringTrimmed(i, blank));
+                statusCode = Integer.parseInt(s);
             } catch (NumberFormatException e) {
                 throw new ParseException(
-                    "Unable to parse status code from status line: " 
-                    + buffer.substring(indexFrom, indexTo));
+                        "Status line contains invalid status code: " 
+                        + buffer.substring(indexFrom, indexTo));
             }
             //handle the Reason-Phrase
             i = blank;

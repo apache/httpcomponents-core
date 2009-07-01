@@ -207,8 +207,16 @@ public class TestBasicLineParser extends TestCase {
         } catch (ParseException e) {
             // expected
         }
+
         try {
             BasicLineParser.parseStatusLine("HTTP/1.1", null);
+            fail();
+        } catch (ParseException e) {
+            // expected
+        }
+
+        try {
+            BasicLineParser.parseStatusLine("HTTP/1.1 -200 OK", null);
             fail();
         } catch (ParseException e) {
             // expected
