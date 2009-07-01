@@ -305,6 +305,106 @@ public class TestSessionInOutBuffers extends TestCase {
         }
     }
     
+    public void testReadByteBuffer() throws Exception {
+        byte[] pattern = "0123456789ABCDEF".getBytes("US-ASCII");
+        ReadableByteChannel channel = newChannel(pattern);        
+        HttpParams params = new BasicHttpParams();
+        SessionInputBuffer inbuf = new SessionInputBufferImpl(4096, 1024, params);
+        while (inbuf.fill(channel) > 0) {
+        }
+        ByteBuffer dst = ByteBuffer.allocate(10);
+        assertEquals(10, inbuf.read(dst));
+        dst.flip();
+        assertEquals(dst, ByteBuffer.wrap(pattern, 0, 10));
+        dst.clear();
+        assertEquals(6, inbuf.read(dst));
+        dst.flip();
+        assertEquals(dst, ByteBuffer.wrap(pattern, 10, 6));
+    }
+    
+    public void testReadByteBufferWithMaxLen() throws Exception {
+        byte[] pattern = "0123456789ABCDEF".getBytes("US-ASCII");
+        ReadableByteChannel channel = newChannel(pattern);        
+        HttpParams params = new BasicHttpParams();
+        SessionInputBuffer inbuf = new SessionInputBufferImpl(4096, 1024, params);
+        while (inbuf.fill(channel) > 0) {
+        }
+        ByteBuffer dst = ByteBuffer.allocate(16);
+        assertEquals(10, inbuf.read(dst, 10));
+        dst.flip();
+        assertEquals(dst, ByteBuffer.wrap(pattern, 0, 10));
+        dst.clear();
+        assertEquals(3, inbuf.read(dst, 3));
+        dst.flip();
+        assertEquals(dst, ByteBuffer.wrap(pattern, 10, 3));
+        assertEquals(3, inbuf.read(dst, 20));
+        dst.flip();
+        assertEquals(dst, ByteBuffer.wrap(pattern, 13, 3));
+    }
+
+    public void testReadToChannel() throws Exception {
+        byte[] pattern = "0123456789ABCDEF".getBytes("US-ASCII");
+        ReadableByteChannel channel = newChannel(pattern);        
+        HttpParams params = new BasicHttpParams();
+        SessionInputBuffer inbuf = new SessionInputBufferImpl(4096, 1024, params);
+        while (inbuf.fill(channel) > 0) {
+        }
+        
+        ByteArrayOutputStream outstream = new ByteArrayOutputStream(); 
+        WritableByteChannel dst = newChannel(outstream);
+        
+        assertEquals(16, inbuf.read(dst));
+        assertEquals(ByteBuffer.wrap(pattern), ByteBuffer.wrap(outstream.toByteArray()));
+    }
+    
+    public void testReadToChannelWithMaxLen() throws Exception {
+        byte[] pattern = "0123456789ABCDEF".getBytes("US-ASCII");
+        ReadableByteChannel channel = newChannel(pattern);        
+        HttpParams params = new BasicHttpParams();
+        SessionInputBuffer inbuf = new SessionInputBufferImpl(4096, 1024, params);
+        while (inbuf.fill(channel) > 0) {
+        }
+        
+        ByteArrayOutputStream outstream = new ByteArrayOutputStream(); 
+        WritableByteChannel dst = newChannel(outstream);
+        
+        assertEquals(10, inbuf.read(dst, 10));
+        assertEquals(3, inbuf.read(dst, 3));
+        assertEquals(3, inbuf.read(dst, 10));
+        assertEquals(ByteBuffer.wrap(pattern), ByteBuffer.wrap(outstream.toByteArray()));
+    }
+    
+    public void testWriteByteBuffer() throws Exception {
+        byte[] pattern = "0123456789ABCDEF0123456789ABCDEF".getBytes("US-ASCII");
+
+        HttpParams params = new BasicHttpParams();
+        SessionOutputBuffer outbuf = new SessionOutputBufferImpl(4096, 1024, params);
+        ReadableByteChannel src = newChannel(pattern);        
+        outbuf.write(src);
+        
+        ByteArrayOutputStream outstream = new ByteArrayOutputStream(); 
+        WritableByteChannel channel = newChannel(outstream);
+        while (outbuf.flush(channel) > 0) {
+        }
+        assertEquals(ByteBuffer.wrap(pattern), ByteBuffer.wrap(outstream.toByteArray()));
+    }
+    
+    public void testWriteFromChannel() throws Exception {
+        byte[] pattern = "0123456789ABCDEF0123456789ABCDEF".getBytes("US-ASCII");
+
+        HttpParams params = new BasicHttpParams();
+        SessionOutputBuffer outbuf = new SessionOutputBufferImpl(4096, 1024, params);
+        outbuf.write(ByteBuffer.wrap(pattern, 0, 16));
+        outbuf.write(ByteBuffer.wrap(pattern, 16, 10));
+        outbuf.write(ByteBuffer.wrap(pattern, 26, 6));
+
+        ByteArrayOutputStream outstream = new ByteArrayOutputStream(); 
+        WritableByteChannel channel = newChannel(outstream);
+        while (outbuf.flush(channel) > 0) {
+        }
+        assertEquals(ByteBuffer.wrap(pattern), ByteBuffer.wrap(outstream.toByteArray()));
+    }
+    
     static final int SWISS_GERMAN_HELLO [] = {
         0x47, 0x72, 0xFC, 0x65, 0x7A, 0x69, 0x5F, 0x7A, 0xE4, 0x6D, 0xE4
     };
