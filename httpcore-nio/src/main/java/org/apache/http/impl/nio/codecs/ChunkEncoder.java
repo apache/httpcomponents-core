@@ -58,7 +58,11 @@ public class ChunkEncoder extends AbstractContentEncoder {
             final HttpTransportMetricsImpl metrics) {
         super(channel, buffer, metrics);
         this.lineBuffer = new CharArrayBuffer(16);
-        this.bufferinfo = (BufferInfo) buffer;
+        if (buffer instanceof BufferInfo) {
+            this.bufferinfo = (BufferInfo) buffer;
+        } else {
+            this.bufferinfo = null;
+        }
     }
 
     public int write(final ByteBuffer src) throws IOException {
@@ -75,7 +79,12 @@ public class ChunkEncoder extends AbstractContentEncoder {
         if (bytesWritten > 0) {
             this.metrics.incrementBytesTransferred(bytesWritten);
         }
-        int avail = this.bufferinfo.available();
+        int avail;
+        if (this.bufferinfo != null) {
+            avail = this.bufferinfo.available();
+        } else {
+            avail = 4096;
+        }
         if (avail == 0) {
             return 0;
         }

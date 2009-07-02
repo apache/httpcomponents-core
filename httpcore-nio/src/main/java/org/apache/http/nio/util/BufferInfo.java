@@ -33,10 +33,6 @@ package org.apache.http.nio.util;
 
 /**
  * Basic buffer properties.
- * <p>
- * This interface should be eliminated in the next major release and its 
- * methods added to {@link org.apache.http.nio.reactor.SessionOutputBuffer}
- * and {@link org.apache.http.nio.reactor.SessionInputBuffer} interfaces.
  *
  * @since 4.0
  */
