@@ -1,6 +1,9 @@
 Changes since 4.0.1
 -------------------
 
+* [HTTPCORE-199] ContentInputStream implements InputStream#available().
+  Contributed by Oleg Kalnichevski <olegk at apache.org> 
+
 * [HTTPCORE-195] Truncated chunk-coded streams can now be tolerated by catching and discarding 
   TruncatedChunkException.
   Contributed by Oleg Kalnichevski <olegk at apache.org> 

@@ -34,6 +34,7 @@ package org.apache.http.nio.entity;
 import java.io.IOException;
 import java.io.InputStream;
 
+import org.apache.http.nio.util.BufferInfo;
 import org.apache.http.nio.util.ContentInputBuffer;
 
 /**
@@ -53,6 +54,15 @@ public class ContentInputStream extends InputStream {
         this.buffer = buffer;
     }
     
+    @Override
+    public int available() throws IOException {
+        if (this.buffer instanceof BufferInfo) {
+            return ((BufferInfo) this.buffer).length();
+        } else {
+            return super.available();
+        }
+    }
+
     @Override
     public int read(final byte[] b, int off, int len) throws IOException {
         return this.buffer.read(b, off, len);

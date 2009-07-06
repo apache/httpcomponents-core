@@ -104,6 +104,27 @@ public class SharedInputBuffer extends ExpandableBuffer implements ContentInputB
         }
     }
     
+    @Override
+    public int available() {
+        synchronized (this.mutex) {
+            return super.available();
+        }
+    }
+
+    @Override
+    public int capacity() {
+        synchronized (this.mutex) {
+            return super.capacity();
+        }
+    }
+
+    @Override
+    public int length() {
+        synchronized (this.mutex) {
+            return super.length();
+        }
+    }
+
     protected void waitForData() throws IOException {
         synchronized (this.mutex) {
             try {

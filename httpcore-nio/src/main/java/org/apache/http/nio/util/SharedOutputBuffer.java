@@ -73,6 +73,27 @@ public class SharedOutputBuffer extends ExpandableBuffer implements ContentOutpu
         }
     }
     
+    @Override
+    public int available() {
+        synchronized (this.mutex) {
+            return super.available();
+        }
+    }
+
+    @Override
+    public int capacity() {
+        synchronized (this.mutex) {
+            return super.capacity();
+        }
+    }
+
+    @Override
+    public int length() {
+        synchronized (this.mutex) {
+            return super.length();
+        }
+    }
+
     public int produceContent(final ContentEncoder encoder) throws IOException {
         if (this.shutdown) {
             return -1;
