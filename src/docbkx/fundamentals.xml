@@ -2,10 +2,6 @@
 <!DOCTYPE preface PUBLIC "-//OASIS//DTD DocBook XML V4.4//EN"
                  "http://www.oasis-open.org/docbook/xml/4.4/docbookx.dtd">
 <!-- 
-   $HeadURL:$
-   $Revision:$
-   $Date:$
-
    ====================================================================
    Licensed to the Apache Software Foundation (ASF) under one
    or more contributor license agreements.  See the NOTICE file
@@ -206,22 +202,28 @@ c3 = c
                 <listitem>
                     <formalpara>
                     <title>streamed:</title>
+                    <para>
                     The content is received from a stream, or generated on the fly. In particular, 
                     this category includes entities being received from a connection. Streamed 
                     entities are generally not repeatable.
+                    </para>
                     </formalpara>
                 </listitem>
                 <listitem>
                     <formalpara>
                     <title>self-contained:</title>
+                    <para>
                     The content is in memory or obtained by means that are independent from 
                     a connection or other entity. Self-contained entities are generally repeatable.
+                    </para>
                     </formalpara>
                 </listitem>
                 <listitem>
                     <formalpara>
                     <title>wrapping:</title>
+                    <para>
                     The content is obtained from another entity.
+                    </para>
                     </formalpara>
                 </listitem>
             </itemizedlist>
@@ -331,45 +333,60 @@ important message
             </para>
             <itemizedlist>
                 <listitem>
-                    <link linkend="basic-entity">
-                        <classname>BasicHttpEntity</classname>
-                    </link>
+                    <para>
+                        <link linkend="basic-entity">
+                            <classname>BasicHttpEntity</classname>
+                        </link>
+                    </para>
                 </listitem>
                 <listitem>
-                    <link linkend="byte-array-entity">
-                        <classname>ByteArrayEntity</classname>
-                    </link>
+                    <para>
+                        <link linkend="byte-array-entity">
+                            <classname>ByteArrayEntity</classname>
+                        </link>
+                    </para>
                 </listitem>
                 <listitem>
-                    <link linkend="string-entity">
-                        <classname>StringEntity</classname>
-                    </link>
+                    <para>
+                        <link linkend="string-entity">
+                            <classname>StringEntity</classname>
+                        </link>
+                    </para>
                 </listitem>
                 <listitem>
-                    <link linkend="input-stream-entity">
-                        <classname>InputStreamEntity</classname>
-                    </link>
+                    <para>
+                        <link linkend="input-stream-entity">
+                            <classname>InputStreamEntity</classname>
+                        </link>
+                    </para>
                 </listitem>
                 <listitem>
-                    <link linkend="file-entity">
-                        <classname>FileEntity</classname>
-                    </link>
+                    <para>
+                        <link linkend="file-entity">
+                            <classname>FileEntity</classname>
+                        </link>
+                    </para>
                 </listitem>
                 <listitem>
-                    <link linkend="entity-template">
-                        <classname>EntityTemplate</classname>
-                    </link>
+                    <para>
+                        <link linkend="entity-template">
+                            <classname>EntityTemplate</classname>
+                        </link>
+                    </para>
                 </listitem>
                 <listitem>
-                    <link linkend="entity-wrapper">
-                        <classname>HttpEntityWrapper</classname>
-                    </link>
+                    <para>
+                        <link linkend="entity-wrapper">
+                            <classname>HttpEntityWrapper</classname>
+                        </link>
+                    </para>
                 </listitem>
                 <listitem>
-                    <link linkend="buffered-entity">
-                        <classname>BufferedHttpEntity</classname>
-                    </link>
-                    <classname>BufferedHttpEntity</classname>
+                    <para>
+                        <link linkend="buffered-entity">
+                            <classname>BufferedHttpEntity</classname>
+                        </link>
+                    </para>
                 </listitem>
             </itemizedlist>
             <section id="basic-entity">
@@ -660,23 +677,29 @@ conn.sendResponseEntity(response);
                 <listitem>
                     <formalpara>
                     <title><literal>Content-Length</literal> delimited:</title>
+                    <para>
                     The end of the content entity is determined by the value of the <literal>
                     Content-Length</literal> header. Maximum entity length: <methodname>
                     Long#MAX_VALUE</methodname>.
+                    </para>
                     </formalpara>
                 </listitem>
                 <listitem>
                     <formalpara>
                     <title>Identity coding:</title>
+                    <para>
                     The end of the content entity is demarcated by closing the underlying 
                     connection (end of stream condition). For obvious reasons the identity encoding 
                     can only be used on the server side. Max entity length: unlimited.
+                    </para>
                     </formalpara>
                 </listitem>
                 <listitem>
                     <formalpara>
                     <title>Chunk coding:</title>
+                    <para>
                     The content is sent in small chunks. Max entity length: unlimited.
+                    </para>
                     </formalpara>
                 </listitem>
             </itemizedlist>

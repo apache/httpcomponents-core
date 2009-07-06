@@ -126,31 +126,41 @@ ioreactor.execute(eventDispatch);
                 <listitem>
                     <formalpara>
                     <title><methodname>connected</methodname>:</title>
+                    <para>
                     Triggered when a new session has been created.
+                    </para>
                     </formalpara>
                 </listitem>
                 <listitem>
                     <formalpara>
                     <title><methodname>inputReady</methodname>:</title>
+                    <para>
                     Triggered when the session has pending input.
+                    </para>
                     </formalpara>
                 </listitem>
                 <listitem>
                     <formalpara>
                     <title><methodname>outputReady</methodname>:</title>
+                    <para>
                     Triggered when the session is ready for output.
+                    </para>
                     </formalpara>
                 </listitem>
                 <listitem>
                     <formalpara>
                     <title><methodname>timeout</methodname>:</title>
+                    <para>
                     Triggered when the session has timed out.
+                    </para>
                     </formalpara>
                 </listitem>
                 <listitem>
                     <formalpara>
                     <title><methodname>disconnected</methodname>:</title>
+                    <para>
                     Triggered when the session has been terminated.
+                    </para>
                     </formalpara>
                 </listitem>
             </itemizedlist>
@@ -742,23 +752,29 @@ if (entity != null) {
                 <listitem>
                     <formalpara>
                     <title><literal>Content-Length</literal> delimited:</title>
+                    <para>
                     The end of the content entity is determined by the value of the 
                     <literal>Content-Length</literal> header. Maximum entity length: 
                     <methodname>Long#MAX_VALUE</methodname>.
+                    </para>
                     </formalpara>
                 </listitem>
                 <listitem>
                     <formalpara>
                     <title>Identity coding:</title>
+                    <para>
                     The end of the content entity is demarcated by closing the underlying 
                     connection (end of stream condition). For obvious reasons the identity encoding 
                     can only be used on the server side. Max entity length: unlimited.
+                    </para>
                     </formalpara>
                 </listitem>
                 <listitem>
                     <formalpara>
                     <title>Chunk coding:</title>
+                    <para>
                     The content is sent in small chunks. Max entity length: unlimited.
+                    </para>
                     </formalpara>
                 </listitem>
             </itemizedlist>
@@ -835,68 +851,86 @@ if (encoder instanceof FileContentEncoder) {
             <listitem>
                 <formalpara>
                 <title><methodname>connected</methodname>:</title>
+                <para>
                 Triggered when a when a new incoming connection has been created.
+                </para>
                 </formalpara>
             </listitem>
             <listitem>
                 <formalpara>
                 <title><methodname>requestReceived</methodname>:</title>
+                <para>
                 Triggered when a new HTTP request is received. The connection passed as a parameter to 
                 this method is guaranteed to return a valid HTTP request object. If the request 
                 received encloses a request entity this method will be followed a series of 
                 <methodname>inputReady</methodname> events to transfer the request content.
+                </para>
                 </formalpara>
             </listitem>
             <listitem>
                 <formalpara>
                 <title><methodname>inputReady</methodname>:</title>
+                <para>
                 Triggered when the underlying channel is ready for reading a new portion of the request 
                 entity through the corresponding content decoder. If the content consumer is unable to 
                 process the incoming content, input event notifications can be temporarily suspended 
                 using <interfacename>IOControl</interfacename> interface.
+                </para>
                 </formalpara>
             </listitem>
             <listitem>
                 <formalpara>
                 <title><methodname>responseReady</methodname>:</title>
+                <para>
                 Triggered when the connection is ready to accept new HTTP response. The protocol 
                 handler does not have to submit a response if it is not ready.
+                </para>
                 </formalpara>
             </listitem>
             <listitem>
                 <formalpara>
                 <title><methodname>outputReady</methodname>:</title>
+                <para>
                 Triggered when the underlying channel is ready for writing a next portion of the 
                 response entity through the corresponding content encoder. If the content producer is 
                 unable to generate the outgoing content, output event notifications can be temporarily 
                 suspended using <interfacename>IOControl</interfacename> interface.
+                </para>
                 </formalpara>
             </listitem>
             <listitem>
                 <formalpara>
                 <title><methodname>exception</methodname>:</title>
+                <para>
                 Triggered when an I/O error occurrs while reading from or writing to the underlying 
                 channel or when an HTTP protocol violation occurs while receiving an HTTP request.
+                </para>
                 </formalpara>
             </listitem>
             <listitem>
                 <formalpara>
                 <title><methodname>exception</methodname>:</title>
+                <para>
                 Triggered when an I/O error occurrs while reading from or writing to the underlying 
                 channel or when an HTTP protocol violation occurs while receiving an HTTP request.
+                </para>
                 </formalpara>
             </listitem>
             <listitem>
                 <formalpara>
                 <title><methodname>timeout</methodname>:</title>
+                <para>
                 Triggered when no input is detected on this connection over the maximum period of 
                 inactivity.
+                </para>
                 </formalpara>
             </listitem>
             <listitem>
                 <formalpara>
                 <title><methodname>closed</methodname>:</title>
+                <para>
                 Triggered when the connection has been closed.
+                </para>
                 </formalpara>
             </listitem>
         </itemizedlist>
@@ -908,70 +942,88 @@ if (encoder instanceof FileContentEncoder) {
             <listitem>
                 <formalpara>
                 <title><methodname>connected</methodname>:</title>
+                <para>
                 Triggered when a new outgoing connection has been created. The attachment object passed 
                 as a parameter to this event is an arbitrary object that was attached to the session 
                 request.
+                </para>
                 </formalpara>
             </listitem>
             <listitem>
                 <formalpara>
                 <title><methodname>requestReady</methodname>:</title>
+                <para>
                 Triggered when the connection is ready to accept new HTTP request. The protocol handler 
                 does not have to submit a request if it is not ready.
+                </para>
                 </formalpara>
             </listitem>
             <listitem>
                 <formalpara>
                 <title><methodname>outputReady</methodname>:</title>
+                <para>
                 Triggered when the underlying channel is ready for writing a next portion of the 
                 request entity through the corresponding content encoder. If the content producer is 
                 unable to generate the outgoing content, output event notifications can be temporarily 
                 suspended using <interfacename>IOControl</interfacename> interface.
+                </para>
                 </formalpara>
             </listitem>
             <listitem>
                 <formalpara>
                 <title><methodname>responseReceived</methodname>:</title>
+                <para>
                 Triggered when an HTTP response is received. The connection passed as a parameter to 
                 this method is guaranteed to return a valid HTTP response object. If the response 
                 received encloses a response entity this method will be followed a series of 
                 <methodname>inputReady</methodname> events to transfer the response content.
+                </para>
                 </formalpara>
             </listitem>
              <listitem>
                 <formalpara>
                 <title><methodname>inputReady</methodname>:</title>
+                <para>
                 Triggered when the underlying channel is ready for reading a new portion of the 
                 response entity through the corresponding content decoder. If the content consumer is 
                 unable to process the incoming content, input event notifications can be temporarily 
                 suspended using <interfacename>IOControl</interfacename> interface.
+                </para>
                 </formalpara>
             </listitem>
             <listitem>
                 <formalpara>
                 <title><methodname>exception</methodname>:</title>
+                <para>
                 Triggered when an I/O error occurs while reading from or writing to the underlying 
                 channel or when an HTTP protocol violation occurs while receiving an HTTP response..
+                </para>
                 </formalpara>
             </listitem>
             <listitem>
                 <formalpara>
                 <title><methodname>exception</methodname>:</title>
+                <para>
                 Triggered when an I/O error occurrs while reading from or writing to the underlying 
                 channel or when an HTTP protocol violation occurs while receiving an HTTP request.
+                </para>
                 </formalpara>
             </listitem>
             <listitem>
                 <formalpara>
                 <title><methodname>timeout</methodname>:</title>
+                <para>
                 Triggered when no input is detected on this connection over the maximum period of 
                 inactivity.
+                </para>
                 </formalpara>
             </listitem>
             <listitem>
                 <formalpara>
                 <title><methodname>closed</methodname>:</title>
+                <para>
                 Triggered when the connection has been closed.
+                </para>
                 </formalpara>
             </listitem>
         </itemizedlist>
@@ -1005,16 +1057,20 @@ if (encoder instanceof FileContentEncoder) {
                 <listitem>
                     <formalpara>
                     <title><methodname>consumeContent</methodname>:</title>
+                    <para>
                     Notification that content is available to be read from the decoder. 
                     <interfacename>IOControl</interfacename> instance passed as a parameter to the 
                     method can be used to suspend input events if the entity is temporarily unable 
                     to allocate more storage to accommodate all incoming content.
+                    </para>
                     </formalpara>
                 </listitem>
                 <listitem>
                     <formalpara>
                     <title><methodname>finish</methodname>:</title>
+                    <para>
                     Notification that any resources allocated for reading can be released.
+                    </para>
                     </formalpara>
                 </listitem>
             </itemizedlist>
@@ -1024,14 +1080,18 @@ if (encoder instanceof FileContentEncoder) {
             </para>
             <itemizedlist>
                 <listitem>
+                    <para>
                     <link linkend="buffering-n-entity">
                         <classname>BufferingNHttpEntity</classname>
                     </link>
+                    </para>
                 </listitem>
                 <listitem>
+                    <para>
                     <link linkend="consuming-n-entity-template">
                         <classname>ConsumingNHttpEntityTemplate</classname>
                     </link>
+                    </para>
                 </listitem>
             </itemizedlist>
             <section id="buffering-n-entity">
@@ -1109,19 +1169,23 @@ ConsumingNHttpEntity entity = new ConsumingNHttpEntityTemplate(
                 <listitem>
                     <formalpara>
                     <title><methodname>produceContent</methodname>:</title>
+                    <para>
                     Notification that content can be written to the encoder. <interfacename>
                     IOControl</interfacename> instance passed as a parameter to the method can be 
                     used to temporarily suspend output events if the entity is unable to produce 
                     more content. Please note one must call <methodname>ContentEncoder#complete()
                     </methodname> to inform the underlying connection that all content has been 
                     written. Failure to do so could result in the entity never being correctly 
-                    delimited. 
+                    delimited.
+                    </para>
                     </formalpara>
                 </listitem>
                 <listitem>
                     <formalpara>
                     <title><methodname>finish</methodname>:</title>
+                    <para>
                     Notification that any resources allocated for writing can be released.
+                    </para>
                     </formalpara>
                 </listitem>
             </itemizedlist>
@@ -1131,19 +1195,25 @@ ConsumingNHttpEntity entity = new ConsumingNHttpEntityTemplate(
             </para>
             <itemizedlist>
                 <listitem>
+                    <para>
                     <link linkend="bytearray-n-entity">
                         <classname>NByteArrayEntity</classname>
                     </link>
+                    </para>
                 </listitem>
                 <listitem>
+                    <para>
                     <link linkend="string-n-entity">
                         <classname>NStringEntity</classname>
                     </link>
+                    </para>
                 </listitem>
                 <listitem>
+                    <para>
                     <link linkend="file-n-entity">
                         <classname>NFileEntity</classname>
                     </link>
+                    </para>
                 </listitem>
             </itemizedlist>
             <section id="bytearray-n-entity">
@@ -1456,48 +1526,58 @@ AsyncNHttpClientHandler handler = new AsyncNHttpClientHandler(
                     <listitem>
                         <formalpara>
                         <title><methodname>initalizeContext</methodname>:</title>
+                        <para>
                         Triggered when a new connection has been established and the HTTP context 
                         needs to be initialized. The attachment object passed to this method is 
                         the same object which was passed to the connecting I/O reactor when the 
                         connection request was made. The attachment may optionally contain some 
                         state information required in order to correctly initialize the HTTP 
                         context.
+                        </para>
                         </formalpara>
                     </listitem>
                     <listitem>
                         <formalpara>
                         <title><methodname>submitRequest</methodname>:</title>
+                        <para>
                         Triggered when the underlying connection is ready to send a new HTTP 
                         request to the target host. This method may return null if the client is 
                         not yet ready to send a request. In this case the connection will remain 
                         open and can be activated at a later point. If the request encloses an 
                         entity, the entity must be an instance of <interfacename>
                         ProducingNHttpEntity</interfacename>.
+                        </para>
                         </formalpara>
                     </listitem>
                     <listitem>
                         <formalpara>
                         <title><methodname>responseEntity</methodname>:</title>
+                        <para>
                         Triggered when a response is received with an entity. This method should 
                         return a <interfacename>ConsumingNHttpEntity</interfacename> that will be 
                         used to consume the entity. Null is a valid response value, and will 
                         indicate that the entity should be silently ignored. After the entity is 
                         fully consumed, <methodname>handleResponse</methodname> method is called 
                         to notify a full response and enclosed entity are ready to be processed.
+                        </para>
                         </formalpara>
                     </listitem>
                     <listitem>
                         <formalpara>
                         <title><methodname>handleResponse</methodname>:</title>
+                        <para>
                         Triggered when an HTTP response is ready to be processed.
+                        </para>
                         </formalpara>
                     </listitem>
                     <listitem>
                         <formalpara>
                         <title><methodname>finalizeContext</methodname>:</title>
+                        <para>
                         Triggered when the connection is terminated. This event can be used to 
                         release objects stored in the context or perform some other kind of 
                         cleanup.
+                        </para>
                         </formalpara>
                     </listitem>
                 </itemizedlist>
@@ -1633,31 +1713,41 @@ NHttpRequestExecutionHandler execHandler =
                 <listitem>
                     <formalpara>
                     <title><methodname>fatalIOException</methodname>:</title>
+                    <para>
                     Triggered when an I/O error caused the connection to be terminated.
+                    </para>
                     </formalpara>
                 </listitem>
                 <listitem>
                     <formalpara>
                     <title><methodname>fatalProtocolException</methodname>:</title>
+                    <para>
                     Triggered when an HTTP protocol error caused the connection to be terminated.
+                    </para>
                     </formalpara>
                 </listitem>
                 <listitem>
                     <formalpara>
                     <title><methodname>connectionOpen</methodname>:</title>
+                    <para>
                     Triggered when a new connection has been established.
+                    </para>
                     </formalpara>
                 </listitem>
                 <listitem>
                     <formalpara>
                     <title><methodname>connectionClosed</methodname>:</title>
+                    <para>
                     Triggered when the connection has been terminated.
+                    </para>
                     </formalpara>
                 </listitem>
                 <listitem>
                     <formalpara>
                     <title><methodname>connectionTimeout</methodname>:</title>
+                    <para>
                     Triggered when the connection has timed out.
+                    </para>
                     </formalpara>
                 </listitem>
             </itemizedlist>
@@ -1719,19 +1809,23 @@ NHttpRequestExecutionHandler execHandler =
                     <listitem>
                         <formalpara>
                         <title><methodname>initalize</methodname>:</title>
+                        <para>
                         Triggered when the SSL connection is being initialized. The handler can use 
                         this callback to customize properties of the <classname>
                         javax.net.ssl.SSLEngine</classname> used to establish the SSL session.
+                        </para>
                         </formalpara>
                     </listitem>
                     <listitem>
                         <formalpara>
                         <title><methodname>verify</methodname>:</title>
+                        <para>
                         Triggered when the SSL connection has been established and initial SSL 
                         handshake has been successfully completed. The handler can use this 
                         callback to verify properties of the !SSLSession. For instance this would 
                         be the right place to enforce SSL cipher strength, validate certificate 
                         chain and do hostname checks.
+                        </para>
                         </formalpara>
                     </listitem>
                 </itemizedlist>
