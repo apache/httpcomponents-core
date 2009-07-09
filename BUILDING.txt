@@ -26,9 +26,9 @@ mvn package
 
 The resultant packages can be found in the target folders of their respective modules
 
-module-main/target/httpcore-<VERSION>.jar
-module-nio/target/httpcore-nio-<VERSION>.jar
-module-osgi-bundle/target/org.apache.httpcomponents.httpcore_<VERSION>.jar
+httpcore/target/httpcore-<VERSION>.jar
+httpcore-nio/target/httpcore-nio-<VERSION>.jar
+httpcore-osgi/target/org.apache.httpcomponents.httpcore_<VERSION>.jar
 
 where <VERSION> is the release version
 
