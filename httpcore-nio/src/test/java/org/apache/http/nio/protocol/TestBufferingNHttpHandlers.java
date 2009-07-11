@@ -41,6 +41,8 @@ import junit.framework.TestSuite;
 import org.apache.http.HttpCoreNIOTestBase;
 import org.apache.http.HttpEntityEnclosingRequest;
 import org.apache.http.HttpRequest;
+import org.apache.http.HttpRequestInterceptor;
+import org.apache.http.HttpResponseInterceptor;
 import org.apache.http.HttpStatus;
 import org.apache.http.HttpVersion;
 import org.apache.http.impl.DefaultConnectionReuseStrategy;
@@ -52,8 +54,9 @@ import org.apache.http.mockup.SimpleHttpRequestHandlerResolver;
 import org.apache.http.nio.entity.NStringEntity;
 import org.apache.http.nio.reactor.ListenerEndpoint;
 import org.apache.http.params.CoreProtocolPNames;
-import org.apache.http.protocol.BasicHttpProcessor;
+import org.apache.http.protocol.HttpProcessor;
 import org.apache.http.protocol.HttpRequestHandler;
+import org.apache.http.protocol.ImmutableHttpProcessor;
 import org.apache.http.protocol.RequestConnControl;
 import org.apache.http.protocol.RequestContent;
 import org.apache.http.protocol.RequestExpectContinue;
@@ -104,11 +107,12 @@ public class TestBufferingNHttpHandlers extends HttpCoreNIOTestBase {
             queue.add(jobs[i]); 
         }
 
-        BasicHttpProcessor serverHttpProc = new BasicHttpProcessor();
-        serverHttpProc.addInterceptor(new ResponseDate());
-        serverHttpProc.addInterceptor(new ResponseServer());
-        serverHttpProc.addInterceptor(new ResponseContent());
-        serverHttpProc.addInterceptor(new ResponseConnControl());
+        HttpProcessor serverHttpProc = new ImmutableHttpProcessor(new HttpResponseInterceptor[] {
+                new ResponseDate(),
+                new ResponseServer(),
+                new ResponseContent(),
+                new ResponseConnControl()
+        });
 
         BufferingHttpServiceHandler serviceHandler = new BufferingHttpServiceHandler(
                 serverHttpProc,
@@ -121,12 +125,12 @@ public class TestBufferingNHttpHandlers extends HttpCoreNIOTestBase {
         serviceHandler.setEventListener(
                 new SimpleEventListener());
 
-        BasicHttpProcessor clientHttpProc = new BasicHttpProcessor();
-        clientHttpProc.addInterceptor(new RequestContent());
-        clientHttpProc.addInterceptor(new RequestTargetHost());
-        clientHttpProc.addInterceptor(new RequestConnControl());
-        clientHttpProc.addInterceptor(new RequestUserAgent());
-        clientHttpProc.addInterceptor(new RequestExpectContinue());
+        HttpProcessor clientHttpProc = new ImmutableHttpProcessor(new HttpRequestInterceptor[] {
+                new RequestContent(),
+                new RequestTargetHost(),
+                new RequestConnControl(),
+                new RequestUserAgent(),
+                new RequestExpectContinue()});
 
         BufferingHttpClientHandler clientHandler = new BufferingHttpClientHandler(
                 clientHttpProc,

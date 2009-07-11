@@ -48,6 +48,7 @@ import junit.framework.TestSuite;
 import org.apache.http.HttpException;
 import org.apache.http.HttpRequest;
 import org.apache.http.HttpResponse;
+import org.apache.http.HttpResponseInterceptor;
 import org.apache.http.impl.DefaultConnectionReuseStrategy;
 import org.apache.http.impl.DefaultHttpResponseFactory;
 import org.apache.http.mockup.SimpleHttpRequestHandlerResolver;
@@ -56,14 +57,15 @@ import org.apache.http.nio.NHttpServiceHandler;
 import org.apache.http.nio.protocol.BufferingHttpServiceHandler;
 import org.apache.http.nio.protocol.EventListener;
 import org.apache.http.nio.reactor.ListenerEndpoint;
-import org.apache.http.params.BasicHttpParams;
 import org.apache.http.params.CoreConnectionPNames;
 import org.apache.http.params.HttpParams;
 import org.apache.http.params.CoreProtocolPNames;
-import org.apache.http.protocol.BasicHttpProcessor;
+import org.apache.http.params.SyncBasicHttpParams;
 import org.apache.http.protocol.HttpContext;
 import org.apache.http.protocol.HttpExpectationVerifier;
+import org.apache.http.protocol.HttpProcessor;
 import org.apache.http.protocol.HttpRequestHandler;
+import org.apache.http.protocol.ImmutableHttpProcessor;
 import org.apache.http.protocol.ResponseConnControl;
 import org.apache.http.protocol.ResponseContent;
 import org.apache.http.protocol.ResponseDate;
@@ -75,7 +77,7 @@ public class TestBaseIOReactorSSL extends TestCase {
 
     @Override
     protected void setUp() throws Exception {
-        HttpParams serverParams = new BasicHttpParams();
+        HttpParams serverParams = new SyncBasicHttpParams();
         serverParams
             .setIntParameter(CoreConnectionPNames.SO_TIMEOUT, 5000)
             .setIntParameter(CoreConnectionPNames.SOCKET_BUFFER_SIZE, 10)
@@ -99,12 +101,12 @@ public class TestBaseIOReactorSSL extends TestCase {
             final HttpRequestHandler requestHandler,
             final HttpExpectationVerifier expectationVerifier,
             final EventListener eventListener) {
-        BasicHttpProcessor httpproc = new BasicHttpProcessor();
-        httpproc.addInterceptor(new ResponseDate());
-        httpproc.addInterceptor(new ResponseServer());
-        httpproc.addInterceptor(new ResponseContent());
-        httpproc.addInterceptor(new ResponseConnControl());
-
+        HttpProcessor httpproc = new ImmutableHttpProcessor(new HttpResponseInterceptor[] {
+                new ResponseDate(),
+                new ResponseServer(),
+                new ResponseContent(),
+                new ResponseConnControl()
+        });
         BufferingHttpServiceHandler serviceHandler = new BufferingHttpServiceHandler(
                 httpproc,
                 new DefaultHttpResponseFactory(),

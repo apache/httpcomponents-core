@@ -41,8 +41,10 @@ import org.apache.http.HttpEntityEnclosingRequest;
 import org.apache.http.HttpException;
 import org.apache.http.HttpHost;
 import org.apache.http.HttpRequest;
+import org.apache.http.HttpRequestInterceptor;
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpResponseFactory;
+import org.apache.http.HttpResponseInterceptor;
 import org.apache.http.HttpStatus;
 import org.apache.http.HttpVersion;
 import org.apache.http.ProtocolVersion;
@@ -63,16 +65,16 @@ import org.apache.http.nio.NHttpServiceHandler;
 import org.apache.http.nio.reactor.ConnectingIOReactor;
 import org.apache.http.nio.reactor.IOEventDispatch;
 import org.apache.http.nio.reactor.ListeningIOReactor;
-import org.apache.http.params.BasicHttpParams;
 import org.apache.http.params.CoreConnectionPNames;
 import org.apache.http.params.DefaultedHttpParams;
 import org.apache.http.params.HttpParams;
 import org.apache.http.params.CoreProtocolPNames;
-import org.apache.http.protocol.BasicHttpProcessor;
+import org.apache.http.params.SyncBasicHttpParams;
 import org.apache.http.protocol.HTTP;
 import org.apache.http.protocol.HttpContext;
 import org.apache.http.protocol.ExecutionContext;
 import org.apache.http.protocol.HttpProcessor;
+import org.apache.http.protocol.ImmutableHttpProcessor;
 import org.apache.http.protocol.RequestConnControl;
 import org.apache.http.protocol.RequestContent;
 import org.apache.http.protocol.RequestExpectContinue;
@@ -109,7 +111,7 @@ public class NHttpReverseProxy {
         // Target host
         HttpHost targetHost = new HttpHost(hostname, port); 
         
-        HttpParams params = new BasicHttpParams();
+        HttpParams params = new SyncBasicHttpParams();
         params
             .setIntParameter(CoreConnectionPNames.SO_TIMEOUT, 30000)
             .setIntParameter(CoreConnectionPNames.SOCKET_BUFFER_SIZE, 8 * 1024)
@@ -124,28 +126,34 @@ public class NHttpReverseProxy {
         final ListeningIOReactor listeningIOReactor = new DefaultListeningIOReactor(
                 1, params);
         
-        BasicHttpProcessor originServerProc = new BasicHttpProcessor();
-        originServerProc.addInterceptor(new RequestContent());
-        originServerProc.addInterceptor(new RequestTargetHost());
-        originServerProc.addInterceptor(new RequestConnControl());
-        originServerProc.addInterceptor(new RequestUserAgent());
-        originServerProc.addInterceptor(new RequestExpectContinue());
+        // Set up HTTP protocol processor for incoming connections
+        HttpProcessor inhttpproc = new ImmutableHttpProcessor(
+                new HttpRequestInterceptor[] {
+                        new RequestContent(),
+                        new RequestTargetHost(),
+                        new RequestConnControl(),
+                        new RequestUserAgent(),
+                        new RequestExpectContinue()
+         });
         
-        BasicHttpProcessor clientProxyProcessor = new BasicHttpProcessor();
-        clientProxyProcessor.addInterceptor(new ResponseDate());
-        clientProxyProcessor.addInterceptor(new ResponseServer());
-        clientProxyProcessor.addInterceptor(new ResponseContent());
-        clientProxyProcessor.addInterceptor(new ResponseConnControl());
+        // Set up HTTP protocol processor for outgoing connections
+        HttpProcessor outhttpproc = new ImmutableHttpProcessor(
+                new HttpResponseInterceptor[] {
+                        new ResponseDate(),
+                        new ResponseServer(),
+                        new ResponseContent(),
+                        new ResponseConnControl()
+        });
         
         NHttpClientHandler connectingHandler = new ConnectingHandler(
-                originServerProc,
+                inhttpproc,
                 new DefaultConnectionReuseStrategy(),
                 params);
 
         NHttpServiceHandler listeningHandler = new ListeningHandler(
                 targetHost,
                 connectingIOReactor,
-                clientProxyProcessor, 
+                outhttpproc, 
                 new DefaultHttpResponseFactory(),
                 new DefaultConnectionReuseStrategy(),
                 params);

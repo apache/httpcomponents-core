@@ -41,6 +41,7 @@ import org.apache.http.HttpEntity;
 import org.apache.http.HttpException;
 import org.apache.http.HttpHost;
 import org.apache.http.HttpRequest;
+import org.apache.http.HttpRequestInterceptor;
 import org.apache.http.HttpResponse;
 import org.apache.http.impl.DefaultConnectionReuseStrategy;
 import org.apache.http.impl.nio.SSLClientIOEventDispatch;
@@ -54,13 +55,14 @@ import org.apache.http.nio.reactor.ConnectingIOReactor;
 import org.apache.http.nio.reactor.IOEventDispatch;
 import org.apache.http.nio.reactor.SessionRequest;
 import org.apache.http.nio.reactor.SessionRequestCallback;
-import org.apache.http.params.BasicHttpParams;
 import org.apache.http.params.CoreConnectionPNames;
 import org.apache.http.params.HttpParams;
 import org.apache.http.params.CoreProtocolPNames;
-import org.apache.http.protocol.BasicHttpProcessor;
+import org.apache.http.params.SyncBasicHttpParams;
 import org.apache.http.protocol.ExecutionContext;
 import org.apache.http.protocol.HttpContext;
+import org.apache.http.protocol.HttpProcessor;
+import org.apache.http.protocol.ImmutableHttpProcessor;
 import org.apache.http.protocol.RequestConnControl;
 import org.apache.http.protocol.RequestContent;
 import org.apache.http.protocol.RequestExpectContinue;
@@ -80,7 +82,7 @@ import org.apache.http.util.EntityUtils;
 public class NHttpSSLClient {
 
     public static void main(String[] args) throws Exception {
-        HttpParams params = new BasicHttpParams();
+        HttpParams params = new SyncBasicHttpParams();
         params
             .setIntParameter(CoreConnectionPNames.SO_TIMEOUT, 30000)
             .setIntParameter(CoreConnectionPNames.CONNECTION_TIMEOUT, 30000)
@@ -91,12 +93,12 @@ public class NHttpSSLClient {
 
         final ConnectingIOReactor ioReactor = new DefaultConnectingIOReactor(2, params);
 
-        BasicHttpProcessor httpproc = new BasicHttpProcessor();
-        httpproc.addInterceptor(new RequestContent());
-        httpproc.addInterceptor(new RequestTargetHost());
-        httpproc.addInterceptor(new RequestConnControl());
-        httpproc.addInterceptor(new RequestUserAgent());
-        httpproc.addInterceptor(new RequestExpectContinue());
+        HttpProcessor httpproc = new ImmutableHttpProcessor(new HttpRequestInterceptor[] {
+                new RequestContent(),
+                new RequestTargetHost(),
+                new RequestConnControl(),
+                new RequestUserAgent(),
+                new RequestExpectContinue()});
         
         // Initialize default SSL context
         SSLContext sslcontext = SSLContext.getInstance("SSL");

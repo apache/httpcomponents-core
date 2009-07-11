@@ -30,7 +30,6 @@
 
 package org.apache.http;
 
-
 import java.io.IOException;
 import java.util.List;
 
@@ -39,14 +38,13 @@ import junit.framework.TestCase;
 import org.apache.http.impl.nio.reactor.ExceptionEvent;
 import org.apache.http.mockup.TestHttpSSLClient;
 import org.apache.http.mockup.TestHttpSSLServer;
-import org.apache.http.params.BasicHttpParams;
 import org.apache.http.params.CoreConnectionPNames;
 import org.apache.http.params.CoreProtocolPNames;
 import org.apache.http.params.HttpParams;
+import org.apache.http.params.SyncBasicHttpParams;
 
 /**
  * Base class for all HttpCore NIO tests
- *
  */
 public class HttpCoreNIOSSLTestBase extends TestCase {
 
@@ -59,7 +57,7 @@ public class HttpCoreNIOSSLTestBase extends TestCase {
     
     @Override
     protected void setUp() throws Exception {
-        HttpParams serverParams = new BasicHttpParams();
+        HttpParams serverParams = new SyncBasicHttpParams();
         serverParams
             .setIntParameter(CoreConnectionPNames.SO_TIMEOUT, 5000)
             .setIntParameter(CoreConnectionPNames.SOCKET_BUFFER_SIZE, 8 * 1024)
@@ -69,7 +67,7 @@ public class HttpCoreNIOSSLTestBase extends TestCase {
         
         this.server = new TestHttpSSLServer(serverParams);
         
-        HttpParams clientParams = new BasicHttpParams();
+        HttpParams clientParams = new SyncBasicHttpParams();
         clientParams
             .setIntParameter(CoreConnectionPNames.SO_TIMEOUT, 5000)
             .setIntParameter(CoreConnectionPNames.CONNECTION_TIMEOUT, 2000)

@@ -1,8 +1,4 @@
 /*
- * $HeadURL$
- * $Revision$
- * $Date$
- * 
  * ====================================================================
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
@@ -26,46 +22,53 @@
  * individuals on behalf of the Apache Software Foundation.  For more
  * information on the Apache Software Foundation, please see
  * <http://www.apache.org/>.
- *
  */
 
 package org.apache.http.params;
 
-import junit.framework.Test;
-import junit.framework.TestCase;
-import junit.framework.TestSuite;
-
 /**
- * Unit tests for {@link BasicHttpParams}.
+ * Thread-safe extension of the {@link BasicHttpParams}.
  *
+ * @since 4.1
  */
-public class TestBasicHttpParams extends TestCase {
+public class SyncBasicHttpParams extends BasicHttpParams {
 
-    public TestBasicHttpParams(String testName) {
-        super(testName);
+    private static final long serialVersionUID = 5387834869062660642L;
+
+    public SyncBasicHttpParams() {
+        super();
     }
 
-    public static void main(String args[]) {
-        String[] testCaseName = { TestBasicHttpParams.class.getName() };
-        junit.textui.TestRunner.main(testCaseName);
+    public synchronized boolean removeParameter(final String name) {
+        return super.removeParameter(name);
     }
 
-    public static Test suite() {
-        return new TestSuite(TestBasicHttpParams.class);
+    public synchronized HttpParams setParameter(final String name, final Object value) {
+        return super.setParameter(name, value);
     }
 
-    public void testRemoveParam() {
-        BasicHttpParams params = new BasicHttpParams();
-        params.setParameter("param1", "paramValue1");
-        assertTrue("The parameter should be removed successfully", 
-                params.removeParameter("param1"));
-        assertFalse("The parameter should not be present", 
-                params.removeParameter("param1"));
-        
-        //try a remove from an empty params
-        params = new BasicHttpParams();
-        assertFalse("The parameter should not be present", 
-                params.removeParameter("param1"));
+    public synchronized Object getParameter(final String name) {
+        return super.getParameter(name);
+    }
+
+    public synchronized boolean isParameterSet(final String name) {
+        return super.isParameterSet(name);
+    }
+
+    public synchronized boolean isParameterSetLocally(final String name) {
+        return super.isParameterSetLocally(name);
+    }
+
+    public synchronized void setParameters(final String[] names, final Object value) {
+        super.setParameters(names, value);
+    }
+    
+    public synchronized void clear() {
+        super.clear();
+    }
+
+    public synchronized Object clone() throws CloneNotSupportedException {
+        return super.clone();
     }
 
 }

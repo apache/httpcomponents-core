@@ -47,6 +47,7 @@ import org.apache.http.HttpEntityEnclosingRequest;
 import org.apache.http.HttpException;
 import org.apache.http.HttpRequest;
 import org.apache.http.HttpResponse;
+import org.apache.http.HttpResponseInterceptor;
 import org.apache.http.HttpServerConnection;
 import org.apache.http.HttpStatus;
 import org.apache.http.MethodNotSupportedException;
@@ -56,16 +57,17 @@ import org.apache.http.entity.FileEntity;
 import org.apache.http.impl.DefaultConnectionReuseStrategy;
 import org.apache.http.impl.DefaultHttpResponseFactory;
 import org.apache.http.impl.DefaultHttpServerConnection;
-import org.apache.http.params.BasicHttpParams;
 import org.apache.http.params.CoreConnectionPNames;
 import org.apache.http.params.HttpParams;
 import org.apache.http.params.CoreProtocolPNames;
-import org.apache.http.protocol.BasicHttpProcessor;
+import org.apache.http.params.SyncBasicHttpParams;
 import org.apache.http.protocol.HttpContext;
 import org.apache.http.protocol.BasicHttpContext;
+import org.apache.http.protocol.HttpProcessor;
 import org.apache.http.protocol.HttpRequestHandler;
 import org.apache.http.protocol.HttpRequestHandlerRegistry;
 import org.apache.http.protocol.HttpService;
+import org.apache.http.protocol.ImmutableHttpProcessor;
 import org.apache.http.protocol.ResponseConnControl;
 import org.apache.http.protocol.ResponseContent;
 import org.apache.http.protocol.ResponseDate;
@@ -178,7 +180,7 @@ public class ElementalHttpServer {
         
         public RequestListenerThread(int port, final String docroot) throws IOException {
             this.serversocket = new ServerSocket(port);
-            this.params = new BasicHttpParams();
+            this.params = new SyncBasicHttpParams();
             this.params
                 .setIntParameter(CoreConnectionPNames.SO_TIMEOUT, 5000)
                 .setIntParameter(CoreConnectionPNames.SOCKET_BUFFER_SIZE, 8 * 1024)
@@ -187,11 +189,12 @@ public class ElementalHttpServer {
                 .setParameter(CoreProtocolPNames.ORIGIN_SERVER, "HttpComponents/1.1");
 
             // Set up the HTTP protocol processor
-            BasicHttpProcessor httpproc = new BasicHttpProcessor();
-            httpproc.addInterceptor(new ResponseDate());
-            httpproc.addInterceptor(new ResponseServer());
-            httpproc.addInterceptor(new ResponseContent());
-            httpproc.addInterceptor(new ResponseConnControl());
+            HttpProcessor httpproc = new ImmutableHttpProcessor(new HttpResponseInterceptor[] {
+                    new ResponseDate(),
+                    new ResponseServer(),
+                    new ResponseContent(),
+                    new ResponseConnControl()
+            });
             
             // Set up request handlers
             HttpRequestHandlerRegistry reqistry = new HttpRequestHandlerRegistry();

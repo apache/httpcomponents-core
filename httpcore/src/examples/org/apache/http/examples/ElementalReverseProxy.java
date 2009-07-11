@@ -42,18 +42,19 @@ import org.apache.http.HttpClientConnection;
 import org.apache.http.HttpException;
 import org.apache.http.HttpHost;
 import org.apache.http.HttpRequest;
+import org.apache.http.HttpRequestInterceptor;
 import org.apache.http.HttpResponse;
+import org.apache.http.HttpResponseInterceptor;
 import org.apache.http.HttpServerConnection;
 import org.apache.http.impl.DefaultConnectionReuseStrategy;
 import org.apache.http.impl.DefaultHttpClientConnection;
 import org.apache.http.impl.DefaultHttpResponseFactory;
 import org.apache.http.impl.DefaultHttpServerConnection;
-import org.apache.http.params.BasicHttpParams;
 import org.apache.http.params.CoreConnectionPNames;
 import org.apache.http.params.CoreProtocolPNames;
 import org.apache.http.params.HttpParams;
+import org.apache.http.params.SyncBasicHttpParams;
 import org.apache.http.protocol.BasicHttpContext;
-import org.apache.http.protocol.BasicHttpProcessor;
 import org.apache.http.protocol.ExecutionContext;
 import org.apache.http.protocol.HTTP;
 import org.apache.http.protocol.HttpContext;
@@ -62,6 +63,7 @@ import org.apache.http.protocol.HttpRequestExecutor;
 import org.apache.http.protocol.HttpRequestHandler;
 import org.apache.http.protocol.HttpRequestHandlerRegistry;
 import org.apache.http.protocol.HttpService;
+import org.apache.http.protocol.ImmutableHttpProcessor;
 import org.apache.http.protocol.RequestConnControl;
 import org.apache.http.protocol.RequestContent;
 import org.apache.http.protocol.RequestExpectContinue;
@@ -180,7 +182,7 @@ public class ElementalReverseProxy {
         public RequestListenerThread(int port, final HttpHost target) throws IOException {
             this.target = target;
             this.serversocket = new ServerSocket(port);
-            this.params = new BasicHttpParams();
+            this.params = new SyncBasicHttpParams();
             this.params
                 .setIntParameter(CoreConnectionPNames.SO_TIMEOUT, 5000)
                 .setIntParameter(CoreConnectionPNames.SOCKET_BUFFER_SIZE, 8 * 1024)
@@ -189,19 +191,23 @@ public class ElementalReverseProxy {
                 .setParameter(CoreProtocolPNames.ORIGIN_SERVER, "HttpComponents/1.1");
 
             // Set up HTTP protocol processor for incoming connections
-            BasicHttpProcessor inhttpproc = new BasicHttpProcessor();
-            inhttpproc.addInterceptor(new ResponseDate());
-            inhttpproc.addInterceptor(new ResponseServer());
-            inhttpproc.addInterceptor(new ResponseContent());
-            inhttpproc.addInterceptor(new ResponseConnControl());
-
+            HttpProcessor inhttpproc = new ImmutableHttpProcessor(
+                    new HttpRequestInterceptor[] {
+                            new RequestContent(),
+                            new RequestTargetHost(),
+                            new RequestConnControl(),
+                            new RequestUserAgent(),
+                            new RequestExpectContinue()
+             });
+            
             // Set up HTTP protocol processor for outgoing connections
-            BasicHttpProcessor outhttpproc = new BasicHttpProcessor();
-            outhttpproc.addInterceptor(new RequestContent());
-            outhttpproc.addInterceptor(new RequestTargetHost());
-            outhttpproc.addInterceptor(new RequestConnControl());
-            outhttpproc.addInterceptor(new RequestUserAgent());
-            outhttpproc.addInterceptor(new RequestExpectContinue());
+            HttpProcessor outhttpproc = new ImmutableHttpProcessor(
+                    new HttpResponseInterceptor[] {
+                            new ResponseDate(),
+                            new ResponseServer(),
+                            new ResponseContent(),
+                            new ResponseConnControl()
+            });
 
             // Set up outgoing request executor 
             HttpRequestExecutor httpexecutor = new HttpRequestExecutor();

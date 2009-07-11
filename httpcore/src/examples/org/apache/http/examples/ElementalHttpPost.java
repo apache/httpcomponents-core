@@ -37,6 +37,7 @@ import java.net.Socket;
 import org.apache.http.ConnectionReuseStrategy;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpHost;
+import org.apache.http.HttpRequestInterceptor;
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpVersion;
 import org.apache.http.entity.ByteArrayEntity;
@@ -44,15 +45,16 @@ import org.apache.http.entity.InputStreamEntity;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.DefaultConnectionReuseStrategy;
 import org.apache.http.impl.DefaultHttpClientConnection;
-import org.apache.http.params.BasicHttpParams;
 import org.apache.http.message.BasicHttpEntityEnclosingRequest;
 import org.apache.http.params.HttpParams;
 import org.apache.http.params.HttpProtocolParams;
-import org.apache.http.protocol.BasicHttpProcessor;
+import org.apache.http.params.SyncBasicHttpParams;
 import org.apache.http.protocol.HttpContext;
 import org.apache.http.protocol.BasicHttpContext;
 import org.apache.http.protocol.ExecutionContext;
+import org.apache.http.protocol.HttpProcessor;
 import org.apache.http.protocol.HttpRequestExecutor;
+import org.apache.http.protocol.ImmutableHttpProcessor;
 import org.apache.http.protocol.RequestConnControl;
 import org.apache.http.protocol.RequestContent;
 import org.apache.http.protocol.RequestExpectContinue;
@@ -75,20 +77,20 @@ public class ElementalHttpPost {
 
     public static void main(String[] args) throws Exception {
         
-        HttpParams params = new BasicHttpParams();
+        HttpParams params = new SyncBasicHttpParams();
         HttpProtocolParams.setVersion(params, HttpVersion.HTTP_1_1);
         HttpProtocolParams.setContentCharset(params, "UTF-8");
         HttpProtocolParams.setUserAgent(params, "HttpComponents/1.1");
         HttpProtocolParams.setUseExpectContinue(params, true);
         
-        BasicHttpProcessor httpproc = new BasicHttpProcessor();
-        // Required protocol interceptors
-        httpproc.addInterceptor(new RequestContent());
-        httpproc.addInterceptor(new RequestTargetHost());
-        // Recommended protocol interceptors
-        httpproc.addInterceptor(new RequestConnControl());
-        httpproc.addInterceptor(new RequestUserAgent());
-        httpproc.addInterceptor(new RequestExpectContinue());
+        HttpProcessor httpproc = new ImmutableHttpProcessor(new HttpRequestInterceptor[] {
+                // Required protocol interceptors
+                new RequestContent(),
+                new RequestTargetHost(),
+                // Recommended protocol interceptors
+                new RequestConnControl(),
+                new RequestUserAgent(),
+                new RequestExpectContinue()});
         
         HttpRequestExecutor httpexecutor = new HttpRequestExecutor();
 

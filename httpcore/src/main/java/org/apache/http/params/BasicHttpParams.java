@@ -46,8 +46,7 @@ import org.apache.http.params.HttpParams;
  *
  * @since 4.0
  */
-public final class BasicHttpParams extends AbstractHttpParams
-    implements Serializable, Cloneable {
+public class BasicHttpParams extends AbstractHttpParams implements Serializable, Cloneable {
 
     private static final long serialVersionUID = -7086398485908701455L;
 
@@ -77,7 +76,6 @@ public final class BasicHttpParams extends AbstractHttpParams
         }
     }
 
-    
     /**
      * Assigns the value to all the parameter with the given names
      * 
@@ -133,11 +131,15 @@ public final class BasicHttpParams extends AbstractHttpParams
      *
      * @return  a new set of params holding a copy of the
      *          <i>local</i> parameters in this object.
+     *          
+     * @deprecated
      */
     public HttpParams copy() {
-        BasicHttpParams clone = new BasicHttpParams();
-        copyParams(clone);
-        return clone;
+        try {
+            return (HttpParams) clone();
+        } catch (CloneNotSupportedException ex) {
+            throw new UnsupportedOperationException("Cloning not supported");
+        }
     }
 
     public Object clone() throws CloneNotSupportedException {

@@ -41,6 +41,7 @@ import junit.framework.Test;
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
 
+import org.apache.http.HttpResponseInterceptor;
 import org.apache.http.impl.DefaultConnectionReuseStrategy;
 import org.apache.http.impl.DefaultHttpResponseFactory;
 import org.apache.http.impl.nio.DefaultServerIOEventDispatch;
@@ -50,9 +51,10 @@ import org.apache.http.nio.reactor.IOReactorExceptionHandler;
 import org.apache.http.nio.reactor.IOReactorStatus;
 import org.apache.http.nio.reactor.ListenerEndpoint;
 import org.apache.http.nio.reactor.ListeningIOReactor;
-import org.apache.http.params.BasicHttpParams;
 import org.apache.http.params.HttpParams;
-import org.apache.http.protocol.BasicHttpProcessor;
+import org.apache.http.params.SyncBasicHttpParams;
+import org.apache.http.protocol.HttpProcessor;
+import org.apache.http.protocol.ImmutableHttpProcessor;
 import org.apache.http.protocol.ResponseConnControl;
 import org.apache.http.protocol.ResponseContent;
 import org.apache.http.protocol.ResponseDate;
@@ -85,13 +87,14 @@ public class TestDefaultListeningIOReactor extends TestCase {
     
     public void testEndpointUpAndDown() throws Exception {
         
-        HttpParams params = new BasicHttpParams();
+        HttpParams params = new SyncBasicHttpParams();
         
-        BasicHttpProcessor httpproc = new BasicHttpProcessor();
-        httpproc.addInterceptor(new ResponseDate());
-        httpproc.addInterceptor(new ResponseServer());
-        httpproc.addInterceptor(new ResponseContent());
-        httpproc.addInterceptor(new ResponseConnControl());
+        HttpProcessor httpproc = new ImmutableHttpProcessor(new HttpResponseInterceptor[] {
+                new ResponseDate(),
+                new ResponseServer(),
+                new ResponseContent(),
+                new ResponseConnControl()
+        });
 
         final BufferingHttpServiceHandler serviceHandler = new BufferingHttpServiceHandler(
                 httpproc,
@@ -150,13 +153,14 @@ public class TestDefaultListeningIOReactor extends TestCase {
 
     public void testEndpointAlreadyBoundFatal() throws Exception {
         
-        HttpParams params = new BasicHttpParams();
+        HttpParams params = new SyncBasicHttpParams();
         
-        BasicHttpProcessor httpproc = new BasicHttpProcessor();
-        httpproc.addInterceptor(new ResponseDate());
-        httpproc.addInterceptor(new ResponseServer());
-        httpproc.addInterceptor(new ResponseContent());
-        httpproc.addInterceptor(new ResponseConnControl());
+        HttpProcessor httpproc = new ImmutableHttpProcessor(new HttpResponseInterceptor[] {
+                new ResponseDate(),
+                new ResponseServer(),
+                new ResponseContent(),
+                new ResponseConnControl()
+        });
 
         final BufferingHttpServiceHandler serviceHandler = new BufferingHttpServiceHandler(
                 httpproc,
@@ -210,13 +214,14 @@ public class TestDefaultListeningIOReactor extends TestCase {
     
     public void testEndpointAlreadyBoundNonFatal() throws Exception {
         
-        HttpParams params = new BasicHttpParams();
+        HttpParams params = new SyncBasicHttpParams();
         
-        BasicHttpProcessor httpproc = new BasicHttpProcessor();
-        httpproc.addInterceptor(new ResponseDate());
-        httpproc.addInterceptor(new ResponseServer());
-        httpproc.addInterceptor(new ResponseContent());
-        httpproc.addInterceptor(new ResponseConnControl());
+        HttpProcessor httpproc = new ImmutableHttpProcessor(new HttpResponseInterceptor[] {
+                new ResponseDate(),
+                new ResponseServer(),
+                new ResponseContent(),
+                new ResponseConnControl()
+        });
 
         final BufferingHttpServiceHandler serviceHandler = new BufferingHttpServiceHandler(
                 httpproc,

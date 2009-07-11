@@ -42,7 +42,9 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpRequest;
+import org.apache.http.HttpRequestInterceptor;
 import org.apache.http.HttpResponse;
+import org.apache.http.HttpResponseInterceptor;
 import org.apache.http.HttpStatus;
 import org.apache.http.MalformedChunkCodingException;
 import org.apache.http.TruncatedChunkException;
@@ -78,12 +80,13 @@ import org.apache.http.nio.reactor.SessionOutputBuffer;
 import org.apache.http.nio.util.ByteBufferAllocator;
 import org.apache.http.nio.util.HeapByteBufferAllocator;
 import org.apache.http.nio.util.SimpleInputBuffer;
-import org.apache.http.params.BasicHttpParams;
 import org.apache.http.params.CoreConnectionPNames;
 import org.apache.http.params.CoreProtocolPNames;
 import org.apache.http.params.HttpParams;
-import org.apache.http.protocol.BasicHttpProcessor;
+import org.apache.http.params.SyncBasicHttpParams;
 import org.apache.http.protocol.HttpContext;
+import org.apache.http.protocol.HttpProcessor;
+import org.apache.http.protocol.ImmutableHttpProcessor;
 import org.apache.http.protocol.RequestConnControl;
 import org.apache.http.protocol.RequestContent;
 import org.apache.http.protocol.RequestExpectContinue;
@@ -218,7 +221,7 @@ public class TestTruncatedChunks extends TestCase {
     
     @Override
     protected void setUp() throws Exception {
-        HttpParams serverParams = new BasicHttpParams();
+        HttpParams serverParams = new SyncBasicHttpParams();
         serverParams
             .setIntParameter(CoreConnectionPNames.SO_TIMEOUT, 60000)
             .setIntParameter(CoreConnectionPNames.SOCKET_BUFFER_SIZE, 8 * 1024)
@@ -228,7 +231,7 @@ public class TestTruncatedChunks extends TestCase {
 
         this.server = new CustomTestHttpServer(serverParams);
 
-        HttpParams clientParams = new BasicHttpParams();
+        HttpParams clientParams = new SyncBasicHttpParams();
         clientParams
             .setIntParameter(CoreConnectionPNames.SO_TIMEOUT, 60000)
             .setIntParameter(CoreConnectionPNames.CONNECTION_TIMEOUT, 30000)
@@ -285,11 +288,12 @@ public class TestTruncatedChunks extends TestCase {
         Queue<TestJob> queue = new ConcurrentLinkedQueue<TestJob>();
         queue.add(testjob); 
         
-        BasicHttpProcessor serverHttpProc = new BasicHttpProcessor();
-        serverHttpProc.addInterceptor(new ResponseDate());
-        serverHttpProc.addInterceptor(new ResponseServer());
-        serverHttpProc.addInterceptor(new ResponseContent());
-        serverHttpProc.addInterceptor(new ResponseConnControl());
+        HttpProcessor serverHttpProc = new ImmutableHttpProcessor(new HttpResponseInterceptor[] {
+                new ResponseDate(),
+                new ResponseServer(),
+                new ResponseContent(),
+                new ResponseConnControl()
+        });
 
         AsyncNHttpServiceHandler serviceHandler = new AsyncNHttpServiceHandler(
                 serverHttpProc,
@@ -302,12 +306,12 @@ public class TestTruncatedChunks extends TestCase {
         serviceHandler.setEventListener(
                 new SimpleEventListener());
 
-        BasicHttpProcessor clientHttpProc = new BasicHttpProcessor();
-        clientHttpProc.addInterceptor(new RequestContent());
-        clientHttpProc.addInterceptor(new RequestTargetHost());
-        clientHttpProc.addInterceptor(new RequestConnControl());
-        clientHttpProc.addInterceptor(new RequestUserAgent());
-        clientHttpProc.addInterceptor(new RequestExpectContinue());
+        HttpProcessor clientHttpProc = new ImmutableHttpProcessor(new HttpRequestInterceptor[] {
+                new RequestContent(),
+                new RequestTargetHost(),
+                new RequestConnControl(),
+                new RequestUserAgent(),
+                new RequestExpectContinue()});
 
         AsyncNHttpClientHandler clientHandler = new AsyncNHttpClientHandler(
                 clientHttpProc,
@@ -445,11 +449,12 @@ public class TestTruncatedChunks extends TestCase {
         Queue<TestJob> queue = new ConcurrentLinkedQueue<TestJob>();
         queue.add(testjob); 
         
-        BasicHttpProcessor serverHttpProc = new BasicHttpProcessor();
-        serverHttpProc.addInterceptor(new ResponseDate());
-        serverHttpProc.addInterceptor(new ResponseServer());
-        serverHttpProc.addInterceptor(new ResponseContent());
-        serverHttpProc.addInterceptor(new ResponseConnControl());
+        HttpProcessor serverHttpProc = new ImmutableHttpProcessor(new HttpResponseInterceptor[] {
+                new ResponseDate(),
+                new ResponseServer(),
+                new ResponseContent(),
+                new ResponseConnControl()
+        });
 
         AsyncNHttpServiceHandler serviceHandler = new AsyncNHttpServiceHandler(
                 serverHttpProc,
@@ -462,12 +467,12 @@ public class TestTruncatedChunks extends TestCase {
         serviceHandler.setEventListener(
                 new SimpleEventListener());
 
-        BasicHttpProcessor clientHttpProc = new BasicHttpProcessor();
-        clientHttpProc.addInterceptor(new RequestContent());
-        clientHttpProc.addInterceptor(new RequestTargetHost());
-        clientHttpProc.addInterceptor(new RequestConnControl());
-        clientHttpProc.addInterceptor(new RequestUserAgent());
-        clientHttpProc.addInterceptor(new RequestExpectContinue());
+        HttpProcessor clientHttpProc = new ImmutableHttpProcessor(new HttpRequestInterceptor[] {
+                new RequestContent(),
+                new RequestTargetHost(),
+                new RequestConnControl(),
+                new RequestUserAgent(),
+                new RequestExpectContinue()});
 
         AsyncNHttpClientHandler clientHandler = new AsyncNHttpClientHandler(
                 clientHttpProc,

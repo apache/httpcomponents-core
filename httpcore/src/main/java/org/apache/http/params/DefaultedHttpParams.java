@@ -57,6 +57,8 @@ public final class DefaultedHttpParams extends AbstractHttpParams {
 
     /**
      * Creates a copy of the local collection with the same default
+     * 
+     * @deprecated
      */
     public HttpParams copy() {
         HttpParams clone = this.local.copy();

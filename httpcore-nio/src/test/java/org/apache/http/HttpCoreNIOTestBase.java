@@ -38,10 +38,10 @@ import junit.framework.TestCase;
 import org.apache.http.impl.nio.reactor.ExceptionEvent;
 import org.apache.http.mockup.TestHttpClient;
 import org.apache.http.mockup.TestHttpServer;
-import org.apache.http.params.BasicHttpParams;
 import org.apache.http.params.CoreConnectionPNames;
 import org.apache.http.params.CoreProtocolPNames;
 import org.apache.http.params.HttpParams;
+import org.apache.http.params.SyncBasicHttpParams;
 
 /**
  * Base class for all HttpCore NIO tests
@@ -58,7 +58,7 @@ public class HttpCoreNIOTestBase extends TestCase {
     
     @Override
     protected void setUp() throws Exception {
-        HttpParams serverParams = new BasicHttpParams();
+        HttpParams serverParams = new SyncBasicHttpParams();
         serverParams
             .setIntParameter(CoreConnectionPNames.SO_TIMEOUT, 60000)
             .setIntParameter(CoreConnectionPNames.SOCKET_BUFFER_SIZE, 8 * 1024)
@@ -68,7 +68,7 @@ public class HttpCoreNIOTestBase extends TestCase {
 
         this.server = new TestHttpServer(serverParams);
 
-        HttpParams clientParams = new BasicHttpParams();
+        HttpParams clientParams = new SyncBasicHttpParams();
         clientParams
             .setIntParameter(CoreConnectionPNames.SO_TIMEOUT, 60000)
             .setIntParameter(CoreConnectionPNames.CONNECTION_TIMEOUT, 30000)

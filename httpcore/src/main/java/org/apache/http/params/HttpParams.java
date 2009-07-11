@@ -77,6 +77,8 @@ public interface HttpParams {
      * Creates a copy of these parameters.
      *
      * @return  a new set of parameters holding the same values as this one
+     * 
+     * @deprecated
      */
     HttpParams copy();
     

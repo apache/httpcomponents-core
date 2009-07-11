@@ -41,21 +41,23 @@ import org.apache.http.ConnectionClosedException;
 import org.apache.http.ConnectionReuseStrategy;
 import org.apache.http.HttpException;
 import org.apache.http.HttpResponseFactory;
+import org.apache.http.HttpResponseInterceptor;
 import org.apache.http.HttpServerConnection;
 import org.apache.http.impl.DefaultConnectionReuseStrategy;
 import org.apache.http.impl.DefaultHttpResponseFactory;
 import org.apache.http.impl.DefaultHttpServerConnection;
-import org.apache.http.params.BasicHttpParams;
 import org.apache.http.params.CoreConnectionPNames;
 import org.apache.http.params.HttpParams;
 import org.apache.http.params.CoreProtocolPNames;
-import org.apache.http.protocol.BasicHttpProcessor;
+import org.apache.http.params.SyncBasicHttpParams;
 import org.apache.http.protocol.HttpContext;
 import org.apache.http.protocol.BasicHttpContext;
 import org.apache.http.protocol.HttpExpectationVerifier;
+import org.apache.http.protocol.HttpProcessor;
 import org.apache.http.protocol.HttpRequestHandler;
 import org.apache.http.protocol.HttpRequestHandlerRegistry;
 import org.apache.http.protocol.HttpService;
+import org.apache.http.protocol.ImmutableHttpProcessor;
 import org.apache.http.protocol.ResponseConnControl;
 import org.apache.http.protocol.ResponseContent;
 import org.apache.http.protocol.ResponseDate;
@@ -64,7 +66,7 @@ import org.apache.http.protocol.ResponseServer;
 public class TestHttpServer {
 
     private final HttpParams params; 
-    private final BasicHttpProcessor httpproc;
+    private final HttpProcessor httpproc;
     private final ConnectionReuseStrategy connStrategy;
     private final HttpResponseFactory responseFactory;
     private final HttpRequestHandlerRegistry reqistry;
@@ -77,18 +79,20 @@ public class TestHttpServer {
     
     public TestHttpServer() throws IOException {
         super();
-        this.params = new BasicHttpParams();
+        this.params = new SyncBasicHttpParams();
         this.params
             .setIntParameter(CoreConnectionPNames.SO_TIMEOUT, 5000)
             .setIntParameter(CoreConnectionPNames.SOCKET_BUFFER_SIZE, 8 * 1024)
             .setBooleanParameter(CoreConnectionPNames.STALE_CONNECTION_CHECK, false)
             .setBooleanParameter(CoreConnectionPNames.TCP_NODELAY, true)
             .setParameter(CoreProtocolPNames.ORIGIN_SERVER, "TEST-SERVER/1.1");
-        this.httpproc = new BasicHttpProcessor();
-        this.httpproc.addInterceptor(new ResponseDate());
-        this.httpproc.addInterceptor(new ResponseServer());
-        this.httpproc.addInterceptor(new ResponseContent());
-        this.httpproc.addInterceptor(new ResponseConnControl());
+        this.httpproc = new ImmutableHttpProcessor(
+                new HttpResponseInterceptor[] {
+                        new ResponseDate(),
+                        new ResponseServer(),
+                        new ResponseContent(),
+                        new ResponseConnControl()
+                });
         this.connStrategy = new DefaultConnectionReuseStrategy();
         this.responseFactory = new DefaultHttpResponseFactory();
         this.reqistry = new HttpRequestHandlerRegistry();
