@@ -1,5 +1,15 @@
-Changes since 4.0.1
+Release 4.1-ALPHA1
 -------------------
+
+This is the first public release from the 4.1 branch of HttpCore. This release adds a number of
+new features, most notable being introduction of compatibility mode with IBM JREs and other JREs 
+with naive (broken) implementation of SelectionKey API.
+
+Please note new classes and methods added in the 4.1 branch are still considered API unstable.
+
+* [HTTPCORE-183] Added Thread-safe implementations of HttpParams and HttpProcessor - 
+  SyncBasicHttpParams and ImmutableHttpProcessor classes
+  Contributed by Oleg Kalnichevski <olegk at apache.org> 
 
 * [HTTPCORE-199] ContentInputStream implements InputStream#available().
   Contributed by Oleg Kalnichevski <olegk at apache.org> 
