@@ -1,8 +1,4 @@
 /*
- * $HeadURL$
- * $Revision$
- * $Date$
- *
  * ====================================================================
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
@@ -33,45 +29,28 @@ package org.apache.http.impl.nio.reactor;
 
 import java.util.Date;
 
-/**
- * A {@link Throwable} instance along with a time stamp. 
- *
- * @since 4.0
- */
-public class ExceptionEvent {
+import junit.framework.TestCase;
 
-    private final Throwable ex;
-    private final long time;
-    
-    public ExceptionEvent(final Throwable ex, final Date timestamp) {
-        super();
-        this.ex = ex;
-        if (timestamp != null) {
-            this.time = timestamp.getTime(); 
-        } else {
-            this.time = 0;
-        }
-    }
-    
-    public ExceptionEvent(final Exception ex) {
-        this(ex, new Date());
+public class ExceptionEventTest extends TestCase {
+
+    public void testGetCause() {
+        NullPointerException npe = new NullPointerException("npe");
+        ExceptionEvent ee = new ExceptionEvent(npe);
+        assertSame(npe, ee.getCause());
+        ee = new ExceptionEvent(npe, new Date());
+        assertSame(npe, ee.getCause());
     }
 
-    public Throwable getCause() {
-        return ex;
+    public void testGetTimestamp() {
+        NullPointerException npe = new NullPointerException("npe");
+        ExceptionEvent ee = new ExceptionEvent(npe);
+        assertNotNull(ee.getTimestamp());
+        ee = new ExceptionEvent(npe, new Date(1234567890L));
+        assertEquals(new Date(1234567890L), ee.getTimestamp());
     }
 
-    public Date getTimestamp() {
-        return new Date(this.time);
+    public void testToString() {
+        assertNotNull(new ExceptionEvent(new NullPointerException()));
     }
 
-    @Override
-    public String toString() {
-        StringBuilder buffer = new StringBuilder();
-        buffer.append(new Date(this.time));
-        buffer.append(" ");
-        buffer.append(this.ex);
-        return buffer.toString();
-    }
-    
 }
