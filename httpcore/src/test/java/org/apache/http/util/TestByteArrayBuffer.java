@@ -194,7 +194,33 @@ public class TestByteArrayBuffer extends TestCase {
             // expected
         }
     }
-    
+
+    public void testEnsureCapacity() throws Exception {
+        ByteArrayBuffer buffer = new ByteArrayBuffer(4);
+        buffer.ensureCapacity(2);
+        assertEquals(4, buffer.capacity());
+        buffer.ensureCapacity(8);
+        assertEquals(8, buffer.capacity());
+    }
+
+    public void testIndexOf() throws Exception {
+        final byte COLON = (byte) ':';
+        final byte COMMA = (byte) ',';
+        byte[] bytes = "name1: value1; name2: value2".getBytes("US-ASCII");
+        int index1 = 5;
+        int index2 = 20;
+       
+        ByteArrayBuffer buffer = new ByteArrayBuffer(16);
+        buffer.append(bytes, 0, bytes.length);
+
+        assertEquals(index1, buffer.indexOf(COLON));
+        assertEquals(-1, buffer.indexOf(COMMA));
+        assertEquals(index1, buffer.indexOf(COLON, -1, 11));
+        assertEquals(index1, buffer.indexOf(COLON, 0, 1000));
+        assertEquals(-1, buffer.indexOf(COLON, 2, 1));
+        assertEquals(index2, buffer.indexOf(COLON, index1 + 1, buffer.length()));
+    }
+
     public void testAppendCharArrayAsAscii() throws Exception {
         String s1 = "stuff";
         String s2 = " and more stuff";

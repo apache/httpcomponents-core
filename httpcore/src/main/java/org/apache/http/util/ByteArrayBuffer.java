@@ -220,6 +220,26 @@ public final class ByteArrayBuffer  {
     }
 
     /**
+     * Ensures that the capacity is at least equal to the specified minimum.
+     * If the current capacity is less than the argument, then a new internal
+     * array is allocated with greater capacity. If the <code>required</code> 
+     * argument is non-positive, this method takes no action.
+     *
+     * @param   required   the minimum required capacity.
+     * 
+     * @since 4.1
+     */
+    public void ensureCapacity(int required) {
+        if (required <= 0) {
+            return;
+        }
+        int available = this.buffer.length - this.len;
+        if (required > available) {
+            expand(this.len + required);
+        }
+    }
+    
+    /**
      * Returns reference to the underlying byte array.
      * 
      * @return the byte array.
@@ -265,4 +285,60 @@ public final class ByteArrayBuffer  {
         return this.len == this.buffer.length; 
     }
     
+    /**
+     * Returns the index within this buffer of the first occurrence of the
+     * specified byte, starting the search at the specified 
+     * <code>beginIndex</code> and finishing at <code>endIndex</code>.
+     * If no such byte occurs in this buffer within the specified bounds, 
+     * <code>-1</code> is returned.
+     * <p>
+     * There is no restriction on the value of <code>beginIndex</code> and 
+     * <code>endIndex</code>. If <code>beginIndex</code> is negative, 
+     * it has the same effect as if it were zero. If <code>endIndex</code> is 
+     * greater than {@link #length()}, it has the same effect as if it were
+     * {@link #length()}. If the <code>beginIndex</code> is greater than 
+     * the <code>endIndex</code>, <code>-1</code> is returned.
+     *
+     * @param   b            the byte to search for.
+     * @param   beginIndex   the index to start the search from.
+     * @param   endIndex     the index to finish the search at.
+     * @return  the index of the first occurrence of the byte in the buffer
+     *   within the given bounds, or <code>-1</code> if the byte does 
+     *   not occur.
+     *   
+     * @since 4.1
+     */
+    public int indexOf(byte b, int beginIndex, int endIndex) {
+        if (beginIndex < 0) {
+            beginIndex = 0;
+        }
+        if (endIndex > this.len) {
+            endIndex = this.len;
+        }
+        if (beginIndex > endIndex) {
+            return -1;
+        }
+        for (int i = beginIndex; i < endIndex; i++) {
+            if (this.buffer[i] == b) {
+                return i;
+            }
+        }
+        return -1;
+    }
+    
+    /**
+     * Returns the index within this buffer of the first occurrence of the
+     * specified byte, starting the search at <code>0</code> and finishing 
+     * at {@link #length()}. If no such byte occurs in this buffer within 
+     * those bounds, <code>-1</code> is returned.
+     *
+     * @param   b   the byte to search for.
+     * @return  the index of the first occurrence of the byte in the 
+     *   buffer, or <code>-1</code> if the byte does not occur.
+     *   
+     * @since 4.1
+     */
+    public int indexOf(byte b) {
+        return indexOf(b, 0, this.len);
+    }
 }
