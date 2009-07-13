@@ -203,7 +203,7 @@ public class NHttpConnectionBase
     protected HttpEntity prepareDecoder(final HttpMessage message) throws HttpException {
         BasicHttpEntity entity = new BasicHttpEntity();
         long len = this.incomingContentStrategy.determineLength(message);
-        this.contentDecoder = createChunkDecoder(
+        this.contentDecoder = createContentDecoder(
                 len,
                 this.session.channel(), 
                 this.inbuf, 
@@ -233,8 +233,6 @@ public class NHttpConnectionBase
     /**
      * Factory method for {@link ContentDecoder} instances.
      * 
-     * @since 4.1
-     * 
      * @param len content length, if known, {@link ContentLengthStrategy#CHUNKED} or
      *   {@link ContentLengthStrategy#IDENTITY}, if unknown. 
      * @param channel the session channel.
@@ -242,8 +240,10 @@ public class NHttpConnectionBase
      * @param metrics transport metrics.
      * 
      * @return content decoder.
+     * 
+     * @since 4.1
      */
-    protected ContentDecoder createChunkDecoder(
+    protected ContentDecoder createContentDecoder(
             final long len,    		
             final ReadableByteChannel channel, 
             final SessionInputBuffer buffer,
@@ -276,8 +276,6 @@ public class NHttpConnectionBase
     /**
      * Factory method for {@link ContentEncoder} instances.
      * 
-     * @since 4.1
-     * 
      * @param len content length, if known, {@link ContentLengthStrategy#CHUNKED} or
      *   {@link ContentLengthStrategy#IDENTITY}, if unknown. 
      * @param channel the session channel.
@@ -285,6 +283,8 @@ public class NHttpConnectionBase
      * @param metrics transport metrics.
      * 
      * @return content encoder.
+     * 
+     * @since 4.1
      */
     protected ContentEncoder createContentEncoder(
             final long len,

@@ -70,6 +70,8 @@ public interface NIOReactorPNames {
      * <p>
      * This parameter expects a value of type {@link Boolean}.
      * </p>
+     * 
+     * @since 4.1
      */
     public static final String INTEREST_OPS_QUEUEING = "http.nio.interest-ops-queueing";
 

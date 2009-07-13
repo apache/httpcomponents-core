@@ -46,13 +46,26 @@ public final class NIOReactorParams implements NIOReactorPNames {
         super();
     }
 
+    /**
+     * Obtains the value of {@link NIOReactorPNames#CONTENT_BUFFER_SIZE} parameter.
+     * If not set, defaults to <code>4096</code>.
+     * 
+     * @param params HTTP parameters.
+     * @return content buffer size.
+     */
     public static int getContentBufferSize(final HttpParams params) {
         if (params == null) {
             throw new IllegalArgumentException("HTTP parameters may not be null");
         }
-        return params.getIntParameter(CONTENT_BUFFER_SIZE, 1024);
+        return params.getIntParameter(CONTENT_BUFFER_SIZE, 4096);
     }
     
+    /**
+     * Sets value of the {@link NIOReactorPNames#CONTENT_BUFFER_SIZE} parameter. 
+     *
+     * @param params HTTP parameters.
+     * @param size content buffer size.
+     */
     public static void setContentBufferSize(final HttpParams params, int size) {
         if (params == null) {
             throw new IllegalArgumentException("HTTP parameters may not be null");
@@ -60,6 +73,13 @@ public final class NIOReactorParams implements NIOReactorPNames {
         params.setIntParameter(CONTENT_BUFFER_SIZE, size);
     }
 
+    /**
+     * Obtains the value of {@link NIOReactorPNames#SELECT_INTERVAL} parameter.
+     * If not set, defaults to <code>1000</code>.
+     * 
+     * @param params HTTP parameters.
+     * @return I/O select interval in milliseconds.
+     */
     public static long getSelectInterval(final HttpParams params) {
         if (params == null) {
             throw new IllegalArgumentException("HTTP parameters may not be null");
@@ -67,6 +87,12 @@ public final class NIOReactorParams implements NIOReactorPNames {
         return params.getLongParameter(SELECT_INTERVAL, 1000);
     }
     
+    /**
+     * Sets value of the {@link NIOReactorPNames#SELECT_INTERVAL} parameter. 
+     *
+     * @param params HTTP parameters.
+     * @param ms I/O select interval in milliseconds.
+     */
     public static void setSelectInterval(final HttpParams params, long ms) {
         if (params == null) {
             throw new IllegalArgumentException("HTTP parameters may not be null");
@@ -74,6 +100,13 @@ public final class NIOReactorParams implements NIOReactorPNames {
         params.setLongParameter(SELECT_INTERVAL, ms);
     }
 
+    /**
+     * Obtains the value of {@link NIOReactorPNames#GRACE_PERIOD} parameter.
+     * If not set, defaults to <code>500</code>.
+     * 
+     * @param params HTTP parameters.
+     * @return shutdown grace period in milliseconds.
+     */
     public static long getGracePeriod(final HttpParams params) {
         if (params == null) {
             throw new IllegalArgumentException("HTTP parameters may not be null");
@@ -81,6 +114,12 @@ public final class NIOReactorParams implements NIOReactorPNames {
         return params.getLongParameter(GRACE_PERIOD, 500);
     }
     
+    /**
+     * Sets value of the {@link NIOReactorPNames#GRACE_PERIOD} parameter. 
+     *
+     * @param params HTTP parameters.
+     * @param ms shutdown grace period in milliseconds.
+     */
     public static void setGracePeriod(final HttpParams params, long ms) {
         if (params == null) {
             throw new IllegalArgumentException("HTTP parameters may not be null");
@@ -88,6 +127,15 @@ public final class NIOReactorParams implements NIOReactorPNames {
         params.setLongParameter(GRACE_PERIOD, ms);
     }
 
+    /**
+     * Obtains the value of {@link NIOReactorPNames#INTEREST_OPS_QUEUEING} parameter.
+     * If not set, defaults to <code>false</code>.
+     * 
+     * @param params HTTP parameters.
+     * @return interest ops queuing flag.
+     * 
+     * @since 4.1
+     */
     public static boolean getInterestOpsQueueing(final HttpParams params) {
         if (params == null) {
             throw new IllegalArgumentException("HTTP parameters may not be null");
@@ -95,7 +143,16 @@ public final class NIOReactorParams implements NIOReactorPNames {
         return params.getBooleanParameter(INTEREST_OPS_QUEUEING, false);
     }
 
-    public static void setInterestOpsQueueing(final HttpParams params, boolean interestOpsQueueing) {
+    /**
+     * Sets value of the {@link NIOReactorPNames#INTEREST_OPS_QUEUEING} parameter. 
+     *
+     * @param params HTTP parameters.
+     * @param interestOpsQueueing interest ops queuing.
+     * 
+     * @since 4.1
+     */
+    public static void setInterestOpsQueueing(
+            final HttpParams params, boolean interestOpsQueueing) {
         if (params == null) {
             throw new IllegalArgumentException("HTTP parameters may not be null");
         }

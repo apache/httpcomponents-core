@@ -156,6 +156,8 @@ public abstract class AbstractMessageParser implements HttpMessageParser {
      * 
      * @throws IOException in case of an I/O error
      * @throws HttpException in case of HTTP protocol violation
+     * 
+     * @since 4.1
      */
     public static Header[] parseHeaders(
             final SessionInputBuffer inbuffer,

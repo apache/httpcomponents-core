@@ -63,6 +63,15 @@ public class IOSessionImpl implements IOSession {
     private int socketTimeout;
     private volatile int currentEventMask;
     
+    /**
+     * Creates new instance of IOSessionImpl.
+     * 
+     * @param key the selection key.
+     * @param interestOpsCallback interestOps callback.
+     * @param sessionClosedCallback session closed callback.
+     * 
+     * @since 4.1
+     */
     public IOSessionImpl(
             final SelectionKey key, 
             final InterestOpsCallback interestOpsCallback,
@@ -81,6 +90,12 @@ public class IOSessionImpl implements IOSession {
         this.status = ACTIVE;
     }
     
+    /**
+     * Creates new instance of IOSessionImpl.
+     * 
+     * @param key the selection key.
+     * @param sessionClosedCallback session closed callback.
+     */
     public IOSessionImpl(
             final SelectionKey key, 
             final SessionClosedCallback sessionClosedCallback) {

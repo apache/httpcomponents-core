@@ -89,6 +89,8 @@ public abstract class AbstractIOReactor implements IOReactor {
      * @param interestOpsQueueing Ops queueing flag.
      * 
      * @throws IOReactorException in case if a non-recoverable I/O error. 
+     * 
+     * @since 4.1
      */
     public AbstractIOReactor(long selectTimeout, boolean interestOpsQueueing) throws IOReactorException {
         super();
@@ -203,6 +205,8 @@ public abstract class AbstractIOReactor implements IOReactor {
 
     /**
      * Returns <code>true</code> if interest Ops queueing is enabled, <code>false</code> otherwise.
+     * 
+     * @since 4.1
      */
     public boolean getInterestOpsQueueing() {
         return this.interestOpsQueueing;
@@ -359,7 +363,6 @@ public abstract class AbstractIOReactor implements IOReactor {
         }
     }
     
-    
     private void processNewChannels() throws IOReactorException {
         ChannelEntry entry;
         while ((entry = this.newChannels.poll()) != null) {
@@ -442,10 +445,6 @@ public abstract class AbstractIOReactor implements IOReactor {
         }
     }
 
-    /**
-        Processes all pending {@link java.nio.channels.SelectionKey#interestOps(int) interestOps(int)}
-        operations.
-    */
     private void processPendingInterestOps() {
         // validity check
         if (!this.interestOpsQueueing) {
@@ -466,6 +465,31 @@ public abstract class AbstractIOReactor implements IOReactor {
         }
     }
 
+    /** 
+     * Adds an {@link InterestOpEntry} to the interest ops queue for this instance.
+     *  
+     * @return <code>true</code> if the operation could be performed successfully, 
+     *   <code>false</code> otherwise.
+     * 
+     * @since 4.1
+     */
+    protected boolean queueInterestOps(final InterestOpEntry entry) {
+        // validity checks
+        if (!this.interestOpsQueueing) {
+            throw new IllegalStateException("Interest ops queueing not enabled");
+        }
+        if (entry == null) {
+            return false;
+        }
+
+        synchronized (this.interestOpsQueue) {
+            // add this operation to the interestOps() queue
+            this.interestOpsQueue.add(entry);
+        }
+
+        return true;
+    }
+    
     /**
      * Closes out all I/O sessions maintained by this I/O reactor.
      */
@@ -586,27 +610,4 @@ public abstract class AbstractIOReactor implements IOReactor {
         shutdown(1000);
     }
 
-    /** 
-     * Adds an {@link InterestOpEntry} to the interest ops queue for this instance.
-     *  
-     * @return <code>true</code> if the operation could be performed successfully, 
-     *   <code>false</code> otherwise.
-     */
-    protected boolean queueInterestOps(final InterestOpEntry entry) {
-        // validity checks
-        if (!this.interestOpsQueueing) {
-            throw new IllegalStateException("Interest ops queueing not enabled");
-        }
-        if (entry == null) {
-            return false;
-        }
-
-        synchronized (this.interestOpsQueue) {
-            // add this operation to the interestOps() queue
-            this.interestOpsQueue.add(entry);
-        }
-
-        return true;
-    }
-    
 }
