@@ -1,8 +1,4 @@
 /*
- * $HeadURL$
- * $Revision$
- * $Date$
- *
  * ====================================================================
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
@@ -74,11 +70,11 @@ public class BasicNameValuePair implements NameValuePair, Cloneable, Serializabl
 
     public String toString() {
         // don't call complex default formatting for a simple toString
-    	
-    	if (this.value == null) {
+        
+        if (this.value == null) {
             return name;
-    	} else {
-    		int len = this.name.length() + 1 + this.value.length();
+        } else {
+            int len = this.name.length() + 1 + this.value.length();
             CharArrayBuffer buffer = new CharArrayBuffer(len);
             buffer.append(this.name);
             buffer.append("=");

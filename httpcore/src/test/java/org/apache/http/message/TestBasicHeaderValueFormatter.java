@@ -1,7 +1,4 @@
 /*
- * $HeadURL$
- * $Revision$
- * $Date$
  * ====================================================================
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
@@ -43,7 +40,6 @@ import org.apache.http.NameValuePair;
  * Tests for header value formatting.
  *
  *
- * @version $Revision$
  */
 public class TestBasicHeaderValueFormatter extends TestCase {
 

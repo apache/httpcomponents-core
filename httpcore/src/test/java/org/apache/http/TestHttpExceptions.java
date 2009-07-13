@@ -1,7 +1,4 @@
 /*
- * $HeadURL$
- * $Revision$
- * $Date$
  * ====================================================================
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
@@ -36,7 +33,6 @@ import junit.framework.*;
  * Simple tests for various HTTP exception classes.
  *
  *
- * @version $Revision$
  */
 public class TestHttpExceptions extends TestCase {
 

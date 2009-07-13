@@ -1,7 +1,4 @@
 /*
- * $HeadURL$
- * $Revision$
- * $Date$
  * ====================================================================
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
@@ -41,7 +38,6 @@ import org.apache.http.RequestLine;
  * Simple tests for {@link RequestLine}.
  *
  *
- * @version $Revision$
  */
 public class TestRequestLine extends TestCase {
 

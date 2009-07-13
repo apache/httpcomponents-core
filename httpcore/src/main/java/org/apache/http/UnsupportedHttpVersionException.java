@@ -1,8 +1,4 @@
 /*
- * $HeadURL:https://svn.apache.org/repos/asf/jakarta/httpcomponents/trunk/coyote-httpconnector/src/java/org/apache/http/tcconnector/UnsupportedHttpVersionException.java $
- * $Revision:379772 $
- * $Date:2006-02-22 14:52:29 +0100 (Wed, 22 Feb 2006) $
- *
  * ====================================================================
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file

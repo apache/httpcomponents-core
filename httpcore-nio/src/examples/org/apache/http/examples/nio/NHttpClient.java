@@ -1,8 +1,4 @@
 /*
- * $HeadURL$
- * $Revision$
- * $Date$
- *
  * ====================================================================
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
@@ -75,7 +71,6 @@ import org.apache.http.util.EntityUtils;
  * It is NOT intended to demonstrate the most efficient way of building an HTTP client. 
  *
  * 
- * @version $Revision$
  */
 public class NHttpClient {
 

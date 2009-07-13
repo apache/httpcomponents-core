@@ -1,8 +1,4 @@
 /*
- * $HeadURL$
- * $Revision$
- * $Date$
- *
  * ====================================================================
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
@@ -59,9 +55,6 @@ import java.util.concurrent.TimeUnit;
  * Main program of the HTTP benchmark.
  *
  *
- * <!-- empty lines above to avoid 'svn diff' context problems -->
- * @version $Revision$
- * 
  * @since 4.0
  */
 public class HttpBenchmark {

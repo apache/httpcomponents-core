@@ -1,8 +1,4 @@
 /*
- * $HeadURL$
- * $Revision$
- * $Date$
- *
  * ====================================================================
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
@@ -68,9 +64,6 @@ import org.apache.http.util.EntityUtils;
  * Worker thread for the {@link HttpBenchmark HttpBenchmark}.
  *
  *
- * <!-- empty lines above to avoid 'svn diff' context problems -->
- * @version $Revision$
- * 
  * @since 4.0
  */
 public class BenchmarkWorker implements Runnable {

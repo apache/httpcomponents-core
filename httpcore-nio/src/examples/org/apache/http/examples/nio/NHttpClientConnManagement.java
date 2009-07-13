@@ -1,8 +1,4 @@
 /*
- * $HeadURL: http://svn.apache.org/repos/asf/httpcomponents/httpcore/trunk/module-nio/src/examples/org/apache/http/examples/nio/NHttpClient.java $
- * $Revision: 741603 $
- * $Date: 2009-02-06 16:57:10 +0100 (Fri, 06 Feb 2009) $
- *
  * ====================================================================
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
@@ -84,7 +80,6 @@ import org.apache.http.util.EntityUtils;
  * It is NOT intended to demonstrate the most efficient way of building an HTTP client. 
  *
  * 
- * @version $Revision:$
  */
 public class NHttpClientConnManagement {
 

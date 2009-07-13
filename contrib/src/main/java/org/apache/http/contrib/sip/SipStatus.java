@@ -1,8 +1,4 @@
 /*
- * $HeadURL$
- * $Revision$
- * $Date$
- *
  * ====================================================================
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
@@ -45,7 +41,6 @@ package org.apache.http.contrib.sip;
  * and others.
  * 
  * 
- * @version $Revision$
  */
 public interface SipStatus {
 

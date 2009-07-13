@@ -1,8 +1,4 @@
 /*
- * $HeadURL$
- * $Revision$
- * $Date$
- *
  * ====================================================================
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
@@ -78,7 +74,7 @@ public class SerializableEntity extends AbstractHttpEntity {
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         ObjectOutputStream out = new ObjectOutputStream(baos);
         out.writeObject(ser);
-        out.flush();	
+        out.flush();    
         this.objSer = baos.toByteArray();
     }
     

@@ -1,8 +1,4 @@
 /*
- * $HeadURL$
- * $Revision$
- * $Date$
- *
  * ====================================================================
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
@@ -47,7 +43,6 @@ import org.apache.http.ReasonPhraseCatalog;
  * for a full list of registered SIP status codes and the defining RFCs.
  * 
  * 
- * @version $Revision$
  */
 public class EnglishSipReasonPhraseCatalog
     implements ReasonPhraseCatalog {

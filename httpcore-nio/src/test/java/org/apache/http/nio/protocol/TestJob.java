@@ -1,8 +1,4 @@
 /*
- * $HeadURL:$
- * $Revision:$
- * $Date:$
- *
  * ====================================================================
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
@@ -101,7 +97,7 @@ public class TestJob {
     }
     
     public Exception getException() {
-    	return this.ex;
+        return this.ex;
     }
     
     public boolean isCompleted() {
@@ -130,7 +126,7 @@ public class TestJob {
     }
     
     public void fail(final String message) {
-    	fail(message, null);
+        fail(message, null);
     }
     
     public synchronized void waitFor() throws InterruptedException {

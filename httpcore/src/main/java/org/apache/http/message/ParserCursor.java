@@ -1,8 +1,4 @@
 /*
- * $HeadURL:https://svn.apache.org/repos/asf/jakarta/httpcomponents/httpcore/trunk/module-main/src/main/java/org/apache/http/message/ParserCursor.java $
- * $Revision:589325 $
- * $Date:2007-10-28 11:37:56 +0100 (Sun, 28 Oct 2007) $
- *
  * ====================================================================
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file

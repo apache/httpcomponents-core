@@ -1,8 +1,4 @@
 /*
- * $HeadURL:$
- * $Revision:$
- * $Date:$
- *
  * ====================================================================
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
@@ -49,17 +45,17 @@ import org.apache.http.util.EntityUtils;
 
 final class TestRequestHandler extends SimpleNHttpRequestHandler implements HttpRequestHandler {
     
-	private final boolean chunking;
-	
-	TestRequestHandler() {
-		this(false);
-	}
-	
-	TestRequestHandler(boolean chunking) {
-		super();
-		this.chunking = chunking;
-	}
-	
+    private final boolean chunking;
+    
+    TestRequestHandler() {
+        this(false);
+    }
+    
+    TestRequestHandler(boolean chunking) {
+        super();
+        this.chunking = chunking;
+    }
+    
     public ConsumingNHttpEntity entityRequest(
             final HttpEntityEnclosingRequest request,
             final HttpContext context) {

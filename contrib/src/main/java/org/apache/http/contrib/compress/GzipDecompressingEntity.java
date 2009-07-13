@@ -1,8 +1,4 @@
 /*
- * $HeadURL$
- * $Revision$
- * $Date$
- *
  * ====================================================================
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
@@ -42,9 +38,6 @@ import org.apache.http.entity.HttpEntityWrapper;
  * Wrapping entity that decompresses {@link #getContent content}.
  *
  *
- * <!-- empty lines above to avoid 'svn diff' context problems -->
- * @version $Revision$
- * 
  * @since 4.0
  */
 public class GzipDecompressingEntity extends HttpEntityWrapper {

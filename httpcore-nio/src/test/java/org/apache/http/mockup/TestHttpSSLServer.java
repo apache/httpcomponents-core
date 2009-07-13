@@ -1,8 +1,4 @@
 /*
- * $HeadURL:https://svn.apache.org/repos/asf/jakarta/httpcomponents/httpcore/trunk/module-niossl/src/test/java/org/apache/http/mockup/TestHttpSSLServer.java $
- * $Revision:575703 $
- * $Date:2007-09-14 16:40:15 +0200 (Fri, 14 Sep 2007) $
- *
  * ====================================================================
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
@@ -98,9 +94,9 @@ public class TestHttpSSLServer {
     }
 
     protected IOEventDispatch createIOEventDispatch(
-    		final NHttpServiceHandler serviceHandler, 
+            final NHttpServiceHandler serviceHandler, 
             final SSLContext sslcontext,
-    		final HttpParams params) {
+            final HttpParams params) {
         return new SSLServerIOEventDispatch(serviceHandler, sslcontext, params);
     }
     

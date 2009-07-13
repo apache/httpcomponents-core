@@ -1,7 +1,4 @@
 /*
- * $HeadURL$
- * $Revision$
- * $Date$
  * ====================================================================
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
@@ -382,8 +379,8 @@ public class TestChunkDecoder extends TestCase {
         
         assertEquals(80, bytesRead);
         assertEquals("12345678901234561234567890123456" +
-        		"12345678901234561234567890123456" +
-        		"1234567890123456", convert(dst));
+                "12345678901234561234567890123456" +
+                "1234567890123456", convert(dst));
         assertTrue(decoder.isCompleted());
     }
 

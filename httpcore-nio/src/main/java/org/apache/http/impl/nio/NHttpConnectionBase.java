@@ -1,8 +1,4 @@
 /*
- * $HeadURL$
- * $Revision$
- * $Date$
- *
  * ====================================================================
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
@@ -244,7 +240,7 @@ public class NHttpConnectionBase
      * @since 4.1
      */
     protected ContentDecoder createContentDecoder(
-            final long len,    		
+            final long len,            
             final ReadableByteChannel channel, 
             final SessionInputBuffer buffer,
             final HttpTransportMetricsImpl metrics) {

@@ -1,8 +1,4 @@
 /*
- * $HeadURL:https://svn.apache.org/repos/asf/jakarta/httpcomponents/httpcore/trunk/module-nio/src/test/java/org/apache/http/mockup/TestHttpServer.java $
- * $Revision:575207 $
- * $Date:2007-09-13 09:57:05 +0200 (Thu, 13 Sep 2007) $
- *
  * ====================================================================
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
@@ -72,7 +68,7 @@ public class TestHttpServer {
     }
 
     protected IOEventDispatch createIOEventDispatch(
-    		final NHttpServiceHandler serviceHandler, final HttpParams params) {
+            final NHttpServiceHandler serviceHandler, final HttpParams params) {
         return new DefaultServerIOEventDispatch(serviceHandler, params);
     }
     

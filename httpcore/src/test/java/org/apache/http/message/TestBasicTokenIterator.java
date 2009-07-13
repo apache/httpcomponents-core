@@ -1,7 +1,4 @@
 /*
- * $HeadURL$
- * $Revision$
- * $Date$
  * ====================================================================
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
@@ -45,7 +42,6 @@ import org.apache.http.ParseException;
 /**
  * Tests for {@link BasicTokenIterator}.
  *
- * @version $Revision$
  */
 public class TestBasicTokenIterator extends TestCase {
 

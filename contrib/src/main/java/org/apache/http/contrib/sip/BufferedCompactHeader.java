@@ -1,8 +1,4 @@
 /*
- * $HeadURL$
- * $Revision$
- * $Date$
- *
  * ====================================================================
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
@@ -45,7 +41,6 @@ import org.apache.http.message.BasicHeaderValueParser;
  * the value only when accessed
  * 
  *
- * @version $Revision$
  */
 public class BufferedCompactHeader
     implements CompactHeader, FormattedHeader, Cloneable {

@@ -1,8 +1,4 @@
 /*
- * $HeadURL:https://svn.apache.org/repos/asf/jakarta/httpcomponents/httpcore/trunk/module-nio/src/test/java/org/apache/http/mockup/TestHttpClient.java $
- * $Revision:575207 $
- * $Date:2007-09-13 09:57:05 +0200 (Thu, 13 Sep 2007) $
- *
  * ====================================================================
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
@@ -66,7 +62,7 @@ public class TestHttpClient {
     }
 
     protected IOEventDispatch createIOEventDispatch(
-    		final NHttpClientHandler clientHandler, final HttpParams params) {
+            final NHttpClientHandler clientHandler, final HttpParams params) {
         return new DefaultClientIOEventDispatch(clientHandler, params);
     }
     

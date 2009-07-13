@@ -1,8 +1,4 @@
 /*
- * $HeadURL$
- * $Revision$
- * $Date$
- *
  * ====================================================================
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
@@ -46,9 +42,6 @@ import org.apache.http.protocol.ExecutionContext;
  * Server-side interceptor to handle Gzip-encoded responses.
  *
  *
- * <!-- empty lines above to avoid 'svn diff' context problems -->
- * @version $Revision$
- * 
  * @since 4.0
  */
 public class ResponseGzipCompress implements HttpResponseInterceptor {

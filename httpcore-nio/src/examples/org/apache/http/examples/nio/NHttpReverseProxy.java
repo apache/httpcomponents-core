@@ -1,8 +1,4 @@
 /*
- * $HeadURL$
- * $Revision$
- * $Date$
- *
  * ====================================================================
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
@@ -92,7 +88,6 @@ import org.apache.http.protocol.ResponseServer;
  * It is NOT intended to demonstrate the most efficient way of building an HTTP reverse proxy. 
  * 
  *
- * @version $Revision$
  */
 public class NHttpReverseProxy {
 

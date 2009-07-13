@@ -1,8 +1,4 @@
 /*
- * $HeadURL$
- * $Revision$
- * $Date$
- *
  * ====================================================================
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
@@ -47,7 +43,6 @@ package org.apache.http.contrib.sip;
  * strings as the compact name.
  * 
  *
- * @version $Revision$
  */
 public interface CompactHeaderMapper {
 

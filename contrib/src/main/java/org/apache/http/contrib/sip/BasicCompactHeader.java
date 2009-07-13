@@ -1,8 +1,4 @@
 /*
- * $HeadURL$
- * $Revision$
- * $Date$
- *
  * ====================================================================
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
@@ -38,7 +34,6 @@ import org.apache.http.message.BasicHeader;
  * Represents a SIP (or HTTP) header field with optional compact name.
  * 
  *
- * @version $Revision$
  */
 public class BasicCompactHeader extends BasicHeader
     implements CompactHeader {

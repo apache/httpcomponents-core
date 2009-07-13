@@ -1,8 +1,4 @@
 /*
- * $HeadURL$
- * $Revision$
- * $Date$
- *
  * ====================================================================
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
@@ -40,7 +36,6 @@ import org.apache.http.ProtocolVersion;
  * Represents an SIP version, as specified in RFC 3261.
  * 
  * 
- * @version $Revision$
  */
 public final class SipVersion extends ProtocolVersion
     implements Serializable {

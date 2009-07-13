@@ -1,7 +1,4 @@
 /*
- * $HeadURL:https://svn.apache.org/repos/asf/jakarta/httpcomponents/httpcore/trunk/module-nio/src/test/java/org/apache/http/impl/nio/TestBuffers.java $
- * $Revision:503277 $
- * $Date:2007-02-03 18:22:45 +0000 (Sat, 03 Feb 2007) $
  * ====================================================================
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file

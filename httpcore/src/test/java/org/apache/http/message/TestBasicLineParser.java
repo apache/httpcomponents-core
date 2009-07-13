@@ -1,7 +1,4 @@
 /*
- * $HeadURL$
- * $Revision$
- * $Date$
  * ====================================================================
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
@@ -44,7 +41,6 @@ import org.apache.http.util.CharArrayBuffer;
  * Tests for {@link BasicLineParser}.
  *
  *
- * @version $Revision$
  */
 public class TestBasicLineParser extends TestCase {
 
