@@ -113,7 +113,6 @@
         <artifactId>maven-javadoc-plugin</artifactId>
         <configuration>
           <source>1.5</source>
-          <aggregate>true</aggregate>
           <links>
             <link>http://java.sun.com/j2se/1.5.0/docs/api/</link>
           </links>
