@@ -136,6 +136,7 @@ public class TestTruncatedChunks extends TestCase {
             this.lineBuffer = new CharArrayBuffer(16);
         }
 
+        @Override
         public void complete() throws IOException {
             this.completed = true;
         }
@@ -162,7 +163,7 @@ public class TestTruncatedChunks extends TestCase {
             return chunk;
         }
         
-    };
+    }
 
     static class CustomServerIOEventDispatch extends DefaultServerIOEventDispatch {
         
