@@ -254,6 +254,7 @@ public abstract class AbstractMessageParser implements HttpMessageParser {
                 throw new ProtocolException(px.getMessage(), px);
             }
             this.state = HEADERS;         
+            //$FALL-THROUGH$
         case HEADERS:
             Header[] headers = AbstractMessageParser.parseHeaders(
                     this.sessionBuffer, 

@@ -230,6 +230,7 @@ public class ChunkedInputStream extends InputStream {
                     "Unexpected content at the end of chunk");
             }
             state = CHUNK_LEN; 
+            //$FALL-THROUGH$
         case CHUNK_LEN:
             this.buffer.clear();
             i = this.in.readLine(this.buffer);
