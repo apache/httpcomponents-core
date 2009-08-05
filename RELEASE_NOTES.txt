@@ -7,6 +7,9 @@ with naive (broken) implementation of SelectionKey API.
 
 Please note new classes and methods added in the 4.1 branch are still considered API unstable.
 
+* [HTTPCORE-201] OSGi Export-Package to specify release version
+  Contributed by Oleg Kalnichevski <olegk at apache.org> 
+
 * [HTTPCORE-183] Added Thread-safe implementations of HttpParams and HttpProcessor - 
   SyncBasicHttpParams and ImmutableHttpProcessor classes
   Contributed by Oleg Kalnichevski <olegk at apache.org> 
