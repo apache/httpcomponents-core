@@ -84,7 +84,7 @@
           <instructions>
             <Bundle-Name>Apache ${pom.name}</Bundle-Name>
             <Bundle-SymbolicName>${pom.groupId}.httpcore</Bundle-SymbolicName>
-            <_exportcontents>org.apache.http.*</_exportcontents>
+            <_exportcontents>org.apache.http.*;version=${project.version}</_exportcontents>
             <Embed-Dependency>*;scope=compile|runtime;inline=false</Embed-Dependency>
           </instructions>
         </configuration>

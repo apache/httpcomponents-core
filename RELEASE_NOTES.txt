@@ -1,3 +1,9 @@
+Changes since 4.0.1
+
+* [HTTPCORE-201] OSGi Export-Package to specify release version
+  Contributed by Oleg Kalnichevski <olegk at apache.org>
+
+
 Release 4.0.1
 -------------------
 
