@@ -59,7 +59,7 @@ public final class HTTP {
     public static final String SERVER_HEADER = "Server";
     
     /** HTTP expectations */
-    public static final String EXPECT_CONTINUE = "100-Continue";
+    public static final String EXPECT_CONTINUE = "100-continue";
 
     /** HTTP connection control */
     public static final String CONN_CLOSE = "Close";
