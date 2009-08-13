@@ -30,38 +30,38 @@
 
 HttpCore Examples
 
-    * {{{http://svn.apache.org/repos/asf/httpcomponents/httpcore/trunk/httpcore/src/examples/org/apache/http/examples/ElementalHttpGet.java}Basic HTTP GET}}
+    * {{{http://svn.apache.org/repos/asf/httpcomponents/httpcore/branches/4.0.x/httpcore/src/examples/org/apache/http/examples/ElementalHttpGet.java}Basic HTTP GET}}
     
     This example demonstrates how to execute a series of simple HTTP GET requests.
 
-    * {{{http://svn.apache.org/repos/asf/httpcomponents/httpcore/trunk/httpcore/src/examples/org/apache/http/examples/ElementalHttpPost.java}Basic HTTP POST}}
+    * {{{http://svn.apache.org/repos/asf/httpcomponents/httpcore/branches/4.0.x/httpcore/src/examples/org/apache/http/examples/ElementalHttpPost.java}Basic HTTP POST}}
     
     This example demonstrates how to execute a series of simple HTTP POST requests that enclose entity 
     content of various types: a string, a byte array, an arbitrary input stream.  
 
-    * {{{http://svn.apache.org/repos/asf/httpcomponents/httpcore/trunk/httpcore/src/examples/org/apache/http/examples/ElementalHttpServer.java}Basic HTTP server}}
+    * {{{http://svn.apache.org/repos/asf/httpcomponents/httpcore/branches/4.0.x/httpcore/src/examples/org/apache/http/examples/ElementalHttpServer.java}Basic HTTP server}}
     
     This is an example of a simple but fully functional HTTP/1.1 server written with only a few dozen 
     lines of Java code.
 
-    * {{{http://svn.apache.org/repos/asf/httpcomponents/httpcore/trunk/httpcore-nio/src/examples/org/apache/http/examples/nio/NHttpServer.java}Basic non-blocking HTTP server}}
+    * {{{http://svn.apache.org/repos/asf/httpcomponents/httpcore/branches/4.0.x/httpcore-nio/src/examples/org/apache/http/examples/nio/NHttpServer.java}Basic non-blocking HTTP server}}
     
     This example demonstrates the use of HttpCore NIO extensions to build a non-blocking HTTP/1.1 server.
 
-    * {{{http://svn.apache.org/repos/asf/httpcomponents/httpcore/trunk/httpcore-nio/src/examples/org/apache/http/examples/nio/NHttpClient.java}Basic non-blocking HTTP client}}
+    * {{{http://svn.apache.org/repos/asf/httpcomponents/httpcore/branches/4.0.x/httpcore-nio/src/examples/org/apache/http/examples/nio/NHttpClient.java}Basic non-blocking HTTP client}}
     
     This example demonstrates how HttpCore NIO can be used to execute multiple HTTP requests using
     only one I/O thread.
 
-    * {{{http://svn.apache.org/repos/asf/httpcomponents/httpcore/trunk/httpcore-nio/src/examples/org/apache/http/examples/nio/NHttpClientConnManagement.java}Management of non-blocking client connections}}
+    * {{{http://svn.apache.org/repos/asf/httpcomponents/httpcore/branches/4.0.x/httpcore-nio/src/examples/org/apache/http/examples/nio/NHttpClientConnManagement.java}Management of non-blocking client connections}}
     
     This example demonstrates how to manage reuse of persistent client connections using HttpCore NIO. 
 
-    * {{{http://svn.apache.org/repos/asf/httpcomponents/httpcore/trunk/httpcore-nio/src/examples/org/apache/http/examples/nio/NHttpSSLServer.java}Basic non-blocking HTTPS server}}
+    * {{{http://svn.apache.org/repos/asf/httpcomponents/httpcore/branches/4.0.x/httpcore-nio/src/examples/org/apache/http/examples/nio/NHttpSSLServer.java}Basic non-blocking HTTPS server}}
     
     This example demonstrates the use of HttpCore NIO extensions to build a non-blocking HTTPS/1.1 server.
 
-    * {{{http://svn.apache.org/repos/asf/httpcomponents/httpcore/trunk/contrib/src/main/java/org/apache/http/contrib/compress/}Content compression}}
+    * {{{http://svn.apache.org/repos/asf/httpcomponents/httpcore/branches/4.0.x/contrib/src/main/java/org/apache/http/contrib/compress/}Content compression}}
 
     These request/response interceptors implement client- and server-side content
     compression/decompression logic. They can simply be added to any existing HTTP processor to enable it for 
