@@ -70,7 +70,6 @@ import org.apache.http.params.HttpConnectionParams;
 import org.apache.http.params.HttpParams;
 import org.apache.http.protocol.HTTP;
 import org.apache.http.protocol.HttpContext;
-import org.apache.http.protocol.SyncBasicHttpContext;
 
 /**
  * This class serves as a base for all {@link NHttpConnection} implementations
@@ -130,7 +129,7 @@ public class NHttpConnectionBase
             throw new IllegalArgumentException("HTTP params may not be null");
         }
         this.session = session;
-        this.context = new SyncBasicHttpContext(null);
+        this.context = new SessionHttpContext(session);
         
         int buffersize = HttpConnectionParams.getSocketBufferSize(params);
         int linebuffersize = buffersize;
