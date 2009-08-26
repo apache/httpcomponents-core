@@ -209,7 +209,7 @@ public class TestIdentityDecoder extends TestCase {
     }
     
     private void deleteWithCheck(File handle){
-        if (!handle.delete()){
+        if (!handle.delete() && handle.exists()){
             System.err.println("Failed to delete: "+handle.getPath());
         }
     }
@@ -311,7 +311,8 @@ public class TestIdentityDecoder extends TestCase {
             decoder.transfer(fchannel, 5, 10);
             fail("expected IOException");
         } catch(IOException iox) {}
-        
+
+        testfile.close();        
         deleteWithCheck(fileHandle);
     }
 

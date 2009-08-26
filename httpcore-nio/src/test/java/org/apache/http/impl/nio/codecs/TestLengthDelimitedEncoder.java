@@ -171,7 +171,7 @@ public class TestLengthDelimitedEncoder extends TestCase {
         LengthDelimitedEncoder encoder = new LengthDelimitedEncoder(
                 channel, outbuf, metrics, 16);
                
-        File tmpFile = File.createTempFile("testFile", "txt");
+        File tmpFile = File.createTempFile("testFile", ".txt");
         FileOutputStream fout = new FileOutputStream(tmpFile);
         OutputStreamWriter wrtout = new OutputStreamWriter(fout);
         
@@ -190,11 +190,13 @@ public class TestLengthDelimitedEncoder extends TestCase {
         assertTrue(encoder.isCompleted());
         assertEquals("stuff;more stuff", s);
         
+        fchannel.close();
+        
         deleteWithCheck(tmpFile);
     }
     
     private void deleteWithCheck(File handle){
-        if (!handle.delete()){
+        if (!handle.delete() && handle.exists()){
             System.err.println("Failed to delete: "+handle.getPath());
         }
     }
@@ -211,7 +213,7 @@ public class TestLengthDelimitedEncoder extends TestCase {
         encoder.write(wrap("stuff;"));
 
         //Create an empty file
-        File tmpFile = File.createTempFile("testFile", "txt");
+        File tmpFile = File.createTempFile("testFile", ".txt");
         FileOutputStream fout = new FileOutputStream(tmpFile);
         OutputStreamWriter wrtout = new OutputStreamWriter(fout);
         
@@ -229,6 +231,7 @@ public class TestLengthDelimitedEncoder extends TestCase {
         assertTrue(encoder.isCompleted());
         assertEquals("stuff;more stuff", s);
         
+        fchannel.close();
         deleteWithCheck(tmpFile);
     }
 
@@ -243,7 +246,7 @@ public class TestLengthDelimitedEncoder extends TestCase {
                 channel, outbuf, metrics, 5);
         encoder.write(wrap("stuff"));
 
-        File tmpFile = File.createTempFile("testFile", "txt");
+        File tmpFile = File.createTempFile("testFile", ".txt");
         FileOutputStream fout = new FileOutputStream(tmpFile);
         OutputStreamWriter wrtout = new OutputStreamWriter(fout);
         
@@ -252,13 +255,14 @@ public class TestLengthDelimitedEncoder extends TestCase {
         wrtout.flush();
         wrtout.close();
         
+        FileChannel fchannel = new FileInputStream(tmpFile).getChannel();
         try {
-            FileChannel fchannel = new FileInputStream(tmpFile).getChannel();
             encoder.transfer(fchannel, 0, 10);
             fail("IllegalStateException should have been thrown");
         } catch (IllegalStateException ex) {
             // ignore
         } finally {
+            fchannel.close();
             deleteWithCheck(tmpFile);
         }
     }
@@ -273,7 +277,7 @@ public class TestLengthDelimitedEncoder extends TestCase {
         LengthDelimitedEncoder encoder = new LengthDelimitedEncoder(
                 channel, outbuf, metrics, 16);
                
-        File tmpFile = File.createTempFile("testFile", "txt");
+        File tmpFile = File.createTempFile("testFile", ".txt");
         FileOutputStream fout = new FileOutputStream(tmpFile);
         OutputStreamWriter wrtout = new OutputStreamWriter(fout);
         
@@ -292,6 +296,7 @@ public class TestLengthDelimitedEncoder extends TestCase {
         assertTrue(encoder.isCompleted());
         assertEquals("stuff;more stuff", s);
         
+        fchannel.close();
         deleteWithCheck(tmpFile);
     }
     

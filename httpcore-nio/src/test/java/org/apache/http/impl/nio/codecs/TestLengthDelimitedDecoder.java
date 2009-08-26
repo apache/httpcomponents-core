@@ -317,7 +317,7 @@ public class TestLengthDelimitedDecoder extends TestCase {
     }
     
     private void deleteWithCheck(File handle){
-        if (!handle.delete()){
+        if (!handle.delete() && handle.exists()){
             System.err.println("Failed to delete: "+handle.getPath());
         }
     }
@@ -419,6 +419,7 @@ public class TestLengthDelimitedDecoder extends TestCase {
             fail("expected IOException");
         } catch(IOException iox) {}
         
+        testfile.close();
         deleteWithCheck(fileHandle);
     }
     
@@ -453,6 +454,7 @@ public class TestLengthDelimitedDecoder extends TestCase {
         assertTrue(decoder.isCompleted());
         assertEquals(16, metrics.getBytesTransferred());
         
+        testfile.close();
         deleteWithCheck(fileHandle);
     }
     
