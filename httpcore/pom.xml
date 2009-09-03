@@ -118,10 +118,10 @@
         <configuration>
           <archive>
             <manifestEntries>
-              <Specification-Title>Apache HttpCore</Specification-Title>
+              <Specification-Title>HttpComponents HttpCore</Specification-Title>
               <Specification-Version>${pom.version}</Specification-Version>
               <Specification-Vendor>The Apache Software Foundation</Specification-Vendor>
-              <Implementation-Title>Apache HttpCore</Implementation-Title>
+              <Implementation-Title>HttpComponents HttpCore</Implementation-Title>
               <Implementation-Version>${pom.version}</Implementation-Version>
               <Implementation-Vendor>The Apache Software Foundation</Implementation-Vendor>
               <Implementation-Vendor-Id>org.apache</Implementation-Vendor-Id>
