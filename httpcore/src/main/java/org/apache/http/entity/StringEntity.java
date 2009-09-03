@@ -45,17 +45,25 @@ public class StringEntity extends AbstractHttpEntity implements Cloneable {
 
     protected final byte[] content;
 
-    public StringEntity(final String s, String charset) 
+    public StringEntity(final String s, String mimeType, String charset) 
             throws UnsupportedEncodingException {
         super();
         if (s == null) {
             throw new IllegalArgumentException("Source string may not be null");
         }
+        if (mimeType == null) {
+            mimeType = HTTP.PLAIN_TEXT_TYPE;
+        }
         if (charset == null) {
             charset = HTTP.DEFAULT_CONTENT_CHARSET;
         }
         this.content = s.getBytes(charset);
-        setContentType(HTTP.PLAIN_TEXT_TYPE + HTTP.CHARSET_PARAM + charset);
+        setContentType(mimeType + HTTP.CHARSET_PARAM + charset);
+    }
+
+    public StringEntity(final String s, String charset) 
+            throws UnsupportedEncodingException {
+        this(s, null, charset);
     }
 
     public StringEntity(final String s) 

@@ -76,7 +76,10 @@ public class TestStringEntity extends TestCase {
 
     public void testDefaultContent() throws Exception {
         String s = "Message content";
-        StringEntity httpentity = new StringEntity(s, HTTP.US_ASCII);
+        StringEntity httpentity = new StringEntity(s, "text/csv", "ANSI_X3.4-1968");
+        assertEquals("text/csv; charset=ANSI_X3.4-1968", 
+                httpentity.getContentType().getValue());
+        httpentity = new StringEntity(s, HTTP.US_ASCII);
         assertEquals("text/plain; charset=US-ASCII", 
                 httpentity.getContentType().getValue());
         httpentity = new StringEntity(s);
