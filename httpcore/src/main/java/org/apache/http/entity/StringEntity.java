@@ -45,6 +45,9 @@ public class StringEntity extends AbstractHttpEntity implements Cloneable {
 
     protected final byte[] content;
 
+    /**
+     * @since 4.1
+     */
     public StringEntity(final String s, String mimeType, String charset) 
             throws UnsupportedEncodingException {
         super();
