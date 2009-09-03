@@ -7,6 +7,10 @@ with naive (broken) implementation of SelectionKey API.
 
 Please note new classes and methods added in the 4.1 branch are still considered API unstable.
 
+* Ensure that an attempt is made to close out all active sessions gracefully in case of an abnormal 
+  shutdown of the I/O reactor.
+  Contributed by Oleg Kalnichevski <olegk at apache.org> 
+
 * [HTTPCORE-201] OSGi Export-Package to specify release version
   Contributed by Oleg Kalnichevski <olegk at apache.org> 
 
