@@ -44,6 +44,12 @@ public interface ListeningIOReactor extends IOReactor {
      * the endpoint is fully initialized it starts accepting incoming 
      * connections and propagates I/O activity notifications to the I/O event
      * dispatcher. 
+     * <p>
+     * {@link ListenerEndpoint#waitFor()} can be used to wait for the
+     *  listener to be come ready to accept incoming connections.
+     * <p>
+     * {@link ListenerEndpoint#close()} can be used to shut down 
+     * the listener even before it is fully initialized.
      * 
      * @param address the socket address to listen on.
      * @return listener endpoint.
