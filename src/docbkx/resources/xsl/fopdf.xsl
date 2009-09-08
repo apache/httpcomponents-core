@@ -125,6 +125,9 @@
     <!-- Dot and Whitespace as separator in TOC between Label and Title-->
     <xsl:param name="autotoc.label.separator" select="'.  '"/>
 
+    <!-- Show titles in bookmarks pane -->
+    <xsl:param name="fop1.extensions">1</xsl:param>
+
 
     <!--###################################################
                   Paper & Page Size
