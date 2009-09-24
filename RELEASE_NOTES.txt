@@ -1,3 +1,8 @@
+Changes since 4.1-ALPHA1
+
+* [HTTPCORE-207] SocketHttp*Connection classes can leak sockets if the connection is half-closed
+  Contributed by David Koski <david_koski at mac.com>
+
 Release 4.1-ALPHA1
 -------------------
 
