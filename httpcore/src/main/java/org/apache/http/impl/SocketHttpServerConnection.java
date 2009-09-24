@@ -262,20 +262,25 @@ public class SocketHttpServerConnection extends
             return;
         }
         this.open = false;
-        doFlush();
+        this.open = false;
+        Socket sock = this.socket;
         try {
+            doFlush();
             try {
-                this.socket.shutdownOutput();
-            } catch (IOException ignore) {
+                try {
+                    sock.shutdownOutput();
+                } catch (IOException ignore) {
+                }
+                try {
+                    sock.shutdownInput();
+                } catch (IOException ignore) {
+                }
+            } catch (UnsupportedOperationException ignore) {
+                // if one isn't supported, the other one isn't either
             }
-            try {
-                this.socket.shutdownInput();
-            } catch (IOException ignore) {
-            }
-        } catch (UnsupportedOperationException ignore) {
-            // if one isn't supported, the other one isn't either
+        } finally {
+            sock.close();
         }
-        this.socket.close();
     }
     
 }

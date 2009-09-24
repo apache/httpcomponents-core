@@ -1,5 +1,8 @@
 Changes since 4.0.1
 
+* [HTTPCORE-207] SocketHttp*Connection classes can leak sockets if the connection is half-closed
+  Contributed by David Koski <david_koski at mac.com>
+
 * [HTTPCORE-201] OSGi Export-Package to specify release version
   Contributed by Oleg Kalnichevski <olegk at apache.org>
 
