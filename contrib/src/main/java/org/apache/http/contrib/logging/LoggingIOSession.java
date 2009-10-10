@@ -49,6 +49,7 @@ public class LoggingIOSession implements IOSession {
     private static AtomicLong COUNT = new AtomicLong(0);
     
     private final Log log;
+    private final Wire wirelog;
     private final IOSession session;
     private final ByteChannel channel;
     private final String id;
@@ -62,6 +63,7 @@ public class LoggingIOSession implements IOSession {
         this.channel = new LoggingByteChannel();
         this.id = id + "-" + COUNT.incrementAndGet();
         this.log = LogFactory.getLog(session.getClass());
+        this.wirelog = new Wire(LogFactory.getLog("org.apache.http.wire"));
     }
 
     public ByteChannel channel() {
@@ -196,6 +198,13 @@ public class LoggingIOSession implements IOSession {
             if (log.isDebugEnabled()) {
                 log.debug("I/O session " + id + " " + session + ": " + bytesRead + " bytes read");
             }
+            if (bytesRead > 0 && wirelog.isEnabled()) {
+                ByteBuffer b = dst.duplicate();
+                int p = b.position();
+                b.limit(p);
+                b.position(p - bytesRead);
+                wirelog.input(b);
+            }
             return bytesRead;
         }
 
@@ -203,6 +212,13 @@ public class LoggingIOSession implements IOSession {
             int byteWritten = session.channel().write(src);
             if (log.isDebugEnabled()) {
                 log.debug("I/O session " + id + " " + session + ": " + byteWritten + " bytes written");
+            }
+            if (byteWritten > 0 && wirelog.isEnabled()) {
+                ByteBuffer b = src.duplicate();
+                int p = b.position();
+                b.limit(p);
+                b.position(p - byteWritten);
+                wirelog.output(b);
             }
             return byteWritten;
         }
