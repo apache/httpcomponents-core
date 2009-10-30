@@ -33,6 +33,7 @@ import java.net.InetSocketAddress;
 import java.net.Socket;
 import java.net.URL;
 import java.security.KeyStore;
+import java.security.NoSuchAlgorithmException;
 
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.TrustManager;
@@ -118,6 +119,15 @@ public class TestBaseIOReactorSSL extends TestCase {
         return serviceHandler;
     }
 
+    private TrustManagerFactory createTrustManagerFactory() throws NoSuchAlgorithmException {
+        String algo = TrustManagerFactory.getDefaultAlgorithm();
+        try {
+            return TrustManagerFactory.getInstance(algo);
+        } catch (NoSuchAlgorithmException ex) {
+            return TrustManagerFactory.getInstance("SunX509");
+        }
+    }
+    
     public void testBufferedInput() throws Exception {
         final int[] result = new int[1];
         HttpRequestHandler requestHandler = new HttpRequestHandler() {
@@ -141,8 +151,7 @@ public class TestBaseIOReactorSSL extends TestCase {
         URL url = cl.getResource("test.keystore");
         KeyStore keystore  = KeyStore.getInstance("jks");
         keystore.load(url.openStream(), "nopassword".toCharArray());
-        TrustManagerFactory tmfactory = TrustManagerFactory.getInstance(
-                TrustManagerFactory.getDefaultAlgorithm());
+        TrustManagerFactory tmfactory = createTrustManagerFactory();
         tmfactory.init(keystore);
         TrustManager[] trustmanagers = tmfactory.getTrustManagers(); 
         SSLContext sslcontext = SSLContext.getInstance("TLS");

@@ -31,6 +31,7 @@ import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.net.URL;
 import java.security.KeyStore;
+import java.security.NoSuchAlgorithmException;
 import java.util.List;
 
 import javax.net.ssl.SSLContext;
@@ -57,18 +58,30 @@ public class TestHttpSSLClient {
     public TestHttpSSLClient(final HttpParams params) throws Exception {
         super();
         this.params = params;
+        this.sslcontext = createSSLContext();
         this.ioReactor = new DefaultConnectingIOReactor(2, this.params);
-        
+    }
+
+    private TrustManagerFactory createTrustManagerFactory() throws NoSuchAlgorithmException {
+        String algo = TrustManagerFactory.getDefaultAlgorithm();
+        try {
+            return TrustManagerFactory.getInstance(algo);
+        } catch (NoSuchAlgorithmException ex) {
+            return TrustManagerFactory.getInstance("SunX509");
+        }
+    }
+    
+    protected SSLContext createSSLContext() throws Exception {
         ClassLoader cl = getClass().getClassLoader();
         URL url = cl.getResource("test.keystore");
         KeyStore keystore  = KeyStore.getInstance("jks");
         keystore.load(url.openStream(), "nopassword".toCharArray());
-        TrustManagerFactory tmfactory = TrustManagerFactory.getInstance(
-                TrustManagerFactory.getDefaultAlgorithm());
+        TrustManagerFactory tmfactory = createTrustManagerFactory();
         tmfactory.init(keystore);
         TrustManager[] trustmanagers = tmfactory.getTrustManagers(); 
-        this.sslcontext = SSLContext.getInstance("TLS");
-        this.sslcontext.init(null, trustmanagers, null);
+        SSLContext sslcontext = SSLContext.getInstance("TLS");
+        sslcontext.init(null, trustmanagers, null);
+        return sslcontext;
     }
     
     public HttpParams getParams() {

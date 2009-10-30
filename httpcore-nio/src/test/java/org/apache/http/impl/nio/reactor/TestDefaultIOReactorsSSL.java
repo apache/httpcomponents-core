@@ -51,6 +51,7 @@ import org.apache.http.nio.protocol.BufferingHttpClientHandler;
 import org.apache.http.nio.protocol.BufferingHttpServiceHandler;
 import org.apache.http.nio.protocol.EventListener;
 import org.apache.http.nio.protocol.HttpRequestExecutionHandler;
+import org.apache.http.nio.reactor.IOReactorStatus;
 import org.apache.http.nio.reactor.ListenerEndpoint;
 import org.apache.http.protocol.HttpContext;
 import org.apache.http.protocol.HttpProcessor;
@@ -194,6 +195,9 @@ public class TestDefaultIOReactorsSSL extends HttpCoreNIOSSLTestBase {
         ListenerEndpoint endpoint = this.server.getListenerEndpoint();
         endpoint.waitFor();
         InetSocketAddress serverAddress = (InetSocketAddress) endpoint.getAddress();
+        
+        assertEquals(IOReactorStatus.ACTIVE, this.server.getStatus());
+        assertEquals(IOReactorStatus.ACTIVE, this.client.getStatus());
         
         for (int i = 0; i < connNo; i++) {
             this.client.openConnection(

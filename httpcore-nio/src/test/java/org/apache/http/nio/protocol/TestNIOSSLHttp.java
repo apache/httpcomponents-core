@@ -49,6 +49,7 @@ import org.apache.http.message.BasicHttpRequest;
 import org.apache.http.mockup.SimpleEventListener;
 import org.apache.http.mockup.SimpleNHttpRequestHandlerResolver;
 import org.apache.http.nio.entity.NStringEntity;
+import org.apache.http.nio.reactor.IOReactorStatus;
 import org.apache.http.nio.reactor.ListenerEndpoint;
 import org.apache.http.params.CoreProtocolPNames;
 import org.apache.http.protocol.HttpProcessor;
@@ -143,6 +144,9 @@ public class TestNIOSSLHttp extends HttpCoreNIOSSLTestBase {
         endpoint.waitFor();
         InetSocketAddress serverAddress = (InetSocketAddress) endpoint.getAddress();
 
+        assertEquals(IOReactorStatus.ACTIVE, this.server.getStatus());
+        assertEquals(IOReactorStatus.ACTIVE, this.client.getStatus());
+        
         for (int i = 0; i < connNo; i++) {
             this.client.openConnection(
                     new InetSocketAddress("localhost", serverAddress.getPort()),
