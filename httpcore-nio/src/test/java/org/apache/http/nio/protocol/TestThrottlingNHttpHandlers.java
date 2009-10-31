@@ -36,6 +36,7 @@ import java.io.UnsupportedEncodingException;
 import java.net.InetSocketAddress;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.Map;
 import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
@@ -67,7 +68,9 @@ import org.apache.http.mockup.SimpleEventListener;
 import org.apache.http.mockup.SimpleHttpRequestHandlerResolver;
 import org.apache.http.nio.entity.NByteArrayEntity;
 import org.apache.http.nio.entity.NStringEntity;
+import org.apache.http.nio.reactor.IOReactorStatus;
 import org.apache.http.nio.reactor.ListenerEndpoint;
+import org.apache.http.nio.reactor.SessionRequest;
 import org.apache.http.params.CoreConnectionPNames;
 import org.apache.http.params.CoreProtocolPNames;
 import org.apache.http.protocol.HttpContext;
@@ -90,9 +93,6 @@ import org.apache.http.util.EntityUtils;
 /**
  * HttpCore NIO integration tests using throttling versions of the 
  * protocol handlers.
- *
- * 
- * @version $Id$
  */
 public class TestThrottlingNHttpHandlers extends HttpCoreNIOTestBase {
 
@@ -184,11 +184,26 @@ public class TestThrottlingNHttpHandlers extends HttpCoreNIOTestBase {
         endpoint.waitFor();
         InetSocketAddress serverAddress = (InetSocketAddress) endpoint.getAddress();
 
+        assertEquals("Test server status", IOReactorStatus.ACTIVE, this.server.getStatus());
+        
+        Queue<SessionRequest> connRequests = new LinkedList<SessionRequest>();
         for (int i = 0; i < connNo; i++) {
-            this.client.openConnection(
+            SessionRequest sessionRequest = this.client.openConnection(
                     new InetSocketAddress("localhost", serverAddress.getPort()),
                     queue);
+            connRequests.add(sessionRequest);
         }
+
+        while (!connRequests.isEmpty()) {
+            SessionRequest sessionRequest = connRequests.remove();
+            sessionRequest.waitFor();
+            if (sessionRequest.getException() != null) {
+                throw sessionRequest.getException();
+            }
+            assertNotNull(sessionRequest.getSession());
+        }
+        
+        assertEquals("Test client status", IOReactorStatus.ACTIVE, this.client.getStatus());
 
         for (int i = 0; i < jobs.length; i++) {
             TestJob testjob = jobs[i];
@@ -398,9 +413,19 @@ public class TestThrottlingNHttpHandlers extends HttpCoreNIOTestBase {
         endpoint.waitFor();
         InetSocketAddress serverAddress = (InetSocketAddress) endpoint.getAddress();
         
-        this.client.openConnection(
-                new InetSocketAddress("localhost", serverAddress.getPort()), 
+        assertEquals("Test server status", IOReactorStatus.ACTIVE, this.server.getStatus());
+        
+        SessionRequest sessionRequest = this.client.openConnection(
+                new InetSocketAddress("localhost", serverAddress.getPort()),
                 null);
+
+        sessionRequest.waitFor();
+        if (sessionRequest.getException() != null) {
+            throw sessionRequest.getException();
+        }
+        assertNotNull(sessionRequest.getSession());
+        
+        assertEquals("Test client status", IOReactorStatus.ACTIVE, this.client.getStatus());
         
         // wait for the client to invoke finalizeContext().
         synchronized (clientExpectations) {
@@ -567,9 +592,19 @@ public class TestThrottlingNHttpHandlers extends HttpCoreNIOTestBase {
         endpoint.waitFor();
         InetSocketAddress serverAddress = (InetSocketAddress) endpoint.getAddress();
 
-        this.client.openConnection(
+        assertEquals("Test server status", IOReactorStatus.ACTIVE, this.server.getStatus());
+        
+        SessionRequest sessionRequest = this.client.openConnection(
                 new InetSocketAddress("localhost", serverAddress.getPort()),
                 queue);
+
+        sessionRequest.waitFor();
+        if (sessionRequest.getException() != null) {
+            throw sessionRequest.getException();
+        }
+        assertNotNull(sessionRequest.getSession());
+        
+        assertEquals("Test client status", IOReactorStatus.ACTIVE, this.client.getStatus());
 
         for (int i = 0; i < 2; i++) {
             TestJob testjob = jobs[i];
@@ -653,11 +688,26 @@ public class TestThrottlingNHttpHandlers extends HttpCoreNIOTestBase {
         endpoint.waitFor();
         InetSocketAddress serverAddress = (InetSocketAddress) endpoint.getAddress();
 
+        assertEquals("Test server status", IOReactorStatus.ACTIVE, this.server.getStatus());
+        
+        Queue<SessionRequest> connRequests = new LinkedList<SessionRequest>();
         for (int i = 0; i < connNo; i++) {
-            this.client.openConnection(
+            SessionRequest sessionRequest = this.client.openConnection(
                     new InetSocketAddress("localhost", serverAddress.getPort()),
                     queue);
+            connRequests.add(sessionRequest);
         }
+
+        while (!connRequests.isEmpty()) {
+            SessionRequest sessionRequest = connRequests.remove();
+            sessionRequest.waitFor();
+            if (sessionRequest.getException() != null) {
+                throw sessionRequest.getException();
+            }
+            assertNotNull(sessionRequest.getSession());
+        }
+        
+        assertEquals("Test client status", IOReactorStatus.ACTIVE, this.client.getStatus());
 
         for (int i = 0; i < jobs.length; i++) {
             TestJob testjob = jobs[i];
@@ -760,11 +810,26 @@ public class TestThrottlingNHttpHandlers extends HttpCoreNIOTestBase {
         endpoint.waitFor();
         InetSocketAddress serverAddress = (InetSocketAddress) endpoint.getAddress();
 
+        assertEquals("Test server status", IOReactorStatus.ACTIVE, this.server.getStatus());
+        
+        Queue<SessionRequest> connRequests = new LinkedList<SessionRequest>();
         for (int i = 0; i < connNo; i++) {
-            this.client.openConnection(
+            SessionRequest sessionRequest = this.client.openConnection(
                     new InetSocketAddress("localhost", serverAddress.getPort()),
                     queue);
+            connRequests.add(sessionRequest);
         }
+
+        while (!connRequests.isEmpty()) {
+            SessionRequest sessionRequest = connRequests.remove();
+            sessionRequest.waitFor();
+            if (sessionRequest.getException() != null) {
+                throw sessionRequest.getException();
+            }
+            assertNotNull(sessionRequest.getSession());
+        }
+        
+        assertEquals("Test client status", IOReactorStatus.ACTIVE, this.client.getStatus());
 
         for (int i = 0; i < jobs.length; i++) {
             TestJob testjob = jobs[i];
@@ -908,11 +973,26 @@ public class TestThrottlingNHttpHandlers extends HttpCoreNIOTestBase {
         endpoint.waitFor();
         InetSocketAddress serverAddress = (InetSocketAddress) endpoint.getAddress();
 
+        assertEquals("Test server status", IOReactorStatus.ACTIVE, this.server.getStatus());
+        
+        Queue<SessionRequest> connRequests = new LinkedList<SessionRequest>();
         for (int i = 0; i < connNo; i++) {
-            this.client.openConnection(
+            SessionRequest sessionRequest = this.client.openConnection(
                     new InetSocketAddress("localhost", serverAddress.getPort()),
                     queue);
+            connRequests.add(sessionRequest);
         }
+
+        while (!connRequests.isEmpty()) {
+            SessionRequest sessionRequest = connRequests.remove();
+            sessionRequest.waitFor();
+            if (sessionRequest.getException() != null) {
+                throw sessionRequest.getException();
+            }
+            assertNotNull(sessionRequest.getSession());
+        }
+        
+        assertEquals("Test client status", IOReactorStatus.ACTIVE, this.client.getStatus());
 
         for (int i = 0; i < jobs.length; i++) {
             TestJob testjob = jobs[i];

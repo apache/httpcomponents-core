@@ -38,6 +38,7 @@ import org.apache.http.nio.NHttpClientHandler;
 import org.apache.http.nio.reactor.IOEventDispatch;
 import org.apache.http.nio.reactor.IOReactorExceptionHandler;
 import org.apache.http.nio.reactor.IOReactorStatus;
+import org.apache.http.nio.reactor.SessionRequest;
 import org.apache.http.params.HttpParams;
 
 public class TestHttpClient {
@@ -74,8 +75,8 @@ public class TestHttpClient {
         this.ioReactor.execute(ioEventDispatch);
     }
     
-    public void openConnection(final InetSocketAddress address, final Object attachment) {
-        this.ioReactor.connect(address, null, attachment, null);
+    public SessionRequest openConnection(final InetSocketAddress address, final Object attachment) {
+        return this.ioReactor.connect(address, null, attachment, null);
     }
  
     public void start(final NHttpClientHandler clientHandler) {

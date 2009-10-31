@@ -29,9 +29,10 @@ package org.apache.http.impl.nio.reactor;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
+import java.util.LinkedList;
 import java.util.List;
+import java.util.Queue;
 import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.TimeUnit;
 
 import junit.framework.Test;
 import junit.framework.TestSuite;
@@ -57,6 +58,7 @@ import org.apache.http.nio.reactor.IOReactorException;
 import org.apache.http.nio.reactor.IOReactorExceptionHandler;
 import org.apache.http.nio.reactor.IOReactorStatus;
 import org.apache.http.nio.reactor.ListenerEndpoint;
+import org.apache.http.nio.reactor.SessionRequest;
 import org.apache.http.protocol.HttpContext;
 import org.apache.http.protocol.HttpProcessor;
 import org.apache.http.protocol.HttpRequestHandler;
@@ -73,9 +75,6 @@ import org.apache.http.protocol.ResponseServer;
 
 /**
  * Tests for basic I/O functionality.
- *
- * 
- * @version $Id$
  */
 public class TestDefaultIOReactors extends HttpCoreNIOTestBase {
 
@@ -122,6 +121,9 @@ public class TestDefaultIOReactors extends HttpCoreNIOTestBase {
             }
 
             public void finalizeContext(final HttpContext context) {
+                while (requestConns.getCount() > 0) {
+                    requestConns.countDown();
+                }
             }
 
             public HttpRequest submitRequest(final HttpContext context) {
@@ -202,13 +204,28 @@ public class TestDefaultIOReactors extends HttpCoreNIOTestBase {
         endpoint.waitFor();
         InetSocketAddress serverAddress = (InetSocketAddress) endpoint.getAddress();
         
+        assertEquals("Test server status", IOReactorStatus.ACTIVE, this.server.getStatus());
+        
+        Queue<SessionRequest> connRequests = new LinkedList<SessionRequest>();
         for (int i = 0; i < connNo; i++) {
-            this.client.openConnection(
+            SessionRequest sessionRequest = this.client.openConnection(
                     new InetSocketAddress("localhost", serverAddress.getPort()), 
                     null);
+            connRequests.add(sessionRequest);
         }
+        
+        while (!connRequests.isEmpty()) {
+            SessionRequest sessionRequest = connRequests.remove();
+            sessionRequest.waitFor();
+            if (sessionRequest.getException() != null) {
+                throw sessionRequest.getException();
+            }
+            assertNotNull(sessionRequest.getSession());
+        }
+
+        assertEquals("Test client status", IOReactorStatus.ACTIVE, this.client.getStatus());
      
-        requestConns.await(10000, TimeUnit.MILLISECONDS);
+        requestConns.await();
         assertEquals(0, requestConns.getCount());
      
         this.client.shutdown();

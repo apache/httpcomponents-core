@@ -29,6 +29,8 @@ package org.apache.http.impl.nio.reactor;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
+import java.util.LinkedList;
+import java.util.Queue;
 import java.util.concurrent.CountDownLatch;
 
 import junit.framework.Test;
@@ -52,6 +54,7 @@ import org.apache.http.nio.protocol.EventListener;
 import org.apache.http.nio.protocol.HttpRequestExecutionHandler;
 import org.apache.http.nio.reactor.IOReactorStatus;
 import org.apache.http.nio.reactor.ListenerEndpoint;
+import org.apache.http.nio.reactor.SessionRequest;
 import org.apache.http.protocol.HttpContext;
 import org.apache.http.protocol.HttpProcessor;
 import org.apache.http.protocol.HttpRequestHandler;
@@ -198,15 +201,27 @@ public class TestDefaultIOReactorsSSL extends HttpCoreNIOSSLTestBase {
         endpoint.waitFor();
         InetSocketAddress serverAddress = (InetSocketAddress) endpoint.getAddress();
         
-        assertEquals(IOReactorStatus.ACTIVE, this.server.getStatus());
-        assertEquals(IOReactorStatus.ACTIVE, this.client.getStatus());
+        assertEquals("Test server status", IOReactorStatus.ACTIVE, this.server.getStatus());
         
+        Queue<SessionRequest> connRequests = new LinkedList<SessionRequest>();
         for (int i = 0; i < connNo; i++) {
-            this.client.openConnection(
+            SessionRequest sessionRequest = this.client.openConnection(
                     new InetSocketAddress("localhost", serverAddress.getPort()), 
                     null);
+            connRequests.add(sessionRequest);
         }
-     
+        
+        while (!connRequests.isEmpty()) {
+            SessionRequest sessionRequest = connRequests.remove();
+            sessionRequest.waitFor();
+            if (sessionRequest.getException() != null) {
+                throw sessionRequest.getException();
+            }
+            assertNotNull(sessionRequest.getSession());
+        }
+
+        assertEquals("Test client status", IOReactorStatus.ACTIVE, this.client.getStatus());
+        
         requestConns.await();
         assertEquals(0, requestConns.getCount());
      

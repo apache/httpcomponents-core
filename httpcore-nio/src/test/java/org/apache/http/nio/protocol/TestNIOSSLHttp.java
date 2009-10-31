@@ -29,6 +29,7 @@ package org.apache.http.nio.protocol;
 
 import java.io.UnsupportedEncodingException;
 import java.net.InetSocketAddress;
+import java.util.LinkedList;
 import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
@@ -51,6 +52,7 @@ import org.apache.http.mockup.SimpleNHttpRequestHandlerResolver;
 import org.apache.http.nio.entity.NStringEntity;
 import org.apache.http.nio.reactor.IOReactorStatus;
 import org.apache.http.nio.reactor.ListenerEndpoint;
+import org.apache.http.nio.reactor.SessionRequest;
 import org.apache.http.params.CoreProtocolPNames;
 import org.apache.http.protocol.HttpProcessor;
 import org.apache.http.protocol.ImmutableHttpProcessor;
@@ -66,9 +68,6 @@ import org.apache.http.protocol.ResponseServer;
 
 /**
  * HttpCore NIO SSL tests.
- *
- * 
- * @version $Id$
  */
 public class TestNIOSSLHttp extends HttpCoreNIOSSLTestBase {
 
@@ -144,15 +143,27 @@ public class TestNIOSSLHttp extends HttpCoreNIOSSLTestBase {
         endpoint.waitFor();
         InetSocketAddress serverAddress = (InetSocketAddress) endpoint.getAddress();
 
-        assertEquals(IOReactorStatus.ACTIVE, this.server.getStatus());
-        assertEquals(IOReactorStatus.ACTIVE, this.client.getStatus());
+        assertEquals("Test server status", IOReactorStatus.ACTIVE, this.server.getStatus());
         
+        Queue<SessionRequest> connRequests = new LinkedList<SessionRequest>();
         for (int i = 0; i < connNo; i++) {
-            this.client.openConnection(
+            SessionRequest sessionRequest = this.client.openConnection(
                     new InetSocketAddress("localhost", serverAddress.getPort()),
                     queue);
+            connRequests.add(sessionRequest);
         }
 
+        while (!connRequests.isEmpty()) {
+            SessionRequest sessionRequest = connRequests.remove();
+            sessionRequest.waitFor();
+            if (sessionRequest.getException() != null) {
+                throw sessionRequest.getException();
+            }
+            assertNotNull(sessionRequest.getSession());
+        }
+        
+        assertEquals("Test client status", IOReactorStatus.ACTIVE, this.client.getStatus());
+        
         for (int i = 0; i < jobs.length; i++) {
             TestJob testjob = jobs[i];
             testjob.waitFor();
