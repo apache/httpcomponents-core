@@ -28,11 +28,9 @@
 package org.apache.http;
 
 import java.io.IOException;
-import java.util.List;
 
 import junit.framework.TestCase;
 
-import org.apache.http.impl.nio.reactor.ExceptionEvent;
 import org.apache.http.mockup.TestHttpClient;
 import org.apache.http.mockup.TestHttpServer;
 import org.apache.http.params.CoreConnectionPNames;
@@ -57,24 +55,26 @@ public class HttpCoreNIOTestBase extends TestCase {
     protected void setUp() throws Exception {
         HttpParams serverParams = new SyncBasicHttpParams();
         serverParams
-            .setIntParameter(CoreConnectionPNames.SO_TIMEOUT, 180000)
+            .setIntParameter(CoreConnectionPNames.SO_TIMEOUT, 60000)
             .setIntParameter(CoreConnectionPNames.SOCKET_BUFFER_SIZE, 8 * 1024)
             .setBooleanParameter(CoreConnectionPNames.STALE_CONNECTION_CHECK, false)
             .setBooleanParameter(CoreConnectionPNames.TCP_NODELAY, true)
             .setParameter(CoreProtocolPNames.ORIGIN_SERVER, "TEST-SERVER/1.1");
 
         this.server = new TestHttpServer(serverParams);
+        this.server.setExceptionHandler(new SimpleIOReactorExceptionHandler());
 
         HttpParams clientParams = new SyncBasicHttpParams();
         clientParams
-            .setIntParameter(CoreConnectionPNames.SO_TIMEOUT, 180000)
-            .setIntParameter(CoreConnectionPNames.CONNECTION_TIMEOUT, 180000)
+            .setIntParameter(CoreConnectionPNames.SO_TIMEOUT, 60000)
+            .setIntParameter(CoreConnectionPNames.CONNECTION_TIMEOUT, 60000)
             .setIntParameter(CoreConnectionPNames.SOCKET_BUFFER_SIZE, 8 * 1024)
             .setBooleanParameter(CoreConnectionPNames.STALE_CONNECTION_CHECK, false)
             .setBooleanParameter(CoreConnectionPNames.TCP_NODELAY, true)
             .setParameter(CoreProtocolPNames.USER_AGENT, "TEST-CLIENT/1.1");
 
         this.client = new TestHttpClient(clientParams);
+        this.client.setExceptionHandler(new SimpleIOReactorExceptionHandler());
     }
 
     @Override
@@ -82,31 +82,12 @@ public class HttpCoreNIOTestBase extends TestCase {
         try {
             this.client.shutdown();
         } catch (IOException ex) {
-            ex.printStackTrace();
+            ex.printStackTrace(System.out);
         }
-        List<ExceptionEvent> clogs = this.client.getAuditLog();
-        if (clogs != null) {
-            for (ExceptionEvent clog: clogs) {
-                Throwable cause = clog.getCause();
-                if (!(cause instanceof OoopsieRuntimeException)) {
-                    cause.printStackTrace();
-                }
-            }
-        }
-
         try {
             this.server.shutdown();
         } catch (IOException ex) {
-            ex.printStackTrace();
-        }
-        List<ExceptionEvent> slogs = this.server.getAuditLog();
-        if (slogs != null) {
-            for (ExceptionEvent slog: slogs) {
-                Throwable cause = slog.getCause();
-                if (!(cause instanceof OoopsieRuntimeException)) {
-                    cause.printStackTrace();
-                }
-            }
+            ex.printStackTrace(System.out);
         }
     }
 

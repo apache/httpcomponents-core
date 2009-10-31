@@ -28,11 +28,9 @@
 package org.apache.http;
 
 import java.io.IOException;
-import java.util.List;
 
 import junit.framework.TestCase;
 
-import org.apache.http.impl.nio.reactor.ExceptionEvent;
 import org.apache.http.mockup.TestHttpSSLClient;
 import org.apache.http.mockup.TestHttpSSLServer;
 import org.apache.http.params.CoreConnectionPNames;
@@ -56,24 +54,26 @@ public class HttpCoreNIOSSLTestBase extends TestCase {
     protected void setUp() throws Exception {
         HttpParams serverParams = new SyncBasicHttpParams();
         serverParams
-            .setIntParameter(CoreConnectionPNames.SO_TIMEOUT, 5000)
+            .setIntParameter(CoreConnectionPNames.SO_TIMEOUT, 120000)
             .setIntParameter(CoreConnectionPNames.SOCKET_BUFFER_SIZE, 8 * 1024)
             .setBooleanParameter(CoreConnectionPNames.STALE_CONNECTION_CHECK, false)
             .setBooleanParameter(CoreConnectionPNames.TCP_NODELAY, true)
             .setParameter(CoreProtocolPNames.ORIGIN_SERVER, "TEST-SERVER/1.1");
         
         this.server = new TestHttpSSLServer(serverParams);
+        this.server.setExceptionHandler(new SimpleIOReactorExceptionHandler());
         
         HttpParams clientParams = new SyncBasicHttpParams();
         clientParams
-            .setIntParameter(CoreConnectionPNames.SO_TIMEOUT, 5000)
-            .setIntParameter(CoreConnectionPNames.CONNECTION_TIMEOUT, 2000)
+            .setIntParameter(CoreConnectionPNames.SO_TIMEOUT, 120000)
+            .setIntParameter(CoreConnectionPNames.CONNECTION_TIMEOUT, 120000)
             .setIntParameter(CoreConnectionPNames.SOCKET_BUFFER_SIZE, 8 * 1024)
             .setBooleanParameter(CoreConnectionPNames.STALE_CONNECTION_CHECK, false)
             .setBooleanParameter(CoreConnectionPNames.TCP_NODELAY, true)
             .setParameter(CoreProtocolPNames.USER_AGENT, "TEST-CLIENT/1.1");
         
         this.client = new TestHttpSSLClient(clientParams);
+        this.client.setExceptionHandler(new SimpleIOReactorExceptionHandler());
     }
 
     @Override
@@ -83,29 +83,10 @@ public class HttpCoreNIOSSLTestBase extends TestCase {
         } catch (IOException ex) {
             ex.printStackTrace(System.out);
         }
-        List<ExceptionEvent> clogs = this.client.getAuditLog();
-        if (clogs != null) {
-            for (ExceptionEvent clog: clogs) {
-                Throwable cause = clog.getCause();
-                if (!(cause instanceof OoopsieRuntimeException)) {
-                    cause.printStackTrace(System.out);
-                }
-            }
-        }
-
         try {
             this.server.shutdown();
         } catch (IOException ex) {
-            ex.printStackTrace();
-        }
-        List<ExceptionEvent> slogs = this.server.getAuditLog();
-        if (slogs != null) {
-            for (ExceptionEvent slog: slogs) {
-                Throwable cause = slog.getCause();
-                if (!(cause instanceof OoopsieRuntimeException)) {
-                    cause.printStackTrace(System.out);
-                }
-            }
+            ex.printStackTrace(System.out);
         }
     }
 

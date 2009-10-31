@@ -24,37 +24,24 @@
  * <http://www.apache.org/>.
  *
  */
-
-package org.apache.http.mockup;
+package org.apache.http;
 
 import java.io.IOException;
 
-import org.apache.http.HttpException;
-import org.apache.http.nio.NHttpConnection;
-import org.apache.http.nio.protocol.EventListener;
+import org.apache.http.nio.reactor.IOReactorExceptionHandler;
 
-public class SimpleEventListener implements EventListener {
+class SimpleIOReactorExceptionHandler implements IOReactorExceptionHandler {
 
-    public SimpleEventListener() {
-        super();
+    public boolean handle(final RuntimeException ex) {
+        if (!(ex instanceof OoopsieRuntimeException)) {
+            ex.printStackTrace(System.out);
+        }
+        return false;
+    }
+
+    public boolean handle(final IOException ex) {
+        ex.printStackTrace(System.out);
+        return false;
     }
     
-    public void connectionOpen(final NHttpConnection conn) {
-    }
-
-    public void connectionTimeout(final NHttpConnection conn) {
-        System.out.println("Connection timed out");
-    }
-
-    public void connectionClosed(final NHttpConnection conn) {
-    }
-
-    public void fatalIOException(final IOException ex, final NHttpConnection conn) {
-        ex.printStackTrace(System.out);
-    }
-
-    public void fatalProtocolException(final HttpException ex, final NHttpConnection conn) {
-        ex.printStackTrace(System.out);
-    }
-        
 }

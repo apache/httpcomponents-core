@@ -115,6 +115,9 @@ public class TestDefaultIOReactorsSSL extends HttpCoreNIOSSLTestBase {
             }
 
             public void finalizeContext(final HttpContext context) {
+                while (requestConns.getCount() > 0) {
+                    requestConns.countDown();
+                }
             }
 
             public HttpRequest submitRequest(final HttpContext context) {
