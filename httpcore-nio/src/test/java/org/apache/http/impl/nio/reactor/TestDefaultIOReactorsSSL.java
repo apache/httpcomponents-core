@@ -30,7 +30,6 @@ package org.apache.http.impl.nio.reactor;
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.TimeUnit;
 
 import junit.framework.Test;
 import junit.framework.TestSuite;
@@ -205,7 +204,7 @@ public class TestDefaultIOReactorsSSL extends HttpCoreNIOSSLTestBase {
                     null);
         }
      
-        requestConns.await(10000, TimeUnit.MILLISECONDS);
+        requestConns.await();
         assertEquals(0, requestConns.getCount());
      
         this.client.shutdown();

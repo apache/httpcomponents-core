@@ -81,14 +81,14 @@ public class HttpCoreNIOSSLTestBase extends TestCase {
         try {
             this.client.shutdown();
         } catch (IOException ex) {
-            ex.printStackTrace();
+            ex.printStackTrace(System.out);
         }
         List<ExceptionEvent> clogs = this.client.getAuditLog();
         if (clogs != null) {
             for (ExceptionEvent clog: clogs) {
                 Throwable cause = clog.getCause();
                 if (!(cause instanceof OoopsieRuntimeException)) {
-                    cause.printStackTrace();
+                    cause.printStackTrace(System.out);
                 }
             }
         }
@@ -103,7 +103,7 @@ public class HttpCoreNIOSSLTestBase extends TestCase {
             for (ExceptionEvent slog: slogs) {
                 Throwable cause = slog.getCause();
                 if (!(cause instanceof OoopsieRuntimeException)) {
-                    cause.printStackTrace();
+                    cause.printStackTrace(System.out);
                 }
             }
         }

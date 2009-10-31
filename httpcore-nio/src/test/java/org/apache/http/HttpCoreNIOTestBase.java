@@ -57,7 +57,7 @@ public class HttpCoreNIOTestBase extends TestCase {
     protected void setUp() throws Exception {
         HttpParams serverParams = new SyncBasicHttpParams();
         serverParams
-            .setIntParameter(CoreConnectionPNames.SO_TIMEOUT, 60000)
+            .setIntParameter(CoreConnectionPNames.SO_TIMEOUT, 180000)
             .setIntParameter(CoreConnectionPNames.SOCKET_BUFFER_SIZE, 8 * 1024)
             .setBooleanParameter(CoreConnectionPNames.STALE_CONNECTION_CHECK, false)
             .setBooleanParameter(CoreConnectionPNames.TCP_NODELAY, true)
@@ -67,8 +67,8 @@ public class HttpCoreNIOTestBase extends TestCase {
 
         HttpParams clientParams = new SyncBasicHttpParams();
         clientParams
-            .setIntParameter(CoreConnectionPNames.SO_TIMEOUT, 60000)
-            .setIntParameter(CoreConnectionPNames.CONNECTION_TIMEOUT, 30000)
+            .setIntParameter(CoreConnectionPNames.SO_TIMEOUT, 180000)
+            .setIntParameter(CoreConnectionPNames.CONNECTION_TIMEOUT, 180000)
             .setIntParameter(CoreConnectionPNames.SOCKET_BUFFER_SIZE, 8 * 1024)
             .setBooleanParameter(CoreConnectionPNames.STALE_CONNECTION_CHECK, false)
             .setBooleanParameter(CoreConnectionPNames.TCP_NODELAY, true)
