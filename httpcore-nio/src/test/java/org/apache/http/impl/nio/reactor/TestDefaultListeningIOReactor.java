@@ -59,9 +59,6 @@ import org.apache.http.protocol.ResponseServer;
 
 /**
  * Basic tests for {@link DefaultListeningIOReactor}.
- *
- * 
- * @version $Id$
  */
 public class TestDefaultListeningIOReactor extends TestCase {
 
@@ -197,7 +194,7 @@ public class TestDefaultListeningIOReactor extends TestCase {
 
         // I/O reactor is now expected to be shutting down
         latch.await(2000, TimeUnit.MILLISECONDS);
-        assertEquals(IOReactorStatus.SHUT_DOWN, ioreactor.getStatus());
+        assertTrue(ioreactor.getStatus().compareTo(IOReactorStatus.SHUTTING_DOWN) >= 0);
         
         Set<ListenerEndpoint> endpoints = ioreactor.getEndpoints();
         assertNotNull(endpoints);
