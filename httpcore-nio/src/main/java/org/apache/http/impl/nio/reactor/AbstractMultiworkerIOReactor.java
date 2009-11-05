@@ -336,8 +336,8 @@ public abstract class AbstractMultiworkerIOReactor implements IOReactor {
             }
             throw ex;
         } finally {
+            doShutdown();
             synchronized (this.statusLock) {
-                doShutdown();
                 this.status = IOReactorStatus.SHUT_DOWN;
                 this.statusLock.notifyAll();
             }
@@ -355,10 +355,12 @@ public abstract class AbstractMultiworkerIOReactor implements IOReactor {
      *   interrupted.
      */
     protected void doShutdown() throws InterruptedIOException {
-        if (this.status.compareTo(IOReactorStatus.SHUTTING_DOWN) >= 0) {
-            return;
+        synchronized (this.statusLock) {
+            if (this.status.compareTo(IOReactorStatus.SHUTTING_DOWN) >= 0) {
+                return;
+            }
+            this.status = IOReactorStatus.SHUTTING_DOWN;
         }
-        this.status = IOReactorStatus.SHUTTING_DOWN;
         try {
             cancelRequests();        
         } catch (IOReactorException ex) {
@@ -507,11 +509,11 @@ public abstract class AbstractMultiworkerIOReactor implements IOReactor {
                 return;
             }
             this.status = IOReactorStatus.SHUTDOWN_REQUEST;
-            this.selector.wakeup();
-            try {
-                awaitShutdown(waitMs);
-            } catch (InterruptedException ignore) {
-            }
+        }
+        this.selector.wakeup();
+        try {
+            awaitShutdown(waitMs);
+        } catch (InterruptedException ignore) {
         }
     }
 

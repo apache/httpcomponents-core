@@ -58,7 +58,7 @@ public abstract class AbstractIOReactor implements IOReactor {
 
     private volatile IOReactorStatus status;
     
-    private final Object shutdownMutex;
+    private final Object statusMutex;
     private final long selectTimeout;
     private final boolean interestOpsQueueing;
     private final Selector selector;
@@ -103,7 +103,7 @@ public abstract class AbstractIOReactor implements IOReactor {
         } catch (IOException ex) {
             throw new IOReactorException("Failure opening selector", ex);
         }
-        this.shutdownMutex = new Object();
+        this.statusMutex = new Object();
         this.status = IOReactorStatus.INACTIVE;
     }
 
@@ -299,15 +299,11 @@ public abstract class AbstractIOReactor implements IOReactor {
                 
             }
             
-            // Close remaining active channels and the selector itself
-            closeActiveChannels();
-            this.status = IOReactorStatus.SHUT_DOWN;
-            
         } catch (ClosedSelectorException ex) {
         } finally {
-            synchronized (this.shutdownMutex) {
-                hardShutdown();
-                this.shutdownMutex.notifyAll();
+            hardShutdown();
+            synchronized (this.statusMutex) {
+                this.statusMutex.notifyAll();
             }
         }
     }
@@ -529,10 +525,7 @@ public abstract class AbstractIOReactor implements IOReactor {
             for (Iterator<SelectionKey> it = keys.iterator(); it.hasNext(); ) {
                 SelectionKey key = it.next();
                 IOSession session = getSession(key);
-                if (!session.isClosed()) {
-                    session.close();
-                    sessionClosed(session);
-                }
+                session.close();
             }
             this.selector.close();
         } catch (IOException ignore) {
@@ -543,11 +536,13 @@ public abstract class AbstractIOReactor implements IOReactor {
      * Attempts graceful shutdown of this I/O reactor.
      */
     public void gracefulShutdown() {
-        if (this.status != IOReactorStatus.ACTIVE) {
-            // Already shutting down
-            return;
+        synchronized (this.statusMutex) {
+            if (this.status != IOReactorStatus.ACTIVE) {
+                // Already shutting down
+                return;
+            }
+            this.status = IOReactorStatus.SHUTTING_DOWN;
         }
-        this.status = IOReactorStatus.SHUTTING_DOWN;
         this.selector.wakeup();
     }
         
@@ -555,13 +550,17 @@ public abstract class AbstractIOReactor implements IOReactor {
      * Attempts force-shutdown of this I/O reactor.
      */
     public void hardShutdown() throws IOReactorException {
-        if (this.status == IOReactorStatus.SHUT_DOWN) {
-            // Already shut down
-            return;
+        synchronized (this.statusMutex) {
+            if (this.status == IOReactorStatus.SHUT_DOWN) {
+                // Already shut down
+                return;
+            }
+            this.status = IOReactorStatus.SHUT_DOWN;
         }
-        this.status = IOReactorStatus.SHUT_DOWN;
+        
         closeNewChannels();
         closeActiveChannels();
+        processClosedSessions();
     }
     
     /**
@@ -572,11 +571,11 @@ public abstract class AbstractIOReactor implements IOReactor {
      * @throws InterruptedException if interrupted.
      */
     public void awaitShutdown(long timeout) throws InterruptedException {
-        synchronized (this.shutdownMutex) {
+        synchronized (this.statusMutex) {
             long deadline = System.currentTimeMillis() + timeout;
             long remaining = timeout;
             while (this.status != IOReactorStatus.SHUT_DOWN) {
-                this.shutdownMutex.wait(remaining);
+                this.statusMutex.wait(remaining);
                 if (timeout > 0) {
                     remaining = deadline - System.currentTimeMillis();
                     if (remaining <= 0) {
