@@ -525,7 +525,9 @@ public abstract class AbstractIOReactor implements IOReactor {
             for (Iterator<SelectionKey> it = keys.iterator(); it.hasNext(); ) {
                 SelectionKey key = it.next();
                 IOSession session = getSession(key);
-                session.close();
+                if (session != null) {
+                    session.close();
+                }
             }
             this.selector.close();
         } catch (IOException ignore) {
