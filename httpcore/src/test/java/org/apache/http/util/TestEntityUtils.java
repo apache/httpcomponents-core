@@ -139,6 +139,28 @@ public class TestEntityUtils extends TestCase {
         assertEquals("UTF-8", EntityUtils.getContentCharSet(httpentity));
     }
     
+    public void testGetContentMimeTypeWithCharset() throws Exception {
+        BasicHttpEntity httpentity = new BasicHttpEntity();
+        httpentity.setContentType(new BasicHeader("Content-Type", "text/plain; " +
+        		"whatever; charset = UTF-8"));
+        assertEquals("text/plain", EntityUtils.getContentMimeType(httpentity));
+    }
+    
+    public void testGetContentMimeTypeWithoutCharset() throws Exception {
+        BasicHttpEntity httpentity = new BasicHttpEntity();
+        httpentity.setContentType(new BasicHeader("Content-Type", "text/whatever"));
+        assertEquals("text/whatever", EntityUtils.getContentMimeType(httpentity));
+    }
+    
+    public void testNullEntityGetMimeType() throws Exception {
+        try {
+            EntityUtils.getContentMimeType(null);
+            fail("IllegalArgumentException should have been thrown");
+        } catch (IllegalArgumentException ex) {
+            // expected
+        }
+    }
+    
     public void testNullEntityToString() throws Exception {
         try {
             EntityUtils.toString(null);

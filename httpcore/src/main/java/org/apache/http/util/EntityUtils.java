@@ -92,9 +92,7 @@ public final class EntityUtils {
      * @throws ParseException if header elements cannot be parsed
      * @throws IllegalArgumentException if entity is null
      */
-    public static String getContentCharSet(final HttpEntity entity)
-        throws ParseException {
-
+    public static String getContentCharSet(final HttpEntity entity) throws ParseException {
         if (entity == null) {
             throw new IllegalArgumentException("HTTP entity may not be null");
         }
@@ -109,6 +107,30 @@ public final class EntityUtils {
             }
         }
         return charset;
+    }
+
+    /**
+     * Obtains mime type of the entity, if known.
+     * 
+     * @param entity must not be null
+     * @return the character set, or null if not found
+     * @throws ParseException if header elements cannot be parsed
+     * @throws IllegalArgumentException if entity is null
+     * 
+     * @since 4.1
+     */
+    public static String getContentMimeType(final HttpEntity entity) throws ParseException {
+        if (entity == null) {
+            throw new IllegalArgumentException("HTTP entity may not be null");
+        }
+        String mimeType = null;
+        if (entity.getContentType() != null) { 
+            HeaderElement values[] = entity.getContentType().getElements();
+            if (values.length > 0) {
+                mimeType = values[0].getName();
+            }
+        }
+        return mimeType;
     }
 
     /**
