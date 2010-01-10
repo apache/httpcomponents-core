@@ -30,7 +30,7 @@ package org.apache.http.protocol;
 import java.util.HashMap;
 
 /**
- * HttpCotext represents execution state of an HTTP process. It is a structure 
+ * HttpContext represents execution state of an HTTP process. It is a structure 
  * that can be used to map an attribute name to an attribute value. Internally 
  * HTTP context implementations are usually backed by a {@link HashMap}. 
  * <p>
