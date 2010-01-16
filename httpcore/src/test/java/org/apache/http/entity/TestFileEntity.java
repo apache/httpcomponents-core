@@ -65,7 +65,9 @@ public class TestFileEntity extends TestCase {
         assertNotNull(httpentity.getContent());
         assertTrue(httpentity.isRepeatable());
         assertFalse(httpentity.isStreaming());        
-        tmpfile.delete();
+        if (!tmpfile.delete()){
+            System.out.println("Failed to delete: "+tmpfile);
+        }
     }
 
     public void testIllegalConstructor() throws Exception {
@@ -98,7 +100,9 @@ public class TestFileEntity extends TestCase {
         for (int i = 0; i < 4; i++) {
             assertEquals(i, bytes[i]);
         }
-        tmpfile.delete();
+        if (!tmpfile.delete()){
+            System.out.println("Failed to delete: "+tmpfile);
+        }
 
         try {
             httpentity.writeTo(null);
