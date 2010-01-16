@@ -113,7 +113,7 @@ public class TestContentLengthInputStream extends TestCase {
         assertTrue(in.skip(2) == 1);
 
         in = new ContentLengthInputStream(new SessionInputBufferMockup(new byte[20]), 10L);
-        in.skip(5);
+        assertEquals(5,in.skip(5));
         assertEquals(5, in.read(new byte[20]));
     }
 
