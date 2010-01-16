@@ -75,7 +75,7 @@ public final class ByteArrayBuffer  {
         }
         if ((off < 0) || (off > b.length) || (len < 0) ||
                 ((off + len) < 0) || ((off + len) > b.length)) {
-            throw new IndexOutOfBoundsException();
+            throw new IndexOutOfBoundsException("off: "+off+" len: "+len+" b.length: "+b.length);
         }
         if (len == 0) {
             return;
@@ -123,7 +123,7 @@ public final class ByteArrayBuffer  {
         }
         if ((off < 0) || (off > b.length) || (len < 0) ||
                 ((off + len) < 0) || ((off + len) > b.length)) {
-            throw new IndexOutOfBoundsException();
+            throw new IndexOutOfBoundsException("off: "+off+" len: "+len+" b.length: "+b.length);
         }
         if (len == 0) {
             return;
@@ -256,7 +256,7 @@ public final class ByteArrayBuffer  {
      */
     public void setLength(int len) {
         if (len < 0 || len > this.buffer.length) {
-            throw new IndexOutOfBoundsException();
+            throw new IndexOutOfBoundsException("len: "+len+" < 0 or > buffer len: "+this.buffer.length);
         }
         this.len = len;
     }

@@ -70,7 +70,7 @@ public class TimeoutByteArrayInputStream extends InputStream {
             throw new NullPointerException();
         } else if ((off < 0) || (off > b.length) || (len < 0) ||
                ((off + len) > b.length) || ((off + len) < 0)) {
-            throw new IndexOutOfBoundsException();
+            throw new IndexOutOfBoundsException("off: "+off+" len: "+len+" b.length: "+b.length);
         }
         if (this.pos >= this.count) {
             return -1;

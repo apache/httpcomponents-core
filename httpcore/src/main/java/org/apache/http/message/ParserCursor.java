@@ -71,10 +71,10 @@ public class ParserCursor {
 
     public void updatePos(int pos) {
         if (pos < this.lowerBound) {
-            throw new IndexOutOfBoundsException();
+            throw new IndexOutOfBoundsException("pos: "+pos+" < lowerBound: "+this.lowerBound);
         }
         if (pos > this.upperBound) {
-            throw new IndexOutOfBoundsException();
+            throw new IndexOutOfBoundsException("pos: "+pos+" > upperBound: "+this.upperBound);
         }
         this.pos = pos;
     }
