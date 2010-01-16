@@ -405,22 +405,13 @@ public final class CharArrayBuffer  {
      * @param      beginIndex   the beginning index, inclusive.
      * @param      endIndex     the ending index, exclusive.
      * @return     the specified substring.
-     * @exception  IndexOutOfBoundsException  if the
+     * @exception  StringIndexOutOfBoundsException  if the
      *             <code>beginIndex</code> is negative, or
      *             <code>endIndex</code> is larger than the length of this 
      *             buffer, or <code>beginIndex</code> is larger than 
      *             <code>endIndex</code>.
      */
     public String substring(int beginIndex, int endIndex) {
-        if (beginIndex < 0) {
-            throw new IndexOutOfBoundsException("Negative beginIndex: "+beginIndex);
-        }
-        if (endIndex > this.len) {
-            throw new IndexOutOfBoundsException("endIndex: "+endIndex+" > length: "+this.len);
-        }
-        if (beginIndex > endIndex) {
-            throw new IndexOutOfBoundsException("beginIndex: "+beginIndex+" > endIndex: "+endIndex);
-        }
         return new String(this.buffer, beginIndex, endIndex - beginIndex);
     }
     
