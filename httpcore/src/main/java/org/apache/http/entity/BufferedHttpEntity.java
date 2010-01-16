@@ -48,6 +48,12 @@ public class BufferedHttpEntity extends HttpEntityWrapper {
       
     private final byte[] buffer;
       
+    /**
+     * Creates a new buffered entity wrapper.
+     *
+     * @param entity   the entity to wrap, not null
+     * @throws IllegalArgumentException if wrapped is null
+     */
     public BufferedHttpEntity(final HttpEntity entity) throws IOException {
         super(entity);
         if (!entity.isRepeatable() || entity.getContentLength() < 0) {
