@@ -168,13 +168,15 @@ public final class HttpHost implements Cloneable, Serializable {
      * @return  the host string, for example <code>localhost:8080</code>
      */
     public String toHostString() {
-        CharArrayBuffer buffer = new CharArrayBuffer(32);        
-        buffer.append(this.hostname);
         if (this.port != -1) {
-            buffer.append(':');
+            CharArrayBuffer buffer = new CharArrayBuffer(32);
+            buffer.append(this.hostname);
+            buffer.append(":");
             buffer.append(Integer.toString(this.port));
+            return buffer.toString();
+        } else {
+            return this.hostname;
         }
-        return buffer.toString();
     }
 
 
