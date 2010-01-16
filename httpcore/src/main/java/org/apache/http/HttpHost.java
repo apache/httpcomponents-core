@@ -169,6 +169,7 @@ public final class HttpHost implements Cloneable, Serializable {
      */
     public String toHostString() {
         if (this.port != -1) {
+            //the highest port number is 65535, which is length 6 with the addition of the colon
             CharArrayBuffer buffer = new CharArrayBuffer(this.hostname.length() + 6);
             buffer.append(this.hostname);
             buffer.append(":");
