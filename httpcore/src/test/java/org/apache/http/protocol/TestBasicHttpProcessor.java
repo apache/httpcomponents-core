@@ -41,7 +41,7 @@ import org.apache.http.HttpRequestInterceptor;
  */
 public class TestBasicHttpProcessor extends TestCase {
 
-    class TestHttpRequestInterceptorPlaceHolder implements HttpRequestInterceptor {
+    static class TestHttpRequestInterceptorPlaceHolder implements HttpRequestInterceptor {
         
         public void process(
                 HttpRequest request, 
