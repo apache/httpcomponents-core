@@ -67,7 +67,7 @@ public final class CharArrayBuffer  {
      * @param   b        the chars to be appended.
      * @param   off      the index of the first char to append.
      * @param   len      the number of chars to append.
-     * @throws IndexOutOfBoundsException if <code>off</code> if out of 
+     * @throws IndexOutOfBoundsException if <code>off</code> is out of 
      * range, <code>len</code> is negative, or 
      * <code>off</code> + <code>len</code> is out of range.  
      */
@@ -77,7 +77,7 @@ public final class CharArrayBuffer  {
         }
         if ((off < 0) || (off > b.length) || (len < 0) ||
                 ((off + len) < 0) || ((off + len) > b.length)) {
-            throw new IndexOutOfBoundsException();
+            throw new IndexOutOfBoundsException("off: "+off+" len: "+len+" b.length: "+b.length);
         }
         if (len == 0) {
             return;
@@ -118,7 +118,7 @@ public final class CharArrayBuffer  {
      * @param   b        the source buffer to be appended.
      * @param   off      the index of the first char to append.
      * @param   len      the number of chars to append.
-     * @throws IndexOutOfBoundsException if <code>off</code> if out of 
+     * @throws IndexOutOfBoundsException if <code>off</code> is out of 
      * range, <code>len</code> is negative, or 
      * <code>off</code> + <code>len</code> is out of range.  
      */
@@ -168,7 +168,7 @@ public final class CharArrayBuffer  {
      * @param   b        the bytes to be appended.
      * @param   off      the index of the first byte to append.
      * @param   len      the number of bytes to append.
-     * @throws IndexOutOfBoundsException if <code>off</code> if out of 
+     * @throws IndexOutOfBoundsException if <code>off</code> is out of 
      * range, <code>len</code> is negative, or 
      * <code>off</code> + <code>len</code> is out of range.  
      */
@@ -178,7 +178,7 @@ public final class CharArrayBuffer  {
         }
         if ((off < 0) || (off > b.length) || (len < 0) ||
                 ((off + len) < 0) || ((off + len) > b.length)) {
-            throw new IndexOutOfBoundsException();
+            throw new IndexOutOfBoundsException("off: "+off+" len: "+len+" b.length: "+b.length);
         }
         if (len == 0) {
             return;
@@ -204,7 +204,7 @@ public final class CharArrayBuffer  {
      * @param   b        the bytes to be appended.
      * @param   off      the index of the first byte to append.
      * @param   len      the number of bytes to append.
-     * @throws IndexOutOfBoundsException if <code>off</code> if out of 
+     * @throws IndexOutOfBoundsException if <code>off</code> is out of 
      * range, <code>len</code> is negative, or 
      * <code>off</code> + <code>len</code> is out of range.  
      */
@@ -319,7 +319,7 @@ public final class CharArrayBuffer  {
      */
     public void setLength(int len) {
         if (len < 0 || len > this.buffer.length) {
-            throw new IndexOutOfBoundsException();
+            throw new IndexOutOfBoundsException("len: "+len+" < 0 or > buffer len: "+this.buffer.length);
         }
         this.len = len;
     }
@@ -413,13 +413,13 @@ public final class CharArrayBuffer  {
      */
     public String substring(int beginIndex, int endIndex) {
         if (beginIndex < 0) {
-            throw new IndexOutOfBoundsException();
+            throw new IndexOutOfBoundsException("Negative beginIndex: "+beginIndex);
         }
         if (endIndex > this.len) {
-            throw new IndexOutOfBoundsException();
+            throw new IndexOutOfBoundsException("endIndex: "+endIndex+" > length: "+this.len);
         }
         if (beginIndex > endIndex) {
-            throw new IndexOutOfBoundsException();
+            throw new IndexOutOfBoundsException("beginIndex: "+beginIndex+" > endIndex: "+endIndex);
         }
         return new String(this.buffer, beginIndex, endIndex - beginIndex);
     }
@@ -442,13 +442,13 @@ public final class CharArrayBuffer  {
      */
     public String substringTrimmed(int beginIndex, int endIndex) {
         if (beginIndex < 0) {
-            throw new IndexOutOfBoundsException();
+            throw new IndexOutOfBoundsException("Negative beginIndex: "+beginIndex);
         }
         if (endIndex > this.len) {
-            throw new IndexOutOfBoundsException();
+            throw new IndexOutOfBoundsException("endIndex: "+endIndex+" > length: "+this.len);
         }
         if (beginIndex > endIndex) {
-            throw new IndexOutOfBoundsException();
+            throw new IndexOutOfBoundsException("beginIndex: "+beginIndex+" > endIndex: "+endIndex);
         }
         while (beginIndex < endIndex && HTTP.isWhitespace(this.buffer[beginIndex])) {
             beginIndex++;
