@@ -169,7 +169,7 @@ public final class HttpHost implements Cloneable, Serializable {
      */
     public String toHostString() {
         if (this.port != -1) {
-            CharArrayBuffer buffer = new CharArrayBuffer(32);
+            CharArrayBuffer buffer = new CharArrayBuffer(this.hostname.length() + 6);
             buffer.append(this.hostname);
             buffer.append(":");
             buffer.append(Integer.toString(this.port));
