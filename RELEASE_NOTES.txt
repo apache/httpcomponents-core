@@ -1,5 +1,8 @@
 Changes since 4.1-ALPHA1
 
+* [HTTPCORE-209] Added parameter to set SO_REUSEADDR on sockets bound to a local address.
+  Contributed by Oleg Kalnichevski <olegk at apache.org> 
+
 * [HTTPCORE-207] SocketHttp*Connection classes can leak sockets if the connection is half-closed
   Contributed by David Koski <david_koski at mac.com>
 

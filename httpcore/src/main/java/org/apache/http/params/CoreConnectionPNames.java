@@ -82,8 +82,23 @@ public interface CoreConnectionPNames {
     public static final String SO_LINGER = "http.socket.linger"; 
 
     /**
+     * Defines whether the socket can be bound even though a previous connection is 
+     * still in a timeout state. 
+     * <p>
+     * This parameter expects a value of type {@link Boolean}.
+     * </p>
+     * @see java.net.Socket#setReuseAddress(boolean)
+     * 
+     * @since 4.1
+     */
+    public static final String SO_REUSEADDR = "http.socket.reuseaddr"; 
+
+    /**
      * Determines the timeout in milliseconds until a connection is established. 
      * A timeout value of zero is interpreted as an infinite timeout.
+     * <p>
+     * Please note this parameter can only be applied to connections that 
+     * are bound to a particular local address.
      * <p>
      * This parameter expects a value of type {@link Integer}.
      * </p>

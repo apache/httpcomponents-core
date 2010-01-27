@@ -29,6 +29,7 @@ package org.apache.http.impl.nio.reactor;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
+import java.net.Socket;
 import java.net.SocketAddress;
 import java.net.UnknownHostException;
 import java.nio.channels.CancelledKeyException;
@@ -59,6 +60,7 @@ import org.apache.http.params.HttpParams;
  *  <li>{@link org.apache.http.params.CoreConnectionPNames#TCP_NODELAY}</li>
  *  <li>{@link org.apache.http.params.CoreConnectionPNames#SO_TIMEOUT}</li>
  *  <li>{@link org.apache.http.params.CoreConnectionPNames#SO_LINGER}</li>
+ *  <li>{@link org.apache.http.params.CoreConnectionPNames#SO_REUSEADDR}</li>
  *  <li>{@link org.apache.http.nio.params.NIOReactorPNames#SELECT_INTERVAL}</li>
  *  <li>{@link org.apache.http.nio.params.NIOReactorPNames#GRACE_PERIOD}</li>
  *  <li>{@link org.apache.http.nio.params.NIOReactorPNames#INTEREST_OPS_QUEUEING}</li>
@@ -229,7 +231,9 @@ public class DefaultConnectingIOReactor extends AbstractMultiworkerIOReactor
                 validateAddress(request.getRemoteAddress());
                 
                 if (request.getLocalAddress() != null) {
-                    socketChannel.socket().bind(request.getLocalAddress());
+                    Socket sock = socketChannel.socket();
+                    sock.setReuseAddress(HttpConnectionParams.getSoReuseaddr(this.params));
+                    sock.bind(request.getLocalAddress());
                 }
                 boolean connected = socketChannel.connect(request.getRemoteAddress());
                 if (connected) {

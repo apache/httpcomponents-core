@@ -67,6 +67,37 @@ public final class HttpConnectionParams implements CoreConnectionPNames {
     }
 
     /**
+     * Obtains value of the {@link CoreConnectionPNames#SO_REUSEADDR} parameter.
+     * If not set, defaults to <code>false</code>.
+     *  
+     * @param params HTTP parameters.
+     * @return SO_REUSEADDR.
+     * 
+     * @since 4.1
+     */
+    public static boolean getSoReuseaddr(final HttpParams params) {
+        if (params == null) {
+            throw new IllegalArgumentException("HTTP parameters may not be null");
+        }
+        return params.getBooleanParameter(CoreConnectionPNames.SO_REUSEADDR, false);
+    }
+
+    /**
+     * Sets value of the {@link CoreConnectionPNames#SO_REUSEADDR} parameter. 
+     *
+     * @param params HTTP parameters.
+     * @param reuseaddr SO_REUSEADDR.
+     * 
+     * @since 4.1
+     */
+    public static void setSoReuseaddr(final HttpParams params, boolean reuseaddr) {
+        if (params == null) {
+            throw new IllegalArgumentException("HTTP parameters may not be null");
+        }
+        params.setBooleanParameter(CoreConnectionPNames.SO_REUSEADDR, reuseaddr);
+    }
+
+    /**
      * Obtains value of the {@link CoreConnectionPNames#TCP_NODELAY} parameter.
      * If not set, defaults to <code>true</code>.
      *  
