@@ -190,7 +190,7 @@ public class HttpBenchmark {
         HttpParams params = new BasicHttpParams();
         params.setParameter(HttpProtocolParams.PROTOCOL_VERSION,
             useHttp1_0 ? HttpVersion.HTTP_1_0 : HttpVersion.HTTP_1_1)
-            .setParameter(HttpProtocolParams.USER_AGENT, "Jakarta-HttpComponents-Bench/1.1")
+            .setParameter(HttpProtocolParams.USER_AGENT, "HttpCore-AB/1.1")
             .setBooleanParameter(HttpProtocolParams.USE_EXPECT_CONTINUE, false)
             .setBooleanParameter(HttpConnectionParams.STALE_CONNECTION_CHECK, false)
             .setIntParameter(HttpConnectionParams.SO_TIMEOUT, socketTimeout);
