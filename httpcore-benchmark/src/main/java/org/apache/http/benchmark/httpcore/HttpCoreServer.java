@@ -33,6 +33,7 @@ import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
 import org.apache.http.HttpResponseInterceptor;
+import org.apache.http.benchmark.HttpServer;
 import org.apache.http.impl.DefaultConnectionReuseStrategy;
 import org.apache.http.impl.DefaultHttpResponseFactory;
 import org.apache.http.params.CoreConnectionPNames;
@@ -47,8 +48,9 @@ import org.apache.http.protocol.ResponseConnControl;
 import org.apache.http.protocol.ResponseContent;
 import org.apache.http.protocol.ResponseDate;
 import org.apache.http.protocol.ResponseServer;
+import org.apache.http.util.VersionInfo;
 
-public class HttpCoreServer {
+public class HttpCoreServer implements HttpServer {
 
     private final Queue<HttpWorker> workers;
     private final HttpListener listener;
@@ -64,7 +66,7 @@ public class HttpCoreServer {
             .setIntParameter(CoreConnectionPNames.SO_TIMEOUT, 10000)
             .setIntParameter(CoreConnectionPNames.SOCKET_BUFFER_SIZE, 12 * 1024)
             .setBooleanParameter(CoreConnectionPNames.TCP_NODELAY, true)
-            .setParameter(CoreProtocolPNames.ORIGIN_SERVER, "HttpComponents-Test/1.1");
+            .setParameter(CoreProtocolPNames.ORIGIN_SERVER, "HttpCore-Test/1.1");
 
         HttpProcessor httpproc = new ImmutableHttpProcessor(new HttpResponseInterceptor[] {
                 new ResponseDate(),
@@ -90,6 +92,16 @@ public class HttpCoreServer {
                 new StdHttpWorkerCallback(this.workers));
     }
     
+    public String getName() {
+        return "HttpCore (blocking I/O)";
+    }
+
+    public String getVersion() {
+        VersionInfo vinfo = VersionInfo.loadVersionInfo("org.apache.http", 
+                Thread.currentThread().getContextClassLoader());
+        return vinfo.getRelease();
+    }
+
     public void start() {
         this.listener.start();
     }

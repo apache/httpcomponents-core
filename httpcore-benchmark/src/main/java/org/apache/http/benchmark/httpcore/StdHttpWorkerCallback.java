@@ -30,6 +30,7 @@ import java.io.IOException;
 import java.net.SocketTimeoutException;
 import java.util.Queue;
 
+import org.apache.http.ConnectionClosedException;
 import org.apache.http.HttpException;
 
 class StdHttpWorkerCallback implements HttpWorkerCallback {
@@ -53,8 +54,10 @@ class StdHttpWorkerCallback implements HttpWorkerCallback {
                 System.err.println("HTTP protocol error: " + ex.getMessage());
             } else if (ex instanceof SocketTimeoutException) {
                 // ignore
+            } else if (ex instanceof ConnectionClosedException) {
+                // ignore
             } else if (ex instanceof IOException) {
-                System.err.println("I/O error: " + ex.getMessage());
+                System.err.println("I/O error: " + ex);
             } else {
                 System.err.println("Unexpected error: " + ex.getMessage());
             }

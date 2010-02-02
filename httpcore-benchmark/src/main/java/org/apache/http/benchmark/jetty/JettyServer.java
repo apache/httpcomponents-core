@@ -29,10 +29,11 @@ package org.apache.http.benchmark.jetty;
 
 import java.io.IOException;
 
+import org.apache.http.benchmark.HttpServer;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.server.bio.SocketConnector;
 
-public class JettyServer {
+public class JettyServer implements HttpServer {
 
     private final Server server;
     
@@ -52,6 +53,14 @@ public class JettyServer {
         this.server.setHandler(new RandomDataHandler());
     }
     
+    public String getName() {
+        return "Jetty (blocking I/O)";
+    }
+
+    public String getVersion() {
+        return Server.getVersion();
+    }
+
     public void start() throws Exception {
         this.server.start();
     }

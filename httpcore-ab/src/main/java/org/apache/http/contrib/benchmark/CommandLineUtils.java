@@ -37,7 +37,7 @@ import java.net.URL;
 
 public class CommandLineUtils {
     
-    static Options getOptions() {
+    public static Options getOptions() {
         Option iopt = new Option("i", false, "Do HEAD requests instead of GET.");
         iopt.setRequired(false);
 
@@ -104,25 +104,24 @@ public class CommandLineUtils {
         return options;
     }
 
-    static void parseCommandLine(CommandLine cmd, HttpBenchmark httpBenchmark) {
-
+    public static void parseCommandLine(CommandLine cmd, Config config) {
         if (cmd.hasOption('v')) {
             String s = cmd.getOptionValue('v');
             try {
-                httpBenchmark.verbosity = Integer.parseInt(s);
+                config.setVerbosity(Integer.parseInt(s));
             } catch (NumberFormatException ex) {
                 printError("Invalid verbosity level: " + s);
             }
         }
 
         if (cmd.hasOption('k')) {
-            httpBenchmark.keepAlive = true;
+            config.setKeepAlive(true);
         }
 
         if (cmd.hasOption('c')) {
             String s = cmd.getOptionValue('c');
             try {
-                httpBenchmark.threads = Integer.parseInt(s);
+                config.setThreads(Integer.parseInt(s));
             } catch (NumberFormatException ex) {
                 printError("Invalid number for concurrency: " + s);
             }
@@ -131,55 +130,59 @@ public class CommandLineUtils {
         if (cmd.hasOption('n')) {
             String s = cmd.getOptionValue('n');
             try {
-                httpBenchmark.requests = Integer.parseInt(s);
+                config.setRequests(Integer.parseInt(s));
             } catch (NumberFormatException ex) {
                 printError("Invalid number of requests: " + s);
             }
         }
 
-        try {
-            httpBenchmark.url = new URL(cmd.getArgs()[0]);
-        } catch (MalformedURLException e) {
-            printError("Invalid request URL : " + cmd.getArgs()[0]);
-        }
-
         if (cmd.hasOption('p')) {
-            httpBenchmark.postFile = new File(cmd.getOptionValue('p'));
-            if (!httpBenchmark.postFile.exists()) {
-                printError("File not found: " + httpBenchmark.postFile);
+            File file = new File(cmd.getOptionValue('p'));
+            if (!file.exists()) {
+                printError("File not found: " + file);
             }
+            config.setPostFile(file);
         }
 
         if (cmd.hasOption('T')) {
-            httpBenchmark.contentType = cmd.getOptionValue('T');
+            config.setContentType(cmd.getOptionValue('T'));
         }
 
         if (cmd.hasOption('i')) {
-            httpBenchmark.doHeadInsteadOfGet = true;
+            config.setHeadInsteadOfGet(true);
         }
 
         if (cmd.hasOption('H')) {
             String headerStr = cmd.getOptionValue('H');
-            httpBenchmark.headers = headerStr.split(",");
+            config.setHeaders(headerStr.split(","));
         }
 
         if (cmd.hasOption('t')) {
             String t = cmd.getOptionValue('t');
             try {
-                httpBenchmark.socketTimeout = Integer.parseInt(t);
+                config.setSocketTimeout(Integer.parseInt(t));
             } catch (NumberFormatException ex) {
                 printError("Invalid socket timeout: " + t);
             }
         }
 
         if (cmd.hasOption('o')) {
-            httpBenchmark.useHttp1_0 = true;
+            config.setUseHttp1_0(true);
+        }
+        
+        String[] cmdargs = cmd.getArgs();
+        if (cmdargs.length > 1) {
+            try {
+                config.setUrl(new URL(cmdargs[0]));
+            } catch (MalformedURLException e) {
+                printError("Invalid request URL : " + cmdargs[0]);
+            }
         }
     }
 
     static void showUsage(final Options options) {
         HelpFormatter formatter = new HelpFormatter();
-        formatter.printHelp("HttpBenchmark [options] [http://]hostname[:port]/path", options);
+        formatter.printHelp("HttpBenchmark [options] [http://]hostname[:port]/path?query", options);
     }
 
     static void printError(String msg) {

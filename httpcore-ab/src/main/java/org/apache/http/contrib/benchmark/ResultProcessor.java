@@ -49,9 +49,10 @@ public class ResultProcessor {
         String uri, long contentLength) {
 
         double totalTimeNano = 0;
-        int successCount     = 0;
-        int failureCount     = 0;
-        int writeErrors      = 0;
+        long successCount    = 0;
+        long failureCount    = 0;
+        long writeErrors     = 0;
+        long keepAliveCount  = 0;
         long totalBytesRcvd  = 0;
 
         Stats stats = workers[0].getStats();
@@ -62,6 +63,7 @@ public class ResultProcessor {
             successCount   += s.getSuccessCount();
             failureCount   += s.getFailureCount();
             writeErrors    += s.getWriteErrors();
+            keepAliveCount += s.getKeepAliveCount();
             totalBytesRcvd += s.getTotalBytesRecv();
         }
 
@@ -84,6 +86,7 @@ public class ResultProcessor {
         System.out.println("Complete requests:\t\t" + successCount);
         System.out.println("Failed requests:\t\t" + failureCount);
         System.out.println("Write errors:\t\t\t" + writeErrors);
+        System.out.println("Kept alive:\t\t\t" + keepAliveCount);
         System.out.println("Total transferred:\t\t" + totalBytes + " bytes");
         System.out.println("Requests per second:\t\t" + nf2.format(reqsPerSec) + " [#/sec] (mean)");
         System.out.println("Time per request:\t\t" + nf3.format(timePerReqMs * workers.length) + " [ms] (mean)");

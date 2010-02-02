@@ -26,7 +26,6 @@
  */
 package org.apache.http.contrib.benchmark;
 
-import java.io.File;
 import java.net.URL;
 
 import org.apache.commons.cli.CommandLine;
@@ -59,21 +58,12 @@ import java.util.concurrent.TimeUnit;
  */
 public class HttpBenchmark {
 
+    private final Config config;
+    
     private HttpParams params = null;
     private HttpRequest[] request = null;
     private HttpHost host = null;
-    protected int verbosity = 0;
-    protected boolean keepAlive = false;
-    protected int requests = 1;
-    protected int threads = 1;
-    protected URL url = null;
-    protected File postFile = null;
-    protected String contentType = null;
-    protected String[] headers = null;
-    protected boolean doHeadInsteadOfGet = false;
     private long contentLength = -1;
-    protected int socketTimeout = 60000;
-    protected boolean useHttp1_0 = false;
 
     public static void main(String[] args) throws Exception {
 
@@ -86,59 +76,80 @@ public class HttpBenchmark {
             System.exit(1);
         }
 
-        HttpBenchmark httpBenchmark = new HttpBenchmark();
-        CommandLineUtils.parseCommandLine(cmd, httpBenchmark);
+        Config config = new Config();
+        CommandLineUtils.parseCommandLine(cmd, config);
+        
+        if (config.getUrl() == null) {
+            CommandLineUtils.showUsage(options);
+            System.exit(1);
+        }
+        
+        HttpBenchmark httpBenchmark = new HttpBenchmark(config);
         httpBenchmark.execute();
     }
-
-
+    
+    public HttpBenchmark(final Config config) {
+        super();
+        this.config = config != null ? config : new Config();
+    }
+    
     private void prepare() {
         // prepare http params
-        params = getHttpParams(socketTimeout, useHttp1_0);
+        params = getHttpParams(config.getSocketTimeout(), config.isUseHttp1_0());
 
+        URL url = config.getUrl();
         host = new HttpHost(url.getHost(), url.getPort(), url.getProtocol());
 
+        StringBuilder buffer = new StringBuilder();
+        buffer.append(url.getPath());
+        if (url.getQuery() != null) {
+            buffer.append('?');
+            buffer.append(url.getQuery());
+        }
+        String requestURI = buffer.toString();
+        
         // Prepare requests for each thread
-        request = new HttpRequest[threads];
+        request = new HttpRequest[config.getThreads()];
 
-        if (postFile != null) {
-            FileEntity entity = new FileEntity(postFile, contentType);
+        if (config.getPostFile() != null) {
+            FileEntity entity = new FileEntity(config.getPostFile(), config.getContentType());
             contentLength = entity.getContentLength();
-            if (postFile.length() > 100000) {
+            if (config.getPostFile().length() > 100000) {
                 entity.setChunked(true);
             }
 
-            for (int i = 0; i < threads; i++) {
+            for (int i = 0; i < request.length; i++) {
                 BasicHttpEntityEnclosingRequest httppost = 
-                    new BasicHttpEntityEnclosingRequest("POST", url.getPath());
+                    new BasicHttpEntityEnclosingRequest("POST", requestURI);
                 httppost.setEntity(entity);
                 request[i] = httppost;
             }
 
-        } else if (doHeadInsteadOfGet) {
-            for (int i = 0; i < threads; i++) {
-                request[i] = new BasicHttpRequest("HEAD", url.getPath());
+        } else if (config.isHeadInsteadOfGet()) {
+            for (int i = 0; i < request.length; i++) {
+                request[i] = new BasicHttpRequest("HEAD", requestURI);
             }
 
         } else {
-            for (int i = 0; i < threads; i++) {
-                request[i] = new BasicHttpRequest("GET", url.getPath());
+            for (int i = 0; i < request.length; i++) {
+                request[i] = new BasicHttpRequest("GET", requestURI);
             }
         }
 
-        if (!keepAlive) {
-            for (int i = 0; i < threads; i++) {
+        if (!config.isKeepAlive()) {
+            for (int i = 0; i < request.length; i++) {
                 request[i].addHeader(new DefaultHeader(HTTP.CONN_DIRECTIVE, HTTP.CONN_CLOSE));
             }
         }
 
+        String[] headers = config.getHeaders();
         if (headers != null) {
             for (int i = 0; i < headers.length; i++) {
                 String s = headers[i];
                 int pos = s.indexOf(':');
                 if (pos != -1) {
                     Header header = new DefaultHeader(s.substring(0, pos).trim(), s.substring(pos + 1));
-                    for (int j = 0; j < threads; j++) {
+                    for (int j = 0; j < request.length; j++) {
                         request[j].addHeader(header);
                     }
                 }
@@ -146,12 +157,12 @@ public class HttpBenchmark {
         }
     }
 
-    private void execute() {
+    public void execute() {
 
         prepare();
 
         ThreadPoolExecutor workerPool = new ThreadPoolExecutor(
-            threads, threads, 5, TimeUnit.SECONDS,
+                config.getThreads(), config.getThreads(), 5, TimeUnit.SECONDS,
             new LinkedBlockingQueue<Runnable>(),
             new ThreadFactory() {
                 
@@ -162,19 +173,19 @@ public class HttpBenchmark {
             });
         workerPool.prestartAllCoreThreads();
 
-        BenchmarkWorker[] workers = new BenchmarkWorker[threads];
-        for (int i = 0; i < threads; i++) {
+        BenchmarkWorker[] workers = new BenchmarkWorker[config.getThreads()];
+        for (int i = 0; i < workers.length; i++) {
             workers[i] = new BenchmarkWorker(
                     params, 
-                    verbosity, 
+                    config.getVerbosity(), 
                     request[i], 
                     host, 
-                    requests, 
-                    keepAlive);
+                    config.getRequests(), 
+                    config.isKeepAlive());
             workerPool.execute(workers[i]);
         }
 
-        while (workerPool.getCompletedTaskCount() < threads) {
+        while (workerPool.getCompletedTaskCount() < config.getThreads()) {
             Thread.yield();
             try {
                 Thread.sleep(1000);
@@ -183,7 +194,7 @@ public class HttpBenchmark {
         }
 
         workerPool.shutdown();
-        ResultProcessor.printResults(workers, host, url.toString(), contentLength);
+        ResultProcessor.printResults(workers, host, config.getUrl().toString(), contentLength);
     }
 
     private HttpParams getHttpParams(int socketTimeout, boolean useHttp1_0) {

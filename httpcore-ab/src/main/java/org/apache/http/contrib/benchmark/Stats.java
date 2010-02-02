@@ -39,6 +39,7 @@ public class Stats {
     private int successCount = 0;
     private int failureCount = 0;
     private int writeErrors = 0;
+    private int keepAliveCount = 0;
     private String serverName = null;
     private long totalBytesRecv = 0;
     private long contentLength = -1;
@@ -78,6 +79,10 @@ public class Stats {
         this.successCount++;
     }
 
+    public int getSuccessCount() {
+        return this.successCount;
+    }
+
     public void incFailureCount() {
         this.failureCount++;
     }
@@ -94,8 +99,12 @@ public class Stats {
         return this.writeErrors;
     }
 
-    public int getSuccessCount() {
-        return this.successCount;
+    public void incKeepAliveCount() {
+        this.keepAliveCount++;
+    }
+
+    public int getKeepAliveCount() {
+        return this.keepAliveCount;
     }
 
     public long getTotalBytesRecv() {

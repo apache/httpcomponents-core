@@ -197,6 +197,8 @@ public class BenchmarkWorker implements Runnable {
 
                 if (!keepalive || !this.connstrategy.keepAlive(response, this.context)) {
                     conn.close();
+                } else {
+                    stats.incKeepAliveCount();
                 }
                 stats.setContentLength(contentlen);
 
