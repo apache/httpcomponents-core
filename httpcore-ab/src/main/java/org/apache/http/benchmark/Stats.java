@@ -24,7 +24,7 @@
  * <http://www.apache.org/>.
  *
  */
-package org.apache.http.contrib.benchmark;
+package org.apache.http.benchmark;
 
 /**
  * Helper to gather statistics for an {@link HttpBenchmark HttpBenchmark}.

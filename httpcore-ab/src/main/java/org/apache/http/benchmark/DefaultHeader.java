@@ -25,7 +25,7 @@
  *
  */
 
-package org.apache.http.contrib.benchmark;
+package org.apache.http.benchmark;
 
 import org.apache.http.message.BasicHeader;
 
