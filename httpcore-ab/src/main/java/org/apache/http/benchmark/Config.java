@@ -38,11 +38,23 @@ public class Config {
     private int verbosity;
     private boolean headInsteadOfGet;
     private boolean useHttp1_0;
-    private File postFile;
     private String contentType;
     private String[] headers;
     private int socketTimeout;
-    
+    private String method = "GET";
+    private boolean useChunking;
+    private boolean useExpectContinue;
+    private boolean useAcceptGZip;
+    private File payloadFile = null;
+    private String payloadText = null;
+    private String soapAction = null;
+
+    private boolean disableSSLVerification = true;
+    private String trustStorePath = null;
+    private String identityStorePath = null;
+    private String trustStorePassword = null;
+    private String identityStorePassword = null;
+
     public Config() {
         super();
         this.url = null;
@@ -52,7 +64,8 @@ public class Config {
         this.verbosity = 0;
         this.headInsteadOfGet = false;
         this.useHttp1_0 = false;
-        this.postFile = null;
+        this.payloadFile = null;
+        this.payloadText = null;
         this.contentType = null;
         this.headers = null;
         this.socketTimeout = 60000;
@@ -104,6 +117,7 @@ public class Config {
 
     public void setHeadInsteadOfGet(boolean headInsteadOfGet) {
         this.headInsteadOfGet = headInsteadOfGet;
+        this.method = "HEAD";
     }
 
     public boolean isUseHttp1_0() {
@@ -114,12 +128,12 @@ public class Config {
         this.useHttp1_0 = useHttp1_0;
     }
 
-    public File getPostFile() {
-        return postFile;
+    public File getPayloadFile() {
+        return payloadFile;
     }
 
-    public void setPostFile(File postFile) {
-        this.postFile = postFile;
+    public void setPayloadFile(File payloadFile) {
+        this.payloadFile = payloadFile;
     }
 
     public String getContentType() {
@@ -146,4 +160,91 @@ public class Config {
         this.socketTimeout = socketTimeout;
     }
 
+    public void setMethod(String method) {
+        this.method = method;
+    }
+
+    public void setUseChunking(boolean useChunking) {
+        this.useChunking = useChunking;
+    }
+
+    public void setUseExpectContinue(boolean useExpectContinue) {
+        this.useExpectContinue = useExpectContinue;
+    }
+
+    public void setUseAcceptGZip(boolean useAcceptGZip) {
+        this.useAcceptGZip = useAcceptGZip;
+    }
+
+    public String getMethod() {
+        return method;
+    }
+
+    public boolean isUseChunking() {
+        return useChunking;
+    }
+
+    public boolean isUseExpectContinue() {
+        return useExpectContinue;
+    }
+
+    public boolean isUseAcceptGZip() {
+        return useAcceptGZip;
+    }
+
+    public String getPayloadText() {
+        return payloadText;
+    }
+
+    public String getSoapAction() {
+        return soapAction;
+    }
+
+    public boolean isDisableSSLVerification() {
+        return disableSSLVerification;
+    }
+
+    public String getTrustStorePath() {
+        return trustStorePath;
+    }
+
+    public String getIdentityStorePath() {
+        return identityStorePath;
+    }
+
+    public String getTrustStorePassword() {
+        return trustStorePassword;
+    }
+
+    public String getIdentityStorePassword() {
+        return identityStorePassword;
+    }
+
+    public void setPayloadText(String payloadText) {
+        this.payloadText = payloadText;
+    }
+
+    public void setSoapAction(String soapAction) {
+        this.soapAction = soapAction;
+    }
+
+    public void setDisableSSLVerification(boolean disableSSLVerification) {
+        this.disableSSLVerification = disableSSLVerification;
+    }
+
+    public void setTrustStorePath(String trustStorePath) {
+        this.trustStorePath = trustStorePath;
+    }
+
+    public void setIdentityStorePath(String identityStorePath) {
+        this.identityStorePath = identityStorePath;
+    }
+
+    public void setTrustStorePassword(String trustStorePassword) {
+        this.trustStorePassword = trustStorePassword;
+    }
+
+    public void setIdentityStorePassword(String identityStorePassword) {
+        this.identityStorePassword = identityStorePassword;
+    }
 }
