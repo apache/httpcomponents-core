@@ -33,11 +33,13 @@ import org.apache.commons.cli.CommandLineParser;
 import org.apache.commons.cli.HelpFormatter;
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.PosixParser;
+import org.apache.http.benchmark.httpcore.HttpCoreNIOServer;
 import org.apache.http.benchmark.httpcore.HttpCoreServer;
+import org.apache.http.benchmark.jetty.JettyNIOServer;
 import org.apache.http.benchmark.jetty.JettyServer;
-import org.apache.http.contrib.benchmark.CommandLineUtils;
-import org.apache.http.contrib.benchmark.Config;
-import org.apache.http.contrib.benchmark.HttpBenchmark;
+import org.apache.http.benchmark.CommandLineUtils;
+import org.apache.http.benchmark.Config;
+import org.apache.http.benchmark.HttpBenchmark;
 
 public class Benchmark {
 
@@ -68,6 +70,8 @@ public class Benchmark {
         Benchmark benchmark = new Benchmark();
         benchmark.run(new JettyServer(PORT), config);
         benchmark.run(new HttpCoreServer(PORT), config);
+        benchmark.run(new JettyNIOServer(PORT), config);
+        benchmark.run(new HttpCoreNIOServer(PORT), config);
     }
 
     public Benchmark() {

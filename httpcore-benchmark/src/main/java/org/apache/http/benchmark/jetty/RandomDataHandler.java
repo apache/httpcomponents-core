@@ -29,7 +29,6 @@ package org.apache.http.benchmark.jetty;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.Writer;
-import java.util.Random;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
@@ -79,17 +78,13 @@ class RandomDataHandler extends AbstractHandler {
         response.setContentLength(count);
         
         OutputStream outstream = response.getOutputStream();
-        Random rnd = new Random(System.currentTimeMillis());
         byte[] tmp = new byte[1024];
+        int r = Math.abs(tmp.hashCode());
         int remaining = count;
         while (remaining > 0) {
             int chunk = Math.min(tmp.length, remaining);
             for (int i = 0; i < chunk; i++) {
-                byte ch = (byte) (Math.abs(rnd.nextInt()) % 127);
-                if (ch < 32) {
-                    ch = ' ';
-                }
-                tmp[i] = ch;
+                tmp[i] = (byte) ((r + i) % 96 + 32);
             }
             outstream.write(tmp, 0, chunk);
             remaining -= chunk;

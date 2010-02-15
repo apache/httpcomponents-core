@@ -24,25 +24,26 @@
  * <http://www.apache.org/>.
  *
  */
-
 package org.apache.http.benchmark.httpcore;
 
 import java.io.IOException;
-import java.net.ServerSocket;
-import java.util.Queue;
-import java.util.concurrent.ConcurrentLinkedQueue;
+import java.net.InetSocketAddress;
 
 import org.apache.http.HttpResponseInterceptor;
 import org.apache.http.benchmark.HttpServer;
 import org.apache.http.impl.DefaultConnectionReuseStrategy;
 import org.apache.http.impl.DefaultHttpResponseFactory;
+import org.apache.http.impl.nio.DefaultServerIOEventDispatch;
+import org.apache.http.impl.nio.reactor.DefaultListeningIOReactor;
+import org.apache.http.nio.protocol.AsyncNHttpServiceHandler;
+import org.apache.http.nio.protocol.NHttpRequestHandlerRegistry;
+import org.apache.http.nio.reactor.IOEventDispatch;
+import org.apache.http.nio.reactor.ListeningIOReactor;
 import org.apache.http.params.CoreConnectionPNames;
 import org.apache.http.params.CoreProtocolPNames;
 import org.apache.http.params.HttpParams;
 import org.apache.http.params.SyncBasicHttpParams;
 import org.apache.http.protocol.HttpProcessor;
-import org.apache.http.protocol.HttpRequestHandlerRegistry;
-import org.apache.http.protocol.HttpService;
 import org.apache.http.protocol.ImmutableHttpProcessor;
 import org.apache.http.protocol.ResponseConnControl;
 import org.apache.http.protocol.ResponseContent;
@@ -50,13 +51,11 @@ import org.apache.http.protocol.ResponseDate;
 import org.apache.http.protocol.ResponseServer;
 import org.apache.http.util.VersionInfo;
 
-public class HttpCoreServer implements HttpServer {
+public class HttpCoreNIOServer implements HttpServer {
 
-    private final Queue<HttpWorker> workers;
-    private final HttpListener listener;
+    private final NHttpListener listener;
     
-    public HttpCoreServer(int port) throws IOException {
-        super();
+    public HttpCoreNIOServer(int port) throws IOException {
         if (port <= 0) {
             throw new IllegalArgumentException("Server port may not be negative or null");
         }
@@ -66,7 +65,7 @@ public class HttpCoreServer implements HttpServer {
             .setIntParameter(CoreConnectionPNames.SO_TIMEOUT, 10000)
             .setIntParameter(CoreConnectionPNames.SOCKET_BUFFER_SIZE, 12 * 1024)
             .setBooleanParameter(CoreConnectionPNames.TCP_NODELAY, true)
-            .setParameter(CoreProtocolPNames.ORIGIN_SERVER, "HttpCore-Test/1.1");
+            .setParameter(CoreProtocolPNames.ORIGIN_SERVER, "HttpCore-NIO-Test/1.1");
 
         HttpProcessor httpproc = new ImmutableHttpProcessor(new HttpResponseInterceptor[] {
                 new ResponseDate(),
@@ -75,25 +74,25 @@ public class HttpCoreServer implements HttpServer {
                 new ResponseConnControl()
         });
         
-        HttpRequestHandlerRegistry reqistry = new HttpRequestHandlerRegistry();
-        reqistry.register("/rnd", new RandomDataHandler());
+        AsyncNHttpServiceHandler handler = new AsyncNHttpServiceHandler(
+                httpproc,
+                new DefaultHttpResponseFactory(),
+                new DefaultConnectionReuseStrategy(),
+                params);
+
+        NHttpRequestHandlerRegistry reqistry = new NHttpRequestHandlerRegistry();
+        reqistry.register("/rnd", new NRandomDataHandler());
+        handler.setHandlerResolver(reqistry);
+
+        ListeningIOReactor ioreactor = new DefaultListeningIOReactor(2, params);
+        ioreactor.listen(new InetSocketAddress(port));
         
-        HttpService httpservice = new HttpService(
-                httpproc, 
-                new DefaultConnectionReuseStrategy(), 
-                new DefaultHttpResponseFactory());
-        httpservice.setParams(params);
-        httpservice.setHandlerResolver(reqistry);
-        
-        this.workers = new ConcurrentLinkedQueue<HttpWorker>();
-        this.listener = new HttpListener(
-                new ServerSocket(port), 
-                httpservice,
-                new StdHttpWorkerCallback(this.workers));
+        IOEventDispatch ioEventDispatch = new DefaultServerIOEventDispatch(handler, params);
+        this.listener = new NHttpListener(ioreactor, ioEventDispatch);
     }
-    
+
     public String getName() {
-        return "HttpCore (blocking I/O)";
+        return "HttpCore (NIO)";
     }
 
     public String getVersion() {
@@ -102,7 +101,7 @@ public class HttpCoreServer implements HttpServer {
         return vinfo.getRelease();
     }
 
-    public void start() {
+    public void start() throws Exception {
         this.listener.start();
     }
     
@@ -116,27 +115,15 @@ public class HttpCoreServer implements HttpServer {
         if (ex != null) {
             System.out.println("Error: " + ex.getMessage());
         }
-        while (!this.workers.isEmpty()) {
-            HttpWorker worker = this.workers.remove();
-            worker.terminate();
-            try {
-                worker.awaitTermination(1000);
-            } catch (InterruptedException iex) {
-            }
-            ex = worker.getException();
-            if (ex != null) {
-                System.out.println("Error: " + ex.getMessage());
-            }
-        }
     }
-    
+
     public static void main(String[] args) throws Exception {
         if (args.length != 1) {
             System.out.println("Usage: <port>");
             System.exit(1);
         }
         int port = Integer.parseInt(args[0]);
-        final HttpCoreServer server = new HttpCoreServer(port);
+        final HttpCoreNIOServer server = new HttpCoreNIOServer(port);
         System.out.println("Listening on port: " + port);
         server.start();
         
