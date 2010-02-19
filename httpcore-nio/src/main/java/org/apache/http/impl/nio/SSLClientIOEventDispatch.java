@@ -61,7 +61,10 @@ import org.apache.http.protocol.ExecutionContext;
  * </ul>
  *
  * @since 4.0
+ * 
+ * @deprecated use {@link org.apache.http.impl.nio.ssl.SSLClientIOEventDispatch}
  */
+@Deprecated
 public class SSLClientIOEventDispatch implements IOEventDispatch {
 
     private static final String SSL_SESSION = "SSL_SESSION";

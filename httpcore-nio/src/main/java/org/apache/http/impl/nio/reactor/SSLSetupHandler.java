@@ -27,24 +27,20 @@
 
 package org.apache.http.impl.nio.reactor;
 
-import java.net.SocketAddress;
-
 import javax.net.ssl.SSLEngine;
 import javax.net.ssl.SSLException;
 import javax.net.ssl.SSLSession;
 
+import org.apache.http.nio.reactor.IOSession;
 import org.apache.http.params.HttpParams;
 
 /**
  * Callback interface that can be used to customize various aspects of 
  * the TLS/SSl protocol.
  *
- * @since 4.0
- * 
- * @deprecated Use {@link SSLSetupHandler}
+ * @since 4.1
  */
-@Deprecated
-public interface SSLIOSessionHandler {
+public interface SSLSetupHandler {
 
     /**
      * Triggered when the SSL connection is being initialized. Custom handlers 
@@ -65,11 +61,11 @@ public interface SSLIOSessionHandler {
      * For instance this would be the right place to enforce SSL cipher 
      * strength, validate certificate chain and do hostname checks.
      * 
-     * @param remoteAddress the remote address of the connection.
-     * @param session newly created SSL session.
+     * @param iosession the underlying IOSession for the SSL connection.
+     * @param sslsession newly created SSL session.
      * @throws SSLException if case of SSL protocol error. 
      */
-    void verify(SocketAddress remoteAddress, SSLSession session)
+    void verify(IOSession iosession, SSLSession sslsession)
         throws SSLException;
     
 }

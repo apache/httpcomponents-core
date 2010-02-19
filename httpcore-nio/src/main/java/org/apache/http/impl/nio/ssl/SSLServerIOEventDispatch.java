@@ -25,7 +25,7 @@
  *
  */
 
-package org.apache.http.impl.nio;
+package org.apache.http.impl.nio.ssl;
 
 import java.io.IOException;
 
@@ -35,9 +35,10 @@ import javax.net.ssl.SSLException;
 import org.apache.http.HttpRequest;
 import org.apache.http.HttpRequestFactory;
 import org.apache.http.impl.DefaultHttpRequestFactory;
+import org.apache.http.impl.nio.DefaultNHttpServerConnection;
 import org.apache.http.impl.nio.reactor.SSLIOSession;
-import org.apache.http.impl.nio.reactor.SSLIOSessionHandler;
 import org.apache.http.impl.nio.reactor.SSLMode;
+import org.apache.http.impl.nio.reactor.SSLSetupHandler;
 import org.apache.http.nio.NHttpServerIOTarget;
 import org.apache.http.nio.NHttpServiceHandler;
 import org.apache.http.nio.reactor.IOEventDispatch;
@@ -60,19 +61,16 @@ import org.apache.http.protocol.ExecutionContext;
  *  <li>{@link org.apache.http.params.CoreConnectionPNames#MAX_LINE_LENGTH}</li>
  * </ul>
  *
- * @since 4.0
- * 
- * @deprecated use {@link org.apache.http.impl.nio.ssl.SSLServerIOEventDispatch}
+ * @since 4.1
  */
-@Deprecated
 public class SSLServerIOEventDispatch implements IOEventDispatch {
 
     private static final String SSL_SESSION = "SSL_SESSION";
    
-    protected final NHttpServiceHandler handler;
-    protected final SSLContext sslcontext;
-    protected final SSLIOSessionHandler sslHandler;
-    protected final HttpParams params;
+    private final NHttpServiceHandler handler;
+    private final SSLContext sslcontext;
+    private final SSLSetupHandler sslHandler;
+    private final HttpParams params;
     
     /**
      * Creates a new instance of this class to be used for dispatching I/O event 
@@ -82,13 +80,13 @@ public class SSLServerIOEventDispatch implements IOEventDispatch {
      * 
      * @param handler the server protocol handler.
      * @param sslcontext the SSL context.
-     * @param sslHandler the SSL handler.
+     * @param sslHandler the SSL setup handler.
      * @param params HTTP parameters.
      */
     public SSLServerIOEventDispatch(
             final NHttpServiceHandler handler,
             final SSLContext sslcontext,
-            final SSLIOSessionHandler sslHandler,
+            final SSLSetupHandler sslHandler,
             final HttpParams params) {
         super();
         if (handler == null) {
@@ -177,13 +175,13 @@ public class SSLServerIOEventDispatch implements IOEventDispatch {
      * 
      * @param session the underlying I/O session. 
      * @param sslcontext the SSL context.
-     * @param sslHandler the SSL handler.
+     * @param sslHandler the SSL setup handler.
      * @return newly created SSL I/O session.
      */
     protected SSLIOSession createSSLIOSession(
             final IOSession session,
             final SSLContext sslcontext,
-            final SSLIOSessionHandler sslHandler) {
+            final SSLSetupHandler sslHandler) {
         return new SSLIOSession(session, sslcontext, sslHandler); 
     }
     
