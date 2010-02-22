@@ -27,19 +27,22 @@
 package org.apache.http.benchmark.httpcore;
 
 import java.io.IOException;
+import java.net.InetSocketAddress;
 
 import org.apache.http.nio.reactor.IOEventDispatch;
-import org.apache.http.nio.reactor.IOReactor;
+import org.apache.http.nio.reactor.ListenerEndpoint;
+import org.apache.http.nio.reactor.ListeningIOReactor;
 
 public class NHttpListener extends Thread {
 
-    private final IOReactor ioreactor;
+    private final ListeningIOReactor ioreactor;
     private final IOEventDispatch ioEventDispatch;
-
+    
     private volatile Exception exception;
     
     public NHttpListener(
-            final IOReactor ioreactor, final IOEventDispatch ioEventDispatch) throws IOException {
+            final ListeningIOReactor ioreactor, 
+            final IOEventDispatch ioEventDispatch) throws IOException {
         super();
         this.ioreactor = ioreactor;
         this.ioEventDispatch = ioEventDispatch;
@@ -54,6 +57,11 @@ public class NHttpListener extends Thread {
         }
     }
 
+    public void listen(final InetSocketAddress address) throws InterruptedException {
+        ListenerEndpoint endpoint = this.ioreactor.listen(address);
+        endpoint.waitFor();
+    }
+    
     public void terminate() {
         try {
             this.ioreactor.shutdown();

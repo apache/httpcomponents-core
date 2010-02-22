@@ -60,7 +60,7 @@ public class Benchmark {
             CommandLineUtils.parseCommandLine(cmd, config);
         } else {
             config.setKeepAlive(true);
-            config.setRequests(10000);
+            config.setRequests(20000);
             config.setThreads(25);
         }
         

@@ -32,6 +32,7 @@ import java.io.IOException;
 import org.apache.http.benchmark.HttpServer;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.server.bio.SocketConnector;
+import org.eclipse.jetty.util.thread.QueuedThreadPool;
 
 public class JettyServer implements HttpServer {
 
@@ -47,9 +48,15 @@ public class JettyServer implements HttpServer {
         connector.setPort(port);
         connector.setRequestBufferSize(12 * 1024);
         connector.setResponseBufferSize(12 * 1024);
+        connector.setAcceptors(2);
+        
+        QueuedThreadPool threadpool = new QueuedThreadPool();
+        threadpool.setMinThreads(25);
+        threadpool.setMaxThreads(200);
         
         this.server = new Server();
         this.server.addConnector(connector);
+        this.server.setThreadPool(threadpool);
         this.server.setHandler(new RandomDataHandler());
     }
     

@@ -53,12 +53,14 @@ import org.apache.http.util.VersionInfo;
 
 public class HttpCoreNIOServer implements HttpServer {
 
+    private final int port;
     private final NHttpListener listener;
     
     public HttpCoreNIOServer(int port) throws IOException {
         if (port <= 0) {
             throw new IllegalArgumentException("Server port may not be negative or null");
         }
+        this.port = port;
         
         HttpParams params = new SyncBasicHttpParams();
         params
@@ -85,8 +87,6 @@ public class HttpCoreNIOServer implements HttpServer {
         handler.setHandlerResolver(reqistry);
 
         ListeningIOReactor ioreactor = new DefaultListeningIOReactor(2, params);
-        ioreactor.listen(new InetSocketAddress(port));
-        
         IOEventDispatch ioEventDispatch = new DefaultServerIOEventDispatch(handler, params);
         this.listener = new NHttpListener(ioreactor, ioEventDispatch);
     }
@@ -103,6 +103,7 @@ public class HttpCoreNIOServer implements HttpServer {
 
     public void start() throws Exception {
         this.listener.start();
+        this.listener.listen(new InetSocketAddress(this.port));
     }
     
     public void shutdown() {
