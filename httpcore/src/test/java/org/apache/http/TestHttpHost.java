@@ -27,6 +27,11 @@
 
 package org.apache.http;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+
 import junit.framework.Test;
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
@@ -138,6 +143,19 @@ public class TestHttpHost extends TestCase {
     public void testCloning() throws Exception {
         HttpHost orig = new HttpHost("somehost", 8080, "https");
         HttpHost clone = (HttpHost) orig.clone();
+        assertEquals(orig, clone);
+    }
+    
+    public void testSerialization() throws Exception {
+        HttpHost orig = new HttpHost("somehost", 8080, "https");
+        ByteArrayOutputStream outbuffer = new ByteArrayOutputStream();
+        ObjectOutputStream outstream = new ObjectOutputStream(outbuffer);
+        outstream.writeObject(orig);
+        outstream.close();
+        byte[] raw = outbuffer.toByteArray();
+        ByteArrayInputStream inbuffer = new ByteArrayInputStream(raw);
+        ObjectInputStream instream = new ObjectInputStream(inbuffer);
+        HttpHost clone = (HttpHost) instream.readObject();
         assertEquals(orig, clone);
     }
     
