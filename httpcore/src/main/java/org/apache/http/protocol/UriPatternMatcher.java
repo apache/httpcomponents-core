@@ -48,6 +48,9 @@ import java.util.Map;
  */
 public class UriPatternMatcher {
 
+    /**
+     * TODO: Replace with ConcurrentHashMap
+     */
     private final Map map;
 
     public UriPatternMatcher() {
@@ -61,7 +64,7 @@ public class UriPatternMatcher {
      * @param pattern the pattern to register the handler for.
      * @param obj the object.
      */
-    public void register(final String pattern, final Object obj) {
+    public synchronized void register(final String pattern, final Object obj) {
         if (pattern == null) {
             throw new IllegalArgumentException("URI request pattern may not be null");
         }
@@ -73,7 +76,7 @@ public class UriPatternMatcher {
      *  
      * @param pattern the pattern to unregister.
      */
-    public void unregister(final String pattern) {
+    public synchronized void unregister(final String pattern) {
         if (pattern == null) {
             return;
         }
@@ -81,12 +84,21 @@ public class UriPatternMatcher {
     }
 
     /**
+     * @deprecated use {@link #setObjects(Map)}
+     */
+    public synchronized void setHandlers(final Map map) {
+        if (map == null) {
+            throw new IllegalArgumentException("Map of handlers may not be null");
+        }
+        this.map.clear();
+        this.map.putAll(map);
+    }
+
+    /**
      * Sets objects from the given map.
      * @param map the map containing objects keyed by their URI patterns.
-     * <br>
-     * TODO: deprecate and rename to setObjects()
      */
-    public void setHandlers(final Map map) {
+    public synchronized void setObjects(final Map map) {
         if (map == null) {
             throw new IllegalArgumentException("Map of handlers may not be null");
         }
@@ -100,7 +112,7 @@ public class UriPatternMatcher {
      * @param requestURI the request URI
      * @return object or <code>null</code> if no match is found.
      */
-    public Object lookup(String requestURI) {
+    public synchronized Object lookup(String requestURI) {
         if (requestURI == null) {
             throw new IllegalArgumentException("Request URI may not be null");
         }
@@ -111,8 +123,8 @@ public class UriPatternMatcher {
         }
 
         // direct match?
-        Object handler = this.map.get(requestURI);
-        if (handler == null) {
+        Object obj = this.map.get(requestURI);
+        if (obj == null) {
             // pattern match?
             String bestMatch = null;
             for (Iterator it = this.map.keySet().iterator(); it.hasNext();) {
@@ -122,13 +134,13 @@ public class UriPatternMatcher {
                     if (bestMatch == null
                             || (bestMatch.length() < pattern.length())
                             || (bestMatch.length() == pattern.length() && pattern.endsWith("*"))) {
-                        handler = this.map.get(pattern);
+                        obj = this.map.get(pattern);
                         bestMatch = pattern;
                     }
                 }
             }
         }
-        return handler;
+        return obj;
     }
 
     /**

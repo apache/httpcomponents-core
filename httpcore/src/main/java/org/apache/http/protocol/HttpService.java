@@ -69,19 +69,85 @@ import org.apache.http.util.EncodingUtils;
  */
 public class HttpService {
 
-    private HttpParams params = null;
-    private HttpProcessor processor = null;
-    private HttpRequestHandlerResolver handlerResolver = null;
-    private ConnectionReuseStrategy connStrategy = null;
-    private HttpResponseFactory responseFactory = null;
-    private HttpExpectationVerifier expectationVerifier = null;
+    /**
+     * TODO: make all variables final in the next major version
+     */
+    private volatile HttpParams params = null;
+    private volatile HttpProcessor processor = null;
+    private volatile HttpRequestHandlerResolver handlerResolver = null;
+    private volatile ConnectionReuseStrategy connStrategy = null;
+    private volatile HttpResponseFactory responseFactory = null;
+    private volatile HttpExpectationVerifier expectationVerifier = null;
+
+    /**
+     * Create a new HTTP service.
+     *
+     * @param processor            the processor to use on requests and responses
+     * @param connStrategy         the connection reuse strategy
+     * @param responseFactory      the response factory
+     * @param handlerResolver      the handler resolver. May be null.
+     * @param expectationVerifier  the expectation verifier. May be null.
+     * @param params               the HTTP parameters
+     * 
+     * @since 4.1
+     */
+    public HttpService(
+            final HttpProcessor processor,
+            final ConnectionReuseStrategy connStrategy,
+            final HttpResponseFactory responseFactory,
+            final HttpRequestHandlerResolver handlerResolver,
+            final HttpExpectationVerifier expectationVerifier,
+            final HttpParams params) {
+        super();
+        if (processor == null) {
+            throw new IllegalArgumentException("HTTP processor may not be null");
+        }
+        if (connStrategy == null) {
+            throw new IllegalArgumentException("Connection reuse strategy may not be null");
+        }
+        if (responseFactory == null) {
+            throw new IllegalArgumentException("Response factory may not be null");
+        }
+        if (params == null) {
+            throw new IllegalArgumentException("HTTP parameters may not be null");
+        }
+        this.processor = processor;
+        this.connStrategy = connStrategy;
+        this.responseFactory = responseFactory;
+        this.handlerResolver = handlerResolver;
+        this.expectationVerifier = expectationVerifier;
+        this.params = params;
+    }
     
+    /**
+     * Create a new HTTP service.
+     *
+     * @param processor            the processor to use on requests and responses
+     * @param connStrategy         the connection reuse strategy
+     * @param responseFactory      the response factory
+     * @param handlerResolver      the handler resolver. May be null.
+     * @param params               the HTTP parameters
+     * 
+     * @since 4.1
+     */
+    public HttpService(
+            final HttpProcessor processor,
+            final ConnectionReuseStrategy connStrategy,
+            final HttpResponseFactory responseFactory,
+            final HttpRequestHandlerResolver handlerResolver,
+            final HttpParams params) {
+        this(processor, connStrategy, responseFactory, handlerResolver, null, params);
+    }
+
     /**
      * Create a new HTTP service.
      *
      * @param proc             the processor to use on requests and responses
      * @param connStrategy     the connection reuse strategy
      * @param responseFactory  the response factory
+     * 
+     * @deprecated use {@link HttpService#HttpService(HttpProcessor, 
+     *  ConnectionReuseStrategy, HttpResponseFactory, HttpRequestHandlerResolver, HttpParams)}
      */
     public HttpService(
             final HttpProcessor proc,
@@ -93,6 +159,9 @@ public class HttpService {
         setResponseFactory(responseFactory);
     }
     
+    /**
+     * @deprecated set {@link HttpProcessor} using constructor
+     */
     public void setHttpProcessor(final HttpProcessor processor) {
         if (processor == null) {
             throw new IllegalArgumentException("HTTP processor may not be null");
@@ -100,6 +169,9 @@ public class HttpService {
         this.processor = processor;
     }
 
+    /**
+     * @deprecated set {@link ConnectionReuseStrategy} using constructor
+     */
     public void setConnReuseStrategy(final ConnectionReuseStrategy connStrategy) {
         if (connStrategy == null) {
             throw new IllegalArgumentException("Connection reuse strategy may not be null");
@@ -107,6 +179,9 @@ public class HttpService {
         this.connStrategy = connStrategy;
     }
 
+    /**
+     * @deprecated set {@link HttpResponseFactory} using constructor
+     */
     public void setResponseFactory(final HttpResponseFactory responseFactory) {
         if (responseFactory == null) {
             throw new IllegalArgumentException("Response factory may not be null");
@@ -114,20 +189,29 @@ public class HttpService {
         this.responseFactory = responseFactory;
     }
     
+    /**
+     * @deprecated set {@link HttpResponseFactory} using constructor
+     */
+    public void setParams(final HttpParams params) {
+        this.params = params;
+    }
+    
+    /**
+     * @deprecated set {@link HttpRequestHandlerResolver} using constructor
+     */
     public void setHandlerResolver(final HttpRequestHandlerResolver handlerResolver) {
         this.handlerResolver = handlerResolver;
     }
 
+    /**
+     * @deprecated set {@link HttpExpectationVerifier} using constructor
+     */
     public void setExpectationVerifier(final HttpExpectationVerifier expectationVerifier) {
         this.expectationVerifier = expectationVerifier;
     }
 
     public HttpParams getParams() {
         return this.params;
-    }
-    
-    public void setParams(final HttpParams params) {
-        this.params = params;
     }
     
     /**

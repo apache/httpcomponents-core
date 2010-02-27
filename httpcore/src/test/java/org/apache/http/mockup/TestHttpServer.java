@@ -135,11 +135,10 @@ public class TestHttpServer {
                         HttpService httpService = new HttpService(
                                 httpproc, 
                                 connStrategy,
-                                responseFactory);
-                        httpService.setParams(params);
-                        httpService.setExpectationVerifier(expectationVerifier);
-                        httpService.setHandlerResolver(reqistry);
-                        
+                                responseFactory,
+                                reqistry,
+                                expectationVerifier,
+                                params);
                         // Start worker thread
                         Thread t = new WorkerThread(httpService, conn);
                         t.setDaemon(true);
