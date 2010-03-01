@@ -126,15 +126,15 @@ public class TestChunkEncoder extends TestCase {
         
         ByteBuffer src = wrap("0123456789ABCDEF");
         
-        encoder.write(src);
+        assertEquals(6, encoder.write(src));
         assertTrue(src.hasRemaining());
         assertEquals(10, src.remaining());
 
-        encoder.write(src);
+        assertEquals(6, encoder.write(src));
         assertTrue(src.hasRemaining());
         assertEquals(4, src.remaining());
 
-        encoder.write(src);
+        assertEquals(4, encoder.write(src));
         assertFalse(src.hasRemaining());
         
         outbuf.flush(channel);

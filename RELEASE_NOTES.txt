@@ -1,5 +1,9 @@
 Changes since 4.1-ALPHA1
 
+* [HTTPCORE-218] ChunkEncoder#write method no longer returns incorrect value if 
+  the data to write is greater than the size of the internal buffer used by the encoder.
+  Contributed by Richie Jefts <rjefts at gmail.com> 
+
 * [HTTPCORE-209] Added parameter to set SO_REUSEADDR on sockets bound to a local address.
   Contributed by Oleg Kalnichevski <olegk at apache.org> 
 

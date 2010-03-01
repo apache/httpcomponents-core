@@ -91,11 +91,12 @@ public class ChunkEncoder extends AbstractContentEncoder {
 
         if (avail < chunk) {
             // write no more than 'avail' bytes
+            chunk = avail;
             this.lineBuffer.clear();
-            this.lineBuffer.append(Integer.toHexString(avail));
+            this.lineBuffer.append(Integer.toHexString(chunk));
             this.buffer.writeLine(this.lineBuffer);
             int oldlimit = src.limit();
-            src.limit(src.position() + avail);
+            src.limit(src.position() + chunk);
             this.buffer.write(src);
             src.limit(oldlimit);
         } else {
