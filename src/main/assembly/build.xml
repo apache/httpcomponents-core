@@ -50,7 +50,7 @@
         includes="**/*.txt, **/*.xml, **/*.properties, **/*.java, **/*.html, **/*.css" />
     <tar destfile="${tar.file}" basedir="${tmp.dir}" longfile="gnu"/>
     <gzip src="${tar.file}" destfile="${gz.file}"/>
-  	<delete file="${tar.file}"/>
+    <delete file="${tar.file}"/>
     <delete dir="${tmp.dir}"/>
   </target>  
 

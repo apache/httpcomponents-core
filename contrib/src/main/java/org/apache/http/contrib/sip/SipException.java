@@ -41,7 +41,7 @@ import org.apache.http.HttpException;
 public class SipException extends HttpException {
 
     private static final long serialVersionUID = 337592534308025800L;
-	
+
     /**
      * Creates a new SipException with a <tt>null</tt> detail message.
      */
