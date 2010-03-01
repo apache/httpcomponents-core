@@ -142,7 +142,7 @@ public class TestEntityUtils extends TestCase {
     public void testGetContentMimeTypeWithCharset() throws Exception {
         BasicHttpEntity httpentity = new BasicHttpEntity();
         httpentity.setContentType(new BasicHeader("Content-Type", "text/plain; " +
-        		"whatever; charset = UTF-8"));
+                "whatever; charset = UTF-8"));
         assertEquals("text/plain", EntityUtils.getContentMimeType(httpentity));
     }
     
