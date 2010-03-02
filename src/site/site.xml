@@ -54,6 +54,7 @@
       <item name="HttpCore" href="httpcore/index.html"/>
       <item name="HttpCore NIO" href="httpcore-nio/index.html"/>
     </menu>
-    <menu ref="reports"/>      
+    <!-- Reports don't really apply at this level; in particular the dependecy report is misleading -->
+    <!-- menu ref="reports"/-->
   </body>
 </project>
