@@ -150,6 +150,27 @@ public class TestHeaderGroup extends TestCase {
         assertFalse(i.hasNext());
     }
     
+    public void testHeaderRemove() {
+        HeaderGroup headergroup = new HeaderGroup();
+        Header header1 = new BasicHeader("name", "value1");
+        Header header2 = new BasicHeader("name", "value2");
+        Header header3 = new BasicHeader("name", "value3");
+        headergroup.setHeaders(new Header[] { header1, header2, header3 });
+        Iterator i = headergroup.iterator();
+        assertNotNull(i);
+        assertTrue(i.hasNext());
+        i.next();
+        assertTrue(i.hasNext());
+        i.next();
+        i.remove();
+        assertEquals(2, headergroup.getAllHeaders().length);
+        assertTrue(i.hasNext());
+        i.next();
+        i.remove();
+        assertEquals(1, headergroup.getAllHeaders().length);
+        assertFalse(i.hasNext());
+    }
+    
     public void testCloning() throws Exception {
         HeaderGroup orig = new HeaderGroup();
         Header header1 = new BasicHeader("name", "value1");
