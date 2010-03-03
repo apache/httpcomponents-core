@@ -127,4 +127,8 @@ public class BasicHttpRequest extends AbstractHttpMessage implements HttpRequest
         return this.requestline;
     }
     
+    public String toString() {
+        return this.method + " " + this.uri + " " + this.headergroup;
+    }
+    
 }

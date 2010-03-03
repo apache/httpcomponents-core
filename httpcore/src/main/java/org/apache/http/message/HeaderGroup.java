@@ -289,5 +289,9 @@ public class HeaderGroup implements Cloneable {
         clone.headers.addAll(this.headers);
         return clone;
     }
+
+    public String toString() {
+        return this.headers.toString();
+    }
     
 }
