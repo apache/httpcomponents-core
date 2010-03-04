@@ -41,7 +41,11 @@ import org.apache.http.util.CharArrayBuffer;
  * Default {@link NHttpMessageWriter} implementation for {@link HttpRequest}s.
  *
  * @since 4.0
+ * 
+ * @deprecated use {@link DefaultHttpRequestWriter}
  */
+@SuppressWarnings("unchecked")
+@Deprecated
 public class HttpRequestWriter extends AbstractMessageWriter {
 
     public HttpRequestWriter(final SessionOutputBuffer buffer,

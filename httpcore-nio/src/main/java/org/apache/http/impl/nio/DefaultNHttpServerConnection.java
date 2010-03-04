@@ -35,8 +35,8 @@ import org.apache.http.HttpException;
 import org.apache.http.HttpRequest;
 import org.apache.http.HttpRequestFactory;
 import org.apache.http.HttpResponse;
-import org.apache.http.impl.nio.codecs.HttpRequestParser;
-import org.apache.http.impl.nio.codecs.HttpResponseWriter;
+import org.apache.http.impl.nio.codecs.DefaultHttpRequestParser;
+import org.apache.http.impl.nio.codecs.DefaultHttpResponseWriter;
 import org.apache.http.nio.NHttpMessageParser;
 import org.apache.http.nio.NHttpMessageWriter;
 import org.apache.http.nio.NHttpServerConnection;
@@ -66,8 +66,8 @@ import org.apache.http.params.HttpParams;
 public class DefaultNHttpServerConnection 
     extends NHttpConnectionBase implements NHttpServerIOTarget {
 
-    protected final NHttpMessageParser requestParser;
-    protected final NHttpMessageWriter responseWriter;
+    protected final NHttpMessageParser<HttpRequest> requestParser;
+    protected final NHttpMessageWriter<HttpResponse> responseWriter;
     
     /**
      * Creates a new instance of this class given the underlying I/O session.
@@ -99,12 +99,12 @@ public class DefaultNHttpServerConnection
      * 
      * @return HTTP response parser.
      */
-    protected NHttpMessageParser createRequestParser(
+    protected NHttpMessageParser<HttpRequest> createRequestParser(
             final SessionInputBuffer buffer,
             final HttpRequestFactory requestFactory,
             final HttpParams params) {
         // override in derived class to specify a line parser
-        return new HttpRequestParser(buffer, null, requestFactory, params);
+        return new DefaultHttpRequestParser(buffer, null, requestFactory, params);
     }
     
     /**
@@ -117,11 +117,11 @@ public class DefaultNHttpServerConnection
      * 
      * @return HTTP response parser.
      */
-    protected NHttpMessageWriter createResponseWriter(
+    protected NHttpMessageWriter<HttpResponse> createResponseWriter(
             final SessionOutputBuffer buffer,
             final HttpParams params) {
         // override in derived class to specify a line formatter
-        return new HttpResponseWriter(buffer, null, params);
+        return new DefaultHttpResponseWriter(buffer, null, params);
     }
     
     public void resetInput() {

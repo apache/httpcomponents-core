@@ -57,7 +57,7 @@ import org.apache.http.util.CharArrayBuffer;
  *
  * @since 4.0
  */
-public abstract class AbstractMessageParser implements NHttpMessageParser {
+public abstract class AbstractMessageParser<T extends HttpMessage> implements NHttpMessageParser<T> {
     
     private final SessionInputBuffer sessionBuffer;    
     
@@ -68,7 +68,7 @@ public abstract class AbstractMessageParser implements NHttpMessageParser {
     private int state;
     private boolean endOfStream;
 
-    private HttpMessage message;
+    private T message;
     private CharArrayBuffer lineBuf;
     private final List<CharArrayBuffer> headerBufs;
 
@@ -126,7 +126,7 @@ public abstract class AbstractMessageParser implements NHttpMessageParser {
      * @throws HttpException in case of HTTP protocol violation
      * @throws ParseException in case of a parse error.
      */
-    protected abstract HttpMessage createMessage(CharArrayBuffer buffer) 
+    protected abstract T createMessage(CharArrayBuffer buffer) 
         throws HttpException, ParseException;
     
     private void parseHeadLine() throws HttpException, ParseException {
@@ -159,7 +159,7 @@ public abstract class AbstractMessageParser implements NHttpMessageParser {
         }
     }
 
-    public HttpMessage parse() throws IOException, HttpException {
+    public T parse() throws IOException, HttpException {
         while (this.state != COMPLETED) {
             if (this.lineBuf == null) {
                 this.lineBuf = new CharArrayBuffer(64);

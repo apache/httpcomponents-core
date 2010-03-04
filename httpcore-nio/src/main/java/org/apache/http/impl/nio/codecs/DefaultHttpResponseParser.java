@@ -28,10 +28,9 @@
 package org.apache.http.impl.nio.codecs;
 
 import org.apache.http.HttpException;
-import org.apache.http.HttpMessage;
-import org.apache.http.HttpRequest;
-import org.apache.http.HttpRequestFactory;
-import org.apache.http.RequestLine;
+import org.apache.http.HttpResponse;
+import org.apache.http.HttpResponseFactory;
+import org.apache.http.StatusLine;
 import org.apache.http.ParseException;
 import org.apache.http.message.LineParser;
 import org.apache.http.message.ParserCursor;
@@ -41,7 +40,7 @@ import org.apache.http.params.HttpParams;
 import org.apache.http.util.CharArrayBuffer;
 
 /**
- * Default {@link NHttpMessageParser} implementation for {@link HttpRequest}s.
+ * Default {@link NHttpMessageParser} implementation for {@link HttpResponse}s.
  * <p>
  * The following parameters can be used to customize the behavior of this 
  * class: 
@@ -50,34 +49,30 @@ import org.apache.http.util.CharArrayBuffer;
  *  <li>{@link org.apache.http.params.CoreConnectionPNames#MAX_LINE_LENGTH}</li>
  * </ul>
  *
- * @since 4.0
- * 
- * @deprecated use {@link DefaultHttpRequestParser}
+ * @since 4.1
  */
-@SuppressWarnings("unchecked")
-@Deprecated
-public class HttpRequestParser extends AbstractMessageParser {
+public class DefaultHttpResponseParser extends AbstractMessageParser<HttpResponse> {
     
-    private final HttpRequestFactory requestFactory;
+    private final HttpResponseFactory responseFactory;
     
-    public HttpRequestParser(
-            final SessionInputBuffer buffer, 
+    public DefaultHttpResponseParser(
+            final SessionInputBuffer buffer,
             final LineParser parser,
-            final HttpRequestFactory requestFactory,
+            final HttpResponseFactory responseFactory,
             final HttpParams params) {
         super(buffer, parser, params);
-        if (requestFactory == null) {
-            throw new IllegalArgumentException("Request factory may not be null");
+        if (responseFactory == null) {
+            throw new IllegalArgumentException("Response factory may not be null");
         }
-        this.requestFactory = requestFactory;
+        this.responseFactory = responseFactory;
     }
 
     @Override
-    protected HttpMessage createMessage(final CharArrayBuffer buffer) 
+    protected HttpResponse createMessage(final CharArrayBuffer buffer) 
             throws HttpException, ParseException {
         ParserCursor cursor = new ParserCursor(0, buffer.length());
-        RequestLine requestLine = lineParser.parseRequestLine(buffer, cursor);
-        return this.requestFactory.newHttpRequest(requestLine);
+        StatusLine statusline = lineParser.parseStatusLine(buffer, cursor);
+        return this.responseFactory.newHttpResponse(statusline, null);
     }
 
 }

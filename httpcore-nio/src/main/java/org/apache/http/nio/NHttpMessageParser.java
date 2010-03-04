@@ -38,7 +38,7 @@ import org.apache.http.HttpMessage;
  * 
  * @since 4.0
  */
-public interface NHttpMessageParser {
+public interface NHttpMessageParser<T extends HttpMessage> {
     
     /**
      * Resets the parser. The parser will be ready to start parsing another 
@@ -67,7 +67,6 @@ public interface NHttpMessageParser {
      * @throws HttpException in case the HTTP message is malformed or
      *  violates the HTTP protocol.
      */
-    HttpMessage parse()
-        throws IOException, HttpException;
+    T parse() throws IOException, HttpException;
 
 }

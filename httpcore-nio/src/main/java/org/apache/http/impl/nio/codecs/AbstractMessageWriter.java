@@ -46,7 +46,7 @@ import org.apache.http.util.CharArrayBuffer;
  *
  * @since 4.0
  */
-public abstract class AbstractMessageWriter implements NHttpMessageWriter {
+public abstract class AbstractMessageWriter<T extends HttpMessage> implements NHttpMessageWriter<T> {
     
     protected final SessionOutputBuffer sessionBuffer;    
     protected final CharArrayBuffer lineBuf;
@@ -81,11 +81,9 @@ public abstract class AbstractMessageWriter implements NHttpMessageWriter {
      * @param message HTTP message.
      * @throws HttpException in case of HTTP protocol violation
      */
-    protected abstract void writeHeadLine(HttpMessage message)
-        throws IOException;
+    protected abstract void writeHeadLine(T message) throws IOException;
 
-    public void write(
-            final HttpMessage message) throws IOException, HttpException {
+    public void write(final T message) throws IOException, HttpException {
         if (message == null) {
             throw new IllegalArgumentException("HTTP message may not be null");
         }

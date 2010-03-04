@@ -51,7 +51,11 @@ import org.apache.http.util.CharArrayBuffer;
  * </ul>
  *
  * @since 4.0
+ * 
+ * @deprecated use {@link DefaultHttpResponseParser}
  */
+@SuppressWarnings("unchecked")
+@Deprecated
 public class HttpResponseParser extends AbstractMessageParser {
     
     private final HttpResponseFactory responseFactory;

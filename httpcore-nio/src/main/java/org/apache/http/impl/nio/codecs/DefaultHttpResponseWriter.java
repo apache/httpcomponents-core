@@ -25,34 +25,35 @@
  *
  */
 
-package org.apache.http.nio;
+package org.apache.http.impl.nio.codecs;
 
 import java.io.IOException;
 
-import org.apache.http.HttpException;
-import org.apache.http.HttpMessage;
+import org.apache.http.HttpResponse;
+import org.apache.http.message.LineFormatter;
+import org.apache.http.nio.NHttpMessageWriter;
+import org.apache.http.nio.reactor.SessionOutputBuffer;
+import org.apache.http.params.HttpParams;
+import org.apache.http.util.CharArrayBuffer;
 
 /**
- * Abstract HTTP message writer for non-blocking connections.
- * 
- * @since 4.0
+ * Default {@link NHttpMessageWriter} implementation for {@link HttpResponse}s.
+ *
+ * @since 4.1
  */
-public interface NHttpMessageWriter<T extends HttpMessage> {
+public class DefaultHttpResponseWriter extends AbstractMessageWriter<HttpResponse> {
+
+    public DefaultHttpResponseWriter(final SessionOutputBuffer buffer,
+                              final LineFormatter formatter,
+                              final HttpParams params) {
+        super(buffer, formatter, params);
+    }
     
-    /**
-     * Resets the writer. The writer will be ready to start serializing another 
-     * HTTP message.
-     */
-    void reset();
-    
-    /**
-     * Serializes out the HTTP message head.
-     * 
-     * @param message HTTP message.
-     * @throws IOException in case of an I/O error.
-     * @throws HttpException in case the HTTP message is malformed or
-     *  violates the HTTP protocol.
-     */
-    void write(T message) throws IOException, HttpException;
-    
+    @Override
+    protected void writeHeadLine(final HttpResponse message) throws IOException {
+        CharArrayBuffer buffer = lineFormatter.formatStatusLine(
+                this.lineBuf, message.getStatusLine());
+        this.sessionBuffer.writeLine(buffer);
+    }
+
 }
