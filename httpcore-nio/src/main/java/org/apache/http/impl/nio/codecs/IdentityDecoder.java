@@ -116,6 +116,9 @@ public class IdentityDecoder extends AbstractContentDecoder
                                           "].  Please grow the file before writing.");
                 
                 bytesRead = dst.transferFrom(this.channel, position, count);
+                if (bytesRead == 0) {
+                    bytesRead = buffer.fill(this.channel);
+                }
             } else {
                 bytesRead = -1;
             }
