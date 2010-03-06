@@ -1,5 +1,8 @@
 Changes since 4.1-ALPHA1
 
+* [HTTPCORE-220] IdentityDecoder fails to detect end of stream when using file channels.
+  Contributed by Asankha C. Perera <asankha at apache.org> 
+
 * [HTTPCORE-218] ChunkEncoder#write method no longer returns incorrect value if 
   the data to write is greater than the size of the internal buffer used by the encoder.
   Contributed by Richie Jefts <rjefts at gmail.com> 
