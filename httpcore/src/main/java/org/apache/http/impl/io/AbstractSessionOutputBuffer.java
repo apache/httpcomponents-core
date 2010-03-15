@@ -32,6 +32,7 @@ import java.io.OutputStream;
 
 import org.apache.http.io.SessionOutputBuffer;
 import org.apache.http.io.HttpTransportMetrics;
+import org.apache.http.params.CoreConnectionPNames;
 import org.apache.http.params.HttpParams;
 import org.apache.http.params.HttpProtocolParams;
 import org.apache.http.protocol.HTTP;
@@ -50,6 +51,7 @@ import org.apache.http.util.CharArrayBuffer;
  * class: 
  * <ul>
  *  <li>{@link org.apache.http.params.CoreProtocolPNames#HTTP_ELEMENT_CHARSET}</li>
+ *  <li>{@link org.apache.http.params.CoreConnectionPNames#MIN_CHUNK_LIMIT}</li>
  * </ul>
  * <p>
  *
@@ -59,13 +61,12 @@ public abstract class AbstractSessionOutputBuffer implements SessionOutputBuffer
 
     private static final byte[] CRLF = new byte[] {HTTP.CR, HTTP.LF};
     
-    private static final int MAX_CHUNK = 256;
-    
     private OutputStream outstream;
     private ByteArrayBuffer buffer;
         
     private String charset = HTTP.US_ASCII;
     private boolean ascii = true;
+    private int minChunkLimit = 512;
     
     private HttpTransportMetricsImpl metrics;
     
@@ -91,6 +92,7 @@ public abstract class AbstractSessionOutputBuffer implements SessionOutputBuffer
         this.charset = HttpProtocolParams.getHttpElementCharset(params); 
         this.ascii = this.charset.equalsIgnoreCase(HTTP.US_ASCII)
                      || this.charset.equalsIgnoreCase(HTTP.ASCII);
+        this.minChunkLimit = params.getIntParameter(CoreConnectionPNames.MIN_CHUNK_LIMIT, 512);
         this.metrics = new HttpTransportMetricsImpl();
     }
     
@@ -112,10 +114,10 @@ public abstract class AbstractSessionOutputBuffer implements SessionOutputBuffer
         if (b == null) {
             return;
         }
-        // Do not want to buffer largish chunks
-        // if the byte array is larger then MAX_CHUNK
+        // Do not want to buffer large-ish chunks
+        // if the byte array is larger then MIN_CHUNK_LIMIT
         // write it directly to the output stream
-        if (len > MAX_CHUNK || len > this.buffer.capacity()) {
+        if (len > this.minChunkLimit || len > this.buffer.capacity()) {
             // flush the buffer
             flushBuffer();
             // write directly to the out stream

@@ -54,6 +54,7 @@ import org.apache.http.util.CharArrayBuffer;
  * <ul>
  *  <li>{@link org.apache.http.params.CoreProtocolPNames#HTTP_ELEMENT_CHARSET}</li>
  *  <li>{@link org.apache.http.params.CoreConnectionPNames#MAX_LINE_LENGTH}</li>
+ *  <li>{@link org.apache.http.params.CoreConnectionPNames#MIN_CHUNK_LIMIT}</li>
  * </ul>
  * @since 4.0
  */
@@ -69,6 +70,7 @@ public abstract class AbstractSessionInputBuffer implements SessionInputBuffer {
     private String charset = HTTP.US_ASCII;
     private boolean ascii = true;
     private int maxLineLen = -1;
+    private int minChunkLimit = 512;
     
     private HttpTransportMetricsImpl metrics;
     
@@ -98,6 +100,7 @@ public abstract class AbstractSessionInputBuffer implements SessionInputBuffer {
         this.ascii = this.charset.equalsIgnoreCase(HTTP.US_ASCII)
                      || this.charset.equalsIgnoreCase(HTTP.ASCII);
         this.maxLineLen = params.getIntParameter(CoreConnectionPNames.MAX_LINE_LENGTH, -1);
+        this.minChunkLimit = params.getIntParameter(CoreConnectionPNames.MIN_CHUNK_LIMIT, 512);
         this.metrics = new HttpTransportMetricsImpl();
     }
     
@@ -143,20 +146,29 @@ public abstract class AbstractSessionInputBuffer implements SessionInputBuffer {
         if (b == null) {
             return 0;
         }
-        int noRead = 0;
-        while (!hasBufferedData()) {
-            noRead = fillBuffer();
-            if (noRead == -1) {
-                return -1;
+        if (hasBufferedData()) {
+            int chunk = Math.min(len, this.bufferlen - this.bufferpos);
+            System.arraycopy(this.buffer, this.bufferpos, b, off, chunk);
+            this.bufferpos += chunk;
+            return chunk;
+        }
+        // If the remaining capacity is big enough, read directly from the 
+        // underlying input stream bypassing the buffer.
+        if (len > this.minChunkLimit) {
+            return this.instream.read(b, off, len);
+        } else {
+            // otherwise read to the buffer first
+            while (!hasBufferedData()) {
+                int noRead = fillBuffer();
+                if (noRead == -1) {
+                    return -1;
+                }
             }
+            int chunk = Math.min(len, this.bufferlen - this.bufferpos);
+            System.arraycopy(this.buffer, this.bufferpos, b, off, chunk);
+            this.bufferpos += chunk;
+            return chunk;
         }
-        int chunk = this.bufferlen - this.bufferpos;
-        if (chunk > len) {
-            chunk = len;
-        }
-        System.arraycopy(this.buffer, this.bufferpos, b, off, chunk);
-        this.bufferpos += chunk;
-        return chunk;
     }
     
     public int read(final byte[] b) throws IOException {

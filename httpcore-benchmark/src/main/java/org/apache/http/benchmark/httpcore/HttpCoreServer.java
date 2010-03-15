@@ -65,6 +65,7 @@ public class HttpCoreServer implements HttpServer {
         params
             .setIntParameter(CoreConnectionPNames.SO_TIMEOUT, 10000)
             .setIntParameter(CoreConnectionPNames.SOCKET_BUFFER_SIZE, 12 * 1024)
+            .setIntParameter(CoreConnectionPNames.MIN_CHUNK_LIMIT, 1024)
             .setBooleanParameter(CoreConnectionPNames.TCP_NODELAY, true)
             .setParameter(CoreProtocolPNames.ORIGIN_SERVER, "HttpCore-Test/1.1");
 
@@ -81,9 +82,9 @@ public class HttpCoreServer implements HttpServer {
         HttpService httpservice = new HttpService(
                 httpproc, 
                 new DefaultConnectionReuseStrategy(), 
-                new DefaultHttpResponseFactory());
-        httpservice.setParams(params);
-        httpservice.setHandlerResolver(reqistry);
+                new DefaultHttpResponseFactory(),
+                reqistry, 
+                params);
         
         this.workers = new ConcurrentLinkedQueue<HttpWorker>();
         this.listener = new HttpListener(

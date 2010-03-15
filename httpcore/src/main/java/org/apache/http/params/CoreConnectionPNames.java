@@ -137,4 +137,17 @@ public interface CoreConnectionPNames {
      */
     public static final String MAX_HEADER_COUNT = "http.connection.max-header-count";
 
+    /**
+     * Defines the size limit below which data chunks should be buffered in a session I/O buffer 
+     * in order to minimize native method invocations on the underlying network socket. 
+     * The optimal value of this parameter can be platform specific and defines a trade-off 
+     * between performance of memory copy operations and that of native method invocation.
+     * <p>
+     * This parameter expects a value of type {@link Integer}.
+     * </p>
+     * 
+     * @since 4.1
+     */
+    public static final String MIN_CHUNK_LIMIT = "http.connection.min-chunk-limit";
+
 }
