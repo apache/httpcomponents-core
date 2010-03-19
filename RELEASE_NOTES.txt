@@ -1,5 +1,8 @@
 Changes since 4.1-ALPHA1
 
+* [HTTPCORE-222] Fixed Import-Package in the OSGi META-INF
+  Contributed by Willem Jiang <willem.jiang at gmail.com> 
+
 * [HTTPCORE-177] Reduce intermediate data buffering by reading large chunks of data directly from 
   the underlying socket stream. This results in improved performance of blocking read operations.
   Contributed by Oleg Kalnichevski <olegk at apache.org> 
