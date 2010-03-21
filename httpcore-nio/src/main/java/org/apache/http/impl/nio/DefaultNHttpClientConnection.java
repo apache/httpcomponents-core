@@ -94,7 +94,7 @@ public class DefaultNHttpClientConnection
     }
     
     /**
-     * Creates an instance of {@link HttpResponseParser} to be used 
+     * Creates an instance of {@link NHttpMessageParser} to be used 
      * by this connection for parsing incoming {@link HttpResponse} messages.
      * <p>
      * This method can be overridden in a super class in order to provide 
@@ -111,7 +111,7 @@ public class DefaultNHttpClientConnection
     }
 
     /**
-     * Creates an instance of {@link HttpRequestWriter} to be used 
+     * Creates an instance of {@link NHttpMessageWriter} to be used 
      * by this connection for writing out outgoing {@link HttpRequest} messages.
      * <p>
      * This method can be overridden by a super class in order to provide 
