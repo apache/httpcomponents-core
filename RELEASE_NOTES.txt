@@ -3,9 +3,8 @@ Release 4.1-BETA1
 
 This is the first BETA release of HttpCore 4.1. This release finalizes the API introduced in the
 4.1 development branch. It also fixes a number of bugs discovered since the previous release and
-delivers a number of performance optimizations in blocking HTTP components. HttpCore based on
-classic (blocking) I/O model is expected to be 5% to 10% faster compared to previous releases. 
-
+delivers a number of performance optimizations in the blocking HTTP transport components. 
+The blocking HTTP transport is expected to be 5% to 10% faster compared to previous releases.
 
 * [HTTPCORE-222] Fixed Import-Package in the OSGi META-INF
   Contributed by Willem Jiang <willem.jiang at gmail.com> 
