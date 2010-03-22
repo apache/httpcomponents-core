@@ -510,4 +510,22 @@ public class TestLengthDelimitedDecoder extends TestCase {
         }
     }
     
+    public void testZeroLengthDecoding() throws Exception {
+        ReadableByteChannel channel = new ReadableByteChannelMockup(
+                new String[] {"stuff"}, "US-ASCII"); 
+        HttpParams params = new BasicHttpParams();
+        
+        SessionInputBuffer inbuf = new SessionInputBufferImpl(1024, 256, params); 
+        HttpTransportMetricsImpl metrics = new HttpTransportMetricsImpl();
+        LengthDelimitedDecoder decoder = new LengthDelimitedDecoder(
+                channel, inbuf, metrics, 0); 
+        
+        ByteBuffer dst = ByteBuffer.allocate(1024); 
+        
+        int bytesRead = decoder.read(dst);
+        assertEquals(0, bytesRead);
+        assertTrue(decoder.isCompleted());
+        assertEquals(0, metrics.getBytesTransferred());
+    }
+    
 }
