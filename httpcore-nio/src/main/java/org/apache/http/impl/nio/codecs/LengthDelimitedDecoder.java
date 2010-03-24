@@ -103,7 +103,11 @@ public class LengthDelimitedDecoder extends AbstractContentDecoder
         if (this.len >= this.contentLength) {
             this.completed = true;
         }
-        return bytesRead;
+        if (this.completed && bytesRead == 0) {
+            return -1;
+        } else {
+            return bytesRead;
+        }
     }
     
     public long transfer(

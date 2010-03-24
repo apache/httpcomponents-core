@@ -523,7 +523,7 @@ public class TestLengthDelimitedDecoder extends TestCase {
         ByteBuffer dst = ByteBuffer.allocate(1024); 
         
         int bytesRead = decoder.read(dst);
-        assertEquals(0, bytesRead);
+        assertEquals(-1, bytesRead);
         assertTrue(decoder.isCompleted());
         assertEquals(0, metrics.getBytesTransferred());
     }
