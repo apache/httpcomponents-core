@@ -341,12 +341,12 @@ public class AsyncNHttpServiceHandler extends NHttpHandlerBase
 
         try {
 
-            IOException ioex = connState.getIOExepction();
+            IOException ioex = connState.getIOException();
             if (ioex != null) {
                 throw ioex;
             }
 
-            HttpException httpex = connState.getHttpExepction();
+            HttpException httpex = connState.getHttpException();
             if (httpex != null) {
                 HttpResponse response = this.responseFactory.newHttpResponse(HttpVersion.HTTP_1_0,
                         HttpStatus.SC_INTERNAL_SERVER_ERROR, context);
@@ -605,19 +605,19 @@ public class AsyncNHttpServiceHandler extends NHttpHandlerBase
             this.producingEntity = producingEntity;
         }
 
-        public IOException getIOExepction() {
+        public IOException getIOException() {
             return this.ioex;
         }
 
-        public void setIOExepction(final IOException ex) {
+        public void setIOException(final IOException ex) {
             this.ioex = ex;
         }
 
-        public HttpException getHttpExepction() {
+        public HttpException getHttpException() {
             return this.httpex;
         }
 
-        public void setHttpExepction(final HttpException ex) {
+        public void setHttpException(final HttpException ex) {
             this.httpex = ex;
         }
 
@@ -661,7 +661,7 @@ public class AsyncNHttpServiceHandler extends NHttpHandlerBase
                 throw new IllegalStateException("Response already triggered");
             }
             this.triggered = true;
-            this.connState.setHttpExepction(ex);
+            this.connState.setHttpException(ex);
             this.iocontrol.requestOutput();
         }
 
@@ -670,7 +670,7 @@ public class AsyncNHttpServiceHandler extends NHttpHandlerBase
                 throw new IllegalStateException("Response already triggered");
             }
             this.triggered = true;
-            this.connState.setIOExepction(ex);
+            this.connState.setIOException(ex);
             this.iocontrol.requestOutput();
         }
 
