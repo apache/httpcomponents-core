@@ -25,6 +25,10 @@
  -->
 <project name="assembly-postprocess" default="fixarchives" basedir=".">
 
+  <!-- Use property to define the source file types, as it is needed twice -->
+  <property name="src.file.types" 
+  	value="**/*.txt **/*.xml **/*.properties **/*.java **/*.html **/*.css **/*.apt **/*.xsl"/>
+
   <target name="fixarchives" depends="_eolcheck,fixzip,fixtgz">
   </target>
 
@@ -34,7 +38,7 @@
     <delete dir="${tmp.dir}" />
     <unzip src="${zip.file}" dest="${tmp.dir}"/>
     <fixcrlf srcdir="${tmp.dir}" eol="crlf" eof="remove" fixlast="false"
-        includes="**/*.txt, **/*.xml, **/*.properties, **/*.java, **/*.html, **/*.css" />
+        includes="${src.file.types}" />
     <zip destfile="${zip.file}" basedir="${tmp.dir}" duplicate="preserve" />
     <delete dir="${tmp.dir}" />
   </target>  
@@ -47,7 +51,7 @@
     <gunzip src="${gz.file}" dest="${tar.file}"/>
     <untar src="${tar.file}" dest="${tmp.dir}"/>
     <fixcrlf srcdir="${tmp.dir}" eol="lf" eof="remove" fixlast="false"
-        includes="**/*.txt, **/*.xml, **/*.properties, **/*.java, **/*.html, **/*.css" />
+        includes="${src.file.types}" />
     <tar destfile="${tar.file}" basedir="${tmp.dir}" longfile="gnu"/>
     <gzip src="${tar.file}" destfile="${gz.file}"/>
     <delete file="${tar.file}"/>
