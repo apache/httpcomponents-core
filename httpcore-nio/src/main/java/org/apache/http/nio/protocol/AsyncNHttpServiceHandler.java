@@ -609,7 +609,17 @@ public class AsyncNHttpServiceHandler extends NHttpHandlerBase
             return this.ioex;
         }
 
+        @Deprecated
+        public IOException getIOExepction() {
+            return this.ioex;
+        }
+
         public void setIOException(final IOException ex) {
+            this.ioex = ex;
+        }
+
+        @Deprecated
+        public void setIOExepction(final IOException ex) {
             this.ioex = ex;
         }
 
@@ -617,7 +627,17 @@ public class AsyncNHttpServiceHandler extends NHttpHandlerBase
             return this.httpex;
         }
 
+        @Deprecated
+        public HttpException getHttpExepction() {
+            return this.httpex;
+        }
+
         public void setHttpException(final HttpException ex) {
+            this.httpex = ex;
+        }
+
+        @Deprecated
+        public void setHttpExepction(final HttpException ex) {
             this.httpex = ex;
         }
 
