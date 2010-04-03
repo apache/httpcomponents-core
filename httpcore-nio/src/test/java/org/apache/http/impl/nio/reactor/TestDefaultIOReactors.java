@@ -33,6 +33,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Queue;
 import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import junit.framework.Test;
 import junit.framework.TestSuite;
@@ -102,8 +103,10 @@ public class TestDefaultIOReactors extends HttpCoreNIOTestBase {
         
         final int connNo = 10;
         final CountDownLatch requestConns = new CountDownLatch(connNo); 
-        final CountDownLatch closedServerConns = new CountDownLatch(connNo); 
-        final CountDownLatch closedClientConns = new CountDownLatch(connNo); 
+        final AtomicInteger closedServerConns = new AtomicInteger(0); 
+        final AtomicInteger openServerConns = new AtomicInteger(0); 
+        final AtomicInteger closedClientConns = new AtomicInteger(0); 
+        final AtomicInteger openClientConns = new AtomicInteger(0); 
         
         HttpRequestHandler requestHandler = new HttpRequestHandler() {
 
@@ -146,8 +149,14 @@ public class TestDefaultIOReactors extends HttpCoreNIOTestBase {
         EventListener serverEventListener = new SimpleEventListener() {
 
             @Override
+            public void connectionOpen(NHttpConnection conn) {
+                openServerConns.incrementAndGet();
+                super.connectionOpen(conn);
+            }
+
+            @Override
             public void connectionClosed(NHttpConnection conn) {
-                closedServerConns.countDown();
+                closedServerConns.incrementAndGet();
                 super.connectionClosed(conn);
             }
             
@@ -174,8 +183,14 @@ public class TestDefaultIOReactors extends HttpCoreNIOTestBase {
         EventListener clientEventListener = new SimpleEventListener() {
 
             @Override
+            public void connectionOpen(NHttpConnection conn) {
+                openClientConns.incrementAndGet();
+                super.connectionOpen(conn);
+            }
+
+            @Override
             public void connectionClosed(NHttpConnection conn) {
-                closedClientConns.countDown();
+                closedClientConns.incrementAndGet();
                 super.connectionClosed(conn);
             }
             
@@ -231,11 +246,8 @@ public class TestDefaultIOReactors extends HttpCoreNIOTestBase {
         this.client.shutdown();
         this.server.shutdown();
         
-        closedClientConns.await();
-        assertEquals(0, closedClientConns.getCount());
-     
-        closedServerConns.await();
-        assertEquals(0, closedServerConns.getCount());
+        assertEquals(openClientConns.get(), closedClientConns.get());
+        assertEquals(openServerConns.get(), closedServerConns.get());
     }
     
     public void testRuntimeException() throws Exception {
