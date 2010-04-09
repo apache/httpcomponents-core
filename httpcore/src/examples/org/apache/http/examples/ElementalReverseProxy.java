@@ -218,9 +218,9 @@ public class ElementalReverseProxy {
             this.httpService = new HttpService(
                     inhttpproc, 
                     new DefaultConnectionReuseStrategy(), 
-                    new DefaultHttpResponseFactory());
-            this.httpService.setParams(this.params);
-            this.httpService.setHandlerResolver(reqistry);
+                    new DefaultHttpResponseFactory(),
+                    reqistry,
+                    this.params);
         }
         
         public void run() {

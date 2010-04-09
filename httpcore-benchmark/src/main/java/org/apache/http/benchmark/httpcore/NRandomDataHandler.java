@@ -50,6 +50,7 @@ import org.apache.http.nio.protocol.NHttpRequestHandler;
 import org.apache.http.nio.protocol.NHttpResponseTrigger;
 import org.apache.http.nio.util.HeapByteBufferAllocator;
 import org.apache.http.protocol.HttpContext;
+import org.apache.http.util.EntityUtils;
 
 class NRandomDataHandler implements NHttpRequestHandler  {
     
@@ -75,7 +76,7 @@ class NRandomDataHandler implements NHttpRequestHandler  {
         }
         if (request instanceof HttpEntityEnclosingRequest) {
             HttpEntity entity = ((HttpEntityEnclosingRequest) request).getEntity();
-            entity.consumeContent();
+            EntityUtils.consume(entity);
         }
         String target = request.getRequestLine().getUri();
 
@@ -114,7 +115,7 @@ class NRandomDataHandler implements NHttpRequestHandler  {
         }
         if (request instanceof HttpEntityEnclosingRequest) {
             HttpEntity entity = ((HttpEntityEnclosingRequest) request).getEntity();
-            entity.consumeContent();
+            EntityUtils.consume(entity);
         }
         String target = request.getRequestLine().getUri();
 

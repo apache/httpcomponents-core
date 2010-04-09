@@ -47,6 +47,7 @@ import org.apache.http.entity.ByteArrayEntity;
 import org.apache.http.params.HttpParams;
 import org.apache.http.params.DefaultedHttpParams;
 import org.apache.http.util.EncodingUtils;
+import org.apache.http.util.EntityUtils;
 
 /**
  * HttpService is a server side HTTP protocol handler based in the blocking 
@@ -292,9 +293,7 @@ public class HttpService {
             // Make sure the request content is fully consumed
             if (request instanceof HttpEntityEnclosingRequest) {
                 HttpEntity entity = ((HttpEntityEnclosingRequest)request).getEntity();
-                if (entity != null) {
-                    entity.consumeContent();
-                }
+                EntityUtils.consume(entity);
             }
             
         } catch (HttpException ex) {

@@ -68,7 +68,7 @@ public class TestEntityTemplate extends TestCase {
         
         assertEquals(-1, httpentity.getContentLength());
         assertTrue(httpentity.isRepeatable());
-        assertTrue(httpentity.isStreaming());
+        assertFalse(httpentity.isStreaming());
     }
 
     public void testIllegalConstructor() throws Exception {
@@ -103,7 +103,7 @@ public class TestEntityTemplate extends TestCase {
         }
     }
     
-    public void testConsume() throws Exception {
+    public void testgetContent() throws Exception {
         HttpEntity httpentity = new EntityTemplate(new ContentProducer() {
 
             public void writeTo(final OutputStream outstream) throws IOException {
@@ -111,14 +111,12 @@ public class TestEntityTemplate extends TestCase {
             }
           
         });
-        httpentity.consumeContent(); // Has no effect
         try {
             httpentity.getContent();
             fail("UnsupportedOperationException should have been thrown");
         } catch (UnsupportedOperationException ex) {
             // expected
         }
-        
     }
         
 }

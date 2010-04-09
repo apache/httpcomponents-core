@@ -199,9 +199,9 @@ public class ElementalHttpServer {
             this.httpService = new HttpService(
                     httpproc, 
                     new DefaultConnectionReuseStrategy(), 
-                    new DefaultHttpResponseFactory());
-            this.httpService.setParams(this.params);
-            this.httpService.setHandlerResolver(reqistry);
+                    new DefaultHttpResponseFactory(),
+                    reqistry,
+                    this.params);
         }
         
         public void run() {

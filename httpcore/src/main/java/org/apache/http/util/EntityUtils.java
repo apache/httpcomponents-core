@@ -49,6 +49,27 @@ public final class EntityUtils {
     }
 
     /**
+     * Ensures that the entity content is fully consumed and the content stream, if exists,
+     * is closed.
+     * 
+     * @param entity
+     * @throws IOException if an error occurs reading the input stream
+     * 
+     * @since 4.1
+     */
+    public static void consume(final HttpEntity entity) throws IOException {
+        if (entity == null) {
+            return;
+        }
+        if (entity.isStreaming()) {
+            InputStream instream = entity.getContent();
+            if (instream != null) {
+                instream.close();
+            }
+        }
+    }
+    
+    /**
      * Read the contents of an entity and return it as a byte array.
      * 
      * @param entity

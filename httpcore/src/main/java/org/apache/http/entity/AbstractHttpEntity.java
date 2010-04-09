@@ -28,6 +28,7 @@
 package org.apache.http.entity;
 
 import java.io.IOException;
+import java.io.OutputStream;
 
 import org.apache.http.Header;
 import org.apache.http.HttpEntity;
@@ -164,24 +165,10 @@ public abstract class AbstractHttpEntity implements HttpEntity {
 
     /**
      * Does not consume anything.
-     * The default implementation does nothing if
-     * {@link HttpEntity#isStreaming isStreaming}
-     * returns <code>false</code>, and throws an exception
-     * if it returns <code>true</code>.
-     * This removes the burden of implementing
-     * an empty method for non-streaming entities.
-     *
-     * @throws IOException      in case of an I/O problem
-     * @throws UnsupportedOperationException
-     *          if a streaming subclass does not override this method
+     * 
+     * @deprecated see {@link #getContent()} and {@link #writeTo(OutputStream)}
      */
-    public void consumeContent()
-        throws IOException, UnsupportedOperationException{
-        if (isStreaming()) {
-            throw new UnsupportedOperationException
-                ("streaming entity does not implement consumeContent()");
-        }
-    } // consumeContent
-
+    public void consumeContent() throws IOException, UnsupportedOperationException{
+    }
     
-} // class AbstractHttpEntity
+}

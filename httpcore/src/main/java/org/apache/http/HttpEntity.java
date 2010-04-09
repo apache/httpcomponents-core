@@ -121,11 +121,14 @@ public interface HttpEntity {
     Header getContentEncoding();
 
     /**
-     * Creates a new InputStream object of the entity.
-     * It is a programming error
-     * to return the same InputStream object more than once.
-     * Entities that are not {@link #isRepeatable repeatable}
-     * will throw an exception if this method is called multiple times.
+     * Creates a new InputStream object of the entity. It is an interface 
+     * violation to return the same {@link InputStream} object more than 
+     * once. Entities that are not {@link #isRepeatable repeatable}
+     * should throw an exception if this method is called multiple times.
+     * <p>
+     * IMPORTANT: Please note all entity implementations must ensure that 
+     * all allocated resources are properly deallocated after 
+     * the {@link InputStream#close()} method is invoked.  
      *
      * @return a new input stream that returns the entity data.
      *
@@ -137,7 +140,12 @@ public interface HttpEntity {
     InputStream getContent() throws IOException, IllegalStateException;
 
     /**
-     * Writes the entity content to the output stream.  
+     * Writes the entity content out to the output stream. 
+     * <p>
+     * <p>
+     * IMPORTANT: Please note all entity implementations must ensure that 
+     * all allocated resources are properly deallocated when this method 
+     * returns.  
      * 
      * @param outstream the output stream to write entity content to
      * 
@@ -147,27 +155,17 @@ public interface HttpEntity {
 
     /**
      * Tells whether this entity depends on an underlying stream.
-     * Streamed entities should return <code>true</code> until the
-     * content has been consumed, <code>false</code> afterwards.
-     * Self-contained entities should return <code>false</code>.
-     * Wrapping entities should delegate this call to the wrapped entity.
-     * <br/>
-     * The content of a streamed entity is consumed when the stream
-     * returned by {@link #getContent getContent} has been read to EOF,
-     * or after {@link #consumeContent consumeContent} has been called.
-     * If a streamed entity can not detect whether the stream has been
-     * read to EOF, it should return <code>true</code> until
-     * {@link #consumeContent consumeContent} is called.
+     * Streamed entities that read data directly from the socket should 
+     * return <code>true</code>. Self-contained entities should return 
+     * <code>false</code>. Wrapping entities should delegate this call 
+     * to the wrapped entity.
      *
-     * @return  <code>true</code> if the entity content is streamed and
-     *          not yet consumed, <code>false</code> otherwise
+     * @return  <code>true</code> if the entity content is streamed, 
+     *          <code>false</code> otherwise
      */
     boolean isStreaming(); // don't expect an exception here
 
     /**
-     * TODO: The name of this method is misnomer. It will be renamed to
-     * #finish() in the next major release.
-     * <br/>
      * This method is called to indicate that the content of this entity
      * is no longer required. All entity implementations are expected to
      * release all allocated resources as a result of this method 
@@ -182,7 +180,9 @@ public interface HttpEntity {
      *
      * @throws IOException if an I/O error occurs.
      *          This indicates that connection keep-alive is not possible.
+     * 
+     * @deprecated see {@link #getContent()} and {@link #writeTo(OutputStream)}
      */
     void consumeContent() throws IOException;
 
-} // interface HttpEntity
+}

@@ -304,24 +304,36 @@ important message
 ]]></programlisting>
             </section>
             <section>
-                <title>Ensuring release of low level resources</title>
+                <title>Ensuring release of system resources</title>
                 <para>
-                When finished with an entity that relies on an underlying input stream, it's 
-                important to execute the <methodname>HttpEntity#consumeContent()</methodname> 
-                method, so as to consume any available content on the stream, so the connection
-                could be released to any connection pools. If the incoming content is not consumed
-                fully, other requests may fail when this connection is re-used. 
+                In order to ensure proper release of system resources one must close the content
+                stream associated with the entity. 
+                </para>
+                <programlisting><![CDATA[
+HttpResponse response;
+HttpEntity entity = response.getEntity();
+if (entity != null) {
+    InputStream instream = entity.getContent();
+    try {
+        // do something useful
+    } finally {
+        instream.close();
+    }
+}
+]]></programlisting>
+                <para>
+                Please note that <methodname>HttpEntity#writeTo(OutputStream)</methodname> 
+                method is also required to ensure proper release of system resources once the 
+                entity has been fully written out. If this method obtains an instance of 
+                <classname>java.io.InputStream</classname> by calling 
+                <methodname>HttpEntity#getContent()</methodname>, it is also expected to close
+                the stream in a finally clause.
                 </para>
                 <para>
-                Alternatively one can simply check the result of <methodname>
-                HttpEntity#isStreaming()</methodname>, and keep reading from the input stream 
-                until it returns false. 
-                </para>
-                <para>
-                Self contained entities will always return false with <methodname>
-                HttpEntity#isStreaming()</methodname>, as there is no underlying stream it depends 
-                on. For these entities <methodname>HttpEntity#consumeContent()</methodname> will 
-                do nothing, and does not need to be called.
+                When working with streaming entities, one can use the
+                <methodname>EntityUtils#consume(HttpEntity)</methodname> method to ensure that
+                the entity content has been fully consumed and the underlying stream has been
+                closed.
                 </para>
             </section>
         </section>
@@ -591,8 +603,8 @@ metrics.getSentBytesCount();
             <para>
             HTTP connection interfaces, both client and server, send and receive messages in two 
             stages. The message head is transmitted first. Depending on properties of the message 
-            head it may be followed by a message body. Please note it is very important to call 
-            <methodname>HttpEntity#consumeContent()</methodname> to signal that the processing of 
+            head it may be followed by a message body. Please note it is very important to always 
+            close the underlying content stream in order to signal that the processing of 
             the message is complete. HTTP entities that stream out their content directly from the 
             input stream of the underlying connection must ensure the content of the message body 
             is fully consumed for that connection to be potentially re-usable.
@@ -612,9 +624,10 @@ HttpResponse response = conn.receiveResponseHeader();
 conn.receiveResponseEntity(response);
 HttpEntity entity = response.getEntity();
 if (entity != null) {
-    // Do something useful with the entity and, when done, call 
-    // consumeContent() to make sure the connection can be re-used 
-    entity.consumeContent();
+    // Do something useful with the entity and, when done, ensure all 
+    // content has been consumed, so that the underlying connection 
+    // coult be re-used 
+    EntityUtils.consume(entity);
 }
 ]]></programlisting>
             <para>
@@ -632,10 +645,10 @@ if (request instanceof HttpEntityEnclosingRequest) {
     HttpEntity entity = ((HttpEntityEnclosingRequest) request)
         .getEntity();
     if (entity != null) {
-        // Do something useful with the entity and, when done, 
-        // call consumeContent() to make sure the connection 
-        // can be re-used 
-        entity.consumeContent();
+        // Do something useful with the entity and, when done, ensure all 
+        // content has been consumed, so that the underlying connection 
+        // coult be re-used 
+        EntityUtils.consume(entity);
     }
 }
 HttpResponse response = new BasicHttpResponse(HttpVersion.HTTP_1_1, 
@@ -1214,9 +1227,7 @@ response.setParams(params);
 httpexecutor.postProcess(response, httpproc, context);
 
 HttpEntity entity = response.getEntity();
-if (entity != null) {
-    entity.consumeContent();
-}
+EntityUtils.consume(entity);
 ]]></programlisting>
             <para>
             Methods of <classname>HttpRequestExecutor</classname> are safe to execute from multiple 

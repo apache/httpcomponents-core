@@ -79,6 +79,8 @@ public class TestBasicHttpEntity extends TestCase {
         } catch (IllegalStateException ex) {
             // expected
         }
+        httpentity.setContent(content);
+        assertEquals(content, httpentity.getContent());
 
         httpentity.setContent(null);
         try {
@@ -87,16 +89,6 @@ public class TestBasicHttpEntity extends TestCase {
         } catch (IllegalStateException ex) {
             // expected
         }
-
-        httpentity.setContent(content);
-        httpentity.getContent();
-        try {
-            httpentity.getContent();
-            fail("IllegalStateException should have been thrown");
-        } catch (IllegalStateException ex) {
-            // expected
-        }
-
     }
     
     public void testWriteTo() throws Exception {
@@ -113,14 +105,6 @@ public class TestBasicHttpEntity extends TestCase {
         for (int i = 0; i < bytes.length; i++) {
             assertEquals(bytes[i], bytes2[i]);
         }
-        out = new ByteArrayOutputStream();
-        try {
-            httpentity.writeTo(out);
-            fail("IllegalStateException should have been thrown");
-        } catch (IllegalStateException ex) {
-            // expected
-        }
-
         httpentity.setContent(null);
         out = new ByteArrayOutputStream();
         try {
@@ -138,14 +122,4 @@ public class TestBasicHttpEntity extends TestCase {
         }
     }
 
-    public void testConsumeContent() throws Exception {
-        byte[] bytes = "Message content".getBytes(HTTP.US_ASCII);
-        InputStream content = new ByteArrayInputStream(bytes);
-        BasicHttpEntity httpentity = new BasicHttpEntity();
-        httpentity.setContent(null);
-        httpentity.consumeContent();
-        httpentity.setContent(content);
-        httpentity.consumeContent();
-    }
-    
 }

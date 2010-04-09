@@ -34,6 +34,7 @@ import junit.framework.TestCase;
 import junit.framework.TestSuite;
 
 import org.apache.http.protocol.HTTP;
+import org.apache.http.util.EntityUtils;
 
 /**
  * Unit tests for {@link HttpEntityWrapper}.
@@ -115,8 +116,8 @@ public class TestHttpEntityWrapper extends TestCase {
         String s = "Message content";
         StringEntity httpentity = new StringEntity(s);
         HttpEntityWrapper wrapped = new HttpEntityWrapper(httpentity);
-        wrapped.consumeContent();
-        wrapped.consumeContent();
+        EntityUtils.consume(wrapped);
+        EntityUtils.consume(wrapped);
     }
     
 }

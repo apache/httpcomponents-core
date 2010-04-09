@@ -94,16 +94,4 @@ public class TestAbstractHttpEntity extends TestCase {
         assertTrue(httpentity.isChunked());
     }
     
-    public void testConsumeContent() throws Exception {
-        HttpEntityMockup httpentity = new HttpEntityMockup();
-        httpentity.setStreaming(true);
-        try {
-            httpentity.consumeContent();
-        } catch (UnsupportedOperationException ex) {
-            // expected
-        }
-        httpentity.setStreaming(false);
-        httpentity.consumeContent();
-    }
-    
 }

@@ -40,7 +40,6 @@ import java.io.OutputStream;
 public class BasicHttpEntity extends AbstractHttpEntity {
 
     private InputStream content;
-    private boolean contentObtained;
     private long length;
 
     /**
@@ -53,7 +52,6 @@ public class BasicHttpEntity extends AbstractHttpEntity {
         this.length = -1;
     }
 
-    // non-javadoc, see interface HttpEntity
     public long getContentLength() {
         return this.length;
     }
@@ -65,21 +63,15 @@ public class BasicHttpEntity extends AbstractHttpEntity {
      *          since {@link #setContent setContent} has been called
      *
      * @throws IllegalStateException
-     *          if the content has been obtained before, or
-     *          has not yet been provided
+     *          if the content has not been provided
      */
-    public InputStream getContent()
-        throws IllegalStateException {
+    public InputStream getContent() throws IllegalStateException {
         if (this.content == null) {
             throw new IllegalStateException("Content has not been provided");
         }
-        if (this.contentObtained) {
-            throw new IllegalStateException("Content has been consumed");
-        }
-        this.contentObtained = true;
         return this.content;
 
-    } // getContent
+    }
 
     /**
      * Tells that this entity is not repeatable.
@@ -108,32 +100,35 @@ public class BasicHttpEntity extends AbstractHttpEntity {
      */
     public void setContent(final InputStream instream) {
         this.content = instream;
-        this.contentObtained = false; 
     }
 
-    // non-javadoc, see interface HttpEntity
     public void writeTo(final OutputStream outstream) throws IOException {
         if (outstream == null) {
             throw new IllegalArgumentException("Output stream may not be null");
         }
         InputStream instream = getContent();
-        int l;
-        byte[] tmp = new byte[2048];
-        while ((l = instream.read(tmp)) != -1) {
-            outstream.write(tmp, 0, l);
+        try {
+            int l;
+            byte[] tmp = new byte[2048];
+            while ((l = instream.read(tmp)) != -1) {
+                outstream.write(tmp, 0, l);
+            }
+        } finally {
+            instream.close();
         }
     }
 
-    // non-javadoc, see interface HttpEntity
     public boolean isStreaming() {
-        return !this.contentObtained && this.content != null;
+        return this.content != null;
     }
 
-    // non-javadoc, see interface HttpEntity
+    /**
+     * @deprecated see {@link #getContent()} and {@link #writeTo(OutputStream)}
+     */
     public void consumeContent() throws IOException {
         if (content != null) {
             content.close(); // reads to the end of the entity
         }
     }
     
-} // class BasicHttpEntity
+}

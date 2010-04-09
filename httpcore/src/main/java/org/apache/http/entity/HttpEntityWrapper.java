@@ -100,9 +100,12 @@ public class HttpEntityWrapper implements HttpEntity {
         return wrappedEntity.isStreaming();
     }
 
+    /**
+     * @deprecated
+     */
     public void consumeContent()
         throws IOException {
         wrappedEntity.consumeContent();
     }
 
-} // class HttpEntityWrapper
+}

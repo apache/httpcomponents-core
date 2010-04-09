@@ -578,7 +578,7 @@ public class TestHttpServiceAndExecutor extends TestCase {
 
                 HttpEntity entity = response.getEntity();
                 assertNotNull(entity);
-                entity.consumeContent();
+                EntityUtils.consume(entity);
                 
                 if (r < 2) {
                     assertEquals(HttpStatus.SC_EXPECTATION_FAILED, response.getStatusLine().getStatusCode());

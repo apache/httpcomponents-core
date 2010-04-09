@@ -69,9 +69,12 @@ public class EntityTemplate extends AbstractHttpEntity {
     }
 
     public boolean isStreaming() {
-        return true;
+        return false;
     }
 
+    /**
+     * @deprecated
+     */
     public void consumeContent() throws IOException {
     }
     

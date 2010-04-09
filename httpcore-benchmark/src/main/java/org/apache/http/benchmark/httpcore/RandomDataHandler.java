@@ -42,6 +42,7 @@ import org.apache.http.entity.AbstractHttpEntity;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.protocol.HttpContext;
 import org.apache.http.protocol.HttpRequestHandler;
+import org.apache.http.util.EntityUtils;
 
 class RandomDataHandler implements HttpRequestHandler  {
     
@@ -59,7 +60,7 @@ class RandomDataHandler implements HttpRequestHandler  {
         }
         if (request instanceof HttpEntityEnclosingRequest) {
             HttpEntity entity = ((HttpEntityEnclosingRequest) request).getEntity();
-            entity.consumeContent();
+            EntityUtils.consume(entity);
         }
         String target = request.getRequestLine().getUri();
 
