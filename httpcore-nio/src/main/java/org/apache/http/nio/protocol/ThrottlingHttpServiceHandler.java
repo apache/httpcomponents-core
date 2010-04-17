@@ -69,6 +69,7 @@ import org.apache.http.protocol.HttpProcessor;
 import org.apache.http.protocol.HttpRequestHandler;
 import org.apache.http.protocol.HttpRequestHandlerResolver;
 import org.apache.http.util.EncodingUtils;
+import org.apache.http.util.EntityUtils;
 
 /**
  * Service protocol handler implementation that provide compatibility with 
@@ -550,9 +551,7 @@ public class ThrottlingHttpServiceHandler extends NHttpHandlerBase
         if (request instanceof HttpEntityEnclosingRequest) {
             HttpEntityEnclosingRequest eeRequest = (HttpEntityEnclosingRequest) request;
             HttpEntity entity = eeRequest.getEntity();
-            if (entity != null) {
-                entity.consumeContent();
-            }
+            EntityUtils.consume(entity);
         }
         
         // It should be safe to reset the input state at this point
