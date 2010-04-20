@@ -39,23 +39,23 @@ import junit.framework.TestSuite;
  * Simple tests for {@link IdentityInputStream}.
  *
  */
-public class TestIdentitynputStream extends TestCase {
+public class TestIdentityInputStream extends TestCase {
 
     // ------------------------------------------------------------ Constructor
-    public TestIdentitynputStream(String testName) {
+    public TestIdentityInputStream(String testName) {
         super(testName);
     }
 
     // ------------------------------------------------------------------- Main
     public static void main(String args[]) {
-        String[] testCaseName = { TestIdentitynputStream.class.getName() };
+        String[] testCaseName = { TestIdentityInputStream.class.getName() };
         junit.textui.TestRunner.main(testCaseName);
     }
 
     // ------------------------------------------------------- TestCase Methods
 
     public static Test suite() {
-        return new TestSuite(TestIdentitynputStream.class);
+        return new TestSuite(TestIdentityInputStream.class);
     }
 
     public void testConstructor() throws Exception {
