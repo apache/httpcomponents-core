@@ -30,7 +30,7 @@ package org.apache.http.nio.entity;
 import java.io.IOException;
 import java.io.InputStream;
 
-import org.apache.http.nio.util.BufferInfo;
+import org.apache.http.io.BufferInfo;
 import org.apache.http.nio.util.ContentInputBuffer;
 
 /**

@@ -29,6 +29,8 @@ package org.apache.http.nio.util;
 
 import java.nio.ByteBuffer;
 
+import org.apache.http.io.BufferInfo;
+
 /**
  * A buffer that expand its capacity on demand using {@link ByteBufferAllocator}
  * interface. Internally, this class is backed by an instance of 
@@ -38,7 +40,8 @@ import java.nio.ByteBuffer;
  *
  * @since 4.0
  */
-public class ExpandableBuffer implements BufferInfo {
+@SuppressWarnings("deprecation")
+public class ExpandableBuffer implements BufferInfo, org.apache.http.nio.util.BufferInfo {
     
     public final static int INPUT_MODE = 0;
     public final static int OUTPUT_MODE = 1;

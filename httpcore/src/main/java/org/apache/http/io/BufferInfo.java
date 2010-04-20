@@ -25,22 +25,34 @@
  *
  */
 
-package org.apache.http.nio.util;
+package org.apache.http.io;
 
 /**
  * Basic buffer properties.
  *
- * @since 4.0
- * 
- * @deprecated Use {@link org.apache.http.io.BufferInfo}
+ * @since 4.1
  */
-@Deprecated
 public interface BufferInfo {
 
+    /**
+     * Return length data stored in the buffer
+     * 
+     * @return data length
+     */
     int length();
 
+    /**
+     * Returns total capacity of the buffer
+     * 
+     * @return total capacity
+     */
     int capacity();
 
+    /**
+     * Returns available space in the buffer.
+     * 
+     * @return available space.
+     */
     int available();
 
 }

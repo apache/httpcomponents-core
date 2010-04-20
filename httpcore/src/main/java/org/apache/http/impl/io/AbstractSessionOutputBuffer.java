@@ -30,6 +30,7 @@ package org.apache.http.impl.io;
 import java.io.IOException;
 import java.io.OutputStream;
 
+import org.apache.http.io.BufferInfo;
 import org.apache.http.io.SessionOutputBuffer;
 import org.apache.http.io.HttpTransportMetrics;
 import org.apache.http.params.CoreConnectionPNames;
@@ -57,7 +58,7 @@ import org.apache.http.util.CharArrayBuffer;
  *
  * @since 4.0
  */
-public abstract class AbstractSessionOutputBuffer implements SessionOutputBuffer {
+public abstract class AbstractSessionOutputBuffer implements SessionOutputBuffer, BufferInfo {
 
     private static final byte[] CRLF = new byte[] {HTTP.CR, HTTP.LF};
     
@@ -96,6 +97,27 @@ public abstract class AbstractSessionOutputBuffer implements SessionOutputBuffer
         this.metrics = new HttpTransportMetricsImpl();
     }
     
+    /**
+     * @since 4.1
+     */
+    public int capacity() {
+        return this.buffer.capacity();
+    }
+
+    /**
+     * @since 4.1
+     */
+    public int length() {
+        return this.buffer.length();
+    }
+    
+    /**
+     * @since 4.1
+     */
+    public int available() {
+        return capacity() - length();
+    }
+
     protected void flushBuffer() throws IOException {
         int len = this.buffer.length();
         if (len > 0) {

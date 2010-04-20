@@ -30,6 +30,7 @@ package org.apache.http.impl.io;
 import java.io.IOException;
 import java.io.InputStream;
 
+import org.apache.http.io.BufferInfo;
 import org.apache.http.io.SessionInputBuffer;
 import org.apache.http.io.HttpTransportMetrics;
 import org.apache.http.params.CoreConnectionPNames;
@@ -58,7 +59,7 @@ import org.apache.http.util.CharArrayBuffer;
  * </ul>
  * @since 4.0
  */
-public abstract class AbstractSessionInputBuffer implements SessionInputBuffer {
+public abstract class AbstractSessionInputBuffer implements SessionInputBuffer, BufferInfo {
 
     private InputStream instream;
     private byte[] buffer;
@@ -103,7 +104,28 @@ public abstract class AbstractSessionInputBuffer implements SessionInputBuffer {
         this.minChunkLimit = params.getIntParameter(CoreConnectionPNames.MIN_CHUNK_LIMIT, 512);
         this.metrics = new HttpTransportMetricsImpl();
     }
+
+    /**
+     * @since 4.1
+     */
+    public int capacity() {
+        return this.buffer.length;
+    }
+
+    /**
+     * @since 4.1
+     */
+    public int length() {
+        return this.bufferlen - this.bufferpos;
+    }
     
+    /**
+     * @since 4.1
+     */
+    public int available() {
+        return capacity() - length();
+    }
+
     protected int fillBuffer() throws IOException {
         // compact the buffer if necessary
         if (this.bufferpos > 0) {

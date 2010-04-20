@@ -94,6 +94,24 @@ public class TestSessionBuffers extends TestCase {
             //expected
         }
     }
+
+    public void testBasicBufferProperties() throws Exception {
+        SessionInputBufferMockup inbuffer = new SessionInputBufferMockup(new byte[] { 1, 2 , 3});
+        assertEquals(SessionInputBufferMockup.BUFFER_SIZE, inbuffer.capacity());
+        assertEquals(SessionInputBufferMockup.BUFFER_SIZE, inbuffer.available());
+        assertEquals(0, inbuffer.length());
+        inbuffer.read();
+        assertEquals(SessionInputBufferMockup.BUFFER_SIZE - 2, inbuffer.available());
+        assertEquals(2, inbuffer.length());
+
+        SessionOutputBufferMockup outbuffer = new SessionOutputBufferMockup(); 
+        assertEquals(SessionOutputBufferMockup.BUFFER_SIZE, outbuffer.capacity());
+        assertEquals(SessionOutputBufferMockup.BUFFER_SIZE, outbuffer.available());
+        assertEquals(0, outbuffer.length());
+        outbuffer.write(new byte[] {1, 2, 3});
+        assertEquals(SessionOutputBufferMockup.BUFFER_SIZE - 3, outbuffer.available());
+        assertEquals(3, outbuffer.length());
+    }
     
     public void testBasicReadWriteLine() throws Exception {
         

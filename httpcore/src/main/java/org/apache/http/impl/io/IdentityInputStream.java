@@ -30,6 +30,7 @@ package org.apache.http.impl.io;
 import java.io.IOException;
 import java.io.InputStream;
 
+import org.apache.http.io.BufferInfo;
 import org.apache.http.io.SessionInputBuffer;
 
 /**
@@ -64,8 +65,8 @@ public class IdentityInputStream extends InputStream {
     }
     
     public int available() throws IOException {
-        if (!this.closed && this.in.isDataAvailable(10)) {
-            return 1;
+        if (this.in instanceof BufferInfo) {
+            return ((BufferInfo) this.in).length();
         } else {
             return 0;
         }
