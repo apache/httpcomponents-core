@@ -92,7 +92,7 @@ public class TestIdentityInputStream extends TestCase {
         instream.close();
         instream.close();
         
-        assertTrue(instream.available() == 0);
+        assertEquals(0, instream.available());
         byte[] tmp = new byte[2];
         assertEquals(-1, instream.read(tmp, 0, tmp.length));
         assertEquals(-1, instream.read());
@@ -105,7 +105,7 @@ public class TestIdentityInputStream extends TestCase {
         SessionInputBufferMockup receiver = new SessionInputBufferMockup(input);
         IdentityInputStream instream = new IdentityInputStream(receiver);
         instream.read();
-        assertTrue(instream.available() == 2);        
+        assertEquals(2, instream.available());        
     }
     
 }
