@@ -104,7 +104,8 @@ public class TestIdentitynputStream extends TestCase {
         byte[] input = new byte[] {'a', 'b', 'c'};
         SessionInputBufferMockup receiver = new SessionInputBufferMockup(input);
         IdentityInputStream instream = new IdentityInputStream(receiver);
-        assertTrue(instream.available() > 0);        
+        instream.read();
+        assertTrue(instream.available() == 2);        
     }
     
 }
