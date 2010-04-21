@@ -64,30 +64,20 @@ public class TestBasicHttpProcessor extends TestCase {
         assertEquals(null, instance.getRequestInterceptor(0));
     }
 
-    public void testAddFirsRequestInterceptor() {
-        HttpRequestInterceptor itcp1 = new HttpRequestInterceptor() {
-            
-            public void process(
-                    HttpRequest request, 
-                    HttpContext context) throws HttpException, IOException {
-            }
-            
-        };
-        HttpRequestInterceptor itcp2 = new HttpRequestInterceptor() {
-            
-            public void process(
-                    HttpRequest request, 
-                    HttpContext context) throws HttpException, IOException {
-            }
-            
-        };
+    public void testAddFirstRequestInterceptor() {
+        HttpRequestInterceptor itcp1 = new TestHttpRequestInterceptorPlaceHolder();
+        HttpRequestInterceptor itcp2 = new TestHttpRequestInterceptorPlaceHolder();
         BasicHttpProcessor instance = new BasicHttpProcessor();
 
+        assertEquals(0, instance.getRequestInterceptorCount());
         instance.addRequestInterceptor(itcp1);
+        assertEquals(1, instance.getRequestInterceptorCount());
+        assertSame(itcp1, instance.getRequestInterceptor(0));
+
         instance.addRequestInterceptor(itcp2, 0);
-        int itcpCount = instance.getRequestInterceptorCount();
-        assertEquals(2, itcpCount);
-        assertEquals(itcp2, instance.getRequestInterceptor(0));
+        assertEquals(2, instance.getRequestInterceptorCount());
+        assertSame(itcp2, instance.getRequestInterceptor(0));
+        assertSame(itcp1, instance.getRequestInterceptor(1));
     }
 
     public void testAddTailRequestInterceptorNull() {
@@ -101,36 +91,19 @@ public class TestBasicHttpProcessor extends TestCase {
     }
 
     public void testAddTailRequestInterceptor() {
-        HttpRequestInterceptor itcp1 = new HttpRequestInterceptor() {
-            
-            public void process(
-                    HttpRequest request, 
-                    HttpContext context) throws HttpException, IOException {
-            }
-            
-        };
-        HttpRequestInterceptor itcp2 = new HttpRequestInterceptor() {
-            
-            public void process(
-                    HttpRequest request, 
-                    HttpContext context) throws HttpException, IOException {
-            }
-            
-        };
+        HttpRequestInterceptor itcp1 = new TestHttpRequestInterceptorPlaceHolder();
+        HttpRequestInterceptor itcp2 = new TestHttpRequestInterceptorPlaceHolder();
         BasicHttpProcessor instance = new BasicHttpProcessor();
 
         instance.addRequestInterceptor(itcp1);
+        assertEquals(1, instance.getRequestInterceptorCount());
+        assertSame(itcp1, instance.getRequestInterceptor(0));
+
         instance.addRequestInterceptor(itcp2, 1);
         int itcpCount = instance.getRequestInterceptorCount();
         assertEquals(2, itcpCount);
-        assertEquals(itcp1, instance.getRequestInterceptor(0));
-        assertEquals(itcp2, instance.getRequestInterceptor(itcpCount - 1));
-    }
-
-    public void testAddRequestInterceptorMiddleIndex() {
-        HttpRequestInterceptor itcp1 = new TestHttpRequestInterceptorPlaceHolder();
-        BasicHttpProcessor instance = new BasicHttpProcessor();
-        instance.addRequestInterceptor(itcp1, 0);
+        assertSame(itcp1, instance.getRequestInterceptor(0));
+        assertSame(itcp2, instance.getRequestInterceptor(itcpCount - 1));
     }
 
     public void testClearByClass() {
