@@ -29,9 +29,7 @@ package org.apache.http.message;
 
 import java.util.NoSuchElementException;
 
-import junit.framework.Test;
 import junit.framework.TestCase;
-import junit.framework.TestSuite;
 
 import org.apache.http.Header;
 import org.apache.http.HeaderIterator;
@@ -48,19 +46,7 @@ public class TestBasicHeaderIterator extends TestCase {
         super(testName);
     }
 
-    // ------------------------------------------------------------------- Main
-    public static void main(String args[]) {
-        String[] testCaseName = { TestBasicHeaderIterator.class.getName() };
-        junit.textui.TestRunner.main(testCaseName);
-    }
-
     // ------------------------------------------------------- TestCase Methods
-
-    public static Test suite() {
-        return new TestSuite(TestBasicHeaderIterator.class);
-    }
-
-
 
     public void testAllSame() {
         Header[] headers = new Header[]{

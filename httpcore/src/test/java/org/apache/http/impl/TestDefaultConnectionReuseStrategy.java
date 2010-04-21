@@ -27,6 +27,8 @@
 
 package org.apache.http.impl;
 
+import junit.framework.TestCase;
+
 import org.apache.http.ConnectionReuseStrategy;
 import org.apache.http.HttpConnection;
 import org.apache.http.HttpConnectionMetrics;
@@ -36,13 +38,9 @@ import org.apache.http.StatusLine;
 import org.apache.http.entity.BasicHttpEntity;
 import org.apache.http.message.BasicHttpResponse;
 import org.apache.http.message.BasicStatusLine;
-import org.apache.http.protocol.HttpContext;
 import org.apache.http.protocol.BasicHttpContext;
 import org.apache.http.protocol.ExecutionContext;
-
-import junit.framework.Test;
-import junit.framework.TestCase;
-import junit.framework.TestSuite;
+import org.apache.http.protocol.HttpContext;
 
 public class TestDefaultConnectionReuseStrategy extends TestCase {
 
@@ -61,12 +59,6 @@ public class TestDefaultConnectionReuseStrategy extends TestCase {
         super(testName);
     }
 
-    // ------------------------------------------------------- TestCase Methods
-
-    public static Test suite() {
-        return new TestSuite(TestDefaultConnectionReuseStrategy.class);
-    }
-
     public void setUp() {
         // open and not stale is required for most of the tests here
         mockConnection = new MockConnection(true, false);
@@ -79,12 +71,7 @@ public class TestDefaultConnectionReuseStrategy extends TestCase {
         mockConnection = null;
     }
 
-
-    // ------------------------------------------------------------------- Main
-    public static void main(String args[]) {
-        String[] testCaseName = { TestDefaultConnectionReuseStrategy.class.getName() };
-        junit.textui.TestRunner.main(testCaseName);
-    }
+    // ------------------------------------------------------- TestCase Methods
 
     public void testIllegalResponseArg() throws Exception {
 

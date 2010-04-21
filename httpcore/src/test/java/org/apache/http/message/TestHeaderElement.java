@@ -30,9 +30,7 @@
 
 package org.apache.http.message;
 
-import junit.framework.Test;
 import junit.framework.TestCase;
-import junit.framework.TestSuite;
 
 import org.apache.http.HeaderElement;
 import org.apache.http.NameValuePair;
@@ -49,17 +47,7 @@ public class TestHeaderElement extends TestCase {
         super(testName);
     }
 
-    // ------------------------------------------------------------------- Main
-    public static void main(String args[]) {
-        String[] testCaseName = { TestHeaderElement.class.getName() };
-        junit.textui.TestRunner.main(testCaseName);
-    }
-
     // ------------------------------------------------------- TestCase Methods
-
-    public static Test suite() {
-        return new TestSuite(TestHeaderElement.class);
-    }
 
     public void testConstructor3() throws Exception {
         HeaderElement element = new BasicHeaderElement("name", "value", 

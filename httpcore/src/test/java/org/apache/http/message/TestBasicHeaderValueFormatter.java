@@ -29,9 +29,7 @@
 
 package org.apache.http.message;
 
-import junit.framework.Test;
 import junit.framework.TestCase;
-import junit.framework.TestSuite;
 
 import org.apache.http.HeaderElement;
 import org.apache.http.NameValuePair;
@@ -48,20 +46,7 @@ public class TestBasicHeaderValueFormatter extends TestCase {
         super(testName);
     }
 
-    // ------------------------------------------------------------------- Main
-    public static void main(String args[]) {
-        String[] testCaseName = {
-            TestBasicHeaderValueFormatter.class.getName() };
-        junit.textui.TestRunner.main(testCaseName);
-    }
-
     // ------------------------------------------------------- TestCase Methods
-
-    public static Test suite() {
-        return new TestSuite(TestBasicHeaderValueFormatter.class);
-    }
-
-
 
     public void testNVPFormatting() throws Exception {
         NameValuePair param1 = new BasicNameValuePair("param", "regular_stuff"); 

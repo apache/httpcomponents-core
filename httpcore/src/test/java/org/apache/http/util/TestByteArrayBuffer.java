@@ -27,12 +27,7 @@
 
 package org.apache.http.util;
 
-import org.apache.http.util.ByteArrayBuffer;
-import org.apache.http.util.CharArrayBuffer;
-
-import junit.framework.Test;
 import junit.framework.TestCase;
-import junit.framework.TestSuite;
 
 /**
  * Unit tests for {@link ByteArrayBuffer}.
@@ -42,15 +37,6 @@ public class TestByteArrayBuffer extends TestCase {
 
     public TestByteArrayBuffer(String testName) {
         super(testName);
-    }
-
-    public static void main(String args[]) {
-        String[] testCaseName = { TestByteArrayBuffer.class.getName() };
-        junit.textui.TestRunner.main(testCaseName);
-    }
-
-    public static Test suite() {
-        return new TestSuite(TestByteArrayBuffer.class);
     }
 
     public void testConstructor() throws Exception {

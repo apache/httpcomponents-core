@@ -27,9 +27,7 @@
 
 package org.apache.http.params;
 
-import junit.framework.Test;
 import junit.framework.TestCase;
-import junit.framework.TestSuite;
 
 /**
  * Unit tests for {@link BasicHttpParams}.
@@ -39,15 +37,6 @@ public class TestBasicHttpParams extends TestCase {
 
     public TestBasicHttpParams(String testName) {
         super(testName);
-    }
-
-    public static void main(String args[]) {
-        String[] testCaseName = { TestBasicHttpParams.class.getName() };
-        junit.textui.TestRunner.main(testCaseName);
-    }
-
-    public static Test suite() {
-        return new TestSuite(TestBasicHttpParams.class);
     }
 
     public void testRemoveParam() {

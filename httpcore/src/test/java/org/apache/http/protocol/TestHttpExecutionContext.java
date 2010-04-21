@@ -27,8 +27,7 @@
 
 package org.apache.http.protocol;
 
-import junit.framework.*;
-
+import junit.framework.TestCase;
 
 // the name of this test is historic, the implementation classes of HttpContext
 // have been renamed to BasicHttpContext and SyncBasicHttpContext
@@ -39,17 +38,7 @@ public class TestHttpExecutionContext extends TestCase {
         super(testName);
     }
 
-    // ------------------------------------------------------------------- Main
-    public static void main(String args[]) {
-        String[] testCaseName = { TestHttpExecutionContext.class.getName() };
-        junit.textui.TestRunner.main(testCaseName);
-    }
-
     // ------------------------------------------------------- TestCase Methods
-
-    public static Test suite() {
-        return new TestSuite(TestHttpExecutionContext.class);
-    }
 
     public void testContextOperations() {
         HttpContext parentContext = new SyncBasicHttpContext(null); 

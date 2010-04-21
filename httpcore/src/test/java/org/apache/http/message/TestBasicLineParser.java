@@ -27,9 +27,7 @@
 
 package org.apache.http.message;
 
-import junit.framework.Test;
 import junit.framework.TestCase;
-import junit.framework.TestSuite;
 
 import org.apache.http.HttpVersion;
 import org.apache.http.ParseException;
@@ -49,19 +47,8 @@ public class TestBasicLineParser extends TestCase {
         super(testName);
     }
 
-    // ------------------------------------------------------------------- Main
-    public static void main(String args[]) {
-        String[] testCaseName = { TestBasicLineParser.class.getName() };
-        junit.textui.TestRunner.main(testCaseName);
-    }
-
     // ------------------------------------------------------- TestCase Methods
 
-    public static Test suite() {
-        return new TestSuite(TestBasicLineParser.class);
-    }
-
-        
     public void testRLParseSuccess() throws Exception {
         //typical request line
         RequestLine requestline = BasicLineParser.parseRequestLine

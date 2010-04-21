@@ -29,9 +29,7 @@ package org.apache.http.protocol;
 
 import java.io.IOException;
 
-import junit.framework.Test;
 import junit.framework.TestCase;
-import junit.framework.TestSuite;
 
 import org.apache.http.HttpException;
 import org.apache.http.HttpRequest;
@@ -54,17 +52,7 @@ public class TestBasicHttpProcessor extends TestCase {
         super(testName);
     }
 
-    // ------------------------------------------------------------------- Main
-    public static void main(String args[]) {
-        String[] testCaseName = { TestHttpExecutionContext.class.getName() };
-        junit.textui.TestRunner.main(testCaseName);
-    }
-
     // ------------------------------------------------------- TestCase Methods
-
-    public static Test suite() {
-        return new TestSuite(TestHttpExecutionContext.class);
-    }
 
     public void testAddFirstRequestInterceptorNull() {
         HttpRequestInterceptor itcp = null;

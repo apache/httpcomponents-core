@@ -29,9 +29,7 @@
 
 package org.apache.http.message;
 
-import junit.framework.Test;
 import junit.framework.TestCase;
-import junit.framework.TestSuite;
 
 import org.apache.http.HeaderElement;
 import org.apache.http.NameValuePair;
@@ -49,18 +47,7 @@ public class TestBasicHeaderValueParser extends TestCase {
         super(testName);
     }
 
-    // ------------------------------------------------------------------- Main
-    public static void main(String args[]) {
-        String[] testCaseName = { TestBasicHeaderValueParser.class.getName() };
-        junit.textui.TestRunner.main(testCaseName);
-    }
-
     // ------------------------------------------------------- TestCase Methods
-
-    public static Test suite() {
-        return new TestSuite(TestBasicHeaderValueParser.class);
-    }
-    
 
     public void testParseHeaderElements() throws Exception {
         String headerValue = "name1 = value1; name2; name3=\"value3\" , name4=value4; " +

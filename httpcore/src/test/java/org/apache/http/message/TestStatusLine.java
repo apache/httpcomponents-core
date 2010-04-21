@@ -27,9 +27,7 @@
 
 package org.apache.http.message;
 
-import junit.framework.Test;
 import junit.framework.TestCase;
-import junit.framework.TestSuite;
 
 import org.apache.http.HttpStatus;
 import org.apache.http.HttpVersion;
@@ -47,21 +45,6 @@ public class TestStatusLine extends TestCase {
     public TestStatusLine(String testName) {
         super(testName);
     }
-
-    // ------------------------------------------------------------------- Main
-    public static void main(String args[]) {
-        String[] testCaseName = { TestStatusLine.class.getName() };
-        junit.textui.TestRunner.main(testCaseName);
-    }
-
-    // ------------------------------------------------------- TestCase Methods
-
-    public static Test suite() {
-        return new TestSuite(TestStatusLine.class);
-    }
-
-    // ------------------------------------------------------ Protected Methods
-
 
     // ----------------------------------------------------------- Test Methods
 

@@ -27,8 +27,11 @@
 
 package org.apache.http.impl;
 
-import junit.framework.*;
-import java.lang.reflect.*;
+
+import java.lang.reflect.Field;
+import java.lang.reflect.Modifier;
+
+import junit.framework.TestCase;
 
 import org.apache.http.HttpStatus;
 
@@ -44,19 +47,6 @@ public class TestEnglishReasonPhraseCatalog extends TestCase {
     public TestEnglishReasonPhraseCatalog(String testName) {
         super(testName);
     }
-
-    // ------------------------------------------------------------------- Main
-    public static void main(String args[]) {
-        String[] testCaseName = { TestEnglishReasonPhraseCatalog.class.getName() };
-        junit.textui.TestRunner.main(testCaseName);
-    }
-
-    // ------------------------------------------------------- TestCase Methods
-
-    public static Test suite() {
-        return new TestSuite(TestEnglishReasonPhraseCatalog.class);
-    }
-
 
     // ----------------------------------------------------------- Test Methods
 

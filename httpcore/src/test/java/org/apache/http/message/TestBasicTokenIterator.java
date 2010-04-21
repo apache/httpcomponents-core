@@ -29,14 +29,12 @@ package org.apache.http.message;
 
 import java.util.NoSuchElementException;
 
-import junit.framework.Test;
 import junit.framework.TestCase;
-import junit.framework.TestSuite;
 
 import org.apache.http.Header;
 import org.apache.http.HeaderIterator;
-import org.apache.http.TokenIterator;
 import org.apache.http.ParseException;
+import org.apache.http.TokenIterator;
 
 
 /**
@@ -50,18 +48,7 @@ public class TestBasicTokenIterator extends TestCase {
         super(testName);
     }
 
-    // ------------------------------------------------------------------- Main
-    public static void main(String args[]) {
-        String[] testCaseName = { TestBasicTokenIterator.class.getName() };
-        junit.textui.TestRunner.main(testCaseName);
-    }
-
     // ------------------------------------------------------- TestCase Methods
-
-    public static Test suite() {
-        return new TestSuite(TestBasicTokenIterator.class);
-    }
-
 
     public void testSingleHeader() {
         Header[] headers = new Header[]{

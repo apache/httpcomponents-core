@@ -27,9 +27,7 @@
 
 package org.apache.http.impl;
 
-import junit.framework.Test;
 import junit.framework.TestCase;
-import junit.framework.TestSuite;
 
 import org.apache.http.HttpRequest;
 import org.apache.http.HttpVersion;
@@ -40,18 +38,6 @@ public class TestBasicRequest extends TestCase {
 
     public TestBasicRequest(String testName) {
         super(testName);
-    }
-
-    // ------------------------------------------------------- TestCase Methods
-
-    public static Test suite() {
-        return new TestSuite(TestBasicRequest.class);
-    }
-
-    // ------------------------------------------------------------------- Main
-    public static void main(String args[]) {
-        String[] testCaseName = { TestBasicRequest.class.getName() };
-        junit.textui.TestRunner.main(testCaseName);
     }
 
     public void testConstructor() throws Exception {

@@ -33,19 +33,15 @@ import java.io.InputStream;
 import java.io.InterruptedIOException;
 import java.io.OutputStream;
 
+import junit.framework.TestCase;
+
 import org.apache.http.Header;
 import org.apache.http.MalformedChunkCodingException;
-import org.apache.http.impl.io.ChunkedInputStream;
-import org.apache.http.impl.io.ChunkedOutputStream;
 import org.apache.http.io.SessionInputBuffer;
 import org.apache.http.mockup.SessionInputBufferMockup;
 import org.apache.http.mockup.SessionOutputBufferMockup;
 import org.apache.http.mockup.TimeoutByteArrayInputStream;
 import org.apache.http.util.EncodingUtils;
-
-import junit.framework.Test;
-import junit.framework.TestCase;
-import junit.framework.TestSuite;
 
 public class TestChunkCoding extends TestCase {
 
@@ -53,18 +49,6 @@ public class TestChunkCoding extends TestCase {
     
     public TestChunkCoding(String testName) {
         super(testName);
-    }
-
-    // ------------------------------------------------------- TestCase Methods
-
-    public static Test suite() {
-        return new TestSuite(TestChunkCoding.class);
-    }
-
-    // ------------------------------------------------------------------- Main
-    public static void main(String args[]) {
-        String[] testCaseName = { TestChunkCoding.class.getName() };
-        junit.textui.TestRunner.main(testCaseName);
     }
 
     public void testConstructors() throws Exception {

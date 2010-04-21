@@ -27,13 +27,10 @@
 
 package org.apache.http.impl.io;
 
-import org.apache.http.impl.io.IdentityInputStream;
+import junit.framework.TestCase;
+
 import org.apache.http.io.SessionInputBuffer;
 import org.apache.http.mockup.SessionInputBufferMockup;
-
-import junit.framework.Test;
-import junit.framework.TestCase;
-import junit.framework.TestSuite;
 
 /**
  * Simple tests for {@link IdentityInputStream}.
@@ -46,17 +43,7 @@ public class TestIdentityInputStream extends TestCase {
         super(testName);
     }
 
-    // ------------------------------------------------------------------- Main
-    public static void main(String args[]) {
-        String[] testCaseName = { TestIdentityInputStream.class.getName() };
-        junit.textui.TestRunner.main(testCaseName);
-    }
-
     // ------------------------------------------------------- TestCase Methods
-
-    public static Test suite() {
-        return new TestSuite(TestIdentityInputStream.class);
-    }
 
     public void testConstructor() throws Exception {
         SessionInputBuffer receiver = new SessionInputBufferMockup(new byte[] {});

@@ -29,16 +29,11 @@ package org.apache.http.message;
 
 import java.util.NoSuchElementException;
 
-import junit.framework.Test;
 import junit.framework.TestCase;
-import junit.framework.TestSuite;
 
 import org.apache.http.Header;
 import org.apache.http.HeaderElement;
 import org.apache.http.HeaderElementIterator;
-import org.apache.http.message.BasicHeader;
-import org.apache.http.message.BasicHeaderElementIterator;
-import org.apache.http.message.BasicHeaderIterator;
 
 /**
  * Tests for {@link BasicHeaderElementIterator}.
@@ -49,17 +44,6 @@ public class TestBasicHeaderElementIterator extends TestCase {
     // ------------------------------------------------------------ Constructor
     public TestBasicHeaderElementIterator(String testName) {
         super(testName);
-    }
-
-    // ------------------------------------------------------------------- Main
-    public static void main(String args[]) {
-        String[] testCaseName = { TestBasicHeaderElementIterator.class.getName() };
-        junit.textui.TestRunner.main(testCaseName);
-    }
-
-    // ------------------------------------------------------- TestCase Methods
-    public static Test suite() {
-        return new TestSuite(TestBasicHeaderElementIterator.class);
     }
 
     public void testMultiHeader() {

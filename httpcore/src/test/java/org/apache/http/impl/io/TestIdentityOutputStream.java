@@ -31,29 +31,14 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 
-import org.apache.http.impl.io.IdentityOutputStream;
-import org.apache.http.mockup.SessionOutputBufferMockup;
-
-import junit.framework.Test;
 import junit.framework.TestCase;
-import junit.framework.TestSuite;
+
+import org.apache.http.mockup.SessionOutputBufferMockup;
 
 public class TestIdentityOutputStream extends TestCase {
 
     public TestIdentityOutputStream(String testName) {
         super(testName);
-    }
-
-    // ------------------------------------------------------- TestCase Methods
-
-    public static Test suite() {
-        return new TestSuite(TestIdentityOutputStream.class);
-    }
-
-    // ------------------------------------------------------------------- Main
-    public static void main(String args[]) {
-        String[] testCaseName = { TestIdentityOutputStream.class.getName() };
-        junit.textui.TestRunner.main(testCaseName);
     }
 
     public void testConstructors() throws Exception {

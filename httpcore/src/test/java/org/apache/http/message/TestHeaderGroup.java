@@ -29,13 +29,9 @@ package org.apache.http.message;
 
 import java.util.Iterator;
 
-import org.apache.http.Header;
-import org.apache.http.message.BasicHeader;
-import org.apache.http.message.HeaderGroup;
-
-import junit.framework.Test;
 import junit.framework.TestCase;
-import junit.framework.TestSuite;
+
+import org.apache.http.Header;
 
 /**
  * Unit tests for {@link HeaderGroup}.
@@ -45,15 +41,6 @@ public class TestHeaderGroup extends TestCase {
 
     public TestHeaderGroup(String testName) {
         super(testName);
-    }
-
-    public static void main(String args[]) {
-        String[] testCaseName = { TestHeaderGroup.class.getName() };
-        junit.textui.TestRunner.main(testCaseName);
-    }
-
-    public static Test suite() {
-        return new TestSuite(TestHeaderGroup.class);
     }
 
     public void testConstructor() {

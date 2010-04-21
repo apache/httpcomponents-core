@@ -29,9 +29,7 @@ package org.apache.http.impl.entity;
 
 import java.io.OutputStream;
 
-import junit.framework.Test;
 import junit.framework.TestCase;
-import junit.framework.TestSuite;
 
 import org.apache.http.HttpMessage;
 import org.apache.http.HttpVersion;
@@ -41,26 +39,14 @@ import org.apache.http.impl.io.ChunkedOutputStream;
 import org.apache.http.impl.io.ContentLengthOutputStream;
 import org.apache.http.impl.io.IdentityOutputStream;
 import org.apache.http.io.SessionOutputBuffer;
-import org.apache.http.mockup.SessionOutputBufferMockup;
 import org.apache.http.mockup.HttpMessageMockup;
+import org.apache.http.mockup.SessionOutputBufferMockup;
 import org.apache.http.params.CoreProtocolPNames;
 
 public class TestEntitySerializer extends TestCase {
 
     public TestEntitySerializer(String testName) {
         super(testName);
-    }
-
-    // ------------------------------------------------------- TestCase Methods
-
-    public static Test suite() {
-        return new TestSuite(TestEntitySerializer.class);
-    }
-
-    // ------------------------------------------------------------------- Main
-    public static void main(String args[]) {
-        String[] testCaseName = { TestEntitySerializer.class.getName() };
-        junit.textui.TestRunner.main(testCaseName);
     }
 
     public void testIllegalGenerateArg() throws Exception {

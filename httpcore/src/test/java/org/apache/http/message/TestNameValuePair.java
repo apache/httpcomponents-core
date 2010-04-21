@@ -27,9 +27,7 @@
 
 package org.apache.http.message;
 
-import junit.framework.Test;
 import junit.framework.TestCase;
-import junit.framework.TestSuite;
 
 import org.apache.http.NameValuePair;
 
@@ -41,15 +39,6 @@ public class TestNameValuePair extends TestCase {
 
     public TestNameValuePair(String testName) {
         super(testName);
-    }
-
-    public static void main(String args[]) {
-        String[] testCaseName = { TestNameValuePair.class.getName() };
-        junit.textui.TestRunner.main(testCaseName);
-    }
-
-    public static Test suite() {
-        return new TestSuite(TestNameValuePair.class);
     }
 
     public void testConstructor() {

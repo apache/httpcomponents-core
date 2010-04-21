@@ -27,9 +27,7 @@
 
 package org.apache.http.protocol;
 
-import junit.framework.Test;
 import junit.framework.TestCase;
-import junit.framework.TestSuite;
 
 import org.apache.http.Header;
 import org.apache.http.HttpHost;
@@ -51,15 +49,6 @@ public class TestStandardInterceptors extends TestCase {
 
     public TestStandardInterceptors(String testName) {
         super(testName);
-    }
-
-    public static void main(String args[]) {
-        String[] testCaseName = { TestStandardInterceptors.class.getName() };
-        junit.textui.TestRunner.main(testCaseName);
-    }
-
-    public static Test suite() {
-        return new TestSuite(TestStandardInterceptors.class);
     }
 
     public void testRequestConnControlGenerated() throws Exception {

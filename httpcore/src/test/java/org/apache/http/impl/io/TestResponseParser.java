@@ -29,9 +29,7 @@ package org.apache.http.impl.io;
 
 import java.io.InterruptedIOException;
 
-import junit.framework.Test;
 import junit.framework.TestCase;
-import junit.framework.TestSuite;
 
 import org.apache.http.Header;
 import org.apache.http.HttpResponse;
@@ -52,15 +50,6 @@ public class TestResponseParser extends TestCase {
 
     public TestResponseParser(String testName) {
         super(testName);
-    }
-
-    public static void main(String args[]) {
-        String[] testCaseName = { TestResponseParser.class.getName() };
-        junit.textui.TestRunner.main(testCaseName);
-    }
-
-    public static Test suite() {
-        return new TestSuite(TestResponseParser.class);
     }
 
     public void testInvalidConstructorInput() throws Exception {

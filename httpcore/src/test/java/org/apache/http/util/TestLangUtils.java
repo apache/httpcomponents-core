@@ -27,9 +27,7 @@
 
 package org.apache.http.util;
 
-import junit.framework.Test;
 import junit.framework.TestCase;
-import junit.framework.TestSuite;
 
 /**
  * Unit tests for {@link LangUtils}.
@@ -39,15 +37,6 @@ public class TestLangUtils extends TestCase {
 
     public TestLangUtils(String testName) {
         super(testName);
-    }
-
-    public static void main(String args[]) {
-        String[] testCaseName = { TestLangUtils.class.getName() };
-        junit.textui.TestRunner.main(testCaseName);
-    }
-
-    public static Test suite() {
-        return new TestSuite(TestLangUtils.class);
     }
 
     public void testBasicHash() {

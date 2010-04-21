@@ -27,16 +27,14 @@
 
 package org.apache.http.util;
 
-import java.io.InputStream;
 import java.io.ByteArrayInputStream;
+import java.io.InputStream;
+
+import junit.framework.TestCase;
 
 import org.apache.http.Header;
 import org.apache.http.entity.BasicHttpEntity;
 import org.apache.http.message.BasicHeader;
-
-import junit.framework.Test;
-import junit.framework.TestCase;
-import junit.framework.TestSuite;
 
 /**
  * Unit tests for {@link EntityUtils}.
@@ -46,15 +44,6 @@ public class TestEntityUtils extends TestCase {
 
     public TestEntityUtils(String testName) {
         super(testName);
-    }
-
-    public static void main(String args[]) {
-        String[] testCaseName = { TestEntityUtils.class.getName() };
-        junit.textui.TestRunner.main(testCaseName);
-    }
-
-    public static Test suite() {
-        return new TestSuite(TestEntityUtils.class);
     }
 
     public void testNullEntityToByteArray() throws Exception {

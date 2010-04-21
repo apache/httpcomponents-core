@@ -27,9 +27,7 @@
 
 package org.apache.http.util;
 
-import junit.framework.Test;
 import junit.framework.TestCase;
-import junit.framework.TestSuite;
 
 /**
  * Unit tests for {@link TestEncodingUtils}.
@@ -39,15 +37,6 @@ public class TestEncodingUtils extends TestCase {
 
     public TestEncodingUtils(String testName) {
         super(testName);
-    }
-
-    public static void main(String args[]) {
-        String[] testCaseName = { TestEncodingUtils.class.getName() };
-        junit.textui.TestRunner.main(testCaseName);
-    }
-
-    public static Test suite() {
-        return new TestSuite(TestEncodingUtils.class);
     }
 
     private static String constructString(int [] unicodeChars) {

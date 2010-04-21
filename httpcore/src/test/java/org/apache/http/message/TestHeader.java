@@ -27,9 +27,7 @@
 
 package org.apache.http.message;
 
-import junit.framework.Test;
 import junit.framework.TestCase;
-import junit.framework.TestSuite;
 
 import org.apache.http.Header;
 import org.apache.http.HeaderElement;
@@ -42,15 +40,6 @@ public class TestHeader extends TestCase {
 
     public TestHeader(String testName) {
         super(testName);
-    }
-
-    public static void main(String args[]) {
-        String[] testCaseName = { TestHeader.class.getName() };
-        junit.textui.TestRunner.main(testCaseName);
-    }
-
-    public static Test suite() {
-        return new TestSuite(TestHeader.class);
     }
 
     public void testBasicConstructor() {

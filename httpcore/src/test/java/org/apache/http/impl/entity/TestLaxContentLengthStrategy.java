@@ -27,9 +27,7 @@
 
 package org.apache.http.impl.entity;
 
-import junit.framework.Test;
 import junit.framework.TestCase;
-import junit.framework.TestSuite;
 
 import org.apache.http.HttpMessage;
 import org.apache.http.ProtocolException;
@@ -41,18 +39,6 @@ public class TestLaxContentLengthStrategy extends TestCase {
 
     public TestLaxContentLengthStrategy(String testName) {
         super(testName);
-    }
-
-    // ------------------------------------------------------- TestCase Methods
-
-    public static Test suite() {
-        return new TestSuite(TestLaxContentLengthStrategy.class);
-    }
-
-    // ------------------------------------------------------------------- Main
-    public static void main(String args[]) {
-        String[] testCaseName = { TestLaxContentLengthStrategy.class.getName() };
-        junit.textui.TestRunner.main(testCaseName);
     }
 
     public void testEntityWithTransferEncoding() throws Exception {

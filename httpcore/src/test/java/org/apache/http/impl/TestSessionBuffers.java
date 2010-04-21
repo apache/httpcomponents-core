@@ -32,14 +32,12 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 
-import junit.framework.Test;
 import junit.framework.TestCase;
-import junit.framework.TestSuite;
-import org.apache.http.io.HttpTransportMetrics;
 
-import org.apache.http.params.BasicHttpParams;
+import org.apache.http.io.HttpTransportMetrics;
 import org.apache.http.mockup.SessionInputBufferMockup;
 import org.apache.http.mockup.SessionOutputBufferMockup;
+import org.apache.http.params.BasicHttpParams;
 import org.apache.http.params.CoreConnectionPNames;
 import org.apache.http.params.HttpParams;
 import org.apache.http.params.HttpProtocolParams;
@@ -50,18 +48,6 @@ public class TestSessionBuffers extends TestCase {
 
     public TestSessionBuffers(String testName) {
         super(testName);
-    }
-
-    // ------------------------------------------------------- TestCase Methods
-
-    public static Test suite() {
-        return new TestSuite(TestSessionBuffers.class);
-    }
-
-    // ------------------------------------------------------------------- Main
-    public static void main(String args[]) {
-        String[] testCaseName = { TestSessionBuffers.class.getName() };
-        junit.textui.TestRunner.main(testCaseName);
     }
 
     public void testInit() throws Exception {

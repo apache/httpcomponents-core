@@ -27,15 +27,13 @@
 
 package org.apache.http.message;
 
+import junit.framework.TestCase;
+
 import org.apache.http.Header;
 import org.apache.http.HttpMessage;
-import org.apache.http.params.BasicHttpParams;
 import org.apache.http.mockup.HttpMessageMockup;
+import org.apache.http.params.BasicHttpParams;
 import org.apache.http.params.HttpParams;
-
-import junit.framework.Test;
-import junit.framework.TestCase;
-import junit.framework.TestSuite;
 
 /**
  * Unit tests for {@link Header}.
@@ -45,15 +43,6 @@ public class TestAbstractMessage extends TestCase {
 
     public TestAbstractMessage(String testName) {
         super(testName);
-    }
-
-    public static void main(String args[]) {
-        String[] testCaseName = { TestAbstractMessage.class.getName() };
-        junit.textui.TestRunner.main(testCaseName);
-    }
-
-    public static Test suite() {
-        return new TestSuite(TestAbstractMessage.class);
     }
 
     public void testBasicProperties() {

@@ -27,9 +27,7 @@
 
 package org.apache.http.message;
 
-import junit.framework.Test;
 import junit.framework.TestCase;
-import junit.framework.TestSuite;
 
 import org.apache.http.Header;
 import org.apache.http.HttpStatus;
@@ -50,19 +48,7 @@ public class TestBasicLineFormatter extends TestCase {
         super(testName);
     }
 
-    // ------------------------------------------------------------------- Main
-    public static void main(String args[]) {
-        String[] testCaseName = { TestBasicLineFormatter.class.getName() };
-        junit.textui.TestRunner.main(testCaseName);
-    }
-
     // ------------------------------------------------------- TestCase Methods
-
-    public static Test suite() {
-        return new TestSuite(TestBasicLineFormatter.class);
-    }
-
-
 
     public void testHttpVersionFormatting() throws Exception {
         String s = BasicLineFormatter.formatProtocolVersion

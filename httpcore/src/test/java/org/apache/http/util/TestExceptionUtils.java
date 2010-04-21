@@ -27,9 +27,7 @@
 
 package org.apache.http.util;
 
-import junit.framework.Test;
 import junit.framework.TestCase;
-import junit.framework.TestSuite;
 
 /**
  * Unit tests for {@link TestExceptionUtils}.
@@ -41,15 +39,6 @@ public class TestExceptionUtils extends TestCase {
         super(testName);
     }
 
-    public static void main(String args[]) {
-        String[] testCaseName = { TestExceptionUtils.class.getName() };
-        junit.textui.TestRunner.main(testCaseName);
-    }
-
-    public static Test suite() {
-        return new TestSuite(TestExceptionUtils.class);
-    }
-    
     public void testExceptionChaining() throws Exception {
         Exception ex1 = new Exception(); 
         Exception ex2 = new Exception();

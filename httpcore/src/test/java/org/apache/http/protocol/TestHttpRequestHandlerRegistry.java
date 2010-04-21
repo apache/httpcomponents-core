@@ -31,13 +31,11 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
+import junit.framework.TestCase;
+
 import org.apache.http.HttpException;
 import org.apache.http.HttpRequest;
 import org.apache.http.HttpResponse;
-
-import junit.framework.Test;
-import junit.framework.TestCase;
-import junit.framework.TestSuite;
 
 /**
  */
@@ -45,15 +43,6 @@ public class TestHttpRequestHandlerRegistry extends TestCase {
 
     public TestHttpRequestHandlerRegistry(String testName) {
         super(testName);
-    }
-
-    public static void main(String args[]) {
-        String[] testCaseName = { TestHttpRequestHandlerRegistry.class.getName() };
-        junit.textui.TestRunner.main(testCaseName);
-    }
-
-    public static Test suite() {
-        return new TestSuite(TestHttpRequestHandlerRegistry.class);
     }
 
     private static class DummyHttpRequestHandler implements HttpRequestHandler {

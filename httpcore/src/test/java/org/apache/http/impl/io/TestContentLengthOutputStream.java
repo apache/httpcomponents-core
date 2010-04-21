@@ -31,29 +31,14 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 
-import org.apache.http.impl.io.ContentLengthOutputStream;
-import org.apache.http.mockup.SessionOutputBufferMockup;
-
-import junit.framework.Test;
 import junit.framework.TestCase;
-import junit.framework.TestSuite;
+
+import org.apache.http.mockup.SessionOutputBufferMockup;
 
 public class TestContentLengthOutputStream extends TestCase {
 
     public TestContentLengthOutputStream(String testName) {
         super(testName);
-    }
-
-    // ------------------------------------------------------- TestCase Methods
-
-    public static Test suite() {
-        return new TestSuite(TestContentLengthOutputStream.class);
-    }
-
-    // ------------------------------------------------------------------- Main
-    public static void main(String args[]) {
-        String[] testCaseName = { TestContentLengthOutputStream.class.getName() };
-        junit.textui.TestRunner.main(testCaseName);
     }
 
     public void testConstructors() throws Exception {

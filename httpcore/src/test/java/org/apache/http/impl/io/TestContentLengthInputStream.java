@@ -31,30 +31,15 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 
-import org.apache.http.impl.io.ContentLengthInputStream;
+import junit.framework.TestCase;
+
 import org.apache.http.mockup.SessionInputBufferMockup;
 import org.apache.http.util.EncodingUtils;
-
-import junit.framework.Test;
-import junit.framework.TestCase;
-import junit.framework.TestSuite;
 
 public class TestContentLengthInputStream extends TestCase {
 
     public TestContentLengthInputStream(String testName) {
         super(testName);
-    }
-
-    // ------------------------------------------------------- TestCase Methods
-
-    public static Test suite() {
-        return new TestSuite(TestContentLengthInputStream.class);
-    }
-
-    // ------------------------------------------------------------------- Main
-    public static void main(String args[]) {
-        String[] testCaseName = { TestContentLengthInputStream.class.getName() };
-        junit.textui.TestRunner.main(testCaseName);
     }
 
     private static final String CONTENT_CHARSET = "ISO-8859-1";

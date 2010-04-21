@@ -29,6 +29,8 @@ package org.apache.http.impl.io;
 
 import java.io.IOException;
 
+import junit.framework.TestCase;
+
 import org.apache.http.Header;
 import org.apache.http.HeaderElement;
 import org.apache.http.NameValuePair;
@@ -37,10 +39,6 @@ import org.apache.http.io.SessionInputBuffer;
 import org.apache.http.message.BufferedHeader;
 import org.apache.http.mockup.SessionInputBufferMockup;
 
-import junit.framework.Test;
-import junit.framework.TestCase;
-import junit.framework.TestSuite;
-
 /**
  * Unit tests for {@link AbstractMessageParser}.
  */
@@ -48,15 +46,6 @@ public class TestMessageParser extends TestCase {
 
     public TestMessageParser(String testName) {
         super(testName);
-    }
-
-    public static void main(String args[]) {
-        String[] testCaseName = { TestMessageParser.class.getName() };
-        junit.textui.TestRunner.main(testCaseName);
-    }
-
-    public static Test suite() {
-        return new TestSuite(TestMessageParser.class);
     }
 
     public void testInvalidInput() throws Exception {

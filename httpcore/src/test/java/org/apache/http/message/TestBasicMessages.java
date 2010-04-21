@@ -27,9 +27,7 @@
 
 package org.apache.http.message;
 
-import junit.framework.Test;
 import junit.framework.TestCase;
-import junit.framework.TestSuite;
 
 import org.apache.http.Header;
 import org.apache.http.HttpEntity;
@@ -48,15 +46,6 @@ public class TestBasicMessages extends TestCase {
 
     public TestBasicMessages(String testName) {
         super(testName);
-    }
-
-    public static void main(String args[]) {
-        String[] testCaseName = { TestBasicMessages.class.getName() };
-        junit.textui.TestRunner.main(testCaseName);
-    }
-
-    public static Test suite() {
-        return new TestSuite(TestBasicMessages.class);
     }
 
     public void testDefaultResponseConstructors() {

@@ -38,6 +38,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
+import junit.framework.TestCase;
+
 import org.apache.http.Header;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpEntityEnclosingRequest;
@@ -59,7 +61,6 @@ import org.apache.http.params.CoreProtocolPNames;
 import org.apache.http.util.EncodingUtils;
 import org.apache.http.util.EntityUtils;
 
-import junit.framework.*;
 import org.apache.http.HttpConnectionMetrics;
 
 public class TestHttpServiceAndExecutor extends TestCase {
@@ -69,17 +70,7 @@ public class TestHttpServiceAndExecutor extends TestCase {
         super(testName);
     }
 
-    // ------------------------------------------------------------------- Main
-    public static void main(String args[]) {
-        String[] testCaseName = { TestHttpServiceAndExecutor.class.getName() };
-        junit.textui.TestRunner.main(testCaseName);
-    }
-
     // ------------------------------------------------------- TestCase Methods
-
-    public static Test suite() {
-        return new TestSuite(TestHttpServiceAndExecutor.class);
-    }
 
     private TestHttpServer server;
     private TestHttpClient client;
