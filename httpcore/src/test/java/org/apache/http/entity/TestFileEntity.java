@@ -31,9 +31,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 
-import junit.framework.Test;
 import junit.framework.TestCase;
-import junit.framework.TestSuite;
 
 import org.apache.http.protocol.HTTP;
 
@@ -45,15 +43,6 @@ public class TestFileEntity extends TestCase {
 
     public TestFileEntity(String testName) {
         super(testName);
-    }
-
-    public static void main(String args[]) {
-        String[] testCaseName = { TestFileEntity.class.getName() };
-        junit.textui.TestRunner.main(testCaseName);
-    }
-
-    public static Test suite() {
-        return new TestSuite(TestFileEntity.class);
     }
 
     public void testBasics() throws Exception {

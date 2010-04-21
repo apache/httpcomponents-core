@@ -29,9 +29,7 @@ package org.apache.http.entity;
 
 import java.io.ByteArrayOutputStream;
 
-import junit.framework.Test;
 import junit.framework.TestCase;
-import junit.framework.TestSuite;
 
 import org.apache.http.protocol.HTTP;
 
@@ -43,15 +41,6 @@ public class TestByteArrayEntity extends TestCase {
 
     public TestByteArrayEntity(String testName) {
         super(testName);
-    }
-
-    public static void main(String args[]) {
-        String[] testCaseName = { TestByteArrayEntity.class.getName() };
-        junit.textui.TestRunner.main(testCaseName);
-    }
-
-    public static Test suite() {
-        return new TestSuite(TestByteArrayEntity.class);
     }
 
     public void testBasics() throws Exception {

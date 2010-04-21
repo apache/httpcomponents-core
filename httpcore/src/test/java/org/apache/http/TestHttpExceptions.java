@@ -27,7 +27,7 @@
 
 package org.apache.http;
 
-import junit.framework.*;
+import junit.framework.TestCase;
 
 /**
  * Simple tests for various HTTP exception classes.
@@ -41,17 +41,7 @@ public class TestHttpExceptions extends TestCase {
         super(testName);
     }
 
-    // ------------------------------------------------------------------- Main
-    public static void main(String args[]) {
-        String[] testCaseName = { TestHttpExceptions.class.getName() };
-        junit.textui.TestRunner.main(testCaseName);
-    }
-
     // ------------------------------------------------------- TestCase Methods
-
-    public static Test suite() {
-        return new TestSuite(TestHttpExceptions.class);
-    }
 
     public void testConstructor() {
         Throwable cause = new Exception();

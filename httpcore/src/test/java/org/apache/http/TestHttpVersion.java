@@ -32,9 +32,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 
-import junit.framework.Test;
 import junit.framework.TestCase;
-import junit.framework.TestSuite;
 
 /**
  * Test cases for HTTP version class
@@ -46,12 +44,6 @@ public class TestHttpVersion extends TestCase {
 
     public TestHttpVersion(String name) {
         super(name);
-    }
-
-    // ------------------------------------------------------- TestCase Methods
-
-    public static Test suite() {
-        return new TestSuite(TestHttpVersion.class);
     }
 
     // ------------------------------------------------------------------ Tests

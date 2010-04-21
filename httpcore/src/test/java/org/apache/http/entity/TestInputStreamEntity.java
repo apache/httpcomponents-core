@@ -31,11 +31,9 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
 
-import org.apache.http.protocol.HTTP;
-
-import junit.framework.Test;
 import junit.framework.TestCase;
-import junit.framework.TestSuite;
+
+import org.apache.http.protocol.HTTP;
 
 /**
  * Unit tests for {@link InputStreamEntity}.
@@ -45,15 +43,6 @@ public class TestInputStreamEntity extends TestCase {
 
     public TestInputStreamEntity(String testName) {
         super(testName);
-    }
-
-    public static void main(String args[]) {
-        String[] testCaseName = { TestInputStreamEntity.class.getName() };
-        junit.textui.TestRunner.main(testCaseName);
-    }
-
-    public static Test suite() {
-        return new TestSuite(TestInputStreamEntity.class);
     }
 
     public void testBasics() throws Exception {

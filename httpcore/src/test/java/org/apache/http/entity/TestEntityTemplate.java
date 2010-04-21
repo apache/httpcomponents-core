@@ -31,9 +31,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 
-import junit.framework.Test;
 import junit.framework.TestCase;
-import junit.framework.TestSuite;
 
 import org.apache.http.HttpEntity;
 
@@ -45,15 +43,6 @@ public class TestEntityTemplate extends TestCase {
 
     public TestEntityTemplate(String testName) {
         super(testName);
-    }
-
-    public static void main(String args[]) {
-        String[] testCaseName = { TestEntityTemplate.class.getName() };
-        junit.textui.TestRunner.main(testCaseName);
-    }
-
-    public static Test suite() {
-        return new TestSuite(TestEntityTemplate.class);
     }
 
     public void testBasics() throws Exception {

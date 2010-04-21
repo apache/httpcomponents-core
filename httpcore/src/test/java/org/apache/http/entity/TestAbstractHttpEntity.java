@@ -27,14 +27,12 @@
 
 package org.apache.http.entity;
 
+import junit.framework.TestCase;
+
 import org.apache.http.Header;
 import org.apache.http.message.BasicHeader;
 import org.apache.http.mockup.HttpEntityMockup;
 import org.apache.http.protocol.HTTP;
-
-import junit.framework.Test;
-import junit.framework.TestCase;
-import junit.framework.TestSuite;
 
 /**
  * Unit tests for {@link AbstractHttpEntity}.
@@ -44,15 +42,6 @@ public class TestAbstractHttpEntity extends TestCase {
 
     public TestAbstractHttpEntity(String testName) {
         super(testName);
-    }
-
-    public static void main(String args[]) {
-        String[] testCaseName = { TestAbstractHttpEntity.class.getName() };
-        junit.textui.TestRunner.main(testCaseName);
-    }
-
-    public static Test suite() {
-        return new TestSuite(TestAbstractHttpEntity.class);
     }
 
     public void testContentType() throws Exception {

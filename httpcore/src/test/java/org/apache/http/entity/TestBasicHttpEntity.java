@@ -33,9 +33,7 @@ import java.io.InputStream;
 
 import org.apache.http.protocol.HTTP;
 
-import junit.framework.Test;
 import junit.framework.TestCase;
-import junit.framework.TestSuite;
 
 /**
  * Unit tests for {@link BasicHttpEntity}.
@@ -45,15 +43,6 @@ public class TestBasicHttpEntity extends TestCase {
 
     public TestBasicHttpEntity(String testName) {
         super(testName);
-    }
-
-    public static void main(String args[]) {
-        String[] testCaseName = { TestBasicHttpEntity.class.getName() };
-        junit.textui.TestRunner.main(testCaseName);
-    }
-
-    public static Test suite() {
-        return new TestSuite(TestBasicHttpEntity.class);
     }
 
     public void testBasics() throws Exception {
