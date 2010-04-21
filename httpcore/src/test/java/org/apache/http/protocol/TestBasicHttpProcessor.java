@@ -120,23 +120,17 @@ public class TestBasicHttpProcessor extends TestCase {
         BasicHttpProcessor instance = new BasicHttpProcessor();
 
         instance.addRequestInterceptor(itcp1);
-        instance.addRequestInterceptor(itcp2, Integer.MAX_VALUE);
+        instance.addRequestInterceptor(itcp2, 1);
         int itcpCount = instance.getRequestInterceptorCount();
         assertEquals(2, itcpCount);
         assertEquals(itcp1, instance.getRequestInterceptor(0));
         assertEquals(itcp2, instance.getRequestInterceptor(itcpCount - 1));
-
-        instance = new BasicHttpProcessor();
-        instance.addRequestInterceptor(itcp1, -1);
-        assertEquals(1, itcpCount);
-        assertEquals(itcp1, instance.getRequestInterceptor(0));
-        assertEquals(itcp1, instance.getRequestInterceptor(itcpCount - 1));
     }
 
     public void testAddRequestInterceptorMiddleIndex() {
         HttpRequestInterceptor itcp1 = new TestHttpRequestInterceptorPlaceHolder();
         BasicHttpProcessor instance = new BasicHttpProcessor();
-        instance.addRequestInterceptor(itcp1, 2);
+        instance.addRequestInterceptor(itcp1, 0);
     }
 
     public void testClearByClass() {
