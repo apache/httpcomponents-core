@@ -151,7 +151,7 @@ public class DefaultNHttpClientConnection
                     if (bytesRead > 0) {
                         this.inTransportMetrics.incrementBytesTransferred(bytesRead);
                     }
-                    this.response = (HttpResponse) this.responseParser.parse();
+                    this.response = this.responseParser.parse();
                 } while (bytesRead > 0 && this.response == null);
                 if (this.response != null) {
                     if (this.response.getStatusLine().getStatusCode() >= 200) {

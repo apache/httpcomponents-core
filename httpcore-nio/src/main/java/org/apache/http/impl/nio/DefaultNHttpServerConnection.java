@@ -149,7 +149,7 @@ public class DefaultNHttpServerConnection
                     if (bytesRead > 0) {
                         this.inTransportMetrics.incrementBytesTransferred(bytesRead);
                     }
-                    this.request = (HttpRequest) this.requestParser.parse();
+                    this.request = this.requestParser.parse();
                 } while (bytesRead > 0 && this.request == null);                
                 if (this.request != null) {
                     if (this.request instanceof HttpEntityEnclosingRequest) {
