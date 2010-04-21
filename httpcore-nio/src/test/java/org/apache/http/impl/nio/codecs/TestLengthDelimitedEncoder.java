@@ -37,9 +37,7 @@ import java.nio.channels.Channels;
 import java.nio.channels.FileChannel;
 import java.nio.channels.WritableByteChannel;
 
-import junit.framework.Test;
 import junit.framework.TestCase;
-import junit.framework.TestSuite;
 
 import org.apache.http.impl.io.HttpTransportMetricsImpl;
 import org.apache.http.impl.nio.reactor.SessionOutputBufferImpl;
@@ -61,17 +59,7 @@ public class TestLengthDelimitedEncoder extends TestCase {
         super(testName);
     }
 
-    // ------------------------------------------------------------------- Main
-    public static void main(String args[]) {
-        String[] testCaseName = { TestLengthDelimitedEncoder.class.getName() };
-        junit.textui.TestRunner.main(testCaseName);
-    }
-
     // ------------------------------------------------------- TestCase Methods
-
-    public static Test suite() {
-        return new TestSuite(TestLengthDelimitedEncoder.class);
-    }
 
     private static ByteBuffer wrap(final String s) {
         return ByteBuffer.wrap(EncodingUtils.getAsciiBytes(s));

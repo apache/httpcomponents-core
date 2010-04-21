@@ -31,9 +31,7 @@ import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.channels.ReadableByteChannel;
 
-import junit.framework.Test;
 import junit.framework.TestCase;
-import junit.framework.TestSuite;
 
 import org.apache.http.Header;
 import org.apache.http.MalformedChunkCodingException;
@@ -57,17 +55,7 @@ public class TestChunkDecoder extends TestCase {
         super(testName);
     }
 
-    // ------------------------------------------------------------------- Main
-    public static void main(String args[]) {
-        String[] testCaseName = { TestChunkDecoder.class.getName() };
-        junit.textui.TestRunner.main(testCaseName);
-    }
-
     // ------------------------------------------------------- TestCase Methods
-
-    public static Test suite() {
-        return new TestSuite(TestChunkDecoder.class);
-    }
 
     private static String convert(final ByteBuffer src) {
         src.flip();

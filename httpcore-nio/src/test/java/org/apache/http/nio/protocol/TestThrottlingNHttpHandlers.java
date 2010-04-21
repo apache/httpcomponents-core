@@ -45,9 +45,6 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
-import junit.framework.Test;
-import junit.framework.TestSuite;
-
 import org.apache.http.HttpCoreNIOTestBase;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpEntityEnclosingRequest;
@@ -101,17 +98,7 @@ public class TestThrottlingNHttpHandlers extends HttpCoreNIOTestBase {
         super(testName);
     }
 
-    // ------------------------------------------------------------------- Main
-    public static void main(String args[]) {
-        String[] testCaseName = { TestThrottlingNHttpHandlers.class.getName() };
-        junit.textui.TestRunner.main(testCaseName);
-    }
-
     // ------------------------------------------------------- TestCase Methods
-
-    public static Test suite() {
-        return new TestSuite(TestThrottlingNHttpHandlers.class);
-    }
 
     private ExecutorService execService;
     

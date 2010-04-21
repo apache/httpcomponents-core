@@ -39,9 +39,7 @@ import javax.net.ssl.SSLContext;
 import javax.net.ssl.TrustManager;
 import javax.net.ssl.TrustManagerFactory;
 
-import junit.framework.Test;
 import junit.framework.TestCase;
-import junit.framework.TestSuite;
 
 import org.apache.http.HttpException;
 import org.apache.http.HttpRequest;
@@ -56,8 +54,8 @@ import org.apache.http.nio.protocol.BufferingHttpServiceHandler;
 import org.apache.http.nio.protocol.EventListener;
 import org.apache.http.nio.reactor.ListenerEndpoint;
 import org.apache.http.params.CoreConnectionPNames;
-import org.apache.http.params.HttpParams;
 import org.apache.http.params.CoreProtocolPNames;
+import org.apache.http.params.HttpParams;
 import org.apache.http.params.SyncBasicHttpParams;
 import org.apache.http.protocol.HttpContext;
 import org.apache.http.protocol.HttpExpectationVerifier;
@@ -89,10 +87,6 @@ public class TestBaseIOReactorSSL extends TestCase {
     @Override
     protected void tearDown() throws Exception {
         this.server.shutdown();
-    }
-
-    public static Test suite() {
-        return new TestSuite(TestBaseIOReactorSSL.class);
     }
 
     private NHttpServiceHandler createHttpServiceHandler(

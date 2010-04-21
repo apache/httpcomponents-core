@@ -34,13 +34,11 @@ import java.nio.channels.Channels;
 import java.nio.channels.ReadableByteChannel;
 import java.nio.channels.WritableByteChannel;
 
-import junit.framework.Test;
 import junit.framework.TestCase;
-import junit.framework.TestSuite;
 
-import org.apache.http.io.BufferInfo;
 import org.apache.http.impl.io.HttpTransportMetricsImpl;
 import org.apache.http.impl.nio.reactor.SessionOutputBufferImpl;
+import org.apache.http.io.BufferInfo;
 import org.apache.http.mockup.MockupDecoder;
 import org.apache.http.mockup.MockupEncoder;
 import org.apache.http.mockup.ReadableByteChannelMockup;
@@ -64,17 +62,7 @@ public class TestBuffers extends TestCase {
         super(testName);
     }
 
-    // ------------------------------------------------------------------- Main
-    public static void main(String args[]) {
-        String[] testCaseName = { TestBuffers.class.getName() };
-        junit.textui.TestRunner.main(testCaseName);
-    }
-
     // ------------------------------------------------------- TestCase Methods
-
-    public static Test suite() {
-        return new TestSuite(TestBuffers.class);
-    }
 
     public void testInputBufferOperations() throws IOException {
         ReadableByteChannel channel = new ReadableByteChannelMockup(

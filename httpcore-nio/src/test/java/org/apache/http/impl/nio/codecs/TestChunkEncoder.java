@@ -32,9 +32,7 @@ import java.nio.ByteBuffer;
 import java.nio.channels.Channels;
 import java.nio.channels.WritableByteChannel;
 
-import junit.framework.Test;
 import junit.framework.TestCase;
-import junit.framework.TestSuite;
 
 import org.apache.http.impl.io.HttpTransportMetricsImpl;
 import org.apache.http.impl.nio.reactor.SessionOutputBufferImpl;
@@ -56,17 +54,7 @@ public class TestChunkEncoder extends TestCase {
         super(testName);
     }
 
-    // ------------------------------------------------------------------- Main
-    public static void main(String args[]) {
-        String[] testCaseName = { TestChunkEncoder.class.getName() };
-        junit.textui.TestRunner.main(testCaseName);
-    }
-
     // ------------------------------------------------------- TestCase Methods
-
-    public static Test suite() {
-        return new TestSuite(TestChunkEncoder.class);
-    }
 
     private static ByteBuffer wrap(final String s) {
         return ByteBuffer.wrap(EncodingUtils.getAsciiBytes(s));

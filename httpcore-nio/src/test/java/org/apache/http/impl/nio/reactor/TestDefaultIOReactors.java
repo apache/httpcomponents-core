@@ -35,9 +35,6 @@ import java.util.Queue;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import junit.framework.Test;
-import junit.framework.TestSuite;
-
 import org.apache.http.HttpCoreNIOTestBase;
 import org.apache.http.HttpException;
 import org.apache.http.HttpRequest;
@@ -84,17 +81,7 @@ public class TestDefaultIOReactors extends HttpCoreNIOTestBase {
         super(testName);
     }
 
-    // ------------------------------------------------------------------- Main
-    public static void main(String args[]) {
-        String[] testCaseName = { TestDefaultIOReactors.class.getName() };
-        junit.textui.TestRunner.main(testCaseName);
-    }
-
     // ------------------------------------------------------- TestCase Methods
-
-    public static Test suite() {
-        return new TestSuite(TestDefaultIOReactors.class);
-    }
 
     public void testGracefulShutdown() throws Exception {
 

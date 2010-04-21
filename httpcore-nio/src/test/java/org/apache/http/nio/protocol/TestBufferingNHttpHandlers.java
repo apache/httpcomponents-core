@@ -33,9 +33,6 @@ import java.util.LinkedList;
 import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
-import junit.framework.Test;
-import junit.framework.TestSuite;
-
 import org.apache.http.HttpCoreNIOTestBase;
 import org.apache.http.HttpEntityEnclosingRequest;
 import org.apache.http.HttpRequest;
@@ -78,17 +75,7 @@ public class TestBufferingNHttpHandlers extends HttpCoreNIOTestBase {
         super(testName);
     }
 
-    // ------------------------------------------------------------------- Main
-    public static void main(String args[]) {
-        String[] testCaseName = { TestBufferingNHttpHandlers.class.getName() };
-        junit.textui.TestRunner.main(testCaseName);
-    }
-
     // ------------------------------------------------------- TestCase Methods
-
-    public static Test suite() {
-        return new TestSuite(TestBufferingNHttpHandlers.class);
-    }
 
     private void executeStandardTest(
             final HttpRequestHandler requestHandler,

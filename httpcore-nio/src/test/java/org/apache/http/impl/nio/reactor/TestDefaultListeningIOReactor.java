@@ -34,9 +34,7 @@ import java.util.Set;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
-import junit.framework.Test;
 import junit.framework.TestCase;
-import junit.framework.TestSuite;
 
 import org.apache.http.HttpResponseInterceptor;
 import org.apache.http.impl.DefaultConnectionReuseStrategy;
@@ -67,18 +65,8 @@ public class TestDefaultListeningIOReactor extends TestCase {
         super(testName);
     }
 
-    // ------------------------------------------------------------------- Main
-    public static void main(String args[]) {
-        String[] testCaseName = { TestDefaultListeningIOReactor.class.getName() };
-        junit.textui.TestRunner.main(testCaseName);
-    }
-
     // ------------------------------------------------------- TestCase Methods
 
-    public static Test suite() {
-        return new TestSuite(TestDefaultListeningIOReactor.class);
-    }
-    
     public void testEndpointUpAndDown() throws Exception {
         
         HttpParams params = new SyncBasicHttpParams();

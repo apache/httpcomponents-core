@@ -34,9 +34,6 @@ import java.util.Queue;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import junit.framework.Test;
-import junit.framework.TestSuite;
-
 import org.apache.http.HttpCoreNIOSSLTestBase;
 import org.apache.http.HttpException;
 import org.apache.http.HttpRequest;
@@ -81,17 +78,7 @@ public class TestDefaultIOReactorsSSL extends HttpCoreNIOSSLTestBase {
         super(testName);
     }
 
-    // ------------------------------------------------------------------- Main
-    public static void main(String args[]) {
-        String[] testCaseName = { TestDefaultIOReactorsSSL.class.getName() };
-        junit.textui.TestRunner.main(testCaseName);
-    }
-
     // ------------------------------------------------------- TestCase Methods
-
-    public static Test suite() {
-        return new TestSuite(TestDefaultIOReactorsSSL.class);
-    }
 
     public void testGracefulShutdown() throws Exception {
 

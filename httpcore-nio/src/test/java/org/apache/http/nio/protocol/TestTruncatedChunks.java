@@ -37,6 +37,8 @@ import java.util.List;
 import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
+import junit.framework.TestCase;
+
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpRequest;
 import org.apache.http.HttpRequestInterceptor;
@@ -67,9 +69,6 @@ import org.apache.http.nio.NHttpServerIOTarget;
 import org.apache.http.nio.NHttpServiceHandler;
 import org.apache.http.nio.entity.ConsumingNHttpEntity;
 import org.apache.http.nio.entity.ContentInputStream;
-import org.apache.http.nio.protocol.AsyncNHttpClientHandler;
-import org.apache.http.nio.protocol.AsyncNHttpServiceHandler;
-import org.apache.http.nio.protocol.NHttpRequestExecutionHandler;
 import org.apache.http.nio.reactor.IOEventDispatch;
 import org.apache.http.nio.reactor.IOSession;
 import org.apache.http.nio.reactor.ListenerEndpoint;
@@ -95,10 +94,6 @@ import org.apache.http.protocol.ResponseDate;
 import org.apache.http.protocol.ResponseServer;
 import org.apache.http.util.CharArrayBuffer;
 
-import junit.framework.Test;
-import junit.framework.TestCase;
-import junit.framework.TestSuite;
-
 /**
  * Tests for handling truncated chunks.
  */
@@ -109,18 +104,8 @@ public class TestTruncatedChunks extends TestCase {
         super(testName);
     }
 
-    // ------------------------------------------------------------------- Main
-    public static void main(String args[]) {
-        String[] testCaseName = { TestTruncatedChunks.class.getName() };
-        junit.textui.TestRunner.main(testCaseName);
-    }
-
     // ------------------------------------------------------- TestCase Methods
 
-    public static Test suite() {
-        return new TestSuite(TestTruncatedChunks.class);
-    }
-    
     private static final byte[] GARBAGE = new byte[] {'1', '2', '3', '4', '5' };
     
     static class BrokenChunkEncoder extends AbstractContentEncoder {

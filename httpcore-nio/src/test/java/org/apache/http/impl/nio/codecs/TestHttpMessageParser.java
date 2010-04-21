@@ -33,9 +33,7 @@ import java.io.UnsupportedEncodingException;
 import java.nio.channels.Channels;
 import java.nio.channels.ReadableByteChannel;
 
-import junit.framework.Test;
 import junit.framework.TestCase;
-import junit.framework.TestSuite;
 
 import org.apache.http.HttpException;
 import org.apache.http.HttpRequest;
@@ -62,17 +60,7 @@ public class TestHttpMessageParser extends TestCase {
         super(testName);
     }
 
-    // ------------------------------------------------------------------- Main
-    public static void main(String args[]) {
-        String[] testCaseName = { TestHttpMessageParser.class.getName() };
-        junit.textui.TestRunner.main(testCaseName);
-    }
-
     // ------------------------------------------------------- TestCase Methods
-
-    public static Test suite() {
-        return new TestSuite(TestHttpMessageParser.class);
-    }
 
     private static ReadableByteChannel newChannel(final String s, final String charset) 
             throws UnsupportedEncodingException {
