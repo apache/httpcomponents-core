@@ -102,6 +102,14 @@ public class TestContentLengthInputStream extends TestCase {
         assertEquals(5, in.read(new byte[20]));
     }
 
+    public void testAvailable() throws IOException {
+        InputStream in = new ContentLengthInputStream(
+                new SessionInputBufferMockup(new byte[] {1, 2, 3}), 10L);
+        assertEquals(0, in.available());
+        in.read();
+        assertEquals(2, in.available());
+    }
+
     public void testClose() throws IOException {
         String correct = "1234567890123456";
         InputStream in = new ContentLengthInputStream(new SessionInputBufferMockup(

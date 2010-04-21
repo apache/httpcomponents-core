@@ -34,6 +34,7 @@ import org.apache.http.Header;
 import org.apache.http.HttpException;
 import org.apache.http.MalformedChunkCodingException;
 import org.apache.http.TruncatedChunkException;
+import org.apache.http.io.BufferInfo;
 import org.apache.http.io.SessionInputBuffer;
 import org.apache.http.util.CharArrayBuffer;
 import org.apache.http.util.ExceptionUtils;
@@ -99,6 +100,15 @@ public class ChunkedInputStream extends InputStream {
         this.state = CHUNK_LEN;
     }
 
+    public int available() throws IOException {
+        if (this.in instanceof BufferInfo) {
+            int len = ((BufferInfo) this.in).length();
+            return Math.min(len, this.chunkSize - this.pos); 
+        } else {
+            return 0;
+        }
+    }
+    
     /**
      * <p> Returns all the data in a chunked stream in coalesced form. A chunk
      * is followed by a CRLF. The method returns -1 as soon as a chunksize of 0

@@ -140,6 +140,16 @@ public class TestChunkCoding extends TestCase {
 
         in.close();        
     }
+    
+    public void testAvailable() throws IOException {
+        String s = "5\r\n12345\r\n0\r\n";
+        ChunkedInputStream in = new ChunkedInputStream(
+                new SessionInputBufferMockup(
+                        EncodingUtils.getBytes(s, CONTENT_CHARSET)));
+        assertEquals(0, in.available());
+        in.read();
+        assertEquals(4, in.available());
+    }
 
     public void testChunkedInputStreamClose() throws IOException {
         String s = "5\r\n01234\r\n5\r\n56789\r\n0\r\n";

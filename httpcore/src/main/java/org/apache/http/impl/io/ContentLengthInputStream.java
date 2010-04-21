@@ -30,6 +30,7 @@ package org.apache.http.impl.io;
 import java.io.IOException;
 import java.io.InputStream;
 
+import org.apache.http.io.BufferInfo;
 import org.apache.http.io.SessionInputBuffer;
 
 /**
@@ -109,7 +110,15 @@ public class ContentLengthInputStream extends InputStream {
         }
     }
 
-
+    public int available() throws IOException {
+        if (this.in instanceof BufferInfo) {
+            int len = ((BufferInfo) this.in).length();
+            return Math.min(len, (int) (this.contentLength - this.pos)); 
+        } else {
+            return 0;
+        }
+    }
+    
     /**
      * Read the next byte from the stream
      * @return The next byte or -1 if the end of stream has been reached.
