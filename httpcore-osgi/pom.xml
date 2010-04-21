@@ -53,12 +53,12 @@
     <dependency>
       <groupId>org.apache.httpcomponents</groupId>
       <artifactId>httpcore</artifactId>
-      <version>${pom.version}</version>
+      <version>${project.version}</version>
     </dependency>
     <dependency>
       <groupId>org.apache.httpcomponents</groupId>
       <artifactId>httpcore-nio</artifactId>
-      <version>${pom.version}</version>
+      <version>${project.version}</version>
     </dependency>
   </dependencies>
 
@@ -77,8 +77,8 @@
         <extensions>true</extensions>
         <configuration>
           <instructions>
-            <Bundle-Name>Apache ${pom.name}</Bundle-Name>
-            <Bundle-SymbolicName>${pom.groupId}.httpcore</Bundle-SymbolicName>
+            <Bundle-Name>Apache ${project.name}</Bundle-Name>
+            <Bundle-SymbolicName>${project.groupId}.httpcore</Bundle-SymbolicName>
             <Import-Package>!org.apache.http*,*</Import-Package>            
             <_exportcontents>org.apache.http.*;version=${project.version}</_exportcontents>
             <Embed-Dependency>*;scope=compile|runtime;inline=false</Embed-Dependency>
@@ -86,7 +86,7 @@
         </configuration>
       </plugin>
     </plugins>
-    <finalName>org.apache.httpcomponents.httpcore_${pom.version}</finalName>
+    <finalName>org.apache.httpcomponents.httpcore_${project.version}</finalName>
   </build>
 
 </project>

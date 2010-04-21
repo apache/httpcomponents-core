@@ -126,15 +126,15 @@
           <tasks>
             <ant antfile="src/main/assembly/build.xml">
               <property name="target" value="${project.build.directory}" />
-              <property name="package.name" value="${pom.artifactId}-${pom.version}-bin" />
+              <property name="package.name" value="${project.artifactId}-${project.version}-bin" />
             </ant>
             <ant antfile="src/main/assembly/build.xml">
               <property name="target" value="${project.build.directory}" />
-              <property name="package.name" value="${pom.artifactId}-${pom.version}-src" />
+              <property name="package.name" value="${project.artifactId}-${project.version}-src" />
             </ant>
             <ant antfile="src/main/assembly/build.xml">
               <property name="target" value="${project.build.directory}" />
-              <property name="package.name" value="${pom.artifactId}-${pom.version}-osgi-bin" />
+              <property name="package.name" value="${project.artifactId}-${project.version}-osgi-bin" />
             </ant>
           </tasks>
         </configuration>

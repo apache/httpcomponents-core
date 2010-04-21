@@ -53,7 +53,7 @@
     <dependency>
       <groupId>org.apache.httpcomponents</groupId>
       <artifactId>httpcore</artifactId>
-      <version>${pom.version}</version>
+      <version>${project.version}</version>
     </dependency>
     <dependency>
       <groupId>junit</groupId>
@@ -124,13 +124,13 @@
           <archive>
             <manifestEntries>
               <Specification-Title>HttpComponents HttpCore NIO</Specification-Title>
-              <Specification-Version>${pom.version}</Specification-Version>
+              <Specification-Version>${project.version}</Specification-Version>
               <Specification-Vendor>The Apache Software Foundation</Specification-Vendor>
               <Implementation-Title>HttpComponents HttpCore NIO</Implementation-Title>
-              <Implementation-Version>${pom.version}</Implementation-Version>
+              <Implementation-Version>${project.version}</Implementation-Version>
               <Implementation-Vendor>The Apache Software Foundation</Implementation-Vendor>
               <Implementation-Vendor-Id>org.apache</Implementation-Vendor-Id>
-              <url>${pom.url}</url>
+              <url>${project.url}</url>
             </manifestEntries>
           </archive>
         </configuration>
