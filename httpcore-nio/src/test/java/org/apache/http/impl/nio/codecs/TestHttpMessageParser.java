@@ -78,7 +78,7 @@ public class TestHttpMessageParser extends TestCase {
         HttpRequestFactory requestFactory = new DefaultHttpRequestFactory();
         NHttpMessageParser<HttpRequest> requestParser = new DefaultHttpRequestParser(inbuf, null, requestFactory, params);
         requestParser.fillBuffer(newChannel("GET /whatever HTTP/1.1\r\nSome header: stuff\r\n\r\n"));
-        HttpRequest request = (HttpRequest) requestParser.parse();
+        HttpRequest request = requestParser.parse();
         assertNotNull(request);
         assertEquals("/whatever", request.getRequestLine().getUri());
         assertEquals(1, request.getAllHeaders().length);
@@ -91,13 +91,13 @@ public class TestHttpMessageParser extends TestCase {
         NHttpMessageParser<HttpRequest> requestParser = new DefaultHttpRequestParser(inbuf, null, requestFactory, params);
 
         requestParser.fillBuffer(newChannel("GET /whatev"));
-        HttpRequest request = (HttpRequest) requestParser.parse();
+        HttpRequest request = requestParser.parse();
         assertNull(request);
         requestParser.fillBuffer(newChannel("er HTTP/1.1\r"));
-        request = (HttpRequest) requestParser.parse();
+        request = requestParser.parse();
         assertNull(request);
         requestParser.fillBuffer(newChannel("\nSome header: stuff\r\n\r\n"));
-        request = (HttpRequest) requestParser.parse();
+        request = requestParser.parse();
 
         assertNotNull(request);
         assertEquals("/whatever", request.getRequestLine().getUri());
@@ -112,22 +112,22 @@ public class TestHttpMessageParser extends TestCase {
         NHttpMessageParser<HttpRequest> requestParser = new DefaultHttpRequestParser(inbuf, null, requestFactory, params);
 
         requestParser.fillBuffer(newChannel("GET /whatev"));
-        HttpRequest request = (HttpRequest) requestParser.parse();
+        HttpRequest request = requestParser.parse();
         assertNull(request);
         requestParser.fillBuffer(newChannel("er HTTP/1.1\r"));
-        request = (HttpRequest) requestParser.parse();
+        request = requestParser.parse();
         assertNull(request);
         requestParser.fillBuffer(newChannel("\nSome header: stuff\r\n"));
-        request = (HttpRequest) requestParser.parse();
+        request = requestParser.parse();
         assertNull(request);
         requestParser.fillBuffer(newChannel("   more\r\n"));
-        request = (HttpRequest) requestParser.parse();
+        request = requestParser.parse();
         assertNull(request);
         requestParser.fillBuffer(newChannel("\tstuff\r\n"));
-        request = (HttpRequest) requestParser.parse();
+        request = requestParser.parse();
         assertNull(request);
         requestParser.fillBuffer(newChannel("\r\n"));
-        request = (HttpRequest) requestParser.parse();
+        request = requestParser.parse();
 
         assertNotNull(request);
         assertEquals("/whatever", request.getRequestLine().getUri());
@@ -142,19 +142,19 @@ public class TestHttpMessageParser extends TestCase {
         NHttpMessageParser<HttpRequest> requestParser = new DefaultHttpRequestParser(inbuf, null, requestFactory, params);
 
         requestParser.fillBuffer(newChannel("GET /whatev"));
-        HttpRequest request = (HttpRequest) requestParser.parse();
+        HttpRequest request = requestParser.parse();
         assertNull(request);
         requestParser.fillBuffer(newChannel("er HTTP/1.1\r"));
-        request = (HttpRequest) requestParser.parse();
+        request = requestParser.parse();
         assertNull(request);
         requestParser.fillBuffer(newChannel("\n  Some header: stuff\r\n"));
-        request = (HttpRequest) requestParser.parse();
+        request = requestParser.parse();
         assertNull(request);
         requestParser.fillBuffer(newChannel("   more stuff\r\n"));
-        request = (HttpRequest) requestParser.parse();
+        request = requestParser.parse();
         assertNull(request);
         requestParser.fillBuffer(newChannel("\r\n"));
-        request = (HttpRequest) requestParser.parse();
+        request = requestParser.parse();
 
         assertNotNull(request);
         assertEquals("/whatever", request.getRequestLine().getUri());
@@ -169,22 +169,22 @@ public class TestHttpMessageParser extends TestCase {
         NHttpMessageParser<HttpRequest> requestParser = new DefaultHttpRequestParser(inbuf, null, requestFactory, params);
 
         requestParser.fillBuffer(newChannel("GET /whatev"));
-        HttpRequest request = (HttpRequest) requestParser.parse();
+        HttpRequest request = requestParser.parse();
         assertNull(request);
         requestParser.fillBuffer(newChannel("er HTTP/1.1\r"));
-        request = (HttpRequest) requestParser.parse();
+        request = requestParser.parse();
         assertNull(request);
         requestParser.fillBuffer(newChannel("\n  Some header: stuff\r\n"));
-        request = (HttpRequest) requestParser.parse();
+        request = requestParser.parse();
         assertNull(request);
         requestParser.fillBuffer(newChannel("      \r\n"));
-        request = (HttpRequest) requestParser.parse();
+        request = requestParser.parse();
         assertNull(request);
         requestParser.fillBuffer(newChannel("      more stuff\r\n"));
-        request = (HttpRequest) requestParser.parse();
+        request = requestParser.parse();
         assertNull(request);
         requestParser.fillBuffer(newChannel("\r\n"));
-        request = (HttpRequest) requestParser.parse();
+        request = requestParser.parse();
 
         assertNotNull(request);
         assertEquals("/whatever", request.getRequestLine().getUri());
@@ -201,7 +201,7 @@ public class TestHttpMessageParser extends TestCase {
         ReadableByteChannel channel = newChannel("GET /whatever HTTP/1.0");
         requestParser.fillBuffer(channel);
         requestParser.fillBuffer(channel);
-        HttpRequest request = (HttpRequest) requestParser.parse();
+        HttpRequest request = requestParser.parse();
         assertNotNull(request);
         assertEquals(HttpVersion.HTTP_1_0, request.getRequestLine().getProtocolVersion());
     }
@@ -215,7 +215,7 @@ public class TestHttpMessageParser extends TestCase {
         ReadableByteChannel channel = newChannel("GET /whatever HTTP/1.0\r\nHeader: whatever");
         requestParser.fillBuffer(channel);
         requestParser.fillBuffer(channel);
-        HttpRequest request = (HttpRequest) requestParser.parse();
+        HttpRequest request = requestParser.parse();
         assertNotNull(request);
         assertEquals(1, request.getAllHeaders().length);
         assertEquals("whatever", request.getFirstHeader("Header").getValue());
@@ -277,7 +277,7 @@ public class TestHttpMessageParser extends TestCase {
         
         ReadableByteChannel channel = newChannel("GET /whatever HTTP/1.0\r\nHeader: one\r\n\r\n");
         requestParser.fillBuffer(channel);
-        HttpRequest request = (HttpRequest) requestParser.parse();
+        HttpRequest request = requestParser.parse();
         assertNotNull(request);
         assertEquals(1, request.getAllHeaders().length);
         assertEquals("one", request.getFirstHeader("Header").getValue());
@@ -286,7 +286,7 @@ public class TestHttpMessageParser extends TestCase {
 
         channel = newChannel("GET /whatever HTTP/1.0\r\nHeader: two\r\n\r\n");
         requestParser.fillBuffer(channel);
-        request = (HttpRequest) requestParser.parse();
+        request = requestParser.parse();
         assertNotNull(request);
         assertEquals(1, request.getAllHeaders().length);
         assertEquals("two", request.getFirstHeader("Header").getValue());
