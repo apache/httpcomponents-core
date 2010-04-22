@@ -30,6 +30,7 @@ package org.apache.http.entity;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
+import java.io.InputStream;
 
 import junit.framework.TestCase;
 
@@ -51,11 +52,13 @@ public class TestFileEntity extends TestCase {
         FileEntity httpentity = new FileEntity(tmpfile, HTTP.ISO_8859_1);
         
         assertEquals(tmpfile.length(), httpentity.getContentLength());
-        assertNotNull(httpentity.getContent());
+        final InputStream content = httpentity.getContent();
+        assertNotNull(content);
+        content.close();
         assertTrue(httpentity.isRepeatable());
         assertFalse(httpentity.isStreaming());        
         if (!tmpfile.delete()){
-            System.out.println("Failed to delete: "+tmpfile);
+            fail("Failed to delete: "+tmpfile);
         }
     }
 
@@ -90,7 +93,7 @@ public class TestFileEntity extends TestCase {
             assertEquals(i, bytes[i]);
         }
         if (!tmpfile.delete()){
-            System.out.println("Failed to delete: "+tmpfile);
+            fail("Failed to delete: "+tmpfile);
         }
 
         try {
