@@ -29,7 +29,7 @@ package org.apache.http.nio.params;
 
 /**
  * Parameter names for I/O reactors.
- * 
+ *
  * @since 4.0
  */
 public interface NIOReactorPNames {
@@ -41,7 +41,7 @@ public interface NIOReactorPNames {
      * This parameter expects a value of type {@link Integer}.
      * </p>
      */
-    public static final String CONTENT_BUFFER_SIZE = "http.nio.content-buffer-size"; 
+    public static final String CONTENT_BUFFER_SIZE = "http.nio.content-buffer-size";
 
     /**
      * Determines the time interval in milliseconds at which the
@@ -50,7 +50,7 @@ public interface NIOReactorPNames {
      * This parameter expects a value of type {@link Long}.
      * </p>
      */
-    public static final String SELECT_INTERVAL = "http.nio.select-interval"; 
+    public static final String SELECT_INTERVAL = "http.nio.select-interval";
 
     /**
      * Determines the grace period the I/O reactors are expected to block
@@ -59,14 +59,14 @@ public interface NIOReactorPNames {
      * This parameter expects a value of type {@link Long}.
      * </p>
      */
-    public static final String GRACE_PERIOD = "http.nio.grace-period"; 
+    public static final String GRACE_PERIOD = "http.nio.grace-period";
 
     /**
      * Determines whether interestOps() queueing is enabled for the I/O reactors.
      * <p>
      * This parameter expects a value of type {@link Boolean}.
      * </p>
-     * 
+     *
      * @since 4.1
      */
     public static final String INTEREST_OPS_QUEUEING = "http.nio.interest-ops-queueing";

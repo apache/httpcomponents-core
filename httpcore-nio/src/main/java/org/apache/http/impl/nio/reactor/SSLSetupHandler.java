@@ -35,7 +35,7 @@ import org.apache.http.nio.reactor.IOSession;
 import org.apache.http.params.HttpParams;
 
 /**
- * Callback interface that can be used to customize various aspects of 
+ * Callback interface that can be used to customize various aspects of
  * the TLS/SSl protocol.
  *
  * @since 4.1
@@ -43,29 +43,29 @@ import org.apache.http.params.HttpParams;
 public interface SSLSetupHandler {
 
     /**
-     * Triggered when the SSL connection is being initialized. Custom handlers 
-     * can use this callback to customize properties of the {@link SSLEngine} 
+     * Triggered when the SSL connection is being initialized. Custom handlers
+     * can use this callback to customize properties of the {@link SSLEngine}
      * used to establish the SSL session.
-     * 
+     *
      * @param sslengine the SSL engine.
      * @param params HTTP parameters.
-     * @throws SSLException if case of SSL protocol error. 
+     * @throws SSLException if case of SSL protocol error.
      */
     void initalize(SSLEngine sslengine, HttpParams params)
         throws SSLException;
 
     /**
-     * Triggered when the SSL connection has been established and initial SSL 
-     * handshake has been successfully completed. Custom handlers can use 
-     * this callback to verify properties of the {@link SSLSession}. 
-     * For instance this would be the right place to enforce SSL cipher 
+     * Triggered when the SSL connection has been established and initial SSL
+     * handshake has been successfully completed. Custom handlers can use
+     * this callback to verify properties of the {@link SSLSession}.
+     * For instance this would be the right place to enforce SSL cipher
      * strength, validate certificate chain and do hostname checks.
-     * 
+     *
      * @param iosession the underlying IOSession for the SSL connection.
      * @param sslsession newly created SSL session.
-     * @throws SSLException if case of SSL protocol error. 
+     * @throws SSLException if case of SSL protocol error.
      */
     void verify(IOSession iosession, SSLSession sslsession)
         throws SSLException;
-    
+
 }

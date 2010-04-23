@@ -49,7 +49,7 @@ public class HttpCoreNIOSSLTestBase extends TestCase {
 
     protected TestHttpSSLServer server;
     protected TestHttpSSLClient client;
-    
+
     @Override
     protected void setUp() throws Exception {
         HttpParams serverParams = new SyncBasicHttpParams();
@@ -59,10 +59,10 @@ public class HttpCoreNIOSSLTestBase extends TestCase {
             .setBooleanParameter(CoreConnectionPNames.STALE_CONNECTION_CHECK, false)
             .setBooleanParameter(CoreConnectionPNames.TCP_NODELAY, true)
             .setParameter(CoreProtocolPNames.ORIGIN_SERVER, "TEST-SERVER/1.1");
-        
+
         this.server = new TestHttpSSLServer(serverParams);
         this.server.setExceptionHandler(new SimpleIOReactorExceptionHandler());
-        
+
         HttpParams clientParams = new SyncBasicHttpParams();
         clientParams
             .setIntParameter(CoreConnectionPNames.SO_TIMEOUT, 120000)
@@ -71,7 +71,7 @@ public class HttpCoreNIOSSLTestBase extends TestCase {
             .setBooleanParameter(CoreConnectionPNames.STALE_CONNECTION_CHECK, false)
             .setBooleanParameter(CoreConnectionPNames.TCP_NODELAY, true)
             .setParameter(CoreProtocolPNames.USER_AGENT, "TEST-CLIENT/1.1");
-        
+
         this.client = new TestHttpSSLClient(clientParams);
         this.client.setExceptionHandler(new SimpleIOReactorExceptionHandler());
     }

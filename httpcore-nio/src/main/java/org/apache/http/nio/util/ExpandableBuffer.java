@@ -33,8 +33,8 @@ import org.apache.http.io.BufferInfo;
 
 /**
  * A buffer that expand its capacity on demand using {@link ByteBufferAllocator}
- * interface. Internally, this class is backed by an instance of 
- * {@link ByteBuffer}. 
+ * interface. Internally, this class is backed by an instance of
+ * {@link ByteBuffer}.
  * <p>
  * This class is not thread safe.
  *
@@ -42,17 +42,17 @@ import org.apache.http.io.BufferInfo;
  */
 @SuppressWarnings("deprecation")
 public class ExpandableBuffer implements BufferInfo, org.apache.http.nio.util.BufferInfo {
-    
+
     public final static int INPUT_MODE = 0;
     public final static int OUTPUT_MODE = 1;
-    
+
     private int mode;
     protected ByteBuffer buffer = null;
     private final ByteBufferAllocator allocator;
 
     /**
      * Allocates buffer of the given size using the given allocator.
-     * 
+     *
      * @param buffersize the buffer size.
      * @param allocator allocator to be used to allocate {@link ByteBuffer}s.
      */
@@ -72,7 +72,7 @@ public class ExpandableBuffer implements BufferInfo, org.apache.http.nio.util.Bu
      * {@link #INPUT_MODE}: the buffer is in the input mode.
      * <p>
      * {@link #OUTPUT_MODE}: the buffer is in the output mode.
-     * 
+     *
      * @return current input/output mode.
      */
     protected int getMode() {
@@ -88,9 +88,9 @@ public class ExpandableBuffer implements BufferInfo, org.apache.http.nio.util.Bu
             this.mode = OUTPUT_MODE;
         }
     }
-    
+
     /**
-     * Sets input mode. The buffer can now be written into. 
+     * Sets input mode. The buffer can now be written into.
      */
     protected void setInputMode() {
         if (this.mode != INPUT_MODE) {
@@ -102,14 +102,14 @@ public class ExpandableBuffer implements BufferInfo, org.apache.http.nio.util.Bu
             this.mode = INPUT_MODE;
         }
     }
-    
+
     private void expandCapacity(int capacity) {
         ByteBuffer oldbuffer = this.buffer;
         this.buffer = allocator.allocate(capacity);
         oldbuffer.flip();
         this.buffer.put(oldbuffer);
     }
-    
+
     /**
      * Expands buffer's capacity.
      */
@@ -120,10 +120,10 @@ public class ExpandableBuffer implements BufferInfo, org.apache.http.nio.util.Bu
         }
         expandCapacity(newcapacity);
     }
-    
+
     /**
      * Ensures the buffer can accommodate the required capacity.
-     * 
+     *
      * @param requiredCapacity
      */
     protected void ensureCapacity(int requiredCapacity) {
@@ -131,19 +131,19 @@ public class ExpandableBuffer implements BufferInfo, org.apache.http.nio.util.Bu
             expandCapacity(requiredCapacity);
         }
     }
-    
+
     /**
      * Returns the total capacity of this buffer.
-     * 
+     *
      * @return total capacity.
      */
     public int capacity() {
         return this.buffer.capacity();
     }
- 
+
     /**
      * Determines if the buffer contains data.
-     * 
+     *
      * @return <code>true</code> if there is data in the buffer,
      *   <code>false</code> otherwise.
      */
@@ -151,32 +151,32 @@ public class ExpandableBuffer implements BufferInfo, org.apache.http.nio.util.Bu
         setOutputMode();
         return this.buffer.hasRemaining();
     }
-    
+
     /**
      * Returns the length of this buffer.
-     * 
+     *
      * @return buffer length.
      */
     public int length() {
         setOutputMode();
         return this.buffer.remaining();
     }
-    
+
     /**
      * Returns available capacity of this buffer.
-     * 
+     *
      * @return buffer length.
      */
     public int available() {
         setInputMode();
         return this.buffer.remaining();
     }
-    
+
     /**
      * Clears buffer.
      */
     protected void clear() {
-        this.buffer.clear();        
+        this.buffer.clear();
         this.mode = INPUT_MODE;
     }
 
@@ -199,5 +199,5 @@ public class ExpandableBuffer implements BufferInfo, org.apache.http.nio.util.Bu
         sb.append("]");
         return sb.toString();
     }
-    
+
 }

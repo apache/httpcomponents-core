@@ -65,7 +65,7 @@ import org.apache.http.protocol.ResponseDate;
 import org.apache.http.protocol.ResponseServer;
 
 /**
- * HttpCore NIO integration tests using buffering versions of the 
+ * HttpCore NIO integration tests using buffering versions of the
  * protocol handlers.
  */
 public class TestBufferingNHttpHandlers extends HttpCoreNIOTestBase {
@@ -84,11 +84,11 @@ public class TestBufferingNHttpHandlers extends HttpCoreNIOTestBase {
         int reqNo = 20;
         TestJob[] jobs = new TestJob[connNo * reqNo];
         for (int i = 0; i < jobs.length; i++) {
-            jobs[i] = new TestJob(); 
+            jobs[i] = new TestJob();
         }
         Queue<TestJob> queue = new ConcurrentLinkedQueue<TestJob>();
         for (int i = 0; i < jobs.length; i++) {
-            queue.add(jobs[i]); 
+            queue.add(jobs[i]);
         }
 
         HttpProcessor serverHttpProc = new ImmutableHttpProcessor(new HttpResponseInterceptor[] {
@@ -124,7 +124,7 @@ public class TestBufferingNHttpHandlers extends HttpCoreNIOTestBase {
 
         clientHandler.setEventListener(
                 new SimpleEventListener());
-        
+
         this.server.start(serviceHandler);
         this.client.start(clientHandler);
 
@@ -133,7 +133,7 @@ public class TestBufferingNHttpHandlers extends HttpCoreNIOTestBase {
         InetSocketAddress serverAddress = (InetSocketAddress) endpoint.getAddress();
 
         assertEquals("Test server status", IOReactorStatus.ACTIVE, this.server.getStatus());
-        
+
         Queue<SessionRequest> connRequests = new LinkedList<SessionRequest>();
         for (int i = 0; i < connNo; i++) {
             SessionRequest sessionRequest = this.client.openConnection(
@@ -150,7 +150,7 @@ public class TestBufferingNHttpHandlers extends HttpCoreNIOTestBase {
             }
             assertNotNull(sessionRequest.getSession());
         }
-        
+
         assertEquals("Test client status", IOReactorStatus.ACTIVE, this.client.getStatus());
 
         for (int i = 0; i < jobs.length; i++) {
@@ -164,7 +164,7 @@ public class TestBufferingNHttpHandlers extends HttpCoreNIOTestBase {
             }
         }
     }
-    
+
     /**
      * This test case executes a series of simple (non-pipelined) GET requests
      * over multiple connections.
@@ -174,10 +174,10 @@ public class TestBufferingNHttpHandlers extends HttpCoreNIOTestBase {
 
             @Override
             protected HttpRequest generateRequest(TestJob testjob) {
-                String s = testjob.getPattern() + "x" + testjob.getCount(); 
+                String s = testjob.getPattern() + "x" + testjob.getCount();
                 return new BasicHttpRequest("GET", s);
             }
-            
+
         };
         executeStandardTest(new TestRequestHandler(), requestExecutionHandler);
     }
@@ -191,7 +191,7 @@ public class TestBufferingNHttpHandlers extends HttpCoreNIOTestBase {
 
             @Override
             protected HttpRequest generateRequest(TestJob testjob) {
-                String s = testjob.getPattern() + "x" + testjob.getCount(); 
+                String s = testjob.getPattern() + "x" + testjob.getCount();
                 HttpEntityEnclosingRequest r = new BasicHttpEntityEnclosingRequest("POST", s);
                 NStringEntity entity = null;
                 try {
@@ -202,7 +202,7 @@ public class TestBufferingNHttpHandlers extends HttpCoreNIOTestBase {
                 r.setEntity(entity);
                 return r;
             }
-            
+
         };
         executeStandardTest(new TestRequestHandler(), requestExecutionHandler);
     }
@@ -216,7 +216,7 @@ public class TestBufferingNHttpHandlers extends HttpCoreNIOTestBase {
 
             @Override
             protected HttpRequest generateRequest(TestJob testjob) {
-                String s = testjob.getPattern() + "x" + testjob.getCount(); 
+                String s = testjob.getPattern() + "x" + testjob.getCount();
                 HttpEntityEnclosingRequest r = new BasicHttpEntityEnclosingRequest("POST", s);
                 NStringEntity entity = null;
                 try {
@@ -227,7 +227,7 @@ public class TestBufferingNHttpHandlers extends HttpCoreNIOTestBase {
                 r.setEntity(entity);
                 return r;
             }
-            
+
         };
         executeStandardTest(new TestRequestHandler(), requestExecutionHandler);
     }
@@ -241,8 +241,8 @@ public class TestBufferingNHttpHandlers extends HttpCoreNIOTestBase {
 
             @Override
             protected HttpRequest generateRequest(TestJob testjob) {
-                String s = testjob.getPattern() + "x" + testjob.getCount(); 
-                HttpEntityEnclosingRequest r = new BasicHttpEntityEnclosingRequest("POST", s, 
+                String s = testjob.getPattern() + "x" + testjob.getCount();
+                HttpEntityEnclosingRequest r = new BasicHttpEntityEnclosingRequest("POST", s,
                         HttpVersion.HTTP_1_0);
                 NStringEntity entity = null;
                 try {
@@ -252,7 +252,7 @@ public class TestBufferingNHttpHandlers extends HttpCoreNIOTestBase {
                 r.setEntity(entity);
                 return r;
             }
-            
+
         };
         executeStandardTest(new TestRequestHandler(), requestExecutionHandler);
     }
@@ -266,7 +266,7 @@ public class TestBufferingNHttpHandlers extends HttpCoreNIOTestBase {
 
             @Override
             protected HttpRequest generateRequest(TestJob testjob) {
-                String s = testjob.getPattern() + "x" + testjob.getCount(); 
+                String s = testjob.getPattern() + "x" + testjob.getCount();
                 HttpEntityEnclosingRequest r = new BasicHttpEntityEnclosingRequest("POST", s);
                 NStringEntity entity = null;
                 try {
@@ -277,7 +277,7 @@ public class TestBufferingNHttpHandlers extends HttpCoreNIOTestBase {
                 r.getParams().setBooleanParameter(CoreProtocolPNames.USE_EXPECT_CONTINUE, true);
                 return r;
             }
-            
+
         };
         executeStandardTest(new TestRequestHandler(), requestExecutionHandler);
     }

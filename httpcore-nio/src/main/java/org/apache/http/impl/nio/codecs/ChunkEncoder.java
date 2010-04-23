@@ -38,18 +38,18 @@ import org.apache.http.util.CharArrayBuffer;
 
 /**
  * Implements chunked transfer coding. The content is sent in small chunks.
- * Entities transferred using this decoder can be of unlimited length. 
+ * Entities transferred using this decoder can be of unlimited length.
  *
  * @since 4.0
  */
 public class ChunkEncoder extends AbstractContentEncoder {
-    
+
     private final CharArrayBuffer lineBuffer;
-    
+
     private final BufferInfo bufferinfo;
-    
+
     public ChunkEncoder(
-            final WritableByteChannel channel, 
+            final WritableByteChannel channel,
             final SessionOutputBuffer buffer,
             final HttpTransportMetricsImpl metrics) {
         super(channel, buffer, metrics);
@@ -70,7 +70,7 @@ public class ChunkEncoder extends AbstractContentEncoder {
         if (chunk == 0) {
             return 0;
         }
-        
+
         long bytesWritten = this.buffer.flush(this.channel);
         if (bytesWritten > 0) {
             this.metrics.incrementBytesTransferred(bytesWritten);
@@ -121,7 +121,7 @@ public class ChunkEncoder extends AbstractContentEncoder {
         this.buffer.writeLine(this.lineBuffer);
         this.completed = true; // == super.complete()
     }
-    
+
     @Override
     public String toString() {
         StringBuffer buffer = new StringBuffer();
@@ -130,5 +130,5 @@ public class ChunkEncoder extends AbstractContentEncoder {
         buffer.append("]");
         return buffer.toString();
     }
-    
+
 }

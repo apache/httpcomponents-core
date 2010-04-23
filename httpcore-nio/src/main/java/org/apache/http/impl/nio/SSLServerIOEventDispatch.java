@@ -51,8 +51,8 @@ import org.apache.http.protocol.ExecutionContext;
  * Default implementation of {@link IOEventDispatch} interface for SSL
  * (encrypted) server-side HTTP connections.
  * <p>
- * The following parameters can be used to customize the behavior of this 
- * class: 
+ * The following parameters can be used to customize the behavior of this
+ * class:
  * <ul>
  *  <li>{@link org.apache.http.params.CoreProtocolPNames#HTTP_ELEMENT_CHARSET}</li>
  *  <li>{@link org.apache.http.params.CoreConnectionPNames#SOCKET_BUFFER_SIZE}</li>
@@ -61,25 +61,25 @@ import org.apache.http.protocol.ExecutionContext;
  * </ul>
  *
  * @since 4.0
- * 
+ *
  * @deprecated use {@link org.apache.http.impl.nio.ssl.SSLServerIOEventDispatch}
  */
 @Deprecated
 public class SSLServerIOEventDispatch implements IOEventDispatch {
 
     private static final String SSL_SESSION = "SSL_SESSION";
-   
+
     protected final NHttpServiceHandler handler;
     protected final SSLContext sslcontext;
     protected final SSLIOSessionHandler sslHandler;
     protected final HttpParams params;
-    
+
     /**
-     * Creates a new instance of this class to be used for dispatching I/O event 
-     * notifications to the given protocol handler using the given 
-     * {@link SSLContext}. This I/O dispatcher will transparently handle SSL 
+     * Creates a new instance of this class to be used for dispatching I/O event
+     * notifications to the given protocol handler using the given
+     * {@link SSLContext}. This I/O dispatcher will transparently handle SSL
      * protocol aspects for HTTP connections.
-     * 
+     *
      * @param handler the server protocol handler.
      * @param sslcontext the SSL context.
      * @param sslHandler the SSL handler.
@@ -105,13 +105,13 @@ public class SSLServerIOEventDispatch implements IOEventDispatch {
         this.sslcontext = sslcontext;
         this.sslHandler = sslHandler;
     }
-    
+
     /**
-     * Creates a new instance of this class to be used for dispatching I/O event 
-     * notifications to the given protocol handler using the given 
-     * {@link SSLContext}. This I/O dispatcher will transparently handle SSL 
+     * Creates a new instance of this class to be used for dispatching I/O event
+     * notifications to the given protocol handler using the given
+     * {@link SSLContext}. This I/O dispatcher will transparently handle SSL
      * protocol aspects for HTTP connections.
-     * 
+     *
      * @param handler the server protocol handler.
      * @param sslcontext the SSL context.
      * @param params HTTP parameters.
@@ -122,60 +122,60 @@ public class SSLServerIOEventDispatch implements IOEventDispatch {
             final HttpParams params) {
         this(handler, sslcontext, null, params);
     }
-    
+
     /**
-     * Creates an instance of {@link HeapByteBufferAllocator} to be used 
+     * Creates an instance of {@link HeapByteBufferAllocator} to be used
      * by HTTP connections for allocating {@link java.nio.ByteBuffer} objects.
      * <p>
-     * This method can be overridden in a super class in order to provide 
-     * a different implementation of the {@link ByteBufferAllocator} interface. 
-     * 
+     * This method can be overridden in a super class in order to provide
+     * a different implementation of the {@link ByteBufferAllocator} interface.
+     *
      * @return byte buffer allocator.
      */
     protected ByteBufferAllocator createByteBufferAllocator() {
-        return new HeapByteBufferAllocator(); 
+        return new HeapByteBufferAllocator();
     }
-        
+
     /**
-     * Creates an instance of {@link DefaultHttpRequestFactory} to be used 
+     * Creates an instance of {@link DefaultHttpRequestFactory} to be used
      * by HTTP connections for creating {@link HttpRequest} objects.
      * <p>
-     * This method can be overridden in a super class in order to provide 
-     * a different implementation of the {@link HttpRequestFactory} interface. 
-     * 
+     * This method can be overridden in a super class in order to provide
+     * a different implementation of the {@link HttpRequestFactory} interface.
+     *
      * @return HTTP request factory.
      */
     protected HttpRequestFactory createHttpRequestFactory() {
-        return new DefaultHttpRequestFactory(); 
+        return new DefaultHttpRequestFactory();
     }
-        
+
     /**
      * Creates an instance of {@link DefaultNHttpServerConnection} based on the
      * given {@link IOSession}.
      * <p>
-     * This method can be overridden in a super class in order to provide 
-     * a different implementation of the {@link NHttpServerIOTarget} interface. 
-     * 
-     * @param session the underlying SSL I/O session. 
-     * 
+     * This method can be overridden in a super class in order to provide
+     * a different implementation of the {@link NHttpServerIOTarget} interface.
+     *
+     * @param session the underlying SSL I/O session.
+     *
      * @return newly created HTTP connection.
      */
     protected NHttpServerIOTarget createConnection(final IOSession session) {
         return new DefaultNHttpServerConnection(
-                session, 
+                session,
                 createHttpRequestFactory(),
                 createByteBufferAllocator(),
-                this.params); 
+                this.params);
     }
-        
+
     /**
      * Creates an instance of {@link SSLIOSession} decorating the given
      * {@link IOSession}.
      * <p>
-     * This method can be overridden in a super class in order to provide 
-     * a different implementation of SSL I/O session. 
-     * 
-     * @param session the underlying I/O session. 
+     * This method can be overridden in a super class in order to provide
+     * a different implementation of SSL I/O session.
+     *
+     * @param session the underlying I/O session.
      * @param sslcontext the SSL context.
      * @param sslHandler the SSL handler.
      * @return newly created SSL I/O session.
@@ -184,19 +184,19 @@ public class SSLServerIOEventDispatch implements IOEventDispatch {
             final IOSession session,
             final SSLContext sslcontext,
             final SSLIOSessionHandler sslHandler) {
-        return new SSLIOSession(session, sslcontext, sslHandler); 
+        return new SSLIOSession(session, sslcontext, sslHandler);
     }
-    
+
     public void connected(final IOSession session) {
 
         SSLIOSession sslSession = createSSLIOSession(
-                session, 
+                session,
                 this.sslcontext,
-                this.sslHandler); 
-        
+                this.sslHandler);
+
         NHttpServerIOTarget conn = createConnection(
-                sslSession); 
-        
+                sslSession);
+
         session.setAttribute(ExecutionContext.HTTP_CONNECTION, conn);
         session.setAttribute(SSL_SESSION, sslSession);
 
@@ -211,7 +211,7 @@ public class SSLServerIOEventDispatch implements IOEventDispatch {
     }
 
     public void disconnected(final IOSession session) {
-        NHttpServerIOTarget conn = 
+        NHttpServerIOTarget conn =
             (NHttpServerIOTarget) session.getAttribute(ExecutionContext.HTTP_CONNECTION);
 
         if (conn != null) {
@@ -220,9 +220,9 @@ public class SSLServerIOEventDispatch implements IOEventDispatch {
     }
 
     public void inputReady(final IOSession session) {
-        NHttpServerIOTarget conn = 
+        NHttpServerIOTarget conn =
             (NHttpServerIOTarget) session.getAttribute(ExecutionContext.HTTP_CONNECTION);
-        SSLIOSession sslSession = 
+        SSLIOSession sslSession =
             (SSLIOSession) session.getAttribute(SSL_SESSION);
 
         try {
@@ -237,9 +237,9 @@ public class SSLServerIOEventDispatch implements IOEventDispatch {
     }
 
     public void outputReady(final IOSession session) {
-        NHttpServerIOTarget conn = 
+        NHttpServerIOTarget conn =
             (NHttpServerIOTarget) session.getAttribute(ExecutionContext.HTTP_CONNECTION);
-        SSLIOSession sslSession = 
+        SSLIOSession sslSession =
             (SSLIOSession) session.getAttribute(SSL_SESSION);
 
         try {
@@ -254,9 +254,9 @@ public class SSLServerIOEventDispatch implements IOEventDispatch {
     }
 
     public void timeout(final IOSession session) {
-        NHttpServerIOTarget conn = 
+        NHttpServerIOTarget conn =
             (NHttpServerIOTarget) session.getAttribute(ExecutionContext.HTTP_CONNECTION);
-        SSLIOSession sslSession = 
+        SSLIOSession sslSession =
             (SSLIOSession) session.getAttribute(SSL_SESSION);
 
         this.handler.timeout(conn);

@@ -45,7 +45,7 @@ public class IOReactorException extends IOException {
             initCause(cause);
         }
     }
-    
+
     public IOReactorException(final String message) {
         super(message);
     }

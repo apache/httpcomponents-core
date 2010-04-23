@@ -37,11 +37,11 @@ import org.apache.http.nio.ContentEncoder;
  * @since 4.0
  */
 public interface FileContentEncoder extends ContentEncoder {
-    
+
     /**
-     * Transfers a portion of entity content from the given file channel 
+     * Transfers a portion of entity content from the given file channel
      * to the underlying network channel.
-     * 
+     *
      * @param  src the source FileChannel to transfer data from.
      * @param  position
      *         The position within the file at which the transfer is to begin;
@@ -54,5 +54,5 @@ public interface FileContentEncoder extends ContentEncoder {
      *          that were actually transferred
      */
     long transfer(FileChannel src, long position, long count) throws IOException;
-    
+
 }

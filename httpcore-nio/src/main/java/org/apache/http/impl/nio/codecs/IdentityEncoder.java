@@ -37,22 +37,22 @@ import org.apache.http.nio.FileContentEncoder;
 import org.apache.http.nio.reactor.SessionOutputBuffer;
 
 /**
- * Content encoder that writes data without any transformation. The end of 
- * the content entity is demarcated by closing the underlying connection 
- * (EOF condition). Entities transferred using this input stream can be of 
- * unlimited length. 
+ * Content encoder that writes data without any transformation. The end of
+ * the content entity is demarcated by closing the underlying connection
+ * (EOF condition). Entities transferred using this input stream can be of
+ * unlimited length.
  * <p>
- * This decoder is optimized to transfer data directly from 
- * a {@link FileChannel} to the underlying I/O session's channel whenever 
- * possible avoiding intermediate buffering in the session buffer. 
+ * This decoder is optimized to transfer data directly from
+ * a {@link FileChannel} to the underlying I/O session's channel whenever
+ * possible avoiding intermediate buffering in the session buffer.
  *
  * @since 4.0
  */
-public class IdentityEncoder extends AbstractContentEncoder 
+public class IdentityEncoder extends AbstractContentEncoder
         implements FileContentEncoder {
-    
+
     public IdentityEncoder(
-            final WritableByteChannel channel, 
+            final WritableByteChannel channel,
             final SessionOutputBuffer buffer,
             final HttpTransportMetricsImpl metrics) {
         super(channel, buffer, metrics);
@@ -69,12 +69,12 @@ public class IdentityEncoder extends AbstractContentEncoder
         }
         return bytesWritten;
     }
- 
+
     public long transfer(
-            final FileChannel src, 
-            long position, 
+            final FileChannel src,
+            long position,
             long count) throws IOException {
-        
+
         if (src == null) {
             return 0;
         }
@@ -84,8 +84,8 @@ public class IdentityEncoder extends AbstractContentEncoder
             this.metrics.incrementBytesTransferred(bytesWritten);
         }
         return bytesWritten;
-    } 
-    
+    }
+
     @Override
     public String toString() {
         StringBuffer buffer = new StringBuffer();
@@ -94,5 +94,5 @@ public class IdentityEncoder extends AbstractContentEncoder
         buffer.append("]");
         return buffer.toString();
     }
-    
+
 }

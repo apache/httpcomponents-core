@@ -34,5 +34,5 @@ public enum SSLMode {
 
     CLIENT,
     SERVER
-    
+
 }

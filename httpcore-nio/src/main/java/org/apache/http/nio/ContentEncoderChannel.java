@@ -35,7 +35,7 @@ import org.apache.http.nio.ContentEncoder;
 
 /**
  * A {@link WritableByteChannel} that delegates to a {@link ContentEncoder}.
- * Attempts to close this channel are ignored, and {@link #isOpen} always 
+ * Attempts to close this channel are ignored, and {@link #isOpen} always
  * returns <code>true</code>.
  *
  * @since 4.0

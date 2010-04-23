@@ -45,7 +45,7 @@ public class TestHttpClient {
 
     private final DefaultConnectingIOReactor ioReactor;
     private final HttpParams params;
-    
+
     private volatile IOReactorThread thread;
 
     public TestHttpClient(final HttpParams params) throws IOException {
@@ -57,7 +57,7 @@ public class TestHttpClient {
     public HttpParams getParams() {
         return this.params;
     }
-    
+
     public void setExceptionHandler(final IOReactorExceptionHandler exceptionHandler) {
         this.ioReactor.setExceptionHandler(exceptionHandler);
     }
@@ -66,19 +66,19 @@ public class TestHttpClient {
             final NHttpClientHandler clientHandler, final HttpParams params) {
         return new DefaultClientIOEventDispatch(clientHandler, params);
     }
-    
+
     private void execute(final NHttpClientHandler clientHandler) throws IOException {
         IOEventDispatch ioEventDispatch = createIOEventDispatch(
-                clientHandler, 
-                this.params);        
-        
+                clientHandler,
+                this.params);
+
         this.ioReactor.execute(ioEventDispatch);
     }
-    
+
     public SessionRequest openConnection(final InetSocketAddress address, final Object attachment) {
         return this.ioReactor.connect(address, null, attachment, null);
     }
- 
+
     public void start(final NHttpClientHandler clientHandler) {
         this.thread = new IOReactorThread(clientHandler);
         this.thread.start();
@@ -87,17 +87,17 @@ public class TestHttpClient {
     public IOReactorStatus getStatus() {
         return this.ioReactor.getStatus();
     }
-    
+
     public List<ExceptionEvent> getAuditLog() {
         return this.ioReactor.getAuditLog();
     }
-    
+
     public void join(long timeout) throws InterruptedException {
         if (this.thread != null) {
             this.thread.join(timeout);
         }
     }
-    
+
     public Exception getException() {
         if (this.thread != null) {
             return this.thread.getException();
@@ -105,7 +105,7 @@ public class TestHttpClient {
             return null;
         }
     }
-    
+
     public void shutdown() throws IOException {
         this.ioReactor.shutdown();
         try {
@@ -113,18 +113,18 @@ public class TestHttpClient {
         } catch (InterruptedException ignore) {
         }
     }
-    
+
     private class IOReactorThread extends Thread {
 
         private final NHttpClientHandler clientHandler;
 
         private volatile Exception ex;
-        
+
         public IOReactorThread(final NHttpClientHandler clientHandler) {
             super();
             this.clientHandler = clientHandler;
         }
-        
+
         @Override
         public void run() {
             try {
@@ -133,11 +133,11 @@ public class TestHttpClient {
                 this.ex = ex;
             }
         }
-        
+
         public Exception getException() {
             return this.ex;
         }
 
-    }    
-    
+    }
+
 }

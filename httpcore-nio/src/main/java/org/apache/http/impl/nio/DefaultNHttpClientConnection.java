@@ -52,26 +52,26 @@ import org.apache.http.params.HttpParams;
 /**
  * Default implementation of the {@link NHttpClientConnection} interface.
  * <p>
- * The following parameters can be used to customize the behavior of this 
- * class: 
+ * The following parameters can be used to customize the behavior of this
+ * class:
  * <ul>
  *  <li>{@link org.apache.http.params.CoreProtocolPNames#HTTP_ELEMENT_CHARSET}</li>
  *  <li>{@link org.apache.http.params.CoreConnectionPNames#SOCKET_BUFFER_SIZE}</li>
  *  <li>{@link org.apache.http.params.CoreConnectionPNames#MAX_HEADER_COUNT}</li>
  *  <li>{@link org.apache.http.params.CoreConnectionPNames#MAX_LINE_LENGTH}</li>
  * </ul>
- * 
+ *
  * @since 4.0
  */
-public class DefaultNHttpClientConnection 
+public class DefaultNHttpClientConnection
     extends NHttpConnectionBase implements NHttpClientIOTarget {
 
     protected final NHttpMessageParser<HttpResponse> responseParser;
     protected final NHttpMessageWriter<HttpRequest> requestWriter;
-    
+
     /**
      * Creates a new instance of this class given the underlying I/O session.
-     * 
+     *
      * @param session the underlying I/O session.
      * @param responseFactory HTTP response factory.
      * @param allocator byte buffer allocator.
@@ -92,14 +92,14 @@ public class DefaultNHttpClientConnection
         this.hasBufferedOutput = false;
         this.session.setBufferStatus(this);
     }
-    
+
     /**
-     * Creates an instance of {@link NHttpMessageParser} to be used 
+     * Creates an instance of {@link NHttpMessageParser} to be used
      * by this connection for parsing incoming {@link HttpResponse} messages.
      * <p>
-     * This method can be overridden in a super class in order to provide 
-     * a different implementation of the {@link NHttpMessageParser} interface. 
-     * 
+     * This method can be overridden in a super class in order to provide
+     * a different implementation of the {@link NHttpMessageParser} interface.
+     *
      * @return HTTP response parser.
      */
     protected NHttpMessageParser<HttpResponse> createResponseParser(
@@ -111,12 +111,12 @@ public class DefaultNHttpClientConnection
     }
 
     /**
-     * Creates an instance of {@link NHttpMessageWriter} to be used 
+     * Creates an instance of {@link NHttpMessageWriter} to be used
      * by this connection for writing out outgoing {@link HttpRequest} messages.
      * <p>
-     * This method can be overridden by a super class in order to provide 
-     * a different implementation of the {@link NHttpMessageWriter} interface. 
-     * 
+     * This method can be overridden by a super class in order to provide
+     * a different implementation of the {@link NHttpMessageWriter} interface.
+     *
      * @return HTTP response parser.
      */
     protected NHttpMessageWriter<HttpRequest> createRequestWriter(
@@ -125,19 +125,19 @@ public class DefaultNHttpClientConnection
         // override in derived class to specify a line formatter
         return new DefaultHttpRequestWriter(buffer, null, params);
     }
-    
+
     public void resetInput() {
         this.response = null;
         this.contentDecoder = null;
         this.responseParser.reset();
     }
-    
+
     public void resetOutput() {
         this.request = null;
         this.contentEncoder = null;
         this.requestWriter.reset();
     }
-    
+
     public void consumeInput(final NHttpClientHandler handler) {
         if (this.status != ACTIVE) {
             this.session.clearEvent(EventMask.READ);
@@ -210,16 +210,16 @@ public class DefaultNHttpClientConnection
                         }
                     }
                 }
-                
+
                 if (this.contentEncoder == null && !this.outbuf.hasData()) {
                     if (this.status == CLOSING) {
                         this.session.close();
                         this.status = CLOSED;
                         return;
                     }
-                    
+
                     this.session.clearEvent(EventMask.WRITE);
-                    
+
                     handler.requestReady(this);
                 }
             }
@@ -230,7 +230,7 @@ public class DefaultNHttpClientConnection
             this.hasBufferedOutput = this.outbuf.hasData();
         }
     }
-    
+
     public void submitRequest(final HttpRequest request) throws IOException, HttpException {
         if (request == null) {
             throw new IllegalArgumentException("HTTP request may not be null");
@@ -267,5 +267,5 @@ public class DefaultNHttpClientConnection
         buffer.append("]");
         return buffer.toString();
     }
-    
+
 }

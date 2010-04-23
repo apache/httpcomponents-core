@@ -30,9 +30,9 @@ package org.apache.http.impl.nio.reactor;
 import java.nio.channels.SelectionKey;
 
 /**
- * Helper class, representing an entry on an {@link java.nio.channels.SelectionKey#interestOps(int) 
+ * Helper class, representing an entry on an {@link java.nio.channels.SelectionKey#interestOps(int)
  * interestOps(int)} queue.
- * 
+ *
  * @since 4.1
  */
 public class InterestOpEntry {

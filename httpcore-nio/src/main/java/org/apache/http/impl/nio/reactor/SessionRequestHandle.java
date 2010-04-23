@@ -30,7 +30,7 @@ package org.apache.http.impl.nio.reactor;
 import org.apache.http.nio.reactor.SessionRequest;
 
 /**
- * Session request handle class used by I/O reactor implementations to keep 
+ * Session request handle class used by I/O reactor implementations to keep
  * a reference to a {@link SessionRequest} along with the time the request
  * was made.
  * @since 4.0
@@ -39,7 +39,7 @@ public class SessionRequestHandle {
 
     private final SessionRequestImpl sessionRequest;
     private final long requestTime;
-    
+
     public SessionRequestHandle(final SessionRequestImpl sessionRequest) {
         super();
         if (sessionRequest == null) {
@@ -48,13 +48,13 @@ public class SessionRequestHandle {
         this.sessionRequest = sessionRequest;
         this.requestTime = System.currentTimeMillis();
     }
-    
+
     public SessionRequestImpl getSessionRequest() {
         return this.sessionRequest;
     }
-    
+
     public long getRequestTime() {
         return this.requestTime;
     }
-    
+
 }

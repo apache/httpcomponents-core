@@ -112,7 +112,7 @@ public class SSLIOSession implements IOSession, SessionBufferStatus {
 
     /**
      * @since 4.1
-     * 
+     *
      * @deprecated
      */
     @Deprecated
@@ -122,7 +122,7 @@ public class SSLIOSession implements IOSession, SessionBufferStatus {
             final SSLIOSessionHandler handler) {
         this(session, sslContext, handler != null ? new SSLIOSessionHandlerAdaptor(handler) : null);
     }
-    
+
     public synchronized void bind(
             final SSLMode mode,
             final HttpParams params) throws SSLException {

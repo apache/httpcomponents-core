@@ -41,7 +41,7 @@ import org.apache.http.util.CharArrayBuffer;
  * Default {@link NHttpMessageWriter} implementation for {@link HttpRequest}s.
  *
  * @since 4.0
- * 
+ *
  * @deprecated use {@link DefaultHttpRequestWriter}
  */
 @SuppressWarnings("unchecked")
@@ -53,7 +53,7 @@ public class HttpRequestWriter extends AbstractMessageWriter {
                              final HttpParams params) {
         super(buffer, formatter, params);
     }
-    
+
     @Override
     protected void writeHeadLine(final HttpMessage message)
         throws IOException {

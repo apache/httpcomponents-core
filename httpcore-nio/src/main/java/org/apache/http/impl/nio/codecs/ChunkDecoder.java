@@ -50,11 +50,11 @@ import org.apache.http.util.CharArrayBuffer;
  * @since 4.0
  */
 public class ChunkDecoder extends AbstractContentDecoder {
-    
+
     private static final int READ_CONTENT   = 0;
     private static final int READ_FOOTERS  = 1;
     private static final int COMPLETED      = 2;
-    
+
     private int state;
     private boolean endOfChunk;
     private boolean endOfStream;
@@ -62,13 +62,13 @@ public class ChunkDecoder extends AbstractContentDecoder {
     private CharArrayBuffer lineBuf;
     private int chunkSize;
     private int pos;
-    
+
     private final List<CharArrayBuffer> trailerBufs;
-    
+
     private Header[] footers;
-    
-    public ChunkDecoder(            
-            final ReadableByteChannel channel, 
+
+    public ChunkDecoder(
+            final ReadableByteChannel channel,
             final SessionInputBuffer buffer,
             final HttpTransportMetricsImpl metrics) {
         super(channel, buffer, metrics);
@@ -87,7 +87,7 @@ public class ChunkDecoder extends AbstractContentDecoder {
             }
             int cr = this.buffer.read();
             int lf = this.buffer.read();
-            if (cr != HTTP.CR || lf != HTTP.LF) { 
+            if (cr != HTTP.CR || lf != HTTP.LF) {
                 throw new MalformedChunkCodingException("CRLF expected at end of chunk");
             }
             this.endOfChunk = false;
@@ -111,7 +111,7 @@ public class ChunkDecoder extends AbstractContentDecoder {
             this.pos = 0;
         }
     }
-    
+
     private void parseHeader() {
         CharArrayBuffer current = this.lineBuf;
         int count = this.trailerBufs.size();
@@ -149,7 +149,7 @@ public class ChunkDecoder extends AbstractContentDecoder {
         }
         this.trailerBufs.clear();
     }
-    
+
     public int read(final ByteBuffer dst) throws IOException {
         if (dst == null) {
             throw new IllegalArgumentException("Byte buffer may not be null");
@@ -157,7 +157,7 @@ public class ChunkDecoder extends AbstractContentDecoder {
         if (this.state == COMPLETED) {
             return -1;
         }
-        
+
         int totalRead = 0;
         while (this.state != COMPLETED) {
 
@@ -170,10 +170,10 @@ public class ChunkDecoder extends AbstractContentDecoder {
                     this.endOfStream = true;
                 }
             }
-            
+
             switch (this.state) {
             case READ_CONTENT:
-                
+
                 if (this.chunkSize == -1) {
                     readChunkHead();
                     if (this.chunkSize == -1) {
@@ -201,11 +201,11 @@ public class ChunkDecoder extends AbstractContentDecoder {
                         this.state = COMPLETED;
                         this.completed = true;
                         throw new TruncatedChunkException("Truncated chunk "
-                                + "( expected size: " + this.chunkSize 
+                                + "( expected size: " + this.chunkSize
                                 + "; actual size: " + this.pos + ")");
                     }
                 }
-                
+
                 if (this.pos == this.chunkSize) {
                     // At the end of the chunk
                     this.chunkSize = -1;
@@ -258,5 +258,5 @@ public class ChunkDecoder extends AbstractContentDecoder {
         buffer.append("]");
         return buffer.toString();
     }
-    
+
 }

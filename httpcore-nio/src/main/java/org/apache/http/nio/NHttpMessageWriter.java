@@ -34,25 +34,25 @@ import org.apache.http.HttpMessage;
 
 /**
  * Abstract HTTP message writer for non-blocking connections.
- * 
+ *
  * @since 4.0
  */
 public interface NHttpMessageWriter<T extends HttpMessage> {
-    
+
     /**
-     * Resets the writer. The writer will be ready to start serializing another 
+     * Resets the writer. The writer will be ready to start serializing another
      * HTTP message.
      */
     void reset();
-    
+
     /**
      * Serializes out the HTTP message head.
-     * 
+     *
      * @param message HTTP message.
      * @throws IOException in case of an I/O error.
      * @throws HttpException in case the HTTP message is malformed or
      *  violates the HTTP protocol.
      */
     void write(T message) throws IOException, HttpException;
-    
+
 }

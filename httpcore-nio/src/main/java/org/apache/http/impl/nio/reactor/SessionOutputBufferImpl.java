@@ -47,11 +47,11 @@ import org.apache.http.protocol.HTTP;
 import org.apache.http.util.CharArrayBuffer;
 
 /**
- * Default implementation of {@link SessionOutputBuffer} based on 
+ * Default implementation of {@link SessionOutputBuffer} based on
  * the {@link ExpandableBuffer} class.
  * <p>
- * The following parameters can be used to customize the behavior of this 
- * class: 
+ * The following parameters can be used to customize the behavior of this
+ * class:
  * <ul>
  *  <li>{@link org.apache.http.params.CoreProtocolPNames#HTTP_ELEMENT_CHARSET}</li>
  * </ul>
@@ -65,21 +65,21 @@ public class SessionOutputBufferImpl extends ExpandableBuffer implements Session
     private CharBuffer charbuffer = null;
     private Charset charset = null;
     private CharsetEncoder charencoder = null;
-    
+
     public SessionOutputBufferImpl(
-            int buffersize, 
-            int linebuffersize, 
+            int buffersize,
+            int linebuffersize,
             final ByteBufferAllocator allocator,
             final HttpParams params) {
         super(buffersize, allocator);
         this.charbuffer = CharBuffer.allocate(linebuffersize);
-        this.charset = Charset.forName(HttpProtocolParams.getHttpElementCharset(params)); 
+        this.charset = Charset.forName(HttpProtocolParams.getHttpElementCharset(params));
         this.charencoder = this.charset.newEncoder();
     }
 
     public SessionOutputBufferImpl(
-            int buffersize, 
-            int linebuffersize, 
+            int buffersize,
+            int linebuffersize,
             final HttpParams params) {
         this(buffersize, linebuffersize, new HeapByteBufferAllocator(), params);
     }
@@ -152,7 +152,7 @@ public class SessionOutputBufferImpl extends ExpandableBuffer implements Session
                 }
                 this.charbuffer.put(linebuffer.buffer(), offset, l);
                 this.charbuffer.flip();
-                
+
                 boolean retry = true;
                 while (retry) {
                     CoderResult result = this.charencoder.encode(this.charbuffer, this.buffer, eol);
@@ -183,7 +183,7 @@ public class SessionOutputBufferImpl extends ExpandableBuffer implements Session
         }
         writeCRLF();
     }
-    
+
     public void writeLine(final String s) throws IOException {
         if (s == null) {
             return;
@@ -196,5 +196,5 @@ public class SessionOutputBufferImpl extends ExpandableBuffer implements Session
             write(CRLF);
         }
     }
-    
+
 }

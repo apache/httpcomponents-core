@@ -43,7 +43,7 @@ import org.apache.http.params.HttpParams;
 
 /**
  * Trivial test server based on HttpCore NIO
- * 
+ *
  */
 public class TestHttpServer {
 
@@ -52,7 +52,7 @@ public class TestHttpServer {
 
     private volatile IOReactorThread thread;
     private ListenerEndpoint endpoint;
-    
+
     public TestHttpServer(final HttpParams params) throws IOException {
         super();
         this.ioReactor = new DefaultListeningIOReactor(2, params);
@@ -62,7 +62,7 @@ public class TestHttpServer {
     public HttpParams getParams() {
         return this.params;
     }
-    
+
     public void setExceptionHandler(final IOReactorExceptionHandler exceptionHandler) {
         this.ioReactor.setExceptionHandler(exceptionHandler);
     }
@@ -71,15 +71,15 @@ public class TestHttpServer {
             final NHttpServiceHandler serviceHandler, final HttpParams params) {
         return new DefaultServerIOEventDispatch(serviceHandler, params);
     }
-    
+
     private void execute(final NHttpServiceHandler serviceHandler) throws IOException {
         IOEventDispatch ioEventDispatch = createIOEventDispatch(
-                serviceHandler, 
+                serviceHandler,
                 this.params);
-        
+
         this.ioReactor.execute(ioEventDispatch);
     }
-    
+
     public ListenerEndpoint getListenerEndpoint() {
         return this.endpoint;
     }
@@ -93,21 +93,21 @@ public class TestHttpServer {
         this.thread = new IOReactorThread(serviceHandler);
         this.thread.start();
     }
-    
+
     public IOReactorStatus getStatus() {
         return this.ioReactor.getStatus();
     }
-    
+
     public List<ExceptionEvent> getAuditLog() {
         return this.ioReactor.getAuditLog();
     }
-    
+
     public void join(long timeout) throws InterruptedException {
         if (this.thread != null) {
             this.thread.join(timeout);
         }
     }
-    
+
     public Exception getException() {
         if (this.thread != null) {
             return this.thread.getException();
@@ -115,7 +115,7 @@ public class TestHttpServer {
             return null;
         }
     }
-    
+
     public void shutdown() throws IOException {
         this.ioReactor.shutdown();
         try {
@@ -123,18 +123,18 @@ public class TestHttpServer {
         } catch (InterruptedException ignore) {
         }
     }
-    
+
     private class IOReactorThread extends Thread {
 
         private final NHttpServiceHandler serviceHandler;
-        
+
         private volatile Exception ex;
-        
+
         public IOReactorThread(final NHttpServiceHandler serviceHandler) {
             super();
             this.serviceHandler = serviceHandler;
         }
-        
+
         @Override
         public void run() {
             try {
@@ -143,11 +143,11 @@ public class TestHttpServer {
                 this.ex = ex;
             }
         }
-        
+
         public Exception getException() {
             return this.ex;
         }
 
-    }    
-    
+    }
+
 }

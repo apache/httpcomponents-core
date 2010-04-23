@@ -50,12 +50,12 @@ import org.apache.http.params.HttpConnectionParams;
 import org.apache.http.params.HttpParams;
 
 /**
- * Default implementation of {@link ConnectingIOReactor}. This class extends 
+ * Default implementation of {@link ConnectingIOReactor}. This class extends
  * {@link AbstractMultiworkerIOReactor} with capability to connect to remote
  * hosts.
  * <p>
- * The following parameters can be used to customize the behavior of this 
- * class: 
+ * The following parameters can be used to customize the behavior of this
+ * class:
  * <ul>
  *  <li>{@link org.apache.http.params.CoreConnectionPNames#TCP_NODELAY}</li>
  *  <li>{@link org.apache.http.params.CoreConnectionPNames#SO_TIMEOUT}</li>
@@ -68,15 +68,15 @@ import org.apache.http.params.HttpParams;
  *
  * @since 4.0
  */
-public class DefaultConnectingIOReactor extends AbstractMultiworkerIOReactor 
+public class DefaultConnectingIOReactor extends AbstractMultiworkerIOReactor
         implements ConnectingIOReactor {
 
     private final Queue<SessionRequestImpl> requestQueue;
-    
+
     private long lastTimeoutCheck;
-    
+
     public DefaultConnectingIOReactor(
-            int workerCount, 
+            int workerCount,
             final ThreadFactory threadFactory,
             final HttpParams params) throws IOReactorException {
         super(workerCount, threadFactory, params);
@@ -85,11 +85,11 @@ public class DefaultConnectingIOReactor extends AbstractMultiworkerIOReactor
     }
 
     public DefaultConnectingIOReactor(
-            int workerCount, 
+            int workerCount,
             final HttpParams params) throws IOReactorException {
         this(workerCount, null, params);
     }
-    
+
     @Override
     protected void cancelRequests() throws IOReactorException {
         SessionRequestImpl request;
@@ -101,18 +101,18 @@ public class DefaultConnectingIOReactor extends AbstractMultiworkerIOReactor
     @Override
     protected void processEvents(int readyCount) throws IOReactorException {
         processSessionRequests();
-        
+
         if (readyCount > 0) {
             Set<SelectionKey> selectedKeys = this.selector.selectedKeys();
             for (Iterator<SelectionKey> it = selectedKeys.iterator(); it.hasNext(); ) {
-                
+
                 SelectionKey key = it.next();
                 processEvent(key);
-                
+
             }
             selectedKeys.clear();
         }
-        
+
         long currentTime = System.currentTimeMillis();
         if ((currentTime - this.lastTimeoutCheck) >= this.selectTimeout) {
             this.lastTimeoutCheck = currentTime;
@@ -123,14 +123,14 @@ public class DefaultConnectingIOReactor extends AbstractMultiworkerIOReactor
 
     private void processEvent(final SelectionKey key) {
         try {
-            
+
             if (key.isConnectable()) {
 
                 SocketChannel channel = (SocketChannel) key.channel();
                 // Get request handle
                 SessionRequestHandle requestHandle = (SessionRequestHandle) key.attachment();
                 SessionRequestImpl sessionRequest = requestHandle.getSessionRequest();
-                
+
                 // Finish connection process
                 try {
                     channel.finishConnect();
@@ -143,20 +143,20 @@ public class DefaultConnectingIOReactor extends AbstractMultiworkerIOReactor
                         try {
                             prepareSocket(channel.socket());
                         } catch (IOException ex) {
-                            if (this.exceptionHandler == null 
+                            if (this.exceptionHandler == null
                                     || !this.exceptionHandler.handle(ex)) {
                                 throw new IOReactorException(
                                         "Failure initalizing socket", ex);
                             }
                         }
-                        ChannelEntry entry = new ChannelEntry(channel, sessionRequest); 
+                        ChannelEntry entry = new ChannelEntry(channel, sessionRequest);
                         addChannel(entry);
                     } catch (IOException ex) {
                         sessionRequest.failed(ex);
                     }
                 }
             }
-                        
+
         } catch (CancelledKeyException ex) {
             key.attach(null);
         }
@@ -167,7 +167,7 @@ public class DefaultConnectingIOReactor extends AbstractMultiworkerIOReactor
         for (Iterator<SelectionKey> it = keys.iterator(); it.hasNext();) {
             SelectionKey key = it.next();
             Object attachment = key.attachment();
-            
+
             if (attachment instanceof SessionRequestHandle) {
                 SessionRequestHandle handle = (SessionRequestHandle) key.attachment();
                 SessionRequestImpl sessionRequest = handle.getSessionRequest();
@@ -178,12 +178,12 @@ public class DefaultConnectingIOReactor extends AbstractMultiworkerIOReactor
                     }
                 }
             }
-            
+
         }
     }
 
     public SessionRequest connect(
-            final SocketAddress remoteAddress, 
+            final SocketAddress remoteAddress,
             final SocketAddress localAddress,
             final Object attachment,
             final SessionRequestCallback callback) {
@@ -194,13 +194,13 @@ public class DefaultConnectingIOReactor extends AbstractMultiworkerIOReactor
         SessionRequestImpl sessionRequest = new SessionRequestImpl(
                 remoteAddress, localAddress, attachment, callback);
         sessionRequest.setConnectTimeout(HttpConnectionParams.getConnectionTimeout(this.params));
-        
+
         this.requestQueue.add(sessionRequest);
         this.selector.wakeup();
-        
+
         return sessionRequest;
     }
-    
+
     private void validateAddress(final SocketAddress address) throws UnknownHostException {
         if (address == null) {
             return;
@@ -212,7 +212,7 @@ public class DefaultConnectingIOReactor extends AbstractMultiworkerIOReactor
             }
         }
     }
-    
+
     private void processSessionRequests() throws IOReactorException {
         SessionRequestImpl request;
         while ((request = this.requestQueue.poll()) != null) {
@@ -229,7 +229,7 @@ public class DefaultConnectingIOReactor extends AbstractMultiworkerIOReactor
             try {
                 validateAddress(request.getLocalAddress());
                 validateAddress(request.getRemoteAddress());
-                
+
                 if (request.getLocalAddress() != null) {
                     Socket sock = socketChannel.socket();
                     sock.setReuseAddress(HttpConnectionParams.getSoReuseaddr(this.params));
@@ -238,7 +238,7 @@ public class DefaultConnectingIOReactor extends AbstractMultiworkerIOReactor
                 boolean connected = socketChannel.connect(request.getRemoteAddress());
                 if (connected) {
                     prepareSocket(socketChannel.socket());
-                    ChannelEntry entry = new ChannelEntry(socketChannel, request); 
+                    ChannelEntry entry = new ChannelEntry(socketChannel, request);
                     addChannel(entry);
                     return;
                 }
@@ -246,7 +246,7 @@ public class DefaultConnectingIOReactor extends AbstractMultiworkerIOReactor
                 request.failed(ex);
                 return;
             }
-            
+
             SelectionKey key;
             try {
                 key = socketChannel.register(this.selector, 0);
@@ -256,7 +256,7 @@ public class DefaultConnectingIOReactor extends AbstractMultiworkerIOReactor
                         "with the selector", ex);
             }
 
-            SessionRequestHandle requestHandle = new SessionRequestHandle(request); 
+            SessionRequestHandle requestHandle = new SessionRequestHandle(request);
             try {
                 key.attach(requestHandle);
                 key.interestOps(SelectionKey.OP_CONNECT);

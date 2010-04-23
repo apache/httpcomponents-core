@@ -30,7 +30,7 @@ package org.apache.http.impl.nio.reactor;
 import java.util.Date;
 
 /**
- * A {@link Throwable} instance along with a time stamp. 
+ * A {@link Throwable} instance along with a time stamp.
  *
  * @since 4.0
  */
@@ -38,17 +38,17 @@ public class ExceptionEvent {
 
     private final Throwable ex;
     private final long time;
-    
+
     public ExceptionEvent(final Throwable ex, final Date timestamp) {
         super();
         this.ex = ex;
         if (timestamp != null) {
-            this.time = timestamp.getTime(); 
+            this.time = timestamp.getTime();
         } else {
             this.time = 0;
         }
     }
-    
+
     public ExceptionEvent(final Exception ex) {
         this(ex, new Date());
     }
@@ -69,5 +69,5 @@ public class ExceptionEvent {
         buffer.append(this.ex);
         return buffer.toString();
     }
-    
+
 }

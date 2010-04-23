@@ -80,7 +80,7 @@ public class TestBaseIOReactorSSL extends TestCase {
             .setBooleanParameter(CoreConnectionPNames.STALE_CONNECTION_CHECK, false)
             .setBooleanParameter(CoreConnectionPNames.TCP_NODELAY, true)
             .setParameter(CoreProtocolPNames.ORIGIN_SERVER, "TEST-SERVER/1.1");
-        
+
         this.server = new TestHttpSSLServer(serverParams);
     }
 
@@ -121,7 +121,7 @@ public class TestBaseIOReactorSSL extends TestCase {
             return TrustManagerFactory.getInstance("SunX509");
         }
     }
-    
+
     public void testBufferedInput() throws Exception {
         final int[] result = new int[1];
         HttpRequestHandler requestHandler = new HttpRequestHandler() {
@@ -129,32 +129,32 @@ public class TestBaseIOReactorSSL extends TestCase {
                     HttpContext context) throws HttpException, IOException {
                 result[0]++;
                 synchronized (result) {
-                    result.notify();                    
+                    result.notify();
                 }
             }
         };
-        
+
         NHttpServiceHandler serviceHandler = createHttpServiceHandler(
-                requestHandler, 
+                requestHandler,
                 null,
                 null);
 
         this.server.start(serviceHandler);
-        
+
         ClassLoader cl = getClass().getClassLoader();
         URL url = cl.getResource("test.keystore");
         KeyStore keystore  = KeyStore.getInstance("jks");
         keystore.load(url.openStream(), "nopassword".toCharArray());
         TrustManagerFactory tmfactory = createTrustManagerFactory();
         tmfactory.init(keystore);
-        TrustManager[] trustmanagers = tmfactory.getTrustManagers(); 
+        TrustManager[] trustmanagers = tmfactory.getTrustManagers();
         SSLContext sslcontext = SSLContext.getInstance("TLS");
-        sslcontext.init(null, trustmanagers, null);        
+        sslcontext.init(null, trustmanagers, null);
 
         ListenerEndpoint endpoint = this.server.getListenerEndpoint();
         endpoint.waitFor();
         InetSocketAddress serverAddress = (InetSocketAddress) endpoint.getAddress();
-        
+
         Socket socket = sslcontext.getSocketFactory().createSocket("localhost", serverAddress.getPort());
         BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()));
         //            123456789012345678901234567890
@@ -164,7 +164,7 @@ public class TestBaseIOReactorSSL extends TestCase {
         writer.write("Header:                   \r\n");
         writer.write("\r\n");
         writer.flush();
-        
+
         synchronized (result) {
             result.wait(500);
         }

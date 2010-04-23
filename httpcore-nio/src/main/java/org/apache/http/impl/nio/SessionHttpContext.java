@@ -33,12 +33,12 @@ import org.apache.http.protocol.HttpContext;
 class SessionHttpContext implements HttpContext {
 
     private final IOSession iosession;
-    
+
     public SessionHttpContext(final IOSession iosession) {
         super();
         this.iosession = iosession;
     }
-    
+
     public Object getAttribute(final String id) {
         return this.iosession.getAttribute(id);
     }
@@ -50,5 +50,5 @@ class SessionHttpContext implements HttpContext {
     public void setAttribute(final String id, final Object obj) {
         this.iosession.setAttribute(id, obj);
     }
-    
+
 }

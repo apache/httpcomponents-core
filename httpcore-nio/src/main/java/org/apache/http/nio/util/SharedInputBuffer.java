@@ -33,12 +33,12 @@ import org.apache.http.nio.ContentDecoder;
 import org.apache.http.nio.IOControl;
 
 /**
- * Implementation of the {@link ContentInputBuffer} interface that can be 
+ * Implementation of the {@link ContentInputBuffer} interface that can be
  * shared by multiple threads, usually the I/O dispatch of an I/O reactor and
- * a worker thread. 
+ * a worker thread.
  * <p>
- * Please note this class is thread safe only when used though 
- * the {@link ContentInputBuffer} interface. 
+ * Please note this class is thread safe only when used though
+ * the {@link ContentInputBuffer} interface.
  *
  * @since 4.0
  */
@@ -46,10 +46,10 @@ public class SharedInputBuffer extends ExpandableBuffer implements ContentInputB
 
     private final IOControl ioctrl;
     private final Object mutex;
-    
+
     private volatile boolean shutdown = false;
     private volatile boolean endOfStream = false;
-    
+
     public SharedInputBuffer(int buffersize, final IOControl ioctrl, final ByteBufferAllocator allocator) {
         super(buffersize, allocator);
         if (ioctrl == null) {
@@ -58,7 +58,7 @@ public class SharedInputBuffer extends ExpandableBuffer implements ContentInputB
         this.ioctrl = ioctrl;
         this.mutex = new Object();
     }
-    
+
     public void reset() {
         if (this.shutdown) {
             return;
@@ -68,7 +68,7 @@ public class SharedInputBuffer extends ExpandableBuffer implements ContentInputB
             this.endOfStream = false;
         }
     }
-    
+
     public int consumeContent(final ContentDecoder decoder) throws IOException {
         if (this.shutdown) {
             return -1;
@@ -78,7 +78,7 @@ public class SharedInputBuffer extends ExpandableBuffer implements ContentInputB
             int totalRead = 0;
             int bytesRead;
             while ((bytesRead = decoder.read(this.buffer)) > 0) {
-                totalRead += bytesRead; 
+                totalRead += bytesRead;
             }
             if (bytesRead == -1 || decoder.isCompleted()) {
                 this.endOfStream = true;
@@ -87,7 +87,7 @@ public class SharedInputBuffer extends ExpandableBuffer implements ContentInputB
                 this.ioctrl.suspendInput();
             }
             this.mutex.notifyAll();
-            
+
             if (totalRead > 0) {
                 return totalRead;
             } else {
@@ -99,7 +99,7 @@ public class SharedInputBuffer extends ExpandableBuffer implements ContentInputB
             }
         }
     }
-    
+
     @Override
     public int available() {
         synchronized (this.mutex) {
@@ -174,7 +174,7 @@ public class SharedInputBuffer extends ExpandableBuffer implements ContentInputB
                 waitForData();
             }
             if (isEndOfStream()) {
-                return -1; 
+                return -1;
             }
             return this.buffer.get() & 0xff;
         }
@@ -192,7 +192,7 @@ public class SharedInputBuffer extends ExpandableBuffer implements ContentInputB
                 waitForData();
             }
             if (isEndOfStream()) {
-                return -1; 
+                return -1;
             }
             setOutputMode();
             int chunk = len;

@@ -33,7 +33,7 @@ import java.nio.channels.ReadableByteChannel;
 
 /**
  * A {@link ReadableByteChannel} that delegates to a {@link ContentDecoder}.
- * Attempts to close this channel are ignored, and {@link #isOpen} always 
+ * Attempts to close this channel are ignored, and {@link #isOpen} always
  * returns <code>true</code>.
  *
  * @since 4.0

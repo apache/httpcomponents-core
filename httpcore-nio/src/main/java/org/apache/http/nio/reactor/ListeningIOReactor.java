@@ -32,25 +32,25 @@ import java.util.Set;
 import java.io.IOException;
 
 /**
- * ListeningIOReactor represents an I/O reactor capable of listening for 
+ * ListeningIOReactor represents an I/O reactor capable of listening for
  * incoming connections on one or several ports.
- * 
+ *
  * @since 4.0
  */
 public interface ListeningIOReactor extends IOReactor {
 
     /**
-     * Opens a new listener endpoint with the given socket address. Once 
-     * the endpoint is fully initialized it starts accepting incoming 
+     * Opens a new listener endpoint with the given socket address. Once
+     * the endpoint is fully initialized it starts accepting incoming
      * connections and propagates I/O activity notifications to the I/O event
-     * dispatcher. 
+     * dispatcher.
      * <p>
      * {@link ListenerEndpoint#waitFor()} can be used to wait for the
      *  listener to be come ready to accept incoming connections.
      * <p>
-     * {@link ListenerEndpoint#close()} can be used to shut down 
+     * {@link ListenerEndpoint#close()} can be used to shut down
      * the listener even before it is fully initialized.
-     * 
+     *
      * @param address the socket address to listen on.
      * @return listener endpoint.
      */
@@ -59,16 +59,16 @@ public interface ListeningIOReactor extends IOReactor {
     /**
      * Suspends the I/O reactor preventing it from accepting new connections on
      * all active endpoints.
-     * 
+     *
      * @throws IOException in case of an I/O error.
      */
     void pause()
         throws IOException;
 
     /**
-     * Resumes the I/O reactor restoring its ability to accept incoming 
+     * Resumes the I/O reactor restoring its ability to accept incoming
      * connections on all active endpoints.
-     * 
+     *
      * @throws IOException in case of an I/O error.
      */
     void resume()
@@ -76,9 +76,9 @@ public interface ListeningIOReactor extends IOReactor {
 
     /**
      * Returns a set of endpoints for this I/O reactor.
-     * 
-     * @return set of endpoints. 
+     *
+     * @return set of endpoints.
      */
     Set<ListenerEndpoint> getEndpoints();
-    
+
 }

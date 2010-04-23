@@ -48,7 +48,7 @@ public class ListenerEndpointImpl implements ListenerEndpoint {
     private volatile IOException exception;
 
     private final ListenerEndpointClosedCallback callback;
-    
+
     public ListenerEndpointImpl(
             final SocketAddress address,
             final ListenerEndpointClosedCallback callback) {
@@ -59,19 +59,19 @@ public class ListenerEndpointImpl implements ListenerEndpoint {
         this.address = address;
         this.callback = callback;
     }
-    
+
     public SocketAddress getAddress() {
         return this.address;
     }
-    
+
     public boolean isCompleted() {
         return this.completed;
     }
-    
+
     public IOException getException() {
         return this.exception;
     }
-    
+
     public void waitFor() throws InterruptedException {
         if (this.completed) {
             return;
@@ -82,7 +82,7 @@ public class ListenerEndpointImpl implements ListenerEndpoint {
             }
         }
     }
-    
+
     public void completed(final SocketAddress address) {
         if (address == null) {
             throw new IllegalArgumentException("Address may not be null");
@@ -96,7 +96,7 @@ public class ListenerEndpointImpl implements ListenerEndpoint {
             notifyAll();
         }
     }
- 
+
     public void failed(final IOException exception) {
         if (exception == null) {
             return;
@@ -110,7 +110,7 @@ public class ListenerEndpointImpl implements ListenerEndpoint {
             notifyAll();
         }
     }
- 
+
     public void cancel() {
         if (this.completed) {
             return;
@@ -121,7 +121,7 @@ public class ListenerEndpointImpl implements ListenerEndpoint {
             notifyAll();
         }
     }
- 
+
     protected void setKey(final SelectionKey key) {
         this.key = key;
     }
@@ -152,5 +152,5 @@ public class ListenerEndpointImpl implements ListenerEndpoint {
             notifyAll();
         }
     }
-    
+
 }

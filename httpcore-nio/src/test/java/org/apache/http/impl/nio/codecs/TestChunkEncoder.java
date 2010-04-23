@@ -44,7 +44,7 @@ import org.apache.http.util.EncodingUtils;
 /**
  * Simple tests for {@link ChunkEncoder}.
  *
- * 
+ *
  * @version $Id$
  */
 public class TestChunkEncoder extends TestCase {
@@ -59,34 +59,34 @@ public class TestChunkEncoder extends TestCase {
     private static ByteBuffer wrap(final String s) {
         return ByteBuffer.wrap(EncodingUtils.getAsciiBytes(s));
     }
-    
+
     private static WritableByteChannel newChannel(final ByteArrayOutputStream baos) {
         return Channels.newChannel(baos);
     }
-    
+
     public void testBasicCoding() throws Exception {
-        ByteArrayOutputStream baos = new ByteArrayOutputStream(); 
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
         WritableByteChannel channel = newChannel(baos);
         HttpParams params = new BasicHttpParams();
         SessionOutputBuffer outbuf = new SessionOutputBufferImpl(1024, 128, params);
         HttpTransportMetricsImpl metrics = new HttpTransportMetricsImpl();
         ChunkEncoder encoder = new ChunkEncoder(channel, outbuf, metrics);
-        
+
         encoder.write(wrap("12345"));
         encoder.write(wrap("678"));
         encoder.write(wrap("90"));
         encoder.complete();
-        
+
         outbuf.flush(channel);
-        
+
         String s = baos.toString("US-ASCII");
-        
+
         assertTrue(encoder.isCompleted());
         assertEquals("5\r\n12345\r\n3\r\n678\r\n2\r\n90\r\n0\r\n\r\n", s);
     }
-    
+
     public void testChunkNoExceed() throws Exception {
-        ByteArrayOutputStream baos = new ByteArrayOutputStream(); 
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
         WritableByteChannel channel = newChannel(baos);
         HttpParams params = new BasicHttpParams();
         SessionOutputBuffer outbuf = new SessionOutputBufferImpl(1024, 16, params);
@@ -94,26 +94,26 @@ public class TestChunkEncoder extends TestCase {
         ChunkEncoder encoder = new ChunkEncoder(channel, outbuf, metrics);
         encoder.write(wrap("1234"));
         encoder.complete();
-        
+
         outbuf.flush(channel);
-        
+
         String s = baos.toString("US-ASCII");
-        
+
         assertTrue(encoder.isCompleted());
-        assertEquals("4\r\n1234\r\n0\r\n\r\n", s);    
+        assertEquals("4\r\n1234\r\n0\r\n\r\n", s);
     }
-    
-    
+
+
     public void testChunkExceed() throws Exception {
-        ByteArrayOutputStream baos = new ByteArrayOutputStream(); 
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
         WritableByteChannel channel = newChannel(baos);
         HttpParams params = new BasicHttpParams();
         SessionOutputBuffer outbuf = new SessionOutputBufferImpl(16, 16, params);
         HttpTransportMetricsImpl metrics = new HttpTransportMetricsImpl();
         ChunkEncoder encoder = new ChunkEncoder(channel, outbuf, metrics);
-        
+
         ByteBuffer src = wrap("0123456789ABCDEF");
-        
+
         assertEquals(6, encoder.write(src));
         assertTrue(src.hasRemaining());
         assertEquals(10, src.remaining());
@@ -124,48 +124,48 @@ public class TestChunkEncoder extends TestCase {
 
         assertEquals(4, encoder.write(src));
         assertFalse(src.hasRemaining());
-        
+
         outbuf.flush(channel);
         String s = baos.toString("US-ASCII");
-        assertEquals("6\r\n012345\r\n6\r\n6789AB\r\n4\r\nCDEF\r\n", s);    
-        
+        assertEquals("6\r\n012345\r\n6\r\n6789AB\r\n4\r\nCDEF\r\n", s);
+
     }
 
     public void testCodingEmptyBuffer() throws Exception {
-        ByteArrayOutputStream baos = new ByteArrayOutputStream(); 
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
         WritableByteChannel channel = newChannel(baos);
         HttpParams params = new BasicHttpParams();
         SessionOutputBuffer outbuf = new SessionOutputBufferImpl(1024, 128, params);
         HttpTransportMetricsImpl metrics = new HttpTransportMetricsImpl();
         ChunkEncoder encoder = new ChunkEncoder(channel, outbuf, metrics);
-        
+
         encoder.write(wrap("12345"));
         encoder.write(wrap("678"));
         encoder.write(wrap("90"));
-        
+
         ByteBuffer empty = ByteBuffer.allocate(100);
         empty.flip();
         encoder.write(empty);
         encoder.write(null);
-        
+
         encoder.complete();
-        
+
         outbuf.flush(channel);
-        
+
         String s = baos.toString("US-ASCII");
-        
+
         assertTrue(encoder.isCompleted());
         assertEquals("5\r\n12345\r\n3\r\n678\r\n2\r\n90\r\n0\r\n\r\n", s);
     }
 
     public void testCodingCompleted() throws Exception {
-        ByteArrayOutputStream baos = new ByteArrayOutputStream(); 
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
         WritableByteChannel channel = newChannel(baos);
         HttpParams params = new BasicHttpParams();
         SessionOutputBuffer outbuf = new SessionOutputBufferImpl(1024, 128, params);
         HttpTransportMetricsImpl metrics = new HttpTransportMetricsImpl();
         ChunkEncoder encoder = new ChunkEncoder(channel, outbuf, metrics);
-        
+
         encoder.write(wrap("12345"));
         encoder.write(wrap("678"));
         encoder.write(wrap("90"));
@@ -186,7 +186,7 @@ public class TestChunkEncoder extends TestCase {
     }
 
     public void testInvalidConstructor() {
-        ByteArrayOutputStream baos = new ByteArrayOutputStream(); 
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
         WritableByteChannel channel = newChannel(baos);
         HttpParams params = new BasicHttpParams();
         SessionOutputBuffer outbuf = new SessionOutputBufferImpl(1024, 128, params);
@@ -210,5 +210,5 @@ public class TestChunkEncoder extends TestCase {
             // ignore
         }
     }
-    
+
 }

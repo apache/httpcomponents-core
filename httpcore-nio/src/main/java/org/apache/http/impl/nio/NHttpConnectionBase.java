@@ -73,11 +73,11 @@ import org.apache.http.protocol.HttpContext;
 
 /**
  * This class serves as a base for all {@link NHttpConnection} implementations
- * and implements functionality common to both client and server 
+ * and implements functionality common to both client and server
  * HTTP connections.
  * <p>
- * The following parameters can be used to customize the behavior of this 
- * class: 
+ * The following parameters can be used to customize the behavior of this
+ * class:
  * <ul>
  *  <li>{@link org.apache.http.params.CoreProtocolPNames#HTTP_ELEMENT_CHARSET}</li>
  *  <li>{@link org.apache.http.params.CoreConnectionPNames#SOCKET_BUFFER_SIZE}</li>
@@ -85,21 +85,21 @@ import org.apache.http.protocol.HttpContext;
  *
  * @since 4.0
  */
-public class NHttpConnectionBase 
+public class NHttpConnectionBase
         implements NHttpConnection, HttpInetConnection, SessionBufferStatus {
 
     protected final HttpContext context;
-    
+
     protected final ContentLengthStrategy incomingContentStrategy;
     protected final ContentLengthStrategy outgoingContentStrategy;
-    
+
     protected final SessionInputBufferImpl inbuf;
     protected final SessionOutputBufferImpl outbuf;
-    
+
     protected final HttpTransportMetricsImpl inTransportMetrics;
     protected final HttpTransportMetricsImpl outTransportMetrics;
     protected final HttpConnectionMetricsImpl connMetrics;
-    
+
     protected IOSession session;
     protected volatile ContentDecoder contentDecoder;
     protected volatile boolean hasBufferedInput;
@@ -109,10 +109,10 @@ public class NHttpConnectionBase
     protected volatile HttpResponse response;
 
     protected volatile int status;
-    
+
     /**
      * Creates a new instance of this class given the underlying I/O session.
-     * 
+     *
      * @param session the underlying I/O session.
      * @param allocator byte buffer allocator.
      * @param params HTTP parameters.
@@ -130,25 +130,25 @@ public class NHttpConnectionBase
         }
         this.session = session;
         this.context = new SessionHttpContext(session);
-        
+
         int buffersize = HttpConnectionParams.getSocketBufferSize(params);
         int linebuffersize = buffersize;
         if (linebuffersize > 512) {
             linebuffersize = 512;
         }
-        
-        this.inbuf = new SessionInputBufferImpl(buffersize, linebuffersize, allocator, params); 
-        this.outbuf = new SessionOutputBufferImpl(buffersize, linebuffersize, allocator, params); 
-        
+
+        this.inbuf = new SessionInputBufferImpl(buffersize, linebuffersize, allocator, params);
+        this.outbuf = new SessionOutputBufferImpl(buffersize, linebuffersize, allocator, params);
+
         this.incomingContentStrategy = new LaxContentLengthStrategy();
         this.outgoingContentStrategy = new StrictContentLengthStrategy();
-        
+
         this.inTransportMetrics = new HttpTransportMetricsImpl();
         this.outTransportMetrics = new HttpTransportMetricsImpl();
         this.connMetrics = new HttpConnectionMetricsImpl(
-                this.inTransportMetrics, 
+                this.inTransportMetrics,
                 this.outTransportMetrics);
-        
+
         this.session.setBufferStatus(this);
         this.session.setEvent(EventMask.READ);
         this.status = ACTIVE;
@@ -190,7 +190,7 @@ public class NHttpConnectionBase
      * Initializes a specific {@link ContentDecoder} implementation based on the
      * properties of the given {@link HttpMessage} and generates an instance of
      * {@link HttpEntity} matching the properties of the content decoder.
-     * 
+     *
      * @param message the HTTP message.
      * @return HTTP entity.
      * @throws HttpException in case of an HTTP protocol violation.
@@ -200,8 +200,8 @@ public class NHttpConnectionBase
         long len = this.incomingContentStrategy.determineLength(message);
         this.contentDecoder = createContentDecoder(
                 len,
-                this.session.channel(), 
-                this.inbuf, 
+                this.session.channel(),
+                this.inbuf,
                 this.inTransportMetrics);
         if (len == ContentLengthStrategy.CHUNKED) {
             entity.setChunked(true);
@@ -213,34 +213,34 @@ public class NHttpConnectionBase
             entity.setChunked(false);
             entity.setContentLength(len);
         }
-        
+
         Header contentTypeHeader = message.getFirstHeader(HTTP.CONTENT_TYPE);
         if (contentTypeHeader != null) {
-            entity.setContentType(contentTypeHeader);    
+            entity.setContentType(contentTypeHeader);
         }
         Header contentEncodingHeader = message.getFirstHeader(HTTP.CONTENT_ENCODING);
         if (contentEncodingHeader != null) {
-            entity.setContentEncoding(contentEncodingHeader);    
+            entity.setContentEncoding(contentEncodingHeader);
         }
         return entity;
     }
-    
+
     /**
      * Factory method for {@link ContentDecoder} instances.
-     * 
+     *
      * @param len content length, if known, {@link ContentLengthStrategy#CHUNKED} or
-     *   {@link ContentLengthStrategy#IDENTITY}, if unknown. 
+     *   {@link ContentLengthStrategy#IDENTITY}, if unknown.
      * @param channel the session channel.
      * @param buffer the session buffer.
      * @param metrics transport metrics.
-     * 
+     *
      * @return content decoder.
-     * 
+     *
      * @since 4.1
      */
     protected ContentDecoder createContentDecoder(
-            final long len,            
-            final ReadableByteChannel channel, 
+            final long len,
+            final ReadableByteChannel channel,
             final SessionInputBuffer buffer,
             final HttpTransportMetricsImpl metrics) {
         if (len == ContentLengthStrategy.CHUNKED) {
@@ -255,7 +255,7 @@ public class NHttpConnectionBase
     /**
      * Initializes a specific {@link ContentEncoder} implementation based on the
      * properties of the given {@link HttpMessage}.
-     * 
+     *
      * @param message the HTTP message.
      * @throws HttpException in case of an HTTP protocol violation.
      */
@@ -267,23 +267,23 @@ public class NHttpConnectionBase
                 this.outbuf,
                 this.outTransportMetrics);
     }
-    
+
     /**
      * Factory method for {@link ContentEncoder} instances.
-     * 
+     *
      * @param len content length, if known, {@link ContentLengthStrategy#CHUNKED} or
-     *   {@link ContentLengthStrategy#IDENTITY}, if unknown. 
+     *   {@link ContentLengthStrategy#IDENTITY}, if unknown.
      * @param channel the session channel.
      * @param buffer the session buffer.
      * @param metrics transport metrics.
-     * 
+     *
      * @return content encoder.
-     * 
+     *
      * @since 4.1
      */
     protected ContentEncoder createContentEncoder(
             final long len,
-            final WritableByteChannel channel, 
+            final WritableByteChannel channel,
             final SessionOutputBuffer buffer,
             final HttpTransportMetricsImpl metrics) {
         if (len == ContentLengthStrategy.CHUNKED) {
@@ -302,11 +302,11 @@ public class NHttpConnectionBase
     public boolean hasBufferedOutput() {
         return this.hasBufferedOutput;
     }
-    
+
     /**
      * Assets if the connection is still open.
-     * 
-     * @throws ConnectionClosedException in case the connection has already 
+     *
+     * @throws ConnectionClosedException in case the connection has already
      *   been closed.
      */
     protected void assertNotClosed() throws ConnectionClosedException {
@@ -335,7 +335,7 @@ public class NHttpConnectionBase
     public boolean isStale() {
         return this.session.isClosed();
     }
-    
+
     public InetAddress getLocalAddress() {
         SocketAddress address = this.session.getLocalAddress();
         if (address instanceof InetSocketAddress) {
@@ -388,5 +388,5 @@ public class NHttpConnectionBase
     public HttpConnectionMetrics getMetrics() {
         return this.connMetrics;
     }
-    
+
 }

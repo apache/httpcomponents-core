@@ -43,5 +43,5 @@ class SimpleIOReactorExceptionHandler implements IOReactorExceptionHandler {
         ex.printStackTrace(System.out);
         return false;
     }
-    
+
 }

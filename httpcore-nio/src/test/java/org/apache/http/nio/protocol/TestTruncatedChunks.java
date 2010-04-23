@@ -107,14 +107,14 @@ public class TestTruncatedChunks extends TestCase {
     // ------------------------------------------------------- TestCase Methods
 
     private static final byte[] GARBAGE = new byte[] {'1', '2', '3', '4', '5' };
-    
+
     static class BrokenChunkEncoder extends AbstractContentEncoder {
 
         private final CharArrayBuffer lineBuffer;
         private boolean done;
-        
+
         public BrokenChunkEncoder(
-                final WritableByteChannel channel, 
+                final WritableByteChannel channel,
                 final SessionOutputBuffer buffer,
                 final HttpTransportMetricsImpl metrics) {
             super(channel, buffer, metrics);
@@ -147,11 +147,11 @@ public class TestTruncatedChunks extends TestCase {
             }
             return chunk;
         }
-        
+
     }
 
     static class CustomServerIOEventDispatch extends DefaultServerIOEventDispatch {
-        
+
         public CustomServerIOEventDispatch(
                 final NHttpServiceHandler handler,
                 final HttpParams params) {
@@ -160,11 +160,11 @@ public class TestTruncatedChunks extends TestCase {
 
         @Override
         protected NHttpServerIOTarget createConnection(final IOSession session) {
-            
+
             return new DefaultNHttpServerConnection(
-                    session, 
-                    createHttpRequestFactory(), 
-                    this.allocator, 
+                    session,
+                    createHttpRequestFactory(),
+                    this.allocator,
                     this.params) {
 
                         @Override
@@ -179,14 +179,14 @@ public class TestTruncatedChunks extends TestCase {
                                 return super.createContentEncoder(len, channel, buffer, metrics);
                             }
                         }
-                        
+
             };
         }
-        
+
     }
 
     static class CustomTestHttpServer extends TestHttpServer {
-        
+
         public CustomTestHttpServer(final HttpParams params) throws IOException {
             super(params);
         }
@@ -196,12 +196,12 @@ public class TestTruncatedChunks extends TestCase {
                 NHttpServiceHandler serviceHandler, HttpParams params) {
             return new CustomServerIOEventDispatch(serviceHandler, params);
         }
-        
+
     }
-    
+
     protected CustomTestHttpServer server;
     protected TestHttpClient client;
-    
+
     @Override
     protected void setUp() throws Exception {
         HttpParams serverParams = new SyncBasicHttpParams();
@@ -254,23 +254,23 @@ public class TestTruncatedChunks extends TestCase {
             }
         }
     }
-    
+
     public void testTruncatedChunkException() throws Exception {
-        
+
         NHttpRequestExecutionHandler requestExecutionHandler = new TestRequestExecutionHandler() {
 
             @Override
             protected HttpRequest generateRequest(TestJob testjob) {
-                String s = testjob.getPattern() + "x" + testjob.getCount(); 
+                String s = testjob.getPattern() + "x" + testjob.getCount();
                 return new BasicHttpRequest("GET", s);
             }
-            
+
         };
 
         TestJob testjob = new TestJob(2000);
         Queue<TestJob> queue = new ConcurrentLinkedQueue<TestJob>();
-        queue.add(testjob); 
-        
+        queue.add(testjob);
+
         HttpProcessor serverHttpProc = new ImmutableHttpProcessor(new HttpResponseInterceptor[] {
                 new ResponseDate(),
                 new ResponseServer(),
@@ -313,9 +313,9 @@ public class TestTruncatedChunks extends TestCase {
                         TestJob testjob = (TestJob) context.getAttribute("job");
                         testjob.fail(ex.getMessage(), ex);
                     }
-                    
+
                 });
-        
+
         this.server.start(serviceHandler);
         this.client.start(clientHandler);
 
@@ -334,7 +334,7 @@ public class TestTruncatedChunks extends TestCase {
     }
 
     static class LenientNHttpEntity extends HttpEntityWrapper implements ConsumingNHttpEntity {
-        
+
         private final static int BUFFER_SIZE = 2048;
 
         private final SimpleInputBuffer buffer;
@@ -405,33 +405,33 @@ public class TestTruncatedChunks extends TestCase {
                 outstream.write(buffer, 0, l);
             }
         }
-        
+
     }
-    
+
     public void testIgnoreTruncatedChunkException() throws Exception {
-        
+
         NHttpRequestExecutionHandler requestExecutionHandler = new TestRequestExecutionHandler() {
 
             @Override
             protected HttpRequest generateRequest(final TestJob testjob) {
-                String s = testjob.getPattern() + "x" + testjob.getCount(); 
+                String s = testjob.getPattern() + "x" + testjob.getCount();
                 return new BasicHttpRequest("GET", s);
             }
 
             @Override
             public ConsumingNHttpEntity responseEntity(
-                    final HttpResponse response, 
+                    final HttpResponse response,
                     final HttpContext context) throws IOException {
                 return new LenientNHttpEntity(response.getEntity(),
                         new HeapByteBufferAllocator());
             }
-            
+
         };
 
         TestJob testjob = new TestJob(2000);
         Queue<TestJob> queue = new ConcurrentLinkedQueue<TestJob>();
-        queue.add(testjob); 
-        
+        queue.add(testjob);
+
         HttpProcessor serverHttpProc = new ImmutableHttpProcessor(new HttpResponseInterceptor[] {
                 new ResponseDate(),
                 new ResponseServer(),
@@ -465,7 +465,7 @@ public class TestTruncatedChunks extends TestCase {
 
         clientHandler.setEventListener(
                 new SimpleEventListener());
-        
+
         this.server.start(serviceHandler);
         this.client.start(clientHandler);
 

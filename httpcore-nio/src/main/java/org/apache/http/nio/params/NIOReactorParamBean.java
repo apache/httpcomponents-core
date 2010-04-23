@@ -34,7 +34,7 @@ import org.apache.http.params.HttpParams;
  * @since 4.0
  */
 public class NIOReactorParamBean extends HttpAbstractParamBean {
-    
+
     public NIOReactorParamBean (final HttpParams params) {
         super(params);
     }
@@ -46,5 +46,5 @@ public class NIOReactorParamBean extends HttpAbstractParamBean {
     public void setSelectInterval (long selectInterval) {
         NIOReactorParams.setSelectInterval(params, selectInterval);
     }
-    
+
 }

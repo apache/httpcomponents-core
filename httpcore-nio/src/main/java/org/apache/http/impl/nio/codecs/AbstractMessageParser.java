@@ -45,11 +45,11 @@ import org.apache.http.params.HttpParams;
 import org.apache.http.util.CharArrayBuffer;
 
 /**
- * Abstract {@link NHttpMessageParser} that serves as a base for all message 
+ * Abstract {@link NHttpMessageParser} that serves as a base for all message
  * parser implementations.
  * <p>
- * The following parameters can be used to customize the behavior of this 
- * class: 
+ * The following parameters can be used to customize the behavior of this
+ * class:
  * <ul>
  *  <li>{@link org.apache.http.params.CoreConnectionPNames#MAX_HEADER_COUNT}</li>
  *  <li>{@link org.apache.http.params.CoreConnectionPNames#MAX_LINE_LENGTH}</li>
@@ -58,13 +58,13 @@ import org.apache.http.util.CharArrayBuffer;
  * @since 4.0
  */
 public abstract class AbstractMessageParser<T extends HttpMessage> implements NHttpMessageParser<T> {
-    
-    private final SessionInputBuffer sessionBuffer;    
-    
+
+    private final SessionInputBuffer sessionBuffer;
+
     private static final int READ_HEAD_LINE = 0;
     private static final int READ_HEADERS   = 1;
     private static final int COMPLETED      = 2;
-    
+
     private int state;
     private boolean endOfStream;
 
@@ -78,7 +78,7 @@ public abstract class AbstractMessageParser<T extends HttpMessage> implements NH
 
     /**
      * Creates an instance of this class.
-     * 
+     *
      * @param buffer the session input buffer.
      * @param parser the line parser.
      * @param params HTTP parameters.
@@ -94,21 +94,21 @@ public abstract class AbstractMessageParser<T extends HttpMessage> implements NH
         this.sessionBuffer = buffer;
         this.state = READ_HEAD_LINE;
         this.endOfStream = false;
-        this.headerBufs = new ArrayList<CharArrayBuffer>();        
+        this.headerBufs = new ArrayList<CharArrayBuffer>();
         this.maxLineLen = params.getIntParameter(
                 CoreConnectionPNames.MAX_LINE_LENGTH, -1);
         this.maxHeaderCount = params.getIntParameter(
                 CoreConnectionPNames.MAX_HEADER_COUNT, -1);
         this.lineParser = (parser != null) ? parser : BasicLineParser.DEFAULT;
     }
-    
+
     public void reset() {
         this.state = READ_HEAD_LINE;
         this.endOfStream = false;
         this.headerBufs.clear();
         this.message = null;
     }
-    
+
     public int fillBuffer(final ReadableByteChannel channel) throws IOException {
         int bytesRead = this.sessionBuffer.fill(channel);
         if (bytesRead == -1) {
@@ -116,23 +116,23 @@ public abstract class AbstractMessageParser<T extends HttpMessage> implements NH
         }
         return bytesRead;
     }
-    
+
     /**
      * Creates {@link HttpMessage} instance based on the content of the input
      *  buffer containing the first line of the incoming HTTP message.
-     *  
+     *
      * @param buffer the line buffer.
      * @return HTTP message.
      * @throws HttpException in case of HTTP protocol violation
      * @throws ParseException in case of a parse error.
      */
-    protected abstract T createMessage(CharArrayBuffer buffer) 
+    protected abstract T createMessage(CharArrayBuffer buffer)
         throws HttpException, ParseException;
-    
+
     private void parseHeadLine() throws HttpException, ParseException {
         this.message = createMessage(this.lineBuf);
     }
-    
+
     private void parseHeader() throws IOException {
         CharArrayBuffer current = this.lineBuf;
         int count = this.headerBufs.size();
@@ -147,7 +147,7 @@ public abstract class AbstractMessageParser<T extends HttpMessage> implements NH
                 }
                 i++;
             }
-            if (this.maxLineLen > 0 
+            if (this.maxLineLen > 0
                     && previous.length() + 1 + current.length() - i > this.maxLineLen) {
                 throw new IOException("Maximum line length limit exceeded");
             }
@@ -167,8 +167,8 @@ public abstract class AbstractMessageParser<T extends HttpMessage> implements NH
                 this.lineBuf.clear();
             }
             boolean lineComplete = this.sessionBuffer.readLine(this.lineBuf, this.endOfStream);
-            if (this.maxLineLen > 0 && 
-                    (this.lineBuf.length() > this.maxLineLen || 
+            if (this.maxLineLen > 0 &&
+                    (this.lineBuf.length() > this.maxLineLen ||
                             (!lineComplete && this.sessionBuffer.length() > this.maxLineLen))) {
                 throw new IOException("Maximum line length limit exceeded");
             }
@@ -190,7 +190,7 @@ public abstract class AbstractMessageParser<T extends HttpMessage> implements NH
                     if (this.maxHeaderCount > 0 && headerBufs.size() >= this.maxHeaderCount) {
                         throw new IOException("Maximum header count exceeded");
                     }
-                    
+
                     parseHeader();
                 } else {
                     this.state = COMPLETED;

@@ -32,12 +32,12 @@ import org.apache.http.protocol.HttpRequestHandlerResolver;
 public class SimpleHttpRequestHandlerResolver implements HttpRequestHandlerResolver {
 
     private final HttpRequestHandler handler;
-    
+
     public SimpleHttpRequestHandlerResolver(final HttpRequestHandler handler) {
         super();
         this.handler = handler;
     }
-    
+
     public HttpRequestHandler lookup(final String requestURI) {
         return this.handler;
     }

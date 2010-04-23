@@ -28,7 +28,7 @@
 package org.apache.http.impl.nio.reactor;
 
 /**
- * Callback interface used internally by I/O session implementations to delegate execution 
+ * Callback interface used internally by I/O session implementations to delegate execution
  * of a {@link java.nio.channels.SelectionKey#interestOps(int)} operation to the I/O reactor.
  *
  * @since 4.1
@@ -36,5 +36,5 @@ package org.apache.http.impl.nio.reactor;
 public interface InterestOpsCallback {
 
     void addInterestOps(InterestOpEntry entry);
-    
+
 }

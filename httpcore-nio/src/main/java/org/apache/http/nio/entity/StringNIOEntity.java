@@ -36,19 +36,19 @@ import org.apache.http.HttpEntity;
 import org.apache.http.entity.StringEntity;
 
 /**
- * An entity whose content is retrieved from a string. In addition to the 
- * standard {@link HttpEntity} interface this class also implements NIO specific 
+ * An entity whose content is retrieved from a string. In addition to the
+ * standard {@link HttpEntity} interface this class also implements NIO specific
  * {@link HttpNIOEntity}.
  *
  * @deprecated Use {@link NStringEntity}
- * 
+ *
  * @since 4.0
  */
 @Deprecated
 public class StringNIOEntity extends StringEntity implements HttpNIOEntity {
 
     public StringNIOEntity(
-            final String s, 
+            final String s,
             String charset) throws UnsupportedEncodingException {
         super(s, charset);
     }

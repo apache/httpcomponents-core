@@ -44,7 +44,7 @@ import org.apache.http.nio.reactor.IOSession;
 /**
  * Default implementation of {@link AbstractIOReactor} that serves as a base
  * for more advanced {@link IOReactor} implementations. This class adds
- * support for the I/O event dispatching using {@link IOEventDispatch}, 
+ * support for the I/O event dispatching using {@link IOEventDispatch},
  * management of buffering sessions, and session timeout handling.
  *
  * @since 4.0
@@ -61,23 +61,23 @@ public class BaseIOReactor extends AbstractIOReactor {
 
     /**
      * Creates new BaseIOReactor instance.
-     * 
+     *
      * @param selectTimeout the select timeout.
-     * @throws IOReactorException in case if a non-recoverable I/O error. 
+     * @throws IOReactorException in case if a non-recoverable I/O error.
      */
     public BaseIOReactor(long selectTimeout) throws IOReactorException {
         this(selectTimeout, false);
     }
-    
+
     /**
      * Creates new BaseIOReactor instance.
-     * 
+     *
      * @param selectTimeout the select timeout.
      * @param interestOpsQueueing Ops queueing flag.
-     *  
-     * @throws IOReactorException in case if a non-recoverable I/O error. 
-     * 
-     * @since 4.1 
+     *
+     * @throws IOReactorException in case if a non-recoverable I/O error.
+     *
+     * @since 4.1
      */
     public BaseIOReactor(
             long selectTimeout, boolean interestOpsQueueing) throws IOReactorException {
@@ -89,11 +89,11 @@ public class BaseIOReactor extends AbstractIOReactor {
 
     /**
      * Activates the I/O reactor. The I/O reactor will start reacting to I/O
-     * events and dispatch I/O event notifications to the given 
+     * events and dispatch I/O event notifications to the given
      * {@link IOEventDispatch}.
-     * 
-     * @throws InterruptedIOException if the dispatch thread is interrupted. 
-     * @throws IOReactorException in case if a non-recoverable I/O error. 
+     *
+     * @throws InterruptedIOException if the dispatch thread is interrupted.
+     * @throws IOReactorException in case if a non-recoverable I/O error.
      */
     public void execute(
             final IOEventDispatch eventDispatch) throws InterruptedIOException, IOReactorException {
@@ -106,18 +106,18 @@ public class BaseIOReactor extends AbstractIOReactor {
 
     /**
      * Sets exception handler for this I/O reactor.
-     * 
-     * @param exceptionHandler the exception handler. 
+     *
+     * @param exceptionHandler the exception handler.
      */
     public void setExceptionHandler(IOReactorExceptionHandler exceptionHandler) {
         this.exceptionHandler = exceptionHandler;
     }
 
     /**
-     * Handles the given {@link RuntimeException}. This method delegates 
-     * handling of the exception to the {@link IOReactorExceptionHandler}, 
+     * Handles the given {@link RuntimeException}. This method delegates
+     * handling of the exception to the {@link IOReactorExceptionHandler},
      * if available.
-     * 
+     *
      * @param ex the runtime exception.
      */
     protected void handleRuntimeException(final RuntimeException ex) {
@@ -127,7 +127,7 @@ public class BaseIOReactor extends AbstractIOReactor {
     }
 
     /**
-     * This I/O reactor implementation does not react to the 
+     * This I/O reactor implementation does not react to the
      * {@link SelectionKey#OP_ACCEPT} event.
      * <p>
      * Super-classes can override this method to react to the event.
@@ -137,7 +137,7 @@ public class BaseIOReactor extends AbstractIOReactor {
     }
 
     /**
-     * This I/O reactor implementation does not react to the 
+     * This I/O reactor implementation does not react to the
      * {@link SelectionKey#OP_CONNECT} event.
      * <p>
      * Super-classes can override this method to react to the event.
@@ -148,7 +148,7 @@ public class BaseIOReactor extends AbstractIOReactor {
 
     /**
      * Processes {@link SelectionKey#OP_READ} event on the given selection key.
-     * This method dispatches the event notification to the 
+     * This method dispatches the event notification to the
      * {@link IOEventDispatch#inputReady(IOSession)} method.
      */
     @Override
@@ -172,7 +172,7 @@ public class BaseIOReactor extends AbstractIOReactor {
 
     /**
      * Processes {@link SelectionKey#OP_WRITE} event on the given selection key.
-     * This method dispatches the event notification to the 
+     * This method dispatches the event notification to the
      * {@link IOEventDispatch#outputReady(IOSession)} method.
      */
     @Override
@@ -194,11 +194,11 @@ public class BaseIOReactor extends AbstractIOReactor {
     /**
      * Verifies whether any of the sessions associated with the given selection
      * keys timed out by invoking the {@link #timeoutCheck(SelectionKey, long)}
-     * method. 
+     * method.
      * <p>
-     * This method will also invoke the 
-     * {@link IOEventDispatch#inputReady(IOSession)} method on all sessions 
-     * that have buffered input data. 
+     * This method will also invoke the
+     * {@link IOEventDispatch#inputReady(IOSession)} method on all sessions
+     * that have buffered input data.
      */
     @Override
     protected void validate(final Set<SelectionKey> keys) {
@@ -219,7 +219,7 @@ public class BaseIOReactor extends AbstractIOReactor {
                     it.remove();
                     continue;
                 }
-                
+
                 int ops = 0;
                 try {
                     ops = session.getEventMask();
@@ -228,7 +228,7 @@ public class BaseIOReactor extends AbstractIOReactor {
                     queueClosedSession(session);
                     continue;
                 }
-                
+
                 if ((ops & EventMask.READ) > 0) {
                     try {
                         this.eventDispatch.inputReady(session);
@@ -247,7 +247,7 @@ public class BaseIOReactor extends AbstractIOReactor {
     }
 
     /**
-     * Performs timeout check for the I/O session associated with the given 
+     * Performs timeout check for the I/O session associated with the given
      * selection key.
      */
     @Override
@@ -273,7 +273,7 @@ public class BaseIOReactor extends AbstractIOReactor {
     }
 
     /**
-     * Processes newly created I/O session. This method dispatches the event 
+     * Processes newly created I/O session. This method dispatches the event
      * notification to the {@link IOEventDispatch#connected(IOSession)} method.
      */
     @Override
@@ -302,8 +302,8 @@ public class BaseIOReactor extends AbstractIOReactor {
     }
 
     /**
-     * Processes closed I/O session. This method dispatches the event 
-     * notification to the {@link IOEventDispatch#disconnected(IOSession)} 
+     * Processes closed I/O session. This method dispatches the event
+     * notification to the {@link IOEventDispatch#disconnected(IOSession)}
      * method.
      */
     @Override

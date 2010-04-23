@@ -38,7 +38,7 @@ public class SimpleEventListener implements EventListener {
     public SimpleEventListener() {
         super();
     }
-    
+
     public void connectionOpen(final NHttpConnection conn) {
     }
 
@@ -56,5 +56,5 @@ public class SimpleEventListener implements EventListener {
     public void fatalProtocolException(final HttpException ex, final NHttpConnection conn) {
         ex.printStackTrace(System.out);
     }
-        
+
 }

@@ -44,7 +44,7 @@ import org.apache.http.util.EncodingUtils;
 /**
  * Simple tests for {@link IdentityEncoder}.
  *
- * 
+ *
  * @version $Id$
  */
 public class TestIdentityEncoder extends TestCase {
@@ -59,11 +59,11 @@ public class TestIdentityEncoder extends TestCase {
     private static ByteBuffer wrap(final String s) {
         return ByteBuffer.wrap(EncodingUtils.getAsciiBytes(s));
     }
-    
+
     private static WritableByteChannel newChannel(final ByteArrayOutputStream baos) {
         return Channels.newChannel(baos);
     }
-    
+
     public void testBasicCoding() throws Exception {
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         WritableByteChannel channel = newChannel(baos);
@@ -74,15 +74,15 @@ public class TestIdentityEncoder extends TestCase {
         IdentityEncoder encoder = new IdentityEncoder(channel, outbuf, metrics);
         encoder.write(wrap("stuff"));
         encoder.complete();
-        
+
         String s = baos.toString("US-ASCII");
-        
+
         assertTrue(encoder.isCompleted());
         assertEquals("stuff", s);
     }
-    
+
     public void testCodingEmptyBuffer() throws Exception {
-        ByteArrayOutputStream baos = new ByteArrayOutputStream(); 
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
         WritableByteChannel channel = newChannel(baos);
         HttpParams params = new BasicHttpParams();
         SessionOutputBuffer outbuf = new SessionOutputBufferImpl(1024, 128, params);
@@ -90,22 +90,22 @@ public class TestIdentityEncoder extends TestCase {
 
         IdentityEncoder encoder = new IdentityEncoder(channel, outbuf, metrics);
         encoder.write(wrap("stuff"));
-        
+
         ByteBuffer empty = ByteBuffer.allocate(100);
         empty.flip();
         encoder.write(empty);
         encoder.write(null);
-        
+
         encoder.complete();
-        
+
         String s = baos.toString("US-ASCII");
-        
+
         assertTrue(encoder.isCompleted());
         assertEquals("stuff", s);
     }
 
     public void testCodingCompleted() throws Exception {
-        ByteArrayOutputStream baos = new ByteArrayOutputStream(); 
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
         WritableByteChannel channel = newChannel(baos);
         HttpParams params = new BasicHttpParams();
         SessionOutputBuffer outbuf = new SessionOutputBufferImpl(1024, 128, params);
@@ -124,7 +124,7 @@ public class TestIdentityEncoder extends TestCase {
     }
 
     public void testInvalidConstructor() {
-        ByteArrayOutputStream baos = new ByteArrayOutputStream(); 
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
         WritableByteChannel channel = newChannel(baos);
         HttpParams params = new BasicHttpParams();
         SessionOutputBuffer outbuf = new SessionOutputBufferImpl(1024, 128, params);
@@ -148,5 +148,5 @@ public class TestIdentityEncoder extends TestCase {
             // ignore
         }
     }
-    
+
 }

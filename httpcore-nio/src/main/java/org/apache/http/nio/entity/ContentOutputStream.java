@@ -40,7 +40,7 @@ import org.apache.http.nio.util.ContentOutputBuffer;
 public class ContentOutputStream extends OutputStream {
 
     private final ContentOutputBuffer buffer;
-    
+
     public ContentOutputStream(final ContentOutputBuffer buffer) {
         super();
         if (buffer == null) {

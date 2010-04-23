@@ -33,49 +33,49 @@ import org.apache.http.HttpException;
 import org.apache.http.nio.NHttpConnection;
 
 /**
- * Event listener used by the HTTP protocol layer to report fatal exceptions 
+ * Event listener used by the HTTP protocol layer to report fatal exceptions
  * and events that may need to be logged using a logging toolkit.
- * 
+ *
  * @since 4.0
  */
 public interface EventListener {
 
     /**
      * Triggered when an I/O error caused a connection to be terminated.
-     * 
-     * @param ex the I/O exception. 
+     *
+     * @param ex the I/O exception.
      * @param conn the connection.
      */
     void fatalIOException(IOException ex, NHttpConnection conn);
 
     /**
-     * Triggered when an HTTP protocol error caused a connection to be 
+     * Triggered when an HTTP protocol error caused a connection to be
      * terminated.
-     * 
-     * @param ex the protocol exception. 
+     *
+     * @param ex the protocol exception.
      * @param conn the connection.
      */
     void fatalProtocolException(HttpException ex, NHttpConnection conn);
 
     /**
      * Triggered when a new connection has been established.
-     * 
+     *
      * @param conn the connection.
      */
     void connectionOpen(NHttpConnection conn);
 
     /**
      * Triggered when a connection has been terminated.
-     * 
+     *
      * @param conn the connection.
      */
     void connectionClosed(NHttpConnection conn);
 
     /**
      * Triggered when a connection has timed out.
-     * 
+     *
      * @param conn the connection.
      */
     void connectionTimeout(NHttpConnection conn);
-    
+
 }

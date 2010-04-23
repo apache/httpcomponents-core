@@ -49,21 +49,21 @@ import org.apache.http.protocol.HttpContext;
 import org.apache.http.protocol.HttpProcessor;
 
 /**
- * Client protocol handler implementation that provides compatibility with the 
- * blocking I/O by storing the full content of HTTP messages in memory. 
+ * Client protocol handler implementation that provides compatibility with the
+ * blocking I/O by storing the full content of HTTP messages in memory.
  * The {@link HttpRequestExecutionHandler#handleResponse(HttpResponse, HttpContext)}
- * method will fire only when the entire message content has been read into a 
- * in-memory buffer. Please note that request execution / response processing 
- * take place the main I/O thread and therefore 
+ * method will fire only when the entire message content has been read into a
+ * in-memory buffer. Please note that request execution / response processing
+ * take place the main I/O thread and therefore
  * {@link HttpRequestExecutionHandler} methods should not block indefinitely.
  * <p>
- * When using this protocol handler {@link HttpEntity}'s content can be 
- * generated / consumed using standard {@link InputStream}/{@link OutputStream} 
+ * When using this protocol handler {@link HttpEntity}'s content can be
+ * generated / consumed using standard {@link InputStream}/{@link OutputStream}
  * classes.
  * <p>
- * IMPORTANT: This protocol handler should be used only when dealing with HTTP 
+ * IMPORTANT: This protocol handler should be used only when dealing with HTTP
  * messages that are known to be limited in length.
- * 
+ *
  *
  * @since 4.0
  */
@@ -72,7 +72,7 @@ public class BufferingHttpClientHandler implements NHttpClientHandler {
     private final AsyncNHttpClientHandler asyncHandler;
 
     public BufferingHttpClientHandler(
-            final HttpProcessor httpProcessor, 
+            final HttpProcessor httpProcessor,
             final HttpRequestExecutionHandler execHandler,
             final ConnectionReuseStrategy connStrategy,
             final ByteBufferAllocator allocator,
@@ -84,16 +84,16 @@ public class BufferingHttpClientHandler implements NHttpClientHandler {
                 allocator,
                 params);
     }
-    
+
     public BufferingHttpClientHandler(
-            final HttpProcessor httpProcessor, 
+            final HttpProcessor httpProcessor,
             final HttpRequestExecutionHandler execHandler,
             final ConnectionReuseStrategy connStrategy,
             final HttpParams params) {
-        this(httpProcessor, execHandler, connStrategy, 
+        this(httpProcessor, execHandler, connStrategy,
                 new HeapByteBufferAllocator(), params);
     }
-    
+
     public void setEventListener(final EventListener eventListener) {
         this.asyncHandler.setEventListener(eventListener);
     }
@@ -133,11 +133,11 @@ public class BufferingHttpClientHandler implements NHttpClientHandler {
     public void timeout(final NHttpClientConnection conn) {
         this.asyncHandler.timeout(conn);
     }
-    
+
     static class ExecutionHandlerAdaptor implements NHttpRequestExecutionHandler {
-        
+
         private final HttpRequestExecutionHandler execHandler;
-        
+
         public ExecutionHandlerAdaptor(final HttpRequestExecutionHandler execHandler) {
             super();
             this.execHandler = execHandler;
@@ -153,9 +153,9 @@ public class BufferingHttpClientHandler implements NHttpClientHandler {
         public HttpRequest submitRequest(final HttpContext context) {
             return this.execHandler.submitRequest(context);
         }
-        
+
         public ConsumingNHttpEntity responseEntity(
-                final HttpResponse response, 
+                final HttpResponse response,
                 final HttpContext context) throws IOException {
             return new BufferingNHttpEntity(
                     response.getEntity(),
@@ -163,11 +163,11 @@ public class BufferingHttpClientHandler implements NHttpClientHandler {
         }
 
         public void handleResponse(
-                final HttpResponse response, 
+                final HttpResponse response,
                 final HttpContext context) throws IOException {
             this.execHandler.handleResponse(response, context);
         }
 
     }
-    
+
 }

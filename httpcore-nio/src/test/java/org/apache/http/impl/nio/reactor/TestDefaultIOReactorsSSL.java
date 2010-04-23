@@ -82,26 +82,26 @@ public class TestDefaultIOReactorsSSL extends HttpCoreNIOSSLTestBase {
 
     public void testGracefulShutdown() throws Exception {
 
-        // Open some connection and make sure 
+        // Open some connection and make sure
         // they get cleanly closed upon shutdown
-        
+
         final int connNo = 10;
-        final CountDownLatch requestConns = new CountDownLatch(connNo); 
-        final AtomicInteger closedServerConns = new AtomicInteger(0); 
-        final AtomicInteger openServerConns = new AtomicInteger(0); 
-        final AtomicInteger closedClientConns = new AtomicInteger(0); 
-        final AtomicInteger openClientConns = new AtomicInteger(0); 
-        
+        final CountDownLatch requestConns = new CountDownLatch(connNo);
+        final AtomicInteger closedServerConns = new AtomicInteger(0);
+        final AtomicInteger openServerConns = new AtomicInteger(0);
+        final AtomicInteger closedClientConns = new AtomicInteger(0);
+        final AtomicInteger openClientConns = new AtomicInteger(0);
+
         HttpRequestHandler requestHandler = new HttpRequestHandler() {
 
             public void handle(
-                    final HttpRequest request, 
-                    final HttpResponse response, 
+                    final HttpRequest request,
+                    final HttpResponse response,
                     final HttpContext context) throws HttpException, IOException {
             }
-            
+
         };
-        
+
         HttpRequestExecutionHandler requestExecutionHandler = new HttpRequestExecutionHandler() {
 
             public void initalizeContext(final HttpContext context, final Object attachment) {
@@ -123,13 +123,13 @@ public class TestDefaultIOReactorsSSL extends HttpCoreNIOSSLTestBase {
                     return null;
                 }
             }
-            
+
             public void handleResponse(final HttpResponse response, final HttpContext context) {
-                requestConns.countDown();                    
+                requestConns.countDown();
             }
-            
+
         };
-     
+
         EventListener serverEventListener = new SimpleEventListener() {
 
             @Override
@@ -143,9 +143,9 @@ public class TestDefaultIOReactorsSSL extends HttpCoreNIOSSLTestBase {
                 closedServerConns.incrementAndGet();
                 super.connectionClosed(conn);
             }
-            
+
         };
-        
+
         HttpProcessor serverHttpProc = new ImmutableHttpProcessor(new HttpResponseInterceptor[] {
                 new ResponseDate(),
                 new ResponseServer(),
@@ -177,9 +177,9 @@ public class TestDefaultIOReactorsSSL extends HttpCoreNIOSSLTestBase {
                 closedClientConns.incrementAndGet();
                 super.connectionClosed(conn);
             }
-            
+
         };
-        
+
         HttpProcessor clientHttpProc = new ImmutableHttpProcessor(new HttpRequestInterceptor[] {
                 new RequestContent(),
                 new RequestTargetHost(),
@@ -195,24 +195,24 @@ public class TestDefaultIOReactorsSSL extends HttpCoreNIOSSLTestBase {
 
         clientHandler.setEventListener(
                 clientEventListener);
-        
+
         this.server.start(serviceHandler);
         this.client.start(clientHandler);
-        
+
         ListenerEndpoint endpoint = this.server.getListenerEndpoint();
         endpoint.waitFor();
         InetSocketAddress serverAddress = (InetSocketAddress) endpoint.getAddress();
-        
+
         assertEquals("Test server status", IOReactorStatus.ACTIVE, this.server.getStatus());
-        
+
         Queue<SessionRequest> connRequests = new LinkedList<SessionRequest>();
         for (int i = 0; i < connNo; i++) {
             SessionRequest sessionRequest = this.client.openConnection(
-                    new InetSocketAddress("localhost", serverAddress.getPort()), 
+                    new InetSocketAddress("localhost", serverAddress.getPort()),
                     null);
             connRequests.add(sessionRequest);
         }
-        
+
         while (!connRequests.isEmpty()) {
             SessionRequest sessionRequest = connRequests.remove();
             sessionRequest.waitFor();
@@ -223,13 +223,13 @@ public class TestDefaultIOReactorsSSL extends HttpCoreNIOSSLTestBase {
         }
 
         assertEquals("Test client status", IOReactorStatus.ACTIVE, this.client.getStatus());
-        
+
         requestConns.await();
         assertEquals(0, requestConns.getCount());
-     
+
         this.client.shutdown();
         this.server.shutdown();
-        
+
         assertEquals(openClientConns.get(), closedClientConns.get());
         assertEquals(openServerConns.get(), closedServerConns.get());
     }

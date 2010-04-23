@@ -31,7 +31,7 @@ package org.apache.http.nio.util;
  * Basic buffer properties.
  *
  * @since 4.0
- * 
+ *
  * @deprecated Use {@link org.apache.http.io.BufferInfo}
  */
 @Deprecated

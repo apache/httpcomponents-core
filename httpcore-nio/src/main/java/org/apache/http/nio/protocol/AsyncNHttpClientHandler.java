@@ -55,33 +55,33 @@ import org.apache.http.protocol.HttpContext;
 import org.apache.http.protocol.HttpProcessor;
 
 /**
- * Fully asynchronous HTTP client side protocol handler that implements the 
- * essential requirements of the HTTP protocol for the server side message 
- * processing as described by RFC 2616. It is capable of executing HTTP requests 
- * with nearly constant memory footprint. Only HTTP message heads are stored in 
- * memory, while content of message bodies is streamed directly from the entity 
+ * Fully asynchronous HTTP client side protocol handler that implements the
+ * essential requirements of the HTTP protocol for the server side message
+ * processing as described by RFC 2616. It is capable of executing HTTP requests
+ * with nearly constant memory footprint. Only HTTP message heads are stored in
+ * memory, while content of message bodies is streamed directly from the entity
  * to the underlying channel (and vice versa) using {@link ConsumingNHttpEntity}
  * and {@link ProducingNHttpEntity} interfaces.
- * 
- * When using this implementation, it is important to ensure that entities 
- * supplied for writing implement {@link ProducingNHttpEntity}. Doing so will allow 
- * the entity to be written out asynchronously. If entities supplied for writing 
- * do not implement the {@link ProducingNHttpEntity} interface, a delegate is 
- * added that buffers the entire contents in memory. Additionally, the 
- * buffering might take place in the I/O dispatch thread, which could cause I/O 
- * to block temporarily. For best results, one must ensure that all entities 
- * set on {@link HttpRequest}s from {@link NHttpRequestExecutionHandler} 
+ *
+ * When using this implementation, it is important to ensure that entities
+ * supplied for writing implement {@link ProducingNHttpEntity}. Doing so will allow
+ * the entity to be written out asynchronously. If entities supplied for writing
+ * do not implement the {@link ProducingNHttpEntity} interface, a delegate is
+ * added that buffers the entire contents in memory. Additionally, the
+ * buffering might take place in the I/O dispatch thread, which could cause I/O
+ * to block temporarily. For best results, one must ensure that all entities
+ * set on {@link HttpRequest}s from {@link NHttpRequestExecutionHandler}
  * implement {@link ProducingNHttpEntity}.
- * 
- * If incoming responses enclose a content entity, 
- * {@link NHttpRequestExecutionHandler} are expected to return a 
- * {@link ConsumingNHttpEntity} for reading the content. After the entity is 
- * finished reading the data, 
- * {@link NHttpRequestExecutionHandler#handleResponse(HttpResponse, HttpContext)} 
- * method is called to process the response. 
+ *
+ * If incoming responses enclose a content entity,
+ * {@link NHttpRequestExecutionHandler} are expected to return a
+ * {@link ConsumingNHttpEntity} for reading the content. After the entity is
+ * finished reading the data,
+ * {@link NHttpRequestExecutionHandler#handleResponse(HttpResponse, HttpContext)}
+ * method is called to process the response.
  * <p>
- * The following parameters can be used to customize the behavior of this 
- * class: 
+ * The following parameters can be used to customize the behavior of this
+ * class:
  * <ul>
  *  <li>{@link org.apache.http.params.CoreProtocolPNames#WAIT_FOR_CONTINUE}</li>
  * </ul>
@@ -165,7 +165,7 @@ public class AsyncNHttpClientHandler extends NHttpHandlerBase
             this.eventListener.fatalIOException(ex, conn);
         }
     }
-    
+
     public void requestReady(final NHttpClientConnection conn) {
         HttpContext context = conn.getContext();
 
@@ -186,10 +186,10 @@ public class AsyncNHttpClientHandler extends NHttpHandlerBase
 
             context.setAttribute(ExecutionContext.HTTP_REQUEST, request);
             this.httpProcessor.process(request, context);
-            
+
             HttpEntityEnclosingRequest entityReq = null;
             HttpEntity entity = null;
-            
+
             if (request instanceof HttpEntityEnclosingRequest) {
                 entityReq = (HttpEntityEnclosingRequest) request;
                 entity = entityReq.getEntity();
@@ -200,7 +200,7 @@ public class AsyncNHttpClientHandler extends NHttpHandlerBase
             } else if (entity != null) {
                 connState.setProducingEntity(new NHttpEntityWrapper(entity));
             }
-            
+
             connState.setRequest(request);
             conn.submitRequest(request);
             connState.setOutputState(ClientConnState.REQUEST_SENT);
@@ -302,7 +302,7 @@ public class AsyncNHttpClientHandler extends NHttpHandlerBase
             }
 
             context.setAttribute(ExecutionContext.HTTP_RESPONSE, response);
-            
+
             if (!canResponseHaveBody(request, response)) {
                 conn.resetInput();
                 response.setEntity(null);
@@ -368,7 +368,7 @@ public class AsyncNHttpClientHandler extends NHttpHandlerBase
     }
 
     /**
-     * @throws IOException - not thrown currently 
+     * @throws IOException - not thrown currently
      */
     private void continueRequest(
             final NHttpClientConnection conn,
@@ -393,7 +393,7 @@ public class AsyncNHttpClientHandler extends NHttpHandlerBase
     }
 
     /**
-     * @throws HttpException - not thrown currently 
+     * @throws HttpException - not thrown currently
      */
     private void processResponse(
             final NHttpClientConnection conn,

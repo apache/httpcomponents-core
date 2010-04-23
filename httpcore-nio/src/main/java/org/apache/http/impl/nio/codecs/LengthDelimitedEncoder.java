@@ -37,34 +37,34 @@ import org.apache.http.nio.FileContentEncoder;
 import org.apache.http.nio.reactor.SessionOutputBuffer;
 
 /**
- * Content encoder that cuts off after a defined number of bytes. This class 
- * is used to send content of HTTP messages where the end of the content entity 
- * is determined by the value of the <code>Content-Length header</code>. 
+ * Content encoder that cuts off after a defined number of bytes. This class
+ * is used to send content of HTTP messages where the end of the content entity
+ * is determined by the value of the <code>Content-Length header</code>.
  * Entities transferred using this stream can be maximum {@link Long#MAX_VALUE}
- * long. 
+ * long.
  * <p>
- * This decoder is optimized to transfer data directly from 
- * a {@link FileChannel} to the underlying I/O session's channel whenever 
- * possible avoiding intermediate buffering in the session buffer. 
- * 
+ * This decoder is optimized to transfer data directly from
+ * a {@link FileChannel} to the underlying I/O session's channel whenever
+ * possible avoiding intermediate buffering in the session buffer.
+ *
  * @since 4.0
  */
-public class LengthDelimitedEncoder extends AbstractContentEncoder 
+public class LengthDelimitedEncoder extends AbstractContentEncoder
         implements FileContentEncoder {
-    
+
     private final long contentLength;
-    
+
     private long len;
 
     public LengthDelimitedEncoder(
-            final WritableByteChannel channel, 
+            final WritableByteChannel channel,
             final SessionOutputBuffer buffer,
             final HttpTransportMetricsImpl metrics,
             long contentLength) {
         super(channel, buffer, metrics);
         if (contentLength < 0) {
             throw new IllegalArgumentException("Content length may not be negative");
-        }        
+        }
         this.contentLength = contentLength;
         this.len = 0;
     }
@@ -97,16 +97,16 @@ public class LengthDelimitedEncoder extends AbstractContentEncoder
     }
 
     public long transfer(
-            final FileChannel src, 
-            long position, 
+            final FileChannel src,
+            long position,
             long count) throws IOException {
-        
+
         if (src == null) {
             return 0;
         }
         assertNotCompleted();
         int lenRemaining = (int) (this.contentLength - this.len);
-        
+
         long bytesWritten;
         if (count > lenRemaining) {
             count = lenRemaining;
@@ -121,7 +121,7 @@ public class LengthDelimitedEncoder extends AbstractContentEncoder
         }
         return bytesWritten;
     }
-    
+
     @Override
     public String toString() {
         StringBuffer buffer = new StringBuffer();
@@ -134,5 +134,5 @@ public class LengthDelimitedEncoder extends AbstractContentEncoder
         buffer.append("]");
         return buffer.toString();
     }
-    
+
 }

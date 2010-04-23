@@ -38,12 +38,12 @@ import org.apache.http.params.HttpParams;
 class SSLIOSessionHandlerAdaptor implements SSLSetupHandler {
 
     private final SSLIOSessionHandler handler;
-    
+
     public SSLIOSessionHandlerAdaptor(final SSLIOSessionHandler handler) {
         super();
         this.handler = handler;
     }
-    
+
     public void initalize(final SSLEngine sslengine, final HttpParams params) throws SSLException {
         this.handler.initalize(sslengine, params);
     }
@@ -51,5 +51,5 @@ class SSLIOSessionHandlerAdaptor implements SSLSetupHandler {
     public void verify(final IOSession iosession, final SSLSession sslsession) throws SSLException {
         this.handler.verify(iosession.getRemoteAddress(), sslsession);
     }
-    
+
 }

@@ -61,31 +61,31 @@ import org.apache.http.protocol.HttpContext;
 import org.apache.http.protocol.HttpProcessor;
 
 /**
- * Client protocol handler implementation that provide compatibility with 
- * the blocking I/O by utilizing shared content buffers and a fairly small pool 
- * of worker threads. The throttling protocol handler allocates input / output 
- * buffers of a constant length upon initialization and controls the rate of 
- * I/O events in order to ensure those content buffers do not ever get 
- * overflown. This helps ensure nearly constant memory footprint for HTTP 
- * connections and avoid the out of memory condition while streaming content 
+ * Client protocol handler implementation that provide compatibility with
+ * the blocking I/O by utilizing shared content buffers and a fairly small pool
+ * of worker threads. The throttling protocol handler allocates input / output
+ * buffers of a constant length upon initialization and controls the rate of
+ * I/O events in order to ensure those content buffers do not ever get
+ * overflown. This helps ensure nearly constant memory footprint for HTTP
+ * connections and avoid the out of memory condition while streaming content
  * in and out. The {@link HttpRequestExecutionHandler#handleResponse(HttpResponse, HttpContext)}
- * method will fire immediately when a message is received. The protocol handler 
- * delegate the task of processing requests and generating response content to 
- * an {@link Executor}, which is expected to perform those tasks using 
- * dedicated worker threads in order to avoid blocking the I/O thread.  
+ * method will fire immediately when a message is received. The protocol handler
+ * delegate the task of processing requests and generating response content to
+ * an {@link Executor}, which is expected to perform those tasks using
+ * dedicated worker threads in order to avoid blocking the I/O thread.
  * <p/>
- * Usually throttling protocol handlers need only a modest number of worker 
- * threads, much fewer than the number of concurrent connections. If the length 
- * of the message is smaller or about the size of the shared content buffer 
- * worker thread will just store content in the buffer and terminate almost 
- * immediately without blocking. The I/O dispatch thread in its turn will take 
- * care of sending out the buffered content asynchronously. The worker thread 
- * will have to block only when processing large messages and the shared buffer 
- * fills up. It is generally advisable to allocate shared buffers of a size of 
+ * Usually throttling protocol handlers need only a modest number of worker
+ * threads, much fewer than the number of concurrent connections. If the length
+ * of the message is smaller or about the size of the shared content buffer
+ * worker thread will just store content in the buffer and terminate almost
+ * immediately without blocking. The I/O dispatch thread in its turn will take
+ * care of sending out the buffered content asynchronously. The worker thread
+ * will have to block only when processing large messages and the shared buffer
+ * fills up. It is generally advisable to allocate shared buffers of a size of
  * an average content body for optimal performance.
  * <p>
- * The following parameters can be used to customize the behavior of this 
- * class: 
+ * The following parameters can be used to customize the behavior of this
+ * class:
  * <ul>
  *  <li>{@link org.apache.http.params.CoreProtocolPNames#WAIT_FOR_CONTINUE}</li>
  *  <li>{@link org.apache.http.nio.params.NIOReactorPNames#CONTENT_BUFFER_SIZE}</li>
@@ -98,9 +98,9 @@ public class ThrottlingHttpClientHandler extends NHttpHandlerBase
 
     protected HttpRequestExecutionHandler execHandler;
     protected final Executor executor;
-    
+
     public ThrottlingHttpClientHandler(
-            final HttpProcessor httpProcessor, 
+            final HttpProcessor httpProcessor,
             final HttpRequestExecutionHandler execHandler,
             final ConnectionReuseStrategy connStrategy,
             final ByteBufferAllocator allocator,
@@ -116,38 +116,38 @@ public class ThrottlingHttpClientHandler extends NHttpHandlerBase
         this.execHandler = execHandler;
         this.executor = executor;
     }
-    
+
     public ThrottlingHttpClientHandler(
-            final HttpProcessor httpProcessor, 
+            final HttpProcessor httpProcessor,
             final HttpRequestExecutionHandler execHandler,
             final ConnectionReuseStrategy connStrategy,
             final Executor executor,
             final HttpParams params) {
-        this(httpProcessor, execHandler, connStrategy, 
+        this(httpProcessor, execHandler, connStrategy,
                 new DirectByteBufferAllocator(), executor, params);
     }
-    
+
     public void connected(final NHttpClientConnection conn, final Object attachment) {
         HttpContext context = conn.getContext();
 
         initialize(conn, attachment);
-        
+
         int bufsize = this.params.getIntParameter(
                 NIOReactorPNames.CONTENT_BUFFER_SIZE, 20480);
-        ClientConnState connState = new ClientConnState(bufsize, conn, this.allocator); 
+        ClientConnState connState = new ClientConnState(bufsize, conn, this.allocator);
         context.setAttribute(CONN_STATE, connState);
 
         if (this.eventListener != null) {
             this.eventListener.connectionOpen(conn);
         }
-        
-        requestReady(conn);        
+
+        requestReady(conn);
     }
 
     public void closed(final NHttpClientConnection conn) {
         HttpContext context = conn.getContext();
         ClientConnState connState = (ClientConnState) context.getAttribute(CONN_STATE);
-        
+
         if (connState != null) {
             synchronized (connState) {
                 connState.close();
@@ -158,9 +158,9 @@ public class ThrottlingHttpClientHandler extends NHttpHandlerBase
         if (this.eventListener != null) {
             this.eventListener.connectionClosed(conn);
         }
-        
+
         this.execHandler.finalizeContext(context);
-        
+
         if (this.eventListener != null) {
             this.eventListener.connectionClosed(conn);
         }
@@ -180,12 +180,12 @@ public class ThrottlingHttpClientHandler extends NHttpHandlerBase
         }
     }
 
-    
+
     public void requestReady(final NHttpClientConnection conn) {
         HttpContext context = conn.getContext();
 
         ClientConnState connState = (ClientConnState) context.getAttribute(CONN_STATE);
-        
+
         try {
 
             synchronized (connState) {
@@ -197,18 +197,18 @@ public class ThrottlingHttpClientHandler extends NHttpHandlerBase
                 if (request == null) {
                     return;
                 }
-                
+
                 request.setParams(
                         new DefaultedHttpParams(request.getParams(), this.params));
-                
+
                 context.setAttribute(ExecutionContext.HTTP_REQUEST, request);
                 this.httpProcessor.process(request, context);
                 connState.setRequest(request);
                 conn.submitRequest(request);
                 connState.setOutputState(ClientConnState.REQUEST_SENT);
-                
+
                 conn.requestInput();
-                
+
                 if (request instanceof HttpEntityEnclosingRequest) {
                     if (((HttpEntityEnclosingRequest) request).expectContinue()) {
                         int timeout = conn.getSocketTimeout();
@@ -224,10 +224,10 @@ public class ThrottlingHttpClientHandler extends NHttpHandlerBase
                                 conn);
                     }
                 }
-                
+
                 connState.notifyAll();
             }
-            
+
         } catch (IOException ex) {
             shutdownConnection(conn, ex);
             if (this.eventListener != null) {
@@ -263,7 +263,7 @@ public class ThrottlingHttpClientHandler extends NHttpHandlerBase
 
                 connState.notifyAll();
             }
-            
+
         } catch (IOException ex) {
             shutdownConnection(conn, ex);
             if (this.eventListener != null) {
@@ -277,18 +277,18 @@ public class ThrottlingHttpClientHandler extends NHttpHandlerBase
         ClientConnState connState = (ClientConnState) context.getAttribute(CONN_STATE);
 
         try {
-            
+
             synchronized (connState) {
                 HttpResponse response = conn.getHttpResponse();
                 response.setParams(
                         new DefaultedHttpParams(response.getParams(), this.params));
-                
+
                 HttpRequest request = connState.getRequest();
-                
+
                 int statusCode = response.getStatusLine().getStatusCode();
                 if (statusCode < HttpStatus.SC_OK) {
                     // 1xx intermediate response
-                    if (statusCode == HttpStatus.SC_CONTINUE 
+                    if (statusCode == HttpStatus.SC_CONTINUE
                             && connState.getOutputState() == ClientConnState.EXPECT_CONTINUE) {
                         connState.setOutputState(ClientConnState.REQUEST_SENT);
                         continueRequest(conn, connState);
@@ -297,19 +297,19 @@ public class ThrottlingHttpClientHandler extends NHttpHandlerBase
                 } else {
                     connState.setResponse(response);
                     connState.setInputState(ClientConnState.RESPONSE_RECEIVED);
-                    
+
                     if (connState.getOutputState() == ClientConnState.EXPECT_CONTINUE) {
                         int timeout = connState.getTimeout();
                         conn.setSocketTimeout(timeout);
                         conn.resetOutput();
                     }
                 }
-                
+
                 if (!canResponseHaveBody(request, response)) {
                     conn.resetInput();
                     response.setEntity(null);
                     connState.setInputState(ClientConnState.RESPONSE_DONE);
-                    
+
                     if (!this.connStrategy.keepAlive(response, context)) {
                         conn.close();
                     }
@@ -317,19 +317,19 @@ public class ThrottlingHttpClientHandler extends NHttpHandlerBase
 
                 if (response.getEntity() != null) {
                     response.setEntity(new ContentBufferEntity(
-                            response.getEntity(), 
+                            response.getEntity(),
                             connState.getInbuffer()));
                 }
-                
+
                 context.setAttribute(ExecutionContext.HTTP_RESPONSE, response);
-                
+
                 this.httpProcessor.process(response, context);
-                
+
                 handleResponse(response, connState, conn);
-                
+
                 connState.notifyAll();
             }
-            
+
         } catch (IOException ex) {
             shutdownConnection(conn, ex);
             if (this.eventListener != null) {
@@ -356,7 +356,7 @@ public class ThrottlingHttpClientHandler extends NHttpHandlerBase
                 buffer.consumeContent(decoder);
                 if (decoder.isCompleted()) {
                     connState.setInputState(ClientConnState.RESPONSE_BODY_DONE);
-                    
+
                     if (!this.connStrategy.keepAlive(response, context)) {
                         conn.close();
                     }
@@ -366,7 +366,7 @@ public class ThrottlingHttpClientHandler extends NHttpHandlerBase
 
                 connState.notifyAll();
             }
-            
+
         } catch (IOException ex) {
             shutdownConnection(conn, ex);
             if (this.eventListener != null) {
@@ -380,17 +380,17 @@ public class ThrottlingHttpClientHandler extends NHttpHandlerBase
         ClientConnState connState = (ClientConnState) context.getAttribute(CONN_STATE);
 
         try {
-            
+
             synchronized (connState) {
                 if (connState.getOutputState() == ClientConnState.EXPECT_CONTINUE) {
                     connState.setOutputState(ClientConnState.REQUEST_SENT);
                     continueRequest(conn, connState);
-                    
+
                     connState.notifyAll();
                     return;
                 }
             }
-            
+
         } catch (IOException ex) {
             shutdownConnection(conn, ex);
             if (this.eventListener != null) {
@@ -400,7 +400,7 @@ public class ThrottlingHttpClientHandler extends NHttpHandlerBase
 
         handleTimeout(conn);
     }
-    
+
     private void initialize(
             final NHttpClientConnection conn,
             final Object attachment) {
@@ -409,9 +409,9 @@ public class ThrottlingHttpClientHandler extends NHttpHandlerBase
         context.setAttribute(ExecutionContext.HTTP_CONNECTION, conn);
         this.execHandler.initalizeContext(context, attachment);
     }
-    
+
     private void continueRequest(
-            final NHttpClientConnection conn, 
+            final NHttpClientConnection conn,
             final ClientConnState connState) throws IOException {
 
         HttpRequest request = connState.getRequest();
@@ -424,9 +424,9 @@ public class ThrottlingHttpClientHandler extends NHttpHandlerBase
                 connState,
                 conn);
     }
-    
+
     /**
-     * @throws IOException - not thrown currently 
+     * @throws IOException - not thrown currently
      */
     private void sendRequestBody(
             final HttpEntityEnclosingRequest request,
@@ -434,13 +434,13 @@ public class ThrottlingHttpClientHandler extends NHttpHandlerBase
             final NHttpClientConnection conn) throws IOException {
         HttpEntity entity = request.getEntity();
         if (entity != null) {
-            
+
             this.executor.execute(new Runnable() {
-                
+
                 public void run() {
                     try {
 
-                        // Block until previous request is fully processed and 
+                        // Block until previous request is fully processed and
                         // the worker thread no longer holds the shared buffer
                         synchronized (connState) {
                             try {
@@ -460,7 +460,7 @@ public class ThrottlingHttpClientHandler extends NHttpHandlerBase
                             }
                             connState.setWorkerRunning(true);
                         }
-                        
+
                         HttpEntity entity = request.getEntity();
                         OutputStream outstream = new ContentOutputStream(
                                 connState.getOutbuffer());
@@ -472,7 +472,7 @@ public class ThrottlingHttpClientHandler extends NHttpHandlerBase
                             connState.setWorkerRunning(false);
                             connState.notifyAll();
                         }
-                        
+
                     } catch (IOException ex) {
                         shutdownConnection(conn, ex);
                         if (eventListener != null) {
@@ -480,24 +480,24 @@ public class ThrottlingHttpClientHandler extends NHttpHandlerBase
                         }
                     }
                 }
-                
+
             });
         }
     }
-    
+
     private void handleResponse(
             final HttpResponse response,
             final ClientConnState connState,
             final NHttpClientConnection conn) {
 
         final HttpContext context = conn.getContext();
-        
+
         this.executor.execute(new Runnable() {
-            
+
             public void run() {
                 try {
 
-                    // Block until previous request is fully processed and 
+                    // Block until previous request is fully processed and
                     // the worker thread no longer holds the shared buffer
                     synchronized (connState) {
                         try {
@@ -517,11 +517,11 @@ public class ThrottlingHttpClientHandler extends NHttpHandlerBase
                         }
                         connState.setWorkerRunning(true);
                     }
-                    
+
                     execHandler.handleResponse(response, context);
-                    
+
                     synchronized (connState) {
-                        
+
                         try {
                             for (;;) {
                                 int currentState = connState.getInputState();
@@ -536,7 +536,7 @@ public class ThrottlingHttpClientHandler extends NHttpHandlerBase
                         } catch (InterruptedException ex) {
                             connState.shutdown();
                         }
-                        
+
                         connState.resetInput();
                         connState.resetOutput();
                         if (conn.isOpen()) {
@@ -545,7 +545,7 @@ public class ThrottlingHttpClientHandler extends NHttpHandlerBase
                         connState.setWorkerRunning(false);
                         connState.notifyAll();
                     }
-                    
+
                 } catch (IOException ex) {
                     shutdownConnection(conn, ex);
                     if (eventListener != null) {
@@ -553,13 +553,13 @@ public class ThrottlingHttpClientHandler extends NHttpHandlerBase
                     }
                 }
             }
-            
+
         });
-        
+
     }
-    
+
     static class ClientConnState {
-        
+
         public static final int SHUTDOWN                   = -1;
         public static final int READY                      = 0;
         public static final int REQUEST_SENT               = 1;
@@ -570,23 +570,23 @@ public class ThrottlingHttpClientHandler extends NHttpHandlerBase
         public static final int RESPONSE_BODY_STREAM       = 32;
         public static final int RESPONSE_BODY_DONE         = 64;
         public static final int RESPONSE_DONE              = 64;
-        
-        private final SharedInputBuffer inbuffer; 
+
+        private final SharedInputBuffer inbuffer;
         private final SharedOutputBuffer outbuffer;
 
         private volatile int inputState;
         private volatile int outputState;
-        
+
         private volatile HttpRequest request;
         private volatile HttpResponse response;
 
         private volatile int timeout;
 
-        private volatile boolean workerRunning; 
-        
+        private volatile boolean workerRunning;
+
         public ClientConnState(
-                int bufsize, 
-                final IOControl ioControl, 
+                int bufsize,
+                final IOControl ioControl,
                 final ByteBufferAllocator allocator) {
             super();
             this.inbuffer = new SharedInputBuffer(bufsize, ioControl, allocator);
@@ -602,7 +602,7 @@ public class ThrottlingHttpClientHandler extends NHttpHandlerBase
         public ContentOutputBuffer getOutbuffer() {
             return this.outbuffer;
         }
-        
+
         public int getInputState() {
             return this.inputState;
         }
@@ -642,7 +642,7 @@ public class ThrottlingHttpClientHandler extends NHttpHandlerBase
         public void setTimeout(int timeout) {
             this.timeout = timeout;
         }
-            
+
         public boolean isWorkerRunning() {
             return this.workerRunning;
         }
@@ -670,13 +670,13 @@ public class ThrottlingHttpClientHandler extends NHttpHandlerBase
             this.request = null;
             this.inputState = READY;
         }
-        
+
         public void resetOutput() {
             this.outbuffer.reset();
             this.response = null;
             this.outputState = READY;
         }
-        
+
     }
-    
+
 }

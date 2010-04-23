@@ -36,15 +36,15 @@ import java.nio.channels.FileChannel;
  * @since 4.0
  */
 public interface FileContentDecoder extends ContentDecoder {
-    
+
     /**
      * Transfers a portion of entity content from the underlying network channel
      * into the given file channel.<br>
-     * 
+     *
      * <b>Warning</b>: Many implementations cannot write beyond the length of the file.
      *             If the position exceeds the channel's size, some implementations
      *             may throw an IOException.
-     * 
+     *
      * @param  dst the target FileChannel to transfer data into.
      * @param  position
      *         The position within the file at which the transfer is to begin;
@@ -58,5 +58,5 @@ public interface FileContentDecoder extends ContentDecoder {
      *          that were actually transferred
      */
     long transfer(FileChannel dst, long position, long count) throws IOException;
-    
+
 }

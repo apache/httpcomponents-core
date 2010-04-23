@@ -40,11 +40,11 @@ import org.apache.http.params.HttpParams;
 import org.apache.http.protocol.ExecutionContext;
 
 /**
- * Default implementation of {@link IOEventDispatch} interface for plain 
+ * Default implementation of {@link IOEventDispatch} interface for plain
  * (unencrypted) client-side HTTP connections.
  * <p>
- * The following parameters can be used to customize the behavior of this 
- * class: 
+ * The following parameters can be used to customize the behavior of this
+ * class:
  * <ul>
  *  <li>{@link org.apache.http.params.CoreProtocolPNames#HTTP_ELEMENT_CHARSET}</li>
  *  <li>{@link org.apache.http.params.CoreConnectionPNames#SOCKET_BUFFER_SIZE}</li>
@@ -61,14 +61,14 @@ public class DefaultClientIOEventDispatch implements IOEventDispatch {
     protected final HttpParams params;
 
     /**
-     * Creates a new instance of this class to be used for dispatching I/O event 
+     * Creates a new instance of this class to be used for dispatching I/O event
      * notifications to the given protocol handler.
-     * 
+     *
      * @param handler the client protocol handler.
      * @param params HTTP parameters.
      */
     public DefaultClientIOEventDispatch(
-            final NHttpClientHandler handler, 
+            final NHttpClientHandler handler,
             final HttpParams params) {
         super();
         if (handler == null) {
@@ -81,52 +81,52 @@ public class DefaultClientIOEventDispatch implements IOEventDispatch {
         this.handler = handler;
         this.params = params;
     }
-    
+
     /**
-     * Creates an instance of {@link HeapByteBufferAllocator} to be used 
+     * Creates an instance of {@link HeapByteBufferAllocator} to be used
      * by HTTP connections for allocating {@link java.nio.ByteBuffer} objects.
      * <p>
-     * This method can be overridden in a super class in order to provide 
-     * a different implementation of the {@link ByteBufferAllocator} interface. 
-     * 
+     * This method can be overridden in a super class in order to provide
+     * a different implementation of the {@link ByteBufferAllocator} interface.
+     *
      * @return byte buffer allocator.
      */
     protected ByteBufferAllocator createByteBufferAllocator() {
-        return new HeapByteBufferAllocator(); 
+        return new HeapByteBufferAllocator();
     }
-        
+
     /**
-     * Creates an instance of {@link DefaultHttpResponseFactory} to be used 
+     * Creates an instance of {@link DefaultHttpResponseFactory} to be used
      * by HTTP connections for creating {@link HttpResponse} objects.
      * <p>
-     * This method can be overridden in a super class in order to provide 
-     * a different implementation of the {@link HttpResponseFactory} interface. 
-     * 
+     * This method can be overridden in a super class in order to provide
+     * a different implementation of the {@link HttpResponseFactory} interface.
+     *
      * @return HTTP response factory.
      */
     protected HttpResponseFactory createHttpResponseFactory() {
         return new DefaultHttpResponseFactory();
     }
-    
+
     /**
      * Creates an instance of {@link DefaultNHttpClientConnection} based on the
      * given {@link IOSession}.
      * <p>
-     * This method can be overridden in a super class in order to provide 
-     * a different implementation of the {@link NHttpClientIOTarget} interface. 
-     * 
-     * @param session the underlying I/O session. 
-     * 
+     * This method can be overridden in a super class in order to provide
+     * a different implementation of the {@link NHttpClientIOTarget} interface.
+     *
+     * @param session the underlying I/O session.
+     *
      * @return newly created HTTP connection.
      */
     protected NHttpClientIOTarget createConnection(final IOSession session) {
         return new DefaultNHttpClientConnection(
-                session, 
+                session,
                 createHttpResponseFactory(),
                 this.allocator,
-                this.params); 
+                this.params);
     }
-        
+
     public void connected(final IOSession session) {
         NHttpClientIOTarget conn = createConnection(session);
         Object attachment = session.getAttribute(IOSession.ATTACHMENT_KEY);
@@ -135,7 +135,7 @@ public class DefaultClientIOEventDispatch implements IOEventDispatch {
     }
 
     public void disconnected(final IOSession session) {
-        NHttpClientIOTarget conn = 
+        NHttpClientIOTarget conn =
             (NHttpClientIOTarget) session.getAttribute(ExecutionContext.HTTP_CONNECTION);
         if (conn != null) {
             this.handler.closed(conn);
@@ -143,19 +143,19 @@ public class DefaultClientIOEventDispatch implements IOEventDispatch {
     }
 
     public void inputReady(final IOSession session) {
-        NHttpClientIOTarget conn = 
+        NHttpClientIOTarget conn =
             (NHttpClientIOTarget) session.getAttribute(ExecutionContext.HTTP_CONNECTION);
         conn.consumeInput(this.handler);
     }
 
     public void outputReady(final IOSession session) {
-        NHttpClientIOTarget conn = 
+        NHttpClientIOTarget conn =
             (NHttpClientIOTarget) session.getAttribute(ExecutionContext.HTTP_CONNECTION);
         conn.produceOutput(this.handler);
     }
 
     public void timeout(final IOSession session) {
-        NHttpClientIOTarget conn = 
+        NHttpClientIOTarget conn =
             (NHttpClientIOTarget) session.getAttribute(ExecutionContext.HTTP_CONNECTION);
         this.handler.timeout(conn);
     }

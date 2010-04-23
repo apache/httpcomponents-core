@@ -48,7 +48,7 @@ import org.apache.http.params.HttpParams;
 /**
  * Simple tests for {@link LengthDelimitedDecoder}.
  *
- * 
+ *
  * @version $Id$
  */
 public class TestIdentityDecoder extends TestCase {
@@ -62,13 +62,13 @@ public class TestIdentityDecoder extends TestCase {
 
     private static String convert(final ByteBuffer src) {
         src.flip();
-        StringBuffer buffer = new StringBuffer(src.remaining()); 
+        StringBuffer buffer = new StringBuffer(src.remaining());
         while (src.hasRemaining()) {
             buffer.append((char)(src.get() & 0xff));
         }
         return buffer.toString();
     }
-    
+
     private static String readFromFile(final File file) throws Exception {
         FileInputStream filestream = new FileInputStream(file);
         InputStreamReader reader = new InputStreamReader(filestream);
@@ -87,28 +87,28 @@ public class TestIdentityDecoder extends TestCase {
 
     public void testBasicDecoding() throws Exception {
         ReadableByteChannel channel = new ReadableByteChannelMockup(
-                new String[] {"stuff;", "more stuff"}, "US-ASCII"); 
+                new String[] {"stuff;", "more stuff"}, "US-ASCII");
         HttpParams params = new BasicHttpParams();
-        
-        SessionInputBuffer inbuf = new SessionInputBufferImpl(1024, 256, params); 
+
+        SessionInputBuffer inbuf = new SessionInputBufferImpl(1024, 256, params);
         HttpTransportMetricsImpl metrics = new HttpTransportMetricsImpl();
-        IdentityDecoder decoder = new IdentityDecoder(channel, inbuf, metrics); 
-        
-        ByteBuffer dst = ByteBuffer.allocate(1024); 
-        
+        IdentityDecoder decoder = new IdentityDecoder(channel, inbuf, metrics);
+
+        ByteBuffer dst = ByteBuffer.allocate(1024);
+
         int bytesRead = decoder.read(dst);
         assertEquals(6, bytesRead);
         assertEquals("stuff;", convert(dst));
         assertFalse(decoder.isCompleted());
         assertEquals(6, metrics.getBytesTransferred());
-        
+
         dst.clear();
         bytesRead = decoder.read(dst);
         assertEquals(10, bytesRead);
         assertEquals("more stuff", convert(dst));
         assertFalse(decoder.isCompleted());
         assertEquals(16, metrics.getBytesTransferred());
-        
+
         dst.clear();
         bytesRead = decoder.read(dst);
         assertEquals(-1, bytesRead);
@@ -121,42 +121,42 @@ public class TestIdentityDecoder extends TestCase {
         assertTrue(decoder.isCompleted());
         assertEquals(16, metrics.getBytesTransferred());
     }
-    
+
     public void testDecodingFromSessionBuffer() throws Exception {
         ReadableByteChannel channel = new ReadableByteChannelMockup(
-                new String[] {"stuff;", "more stuff"}, "US-ASCII"); 
+                new String[] {"stuff;", "more stuff"}, "US-ASCII");
         HttpParams params = new BasicHttpParams();
-        
+
         SessionInputBuffer inbuf = new SessionInputBufferImpl(1024, 256, params);
         HttpTransportMetricsImpl metrics = new HttpTransportMetricsImpl();
-        
+
         inbuf.fill(channel);
-        
+
         assertEquals(6, inbuf.length());
-        
-        IdentityDecoder decoder = new IdentityDecoder(channel, inbuf, metrics); 
-        
-        ByteBuffer dst = ByteBuffer.allocate(1024); 
-        
+
+        IdentityDecoder decoder = new IdentityDecoder(channel, inbuf, metrics);
+
+        ByteBuffer dst = ByteBuffer.allocate(1024);
+
         int bytesRead = decoder.read(dst);
         assertEquals(6, bytesRead);
         assertEquals("stuff;", convert(dst));
         assertFalse(decoder.isCompleted());
         assertEquals(0, metrics.getBytesTransferred()); // doesn't count if from session buffer
-        
+
         dst.clear();
         bytesRead = decoder.read(dst);
         assertEquals(10, bytesRead);
         assertEquals("more stuff", convert(dst));
         assertFalse(decoder.isCompleted());
         assertEquals(10, metrics.getBytesTransferred());
-        
+
         dst.clear();
         bytesRead = decoder.read(dst);
         assertEquals(-1, bytesRead);
         assertTrue(decoder.isCompleted());
         assertEquals(10, metrics.getBytesTransferred());
-        
+
         dst.clear();
         bytesRead = decoder.read(dst);
         assertEquals(-1, bytesRead);
@@ -167,19 +167,19 @@ public class TestIdentityDecoder extends TestCase {
 
     public void testBasicDecodingFile() throws Exception {
         ReadableByteChannel channel = new ReadableByteChannelMockup(
-                new String[] {"stuff; ", "more stuff; ", "a lot more stuff!"}, "US-ASCII"); 
+                new String[] {"stuff; ", "more stuff; ", "a lot more stuff!"}, "US-ASCII");
         HttpParams params = new BasicHttpParams();
-        
-        SessionInputBuffer inbuf = new SessionInputBufferImpl(1024, 256, params); 
+
+        SessionInputBuffer inbuf = new SessionInputBufferImpl(1024, 256, params);
         HttpTransportMetricsImpl metrics = new HttpTransportMetricsImpl();
         IdentityDecoder decoder = new IdentityDecoder(
-                channel, inbuf, metrics); 
-        
+                channel, inbuf, metrics);
+
         File fileHandle = File.createTempFile("testFile", ".txt");
 
-        RandomAccessFile testfile = new RandomAccessFile(fileHandle, "rw"); 
+        RandomAccessFile testfile = new RandomAccessFile(fileHandle, "rw");
         FileChannel fchannel = testfile.getChannel();
-            
+
         long pos = 0;
         while (!decoder.isCompleted()) {
             long bytesRead = decoder.transfer(fchannel, pos, 10);
@@ -187,15 +187,15 @@ public class TestIdentityDecoder extends TestCase {
                 pos += bytesRead;
             }
         }
-        
+
         assertEquals(testfile.length(), metrics.getBytesTransferred());
         fchannel.close();
-        
+
         assertEquals("stuff; more stuff; a lot more stuff!", readFromFile(fileHandle));
-        
+
         deleteWithCheck(fileHandle);
     }
-    
+
     private void deleteWithCheck(File handle){
         if (!handle.delete() && handle.exists()){
             System.err.println("Failed to delete: "+handle.getPath());
@@ -204,22 +204,22 @@ public class TestIdentityDecoder extends TestCase {
 
     public void testDecodingFileWithBufferedSessionData() throws Exception {
         ReadableByteChannel channel = new ReadableByteChannelMockup(
-                new String[] {"stuff; ", "more stuff; ", "a lot more stuff!"}, "US-ASCII"); 
+                new String[] {"stuff; ", "more stuff; ", "a lot more stuff!"}, "US-ASCII");
         HttpParams params = new BasicHttpParams();
-        
-        SessionInputBuffer inbuf = new SessionInputBufferImpl(1024, 256, params); 
+
+        SessionInputBuffer inbuf = new SessionInputBufferImpl(1024, 256, params);
         HttpTransportMetricsImpl metrics = new HttpTransportMetricsImpl();
         IdentityDecoder decoder = new IdentityDecoder(
-                channel, inbuf, metrics); 
-        
+                channel, inbuf, metrics);
+
         int i = inbuf.fill(channel);
         assertEquals(7, i);
-        
+
         File fileHandle = File.createTempFile("testFile", ".txt");
 
-        RandomAccessFile testfile = new RandomAccessFile(fileHandle, "rw"); 
+        RandomAccessFile testfile = new RandomAccessFile(fileHandle, "rw");
         FileChannel fchannel = testfile.getChannel();
-            
+
         long pos = 0;
         while (!decoder.isCompleted()) {
             long bytesRead = decoder.transfer(fchannel, pos, 10);
@@ -227,39 +227,39 @@ public class TestIdentityDecoder extends TestCase {
                 pos += bytesRead;
             }
         }
-        
+
         // count everything except the initial 7 bytes that went to the session buffer
         assertEquals(testfile.length() - 7, metrics.getBytesTransferred());
         fchannel.close();
-        
+
         assertEquals("stuff; more stuff; a lot more stuff!", readFromFile(fileHandle));
-        
+
         deleteWithCheck(fileHandle);
     }
-    
+
     public void testDecodingFileWithOffsetAndBufferedSessionData() throws Exception {
         ReadableByteChannel channel = new ReadableByteChannelMockup(
-                new String[] {"stuff; ", "more stuff; ", "a lot more stuff!"}, "US-ASCII"); 
+                new String[] {"stuff; ", "more stuff; ", "a lot more stuff!"}, "US-ASCII");
         HttpParams params = new BasicHttpParams();
-        
-        SessionInputBuffer inbuf = new SessionInputBufferImpl(1024, 256, params); 
+
+        SessionInputBuffer inbuf = new SessionInputBufferImpl(1024, 256, params);
         HttpTransportMetricsImpl metrics = new HttpTransportMetricsImpl();
         IdentityDecoder decoder = new IdentityDecoder(
-                channel, inbuf, metrics); 
-        
+                channel, inbuf, metrics);
+
         int i = inbuf.fill(channel);
         assertEquals(7, i);
-        
+
         File fileHandle = File.createTempFile("testFile", ".txt");
 
         RandomAccessFile testfile = new RandomAccessFile(fileHandle, "rw");
         byte[] beginning = "beginning; ".getBytes("US-ASCII");
         testfile.write(beginning);
         testfile.close();
-        
+
         testfile = new RandomAccessFile(fileHandle, "rw");
         FileChannel fchannel = testfile.getChannel();
-            
+
         long pos = beginning.length;
         while (!decoder.isCompleted()) {
             if(testfile.length() < pos)
@@ -269,47 +269,47 @@ public class TestIdentityDecoder extends TestCase {
                 pos += bytesRead;
             }
         }
-        
+
         // count everything except the initial 7 bytes that went to the session buffer
         assertEquals(testfile.length() - 7 - beginning.length, metrics.getBytesTransferred());
         fchannel.close();
-        
+
         assertEquals("beginning; stuff; more stuff; a lot more stuff!", readFromFile(fileHandle));
-        
+
         deleteWithCheck(fileHandle);
     }
-    
+
     public void testWriteBeyondFileSize() throws Exception {
         ReadableByteChannel channel = new ReadableByteChannelMockup(
-                new String[] {"a"}, "US-ASCII"); 
+                new String[] {"a"}, "US-ASCII");
         HttpParams params = new BasicHttpParams();
-        
-        SessionInputBuffer inbuf = new SessionInputBufferImpl(1024, 256, params); 
+
+        SessionInputBuffer inbuf = new SessionInputBufferImpl(1024, 256, params);
         HttpTransportMetricsImpl metrics = new HttpTransportMetricsImpl();
         IdentityDecoder decoder = new IdentityDecoder(
-                channel, inbuf, metrics); 
-        
+                channel, inbuf, metrics);
+
         File fileHandle = File.createTempFile("testFile", ".txt");
 
         RandomAccessFile testfile = new RandomAccessFile(fileHandle, "rw");
         FileChannel fchannel = testfile.getChannel();
         assertEquals(0, testfile.length());
-            
+
         try {
             decoder.transfer(fchannel, 5, 10);
             fail("expected IOException");
         } catch(IOException iox) {}
 
-        testfile.close();        
+        testfile.close();
         deleteWithCheck(fileHandle);
     }
 
     public void testInvalidConstructor() {
         ReadableByteChannel channel = new ReadableByteChannelMockup(
-                new String[] {"stuff;", "more stuff"}, "US-ASCII"); 
+                new String[] {"stuff;", "more stuff"}, "US-ASCII");
         HttpParams params = new BasicHttpParams();
-        
-        SessionInputBuffer inbuf = new SessionInputBufferImpl(1024, 256, params); 
+
+        SessionInputBuffer inbuf = new SessionInputBufferImpl(1024, 256, params);
         try {
             new IdentityDecoder(null, null, null);
             fail("IllegalArgumentException should have been thrown");
@@ -329,17 +329,17 @@ public class TestIdentityDecoder extends TestCase {
             // ignore
         }
     }
-    
+
     public void testInvalidInput() throws Exception {
         String s = "stuff";
         ReadableByteChannel channel = new ReadableByteChannelMockup(
-                new String[] {s}, "US-ASCII"); 
+                new String[] {s}, "US-ASCII");
         HttpParams params = new BasicHttpParams();
-    
-        SessionInputBuffer inbuf = new SessionInputBufferImpl(1024, 256, params); 
+
+        SessionInputBuffer inbuf = new SessionInputBufferImpl(1024, 256, params);
         HttpTransportMetricsImpl metrics = new HttpTransportMetricsImpl();
         IdentityDecoder decoder = new IdentityDecoder(channel, inbuf, metrics);
-        
+
         try {
             decoder.read(null);
             fail("IllegalArgumentException should have been thrown");
@@ -347,5 +347,5 @@ public class TestIdentityDecoder extends TestCase {
             // expected
         }
     }
-    
+
 }

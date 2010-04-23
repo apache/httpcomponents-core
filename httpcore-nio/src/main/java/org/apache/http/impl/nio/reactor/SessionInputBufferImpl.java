@@ -47,11 +47,11 @@ import org.apache.http.protocol.HTTP;
 import org.apache.http.util.CharArrayBuffer;
 
 /**
- * Default implementation of {@link SessionInputBuffer} based on 
+ * Default implementation of {@link SessionInputBuffer} based on
  * the {@link ExpandableBuffer} class.
  * <p>
- * The following parameters can be used to customize the behavior of this 
- * class: 
+ * The following parameters can be used to customize the behavior of this
+ * class:
  * <ul>
  *  <li>{@link org.apache.http.params.CoreProtocolPNames#HTTP_ELEMENT_CHARSET}</li>
  * </ul>
@@ -59,29 +59,29 @@ import org.apache.http.util.CharArrayBuffer;
  * @since 4.0
  */
 public class SessionInputBufferImpl extends ExpandableBuffer implements SessionInputBuffer {
-    
+
     private CharBuffer charbuffer = null;
     private Charset charset = null;
     private CharsetDecoder chardecoder = null;
-    
+
     public SessionInputBufferImpl(
-            int buffersize, 
-            int linebuffersize, 
+            int buffersize,
+            int linebuffersize,
             final ByteBufferAllocator allocator,
             final HttpParams params) {
         super(buffersize, allocator);
         this.charbuffer = CharBuffer.allocate(linebuffersize);
-        this.charset = Charset.forName(HttpProtocolParams.getHttpElementCharset(params)); 
+        this.charset = Charset.forName(HttpProtocolParams.getHttpElementCharset(params));
         this.chardecoder = this.charset.newDecoder();
     }
 
     public SessionInputBufferImpl(
-            int buffersize, 
-            int linebuffersize, 
+            int buffersize,
+            int linebuffersize,
             final HttpParams params) {
         this(buffersize, linebuffersize, new HeapByteBufferAllocator(), params);
     }
-    
+
     public int fill(final ReadableByteChannel channel) throws IOException {
         if (channel == null) {
             throw new IllegalArgumentException("Channel may not be null");
@@ -93,12 +93,12 @@ public class SessionInputBufferImpl extends ExpandableBuffer implements SessionI
         int readNo = channel.read(this.buffer);
         return readNo;
     }
-    
+
     public int read() {
         setOutputMode();
         return this.buffer.get() & 0xff;
     }
-    
+
     public int read(final ByteBuffer dst, int maxLen) {
         if (dst == null) {
             return 0;
@@ -111,7 +111,7 @@ public class SessionInputBufferImpl extends ExpandableBuffer implements SessionI
         }
         return chunk;
     }
-    
+
     public int read(final ByteBuffer dst) {
         if (dst == null) {
             return 0;
@@ -136,7 +136,7 @@ public class SessionInputBufferImpl extends ExpandableBuffer implements SessionI
         }
         return bytesRead;
     }
-    
+
     public int read(final WritableByteChannel dst) throws IOException {
         if (dst == null) {
             return 0;
@@ -144,11 +144,11 @@ public class SessionInputBufferImpl extends ExpandableBuffer implements SessionI
         setOutputMode();
         return dst.write(this.buffer);
     }
-    
+
     public boolean readLine(
-            final CharArrayBuffer linebuffer, 
+            final CharArrayBuffer linebuffer,
             boolean endOfStream) throws CharacterCodingException {
-        
+
         setOutputMode();
         // See if there is LF char present in the buffer
         int pos = -1;
@@ -166,7 +166,7 @@ public class SessionInputBufferImpl extends ExpandableBuffer implements SessionI
                 // No more data. Get the rest
                 pos = this.buffer.limit();
             } else {
-                // Either no complete line present in the buffer 
+                // Either no complete line present in the buffer
                 // or no more data is expected
                 return false;
             }
@@ -177,13 +177,13 @@ public class SessionInputBufferImpl extends ExpandableBuffer implements SessionI
         int len = this.buffer.limit() - this.buffer.position();
         // Ensure capacity of len assuming ASCII as the most likely charset
         linebuffer.ensureCapacity(len);
-        
+
         this.chardecoder.reset();
-        
+
         for (;;) {
             CoderResult result = this.chardecoder.decode(
-                    this.buffer, 
-                    this.charbuffer, 
+                    this.buffer,
+                    this.charbuffer,
                     true);
             if (result.isError()) {
                 result.throwException();
@@ -191,8 +191,8 @@ public class SessionInputBufferImpl extends ExpandableBuffer implements SessionI
             if (result.isOverflow()) {
                 this.charbuffer.flip();
                 linebuffer.append(
-                        this.charbuffer.array(), 
-                        this.charbuffer.position(), 
+                        this.charbuffer.array(),
+                        this.charbuffer.position(),
                         this.charbuffer.remaining());
                 this.charbuffer.clear();
             }
@@ -208,13 +208,13 @@ public class SessionInputBufferImpl extends ExpandableBuffer implements SessionI
         // append the decoded content to the line buffer
         if (this.charbuffer.hasRemaining()) {
             linebuffer.append(
-                    this.charbuffer.array(), 
-                    this.charbuffer.position(), 
+                    this.charbuffer.array(),
+                    this.charbuffer.position(),
                     this.charbuffer.remaining());
         }
-        
+
         // discard LF if found
-        int l = linebuffer.length(); 
+        int l = linebuffer.length();
         if (l > 0) {
             if (linebuffer.charAt(l - 1) == HTTP.LF) {
                 l--;
@@ -230,7 +230,7 @@ public class SessionInputBufferImpl extends ExpandableBuffer implements SessionI
         }
         return true;
     }
-    
+
     public String readLine(boolean endOfStream) throws CharacterCodingException {
         CharArrayBuffer charbuffer = new CharArrayBuffer(64);
         boolean found = readLine(charbuffer, endOfStream);
@@ -240,5 +240,5 @@ public class SessionInputBufferImpl extends ExpandableBuffer implements SessionI
             return null;
         }
     }
-    
+
 }

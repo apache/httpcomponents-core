@@ -50,11 +50,11 @@ public class SessionRequestImpl implements SessionRequest {
     private final SocketAddress localAddress;
     private final Object attachment;
     private final SessionRequestCallback callback;
-    
+
     private volatile int connectTimeout;
     private volatile IOSession session = null;
     private volatile IOException exception = null;
-    
+
     public SessionRequestImpl(
             final SocketAddress remoteAddress,
             final SocketAddress localAddress,
@@ -70,23 +70,23 @@ public class SessionRequestImpl implements SessionRequest {
         this.callback = callback;
         this.connectTimeout = 0;
     }
-    
+
     public SocketAddress getRemoteAddress() {
         return this.remoteAddress;
     }
-    
+
     public SocketAddress getLocalAddress() {
         return this.localAddress;
     }
-    
+
     public Object getAttachment() {
         return this.attachment;
     }
-    
+
     public boolean isCompleted() {
         return this.completed;
     }
-    
+
     public void waitFor() throws InterruptedException {
         if (this.completed) {
             return;
@@ -97,19 +97,19 @@ public class SessionRequestImpl implements SessionRequest {
             }
         }
     }
-    
+
     public IOSession getSession() {
         synchronized (this) {
             return this.session;
         }
     }
-    
+
     public IOException getException() {
         synchronized (this) {
             return this.exception;
         }
     }
-    
+
     public void completed(final IOSession session) {
         if (session == null) {
             throw new IllegalArgumentException("Session may not be null");
@@ -126,7 +126,7 @@ public class SessionRequestImpl implements SessionRequest {
             notifyAll();
         }
     }
- 
+
     public void failed(final IOException exception) {
         if (exception == null) {
             return;
@@ -143,7 +143,7 @@ public class SessionRequestImpl implements SessionRequest {
             notifyAll();
         }
     }
- 
+
     public void timeout() {
         if (this.completed) {
             return;
@@ -164,7 +164,7 @@ public class SessionRequestImpl implements SessionRequest {
             }
         }
     }
- 
+
     public int getConnectTimeout() {
         return this.connectTimeout;
     }
@@ -203,5 +203,5 @@ public class SessionRequestImpl implements SessionRequest {
             notifyAll();
         }
     }
-    
+
 }

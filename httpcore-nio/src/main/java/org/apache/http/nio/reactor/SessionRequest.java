@@ -32,8 +32,8 @@ import java.net.SocketAddress;
 
 /**
  * SessionRequest interface represents a request to establish a new connection
- * (or session) to a remote host. It can be used to monitor the status of the 
- * request, to block waiting for its completion, or to cancel the request. 
+ * (or session) to a remote host. It can be used to monitor the status of the
+ * request, to block waiting for its completion, or to cancel the request.
  * <p>
  * Implementations of this interface are expected to be threading safe.
  *
@@ -43,81 +43,81 @@ public interface SessionRequest {
 
     /**
      * Returns socket address of the remote host.
-     * 
+     *
      * @return socket address of the remote host
      */
     SocketAddress getRemoteAddress();
-    
+
     /**
      * Returns local socket address.
-     * 
+     *
      * @return local socket address.
      */
     SocketAddress getLocalAddress();
-    
+
     /**
-     * Returns attachment object will be added to the session's context upon 
-     * initialization. This object can be used to pass an initial processing 
+     * Returns attachment object will be added to the session's context upon
+     * initialization. This object can be used to pass an initial processing
      * state to the protocol handler.
-     * 
+     *
      * @return attachment object.
      */
     Object getAttachment();
-    
+
     /**
      * Determines whether the request has been completed (either successfully
      * or unsuccessfully).
-     * 
+     *
      * @return <code>true</true> if the request has been completed,
      *  <code>false</true> if still pending.
      */
     boolean isCompleted();
-    
+
     /**
      * Returns {@link IOSession} instance created as a result of this request
      * or <code>null</code> if the request is still pending.
-     * 
+     *
      * @return I/O session or <code>null</code> if the request is still pending.
      */
     IOSession getSession();
-    
+
     /**
-     * Returns {@link IOException} instance if the request could not be 
+     * Returns {@link IOException} instance if the request could not be
      * successfully executed due to an I/O error or <code>null</code> if no
      * error occurred to this point.
-     * 
-     * @return I/O exception or <code>null</code> if no error occurred to 
+     *
+     * @return I/O exception or <code>null</code> if no error occurred to
      * this point.
      */
     IOException getException();
 
     /**
      * Waits for completion of this session request.
-     * 
-     * @throws InterruptedException in case the execution process was 
+     *
+     * @throws InterruptedException in case the execution process was
      *   interrupted.
      */
     void waitFor() throws InterruptedException;
-    
+
     /**
      * Sets connect timeout value in milliseconds.
-     * 
+     *
      * @param timeout connect timeout value in milliseconds.
      */
     void setConnectTimeout(int timeout);
-    
+
     /**
      * Returns connect timeout value in milliseconds.
-     * 
+     *
      * @return connect timeout value in milliseconds.
      */
     int getConnectTimeout();
-    
+
     /**
-     * Cancels the request. Invocation of this method will set the status of 
-     * the request to completed and will unblock threads blocked in 
+     * Cancels the request. Invocation of this method will set the status of
+     * the request to completed and will unblock threads blocked in
      * the {{@link #waitFor()}} method.
      */
     void cancel();
-    
+
 }

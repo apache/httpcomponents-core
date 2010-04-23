@@ -82,11 +82,11 @@ public class TestNIOSSLHttp extends HttpCoreNIOSSLTestBase {
         int reqNo = 20;
         TestJob[] jobs = new TestJob[connNo * reqNo];
         for (int i = 0; i < jobs.length; i++) {
-            jobs[i] = new TestJob(); 
+            jobs[i] = new TestJob();
         }
         Queue<TestJob> queue = new ConcurrentLinkedQueue<TestJob>();
         for (int i = 0; i < jobs.length; i++) {
-            queue.add(jobs[i]); 
+            queue.add(jobs[i]);
         }
 
         HttpProcessor serverHttpProc = new ImmutableHttpProcessor(new HttpResponseInterceptor[] {
@@ -122,7 +122,7 @@ public class TestNIOSSLHttp extends HttpCoreNIOSSLTestBase {
 
         clientHandler.setEventListener(
                 new SimpleEventListener());
-        
+
         this.server.start(serviceHandler);
         this.client.start(clientHandler);
 
@@ -131,7 +131,7 @@ public class TestNIOSSLHttp extends HttpCoreNIOSSLTestBase {
         InetSocketAddress serverAddress = (InetSocketAddress) endpoint.getAddress();
 
         assertEquals("Test server status", IOReactorStatus.ACTIVE, this.server.getStatus());
-        
+
         Queue<SessionRequest> connRequests = new LinkedList<SessionRequest>();
         for (int i = 0; i < connNo; i++) {
             SessionRequest sessionRequest = this.client.openConnection(
@@ -148,9 +148,9 @@ public class TestNIOSSLHttp extends HttpCoreNIOSSLTestBase {
             }
             assertNotNull(sessionRequest.getSession());
         }
-        
+
         assertEquals("Test client status", IOReactorStatus.ACTIVE, this.client.getStatus());
-        
+
         for (int i = 0; i < jobs.length; i++) {
             TestJob testjob = jobs[i];
             testjob.waitFor();
@@ -162,34 +162,34 @@ public class TestNIOSSLHttp extends HttpCoreNIOSSLTestBase {
             }
         }
     }
-    
+
     /**
-     * This test case executes a series of simple (non-pipelined) GET requests 
-     * over multiple connections. 
+     * This test case executes a series of simple (non-pipelined) GET requests
+     * over multiple connections.
      */
     public void testHttpGets() throws Exception {
         NHttpRequestExecutionHandler requestExecutionHandler = new TestRequestExecutionHandler() {
 
             @Override
             protected HttpRequest generateRequest(TestJob testjob) {
-                String s = testjob.getPattern() + "x" + testjob.getCount(); 
+                String s = testjob.getPattern() + "x" + testjob.getCount();
                 return new BasicHttpRequest("GET", s);
             }
-            
+
         };
         executeStandardTest(new TestRequestHandler(), requestExecutionHandler);
     }
 
     /**
-     * This test case executes a series of simple (non-pipelined) POST requests 
-     * with content length delimited content over multiple connections. 
+     * This test case executes a series of simple (non-pipelined) POST requests
+     * with content length delimited content over multiple connections.
      */
     public void testHttpPostsWithContentLength() throws Exception {
         NHttpRequestExecutionHandler requestExecutionHandler = new TestRequestExecutionHandler() {
 
             @Override
             protected HttpRequest generateRequest(TestJob testjob) {
-                String s = testjob.getPattern() + "x" + testjob.getCount(); 
+                String s = testjob.getPattern() + "x" + testjob.getCount();
                 HttpEntityEnclosingRequest r = new BasicHttpEntityEnclosingRequest("POST", s);
                 NStringEntity entity = null;
                 try {
@@ -200,21 +200,21 @@ public class TestNIOSSLHttp extends HttpCoreNIOSSLTestBase {
                 r.setEntity(entity);
                 return r;
             }
-            
+
         };
         executeStandardTest(new TestRequestHandler(), requestExecutionHandler);
     }
 
     /**
-     * This test case executes a series of simple (non-pipelined) POST requests 
-     * with chunk coded content content over multiple connections. 
+     * This test case executes a series of simple (non-pipelined) POST requests
+     * with chunk coded content content over multiple connections.
      */
     public void testHttpPostsChunked() throws Exception {
         NHttpRequestExecutionHandler requestExecutionHandler = new TestRequestExecutionHandler() {
 
             @Override
             protected HttpRequest generateRequest(TestJob testjob) {
-                String s = testjob.getPattern() + "x" + testjob.getCount(); 
+                String s = testjob.getPattern() + "x" + testjob.getCount();
                 HttpEntityEnclosingRequest r = new BasicHttpEntityEnclosingRequest("POST", s);
                 NStringEntity entity = null;
                 try {
@@ -225,22 +225,22 @@ public class TestNIOSSLHttp extends HttpCoreNIOSSLTestBase {
                 r.setEntity(entity);
                 return r;
             }
-            
+
         };
         executeStandardTest(new TestRequestHandler(), requestExecutionHandler);
     }
 
     /**
-     * This test case executes a series of simple (non-pipelined) HTTP/1.0 
-     * POST requests over multiple persistent connections. 
+     * This test case executes a series of simple (non-pipelined) HTTP/1.0
+     * POST requests over multiple persistent connections.
      */
     public void testHttpPostsHTTP10() throws Exception {
         NHttpRequestExecutionHandler requestExecutionHandler = new TestRequestExecutionHandler() {
 
             @Override
             protected HttpRequest generateRequest(TestJob testjob) {
-                String s = testjob.getPattern() + "x" + testjob.getCount(); 
-                HttpEntityEnclosingRequest r = new BasicHttpEntityEnclosingRequest("POST", s, 
+                String s = testjob.getPattern() + "x" + testjob.getCount();
+                HttpEntityEnclosingRequest r = new BasicHttpEntityEnclosingRequest("POST", s,
                         HttpVersion.HTTP_1_0);
                 NStringEntity entity = null;
                 try {
@@ -250,11 +250,11 @@ public class TestNIOSSLHttp extends HttpCoreNIOSSLTestBase {
                 r.setEntity(entity);
                 return r;
             }
-            
+
         };
         executeStandardTest(new TestRequestHandler(), requestExecutionHandler);
     }
-    
+
     /**
      * This test case executes a series of simple (non-pipelined) POST requests
      * over multiple connections using the 'expect: continue' handshake.  This test
@@ -265,7 +265,7 @@ public class TestNIOSSLHttp extends HttpCoreNIOSSLTestBase {
 
             @Override
             protected HttpRequest generateRequest(TestJob testjob) {
-                String s = testjob.getPattern() + "x" + testjob.getCount(); 
+                String s = testjob.getPattern() + "x" + testjob.getCount();
                 HttpEntityEnclosingRequest r = new BasicHttpEntityEnclosingRequest("POST", s);
                 NStringEntity entity = null;
                 try {
@@ -276,7 +276,7 @@ public class TestNIOSSLHttp extends HttpCoreNIOSSLTestBase {
                 r.getParams().setBooleanParameter(CoreProtocolPNames.USE_EXPECT_CONTINUE, true);
                 return r;
             }
-            
+
         };
         executeStandardTest(new TestRequestHandler(), requestExecutionHandler);
     }

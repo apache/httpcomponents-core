@@ -33,23 +33,23 @@ import org.apache.http.nio.ContentDecoder;
 /**
  * Basic implementation of the {@link ContentInputBuffer} interface.
  * <p>
- * This class is not thread safe. 
+ * This class is not thread safe.
  *
  * @since 4.0
  */
 public class SimpleInputBuffer extends ExpandableBuffer implements ContentInputBuffer {
 
     private boolean endOfStream = false;
-    
+
     public SimpleInputBuffer(int buffersize, final ByteBufferAllocator allocator) {
         super(buffersize, allocator);
     }
-    
+
     public void reset() {
         this.endOfStream = false;
         super.clear();
     }
-    
+
     public int consumeContent(final ContentDecoder decoder) throws IOException {
         setInputMode();
         int totalRead = 0;
@@ -70,21 +70,21 @@ public class SimpleInputBuffer extends ExpandableBuffer implements ContentInputB
         }
         return totalRead;
     }
-    
+
     public boolean isEndOfStream() {
         return !hasData() && this.endOfStream;
     }
 
     public int read() throws IOException {
         if (isEndOfStream()) {
-            return -1; 
+            return -1;
         }
         return this.buffer.get() & 0xff;
     }
 
     public int read(final byte[] b, int off, int len) throws IOException {
         if (isEndOfStream()) {
-            return -1; 
+            return -1;
         }
         if (b == null) {
             return 0;
@@ -100,7 +100,7 @@ public class SimpleInputBuffer extends ExpandableBuffer implements ContentInputB
 
     public int read(final byte[] b) throws IOException {
         if (isEndOfStream()) {
-            return -1; 
+            return -1;
         }
         if (b == null) {
             return 0;
@@ -111,5 +111,5 @@ public class SimpleInputBuffer extends ExpandableBuffer implements ContentInputB
     public void shutdown() {
         this.endOfStream = true;
     }
-    
+
 }

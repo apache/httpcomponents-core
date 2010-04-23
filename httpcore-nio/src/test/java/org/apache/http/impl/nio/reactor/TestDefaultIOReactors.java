@@ -85,26 +85,26 @@ public class TestDefaultIOReactors extends HttpCoreNIOTestBase {
 
     public void testGracefulShutdown() throws Exception {
 
-        // Open some connection and make sure 
+        // Open some connection and make sure
         // they get cleanly closed upon shutdown
-        
+
         final int connNo = 10;
-        final CountDownLatch requestConns = new CountDownLatch(connNo); 
-        final AtomicInteger closedServerConns = new AtomicInteger(0); 
-        final AtomicInteger openServerConns = new AtomicInteger(0); 
-        final AtomicInteger closedClientConns = new AtomicInteger(0); 
-        final AtomicInteger openClientConns = new AtomicInteger(0); 
-        
+        final CountDownLatch requestConns = new CountDownLatch(connNo);
+        final AtomicInteger closedServerConns = new AtomicInteger(0);
+        final AtomicInteger openServerConns = new AtomicInteger(0);
+        final AtomicInteger closedClientConns = new AtomicInteger(0);
+        final AtomicInteger openClientConns = new AtomicInteger(0);
+
         HttpRequestHandler requestHandler = new HttpRequestHandler() {
 
             public void handle(
-                    final HttpRequest request, 
-                    final HttpResponse response, 
+                    final HttpRequest request,
+                    final HttpResponse response,
                     final HttpContext context) throws HttpException, IOException {
             }
-            
+
         };
-        
+
         HttpRequestExecutionHandler requestExecutionHandler = new HttpRequestExecutionHandler() {
 
             public void initalizeContext(final HttpContext context, final Object attachment) {
@@ -126,13 +126,13 @@ public class TestDefaultIOReactors extends HttpCoreNIOTestBase {
                     return null;
                 }
             }
-            
+
             public void handleResponse(final HttpResponse response, final HttpContext context) {
-                requestConns.countDown();                    
+                requestConns.countDown();
             }
-            
+
         };
-     
+
         EventListener serverEventListener = new SimpleEventListener() {
 
             @Override
@@ -146,9 +146,9 @@ public class TestDefaultIOReactors extends HttpCoreNIOTestBase {
                 closedServerConns.incrementAndGet();
                 super.connectionClosed(conn);
             }
-            
+
         };
-        
+
         HttpProcessor serverHttpProc = new ImmutableHttpProcessor(new HttpResponseInterceptor[] {
                 new ResponseDate(),
                 new ResponseServer(),
@@ -180,9 +180,9 @@ public class TestDefaultIOReactors extends HttpCoreNIOTestBase {
                 closedClientConns.incrementAndGet();
                 super.connectionClosed(conn);
             }
-            
+
         };
-        
+
         HttpProcessor clientHttpProc = new ImmutableHttpProcessor(new HttpRequestInterceptor[] {
                 new RequestContent(),
                 new RequestTargetHost(),
@@ -198,24 +198,24 @@ public class TestDefaultIOReactors extends HttpCoreNIOTestBase {
 
         clientHandler.setEventListener(
                 clientEventListener);
-        
+
         this.server.start(serviceHandler);
         this.client.start(clientHandler);
-        
+
         ListenerEndpoint endpoint = this.server.getListenerEndpoint();
         endpoint.waitFor();
         InetSocketAddress serverAddress = (InetSocketAddress) endpoint.getAddress();
-        
+
         assertEquals("Test server status", IOReactorStatus.ACTIVE, this.server.getStatus());
-        
+
         Queue<SessionRequest> connRequests = new LinkedList<SessionRequest>();
         for (int i = 0; i < connNo; i++) {
             SessionRequest sessionRequest = this.client.openConnection(
-                    new InetSocketAddress("localhost", serverAddress.getPort()), 
+                    new InetSocketAddress("localhost", serverAddress.getPort()),
                     null);
             connRequests.add(sessionRequest);
         }
-        
+
         while (!connRequests.isEmpty()) {
             SessionRequest sessionRequest = connRequests.remove();
             sessionRequest.waitFor();
@@ -226,30 +226,30 @@ public class TestDefaultIOReactors extends HttpCoreNIOTestBase {
         }
 
         assertEquals("Test client status", IOReactorStatus.ACTIVE, this.client.getStatus());
-     
+
         requestConns.await();
         assertEquals(0, requestConns.getCount());
-     
+
         this.client.shutdown();
         this.server.shutdown();
-        
+
         assertEquals(openClientConns.get(), closedClientConns.get());
         assertEquals(openServerConns.get(), closedServerConns.get());
     }
-    
+
     public void testRuntimeException() throws Exception {
 
         HttpRequestHandler requestHandler = new HttpRequestHandler() {
 
             public void handle(
-                    final HttpRequest request, 
-                    final HttpResponse response, 
+                    final HttpRequest request,
+                    final HttpResponse response,
                     final HttpContext context) throws HttpException, IOException {
                 throw new OoopsieRuntimeException();
             }
-            
+
         };
-        
+
         HttpRequestExecutionHandler requestExecutionHandler = new HttpRequestExecutionHandler() {
 
             public void initalizeContext(final HttpContext context, final Object attachment) {
@@ -268,12 +268,12 @@ public class TestDefaultIOReactors extends HttpCoreNIOTestBase {
                     return null;
                 }
             }
-            
+
             public void handleResponse(final HttpResponse response, final HttpContext context) {
             }
-            
+
         };
-     
+
         HttpProcessor serverHttpProc = new ImmutableHttpProcessor(new HttpResponseInterceptor[] {
                 new ResponseDate(),
                 new ResponseServer(),
@@ -307,52 +307,52 @@ public class TestDefaultIOReactors extends HttpCoreNIOTestBase {
 
         clientHandler.setEventListener(
                 new SimpleEventListener());
-        
+
         this.server.start(serviceHandler);
         this.client.start(clientHandler);
-        
+
         ListenerEndpoint endpoint = this.server.getListenerEndpoint();
         endpoint.waitFor();
         InetSocketAddress serverAddress = (InetSocketAddress) endpoint.getAddress();
-        
+
         this.client.openConnection(
-                new InetSocketAddress("localhost", serverAddress.getPort()), 
+                new InetSocketAddress("localhost", serverAddress.getPort()),
                 null);
-     
+
         this.server.join(20000);
-        
+
         Exception ex = this.server.getException();
         assertNotNull(ex);
         assertTrue(ex instanceof IOReactorException);
         assertNotNull(ex.getCause());
         assertTrue(ex.getCause() instanceof OoopsieRuntimeException);
-        
+
         List<ExceptionEvent> auditlog = this.server.getAuditLog();
         assertNotNull(auditlog);
         assertEquals(1, auditlog.size());
-        
+
         // I/O reactor shut down itself
         assertEquals(IOReactorStatus.SHUT_DOWN, this.server.getStatus());
-        
+
         this.client.shutdown();
         this.server.shutdown();
     }
 
     public void testUnhandledRuntimeException() throws Exception {
 
-        final CountDownLatch requestConns = new CountDownLatch(1); 
+        final CountDownLatch requestConns = new CountDownLatch(1);
 
         HttpRequestHandler requestHandler = new HttpRequestHandler() {
 
             public void handle(
-                    final HttpRequest request, 
-                    final HttpResponse response, 
+                    final HttpRequest request,
+                    final HttpResponse response,
                     final HttpContext context) throws HttpException, IOException {
                 throw new OoopsieRuntimeException();
             }
-            
+
         };
-        
+
         HttpRequestExecutionHandler requestExecutionHandler = new HttpRequestExecutionHandler() {
 
             public void initalizeContext(final HttpContext context, final Object attachment) {
@@ -371,12 +371,12 @@ public class TestDefaultIOReactors extends HttpCoreNIOTestBase {
                     return null;
                 }
             }
-            
+
             public void handleResponse(final HttpResponse response, final HttpContext context) {
             }
-            
+
         };
-     
+
         IOReactorExceptionHandler exceptionHandler = new IOReactorExceptionHandler() {
 
             public boolean handle(final IOException ex) {
@@ -384,12 +384,12 @@ public class TestDefaultIOReactors extends HttpCoreNIOTestBase {
             }
 
             public boolean handle(final RuntimeException ex) {
-                requestConns.countDown();                    
+                requestConns.countDown();
                 return false;
             }
-          
+
         };
-        
+
         HttpProcessor serverHttpProc = new ImmutableHttpProcessor(new HttpResponseInterceptor[] {
                 new ResponseDate(),
                 new ResponseServer(),
@@ -424,20 +424,20 @@ public class TestDefaultIOReactors extends HttpCoreNIOTestBase {
         this.server.setExceptionHandler(exceptionHandler);
         this.server.start(serviceHandler);
         this.client.start(clientHandler);
-        
+
         ListenerEndpoint endpoint = this.server.getListenerEndpoint();
         endpoint.waitFor();
         InetSocketAddress serverAddress = (InetSocketAddress) endpoint.getAddress();
-        
+
         this.client.openConnection(
-                new InetSocketAddress("localhost", serverAddress.getPort()), 
+                new InetSocketAddress("localhost", serverAddress.getPort()),
                 null);
-     
+
         requestConns.await();
         assertEquals(0, requestConns.getCount());
-        
+
         this.server.join(20000);
-        
+
         Exception ex = this.server.getException();
         assertNotNull(ex);
         assertTrue(ex instanceof IOReactorException);
@@ -447,29 +447,29 @@ public class TestDefaultIOReactors extends HttpCoreNIOTestBase {
         List<ExceptionEvent> auditlog = this.server.getAuditLog();
         assertNotNull(auditlog);
         assertEquals(1, auditlog.size());
-        
+
         // I/O reactor shut down itself
         assertEquals(IOReactorStatus.SHUT_DOWN, this.server.getStatus());
-        
+
         this.client.shutdown();
         this.server.shutdown();
     }
 
     public void testHandledRuntimeException() throws Exception {
 
-        final CountDownLatch requestConns = new CountDownLatch(1); 
-        
+        final CountDownLatch requestConns = new CountDownLatch(1);
+
         HttpRequestHandler requestHandler = new HttpRequestHandler() {
 
             public void handle(
-                    final HttpRequest request, 
-                    final HttpResponse response, 
+                    final HttpRequest request,
+                    final HttpResponse response,
                     final HttpContext context) throws HttpException, IOException {
                 throw new OoopsieRuntimeException();
             }
-            
+
         };
-        
+
         HttpRequestExecutionHandler requestExecutionHandler = new HttpRequestExecutionHandler() {
 
             public void initalizeContext(final HttpContext context, final Object attachment) {
@@ -488,12 +488,12 @@ public class TestDefaultIOReactors extends HttpCoreNIOTestBase {
                     return null;
                 }
             }
-            
+
             public void handleResponse(final HttpResponse response, final HttpContext context) {
             }
-            
+
         };
-     
+
         IOReactorExceptionHandler exceptionHandler = new IOReactorExceptionHandler() {
 
             public boolean handle(final IOException ex) {
@@ -501,12 +501,12 @@ public class TestDefaultIOReactors extends HttpCoreNIOTestBase {
             }
 
             public boolean handle(final RuntimeException ex) {
-                requestConns.countDown();                    
+                requestConns.countDown();
                 return true;
             }
-          
+
         };
-        
+
         HttpProcessor serverHttpProc = new ImmutableHttpProcessor(new HttpResponseInterceptor[] {
                 new ResponseDate(),
                 new ResponseServer(),
@@ -539,26 +539,26 @@ public class TestDefaultIOReactors extends HttpCoreNIOTestBase {
                 this.client.getParams());
 
         this.server.setExceptionHandler(exceptionHandler);
-        
+
         this.server.start(serviceHandler);
         this.client.start(clientHandler);
-        
+
         ListenerEndpoint endpoint = this.server.getListenerEndpoint();
         endpoint.waitFor();
         InetSocketAddress serverAddress = (InetSocketAddress) endpoint.getAddress();
-        
+
         this.client.openConnection(
-                new InetSocketAddress("localhost", serverAddress.getPort()), 
+                new InetSocketAddress("localhost", serverAddress.getPort()),
                 null);
-     
+
         requestConns.await();
         assertEquals(0, requestConns.getCount());
-        
+
         this.server.join(1000);
-        
+
         assertEquals(IOReactorStatus.ACTIVE, this.server.getStatus());
         assertNull(this.server.getException());
-        
+
         this.client.shutdown();
         this.server.shutdown();
     }

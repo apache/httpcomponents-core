@@ -41,21 +41,21 @@ public interface ContentDecoder {
 
     /**
      * Reads a portion of content from the underlying channel
-     * 
+     *
      * @param dst The buffer into which entity content is to be transferred
-     * @return The number of bytes read, possibly zero, or -1 if the 
+     * @return The number of bytes read, possibly zero, or -1 if the
      * channel has reached end-of-stream
      * @throws IOException if I/O error occurs while reading content
      */
     int read(ByteBuffer dst) throws IOException;
-    
+
     /**
      * Returns <code>true</code> if the entity has been received in its
      * entirety.
-     * 
-     * @return <code>true</code> if all the content has been consumed, 
+     *
+     * @return <code>true</code> if all the content has been consumed,
      * <code>false</code> otherwise.
      */
     boolean isCompleted();
-    
+
 }

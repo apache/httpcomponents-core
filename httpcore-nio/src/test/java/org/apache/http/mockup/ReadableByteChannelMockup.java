@@ -37,12 +37,12 @@ public class ReadableByteChannelMockup implements ReadableByteChannel {
 
     private final String[] chunks;
     private final String charset;
-    
+
     private int chunkCount = 0;
-    
+
     private ByteBuffer currentChunk;
     private boolean closed = false;
-    
+
     public ReadableByteChannelMockup(final String[] chunks, final String charset) {
         super();
         this.chunks = chunks;
@@ -60,7 +60,7 @@ public class ReadableByteChannelMockup implements ReadableByteChannel {
             }
         }
     }
-    
+
     public int read(final ByteBuffer dst) throws IOException {
         prepareChunk();
         if (this.closed) {
@@ -81,6 +81,6 @@ public class ReadableByteChannelMockup implements ReadableByteChannel {
     public boolean isOpen() {
         return !this.closed;
     }
-    
-    
+
+
 }

@@ -44,18 +44,18 @@ import org.apache.http.protocol.HttpRequestHandler;
 import org.apache.http.util.EntityUtils;
 
 final class TestRequestHandler extends SimpleNHttpRequestHandler implements HttpRequestHandler {
-    
+
     private final boolean chunking;
-    
+
     TestRequestHandler() {
         this(false);
     }
-    
+
     TestRequestHandler(boolean chunking) {
         super();
         this.chunking = chunking;
     }
-    
+
     public ConsumingNHttpEntity entityRequest(
             final HttpEntityEnclosingRequest request,
             final HttpContext context) {
@@ -74,7 +74,7 @@ final class TestRequestHandler extends SimpleNHttpRequestHandler implements Http
         if (request instanceof HttpEntityEnclosingRequest) {
             HttpEntity entity = ((HttpEntityEnclosingRequest) request).getEntity();
             if (entity != null) {
-                content = EntityUtils.toString(entity); 
+                content = EntityUtils.toString(entity);
             } else {
                 response.setStatusCode(HttpStatus.SC_BAD_REQUEST);
                 content = "Request entity not avaialble";
@@ -87,7 +87,7 @@ final class TestRequestHandler extends SimpleNHttpRequestHandler implements Http
             }
             String pattern = s.substring(0, idx);
             int count = Integer.parseInt(s.substring(idx + 1, s.length()));
-            
+
             StringBuilder buffer = new StringBuilder();
             for (int i = 0; i < count; i++) {
                 buffer.append(pattern);
@@ -98,5 +98,5 @@ final class TestRequestHandler extends SimpleNHttpRequestHandler implements Http
         entity.setChunked(this.chunking);
         response.setEntity(entity);
     }
-    
+
 }

@@ -50,7 +50,7 @@ public class HttpCoreNIOTestBase extends TestCase {
 
     protected TestHttpServer server;
     protected TestHttpClient client;
-    
+
     @Override
     protected void setUp() throws Exception {
         HttpParams serverParams = new SyncBasicHttpParams();

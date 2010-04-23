@@ -30,25 +30,25 @@ package org.apache.http.nio.reactor;
 import java.nio.channels.SelectionKey;
 
 /**
- * Type of I/O event notifications I/O sessions can declare interest in. 
+ * Type of I/O event notifications I/O sessions can declare interest in.
  *
  * @since 4.0
  */
 public interface EventMask {
 
     /**
-     * Interest in data input.  
+     * Interest in data input.
      */
     public static final int READ = SelectionKey.OP_READ;
 
     /**
-     * Interest in data output.  
+     * Interest in data output.
      */
     public static final int WRITE = SelectionKey.OP_WRITE;
 
     /**
-     * Interest in data input/output.  
+     * Interest in data input/output.
      */
     public static final int READ_WRITE = READ | WRITE;
-    
+
 }

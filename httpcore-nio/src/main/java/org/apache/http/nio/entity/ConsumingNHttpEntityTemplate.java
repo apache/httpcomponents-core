@@ -48,7 +48,7 @@ public class ConsumingNHttpEntityTemplate
     private final ContentListener contentListener;
 
     public ConsumingNHttpEntityTemplate(
-            final HttpEntity httpEntity, 
+            final HttpEntity httpEntity,
             final ContentListener contentListener) {
         super(httpEntity);
         this.contentListener = contentListener;
@@ -75,7 +75,7 @@ public class ConsumingNHttpEntityTemplate
 
     /**
      * This method is equivalent to the {@link #finish()} method.
-     * <br/> 
+     * <br/>
      * TODO: The name of this method is misnomer. It will be renamed to
      * #finish() in the next major release.
      */

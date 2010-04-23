@@ -38,25 +38,25 @@ public enum IOReactorStatus {
      * The reactor is inactive / has not been started
      */
     INACTIVE,
-    
+
     /**
      * The reactor is active / processing I/O events.
      */
     ACTIVE,
-    
+
     /**
      * Shutdown of the reactor has been requested.
      */
     SHUTDOWN_REQUEST,
-    
+
     /**
      * The reactor is shutting down.
      */
     SHUTTING_DOWN,
-    
+
     /**
      * The reactor has shut down.
      */
     SHUT_DOWN;
-    
+
 }

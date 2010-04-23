@@ -52,8 +52,8 @@ import org.apache.http.params.HttpParams;
 /**
  * Default implementation of the {@link NHttpServerConnection} interface.
  * <p>
- * The following parameters can be used to customize the behavior of this 
- * class: 
+ * The following parameters can be used to customize the behavior of this
+ * class:
  * <ul>
  *  <li>{@link org.apache.http.params.CoreProtocolPNames#HTTP_ELEMENT_CHARSET}</li>
  *  <li>{@link org.apache.http.params.CoreConnectionPNames#SOCKET_BUFFER_SIZE}</li>
@@ -63,15 +63,15 @@ import org.apache.http.params.HttpParams;
  *
  * @since 4.0
  */
-public class DefaultNHttpServerConnection 
+public class DefaultNHttpServerConnection
     extends NHttpConnectionBase implements NHttpServerIOTarget {
 
     protected final NHttpMessageParser<HttpRequest> requestParser;
     protected final NHttpMessageWriter<HttpResponse> responseWriter;
-    
+
     /**
      * Creates a new instance of this class given the underlying I/O session.
-     * 
+     *
      * @param session the underlying I/O session.
      * @param requestFactory HTTP request factory.
      * @param allocator byte buffer allocator.
@@ -91,12 +91,12 @@ public class DefaultNHttpServerConnection
     }
 
     /**
-     * Creates an instance of {@link NHttpMessageParser} to be used 
+     * Creates an instance of {@link NHttpMessageParser} to be used
      * by this connection for parsing incoming {@link HttpRequest} messages.
      * <p>
-     * This method can be overridden in a super class in order to provide 
-     * a different implementation of the {@link NHttpMessageParser} interface. 
-     * 
+     * This method can be overridden in a super class in order to provide
+     * a different implementation of the {@link NHttpMessageParser} interface.
+     *
      * @return HTTP response parser.
      */
     protected NHttpMessageParser<HttpRequest> createRequestParser(
@@ -106,15 +106,15 @@ public class DefaultNHttpServerConnection
         // override in derived class to specify a line parser
         return new DefaultHttpRequestParser(buffer, null, requestFactory, params);
     }
-    
+
     /**
-     * Creates an instance of {@link NHttpMessageWriter} to be used 
-     * by this connection for writing out outgoing {@link HttpResponse} 
+     * Creates an instance of {@link NHttpMessageWriter} to be used
+     * by this connection for writing out outgoing {@link HttpResponse}
      * messages.
      * <p>
-     * This method can be overridden by a super class in order to provide 
-     * a different implementation of the {@link NHttpMessageWriter} interface. 
-     * 
+     * This method can be overridden by a super class in order to provide
+     * a different implementation of the {@link NHttpMessageWriter} interface.
+     *
      * @return HTTP response parser.
      */
     protected NHttpMessageWriter<HttpResponse> createResponseWriter(
@@ -123,19 +123,19 @@ public class DefaultNHttpServerConnection
         // override in derived class to specify a line formatter
         return new DefaultHttpResponseWriter(buffer, null, params);
     }
-    
+
     public void resetInput() {
         this.request = null;
         this.contentDecoder = null;
         this.requestParser.reset();
     }
-    
+
     public void resetOutput() {
         this.response = null;
         this.contentEncoder = null;
         this.responseWriter.reset();
     }
-    
+
     public void consumeInput(final NHttpServiceHandler handler) {
         if (this.status != ACTIVE) {
             this.session.clearEvent(EventMask.READ);
@@ -150,7 +150,7 @@ public class DefaultNHttpServerConnection
                         this.inTransportMetrics.incrementBytesTransferred(bytesRead);
                     }
                     this.request = this.requestParser.parse();
-                } while (bytesRead > 0 && this.request == null);                
+                } while (bytesRead > 0 && this.request == null);
                 if (this.request != null) {
                     if (this.request instanceof HttpEntityEnclosingRequest) {
                         // Receive incoming entity
@@ -210,16 +210,16 @@ public class DefaultNHttpServerConnection
                         }
                     }
                 }
-                
+
                 if (this.contentEncoder == null && !this.outbuf.hasData()) {
                     if (this.status == CLOSING) {
                         this.session.close();
                         this.status = CLOSED;
                         return;
                     }
-                    
+
                     this.session.clearEvent(EventMask.WRITE);
-               
+
                     handler.responseReady(this);
                 }
             }
@@ -230,7 +230,7 @@ public class DefaultNHttpServerConnection
             this.hasBufferedOutput = this.outbuf.hasData();
         }
     }
-    
+
     public void submitResponse(final HttpResponse response) throws IOException, HttpException {
         if (response == null) {
             throw new IllegalArgumentException("HTTP response may not be null");
@@ -269,5 +269,5 @@ public class DefaultNHttpServerConnection
         buffer.append("]");
         return buffer.toString();
     }
-    
+
 }

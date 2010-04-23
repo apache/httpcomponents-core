@@ -35,12 +35,12 @@ import org.apache.http.HttpEntity;
 import org.apache.http.entity.ByteArrayEntity;
 
 /**
- * An entity whose content is retrieved from a byte array. In addition to the 
- * standard {@link HttpEntity} interface this class also implements NIO specific 
+ * An entity whose content is retrieved from a byte array. In addition to the
+ * standard {@link HttpEntity} interface this class also implements NIO specific
  * {@link HttpNIOEntity}.
  *
  * @deprecated Use {@link NByteArrayEntity}
- * 
+ *
  * @since 4.0
  */
 @Deprecated

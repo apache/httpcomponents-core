@@ -40,18 +40,18 @@ public interface ContentOutputBuffer {
 
     /**
      * Writes content from this buffer to the given {@link ContentEncoder}.
-     *  
+     *
      * @param encoder content encoder.
      * @return number of bytes written.
      * @throws IOException in case of an I/O error.
      */
     int produceContent(ContentEncoder encoder) throws IOException;
-    
+
     /**
-     * Resets the buffer by clearing its state and stored content. 
+     * Resets the buffer by clearing its state and stored content.
      */
     void reset();
-    
+
     /**
      * @deprecated No longer used.
      */
@@ -59,12 +59,12 @@ public interface ContentOutputBuffer {
     void flush() throws IOException;
 
     /**
-     * Writes <code>len</code> bytes from the specified byte array 
+     * Writes <code>len</code> bytes from the specified byte array
      * starting at offset <code>off</code> to this buffer.
      * <p>
-     * If <code>off</code> is negative, or <code>len</code> is negative, or 
-     * <code>off+len</code> is greater than the length of the array 
-     * <code>b</code>, this method can throw a runtime exception. The exact type 
+     * If <code>off</code> is negative, or <code>len</code> is negative, or
+     * <code>off+len</code> is greater than the length of the array
+     * <code>b</code>, this method can throw a runtime exception. The exact type
      * of runtime exception thrown by this method depends on implementation.
      *
      * @param      b     the data.
@@ -81,11 +81,11 @@ public interface ContentOutputBuffer {
      * @exception  IOException  if an I/O error occurs.
      */
     void write(int b) throws IOException;
-    
+
     /**
-     * Indicates the content has been fully written. 
+     * Indicates the content has been fully written.
      * @exception  IOException  if an I/O error occurs.
      */
     void writeCompleted() throws IOException;
-    
+
 }

@@ -34,5 +34,5 @@ public class OoopsieRuntimeException extends RuntimeException {
     public OoopsieRuntimeException() {
         super("Ooopsie!!!");
     }
-    
+
 }

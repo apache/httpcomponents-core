@@ -36,12 +36,12 @@ import org.apache.http.impl.nio.codecs.AbstractContentEncoder;
 import org.apache.http.nio.reactor.SessionOutputBuffer;
 
 public class MockupEncoder extends AbstractContentEncoder {
-    
+
     // TODO? remove this field and the complete() and isCompleted() methods
     private boolean completed;
-    
+
     public MockupEncoder(
-            final WritableByteChannel channel, 
+            final WritableByteChannel channel,
             final SessionOutputBuffer buffer,
             final HttpTransportMetricsImpl metrics) {
         super(channel, buffer, metrics);
@@ -51,12 +51,12 @@ public class MockupEncoder extends AbstractContentEncoder {
     public boolean isCompleted() {
         return this.completed;
     }
-    
+
     @Override
     public void complete() throws IOException {
         this.completed = true;
     }
-    
+
     public int write(final ByteBuffer src) throws IOException {
         if (src == null) {
             return 0;
@@ -66,5 +66,5 @@ public class MockupEncoder extends AbstractContentEncoder {
         }
         return this.channel.write(src);
     }
-    
+
 }

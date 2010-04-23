@@ -35,33 +35,33 @@ import org.apache.http.HttpMessage;
 
 /**
  * Abstract HTTP message parser for non-blocking connections.
- * 
+ *
  * @since 4.0
  */
 public interface NHttpMessageParser<T extends HttpMessage> {
-    
+
     /**
-     * Resets the parser. The parser will be ready to start parsing another 
+     * Resets the parser. The parser will be ready to start parsing another
      * HTTP message.
      */
     void reset();
-    
+
     /**
-     * Fills the internal buffer of the parser with input data from the 
+     * Fills the internal buffer of the parser with input data from the
      * given {@link ReadableByteChannel}.
-     * 
+     *
      * @param channel the input channel
      * @return number of bytes read.
      * @throws IOException in case of an I/O error.
      */
-    int fillBuffer(ReadableByteChannel channel) 
-        throws IOException;    
+    int fillBuffer(ReadableByteChannel channel)
+        throws IOException;
 
     /**
-     * Attempts to parse a complete message head from the content of the 
+     * Attempts to parse a complete message head from the content of the
      * internal buffer. If the message in the input buffer is incomplete
-     * this method will return <code>null</code>.  
-     * 
+     * this method will return <code>null</code>.
+     *
      * @return HTTP message head, if available, <code>null</code> otherwise.
      * @throws IOException in case of an I/O error.
      * @throws HttpException in case the HTTP message is malformed or

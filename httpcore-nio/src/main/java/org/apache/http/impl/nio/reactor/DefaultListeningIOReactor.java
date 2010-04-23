@@ -48,12 +48,12 @@ import org.apache.http.nio.reactor.ListeningIOReactor;
 import org.apache.http.params.HttpParams;
 
 /**
- * Default implementation of {@link ListeningIOReactor}. This class extends 
+ * Default implementation of {@link ListeningIOReactor}. This class extends
  * {@link AbstractMultiworkerIOReactor} with capability to listen for incoming
  * connections.
  * <p>
- * The following parameters can be used to customize the behavior of this 
- * class: 
+ * The following parameters can be used to customize the behavior of this
+ * class:
  * <ul>
  *  <li>{@link org.apache.http.params.CoreConnectionPNames#TCP_NODELAY}</li>
  *  <li>{@link org.apache.http.params.CoreConnectionPNames#SO_TIMEOUT}</li>
@@ -65,17 +65,17 @@ import org.apache.http.params.HttpParams;
  *
  * @since 4.0
  */
-public class DefaultListeningIOReactor extends AbstractMultiworkerIOReactor 
+public class DefaultListeningIOReactor extends AbstractMultiworkerIOReactor
         implements ListeningIOReactor {
 
     private final Queue<ListenerEndpointImpl> requestQueue;
     private final Set<ListenerEndpointImpl> endpoints;
     private final Set<SocketAddress> pausedEndpoints;
-    
+
     private volatile boolean paused;
-    
+
     public DefaultListeningIOReactor(
-            int workerCount, 
+            int workerCount,
             final ThreadFactory threadFactory,
             final HttpParams params) throws IOReactorException {
         super(workerCount, threadFactory, params);
@@ -85,12 +85,12 @@ public class DefaultListeningIOReactor extends AbstractMultiworkerIOReactor
     }
 
     public DefaultListeningIOReactor(
-            int workerCount, 
+            int workerCount,
             final HttpParams params) throws IOReactorException {
         this(workerCount, null, params);
     }
-    
-    
+
+
     @Override
     protected void cancelRequests() throws IOReactorException {
         ListenerEndpointImpl request;
@@ -108,48 +108,48 @@ public class DefaultListeningIOReactor extends AbstractMultiworkerIOReactor
         if (readyCount > 0) {
             Set<SelectionKey> selectedKeys = this.selector.selectedKeys();
             for (Iterator<SelectionKey> it = selectedKeys.iterator(); it.hasNext(); ) {
-                
+
                 SelectionKey key = it.next();
                 processEvent(key);
-                
+
             }
             selectedKeys.clear();
         }
     }
 
-    private void processEvent(final SelectionKey key) 
+    private void processEvent(final SelectionKey key)
             throws IOReactorException {
         try {
-            
+
             if (key.isAcceptable()) {
-                
+
                 ServerSocketChannel serverChannel = (ServerSocketChannel) key.channel();
                 SocketChannel socketChannel = null;
                 try {
                     socketChannel = serverChannel.accept();
                 } catch (IOException ex) {
-                    if (this.exceptionHandler == null || 
+                    if (this.exceptionHandler == null ||
                             !this.exceptionHandler.handle(ex)) {
                         throw new IOReactorException(
                                 "Failure accepting connection", ex);
                     }
                 }
-                
+
                 if (socketChannel != null) {
                     try {
                         prepareSocket(socketChannel.socket());
                     } catch (IOException ex) {
-                        if (this.exceptionHandler == null || 
+                        if (this.exceptionHandler == null ||
                                 !this.exceptionHandler.handle(ex)) {
                             throw new IOReactorException(
                                     "Failure initalizing socket", ex);
                         }
                     }
-                    ChannelEntry entry = new ChannelEntry(socketChannel); 
+                    ChannelEntry entry = new ChannelEntry(socketChannel);
                     addChannel(entry);
                 }
             }
-            
+
         } catch (CancelledKeyException ex) {
             ListenerEndpoint endpoint = (ListenerEndpoint) key.attachment();
             this.endpoints.remove(endpoint);
@@ -165,11 +165,11 @@ public class DefaultListeningIOReactor extends AbstractMultiworkerIOReactor
                     public void endpointClosed(final ListenerEndpoint endpoint) {
                         endpoints.remove(endpoint);
                     }
-                    
+
                 });
         return endpoint;
     }
-    
+
     public ListenerEndpoint listen(final SocketAddress address) {
         if (this.status.compareTo(IOReactorStatus.ACTIVE) > 0) {
             throw new IllegalStateException("I/O reactor has been shut down");
@@ -196,7 +196,7 @@ public class DefaultListeningIOReactor extends AbstractMultiworkerIOReactor
             } catch (IOException ex) {
                 request.failed(ex);
                 if (this.exceptionHandler == null || !this.exceptionHandler.handle(ex)) {
-                    throw new IOReactorException("Failure binding socket to address " 
+                    throw new IOReactorException("Failure binding socket to address "
                             + address, ex);
                 } else {
                     return;
@@ -210,12 +210,12 @@ public class DefaultListeningIOReactor extends AbstractMultiworkerIOReactor
                 throw new IOReactorException("Failure registering channel " +
                         "with the selector", ex);
             }
-            
+
             this.endpoints.add(request);
             request.completed(serverChannel.socket().getLocalSocketAddress());
         }
     }
-    
+
     public Set<ListenerEndpoint> getEndpoints() {
         Set<ListenerEndpoint> set = new HashSet<ListenerEndpoint>();
         synchronized (this.endpoints) {
@@ -262,5 +262,5 @@ public class DefaultListeningIOReactor extends AbstractMultiworkerIOReactor
         this.pausedEndpoints.clear();
         this.selector.wakeup();
     }
-    
+
 }

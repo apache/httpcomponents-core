@@ -81,9 +81,9 @@ public class BufferingNHttpEntity extends HttpEntityWrapper implements
 
     /**
      * Obtains entity's content as {@link InputStream}.
-     * 
+     *
      *  @throws IllegalStateException if content of the entity has not been
-     *    fully received or has already been consumed. 
+     *    fully received or has already been consumed.
      */
     @Override
     public InputStream getContent() throws IOException {

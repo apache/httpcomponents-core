@@ -49,7 +49,7 @@ import org.apache.http.util.EncodingUtils;
 /**
  * Simple tests for {@link LengthDelimitedEncoder}.
  *
- * 
+ *
  * @version $Id$
  */
 public class TestLengthDelimitedEncoder extends TestCase {
@@ -64,13 +64,13 @@ public class TestLengthDelimitedEncoder extends TestCase {
     private static ByteBuffer wrap(final String s) {
         return ByteBuffer.wrap(EncodingUtils.getAsciiBytes(s));
     }
-    
+
     private static WritableByteChannel newChannel(final ByteArrayOutputStream baos) {
         return Channels.newChannel(baos);
     }
-    
+
     public void testBasicCoding() throws Exception {
-        ByteArrayOutputStream baos = new ByteArrayOutputStream(); 
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
         WritableByteChannel channel = newChannel(baos);
         HttpParams params = new BasicHttpParams();
         SessionOutputBuffer outbuf = new SessionOutputBufferImpl(1024, 128, params);
@@ -80,15 +80,15 @@ public class TestLengthDelimitedEncoder extends TestCase {
                 channel, outbuf, metrics, 16);
         encoder.write(wrap("stuff;"));
         encoder.write(wrap("more stuff"));
-        
+
         String s = baos.toString("US-ASCII");
-        
+
         assertTrue(encoder.isCompleted());
         assertEquals("stuff;more stuff", s);
     }
-    
+
     public void testCodingBeyondContentLimit() throws Exception {
-        ByteArrayOutputStream baos = new ByteArrayOutputStream(); 
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
         WritableByteChannel channel = newChannel(baos);
         HttpParams params = new BasicHttpParams();
         SessionOutputBuffer outbuf = new SessionOutputBufferImpl(1024, 128, params);
@@ -98,15 +98,15 @@ public class TestLengthDelimitedEncoder extends TestCase {
                 channel, outbuf, metrics, 16);
         encoder.write(wrap("stuff;"));
         encoder.write(wrap("more stuff; and a lot more stuff"));
-        
+
         String s = baos.toString("US-ASCII");
-        
+
         assertTrue(encoder.isCompleted());
         assertEquals("stuff;more stuff", s);
     }
-    
+
     public void testCodingEmptyBuffer() throws Exception {
-        ByteArrayOutputStream baos = new ByteArrayOutputStream(); 
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
         WritableByteChannel channel = newChannel(baos);
         HttpParams params = new BasicHttpParams();
         SessionOutputBuffer outbuf = new SessionOutputBufferImpl(1024, 128, params);
@@ -120,17 +120,17 @@ public class TestLengthDelimitedEncoder extends TestCase {
         empty.flip();
         encoder.write(empty);
         encoder.write(null);
-        
+
         encoder.write(wrap("more stuff"));
-        
+
         String s = baos.toString("US-ASCII");
-        
+
         assertTrue(encoder.isCompleted());
         assertEquals("stuff;more stuff", s);
     }
 
     public void testCodingCompleted() throws Exception {
-        ByteArrayOutputStream baos = new ByteArrayOutputStream(); 
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
         WritableByteChannel channel = newChannel(baos);
         HttpParams params = new BasicHttpParams();
         SessionOutputBuffer outbuf = new SessionOutputBufferImpl(1024, 128, params);
@@ -150,7 +150,7 @@ public class TestLengthDelimitedEncoder extends TestCase {
 
     /* ----------------- FileChannel Part testing --------------------------- */
     public void testCodingBeyondContentLimitFromFile() throws Exception {
-        ByteArrayOutputStream baos = new ByteArrayOutputStream(); 
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
         WritableByteChannel channel = newChannel(baos);
         HttpParams params = new BasicHttpParams();
         SessionOutputBuffer outbuf = new SessionOutputBufferImpl(1024, 128, params);
@@ -158,39 +158,39 @@ public class TestLengthDelimitedEncoder extends TestCase {
 
         LengthDelimitedEncoder encoder = new LengthDelimitedEncoder(
                 channel, outbuf, metrics, 16);
-               
+
         File tmpFile = File.createTempFile("testFile", ".txt");
         FileOutputStream fout = new FileOutputStream(tmpFile);
         OutputStreamWriter wrtout = new OutputStreamWriter(fout);
-        
+
         wrtout.write("stuff;");
         wrtout.write("more stuff; and a lot more stuff");
-        
+
         wrtout.flush();
         wrtout.close();
-        
+
         FileChannel fchannel = new FileInputStream(tmpFile).getChannel();
-        
+
         encoder.transfer(fchannel, 0, 20);
-        
+
         String s = baos.toString("US-ASCII");
-        
+
         assertTrue(encoder.isCompleted());
         assertEquals("stuff;more stuff", s);
-        
+
         fchannel.close();
-        
+
         deleteWithCheck(tmpFile);
     }
-    
+
     private void deleteWithCheck(File handle){
         if (!handle.delete() && handle.exists()){
             System.err.println("Failed to delete: "+handle.getPath());
         }
     }
-    
+
     public void testCodingEmptyFile() throws Exception {
-        ByteArrayOutputStream baos = new ByteArrayOutputStream(); 
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
         WritableByteChannel channel = newChannel(baos);
         HttpParams params = new BasicHttpParams();
         SessionOutputBuffer outbuf = new SessionOutputBufferImpl(1024, 128, params);
@@ -204,27 +204,27 @@ public class TestLengthDelimitedEncoder extends TestCase {
         File tmpFile = File.createTempFile("testFile", ".txt");
         FileOutputStream fout = new FileOutputStream(tmpFile);
         OutputStreamWriter wrtout = new OutputStreamWriter(fout);
-        
+
         wrtout.flush();
         wrtout.close();
-        
+
         FileChannel fchannel = new FileInputStream(tmpFile).getChannel();
-        
+
         encoder.transfer(fchannel, 0, 20);
-                
+
         encoder.write(wrap("more stuff"));
-        
+
         String s = baos.toString("US-ASCII");
-        
+
         assertTrue(encoder.isCompleted());
         assertEquals("stuff;more stuff", s);
-        
+
         fchannel.close();
         deleteWithCheck(tmpFile);
     }
 
     public void testCodingCompletedFromFile() throws Exception {
-        ByteArrayOutputStream baos = new ByteArrayOutputStream(); 
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
         WritableByteChannel channel = newChannel(baos);
         HttpParams params = new BasicHttpParams();
         SessionOutputBuffer outbuf = new SessionOutputBufferImpl(1024, 128, params);
@@ -237,12 +237,12 @@ public class TestLengthDelimitedEncoder extends TestCase {
         File tmpFile = File.createTempFile("testFile", ".txt");
         FileOutputStream fout = new FileOutputStream(tmpFile);
         OutputStreamWriter wrtout = new OutputStreamWriter(fout);
-        
+
         wrtout.write("more stuff");
-        
+
         wrtout.flush();
         wrtout.close();
-        
+
         FileChannel fchannel = new FileInputStream(tmpFile).getChannel();
         try {
             encoder.transfer(fchannel, 0, 10);
@@ -254,9 +254,9 @@ public class TestLengthDelimitedEncoder extends TestCase {
             deleteWithCheck(tmpFile);
         }
     }
-    
+
     public void testCodingFromFileSmaller() throws Exception {
-        ByteArrayOutputStream baos = new ByteArrayOutputStream(); 
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
         WritableByteChannel channel = newChannel(baos);
         HttpParams params = new BasicHttpParams();
         SessionOutputBuffer outbuf = new SessionOutputBufferImpl(1024, 128, params);
@@ -264,32 +264,32 @@ public class TestLengthDelimitedEncoder extends TestCase {
 
         LengthDelimitedEncoder encoder = new LengthDelimitedEncoder(
                 channel, outbuf, metrics, 16);
-               
+
         File tmpFile = File.createTempFile("testFile", ".txt");
         FileOutputStream fout = new FileOutputStream(tmpFile);
         OutputStreamWriter wrtout = new OutputStreamWriter(fout);
-        
+
         wrtout.write("stuff;");
         wrtout.write("more stuff;");
-        
+
         wrtout.flush();
         wrtout.close();
-        
+
         FileChannel fchannel = new FileInputStream(tmpFile).getChannel();
-        
+
         encoder.transfer(fchannel, 0, 20);
-        
+
         String s = baos.toString("US-ASCII");
-        
+
         assertTrue(encoder.isCompleted());
         assertEquals("stuff;more stuff", s);
-        
+
         fchannel.close();
         deleteWithCheck(tmpFile);
     }
-    
+
     public void testInvalidConstructor() {
-        ByteArrayOutputStream baos = new ByteArrayOutputStream(); 
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
         WritableByteChannel channel = newChannel(baos);
         HttpParams params = new BasicHttpParams();
         SessionOutputBuffer outbuf = new SessionOutputBufferImpl(1024, 128, params);

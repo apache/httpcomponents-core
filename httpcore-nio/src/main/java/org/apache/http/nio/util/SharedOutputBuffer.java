@@ -33,12 +33,12 @@ import org.apache.http.nio.ContentEncoder;
 import org.apache.http.nio.IOControl;
 
 /**
- * Implementation of the {@link ContentOutputBuffer} interface that can be 
+ * Implementation of the {@link ContentOutputBuffer} interface that can be
  * shared by multiple threads, usually the I/O dispatch of an I/O reactor and
  * a worker thread.
  * <p>
- * Please note this class is thread safe only when used though 
- * the {@link ContentOutputBuffer} interface. 
+ * Please note this class is thread safe only when used though
+ * the {@link ContentOutputBuffer} interface.
  *
  * @since 4.0
  */
@@ -46,10 +46,10 @@ public class SharedOutputBuffer extends ExpandableBuffer implements ContentOutpu
 
     private final IOControl ioctrl;
     private final Object mutex;
-    
+
     private volatile boolean shutdown = false;
     private volatile boolean endOfStream = false;
-    
+
     public SharedOutputBuffer(int buffersize, final IOControl ioctrl, final ByteBufferAllocator allocator) {
         super(buffersize, allocator);
         if (ioctrl == null) {
@@ -68,7 +68,7 @@ public class SharedOutputBuffer extends ExpandableBuffer implements ContentOutpu
             this.endOfStream = false;
         }
     }
-    
+
     @Override
     public int available() {
         synchronized (this.mutex) {
@@ -108,17 +108,17 @@ public class SharedOutputBuffer extends ExpandableBuffer implements ContentOutpu
                 // If at the end of the stream, terminate
                 if (this.endOfStream && !encoder.isCompleted()) {
                     encoder.complete();
-                } 
+                }
                 if (!this.endOfStream) {
                     // suspend output events
                     this.ioctrl.suspendOutput();
                 }
             }
-            this.mutex.notifyAll();            
+            this.mutex.notifyAll();
             return bytesWritten;
         }
     }
-    
+
     public void close() {
         shutdown();
     }
@@ -195,7 +195,7 @@ public class SharedOutputBuffer extends ExpandableBuffer implements ContentOutpu
             }
         }
     }
-    
+
     public void writeCompleted() throws IOException {
         synchronized (this.mutex) {
             if (this.endOfStream) {
@@ -205,5 +205,5 @@ public class SharedOutputBuffer extends ExpandableBuffer implements ContentOutpu
             this.ioctrl.requestOutput();
         }
     }
-    
+
 }

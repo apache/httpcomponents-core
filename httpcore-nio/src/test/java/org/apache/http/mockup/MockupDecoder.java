@@ -34,10 +34,10 @@ import java.nio.channels.ReadableByteChannel;
 import org.apache.http.nio.ContentDecoder;
 
 public class MockupDecoder implements ContentDecoder {
-    
+
     private final ReadableByteChannel channel;
     private boolean completed;
-    
+
     public MockupDecoder(final ReadableByteChannel channel) {
         super();
         this.channel = channel;
@@ -60,5 +60,5 @@ public class MockupDecoder implements ContentDecoder {
     public boolean isCompleted() {
         return this.completed;
     }
-    
+
 }

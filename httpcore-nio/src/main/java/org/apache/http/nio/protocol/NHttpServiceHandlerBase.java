@@ -42,7 +42,7 @@ import org.apache.http.protocol.HttpRequestHandlerResolver;
 
 /**
  * @deprecated No longer used.
- * 
+ *
  * @since 4.0
  */
 @Deprecated
@@ -72,7 +72,7 @@ public abstract class NHttpServiceHandlerBase extends NHttpHandlerBase
             final HttpResponseFactory responseFactory,
             final ConnectionReuseStrategy connStrategy,
             final HttpParams params) {
-        this(httpProcessor, responseFactory, connStrategy, 
+        this(httpProcessor, responseFactory, connStrategy,
                 new HeapByteBufferAllocator(), params);
     }
 

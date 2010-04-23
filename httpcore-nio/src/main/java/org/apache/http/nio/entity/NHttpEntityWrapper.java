@@ -40,8 +40,8 @@ import org.apache.http.nio.ContentEncoder;
 import org.apache.http.nio.IOControl;
 
 /**
- * {@link ProducingNHttpEntity} compatibility adaptor for blocking HTTP 
- * entities. 
+ * {@link ProducingNHttpEntity} compatibility adaptor for blocking HTTP
+ * entities.
  *
  * @since 4.0
  */
@@ -58,7 +58,7 @@ public class NHttpEntityWrapper
     }
 
     /**
-     * This method throws {@link UnsupportedOperationException}. 
+     * This method throws {@link UnsupportedOperationException}.
      */
     @Override
     public InputStream getContent() throws IOException, UnsupportedOperationException {
@@ -71,7 +71,7 @@ public class NHttpEntityWrapper
     }
 
     /**
-     * This method throws {@link UnsupportedOperationException}. 
+     * This method throws {@link UnsupportedOperationException}.
      */
     @Override
     public void writeTo(OutputStream out) throws IOException, UnsupportedOperationException {
@@ -80,7 +80,7 @@ public class NHttpEntityWrapper
 
     /**
      * This method is equivalent to the {@link #finish()} method.
-     * <br/> 
+     * <br/>
      * TODO: The name of this method is misnomer. It will be renamed to
      * #finish() in the next major release.
      */
@@ -95,7 +95,7 @@ public class NHttpEntityWrapper
         int i = this.channel.read(this.buffer);
         this.buffer.flip();
         encoder.write(this.buffer);
-        boolean buffering = this.buffer.hasRemaining(); 
+        boolean buffering = this.buffer.hasRemaining();
         this.buffer.compact();
         if (i == -1 && !buffering) {
             encoder.complete();

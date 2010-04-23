@@ -88,7 +88,7 @@ import org.apache.http.util.EncodingUtils;
 import org.apache.http.util.EntityUtils;
 
 /**
- * HttpCore NIO integration tests using throttling versions of the 
+ * HttpCore NIO integration tests using throttling versions of the
  * protocol handlers.
  */
 public class TestThrottlingNHttpHandlers extends HttpCoreNIOTestBase {
@@ -101,11 +101,11 @@ public class TestThrottlingNHttpHandlers extends HttpCoreNIOTestBase {
     // ------------------------------------------------------- TestCase Methods
 
     private ExecutorService execService;
-    
+
     @Override
     protected void setUp() throws Exception {
         super.setUp();
-        this.execService = Executors.newCachedThreadPool(); 
+        this.execService = Executors.newCachedThreadPool();
     }
 
     @Override
@@ -113,7 +113,7 @@ public class TestThrottlingNHttpHandlers extends HttpCoreNIOTestBase {
         super.tearDown();
         this.execService.shutdownNow();
     }
-    
+
     private void executeStandardTest(
             final HttpRequestHandler requestHandler,
             final HttpRequestExecutionHandler requestExecutionHandler) throws Exception {
@@ -121,11 +121,11 @@ public class TestThrottlingNHttpHandlers extends HttpCoreNIOTestBase {
         int reqNo = 20;
         TestJob[] jobs = new TestJob[connNo * reqNo];
         for (int i = 0; i < jobs.length; i++) {
-            jobs[i] = new TestJob(); 
+            jobs[i] = new TestJob();
         }
         Queue<TestJob> queue = new ConcurrentLinkedQueue<TestJob>();
         for (int i = 0; i < jobs.length; i++) {
-            queue.add(jobs[i]); 
+            queue.add(jobs[i]);
         }
 
         HttpProcessor serverHttpProc = new ImmutableHttpProcessor(new HttpResponseInterceptor[] {
@@ -146,7 +146,7 @@ public class TestThrottlingNHttpHandlers extends HttpCoreNIOTestBase {
                 new SimpleHttpRequestHandlerResolver(requestHandler));
         serviceHandler.setEventListener(
                 new SimpleEventListener());
-        
+
         HttpProcessor clientHttpProc = new ImmutableHttpProcessor(new HttpRequestInterceptor[] {
                 new RequestContent(),
                 new RequestTargetHost(),
@@ -163,7 +163,7 @@ public class TestThrottlingNHttpHandlers extends HttpCoreNIOTestBase {
 
         clientHandler.setEventListener(
                 new SimpleEventListener());
-        
+
         this.server.start(serviceHandler);
         this.client.start(clientHandler);
 
@@ -172,7 +172,7 @@ public class TestThrottlingNHttpHandlers extends HttpCoreNIOTestBase {
         InetSocketAddress serverAddress = (InetSocketAddress) endpoint.getAddress();
 
         assertEquals("Test server status", IOReactorStatus.ACTIVE, this.server.getStatus());
-        
+
         Queue<SessionRequest> connRequests = new LinkedList<SessionRequest>();
         for (int i = 0; i < connNo; i++) {
             SessionRequest sessionRequest = this.client.openConnection(
@@ -189,7 +189,7 @@ public class TestThrottlingNHttpHandlers extends HttpCoreNIOTestBase {
             }
             assertNotNull(sessionRequest.getSession());
         }
-        
+
         assertEquals("Test client status", IOReactorStatus.ACTIVE, this.client.getStatus());
 
         for (int i = 0; i < jobs.length; i++) {
@@ -203,7 +203,7 @@ public class TestThrottlingNHttpHandlers extends HttpCoreNIOTestBase {
             }
         }
     }
-    
+
     /**
      * This test case executes a series of simple (non-pipelined) GET requests
      * over multiple connections.
@@ -213,10 +213,10 @@ public class TestThrottlingNHttpHandlers extends HttpCoreNIOTestBase {
 
             @Override
             protected HttpRequest generateRequest(TestJob testjob) {
-                String s = testjob.getPattern() + "x" + testjob.getCount(); 
+                String s = testjob.getPattern() + "x" + testjob.getCount();
                 return new BasicHttpRequest("GET", s);
             }
-            
+
         };
         executeStandardTest(new TestRequestHandler(), requestExecutionHandler);
     }
@@ -230,7 +230,7 @@ public class TestThrottlingNHttpHandlers extends HttpCoreNIOTestBase {
 
             @Override
             protected HttpRequest generateRequest(TestJob testjob) {
-                String s = testjob.getPattern() + "x" + testjob.getCount(); 
+                String s = testjob.getPattern() + "x" + testjob.getCount();
                 HttpEntityEnclosingRequest r = new BasicHttpEntityEnclosingRequest("POST", s);
                 NStringEntity entity = null;
                 try {
@@ -241,7 +241,7 @@ public class TestThrottlingNHttpHandlers extends HttpCoreNIOTestBase {
                 r.setEntity(entity);
                 return r;
             }
-            
+
         };
         executeStandardTest(new TestRequestHandler(), requestExecutionHandler);
     }
@@ -255,7 +255,7 @@ public class TestThrottlingNHttpHandlers extends HttpCoreNIOTestBase {
 
             @Override
             protected HttpRequest generateRequest(TestJob testjob) {
-                String s = testjob.getPattern() + "x" + testjob.getCount(); 
+                String s = testjob.getPattern() + "x" + testjob.getCount();
                 HttpEntityEnclosingRequest r = new BasicHttpEntityEnclosingRequest("POST", s);
                 NStringEntity entity = null;
                 try {
@@ -266,13 +266,13 @@ public class TestThrottlingNHttpHandlers extends HttpCoreNIOTestBase {
                 r.setEntity(entity);
                 return r;
             }
-            
+
         };
         executeStandardTest(new TestRequestHandler(), requestExecutionHandler);
     }
 
     /**
-     * This test ensures that an Executor instance 
+     * This test ensures that an Executor instance
      * (under the control of a ThrottlingHttpServiceHandler)
      * terminates when a connection timeout occurs.
      */
@@ -281,23 +281,23 @@ public class TestThrottlingNHttpHandlers extends HttpCoreNIOTestBase {
         final int DEFAULT_SERVER_SO_TIMEOUT = 60000;
         this.server.getParams().setIntParameter(
                 CoreConnectionPNames.SO_TIMEOUT, SHORT_TIMEOUT);
-        
+
         // main expectation: the executor spawned by the service must finish.
         final String COMMAND_FINISHED = "CommandFinished";
         final Map<String, Boolean> serverExpectations = Collections.synchronizedMap(
                 new HashMap<String, Boolean>());
         serverExpectations.put(COMMAND_FINISHED, Boolean.FALSE);
-        
-        // secondary expectation: not strictly necessary, the test will wait for the 
-        // client to finalize the request 
+
+        // secondary expectation: not strictly necessary, the test will wait for the
+        // client to finalize the request
         final String CLIENT_FINALIZED = "ClientFinalized";
         final Map<String, Boolean> clientExpectations = Collections.synchronizedMap(
                 new HashMap<String, Boolean>());
         clientExpectations.put(CLIENT_FINALIZED, Boolean.FALSE);
-        
+
         // runs the command on a separate thread and updates the server expectation
         Executor executor = new Executor() {
-            
+
             public void execute(final Runnable command) {
                 new Thread() {
                     @Override
@@ -310,9 +310,9 @@ public class TestThrottlingNHttpHandlers extends HttpCoreNIOTestBase {
                     }
                 }.start();
             }
-            
+
         };
-        
+
         HttpRequestHandler requestHandler = new HttpRequestHandler() {
             public void handle(
                     HttpRequest request,
@@ -325,13 +325,13 @@ public class TestThrottlingNHttpHandlers extends HttpCoreNIOTestBase {
                 }
             }
         };
-        
-        // convoluted client-side entity content. The byte expected by the HttpRequest will not 
+
+        // convoluted client-side entity content. The byte expected by the HttpRequest will not
         // be written.
         final PipedOutputStream pipe = new PipedOutputStream();
         final PipedInputStream producer = new PipedInputStream(pipe);
         pipe.close();
-        
+
         // A POST request enclosing an entity with (supposedly) a content length of 1 byte.
         // the connection will be closed at the end of the request.
         HttpRequestExecutionHandler requestExecutionHandler = new HttpRequestExecutionHandler() {
@@ -354,9 +354,9 @@ public class TestThrottlingNHttpHandlers extends HttpCoreNIOTestBase {
 
             public void handleResponse(final HttpResponse response, final HttpContext context) {
             }
-            
+
         };
-        
+
         HttpProcessor serverHttpProc = new ImmutableHttpProcessor(new HttpResponseInterceptor[] {
                 new ResponseDate(),
                 new ResponseServer(),
@@ -375,7 +375,7 @@ public class TestThrottlingNHttpHandlers extends HttpCoreNIOTestBase {
                 new SimpleHttpRequestHandlerResolver(requestHandler));
         serviceHandler.setEventListener(
                 new SimpleEventListener());
-        
+
         HttpProcessor clientHttpProc = new ImmutableHttpProcessor(new HttpRequestInterceptor[] {
                 new RequestContent(),
                 new RequestTargetHost(),
@@ -392,16 +392,16 @@ public class TestThrottlingNHttpHandlers extends HttpCoreNIOTestBase {
 
         clientHandler.setEventListener(
                 new SimpleEventListener());
-        
+
         this.server.start(serviceHandler);
         this.client.start(clientHandler);
-        
+
         ListenerEndpoint endpoint = this.server.getListenerEndpoint();
         endpoint.waitFor();
         InetSocketAddress serverAddress = (InetSocketAddress) endpoint.getAddress();
-        
+
         assertEquals("Test server status", IOReactorStatus.ACTIVE, this.server.getStatus());
-        
+
         SessionRequest sessionRequest = this.client.openConnection(
                 new InetSocketAddress("localhost", serverAddress.getPort()),
                 null);
@@ -411,9 +411,9 @@ public class TestThrottlingNHttpHandlers extends HttpCoreNIOTestBase {
             throw sessionRequest.getException();
         }
         assertNotNull(sessionRequest.getSession());
-        
+
         assertEquals("Test client status", IOReactorStatus.ACTIVE, this.client.getStatus());
-        
+
         // wait for the client to invoke finalizeContext().
         synchronized (clientExpectations) {
             if (!clientExpectations.get(CLIENT_FINALIZED).booleanValue()) {
@@ -421,7 +421,7 @@ public class TestThrottlingNHttpHandlers extends HttpCoreNIOTestBase {
                 assertTrue(clientExpectations.get(CLIENT_FINALIZED).booleanValue());
             }
         }
-        
+
         // wait for server to finish the command within a reasonable amount of time.
         // the time constraint is not necessary, it only prevents the test from hanging.
         synchronized (serverExpectations) {
@@ -430,11 +430,11 @@ public class TestThrottlingNHttpHandlers extends HttpCoreNIOTestBase {
                 assertTrue(serverExpectations.get(COMMAND_FINISHED).booleanValue());
             }
         }
-        
+
         this.execService.shutdown();
         this.execService.awaitTermination(10, TimeUnit.SECONDS);
     }
-    
+
     /**
      * This test case executes a series of simple (non-pipelined) HTTP/1.0
      * POST requests over multiple persistent connections.
@@ -444,8 +444,8 @@ public class TestThrottlingNHttpHandlers extends HttpCoreNIOTestBase {
 
             @Override
             protected HttpRequest generateRequest(TestJob testjob) {
-                String s = testjob.getPattern() + "x" + testjob.getCount(); 
-                HttpEntityEnclosingRequest r = new BasicHttpEntityEnclosingRequest("POST", s, 
+                String s = testjob.getPattern() + "x" + testjob.getCount();
+                HttpEntityEnclosingRequest r = new BasicHttpEntityEnclosingRequest("POST", s,
                         HttpVersion.HTTP_1_0);
                 NStringEntity entity = null;
                 try {
@@ -455,7 +455,7 @@ public class TestThrottlingNHttpHandlers extends HttpCoreNIOTestBase {
                 r.setEntity(entity);
                 return r;
             }
-            
+
         };
         executeStandardTest(new TestRequestHandler(), requestExecutionHandler);
     }
@@ -469,7 +469,7 @@ public class TestThrottlingNHttpHandlers extends HttpCoreNIOTestBase {
 
             @Override
             protected HttpRequest generateRequest(TestJob testjob) {
-                String s = testjob.getPattern() + "x" + testjob.getCount(); 
+                String s = testjob.getPattern() + "x" + testjob.getCount();
                 HttpEntityEnclosingRequest r = new BasicHttpEntityEnclosingRequest("POST", s);
                 NStringEntity entity = null;
                 try {
@@ -480,7 +480,7 @@ public class TestThrottlingNHttpHandlers extends HttpCoreNIOTestBase {
                 r.getParams().setBooleanParameter(CoreProtocolPNames.USE_EXPECT_CONTINUE, true);
                 return r;
             }
-            
+
         };
         executeStandardTest(new TestRequestHandler(), requestExecutionHandler);
     }
@@ -491,14 +491,14 @@ public class TestThrottlingNHttpHandlers extends HttpCoreNIOTestBase {
      */
     public void testHttpPostsWithExpectationVerification() throws Exception {
         TestJob[] jobs = new TestJob[3];
-        jobs[0] = new TestJob("AAAAA", 10); 
-        jobs[1] = new TestJob("AAAAA", 10); 
-        jobs[2] = new TestJob("BBBBB", 20); 
+        jobs[0] = new TestJob("AAAAA", 10);
+        jobs[1] = new TestJob("AAAAA", 10);
+        jobs[2] = new TestJob("BBBBB", 20);
         Queue<TestJob> queue = new ConcurrentLinkedQueue<TestJob>();
         for (int i = 0; i < jobs.length; i++) {
-            queue.add(jobs[i]); 
+            queue.add(jobs[i]);
         }
-        
+
         HttpExpectationVerifier expectationVerifier = new HttpExpectationVerifier() {
 
             public void verify(
@@ -520,7 +520,7 @@ public class TestThrottlingNHttpHandlers extends HttpCoreNIOTestBase {
 
             @Override
             protected HttpRequest generateRequest(TestJob testjob) {
-                String s = testjob.getPattern() + "x" + testjob.getCount(); 
+                String s = testjob.getPattern() + "x" + testjob.getCount();
                 HttpEntityEnclosingRequest r = new BasicHttpEntityEnclosingRequest("POST", s);
                 NStringEntity entity = null;
                 try {
@@ -531,9 +531,9 @@ public class TestThrottlingNHttpHandlers extends HttpCoreNIOTestBase {
                 r.getParams().setBooleanParameter(CoreProtocolPNames.USE_EXPECT_CONTINUE, true);
                 return r;
             }
-            
+
         };
-        
+
         HttpProcessor serverHttpProc = new ImmutableHttpProcessor(new HttpResponseInterceptor[] {
                 new ResponseDate(),
                 new ResponseServer(),
@@ -554,7 +554,7 @@ public class TestThrottlingNHttpHandlers extends HttpCoreNIOTestBase {
                 expectationVerifier);
         serviceHandler.setEventListener(
                 new SimpleEventListener());
-        
+
         HttpProcessor clientHttpProc = new ImmutableHttpProcessor(new HttpRequestInterceptor[] {
                 new RequestContent(),
                 new RequestTargetHost(),
@@ -571,7 +571,7 @@ public class TestThrottlingNHttpHandlers extends HttpCoreNIOTestBase {
 
         clientHandler.setEventListener(
                 new SimpleEventListener());
-        
+
         this.server.start(serviceHandler);
         this.client.start(clientHandler);
 
@@ -580,7 +580,7 @@ public class TestThrottlingNHttpHandlers extends HttpCoreNIOTestBase {
         InetSocketAddress serverAddress = (InetSocketAddress) endpoint.getAddress();
 
         assertEquals("Test server status", IOReactorStatus.ACTIVE, this.server.getStatus());
-        
+
         SessionRequest sessionRequest = this.client.openConnection(
                 new InetSocketAddress("localhost", serverAddress.getPort()),
                 queue);
@@ -590,7 +590,7 @@ public class TestThrottlingNHttpHandlers extends HttpCoreNIOTestBase {
             throw sessionRequest.getException();
         }
         assertNotNull(sessionRequest.getSession());
-        
+
         assertEquals("Test client status", IOReactorStatus.ACTIVE, this.client.getStatus());
 
         for (int i = 0; i < 2; i++) {
@@ -606,7 +606,7 @@ public class TestThrottlingNHttpHandlers extends HttpCoreNIOTestBase {
         failedExpectation.waitFor();
         assertEquals(HttpStatus.SC_EXPECTATION_FAILED, failedExpectation.getStatusCode());
     }
-    
+
     /**
      * This test case executes a series of simple (non-pipelined) HEAD requests
      * over multiple connections.
@@ -616,23 +616,23 @@ public class TestThrottlingNHttpHandlers extends HttpCoreNIOTestBase {
         int reqNo = 20;
         TestJob[] jobs = new TestJob[connNo * reqNo];
         for (int i = 0; i < jobs.length; i++) {
-            jobs[i] = new TestJob(); 
+            jobs[i] = new TestJob();
         }
         Queue<TestJob> queue = new ConcurrentLinkedQueue<TestJob>();
         for (int i = 0; i < jobs.length; i++) {
-            queue.add(jobs[i]); 
+            queue.add(jobs[i]);
         }
 
         HttpRequestExecutionHandler requestExecutionHandler = new TestRequestExecutionHandler() {
 
             @Override
             protected HttpRequest generateRequest(TestJob testjob) {
-                String s = testjob.getPattern() + "x" + testjob.getCount(); 
+                String s = testjob.getPattern() + "x" + testjob.getCount();
                 return new BasicHttpRequest("HEAD", s);
             }
-            
+
         };
-        
+
         HttpProcessor serverHttpProc = new ImmutableHttpProcessor(new HttpResponseInterceptor[] {
                 new ResponseDate(),
                 new ResponseServer(),
@@ -667,7 +667,7 @@ public class TestThrottlingNHttpHandlers extends HttpCoreNIOTestBase {
                 this.client.getParams());
 
         clientHandler.setEventListener(new SimpleEventListener());
-        
+
         this.server.start(serviceHandler);
         this.client.start(clientHandler);
 
@@ -676,7 +676,7 @@ public class TestThrottlingNHttpHandlers extends HttpCoreNIOTestBase {
         InetSocketAddress serverAddress = (InetSocketAddress) endpoint.getAddress();
 
         assertEquals("Test server status", IOReactorStatus.ACTIVE, this.server.getStatus());
-        
+
         Queue<SessionRequest> connRequests = new LinkedList<SessionRequest>();
         for (int i = 0; i < connNo; i++) {
             SessionRequest sessionRequest = this.client.openConnection(
@@ -693,7 +693,7 @@ public class TestThrottlingNHttpHandlers extends HttpCoreNIOTestBase {
             }
             assertNotNull(sessionRequest.getSession());
         }
-        
+
         assertEquals("Test client status", IOReactorStatus.ACTIVE, this.client.getStatus());
 
         for (int i = 0; i < jobs.length; i++) {
@@ -730,7 +730,7 @@ public class TestThrottlingNHttpHandlers extends HttpCoreNIOTestBase {
 
             @Override
             protected HttpRequest generateRequest(TestJob testjob) {
-                String s = testjob.getPattern() + "x" + testjob.getCount(); 
+                String s = testjob.getPattern() + "x" + testjob.getCount();
                 HttpEntityEnclosingRequest r = new BasicHttpEntityEnclosingRequest("POST", s);
                 NStringEntity entity = null;
                 try {
@@ -741,17 +741,17 @@ public class TestThrottlingNHttpHandlers extends HttpCoreNIOTestBase {
                 r.setEntity(entity);
                 return r;
             }
-            
+
         };
         int connNo = 3;
         int reqNo = 20;
         TestJob[] jobs = new TestJob[connNo * reqNo];
         for (int i = 0; i < jobs.length; i++) {
-            jobs[i] = new TestJob(); 
+            jobs[i] = new TestJob();
         }
         Queue<TestJob> queue = new ConcurrentLinkedQueue<TestJob>();
         for (int i = 0; i < jobs.length; i++) {
-            queue.add(jobs[i]); 
+            queue.add(jobs[i]);
         }
 
         HttpProcessor serverHttpProc = new ImmutableHttpProcessor(new HttpResponseInterceptor[] {
@@ -772,7 +772,7 @@ public class TestThrottlingNHttpHandlers extends HttpCoreNIOTestBase {
                 new SimpleHttpRequestHandlerResolver(requestHandler));
         serviceHandler.setEventListener(
                 new SimpleEventListener());
-        
+
         HttpProcessor clientHttpProc = new ImmutableHttpProcessor(new HttpRequestInterceptor[] {
                 new RequestContent(),
                 new RequestTargetHost(),
@@ -789,7 +789,7 @@ public class TestThrottlingNHttpHandlers extends HttpCoreNIOTestBase {
 
         clientHandler.setEventListener(
                 new SimpleEventListener());
-        
+
         this.server.start(serviceHandler);
         this.client.start(clientHandler);
 
@@ -798,7 +798,7 @@ public class TestThrottlingNHttpHandlers extends HttpCoreNIOTestBase {
         InetSocketAddress serverAddress = (InetSocketAddress) endpoint.getAddress();
 
         assertEquals("Test server status", IOReactorStatus.ACTIVE, this.server.getStatus());
-        
+
         Queue<SessionRequest> connRequests = new LinkedList<SessionRequest>();
         for (int i = 0; i < connNo; i++) {
             SessionRequest sessionRequest = this.client.openConnection(
@@ -815,7 +815,7 @@ public class TestThrottlingNHttpHandlers extends HttpCoreNIOTestBase {
             }
             assertNotNull(sessionRequest.getSession());
         }
-        
+
         assertEquals("Test client status", IOReactorStatus.ACTIVE, this.client.getStatus());
 
         for (int i = 0; i < jobs.length; i++) {
@@ -844,12 +844,12 @@ public class TestThrottlingNHttpHandlers extends HttpCoreNIOTestBase {
                 if (queue == null) {
                     throw new IllegalStateException("Queue is null");
                 }
-                
+
                 TestJob testjob = queue.poll();
                 context.setAttribute("job", testjob);
-                
+
                 if (testjob != null) {
-                    String s = testjob.getPattern() + "x" + testjob.getCount(); 
+                    String s = testjob.getPattern() + "x" + testjob.getCount();
                     HttpEntityEnclosingRequest r = new BasicHttpEntityEnclosingRequest("POST", s);
                     StringEntity entity = null;
                     try {
@@ -872,13 +872,13 @@ public class TestThrottlingNHttpHandlers extends HttpCoreNIOTestBase {
 
                 int statusCode = response.getStatusLine().getStatusCode();
                 String content = null;
-                
+
                 HttpEntity entity = response.getEntity();
                 if (entity != null) {
                     try {
-                        // Simulate slow response handling in order to cause the 
-                        // internal content buffer to fill up, forcing the 
-                        // protocol handler to throttle input rate 
+                        // Simulate slow response handling in order to cause the
+                        // internal content buffer to fill up, forcing the
+                        // protocol handler to throttle input rate
                         ByteArrayOutputStream outstream = new ByteArrayOutputStream();
                         InputStream instream = entity.getContent();
                         byte[] tmp = new byte[2048];
@@ -887,7 +887,7 @@ public class TestThrottlingNHttpHandlers extends HttpCoreNIOTestBase {
                             Thread.sleep(1);
                             outstream.write(tmp, 0, l);
                         }
-                        content = new String(outstream.toByteArray(), 
+                        content = new String(outstream.toByteArray(),
                                 EntityUtils.getContentCharSet(entity));
                     } catch (InterruptedException ex) {
                         content = "Interrupted: " + ex.getMessage();
@@ -904,17 +904,17 @@ public class TestThrottlingNHttpHandlers extends HttpCoreNIOTestBase {
                     testjob.fail("Request failed");
                 }
             }
-            
+
         };
         int connNo = 3;
         int reqNo = 20;
         TestJob[] jobs = new TestJob[connNo * reqNo];
         for (int i = 0; i < jobs.length; i++) {
-            jobs[i] = new TestJob(10000); 
+            jobs[i] = new TestJob(10000);
         }
         Queue<TestJob> queue = new ConcurrentLinkedQueue<TestJob>();
         for (int i = 0; i < jobs.length; i++) {
-            queue.add(jobs[i]); 
+            queue.add(jobs[i]);
         }
 
         HttpProcessor serverHttpProc = new ImmutableHttpProcessor(new HttpResponseInterceptor[] {
@@ -935,7 +935,7 @@ public class TestThrottlingNHttpHandlers extends HttpCoreNIOTestBase {
                 new SimpleHttpRequestHandlerResolver(new TestRequestHandler()));
         serviceHandler.setEventListener(
                 new SimpleEventListener());
-        
+
         HttpProcessor clientHttpProc = new ImmutableHttpProcessor(new HttpRequestInterceptor[] {
                 new RequestContent(),
                 new RequestTargetHost(),
@@ -952,7 +952,7 @@ public class TestThrottlingNHttpHandlers extends HttpCoreNIOTestBase {
 
         clientHandler.setEventListener(
                 new SimpleEventListener());
-        
+
         this.server.start(serviceHandler);
         this.client.start(clientHandler);
 
@@ -961,7 +961,7 @@ public class TestThrottlingNHttpHandlers extends HttpCoreNIOTestBase {
         InetSocketAddress serverAddress = (InetSocketAddress) endpoint.getAddress();
 
         assertEquals("Test server status", IOReactorStatus.ACTIVE, this.server.getStatus());
-        
+
         Queue<SessionRequest> connRequests = new LinkedList<SessionRequest>();
         for (int i = 0; i < connNo; i++) {
             SessionRequest sessionRequest = this.client.openConnection(
@@ -978,7 +978,7 @@ public class TestThrottlingNHttpHandlers extends HttpCoreNIOTestBase {
             }
             assertNotNull(sessionRequest.getSession());
         }
-        
+
         assertEquals("Test client status", IOReactorStatus.ACTIVE, this.client.getStatus());
 
         for (int i = 0; i < jobs.length; i++) {
@@ -992,5 +992,5 @@ public class TestThrottlingNHttpHandlers extends HttpCoreNIOTestBase {
             }
         }
     }
-    
+
 }

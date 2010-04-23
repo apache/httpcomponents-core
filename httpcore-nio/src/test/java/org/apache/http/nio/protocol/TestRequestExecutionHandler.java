@@ -39,15 +39,15 @@ import org.apache.http.nio.util.HeapByteBufferAllocator;
 import org.apache.http.protocol.HttpContext;
 import org.apache.http.util.EntityUtils;
 
-abstract class TestRequestExecutionHandler 
+abstract class TestRequestExecutionHandler
     implements NHttpRequestExecutionHandler, HttpRequestExecutionHandler {
-    
+
     public void initalizeContext(final HttpContext context, final Object attachment) {
         context.setAttribute("queue", attachment);
     }
 
     protected abstract HttpRequest generateRequest(TestJob testjob);
-    
+
     public HttpRequest submitRequest(final HttpContext context) {
 
         @SuppressWarnings("unchecked")
@@ -55,10 +55,10 @@ abstract class TestRequestExecutionHandler
         if (queue == null) {
             throw new IllegalStateException("Queue is null");
         }
-        
+
         TestJob testjob = queue.poll();
         context.setAttribute("job", testjob);
-        
+
         if (testjob != null) {
             return generateRequest(testjob);
         } else {
@@ -81,7 +81,7 @@ abstract class TestRequestExecutionHandler
 
         int statusCode = response.getStatusLine().getStatusCode();
         String content = null;
-        
+
         HttpEntity entity = response.getEntity();
         if (entity != null) {
             try {
@@ -99,5 +99,5 @@ abstract class TestRequestExecutionHandler
             testjob.fail("Request failed");
         }
     }
-    
+
 }

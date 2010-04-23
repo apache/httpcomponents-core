@@ -34,29 +34,29 @@ import org.apache.http.nio.reactor.SessionInputBuffer;
 import org.apache.http.impl.io.HttpTransportMetricsImpl;
 
 /**
- * Abstract {@link ContentDecoder} that serves as a base for all content 
+ * Abstract {@link ContentDecoder} that serves as a base for all content
  * decoder implementations.
  *
  * @since 4.0
  */
 public abstract class AbstractContentDecoder implements ContentDecoder {
-    
+
     protected final ReadableByteChannel channel;
     protected final SessionInputBuffer buffer;
     protected final HttpTransportMetricsImpl metrics;
-    
+
     protected boolean completed;
-    
+
     /**
      * Creates an instance of this class.
-     * 
+     *
      * @param channel the source channel.
      * @param buffer the session input buffer that can be used to store
      *    session data for intermediate processing.
      * @param metrics Transport metrics of the underlying HTTP transport.
      */
     public AbstractContentDecoder(
-            final ReadableByteChannel channel, 
+            final ReadableByteChannel channel,
             final SessionInputBuffer buffer,
             final HttpTransportMetricsImpl metrics) {
         super();
@@ -65,10 +65,10 @@ public abstract class AbstractContentDecoder implements ContentDecoder {
         }
         if (buffer == null) {
             throw new IllegalArgumentException("Session input buffer may not be null");
-        }        
+        }
         if (metrics == null) {
             throw new IllegalArgumentException("Transport metrics may not be null");
-        }        
+        }
         this.buffer = buffer;
         this.channel = channel;
         this.metrics = metrics;
@@ -77,5 +77,5 @@ public abstract class AbstractContentDecoder implements ContentDecoder {
     public boolean isCompleted() {
         return this.completed;
     }
-    
+
 }

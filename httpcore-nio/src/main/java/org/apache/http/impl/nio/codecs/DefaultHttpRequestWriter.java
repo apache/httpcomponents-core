@@ -48,7 +48,7 @@ public class DefaultHttpRequestWriter extends AbstractMessageWriter<HttpRequest>
                              final HttpParams params) {
         super(buffer, formatter, params);
     }
-    
+
     @Override
     protected void writeHeadLine(final HttpRequest message) throws IOException {
         CharArrayBuffer buffer = lineFormatter.formatRequestLine(

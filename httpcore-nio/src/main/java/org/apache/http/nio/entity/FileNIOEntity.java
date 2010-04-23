@@ -36,12 +36,12 @@ import org.apache.http.HttpEntity;
 import org.apache.http.entity.FileEntity;
 
 /**
- * An entity whose content is retrieved from from a file. In addition to the standard 
- * {@link HttpEntity} interface this class also implements NIO specific 
+ * An entity whose content is retrieved from from a file. In addition to the standard
+ * {@link HttpEntity} interface this class also implements NIO specific
  * {@link HttpNIOEntity}.
  *
  * @deprecated Use {@link NFileEntity}
- * 
+ *
  * @since 4.0
  */
 @Deprecated

@@ -41,7 +41,7 @@ import org.apache.http.nio.protocol.AsyncNHttpServiceHandler;
 import org.apache.http.protocol.HTTP;
 
 /**
- * A simple, self contained, repeatable non-blocking entity that retrieves 
+ * A simple, self contained, repeatable non-blocking entity that retrieves
  * its content from a {@link String} object.
  *
  * @see AsyncNHttpServiceHandler

@@ -52,7 +52,7 @@ import org.apache.http.util.EncodingUtils;
 /**
  * Buffer tests.
  *
- * 
+ *
  * @version $Id:TestBuffers.java 503277 2007-02-03 18:22:45 +0000 (Sat, 03 Feb 2007) olegk $
  */
 public class TestBuffers extends TestCase {
@@ -66,23 +66,23 @@ public class TestBuffers extends TestCase {
 
     public void testInputBufferOperations() throws IOException {
         ReadableByteChannel channel = new ReadableByteChannelMockup(
-                new String[] {"stuff;", "more stuff"}, "US-ASCII"); 
-        
-        ContentDecoder decoder = new MockupDecoder(channel); 
-        
+                new String[] {"stuff;", "more stuff"}, "US-ASCII");
+
+        ContentDecoder decoder = new MockupDecoder(channel);
+
         SimpleInputBuffer buffer = new SimpleInputBuffer(4, new DirectByteBufferAllocator());
         int count = buffer.consumeContent(decoder);
         assertEquals(16, count);
         assertTrue(decoder.isCompleted());
-        
+
         byte[] b1 = new byte[5];
-        
+
         int len = buffer.read(b1);
         assertEquals("stuff", EncodingUtils.getAsciiString(b1, 0, len));
-        
+
         int c = buffer.read();
         assertEquals(';', c);
-        
+
         byte[] b2 = new byte[1024];
 
         len = buffer.read(b2);
@@ -92,7 +92,7 @@ public class TestBuffers extends TestCase {
         assertEquals(-1, buffer.read(b2));
         assertEquals(-1, buffer.read(b2, 0, b2.length));
         assertTrue(buffer.isEndOfStream());
-        
+
         buffer.reset();
         assertFalse(buffer.isEndOfStream());
     }
@@ -103,11 +103,11 @@ public class TestBuffers extends TestCase {
         HttpParams params = new BasicHttpParams();
         SessionOutputBuffer outbuf = new SessionOutputBufferImpl(1024, 128, params);
         HttpTransportMetricsImpl metrics = new HttpTransportMetricsImpl();
-        
+
         ContentEncoder encoder = new MockupEncoder(channel, outbuf, metrics);
-        
-        SimpleOutputBuffer buffer = new SimpleOutputBuffer(4, new DirectByteBufferAllocator()); 
-        
+
+        SimpleOutputBuffer buffer = new SimpleOutputBuffer(4, new DirectByteBufferAllocator());
+
         buffer.write(EncodingUtils.getAsciiBytes("stuff"));
         buffer.write(';');
         buffer.produceContent(encoder);
@@ -115,15 +115,15 @@ public class TestBuffers extends TestCase {
         buffer.write(EncodingUtils.getAsciiBytes("more "));
         buffer.write(EncodingUtils.getAsciiBytes("stuff"));
         buffer.produceContent(encoder);
-        
+
         byte[] content = outstream.toByteArray();
         assertEquals("stuff;more stuff", EncodingUtils.getAsciiString(content));
     }
 
     public void testBufferInfo() throws Exception {
         SimpleOutputBuffer buffer = new SimpleOutputBuffer(8, new DirectByteBufferAllocator());
-        BufferInfo bufferinfo = buffer; 
-        
+        BufferInfo bufferinfo = buffer;
+
         assertEquals(0, bufferinfo.length());
         assertEquals(8, bufferinfo.available());
         buffer.write(new byte[] {'1', '2', '3', '4'});
@@ -133,20 +133,20 @@ public class TestBuffers extends TestCase {
         assertEquals(12, bufferinfo.length());
         assertEquals(0, bufferinfo.available());
     }
-    
+
     public void testInputBufferNullInput() throws IOException {
         SimpleInputBuffer buffer = new SimpleInputBuffer(4, new DirectByteBufferAllocator());
         assertEquals(0, buffer.read(null));
         assertEquals(0, buffer.read(null, 0, 0));
     }
-    
+
     public void testOutputBufferNullInput() throws IOException {
         SimpleOutputBuffer buffer = new SimpleOutputBuffer(4, new DirectByteBufferAllocator());
         buffer.write(null);
         buffer.write(null, 0, 10);
         assertFalse(buffer.hasData());
     }
-    
+
     public void testDirectByteBufferAllocator() {
         DirectByteBufferAllocator allocator = new DirectByteBufferAllocator();
         ByteBuffer buffer = allocator.allocate(1);
@@ -155,13 +155,13 @@ public class TestBuffers extends TestCase {
         assertEquals(0, buffer.position());
         assertEquals(1, buffer.limit());
         assertEquals(1, buffer.capacity());
-        
+
         buffer = allocator.allocate(2048);
         assertTrue(buffer.isDirect());
         assertEquals(0, buffer.position());
         assertEquals(2048, buffer.limit());
         assertEquals(2048, buffer.capacity());
-        
+
         buffer = allocator.allocate(0);
         assertTrue(buffer.isDirect());
         assertEquals(0, buffer.position());
@@ -177,18 +177,18 @@ public class TestBuffers extends TestCase {
         assertEquals(0, buffer.position());
         assertEquals(1, buffer.limit());
         assertEquals(1, buffer.capacity());
-        
+
         buffer = allocator.allocate(2048);
         assertFalse(buffer.isDirect());
         assertEquals(0, buffer.position());
         assertEquals(2048, buffer.limit());
         assertEquals(2048, buffer.capacity());
-        
+
         buffer = allocator.allocate(0);
         assertFalse(buffer.isDirect());
         assertEquals(0, buffer.position());
         assertEquals(0, buffer.limit());
         assertEquals(0, buffer.capacity());
     }
-    
+
 }

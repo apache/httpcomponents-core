@@ -53,7 +53,7 @@ public class TestHttpSSLClient {
     private final SSLContext sslcontext;
     private final DefaultConnectingIOReactor ioReactor;
     private final HttpParams params;
-    
+
     private volatile IOReactorThread thread;
 
     public TestHttpSSLClient(final HttpParams params) throws Exception {
@@ -71,7 +71,7 @@ public class TestHttpSSLClient {
             return TrustManagerFactory.getInstance("SunX509");
         }
     }
-    
+
     protected SSLContext createSSLContext() throws Exception {
         ClassLoader cl = getClass().getClassLoader();
         URL url = cl.getResource("test.keystore");
@@ -79,59 +79,59 @@ public class TestHttpSSLClient {
         keystore.load(url.openStream(), "nopassword".toCharArray());
         TrustManagerFactory tmfactory = createTrustManagerFactory();
         tmfactory.init(keystore);
-        TrustManager[] trustmanagers = tmfactory.getTrustManagers(); 
+        TrustManager[] trustmanagers = tmfactory.getTrustManagers();
         SSLContext sslcontext = SSLContext.getInstance("TLS");
         sslcontext.init(null, trustmanagers, null);
         return sslcontext;
     }
-    
+
     public HttpParams getParams() {
         return this.params;
     }
-    
+
     public IOReactorStatus getStatus() {
         return this.ioReactor.getStatus();
     }
-    
+
     public List<ExceptionEvent> getAuditLog() {
         return this.ioReactor.getAuditLog();
     }
-    
+
     public void setExceptionHandler(final IOReactorExceptionHandler exceptionHandler) {
         this.ioReactor.setExceptionHandler(exceptionHandler);
     }
-    
+
     protected IOEventDispatch createIOEventDispatch(
-            final NHttpClientHandler clientHandler, 
+            final NHttpClientHandler clientHandler,
             final SSLContext sslcontext,
             final HttpParams params) {
         return new SSLClientIOEventDispatch(clientHandler, sslcontext, params);
     }
-    
+
     private void execute(final NHttpClientHandler clientHandler) throws IOException {
         IOEventDispatch ioEventDispatch = createIOEventDispatch(
-                clientHandler, 
+                clientHandler,
                 this.sslcontext,
                 this.params);
-        
+
         this.ioReactor.execute(ioEventDispatch);
     }
-    
+
     public SessionRequest openConnection(final InetSocketAddress address, final Object attachment) {
         return this.ioReactor.connect(address, null, attachment, null);
     }
- 
+
     public void start(final NHttpClientHandler clientHandler) {
         this.thread = new IOReactorThread(clientHandler);
         this.thread.start();
     }
-    
+
     public void join(long timeout) throws InterruptedException {
         if (this.thread != null) {
             this.thread.join(timeout);
         }
     }
-    
+
     public Exception getException() {
         if (this.thread != null) {
             return this.thread.getException();
@@ -139,7 +139,7 @@ public class TestHttpSSLClient {
             return null;
         }
     }
-    
+
     public void shutdown() throws IOException {
         this.ioReactor.shutdown();
         try {
@@ -149,18 +149,18 @@ public class TestHttpSSLClient {
         } catch (InterruptedException ignore) {
         }
     }
-    
+
     private class IOReactorThread extends Thread {
 
         private final NHttpClientHandler clientHandler;
-        
+
         private volatile Exception ex;
-        
+
         public IOReactorThread(final NHttpClientHandler clientHandler) {
             super();
             this.clientHandler = clientHandler;
         }
-        
+
         @Override
         public void run() {
             try {
@@ -169,11 +169,11 @@ public class TestHttpSSLClient {
                 this.ex = ex;
             }
         }
-        
+
         public Exception getException() {
             return this.ex;
         }
 
-    }    
-    
+    }
+
 }

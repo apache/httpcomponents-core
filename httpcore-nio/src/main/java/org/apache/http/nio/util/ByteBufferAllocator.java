@@ -35,13 +35,13 @@ import java.nio.ByteBuffer;
  * @since 4.0
  */
 public interface ByteBufferAllocator {
-    
+
     /**
      * Allocates {@link ByteBuffer} of the given size.
-     *  
+     *
      * @param size the size of the buffer.
      * @return byte buffer.
      */
     ByteBuffer allocate(int size);
-    
+
 }

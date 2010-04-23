@@ -31,7 +31,7 @@ import org.apache.http.params.HttpParams;
 
 /**
  * Utility class for accessing I/O reactor parameters in {@link HttpParams}.
- * 
+ *
  * @since 4.0
  *
  * @see NIOReactorPNames
@@ -45,7 +45,7 @@ public final class NIOReactorParams implements NIOReactorPNames {
     /**
      * Obtains the value of {@link NIOReactorPNames#CONTENT_BUFFER_SIZE} parameter.
      * If not set, defaults to <code>4096</code>.
-     * 
+     *
      * @param params HTTP parameters.
      * @return content buffer size.
      */
@@ -55,9 +55,9 @@ public final class NIOReactorParams implements NIOReactorPNames {
         }
         return params.getIntParameter(CONTENT_BUFFER_SIZE, 4096);
     }
-    
+
     /**
-     * Sets value of the {@link NIOReactorPNames#CONTENT_BUFFER_SIZE} parameter. 
+     * Sets value of the {@link NIOReactorPNames#CONTENT_BUFFER_SIZE} parameter.
      *
      * @param params HTTP parameters.
      * @param size content buffer size.
@@ -72,7 +72,7 @@ public final class NIOReactorParams implements NIOReactorPNames {
     /**
      * Obtains the value of {@link NIOReactorPNames#SELECT_INTERVAL} parameter.
      * If not set, defaults to <code>1000</code>.
-     * 
+     *
      * @param params HTTP parameters.
      * @return I/O select interval in milliseconds.
      */
@@ -82,9 +82,9 @@ public final class NIOReactorParams implements NIOReactorPNames {
         }
         return params.getLongParameter(SELECT_INTERVAL, 1000);
     }
-    
+
     /**
-     * Sets value of the {@link NIOReactorPNames#SELECT_INTERVAL} parameter. 
+     * Sets value of the {@link NIOReactorPNames#SELECT_INTERVAL} parameter.
      *
      * @param params HTTP parameters.
      * @param ms I/O select interval in milliseconds.
@@ -99,7 +99,7 @@ public final class NIOReactorParams implements NIOReactorPNames {
     /**
      * Obtains the value of {@link NIOReactorPNames#GRACE_PERIOD} parameter.
      * If not set, defaults to <code>500</code>.
-     * 
+     *
      * @param params HTTP parameters.
      * @return shutdown grace period in milliseconds.
      */
@@ -109,9 +109,9 @@ public final class NIOReactorParams implements NIOReactorPNames {
         }
         return params.getLongParameter(GRACE_PERIOD, 500);
     }
-    
+
     /**
-     * Sets value of the {@link NIOReactorPNames#GRACE_PERIOD} parameter. 
+     * Sets value of the {@link NIOReactorPNames#GRACE_PERIOD} parameter.
      *
      * @param params HTTP parameters.
      * @param ms shutdown grace period in milliseconds.
@@ -126,10 +126,10 @@ public final class NIOReactorParams implements NIOReactorPNames {
     /**
      * Obtains the value of {@link NIOReactorPNames#INTEREST_OPS_QUEUEING} parameter.
      * If not set, defaults to <code>false</code>.
-     * 
+     *
      * @param params HTTP parameters.
      * @return interest ops queuing flag.
-     * 
+     *
      * @since 4.1
      */
     public static boolean getInterestOpsQueueing(final HttpParams params) {
@@ -140,11 +140,11 @@ public final class NIOReactorParams implements NIOReactorPNames {
     }
 
     /**
-     * Sets value of the {@link NIOReactorPNames#INTEREST_OPS_QUEUEING} parameter. 
+     * Sets value of the {@link NIOReactorPNames#INTEREST_OPS_QUEUEING} parameter.
      *
      * @param params HTTP parameters.
      * @param interestOpsQueueing interest ops queuing.
-     * 
+     *
      * @since 4.1
      */
     public static void setInterestOpsQueueing(

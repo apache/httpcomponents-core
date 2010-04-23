@@ -34,12 +34,12 @@ import org.apache.http.HttpEntity;
 
 /**
  * @deprecated Use {@link ProducingNHttpEntity}
- * 
+ *
  * @since 4.0
  */
 @Deprecated
 public interface HttpNIOEntity extends HttpEntity  {
 
     ReadableByteChannel getChannel() throws IOException;
-    
+
 }

@@ -46,30 +46,30 @@ import org.apache.http.nio.reactor.SessionBufferStatus;
  * @since 4.0
  */
 public class IOSessionImpl implements IOSession {
-    
+
     private volatile int status;
-    
+
     private final SelectionKey key;
     private final ByteChannel channel;
     private final Map<String, Object> attributes;
     private final InterestOpsCallback interestOpsCallback;
     private final SessionClosedCallback sessionClosedCallback;
-    
+
     private SessionBufferStatus bufferStatus;
     private int socketTimeout;
     private volatile int currentEventMask;
-    
+
     /**
      * Creates new instance of IOSessionImpl.
-     * 
+     *
      * @param key the selection key.
      * @param interestOpsCallback interestOps callback.
      * @param sessionClosedCallback session closed callback.
-     * 
+     *
      * @since 4.1
      */
     public IOSessionImpl(
-            final SelectionKey key, 
+            final SelectionKey key,
             final InterestOpsCallback interestOpsCallback,
             final SessionClosedCallback sessionClosedCallback) {
         super();
@@ -85,23 +85,23 @@ public class IOSessionImpl implements IOSession {
         this.socketTimeout = 0;
         this.status = ACTIVE;
     }
-    
+
     /**
      * Creates new instance of IOSessionImpl.
-     * 
+     *
      * @param key the selection key.
      * @param sessionClosedCallback session closed callback.
      */
     public IOSessionImpl(
-            final SelectionKey key, 
+            final SelectionKey key,
             final SessionClosedCallback sessionClosedCallback) {
         this(key, null, sessionClosedCallback);
     }
-    
+
     public ByteChannel channel() {
         return this.channel;
     }
-    
+
     public SocketAddress getLocalAddress() {
         Channel channel = this.key.channel();
         if (channel instanceof SocketChannel) {
@@ -123,7 +123,7 @@ public class IOSessionImpl implements IOSession {
     public int getEventMask() {
         return this.interestOpsCallback != null ? this.currentEventMask : this.key.interestOps();
     }
-    
+
     public void setEventMask(int ops) {
         if (this.status == CLOSED) {
             return;
@@ -190,11 +190,11 @@ public class IOSessionImpl implements IOSession {
     public int getSocketTimeout() {
         return this.socketTimeout;
     }
-    
+
     public void setSocketTimeout(int timeout) {
         this.socketTimeout = timeout;
     }
-    
+
     public void close() {
         if (this.status == CLOSED) {
             return;
@@ -214,7 +214,7 @@ public class IOSessionImpl implements IOSession {
             this.key.selector().wakeup();
         }
     }
-    
+
     public int getStatus() {
         return this.status;
     }
@@ -222,17 +222,17 @@ public class IOSessionImpl implements IOSession {
     public boolean isClosed() {
         return this.status == CLOSED || !this.key.isValid();
     }
-    
+
     public void shutdown() {
         // For this type of session, a close() does exactly
         // what we need and nothing more.
         close();
     }
-    
+
     public boolean hasBufferedInput() {
         return this.bufferStatus != null && this.bufferStatus.hasBufferedInput();
     }
-    
+
     public boolean hasBufferedOutput() {
         return this.bufferStatus != null && this.bufferStatus.hasBufferedOutput();
     }
@@ -240,7 +240,7 @@ public class IOSessionImpl implements IOSession {
     public void setBufferStatus(final SessionBufferStatus bufferStatus) {
         this.bufferStatus = bufferStatus;
     }
-    
+
     public Object getAttribute(final String name) {
         return this.attributes.get(name);
     }
@@ -269,14 +269,14 @@ public class IOSessionImpl implements IOSession {
         }
         buffer.append(']');
     }
-    
+
     @Override
     public String toString() {
         StringBuffer buffer = new StringBuffer();
         buffer.append("[");
         if (this.key.isValid()) {
             buffer.append("interested ops: ");
-            formatOps(buffer, this.interestOpsCallback != null ? 
+            formatOps(buffer, this.interestOpsCallback != null ?
                     this.currentEventMask : this.key.interestOps());
             buffer.append("; ready ops: ");
             formatOps(buffer, this.key.readyOps());

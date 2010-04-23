@@ -39,7 +39,7 @@ import org.apache.http.nio.IOControl;
 import org.apache.http.nio.protocol.AsyncNHttpServiceHandler;
 
 /**
- * A simple self contained, repeatable non-blocking entity that retrieves 
+ * A simple self contained, repeatable non-blocking entity that retrieves
  * its content from a byte array.
  *
  * @see AsyncNHttpServiceHandler

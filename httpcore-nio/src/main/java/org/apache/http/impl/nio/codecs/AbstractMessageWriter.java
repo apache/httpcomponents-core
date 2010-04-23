@@ -41,20 +41,20 @@ import org.apache.http.params.HttpParams;
 import org.apache.http.util.CharArrayBuffer;
 
 /**
- * Abstract {@link NHttpMessageWriter} that serves as a base for all message 
+ * Abstract {@link NHttpMessageWriter} that serves as a base for all message
  * writer implementations.
  *
  * @since 4.0
  */
 public abstract class AbstractMessageWriter<T extends HttpMessage> implements NHttpMessageWriter<T> {
-    
-    protected final SessionOutputBuffer sessionBuffer;    
+
+    protected final SessionOutputBuffer sessionBuffer;
     protected final CharArrayBuffer lineBuf;
     protected final LineFormatter lineFormatter;
 
     /**
      * Creates an instance of this class.
-     * 
+     *
      * @param buffer the session output buffer.
      * @param formatter the line formatter.
      * @param params HTTP parameters.
@@ -71,13 +71,13 @@ public abstract class AbstractMessageWriter<T extends HttpMessage> implements NH
         this.lineFormatter = (formatter != null) ?
             formatter : BasicLineFormatter.DEFAULT;
     }
-    
+
     public void reset() {
     }
-    
+
     /**
      * Writes out the first line of {@link HttpMessage}.
-     * 
+     *
      * @param message HTTP message.
      * @throws HttpException in case of HTTP protocol violation
      */
@@ -96,5 +96,5 @@ public abstract class AbstractMessageWriter<T extends HttpMessage> implements NH
         this.lineBuf.clear();
         this.sessionBuffer.writeLine(this.lineBuf);
     }
-    
+
 }

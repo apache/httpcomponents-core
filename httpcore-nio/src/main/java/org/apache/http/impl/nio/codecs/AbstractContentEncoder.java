@@ -35,7 +35,7 @@ import org.apache.http.nio.ContentEncoder;
 import org.apache.http.nio.reactor.SessionOutputBuffer;
 
 /**
- * Abstract {@link ContentEncoder} that serves as a base for all content 
+ * Abstract {@link ContentEncoder} that serves as a base for all content
  * encoder implementations.
  *
  * @since 4.0
@@ -45,19 +45,19 @@ public abstract class AbstractContentEncoder implements ContentEncoder {
     protected final WritableByteChannel channel;
     protected final SessionOutputBuffer buffer;
     protected final HttpTransportMetricsImpl metrics;
-    
+
     protected boolean completed;
-    
+
     /**
      * Creates an instance of this class.
-     * 
+     *
      * @param channel the destination channel.
      * @param buffer the session output buffer that can be used to store
      *    session data for intermediate processing.
      * @param metrics Transport metrics of the underlying HTTP transport.
      */
     public AbstractContentEncoder(
-            final WritableByteChannel channel, 
+            final WritableByteChannel channel,
             final SessionOutputBuffer buffer,
             final HttpTransportMetricsImpl metrics) {
         super();
@@ -66,10 +66,10 @@ public abstract class AbstractContentEncoder implements ContentEncoder {
         }
         if (buffer == null) {
             throw new IllegalArgumentException("Session input buffer may not be null");
-        }        
+        }
         if (metrics == null) {
             throw new IllegalArgumentException("Transport metrics may not be null");
-        }        
+        }
         this.buffer = buffer;
         this.channel = channel;
         this.metrics = metrics;
@@ -78,15 +78,15 @@ public abstract class AbstractContentEncoder implements ContentEncoder {
     public boolean isCompleted() {
         return this.completed;
     }
-    
+
     public void complete() throws IOException {
         this.completed = true;
     }
-    
+
     protected void assertNotCompleted() {
         if (this.completed) {
             throw new IllegalStateException("Decoding process already completed");
         }
     }
-    
+
 }

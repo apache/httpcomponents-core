@@ -31,16 +31,16 @@ import java.io.IOException;
 import org.apache.http.nio.ContentEncoder;
 
 /**
- * Basic implementation of the {@link ContentOutputBuffer} interface. 
+ * Basic implementation of the {@link ContentOutputBuffer} interface.
  * <p>
- * This class is not thread safe. 
+ * This class is not thread safe.
  *
  * @since 4.0
  */
 public class SimpleOutputBuffer extends ExpandableBuffer implements ContentOutputBuffer {
-    
+
     private boolean endOfStream;
-    
+
     public SimpleOutputBuffer(int buffersize, final ByteBufferAllocator allocator) {
         super(buffersize, allocator);
         this.endOfStream = false;
@@ -54,7 +54,7 @@ public class SimpleOutputBuffer extends ExpandableBuffer implements ContentOutpu
         }
         return bytesWritten;
     }
-    
+
     public void write(final byte[] b, int off, int len) throws IOException {
         if (b == null) {
             return;
@@ -85,21 +85,21 @@ public class SimpleOutputBuffer extends ExpandableBuffer implements ContentOutpu
         ensureCapacity(this.capacity() + 1);
         this.buffer.put((byte)b);
     }
-    
+
     public void reset() {
         super.clear();
         this.endOfStream = false;
     }
-    
+
     public void flush() {
     }
 
     public void writeCompleted() {
         this.endOfStream = true;
     }
-    
+
     public void shutdown() {
         this.endOfStream = true;
     }
-    
+
 }

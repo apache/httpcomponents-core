@@ -34,7 +34,7 @@ import org.apache.http.nio.ContentDecoder;
 import org.apache.http.nio.IOControl;
 
 /**
- * A non-blocking {@link HttpEntity} that allows content to be streamed from a 
+ * A non-blocking {@link HttpEntity} that allows content to be streamed from a
  * {@link ContentDecoder}.
  *
  * @since 4.0
@@ -43,10 +43,10 @@ public interface ConsumingNHttpEntity extends HttpEntity {
 
     /**
      * Notification that content is available to be read from the decoder.
-     * {@link IOControl} instance passed as a parameter to the method can be 
-     * used to suspend input events if the entity is temporarily unable to 
-     * allocate more storage to accommodate all incoming content. 
-     * 
+     * {@link IOControl} instance passed as a parameter to the method can be
+     * used to suspend input events if the entity is temporarily unable to
+     * allocate more storage to accommodate all incoming content.
+     *
      * @param decoder content decoder.
      * @param ioctrl I/O control of the underlying connection.
      */

@@ -42,8 +42,8 @@ import org.apache.http.util.CharArrayBuffer;
 /**
  * Default {@link NHttpMessageParser} implementation for {@link HttpRequest}s.
  * <p>
- * The following parameters can be used to customize the behavior of this 
- * class: 
+ * The following parameters can be used to customize the behavior of this
+ * class:
  * <ul>
  *  <li>{@link org.apache.http.params.CoreConnectionPNames#MAX_HEADER_COUNT}</li>
  *  <li>{@link org.apache.http.params.CoreConnectionPNames#MAX_LINE_LENGTH}</li>
@@ -52,11 +52,11 @@ import org.apache.http.util.CharArrayBuffer;
  * @since 4.1
  */
 public class DefaultHttpRequestParser extends AbstractMessageParser<HttpRequest> {
-    
+
     private final HttpRequestFactory requestFactory;
-    
+
     public DefaultHttpRequestParser(
-            final SessionInputBuffer buffer, 
+            final SessionInputBuffer buffer,
             final LineParser parser,
             final HttpRequestFactory requestFactory,
             final HttpParams params) {
@@ -68,7 +68,7 @@ public class DefaultHttpRequestParser extends AbstractMessageParser<HttpRequest>
     }
 
     @Override
-    protected HttpRequest createMessage(final CharArrayBuffer buffer) 
+    protected HttpRequest createMessage(final CharArrayBuffer buffer)
             throws HttpException, ParseException {
         ParserCursor cursor = new ParserCursor(0, buffer.length());
         RequestLine requestLine = lineParser.parseRequestLine(buffer, cursor);

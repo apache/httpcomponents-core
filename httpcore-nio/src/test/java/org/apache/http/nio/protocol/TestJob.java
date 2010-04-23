@@ -33,16 +33,16 @@ public class TestJob {
 
     private static final Random RND = new Random();
     private static final String TEST_CHARS = "0123456789ABCDEF";
-    
+
     private final int count;
     private final String pattern;
-    
+
     private volatile boolean completed;
     private volatile int statusCode;
     private volatile String result;
     private volatile String failureMessage;
     private volatile Exception ex;
-    
+
     public TestJob(int maxCount) {
         super();
         this.count = RND.nextInt(maxCount - 1) + 1;
@@ -79,7 +79,7 @@ public class TestJob {
         }
         return buffer.toString();
     }
-    
+
     public int getStatusCode() {
         return this.statusCode;
     }
@@ -87,19 +87,19 @@ public class TestJob {
     public String getResult() {
         return this.result;
     }
-    
+
     public boolean isSuccessful() {
         return this.result != null;
     }
-    
+
     public String getFailureMessage() {
         return this.failureMessage;
     }
-    
+
     public Exception getException() {
         return this.ex;
     }
-    
+
     public boolean isCompleted() {
         return this.completed;
     }
@@ -113,7 +113,7 @@ public class TestJob {
         this.result = result;
         notifyAll();
     }
-    
+
     public synchronized void fail(final String message, final Exception ex) {
         if (this.completed) {
             return;
@@ -124,15 +124,15 @@ public class TestJob {
         this.ex = ex;
         notifyAll();
     }
-    
+
     public void fail(final String message) {
         fail(message, null);
     }
-    
+
     public synchronized void waitFor() throws InterruptedException {
         while (!this.completed) {
             wait();
         }
     }
-    
+
 }

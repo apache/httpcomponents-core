@@ -35,11 +35,11 @@ import org.apache.http.HttpResponse;
 /**
  * Callback interface to submit HTTP responses asynchronously.
  * <p/>
- * The {@link NHttpRequestHandler#handle(org.apache.http.HttpRequest, HttpResponse, NHttpResponseTrigger, org.apache.http.protocol.HttpContext)} 
- * method does not have to submit a response immediately. It can defer 
- * transmission of the HTTP response back to the client without blocking the 
- * I/O thread by delegating the process of handling the HTTP request to a worker 
- * thread. The worker thread in its turn can use the instance of 
+ * The {@link NHttpRequestHandler#handle(org.apache.http.HttpRequest, HttpResponse, NHttpResponseTrigger, org.apache.http.protocol.HttpContext)}
+ * method does not have to submit a response immediately. It can defer
+ * transmission of the HTTP response back to the client without blocking the
+ * I/O thread by delegating the process of handling the HTTP request to a worker
+ * thread. The worker thread in its turn can use the instance of
  * {@link NHttpResponseTrigger} passed as a parameter to submit a response as at
  * a later point of time once the response becomes available.
  *
@@ -48,7 +48,7 @@ import org.apache.http.HttpResponse;
 public interface NHttpResponseTrigger {
 
     /**
-     * Submits a response to be sent back to the client as a result of 
+     * Submits a response to be sent back to the client as a result of
      * processing of the request.
      */
     void submitResponse(HttpResponse response);

@@ -41,9 +41,9 @@ import org.apache.http.protocol.UriPatternMatcher;
  *   <li><code>&lt;uri&gt;*</code></li>
  * </ul>
  * <br>
- * This class can be used to resolve an instance of 
- * {@link NHttpRequestHandler} matching a particular request URI. Usually the 
- * resolved request handler will be used to process the request with the 
+ * This class can be used to resolve an instance of
+ * {@link NHttpRequestHandler} matching a particular request URI. Usually the
+ * resolved request handler will be used to process the request with the
  * specified request URI.
  *
  * @since 4.0
@@ -59,7 +59,7 @@ public class NHttpRequestHandlerRegistry implements NHttpRequestHandlerResolver 
     /**
      * Registers the given {@link NHttpRequestHandler} as a handler for URIs
      * matching the given pattern.
-     * 
+     *
      * @param pattern the pattern to register the handler for.
      * @param handler the handler.
      */
@@ -69,7 +69,7 @@ public class NHttpRequestHandlerRegistry implements NHttpRequestHandlerResolver 
 
     /**
      * Removes registered handler, if exists, for the given pattern.
-     *  
+     *
      * @param pattern the pattern to unregister the handler for.
      */
     public void unregister(final String pattern) {

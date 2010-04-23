@@ -34,14 +34,14 @@ import org.apache.http.io.BufferInfo;
 import org.apache.http.nio.util.ContentInputBuffer;
 
 /**
- * {@link InputStream} adaptor for {@link ContentInputBuffer}. 
+ * {@link InputStream} adaptor for {@link ContentInputBuffer}.
  *
  * @since 4.0
  */
 public class ContentInputStream extends InputStream {
 
     private final ContentInputBuffer buffer;
-    
+
     public ContentInputStream(final ContentInputBuffer buffer) {
         super();
         if (buffer == null) {
@@ -49,7 +49,7 @@ public class ContentInputStream extends InputStream {
         }
         this.buffer = buffer;
     }
-    
+
     @Override
     public int available() throws IOException {
         if (this.buffer instanceof BufferInfo) {
@@ -63,7 +63,7 @@ public class ContentInputStream extends InputStream {
     public int read(final byte[] b, int off, int len) throws IOException {
         return this.buffer.read(b, off, len);
     }
-    
+
     @Override
     public int read(final byte[] b) throws IOException {
         if (b == null) {
@@ -71,7 +71,7 @@ public class ContentInputStream extends InputStream {
         }
         return this.buffer.read(b, 0, b.length);
     }
-    
+
     @Override
     public int read() throws IOException {
         return this.buffer.read();
@@ -85,5 +85,5 @@ public class ContentInputStream extends InputStream {
         }
         super.close();
     }
-    
+
 }

@@ -32,7 +32,7 @@ import java.nio.ByteBuffer;
 
 /**
  * Abstract HTTP content encoder. HTTP content encoders can be used
- * to apply the required coding transformation and write entity 
+ * to apply the required coding transformation and write entity
  * content to the underlying channel in small chunks.
  *
  * @since 4.0
@@ -41,7 +41,7 @@ public interface ContentEncoder {
 
     /**
      * Writes a portion of entity content to the underlying channel.
-     * 
+     *
      * @param src The buffer from which content is to be retrieved
      * @return The number of bytes read, possibly zero
      * @throws IOException if I/O error occurs while writing content
@@ -50,18 +50,18 @@ public interface ContentEncoder {
 
     /**
      * Terminates the content stream.
-     * 
+     *
      * @throws IOException if I/O error occurs while writing content
      */
     void complete() throws IOException;
-    
+
     /**
      * Returns <code>true</code> if the entity has been transferred in its
      * entirety.
-     * 
-     * @return <code>true</code> if all the content has been produced, 
+     *
+     * @return <code>true</code> if all the content has been produced,
      * <code>false</code> otherwise.
      */
     boolean isCompleted();
-    
+
 }

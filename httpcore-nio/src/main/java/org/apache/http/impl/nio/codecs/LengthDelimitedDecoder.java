@@ -37,27 +37,27 @@ import org.apache.http.nio.FileContentDecoder;
 import org.apache.http.nio.reactor.SessionInputBuffer;
 
 /**
- * Content decoder that cuts off after a defined number of bytes. This class 
- * is used to receive content of HTTP messages where the end of the content 
- * entity is determined by the value of the <code>Content-Length header</code>. 
+ * Content decoder that cuts off after a defined number of bytes. This class
+ * is used to receive content of HTTP messages where the end of the content
+ * entity is determined by the value of the <code>Content-Length header</code>.
  * Entities transferred using this stream can be maximum {@link Long#MAX_VALUE}
- * long. 
+ * long.
  * <p>
- * This decoder is optimized to transfer data directly from the underlying 
- * I/O session's channel to a {@link FileChannel}, whenever 
- * possible avoiding intermediate buffering in the session buffer. 
- * 
+ * This decoder is optimized to transfer data directly from the underlying
+ * I/O session's channel to a {@link FileChannel}, whenever
+ * possible avoiding intermediate buffering in the session buffer.
+ *
  * @since 4.0
  */
-public class LengthDelimitedDecoder extends AbstractContentDecoder 
+public class LengthDelimitedDecoder extends AbstractContentDecoder
         implements FileContentDecoder {
-    
+
     private final long contentLength;
-    
+
     private long len;
 
     public LengthDelimitedDecoder(
-            final ReadableByteChannel channel, 
+            final ReadableByteChannel channel,
             final SessionInputBuffer buffer,
             final HttpTransportMetricsImpl metrics,
             long contentLength) {
@@ -76,7 +76,7 @@ public class LengthDelimitedDecoder extends AbstractContentDecoder
             return -1;
         }
         int lenRemaining = (int) (this.contentLength - this.len);
-        
+
         int bytesRead;
         if (this.buffer.hasData()) {
             int maxLen = Math.min(lenRemaining, this.buffer.length());
@@ -109,21 +109,21 @@ public class LengthDelimitedDecoder extends AbstractContentDecoder
             return bytesRead;
         }
     }
-    
+
     public long transfer(
-            final FileChannel dst, 
-            long position, 
+            final FileChannel dst,
+            long position,
             long count) throws IOException {
-        
+
         if (dst == null) {
             return 0;
         }
         if (this.completed) {
             return -1;
         }
-        
+
         int lenRemaining = (int) (this.contentLength - this.len);
-        
+
         long bytesRead;
         if (this.buffer.hasData()) {
             int maxLen = Math.min(lenRemaining, this.buffer.length());
@@ -135,10 +135,10 @@ public class LengthDelimitedDecoder extends AbstractContentDecoder
             }
             if (this.channel.isOpen()) {
                 if(dst.size() < position)
-                    throw new IOException("FileChannel.size() [" + dst.size() + 
-                                          "] < position [" + position + 
+                    throw new IOException("FileChannel.size() [" + dst.size() +
+                                          "] < position [" + position +
                                           "].  Please grow the file before writing.");
-                
+
                 bytesRead = dst.transferFrom(this.channel, position, count);
             } else {
                 bytesRead = -1;

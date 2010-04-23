@@ -50,24 +50,24 @@ import org.apache.http.params.HttpParams;
 
 /**
  * Trivial test server based on HttpCore NIO SSL
- * 
+ *
  */
 public class TestHttpSSLServer {
 
     private final SSLContext sslcontext;
     private final DefaultListeningIOReactor ioReactor;
     private final HttpParams params;
-    
+
     private volatile IOReactorThread thread;
     private ListenerEndpoint endpoint;
-    
+
     public TestHttpSSLServer(final HttpParams params) throws Exception {
         super();
         this.params = params;
         this.sslcontext = createSSLContext();
         this.ioReactor = new DefaultListeningIOReactor(2, this.params);
     }
-    
+
     private KeyManagerFactory createKeyManagerFactory() throws NoSuchAlgorithmException {
         String algo = KeyManagerFactory.getDefaultAlgorithm();
         try {
@@ -76,7 +76,7 @@ public class TestHttpSSLServer {
             return KeyManagerFactory.getInstance("SunX509");
         }
     }
-    
+
     protected SSLContext createSSLContext() throws Exception {
         ClassLoader cl = getClass().getClassLoader();
         URL url = cl.getResource("test.keystore");
@@ -84,41 +84,41 @@ public class TestHttpSSLServer {
         keystore.load(url.openStream(), "nopassword".toCharArray());
         KeyManagerFactory kmfactory = createKeyManagerFactory();
         kmfactory.init(keystore, "nopassword".toCharArray());
-        KeyManager[] keymanagers = kmfactory.getKeyManagers(); 
+        KeyManager[] keymanagers = kmfactory.getKeyManagers();
         SSLContext sslcontext = SSLContext.getInstance("TLS");
         sslcontext.init(keymanagers, null, null);
         return sslcontext;
     }
-    
+
     public HttpParams getParams() {
         return this.params;
     }
-    
+
     public IOReactorStatus getStatus() {
         return this.ioReactor.getStatus();
     }
-    
+
     public List<ExceptionEvent> getAuditLog() {
         return this.ioReactor.getAuditLog();
     }
-    
+
     public void setExceptionHandler(final IOReactorExceptionHandler exceptionHandler) {
         this.ioReactor.setExceptionHandler(exceptionHandler);
     }
 
     protected IOEventDispatch createIOEventDispatch(
-            final NHttpServiceHandler serviceHandler, 
+            final NHttpServiceHandler serviceHandler,
             final SSLContext sslcontext,
             final HttpParams params) {
         return new SSLServerIOEventDispatch(serviceHandler, sslcontext, params);
     }
-    
+
     private void execute(final NHttpServiceHandler serviceHandler) throws IOException {
         IOEventDispatch ioEventDispatch = createIOEventDispatch(
-                serviceHandler, 
+                serviceHandler,
                 this.sslcontext,
                 this.params);
-        
+
         this.ioReactor.execute(ioEventDispatch);
     }
 
@@ -131,13 +131,13 @@ public class TestHttpSSLServer {
         this.thread = new IOReactorThread(serviceHandler);
         this.thread.start();
     }
-    
+
     public void join(long timeout) throws InterruptedException {
         if (this.thread != null) {
             this.thread.join(timeout);
         }
     }
-    
+
     public Exception getException() {
         if (this.thread != null) {
             return this.thread.getException();
@@ -145,7 +145,7 @@ public class TestHttpSSLServer {
             return null;
         }
     }
-    
+
     public void shutdown() throws IOException {
         this.ioReactor.shutdown();
         try {
@@ -155,18 +155,18 @@ public class TestHttpSSLServer {
         } catch (InterruptedException ignore) {
         }
     }
-    
+
     private class IOReactorThread extends Thread {
 
         private final NHttpServiceHandler serviceHandler;
-        
+
         private volatile Exception ex;
-        
+
         public IOReactorThread(final NHttpServiceHandler serviceHandler) {
             super();
             this.serviceHandler = serviceHandler;
         }
-        
+
         @Override
         public void run() {
             try {
@@ -175,11 +175,11 @@ public class TestHttpSSLServer {
                 this.ex = ex;
             }
         }
-        
+
         public Exception getException() {
             return this.ex;
         }
 
-    }    
-    
+    }
+
 }
