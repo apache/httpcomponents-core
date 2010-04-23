@@ -35,23 +35,23 @@ import java.util.Map;
  * <p>
  * Please note methods of this class are not synchronized and therefore may
  * be threading unsafe.
- * 
+ *
  * @since 4.0
  */
 public class BasicHttpContext implements HttpContext {
-    
+
     private final HttpContext parentContext;
     private Map map = null;
-    
+
     public BasicHttpContext() {
         this(null);
     }
-    
+
     public BasicHttpContext(final HttpContext parentContext) {
         super();
         this.parentContext = parentContext;
     }
-    
+
     public Object getAttribute(final String id) {
         if (id == null) {
             throw new IllegalArgumentException("Id may not be null");
@@ -75,7 +75,7 @@ public class BasicHttpContext implements HttpContext {
         }
         this.map.put(id, obj);
     }
-    
+
     public Object removeAttribute(final String id) {
         if (id == null) {
             throw new IllegalArgumentException("Id may not be null");

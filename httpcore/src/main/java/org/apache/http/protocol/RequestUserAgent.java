@@ -35,15 +35,15 @@ import org.apache.http.HttpRequestInterceptor;
 import org.apache.http.params.HttpProtocolParams;
 
 /**
- * RequestUserAgent is responsible for adding <code>User-Agent</code> header. 
- * This interceptor is recommended for client side protocol processors. 
+ * RequestUserAgent is responsible for adding <code>User-Agent</code> header.
+ * This interceptor is recommended for client side protocol processors.
  * <p>
- * The following parameters can be used to customize the behavior of this 
- * class: 
+ * The following parameters can be used to customize the behavior of this
+ * class:
  * <ul>
  *  <li>{@link org.apache.http.params.CoreProtocolPNames#USER_AGENT}</li>
  * </ul>
- * 
+ *
  * @since 4.0
  */
 public class RequestUserAgent implements HttpRequestInterceptor {
@@ -51,8 +51,8 @@ public class RequestUserAgent implements HttpRequestInterceptor {
     public RequestUserAgent() {
         super();
     }
-    
-    public void process(final HttpRequest request, final HttpContext context) 
+
+    public void process(final HttpRequest request, final HttpContext context)
         throws HttpException, IOException {
         if (request == null) {
             throw new IllegalArgumentException("HTTP request may not be null");
@@ -64,5 +64,5 @@ public class RequestUserAgent implements HttpRequestInterceptor {
             }
         }
     }
-    
+
 }

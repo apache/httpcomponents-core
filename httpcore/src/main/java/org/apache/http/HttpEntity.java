@@ -59,7 +59,7 @@ import java.io.OutputStream;
  * and self-contained is of little importance. In that case, it is suggested
  * to consider non-repeatable entities as streamed, and those that are
  * repeatable (without a huge effort) as self-contained.
- * 
+ *
  * @since 4.0
  */
 public interface HttpEntity {
@@ -121,14 +121,14 @@ public interface HttpEntity {
     Header getContentEncoding();
 
     /**
-     * Creates a new InputStream object of the entity. It is an interface 
-     * violation to return the same {@link InputStream} object more than 
+     * Creates a new InputStream object of the entity. It is an interface
+     * violation to return the same {@link InputStream} object more than
      * once. Entities that are not {@link #isRepeatable repeatable}
      * should throw an exception if this method is called multiple times.
      * <p>
-     * IMPORTANT: Please note all entity implementations must ensure that 
-     * all allocated resources are properly deallocated after 
-     * the {@link InputStream#close()} method is invoked.  
+     * IMPORTANT: Please note all entity implementations must ensure that
+     * all allocated resources are properly deallocated after
+     * the {@link InputStream#close()} method is invoked.
      *
      * @return a new input stream that returns the entity data.
      *
@@ -140,27 +140,27 @@ public interface HttpEntity {
     InputStream getContent() throws IOException, IllegalStateException;
 
     /**
-     * Writes the entity content out to the output stream. 
+     * Writes the entity content out to the output stream.
      * <p>
      * <p>
-     * IMPORTANT: Please note all entity implementations must ensure that 
-     * all allocated resources are properly deallocated when this method 
-     * returns.  
-     * 
+     * IMPORTANT: Please note all entity implementations must ensure that
+     * all allocated resources are properly deallocated when this method
+     * returns.
+     *
      * @param outstream the output stream to write entity content to
-     * 
+     *
      * @throws IOException if an I/O error occurs
      */
     void writeTo(OutputStream outstream) throws IOException;
 
     /**
      * Tells whether this entity depends on an underlying stream.
-     * Streamed entities that read data directly from the socket should 
-     * return <code>true</code>. Self-contained entities should return 
-     * <code>false</code>. Wrapping entities should delegate this call 
+     * Streamed entities that read data directly from the socket should
+     * return <code>true</code>. Self-contained entities should return
+     * <code>false</code>. Wrapping entities should delegate this call
      * to the wrapped entity.
      *
-     * @return  <code>true</code> if the entity content is streamed, 
+     * @return  <code>true</code> if the entity content is streamed,
      *          <code>false</code> otherwise
      */
     boolean isStreaming(); // don't expect an exception here
@@ -168,9 +168,9 @@ public interface HttpEntity {
     /**
      * This method is called to indicate that the content of this entity
      * is no longer required. All entity implementations are expected to
-     * release all allocated resources as a result of this method 
-     * invocation. Content streaming entities are also expected to 
-     * dispose of the remaining content, if any. Wrapping entities should 
+     * release all allocated resources as a result of this method
+     * invocation. Content streaming entities are also expected to
+     * dispose of the remaining content, if any. Wrapping entities should
      * delegate this call to the wrapped entity.
      * <br/>
      * This method is of particular importance for entities being
@@ -180,7 +180,7 @@ public interface HttpEntity {
      *
      * @throws IOException if an I/O error occurs.
      *          This indicates that connection keep-alive is not possible.
-     * 
+     *
      * @deprecated see {@link #getContent()} and {@link #writeTo(OutputStream)}
      */
     void consumeContent() throws IOException;

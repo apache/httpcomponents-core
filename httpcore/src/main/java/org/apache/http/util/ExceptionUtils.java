@@ -30,8 +30,8 @@ import java.lang.reflect.Method;
 
 /**
  * The home for utility methods that handle various exception-related tasks.
- * 
- * 
+ *
+ *
  * @since 4.0
  */
 public final class ExceptionUtils {
@@ -44,10 +44,10 @@ public final class ExceptionUtils {
      * {@link Throwable#initCause(Throwable) initCause} method of {@link Throwable},
      * or <code>null</code> if the method
      * does not exist.
-     * 
+     *
      * @return A <code>Method<code> for <code>Throwable.initCause</code>, or
      * <code>null</code> if unavailable.
-     */ 
+     */
     static private Method getInitCauseMethod() {
         try {
             Class[] paramsClasses = new Class[] { Throwable.class };
@@ -56,10 +56,10 @@ public final class ExceptionUtils {
             return null;
         }
     }
-    
-    /** 
+
+    /**
      * If we're running on JDK 1.4 or later, initialize the cause for the given throwable.
-     * 
+     *
      * @param  throwable The throwable.
      * @param  cause     The cause of the throwable.
      */
@@ -75,5 +75,5 @@ public final class ExceptionUtils {
 
     private ExceptionUtils() {
     }
-    
+
 }

@@ -36,8 +36,8 @@ import org.apache.http.util.LangUtils;
 /**
  * Holds all of the variables needed to describe an HTTP connection to a host.
  * This includes remote host name, port and scheme.
- * 
- * 
+ *
+ *
  * @since 4.0
  */
 //@Immutable
@@ -47,7 +47,7 @@ public final class HttpHost implements Cloneable, Serializable {
 
     /** The default scheme is "http". */
     public static final String DEFAULT_SCHEME_NAME = "http";
-    
+
     /** The host to use. */
     protected final String hostname;
 
@@ -65,7 +65,7 @@ public final class HttpHost implements Cloneable, Serializable {
     /**
      * Creates a new {@link HttpHost HttpHost}, specifying all values.
      * Constructor for HttpHost.
-     *   
+     *
      * @param hostname  the hostname (IP or DNS name)
      * @param port      the port number.
      *                  <code>-1</code> indicates the scheme default port.
@@ -90,7 +90,7 @@ public final class HttpHost implements Cloneable, Serializable {
 
     /**
      * Creates a new {@link HttpHost HttpHost}, with default scheme.
-     *   
+     *
      * @param hostname  the hostname (IP or DNS name)
      * @param port      the port number.
      *                  <code>-1</code> indicates the scheme default port.
@@ -98,19 +98,19 @@ public final class HttpHost implements Cloneable, Serializable {
     public HttpHost(final String hostname, int port) {
         this(hostname, port, null);
     }
-    
+
     /**
      * Creates a new {@link HttpHost HttpHost}, with default scheme and port.
-     *   
+     *
      * @param hostname  the hostname (IP or DNS name)
      */
     public HttpHost(final String hostname) {
         this(hostname, -1, null);
     }
-    
+
     /**
      * Copy constructor for {@link HttpHost HttpHost}.
-     * 
+     *
      * @param httphost the HTTP host to copy details from
      */
     public HttpHost (final HttpHost httphost) {
@@ -119,7 +119,7 @@ public final class HttpHost implements Cloneable, Serializable {
 
     /**
      * Returns the host name.
-     * 
+     *
      * @return the host name (IP or DNS name)
      */
     public String getHostName() {
@@ -128,7 +128,7 @@ public final class HttpHost implements Cloneable, Serializable {
 
     /**
      * Returns the port.
-     * 
+     *
      * @return the host port, or <code>-1</code> if not set
      */
     public int getPort() {
@@ -146,11 +146,11 @@ public final class HttpHost implements Cloneable, Serializable {
 
     /**
      * Return the host URI, as a string.
-     * 
+     *
      * @return the host URI
      */
     public String toURI() {
-        CharArrayBuffer buffer = new CharArrayBuffer(32);        
+        CharArrayBuffer buffer = new CharArrayBuffer(32);
         buffer.append(this.schemeName);
         buffer.append("://");
         buffer.append(this.hostname);
@@ -183,15 +183,15 @@ public final class HttpHost implements Cloneable, Serializable {
 
     public String toString() {
         return toURI();
-    }    
-    
+    }
+
 
     public boolean equals(final Object obj) {
         if (obj == null) return false;
         if (this == obj) return true;
         if (obj instanceof HttpHost) {
             HttpHost that = (HttpHost) obj;
-            return this.lcHostname.equals(that.lcHostname) 
+            return this.lcHostname.equals(that.lcHostname)
                 && this.port == that.port
                 && this.schemeName.equals(that.schemeName);
         } else {
@@ -213,5 +213,5 @@ public final class HttpHost implements Cloneable, Serializable {
     public Object clone() throws CloneNotSupportedException {
         return super.clone();
     }
-    
+
 }

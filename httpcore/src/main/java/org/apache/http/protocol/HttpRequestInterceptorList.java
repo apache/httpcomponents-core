@@ -35,7 +35,7 @@ import org.apache.http.HttpRequestInterceptor;
  * Provides access to an ordered list of request interceptors.
  * Lists are expected to be built upfront and used read-only afterwards
  * for {@link HttpProcessor processing}.
- * 
+ *
  * @since 4.0
  */
 public interface HttpRequestInterceptorList {
@@ -54,7 +54,7 @@ public interface HttpRequestInterceptorList {
      * @param index     the index to insert the interceptor at
      */
     void addRequestInterceptor(HttpRequestInterceptor interceptor, int index);
-    
+
     /**
      * Obtains the current size of this list.
      *
@@ -84,7 +84,7 @@ public interface HttpRequestInterceptorList {
      * @param clazz  the class of the instances to be removed.
      */
     void removeRequestInterceptorByClass(Class clazz);
-    
+
     /**
      * Sets the request interceptors in this list.
      * This list will be cleared and re-initialized to contain

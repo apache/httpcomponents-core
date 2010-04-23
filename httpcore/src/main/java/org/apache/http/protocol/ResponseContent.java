@@ -39,13 +39,13 @@ import org.apache.http.ProtocolVersion;
 import org.apache.http.ProtocolException;
 
 /**
- * ResponseContent is the most important interceptor for outgoing responses. 
- * It is responsible for delimiting content length by adding 
- * <code>Content-Length</code> or <code>Transfer-Content</code> headers based 
- * on the properties of the enclosed entity and the protocol version. 
- * This interceptor is required for correct functioning of server side protocol 
+ * ResponseContent is the most important interceptor for outgoing responses.
+ * It is responsible for delimiting content length by adding
+ * <code>Content-Length</code> or <code>Transfer-Content</code> headers based
+ * on the properties of the enclosed entity and the protocol version.
+ * This interceptor is required for correct functioning of server side protocol
  * processors.
- * 
+ *
  * @since 4.0
  */
 public class ResponseContent implements HttpResponseInterceptor {
@@ -53,8 +53,8 @@ public class ResponseContent implements HttpResponseInterceptor {
     public ResponseContent() {
         super();
     }
-    
-    public void process(final HttpResponse response, final HttpContext context) 
+
+    public void process(final HttpResponse response, final HttpContext context)
             throws HttpException, IOException {
         if (response == null) {
             throw new IllegalArgumentException("HTTP request may not be null");
@@ -77,21 +77,21 @@ public class ResponseContent implements HttpResponseInterceptor {
             // Specify a content type if known
             if (entity.getContentType() != null && !response.containsHeader(
                     HTTP.CONTENT_TYPE )) {
-                response.addHeader(entity.getContentType()); 
+                response.addHeader(entity.getContentType());
             }
             // Specify a content encoding if known
             if (entity.getContentEncoding() != null && !response.containsHeader(
                     HTTP.CONTENT_ENCODING)) {
-                response.addHeader(entity.getContentEncoding()); 
+                response.addHeader(entity.getContentEncoding());
             }
         } else {
             int status = response.getStatusLine().getStatusCode();
-            if (status != HttpStatus.SC_NO_CONTENT 
+            if (status != HttpStatus.SC_NO_CONTENT
                     && status != HttpStatus.SC_NOT_MODIFIED
                     && status != HttpStatus.SC_RESET_CONTENT) {
                 response.addHeader(HTTP.CONTENT_LEN, "0");
             }
         }
     }
-    
+
 }

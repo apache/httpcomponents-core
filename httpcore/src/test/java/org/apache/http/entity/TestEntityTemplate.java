@@ -52,9 +52,9 @@ public class TestEntityTemplate extends TestCase {
             public void writeTo(final OutputStream outstream) throws IOException {
                 outstream.write('a');
             }
-          
+
         });
-        
+
         assertEquals(-1, httpentity.getContentLength());
         assertTrue(httpentity.isRepeatable());
         assertFalse(httpentity.isStreaming());
@@ -75,15 +75,15 @@ public class TestEntityTemplate extends TestCase {
             public void writeTo(final OutputStream outstream) throws IOException {
                 outstream.write('a');
             }
-          
+
         });
-        
+
         ByteArrayOutputStream out = new ByteArrayOutputStream();
         httpentity.writeTo(out);
         byte[] bytes2 = out.toByteArray();
         assertNotNull(bytes2);
         assertEquals(1, bytes2.length);
-        
+
         try {
             httpentity.writeTo(null);
             fail("IllegalArgumentException should have been thrown");
@@ -91,14 +91,14 @@ public class TestEntityTemplate extends TestCase {
             // expected
         }
     }
-    
+
     public void testgetContent() throws Exception {
         HttpEntity httpentity = new EntityTemplate(new ContentProducer() {
 
             public void writeTo(final OutputStream outstream) throws IOException {
                 outstream.write('a');
             }
-          
+
         });
         try {
             httpentity.getContent();
@@ -107,5 +107,5 @@ public class TestEntityTemplate extends TestCase {
             // expected
         }
     }
-        
+
 }

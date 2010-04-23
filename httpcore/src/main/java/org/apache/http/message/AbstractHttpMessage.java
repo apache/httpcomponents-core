@@ -37,15 +37,15 @@ import org.apache.http.params.BasicHttpParams;
 
 /**
  * Basic implementation of {@link HttpMessage}.
- * 
+ *
  * @since 4.0
  */
 public abstract class AbstractHttpMessage implements HttpMessage {
-    
+
     protected HeaderGroup headergroup;
-    
+
     protected HttpParams params;
-    
+
     protected AbstractHttpMessage(final HttpParams params) {
         super();
         this.headergroup = new HeaderGroup();
@@ -60,7 +60,7 @@ public abstract class AbstractHttpMessage implements HttpMessage {
     public boolean containsHeader(String name) {
         return this.headergroup.containsHeader(name);
     }
-    
+
     // non-javadoc, see interface HttpMessage
     public Header[] getHeaders(final String name) {
         return this.headergroup.getHeaders(name);
@@ -80,7 +80,7 @@ public abstract class AbstractHttpMessage implements HttpMessage {
     public Header[] getAllHeaders() {
         return this.headergroup.getAllHeaders();
     }
-    
+
     // non-javadoc, see interface HttpMessage
     public void addHeader(final Header header) {
         this.headergroup.addHeader(header);
@@ -116,7 +116,7 @@ public abstract class AbstractHttpMessage implements HttpMessage {
     public void removeHeader(final Header header) {
         this.headergroup.removeHeader(header);
     }
-    
+
     // non-javadoc, see interface HttpMessage
     public void removeHeaders(final String name) {
         if (name == null) {
@@ -129,7 +129,7 @@ public abstract class AbstractHttpMessage implements HttpMessage {
             }
         }
     }
-    
+
     // non-javadoc, see interface HttpMessage
     public HeaderIterator headerIterator() {
         return this.headergroup.iterator();
@@ -139,7 +139,7 @@ public abstract class AbstractHttpMessage implements HttpMessage {
     public HeaderIterator headerIterator(String name) {
         return this.headergroup.iterator(name);
     }
-    
+
     // non-javadoc, see interface HttpMessage
     public HttpParams getParams() {
         if (this.params == null) {
@@ -147,7 +147,7 @@ public abstract class AbstractHttpMessage implements HttpMessage {
         }
         return this.params;
     }
-    
+
     // non-javadoc, see interface HttpMessage
     public void setParams(final HttpParams params) {
         if (params == null) {

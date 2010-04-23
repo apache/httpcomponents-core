@@ -48,11 +48,11 @@ public class TestRequestLine extends TestCase {
 
     public void testConstructor() {
         RequestLine requestline = new BasicRequestLine("GET", "/stuff", HttpVersion.HTTP_1_1);
-        assertEquals("GET", requestline.getMethod()); 
-        assertEquals("/stuff", requestline.getUri()); 
-        assertEquals(HttpVersion.HTTP_1_1, requestline.getProtocolVersion()); 
+        assertEquals("GET", requestline.getMethod());
+        assertEquals("/stuff", requestline.getUri());
+        assertEquals(HttpVersion.HTTP_1_1, requestline.getProtocolVersion());
     }
-        
+
     public void testConstructorInvalidInput() {
         try {
             new BasicRequestLine(null, "/stuff", HttpVersion.HTTP_1_1);
@@ -67,7 +67,7 @@ public class TestRequestLine extends TestCase {
             fail("IllegalArgumentException should have been thrown");
         } catch (IllegalArgumentException e) { /* expected */ }
     }
-    
+
     public void testCloning() throws Exception {
         BasicRequestLine orig = new BasicRequestLine("GET", "/stuff", HttpVersion.HTTP_1_1);
         BasicRequestLine clone = (BasicRequestLine) orig.clone();
@@ -75,5 +75,5 @@ public class TestRequestLine extends TestCase {
         assertEquals(orig.getUri(), clone.getUri());
         assertEquals(orig.getProtocolVersion(), clone.getProtocolVersion());
     }
-    
+
 }

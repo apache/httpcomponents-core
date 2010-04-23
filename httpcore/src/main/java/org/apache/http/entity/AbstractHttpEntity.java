@@ -39,7 +39,7 @@ import org.apache.http.protocol.HTTP;
  * Abstract base class for entities.
  * Provides the commonly used attributes for streamed and self-contained
  * implementations of {@link HttpEntity HttpEntity}.
- * 
+ *
  * @since 4.0
  */
 public abstract class AbstractHttpEntity implements HttpEntity {
@@ -69,7 +69,7 @@ public abstract class AbstractHttpEntity implements HttpEntity {
         return this.contentType;
     }
 
-    
+
     /**
      * Obtains the Content-Encoding header.
      * The default implementation returns the value of the
@@ -92,7 +92,7 @@ public abstract class AbstractHttpEntity implements HttpEntity {
         return this.chunked;
     }
 
-    
+
     /**
      * Specifies the Content-Type header.
      * The default implementation sets the value of the
@@ -120,7 +120,7 @@ public abstract class AbstractHttpEntity implements HttpEntity {
         }
         setContentType(h);
     }
-    
+
 
     /**
      * Specifies the Content-Encoding header.
@@ -165,10 +165,10 @@ public abstract class AbstractHttpEntity implements HttpEntity {
 
     /**
      * Does not consume anything.
-     * 
+     *
      * @deprecated see {@link #getContent()} and {@link #writeTo(OutputStream)}
      */
     public void consumeContent() throws IOException, UnsupportedOperationException{
     }
-    
+
 }

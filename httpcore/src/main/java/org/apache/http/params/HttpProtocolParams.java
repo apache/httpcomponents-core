@@ -33,13 +33,13 @@ import org.apache.http.protocol.HTTP;
 
 /**
  * Utility class for accessing protocol parameters in {@link HttpParams}.
- * 
+ *
  * @since 4.0
  *
  * @see CoreProtocolPNames
  */
 public final class HttpProtocolParams implements CoreProtocolPNames {
-    
+
     private HttpProtocolParams() {
         super();
     }
@@ -47,7 +47,7 @@ public final class HttpProtocolParams implements CoreProtocolPNames {
     /**
      * Obtains value of the {@link CoreProtocolPNames#HTTP_ELEMENT_CHARSET} parameter.
      * If not set, defaults to <code>US-ASCII</code>.
-     *  
+     *
      * @param params HTTP parameters.
      * @return HTTP element charset.
      */
@@ -62,10 +62,10 @@ public final class HttpProtocolParams implements CoreProtocolPNames {
         }
         return charset;
     }
-    
+
     /**
      * Sets value of the {@link CoreProtocolPNames#HTTP_ELEMENT_CHARSET} parameter.
-     *  
+     *
      * @param params HTTP parameters.
      * @param charset HTTP element charset.
      */
@@ -79,7 +79,7 @@ public final class HttpProtocolParams implements CoreProtocolPNames {
     /**
      * Obtains value of the {@link CoreProtocolPNames#HTTP_CONTENT_CHARSET} parameter.
      * If not set, defaults to <code>ISO-8859-1</code>.
-     *  
+     *
      * @param params HTTP parameters.
      * @return HTTP content charset.
      */
@@ -94,10 +94,10 @@ public final class HttpProtocolParams implements CoreProtocolPNames {
         }
         return charset;
     }
-    
+
     /**
      * Sets value of the {@link CoreProtocolPNames#HTTP_CONTENT_CHARSET} parameter.
-     *  
+     *
      * @param params HTTP parameters.
      * @param charset HTTP content charset.
      */
@@ -111,11 +111,11 @@ public final class HttpProtocolParams implements CoreProtocolPNames {
     /**
      * Obtains value of the {@link CoreProtocolPNames#PROTOCOL_VERSION} parameter.
      * If not set, defaults to {@link HttpVersion#HTTP_1_1}.
-     *  
+     *
      * @param params HTTP parameters.
      * @return HTTP protocol version.
      */
-    public static ProtocolVersion getVersion(final HttpParams params) { 
+    public static ProtocolVersion getVersion(final HttpParams params) {
         if (params == null) {
             throw new IllegalArgumentException("HTTP parameters may not be null");
         }
@@ -126,10 +126,10 @@ public final class HttpProtocolParams implements CoreProtocolPNames {
         }
         return (ProtocolVersion)param;
     }
-    
+
     /**
      * Sets value of the {@link CoreProtocolPNames#PROTOCOL_VERSION} parameter.
-     *  
+     *
      * @param params HTTP parameters.
      * @param version HTTP protocol version.
      */
@@ -143,20 +143,20 @@ public final class HttpProtocolParams implements CoreProtocolPNames {
     /**
      * Obtains value of the {@link CoreProtocolPNames#USER_AGENT} parameter.
      * If not set, returns <code>null</code>.
-     *  
+     *
      * @param params HTTP parameters.
      * @return User agent string.
      */
-    public static String getUserAgent(final HttpParams params) { 
+    public static String getUserAgent(final HttpParams params) {
         if (params == null) {
             throw new IllegalArgumentException("HTTP parameters may not be null");
         }
         return (String) params.getParameter(CoreProtocolPNames.USER_AGENT);
     }
-    
+
     /**
      * Sets value of the {@link CoreProtocolPNames#USER_AGENT} parameter.
-     *  
+     *
      * @param params HTTP parameters.
      * @param useragent User agent string.
      */
@@ -170,7 +170,7 @@ public final class HttpProtocolParams implements CoreProtocolPNames {
     /**
      * Obtains value of the {@link CoreProtocolPNames#USE_EXPECT_CONTINUE} parameter.
      * If not set, returns <code>false</code>.
-     *  
+     *
      * @param params HTTP parameters.
      * @return User agent string.
      */
@@ -181,10 +181,10 @@ public final class HttpProtocolParams implements CoreProtocolPNames {
         return params.getBooleanParameter
             (CoreProtocolPNames.USE_EXPECT_CONTINUE, false);
     }
-    
+
     /**
      * Sets value of the {@link CoreProtocolPNames#USE_EXPECT_CONTINUE} parameter.
-     *  
+     *
      * @param params HTTP parameters.
      * @param b expect-continue flag.
      */

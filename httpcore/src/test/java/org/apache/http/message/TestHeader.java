@@ -44,16 +44,16 @@ public class TestHeader extends TestCase {
 
     public void testBasicConstructor() {
         Header header = new BasicHeader("name", "value");
-        assertEquals("name", header.getName()); 
-        assertEquals("value", header.getValue()); 
+        assertEquals("name", header.getName());
+        assertEquals("value", header.getValue());
     }
-    
+
     public void testBasicConstructorNullValue() {
         Header header = new BasicHeader("name", null);
-        assertEquals("name", header.getName()); 
-        assertEquals(null, header.getValue()); 
+        assertEquals("name", header.getName());
+        assertEquals(null, header.getValue());
     }
-    
+
     public void testInvalidName() {
         try {
             new BasicHeader(null, null);
@@ -62,31 +62,31 @@ public class TestHeader extends TestCase {
             //expected
         }
     }
-    
+
     public void testToString() {
         Header header1 = new BasicHeader("name1", "value1");
         assertEquals("name1: value1", header1.toString());
         Header header2 = new BasicHeader("name2", null);
         assertEquals("name2: ", header2.toString());
     }
-    
+
     public void testHeaderElements() {
         Header header = new BasicHeader("name", "element1 = value1, element2; param1 = value1, element3");
-        HeaderElement[] elements = header.getElements(); 
-        assertNotNull(elements); 
-        assertEquals(3, elements.length); 
-        assertEquals("element1", elements[0].getName()); 
-        assertEquals("value1", elements[0].getValue()); 
-        assertEquals("element2", elements[1].getName()); 
-        assertEquals(null, elements[1].getValue()); 
-        assertEquals("element3", elements[2].getName()); 
-        assertEquals(null, elements[2].getValue()); 
-        assertEquals(1, elements[1].getParameters().length); 
-        
+        HeaderElement[] elements = header.getElements();
+        assertNotNull(elements);
+        assertEquals(3, elements.length);
+        assertEquals("element1", elements[0].getName());
+        assertEquals("value1", elements[0].getValue());
+        assertEquals("element2", elements[1].getName());
+        assertEquals(null, elements[1].getValue());
+        assertEquals("element3", elements[2].getName());
+        assertEquals(null, elements[2].getValue());
+        assertEquals(1, elements[1].getParameters().length);
+
         header = new BasicHeader("name", null);
         elements = header.getElements();
-        assertNotNull(elements); 
-        assertEquals(0, elements.length); 
+        assertNotNull(elements);
+        assertEquals(0, elements.length);
     }
 
     public void testCloning() throws Exception {
@@ -95,6 +95,6 @@ public class TestHeader extends TestCase {
         assertEquals(orig.getName(), clone.getName());
         assertEquals(orig.getValue(), clone.getValue());
     }
-    
+
 }
 

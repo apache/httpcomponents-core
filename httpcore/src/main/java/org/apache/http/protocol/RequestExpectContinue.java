@@ -39,16 +39,16 @@ import org.apache.http.ProtocolVersion;
 import org.apache.http.params.HttpProtocolParams;
 
 /**
- * RequestExpectContinue is responsible for enabling the 'expect-continue' 
- * handshake by adding <code>Expect</code> header. This interceptor is 
- * recommended for client side protocol processors. 
+ * RequestExpectContinue is responsible for enabling the 'expect-continue'
+ * handshake by adding <code>Expect</code> header. This interceptor is
+ * recommended for client side protocol processors.
  * <p>
- * The following parameters can be used to customize the behavior of this 
- * class: 
+ * The following parameters can be used to customize the behavior of this
+ * class:
  * <ul>
  *  <li>{@link org.apache.http.params.CoreProtocolPNames#USE_EXPECT_CONTINUE}</li>
  * </ul>
- * 
+ *
  * @since 4.0
  */
 public class RequestExpectContinue implements HttpRequestInterceptor {
@@ -56,8 +56,8 @@ public class RequestExpectContinue implements HttpRequestInterceptor {
     public RequestExpectContinue() {
         super();
     }
-    
-    public void process(final HttpRequest request, final HttpContext context) 
+
+    public void process(final HttpRequest request, final HttpContext context)
             throws HttpException, IOException {
         if (request == null) {
             throw new IllegalArgumentException("HTTP request may not be null");
@@ -65,14 +65,14 @@ public class RequestExpectContinue implements HttpRequestInterceptor {
         if (request instanceof HttpEntityEnclosingRequest) {
             HttpEntity entity = ((HttpEntityEnclosingRequest)request).getEntity();
             // Do not send the expect header if request body is known to be empty
-            if (entity != null && entity.getContentLength() != 0) { 
+            if (entity != null && entity.getContentLength() != 0) {
                 ProtocolVersion ver = request.getRequestLine().getProtocolVersion();
-                if (HttpProtocolParams.useExpectContinue(request.getParams()) 
+                if (HttpProtocolParams.useExpectContinue(request.getParams())
                         && !ver.lessEquals(HttpVersion.HTTP_1_0)) {
                     request.addHeader(HTTP.EXPECT_DIRECTIVE, HTTP.EXPECT_CONTINUE);
                 }
             }
         }
     }
-    
+
 }

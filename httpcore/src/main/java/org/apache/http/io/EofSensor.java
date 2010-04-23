@@ -29,11 +29,11 @@ package org.apache.http.io;
 
 /**
  * EOF sensor.
- * 
+ *
  * @since 4.0
  */
 public interface EofSensor {
-    
+
     boolean isEof();
-    
+
 }

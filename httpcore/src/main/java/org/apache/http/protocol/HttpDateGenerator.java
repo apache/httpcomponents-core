@@ -36,7 +36,7 @@ import java.util.TimeZone;
 
 /**
  * Generates a date in the format required by the HTTP protocol.
- * 
+ *
  * @since 4.0
  */
 public class HttpDateGenerator {
@@ -50,7 +50,7 @@ public class HttpDateGenerator {
 
 
     private final DateFormat dateformat;
-    
+
     private long dateAsLong = 0L;
     private String dateAsText = null;
 
@@ -59,7 +59,7 @@ public class HttpDateGenerator {
         this.dateformat = new SimpleDateFormat(PATTERN_RFC1123, Locale.US);
         this.dateformat.setTimeZone(GMT);
     }
-    
+
     public synchronized String getCurrentDate() {
         long now = System.currentTimeMillis();
         if (now - this.dateAsLong > 1000) {
@@ -69,5 +69,5 @@ public class HttpDateGenerator {
         }
         return this.dateAsText;
     }
-    
+
 }

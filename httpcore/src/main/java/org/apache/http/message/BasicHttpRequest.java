@@ -36,27 +36,27 @@ import org.apache.http.params.HttpProtocolParams;
 /**
  * Basic implementation of {@link HttpRequest}.
  * <p>
- * The following parameters can be used to customize the behavior of this class: 
+ * The following parameters can be used to customize the behavior of this class:
  * <ul>
  *  <li>{@link org.apache.http.params.CoreProtocolPNames#PROTOCOL_VERSION}</li>
  * </ul>
- * 
+ *
  * @since 4.0
  */
 public class BasicHttpRequest extends AbstractHttpMessage implements HttpRequest {
-    
+
     private final String method;
     private final String uri;
-        
+
     private RequestLine requestline;
 
     /**
      * Creates an instance of this class using the given request method
-     * and URI. The HTTP protocol version will be obtained from the 
-     * {@link HttpParams} instance associated with the object. 
+     * and URI. The HTTP protocol version will be obtained from the
+     * {@link HttpParams} instance associated with the object.
      * The initialization will be deferred
-     * until {@link #getRequestLine()} is accessed for the first time. 
-     * 
+     * until {@link #getRequestLine()} is accessed for the first time.
+     *
      * @param method request method.
      * @param uri request URI.
      */
@@ -75,8 +75,8 @@ public class BasicHttpRequest extends AbstractHttpMessage implements HttpRequest
 
     /**
      * Creates an instance of this class using the given request method, URI
-     * and the HTTP protocol version. 
-     * 
+     * and the HTTP protocol version.
+     *
      * @param method request method.
      * @param uri request URI.
      * @param ver HTTP protocol version.
@@ -86,8 +86,8 @@ public class BasicHttpRequest extends AbstractHttpMessage implements HttpRequest
     }
 
     /**
-     * Creates an instance of this class using the given request line. 
-     * 
+     * Creates an instance of this class using the given request line.
+     *
      * @param requestline request line.
      */
     public BasicHttpRequest(final RequestLine requestline) {
@@ -101,22 +101,22 @@ public class BasicHttpRequest extends AbstractHttpMessage implements HttpRequest
     }
 
     /**
-     * Returns the HTTP protocol version to be used for this request. If an 
-     * HTTP protocol version was not explicitly set at the construction time, 
-     * this method will obtain it from the {@link HttpParams} instance 
+     * Returns the HTTP protocol version to be used for this request. If an
+     * HTTP protocol version was not explicitly set at the construction time,
+     * this method will obtain it from the {@link HttpParams} instance
      * associated with the object.
-     * 
+     *
      * @see #BasicHttpRequest(String, String)
      */
     public ProtocolVersion getProtocolVersion() {
         return getRequestLine().getProtocolVersion();
     }
-    
+
     /**
      * Returns the request line of this request. If an HTTP protocol version
-     * was not explicitly set at the construction time, this method will obtain 
+     * was not explicitly set at the construction time, this method will obtain
      * it from the {@link HttpParams} instance associated with the object.
-     *  
+     *
      * @see #BasicHttpRequest(String, String)
      */
     public RequestLine getRequestLine() {
@@ -126,9 +126,9 @@ public class BasicHttpRequest extends AbstractHttpMessage implements HttpRequest
         }
         return this.requestline;
     }
-    
+
     public String toString() {
         return this.method + " " + this.uri + " " + this.headergroup;
     }
-    
+
 }

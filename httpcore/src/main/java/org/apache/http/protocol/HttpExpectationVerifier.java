@@ -32,8 +32,8 @@ import org.apache.http.HttpRequest;
 import org.apache.http.HttpResponse;
 
 /**
- * Defines an interface to verify whether an incoming HTTP request meets 
- * the target server's expectations. 
+ * Defines an interface to verify whether an incoming HTTP request meets
+ * the target server's expectations.
  *<p>
  * The Expect request-header field is used to indicate that particular
  * server behaviors are required by the client.
@@ -54,22 +54,22 @@ import org.apache.http.HttpResponse;
  * or, if there are other problems with the request, some other 4xx
  * status.
  *</p>
- * 
+ *
  * @since 4.0
  */
 public interface HttpExpectationVerifier {
 
     /**
-     * Verifies whether the given request meets the server's expectations. 
+     * Verifies whether the given request meets the server's expectations.
      * <p>
      * If the request fails to meet particular criteria, this method can
      * trigger a terminal response back to the client by setting the status
-     * code of the response object to a value greater or equal to 
-     * <code>200</code>. In this case the client will not have to transmit 
-     * the request body. If the request meets expectations this method can 
-     * terminate without modifying the response object. Per default the status 
+     * code of the response object to a value greater or equal to
+     * <code>200</code>. In this case the client will not have to transmit
+     * the request body. If the request meets expectations this method can
+     * terminate without modifying the response object. Per default the status
      * code of the response object will be set to <code>100</code>.
-     * 
+     *
      * @param request the HTTP request.
      * @param response the HTTP response.
      * @param context the HTTP context.
@@ -77,5 +77,5 @@ public interface HttpExpectationVerifier {
      */
     void verify(HttpRequest request, HttpResponse response, HttpContext context)
             throws HttpException;
-    
+
 }

@@ -95,7 +95,7 @@ public class TestEntitySerializer extends TestCase {
         assertNotNull(outstream);
         assertTrue(outstream instanceof IdentityOutputStream);
     }
-    
+
     public void testEntityWithInvalidTransferEncoding() throws Exception {
         SessionOutputBuffer datatransmitter = new SessionOutputBufferMockup();
         HttpMessage message = new HttpMessageMockup();
@@ -110,11 +110,11 @@ public class TestEntitySerializer extends TestCase {
             // expected
         }
     }
-    
+
     public void testEntityWithInvalidChunkEncodingAndHTTP10() throws Exception {
         SessionOutputBuffer datatransmitter = new SessionOutputBufferMockup();
         HttpMessage message = new HttpMessageMockup();
-        message.getParams().setParameter(CoreProtocolPNames.PROTOCOL_VERSION, 
+        message.getParams().setParameter(CoreProtocolPNames.PROTOCOL_VERSION,
                 HttpVersion.HTTP_1_0);
         message.addHeader("Transfer-Encoding", "chunked");
 
@@ -127,7 +127,7 @@ public class TestEntitySerializer extends TestCase {
             // expected
         }
     }
-    
+
     public void testEntityWithContentLength() throws Exception {
         SessionOutputBuffer datatransmitter = new SessionOutputBufferMockup();
         HttpMessage message = new HttpMessageMockup();
@@ -138,7 +138,7 @@ public class TestEntitySerializer extends TestCase {
         assertNotNull(outstream);
         assertTrue(outstream instanceof ContentLengthOutputStream);
     }
-    
+
     public void testEntityWithInvalidContentLength() throws Exception {
         SessionOutputBuffer datatransmitter = new SessionOutputBufferMockup();
         HttpMessage message = new HttpMessageMockup();
@@ -163,19 +163,19 @@ public class TestEntitySerializer extends TestCase {
         assertNotNull(outstream);
         assertTrue(outstream instanceof IdentityOutputStream);
     }
-        
+
     public void testEntitySerialization() throws Exception {
         byte[] content = new byte[] {1, 2, 3, 4, 5};
-        ByteArrayEntity entity = new ByteArrayEntity(content); 
-        
+        ByteArrayEntity entity = new ByteArrayEntity(content);
+
         SessionOutputBufferMockup datatransmitter = new SessionOutputBufferMockup();
         HttpMessage message = new HttpMessageMockup();
         message.addHeader("Content-Length", Integer.toString(content.length));
-        
+
         EntitySerializer entitywriter = new EntitySerializer(
                 new StrictContentLengthStrategy());
         entitywriter.serialize(datatransmitter, message, entity);
-        
+
         byte[] data = datatransmitter.getData();
         assertNotNull(data);
         assertEquals(content.length, data.length);

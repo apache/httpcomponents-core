@@ -47,16 +47,16 @@ public class TestHttpVersion extends TestCase {
     }
 
     // ------------------------------------------------------------------ Tests
-    
+
     public void testHttpVersionInvalidConstructorInput() throws Exception {
         try {
-            new HttpVersion(-1, -1); 
+            new HttpVersion(-1, -1);
             fail("IllegalArgumentException should have been thrown");
         } catch (IllegalArgumentException e) {
             // expected
         }
         try {
-            new HttpVersion(0, -1); 
+            new HttpVersion(0, -1);
             fail("IllegalArgumentException should have been thrown");
         } catch (IllegalArgumentException e) {
             // expected
@@ -64,9 +64,9 @@ public class TestHttpVersion extends TestCase {
     }
 
     public void testHttpVersionEquality() throws Exception {
-        HttpVersion ver1 = new HttpVersion(1, 1); 
-        HttpVersion ver2 = new HttpVersion(1, 1); 
-        
+        HttpVersion ver1 = new HttpVersion(1, 1);
+        HttpVersion ver2 = new HttpVersion(1, 1);
+
         assertEquals(ver1.hashCode(), ver2.hashCode());
         assertTrue(ver1.equals(ver1));
         assertTrue(ver1.equals(ver2));
@@ -74,7 +74,7 @@ public class TestHttpVersion extends TestCase {
         assertTrue(ver1.equals(ver2));
 
         assertFalse(ver1.equals(new Float(1.1)));
-        
+
         assertTrue((new HttpVersion(0, 9)).equals(HttpVersion.HTTP_0_9));
         assertTrue((new HttpVersion(1, 0)).equals(HttpVersion.HTTP_1_0));
         assertTrue((new HttpVersion(1, 1)).equals(HttpVersion.HTTP_1_1));
@@ -103,18 +103,18 @@ public class TestHttpVersion extends TestCase {
         assertTrue(HttpVersion.HTTP_0_9.lessEquals(HttpVersion.HTTP_1_1));
         assertTrue(HttpVersion.HTTP_0_9.greaterEquals(HttpVersion.HTTP_0_9));
         assertFalse(HttpVersion.HTTP_0_9.greaterEquals(HttpVersion.HTTP_1_0));
-        
+
         assertTrue(HttpVersion.HTTP_1_0.compareToVersion(HttpVersion.HTTP_1_1) < 0);
         assertTrue(HttpVersion.HTTP_1_0.compareToVersion(HttpVersion.HTTP_0_9) > 0);
         assertTrue(HttpVersion.HTTP_1_0.compareToVersion(HttpVersion.HTTP_1_0) == 0);
    }
-    
+
     public void testCloning() throws Exception {
         HttpVersion orig = HttpVersion.HTTP_1_1;
         HttpVersion clone = (HttpVersion) orig.clone();
         assertEquals(orig, clone);
     }
-    
+
     public void testSerialization() throws Exception {
         HttpVersion orig = HttpVersion.HTTP_1_1;
         ByteArrayOutputStream outbuffer = new ByteArrayOutputStream();
@@ -127,6 +127,6 @@ public class TestHttpVersion extends TestCase {
         HttpVersion clone = (HttpVersion) instream.readObject();
         assertEquals(orig, clone);
     }
-    
+
 }
 

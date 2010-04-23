@@ -45,13 +45,13 @@ public class TestLangUtils extends TestCase {
         int h2 = LangUtils.hashCode(LangUtils.HASH_SEED, i);
         assertTrue(h1 == h2);
     }
-    
+
     public void testNullObjectHash() {
         int h1 = LangUtils.hashCode(LangUtils.HASH_SEED, null);
         int h2 = LangUtils.hashCode(LangUtils.HASH_SEED, 0);
         assertTrue(h1 == h2);
     }
-    
+
     public void testBooleanHash() {
         int h1 = LangUtils.hashCode(LangUtils.HASH_SEED, true);
         int h2 = LangUtils.hashCode(LangUtils.HASH_SEED, false);
@@ -61,26 +61,26 @@ public class TestLangUtils extends TestCase {
         assertTrue(h1 == h3);
         assertTrue(h2 == h4);
     }
-    
+
     public void testBasicEquality() {
         assertTrue(LangUtils.equals(null, null));
         assertFalse(LangUtils.equals(null, "abc"));
         assertFalse(LangUtils.equals("abc", null));
         assertTrue(LangUtils.equals("abc", "abc"));
     }
-    
+
     public void testArrayEquals() {
         assertFalse(LangUtils.equals(null, new Object[] {}));
         assertFalse(LangUtils.equals(new Object[] {}, null));
         assertTrue(LangUtils.equals(new Object[] {}, new Object[] {}));
         assertFalse(LangUtils.equals(
-                new Object[] {new Integer(1), new Integer(2)}, 
+                new Object[] {new Integer(1), new Integer(2)},
                 new Object[] {new Integer(1)}));
         assertFalse(LangUtils.equals(
-                new Object[] {new Integer(1), new Integer(2)}, 
+                new Object[] {new Integer(1), new Integer(2)},
                 new Object[] {new Integer(1), new Integer(3)}));
         assertTrue(LangUtils.equals(
-                new Object[] {new Integer(1), new Integer(2)}, 
+                new Object[] {new Integer(1), new Integer(2)},
                 new Object[] {new Integer(1), new Integer(2)}));
     }
 }

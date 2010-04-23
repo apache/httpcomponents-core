@@ -38,10 +38,10 @@ import org.apache.http.io.SessionOutputBuffer;
  * Writes are buffered to an internal buffer (2048 default size).
  * <p>
  * Note that this class NEVER closes the underlying stream, even when close
- * gets called.  Instead, the stream will be marked as closed and no further 
+ * gets called.  Instead, the stream will be marked as closed and no further
  * output will be permitted.
- * 
- * 
+ *
+ *
  * @since 4.0
  */
 public class ChunkedOutputStream extends OutputStream {
@@ -57,11 +57,11 @@ public class ChunkedOutputStream extends OutputStream {
 
     /** True if the stream is closed. */
     private boolean closed = false;
-    
+
     // ----------------------------------------------------------- Constructors
     /**
      * Wraps a session output buffer and chunk-encodes the output.
-     * 
+     *
      * @param out The session output buffer
      * @param bufferSize The minimum chunk size (excluding last chunk)
      * @throws IOException in case of an I/O error
@@ -74,13 +74,13 @@ public class ChunkedOutputStream extends OutputStream {
     }
 
     /**
-     * Wraps a session output buffer and chunks the output. The default buffer 
+     * Wraps a session output buffer and chunks the output. The default buffer
      * size of 2048 was chosen because the chunk overhead is less than 0.5%
      *
      * @param out       the output buffer to wrap
      * @throws IOException in case of an I/O error
      */
-    public ChunkedOutputStream(final SessionOutputBuffer out) 
+    public ChunkedOutputStream(final SessionOutputBuffer out)
             throws IOException {
         this(out, 2048);
     }
@@ -118,7 +118,7 @@ public class ChunkedOutputStream extends OutputStream {
 
     // ----------------------------------------------------------- Public Methods
     /**
-     * Must be called to ensure the internal cache is flushed and the closing 
+     * Must be called to ensure the internal cache is flushed and the closing
      * chunk is written.
      * @throws IOException in case of an I/O error
      */

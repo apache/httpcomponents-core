@@ -38,8 +38,8 @@ public class TruncatedChunkException extends MalformedChunkCodingException {
 
     /**
      * Creates a TruncatedChunkException with the specified detail message.
-     * 
-     * @param message The exception detail message 
+     *
+     * @param message The exception detail message
      */
     public TruncatedChunkException(final String message) {
         super(message);

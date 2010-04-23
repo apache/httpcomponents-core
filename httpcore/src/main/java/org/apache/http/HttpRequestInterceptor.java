@@ -32,20 +32,20 @@ import java.io.IOException;
 import org.apache.http.protocol.HttpContext;
 
 /**
- * HTTP protocol interceptor is a routine that implements a specific aspect of 
- * the HTTP protocol. Usually protocol interceptors are expected to act upon 
- * one specific header or a group of related headers of the incoming message 
- * or populate the outgoing message with one specific header or a group of 
- * related headers. 
+ * HTTP protocol interceptor is a routine that implements a specific aspect of
+ * the HTTP protocol. Usually protocol interceptors are expected to act upon
+ * one specific header or a group of related headers of the incoming message
+ * or populate the outgoing message with one specific header or a group of
+ * related headers.
  * <p>
  *  Protocol Interceptors can also manipulate content entities enclosed with messages.
- * Usually this is accomplished by using the 'Decorator' pattern where a wrapper 
- * entity class is used to decorate the original entity. 
+ * Usually this is accomplished by using the 'Decorator' pattern where a wrapper
+ * entity class is used to decorate the original entity.
  * <p>
- * Protocol interceptors must be implemented as thread-safe. Similarly to 
- * servlets, protocol interceptors should not use instance variables unless 
+ * Protocol interceptors must be implemented as thread-safe. Similarly to
+ * servlets, protocol interceptors should not use instance variables unless
  * access to those variables is synchronized.
- * 
+ *
  * @since 4.0
  */
 public interface HttpRequestInterceptor {
@@ -62,7 +62,7 @@ public interface HttpRequestInterceptor {
      * @throws HttpException in case of an HTTP protocol violation
      * @throws IOException in case of an I/O error
      */
-    void process(HttpRequest request, HttpContext context) 
+    void process(HttpRequest request, HttpContext context)
         throws HttpException, IOException;
-    
+
 }

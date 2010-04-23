@@ -32,9 +32,9 @@ import java.io.InputStream;
 import java.io.OutputStream;
 
 /**
- * A generic streamed, non-repeatable entity that obtains its content 
+ * A generic streamed, non-repeatable entity that obtains its content
  * from an {@link InputStream}.
- * 
+ *
  * @since 4.0
  */
 public class BasicHttpEntity extends AbstractHttpEntity {
@@ -130,5 +130,5 @@ public class BasicHttpEntity extends AbstractHttpEntity {
             content.close(); // reads to the end of the entity
         }
     }
-    
+
 }

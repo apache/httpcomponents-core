@@ -36,28 +36,28 @@ import org.apache.http.params.HttpParams;
 /**
  * {@link SessionOutputBuffer} implementation bound to a {@link Socket}.
  * <p>
- * The following parameters can be used to customize the behavior of this 
- * class: 
+ * The following parameters can be used to customize the behavior of this
+ * class:
  * <ul>
  *  <li>{@link org.apache.http.params.CoreProtocolPNames#HTTP_ELEMENT_CHARSET}</li>
  * </ul>
- * 
+ *
  * @since 4.0
  */
 public class SocketOutputBuffer extends AbstractSessionOutputBuffer {
 
     /**
-     * Creates an instance of this class. 
-     *    
-     * @param socket the socket to write data to. 
+     * Creates an instance of this class.
+     *
+     * @param socket the socket to write data to.
      * @param buffersize the size of the internal buffer. If this number is less
-     *   than <code>0</code> it is set to the value of 
-     *   {@link Socket#getSendBufferSize()}. If resultant number is less 
-     *   than <code>1024</code> it is set to <code>1024</code>. 
+     *   than <code>0</code> it is set to the value of
+     *   {@link Socket#getSendBufferSize()}. If resultant number is less
+     *   than <code>1024</code> it is set to <code>1024</code>.
      * @param params HTTP parameters.
      */
     public SocketOutputBuffer(
-            final Socket socket, 
+            final Socket socket,
             int buffersize,
             final HttpParams params) throws IOException {
         super();
@@ -72,5 +72,5 @@ public class SocketOutputBuffer extends AbstractSessionOutputBuffer {
         }
         init(socket.getOutputStream(), buffersize, params);
     }
-    
+
 }

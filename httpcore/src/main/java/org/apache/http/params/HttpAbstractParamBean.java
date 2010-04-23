@@ -31,7 +31,7 @@ package org.apache.http.params;
  * @since 4.0
  */
 public abstract class HttpAbstractParamBean {
-    
+
     protected final HttpParams params;
 
     public HttpAbstractParamBean (final HttpParams params) {
@@ -39,5 +39,5 @@ public abstract class HttpAbstractParamBean {
             throw new IllegalArgumentException("HTTP parameters may not be null");
         this.params = params;
     }
-    
+
 }

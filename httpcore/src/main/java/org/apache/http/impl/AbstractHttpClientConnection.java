@@ -54,24 +54,24 @@ import org.apache.http.message.LineParser;
 import org.apache.http.params.HttpParams;
 
 /**
- * Abstract client-side HTTP connection capable of transmitting and receiving 
- * data using arbitrary {@link SessionInputBuffer} and 
+ * Abstract client-side HTTP connection capable of transmitting and receiving
+ * data using arbitrary {@link SessionInputBuffer} and
  * {@link SessionOutputBuffer} implementations.
  * <p>
- * The following parameters can be used to customize the behavior of this 
- * class: 
+ * The following parameters can be used to customize the behavior of this
+ * class:
  * <ul>
  *  <li>{@link org.apache.http.params.CoreProtocolPNames#STRICT_TRANSFER_ENCODING}</li>
  *  <li>{@link org.apache.http.params.CoreConnectionPNames#MAX_HEADER_COUNT}</li>
  * </ul>
- *  
+ *
  * @since 4.0
  */
 public abstract class AbstractHttpClientConnection implements HttpClientConnection {
 
     private final EntitySerializer entityserializer;
     private final EntityDeserializer entitydeserializer;
-    
+
     private SessionInputBuffer inbuffer = null;
     private SessionOutputBuffer outbuffer = null;
     private EofSensor eofSensor = null;
@@ -83,32 +83,32 @@ public abstract class AbstractHttpClientConnection implements HttpClientConnecti
      * Creates an instance of this class.
      * <p>
      * This constructor will invoke {@link #createEntityDeserializer()}
-     * and {@link #createEntitySerializer()} methods in order to initialize 
-     * HTTP entity serializer and deserializer implementations for this 
-     * connection. 
+     * and {@link #createEntitySerializer()} methods in order to initialize
+     * HTTP entity serializer and deserializer implementations for this
+     * connection.
      */
     public AbstractHttpClientConnection() {
         super();
         this.entityserializer = createEntitySerializer();
         this.entitydeserializer = createEntityDeserializer();
     }
-    
+
     /**
      * Asserts if the connection is open.
-     * 
+     *
      * @throws IllegalStateException if the connection is not open.
      */
     protected abstract void assertOpen() throws IllegalStateException;
 
     /**
-     * Creates an instance of {@link EntityDeserializer} with the 
-     * {@link LaxContentLengthStrategy} implementation to be used for 
-     * de-serializing entities received over this connection. 
+     * Creates an instance of {@link EntityDeserializer} with the
+     * {@link LaxContentLengthStrategy} implementation to be used for
+     * de-serializing entities received over this connection.
      * <p>
-     * This method can be overridden in a super class in order to create 
-     * instances of {@link EntityDeserializer} using a custom 
+     * This method can be overridden in a super class in order to create
+     * instances of {@link EntityDeserializer} using a custom
      * {@link ContentLengthStrategy}.
-     * 
+     *
      * @return HTTP entity deserializer
      */
     protected EntityDeserializer createEntityDeserializer() {
@@ -118,12 +118,12 @@ public abstract class AbstractHttpClientConnection implements HttpClientConnecti
     /**
      * Creates an instance of {@link EntitySerializer} with the
      * {@link StrictContentLengthStrategy} implementation to be used for
-     * serializing HTTP entities sent over this connection. 
+     * serializing HTTP entities sent over this connection.
      * <p>
-     * This method can be overridden in a super class in order to create 
-     * instances of {@link EntitySerializer} using a custom 
+     * This method can be overridden in a super class in order to create
+     * instances of {@link EntitySerializer} using a custom
      * {@link ContentLengthStrategy}.
-     * 
+     *
      * @return HTTP entity serialzier.
      */
     protected EntitySerializer createEntitySerializer() {
@@ -131,13 +131,13 @@ public abstract class AbstractHttpClientConnection implements HttpClientConnecti
     }
 
     /**
-     * Creates an instance of {@link DefaultHttpResponseFactory} to be used 
-     * for creating {@link HttpResponse} objects received by over this 
+     * Creates an instance of {@link DefaultHttpResponseFactory} to be used
+     * for creating {@link HttpResponse} objects received by over this
      * connection.
      * <p>
-     * This method can be overridden in a super class in order to provide 
-     * a different implementation of the {@link HttpResponseFactory} interface. 
-     * 
+     * This method can be overridden in a super class in order to provide
+     * a different implementation of the {@link HttpResponseFactory} interface.
+     *
      * @return HTTP response factory.
      */
     protected HttpResponseFactory createHttpResponseFactory() {
@@ -148,11 +148,11 @@ public abstract class AbstractHttpClientConnection implements HttpClientConnecti
      * Creates an instance of {@link HttpMessageParser} to be used for parsing
      * HTTP responses received over this connection.
      * <p>
-     * This method can be overridden in a super class in order to provide 
+     * This method can be overridden in a super class in order to provide
      * a different implementation of the {@link HttpMessageParser} interface or
-     * to pass a different implementation of {@link LineParser} to the 
-     * the default implementation {@link HttpResponseParser}. 
-     * 
+     * to pass a different implementation of {@link LineParser} to the
+     * the default implementation {@link HttpResponseParser}.
+     *
      * @param buffer the session input buffer.
      * @param responseFactory the HTTP response factory.
      * @param params HTTP parameters.
@@ -166,14 +166,14 @@ public abstract class AbstractHttpClientConnection implements HttpClientConnecti
     }
 
     /**
-     * Creates an instance of {@link HttpMessageWriter} to be used for 
+     * Creates an instance of {@link HttpMessageWriter} to be used for
      * writing out HTTP requests sent over this connection.
      * <p>
-     * This method can be overridden in a super class in order to provide 
+     * This method can be overridden in a super class in order to provide
      * a different implementation of the {@link HttpMessageWriter} interface or
-     * to pass a different implementation of {@link LineFormatter} to the 
-     * the default implementation {@link HttpRequestWriter}. 
-     * 
+     * to pass a different implementation of {@link LineFormatter} to the
+     * the default implementation {@link HttpRequestWriter}.
+     *
      * @param buffer the session output buffer
      * @param params HTTP parameters
      * @return HTTP message writer
@@ -186,16 +186,16 @@ public abstract class AbstractHttpClientConnection implements HttpClientConnecti
 
     /**
      * Initializes this connection object with {@link SessionInputBuffer} and
-     * {@link SessionOutputBuffer} instances to be used for sending and 
-     * receiving data. These session buffers can be bound to any arbitrary 
-     * physical output medium. 
+     * {@link SessionOutputBuffer} instances to be used for sending and
+     * receiving data. These session buffers can be bound to any arbitrary
+     * physical output medium.
      * <p>
      * This method will invoke {@link #createHttpResponseFactory()},
      * {@link #createRequestWriter(SessionOutputBuffer, HttpParams)}
-     * and {@link #createResponseParser(SessionInputBuffer, HttpResponseFactory, HttpParams)} 
+     * and {@link #createResponseParser(SessionInputBuffer, HttpResponseFactory, HttpParams)}
      * methods to initialize HTTP request writer and response parser for this
-     * connection. 
-     * 
+     * connection.
+     *
      * @param inbuffer the session input buffer.
      * @param outbuffer the session output buffer.
      * @param params HTTP parameters.
@@ -216,8 +216,8 @@ public abstract class AbstractHttpClientConnection implements HttpClientConnecti
             this.eofSensor = (EofSensor) inbuffer;
         }
         this.responseParser = createResponseParser(
-                inbuffer, 
-                createHttpResponseFactory(), 
+                inbuffer,
+                createHttpResponseFactory(),
                 params);
         this.requestWriter = createRequestWriter(
                 outbuffer, params);
@@ -225,13 +225,13 @@ public abstract class AbstractHttpClientConnection implements HttpClientConnecti
                 inbuffer.getMetrics(),
                 outbuffer.getMetrics());
     }
-    
+
     public boolean isResponseAvailable(int timeout) throws IOException {
         assertOpen();
         return this.inbuffer.isDataAvailable(timeout);
     }
 
-    public void sendRequestHeader(final HttpRequest request) 
+    public void sendRequestHeader(final HttpRequest request)
             throws HttpException, IOException {
         if (request == null) {
             throw new IllegalArgumentException("HTTP request may not be null");
@@ -241,7 +241,7 @@ public abstract class AbstractHttpClientConnection implements HttpClientConnecti
         this.metrics.incrementRequestCount();
     }
 
-    public void sendRequestEntity(final HttpEntityEnclosingRequest request) 
+    public void sendRequestEntity(final HttpEntityEnclosingRequest request)
             throws HttpException, IOException {
         if (request == null) {
             throw new IllegalArgumentException("HTTP request may not be null");
@@ -259,13 +259,13 @@ public abstract class AbstractHttpClientConnection implements HttpClientConnecti
     protected void doFlush() throws IOException {
         this.outbuffer.flush();
     }
-    
+
     public void flush() throws IOException {
         assertOpen();
         doFlush();
     }
-    
-    public HttpResponse receiveResponseHeader() 
+
+    public HttpResponse receiveResponseHeader()
             throws HttpException, IOException {
         assertOpen();
         HttpResponse response = (HttpResponse) this.responseParser.parse();
@@ -274,7 +274,7 @@ public abstract class AbstractHttpClientConnection implements HttpClientConnecti
         }
         return response;
     }
-    
+
     public void receiveResponseEntity(final HttpResponse response)
             throws HttpException, IOException {
         if (response == null) {
@@ -284,11 +284,11 @@ public abstract class AbstractHttpClientConnection implements HttpClientConnecti
         HttpEntity entity = this.entitydeserializer.deserialize(this.inbuffer, response);
         response.setEntity(entity);
     }
-    
+
     protected boolean isEof() {
         return this.eofSensor != null && this.eofSensor.isEof();
     }
-    
+
     public boolean isStale() {
         if (!isOpen()) {
             return true;
@@ -303,7 +303,7 @@ public abstract class AbstractHttpClientConnection implements HttpClientConnecti
             return true;
         }
     }
-    
+
     public HttpConnectionMetrics getMetrics() {
         return this.metrics;
     }

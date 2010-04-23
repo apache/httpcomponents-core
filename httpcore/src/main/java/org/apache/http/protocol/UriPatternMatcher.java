@@ -41,8 +41,8 @@ import java.util.Map;
  *   <li><code>&lt;uri&gt;*</code></li>
  * </ul>
  * <br>
- * This class can be used to resolve an object matching a particular request 
- * URI. 
+ * This class can be used to resolve an object matching a particular request
+ * URI.
  *
  * @since 4.0
  */
@@ -60,7 +60,7 @@ public class UriPatternMatcher {
 
     /**
      * Registers the given object for URIs matching the given pattern.
-     * 
+     *
      * @param pattern the pattern to register the handler for.
      * @param obj the object.
      */
@@ -73,7 +73,7 @@ public class UriPatternMatcher {
 
     /**
      * Removes registered object, if exists, for the given pattern.
-     *  
+     *
      * @param pattern the pattern to unregister.
      */
     public synchronized void unregister(final String pattern) {
@@ -108,7 +108,7 @@ public class UriPatternMatcher {
 
     /**
      * Looks up an object matching the given request URI.
-     * 
+     *
      * @param requestURI the request URI
      * @return object or <code>null</code> if no match is found.
      */
@@ -145,7 +145,7 @@ public class UriPatternMatcher {
 
     /**
      * Tests if the given request URI matches the given pattern.
-     * 
+     *
      * @param pattern the pattern
      * @param requestUri the request URI
      * @return <code>true</code> if the request URI matches the pattern,

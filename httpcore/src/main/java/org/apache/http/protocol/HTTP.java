@@ -29,7 +29,7 @@ package org.apache.http.protocol;
 
 /**
  * Constants and static helpers related to the HTTP protocol.
- * 
+ *
  * @since 4.0
  */
 public final class HTTP {
@@ -39,7 +39,7 @@ public final class HTTP {
     public static final int SP = 32; // <US-ASCII SP, space (32)>
     public static final int HT = 9;  // <US-ASCII HT, horizontal-tab (9)>
 
-    /** HTTP header definitions */ 
+    /** HTTP header definitions */
     public static final String TRANSFER_ENCODING = "Transfer-Encoding";
     public static final String CONTENT_LEN  = "Content-Length";
     public static final String CONTENT_TYPE = "Content-Type";
@@ -50,18 +50,18 @@ public final class HTTP {
     public static final String USER_AGENT = "User-Agent";
     public static final String DATE_HEADER = "Date";
     public static final String SERVER_HEADER = "Server";
-    
+
     /** HTTP expectations */
     public static final String EXPECT_CONTINUE = "100-continue";
 
     /** HTTP connection control */
     public static final String CONN_CLOSE = "Close";
     public static final String CONN_KEEP_ALIVE = "Keep-Alive";
-    
+
     /** Transfer encoding definitions */
     public static final String CHUNK_CODING = "chunked";
     public static final String IDENTITY_CODING = "identity";
-    
+
     /** Common charset definitions */
     public static final String UTF_8 = "UTF-8";
     public static final String UTF_16 = "UTF-16";
@@ -82,10 +82,10 @@ public final class HTTP {
     public final static String DEFAULT_CONTENT_TYPE = OCTET_STREAM_TYPE;
 
     public static boolean isWhitespace(char ch) {
-        return ch == SP || ch == HT || ch == CR || ch == LF; 
+        return ch == SP || ch == HT || ch == CR || ch == LF;
     }
-    
+
     private HTTP() {
     }
-       
+
 }

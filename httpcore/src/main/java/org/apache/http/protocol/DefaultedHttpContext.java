@@ -29,7 +29,7 @@ package org.apache.http.protocol;
 
 /**
  * {@link HttpContext} implementation that delegates resolution of an attribute
- * to the given default {@link HttpContext} instance if the attribute is not 
+ * to the given default {@link HttpContext} instance if the attribute is not
  * present in the local one. The state of the local context can be mutated,
  * whereas the default context is treated as read-only.
  *
@@ -39,7 +39,7 @@ public final class DefaultedHttpContext implements HttpContext {
 
     private final HttpContext local;
     private final HttpContext defaults;
-    
+
     public DefaultedHttpContext(final HttpContext local, final HttpContext defaults) {
         super();
         if (local == null) {
@@ -69,5 +69,5 @@ public final class DefaultedHttpContext implements HttpContext {
     public HttpContext getDefaults() {
         return this.defaults;
     }
-    
+
 }

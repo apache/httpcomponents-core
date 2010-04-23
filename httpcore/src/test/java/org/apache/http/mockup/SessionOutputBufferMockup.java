@@ -42,9 +42,9 @@ public class SessionOutputBufferMockup extends AbstractSessionOutputBuffer {
 
     private ByteArrayOutputStream buffer = new ByteArrayOutputStream();
     public static final int BUFFER_SIZE = 16;
-    
+
     public SessionOutputBufferMockup(
-            final OutputStream outstream, 
+            final OutputStream outstream,
             int buffersize,
             final HttpParams params) {
         super();
@@ -52,7 +52,7 @@ public class SessionOutputBufferMockup extends AbstractSessionOutputBuffer {
     }
 
     public SessionOutputBufferMockup(
-            final OutputStream outstream, 
+            final OutputStream outstream,
             int buffersize) {
         this(outstream, buffersize, new BasicHttpParams());
     }
@@ -85,5 +85,5 @@ public class SessionOutputBufferMockup extends AbstractSessionOutputBuffer {
             return new byte[] {};
         }
     }
-    
+
 }

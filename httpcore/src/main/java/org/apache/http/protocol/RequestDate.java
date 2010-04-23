@@ -35,21 +35,21 @@ import org.apache.http.HttpEntityEnclosingRequest;
 import org.apache.http.HttpRequestInterceptor;
 
 /**
- * RequestDate interceptor is responsible for adding <code>Date</code> header 
- * to the outgoing requests This interceptor is optional for client side 
+ * RequestDate interceptor is responsible for adding <code>Date</code> header
+ * to the outgoing requests This interceptor is optional for client side
  * protocol processors.
- * 
+ *
  * @since 4.0
  */
 public class RequestDate implements HttpRequestInterceptor {
 
-    private static final HttpDateGenerator DATE_GENERATOR = new HttpDateGenerator(); 
-    
+    private static final HttpDateGenerator DATE_GENERATOR = new HttpDateGenerator();
+
     public RequestDate() {
         super();
     }
 
-    public void process(final HttpRequest request, final HttpContext context) 
+    public void process(final HttpRequest request, final HttpContext context)
             throws HttpException, IOException {
         if (request == null) {
             throw new IllegalArgumentException
@@ -58,8 +58,8 @@ public class RequestDate implements HttpRequestInterceptor {
         if ((request instanceof HttpEntityEnclosingRequest) &&
             !request.containsHeader(HTTP.DATE_HEADER)) {
             String httpdate = DATE_GENERATOR.getCurrentDate();
-            request.setHeader(HTTP.DATE_HEADER, httpdate); 
+            request.setHeader(HTTP.DATE_HEADER, httpdate);
         }
     }
-    
+
 }

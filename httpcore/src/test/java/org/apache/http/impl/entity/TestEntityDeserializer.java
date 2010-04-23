@@ -68,8 +68,8 @@ public class TestEntityDeserializer extends TestCase {
     public void testEntityWithTransferEncoding() throws Exception {
         SessionInputBuffer datareceiver = new SessionInputBufferMockup("0\r\n", "US-ASCII");
         HttpMessage message = new HttpMessageMockup();
-        
-        // lenient mode 
+
+        // lenient mode
         message.getParams().setBooleanParameter(CoreProtocolPNames.STRICT_TRANSFER_ENCODING, false);
         message.addHeader("Content-Type", "unknown");
         message.addHeader("Transfer-Encoding", "identity, chunked");
@@ -82,7 +82,7 @@ public class TestEntityDeserializer extends TestCase {
         assertTrue(entity.isChunked());
         assertTrue(entity.getContent() instanceof ChunkedInputStream);
 
-        // strict mode 
+        // strict mode
         message.getParams().setBooleanParameter(CoreProtocolPNames.STRICT_TRANSFER_ENCODING, true);
         entity = entitygen.deserialize(datareceiver, message);
         assertNotNull(entity);
@@ -92,11 +92,11 @@ public class TestEntityDeserializer extends TestCase {
     }
 
     public void testEntityWithIdentityTransferEncoding() throws Exception {
-        SessionInputBuffer datareceiver = 
+        SessionInputBuffer datareceiver =
             new SessionInputBufferMockup(new byte[] {});
         HttpMessage message = new HttpMessageMockup();
-        
-        // lenient mode 
+
+        // lenient mode
         message.getParams().setBooleanParameter(CoreProtocolPNames.STRICT_TRANSFER_ENCODING, false);
         message.addHeader("Content-Type", "unknown");
         message.addHeader("Transfer-Encoding", "identity");
@@ -112,8 +112,8 @@ public class TestEntityDeserializer extends TestCase {
     public void testEntityWithUnsupportedTransferEncoding() throws Exception {
         SessionInputBuffer datareceiver = new SessionInputBufferMockup("0\r\n", "US-ASCII");
         HttpMessage message = new HttpMessageMockup();
-        
-        // lenient mode 
+
+        // lenient mode
         message.getParams().setBooleanParameter(CoreProtocolPNames.STRICT_TRANSFER_ENCODING, false);
         message.addHeader("Content-Type", "unknown");
         message.addHeader("Transfer-Encoding", "whatever; param=value, chunked");
@@ -126,7 +126,7 @@ public class TestEntityDeserializer extends TestCase {
         assertTrue(entity.isChunked());
         assertTrue(entity.getContent() instanceof ChunkedInputStream);
 
-        // strict mode 
+        // strict mode
         message.getParams().setBooleanParameter(CoreProtocolPNames.STRICT_TRANSFER_ENCODING, true);
         try {
             entitygen.deserialize(datareceiver, message);
@@ -139,8 +139,8 @@ public class TestEntityDeserializer extends TestCase {
     public void testChunkedTransferEncodingMustBeLast() throws Exception {
         SessionInputBuffer datareceiver = new SessionInputBufferMockup("0\r\n", "US-ASCII");
         HttpMessage message = new HttpMessageMockup();
-        
-        // lenient mode 
+
+        // lenient mode
         message.getParams().setBooleanParameter(CoreProtocolPNames.STRICT_TRANSFER_ENCODING, false);
         message.addHeader("Content-Type", "unknown");
         message.addHeader("Transfer-Encoding", "chunked, identity");
@@ -153,7 +153,7 @@ public class TestEntityDeserializer extends TestCase {
         assertFalse(entity.isChunked());
         assertFalse(entity.getContent() instanceof ChunkedInputStream);
 
-        // strict mode 
+        // strict mode
         message.getParams().setBooleanParameter(CoreProtocolPNames.STRICT_TRANSFER_ENCODING, true);
         try {
             entitygen.deserialize(datareceiver, message);
@@ -166,8 +166,8 @@ public class TestEntityDeserializer extends TestCase {
     public void testEntityWithContentLength() throws Exception {
         SessionInputBuffer datareceiver = new SessionInputBufferMockup(new byte[] {});
         HttpMessage message = new HttpMessageMockup();
-        
-        // lenient mode 
+
+        // lenient mode
         message.getParams().setBooleanParameter(CoreProtocolPNames.STRICT_TRANSFER_ENCODING, false);
         message.addHeader("Content-Type", "unknown");
         message.addHeader("Content-Length", "0");
@@ -184,7 +184,7 @@ public class TestEntityDeserializer extends TestCase {
         SessionInputBuffer datareceiver = new SessionInputBufferMockup(new byte[] {'0'});
         HttpMessage message = new HttpMessageMockup();
 
-        // lenient mode 
+        // lenient mode
         message.getParams().setBooleanParameter(CoreProtocolPNames.STRICT_TRANSFER_ENCODING, false);
         message.addHeader("Content-Type", "unknown");
         message.addHeader("Content-Length", "0");
@@ -199,8 +199,8 @@ public class TestEntityDeserializer extends TestCase {
         InputStream instream = entity.getContent();
         assertNotNull(instream);
         assertTrue(instream instanceof ContentLengthInputStream);
-        
-        // strict mode 
+
+        // strict mode
         message.getParams().setBooleanParameter(CoreProtocolPNames.STRICT_TRANSFER_ENCODING, true);
         try {
             entitygen.deserialize(datareceiver, message);
@@ -209,12 +209,12 @@ public class TestEntityDeserializer extends TestCase {
             // expected
         }
     }
-    
+
     public void testEntityWithMultipleContentLengthSomeWrong() throws Exception {
         SessionInputBuffer datareceiver = new SessionInputBufferMockup(new byte[] {'0'});
         HttpMessage message = new HttpMessageMockup();
 
-        // lenient mode 
+        // lenient mode
         message.getParams().setBooleanParameter(CoreProtocolPNames.STRICT_TRANSFER_ENCODING, false);
         message.addHeader("Content-Type", "unknown");
         message.addHeader("Content-Length", "1");
@@ -229,8 +229,8 @@ public class TestEntityDeserializer extends TestCase {
         InputStream instream = entity.getContent();
         assertNotNull(instream);
         assertTrue(instream instanceof ContentLengthInputStream);
-        
-        // strict mode 
+
+        // strict mode
         message.getParams().setBooleanParameter(CoreProtocolPNames.STRICT_TRANSFER_ENCODING, true);
         try {
             entitygen.deserialize(datareceiver, message);
@@ -239,12 +239,12 @@ public class TestEntityDeserializer extends TestCase {
             // expected
         }
     }
-    
+
     public void testEntityWithMultipleContentLengthAllWrong() throws Exception {
         SessionInputBuffer datareceiver = new SessionInputBufferMockup(new byte[] {'0'});
         HttpMessage message = new HttpMessageMockup();
 
-        // lenient mode 
+        // lenient mode
         message.getParams().setBooleanParameter(CoreProtocolPNames.STRICT_TRANSFER_ENCODING, false);
         message.addHeader("Content-Type", "unknown");
         message.addHeader("Content-Length", "yyy");
@@ -259,8 +259,8 @@ public class TestEntityDeserializer extends TestCase {
         assertNotNull(instream);
         assertFalse(instream instanceof ContentLengthInputStream);
         assertTrue(instream instanceof IdentityInputStream);
-        
-        // strict mode 
+
+        // strict mode
         message.getParams().setBooleanParameter(CoreProtocolPNames.STRICT_TRANSFER_ENCODING, true);
         try {
             entitygen.deserialize(datareceiver, message);
@@ -274,7 +274,7 @@ public class TestEntityDeserializer extends TestCase {
         SessionInputBuffer datareceiver = new SessionInputBufferMockup(new byte[] {'0'});
         HttpMessage message = new HttpMessageMockup();
 
-        // lenient mode 
+        // lenient mode
         message.getParams().setBooleanParameter(CoreProtocolPNames.STRICT_TRANSFER_ENCODING, false);
         message.addHeader("Content-Type", "unknown");
         message.addHeader("Content-Length", "xxx");
@@ -288,8 +288,8 @@ public class TestEntityDeserializer extends TestCase {
         assertNotNull(instream);
         assertFalse(instream instanceof ContentLengthInputStream);
         assertTrue(instream instanceof IdentityInputStream);
-        
-        // strict mode 
+
+        // strict mode
         message.getParams().setBooleanParameter(CoreProtocolPNames.STRICT_TRANSFER_ENCODING, true);
         try {
             entitygen.deserialize(datareceiver, message);
@@ -303,7 +303,7 @@ public class TestEntityDeserializer extends TestCase {
         SessionInputBuffer datareceiver = new SessionInputBufferMockup(new byte[] {'0'});
         HttpMessage message = new HttpMessageMockup();
 
-        // lenient mode 
+        // lenient mode
         message.getParams().setBooleanParameter(CoreProtocolPNames.STRICT_TRANSFER_ENCODING, false);
         EntityDeserializer entitygen = new EntityDeserializer(
                 new LaxContentLengthStrategy());
@@ -343,6 +343,6 @@ public class TestEntityDeserializer extends TestCase {
         assertNotNull(entity.getContentEncoding());
         assertEquals("what not", entity.getContentEncoding().getValue());
     }
-    
+
 }
 

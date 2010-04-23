@@ -39,18 +39,18 @@ import org.apache.http.params.CoreProtocolPNames;
 import org.apache.http.protocol.HTTP;
 
 /**
- * The lax implementation of the content length strategy. This class will ignore 
- * unrecognized transfer encodings and malformed <code>Content-Length</code> 
- * header values if the {@link CoreProtocolPNames#STRICT_TRANSFER_ENCODING} 
- * parameter of the given message is not set or set to <code>false</code>. 
+ * The lax implementation of the content length strategy. This class will ignore
+ * unrecognized transfer encodings and malformed <code>Content-Length</code>
+ * header values if the {@link CoreProtocolPNames#STRICT_TRANSFER_ENCODING}
+ * parameter of the given message is not set or set to <code>false</code>.
  * <p>
  * This class recognizes "chunked" and "identitiy" transfer-coding only.
  * <p>
- * The following parameters can be used to customize the behavior of this class: 
+ * The following parameters can be used to customize the behavior of this class:
  * <ul>
  *  <li>{@link org.apache.http.params.CoreProtocolPNames#STRICT_TRANSFER_ENCODING}</li>
  * </ul>
- * 
+ *
  * @since 4.0
  */
 public class LaxContentLengthStrategy implements ContentLengthStrategy {
@@ -64,9 +64,9 @@ public class LaxContentLengthStrategy implements ContentLengthStrategy {
             throw new IllegalArgumentException("HTTP message may not be null");
         }
 
-        HttpParams params = message.getParams(); 
+        HttpParams params = message.getParams();
         boolean strict = params.isParameterTrue(CoreProtocolPNames.STRICT_TRANSFER_ENCODING);
-        
+
         Header transferEncodingHeader = message.getFirstHeader(HTTP.TRANSFER_ENCODING);
         Header contentLengthHeader = message.getFirstHeader(HTTP.CONTENT_LEN);
         // We use Transfer-Encoding if present and ignore Content-Length.
@@ -84,7 +84,7 @@ public class LaxContentLengthStrategy implements ContentLengthStrategy {
                 // Currently only chunk and identity are supported
                 for (int i = 0; i < encodings.length; i++) {
                     String encoding = encodings[i].getName();
-                    if (encoding != null && encoding.length() > 0 
+                    if (encoding != null && encoding.length() > 0
                         && !encoding.equalsIgnoreCase(HTTP.CHUNK_CODING)
                         && !encoding.equalsIgnoreCase(HTTP.IDENTITY_CODING)) {
                         throw new ProtocolException("Unsupported transfer encoding: " + encoding);
@@ -94,15 +94,15 @@ public class LaxContentLengthStrategy implements ContentLengthStrategy {
             // The chunked encoding must be the last one applied RFC2616, 14.41
             int len = encodings.length;
             if (HTTP.IDENTITY_CODING.equalsIgnoreCase(transferEncodingHeader.getValue())) {
-                return IDENTITY;                            
+                return IDENTITY;
             } else if ((len > 0) && (HTTP.CHUNK_CODING.equalsIgnoreCase(
-                    encodings[len - 1].getName()))) { 
+                    encodings[len - 1].getName()))) {
                 return CHUNKED;
             } else {
                 if (strict) {
                     throw new ProtocolException("Chunk-encoding must be the last one applied");
                 }
-                return IDENTITY;                            
+                return IDENTITY;
             }
         } else if (contentLengthHeader != null) {
             long contentlen = -1;
@@ -131,5 +131,5 @@ public class LaxContentLengthStrategy implements ContentLengthStrategy {
             return IDENTITY;
         }
     }
-        
+
 }

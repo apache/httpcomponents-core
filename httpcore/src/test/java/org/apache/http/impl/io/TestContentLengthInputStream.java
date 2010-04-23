@@ -43,7 +43,7 @@ public class TestContentLengthInputStream extends TestCase {
     }
 
     private static final String CONTENT_CHARSET = "ISO-8859-1";
-        
+
     public void testConstructors() throws Exception {
         new ContentLengthInputStream(new SessionInputBufferMockup(new byte[] {}), 10);
         try {
@@ -71,7 +71,7 @@ public class TestContentLengthInputStream extends TestCase {
         out.write(buffer, 0, len);
         len = in.read(buffer);
         out.write(buffer, 0, len);
-        
+
         String result = EncodingUtils.getString(out.toByteArray(), CONTENT_CHARSET);
         assertEquals(result, "1234567890");
     }
@@ -92,7 +92,7 @@ public class TestContentLengthInputStream extends TestCase {
         assertTrue(in.skip(10) <= 0);
         assertTrue(in.skip(-1) == 0);
         assertTrue(in.read() == -1);
-        
+
         in = new ContentLengthInputStream(new SessionInputBufferMockup(new byte[2]), 4L);
         in.read();
         assertTrue(in.skip(2) == 1);
@@ -122,7 +122,7 @@ public class TestContentLengthInputStream extends TestCase {
         } catch (IOException ex) {
             // expected
         }
-        byte[] tmp = new byte[10]; 
+        byte[] tmp = new byte[10];
         try {
             in.read(tmp);
             fail("IOException should have been thrown");
@@ -136,6 +136,6 @@ public class TestContentLengthInputStream extends TestCase {
             // expected
         }
     }
-    
+
 }
 

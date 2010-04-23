@@ -44,7 +44,7 @@ public class TestSerializableEntity extends TestCase {
         public int intValue = 4;
 
         public String stringValue = "Hello";
-        
+
         public SerializableObject() {}
     }
 
@@ -81,7 +81,7 @@ public class TestSerializableEntity extends TestCase {
         assertTrue(httpentity.isRepeatable());
         assertFalse(httpentity.isStreaming());
     }
-    
+
     public void testIllegalConstructor() throws Exception {
         try {
             new SerializableEntity(null, false);
@@ -112,7 +112,7 @@ public class TestSerializableEntity extends TestCase {
             // expected
         }
     }
-    
+
     public void testWriteToDirect() throws Exception {
         Serializable serializableObj = new SerializableObject();
         SerializableEntity httpentity = new SerializableEntity(serializableObj, false);

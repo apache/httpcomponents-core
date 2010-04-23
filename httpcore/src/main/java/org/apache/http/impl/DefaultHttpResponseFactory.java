@@ -41,7 +41,7 @@ import org.apache.http.impl.EnglishReasonPhraseCatalog;
 
 /**
  * Default factory for creating {@link HttpResponse} objects.
- * 
+ *
  * @since 4.0
  */
 public class DefaultHttpResponseFactory implements HttpResponseFactory {
@@ -82,7 +82,7 @@ public class DefaultHttpResponseFactory implements HttpResponseFactory {
         final Locale loc      = determineLocale(context);
         final String reason   = reasonCatalog.getReason(status, loc);
         StatusLine statusline = new BasicStatusLine(ver, status, reason);
-        return new BasicHttpResponse(statusline, reasonCatalog, loc); 
+        return new BasicHttpResponse(statusline, reasonCatalog, loc);
     }
 
 

@@ -43,10 +43,10 @@ public class TestNameValuePair extends TestCase {
 
     public void testConstructor() {
         NameValuePair param = new BasicNameValuePair("name", "value");
-        assertEquals("name", param.getName()); 
-        assertEquals("value", param.getValue()); 
+        assertEquals("name", param.getName());
+        assertEquals("value", param.getValue());
     }
-    
+
     public void testInvalidName() {
         try {
             new BasicNameValuePair(null, null);
@@ -55,7 +55,7 @@ public class TestNameValuePair extends TestCase {
             //expected
         }
     }
-    
+
     public void testHashCode() {
         NameValuePair param1 = new BasicNameValuePair("name1", "value1");
         NameValuePair param2 = new BasicNameValuePair("name2", "value2");
@@ -63,7 +63,7 @@ public class TestNameValuePair extends TestCase {
         assertTrue(param1.hashCode() != param2.hashCode());
         assertTrue(param1.hashCode() == param3.hashCode());
     }
-    
+
     public void testEquals() {
         NameValuePair param1 = new BasicNameValuePair("name1", "value1");
         NameValuePair param2 = new BasicNameValuePair("name2", "value2");
@@ -75,18 +75,18 @@ public class TestNameValuePair extends TestCase {
         assertTrue(param2.equals(param2));
         assertTrue(param1.equals(param3));
     }
-    
+
     public void testToString() {
         NameValuePair param1 = new BasicNameValuePair("name1", "value1");
         assertEquals("name1=value1", param1.toString());
         NameValuePair param2 = new BasicNameValuePair("name1", null);
         assertEquals("name1", param2.toString());
     }
-    
+
     public void testCloning() throws Exception {
         BasicNameValuePair orig = new BasicNameValuePair("name1", "value1");
         BasicNameValuePair clone = (BasicNameValuePair) orig.clone();
         assertEquals(orig, clone);
     }
-    
+
 }

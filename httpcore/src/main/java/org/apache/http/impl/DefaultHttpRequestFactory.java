@@ -36,15 +36,15 @@ import org.apache.http.message.BasicHttpRequest;
 
 /**
  * Default factory for creating {@link HttpRequest} objects.
- * 
+ *
  * @since 4.0
  */
 public class DefaultHttpRequestFactory implements HttpRequestFactory {
-    
+
     private static final String[] RFC2616_COMMON_METHODS = {
         "GET"
     };
-    
+
     private static final String[] RFC2616_ENTITY_ENC_METHODS = {
         "POST",
         "PUT"
@@ -56,12 +56,12 @@ public class DefaultHttpRequestFactory implements HttpRequestFactory {
         "DELETE",
         "TRACE"
     };
-    
-    
+
+
     public DefaultHttpRequestFactory() {
         super();
     }
-    
+
     private static boolean isOneOf(final String[] methods, final String method) {
         for (int i = 0; i < methods.length; i++) {
             if (methods[i].equalsIgnoreCase(method)) {
@@ -78,12 +78,12 @@ public class DefaultHttpRequestFactory implements HttpRequestFactory {
         }
         String method = requestline.getMethod();
         if (isOneOf(RFC2616_COMMON_METHODS, method)) {
-            return new BasicHttpRequest(requestline); 
+            return new BasicHttpRequest(requestline);
         } else if (isOneOf(RFC2616_ENTITY_ENC_METHODS, method)) {
-            return new BasicHttpEntityEnclosingRequest(requestline); 
+            return new BasicHttpEntityEnclosingRequest(requestline);
         } else if (isOneOf(RFC2616_SPECIAL_METHODS, method)) {
-            return new BasicHttpRequest(requestline); 
-        } else { 
+            return new BasicHttpRequest(requestline);
+        } else {
             throw new MethodNotSupportedException(method +  " method not supported");
         }
     }
@@ -91,15 +91,15 @@ public class DefaultHttpRequestFactory implements HttpRequestFactory {
     public HttpRequest newHttpRequest(final String method, final String uri)
             throws MethodNotSupportedException {
         if (isOneOf(RFC2616_COMMON_METHODS, method)) {
-            return new BasicHttpRequest(method, uri); 
+            return new BasicHttpRequest(method, uri);
         } else if (isOneOf(RFC2616_ENTITY_ENC_METHODS, method)) {
-            return new BasicHttpEntityEnclosingRequest(method, uri); 
+            return new BasicHttpEntityEnclosingRequest(method, uri);
         } else if (isOneOf(RFC2616_SPECIAL_METHODS, method)) {
-            return new BasicHttpRequest(method, uri); 
+            return new BasicHttpRequest(method, uri);
         } else {
             throw new MethodNotSupportedException(method
                     + " method not supported");
         }
     }
-    
+
 }

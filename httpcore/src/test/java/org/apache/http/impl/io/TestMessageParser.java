@@ -63,17 +63,17 @@ public class TestMessageParser extends TestCase {
             // expected
         }
     }
-    
+
     public void testBasicHeaderParsing() throws Exception {
-        String s = 
-            "header1: stuff\r\n" + 
-            "header2  : stuff \r\n" + 
-            "header3: stuff\r\n" + 
-            "     and more stuff\r\n" + 
-            "\t and even more stuff\r\n" +  
-            "     \r\n" +  
-            "\r\n"; 
-        SessionInputBuffer receiver = new SessionInputBufferMockup(s, "US-ASCII"); 
+        String s =
+            "header1: stuff\r\n" +
+            "header2  : stuff \r\n" +
+            "header3: stuff\r\n" +
+            "     and more stuff\r\n" +
+            "\t and even more stuff\r\n" +
+            "     \r\n" +
+            "\r\n";
+        SessionInputBuffer receiver = new SessionInputBufferMockup(s, "US-ASCII");
         Header[] headers = AbstractMessageParser.parseHeaders
             (receiver, -1, -1, null);
         assertNotNull(headers);
@@ -84,9 +84,9 @@ public class TestMessageParser extends TestCase {
         assertEquals("stuff", headers[1].getValue());
         assertEquals("header3", headers[2].getName());
         assertEquals("stuff and more stuff and even more stuff", headers[2].getValue());
-        
+
         Header h = headers[0];
-        
+
         assertTrue(h instanceof BufferedHeader);
         assertNotNull(((BufferedHeader)h).getBuffer());
         assertEquals("header1: stuff", ((BufferedHeader)h).toString());
@@ -94,10 +94,10 @@ public class TestMessageParser extends TestCase {
     }
 
     public void testBufferedHeader() throws Exception {
-        String s = 
-            "header1  : stuff; param1 = value1; param2 = \"value 2\" \r\n" + 
-            "\r\n"; 
-        SessionInputBuffer receiver = new SessionInputBufferMockup(s, "US-ASCII"); 
+        String s =
+            "header1  : stuff; param1 = value1; param2 = \"value 2\" \r\n" +
+            "\r\n";
+        SessionInputBuffer receiver = new SessionInputBufferMockup(s, "US-ASCII");
         Header[] headers = AbstractMessageParser.parseHeaders
             (receiver, -1, -1, null);
         assertNotNull(headers);
@@ -118,9 +118,9 @@ public class TestMessageParser extends TestCase {
     }
 
     public void testParsingInvalidHeaders() throws Exception {
-        String s = "    stuff\r\n" + 
-            "header1: stuff\r\n" + 
-            "\r\n"; 
+        String s = "    stuff\r\n" +
+            "header1: stuff\r\n" +
+            "\r\n";
         SessionInputBuffer receiver = new SessionInputBufferMockup(s, "US-ASCII");
         try {
             AbstractMessageParser.parseHeaders(receiver, -1, -1, null);
@@ -128,9 +128,9 @@ public class TestMessageParser extends TestCase {
         } catch (ProtocolException ex) {
             // expected
         }
-        s = "  :  stuff\r\n" + 
-            "header1: stuff\r\n" + 
-            "\r\n"; 
+        s = "  :  stuff\r\n" +
+            "header1: stuff\r\n" +
+            "\r\n";
         receiver = new SessionInputBufferMockup(s, "US-ASCII");
         try {
             AbstractMessageParser.parseHeaders(receiver, -1, -1, null);
@@ -139,12 +139,12 @@ public class TestMessageParser extends TestCase {
             // expected
         }
     }
-    
+
     public void testParsingMalformedFirstHeader() throws Exception {
-        String s = 
-            "    header1: stuff\r\n" + 
-            "header2  : stuff \r\n"; 
-        SessionInputBuffer receiver = new SessionInputBufferMockup(s, "US-ASCII"); 
+        String s =
+            "    header1: stuff\r\n" +
+            "header2  : stuff \r\n";
+        SessionInputBuffer receiver = new SessionInputBufferMockup(s, "US-ASCII");
         Header[] headers = AbstractMessageParser.parseHeaders
             (receiver, -1, -1, null);
         assertNotNull(headers);
@@ -154,10 +154,10 @@ public class TestMessageParser extends TestCase {
         assertEquals("header2", headers[1].getName());
         assertEquals("stuff", headers[1].getValue());
     }
-    
+
     public void testEmptyDataStream() throws Exception {
-        String s = ""; 
-        SessionInputBuffer receiver = new SessionInputBufferMockup(s, "US-ASCII"); 
+        String s = "";
+        SessionInputBuffer receiver = new SessionInputBufferMockup(s, "US-ASCII");
         Header[] headers = AbstractMessageParser.parseHeaders
             (receiver, -1, -1, null);
         assertNotNull(headers);
@@ -165,11 +165,11 @@ public class TestMessageParser extends TestCase {
     }
 
     public void testMaxHeaderCount() throws Exception {
-        String s = 
-            "header1: stuff\r\n" + 
-            "header2: stuff \r\n" + 
-            "header3: stuff\r\n" + 
-            "\r\n"; 
+        String s =
+            "header1: stuff\r\n" +
+            "header2: stuff \r\n" +
+            "header3: stuff\r\n" +
+            "\r\n";
         SessionInputBuffer receiver = new SessionInputBufferMockup(s, "US-ASCII");
         try {
             AbstractMessageParser.parseHeaders(receiver, 2, -1, null);
@@ -180,11 +180,11 @@ public class TestMessageParser extends TestCase {
     }
 
     public void testMaxHeaderCountForFoldedHeader() throws Exception {
-        String s = 
-            "header1: stuff\r\n" + 
-            " stuff \r\n" + 
-            " stuff\r\n" + 
-            "\r\n"; 
+        String s =
+            "header1: stuff\r\n" +
+            " stuff \r\n" +
+            " stuff\r\n" +
+            "\r\n";
         SessionInputBuffer receiver = new SessionInputBufferMockup(s, "US-ASCII");
         try {
             AbstractMessageParser.parseHeaders(receiver, 2, 15, null);

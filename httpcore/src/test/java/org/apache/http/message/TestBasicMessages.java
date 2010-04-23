@@ -53,7 +53,7 @@ public class TestBasicMessages extends TestCase {
         assertNotNull(response.getProtocolVersion());
         assertEquals(HttpVersion.HTTP_1_0, response.getProtocolVersion());
         assertEquals(HttpStatus.SC_BAD_REQUEST, response.getStatusLine().getStatusCode());
-        
+
         response = new BasicHttpResponse(new BasicStatusLine(
                 HttpVersion.HTTP_1_1, HttpStatus.SC_INTERNAL_SERVER_ERROR, "whatever"));
         assertNotNull(response.getProtocolVersion());
@@ -67,19 +67,19 @@ public class TestBasicMessages extends TestCase {
         assertNotNull(response.getProtocolVersion());
         assertNotNull(response.getStatusLine());
         assertEquals(200, response.getStatusLine().getStatusCode());
-        
+
         response = new BasicHttpResponse(HttpVersion.HTTP_1_0, HttpStatus.SC_BAD_REQUEST, "Bad Request");
         assertNotNull(response.getProtocolVersion());
         assertEquals(HttpVersion.HTTP_1_0, response.getProtocolVersion());
         assertEquals(HttpStatus.SC_BAD_REQUEST, response.getStatusLine().getStatusCode());
-        
+
         response = new BasicHttpResponse(new BasicStatusLine(
                 HttpVersion.HTTP_1_1, HttpStatus.SC_INTERNAL_SERVER_ERROR, "whatever"));
         assertNotNull(response.getProtocolVersion());
         assertEquals(HttpVersion.HTTP_1_1, response.getProtocolVersion());
         assertEquals(HttpStatus.SC_INTERNAL_SERVER_ERROR, response.getStatusLine().getStatusCode());
         assertEquals("whatever", response.getStatusLine().getReasonPhrase());
-        
+
         response = new BasicHttpResponse(HttpVersion.HTTP_1_1, HttpStatus.SC_OK, "OK");
         try {
             response.setStatusCode(-23);
@@ -102,11 +102,11 @@ public class TestBasicMessages extends TestCase {
             // expected
         }
     }
-    
+
     public void testSetResponseEntity() {
         HttpResponse response = new BasicHttpResponse(HttpVersion.HTTP_1_1, HttpStatus.SC_OK, "OK");
         assertNull(response.getEntity());
-        
+
         HttpEntity entity = new BasicHttpEntity();
         response.setEntity(entity);
         assertTrue(entity == response.getEntity());
@@ -142,7 +142,7 @@ public class TestBasicMessages extends TestCase {
             // expected
         }
     }
-    
+
     public void testDefaultEntityEnclosingRequestConstructors() {
         BasicHttpEntityEnclosingRequest request = new BasicHttpEntityEnclosingRequest("GET", "/");
         assertNotNull(request.getProtocolVersion());
@@ -154,11 +154,11 @@ public class TestBasicMessages extends TestCase {
         assertEquals("GET", request.getRequestLine().getMethod());
         assertEquals("/", request.getRequestLine().getUri());
     }
-    
+
     public void testSetRequestEntity() {
         BasicHttpEntityEnclosingRequest request = new BasicHttpEntityEnclosingRequest("GET", "/");
         assertNull(request.getEntity());
-        
+
         HttpEntity entity = new BasicHttpEntity();
         request.setEntity(entity);
         assertTrue(entity == request.getEntity());
@@ -166,11 +166,11 @@ public class TestBasicMessages extends TestCase {
 
     public void testExpectContinue() {
         BasicHttpEntityEnclosingRequest request = new BasicHttpEntityEnclosingRequest("GET", "/");
-        assertFalse(request.expectContinue()); 
+        assertFalse(request.expectContinue());
         request.getParams().setBooleanParameter(CoreProtocolPNames.USE_EXPECT_CONTINUE, true);
         assertFalse(request.expectContinue());
         request.addHeader("Expect", "100-Continue");
-        assertTrue(request.expectContinue()); 
+        assertTrue(request.expectContinue());
     }
 
 }

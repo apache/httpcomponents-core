@@ -39,9 +39,9 @@ import java.util.Map;
  *   <li><code>&lt;uri&gt;*</code></li>
  * </ul>
  * <br>
- * This class can be used to resolve an instance of 
- * {@link HttpRequestHandler} matching a particular request URI. Usually the 
- * resolved request handler will be used to process the request with the 
+ * This class can be used to resolve an instance of
+ * {@link HttpRequestHandler} matching a particular request URI. Usually the
+ * resolved request handler will be used to process the request with the
  * specified request URI.
  *
  * @since 4.0
@@ -57,7 +57,7 @@ public class HttpRequestHandlerRegistry implements HttpRequestHandlerResolver {
     /**
      * Registers the given {@link HttpRequestHandler} as a handler for URIs
      * matching the given pattern.
-     * 
+     *
      * @param pattern the pattern to register the handler for.
      * @param handler the handler.
      */
@@ -73,7 +73,7 @@ public class HttpRequestHandlerRegistry implements HttpRequestHandlerResolver {
 
     /**
      * Removes registered handler, if exists, for the given pattern.
-     *  
+     *
      * @param pattern the pattern to unregister the handler for.
      */
     public void unregister(final String pattern) {

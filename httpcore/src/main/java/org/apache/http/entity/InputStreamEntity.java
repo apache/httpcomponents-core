@@ -30,11 +30,11 @@ package org.apache.http.entity;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
- 
+
 /**
- * A streamed, non-repeatable entity that obtains its content from 
+ * A streamed, non-repeatable entity that obtains its content from
  * an {@link InputStream}.
- * 
+ *
  * @since 4.0
  */
 public class InputStreamEntity extends AbstractHttpEntity {
@@ -46,7 +46,7 @@ public class InputStreamEntity extends AbstractHttpEntity {
     private boolean consumed = false;
 
     public InputStreamEntity(final InputStream instream, long length) {
-        super();        
+        super();
         if (instream == null) {
             throw new IllegalArgumentException("Source input stream may not be null");
         }
@@ -65,7 +65,7 @@ public class InputStreamEntity extends AbstractHttpEntity {
     public InputStream getContent() throws IOException {
         return this.content;
     }
-        
+
     public void writeTo(final OutputStream outstream) throws IOException {
         if (outstream == null) {
             throw new IllegalArgumentException("Output stream may not be null");
@@ -105,5 +105,5 @@ public class InputStreamEntity extends AbstractHttpEntity {
         // the end of the content. Otherwise, we don't care what it does.
         this.content.close();
     }
-    
+
 } // class InputStreamEntity

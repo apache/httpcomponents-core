@@ -60,7 +60,7 @@ public class TestStandardInterceptors extends TestCase {
         assertNotNull(header);
         assertEquals(HTTP.CONN_KEEP_ALIVE, header.getValue());
     }
-    
+
     public void testRequestConnControlCustom() throws Exception {
         HttpContext context = new BasicHttpContext(null);
         BasicHttpRequest request = new BasicHttpRequest("GET", "/");
@@ -73,7 +73,7 @@ public class TestStandardInterceptors extends TestCase {
         assertEquals(HTTP.CONN_CLOSE, header.getValue());
         assertTrue(header == myheader);
     }
-    
+
     public void testRequestConnControlInvalidInput() throws Exception {
         RequestConnControl interceptor = new RequestConnControl();
         try {
@@ -83,7 +83,7 @@ public class TestStandardInterceptors extends TestCase {
             // expected
         }
     }
-    
+
     public void testRequestContentProtocolException() throws Exception {
         HttpContext context = new BasicHttpContext(null);
         BasicHttpRequest request1 = new BasicHttpEntityEnclosingRequest("POST", "/");
@@ -105,7 +105,7 @@ public class TestStandardInterceptors extends TestCase {
             // expected
         }
    }
-    
+
     public void testRequestContentNullEntity() throws Exception {
         HttpContext context = new BasicHttpContext(null);
         BasicHttpRequest request = new BasicHttpEntityEnclosingRequest("POST", "/");
@@ -117,7 +117,7 @@ public class TestStandardInterceptors extends TestCase {
         assertEquals("0", header.getValue());
         assertNull(request.getFirstHeader(HTTP.TRANSFER_ENCODING));
    }
-    
+
     public void testRequestContentEntityContentLengthDelimitedHTTP11() throws Exception {
         HttpContext context = new BasicHttpContext(null);
         BasicHttpEntityEnclosingRequest request = new BasicHttpEntityEnclosingRequest("POST", "/");
@@ -132,7 +132,7 @@ public class TestStandardInterceptors extends TestCase {
         assertEquals(s.length(), Integer.parseInt(header.getValue()));
         assertNull(request.getFirstHeader(HTTP.TRANSFER_ENCODING));
    }
-    
+
     public void testRequestContentEntityChunkedHTTP11() throws Exception {
         HttpContext context = new BasicHttpContext(null);
         BasicHttpEntityEnclosingRequest request = new BasicHttpEntityEnclosingRequest("POST", "/");
@@ -148,7 +148,7 @@ public class TestStandardInterceptors extends TestCase {
         assertEquals("chunked", header.getValue());
         assertNull(request.getFirstHeader(HTTP.CONTENT_LEN));
    }
-    
+
     public void testRequestContentEntityUnknownLengthHTTP11() throws Exception {
         HttpContext context = new BasicHttpContext(null);
         BasicHttpEntityEnclosingRequest request = new BasicHttpEntityEnclosingRequest("POST", "/");
@@ -182,7 +182,7 @@ public class TestStandardInterceptors extends TestCase {
             // expected
         }
     }
-    
+
     public void testRequestContentTypeAndEncoding() throws Exception {
         HttpContext context = new BasicHttpContext(null);
         BasicHttpEntityEnclosingRequest request = new BasicHttpEntityEnclosingRequest("POST", "/");
@@ -200,7 +200,7 @@ public class TestStandardInterceptors extends TestCase {
         assertNotNull(h2);
         assertEquals("whatever", h2.getValue());
     }
-    
+
     public void testRequestContentNullTypeAndEncoding() throws Exception {
         HttpContext context = new BasicHttpContext(null);
         BasicHttpEntityEnclosingRequest request = new BasicHttpEntityEnclosingRequest("POST", "/");
@@ -212,7 +212,7 @@ public class TestStandardInterceptors extends TestCase {
         assertNull(request.getFirstHeader(HTTP.CONTENT_TYPE));
         assertNull(request.getFirstHeader(HTTP.CONTENT_ENCODING));
     }
-    
+
     public void testRequestContentEntityUnknownLengthHTTP10() throws Exception {
         HttpContext context = new BasicHttpContext(null);
         BasicHttpEntityEnclosingRequest request = new BasicHttpEntityEnclosingRequest(
@@ -240,7 +240,7 @@ public class TestStandardInterceptors extends TestCase {
             // expected
         }
     }
-    
+
     public void testRequestContentIgnoreNonenclosingRequests() throws Exception {
         HttpContext context = new BasicHttpContext(null);
         BasicHttpRequest request = new BasicHttpRequest("POST", "/");
@@ -438,7 +438,7 @@ public class TestStandardInterceptors extends TestCase {
         Header header = request.getFirstHeader(HTTP.USER_AGENT);
         assertNull(header);
     }
-    
+
     public void testRequestUserAgentInvalidInput() throws Exception {
         RequestUserAgent interceptor = new RequestUserAgent();
         try {
@@ -457,7 +457,7 @@ public class TestStandardInterceptors extends TestCase {
         Header header = response.getFirstHeader(HTTP.CONN_DIRECTIVE);
         assertNull(header);
     }
-    
+
     public void testResponseConnControlEntityContentLength() throws Exception {
         HttpContext context = new BasicHttpContext(null);
         HttpResponse response = new BasicHttpResponse(HttpVersion.HTTP_1_1, HttpStatus.SC_OK, "OK");
@@ -468,7 +468,7 @@ public class TestStandardInterceptors extends TestCase {
         Header header = response.getFirstHeader(HTTP.CONN_DIRECTIVE);
         assertNull(header);
     }
-    
+
     public void testResponseConnControlEntityUnknownContentLength() throws Exception {
         HttpContext context = new BasicHttpContext(null);
         BasicHttpRequest request = new BasicHttpRequest("GET", "/");
@@ -483,7 +483,7 @@ public class TestStandardInterceptors extends TestCase {
         assertNotNull(header);
         assertEquals(HTTP.CONN_CLOSE, header.getValue());
     }
-    
+
     public void testResponseConnControlEntityChunked() throws Exception {
         HttpContext context = new BasicHttpContext(null);
         HttpResponse response = new BasicHttpResponse(HttpVersion.HTTP_1_1, HttpStatus.SC_OK, "OK");
@@ -495,7 +495,7 @@ public class TestStandardInterceptors extends TestCase {
         Header header = response.getFirstHeader(HTTP.CONN_DIRECTIVE);
         assertNull(header);
     }
-    
+
     public void testResponseConnControlEntityUnknownContentLengthHTTP10() throws Exception {
         HttpContext context = new BasicHttpContext(null);
         BasicHttpRequest request = new BasicHttpRequest("GET", "/");
@@ -528,7 +528,7 @@ public class TestStandardInterceptors extends TestCase {
         assertNotNull(header);
         assertEquals(HTTP.CONN_KEEP_ALIVE, header.getValue());
     }
-    
+
     public void testResponseConnControlClientRequest2() throws Exception {
         HttpContext context = new BasicHttpContext(null);
         BasicHttpRequest request = new BasicHttpRequest("GET", "/");
@@ -551,15 +551,15 @@ public class TestStandardInterceptors extends TestCase {
 
         ResponseConnControl interceptor = new ResponseConnControl();
 
-        int [] statusCodes = new int[] { 
-                HttpStatus.SC_BAD_REQUEST, 
-                HttpStatus.SC_REQUEST_TIMEOUT, 
+        int [] statusCodes = new int[] {
+                HttpStatus.SC_BAD_REQUEST,
+                HttpStatus.SC_REQUEST_TIMEOUT,
                 HttpStatus.SC_LENGTH_REQUIRED,
                 HttpStatus.SC_REQUEST_TOO_LONG,
                 HttpStatus.SC_REQUEST_URI_TOO_LONG,
                 HttpStatus.SC_SERVICE_UNAVAILABLE,
                 HttpStatus.SC_NOT_IMPLEMENTED };
-        
+
         for (int i = 0; i < statusCodes.length; i++) {
             BasicHttpResponse response = new BasicHttpResponse(
                     HttpVersion.HTTP_1_1, statusCodes[i], "Unreasonable");
@@ -568,7 +568,7 @@ public class TestStandardInterceptors extends TestCase {
             assertNotNull(header);
             assertEquals(HTTP.CONN_CLOSE, header.getValue());
         }
-        
+
     }
 
     public void testResponseConnControlHostInvalidInput() throws Exception {
@@ -597,7 +597,7 @@ public class TestStandardInterceptors extends TestCase {
         assertNotNull(header);
         assertEquals("0", header.getValue());
     }
-    
+
     public void testResponseContentStatusNoContent() throws Exception {
         HttpContext context = new BasicHttpContext(null);
         HttpResponse response = new BasicHttpResponse(HttpVersion.HTTP_1_1, HttpStatus.SC_OK, "OK");
@@ -607,7 +607,7 @@ public class TestStandardInterceptors extends TestCase {
         Header header = response.getFirstHeader(HTTP.CONTENT_LEN);
         assertNull(header);
     }
-    
+
     public void testResponseContentStatusResetContent() throws Exception {
         HttpContext context = new BasicHttpContext(null);
         HttpResponse response = new BasicHttpResponse(HttpVersion.HTTP_1_1, HttpStatus.SC_OK, "OK");
@@ -642,7 +642,7 @@ public class TestStandardInterceptors extends TestCase {
         Header h2 = response.getFirstHeader(HTTP.CONTENT_LEN);
         assertNull(h2);
     }
-    
+
     public void testResponseContentEntityContentLenghtDelimited() throws Exception {
         HttpContext context = new BasicHttpContext(null);
         HttpResponse response = new BasicHttpResponse(HttpVersion.HTTP_1_1, HttpStatus.SC_OK, "OK");
@@ -657,7 +657,7 @@ public class TestStandardInterceptors extends TestCase {
         Header h2 = response.getFirstHeader(HTTP.TRANSFER_ENCODING);
         assertNull(h2);
     }
-    
+
     public void testResponseContentEntityUnknownContentLength() throws Exception {
         HttpContext context = new BasicHttpContext(null);
         HttpResponse response = new BasicHttpResponse(HttpVersion.HTTP_1_1, HttpStatus.SC_OK, "OK");
@@ -670,7 +670,7 @@ public class TestStandardInterceptors extends TestCase {
         Header h2 = response.getFirstHeader(HTTP.CONTENT_LEN);
         assertNull(h2);
     }
-    
+
     public void testResponseContentEntityChunkedHTTP10() throws Exception {
         HttpContext context = new BasicHttpContext(null);
         BasicHttpResponse response = new BasicHttpResponse(HttpVersion.HTTP_1_0, HttpStatus.SC_OK, "OK");
@@ -697,7 +697,7 @@ public class TestStandardInterceptors extends TestCase {
         Header h2 = response.getFirstHeader(HTTP.CONTENT_ENCODING);
         assertNull(h2);
     }
-        
+
     public void testResponseContentEntityContentTypeAndEncoding() throws Exception {
         HttpContext context = new BasicHttpContext(null);
         HttpResponse response = new BasicHttpResponse(HttpVersion.HTTP_1_1, HttpStatus.SC_OK, "OK");
@@ -724,7 +724,7 @@ public class TestStandardInterceptors extends TestCase {
             // expected
         }
     }
-        
+
     public void testResponseContentInvalidResponseState() throws Exception {
         ResponseContent interceptor = new ResponseContent();
         HttpContext context = new BasicHttpContext(null);
@@ -757,7 +757,7 @@ public class TestStandardInterceptors extends TestCase {
         Header h2 = response.getFirstHeader(HTTP.DATE_HEADER);
         assertNotNull(h2);
     }
-        
+
     public void testResponseDateNotGenerated() throws Exception {
         HttpContext context = new BasicHttpContext(null);
         HttpResponse response = new BasicHttpResponse(HttpVersion.HTTP_1_1, HttpStatus.SC_OK, "OK");
@@ -767,7 +767,7 @@ public class TestStandardInterceptors extends TestCase {
         Header h1 = response.getFirstHeader(HTTP.DATE_HEADER);
         assertNull(h1);
     }
-        
+
     public void testResponseDateInvalidInput() throws Exception {
         ResponseDate interceptor = new ResponseDate();
         try {
@@ -792,7 +792,7 @@ public class TestStandardInterceptors extends TestCase {
         Header h2 = request.getFirstHeader(HTTP.DATE_HEADER);
         assertNotNull(h2);
     }
-        
+
     public void testRequestDateNotGenerated() throws Exception {
         HttpContext context = new BasicHttpContext(null);
         BasicHttpRequest request = new BasicHttpRequest("GET", "/");
@@ -802,7 +802,7 @@ public class TestStandardInterceptors extends TestCase {
         Header h1 = request.getFirstHeader(HTTP.DATE_HEADER);
         assertNull(h1);
     }
-        
+
     public void testRequestDateInvalidInput() throws Exception {
         RequestDate interceptor = new RequestDate();
         try {
@@ -812,7 +812,7 @@ public class TestStandardInterceptors extends TestCase {
             // expected
         }
     }
-            
+
     public void testResponseServerGenerated() throws Exception {
         HttpContext context = new BasicHttpContext(null);
         HttpResponse response = new BasicHttpResponse(HttpVersion.HTTP_1_1, HttpStatus.SC_OK, "OK");
@@ -823,7 +823,7 @@ public class TestStandardInterceptors extends TestCase {
         assertNotNull(h1);
         assertEquals("some server", h1.getValue());
     }
-        
+
     public void testResponseServerNotGenerated() throws Exception {
         HttpContext context = new BasicHttpContext(null);
         HttpResponse response = new BasicHttpResponse(HttpVersion.HTTP_1_1, HttpStatus.SC_OK, "OK");
@@ -835,7 +835,7 @@ public class TestStandardInterceptors extends TestCase {
         assertNotNull(h1);
         assertEquals("whatever", h1.getValue());
     }
-        
+
     public void testResponseServerMissing() throws Exception {
         HttpContext context = new BasicHttpContext(null);
         HttpResponse response = new BasicHttpResponse(HttpVersion.HTTP_1_1, HttpStatus.SC_OK, "OK");
@@ -844,7 +844,7 @@ public class TestStandardInterceptors extends TestCase {
         Header h1 = response.getFirstHeader(HTTP.SERVER_HEADER);
         assertNull(h1);
     }
-        
+
     public void testResponseServerInvalidInput() throws Exception {
         ResponseServer interceptor = new ResponseServer();
         try {

@@ -36,19 +36,19 @@ import org.apache.http.protocol.HTTP;
 
 /**
  * Basic implementation of {@link HttpEntityEnclosingRequest}.
- * 
+ *
  * @since 4.0
  */
-public class BasicHttpEntityEnclosingRequest 
+public class BasicHttpEntityEnclosingRequest
             extends BasicHttpRequest implements HttpEntityEnclosingRequest {
-    
+
     private HttpEntity entity;
-    
+
     public BasicHttpEntityEnclosingRequest(final String method, final String uri) {
         super(method, uri);
     }
 
-    public BasicHttpEntityEnclosingRequest(final String method, final String uri, 
+    public BasicHttpEntityEnclosingRequest(final String method, final String uri,
             final ProtocolVersion ver) {
         super(method, uri, ver);
     }
@@ -64,10 +64,10 @@ public class BasicHttpEntityEnclosingRequest
     public void setEntity(final HttpEntity entity) {
         this.entity = entity;
     }
-    
+
     public boolean expectContinue() {
         Header expect = getFirstHeader(HTTP.EXPECT_DIRECTIVE);
         return expect != null && HTTP.EXPECT_CONTINUE.equalsIgnoreCase(expect.getValue());
     }
-    
+
 }

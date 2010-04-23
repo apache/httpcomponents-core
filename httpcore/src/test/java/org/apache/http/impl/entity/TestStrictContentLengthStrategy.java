@@ -57,7 +57,7 @@ public class TestStrictContentLengthStrategy extends TestCase {
 
         assertEquals(ContentLengthStrategy.IDENTITY, lenStrategy.determineLength(message));
     }
-    
+
     public void testEntityWithInvalidTransferEncoding() throws Exception {
         ContentLengthStrategy lenStrategy = new StrictContentLengthStrategy();
         HttpMessage message = new HttpMessageMockup();
@@ -70,11 +70,11 @@ public class TestStrictContentLengthStrategy extends TestCase {
             // expected
         }
     }
-    
+
     public void testEntityWithInvalidChunkEncodingAndHTTP10() throws Exception {
         ContentLengthStrategy lenStrategy = new StrictContentLengthStrategy();
         HttpMessage message = new HttpMessageMockup();
-        message.getParams().setParameter(CoreProtocolPNames.PROTOCOL_VERSION, 
+        message.getParams().setParameter(CoreProtocolPNames.PROTOCOL_VERSION,
                 HttpVersion.HTTP_1_0);
         message.addHeader("Transfer-Encoding", "chunked");
 
@@ -85,14 +85,14 @@ public class TestStrictContentLengthStrategy extends TestCase {
             // expected
         }
     }
-    
+
     public void testEntityWithContentLength() throws Exception {
         ContentLengthStrategy lenStrategy = new StrictContentLengthStrategy();
         HttpMessage message = new HttpMessageMockup();
         message.addHeader("Content-Length", "100");
         assertEquals(100, lenStrategy.determineLength(message));
     }
-    
+
     public void testEntityWithInvalidContentLength() throws Exception {
         ContentLengthStrategy lenStrategy = new StrictContentLengthStrategy();
         HttpMessage message = new HttpMessageMockup();
@@ -111,6 +111,6 @@ public class TestStrictContentLengthStrategy extends TestCase {
         HttpMessage message = new HttpMessageMockup();
         assertEquals(ContentLengthStrategy.IDENTITY, lenStrategy.determineLength(message));
     }
-        
+
 }
 

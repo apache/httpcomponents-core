@@ -34,7 +34,7 @@ import org.apache.http.util.LangUtils;
 
 /**
  * Basic implementation of {@link HeaderElement}
- * 
+ *
  * @since 4.0
  */
 public class BasicHeaderElement implements HeaderElement, Cloneable {
@@ -52,7 +52,7 @@ public class BasicHeaderElement implements HeaderElement, Cloneable {
      *   Parameters are copied by reference, not by value
      */
     public BasicHeaderElement(
-            final String name, 
+            final String name,
             final String value,
             final NameValuePair[] parameters) {
         super();
@@ -70,7 +70,7 @@ public class BasicHeaderElement implements HeaderElement, Cloneable {
 
     /**
      * Constructor with name and value.
-     * 
+     *
      * @param name header element name
      * @param value header element value. May be <tt>null</tt>
      */
@@ -102,7 +102,7 @@ public class BasicHeaderElement implements HeaderElement, Cloneable {
     public NameValuePair getParameterByName(final String name) {
         if (name == null) {
             throw new IllegalArgumentException("Name may not be null");
-        } 
+        }
         NameValuePair found = null;
         for (int i = 0; i < this.parameters.length; i++) {
             NameValuePair current = this.parameters[ i ];
@@ -136,7 +136,7 @@ public class BasicHeaderElement implements HeaderElement, Cloneable {
         }
         return hash;
     }
-    
+
     public String toString() {
         CharArrayBuffer buffer = new CharArrayBuffer(64);
         buffer.append(this.name);
@@ -150,12 +150,12 @@ public class BasicHeaderElement implements HeaderElement, Cloneable {
         }
         return buffer.toString();
     }
-    
+
     public Object clone() throws CloneNotSupportedException {
         // parameters array is considered immutable
         // no need to make a copy of it
         return super.clone();
     }
- 
+
 }
 

@@ -54,14 +54,14 @@ public class TestEntityUtils extends TestCase {
             // expected
         }
     }
-    
+
     public void testEmptyContentToByteArray() throws Exception {
         NullHttpEntity httpentity = new NullHttpEntity();
         byte[] bytes = EntityUtils.toByteArray(httpentity);
         assertNotNull(bytes);
         assertEquals(0, bytes.length);
     }
-    
+
     public void testMaxIntContentToByteArray() throws Exception {
         byte[] content = "Message content".getBytes("ISO-8859-1");
         BasicHttpEntity httpentity = new BasicHttpEntity();
@@ -74,7 +74,7 @@ public class TestEntityUtils extends TestCase {
             // expected
         }
     }
-    
+
     public void testUnknownLengthContentToByteArray() throws Exception {
         byte[] bytes = "Message content".getBytes("ISO-8859-1");
         BasicHttpEntity httpentity = new BasicHttpEntity();
@@ -87,7 +87,7 @@ public class TestEntityUtils extends TestCase {
             assertEquals(bytes[i], bytes2[i]);
         }
     }
-    
+
     public void testKnownLengthContentToByteArray() throws Exception {
         byte[] bytes = "Message content".getBytes("ISO-8859-1");
         BasicHttpEntity httpentity = new BasicHttpEntity();
@@ -109,38 +109,38 @@ public class TestEntityUtils extends TestCase {
             // expected
         }
     }
-    
+
     public void testNullContentTypeGetContentCharset() throws Exception {
         BasicHttpEntity httpentity = new BasicHttpEntity();
         httpentity.setContentType((Header)null);
         assertNull(EntityUtils.getContentCharSet(httpentity));
     }
-    
+
     public void testNoCharsetGetContentCharset() throws Exception {
         BasicHttpEntity httpentity = new BasicHttpEntity();
         httpentity.setContentType(new BasicHeader("Content-Type", "text/plain; param=yadayada"));
         assertNull(EntityUtils.getContentCharSet(httpentity));
     }
-    
+
     public void testGetContentCharset() throws Exception {
         BasicHttpEntity httpentity = new BasicHttpEntity();
         httpentity.setContentType(new BasicHeader("Content-Type", "text/plain; charset = UTF-8"));
         assertEquals("UTF-8", EntityUtils.getContentCharSet(httpentity));
     }
-    
+
     public void testGetContentMimeTypeWithCharset() throws Exception {
         BasicHttpEntity httpentity = new BasicHttpEntity();
         httpentity.setContentType(new BasicHeader("Content-Type", "text/plain; " +
                 "whatever; charset = UTF-8"));
         assertEquals("text/plain", EntityUtils.getContentMimeType(httpentity));
     }
-    
+
     public void testGetContentMimeTypeWithoutCharset() throws Exception {
         BasicHttpEntity httpentity = new BasicHttpEntity();
         httpentity.setContentType(new BasicHeader("Content-Type", "text/whatever"));
         assertEquals("text/whatever", EntityUtils.getContentMimeType(httpentity));
     }
-    
+
     public void testNullEntityGetMimeType() throws Exception {
         try {
             EntityUtils.getContentMimeType(null);
@@ -149,7 +149,7 @@ public class TestEntityUtils extends TestCase {
             // expected
         }
     }
-    
+
     public void testNullEntityToString() throws Exception {
         try {
             EntityUtils.toString(null);
@@ -158,14 +158,14 @@ public class TestEntityUtils extends TestCase {
             // expected
         }
     }
-    
+
     public void testEmptyContentToString() throws Exception {
         NullHttpEntity httpentity = new NullHttpEntity();
         String s = EntityUtils.toString(httpentity);
         assertNotNull(s);
         assertEquals("", s);
     }
-        
+
     public void testMaxIntContentToString() throws Exception {
         byte[] content = "Message content".getBytes("ISO-8859-1");
         BasicHttpEntity httpentity = new BasicHttpEntity();
@@ -178,7 +178,7 @@ public class TestEntityUtils extends TestCase {
             // expected
         }
     }
-    
+
     public void testUnknownLengthContentToString() throws Exception {
         byte[] bytes = "Message content".getBytes("ISO-8859-1");
         BasicHttpEntity httpentity = new BasicHttpEntity();
@@ -200,17 +200,17 @@ public class TestEntityUtils extends TestCase {
     static final int SWISS_GERMAN_HELLO [] = {
         0x47, 0x72, 0xFC, 0x65, 0x7A, 0x69, 0x5F, 0x7A, 0xE4, 0x6D, 0xE4
     };
-        
+
     static final int RUSSIAN_HELLO [] = {
-        0x412, 0x441, 0x435, 0x43C, 0x5F, 0x43F, 0x440, 0x438, 
-        0x432, 0x435, 0x442 
-    }; 
-    
+        0x412, 0x441, 0x435, 0x43C, 0x5F, 0x43F, 0x440, 0x438,
+        0x432, 0x435, 0x442
+    };
+
     private static String constructString(int [] unicodeChars) {
         StringBuffer buffer = new StringBuffer();
         if (unicodeChars != null) {
             for (int i = 0; i < unicodeChars.length; i++) {
-                buffer.append((char)unicodeChars[i]); 
+                buffer.append((char)unicodeChars[i]);
             }
         }
         return buffer.toString();
@@ -225,7 +225,7 @@ public class TestEntityUtils extends TestCase {
         String s = EntityUtils.toString(httpentity);
         assertEquals(content, s);
     }
-    
+
     public void testDefaultCharsetContentToString() throws Exception {
         String content = constructString(RUSSIAN_HELLO);
         byte[] bytes = content.getBytes("KOI8-R");
@@ -235,7 +235,7 @@ public class TestEntityUtils extends TestCase {
         String s = EntityUtils.toString(httpentity, "KOI8-R");
         assertEquals(content, s);
     }
-    
+
     public void testContentWithContentTypeToString() throws Exception {
         String content = constructString(RUSSIAN_HELLO);
         byte[] bytes = content.getBytes("UTF-8");

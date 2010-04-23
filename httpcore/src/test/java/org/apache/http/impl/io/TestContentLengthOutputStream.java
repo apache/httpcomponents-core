@@ -96,6 +96,6 @@ public class TestContentLengthOutputStream extends TestCase {
             // expected
         }
     }
-    
+
 }
 

@@ -38,18 +38,18 @@ import org.apache.http.util.CharArrayBuffer;
 
 /**
  * Basic implementation of a {@link HeaderElementIterator}.
- * 
+ *
  * @since 4.0
  */
 public class BasicHeaderElementIterator implements HeaderElementIterator {
-    
+
     private final HeaderIterator headerIt;
     private final HeaderValueParser parser;
-    
+
     private HeaderElement currentElement = null;
     private CharArrayBuffer buffer = null;
     private ParserCursor cursor = null;
-    
+
     /**
      * Creates a new instance of BasicHeaderElementIterator
      */
@@ -66,12 +66,12 @@ public class BasicHeaderElementIterator implements HeaderElementIterator {
         this.parser = parser;
     }
 
-    
+
     public BasicHeaderElementIterator(final HeaderIterator headerIterator) {
         this(headerIterator, BasicHeaderValueParser.DEFAULT);
     }
 
-    
+
     private void bufferHeaderValue() {
         this.cursor = null;
         this.buffer = null;
@@ -103,7 +103,7 @@ public class BasicHeaderElementIterator implements HeaderElementIterator {
             }
             // Anything buffered?
             if (this.cursor != null) {
-                // loop while there is data in the buffer 
+                // loop while there is data in the buffer
                 while (!this.cursor.atEnd()) {
                     HeaderElement e = this.parser.parseHeaderElement(this.buffer, this.cursor);
                     if (!(e.getName().length() == 0 && e.getValue() == null)) {
@@ -121,7 +121,7 @@ public class BasicHeaderElementIterator implements HeaderElementIterator {
             }
         }
     }
-    
+
     public boolean hasNext() {
         if (this.currentElement == null) {
             parseNextElement();

@@ -55,7 +55,7 @@ public class TestIdentityInputStream extends TestCase {
             //expected
         }
     }
-    
+
     public void testBasicRead() throws Exception {
         byte[] input = new byte[] {'a', 'b', 'c'};
         SessionInputBufferMockup receiver = new SessionInputBufferMockup(input);
@@ -68,9 +68,9 @@ public class TestIdentityInputStream extends TestCase {
         assertEquals(-1, instream.read(tmp, 0, tmp.length));
         assertEquals(-1, instream.read());
         assertEquals(-1, instream.read(tmp, 0, tmp.length));
-        assertEquals(-1, instream.read());        
+        assertEquals(-1, instream.read());
     }
-    
+
     public void testClosedCondition() throws Exception {
         byte[] input = new byte[] {'a', 'b', 'c'};
         SessionInputBufferMockup receiver = new SessionInputBufferMockup(input);
@@ -78,13 +78,13 @@ public class TestIdentityInputStream extends TestCase {
 
         instream.close();
         instream.close();
-        
+
         assertEquals(0, instream.available());
         byte[] tmp = new byte[2];
         assertEquals(-1, instream.read(tmp, 0, tmp.length));
         assertEquals(-1, instream.read());
         assertEquals(-1, instream.read(tmp, 0, tmp.length));
-        assertEquals(-1, instream.read());        
+        assertEquals(-1, instream.read());
     }
 
     public void testAvailable() throws Exception {
@@ -92,7 +92,7 @@ public class TestIdentityInputStream extends TestCase {
         SessionInputBufferMockup receiver = new SessionInputBufferMockup(input);
         IdentityInputStream instream = new IdentityInputStream(receiver);
         instream.read();
-        assertEquals(2, instream.available());        
+        assertEquals(2, instream.available());
     }
-    
+
 }

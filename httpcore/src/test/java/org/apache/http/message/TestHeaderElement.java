@@ -50,7 +50,7 @@ public class TestHeaderElement extends TestCase {
     // ------------------------------------------------------- TestCase Methods
 
     public void testConstructor3() throws Exception {
-        HeaderElement element = new BasicHeaderElement("name", "value", 
+        HeaderElement element = new BasicHeaderElement("name", "value",
                 new NameValuePair[] {
                     new BasicNameValuePair("param1", "value1"),
                     new BasicNameValuePair("param2", "value2")
@@ -72,7 +72,7 @@ public class TestHeaderElement extends TestCase {
 
     public void testInvalidName() {
         try {
-            new BasicHeaderElement(null, null, null); 
+            new BasicHeaderElement(null, null, null);
             fail("IllegalArgumentException should have been thrown");
         } catch (IllegalArgumentException ex) {
             //expected
@@ -81,7 +81,7 @@ public class TestHeaderElement extends TestCase {
 
     public void testParamByName() throws Exception {
         String s = "name = value; param1 = value1; param2 = value2";
-        HeaderElement element = BasicHeaderValueParser.parseHeaderElement(s, null); 
+        HeaderElement element = BasicHeaderValueParser.parseHeaderElement(s, null);
         assertEquals("value1", element.getParameterByName("param1").getValue());
         assertEquals("value2", element.getParameterByName("param2").getValue());
         assertNull(element.getParameterByName("param3"));
@@ -94,19 +94,19 @@ public class TestHeaderElement extends TestCase {
     }
 
     public void testHashCode() {
-        HeaderElement element1 = new BasicHeaderElement("name", "value", 
+        HeaderElement element1 = new BasicHeaderElement("name", "value",
                 new NameValuePair[] {
                     new BasicNameValuePair("param1", "value1"),
                     new BasicNameValuePair("param2", "value2")
                 } );
-        HeaderElement element2 = new BasicHeaderElement("name", "value", 
+        HeaderElement element2 = new BasicHeaderElement("name", "value",
                 new NameValuePair[] {
                     new BasicNameValuePair("param2", "value2"),
                     new BasicNameValuePair("param1", "value1")
                 } );
-        HeaderElement element3 = new BasicHeaderElement("name", "value"); 
-        HeaderElement element4 = new BasicHeaderElement("name", "value"); 
-        HeaderElement element5 = new BasicHeaderElement("name", "value", 
+        HeaderElement element3 = new BasicHeaderElement("name", "value");
+        HeaderElement element4 = new BasicHeaderElement("name", "value");
+        HeaderElement element5 = new BasicHeaderElement("name", "value",
                 new NameValuePair[] {
                     new BasicNameValuePair("param1", "value1"),
                     new BasicNameValuePair("param2", "value2")
@@ -117,21 +117,21 @@ public class TestHeaderElement extends TestCase {
         assertTrue(element3.hashCode() == element4.hashCode());
         assertTrue(element1.hashCode() == element5.hashCode());
     }
-    
+
     public void testEquals() {
-        HeaderElement element1 = new BasicHeaderElement("name", "value", 
+        HeaderElement element1 = new BasicHeaderElement("name", "value",
                 new NameValuePair[] {
                     new BasicNameValuePair("param1", "value1"),
                     new BasicNameValuePair("param2", "value2")
                 } );
-        HeaderElement element2 = new BasicHeaderElement("name", "value", 
+        HeaderElement element2 = new BasicHeaderElement("name", "value",
                 new NameValuePair[] {
                     new BasicNameValuePair("param2", "value2"),
                     new BasicNameValuePair("param1", "value1")
                 } );
-        HeaderElement element3 = new BasicHeaderElement("name", "value"); 
-        HeaderElement element4 = new BasicHeaderElement("name", "value"); 
-        HeaderElement element5 = new BasicHeaderElement("name", "value", 
+        HeaderElement element3 = new BasicHeaderElement("name", "value");
+        HeaderElement element4 = new BasicHeaderElement("name", "value");
+        HeaderElement element5 = new BasicHeaderElement("name", "value",
                 new NameValuePair[] {
                     new BasicNameValuePair("param1", "value1"),
                     new BasicNameValuePair("param2", "value2")
@@ -145,7 +145,7 @@ public class TestHeaderElement extends TestCase {
         assertFalse(element1.equals(null));
         assertFalse(element1.equals("name = value; param1 = value1; param2 = value2"));
     }
-    
+
     public void testToString() {
         String s = "name=value; param1=value1; param2=value2";
         HeaderElement element = BasicHeaderValueParser.parseHeaderElement(s, null);
@@ -154,9 +154,9 @@ public class TestHeaderElement extends TestCase {
         element = BasicHeaderValueParser.parseHeaderElement(s, null);
         assertEquals(s, element.toString());
     }
-    
+
     public void testCloning() throws Exception {
-        BasicHeaderElement orig = new BasicHeaderElement("name", "value", 
+        BasicHeaderElement orig = new BasicHeaderElement("name", "value",
                 new NameValuePair[] {
                     new BasicNameValuePair("param1", "value1"),
                     new BasicNameValuePair("param2", "value2")
@@ -164,5 +164,5 @@ public class TestHeaderElement extends TestCase {
         BasicHeaderElement clone = (BasicHeaderElement) orig.clone();
         assertEquals(orig, clone);
     }
-    
+
 }

@@ -37,7 +37,7 @@ import org.apache.http.ReasonPhraseCatalog;
 
 /**
  * Basic implementation of {@link HttpResponse}.
- * 
+ *
  * @since 4.0
  */
 public class BasicHttpResponse extends AbstractHttpMessage
@@ -107,7 +107,7 @@ public class BasicHttpResponse extends AbstractHttpMessage
 
     // non-javadoc, see interface HttpResponse
     public StatusLine getStatusLine() {
-        return this.statusline; 
+        return this.statusline;
     }
 
     // non-javadoc, see interface HttpResponse
@@ -194,5 +194,5 @@ public class BasicHttpResponse extends AbstractHttpMessage
     public String toString() {
         return this.statusline + " " + this.headergroup;
     }
-    
+
 }

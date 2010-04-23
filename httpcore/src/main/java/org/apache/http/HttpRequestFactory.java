@@ -29,15 +29,15 @@ package org.apache.http;
 
 /**
  * A factory for {@link HttpRequest HttpRequest} objects.
- * 
+ *
  * @since 4.0
  */
 public interface HttpRequestFactory {
-    
-    HttpRequest newHttpRequest(RequestLine requestline) 
+
+    HttpRequest newHttpRequest(RequestLine requestline)
         throws MethodNotSupportedException;
-    
-    HttpRequest newHttpRequest(String method, String uri) 
+
+    HttpRequest newHttpRequest(String method, String uri)
             throws MethodNotSupportedException;
-    
+
 }

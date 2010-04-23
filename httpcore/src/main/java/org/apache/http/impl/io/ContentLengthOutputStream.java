@@ -33,20 +33,20 @@ import java.io.OutputStream;
 import org.apache.http.io.SessionOutputBuffer;
 
 /**
- * Output stream that cuts off after a defined number of bytes. This class 
- * is used to send content of HTTP messages where the end of the content entity 
- * is determined by the value of the <code>Content-Length header</code>. 
+ * Output stream that cuts off after a defined number of bytes. This class
+ * is used to send content of HTTP messages where the end of the content entity
+ * is determined by the value of the <code>Content-Length header</code>.
  * Entities transferred using this stream can be maximum {@link Long#MAX_VALUE}
- * long. 
+ * long.
  * <p>
  * Note that this class NEVER closes the underlying stream, even when close
- * gets called.  Instead, the stream will be marked as closed and no further 
+ * gets called.  Instead, the stream will be marked as closed and no further
  * output will be permitted.
- * 
+ *
  * @since 4.0
  */
 public class ContentLengthOutputStream extends OutputStream {
-    
+
     /**
      * Wrapped session output buffer.
      */
@@ -65,13 +65,13 @@ public class ContentLengthOutputStream extends OutputStream {
     private boolean closed = false;
 
     /**
-     * Wraps a session output buffer and cuts off output after a defined number 
+     * Wraps a session output buffer and cuts off output after a defined number
      * of bytes.
      *
      * @param out The session output buffer
      * @param contentLength The maximum number of bytes that can be written to
      * the stream. Subsequent write operations will be ignored.
-     * 
+     *
      * @since 4.0
      */
     public ContentLengthOutputStream(final SessionOutputBuffer out, long contentLength) {
@@ -88,7 +88,7 @@ public class ContentLengthOutputStream extends OutputStream {
 
     /**
      * <p>Does not close the underlying socket output.</p>
-     * 
+     *
      * @throws IOException If an I/O problem occurs.
      */
     public void close() throws IOException {
@@ -129,5 +129,5 @@ public class ContentLengthOutputStream extends OutputStream {
             this.total++;
         }
     }
-    
+
 }

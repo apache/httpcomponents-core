@@ -42,19 +42,19 @@ import org.apache.http.util.CharArrayBuffer;
 
 /**
  * Abstract base class for HTTP message writers that serialize output to
- * an instance of {@link SessionOutputBuffer}. 
- * 
+ * an instance of {@link SessionOutputBuffer}.
+ *
  * @since 4.0
  */
 public abstract class AbstractMessageWriter implements HttpMessageWriter {
-    
-    protected final SessionOutputBuffer sessionBuffer;    
+
+    protected final SessionOutputBuffer sessionBuffer;
     protected final CharArrayBuffer lineBuf;
     protected final LineFormatter lineFormatter;
 
     /**
      * Creates an instance of AbstractMessageWriter.
-     * 
+     *
      * @param buffer the session output buffer.
      * @param formatter the line formatter.
      * @param params HTTP parameters.
@@ -71,11 +71,11 @@ public abstract class AbstractMessageWriter implements HttpMessageWriter {
         this.lineFormatter = (formatter != null) ?
             formatter : BasicLineFormatter.DEFAULT;
     }
-    
+
     /**
      * Subclasses must override this method to write out the first header line
      * based on the {@link HttpMessage} passed as a parameter.
-     * 
+     *
      * @param message the message whose first line is to be written out.
      * @throws IOException in case of an I/O error.
      */
@@ -95,5 +95,5 @@ public abstract class AbstractMessageWriter implements HttpMessageWriter {
         this.lineBuf.clear();
         this.sessionBuffer.writeLine(this.lineBuf);
     }
-    
+
 }

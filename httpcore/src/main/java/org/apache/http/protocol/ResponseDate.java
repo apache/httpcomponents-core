@@ -35,21 +35,21 @@ import org.apache.http.HttpResponseInterceptor;
 import org.apache.http.HttpStatus;
 
 /**
- * ResponseDate is responsible for adding <code>Date<c/ode> header to the 
- * outgoing responses. This interceptor is recommended for server side protocol 
+ * ResponseDate is responsible for adding <code>Date<c/ode> header to the
+ * outgoing responses. This interceptor is recommended for server side protocol
  * processors.
- * 
+ *
  * @since 4.0
  */
 public class ResponseDate implements HttpResponseInterceptor {
 
-    private static final HttpDateGenerator DATE_GENERATOR = new HttpDateGenerator(); 
-    
+    private static final HttpDateGenerator DATE_GENERATOR = new HttpDateGenerator();
+
     public ResponseDate() {
         super();
     }
 
-    public void process(final HttpResponse response, final HttpContext context) 
+    public void process(final HttpResponse response, final HttpContext context)
             throws HttpException, IOException {
         if (response == null) {
             throw new IllegalArgumentException
@@ -59,8 +59,8 @@ public class ResponseDate implements HttpResponseInterceptor {
         if ((status >= HttpStatus.SC_OK) &&
             !response.containsHeader(HTTP.DATE_HEADER)) {
             String httpdate = DATE_GENERATOR.getCurrentDate();
-            response.setHeader(HTTP.DATE_HEADER, httpdate); 
+            response.setHeader(HTTP.DATE_HEADER, httpdate);
         }
     }
-    
+
 }

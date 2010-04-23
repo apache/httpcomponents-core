@@ -55,55 +55,55 @@ public class TestResponseParser extends TestCase {
     public void testInvalidConstructorInput() throws Exception {
         try {
             new HttpResponseParser(
-                    null, 
+                    null,
                     BasicLineParser.DEFAULT,
                     new DefaultHttpResponseFactory(),
-                    new BasicHttpParams()); 
+                    new BasicHttpParams());
             fail("IllegalArgumentException should have been thrown");
         } catch (IllegalArgumentException ex) {
             // expected
         }
         try {
-            SessionInputBuffer inbuffer = new SessionInputBufferMockup(new byte[] {}); 
+            SessionInputBuffer inbuffer = new SessionInputBufferMockup(new byte[] {});
             new HttpResponseParser(
-                    inbuffer, 
+                    inbuffer,
                     BasicLineParser.DEFAULT,
                     null,
-                    new BasicHttpParams()); 
+                    new BasicHttpParams());
             fail("IllegalArgumentException should have been thrown");
         } catch (IllegalArgumentException ex) {
             // expected
         }
         try {
-            SessionInputBuffer inbuffer = new SessionInputBufferMockup(new byte[] {}); 
+            SessionInputBuffer inbuffer = new SessionInputBufferMockup(new byte[] {});
             new HttpResponseParser(
-                    inbuffer, 
+                    inbuffer,
                     BasicLineParser.DEFAULT,
                     new DefaultHttpResponseFactory(),
-                    null); 
+                    null);
             fail("IllegalArgumentException should have been thrown");
         } catch (IllegalArgumentException ex) {
             // expected
         }
     }
-    
+
     public void testBasicMessageParsing() throws Exception {
-        String s = 
-            "HTTP/1.1 200 OK\r\n" + 
-            "Server: whatever\r\n" + 
-            "Date: some date\r\n" + 
-            "Set-Cookie: c1=stuff\r\n" + 
-            "\r\n"; 
+        String s =
+            "HTTP/1.1 200 OK\r\n" +
+            "Server: whatever\r\n" +
+            "Date: some date\r\n" +
+            "Set-Cookie: c1=stuff\r\n" +
+            "\r\n";
         SessionInputBuffer inbuffer = new SessionInputBufferMockup(s, "US-ASCII");
-        
+
         HttpResponseParser parser = new HttpResponseParser(
-                inbuffer, 
+                inbuffer,
                 BasicLineParser.DEFAULT,
                 new DefaultHttpResponseFactory(),
-                new BasicHttpParams()); 
-        
+                new BasicHttpParams());
+
         HttpResponse httpresponse = (HttpResponse) parser.parse();
-        
+
         StatusLine statusline = httpresponse.getStatusLine();
         assertNotNull(statusline);
         assertEquals(200, statusline.getStatusCode());
@@ -115,13 +115,13 @@ public class TestResponseParser extends TestCase {
 
     public void testConnectionClosedException() throws Exception {
         SessionInputBuffer inbuffer = new SessionInputBufferMockup(new byte[] {});
-        
+
         HttpResponseParser parser = new HttpResponseParser(
-                inbuffer, 
+                inbuffer,
                 BasicLineParser.DEFAULT,
                 new DefaultHttpResponseFactory(),
-                new BasicHttpParams()); 
-        
+                new BasicHttpParams());
+
         try {
             parser.parse();
             fail("NoHttpResponseException should have been thrown");
@@ -130,23 +130,23 @@ public class TestResponseParser extends TestCase {
     }
 
     public void testMessageParsingTimeout() throws Exception {
-        String s = 
-            "HTTP\000/1.1 200\000 OK\r\n" + 
-            "Server: wha\000tever\r\n" + 
-            "Date: some date\r\n" + 
-            "Set-Coo\000kie: c1=stuff\r\n" + 
-            "\000\r\n"; 
+        String s =
+            "HTTP\000/1.1 200\000 OK\r\n" +
+            "Server: wha\000tever\r\n" +
+            "Date: some date\r\n" +
+            "Set-Coo\000kie: c1=stuff\r\n" +
+            "\000\r\n";
         SessionInputBuffer inbuffer = new SessionInputBufferMockup(
                 new TimeoutByteArrayInputStream(s.getBytes("US-ASCII")), 16);
-        
+
         HttpResponseParser parser = new HttpResponseParser(
-                inbuffer, 
+                inbuffer,
                 BasicLineParser.DEFAULT,
                 new DefaultHttpResponseFactory(),
-                new BasicHttpParams()); 
-        
+                new BasicHttpParams());
+
         int timeoutCount = 0;
-        
+
         HttpResponse httpresponse = null;
         for (int i = 0; i < 10; i++) {
             try {
@@ -155,7 +155,7 @@ public class TestResponseParser extends TestCase {
             } catch (InterruptedIOException ex) {
                 timeoutCount++;
             }
-            
+
         }
         assertNotNull(httpresponse);
         assertEquals(5, timeoutCount);

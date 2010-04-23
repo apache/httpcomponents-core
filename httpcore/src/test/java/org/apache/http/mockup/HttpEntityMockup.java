@@ -40,7 +40,7 @@ import org.apache.http.entity.AbstractHttpEntity;
 public class HttpEntityMockup extends AbstractHttpEntity {
 
     private boolean stream;
-    
+
     public InputStream getContent() throws IOException, IllegalStateException {
         return null;
     }
@@ -62,6 +62,6 @@ public class HttpEntityMockup extends AbstractHttpEntity {
     }
 
     public void writeTo(OutputStream outstream) throws IOException {
-    }    
-    
+    }
+
 }

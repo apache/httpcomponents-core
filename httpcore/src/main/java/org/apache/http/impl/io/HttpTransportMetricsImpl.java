@@ -37,11 +37,11 @@ import org.apache.http.io.HttpTransportMetrics;
 public class HttpTransportMetricsImpl implements HttpTransportMetrics {
 
     private long bytesTransferred = 0;
-    
+
     public HttpTransportMetricsImpl() {
         super();
     }
-    
+
     public long getBytesTransferred() {
         return this.bytesTransferred;
     }
@@ -57,5 +57,5 @@ public class HttpTransportMetricsImpl implements HttpTransportMetrics {
     public void reset() {
         this.bytesTransferred = 0;
     }
-    
+
 }

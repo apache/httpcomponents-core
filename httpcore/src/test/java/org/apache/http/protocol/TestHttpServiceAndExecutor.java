@@ -74,7 +74,7 @@ public class TestHttpServiceAndExecutor extends TestCase {
 
     private TestHttpServer server;
     private TestHttpClient client;
-    
+
     protected void setUp() throws Exception {
         this.server = new TestHttpServer();
         this.client = new TestHttpClient();
@@ -85,14 +85,14 @@ public class TestHttpServiceAndExecutor extends TestCase {
     }
 
     /**
-     * This test case executes a series of simple GET requests 
+     * This test case executes a series of simple GET requests
      */
     public void testSimpleBasicHttpRequests() throws Exception {
-        
+
         int reqNo = 20;
-        
+
         Random rnd = new Random();
-        
+
         // Prepare some random data
         final List testData = new ArrayList(reqNo);
         for (int i = 0; i < reqNo; i++) {
@@ -106,39 +106,39 @@ public class TestHttpServiceAndExecutor extends TestCase {
         this.server.registerHandler("*", new HttpRequestHandler() {
 
             public void handle(
-                    final HttpRequest request, 
-                    final HttpResponse response, 
+                    final HttpRequest request,
+                    final HttpResponse response,
                     final HttpContext context) throws HttpException, IOException {
-                
+
                 String s = request.getRequestLine().getUri();
                 if (s.startsWith("/?")) {
                     s = s.substring(2);
                 }
                 int index = Integer.parseInt(s);
                 byte[] data = (byte []) testData.get(index);
-                ByteArrayEntity entity = new ByteArrayEntity(data); 
+                ByteArrayEntity entity = new ByteArrayEntity(data);
                 response.setEntity(entity);
             }
-            
+
         });
-        
+
         this.server.start();
-        
+
         DefaultHttpClientConnection conn = new DefaultHttpClientConnection();
         HttpHost host = new HttpHost("localhost", this.server.getPort());
-        
+
         try {
             for (int r = 0; r < reqNo; r++) {
                 if (!conn.isOpen()) {
                     Socket socket = new Socket(host.getHostName(), host.getPort());
                     conn.bind(socket, this.client.getParams());
                 }
-                
+
                 BasicHttpRequest get = new BasicHttpRequest("GET", "/?" + r);
                 HttpResponse response = this.client.execute(get, host, conn);
                 byte[] received = EntityUtils.toByteArray(response.getEntity());
                 byte[] expected = (byte[]) testData.get(r);
-                
+
                 assertEquals(expected.length, received.length);
                 for (int i = 0; i < expected.length; i++) {
                     assertEquals(expected[i], received[i]);
@@ -147,12 +147,12 @@ public class TestHttpServiceAndExecutor extends TestCase {
                     conn.close();
                 }
             }
-            
+
             //Verify the connection metrics
             HttpConnectionMetrics cm = conn.getMetrics();
             assertEquals(reqNo, cm.getRequestCount());
             assertEquals(reqNo, cm.getResponseCount());
-            
+
         } finally {
             conn.close();
             this.server.shutdown();
@@ -160,15 +160,15 @@ public class TestHttpServiceAndExecutor extends TestCase {
     }
 
     /**
-     * This test case executes a series of simple POST requests with content length 
-     * delimited content. 
+     * This test case executes a series of simple POST requests with content length
+     * delimited content.
      */
     public void testSimpleHttpPostsWithContentLength() throws Exception {
-        
+
         int reqNo = 20;
-        
+
         Random rnd = new Random();
-        
+
         // Prepare some random data
         List testData = new ArrayList(reqNo);
         for (int i = 0; i < reqNo; i++) {
@@ -182,37 +182,37 @@ public class TestHttpServiceAndExecutor extends TestCase {
         this.server.registerHandler("*", new HttpRequestHandler() {
 
             public void handle(
-                    final HttpRequest request, 
-                    final HttpResponse response, 
+                    final HttpRequest request,
+                    final HttpResponse response,
                     final HttpContext context) throws HttpException, IOException {
-                
+
                 if (request instanceof HttpEntityEnclosingRequest) {
                     HttpEntity incoming = ((HttpEntityEnclosingRequest) request).getEntity();
                     byte[] data = EntityUtils.toByteArray(incoming);
-                    
+
                     ByteArrayEntity outgoing = new ByteArrayEntity(data);
                     outgoing.setChunked(false);
                     response.setEntity(outgoing);
                 } else {
-                    StringEntity outgoing = new StringEntity("No content"); 
+                    StringEntity outgoing = new StringEntity("No content");
                     response.setEntity(outgoing);
                 }
             }
-            
+
         });
-        
+
         this.server.start();
-        
+
         DefaultHttpClientConnection conn = new DefaultHttpClientConnection();
         HttpHost host = new HttpHost("localhost", this.server.getPort());
-        
+
         try {
             for (int r = 0; r < reqNo; r++) {
                 if (!conn.isOpen()) {
                     Socket socket = new Socket(host.getHostName(), host.getPort());
                     conn.bind(socket, this.client.getParams());
                 }
-                
+
                 BasicHttpEntityEnclosingRequest post = new BasicHttpEntityEnclosingRequest("POST", "/");
                 byte[] data = (byte[]) testData.get(r);
                 ByteArrayEntity outgoing = new ByteArrayEntity(data);
@@ -221,7 +221,7 @@ public class TestHttpServiceAndExecutor extends TestCase {
                 HttpResponse response = this.client.execute(post, host, conn);
                 byte[] received = EntityUtils.toByteArray(response.getEntity());
                 byte[] expected = (byte[]) testData.get(r);
-                
+
                 assertEquals(expected.length, received.length);
                 for (int i = 0; i < expected.length; i++) {
                     assertEquals(expected[i], received[i]);
@@ -234,7 +234,7 @@ public class TestHttpServiceAndExecutor extends TestCase {
             HttpConnectionMetrics cm = conn.getMetrics();
             assertEquals(reqNo, cm.getRequestCount());
             assertEquals(reqNo, cm.getResponseCount());
-            
+
         } finally {
             conn.close();
             this.server.shutdown();
@@ -242,15 +242,15 @@ public class TestHttpServiceAndExecutor extends TestCase {
     }
 
     /**
-     * This test case executes a series of simple POST requests with chunk 
-     * coded content content. 
+     * This test case executes a series of simple POST requests with chunk
+     * coded content content.
      */
     public void testSimpleHttpPostsChunked() throws Exception {
-        
+
         int reqNo = 20;
-        
+
         Random rnd = new Random();
-        
+
         // Prepare some random data
         List testData = new ArrayList(reqNo);
         for (int i = 0; i < reqNo; i++) {
@@ -264,37 +264,37 @@ public class TestHttpServiceAndExecutor extends TestCase {
         this.server.registerHandler("*", new HttpRequestHandler() {
 
             public void handle(
-                    final HttpRequest request, 
-                    final HttpResponse response, 
+                    final HttpRequest request,
+                    final HttpResponse response,
                     final HttpContext context) throws HttpException, IOException {
-                
+
                 if (request instanceof HttpEntityEnclosingRequest) {
                     HttpEntity incoming = ((HttpEntityEnclosingRequest) request).getEntity();
                     byte[] data = EntityUtils.toByteArray(incoming);
-                    
+
                     ByteArrayEntity outgoing = new ByteArrayEntity(data);
                     outgoing.setChunked(true);
                     response.setEntity(outgoing);
                 } else {
-                    StringEntity outgoing = new StringEntity("No content"); 
+                    StringEntity outgoing = new StringEntity("No content");
                     response.setEntity(outgoing);
                 }
             }
-            
+
         });
-        
+
         this.server.start();
-        
+
         DefaultHttpClientConnection conn = new DefaultHttpClientConnection();
         HttpHost host = new HttpHost("localhost", this.server.getPort());
-        
+
         try {
             for (int r = 0; r < reqNo; r++) {
                 if (!conn.isOpen()) {
                     Socket socket = new Socket(host.getHostName(), host.getPort());
                     conn.bind(socket, this.client.getParams());
                 }
-                
+
                 BasicHttpEntityEnclosingRequest post = new BasicHttpEntityEnclosingRequest("POST", "/");
                 byte[] data = (byte[]) testData.get(r);
                 ByteArrayEntity outgoing = new ByteArrayEntity(data);
@@ -304,7 +304,7 @@ public class TestHttpServiceAndExecutor extends TestCase {
                 HttpResponse response = this.client.execute(post, host, conn);
                 byte[] received = EntityUtils.toByteArray(response.getEntity());
                 byte[] expected = (byte[]) testData.get(r);
-                
+
                 assertEquals(expected.length, received.length);
                 for (int i = 0; i < expected.length; i++) {
                     assertEquals(expected[i], received[i]);
@@ -324,14 +324,14 @@ public class TestHttpServiceAndExecutor extends TestCase {
     }
 
     /**
-     * This test case executes a series of simple HTTP/1.0 POST requests. 
+     * This test case executes a series of simple HTTP/1.0 POST requests.
      */
     public void testSimpleHttpPostsHTTP10() throws Exception {
-        
+
         int reqNo = 20;
-        
+
         Random rnd = new Random();
-        
+
         // Prepare some random data
         List testData = new ArrayList(reqNo);
         for (int i = 0; i < reqNo; i++) {
@@ -345,41 +345,41 @@ public class TestHttpServiceAndExecutor extends TestCase {
         this.server.registerHandler("*", new HttpRequestHandler() {
 
             public void handle(
-                    final HttpRequest request, 
-                    final HttpResponse response, 
+                    final HttpRequest request,
+                    final HttpResponse response,
                     final HttpContext context) throws HttpException, IOException {
-                
+
                 if (request instanceof HttpEntityEnclosingRequest) {
                     HttpEntity incoming = ((HttpEntityEnclosingRequest) request).getEntity();
                     byte[] data = EntityUtils.toByteArray(incoming);
-                    
+
                     ByteArrayEntity outgoing = new ByteArrayEntity(data);
                     outgoing.setChunked(false);
                     response.setEntity(outgoing);
                 } else {
-                    StringEntity outgoing = new StringEntity("No content"); 
+                    StringEntity outgoing = new StringEntity("No content");
                     response.setEntity(outgoing);
                 }
             }
-            
+
         });
-        
+
         this.server.start();
-        
+
         // Set protocol level to HTTP/1.0
         this.client.getParams().setParameter(
                 CoreProtocolPNames.PROTOCOL_VERSION, HttpVersion.HTTP_1_0);
-        
+
         DefaultHttpClientConnection conn = new DefaultHttpClientConnection();
         HttpHost host = new HttpHost("localhost", this.server.getPort());
-        
+
         try {
             for (int r = 0; r < reqNo; r++) {
                 if (!conn.isOpen()) {
                     Socket socket = new Socket(host.getHostName(), host.getPort());
                     conn.bind(socket, this.client.getParams());
                 }
-                
+
                 BasicHttpEntityEnclosingRequest post = new BasicHttpEntityEnclosingRequest("POST", "/");
                 byte[] data = (byte[]) testData.get(r);
                 ByteArrayEntity outgoing = new ByteArrayEntity(data);
@@ -389,7 +389,7 @@ public class TestHttpServiceAndExecutor extends TestCase {
                 assertEquals(HttpVersion.HTTP_1_0, response.getStatusLine().getProtocolVersion());
                 byte[] received = EntityUtils.toByteArray(response.getEntity());
                 byte[] expected = (byte[]) testData.get(r);
-                
+
                 assertEquals(expected.length, received.length);
                 for (int i = 0; i < expected.length; i++) {
                     assertEquals(expected[i], received[i]);
@@ -398,7 +398,7 @@ public class TestHttpServiceAndExecutor extends TestCase {
                     conn.close();
                 }
             }
-            
+
             //Verify the connection metrics
             HttpConnectionMetrics cm = conn.getMetrics();
             assertEquals(reqNo, cm.getRequestCount());
@@ -410,15 +410,15 @@ public class TestHttpServiceAndExecutor extends TestCase {
     }
 
     /**
-     * This test case executes a series of simple POST requests using 
-     * the 'expect: continue' handshake. 
+     * This test case executes a series of simple POST requests using
+     * the 'expect: continue' handshake.
      */
     public void testHttpPostsWithExpectContinue() throws Exception {
-        
+
         int reqNo = 20;
-        
+
         Random rnd = new Random();
-        
+
         // Prepare some random data
         List testData = new ArrayList(reqNo);
         for (int i = 0; i < reqNo; i++) {
@@ -432,40 +432,40 @@ public class TestHttpServiceAndExecutor extends TestCase {
         this.server.registerHandler("*", new HttpRequestHandler() {
 
             public void handle(
-                    final HttpRequest request, 
-                    final HttpResponse response, 
+                    final HttpRequest request,
+                    final HttpResponse response,
                     final HttpContext context) throws HttpException, IOException {
-                
+
                 if (request instanceof HttpEntityEnclosingRequest) {
                     HttpEntity incoming = ((HttpEntityEnclosingRequest) request).getEntity();
                     byte[] data = EntityUtils.toByteArray(incoming);
-                    
+
                     ByteArrayEntity outgoing = new ByteArrayEntity(data);
                     outgoing.setChunked(true);
                     response.setEntity(outgoing);
                 } else {
-                    StringEntity outgoing = new StringEntity("No content"); 
+                    StringEntity outgoing = new StringEntity("No content");
                     response.setEntity(outgoing);
                 }
             }
-            
+
         });
-        
+
         this.server.start();
-        
+
         // Activate 'expect: continue' handshake
         this.client.getParams().setBooleanParameter(CoreProtocolPNames.USE_EXPECT_CONTINUE, true);
-        
+
         DefaultHttpClientConnection conn = new DefaultHttpClientConnection();
         HttpHost host = new HttpHost("localhost", this.server.getPort());
-        
+
         try {
             for (int r = 0; r < reqNo; r++) {
                 if (!conn.isOpen()) {
                     Socket socket = new Socket(host.getHostName(), host.getPort());
                     conn.bind(socket, this.client.getParams());
                 }
-                
+
                 BasicHttpEntityEnclosingRequest post = new BasicHttpEntityEnclosingRequest("POST", "/");
                 byte[] data = (byte[]) testData.get(r);
                 ByteArrayEntity outgoing = new ByteArrayEntity(data);
@@ -475,7 +475,7 @@ public class TestHttpServiceAndExecutor extends TestCase {
                 HttpResponse response = this.client.execute(post, host, conn);
                 byte[] received = EntityUtils.toByteArray(response.getEntity());
                 byte[] expected = (byte[]) testData.get(r);
-                
+
                 assertEquals(expected.length, received.length);
                 for (int i = 0; i < expected.length; i++) {
                     assertEquals(expected[i], received[i]);
@@ -484,7 +484,7 @@ public class TestHttpServiceAndExecutor extends TestCase {
                     conn.close();
                 }
             }
-            
+
             //Verify the connection metrics
             HttpConnectionMetrics cm = conn.getMetrics();
             assertEquals(reqNo, cm.getRequestCount());
@@ -494,35 +494,35 @@ public class TestHttpServiceAndExecutor extends TestCase {
             this.server.shutdown();
         }
     }
-    
-    
+
+
     /**
-     * This test case executes a series of simple POST requests that do not 
-     * meet the target server expectations. 
+     * This test case executes a series of simple POST requests that do not
+     * meet the target server expectations.
      */
     public void testHttpPostsWithExpectationVerification() throws Exception {
-        
+
         int reqNo = 3;
-        
+
         // Initialize the server-side request handler
         this.server.registerHandler("*", new HttpRequestHandler() {
 
             public void handle(
-                    final HttpRequest request, 
-                    final HttpResponse response, 
+                    final HttpRequest request,
+                    final HttpResponse response,
                     final HttpContext context) throws HttpException, IOException {
-                
-                StringEntity outgoing = new StringEntity("No content"); 
+
+                StringEntity outgoing = new StringEntity("No content");
                 response.setEntity(outgoing);
             }
-            
+
         });
-        
+
         this.server.setExpectationVerifier(new HttpExpectationVerifier() {
 
             public void verify(
-                    final HttpRequest request, 
-                    final HttpResponse response, 
+                    final HttpRequest request,
+                    final HttpResponse response,
                     final HttpContext context) throws HttpException {
                 Header someheader = request.getFirstHeader("Secret");
                 if (someheader != null) {
@@ -536,33 +536,33 @@ public class TestHttpServiceAndExecutor extends TestCase {
                     if (secretNumber < 2) {
                         response.setStatusCode(HttpStatus.SC_EXPECTATION_FAILED);
                         ByteArrayEntity outgoing = new ByteArrayEntity(
-                                EncodingUtils.getAsciiBytes("Wrong secret number")); 
+                                EncodingUtils.getAsciiBytes("Wrong secret number"));
                         response.setEntity(outgoing);
                     }
                 }
             }
-            
+
         });
-        
+
         this.server.start();
-        
+
         // Activate 'expect: continue' handshake
         this.client.getParams().setBooleanParameter(CoreProtocolPNames.USE_EXPECT_CONTINUE, true);
-        
+
         DefaultHttpClientConnection conn = new DefaultHttpClientConnection();
         HttpHost host = new HttpHost("localhost", this.server.getPort());
-        
+
         try {
             for (int r = 0; r < reqNo; r++) {
                 if (!conn.isOpen()) {
                     Socket socket = new Socket(host.getHostName(), host.getPort());
                     conn.bind(socket, this.client.getParams());
                 }
-                
+
                 BasicHttpEntityEnclosingRequest post = new BasicHttpEntityEnclosingRequest("POST", "/");
                 post.addHeader("Secret", Integer.toString(r));
                 ByteArrayEntity outgoing = new ByteArrayEntity(
-                        EncodingUtils.getAsciiBytes("No content")); 
+                        EncodingUtils.getAsciiBytes("No content"));
                 post.setEntity(outgoing);
 
                 HttpResponse response = this.client.execute(post, host, conn);
@@ -570,13 +570,13 @@ public class TestHttpServiceAndExecutor extends TestCase {
                 HttpEntity entity = response.getEntity();
                 assertNotNull(entity);
                 EntityUtils.consume(entity);
-                
+
                 if (r < 2) {
                     assertEquals(HttpStatus.SC_EXPECTATION_FAILED, response.getStatusLine().getStatusCode());
                 } else {
                     assertEquals(HttpStatus.SC_OK, response.getStatusLine().getStatusCode());
                 }
-                
+
                 if (!this.client.keepAlive(response)) {
                     conn.close();
                 }
@@ -590,12 +590,12 @@ public class TestHttpServiceAndExecutor extends TestCase {
             this.server.shutdown();
         }
     }
-    
+
     static class RepeatingEntity extends AbstractHttpEntity {
 
         private final byte[] raw;
         private int n;
-        
+
         public RepeatingEntity(final String content, String charset, int n) {
             super();
             if (content == null) {
@@ -607,7 +607,7 @@ public class TestHttpServiceAndExecutor extends TestCase {
             if (charset == null) {
                 charset = "US-ASCII";
             }
-            byte[] b; 
+            byte[] b;
             try {
                 b = content.getBytes(charset);
             } catch (UnsupportedEncodingException ex) {
@@ -616,7 +616,7 @@ public class TestHttpServiceAndExecutor extends TestCase {
             this.raw = b;
             this.n = n;
         }
-        
+
         public InputStream getContent() throws IOException, IllegalStateException {
             throw new IllegalStateException("This method is not implemented");
         }
@@ -641,13 +641,13 @@ public class TestHttpServiceAndExecutor extends TestCase {
             }
             outstream.flush();
         }
-        
+
     }
-    
+
     public void testHttpContent() throws Exception {
-        
+
         String[] patterns = {
-            
+
             "0123456789ABCDEF",
             "yadayada-blahblah-this-and-that-yadayada-blahblah-this-and-that-" +
             "yadayada-blahblah-this-and-that-yadayada-blahblah-this-and-that-" +
@@ -665,22 +665,22 @@ public class TestHttpServiceAndExecutor extends TestCase {
             "yadayada-blahblah-this-and-that-yadayada-blahblah-this-and-that-" +
             "yadayada-blahblah-this-and-that-yadayada-blahblah-this-and-that"
         };
-        
+
         // Initialize the server-side request handler
         this.server.registerHandler("*", new HttpRequestHandler() {
 
             public void handle(
-                    final HttpRequest request, 
-                    final HttpResponse response, 
+                    final HttpRequest request,
+                    final HttpResponse response,
                     final HttpContext context) throws HttpException, IOException {
-                
+
                 if (request instanceof HttpEntityEnclosingRequest) {
                     int n = 1;
                     String s = request.getRequestLine().getUri();
                     if (s.startsWith("/?n=")) {
                         s = s.substring(4);
                         try {
-                            n = Integer.parseInt(s); 
+                            n = Integer.parseInt(s);
                             if (n <= 0) {
                                 throw new HttpException("Invalid request: " +
                                         "number of repetitions cannot be negative or zero");
@@ -690,11 +690,11 @@ public class TestHttpServiceAndExecutor extends TestCase {
                                     "number of repetitions is invalid");
                         }
                     }
-                    
+
                     HttpEntity incoming = ((HttpEntityEnclosingRequest) request).getEntity();
                     String line = EntityUtils.toString(incoming);
                     String charset = EntityUtils.getContentCharSet(incoming);
-                    
+
                     RepeatingEntity outgoing = new RepeatingEntity(line, charset, n);
                     outgoing.setChunked(n % 2 == 0);
                     response.setEntity(outgoing);
@@ -702,13 +702,13 @@ public class TestHttpServiceAndExecutor extends TestCase {
                     throw new HttpException("Invalid request: POST request expected");
                 }
             }
-            
+
         });
-        
+
         this.server.start();
         DefaultHttpClientConnection conn = new DefaultHttpClientConnection();
         HttpHost host = new HttpHost("localhost", this.server.getPort());
-        
+
         try {
             for (int i = 0; i < patterns.length; i++) {
                 String pattern = patterns[i];
@@ -717,7 +717,7 @@ public class TestHttpServiceAndExecutor extends TestCase {
                         Socket socket = new Socket(host.getHostName(), host.getPort());
                         conn.bind(socket, this.client.getParams());
                     }
-                    
+
                     BasicHttpEntityEnclosingRequest post = new BasicHttpEntityEnclosingRequest(
                             "POST", "/?n=" + n);
                     StringEntity outgoing = new StringEntity(pattern);
@@ -727,14 +727,14 @@ public class TestHttpServiceAndExecutor extends TestCase {
                     HttpResponse response = this.client.execute(post, host, conn);
                     HttpEntity incoming = response.getEntity();
                     assertNotNull(incoming);
-                    InputStream instream = incoming.getContent(); 
+                    InputStream instream = incoming.getContent();
                     String charset = EntityUtils.getContentCharSet(incoming);
                     if (charset == null) {
                         charset = "US-ASCII";
                     }
                     assertNotNull(instream);
                     BufferedReader reader = new BufferedReader(new InputStreamReader(instream, charset));
-                    
+
                     String line;
                     int count = 0;
                     while ((line = reader.readLine()) != null) {

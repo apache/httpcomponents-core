@@ -61,18 +61,18 @@ import org.apache.http.protocol.ResponseServer;
 
 public class TestHttpServer {
 
-    private final HttpParams params; 
+    private final HttpParams params;
     private final HttpProcessor httpproc;
     private final ConnectionReuseStrategy connStrategy;
     private final HttpResponseFactory responseFactory;
     private final HttpRequestHandlerRegistry reqistry;
     private final ServerSocket serversocket;
-    
+
     private HttpExpectationVerifier expectationVerifier;
-    
+
     private Thread listener;
     private volatile boolean shutdown;
-    
+
     public TestHttpServer() throws IOException {
         super();
         this.params = new SyncBasicHttpParams();
@@ -94,38 +94,38 @@ public class TestHttpServer {
         this.reqistry = new HttpRequestHandlerRegistry();
         this.serversocket = new ServerSocket(0);
     }
-    
+
     public void registerHandler(
-            final String pattern, 
+            final String pattern,
             final HttpRequestHandler handler) {
         this.reqistry.register(pattern, handler);
     }
-    
+
     public void setExpectationVerifier(final HttpExpectationVerifier expectationVerifier) {
         this.expectationVerifier = expectationVerifier;
     }
-    
+
     private HttpServerConnection acceptConnection() throws IOException {
         Socket socket = this.serversocket.accept();
         DefaultHttpServerConnection conn = new DefaultHttpServerConnection();
         conn.bind(socket, this.params);
         return conn;
     }
-    
+
     public int getPort() {
         return this.serversocket.getLocalPort();
     }
-    
+
     public InetAddress getInetAddress() {
         return this.serversocket.getInetAddress();
     }
-    
+
     public void start() {
         if (this.listener != null) {
             throw new IllegalStateException("Listener already running");
         }
         this.listener = new Thread(new Runnable() {
-           
+
             public void run() {
                 while (!shutdown && !Thread.interrupted()) {
                     try {
@@ -133,7 +133,7 @@ public class TestHttpServer {
                         HttpServerConnection conn = acceptConnection();
                         // Set up the HTTP service
                         HttpService httpService = new HttpService(
-                                httpproc, 
+                                httpproc,
                                 connStrategy,
                                 responseFactory,
                                 reqistry,
@@ -150,7 +150,7 @@ public class TestHttpServer {
                     }
                 }
             }
-            
+
         });
         this.listener.start();
     }
@@ -168,20 +168,20 @@ public class TestHttpServer {
             this.listener.join(1000);
         } catch (InterruptedException ignore) {}
     }
-    
+
     static class WorkerThread extends Thread {
 
         private final HttpService httpservice;
         private final HttpServerConnection conn;
-        
+
         public WorkerThread(
-                final HttpService httpservice, 
+                final HttpService httpservice,
                 final HttpServerConnection conn) {
             super();
             this.httpservice = httpservice;
             this.conn = conn;
         }
-        
+
         public void run() {
             HttpContext context = new BasicHttpContext(null);
             try {
@@ -201,5 +201,5 @@ public class TestHttpServer {
         }
 
     }
-    
+
 }

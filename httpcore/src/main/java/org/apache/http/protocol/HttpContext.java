@@ -30,26 +30,26 @@ package org.apache.http.protocol;
 import java.util.HashMap;
 
 /**
- * HttpContext represents execution state of an HTTP process. It is a structure 
- * that can be used to map an attribute name to an attribute value. Internally 
- * HTTP context implementations are usually backed by a {@link HashMap}. 
+ * HttpContext represents execution state of an HTTP process. It is a structure
+ * that can be used to map an attribute name to an attribute value. Internally
+ * HTTP context implementations are usually backed by a {@link HashMap}.
  * <p>
- * The primary purpose of the HTTP context is to facilitate information sharing 
- * among various  logically related components. HTTP context can be used 
- * to store a processing state for one message or several consecutive messages. 
- * Multiple logically related messages can participate in a logical session 
+ * The primary purpose of the HTTP context is to facilitate information sharing
+ * among various  logically related components. HTTP context can be used
+ * to store a processing state for one message or several consecutive messages.
+ * Multiple logically related messages can participate in a logical session
  * if the same context is reused between consecutive messages.
- * 
+ *
  * @since 4.0
  */
 public interface HttpContext {
 
     /** The prefix reserved for use by HTTP components. "http." */
     public static final String RESERVED_PREFIX  = "http.";
-    
+
     /**
      * Obtains attribute with the given name.
-     * 
+     *
      * @param id the attribute name.
      * @return attribute value, or <code>null</code> if not set.
      */
@@ -57,7 +57,7 @@ public interface HttpContext {
 
     /**
      * Sets value of the attribute with the given name.
-     * 
+     *
      * @param id the attribute name.
      * @param obj the attribute value.
      */
@@ -65,10 +65,10 @@ public interface HttpContext {
 
     /**
      * Removes attribute with the given name from the context.
-     * 
+     *
      * @param id the attribute name.
      * @return attribute value, or <code>null</code> if not set.
      */
     Object removeAttribute(String id);
-    
+
 }

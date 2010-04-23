@@ -36,8 +36,8 @@ import org.apache.http.params.HttpParams;
 /**
  * Default implementation of a server-side HTTP connection.
  * <p>
- * The following parameters can be used to customize the behavior of this 
- * class: 
+ * The following parameters can be used to customize the behavior of this
+ * class:
  * <ul>
  *  <li>{@link org.apache.http.params.CoreProtocolPNames#HTTP_ELEMENT_CHARSET}</li>
  *  <li>{@link org.apache.http.params.CoreConnectionPNames#TCP_NODELAY}</li>
@@ -46,7 +46,7 @@ import org.apache.http.params.HttpParams;
  *  <li>{@link org.apache.http.params.CoreConnectionPNames#SOCKET_BUFFER_SIZE}</li>
  *  <li>{@link org.apache.http.params.CoreConnectionPNames#MAX_LINE_LENGTH}</li>
  * </ul>
- * 
+ *
  * @since 4.0
  */
 public class DefaultHttpServerConnection extends SocketHttpServerConnection {
@@ -54,7 +54,7 @@ public class DefaultHttpServerConnection extends SocketHttpServerConnection {
     public DefaultHttpServerConnection() {
         super();
     }
-    
+
     public void bind(final Socket socket, final HttpParams params) throws IOException {
         if (socket == null) {
             throw new IllegalArgumentException("Socket may not be null");
@@ -65,7 +65,7 @@ public class DefaultHttpServerConnection extends SocketHttpServerConnection {
         assertNotOpen();
         socket.setTcpNoDelay(HttpConnectionParams.getTcpNoDelay(params));
         socket.setSoTimeout(HttpConnectionParams.getSoTimeout(params));
-        
+
         int linger = HttpConnectionParams.getLinger(params);
         if (linger >= 0) {
             socket.setSoLinger(linger > 0, linger);
@@ -84,5 +84,5 @@ public class DefaultHttpServerConnection extends SocketHttpServerConnection {
         buffer.append("]");
         return buffer.toString();
     }
-    
+
 }

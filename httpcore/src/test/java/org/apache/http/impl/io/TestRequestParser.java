@@ -2,7 +2,7 @@
  * $HeadURL$
  * $Revision$
  * $Date$
- * 
+ *
  * ====================================================================
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
@@ -59,55 +59,55 @@ public class TestRequestParser extends TestCase {
     public void testInvalidConstructorInput() throws Exception {
         try {
             new HttpRequestParser(
-                    null, 
+                    null,
                     BasicLineParser.DEFAULT,
                     new DefaultHttpRequestFactory(),
-                    new BasicHttpParams()); 
+                    new BasicHttpParams());
             fail("IllegalArgumentException should have been thrown");
         } catch (IllegalArgumentException ex) {
             // expected
         }
         try {
-            SessionInputBuffer inbuffer = new SessionInputBufferMockup(new byte[] {}); 
+            SessionInputBuffer inbuffer = new SessionInputBufferMockup(new byte[] {});
             new HttpRequestParser(
-                    inbuffer, 
+                    inbuffer,
                     BasicLineParser.DEFAULT,
                     null,
-                    new BasicHttpParams()); 
+                    new BasicHttpParams());
             fail("IllegalArgumentException should have been thrown");
         } catch (IllegalArgumentException ex) {
             // expected
         }
         try {
-            SessionInputBuffer inbuffer = new SessionInputBufferMockup(new byte[] {}); 
+            SessionInputBuffer inbuffer = new SessionInputBufferMockup(new byte[] {});
             new HttpRequestParser(
-                    inbuffer, 
+                    inbuffer,
                     BasicLineParser.DEFAULT,
                     new DefaultHttpRequestFactory(),
-                    null); 
+                    null);
             fail("IllegalArgumentException should have been thrown");
         } catch (IllegalArgumentException ex) {
             // expected
         }
     }
-    
+
     public void testBasicMessageParsing() throws Exception {
-        String s = 
-            "GET / HTTP/1.1\r\n" + 
-            "Host: localhost\r\n" + 
-            "User-Agent: whatever\r\n" + 
-            "Cookie: c1=stuff\r\n" + 
-            "\r\n"; 
+        String s =
+            "GET / HTTP/1.1\r\n" +
+            "Host: localhost\r\n" +
+            "User-Agent: whatever\r\n" +
+            "Cookie: c1=stuff\r\n" +
+            "\r\n";
         SessionInputBuffer inbuffer = new SessionInputBufferMockup(s, "US-ASCII");
-        
+
         HttpRequestParser parser = new HttpRequestParser(
-                inbuffer, 
+                inbuffer,
                 BasicLineParser.DEFAULT,
                 new DefaultHttpRequestFactory(),
-                new BasicHttpParams()); 
-        
+                new BasicHttpParams());
+
         HttpRequest httprequest = (HttpRequest) parser.parse();
-        
+
         RequestLine reqline = httprequest.getRequestLine();
         assertNotNull(reqline);
         assertEquals("GET", reqline.getMethod());
@@ -119,13 +119,13 @@ public class TestRequestParser extends TestCase {
 
     public void testConnectionClosedException() throws Exception {
         SessionInputBuffer inbuffer = new SessionInputBufferMockup(new byte[] {});
-        
+
         HttpRequestParser parser = new HttpRequestParser(
-                inbuffer, 
+                inbuffer,
                 BasicLineParser.DEFAULT,
                 new DefaultHttpRequestFactory(),
-                new BasicHttpParams()); 
-        
+                new BasicHttpParams());
+
         try {
             parser.parse();
             fail("ConnectionClosedException should have been thrown");
@@ -134,23 +134,23 @@ public class TestRequestParser extends TestCase {
     }
 
     public void testMessageParsingTimeout() throws Exception {
-        String s = 
-            "GET \000/ HTTP/1.1\r\000\n" + 
-            "Host: loca\000lhost\r\n" + 
-            "User-Agent: whatever\r\n" + 
-            "Coo\000kie: c1=stuff\r\n" + 
-            "\000\r\n"; 
+        String s =
+            "GET \000/ HTTP/1.1\r\000\n" +
+            "Host: loca\000lhost\r\n" +
+            "User-Agent: whatever\r\n" +
+            "Coo\000kie: c1=stuff\r\n" +
+            "\000\r\n";
         SessionInputBuffer inbuffer = new SessionInputBufferMockup(
                 new TimeoutByteArrayInputStream(s.getBytes("US-ASCII")), 16);
-        
+
         HttpRequestParser parser = new HttpRequestParser(
-                inbuffer, 
+                inbuffer,
                 BasicLineParser.DEFAULT,
                 new DefaultHttpRequestFactory(),
-                new BasicHttpParams()); 
-        
+                new BasicHttpParams());
+
         int timeoutCount = 0;
-        
+
         HttpRequest httprequest = null;
         for (int i = 0; i < 10; i++) {
             try {
@@ -159,7 +159,7 @@ public class TestRequestParser extends TestCase {
             } catch (InterruptedIOException ex) {
                 timeoutCount++;
             }
-            
+
         }
         assertNotNull(httprequest);
         assertEquals(5, timeoutCount);

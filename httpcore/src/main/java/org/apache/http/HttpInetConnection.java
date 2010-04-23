@@ -31,7 +31,7 @@ import java.net.InetAddress;
 
 /**
  * An HTTP connection over the Internet Protocol (IP).
- * 
+ *
  * @since 4.0
  */
 public interface HttpInetConnection extends HttpConnection {
@@ -39,9 +39,9 @@ public interface HttpInetConnection extends HttpConnection {
     InetAddress getLocalAddress();
 
     int getLocalPort();
-    
+
     InetAddress getRemoteAddress();
 
     int getRemotePort();
-    
+
 }

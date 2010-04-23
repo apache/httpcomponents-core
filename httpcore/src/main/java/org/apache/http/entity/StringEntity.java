@@ -36,9 +36,9 @@ import java.io.UnsupportedEncodingException;
 import org.apache.http.protocol.HTTP;
 
 /**
- * A self contained, repeatable entity that obtains its content from 
+ * A self contained, repeatable entity that obtains its content from
  * a {@link String}.
- * 
+ *
  * @since 4.0
  */
 public class StringEntity extends AbstractHttpEntity implements Cloneable {
@@ -48,7 +48,7 @@ public class StringEntity extends AbstractHttpEntity implements Cloneable {
     /**
      * @since 4.1
      */
-    public StringEntity(final String s, String mimeType, String charset) 
+    public StringEntity(final String s, String mimeType, String charset)
             throws UnsupportedEncodingException {
         super();
         if (s == null) {
@@ -64,12 +64,12 @@ public class StringEntity extends AbstractHttpEntity implements Cloneable {
         setContentType(mimeType + HTTP.CHARSET_PARAM + charset);
     }
 
-    public StringEntity(final String s, String charset) 
+    public StringEntity(final String s, String charset)
             throws UnsupportedEncodingException {
         this(s, null, charset);
     }
 
-    public StringEntity(final String s) 
+    public StringEntity(final String s)
             throws UnsupportedEncodingException {
         this(s, null);
     }
@@ -81,11 +81,11 @@ public class StringEntity extends AbstractHttpEntity implements Cloneable {
     public long getContentLength() {
         return this.content.length;
     }
-    
+
     public InputStream getContent() throws IOException {
         return new ByteArrayInputStream(this.content);
     }
-    
+
     public void writeTo(final OutputStream outstream) throws IOException {
         if (outstream == null) {
             throw new IllegalArgumentException("Output stream may not be null");

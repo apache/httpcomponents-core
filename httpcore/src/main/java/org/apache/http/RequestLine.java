@@ -35,7 +35,7 @@ package org.apache.http;
  * <pre>
  *      Request-Line   = Method SP Request-URI SP HTTP-Version CRLF
  * </pre>
- * 
+ *
  * @since 4.0
  */
 public interface RequestLine {
@@ -45,5 +45,5 @@ public interface RequestLine {
     ProtocolVersion getProtocolVersion();
 
     String getUri();
-    
+
 }

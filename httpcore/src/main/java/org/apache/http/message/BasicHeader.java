@@ -33,14 +33,14 @@ import org.apache.http.ParseException;
 
 /**
  * Basic implementation of {@link Header}.
- * 
+ *
  * @since 4.0
  */
 public class BasicHeader implements Header, Cloneable {
 
     private final String name;
     private final String value;
-    
+
     /**
      * Constructor with name and value
      *
@@ -74,12 +74,12 @@ public class BasicHeader implements Header, Cloneable {
             // result intentionally not cached, it's probably not used again
             return BasicHeaderValueParser.parseElements(this.value, null);
         } else {
-            return new HeaderElement[] {}; 
+            return new HeaderElement[] {};
         }
     }
 
     public Object clone() throws CloneNotSupportedException {
         return super.clone();
     }
- 
+
 }

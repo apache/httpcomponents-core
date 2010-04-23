@@ -28,9 +28,9 @@
 package org.apache.http.protocol;
 
 /**
- * HttpRequestHandlerResolver can be used to resolve an instance of 
- * {@link HttpRequestHandler} matching a particular request URI. Usually the 
- * resolved request handler will be used to process the request with the 
+ * HttpRequestHandlerResolver can be used to resolve an instance of
+ * {@link HttpRequestHandler} matching a particular request URI. Usually the
+ * resolved request handler will be used to process the request with the
  * specified request URI.
  *
  * @since 4.0
@@ -39,11 +39,11 @@ public interface HttpRequestHandlerResolver {
 
     /**
      * Looks up a handler matching the given request URI.
-     * 
+     *
      * @param requestURI the request URI
      * @return HTTP request handler or <code>null</code> if no match
      * is found.
      */
     HttpRequestHandler lookup(String requestURI);
-    
+
 }

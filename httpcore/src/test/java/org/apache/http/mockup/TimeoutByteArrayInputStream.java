@@ -33,26 +33,26 @@ import java.io.InterruptedIOException;
 
 /**
  * Test class similar to {@link java.io.ByteArrayInputStream} that throws if encounters
- * value zero '\000' in the source byte array. 
+ * value zero '\000' in the source byte array.
  */
 public class TimeoutByteArrayInputStream extends InputStream {
-    
+
     private final byte[] buf;
-    
+
     private int pos;
     protected int count;
-    
+
     public TimeoutByteArrayInputStream(byte[] buf, int off, int len) {
         super();
         this.buf = buf;
         this.pos = off;
         this.count = Math.min(off + len, buf.length);
     }
-    
+
     public TimeoutByteArrayInputStream(byte[] buf) {
         this(buf, 0, buf.length);
     }
-    
+
     public int read() throws IOException {
         if (this.pos < this.count) {
             return -1;
@@ -64,7 +64,7 @@ public class TimeoutByteArrayInputStream extends InputStream {
             throw new InterruptedIOException("Timeout");
         }
     }
-    
+
     public int read(byte b[], int off, int len) throws IOException {
         if (b == null) {
             throw new NullPointerException();
@@ -96,7 +96,7 @@ public class TimeoutByteArrayInputStream extends InputStream {
         }
         return len;
     }
- 
+
     public long skip(long n) {
         if (this.pos + n > this.count) {
             n = this.count - this.pos;
@@ -111,9 +111,9 @@ public class TimeoutByteArrayInputStream extends InputStream {
     public int available() {
         return this.count - this.pos;
     }
-    
+
     public boolean markSupported() {
         return false;
     }
-    
+
 }

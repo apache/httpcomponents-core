@@ -50,13 +50,13 @@ import org.apache.http.message.BasicTokenIterator;
  * be examined. In the absence of a <code>Connection</code> header, the
  * non-standard but commonly used <code>Proxy-Connection</code> header takes
  * it's role. A token <code>close</code> indicates that the connection cannot
- * be reused. If there is no such token, a token <code>keep-alive</code> 
+ * be reused. If there is no such token, a token <code>keep-alive</code>
  * indicates that the connection should be re-used. If neither token is found,
  * or if there are no <code>Connection</code> headers, the default policy for
- * the HTTP version is applied. Since <code>HTTP/1.1</code>, connections are 
- * re-used by default. Up until <code>HTTP/1.0</code>, connections are not 
+ * the HTTP version is applied. Since <code>HTTP/1.1</code>, connections are
+ * re-used by default. Up until <code>HTTP/1.0</code>, connections are not
  * re-used by default.
- * 
+ *
  * @since 4.0
  */
 public class DefaultConnectionReuseStrategy implements ConnectionReuseStrategy {
@@ -76,7 +76,7 @@ public class DefaultConnectionReuseStrategy implements ConnectionReuseStrategy {
             throw new IllegalArgumentException
                 ("HTTP context may not be null.");
         }
-        
+
         HttpConnection conn = (HttpConnection)
             context.getAttribute(ExecutionContext.HTTP_CONNECTION);
 

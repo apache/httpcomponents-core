@@ -46,18 +46,18 @@ public class TestBasicHttpEntity extends TestCase {
     }
 
     public void testBasics() throws Exception {
-        
+
         byte[] bytes = "Message content".getBytes(HTTP.US_ASCII);
         InputStream content = new ByteArrayInputStream(bytes);
         BasicHttpEntity httpentity = new BasicHttpEntity();
         httpentity.setContent(content);
         httpentity.setContentLength(bytes.length);
-        
+
         assertEquals(bytes.length, httpentity.getContentLength());
         assertFalse(httpentity.isRepeatable());
         assertTrue(httpentity.isStreaming());
     }
-    
+
     public void testContent() throws Exception {
         byte[] bytes = "Message content".getBytes(HTTP.US_ASCII);
         InputStream content = new ByteArrayInputStream(bytes);
@@ -79,13 +79,13 @@ public class TestBasicHttpEntity extends TestCase {
             // expected
         }
     }
-    
+
     public void testWriteTo() throws Exception {
         byte[] bytes = "Message content".getBytes(HTTP.US_ASCII);
         InputStream content = new ByteArrayInputStream(bytes);
         BasicHttpEntity httpentity = new BasicHttpEntity();
         httpentity.setContent(content);
-        
+
         ByteArrayOutputStream out = new ByteArrayOutputStream();
         httpentity.writeTo(out);
         byte[] bytes2 = out.toByteArray();

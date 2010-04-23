@@ -31,7 +31,7 @@ import java.util.Locale;
 
 /**
  * Interface for obtaining reason phrases for HTTP status codes.
- * 
+ *
  * @since 4.0
  */
 public interface ReasonPhraseCatalog {

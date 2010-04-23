@@ -57,14 +57,14 @@ public class TestAbstractMessage extends TestCase {
     public void testBasicHeaderOps() {
         HttpMessage message = new HttpMessageMockup();
         assertFalse(message.containsHeader("whatever"));
-        
+
         message.addHeader("name", "1");
         message.addHeader("name", "2");
-        
+
         Header[] headers = message.getAllHeaders();
         assertNotNull(headers);
         assertEquals(2, headers.length);
-        
+
         Header h = message.getFirstHeader("name");
         assertNotNull(h);
         assertEquals("1", h.getValue());
@@ -76,11 +76,11 @@ public class TestAbstractMessage extends TestCase {
         h = message.getLastHeader("name");
         assertNotNull(h);
         assertEquals("2", h.getValue());
-        
+
         // Should have no effect
         message.addHeader(null);
         message.setHeader(null);
-        
+
         headers = message.getHeaders("name");
         assertNotNull(headers);
         assertEquals(2, headers.length);
@@ -88,16 +88,16 @@ public class TestAbstractMessage extends TestCase {
         assertEquals("2", headers[1].getValue());
 
         message.addHeader("name", "4");
-        
+
         headers[1] = new BasicHeader("name", "5");
         message.setHeaders(headers);
-        
+
         headers = message.getHeaders("name");
         assertNotNull(headers);
         assertEquals(2, headers.length);
         assertEquals("3", headers[0].getValue());
         assertEquals("5", headers[1].getValue());
-        
+
         message.setHeader("whatever", null);
         message.removeHeaders("name");
         message.removeHeaders(null);
@@ -141,6 +141,6 @@ public class TestAbstractMessage extends TestCase {
             // expected
         }
     }
-    
+
 }
 

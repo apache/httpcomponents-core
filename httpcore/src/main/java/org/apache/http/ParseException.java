@@ -35,7 +35,7 @@ package org.apache.http;
  * This is an unchecked exception, since there are cases where
  * the data to be parsed has been generated and is therefore
  * known to be parseable.
- * 
+ *
  * @since 4.0
  */
 public class ParseException extends RuntimeException {
@@ -51,7 +51,7 @@ public class ParseException extends RuntimeException {
 
     /**
      * Creates a {@link ParseException} with a detail message.
-     * 
+     *
      * @param message the exception detail message, or <code>null</code>
      */
     public ParseException(String message) {

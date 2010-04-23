@@ -62,7 +62,7 @@ public class SyncBasicHttpParams extends BasicHttpParams {
     public synchronized void setParameters(final String[] names, final Object value) {
         super.setParameters(names, value);
     }
-    
+
     public synchronized void clear() {
         super.clear();
     }

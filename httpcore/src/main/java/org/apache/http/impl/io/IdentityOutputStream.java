@@ -33,19 +33,19 @@ import java.io.OutputStream;
 import org.apache.http.io.SessionOutputBuffer;
 
 /**
- * Output stream that writes data without any transformation. The end of 
- * the content entity is demarcated by closing the underlying connection 
- * (EOF condition). Entities transferred using this input stream can be of 
- * unlimited length. 
+ * Output stream that writes data without any transformation. The end of
+ * the content entity is demarcated by closing the underlying connection
+ * (EOF condition). Entities transferred using this input stream can be of
+ * unlimited length.
  * <p>
  * Note that this class NEVER closes the underlying stream, even when close
- * gets called.  Instead, the stream will be marked as closed and no further 
+ * gets called.  Instead, the stream will be marked as closed and no further
  * output will be permitted.
- * 
+ *
  * @since 4.0
  */
 public class IdentityOutputStream extends OutputStream {
-    
+
     /**
      * Wrapped session output buffer.
      */
@@ -64,7 +64,7 @@ public class IdentityOutputStream extends OutputStream {
 
     /**
      * <p>Does not close the underlying socket output.</p>
-     * 
+     *
      * @throws IOException If an I/O problem occurs.
      */
     public void close() throws IOException {
@@ -95,5 +95,5 @@ public class IdentityOutputStream extends OutputStream {
         }
         this.out.write(b);
     }
-    
+
 }

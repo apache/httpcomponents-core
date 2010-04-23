@@ -31,7 +31,7 @@ package org.apache.http;
  * Constants enumerating the HTTP status codes.
  * All status codes defined in RFC1945 (HTTP/1.0), RFC2616 (HTTP/1.1), and
  * RFC2518 (WebDAV) are listed.
- * 
+ *
  * @see StatusLine
  *
  * @since 4.0
@@ -63,7 +63,7 @@ public interface HttpStatus {
     public static final int SC_RESET_CONTENT = 205;
     /** <tt>206 Partial Content</tt> (HTTP/1.1 - RFC 2616) */
     public static final int SC_PARTIAL_CONTENT = 206;
-    /** 
+    /**
      * <tt>207 Multi-Status</tt> (WebDAV - RFC 2518) or <tt>207 Partial Update
      * OK</tt> (HTTP/1.1 - draft-ietf-http-v11-spec-rev-01?)
      */

@@ -36,9 +36,9 @@ import org.apache.http.message.LineFormatter;
 import org.apache.http.params.HttpParams;
 
 /**
- * HTTP response writer that serializes its output to an instance 
- * of {@link SessionOutputBuffer}. 
- * 
+ * HTTP response writer that serializes its output to an instance
+ * of {@link SessionOutputBuffer}.
+ *
  * @since 4.0
  */
 public class HttpResponseWriter extends AbstractMessageWriter {
@@ -48,11 +48,11 @@ public class HttpResponseWriter extends AbstractMessageWriter {
                               final HttpParams params) {
         super(buffer, formatter, params);
     }
-    
+
     protected void writeHeadLine(final HttpMessage message)
         throws IOException {
 
-        lineFormatter.formatStatusLine(this.lineBuf, 
+        lineFormatter.formatStatusLine(this.lineBuf,
                 ((HttpResponse) message).getStatusLine());
         this.sessionBuffer.writeLine(this.lineBuf);
     }

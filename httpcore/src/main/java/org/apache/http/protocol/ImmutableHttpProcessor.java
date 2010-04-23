@@ -36,13 +36,13 @@ import org.apache.http.HttpResponseInterceptor;
 
 /**
  * Immutable {@link HttpProcessor}.
- * 
+ *
  * @since 4.1
  */
 //@ThreadSafe
 public final class ImmutableHttpProcessor implements HttpProcessor {
 
-    private final HttpRequestInterceptor[] requestInterceptors; 
+    private final HttpRequestInterceptor[] requestInterceptors;
     private final HttpResponseInterceptor[] responseInterceptors;
 
     public ImmutableHttpProcessor(
@@ -53,7 +53,7 @@ public final class ImmutableHttpProcessor implements HttpProcessor {
             int count = requestInterceptors.length;
             this.requestInterceptors = new HttpRequestInterceptor[count];
             for (int i = 0; i < count; i++) {
-                this.requestInterceptors[i] = requestInterceptors[i]; 
+                this.requestInterceptors[i] = requestInterceptors[i];
             }
         } else {
             this.requestInterceptors = new HttpRequestInterceptor[0];
@@ -62,13 +62,13 @@ public final class ImmutableHttpProcessor implements HttpProcessor {
             int count = responseInterceptors.length;
             this.responseInterceptors = new HttpResponseInterceptor[count];
             for (int i = 0; i < count; i++) {
-                this.responseInterceptors[i] = responseInterceptors[i]; 
+                this.responseInterceptors[i] = responseInterceptors[i];
             }
         } else {
             this.responseInterceptors = new HttpResponseInterceptor[0];
         }
     }
-    
+
     public ImmutableHttpProcessor(
             final HttpRequestInterceptorList requestInterceptors,
             final HttpResponseInterceptorList responseInterceptors) {
@@ -77,7 +77,7 @@ public final class ImmutableHttpProcessor implements HttpProcessor {
             int count = requestInterceptors.getRequestInterceptorCount();
             this.requestInterceptors = new HttpRequestInterceptor[count];
             for (int i = 0; i < count; i++) {
-                this.requestInterceptors[i] = requestInterceptors.getRequestInterceptor(i); 
+                this.requestInterceptors[i] = requestInterceptors.getRequestInterceptor(i);
             }
         } else {
             this.requestInterceptors = new HttpRequestInterceptor[0];
@@ -86,13 +86,13 @@ public final class ImmutableHttpProcessor implements HttpProcessor {
             int count = responseInterceptors.getResponseInterceptorCount();
             this.responseInterceptors = new HttpResponseInterceptor[count];
             for (int i = 0; i < count; i++) {
-                this.responseInterceptors[i] = responseInterceptors.getResponseInterceptor(i); 
+                this.responseInterceptors[i] = responseInterceptors.getResponseInterceptor(i);
             }
         } else {
             this.responseInterceptors = new HttpResponseInterceptor[0];
         }
     }
-    
+
     public ImmutableHttpProcessor(final HttpRequestInterceptor[] requestInterceptors) {
         this(requestInterceptors, null);
     }
@@ -100,7 +100,7 @@ public final class ImmutableHttpProcessor implements HttpProcessor {
     public ImmutableHttpProcessor(final HttpResponseInterceptor[] responseInterceptors) {
         this(null, responseInterceptors);
     }
-        
+
     public void process(
             final HttpRequest request,
             final HttpContext context) throws IOException, HttpException {
@@ -108,7 +108,7 @@ public final class ImmutableHttpProcessor implements HttpProcessor {
             this.requestInterceptors[i].process(request, context);
         }
     }
-    
+
     public void process(
             final HttpResponse response,
             final HttpContext context) throws IOException, HttpException {

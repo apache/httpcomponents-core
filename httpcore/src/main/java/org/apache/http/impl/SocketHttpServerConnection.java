@@ -41,11 +41,11 @@ import org.apache.http.params.HttpConnectionParams;
 import org.apache.http.params.HttpParams;
 
 /**
- * Implementation of a server-side HTTP connection that can be bound to a 
+ * Implementation of a server-side HTTP connection that can be bound to a
  * network Socket in order to receive and transmit data.
  * <p>
- * The following parameters can be used to customize the behavior of this 
- * class: 
+ * The following parameters can be used to customize the behavior of this
+ * class:
  * <ul>
  *  <li>{@link org.apache.http.params.CoreProtocolPNames#STRICT_TRANSFER_ENCODING}</li>
  *  <li>{@link org.apache.http.params.CoreProtocolPNames#HTTP_ELEMENT_CHARSET}</li>
@@ -53,15 +53,15 @@ import org.apache.http.params.HttpParams;
  *  <li>{@link org.apache.http.params.CoreConnectionPNames#MAX_LINE_LENGTH}</li>
  *  <li>{@link org.apache.http.params.CoreConnectionPNames#MAX_HEADER_COUNT}</li>
  * </ul>
- * 
+ *
  * @since 4.0
  */
-public class SocketHttpServerConnection extends 
+public class SocketHttpServerConnection extends
         AbstractHttpServerConnection implements HttpInetConnection {
 
     private volatile boolean open;
     private volatile Socket socket = null;
-    
+
     public SocketHttpServerConnection() {
         super();
     }
@@ -71,42 +71,42 @@ public class SocketHttpServerConnection extends
             throw new IllegalStateException("Connection is already open");
         }
     }
-    
+
     protected void assertOpen() {
         if (!this.open) {
             throw new IllegalStateException("Connection is not open");
         }
     }
-    
+
     /**
      * @deprecated Use {@link #createSessionInputBuffer(Socket, int, HttpParams)}
      */
     protected SessionInputBuffer createHttpDataReceiver(
-            final Socket socket, 
+            final Socket socket,
             int buffersize,
             final HttpParams params) throws IOException {
         return createSessionInputBuffer(socket, buffersize, params);
     }
-    
+
     /**
      * @deprecated Use {@link #createSessionOutputBuffer(Socket, int, HttpParams)}
      */
     protected SessionOutputBuffer createHttpDataTransmitter(
-            final Socket socket, 
+            final Socket socket,
             int buffersize,
             final HttpParams params) throws IOException {
         return createSessionOutputBuffer(socket, buffersize, params);
     }
 
     /**
-     * Creates an instance of {@link SocketInputBuffer} to be used for 
+     * Creates an instance of {@link SocketInputBuffer} to be used for
      * receiving data from the given {@link Socket}.
      * <p>
-     * This method can be overridden in a super class in order to provide 
+     * This method can be overridden in a super class in order to provide
      * a custom implementation of {@link SessionInputBuffer} interface.
-     * 
+     *
      * @see SocketInputBuffer#SocketInputBuffer(Socket, int, HttpParams)
-     * 
+     *
      * @param socket the socket.
      * @param buffersize the buffer size.
      * @param params HTTP parameters.
@@ -114,21 +114,21 @@ public class SocketHttpServerConnection extends
      * @throws IOException in case of an I/O error.
      */
     protected SessionInputBuffer createSessionInputBuffer(
-            final Socket socket, 
+            final Socket socket,
             int buffersize,
             final HttpParams params) throws IOException {
         return new SocketInputBuffer(socket, buffersize, params);
     }
-    
+
     /**
-     * Creates an instance of {@link SessionOutputBuffer} to be used for 
+     * Creates an instance of {@link SessionOutputBuffer} to be used for
      * sending data to the given {@link Socket}.
      * <p>
-     * This method can be overridden in a super class in order to provide 
+     * This method can be overridden in a super class in order to provide
      * a custom implementation of {@link SocketOutputBuffer} interface.
-     * 
+     *
      * @see SocketOutputBuffer#SocketOutputBuffer(Socket, int, HttpParams)
-     * 
+     *
      * @param socket the socket.
      * @param buffersize the buffer size.
      * @param params HTTP parameters.
@@ -136,26 +136,26 @@ public class SocketHttpServerConnection extends
      * @throws IOException in case of an I/O error.
      */
     protected SessionOutputBuffer createSessionOutputBuffer(
-            final Socket socket, 
+            final Socket socket,
             int buffersize,
             final HttpParams params) throws IOException {
         return new SocketOutputBuffer(socket, buffersize, params);
     }
-    
+
     /**
-     * Binds this connection to the given {@link Socket}. This socket will be 
+     * Binds this connection to the given {@link Socket}. This socket will be
      * used by the connection to send and receive data.
      * <p>
      * This method will invoke {@link #createSessionInputBuffer(Socket, int, HttpParams)}
-     * and {@link #createSessionOutputBuffer(Socket, int, HttpParams)} methods 
-     * to create session input / output buffers bound to this socket and then 
-     * will invoke {@link #init(SessionInputBuffer, SessionOutputBuffer, HttpParams)} 
+     * and {@link #createSessionOutputBuffer(Socket, int, HttpParams)} methods
+     * to create session input / output buffers bound to this socket and then
+     * will invoke {@link #init(SessionInputBuffer, SessionOutputBuffer, HttpParams)}
      * method to pass references to those buffers to the underlying HTTP message
-     * parser and formatter. 
+     * parser and formatter.
      * <p>
      * After this method's execution the connection status will be reported
      * as open and the {@link #isOpen()} will return <code>true</code>.
-     * 
+     *
      * @param socket the socket.
      * @param params HTTP parameters.
      * @throws IOException in case of an I/O error.
@@ -168,14 +168,14 @@ public class SocketHttpServerConnection extends
             throw new IllegalArgumentException("HTTP parameters may not be null");
         }
         this.socket = socket;
-        
+
         int buffersize = HttpConnectionParams.getSocketBufferSize(params);
-        
+
         init(
-                createHttpDataReceiver(socket, buffersize, params), 
+                createHttpDataReceiver(socket, buffersize, params),
                 createHttpDataTransmitter(socket, buffersize, params),
                 params);
-        
+
         this.open = true;
     }
 
@@ -225,13 +225,13 @@ public class SocketHttpServerConnection extends
             try {
                 this.socket.setSoTimeout(timeout);
             } catch (SocketException ignore) {
-                // It is not quite clear from the Sun's documentation if there are any 
-                // other legitimate cases for a socket exception to be thrown when setting 
+                // It is not quite clear from the Sun's documentation if there are any
+                // other legitimate cases for a socket exception to be thrown when setting
                 // SO_TIMEOUT besides the socket being already closed
             }
         }
     }
-    
+
     public int getSocketTimeout() {
         if (this.socket != null) {
             try {
@@ -251,7 +251,7 @@ public class SocketHttpServerConnection extends
             tmpsocket.close();
         }
     }
-    
+
     public void close() throws IOException {
         if (!this.open) {
             return;
@@ -277,5 +277,5 @@ public class SocketHttpServerConnection extends
             sock.close();
         }
     }
-    
+
 }

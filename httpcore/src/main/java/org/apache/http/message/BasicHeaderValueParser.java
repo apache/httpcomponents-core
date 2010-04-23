@@ -57,10 +57,10 @@ public class BasicHeaderValueParser implements HeaderValueParser {
     private final static char PARAM_DELIMITER                = ';';
     private final static char ELEM_DELIMITER                 = ',';
     private final static char[] ALL_DELIMITERS               = new char[] {
-                                                                PARAM_DELIMITER, 
+                                                                PARAM_DELIMITER,
                                                                 ELEM_DELIMITER
-                                                                };  
-    
+                                                                };
+
     // public default constructor
 
 
@@ -103,7 +103,7 @@ public class BasicHeaderValueParser implements HeaderValueParser {
             throw new IllegalArgumentException("Parser cursor may not be null");
         }
 
-        List elements = new ArrayList(); 
+        List elements = new ArrayList();
         while (!cursor.atEnd()) {
             HeaderElement element = parseHeaderElement(buffer, cursor);
             if (!(element.getName().length() == 0 && element.getValue() == null)) {
@@ -153,11 +153,11 @@ public class BasicHeaderValueParser implements HeaderValueParser {
         if (cursor == null) {
             throw new IllegalArgumentException("Parser cursor may not be null");
         }
-        
+
         NameValuePair nvp = parseNameValuePair(buffer, cursor);
         NameValuePair[] params = null;
         if (!cursor.atEnd()) {
-            char ch = buffer.charAt(cursor.getPos() - 1); 
+            char ch = buffer.charAt(cursor.getPos() - 1);
             if (ch != ELEM_DELIMITER) {
                 params = parseParameters(buffer, cursor);
             }
@@ -173,8 +173,8 @@ public class BasicHeaderValueParser implements HeaderValueParser {
      * @return  a header element representing the argument
      */
     protected HeaderElement createHeaderElement(
-            final String name, 
-            final String value, 
+            final String name,
+            final String value,
             final NameValuePair[] params) {
         return new BasicHeaderElement(name, value, params);
     }
@@ -219,10 +219,10 @@ public class BasicHeaderValueParser implements HeaderValueParser {
         if (cursor == null) {
             throw new IllegalArgumentException("Parser cursor may not be null");
         }
-        
+
         int pos = cursor.getPos();
         int indexTo = cursor.getUpperBound();
-        
+
         while (pos < indexTo) {
             char ch = buffer.charAt(pos);
             if (HTTP.isWhitespace(ch)) {
@@ -235,8 +235,8 @@ public class BasicHeaderValueParser implements HeaderValueParser {
         if (cursor.atEnd()) {
             return new NameValuePair[] {};
         }
-        
-        List params = new ArrayList(); 
+
+        List params = new ArrayList();
         while (!cursor.atEnd()) {
             NameValuePair param = parseNameValuePair(buffer, cursor);
             params.add(param);
@@ -245,7 +245,7 @@ public class BasicHeaderValueParser implements HeaderValueParser {
                 break;
             }
         }
-        
+
         return (NameValuePair[])
             params.toArray(new NameValuePair[params.size()]);
     }
@@ -283,7 +283,7 @@ public class BasicHeaderValueParser implements HeaderValueParser {
                                             final ParserCursor cursor) {
         return parseNameValuePair(buffer, cursor, ALL_DELIMITERS);
     }
-    
+
     private static boolean isOneOf(final char ch, final char[] chs) {
         if (chs != null) {
             for (int i = 0; i < chs.length; i++) {
@@ -294,7 +294,7 @@ public class BasicHeaderValueParser implements HeaderValueParser {
         }
         return false;
     }
-    
+
     public NameValuePair parseNameValuePair(final CharArrayBuffer buffer,
                                             final ParserCursor cursor,
                                             final char[] delimiters) {
@@ -307,11 +307,11 @@ public class BasicHeaderValueParser implements HeaderValueParser {
         }
 
         boolean terminated = false;
-        
+
         int pos = cursor.getPos();
         int indexFrom = cursor.getPos();
         int indexTo = cursor.getUpperBound();
-        
+
         // Find name
         String name = null;
         while (pos < indexTo) {
@@ -325,7 +325,7 @@ public class BasicHeaderValueParser implements HeaderValueParser {
             }
             pos++;
         }
-        
+
         if (pos == indexTo) {
             terminated = true;
             name = buffer.substringTrimmed(indexFrom, indexTo);
@@ -333,7 +333,7 @@ public class BasicHeaderValueParser implements HeaderValueParser {
             name = buffer.substringTrimmed(indexFrom, pos);
             pos++;
         }
-        
+
         if (terminated) {
             cursor.updatePos(pos);
             return createNameValuePair(name, null);
@@ -342,7 +342,7 @@ public class BasicHeaderValueParser implements HeaderValueParser {
         // Find value
         String value = null;
         int i1 = pos;
-        
+
         boolean qouted = false;
         boolean escaped = false;
         while (pos < indexTo) {
@@ -361,7 +361,7 @@ public class BasicHeaderValueParser implements HeaderValueParser {
             }
             pos++;
         }
-        
+
         int i2 = pos;
         // Trim leading white spaces
         while (i1 < i2 && (HTTP.isWhitespace(buffer.charAt(i1)))) {
@@ -372,8 +372,8 @@ public class BasicHeaderValueParser implements HeaderValueParser {
             i2--;
         }
         // Strip away quotes if necessary
-        if (((i2 - i1) >= 2) 
-            && (buffer.charAt(i1) == '"') 
+        if (((i2 - i1) >= 2)
+            && (buffer.charAt(i1) == '"')
             && (buffer.charAt(i2 - 1) == '"')) {
             i1++;
             i2--;

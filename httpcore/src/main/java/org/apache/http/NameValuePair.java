@@ -33,9 +33,9 @@ package org.apache.http;
  * parameter               = attribute "=" value
  * attribute               = token
  * value                   = token | quoted-string
- * </pre> 
- * 
- * 
+ * </pre>
+ *
+ *
  * @since 4.0
  */
 public interface NameValuePair {
@@ -43,5 +43,5 @@ public interface NameValuePair {
     String getName();
 
     String getValue();
-      
+
 }

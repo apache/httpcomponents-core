@@ -34,7 +34,7 @@ import java.io.OutputStream;
 
 /**
  * A self contained, repeatable entity that obtains its content from a byte array.
- * 
+ *
  * @since 4.0
  */
 public class ByteArrayEntity extends AbstractHttpEntity implements Cloneable {
@@ -42,7 +42,7 @@ public class ByteArrayEntity extends AbstractHttpEntity implements Cloneable {
     protected final byte[] content;
 
     public ByteArrayEntity(final byte[] b) {
-        super();        
+        super();
         if (b == null) {
             throw new IllegalArgumentException("Source byte array may not be null");
         }
@@ -60,7 +60,7 @@ public class ByteArrayEntity extends AbstractHttpEntity implements Cloneable {
     public InputStream getContent() {
         return new ByteArrayInputStream(this.content);
     }
-    
+
     public void writeTo(final OutputStream outstream) throws IOException {
         if (outstream == null) {
             throw new IllegalArgumentException("Output stream may not be null");

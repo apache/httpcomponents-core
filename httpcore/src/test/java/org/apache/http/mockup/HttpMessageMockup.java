@@ -33,10 +33,10 @@ import org.apache.http.params.HttpProtocolParams;
 
 /**
  *  {@link org.apache.http.HttpMessage} mockup implementation.
- *  
+ *
  */
 public class HttpMessageMockup extends AbstractHttpMessage {
-    
+
     public HttpMessageMockup() {
         super();
     }
@@ -44,5 +44,5 @@ public class HttpMessageMockup extends AbstractHttpMessage {
     public ProtocolVersion getProtocolVersion() {
         return HttpProtocolParams.getVersion(this.getParams());
     }
-    
+
 }

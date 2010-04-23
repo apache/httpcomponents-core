@@ -33,7 +33,7 @@ import org.apache.http.protocol.HttpContext;
 
 /**
  * A strategy that never re-uses a connection.
- * 
+ *
  * @since 4.0
  */
 public class NoConnectionReuseStrategy implements ConnectionReuseStrategy {
@@ -52,5 +52,5 @@ public class NoConnectionReuseStrategy implements ConnectionReuseStrategy {
 
         return false;
     }
-            
+
 }

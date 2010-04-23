@@ -46,13 +46,13 @@ public class TestByteArrayEntity extends TestCase {
     public void testBasics() throws Exception {
         byte[] bytes = "Message content".getBytes(HTTP.US_ASCII);
         ByteArrayEntity httpentity = new ByteArrayEntity(bytes);
-        
+
         assertEquals(bytes.length, httpentity.getContentLength());
         assertNotNull(httpentity.getContent());
         assertTrue(httpentity.isRepeatable());
-        assertFalse(httpentity.isStreaming());        
+        assertFalse(httpentity.isStreaming());
     }
-        
+
     public void testIllegalConstructor() throws Exception {
         try {
             new ByteArrayEntity(null);
@@ -65,7 +65,7 @@ public class TestByteArrayEntity extends TestCase {
     public void testWriteTo() throws Exception {
         byte[] bytes = "Message content".getBytes(HTTP.US_ASCII);
         ByteArrayEntity httpentity = new ByteArrayEntity(bytes);
-        
+
         ByteArrayOutputStream out = new ByteArrayOutputStream();
         httpentity.writeTo(out);
         byte[] bytes2 = out.toByteArray();
@@ -83,7 +83,7 @@ public class TestByteArrayEntity extends TestCase {
         for (int i = 0; i < bytes.length; i++) {
             assertEquals(bytes[i], bytes2[i]);
         }
-        
+
         try {
             httpentity.writeTo(null);
             fail("IllegalArgumentException should have been thrown");
@@ -91,5 +91,5 @@ public class TestByteArrayEntity extends TestCase {
             // expected
         }
     }
-            
+
 }

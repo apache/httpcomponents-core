@@ -116,10 +116,10 @@ public class BasicLineFormatter implements LineFormatter {
         }
 
         result.append(version.getProtocol());
-        result.append('/'); 
-        result.append(Integer.toString(version.getMajor())); 
-        result.append('.'); 
-        result.append(Integer.toString(version.getMinor())); 
+        result.append('/');
+        result.append(Integer.toString(version.getMajor()));
+        result.append('.');
+        result.append(Integer.toString(version.getMinor()));
 
         return result;
     }
@@ -186,7 +186,7 @@ public class BasicLineFormatter implements LineFormatter {
         final String uri    = reqline.getUri();
 
         // room for "GET /index.html HTTP/1.1"
-        int len = method.length() + 1 + uri.length() + 1 + 
+        int len = method.length() + 1 + uri.length() + 1 +
             estimateProtocolVersionLen(reqline.getProtocolVersion());
         buffer.ensureCapacity(len);
 

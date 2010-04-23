@@ -50,13 +50,13 @@ public class TestFileEntity extends TestCase {
         File tmpfile = File.createTempFile("testfile", ".txt");
         tmpfile.deleteOnExit();
         FileEntity httpentity = new FileEntity(tmpfile, HTTP.ISO_8859_1);
-        
+
         assertEquals(tmpfile.length(), httpentity.getContentLength());
         final InputStream content = httpentity.getContent();
         assertNotNull(content);
         content.close();
         assertTrue(httpentity.isRepeatable());
-        assertFalse(httpentity.isStreaming());        
+        assertFalse(httpentity.isStreaming());
         if (!tmpfile.delete()){
             fail("Failed to delete: "+tmpfile);
         }
@@ -74,16 +74,16 @@ public class TestFileEntity extends TestCase {
     public void testWriteTo() throws Exception {
         File tmpfile = File.createTempFile("testfile", ".txt");
         tmpfile.deleteOnExit();
-        
+
         FileOutputStream outstream = new FileOutputStream(tmpfile);
         outstream.write(0);
         outstream.write(1);
         outstream.write(2);
         outstream.write(3);
         outstream.close();
-        
+
         FileEntity httpentity = new FileEntity(tmpfile, HTTP.ISO_8859_1);
-        
+
         ByteArrayOutputStream out = new ByteArrayOutputStream();
         httpentity.writeTo(out);
         byte[] bytes = out.toByteArray();
@@ -103,5 +103,5 @@ public class TestFileEntity extends TestCase {
             // expected
         }
     }
-        
+
 }

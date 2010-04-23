@@ -32,21 +32,21 @@ import java.io.InputStream;
 import java.io.OutputStream;
 
 /**
- * Entity that delegates the process of content generation 
+ * Entity that delegates the process of content generation
  * to a {@link ContentProducer}.
- * 
+ *
  * @since 4.0
  */
 public class EntityTemplate extends AbstractHttpEntity {
 
     private final ContentProducer contentproducer;
-    
+
     public EntityTemplate(final ContentProducer contentproducer) {
         super();
         if (contentproducer == null) {
             throw new IllegalArgumentException("Content producer may not be null");
         }
-        this.contentproducer = contentproducer; 
+        this.contentproducer = contentproducer;
     }
 
     public long getContentLength() {
@@ -77,5 +77,5 @@ public class EntityTemplate extends AbstractHttpEntity {
      */
     public void consumeContent() throws IOException {
     }
-    
+
 }

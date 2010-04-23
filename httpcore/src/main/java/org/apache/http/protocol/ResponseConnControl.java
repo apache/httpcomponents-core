@@ -40,11 +40,11 @@ import org.apache.http.HttpVersion;
 import org.apache.http.ProtocolVersion;
 
 /**
- * ResponseConnControl is responsible for adding <code>Connection</code> header 
- * to the outgoing responses, which is essential for managing persistence of 
- * <code>HTTP/1.0</code> connections. This interceptor is recommended for 
+ * ResponseConnControl is responsible for adding <code>Connection</code> header
+ * to the outgoing responses, which is essential for managing persistence of
+ * <code>HTTP/1.0</code> connections. This interceptor is recommended for
  * server side protocol processors.
- * 
+ *
  * @since 4.0
  */
 public class ResponseConnControl implements HttpResponseInterceptor {
@@ -52,8 +52,8 @@ public class ResponseConnControl implements HttpResponseInterceptor {
     public ResponseConnControl() {
         super();
     }
-    
-    public void process(final HttpResponse response, final HttpContext context) 
+
+    public void process(final HttpResponse response, final HttpContext context)
             throws HttpException, IOException {
         if (response == null) {
             throw new IllegalArgumentException("HTTP response may not be null");
@@ -78,7 +78,7 @@ public class ResponseConnControl implements HttpResponseInterceptor {
         HttpEntity entity = response.getEntity();
         if (entity != null) {
             ProtocolVersion ver = response.getStatusLine().getProtocolVersion();
-            if (entity.getContentLength() < 0 && 
+            if (entity.getContentLength() < 0 &&
                     (!entity.isChunked() || ver.lessEquals(HttpVersion.HTTP_1_0))) {
                 response.setHeader(HTTP.CONN_DIRECTIVE, HTTP.CONN_CLOSE);
                 return;
@@ -94,5 +94,5 @@ public class ResponseConnControl implements HttpResponseInterceptor {
             }
         }
     }
-    
+
 }

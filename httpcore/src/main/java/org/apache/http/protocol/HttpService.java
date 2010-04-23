@@ -50,20 +50,20 @@ import org.apache.http.util.EncodingUtils;
 import org.apache.http.util.EntityUtils;
 
 /**
- * HttpService is a server side HTTP protocol handler based in the blocking 
- * I/O model that implements the essential requirements of the HTTP protocol 
- * for the server side message processing as described by RFC 2616. 
+ * HttpService is a server side HTTP protocol handler based in the blocking
+ * I/O model that implements the essential requirements of the HTTP protocol
+ * for the server side message processing as described by RFC 2616.
  * <br>
- * HttpService relies on {@link HttpProcessor} to generate mandatory protocol 
- * headers for all outgoing messages and apply common, cross-cutting message 
- * transformations to all incoming and outgoing messages, whereas individual 
- * {@link HttpRequestHandler}s are expected to take care of application specific 
+ * HttpService relies on {@link HttpProcessor} to generate mandatory protocol
+ * headers for all outgoing messages and apply common, cross-cutting message
+ * transformations to all incoming and outgoing messages, whereas individual
+ * {@link HttpRequestHandler}s are expected to take care of application specific
  * content generation and processing.
  * <br>
- * HttpService relies on {@link HttpRequestHandler} to resolve matching request 
+ * HttpService relies on {@link HttpRequestHandler} to resolve matching request
  * handler for a particular request URI of an incoming HTTP request.
  * <br>
- * HttpService can use optional {@link HttpExpectationVerifier} to ensure that 
+ * HttpService can use optional {@link HttpExpectationVerifier} to ensure that
  * incoming requests meet server's expectations.
  *
  * @since 4.0
@@ -89,7 +89,7 @@ public class HttpService {
      * @param handlerResolver      the handler resolver. May be null.
      * @param expectationVerifier  the expectation verifier. May be null.
      * @param params               the HTTP parameters
-     * 
+     *
      * @since 4.1
      */
     public HttpService(
@@ -119,7 +119,7 @@ public class HttpService {
         this.expectationVerifier = expectationVerifier;
         this.params = params;
     }
-    
+
     /**
      * Create a new HTTP service.
      *
@@ -128,7 +128,7 @@ public class HttpService {
      * @param responseFactory      the response factory
      * @param handlerResolver      the handler resolver. May be null.
      * @param params               the HTTP parameters
-     * 
+     *
      * @since 4.1
      */
     public HttpService(
@@ -146,8 +146,8 @@ public class HttpService {
      * @param proc             the processor to use on requests and responses
      * @param connStrategy     the connection reuse strategy
      * @param responseFactory  the response factory
-     * 
-     * @deprecated use {@link HttpService#HttpService(HttpProcessor, 
+     *
+     * @deprecated use {@link HttpService#HttpService(HttpProcessor,
      *  ConnectionReuseStrategy, HttpResponseFactory, HttpRequestHandlerResolver, HttpParams)}
      */
     public HttpService(
@@ -159,7 +159,7 @@ public class HttpService {
         setConnReuseStrategy(connStrategy);
         setResponseFactory(responseFactory);
     }
-    
+
     /**
      * @deprecated set {@link HttpProcessor} using constructor
      */
@@ -189,14 +189,14 @@ public class HttpService {
         }
         this.responseFactory = responseFactory;
     }
-    
+
     /**
      * @deprecated set {@link HttpResponseFactory} using constructor
      */
     public void setParams(final HttpParams params) {
         this.params = params;
     }
-    
+
     /**
      * @deprecated set {@link HttpRequestHandlerResolver} using constructor
      */
@@ -214,51 +214,51 @@ public class HttpService {
     public HttpParams getParams() {
         return this.params;
     }
-    
+
     /**
-     * Handles receives one HTTP request over the given connection within the 
+     * Handles receives one HTTP request over the given connection within the
      * given execution context and sends a response back to the client.
-     * 
+     *
      * @param conn the active connection to the client
      * @param context the actual execution context.
      * @throws IOException in case of an I/O error.
-     * @throws HttpException in case of HTTP protocol violation or a processing 
+     * @throws HttpException in case of HTTP protocol violation or a processing
      *   problem.
      */
     public void handleRequest(
-            final HttpServerConnection conn, 
-            final HttpContext context) throws IOException, HttpException { 
-        
+            final HttpServerConnection conn,
+            final HttpContext context) throws IOException, HttpException {
+
         context.setAttribute(ExecutionContext.HTTP_CONNECTION, conn);
 
         HttpResponse response = null;
-        
+
         try {
 
             HttpRequest request = conn.receiveRequestHeader();
             request.setParams(
                     new DefaultedHttpParams(request.getParams(), this.params));
-            
+
             ProtocolVersion ver =
                 request.getRequestLine().getProtocolVersion();
             if (!ver.lessEquals(HttpVersion.HTTP_1_1)) {
-                // Downgrade protocol version if greater than HTTP/1.1 
+                // Downgrade protocol version if greater than HTTP/1.1
                 ver = HttpVersion.HTTP_1_1;
             }
 
             if (request instanceof HttpEntityEnclosingRequest) {
 
                 if (((HttpEntityEnclosingRequest) request).expectContinue()) {
-                    response = this.responseFactory.newHttpResponse(ver, 
+                    response = this.responseFactory.newHttpResponse(ver,
                             HttpStatus.SC_CONTINUE, context);
                     response.setParams(
                             new DefaultedHttpParams(response.getParams(), this.params));
-                    
+
                     if (this.expectationVerifier != null) {
                         try {
                             this.expectationVerifier.verify(request, response, context);
                         } catch (HttpException ex) {
-                            response = this.responseFactory.newHttpResponse(HttpVersion.HTTP_1_0, 
+                            response = this.responseFactory.newHttpResponse(HttpVersion.HTTP_1_0,
                                     HttpStatus.SC_INTERNAL_SERVER_ERROR, context);
                             response.setParams(
                                     new DefaultedHttpParams(response.getParams(), this.params));
@@ -289,13 +289,13 @@ public class HttpService {
                 this.processor.process(request, context);
                 doService(request, response, context);
             }
-            
+
             // Make sure the request content is fully consumed
             if (request instanceof HttpEntityEnclosingRequest) {
                 HttpEntity entity = ((HttpEntityEnclosingRequest)request).getEntity();
                 EntityUtils.consume(entity);
             }
-            
+
         } catch (HttpException ex) {
             response = this.responseFactory.newHttpResponse
                 (HttpVersion.HTTP_1_0, HttpStatus.SC_INTERNAL_SERVER_ERROR,
@@ -304,22 +304,22 @@ public class HttpService {
                     new DefaultedHttpParams(response.getParams(), this.params));
             handleException(ex, response);
         }
-        
+
         this.processor.process(response, context);
         conn.sendResponseHeader(response);
         conn.sendResponseEntity(response);
         conn.flush();
-        
+
         if (!this.connStrategy.keepAlive(response, context)) {
             conn.close();
         }
     }
 
     /**
-     * Handles the given exception and generates an HTTP response to be sent 
+     * Handles the given exception and generates an HTTP response to be sent
      * back to the client to inform about the exceptional condition encountered
      * in the course of the request processing.
-     * 
+     *
      * @param ex the exception.
      * @param response the HTTP response.
      */
@@ -338,9 +338,9 @@ public class HttpService {
         entity.setContentType("text/plain; charset=US-ASCII");
         response.setEntity(entity);
     }
-    
+
     /**
-     * The default implementation of this method attempts to resolve an 
+     * The default implementation of this method attempts to resolve an
      * {@link HttpRequestHandler} for the request URI of the given request
      * and, if found, executes its
      * {@link HttpRequestHandler#handle(HttpRequest, HttpResponse, HttpContext)}
@@ -348,16 +348,16 @@ public class HttpService {
      * <p>
      * Super-classes can override this method in order to provide a custom
      * implementation of the request processing logic.
-     * 
+     *
      * @param request the HTTP request.
      * @param response the HTTP response.
      * @param context the execution context.
      * @throws IOException in case of an I/O error.
-     * @throws HttpException in case of HTTP protocol violation or a processing 
+     * @throws HttpException in case of HTTP protocol violation or a processing
      *   problem.
      */
     protected void doService(
-            final HttpRequest request, 
+            final HttpRequest request,
             final HttpResponse response,
             final HttpContext context) throws HttpException, IOException {
         HttpRequestHandler handler = null;
@@ -371,5 +371,5 @@ public class HttpService {
             response.setStatusCode(HttpStatus.SC_NOT_IMPLEMENTED);
         }
     }
-    
+
 }

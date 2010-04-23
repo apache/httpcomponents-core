@@ -43,34 +43,34 @@ import org.apache.http.params.HttpParams;
 import org.apache.http.util.CharArrayBuffer;
 
 /**
- * HTTP request parser that obtain its input from an instance 
- * of {@link SessionInputBuffer}. 
+ * HTTP request parser that obtain its input from an instance
+ * of {@link SessionInputBuffer}.
  * <p>
- * The following parameters can be used to customize the behavior of this 
- * class: 
+ * The following parameters can be used to customize the behavior of this
+ * class:
  * <ul>
  *  <li>{@link org.apache.http.params.CoreConnectionPNames#MAX_HEADER_COUNT}</li>
  *  <li>{@link org.apache.http.params.CoreConnectionPNames#MAX_LINE_LENGTH}</li>
  * </ul>
- * 
+ *
  * @since 4.0
  */
 public class HttpRequestParser extends AbstractMessageParser {
-    
+
     private final HttpRequestFactory requestFactory;
     private final CharArrayBuffer lineBuf;
-    
+
     /**
      * Creates an instance of this class.
-     * 
+     *
      * @param buffer the session input buffer.
      * @param parser the line parser.
-     * @param requestFactory the factory to use to create 
+     * @param requestFactory the factory to use to create
      *    {@link HttpRequest}s.
      * @param params HTTP parameters.
      */
     public HttpRequestParser(
-            final SessionInputBuffer buffer, 
+            final SessionInputBuffer buffer,
             final LineParser parser,
             final HttpRequestFactory requestFactory,
             final HttpParams params) {
@@ -89,11 +89,11 @@ public class HttpRequestParser extends AbstractMessageParser {
         this.lineBuf.clear();
         int i = sessionBuffer.readLine(this.lineBuf);
         if (i == -1) {
-            throw new ConnectionClosedException("Client closed connection"); 
+            throw new ConnectionClosedException("Client closed connection");
         }
         ParserCursor cursor = new ParserCursor(0, this.lineBuf.length());
         RequestLine requestline = this.lineParser.parseRequestLine(this.lineBuf, cursor);
         return this.requestFactory.newHttpRequest(requestline);
     }
-    
+
 }

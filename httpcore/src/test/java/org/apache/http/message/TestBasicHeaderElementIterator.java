@@ -37,10 +37,10 @@ import org.apache.http.HeaderElementIterator;
 
 /**
  * Tests for {@link BasicHeaderElementIterator}.
- * 
+ *
  */
 public class TestBasicHeaderElementIterator extends TestCase {
-    
+
     // ------------------------------------------------------------ Constructor
     public TestBasicHeaderElementIterator(String testName) {
         super(testName);
@@ -51,19 +51,19 @@ public class TestBasicHeaderElementIterator extends TestCase {
                 new BasicHeader("Name", "value0"),
                 new BasicHeader("Name", "value1")
         };
-       
-        HeaderElementIterator hei = 
+
+        HeaderElementIterator hei =
                 new BasicHeaderElementIterator(
                         new BasicHeaderIterator(headers, "Name"));
-        
+
         assertTrue(hei.hasNext());
         HeaderElement elem = (HeaderElement) hei.next();
-        assertEquals("The two header values must be equal", 
+        assertEquals("The two header values must be equal",
                 "value0", elem.getName());
-        
+
         assertTrue(hei.hasNext());
         elem = (HeaderElement)hei.next();
-        assertEquals("The two header values must be equal", 
+        assertEquals("The two header values must be equal",
                 "value1", elem.getName());
 
         assertFalse(hei.hasNext());
@@ -82,46 +82,46 @@ public class TestBasicHeaderElementIterator extends TestCase {
             // expected
         }
     }
-    
+
     public void testMultiHeaderSameLine() {
         Header[] headers = new Header[]{
                 new BasicHeader("name", "value0,value1"),
                 new BasicHeader("nAme", "cookie1=1,cookie2=2")
         };
-        
-        HeaderElementIterator hei = 
+
+        HeaderElementIterator hei =
                 new BasicHeaderElementIterator(new BasicHeaderIterator(headers, "Name"));
-        
+
         HeaderElement elem = (HeaderElement)hei.next();
-        assertEquals("The two header values must be equal", 
+        assertEquals("The two header values must be equal",
                 "value0", elem.getName());
         elem = (HeaderElement)hei.next();
-        assertEquals("The two header values must be equal", 
+        assertEquals("The two header values must be equal",
                 "value1", elem.getName());
         elem = (HeaderElement)hei.next();
-        assertEquals("The two header values must be equal", 
+        assertEquals("The two header values must be equal",
                 "cookie1", elem.getName());
-        assertEquals("The two header values must be equal", 
+        assertEquals("The two header values must be equal",
                 "1", elem.getValue());
-        
+
         elem = (HeaderElement)hei.next();
-        assertEquals("The two header values must be equal", 
+        assertEquals("The two header values must be equal",
                 "cookie2", elem.getName());
-        assertEquals("The two header values must be equal", 
+        assertEquals("The two header values must be equal",
                 "2", elem.getValue());
     }
-    
+
     public void testFringeCases() {
         Header[] headers = new Header[]{
                 new BasicHeader("Name", null),
                 new BasicHeader("Name", "    "),
                 new BasicHeader("Name", ",,,")
         };
-       
-        HeaderElementIterator hei = 
+
+        HeaderElementIterator hei =
                 new BasicHeaderElementIterator(
                         new BasicHeaderIterator(headers, "Name"));
-        
+
         assertFalse(hei.hasNext());
         try {
             hei.next();
@@ -138,5 +138,5 @@ public class TestBasicHeaderElementIterator extends TestCase {
             // expected
         }
     }
-    
+
 }

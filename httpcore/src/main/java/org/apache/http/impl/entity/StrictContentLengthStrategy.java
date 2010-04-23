@@ -38,11 +38,11 @@ import org.apache.http.protocol.HTTP;
 /**
  * The strict implementation of the content length strategy. This class
  * will throw {@link ProtocolException} if it encounters an unsupported
- * transfer encoding or a malformed <code>Content-Length</code> header 
+ * transfer encoding or a malformed <code>Content-Length</code> header
  * value.
  * <p>
  * This class recognizes "chunked" and "identitiy" transfer-coding only.
- * 
+ *
  * @since 4.0
  */
 public class StrictContentLengthStrategy implements ContentLengthStrategy {
@@ -50,7 +50,7 @@ public class StrictContentLengthStrategy implements ContentLengthStrategy {
     public StrictContentLengthStrategy() {
         super();
     }
-    
+
     public long determineLength(final HttpMessage message) throws HttpException {
         if (message == null) {
             throw new IllegalArgumentException("HTTP message may not be null");
@@ -65,7 +65,7 @@ public class StrictContentLengthStrategy implements ContentLengthStrategy {
             if (HTTP.CHUNK_CODING.equalsIgnoreCase(s)) {
                 if (message.getProtocolVersion().lessEquals(HttpVersion.HTTP_1_0)) {
                     throw new ProtocolException(
-                            "Chunked transfer encoding not allowed for " + 
+                            "Chunked transfer encoding not allowed for " +
                             message.getProtocolVersion());
                 }
                 return CHUNKED;
@@ -84,7 +84,7 @@ public class StrictContentLengthStrategy implements ContentLengthStrategy {
                 throw new ProtocolException("Invalid content length: " + s);
             }
         } else {
-            return IDENTITY; 
+            return IDENTITY;
         }
     }
 

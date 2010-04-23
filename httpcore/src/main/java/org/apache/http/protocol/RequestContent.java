@@ -39,13 +39,13 @@ import org.apache.http.ProtocolVersion;
 import org.apache.http.ProtocolException;
 
 /**
- * RequestContent is the most important interceptor for outgoing requests. 
- * It is responsible for delimiting content length by adding 
- * <code>Content-Length</code> or <code>Transfer-Content</code> headers based 
- * on the properties of the enclosed entity and the protocol version. 
- * This interceptor is required for correct functioning of client side protocol 
+ * RequestContent is the most important interceptor for outgoing requests.
+ * It is responsible for delimiting content length by adding
+ * <code>Content-Length</code> or <code>Transfer-Content</code> headers based
+ * on the properties of the enclosed entity and the protocol version.
+ * This interceptor is required for correct functioning of client side protocol
  * processors.
- * 
+ *
  * @since 4.0
  */
 public class RequestContent implements HttpRequestInterceptor {
@@ -53,8 +53,8 @@ public class RequestContent implements HttpRequestInterceptor {
     public RequestContent() {
         super();
     }
-    
-    public void process(final HttpRequest request, final HttpContext context) 
+
+    public void process(final HttpRequest request, final HttpContext context)
             throws HttpException, IOException {
         if (request == null) {
             throw new IllegalArgumentException("HTTP request may not be null");
@@ -72,7 +72,7 @@ public class RequestContent implements HttpRequestInterceptor {
                 request.addHeader(HTTP.CONTENT_LEN, "0");
                 return;
             }
-            // Must specify a transfer encoding or a content length 
+            // Must specify a transfer encoding or a content length
             if (entity.isChunked() || entity.getContentLength() < 0) {
                 if (ver.lessEquals(HttpVersion.HTTP_1_0)) {
                     throw new ProtocolException(
@@ -85,14 +85,14 @@ public class RequestContent implements HttpRequestInterceptor {
             // Specify a content type if known
             if (entity.getContentType() != null && !request.containsHeader(
                     HTTP.CONTENT_TYPE )) {
-                request.addHeader(entity.getContentType()); 
+                request.addHeader(entity.getContentType());
             }
             // Specify a content encoding if known
             if (entity.getContentEncoding() != null && !request.containsHeader(
                     HTTP.CONTENT_ENCODING)) {
-                request.addHeader(entity.getContentEncoding()); 
+                request.addHeader(entity.getContentEncoding());
             }
         }
     }
-    
+
 }

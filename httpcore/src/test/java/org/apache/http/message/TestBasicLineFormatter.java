@@ -55,7 +55,7 @@ public class TestBasicLineFormatter extends TestCase {
             (HttpVersion.HTTP_1_1, null);
         assertEquals("HTTP/1.1", s);
     }
-    
+
     public void testHttpVersionFormattingInvalidInput() throws Exception {
         try {
             BasicLineFormatter.formatProtocolVersion
@@ -79,7 +79,7 @@ public class TestBasicLineFormatter extends TestCase {
         String s = BasicLineFormatter.formatRequestLine(requestline, null);
         assertEquals("GET /stuff HTTP/1.1", s);
     }
-    
+
     public void testRLFormattingInvalidInput() throws Exception {
         try {
             BasicLineFormatter.formatRequestLine
@@ -98,7 +98,7 @@ public class TestBasicLineFormatter extends TestCase {
     }
 
 
-    
+
     public void testSLFormatting() throws Exception {
         StatusLine statusline = new BasicStatusLine(HttpVersion.HTTP_1_1, HttpStatus.SC_OK, "OK");
         String s = BasicLineFormatter.formatStatusLine(statusline, null);
@@ -109,7 +109,7 @@ public class TestBasicLineFormatter extends TestCase {
         // see "testSLParseSuccess" in TestBasicLineParser:
         // trailing space is correct
     }
-    
+
     public void testSLFormattingInvalidInput() throws Exception {
         try {
             BasicLineFormatter.formatStatusLine
@@ -133,10 +133,10 @@ public class TestBasicLineFormatter extends TestCase {
         String s = BasicLineFormatter.formatHeader(header1, null);
         assertEquals("name: value", s);
         Header header2 = new BasicHeader("name", null);
-        s = BasicLineFormatter.formatHeader(header2, null); 
+        s = BasicLineFormatter.formatHeader(header2, null);
         assertEquals("name: ", s);
     }
-    
+
     public void testHeaderFormattingInvalidInput() throws Exception {
         try {
             BasicLineFormatter.formatHeader
@@ -153,5 +153,5 @@ public class TestBasicLineFormatter extends TestCase {
             // expected
         }
     }
-     
+
 }

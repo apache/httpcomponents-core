@@ -38,7 +38,7 @@ public class UnsupportedHttpVersionException extends ProtocolException {
 
     private static final long serialVersionUID = -1348448090193107031L;
 
-    
+
     /**
      * Creates an exception without a detail message.
      */
@@ -48,8 +48,8 @@ public class UnsupportedHttpVersionException extends ProtocolException {
 
     /**
      * Creates an exception with the specified detail message.
-     * 
-     * @param message The exception detail message 
+     *
+     * @param message The exception detail message
      */
     public UnsupportedHttpVersionException(final String message) {
         super(message);

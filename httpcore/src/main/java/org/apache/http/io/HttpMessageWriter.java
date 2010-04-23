@@ -33,22 +33,22 @@ import org.apache.http.HttpException;
 import org.apache.http.HttpMessage;
 
 /**
- * Abstract message writer intended to serialize HTTP messages to an arbitrary 
- * data sink. 
- * 
+ * Abstract message writer intended to serialize HTTP messages to an arbitrary
+ * data sink.
+ *
  * @since 4.0
  */
 public interface HttpMessageWriter {
-    
+
     /**
      * Serializes an instance of {@link HttpMessage} to the underlying data
      * sink.
-     * 
+     *
      * @param message
      * @throws IOException in case of an I/O error
      * @throws HttpException in case of HTTP protocol violation
      */
     void write(HttpMessage message)
         throws IOException, HttpException;
-    
+
 }

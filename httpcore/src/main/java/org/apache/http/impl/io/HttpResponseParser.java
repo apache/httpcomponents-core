@@ -43,29 +43,29 @@ import org.apache.http.params.HttpParams;
 import org.apache.http.util.CharArrayBuffer;
 
 /**
- * HTTP response parser that obtain its input from an instance 
- * of {@link SessionInputBuffer}. 
+ * HTTP response parser that obtain its input from an instance
+ * of {@link SessionInputBuffer}.
  * <p>
- * The following parameters can be used to customize the behavior of this 
- * class: 
+ * The following parameters can be used to customize the behavior of this
+ * class:
  * <ul>
  *  <li>{@link org.apache.http.params.CoreConnectionPNames#MAX_HEADER_COUNT}</li>
  *  <li>{@link org.apache.http.params.CoreConnectionPNames#MAX_LINE_LENGTH}</li>
  * </ul>
- * 
+ *
  * @since 4.0
  */
 public class HttpResponseParser extends AbstractMessageParser {
-    
+
     private final HttpResponseFactory responseFactory;
     private final CharArrayBuffer lineBuf;
-    
+
     /**
      * Creates an instance of this class.
-     * 
+     *
      * @param buffer the session input buffer.
      * @param parser the line parser.
-     * @param responseFactory the factory to use to create 
+     * @param responseFactory the factory to use to create
      *    {@link HttpResponse}s.
      * @param params HTTP parameters.
      */

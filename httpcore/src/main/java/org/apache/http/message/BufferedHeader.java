@@ -49,7 +49,7 @@ public class BufferedHeader implements FormattedHeader, Cloneable {
      * The buffer containing the entire header line.
      */
     private final CharArrayBuffer buffer;
-    
+
     /**
      * The beginning of the header value in the buffer
      */
@@ -121,5 +121,5 @@ public class BufferedHeader implements FormattedHeader, Cloneable {
         // no need to make a copy of it
         return super.clone();
     }
- 
+
 }

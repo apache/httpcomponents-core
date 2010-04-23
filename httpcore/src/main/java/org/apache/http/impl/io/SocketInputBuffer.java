@@ -38,13 +38,13 @@ import org.apache.http.params.HttpParams;
 /**
  * {@link SessionInputBuffer} implementation bound to a {@link Socket}.
  * <p>
- * The following parameters can be used to customize the behavior of this 
- * class: 
+ * The following parameters can be used to customize the behavior of this
+ * class:
  * <ul>
  *  <li>{@link org.apache.http.params.CoreProtocolPNames#HTTP_ELEMENT_CHARSET}</li>
  *  <li>{@link org.apache.http.params.CoreConnectionPNames#MAX_LINE_LENGTH}</li>
  * </ul>
- * 
+ *
  * @since 4.0
  */
 public class SocketInputBuffer extends AbstractSessionInputBuffer implements EofSensor {
@@ -54,9 +54,9 @@ public class SocketInputBuffer extends AbstractSessionInputBuffer implements Eof
     /**
      * Returns <code>SocketTimeoutExceptionClass<code> or <code>null</code> if the class
      * does not exist.
-     * 
+     *
      * @return <code>SocketTimeoutExceptionClass<code>, or <code>null</code> if unavailable.
-     */ 
+     */
     static private Class SocketTimeoutExceptionClass() {
         try {
             return Class.forName("java.net.SocketTimeoutException");
@@ -72,24 +72,24 @@ public class SocketInputBuffer extends AbstractSessionInputBuffer implements Eof
             return true;
         }
     }
-    
+
     private final Socket socket;
-    
+
     private boolean eof;
-    
+
     /**
-     * Creates an instance of this class. 
-     *    
-     * @param socket the socket to read data from. 
+     * Creates an instance of this class.
+     *
+     * @param socket the socket to read data from.
      * @param buffersize the size of the internal buffer. If this number is less
-     *   than <code>0</code> it is set to the value of 
-     *   {@link Socket#getReceiveBufferSize()}. If resultant number is less 
-     *   than <code>1024</code> it is set to <code>1024</code>. 
+     *   than <code>0</code> it is set to the value of
+     *   {@link Socket#getReceiveBufferSize()}. If resultant number is less
+     *   than <code>1024</code> it is set to <code>1024</code>.
      * @param params HTTP parameters.
      */
     public SocketInputBuffer(
-            final Socket socket, 
-            int buffersize, 
+            final Socket socket,
+            int buffersize,
             final HttpParams params) throws IOException {
         super();
         if (socket == null) {
@@ -105,7 +105,7 @@ public class SocketInputBuffer extends AbstractSessionInputBuffer implements Eof
         }
         init(socket.getInputStream(), buffersize, params);
     }
-    
+
     protected int fillBuffer() throws IOException {
         int i = super.fillBuffer();
         this.eof = i == -1;
@@ -133,6 +133,6 @@ public class SocketInputBuffer extends AbstractSessionInputBuffer implements Eof
 
     public boolean isEof() {
         return this.eof;
-    }    
-    
+    }
+
 }

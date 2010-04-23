@@ -52,9 +52,9 @@ public interface LineParser {
      * as well as status lines (first element).
      *
      * @param buffer    a buffer holding the protocol version to parse
-     * @param cursor    the parser cursor containing the current position and 
+     * @param cursor    the parser cursor containing the current position and
      *                  the bounds within the buffer for the parsing operation
-     * 
+     *
      * @return  the parsed protocol version
      *
      * @throws ParseException        in case of a parse error
@@ -83,14 +83,14 @@ public interface LineParser {
      *          <code>false</code> otherwise
      */
     boolean hasProtocolVersion(
-            CharArrayBuffer buffer, 
+            CharArrayBuffer buffer,
             ParserCursor cursor);
 
     /**
      * Parses a request line.
      *
      * @param buffer    a buffer holding the line to parse
-     * @param cursor    the parser cursor containing the current position and 
+     * @param cursor    the parser cursor containing the current position and
      *                  the bounds within the buffer for the parsing operation
      *
      * @return  the parsed request line
@@ -105,7 +105,7 @@ public interface LineParser {
      * Parses a status line.
      *
      * @param buffer    a buffer holding the line to parse
-     * @param cursor    the parser cursor containing the current position and 
+     * @param cursor    the parser cursor containing the current position and
      *                  the bounds within the buffer for the parsing operation
      *
      * @return  the parsed status line

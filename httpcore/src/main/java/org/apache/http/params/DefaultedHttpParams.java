@@ -31,7 +31,7 @@ import org.apache.http.params.HttpParams;
 
 /**
  * {@link HttpParams} implementation that delegates resolution of a parameter
- * to the given default {@link HttpParams} instance if the parameter is not 
+ * to the given default {@link HttpParams} instance if the parameter is not
  * present in the local one. The state of the local collection can be mutated,
  * whereas the default collection is treated as read-only.
  *
@@ -41,7 +41,7 @@ public final class DefaultedHttpParams extends AbstractHttpParams {
 
     private final HttpParams local;
     private final HttpParams defaults;
-    
+
     public DefaultedHttpParams(final HttpParams local, final HttpParams defaults) {
         super();
         if (local == null) {
@@ -53,7 +53,7 @@ public final class DefaultedHttpParams extends AbstractHttpParams {
 
     /**
      * Creates a copy of the local collection with the same default
-     * 
+     *
      * @deprecated
      */
     public HttpParams copy() {
@@ -62,8 +62,8 @@ public final class DefaultedHttpParams extends AbstractHttpParams {
     }
 
     /**
-     * Retrieves the value of the parameter from the local collection and, if the 
-     * parameter is not set locally, delegates its resolution to the default 
+     * Retrieves the value of the parameter from the local collection and, if the
+     * parameter is not set locally, delegates its resolution to the default
      * collection.
      */
     public Object getParameter(final String name) {
@@ -75,7 +75,7 @@ public final class DefaultedHttpParams extends AbstractHttpParams {
     }
 
     /**
-     * Attempts to remove the parameter from the local collection. This method 
+     * Attempts to remove the parameter from the local collection. This method
      * <i>does not</i> modify the default collection.
      */
     public boolean removeParameter(final String name) {
@@ -83,7 +83,7 @@ public final class DefaultedHttpParams extends AbstractHttpParams {
     }
 
     /**
-     * Sets the parameter in the local collection. This method <i>does not</i> 
+     * Sets the parameter in the local collection. This method <i>does not</i>
      * modify the default collection.
      */
     public HttpParams setParameter(final String name, final Object value) {
@@ -93,5 +93,5 @@ public final class DefaultedHttpParams extends AbstractHttpParams {
     public HttpParams getDefaults() {
         return this.defaults;
     }
-    
+
 }

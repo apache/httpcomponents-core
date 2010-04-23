@@ -34,7 +34,7 @@ import org.apache.http.StatusLine;
  * Basic implementation of {@link StatusLine}
  *
  * @version $Id$
- * 
+ *
  * @since 4.0
  */
 public class BasicStatusLine implements StatusLine, Cloneable {
@@ -94,9 +94,9 @@ public class BasicStatusLine implements StatusLine, Cloneable {
         return BasicLineFormatter.DEFAULT
             .formatStatusLine(null, this).toString();
     }
-    
+
     public Object clone() throws CloneNotSupportedException {
         return super.clone();
     }
-    
+
 }

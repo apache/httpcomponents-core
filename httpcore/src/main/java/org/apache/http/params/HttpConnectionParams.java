@@ -29,7 +29,7 @@ package org.apache.http.params;
 
 /**
  * Utility class for accessing connection parameters in {@link HttpParams}.
- * 
+ *
  * @since 4.0
  */
 public final class HttpConnectionParams implements CoreConnectionPNames {
@@ -41,7 +41,7 @@ public final class HttpConnectionParams implements CoreConnectionPNames {
     /**
      * Obtains value of the {@link CoreConnectionPNames#SO_TIMEOUT} parameter.
      * If not set, defaults to <code>0</code>.
-     *  
+     *
      * @param params HTTP parameters.
      * @return SO_TIMEOUT.
      */
@@ -53,7 +53,7 @@ public final class HttpConnectionParams implements CoreConnectionPNames {
     }
 
     /**
-     * Sets value of the {@link CoreConnectionPNames#SO_TIMEOUT} parameter. 
+     * Sets value of the {@link CoreConnectionPNames#SO_TIMEOUT} parameter.
      *
      * @param params HTTP parameters.
      * @param timeout SO_TIMEOUT.
@@ -63,16 +63,16 @@ public final class HttpConnectionParams implements CoreConnectionPNames {
             throw new IllegalArgumentException("HTTP parameters may not be null");
         }
         params.setIntParameter(CoreConnectionPNames.SO_TIMEOUT, timeout);
-        
+
     }
 
     /**
      * Obtains value of the {@link CoreConnectionPNames#SO_REUSEADDR} parameter.
      * If not set, defaults to <code>false</code>.
-     *  
+     *
      * @param params HTTP parameters.
      * @return SO_REUSEADDR.
-     * 
+     *
      * @since 4.1
      */
     public static boolean getSoReuseaddr(final HttpParams params) {
@@ -83,11 +83,11 @@ public final class HttpConnectionParams implements CoreConnectionPNames {
     }
 
     /**
-     * Sets value of the {@link CoreConnectionPNames#SO_REUSEADDR} parameter. 
+     * Sets value of the {@link CoreConnectionPNames#SO_REUSEADDR} parameter.
      *
      * @param params HTTP parameters.
      * @param reuseaddr SO_REUSEADDR.
-     * 
+     *
      * @since 4.1
      */
     public static void setSoReuseaddr(final HttpParams params, boolean reuseaddr) {
@@ -100,7 +100,7 @@ public final class HttpConnectionParams implements CoreConnectionPNames {
     /**
      * Obtains value of the {@link CoreConnectionPNames#TCP_NODELAY} parameter.
      * If not set, defaults to <code>true</code>.
-     *  
+     *
      * @param params HTTP parameters.
      * @return Nagle's algorithm flag
      */
@@ -114,7 +114,7 @@ public final class HttpConnectionParams implements CoreConnectionPNames {
 
     /**
      * Sets value of the {@link CoreConnectionPNames#TCP_NODELAY} parameter.
-     *  
+     *
      * @param params HTTP parameters.
      * @param value Nagle's algorithm flag
      */
@@ -126,9 +126,9 @@ public final class HttpConnectionParams implements CoreConnectionPNames {
     }
 
     /**
-     * Obtains value of the {@link CoreConnectionPNames#SOCKET_BUFFER_SIZE} 
+     * Obtains value of the {@link CoreConnectionPNames#SOCKET_BUFFER_SIZE}
      * parameter. If not set, defaults to <code>-1</code>.
-     *  
+     *
      * @param params HTTP parameters.
      * @return socket buffer size
      */
@@ -139,11 +139,11 @@ public final class HttpConnectionParams implements CoreConnectionPNames {
         return params.getIntParameter
             (CoreConnectionPNames.SOCKET_BUFFER_SIZE, -1);
     }
-    
+
     /**
-     * Sets value of the {@link CoreConnectionPNames#SOCKET_BUFFER_SIZE} 
-     * parameter. 
-     *  
+     * Sets value of the {@link CoreConnectionPNames#SOCKET_BUFFER_SIZE}
+     * parameter.
+     *
      * @param params HTTP parameters.
      * @param size socket buffer size
      */
@@ -155,9 +155,9 @@ public final class HttpConnectionParams implements CoreConnectionPNames {
     }
 
     /**
-     * Obtains value of the {@link CoreConnectionPNames#SO_LINGER} parameter. 
+     * Obtains value of the {@link CoreConnectionPNames#SO_LINGER} parameter.
      * If not set, defaults to <code>-1</code>.
-     *  
+     *
      * @param params HTTP parameters.
      * @return SO_LINGER.
      */
@@ -169,8 +169,8 @@ public final class HttpConnectionParams implements CoreConnectionPNames {
     }
 
     /**
-     * Sets value of the {@link CoreConnectionPNames#SO_LINGER} parameter. 
-     *  
+     * Sets value of the {@link CoreConnectionPNames#SO_LINGER} parameter.
+     *
      * @param params HTTP parameters.
      * @param value SO_LINGER.
      */
@@ -182,9 +182,9 @@ public final class HttpConnectionParams implements CoreConnectionPNames {
     }
 
     /**
-     * Obtains value of the {@link CoreConnectionPNames#CONNECTION_TIMEOUT} 
+     * Obtains value of the {@link CoreConnectionPNames#CONNECTION_TIMEOUT}
      * parameter. If not set, defaults to <code>0</code>.
-     *  
+     *
      * @param params HTTP parameters.
      * @return connect timeout.
      */
@@ -197,9 +197,9 @@ public final class HttpConnectionParams implements CoreConnectionPNames {
     }
 
     /**
-     * Sets value of the {@link CoreConnectionPNames#CONNECTION_TIMEOUT} 
+     * Sets value of the {@link CoreConnectionPNames#CONNECTION_TIMEOUT}
      * parameter.
-     *  
+     *
      * @param params HTTP parameters.
      * @param timeout connect timeout.
      */
@@ -210,11 +210,11 @@ public final class HttpConnectionParams implements CoreConnectionPNames {
         params.setIntParameter
             (CoreConnectionPNames.CONNECTION_TIMEOUT, timeout);
     }
-    
+
     /**
-     * Obtains value of the {@link CoreConnectionPNames#STALE_CONNECTION_CHECK} 
+     * Obtains value of the {@link CoreConnectionPNames#STALE_CONNECTION_CHECK}
      * parameter. If not set, defaults to <code>true</code>.
-     *  
+     *
      * @param params HTTP parameters.
      * @return stale connection check flag.
      */
@@ -227,9 +227,9 @@ public final class HttpConnectionParams implements CoreConnectionPNames {
     }
 
     /**
-     * Sets value of the {@link CoreConnectionPNames#STALE_CONNECTION_CHECK} 
-     * parameter. 
-     *  
+     * Sets value of the {@link CoreConnectionPNames#STALE_CONNECTION_CHECK}
+     * parameter.
+     *
      * @param params HTTP parameters.
      * @param value stale connection check flag.
      */
@@ -240,5 +240,5 @@ public final class HttpConnectionParams implements CoreConnectionPNames {
         params.setBooleanParameter
             (CoreConnectionPNames.STALE_CONNECTION_CHECK, value);
     }
-    
+
 }

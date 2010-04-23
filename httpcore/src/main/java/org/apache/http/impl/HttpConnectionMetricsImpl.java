@@ -37,22 +37,22 @@ import org.apache.http.io.HttpTransportMetrics;
  * @since 4.0
  */
 public class HttpConnectionMetricsImpl implements HttpConnectionMetrics {
-    
+
     public static final String REQUEST_COUNT = "http.request-count";
     public static final String RESPONSE_COUNT = "http.response-count";
     public static final String SENT_BYTES_COUNT = "http.sent-bytes-count";
     public static final String RECEIVED_BYTES_COUNT = "http.received-bytes-count";
-    
+
     private final HttpTransportMetrics inTransportMetric;
     private final HttpTransportMetrics outTransportMetric;
     private long requestCount = 0;
     private long responseCount = 0;
-    
+
     /**
      * The cache map for all metrics values.
      */
     private HashMap metricsCache;
-    
+
     public HttpConnectionMetricsImpl(
             final HttpTransportMetrics inTransportMetric,
             final HttpTransportMetrics outTransportMetric) {
@@ -60,7 +60,7 @@ public class HttpConnectionMetricsImpl implements HttpConnectionMetrics {
         this.inTransportMetric = inTransportMetric;
         this.outTransportMetric = outTransportMetric;
     }
-    
+
     /* ------------------  Public interface method -------------------------- */
 
     public long getReceivedBytesCount() {
@@ -78,23 +78,23 @@ public class HttpConnectionMetricsImpl implements HttpConnectionMetrics {
             return -1;
         }
     }
-    
+
     public long getRequestCount() {
         return this.requestCount;
     }
-    
+
     public void incrementRequestCount() {
         this.requestCount++;
     }
-    
+
     public long getResponseCount() {
         return this.responseCount;
     }
-    
+
     public void incrementResponseCount() {
         this.responseCount++;
     }
-    
+
     public Object getMetric(final String metricName) {
         Object value = null;
         if (this.metricsCache != null) {
@@ -121,14 +121,14 @@ public class HttpConnectionMetricsImpl implements HttpConnectionMetrics {
         }
         return value;
     }
-    
+
     public void setMetric(final String metricName, Object obj) {
         if (this.metricsCache == null) {
             this.metricsCache = new HashMap();
         }
         this.metricsCache.put(metricName, obj);
     }
-    
+
     public void reset() {
         if (this.outTransportMetric != null) {
             this.outTransportMetric.reset();

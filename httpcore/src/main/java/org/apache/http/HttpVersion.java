@@ -30,8 +30,8 @@ package org.apache.http;
 import java.io.Serializable;
 
 /**
- * Represents an HTTP version. HTTP uses a "major.minor" numbering 
- * scheme to indicate versions of the protocol. 
+ * Represents an HTTP version. HTTP uses a "major.minor" numbering
+ * scheme to indicate versions of the protocol.
  * <p>
  * The version of an HTTP message is indicated by an HTTP-Version field
  * in the first line of the message.
@@ -39,7 +39,7 @@ import java.io.Serializable;
  * <pre>
  *     HTTP-Version   = "HTTP" "/" 1*DIGIT "." 1*DIGIT
  * </pre>
- * 
+ *
  * @since 4.0
  */
 public final class HttpVersion extends ProtocolVersion
@@ -49,23 +49,23 @@ public final class HttpVersion extends ProtocolVersion
 
     /** The protocol name. */
     public static final String HTTP = "HTTP";
-    
+
     /** HTTP protocol version 0.9 */
-    public static final HttpVersion HTTP_0_9 = new HttpVersion(0, 9);  
+    public static final HttpVersion HTTP_0_9 = new HttpVersion(0, 9);
 
     /** HTTP protocol version 1.0 */
-    public static final HttpVersion HTTP_1_0 = new HttpVersion(1, 0);  
+    public static final HttpVersion HTTP_1_0 = new HttpVersion(1, 0);
 
     /** HTTP protocol version 1.1 */
-    public static final HttpVersion HTTP_1_1 = new HttpVersion(1, 1);  
+    public static final HttpVersion HTTP_1_1 = new HttpVersion(1, 1);
 
-    
+
     /**
      * Create an HTTP protocol version designator.
      *
      * @param major   the major version number of the HTTP protocol
      * @param minor   the minor version number of the HTTP protocol
-     * 
+     *
      * @throws IllegalArgumentException if either major or minor version number is negative
      */
     public HttpVersion(int major, int minor) {

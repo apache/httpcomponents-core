@@ -49,7 +49,7 @@ public class TestInputStreamEntity extends TestCase {
         byte[] bytes = "Message content".getBytes(HTTP.ISO_8859_1);
         InputStream instream = new ByteArrayInputStream(bytes);
         InputStreamEntity httpentity = new InputStreamEntity(instream, bytes.length);
-        
+
         assertEquals(bytes.length, httpentity.getContentLength());
         assertEquals(instream, httpentity.getContent());
         assertNotNull(httpentity.getContent());
@@ -70,7 +70,7 @@ public class TestInputStreamEntity extends TestCase {
         byte[] bytes = "Message content".getBytes(HTTP.ISO_8859_1);
         InputStream instream = new ByteArrayInputStream(bytes);
         InputStreamEntity httpentity = new InputStreamEntity(instream, 7);
-        
+
         ByteArrayOutputStream out = new ByteArrayOutputStream();
         httpentity.writeTo(out);
         byte[] bytes2 = out.toByteArray();
@@ -96,7 +96,7 @@ public class TestInputStreamEntity extends TestCase {
         assertNotNull(bytes2);
         assertEquals(bytes.length, bytes2.length);
         assertFalse(httpentity.isStreaming());
-        
+
         try {
             httpentity.writeTo(null);
             fail("IllegalArgumentException should have been thrown");
@@ -104,7 +104,7 @@ public class TestInputStreamEntity extends TestCase {
             // expected
         }
     }
-    
+
     public void testConsume() throws Exception {
         byte[] bytes = "Message content".getBytes(HTTP.ISO_8859_1);
         InputStream instream = new ByteArrayInputStream(bytes);
@@ -115,5 +115,5 @@ public class TestInputStreamEntity extends TestCase {
         httpentity.consumeContent();
         assertFalse(httpentity.isStreaming());
     }
-        
+
 }

@@ -46,10 +46,10 @@ public interface HttpResponseFactory {
      *                  <code>null</code> to use the default locale
      *
      * @return  the new response with an initialized status line
-     */    
+     */
     HttpResponse newHttpResponse(ProtocolVersion ver, int status,
                                  HttpContext context);
-    
+
     /**
      * Creates a new response from a status line.
      *
@@ -60,8 +60,8 @@ public interface HttpResponseFactory {
      *                   <code>null</code> to use the default locale
      *
      * @return  the new response with the argument status line
-     */    
+     */
     HttpResponse newHttpResponse(StatusLine statusline,
                                  HttpContext context);
-    
+
 }

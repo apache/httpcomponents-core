@@ -41,7 +41,7 @@ public class TestByteArrayBuffer extends TestCase {
 
     public void testConstructor() throws Exception {
         ByteArrayBuffer buffer = new ByteArrayBuffer(16);
-        assertEquals(16, buffer.capacity()); 
+        assertEquals(16, buffer.capacity());
         assertEquals(0, buffer.length());
         assertNotNull(buffer.buffer());
         assertEquals(16, buffer.buffer().length);
@@ -52,24 +52,24 @@ public class TestByteArrayBuffer extends TestCase {
             // expected
         }
     }
-    
+
     public void testSimpleAppend() throws Exception {
         ByteArrayBuffer buffer = new ByteArrayBuffer(16);
-        assertEquals(16, buffer.capacity()); 
+        assertEquals(16, buffer.capacity());
         assertEquals(0, buffer.length());
         byte[] b1 = buffer.toByteArray();
         assertNotNull(b1);
         assertEquals(0, b1.length);
         assertTrue(buffer.isEmpty());
         assertFalse(buffer.isFull());
-        
+
         byte[] tmp = new byte[] { 1, 2, 3, 4};
         buffer.append(tmp, 0, tmp.length);
-        assertEquals(16, buffer.capacity()); 
+        assertEquals(16, buffer.capacity());
         assertEquals(4, buffer.length());
         assertFalse(buffer.isEmpty());
         assertFalse(buffer.isFull());
-        
+
         byte[] b2 = buffer.toByteArray();
         assertNotNull(b2);
         assertEquals(4, b2.length);
@@ -78,30 +78,30 @@ public class TestByteArrayBuffer extends TestCase {
             assertEquals(tmp[i], buffer.byteAt(i));
         }
         buffer.clear();
-        assertEquals(16, buffer.capacity()); 
+        assertEquals(16, buffer.capacity());
         assertEquals(0, buffer.length());
         assertTrue(buffer.isEmpty());
         assertFalse(buffer.isFull());
     }
-    
+
     public void testExpandAppend() throws Exception {
         ByteArrayBuffer buffer = new ByteArrayBuffer(4);
-        assertEquals(4, buffer.capacity()); 
-        
+        assertEquals(4, buffer.capacity());
+
         byte[] tmp = new byte[] { 1, 2, 3, 4};
         buffer.append(tmp, 0, 2);
         buffer.append(tmp, 0, 4);
         buffer.append(tmp, 0, 0);
 
-        assertEquals(8, buffer.capacity()); 
+        assertEquals(8, buffer.capacity());
         assertEquals(6, buffer.length());
-        
+
         buffer.append(tmp, 0, 4);
-        
-        assertEquals(16, buffer.capacity()); 
+
+        assertEquals(16, buffer.capacity());
         assertEquals(10, buffer.length());
     }
-    
+
     public void testInvalidAppend() throws Exception {
         ByteArrayBuffer buffer = new ByteArrayBuffer(4);
         buffer.append((byte[])null, 0, 0);
@@ -141,26 +141,26 @@ public class TestByteArrayBuffer extends TestCase {
 
     public void testAppendOneByte() throws Exception {
         ByteArrayBuffer buffer = new ByteArrayBuffer(4);
-        assertEquals(4, buffer.capacity()); 
-        
+        assertEquals(4, buffer.capacity());
+
         byte[] tmp = new byte[] { 1, 127, -1, -128, 1, -2};
         for (int i = 0; i < tmp.length; i++) {
             buffer.append(tmp[i]);
         }
-        assertEquals(8, buffer.capacity()); 
+        assertEquals(8, buffer.capacity());
         assertEquals(6, buffer.length());
-        
+
         for (int i = 0; i < tmp.length; i++) {
             assertEquals(tmp[i], buffer.byteAt(i));
         }
     }
-    
+
     public void testSetLength() throws Exception {
         ByteArrayBuffer buffer = new ByteArrayBuffer(4);
         buffer.setLength(2);
         assertEquals(2, buffer.length());
     }
-    
+
     public void testSetInvalidLength() throws Exception {
         ByteArrayBuffer buffer = new ByteArrayBuffer(4);
         try {
@@ -191,7 +191,7 @@ public class TestByteArrayBuffer extends TestCase {
         byte[] bytes = "name1: value1; name2: value2".getBytes("US-ASCII");
         int index1 = 5;
         int index2 = 20;
-       
+
         ByteArrayBuffer buffer = new ByteArrayBuffer(16);
         buffer.append(bytes, 0, bytes.length);
 
@@ -208,14 +208,14 @@ public class TestByteArrayBuffer extends TestCase {
         String s2 = " and more stuff";
         char[] b1 = s1.toCharArray();
         char[] b2 = s2.toCharArray();
-        
+
         ByteArrayBuffer buffer = new ByteArrayBuffer(8);
         buffer.append(b1, 0, b1.length);
         buffer.append(b2, 0, b2.length);
-         
+
         assertEquals(s1 + s2, new String(buffer.toByteArray(), "US-ASCII"));
     }
-    
+
     public void testAppendNullCharArray() throws Exception {
         ByteArrayBuffer buffer = new ByteArrayBuffer(8);
         buffer.append((char[])null, 0, 0);
@@ -270,5 +270,5 @@ public class TestByteArrayBuffer extends TestCase {
             // expected
         }
     }
-    
+
 }

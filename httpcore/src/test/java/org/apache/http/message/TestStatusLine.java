@@ -36,7 +36,7 @@ import org.apache.http.StatusLine;
 /**
  * Simple tests for {@link StatusLine}.
  *
- * 
+ *
  * @version $Id$
  */
 public class TestStatusLine extends TestCase {
@@ -50,11 +50,11 @@ public class TestStatusLine extends TestCase {
 
     public void testConstructor() {
         StatusLine statusline = new BasicStatusLine(HttpVersion.HTTP_1_1, HttpStatus.SC_OK, "OK");
-        assertEquals(HttpVersion.HTTP_1_1, statusline.getProtocolVersion()); 
-        assertEquals(HttpStatus.SC_OK, statusline.getStatusCode()); 
-        assertEquals("OK", statusline.getReasonPhrase()); 
+        assertEquals(HttpVersion.HTTP_1_1, statusline.getProtocolVersion());
+        assertEquals(HttpStatus.SC_OK, statusline.getStatusCode());
+        assertEquals("OK", statusline.getReasonPhrase());
     }
-        
+
     public void testConstructorInvalidInput() {
         try {
             new BasicStatusLine(null, HttpStatus.SC_OK, "OK");
@@ -73,7 +73,7 @@ public class TestStatusLine extends TestCase {
         // toString uses default formatting, hence the trailing space
         assertEquals("HTTP/1.1 200 ", statusline.toString());
     }
-    
+
     public void testCloning() throws Exception {
         BasicStatusLine orig = new BasicStatusLine(HttpVersion.HTTP_1_1, HttpStatus.SC_OK, "OK");
         BasicStatusLine clone = (BasicStatusLine) orig.clone();
@@ -81,5 +81,5 @@ public class TestStatusLine extends TestCase {
         assertEquals(orig.getStatusCode(), clone.getStatusCode());
         assertEquals(orig.getProtocolVersion(), clone.getProtocolVersion());
     }
-    
+
 }

@@ -34,23 +34,23 @@ import org.apache.http.io.BufferInfo;
 import org.apache.http.io.SessionInputBuffer;
 
 /**
- * Input stream that reads data without any transformation. The end of the 
- * content entity is demarcated by closing the underlying connection 
- * (EOF condition). Entities transferred using this input stream can be of 
- * unlimited length. 
+ * Input stream that reads data without any transformation. The end of the
+ * content entity is demarcated by closing the underlying connection
+ * (EOF condition). Entities transferred using this input stream can be of
+ * unlimited length.
  * <p>
  * Note that this class NEVER closes the underlying stream, even when close
- * gets called.  Instead, it will read until the end of the stream (until 
+ * gets called.  Instead, it will read until the end of the stream (until
  * <code>-1</code> is returned).
- * 
+ *
  * @since 4.0
  */
 public class IdentityInputStream extends InputStream {
-    
+
     private final SessionInputBuffer in;
-    
+
     private boolean closed = false;
-    
+
     /**
      * Wraps session input stream and reads input until the the end of stream.
      *
@@ -63,7 +63,7 @@ public class IdentityInputStream extends InputStream {
         }
         this.in = in;
     }
-    
+
     public int available() throws IOException {
         if (this.in instanceof BufferInfo) {
             return ((BufferInfo) this.in).length();
@@ -71,7 +71,7 @@ public class IdentityInputStream extends InputStream {
             return 0;
         }
     }
-    
+
     public void close() throws IOException {
         this.closed = true;
     }
@@ -83,7 +83,7 @@ public class IdentityInputStream extends InputStream {
             return this.in.read();
         }
     }
-    
+
     public int read(final byte[] b, int off, int len) throws IOException {
         if (this.closed) {
             return -1;
@@ -91,5 +91,5 @@ public class IdentityInputStream extends InputStream {
             return this.in.read(b, off, len);
         }
     }
-    
+
 }

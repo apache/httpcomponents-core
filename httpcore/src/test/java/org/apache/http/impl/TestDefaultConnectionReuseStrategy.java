@@ -150,7 +150,7 @@ public class TestDefaultConnectionReuseStrategy extends TestCase {
 
         assertFalse(reuseStrategy.keepAlive(response, context));
     }
-    
+
     public void testExplicitClose() throws Exception {
         // Use HTTP 1.1
         HttpResponse response =
@@ -159,7 +159,7 @@ public class TestDefaultConnectionReuseStrategy extends TestCase {
 
         assertFalse(reuseStrategy.keepAlive(response, context));
     }
-    
+
     public void testExplicitKeepAlive() throws Exception {
         // Use HTTP 1.0
         HttpResponse response =
@@ -175,7 +175,7 @@ public class TestDefaultConnectionReuseStrategy extends TestCase {
 
         assertFalse(reuseStrategy.keepAlive(response, context));
     }
-    
+
     public void testHTTP11Default() throws Exception {
         HttpResponse response =
             createResponse(HttpVersion.HTTP_1_1, 200, "OK");
@@ -188,7 +188,7 @@ public class TestDefaultConnectionReuseStrategy extends TestCase {
 
         assertTrue(reuseStrategy.keepAlive(response, context));
     }
-    
+
     public void testBrokenConnectionDirective1() throws Exception {
         // Use HTTP 1.0
         HttpResponse response =
@@ -374,7 +374,7 @@ public class TestDefaultConnectionReuseStrategy extends TestCase {
         public HttpConnectionMetrics getMetrics() {
             return null;
         }
-        
+
     } // class MockConnection
 
 } // class TestDefaultConnectionReuseStrategy

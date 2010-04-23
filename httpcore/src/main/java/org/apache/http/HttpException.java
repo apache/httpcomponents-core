@@ -37,7 +37,7 @@ import org.apache.http.util.ExceptionUtils;
 public class HttpException extends Exception {
 
     private static final long serialVersionUID = -5437299376222011036L;
-    
+
     /**
      * Creates a new HttpException with a <tt>null</tt> detail message.
      */
@@ -56,7 +56,7 @@ public class HttpException extends Exception {
 
     /**
      * Creates a new HttpException with the specified detail message and cause.
-     * 
+     *
      * @param message the exception detail message
      * @param cause the <tt>Throwable</tt> that caused this exception, or <tt>null</tt>
      * if the cause is unavailable, unknown, or not a <tt>Throwable</tt>

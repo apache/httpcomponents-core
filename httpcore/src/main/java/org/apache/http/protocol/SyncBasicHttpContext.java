@@ -29,15 +29,15 @@ package org.apache.http.protocol;
 
 /**
  * Thread-safe extension of the {@link BasicHttpContext}.
- * 
+ *
  * @since 4.0
  */
 public class SyncBasicHttpContext extends BasicHttpContext {
-    
+
     public SyncBasicHttpContext(final HttpContext parentContext) {
         super(parentContext);
     }
-    
+
     public synchronized Object getAttribute(final String id) {
         return super.getAttribute(id);
     }
@@ -45,7 +45,7 @@ public class SyncBasicHttpContext extends BasicHttpContext {
     public synchronized void setAttribute(final String id, final Object obj) {
         super.setAttribute(id, obj);
     }
-    
+
     public synchronized Object removeAttribute(final String id) {
         return super.removeAttribute(id);
     }

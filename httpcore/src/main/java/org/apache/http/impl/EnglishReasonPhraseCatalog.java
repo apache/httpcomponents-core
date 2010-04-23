@@ -175,9 +175,9 @@ public class EnglishReasonPhraseCatalog implements ReasonPhraseCatalog {
                   "Payment Required");
         setReason(HttpStatus.SC_NOT_ACCEPTABLE,
                   "Not Acceptable");
-        setReason(HttpStatus.SC_PROXY_AUTHENTICATION_REQUIRED, 
+        setReason(HttpStatus.SC_PROXY_AUTHENTICATION_REQUIRED,
                   "Proxy Authentication Required");
-        setReason(HttpStatus.SC_REQUEST_TIMEOUT, 
+        setReason(HttpStatus.SC_REQUEST_TIMEOUT,
                   "Request Timeout");
 
         setReason(HttpStatus.SC_SWITCHING_PROTOCOLS,

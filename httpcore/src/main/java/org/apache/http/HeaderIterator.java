@@ -52,5 +52,5 @@ public interface HeaderIterator extends Iterator {
      * @return  the next header in this iteration
      */
     Header nextHeader();
-    
+
 }

@@ -231,9 +231,9 @@ public class TestBasicLineParser extends TestCase {
         CharArrayBuffer buffer = new CharArrayBuffer(16);
         buffer.append(s);
         ParserCursor cursor = new ParserCursor(0, s.length());
-        
+
         LineParser parser = BasicLineParser.DEFAULT;
-        
+
         HttpVersion version = (HttpVersion) parser.parseProtocolVersion(buffer, cursor);
         assertEquals("HTTP protocol name", "HTTP", version.getProtocol());
         assertEquals("HTTP major version number", 1, version.getMajor());
@@ -241,12 +241,12 @@ public class TestBasicLineParser extends TestCase {
         assertEquals("HTTP version number", "HTTP/1.1", version.toString());
         assertEquals(s.length(), cursor.getPos());
         assertTrue(cursor.atEnd());
-        
+
         s = "HTTP/1.123 123";
         buffer = new CharArrayBuffer(16);
         buffer.append(s);
         cursor = new ParserCursor(0, s.length());
-        
+
         version = (HttpVersion) parser.parseProtocolVersion(buffer, cursor);
         assertEquals("HTTP protocol name", "HTTP", version.getProtocol());
         assertEquals("HTTP major version number", 1, version.getMajor());

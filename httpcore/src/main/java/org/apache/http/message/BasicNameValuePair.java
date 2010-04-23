@@ -47,7 +47,7 @@ public class BasicNameValuePair implements NameValuePair, Cloneable, Serializabl
 
     /**
      * Default Constructor taking a name and a value. The value may be null.
-     * 
+     *
      * @param name The name.
      * @param value The value.
      */
@@ -70,7 +70,7 @@ public class BasicNameValuePair implements NameValuePair, Cloneable, Serializabl
 
     public String toString() {
         // don't call complex default formatting for a simple toString
-        
+
         if (this.value == null) {
             return name;
         } else {
@@ -101,9 +101,9 @@ public class BasicNameValuePair implements NameValuePair, Cloneable, Serializabl
         hash = LangUtils.hashCode(hash, this.value);
         return hash;
     }
-    
+
     public Object clone() throws CloneNotSupportedException {
         return super.clone();
     }
- 
+
 }

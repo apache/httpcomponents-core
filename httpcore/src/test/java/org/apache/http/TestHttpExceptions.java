@@ -58,5 +58,5 @@ public class TestHttpExceptions extends TestCase {
         new UnsupportedHttpVersionException();
         new UnsupportedHttpVersionException("Oppsie");
     }
-            
+
 }

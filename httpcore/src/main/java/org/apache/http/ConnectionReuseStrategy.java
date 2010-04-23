@@ -34,9 +34,9 @@ import org.apache.http.protocol.HttpContext;
  * subsequent requests and should be kept alive.
  * <p>
  * Implementations of this interface must be thread-safe. Access to shared
- * data must be synchronized as methods of this interface may be executed 
+ * data must be synchronized as methods of this interface may be executed
  * from multiple threads.
- * 
+ *
  * @since 4.0
  */
 public interface ConnectionReuseStrategy {
@@ -48,9 +48,9 @@ public interface ConnectionReuseStrategy {
      * If it returns <code>true</code>, the caller SHOULD attempt to
      * keep the connection open for reuse with another request.
      * <br/>
-     * One can use the HTTP context to retrieve additional objects that 
-     * may be relevant for the keep-alive strategy: the actual HTTP 
-     * connection, the original HTTP request, target host if known, 
+     * One can use the HTTP context to retrieve additional objects that
+     * may be relevant for the keep-alive strategy: the actual HTTP
+     * connection, the original HTTP request, target host if known,
      * number of times the connection has been reused already and so on.
      * <br/>
      * If the connection is already closed, <code>false</code> is returned.
@@ -59,12 +59,12 @@ public interface ConnectionReuseStrategy {
      *
      * @param response
      *          The last response received over that connection.
-     * @param context   the context in which the connection is being 
+     * @param context   the context in which the connection is being
      *          used.
      *
      * @return <code>true</code> if the connection is allowed to be reused, or
      *         <code>false</code> if it MUST NOT be reused
      */
     boolean keepAlive(HttpResponse response, HttpContext context);
-            
+
 }

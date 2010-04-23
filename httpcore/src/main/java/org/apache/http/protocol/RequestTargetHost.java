@@ -41,9 +41,9 @@ import org.apache.http.ProtocolVersion;
 import org.apache.http.ProtocolException;
 
 /**
- * RequestTargetHost is responsible for adding <code>Host</code> header. This 
- * interceptor is required for client side protocol processors. 
- * 
+ * RequestTargetHost is responsible for adding <code>Host</code> header. This
+ * interceptor is required for client side protocol processors.
+ *
  * @since 4.0
  */
 public class RequestTargetHost implements HttpRequestInterceptor {
@@ -51,8 +51,8 @@ public class RequestTargetHost implements HttpRequestInterceptor {
     public RequestTargetHost() {
         super();
     }
-    
-    public void process(final HttpRequest request, final HttpContext context) 
+
+    public void process(final HttpRequest request, final HttpContext context)
             throws HttpException, IOException {
         if (request == null) {
             throw new IllegalArgumentException("HTTP request may not be null");
@@ -60,13 +60,13 @@ public class RequestTargetHost implements HttpRequestInterceptor {
         if (context == null) {
             throw new IllegalArgumentException("HTTP context may not be null");
         }
-        
+
         ProtocolVersion ver = request.getRequestLine().getProtocolVersion();
         String method = request.getRequestLine().getMethod();
         if (method.equalsIgnoreCase("CONNECT") && ver.lessEquals(HttpVersion.HTTP_1_0)) {
             return;
         }
-        
+
         if (!request.containsHeader(HTTP.TARGET_HOST)) {
             HttpHost targethost = (HttpHost) context
                 .getAttribute(ExecutionContext.HTTP_TARGET_HOST);
@@ -74,7 +74,7 @@ public class RequestTargetHost implements HttpRequestInterceptor {
                 HttpConnection conn = (HttpConnection) context
                     .getAttribute(ExecutionContext.HTTP_CONNECTION);
                 if (conn instanceof HttpInetConnection) {
-                    // Populate the context with a default HTTP host based on the 
+                    // Populate the context with a default HTTP host based on the
                     // inet address of the target host
                     InetAddress address = ((HttpInetConnection) conn).getRemoteAddress();
                     int port = ((HttpInetConnection) conn).getRemotePort();
@@ -93,5 +93,5 @@ public class RequestTargetHost implements HttpRequestInterceptor {
             request.addHeader(HTTP.TARGET_HOST, targethost.toHostString());
         }
     }
-    
+
 }

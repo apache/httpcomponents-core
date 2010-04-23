@@ -30,7 +30,7 @@ package org.apache.http;
 
 /**
  * A request with an entity.
- * 
+ *
  * @since 4.0
  */
 public interface HttpEntityEnclosingRequest extends HttpRequest {
@@ -44,19 +44,19 @@ public interface HttpEntityEnclosingRequest extends HttpRequest {
      * not.
      */
     boolean expectContinue();
-    
+
     /**
      * Associates the entity with this request.
-     * 
+     *
      * @param entity the entity to send.
      */
     void setEntity(HttpEntity entity);
-    
+
     /**
      * Returns the entity associated with this request.
-     * 
+     *
      * @return entity
      */
     HttpEntity getEntity();
-    
+
 }

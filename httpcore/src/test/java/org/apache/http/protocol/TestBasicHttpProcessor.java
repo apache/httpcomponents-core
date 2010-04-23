@@ -40,9 +40,9 @@ import org.apache.http.HttpRequestInterceptor;
 public class TestBasicHttpProcessor extends TestCase {
 
     static class TestHttpRequestInterceptorPlaceHolder implements HttpRequestInterceptor {
-        
+
         public void process(
-                HttpRequest request, 
+                HttpRequest request,
                 HttpContext context) throws HttpException, IOException {
         }
     }
@@ -111,12 +111,12 @@ public class TestBasicHttpProcessor extends TestCase {
         HttpRequestInterceptor itcp1 = new TestHttpRequestInterceptorPlaceHolder();
         HttpRequestInterceptor itcp2 = new TestHttpRequestInterceptorPlaceHolder();
         HttpRequestInterceptor itcp3 = new HttpRequestInterceptor() {
-            
+
             public void process(
-                    HttpRequest request, 
+                    HttpRequest request,
                     HttpContext context) throws HttpException, IOException {
             }
-            
+
         };
         BasicHttpProcessor instance = new BasicHttpProcessor();
         instance.addRequestInterceptor(itcp1);

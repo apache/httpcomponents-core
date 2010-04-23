@@ -47,20 +47,20 @@ import org.apache.http.protocol.HTTP;
  * This entity deserializer supports "chunked" and "identitiy" transfer-coding
  * and content length delimited content.
  * <p>
- * This class relies on a specific implementation of 
+ * This class relies on a specific implementation of
  * {@link ContentLengthStrategy} to determine the content length or transfer
  * encoding of the entity.
  * <p>
- * This class generates an instance of {@link HttpEntity} based on 
- * properties of the message. The content of the entity will be decoded 
- * transparently for the consumer. 
- * 
+ * This class generates an instance of {@link HttpEntity} based on
+ * properties of the message. The content of the entity will be decoded
+ * transparently for the consumer.
+ *
  * @since 4.0
  */
 public class EntityDeserializer {
 
     private final ContentLengthStrategy lenStrategy;
-    
+
     public EntityDeserializer(final ContentLengthStrategy lenStrategy) {
         super();
         if (lenStrategy == null) {
@@ -70,14 +70,14 @@ public class EntityDeserializer {
     }
 
     /**
-     * Creates a {@link BasicHttpEntity} based on properties of the given 
-     * message. The content of the entity is created by wrapping 
+     * Creates a {@link BasicHttpEntity} based on properties of the given
+     * message. The content of the entity is created by wrapping
      * {@link SessionInputBuffer} with a content decoder depending on the
      * transfer mechanism used by the message.
      * <p>
      * This method is called by the public
      * {@link #deserialize(SessionInputBuffer, HttpMessage)}.
-     * 
+     *
      * @param inbuffer the session input buffer.
      * @param message the message.
      * @return HTTP entity.
@@ -88,7 +88,7 @@ public class EntityDeserializer {
             final SessionInputBuffer inbuffer,
             final HttpMessage message) throws HttpException, IOException {
         BasicHttpEntity entity = new BasicHttpEntity();
-        
+
         long len = this.lenStrategy.determineLength(message);
         if (len == ContentLengthStrategy.CHUNKED) {
             entity.setChunked(true);
@@ -97,32 +97,32 @@ public class EntityDeserializer {
         } else if (len == ContentLengthStrategy.IDENTITY) {
             entity.setChunked(false);
             entity.setContentLength(-1);
-            entity.setContent(new IdentityInputStream(inbuffer));                            
+            entity.setContent(new IdentityInputStream(inbuffer));
         } else {
             entity.setChunked(false);
             entity.setContentLength(len);
             entity.setContent(new ContentLengthInputStream(inbuffer, len));
         }
-        
+
         Header contentTypeHeader = message.getFirstHeader(HTTP.CONTENT_TYPE);
         if (contentTypeHeader != null) {
-            entity.setContentType(contentTypeHeader);    
+            entity.setContentType(contentTypeHeader);
         }
         Header contentEncodingHeader = message.getFirstHeader(HTTP.CONTENT_ENCODING);
         if (contentEncodingHeader != null) {
-            entity.setContentEncoding(contentEncodingHeader);    
+            entity.setContentEncoding(contentEncodingHeader);
         }
         return entity;
     }
-        
+
     /**
      * Creates an {@link HttpEntity} based on properties of the given message.
-     * The content of the entity is created by wrapping 
+     * The content of the entity is created by wrapping
      * {@link SessionInputBuffer} with a content decoder depending on the
      * transfer mechanism used by the message.
      * <p>
      * The content of the entity is NOT retrieved by this method.
-     *  
+     *
      * @param inbuffer the session input buffer.
      * @param message the message.
      * @return HTTP entity.
@@ -140,5 +140,5 @@ public class EntityDeserializer {
         }
         return doDeserialize(inbuffer, message);
     }
-    
+
 }

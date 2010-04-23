@@ -86,7 +86,7 @@ public class TestIdentityOutputStream extends TestCase {
             // expected
         }
     }
-    
+
     public void testConstructor() throws Exception {
         SessionOutputBufferMockup transmitter = new SessionOutputBufferMockup();
         new IdentityOutputStream(transmitter);
@@ -97,16 +97,16 @@ public class TestIdentityOutputStream extends TestCase {
             //expected
         }
     }
-    
+
     public void testBasicWrite() throws Exception {
         SessionOutputBufferMockup transmitter = new SessionOutputBufferMockup();
         IdentityOutputStream outstream = new IdentityOutputStream(transmitter);
         outstream.write(new byte[] {'a', 'b'}, 0, 2);
         outstream.write('c');
         outstream.flush();
-        
+
         byte[] input = transmitter.getData();
-        
+
         assertNotNull(input);
         byte[] expected = new byte[] {'a', 'b', 'c'};
         assertEquals(expected.length, input.length);
@@ -114,13 +114,13 @@ public class TestIdentityOutputStream extends TestCase {
             assertEquals(expected[i], input[i]);
         }
     }
-    
+
     public void testClosedCondition() throws Exception {
         SessionOutputBufferMockup transmitter = new SessionOutputBufferMockup();
         IdentityOutputStream outstream = new IdentityOutputStream(transmitter);
         outstream.close();
         outstream.close();
-        
+
         try {
             byte[] tmp = new byte[2];
             outstream.write(tmp, 0, tmp.length);
@@ -136,6 +136,6 @@ public class TestIdentityOutputStream extends TestCase {
         }
     }
 
-    
+
 }
 

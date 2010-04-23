@@ -49,8 +49,8 @@ public class TestHttpEntityWrapper extends TestCase {
         StringEntity httpentity = new StringEntity(s, HTTP.ISO_8859_1);
         httpentity.setContentType(HTTP.PLAIN_TEXT_TYPE);
         httpentity.setContentEncoding(HTTP.IDENTITY_CODING);
-        HttpEntityWrapper wrapped = new HttpEntityWrapper(httpentity); 
-        
+        HttpEntityWrapper wrapped = new HttpEntityWrapper(httpentity);
+
         assertEquals(httpentity.getContentLength(), wrapped.getContentLength());
         assertEquals(httpentity.getContentType(), wrapped.getContentType());
         assertEquals(httpentity.getContentEncoding(), wrapped.getContentEncoding());
@@ -73,8 +73,8 @@ public class TestHttpEntityWrapper extends TestCase {
         String s = "Message content";
         byte[] bytes = s.getBytes(HTTP.ISO_8859_1);
         StringEntity httpentity = new StringEntity(s);
-        HttpEntityWrapper wrapped = new HttpEntityWrapper(httpentity); 
-        
+        HttpEntityWrapper wrapped = new HttpEntityWrapper(httpentity);
+
         ByteArrayOutputStream out = new ByteArrayOutputStream();
         wrapped.writeTo(out);
         byte[] bytes2 = out.toByteArray();
@@ -92,7 +92,7 @@ public class TestHttpEntityWrapper extends TestCase {
         for (int i = 0; i < bytes.length; i++) {
             assertEquals(bytes[i], bytes2[i]);
         }
-        
+
         try {
             wrapped.writeTo(null);
             fail("IllegalArgumentException should have been thrown");
@@ -108,5 +108,5 @@ public class TestHttpEntityWrapper extends TestCase {
         EntityUtils.consume(wrapped);
         EntityUtils.consume(wrapped);
     }
-    
+
 }

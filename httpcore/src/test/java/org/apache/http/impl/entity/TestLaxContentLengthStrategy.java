@@ -44,15 +44,15 @@ public class TestLaxContentLengthStrategy extends TestCase {
     public void testEntityWithTransferEncoding() throws Exception {
         ContentLengthStrategy lenStrategy = new LaxContentLengthStrategy();
         HttpMessage message = new HttpMessageMockup();
-        
-        // lenient mode 
+
+        // lenient mode
         message.getParams().setBooleanParameter(CoreProtocolPNames.STRICT_TRANSFER_ENCODING, false);
         message.addHeader("Content-Type", "unknown");
         message.addHeader("Transfer-Encoding", "identity, chunked");
         message.addHeader("Content-Length", "plain wrong");
         assertEquals(ContentLengthStrategy.CHUNKED, lenStrategy.determineLength(message));
 
-        // strict mode 
+        // strict mode
         message.getParams().setBooleanParameter(CoreProtocolPNames.STRICT_TRANSFER_ENCODING, true);
         assertEquals(ContentLengthStrategy.CHUNKED, lenStrategy.determineLength(message));
     }
@@ -60,8 +60,8 @@ public class TestLaxContentLengthStrategy extends TestCase {
     public void testEntityWithIdentityTransferEncoding() throws Exception {
         ContentLengthStrategy lenStrategy = new LaxContentLengthStrategy();
         HttpMessage message = new HttpMessageMockup();
-        
-        // lenient mode 
+
+        // lenient mode
         message.getParams().setBooleanParameter(CoreProtocolPNames.STRICT_TRANSFER_ENCODING, false);
         message.addHeader("Content-Type", "unknown");
         message.addHeader("Transfer-Encoding", "identity");
@@ -72,15 +72,15 @@ public class TestLaxContentLengthStrategy extends TestCase {
     public void testEntityWithUnsupportedTransferEncoding() throws Exception {
         ContentLengthStrategy lenStrategy = new LaxContentLengthStrategy();
         HttpMessage message = new HttpMessageMockup();
-        
-        // lenient mode 
+
+        // lenient mode
         message.getParams().setBooleanParameter(CoreProtocolPNames.STRICT_TRANSFER_ENCODING, false);
         message.addHeader("Content-Type", "unknown");
         message.addHeader("Transfer-Encoding", "whatever; param=value, chunked");
         message.addHeader("Content-Length", "plain wrong");
         assertEquals(ContentLengthStrategy.CHUNKED, lenStrategy.determineLength(message));
 
-        // strict mode 
+        // strict mode
         message.getParams().setBooleanParameter(CoreProtocolPNames.STRICT_TRANSFER_ENCODING, true);
         try {
             lenStrategy.determineLength(message);
@@ -93,15 +93,15 @@ public class TestLaxContentLengthStrategy extends TestCase {
     public void testChunkedTransferEncodingMustBeLast() throws Exception {
         ContentLengthStrategy lenStrategy = new LaxContentLengthStrategy();
         HttpMessage message = new HttpMessageMockup();
-        
-        // lenient mode 
+
+        // lenient mode
         message.getParams().setBooleanParameter(CoreProtocolPNames.STRICT_TRANSFER_ENCODING, false);
         message.addHeader("Content-Type", "unknown");
         message.addHeader("Transfer-Encoding", "chunked, identity");
         message.addHeader("Content-Length", "plain wrong");
         assertEquals(ContentLengthStrategy.IDENTITY, lenStrategy.determineLength(message));
 
-        // strict mode 
+        // strict mode
         message.getParams().setBooleanParameter(CoreProtocolPNames.STRICT_TRANSFER_ENCODING, true);
         try {
             lenStrategy.determineLength(message);
@@ -114,8 +114,8 @@ public class TestLaxContentLengthStrategy extends TestCase {
     public void testEntityWithContentLength() throws Exception {
         ContentLengthStrategy lenStrategy = new LaxContentLengthStrategy();
         HttpMessage message = new HttpMessageMockup();
-        
-        // lenient mode 
+
+        // lenient mode
         message.getParams().setBooleanParameter(CoreProtocolPNames.STRICT_TRANSFER_ENCODING, false);
         message.addHeader("Content-Type", "unknown");
         message.addHeader("Content-Length", "0");
@@ -126,15 +126,15 @@ public class TestLaxContentLengthStrategy extends TestCase {
         ContentLengthStrategy lenStrategy = new LaxContentLengthStrategy();
         HttpMessage message = new HttpMessageMockup();
 
-        // lenient mode 
+        // lenient mode
         message.getParams().setBooleanParameter(CoreProtocolPNames.STRICT_TRANSFER_ENCODING, false);
         message.addHeader("Content-Type", "unknown");
         message.addHeader("Content-Length", "0");
         message.addHeader("Content-Length", "0");
         message.addHeader("Content-Length", "1");
         assertEquals(1, lenStrategy.determineLength(message));
-        
-        // strict mode 
+
+        // strict mode
         message.getParams().setBooleanParameter(CoreProtocolPNames.STRICT_TRANSFER_ENCODING, true);
         try {
             lenStrategy.determineLength(message);
@@ -143,20 +143,20 @@ public class TestLaxContentLengthStrategy extends TestCase {
             // expected
         }
     }
-    
+
     public void testEntityWithMultipleContentLengthSomeWrong() throws Exception {
         ContentLengthStrategy lenStrategy = new LaxContentLengthStrategy();
         HttpMessage message = new HttpMessageMockup();
 
-        // lenient mode 
+        // lenient mode
         message.getParams().setBooleanParameter(CoreProtocolPNames.STRICT_TRANSFER_ENCODING, false);
         message.addHeader("Content-Type", "unknown");
         message.addHeader("Content-Length", "1");
         message.addHeader("Content-Length", "yyy");
         message.addHeader("Content-Length", "xxx");
         assertEquals(1, lenStrategy.determineLength(message));
-        
-        // strict mode 
+
+        // strict mode
         message.getParams().setBooleanParameter(CoreProtocolPNames.STRICT_TRANSFER_ENCODING, true);
         try {
             lenStrategy.determineLength(message);
@@ -165,19 +165,19 @@ public class TestLaxContentLengthStrategy extends TestCase {
             // expected
         }
     }
-    
+
     public void testEntityWithMultipleContentLengthAllWrong() throws Exception {
         ContentLengthStrategy lenStrategy = new LaxContentLengthStrategy();
         HttpMessage message = new HttpMessageMockup();
 
-        // lenient mode 
+        // lenient mode
         message.getParams().setBooleanParameter(CoreProtocolPNames.STRICT_TRANSFER_ENCODING, false);
         message.addHeader("Content-Type", "unknown");
         message.addHeader("Content-Length", "yyy");
         message.addHeader("Content-Length", "xxx");
         assertEquals(ContentLengthStrategy.IDENTITY, lenStrategy.determineLength(message));
-        
-        // strict mode 
+
+        // strict mode
         message.getParams().setBooleanParameter(CoreProtocolPNames.STRICT_TRANSFER_ENCODING, true);
         try {
             lenStrategy.determineLength(message);
@@ -191,13 +191,13 @@ public class TestLaxContentLengthStrategy extends TestCase {
         ContentLengthStrategy lenStrategy = new LaxContentLengthStrategy();
         HttpMessage message = new HttpMessageMockup();
 
-        // lenient mode 
+        // lenient mode
         message.getParams().setBooleanParameter(CoreProtocolPNames.STRICT_TRANSFER_ENCODING, false);
         message.addHeader("Content-Type", "unknown");
         message.addHeader("Content-Length", "xxx");
         assertEquals(ContentLengthStrategy.IDENTITY, lenStrategy.determineLength(message));
-        
-        // strict mode 
+
+        // strict mode
         message.getParams().setBooleanParameter(CoreProtocolPNames.STRICT_TRANSFER_ENCODING, true);
         try {
             lenStrategy.determineLength(message);
@@ -211,7 +211,7 @@ public class TestLaxContentLengthStrategy extends TestCase {
         ContentLengthStrategy lenStrategy = new LaxContentLengthStrategy();
         HttpMessage message = new HttpMessageMockup();
 
-        // lenient mode 
+        // lenient mode
         assertEquals(ContentLengthStrategy.IDENTITY, lenStrategy.determineLength(message));
     }
 

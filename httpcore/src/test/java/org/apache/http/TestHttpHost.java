@@ -46,21 +46,21 @@ public class TestHttpHost extends TestCase {
 
     public void testConstructor() {
         HttpHost host1 = new HttpHost("somehost");
-        assertEquals("somehost", host1.getHostName()); 
-        assertEquals(-1, host1.getPort()); 
-        assertEquals("http", host1.getSchemeName()); 
+        assertEquals("somehost", host1.getHostName());
+        assertEquals(-1, host1.getPort());
+        assertEquals("http", host1.getSchemeName());
         HttpHost host2 = new HttpHost("somehost", 8080);
-        assertEquals("somehost", host2.getHostName()); 
-        assertEquals(8080, host2.getPort()); 
-        assertEquals("http", host2.getSchemeName()); 
+        assertEquals("somehost", host2.getHostName());
+        assertEquals(8080, host2.getPort());
+        assertEquals("http", host2.getSchemeName());
         HttpHost host3 = new HttpHost("somehost", -1);
-        assertEquals("somehost", host3.getHostName()); 
-        assertEquals(-1, host3.getPort()); 
-        assertEquals("http", host3.getSchemeName()); 
+        assertEquals("somehost", host3.getHostName());
+        assertEquals(-1, host3.getPort());
+        assertEquals("http", host3.getSchemeName());
         HttpHost host4 = new HttpHost("somehost", 443, "https");
-        assertEquals("somehost", host4.getHostName()); 
-        assertEquals(443, host4.getPort()); 
-        assertEquals("https", host4.getSchemeName()); 
+        assertEquals("somehost", host4.getHostName());
+        assertEquals(443, host4.getPort());
+        assertEquals("https", host4.getSchemeName());
         try {
             new HttpHost(null, -1, null);
             fail("IllegalArgumentException should have been thrown");
@@ -68,7 +68,7 @@ public class TestHttpHost extends TestCase {
             //expected
         }
     }
-    
+
     public void testHashCode() {
         HttpHost host1 = new HttpHost("somehost", 8080, "http");
         HttpHost host2 = new HttpHost("somehost", 80, "http");
@@ -84,7 +84,7 @@ public class TestHttpHost extends TestCase {
         assertTrue(host2.hashCode() == host5.hashCode());
         assertTrue(host5.hashCode() != host6.hashCode());
     }
-    
+
     public void testEquals() {
         HttpHost host1 = new HttpHost("somehost", 8080, "http");
         HttpHost host2 = new HttpHost("somehost", 80, "http");
@@ -102,7 +102,7 @@ public class TestHttpHost extends TestCase {
         assertFalse(host1.equals(null));
         assertFalse(host1.equals("http://somehost"));
     }
-    
+
     public void testToString() {
         HttpHost host1 = new HttpHost("somehost");
         assertEquals("http://somehost", host1.toString());
@@ -134,7 +134,7 @@ public class TestHttpHost extends TestCase {
         HttpHost clone = (HttpHost) orig.clone();
         assertEquals(orig, clone);
     }
-    
+
     public void testSerialization() throws Exception {
         HttpHost orig = new HttpHost("somehost", 8080, "https");
         ByteArrayOutputStream outbuffer = new ByteArrayOutputStream();
@@ -147,5 +147,5 @@ public class TestHttpHost extends TestCase {
         HttpHost clone = (HttpHost) instream.readObject();
         assertEquals(orig, clone);
     }
-    
+
 }

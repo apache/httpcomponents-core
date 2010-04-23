@@ -34,14 +34,14 @@ Representations for HTTP message entities.
 
 An {@link org.apache.http.HttpEntity entity} is the optional content of a
 {@link org.apache.http.HttpMessage message}.
-This package provides a basic selection of entity implementations 
+This package provides a basic selection of entity implementations
 that can obtain content from
 {@link org.apache.http.entity.ByteArrayEntity byte array},
 {@link org.apache.http.entity.StringEntity string},
 {@link org.apache.http.entity.FileEntity file}, or through an arbitrary
 {@link org.apache.http.entity.InputStreamEntity input stream}.
-If a message is received from an open connection, usually it is 
-represented by 
+If a message is received from an open connection, usually it is
+represented by
 {@link org.apache.http.entity.BasicHttpEntity streamed} entity.
 Entity implementations can be
 {@link org.apache.http.entity.HttpEntityWrapper wrapped},

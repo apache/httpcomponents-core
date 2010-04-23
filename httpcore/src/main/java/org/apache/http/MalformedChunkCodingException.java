@@ -47,8 +47,8 @@ public class MalformedChunkCodingException extends IOException {
 
     /**
      * Creates a MalformedChunkCodingException with the specified detail message.
-     * 
-     * @param message The exception detail message 
+     *
+     * @param message The exception detail message
      */
     public MalformedChunkCodingException(final String message) {
         super(message);

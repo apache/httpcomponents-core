@@ -35,7 +35,7 @@ import org.apache.http.HttpResponseInterceptor;
  * Provides access to an ordered list of response interceptors.
  * Lists are expected to be built upfront and used read-only afterwards
  * for {@link HttpProcessor processing}.
- * 
+ *
  * @since 4.0
  */
 public interface HttpResponseInterceptorList {
@@ -54,7 +54,7 @@ public interface HttpResponseInterceptorList {
      * @param index     the index to insert the interceptor at
      */
     void addResponseInterceptor(HttpResponseInterceptor interceptor, int index);
-    
+
     /**
      * Obtains the current size of this list.
      *

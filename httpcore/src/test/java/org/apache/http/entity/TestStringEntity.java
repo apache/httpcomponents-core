@@ -46,12 +46,12 @@ public class TestStringEntity extends TestCase {
     public void testBasics() throws Exception {
         String s = "Message content";
         StringEntity httpentity = new StringEntity(s, HTTP.ISO_8859_1);
-        
+
         byte[] bytes = s.getBytes(HTTP.ISO_8859_1);
         assertEquals(bytes.length, httpentity.getContentLength());
         assertNotNull(httpentity.getContent());
         assertTrue(httpentity.isRepeatable());
-        assertFalse(httpentity.isStreaming());        
+        assertFalse(httpentity.isStreaming());
     }
 
     public void testIllegalConstructor() throws Exception {
@@ -66,13 +66,13 @@ public class TestStringEntity extends TestCase {
     public void testDefaultContent() throws Exception {
         String s = "Message content";
         StringEntity httpentity = new StringEntity(s, "text/csv", "ANSI_X3.4-1968");
-        assertEquals("text/csv; charset=ANSI_X3.4-1968", 
+        assertEquals("text/csv; charset=ANSI_X3.4-1968",
                 httpentity.getContentType().getValue());
         httpentity = new StringEntity(s, HTTP.US_ASCII);
-        assertEquals("text/plain; charset=US-ASCII", 
+        assertEquals("text/plain; charset=US-ASCII",
                 httpentity.getContentType().getValue());
         httpentity = new StringEntity(s);
-        assertEquals("text/plain; charset=ISO-8859-1", 
+        assertEquals("text/plain; charset=ISO-8859-1",
                 httpentity.getContentType().getValue());
     }
 
@@ -80,7 +80,7 @@ public class TestStringEntity extends TestCase {
         String s = "Message content";
         byte[] bytes = s.getBytes(HTTP.ISO_8859_1);
         StringEntity httpentity = new StringEntity(s);
-        
+
         ByteArrayOutputStream out = new ByteArrayOutputStream();
         httpentity.writeTo(out);
         byte[] bytes2 = out.toByteArray();
@@ -98,7 +98,7 @@ public class TestStringEntity extends TestCase {
         for (int i = 0; i < bytes.length; i++) {
             assertEquals(bytes[i], bytes2[i]);
         }
-        
+
         try {
             httpentity.writeTo(null);
             fail("IllegalArgumentException should have been thrown");
@@ -106,5 +106,5 @@ public class TestStringEntity extends TestCase {
             // expected
         }
     }
-        
+
 }

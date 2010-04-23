@@ -41,13 +41,13 @@ import org.apache.http.util.EntityUtils;
  * If the wrapped entity is repeatable itself, calls are passed through.
  * If the wrapped entity is not repeatable, the content is read into a
  * buffer once and provided from there as often as required.
- * 
+ *
  * @since 4.0
  */
 public class BufferedHttpEntity extends HttpEntityWrapper {
-      
+
     private final byte[] buffer;
-      
+
     /**
      * Creates a new buffered entity wrapper.
      *
@@ -70,7 +70,7 @@ public class BufferedHttpEntity extends HttpEntityWrapper {
             return wrappedEntity.getContentLength();
         }
     }
-    
+
     public InputStream getContent() throws IOException {
         if (this.buffer != null) {
             return new ByteArrayInputStream(this.buffer);
@@ -87,7 +87,7 @@ public class BufferedHttpEntity extends HttpEntityWrapper {
     public boolean isChunked() {
         return (buffer == null) && wrappedEntity.isChunked();
     }
-    
+
     /**
      * Tells that this entity is repeatable.
      *
@@ -97,7 +97,7 @@ public class BufferedHttpEntity extends HttpEntityWrapper {
         return true;
     }
 
-    
+
     public void writeTo(final OutputStream outstream) throws IOException {
         if (outstream == null) {
             throw new IllegalArgumentException("Output stream may not be null");
@@ -114,5 +114,5 @@ public class BufferedHttpEntity extends HttpEntityWrapper {
     public boolean isStreaming() {
         return (buffer == null) && wrappedEntity.isStreaming();
     }
-    
+
 } // class BufferedHttpEntity

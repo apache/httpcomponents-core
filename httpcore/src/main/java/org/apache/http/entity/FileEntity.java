@@ -35,12 +35,12 @@ import java.io.OutputStream;
 
 /**
  * A self contained, repeatable entity that obtains its content from a file.
- * 
+ *
  * @since 4.0
  */
 public class FileEntity extends AbstractHttpEntity implements Cloneable {
 
-    protected final File file; 
+    protected final File file;
 
     public FileEntity(final File file, final String contentType) {
         super();
@@ -58,11 +58,11 @@ public class FileEntity extends AbstractHttpEntity implements Cloneable {
     public long getContentLength() {
         return this.file.length();
     }
-    
+
     public InputStream getContent() throws IOException {
         return new FileInputStream(this.file);
     }
-    
+
     public void writeTo(final OutputStream outstream) throws IOException {
         if (outstream == null) {
             throw new IllegalArgumentException("Output stream may not be null");

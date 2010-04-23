@@ -34,11 +34,11 @@ import org.apache.http.io.BufferInfo;
 import org.apache.http.io.SessionInputBuffer;
 
 /**
- * Input stream that cuts off after a defined number of bytes. This class 
- * is used to receive content of HTTP messages where the end of the content 
- * entity is determined by the value of the <code>Content-Length header</code>. 
+ * Input stream that cuts off after a defined number of bytes. This class
+ * is used to receive content of HTTP messages where the end of the content
+ * entity is determined by the value of the <code>Content-Length header</code>.
  * Entities transferred using this stream can be maximum {@link Long#MAX_VALUE}
- * long. 
+ * long.
  * <p>
  * Note that this class NEVER closes the underlying stream, even when close
  * gets called.  Instead, it will read until the "end" of its limit on
@@ -50,7 +50,7 @@ import org.apache.http.io.SessionInputBuffer;
  * @since 4.0
  */
 public class ContentLengthInputStream extends InputStream {
-    
+
     private static final int BUFFER_SIZE = 2048;
     /**
      * The maximum number of bytes that can be read from the stream. Subsequent
@@ -70,7 +70,7 @@ public class ContentLengthInputStream extends InputStream {
     private SessionInputBuffer in = null;
 
     /**
-     * Wraps a session input buffer and cuts off output after a defined number 
+     * Wraps a session input buffer and cuts off output after a defined number
      * of bytes.
      *
      * @param in The session input buffer
@@ -113,12 +113,12 @@ public class ContentLengthInputStream extends InputStream {
     public int available() throws IOException {
         if (this.in instanceof BufferInfo) {
             int len = ((BufferInfo) this.in).length();
-            return Math.min(len, (int) (this.contentLength - this.pos)); 
+            return Math.min(len, (int) (this.contentLength - this.pos));
         } else {
             return 0;
         }
     }
-    
+
     /**
      * Read the next byte from the stream
      * @return The next byte or -1 if the end of stream has been reached.
@@ -191,9 +191,9 @@ public class ContentLengthInputStream extends InputStream {
             return 0;
         }
         byte[] buffer = new byte[BUFFER_SIZE];
-        // make sure we don't skip more bytes than are 
+        // make sure we don't skip more bytes than are
         // still available
-        long remaining = Math.min(n, this.contentLength - this.pos); 
+        long remaining = Math.min(n, this.contentLength - this.pos);
         // skip and keep track of the bytes actually skipped
         long count = 0;
         while (remaining > 0) {

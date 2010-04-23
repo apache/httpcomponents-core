@@ -82,5 +82,5 @@ public class TestAbstractHttpEntity extends TestCase {
         httpentity.setChunked(true);
         assertTrue(httpentity.isChunked());
     }
-    
+
 }

@@ -32,8 +32,8 @@ import org.apache.http.protocol.HTTP;
 
 /**
  * The home for utility methods that handle various encoding tasks.
- * 
- * 
+ *
+ *
  * @since 4.0
  */
 public final class EncodingUtils {
@@ -45,14 +45,14 @@ public final class EncodingUtils {
      *
      * @param data the byte array to be encoded
      * @param offset the index of the first byte to encode
-     * @param length the number of bytes to encode 
+     * @param length the number of bytes to encode
      * @param charset the desired character encoding
      * @return The result of the conversion.
      */
     public static String getString(
-        final byte[] data, 
-        int offset, 
-        int length, 
+        final byte[] data,
+        int offset,
+        int length,
         String charset
     ) {
 
@@ -111,8 +111,8 @@ public final class EncodingUtils {
         } catch (UnsupportedEncodingException e) {
             return data.getBytes();
         }
-    }    
-    
+    }
+
     /**
      * Converts the specified string to byte array of ASCII characters.
      *
@@ -139,7 +139,7 @@ public final class EncodingUtils {
      *
      * @param data the byte array to be encoded
      * @param offset the index of the first byte to encode
-     * @param length the number of bytes to encode 
+     * @param length the number of bytes to encode
      * @return The string representation of the byte array
      */
     public static String getAsciiString(final byte[] data, int offset, int length) {

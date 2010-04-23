@@ -31,8 +31,8 @@ import java.io.Serializable;
 import org.apache.http.util.CharArrayBuffer;
 
 /**
- * Represents a protocol version. The "major.minor" numbering 
- * scheme is used to indicate versions of the protocol. 
+ * Represents a protocol version. The "major.minor" numbering
+ * scheme is used to indicate versions of the protocol.
  * <p>
  * This class defines a protocol version as a combination of
  * protocol name, major version number, and minor version number.
@@ -56,7 +56,7 @@ public class ProtocolVersion implements Serializable, Cloneable {
     /** Minor version number of the protocol */
     protected final int minor;
 
-    
+
     /**
      * Create a protocol version designator.
      *
@@ -84,7 +84,7 @@ public class ProtocolVersion implements Serializable, Cloneable {
 
     /**
      * Returns the name of the protocol.
-     * 
+     *
      * @return the protocol name
      */
     public final String getProtocol() {
@@ -93,7 +93,7 @@ public class ProtocolVersion implements Serializable, Cloneable {
 
     /**
      * Returns the major version number of the protocol.
-     * 
+     *
      * @return the major version number.
      */
     public final int getMajor() {
@@ -102,7 +102,7 @@ public class ProtocolVersion implements Serializable, Cloneable {
 
     /**
      * Returns the minor version number of the HTTP protocol.
-     * 
+     *
      * @return the minor version number.
      */
     public final int getMinor() {
@@ -145,7 +145,7 @@ public class ProtocolVersion implements Serializable, Cloneable {
         return this.protocol.hashCode() ^ (this.major * 100000) ^ this.minor;
     }
 
-        
+
     /**
      * Checks equality of this protocol version with an object.
      * The object is equal if it is a protocl version with the same
@@ -196,7 +196,7 @@ public class ProtocolVersion implements Serializable, Cloneable {
      * required for {@link java.lang.Comparable}.
      *
      * @param that      the protocl version to compare with
-     *  
+     *
      * @return   a negative integer, zero, or a positive integer
      *           as this version is less than, equal to, or greater than
      *           the argument version.
@@ -208,7 +208,7 @@ public class ProtocolVersion implements Serializable, Cloneable {
     public int compareToVersion(ProtocolVersion that) {
         if (that == null) {
             throw new IllegalArgumentException
-                ("Protocol version must not be null."); 
+                ("Protocol version must not be null.");
         }
         if (!this.protocol.equals(that.protocol)) {
             throw new IllegalArgumentException
@@ -261,16 +261,16 @@ public class ProtocolVersion implements Serializable, Cloneable {
      */
     public String toString() {
         CharArrayBuffer buffer = new CharArrayBuffer(16);
-        buffer.append(this.protocol); 
-        buffer.append('/'); 
-        buffer.append(Integer.toString(this.major)); 
-        buffer.append('.'); 
-        buffer.append(Integer.toString(this.minor)); 
+        buffer.append(this.protocol);
+        buffer.append('/');
+        buffer.append(Integer.toString(this.major));
+        buffer.append('.');
+        buffer.append(Integer.toString(this.minor));
         return buffer.toString();
     }
 
     public Object clone() throws CloneNotSupportedException {
         return super.clone();
     }
-    
+
 }

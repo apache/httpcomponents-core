@@ -40,7 +40,7 @@ import org.apache.http.protocol.HTTP;
 
 /**
  * Static helpers for dealing with {@link HttpEntity}s.
- * 
+ *
  * @since 4.0
  */
 public final class EntityUtils {
@@ -51,10 +51,10 @@ public final class EntityUtils {
     /**
      * Ensures that the entity content is fully consumed and the content stream, if exists,
      * is closed.
-     * 
+     *
      * @param entity
      * @throws IOException if an error occurs reading the input stream
-     * 
+     *
      * @since 4.1
      */
     public static void consume(final HttpEntity entity) throws IOException {
@@ -68,10 +68,10 @@ public final class EntityUtils {
             }
         }
     }
-    
+
     /**
      * Read the contents of an entity and return it as a byte array.
-     * 
+     *
      * @param entity
      * @return byte array containing the entity content. May be empty; never null.
      * @throws IOException if an error occurs reading the input stream
@@ -104,10 +104,10 @@ public final class EntityUtils {
         }
         return buffer.toByteArray();
     }
-        
+
     /**
      * Obtains character set of the entity, if known.
-     * 
+     *
      * @param entity must not be null
      * @return the character set, or null if not found
      * @throws ParseException if header elements cannot be parsed
@@ -118,7 +118,7 @@ public final class EntityUtils {
             throw new IllegalArgumentException("HTTP entity may not be null");
         }
         String charset = null;
-        if (entity.getContentType() != null) { 
+        if (entity.getContentType() != null) {
             HeaderElement values[] = entity.getContentType().getElements();
             if (values.length > 0) {
                 NameValuePair param = values[0].getParameterByName("charset");
@@ -132,12 +132,12 @@ public final class EntityUtils {
 
     /**
      * Obtains mime type of the entity, if known.
-     * 
+     *
      * @param entity must not be null
      * @return the character set, or null if not found
      * @throws ParseException if header elements cannot be parsed
      * @throws IllegalArgumentException if entity is null
-     * 
+     *
      * @since 4.1
      */
     public static String getContentMimeType(final HttpEntity entity) throws ParseException {
@@ -145,7 +145,7 @@ public final class EntityUtils {
             throw new IllegalArgumentException("HTTP entity may not be null");
         }
         String mimeType = null;
-        if (entity.getContentType() != null) { 
+        if (entity.getContentType() != null) {
             HeaderElement values[] = entity.getContentType().getElements();
             if (values.length > 0) {
                 mimeType = values[0].getName();
@@ -156,9 +156,9 @@ public final class EntityUtils {
 
     /**
      * Get the entity content as a String, using the provided default character set
-     * if none is found in the entity. 
+     * if none is found in the entity.
      * If defaultCharset is null, the default "ISO-8859-1" is used.
-     * 
+     *
      * @param entity must not be null
      * @param defaultCharset character set to be applied if none found in the entity
      * @return the entity content as a String
@@ -190,7 +190,7 @@ public final class EntityUtils {
             charset = HTTP.DEFAULT_CONTENT_CHARSET;
         }
         Reader reader = new InputStreamReader(instream, charset);
-        CharArrayBuffer buffer = new CharArrayBuffer(i); 
+        CharArrayBuffer buffer = new CharArrayBuffer(i);
         try {
             char[] tmp = new char[1024];
             int l;
@@ -207,7 +207,7 @@ public final class EntityUtils {
      * Read the contents of an entity and return it as a String.
      * The content is converted using the character set from the entity (if any),
      * failing that, "ISO-8859-1" is used.
-     * 
+     *
      * @param entity
      * @return String containing the content.
      * @throws ParseException if header elements cannot be parsed
@@ -218,5 +218,5 @@ public final class EntityUtils {
         throws IOException, ParseException {
         return toString(entity, null);
     }
-    
+
 }

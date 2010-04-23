@@ -42,22 +42,22 @@ import org.apache.http.io.SessionOutputBuffer;
 /**
  * HTTP entity serializer.
  * <p>
- * This entity serializer currently supports "chunked" and "identitiy" 
+ * This entity serializer currently supports "chunked" and "identitiy"
  * transfer-coding and content length delimited content.
  * <p>
- * This class relies on a specific implementation of 
+ * This class relies on a specific implementation of
  * {@link ContentLengthStrategy} to determine the content length or transfer
  * encoding of the entity.
  * <p>
  * This class writes out the content of {@link HttpEntity} to the data stream
- * using a transfer coding based on properties on the HTTP message. 
- * 
+ * using a transfer coding based on properties on the HTTP message.
+ *
  * @since 4.0
  */
 public class EntitySerializer {
 
     private final ContentLengthStrategy lenStrategy;
-    
+
     public EntitySerializer(final ContentLengthStrategy lenStrategy) {
         super();
         if (lenStrategy == null) {
@@ -68,12 +68,12 @@ public class EntitySerializer {
 
     /**
      * Creates a transfer codec based on properties of the given HTTP message
-     * and returns {@link OutputStream} instance that transparently encodes 
-     * output data as it is being written out to the output stream.      
+     * and returns {@link OutputStream} instance that transparently encodes
+     * output data as it is being written out to the output stream.
      * <p>
      * This method is called by the public
      * {@link #serialize(SessionOutputBuffer, HttpMessage, HttpEntity)}.
-     * 
+     *
      * @param outbuffer the session output buffer.
      * @param message the HTTP message.
      * @return output stream.
@@ -96,7 +96,7 @@ public class EntitySerializer {
     /**
      * Writes out the content of the given HTTP entity to the session output
      * buffer based on properties of the given HTTP message.
-     * 
+     *
      * @param outbuffer the output session buffer.
      * @param message the HTTP message.
      * @param entity the HTTP entity to be written out.
@@ -120,5 +120,5 @@ public class EntitySerializer {
         entity.writeTo(outstream);
         outstream.close();
     }
-    
+
 }

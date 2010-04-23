@@ -37,7 +37,7 @@ import org.apache.http.params.HttpParams;
 /**
  * Default implementation of {@link HttpParams} interface.
  * <p>
- * Please note access to the internal structures of this class is not 
+ * Please note access to the internal structures of this class is not
  * synchronized and therefore this class may be thread-unsafe.
  *
  * @since 4.0
@@ -61,7 +61,7 @@ public class BasicHttpParams extends AbstractHttpParams implements Serializable,
         this.parameters.put(name, value);
         return this;
     }
-    
+
     public boolean removeParameter(String name) {
         //this is to avoid the case in which the key has a null value
         if (this.parameters.containsKey(name)) {
@@ -74,10 +74,10 @@ public class BasicHttpParams extends AbstractHttpParams implements Serializable,
 
     /**
      * Assigns the value to all the parameter with the given names
-     * 
+     *
      * @param names array of parameter names
      * @param value parameter value
-     */ 
+     */
     public void setParameters(final String[] names, final Object value) {
         for (int i = 0; i < names.length; i++) {
             setParameter(names[i], value);
@@ -91,28 +91,28 @@ public class BasicHttpParams extends AbstractHttpParams implements Serializable,
      * fetch the parameter value, if any.
      * <p>
      * Also @see {@link #isParameterSetLocally(String)}
-     * 
+     *
      * @param name parameter name
      * @return true if parameter is defined and non-null
      */
     public boolean isParameterSet(final String name) {
         return getParameter(name) != null;
     }
-        
+
     /**
      * Is the parameter set in this object?
      * <p>
      * The parameter value is fetched directly.
      * <p>
      * Also @see {@link #isParameterSet(String)}
-     * 
+     *
      * @param name parameter name
      * @return true if parameter is defined and non-null
      */
     public boolean isParameterSetLocally(final String name) {
         return this.parameters.get(name) != null;
     }
-        
+
     /**
      * Removes all parameters from this collection.
      */
@@ -122,12 +122,12 @@ public class BasicHttpParams extends AbstractHttpParams implements Serializable,
 
     /**
      * Creates a copy of these parameters.
-     * The implementation here instantiates {@link BasicHttpParams}, 
+     * The implementation here instantiates {@link BasicHttpParams},
      * then calls {@link #copyParams(HttpParams)} to populate the copy.
      *
      * @return  a new set of params holding a copy of the
      *          <i>local</i> parameters in this object.
-     *          
+     *
      * @deprecated
      */
     public HttpParams copy() {
@@ -143,7 +143,7 @@ public class BasicHttpParams extends AbstractHttpParams implements Serializable,
         copyParams(clone);
         return clone;
     }
- 
+
     /**
      * Copies the locally defined parameters to the argument parameters.
      * This method is called from {@link #copy()}.
@@ -158,5 +158,5 @@ public class BasicHttpParams extends AbstractHttpParams implements Serializable,
                 target.setParameter((String)me.getKey(), me.getValue());
         }
     }
-    
+
 }

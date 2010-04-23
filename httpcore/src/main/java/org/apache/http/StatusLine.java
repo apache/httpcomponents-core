@@ -35,10 +35,10 @@ package org.apache.http;
  * <pre>
  *     Status-Line = HTTP-Version SP Status-Code SP Reason-Phrase CRLF
  * </pre>
- * 
+ *
  * @see HttpStatus
  * @version $Id$
- * 
+ *
  * @since 4.0
  */
 public interface StatusLine {
@@ -48,5 +48,5 @@ public interface StatusLine {
     int getStatusCode();
 
     String getReasonPhrase();
-    
+
 }

@@ -41,8 +41,8 @@ import org.apache.http.util.ExceptionUtils;
 
 /**
  * Implements chunked transfer coding. The content is received in small chunks.
- * Entities transferred using this input stream can be of unlimited length. 
- * After the stream is read to the end, it provides access to the trailers, 
+ * Entities transferred using this input stream can be of unlimited length.
+ * After the stream is read to the end, it provides access to the trailers,
  * if any.
  * <p>
  * Note that this class NEVER closes the underlying stream, even when close
@@ -60,16 +60,16 @@ public class ChunkedInputStream extends InputStream {
     private static final int CHUNK_LEN               = 1;
     private static final int CHUNK_DATA              = 2;
     private static final int CHUNK_CRLF              = 3;
-    
+
     private static final int BUFFER_SIZE = 2048;
-    
+
     /** The session input buffer */
     private final SessionInputBuffer in;
 
     private final CharArrayBuffer buffer;
 
     private int state;
-    
+
     /** The chunk size */
     private int chunkSize;
 
@@ -81,7 +81,7 @@ public class ChunkedInputStream extends InputStream {
 
     /** True if this stream is closed */
     private boolean closed = false;
-    
+
     private Header[] footers = new Header[] {};
 
     /**
@@ -103,17 +103,17 @@ public class ChunkedInputStream extends InputStream {
     public int available() throws IOException {
         if (this.in instanceof BufferInfo) {
             int len = ((BufferInfo) this.in).length();
-            return Math.min(len, this.chunkSize - this.pos); 
+            return Math.min(len, this.chunkSize - this.pos);
         } else {
             return 0;
         }
     }
-    
+
     /**
      * <p> Returns all the data in a chunked stream in coalesced form. A chunk
      * is followed by a CRLF. The method returns -1 as soon as a chunksize of 0
      * is detected.</p>
-     * 
+     *
      * <p> Trailer headers are read automatically at the end of the stream and
      * can be obtained with the getResponseFooters() method.</p>
      *
@@ -127,10 +127,10 @@ public class ChunkedInputStream extends InputStream {
         }
         if (this.eof) {
             return -1;
-        } 
+        }
         if (state != CHUNK_DATA) {
             nextChunk();
-            if (this.eof) { 
+            if (this.eof) {
                 return -1;
             }
         }
@@ -160,12 +160,12 @@ public class ChunkedInputStream extends InputStream {
             throw new IOException("Attempted read from closed stream.");
         }
 
-        if (eof) { 
+        if (eof) {
             return -1;
         }
         if (state != CHUNK_DATA) {
             nextChunk();
-            if (eof) { 
+            if (eof) {
                 return -1;
             }
         }
@@ -180,7 +180,7 @@ public class ChunkedInputStream extends InputStream {
         } else {
             eof = true;
             throw new TruncatedChunkException("Truncated chunk "
-                    + "( expected size: " + chunkSize 
+                    + "( expected size: " + chunkSize
                     + "; actual size: " + pos + ")");
         }
     }
@@ -221,9 +221,9 @@ public class ChunkedInputStream extends InputStream {
      * @param in The new input stream.
      * @param required <tt>true<tt/> if a valid chunk must be present,
      *                 <tt>false<tt/> otherwise.
-     * 
+     *
      * @return the chunk size as integer
-     * 
+     *
      * @throws IOException when the chunk size could not be parsed
      */
     private int getChunkSize() throws IOException {
@@ -235,11 +235,11 @@ public class ChunkedInputStream extends InputStream {
             if (i == -1) {
                 return 0;
             }
-            if (!this.buffer.isEmpty()) { 
+            if (!this.buffer.isEmpty()) {
                 throw new MalformedChunkCodingException(
                     "Unexpected content at the end of chunk");
             }
-            state = CHUNK_LEN; 
+            state = CHUNK_LEN;
             //$FALL-THROUGH$
         case CHUNK_LEN:
             this.buffer.clear();
@@ -270,9 +270,9 @@ public class ChunkedInputStream extends InputStream {
             this.footers = AbstractMessageParser.parseHeaders
                 (in, -1, -1, null);
         } catch (HttpException e) {
-            IOException ioe = new MalformedChunkCodingException("Invalid footer: " 
+            IOException ioe = new MalformedChunkCodingException("Invalid footer: "
                     + e.getMessage());
-            ExceptionUtils.initCause(ioe, e); 
+            ExceptionUtils.initCause(ioe, e);
             throw ioe;
         }
     }

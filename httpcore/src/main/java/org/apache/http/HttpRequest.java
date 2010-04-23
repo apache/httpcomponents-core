@@ -32,14 +32,14 @@ package org.apache.http;
  * first line of that message, the method to be applied to the resource,
  * the identifier of the resource, and the protocol version in use.
  * <pre>
- *      Request       = Request-Line        
- *                      *(( general-header        
- *                       | request-header  
+ *      Request       = Request-Line
+ *                      *(( general-header
+ *                       | request-header
  *                       | entity-header ) CRLF)
  *                      CRLF
  *                      [ message-body ]
  * </pre>
- * 
+ *
  * @since 4.0
  */
 public interface HttpRequest extends HttpMessage {
@@ -49,5 +49,5 @@ public interface HttpRequest extends HttpMessage {
      * @return the request line.
      */
     RequestLine getRequestLine();
-    
+
 }

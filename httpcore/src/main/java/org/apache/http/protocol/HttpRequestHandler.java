@@ -34,29 +34,29 @@ import org.apache.http.HttpRequest;
 import org.apache.http.HttpResponse;
 
 /**
- * HttpRequestHandler represents a routine for processing of a specific group 
- * of HTTP requests. Protocol handlers are designed to take care of protocol 
- * specific aspects, whereas individual request handlers are expected to take 
- * care of application specific HTTP processing. The main purpose of a request 
- * handler is to generate a response object with a content entity to be sent 
+ * HttpRequestHandler represents a routine for processing of a specific group
+ * of HTTP requests. Protocol handlers are designed to take care of protocol
+ * specific aspects, whereas individual request handlers are expected to take
+ * care of application specific HTTP processing. The main purpose of a request
+ * handler is to generate a response object with a content entity to be sent
  * back to the client in response to the given request
- * 
+ *
  * @since 4.0
  */
 public interface HttpRequestHandler {
 
     /**
-     * Handles the request and produces a response to be sent back to 
+     * Handles the request and produces a response to be sent back to
      * the client.
-     * 
+     *
      * @param request the HTTP request.
      * @param response the HTTP response.
      * @param context the HTTP execution context.
      * @throws IOException in case of an I/O error.
-     * @throws HttpException in case of HTTP protocol violation or a processing 
+     * @throws HttpException in case of HTTP protocol violation or a processing
      *   problem.
      */
-    void handle(HttpRequest request, HttpResponse response, HttpContext context) 
+    void handle(HttpRequest request, HttpResponse response, HttpContext context)
             throws HttpException, IOException;
-    
+
 }

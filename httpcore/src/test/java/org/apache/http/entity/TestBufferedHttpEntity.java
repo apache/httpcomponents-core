@@ -86,7 +86,7 @@ public class TestBufferedHttpEntity extends TestCase {
         byte[] bytes = "Message content".getBytes(HTTP.US_ASCII);
         InputStreamEntity httpentity = new InputStreamEntity(new ByteArrayInputStream(bytes), -1);
         BufferedHttpEntity bufentity = new BufferedHttpEntity(httpentity);
-        
+
         ByteArrayOutputStream out = new ByteArrayOutputStream();
         bufentity.writeTo(out);
         byte[] bytes2 = out.toByteArray();
@@ -104,7 +104,7 @@ public class TestBufferedHttpEntity extends TestCase {
         for (int i = 0; i < bytes.length; i++) {
             assertEquals(bytes[i], bytes2[i]);
         }
-        
+
         try {
             bufentity.writeTo(null);
             fail("IllegalArgumentException should have been thrown");
@@ -112,12 +112,12 @@ public class TestBufferedHttpEntity extends TestCase {
             // expected
         }
     }
-    
+
     public void testWriteToWrapped() throws Exception {
         byte[] bytes = "Message content".getBytes(HTTP.US_ASCII);
         ByteArrayEntity httpentity = new ByteArrayEntity(bytes);
         BufferedHttpEntity bufentity = new BufferedHttpEntity(httpentity);
-        
+
         ByteArrayOutputStream out = new ByteArrayOutputStream();
         bufentity.writeTo(out);
         byte[] bytes2 = out.toByteArray();
@@ -135,7 +135,7 @@ public class TestBufferedHttpEntity extends TestCase {
         for (int i = 0; i < bytes.length; i++) {
             assertEquals(bytes[i], bytes2[i]);
         }
-        
+
         try {
             bufentity.writeTo(null);
             fail("IllegalArgumentException should have been thrown");

@@ -41,17 +41,17 @@ import org.apache.http.util.ByteArrayBuffer;
 import org.apache.http.util.CharArrayBuffer;
 
 /**
- * Abstract base class for session input buffers that stream data from 
- * an arbitrary {@link InputStream}. This class buffers input data in 
+ * Abstract base class for session input buffers that stream data from
+ * an arbitrary {@link InputStream}. This class buffers input data in
  * an internal byte array for optimal input performance.
  * <p>
- * {@link #readLine(CharArrayBuffer)} and {@link #readLine()} methods of this 
+ * {@link #readLine(CharArrayBuffer)} and {@link #readLine()} methods of this
  * class treat a lone LF as valid line delimiters in addition to CR-LF required
- * by the HTTP specification. 
+ * by the HTTP specification.
  *
  * <p>
- * The following parameters can be used to customize the behavior of this 
- * class: 
+ * The following parameters can be used to customize the behavior of this
+ * class:
  * <ul>
  *  <li>{@link org.apache.http.params.CoreProtocolPNames#HTTP_ELEMENT_CHARSET}</li>
  *  <li>{@link org.apache.http.params.CoreConnectionPNames#MAX_LINE_LENGTH}</li>
@@ -65,20 +65,20 @@ public abstract class AbstractSessionInputBuffer implements SessionInputBuffer, 
     private byte[] buffer;
     private int bufferpos;
     private int bufferlen;
-    
+
     private ByteArrayBuffer linebuffer = null;
-    
+
     private String charset = HTTP.US_ASCII;
     private boolean ascii = true;
     private int maxLineLen = -1;
     private int minChunkLimit = 512;
-    
+
     private HttpTransportMetricsImpl metrics;
-    
+
     /**
-     * Initializes this session input buffer. 
-     *    
-     * @param instream the source input stream. 
+     * Initializes this session input buffer.
+     *
+     * @param instream the source input stream.
      * @param buffersize the size of the internal buffer.
      * @param params HTTP parameters.
      */
@@ -118,7 +118,7 @@ public abstract class AbstractSessionInputBuffer implements SessionInputBuffer, 
     public int length() {
         return this.bufferlen - this.bufferpos;
     }
-    
+
     /**
      * @since 4.1
      */
@@ -152,7 +152,7 @@ public abstract class AbstractSessionInputBuffer implements SessionInputBuffer, 
     protected boolean hasBufferedData() {
         return this.bufferpos < this.bufferlen;
     }
-    
+
     public int read() throws IOException {
         int noRead = 0;
         while (!hasBufferedData()) {
@@ -163,7 +163,7 @@ public abstract class AbstractSessionInputBuffer implements SessionInputBuffer, 
         }
         return this.buffer[this.bufferpos++] & 0xff;
     }
-    
+
     public int read(final byte[] b, int off, int len) throws IOException {
         if (b == null) {
             return 0;
@@ -174,7 +174,7 @@ public abstract class AbstractSessionInputBuffer implements SessionInputBuffer, 
             this.bufferpos += chunk;
             return chunk;
         }
-        // If the remaining capacity is big enough, read directly from the 
+        // If the remaining capacity is big enough, read directly from the
         // underlying input stream bypassing the buffer.
         if (len > this.minChunkLimit) {
             return this.instream.read(b, off, len);
@@ -192,14 +192,14 @@ public abstract class AbstractSessionInputBuffer implements SessionInputBuffer, 
             return chunk;
         }
     }
-    
+
     public int read(final byte[] b) throws IOException {
         if (b == null) {
             return 0;
         }
         return read(b, 0, b.length);
     }
-    
+
     private int locateLF() {
         for (int i = this.bufferpos; i < this.bufferlen; i++) {
             if (this.buffer[i] == HTTP.LF) {
@@ -208,17 +208,17 @@ public abstract class AbstractSessionInputBuffer implements SessionInputBuffer, 
         }
         return -1;
     }
-    
+
     /**
-     * Reads a complete line of characters up to a line delimiter from this 
-     * session buffer into the given line buffer. The number of chars actually 
-     * read is returned as an integer. The line delimiter itself is discarded. 
-     * If no char is available because the end of the stream has been reached, 
-     * the value <code>-1</code> is returned. This method blocks until input 
+     * Reads a complete line of characters up to a line delimiter from this
+     * session buffer into the given line buffer. The number of chars actually
+     * read is returned as an integer. The line delimiter itself is discarded.
+     * If no char is available because the end of the stream has been reached,
+     * the value <code>-1</code> is returned. This method blocks until input
      * data is available, end of file is detected, or an exception is thrown.
      * <p>
-     * This method treats a lone LF as a valid line delimiters in addition 
-     * to CR-LF required by the HTTP specification. 
+     * This method treats a lone LF as a valid line delimiters in addition
+     * to CR-LF required by the HTTP specification.
      *
      * @param      charbuffer   the line buffer.
      * @return     one line of characters
@@ -234,7 +234,7 @@ public abstract class AbstractSessionInputBuffer implements SessionInputBuffer, 
             // attempt to find end of line (LF)
             int i = locateLF();
             if (i != -1) {
-                // end of line found. 
+                // end of line found.
                 if (this.linebuffer.isEmpty()) {
                     // the entire line is preset in the read buffer
                     return lineFromReadBuffer(charbuffer, i);
@@ -265,24 +265,24 @@ public abstract class AbstractSessionInputBuffer implements SessionInputBuffer, 
         }
         return lineFromLineBuffer(charbuffer);
     }
-    
+
     /**
-     * Reads a complete line of characters up to a line delimiter from this 
-     * session buffer. The line delimiter itself is discarded. If no char is 
-     * available because the end of the stream has been reached, 
-     * <code>null</code> is returned. This method blocks until input data is 
+     * Reads a complete line of characters up to a line delimiter from this
+     * session buffer. The line delimiter itself is discarded. If no char is
+     * available because the end of the stream has been reached,
+     * <code>null</code> is returned. This method blocks until input data is
      * available, end of file is detected, or an exception is thrown.
      * <p>
-     * This method treats a lone LF as a valid line delimiters in addition 
-     * to CR-LF required by the HTTP specification. 
-     * 
+     * This method treats a lone LF as a valid line delimiters in addition
+     * to CR-LF required by the HTTP specification.
+     *
      * @return HTTP line as a string
      * @exception  IOException  if an I/O error occurs.
      */
-    private int lineFromLineBuffer(final CharArrayBuffer charbuffer) 
+    private int lineFromLineBuffer(final CharArrayBuffer charbuffer)
             throws IOException {
         // discard LF if found
-        int l = this.linebuffer.length(); 
+        int l = this.linebuffer.length();
         if (l > 0) {
             if (this.linebuffer.byteAt(l - 1) == HTTP.LF) {
                 l--;
@@ -296,11 +296,11 @@ public abstract class AbstractSessionInputBuffer implements SessionInputBuffer, 
                 }
             }
         }
-        l = this.linebuffer.length(); 
+        l = this.linebuffer.length();
         if (this.ascii) {
             charbuffer.append(this.linebuffer, 0, l);
         } else {
-            // This is VERY memory inefficient, BUT since non-ASCII charsets are 
+            // This is VERY memory inefficient, BUT since non-ASCII charsets are
             // NOT meant to be used anyway, there's no point optimizing it
             String s = new String(this.linebuffer.buffer(), 0, l, this.charset);
             charbuffer.append(s);
@@ -308,8 +308,8 @@ public abstract class AbstractSessionInputBuffer implements SessionInputBuffer, 
         this.linebuffer.clear();
         return l;
     }
-    
-    private int lineFromReadBuffer(final CharArrayBuffer charbuffer, int pos) 
+
+    private int lineFromReadBuffer(final CharArrayBuffer charbuffer, int pos)
             throws IOException {
         int off = this.bufferpos;
         int len;
@@ -322,14 +322,14 @@ public abstract class AbstractSessionInputBuffer implements SessionInputBuffer, 
         if (this.ascii) {
             charbuffer.append(this.buffer, off, len);
         } else {
-            // This is VERY memory inefficient, BUT since non-ASCII charsets are 
+            // This is VERY memory inefficient, BUT since non-ASCII charsets are
             // NOT meant to be used anyway, there's no point optimizing it
             String s = new String(this.buffer, off, len, this.charset);
             charbuffer.append(s);
         }
         return len;
     }
-    
+
     public String readLine() throws IOException {
         CharArrayBuffer charbuffer = new CharArrayBuffer(64);
         int l = readLine(charbuffer);
@@ -339,9 +339,9 @@ public abstract class AbstractSessionInputBuffer implements SessionInputBuffer, 
             return null;
         }
     }
-    
+
     public HttpTransportMetrics getMetrics() {
         return this.metrics;
     }
-    
+
 }

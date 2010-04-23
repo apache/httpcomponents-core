@@ -70,7 +70,7 @@ public interface HeaderValueParser {
      * </p>
      *
      * @param buffer    buffer holding the header value to parse
-     * @param cursor    the parser cursor containing the current position and 
+     * @param cursor    the parser cursor containing the current position and
      *                  the bounds within the buffer for the parsing operation
      *
      * @return  an array holding all elements of the header value
@@ -87,7 +87,7 @@ public interface HeaderValueParser {
      * of name=value definitions.
      *
      * @param buffer    buffer holding the element to parse
-     * @param cursor    the parser cursor containing the current position and 
+     * @param cursor    the parser cursor containing the current position and
      *                  the bounds within the buffer for the parsing operation
      *
      * @return  the parsed element
@@ -104,7 +104,7 @@ public interface HeaderValueParser {
      * Parse errors are indicated as <code>ParseException</code>.
      *
      * @param buffer    buffer holding the name-value list to parse
-     * @param cursor    the parser cursor containing the current position and 
+     * @param cursor    the parser cursor containing the current position and
      *                  the bounds within the buffer for the parsing operation
      *
      * @return  an array holding all items of the name-value list
@@ -120,7 +120,7 @@ public interface HeaderValueParser {
      * Parses a name=value specification, where the = and value are optional.
      *
      * @param buffer    the buffer holding the name-value pair to parse
-     * @param cursor    the parser cursor containing the current position and 
+     * @param cursor    the parser cursor containing the current position and
      *                  the bounds within the buffer for the parsing operation
      *
      * @return  the name-value pair, where the value is <code>null</code>
@@ -129,6 +129,6 @@ public interface HeaderValueParser {
     NameValuePair parseNameValuePair(
             CharArrayBuffer buffer,
             ParserCursor cursor) throws ParseException;
-    
+
 }
 

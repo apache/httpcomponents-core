@@ -32,7 +32,7 @@ import org.apache.http.RequestLine;
 
 /**
  * Basic implementation of {@link RequestLine}.
- * 
+ *
  * @since 4.0
  */
 public class BasicRequestLine implements RequestLine, Cloneable {
@@ -79,9 +79,9 @@ public class BasicRequestLine implements RequestLine, Cloneable {
         return BasicLineFormatter.DEFAULT
             .formatRequestLine(null, this).toString();
     }
-    
+
     public Object clone() throws CloneNotSupportedException {
         return super.clone();
     }
-    
+
 }

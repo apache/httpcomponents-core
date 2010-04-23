@@ -37,22 +37,22 @@ import java.io.Serializable;
 
 /**
  * A streamed entity that obtains its content from a {@link Serializable}.
- * The content obtained from the {@link Serializable} instance can 
+ * The content obtained from the {@link Serializable} instance can
  * optionally be buffered in a byte array in order to make the
  * entity self-contained and repeatable.
- * 
+ *
  * @since 4.0
  */
 public class SerializableEntity extends AbstractHttpEntity {
-    
+
     private byte[] objSer;
-    
+
     private Serializable objRef;
-    
+
     /**
      * Creates new instance of this class.
-     * 
-     * @param ser input 
+     *
+     * @param ser input
      * @param bufferize tells whether the content should be
      *        stored in an internal buffer
      * @throws IOException in case of an I/O error
@@ -62,22 +62,22 @@ public class SerializableEntity extends AbstractHttpEntity {
         if (ser == null) {
             throw new IllegalArgumentException("Source object may not be null");
         }
-        
+
         if (bufferize) {
             createBytes(ser);
         } else {
             this.objRef = ser;
         }
     }
-    
+
     private void createBytes(Serializable ser) throws IOException {
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         ObjectOutputStream out = new ObjectOutputStream(baos);
         out.writeObject(ser);
-        out.flush();    
+        out.flush();
         this.objSer = baos.toByteArray();
     }
-    
+
     public InputStream getContent() throws IOException, IllegalStateException {
         if (this.objSer == null) {
             createBytes(this.objRef);
@@ -86,7 +86,7 @@ public class SerializableEntity extends AbstractHttpEntity {
     }
 
     public long getContentLength() {
-        if (this.objSer ==  null) { 
+        if (this.objSer ==  null) {
             return -1;
         } else {
             return this.objSer.length;
@@ -105,7 +105,7 @@ public class SerializableEntity extends AbstractHttpEntity {
         if (outstream == null) {
             throw new IllegalArgumentException("Output stream may not be null");
         }
-        
+
         if (this.objSer == null) {
             ObjectOutputStream out = new ObjectOutputStream(outstream);
             out.writeObject(this.objRef);

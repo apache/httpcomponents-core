@@ -30,16 +30,16 @@ package org.apache.http;
 /**
  * Signals that an HTTP protocol violation has occurred.
  * For example a malformed status line or headers, a missing message body, etc.
- * 
- * 
+ *
+ *
  * @since 4.0
  */
 public class ProtocolException extends HttpException {
 
     private static final long serialVersionUID = -2143571074341228994L;
-    
+
     /**
-     * Creates a new ProtocolException with a <tt>null</tt> detail message. 
+     * Creates a new ProtocolException with a <tt>null</tt> detail message.
      */
     public ProtocolException() {
         super();
@@ -47,7 +47,7 @@ public class ProtocolException extends HttpException {
 
     /**
      * Creates a new ProtocolException with the specified detail message.
-     * 
+     *
      * @param message The exception detail message
      */
     public ProtocolException(String message) {
@@ -56,7 +56,7 @@ public class ProtocolException extends HttpException {
 
     /**
      * Creates a new ProtocolException with the specified detail message and cause.
-     * 
+     *
      * @param message the exception detail message
      * @param cause the <tt>Throwable</tt> that caused this exception, or <tt>null</tt>
      * if the cause is unavailable, unknown, or not a <tt>Throwable</tt>
