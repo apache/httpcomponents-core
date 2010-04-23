@@ -40,12 +40,12 @@ class HttpListener extends Thread {
     private final ServerSocket serversocket;
     private final HttpService httpservice;
     private final HttpWorkerCallback workercallback;
-    
+
     private volatile boolean shutdown;
     private volatile Exception exception;
-    
+
     public HttpListener(
-            final ServerSocket serversocket, 
+            final ServerSocket serversocket,
             final HttpService httpservice,
             final HttpWorkerCallback workercallback) {
         super();
@@ -53,7 +53,7 @@ class HttpListener extends Thread {
         this.httpservice = httpservice;
         this.workercallback = workercallback;
     }
-    
+
     public boolean isShutdown() {
         return this.shutdown;
     }
@@ -61,7 +61,7 @@ class HttpListener extends Thread {
     public Exception getException() {
         return this.exception;
     }
-    
+
     public void run() {
         while (!Thread.interrupted() && !this.shutdown) {
             try {
@@ -81,7 +81,7 @@ class HttpListener extends Thread {
             }
         }
     }
-    
+
     public void terminate() {
         if (this.shutdown) {
             return;

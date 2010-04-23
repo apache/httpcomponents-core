@@ -37,29 +37,29 @@ import org.eclipse.jetty.util.thread.QueuedThreadPool;
 public class JettyServer implements HttpServer {
 
     private final Server server;
-    
+
     public JettyServer(int port) throws IOException {
         super();
         if (port <= 0) {
             throw new IllegalArgumentException("Server port may not be negative or null");
         }
-        
+
         SocketConnector connector = new SocketConnector();
         connector.setPort(port);
         connector.setRequestBufferSize(12 * 1024);
         connector.setResponseBufferSize(12 * 1024);
         connector.setAcceptors(2);
-        
+
         QueuedThreadPool threadpool = new QueuedThreadPool();
         threadpool.setMinThreads(25);
         threadpool.setMaxThreads(200);
-        
+
         this.server = new Server();
         this.server.addConnector(connector);
         this.server.setThreadPool(threadpool);
         this.server.setHandler(new RandomDataHandler());
     }
-    
+
     public String getName() {
         return "Jetty (blocking I/O)";
     }
@@ -71,7 +71,7 @@ public class JettyServer implements HttpServer {
     public void start() throws Exception {
         this.server.start();
     }
-    
+
     public void shutdown() {
         try {
             this.server.stop();
@@ -82,7 +82,7 @@ public class JettyServer implements HttpServer {
         } catch (InterruptedException ex) {
         }
     }
-    
+
     public static void main(String[] args) throws Exception {
         if (args.length != 1) {
             System.out.println("Usage: <port>");
@@ -92,15 +92,15 @@ public class JettyServer implements HttpServer {
         final JettyServer server = new JettyServer(port);
         System.out.println("Listening on port: " + port);
         server.start();
-        
+
         Runtime.getRuntime().addShutdownHook(new Thread() {
 
             @Override
             public void run() {
                 server.shutdown();
             }
-            
+
         });
     }
-    
+
 }

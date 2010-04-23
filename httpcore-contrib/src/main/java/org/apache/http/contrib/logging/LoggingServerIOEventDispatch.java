@@ -36,18 +36,18 @@ import org.apache.http.params.HttpParams;
 public class LoggingServerIOEventDispatch extends DefaultServerIOEventDispatch {
 
     public LoggingServerIOEventDispatch(
-            final NHttpServiceHandler handler, 
+            final NHttpServiceHandler handler,
             final HttpParams params) {
         super(new LoggingNHttpServiceHandler(handler), params);
     }
 
     @Override
     protected NHttpServerIOTarget createConnection(final IOSession session) {
-        return new LoggingNHttpServerConnection(            
+        return new LoggingNHttpServerConnection(
             new LoggingIOSession(session, "server"),
             createHttpRequestFactory(),
             this.allocator,
             this.params);
     }
-    
+
 }

@@ -31,5 +31,5 @@ interface HttpWorkerCallback {
     void started(HttpWorker worker);
 
     void shutdown(HttpWorker worker);
-    
+
 }

@@ -30,11 +30,11 @@ package org.apache.http.benchmark;
 public interface HttpServer {
 
     String getName();
-    
+
     String getVersion();
-    
+
     void start() throws Exception;
-    
+
     void shutdown();
-    
+
 }

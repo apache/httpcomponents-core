@@ -36,7 +36,7 @@ import org.apache.http.HttpException;
 class StdHttpWorkerCallback implements HttpWorkerCallback {
 
     private final Queue<HttpWorker> queue;
-    
+
     public StdHttpWorkerCallback(final Queue<HttpWorker> queue) {
         super();
         this.queue = queue;
@@ -45,7 +45,7 @@ class StdHttpWorkerCallback implements HttpWorkerCallback {
     public void started(final HttpWorker worker) {
         this.queue.add(worker);
     }
-    
+
     public void shutdown(final HttpWorker worker) {
         this.queue.remove(worker);
         Exception ex = worker.getException();

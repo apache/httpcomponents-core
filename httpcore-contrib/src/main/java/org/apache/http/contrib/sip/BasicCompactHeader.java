@@ -32,7 +32,7 @@ import org.apache.http.message.BasicHeader;
 
 /**
  * Represents a SIP (or HTTP) header field with optional compact name.
- * 
+ *
  *
  */
 public class BasicCompactHeader extends BasicHeader

@@ -36,7 +36,7 @@ import org.apache.http.params.HttpParams;
 public class LoggingClientIOEventDispatch extends DefaultClientIOEventDispatch {
 
     public LoggingClientIOEventDispatch(
-            final NHttpClientHandler handler, 
+            final NHttpClientHandler handler,
             final HttpParams params) {
         super(new LoggingNHttpClientHandler(handler), params);
     }
@@ -49,5 +49,5 @@ public class LoggingClientIOEventDispatch extends DefaultClientIOEventDispatch {
             this.allocator,
             this.params);
     }
-    
+
 }

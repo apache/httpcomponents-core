@@ -36,7 +36,7 @@ import java.util.Collections;
 /**
  * Basic implementation of a {@link CompactHeaderMapper}.
  * Header names are assumed to be case insensitive.
- * 
+ *
  *
  */
 public class BasicCompactHeaderMapper implements CompactHeaderMapper {
@@ -177,7 +177,7 @@ public class BasicCompactHeaderMapper implements CompactHeaderMapper {
 
         return result;
     }
-    
+
 
     // initializes the default mapper and switches it to read-only mode
     static {

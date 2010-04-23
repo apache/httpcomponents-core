@@ -34,8 +34,8 @@ import org.apache.http.ProtocolVersion;
 
 /**
  * Represents an SIP version, as specified in RFC 3261.
- * 
- * 
+ *
+ *
  */
 public final class SipVersion extends ProtocolVersion
     implements Serializable {
@@ -44,17 +44,17 @@ public final class SipVersion extends ProtocolVersion
 
     /** The protocol name. */
     public static final String SIP = "SIP";
-    
+
     /** SIP protocol version 2.0 */
     public static final SipVersion SIP_2_0 = new SipVersion(2, 0);
 
-    
+
     /**
      * Create a SIP protocol version designator.
      *
      * @param major   the major version number of the SIP protocol
      * @param minor   the minor version number of the SIP protocol
-     * 
+     *
      * @throws IllegalArgumentException
      *         if either major or minor version number is negative
      */

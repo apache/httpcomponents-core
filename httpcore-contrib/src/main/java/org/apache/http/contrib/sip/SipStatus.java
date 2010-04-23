@@ -39,8 +39,8 @@ package org.apache.http.contrib.sip;
  * RFC 4412 (Communications Resource Priority for SIP),
  * RFC 4474 (Enhancements for Authenticated Identity Management in SIP),
  * and others.
- * 
- * 
+ *
+ *
  */
 public interface SipStatus {
 

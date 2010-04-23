@@ -44,12 +44,12 @@ public class RequestAcceptEncoding implements HttpRequestInterceptor {
 
     private static final String ACCEPT_ENCODING = "Accept-Encoding";
     private static final String GZIP_CODEC = "gzip";
-    
-    public void process(final HttpRequest request, final HttpContext context) 
+
+    public void process(final HttpRequest request, final HttpContext context)
             throws HttpException, IOException {
         if (!request.containsHeader(ACCEPT_ENCODING)) {
             request.addHeader(ACCEPT_ENCODING, GZIP_CODEC);
         }
     }
-    
+
 }

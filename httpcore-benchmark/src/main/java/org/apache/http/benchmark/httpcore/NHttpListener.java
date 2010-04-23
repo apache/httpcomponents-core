@@ -37,11 +37,11 @@ public class NHttpListener extends Thread {
 
     private final ListeningIOReactor ioreactor;
     private final IOEventDispatch ioEventDispatch;
-    
+
     private volatile Exception exception;
-    
+
     public NHttpListener(
-            final ListeningIOReactor ioreactor, 
+            final ListeningIOReactor ioreactor,
             final IOEventDispatch ioEventDispatch) throws IOException {
         super();
         this.ioreactor = ioreactor;
@@ -61,18 +61,18 @@ public class NHttpListener extends Thread {
         ListenerEndpoint endpoint = this.ioreactor.listen(address);
         endpoint.waitFor();
     }
-    
+
     public void terminate() {
         try {
             this.ioreactor.shutdown();
         } catch (IOException ex) {
         }
     }
-    
+
     public Exception getException() {
         return this.exception;
     }
-    
+
     public void awaitTermination(long millis) throws InterruptedException {
         this.join(millis);
     }

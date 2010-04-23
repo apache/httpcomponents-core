@@ -39,7 +39,7 @@ import org.apache.http.message.BasicHeaderValueParser;
  * Represents a SIP (or HTTP) header field parsed 'on demand'.
  * The name of the header will be parsed and mapped immediately,
  * the value only when accessed
- * 
+ *
  *
  */
 public class BufferedCompactHeader
@@ -55,7 +55,7 @@ public class BufferedCompactHeader
      * The buffer containing the entire header line.
      */
     private final CharArrayBuffer buffer;
-    
+
     /**
      * The beginning of the header value in the buffer
      */
@@ -158,7 +158,7 @@ public class BufferedCompactHeader
         // no need to make a copy of it
         return super.clone();
     }
- 
+
 }
 
 

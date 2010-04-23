@@ -48,8 +48,8 @@ public class ResponseGzipCompress implements HttpResponseInterceptor {
 
     private static final String ACCEPT_ENCODING = "Accept-Encoding";
     private static final String GZIP_CODEC = "gzip";
-    
-    public void process(final HttpResponse response, final HttpContext context) 
+
+    public void process(final HttpResponse response, final HttpContext context)
             throws HttpException, IOException {
         if (context == null) {
             throw new IllegalArgumentException("HTTP context may not be null");
@@ -61,11 +61,11 @@ public class ResponseGzipCompress implements HttpResponseInterceptor {
             HeaderElement[] codecs = aeheader.getElements();
             for (int i = 0; i < codecs.length; i++) {
                 if (codecs[i].getName().equalsIgnoreCase(GZIP_CODEC)) {
-                    response.setEntity(new GzipCompressingEntity(response.getEntity())); 
+                    response.setEntity(new GzipCompressingEntity(response.getEntity()));
                     return;
                 }
             }
         }
     }
-    
+
 }

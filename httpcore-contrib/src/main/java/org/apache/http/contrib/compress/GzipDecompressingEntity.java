@@ -45,7 +45,7 @@ public class GzipDecompressingEntity extends HttpEntityWrapper {
       public GzipDecompressingEntity(final HttpEntity entity) {
           super(entity);
       }
-  
+
       public InputStream getContent()
           throws IOException, IllegalStateException {
 

@@ -185,17 +185,17 @@ public class HttpBenchmark {
                 public Thread newThread(Runnable r) {
                     return new Thread(r, "ClientPool");
                 }
-                
+
             });
         workerPool.prestartAllCoreThreads();
 
         BenchmarkWorker[] workers = new BenchmarkWorker[config.getThreads()];
         for (int i = 0; i < workers.length; i++) {
             workers[i] = new BenchmarkWorker(
-                    params, 
+                    params,
                     config.getVerbosity(),
-                    request[i], 
-                    host, 
+                    request[i],
+                    host,
                     config.getRequests(),
                     config.isKeepAlive(),
                     config.isDisableSSLVerification(),

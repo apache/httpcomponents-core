@@ -35,8 +35,8 @@ import org.apache.http.HttpException;
  * Signals that an SIP exception has occurred.
  * This is for protocol errors specific to SIP,
  * as opposed to protocol errors shared with HTTP.
- * 
- * 
+ *
+ *
  */
 public class SipException extends HttpException {
 
@@ -60,7 +60,7 @@ public class SipException extends HttpException {
 
     /**
      * Creates a new SipException with the specified detail message and cause.
-     * 
+     *
      * @param message the exception detail message
      * @param cause   the <tt>Throwable</tt> that caused this exception, or
      *                <tt>null</tt> if the cause is unavailable, unknown, or

@@ -46,8 +46,8 @@ import org.apache.http.protocol.HttpContext;
 public class ResponseGzipUncompress implements HttpResponseInterceptor {
 
     private static final String GZIP_CODEC = "gzip";
-    
-    public void process(final HttpResponse response, final HttpContext context) 
+
+    public void process(final HttpResponse response, final HttpContext context)
             throws HttpException, IOException {
         if (context == null) {
             throw new IllegalArgumentException("HTTP context may not be null");
@@ -58,11 +58,11 @@ public class ResponseGzipUncompress implements HttpResponseInterceptor {
             HeaderElement[] codecs = ceheader.getElements();
             for (int i = 0; i < codecs.length; i++) {
                 if (codecs[i].getName().equalsIgnoreCase(GZIP_CODEC)) {
-                    response.setEntity(new GzipDecompressingEntity(response.getEntity())); 
+                    response.setEntity(new GzipDecompressingEntity(response.getEntity()));
                     return;
                 }
             }
         }
     }
-    
+
 }

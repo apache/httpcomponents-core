@@ -44,9 +44,9 @@ import org.apache.http.benchmark.HttpBenchmark;
 public class Benchmark {
 
     private static final int PORT = 8989;
-    
+
     public static void main(String[] args) throws Exception {
-        
+
         Config config = new Config();
         if (args.length > 0) {
             Options options = CommandLineUtils.getOptions();
@@ -63,10 +63,10 @@ public class Benchmark {
             config.setRequests(20000);
             config.setThreads(25);
         }
-        
+
         URL target = new URL("http", "localhost", PORT, "/rnd?c=2048");
         config.setUrl(target);
-        
+
         Benchmark benchmark = new Benchmark();
         benchmark.run(new JettyServer(PORT), config);
         benchmark.run(new HttpCoreServer(PORT), config);
@@ -77,20 +77,20 @@ public class Benchmark {
     public Benchmark() {
         super();
     }
-    
+
     public void run(final HttpServer server, final Config config) throws Exception {
         server.start();
         try {
             System.out.println("---------------------------------------------------------------");
             System.out.println(server.getName() + "; version: " + server.getVersion());
             System.out.println("---------------------------------------------------------------");
-            
+
             HttpBenchmark ab = new HttpBenchmark(config);
             ab.execute();
             System.out.println("---------------------------------------------------------------");
         } finally {
-            server.shutdown();            
+            server.shutdown();
         }
     }
-    
+
 }

@@ -38,12 +38,12 @@ class HttpWorker extends Thread {
     private final HttpService httpservice;
     private final HttpServerConnection conn;
     private final HttpWorkerCallback workercallback;
-    
+
     private volatile boolean shutdown;
     private volatile Exception exception;
-    
+
     public HttpWorker(
-            final HttpService httpservice, 
+            final HttpService httpservice,
             final HttpServerConnection conn,
             final HttpWorkerCallback workercallback) {
         super();
@@ -51,7 +51,7 @@ class HttpWorker extends Thread {
         this.conn = conn;
         this.workercallback = workercallback;
     }
-    
+
     public boolean isShutdown() {
         return this.shutdown;
     }
@@ -59,7 +59,7 @@ class HttpWorker extends Thread {
     public Exception getException() {
         return this.exception;
     }
-    
+
     public void run() {
         this.workercallback.started(this);
         try {
@@ -74,7 +74,7 @@ class HttpWorker extends Thread {
             this.workercallback.shutdown(this);
         }
     }
-    
+
     public void terminate() {
         if (this.shutdown) {
             return;

@@ -41,8 +41,8 @@ import org.apache.http.ReasonPhraseCatalog;
  * http://www.iana.org/assignments/sip-parameters
  * </a>
  * for a full list of registered SIP status codes and the defining RFCs.
- * 
- * 
+ *
+ *
  */
 public class EnglishSipReasonPhraseCatalog
     implements ReasonPhraseCatalog {

@@ -43,7 +43,7 @@ import org.apache.http.Header;
  * While all compact names defined so far are single-character names,
  * RFC 3261 does not mandate that. This interface therefore allows for
  * strings as the compact name.
- * 
+ *
  *
  */
 public interface CompactHeader extends Header {

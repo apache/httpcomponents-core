@@ -45,18 +45,18 @@ import org.apache.http.protocol.HttpRequestHandler;
 import org.apache.http.util.EntityUtils;
 
 class RandomDataHandler implements HttpRequestHandler  {
-    
+
     public RandomDataHandler() {
         super();
     }
-    
+
     public void handle(
-            final HttpRequest request, 
+            final HttpRequest request,
             final HttpResponse response,
             final HttpContext context) throws HttpException, IOException {
         String method = request.getRequestLine().getMethod().toUpperCase(Locale.ENGLISH);
         if (!method.equals("GET") && !method.equals("HEAD") && !method.equals("POST")) {
-            throw new MethodNotSupportedException(method + " method not supported"); 
+            throw new MethodNotSupportedException(method + " method not supported");
         }
         if (request instanceof HttpEntityEnclosingRequest) {
             HttpEntity entity = ((HttpEntityEnclosingRequest) request).getEntity();
@@ -65,7 +65,7 @@ class RandomDataHandler implements HttpRequestHandler  {
         String target = request.getRequestLine().getUri();
 
         int count = 100;
-        
+
         int idx = target.indexOf('?');
         if (idx != -1) {
             String s = target.substring(idx + 1);
@@ -75,7 +75,7 @@ class RandomDataHandler implements HttpRequestHandler  {
                     count = Integer.parseInt(s);
                 } catch (NumberFormatException ex) {
                     response.setStatusCode(HttpStatus.SC_BAD_REQUEST);
-                    response.setEntity(new StringEntity("Invalid query format: " + s, 
+                    response.setEntity(new StringEntity("Invalid query format: " + s,
                             "text/plain", "ASCII"));
                     return;
                 }
@@ -85,19 +85,19 @@ class RandomDataHandler implements HttpRequestHandler  {
         RandomEntity body = new RandomEntity(count);
         response.setEntity(body);
     }
- 
+
     static class RandomEntity extends AbstractHttpEntity {
 
         private int count;
         private final byte[] buf;
-        
+
         public RandomEntity(int count) {
             super();
             this.count = count;
             this.buf = new byte[1024];
             setContentType("text/plain");
         }
-        
+
         public InputStream getContent() throws IOException, IllegalStateException {
             throw new IllegalStateException("Method not supported");
         }
@@ -126,7 +126,7 @@ class RandomDataHandler implements HttpRequestHandler  {
                 remaining -= chunk;
             }
         }
-        
+
     }
-    
+
 }

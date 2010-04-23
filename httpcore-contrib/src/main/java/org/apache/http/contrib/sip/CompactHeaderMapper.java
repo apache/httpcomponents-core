@@ -41,7 +41,7 @@ package org.apache.http.contrib.sip;
  * While all compact names defined so far are single-character names,
  * RFC 3261 does not mandate that. This interface therefore allows for
  * strings as the compact name.
- * 
+ *
  *
  */
 public interface CompactHeaderMapper {

@@ -53,11 +53,11 @@ import org.apache.http.protocol.HttpContext;
 import org.apache.http.util.EntityUtils;
 
 class NRandomDataHandler implements NHttpRequestHandler  {
-    
+
     public NRandomDataHandler() {
         super();
     }
-    
+
     public ConsumingNHttpEntity entityRequest(
             final HttpEntityEnclosingRequest request,
             final HttpContext context) throws HttpException, IOException {
@@ -66,13 +66,13 @@ class NRandomDataHandler implements NHttpRequestHandler  {
     }
 
     public void handle(
-            final HttpRequest request, 
-            final HttpResponse response, 
+            final HttpRequest request,
+            final HttpResponse response,
             final NHttpResponseTrigger trigger,
             final HttpContext context) throws HttpException, IOException {
         String method = request.getRequestLine().getMethod().toUpperCase(Locale.ENGLISH);
         if (!method.equals("GET") && !method.equals("HEAD") && !method.equals("POST")) {
-            throw new MethodNotSupportedException(method + " method not supported"); 
+            throw new MethodNotSupportedException(method + " method not supported");
         }
         if (request instanceof HttpEntityEnclosingRequest) {
             HttpEntity entity = ((HttpEntityEnclosingRequest) request).getEntity();
@@ -81,7 +81,7 @@ class NRandomDataHandler implements NHttpRequestHandler  {
         String target = request.getRequestLine().getUri();
 
         int count = 100;
-        
+
         int idx = target.indexOf('?');
         if (idx != -1) {
             String s = target.substring(idx + 1);
@@ -91,7 +91,7 @@ class NRandomDataHandler implements NHttpRequestHandler  {
                     count = Integer.parseInt(s);
                 } catch (NumberFormatException ex) {
                     response.setStatusCode(HttpStatus.SC_BAD_REQUEST);
-                    response.setEntity(new StringEntity("Invalid query format: " + s, 
+                    response.setEntity(new StringEntity("Invalid query format: " + s,
                             "text/plain", "ASCII"));
                     return;
                 }
@@ -106,12 +106,12 @@ class NRandomDataHandler implements NHttpRequestHandler  {
 
 
     public void handle(
-            final HttpRequest request, 
+            final HttpRequest request,
             final HttpResponse response,
             final HttpContext context) throws HttpException, IOException {
         String method = request.getRequestLine().getMethod().toUpperCase(Locale.ENGLISH);
         if (!method.equals("GET") && !method.equals("HEAD") && !method.equals("POST")) {
-            throw new MethodNotSupportedException(method + " method not supported"); 
+            throw new MethodNotSupportedException(method + " method not supported");
         }
         if (request instanceof HttpEntityEnclosingRequest) {
             HttpEntity entity = ((HttpEntityEnclosingRequest) request).getEntity();
@@ -120,7 +120,7 @@ class NRandomDataHandler implements NHttpRequestHandler  {
         String target = request.getRequestLine().getUri();
 
         int count = 100;
-        
+
         int idx = target.indexOf('?');
         if (idx != -1) {
             String s = target.substring(idx + 1);
@@ -130,7 +130,7 @@ class NRandomDataHandler implements NHttpRequestHandler  {
                     count = Integer.parseInt(s);
                 } catch (NumberFormatException ex) {
                     response.setStatusCode(HttpStatus.SC_BAD_REQUEST);
-                    response.setEntity(new StringEntity("Invalid query format: " + s, 
+                    response.setEntity(new StringEntity("Invalid query format: " + s,
                             "text/plain", "ASCII"));
                     return;
                 }
@@ -140,14 +140,14 @@ class NRandomDataHandler implements NHttpRequestHandler  {
         RandomEntity body = new RandomEntity(count);
         response.setEntity(body);
     }
- 
+
     static class RandomEntity extends AbstractHttpEntity implements ProducingNHttpEntity {
 
         private final int count;
         private final ByteBuffer buf;
-        
+
         private int remaining;
-        
+
         public RandomEntity(int count) {
             super();
             this.count = count;
@@ -155,7 +155,7 @@ class NRandomDataHandler implements NHttpRequestHandler  {
             this.buf = ByteBuffer.allocate(1024);
             setContentType("text/plain");
         }
-        
+
         public InputStream getContent() throws IOException, IllegalStateException {
             throw new IllegalStateException("Method not supported");
         }
@@ -194,11 +194,11 @@ class NRandomDataHandler implements NHttpRequestHandler  {
             }
             this.buf.compact();
         }
-        
+
         public void finish() throws IOException {
             this.remaining = this.count;
         }
 
     }
-    
+
 }

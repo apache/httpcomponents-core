@@ -54,13 +54,13 @@ public class HttpCoreServer implements HttpServer {
 
     private final Queue<HttpWorker> workers;
     private final HttpListener listener;
-    
+
     public HttpCoreServer(int port) throws IOException {
         super();
         if (port <= 0) {
             throw new IllegalArgumentException("Server port may not be negative or null");
         }
-        
+
         HttpParams params = new SyncBasicHttpParams();
         params
             .setIntParameter(CoreConnectionPNames.SO_TIMEOUT, 10000)
@@ -75,30 +75,30 @@ public class HttpCoreServer implements HttpServer {
                 new ResponseContent(),
                 new ResponseConnControl()
         });
-        
+
         HttpRequestHandlerRegistry reqistry = new HttpRequestHandlerRegistry();
         reqistry.register("/rnd", new RandomDataHandler());
-        
+
         HttpService httpservice = new HttpService(
-                httpproc, 
-                new DefaultConnectionReuseStrategy(), 
+                httpproc,
+                new DefaultConnectionReuseStrategy(),
                 new DefaultHttpResponseFactory(),
-                reqistry, 
+                reqistry,
                 params);
-        
+
         this.workers = new ConcurrentLinkedQueue<HttpWorker>();
         this.listener = new HttpListener(
-                new ServerSocket(port), 
+                new ServerSocket(port),
                 httpservice,
                 new StdHttpWorkerCallback(this.workers));
     }
-    
+
     public String getName() {
         return "HttpCore (blocking I/O)";
     }
 
     public String getVersion() {
-        VersionInfo vinfo = VersionInfo.loadVersionInfo("org.apache.http", 
+        VersionInfo vinfo = VersionInfo.loadVersionInfo("org.apache.http",
                 Thread.currentThread().getContextClassLoader());
         return vinfo.getRelease();
     }
@@ -106,7 +106,7 @@ public class HttpCoreServer implements HttpServer {
     public void start() {
         this.listener.start();
     }
-    
+
     public void shutdown() {
         this.listener.terminate();
         try {
@@ -130,7 +130,7 @@ public class HttpCoreServer implements HttpServer {
             }
         }
     }
-    
+
     public static void main(String[] args) throws Exception {
         if (args.length != 1) {
             System.out.println("Usage: <port>");
@@ -140,15 +140,15 @@ public class HttpCoreServer implements HttpServer {
         final HttpCoreServer server = new HttpCoreServer(port);
         System.out.println("Listening on port: " + port);
         server.start();
-        
+
         Runtime.getRuntime().addShutdownHook(new Thread() {
 
             @Override
             public void run() {
                 server.shutdown();
             }
-            
+
         });
     }
-    
+
 }

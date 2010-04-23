@@ -45,7 +45,7 @@ import org.apache.http.protocol.HTTP;
  * @since 4.0
  */
 public class GzipCompressingEntity extends HttpEntityWrapper {
-    
+
     private static final String GZIP_CODEC = "gzip";
 
     public GzipCompressingEntity(final HttpEntity entity) {

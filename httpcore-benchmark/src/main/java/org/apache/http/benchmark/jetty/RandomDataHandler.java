@@ -39,15 +39,15 @@ import org.eclipse.jetty.server.Request;
 import org.eclipse.jetty.server.handler.AbstractHandler;
 
 class RandomDataHandler extends AbstractHandler {
-    
+
     public RandomDataHandler() {
         super();
     }
-    
+
     public void handle(
-            final String target, 
-            final Request baseRequest, 
-            final HttpServletRequest request, 
+            final String target,
+            final Request baseRequest,
+            final HttpServletRequest request,
             final HttpServletResponse response) throws IOException, ServletException {
         if (target.equals("/rnd")) {
             rnd(request, response);
@@ -60,7 +60,7 @@ class RandomDataHandler extends AbstractHandler {
     }
 
     private void rnd(
-            final HttpServletRequest request, 
+            final HttpServletRequest request,
             final HttpServletResponse response) throws IOException, ServletException {
         int count = 100;
         String s = request.getParameter("c");
@@ -73,10 +73,10 @@ class RandomDataHandler extends AbstractHandler {
             writer.flush();
             return;
         }
-        
+
         response.setStatus(200);
         response.setContentLength(count);
-        
+
         OutputStream outstream = response.getOutputStream();
         byte[] tmp = new byte[1024];
         int r = Math.abs(tmp.hashCode());
@@ -91,5 +91,5 @@ class RandomDataHandler extends AbstractHandler {
         }
         outstream.flush();
     }
-    
+
 }

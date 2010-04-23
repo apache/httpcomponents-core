@@ -40,16 +40,16 @@ import org.apache.http.nio.NHttpClientConnection;
 import org.apache.http.nio.NHttpClientHandler;
 
 /**
- * Decorator class intended to transparently extend an {@link NHttpClientHandler} 
- * with basic event logging capabilities using Commons Logging. 
- * 
+ * Decorator class intended to transparently extend an {@link NHttpClientHandler}
+ * with basic event logging capabilities using Commons Logging.
+ *
  */
 public class LoggingNHttpClientHandler implements NHttpClientHandler {
 
     private final Log log;
     private final Log headerlog;
     private final NHttpClientHandler handler;
-    
+
     public LoggingNHttpClientHandler(final NHttpClientHandler handler) {
         super();
         if (handler == null) {
@@ -59,7 +59,7 @@ public class LoggingNHttpClientHandler implements NHttpClientHandler {
         this.log = LogFactory.getLog(handler.getClass());
         this.headerlog = LogFactory.getLog("org.apache.http.headers");
     }
-    
+
     public void connected(final NHttpClientConnection conn, final Object attachment) {
         if (this.log.isDebugEnabled()) {
             this.log.debug("HTTP connection " + conn + ": Connected (" + attachment + ")");
