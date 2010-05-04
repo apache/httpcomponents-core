@@ -27,6 +27,10 @@
 
 package org.apache.http.message;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.util.Iterator;
 
 import junit.framework.TestCase;
@@ -171,8 +175,34 @@ public class TestHeaderGroup extends TestCase {
         assertNotNull(headers2);
         assertEquals(headers1.length, headers2.length);
         for (int i = 0; i < headers1.length; i++) {
-            assertEquals(headers1[i], headers2[i]);
+            assertEquals(headers1[i].getName(), headers2[i].getName());
+            assertEquals(headers1[i].getValue(), headers2[i].getValue());
         }
     }
 
+    public void testSerialization() throws Exception {
+        HeaderGroup orig = new HeaderGroup();
+        Header header1 = new BasicHeader("name", "value1");
+        Header header2 = new BasicHeader("name", "value2");
+        Header header3 = new BasicHeader("name", "value3");
+        orig.setHeaders(new Header[] { header1, header2, header3 });
+        ByteArrayOutputStream outbuffer = new ByteArrayOutputStream();
+        ObjectOutputStream outstream = new ObjectOutputStream(outbuffer);
+        outstream.writeObject(orig);
+        outstream.close();
+        byte[] raw = outbuffer.toByteArray();
+        ByteArrayInputStream inbuffer = new ByteArrayInputStream(raw);
+        ObjectInputStream instream = new ObjectInputStream(inbuffer);
+        HeaderGroup clone = (HeaderGroup) instream.readObject();
+        Header[] headers1 = orig.getAllHeaders();
+        Header[] headers2 = clone.getAllHeaders();
+        assertNotNull(headers1);
+        assertNotNull(headers2);
+        assertEquals(headers1.length, headers2.length);
+        for (int i = 0; i < headers1.length; i++) {
+            assertEquals(headers1[i].getName(), headers2[i].getName());
+            assertEquals(headers1[i].getValue(), headers2[i].getValue());
+        }
+    }
+    
 }

@@ -27,6 +27,11 @@
 
 package org.apache.http.util;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+
 import junit.framework.TestCase;
 
 /**
@@ -350,6 +355,29 @@ public class TestCharArrayBuffer extends TestCase {
         } catch (IndexOutOfBoundsException ex) {
             // expected
         }
+    }
+
+    public void testSerialization() throws Exception {
+        CharArrayBuffer orig = new CharArrayBuffer(32);
+        orig.append('a');
+        orig.append('b');
+        orig.append('c');
+        ByteArrayOutputStream outbuffer = new ByteArrayOutputStream();
+        ObjectOutputStream outstream = new ObjectOutputStream(outbuffer);
+        outstream.writeObject(orig);
+        outstream.close();
+        byte[] raw = outbuffer.toByteArray();
+        ByteArrayInputStream inbuffer = new ByteArrayInputStream(raw);
+        ObjectInputStream instream = new ObjectInputStream(inbuffer);
+        CharArrayBuffer clone = (CharArrayBuffer) instream.readObject();
+        assertEquals(orig.capacity(), clone.capacity());
+        assertEquals(orig.length(), clone.length());
+        char[] data = clone.toCharArray();
+        assertNotNull(data);
+        assertEquals(3, data.length);
+        assertEquals('a', data[0]);
+        assertEquals('b', data[1]);
+        assertEquals('c', data[2]);
     }
 
 }

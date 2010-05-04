@@ -27,6 +27,8 @@
 
 package org.apache.http.util;
 
+import java.io.Serializable;
+
 import org.apache.http.protocol.HTTP;
 
 /**
@@ -34,7 +36,9 @@ import org.apache.http.protocol.HTTP;
  *
  * @since 4.0
  */
-public final class CharArrayBuffer  {
+public final class CharArrayBuffer implements Serializable {
+
+    private static final long serialVersionUID = -6208952725094867135L;
 
     private char[] buffer;
     private int len;

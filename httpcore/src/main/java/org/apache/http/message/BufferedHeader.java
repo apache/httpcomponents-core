@@ -27,6 +27,8 @@
 
 package org.apache.http.message;
 
+import java.io.Serializable;
+
 import org.apache.http.FormattedHeader;
 import org.apache.http.HeaderElement;
 import org.apache.http.ParseException;
@@ -38,7 +40,9 @@ import org.apache.http.util.CharArrayBuffer;
  *
  * @since 4.0
  */
-public class BufferedHeader implements FormattedHeader, Cloneable {
+public class BufferedHeader implements FormattedHeader, Cloneable, Serializable {
+
+    private static final long serialVersionUID = -2768352615787625448L;
 
     /**
      * Header name.

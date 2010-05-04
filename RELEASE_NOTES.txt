@@ -1,3 +1,8 @@
+Changes since 4.1-BETA1 
+
+* ByteArrayBuffer, CharArrayBuffer, BasicHeader, BufferedHeader, HeaderGroup made Serializable.
+  Contributed by Oleg Kalnichevski <olegk at apache.org>
+
 Release 4.1-BETA1
 -------------------
 

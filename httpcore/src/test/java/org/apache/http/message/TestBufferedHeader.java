@@ -34,49 +34,42 @@ import java.io.ObjectOutputStream;
 
 import junit.framework.TestCase;
 
-import org.apache.http.Header;
 import org.apache.http.HeaderElement;
+import org.apache.http.util.CharArrayBuffer;
 
 /**
- * Unit tests for {@link Header}.
+ * Unit tests for {@link BufferedHeader}.
  *
  */
-public class TestHeader extends TestCase {
+public class TestBufferedHeader extends TestCase {
 
-    public TestHeader(String testName) {
+    public TestBufferedHeader(String testName) {
         super(testName);
     }
 
     public void testBasicConstructor() {
-        Header header = new BasicHeader("name", "value");
+        CharArrayBuffer buf = new CharArrayBuffer(32);
+        buf.append("name: value");
+        BufferedHeader header = new BufferedHeader(buf);
         assertEquals("name", header.getName());
         assertEquals("value", header.getValue());
-    }
-
-    public void testBasicConstructorNullValue() {
-        Header header = new BasicHeader("name", null);
-        assertEquals("name", header.getName());
-        assertEquals(null, header.getValue());
+        assertSame(buf, header.getBuffer());
+        assertEquals(5, header.getValuePos());
     }
 
     public void testInvalidName() {
         try {
-            new BasicHeader(null, null);
+            new BufferedHeader(null);
             fail("IllegalArgumentException should have been thrown");
         } catch (IllegalArgumentException ex) {
             //expected
         }
     }
 
-    public void testToString() {
-        Header header1 = new BasicHeader("name1", "value1");
-        assertEquals("name1: value1", header1.toString());
-        Header header2 = new BasicHeader("name2", null);
-        assertEquals("name2: ", header2.toString());
-    }
-
     public void testHeaderElements() {
-        Header header = new BasicHeader("name", "element1 = value1, element2; param1 = value1, element3");
+        CharArrayBuffer buf = new CharArrayBuffer(32);
+        buf.append("name: element1 = value1, element2; param1 = value1, element3");
+        BufferedHeader header = new BufferedHeader(buf);
         HeaderElement[] elements = header.getElements();
         assertNotNull(elements);
         assertEquals(3, elements.length);
@@ -87,22 +80,21 @@ public class TestHeader extends TestCase {
         assertEquals("element3", elements[2].getName());
         assertEquals(null, elements[2].getValue());
         assertEquals(1, elements[1].getParameters().length);
-
-        header = new BasicHeader("name", null);
-        elements = header.getElements();
-        assertNotNull(elements);
-        assertEquals(0, elements.length);
     }
 
     public void testCloning() throws Exception {
-        BasicHeader orig = new BasicHeader("name1", "value1");
-        BasicHeader clone = (BasicHeader) orig.clone();
+        CharArrayBuffer buf = new CharArrayBuffer(32);
+        buf.append("name: value");
+        BufferedHeader orig = new BufferedHeader(buf);
+        BufferedHeader clone = (BufferedHeader) orig.clone();
         assertEquals(orig.getName(), clone.getName());
         assertEquals(orig.getValue(), clone.getValue());
     }
 
     public void testSerialization() throws Exception {
-        BasicHeader orig = new BasicHeader("name1", "value1");
+        CharArrayBuffer buf = new CharArrayBuffer(32);
+        buf.append("name: value");
+        BufferedHeader orig = new BufferedHeader(buf);
         ByteArrayOutputStream outbuffer = new ByteArrayOutputStream();
         ObjectOutputStream outstream = new ObjectOutputStream(outbuffer);
         outstream.writeObject(orig);
@@ -110,7 +102,7 @@ public class TestHeader extends TestCase {
         byte[] raw = outbuffer.toByteArray();
         ByteArrayInputStream inbuffer = new ByteArrayInputStream(raw);
         ObjectInputStream instream = new ObjectInputStream(inbuffer);
-        BasicHeader clone = (BasicHeader) instream.readObject();
+        BufferedHeader clone = (BufferedHeader) instream.readObject();
         assertEquals(orig.getName(), clone.getName());
         assertEquals(orig.getValue(), clone.getValue());
     }

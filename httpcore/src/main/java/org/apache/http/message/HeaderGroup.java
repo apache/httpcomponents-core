@@ -27,6 +27,7 @@
 
 package org.apache.http.message;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
@@ -43,7 +44,9 @@ import org.apache.http.util.CharArrayBuffer;
  *
  * @since 4.0
  */
-public class HeaderGroup implements Cloneable {
+public class HeaderGroup implements Cloneable, Serializable {
+
+    private static final long serialVersionUID = 2608834160639271617L;
 
     /** The list of headers for this group, in the order in which they were added */
     private final List headers;

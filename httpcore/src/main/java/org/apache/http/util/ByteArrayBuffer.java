@@ -27,12 +27,16 @@
 
 package org.apache.http.util;
 
+import java.io.Serializable;
+
 /**
  * A resizable byte array.
  *
  * @since 4.0
  */
-public final class ByteArrayBuffer  {
+public final class ByteArrayBuffer implements Serializable {
+
+    private static final long serialVersionUID = 4359112959524048036L;
 
     private byte[] buffer;
     private int len;
