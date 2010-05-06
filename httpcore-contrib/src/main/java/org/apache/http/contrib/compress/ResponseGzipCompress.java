@@ -31,6 +31,7 @@ import java.io.IOException;
 
 import org.apache.http.Header;
 import org.apache.http.HeaderElement;
+import org.apache.http.HttpEntity;
 import org.apache.http.HttpException;
 import org.apache.http.HttpRequest;
 import org.apache.http.HttpResponse;
@@ -54,18 +55,19 @@ public class ResponseGzipCompress implements HttpResponseInterceptor {
         if (context == null) {
             throw new IllegalArgumentException("HTTP context may not be null");
         }
-        HttpRequest request = (HttpRequest)
-            context.getAttribute(ExecutionContext.HTTP_REQUEST);
-        Header aeheader = request.getFirstHeader(ACCEPT_ENCODING);
-        if (aeheader != null) {
-            HeaderElement[] codecs = aeheader.getElements();
-            for (int i = 0; i < codecs.length; i++) {
-                if (codecs[i].getName().equalsIgnoreCase(GZIP_CODEC)) {
-                    response.setEntity(new GzipCompressingEntity(response.getEntity()));
-                    return;
+        HttpEntity entity = response.getEntity();
+        if (entity != null) {
+            HttpRequest request = (HttpRequest) context.getAttribute(ExecutionContext.HTTP_REQUEST);
+            Header aeheader = request.getFirstHeader(ACCEPT_ENCODING);
+            if (aeheader != null) {
+                HeaderElement[] codecs = aeheader.getElements();
+                for (int i = 0; i < codecs.length; i++) {
+                    if (codecs[i].getName().equalsIgnoreCase(GZIP_CODEC)) {
+                        response.setEntity(new GzipCompressingEntity(entity));
+                        return;
+                    }
                 }
             }
         }
     }
-
 }
