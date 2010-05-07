@@ -1,5 +1,8 @@
 Changes since 4.1-BETA1 
 
+* [HTTPCORE-226] Improved compatibility of NIO components with Google Android.
+  Contributed by Oleg Kalnichevski <olegk at apache.org>
+
 * ByteArrayBuffer, CharArrayBuffer, BasicHeader, BufferedHeader, HeaderGroup made Serializable.
   Contributed by Oleg Kalnichevski <olegk at apache.org>
 

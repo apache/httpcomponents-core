@@ -364,7 +364,7 @@ public abstract class AbstractIOReactor implements IOReactor {
             try {
                 channel = entry.getChannel();
                 channel.configureBlocking(false);
-                key = channel.register(this.selector, 0);
+                key = channel.register(this.selector, SelectionKey.OP_READ);
             } catch (ClosedChannelException ex) {
                 SessionRequestImpl sessionRequest = entry.getSessionRequest();
                 if (sessionRequest != null) {

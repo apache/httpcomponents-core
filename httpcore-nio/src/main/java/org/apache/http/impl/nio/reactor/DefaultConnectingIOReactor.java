@@ -247,21 +247,16 @@ public class DefaultConnectingIOReactor extends AbstractMultiworkerIOReactor
                 return;
             }
 
+            SessionRequestHandle requestHandle = new SessionRequestHandle(request);
             SelectionKey key;
             try {
-                key = socketChannel.register(this.selector, 0);
+                key = socketChannel.register(this.selector, SelectionKey.OP_CONNECT, requestHandle);
                 request.setKey(key);
+            } catch (CancelledKeyException ex) {
+                // Ignore cancelled keys
             } catch (IOException ex) {
                 throw new IOReactorException("Failure registering channel " +
                         "with the selector", ex);
-            }
-
-            SessionRequestHandle requestHandle = new SessionRequestHandle(request);
-            try {
-                key.attach(requestHandle);
-                key.interestOps(SelectionKey.OP_CONNECT);
-            } catch (CancelledKeyException ex) {
-                // Ignore cancelled keys
             }
         }
     }
