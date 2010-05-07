@@ -54,7 +54,8 @@ public class DefaultHttpRequestFactory implements HttpRequestFactory {
         "HEAD",
         "OPTIONS",
         "DELETE",
-        "TRACE"
+        "TRACE",
+        "CONNECT"
     };
 
 
