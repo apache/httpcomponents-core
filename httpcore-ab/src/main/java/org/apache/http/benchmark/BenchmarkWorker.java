@@ -181,9 +181,7 @@ public class BenchmarkWorker implements Runnable {
                                 try {
                                     identityStore.load(instream, identityStorePassword.toCharArray());
                                 } finally {
-                                    if (instream != null) {
-                                        try { instream.close(); } catch (IOException ignore) {}
-                                    }
+                                    try { instream.close(); } catch (IOException ignore) {}
                                 }
                                 KeyManagerFactory kmf = KeyManagerFactory.getInstance(
                                     KeyManagerFactory.getDefaultAlgorithm());
@@ -243,19 +241,17 @@ public class BenchmarkWorker implements Runnable {
                         charset = HTTP.DEFAULT_CONTENT_CHARSET;
                     }
                     long contentlen = 0;
-                    if (entity != null) {
-                        InputStream instream = entity.getContent();
-                        int l = 0;
-                        while ((l = instream.read(this.buffer)) != -1) {
-                            stats.incTotalBytesRecv(l);
-                            contentlen += l;
-                            if (this.verbosity >= 4) {
-                                String s = new String(this.buffer, 0, l, charset);
-                                System.out.print(s);
-                            }
+                    InputStream instream = entity.getContent();
+                    int l = 0;
+                    while ((l = instream.read(this.buffer)) != -1) {
+                        stats.incTotalBytesRecv(l);
+                        contentlen += l;
+                        if (this.verbosity >= 4) {
+                            String s = new String(this.buffer, 0, l, charset);
+                            System.out.print(s);
                         }
-                        instream.close();
                     }
+                    instream.close();
                     stats.setContentLength(contentlen);
                 }
 
