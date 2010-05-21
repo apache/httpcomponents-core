@@ -41,14 +41,14 @@ import org.apache.http.nio.reactor.IOReactorStatus;
 import org.apache.http.nio.reactor.SessionRequest;
 import org.apache.http.params.HttpParams;
 
-public class TestHttpClient {
+public class TestHttpClientNio {
 
     private final DefaultConnectingIOReactor ioReactor;
     private final HttpParams params;
 
     private volatile IOReactorThread thread;
 
-    public TestHttpClient(final HttpParams params) throws IOException {
+    public TestHttpClientNio(final HttpParams params) throws IOException {
         super();
         this.ioReactor = new DefaultConnectingIOReactor(2, params);
         this.params = params;

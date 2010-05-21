@@ -45,7 +45,7 @@ import org.apache.http.params.HttpParams;
  * Trivial test server based on HttpCore NIO
  *
  */
-public class TestHttpServer {
+public class TestHttpServerNio {
 
     private final DefaultListeningIOReactor ioReactor;
     private final HttpParams params;
@@ -53,7 +53,7 @@ public class TestHttpServer {
     private volatile IOReactorThread thread;
     private ListenerEndpoint endpoint;
 
-    public TestHttpServer(final HttpParams params) throws IOException {
+    public TestHttpServerNio(final HttpParams params) throws IOException {
         super();
         this.ioReactor = new DefaultListeningIOReactor(2, params);
         this.params = params;

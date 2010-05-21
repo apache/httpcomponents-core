@@ -59,8 +59,8 @@ import org.apache.http.impl.nio.reactor.ExceptionEvent;
 import org.apache.http.message.BasicHttpRequest;
 import org.apache.http.mockup.SimpleEventListener;
 import org.apache.http.mockup.SimpleNHttpRequestHandlerResolver;
-import org.apache.http.mockup.TestHttpClient;
-import org.apache.http.mockup.TestHttpServer;
+import org.apache.http.mockup.TestHttpClientNio;
+import org.apache.http.mockup.TestHttpServerNio;
 import org.apache.http.nio.ContentDecoder;
 import org.apache.http.nio.ContentEncoder;
 import org.apache.http.nio.IOControl;
@@ -185,7 +185,7 @@ public class TestTruncatedChunks extends TestCase {
 
     }
 
-    static class CustomTestHttpServer extends TestHttpServer {
+    static class CustomTestHttpServer extends TestHttpServerNio {
 
         public CustomTestHttpServer(final HttpParams params) throws IOException {
             super(params);
@@ -200,7 +200,7 @@ public class TestTruncatedChunks extends TestCase {
     }
 
     protected CustomTestHttpServer server;
-    protected TestHttpClient client;
+    protected TestHttpClientNio client;
 
     @Override
     protected void setUp() throws Exception {
@@ -223,7 +223,7 @@ public class TestTruncatedChunks extends TestCase {
             .setBooleanParameter(CoreConnectionPNames.TCP_NODELAY, true)
             .setParameter(CoreProtocolPNames.USER_AGENT, "TEST-CLIENT/1.1");
 
-        this.client = new TestHttpClient(clientParams);
+        this.client = new TestHttpClientNio(clientParams);
     }
 
     @Override
