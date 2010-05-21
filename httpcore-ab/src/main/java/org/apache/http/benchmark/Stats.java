@@ -67,7 +67,7 @@ public class Stats {
     /**
      * Total execution time measured in nano seconds
      *
-     * @return
+     * @return duration in nanoseconds
      */
     public long getDuration() {
         // we are using System.nanoTime() and the return values could be negative
