@@ -43,7 +43,6 @@ public class InputStreamEntity extends AbstractHttpEntity {
 
     private final InputStream content;
     private final long length;
-    private boolean consumed = false;
 
     public InputStreamEntity(final InputStream instream, long length) {
         super();
@@ -90,20 +89,16 @@ public class InputStreamEntity extends AbstractHttpEntity {
                 remaining -= l;
             }
         }
-        this.consumed = true;
     }
 
-    // non-javadoc, see interface HttpEntity
     public boolean isStreaming() {
-        return !this.consumed;
+        return true;
     }
 
-    // non-javadoc, see interface HttpEntity
     public void consumeContent() throws IOException {
-        this.consumed = true;
         // If the input stream is from a connection, closing it will read to
         // the end of the content. Otherwise, we don't care what it does.
         this.content.close();
     }
 
-} // class InputStreamEntity
+}
