@@ -1,5 +1,8 @@
 Changes since 4.1-BETA1 
 
+* [HTTPCORE-227] Fixed incorrect request / response count by non-blocking connections.
+  Contributed by Harold Lee <harold at hotelling.net>
+
 * [HTTPCORE-226] Improved compatibility of NIO components with Google Android.
   Contributed by Oleg Kalnichevski <olegk at apache.org>
 

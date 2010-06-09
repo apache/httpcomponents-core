@@ -243,7 +243,7 @@ public class DefaultNHttpServerConnection
         this.hasBufferedOutput = this.outbuf.hasData();
 
         if (response.getStatusLine().getStatusCode() >= 200) {
-            this.connMetrics.incrementRequestCount();
+            this.connMetrics.incrementResponseCount();
             if (response.getEntity() != null) {
                 this.response = response;
                 prepareEncoder(response);
