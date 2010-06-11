@@ -1008,4 +1008,107 @@ public class TestAsyncNHttpHandlers extends HttpCoreNIOTestBase {
             }
         }
     }
+
+    /**
+     * This test case executes a series of simple (non-pipelined) POST requests
+     * with zero-length entities on the client side.
+     */
+    public void testHttpPostWithZeroLengthEntities() throws Exception {
+        NHttpRequestExecutionHandler requestExecutionHandler = new TestRequestExecutionHandler() {
+
+            @Override
+            protected HttpRequest generateRequest(TestJob testjob) {
+                String s = testjob.getPattern() + "x" + testjob.getCount();
+                HttpEntityEnclosingRequest r = new BasicHttpEntityEnclosingRequest("POST", s);
+                NByteArrayEntity entity = new NByteArrayEntity(new byte[] {} );
+                entity.setChunked(false);
+                r.setEntity(entity);
+                return r;
+            }
+
+        };
+
+        int connNo = 3;
+        int reqNo = 20;
+        TestJob[] jobs = new TestJob[connNo * reqNo];
+        for (int i = 0; i < jobs.length; i++) {
+            jobs[i] = new TestJob();
+        }
+        Queue<TestJob> queue = new ConcurrentLinkedQueue<TestJob>();
+        for (int i = 0; i < jobs.length; i++) {
+            queue.add(jobs[i]);
+        }
+
+        HttpProcessor serverHttpProc = new ImmutableHttpProcessor(new HttpResponseInterceptor[] {
+                new ResponseDate(),
+                new ResponseServer(),
+                new ResponseContent(),
+                new ResponseConnControl()
+        });
+
+        AsyncNHttpServiceHandler serviceHandler = new AsyncNHttpServiceHandler(
+                serverHttpProc,
+                new DefaultHttpResponseFactory(),
+                new DefaultConnectionReuseStrategy(),
+                this.server.getParams());
+
+        serviceHandler.setHandlerResolver(
+                new SimpleNHttpRequestHandlerResolver(new TestRequestHandler()));
+        serviceHandler.setEventListener(
+                new SimpleEventListener());
+
+        HttpProcessor clientHttpProc = new ImmutableHttpProcessor(new HttpRequestInterceptor[] {
+                new RequestContent(),
+                new RequestTargetHost(),
+                new RequestConnControl(),
+                new RequestUserAgent(),
+                new RequestExpectContinue()});
+
+        AsyncNHttpClientHandler clientHandler = new AsyncNHttpClientHandler(
+                clientHttpProc,
+                requestExecutionHandler,
+                new DefaultConnectionReuseStrategy(),
+                this.client.getParams());
+
+        clientHandler.setEventListener(new SimpleEventListener());
+
+        this.server.start(serviceHandler);
+        this.client.start(clientHandler);
+
+        ListenerEndpoint endpoint = this.server.getListenerEndpoint();
+        endpoint.waitFor();
+        InetSocketAddress serverAddress = (InetSocketAddress) endpoint.getAddress();
+
+        assertEquals("Test server status", IOReactorStatus.ACTIVE, this.server.getStatus());
+
+        Queue<SessionRequest> connRequests = new LinkedList<SessionRequest>();
+        for (int i = 0; i < connNo; i++) {
+            SessionRequest sessionRequest = this.client.openConnection(
+                    new InetSocketAddress("localhost", serverAddress.getPort()),
+                    queue);
+            connRequests.add(sessionRequest);
+        }
+
+        while (!connRequests.isEmpty()) {
+            SessionRequest sessionRequest = connRequests.remove();
+            sessionRequest.waitFor();
+            if (sessionRequest.getException() != null) {
+                throw sessionRequest.getException();
+            }
+            assertNotNull(sessionRequest.getSession());
+        }
+
+        assertEquals("Test client status", IOReactorStatus.ACTIVE, this.client.getStatus());
+
+        for (int i = 0; i < jobs.length; i++) {
+            TestJob testjob = jobs[i];
+            testjob.waitFor();
+            if (testjob.isSuccessful()) {
+                assertEquals(HttpStatus.SC_OK, testjob.getStatusCode());
+                assertEquals("", testjob.getResult());
+            } else {
+                fail(testjob.getFailureMessage());
+            }
+        }
+    }
 }
