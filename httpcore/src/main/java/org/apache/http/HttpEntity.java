@@ -121,21 +121,25 @@ public interface HttpEntity {
     Header getContentEncoding();
 
     /**
-     * Creates a new InputStream object of the entity. It is an interface
-     * violation to return the same {@link InputStream} object more than
-     * once. Entities that are not {@link #isRepeatable repeatable}
-     * should throw an exception if this method is called multiple times.
+     * Returns a content stream of the entity. 
+     * {@link #isRepeatable Repeatable} entities are expected
+     * to create a new instance of {@link InputStream} for each invocation 
+     * of this method and therefore can be consumed multiple times. 
+     * Entities that are not {@link #isRepeatable repeatable} are expected 
+     * to return the same {@link InputStream} instance and therefore 
+     * may not be consumed more than once.
      * <p>
      * IMPORTANT: Please note all entity implementations must ensure that
      * all allocated resources are properly deallocated after
      * the {@link InputStream#close()} method is invoked.
      *
-     * @return a new input stream that returns the entity data.
+     * @return content stream of the entity.
      *
      * @throws IOException if the stream could not be created
      * @throws IllegalStateException
-     *  if this entity is not repeatable and the stream
-     *  has already been obtained previously
+     *  if content stream cannot be created.
+     *  
+     * @see #isRepeatable()
      */
     InputStream getContent() throws IOException, IllegalStateException;
 
