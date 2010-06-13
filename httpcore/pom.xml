@@ -62,16 +62,12 @@
     <httpcore.compiler.javac />
     <httpcore.surefire.java />
     <httpcore.surefire.version>2.4.3</httpcore.surefire.version>
-    <!-- This property can be omitted if/when the parent POM is updated -->
-    <junit.version>4.8.1</junit.version>
   </properties>
 
   <dependencies>
     <dependency>
       <groupId>junit</groupId>
       <artifactId>junit</artifactId>
-      <version>${junit.version}</version>
-      <scope>test</scope>
     </dependency>
   </dependencies>
 
