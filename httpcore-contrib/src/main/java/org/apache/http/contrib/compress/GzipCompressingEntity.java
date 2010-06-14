@@ -52,19 +52,23 @@ public class GzipCompressingEntity extends HttpEntityWrapper {
         super(entity);
     }
 
+    @Override
     public Header getContentEncoding() {
         return new BasicHeader(HTTP.CONTENT_ENCODING, GZIP_CODEC);
     }
 
+    @Override
     public long getContentLength() {
         return -1;
     }
 
+    @Override
     public boolean isChunked() {
         // force content chunking
         return true;
     }
 
+    @Override
     public void writeTo(final OutputStream outstream) throws IOException {
         if (outstream == null) {
             throw new IllegalArgumentException("Output stream may not be null");

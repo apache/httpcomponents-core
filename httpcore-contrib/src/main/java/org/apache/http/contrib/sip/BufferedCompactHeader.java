@@ -149,10 +149,12 @@ public class BufferedCompactHeader
         return this.buffer;
     }
 
+    @Override
     public String toString() {
         return this.buffer.toString();
     }
 
+    @Override
     public Object clone() throws CloneNotSupportedException {
         // buffer is considered immutable
         // no need to make a copy of it

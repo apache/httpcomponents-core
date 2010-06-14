@@ -65,6 +65,7 @@ public class BasicSipLineParser extends BasicLineParser {
 
 
     // non-javadoc, see interface LineParser
+    @Override
     public Header parseHeader(CharArrayBuffer buffer)
         throws ParseException {
 

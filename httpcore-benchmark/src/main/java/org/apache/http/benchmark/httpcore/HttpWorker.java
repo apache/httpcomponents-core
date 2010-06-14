@@ -60,6 +60,7 @@ class HttpWorker extends Thread {
         return this.exception;
     }
 
+    @Override
     public void run() {
         this.workercallback.started(this);
         try {
