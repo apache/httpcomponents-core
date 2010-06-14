@@ -55,7 +55,7 @@ import org.apache.http.protocol.RequestExpectContinue;
 import org.apache.http.protocol.RequestTargetHost;
 import org.apache.http.protocol.RequestUserAgent;
 
-public class TestHttpClient {
+public class HttpClient {
 
     private final HttpParams params;
     private final HttpProcessor httpproc;
@@ -63,7 +63,7 @@ public class TestHttpClient {
     private final ConnectionReuseStrategy connStrategy;
     private final HttpContext context;
 
-    public TestHttpClient() {
+    public HttpClient() {
         super();
         this.params = new SyncBasicHttpParams();
         this.params

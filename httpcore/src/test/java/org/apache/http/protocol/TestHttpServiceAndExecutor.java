@@ -55,8 +55,8 @@ import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.DefaultHttpClientConnection;
 import org.apache.http.message.BasicHttpEntityEnclosingRequest;
 import org.apache.http.message.BasicHttpRequest;
-import org.apache.http.mockup.TestHttpClient;
-import org.apache.http.mockup.TestHttpServer;
+import org.apache.http.mockup.HttpClient;
+import org.apache.http.mockup.HttpServer;
 import org.apache.http.params.CoreProtocolPNames;
 import org.apache.http.util.EncodingUtils;
 import org.apache.http.util.EntityUtils;
@@ -72,12 +72,12 @@ public class TestHttpServiceAndExecutor extends TestCase {
 
     // ------------------------------------------------------- TestCase Methods
 
-    private TestHttpServer server;
-    private TestHttpClient client;
+    private HttpServer server;
+    private HttpClient client;
 
     protected void setUp() throws Exception {
-        this.server = new TestHttpServer();
-        this.client = new TestHttpClient();
+        this.server = new HttpServer();
+        this.client = new HttpClient();
     }
 
     protected void tearDown() throws Exception {

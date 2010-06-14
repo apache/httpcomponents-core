@@ -122,12 +122,6 @@
         <version>${httpcore.surefire.version}</version>
         <configuration>
           <jvm>${httpcore.surefire.java}</jvm>
-          <excludes>
-            <exclude>**/*$*</exclude><!-- Re-specify the default, i.e. inner classes -->
-            <!-- These classes don't have any tests. They are ignored by JUnit 3.8, but not by JUnit 4.x -->
-            <exclude>org/apache/http/mockup/TestHttpServer.java</exclude>
-            <exclude>org/apache/http/mockup/TestHttpClient.java</exclude>
-          </excludes>
         </configuration>
       </plugin>
       <plugin>

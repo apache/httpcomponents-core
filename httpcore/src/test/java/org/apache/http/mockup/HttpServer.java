@@ -59,7 +59,7 @@ import org.apache.http.protocol.ResponseContent;
 import org.apache.http.protocol.ResponseDate;
 import org.apache.http.protocol.ResponseServer;
 
-public class TestHttpServer {
+public class HttpServer {
 
     private final HttpParams params;
     private final HttpProcessor httpproc;
@@ -73,7 +73,7 @@ public class TestHttpServer {
     private Thread listener;
     private volatile boolean shutdown;
 
-    public TestHttpServer() throws IOException {
+    public HttpServer() throws IOException {
         super();
         this.params = new SyncBasicHttpParams();
         this.params
