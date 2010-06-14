@@ -88,11 +88,11 @@ public class TestAsyncNHttpHandlers extends HttpCoreNIOTestBase {
             final NHttpRequestExecutionHandler requestExecutionHandler) throws Exception {
         int connNo = 3;
         int reqNo = 20;
-        TestJob[] jobs = new TestJob[connNo * reqNo];
+        Job[] jobs = new Job[connNo * reqNo];
         for (int i = 0; i < jobs.length; i++) {
-            jobs[i] = new TestJob();
+            jobs[i] = new Job();
         }
-        Queue<TestJob> queue = new ConcurrentLinkedQueue<TestJob>();
+        Queue<Job> queue = new ConcurrentLinkedQueue<Job>();
         for (int i = 0; i < jobs.length; i++) {
             queue.add(jobs[i]);
         }
@@ -160,7 +160,7 @@ public class TestAsyncNHttpHandlers extends HttpCoreNIOTestBase {
         assertEquals("Test client status", IOReactorStatus.ACTIVE, this.client.getStatus());
 
         for (int i = 0; i < jobs.length; i++) {
-            TestJob testjob = jobs[i];
+            Job testjob = jobs[i];
             testjob.waitFor();
             if (testjob.isSuccessful()) {
                 assertEquals(HttpStatus.SC_OK, testjob.getStatusCode());
@@ -176,16 +176,16 @@ public class TestAsyncNHttpHandlers extends HttpCoreNIOTestBase {
      * over multiple connections. This uses non-blocking output entities.
      */
     public void testHttpGets() throws Exception {
-        NHttpRequestExecutionHandler requestExecutionHandler = new TestRequestExecutionHandler() {
+        NHttpRequestExecutionHandler requestExecutionHandler = new RequestExecutionHandler() {
 
             @Override
-            protected HttpRequest generateRequest(TestJob testjob) {
+            protected HttpRequest generateRequest(Job testjob) {
                 String s = testjob.getPattern() + "x" + testjob.getCount();
                 return new BasicHttpRequest("GET", s);
             }
 
         };
-        executeStandardTest(new TestRequestHandler(), requestExecutionHandler);
+        executeStandardTest(new RequestHandler(), requestExecutionHandler);
     }
 
     /**
@@ -194,10 +194,10 @@ public class TestAsyncNHttpHandlers extends HttpCoreNIOTestBase {
      * It uses purely asynchronous handlers.
      */
     public void testHttpPostsWithContentLength() throws Exception {
-        NHttpRequestExecutionHandler requestExecutionHandler = new TestRequestExecutionHandler() {
+        NHttpRequestExecutionHandler requestExecutionHandler = new RequestExecutionHandler() {
 
             @Override
-            protected HttpRequest generateRequest(TestJob testjob) {
+            protected HttpRequest generateRequest(Job testjob) {
                 String s = testjob.getPattern() + "x" + testjob.getCount();
                 HttpEntityEnclosingRequest r = new BasicHttpEntityEnclosingRequest("POST", s);
                 NStringEntity entity = null;
@@ -211,7 +211,7 @@ public class TestAsyncNHttpHandlers extends HttpCoreNIOTestBase {
             }
 
         };
-        executeStandardTest(new TestRequestHandler(), requestExecutionHandler);
+        executeStandardTest(new RequestHandler(), requestExecutionHandler);
     }
 
     /**
@@ -220,10 +220,10 @@ public class TestAsyncNHttpHandlers extends HttpCoreNIOTestBase {
      * with nonblocking handlers & nonblocking entities.
      */
     public void testHttpPostsChunked() throws Exception {
-        NHttpRequestExecutionHandler requestExecutionHandler = new TestRequestExecutionHandler() {
+        NHttpRequestExecutionHandler requestExecutionHandler = new RequestExecutionHandler() {
 
             @Override
-            protected HttpRequest generateRequest(TestJob testjob) {
+            protected HttpRequest generateRequest(Job testjob) {
                 String s = testjob.getPattern() + "x" + testjob.getCount();
                 HttpEntityEnclosingRequest r = new BasicHttpEntityEnclosingRequest("POST", s);
                 NStringEntity entity = null;
@@ -237,7 +237,7 @@ public class TestAsyncNHttpHandlers extends HttpCoreNIOTestBase {
             }
 
         };
-        executeStandardTest(new TestRequestHandler(), requestExecutionHandler);
+        executeStandardTest(new RequestHandler(), requestExecutionHandler);
     }
 
     /**
@@ -246,10 +246,10 @@ public class TestAsyncNHttpHandlers extends HttpCoreNIOTestBase {
      * handlers & entities.
      */
     public void testHttpPostsHTTP10() throws Exception {
-        NHttpRequestExecutionHandler requestExecutionHandler = new TestRequestExecutionHandler() {
+        NHttpRequestExecutionHandler requestExecutionHandler = new RequestExecutionHandler() {
 
             @Override
-            protected HttpRequest generateRequest(TestJob testjob) {
+            protected HttpRequest generateRequest(Job testjob) {
                 String s = testjob.getPattern() + "x" + testjob.getCount();
                 HttpEntityEnclosingRequest r = new BasicHttpEntityEnclosingRequest("POST", s,
                         HttpVersion.HTTP_1_0);
@@ -263,7 +263,7 @@ public class TestAsyncNHttpHandlers extends HttpCoreNIOTestBase {
             }
 
         };
-        executeStandardTest(new TestRequestHandler(), requestExecutionHandler);
+        executeStandardTest(new RequestHandler(), requestExecutionHandler);
     }
 
     /**
@@ -272,10 +272,10 @@ public class TestAsyncNHttpHandlers extends HttpCoreNIOTestBase {
      * uses nonblocking handlers & entities.
      */
     public void testHttpPostsWithExpectContinue() throws Exception {
-        NHttpRequestExecutionHandler requestExecutionHandler = new TestRequestExecutionHandler() {
+        NHttpRequestExecutionHandler requestExecutionHandler = new RequestExecutionHandler() {
 
             @Override
-            protected HttpRequest generateRequest(TestJob testjob) {
+            protected HttpRequest generateRequest(Job testjob) {
                 String s = testjob.getPattern() + "x" + testjob.getCount();
                 HttpEntityEnclosingRequest r = new BasicHttpEntityEnclosingRequest("POST", s);
                 NStringEntity entity = null;
@@ -289,7 +289,7 @@ public class TestAsyncNHttpHandlers extends HttpCoreNIOTestBase {
             }
 
         };
-        executeStandardTest(new TestRequestHandler(), requestExecutionHandler);
+        executeStandardTest(new RequestHandler(), requestExecutionHandler);
     }
 
     /**
@@ -298,11 +298,11 @@ public class TestAsyncNHttpHandlers extends HttpCoreNIOTestBase {
      * This test uses nonblocking entities.
      */
     public void testHttpPostsWithExpectationVerification() throws Exception {
-        TestJob[] jobs = new TestJob[3];
-        jobs[0] = new TestJob("AAAAA", 10);
-        jobs[1] = new TestJob("AAAAA", 10);
-        jobs[2] = new TestJob("BBBBB", 20);
-        Queue<TestJob> queue = new ConcurrentLinkedQueue<TestJob>();
+        Job[] jobs = new Job[3];
+        jobs[0] = new Job("AAAAA", 10);
+        jobs[1] = new Job("AAAAA", 10);
+        jobs[2] = new Job("BBBBB", 20);
+        Queue<Job> queue = new ConcurrentLinkedQueue<Job>();
         for (int i = 0; i < jobs.length; i++) {
             queue.add(jobs[i]);
         }
@@ -324,10 +324,10 @@ public class TestAsyncNHttpHandlers extends HttpCoreNIOTestBase {
 
         };
 
-        NHttpRequestExecutionHandler requestExecutionHandler = new TestRequestExecutionHandler() {
+        NHttpRequestExecutionHandler requestExecutionHandler = new RequestExecutionHandler() {
 
             @Override
-            protected HttpRequest generateRequest(TestJob testjob) {
+            protected HttpRequest generateRequest(Job testjob) {
                 String s = testjob.getPattern() + "x" + testjob.getCount();
                 HttpEntityEnclosingRequest r = new BasicHttpEntityEnclosingRequest("POST", s);
                 NStringEntity entity = null;
@@ -356,7 +356,7 @@ public class TestAsyncNHttpHandlers extends HttpCoreNIOTestBase {
                 this.server.getParams());
 
         serviceHandler.setHandlerResolver(
-                new SimpleNHttpRequestHandlerResolver(new TestRequestHandler()));
+                new SimpleNHttpRequestHandlerResolver(new RequestHandler()));
         serviceHandler.setExpectationVerifier(
                 expectationVerifier);
         serviceHandler.setEventListener(
@@ -399,7 +399,7 @@ public class TestAsyncNHttpHandlers extends HttpCoreNIOTestBase {
         assertEquals("Test client status", IOReactorStatus.ACTIVE, this.client.getStatus());
 
         for (int i = 0; i < 2; i++) {
-            TestJob testjob = jobs[i];
+            Job testjob = jobs[i];
             testjob.waitFor();
             if (testjob.isSuccessful()) {
                 assertEquals(testjob.getExpected(), testjob.getResult());
@@ -407,7 +407,7 @@ public class TestAsyncNHttpHandlers extends HttpCoreNIOTestBase {
                 fail(testjob.getFailureMessage());
             }
         }
-        TestJob failedExpectation = jobs[2];
+        Job failedExpectation = jobs[2];
         failedExpectation.waitFor();
         assertEquals(HttpStatus.SC_EXPECTATION_FAILED, failedExpectation.getStatusCode());
     }
@@ -419,19 +419,19 @@ public class TestAsyncNHttpHandlers extends HttpCoreNIOTestBase {
     public void testHttpHeads() throws Exception {
         int connNo = 3;
         int reqNo = 20;
-        TestJob[] jobs = new TestJob[connNo * reqNo];
+        Job[] jobs = new Job[connNo * reqNo];
         for (int i = 0; i < jobs.length; i++) {
-            jobs[i] = new TestJob();
+            jobs[i] = new Job();
         }
-        Queue<TestJob> queue = new ConcurrentLinkedQueue<TestJob>();
+        Queue<Job> queue = new ConcurrentLinkedQueue<Job>();
         for (int i = 0; i < jobs.length; i++) {
             queue.add(jobs[i]);
         }
 
-        NHttpRequestExecutionHandler requestExecutionHandler = new TestRequestExecutionHandler() {
+        NHttpRequestExecutionHandler requestExecutionHandler = new RequestExecutionHandler() {
 
             @Override
-            protected HttpRequest generateRequest(TestJob testjob) {
+            protected HttpRequest generateRequest(Job testjob) {
                 String s = testjob.getPattern() + "x" + testjob.getCount();
                 return new BasicHttpRequest("HEAD", s);
             }
@@ -452,7 +452,7 @@ public class TestAsyncNHttpHandlers extends HttpCoreNIOTestBase {
                 this.server.getParams());
 
         serviceHandler.setHandlerResolver(
-                new SimpleNHttpRequestHandlerResolver(new TestRequestHandler()));
+                new SimpleNHttpRequestHandlerResolver(new RequestHandler()));
         serviceHandler.setEventListener(
                 new SimpleEventListener());
 
@@ -500,7 +500,7 @@ public class TestAsyncNHttpHandlers extends HttpCoreNIOTestBase {
         assertEquals("Test client status", IOReactorStatus.ACTIVE, this.client.getStatus());
 
         for (int i = 0; i < jobs.length; i++) {
-            TestJob testjob = jobs[i];
+            Job testjob = jobs[i];
             testjob.waitFor();
             if (testjob.getFailureMessage() != null) {
                 fail(testjob.getFailureMessage());
@@ -561,10 +561,10 @@ public class TestAsyncNHttpHandlers extends HttpCoreNIOTestBase {
 
         };
 
-        NHttpRequestExecutionHandler requestExecutionHandler = new TestRequestExecutionHandler() {
+        NHttpRequestExecutionHandler requestExecutionHandler = new RequestExecutionHandler() {
 
             @Override
-            protected HttpRequest generateRequest(TestJob testjob) {
+            protected HttpRequest generateRequest(Job testjob) {
                 String s = testjob.getPattern() + "x" + testjob.getCount();
                 return new BasicHttpRequest("GET", s);
             }
@@ -596,10 +596,10 @@ public class TestAsyncNHttpHandlers extends HttpCoreNIOTestBase {
 
         };
 
-        NHttpRequestExecutionHandler requestExecutionHandler = new TestRequestExecutionHandler() {
+        NHttpRequestExecutionHandler requestExecutionHandler = new RequestExecutionHandler() {
 
             @Override
-            protected HttpRequest generateRequest(TestJob testjob) {
+            protected HttpRequest generateRequest(Job testjob) {
                 String s = testjob.getPattern() + "x" + testjob.getCount();
                 return new BasicHttpRequest("GET", s);
             }
@@ -608,11 +608,11 @@ public class TestAsyncNHttpHandlers extends HttpCoreNIOTestBase {
 
         int connNo = 3;
         int reqNo = 20;
-        TestJob[] jobs = new TestJob[connNo * reqNo];
+        Job[] jobs = new Job[connNo * reqNo];
         for (int i = 0; i < jobs.length; i++) {
-            jobs[i] = new TestJob();
+            jobs[i] = new Job();
         }
-        Queue<TestJob> queue = new ConcurrentLinkedQueue<TestJob>();
+        Queue<Job> queue = new ConcurrentLinkedQueue<Job>();
         for (int i = 0; i < jobs.length; i++) {
             queue.add(jobs[i]);
         }
@@ -679,7 +679,7 @@ public class TestAsyncNHttpHandlers extends HttpCoreNIOTestBase {
         assertEquals("Test client status", IOReactorStatus.ACTIVE, this.client.getStatus());
 
         for (int i = 0; i < jobs.length; i++) {
-            TestJob testjob = jobs[i];
+            Job testjob = jobs[i];
             testjob.waitFor();
             if (testjob.isSuccessful()) {
                 assertEquals(HttpStatus.SC_INTERNAL_SERVER_ERROR, testjob.getStatusCode());
@@ -717,10 +717,10 @@ public class TestAsyncNHttpHandlers extends HttpCoreNIOTestBase {
 
         };
 
-        NHttpRequestExecutionHandler requestExecutionHandler = new TestRequestExecutionHandler() {
+        NHttpRequestExecutionHandler requestExecutionHandler = new RequestExecutionHandler() {
 
             @Override
-            protected HttpRequest generateRequest(TestJob testjob) {
+            protected HttpRequest generateRequest(Job testjob) {
                 String s = testjob.getPattern() + "x" + testjob.getCount();
                 return new BasicHttpRequest("GET", s);
             }
@@ -729,11 +729,11 @@ public class TestAsyncNHttpHandlers extends HttpCoreNIOTestBase {
 
         int connNo = 3;
         int reqNo = 20;
-        TestJob[] jobs = new TestJob[connNo * reqNo];
+        Job[] jobs = new Job[connNo * reqNo];
         for (int i = 0; i < jobs.length; i++) {
-            jobs[i] = new TestJob();
+            jobs[i] = new Job();
         }
-        Queue<TestJob> queue = new ConcurrentLinkedQueue<TestJob>();
+        Queue<Job> queue = new ConcurrentLinkedQueue<Job>();
         for (int i = 0; i < jobs.length; i++) {
             queue.add(jobs[i]);
         }
@@ -800,7 +800,7 @@ public class TestAsyncNHttpHandlers extends HttpCoreNIOTestBase {
         assertEquals("Test client status", IOReactorStatus.ACTIVE, this.client.getStatus());
 
         for (int i = 0; i < jobs.length; i++) {
-            TestJob testjob = jobs[i];
+            Job testjob = jobs[i];
             testjob.waitFor();
             if (testjob.isSuccessful()) {
                 assertEquals(HttpStatus.SC_INTERNAL_SERVER_ERROR, testjob.getStatusCode());
@@ -815,10 +815,10 @@ public class TestAsyncNHttpHandlers extends HttpCoreNIOTestBase {
      * This test makes sure that if no service handler is installed, things still work.
      */
     public void testNoServiceHandler() throws Exception {
-        NHttpRequestExecutionHandler requestExecutionHandler = new TestRequestExecutionHandler() {
+        NHttpRequestExecutionHandler requestExecutionHandler = new RequestExecutionHandler() {
 
             @Override
-            protected HttpRequest generateRequest(TestJob testjob) {
+            protected HttpRequest generateRequest(Job testjob) {
                 String s = testjob.getPattern() + "x" + testjob.getCount();
                 return new BasicHttpRequest("GET", s);
             }
@@ -826,11 +826,11 @@ public class TestAsyncNHttpHandlers extends HttpCoreNIOTestBase {
         };
 
         int connNo = 5;
-        TestJob[] jobs = new TestJob[connNo];
+        Job[] jobs = new Job[connNo];
         for (int i = 0; i < jobs.length; i++) {
-            jobs[i] = new TestJob();
+            jobs[i] = new Job();
         }
-        Queue<TestJob> queue = new ConcurrentLinkedQueue<TestJob>();
+        Queue<Job> queue = new ConcurrentLinkedQueue<Job>();
         for (int i = 0; i < jobs.length; i++) {
             queue.add(jobs[i]);
         }
@@ -895,7 +895,7 @@ public class TestAsyncNHttpHandlers extends HttpCoreNIOTestBase {
         assertEquals("Test client status", IOReactorStatus.ACTIVE, this.client.getStatus());
 
         for (int i = 0; i < jobs.length; i++) {
-            TestJob testjob = jobs[i];
+            Job testjob = jobs[i];
 
             testjob.waitFor();
             if (testjob.isSuccessful()) {
@@ -913,10 +913,10 @@ public class TestAsyncNHttpHandlers extends HttpCoreNIOTestBase {
      * and the server can read them.
      */
     public void testHttpPostWithNoEntities() throws Exception {
-        NHttpRequestExecutionHandler requestExecutionHandler = new TestRequestExecutionHandler() {
+        NHttpRequestExecutionHandler requestExecutionHandler = new RequestExecutionHandler() {
 
             @Override
-            protected HttpRequest generateRequest(TestJob testjob) {
+            protected HttpRequest generateRequest(Job testjob) {
                 String s = testjob.getPattern() + "x" + testjob.getCount();
                 HttpEntityEnclosingRequest r = new BasicHttpEntityEnclosingRequest("POST", s);
                 r.setEntity(null);
@@ -927,11 +927,11 @@ public class TestAsyncNHttpHandlers extends HttpCoreNIOTestBase {
 
         int connNo = 3;
         int reqNo = 20;
-        TestJob[] jobs = new TestJob[connNo * reqNo];
+        Job[] jobs = new Job[connNo * reqNo];
         for (int i = 0; i < jobs.length; i++) {
-            jobs[i] = new TestJob();
+            jobs[i] = new Job();
         }
-        Queue<TestJob> queue = new ConcurrentLinkedQueue<TestJob>();
+        Queue<Job> queue = new ConcurrentLinkedQueue<Job>();
         for (int i = 0; i < jobs.length; i++) {
             queue.add(jobs[i]);
         }
@@ -950,7 +950,7 @@ public class TestAsyncNHttpHandlers extends HttpCoreNIOTestBase {
                 this.server.getParams());
 
         serviceHandler.setHandlerResolver(
-                new SimpleNHttpRequestHandlerResolver(new TestRequestHandler()));
+                new SimpleNHttpRequestHandlerResolver(new RequestHandler()));
         serviceHandler.setEventListener(
                 new SimpleEventListener());
 
@@ -998,7 +998,7 @@ public class TestAsyncNHttpHandlers extends HttpCoreNIOTestBase {
         assertEquals("Test client status", IOReactorStatus.ACTIVE, this.client.getStatus());
 
         for (int i = 0; i < jobs.length; i++) {
-            TestJob testjob = jobs[i];
+            Job testjob = jobs[i];
             testjob.waitFor();
             if (testjob.isSuccessful()) {
                 assertEquals(HttpStatus.SC_OK, testjob.getStatusCode());
@@ -1014,10 +1014,10 @@ public class TestAsyncNHttpHandlers extends HttpCoreNIOTestBase {
      * with zero-length entities on the client side.
      */
     public void testHttpPostWithZeroLengthEntities() throws Exception {
-        NHttpRequestExecutionHandler requestExecutionHandler = new TestRequestExecutionHandler() {
+        NHttpRequestExecutionHandler requestExecutionHandler = new RequestExecutionHandler() {
 
             @Override
-            protected HttpRequest generateRequest(TestJob testjob) {
+            protected HttpRequest generateRequest(Job testjob) {
                 String s = testjob.getPattern() + "x" + testjob.getCount();
                 HttpEntityEnclosingRequest r = new BasicHttpEntityEnclosingRequest("POST", s);
                 NByteArrayEntity entity = new NByteArrayEntity(new byte[] {} );
@@ -1030,11 +1030,11 @@ public class TestAsyncNHttpHandlers extends HttpCoreNIOTestBase {
 
         int connNo = 3;
         int reqNo = 20;
-        TestJob[] jobs = new TestJob[connNo * reqNo];
+        Job[] jobs = new Job[connNo * reqNo];
         for (int i = 0; i < jobs.length; i++) {
-            jobs[i] = new TestJob();
+            jobs[i] = new Job();
         }
-        Queue<TestJob> queue = new ConcurrentLinkedQueue<TestJob>();
+        Queue<Job> queue = new ConcurrentLinkedQueue<Job>();
         for (int i = 0; i < jobs.length; i++) {
             queue.add(jobs[i]);
         }
@@ -1053,7 +1053,7 @@ public class TestAsyncNHttpHandlers extends HttpCoreNIOTestBase {
                 this.server.getParams());
 
         serviceHandler.setHandlerResolver(
-                new SimpleNHttpRequestHandlerResolver(new TestRequestHandler()));
+                new SimpleNHttpRequestHandlerResolver(new RequestHandler()));
         serviceHandler.setEventListener(
                 new SimpleEventListener());
 
@@ -1101,7 +1101,7 @@ public class TestAsyncNHttpHandlers extends HttpCoreNIOTestBase {
         assertEquals("Test client status", IOReactorStatus.ACTIVE, this.client.getStatus());
 
         for (int i = 0; i < jobs.length; i++) {
-            TestJob testjob = jobs[i];
+            Job testjob = jobs[i];
             testjob.waitFor();
             if (testjob.isSuccessful()) {
                 assertEquals(HttpStatus.SC_OK, testjob.getStatusCode());

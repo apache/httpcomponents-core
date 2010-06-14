@@ -29,69 +29,59 @@ package org.apache.http.mockup;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
-import java.net.URL;
-import java.security.KeyStore;
-import java.security.NoSuchAlgorithmException;
 import java.util.List;
 
-import javax.net.ssl.KeyManager;
-import javax.net.ssl.KeyManagerFactory;
-import javax.net.ssl.SSLContext;
-
-import org.apache.http.impl.nio.reactor.DefaultListeningIOReactor;
+import org.apache.http.impl.nio.DefaultClientIOEventDispatch;
+import org.apache.http.impl.nio.reactor.DefaultConnectingIOReactor;
 import org.apache.http.impl.nio.reactor.ExceptionEvent;
-import org.apache.http.impl.nio.ssl.SSLServerIOEventDispatch;
-import org.apache.http.nio.NHttpServiceHandler;
+import org.apache.http.nio.NHttpClientHandler;
 import org.apache.http.nio.reactor.IOEventDispatch;
 import org.apache.http.nio.reactor.IOReactorExceptionHandler;
 import org.apache.http.nio.reactor.IOReactorStatus;
-import org.apache.http.nio.reactor.ListenerEndpoint;
+import org.apache.http.nio.reactor.SessionRequest;
 import org.apache.http.params.HttpParams;
 
-/**
- * Trivial test server based on HttpCore NIO SSL
- *
- */
-public class TestHttpSSLServer {
+public class HttpClientNio {
 
-    private final SSLContext sslcontext;
-    private final DefaultListeningIOReactor ioReactor;
+    private final DefaultConnectingIOReactor ioReactor;
     private final HttpParams params;
 
     private volatile IOReactorThread thread;
-    private ListenerEndpoint endpoint;
 
-    public TestHttpSSLServer(final HttpParams params) throws Exception {
+    public HttpClientNio(final HttpParams params) throws IOException {
         super();
+        this.ioReactor = new DefaultConnectingIOReactor(2, params);
         this.params = params;
-        this.sslcontext = createSSLContext();
-        this.ioReactor = new DefaultListeningIOReactor(2, this.params);
-    }
-
-    private KeyManagerFactory createKeyManagerFactory() throws NoSuchAlgorithmException {
-        String algo = KeyManagerFactory.getDefaultAlgorithm();
-        try {
-            return KeyManagerFactory.getInstance(algo);
-        } catch (NoSuchAlgorithmException ex) {
-            return KeyManagerFactory.getInstance("SunX509");
-        }
-    }
-
-    protected SSLContext createSSLContext() throws Exception {
-        ClassLoader cl = getClass().getClassLoader();
-        URL url = cl.getResource("test.keystore");
-        KeyStore keystore  = KeyStore.getInstance("jks");
-        keystore.load(url.openStream(), "nopassword".toCharArray());
-        KeyManagerFactory kmfactory = createKeyManagerFactory();
-        kmfactory.init(keystore, "nopassword".toCharArray());
-        KeyManager[] keymanagers = kmfactory.getKeyManagers();
-        SSLContext sslcontext = SSLContext.getInstance("TLS");
-        sslcontext.init(keymanagers, null, null);
-        return sslcontext;
     }
 
     public HttpParams getParams() {
         return this.params;
+    }
+
+    public void setExceptionHandler(final IOReactorExceptionHandler exceptionHandler) {
+        this.ioReactor.setExceptionHandler(exceptionHandler);
+    }
+
+    protected IOEventDispatch createIOEventDispatch(
+            final NHttpClientHandler clientHandler, final HttpParams params) {
+        return new DefaultClientIOEventDispatch(clientHandler, params);
+    }
+
+    private void execute(final NHttpClientHandler clientHandler) throws IOException {
+        IOEventDispatch ioEventDispatch = createIOEventDispatch(
+                clientHandler,
+                this.params);
+
+        this.ioReactor.execute(ioEventDispatch);
+    }
+
+    public SessionRequest openConnection(final InetSocketAddress address, final Object attachment) {
+        return this.ioReactor.connect(address, null, attachment, null);
+    }
+
+    public void start(final NHttpClientHandler clientHandler) {
+        this.thread = new IOReactorThread(clientHandler);
+        this.thread.start();
     }
 
     public IOReactorStatus getStatus() {
@@ -100,36 +90,6 @@ public class TestHttpSSLServer {
 
     public List<ExceptionEvent> getAuditLog() {
         return this.ioReactor.getAuditLog();
-    }
-
-    public void setExceptionHandler(final IOReactorExceptionHandler exceptionHandler) {
-        this.ioReactor.setExceptionHandler(exceptionHandler);
-    }
-
-    protected IOEventDispatch createIOEventDispatch(
-            final NHttpServiceHandler serviceHandler,
-            final SSLContext sslcontext,
-            final HttpParams params) {
-        return new SSLServerIOEventDispatch(serviceHandler, sslcontext, params);
-    }
-
-    private void execute(final NHttpServiceHandler serviceHandler) throws IOException {
-        IOEventDispatch ioEventDispatch = createIOEventDispatch(
-                serviceHandler,
-                this.sslcontext,
-                this.params);
-
-        this.ioReactor.execute(ioEventDispatch);
-    }
-
-    public ListenerEndpoint getListenerEndpoint() {
-        return this.endpoint;
-    }
-
-    public void start(final NHttpServiceHandler serviceHandler) {
-        this.endpoint = this.ioReactor.listen(new InetSocketAddress(0));
-        this.thread = new IOReactorThread(serviceHandler);
-        this.thread.start();
     }
 
     public void join(long timeout) throws InterruptedException {
@@ -149,28 +109,26 @@ public class TestHttpSSLServer {
     public void shutdown() throws IOException {
         this.ioReactor.shutdown();
         try {
-            if (this.thread != null) {
-                this.thread.join(500);
-            }
+            join(500);
         } catch (InterruptedException ignore) {
         }
     }
 
     private class IOReactorThread extends Thread {
 
-        private final NHttpServiceHandler serviceHandler;
+        private final NHttpClientHandler clientHandler;
 
         private volatile Exception ex;
 
-        public IOReactorThread(final NHttpServiceHandler serviceHandler) {
+        public IOReactorThread(final NHttpClientHandler clientHandler) {
             super();
-            this.serviceHandler = serviceHandler;
+            this.clientHandler = clientHandler;
         }
 
         @Override
         public void run() {
             try {
-                execute(this.serviceHandler);
+                execute(this.clientHandler);
             } catch (Exception ex) {
                 this.ex = ex;
             }

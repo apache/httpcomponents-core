@@ -59,8 +59,8 @@ import org.apache.http.impl.nio.reactor.ExceptionEvent;
 import org.apache.http.message.BasicHttpRequest;
 import org.apache.http.mockup.SimpleEventListener;
 import org.apache.http.mockup.SimpleNHttpRequestHandlerResolver;
-import org.apache.http.mockup.TestHttpClientNio;
-import org.apache.http.mockup.TestHttpServerNio;
+import org.apache.http.mockup.HttpClientNio;
+import org.apache.http.mockup.HttpServerNio;
 import org.apache.http.nio.ContentDecoder;
 import org.apache.http.nio.ContentEncoder;
 import org.apache.http.nio.IOControl;
@@ -185,7 +185,7 @@ public class TestTruncatedChunks extends TestCase {
 
     }
 
-    static class CustomTestHttpServer extends TestHttpServerNio {
+    static class CustomTestHttpServer extends HttpServerNio {
 
         public CustomTestHttpServer(final HttpParams params) throws IOException {
             super(params);
@@ -200,7 +200,7 @@ public class TestTruncatedChunks extends TestCase {
     }
 
     protected CustomTestHttpServer server;
-    protected TestHttpClientNio client;
+    protected HttpClientNio client;
 
     @Override
     protected void setUp() throws Exception {
@@ -223,7 +223,7 @@ public class TestTruncatedChunks extends TestCase {
             .setBooleanParameter(CoreConnectionPNames.TCP_NODELAY, true)
             .setParameter(CoreProtocolPNames.USER_AGENT, "TEST-CLIENT/1.1");
 
-        this.client = new TestHttpClientNio(clientParams);
+        this.client = new HttpClientNio(clientParams);
     }
 
     @Override
@@ -257,18 +257,18 @@ public class TestTruncatedChunks extends TestCase {
 
     public void testTruncatedChunkException() throws Exception {
 
-        NHttpRequestExecutionHandler requestExecutionHandler = new TestRequestExecutionHandler() {
+        NHttpRequestExecutionHandler requestExecutionHandler = new RequestExecutionHandler() {
 
             @Override
-            protected HttpRequest generateRequest(TestJob testjob) {
+            protected HttpRequest generateRequest(Job testjob) {
                 String s = testjob.getPattern() + "x" + testjob.getCount();
                 return new BasicHttpRequest("GET", s);
             }
 
         };
 
-        TestJob testjob = new TestJob(2000);
-        Queue<TestJob> queue = new ConcurrentLinkedQueue<TestJob>();
+        Job testjob = new Job(2000);
+        Queue<Job> queue = new ConcurrentLinkedQueue<Job>();
         queue.add(testjob);
 
         HttpProcessor serverHttpProc = new ImmutableHttpProcessor(new HttpResponseInterceptor[] {
@@ -285,7 +285,7 @@ public class TestTruncatedChunks extends TestCase {
                 this.server.getParams());
 
         serviceHandler.setHandlerResolver(
-                new SimpleNHttpRequestHandlerResolver(new TestRequestHandler(true)));
+                new SimpleNHttpRequestHandlerResolver(new RequestHandler(true)));
         serviceHandler.setEventListener(
                 new SimpleEventListener());
 
@@ -310,7 +310,7 @@ public class TestTruncatedChunks extends TestCase {
                             final IOException ex,
                             final NHttpConnection conn) {
                         HttpContext context = conn.getContext();
-                        TestJob testjob = (TestJob) context.getAttribute("job");
+                        Job testjob = (Job) context.getAttribute("job");
                         testjob.fail(ex.getMessage(), ex);
                     }
 
@@ -410,10 +410,10 @@ public class TestTruncatedChunks extends TestCase {
 
     public void testIgnoreTruncatedChunkException() throws Exception {
 
-        NHttpRequestExecutionHandler requestExecutionHandler = new TestRequestExecutionHandler() {
+        NHttpRequestExecutionHandler requestExecutionHandler = new RequestExecutionHandler() {
 
             @Override
-            protected HttpRequest generateRequest(final TestJob testjob) {
+            protected HttpRequest generateRequest(final Job testjob) {
                 String s = testjob.getPattern() + "x" + testjob.getCount();
                 return new BasicHttpRequest("GET", s);
             }
@@ -428,8 +428,8 @@ public class TestTruncatedChunks extends TestCase {
 
         };
 
-        TestJob testjob = new TestJob(2000);
-        Queue<TestJob> queue = new ConcurrentLinkedQueue<TestJob>();
+        Job testjob = new Job(2000);
+        Queue<Job> queue = new ConcurrentLinkedQueue<Job>();
         queue.add(testjob);
 
         HttpProcessor serverHttpProc = new ImmutableHttpProcessor(new HttpResponseInterceptor[] {
@@ -446,7 +446,7 @@ public class TestTruncatedChunks extends TestCase {
                 this.server.getParams());
 
         serviceHandler.setHandlerResolver(
-                new SimpleNHttpRequestHandlerResolver(new TestRequestHandler(true)));
+                new SimpleNHttpRequestHandlerResolver(new RequestHandler(true)));
         serviceHandler.setEventListener(
                 new SimpleEventListener());
 

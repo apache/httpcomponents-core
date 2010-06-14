@@ -48,7 +48,7 @@ import org.apache.http.HttpResponseInterceptor;
 import org.apache.http.impl.DefaultConnectionReuseStrategy;
 import org.apache.http.impl.DefaultHttpResponseFactory;
 import org.apache.http.mockup.SimpleHttpRequestHandlerResolver;
-import org.apache.http.mockup.TestHttpSSLServer;
+import org.apache.http.mockup.HttpSSLServer;
 import org.apache.http.nio.NHttpServiceHandler;
 import org.apache.http.nio.protocol.BufferingHttpServiceHandler;
 import org.apache.http.nio.protocol.EventListener;
@@ -69,7 +69,7 @@ import org.apache.http.protocol.ResponseServer;
 
 public class TestBaseIOReactorSSL extends TestCase {
 
-    private TestHttpSSLServer server;
+    private HttpSSLServer server;
 
     @Override
     protected void setUp() throws Exception {
@@ -81,7 +81,7 @@ public class TestBaseIOReactorSSL extends TestCase {
             .setBooleanParameter(CoreConnectionPNames.TCP_NODELAY, true)
             .setParameter(CoreProtocolPNames.ORIGIN_SERVER, "TEST-SERVER/1.1");
 
-        this.server = new TestHttpSSLServer(serverParams);
+        this.server = new HttpSSLServer(serverParams);
     }
 
     @Override

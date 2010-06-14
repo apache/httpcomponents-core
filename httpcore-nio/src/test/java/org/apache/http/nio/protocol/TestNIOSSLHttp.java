@@ -80,11 +80,11 @@ public class TestNIOSSLHttp extends HttpCoreNIOSSLTestBase {
             final NHttpRequestExecutionHandler requestExecutionHandler) throws Exception {
         int connNo = 3;
         int reqNo = 20;
-        TestJob[] jobs = new TestJob[connNo * reqNo];
+        Job[] jobs = new Job[connNo * reqNo];
         for (int i = 0; i < jobs.length; i++) {
-            jobs[i] = new TestJob();
+            jobs[i] = new Job();
         }
-        Queue<TestJob> queue = new ConcurrentLinkedQueue<TestJob>();
+        Queue<Job> queue = new ConcurrentLinkedQueue<Job>();
         for (int i = 0; i < jobs.length; i++) {
             queue.add(jobs[i]);
         }
@@ -152,7 +152,7 @@ public class TestNIOSSLHttp extends HttpCoreNIOSSLTestBase {
         assertEquals("Test client status", IOReactorStatus.ACTIVE, this.client.getStatus());
 
         for (int i = 0; i < jobs.length; i++) {
-            TestJob testjob = jobs[i];
+            Job testjob = jobs[i];
             testjob.waitFor();
             if (testjob.isSuccessful()) {
                 assertEquals(HttpStatus.SC_OK, testjob.getStatusCode());
@@ -168,16 +168,16 @@ public class TestNIOSSLHttp extends HttpCoreNIOSSLTestBase {
      * over multiple connections.
      */
     public void testHttpGets() throws Exception {
-        NHttpRequestExecutionHandler requestExecutionHandler = new TestRequestExecutionHandler() {
+        NHttpRequestExecutionHandler requestExecutionHandler = new RequestExecutionHandler() {
 
             @Override
-            protected HttpRequest generateRequest(TestJob testjob) {
+            protected HttpRequest generateRequest(Job testjob) {
                 String s = testjob.getPattern() + "x" + testjob.getCount();
                 return new BasicHttpRequest("GET", s);
             }
 
         };
-        executeStandardTest(new TestRequestHandler(), requestExecutionHandler);
+        executeStandardTest(new RequestHandler(), requestExecutionHandler);
     }
 
     /**
@@ -185,10 +185,10 @@ public class TestNIOSSLHttp extends HttpCoreNIOSSLTestBase {
      * with content length delimited content over multiple connections.
      */
     public void testHttpPostsWithContentLength() throws Exception {
-        NHttpRequestExecutionHandler requestExecutionHandler = new TestRequestExecutionHandler() {
+        NHttpRequestExecutionHandler requestExecutionHandler = new RequestExecutionHandler() {
 
             @Override
-            protected HttpRequest generateRequest(TestJob testjob) {
+            protected HttpRequest generateRequest(Job testjob) {
                 String s = testjob.getPattern() + "x" + testjob.getCount();
                 HttpEntityEnclosingRequest r = new BasicHttpEntityEnclosingRequest("POST", s);
                 NStringEntity entity = null;
@@ -202,7 +202,7 @@ public class TestNIOSSLHttp extends HttpCoreNIOSSLTestBase {
             }
 
         };
-        executeStandardTest(new TestRequestHandler(), requestExecutionHandler);
+        executeStandardTest(new RequestHandler(), requestExecutionHandler);
     }
 
     /**
@@ -210,10 +210,10 @@ public class TestNIOSSLHttp extends HttpCoreNIOSSLTestBase {
      * with chunk coded content content over multiple connections.
      */
     public void testHttpPostsChunked() throws Exception {
-        NHttpRequestExecutionHandler requestExecutionHandler = new TestRequestExecutionHandler() {
+        NHttpRequestExecutionHandler requestExecutionHandler = new RequestExecutionHandler() {
 
             @Override
-            protected HttpRequest generateRequest(TestJob testjob) {
+            protected HttpRequest generateRequest(Job testjob) {
                 String s = testjob.getPattern() + "x" + testjob.getCount();
                 HttpEntityEnclosingRequest r = new BasicHttpEntityEnclosingRequest("POST", s);
                 NStringEntity entity = null;
@@ -227,7 +227,7 @@ public class TestNIOSSLHttp extends HttpCoreNIOSSLTestBase {
             }
 
         };
-        executeStandardTest(new TestRequestHandler(), requestExecutionHandler);
+        executeStandardTest(new RequestHandler(), requestExecutionHandler);
     }
 
     /**
@@ -235,10 +235,10 @@ public class TestNIOSSLHttp extends HttpCoreNIOSSLTestBase {
      * POST requests over multiple persistent connections.
      */
     public void testHttpPostsHTTP10() throws Exception {
-        NHttpRequestExecutionHandler requestExecutionHandler = new TestRequestExecutionHandler() {
+        NHttpRequestExecutionHandler requestExecutionHandler = new RequestExecutionHandler() {
 
             @Override
-            protected HttpRequest generateRequest(TestJob testjob) {
+            protected HttpRequest generateRequest(Job testjob) {
                 String s = testjob.getPattern() + "x" + testjob.getCount();
                 HttpEntityEnclosingRequest r = new BasicHttpEntityEnclosingRequest("POST", s,
                         HttpVersion.HTTP_1_0);
@@ -252,7 +252,7 @@ public class TestNIOSSLHttp extends HttpCoreNIOSSLTestBase {
             }
 
         };
-        executeStandardTest(new TestRequestHandler(), requestExecutionHandler);
+        executeStandardTest(new RequestHandler(), requestExecutionHandler);
     }
 
     /**
@@ -261,10 +261,10 @@ public class TestNIOSSLHttp extends HttpCoreNIOSSLTestBase {
      * uses nonblocking handlers & entities.
      */
     public void testHttpPostsWithExpectContinue() throws Exception {
-        NHttpRequestExecutionHandler requestExecutionHandler = new TestRequestExecutionHandler() {
+        NHttpRequestExecutionHandler requestExecutionHandler = new RequestExecutionHandler() {
 
             @Override
-            protected HttpRequest generateRequest(TestJob testjob) {
+            protected HttpRequest generateRequest(Job testjob) {
                 String s = testjob.getPattern() + "x" + testjob.getCount();
                 HttpEntityEnclosingRequest r = new BasicHttpEntityEnclosingRequest("POST", s);
                 NStringEntity entity = null;
@@ -278,7 +278,7 @@ public class TestNIOSSLHttp extends HttpCoreNIOSSLTestBase {
             }
 
         };
-        executeStandardTest(new TestRequestHandler(), requestExecutionHandler);
+        executeStandardTest(new RequestHandler(), requestExecutionHandler);
     }
 
 }

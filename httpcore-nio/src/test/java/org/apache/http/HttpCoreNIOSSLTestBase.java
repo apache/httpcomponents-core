@@ -31,8 +31,8 @@ import java.io.IOException;
 
 import junit.framework.TestCase;
 
-import org.apache.http.mockup.TestHttpSSLClient;
-import org.apache.http.mockup.TestHttpSSLServer;
+import org.apache.http.mockup.HttpSSLClient;
+import org.apache.http.mockup.HttpSSLServer;
 import org.apache.http.params.CoreConnectionPNames;
 import org.apache.http.params.CoreProtocolPNames;
 import org.apache.http.params.HttpParams;
@@ -47,8 +47,8 @@ public class HttpCoreNIOSSLTestBase extends TestCase {
         super(testName);
     }
 
-    protected TestHttpSSLServer server;
-    protected TestHttpSSLClient client;
+    protected HttpSSLServer server;
+    protected HttpSSLClient client;
 
     @Override
     protected void setUp() throws Exception {
@@ -60,7 +60,7 @@ public class HttpCoreNIOSSLTestBase extends TestCase {
             .setBooleanParameter(CoreConnectionPNames.TCP_NODELAY, true)
             .setParameter(CoreProtocolPNames.ORIGIN_SERVER, "TEST-SERVER/1.1");
 
-        this.server = new TestHttpSSLServer(serverParams);
+        this.server = new HttpSSLServer(serverParams);
         this.server.setExceptionHandler(new SimpleIOReactorExceptionHandler());
 
         HttpParams clientParams = new SyncBasicHttpParams();
@@ -72,7 +72,7 @@ public class HttpCoreNIOSSLTestBase extends TestCase {
             .setBooleanParameter(CoreConnectionPNames.TCP_NODELAY, true)
             .setParameter(CoreProtocolPNames.USER_AGENT, "TEST-CLIENT/1.1");
 
-        this.client = new TestHttpSSLClient(clientParams);
+        this.client = new HttpSSLClient(clientParams);
         this.client.setExceptionHandler(new SimpleIOReactorExceptionHandler());
     }
 

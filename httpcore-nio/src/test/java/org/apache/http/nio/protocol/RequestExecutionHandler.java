@@ -39,24 +39,24 @@ import org.apache.http.nio.util.HeapByteBufferAllocator;
 import org.apache.http.protocol.HttpContext;
 import org.apache.http.util.EntityUtils;
 
-abstract class TestRequestExecutionHandler
+abstract class RequestExecutionHandler
     implements NHttpRequestExecutionHandler, HttpRequestExecutionHandler {
 
     public void initalizeContext(final HttpContext context, final Object attachment) {
         context.setAttribute("queue", attachment);
     }
 
-    protected abstract HttpRequest generateRequest(TestJob testjob);
+    protected abstract HttpRequest generateRequest(Job testjob);
 
     public HttpRequest submitRequest(final HttpContext context) {
 
         @SuppressWarnings("unchecked")
-        Queue<TestJob> queue = (Queue<TestJob>) context.getAttribute("queue");
+        Queue<Job> queue = (Queue<Job>) context.getAttribute("queue");
         if (queue == null) {
             throw new IllegalStateException("Queue is null");
         }
 
-        TestJob testjob = queue.poll();
+        Job testjob = queue.poll();
         context.setAttribute("job", testjob);
 
         if (testjob != null) {
@@ -74,7 +74,7 @@ abstract class TestRequestExecutionHandler
     }
 
     public void handleResponse(final HttpResponse response, final HttpContext context) {
-        TestJob testjob = (TestJob) context.removeAttribute("job");
+        Job testjob = (Job) context.removeAttribute("job");
         if (testjob == null) {
             throw new IllegalStateException("TestJob is null");
         }
@@ -94,7 +94,7 @@ abstract class TestRequestExecutionHandler
     }
 
     public void finalizeContext(final HttpContext context) {
-        TestJob testjob = (TestJob) context.removeAttribute("job");
+        Job testjob = (Job) context.removeAttribute("job");
         if (testjob != null) {
             testjob.fail("Request failed");
         }

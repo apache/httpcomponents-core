@@ -43,15 +43,15 @@ import org.apache.http.protocol.HttpContext;
 import org.apache.http.protocol.HttpRequestHandler;
 import org.apache.http.util.EntityUtils;
 
-final class TestRequestHandler extends SimpleNHttpRequestHandler implements HttpRequestHandler {
+final class RequestHandler extends SimpleNHttpRequestHandler implements HttpRequestHandler {
 
     private final boolean chunking;
 
-    TestRequestHandler() {
+    RequestHandler() {
         this(false);
     }
 
-    TestRequestHandler(boolean chunking) {
+    RequestHandler(boolean chunking) {
         super();
         this.chunking = chunking;
     }

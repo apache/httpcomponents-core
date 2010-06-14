@@ -29,7 +29,7 @@ package org.apache.http.nio.protocol;
 
 import java.util.Random;
 
-public class TestJob {
+public class Job {
 
     private static final Random RND = new Random();
     private static final String TEST_CHARS = "0123456789ABCDEF";
@@ -43,7 +43,7 @@ public class TestJob {
     private volatile String failureMessage;
     private volatile Exception ex;
 
-    public TestJob(int maxCount) {
+    public Job(int maxCount) {
         super();
         this.count = RND.nextInt(maxCount - 1) + 1;
         StringBuilder buffer = new StringBuilder();
@@ -54,11 +54,11 @@ public class TestJob {
         this.pattern = buffer.toString();
     }
 
-    public TestJob() {
+    public Job() {
         this(1000);
     }
 
-    public TestJob(final String pattern, int count) {
+    public Job(final String pattern, int count) {
         super();
         this.count = count;
         this.pattern = pattern;

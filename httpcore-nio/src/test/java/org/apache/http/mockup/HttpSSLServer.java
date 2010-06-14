@@ -29,11 +29,18 @@ package org.apache.http.mockup;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
+import java.net.URL;
+import java.security.KeyStore;
+import java.security.NoSuchAlgorithmException;
 import java.util.List;
 
-import org.apache.http.impl.nio.DefaultServerIOEventDispatch;
+import javax.net.ssl.KeyManager;
+import javax.net.ssl.KeyManagerFactory;
+import javax.net.ssl.SSLContext;
+
 import org.apache.http.impl.nio.reactor.DefaultListeningIOReactor;
 import org.apache.http.impl.nio.reactor.ExceptionEvent;
+import org.apache.http.impl.nio.ssl.SSLServerIOEventDispatch;
 import org.apache.http.nio.NHttpServiceHandler;
 import org.apache.http.nio.reactor.IOEventDispatch;
 import org.apache.http.nio.reactor.IOReactorExceptionHandler;
@@ -42,25 +49,57 @@ import org.apache.http.nio.reactor.ListenerEndpoint;
 import org.apache.http.params.HttpParams;
 
 /**
- * Trivial test server based on HttpCore NIO
+ * Trivial test server based on HttpCore NIO SSL
  *
  */
-public class TestHttpServerNio {
+public class HttpSSLServer {
 
+    private final SSLContext sslcontext;
     private final DefaultListeningIOReactor ioReactor;
     private final HttpParams params;
 
     private volatile IOReactorThread thread;
     private ListenerEndpoint endpoint;
 
-    public TestHttpServerNio(final HttpParams params) throws IOException {
+    public HttpSSLServer(final HttpParams params) throws Exception {
         super();
-        this.ioReactor = new DefaultListeningIOReactor(2, params);
         this.params = params;
+        this.sslcontext = createSSLContext();
+        this.ioReactor = new DefaultListeningIOReactor(2, this.params);
+    }
+
+    private KeyManagerFactory createKeyManagerFactory() throws NoSuchAlgorithmException {
+        String algo = KeyManagerFactory.getDefaultAlgorithm();
+        try {
+            return KeyManagerFactory.getInstance(algo);
+        } catch (NoSuchAlgorithmException ex) {
+            return KeyManagerFactory.getInstance("SunX509");
+        }
+    }
+
+    protected SSLContext createSSLContext() throws Exception {
+        ClassLoader cl = getClass().getClassLoader();
+        URL url = cl.getResource("test.keystore");
+        KeyStore keystore  = KeyStore.getInstance("jks");
+        keystore.load(url.openStream(), "nopassword".toCharArray());
+        KeyManagerFactory kmfactory = createKeyManagerFactory();
+        kmfactory.init(keystore, "nopassword".toCharArray());
+        KeyManager[] keymanagers = kmfactory.getKeyManagers();
+        SSLContext sslcontext = SSLContext.getInstance("TLS");
+        sslcontext.init(keymanagers, null, null);
+        return sslcontext;
     }
 
     public HttpParams getParams() {
         return this.params;
+    }
+
+    public IOReactorStatus getStatus() {
+        return this.ioReactor.getStatus();
+    }
+
+    public List<ExceptionEvent> getAuditLog() {
+        return this.ioReactor.getAuditLog();
     }
 
     public void setExceptionHandler(final IOReactorExceptionHandler exceptionHandler) {
@@ -68,13 +107,16 @@ public class TestHttpServerNio {
     }
 
     protected IOEventDispatch createIOEventDispatch(
-            final NHttpServiceHandler serviceHandler, final HttpParams params) {
-        return new DefaultServerIOEventDispatch(serviceHandler, params);
+            final NHttpServiceHandler serviceHandler,
+            final SSLContext sslcontext,
+            final HttpParams params) {
+        return new SSLServerIOEventDispatch(serviceHandler, sslcontext, params);
     }
 
     private void execute(final NHttpServiceHandler serviceHandler) throws IOException {
         IOEventDispatch ioEventDispatch = createIOEventDispatch(
                 serviceHandler,
+                this.sslcontext,
                 this.params);
 
         this.ioReactor.execute(ioEventDispatch);
@@ -84,22 +126,10 @@ public class TestHttpServerNio {
         return this.endpoint;
     }
 
-    public void setEndpoint(ListenerEndpoint endpoint) {
-        this.endpoint = endpoint;
-    }
-
     public void start(final NHttpServiceHandler serviceHandler) {
         this.endpoint = this.ioReactor.listen(new InetSocketAddress(0));
         this.thread = new IOReactorThread(serviceHandler);
         this.thread.start();
-    }
-
-    public IOReactorStatus getStatus() {
-        return this.ioReactor.getStatus();
-    }
-
-    public List<ExceptionEvent> getAuditLog() {
-        return this.ioReactor.getAuditLog();
     }
 
     public void join(long timeout) throws InterruptedException {
@@ -119,7 +149,9 @@ public class TestHttpServerNio {
     public void shutdown() throws IOException {
         this.ioReactor.shutdown();
         try {
-            join(500);
+            if (this.thread != null) {
+                this.thread.join(500);
+            }
         } catch (InterruptedException ignore) {
         }
     }

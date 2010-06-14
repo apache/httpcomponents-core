@@ -31,8 +31,8 @@ import java.io.IOException;
 
 import junit.framework.TestCase;
 
-import org.apache.http.mockup.TestHttpClientNio;
-import org.apache.http.mockup.TestHttpServerNio;
+import org.apache.http.mockup.HttpClientNio;
+import org.apache.http.mockup.HttpServerNio;
 import org.apache.http.params.CoreConnectionPNames;
 import org.apache.http.params.CoreProtocolPNames;
 import org.apache.http.params.HttpParams;
@@ -48,8 +48,8 @@ public class HttpCoreNIOTestBase extends TestCase {
         super(testName);
     }
 
-    protected TestHttpServerNio server;
-    protected TestHttpClientNio client;
+    protected HttpServerNio server;
+    protected HttpClientNio client;
 
     @Override
     protected void setUp() throws Exception {
@@ -61,7 +61,7 @@ public class HttpCoreNIOTestBase extends TestCase {
             .setBooleanParameter(CoreConnectionPNames.TCP_NODELAY, true)
             .setParameter(CoreProtocolPNames.ORIGIN_SERVER, "TEST-SERVER/1.1");
 
-        this.server = new TestHttpServerNio(serverParams);
+        this.server = new HttpServerNio(serverParams);
         this.server.setExceptionHandler(new SimpleIOReactorExceptionHandler());
 
         HttpParams clientParams = new SyncBasicHttpParams();
@@ -73,7 +73,7 @@ public class HttpCoreNIOTestBase extends TestCase {
             .setBooleanParameter(CoreConnectionPNames.TCP_NODELAY, true)
             .setParameter(CoreProtocolPNames.USER_AGENT, "TEST-CLIENT/1.1");
 
-        this.client = new TestHttpClientNio(clientParams);
+        this.client = new HttpClientNio(clientParams);
         this.client.setExceptionHandler(new SimpleIOReactorExceptionHandler());
     }
 
