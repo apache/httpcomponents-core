@@ -40,15 +40,15 @@ HttpCore Overview
     throughput is less important than the ability to handle thousands of simultaneous HTTP 
     connections in a resource efficient manner.
 
-    * {{{httpcore/index.html}HttpCore}}
+    * {{{./httpcore/index.html}HttpCore}}
 
-    * {{{httpcore-nio/index.html}HttpCore NIO}}
+    * {{{./httpcore-nio/index.html}HttpCore NIO}}
     
 {Documentation}
 
-    * HttpCore Tutorial ( {{{tutorial/html}HTML}} / {{{tutorial/pdf/httpcore-tutorial.pdf}PDF}} )
+    * HttpCore Tutorial ( {{{./tutorial/html}HTML}} / {{{./tutorial/pdf/httpcore-tutorial.pdf}PDF}} )
     
-    * Some examples of HttpCore components in action can be found {{{examples.html}here}}
+    * Some examples of HttpCore components in action can be found {{{./examples.html}here}}
     
 {Standards Compliance}
 

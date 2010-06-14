@@ -35,10 +35,10 @@ HttpCore (base module)
     The HttpCore API and the default implementation require a Java 1.3
     compatible runtime and have no dependency on any external libraries.
 
-    {{{apidocs/index.html}Javadocs}}
+    {{{./apidocs/index.html}Javadocs}}
     
-    {{{xref/index.html}Project sources}}
+    {{{./xref/index.html}Project sources}}
     
-    {{{dependencies.html}Dependencies}}    
+    {{{./dependencies.html}Dependencies}}    
     
-    {{{issue-tracking.html}Issue Tracking}}    
+    {{{./issue-tracking.html}Issue Tracking}}    
