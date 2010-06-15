@@ -3,10 +3,9 @@ Building HttpComponents Core
 
 (1) Requisites
 --------------
-HttpCore utilizes Maven 2 as a distribution management and packaging tool. Version 2.0.7 or above is
-recommended. Maven 2 requires JDK 1.4 or above in order to execute. However, JDK 1.5 or above is
-required in order to compile some modules (such as NIO extensions) and we generally recommend a 1.5 
-compatible JDK be used to build HttpComponents Core packages.
+HttpCore utilizes Maven 2 as a distribution management and packaging tool.
+Version 2.1.0 or above is required. This requires JDK 1.5 or above, which is also
+required in order to compile some modules (such as NIO extensions).
 
 Maven installation and configuration instructions can be found here:
 
@@ -16,13 +15,18 @@ http://maven.apache.org/run-maven/index.html
 
 Execute the following command in order to compile and test the components
 
-mvn test
+mvn test [-P java-1.3|java-1.4]
+
+The profile java-1.3 ensures that the tests are run with JVM 1.3, similarly for java-1.4.
+These profiles require the appropriate environment variables to have been set up,
+see pom.xml comments for details.
 
 (3) Building packages 
 
 Execute the following command in order to build the JAR packages
 
-mvn package
+mvn package [-P java-1.3|java-1.4]
+
 
 The resultant packages can be found in the target folders of their respective modules
 
