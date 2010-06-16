@@ -28,6 +28,8 @@ package org.apache.http.nio.util;
 
 import java.io.IOException;
 import java.io.InterruptedIOException;
+import java.util.concurrent.locks.Condition;
+import java.util.concurrent.locks.ReentrantLock;
 
 import org.apache.http.nio.ContentDecoder;
 import org.apache.http.nio.IOControl;
@@ -37,15 +39,22 @@ import org.apache.http.nio.IOControl;
  * shared by multiple threads, usually the I/O dispatch of an I/O reactor and
  * a worker thread.
  * <p>
- * Please note this class is thread safe only when used though
- * the {@link ContentInputBuffer} interface.
+ * The I/O dispatch thread is expect to transfer data from {@link ContentDecoder} to the buffer 
+ *   by calling {@link #consumeContent(ContentDecoder)}.
+ * <p>
+ * The worker thread is expected to read the data from the buffer by calling 
+ *   {@link #read()} or {@link #read(byte[], int, int)} methods. 
+ * <p>
+ * In case of an abnormal situation or when no longer needed the buffer must be shut down
+ * using {@link #shutdown()} method. 
  *
  * @since 4.0
  */
 public class SharedInputBuffer extends ExpandableBuffer implements ContentInputBuffer {
 
     private final IOControl ioctrl;
-    private final Object mutex;
+    private final ReentrantLock lock;
+    private final Condition condition;
 
     private volatile boolean shutdown = false;
     private volatile boolean endOfStream = false;
@@ -56,16 +65,20 @@ public class SharedInputBuffer extends ExpandableBuffer implements ContentInputB
             throw new IllegalArgumentException("I/O content control may not be null");
         }
         this.ioctrl = ioctrl;
-        this.mutex = new Object();
+        this.lock = new ReentrantLock();
+        this.condition = this.lock.newCondition();
     }
 
     public void reset() {
         if (this.shutdown) {
             return;
         }
-        synchronized (this.mutex) {
+        this.lock.lock();
+        try {
             clear();
             this.endOfStream = false;
+        } finally {
+            this.lock.unlock();
         }
     }
 
@@ -73,7 +86,8 @@ public class SharedInputBuffer extends ExpandableBuffer implements ContentInputB
         if (this.shutdown) {
             return -1;
         }
-        synchronized (this.mutex) {
+        this.lock.lock();
+        try {
             setInputMode();
             int totalRead = 0;
             int bytesRead;
@@ -86,7 +100,7 @@ public class SharedInputBuffer extends ExpandableBuffer implements ContentInputB
             if (!this.buffer.hasRemaining()) {
                 this.ioctrl.suspendInput();
             }
-            this.mutex.notifyAll();
+            this.condition.signalAll();
 
             if (totalRead > 0) {
                 return totalRead;
@@ -97,43 +111,67 @@ public class SharedInputBuffer extends ExpandableBuffer implements ContentInputB
                     return 0;
                 }
             }
+        } finally {
+            this.lock.unlock();
+        }
+    }
+
+    @Override
+    public boolean hasData() {
+        this.lock.lock();
+        try {
+            return super.hasData();
+        } finally {
+            this.lock.unlock();
         }
     }
 
     @Override
     public int available() {
-        synchronized (this.mutex) {
+        this.lock.lock();
+        try {
             return super.available();
+        } finally {
+            this.lock.unlock();
         }
     }
 
     @Override
     public int capacity() {
-        synchronized (this.mutex) {
+        this.lock.lock();
+        try {
             return super.capacity();
+        } finally {
+            this.lock.unlock();
         }
     }
 
     @Override
     public int length() {
-        synchronized (this.mutex) {
+        this.lock.lock();
+        try {
             return super.length();
+        } finally {
+            this.lock.unlock();
         }
     }
 
     protected void waitForData() throws IOException {
-        synchronized (this.mutex) {
+        this.lock.lock();
+        try {
             try {
-                while (!hasData() && !this.endOfStream) {
+                while (!super.hasData() && !this.endOfStream) {
                     if (this.shutdown) {
                         throw new InterruptedIOException("Input operation aborted");
                     }
                     this.ioctrl.requestInput();
-                    this.mutex.wait();
+                    this.condition.await();
                 }
             } catch (InterruptedException ex) {
                 throw new IOException("Interrupted while waiting for more data");
             }
+        } finally {
+            this.lock.unlock();
         }
     }
 
@@ -142,8 +180,11 @@ public class SharedInputBuffer extends ExpandableBuffer implements ContentInputB
             return;
         }
         this.endOfStream = true;
-        synchronized (this.mutex) {
-            this.mutex.notifyAll();
+        this.lock.lock();
+        try {
+            this.condition.signalAll();
+        } finally {
+            this.lock.unlock();
         }
     }
 
@@ -152,8 +193,11 @@ public class SharedInputBuffer extends ExpandableBuffer implements ContentInputB
             return;
         }
         this.shutdown = true;
-        synchronized (this.mutex) {
-            this.mutex.notifyAll();
+        this.lock.lock();
+        try {
+            this.condition.signalAll();
+        } finally {
+            this.lock.unlock();
         }
     }
 
@@ -169,7 +213,8 @@ public class SharedInputBuffer extends ExpandableBuffer implements ContentInputB
         if (this.shutdown) {
             return -1;
         }
-        synchronized (this.mutex) {
+        this.lock.lock();
+        try {
             if (!hasData()) {
                 waitForData();
             }
@@ -177,6 +222,8 @@ public class SharedInputBuffer extends ExpandableBuffer implements ContentInputB
                 return -1;
             }
             return this.buffer.get() & 0xff;
+        } finally {
+            this.lock.unlock();
         }
     }
 
@@ -187,7 +234,8 @@ public class SharedInputBuffer extends ExpandableBuffer implements ContentInputB
         if (b == null) {
             return 0;
         }
-        synchronized (this.mutex) {
+        this.lock.lock();
+        try {
             if (!hasData()) {
                 waitForData();
             }
@@ -201,6 +249,8 @@ public class SharedInputBuffer extends ExpandableBuffer implements ContentInputB
             }
             this.buffer.get(b, off, chunk);
             return chunk;
+        } finally {
+            this.lock.unlock();
         }
     }
 
