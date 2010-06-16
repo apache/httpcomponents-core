@@ -82,6 +82,8 @@
             <Import-Package>!org.apache.http*,*</Import-Package>            
             <_exportcontents>org.apache.http.*;version=${project.version}</_exportcontents>
             <Embed-Dependency>*;scope=compile|runtime;inline=false</Embed-Dependency>
+            <!-- Stop the JAVA_1_n_HOME variables from being treated as headers by Bnd -->
+            <_removeheaders>JAVA_1_3_HOME,JAVA_1_4_HOME</_removeheaders>
           </instructions>
         </configuration>
       </plugin>
