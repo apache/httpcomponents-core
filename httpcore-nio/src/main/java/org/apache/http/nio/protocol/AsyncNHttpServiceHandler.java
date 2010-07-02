@@ -173,7 +173,8 @@ public class AsyncNHttpServiceHandler extends NHttpHandlerBase
         try {
 
             if (request instanceof HttpEntityEnclosingRequest) {
-                if (((HttpEntityEnclosingRequest) request).expectContinue()) {
+                HttpEntityEnclosingRequest entityRequest = (HttpEntityEnclosingRequest) request;
+                if (entityRequest.expectContinue()) {
                     response = this.responseFactory.newHttpResponse(
                             ver, HttpStatus.SC_CONTINUE, context);
                     response.setParams(
@@ -203,20 +204,19 @@ public class AsyncNHttpServiceHandler extends NHttpHandlerBase
                     }
                 }
                 // Request content is expected.
-                HttpEntity entity = ((HttpEntityEnclosingRequest) request).getEntity();
+                ConsumingNHttpEntity consumingEntity = null;
 
                 // Lookup request handler for this request
                 if (requestHandler != null) {
-                    ConsumingNHttpEntity consumingEntity = requestHandler.entityRequest(
-                            (HttpEntityEnclosingRequest) request, context);
-                    if (consumingEntity == null) {
-                        consumingEntity = new ConsumingNHttpEntityTemplate(
-                                entity,
-                                new SkipContentListener(this.allocator));
-                    }
-                    ((HttpEntityEnclosingRequest) request).setEntity(consumingEntity);
-                    connState.setConsumingEntity(consumingEntity);
+                    consumingEntity = requestHandler.entityRequest(entityRequest, context);
                 }
+                if (consumingEntity == null) {
+                    consumingEntity = new ConsumingNHttpEntityTemplate(
+                            entityRequest.getEntity(),
+                            new SkipContentListener(this.allocator));
+                }
+                entityRequest.setEntity(consumingEntity);
+                connState.setConsumingEntity(consumingEntity);
 
             } else {
                 // No request content is expected.

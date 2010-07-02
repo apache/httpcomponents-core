@@ -1009,18 +1009,14 @@ public class TestAsyncNHttpHandlers extends HttpCoreNIOTestBase {
         }
     }
 
-    /**
-     * This test case executes a series of simple (non-pipelined) POST requests
-     * with zero-length entities on the client side.
-     */
-    public void testHttpPostWithZeroLengthEntities() throws Exception {
+    public void testNoRequestHandler() throws Exception {
         NHttpRequestExecutionHandler requestExecutionHandler = new RequestExecutionHandler() {
 
             @Override
             protected HttpRequest generateRequest(Job testjob) {
                 String s = testjob.getPattern() + "x" + testjob.getCount();
                 HttpEntityEnclosingRequest r = new BasicHttpEntityEnclosingRequest("POST", s);
-                NByteArrayEntity entity = new NByteArrayEntity(new byte[] {} );
+                NByteArrayEntity entity = new NByteArrayEntity(new byte[] {1,2,3,4,5} );
                 entity.setChunked(false);
                 r.setEntity(entity);
                 return r;
@@ -1029,8 +1025,7 @@ public class TestAsyncNHttpHandlers extends HttpCoreNIOTestBase {
         };
 
         int connNo = 3;
-        int reqNo = 20;
-        Job[] jobs = new Job[connNo * reqNo];
+        Job[] jobs = new Job[connNo];
         for (int i = 0; i < jobs.length; i++) {
             jobs[i] = new Job();
         }
@@ -1053,7 +1048,7 @@ public class TestAsyncNHttpHandlers extends HttpCoreNIOTestBase {
                 this.server.getParams());
 
         serviceHandler.setHandlerResolver(
-                new SimpleNHttpRequestHandlerResolver(new RequestHandler()));
+                new SimpleNHttpRequestHandlerResolver(null));
         serviceHandler.setEventListener(
                 new SimpleEventListener());
 
@@ -1104,8 +1099,7 @@ public class TestAsyncNHttpHandlers extends HttpCoreNIOTestBase {
             Job testjob = jobs[i];
             testjob.waitFor();
             if (testjob.isSuccessful()) {
-                assertEquals(HttpStatus.SC_OK, testjob.getStatusCode());
-                assertEquals("", testjob.getResult());
+                assertEquals(HttpStatus.SC_NOT_IMPLEMENTED, testjob.getStatusCode());
             } else {
                 fail(testjob.getFailureMessage());
             }

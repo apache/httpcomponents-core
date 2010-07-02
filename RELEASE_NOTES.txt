@@ -1,5 +1,9 @@
 Changes since 4.1-BETA1 
 
+* [HTTPCORE-228] Fixed NPE in AsyncNHttpServiceHandler caused by entity enclosing requests
+  if no matching request handler can be found.  
+  Contributed by Oleg Kalnichevski <olegk at apache.org>
+
 * [HTTPCORE-227] Fixed incorrect request / response count by non-blocking connections.
   Contributed by Harold Lee <harold at hotelling.net>
 
