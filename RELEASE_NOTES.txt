@@ -1,5 +1,9 @@
 Changes since 4.0.1
 
+* [HTTPCORE-228] Fixed NPE in AsyncNHttpServiceHandler caused by entity enclosing requests
+  if no matching request handler can be found.  
+  Contributed by Oleg Kalnichevski <olegk at apache.org>
+
 * [HTTPCORE-222] Fixed OSGi Import-Package
   Contributed by Willem Jiang <willem.jiang at gmail.com>
 
