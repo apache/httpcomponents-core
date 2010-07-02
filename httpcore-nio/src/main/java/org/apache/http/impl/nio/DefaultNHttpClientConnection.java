@@ -215,12 +215,11 @@ public class DefaultNHttpClientConnection
                     if (this.status == CLOSING) {
                         this.session.close();
                         this.status = CLOSED;
-                        return;
                     }
-
-                    this.session.clearEvent(EventMask.WRITE);
-
-                    handler.requestReady(this);
+                    if (this.status != CLOSED) {
+                        this.session.clearEvent(EventMask.WRITE);
+                        handler.requestReady(this);
+                    }
                 }
             }
         } catch (IOException ex) {

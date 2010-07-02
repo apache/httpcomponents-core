@@ -1,5 +1,9 @@
 Changes since 4.1-BETA1 
 
+* Non-blocking connections can trigger #responseReady / #requestReady events by mistake
+  when the underlying session is already closed.
+  Contributed by Oleg Kalnichevski <olegk at apache.org>
+
 * [HTTPCORE-228] Fixed NPE in AsyncNHttpServiceHandler caused by entity enclosing requests
   if no matching request handler can be found.  
   Contributed by Oleg Kalnichevski <olegk at apache.org>
