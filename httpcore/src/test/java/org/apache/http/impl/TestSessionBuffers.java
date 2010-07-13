@@ -469,7 +469,10 @@ public class TestSessionBuffers extends TestCase {
         HttpProtocolParams.setHttpElementCharset(params, HTTP.ISO_8859_1);
 
         for (int i = 0; i < 10; i++) {
-            assertEquals(s1, inbuffer.readLine());
+            CharArrayBuffer buf = new CharArrayBuffer(64);
+            int len = inbuffer.readLine(buf);
+            assertEquals(len, SWISS_GERMAN_HELLO.length);
+            assertEquals(s1, buf.toString());
         }
         assertNull(inbuffer.readLine());
         assertNull(inbuffer.readLine());

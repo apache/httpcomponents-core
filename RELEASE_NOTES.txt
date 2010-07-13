@@ -1,5 +1,9 @@
 Changes since 4.1-BETA1 
 
+* [HTTPCORE-229] AbstractSessionInputBuffer#readLine(CharArrayBuffer) returns incorrect 
+  number of characters read by the method when using non-standard HTTP element charset.
+  Contributed by Oleg Kalnichevski <olegk at apache.org>
+
 * Non-blocking connections can trigger #responseReady / #requestReady events by mistake
   when the underlying session is already closed.
   Contributed by Oleg Kalnichevski <olegk at apache.org>

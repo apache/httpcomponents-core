@@ -303,6 +303,7 @@ public abstract class AbstractSessionInputBuffer implements SessionInputBuffer, 
             // This is VERY memory inefficient, BUT since non-ASCII charsets are
             // NOT meant to be used anyway, there's no point optimizing it
             String s = new String(this.linebuffer.buffer(), 0, l, this.charset);
+            l = s.length();
             charbuffer.append(s);
         }
         this.linebuffer.clear();
@@ -326,6 +327,7 @@ public abstract class AbstractSessionInputBuffer implements SessionInputBuffer, 
             // NOT meant to be used anyway, there's no point optimizing it
             String s = new String(this.buffer, off, len, this.charset);
             charbuffer.append(s);
+            len = s.length();
         }
         return len;
     }
