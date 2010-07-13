@@ -1,5 +1,9 @@
 Changes since 4.0.1
 
+* [HTTPCORE-229] AbstractSessionInputBuffer#readLine(CharArrayBuffer) returns incorrect 
+  number of characters read by the method when using non-standard HTTP element charset.
+  Contributed by Oleg Kalnichevski <olegk at apache.org>
+
 * [HTTPCORE-228] Fixed NPE in AsyncNHttpServiceHandler caused by entity enclosing requests
   if no matching request handler can be found.  
   Contributed by Oleg Kalnichevski <olegk at apache.org>
