@@ -102,7 +102,14 @@ public abstract class AbstractSessionInputBuffer implements SessionInputBuffer, 
                      || this.charset.equalsIgnoreCase(HTTP.ASCII);
         this.maxLineLen = params.getIntParameter(CoreConnectionPNames.MAX_LINE_LENGTH, -1);
         this.minChunkLimit = params.getIntParameter(CoreConnectionPNames.MIN_CHUNK_LIMIT, 512);
-        this.metrics = new HttpTransportMetricsImpl();
+        this.metrics = createTransportMetrics();
+    }
+
+    /**
+     * @since 4.1
+     */
+    protected HttpTransportMetricsImpl createTransportMetrics() {
+        return new HttpTransportMetricsImpl();
     }
 
     /**

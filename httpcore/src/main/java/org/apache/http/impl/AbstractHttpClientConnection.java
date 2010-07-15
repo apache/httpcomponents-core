@@ -47,6 +47,7 @@ import org.apache.http.impl.io.HttpResponseParser;
 import org.apache.http.io.EofSensor;
 import org.apache.http.io.HttpMessageParser;
 import org.apache.http.io.HttpMessageWriter;
+import org.apache.http.io.HttpTransportMetrics;
 import org.apache.http.io.SessionInputBuffer;
 import org.apache.http.io.SessionOutputBuffer;
 import org.apache.http.message.LineFormatter;
@@ -185,6 +186,15 @@ public abstract class AbstractHttpClientConnection implements HttpClientConnecti
     }
 
     /**
+     * @since 4.1
+     */
+    protected HttpConnectionMetricsImpl createConnectionMetrics(
+            final HttpTransportMetrics inTransportMetric,
+            final HttpTransportMetrics outTransportMetric) {
+        return new HttpConnectionMetricsImpl(inTransportMetric, outTransportMetric);
+    }
+
+    /**
      * Initializes this connection object with {@link SessionInputBuffer} and
      * {@link SessionOutputBuffer} instances to be used for sending and
      * receiving data. These session buffers can be bound to any arbitrary
@@ -221,7 +231,7 @@ public abstract class AbstractHttpClientConnection implements HttpClientConnecti
                 params);
         this.requestWriter = createRequestWriter(
                 outbuffer, params);
-        this.metrics = new HttpConnectionMetricsImpl(
+        this.metrics = createConnectionMetrics(
                 inbuffer.getMetrics(),
                 outbuffer.getMetrics());
     }

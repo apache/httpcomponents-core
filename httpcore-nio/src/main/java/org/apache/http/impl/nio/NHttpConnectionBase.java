@@ -60,6 +60,7 @@ import org.apache.http.impl.nio.codecs.LengthDelimitedDecoder;
 import org.apache.http.impl.nio.codecs.LengthDelimitedEncoder;
 import org.apache.http.impl.nio.reactor.SessionInputBufferImpl;
 import org.apache.http.impl.nio.reactor.SessionOutputBufferImpl;
+import org.apache.http.io.HttpTransportMetrics;
 import org.apache.http.nio.reactor.EventMask;
 import org.apache.http.nio.reactor.IOSession;
 import org.apache.http.nio.reactor.SessionBufferStatus;
@@ -143,15 +144,31 @@ public class NHttpConnectionBase
         this.incomingContentStrategy = new LaxContentLengthStrategy();
         this.outgoingContentStrategy = new StrictContentLengthStrategy();
 
-        this.inTransportMetrics = new HttpTransportMetricsImpl();
-        this.outTransportMetrics = new HttpTransportMetricsImpl();
-        this.connMetrics = new HttpConnectionMetricsImpl(
+        this.inTransportMetrics = createTransportMetrics();
+        this.outTransportMetrics = createTransportMetrics();
+        this.connMetrics = createConnectionMetrics(
                 this.inTransportMetrics,
                 this.outTransportMetrics);
 
         this.session.setBufferStatus(this);
         this.session.setEvent(EventMask.READ);
         this.status = ACTIVE;
+    }
+
+    /**
+     * @since 4.1
+     */
+    protected HttpTransportMetricsImpl createTransportMetrics() {
+        return new HttpTransportMetricsImpl();
+    }
+
+    /**
+     * @since 4.1
+     */
+    protected HttpConnectionMetricsImpl createConnectionMetrics(
+            final HttpTransportMetrics inTransportMetric,
+            final HttpTransportMetrics outTransportMetric) {
+        return new HttpConnectionMetricsImpl(inTransportMetric, outTransportMetric);
     }
 
     public int getStatus() {

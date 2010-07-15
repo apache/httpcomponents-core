@@ -94,11 +94,18 @@ public abstract class AbstractSessionOutputBuffer implements SessionOutputBuffer
         this.ascii = this.charset.equalsIgnoreCase(HTTP.US_ASCII)
                      || this.charset.equalsIgnoreCase(HTTP.ASCII);
         this.minChunkLimit = params.getIntParameter(CoreConnectionPNames.MIN_CHUNK_LIMIT, 512);
-        this.metrics = new HttpTransportMetricsImpl();
+        this.metrics = createTransportMetrics();
     }
 
     /**
      * @since 4.1
+     */
+    protected HttpTransportMetricsImpl createTransportMetrics() {
+        return new HttpTransportMetricsImpl();
+    }
+
+    /**
+     * @since 4.`1
      */
     public int capacity() {
         return this.buffer.capacity();
