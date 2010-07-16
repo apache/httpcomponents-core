@@ -38,6 +38,8 @@ import org.apache.http.message.BasicHeader;
 public class BasicCompactHeader extends BasicHeader
     implements CompactHeader {
 
+    private static final long serialVersionUID = -8275767773930430518L;
+
     /** The compact name, if there is one. */
     private final String compact;
 
