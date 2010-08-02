@@ -442,17 +442,13 @@ public abstract class AbstractIOReactor implements IOReactor {
         if (!this.interestOpsQueueing) {
             return;
         }
-        synchronized (this.interestOpsQueue) {
-            while (!this.interestOpsQueue.isEmpty()) {
-                // get the first queue element
-                InterestOpEntry entry = this.interestOpsQueue.remove();
-
-                // obtain the operation's details
-                SelectionKey key = entry.getSelectionKey();
-                int eventMask = entry.getEventMask();
-                if (key.isValid()) {
-                    key.interestOps(eventMask);
-                }
+        InterestOpEntry entry;
+        while ((entry = this.interestOpsQueue.poll()) != null) {
+            // obtain the operation's details
+            SelectionKey key = entry.getSelectionKey();
+            int eventMask = entry.getEventMask();
+            if (key.isValid()) {
+                key.interestOps(eventMask);
             }
         }
     }
@@ -474,10 +470,8 @@ public abstract class AbstractIOReactor implements IOReactor {
             return false;
         }
 
-        synchronized (this.interestOpsQueue) {
-            // add this operation to the interestOps() queue
-            this.interestOpsQueue.add(entry);
-        }
+        // add this operation to the interestOps() queue
+        this.interestOpsQueue.add(entry);
 
         return true;
     }
