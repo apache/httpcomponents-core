@@ -33,7 +33,7 @@ package org.apache.http.impl.nio.reactor;
  *
  * @since 4.1
  */
-public interface InterestOpsCallback {
+interface InterestOpsCallback {
 
     void addInterestOps(InterestOpEntry entry);
 

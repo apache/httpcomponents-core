@@ -35,7 +35,7 @@ import java.nio.channels.SelectionKey;
  *
  * @since 4.1
  */
-public class InterestOpEntry {
+class InterestOpEntry {
 
     private final SelectionKey key;
     private final int eventMask;
