@@ -27,6 +27,11 @@
 
 package org.apache.http.message;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+
 import junit.framework.TestCase;
 
 import org.apache.http.HttpStatus;
@@ -77,6 +82,21 @@ public class TestStatusLine extends TestCase {
     public void testCloning() throws Exception {
         BasicStatusLine orig = new BasicStatusLine(HttpVersion.HTTP_1_1, HttpStatus.SC_OK, "OK");
         BasicStatusLine clone = (BasicStatusLine) orig.clone();
+        assertEquals(orig.getReasonPhrase(), clone.getReasonPhrase());
+        assertEquals(orig.getStatusCode(), clone.getStatusCode());
+        assertEquals(orig.getProtocolVersion(), clone.getProtocolVersion());
+    }
+
+    public void testSerialization() throws Exception {
+        BasicStatusLine orig = new BasicStatusLine(HttpVersion.HTTP_1_1, HttpStatus.SC_OK, "OK");
+        ByteArrayOutputStream outbuffer = new ByteArrayOutputStream();
+        ObjectOutputStream outstream = new ObjectOutputStream(outbuffer);
+        outstream.writeObject(orig);
+        outstream.close();
+        byte[] raw = outbuffer.toByteArray();
+        ByteArrayInputStream inbuffer = new ByteArrayInputStream(raw);
+        ObjectInputStream instream = new ObjectInputStream(inbuffer);
+        BasicStatusLine clone = (BasicStatusLine) instream.readObject();
         assertEquals(orig.getReasonPhrase(), clone.getReasonPhrase());
         assertEquals(orig.getStatusCode(), clone.getStatusCode());
         assertEquals(orig.getProtocolVersion(), clone.getProtocolVersion());

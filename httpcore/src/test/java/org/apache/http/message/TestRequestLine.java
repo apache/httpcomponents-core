@@ -27,6 +27,11 @@
 
 package org.apache.http.message;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+
 import junit.framework.TestCase;
 
 import org.apache.http.HttpVersion;
@@ -71,6 +76,21 @@ public class TestRequestLine extends TestCase {
     public void testCloning() throws Exception {
         BasicRequestLine orig = new BasicRequestLine("GET", "/stuff", HttpVersion.HTTP_1_1);
         BasicRequestLine clone = (BasicRequestLine) orig.clone();
+        assertEquals(orig.getMethod(), clone.getMethod());
+        assertEquals(orig.getUri(), clone.getUri());
+        assertEquals(orig.getProtocolVersion(), clone.getProtocolVersion());
+    }
+
+    public void testSerialization() throws Exception {
+        BasicRequestLine orig = new BasicRequestLine("GET", "/stuff", HttpVersion.HTTP_1_1);
+        ByteArrayOutputStream outbuffer = new ByteArrayOutputStream();
+        ObjectOutputStream outstream = new ObjectOutputStream(outbuffer);
+        outstream.writeObject(orig);
+        outstream.close();
+        byte[] raw = outbuffer.toByteArray();
+        ByteArrayInputStream inbuffer = new ByteArrayInputStream(raw);
+        ObjectInputStream instream = new ObjectInputStream(inbuffer);
+        BasicRequestLine clone = (BasicRequestLine) instream.readObject();
         assertEquals(orig.getMethod(), clone.getMethod());
         assertEquals(orig.getUri(), clone.getUri());
         assertEquals(orig.getProtocolVersion(), clone.getProtocolVersion());

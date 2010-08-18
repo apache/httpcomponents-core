@@ -27,6 +27,8 @@
 
 package org.apache.http.message;
 
+import java.io.Serializable;
+
 import org.apache.http.ProtocolVersion;
 import org.apache.http.StatusLine;
 
@@ -37,7 +39,9 @@ import org.apache.http.StatusLine;
  *
  * @since 4.0
  */
-public class BasicStatusLine implements StatusLine, Cloneable {
+public class BasicStatusLine implements StatusLine, Cloneable, Serializable {
+
+    private static final long serialVersionUID = -2443303766890459269L;
 
     // ----------------------------------------------------- Instance Variables
 

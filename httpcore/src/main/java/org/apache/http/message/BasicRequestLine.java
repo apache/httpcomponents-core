@@ -27,6 +27,8 @@
 
 package org.apache.http.message;
 
+import java.io.Serializable;
+
 import org.apache.http.ProtocolVersion;
 import org.apache.http.RequestLine;
 
@@ -35,7 +37,9 @@ import org.apache.http.RequestLine;
  *
  * @since 4.0
  */
-public class BasicRequestLine implements RequestLine, Cloneable {
+public class BasicRequestLine implements RequestLine, Cloneable, Serializable {
+
+    private static final long serialVersionUID = 2810581718468737193L;
 
     private final ProtocolVersion protoversion;
     private final String method;
