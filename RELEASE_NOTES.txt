@@ -1,4 +1,12 @@
-Changes since 4.1-BETA1
+Changes since 4.1-BETA2
+-------------------
+
+This is the second BETA release of HttpCore 4.1. This is mainly a bug fix release that addresses
+a number of non-critical bugs.
+
+The most significant change in this release is deprecation of the HttpEntity#consumeContent()
+method and streamlining of connection management and resource deallocation by HTTP entities. 
+Please refer to the javadocs for details.
 
 * [HTTPCORE-229] AbstractSessionInputBuffer#readLine(CharArrayBuffer) returns incorrect
   number of characters read by the method when using non-standard HTTP element charset.
