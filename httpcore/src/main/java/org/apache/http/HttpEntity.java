@@ -121,12 +121,12 @@ public interface HttpEntity {
     Header getContentEncoding();
 
     /**
-     * Returns a content stream of the entity. 
+     * Returns a content stream of the entity.
      * {@link #isRepeatable Repeatable} entities are expected
-     * to create a new instance of {@link InputStream} for each invocation 
-     * of this method and therefore can be consumed multiple times. 
-     * Entities that are not {@link #isRepeatable repeatable} are expected 
-     * to return the same {@link InputStream} instance and therefore 
+     * to create a new instance of {@link InputStream} for each invocation
+     * of this method and therefore can be consumed multiple times.
+     * Entities that are not {@link #isRepeatable repeatable} are expected
+     * to return the same {@link InputStream} instance and therefore
      * may not be consumed more than once.
      * <p>
      * IMPORTANT: Please note all entity implementations must ensure that
@@ -138,7 +138,7 @@ public interface HttpEntity {
      * @throws IOException if the stream could not be created
      * @throws IllegalStateException
      *  if content stream cannot be created.
-     *  
+     *
      * @see #isRepeatable()
      */
     InputStream getContent() throws IOException, IllegalStateException;
@@ -170,22 +170,28 @@ public interface HttpEntity {
     boolean isStreaming(); // don't expect an exception here
 
     /**
+     * This method is deprecated since version 4.1. Please use standard
+     * java convention to ensure resource deallocation by calling
+     * {@link InputStream#close()} on the input stream returned by
+     * {@link #getContent()}
+     * <p>
      * This method is called to indicate that the content of this entity
      * is no longer required. All entity implementations are expected to
      * release all allocated resources as a result of this method
      * invocation. Content streaming entities are also expected to
      * dispose of the remaining content, if any. Wrapping entities should
      * delegate this call to the wrapped entity.
-     * <br/>
+     * <p>
      * This method is of particular importance for entities being
      * received from a {@link HttpConnection connection}. The entity
      * needs to be consumed completely in order to re-use the connection
      * with keep-alive.
      *
      * @throws IOException if an I/O error occurs.
-     *          This indicates that connection keep-alive is not possible.
      *
-     * @deprecated see {@link #getContent()} and {@link #writeTo(OutputStream)}
+     * @deprecated Use {@link org.apache.http.util.EntityUtils#consume(HttpEntity)}
+     *
+     * @see #getContent() and #writeTo(OutputStream)
      */
     void consumeContent() throws IOException;
 
