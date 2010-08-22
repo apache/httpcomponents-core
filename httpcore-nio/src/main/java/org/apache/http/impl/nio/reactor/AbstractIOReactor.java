@@ -389,7 +389,7 @@ public abstract class AbstractIOReactor implements IOReactor {
             if (this.interestOpsQueueing) {
                 interestOpsCallback = new InterestOpsCallback() {
 
-                    public void addInterestOps(InterestOpEntry entry) {
+                    public void addInterestOps(final InterestOpEntry entry) {
                         queueInterestOps(entry);
                     }
 
@@ -453,15 +453,7 @@ public abstract class AbstractIOReactor implements IOReactor {
         }
     }
 
-    /**
-     * Adds an {@link InterestOpEntry} to the interest ops queue for this instance.
-     *
-     * @return <code>true</code> if the operation could be performed successfully,
-     *   <code>false</code> otherwise.
-     *
-     * @since 4.1
-     */
-    protected boolean queueInterestOps(final InterestOpEntry entry) {
+    private boolean queueInterestOps(final InterestOpEntry entry) {
         // validity checks
         if (!this.interestOpsQueueing) {
             throw new IllegalStateException("Interest ops queueing not enabled");
