@@ -1,4 +1,4 @@
-Changes since 4.1-BETA2
+Release 4.1-BETA2
 -------------------
 
 This is the second BETA release of HttpCore 4.1. This is mainly a bug fix release that addresses
