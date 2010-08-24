@@ -30,7 +30,7 @@
   <parent>
     <groupId>org.apache.httpcomponents</groupId>
     <artifactId>httpcomponents-core</artifactId>
-    <version>4.1-beta2-SNAPSHOT</version>
+    <version>4.1-beta2</version>
   </parent>
   <artifactId>httpcore-nio</artifactId>
   <name>HttpCore NIO</name>
