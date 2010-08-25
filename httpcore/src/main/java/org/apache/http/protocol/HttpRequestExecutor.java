@@ -126,14 +126,21 @@ public class HttpRequestExecutor {
             }
             return response;
         } catch (IOException ex) {
-            conn.close();
+            closeConnection(conn);
             throw ex;
         } catch (HttpException ex) {
-            conn.close();
+            closeConnection(conn);
             throw ex;
         } catch (RuntimeException ex) {
-            conn.close();
+            closeConnection(conn);
             throw ex;
+        }
+    }
+
+    private final static void closeConnection(final HttpClientConnection conn) {
+        try {
+            conn.close();
+        } catch (IOException ignore) {
         }
     }
 
