@@ -33,9 +33,9 @@ package org.apache.http;
  *
  * @since 4.1
  */
-public final class HttpHeader {
+public final class HttpHeaders {
 
-    private HttpHeader() {
+    private HttpHeaders() {
     }
 
     /** RFC 2616 (HTTP/1.1) Section 14.1 */
