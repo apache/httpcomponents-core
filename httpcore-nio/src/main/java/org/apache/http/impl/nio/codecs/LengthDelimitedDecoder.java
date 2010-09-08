@@ -75,16 +75,16 @@ public class LengthDelimitedDecoder extends AbstractContentDecoder
         if (this.completed) {
             return -1;
         }
-        int lenRemaining = (int) (this.contentLength - this.len);
+        int chunk = (int) Math.min((this.contentLength - this.len), Integer.MAX_VALUE);
 
         int bytesRead;
         if (this.buffer.hasData()) {
-            int maxLen = Math.min(lenRemaining, this.buffer.length());
+            int maxLen = Math.min(chunk, this.buffer.length());
             bytesRead = this.buffer.read(dst, maxLen);
         } else {
-            if (dst.remaining() > lenRemaining) {
+            if (dst.remaining() > chunk) {
                 int oldLimit = dst.limit();
-                int newLimit = oldLimit - (dst.remaining() - lenRemaining);
+                int newLimit = oldLimit - (dst.remaining() - chunk);
                 dst.limit(newLimit);
                 bytesRead = this.channel.read(dst);
                 dst.limit(oldLimit);
@@ -122,16 +122,16 @@ public class LengthDelimitedDecoder extends AbstractContentDecoder
             return -1;
         }
 
-        int lenRemaining = (int) (this.contentLength - this.len);
+        int chunk = (int) Math.min((this.contentLength - this.len), Integer.MAX_VALUE);
 
         long bytesRead;
         if (this.buffer.hasData()) {
-            int maxLen = Math.min(lenRemaining, this.buffer.length());
+            int maxLen = Math.min(chunk, this.buffer.length());
             dst.position(position);
             bytesRead = this.buffer.read(dst, maxLen);
         } else {
-            if (count > lenRemaining) {
-                count = lenRemaining;
+            if (count > chunk) {
+                count = chunk;
             }
             if (this.channel.isOpen()) {
                 if(dst.size() < position)
