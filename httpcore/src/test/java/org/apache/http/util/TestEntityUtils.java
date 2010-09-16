@@ -58,8 +58,7 @@ public class TestEntityUtils extends TestCase {
     public void testEmptyContentToByteArray() throws Exception {
         NullHttpEntity httpentity = new NullHttpEntity();
         byte[] bytes = EntityUtils.toByteArray(httpentity);
-        assertNotNull(bytes);
-        assertEquals(0, bytes.length);
+        assertNull(bytes);
     }
 
     public void testMaxIntContentToByteArray() throws Exception {
@@ -162,8 +161,7 @@ public class TestEntityUtils extends TestCase {
     public void testEmptyContentToString() throws Exception {
         NullHttpEntity httpentity = new NullHttpEntity();
         String s = EntityUtils.toString(httpentity);
-        assertNotNull(s);
-        assertEquals("", s);
+        assertNull(s);
     }
 
     public void testMaxIntContentToString() throws Exception {

@@ -73,7 +73,8 @@ public final class EntityUtils {
      * Read the contents of an entity and return it as a byte array.
      *
      * @param entity
-     * @return byte array containing the entity content. May be empty; never null.
+     * @return byte array containing the entity content. May be null if
+     *   {@link HttpEntity#getContent()} is null.
      * @throws IOException if an error occurs reading the input stream
      * @throws IllegalArgumentException if entity is null or if content length > Integer.MAX_VALUE
      */
@@ -83,7 +84,7 @@ public final class EntityUtils {
         }
         InputStream instream = entity.getContent();
         if (instream == null) {
-            return new byte[] {};
+            return null;
         }
         if (entity.getContentLength() > Integer.MAX_VALUE) {
             throw new IllegalArgumentException("HTTP entity too large to be buffered in memory");
@@ -161,7 +162,8 @@ public final class EntityUtils {
      *
      * @param entity must not be null
      * @param defaultCharset character set to be applied if none found in the entity
-     * @return the entity content as a String
+     * @return the entity content as a String. May be null if
+     *   {@link HttpEntity#getContent()} is null.
      * @throws ParseException if header elements cannot be parsed
      * @throws IllegalArgumentException if entity is null or if content length > Integer.MAX_VALUE
      * @throws IOException if an error occurs reading the input stream
@@ -173,7 +175,7 @@ public final class EntityUtils {
         }
         InputStream instream = entity.getContent();
         if (instream == null) {
-            return "";
+            return null;
         }
         if (entity.getContentLength() > Integer.MAX_VALUE) {
             throw new IllegalArgumentException("HTTP entity too large to be buffered in memory");
