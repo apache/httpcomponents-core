@@ -1,5 +1,9 @@
 Changes since 4.1-BETA2
 
+* [HTTPCORE-233]: EntityUtils#toString() and EntityUtils#toByteArray() to return null if
+  HttpEntity#getContent() is null
+  Contributed by Oleg Kalnichevski <olegk at apache.org>
+
 * [HTTPCORE-231] Fixed incorrect handling of HTTP entities by non-blocking LengthDelimitedDecoder
   when the Content-Length value is larger than Integer.MAX_VALUE.
   Contributed by Oleg Kalnichevski <olegk at apache.org>
