@@ -46,7 +46,7 @@ HttpCore Overview
     
 {Documentation}
 
-    * HttpCore Tutorial ( {{{./tutorial/html}HTML}} / {{{./tutorial/pdf/httpcore-tutorial.pdf}PDF}} )
+    * HttpCore Tutorial ( {{{./tutorial.html}HTML}} / {{{./tutorial/pdf/httpcore-tutorial.pdf}PDF}} )
     
     * Some examples of HttpCore components in action can be found {{{./examples.html}here}}
     
