@@ -72,10 +72,4 @@ public class EntityTemplate extends AbstractHttpEntity {
         return false;
     }
 
-    /**
-     * @deprecated
-     */
-    public void consumeContent() throws IOException {
-    }
-
 }

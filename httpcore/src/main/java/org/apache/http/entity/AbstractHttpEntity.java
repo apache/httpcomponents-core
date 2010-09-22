@@ -164,11 +164,12 @@ public abstract class AbstractHttpEntity implements HttpEntity {
 
 
     /**
-     * Does not consume anything.
+     * The default implementation does not consume anything.
      *
-     * @deprecated see {@link #getContent()} and {@link #writeTo(OutputStream)}
+     * @deprecated Either use {@link #getContent()} and call {@link java.io.InputStream#close()} on that;
+     * otherwise call {@link #writeTo(OutputStream)} which is required to free the resources.
      */
-    public void consumeContent() throws IOException, UnsupportedOperationException{
+    public void consumeContent() throws IOException {
     }
 
 }
