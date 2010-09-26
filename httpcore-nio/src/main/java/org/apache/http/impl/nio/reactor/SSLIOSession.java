@@ -279,7 +279,9 @@ public class SSLIOSession implements IOSession, SessionBufferStatus {
         decryptData();
         // Some decrypted data is available or at the end of stream
         return (this.appEventMask & SelectionKey.OP_READ) > 0
-            && (this.inPlain.position() > 0 || (this.endOfStream && this.status == ACTIVE));
+            && (this.inPlain.position() > 0 
+                    || (this.appBufferStatus != null && this.appBufferStatus.hasBufferedInput())
+                    || (this.endOfStream && this.status == ACTIVE));
     }
 
     /**

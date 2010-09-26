@@ -1,5 +1,9 @@
 Changes since 4.1-BETA2
 
+* [HTTPCORE-236]: SSLIOSession#isAppInputReady() does not check the status of the session input
+  buffer.
+  Contributed by Dmitry Lukyanov <dlukyanov at ukr.net>
+
 * [HTTPCORE-233]: EntityUtils#toString() and EntityUtils#toByteArray() to return null if
   HttpEntity#getContent() is null
   Contributed by Oleg Kalnichevski <olegk at apache.org>
