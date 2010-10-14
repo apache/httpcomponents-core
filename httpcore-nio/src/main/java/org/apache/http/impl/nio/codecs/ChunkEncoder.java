@@ -81,15 +81,14 @@ public class ChunkEncoder extends AbstractContentEncoder {
         } else {
             avail = 4096;
         }
-        if (avail == 0) {
-            return 0;
-        }
 
         // subtract the length of the longest chunk header
         // 12345678\r\n
-        avail -= 10;
-
-        if (avail < chunk) {
+        // <chunk-data>\r\n
+        avail -= 12;
+        if (avail <= 0) {
+            return 0;
+        } else if (avail < chunk) {
             // write no more than 'avail' bytes
             chunk = avail;
             this.lineBuffer.clear();

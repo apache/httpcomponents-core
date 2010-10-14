@@ -1,5 +1,9 @@
 Changes since 4.1-BETA2
 
+* [HTTPCORE-239]: The ChunkEncoder could request for a negative buffer limit causing an 
+  IllegalArgumentException.
+  Contributed by Asankha Perera <asankha at apache.org>
+
 * [HTTPCORE-236]: SSLIOSession#isAppInputReady() does not check the status of the session input
   buffer.
   Contributed by Dmitry Lukyanov <dlukyanov at ukr.net>

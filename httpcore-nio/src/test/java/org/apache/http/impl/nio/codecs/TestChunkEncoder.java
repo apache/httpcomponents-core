@@ -28,6 +28,8 @@
 package org.apache.http.impl.nio.codecs;
 
 import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 import java.nio.ByteBuffer;
 import java.nio.channels.Channels;
 import java.nio.channels.WritableByteChannel;
@@ -103,6 +105,42 @@ public class TestChunkEncoder extends TestCase {
         assertEquals("4\r\n1234\r\n0\r\n\r\n", s);
     }
 
+    public void testHttpCore239() throws Exception {
+        FixedByteChannel channel = new FixedByteChannel(16);
+        HttpParams params = new BasicHttpParams();
+        SessionOutputBuffer outbuf = new SessionOutputBufferImpl(16, 16, params);
+        HttpTransportMetricsImpl metrics = new HttpTransportMetricsImpl();
+        ChunkEncoder encoder = new ChunkEncoder(channel, outbuf, metrics);
+
+        // fill up the channel
+        channel.write(wrap("0123456789ABCDEF"));
+        // fill up the out buffer
+        outbuf.write(wrap("0123456789ABCDEF"));
+
+        ByteBuffer src = wrap("0123456789ABCDEF");
+        assertEquals(0, encoder.write(src));
+        assertEquals(0, encoder.write(src));
+        assertEquals(0, encoder.write(src));
+
+        // should not be able to copy any bytes, until we flush the channel and buffer
+        channel.reset();
+        outbuf.flush(channel);
+        channel.reset();
+
+        assertEquals(4, encoder.write(src));
+        channel.flush();
+        assertEquals(4, encoder.write(src));
+        channel.flush();
+        assertEquals(4, encoder.write(src));
+        channel.flush();
+        assertEquals(4, encoder.write(src));
+        channel.flush();
+        assertEquals(0, encoder.write(src));
+        
+        outbuf.flush(channel);
+        String s = channel.toString("US-ASCII");
+        assertEquals("4\r\n0123\r\n4\r\n4567\r\n4\r\n89AB\r\n4\r\nCDEF\r\n", s);
+    }
 
     public void testChunkExceed() throws Exception {
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
@@ -114,20 +152,21 @@ public class TestChunkEncoder extends TestCase {
 
         ByteBuffer src = wrap("0123456789ABCDEF");
 
-        assertEquals(6, encoder.write(src));
+        assertEquals(4, encoder.write(src));
         assertTrue(src.hasRemaining());
-        assertEquals(10, src.remaining());
+        assertEquals(12, src.remaining());
 
-        assertEquals(6, encoder.write(src));
+        assertEquals(4, encoder.write(src));
         assertTrue(src.hasRemaining());
-        assertEquals(4, src.remaining());
+        assertEquals(8, src.remaining());
 
+        assertEquals(4, encoder.write(src));
         assertEquals(4, encoder.write(src));
         assertFalse(src.hasRemaining());
 
         outbuf.flush(channel);
         String s = baos.toString("US-ASCII");
-        assertEquals("6\r\n012345\r\n6\r\n6789AB\r\n4\r\nCDEF\r\n", s);
+        assertEquals("4\r\n0123\r\n4\r\n4567\r\n4\r\n89AB\r\n4\r\nCDEF\r\n", s);
 
     }
 
@@ -208,6 +247,52 @@ public class TestChunkEncoder extends TestCase {
             fail("IllegalArgumentException should have been thrown");
         } catch (IllegalArgumentException ex) {
             // ignore
+        }
+    }
+
+    public class FixedByteChannel implements WritableByteChannel {
+
+        // collect bytes written for unit test result evaluation
+        private final ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        private final ByteBuffer buffer;
+
+        public FixedByteChannel(int size) {
+            this.buffer = ByteBuffer.allocate(size);
+        }
+
+        public int write(ByteBuffer src) throws IOException {
+            // copy bytes into baos for result evaluation
+            final int start = src.position();
+            int count = 0;
+            for (int i=start; i<src.limit() && buffer.remaining() > 0; i++) {
+                final byte b = src.get(i);
+                baos.write(b);
+                buffer.put(b);
+                count++;
+            }
+            // update processed position on src buffer
+            src.position(src.position() + count);
+            return count;
+        }
+
+        public boolean isOpen() {
+            return false;
+        }
+
+        public void close() throws IOException {
+        }
+
+        public void flush() {
+            buffer.clear();
+        }
+
+        public void reset() {
+            baos.reset();
+            buffer.clear();
+        }
+
+        public String toString(String encoding) throws UnsupportedEncodingException {
+            return baos.toString(encoding);
         }
     }
 
