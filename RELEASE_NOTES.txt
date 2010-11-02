@@ -1,4 +1,8 @@
-Changes since 4.1-BETA2
+Release 4.1
+-------------------
+
+* [HTTPCORE-240]: DefaultConnectingIOReactor leaks a socket descriptor if the session request fails.
+  Contributed by Oleg Kalnichevski <olegk at apache.org>
 
 * [HTTPCORE-239]: The ChunkEncoder could request for a negative buffer limit causing an 
   IllegalArgumentException.

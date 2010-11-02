@@ -187,13 +187,14 @@ public class DefaultListeningIOReactor extends AbstractMultiworkerIOReactor
             ServerSocketChannel serverChannel;
             try {
                 serverChannel = ServerSocketChannel.open();
-                serverChannel.configureBlocking(false);
             } catch (IOException ex) {
                 throw new IOReactorException("Failure opening server socket", ex);
             }
             try {
+                serverChannel.configureBlocking(false);
                 serverChannel.socket().bind(address);
             } catch (IOException ex) {
+                closeChannel(serverChannel);
                 request.failed(ex);
                 if (this.exceptionHandler == null || !this.exceptionHandler.handle(ex)) {
                     throw new IOReactorException("Failure binding socket to address "
@@ -207,6 +208,7 @@ public class DefaultListeningIOReactor extends AbstractMultiworkerIOReactor
                 key.attach(request);
                 request.setKey(key);
             } catch (IOException ex) {
+                closeChannel(serverChannel);
                 throw new IOReactorException("Failure registering channel " +
                         "with the selector", ex);
             }

@@ -87,6 +87,10 @@ public class SessionRequestImpl implements SessionRequest {
         return this.completed;
     }
 
+    protected void setKey(final SelectionKey key) {
+        this.key = key;
+    }
+
     public void waitFor() throws InterruptedException {
         if (this.completed) {
             return;
@@ -135,6 +139,16 @@ public class SessionRequestImpl implements SessionRequest {
             return;
         }
         this.completed = true;
+        SelectionKey key = this.key;
+        if (key != null) {
+            key.cancel();
+            Channel channel = key.channel();
+            if (channel.isOpen()) {
+                try {
+                    channel.close();
+                } catch (IOException ignore) {}
+            }
+        }
         synchronized (this) {
             this.exception = exception;
             if (this.callback != null) {
@@ -149,9 +163,10 @@ public class SessionRequestImpl implements SessionRequest {
             return;
         }
         this.completed = true;
-        if (this.key != null) {
-            this.key.cancel();
-            Channel channel = this.key.channel();
+        SelectionKey key = this.key;
+        if (key != null) {
+            key.cancel();
+            Channel channel = key.channel();
             if (channel.isOpen()) {
                 try {
                     channel.close();
@@ -172,14 +187,11 @@ public class SessionRequestImpl implements SessionRequest {
     public void setConnectTimeout(int timeout) {
         if (this.connectTimeout != timeout) {
             this.connectTimeout = timeout;
-            if (this.key != null) {
-                this.key.selector().wakeup();
+            SelectionKey key = this.key;
+            if (key != null) {
+                key.selector().wakeup();
             }
         }
-    }
-
-    protected void setKey(final SelectionKey key) {
-        this.key = key;
     }
 
     public void cancel() {
@@ -187,9 +199,10 @@ public class SessionRequestImpl implements SessionRequest {
             return;
         }
         this.completed = true;
-        if (this.key != null) {
-            this.key.cancel();
-            Channel channel = this.key.channel();
+        SelectionKey key = this.key;
+        if (key != null) {
+            key.cancel();
+            Channel channel = key.channel();
             if (channel.isOpen()) {
                 try {
                     channel.close();

@@ -222,11 +222,11 @@ public class DefaultConnectingIOReactor extends AbstractMultiworkerIOReactor
             SocketChannel socketChannel;
             try {
                 socketChannel = SocketChannel.open();
-                socketChannel.configureBlocking(false);
             } catch (IOException ex) {
                 throw new IOReactorException("Failure opening socket", ex);
             }
             try {
+                socketChannel.configureBlocking(false);
                 validateAddress(request.getLocalAddress());
                 validateAddress(request.getRemoteAddress());
 
@@ -243,18 +243,18 @@ public class DefaultConnectingIOReactor extends AbstractMultiworkerIOReactor
                     return;
                 }
             } catch (IOException ex) {
+                closeChannel(socketChannel);
                 request.failed(ex);
                 return;
             }
 
             SessionRequestHandle requestHandle = new SessionRequestHandle(request);
-            SelectionKey key;
             try {
-                key = socketChannel.register(this.selector, SelectionKey.OP_CONNECT, requestHandle);
+                SelectionKey key = socketChannel.register(this.selector, SelectionKey.OP_CONNECT, 
+                        requestHandle);
                 request.setKey(key);
-            } catch (CancelledKeyException ex) {
-                // Ignore cancelled keys
             } catch (IOException ex) {
+                closeChannel(socketChannel);
                 throw new IOReactorException("Failure registering channel " +
                         "with the selector", ex);
             }
