@@ -1,6 +1,21 @@
 Release 4.1
 -------------------
 
+This is the first stable (GA) release of HttpCore 4.1. This release provides a compatibility mode 
+with JREs that have a naive (broken) implementation of SelectionKey API and also improves
+compatibility with the Google Android platform. There has also been a number of performance 
+related improvements and bug fixes in both blocking and non-blocking components. 
+
+All upstream projects are encouraged to upgrade.
+
+HttpCore is a set of low level HTTP transport components that can be used to build custom
+client and server side HTTP services with a minimal footprint. HttpCore supports two I/O
+models: blocking I/O model based on the classic Java I/O and non-blocking, event driven I/O
+model based on Java NIO.  The blocking I/O model may be more appropriate for data intensive,
+low latency scenarios, whereas the non-blocking model may be more appropriate for high latency
+scenarios where raw data throughput is less important than the ability to handle thousands of
+simultaneous HTTP connections in a resource efficient manner.
+
 * [HTTPCORE-240]: DefaultConnectingIOReactor leaks a socket descriptor if the session request fails.
   Contributed by Oleg Kalnichevski <olegk at apache.org>
 
