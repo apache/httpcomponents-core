@@ -37,16 +37,8 @@
   <description>
    AB clone based on HttpCore
   </description>
-  <url>http://hc.apache.org/httpcomponents-core</url>
+  <url>http://hc.apache.org/httpcomponents-core-ga</url>
   <packaging>jar</packaging>  
-
-  <licenses>
-    <license>
-      <name>Apache License</name>
-      <url>../LICENSE.txt</url>
-      <distribution>repo</distribution>
-    </license>
-  </licenses>
 
   <dependencies>
     <dependency>

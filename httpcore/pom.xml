@@ -36,18 +36,10 @@
   <name>HttpCore</name>
   <inceptionYear>2005</inceptionYear>
   <description>
-   HttpComponents Core (Java 1.3 compatible)
+   HttpComponents Core (blocking I/O)
   </description>
-  <url>http://hc.apache.org/httpcomponents-core/</url>
+  <url>http://hc.apache.org/httpcomponents-core-ga/</url>
   <packaging>jar</packaging>  
-
-  <licenses>
-    <license>
-      <name>Apache License</name>
-      <url>http://www.apache.org/licenses/LICENSE-2.0.html</url>
-      <distribution>repo</distribution>
-    </license>
-  </licenses>
 
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -75,31 +67,9 @@
     <resources>
       <resource>
         <directory>src/main/resources</directory>
-        <filtering>false</filtering>
-        <includes>
-            <include>META-INF/*</include>
-        </includes>
-      </resource>
-      <resource>
-        <directory>src/main/resources</directory>
         <filtering>true</filtering>
         <includes>
             <include>**/*.properties</include>
-        </includes>
-      </resource>
-      <resource>
-        <directory>..</directory>
-        <targetPath>META-INF</targetPath>
-        <includes>
-          <include>LICENSE.txt</include>
-        </includes>
-      </resource>
-      <resource>
-        <directory>../src/main/resources</directory>
-        <targetPath>META-INF</targetPath>
-        <filtering>true</filtering>
-        <includes>
-          <include>NOTICE.txt</include>
         </includes>
       </resource>
     </resources>
@@ -170,7 +140,7 @@
         <configuration>
           <source>1.5</source>
           <links>
-            <link>http://java.sun.com/j2se/1.5.0/docs/api/</link>
+            <link>http://download.oracle.com/javase/1.5.0/docs/api/</link>
           </links>
         </configuration>
         <reportSets>
@@ -183,19 +153,27 @@
       </plugin>
 
       <plugin>
-        <artifactId>maven-jxr-plugin</artifactId>
-      </plugin>
-
-      <plugin>
-        <artifactId>maven-surefire-report-plugin</artifactId>
-      </plugin>
-
-      <plugin>
         <groupId>com.atlassian.maven.plugins</groupId>
         <artifactId>maven-clover2-plugin</artifactId>
         <configuration>
           <jdk>1.4</jdk>
         </configuration>
+      </plugin>
+
+      <plugin>
+        <groupId>org.codehaus.mojo</groupId>
+        <artifactId>clirr-maven-plugin</artifactId>
+        <configuration>
+          <comparisonVersion>4.0</comparisonVersion>
+        </configuration>
+      </plugin>
+
+      <plugin>
+        <artifactId>maven-jxr-plugin</artifactId>
+      </plugin>
+
+      <plugin>
+        <artifactId>maven-surefire-report-plugin</artifactId>
       </plugin>
 
     </plugins>

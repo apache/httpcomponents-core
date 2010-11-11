@@ -42,7 +42,7 @@
   <packaging>pom</packaging>
 
   <organization>
-    <name>Apache Software Foundation</name>
+    <name>The Apache Software Foundation</name>
     <url>http://www.apache.org/</url>
   </organization>
 
@@ -91,6 +91,22 @@
   <build>
     <plugins>
       <plugin>
+        <artifactId>maven-notice-plugin</artifactId>
+        <groupId>org.apache.httpcomponents</groupId>
+        <version>0.0.2-SNAPSHOT</version>
+        <executions>
+          <execution>
+            <id>attach-notice-license</id>
+            <goals>
+              <goal>generate</goal>
+            </goals>
+          </execution>
+        </executions>
+        <configuration>
+          <projectTitle>Apache HttpComponents</projectTitle>
+        </configuration>
+      </plugin>
+      <plugin>
         <artifactId>maven-source-plugin</artifactId>
         <executions>
           <execution>
@@ -106,7 +122,7 @@
         <configuration>
           <source>1.5</source>
           <links>
-            <link>http://java.sun.com/j2se/1.5.0/docs/api/</link>
+            <link>http://download.oracle.com/javase/1.5.0/docs/api/</link>
           </links>
         </configuration>
       </plugin>
@@ -121,7 +137,6 @@
       </plugin>
       <plugin>
         <artifactId>maven-assembly-plugin</artifactId>
-        <version>2.2-beta-3</version>
         <configuration>
           <descriptors>
             <descriptor>src/main/assembly/bin.xml</descriptor>
@@ -154,7 +169,27 @@
       <plugin>
         <groupId>com.agilejava.docbkx</groupId>
         <artifactId>docbkx-maven-plugin</artifactId>
+        <dependencies>
+          <dependency>
+            <groupId>org.docbook</groupId>
+            <artifactId>docbook-xml</artifactId>
+            <version>4.4</version>
+            <scope>runtime</scope>
+          </dependency>
+        </dependencies>
         <configuration>
+          <includes>index.xml</includes>
+          <chunkedOutput>true</chunkedOutput>
+          <xincludeSupported>true</xincludeSupported>
+          <foCustomization>src/docbkx/resources/xsl/fopdf.xsl</foCustomization>
+          <htmlCustomization>src/docbkx/resources/xsl/html_chunk.xsl</htmlCustomization>
+          <htmlStylesheet>css/hc-tutorial.css</htmlStylesheet>
+          <entities>
+            <entity>
+              <name>version</name>
+              <value>${project.version}</value>
+            </entity>
+          </entities>
           <postProcess>
             <copy todir="target/site/tutorial">
               <fileset dir="target/docbkx">
@@ -173,6 +208,27 @@
             <move file="target/site/tutorial/pdf/index.pdf" tofile="target/site/tutorial/pdf/httpcore-tutorial.pdf" failonerror="false" />
           </postProcess>
         </configuration>
+      </plugin>
+      <plugin>
+        <artifactId>maven-resources-plugin</artifactId>
+        <executions>
+          <execution>
+            <id>copy-resources</id>
+            <phase>pre-site</phase>
+            <goals>
+              <goal>copy-resources</goal>
+            </goals>
+            <configuration>
+              <outputDirectory>${basedir}/target/site/examples</outputDirectory>
+              <resources>
+                <resource>
+                  <directory>src/examples</directory>
+                  <filtering>false</filtering>
+                </resource>
+              </resources>
+            </configuration>
+          </execution>
+        </executions>
       </plugin>
     </plugins>
   </build>
@@ -193,14 +249,6 @@
              </reports>
            </reportSet>
          </reportSets>
-      </plugin>
-
-      <plugin>
-        <groupId>org.codehaus.mojo</groupId>
-        <artifactId>clirr-maven-plugin</artifactId>
-        <configuration>
-          <comparisonVersion>4.0</comparisonVersion>
-        </configuration>
       </plugin>
 
     </plugins>
