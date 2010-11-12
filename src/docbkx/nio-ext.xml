@@ -424,6 +424,24 @@ SessionRequest sessionRequest = ioreactor.connect(
         </section>
     </section>
     <section>
+        <title>Queuing of I/O interest set operations</title>
+        <para>
+        Several older JRE implementations (primarily from IBM) provide what Java API documentation
+        refers to as a naive implementation of the <classname>java.nio.channels.SelectionKey
+        </classname> class. The problem with <classname>java.nio.channels.SelectionKey
+        </classname> in such JREs is that reading or writing of the I/O interest set may block 
+        indefinitely if the I/O selector is in the process of executing a select operation. 
+        HttpCore NIO can be configured to operate in a special mode wherein I/O interest set 
+        operations are queued and executed by on the dispatch thread only when the I/O selector is 
+        not engaged in a select operation.
+        </para>
+        <programlisting><![CDATA[
+HttpParams params = new BasicHttpParams();
+NIOReactorParams.setInterestOpsQueueing(params, true);
+ListeningIOReactor ioreactor = new DefaultListeningIOReactor(2, params);
+]]></programlisting>
+    </section>
+    <section>
         <title>I/O reactor exception handling</title>
         <para>
         Protocol specific exceptions as well as those I/O exceptions thrown in the course of 
