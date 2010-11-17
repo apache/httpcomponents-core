@@ -39,7 +39,7 @@
     <created>2007-11-15</created>
     <license rdf:resource="http://usefulinc.com/doap/licenses/asl20" />
     <name>Apache HttpComponents Core</name>
-    <homepage rdf:resource="http://hc.apache.org/httpcomponents-core/" />
+    <homepage rdf:resource="http://hc.apache.org/httpcomponents-core-ga/" />
     <asfext:pmc rdf:resource="http://httpcomponents.apache.org" />
     <shortdesc>
 Java libraries for bare-bone HTTP communication,

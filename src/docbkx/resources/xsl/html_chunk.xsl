@@ -103,7 +103,7 @@
                title="Apache Software Foundation">
                 <img style="border:none;" src="images/asf_logo_wide.gif"/>
             </a>
-            <a class="bannerRight" href="http://hc.apache.org/httpcomponents-core/"
+            <a class="bannerRight" href="http://hc.apache.org/httpcomponents-core-ga/"
                title="Apache HttpComponents Core">
                 <img style="border:none;" src="images/hc_logo.png"/>
             </a>
