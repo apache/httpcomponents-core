@@ -1,10 +1,17 @@
+Changes since 4.1
+
+* [HTTPCORE-242]: Fixed NPE in AsyncNHttpClientHandler caused by an early response to an
+  entity enclosing request.
+  Contributed by Oleg Kalnichevski <olegk at apache.org>
+
+
 Release 4.1
 -------------------
 
-This is the first stable (GA) release of HttpCore 4.1. This release provides a compatibility mode 
+This is the first stable (GA) release of HttpCore 4.1. This release provides a compatibility mode
 with JREs that have a naive (broken) implementation of SelectionKey API and also improves
-compatibility with the Google Android platform. There has also been a number of performance 
-related improvements and bug fixes in both blocking and non-blocking components. 
+compatibility with the Google Android platform. There has also been a number of performance
+related improvements and bug fixes in both blocking and non-blocking components.
 
 All upstream projects are encouraged to upgrade.
 
@@ -19,7 +26,7 @@ simultaneous HTTP connections in a resource efficient manner.
 * [HTTPCORE-240]: DefaultConnectingIOReactor leaks a socket descriptor if the session request fails.
   Contributed by Oleg Kalnichevski <olegk at apache.org>
 
-* [HTTPCORE-239]: The ChunkEncoder could request for a negative buffer limit causing an 
+* [HTTPCORE-239]: The ChunkEncoder could request for a negative buffer limit causing an
   IllegalArgumentException.
   Contributed by Asankha Perera <asankha at apache.org>
 

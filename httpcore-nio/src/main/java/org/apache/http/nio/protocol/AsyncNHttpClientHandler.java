@@ -212,6 +212,8 @@ public class AsyncNHttpClientHandler extends NHttpHandlerBase
                         CoreProtocolPNames.WAIT_FOR_CONTINUE, 3000);
                 conn.setSocketTimeout(timeout);
                 connState.setOutputState(ClientConnState.EXPECT_CONTINUE);
+            } else if (connState.getProducingEntity() != null) {
+                connState.setOutputState(ClientConnState.REQUEST_BODY_STREAM);
             }
 
         } catch (IOException ex) {
@@ -266,6 +268,9 @@ public class AsyncNHttpClientHandler extends NHttpHandlerBase
             ProducingNHttpEntity entity = connState.getProducingEntity();
 
             entity.produceContent(encoder, conn);
+            if (encoder.isCompleted()) {
+                connState.setOutputState(ClientConnState.REQUEST_BODY_DONE);
+            }
         } catch (IOException ex) {
             shutdownConnection(conn, ex);
             if (this.eventListener != null) {
@@ -295,9 +300,13 @@ public class AsyncNHttpClientHandler extends NHttpHandlerBase
                 return;
             } else {
                 connState.setResponse(response);
-
                 if (connState.getOutputState() == ClientConnState.EXPECT_CONTINUE) {
                     cancelRequest(conn, connState);
+                } else if (connState.getOutputState() == ClientConnState.REQUEST_BODY_STREAM) {
+                    // Early response
+                    cancelRequest(conn, connState);
+                    connState.invalidate();
+                    conn.suspendOutput();
                 }
             }
 
@@ -378,7 +387,7 @@ public class AsyncNHttpClientHandler extends NHttpHandlerBase
         conn.setSocketTimeout(timeout);
 
         conn.requestOutput();
-        connState.setOutputState(ClientConnState.REQUEST_SENT);
+        connState.setOutputState(ClientConnState.REQUEST_BODY_STREAM);
     }
 
     private void cancelRequest(
@@ -404,7 +413,7 @@ public class AsyncNHttpClientHandler extends NHttpHandlerBase
 
         this.execHandler.handleResponse(response, context);
 
-        if (!this.connStrategy.keepAlive(response, context)) {
+        if (!connState.isValid() || !this.connStrategy.keepAlive(response, context)) {
             conn.close();
         } else {
             // Ready for another request
@@ -431,8 +440,13 @@ public class AsyncNHttpClientHandler extends NHttpHandlerBase
         private HttpResponse response;
         private ConsumingNHttpEntity consumingEntity;
         private ProducingNHttpEntity producingEntity;
-
+        private boolean valid;
         private int timeout;
+
+        public ClientConnState() {
+            super();
+            this.valid = true;
+        }
 
         public void setConsumingEntity(final ConsumingNHttpEntity consumingEntity) {
             this.consumingEntity = consumingEntity;
@@ -503,6 +517,15 @@ public class AsyncNHttpClientHandler extends NHttpHandlerBase
             resetInput();
             resetOutput();
         }
+
+        public boolean isValid() {
+            return this.valid;
+        }
+
+        public void invalidate() {
+            this.valid = false;
+        }
+
     }
 
 }
