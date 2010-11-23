@@ -408,14 +408,18 @@ public class AsyncNHttpClientHandler extends NHttpHandlerBase
             final NHttpClientConnection conn,
             final ClientConnState connState) throws IOException, HttpException {
 
+        if (!connState.isValid()) {
+            conn.close();
+        }
+
         HttpContext context = conn.getContext();
         HttpResponse response = connState.getResponse();
-
         this.execHandler.handleResponse(response, context);
-
-        if (!connState.isValid() || !this.connStrategy.keepAlive(response, context)) {
+        if (!this.connStrategy.keepAlive(response, context)) {
             conn.close();
-        } else {
+        }
+
+        if (conn.isOpen()) {
             // Ready for another request
             connState.resetInput();
             connState.resetOutput();
