@@ -142,21 +142,30 @@ public class DefaultClientIOEventDispatch implements IOEventDispatch {
         }
     }
 
+    private void ensureNotNull(final NHttpClientIOTarget conn) {
+        if (conn == null) {
+            throw new IllegalStateException("HTTP connection is null");
+        }
+    }
+
     public void inputReady(final IOSession session) {
         NHttpClientIOTarget conn =
             (NHttpClientIOTarget) session.getAttribute(ExecutionContext.HTTP_CONNECTION);
+        ensureNotNull(conn);
         conn.consumeInput(this.handler);
     }
 
     public void outputReady(final IOSession session) {
         NHttpClientIOTarget conn =
             (NHttpClientIOTarget) session.getAttribute(ExecutionContext.HTTP_CONNECTION);
+        ensureNotNull(conn);
         conn.produceOutput(this.handler);
     }
 
     public void timeout(final IOSession session) {
         NHttpClientIOTarget conn =
             (NHttpClientIOTarget) session.getAttribute(ExecutionContext.HTTP_CONNECTION);
+        ensureNotNull(conn);
         this.handler.timeout(conn);
     }
 

@@ -217,11 +217,25 @@ public class SSLServerIOEventDispatch implements IOEventDispatch {
         }
     }
 
+    private void ensureNotNull(final NHttpServerIOTarget conn) {
+        if (conn == null) {
+            throw new IllegalStateException("HTTP connection is null");
+        }
+    }
+
+    private void ensureNotNull(final SSLIOSession ssliosession) {
+        if (ssliosession == null) {
+            throw new IllegalStateException("SSL I/O session is null");
+        }
+    }
+
     public void inputReady(final IOSession session) {
         NHttpServerIOTarget conn =
             (NHttpServerIOTarget) session.getAttribute(ExecutionContext.HTTP_CONNECTION);
+        ensureNotNull(conn);
         SSLIOSession sslSession =
             (SSLIOSession) session.getAttribute(SSL_SESSION);
+        ensureNotNull(sslSession);
 
         try {
             if (sslSession.isAppInputReady()) {
@@ -237,8 +251,10 @@ public class SSLServerIOEventDispatch implements IOEventDispatch {
     public void outputReady(final IOSession session) {
         NHttpServerIOTarget conn =
             (NHttpServerIOTarget) session.getAttribute(ExecutionContext.HTTP_CONNECTION);
+        ensureNotNull(conn);
         SSLIOSession sslSession =
             (SSLIOSession) session.getAttribute(SSL_SESSION);
+        ensureNotNull(sslSession);
 
         try {
             if (sslSession.isAppOutputReady()) {
@@ -254,8 +270,10 @@ public class SSLServerIOEventDispatch implements IOEventDispatch {
     public void timeout(final IOSession session) {
         NHttpServerIOTarget conn =
             (NHttpServerIOTarget) session.getAttribute(ExecutionContext.HTTP_CONNECTION);
+        ensureNotNull(conn);
         SSLIOSession sslSession =
             (SSLIOSession) session.getAttribute(SSL_SESSION);
+        ensureNotNull(sslSession);
 
         this.handler.timeout(conn);
         synchronized (sslSession) {
