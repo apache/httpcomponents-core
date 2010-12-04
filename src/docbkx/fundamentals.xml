@@ -626,7 +626,7 @@ HttpEntity entity = response.getEntity();
 if (entity != null) {
     // Do something useful with the entity and, when done, ensure all 
     // content has been consumed, so that the underlying connection 
-    // coult be re-used 
+    // can be re-used 
     EntityUtils.consume(entity);
 }
 ]]></programlisting>
@@ -828,7 +828,7 @@ conn.sendResponseEntity(response);
                 <title><classname>RequestDate</classname></title>
                 <para>
                 <classname>RequestDate</classname> is responsible for adding 
-                <literal>Date</literal> header to the outgoing requests This interceptor is 
+                <literal>Date</literal> header to the outgoing requests. This interceptor is 
                 optional for client side protocol processors.
                 </para>
             </section>
@@ -903,7 +903,7 @@ httpproc.process(response, context);
 ]]></programlisting>
             <para>
             Please note the <classname>BasicHttpProcessor</classname> class does not synchronize 
-            access to its internal structures and therefore amy be thread-unsafe.
+            access to its internal structures and therefore may be thread-unsafe.
             </para>
         </section>
         <section>
@@ -1037,7 +1037,7 @@ null
 ]]></programlisting>
         <para>
         Please note the <classname>BasicHttpParams</classname> class does not synchronize access to 
-        its internal structures and therefore amy be thread-unsafe.
+        its internal structures and therefore may be thread-unsafe.
         </para>
         <section>
             <title>HTTP parameter beans</title>
