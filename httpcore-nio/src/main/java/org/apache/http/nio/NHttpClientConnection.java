@@ -61,13 +61,13 @@ public interface NHttpClientConnection extends NHttpConnection {
     boolean isRequestSubmitted();
 
     /**
-     * Resets input state. This method can be used to prematurely terminate
+     * Resets output state. This method can be used to prematurely terminate
      * processing of the outgoing HTTP request.
      */
     void resetOutput();
 
     /**
-     * Resets output state. This method can be used to prematurely terminate
+     * Resets input state. This method can be used to prematurely terminate
      * processing of the incoming HTTP response.
      */
     void resetInput();
