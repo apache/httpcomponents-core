@@ -80,7 +80,7 @@
         reactors is to react to I/O events and to dispatch event notifications to individual I/O 
         sessions. The main idea of I/O reactor pattern is to break away from the one thread per 
         connection model imposed by the classic blocking I/O model. The <interfacename>IOReactor
-        </interfacename> interface represents an abstract object implementing the Reactor pattern. 
+        </interfacename> interface represents an abstract object which implements the Reactor pattern. 
         Internally, <interfacename>IOReactor</interfacename> implementations encapsulate 
         functionality of the NIO <classname>java.nio.channels.Selector</classname>.
         </para>
@@ -711,10 +711,9 @@ ByteBuffer src = ByteBuffer.allocate(2048);
 encoder.write(src);
 // Mark content entity as fully transferred when done
 encoder.complete();
-}
 ]]></programlisting>
             <para>
-            Please note, one still has to provide an !HttpEntity instance when submitting an entity 
+            Please note, one still has to provide an HttpEntity instance when submitting an entity 
             enclosing message to the non-blocking HTTP connection. Properties of that entity will 
             be used to initialize an <interfacename>ContentEncoder</interfacename> instance to be 
             used for transferring entity content. Non-blocking HTTP connections, however, ignore 
@@ -866,7 +865,7 @@ if (encoder instanceof FileContentEncoder) {
                 <formalpara>
                 <title><methodname>connected</methodname>:</title>
                 <para>
-                Triggered when a when a new incoming connection has been created.
+                Triggered when a new incoming connection has been created.
                 </para>
                 </formalpara>
             </listitem>
@@ -909,15 +908,6 @@ if (encoder instanceof FileContentEncoder) {
                 response entity through the corresponding content encoder. If the content producer is 
                 unable to generate the outgoing content, output event notifications can be temporarily 
                 suspended using <interfacename>IOControl</interfacename> interface.
-                </para>
-                </formalpara>
-            </listitem>
-            <listitem>
-                <formalpara>
-                <title><methodname>exception</methodname>:</title>
-                <para>
-                Triggered when an I/O error occurrs while reading from or writing to the underlying 
-                channel or when an HTTP protocol violation occurs while receiving an HTTP request.
                 </para>
                 </formalpara>
             </listitem>
@@ -1011,15 +1001,6 @@ if (encoder instanceof FileContentEncoder) {
                 <para>
                 Triggered when an I/O error occurs while reading from or writing to the underlying 
                 channel or when an HTTP protocol violation occurs while receiving an HTTP response..
-                </para>
-                </formalpara>
-            </listitem>
-            <listitem>
-                <formalpara>
-                <title><methodname>exception</methodname>:</title>
-                <para>
-                Triggered when an I/O error occurrs while reading from or writing to the underlying 
-                channel or when an HTTP protocol violation occurs while receiving an HTTP request.
                 </para>
                 </formalpara>
             </listitem>
@@ -1123,7 +1104,7 @@ if (encoder instanceof FileContentEncoder) {
                 <title><classname>ConsumingNHttpEntityTemplate</classname></title>
                 <para>
                 <classname>ConsumingNHttpEntityTemplate</classname> is a subclass of <classname>
-                HttpEntityWrapper</classname> that that decorates the incoming HTTP entity and 
+                HttpEntityWrapper</classname> that decorates the incoming HTTP entity and 
                 delegates the handling of incoming content to a <interfacename>ContentListener
                 </interfacename> instance.
                 </para>
@@ -1498,13 +1479,6 @@ handler.setHandlerResolver(handlerResolver);
             </methodname>method is called to process the response. 
             </para>
             <para>
-            If incoming responses enclose a content entity, <interfacename>
-            NHttpRequestExecutionHandler</interfacename> is expected to return a <interfacename>
-            ConsumingNHttpEntity</interfacename> for reading the content. After the entity is 
-            finished reading the data, <methodname>NHttpRequestExecutionHandler#handleResponse()
-            </methodname>method is called to process the response. 
-            </para>
-            <para>
             <classname>AsyncNHttpClientHandler</classname> relies on <interfacename>HttpProcessor
             </interfacename>to generate mandatory protocol headers for all outgoing messages and 
             apply common, cross-cutting message transformations to all incoming and outgoing 
@@ -1533,7 +1507,7 @@ AsyncNHttpClientHandler handler = new AsyncNHttpClientHandler(
                 HTTP response. 
                 </para>
                 <para>
-                HTTP request execution exents as defined by the <interfacename>
+                HTTP request execution events as defined by the <interfacename>
                 NHttpRequestExecutionHandler</interfacename> interface:
                 </para>
                 <itemizedlist>
