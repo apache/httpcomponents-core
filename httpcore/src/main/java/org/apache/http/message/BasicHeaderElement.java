@@ -115,7 +115,6 @@ public class BasicHeaderElement implements HeaderElement, Cloneable {
     }
 
     public boolean equals(final Object object) {
-        if (object == null) return false;
         if (this == object) return true;
         if (object instanceof HeaderElement) {
             BasicHeaderElement that = (BasicHeaderElement) object;

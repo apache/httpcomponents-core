@@ -84,7 +84,6 @@ public class BasicNameValuePair implements NameValuePair, Cloneable, Serializabl
     }
 
     public boolean equals(final Object object) {
-        if (object == null) return false;
         if (this == object) return true;
         if (object instanceof NameValuePair) {
             BasicNameValuePair that = (BasicNameValuePair) object;

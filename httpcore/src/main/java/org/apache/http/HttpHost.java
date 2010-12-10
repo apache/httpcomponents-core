@@ -187,7 +187,6 @@ public final class HttpHost implements Cloneable, Serializable {
 
 
     public boolean equals(final Object obj) {
-        if (obj == null) return false;
         if (this == obj) return true;
         if (obj instanceof HttpHost) {
             HttpHost that = (HttpHost) obj;
