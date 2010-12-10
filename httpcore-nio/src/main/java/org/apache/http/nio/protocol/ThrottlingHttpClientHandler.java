@@ -154,11 +154,6 @@ public class ThrottlingHttpClientHandler extends NHttpHandlerBase
                 connState.notifyAll();
             }
         }
-
-        if (this.eventListener != null) {
-            this.eventListener.connectionClosed(conn);
-        }
-
         this.execHandler.finalizeContext(context);
 
         if (this.eventListener != null) {
