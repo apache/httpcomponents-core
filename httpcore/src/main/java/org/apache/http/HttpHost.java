@@ -58,7 +58,7 @@ public final class HttpHost implements Cloneable, Serializable {
     /** The port to use. */
     protected final int port;
 
-    /** The scheme */
+    /** The scheme (lowercased) */
     protected final String schemeName;
 
 
