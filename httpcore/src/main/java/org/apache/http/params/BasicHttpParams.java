@@ -122,13 +122,13 @@ public class BasicHttpParams extends AbstractHttpParams implements Serializable,
 
     /**
      * Creates a copy of these parameters.
-     * The implementation here instantiates {@link BasicHttpParams},
-     * then calls {@link #copyParams(HttpParams)} to populate the copy.
+     * This implementation calls {@link #clone()}.
      *
      * @return  a new set of params holding a copy of the
      *          <i>local</i> parameters in this object.
      *
      * @deprecated
+     * @throws UnsupportedOperationException if the clone() fails
      */
     public HttpParams copy() {
         try {
@@ -138,6 +138,10 @@ public class BasicHttpParams extends AbstractHttpParams implements Serializable,
         }
     }
 
+    /**
+     * Clones the instance.
+     * Uses {@link #copyParams(HttpParams)} to copy the parameters.
+     */
     public Object clone() throws CloneNotSupportedException {
         BasicHttpParams clone = (BasicHttpParams) super.clone();
         copyParams(clone);
@@ -146,7 +150,7 @@ public class BasicHttpParams extends AbstractHttpParams implements Serializable,
 
     /**
      * Copies the locally defined parameters to the argument parameters.
-     * This method is called from {@link #copy()}.
+     * This method is called from {@link #clone()}.
      *
      * @param target    the parameters to which to copy
      */
