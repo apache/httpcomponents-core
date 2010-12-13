@@ -74,7 +74,7 @@
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
-    <junit.version>4.8.1</junit.version>
+    <junit.version>4.8.2</junit.version>
   </properties>
 
   <dependencyManagement>
