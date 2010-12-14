@@ -31,8 +31,6 @@ import java.util.Set;
 
 import org.apache.http.params.HttpParams;
 
-import sun.reflect.generics.reflectiveObjects.NotImplementedException;
-
 
 /**
  * Abstract base class for parameter collections.
