@@ -27,6 +27,8 @@
 
 package org.apache.http.params;
 
+import java.util.Set;
+
 import org.apache.http.params.HttpParams;
 
 /**
@@ -42,6 +44,12 @@ public final class DefaultedHttpParams extends AbstractHttpParams {
     private final HttpParams local;
     private final HttpParams defaults;
 
+    /**
+     * Create the defaulted set of HttpParams.
+     * 
+     * @param local the mutable set of HttpParams
+     * @param defaults the default set of HttpParams, not mutated by this class
+     */
     public DefaultedHttpParams(final HttpParams local, final HttpParams defaults) {
         super();
         if (local == null) {
@@ -90,8 +98,24 @@ public final class DefaultedHttpParams extends AbstractHttpParams {
         return this.local.setParameter(name, value);
     }
 
+    /**
+     * 
+     * @return the default HttpParams collection
+     */
     public HttpParams getDefaults() {
         return this.defaults;
+    }
+
+    /**
+     * Provide access to the set of local parameters as Map.Entry elements.
+     * To get the entrySet for the default parameters,
+     * use {@code ((AbstractHttpParams) getDefaults()).entrySet()}
+     * @return the Set of Map.Entry<String, Object> elements
+     * @since 4.1.1
+     * @throws ClassCastException if local parameters cannot be cast to AbstractHttpParams
+     */
+    public Set entrySet() {
+        return ((AbstractHttpParams) local).entrySet();
     }
 
 }

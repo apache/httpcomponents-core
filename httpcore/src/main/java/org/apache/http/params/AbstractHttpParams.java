@@ -27,6 +27,8 @@
 
 package org.apache.http.params;
 
+import java.util.Set;
+
 import org.apache.http.params.HttpParams;
 
 
@@ -105,5 +107,14 @@ public abstract class AbstractHttpParams implements HttpParams {
     public boolean isParameterFalse(final String name) {
         return !getBooleanParameter(name, false);
     }
+
+
+    /**
+     * Provide access to the set of parameters as Map.Entry elements.
+     * 
+     * @return the Set of Map.Entry<String, Object> elements
+     * @since 4.1.1
+     */
+    public abstract Set entrySet();
 
 } // class AbstractHttpParams
