@@ -27,6 +27,10 @@
 
 package org.apache.http.params;
 
+import java.util.Iterator;
+import java.util.Map.Entry;
+import java.util.Set;
+
 import junit.framework.TestCase;
 
 /**
@@ -53,4 +57,18 @@ public class TestBasicHttpParams extends TestCase {
                 params.removeParameter("param1"));
     }
 
+    public void testIterate() {
+        BasicHttpParams params = new BasicHttpParams();
+        Set entrySet = params.entrySet();
+        Iterator iterator = entrySet.iterator();
+        assertTrue(entrySet.isEmpty());
+        assertFalse(iterator.hasNext());
+        params.setBooleanParameter("true", true);
+        assertFalse(entrySet.isEmpty());
+        assertEquals(1, entrySet.size());
+        iterator = entrySet.iterator(); // refetch, as iterator is a snapshot
+        assertTrue("Iterator has an entry",iterator.hasNext());
+        Entry entry = (Entry) iterator.next();
+        assertTrue((Boolean) entry.getValue());
+    }
 }

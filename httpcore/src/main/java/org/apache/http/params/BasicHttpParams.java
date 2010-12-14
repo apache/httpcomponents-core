@@ -28,9 +28,11 @@
 package org.apache.http.params;
 
 import java.io.Serializable;
+import java.util.Collections;
 import java.util.Map;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.Set;
 
 import org.apache.http.params.HttpParams;
 
@@ -163,4 +165,13 @@ public class BasicHttpParams extends AbstractHttpParams implements Serializable,
         }
     }
 
+    /**
+     * Provide access to the set of parameters as Map.Entry elements.
+     * 
+     * @return the Set of Map.Entry<String, Object> elements
+     * @since 4.1.1
+     */
+    public Set entrySet(){
+        return Collections.unmodifiableMap(parameters).entrySet();
+    }
 }
