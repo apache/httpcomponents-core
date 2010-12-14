@@ -167,7 +167,7 @@ public class BasicHttpParams extends AbstractHttpParams implements Serializable,
     }
 
     /**
-     * Provide access to the set of parameters as Map.Entry elements.
+     * Provide read-only access to the set of parameters as Map.Entry elements.
      * 
      * @return the Set of Map.Entry<String, Object> elements
      * @since 4.1.1

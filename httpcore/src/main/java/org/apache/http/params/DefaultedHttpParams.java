@@ -107,15 +107,18 @@ public final class DefaultedHttpParams extends AbstractHttpParams {
     }
 
     /**
-     * Provide access to the set of local parameters as Map.Entry elements.
+     * Provide read-only access to the set of local parameters as Map.Entry elements.
      * To get the entrySet for the default parameters,
      * use {@code ((AbstractHttpParams) getDefaults()).entrySet()}
      * @return the Set of Map.Entry<String, Object> elements
      * @since 4.1.1
-     * @throws ClassCastException if local parameters cannot be cast to AbstractHttpParams
+     * @throws UnsupportedOperationException if local parameters does not implement HttpParamsSet
      */
     public Set entrySet() {
-        return ((AbstractHttpParams) local).entrySet();
+        if (local instanceof HttpParamsSet) {
+            return ((HttpParamsSet) local).entrySet();            
+        }
+        throw new UnsupportedOperationException();
     }
 
 }

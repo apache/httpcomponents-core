@@ -39,7 +39,7 @@ import org.apache.http.params.HttpParams;
  *
  * @since 4.0
  */
-public abstract class AbstractHttpParams implements HttpParams {
+public abstract class AbstractHttpParams implements HttpParams, HttpParamsSet {
 
     /**
      * Instantiates parameters.
@@ -110,10 +110,11 @@ public abstract class AbstractHttpParams implements HttpParams {
 
 
     /**
-     * Provide access to the set of parameters as Map.Entry elements.
+     * Provide read-only access to the set of parameters as Map.Entry elements.
      * Must be overridden by subclasses.
      * @return the Set of Map.Entry<String, Object> elements
      * @since 4.1.1
+     * @throws UnsupportedOperationException
      */
     public Set entrySet() {
         throw new UnsupportedOperationException();
