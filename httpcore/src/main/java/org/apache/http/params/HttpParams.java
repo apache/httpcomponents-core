@@ -35,7 +35,7 @@ package org.apache.http.params;
  * Once initialized, HTTP parameters are not expected to mutate in
  * the course of HTTP message processing.
  * <p>
- * The purpose of this intreface is to define a behavior of other components.
+ * The purpose of this interface is to define a behavior of other components.
  * Usually each complex component has its own HTTP parameter collection.
  * <p>
  * Instances of this interface can be linked together to form a hierarchy.
