@@ -31,6 +31,8 @@ import java.util.Set;
 
 import org.apache.http.params.HttpParams;
 
+import sun.reflect.generics.reflectiveObjects.NotImplementedException;
+
 
 /**
  * Abstract base class for parameter collections.
@@ -111,10 +113,12 @@ public abstract class AbstractHttpParams implements HttpParams {
 
     /**
      * Provide access to the set of parameters as Map.Entry elements.
-     * 
+     * Must be overridden by subclasses.
      * @return the Set of Map.Entry<String, Object> elements
      * @since 4.1.1
      */
-    public abstract Set entrySet();
+    public Set entrySet() {
+        throw new UnsupportedOperationException();
+    }
 
 } // class AbstractHttpParams
