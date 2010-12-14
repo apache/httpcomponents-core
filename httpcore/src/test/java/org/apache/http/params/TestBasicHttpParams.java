@@ -69,6 +69,7 @@ public class TestBasicHttpParams extends TestCase {
         iterator = entrySet.iterator(); // refetch, as iterator is a snapshot
         assertTrue("Iterator has an entry",iterator.hasNext());
         Entry entry = (Entry) iterator.next();
-        assertTrue((Boolean) entry.getValue());
+        // Note: Java 1.3 requires JUnit 3.8.1 which does not have assertTrue(Boolean)
+        assertTrue(((Boolean) entry.getValue()).booleanValue());
     }
 }
