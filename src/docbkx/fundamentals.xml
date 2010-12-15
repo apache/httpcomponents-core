@@ -440,9 +440,9 @@ ByteArrayEntity myEntity = new ByteArrayEntity(myData.getBytes());
                 <para>
                 <classname>StringEntity</classname> is a self contained, repeatable entity that 
                 obtains its content from a <classname>java.lang.String</classname> object. It has 
-                two constructors, one simply constructs with a given <classname>java.lang.String
-                </classname> object; the other also takes a character encoding for the data in the 
-                string.
+                three constructors, one simply constructs with a given <classname>java.lang.String
+                </classname> object; the second also takes a character encoding for the data in the 
+                string; the third allows the mime type to be specified.
                 </para>
                 <programlisting><![CDATA[
 StringBuffer sb = new StringBuffer();
@@ -452,11 +452,14 @@ for (Entry<String, String> envEntry : env.entrySet()) {
     .append(envEntry.getValue()).append("\n");
 }
 
-// construct without a character encoding
+// construct without a character encoding (defaults to ISO-8859-1)
 HttpEntity myEntity1 = new StringEntity(sb.toString());
 
-// alternatively construct with an encoding
+// alternatively construct with an encoding (mime type defaults to "text/plain")
 HttpEntity myEntity2 = new StringEntity(sb.toString(), "UTF-8");
+
+// alternatively construct with an encoding and a mime type
+HttpEntity myEntity3 = new StringEntity(sb.toString(), "text/html", "UTF-8");
 ]]></programlisting>
             </section>
             <section id="input-stream-entity">
