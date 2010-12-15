@@ -28,7 +28,6 @@
 package org.apache.http.params;
 
 import java.io.Serializable;
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.HashMap;

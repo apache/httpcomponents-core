@@ -27,8 +27,6 @@
 
 package org.apache.http.params;
 
-import java.util.Iterator;
-import java.util.Map.Entry;
 import java.util.Set;
 
 import junit.framework.TestCase;
@@ -74,6 +72,7 @@ public class TestDefaultedHttpParams extends TestCase {
         params.setParameter(name,"value");
         return params;
     }
+
     public void testgetNames() {
         DefaultedHttpParams params = new DefaultedHttpParams(addParams("local"), addParams("default"));
 
