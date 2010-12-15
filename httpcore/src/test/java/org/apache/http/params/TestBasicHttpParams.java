@@ -57,19 +57,19 @@ public class TestBasicHttpParams extends TestCase {
                 params.removeParameter("param1"));
     }
 
-    public void testIterate() {
+    public void testgetNames() {
         BasicHttpParams params = new BasicHttpParams();
-        Set entrySet = params.entrySet();
-        Iterator iterator = entrySet.iterator();
-        assertTrue(entrySet.isEmpty());
-        assertFalse(iterator.hasNext());
+        Set nameSet = params.getNames();
+        assertTrue(nameSet.isEmpty());
         params.setBooleanParameter("true", true);
-        assertFalse(entrySet.isEmpty());
-        assertEquals(1, entrySet.size());
-        iterator = entrySet.iterator(); // refetch, as iterator is a snapshot
+        assertTrue(nameSet.isEmpty()); // Still empty, as it is a snapshot
+        nameSet = params.getNames();
+        assertFalse(nameSet.isEmpty());
+        assertEquals(1, nameSet.size());
+        Iterator iterator = nameSet.iterator(); // refetch, as iterator is a snapshot
         assertTrue("Iterator has an entry",iterator.hasNext());
-        Entry entry = (Entry) iterator.next();
+        String entry = (String) iterator.next();
         // Note: Java 1.3 requires JUnit 3.8.1 which does not have assertTrue(Boolean)
-        assertTrue(((Boolean) entry.getValue()).booleanValue());
+        assertTrue(((Boolean) params.getParameter(entry)).booleanValue());
     }
 }

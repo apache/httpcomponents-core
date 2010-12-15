@@ -30,21 +30,25 @@ package org.apache.http.params;
 import java.util.Set;
 
 /**
- * Allow HttpParams to be treated as a read-only Set, 
- * giving access to the size(), isEmpty() and iterator() methods.
+ * Gives access to the full set of parameter names.
  *
  * @see HttpParams
  *
  * @since 4.1.1
  */
-public interface HttpParamsSet {
+public interface HttpParamsNames {
 
     /**
-     * Provide read-only access to the set of parameters as Map.Entry elements.
+     * Returns the current set of names;
+     * in the case of stacked parameters, returns the names
+     * from all the participating HttpParams instances.
      * 
-     * @return the Set of Map.Entry<String, Object> elements
+     * Changes to the underlying HttpParams are not reflected
+     * in the set - it is a snapshot.
+     * 
+     * @return the names, as a Set<String>
      * @since 4.1.1
      */
-    Set entrySet();
+    Set getNames();
     
 }
