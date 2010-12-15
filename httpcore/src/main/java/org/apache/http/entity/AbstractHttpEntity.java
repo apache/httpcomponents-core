@@ -50,8 +50,8 @@ public abstract class AbstractHttpEntity implements HttpEntity {
 
     /**
      * Protected default constructor.
-     * The attributes of the created object remain
-     * <code>null</code> and <code>false</code>, respectively.
+     * The contentType, contentEncoding and chunked attributes of the created object are set to
+     * <code>null</code>, <code>null</code> and <code>false</code>, respectively.
      */
     protected AbstractHttpEntity() {
         super();
