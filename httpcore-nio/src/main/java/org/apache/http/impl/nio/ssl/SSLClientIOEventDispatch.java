@@ -65,7 +65,7 @@ import org.apache.http.protocol.ExecutionContext;
  */
 public class SSLClientIOEventDispatch implements IOEventDispatch {
 
-    private static final String SSL_SESSION = "SSL_SESSION";
+    private static final String SSL_SESSION = "http.nio.ssl-session";
 
     private final NHttpClientHandler handler;
     private final SSLContext sslcontext;
