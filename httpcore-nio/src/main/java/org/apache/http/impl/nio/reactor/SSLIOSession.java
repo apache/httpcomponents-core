@@ -425,13 +425,13 @@ public class SSLIOSession implements IOSession, SessionBufferStatus {
     }
 
     public synchronized boolean hasBufferedInput() {
-        return this.appBufferStatus.hasBufferedInput()
+        return (this.appBufferStatus != null && this.appBufferStatus.hasBufferedInput())
             || this.inEncrypted.position() > 0
             || this.inPlain.position() > 0;
     }
 
     public synchronized boolean hasBufferedOutput() {
-        return this.appBufferStatus.hasBufferedOutput()
+        return (this.appBufferStatus != null && this.appBufferStatus.hasBufferedOutput())
             || this.outEncrypted.position() > 0
             || this.outPlain.position() > 0;
     }
