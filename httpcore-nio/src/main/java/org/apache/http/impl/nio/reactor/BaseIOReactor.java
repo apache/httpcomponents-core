@@ -159,14 +159,14 @@ public class BaseIOReactor extends AbstractIOReactor {
 
         try {
             this.eventDispatch.inputReady(session);
+            if (session.hasBufferedInput()) {
+                this.bufferingSessions.add(session);
+            }
         } catch (CancelledKeyException ex) {
             queueClosedSession(session);
             key.attach(null);
         } catch (RuntimeException ex) {
             handleRuntimeException(ex);
-        }
-        if (session.hasBufferedInput()) {
-            this.bufferingSessions.add(session);
         }
     }
 
