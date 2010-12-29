@@ -89,8 +89,6 @@ import org.apache.http.protocol.HttpContext;
 public class NHttpConnectionBase
         implements NHttpConnection, HttpInetConnection, SessionBufferStatus {
 
-    protected final HttpContext context;
-
     protected final ContentLengthStrategy incomingContentStrategy;
     protected final ContentLengthStrategy outgoingContentStrategy;
 
@@ -101,7 +99,9 @@ public class NHttpConnectionBase
     protected final HttpTransportMetricsImpl outTransportMetrics;
     protected final HttpConnectionMetricsImpl connMetrics;
 
+    protected HttpContext context;
     protected IOSession session;
+    protected SocketAddress remote;
     protected volatile ContentDecoder contentDecoder;
     protected volatile boolean hasBufferedInput;
     protected volatile ContentEncoder contentEncoder;
@@ -129,8 +129,6 @@ public class NHttpConnectionBase
         if (params == null) {
             throw new IllegalArgumentException("HTTP params may not be null");
         }
-        this.session = session;
-        this.context = new SessionHttpContext(session);
 
         int buffersize = HttpConnectionParams.getSocketBufferSize(params);
         int linebuffersize = buffersize;
@@ -150,9 +148,26 @@ public class NHttpConnectionBase
                 this.inTransportMetrics,
                 this.outTransportMetrics);
 
-        this.session.setBufferStatus(this);
-        this.session.setEvent(EventMask.READ);
+        setSession(session);
         this.status = ACTIVE;
+    }
+
+    private void setSession(final IOSession session) {
+        this.session = session;
+        this.context = new SessionHttpContext(this.session);
+        this.session.setBufferStatus(this);
+        this.remote = this.session.getRemoteAddress();
+    }
+
+    /**
+     * @since 4.1.1
+     */
+    protected void bind(final IOSession session) {
+        if (session == null) {
+            throw new IllegalArgumentException("I/O session may not be null");
+        }
+        this.session.setBufferStatus(null);
+        setSession(session);
     }
 
     /**
@@ -404,6 +419,18 @@ public class NHttpConnectionBase
 
     public HttpConnectionMetrics getMetrics() {
         return this.connMetrics;
+    }
+
+    @Override
+    public String toString() {
+        StringBuffer buffer = new StringBuffer();
+        buffer.append("[");
+        buffer.append(this.remote);
+        if (this.status == CLOSED) {
+            buffer.append("(closed)");
+        }
+        buffer.append("]");
+        return buffer.toString();
     }
 
 }

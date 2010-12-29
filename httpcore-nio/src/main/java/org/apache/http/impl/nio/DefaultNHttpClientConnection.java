@@ -254,17 +254,4 @@ public class DefaultNHttpClientConnection
         return this.request != null;
     }
 
-    @Override
-    public String toString() {
-        StringBuffer buffer = new StringBuffer();
-        buffer.append("[");
-        if (isOpen()) {
-            buffer.append(this.session.getRemoteAddress());
-        } else {
-            buffer.append("closed");
-        }
-        buffer.append("]");
-        return buffer.toString();
-    }
-
 }

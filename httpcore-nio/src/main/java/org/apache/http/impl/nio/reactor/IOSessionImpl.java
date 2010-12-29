@@ -272,7 +272,7 @@ public class IOSessionImpl implements IOSession {
         StringBuffer buffer = new StringBuffer();
         buffer.append("[");
         if (this.key.isValid()) {
-            buffer.append("interested ops: ");
+            buffer.append("interest ops: ");
             formatOps(buffer, this.interestOpsCallback != null ?
                     this.currentEventMask : this.key.interestOps());
             buffer.append("; ready ops: ");
