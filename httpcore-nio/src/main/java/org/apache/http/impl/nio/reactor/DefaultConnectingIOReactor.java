@@ -59,6 +59,7 @@ import org.apache.http.params.HttpParams;
  * <ul>
  *  <li>{@link org.apache.http.params.CoreConnectionPNames#TCP_NODELAY}</li>
  *  <li>{@link org.apache.http.params.CoreConnectionPNames#SO_TIMEOUT}</li>
+ *  <li>{@link org.apache.http.params.CoreConnectionPNames#CONNECTION_TIMEOUT}</li>
  *  <li>{@link org.apache.http.params.CoreConnectionPNames#SO_LINGER}</li>
  *  <li>{@link org.apache.http.params.CoreConnectionPNames#SO_REUSEADDR}</li>
  *  <li>{@link org.apache.http.nio.params.NIOReactorPNames#SELECT_INTERVAL}</li>
