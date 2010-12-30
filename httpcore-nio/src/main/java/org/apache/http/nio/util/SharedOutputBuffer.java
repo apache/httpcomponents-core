@@ -39,14 +39,14 @@ import org.apache.http.nio.IOControl;
  * shared by multiple threads, usually the I/O dispatch of an I/O reactor and
  * a worker thread.
  * <p>
- * The I/O dispatch thread is expected to transfer data from the buffer to 
+ * The I/O dispatch thread is expected to transfer data from the buffer to
  *   {@link ContentEncoder} by calling {@link #produceContent(ContentEncoder)}.
  * <p>
- * The worker thread is expected to write data to the buffer by calling 
+ * The worker thread is expected to write data to the buffer by calling
  * {@link #write(int)}, {@link #write(byte[], int, int)} or {@link #writeCompleted()}
  * <p>
- * In case of an abnormal situation or when no longer needed the buffer must be 
- * shut down using {@link #shutdown()} method. 
+ * In case of an abnormal situation or when no longer needed the buffer must be
+ * shut down using {@link #shutdown()} method.
  *
  * @since 4.0
  */

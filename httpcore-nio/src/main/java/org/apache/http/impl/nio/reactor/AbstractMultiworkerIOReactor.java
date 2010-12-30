@@ -516,7 +516,7 @@ public abstract class AbstractMultiworkerIOReactor implements IOReactor {
         } catch (InterruptedException ignore) {
         }
     }
-    
+
     static void closeChannel(final Channel channel) {
         try {
             channel.close();

@@ -250,7 +250,7 @@ public class DefaultConnectingIOReactor extends AbstractMultiworkerIOReactor
 
             SessionRequestHandle requestHandle = new SessionRequestHandle(request);
             try {
-                SelectionKey key = socketChannel.register(this.selector, SelectionKey.OP_CONNECT, 
+                SelectionKey key = socketChannel.register(this.selector, SelectionKey.OP_CONNECT,
                         requestHandle);
                 request.setKey(key);
             } catch (IOException ex) {

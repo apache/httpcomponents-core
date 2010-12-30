@@ -136,7 +136,7 @@ public class TestChunkEncoder extends TestCase {
         assertEquals(4, encoder.write(src));
         channel.flush();
         assertEquals(0, encoder.write(src));
-        
+
         outbuf.flush(channel);
         String s = channel.toString("US-ASCII");
         assertEquals("4\r\n0123\r\n4\r\n4567\r\n4\r\n89AB\r\n4\r\nCDEF\r\n", s);
