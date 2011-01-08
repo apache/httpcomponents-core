@@ -39,7 +39,7 @@
    HttpComponents Core (non-blocking I/O)
   </description>
   <url>http://hc.apache.org/httpcomponents-core-ga/</url>
-  <packaging>jar</packaging>  
+  <packaging>jar</packaging>
 
   <dependencies>
     <dependency>
@@ -85,23 +85,6 @@
       </plugin>
       <plugin>
         <artifactId>maven-surefire-plugin</artifactId>
-      </plugin>
-      <plugin>
-        <artifactId>maven-jar-plugin</artifactId>
-        <configuration>
-          <archive>
-            <manifestEntries>
-              <Specification-Title>HttpComponents HttpCore NIO</Specification-Title>
-              <Specification-Version>${project.version}</Specification-Version>
-              <Specification-Vendor>The Apache Software Foundation</Specification-Vendor>
-              <Implementation-Title>HttpComponents HttpCore NIO</Implementation-Title>
-              <Implementation-Version>${project.version}</Implementation-Version>
-              <Implementation-Vendor>The Apache Software Foundation</Implementation-Vendor>
-              <Implementation-Vendor-Id>org.apache</Implementation-Vendor-Id>
-              <url>${project.url}</url>
-            </manifestEntries>
-          </archive>
-        </configuration>
       </plugin>
       <plugin>
         <groupId>com.atlassian.maven.plugins</groupId>
