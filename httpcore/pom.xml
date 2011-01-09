@@ -53,7 +53,6 @@
     <httpcore.compiler.compilerVersion />
     <httpcore.compiler.javac />
     <httpcore.surefire.java />
-    <httpcore.surefire.version>2.4.3</httpcore.surefire.version>
   </properties>
 
   <dependencies>
@@ -89,7 +88,6 @@
       </plugin>
       <plugin>
         <artifactId>maven-surefire-plugin</artifactId>
-        <version>${httpcore.surefire.version}</version>
         <configuration>
           <jvm>${httpcore.surefire.java}</jvm>
         </configuration>
@@ -174,8 +172,6 @@
         <httpcore.compiler.compilerVersion>1.3</httpcore.compiler.compilerVersion>
         <httpcore.compiler.javac>${JAVA_1_3_HOME}/bin/javac</httpcore.compiler.javac>
         <httpcore.surefire.java>${JAVA_1_3_HOME}/bin/java</httpcore.surefire.java>
-        <!-- Later versions of Surefire don't run with Java 1.3 -->
-        <httpcore.surefire.version>2.2</httpcore.surefire.version>
         <!-- Later versions of JUnit don't run with Java 1.3 -->
         <junit.version>3.8.1</junit.version>
       </properties>
