@@ -85,7 +85,7 @@ public abstract class AbstractContentEncoder implements ContentEncoder {
 
     protected void assertNotCompleted() {
         if (this.completed) {
-            throw new IllegalStateException("Decoding process already completed");
+            throw new IllegalStateException("Encoding process already completed");
         }
     }
 
