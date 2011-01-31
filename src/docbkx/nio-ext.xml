@@ -445,7 +445,7 @@ ListeningIOReactor ioreactor = new DefaultListeningIOReactor(2, params);
         <title>I/O reactor exception handling</title>
         <para>
         Protocol specific exceptions as well as those I/O exceptions thrown in the course of 
-        interaction with the session's channel are to be expected are to be dealt with by specific 
+        interaction with the session's channel are to be expected and are to be dealt with by specific 
         protocol handlers. These exceptions may result in termination of an individual session but 
         should not affect the I/O reactor and all other active sessions. There are situations, 
         however, when the I/O reactor itself encounters an internal problem such as an I/O 
@@ -802,9 +802,9 @@ if (entity != null) {
             Content codes are optimized to read data directly from or write data directly to the 
             underlying I/O session's channel, whenever possible avoiding intermediate buffering in 
             a session buffer. Moreover, those codecs that do not perform any content transformation 
-            such as <literal>Content-Length</literal> delimited and identity can leverage NIO 
-            <classname>java.nio.FileChannel</classname> methods for significantly improved 
-            performance of file transfer operations both inbound and outbound.  
+            (<literal>Content-Length</literal> delimited and identity codecs, for example) can 
+            leverage NIO <classname>java.nio.FileChannel</classname> methods for significantly 
+            improved performance of file transfer operations both inbound and outbound.  
             </para>
             <para>
             If the actual content decoder implements <interfacename>FileContentDecoder
@@ -1031,7 +1031,7 @@ if (encoder instanceof FileContentEncoder) {
         classic I/O abstraction based on inherently blocking <classname>java.io.InputStream
         </classname> and <classname>java.io.OutputStream</classname> classes is not applicable to 
         the asynchronous process of data transfer. Therefore, non-blocking HTTP entities provide 
-        NIO specific extensions to the !HttpEntity interface: <interfacename>ProducingNHttpEntity
+        NIO specific extensions to the HttpEntity interface: <interfacename>ProducingNHttpEntity
         </interfacename> and <interfacename>ConsumingNHttpEntity</interfacename> interfaces. 
         Implementation classes of these interfaces may throw <classname>
         java.lang.UnsupportedOperationException</classname> from <methodname>
@@ -1663,13 +1663,13 @@ NHttpRequestExecutionHandler execHandler =
                 ThrottlingHttpClientHandler</classname> are protocol handler implementations that 
                 provide compatibility with the blocking I/O model by utilizing shared content 
                 buffers and a fairly small pool of worker threads. The throttling protocol handlers 
-                allocate input / output buffers of a constant length upon initialization and 
-                control the rate of I/O events in order to ensure those content buffers does not 
+                allocate input / output buffers of constant length upon initialization and 
+                control the rate of I/O events in order to ensure those content buffers do not 
                 ever overflow. This helps ensure nearly constant memory footprint for HTTP 
                 connections and avoid out of memory conditions while streaming content in and out. 
                 Request / response processing callbacks fire immediately when a message is 
                 received. The throttling protocol handlers delegate the task of processing requests 
-                and generating response content to an !Executor, which is expected to perform those 
+                and generating response content to an Executor, which is expected to perform those 
                 tasks using dedicated worker threads in order to avoid blocking the I/O thread.
                 </para>
                 <para>
@@ -1810,7 +1810,7 @@ NHttpRequestExecutionHandler execHandler =
                         <para>
                         Triggered when the SSL connection has been established and initial SSL 
                         handshake has been successfully completed. The handler can use this 
-                        callback to verify properties of the !SSLSession. For instance this would 
+                        callback to verify properties of the SSLSession. For instance this would 
                         be the right place to enforce SSL cipher strength, validate certificate 
                         chain and do hostname checks.
                         </para>
@@ -1861,7 +1861,7 @@ SSLIOSession sslsession = new SSLIOSession(
             SSLServerIOEventDispatch</classname> I/O dispatch implementations that can be used to 
             SSL enable connections managed by any arbitrary I/O reactor. The dispatches take all 
             the necessary actions to wrap active I/O sessions with the SSL I/O session decorator 
-            and ensure correct handling of the SSL protocol handshaking.
+            and ensure correct handling of SSL protocol handshaking.
             </para>
         </section>
     </section>
