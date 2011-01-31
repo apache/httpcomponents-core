@@ -1051,7 +1051,7 @@ null
             <interfacename>HttpParams</interfacename> also has a certain disadvantage compared to 
             regular Java beans: <interfacename>HttpParams</interfacename> cannot be assembled using 
             a DI framework. To mitigate the limitation, HttpCore includes a number of bean classes 
-            that can used in order to initialize <interfacename>HttpParams</interfacename> objects 
+            that can be used in order to initialize <interfacename>HttpParams</interfacename> objects 
             using standard Java bean conventions. 
             </para>
             <programlisting><![CDATA[
