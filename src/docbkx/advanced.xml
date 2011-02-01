@@ -81,7 +81,7 @@ System.out.println(cursor);
             <para>
             <interfacename>LineParser</interfacename> is the interface for parsing lines in the 
             head section of an HTTP message. There are individual methods for parsing a request 
-            line, a status line, or a header line. The lines to parse are passed in memory, the 
+            line, a status line, or a header line. The lines to parse are passed in-memory, the 
             parser does not depend on any specific I/O mechanism.
             </para>
             <programlisting><![CDATA[
@@ -246,7 +246,7 @@ if (outbuffer.hasData()) {
         <section>
             <title>HTTP message parsers and formatter</title>
             <para>
-            HttpCore also provides a coarse-grained facade type of interfaces for parsing and 
+            HttpCore also provides coarse-grained facade type interfaces for parsing and 
             formatting of HTTP messages. Default implementations of those interfaces build upon the 
             functionality provided by <interfacename>SessionInputBuffer</interfacename> / 
             <interfacename>SessionOutputBuffer</interfacename> and <interfacename>HttpLineParser
@@ -309,7 +309,7 @@ SessionOutputBuffer outbuffer;
 
 HttpParams params = new BasicHttpParams();
 
-NHttpMessageParser requestParser = new HttpRequestParser(
+NHttpMessageParser requestParser = new DefaultHttpRequestParser(
         inbuffer, 
         new BasicLineParser(), 
         new DefaultHttpRequestFactory(),
@@ -317,7 +317,7 @@ NHttpMessageParser requestParser = new HttpRequestParser(
 
 HttpRequest request = (HttpRequest) requestParser.parse();
 
-NHttpMessageWriter requestWriter = new HttpRequestWriter(
+NHttpMessageWriter requestWriter = new DefaultHttpRequestWriter(
         outbuffer, 
         new BasicLineFormatter(), 
         params);
@@ -333,7 +333,7 @@ SessionOutputBuffer outbuffer;
 
 HttpParams params = new BasicHttpParams();
 
-NHttpMessageParser responseParser = new HttpResponseParser(
+NHttpMessageParser responseParser = new DefaultHttpResponseParser(
         inbuffer, 
         new BasicLineParser(), 
         new DefaultHttpResponseFactory(),
@@ -341,7 +341,7 @@ NHttpMessageParser responseParser = new HttpResponseParser(
 
 HttpResponse response = (HttpResponse) responseParser.parse();
 
-NHttpMessageWriter responseWriter = new HttpResponseWriter(
+NHttpMessageWriter responseWriter = new DefaultHttpResponseWriter(
         outbuffer, 
         new BasicLineFormatter(), 
         params);
@@ -380,42 +380,6 @@ if (h1 instanceof FormattedHeader) {
         input/output buffers.
         </para>
         <programlisting><![CDATA[
-class MyDefaultNHttpClientConnection 
-                        extends DefaultNHttpClientConnection {
-
-    public MyDefaultNHttpClientConnection(
-            IOSession session,
-            HttpResponseFactory responseFactory,
-            ByteBufferAllocator allocator,
-            HttpParams params) {
-        super(session, responseFactory, allocator, params);
-    }
-    
-    @Override
-    protected NHttpMessageWriter createRequestWriter(
-            SessionOutputBuffer buffer, 
-            HttpParams params) {
-        return new HttpRequestWriter(
-            buffer, new BasicLineFormatter(), params);
-    }
-
-    @Override
-    protected NHttpMessageParser createResponseParser(
-            SessionInputBuffer buffer, 
-            HttpResponseFactory responseFactory, 
-            HttpParams params) {
-        return new HttpResponseParser(
-            buffer, new BasicLineParser(), responseFactory, params);
-    }
-    
-};
-]]></programlisting>
-        <para>
-        For non-blocking HTTP connection implementation one can replace the default HTTP message 
-        parser and formatter implementations. The session input/output buffer implementations can 
-        be overridden at the I/O reactor level.
-        </para>
-        <programlisting><![CDATA[
 class MyDefaultHttpClientConnection 
                         extends DefaultHttpClientConnection {
 
@@ -451,6 +415,42 @@ class MyDefaultHttpClientConnection
         return new MyHttpResponseParser(
         buffer, new BasicLineParser(), responseFactory, params);
     }    
+    
+};
+]]></programlisting>
+        <para>
+        For non-blocking HTTP connection implementation one can replace the default HTTP message 
+        parser and formatter implementations. The session input/output buffer implementations can 
+        be overridden at the I/O reactor level.
+        </para>
+        <programlisting><![CDATA[
+class MyDefaultNHttpClientConnection 
+                        extends DefaultNHttpClientConnection {
+
+    public MyDefaultNHttpClientConnection(
+            IOSession session,
+            HttpResponseFactory responseFactory,
+            ByteBufferAllocator allocator,
+            HttpParams params) {
+        super(session, responseFactory, allocator, params);
+    }
+    
+    @Override
+    protected NHttpMessageWriter createRequestWriter(
+            SessionOutputBuffer buffer, 
+            HttpParams params) {
+        return new HttpRequestWriter(
+            buffer, new BasicLineFormatter(), params);
+    }
+
+    @Override
+    protected NHttpMessageParser createResponseParser(
+            SessionInputBuffer buffer, 
+            HttpResponseFactory responseFactory, 
+            HttpParams params) {
+        return new HttpResponseParser(
+            buffer, new BasicLineParser(), responseFactory, params);
+    }
     
 };
 ]]></programlisting>

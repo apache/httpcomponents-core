@@ -1328,7 +1328,7 @@ NHttpRequestHandler myRequestHandler = new NHttpRequestHandler() {
     public ConsumingNHttpEntity entityRequest(
             HttpEntityEnclosingRequest request, 
             HttpContext context) throws HttpException, IOException {
-        // Buffer imcoming content in memory for simplicity 
+        // Buffer incoming content in memory for simplicity 
         return new BufferingNHttpEntity(request.getEntity(),
                 new HeapByteBufferAllocator());
     }
@@ -1371,7 +1371,7 @@ NHttpRequestHandler myRequestHandler = new NHttpRequestHandler() {
     public ConsumingNHttpEntity entityRequest(
             HttpEntityEnclosingRequest request, 
             HttpContext context) throws HttpException, IOException {
-        // Buffer imcoming content in memory for simplicity 
+        // Buffer incoming content in memory for simplicity 
         return new BufferingNHttpEntity(request.getEntity(),
                 new HeapByteBufferAllocator());
     }
@@ -1603,7 +1603,7 @@ NHttpRequestExecutionHandler execHandler =
     public ConsumingNHttpEntity responseEntity(
         HttpResponse response, 
         HttpContext context) throws IOException {
-        // Buffer imcoming content in memory for simplicity 
+        // Buffer incoming content in memory for simplicity 
         return new BufferingNHttpEntity(response.getEntity(),
                 new HeapByteBufferAllocator());
     }
