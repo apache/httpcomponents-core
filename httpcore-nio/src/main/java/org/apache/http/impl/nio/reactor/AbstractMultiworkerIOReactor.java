@@ -309,22 +309,22 @@ public abstract class AbstractMultiworkerIOReactor implements IOReactor {
                     throw new IOReactorException("Unexpected selector failure", ex);
                 }
 
-                if (this.status.compareTo(IOReactorStatus.ACTIVE) > 0) {
-                    break;
+                if (this.status.compareTo(IOReactorStatus.ACTIVE) == 0) {
+                    processEvents(readyCount);
                 }
-                processEvents(readyCount);
 
                 // Verify I/O dispatchers
                 for (int i = 0; i < this.workerCount; i++) {
                     Worker worker = this.workers[i];
-                    Thread thread = this.threads[i];
-                    if (!thread.isAlive()) {
-                        Exception ex = worker.getException();
-                        if (ex != null) {
-                            throw new IOReactorException(
-                                    "I/O dispatch worker terminated abnormally", ex);
-                        }
+                    Exception ex = worker.getException();
+                    if (ex != null) {
+                        throw new IOReactorException(
+                                "I/O dispatch worker terminated abnormally", ex);
                     }
+                }
+
+                if (this.status.compareTo(IOReactorStatus.ACTIVE) > 0) {
+                    break;
                 }
             }
 
