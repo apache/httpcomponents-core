@@ -110,6 +110,11 @@ including support for NIO.
         <created>2010-08-30</created>
         <revision>4.1-beta2</revision>
       </Version>
+      <Version>
+        <name>HttpComponents Core 4.1 GA</name>
+        <created>2010-11-19</created>
+        <revision>4.1 GA</revision>
+      </Version>
     </release>
 
     <repository>
