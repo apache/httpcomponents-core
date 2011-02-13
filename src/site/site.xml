@@ -28,12 +28,8 @@
 <project name="HttpCore">
 
   <body>
-    <menu name="HttpComponents">
-      <item name="Home" href=".."/>
-    </menu>
     <menu name="HttpCore Overview">
       <item name="Description" href="index.html"/>
-      <item name="Download" href="download.html"/>
     </menu>
     <menu name="Documentation">
       <item name="Tutorial" href="tutorial/html/index.html"/>
