@@ -38,7 +38,7 @@
   <description>
    HttpComponents Core (blocking I/O)
   </description>
-  <url>http://hc.apache.org/httpcomponents-core-ga/</url>
+  <url>http://hc.apache.org/httpcomponents-core</url>
   <packaging>jar</packaging>  
 
   <properties>

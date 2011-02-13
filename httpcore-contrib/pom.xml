@@ -37,7 +37,7 @@
   <description>
    HttpComponents HttpCore - Contributed Components
   </description>
-  <url>http://hc.apache.org/httpcomponents-core-ga</url>
+  <url>http://hc.apache.org/httpcomponents-core</url>
   <packaging>jar</packaging>
 
   <dependencies>

@@ -26,25 +26,10 @@
  -->
 
 <project name="HttpCore">
-  <bannerLeft>
-    <name>Apache</name>
-    <src>http://www.apache.org/images/asf_logo_wide.gif</src>
-    <href>http://www.apache.org/</href>
-  </bannerLeft>
-
-  <bannerRight>
-    <name>HttpComponents</name>
-    <src>http://hc.apache.org/images/logos/httpcomponents.png</src>
-    <href>http://hc.apache.org/</href>
-  </bannerRight>
 
   <body>
-    <menu name="HttpComponents">
-      <item name="Home" href=".."/>
-    </menu>
     <menu name="HttpCore Overview">
       <item name="Description" href="index.html"/>
-      <item name="Download" href="download.html"/>
     </menu>
     <menu name="Documentation">
       <item name="Tutorial" href="tutorial/html/index.html"/>

@@ -37,7 +37,7 @@
   <description>
    AB clone based on HttpCore
   </description>
-  <url>http://hc.apache.org/httpcomponents-core-ga</url>
+  <url>http://hc.apache.org/httpcomponents-core</url>
   <packaging>jar</packaging>  
 
   <dependencies>
