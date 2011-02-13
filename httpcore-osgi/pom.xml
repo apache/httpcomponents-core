@@ -38,7 +38,7 @@
   <description>
    HttpComponents Core (OSGi bundle)
   </description>
-  <url>http://hc.apache.org/httpcomponents-core-ga/</url>
+  <url>http://hc.apache.org/httpcomponents-core-ga</url>
   <packaging>bundle</packaging>  
 
   <dependencies>
