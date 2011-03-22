@@ -153,6 +153,13 @@ public abstract class AbstractHttpEntity implements HttpEntity {
 
     /**
      * Specifies the 'chunked' flag.
+     * <p>
+     * Note that the chunked setting is a hint only.
+     * If using HTTP/1.0, chunking is never performed.
+     * Otherwise, even if chunked is false, HttpClient must
+     * use chunk coding if the entity content length is
+     * unknown (-1).
+     * <p>
      * The default implementation sets the value of the
      * {@link #chunked chunked} attribute.
      *
