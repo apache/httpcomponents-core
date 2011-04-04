@@ -86,24 +86,24 @@ public final class EntityUtils {
         if (instream == null) {
             return null;
         }
-        if (entity.getContentLength() > Integer.MAX_VALUE) {
-            throw new IllegalArgumentException("HTTP entity too large to be buffered in memory");
-        }
-        int i = (int)entity.getContentLength();
-        if (i < 0) {
-            i = 4096;
-        }
-        ByteArrayBuffer buffer = new ByteArrayBuffer(i);
         try {
+            if (entity.getContentLength() > Integer.MAX_VALUE) {
+                throw new IllegalArgumentException("HTTP entity too large to be buffered in memory");
+            }
+            int i = (int)entity.getContentLength();
+            if (i < 0) {
+                i = 4096;
+            }
+            ByteArrayBuffer buffer = new ByteArrayBuffer(i);
             byte[] tmp = new byte[4096];
             int l;
             while((l = instream.read(tmp)) != -1) {
                 buffer.append(tmp, 0, l);
             }
+            return buffer.toByteArray();
         } finally {
             instream.close();
         }
-        return buffer.toByteArray();
     }
 
     /**
@@ -177,32 +177,32 @@ public final class EntityUtils {
         if (instream == null) {
             return null;
         }
-        if (entity.getContentLength() > Integer.MAX_VALUE) {
-            throw new IllegalArgumentException("HTTP entity too large to be buffered in memory");
-        }
-        int i = (int)entity.getContentLength();
-        if (i < 0) {
-            i = 4096;
-        }
-        String charset = getContentCharSet(entity);
-        if (charset == null) {
-            charset = defaultCharset;
-        }
-        if (charset == null) {
-            charset = HTTP.DEFAULT_CONTENT_CHARSET;
-        }
-        Reader reader = new InputStreamReader(instream, charset);
-        CharArrayBuffer buffer = new CharArrayBuffer(i);
         try {
+            if (entity.getContentLength() > Integer.MAX_VALUE) {
+                throw new IllegalArgumentException("HTTP entity too large to be buffered in memory");
+            }
+            int i = (int)entity.getContentLength();
+            if (i < 0) {
+                i = 4096;
+            }
+            String charset = getContentCharSet(entity);
+            if (charset == null) {
+                charset = defaultCharset;
+            }
+            if (charset == null) {
+                charset = HTTP.DEFAULT_CONTENT_CHARSET;
+            }
+            Reader reader = new InputStreamReader(instream, charset);
+            CharArrayBuffer buffer = new CharArrayBuffer(i);
             char[] tmp = new char[1024];
             int l;
             while((l = reader.read(tmp)) != -1) {
                 buffer.append(tmp, 0, l);
             }
+            return buffer.toString();
         } finally {
-            reader.close();
+            instream.close();
         }
-        return buffer.toString();
     }
 
     /**
