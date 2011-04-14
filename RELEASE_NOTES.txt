@@ -1,5 +1,7 @@
 Changes since 4.1
 
+* [HTTPCORE-254]: Erratic results from metrics (sebb)
+
 * [HTTPCORE-242]: Fixed NPE in AsyncNHttpClientHandler caused by an early response to an
   entity enclosing request.
   Contributed by Oleg Kalnichevski <olegk at apache.org>

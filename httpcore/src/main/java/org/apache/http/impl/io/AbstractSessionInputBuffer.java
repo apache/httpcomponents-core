@@ -184,7 +184,11 @@ public abstract class AbstractSessionInputBuffer implements SessionInputBuffer, 
         // If the remaining capacity is big enough, read directly from the
         // underlying input stream bypassing the buffer.
         if (len > this.minChunkLimit) {
-            return this.instream.read(b, off, len);
+            int read = this.instream.read(b, off, len);
+            if (read > 0) {
+                this.metrics.incrementBytesTransferred(read);
+            }
+            return read;
         } else {
             // otherwise read to the buffer first
             while (!hasBufferedData()) {
