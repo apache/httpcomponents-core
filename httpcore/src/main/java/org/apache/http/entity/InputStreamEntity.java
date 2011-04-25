@@ -70,24 +70,28 @@ public class InputStreamEntity extends AbstractHttpEntity {
             throw new IllegalArgumentException("Output stream may not be null");
         }
         InputStream instream = this.content;
-        byte[] buffer = new byte[BUFFER_SIZE];
-        int l;
-        if (this.length < 0) {
-            // consume until EOF
-            while ((l = instream.read(buffer)) != -1) {
-                outstream.write(buffer, 0, l);
-            }
-        } else {
-            // consume no more than length
-            long remaining = this.length;
-            while (remaining > 0) {
-                l = instream.read(buffer, 0, (int)Math.min(BUFFER_SIZE, remaining));
-                if (l == -1) {
-                    break;
+        try {
+            byte[] buffer = new byte[BUFFER_SIZE];
+            int l;
+            if (this.length < 0) {
+                // consume until EOF
+                while ((l = instream.read(buffer)) != -1) {
+                    outstream.write(buffer, 0, l);
                 }
-                outstream.write(buffer, 0, l);
-                remaining -= l;
+            } else {
+                // consume no more than length
+                long remaining = this.length;
+                while (remaining > 0) {
+                    l = instream.read(buffer, 0, (int)Math.min(BUFFER_SIZE, remaining));
+                    if (l == -1) {
+                        break;
+                    }
+                    outstream.write(buffer, 0, l);
+                    remaining -= l;
+                }
             }
+        } finally {
+            instream.close();
         }
     }
 
