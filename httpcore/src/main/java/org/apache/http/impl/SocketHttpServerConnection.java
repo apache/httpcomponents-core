@@ -79,26 +79,6 @@ public class SocketHttpServerConnection extends
     }
 
     /**
-     * @deprecated Use {@link #createSessionInputBuffer(Socket, int, HttpParams)}
-     */
-    protected SessionInputBuffer createHttpDataReceiver(
-            final Socket socket,
-            int buffersize,
-            final HttpParams params) throws IOException {
-        return createSessionInputBuffer(socket, buffersize, params);
-    }
-
-    /**
-     * @deprecated Use {@link #createSessionOutputBuffer(Socket, int, HttpParams)}
-     */
-    protected SessionOutputBuffer createHttpDataTransmitter(
-            final Socket socket,
-            int buffersize,
-            final HttpParams params) throws IOException {
-        return createSessionOutputBuffer(socket, buffersize, params);
-    }
-
-    /**
      * Creates an instance of {@link SocketInputBuffer} to be used for
      * receiving data from the given {@link Socket}.
      * <p>
