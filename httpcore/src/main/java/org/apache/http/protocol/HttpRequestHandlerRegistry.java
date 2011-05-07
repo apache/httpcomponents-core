@@ -92,11 +92,4 @@ public class HttpRequestHandlerRegistry implements HttpRequestHandlerResolver {
         return (HttpRequestHandler) matcher.lookup(requestURI);
     }
 
-    /**
-     * @deprecated
-     */
-    protected boolean matchUriRequestPattern(final String pattern, final String requestUri) {
-        return matcher.matchUriRequestPattern(pattern, requestUri);
-    }
-
 }

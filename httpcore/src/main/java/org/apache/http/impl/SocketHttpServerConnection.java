@@ -172,8 +172,8 @@ public class SocketHttpServerConnection extends
         int buffersize = HttpConnectionParams.getSocketBufferSize(params);
 
         init(
-                createHttpDataReceiver(socket, buffersize, params),
-                createHttpDataTransmitter(socket, buffersize, params),
+                createSessionInputBuffer(socket, buffersize, params),
+                createSessionOutputBuffer(socket, buffersize, params),
                 params);
 
         this.open = true;
