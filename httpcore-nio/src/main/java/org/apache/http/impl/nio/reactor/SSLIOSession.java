@@ -149,7 +149,7 @@ public class SSLIOSession implements IOSession, SessionBufferStatus {
     public synchronized SSLSession getSSLSession() {
         return this.sslEngine.getSession();
     }
-    
+
     private void doHandshake() throws SSLException {
         boolean handshaking = true;
 

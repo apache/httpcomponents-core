@@ -82,12 +82,12 @@ public class TestDefaultedHttpParams extends TestCase {
         assertEquals(2, localnameSet.size());
         Set defaultnameSet = params.getDefaultNames();
         assertEquals(2, defaultnameSet.size());
-        
+
         params.setParameter("new", null);
         assertEquals(3, nameSet.size()); // Name set not yet updated
         assertEquals(2, localnameSet.size());
         assertEquals(2, defaultnameSet.size());
-        
+
         nameSet = params.getNames();
         localnameSet = params.getLocalNames();
         defaultnameSet = params.getDefaultNames();

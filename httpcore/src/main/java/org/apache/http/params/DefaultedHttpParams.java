@@ -47,7 +47,7 @@ public final class DefaultedHttpParams extends AbstractHttpParams {
 
     /**
      * Create the defaulted set of HttpParams.
-     * 
+     *
      * @param local the mutable set of HttpParams
      * @param defaults the default set of HttpParams, not mutated by this class
      */
@@ -100,7 +100,7 @@ public final class DefaultedHttpParams extends AbstractHttpParams {
     }
 
     /**
-     * 
+     *
      * @return the default HttpParams collection
      * @deprecated (4.1.1) do not use, will be removed in a later version
      */
@@ -111,10 +111,10 @@ public final class DefaultedHttpParams extends AbstractHttpParams {
     /**
      * Returns the current set of names
      * from both the local and default HttpParams instances.
-     * 
+     *
      * Changes to the underlying HttpParams intances are not reflected
      * in the set - it is a snapshot.
-     * 
+     *
      * @return the combined set of names, as a Set<String>
      * @since 4.1.1
      * @throws UnsupportedOperationException if either the local or default HttpParams instances do not implement HttpParamsNames
@@ -127,10 +127,10 @@ public final class DefaultedHttpParams extends AbstractHttpParams {
 
     /**
      * Returns the current set of defaults names.
-     * 
+     *
      * Changes to the underlying HttpParams are not reflected
      * in the set - it is a snapshot.
-     * 
+     *
      * @return the names, as a Set<String>
      * @since 4.1.1
      * @throws UnsupportedOperationException if the default HttpParams instance does not implement HttpParamsNames
@@ -141,10 +141,10 @@ public final class DefaultedHttpParams extends AbstractHttpParams {
 
     /**
      * Returns the current set of local names.
-     * 
+     *
      * Changes to the underlying HttpParams are not reflected
      * in the set - it is a snapshot.
-     * 
+     *
      * @return the names, as a Set<String>
      * @since 4.1.1
      * @throws UnsupportedOperationException if the local HttpParams instance does not implement HttpParamsNames

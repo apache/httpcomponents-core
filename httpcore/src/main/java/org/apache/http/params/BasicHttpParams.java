@@ -168,10 +168,10 @@ public class BasicHttpParams extends AbstractHttpParams implements Serializable,
 
     /**
      * Returns the current set of names.
-     * 
+     *
      * Changes to the underlying HttpParams are not reflected
      * in the set - it is a snapshot.
-     * 
+     *
      * @return the names, as a Set<String>
      * @since 4.1.1
      */
