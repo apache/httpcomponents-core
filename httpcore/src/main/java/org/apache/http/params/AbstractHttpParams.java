@@ -113,7 +113,7 @@ public abstract class AbstractHttpParams implements HttpParams, HttpParamsNames 
      * <p>
      * Dummy implementation - must be overridden by subclasses.
      *
-     * @since 4.1.1
+     * @since 4.2
      * @throws UnsupportedOperationException - always
      */
     public Set getNames(){

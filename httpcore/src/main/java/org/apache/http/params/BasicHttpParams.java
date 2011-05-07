@@ -155,7 +155,7 @@ public class BasicHttpParams extends AbstractHttpParams implements Serializable,
      * This method is called from {@link #clone()}.
      *
      * @param target    the parameters to which to copy
-     * @since 4.1.1
+     * @since 4.2
      */
     public void copyParams(HttpParams target) {
         Iterator iter = parameters.entrySet().iterator();
@@ -173,7 +173,7 @@ public class BasicHttpParams extends AbstractHttpParams implements Serializable,
      * in the set - it is a snapshot.
      *
      * @return the names, as a Set<String>
-     * @since 4.1.1
+     * @since 4.2
      */
     public Set getNames() {
         return new HashSet(parameters.keySet());

@@ -160,7 +160,7 @@ public class NHttpConnectionBase
     }
 
     /**
-     * @since 4.1.1
+     * @since 4.2
      */
     protected void bind(final IOSession session) {
         if (session == null) {

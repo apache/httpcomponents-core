@@ -34,7 +34,7 @@ import java.util.Set;
  *
  * @see HttpParams
  *
- * @since 4.1.1
+ * @since 4.2
  */
 public interface HttpParamsNames {
 
@@ -47,7 +47,6 @@ public interface HttpParamsNames {
      * in the set - it is a snapshot.
      *
      * @return the names, as a Set<String>
-     * @since 4.1.1
      */
     Set getNames();
 

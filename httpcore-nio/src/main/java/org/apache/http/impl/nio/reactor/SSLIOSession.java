@@ -144,7 +144,7 @@ public class SSLIOSession implements IOSession, SessionBufferStatus {
     }
 
     /**
-     * @since 4.1.1
+     * @since 4.2
      */
     public synchronized SSLSession getSSLSession() {
         return this.sslEngine.getSession();

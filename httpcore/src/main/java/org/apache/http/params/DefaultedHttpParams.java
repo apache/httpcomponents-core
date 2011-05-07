@@ -102,7 +102,7 @@ public final class DefaultedHttpParams extends AbstractHttpParams {
     /**
      *
      * @return the default HttpParams collection
-     * @deprecated (4.1.1) do not use, will be removed in a later version
+     * @deprecated (4.2) do not use, will be removed in a later version
      */
     public HttpParams getDefaults() {
         return this.defaults;
@@ -116,7 +116,7 @@ public final class DefaultedHttpParams extends AbstractHttpParams {
      * in the set - it is a snapshot.
      *
      * @return the combined set of names, as a Set<String>
-     * @since 4.1.1
+     * @since 4.2
      * @throws UnsupportedOperationException if either the local or default HttpParams instances do not implement HttpParamsNames
      */
     public Set getNames() {
@@ -132,7 +132,7 @@ public final class DefaultedHttpParams extends AbstractHttpParams {
      * in the set - it is a snapshot.
      *
      * @return the names, as a Set<String>
-     * @since 4.1.1
+     * @since 4.2
      * @throws UnsupportedOperationException if the default HttpParams instance does not implement HttpParamsNames
      */
     public Set getDefaultNames() {
@@ -146,7 +146,7 @@ public final class DefaultedHttpParams extends AbstractHttpParams {
      * in the set - it is a snapshot.
      *
      * @return the names, as a Set<String>
-     * @since 4.1.1
+     * @since 4.2
      * @throws UnsupportedOperationException if the local HttpParams instance does not implement HttpParamsNames
      */
     public Set getLocalNames() {
