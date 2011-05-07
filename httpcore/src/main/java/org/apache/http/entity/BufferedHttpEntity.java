@@ -63,6 +63,7 @@ public class BufferedHttpEntity extends HttpEntityWrapper {
         }
     }
 
+    @Override
     public long getContentLength() {
         if (this.buffer != null) {
             return this.buffer.length;
@@ -71,6 +72,7 @@ public class BufferedHttpEntity extends HttpEntityWrapper {
         }
     }
 
+    @Override
     public InputStream getContent() throws IOException {
         if (this.buffer != null) {
             return new ByteArrayInputStream(this.buffer);
@@ -84,6 +86,7 @@ public class BufferedHttpEntity extends HttpEntityWrapper {
      *
      * @return  <code>false</code>
      */
+    @Override
     public boolean isChunked() {
         return (buffer == null) && wrappedEntity.isChunked();
     }
@@ -93,11 +96,13 @@ public class BufferedHttpEntity extends HttpEntityWrapper {
      *
      * @return  <code>true</code>
      */
+    @Override
     public boolean isRepeatable() {
         return true;
     }
 
 
+    @Override
     public void writeTo(final OutputStream outstream) throws IOException {
         if (outstream == null) {
             throw new IllegalArgumentException("Output stream may not be null");
@@ -111,6 +116,7 @@ public class BufferedHttpEntity extends HttpEntityWrapper {
 
 
     // non-javadoc, see interface HttpEntity
+    @Override
     public boolean isStreaming() {
         return (buffer == null) && wrappedEntity.isStreaming();
     }

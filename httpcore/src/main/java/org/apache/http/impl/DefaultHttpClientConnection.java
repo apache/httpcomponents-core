@@ -55,6 +55,7 @@ public class DefaultHttpClientConnection extends SocketHttpClientConnection {
         super();
     }
 
+    @Override
     public void bind(
             final Socket socket,
             final HttpParams params) throws IOException {
@@ -75,6 +76,7 @@ public class DefaultHttpClientConnection extends SocketHttpClientConnection {
         super.bind(socket, params);
     }
 
+    @Override
     public String toString() {
         StringBuffer buffer = new StringBuffer();
         buffer.append("[");

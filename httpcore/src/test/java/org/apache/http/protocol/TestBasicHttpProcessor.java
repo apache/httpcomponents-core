@@ -126,12 +126,6 @@ public class TestBasicHttpProcessor extends TestCase {
         assertEquals(1, instance.getRequestInterceptorCount());
         instance.removeRequestInterceptorByClass(itcp3.getClass());
         assertEquals(0, instance.getRequestInterceptorCount());
-
-        // remove a not present class
-        instance.addRequestInterceptor(itcp1);
-        instance.addRequestInterceptor(itcp2);
-        instance.removeRequestInterceptorByClass(Integer.class);
-        assertEquals(2, instance.getRequestInterceptorCount());
     }
 
 }

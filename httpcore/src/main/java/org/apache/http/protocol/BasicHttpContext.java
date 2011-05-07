@@ -41,7 +41,7 @@ import java.util.Map;
 public class BasicHttpContext implements HttpContext {
 
     private final HttpContext parentContext;
-    private Map map = null;
+    private Map<String, Object> map = null;
 
     public BasicHttpContext() {
         this(null);
@@ -71,7 +71,7 @@ public class BasicHttpContext implements HttpContext {
             throw new IllegalArgumentException("Id may not be null");
         }
         if (this.map == null) {
-            this.map = new HashMap();
+            this.map = new HashMap<String, Object>();
         }
         this.map.put(id, obj);
     }

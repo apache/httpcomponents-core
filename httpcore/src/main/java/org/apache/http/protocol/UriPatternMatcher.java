@@ -51,11 +51,11 @@ public class UriPatternMatcher {
     /**
      * TODO: Replace with ConcurrentHashMap
      */
-    private final Map map;
+    private final Map<String, Object> map;
 
     public UriPatternMatcher() {
         super();
-        this.map = new HashMap();
+        this.map = new HashMap<String, Object>();
     }
 
     /**
@@ -86,7 +86,8 @@ public class UriPatternMatcher {
     /**
      * @deprecated use {@link #setObjects(Map)}
      */
-    public synchronized void setHandlers(final Map map) {
+    @Deprecated
+    public synchronized void setHandlers(final Map<String, Object> map) {
         if (map == null) {
             throw new IllegalArgumentException("Map of handlers may not be null");
         }
@@ -98,7 +99,7 @@ public class UriPatternMatcher {
      * Sets objects from the given map.
      * @param map the map containing objects keyed by their URI patterns.
      */
-    public synchronized void setObjects(final Map map) {
+    public synchronized void setObjects(final Map<String, Object> map) {
         if (map == null) {
             throw new IllegalArgumentException("Map of handlers may not be null");
         }
@@ -127,8 +128,8 @@ public class UriPatternMatcher {
         if (obj == null) {
             // pattern match?
             String bestMatch = null;
-            for (Iterator it = this.map.keySet().iterator(); it.hasNext();) {
-                String pattern = (String) it.next();
+            for (Iterator<String> it = this.map.keySet().iterator(); it.hasNext();) {
+                String pattern = it.next();
                 if (matchUriRequestPattern(pattern, requestURI)) {
                     // we have a match. is it any better?
                     if (bestMatch == null

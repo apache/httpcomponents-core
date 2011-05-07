@@ -30,7 +30,6 @@ package org.apache.http;
 import java.io.Serializable;
 import java.util.Locale;
 
-import org.apache.http.util.CharArrayBuffer;
 import org.apache.http.util.LangUtils;
 
 /**
@@ -150,7 +149,7 @@ public final class HttpHost implements Cloneable, Serializable {
      * @return the host URI
      */
     public String toURI() {
-        CharArrayBuffer buffer = new CharArrayBuffer(32);
+        StringBuilder buffer = new StringBuilder();
         buffer.append(this.schemeName);
         buffer.append("://");
         buffer.append(this.hostname);
@@ -170,7 +169,7 @@ public final class HttpHost implements Cloneable, Serializable {
     public String toHostString() {
         if (this.port != -1) {
             //the highest port number is 65535, which is length 6 with the addition of the colon
-            CharArrayBuffer buffer = new CharArrayBuffer(this.hostname.length() + 6);
+            StringBuilder buffer = new StringBuilder(this.hostname.length() + 6);
             buffer.append(this.hostname);
             buffer.append(":");
             buffer.append(Integer.toString(this.port));
@@ -181,11 +180,13 @@ public final class HttpHost implements Cloneable, Serializable {
     }
 
 
+    @Override
     public String toString() {
         return toURI();
     }
 
 
+    @Override
     public boolean equals(final Object obj) {
         if (this == obj) return true;
         if (obj instanceof HttpHost) {
@@ -201,6 +202,7 @@ public final class HttpHost implements Cloneable, Serializable {
     /**
      * @see java.lang.Object#hashCode()
      */
+    @Override
     public int hashCode() {
         int hash = LangUtils.HASH_SEED;
         hash = LangUtils.hashCode(hash, this.lcHostname);
@@ -209,6 +211,7 @@ public final class HttpHost implements Cloneable, Serializable {
         return hash;
     }
 
+    @Override
     public Object clone() throws CloneNotSupportedException {
         return super.clone();
     }

@@ -81,7 +81,7 @@ public class TestHttpRequestHandlerRegistry extends TestCase {
         h = registry.lookup("/h1");
         assertNull(h);
 
-        Map map = new HashMap();
+        Map<String, Object> map = new HashMap<String, Object>();
         map.put("/a1", h1);
         map.put("/a2", h2);
         map.put("/a3", h3);

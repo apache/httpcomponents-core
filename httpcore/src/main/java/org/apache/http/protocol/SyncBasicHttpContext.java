@@ -38,14 +38,17 @@ public class SyncBasicHttpContext extends BasicHttpContext {
         super(parentContext);
     }
 
+    @Override
     public synchronized Object getAttribute(final String id) {
         return super.getAttribute(id);
     }
 
+    @Override
     public synchronized void setAttribute(final String id, final Object obj) {
         super.setAttribute(id, obj);
     }
 
+    @Override
     public synchronized Object removeAttribute(final String id) {
         return super.removeAttribute(id);
     }

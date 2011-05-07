@@ -45,7 +45,7 @@ public class BasicListHeaderIterator implements HeaderIterator {
      * A list of headers to iterate over.
      * Not all elements of this array are necessarily part of the iteration.
      */
-    protected final List allHeaders;
+    protected final List<Header> allHeaders;
 
 
     /**
@@ -77,7 +77,7 @@ public class BasicListHeaderIterator implements HeaderIterator {
      * @param name      the name of the headers over which to iterate, or
      *                  <code>null</code> for any
      */
-    public BasicListHeaderIterator(List headers, String name) {
+    public BasicListHeaderIterator(List<Header> headers, String name) {
         if (headers == null) {
             throw new IllegalArgumentException
                 ("Header list must not be null.");
@@ -126,7 +126,7 @@ public class BasicListHeaderIterator implements HeaderIterator {
             return true;
 
         // non-header elements, including null, will trigger exceptions
-        final String name = ((Header)this.allHeaders.get(index)).getName();
+        final String name = (this.allHeaders.get(index)).getName();
 
         return this.headerName.equalsIgnoreCase(name);
     }
@@ -156,7 +156,7 @@ public class BasicListHeaderIterator implements HeaderIterator {
         this.lastIndex    = current;
         this.currentIndex = findNext(current);
 
-        return (Header) this.allHeaders.get(current);
+        return this.allHeaders.get(current);
     }
 
 
@@ -168,7 +168,7 @@ public class BasicListHeaderIterator implements HeaderIterator {
      *
      * @throws NoSuchElementException   if there are no more headers
      */
-    public final Object next()
+    public final Header next()
         throws NoSuchElementException {
         return nextHeader();
     }

@@ -82,6 +82,7 @@ public class HttpResponseParser extends AbstractMessageParser {
         this.lineBuf = new CharArrayBuffer(128);
     }
 
+    @Override
     protected HttpMessage parseHead(
             final SessionInputBuffer sessionBuffer)
         throws IOException, HttpException, ParseException {

@@ -49,7 +49,7 @@ public class BasicHttpParams extends AbstractHttpParams implements Serializable,
     private static final long serialVersionUID = -7086398485908701455L;
 
     /** Map of HTTP parameters that this collection contains. */
-    private final HashMap parameters = new HashMap();
+    private final HashMap<String, Object> parameters = new HashMap<String, Object>();
 
     public BasicHttpParams() {
         super();
@@ -132,6 +132,7 @@ public class BasicHttpParams extends AbstractHttpParams implements Serializable,
      * @deprecated
      * @throws UnsupportedOperationException if the clone() fails
      */
+    @Deprecated
     public HttpParams copy() {
         try {
             return (HttpParams) clone();
@@ -144,6 +145,7 @@ public class BasicHttpParams extends AbstractHttpParams implements Serializable,
      * Clones the instance.
      * Uses {@link #copyParams(HttpParams)} to copy the parameters.
      */
+    @Override
     public Object clone() throws CloneNotSupportedException {
         BasicHttpParams clone = (BasicHttpParams) super.clone();
         copyParams(clone);
@@ -158,11 +160,11 @@ public class BasicHttpParams extends AbstractHttpParams implements Serializable,
      * @since 4.2
      */
     public void copyParams(HttpParams target) {
-        Iterator iter = parameters.entrySet().iterator();
+        Iterator<Map.Entry<String, Object>> iter = this.parameters.entrySet().iterator();
         while (iter.hasNext()) {
-            Map.Entry me = (Map.Entry) iter.next();
+            Map.Entry<String, Object> me = iter.next();
             if (me.getKey() instanceof String)
-                target.setParameter((String)me.getKey(), me.getValue());
+                target.setParameter(me.getKey(), me.getValue());
         }
     }
 
@@ -175,7 +177,8 @@ public class BasicHttpParams extends AbstractHttpParams implements Serializable,
      * @return the names, as a Set<String>
      * @since 4.2
      */
-    public Set getNames() {
-        return new HashSet(parameters.keySet());
+    @Override
+    public Set<String> getNames() {
+        return new HashSet<String>(this.parameters.keySet());
     }
 }

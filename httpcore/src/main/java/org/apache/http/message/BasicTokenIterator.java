@@ -126,7 +126,7 @@ public class BasicTokenIterator implements TokenIterator {
      * @throws NoSuchElementException   if there are no more tokens
      * @throws ParseException   if an invalid header value is encountered
      */
-    public final Object next()
+    public final String next()
         throws NoSuchElementException, ParseException {
         return nextToken();
     }

@@ -136,7 +136,7 @@ public class TestHeaderGroup extends TestCase {
 
     public void testIterator() {
         HeaderGroup headergroup = new HeaderGroup();
-        Iterator i = headergroup.iterator();
+        Iterator<Header> i = headergroup.iterator();
         assertNotNull(i);
         assertFalse(i.hasNext());
     }
@@ -147,7 +147,7 @@ public class TestHeaderGroup extends TestCase {
         Header header2 = new BasicHeader("name", "value2");
         Header header3 = new BasicHeader("name", "value3");
         headergroup.setHeaders(new Header[] { header1, header2, header3 });
-        Iterator i = headergroup.iterator();
+        Iterator<Header> i = headergroup.iterator();
         assertNotNull(i);
         assertTrue(i.hasNext());
         i.next();

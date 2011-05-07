@@ -28,7 +28,6 @@
 package org.apache.http;
 
 import java.io.Serializable;
-import org.apache.http.util.CharArrayBuffer;
 
 /**
  * Represents a protocol version. The "major.minor" numbering
@@ -141,6 +140,7 @@ public class ProtocolVersion implements Serializable, Cloneable {
      *
      * @return  the hashcode of this protocol version
      */
+    @Override
     public final int hashCode() {
         return this.protocol.hashCode() ^ (this.major * 100000) ^ this.minor;
     }
@@ -159,6 +159,7 @@ public class ProtocolVersion implements Serializable, Cloneable {
      * @return  <code>true</code> if the argument is the same protocol version,
      *          <code>false</code> otherwise
      */
+    @Override
     public final boolean equals(Object obj) {
         if (this == obj) {
             return true;
@@ -259,8 +260,9 @@ public class ProtocolVersion implements Serializable, Cloneable {
      *
      * @return  a protocol version string, like "HTTP/1.1"
      */
+    @Override
     public String toString() {
-        CharArrayBuffer buffer = new CharArrayBuffer(16);
+        StringBuilder buffer = new StringBuilder();
         buffer.append(this.protocol);
         buffer.append('/');
         buffer.append(Integer.toString(this.major));
@@ -269,6 +271,7 @@ public class ProtocolVersion implements Serializable, Cloneable {
         return buffer.toString();
     }
 
+    @Override
     public Object clone() throws CloneNotSupportedException {
         return super.clone();
     }

@@ -33,7 +33,10 @@ import java.lang.reflect.Method;
  *
  *
  * @since 4.0
+ *
+ * @deprecated (4.2) no longer used
  */
+@Deprecated
 public final class ExceptionUtils {
 
     /** A reference to Throwable's initCause method, or null if it's not there in this JVM */
@@ -50,7 +53,7 @@ public final class ExceptionUtils {
      */
     static private Method getInitCauseMethod() {
         try {
-            Class[] paramsClasses = new Class[] { Throwable.class };
+            Class<?>[] paramsClasses = new Class[] { Throwable.class };
             return Throwable.class.getMethod("initCause", paramsClasses);
         } catch (NoSuchMethodException e) {
             return null;

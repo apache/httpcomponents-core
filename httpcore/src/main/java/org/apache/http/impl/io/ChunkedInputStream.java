@@ -37,7 +37,6 @@ import org.apache.http.TruncatedChunkException;
 import org.apache.http.io.BufferInfo;
 import org.apache.http.io.SessionInputBuffer;
 import org.apache.http.util.CharArrayBuffer;
-import org.apache.http.util.ExceptionUtils;
 
 /**
  * Implements chunked transfer coding. The content is received in small chunks.
@@ -100,6 +99,7 @@ public class ChunkedInputStream extends InputStream {
         this.state = CHUNK_LEN;
     }
 
+    @Override
     public int available() throws IOException {
         if (this.in instanceof BufferInfo) {
             int len = ((BufferInfo) this.in).length();
@@ -121,6 +121,7 @@ public class ChunkedInputStream extends InputStream {
      * byte
      * @throws IOException in case of an I/O error
      */
+    @Override
     public int read() throws IOException {
         if (this.closed) {
             throw new IOException("Attempted read from closed stream.");
@@ -154,6 +155,7 @@ public class ChunkedInputStream extends InputStream {
      * reached.
      * @throws IOException in case of an I/O error
      */
+    @Override
     public int read (byte[] b, int off, int len) throws IOException {
 
         if (closed) {
@@ -192,6 +194,7 @@ public class ChunkedInputStream extends InputStream {
      * reached.
      * @throws IOException in case of an I/O error
      */
+    @Override
     public int read (byte[] b) throws IOException {
         return read(b, 0, b.length);
     }
@@ -269,10 +272,10 @@ public class ChunkedInputStream extends InputStream {
         try {
             this.footers = AbstractMessageParser.parseHeaders
                 (in, -1, -1, null);
-        } catch (HttpException e) {
+        } catch (HttpException ex) {
             IOException ioe = new MalformedChunkCodingException("Invalid footer: "
-                    + e.getMessage());
-            ExceptionUtils.initCause(ioe, e);
+                    + ex.getMessage());
+            ioe.initCause(ex);
             throw ioe;
         }
     }
@@ -283,6 +286,7 @@ public class ChunkedInputStream extends InputStream {
      * next response without scanning.
      * @throws IOException in case of an I/O error
      */
+    @Override
     public void close() throws IOException {
         if (!closed) {
             try {
@@ -300,7 +304,7 @@ public class ChunkedInputStream extends InputStream {
     }
 
     public Header[] getFooters() {
-        return (Header[])this.footers.clone();
+        return this.footers.clone();
     }
 
 }

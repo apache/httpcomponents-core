@@ -28,6 +28,8 @@
 package org.apache.http.impl;
 
 import java.util.HashMap;
+import java.util.Map;
+
 import org.apache.http.HttpConnectionMetrics;
 import org.apache.http.io.HttpTransportMetrics;
 
@@ -51,7 +53,7 @@ public class HttpConnectionMetricsImpl implements HttpConnectionMetrics {
     /**
      * The cache map for all metrics values.
      */
-    private HashMap metricsCache;
+    private Map<String, Object> metricsCache;
 
     public HttpConnectionMetricsImpl(
             final HttpTransportMetrics inTransportMetric,
@@ -124,7 +126,7 @@ public class HttpConnectionMetricsImpl implements HttpConnectionMetrics {
 
     public void setMetric(final String metricName, Object obj) {
         if (this.metricsCache == null) {
-            this.metricsCache = new HashMap();
+            this.metricsCache = new HashMap<String, Object>();
         }
         this.metricsCache.put(metricName, obj);
     }

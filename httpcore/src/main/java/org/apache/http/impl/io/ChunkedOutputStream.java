@@ -131,6 +131,7 @@ public class ChunkedOutputStream extends OutputStream {
     }
 
     // -------------------------------------------- OutputStream Methods
+    @Override
     public void write(int b) throws IOException {
         if (this.closed) {
             throw new IOException("Attempted write to closed stream.");
@@ -144,6 +145,7 @@ public class ChunkedOutputStream extends OutputStream {
      * Writes the array. If the array does not fit within the buffer, it is
      * not split, but rather written out as one large chunk.
      */
+    @Override
     public void write(byte b[]) throws IOException {
         write(b, 0, b.length);
     }
@@ -152,6 +154,7 @@ public class ChunkedOutputStream extends OutputStream {
      * Writes the array. If the array does not fit within the buffer, it is
      * not split, but rather written out as one large chunk.
      */
+    @Override
     public void write(byte src[], int off, int len) throws IOException {
         if (this.closed) {
             throw new IOException("Attempted write to closed stream.");
@@ -167,6 +170,7 @@ public class ChunkedOutputStream extends OutputStream {
     /**
      * Flushes the content buffer and the underlying stream.
      */
+    @Override
     public void flush() throws IOException {
         flushCache();
         this.out.flush();
@@ -175,6 +179,7 @@ public class ChunkedOutputStream extends OutputStream {
     /**
      * Finishes writing to the underlying stream, but does NOT close the underlying stream.
      */
+    @Override
     public void close() throws IOException {
         if (!this.closed) {
             this.closed = true;

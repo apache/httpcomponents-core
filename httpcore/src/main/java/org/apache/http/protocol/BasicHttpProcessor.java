@@ -51,8 +51,8 @@ public final class BasicHttpProcessor implements
     HttpProcessor, HttpRequestInterceptorList, HttpResponseInterceptorList, Cloneable {
 
     // Don't allow direct access, as nulls are not allowed
-    protected final List requestInterceptors = new ArrayList();
-    protected final List responseInterceptors = new ArrayList();
+    protected final List<HttpRequestInterceptor> requestInterceptors = new ArrayList<HttpRequestInterceptor>();
+    protected final List<HttpResponseInterceptor> responseInterceptors = new ArrayList<HttpResponseInterceptor>();
 
     public void addRequestInterceptor(final HttpRequestInterceptor itcp) {
         if (itcp == null) {
@@ -77,8 +77,8 @@ public final class BasicHttpProcessor implements
         this.responseInterceptors.add(index, itcp);
     }
 
-    public void removeRequestInterceptorByClass(final Class clazz) {
-        for (Iterator it = this.requestInterceptors.iterator();
+    public void removeRequestInterceptorByClass(final Class<? extends HttpRequestInterceptor> clazz) {
+        for (Iterator<HttpRequestInterceptor> it = this.requestInterceptors.iterator();
              it.hasNext(); ) {
             Object request = it.next();
             if (request.getClass().equals(clazz)) {
@@ -87,8 +87,8 @@ public final class BasicHttpProcessor implements
         }
     }
 
-    public void removeResponseInterceptorByClass(final Class clazz) {
-        for (Iterator it = this.responseInterceptors.iterator();
+    public void removeResponseInterceptorByClass(final Class<? extends HttpResponseInterceptor> clazz) {
+        for (Iterator<HttpResponseInterceptor> it = this.responseInterceptors.iterator();
              it.hasNext(); ) {
             Object request = it.next();
             if (request.getClass().equals(clazz)) {
@@ -112,7 +112,7 @@ public final class BasicHttpProcessor implements
     public HttpRequestInterceptor getRequestInterceptor(int index) {
         if ((index < 0) || (index >= this.requestInterceptors.size()))
             return null;
-        return (HttpRequestInterceptor) this.requestInterceptors.get(index);
+        return this.requestInterceptors.get(index);
     }
 
     public void clearRequestInterceptors() {
@@ -141,7 +141,7 @@ public final class BasicHttpProcessor implements
     public HttpResponseInterceptor getResponseInterceptor(int index) {
         if ((index < 0) || (index >= this.responseInterceptors.size()))
             return null;
-        return (HttpResponseInterceptor) this.responseInterceptors.get(index);
+        return this.responseInterceptors.get(index);
     }
 
     public void clearResponseInterceptors() {
@@ -165,7 +165,7 @@ public final class BasicHttpProcessor implements
      * @param list      the list of request and response interceptors
      *                  from which to initialize
      */
-    public void setInterceptors(final List list) {
+    public void setInterceptors(final List<?> list) {
         if (list == null) {
             throw new IllegalArgumentException("List must not be null.");
         }
@@ -196,7 +196,7 @@ public final class BasicHttpProcessor implements
             throws IOException, HttpException {
         for (int i = 0; i < this.requestInterceptors.size(); i++) {
             HttpRequestInterceptor interceptor =
-                (HttpRequestInterceptor) this.requestInterceptors.get(i);
+                this.requestInterceptors.get(i);
             interceptor.process(request, context);
         }
     }
@@ -207,7 +207,7 @@ public final class BasicHttpProcessor implements
             throws IOException, HttpException {
         for (int i = 0; i < this.responseInterceptors.size(); i++) {
             HttpResponseInterceptor interceptor =
-                (HttpResponseInterceptor) this.responseInterceptors.get(i);
+                this.responseInterceptors.get(i);
             interceptor.process(response, context);
         }
     }
@@ -236,6 +236,7 @@ public final class BasicHttpProcessor implements
         return clone;
     }
 
+    @Override
     public Object clone() throws CloneNotSupportedException {
         BasicHttpProcessor clone = (BasicHttpProcessor) super.clone();
         copyInterceptors(clone);

@@ -75,11 +75,13 @@ public class TestHttpServiceAndExecutor extends TestCase {
     private HttpServer server;
     private HttpClient client;
 
+    @Override
     protected void setUp() throws Exception {
         this.server = new HttpServer();
         this.client = new HttpClient();
     }
 
+    @Override
     protected void tearDown() throws Exception {
         this.server.shutdown();
     }
@@ -94,7 +96,7 @@ public class TestHttpServiceAndExecutor extends TestCase {
         Random rnd = new Random();
 
         // Prepare some random data
-        final List testData = new ArrayList(reqNo);
+        final List<byte[]> testData = new ArrayList<byte[]>(reqNo);
         for (int i = 0; i < reqNo; i++) {
             int size = rnd.nextInt(5000);
             byte[] data = new byte[size];
@@ -115,7 +117,7 @@ public class TestHttpServiceAndExecutor extends TestCase {
                     s = s.substring(2);
                 }
                 int index = Integer.parseInt(s);
-                byte[] data = (byte []) testData.get(index);
+                byte[] data = testData.get(index);
                 ByteArrayEntity entity = new ByteArrayEntity(data);
                 response.setEntity(entity);
             }
@@ -137,7 +139,7 @@ public class TestHttpServiceAndExecutor extends TestCase {
                 BasicHttpRequest get = new BasicHttpRequest("GET", "/?" + r);
                 HttpResponse response = this.client.execute(get, host, conn);
                 byte[] received = EntityUtils.toByteArray(response.getEntity());
-                byte[] expected = (byte[]) testData.get(r);
+                byte[] expected = testData.get(r);
 
                 assertEquals(expected.length, received.length);
                 for (int i = 0; i < expected.length; i++) {
@@ -170,7 +172,7 @@ public class TestHttpServiceAndExecutor extends TestCase {
         Random rnd = new Random();
 
         // Prepare some random data
-        List testData = new ArrayList(reqNo);
+        List<byte[]> testData = new ArrayList<byte[]>(reqNo);
         for (int i = 0; i < reqNo; i++) {
             int size = rnd.nextInt(5000);
             byte[] data = new byte[size];
@@ -214,13 +216,13 @@ public class TestHttpServiceAndExecutor extends TestCase {
                 }
 
                 BasicHttpEntityEnclosingRequest post = new BasicHttpEntityEnclosingRequest("POST", "/");
-                byte[] data = (byte[]) testData.get(r);
+                byte[] data = testData.get(r);
                 ByteArrayEntity outgoing = new ByteArrayEntity(data);
                 post.setEntity(outgoing);
 
                 HttpResponse response = this.client.execute(post, host, conn);
                 byte[] received = EntityUtils.toByteArray(response.getEntity());
-                byte[] expected = (byte[]) testData.get(r);
+                byte[] expected = testData.get(r);
 
                 assertEquals(expected.length, received.length);
                 for (int i = 0; i < expected.length; i++) {
@@ -252,7 +254,7 @@ public class TestHttpServiceAndExecutor extends TestCase {
         Random rnd = new Random();
 
         // Prepare some random data
-        List testData = new ArrayList(reqNo);
+        List<byte[]> testData = new ArrayList<byte[]>(reqNo);
         for (int i = 0; i < reqNo; i++) {
             int size = rnd.nextInt(20000);
             byte[] data = new byte[size];
@@ -296,14 +298,14 @@ public class TestHttpServiceAndExecutor extends TestCase {
                 }
 
                 BasicHttpEntityEnclosingRequest post = new BasicHttpEntityEnclosingRequest("POST", "/");
-                byte[] data = (byte[]) testData.get(r);
+                byte[] data = testData.get(r);
                 ByteArrayEntity outgoing = new ByteArrayEntity(data);
                 outgoing.setChunked(true);
                 post.setEntity(outgoing);
 
                 HttpResponse response = this.client.execute(post, host, conn);
                 byte[] received = EntityUtils.toByteArray(response.getEntity());
-                byte[] expected = (byte[]) testData.get(r);
+                byte[] expected = testData.get(r);
 
                 assertEquals(expected.length, received.length);
                 for (int i = 0; i < expected.length; i++) {
@@ -333,7 +335,7 @@ public class TestHttpServiceAndExecutor extends TestCase {
         Random rnd = new Random();
 
         // Prepare some random data
-        List testData = new ArrayList(reqNo);
+        List<byte[]> testData = new ArrayList<byte[]>(reqNo);
         for (int i = 0; i < reqNo; i++) {
             int size = rnd.nextInt(5000);
             byte[] data = new byte[size];
@@ -381,14 +383,14 @@ public class TestHttpServiceAndExecutor extends TestCase {
                 }
 
                 BasicHttpEntityEnclosingRequest post = new BasicHttpEntityEnclosingRequest("POST", "/");
-                byte[] data = (byte[]) testData.get(r);
+                byte[] data = testData.get(r);
                 ByteArrayEntity outgoing = new ByteArrayEntity(data);
                 post.setEntity(outgoing);
 
                 HttpResponse response = this.client.execute(post, host, conn);
                 assertEquals(HttpVersion.HTTP_1_0, response.getStatusLine().getProtocolVersion());
                 byte[] received = EntityUtils.toByteArray(response.getEntity());
-                byte[] expected = (byte[]) testData.get(r);
+                byte[] expected = testData.get(r);
 
                 assertEquals(expected.length, received.length);
                 for (int i = 0; i < expected.length; i++) {
@@ -420,7 +422,7 @@ public class TestHttpServiceAndExecutor extends TestCase {
         Random rnd = new Random();
 
         // Prepare some random data
-        List testData = new ArrayList(reqNo);
+        List<byte[]> testData = new ArrayList<byte[]>(reqNo);
         for (int i = 0; i < reqNo; i++) {
             int size = rnd.nextInt(5000);
             byte[] data = new byte[size];
@@ -467,14 +469,14 @@ public class TestHttpServiceAndExecutor extends TestCase {
                 }
 
                 BasicHttpEntityEnclosingRequest post = new BasicHttpEntityEnclosingRequest("POST", "/");
-                byte[] data = (byte[]) testData.get(r);
+                byte[] data = testData.get(r);
                 ByteArrayEntity outgoing = new ByteArrayEntity(data);
                 outgoing.setChunked(true);
                 post.setEntity(outgoing);
 
                 HttpResponse response = this.client.execute(post, host, conn);
                 byte[] received = EntityUtils.toByteArray(response.getEntity());
-                byte[] expected = (byte[]) testData.get(r);
+                byte[] expected = testData.get(r);
 
                 assertEquals(expected.length, received.length);
                 for (int i = 0; i < expected.length; i++) {

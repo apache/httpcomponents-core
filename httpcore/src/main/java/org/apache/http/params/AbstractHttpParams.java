@@ -116,7 +116,7 @@ public abstract class AbstractHttpParams implements HttpParams, HttpParamsNames 
      * @since 4.2
      * @throws UnsupportedOperationException - always
      */
-    public Set getNames(){
+    public Set<String> getNames(){
         throw new UnsupportedOperationException();
     }
 

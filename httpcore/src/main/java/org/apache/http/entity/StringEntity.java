@@ -131,6 +131,7 @@ public class StringEntity extends AbstractHttpEntity implements Cloneable {
         return false;
     }
 
+    @Override
     public Object clone() throws CloneNotSupportedException {
         return super.clone();
     }

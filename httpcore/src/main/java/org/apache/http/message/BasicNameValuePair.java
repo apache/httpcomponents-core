@@ -30,7 +30,6 @@ package org.apache.http.message;
 import java.io.Serializable;
 
 import org.apache.http.NameValuePair;
-import org.apache.http.util.CharArrayBuffer;
 import org.apache.http.util.LangUtils;
 
 /**
@@ -68,6 +67,7 @@ public class BasicNameValuePair implements NameValuePair, Cloneable, Serializabl
         return this.value;
     }
 
+    @Override
     public String toString() {
         // don't call complex default formatting for a simple toString
 
@@ -75,7 +75,7 @@ public class BasicNameValuePair implements NameValuePair, Cloneable, Serializabl
             return name;
         } else {
             int len = this.name.length() + 1 + this.value.length();
-            CharArrayBuffer buffer = new CharArrayBuffer(len);
+            StringBuilder buffer = new StringBuilder(len);
             buffer.append(this.name);
             buffer.append("=");
             buffer.append(this.value);
@@ -83,6 +83,7 @@ public class BasicNameValuePair implements NameValuePair, Cloneable, Serializabl
         }
     }
 
+    @Override
     public boolean equals(final Object object) {
         if (this == object) return true;
         if (object instanceof NameValuePair) {
@@ -94,6 +95,7 @@ public class BasicNameValuePair implements NameValuePair, Cloneable, Serializabl
         }
     }
 
+    @Override
     public int hashCode() {
         int hash = LangUtils.HASH_SEED;
         hash = LangUtils.hashCode(hash, this.name);
@@ -101,6 +103,7 @@ public class BasicNameValuePair implements NameValuePair, Cloneable, Serializabl
         return hash;
     }
 
+    @Override
     public Object clone() throws CloneNotSupportedException {
         return super.clone();
     }

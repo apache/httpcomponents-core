@@ -65,7 +65,7 @@ public abstract class AbstractMessageParser implements HttpMessageParser {
     private final SessionInputBuffer sessionBuffer;
     private final int maxHeaderCount;
     private final int maxLineLen;
-    private final List headerLines;
+    private final List<CharArrayBuffer> headerLines;
     protected final LineParser lineParser;
 
     private int state;
@@ -95,7 +95,7 @@ public abstract class AbstractMessageParser implements HttpMessageParser {
         this.maxLineLen = params.getIntParameter(
                 CoreConnectionPNames.MAX_LINE_LENGTH, -1);
         this.lineParser = (parser != null) ? parser : BasicLineParser.DEFAULT;
-        this.headerLines = new ArrayList();
+        this.headerLines = new ArrayList<CharArrayBuffer>();
         this.state = HEAD_LINE;
     }
 
@@ -127,7 +127,7 @@ public abstract class AbstractMessageParser implements HttpMessageParser {
         if (parser == null) {
             parser = BasicLineParser.DEFAULT;
         }
-        List headerLines = new ArrayList();
+        List<CharArrayBuffer> headerLines = new ArrayList<CharArrayBuffer>();
         return parseHeaders(inbuffer, maxHeaderCount, maxLineLen, parser, headerLines);
     }
 
@@ -160,7 +160,7 @@ public abstract class AbstractMessageParser implements HttpMessageParser {
             int maxHeaderCount,
             int maxLineLen,
             final LineParser parser,
-            final List headerLines)
+            final List<CharArrayBuffer> headerLines)
         throws HttpException, IOException {
 
         if (inbuffer == null) {
@@ -217,7 +217,7 @@ public abstract class AbstractMessageParser implements HttpMessageParser {
         }
         Header[] headers = new Header[headerLines.size()];
         for (int i = 0; i < headerLines.size(); i++) {
-            CharArrayBuffer buffer = (CharArrayBuffer) headerLines.get(i);
+            CharArrayBuffer buffer = headerLines.get(i);
             try {
                 headers[i] = parser.parseHeader(buffer);
             } catch (ParseException ex) {

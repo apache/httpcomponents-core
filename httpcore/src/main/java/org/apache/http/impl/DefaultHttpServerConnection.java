@@ -55,6 +55,7 @@ public class DefaultHttpServerConnection extends SocketHttpServerConnection {
         super();
     }
 
+    @Override
     public void bind(final Socket socket, final HttpParams params) throws IOException {
         if (socket == null) {
             throw new IllegalArgumentException("Socket may not be null");
@@ -73,6 +74,7 @@ public class DefaultHttpServerConnection extends SocketHttpServerConnection {
         super.bind(socket, params);
     }
 
+    @Override
     public String toString() {
         StringBuffer buffer = new StringBuffer();
         buffer.append("[");

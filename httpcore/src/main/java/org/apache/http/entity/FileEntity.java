@@ -89,6 +89,7 @@ public class FileEntity extends AbstractHttpEntity implements Cloneable {
         return false;
     }
 
+    @Override
     public Object clone() throws CloneNotSupportedException {
         // File instance is considered immutable
         // No need to make a copy of it

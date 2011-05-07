@@ -76,11 +76,11 @@ public class TestDefaultedHttpParams extends TestCase {
     public void testgetNames() {
         DefaultedHttpParams params = new DefaultedHttpParams(addParams("local"), addParams("default"));
 
-        Set nameSet = params.getNames();
+        Set<String> nameSet = params.getNames();
         assertEquals(3, nameSet.size());
-        Set localnameSet = params.getLocalNames();
+        Set<String> localnameSet = params.getLocalNames();
         assertEquals(2, localnameSet.size());
-        Set defaultnameSet = params.getDefaultNames();
+        Set<String> defaultnameSet = params.getDefaultNames();
         assertEquals(2, defaultnameSet.size());
 
         params.setParameter("new", null);

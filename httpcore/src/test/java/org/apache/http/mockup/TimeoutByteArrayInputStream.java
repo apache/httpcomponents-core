@@ -53,6 +53,7 @@ public class TimeoutByteArrayInputStream extends InputStream {
         this(buf, 0, buf.length);
     }
 
+    @Override
     public int read() throws IOException {
         if (this.pos < this.count) {
             return -1;
@@ -65,6 +66,7 @@ public class TimeoutByteArrayInputStream extends InputStream {
         }
     }
 
+    @Override
     public int read(byte b[], int off, int len) throws IOException {
         if (b == null) {
             throw new NullPointerException();
@@ -97,6 +99,7 @@ public class TimeoutByteArrayInputStream extends InputStream {
         return len;
     }
 
+    @Override
     public long skip(long n) {
         if (this.pos + n > this.count) {
             n = this.count - this.pos;
@@ -108,10 +111,12 @@ public class TimeoutByteArrayInputStream extends InputStream {
         return n;
     }
 
+    @Override
     public int available() {
         return this.count - this.pos;
     }
 
+    @Override
     public boolean markSupported() {
         return false;
     }

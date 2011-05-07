@@ -96,6 +96,7 @@ public class ContentLengthInputStream extends InputStream {
      * primed to parse the next response.</p>
      * @throws IOException If an IO problem occurs.
      */
+    @Override
     public void close() throws IOException {
         if (!closed) {
             try {
@@ -110,6 +111,7 @@ public class ContentLengthInputStream extends InputStream {
         }
     }
 
+    @Override
     public int available() throws IOException {
         if (this.in instanceof BufferInfo) {
             int len = ((BufferInfo) this.in).length();
@@ -125,6 +127,7 @@ public class ContentLengthInputStream extends InputStream {
      * @throws IOException If an IO problem occurs
      * @see java.io.InputStream#read()
      */
+    @Override
     public int read() throws IOException {
         if (closed) {
             throw new IOException("Attempted read from closed stream.");
@@ -149,6 +152,7 @@ public class ContentLengthInputStream extends InputStream {
      *
      * @throws java.io.IOException Should an error occur on the wrapped stream.
      */
+    @Override
     public int read (byte[] b, int off, int len) throws java.io.IOException {
         if (closed) {
             throw new IOException("Attempted read from closed stream.");
@@ -174,6 +178,7 @@ public class ContentLengthInputStream extends InputStream {
      * @throws IOException If an IO problem occurs
      * @see java.io.InputStream#read(byte[])
      */
+    @Override
     public int read(byte[] b) throws IOException {
         return read(b, 0, b.length);
     }
@@ -186,6 +191,7 @@ public class ContentLengthInputStream extends InputStream {
      * @throws IOException If an error occurs while skipping bytes.
      * @see InputStream#skip(long)
      */
+    @Override
     public long skip(long n) throws IOException {
         if (n <= 0) {
             return 0;

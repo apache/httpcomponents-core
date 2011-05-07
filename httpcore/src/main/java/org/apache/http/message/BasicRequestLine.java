@@ -78,12 +78,14 @@ public class BasicRequestLine implements RequestLine, Cloneable, Serializable {
         return this.uri;
     }
 
+    @Override
     public String toString() {
         // no need for non-default formatting in toString()
         return BasicLineFormatter.DEFAULT
             .formatRequestLine(null, this).toString();
     }
 
+    @Override
     public Object clone() throws CloneNotSupportedException {
         return super.clone();
     }

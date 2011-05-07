@@ -80,7 +80,7 @@ public class NHttpRequestHandlerRegistry implements NHttpRequestHandlerResolver 
      * Sets handlers from the given map.
      * @param map the map containing handlers keyed by their URI patterns.
      */
-    public void setHandlers(final Map<String, ? extends NHttpRequestHandler> map) {
+    public void setHandlers(final Map<String, Object> map) {
         matcher.setObjects(map);
     }
 

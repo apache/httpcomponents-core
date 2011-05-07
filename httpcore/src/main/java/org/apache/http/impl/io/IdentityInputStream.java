@@ -64,6 +64,7 @@ public class IdentityInputStream extends InputStream {
         this.in = in;
     }
 
+    @Override
     public int available() throws IOException {
         if (this.in instanceof BufferInfo) {
             return ((BufferInfo) this.in).length();
@@ -72,10 +73,12 @@ public class IdentityInputStream extends InputStream {
         }
     }
 
+    @Override
     public void close() throws IOException {
         this.closed = true;
     }
 
+    @Override
     public int read() throws IOException {
         if (this.closed) {
             return -1;
@@ -84,6 +87,7 @@ public class IdentityInputStream extends InputStream {
         }
     }
 
+    @Override
     public int read(final byte[] b, int off, int len) throws IOException {
         if (this.closed) {
             return -1;

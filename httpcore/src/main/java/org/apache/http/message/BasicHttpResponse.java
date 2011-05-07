@@ -191,6 +191,7 @@ public class BasicHttpResponse extends AbstractHttpMessage
             null : this.reasonCatalog.getReason(code, this.locale);
     }
 
+    @Override
     public String toString() {
         return this.statusline + " " + this.headergroup;
     }

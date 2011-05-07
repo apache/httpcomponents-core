@@ -103,15 +103,14 @@ public class BasicHeaderValueParser implements HeaderValueParser {
             throw new IllegalArgumentException("Parser cursor may not be null");
         }
 
-        List elements = new ArrayList();
+        List<HeaderElement> elements = new ArrayList<HeaderElement>();
         while (!cursor.atEnd()) {
             HeaderElement element = parseHeaderElement(buffer, cursor);
             if (!(element.getName().length() == 0 && element.getValue() == null)) {
                 elements.add(element);
             }
         }
-        return (HeaderElement[])
-            elements.toArray(new HeaderElement[elements.size()]);
+        return elements.toArray(new HeaderElement[elements.size()]);
     }
 
 
@@ -236,7 +235,7 @@ public class BasicHeaderValueParser implements HeaderValueParser {
             return new NameValuePair[] {};
         }
 
-        List params = new ArrayList();
+        List<NameValuePair> params = new ArrayList<NameValuePair>();
         while (!cursor.atEnd()) {
             NameValuePair param = parseNameValuePair(buffer, cursor);
             params.add(param);
@@ -246,8 +245,7 @@ public class BasicHeaderValueParser implements HeaderValueParser {
             }
         }
 
-        return (NameValuePair[])
-            params.toArray(new NameValuePair[params.size()]);
+        return params.toArray(new NameValuePair[params.size()]);
     }
 
     /**

@@ -27,8 +27,6 @@
 
 package org.apache.http;
 
-import org.apache.http.util.ExceptionUtils;
-
 /**
  * Signals that an HTTP exception has occurred.
  *
@@ -63,7 +61,7 @@ public class HttpException extends Exception {
      */
     public HttpException(final String message, final Throwable cause) {
         super(message);
-        ExceptionUtils.initCause(this, cause);
+        initCause(cause);
     }
 
 }

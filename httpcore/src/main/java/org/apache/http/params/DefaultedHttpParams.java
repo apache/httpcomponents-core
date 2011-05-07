@@ -65,6 +65,7 @@ public final class DefaultedHttpParams extends AbstractHttpParams {
      *
      * @deprecated
      */
+    @Deprecated
     public HttpParams copy() {
         HttpParams clone = this.local.copy();
         return new DefaultedHttpParams(clone, this.defaults);
@@ -104,6 +105,7 @@ public final class DefaultedHttpParams extends AbstractHttpParams {
      * @return the default HttpParams collection
      * @deprecated (4.2) do not use, will be removed in a later version
      */
+    @Deprecated
     public HttpParams getDefaults() {
         return this.defaults;
     }
@@ -119,9 +121,10 @@ public final class DefaultedHttpParams extends AbstractHttpParams {
      * @since 4.2
      * @throws UnsupportedOperationException if either the local or default HttpParams instances do not implement HttpParamsNames
      */
-    public Set getNames() {
-        Set combined = new HashSet(getNames(defaults));
-        combined.addAll(getNames(local));
+    @Override
+    public Set<String> getNames() {
+        Set<String> combined = new HashSet<String>(getNames(defaults));
+        combined.addAll(getNames(this.local));
         return combined ;
     }
 
@@ -135,8 +138,8 @@ public final class DefaultedHttpParams extends AbstractHttpParams {
      * @since 4.2
      * @throws UnsupportedOperationException if the default HttpParams instance does not implement HttpParamsNames
      */
-    public Set getDefaultNames() {
-        return new HashSet(getNames(defaults));
+    public Set<String> getDefaultNames() {
+        return new HashSet<String>(getNames(this.defaults));
     }
 
     /**
@@ -149,12 +152,12 @@ public final class DefaultedHttpParams extends AbstractHttpParams {
      * @since 4.2
      * @throws UnsupportedOperationException if the local HttpParams instance does not implement HttpParamsNames
      */
-    public Set getLocalNames() {
-        return new HashSet(getNames(local));
+    public Set<String> getLocalNames() {
+        return new HashSet<String>(getNames(this.local));
     }
 
     // Helper method
-    private Set getNames(HttpParams params) {
+    private Set<String> getNames(HttpParams params) {
         if (params instanceof HttpParamsNames) {
             return ((HttpParamsNames) params).getNames();
         }

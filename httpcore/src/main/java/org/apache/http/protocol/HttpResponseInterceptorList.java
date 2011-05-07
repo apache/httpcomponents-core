@@ -83,7 +83,7 @@ public interface HttpResponseInterceptorList {
      *
      * @param clazz  the class of the instances to be removed.
      */
-    void removeResponseInterceptorByClass(Class clazz);
+    void removeResponseInterceptorByClass(Class<? extends HttpResponseInterceptor> clazz);
 
     /**
      * Sets the response interceptors in this list.
@@ -94,7 +94,7 @@ public interface HttpResponseInterceptorList {
      *
      * @param list the list of response interceptors
      */
-    void setInterceptors(List list);
+    void setInterceptors(List<?> list);
 
 }
 

@@ -29,6 +29,7 @@ package org.apache.http.util;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.ArrayList;
@@ -158,6 +159,7 @@ public class VersionInfo {
      *
      * @return  a string holding this version information
      */
+    @Override
     public String toString() {
         StringBuffer sb = new StringBuffer
             (20 + infoPackage.length() + infoModule.length() +
@@ -200,14 +202,14 @@ public class VersionInfo {
                 ("Package identifier list must not be null.");
         }
 
-        ArrayList vil = new ArrayList(pckgs.length);
+        List<VersionInfo> vil = new ArrayList<VersionInfo>(pckgs.length);
         for (int i=0; i<pckgs.length; i++) {
             VersionInfo vi = loadVersionInfo(pckgs[i], clsldr);
             if (vi != null)
                 vil.add(vi);
         }
 
-        return (VersionInfo[]) vil.toArray(new VersionInfo[vil.size()]);
+        return vil.toArray(new VersionInfo[vil.size()]);
     }
 
 
@@ -270,7 +272,7 @@ public class VersionInfo {
      *
      * @return  the version information
      */
-    protected final static VersionInfo fromMap(String pckg, Map info,
+    protected final static VersionInfo fromMap(String pckg, Map<?, ?> info,
                                                ClassLoader clsldr) {
         if (pckg == null) {
             throw new IllegalArgumentException

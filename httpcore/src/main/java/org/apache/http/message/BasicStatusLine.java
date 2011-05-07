@@ -93,12 +93,14 @@ public class BasicStatusLine implements StatusLine, Cloneable, Serializable {
         return this.reasonPhrase;
     }
 
+    @Override
     public String toString() {
         // no need for non-default formatting in toString()
         return BasicLineFormatter.DEFAULT
             .formatStatusLine(null, this).toString();
     }
 
+    @Override
     public Object clone() throws CloneNotSupportedException {
         return super.clone();
     }

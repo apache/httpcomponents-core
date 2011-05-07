@@ -154,7 +154,7 @@ public class BasicHeaderIterator implements HeaderIterator {
      *
      * @throws NoSuchElementException   if there are no more headers
      */
-    public final Object next()
+    public final Header next()
         throws NoSuchElementException {
         return nextHeader();
     }

@@ -76,6 +76,7 @@ public interface HttpParams {
      *
      * @deprecated
      */
+    @Deprecated
     HttpParams copy();
 
     /**

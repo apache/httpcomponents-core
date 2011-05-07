@@ -91,6 +91,7 @@ public class ContentLengthOutputStream extends OutputStream {
      *
      * @throws IOException If an I/O problem occurs.
      */
+    @Override
     public void close() throws IOException {
         if (!this.closed) {
             this.closed = true;
@@ -98,10 +99,12 @@ public class ContentLengthOutputStream extends OutputStream {
         }
     }
 
+    @Override
     public void flush() throws IOException {
         this.out.flush();
     }
 
+    @Override
     public void write(byte[] b, int off, int len) throws IOException {
         if (this.closed) {
             throw new IOException("Attempted write to closed stream.");
@@ -116,10 +119,12 @@ public class ContentLengthOutputStream extends OutputStream {
         }
     }
 
+    @Override
     public void write(byte[] b) throws IOException {
         write(b, 0, b.length);
     }
 
+    @Override
     public void write(int b) throws IOException {
         if (this.closed) {
             throw new IOException("Attempted write to closed stream.");

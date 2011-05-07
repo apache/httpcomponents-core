@@ -27,8 +27,6 @@
 
 package org.apache.http.message;
 
-import org.apache.http.util.CharArrayBuffer;
-
 /**
  * This class represents a context of a parsing operation:
  * <ul>
@@ -83,8 +81,9 @@ public class ParserCursor {
         return this.pos >= this.upperBound;
     }
 
+    @Override
     public String toString() {
-        CharArrayBuffer buffer = new CharArrayBuffer(16);
+        StringBuilder buffer = new StringBuilder();
         buffer.append('[');
         buffer.append(Integer.toString(this.lowerBound));
         buffer.append('>');

@@ -103,6 +103,8 @@ public class InputStreamEntity extends AbstractHttpEntity {
      * @deprecated Either use {@link #getContent()} and call {@link java.io.InputStream#close()} on that;
      * otherwise call {@link #writeTo(OutputStream)} which is required to free the resources.
      */
+    @Deprecated
+    @Override
     public void consumeContent() throws IOException {
         // If the input stream is from a connection, closing it will read to
         // the end of the content. Otherwise, we don't care what it does.

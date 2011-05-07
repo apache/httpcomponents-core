@@ -150,6 +150,7 @@ public class HttpService {
      * @deprecated use {@link HttpService#HttpService(HttpProcessor,
      *  ConnectionReuseStrategy, HttpResponseFactory, HttpRequestHandlerResolver, HttpParams)}
      */
+    @Deprecated
     public HttpService(
             final HttpProcessor proc,
             final ConnectionReuseStrategy connStrategy,
@@ -163,6 +164,7 @@ public class HttpService {
     /**
      * @deprecated set {@link HttpProcessor} using constructor
      */
+    @Deprecated
     public void setHttpProcessor(final HttpProcessor processor) {
         if (processor == null) {
             throw new IllegalArgumentException("HTTP processor may not be null");
@@ -173,6 +175,7 @@ public class HttpService {
     /**
      * @deprecated set {@link ConnectionReuseStrategy} using constructor
      */
+    @Deprecated
     public void setConnReuseStrategy(final ConnectionReuseStrategy connStrategy) {
         if (connStrategy == null) {
             throw new IllegalArgumentException("Connection reuse strategy may not be null");
@@ -183,6 +186,7 @@ public class HttpService {
     /**
      * @deprecated set {@link HttpResponseFactory} using constructor
      */
+    @Deprecated
     public void setResponseFactory(final HttpResponseFactory responseFactory) {
         if (responseFactory == null) {
             throw new IllegalArgumentException("Response factory may not be null");
@@ -193,6 +197,7 @@ public class HttpService {
     /**
      * @deprecated set {@link HttpResponseFactory} using constructor
      */
+    @Deprecated
     public void setParams(final HttpParams params) {
         this.params = params;
     }
@@ -200,6 +205,7 @@ public class HttpService {
     /**
      * @deprecated set {@link HttpRequestHandlerResolver} using constructor
      */
+    @Deprecated
     public void setHandlerResolver(final HttpRequestHandlerResolver handlerResolver) {
         this.handlerResolver = handlerResolver;
     }
@@ -207,6 +213,7 @@ public class HttpService {
     /**
      * @deprecated set {@link HttpExpectationVerifier} using constructor
      */
+    @Deprecated
     public void setExpectationVerifier(final HttpExpectationVerifier expectationVerifier) {
         this.expectationVerifier = expectationVerifier;
     }

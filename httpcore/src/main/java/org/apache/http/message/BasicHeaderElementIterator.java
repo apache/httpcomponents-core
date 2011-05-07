@@ -143,7 +143,7 @@ public class BasicHeaderElementIterator implements HeaderElementIterator {
         return element;
     }
 
-    public final Object next() throws NoSuchElementException {
+    public final HeaderElement next() throws NoSuchElementException {
         return nextElement();
     }
 

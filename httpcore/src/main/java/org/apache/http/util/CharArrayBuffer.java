@@ -454,6 +454,7 @@ public final class CharArrayBuffer implements Serializable {
         return new String(this.buffer, beginIndex, endIndex - beginIndex);
     }
 
+    @Override
     public String toString() {
         return new String(this.buffer, 0, this.len);
     }

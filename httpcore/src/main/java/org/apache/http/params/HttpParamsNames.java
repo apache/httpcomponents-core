@@ -48,6 +48,6 @@ public interface HttpParamsNames {
      *
      * @return the names, as a Set<String>
      */
-    Set getNames();
+    Set<String> getNames();
 
 }

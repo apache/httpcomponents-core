@@ -28,8 +28,8 @@
 package org.apache.http.impl.io;
 
 import java.io.IOException;
-import java.io.InterruptedIOException;
 import java.net.Socket;
+import java.net.SocketTimeoutException;
 
 import org.apache.http.io.EofSensor;
 import org.apache.http.io.SessionInputBuffer;
@@ -48,30 +48,6 @@ import org.apache.http.params.HttpParams;
  * @since 4.0
  */
 public class SocketInputBuffer extends AbstractSessionInputBuffer implements EofSensor {
-
-    static private final Class SOCKET_TIMEOUT_CLASS = SocketTimeoutExceptionClass();
-
-    /**
-     * Returns <code>SocketTimeoutExceptionClass<code> or <code>null</code> if the class
-     * does not exist.
-     *
-     * @return <code>SocketTimeoutExceptionClass<code>, or <code>null</code> if unavailable.
-     */
-    static private Class SocketTimeoutExceptionClass() {
-        try {
-            return Class.forName("java.net.SocketTimeoutException");
-        } catch (ClassNotFoundException e) {
-            return null;
-        }
-    }
-
-    private static boolean isSocketTimeoutException(final InterruptedIOException e) {
-        if (SOCKET_TIMEOUT_CLASS != null) {
-            return SOCKET_TIMEOUT_CLASS.isInstance(e);
-        } else {
-            return true;
-        }
-    }
 
     private final Socket socket;
 
@@ -106,6 +82,7 @@ public class SocketInputBuffer extends AbstractSessionInputBuffer implements Eof
         init(socket.getInputStream(), buffersize, params);
     }
 
+    @Override
     protected int fillBuffer() throws IOException {
         int i = super.fillBuffer();
         this.eof = i == -1;
@@ -120,10 +97,8 @@ public class SocketInputBuffer extends AbstractSessionInputBuffer implements Eof
                 this.socket.setSoTimeout(timeout);
                 fillBuffer();
                 result = hasBufferedData();
-            } catch (InterruptedIOException e) {
-                if (!isSocketTimeoutException(e)) {
-                    throw e;
-                }
+            } catch (SocketTimeoutException ex) {
+                throw ex;
             } finally {
                 socket.setSoTimeout(oldtimeout);
             }

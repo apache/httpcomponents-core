@@ -59,6 +59,7 @@ public class TestDefaultConnectionReuseStrategy extends TestCase {
         super(testName);
     }
 
+    @Override
     public void setUp() {
         // open and not stale is required for most of the tests here
         mockConnection = new MockConnection(true, false);
@@ -67,6 +68,7 @@ public class TestDefaultConnectionReuseStrategy extends TestCase {
         context.setAttribute(ExecutionContext.HTTP_CONNECTION, mockConnection);
     }
 
+    @Override
     public void tearDown() {
         mockConnection = null;
     }

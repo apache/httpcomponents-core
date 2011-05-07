@@ -68,6 +68,7 @@ public class BasicHeader implements Header, Cloneable, Serializable {
         return this.value;
     }
 
+    @Override
     public String toString() {
         // no need for non-default formatting in toString()
         return BasicLineFormatter.DEFAULT.formatHeader(null, this).toString();
@@ -82,6 +83,7 @@ public class BasicHeader implements Header, Cloneable, Serializable {
         }
     }
 
+    @Override
     public Object clone() throws CloneNotSupportedException {
         return super.clone();
     }

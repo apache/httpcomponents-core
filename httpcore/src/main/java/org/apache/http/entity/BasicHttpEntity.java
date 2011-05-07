@@ -128,6 +128,8 @@ public class BasicHttpEntity extends AbstractHttpEntity {
      * @deprecated Either use {@link #getContent()} and call {@link java.io.InputStream#close()} on that;
      * otherwise call {@link #writeTo(OutputStream)} which is required to free the resources.
      */
+    @Deprecated
+    @Override
     public void consumeContent() throws IOException {
         if (content != null) {
             content.close(); // reads to the end of the entity

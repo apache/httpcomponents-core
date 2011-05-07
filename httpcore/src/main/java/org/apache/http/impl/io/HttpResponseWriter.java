@@ -49,6 +49,7 @@ public class HttpResponseWriter extends AbstractMessageWriter {
         super(buffer, formatter, params);
     }
 
+    @Override
     protected void writeHeadLine(final HttpMessage message)
         throws IOException {
 

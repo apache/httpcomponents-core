@@ -81,6 +81,7 @@ public final class HttpVersion extends ProtocolVersion
      *
      * @return  an instance of {@link HttpVersion} with the argument version
      */
+    @Override
     public ProtocolVersion forVersion(int major, int minor) {
 
         if ((major == this.major) && (minor == this.minor)) {

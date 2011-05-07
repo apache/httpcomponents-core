@@ -72,6 +72,7 @@ public class SocketHttpServerConnection extends
         }
     }
 
+    @Override
     protected void assertOpen() {
         if (!this.open) {
             throw new IllegalStateException("Connection is not open");

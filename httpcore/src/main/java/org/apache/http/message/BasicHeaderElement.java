@@ -29,7 +29,6 @@ package org.apache.http.message;
 
 import org.apache.http.HeaderElement;
 import org.apache.http.NameValuePair;
-import org.apache.http.util.CharArrayBuffer;
 import org.apache.http.util.LangUtils;
 
 /**
@@ -87,7 +86,7 @@ public class BasicHeaderElement implements HeaderElement, Cloneable {
     }
 
     public NameValuePair[] getParameters() {
-        return (NameValuePair[])this.parameters.clone();
+        return this.parameters.clone();
     }
 
     public int getParameterCount() {
@@ -114,6 +113,7 @@ public class BasicHeaderElement implements HeaderElement, Cloneable {
         return found;
     }
 
+    @Override
     public boolean equals(final Object object) {
         if (this == object) return true;
         if (object instanceof HeaderElement) {
@@ -126,6 +126,7 @@ public class BasicHeaderElement implements HeaderElement, Cloneable {
         }
     }
 
+    @Override
     public int hashCode() {
         int hash = LangUtils.HASH_SEED;
         hash = LangUtils.hashCode(hash, this.name);
@@ -136,8 +137,9 @@ public class BasicHeaderElement implements HeaderElement, Cloneable {
         return hash;
     }
 
+    @Override
     public String toString() {
-        CharArrayBuffer buffer = new CharArrayBuffer(64);
+        StringBuilder buffer = new StringBuilder();
         buffer.append(this.name);
         if (this.value != null) {
             buffer.append("=");
@@ -150,6 +152,7 @@ public class BasicHeaderElement implements HeaderElement, Cloneable {
         return buffer.toString();
     }
 
+    @Override
     public Object clone() throws CloneNotSupportedException {
         // parameters array is considered immutable
         // no need to make a copy of it

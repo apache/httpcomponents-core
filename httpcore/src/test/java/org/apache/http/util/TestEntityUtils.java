@@ -256,6 +256,7 @@ public class TestEntityUtils extends TestCase {
          *
          * @return <code>null</code>
          */
+        @Override
         public InputStream getContent() {
             return null;
         }

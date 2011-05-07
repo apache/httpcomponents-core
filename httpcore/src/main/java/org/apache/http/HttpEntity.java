@@ -193,6 +193,7 @@ public interface HttpEntity {
      *
      * @see #getContent() and #writeTo(OutputStream)
      */
+    @Deprecated
     void consumeContent() throws IOException;
 
 }
