@@ -35,7 +35,6 @@ import org.apache.http.params.HttpParams;
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.SSLEngine;
 import javax.net.ssl.SSLEngineResult;
-import javax.net.ssl.SSLSession;
 import javax.net.ssl.SSLEngineResult.HandshakeStatus;
 import javax.net.ssl.SSLEngineResult.Status;
 import javax.net.ssl.SSLException;
@@ -143,13 +142,6 @@ public class SSLIOSession implements IOSession, SessionBufferStatus {
         doHandshake();
     }
 
-    /**
-     * @since 4.1.1
-     */
-    public synchronized SSLSession getSSLSession() {
-        return this.sslEngine.getSession();
-    }
-    
     private void doHandshake() throws SSLException {
         boolean handshaking = true;
 

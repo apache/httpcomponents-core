@@ -160,17 +160,6 @@ public class NHttpConnectionBase
     }
 
     /**
-     * @since 4.1.1
-     */
-    protected void bind(final IOSession session) {
-        if (session == null) {
-            throw new IllegalArgumentException("I/O session may not be null");
-        }
-        this.session.setBufferStatus(null);
-        setSession(session);
-    }
-
-    /**
      * @since 4.1
      */
     protected HttpTransportMetricsImpl createTransportMetrics() {

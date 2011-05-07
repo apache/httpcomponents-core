@@ -28,11 +28,9 @@
 package org.apache.http.params;
 
 import java.io.Serializable;
-import java.util.HashSet;
 import java.util.Map;
 import java.util.HashMap;
 import java.util.Iterator;
-import java.util.Set;
 
 import org.apache.http.params.HttpParams;
 
@@ -150,14 +148,7 @@ public class BasicHttpParams extends AbstractHttpParams implements Serializable,
         return clone;
     }
 
-    /**
-     * Copies the locally defined parameters to the argument parameters.
-     * This method is called from {@link #clone()}.
-     *
-     * @param target    the parameters to which to copy
-     * @since 4.1.1
-     */
-    public void copyParams(HttpParams target) {
+    private void copyParams(HttpParams target) {
         Iterator iter = parameters.entrySet().iterator();
         while (iter.hasNext()) {
             Map.Entry me = (Map.Entry) iter.next();
@@ -166,16 +157,4 @@ public class BasicHttpParams extends AbstractHttpParams implements Serializable,
         }
     }
 
-    /**
-     * Returns the current set of names.
-     * 
-     * Changes to the underlying HttpParams are not reflected
-     * in the set - it is a snapshot.
-     * 
-     * @return the names, as a Set<String>
-     * @since 4.1.1
-     */
-    public Set getNames() {
-        return new HashSet(parameters.keySet());
-    }
 }

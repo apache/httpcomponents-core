@@ -124,7 +124,7 @@ public class BasicHttpEntity extends AbstractHttpEntity {
 
     /**
      * Closes the content InputStream.
-     * 
+     *
      * @deprecated Either use {@link #getContent()} and call {@link java.io.InputStream#close()} on that;
      * otherwise call {@link #writeTo(OutputStream)} which is required to free the resources.
      */

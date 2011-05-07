@@ -31,7 +31,7 @@ package org.apache.http.params;
  * HttpParams interface represents a collection of immutable values that define
  * a runtime behavior of a component. HTTP parameters should be simple objects:
  * integers, doubles, strings, collections and objects that remain immutable
- * at runtime. HttpParams is expected to be used in 'write once - read many' mode. 
+ * at runtime. HttpParams is expected to be used in 'write once - read many' mode.
  * Once initialized, HTTP parameters are not expected to mutate in
  * the course of HTTP message processing.
  * <p>

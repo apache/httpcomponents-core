@@ -27,11 +27,6 @@
 
 package org.apache.http.params;
 
-import java.util.HashSet;
-import java.util.Set;
-
-import org.apache.http.params.HttpParams;
-
 /**
  * {@link HttpParams} implementation that delegates resolution of a parameter
  * to the given default {@link HttpParams} instance if the parameter is not
@@ -47,7 +42,7 @@ public final class DefaultedHttpParams extends AbstractHttpParams {
 
     /**
      * Create the defaulted set of HttpParams.
-     * 
+     *
      * @param local the mutable set of HttpParams
      * @param defaults the default set of HttpParams, not mutated by this class
      */
@@ -100,65 +95,11 @@ public final class DefaultedHttpParams extends AbstractHttpParams {
     }
 
     /**
-     * 
+     *
      * @return the default HttpParams collection
-     * @deprecated (4.1.1) do not use, will be removed in a later version
      */
     public HttpParams getDefaults() {
         return this.defaults;
-    }
-
-    /**
-     * Returns the current set of names
-     * from both the local and default HttpParams instances.
-     * 
-     * Changes to the underlying HttpParams intances are not reflected
-     * in the set - it is a snapshot.
-     * 
-     * @return the combined set of names, as a Set<String>
-     * @since 4.1.1
-     * @throws UnsupportedOperationException if either the local or default HttpParams instances do not implement HttpParamsNames
-     */
-    public Set getNames() {
-        Set combined = new HashSet(getNames(defaults));
-        combined.addAll(getNames(local));
-        return combined ;
-    }
-
-    /**
-     * Returns the current set of defaults names.
-     * 
-     * Changes to the underlying HttpParams are not reflected
-     * in the set - it is a snapshot.
-     * 
-     * @return the names, as a Set<String>
-     * @since 4.1.1
-     * @throws UnsupportedOperationException if the default HttpParams instance does not implement HttpParamsNames
-     */
-    public Set getDefaultNames() {
-        return new HashSet(getNames(defaults));
-    }
-
-    /**
-     * Returns the current set of local names.
-     * 
-     * Changes to the underlying HttpParams are not reflected
-     * in the set - it is a snapshot.
-     * 
-     * @return the names, as a Set<String>
-     * @since 4.1.1
-     * @throws UnsupportedOperationException if the local HttpParams instance does not implement HttpParamsNames
-     */
-    public Set getLocalNames() {
-        return new HashSet(getNames(local));
-    }
-
-    // Helper method
-    private Set getNames(HttpParams params) {
-        if (params instanceof HttpParamsNames) {
-            return ((HttpParamsNames) params).getNames();
-        }
-        throw new UnsupportedOperationException("HttpParams instance does not implement HttpParamsNames");
     }
 
 }

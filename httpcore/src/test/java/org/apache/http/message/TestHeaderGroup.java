@@ -204,5 +204,5 @@ public class TestHeaderGroup extends TestCase {
             assertEquals(headers1[i].getValue(), headers2[i].getValue());
         }
     }
-    
+
 }

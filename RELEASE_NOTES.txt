@@ -1,5 +1,8 @@
 Changes since 4.1
 
+* [HTTPCORE-255]: Fixed resource management in InputStreamEntity#writeTo()
+  Contributed by Oleg Kalnichevski <olegk at apache.org>
+
 * [HTTPCORE-254]: Erratic results from metrics (sebb)
 
 * [HTTPCORE-242]: Fixed NPE in AsyncNHttpClientHandler caused by an early response to an

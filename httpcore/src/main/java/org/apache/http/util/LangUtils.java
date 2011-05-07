@@ -57,7 +57,7 @@ public final class LangUtils {
 
     /**
      * Check if two objects are equal.
-     * 
+     *
      * @param obj1 first object to compare, may be {@code null}
      * @param obj2 second object to compare, may be {@code null}
      * @return {@code true} if the objects are equal or both null

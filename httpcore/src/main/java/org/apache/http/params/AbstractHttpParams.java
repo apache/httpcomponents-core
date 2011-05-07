@@ -27,10 +27,7 @@
 
 package org.apache.http.params;
 
-import java.util.Set;
-
 import org.apache.http.params.HttpParams;
-
 
 /**
  * Abstract base class for parameter collections.
@@ -39,7 +36,7 @@ import org.apache.http.params.HttpParams;
  *
  * @since 4.0
  */
-public abstract class AbstractHttpParams implements HttpParams, HttpParamsNames {
+public abstract class AbstractHttpParams implements HttpParams {
 
     /**
      * Instantiates parameters.
@@ -106,18 +103,6 @@ public abstract class AbstractHttpParams implements HttpParams, HttpParamsNames 
 
     public boolean isParameterFalse(final String name) {
         return !getBooleanParameter(name, false);
-    }
-
-    /**
-     * {@inheritDoc}
-     * <p>
-     * Dummy implementation - must be overridden by subclasses.
-     * 
-     * @since 4.1.1
-     * @throws UnsupportedOperationException - always
-     */
-    public Set getNames(){
-        throw new UnsupportedOperationException();
     }
 
 } // class AbstractHttpParams

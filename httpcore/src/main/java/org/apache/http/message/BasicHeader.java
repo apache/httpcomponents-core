@@ -41,7 +41,7 @@ import org.apache.http.ParseException;
 public class BasicHeader implements Header, Cloneable, Serializable {
 
     private static final long serialVersionUID = -5427236326487562174L;
-    
+
     private final String name;
     private final String value;
 

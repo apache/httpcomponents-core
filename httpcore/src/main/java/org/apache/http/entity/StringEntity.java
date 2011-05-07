@@ -47,11 +47,11 @@ public class StringEntity extends AbstractHttpEntity implements Cloneable {
 
     /**
      * Creates a StringEntity with the specified content, mimetype and charset
-     * 
+     *
      * @param string content to be used. Not {@code null}.
      * @param mimeType mime type to be used. May be {@code null}, in which case the default is {@link HTTP#PLAIN_TEXT_TYPE} i.e. "text/plain"
      * @param charset character set to be used. May be {@code null}, in which case the default is {@link HTTP#DEFAULT_CONTENT_CHARSET} i.e. "ISO-8859-1"
-     * 
+     *
      * @since 4.1
      * @throws IllegalArgumentException if the string parameter is null
      */
@@ -75,10 +75,10 @@ public class StringEntity extends AbstractHttpEntity implements Cloneable {
      * Creates a StringEntity with the specified content and charset.
      * <br/>
      * The mime type defaults to {@link HTTP#PLAIN_TEXT_TYPE} i.e. "text/plain".
-     * 
+     *
      * @param string content to be used. Not {@code null}.
      * @param charset character set to be used. May be {@code null}, in which case the default is {@link HTTP#DEFAULT_CONTENT_CHARSET} i.e. "ISO-8859-1"
-     * 
+     *
      * @throws IllegalArgumentException if the string parameter is null
      */
     public StringEntity(final String string, String charset)
@@ -92,9 +92,9 @@ public class StringEntity extends AbstractHttpEntity implements Cloneable {
      * The charset defaults to {@link HTTP#DEFAULT_CONTENT_CHARSET} i.e. "ISO-8859-1".
      * <br/>
      * The mime type defaults to {@link HTTP#PLAIN_TEXT_TYPE} i.e. "text/plain".
-     * 
+     *
      * @param string content to be used. Not {@code null}.
-     * 
+     *
      * @throws IllegalArgumentException if the string parameter is null
      */
     public StringEntity(final String string)
