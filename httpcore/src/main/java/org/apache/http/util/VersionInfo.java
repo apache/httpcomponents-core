@@ -161,7 +161,7 @@ public class VersionInfo {
      */
     @Override
     public String toString() {
-        StringBuffer sb = new StringBuffer
+        StringBuilder sb = new StringBuilder
             (20 + infoPackage.length() + infoModule.length() +
              infoRelease.length() + infoTimestamp.length() +
              infoClassloader.length());

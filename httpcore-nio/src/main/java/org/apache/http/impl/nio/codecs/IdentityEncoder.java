@@ -88,7 +88,7 @@ public class IdentityEncoder extends AbstractContentEncoder
 
     @Override
     public String toString() {
-        StringBuffer buffer = new StringBuffer();
+        StringBuilder buffer = new StringBuilder();
         buffer.append("[identity; completed: ");
         buffer.append(this.completed);
         buffer.append("]");

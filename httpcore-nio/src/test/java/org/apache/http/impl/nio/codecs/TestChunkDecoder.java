@@ -59,7 +59,7 @@ public class TestChunkDecoder extends TestCase {
 
     private static String convert(final ByteBuffer src) {
         src.flip();
-        StringBuffer buffer = new StringBuffer(src.remaining());
+        StringBuilder buffer = new StringBuilder(src.remaining());
         while (src.hasRemaining()) {
             buffer.append((char)(src.get() & 0xff));
         }

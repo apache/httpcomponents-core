@@ -124,7 +124,7 @@ public class LengthDelimitedEncoder extends AbstractContentEncoder
 
     @Override
     public String toString() {
-        StringBuffer buffer = new StringBuffer();
+        StringBuilder buffer = new StringBuilder();
         buffer.append("[content length: ");
         buffer.append(this.contentLength);
         buffer.append("; pos: ");

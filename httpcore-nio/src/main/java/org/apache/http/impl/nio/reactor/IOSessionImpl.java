@@ -250,7 +250,7 @@ public class IOSessionImpl implements IOSession {
         this.attributes.put(name, obj);
     }
 
-    private static void formatOps(final StringBuffer buffer, int ops) {
+    private static void formatOps(final StringBuilder buffer, int ops) {
         buffer.append('[');
         if ((ops & SelectionKey.OP_READ) > 0) {
             buffer.append('r');
@@ -269,7 +269,7 @@ public class IOSessionImpl implements IOSession {
 
     @Override
     public synchronized String toString() {
-        StringBuffer buffer = new StringBuffer();
+        StringBuilder buffer = new StringBuilder();
         buffer.append("[");
         if (this.key.isValid()) {
             buffer.append("interest ops: ");

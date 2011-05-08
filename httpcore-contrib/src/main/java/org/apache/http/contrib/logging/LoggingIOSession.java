@@ -83,7 +83,7 @@ public class LoggingIOSession implements IOSession {
     }
 
     private static String formatOps(int ops) {
-        StringBuffer buffer = new StringBuffer(6);
+        StringBuilder buffer = new StringBuilder(6);
         buffer.append('[');
         if ((ops & SelectionKey.OP_READ) > 0) {
             buffer.append('r');

@@ -76,7 +76,7 @@ public class DefaultHttpServerConnection extends SocketHttpServerConnection {
 
     @Override
     public String toString() {
-        StringBuffer buffer = new StringBuffer();
+        StringBuilder buffer = new StringBuilder();
         buffer.append("[");
         if (isOpen()) {
             buffer.append(getRemotePort());

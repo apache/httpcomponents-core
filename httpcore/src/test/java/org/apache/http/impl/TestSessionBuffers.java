@@ -105,7 +105,7 @@ public class TestSessionBuffers extends TestCase {
         teststrs[0] = "Hello";
         teststrs[1] = "This string should be much longer than the size of the output buffer " +
                 "which is only 16 bytes for this test";
-        StringBuffer buffer = new StringBuffer();
+        StringBuilder buffer = new StringBuilder();
         for (int i = 0; i < 15; i++) {
             buffer.append("123456789 ");
         }
@@ -163,7 +163,7 @@ public class TestSessionBuffers extends TestCase {
         long bytesWritten = outbuffer.getMetrics().getBytesTransferred();
         assertEquals(8, bytesWritten);
 
-        StringBuffer buffer = new StringBuffer();
+        StringBuilder buffer = new StringBuilder();
         for (int i = 0; i < 14; i++) {
             buffer.append("a");
         }
@@ -224,7 +224,7 @@ public class TestSessionBuffers extends TestCase {
         teststrs[0] = "Hello";
         teststrs[1] = "This string should be much longer than the size of the output buffer " +
                 "which is only 16 bytes for this test";
-        StringBuffer buffer = new StringBuffer();
+        StringBuilder buffer = new StringBuilder();
         for (int i = 0; i < 15; i++) {
             buffer.append("123456789 ");
         }
@@ -392,7 +392,7 @@ public class TestSessionBuffers extends TestCase {
     };
 
     private static String constructString(int [] unicodeChars) {
-        StringBuffer buffer = new StringBuffer();
+        StringBuilder buffer = new StringBuilder();
         if (unicodeChars != null) {
             for (int i = 0; i < unicodeChars.length; i++) {
                 buffer.append((char)unicodeChars[i]);

@@ -460,7 +460,7 @@ public class SSLIOSession implements IOSession, SessionBufferStatus {
 
     @Override
     public String toString() {
-        StringBuffer buffer = new StringBuffer();
+        StringBuilder buffer = new StringBuilder();
         buffer.append(this.session);
         buffer.append("[SSL handshake status: ");
         buffer.append(this.sslEngine.getHandshakeStatus());

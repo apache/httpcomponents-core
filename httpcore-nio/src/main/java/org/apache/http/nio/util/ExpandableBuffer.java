@@ -182,7 +182,7 @@ public class ExpandableBuffer implements BufferInfo, org.apache.http.nio.util.Bu
 
     @Override
     public String toString() {
-        StringBuffer sb = new StringBuffer();
+        StringBuilder sb = new StringBuilder();
         sb.append("[mode=");
         int mode = getMode();
         if (mode == INPUT_MODE) {

@@ -62,7 +62,7 @@ public class TestIdentityDecoder extends TestCase {
 
     private static String convert(final ByteBuffer src) {
         src.flip();
-        StringBuffer buffer = new StringBuffer(src.remaining());
+        StringBuilder buffer = new StringBuilder(src.remaining());
         while (src.hasRemaining()) {
             buffer.append((char)(src.get() & 0xff));
         }
@@ -73,7 +73,7 @@ public class TestIdentityDecoder extends TestCase {
         FileInputStream filestream = new FileInputStream(file);
         InputStreamReader reader = new InputStreamReader(filestream);
         try {
-            StringBuffer buffer = new StringBuffer();
+            StringBuilder buffer = new StringBuilder();
             char[] tmp = new char[2048];
             int l;
             while ((l = reader.read(tmp)) != -1) {
