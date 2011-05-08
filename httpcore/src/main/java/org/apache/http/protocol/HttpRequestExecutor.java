@@ -313,7 +313,8 @@ public class HttpRequestExecutor {
      * <p>
      * This method does <i>not</i> read the response entity, if any.
      * The connection over which content of the response entity is being
-     * streamed from cannot be reused until {@link HttpEntity#consumeContent()}
+     * streamed from cannot be reused until 
+     * {@link org.apache.http.util.EntityUtils#consume(HttpEntity)}
      * has been invoked.
      *
      * @param response  the response object to post-process
