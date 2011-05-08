@@ -80,7 +80,7 @@ public class ResultProcessor {
         printAndAppend(sb,"\nServer Software:\t\t" + stats.getServerName());
         printAndAppend(sb, "Server Hostname:\t\t" + host.getHostName());
         printAndAppend(sb, "Server Port:\t\t\t" +
-            (host.getPort() > 0 ? host.getPort() : uri.startsWith("https") ? "443" : "80") + "\n");
+            (host.getPort() > 0 ? Integer.valueOf(host.getPort()) : uri.startsWith("https") ? "443" : "80") + "\n");
         printAndAppend(sb, "Document Path:\t\t\t" + uri);
         printAndAppend(sb, "Document Length:\t\t" + stats.getContentLength() + " bytes\n");
         printAndAppend(sb, "Concurrency Level:\t\t" + workers.length);
@@ -97,7 +97,7 @@ public class ResultProcessor {
         printAndAppend(sb, "Transfer rate:\t\t\t" +
             nf2.format(totalBytesRcvd/1000/totalTimeSec) + " [Kbytes/sec] received");
         printAndAppend(sb, "\t\t\t\t" +
-            (totalBytesSent > 0 ? nf2.format(totalBytesSent/1000/totalTimeSec) : -1) + " kb/s sent");
+            (totalBytesSent > 0 ? nf2.format(totalBytesSent/1000/totalTimeSec) : Integer.valueOf(-1)) + " kb/s sent");
         printAndAppend(sb, "\t\t\t\t" +
             nf2.format(totalBytes/1000/totalTimeSec) + " kb/s total");
 
