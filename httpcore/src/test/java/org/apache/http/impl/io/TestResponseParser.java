@@ -160,6 +160,7 @@ public class TestResponseParser extends TestCase {
         assertNotNull(httpresponse);
         assertEquals(5, timeoutCount);
 
+        @SuppressWarnings("null") // httpresponse cannot be null here
         StatusLine statusline = httpresponse.getStatusLine();
         assertNotNull(statusline);
         assertEquals(200, statusline.getStatusCode());

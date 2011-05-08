@@ -164,6 +164,7 @@ public class TestRequestParser extends TestCase {
         assertNotNull(httprequest);
         assertEquals(5, timeoutCount);
 
+        @SuppressWarnings("null") // httprequest cannot be null here
         RequestLine reqline = httprequest.getRequestLine();
         assertNotNull(reqline);
         assertEquals("GET", reqline.getMethod());
