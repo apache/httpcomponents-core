@@ -42,7 +42,7 @@ public class NHttpListener extends Thread {
 
     public NHttpListener(
             final ListeningIOReactor ioreactor,
-            final IOEventDispatch ioEventDispatch) throws IOException {
+            final IOEventDispatch ioEventDispatch) {
         super();
         this.ioreactor = ioreactor;
         this.ioEventDispatch = ioEventDispatch;

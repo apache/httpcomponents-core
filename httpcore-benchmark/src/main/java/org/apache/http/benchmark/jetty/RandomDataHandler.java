@@ -61,7 +61,7 @@ class RandomDataHandler extends AbstractHandler {
 
     private void rnd(
             final HttpServletRequest request,
-            final HttpServletResponse response) throws IOException, ServletException {
+            final HttpServletResponse response) throws IOException {
         int count = 100;
         String s = request.getParameter("c");
         try {

@@ -27,8 +27,6 @@
 
 package org.apache.http.benchmark.jetty;
 
-import java.io.IOException;
-
 import org.apache.http.benchmark.HttpServer;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.server.bio.SocketConnector;
@@ -38,7 +36,7 @@ public class JettyServer implements HttpServer {
 
     private final Server server;
 
-    public JettyServer(int port) throws IOException {
+    public JettyServer(int port) {
         super();
         if (port <= 0) {
             throw new IllegalArgumentException("Server port may not be negative or null");
