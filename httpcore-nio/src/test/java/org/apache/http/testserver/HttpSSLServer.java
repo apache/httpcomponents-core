@@ -25,7 +25,7 @@
  *
  */
 
-package org.apache.http.mockup;
+package org.apache.http.testserver;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
@@ -34,41 +34,46 @@ import java.security.KeyStore;
 import java.security.NoSuchAlgorithmException;
 import java.util.List;
 
+import javax.net.ssl.KeyManager;
+import javax.net.ssl.KeyManagerFactory;
 import javax.net.ssl.SSLContext;
-import javax.net.ssl.TrustManager;
-import javax.net.ssl.TrustManagerFactory;
 
-import org.apache.http.impl.nio.reactor.DefaultConnectingIOReactor;
+import org.apache.http.impl.nio.reactor.DefaultListeningIOReactor;
 import org.apache.http.impl.nio.reactor.ExceptionEvent;
-import org.apache.http.impl.nio.ssl.SSLClientIOEventDispatch;
-import org.apache.http.nio.NHttpClientHandler;
+import org.apache.http.impl.nio.ssl.SSLServerIOEventDispatch;
+import org.apache.http.nio.NHttpServiceHandler;
 import org.apache.http.nio.reactor.IOEventDispatch;
 import org.apache.http.nio.reactor.IOReactorExceptionHandler;
 import org.apache.http.nio.reactor.IOReactorStatus;
-import org.apache.http.nio.reactor.SessionRequest;
+import org.apache.http.nio.reactor.ListenerEndpoint;
 import org.apache.http.params.HttpParams;
 
-public class HttpSSLClient {
+/**
+ * Trivial test server based on HttpCore NIO SSL
+ *
+ */
+public class HttpSSLServer {
 
     private final SSLContext sslcontext;
-    private final DefaultConnectingIOReactor ioReactor;
+    private final DefaultListeningIOReactor ioReactor;
     private final HttpParams params;
 
     private volatile IOReactorThread thread;
+    private ListenerEndpoint endpoint;
 
-    public HttpSSLClient(final HttpParams params) throws Exception {
+    public HttpSSLServer(final HttpParams params) throws Exception {
         super();
         this.params = params;
         this.sslcontext = createSSLContext();
-        this.ioReactor = new DefaultConnectingIOReactor(2, this.params);
+        this.ioReactor = new DefaultListeningIOReactor(2, this.params);
     }
 
-    private TrustManagerFactory createTrustManagerFactory() throws NoSuchAlgorithmException {
-        String algo = TrustManagerFactory.getDefaultAlgorithm();
+    private KeyManagerFactory createKeyManagerFactory() throws NoSuchAlgorithmException {
+        String algo = KeyManagerFactory.getDefaultAlgorithm();
         try {
-            return TrustManagerFactory.getInstance(algo);
+            return KeyManagerFactory.getInstance(algo);
         } catch (NoSuchAlgorithmException ex) {
-            return TrustManagerFactory.getInstance("SunX509");
+            return KeyManagerFactory.getInstance("SunX509");
         }
     }
 
@@ -77,11 +82,11 @@ public class HttpSSLClient {
         URL url = cl.getResource("test.keystore");
         KeyStore keystore  = KeyStore.getInstance("jks");
         keystore.load(url.openStream(), "nopassword".toCharArray());
-        TrustManagerFactory tmfactory = createTrustManagerFactory();
-        tmfactory.init(keystore);
-        TrustManager[] trustmanagers = tmfactory.getTrustManagers();
+        KeyManagerFactory kmfactory = createKeyManagerFactory();
+        kmfactory.init(keystore, "nopassword".toCharArray());
+        KeyManager[] keymanagers = kmfactory.getKeyManagers();
         SSLContext sslcontext = SSLContext.getInstance("TLS");
-        sslcontext.init(null, trustmanagers, null);
+        sslcontext.init(keymanagers, null, null);
         return sslcontext;
     }
 
@@ -102,27 +107,28 @@ public class HttpSSLClient {
     }
 
     protected IOEventDispatch createIOEventDispatch(
-            final NHttpClientHandler clientHandler,
+            final NHttpServiceHandler serviceHandler,
             final SSLContext sslcontext,
             final HttpParams params) {
-        return new SSLClientIOEventDispatch(clientHandler, sslcontext, params);
+        return new SSLServerIOEventDispatch(serviceHandler, sslcontext, params);
     }
 
-    private void execute(final NHttpClientHandler clientHandler) throws IOException {
+    private void execute(final NHttpServiceHandler serviceHandler) throws IOException {
         IOEventDispatch ioEventDispatch = createIOEventDispatch(
-                clientHandler,
+                serviceHandler,
                 this.sslcontext,
                 this.params);
 
         this.ioReactor.execute(ioEventDispatch);
     }
 
-    public SessionRequest openConnection(final InetSocketAddress address, final Object attachment) {
-        return this.ioReactor.connect(address, null, attachment, null);
+    public ListenerEndpoint getListenerEndpoint() {
+        return this.endpoint;
     }
 
-    public void start(final NHttpClientHandler clientHandler) {
-        this.thread = new IOReactorThread(clientHandler);
+    public void start(final NHttpServiceHandler serviceHandler) {
+        this.endpoint = this.ioReactor.listen(new InetSocketAddress(0));
+        this.thread = new IOReactorThread(serviceHandler);
         this.thread.start();
     }
 
@@ -152,19 +158,19 @@ public class HttpSSLClient {
 
     private class IOReactorThread extends Thread {
 
-        private final NHttpClientHandler clientHandler;
+        private final NHttpServiceHandler serviceHandler;
 
         private volatile Exception ex;
 
-        public IOReactorThread(final NHttpClientHandler clientHandler) {
+        public IOReactorThread(final NHttpServiceHandler serviceHandler) {
             super();
-            this.clientHandler = clientHandler;
+            this.serviceHandler = serviceHandler;
         }
 
         @Override
         public void run() {
             try {
-                execute(this.clientHandler);
+                execute(this.serviceHandler);
             } catch (Exception ex) {
                 this.ex = ex;
             }

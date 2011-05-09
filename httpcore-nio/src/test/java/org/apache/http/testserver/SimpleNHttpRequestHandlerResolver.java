@@ -24,21 +24,20 @@
  * <http://www.apache.org/>.
  *
  */
-package org.apache.http.mockup;
+package org.apache.http.testserver;
 
-import org.apache.http.protocol.HttpRequestHandler;
-import org.apache.http.protocol.HttpRequestHandlerResolver;
+import org.apache.http.nio.protocol.NHttpRequestHandler;
+import org.apache.http.nio.protocol.NHttpRequestHandlerResolver;
 
-public class SimpleHttpRequestHandlerResolver implements HttpRequestHandlerResolver {
+public class SimpleNHttpRequestHandlerResolver implements NHttpRequestHandlerResolver {
 
-    private final HttpRequestHandler handler;
+    private final NHttpRequestHandler handler;
 
-    public SimpleHttpRequestHandlerResolver(final HttpRequestHandler handler) {
-        super();
+    public SimpleNHttpRequestHandlerResolver(final NHttpRequestHandler handler) {
         this.handler = handler;
     }
 
-    public HttpRequestHandler lookup(final String requestURI) {
+    public NHttpRequestHandler lookup(final String requestURI) {
         return this.handler;
     }
 

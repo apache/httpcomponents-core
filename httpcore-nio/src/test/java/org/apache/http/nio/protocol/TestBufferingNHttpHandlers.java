@@ -44,8 +44,6 @@ import org.apache.http.impl.DefaultConnectionReuseStrategy;
 import org.apache.http.impl.DefaultHttpResponseFactory;
 import org.apache.http.message.BasicHttpEntityEnclosingRequest;
 import org.apache.http.message.BasicHttpRequest;
-import org.apache.http.mockup.SimpleEventListener;
-import org.apache.http.mockup.SimpleHttpRequestHandlerResolver;
 import org.apache.http.nio.entity.NStringEntity;
 import org.apache.http.nio.reactor.IOReactorStatus;
 import org.apache.http.nio.reactor.ListenerEndpoint;
@@ -63,6 +61,8 @@ import org.apache.http.protocol.ResponseConnControl;
 import org.apache.http.protocol.ResponseContent;
 import org.apache.http.protocol.ResponseDate;
 import org.apache.http.protocol.ResponseServer;
+import org.apache.http.testserver.SimpleEventListener;
+import org.apache.http.testserver.SimpleHttpRequestHandlerResolver;
 import org.junit.Assert;
 import org.junit.Test;
 

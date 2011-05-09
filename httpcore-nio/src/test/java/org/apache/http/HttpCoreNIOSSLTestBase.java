@@ -27,12 +27,12 @@
 
 package org.apache.http;
 
-import org.apache.http.mockup.HttpSSLClient;
-import org.apache.http.mockup.HttpSSLServer;
 import org.apache.http.params.CoreConnectionPNames;
 import org.apache.http.params.CoreProtocolPNames;
 import org.apache.http.params.HttpParams;
 import org.apache.http.params.SyncBasicHttpParams;
+import org.apache.http.testserver.HttpSSLClient;
+import org.apache.http.testserver.HttpSSLServer;
 import org.junit.After;
 import org.junit.Before;
 

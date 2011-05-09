@@ -34,12 +34,10 @@ import java.nio.channels.Channels;
 import java.nio.channels.ReadableByteChannel;
 import java.nio.channels.WritableByteChannel;
 
+import org.apache.http.ReadableByteChannelMockup;
 import org.apache.http.impl.io.HttpTransportMetricsImpl;
 import org.apache.http.impl.nio.reactor.SessionOutputBufferImpl;
 import org.apache.http.io.BufferInfo;
-import org.apache.http.mockup.MockupDecoder;
-import org.apache.http.mockup.MockupEncoder;
-import org.apache.http.mockup.ReadableByteChannelMockup;
 import org.apache.http.nio.ContentDecoder;
 import org.apache.http.nio.ContentEncoder;
 import org.apache.http.nio.reactor.SessionOutputBuffer;

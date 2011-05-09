@@ -25,46 +25,36 @@
  *
  */
 
-package org.apache.http.mockup;
+package org.apache.http.testserver;
 
 import java.io.IOException;
-import java.nio.ByteBuffer;
-import java.nio.channels.WritableByteChannel;
 
-import org.apache.http.impl.io.HttpTransportMetricsImpl;
-import org.apache.http.impl.nio.codecs.AbstractContentEncoder;
-import org.apache.http.nio.reactor.SessionOutputBuffer;
+import org.apache.http.HttpException;
+import org.apache.http.nio.NHttpConnection;
+import org.apache.http.nio.protocol.EventListener;
 
-public class MockupEncoder extends AbstractContentEncoder {
+public class SimpleEventListener implements EventListener {
 
-    // TODO? remove this field and the complete() and isCompleted() methods
-    private boolean completed;
-
-    public MockupEncoder(
-            final WritableByteChannel channel,
-            final SessionOutputBuffer buffer,
-            final HttpTransportMetricsImpl metrics) {
-        super(channel, buffer, metrics);
+    public SimpleEventListener() {
+        super();
     }
 
-    @Override
-    public boolean isCompleted() {
-        return this.completed;
+    public void connectionOpen(final NHttpConnection conn) {
     }
 
-    @Override
-    public void complete() throws IOException {
-        this.completed = true;
+    public void connectionTimeout(final NHttpConnection conn) {
+        System.out.println("Connection timed out");
     }
 
-    public int write(final ByteBuffer src) throws IOException {
-        if (src == null) {
-            return 0;
-        }
-        if (this.completed) {
-            throw new IllegalStateException("Decoding process already completed");
-        }
-        return this.channel.write(src);
+    public void connectionClosed(final NHttpConnection conn) {
+    }
+
+    public void fatalIOException(final IOException ex, final NHttpConnection conn) {
+        ex.printStackTrace(System.out);
+    }
+
+    public void fatalProtocolException(final HttpException ex, final NHttpConnection conn) {
+        ex.printStackTrace(System.out);
     }
 
 }

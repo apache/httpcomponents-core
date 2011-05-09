@@ -27,12 +27,12 @@
 
 package org.apache.http;
 
-import org.apache.http.mockup.HttpClientNio;
-import org.apache.http.mockup.HttpServerNio;
 import org.apache.http.params.CoreConnectionPNames;
 import org.apache.http.params.CoreProtocolPNames;
 import org.apache.http.params.HttpParams;
 import org.apache.http.params.SyncBasicHttpParams;
+import org.apache.http.testserver.HttpClientNio;
+import org.apache.http.testserver.HttpServerNio;
 import org.junit.After;
 import org.junit.Before;
 

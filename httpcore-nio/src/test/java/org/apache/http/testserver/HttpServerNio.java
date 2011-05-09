@@ -25,32 +25,37 @@
  *
  */
 
-package org.apache.http.mockup;
+package org.apache.http.testserver;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.util.List;
 
-import org.apache.http.impl.nio.DefaultClientIOEventDispatch;
-import org.apache.http.impl.nio.reactor.DefaultConnectingIOReactor;
+import org.apache.http.impl.nio.DefaultServerIOEventDispatch;
+import org.apache.http.impl.nio.reactor.DefaultListeningIOReactor;
 import org.apache.http.impl.nio.reactor.ExceptionEvent;
-import org.apache.http.nio.NHttpClientHandler;
+import org.apache.http.nio.NHttpServiceHandler;
 import org.apache.http.nio.reactor.IOEventDispatch;
 import org.apache.http.nio.reactor.IOReactorExceptionHandler;
 import org.apache.http.nio.reactor.IOReactorStatus;
-import org.apache.http.nio.reactor.SessionRequest;
+import org.apache.http.nio.reactor.ListenerEndpoint;
 import org.apache.http.params.HttpParams;
 
-public class HttpClientNio {
+/**
+ * Trivial test server based on HttpCore NIO
+ *
+ */
+public class HttpServerNio {
 
-    private final DefaultConnectingIOReactor ioReactor;
+    private final DefaultListeningIOReactor ioReactor;
     private final HttpParams params;
 
     private volatile IOReactorThread thread;
+    private ListenerEndpoint endpoint;
 
-    public HttpClientNio(final HttpParams params) throws IOException {
+    public HttpServerNio(final HttpParams params) throws IOException {
         super();
-        this.ioReactor = new DefaultConnectingIOReactor(2, params);
+        this.ioReactor = new DefaultListeningIOReactor(2, params);
         this.params = params;
     }
 
@@ -63,24 +68,29 @@ public class HttpClientNio {
     }
 
     protected IOEventDispatch createIOEventDispatch(
-            final NHttpClientHandler clientHandler, final HttpParams params) {
-        return new DefaultClientIOEventDispatch(clientHandler, params);
+            final NHttpServiceHandler serviceHandler, final HttpParams params) {
+        return new DefaultServerIOEventDispatch(serviceHandler, params);
     }
 
-    private void execute(final NHttpClientHandler clientHandler) throws IOException {
+    private void execute(final NHttpServiceHandler serviceHandler) throws IOException {
         IOEventDispatch ioEventDispatch = createIOEventDispatch(
-                clientHandler,
+                serviceHandler,
                 this.params);
 
         this.ioReactor.execute(ioEventDispatch);
     }
 
-    public SessionRequest openConnection(final InetSocketAddress address, final Object attachment) {
-        return this.ioReactor.connect(address, null, attachment, null);
+    public ListenerEndpoint getListenerEndpoint() {
+        return this.endpoint;
     }
 
-    public void start(final NHttpClientHandler clientHandler) {
-        this.thread = new IOReactorThread(clientHandler);
+    public void setEndpoint(ListenerEndpoint endpoint) {
+        this.endpoint = endpoint;
+    }
+
+    public void start(final NHttpServiceHandler serviceHandler) {
+        this.endpoint = this.ioReactor.listen(new InetSocketAddress(0));
+        this.thread = new IOReactorThread(serviceHandler);
         this.thread.start();
     }
 
@@ -116,19 +126,19 @@ public class HttpClientNio {
 
     private class IOReactorThread extends Thread {
 
-        private final NHttpClientHandler clientHandler;
+        private final NHttpServiceHandler serviceHandler;
 
         private volatile Exception ex;
 
-        public IOReactorThread(final NHttpClientHandler clientHandler) {
+        public IOReactorThread(final NHttpServiceHandler serviceHandler) {
             super();
-            this.clientHandler = clientHandler;
+            this.serviceHandler = serviceHandler;
         }
 
         @Override
         public void run() {
             try {
-                execute(this.clientHandler);
+                execute(this.serviceHandler);
             } catch (Exception ex) {
                 this.ex = ex;
             }

@@ -33,9 +33,9 @@ import java.nio.channels.ReadableByteChannel;
 
 import org.apache.http.Header;
 import org.apache.http.MalformedChunkCodingException;
+import org.apache.http.ReadableByteChannelMockup;
 import org.apache.http.impl.io.HttpTransportMetricsImpl;
 import org.apache.http.impl.nio.reactor.SessionInputBufferImpl;
-import org.apache.http.mockup.ReadableByteChannelMockup;
 import org.apache.http.nio.reactor.SessionInputBuffer;
 import org.apache.http.params.BasicHttpParams;
 import org.apache.http.params.HttpParams;
