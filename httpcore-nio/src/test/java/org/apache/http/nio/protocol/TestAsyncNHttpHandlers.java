@@ -70,18 +70,13 @@ import org.apache.http.protocol.ResponseContent;
 import org.apache.http.protocol.ResponseDate;
 import org.apache.http.protocol.ResponseServer;
 import org.apache.http.util.EncodingUtils;
+import org.junit.Assert;
+import org.junit.Test;
 
 /**
  * HttpCore NIO integration tests for async handlers.
  */
 public class TestAsyncNHttpHandlers extends HttpCoreNIOTestBase {
-
-    // ------------------------------------------------------------ Constructor
-    public TestAsyncNHttpHandlers(String testName) {
-        super(testName);
-    }
-
-    // ------------------------------------------------------- TestCase Methods
 
     private void executeStandardTest(
             final NHttpRequestHandler requestHandler,
@@ -138,7 +133,7 @@ public class TestAsyncNHttpHandlers extends HttpCoreNIOTestBase {
         endpoint.waitFor();
         InetSocketAddress serverAddress = (InetSocketAddress) endpoint.getAddress();
 
-        assertEquals("Test server status", IOReactorStatus.ACTIVE, this.server.getStatus());
+        Assert.assertEquals("Test server status", IOReactorStatus.ACTIVE, this.server.getStatus());
 
         Queue<SessionRequest> connRequests = new LinkedList<SessionRequest>();
         for (int i = 0; i < connNo; i++) {
@@ -154,19 +149,19 @@ public class TestAsyncNHttpHandlers extends HttpCoreNIOTestBase {
             if (sessionRequest.getException() != null) {
                 throw sessionRequest.getException();
             }
-            assertNotNull(sessionRequest.getSession());
+            Assert.assertNotNull(sessionRequest.getSession());
         }
 
-        assertEquals("Test client status", IOReactorStatus.ACTIVE, this.client.getStatus());
+        Assert.assertEquals("Test client status", IOReactorStatus.ACTIVE, this.client.getStatus());
 
         for (int i = 0; i < jobs.length; i++) {
             Job testjob = jobs[i];
             testjob.waitFor();
             if (testjob.isSuccessful()) {
-                assertEquals(HttpStatus.SC_OK, testjob.getStatusCode());
-                assertEquals(testjob.getExpected(), testjob.getResult());
+                Assert.assertEquals(HttpStatus.SC_OK, testjob.getStatusCode());
+                Assert.assertEquals(testjob.getExpected(), testjob.getResult());
             } else {
-                fail(testjob.getFailureMessage());
+                Assert.fail(testjob.getFailureMessage());
             }
         }
     }
@@ -175,6 +170,7 @@ public class TestAsyncNHttpHandlers extends HttpCoreNIOTestBase {
      * This test case executes a series of simple (non-pipelined) GET requests
      * over multiple connections. This uses non-blocking output entities.
      */
+    @Test
     public void testHttpGets() throws Exception {
         NHttpRequestExecutionHandler requestExecutionHandler = new RequestExecutionHandler() {
 
@@ -193,6 +189,7 @@ public class TestAsyncNHttpHandlers extends HttpCoreNIOTestBase {
      * with content length delimited content over multiple connections.
      * It uses purely asynchronous handlers.
      */
+    @Test
     public void testHttpPostsWithContentLength() throws Exception {
         NHttpRequestExecutionHandler requestExecutionHandler = new RequestExecutionHandler() {
 
@@ -219,6 +216,7 @@ public class TestAsyncNHttpHandlers extends HttpCoreNIOTestBase {
      * with chunk coded content content over multiple connections.  This tests
      * with nonblocking handlers & nonblocking entities.
      */
+    @Test
     public void testHttpPostsChunked() throws Exception {
         NHttpRequestExecutionHandler requestExecutionHandler = new RequestExecutionHandler() {
 
@@ -245,6 +243,7 @@ public class TestAsyncNHttpHandlers extends HttpCoreNIOTestBase {
      * POST requests over multiple persistent connections. This tests with nonblocking
      * handlers & entities.
      */
+    @Test
     public void testHttpPostsHTTP10() throws Exception {
         NHttpRequestExecutionHandler requestExecutionHandler = new RequestExecutionHandler() {
 
@@ -271,6 +270,7 @@ public class TestAsyncNHttpHandlers extends HttpCoreNIOTestBase {
      * over multiple connections using the 'expect: continue' handshake.  This test
      * uses nonblocking handlers & entities.
      */
+    @Test
     public void testHttpPostsWithExpectContinue() throws Exception {
         NHttpRequestExecutionHandler requestExecutionHandler = new RequestExecutionHandler() {
 
@@ -297,6 +297,7 @@ public class TestAsyncNHttpHandlers extends HttpCoreNIOTestBase {
      * one of which does not meet the target server expectations.
      * This test uses nonblocking entities.
      */
+    @Test
     public void testHttpPostsWithExpectationVerification() throws Exception {
         Job[] jobs = new Job[3];
         jobs[0] = new Job("AAAAA", 10);
@@ -384,7 +385,7 @@ public class TestAsyncNHttpHandlers extends HttpCoreNIOTestBase {
         endpoint.waitFor();
         InetSocketAddress serverAddress = (InetSocketAddress) endpoint.getAddress();
 
-        assertEquals("Test server status", IOReactorStatus.ACTIVE, this.server.getStatus());
+        Assert.assertEquals("Test server status", IOReactorStatus.ACTIVE, this.server.getStatus());
 
         SessionRequest sessionRequest = this.client.openConnection(
                 new InetSocketAddress("localhost", serverAddress.getPort()),
@@ -394,28 +395,29 @@ public class TestAsyncNHttpHandlers extends HttpCoreNIOTestBase {
         if (sessionRequest.getException() != null) {
             throw sessionRequest.getException();
         }
-        assertNotNull(sessionRequest.getSession());
+        Assert.assertNotNull(sessionRequest.getSession());
 
-        assertEquals("Test client status", IOReactorStatus.ACTIVE, this.client.getStatus());
+        Assert.assertEquals("Test client status", IOReactorStatus.ACTIVE, this.client.getStatus());
 
         for (int i = 0; i < 2; i++) {
             Job testjob = jobs[i];
             testjob.waitFor();
             if (testjob.isSuccessful()) {
-                assertEquals(testjob.getExpected(), testjob.getResult());
+                Assert.assertEquals(testjob.getExpected(), testjob.getResult());
             } else {
-                fail(testjob.getFailureMessage());
+                Assert.fail(testjob.getFailureMessage());
             }
         }
         Job failedExpectation = jobs[2];
         failedExpectation.waitFor();
-        assertEquals(HttpStatus.SC_EXPECTATION_FAILED, failedExpectation.getStatusCode());
+        Assert.assertEquals(HttpStatus.SC_EXPECTATION_FAILED, failedExpectation.getStatusCode());
     }
 
     /**
      * This test case executes a series of simple (non-pipelined) HEAD requests
      * over multiple connections. This test uses nonblocking entities.
      */
+    @Test
     public void testHttpHeads() throws Exception {
         int connNo = 3;
         int reqNo = 20;
@@ -478,7 +480,7 @@ public class TestAsyncNHttpHandlers extends HttpCoreNIOTestBase {
         endpoint.waitFor();
         InetSocketAddress serverAddress = (InetSocketAddress) endpoint.getAddress();
 
-        assertEquals("Test server status", IOReactorStatus.ACTIVE, this.server.getStatus());
+        Assert.assertEquals("Test server status", IOReactorStatus.ACTIVE, this.server.getStatus());
 
         Queue<SessionRequest> connRequests = new LinkedList<SessionRequest>();
         for (int i = 0; i < connNo; i++) {
@@ -494,19 +496,19 @@ public class TestAsyncNHttpHandlers extends HttpCoreNIOTestBase {
             if (sessionRequest.getException() != null) {
                 throw sessionRequest.getException();
             }
-            assertNotNull(sessionRequest.getSession());
+            Assert.assertNotNull(sessionRequest.getSession());
         }
 
-        assertEquals("Test client status", IOReactorStatus.ACTIVE, this.client.getStatus());
+        Assert.assertEquals("Test client status", IOReactorStatus.ACTIVE, this.client.getStatus());
 
         for (int i = 0; i < jobs.length; i++) {
             Job testjob = jobs[i];
             testjob.waitFor();
             if (testjob.getFailureMessage() != null) {
-                fail(testjob.getFailureMessage());
+                Assert.fail(testjob.getFailureMessage());
             }
-            assertEquals(HttpStatus.SC_OK, testjob.getStatusCode());
-            assertNull(testjob.getResult());
+            Assert.assertEquals(HttpStatus.SC_OK, testjob.getStatusCode());
+            Assert.assertNull(testjob.getResult());
         }
     }
 
@@ -514,6 +516,7 @@ public class TestAsyncNHttpHandlers extends HttpCoreNIOTestBase {
      * This test executes a series of delayed GETs, ensuring the
      * {@link NHttpResponseTrigger} works correctly.
      */
+    @Test
     public void testDelayedHttpGets() throws Exception {
 
         NHttpRequestHandler requestHandler = new NHttpRequestHandler() {
@@ -576,6 +579,7 @@ public class TestAsyncNHttpHandlers extends HttpCoreNIOTestBase {
     /**
      * This test ensures that HttpExceptions work correctly when immediate.
      */
+    @Test
     public void testHttpException() throws Exception {
 
         NHttpRequestHandler requestHandler = new SimpleNHttpRequestHandler() {
@@ -657,7 +661,7 @@ public class TestAsyncNHttpHandlers extends HttpCoreNIOTestBase {
         endpoint.waitFor();
         InetSocketAddress serverAddress = (InetSocketAddress) endpoint.getAddress();
 
-        assertEquals("Test server status", IOReactorStatus.ACTIVE, this.server.getStatus());
+        Assert.assertEquals("Test server status", IOReactorStatus.ACTIVE, this.server.getStatus());
 
         Queue<SessionRequest> connRequests = new LinkedList<SessionRequest>();
         for (int i = 0; i < connNo; i++) {
@@ -673,19 +677,19 @@ public class TestAsyncNHttpHandlers extends HttpCoreNIOTestBase {
             if (sessionRequest.getException() != null) {
                 throw sessionRequest.getException();
             }
-            assertNotNull(sessionRequest.getSession());
+            Assert.assertNotNull(sessionRequest.getSession());
         }
 
-        assertEquals("Test client status", IOReactorStatus.ACTIVE, this.client.getStatus());
+        Assert.assertEquals("Test client status", IOReactorStatus.ACTIVE, this.client.getStatus());
 
         for (int i = 0; i < jobs.length; i++) {
             Job testjob = jobs[i];
             testjob.waitFor();
             if (testjob.isSuccessful()) {
-                assertEquals(HttpStatus.SC_INTERNAL_SERVER_ERROR, testjob.getStatusCode());
-                assertEquals(testjob.getPattern() + "x" + testjob.getCount(), testjob.getResult());
+                Assert.assertEquals(HttpStatus.SC_INTERNAL_SERVER_ERROR, testjob.getStatusCode());
+                Assert.assertEquals(testjob.getPattern() + "x" + testjob.getCount(), testjob.getResult());
             } else {
-                fail(testjob.getFailureMessage());
+                Assert.fail(testjob.getFailureMessage());
             }
         }
     }
@@ -693,6 +697,7 @@ public class TestAsyncNHttpHandlers extends HttpCoreNIOTestBase {
     /**
      * This test ensures that HttpExceptions work correctly when they are delayed by a trigger.
      */
+    @Test
     public void testDelayedHttpException() throws Exception {
 
         NHttpRequestHandler requestHandler = new NHttpRequestHandler() {
@@ -778,7 +783,7 @@ public class TestAsyncNHttpHandlers extends HttpCoreNIOTestBase {
         endpoint.waitFor();
         InetSocketAddress serverAddress = (InetSocketAddress) endpoint.getAddress();
 
-        assertEquals("Test server status", IOReactorStatus.ACTIVE, this.server.getStatus());
+        Assert.assertEquals("Test server status", IOReactorStatus.ACTIVE, this.server.getStatus());
 
         Queue<SessionRequest> connRequests = new LinkedList<SessionRequest>();
         for (int i = 0; i < connNo; i++) {
@@ -794,19 +799,19 @@ public class TestAsyncNHttpHandlers extends HttpCoreNIOTestBase {
             if (sessionRequest.getException() != null) {
                 throw sessionRequest.getException();
             }
-            assertNotNull(sessionRequest.getSession());
+            Assert.assertNotNull(sessionRequest.getSession());
         }
 
-        assertEquals("Test client status", IOReactorStatus.ACTIVE, this.client.getStatus());
+        Assert.assertEquals("Test client status", IOReactorStatus.ACTIVE, this.client.getStatus());
 
         for (int i = 0; i < jobs.length; i++) {
             Job testjob = jobs[i];
             testjob.waitFor();
             if (testjob.isSuccessful()) {
-                assertEquals(HttpStatus.SC_INTERNAL_SERVER_ERROR, testjob.getStatusCode());
-                assertEquals(testjob.getPattern() + "x" + testjob.getCount(), testjob.getResult());
+                Assert.assertEquals(HttpStatus.SC_INTERNAL_SERVER_ERROR, testjob.getStatusCode());
+                Assert.assertEquals(testjob.getPattern() + "x" + testjob.getCount(), testjob.getResult());
             } else {
-                fail(testjob.getFailureMessage());
+                Assert.fail(testjob.getFailureMessage());
             }
         }
     }
@@ -814,6 +819,7 @@ public class TestAsyncNHttpHandlers extends HttpCoreNIOTestBase {
     /**
      * This test makes sure that if no service handler is installed, things still work.
      */
+    @Test
     public void testNoServiceHandler() throws Exception {
         NHttpRequestExecutionHandler requestExecutionHandler = new RequestExecutionHandler() {
 
@@ -873,7 +879,7 @@ public class TestAsyncNHttpHandlers extends HttpCoreNIOTestBase {
         endpoint.waitFor();
         InetSocketAddress serverAddress = (InetSocketAddress) endpoint.getAddress();
 
-        assertEquals("Test server status", IOReactorStatus.ACTIVE, this.server.getStatus());
+        Assert.assertEquals("Test server status", IOReactorStatus.ACTIVE, this.server.getStatus());
 
         Queue<SessionRequest> connRequests = new LinkedList<SessionRequest>();
         for (int i = 0; i < connNo; i++) {
@@ -889,20 +895,20 @@ public class TestAsyncNHttpHandlers extends HttpCoreNIOTestBase {
             if (sessionRequest.getException() != null) {
                 throw sessionRequest.getException();
             }
-            assertNotNull(sessionRequest.getSession());
+            Assert.assertNotNull(sessionRequest.getSession());
         }
 
-        assertEquals("Test client status", IOReactorStatus.ACTIVE, this.client.getStatus());
+        Assert.assertEquals("Test client status", IOReactorStatus.ACTIVE, this.client.getStatus());
 
         for (int i = 0; i < jobs.length; i++) {
             Job testjob = jobs[i];
 
             testjob.waitFor();
             if (testjob.isSuccessful()) {
-                assertEquals(HttpStatus.SC_NOT_IMPLEMENTED, testjob.getStatusCode());
-                assertEquals("", testjob.getResult());
+                Assert.assertEquals(HttpStatus.SC_NOT_IMPLEMENTED, testjob.getStatusCode());
+                Assert.assertEquals("", testjob.getResult());
             } else {
-                fail(testjob.getFailureMessage());
+                Assert.fail(testjob.getFailureMessage());
             }
         }
     }
@@ -912,6 +918,7 @@ public class TestAsyncNHttpHandlers extends HttpCoreNIOTestBase {
      * with no entities on the client side, to ensure they are sent properly,
      * and the server can read them.
      */
+    @Test
     public void testHttpPostWithNoEntities() throws Exception {
         NHttpRequestExecutionHandler requestExecutionHandler = new RequestExecutionHandler() {
 
@@ -976,7 +983,7 @@ public class TestAsyncNHttpHandlers extends HttpCoreNIOTestBase {
         endpoint.waitFor();
         InetSocketAddress serverAddress = (InetSocketAddress) endpoint.getAddress();
 
-        assertEquals("Test server status", IOReactorStatus.ACTIVE, this.server.getStatus());
+        Assert.assertEquals("Test server status", IOReactorStatus.ACTIVE, this.server.getStatus());
 
         Queue<SessionRequest> connRequests = new LinkedList<SessionRequest>();
         for (int i = 0; i < connNo; i++) {
@@ -992,23 +999,24 @@ public class TestAsyncNHttpHandlers extends HttpCoreNIOTestBase {
             if (sessionRequest.getException() != null) {
                 throw sessionRequest.getException();
             }
-            assertNotNull(sessionRequest.getSession());
+            Assert.assertNotNull(sessionRequest.getSession());
         }
 
-        assertEquals("Test client status", IOReactorStatus.ACTIVE, this.client.getStatus());
+        Assert.assertEquals("Test client status", IOReactorStatus.ACTIVE, this.client.getStatus());
 
         for (int i = 0; i < jobs.length; i++) {
             Job testjob = jobs[i];
             testjob.waitFor();
             if (testjob.isSuccessful()) {
-                assertEquals(HttpStatus.SC_OK, testjob.getStatusCode());
-                assertEquals("", testjob.getResult());
+                Assert.assertEquals(HttpStatus.SC_OK, testjob.getStatusCode());
+                Assert.assertEquals("", testjob.getResult());
             } else {
-                fail(testjob.getFailureMessage());
+                Assert.fail(testjob.getFailureMessage());
             }
         }
     }
 
+    @Test
     public void testNoRequestHandler() throws Exception {
         NHttpRequestExecutionHandler requestExecutionHandler = new RequestExecutionHandler() {
 
@@ -1074,7 +1082,7 @@ public class TestAsyncNHttpHandlers extends HttpCoreNIOTestBase {
         endpoint.waitFor();
         InetSocketAddress serverAddress = (InetSocketAddress) endpoint.getAddress();
 
-        assertEquals("Test server status", IOReactorStatus.ACTIVE, this.server.getStatus());
+        Assert.assertEquals("Test server status", IOReactorStatus.ACTIVE, this.server.getStatus());
 
         Queue<SessionRequest> connRequests = new LinkedList<SessionRequest>();
         for (int i = 0; i < connNo; i++) {
@@ -1090,18 +1098,18 @@ public class TestAsyncNHttpHandlers extends HttpCoreNIOTestBase {
             if (sessionRequest.getException() != null) {
                 throw sessionRequest.getException();
             }
-            assertNotNull(sessionRequest.getSession());
+            Assert.assertNotNull(sessionRequest.getSession());
         }
 
-        assertEquals("Test client status", IOReactorStatus.ACTIVE, this.client.getStatus());
+        Assert.assertEquals("Test client status", IOReactorStatus.ACTIVE, this.client.getStatus());
 
         for (int i = 0; i < jobs.length; i++) {
             Job testjob = jobs[i];
             testjob.waitFor();
             if (testjob.isSuccessful()) {
-                assertEquals(HttpStatus.SC_NOT_IMPLEMENTED, testjob.getStatusCode());
+                Assert.assertEquals(HttpStatus.SC_NOT_IMPLEMENTED, testjob.getStatusCode());
             } else {
-                fail(testjob.getFailureMessage());
+                Assert.fail(testjob.getFailureMessage());
             }
         }
     }

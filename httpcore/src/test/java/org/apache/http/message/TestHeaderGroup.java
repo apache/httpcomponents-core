@@ -33,45 +33,45 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.util.Iterator;
 
-import junit.framework.TestCase;
-
 import org.apache.http.Header;
+import org.junit.Assert;
+import org.junit.Test;
 
 /**
  * Unit tests for {@link HeaderGroup}.
  *
  */
-public class TestHeaderGroup extends TestCase {
+public class TestHeaderGroup {
 
-    public TestHeaderGroup(String testName) {
-        super(testName);
-    }
-
+    @Test
     public void testConstructor() {
         HeaderGroup headergroup = new HeaderGroup();
-        assertNotNull(headergroup.getAllHeaders());
-        assertEquals(0, headergroup.getAllHeaders().length);
+        Assert.assertNotNull(headergroup.getAllHeaders());
+        Assert.assertEquals(0, headergroup.getAllHeaders().length);
     }
 
+    @Test
     public void testClear() {
         HeaderGroup headergroup = new HeaderGroup();
         headergroup.addHeader(new BasicHeader("name", "value"));
-        assertEquals(1, headergroup.getAllHeaders().length);
+        Assert.assertEquals(1, headergroup.getAllHeaders().length);
         headergroup.clear();
-        assertEquals(0, headergroup.getAllHeaders().length);
+        Assert.assertEquals(0, headergroup.getAllHeaders().length);
     }
 
+    @Test
     public void testAddRemoveHeader() {
         HeaderGroup headergroup = new HeaderGroup();
         Header header = new BasicHeader("name", "value");
         headergroup.addHeader(header);
         headergroup.addHeader(null);
-        assertEquals(1, headergroup.getAllHeaders().length);
+        Assert.assertEquals(1, headergroup.getAllHeaders().length);
         headergroup.removeHeader(header);
         headergroup.removeHeader(null);
-        assertEquals(0, headergroup.getAllHeaders().length);
+        Assert.assertEquals(0, headergroup.getAllHeaders().length);
     }
 
+    @Test
     public void testUpdateHeader() {
         HeaderGroup headergroup = new HeaderGroup();
         Header header1 = new BasicHeader("name1", "value1");
@@ -83,10 +83,11 @@ public class TestHeaderGroup extends TestCase {
         headergroup.updateHeader(new BasicHeader("name2", "newvalue"));
         headergroup.updateHeader(new BasicHeader("name4", "value4"));
         headergroup.updateHeader(null);
-        assertEquals(4, headergroup.getAllHeaders().length);
-        assertEquals("newvalue", headergroup.getFirstHeader("name2").getValue());
+        Assert.assertEquals(4, headergroup.getAllHeaders().length);
+        Assert.assertEquals("newvalue", headergroup.getFirstHeader("name2").getValue());
     }
 
+    @Test
     public void testSetHeaders() {
         HeaderGroup headergroup = new HeaderGroup();
         Header header1 = new BasicHeader("name1", "value1");
@@ -94,17 +95,18 @@ public class TestHeaderGroup extends TestCase {
         Header header3 = new BasicHeader("name3", "value3");
         headergroup.addHeader(header1);
         headergroup.setHeaders(new Header[] { header2, header3 });
-        assertEquals(2, headergroup.getAllHeaders().length);
-        assertEquals(0, headergroup.getHeaders("name1").length);
-        assertFalse(headergroup.containsHeader("name1"));
-        assertEquals(1, headergroup.getHeaders("name2").length);
-        assertTrue(headergroup.containsHeader("name2"));
-        assertEquals(1, headergroup.getHeaders("name3").length);
-        assertTrue(headergroup.containsHeader("name3"));
+        Assert.assertEquals(2, headergroup.getAllHeaders().length);
+        Assert.assertEquals(0, headergroup.getHeaders("name1").length);
+        Assert.assertFalse(headergroup.containsHeader("name1"));
+        Assert.assertEquals(1, headergroup.getHeaders("name2").length);
+        Assert.assertTrue(headergroup.containsHeader("name2"));
+        Assert.assertEquals(1, headergroup.getHeaders("name3").length);
+        Assert.assertTrue(headergroup.containsHeader("name3"));
         headergroup.setHeaders(null);
-        assertEquals(0, headergroup.getAllHeaders().length);
+        Assert.assertEquals(0, headergroup.getAllHeaders().length);
     }
 
+    @Test
     public void testFirstLastHeaders() {
         HeaderGroup headergroup = new HeaderGroup();
         Header header1 = new BasicHeader("name", "value1");
@@ -112,35 +114,38 @@ public class TestHeaderGroup extends TestCase {
         Header header3 = new BasicHeader("name", "value3");
         headergroup.setHeaders(new Header[] { header1, header2, header3 });
 
-        assertNull(headergroup.getFirstHeader("whatever"));
-        assertNull(headergroup.getLastHeader("whatever"));
+        Assert.assertNull(headergroup.getFirstHeader("whatever"));
+        Assert.assertNull(headergroup.getLastHeader("whatever"));
 
-        assertEquals("value1", headergroup.getFirstHeader("name").getValue());
-        assertEquals("value3", headergroup.getLastHeader("name").getValue());
+        Assert.assertEquals("value1", headergroup.getFirstHeader("name").getValue());
+        Assert.assertEquals("value3", headergroup.getLastHeader("name").getValue());
     }
 
+    @Test
     public void testCondensedHeader() {
         HeaderGroup headergroup = new HeaderGroup();
-        assertNull(headergroup.getCondensedHeader("name"));
+        Assert.assertNull(headergroup.getCondensedHeader("name"));
 
         Header header1 = new BasicHeader("name", "value1");
         Header header2 = new BasicHeader("name", "value2");
         Header header3 = new BasicHeader("name", "value3");
         headergroup.setHeaders(new Header[] { header1, header2, header3 });
 
-        assertEquals("value1, value2, value3", headergroup.getCondensedHeader("name").getValue());
+        Assert.assertEquals("value1, value2, value3", headergroup.getCondensedHeader("name").getValue());
 
         headergroup.setHeaders(new Header[] { header1 });
-        assertEquals(header1, headergroup.getCondensedHeader("name"));
+        Assert.assertEquals(header1, headergroup.getCondensedHeader("name"));
     }
 
+    @Test
     public void testIterator() {
         HeaderGroup headergroup = new HeaderGroup();
         Iterator<Header> i = headergroup.iterator();
-        assertNotNull(i);
-        assertFalse(i.hasNext());
+        Assert.assertNotNull(i);
+        Assert.assertFalse(i.hasNext());
     }
 
+    @Test
     public void testHeaderRemove() {
         HeaderGroup headergroup = new HeaderGroup();
         Header header1 = new BasicHeader("name", "value1");
@@ -148,20 +153,21 @@ public class TestHeaderGroup extends TestCase {
         Header header3 = new BasicHeader("name", "value3");
         headergroup.setHeaders(new Header[] { header1, header2, header3 });
         Iterator<Header> i = headergroup.iterator();
-        assertNotNull(i);
-        assertTrue(i.hasNext());
+        Assert.assertNotNull(i);
+        Assert.assertTrue(i.hasNext());
         i.next();
-        assertTrue(i.hasNext());
-        i.next();
-        i.remove();
-        assertEquals(2, headergroup.getAllHeaders().length);
-        assertTrue(i.hasNext());
+        Assert.assertTrue(i.hasNext());
         i.next();
         i.remove();
-        assertEquals(1, headergroup.getAllHeaders().length);
-        assertFalse(i.hasNext());
+        Assert.assertEquals(2, headergroup.getAllHeaders().length);
+        Assert.assertTrue(i.hasNext());
+        i.next();
+        i.remove();
+        Assert.assertEquals(1, headergroup.getAllHeaders().length);
+        Assert.assertFalse(i.hasNext());
     }
 
+    @Test
     public void testCloning() throws Exception {
         HeaderGroup orig = new HeaderGroup();
         Header header1 = new BasicHeader("name", "value1");
@@ -171,15 +177,16 @@ public class TestHeaderGroup extends TestCase {
         HeaderGroup clone = (HeaderGroup) orig.clone();
         Header[] headers1 = orig.getAllHeaders();
         Header[] headers2 = clone.getAllHeaders();
-        assertNotNull(headers1);
-        assertNotNull(headers2);
-        assertEquals(headers1.length, headers2.length);
+        Assert.assertNotNull(headers1);
+        Assert.assertNotNull(headers2);
+        Assert.assertEquals(headers1.length, headers2.length);
         for (int i = 0; i < headers1.length; i++) {
-            assertEquals(headers1[i].getName(), headers2[i].getName());
-            assertEquals(headers1[i].getValue(), headers2[i].getValue());
+            Assert.assertEquals(headers1[i].getName(), headers2[i].getName());
+            Assert.assertEquals(headers1[i].getValue(), headers2[i].getValue());
         }
     }
 
+    @Test
     public void testSerialization() throws Exception {
         HeaderGroup orig = new HeaderGroup();
         Header header1 = new BasicHeader("name", "value1");
@@ -196,12 +203,12 @@ public class TestHeaderGroup extends TestCase {
         HeaderGroup clone = (HeaderGroup) instream.readObject();
         Header[] headers1 = orig.getAllHeaders();
         Header[] headers2 = clone.getAllHeaders();
-        assertNotNull(headers1);
-        assertNotNull(headers2);
-        assertEquals(headers1.length, headers2.length);
+        Assert.assertNotNull(headers1);
+        Assert.assertNotNull(headers2);
+        Assert.assertEquals(headers1.length, headers2.length);
         for (int i = 0; i < headers1.length; i++) {
-            assertEquals(headers1[i].getName(), headers2[i].getName());
-            assertEquals(headers1[i].getValue(), headers2[i].getValue());
+            Assert.assertEquals(headers1[i].getName(), headers2[i].getName());
+            Assert.assertEquals(headers1[i].getValue(), headers2[i].getValue());
         }
     }
 

@@ -38,9 +38,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
-import junit.framework.TestCase;
-
 import org.apache.http.Header;
+import org.apache.http.HttpConnectionMetrics;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpEntityEnclosingRequest;
 import org.apache.http.HttpException;
@@ -60,35 +59,37 @@ import org.apache.http.mockup.HttpServer;
 import org.apache.http.params.CoreProtocolPNames;
 import org.apache.http.util.EncodingUtils;
 import org.apache.http.util.EntityUtils;
+import org.junit.After;
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Test;
 
-import org.apache.http.HttpConnectionMetrics;
-
-public class TestHttpServiceAndExecutor extends TestCase {
-
-    // ------------------------------------------------------------ Constructor
-    public TestHttpServiceAndExecutor(String testName) {
-        super(testName);
-    }
-
-    // ------------------------------------------------------- TestCase Methods
+public class TestHttpServiceAndExecutor {
 
     private HttpServer server;
     private HttpClient client;
 
-    @Override
-    protected void setUp() throws Exception {
+    @Before
+    public void initServer() throws Exception {
         this.server = new HttpServer();
+    }
+
+    @Before
+    public void initClient() throws Exception {
         this.client = new HttpClient();
     }
 
-    @Override
-    protected void tearDown() throws Exception {
-        this.server.shutdown();
+    @After
+    public void shutDownServer() throws Exception {
+        if (this.server != null) {
+            this.server.shutdown();
+        }
     }
 
     /**
      * This test case executes a series of simple GET requests
      */
+    @Test
     public void testSimpleBasicHttpRequests() throws Exception {
 
         int reqNo = 20;
@@ -141,9 +142,9 @@ public class TestHttpServiceAndExecutor extends TestCase {
                 byte[] received = EntityUtils.toByteArray(response.getEntity());
                 byte[] expected = testData.get(r);
 
-                assertEquals(expected.length, received.length);
+                Assert.assertEquals(expected.length, received.length);
                 for (int i = 0; i < expected.length; i++) {
-                    assertEquals(expected[i], received[i]);
+                    Assert.assertEquals(expected[i], received[i]);
                 }
                 if (!this.client.keepAlive(response)) {
                     conn.close();
@@ -152,8 +153,8 @@ public class TestHttpServiceAndExecutor extends TestCase {
 
             //Verify the connection metrics
             HttpConnectionMetrics cm = conn.getMetrics();
-            assertEquals(reqNo, cm.getRequestCount());
-            assertEquals(reqNo, cm.getResponseCount());
+            Assert.assertEquals(reqNo, cm.getRequestCount());
+            Assert.assertEquals(reqNo, cm.getResponseCount());
 
         } finally {
             conn.close();
@@ -165,6 +166,7 @@ public class TestHttpServiceAndExecutor extends TestCase {
      * This test case executes a series of simple POST requests with content length
      * delimited content.
      */
+    @Test
     public void testSimpleHttpPostsWithContentLength() throws Exception {
 
         int reqNo = 20;
@@ -224,9 +226,9 @@ public class TestHttpServiceAndExecutor extends TestCase {
                 byte[] received = EntityUtils.toByteArray(response.getEntity());
                 byte[] expected = testData.get(r);
 
-                assertEquals(expected.length, received.length);
+                Assert.assertEquals(expected.length, received.length);
                 for (int i = 0; i < expected.length; i++) {
-                    assertEquals(expected[i], received[i]);
+                    Assert.assertEquals(expected[i], received[i]);
                 }
                 if (!this.client.keepAlive(response)) {
                     conn.close();
@@ -234,8 +236,8 @@ public class TestHttpServiceAndExecutor extends TestCase {
             }
             //Verify the connection metrics
             HttpConnectionMetrics cm = conn.getMetrics();
-            assertEquals(reqNo, cm.getRequestCount());
-            assertEquals(reqNo, cm.getResponseCount());
+            Assert.assertEquals(reqNo, cm.getRequestCount());
+            Assert.assertEquals(reqNo, cm.getResponseCount());
 
         } finally {
             conn.close();
@@ -247,6 +249,7 @@ public class TestHttpServiceAndExecutor extends TestCase {
      * This test case executes a series of simple POST requests with chunk
      * coded content content.
      */
+    @Test
     public void testSimpleHttpPostsChunked() throws Exception {
 
         int reqNo = 20;
@@ -307,9 +310,9 @@ public class TestHttpServiceAndExecutor extends TestCase {
                 byte[] received = EntityUtils.toByteArray(response.getEntity());
                 byte[] expected = testData.get(r);
 
-                assertEquals(expected.length, received.length);
+                Assert.assertEquals(expected.length, received.length);
                 for (int i = 0; i < expected.length; i++) {
-                    assertEquals(expected[i], received[i]);
+                    Assert.assertEquals(expected[i], received[i]);
                 }
                 if (!this.client.keepAlive(response)) {
                     conn.close();
@@ -317,8 +320,8 @@ public class TestHttpServiceAndExecutor extends TestCase {
             }
             //Verify the connection metrics
             HttpConnectionMetrics cm = conn.getMetrics();
-            assertEquals(reqNo, cm.getRequestCount());
-            assertEquals(reqNo, cm.getResponseCount());
+            Assert.assertEquals(reqNo, cm.getRequestCount());
+            Assert.assertEquals(reqNo, cm.getResponseCount());
         } finally {
             conn.close();
             this.server.shutdown();
@@ -328,6 +331,7 @@ public class TestHttpServiceAndExecutor extends TestCase {
     /**
      * This test case executes a series of simple HTTP/1.0 POST requests.
      */
+    @Test
     public void testSimpleHttpPostsHTTP10() throws Exception {
 
         int reqNo = 20;
@@ -388,13 +392,13 @@ public class TestHttpServiceAndExecutor extends TestCase {
                 post.setEntity(outgoing);
 
                 HttpResponse response = this.client.execute(post, host, conn);
-                assertEquals(HttpVersion.HTTP_1_0, response.getStatusLine().getProtocolVersion());
+                Assert.assertEquals(HttpVersion.HTTP_1_0, response.getStatusLine().getProtocolVersion());
                 byte[] received = EntityUtils.toByteArray(response.getEntity());
                 byte[] expected = testData.get(r);
 
-                assertEquals(expected.length, received.length);
+                Assert.assertEquals(expected.length, received.length);
                 for (int i = 0; i < expected.length; i++) {
-                    assertEquals(expected[i], received[i]);
+                    Assert.assertEquals(expected[i], received[i]);
                 }
                 if (!this.client.keepAlive(response)) {
                     conn.close();
@@ -403,8 +407,8 @@ public class TestHttpServiceAndExecutor extends TestCase {
 
             //Verify the connection metrics
             HttpConnectionMetrics cm = conn.getMetrics();
-            assertEquals(reqNo, cm.getRequestCount());
-            assertEquals(reqNo, cm.getResponseCount());
+            Assert.assertEquals(reqNo, cm.getRequestCount());
+            Assert.assertEquals(reqNo, cm.getResponseCount());
         } finally {
             conn.close();
             this.server.shutdown();
@@ -415,6 +419,7 @@ public class TestHttpServiceAndExecutor extends TestCase {
      * This test case executes a series of simple POST requests using
      * the 'expect: continue' handshake.
      */
+    @Test
     public void testHttpPostsWithExpectContinue() throws Exception {
 
         int reqNo = 20;
@@ -478,9 +483,9 @@ public class TestHttpServiceAndExecutor extends TestCase {
                 byte[] received = EntityUtils.toByteArray(response.getEntity());
                 byte[] expected = testData.get(r);
 
-                assertEquals(expected.length, received.length);
+                Assert.assertEquals(expected.length, received.length);
                 for (int i = 0; i < expected.length; i++) {
-                    assertEquals(expected[i], received[i]);
+                    Assert.assertEquals(expected[i], received[i]);
                 }
                 if (!this.client.keepAlive(response)) {
                     conn.close();
@@ -489,8 +494,8 @@ public class TestHttpServiceAndExecutor extends TestCase {
 
             //Verify the connection metrics
             HttpConnectionMetrics cm = conn.getMetrics();
-            assertEquals(reqNo, cm.getRequestCount());
-            assertEquals(reqNo, cm.getResponseCount());
+            Assert.assertEquals(reqNo, cm.getRequestCount());
+            Assert.assertEquals(reqNo, cm.getResponseCount());
         } finally {
             conn.close();
             this.server.shutdown();
@@ -502,6 +507,7 @@ public class TestHttpServiceAndExecutor extends TestCase {
      * This test case executes a series of simple POST requests that do not
      * meet the target server expectations.
      */
+    @Test
     public void testHttpPostsWithExpectationVerification() throws Exception {
 
         int reqNo = 3;
@@ -570,13 +576,13 @@ public class TestHttpServiceAndExecutor extends TestCase {
                 HttpResponse response = this.client.execute(post, host, conn);
 
                 HttpEntity entity = response.getEntity();
-                assertNotNull(entity);
+                Assert.assertNotNull(entity);
                 EntityUtils.consume(entity);
 
                 if (r < 2) {
-                    assertEquals(HttpStatus.SC_EXPECTATION_FAILED, response.getStatusLine().getStatusCode());
+                    Assert.assertEquals(HttpStatus.SC_EXPECTATION_FAILED, response.getStatusLine().getStatusCode());
                 } else {
-                    assertEquals(HttpStatus.SC_OK, response.getStatusLine().getStatusCode());
+                    Assert.assertEquals(HttpStatus.SC_OK, response.getStatusLine().getStatusCode());
                 }
 
                 if (!this.client.keepAlive(response)) {
@@ -585,8 +591,8 @@ public class TestHttpServiceAndExecutor extends TestCase {
             }
             //Verify the connection metrics
             HttpConnectionMetrics cm = conn.getMetrics();
-            assertEquals(reqNo, cm.getRequestCount());
-            assertEquals(reqNo, cm.getResponseCount());
+            Assert.assertEquals(reqNo, cm.getRequestCount());
+            Assert.assertEquals(reqNo, cm.getResponseCount());
         } finally {
             conn.close();
             this.server.shutdown();
@@ -646,6 +652,7 @@ public class TestHttpServiceAndExecutor extends TestCase {
 
     }
 
+    @Test
     public void testHttpContent() throws Exception {
 
         String[] patterns = {
@@ -728,22 +735,22 @@ public class TestHttpServiceAndExecutor extends TestCase {
 
                     HttpResponse response = this.client.execute(post, host, conn);
                     HttpEntity incoming = response.getEntity();
-                    assertNotNull(incoming);
+                    Assert.assertNotNull(incoming);
                     InputStream instream = incoming.getContent();
                     String charset = EntityUtils.getContentCharSet(incoming);
                     if (charset == null) {
                         charset = "US-ASCII";
                     }
-                    assertNotNull(instream);
+                    Assert.assertNotNull(instream);
                     BufferedReader reader = new BufferedReader(new InputStreamReader(instream, charset));
 
                     String line;
                     int count = 0;
                     while ((line = reader.readLine()) != null) {
-                        assertEquals(pattern, line);
+                        Assert.assertEquals(pattern, line);
                         count++;
                     }
-                    assertEquals(n, count);
+                    Assert.assertEquals(n, count);
                     if (!this.client.keepAlive(response)) {
                         conn.close();
                     }

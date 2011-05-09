@@ -30,69 +30,65 @@
 
 package org.apache.http.message;
 
-import junit.framework.TestCase;
-
 import org.apache.http.HeaderElement;
 import org.apache.http.NameValuePair;
+import org.junit.Assert;
+import org.junit.Test;
 
 /**
  * Simple tests for {@link HeaderElement}.
- *
- * @version $Id$
  */
-public class TestHeaderElement extends TestCase {
+public class TestHeaderElement {
 
-    // ------------------------------------------------------------ Constructor
-    public TestHeaderElement(String testName) {
-        super(testName);
-    }
-
-    // ------------------------------------------------------- TestCase Methods
-
+    @Test
     public void testConstructor3() throws Exception {
         HeaderElement element = new BasicHeaderElement("name", "value",
                 new NameValuePair[] {
                     new BasicNameValuePair("param1", "value1"),
                     new BasicNameValuePair("param2", "value2")
                 } );
-        assertEquals("name", element.getName());
-        assertEquals("value", element.getValue());
-        assertEquals(2, element.getParameters().length);
-        assertEquals("value1", element.getParameterByName("param1").getValue());
-        assertEquals("value2", element.getParameterByName("param2").getValue());
+        Assert.assertEquals("name", element.getName());
+        Assert.assertEquals("value", element.getValue());
+        Assert.assertEquals(2, element.getParameters().length);
+        Assert.assertEquals("value1", element.getParameterByName("param1").getValue());
+        Assert.assertEquals("value2", element.getParameterByName("param2").getValue());
     }
 
+    @Test
     public void testConstructor2() throws Exception {
         HeaderElement element = new BasicHeaderElement("name", "value");
-        assertEquals("name", element.getName());
-        assertEquals("value", element.getValue());
-        assertEquals(0, element.getParameters().length);
+        Assert.assertEquals("name", element.getName());
+        Assert.assertEquals("value", element.getValue());
+        Assert.assertEquals(0, element.getParameters().length);
     }
 
 
+    @Test
     public void testInvalidName() {
         try {
             new BasicHeaderElement(null, null, null);
-            fail("IllegalArgumentException should have been thrown");
+            Assert.fail("IllegalArgumentException should have been thrown");
         } catch (IllegalArgumentException ex) {
             //expected
         }
     }
 
+    @Test
     public void testParamByName() throws Exception {
         String s = "name = value; param1 = value1; param2 = value2";
         HeaderElement element = BasicHeaderValueParser.parseHeaderElement(s, null);
-        assertEquals("value1", element.getParameterByName("param1").getValue());
-        assertEquals("value2", element.getParameterByName("param2").getValue());
-        assertNull(element.getParameterByName("param3"));
+        Assert.assertEquals("value1", element.getParameterByName("param1").getValue());
+        Assert.assertEquals("value2", element.getParameterByName("param2").getValue());
+        Assert.assertNull(element.getParameterByName("param3"));
         try {
             element.getParameterByName(null);
-            fail("IllegalArgumentException should have been thrown");
+            Assert.fail("IllegalArgumentException should have been thrown");
         } catch (IllegalArgumentException ex) {
             //expected
         }
     }
 
+    @Test
     public void testHashCode() {
         HeaderElement element1 = new BasicHeaderElement("name", "value",
                 new NameValuePair[] {
@@ -111,13 +107,14 @@ public class TestHeaderElement extends TestCase {
                     new BasicNameValuePair("param1", "value1"),
                     new BasicNameValuePair("param2", "value2")
                 } );
-        assertTrue(element1.hashCode() != element2.hashCode());
-        assertTrue(element1.hashCode() != element3.hashCode());
-        assertTrue(element2.hashCode() != element3.hashCode());
-        assertTrue(element3.hashCode() == element4.hashCode());
-        assertTrue(element1.hashCode() == element5.hashCode());
+        Assert.assertTrue(element1.hashCode() != element2.hashCode());
+        Assert.assertTrue(element1.hashCode() != element3.hashCode());
+        Assert.assertTrue(element2.hashCode() != element3.hashCode());
+        Assert.assertTrue(element3.hashCode() == element4.hashCode());
+        Assert.assertTrue(element1.hashCode() == element5.hashCode());
     }
 
+    @Test
     public void testEquals() {
         HeaderElement element1 = new BasicHeaderElement("name", "value",
                 new NameValuePair[] {
@@ -136,25 +133,27 @@ public class TestHeaderElement extends TestCase {
                     new BasicNameValuePair("param1", "value1"),
                     new BasicNameValuePair("param2", "value2")
                 } );
-        assertTrue(element1.equals(element1));
-        assertTrue(!element1.equals(element2));
-        assertTrue(!element1.equals(element3));
-        assertTrue(!element2.equals(element3));
-        assertTrue(element3.equals(element4));
-        assertTrue(element1.equals(element5));
-        assertFalse(element1.equals(null));
-        assertFalse(element1.equals("name = value; param1 = value1; param2 = value2"));
+        Assert.assertTrue(element1.equals(element1));
+        Assert.assertTrue(!element1.equals(element2));
+        Assert.assertTrue(!element1.equals(element3));
+        Assert.assertTrue(!element2.equals(element3));
+        Assert.assertTrue(element3.equals(element4));
+        Assert.assertTrue(element1.equals(element5));
+        Assert.assertFalse(element1.equals(null));
+        Assert.assertFalse(element1.equals("name = value; param1 = value1; param2 = value2"));
     }
 
+    @Test
     public void testToString() {
         String s = "name=value; param1=value1; param2=value2";
         HeaderElement element = BasicHeaderValueParser.parseHeaderElement(s, null);
-        assertEquals(s, element.toString());
+        Assert.assertEquals(s, element.toString());
         s = "name; param1=value1; param2=value2";
         element = BasicHeaderValueParser.parseHeaderElement(s, null);
-        assertEquals(s, element.toString());
+        Assert.assertEquals(s, element.toString());
     }
 
+    @Test
     public void testCloning() throws Exception {
         BasicHeaderElement orig = new BasicHeaderElement("name", "value",
                 new NameValuePair[] {
@@ -162,7 +161,7 @@ public class TestHeaderElement extends TestCase {
                     new BasicNameValuePair("param2", "value2")
                 } );
         BasicHeaderElement clone = (BasicHeaderElement) orig.clone();
-        assertEquals(orig, clone);
+        Assert.assertEquals(orig, clone);
     }
 
 }

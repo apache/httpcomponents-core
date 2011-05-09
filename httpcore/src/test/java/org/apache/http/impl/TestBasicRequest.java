@@ -27,50 +27,49 @@
 
 package org.apache.http.impl;
 
-import junit.framework.TestCase;
-
 import org.apache.http.HttpRequest;
 import org.apache.http.HttpVersion;
 import org.apache.http.message.BasicHttpRequest;
 import org.apache.http.params.CoreProtocolPNames;
+import org.junit.Assert;
+import org.junit.Test;
 
-public class TestBasicRequest extends TestCase {
+public class TestBasicRequest {
 
-    public TestBasicRequest(String testName) {
-        super(testName);
-    }
-
+    @Test
     public void testConstructor() throws Exception {
         new BasicHttpRequest("GET", "/stuff");
         new BasicHttpRequest("GET", "/stuff", HttpVersion.HTTP_1_1);
         try {
             new BasicHttpRequest(null, "/stuff");
-            fail("IllegalArgumentException should have been thrown");
+            Assert.fail("IllegalArgumentException should have been thrown");
         } catch (IllegalArgumentException ex) {
             // expected
         }
         try {
             new BasicHttpRequest("GET", null);
-            fail("IllegalArgumentException should have been thrown");
+            Assert.fail("IllegalArgumentException should have been thrown");
         } catch (IllegalArgumentException ex) {
             // expected
         }
     }
 
+    @Test
     public void testRequestLine() throws Exception {
         HttpRequest request = new BasicHttpRequest("GET", "/stuff");
         request.getParams().setParameter(
                 CoreProtocolPNames.PROTOCOL_VERSION, HttpVersion.HTTP_1_0);
-        assertEquals("GET", request.getRequestLine().getMethod());
-        assertEquals("/stuff", request.getRequestLine().getUri());
-        assertEquals(HttpVersion.HTTP_1_0, request.getRequestLine().getProtocolVersion());
+        Assert.assertEquals("GET", request.getRequestLine().getMethod());
+        Assert.assertEquals("/stuff", request.getRequestLine().getUri());
+        Assert.assertEquals(HttpVersion.HTTP_1_0, request.getRequestLine().getProtocolVersion());
     }
 
+    @Test
     public void testRequestLine2() throws Exception {
         HttpRequest request = new BasicHttpRequest("GET", "/stuff", HttpVersion.HTTP_1_0);
-        assertEquals("GET", request.getRequestLine().getMethod());
-        assertEquals("/stuff", request.getRequestLine().getUri());
-        assertEquals(HttpVersion.HTTP_1_0, request.getRequestLine().getProtocolVersion());
+        Assert.assertEquals("GET", request.getRequestLine().getMethod());
+        Assert.assertEquals("/stuff", request.getRequestLine().getUri());
+        Assert.assertEquals(HttpVersion.HTTP_1_0, request.getRequestLine().getProtocolVersion());
     }
 
 }

@@ -32,45 +32,44 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.InputStream;
 
-import junit.framework.TestCase;
-
 import org.apache.http.protocol.HTTP;
+import org.junit.Assert;
+import org.junit.Test;
 
 /**
  * Unit tests for {@link FileEntity}.
  *
  */
-public class TestFileEntity extends TestCase {
+public class TestFileEntity {
 
-    public TestFileEntity(String testName) {
-        super(testName);
-    }
-
+    @Test
     public void testBasics() throws Exception {
         File tmpfile = File.createTempFile("testfile", ".txt");
         tmpfile.deleteOnExit();
         FileEntity httpentity = new FileEntity(tmpfile, HTTP.ISO_8859_1);
 
-        assertEquals(tmpfile.length(), httpentity.getContentLength());
+        Assert.assertEquals(tmpfile.length(), httpentity.getContentLength());
         final InputStream content = httpentity.getContent();
-        assertNotNull(content);
+        Assert.assertNotNull(content);
         content.close();
-        assertTrue(httpentity.isRepeatable());
-        assertFalse(httpentity.isStreaming());
+        Assert.assertTrue(httpentity.isRepeatable());
+        Assert.assertFalse(httpentity.isStreaming());
         if (!tmpfile.delete()){
-            fail("Failed to delete: "+tmpfile);
+            Assert.fail("Failed to delete: "+tmpfile);
         }
     }
 
+    @Test
     public void testIllegalConstructor() throws Exception {
         try {
             new FileEntity(null, null);
-            fail("IllegalArgumentException should have been thrown");
+            Assert.fail("IllegalArgumentException should have been thrown");
         } catch (IllegalArgumentException ex) {
             // expected
         }
     }
 
+    @Test
     public void testWriteTo() throws Exception {
         File tmpfile = File.createTempFile("testfile", ".txt");
         tmpfile.deleteOnExit();
@@ -87,18 +86,18 @@ public class TestFileEntity extends TestCase {
         ByteArrayOutputStream out = new ByteArrayOutputStream();
         httpentity.writeTo(out);
         byte[] bytes = out.toByteArray();
-        assertNotNull(bytes);
-        assertEquals(tmpfile.length(), bytes.length);
+        Assert.assertNotNull(bytes);
+        Assert.assertEquals(tmpfile.length(), bytes.length);
         for (int i = 0; i < 4; i++) {
-            assertEquals(i, bytes[i]);
+            Assert.assertEquals(i, bytes[i]);
         }
         if (!tmpfile.delete()){
-            fail("Failed to delete: "+tmpfile);
+            Assert.fail("Failed to delete: "+tmpfile);
         }
 
         try {
             httpentity.writeTo(null);
-            fail("IllegalArgumentException should have been thrown");
+            Assert.fail("IllegalArgumentException should have been thrown");
         } catch (IllegalArgumentException ex) {
             // expected
         }

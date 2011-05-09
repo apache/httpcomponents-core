@@ -27,35 +27,27 @@
 
 package org.apache.http.impl;
 
-
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 
-import junit.framework.TestCase;
-
 import org.apache.http.HttpStatus;
-
+import org.junit.Assert;
+import org.junit.Test;
 
 /**
  *
  * Unit tests for {@link EnglishReasonPhraseCatalog}
  *
  */
-public class TestEnglishReasonPhraseCatalog extends TestCase {
+public class TestEnglishReasonPhraseCatalog {
 
-    // ------------------------------------------------------------ Constructor
-    public TestEnglishReasonPhraseCatalog(String testName) {
-        super(testName);
-    }
-
-    // ----------------------------------------------------------- Test Methods
-
+    @Test
     public void testReasonPhrases() throws IllegalAccessException {
     Field[] publicFields = HttpStatus.class.getFields();
 
-    assertNotNull( publicFields );
+    Assert.assertNotNull( publicFields );
 
-    assertTrue( publicFields.length > 0 );
+    Assert.assertTrue( publicFields.length > 0 );
 
     for (int i = 0; i < publicFields.length; i++)
     {
@@ -71,31 +63,33 @@ public class TestEnglishReasonPhraseCatalog extends TestCase {
             final int iValue = f.getInt(null);
             final String text = EnglishReasonPhraseCatalog.
                             INSTANCE.getReason(iValue, null);
-            assertNotNull("text is null for HttpStatus."+f.getName(), text);
-            assertTrue(text.length() > 0);
+            Assert.assertNotNull("text is null for HttpStatus."+f.getName(), text);
+            Assert.assertTrue(text.length() > 0);
         }
     }
     }
 
 
+    @Test
     public void testStatusInvalid() throws Exception {
         try {
             EnglishReasonPhraseCatalog.INSTANCE.getReason(-1, null);
-            fail("IllegalArgumentException must have been thrown (-1)");
+            Assert.fail("IllegalArgumentException must have been thrown (-1)");
         } catch (IllegalArgumentException expected) {
         }
         try {
             EnglishReasonPhraseCatalog.INSTANCE.getReason(99, null);
-            fail("IllegalArgumentException must have been thrown (99)");
+            Assert.fail("IllegalArgumentException must have been thrown (99)");
         } catch (IllegalArgumentException expected) {
         }
         try {
             EnglishReasonPhraseCatalog.INSTANCE.getReason(600, null);
-            fail("IllegalArgumentException must have been thrown (600)");
+            Assert.fail("IllegalArgumentException must have been thrown (600)");
         } catch (IllegalArgumentException expected) {
         }
     }
 
+    @Test
     public void testStatusAll() throws Exception {
         for (int i = 100; i < 600; i++) {
             EnglishReasonPhraseCatalog.INSTANCE.getReason(i, null);

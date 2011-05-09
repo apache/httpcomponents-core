@@ -30,45 +30,44 @@ package org.apache.http.params;
 import java.util.Iterator;
 import java.util.Set;
 
-import junit.framework.TestCase;
+import org.junit.Assert;
+import org.junit.Test;
 
 /**
  * Unit tests for {@link BasicHttpParams}.
  *
  */
-public class TestBasicHttpParams extends TestCase {
+public class TestBasicHttpParams {
 
-    public TestBasicHttpParams(String testName) {
-        super(testName);
-    }
-
+    @Test
     public void testRemoveParam() {
         BasicHttpParams params = new BasicHttpParams();
         params.setParameter("param1", "paramValue1");
-        assertTrue("The parameter should be removed successfully",
+        Assert.assertTrue("The parameter should be removed successfully",
                 params.removeParameter("param1"));
-        assertFalse("The parameter should not be present",
+        Assert.assertFalse("The parameter should not be present",
                 params.removeParameter("param1"));
 
         //try a remove from an empty params
         params = new BasicHttpParams();
-        assertFalse("The parameter should not be present",
+        Assert.assertFalse("The parameter should not be present",
                 params.removeParameter("param1"));
     }
 
+    @Test
     public void testgetNames() {
         BasicHttpParams params = new BasicHttpParams();
         Set<String> nameSet = params.getNames();
-        assertTrue(nameSet.isEmpty());
+        Assert.assertTrue(nameSet.isEmpty());
         params.setBooleanParameter("true", true);
-        assertTrue(nameSet.isEmpty()); // Still empty, as it is a snapshot
+        Assert.assertTrue(nameSet.isEmpty()); // Still empty, as it is a snapshot
         nameSet = params.getNames();
-        assertFalse(nameSet.isEmpty());
-        assertEquals(1, nameSet.size());
+        Assert.assertFalse(nameSet.isEmpty());
+        Assert.assertEquals(1, nameSet.size());
         Iterator<String> iterator = nameSet.iterator(); // refetch, as iterator is a snapshot
-        assertTrue("Iterator has an entry",iterator.hasNext());
+        Assert.assertTrue("Iterator has an entry",iterator.hasNext());
         String entry = iterator.next();
-        // Note: Java 1.3 requires JUnit 3.8.1 which does not have assertTrue(Boolean)
-        assertTrue(((Boolean) params.getParameter(entry)).booleanValue());
+        // Note: Java 1.3 requires JUnit 3.8.1 which does not have Assert.assertTrue(Boolean)
+        Assert.assertTrue(((Boolean) params.getParameter(entry)).booleanValue());
     }
 }

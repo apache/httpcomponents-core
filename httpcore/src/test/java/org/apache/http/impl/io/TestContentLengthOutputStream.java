@@ -31,32 +31,30 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 
-import junit.framework.TestCase;
-
 import org.apache.http.mockup.SessionOutputBufferMockup;
+import org.junit.Assert;
+import org.junit.Test;
 
-public class TestContentLengthOutputStream extends TestCase {
+public class TestContentLengthOutputStream {
 
-    public TestContentLengthOutputStream(String testName) {
-        super(testName);
-    }
-
+    @Test
     public void testConstructors() throws Exception {
         new ContentLengthOutputStream(new SessionOutputBufferMockup(), 10L);
         try {
             new ContentLengthOutputStream(null, 10L);
-            fail("IllegalArgumentException should have been thrown");
+            Assert.fail("IllegalArgumentException should have been thrown");
         } catch (IllegalArgumentException ex) {
             // expected
         }
         try {
             new ContentLengthOutputStream(new SessionOutputBufferMockup(), -10);
-            fail("IllegalArgumentException should have been thrown");
+            Assert.fail("IllegalArgumentException should have been thrown");
         } catch (IllegalArgumentException ex) {
             // expected
         }
     }
 
+    @Test
     public void testBasics() throws Exception {
         ByteArrayOutputStream buffer = new ByteArrayOutputStream();
         SessionOutputBufferMockup datatransmitter = new SessionOutputBufferMockup(buffer);
@@ -73,9 +71,10 @@ public class TestContentLengthOutputStream extends TestCase {
         out.flush();
         out.close();
         byte[] data = datatransmitter.getData();
-        assertEquals(15, data.length);
+        Assert.assertEquals(15, data.length);
     }
 
+    @Test
     public void testClose() throws Exception {
         ByteArrayOutputStream buffer = new ByteArrayOutputStream();
         SessionOutputBufferMockup datatransmitter = new SessionOutputBufferMockup(buffer);
@@ -85,13 +84,13 @@ public class TestContentLengthOutputStream extends TestCase {
         byte[] tmp = new byte[10];
         try {
             out.write(tmp);
-            fail("IOException should have been thrown");
+            Assert.fail("IOException should have been thrown");
         } catch (IOException ex) {
             // expected
         }
         try {
             out.write(1);
-            fail("IOException should have been thrown");
+            Assert.fail("IOException should have been thrown");
         } catch (IOException ex) {
             // expected
         }

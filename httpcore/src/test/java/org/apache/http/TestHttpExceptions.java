@@ -27,22 +27,16 @@
 
 package org.apache.http;
 
-import junit.framework.TestCase;
+import org.junit.Test;
 
 /**
  * Simple tests for various HTTP exception classes.
  *
  *
  */
-public class TestHttpExceptions extends TestCase {
+public class TestHttpExceptions {
 
-    // ------------------------------------------------------------ Constructor
-    public TestHttpExceptions(String testName) {
-        super(testName);
-    }
-
-    // ------------------------------------------------------- TestCase Methods
-
+    @Test
     public void testConstructor() {
         Throwable cause = new Exception();
         new HttpException();

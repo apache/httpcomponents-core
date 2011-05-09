@@ -36,29 +36,19 @@ import java.nio.ByteBuffer;
 import java.nio.channels.FileChannel;
 import java.nio.channels.ReadableByteChannel;
 
-import junit.framework.TestCase;
-
 import org.apache.http.impl.io.HttpTransportMetricsImpl;
 import org.apache.http.impl.nio.reactor.SessionInputBufferImpl;
 import org.apache.http.mockup.ReadableByteChannelMockup;
 import org.apache.http.nio.reactor.SessionInputBuffer;
 import org.apache.http.params.BasicHttpParams;
 import org.apache.http.params.HttpParams;
+import org.junit.Assert;
+import org.junit.Test;
 
 /**
  * Simple tests for {@link LengthDelimitedDecoder}.
- *
- *
- * @version $Id$
  */
-public class TestLengthDelimitedDecoder extends TestCase {
-
-    // ------------------------------------------------------------ Constructor
-    public TestLengthDelimitedDecoder(String testName) {
-        super(testName);
-    }
-
-    // ------------------------------------------------------- TestCase Methods
+public class TestLengthDelimitedDecoder {
 
     private static String convert(final ByteBuffer src) {
         src.flip();
@@ -85,6 +75,7 @@ public class TestLengthDelimitedDecoder extends TestCase {
         }
     }
 
+    @Test
     public void testBasicDecoding() throws Exception {
         ReadableByteChannel channel = new ReadableByteChannelMockup(
                 new String[] {"stuff;", "more stuff"}, "US-ASCII");
@@ -98,25 +89,26 @@ public class TestLengthDelimitedDecoder extends TestCase {
         ByteBuffer dst = ByteBuffer.allocate(1024);
 
         int bytesRead = decoder.read(dst);
-        assertEquals(6, bytesRead);
-        assertEquals("stuff;", convert(dst));
-        assertFalse(decoder.isCompleted());
-        assertEquals(6, metrics.getBytesTransferred());
+        Assert.assertEquals(6, bytesRead);
+        Assert.assertEquals("stuff;", convert(dst));
+        Assert.assertFalse(decoder.isCompleted());
+        Assert.assertEquals(6, metrics.getBytesTransferred());
 
         dst.clear();
         bytesRead = decoder.read(dst);
-        assertEquals(10, bytesRead);
-        assertEquals("more stuff", convert(dst));
-        assertTrue(decoder.isCompleted());
-        assertEquals(16, metrics.getBytesTransferred());
+        Assert.assertEquals(10, bytesRead);
+        Assert.assertEquals("more stuff", convert(dst));
+        Assert.assertTrue(decoder.isCompleted());
+        Assert.assertEquals(16, metrics.getBytesTransferred());
 
         dst.clear();
         bytesRead = decoder.read(dst);
-        assertEquals(-1, bytesRead);
-        assertTrue(decoder.isCompleted());
-        assertEquals(16, metrics.getBytesTransferred());
+        Assert.assertEquals(-1, bytesRead);
+        Assert.assertTrue(decoder.isCompleted());
+        Assert.assertEquals(16, metrics.getBytesTransferred());
     }
 
+    @Test
     public void testCodingBeyondContentLimit() throws Exception {
         ReadableByteChannel channel = new ReadableByteChannelMockup(
                 new String[] {
@@ -132,25 +124,26 @@ public class TestLengthDelimitedDecoder extends TestCase {
         ByteBuffer dst = ByteBuffer.allocate(1024);
 
         int bytesRead = decoder.read(dst);
-        assertEquals(6, bytesRead);
-        assertEquals("stuff;", convert(dst));
-        assertFalse(decoder.isCompleted());
-        assertEquals(6, metrics.getBytesTransferred());
+        Assert.assertEquals(6, bytesRead);
+        Assert.assertEquals("stuff;", convert(dst));
+        Assert.assertFalse(decoder.isCompleted());
+        Assert.assertEquals(6, metrics.getBytesTransferred());
 
         dst.clear();
         bytesRead = decoder.read(dst);
-        assertEquals(10, bytesRead);
-        assertEquals("more stuff", convert(dst));
-        assertTrue(decoder.isCompleted());
-        assertEquals(16, metrics.getBytesTransferred());
+        Assert.assertEquals(10, bytesRead);
+        Assert.assertEquals("more stuff", convert(dst));
+        Assert.assertTrue(decoder.isCompleted());
+        Assert.assertEquals(16, metrics.getBytesTransferred());
 
         dst.clear();
         bytesRead = decoder.read(dst);
-        assertEquals(-1, bytesRead);
-        assertTrue(decoder.isCompleted());
-        assertEquals(16, metrics.getBytesTransferred());
+        Assert.assertEquals(-1, bytesRead);
+        Assert.assertTrue(decoder.isCompleted());
+        Assert.assertEquals(16, metrics.getBytesTransferred());
     }
 
+    @Test
     public void testBasicDecodingSmallBuffer() throws Exception {
         ReadableByteChannel channel = new ReadableByteChannelMockup(
                 new String[] {"stuff;", "more stuff"}, "US-ASCII");
@@ -164,46 +157,47 @@ public class TestLengthDelimitedDecoder extends TestCase {
         ByteBuffer dst = ByteBuffer.allocate(4);
 
         int bytesRead = decoder.read(dst);
-        assertEquals(4, bytesRead);
-        assertEquals("stuf", convert(dst));
-        assertFalse(decoder.isCompleted());
-        assertEquals(4, metrics.getBytesTransferred());
+        Assert.assertEquals(4, bytesRead);
+        Assert.assertEquals("stuf", convert(dst));
+        Assert.assertFalse(decoder.isCompleted());
+        Assert.assertEquals(4, metrics.getBytesTransferred());
 
         dst.clear();
         bytesRead = decoder.read(dst);
-        assertEquals(2, bytesRead);
-        assertEquals("f;", convert(dst));
-        assertFalse(decoder.isCompleted());
-        assertEquals(6, metrics.getBytesTransferred());
+        Assert.assertEquals(2, bytesRead);
+        Assert.assertEquals("f;", convert(dst));
+        Assert.assertFalse(decoder.isCompleted());
+        Assert.assertEquals(6, metrics.getBytesTransferred());
 
         dst.clear();
         bytesRead = decoder.read(dst);
-        assertEquals(4, bytesRead);
-        assertEquals("more", convert(dst));
-        assertFalse(decoder.isCompleted());
-        assertEquals(10, metrics.getBytesTransferred());
+        Assert.assertEquals(4, bytesRead);
+        Assert.assertEquals("more", convert(dst));
+        Assert.assertFalse(decoder.isCompleted());
+        Assert.assertEquals(10, metrics.getBytesTransferred());
 
         dst.clear();
         bytesRead = decoder.read(dst);
-        assertEquals(4, bytesRead);
-        assertEquals(" stu", convert(dst));
-        assertFalse(decoder.isCompleted());
-        assertEquals(14, metrics.getBytesTransferred());
+        Assert.assertEquals(4, bytesRead);
+        Assert.assertEquals(" stu", convert(dst));
+        Assert.assertFalse(decoder.isCompleted());
+        Assert.assertEquals(14, metrics.getBytesTransferred());
 
         dst.clear();
         bytesRead = decoder.read(dst);
-        assertEquals(2, bytesRead);
-        assertEquals("ff", convert(dst));
-        assertTrue(decoder.isCompleted());
-        assertEquals(16, metrics.getBytesTransferred());
+        Assert.assertEquals(2, bytesRead);
+        Assert.assertEquals("ff", convert(dst));
+        Assert.assertTrue(decoder.isCompleted());
+        Assert.assertEquals(16, metrics.getBytesTransferred());
 
         dst.clear();
         bytesRead = decoder.read(dst);
-        assertEquals(-1, bytesRead);
-        assertTrue(decoder.isCompleted());
-        assertEquals(16, metrics.getBytesTransferred());
+        Assert.assertEquals(-1, bytesRead);
+        Assert.assertTrue(decoder.isCompleted());
+        Assert.assertEquals(16, metrics.getBytesTransferred());
     }
 
+    @Test
     public void testDecodingFromSessionBuffer1() throws Exception {
         ReadableByteChannel channel = new ReadableByteChannelMockup(
                 new String[] {"stuff;", "more stuff"}, "US-ASCII");
@@ -214,7 +208,7 @@ public class TestLengthDelimitedDecoder extends TestCase {
 
         inbuf.fill(channel);
 
-        assertEquals(6, inbuf.length());
+        Assert.assertEquals(6, inbuf.length());
 
         LengthDelimitedDecoder decoder = new LengthDelimitedDecoder(
                 channel, inbuf, metrics, 16);
@@ -222,25 +216,26 @@ public class TestLengthDelimitedDecoder extends TestCase {
         ByteBuffer dst = ByteBuffer.allocate(1024);
 
         int bytesRead = decoder.read(dst);
-        assertEquals(6, bytesRead);
-        assertEquals("stuff;", convert(dst));
-        assertFalse(decoder.isCompleted());
-        assertEquals(0, metrics.getBytesTransferred());
+        Assert.assertEquals(6, bytesRead);
+        Assert.assertEquals("stuff;", convert(dst));
+        Assert.assertFalse(decoder.isCompleted());
+        Assert.assertEquals(0, metrics.getBytesTransferred());
 
         dst.clear();
         bytesRead = decoder.read(dst);
-        assertEquals(10, bytesRead);
-        assertEquals("more stuff", convert(dst));
-        assertTrue(decoder.isCompleted());
-        assertEquals(10, metrics.getBytesTransferred());
+        Assert.assertEquals(10, bytesRead);
+        Assert.assertEquals("more stuff", convert(dst));
+        Assert.assertTrue(decoder.isCompleted());
+        Assert.assertEquals(10, metrics.getBytesTransferred());
 
         dst.clear();
         bytesRead = decoder.read(dst);
-        assertEquals(-1, bytesRead);
-        assertTrue(decoder.isCompleted());
-        assertEquals(10, metrics.getBytesTransferred());
+        Assert.assertEquals(-1, bytesRead);
+        Assert.assertTrue(decoder.isCompleted());
+        Assert.assertEquals(10, metrics.getBytesTransferred());
     }
 
+    @Test
     public void testDecodingFromSessionBuffer2() throws Exception {
         ReadableByteChannel channel = new ReadableByteChannelMockup(
                 new String[] {
@@ -254,7 +249,7 @@ public class TestLengthDelimitedDecoder extends TestCase {
         inbuf.fill(channel);
         inbuf.fill(channel);
 
-        assertEquals(38, inbuf.length());
+        Assert.assertEquals(38, inbuf.length());
 
         LengthDelimitedDecoder decoder = new LengthDelimitedDecoder(
                 channel, inbuf, metrics, 16);
@@ -262,18 +257,19 @@ public class TestLengthDelimitedDecoder extends TestCase {
         ByteBuffer dst = ByteBuffer.allocate(1024);
 
         int bytesRead = decoder.read(dst);
-        assertEquals(16, bytesRead);
-        assertEquals("stuff;more stuff", convert(dst));
-        assertTrue(decoder.isCompleted());
-        assertEquals(0, metrics.getBytesTransferred());
+        Assert.assertEquals(16, bytesRead);
+        Assert.assertEquals("stuff;more stuff", convert(dst));
+        Assert.assertTrue(decoder.isCompleted());
+        Assert.assertEquals(0, metrics.getBytesTransferred());
 
         dst.clear();
         bytesRead = decoder.read(dst);
-        assertEquals(-1, bytesRead);
-        assertTrue(decoder.isCompleted());
-        assertEquals(0, metrics.getBytesTransferred());
+        Assert.assertEquals(-1, bytesRead);
+        Assert.assertTrue(decoder.isCompleted());
+        Assert.assertEquals(0, metrics.getBytesTransferred());
     }
 
+    @Test
     public void testBasicDecodingFile() throws Exception {
         ReadableByteChannel channel = new ReadableByteChannelMockup(
                 new String[] {"stuff; ", "more stuff; ", "a lot more stuff!!!"}, "US-ASCII");
@@ -296,10 +292,10 @@ public class TestLengthDelimitedDecoder extends TestCase {
                 pos += bytesRead;
             }
         }
-        assertEquals(testfile.length(), metrics.getBytesTransferred());
+        Assert.assertEquals(testfile.length(), metrics.getBytesTransferred());
         fchannel.close();
 
-        assertEquals("stuff; more stuff; a lot more stuff!", readFromFile(fileHandle));
+        Assert.assertEquals("stuff; more stuff; a lot more stuff!", readFromFile(fileHandle));
 
         deleteWithCheck(fileHandle);
     }
@@ -310,6 +306,7 @@ public class TestLengthDelimitedDecoder extends TestCase {
         }
     }
 
+    @Test
     public void testDecodingFileWithBufferedSessionData() throws Exception {
         ReadableByteChannel channel = new ReadableByteChannelMockup(
                 new String[] {"stuff; ", "more stuff; ", "a lot more stuff!!!"}, "US-ASCII");
@@ -321,7 +318,7 @@ public class TestLengthDelimitedDecoder extends TestCase {
                 channel, inbuf, metrics, 36);
 
         int i = inbuf.fill(channel);
-        assertEquals(7, i);
+        Assert.assertEquals(7, i);
 
         File fileHandle = File.createTempFile("testFile", ".txt");
 
@@ -336,14 +333,15 @@ public class TestLengthDelimitedDecoder extends TestCase {
             }
         }
 
-        assertEquals(testfile.length() - 7, metrics.getBytesTransferred());
+        Assert.assertEquals(testfile.length() - 7, metrics.getBytesTransferred());
         fchannel.close();
 
-        assertEquals("stuff; more stuff; a lot more stuff!", readFromFile(fileHandle));
+        Assert.assertEquals("stuff; more stuff; a lot more stuff!", readFromFile(fileHandle));
 
         deleteWithCheck(fileHandle);
     }
 
+    @Test
     public void testDecodingFileWithOffsetAndBufferedSessionData() throws Exception {
         ReadableByteChannel channel = new ReadableByteChannelMockup(
                 new String[] {"stuff; ", "more stuff; ", "a lot more stuff!"}, "US-ASCII");
@@ -355,7 +353,7 @@ public class TestLengthDelimitedDecoder extends TestCase {
                 channel, inbuf, metrics, 36);
 
         int i = inbuf.fill(channel);
-        assertEquals(7, i);
+        Assert.assertEquals(7, i);
 
         File fileHandle = File.createTempFile("testFile", ".txt");
 
@@ -378,14 +376,15 @@ public class TestLengthDelimitedDecoder extends TestCase {
         }
 
         // count everything except the initial 7 bytes that went to the session buffer
-        assertEquals(testfile.length() - 7 - beginning.length, metrics.getBytesTransferred());
+        Assert.assertEquals(testfile.length() - 7 - beginning.length, metrics.getBytesTransferred());
         fchannel.close();
 
-        assertEquals("beginning; stuff; more stuff; a lot more stuff!", readFromFile(fileHandle));
+        Assert.assertEquals("beginning; stuff; more stuff; a lot more stuff!", readFromFile(fileHandle));
 
         deleteWithCheck(fileHandle);
     }
 
+    @Test
     public void testWriteBeyondFileSize() throws Exception {
         ReadableByteChannel channel = new ReadableByteChannelMockup(
                 new String[] {"a"}, "US-ASCII");
@@ -400,17 +399,18 @@ public class TestLengthDelimitedDecoder extends TestCase {
 
         RandomAccessFile testfile = new RandomAccessFile(fileHandle, "rw");
         FileChannel fchannel = testfile.getChannel();
-        assertEquals(0, testfile.length());
+        Assert.assertEquals(0, testfile.length());
 
         try {
             decoder.transfer(fchannel, 5, 10);
-            fail("expected IOException");
+            Assert.fail("expected IOException");
         } catch(IOException iox) {}
 
         testfile.close();
         deleteWithCheck(fileHandle);
     }
 
+    @Test
     public void testCodingBeyondContentLimitFile() throws Exception {
         ReadableByteChannel channel = new ReadableByteChannelMockup(
                 new String[] {
@@ -428,24 +428,25 @@ public class TestLengthDelimitedDecoder extends TestCase {
         FileChannel fchannel = testfile.getChannel();
 
         long bytesRead = decoder.transfer(fchannel, 0, 6);
-        assertEquals(6, bytesRead);
-        assertFalse(decoder.isCompleted());
-        assertEquals(6, metrics.getBytesTransferred());
+        Assert.assertEquals(6, bytesRead);
+        Assert.assertFalse(decoder.isCompleted());
+        Assert.assertEquals(6, metrics.getBytesTransferred());
 
         bytesRead = decoder.transfer(fchannel,0 , 10);
-        assertEquals(10, bytesRead);
-        assertTrue(decoder.isCompleted());
-        assertEquals(16, metrics.getBytesTransferred());
+        Assert.assertEquals(10, bytesRead);
+        Assert.assertTrue(decoder.isCompleted());
+        Assert.assertEquals(16, metrics.getBytesTransferred());
 
         bytesRead = decoder.transfer(fchannel, 0, 1);
-        assertEquals(-1, bytesRead);
-        assertTrue(decoder.isCompleted());
-        assertEquals(16, metrics.getBytesTransferred());
+        Assert.assertEquals(-1, bytesRead);
+        Assert.assertTrue(decoder.isCompleted());
+        Assert.assertEquals(16, metrics.getBytesTransferred());
 
         testfile.close();
         deleteWithCheck(fileHandle);
     }
 
+    @Test
     public void testInvalidConstructor() {
         ReadableByteChannel channel = new ReadableByteChannelMockup(
                 new String[] {"stuff;", "more stuff"}, "US-ASCII");
@@ -455,30 +456,31 @@ public class TestLengthDelimitedDecoder extends TestCase {
         HttpTransportMetricsImpl metrics = new HttpTransportMetricsImpl();
         try {
             new LengthDelimitedDecoder(null, null, null, 10);
-            fail("IllegalArgumentException should have been thrown");
+            Assert.fail("IllegalArgumentException should have been thrown");
         } catch (IllegalArgumentException ex) {
             // ignore
         }
         try {
             new LengthDelimitedDecoder(channel, null, null, 10);
-            fail("IllegalArgumentException should have been thrown");
+            Assert.fail("IllegalArgumentException should have been thrown");
         } catch (IllegalArgumentException ex) {
             // ignore
         }
         try {
             new LengthDelimitedDecoder(channel, inbuf, null, 10);
-            fail("IllegalArgumentException should have been thrown");
+            Assert.fail("IllegalArgumentException should have been thrown");
         } catch (IllegalArgumentException ex) {
             // ignore
         }
         try {
             new LengthDelimitedDecoder(channel, inbuf, metrics, -10);
-            fail("IllegalArgumentException should have been thrown");
+            Assert.fail("IllegalArgumentException should have been thrown");
         } catch (IllegalArgumentException ex) {
             // ignore
         }
     }
 
+    @Test
     public void testInvalidInput() throws Exception {
         String s = "stuff";
         ReadableByteChannel channel = new ReadableByteChannelMockup(
@@ -492,12 +494,13 @@ public class TestLengthDelimitedDecoder extends TestCase {
 
         try {
             decoder.read(null);
-            fail("IllegalArgumentException should have been thrown");
+            Assert.fail("IllegalArgumentException should have been thrown");
         } catch (IllegalArgumentException ex) {
             // expected
         }
     }
 
+    @Test
     public void testZeroLengthDecoding() throws Exception {
         ReadableByteChannel channel = new ReadableByteChannelMockup(
                 new String[] {"stuff"}, "US-ASCII");
@@ -511,9 +514,9 @@ public class TestLengthDelimitedDecoder extends TestCase {
         ByteBuffer dst = ByteBuffer.allocate(1024);
 
         int bytesRead = decoder.read(dst);
-        assertEquals(-1, bytesRead);
-        assertTrue(decoder.isCompleted());
-        assertEquals(0, metrics.getBytesTransferred());
+        Assert.assertEquals(-1, bytesRead);
+        Assert.assertTrue(decoder.isCompleted());
+        Assert.assertEquals(0, metrics.getBytesTransferred());
     }
 
 }

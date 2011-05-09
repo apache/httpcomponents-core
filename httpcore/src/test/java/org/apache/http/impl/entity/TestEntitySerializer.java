@@ -29,8 +29,6 @@ package org.apache.http.impl.entity;
 
 import java.io.OutputStream;
 
-import junit.framework.TestCase;
-
 import org.apache.http.HttpMessage;
 import org.apache.http.HttpVersion;
 import org.apache.http.ProtocolException;
@@ -42,36 +40,36 @@ import org.apache.http.io.SessionOutputBuffer;
 import org.apache.http.mockup.HttpMessageMockup;
 import org.apache.http.mockup.SessionOutputBufferMockup;
 import org.apache.http.params.CoreProtocolPNames;
+import org.junit.Assert;
+import org.junit.Test;
 
-public class TestEntitySerializer extends TestCase {
+public class TestEntitySerializer {
 
-    public TestEntitySerializer(String testName) {
-        super(testName);
-    }
-
+    @Test
     public void testIllegalGenerateArg() throws Exception {
         EntitySerializer entitywriter = new EntitySerializer(
                 new StrictContentLengthStrategy());
         try {
             entitywriter.serialize(null, null, null);
-            fail("IllegalArgumentException should have been thrown");
+            Assert.fail("IllegalArgumentException should have been thrown");
         } catch (IllegalArgumentException ex) {
             // expected
         }
         try {
             entitywriter.serialize(new SessionOutputBufferMockup() , null, null);
-            fail("IllegalArgumentException should have been thrown");
+            Assert.fail("IllegalArgumentException should have been thrown");
         } catch (IllegalArgumentException ex) {
             // expected
         }
         try {
             entitywriter.serialize(new SessionOutputBufferMockup() , new HttpMessageMockup(), null);
-            fail("IllegalArgumentException should have been thrown");
+            Assert.fail("IllegalArgumentException should have been thrown");
         } catch (IllegalArgumentException ex) {
             // expected
         }
     }
 
+    @Test
     public void testEntityWithChunkTransferEncoding() throws Exception {
         SessionOutputBuffer datatransmitter = new SessionOutputBufferMockup();
         HttpMessage message = new HttpMessageMockup();
@@ -80,10 +78,11 @@ public class TestEntitySerializer extends TestCase {
         EntitySerializer entitywriter = new EntitySerializer(
                 new StrictContentLengthStrategy());
         OutputStream outstream = entitywriter.doSerialize(datatransmitter, message);
-        assertNotNull(outstream);
-        assertTrue(outstream instanceof ChunkedOutputStream);
+        Assert.assertNotNull(outstream);
+        Assert.assertTrue(outstream instanceof ChunkedOutputStream);
     }
 
+    @Test
     public void testEntityWithIdentityTransferEncoding() throws Exception {
         SessionOutputBuffer datatransmitter = new SessionOutputBufferMockup();
         HttpMessage message = new HttpMessageMockup();
@@ -92,10 +91,11 @@ public class TestEntitySerializer extends TestCase {
         EntitySerializer entitywriter = new EntitySerializer(
                 new StrictContentLengthStrategy());
         OutputStream outstream = entitywriter.doSerialize(datatransmitter, message);
-        assertNotNull(outstream);
-        assertTrue(outstream instanceof IdentityOutputStream);
+        Assert.assertNotNull(outstream);
+        Assert.assertTrue(outstream instanceof IdentityOutputStream);
     }
 
+    @Test
     public void testEntityWithInvalidTransferEncoding() throws Exception {
         SessionOutputBuffer datatransmitter = new SessionOutputBufferMockup();
         HttpMessage message = new HttpMessageMockup();
@@ -105,12 +105,13 @@ public class TestEntitySerializer extends TestCase {
                 new StrictContentLengthStrategy());
         try {
             entitywriter.doSerialize(datatransmitter, message);
-            fail("ProtocolException should have been thrown");
+            Assert.fail("ProtocolException should have been thrown");
         } catch (ProtocolException ex) {
             // expected
         }
     }
 
+    @Test
     public void testEntityWithInvalidChunkEncodingAndHTTP10() throws Exception {
         SessionOutputBuffer datatransmitter = new SessionOutputBufferMockup();
         HttpMessage message = new HttpMessageMockup();
@@ -122,12 +123,13 @@ public class TestEntitySerializer extends TestCase {
                 new StrictContentLengthStrategy());
         try {
             entitywriter.doSerialize(datatransmitter, message);
-            fail("ProtocolException should have been thrown");
+            Assert.fail("ProtocolException should have been thrown");
         } catch (ProtocolException ex) {
             // expected
         }
     }
 
+    @Test
     public void testEntityWithContentLength() throws Exception {
         SessionOutputBuffer datatransmitter = new SessionOutputBufferMockup();
         HttpMessage message = new HttpMessageMockup();
@@ -135,10 +137,11 @@ public class TestEntitySerializer extends TestCase {
         EntitySerializer entitywriter = new EntitySerializer(
                 new StrictContentLengthStrategy());
         OutputStream outstream = entitywriter.doSerialize(datatransmitter, message);
-        assertNotNull(outstream);
-        assertTrue(outstream instanceof ContentLengthOutputStream);
+        Assert.assertNotNull(outstream);
+        Assert.assertTrue(outstream instanceof ContentLengthOutputStream);
     }
 
+    @Test
     public void testEntityWithInvalidContentLength() throws Exception {
         SessionOutputBuffer datatransmitter = new SessionOutputBufferMockup();
         HttpMessage message = new HttpMessageMockup();
@@ -148,22 +151,24 @@ public class TestEntitySerializer extends TestCase {
                 new StrictContentLengthStrategy());
         try {
             entitywriter.doSerialize(datatransmitter, message);
-            fail("ProtocolException should have been thrown");
+            Assert.fail("ProtocolException should have been thrown");
         } catch (ProtocolException ex) {
             // expected
         }
     }
 
+    @Test
     public void testEntityNoContentDelimiter() throws Exception {
         SessionOutputBuffer datatransmitter = new SessionOutputBufferMockup();
         HttpMessage message = new HttpMessageMockup();
         EntitySerializer entitywriter = new EntitySerializer(
                 new StrictContentLengthStrategy());
         OutputStream outstream = entitywriter.doSerialize(datatransmitter, message);
-        assertNotNull(outstream);
-        assertTrue(outstream instanceof IdentityOutputStream);
+        Assert.assertNotNull(outstream);
+        Assert.assertTrue(outstream instanceof IdentityOutputStream);
     }
 
+    @Test
     public void testEntitySerialization() throws Exception {
         byte[] content = new byte[] {1, 2, 3, 4, 5};
         ByteArrayEntity entity = new ByteArrayEntity(content);
@@ -177,8 +182,8 @@ public class TestEntitySerializer extends TestCase {
         entitywriter.serialize(datatransmitter, message, entity);
 
         byte[] data = datatransmitter.getData();
-        assertNotNull(data);
-        assertEquals(content.length, data.length);
+        Assert.assertNotNull(data);
+        Assert.assertEquals(content.length, data.length);
     }
 }
 

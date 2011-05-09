@@ -31,20 +31,17 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 
-import junit.framework.TestCase;
-
 import org.apache.http.HttpEntity;
+import org.junit.Assert;
+import org.junit.Test;
 
 /**
  * Unit tests for {@link EntityTemplate}.
  *
  */
-public class TestEntityTemplate extends TestCase {
+public class TestEntityTemplate {
 
-    public TestEntityTemplate(String testName) {
-        super(testName);
-    }
-
+    @Test
     public void testBasics() throws Exception {
 
         HttpEntity httpentity = new EntityTemplate(new ContentProducer() {
@@ -55,20 +52,22 @@ public class TestEntityTemplate extends TestCase {
 
         });
 
-        assertEquals(-1, httpentity.getContentLength());
-        assertTrue(httpentity.isRepeatable());
-        assertFalse(httpentity.isStreaming());
+        Assert.assertEquals(-1, httpentity.getContentLength());
+        Assert.assertTrue(httpentity.isRepeatable());
+        Assert.assertFalse(httpentity.isStreaming());
     }
 
+    @Test
     public void testIllegalConstructor() throws Exception {
         try {
             new EntityTemplate(null);
-            fail("IllegalArgumentException should have been thrown");
+            Assert.fail("IllegalArgumentException should have been thrown");
         } catch (IllegalArgumentException ex) {
             // expected
         }
     }
 
+    @Test
     public void testWriteTo() throws Exception {
         HttpEntity httpentity = new EntityTemplate(new ContentProducer() {
 
@@ -81,17 +80,18 @@ public class TestEntityTemplate extends TestCase {
         ByteArrayOutputStream out = new ByteArrayOutputStream();
         httpentity.writeTo(out);
         byte[] bytes2 = out.toByteArray();
-        assertNotNull(bytes2);
-        assertEquals(1, bytes2.length);
+        Assert.assertNotNull(bytes2);
+        Assert.assertEquals(1, bytes2.length);
 
         try {
             httpentity.writeTo(null);
-            fail("IllegalArgumentException should have been thrown");
+            Assert.fail("IllegalArgumentException should have been thrown");
         } catch (IllegalArgumentException ex) {
             // expected
         }
     }
 
+    @Test
     public void testgetContent() throws Exception {
         HttpEntity httpentity = new EntityTemplate(new ContentProducer() {
 
@@ -102,7 +102,7 @@ public class TestEntityTemplate extends TestCase {
         });
         try {
             httpentity.getContent();
-            fail("UnsupportedOperationException should have been thrown");
+            Assert.fail("UnsupportedOperationException should have been thrown");
         } catch (UnsupportedOperationException ex) {
             // expected
         }

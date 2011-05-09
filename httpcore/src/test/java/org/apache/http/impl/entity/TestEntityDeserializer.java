@@ -29,8 +29,6 @@ package org.apache.http.impl.entity;
 
 import java.io.InputStream;
 
-import junit.framework.TestCase;
-
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpMessage;
 import org.apache.http.ProtocolException;
@@ -41,30 +39,30 @@ import org.apache.http.io.SessionInputBuffer;
 import org.apache.http.mockup.HttpMessageMockup;
 import org.apache.http.mockup.SessionInputBufferMockup;
 import org.apache.http.params.CoreProtocolPNames;
+import org.junit.Assert;
+import org.junit.Test;
 
-public class TestEntityDeserializer extends TestCase {
+public class TestEntityDeserializer {
 
-    public TestEntityDeserializer(String testName) {
-        super(testName);
-    }
-
+    @Test
     public void testIllegalGenerateArg() throws Exception {
         EntityDeserializer entitygen = new EntityDeserializer(
                 new LaxContentLengthStrategy());
         try {
             entitygen.deserialize(null, null);
-            fail("IllegalArgumentException should have been thrown");
+            Assert.fail("IllegalArgumentException should have been thrown");
         } catch (IllegalArgumentException ex) {
             // expected
         }
         try {
             entitygen.deserialize(new SessionInputBufferMockup(new byte[] {}) , null);
-            fail("IllegalArgumentException should have been thrown");
+            Assert.fail("IllegalArgumentException should have been thrown");
         } catch (IllegalArgumentException ex) {
             // expected
         }
     }
 
+    @Test
     public void testEntityWithTransferEncoding() throws Exception {
         SessionInputBuffer datareceiver = new SessionInputBufferMockup("0\r\n", "US-ASCII");
         HttpMessage message = new HttpMessageMockup();
@@ -77,20 +75,21 @@ public class TestEntityDeserializer extends TestCase {
         EntityDeserializer entitygen = new EntityDeserializer(
                 new LaxContentLengthStrategy());
         HttpEntity entity = entitygen.deserialize(datareceiver, message);
-        assertNotNull(entity);
-        assertEquals(-1, entity.getContentLength());
-        assertTrue(entity.isChunked());
-        assertTrue(entity.getContent() instanceof ChunkedInputStream);
+        Assert.assertNotNull(entity);
+        Assert.assertEquals(-1, entity.getContentLength());
+        Assert.assertTrue(entity.isChunked());
+        Assert.assertTrue(entity.getContent() instanceof ChunkedInputStream);
 
         // strict mode
         message.getParams().setBooleanParameter(CoreProtocolPNames.STRICT_TRANSFER_ENCODING, true);
         entity = entitygen.deserialize(datareceiver, message);
-        assertNotNull(entity);
-        assertEquals(-1, entity.getContentLength());
-        assertTrue(entity.isChunked());
-        assertTrue(entity.getContent() instanceof ChunkedInputStream);
+        Assert.assertNotNull(entity);
+        Assert.assertEquals(-1, entity.getContentLength());
+        Assert.assertTrue(entity.isChunked());
+        Assert.assertTrue(entity.getContent() instanceof ChunkedInputStream);
     }
 
+    @Test
     public void testEntityWithIdentityTransferEncoding() throws Exception {
         SessionInputBuffer datareceiver =
             new SessionInputBufferMockup(new byte[] {});
@@ -104,11 +103,12 @@ public class TestEntityDeserializer extends TestCase {
         EntityDeserializer entitygen = new EntityDeserializer(
                 new LaxContentLengthStrategy());
         HttpEntity entity = entitygen.deserialize(datareceiver, message);
-        assertNotNull(entity);
-        assertEquals(-1, entity.getContentLength());
-        assertFalse(entity.isChunked());
+        Assert.assertNotNull(entity);
+        Assert.assertEquals(-1, entity.getContentLength());
+        Assert.assertFalse(entity.isChunked());
     }
 
+    @Test
     public void testEntityWithUnsupportedTransferEncoding() throws Exception {
         SessionInputBuffer datareceiver = new SessionInputBufferMockup("0\r\n", "US-ASCII");
         HttpMessage message = new HttpMessageMockup();
@@ -121,21 +121,22 @@ public class TestEntityDeserializer extends TestCase {
         EntityDeserializer entitygen = new EntityDeserializer(
                 new LaxContentLengthStrategy());
         HttpEntity entity = entitygen.deserialize(datareceiver, message);
-        assertNotNull(entity);
-        assertEquals(-1, entity.getContentLength());
-        assertTrue(entity.isChunked());
-        assertTrue(entity.getContent() instanceof ChunkedInputStream);
+        Assert.assertNotNull(entity);
+        Assert.assertEquals(-1, entity.getContentLength());
+        Assert.assertTrue(entity.isChunked());
+        Assert.assertTrue(entity.getContent() instanceof ChunkedInputStream);
 
         // strict mode
         message.getParams().setBooleanParameter(CoreProtocolPNames.STRICT_TRANSFER_ENCODING, true);
         try {
             entitygen.deserialize(datareceiver, message);
-            fail("ProtocolException should have been thrown");
+            Assert.fail("ProtocolException should have been thrown");
         } catch (ProtocolException ex) {
             // expected
         }
     }
 
+    @Test
     public void testChunkedTransferEncodingMustBeLast() throws Exception {
         SessionInputBuffer datareceiver = new SessionInputBufferMockup("0\r\n", "US-ASCII");
         HttpMessage message = new HttpMessageMockup();
@@ -148,21 +149,22 @@ public class TestEntityDeserializer extends TestCase {
         EntityDeserializer entitygen = new EntityDeserializer(
                 new LaxContentLengthStrategy());
         HttpEntity entity = entitygen.deserialize(datareceiver, message);
-        assertNotNull(entity);
-        assertEquals(-1, entity.getContentLength());
-        assertFalse(entity.isChunked());
-        assertFalse(entity.getContent() instanceof ChunkedInputStream);
+        Assert.assertNotNull(entity);
+        Assert.assertEquals(-1, entity.getContentLength());
+        Assert.assertFalse(entity.isChunked());
+        Assert.assertFalse(entity.getContent() instanceof ChunkedInputStream);
 
         // strict mode
         message.getParams().setBooleanParameter(CoreProtocolPNames.STRICT_TRANSFER_ENCODING, true);
         try {
             entitygen.deserialize(datareceiver, message);
-            fail("ProtocolException should have been thrown");
+            Assert.fail("ProtocolException should have been thrown");
         } catch (ProtocolException ex) {
             // expected
         }
     }
 
+    @Test
     public void testEntityWithContentLength() throws Exception {
         SessionInputBuffer datareceiver = new SessionInputBufferMockup(new byte[] {});
         HttpMessage message = new HttpMessageMockup();
@@ -174,12 +176,13 @@ public class TestEntityDeserializer extends TestCase {
         EntityDeserializer entitygen = new EntityDeserializer(
                 new LaxContentLengthStrategy());
         HttpEntity entity = entitygen.deserialize(datareceiver, message);
-        assertNotNull(entity);
-        assertEquals(0, entity.getContentLength());
-        assertFalse(entity.isChunked());
-        assertTrue(entity.getContent() instanceof ContentLengthInputStream);
+        Assert.assertNotNull(entity);
+        Assert.assertEquals(0, entity.getContentLength());
+        Assert.assertFalse(entity.isChunked());
+        Assert.assertTrue(entity.getContent() instanceof ContentLengthInputStream);
     }
 
+    @Test
     public void testEntityWithMultipleContentLength() throws Exception {
         SessionInputBuffer datareceiver = new SessionInputBufferMockup(new byte[] {'0'});
         HttpMessage message = new HttpMessageMockup();
@@ -193,23 +196,24 @@ public class TestEntityDeserializer extends TestCase {
         EntityDeserializer entitygen = new EntityDeserializer(
                 new LaxContentLengthStrategy());
         HttpEntity entity = entitygen.deserialize(datareceiver, message);
-        assertNotNull(entity);
-        assertEquals(1, entity.getContentLength());
-        assertFalse(entity.isChunked());
+        Assert.assertNotNull(entity);
+        Assert.assertEquals(1, entity.getContentLength());
+        Assert.assertFalse(entity.isChunked());
         InputStream instream = entity.getContent();
-        assertNotNull(instream);
-        assertTrue(instream instanceof ContentLengthInputStream);
+        Assert.assertNotNull(instream);
+        Assert.assertTrue(instream instanceof ContentLengthInputStream);
 
         // strict mode
         message.getParams().setBooleanParameter(CoreProtocolPNames.STRICT_TRANSFER_ENCODING, true);
         try {
             entitygen.deserialize(datareceiver, message);
-            fail("ProtocolException should have been thrown");
+            Assert.fail("ProtocolException should have been thrown");
         } catch (ProtocolException ex) {
             // expected
         }
     }
 
+    @Test
     public void testEntityWithMultipleContentLengthSomeWrong() throws Exception {
         SessionInputBuffer datareceiver = new SessionInputBufferMockup(new byte[] {'0'});
         HttpMessage message = new HttpMessageMockup();
@@ -223,23 +227,24 @@ public class TestEntityDeserializer extends TestCase {
         EntityDeserializer entitygen = new EntityDeserializer(
                 new LaxContentLengthStrategy());
         HttpEntity entity = entitygen.deserialize(datareceiver, message);
-        assertNotNull(entity);
-        assertEquals(1, entity.getContentLength());
-        assertFalse(entity.isChunked());
+        Assert.assertNotNull(entity);
+        Assert.assertEquals(1, entity.getContentLength());
+        Assert.assertFalse(entity.isChunked());
         InputStream instream = entity.getContent();
-        assertNotNull(instream);
-        assertTrue(instream instanceof ContentLengthInputStream);
+        Assert.assertNotNull(instream);
+        Assert.assertTrue(instream instanceof ContentLengthInputStream);
 
         // strict mode
         message.getParams().setBooleanParameter(CoreProtocolPNames.STRICT_TRANSFER_ENCODING, true);
         try {
             entitygen.deserialize(datareceiver, message);
-            fail("ProtocolException should have been thrown");
+            Assert.fail("ProtocolException should have been thrown");
         } catch (ProtocolException ex) {
             // expected
         }
     }
 
+    @Test
     public void testEntityWithMultipleContentLengthAllWrong() throws Exception {
         SessionInputBuffer datareceiver = new SessionInputBufferMockup(new byte[] {'0'});
         HttpMessage message = new HttpMessageMockup();
@@ -252,24 +257,25 @@ public class TestEntityDeserializer extends TestCase {
         EntityDeserializer entitygen = new EntityDeserializer(
                 new LaxContentLengthStrategy());
         HttpEntity entity = entitygen.deserialize(datareceiver, message);
-        assertNotNull(entity);
-        assertEquals(-1, entity.getContentLength());
-        assertFalse(entity.isChunked());
+        Assert.assertNotNull(entity);
+        Assert.assertEquals(-1, entity.getContentLength());
+        Assert.assertFalse(entity.isChunked());
         InputStream instream = entity.getContent();
-        assertNotNull(instream);
-        assertFalse(instream instanceof ContentLengthInputStream);
-        assertTrue(instream instanceof IdentityInputStream);
+        Assert.assertNotNull(instream);
+        Assert.assertFalse(instream instanceof ContentLengthInputStream);
+        Assert.assertTrue(instream instanceof IdentityInputStream);
 
         // strict mode
         message.getParams().setBooleanParameter(CoreProtocolPNames.STRICT_TRANSFER_ENCODING, true);
         try {
             entitygen.deserialize(datareceiver, message);
-            fail("ProtocolException should have been thrown");
+            Assert.fail("ProtocolException should have been thrown");
         } catch (ProtocolException ex) {
             // expected
         }
     }
 
+    @Test
     public void testEntityWithInvalidContentLength() throws Exception {
         SessionInputBuffer datareceiver = new SessionInputBufferMockup(new byte[] {'0'});
         HttpMessage message = new HttpMessageMockup();
@@ -281,24 +287,25 @@ public class TestEntityDeserializer extends TestCase {
         EntityDeserializer entitygen = new EntityDeserializer(
                 new LaxContentLengthStrategy());
         HttpEntity entity = entitygen.deserialize(datareceiver, message);
-        assertNotNull(entity);
-        assertEquals(-1, entity.getContentLength());
-        assertFalse(entity.isChunked());
+        Assert.assertNotNull(entity);
+        Assert.assertEquals(-1, entity.getContentLength());
+        Assert.assertFalse(entity.isChunked());
         InputStream instream = entity.getContent();
-        assertNotNull(instream);
-        assertFalse(instream instanceof ContentLengthInputStream);
-        assertTrue(instream instanceof IdentityInputStream);
+        Assert.assertNotNull(instream);
+        Assert.assertFalse(instream instanceof ContentLengthInputStream);
+        Assert.assertTrue(instream instanceof IdentityInputStream);
 
         // strict mode
         message.getParams().setBooleanParameter(CoreProtocolPNames.STRICT_TRANSFER_ENCODING, true);
         try {
             entitygen.deserialize(datareceiver, message);
-            fail("ProtocolException should have been thrown");
+            Assert.fail("ProtocolException should have been thrown");
         } catch (ProtocolException ex) {
             // expected
         }
     }
 
+    @Test
     public void testEntityNeitherContentLengthNorTransferEncoding() throws Exception {
         SessionInputBuffer datareceiver = new SessionInputBufferMockup(new byte[] {'0'});
         HttpMessage message = new HttpMessageMockup();
@@ -308,16 +315,17 @@ public class TestEntityDeserializer extends TestCase {
         EntityDeserializer entitygen = new EntityDeserializer(
                 new LaxContentLengthStrategy());
         HttpEntity entity = entitygen.deserialize(datareceiver, message);
-        assertNotNull(entity);
-        assertEquals(-1, entity.getContentLength());
-        assertFalse(entity.isChunked());
+        Assert.assertNotNull(entity);
+        Assert.assertEquals(-1, entity.getContentLength());
+        Assert.assertFalse(entity.isChunked());
         InputStream instream = entity.getContent();
-        assertNotNull(instream);
-        assertFalse(instream instanceof ContentLengthInputStream);
-        assertFalse(instream instanceof ChunkedInputStream);
-        assertTrue(instream instanceof IdentityInputStream);
+        Assert.assertNotNull(instream);
+        Assert.assertFalse(instream instanceof ContentLengthInputStream);
+        Assert.assertFalse(instream instanceof ChunkedInputStream);
+        Assert.assertTrue(instream instanceof IdentityInputStream);
     }
 
+    @Test
     public void testEntityContentType() throws Exception {
         SessionInputBuffer datareceiver = new SessionInputBufferMockup(new byte[] {'0'});
         HttpMessage message = new HttpMessageMockup();
@@ -326,11 +334,12 @@ public class TestEntityDeserializer extends TestCase {
         EntityDeserializer entitygen = new EntityDeserializer(
                 new LaxContentLengthStrategy());
         HttpEntity entity = entitygen.deserialize(datareceiver, message);
-        assertNotNull(entity);
-        assertNotNull(entity.getContentType());
-        assertEquals("stuff", entity.getContentType().getValue());
+        Assert.assertNotNull(entity);
+        Assert.assertNotNull(entity.getContentType());
+        Assert.assertEquals("stuff", entity.getContentType().getValue());
     }
 
+    @Test
     public void testEntityContentEncoding() throws Exception {
         SessionInputBuffer datareceiver = new SessionInputBufferMockup(new byte[] {'0'});
         HttpMessage message = new HttpMessageMockup();
@@ -339,9 +348,9 @@ public class TestEntityDeserializer extends TestCase {
         EntityDeserializer entitygen = new EntityDeserializer(
                 new LaxContentLengthStrategy());
         HttpEntity entity = entitygen.deserialize(datareceiver, message);
-        assertNotNull(entity);
-        assertNotNull(entity.getContentEncoding());
-        assertEquals("what not", entity.getContentEncoding().getValue());
+        Assert.assertNotNull(entity);
+        Assert.assertNotNull(entity.getContentEncoding());
+        Assert.assertEquals("what not", entity.getContentEncoding().getValue());
     }
 
 }

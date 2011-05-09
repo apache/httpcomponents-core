@@ -33,11 +33,8 @@ import java.io.OutputStream;
 import java.net.InetSocketAddress;
 import java.nio.ByteBuffer;
 import java.nio.channels.WritableByteChannel;
-import java.util.List;
 import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
-
-import junit.framework.TestCase;
 
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpRequest;
@@ -55,12 +52,11 @@ import org.apache.http.impl.io.HttpTransportMetricsImpl;
 import org.apache.http.impl.nio.DefaultNHttpServerConnection;
 import org.apache.http.impl.nio.DefaultServerIOEventDispatch;
 import org.apache.http.impl.nio.codecs.AbstractContentEncoder;
-import org.apache.http.impl.nio.reactor.ExceptionEvent;
 import org.apache.http.message.BasicHttpRequest;
-import org.apache.http.mockup.SimpleEventListener;
-import org.apache.http.mockup.SimpleNHttpRequestHandlerResolver;
 import org.apache.http.mockup.HttpClientNio;
 import org.apache.http.mockup.HttpServerNio;
+import org.apache.http.mockup.SimpleEventListener;
+import org.apache.http.mockup.SimpleNHttpRequestHandlerResolver;
 import org.apache.http.nio.ContentDecoder;
 import org.apache.http.nio.ContentEncoder;
 import org.apache.http.nio.IOControl;
@@ -93,18 +89,15 @@ import org.apache.http.protocol.ResponseContent;
 import org.apache.http.protocol.ResponseDate;
 import org.apache.http.protocol.ResponseServer;
 import org.apache.http.util.CharArrayBuffer;
+import org.junit.After;
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Test;
 
 /**
  * Tests for handling truncated chunks.
  */
-public class TestTruncatedChunks extends TestCase {
-
-    // ------------------------------------------------------------ Constructor
-    public TestTruncatedChunks(String testName) {
-        super(testName);
-    }
-
-    // ------------------------------------------------------- TestCase Methods
+public class TestTruncatedChunks {
 
     private static final byte[] GARBAGE = new byte[] {'1', '2', '3', '4', '5' };
 
@@ -202,8 +195,8 @@ public class TestTruncatedChunks extends TestCase {
     protected CustomTestHttpServer server;
     protected HttpClientNio client;
 
-    @Override
-    protected void setUp() throws Exception {
+    @Before
+    public void initServer() throws Exception {
         HttpParams serverParams = new SyncBasicHttpParams();
         serverParams
             .setIntParameter(CoreConnectionPNames.SO_TIMEOUT, 60000)
@@ -213,7 +206,10 @@ public class TestTruncatedChunks extends TestCase {
             .setParameter(CoreProtocolPNames.ORIGIN_SERVER, "TEST-SERVER/1.1");
 
         this.server = new CustomTestHttpServer(serverParams);
+    }
 
+    @Before
+    public void initClient() throws Exception {
         HttpParams clientParams = new SyncBasicHttpParams();
         clientParams
             .setIntParameter(CoreConnectionPNames.SO_TIMEOUT, 60000)
@@ -226,35 +222,21 @@ public class TestTruncatedChunks extends TestCase {
         this.client = new HttpClientNio(clientParams);
     }
 
-    @Override
-    protected void tearDown() {
-        try {
+    @After
+    public void shutDownClient() throws Exception {
+        if (this.client != null) {
             this.client.shutdown();
-        } catch (IOException ex) {
-            ex.printStackTrace();
-        }
-        List<ExceptionEvent> clogs = this.client.getAuditLog();
-        if (clogs != null) {
-            for (ExceptionEvent clog: clogs) {
-                Throwable cause = clog.getCause();
-                cause.printStackTrace();
-            }
-        }
-
-        try {
-            this.server.shutdown();
-        } catch (IOException ex) {
-            ex.printStackTrace();
-        }
-        List<ExceptionEvent> slogs = this.server.getAuditLog();
-        if (slogs != null) {
-            for (ExceptionEvent slog: slogs) {
-                Throwable cause = slog.getCause();
-                cause.printStackTrace();
-            }
         }
     }
 
+    @After
+    public void shutDownServer() throws Exception {
+        if (this.server != null) {
+            this.server.shutdown();
+        }
+    }
+
+    @Test
     public void testTruncatedChunkException() throws Exception {
 
         NHttpRequestExecutionHandler requestExecutionHandler = new RequestExecutionHandler() {
@@ -328,9 +310,9 @@ public class TestTruncatedChunks extends TestCase {
                 queue);
 
         testjob.waitFor();
-        assertFalse(testjob.isSuccessful());
-        assertNotNull(testjob.getException());
-        assertTrue(testjob.getException() instanceof MalformedChunkCodingException);
+        Assert.assertFalse(testjob.isSuccessful());
+        Assert.assertNotNull(testjob.getException());
+        Assert.assertTrue(testjob.getException() instanceof MalformedChunkCodingException);
     }
 
     static class LenientNHttpEntity extends HttpEntityWrapper implements ConsumingNHttpEntity {
@@ -408,6 +390,7 @@ public class TestTruncatedChunks extends TestCase {
 
     }
 
+    @Test
     public void testIgnoreTruncatedChunkException() throws Exception {
 
         NHttpRequestExecutionHandler requestExecutionHandler = new RequestExecutionHandler() {
@@ -479,10 +462,10 @@ public class TestTruncatedChunks extends TestCase {
 
         testjob.waitFor();
         if (testjob.isSuccessful()) {
-            assertEquals(HttpStatus.SC_OK, testjob.getStatusCode());
-            assertEquals(new String(GARBAGE, "US-ASCII"), testjob.getResult());
+            Assert.assertEquals(HttpStatus.SC_OK, testjob.getStatusCode());
+            Assert.assertEquals(new String(GARBAGE, "US-ASCII"), testjob.getResult());
         } else {
-            fail(testjob.getFailureMessage());
+            Assert.fail(testjob.getFailureMessage());
         }
     }
 

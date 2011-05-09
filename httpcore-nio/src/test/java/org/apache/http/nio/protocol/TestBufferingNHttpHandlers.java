@@ -63,19 +63,14 @@ import org.apache.http.protocol.ResponseConnControl;
 import org.apache.http.protocol.ResponseContent;
 import org.apache.http.protocol.ResponseDate;
 import org.apache.http.protocol.ResponseServer;
+import org.junit.Assert;
+import org.junit.Test;
 
 /**
  * HttpCore NIO integration tests using buffering versions of the
  * protocol handlers.
  */
 public class TestBufferingNHttpHandlers extends HttpCoreNIOTestBase {
-
-    // ------------------------------------------------------------ Constructor
-    public TestBufferingNHttpHandlers(String testName) {
-        super(testName);
-    }
-
-    // ------------------------------------------------------- TestCase Methods
 
     private void executeStandardTest(
             final HttpRequestHandler requestHandler,
@@ -132,7 +127,7 @@ public class TestBufferingNHttpHandlers extends HttpCoreNIOTestBase {
         endpoint.waitFor();
         InetSocketAddress serverAddress = (InetSocketAddress) endpoint.getAddress();
 
-        assertEquals("Test server status", IOReactorStatus.ACTIVE, this.server.getStatus());
+        Assert.assertEquals("Test server status", IOReactorStatus.ACTIVE, this.server.getStatus());
 
         Queue<SessionRequest> connRequests = new LinkedList<SessionRequest>();
         for (int i = 0; i < connNo; i++) {
@@ -148,19 +143,19 @@ public class TestBufferingNHttpHandlers extends HttpCoreNIOTestBase {
             if (sessionRequest.getException() != null) {
                 throw sessionRequest.getException();
             }
-            assertNotNull(sessionRequest.getSession());
+            Assert.assertNotNull(sessionRequest.getSession());
         }
 
-        assertEquals("Test client status", IOReactorStatus.ACTIVE, this.client.getStatus());
+        Assert.assertEquals("Test client status", IOReactorStatus.ACTIVE, this.client.getStatus());
 
         for (int i = 0; i < jobs.length; i++) {
             Job testjob = jobs[i];
             testjob.waitFor();
             if (testjob.isSuccessful()) {
-                assertEquals(HttpStatus.SC_OK, testjob.getStatusCode());
-                assertEquals(testjob.getExpected(), testjob.getResult());
+                Assert.assertEquals(HttpStatus.SC_OK, testjob.getStatusCode());
+                Assert.assertEquals(testjob.getExpected(), testjob.getResult());
             } else {
-                fail(testjob.getFailureMessage());
+                Assert.fail(testjob.getFailureMessage());
             }
         }
     }
@@ -169,6 +164,7 @@ public class TestBufferingNHttpHandlers extends HttpCoreNIOTestBase {
      * This test case executes a series of simple (non-pipelined) GET requests
      * over multiple connections.
      */
+    @Test
     public void testHttpGets() throws Exception {
         HttpRequestExecutionHandler requestExecutionHandler = new RequestExecutionHandler() {
 
@@ -186,6 +182,7 @@ public class TestBufferingNHttpHandlers extends HttpCoreNIOTestBase {
      * This test case executes a series of simple (non-pipelined) POST requests
      * with content length delimited content over multiple connections.
      */
+    @Test
     public void testHttpPostsWithContentLength() throws Exception {
         HttpRequestExecutionHandler requestExecutionHandler = new RequestExecutionHandler() {
 
@@ -211,6 +208,7 @@ public class TestBufferingNHttpHandlers extends HttpCoreNIOTestBase {
      * This test case executes a series of simple (non-pipelined) POST requests
      * with chunk coded content content over multiple connections.
      */
+    @Test
     public void testHttpPostsChunked() throws Exception {
         HttpRequestExecutionHandler requestExecutionHandler = new RequestExecutionHandler() {
 
@@ -236,6 +234,7 @@ public class TestBufferingNHttpHandlers extends HttpCoreNIOTestBase {
      * This test case executes a series of simple (non-pipelined) HTTP/1.0
      * POST requests over multiple persistent connections.
      */
+    @Test
     public void testHttpPostsHTTP10() throws Exception {
         HttpRequestExecutionHandler requestExecutionHandler = new RequestExecutionHandler() {
 
@@ -261,6 +260,7 @@ public class TestBufferingNHttpHandlers extends HttpCoreNIOTestBase {
      * This test case executes a series of simple (non-pipelined) POST requests
      * over multiple connections using the 'expect: continue' handshake.
      */
+    @Test
     public void testHttpPostsWithExpectContinue() throws Exception {
         HttpRequestExecutionHandler requestExecutionHandler = new RequestExecutionHandler() {
 

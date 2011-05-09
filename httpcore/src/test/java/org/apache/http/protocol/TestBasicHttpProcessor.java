@@ -29,15 +29,13 @@ package org.apache.http.protocol;
 
 import java.io.IOException;
 
-import junit.framework.TestCase;
-
 import org.apache.http.HttpException;
 import org.apache.http.HttpRequest;
 import org.apache.http.HttpRequestInterceptor;
+import org.junit.Assert;
+import org.junit.Test;
 
-/**
- */
-public class TestBasicHttpProcessor extends TestCase {
+public class TestBasicHttpProcessor {
 
     static class TestHttpRequestInterceptorPlaceHolder implements HttpRequestInterceptor {
 
@@ -47,65 +45,63 @@ public class TestBasicHttpProcessor extends TestCase {
         }
     }
 
-    // ------------------------------------------------------------ Constructor
-    public TestBasicHttpProcessor(String testName) {
-        super(testName);
-    }
-
-    // ------------------------------------------------------- TestCase Methods
-
+    @Test
     public void testAddFirstRequestInterceptorNull() {
         HttpRequestInterceptor itcp = null;
         BasicHttpProcessor instance = new BasicHttpProcessor();
 
         instance.addRequestInterceptor(itcp, 0);
         int itcpCount = instance.getRequestInterceptorCount();
-        assertEquals(0, itcpCount);
-        assertEquals(null, instance.getRequestInterceptor(0));
+        Assert.assertEquals(0, itcpCount);
+        Assert.assertEquals(null, instance.getRequestInterceptor(0));
     }
 
+    @Test
     public void testAddFirstRequestInterceptor() {
         HttpRequestInterceptor itcp1 = new TestHttpRequestInterceptorPlaceHolder();
         HttpRequestInterceptor itcp2 = new TestHttpRequestInterceptorPlaceHolder();
         BasicHttpProcessor instance = new BasicHttpProcessor();
 
-        assertEquals(0, instance.getRequestInterceptorCount());
+        Assert.assertEquals(0, instance.getRequestInterceptorCount());
         instance.addRequestInterceptor(itcp1);
-        assertEquals(1, instance.getRequestInterceptorCount());
-        assertSame(itcp1, instance.getRequestInterceptor(0));
+        Assert.assertEquals(1, instance.getRequestInterceptorCount());
+        Assert.assertSame(itcp1, instance.getRequestInterceptor(0));
 
         instance.addRequestInterceptor(itcp2, 0);
-        assertEquals(2, instance.getRequestInterceptorCount());
-        assertSame(itcp2, instance.getRequestInterceptor(0));
-        assertSame(itcp1, instance.getRequestInterceptor(1));
+        Assert.assertEquals(2, instance.getRequestInterceptorCount());
+        Assert.assertSame(itcp2, instance.getRequestInterceptor(0));
+        Assert.assertSame(itcp1, instance.getRequestInterceptor(1));
     }
 
+    @Test
     public void testAddTailRequestInterceptorNull() {
         HttpRequestInterceptor itcp = null;
         BasicHttpProcessor instance = new BasicHttpProcessor();
 
         instance.addRequestInterceptor(itcp, 0);
         int itcpCount = instance.getRequestInterceptorCount();
-        assertEquals(0, itcpCount);
-        assertEquals(null, instance.getRequestInterceptor(itcpCount - 1));
+        Assert.assertEquals(0, itcpCount);
+        Assert.assertEquals(null, instance.getRequestInterceptor(itcpCount - 1));
     }
 
+    @Test
     public void testAddTailRequestInterceptor() {
         HttpRequestInterceptor itcp1 = new TestHttpRequestInterceptorPlaceHolder();
         HttpRequestInterceptor itcp2 = new TestHttpRequestInterceptorPlaceHolder();
         BasicHttpProcessor instance = new BasicHttpProcessor();
 
         instance.addRequestInterceptor(itcp1);
-        assertEquals(1, instance.getRequestInterceptorCount());
-        assertSame(itcp1, instance.getRequestInterceptor(0));
+        Assert.assertEquals(1, instance.getRequestInterceptorCount());
+        Assert.assertSame(itcp1, instance.getRequestInterceptor(0));
 
         instance.addRequestInterceptor(itcp2, 1);
         int itcpCount = instance.getRequestInterceptorCount();
-        assertEquals(2, itcpCount);
-        assertSame(itcp1, instance.getRequestInterceptor(0));
-        assertSame(itcp2, instance.getRequestInterceptor(itcpCount - 1));
+        Assert.assertEquals(2, itcpCount);
+        Assert.assertSame(itcp1, instance.getRequestInterceptor(0));
+        Assert.assertSame(itcp2, instance.getRequestInterceptor(itcpCount - 1));
     }
 
+    @Test
     public void testClearByClass() {
         // remove a present class
         HttpRequestInterceptor itcp1 = new TestHttpRequestInterceptorPlaceHolder();
@@ -123,9 +119,9 @@ public class TestBasicHttpProcessor extends TestCase {
         instance.addRequestInterceptor(itcp2);
         instance.addRequestInterceptor(itcp3);
         instance.removeRequestInterceptorByClass(itcp1.getClass());
-        assertEquals(1, instance.getRequestInterceptorCount());
+        Assert.assertEquals(1, instance.getRequestInterceptorCount());
         instance.removeRequestInterceptorByClass(itcp3.getClass());
-        assertEquals(0, instance.getRequestInterceptorCount());
+        Assert.assertEquals(0, instance.getRequestInterceptorCount());
     }
 
 }

@@ -29,39 +29,38 @@ package org.apache.http.entity;
 
 import java.io.ByteArrayOutputStream;
 
-import junit.framework.TestCase;
-
 import org.apache.http.protocol.HTTP;
+import org.junit.Assert;
+import org.junit.Test;
 
 /**
  * Unit tests for {@link ByteArrayEntity}.
  *
  */
-public class TestByteArrayEntity extends TestCase {
+public class TestByteArrayEntity {
 
-    public TestByteArrayEntity(String testName) {
-        super(testName);
-    }
-
+    @Test
     public void testBasics() throws Exception {
         byte[] bytes = "Message content".getBytes(HTTP.US_ASCII);
         ByteArrayEntity httpentity = new ByteArrayEntity(bytes);
 
-        assertEquals(bytes.length, httpentity.getContentLength());
-        assertNotNull(httpentity.getContent());
-        assertTrue(httpentity.isRepeatable());
-        assertFalse(httpentity.isStreaming());
+        Assert.assertEquals(bytes.length, httpentity.getContentLength());
+        Assert.assertNotNull(httpentity.getContent());
+        Assert.assertTrue(httpentity.isRepeatable());
+        Assert.assertFalse(httpentity.isStreaming());
     }
 
+    @Test
     public void testIllegalConstructor() throws Exception {
         try {
             new ByteArrayEntity(null);
-            fail("IllegalArgumentException should have been thrown");
+            Assert.fail("IllegalArgumentException should have been thrown");
         } catch (IllegalArgumentException ex) {
             // expected
         }
     }
 
+    @Test
     public void testWriteTo() throws Exception {
         byte[] bytes = "Message content".getBytes(HTTP.US_ASCII);
         ByteArrayEntity httpentity = new ByteArrayEntity(bytes);
@@ -69,24 +68,24 @@ public class TestByteArrayEntity extends TestCase {
         ByteArrayOutputStream out = new ByteArrayOutputStream();
         httpentity.writeTo(out);
         byte[] bytes2 = out.toByteArray();
-        assertNotNull(bytes2);
-        assertEquals(bytes.length, bytes2.length);
+        Assert.assertNotNull(bytes2);
+        Assert.assertEquals(bytes.length, bytes2.length);
         for (int i = 0; i < bytes.length; i++) {
-            assertEquals(bytes[i], bytes2[i]);
+            Assert.assertEquals(bytes[i], bytes2[i]);
         }
 
         out = new ByteArrayOutputStream();
         httpentity.writeTo(out);
         bytes2 = out.toByteArray();
-        assertNotNull(bytes2);
-        assertEquals(bytes.length, bytes2.length);
+        Assert.assertNotNull(bytes2);
+        Assert.assertEquals(bytes.length, bytes2.length);
         for (int i = 0; i < bytes.length; i++) {
-            assertEquals(bytes[i], bytes2[i]);
+            Assert.assertEquals(bytes[i], bytes2[i]);
         }
 
         try {
             httpentity.writeTo(null);
-            fail("IllegalArgumentException should have been thrown");
+            Assert.fail("IllegalArgumentException should have been thrown");
         } catch (IllegalArgumentException ex) {
             // expected
         }

@@ -31,35 +31,33 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 
-import junit.framework.TestCase;
-
 import org.apache.http.mockup.SessionInputBufferMockup;
 import org.apache.http.util.EncodingUtils;
+import org.junit.Assert;
+import org.junit.Test;
 
-public class TestContentLengthInputStream extends TestCase {
-
-    public TestContentLengthInputStream(String testName) {
-        super(testName);
-    }
+public class TestContentLengthInputStream {
 
     private static final String CONTENT_CHARSET = "ISO-8859-1";
 
+    @Test
     public void testConstructors() throws Exception {
         new ContentLengthInputStream(new SessionInputBufferMockup(new byte[] {}), 10);
         try {
             new ContentLengthInputStream(null, 10);
-            fail("IllegalArgumentException should have been thrown");
+            Assert.fail("IllegalArgumentException should have been thrown");
         } catch (IllegalArgumentException ex) {
             // expected
         }
         try {
             new ContentLengthInputStream(new SessionInputBufferMockup(new byte[] {}), -10);
-            fail("IllegalArgumentException should have been thrown");
+            Assert.fail("IllegalArgumentException should have been thrown");
         } catch (IllegalArgumentException ex) {
             // expected
         }
     }
 
+    @Test
     public void testBasics() throws IOException {
         String correct = "1234567890123456";
         InputStream in = new ContentLengthInputStream(new SessionInputBufferMockup(
@@ -73,43 +71,46 @@ public class TestContentLengthInputStream extends TestCase {
         out.write(buffer, 0, len);
 
         String result = EncodingUtils.getString(out.toByteArray(), CONTENT_CHARSET);
-        assertEquals(result, "1234567890");
+        Assert.assertEquals(result, "1234567890");
     }
 
+    @Test
     public void testSkip() throws IOException {
         InputStream in = new ContentLengthInputStream(new SessionInputBufferMockup(new byte[20]), 10L);
-        assertEquals(10, in.skip(10));
-        assertTrue(in.read() == -1);
+        Assert.assertEquals(10, in.skip(10));
+        Assert.assertTrue(in.read() == -1);
 
         in = new ContentLengthInputStream(new SessionInputBufferMockup(new byte[20]), 10L);
         in.read();
-        assertEquals(9, in.skip(10));
-        assertTrue(in.read() == -1);
+        Assert.assertEquals(9, in.skip(10));
+        Assert.assertTrue(in.read() == -1);
 
         in = new ContentLengthInputStream(new SessionInputBufferMockup(new byte[20]), 2L);
         in.read();
         in.read();
-        assertTrue(in.skip(10) <= 0);
-        assertTrue(in.skip(-1) == 0);
-        assertTrue(in.read() == -1);
+        Assert.assertTrue(in.skip(10) <= 0);
+        Assert.assertTrue(in.skip(-1) == 0);
+        Assert.assertTrue(in.read() == -1);
 
         in = new ContentLengthInputStream(new SessionInputBufferMockup(new byte[2]), 4L);
         in.read();
-        assertTrue(in.skip(2) == 1);
+        Assert.assertTrue(in.skip(2) == 1);
 
         in = new ContentLengthInputStream(new SessionInputBufferMockup(new byte[20]), 10L);
-        assertEquals(5,in.skip(5));
-        assertEquals(5, in.read(new byte[20]));
+        Assert.assertEquals(5,in.skip(5));
+        Assert.assertEquals(5, in.read(new byte[20]));
     }
 
+    @Test
     public void testAvailable() throws IOException {
         InputStream in = new ContentLengthInputStream(
                 new SessionInputBufferMockup(new byte[] {1, 2, 3}), 10L);
-        assertEquals(0, in.available());
+        Assert.assertEquals(0, in.available());
         in.read();
-        assertEquals(2, in.available());
+        Assert.assertEquals(2, in.available());
     }
 
+    @Test
     public void testClose() throws IOException {
         String correct = "1234567890123456";
         InputStream in = new ContentLengthInputStream(new SessionInputBufferMockup(
@@ -118,20 +119,20 @@ public class TestContentLengthInputStream extends TestCase {
         in.close();
         try {
             in.read();
-            fail("IOException should have been thrown");
+            Assert.fail("IOException should have been thrown");
         } catch (IOException ex) {
             // expected
         }
         byte[] tmp = new byte[10];
         try {
             in.read(tmp);
-            fail("IOException should have been thrown");
+            Assert.fail("IOException should have been thrown");
         } catch (IOException ex) {
             // expected
         }
         try {
             in.read(tmp, 0, tmp.length);
-            fail("IOException should have been thrown");
+            Assert.fail("IOException should have been thrown");
         } catch (IOException ex) {
             // expected
         }

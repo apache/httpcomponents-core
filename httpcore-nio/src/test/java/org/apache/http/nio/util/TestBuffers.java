@@ -34,8 +34,6 @@ import java.nio.channels.Channels;
 import java.nio.channels.ReadableByteChannel;
 import java.nio.channels.WritableByteChannel;
 
-import junit.framework.TestCase;
-
 import org.apache.http.impl.io.HttpTransportMetricsImpl;
 import org.apache.http.impl.nio.reactor.SessionOutputBufferImpl;
 import org.apache.http.io.BufferInfo;
@@ -48,22 +46,15 @@ import org.apache.http.nio.reactor.SessionOutputBuffer;
 import org.apache.http.params.BasicHttpParams;
 import org.apache.http.params.HttpParams;
 import org.apache.http.util.EncodingUtils;
+import org.junit.Assert;
+import org.junit.Test;
 
 /**
  * Buffer tests.
- *
- *
- * @version $Id:TestBuffers.java 503277 2007-02-03 18:22:45 +0000 (Sat, 03 Feb 2007) olegk $
  */
-public class TestBuffers extends TestCase {
+public class TestBuffers {
 
-    // ------------------------------------------------------------ Constructor
-    public TestBuffers(String testName) {
-        super(testName);
-    }
-
-    // ------------------------------------------------------- TestCase Methods
-
+    @Test
     public void testInputBufferOperations() throws IOException {
         ReadableByteChannel channel = new ReadableByteChannelMockup(
                 new String[] {"stuff;", "more stuff"}, "US-ASCII");
@@ -72,31 +63,32 @@ public class TestBuffers extends TestCase {
 
         SimpleInputBuffer buffer = new SimpleInputBuffer(4, new DirectByteBufferAllocator());
         int count = buffer.consumeContent(decoder);
-        assertEquals(16, count);
-        assertTrue(decoder.isCompleted());
+        Assert.assertEquals(16, count);
+        Assert.assertTrue(decoder.isCompleted());
 
         byte[] b1 = new byte[5];
 
         int len = buffer.read(b1);
-        assertEquals("stuff", EncodingUtils.getAsciiString(b1, 0, len));
+        Assert.assertEquals("stuff", EncodingUtils.getAsciiString(b1, 0, len));
 
         int c = buffer.read();
-        assertEquals(';', c);
+        Assert.assertEquals(';', c);
 
         byte[] b2 = new byte[1024];
 
         len = buffer.read(b2);
-        assertEquals("more stuff", EncodingUtils.getAsciiString(b2, 0, len));
+        Assert.assertEquals("more stuff", EncodingUtils.getAsciiString(b2, 0, len));
 
-        assertEquals(-1, buffer.read());
-        assertEquals(-1, buffer.read(b2));
-        assertEquals(-1, buffer.read(b2, 0, b2.length));
-        assertTrue(buffer.isEndOfStream());
+        Assert.assertEquals(-1, buffer.read());
+        Assert.assertEquals(-1, buffer.read(b2));
+        Assert.assertEquals(-1, buffer.read(b2, 0, b2.length));
+        Assert.assertTrue(buffer.isEndOfStream());
 
         buffer.reset();
-        assertFalse(buffer.isEndOfStream());
+        Assert.assertFalse(buffer.isEndOfStream());
     }
 
+    @Test
     public void testOutputBufferOperations() throws IOException {
         ByteArrayOutputStream outstream = new ByteArrayOutputStream();
         WritableByteChannel channel = Channels.newChannel(outstream);
@@ -117,78 +109,83 @@ public class TestBuffers extends TestCase {
         buffer.produceContent(encoder);
 
         byte[] content = outstream.toByteArray();
-        assertEquals("stuff;more stuff", EncodingUtils.getAsciiString(content));
+        Assert.assertEquals("stuff;more stuff", EncodingUtils.getAsciiString(content));
     }
 
+    @Test
     public void testBufferInfo() throws Exception {
         SimpleOutputBuffer buffer = new SimpleOutputBuffer(8, new DirectByteBufferAllocator());
         BufferInfo bufferinfo = buffer;
 
-        assertEquals(0, bufferinfo.length());
-        assertEquals(8, bufferinfo.available());
+        Assert.assertEquals(0, bufferinfo.length());
+        Assert.assertEquals(8, bufferinfo.available());
         buffer.write(new byte[] {'1', '2', '3', '4'});
-        assertEquals(4, bufferinfo.length());
-        assertEquals(4, bufferinfo.available());
+        Assert.assertEquals(4, bufferinfo.length());
+        Assert.assertEquals(4, bufferinfo.available());
         buffer.write(new byte[] {'1', '2', '3', '4', '5', '6', '7', '8'});
-        assertEquals(12, bufferinfo.length());
-        assertEquals(0, bufferinfo.available());
+        Assert.assertEquals(12, bufferinfo.length());
+        Assert.assertEquals(0, bufferinfo.available());
     }
 
+    @Test
     public void testInputBufferNullInput() throws IOException {
         SimpleInputBuffer buffer = new SimpleInputBuffer(4, new DirectByteBufferAllocator());
-        assertEquals(0, buffer.read(null));
-        assertEquals(0, buffer.read(null, 0, 0));
+        Assert.assertEquals(0, buffer.read(null));
+        Assert.assertEquals(0, buffer.read(null, 0, 0));
     }
 
+    @Test
     public void testOutputBufferNullInput() throws IOException {
         SimpleOutputBuffer buffer = new SimpleOutputBuffer(4, new DirectByteBufferAllocator());
         buffer.write(null);
         buffer.write(null, 0, 10);
-        assertFalse(buffer.hasData());
+        Assert.assertFalse(buffer.hasData());
     }
 
+    @Test
     public void testDirectByteBufferAllocator() {
         DirectByteBufferAllocator allocator = new DirectByteBufferAllocator();
         ByteBuffer buffer = allocator.allocate(1);
-        assertNotNull(buffer);
-        assertTrue(buffer.isDirect());
-        assertEquals(0, buffer.position());
-        assertEquals(1, buffer.limit());
-        assertEquals(1, buffer.capacity());
+        Assert.assertNotNull(buffer);
+        Assert.assertTrue(buffer.isDirect());
+        Assert.assertEquals(0, buffer.position());
+        Assert.assertEquals(1, buffer.limit());
+        Assert.assertEquals(1, buffer.capacity());
 
         buffer = allocator.allocate(2048);
-        assertTrue(buffer.isDirect());
-        assertEquals(0, buffer.position());
-        assertEquals(2048, buffer.limit());
-        assertEquals(2048, buffer.capacity());
+        Assert.assertTrue(buffer.isDirect());
+        Assert.assertEquals(0, buffer.position());
+        Assert.assertEquals(2048, buffer.limit());
+        Assert.assertEquals(2048, buffer.capacity());
 
         buffer = allocator.allocate(0);
-        assertTrue(buffer.isDirect());
-        assertEquals(0, buffer.position());
-        assertEquals(0, buffer.limit());
-        assertEquals(0, buffer.capacity());
+        Assert.assertTrue(buffer.isDirect());
+        Assert.assertEquals(0, buffer.position());
+        Assert.assertEquals(0, buffer.limit());
+        Assert.assertEquals(0, buffer.capacity());
     }
 
+    @Test
     public void testHeapByteBufferAllocator() {
         HeapByteBufferAllocator allocator = new HeapByteBufferAllocator();
         ByteBuffer buffer = allocator.allocate(1);
-        assertNotNull(buffer);
-        assertFalse(buffer.isDirect());
-        assertEquals(0, buffer.position());
-        assertEquals(1, buffer.limit());
-        assertEquals(1, buffer.capacity());
+        Assert.assertNotNull(buffer);
+        Assert.assertFalse(buffer.isDirect());
+        Assert.assertEquals(0, buffer.position());
+        Assert.assertEquals(1, buffer.limit());
+        Assert.assertEquals(1, buffer.capacity());
 
         buffer = allocator.allocate(2048);
-        assertFalse(buffer.isDirect());
-        assertEquals(0, buffer.position());
-        assertEquals(2048, buffer.limit());
-        assertEquals(2048, buffer.capacity());
+        Assert.assertFalse(buffer.isDirect());
+        Assert.assertEquals(0, buffer.position());
+        Assert.assertEquals(2048, buffer.limit());
+        Assert.assertEquals(2048, buffer.capacity());
 
         buffer = allocator.allocate(0);
-        assertFalse(buffer.isDirect());
-        assertEquals(0, buffer.position());
-        assertEquals(0, buffer.limit());
-        assertEquals(0, buffer.capacity());
+        Assert.assertFalse(buffer.isDirect());
+        Assert.assertEquals(0, buffer.position());
+        Assert.assertEquals(0, buffer.limit());
+        Assert.assertEquals(0, buffer.capacity());
     }
 
 }

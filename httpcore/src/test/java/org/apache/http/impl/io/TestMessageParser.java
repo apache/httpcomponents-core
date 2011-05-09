@@ -29,8 +29,6 @@ package org.apache.http.impl.io;
 
 import java.io.IOException;
 
-import junit.framework.TestCase;
-
 import org.apache.http.Header;
 import org.apache.http.HeaderElement;
 import org.apache.http.NameValuePair;
@@ -38,32 +36,32 @@ import org.apache.http.ProtocolException;
 import org.apache.http.io.SessionInputBuffer;
 import org.apache.http.message.BufferedHeader;
 import org.apache.http.mockup.SessionInputBufferMockup;
+import org.junit.Assert;
+import org.junit.Test;
 
 /**
  * Unit tests for {@link AbstractMessageParser}.
  */
-public class TestMessageParser extends TestCase {
+public class TestMessageParser {
 
-    public TestMessageParser(String testName) {
-        super(testName);
-    }
-
+    @Test
     public void testInvalidInput() throws Exception {
         try {
             // the first argument must not be null
             AbstractMessageParser.parseHeaders(null, -1, -1, null);
-            fail("IllegalArgumentException should have been thrown");
+            Assert.fail("IllegalArgumentException should have been thrown");
         } catch (IllegalArgumentException ex) {
             // expected
         }
         try {
             new BufferedHeader(null);
-            fail("IllegalArgumentException should have been thrown");
+            Assert.fail("IllegalArgumentException should have been thrown");
         } catch (IllegalArgumentException ex) {
             // expected
         }
     }
 
+    @Test
     public void testBasicHeaderParsing() throws Exception {
         String s =
             "header1: stuff\r\n" +
@@ -76,23 +74,24 @@ public class TestMessageParser extends TestCase {
         SessionInputBuffer receiver = new SessionInputBufferMockup(s, "US-ASCII");
         Header[] headers = AbstractMessageParser.parseHeaders
             (receiver, -1, -1, null);
-        assertNotNull(headers);
-        assertEquals(3, headers.length);
-        assertEquals("header1", headers[0].getName());
-        assertEquals("stuff", headers[0].getValue());
-        assertEquals("header2", headers[1].getName());
-        assertEquals("stuff", headers[1].getValue());
-        assertEquals("header3", headers[2].getName());
-        assertEquals("stuff and more stuff and even more stuff", headers[2].getValue());
+        Assert.assertNotNull(headers);
+        Assert.assertEquals(3, headers.length);
+        Assert.assertEquals("header1", headers[0].getName());
+        Assert.assertEquals("stuff", headers[0].getValue());
+        Assert.assertEquals("header2", headers[1].getName());
+        Assert.assertEquals("stuff", headers[1].getValue());
+        Assert.assertEquals("header3", headers[2].getName());
+        Assert.assertEquals("stuff and more stuff and even more stuff", headers[2].getValue());
 
         Header h = headers[0];
 
-        assertTrue(h instanceof BufferedHeader);
-        assertNotNull(((BufferedHeader)h).getBuffer());
-        assertEquals("header1: stuff", ((BufferedHeader)h).toString());
-        assertEquals(8, ((BufferedHeader)h).getValuePos());
+        Assert.assertTrue(h instanceof BufferedHeader);
+        Assert.assertNotNull(((BufferedHeader)h).getBuffer());
+        Assert.assertEquals("header1: stuff", ((BufferedHeader)h).toString());
+        Assert.assertEquals(8, ((BufferedHeader)h).getValuePos());
     }
 
+    @Test
     public void testBufferedHeader() throws Exception {
         String s =
             "header1  : stuff; param1 = value1; param2 = \"value 2\" \r\n" +
@@ -100,23 +99,24 @@ public class TestMessageParser extends TestCase {
         SessionInputBuffer receiver = new SessionInputBufferMockup(s, "US-ASCII");
         Header[] headers = AbstractMessageParser.parseHeaders
             (receiver, -1, -1, null);
-        assertNotNull(headers);
-        assertEquals(1, headers.length);
-        assertEquals("header1  : stuff; param1 = value1; param2 = \"value 2\" ", headers[0].toString());
+        Assert.assertNotNull(headers);
+        Assert.assertEquals(1, headers.length);
+        Assert.assertEquals("header1  : stuff; param1 = value1; param2 = \"value 2\" ", headers[0].toString());
         HeaderElement[] elements = headers[0].getElements();
-        assertNotNull(elements);
-        assertEquals(1, elements.length);
-        assertEquals("stuff", elements[0].getName());
-        assertEquals(null, elements[0].getValue());
+        Assert.assertNotNull(elements);
+        Assert.assertEquals(1, elements.length);
+        Assert.assertEquals("stuff", elements[0].getName());
+        Assert.assertEquals(null, elements[0].getValue());
         NameValuePair[] params = elements[0].getParameters();
-        assertNotNull(params);
-        assertEquals(2, params.length);
-        assertEquals("param1", params[0].getName());
-        assertEquals("value1", params[0].getValue());
-        assertEquals("param2", params[1].getName());
-        assertEquals("value 2", params[1].getValue());
+        Assert.assertNotNull(params);
+        Assert.assertEquals(2, params.length);
+        Assert.assertEquals("param1", params[0].getName());
+        Assert.assertEquals("value1", params[0].getValue());
+        Assert.assertEquals("param2", params[1].getName());
+        Assert.assertEquals("value 2", params[1].getValue());
     }
 
+    @Test
     public void testParsingInvalidHeaders() throws Exception {
         String s = "    stuff\r\n" +
             "header1: stuff\r\n" +
@@ -124,7 +124,7 @@ public class TestMessageParser extends TestCase {
         SessionInputBuffer receiver = new SessionInputBufferMockup(s, "US-ASCII");
         try {
             AbstractMessageParser.parseHeaders(receiver, -1, -1, null);
-            fail("ProtocolException should have been thrown");
+            Assert.fail("ProtocolException should have been thrown");
         } catch (ProtocolException ex) {
             // expected
         }
@@ -134,12 +134,13 @@ public class TestMessageParser extends TestCase {
         receiver = new SessionInputBufferMockup(s, "US-ASCII");
         try {
             AbstractMessageParser.parseHeaders(receiver, -1, -1, null);
-            fail("ProtocolException should have been thrown");
+            Assert.fail("ProtocolException should have been thrown");
         } catch (ProtocolException ex) {
             // expected
         }
     }
 
+    @Test
     public void testParsingMalformedFirstHeader() throws Exception {
         String s =
             "    header1: stuff\r\n" +
@@ -147,23 +148,25 @@ public class TestMessageParser extends TestCase {
         SessionInputBuffer receiver = new SessionInputBufferMockup(s, "US-ASCII");
         Header[] headers = AbstractMessageParser.parseHeaders
             (receiver, -1, -1, null);
-        assertNotNull(headers);
-        assertEquals(2, headers.length);
-        assertEquals("header1", headers[0].getName());
-        assertEquals("stuff", headers[0].getValue());
-        assertEquals("header2", headers[1].getName());
-        assertEquals("stuff", headers[1].getValue());
+        Assert.assertNotNull(headers);
+        Assert.assertEquals(2, headers.length);
+        Assert.assertEquals("header1", headers[0].getName());
+        Assert.assertEquals("stuff", headers[0].getValue());
+        Assert.assertEquals("header2", headers[1].getName());
+        Assert.assertEquals("stuff", headers[1].getValue());
     }
 
+    @Test
     public void testEmptyDataStream() throws Exception {
         String s = "";
         SessionInputBuffer receiver = new SessionInputBufferMockup(s, "US-ASCII");
         Header[] headers = AbstractMessageParser.parseHeaders
             (receiver, -1, -1, null);
-        assertNotNull(headers);
-        assertEquals(0, headers.length);
+        Assert.assertNotNull(headers);
+        Assert.assertEquals(0, headers.length);
     }
 
+    @Test
     public void testMaxHeaderCount() throws Exception {
         String s =
             "header1: stuff\r\n" +
@@ -173,12 +176,13 @@ public class TestMessageParser extends TestCase {
         SessionInputBuffer receiver = new SessionInputBufferMockup(s, "US-ASCII");
         try {
             AbstractMessageParser.parseHeaders(receiver, 2, -1, null);
-            fail("IOException should have been thrown");
+            Assert.fail("IOException should have been thrown");
         } catch (IOException ex) {
             // expected
         }
     }
 
+    @Test
     public void testMaxHeaderCountForFoldedHeader() throws Exception {
         String s =
             "header1: stuff\r\n" +
@@ -188,7 +192,7 @@ public class TestMessageParser extends TestCase {
         SessionInputBuffer receiver = new SessionInputBufferMockup(s, "US-ASCII");
         try {
             AbstractMessageParser.parseHeaders(receiver, 2, 15, null);
-            fail("IOException should have been thrown");
+            Assert.fail("IOException should have been thrown");
         } catch (IOException ex) {
             // expected
         }

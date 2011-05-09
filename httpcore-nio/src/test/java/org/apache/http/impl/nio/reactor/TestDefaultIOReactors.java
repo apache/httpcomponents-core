@@ -70,19 +70,15 @@ import org.apache.http.protocol.ResponseConnControl;
 import org.apache.http.protocol.ResponseContent;
 import org.apache.http.protocol.ResponseDate;
 import org.apache.http.protocol.ResponseServer;
+import org.junit.Assert;
+import org.junit.Test;
 
 /**
  * Tests for basic I/O functionality.
  */
 public class TestDefaultIOReactors extends HttpCoreNIOTestBase {
 
-    // ------------------------------------------------------------ Constructor
-    public TestDefaultIOReactors(String testName) {
-        super(testName);
-    }
-
-    // ------------------------------------------------------- TestCase Methods
-
+    @Test
     public void testGracefulShutdown() throws Exception {
 
         // Open some connection and make sure
@@ -206,7 +202,7 @@ public class TestDefaultIOReactors extends HttpCoreNIOTestBase {
         endpoint.waitFor();
         InetSocketAddress serverAddress = (InetSocketAddress) endpoint.getAddress();
 
-        assertEquals("Test server status", IOReactorStatus.ACTIVE, this.server.getStatus());
+        Assert.assertEquals("Test server status", IOReactorStatus.ACTIVE, this.server.getStatus());
 
         Queue<SessionRequest> connRequests = new LinkedList<SessionRequest>();
         for (int i = 0; i < connNo; i++) {
@@ -222,21 +218,22 @@ public class TestDefaultIOReactors extends HttpCoreNIOTestBase {
             if (sessionRequest.getException() != null) {
                 throw sessionRequest.getException();
             }
-            assertNotNull(sessionRequest.getSession());
+            Assert.assertNotNull(sessionRequest.getSession());
         }
 
-        assertEquals("Test client status", IOReactorStatus.ACTIVE, this.client.getStatus());
+        Assert.assertEquals("Test client status", IOReactorStatus.ACTIVE, this.client.getStatus());
 
         requestConns.await();
-        assertEquals(0, requestConns.getCount());
+        Assert.assertEquals(0, requestConns.getCount());
 
         this.client.shutdown();
         this.server.shutdown();
 
-        assertEquals(openClientConns.get(), closedClientConns.get());
-        assertEquals(openServerConns.get(), closedServerConns.get());
+        Assert.assertEquals(openClientConns.get(), closedClientConns.get());
+        Assert.assertEquals(openServerConns.get(), closedServerConns.get());
     }
 
+    @Test
     public void testRuntimeException() throws Exception {
 
         HttpRequestHandler requestHandler = new HttpRequestHandler() {
@@ -322,22 +319,23 @@ public class TestDefaultIOReactors extends HttpCoreNIOTestBase {
         this.server.join(20000);
 
         Exception ex = this.server.getException();
-        assertNotNull(ex);
-        assertTrue(ex instanceof IOReactorException);
-        assertNotNull(ex.getCause());
-        assertTrue(ex.getCause() instanceof OoopsieRuntimeException);
+        Assert.assertNotNull(ex);
+        Assert.assertTrue(ex instanceof IOReactorException);
+        Assert.assertNotNull(ex.getCause());
+        Assert.assertTrue(ex.getCause() instanceof OoopsieRuntimeException);
 
         List<ExceptionEvent> auditlog = this.server.getAuditLog();
-        assertNotNull(auditlog);
-        assertEquals(1, auditlog.size());
+        Assert.assertNotNull(auditlog);
+        Assert.assertEquals(1, auditlog.size());
 
         // I/O reactor shut down itself
-        assertEquals(IOReactorStatus.SHUT_DOWN, this.server.getStatus());
+        Assert.assertEquals(IOReactorStatus.SHUT_DOWN, this.server.getStatus());
 
         this.client.shutdown();
         this.server.shutdown();
     }
 
+    @Test
     public void testUnhandledRuntimeException() throws Exception {
 
         final CountDownLatch requestConns = new CountDownLatch(1);
@@ -434,27 +432,28 @@ public class TestDefaultIOReactors extends HttpCoreNIOTestBase {
                 null);
 
         requestConns.await();
-        assertEquals(0, requestConns.getCount());
+        Assert.assertEquals(0, requestConns.getCount());
 
         this.server.join(20000);
 
         Exception ex = this.server.getException();
-        assertNotNull(ex);
-        assertTrue(ex instanceof IOReactorException);
-        assertNotNull(ex.getCause());
-        assertTrue(ex.getCause() instanceof OoopsieRuntimeException);
+        Assert.assertNotNull(ex);
+        Assert.assertTrue(ex instanceof IOReactorException);
+        Assert.assertNotNull(ex.getCause());
+        Assert.assertTrue(ex.getCause() instanceof OoopsieRuntimeException);
 
         List<ExceptionEvent> auditlog = this.server.getAuditLog();
-        assertNotNull(auditlog);
-        assertEquals(1, auditlog.size());
+        Assert.assertNotNull(auditlog);
+        Assert.assertEquals(1, auditlog.size());
 
         // I/O reactor shut down itself
-        assertEquals(IOReactorStatus.SHUT_DOWN, this.server.getStatus());
+        Assert.assertEquals(IOReactorStatus.SHUT_DOWN, this.server.getStatus());
 
         this.client.shutdown();
         this.server.shutdown();
     }
 
+    @Test
     public void testHandledRuntimeException() throws Exception {
 
         final CountDownLatch requestConns = new CountDownLatch(1);
@@ -552,12 +551,12 @@ public class TestDefaultIOReactors extends HttpCoreNIOTestBase {
                 null);
 
         requestConns.await();
-        assertEquals(0, requestConns.getCount());
+        Assert.assertEquals(0, requestConns.getCount());
 
         this.server.join(1000);
 
-        assertEquals(IOReactorStatus.ACTIVE, this.server.getStatus());
-        assertNull(this.server.getException());
+        Assert.assertEquals(IOReactorStatus.ACTIVE, this.server.getStatus());
+        Assert.assertNull(this.server.getException());
 
         this.client.shutdown();
         this.server.shutdown();

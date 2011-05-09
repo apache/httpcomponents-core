@@ -33,8 +33,6 @@ import java.io.InputStream;
 import java.io.InterruptedIOException;
 import java.io.OutputStream;
 
-import junit.framework.TestCase;
-
 import org.apache.http.Header;
 import org.apache.http.MalformedChunkCodingException;
 import org.apache.http.io.SessionInputBuffer;
@@ -42,19 +40,18 @@ import org.apache.http.mockup.SessionInputBufferMockup;
 import org.apache.http.mockup.SessionOutputBufferMockup;
 import org.apache.http.mockup.TimeoutByteArrayInputStream;
 import org.apache.http.util.EncodingUtils;
+import org.junit.Assert;
+import org.junit.Test;
 
-public class TestChunkCoding extends TestCase {
+public class TestChunkCoding {
 
     private static final String CONTENT_CHARSET = "ISO-8859-1";
 
-    public TestChunkCoding(String testName) {
-        super(testName);
-    }
-
+    @Test
     public void testConstructors() throws Exception {
         try {
             new ChunkedInputStream((SessionInputBuffer)null);
-            fail("IllegalArgumentException should have been thrown");
+            Assert.fail("IllegalArgumentException should have been thrown");
         } catch (IllegalArgumentException ex) {
             // expected
         }
@@ -69,6 +66,7 @@ public class TestChunkCoding extends TestCase {
         = "123456789012345612345";
 
     // Test for when buffer is larger than chunk size
+    @Test
     public void testChunkedInputStreamLargeBuffer() throws IOException {
         ChunkedInputStream in = new ChunkedInputStream(
                 new SessionInputBufferMockup(
@@ -79,24 +77,25 @@ public class TestChunkCoding extends TestCase {
         while ((len = in.read(buffer)) > 0) {
             out.write(buffer, 0, len);
         }
-        assertEquals(-1, in.read(buffer));
-        assertEquals(-1, in.read(buffer));
+        Assert.assertEquals(-1, in.read(buffer));
+        Assert.assertEquals(-1, in.read(buffer));
 
         in.close();
 
         String result = EncodingUtils.getString(out.toByteArray(), CONTENT_CHARSET);
-        assertEquals(result, CHUNKED_RESULT);
+        Assert.assertEquals(result, CHUNKED_RESULT);
 
         Header[] footers = in.getFooters();
-        assertNotNull(footers);
-        assertEquals(2, footers.length);
-        assertEquals("Footer1", footers[0].getName());
-        assertEquals("abcde", footers[0].getValue());
-        assertEquals("Footer2", footers[1].getName());
-        assertEquals("fghij", footers[1].getValue());
+        Assert.assertNotNull(footers);
+        Assert.assertEquals(2, footers.length);
+        Assert.assertEquals("Footer1", footers[0].getName());
+        Assert.assertEquals("abcde", footers[0].getValue());
+        Assert.assertEquals("Footer2", footers[1].getName());
+        Assert.assertEquals("fghij", footers[1].getValue());
     }
 
     //Test for when buffer is smaller than chunk size.
+    @Test
     public void testChunkedInputStreamSmallBuffer() throws IOException {
         ChunkedInputStream in = new ChunkedInputStream(
                 new SessionInputBufferMockup(
@@ -108,22 +107,23 @@ public class TestChunkCoding extends TestCase {
         while ((len = in.read(buffer)) > 0) {
             out.write(buffer, 0, len);
         }
-        assertEquals(-1, in.read(buffer));
-        assertEquals(-1, in.read(buffer));
+        Assert.assertEquals(-1, in.read(buffer));
+        Assert.assertEquals(-1, in.read(buffer));
 
         in.close();
 
         EncodingUtils.getString(out.toByteArray(), CONTENT_CHARSET);
         Header[] footers = in.getFooters();
-        assertNotNull(footers);
-        assertEquals(2, footers.length);
-        assertEquals("Footer1", footers[0].getName());
-        assertEquals("abcde", footers[0].getValue());
-        assertEquals("Footer2", footers[1].getName());
-        assertEquals("fghij", footers[1].getValue());
+        Assert.assertNotNull(footers);
+        Assert.assertEquals(2, footers.length);
+        Assert.assertEquals("Footer1", footers[0].getName());
+        Assert.assertEquals("abcde", footers[0].getValue());
+        Assert.assertEquals("Footer2", footers[1].getName());
+        Assert.assertEquals("fghij", footers[1].getValue());
     }
 
     // One byte read
+    @Test
     public void testChunkedInputStreamOneByteRead() throws IOException {
         String s = "5\r\n01234\r\n5\r\n56789\r\n0\r\n";
         ChunkedInputStream in = new ChunkedInputStream(
@@ -132,25 +132,27 @@ public class TestChunkCoding extends TestCase {
         int ch;
         int i = '0';
         while ((ch = in.read()) != -1) {
-            assertEquals(i, ch);
+            Assert.assertEquals(i, ch);
             i++;
         }
-        assertEquals(-1, in.read());
-        assertEquals(-1, in.read());
+        Assert.assertEquals(-1, in.read());
+        Assert.assertEquals(-1, in.read());
 
         in.close();
     }
 
+    @Test
     public void testAvailable() throws IOException {
         String s = "5\r\n12345\r\n0\r\n";
         ChunkedInputStream in = new ChunkedInputStream(
                 new SessionInputBufferMockup(
                         EncodingUtils.getBytes(s, CONTENT_CHARSET)));
-        assertEquals(0, in.available());
+        Assert.assertEquals(0, in.available());
         in.read();
-        assertEquals(4, in.available());
+        Assert.assertEquals(4, in.available());
     }
 
+    @Test
     public void testChunkedInputStreamClose() throws IOException {
         String s = "5\r\n01234\r\n5\r\n56789\r\n0\r\n";
         ChunkedInputStream in = new ChunkedInputStream(
@@ -160,25 +162,26 @@ public class TestChunkCoding extends TestCase {
         in.close();
         try {
             in.read();
-            fail("IOException should have been thrown");
+            Assert.fail("IOException should have been thrown");
         } catch (IOException ex) {
             // expected
         }
         byte[] tmp = new byte[10];
         try {
             in.read(tmp);
-            fail("IOException should have been thrown");
+            Assert.fail("IOException should have been thrown");
         } catch (IOException ex) {
             // expected
         }
         try {
             in.read(tmp, 0, tmp.length);
-            fail("IOException should have been thrown");
+            Assert.fail("IOException should have been thrown");
         } catch (IOException ex) {
             // expected
         }
     }
 
+    @Test
     public void testChunkedOutputStreamClose() throws IOException {
         ChunkedOutputStream out = new ChunkedOutputStream(
                 new SessionOutputBufferMockup());
@@ -186,30 +189,32 @@ public class TestChunkCoding extends TestCase {
         out.close();
         try {
             out.write(new byte[] {1,2,3});
-            fail("IOException should have been thrown");
+            Assert.fail("IOException should have been thrown");
         } catch (IOException ex) {
             // expected
         }
         try {
             out.write(1);
-            fail("IOException should have been thrown");
+            Assert.fail("IOException should have been thrown");
         } catch (IOException ex) {
             // expected
         }
     }
 
     // Missing closing chunk
+    @Test
     public void testChunkedInputStreamNoClosingChunk() throws IOException {
         String s = "5\r\n01234\r\n";
         ChunkedInputStream in = new ChunkedInputStream(
                 new SessionInputBufferMockup(
                         EncodingUtils.getBytes(s, CONTENT_CHARSET)));
         byte[] tmp = new byte[5];
-        assertEquals(5, in.read(tmp));
-        assertEquals(-1, in.read());
+        Assert.assertEquals(5, in.read(tmp));
+        Assert.assertEquals(-1, in.read());
     }
 
     // Missing \r\n at the end of the first chunk
+    @Test
     public void testCorruptChunkedInputStreamMissingCRLF() throws IOException {
         String s = "5\r\n012345\r\n56789\r\n0\r\n";
         InputStream in = new ChunkedInputStream(
@@ -222,13 +227,14 @@ public class TestChunkCoding extends TestCase {
             while ((len = in.read(buffer)) > 0) {
                 out.write(buffer, 0, len);
             }
-            fail("MalformedChunkCodingException should have been thrown");
+            Assert.fail("MalformedChunkCodingException should have been thrown");
         } catch(MalformedChunkCodingException e) {
             /* expected exception */
         }
     }
 
     // Missing LF
+    @Test
     public void testCorruptChunkedInputStreamMissingLF() throws IOException {
         String s = "5\r01234\r\n5\r\n56789\r\n0\r\n";
         InputStream in = new ChunkedInputStream(
@@ -236,13 +242,14 @@ public class TestChunkCoding extends TestCase {
                         EncodingUtils.getBytes(s, CONTENT_CHARSET)));
         try {
             in.read();
-            fail("MalformedChunkCodingException should have been thrown");
+            Assert.fail("MalformedChunkCodingException should have been thrown");
         } catch(MalformedChunkCodingException e) {
             /* expected exception */
         }
     }
 
     // Invalid chunk size
+    @Test
     public void testCorruptChunkedInputStreamInvalidSize() throws IOException {
         String s = "whatever\r\n01234\r\n5\r\n56789\r\n0\r\n";
         InputStream in = new ChunkedInputStream(
@@ -250,13 +257,14 @@ public class TestChunkCoding extends TestCase {
                         EncodingUtils.getBytes(s, CONTENT_CHARSET)));
         try {
             in.read();
-            fail("MalformedChunkCodingException should have been thrown");
+            Assert.fail("MalformedChunkCodingException should have been thrown");
         } catch(MalformedChunkCodingException e) {
             /* expected exception */
         }
     }
 
     // Negative chunk size
+    @Test
     public void testCorruptChunkedInputStreamNegativeSize() throws IOException {
         String s = "-5\r\n01234\r\n5\r\n56789\r\n0\r\n";
         InputStream in = new ChunkedInputStream(
@@ -264,29 +272,31 @@ public class TestChunkCoding extends TestCase {
                         EncodingUtils.getBytes(s, CONTENT_CHARSET)));
         try {
             in.read();
-            fail("MalformedChunkCodingException should have been thrown");
+            Assert.fail("MalformedChunkCodingException should have been thrown");
         } catch(MalformedChunkCodingException e) {
             /* expected exception */
         }
     }
 
     // Truncated chunk
+    @Test
     public void testCorruptChunkedInputStreamTruncatedChunk() throws IOException {
         String s = "3\r\n12";
         InputStream in = new ChunkedInputStream(
                 new SessionInputBufferMockup(
                         EncodingUtils.getBytes(s, CONTENT_CHARSET)));
         byte[] buffer = new byte[300];
-        assertEquals(2, in.read(buffer));
+        Assert.assertEquals(2, in.read(buffer));
         try {
             in.read(buffer);
-            fail("MalformedChunkCodingException should have been thrown");
+            Assert.fail("MalformedChunkCodingException should have been thrown");
         } catch(MalformedChunkCodingException e) {
             /* expected exception */
         }
     }
 
     // Invalid footer
+    @Test
     public void testCorruptChunkedInputStreamInvalidFooter() throws IOException {
         String s = "1\r\n0\r\n0\r\nstuff\r\n";
         InputStream in = new ChunkedInputStream(
@@ -295,12 +305,13 @@ public class TestChunkCoding extends TestCase {
         try {
             in.read();
             in.read();
-            fail("MalformedChunkCodingException should have been thrown");
+            Assert.fail("MalformedChunkCodingException should have been thrown");
         } catch(MalformedChunkCodingException e) {
             /* expected exception */
         }
     }
 
+    @Test
     public void testEmptyChunkedInputStream() throws IOException {
         String input = "0\r\n";
         InputStream in = new ChunkedInputStream(
@@ -312,9 +323,10 @@ public class TestChunkCoding extends TestCase {
         while ((len = in.read(buffer)) > 0) {
             out.write(buffer, 0, len);
         }
-        assertEquals(0, out.size());
+        Assert.assertEquals(0, out.size());
     }
 
+    @Test
     public void testChunkedConsistence() throws IOException {
         String input = "76126;27823abcd;:q38a-\nkjc\rk%1ad\tkh/asdui\r\njkh+?\\suweb";
         ByteArrayOutputStream buffer = new ByteArrayOutputStream();
@@ -336,9 +348,10 @@ public class TestChunkCoding extends TestCase {
         }
 
         String output = EncodingUtils.getString(result.toByteArray(), CONTENT_CHARSET);
-        assertEquals(input, output);
+        Assert.assertEquals(input, output);
     }
 
+    @Test
     public void testChunkedOutputStream() throws IOException {
         SessionOutputBufferMockup buffer = new SessionOutputBufferMockup();
         ChunkedOutputStream out = new ChunkedOutputStream(buffer, 2);
@@ -351,28 +364,29 @@ public class TestChunkCoding extends TestCase {
 
         byte [] rawdata =  buffer.getData();
 
-        assertEquals(19, rawdata.length);
-        assertEquals('2', rawdata[0]);
-        assertEquals('\r', rawdata[1]);
-        assertEquals('\n', rawdata[2]);
-        assertEquals('1', rawdata[3]);
-        assertEquals('2', rawdata[4]);
-        assertEquals('\r', rawdata[5]);
-        assertEquals('\n', rawdata[6]);
-        assertEquals('2', rawdata[7]);
-        assertEquals('\r', rawdata[8]);
-        assertEquals('\n', rawdata[9]);
-        assertEquals('3', rawdata[10]);
-        assertEquals('4', rawdata[11]);
-        assertEquals('\r', rawdata[12]);
-        assertEquals('\n', rawdata[13]);
-        assertEquals('0', rawdata[14]);
-        assertEquals('\r', rawdata[15]);
-        assertEquals('\n', rawdata[16]);
-        assertEquals('\r', rawdata[17]);
-        assertEquals('\n', rawdata[18]);
+        Assert.assertEquals(19, rawdata.length);
+        Assert.assertEquals('2', rawdata[0]);
+        Assert.assertEquals('\r', rawdata[1]);
+        Assert.assertEquals('\n', rawdata[2]);
+        Assert.assertEquals('1', rawdata[3]);
+        Assert.assertEquals('2', rawdata[4]);
+        Assert.assertEquals('\r', rawdata[5]);
+        Assert.assertEquals('\n', rawdata[6]);
+        Assert.assertEquals('2', rawdata[7]);
+        Assert.assertEquals('\r', rawdata[8]);
+        Assert.assertEquals('\n', rawdata[9]);
+        Assert.assertEquals('3', rawdata[10]);
+        Assert.assertEquals('4', rawdata[11]);
+        Assert.assertEquals('\r', rawdata[12]);
+        Assert.assertEquals('\n', rawdata[13]);
+        Assert.assertEquals('0', rawdata[14]);
+        Assert.assertEquals('\r', rawdata[15]);
+        Assert.assertEquals('\n', rawdata[16]);
+        Assert.assertEquals('\r', rawdata[17]);
+        Assert.assertEquals('\n', rawdata[18]);
     }
 
+    @Test
     public void testChunkedOutputStreamLargeChunk() throws IOException {
         SessionOutputBufferMockup buffer = new SessionOutputBufferMockup();
         ChunkedOutputStream out = new ChunkedOutputStream(buffer, 2);
@@ -382,23 +396,24 @@ public class TestChunkCoding extends TestCase {
 
         byte [] rawdata =  buffer.getData();
 
-        assertEquals(14, rawdata.length);
-        assertEquals('4', rawdata[0]);
-        assertEquals('\r', rawdata[1]);
-        assertEquals('\n', rawdata[2]);
-        assertEquals('1', rawdata[3]);
-        assertEquals('2', rawdata[4]);
-        assertEquals('3', rawdata[5]);
-        assertEquals('4', rawdata[6]);
-        assertEquals('\r', rawdata[7]);
-        assertEquals('\n', rawdata[8]);
-        assertEquals('0', rawdata[9]);
-        assertEquals('\r', rawdata[10]);
-        assertEquals('\n', rawdata[11]);
-        assertEquals('\r', rawdata[12]);
-        assertEquals('\n', rawdata[13]);
+        Assert.assertEquals(14, rawdata.length);
+        Assert.assertEquals('4', rawdata[0]);
+        Assert.assertEquals('\r', rawdata[1]);
+        Assert.assertEquals('\n', rawdata[2]);
+        Assert.assertEquals('1', rawdata[3]);
+        Assert.assertEquals('2', rawdata[4]);
+        Assert.assertEquals('3', rawdata[5]);
+        Assert.assertEquals('4', rawdata[6]);
+        Assert.assertEquals('\r', rawdata[7]);
+        Assert.assertEquals('\n', rawdata[8]);
+        Assert.assertEquals('0', rawdata[9]);
+        Assert.assertEquals('\r', rawdata[10]);
+        Assert.assertEquals('\n', rawdata[11]);
+        Assert.assertEquals('\r', rawdata[12]);
+        Assert.assertEquals('\n', rawdata[13]);
     }
 
+    @Test
     public void testChunkedOutputStreamSmallChunk() throws IOException {
         ByteArrayOutputStream buffer = new ByteArrayOutputStream();
         ChunkedOutputStream out = new ChunkedOutputStream(
@@ -409,20 +424,21 @@ public class TestChunkCoding extends TestCase {
 
         byte [] rawdata =  buffer.toByteArray();
 
-        assertEquals(11, rawdata.length);
-        assertEquals('1', rawdata[0]);
-        assertEquals('\r', rawdata[1]);
-        assertEquals('\n', rawdata[2]);
-        assertEquals('1', rawdata[3]);
-        assertEquals('\r', rawdata[4]);
-        assertEquals('\n', rawdata[5]);
-        assertEquals('0', rawdata[6]);
-        assertEquals('\r', rawdata[7]);
-        assertEquals('\n', rawdata[8]);
-        assertEquals('\r', rawdata[9]);
-        assertEquals('\n', rawdata[10]);
+        Assert.assertEquals(11, rawdata.length);
+        Assert.assertEquals('1', rawdata[0]);
+        Assert.assertEquals('\r', rawdata[1]);
+        Assert.assertEquals('\n', rawdata[2]);
+        Assert.assertEquals('1', rawdata[3]);
+        Assert.assertEquals('\r', rawdata[4]);
+        Assert.assertEquals('\n', rawdata[5]);
+        Assert.assertEquals('0', rawdata[6]);
+        Assert.assertEquals('\r', rawdata[7]);
+        Assert.assertEquals('\n', rawdata[8]);
+        Assert.assertEquals('\r', rawdata[9]);
+        Assert.assertEquals('\n', rawdata[10]);
     }
 
+    @Test
     public void testResumeOnSocketTimeoutInData() throws IOException {
         String s = "5\r\n01234\r\n5\r\n5\0006789\r\na\r\n0123\000456789\r\n0\r\n";
         SessionInputBuffer sessbuf = new SessionInputBufferMockup(
@@ -445,10 +461,11 @@ public class TestChunkCoding extends TestCase {
                 timeouts++;
             }
         }
-        assertEquals(20, bytesRead);
-        assertEquals(2, timeouts);
+        Assert.assertEquals(20, bytesRead);
+        Assert.assertEquals(2, timeouts);
     }
 
+    @Test
     public void testResumeOnSocketTimeoutInChunk() throws IOException {
         String s = "5\000\r\000\n\00001234\r\n\0005\r\n56789\r\na\r\n0123456789\r\n\0000\r\n";
         SessionInputBuffer sessbuf = new SessionInputBufferMockup(
@@ -471,8 +488,8 @@ public class TestChunkCoding extends TestCase {
                 timeouts++;
             }
         }
-        assertEquals(20, bytesRead);
-        assertEquals(5, timeouts);
+        Assert.assertEquals(20, bytesRead);
+        Assert.assertEquals(5, timeouts);
     }
 
 }

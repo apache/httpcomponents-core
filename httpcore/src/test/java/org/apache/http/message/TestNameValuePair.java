@@ -27,66 +27,68 @@
 
 package org.apache.http.message;
 
-import junit.framework.TestCase;
-
 import org.apache.http.NameValuePair;
+import org.junit.Assert;
+import org.junit.Test;
 
 /**
  * Unit tests for {@link NameValuePair}.
  *
  */
-public class TestNameValuePair extends TestCase {
+public class TestNameValuePair {
 
-    public TestNameValuePair(String testName) {
-        super(testName);
-    }
-
+    @Test
     public void testConstructor() {
         NameValuePair param = new BasicNameValuePair("name", "value");
-        assertEquals("name", param.getName());
-        assertEquals("value", param.getValue());
+        Assert.assertEquals("name", param.getName());
+        Assert.assertEquals("value", param.getValue());
     }
 
+    @Test
     public void testInvalidName() {
         try {
             new BasicNameValuePair(null, null);
-            fail("IllegalArgumentException should have been thrown");
+            Assert.fail("IllegalArgumentException should have been thrown");
         } catch (IllegalArgumentException ex) {
             //expected
         }
     }
 
+    @Test
     public void testHashCode() {
         NameValuePair param1 = new BasicNameValuePair("name1", "value1");
         NameValuePair param2 = new BasicNameValuePair("name2", "value2");
         NameValuePair param3 = new BasicNameValuePair("name1", "value1");
-        assertTrue(param1.hashCode() != param2.hashCode());
-        assertTrue(param1.hashCode() == param3.hashCode());
+        Assert.assertTrue(param1.hashCode() != param2.hashCode());
+        Assert.assertTrue(param1.hashCode() == param3.hashCode());
     }
 
+    @Test
     public void testEquals() {
         NameValuePair param1 = new BasicNameValuePair("name1", "value1");
         NameValuePair param2 = new BasicNameValuePair("name2", "value2");
         NameValuePair param3 = new BasicNameValuePair("name1", "value1");
-        assertFalse(param1.equals(param2));
-        assertFalse(param1.equals(null));
-        assertFalse(param1.equals("name1 = value1"));
-        assertTrue(param1.equals(param1));
-        assertTrue(param2.equals(param2));
-        assertTrue(param1.equals(param3));
+        Assert.assertFalse(param1.equals(param2));
+        Assert.assertFalse(param1.equals(null));
+        Assert.assertFalse(param1.equals("name1 = value1"));
+        Assert.assertTrue(param1.equals(param1));
+        Assert.assertTrue(param2.equals(param2));
+        Assert.assertTrue(param1.equals(param3));
     }
 
+    @Test
     public void testToString() {
         NameValuePair param1 = new BasicNameValuePair("name1", "value1");
-        assertEquals("name1=value1", param1.toString());
+        Assert.assertEquals("name1=value1", param1.toString());
         NameValuePair param2 = new BasicNameValuePair("name1", null);
-        assertEquals("name1", param2.toString());
+        Assert.assertEquals("name1", param2.toString());
     }
 
+    @Test
     public void testCloning() throws Exception {
         BasicNameValuePair orig = new BasicNameValuePair("name1", "value1");
         BasicNameValuePair clone = (BasicNameValuePair) orig.clone();
-        assertEquals(orig, clone);
+        Assert.assertEquals(orig, clone);
     }
 
 }

@@ -32,55 +32,50 @@ import java.io.ByteArrayOutputStream;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 
-import junit.framework.TestCase;
-
 import org.apache.http.HttpVersion;
 import org.apache.http.RequestLine;
+import org.junit.Assert;
+import org.junit.Test;
 
 /**
  * Simple tests for {@link RequestLine}.
- *
- *
  */
-public class TestRequestLine extends TestCase {
+public class TestRequestLine {
 
-    // ------------------------------------------------------------ Constructor
-    public TestRequestLine(String testName) {
-        super(testName);
-    }
-
-    // ------------------------------------------------------- TestCase Methods
-
+    @Test
     public void testConstructor() {
         RequestLine requestline = new BasicRequestLine("GET", "/stuff", HttpVersion.HTTP_1_1);
-        assertEquals("GET", requestline.getMethod());
-        assertEquals("/stuff", requestline.getUri());
-        assertEquals(HttpVersion.HTTP_1_1, requestline.getProtocolVersion());
+        Assert.assertEquals("GET", requestline.getMethod());
+        Assert.assertEquals("/stuff", requestline.getUri());
+        Assert.assertEquals(HttpVersion.HTTP_1_1, requestline.getProtocolVersion());
     }
 
+    @Test
     public void testConstructorInvalidInput() {
         try {
             new BasicRequestLine(null, "/stuff", HttpVersion.HTTP_1_1);
-            fail("IllegalArgumentException should have been thrown");
+            Assert.fail("IllegalArgumentException should have been thrown");
         } catch (IllegalArgumentException e) { /* expected */ }
         try {
             new BasicRequestLine("GET", null, HttpVersion.HTTP_1_1);
-            fail("IllegalArgumentException should have been thrown");
+            Assert.fail("IllegalArgumentException should have been thrown");
         } catch (IllegalArgumentException e) { /* expected */ }
         try {
             new BasicRequestLine("GET", "/stuff", (HttpVersion)null);
-            fail("IllegalArgumentException should have been thrown");
+            Assert.fail("IllegalArgumentException should have been thrown");
         } catch (IllegalArgumentException e) { /* expected */ }
     }
 
+    @Test
     public void testCloning() throws Exception {
         BasicRequestLine orig = new BasicRequestLine("GET", "/stuff", HttpVersion.HTTP_1_1);
         BasicRequestLine clone = (BasicRequestLine) orig.clone();
-        assertEquals(orig.getMethod(), clone.getMethod());
-        assertEquals(orig.getUri(), clone.getUri());
-        assertEquals(orig.getProtocolVersion(), clone.getProtocolVersion());
+        Assert.assertEquals(orig.getMethod(), clone.getMethod());
+        Assert.assertEquals(orig.getUri(), clone.getUri());
+        Assert.assertEquals(orig.getProtocolVersion(), clone.getProtocolVersion());
     }
 
+    @Test
     public void testSerialization() throws Exception {
         BasicRequestLine orig = new BasicRequestLine("GET", "/stuff", HttpVersion.HTTP_1_1);
         ByteArrayOutputStream outbuffer = new ByteArrayOutputStream();
@@ -91,9 +86,9 @@ public class TestRequestLine extends TestCase {
         ByteArrayInputStream inbuffer = new ByteArrayInputStream(raw);
         ObjectInputStream instream = new ObjectInputStream(inbuffer);
         BasicRequestLine clone = (BasicRequestLine) instream.readObject();
-        assertEquals(orig.getMethod(), clone.getMethod());
-        assertEquals(orig.getUri(), clone.getUri());
-        assertEquals(orig.getProtocolVersion(), clone.getProtocolVersion());
+        Assert.assertEquals(orig.getMethod(), clone.getMethod());
+        Assert.assertEquals(orig.getUri(), clone.getUri());
+        Assert.assertEquals(orig.getProtocolVersion(), clone.getProtocolVersion());
     }
 
 }

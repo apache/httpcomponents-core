@@ -29,28 +29,32 @@ package org.apache.http.impl.nio.reactor;
 
 import java.util.Date;
 
-import junit.framework.TestCase;
+import org.junit.Assert;
+import org.junit.Test;
 
-public class ExceptionEventTest extends TestCase {
+public class ExceptionEventTest {
 
+    @Test
     public void testGetCause() {
         NullPointerException npe = new NullPointerException("npe");
         ExceptionEvent ee = new ExceptionEvent(npe);
-        assertSame(npe, ee.getCause());
+        Assert.assertSame(npe, ee.getCause());
         ee = new ExceptionEvent(npe, new Date());
-        assertSame(npe, ee.getCause());
+        Assert.assertSame(npe, ee.getCause());
     }
 
+    @Test
     public void testGetTimestamp() {
         NullPointerException npe = new NullPointerException("npe");
         ExceptionEvent ee = new ExceptionEvent(npe);
-        assertNotNull(ee.getTimestamp());
+        Assert.assertNotNull(ee.getTimestamp());
         ee = new ExceptionEvent(npe, new Date(1234567890L));
-        assertEquals(new Date(1234567890L), ee.getTimestamp());
+        Assert.assertEquals(new Date(1234567890L), ee.getTimestamp());
     }
 
+    @Test
     public void testToString() {
-        assertNotNull(new ExceptionEvent(new NullPointerException()));
+        Assert.assertNotNull(new ExceptionEvent(new NullPointerException()));
     }
 
 }

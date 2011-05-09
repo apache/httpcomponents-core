@@ -27,50 +27,46 @@
 
 package org.apache.http.impl.io;
 
-import junit.framework.TestCase;
-
 import org.apache.http.io.SessionInputBuffer;
 import org.apache.http.mockup.SessionInputBufferMockup;
+import org.junit.Assert;
+import org.junit.Test;
 
 /**
  * Simple tests for {@link IdentityInputStream}.
  *
  */
-public class TestIdentityInputStream extends TestCase {
+public class TestIdentityInputStream {
 
-    // ------------------------------------------------------------ Constructor
-    public TestIdentityInputStream(String testName) {
-        super(testName);
-    }
-
-    // ------------------------------------------------------- TestCase Methods
-
+    @Test
     public void testConstructor() throws Exception {
         SessionInputBuffer receiver = new SessionInputBufferMockup(new byte[] {});
         new IdentityInputStream(receiver);
         try {
             new IdentityInputStream(null);
-            fail("IllegalArgumentException should have been thrown");
+            Assert.fail("IllegalArgumentException should have been thrown");
         } catch (IllegalArgumentException ex) {
             //expected
         }
     }
 
+    @Test
     public void testBasicRead() throws Exception {
         byte[] input = new byte[] {'a', 'b', 'c'};
         SessionInputBufferMockup receiver = new SessionInputBufferMockup(input);
         IdentityInputStream instream = new IdentityInputStream(receiver);
         byte[] tmp = new byte[2];
-        assertEquals(2, instream.read(tmp, 0, tmp.length));
-        assertEquals('a', tmp[0]);
-        assertEquals('b', tmp[1]);
-        assertEquals('c', instream.read());
-        assertEquals(-1, instream.read(tmp, 0, tmp.length));
-        assertEquals(-1, instream.read());
-        assertEquals(-1, instream.read(tmp, 0, tmp.length));
-        assertEquals(-1, instream.read());
+        Assert.assertEquals(2, instream.read(tmp, 0, tmp.length));
+        Assert.assertEquals('a', tmp[0]);
+        Assert.assertEquals('b', tmp[1]);
+        Assert.assertEquals('c', instream.read());
+        Assert.assertEquals(-1, instream.read(tmp, 0, tmp.length));
+        Assert.assertEquals(-1, instream.read());
+        Assert.assertEquals(-1, instream.read(tmp, 0, tmp.length));
+        Assert.assertEquals(-1, instream.read());
     }
 
+    @Test
     public void testClosedCondition() throws Exception {
         byte[] input = new byte[] {'a', 'b', 'c'};
         SessionInputBufferMockup receiver = new SessionInputBufferMockup(input);
@@ -79,20 +75,21 @@ public class TestIdentityInputStream extends TestCase {
         instream.close();
         instream.close();
 
-        assertEquals(0, instream.available());
+        Assert.assertEquals(0, instream.available());
         byte[] tmp = new byte[2];
-        assertEquals(-1, instream.read(tmp, 0, tmp.length));
-        assertEquals(-1, instream.read());
-        assertEquals(-1, instream.read(tmp, 0, tmp.length));
-        assertEquals(-1, instream.read());
+        Assert.assertEquals(-1, instream.read(tmp, 0, tmp.length));
+        Assert.assertEquals(-1, instream.read());
+        Assert.assertEquals(-1, instream.read(tmp, 0, tmp.length));
+        Assert.assertEquals(-1, instream.read());
     }
 
+    @Test
     public void testAvailable() throws Exception {
         byte[] input = new byte[] {'a', 'b', 'c'};
         SessionInputBufferMockup receiver = new SessionInputBufferMockup(input);
         IdentityInputStream instream = new IdentityInputStream(receiver);
         instream.read();
-        assertEquals(2, instream.available());
+        Assert.assertEquals(2, instream.available());
     }
 
 }

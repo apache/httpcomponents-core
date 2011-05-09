@@ -30,58 +30,58 @@ package org.apache.http.entity;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 
-import junit.framework.TestCase;
-
 import org.apache.http.protocol.HTTP;
+import org.junit.Assert;
+import org.junit.Test;
 
 /**
  * Unit tests for {@link BufferedHttpEntity}.
  *
  */
-public class TestBufferedHttpEntity extends TestCase {
+public class TestBufferedHttpEntity {
 
-    public TestBufferedHttpEntity(String testName) {
-        super(testName);
-    }
-
+    @Test
     public void testBufferingEntity() throws Exception {
         byte[] bytes = "Message content".getBytes(HTTP.US_ASCII);
         InputStreamEntity httpentity = new InputStreamEntity(new ByteArrayInputStream(bytes), -1);
         BufferedHttpEntity bufentity = new BufferedHttpEntity(httpentity);
-        assertEquals(bytes.length, bufentity.getContentLength());
-        assertTrue(bufentity.isRepeatable());
-        assertFalse(bufentity.isChunked());
-        assertFalse(bufentity.isStreaming());
+        Assert.assertEquals(bytes.length, bufentity.getContentLength());
+        Assert.assertTrue(bufentity.isRepeatable());
+        Assert.assertFalse(bufentity.isChunked());
+        Assert.assertFalse(bufentity.isStreaming());
 
         // test if we can obtain contain multiple times
-        assertNotNull(bufentity.getContent ());
-        assertNotNull(bufentity.getContent ());
+        Assert.assertNotNull(bufentity.getContent ());
+        Assert.assertNotNull(bufentity.getContent ());
     }
 
+    @Test
     public void testWrappingEntity() throws Exception {
         byte[] bytes = "Message content".getBytes(HTTP.US_ASCII);
         ByteArrayEntity httpentity = new ByteArrayEntity(bytes);
         httpentity.setChunked(true);
         BufferedHttpEntity bufentity = new BufferedHttpEntity(httpentity);
-        assertEquals(bytes.length, bufentity.getContentLength());
-        assertTrue(bufentity.isRepeatable());
-        assertTrue(bufentity.isChunked());
-        assertFalse(bufentity.isStreaming());
+        Assert.assertEquals(bytes.length, bufentity.getContentLength());
+        Assert.assertTrue(bufentity.isRepeatable());
+        Assert.assertTrue(bufentity.isChunked());
+        Assert.assertFalse(bufentity.isStreaming());
 
         // test if we can obtain contain multiple times
-        assertNotNull(bufentity.getContent ());
-        assertNotNull(bufentity.getContent ());
+        Assert.assertNotNull(bufentity.getContent ());
+        Assert.assertNotNull(bufentity.getContent ());
     }
 
+    @Test
     public void testIllegalConstructor() throws Exception {
         try {
             new BufferedHttpEntity(null);
-            fail("IllegalArgumentException should have been thrown");
+            Assert.fail("IllegalArgumentException should have been thrown");
         } catch (IllegalArgumentException ex) {
             // expected
         }
     }
 
+    @Test
     public void testWriteToBuffered() throws Exception {
         byte[] bytes = "Message content".getBytes(HTTP.US_ASCII);
         InputStreamEntity httpentity = new InputStreamEntity(new ByteArrayInputStream(bytes), -1);
@@ -90,29 +90,30 @@ public class TestBufferedHttpEntity extends TestCase {
         ByteArrayOutputStream out = new ByteArrayOutputStream();
         bufentity.writeTo(out);
         byte[] bytes2 = out.toByteArray();
-        assertNotNull(bytes2);
-        assertEquals(bytes.length, bytes2.length);
+        Assert.assertNotNull(bytes2);
+        Assert.assertEquals(bytes.length, bytes2.length);
         for (int i = 0; i < bytes.length; i++) {
-            assertEquals(bytes[i], bytes2[i]);
+            Assert.assertEquals(bytes[i], bytes2[i]);
         }
 
         out = new ByteArrayOutputStream();
         bufentity.writeTo(out);
         bytes2 = out.toByteArray();
-        assertNotNull(bytes2);
-        assertEquals(bytes.length, bytes2.length);
+        Assert.assertNotNull(bytes2);
+        Assert.assertEquals(bytes.length, bytes2.length);
         for (int i = 0; i < bytes.length; i++) {
-            assertEquals(bytes[i], bytes2[i]);
+            Assert.assertEquals(bytes[i], bytes2[i]);
         }
 
         try {
             bufentity.writeTo(null);
-            fail("IllegalArgumentException should have been thrown");
+            Assert.fail("IllegalArgumentException should have been thrown");
         } catch (IllegalArgumentException ex) {
             // expected
         }
     }
 
+    @Test
     public void testWriteToWrapped() throws Exception {
         byte[] bytes = "Message content".getBytes(HTTP.US_ASCII);
         ByteArrayEntity httpentity = new ByteArrayEntity(bytes);
@@ -121,24 +122,24 @@ public class TestBufferedHttpEntity extends TestCase {
         ByteArrayOutputStream out = new ByteArrayOutputStream();
         bufentity.writeTo(out);
         byte[] bytes2 = out.toByteArray();
-        assertNotNull(bytes2);
-        assertEquals(bytes.length, bytes2.length);
+        Assert.assertNotNull(bytes2);
+        Assert.assertEquals(bytes.length, bytes2.length);
         for (int i = 0; i < bytes.length; i++) {
-            assertEquals(bytes[i], bytes2[i]);
+            Assert.assertEquals(bytes[i], bytes2[i]);
         }
 
         out = new ByteArrayOutputStream();
         bufentity.writeTo(out);
         bytes2 = out.toByteArray();
-        assertNotNull(bytes2);
-        assertEquals(bytes.length, bytes2.length);
+        Assert.assertNotNull(bytes2);
+        Assert.assertEquals(bytes.length, bytes2.length);
         for (int i = 0; i < bytes.length; i++) {
-            assertEquals(bytes[i], bytes2[i]);
+            Assert.assertEquals(bytes[i], bytes2[i]);
         }
 
         try {
             bufentity.writeTo(null);
-            fail("IllegalArgumentException should have been thrown");
+            Assert.fail("IllegalArgumentException should have been thrown");
         } catch (IllegalArgumentException ex) {
             // expected
         }

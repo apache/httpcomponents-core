@@ -29,25 +29,19 @@
 
 package org.apache.http.message;
 
-import junit.framework.TestCase;
-
 import org.apache.http.HeaderElement;
 import org.apache.http.NameValuePair;
+import org.junit.Assert;
+import org.junit.Test;
 
 /**
  * Tests for header value formatting.
  *
  *
  */
-public class TestBasicHeaderValueFormatter extends TestCase {
+public class TestBasicHeaderValueFormatter {
 
-    // ------------------------------------------------------------ Constructor
-    public TestBasicHeaderValueFormatter(String testName) {
-        super(testName);
-    }
-
-    // ------------------------------------------------------- TestCase Methods
-
+    @Test
     public void testNVPFormatting() throws Exception {
         NameValuePair param1 = new BasicNameValuePair("param", "regular_stuff");
         NameValuePair param2 = new BasicNameValuePair("param", "this\\that");
@@ -58,65 +52,67 @@ public class TestBasicHeaderValueFormatter extends TestCase {
         NameValuePair param7 = new BasicNameValuePair("param", null);
 
 
-        assertEquals("param=regular_stuff",
+        Assert.assertEquals("param=regular_stuff",
                      BasicHeaderValueFormatter.formatNameValuePair
                      (param1, false, null));
-        assertEquals("param=\"this\\\\that\"",
+        Assert.assertEquals("param=\"this\\\\that\"",
                      BasicHeaderValueFormatter.formatNameValuePair
                      (param2, false, null));
-        assertEquals("param=\"this,that\"",
+        Assert.assertEquals("param=\"this,that\"",
                      BasicHeaderValueFormatter.formatNameValuePair
                      (param3, false, null));
-        assertEquals("param=\"quote marks (\\\") must be escaped\"",
+        Assert.assertEquals("param=\"quote marks (\\\") must be escaped\"",
                      BasicHeaderValueFormatter.formatNameValuePair
                      (param4, false, null));
-        assertEquals("param=\"back slash (\\\\) must be escaped too\"",
+        Assert.assertEquals("param=\"back slash (\\\\) must be escaped too\"",
                      BasicHeaderValueFormatter.formatNameValuePair
                      (param5, false, null));
-        assertEquals("param=\"values with\tblanks must always be quoted\"",
+        Assert.assertEquals("param=\"values with\tblanks must always be quoted\"",
                      BasicHeaderValueFormatter.formatNameValuePair
                      (param6, false, null));
-        assertEquals("param", BasicHeaderValueFormatter.formatNameValuePair
+        Assert.assertEquals("param", BasicHeaderValueFormatter.formatNameValuePair
                      (param7, false, null));
 
-        assertEquals("param=\"regular_stuff\"",
+        Assert.assertEquals("param=\"regular_stuff\"",
                      BasicHeaderValueFormatter.formatNameValuePair
                      (param1, true, null));
-        assertEquals("param=\"this\\\\that\"",
+        Assert.assertEquals("param=\"this\\\\that\"",
                      BasicHeaderValueFormatter.formatNameValuePair
                      (param2, true, null));
-        assertEquals("param=\"this,that\"",
+        Assert.assertEquals("param=\"this,that\"",
                      BasicHeaderValueFormatter.formatNameValuePair
                      (param3, true, null));
-        assertEquals("param=\"quote marks (\\\") must be escaped\"",
+        Assert.assertEquals("param=\"quote marks (\\\") must be escaped\"",
                      BasicHeaderValueFormatter.formatNameValuePair
                      (param4, true, null));
-        assertEquals("param=\"back slash (\\\\) must be escaped too\"",
+        Assert.assertEquals("param=\"back slash (\\\\) must be escaped too\"",
                      BasicHeaderValueFormatter.formatNameValuePair
                      (param5, true, null));
-        assertEquals("param=\"values with\tblanks must always be quoted\"",
+        Assert.assertEquals("param=\"values with\tblanks must always be quoted\"",
                      BasicHeaderValueFormatter.formatNameValuePair
                      (param6, true, null));
-        assertEquals("param",
+        Assert.assertEquals("param",
                      BasicHeaderValueFormatter.formatNameValuePair
                      (param7, false, null));
     }
 
 
 
+    @Test
     public void testParamsFormatting() throws Exception {
         NameValuePair param1 = new BasicNameValuePair("param", "regular_stuff");
         NameValuePair param2 = new BasicNameValuePair("param", "this\\that");
         NameValuePair param3 = new BasicNameValuePair("param", "this,that");
         NameValuePair[] params = new NameValuePair[] {param1, param2, param3};
-        assertEquals("param=regular_stuff; param=\"this\\\\that\"; param=\"this,that\"",
+        Assert.assertEquals("param=regular_stuff; param=\"this\\\\that\"; param=\"this,that\"",
                      BasicHeaderValueFormatter.formatParameters(params, false, null));
-        assertEquals("param=\"regular_stuff\"; param=\"this\\\\that\"; param=\"this,that\"",
+        Assert.assertEquals("param=\"regular_stuff\"; param=\"this\\\\that\"; param=\"this,that\"",
                      BasicHeaderValueFormatter.formatParameters(params, true, null));
     }
 
 
 
+    @Test
     public void testHEFormatting() throws Exception {
         NameValuePair param1 = new BasicNameValuePair("param", "regular_stuff");
         NameValuePair param2 = new BasicNameValuePair("param", "this\\that");
@@ -125,10 +121,11 @@ public class TestBasicHeaderValueFormatter extends TestCase {
         NameValuePair[] params = new NameValuePair[] {param1, param2, param3, param4};
         HeaderElement element = new BasicHeaderElement("name", "value", params);
 
-        assertEquals("name=value; param=regular_stuff; param=\"this\\\\that\"; param=\"this,that\"; param",
+        Assert.assertEquals("name=value; param=regular_stuff; param=\"this\\\\that\"; param=\"this,that\"; param",
                      BasicHeaderValueFormatter.formatHeaderElement(element, false, null));
     }
 
+    @Test
     public void testElementsFormatting() throws Exception {
         NameValuePair param1 = new BasicNameValuePair("param", "regular_stuff");
         NameValuePair param2 = new BasicNameValuePair("param", "this\\that");
@@ -141,7 +138,7 @@ public class TestBasicHeaderValueFormatter extends TestCase {
         HeaderElement element5 = new BasicHeaderElement("name5", null);
         HeaderElement[] elements = new HeaderElement[] {element1, element2, element3, element4, element5};
 
-        assertEquals
+        Assert.assertEquals
             ("name1=value1; param=regular_stuff, name2=value2; " +
              "param=\"this\\\\that\", name3=value3; param=\"this,that\", " +
              "name4=value4; param, name5",
@@ -149,12 +146,13 @@ public class TestBasicHeaderValueFormatter extends TestCase {
     }
 
 
+    @Test
     public void testInvalidHEArguments() throws Exception {
         try {
             BasicHeaderValueFormatter.formatHeaderElement
                 ((HeaderElement) null, false,
                  BasicHeaderValueFormatter.DEFAULT);
-            fail("IllegalArgumentException should habe been thrown");
+            Assert.fail("IllegalArgumentException should habe been thrown");
         } catch (IllegalArgumentException ex) {
             // expected
         }
@@ -163,19 +161,20 @@ public class TestBasicHeaderValueFormatter extends TestCase {
             BasicHeaderValueFormatter.formatElements
                 ((HeaderElement[]) null, false,
                  BasicHeaderValueFormatter.DEFAULT);
-            fail("IllegalArgumentException should habe been thrown");
+            Assert.fail("IllegalArgumentException should habe been thrown");
         } catch (IllegalArgumentException ex) {
             // expected
         }
     }
 
 
+    @Test
     public void testInvalidNVArguments() throws Exception {
 
         try {
             BasicHeaderValueFormatter.formatNameValuePair
                 ((NameValuePair) null, true, null);
-            fail("IllegalArgumentException should habe been thrown");
+            Assert.fail("IllegalArgumentException should habe been thrown");
         } catch (IllegalArgumentException ex) {
             // expected
         }
@@ -184,7 +183,7 @@ public class TestBasicHeaderValueFormatter extends TestCase {
             BasicHeaderValueFormatter.formatParameters
                 ((NameValuePair[]) null, true,
                  BasicHeaderValueFormatter.DEFAULT);
-            fail("IllegalArgumentException should habe been thrown");
+            Assert.fail("IllegalArgumentException should habe been thrown");
         } catch (IllegalArgumentException ex) {
             // expected
         }

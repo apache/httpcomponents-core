@@ -27,32 +27,26 @@
 
 package org.apache.http;
 
-import java.io.IOException;
-
-import junit.framework.TestCase;
-
 import org.apache.http.mockup.HttpClientNio;
 import org.apache.http.mockup.HttpServerNio;
 import org.apache.http.params.CoreConnectionPNames;
 import org.apache.http.params.CoreProtocolPNames;
 import org.apache.http.params.HttpParams;
 import org.apache.http.params.SyncBasicHttpParams;
+import org.junit.After;
+import org.junit.Before;
 
 /**
  * Base class for all HttpCore NIO tests
  *
  */
-public class HttpCoreNIOTestBase extends TestCase {
-
-    public HttpCoreNIOTestBase(String testName) {
-        super(testName);
-    }
+public class HttpCoreNIOTestBase {
 
     protected HttpServerNio server;
     protected HttpClientNio client;
 
-    @Override
-    protected void setUp() throws Exception {
+    @Before
+    public void initServer() throws Exception {
         HttpParams serverParams = new SyncBasicHttpParams();
         serverParams
             .setIntParameter(CoreConnectionPNames.SO_TIMEOUT, 60000)
@@ -63,7 +57,10 @@ public class HttpCoreNIOTestBase extends TestCase {
 
         this.server = new HttpServerNio(serverParams);
         this.server.setExceptionHandler(new SimpleIOReactorExceptionHandler());
+    }
 
+    @Before
+    public void initClient() throws Exception {
         HttpParams clientParams = new SyncBasicHttpParams();
         clientParams
             .setIntParameter(CoreConnectionPNames.SO_TIMEOUT, 60000)
@@ -77,17 +74,17 @@ public class HttpCoreNIOTestBase extends TestCase {
         this.client.setExceptionHandler(new SimpleIOReactorExceptionHandler());
     }
 
-    @Override
-    protected void tearDown() {
-        try {
+    @After
+    public void shutDownClient() throws Exception {
+        if (this.client != null) {
             this.client.shutdown();
-        } catch (IOException ex) {
-            ex.printStackTrace(System.out);
         }
-        try {
+    }
+
+    @After
+    public void shutDownServer() throws Exception {
+        if (this.server != null) {
             this.server.shutdown();
-        } catch (IOException ex) {
-            ex.printStackTrace(System.out);
         }
     }
 

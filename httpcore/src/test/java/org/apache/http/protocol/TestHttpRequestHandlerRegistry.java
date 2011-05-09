@@ -31,19 +31,15 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
-import junit.framework.TestCase;
-
 import org.apache.http.HttpException;
 import org.apache.http.HttpRequest;
 import org.apache.http.HttpResponse;
+import org.junit.Assert;
+import org.junit.Test;
 
 /**
  */
-public class TestHttpRequestHandlerRegistry extends TestCase {
-
-    public TestHttpRequestHandlerRegistry(String testName) {
-        super(testName);
-    }
+public class TestHttpRequestHandlerRegistry {
 
     private static class DummyHttpRequestHandler implements HttpRequestHandler {
 
@@ -55,6 +51,7 @@ public class TestHttpRequestHandlerRegistry extends TestCase {
 
     }
 
+    @Test
     public void testRegisterUnregister() throws Exception {
         HttpRequestHandler h1 = new DummyHttpRequestHandler();
         HttpRequestHandler h2 = new DummyHttpRequestHandler();
@@ -68,18 +65,18 @@ public class TestHttpRequestHandlerRegistry extends TestCase {
         HttpRequestHandler h;
 
         h = registry.lookup("/h1");
-        assertNotNull(h);
-        assertTrue(h1 == h);
+        Assert.assertNotNull(h);
+        Assert.assertTrue(h1 == h);
         h = registry.lookup("/h2");
-        assertNotNull(h);
-        assertTrue(h2 == h);
+        Assert.assertNotNull(h);
+        Assert.assertTrue(h2 == h);
         h = registry.lookup("/h3");
-        assertNotNull(h);
-        assertTrue(h3 == h);
+        Assert.assertNotNull(h);
+        Assert.assertTrue(h3 == h);
 
         registry.unregister("/h1");
         h = registry.lookup("/h1");
-        assertNull(h);
+        Assert.assertNull(h);
 
         Map<String, Object> map = new HashMap<String, Object>();
         map.put("/a1", h1);
@@ -88,15 +85,16 @@ public class TestHttpRequestHandlerRegistry extends TestCase {
         registry.setHandlers(map);
 
         h = registry.lookup("/h2");
-        assertNull(h);
+        Assert.assertNull(h);
         h = registry.lookup("/h3");
-        assertNull(h);
+        Assert.assertNull(h);
 
         h = registry.lookup("/a1");
-        assertNotNull(h);
-        assertTrue(h1 == h);
+        Assert.assertNotNull(h);
+        Assert.assertTrue(h1 == h);
     }
 
+    @Test
     public void testWildCardMatching1() throws Exception {
         HttpRequestHandler h1 = new DummyHttpRequestHandler();
         HttpRequestHandler h2 = new DummyHttpRequestHandler();
@@ -112,22 +110,23 @@ public class TestHttpRequestHandlerRegistry extends TestCase {
         HttpRequestHandler h;
 
         h = registry.lookup("/one/request");
-        assertNotNull(h);
-        assertTrue(h1 == h);
+        Assert.assertNotNull(h);
+        Assert.assertTrue(h1 == h);
 
         h = registry.lookup("/one/two/request");
-        assertNotNull(h);
-        assertTrue(h2 == h);
+        Assert.assertNotNull(h);
+        Assert.assertTrue(h2 == h);
 
         h = registry.lookup("/one/two/three/request");
-        assertNotNull(h);
-        assertTrue(h3 == h);
+        Assert.assertNotNull(h);
+        Assert.assertTrue(h3 == h);
 
         h = registry.lookup("default/request");
-        assertNotNull(h);
-        assertTrue(def == h);
+        Assert.assertNotNull(h);
+        Assert.assertTrue(def == h);
     }
 
+    @Test
     public void testWildCardMatching2() throws Exception {
         HttpRequestHandler h1 = new DummyHttpRequestHandler();
         HttpRequestHandler h2 = new DummyHttpRequestHandler();
@@ -141,18 +140,19 @@ public class TestHttpRequestHandlerRegistry extends TestCase {
         HttpRequestHandler h;
 
         h = registry.lookup("/that.view");
-        assertNotNull(h);
-        assertTrue(h1 == h);
+        Assert.assertNotNull(h);
+        Assert.assertTrue(h1 == h);
 
         h = registry.lookup("/that.form");
-        assertNotNull(h);
-        assertTrue(h2 == h);
+        Assert.assertNotNull(h);
+        Assert.assertTrue(h2 == h);
 
         h = registry.lookup("/whatever");
-        assertNotNull(h);
-        assertTrue(def == h);
+        Assert.assertNotNull(h);
+        Assert.assertTrue(def == h);
     }
 
+    @Test
     public void testWildCardMatchingWithQuery() throws Exception {
         HttpRequestHandler h1 = new DummyHttpRequestHandler();
         HttpRequestHandler h2 = new DummyHttpRequestHandler();
@@ -166,18 +166,19 @@ public class TestHttpRequestHandlerRegistry extends TestCase {
         HttpRequestHandler h;
 
         h = registry.lookup("/that.view?param=value");
-        assertNotNull(h);
-        assertTrue(h1 == h);
+        Assert.assertNotNull(h);
+        Assert.assertTrue(h1 == h);
 
         h = registry.lookup("/that.form?whatever");
-        assertNotNull(h);
-        assertTrue(h2 == h);
+        Assert.assertNotNull(h);
+        Assert.assertTrue(h2 == h);
 
         h = registry.lookup("/whatever");
-        assertNotNull(h);
-        assertTrue(def == h);
+        Assert.assertNotNull(h);
+        Assert.assertTrue(def == h);
     }
 
+    @Test
     public void testSuffixPatternOverPrefixPatternMatch() throws Exception {
         HttpRequestHandler h1 = new DummyHttpRequestHandler();
         HttpRequestHandler h2 = new DummyHttpRequestHandler();
@@ -189,22 +190,23 @@ public class TestHttpRequestHandlerRegistry extends TestCase {
         HttpRequestHandler h;
 
         h = registry.lookup("/match");
-        assertNotNull(h);
-        assertTrue(h1 == h);
+        Assert.assertNotNull(h);
+        Assert.assertTrue(h1 == h);
     }
 
+    @Test
     public void testInvalidInput() throws Exception {
         HttpRequestHandlerRegistry registry = new HttpRequestHandlerRegistry();
         try {
             registry.register(null, null);
-            fail("IllegalArgumentException should have been thrown");
+            Assert.fail("IllegalArgumentException should have been thrown");
         } catch (IllegalArgumentException ex) {
             // expected
         }
 
         try {
             registry.register("", null);
-            fail("IllegalArgumentException should have been thrown");
+            Assert.fail("IllegalArgumentException should have been thrown");
         } catch (IllegalArgumentException ex) {
             // expected
         }
@@ -213,14 +215,14 @@ public class TestHttpRequestHandlerRegistry extends TestCase {
 
         try {
             registry.setHandlers(null);
-            fail("IllegalArgumentException should have been thrown");
+            Assert.fail("IllegalArgumentException should have been thrown");
         } catch (IllegalArgumentException ex) {
             // expected
         }
 
         try {
             registry.lookup(null);
-            fail("IllegalArgumentException should have been thrown");
+            Assert.fail("IllegalArgumentException should have been thrown");
         } catch (IllegalArgumentException ex) {
             // expected
         }

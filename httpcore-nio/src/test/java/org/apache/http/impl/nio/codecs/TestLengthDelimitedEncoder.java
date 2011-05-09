@@ -37,29 +37,19 @@ import java.nio.channels.Channels;
 import java.nio.channels.FileChannel;
 import java.nio.channels.WritableByteChannel;
 
-import junit.framework.TestCase;
-
 import org.apache.http.impl.io.HttpTransportMetricsImpl;
 import org.apache.http.impl.nio.reactor.SessionOutputBufferImpl;
 import org.apache.http.nio.reactor.SessionOutputBuffer;
 import org.apache.http.params.BasicHttpParams;
 import org.apache.http.params.HttpParams;
 import org.apache.http.util.EncodingUtils;
+import org.junit.Assert;
+import org.junit.Test;
 
 /**
  * Simple tests for {@link LengthDelimitedEncoder}.
- *
- *
- * @version $Id$
  */
-public class TestLengthDelimitedEncoder extends TestCase {
-
-    // ------------------------------------------------------------ Constructor
-    public TestLengthDelimitedEncoder(String testName) {
-        super(testName);
-    }
-
-    // ------------------------------------------------------- TestCase Methods
+public class TestLengthDelimitedEncoder {
 
     private static ByteBuffer wrap(final String s) {
         return ByteBuffer.wrap(EncodingUtils.getAsciiBytes(s));
@@ -69,6 +59,7 @@ public class TestLengthDelimitedEncoder extends TestCase {
         return Channels.newChannel(baos);
     }
 
+    @Test
     public void testBasicCoding() throws Exception {
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         WritableByteChannel channel = newChannel(baos);
@@ -83,10 +74,11 @@ public class TestLengthDelimitedEncoder extends TestCase {
 
         String s = baos.toString("US-ASCII");
 
-        assertTrue(encoder.isCompleted());
-        assertEquals("stuff;more stuff", s);
+        Assert.assertTrue(encoder.isCompleted());
+        Assert.assertEquals("stuff;more stuff", s);
     }
 
+    @Test
     public void testCodingBeyondContentLimit() throws Exception {
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         WritableByteChannel channel = newChannel(baos);
@@ -101,10 +93,11 @@ public class TestLengthDelimitedEncoder extends TestCase {
 
         String s = baos.toString("US-ASCII");
 
-        assertTrue(encoder.isCompleted());
-        assertEquals("stuff;more stuff", s);
+        Assert.assertTrue(encoder.isCompleted());
+        Assert.assertEquals("stuff;more stuff", s);
     }
 
+    @Test
     public void testCodingEmptyBuffer() throws Exception {
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         WritableByteChannel channel = newChannel(baos);
@@ -125,10 +118,11 @@ public class TestLengthDelimitedEncoder extends TestCase {
 
         String s = baos.toString("US-ASCII");
 
-        assertTrue(encoder.isCompleted());
-        assertEquals("stuff;more stuff", s);
+        Assert.assertTrue(encoder.isCompleted());
+        Assert.assertEquals("stuff;more stuff", s);
     }
 
+    @Test
     public void testCodingCompleted() throws Exception {
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         WritableByteChannel channel = newChannel(baos);
@@ -142,13 +136,14 @@ public class TestLengthDelimitedEncoder extends TestCase {
 
         try {
             encoder.write(wrap("more stuff"));
-            fail("IllegalStateException should have been thrown");
+            Assert.fail("IllegalStateException should have been thrown");
         } catch (IllegalStateException ex) {
             // ignore
         }
     }
 
     /* ----------------- FileChannel Part testing --------------------------- */
+    @Test
     public void testCodingBeyondContentLimitFromFile() throws Exception {
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         WritableByteChannel channel = newChannel(baos);
@@ -175,8 +170,8 @@ public class TestLengthDelimitedEncoder extends TestCase {
 
         String s = baos.toString("US-ASCII");
 
-        assertTrue(encoder.isCompleted());
-        assertEquals("stuff;more stuff", s);
+        Assert.assertTrue(encoder.isCompleted());
+        Assert.assertEquals("stuff;more stuff", s);
 
         fchannel.close();
 
@@ -189,6 +184,7 @@ public class TestLengthDelimitedEncoder extends TestCase {
         }
     }
 
+    @Test
     public void testCodingEmptyFile() throws Exception {
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         WritableByteChannel channel = newChannel(baos);
@@ -216,13 +212,14 @@ public class TestLengthDelimitedEncoder extends TestCase {
 
         String s = baos.toString("US-ASCII");
 
-        assertTrue(encoder.isCompleted());
-        assertEquals("stuff;more stuff", s);
+        Assert.assertTrue(encoder.isCompleted());
+        Assert.assertEquals("stuff;more stuff", s);
 
         fchannel.close();
         deleteWithCheck(tmpFile);
     }
 
+    @Test
     public void testCodingCompletedFromFile() throws Exception {
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         WritableByteChannel channel = newChannel(baos);
@@ -246,7 +243,7 @@ public class TestLengthDelimitedEncoder extends TestCase {
         FileChannel fchannel = new FileInputStream(tmpFile).getChannel();
         try {
             encoder.transfer(fchannel, 0, 10);
-            fail("IllegalStateException should have been thrown");
+            Assert.fail("IllegalStateException should have been thrown");
         } catch (IllegalStateException ex) {
             // ignore
         } finally {
@@ -255,6 +252,7 @@ public class TestLengthDelimitedEncoder extends TestCase {
         }
     }
 
+    @Test
     public void testCodingFromFileSmaller() throws Exception {
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         WritableByteChannel channel = newChannel(baos);
@@ -281,13 +279,14 @@ public class TestLengthDelimitedEncoder extends TestCase {
 
         String s = baos.toString("US-ASCII");
 
-        assertTrue(encoder.isCompleted());
-        assertEquals("stuff;more stuff", s);
+        Assert.assertTrue(encoder.isCompleted());
+        Assert.assertEquals("stuff;more stuff", s);
 
         fchannel.close();
         deleteWithCheck(tmpFile);
     }
 
+    @Test
     public void testInvalidConstructor() {
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         WritableByteChannel channel = newChannel(baos);
@@ -297,25 +296,25 @@ public class TestLengthDelimitedEncoder extends TestCase {
 
         try {
             new LengthDelimitedEncoder(null, null, null, 10);
-            fail("IllegalArgumentException should have been thrown");
+            Assert.fail("IllegalArgumentException should have been thrown");
         } catch (IllegalArgumentException ex) {
             // ignore
         }
         try {
             new LengthDelimitedEncoder(channel, null, null, 10);
-            fail("IllegalArgumentException should have been thrown");
+            Assert.fail("IllegalArgumentException should have been thrown");
         } catch (IllegalArgumentException ex) {
             // ignore
         }
         try {
             new LengthDelimitedEncoder(channel, outbuf, null, 10);
-            fail("IllegalArgumentException should have been thrown");
+            Assert.fail("IllegalArgumentException should have been thrown");
         } catch (IllegalArgumentException ex) {
             // ignore
         }
         try {
             new LengthDelimitedEncoder(channel, outbuf, metrics, -10);
-            fail("IllegalArgumentException should have been thrown");
+            Assert.fail("IllegalArgumentException should have been thrown");
         } catch (IllegalArgumentException ex) {
             // ignore
         }

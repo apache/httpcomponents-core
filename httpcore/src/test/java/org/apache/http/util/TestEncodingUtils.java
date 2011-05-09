@@ -27,17 +27,14 @@
 
 package org.apache.http.util;
 
-import junit.framework.TestCase;
+import org.junit.Assert;
+import org.junit.Test;
 
 /**
  * Unit tests for {@link TestEncodingUtils}.
  *
  */
-public class TestEncodingUtils extends TestCase {
-
-    public TestEncodingUtils(String testName) {
-        super(testName);
-    }
+public class TestEncodingUtils {
 
     private static String constructString(int [] unicodeChars) {
         StringBuilder buffer = new StringBuilder();
@@ -53,6 +50,7 @@ public class TestEncodingUtils extends TestCase {
             0x47, 0x72, 0xFC, 0x65, 0x7A, 0x69, 0x5F, 0x7A, 0xE4, 0x6D, 0xE4
         };
 
+    @Test
     public void testBytesToString() throws Exception {
         String s = constructString(SWISS_GERMAN_HELLO);
         byte[] utf = s.getBytes("UTF-8");
@@ -61,35 +59,36 @@ public class TestEncodingUtils extends TestCase {
         String s1 = EncodingUtils.getString(utf, "UTF-8");
         String s2 = EncodingUtils.getString(latin1, "ISO-8859-1");
 
-        assertEquals(s, s1);
-        assertEquals(s, s2);
+        Assert.assertEquals(s, s1);
+        Assert.assertEquals(s, s2);
 
         try {
             EncodingUtils.getString(null, 0, 0, "UTF-8");
-            fail("IllegalArgumentException should have been thrown");
+            Assert.fail("IllegalArgumentException should have been thrown");
         } catch (IllegalArgumentException ex) {
             // expected
         }
         try {
             EncodingUtils.getString(null, "UTF-8");
-            fail("IllegalArgumentException should have been thrown");
+            Assert.fail("IllegalArgumentException should have been thrown");
         } catch (IllegalArgumentException ex) {
             // expected
         }
         try {
             EncodingUtils.getString(new byte[] {}, null);
-            fail("IllegalArgumentException should have been thrown");
+            Assert.fail("IllegalArgumentException should have been thrown");
         } catch (IllegalArgumentException ex) {
             // expected
         }
         try {
             EncodingUtils.getString(new byte[] {}, "");
-            fail("IllegalArgumentException should have been thrown");
+            Assert.fail("IllegalArgumentException should have been thrown");
         } catch (IllegalArgumentException ex) {
             // expected
         }
     }
 
+    @Test
     public void testStringToBytesToString() throws Exception {
         String s = constructString(SWISS_GERMAN_HELLO);
         byte[] utf = s.getBytes("UTF-8");
@@ -98,83 +97,86 @@ public class TestEncodingUtils extends TestCase {
         byte[] data1 = EncodingUtils.getBytes(s, "UTF-8");
         byte[] data2 = EncodingUtils.getBytes(s, "ISO-8859-1");
 
-        assertNotNull(data1);
-        assertEquals(utf.length, data1.length);
+        Assert.assertNotNull(data1);
+        Assert.assertEquals(utf.length, data1.length);
         for (int i = 0; i < utf.length; i++) {
-            assertEquals(utf[i], data1[i]);
+            Assert.assertEquals(utf[i], data1[i]);
         }
-        assertNotNull(data2);
-        assertEquals(latin1.length, data2.length);
+        Assert.assertNotNull(data2);
+        Assert.assertEquals(latin1.length, data2.length);
         for (int i = 0; i < latin1.length; i++) {
-            assertEquals(latin1[i], data2[i]);
+            Assert.assertEquals(latin1[i], data2[i]);
         }
 
         try {
             EncodingUtils.getBytes(null, "UTF-8");
-            fail("IllegalArgumentException should have been thrown");
+            Assert.fail("IllegalArgumentException should have been thrown");
         } catch (IllegalArgumentException ex) {
             // expected
         }
         try {
             EncodingUtils.getBytes("what not", null);
-            fail("IllegalArgumentException should have been thrown");
+            Assert.fail("IllegalArgumentException should have been thrown");
         } catch (IllegalArgumentException ex) {
             // expected
         }
         try {
             EncodingUtils.getBytes("what not", "");
-            fail("IllegalArgumentException should have been thrown");
+            Assert.fail("IllegalArgumentException should have been thrown");
         } catch (IllegalArgumentException ex) {
             // expected
         }
     }
 
+    @Test
     public void testAsciiBytesToString() throws Exception {
         String s = "ascii only, I mean it!";
-        assertEquals(s, EncodingUtils.getAsciiString(s.getBytes("US-ASCII")));
+        Assert.assertEquals(s, EncodingUtils.getAsciiString(s.getBytes("US-ASCII")));
         try {
             EncodingUtils.getAsciiString(null);
-            fail("IllegalArgumentException should have been thrown");
+            Assert.fail("IllegalArgumentException should have been thrown");
         } catch (IllegalArgumentException ex) {
             // expected
         }
         try {
             EncodingUtils.getAsciiString(null, 0, 0);
-            fail("IllegalArgumentException should have been thrown");
+            Assert.fail("IllegalArgumentException should have been thrown");
         } catch (IllegalArgumentException ex) {
             // expected
         }
     }
 
+    @Test
     public void testAsciiStringToBytes() throws Exception {
         String s = "ascii only, I mean it!";
         byte[] ascii = s.getBytes("US-ASCII");
         byte[] data = EncodingUtils.getAsciiBytes(s);
 
-        assertNotNull(data);
-        assertEquals(ascii.length, data.length);
+        Assert.assertNotNull(data);
+        Assert.assertEquals(ascii.length, data.length);
         for (int i = 0; i < ascii.length; i++) {
-            assertEquals(ascii[i], data[i]);
+            Assert.assertEquals(ascii[i], data[i]);
         }
         try {
             EncodingUtils.getAsciiBytes(null);
-            fail("IllegalArgumentException should have been thrown");
+            Assert.fail("IllegalArgumentException should have been thrown");
         } catch (IllegalArgumentException ex) {
             // expected
         }
     }
 
+    @Test
     public void testUnsupportedEncoding() {
         String s = constructString(SWISS_GERMAN_HELLO);
         byte[] b1 = s.getBytes();
         byte[] b2 = EncodingUtils.getBytes(s, "ThisJustAintRight");
-        assertEquals(b1.length, b2.length);
+        Assert.assertEquals(b1.length, b2.length);
         for (int i = 0; i < b1.length; i++) {
-            assertEquals(b1[i], b2[i]);
+            Assert.assertEquals(b1[i], b2[i]);
         }
         String s1 = new String(b1);
         String s2 = EncodingUtils.getString(b1, "ThisJustAintRight");
-        assertEquals(s1, s2);
+        Assert.assertEquals(s1, s2);
     }
 
 }

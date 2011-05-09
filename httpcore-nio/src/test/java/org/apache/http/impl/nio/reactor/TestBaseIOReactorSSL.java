@@ -39,16 +39,14 @@ import javax.net.ssl.SSLContext;
 import javax.net.ssl.TrustManager;
 import javax.net.ssl.TrustManagerFactory;
 
-import junit.framework.TestCase;
-
 import org.apache.http.HttpException;
 import org.apache.http.HttpRequest;
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpResponseInterceptor;
 import org.apache.http.impl.DefaultConnectionReuseStrategy;
 import org.apache.http.impl.DefaultHttpResponseFactory;
-import org.apache.http.mockup.SimpleHttpRequestHandlerResolver;
 import org.apache.http.mockup.HttpSSLServer;
+import org.apache.http.mockup.SimpleHttpRequestHandlerResolver;
 import org.apache.http.nio.NHttpServiceHandler;
 import org.apache.http.nio.protocol.BufferingHttpServiceHandler;
 import org.apache.http.nio.protocol.EventListener;
@@ -66,13 +64,17 @@ import org.apache.http.protocol.ResponseConnControl;
 import org.apache.http.protocol.ResponseContent;
 import org.apache.http.protocol.ResponseDate;
 import org.apache.http.protocol.ResponseServer;
+import org.junit.After;
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Test;
 
-public class TestBaseIOReactorSSL extends TestCase {
+public class TestBaseIOReactorSSL {
 
     private HttpSSLServer server;
 
-    @Override
-    protected void setUp() throws Exception {
+    @Before
+    public void initServer() throws Exception {
         HttpParams serverParams = new SyncBasicHttpParams();
         serverParams
             .setIntParameter(CoreConnectionPNames.SO_TIMEOUT, 5000)
@@ -84,9 +86,11 @@ public class TestBaseIOReactorSSL extends TestCase {
         this.server = new HttpSSLServer(serverParams);
     }
 
-    @Override
-    protected void tearDown() throws Exception {
-        this.server.shutdown();
+    @After
+    public void shutDownServer() throws Exception {
+        if (this.server != null) {
+            this.server.shutdown();
+        }
     }
 
     private NHttpServiceHandler createHttpServiceHandler(
@@ -122,6 +126,7 @@ public class TestBaseIOReactorSSL extends TestCase {
         }
     }
 
+    @Test
     public void testBufferedInput() throws Exception {
         final int[] result = new int[1];
         HttpRequestHandler requestHandler = new HttpRequestHandler() {
@@ -168,7 +173,7 @@ public class TestBaseIOReactorSSL extends TestCase {
         synchronized (result) {
             result.wait(500);
         }
-        assertEquals(1, result[0]);
+        Assert.assertEquals(1, result[0]);
     }
 
 }

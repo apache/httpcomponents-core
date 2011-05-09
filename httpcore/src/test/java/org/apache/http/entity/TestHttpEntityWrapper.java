@@ -29,21 +29,18 @@ package org.apache.http.entity;
 
 import java.io.ByteArrayOutputStream;
 
-import junit.framework.TestCase;
-
 import org.apache.http.protocol.HTTP;
 import org.apache.http.util.EntityUtils;
+import org.junit.Assert;
+import org.junit.Test;
 
 /**
  * Unit tests for {@link HttpEntityWrapper}.
  *
  */
-public class TestHttpEntityWrapper extends TestCase {
+public class TestHttpEntityWrapper {
 
-    public TestHttpEntityWrapper(String testName) {
-        super(testName);
-    }
-
+    @Test
     public void testBasics() throws Exception {
         String s = "Message content";
         StringEntity httpentity = new StringEntity(s, HTTP.ISO_8859_1);
@@ -51,24 +48,26 @@ public class TestHttpEntityWrapper extends TestCase {
         httpentity.setContentEncoding(HTTP.IDENTITY_CODING);
         HttpEntityWrapper wrapped = new HttpEntityWrapper(httpentity);
 
-        assertEquals(httpentity.getContentLength(), wrapped.getContentLength());
-        assertEquals(httpentity.getContentType(), wrapped.getContentType());
-        assertEquals(httpentity.getContentEncoding(), wrapped.getContentEncoding());
-        assertEquals(httpentity.isChunked(), wrapped.isChunked());
-        assertEquals(httpentity.isRepeatable(), wrapped.isRepeatable());
-        assertEquals(httpentity.isStreaming(), wrapped.isStreaming());
-        assertNotNull(wrapped.getContent());
+        Assert.assertEquals(httpentity.getContentLength(), wrapped.getContentLength());
+        Assert.assertEquals(httpentity.getContentType(), wrapped.getContentType());
+        Assert.assertEquals(httpentity.getContentEncoding(), wrapped.getContentEncoding());
+        Assert.assertEquals(httpentity.isChunked(), wrapped.isChunked());
+        Assert.assertEquals(httpentity.isRepeatable(), wrapped.isRepeatable());
+        Assert.assertEquals(httpentity.isStreaming(), wrapped.isStreaming());
+        Assert.assertNotNull(wrapped.getContent());
     }
 
+    @Test
     public void testIllegalConstructor() throws Exception {
         try {
             new HttpEntityWrapper(null);
-            fail("IllegalArgumentException should have been thrown");
+            Assert.fail("IllegalArgumentException should have been thrown");
         } catch (IllegalArgumentException ex) {
             // expected
         }
     }
 
+    @Test
     public void testWriteTo() throws Exception {
         String s = "Message content";
         byte[] bytes = s.getBytes(HTTP.ISO_8859_1);
@@ -78,29 +77,30 @@ public class TestHttpEntityWrapper extends TestCase {
         ByteArrayOutputStream out = new ByteArrayOutputStream();
         wrapped.writeTo(out);
         byte[] bytes2 = out.toByteArray();
-        assertNotNull(bytes2);
-        assertEquals(bytes.length, bytes2.length);
+        Assert.assertNotNull(bytes2);
+        Assert.assertEquals(bytes.length, bytes2.length);
         for (int i = 0; i < bytes.length; i++) {
-            assertEquals(bytes[i], bytes2[i]);
+            Assert.assertEquals(bytes[i], bytes2[i]);
         }
 
         out = new ByteArrayOutputStream();
         wrapped.writeTo(out);
         bytes2 = out.toByteArray();
-        assertNotNull(bytes2);
-        assertEquals(bytes.length, bytes2.length);
+        Assert.assertNotNull(bytes2);
+        Assert.assertEquals(bytes.length, bytes2.length);
         for (int i = 0; i < bytes.length; i++) {
-            assertEquals(bytes[i], bytes2[i]);
+            Assert.assertEquals(bytes[i], bytes2[i]);
         }
 
         try {
             wrapped.writeTo(null);
-            fail("IllegalArgumentException should have been thrown");
+            Assert.fail("IllegalArgumentException should have been thrown");
         } catch (IllegalArgumentException ex) {
             // expected
         }
     }
 
+    @Test
     public void testConsumeContent() throws Exception {
         String s = "Message content";
         StringEntity httpentity = new StringEntity(s);

@@ -29,8 +29,6 @@ package org.apache.http.impl.io;
 
 import java.io.InterruptedIOException;
 
-import junit.framework.TestCase;
-
 import org.apache.http.Header;
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpVersion;
@@ -42,16 +40,15 @@ import org.apache.http.message.BasicLineParser;
 import org.apache.http.mockup.SessionInputBufferMockup;
 import org.apache.http.mockup.TimeoutByteArrayInputStream;
 import org.apache.http.params.BasicHttpParams;
+import org.junit.Assert;
+import org.junit.Test;
 
 /**
  * Unit tests for {@link HttpResponseParser}.
  */
-public class TestResponseParser extends TestCase {
+public class TestResponseParser {
 
-    public TestResponseParser(String testName) {
-        super(testName);
-    }
-
+    @Test
     public void testInvalidConstructorInput() throws Exception {
         try {
             new HttpResponseParser(
@@ -59,7 +56,7 @@ public class TestResponseParser extends TestCase {
                     BasicLineParser.DEFAULT,
                     new DefaultHttpResponseFactory(),
                     new BasicHttpParams());
-            fail("IllegalArgumentException should have been thrown");
+            Assert.fail("IllegalArgumentException should have been thrown");
         } catch (IllegalArgumentException ex) {
             // expected
         }
@@ -70,7 +67,7 @@ public class TestResponseParser extends TestCase {
                     BasicLineParser.DEFAULT,
                     null,
                     new BasicHttpParams());
-            fail("IllegalArgumentException should have been thrown");
+            Assert.fail("IllegalArgumentException should have been thrown");
         } catch (IllegalArgumentException ex) {
             // expected
         }
@@ -81,12 +78,13 @@ public class TestResponseParser extends TestCase {
                     BasicLineParser.DEFAULT,
                     new DefaultHttpResponseFactory(),
                     null);
-            fail("IllegalArgumentException should have been thrown");
+            Assert.fail("IllegalArgumentException should have been thrown");
         } catch (IllegalArgumentException ex) {
             // expected
         }
     }
 
+    @Test
     public void testBasicMessageParsing() throws Exception {
         String s =
             "HTTP/1.1 200 OK\r\n" +
@@ -105,14 +103,15 @@ public class TestResponseParser extends TestCase {
         HttpResponse httpresponse = (HttpResponse) parser.parse();
 
         StatusLine statusline = httpresponse.getStatusLine();
-        assertNotNull(statusline);
-        assertEquals(200, statusline.getStatusCode());
-        assertEquals("OK", statusline.getReasonPhrase());
-        assertEquals(HttpVersion.HTTP_1_1, statusline.getProtocolVersion());
+        Assert.assertNotNull(statusline);
+        Assert.assertEquals(200, statusline.getStatusCode());
+        Assert.assertEquals("OK", statusline.getReasonPhrase());
+        Assert.assertEquals(HttpVersion.HTTP_1_1, statusline.getProtocolVersion());
         Header[] headers = httpresponse.getAllHeaders();
-        assertEquals(3, headers.length);
+        Assert.assertEquals(3, headers.length);
     }
 
+    @Test
     public void testConnectionClosedException() throws Exception {
         SessionInputBuffer inbuffer = new SessionInputBufferMockup(new byte[] {});
 
@@ -124,11 +123,12 @@ public class TestResponseParser extends TestCase {
 
         try {
             parser.parse();
-            fail("NoHttpResponseException should have been thrown");
+            Assert.fail("NoHttpResponseException should have been thrown");
         } catch (NoHttpResponseException expected) {
         }
     }
 
+    @Test
     public void testMessageParsingTimeout() throws Exception {
         String s =
             "HTTP\000/1.1 200\000 OK\r\n" +
@@ -157,17 +157,17 @@ public class TestResponseParser extends TestCase {
             }
 
         }
-        assertNotNull(httpresponse);
-        assertEquals(5, timeoutCount);
+        Assert.assertNotNull(httpresponse);
+        Assert.assertEquals(5, timeoutCount);
 
         @SuppressWarnings("null") // httpresponse cannot be null here
         StatusLine statusline = httpresponse.getStatusLine();
-        assertNotNull(statusline);
-        assertEquals(200, statusline.getStatusCode());
-        assertEquals("OK", statusline.getReasonPhrase());
-        assertEquals(HttpVersion.HTTP_1_1, statusline.getProtocolVersion());
+        Assert.assertNotNull(statusline);
+        Assert.assertEquals(200, statusline.getStatusCode());
+        Assert.assertEquals("OK", statusline.getReasonPhrase());
+        Assert.assertEquals(HttpVersion.HTTP_1_1, statusline.getProtocolVersion());
         Header[] headers = httpresponse.getAllHeaders();
-        assertEquals(3, headers.length);
+        Assert.assertEquals(3, headers.length);
     }
 
 }

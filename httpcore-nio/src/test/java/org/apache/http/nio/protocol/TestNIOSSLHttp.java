@@ -62,18 +62,13 @@ import org.apache.http.protocol.ResponseConnControl;
 import org.apache.http.protocol.ResponseContent;
 import org.apache.http.protocol.ResponseDate;
 import org.apache.http.protocol.ResponseServer;
+import org.junit.Assert;
+import org.junit.Test;
 
 /**
  * HttpCore NIO SSL tests.
  */
 public class TestNIOSSLHttp extends HttpCoreNIOSSLTestBase {
-
-    // ------------------------------------------------------------ Constructor
-    public TestNIOSSLHttp(String testName) {
-        super(testName);
-    }
-
-    // ------------------------------------------------------- TestCase Methods
 
     private void executeStandardTest(
             final NHttpRequestHandler requestHandler,
@@ -130,7 +125,7 @@ public class TestNIOSSLHttp extends HttpCoreNIOSSLTestBase {
         endpoint.waitFor();
         InetSocketAddress serverAddress = (InetSocketAddress) endpoint.getAddress();
 
-        assertEquals("Test server status", IOReactorStatus.ACTIVE, this.server.getStatus());
+        Assert.assertEquals("Test server status", IOReactorStatus.ACTIVE, this.server.getStatus());
 
         Queue<SessionRequest> connRequests = new LinkedList<SessionRequest>();
         for (int i = 0; i < connNo; i++) {
@@ -146,19 +141,19 @@ public class TestNIOSSLHttp extends HttpCoreNIOSSLTestBase {
             if (sessionRequest.getException() != null) {
                 throw sessionRequest.getException();
             }
-            assertNotNull(sessionRequest.getSession());
+            Assert.assertNotNull(sessionRequest.getSession());
         }
 
-        assertEquals("Test client status", IOReactorStatus.ACTIVE, this.client.getStatus());
+        Assert.assertEquals("Test client status", IOReactorStatus.ACTIVE, this.client.getStatus());
 
         for (int i = 0; i < jobs.length; i++) {
             Job testjob = jobs[i];
             testjob.waitFor();
             if (testjob.isSuccessful()) {
-                assertEquals(HttpStatus.SC_OK, testjob.getStatusCode());
-                assertEquals(testjob.getExpected(), testjob.getResult());
+                Assert.assertEquals(HttpStatus.SC_OK, testjob.getStatusCode());
+                Assert.assertEquals(testjob.getExpected(), testjob.getResult());
             } else {
-                fail(testjob.getFailureMessage());
+                Assert.fail(testjob.getFailureMessage());
             }
         }
     }
@@ -167,6 +162,7 @@ public class TestNIOSSLHttp extends HttpCoreNIOSSLTestBase {
      * This test case executes a series of simple (non-pipelined) GET requests
      * over multiple connections.
      */
+    @Test
     public void testHttpGets() throws Exception {
         NHttpRequestExecutionHandler requestExecutionHandler = new RequestExecutionHandler() {
 
@@ -184,6 +180,7 @@ public class TestNIOSSLHttp extends HttpCoreNIOSSLTestBase {
      * This test case executes a series of simple (non-pipelined) POST requests
      * with content length delimited content over multiple connections.
      */
+    @Test
     public void testHttpPostsWithContentLength() throws Exception {
         NHttpRequestExecutionHandler requestExecutionHandler = new RequestExecutionHandler() {
 
@@ -209,6 +206,7 @@ public class TestNIOSSLHttp extends HttpCoreNIOSSLTestBase {
      * This test case executes a series of simple (non-pipelined) POST requests
      * with chunk coded content content over multiple connections.
      */
+    @Test
     public void testHttpPostsChunked() throws Exception {
         NHttpRequestExecutionHandler requestExecutionHandler = new RequestExecutionHandler() {
 
@@ -234,6 +232,7 @@ public class TestNIOSSLHttp extends HttpCoreNIOSSLTestBase {
      * This test case executes a series of simple (non-pipelined) HTTP/1.0
      * POST requests over multiple persistent connections.
      */
+    @Test
     public void testHttpPostsHTTP10() throws Exception {
         NHttpRequestExecutionHandler requestExecutionHandler = new RequestExecutionHandler() {
 
@@ -260,6 +259,7 @@ public class TestNIOSSLHttp extends HttpCoreNIOSSLTestBase {
      * over multiple connections using the 'expect: continue' handshake.  This test
      * uses nonblocking handlers & entities.
      */
+    @Test
     public void testHttpPostsWithExpectContinue() throws Exception {
         NHttpRequestExecutionHandler requestExecutionHandler = new RequestExecutionHandler() {
 

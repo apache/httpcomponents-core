@@ -27,59 +27,61 @@
 
 package org.apache.http.util;
 
-import junit.framework.TestCase;
+import org.junit.Assert;
+import org.junit.Test;
 
 /**
  * Unit tests for {@link LangUtils}.
  *
  */
-public class TestLangUtils extends TestCase {
+public class TestLangUtils {
 
-    public TestLangUtils(String testName) {
-        super(testName);
-    }
-
+    @Test
     public void testBasicHash() {
         Integer i = new Integer(1234);
         int h1 = LangUtils.hashCode(LangUtils.HASH_SEED, i.hashCode());
         int h2 = LangUtils.hashCode(LangUtils.HASH_SEED, i);
-        assertTrue(h1 == h2);
+        Assert.assertTrue(h1 == h2);
     }
 
+    @Test
     public void testNullObjectHash() {
         int h1 = LangUtils.hashCode(LangUtils.HASH_SEED, null);
         int h2 = LangUtils.hashCode(LangUtils.HASH_SEED, 0);
-        assertTrue(h1 == h2);
+        Assert.assertTrue(h1 == h2);
     }
 
+    @Test
     public void testBooleanHash() {
         int h1 = LangUtils.hashCode(LangUtils.HASH_SEED, true);
         int h2 = LangUtils.hashCode(LangUtils.HASH_SEED, false);
         int h3 = LangUtils.hashCode(LangUtils.HASH_SEED, true);
         int h4 = LangUtils.hashCode(LangUtils.HASH_SEED, false);
-        assertTrue(h1 != h2);
-        assertTrue(h1 == h3);
-        assertTrue(h2 == h4);
+        Assert.assertTrue(h1 != h2);
+        Assert.assertTrue(h1 == h3);
+        Assert.assertTrue(h2 == h4);
     }
 
+    @Test
     public void testBasicEquality() {
-        assertTrue(LangUtils.equals(null, null));
-        assertFalse(LangUtils.equals(null, "abc"));
-        assertFalse(LangUtils.equals("abc", null));
-        assertTrue(LangUtils.equals("abc", "abc"));
+        Assert.assertTrue(LangUtils.equals(null, null));
+        Assert.assertFalse(LangUtils.equals(null, "abc"));
+        Assert.assertFalse(LangUtils.equals("abc", null));
+        Assert.assertTrue(LangUtils.equals("abc", "abc"));
     }
 
+    @Test
     public void testArrayEquals() {
-        assertFalse(LangUtils.equals(null, new Object[] {}));
-        assertFalse(LangUtils.equals(new Object[] {}, null));
-        assertTrue(LangUtils.equals(new Object[] {}, new Object[] {}));
-        assertFalse(LangUtils.equals(
+        Assert.assertFalse(LangUtils.equals(null, new Object[] {}));
+        Assert.assertFalse(LangUtils.equals(new Object[] {}, null));
+        Assert.assertTrue(LangUtils.equals(new Object[] {}, new Object[] {}));
+        Assert.assertFalse(LangUtils.equals(
                 new Object[] {new Integer(1), new Integer(2)},
                 new Object[] {new Integer(1)}));
-        assertFalse(LangUtils.equals(
+        Assert.assertFalse(LangUtils.equals(
                 new Object[] {new Integer(1), new Integer(2)},
                 new Object[] {new Integer(1), new Integer(3)}));
-        assertTrue(LangUtils.equals(
+        Assert.assertTrue(LangUtils.equals(
                 new Object[] {new Integer(1), new Integer(2)},
                 new Object[] {new Integer(1), new Integer(2)}));
     }

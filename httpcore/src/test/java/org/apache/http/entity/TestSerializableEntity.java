@@ -33,9 +33,10 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.Serializable;
 
-import junit.framework.TestCase;
+import org.junit.Assert;
+import org.junit.Test;
 
-public class TestSerializableEntity extends TestCase {
+public class TestSerializableEntity {
 
     public static class SerializableObject implements Serializable {
 
@@ -48,10 +49,7 @@ public class TestSerializableEntity extends TestCase {
         public SerializableObject() {}
     }
 
-    public TestSerializableEntity(String testName) {
-        super(testName);
-    }
-
+    @Test
     public void testBasicsBuff() throws Exception {
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         ObjectOutputStream out = new ObjectOutputStream(baos);
@@ -61,12 +59,13 @@ public class TestSerializableEntity extends TestCase {
 
         SerializableEntity httpentity = new SerializableEntity(serializableObj, true);
 
-        assertEquals(baos.toByteArray().length, httpentity.getContentLength());
-        assertNotNull(httpentity.getContent());
-        assertTrue(httpentity.isRepeatable());
-        assertFalse(httpentity.isStreaming());
+        Assert.assertEquals(baos.toByteArray().length, httpentity.getContentLength());
+        Assert.assertNotNull(httpentity.getContent());
+        Assert.assertTrue(httpentity.isRepeatable());
+        Assert.assertFalse(httpentity.isStreaming());
     }
 
+    @Test
     public void testBasicsDirect() throws Exception {
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         ObjectOutputStream out = new ObjectOutputStream(baos);
@@ -76,21 +75,23 @@ public class TestSerializableEntity extends TestCase {
 
         SerializableEntity httpentity = new SerializableEntity(serializableObj, false);
 
-        assertEquals(-1, httpentity.getContentLength());
-        assertNotNull(httpentity.getContent());
-        assertTrue(httpentity.isRepeatable());
-        assertFalse(httpentity.isStreaming());
+        Assert.assertEquals(-1, httpentity.getContentLength());
+        Assert.assertNotNull(httpentity.getContent());
+        Assert.assertTrue(httpentity.isRepeatable());
+        Assert.assertFalse(httpentity.isStreaming());
     }
 
+    @Test
     public void testIllegalConstructor() throws Exception {
         try {
             new SerializableEntity(null, false);
-            fail("IllegalArgumentException should have been thrown");
+            Assert.fail("IllegalArgumentException should have been thrown");
         } catch (IllegalArgumentException ex) {
             // expected
         }
     }
 
+    @Test
     public void testWriteToBuff() throws Exception {
         Serializable serializableObj = new SerializableObject();
         SerializableEntity httpentity = new SerializableEntity(serializableObj, true);
@@ -98,21 +99,22 @@ public class TestSerializableEntity extends TestCase {
         ByteArrayOutputStream out = new ByteArrayOutputStream();
         httpentity.writeTo(out);
         byte[] bytes = out.toByteArray();
-        assertNotNull(bytes);
+        Assert.assertNotNull(bytes);
         ObjectInputStream oin = new ObjectInputStream(new ByteArrayInputStream(
                 bytes));
         SerializableObject serIn = (SerializableObject) oin.readObject();
-        assertEquals(4, serIn.intValue);
-        assertEquals("Hello", serIn.stringValue);
+        Assert.assertEquals(4, serIn.intValue);
+        Assert.assertEquals("Hello", serIn.stringValue);
 
         try {
             httpentity.writeTo(null);
-            fail("IllegalArgumentException should have been thrown");
+            Assert.fail("IllegalArgumentException should have been thrown");
         } catch (IllegalArgumentException ex) {
             // expected
         }
     }
 
+    @Test
     public void testWriteToDirect() throws Exception {
         Serializable serializableObj = new SerializableObject();
         SerializableEntity httpentity = new SerializableEntity(serializableObj, false);
@@ -120,16 +122,16 @@ public class TestSerializableEntity extends TestCase {
         ByteArrayOutputStream out = new ByteArrayOutputStream();
         httpentity.writeTo(out);
         byte[] bytes = out.toByteArray();
-        assertNotNull(bytes);
+        Assert.assertNotNull(bytes);
         ObjectInputStream oin = new ObjectInputStream(new ByteArrayInputStream(
                 bytes));
         SerializableObject serIn = (SerializableObject) oin.readObject();
-        assertEquals(4, serIn.intValue);
-        assertEquals("Hello", serIn.stringValue);
+        Assert.assertEquals(4, serIn.intValue);
+        Assert.assertEquals("Hello", serIn.stringValue);
 
         try {
             httpentity.writeTo(null);
-            fail("IllegalArgumentException should have been thrown");
+            Assert.fail("IllegalArgumentException should have been thrown");
         } catch (IllegalArgumentException ex) {
             // expected
         }

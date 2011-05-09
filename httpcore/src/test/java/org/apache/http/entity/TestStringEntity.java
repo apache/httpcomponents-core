@@ -29,53 +29,53 @@ package org.apache.http.entity;
 
 import java.io.ByteArrayOutputStream;
 
-import junit.framework.TestCase;
-
 import org.apache.http.protocol.HTTP;
+import org.junit.Assert;
+import org.junit.Test;
 
 /**
  * Unit tests for {@link StringEntity}.
  *
  */
-public class TestStringEntity extends TestCase {
+public class TestStringEntity {
 
-    public TestStringEntity(String testName) {
-        super(testName);
-    }
-
+    @Test
     public void testBasics() throws Exception {
         String s = "Message content";
         StringEntity httpentity = new StringEntity(s, HTTP.ISO_8859_1);
 
         byte[] bytes = s.getBytes(HTTP.ISO_8859_1);
-        assertEquals(bytes.length, httpentity.getContentLength());
-        assertNotNull(httpentity.getContent());
-        assertTrue(httpentity.isRepeatable());
-        assertFalse(httpentity.isStreaming());
+        Assert.assertEquals(bytes.length, httpentity.getContentLength());
+        Assert.assertNotNull(httpentity.getContent());
+        Assert.assertTrue(httpentity.isRepeatable());
+        Assert.assertFalse(httpentity.isStreaming());
     }
 
+    @Test
     public void testIllegalConstructor() throws Exception {
         try {
             new StringEntity(null);
-            fail("IllegalArgumentException should have been thrown");
+            Assert.fail("IllegalArgumentException should have been thrown");
         } catch (IllegalArgumentException ex) {
             // expected
         }
     }
 
+    @Test
     public void testDefaultContent() throws Exception {
         String s = "Message content";
         StringEntity httpentity = new StringEntity(s, "text/csv", "ANSI_X3.4-1968");
-        assertEquals("text/csv; charset=ANSI_X3.4-1968",
+        Assert.assertEquals("text/csv; charset=ANSI_X3.4-1968",
                 httpentity.getContentType().getValue());
         httpentity = new StringEntity(s, HTTP.US_ASCII);
-        assertEquals("text/plain; charset=US-ASCII",
+        Assert.assertEquals("text/plain; charset=US-ASCII",
                 httpentity.getContentType().getValue());
         httpentity = new StringEntity(s);
-        assertEquals("text/plain; charset=ISO-8859-1",
+        Assert.assertEquals("text/plain; charset=ISO-8859-1",
                 httpentity.getContentType().getValue());
     }
 
+    @Test
     public void testWriteTo() throws Exception {
         String s = "Message content";
         byte[] bytes = s.getBytes(HTTP.ISO_8859_1);
@@ -84,24 +84,24 @@ public class TestStringEntity extends TestCase {
         ByteArrayOutputStream out = new ByteArrayOutputStream();
         httpentity.writeTo(out);
         byte[] bytes2 = out.toByteArray();
-        assertNotNull(bytes2);
-        assertEquals(bytes.length, bytes2.length);
+        Assert.assertNotNull(bytes2);
+        Assert.assertEquals(bytes.length, bytes2.length);
         for (int i = 0; i < bytes.length; i++) {
-            assertEquals(bytes[i], bytes2[i]);
+            Assert.assertEquals(bytes[i], bytes2[i]);
         }
 
         out = new ByteArrayOutputStream();
         httpentity.writeTo(out);
         bytes2 = out.toByteArray();
-        assertNotNull(bytes2);
-        assertEquals(bytes.length, bytes2.length);
+        Assert.assertNotNull(bytes2);
+        Assert.assertEquals(bytes.length, bytes2.length);
         for (int i = 0; i < bytes.length; i++) {
-            assertEquals(bytes[i], bytes2[i]);
+            Assert.assertEquals(bytes[i], bytes2[i]);
         }
 
         try {
             httpentity.writeTo(null);
-            fail("IllegalArgumentException should have been thrown");
+            Assert.fail("IllegalArgumentException should have been thrown");
         } catch (IllegalArgumentException ex) {
             // expected
         }

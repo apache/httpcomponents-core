@@ -27,71 +27,66 @@
 
 package org.apache.http.message;
 
-import junit.framework.TestCase;
-
 import org.apache.http.Header;
 import org.apache.http.HttpStatus;
 import org.apache.http.HttpVersion;
 import org.apache.http.RequestLine;
 import org.apache.http.StatusLine;
 import org.apache.http.util.CharArrayBuffer;
+import org.junit.Assert;
+import org.junit.Test;
 
 /**
  * Tests for {@link BasicLineFormatter}.
- *
- *
  */
-public class TestBasicLineFormatter extends TestCase {
+public class TestBasicLineFormatter {
 
-    // ------------------------------------------------------------ Constructor
-    public TestBasicLineFormatter(String testName) {
-        super(testName);
-    }
-
-    // ------------------------------------------------------- TestCase Methods
-
+    @Test
     public void testHttpVersionFormatting() throws Exception {
         String s = BasicLineFormatter.formatProtocolVersion
             (HttpVersion.HTTP_1_1, null);
-        assertEquals("HTTP/1.1", s);
+        Assert.assertEquals("HTTP/1.1", s);
     }
 
+    @Test
     public void testHttpVersionFormattingInvalidInput() throws Exception {
         try {
             BasicLineFormatter.formatProtocolVersion
                 (null, BasicLineFormatter.DEFAULT);
-            fail("IllegalArgumentException should habe been thrown");
+            Assert.fail("IllegalArgumentException should habe been thrown");
         } catch (IllegalArgumentException ex) {
             // expected
         }
         try {
             BasicLineFormatter.DEFAULT.appendProtocolVersion
                 (new CharArrayBuffer(10), (HttpVersion) null);
-            fail("IllegalArgumentException should habe been thrown");
+            Assert.fail("IllegalArgumentException should habe been thrown");
         } catch (IllegalArgumentException ex) {
             // expected
         }
     }
 
 
+    @Test
     public void testRLFormatting() throws Exception {
         RequestLine requestline = new BasicRequestLine("GET", "/stuff", HttpVersion.HTTP_1_1);
         String s = BasicLineFormatter.formatRequestLine(requestline, null);
-        assertEquals("GET /stuff HTTP/1.1", s);
+        Assert.assertEquals("GET /stuff HTTP/1.1", s);
     }
 
+    @Test
     public void testRLFormattingInvalidInput() throws Exception {
         try {
             BasicLineFormatter.formatRequestLine
                 (null, BasicLineFormatter.DEFAULT);
-            fail("IllegalArgumentException should habe been thrown");
+            Assert.fail("IllegalArgumentException should habe been thrown");
         } catch (IllegalArgumentException ex) {
             // expected
         }
         try {
             BasicLineFormatter.DEFAULT.formatRequestLine
                 (new CharArrayBuffer(10), (RequestLine) null);
-            fail("IllegalArgumentException should habe been thrown");
+            Assert.fail("IllegalArgumentException should habe been thrown");
         } catch (IllegalArgumentException ex) {
             // expected
         }
@@ -99,56 +94,60 @@ public class TestBasicLineFormatter extends TestCase {
 
 
 
+    @Test
     public void testSLFormatting() throws Exception {
         StatusLine statusline = new BasicStatusLine(HttpVersion.HTTP_1_1, HttpStatus.SC_OK, "OK");
         String s = BasicLineFormatter.formatStatusLine(statusline, null);
-        assertEquals("HTTP/1.1 200 OK", s);
+        Assert.assertEquals("HTTP/1.1 200 OK", s);
         statusline = new BasicStatusLine(HttpVersion.HTTP_1_1, HttpStatus.SC_OK, null);
         s = BasicLineFormatter.formatStatusLine(statusline, null);
-        assertEquals("HTTP/1.1 200 ", s);
+        Assert.assertEquals("HTTP/1.1 200 ", s);
         // see "testSLParseSuccess" in TestBasicLineParser:
         // trailing space is correct
     }
 
+    @Test
     public void testSLFormattingInvalidInput() throws Exception {
         try {
             BasicLineFormatter.formatStatusLine
                 (null, BasicLineFormatter.DEFAULT);
-            fail("IllegalArgumentException should habe been thrown");
+            Assert.fail("IllegalArgumentException should habe been thrown");
         } catch (IllegalArgumentException ex) {
             // expected
         }
         try {
             BasicLineFormatter.DEFAULT.formatStatusLine
                 (new CharArrayBuffer(10), (StatusLine) null);
-            fail("IllegalArgumentException should habe been thrown");
+            Assert.fail("IllegalArgumentException should habe been thrown");
         } catch (IllegalArgumentException ex) {
             // expected
         }
     }
 
 
+    @Test
     public void testHeaderFormatting() throws Exception {
         Header header1 = new BasicHeader("name", "value");
         String s = BasicLineFormatter.formatHeader(header1, null);
-        assertEquals("name: value", s);
+        Assert.assertEquals("name: value", s);
         Header header2 = new BasicHeader("name", null);
         s = BasicLineFormatter.formatHeader(header2, null);
-        assertEquals("name: ", s);
+        Assert.assertEquals("name: ", s);
     }
 
+    @Test
     public void testHeaderFormattingInvalidInput() throws Exception {
         try {
             BasicLineFormatter.formatHeader
                 (null, BasicLineFormatter.DEFAULT);
-            fail("IllegalArgumentException should habe been thrown");
+            Assert.fail("IllegalArgumentException should habe been thrown");
         } catch (IllegalArgumentException ex) {
             // expected
         }
         try {
             BasicLineFormatter.DEFAULT.formatHeader
                 (new CharArrayBuffer(10), (Header) null);
-            fail("IllegalArgumentException should habe been thrown");
+            Assert.fail("IllegalArgumentException should habe been thrown");
         } catch (IllegalArgumentException ex) {
             // expected
         }

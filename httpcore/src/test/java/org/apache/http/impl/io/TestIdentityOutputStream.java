@@ -31,26 +31,24 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 
-import junit.framework.TestCase;
-
 import org.apache.http.mockup.SessionOutputBufferMockup;
+import org.junit.Assert;
+import org.junit.Test;
 
-public class TestIdentityOutputStream extends TestCase {
+public class TestIdentityOutputStream {
 
-    public TestIdentityOutputStream(String testName) {
-        super(testName);
-    }
-
+    @Test
     public void testConstructors() throws Exception {
         new IdentityOutputStream(new SessionOutputBufferMockup());
         try {
             new IdentityOutputStream(null);
-            fail("IllegalArgumentException should have been thrown");
+            Assert.fail("IllegalArgumentException should have been thrown");
         } catch (IllegalArgumentException ex) {
             // expected
         }
     }
 
+    @Test
     public void testBasics() throws Exception {
         ByteArrayOutputStream buffer = new ByteArrayOutputStream();
         SessionOutputBufferMockup datatransmitter = new SessionOutputBufferMockup(buffer);
@@ -63,9 +61,10 @@ public class TestIdentityOutputStream extends TestCase {
         out.flush();
         out.close();
         byte[] data = datatransmitter.getData();
-        assertEquals(21, data.length);
+        Assert.assertEquals(21, data.length);
     }
 
+    @Test
     public void testClose() throws Exception {
         ByteArrayOutputStream buffer = new ByteArrayOutputStream();
         SessionOutputBufferMockup datatransmitter = new SessionOutputBufferMockup(buffer);
@@ -75,29 +74,31 @@ public class TestIdentityOutputStream extends TestCase {
         byte[] tmp = new byte[10];
         try {
             out.write(tmp);
-            fail("IOException should have been thrown");
+            Assert.fail("IOException should have been thrown");
         } catch (IOException ex) {
             // expected
         }
         try {
             out.write(1);
-            fail("IOException should have been thrown");
+            Assert.fail("IOException should have been thrown");
         } catch (IOException ex) {
             // expected
         }
     }
 
+    @Test
     public void testConstructor() throws Exception {
         SessionOutputBufferMockup transmitter = new SessionOutputBufferMockup();
         new IdentityOutputStream(transmitter);
         try {
             new IdentityOutputStream(null);
-            fail("IllegalArgumentException should have been thrown");
+            Assert.fail("IllegalArgumentException should have been thrown");
         } catch (IllegalArgumentException ex) {
             //expected
         }
     }
 
+    @Test
     public void testBasicWrite() throws Exception {
         SessionOutputBufferMockup transmitter = new SessionOutputBufferMockup();
         IdentityOutputStream outstream = new IdentityOutputStream(transmitter);
@@ -107,14 +108,15 @@ public class TestIdentityOutputStream extends TestCase {
 
         byte[] input = transmitter.getData();
 
-        assertNotNull(input);
+        Assert.assertNotNull(input);
         byte[] expected = new byte[] {'a', 'b', 'c'};
-        assertEquals(expected.length, input.length);
+        Assert.assertEquals(expected.length, input.length);
         for (int i = 0; i < expected.length; i++) {
-            assertEquals(expected[i], input[i]);
+            Assert.assertEquals(expected[i], input[i]);
         }
     }
 
+    @Test
     public void testClosedCondition() throws Exception {
         SessionOutputBufferMockup transmitter = new SessionOutputBufferMockup();
         IdentityOutputStream outstream = new IdentityOutputStream(transmitter);
@@ -124,13 +126,13 @@ public class TestIdentityOutputStream extends TestCase {
         try {
             byte[] tmp = new byte[2];
             outstream.write(tmp, 0, tmp.length);
-            fail("IOException should have been thrown");
+            Assert.fail("IOException should have been thrown");
         } catch (IOException e) {
             //expected
         }
         try {
             outstream.write('a');
-            fail("IOException should have been thrown");
+            Assert.fail("IOException should have been thrown");
         } catch (IOException e) {
             //expected
         }

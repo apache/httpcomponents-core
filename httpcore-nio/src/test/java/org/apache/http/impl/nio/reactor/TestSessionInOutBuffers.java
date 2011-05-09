@@ -36,29 +36,19 @@ import java.nio.channels.ReadableByteChannel;
 import java.nio.channels.WritableByteChannel;
 import java.nio.charset.CharacterCodingException;
 
-import junit.framework.TestCase;
-
 import org.apache.http.nio.reactor.SessionInputBuffer;
 import org.apache.http.nio.reactor.SessionOutputBuffer;
 import org.apache.http.params.BasicHttpParams;
 import org.apache.http.params.HttpParams;
 import org.apache.http.params.HttpProtocolParams;
 import org.apache.http.util.CharArrayBuffer;
+import org.junit.Assert;
+import org.junit.Test;
 
 /**
  * Simple tests for {@link SessionInputBuffer} and {@link SessionOutputBuffer}.
- *
- *
- * @version $Id$
  */
-public class TestSessionInOutBuffers extends TestCase {
-
-    // ------------------------------------------------------------ Constructor
-    public TestSessionInOutBuffers(String testName) {
-        super(testName);
-    }
-
-    // ------------------------------------------------------- TestCase Methods
+public class TestSessionInOutBuffers {
 
     private static WritableByteChannel newChannel(final ByteArrayOutputStream outstream) {
         return Channels.newChannel(outstream);
@@ -78,6 +68,7 @@ public class TestSessionInOutBuffers extends TestCase {
         return newChannel(s, "US-ASCII");
     }
 
+    @Test
     public void testReadLineChunks() throws Exception {
 
         HttpParams params = new BasicHttpParams();
@@ -90,33 +81,34 @@ public class TestSessionInOutBuffers extends TestCase {
         CharArrayBuffer line = new CharArrayBuffer(64);
 
         line.clear();
-        assertTrue(inbuf.readLine(line, false));
-        assertEquals("One", line.toString());
+        Assert.assertTrue(inbuf.readLine(line, false));
+        Assert.assertEquals("One", line.toString());
 
         line.clear();
-        assertTrue(inbuf.readLine(line, false));
-        assertEquals("Two", line.toString());
+        Assert.assertTrue(inbuf.readLine(line, false));
+        Assert.assertEquals("Two", line.toString());
 
         line.clear();
-        assertFalse(inbuf.readLine(line, false));
+        Assert.assertFalse(inbuf.readLine(line, false));
 
         channel = newChannel("\r\nFour");
         inbuf.fill(channel);
 
         line.clear();
-        assertTrue(inbuf.readLine(line, false));
-        assertEquals("Three", line.toString());
+        Assert.assertTrue(inbuf.readLine(line, false));
+        Assert.assertEquals("Three", line.toString());
 
         inbuf.fill(channel);
 
         line.clear();
-        assertTrue(inbuf.readLine(line, true));
-        assertEquals("Four", line.toString());
+        Assert.assertTrue(inbuf.readLine(line, true));
+        Assert.assertEquals("Four", line.toString());
 
         line.clear();
-        assertFalse(inbuf.readLine(line, true));
+        Assert.assertFalse(inbuf.readLine(line, true));
     }
 
+    @Test
     public void testWriteLineChunks() throws Exception {
 
         HttpParams params = new BasicHttpParams();
@@ -130,48 +122,49 @@ public class TestSessionInOutBuffers extends TestCase {
         CharArrayBuffer line = new CharArrayBuffer(64);
 
         line.clear();
-        assertTrue(inbuf.readLine(line, false));
-        assertEquals("One", line.toString());
+        Assert.assertTrue(inbuf.readLine(line, false));
+        Assert.assertEquals("One", line.toString());
 
         outbuf.writeLine(line);
 
         line.clear();
-        assertTrue(inbuf.readLine(line, false));
-        assertEquals("Two", line.toString());
+        Assert.assertTrue(inbuf.readLine(line, false));
+        Assert.assertEquals("Two", line.toString());
 
         outbuf.writeLine(line);
 
         line.clear();
-        assertFalse(inbuf.readLine(line, false));
+        Assert.assertFalse(inbuf.readLine(line, false));
 
         inChannel = newChannel("\r\nFour");
         inbuf.fill(inChannel);
 
         line.clear();
-        assertTrue(inbuf.readLine(line, false));
-        assertEquals("Three", line.toString());
+        Assert.assertTrue(inbuf.readLine(line, false));
+        Assert.assertEquals("Three", line.toString());
 
         outbuf.writeLine(line);
 
         inbuf.fill(inChannel);
 
         line.clear();
-        assertTrue(inbuf.readLine(line, true));
-        assertEquals("Four", line.toString());
+        Assert.assertTrue(inbuf.readLine(line, true));
+        Assert.assertEquals("Four", line.toString());
 
         outbuf.writeLine(line);
 
         line.clear();
-        assertFalse(inbuf.readLine(line, true));
+        Assert.assertFalse(inbuf.readLine(line, true));
 
         ByteArrayOutputStream outstream = new ByteArrayOutputStream();
         WritableByteChannel outChannel = newChannel(outstream);
         outbuf.flush(outChannel);
 
         String s = new String(outstream.toByteArray(), "US-ASCII");
-        assertEquals("One\r\nTwo\r\nThree\r\nFour\r\n", s);
+        Assert.assertEquals("One\r\nTwo\r\nThree\r\nFour\r\n", s);
     }
 
+    @Test
     public void testBasicReadWriteLine() throws Exception {
 
         String[] teststrs = new String[5];
@@ -207,12 +200,13 @@ public class TestSessionInOutBuffers extends TestCase {
         inbuf.fill(channel);
 
         for (int i = 0; i < teststrs.length; i++) {
-            assertEquals(teststrs[i], inbuf.readLine(true));
+            Assert.assertEquals(teststrs[i], inbuf.readLine(true));
         }
-        assertNull(inbuf.readLine(true));
-        assertNull(inbuf.readLine(true));
+        Assert.assertNull(inbuf.readLine(true));
+        Assert.assertNull(inbuf.readLine(true));
     }
 
+    @Test
     public void testComplexReadWriteLine() throws Exception {
         HttpParams params = new BasicHttpParams();
 
@@ -257,18 +251,19 @@ public class TestSessionInOutBuffers extends TestCase {
         SessionInputBuffer inbuf = new SessionInputBufferImpl(1024, 16, params);
         inbuf.fill(channel);
 
-        assertEquals("a", inbuf.readLine(true));
-        assertEquals("", inbuf.readLine(true));
-        assertEquals("\r", inbuf.readLine(true));
-        assertEquals("", inbuf.readLine(true));
-        assertEquals(s1, inbuf.readLine(true));
-        assertEquals(s2, inbuf.readLine(true));
-        assertEquals(s3, inbuf.readLine(true));
-        assertEquals("a", inbuf.readLine(true));
-        assertNull(inbuf.readLine(true));
-        assertNull(inbuf.readLine(true));
+        Assert.assertEquals("a", inbuf.readLine(true));
+        Assert.assertEquals("", inbuf.readLine(true));
+        Assert.assertEquals("\r", inbuf.readLine(true));
+        Assert.assertEquals("", inbuf.readLine(true));
+        Assert.assertEquals(s1, inbuf.readLine(true));
+        Assert.assertEquals(s2, inbuf.readLine(true));
+        Assert.assertEquals(s3, inbuf.readLine(true));
+        Assert.assertEquals("a", inbuf.readLine(true));
+        Assert.assertNull(inbuf.readLine(true));
+        Assert.assertNull(inbuf.readLine(true));
     }
 
+    @Test
     public void testReadOneByte() throws Exception {
         // make the buffer larger than that of transmitter
         byte[] out = new byte[40];
@@ -286,10 +281,11 @@ public class TestSessionInOutBuffers extends TestCase {
             in[i] = (byte)inbuf.read();
         }
         for (int i = 0; i < out.length; i++) {
-            assertEquals(out[i], in[i]);
+            Assert.assertEquals(out[i], in[i]);
         }
     }
 
+    @Test
     public void testReadByteBuffer() throws Exception {
         byte[] pattern = "0123456789ABCDEF".getBytes("US-ASCII");
         ReadableByteChannel channel = newChannel(pattern);
@@ -298,15 +294,16 @@ public class TestSessionInOutBuffers extends TestCase {
         while (inbuf.fill(channel) > 0) {
         }
         ByteBuffer dst = ByteBuffer.allocate(10);
-        assertEquals(10, inbuf.read(dst));
+        Assert.assertEquals(10, inbuf.read(dst));
         dst.flip();
-        assertEquals(dst, ByteBuffer.wrap(pattern, 0, 10));
+        Assert.assertEquals(dst, ByteBuffer.wrap(pattern, 0, 10));
         dst.clear();
-        assertEquals(6, inbuf.read(dst));
+        Assert.assertEquals(6, inbuf.read(dst));
         dst.flip();
-        assertEquals(dst, ByteBuffer.wrap(pattern, 10, 6));
+        Assert.assertEquals(dst, ByteBuffer.wrap(pattern, 10, 6));
     }
 
+    @Test
     public void testReadByteBufferWithMaxLen() throws Exception {
         byte[] pattern = "0123456789ABCDEF".getBytes("US-ASCII");
         ReadableByteChannel channel = newChannel(pattern);
@@ -315,18 +312,19 @@ public class TestSessionInOutBuffers extends TestCase {
         while (inbuf.fill(channel) > 0) {
         }
         ByteBuffer dst = ByteBuffer.allocate(16);
-        assertEquals(10, inbuf.read(dst, 10));
+        Assert.assertEquals(10, inbuf.read(dst, 10));
         dst.flip();
-        assertEquals(dst, ByteBuffer.wrap(pattern, 0, 10));
+        Assert.assertEquals(dst, ByteBuffer.wrap(pattern, 0, 10));
         dst.clear();
-        assertEquals(3, inbuf.read(dst, 3));
+        Assert.assertEquals(3, inbuf.read(dst, 3));
         dst.flip();
-        assertEquals(dst, ByteBuffer.wrap(pattern, 10, 3));
-        assertEquals(3, inbuf.read(dst, 20));
+        Assert.assertEquals(dst, ByteBuffer.wrap(pattern, 10, 3));
+        Assert.assertEquals(3, inbuf.read(dst, 20));
         dst.flip();
-        assertEquals(dst, ByteBuffer.wrap(pattern, 13, 3));
+        Assert.assertEquals(dst, ByteBuffer.wrap(pattern, 13, 3));
     }
 
+    @Test
     public void testReadToChannel() throws Exception {
         byte[] pattern = "0123456789ABCDEF".getBytes("US-ASCII");
         ReadableByteChannel channel = newChannel(pattern);
@@ -338,10 +336,11 @@ public class TestSessionInOutBuffers extends TestCase {
         ByteArrayOutputStream outstream = new ByteArrayOutputStream();
         WritableByteChannel dst = newChannel(outstream);
 
-        assertEquals(16, inbuf.read(dst));
-        assertEquals(ByteBuffer.wrap(pattern), ByteBuffer.wrap(outstream.toByteArray()));
+        Assert.assertEquals(16, inbuf.read(dst));
+        Assert.assertEquals(ByteBuffer.wrap(pattern), ByteBuffer.wrap(outstream.toByteArray()));
     }
 
+    @Test
     public void testReadToChannelWithMaxLen() throws Exception {
         byte[] pattern = "0123456789ABCDEF".getBytes("US-ASCII");
         ReadableByteChannel channel = newChannel(pattern);
@@ -353,12 +352,13 @@ public class TestSessionInOutBuffers extends TestCase {
         ByteArrayOutputStream outstream = new ByteArrayOutputStream();
         WritableByteChannel dst = newChannel(outstream);
 
-        assertEquals(10, inbuf.read(dst, 10));
-        assertEquals(3, inbuf.read(dst, 3));
-        assertEquals(3, inbuf.read(dst, 10));
-        assertEquals(ByteBuffer.wrap(pattern), ByteBuffer.wrap(outstream.toByteArray()));
+        Assert.assertEquals(10, inbuf.read(dst, 10));
+        Assert.assertEquals(3, inbuf.read(dst, 3));
+        Assert.assertEquals(3, inbuf.read(dst, 10));
+        Assert.assertEquals(ByteBuffer.wrap(pattern), ByteBuffer.wrap(outstream.toByteArray()));
     }
 
+    @Test
     public void testWriteByteBuffer() throws Exception {
         byte[] pattern = "0123456789ABCDEF0123456789ABCDEF".getBytes("US-ASCII");
 
@@ -371,9 +371,10 @@ public class TestSessionInOutBuffers extends TestCase {
         WritableByteChannel channel = newChannel(outstream);
         while (outbuf.flush(channel) > 0) {
         }
-        assertEquals(ByteBuffer.wrap(pattern), ByteBuffer.wrap(outstream.toByteArray()));
+        Assert.assertEquals(ByteBuffer.wrap(pattern), ByteBuffer.wrap(outstream.toByteArray()));
     }
 
+    @Test
     public void testWriteFromChannel() throws Exception {
         byte[] pattern = "0123456789ABCDEF0123456789ABCDEF".getBytes("US-ASCII");
 
@@ -387,7 +388,7 @@ public class TestSessionInOutBuffers extends TestCase {
         WritableByteChannel channel = newChannel(outstream);
         while (outbuf.flush(channel) > 0) {
         }
-        assertEquals(ByteBuffer.wrap(pattern), ByteBuffer.wrap(outstream.toByteArray()));
+        Assert.assertEquals(ByteBuffer.wrap(pattern), ByteBuffer.wrap(outstream.toByteArray()));
     }
 
     static final int SWISS_GERMAN_HELLO [] = {
@@ -409,6 +410,7 @@ public class TestSessionInOutBuffers extends TestCase {
         return buffer.toString();
     }
 
+    @Test
     public void testMultibyteCodedReadWriteLine() throws Exception {
         String s1 = constructString(SWISS_GERMAN_HELLO);
         String s2 = constructString(RUSSIAN_HELLO);
@@ -438,19 +440,20 @@ public class TestSessionInOutBuffers extends TestCase {
         }
 
         for (int i = 0; i < 10; i++) {
-            assertEquals(s1, inbuf.readLine(true));
-            assertEquals(s2, inbuf.readLine(true));
-            assertEquals(s3, inbuf.readLine(true));
+            Assert.assertEquals(s1, inbuf.readLine(true));
+            Assert.assertEquals(s2, inbuf.readLine(true));
+            Assert.assertEquals(s3, inbuf.readLine(true));
         }
     }
 
+    @Test
     public void testMalformedCharacters() throws Exception {
         HttpParams params = new BasicHttpParams();
         String s1 = constructString(SWISS_GERMAN_HELLO);
         SessionOutputBuffer outbuf = new SessionOutputBufferImpl(1024, 16, params);
         try {
             outbuf.writeLine(s1);
-            fail("Expected CharacterCodingException");
+            Assert.fail("Expected CharacterCodingException");
         } catch (CharacterCodingException expected) {
         }
 
@@ -462,11 +465,12 @@ public class TestSessionInOutBuffers extends TestCase {
 
         try {
             String s = inbuf.readLine(true);
-            fail("Expected CharacterCodingException, got '" + s + "'");
+            Assert.fail("Expected CharacterCodingException, got '" + s + "'");
         } catch (CharacterCodingException expected) {
         }
     }
 
+    @Test
     public void testInputMatchesBufferLength() throws Exception {
         HttpParams params = new BasicHttpParams();
         String s1 = "abcde";

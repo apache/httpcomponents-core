@@ -29,41 +29,40 @@ package org.apache.http.params;
 
 import java.util.Set;
 
-import junit.framework.TestCase;
+import org.junit.Assert;
+import org.junit.Test;
 
 /**
  * Unit tests for {@link BasicHttpParams}.
  *
  */
-public class TestDefaultedHttpParams extends TestCase {
+public class TestDefaultedHttpParams {
 
-    public TestDefaultedHttpParams(String testName) {
-        super(testName);
-    }
-
+    @Test
     public void testAddRemoveParam() {
         DefaultedHttpParams deflt = new DefaultedHttpParams(new BasicHttpParams(), new BasicHttpParams());
-        assertFalse("The parameter should not be removed successfully", deflt.removeParameter("param1"));
+        Assert.assertFalse("The parameter should not be removed successfully", deflt.removeParameter("param1"));
         deflt.setParameter("param1", "paramValue1");
-        assertEquals(0, deflt.getDefaultNames().size());
-        assertEquals(1, deflt.getNames().size());
-        assertEquals(1, deflt.getLocalNames().size());
-        assertTrue("The parameter should be removed successfully", deflt.removeParameter("param1"));
-        assertFalse("The parameter should not be present", deflt.removeParameter("param1"));
-        assertEquals(0, deflt.getDefaultNames().size());
-        assertEquals(0, deflt.getNames().size());
-        assertEquals(0, deflt.getLocalNames().size());
+        Assert.assertEquals(0, deflt.getDefaultNames().size());
+        Assert.assertEquals(1, deflt.getNames().size());
+        Assert.assertEquals(1, deflt.getLocalNames().size());
+        Assert.assertTrue("The parameter should be removed successfully", deflt.removeParameter("param1"));
+        Assert.assertFalse("The parameter should not be present", deflt.removeParameter("param1"));
+        Assert.assertEquals(0, deflt.getDefaultNames().size());
+        Assert.assertEquals(0, deflt.getNames().size());
+        Assert.assertEquals(0, deflt.getLocalNames().size());
     }
 
+    @Test
     public void testEmptyParams() {
         DefaultedHttpParams deflt = new DefaultedHttpParams(new BasicHttpParams(), new BasicHttpParams());
-        assertNull("The parameter should not be present", deflt.getParameter("param1"));
+        Assert.assertNull("The parameter should not be present", deflt.getParameter("param1"));
         //try a remove from an empty params
-        assertFalse("The parameter should not be present", deflt.removeParameter("param1"));
+        Assert.assertFalse("The parameter should not be present", deflt.removeParameter("param1"));
 
-        assertEquals(0, deflt.getNames().size());
-        assertEquals(0, deflt.getLocalNames().size());
-        assertEquals(0, deflt.getDefaultNames().size());
+        Assert.assertEquals(0, deflt.getNames().size());
+        Assert.assertEquals(0, deflt.getLocalNames().size());
+        Assert.assertEquals(0, deflt.getDefaultNames().size());
     }
 
     private HttpParams addParams(String name){
@@ -73,26 +72,27 @@ public class TestDefaultedHttpParams extends TestCase {
         return params;
     }
 
+    @Test
     public void testgetNames() {
         DefaultedHttpParams params = new DefaultedHttpParams(addParams("local"), addParams("default"));
 
         Set<String> nameSet = params.getNames();
-        assertEquals(3, nameSet.size());
+        Assert.assertEquals(3, nameSet.size());
         Set<String> localnameSet = params.getLocalNames();
-        assertEquals(2, localnameSet.size());
+        Assert.assertEquals(2, localnameSet.size());
         Set<String> defaultnameSet = params.getDefaultNames();
-        assertEquals(2, defaultnameSet.size());
+        Assert.assertEquals(2, defaultnameSet.size());
 
         params.setParameter("new", null);
-        assertEquals(3, nameSet.size()); // Name set not yet updated
-        assertEquals(2, localnameSet.size());
-        assertEquals(2, defaultnameSet.size());
+        Assert.assertEquals(3, nameSet.size()); // Name set not yet updated
+        Assert.assertEquals(2, localnameSet.size());
+        Assert.assertEquals(2, defaultnameSet.size());
 
         nameSet = params.getNames();
         localnameSet = params.getLocalNames();
         defaultnameSet = params.getDefaultNames();
-        assertEquals(4, nameSet.size());
-        assertEquals(3, localnameSet.size());
-        assertEquals(2, defaultnameSet.size());
+        Assert.assertEquals(4, nameSet.size());
+        Assert.assertEquals(3, localnameSet.size());
+        Assert.assertEquals(2, defaultnameSet.size());
     }
 }

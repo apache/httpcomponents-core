@@ -32,29 +32,19 @@ import java.nio.ByteBuffer;
 import java.nio.channels.Channels;
 import java.nio.channels.WritableByteChannel;
 
-import junit.framework.TestCase;
-
 import org.apache.http.impl.io.HttpTransportMetricsImpl;
 import org.apache.http.impl.nio.reactor.SessionOutputBufferImpl;
 import org.apache.http.nio.reactor.SessionOutputBuffer;
 import org.apache.http.params.BasicHttpParams;
 import org.apache.http.params.HttpParams;
 import org.apache.http.util.EncodingUtils;
+import org.junit.Assert;
+import org.junit.Test;
 
 /**
  * Simple tests for {@link IdentityEncoder}.
- *
- *
- * @version $Id$
  */
-public class TestIdentityEncoder extends TestCase {
-
-    // ------------------------------------------------------------ Constructor
-    public TestIdentityEncoder(String testName) {
-        super(testName);
-    }
-
-    // ------------------------------------------------------- TestCase Methods
+public class TestIdentityEncoder {
 
     private static ByteBuffer wrap(final String s) {
         return ByteBuffer.wrap(EncodingUtils.getAsciiBytes(s));
@@ -64,6 +54,7 @@ public class TestIdentityEncoder extends TestCase {
         return Channels.newChannel(baos);
     }
 
+    @Test
     public void testBasicCoding() throws Exception {
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         WritableByteChannel channel = newChannel(baos);
@@ -77,10 +68,11 @@ public class TestIdentityEncoder extends TestCase {
 
         String s = baos.toString("US-ASCII");
 
-        assertTrue(encoder.isCompleted());
-        assertEquals("stuff", s);
+        Assert.assertTrue(encoder.isCompleted());
+        Assert.assertEquals("stuff", s);
     }
 
+    @Test
     public void testCodingEmptyBuffer() throws Exception {
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         WritableByteChannel channel = newChannel(baos);
@@ -100,10 +92,11 @@ public class TestIdentityEncoder extends TestCase {
 
         String s = baos.toString("US-ASCII");
 
-        assertTrue(encoder.isCompleted());
-        assertEquals("stuff", s);
+        Assert.assertTrue(encoder.isCompleted());
+        Assert.assertEquals("stuff", s);
     }
 
+    @Test
     public void testCodingCompleted() throws Exception {
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         WritableByteChannel channel = newChannel(baos);
@@ -117,12 +110,13 @@ public class TestIdentityEncoder extends TestCase {
 
         try {
             encoder.write(wrap("more stuff"));
-            fail("IllegalStateException should have been thrown");
+            Assert.fail("IllegalStateException should have been thrown");
         } catch (IllegalStateException ex) {
             // ignore
         }
     }
 
+    @Test
     public void testInvalidConstructor() {
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         WritableByteChannel channel = newChannel(baos);
@@ -131,19 +125,19 @@ public class TestIdentityEncoder extends TestCase {
 
         try {
             new IdentityEncoder(null, null, null);
-            fail("IllegalArgumentException should have been thrown");
+            Assert.fail("IllegalArgumentException should have been thrown");
         } catch (IllegalArgumentException ex) {
             // ignore
         }
         try {
             new IdentityEncoder(channel, null, null);
-            fail("IllegalArgumentException should have been thrown");
+            Assert.fail("IllegalArgumentException should have been thrown");
         } catch (IllegalArgumentException ex) {
             // ignore
         }
         try {
             new IdentityEncoder(channel, outbuf, null);
-            fail("IllegalArgumentException should have been thrown");
+            Assert.fail("IllegalArgumentException should have been thrown");
         } catch (IllegalArgumentException ex) {
             // ignore
         }

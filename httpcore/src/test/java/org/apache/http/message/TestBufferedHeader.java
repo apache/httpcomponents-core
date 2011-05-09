@@ -32,65 +32,66 @@ import java.io.ByteArrayOutputStream;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 
-import junit.framework.TestCase;
-
 import org.apache.http.HeaderElement;
 import org.apache.http.util.CharArrayBuffer;
+import org.junit.Assert;
+import org.junit.Test;
 
 /**
  * Unit tests for {@link BufferedHeader}.
  *
  */
-public class TestBufferedHeader extends TestCase {
+public class TestBufferedHeader {
 
-    public TestBufferedHeader(String testName) {
-        super(testName);
-    }
-
+    @Test
     public void testBasicConstructor() {
         CharArrayBuffer buf = new CharArrayBuffer(32);
         buf.append("name: value");
         BufferedHeader header = new BufferedHeader(buf);
-        assertEquals("name", header.getName());
-        assertEquals("value", header.getValue());
-        assertSame(buf, header.getBuffer());
-        assertEquals(5, header.getValuePos());
+        Assert.assertEquals("name", header.getName());
+        Assert.assertEquals("value", header.getValue());
+        Assert.assertSame(buf, header.getBuffer());
+        Assert.assertEquals(5, header.getValuePos());
     }
 
+    @Test
     public void testInvalidName() {
         try {
             new BufferedHeader(null);
-            fail("IllegalArgumentException should have been thrown");
+            Assert.fail("IllegalArgumentException should have been thrown");
         } catch (IllegalArgumentException ex) {
             //expected
         }
     }
 
+    @Test
     public void testHeaderElements() {
         CharArrayBuffer buf = new CharArrayBuffer(32);
         buf.append("name: element1 = value1, element2; param1 = value1, element3");
         BufferedHeader header = new BufferedHeader(buf);
         HeaderElement[] elements = header.getElements();
-        assertNotNull(elements);
-        assertEquals(3, elements.length);
-        assertEquals("element1", elements[0].getName());
-        assertEquals("value1", elements[0].getValue());
-        assertEquals("element2", elements[1].getName());
-        assertEquals(null, elements[1].getValue());
-        assertEquals("element3", elements[2].getName());
-        assertEquals(null, elements[2].getValue());
-        assertEquals(1, elements[1].getParameters().length);
+        Assert.assertNotNull(elements);
+        Assert.assertEquals(3, elements.length);
+        Assert.assertEquals("element1", elements[0].getName());
+        Assert.assertEquals("value1", elements[0].getValue());
+        Assert.assertEquals("element2", elements[1].getName());
+        Assert.assertEquals(null, elements[1].getValue());
+        Assert.assertEquals("element3", elements[2].getName());
+        Assert.assertEquals(null, elements[2].getValue());
+        Assert.assertEquals(1, elements[1].getParameters().length);
     }
 
+    @Test
     public void testCloning() throws Exception {
         CharArrayBuffer buf = new CharArrayBuffer(32);
         buf.append("name: value");
         BufferedHeader orig = new BufferedHeader(buf);
         BufferedHeader clone = (BufferedHeader) orig.clone();
-        assertEquals(orig.getName(), clone.getName());
-        assertEquals(orig.getValue(), clone.getValue());
+        Assert.assertEquals(orig.getName(), clone.getName());
+        Assert.assertEquals(orig.getValue(), clone.getValue());
     }
 
+    @Test
     public void testSerialization() throws Exception {
         CharArrayBuffer buf = new CharArrayBuffer(32);
         buf.append("name: value");
@@ -103,8 +104,8 @@ public class TestBufferedHeader extends TestCase {
         ByteArrayInputStream inbuffer = new ByteArrayInputStream(raw);
         ObjectInputStream instream = new ObjectInputStream(inbuffer);
         BufferedHeader clone = (BufferedHeader) instream.readObject();
-        assertEquals(orig.getName(), clone.getName());
-        assertEquals(orig.getValue(), clone.getValue());
+        Assert.assertEquals(orig.getName(), clone.getName());
+        Assert.assertEquals(orig.getValue(), clone.getValue());
     }
 
 }

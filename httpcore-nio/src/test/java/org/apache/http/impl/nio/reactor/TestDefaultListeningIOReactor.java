@@ -34,8 +34,6 @@ import java.util.Set;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
-import junit.framework.TestCase;
-
 import org.apache.http.HttpResponseInterceptor;
 import org.apache.http.impl.DefaultConnectionReuseStrategy;
 import org.apache.http.impl.DefaultHttpResponseFactory;
@@ -54,19 +52,15 @@ import org.apache.http.protocol.ResponseConnControl;
 import org.apache.http.protocol.ResponseContent;
 import org.apache.http.protocol.ResponseDate;
 import org.apache.http.protocol.ResponseServer;
+import org.junit.Assert;
+import org.junit.Test;
 
 /**
  * Basic tests for {@link DefaultListeningIOReactor}.
  */
-public class TestDefaultListeningIOReactor extends TestCase {
+public class TestDefaultListeningIOReactor {
 
-    // ------------------------------------------------------------ Constructor
-    public TestDefaultListeningIOReactor(String testName) {
-        super(testName);
-    }
-
-    // ------------------------------------------------------- TestCase Methods
-
+    @Test
     public void testEndpointUpAndDown() throws Exception {
 
         HttpParams params = new SyncBasicHttpParams();
@@ -104,8 +98,8 @@ public class TestDefaultListeningIOReactor extends TestCase {
         t.start();
 
         Set<ListenerEndpoint> endpoints = ioreactor.getEndpoints();
-        assertNotNull(endpoints);
-        assertEquals(0, endpoints.size());
+        Assert.assertNotNull(endpoints);
+        Assert.assertEquals(0, endpoints.size());
 
         ListenerEndpoint port9998 = ioreactor.listen(new InetSocketAddress(9998));
         port9998.waitFor();
@@ -114,25 +108,26 @@ public class TestDefaultListeningIOReactor extends TestCase {
         port9999.waitFor();
 
         endpoints = ioreactor.getEndpoints();
-        assertNotNull(endpoints);
-        assertEquals(2, endpoints.size());
+        Assert.assertNotNull(endpoints);
+        Assert.assertEquals(2, endpoints.size());
 
         port9998.close();
 
         endpoints = ioreactor.getEndpoints();
-        assertNotNull(endpoints);
-        assertEquals(1, endpoints.size());
+        Assert.assertNotNull(endpoints);
+        Assert.assertEquals(1, endpoints.size());
 
         ListenerEndpoint endpoint = endpoints.iterator().next();
 
-        assertEquals(9999, ((InetSocketAddress) endpoint.getAddress()).getPort());
+        Assert.assertEquals(9999, ((InetSocketAddress) endpoint.getAddress()).getPort());
 
         ioreactor.shutdown(1000);
         t.join(1000);
 
-        assertEquals(IOReactorStatus.SHUT_DOWN, ioreactor.getStatus());
+        Assert.assertEquals(IOReactorStatus.SHUT_DOWN, ioreactor.getStatus());
     }
 
+    @Test
     public void testEndpointAlreadyBoundFatal() throws Exception {
 
         HttpParams params = new SyncBasicHttpParams();
@@ -163,7 +158,7 @@ public class TestDefaultListeningIOReactor extends TestCase {
             public void run() {
                 try {
                     ioreactor.execute(eventDispatch);
-                    fail("IOException should have been thrown");
+                    Assert.fail("IOException should have been thrown");
                 } catch (IOException ex) {
                     latch.countDown();
                 }
@@ -178,22 +173,23 @@ public class TestDefaultListeningIOReactor extends TestCase {
 
         ListenerEndpoint endpoint2 = ioreactor.listen(new InetSocketAddress(9999));
         endpoint2.waitFor();
-        assertNotNull(endpoint2.getException());
+        Assert.assertNotNull(endpoint2.getException());
 
         // I/O reactor is now expected to be shutting down
         latch.await(2000, TimeUnit.MILLISECONDS);
-        assertTrue(ioreactor.getStatus().compareTo(IOReactorStatus.SHUTTING_DOWN) >= 0);
+        Assert.assertTrue(ioreactor.getStatus().compareTo(IOReactorStatus.SHUTTING_DOWN) >= 0);
 
         Set<ListenerEndpoint> endpoints = ioreactor.getEndpoints();
-        assertNotNull(endpoints);
-        assertEquals(0, endpoints.size());
+        Assert.assertNotNull(endpoints);
+        Assert.assertEquals(0, endpoints.size());
 
         ioreactor.shutdown(1000);
         t.join(1000);
 
-        assertEquals(IOReactorStatus.SHUT_DOWN, ioreactor.getStatus());
+        Assert.assertEquals(IOReactorStatus.SHUT_DOWN, ioreactor.getStatus());
     }
 
+    @Test
     public void testEndpointAlreadyBoundNonFatal() throws Exception {
 
         HttpParams params = new SyncBasicHttpParams();
@@ -247,17 +243,17 @@ public class TestDefaultListeningIOReactor extends TestCase {
 
         ListenerEndpoint endpoint2 = ioreactor.listen(new InetSocketAddress(9999));
         endpoint2.waitFor();
-        assertNotNull(endpoint2.getException());
+        Assert.assertNotNull(endpoint2.getException());
 
         // Sleep a little to make sure the I/O reactor is not shutting down
         Thread.sleep(500);
 
-        assertEquals(IOReactorStatus.ACTIVE, ioreactor.getStatus());
+        Assert.assertEquals(IOReactorStatus.ACTIVE, ioreactor.getStatus());
 
         ioreactor.shutdown(1000);
         t.join(1000);
 
-        assertEquals(IOReactorStatus.SHUT_DOWN, ioreactor.getStatus());
+        Assert.assertEquals(IOReactorStatus.SHUT_DOWN, ioreactor.getStatus());
     }
 
 }

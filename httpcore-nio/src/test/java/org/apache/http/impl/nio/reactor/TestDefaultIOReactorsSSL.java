@@ -66,6 +66,8 @@ import org.apache.http.protocol.ResponseConnControl;
 import org.apache.http.protocol.ResponseContent;
 import org.apache.http.protocol.ResponseDate;
 import org.apache.http.protocol.ResponseServer;
+import org.junit.Assert;
+import org.junit.Test;
 
 /**
  * Basic functionality tests for SSL I/O reactors.
@@ -73,13 +75,7 @@ import org.apache.http.protocol.ResponseServer;
  */
 public class TestDefaultIOReactorsSSL extends HttpCoreNIOSSLTestBase {
 
-    // ------------------------------------------------------------ Constructor
-    public TestDefaultIOReactorsSSL(String testName) {
-        super(testName);
-    }
-
-    // ------------------------------------------------------- TestCase Methods
-
+    @Test
     public void testGracefulShutdown() throws Exception {
 
         // Open some connection and make sure
@@ -203,7 +199,7 @@ public class TestDefaultIOReactorsSSL extends HttpCoreNIOSSLTestBase {
         endpoint.waitFor();
         InetSocketAddress serverAddress = (InetSocketAddress) endpoint.getAddress();
 
-        assertEquals("Test server status", IOReactorStatus.ACTIVE, this.server.getStatus());
+        Assert.assertEquals("Test server status", IOReactorStatus.ACTIVE, this.server.getStatus());
 
         Queue<SessionRequest> connRequests = new LinkedList<SessionRequest>();
         for (int i = 0; i < connNo; i++) {
@@ -219,19 +215,19 @@ public class TestDefaultIOReactorsSSL extends HttpCoreNIOSSLTestBase {
             if (sessionRequest.getException() != null) {
                 throw sessionRequest.getException();
             }
-            assertNotNull(sessionRequest.getSession());
+            Assert.assertNotNull(sessionRequest.getSession());
         }
 
-        assertEquals("Test client status", IOReactorStatus.ACTIVE, this.client.getStatus());
+        Assert.assertEquals("Test client status", IOReactorStatus.ACTIVE, this.client.getStatus());
 
         requestConns.await();
-        assertEquals(0, requestConns.getCount());
+        Assert.assertEquals(0, requestConns.getCount());
 
         this.client.shutdown();
         this.server.shutdown();
 
-        assertEquals(openClientConns.get(), closedClientConns.get());
-        assertEquals(openServerConns.get(), closedServerConns.get());
+        Assert.assertEquals(openClientConns.get(), closedClientConns.get());
+        Assert.assertEquals(openServerConns.get(), closedServerConns.get());
     }
 
 }

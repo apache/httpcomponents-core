@@ -31,8 +31,6 @@ import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.channels.ReadableByteChannel;
 
-import junit.framework.TestCase;
-
 import org.apache.http.Header;
 import org.apache.http.MalformedChunkCodingException;
 import org.apache.http.impl.io.HttpTransportMetricsImpl;
@@ -41,21 +39,13 @@ import org.apache.http.mockup.ReadableByteChannelMockup;
 import org.apache.http.nio.reactor.SessionInputBuffer;
 import org.apache.http.params.BasicHttpParams;
 import org.apache.http.params.HttpParams;
+import org.junit.Assert;
+import org.junit.Test;
 
 /**
  * Simple tests for {@link ChunkDecoder}.
- *
- *
- * @version $Id$
  */
-public class TestChunkDecoder extends TestCase {
-
-    // ------------------------------------------------------------ Constructor
-    public TestChunkDecoder(String testName) {
-        super(testName);
-    }
-
-    // ------------------------------------------------------- TestCase Methods
+public class TestChunkDecoder {
 
     private static String convert(final ByteBuffer src) {
         src.flip();
@@ -66,6 +56,7 @@ public class TestChunkDecoder extends TestCase {
         return buffer.toString();
     }
 
+    @Test
     public void testBasicDecoding() throws Exception {
         String s = "5\r\n01234\r\n5\r\n56789\r\n6\r\nabcdef\r\n0\r\n\r\n";
         ReadableByteChannel channel = new ReadableByteChannelMockup(
@@ -79,17 +70,18 @@ public class TestChunkDecoder extends TestCase {
         ByteBuffer dst = ByteBuffer.allocate(1024);
 
         int bytesRead = decoder.read(dst);
-        assertEquals(16, bytesRead);
-        assertEquals("0123456789abcdef", convert(dst));
+        Assert.assertEquals(16, bytesRead);
+        Assert.assertEquals("0123456789abcdef", convert(dst));
         Header[] footers = decoder.getFooters();
-        assertEquals(0, footers.length);
+        Assert.assertEquals(0, footers.length);
 
         dst.clear();
         bytesRead = decoder.read(dst);
-        assertEquals(-1, bytesRead);
-        assertTrue(decoder.isCompleted());
+        Assert.assertEquals(-1, bytesRead);
+        Assert.assertTrue(decoder.isCompleted());
     }
 
+    @Test
     public void testComplexDecoding() throws Exception {
         String s = "10;key=\"value\"\r\n1234567890123456\r\n" +
                 "5\r\n12345\r\n5\r\n12345\r\n0\r\nFooter1: abcde\r\nFooter2: fghij\r\n\r\n";
@@ -111,22 +103,23 @@ public class TestChunkDecoder extends TestCase {
             }
         }
 
-        assertEquals(26, bytesRead);
-        assertEquals("12345678901234561234512345", convert(dst));
+        Assert.assertEquals(26, bytesRead);
+        Assert.assertEquals("12345678901234561234512345", convert(dst));
 
         Header[] footers = decoder.getFooters();
-        assertEquals(2, footers.length);
-        assertEquals("Footer1", footers[0].getName());
-        assertEquals("abcde", footers[0].getValue());
-        assertEquals("Footer2", footers[1].getName());
-        assertEquals("fghij", footers[1].getValue());
+        Assert.assertEquals(2, footers.length);
+        Assert.assertEquals("Footer1", footers[0].getName());
+        Assert.assertEquals("abcde", footers[0].getValue());
+        Assert.assertEquals("Footer2", footers[1].getName());
+        Assert.assertEquals("fghij", footers[1].getValue());
 
         dst.clear();
         bytesRead = decoder.read(dst);
-        assertEquals(-1, bytesRead);
-        assertTrue(decoder.isCompleted());
+        Assert.assertEquals(-1, bytesRead);
+        Assert.assertTrue(decoder.isCompleted());
     }
 
+    @Test
     public void testDecodingWithSmallBuffer() throws Exception {
         String s1 = "5\r\n01234\r\n5\r\n5678";
         String s2 = "9\r\n6\r\nabcdef\r\n0\r\n\r\n";
@@ -152,16 +145,17 @@ public class TestChunkDecoder extends TestCase {
             tmp.compact();
         }
 
-        assertEquals(16, bytesRead);
-        assertEquals("0123456789abcdef", convert(dst));
-        assertTrue(decoder.isCompleted());
+        Assert.assertEquals(16, bytesRead);
+        Assert.assertEquals("0123456789abcdef", convert(dst));
+        Assert.assertTrue(decoder.isCompleted());
 
         dst.clear();
         bytesRead = decoder.read(dst);
-        assertEquals(-1, bytesRead);
-        assertTrue(decoder.isCompleted());
+        Assert.assertEquals(-1, bytesRead);
+        Assert.assertTrue(decoder.isCompleted());
     }
 
+    @Test
     public void testIncompleteChunkDecoding() throws Exception {
         String[] chunks = {
                 "10;",
@@ -192,23 +186,24 @@ public class TestChunkDecoder extends TestCase {
             }
         }
 
-        assertEquals(27, bytesRead);
-        assertEquals("123456789012345612345abcdef", convert(dst));
-        assertTrue(decoder.isCompleted());
+        Assert.assertEquals(27, bytesRead);
+        Assert.assertEquals("123456789012345612345abcdef", convert(dst));
+        Assert.assertTrue(decoder.isCompleted());
 
         Header[] footers = decoder.getFooters();
-        assertEquals(2, footers.length);
-        assertEquals("Footer1", footers[0].getName());
-        assertEquals("abcde", footers[0].getValue());
-        assertEquals("Footer2", footers[1].getName());
-        assertEquals("fghij", footers[1].getValue());
+        Assert.assertEquals(2, footers.length);
+        Assert.assertEquals("Footer1", footers[0].getName());
+        Assert.assertEquals("abcde", footers[0].getValue());
+        Assert.assertEquals("Footer2", footers[1].getName());
+        Assert.assertEquals("fghij", footers[1].getValue());
 
         dst.clear();
         bytesRead = decoder.read(dst);
-        assertEquals(-1, bytesRead);
-        assertTrue(decoder.isCompleted());
+        Assert.assertEquals(-1, bytesRead);
+        Assert.assertTrue(decoder.isCompleted());
     }
 
+    @Test
     public void testMalformedChunkSizeDecoding() throws Exception {
         String s = "5\r\n01234\r\n5zz\r\n56789\r\n6\r\nabcdef\r\n0\r\n\r\n";
         ReadableByteChannel channel = new ReadableByteChannelMockup(
@@ -223,12 +218,13 @@ public class TestChunkDecoder extends TestCase {
 
         try {
             decoder.read(dst);
-            fail("MalformedChunkCodingException should have been thrown");
+            Assert.fail("MalformedChunkCodingException should have been thrown");
         } catch (MalformedChunkCodingException ex) {
             // expected
         }
     }
 
+    @Test
     public void testMalformedChunkEndingDecoding() throws Exception {
         String s = "5\r\n01234\r\n5\r\n56789\n\r6\r\nabcdef\r\n0\r\n\r\n";
         ReadableByteChannel channel = new ReadableByteChannelMockup(
@@ -243,12 +239,13 @@ public class TestChunkDecoder extends TestCase {
 
         try {
             decoder.read(dst);
-            fail("MalformedChunkCodingException should have been thrown");
+            Assert.fail("MalformedChunkCodingException should have been thrown");
         } catch (MalformedChunkCodingException ex) {
             // expected
         }
     }
 
+    @Test
     public void testMalformedChunkTruncatedChunk() throws Exception {
         String s = "3\r\n12";
         ReadableByteChannel channel = new ReadableByteChannelMockup(
@@ -260,15 +257,16 @@ public class TestChunkDecoder extends TestCase {
         ChunkDecoder decoder = new ChunkDecoder(channel, inbuf, metrics);
 
         ByteBuffer dst = ByteBuffer.allocate(1024);
-        assertEquals(2, decoder.read(dst));
+        Assert.assertEquals(2, decoder.read(dst));
         try {
             decoder.read(dst);
-            fail("MalformedChunkCodingException should have been thrown");
+            Assert.fail("MalformedChunkCodingException should have been thrown");
         } catch (MalformedChunkCodingException ex) {
             // expected
         }
     }
 
+    @Test
     public void testFoldedFooters() throws Exception {
         String s = "10;key=\"value\"\r\n1234567890123456\r\n" +
                 "5\r\n12345\r\n5\r\n12345\r\n0\r\nFooter1: abcde\r\n   \r\n  fghij\r\n\r\n";
@@ -283,15 +281,16 @@ public class TestChunkDecoder extends TestCase {
         ByteBuffer dst = ByteBuffer.allocate(1024);
 
         int bytesRead = decoder.read(dst);
-        assertEquals(26, bytesRead);
-        assertEquals("12345678901234561234512345", convert(dst));
+        Assert.assertEquals(26, bytesRead);
+        Assert.assertEquals("12345678901234561234512345", convert(dst));
 
         Header[] footers = decoder.getFooters();
-        assertEquals(1, footers.length);
-        assertEquals("Footer1", footers[0].getName());
-        assertEquals("abcde  fghij", footers[0].getValue());
+        Assert.assertEquals(1, footers.length);
+        Assert.assertEquals("Footer1", footers[0].getName());
+        Assert.assertEquals("abcde  fghij", footers[0].getValue());
     }
 
+    @Test
     public void testMalformedFooters() throws Exception {
         String s = "10;key=\"value\"\r\n1234567890123456\r\n" +
                 "5\r\n12345\r\n5\r\n12345\r\n0\r\nFooter1 abcde\r\n\r\n";
@@ -307,12 +306,13 @@ public class TestChunkDecoder extends TestCase {
 
         try {
             decoder.read(dst);
-            fail("MalformedChunkCodingException should have been thrown");
+            Assert.fail("MalformedChunkCodingException should have been thrown");
         } catch (IOException ex) {
             // expected
         }
     }
 
+    @Test
     public void testEndOfStreamConditionReadingLastChunk() throws Exception {
         String s = "10\r\n1234567890123456\r\n" +
                 "5\r\n12345\r\n5\r\n12345";
@@ -334,11 +334,12 @@ public class TestChunkDecoder extends TestCase {
             }
         }
 
-        assertEquals(26, bytesRead);
-        assertEquals("12345678901234561234512345", convert(dst));
-        assertTrue(decoder.isCompleted());
+        Assert.assertEquals(26, bytesRead);
+        Assert.assertEquals("12345678901234561234512345", convert(dst));
+        Assert.assertTrue(decoder.isCompleted());
     }
 
+    @Test
     public void testReadingWitSmallBuffer() throws Exception {
         String s = "10\r\n1234567890123456\r\n" +
                 "40\r\n12345678901234561234567890123456" +
@@ -365,13 +366,14 @@ public class TestChunkDecoder extends TestCase {
             }
         }
 
-        assertEquals(80, bytesRead);
-        assertEquals("12345678901234561234567890123456" +
+        Assert.assertEquals(80, bytesRead);
+        Assert.assertEquals("12345678901234561234567890123456" +
                 "12345678901234561234567890123456" +
                 "1234567890123456", convert(dst));
-        assertTrue(decoder.isCompleted());
+        Assert.assertTrue(decoder.isCompleted());
     }
 
+    @Test
     public void testEndOfStreamConditionReadingFooters() throws Exception {
         String s = "10\r\n1234567890123456\r\n" +
                 "5\r\n12345\r\n5\r\n12345\r\n0\r\n";
@@ -393,11 +395,12 @@ public class TestChunkDecoder extends TestCase {
             }
         }
 
-        assertEquals(26, bytesRead);
-        assertEquals("12345678901234561234512345", convert(dst));
-        assertTrue(decoder.isCompleted());
+        Assert.assertEquals(26, bytesRead);
+        Assert.assertEquals("12345678901234561234512345", convert(dst));
+        Assert.assertTrue(decoder.isCompleted());
     }
 
+    @Test
     public void testInvalidConstructor() {
         ReadableByteChannel channel = new ReadableByteChannelMockup(
                 new String[] {"stuff;", "more stuff"}, "US-ASCII");
@@ -406,24 +409,25 @@ public class TestChunkDecoder extends TestCase {
         SessionInputBuffer inbuf = new SessionInputBufferImpl(1024, 256, params);
         try {
             new ChunkDecoder(null, null, null);
-            fail("IllegalArgumentException should have been thrown");
+            Assert.fail("IllegalArgumentException should have been thrown");
         } catch (IllegalArgumentException ex) {
             // ignore
         }
         try {
             new ChunkDecoder(channel, null, null);
-            fail("IllegalArgumentException should have been thrown");
+            Assert.fail("IllegalArgumentException should have been thrown");
         } catch (IllegalArgumentException ex) {
             // ignore
         }
         try {
             new ChunkDecoder(channel, inbuf, null);
-            fail("IllegalArgumentException should have been thrown");
+            Assert.fail("IllegalArgumentException should have been thrown");
         } catch (IllegalArgumentException ex) {
             // ignore
         }
     }
 
+    @Test
     public void testInvalidInput() throws Exception {
         String s = "10;key=\"value\"\r\n1234567890123456\r\n" +
                 "5\r\n12345\r\n5\r\n12345\r\n0\r\nFooter1 abcde\r\n\r\n";
@@ -437,7 +441,7 @@ public class TestChunkDecoder extends TestCase {
 
         try {
             decoder.read(null);
-            fail("IllegalArgumentException should have been thrown");
+            Assert.fail("IllegalArgumentException should have been thrown");
         } catch (IllegalArgumentException ex) {
             // expected
         }
