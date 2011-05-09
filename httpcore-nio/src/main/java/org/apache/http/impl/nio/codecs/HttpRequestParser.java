@@ -54,7 +54,7 @@ import org.apache.http.util.CharArrayBuffer;
  *
  * @deprecated use {@link DefaultHttpRequestParser}
  */
-@SuppressWarnings("rawtypes")
+@SuppressWarnings("unchecked")
 @Deprecated
 public class HttpRequestParser extends AbstractMessageParser {
 
