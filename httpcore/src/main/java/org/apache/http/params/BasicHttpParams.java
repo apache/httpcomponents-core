@@ -148,7 +148,7 @@ public class BasicHttpParams extends AbstractHttpParams implements Serializable,
         return clone;
     }
 
-    private void copyParams(HttpParams target) {
+    protected void copyParams(HttpParams target) {
         Iterator iter = parameters.entrySet().iterator();
         while (iter.hasNext()) {
             Map.Entry me = (Map.Entry) iter.next();
