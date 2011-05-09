@@ -35,12 +35,12 @@ import org.apache.http.impl.io.HttpTransportMetricsImpl;
 import org.apache.http.impl.nio.codecs.AbstractContentEncoder;
 import org.apache.http.nio.reactor.SessionOutputBuffer;
 
-public class MockupEncoder extends AbstractContentEncoder {
+public class ContentEncoderMock extends AbstractContentEncoder {
 
     // TODO? remove this field and the complete() and isCompleted() methods
     private boolean completed;
 
-    public MockupEncoder(
+    public ContentEncoderMock(
             final WritableByteChannel channel,
             final SessionOutputBuffer buffer,
             final HttpTransportMetricsImpl metrics) {

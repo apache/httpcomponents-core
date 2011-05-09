@@ -36,7 +36,7 @@ import java.nio.ByteBuffer;
 import java.nio.channels.FileChannel;
 import java.nio.channels.ReadableByteChannel;
 
-import org.apache.http.ReadableByteChannelMockup;
+import org.apache.http.ReadableByteChannelMock;
 import org.apache.http.impl.io.HttpTransportMetricsImpl;
 import org.apache.http.impl.nio.reactor.SessionInputBufferImpl;
 import org.apache.http.nio.reactor.SessionInputBuffer;
@@ -77,7 +77,7 @@ public class TestLengthDelimitedDecoder {
 
     @Test
     public void testBasicDecoding() throws Exception {
-        ReadableByteChannel channel = new ReadableByteChannelMockup(
+        ReadableByteChannel channel = new ReadableByteChannelMock(
                 new String[] {"stuff;", "more stuff"}, "US-ASCII");
         HttpParams params = new BasicHttpParams();
 
@@ -110,7 +110,7 @@ public class TestLengthDelimitedDecoder {
 
     @Test
     public void testCodingBeyondContentLimit() throws Exception {
-        ReadableByteChannel channel = new ReadableByteChannelMockup(
+        ReadableByteChannel channel = new ReadableByteChannelMock(
                 new String[] {
                         "stuff;",
                         "more stuff; and a lot more stuff"}, "US-ASCII");
@@ -145,7 +145,7 @@ public class TestLengthDelimitedDecoder {
 
     @Test
     public void testBasicDecodingSmallBuffer() throws Exception {
-        ReadableByteChannel channel = new ReadableByteChannelMockup(
+        ReadableByteChannel channel = new ReadableByteChannelMock(
                 new String[] {"stuff;", "more stuff"}, "US-ASCII");
         HttpParams params = new BasicHttpParams();
 
@@ -199,7 +199,7 @@ public class TestLengthDelimitedDecoder {
 
     @Test
     public void testDecodingFromSessionBuffer1() throws Exception {
-        ReadableByteChannel channel = new ReadableByteChannelMockup(
+        ReadableByteChannel channel = new ReadableByteChannelMock(
                 new String[] {"stuff;", "more stuff"}, "US-ASCII");
         HttpParams params = new BasicHttpParams();
 
@@ -237,7 +237,7 @@ public class TestLengthDelimitedDecoder {
 
     @Test
     public void testDecodingFromSessionBuffer2() throws Exception {
-        ReadableByteChannel channel = new ReadableByteChannelMockup(
+        ReadableByteChannel channel = new ReadableByteChannelMock(
                 new String[] {
                         "stuff;",
                         "more stuff; and a lot more stuff"}, "US-ASCII");
@@ -271,7 +271,7 @@ public class TestLengthDelimitedDecoder {
 
     @Test
     public void testBasicDecodingFile() throws Exception {
-        ReadableByteChannel channel = new ReadableByteChannelMockup(
+        ReadableByteChannel channel = new ReadableByteChannelMock(
                 new String[] {"stuff; ", "more stuff; ", "a lot more stuff!!!"}, "US-ASCII");
         HttpParams params = new BasicHttpParams();
 
@@ -308,7 +308,7 @@ public class TestLengthDelimitedDecoder {
 
     @Test
     public void testDecodingFileWithBufferedSessionData() throws Exception {
-        ReadableByteChannel channel = new ReadableByteChannelMockup(
+        ReadableByteChannel channel = new ReadableByteChannelMock(
                 new String[] {"stuff; ", "more stuff; ", "a lot more stuff!!!"}, "US-ASCII");
         HttpParams params = new BasicHttpParams();
 
@@ -343,7 +343,7 @@ public class TestLengthDelimitedDecoder {
 
     @Test
     public void testDecodingFileWithOffsetAndBufferedSessionData() throws Exception {
-        ReadableByteChannel channel = new ReadableByteChannelMockup(
+        ReadableByteChannel channel = new ReadableByteChannelMock(
                 new String[] {"stuff; ", "more stuff; ", "a lot more stuff!"}, "US-ASCII");
         HttpParams params = new BasicHttpParams();
 
@@ -386,7 +386,7 @@ public class TestLengthDelimitedDecoder {
 
     @Test
     public void testWriteBeyondFileSize() throws Exception {
-        ReadableByteChannel channel = new ReadableByteChannelMockup(
+        ReadableByteChannel channel = new ReadableByteChannelMock(
                 new String[] {"a"}, "US-ASCII");
         HttpParams params = new BasicHttpParams();
 
@@ -412,7 +412,7 @@ public class TestLengthDelimitedDecoder {
 
     @Test
     public void testCodingBeyondContentLimitFile() throws Exception {
-        ReadableByteChannel channel = new ReadableByteChannelMockup(
+        ReadableByteChannel channel = new ReadableByteChannelMock(
                 new String[] {
                         "stuff;",
                         "more stuff; and a lot more stuff"}, "US-ASCII");
@@ -448,7 +448,7 @@ public class TestLengthDelimitedDecoder {
 
     @Test
     public void testInvalidConstructor() {
-        ReadableByteChannel channel = new ReadableByteChannelMockup(
+        ReadableByteChannel channel = new ReadableByteChannelMock(
                 new String[] {"stuff;", "more stuff"}, "US-ASCII");
         HttpParams params = new BasicHttpParams();
 
@@ -483,7 +483,7 @@ public class TestLengthDelimitedDecoder {
     @Test
     public void testInvalidInput() throws Exception {
         String s = "stuff";
-        ReadableByteChannel channel = new ReadableByteChannelMockup(
+        ReadableByteChannel channel = new ReadableByteChannelMock(
                 new String[] {s}, "US-ASCII");
         HttpParams params = new BasicHttpParams();
 
@@ -502,7 +502,7 @@ public class TestLengthDelimitedDecoder {
 
     @Test
     public void testZeroLengthDecoding() throws Exception {
-        ReadableByteChannel channel = new ReadableByteChannelMockup(
+        ReadableByteChannel channel = new ReadableByteChannelMock(
                 new String[] {"stuff"}, "US-ASCII");
         HttpParams params = new BasicHttpParams();
 

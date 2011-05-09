@@ -33,7 +33,7 @@ import java.nio.channels.ReadableByteChannel;
 
 import org.apache.http.Header;
 import org.apache.http.MalformedChunkCodingException;
-import org.apache.http.ReadableByteChannelMockup;
+import org.apache.http.ReadableByteChannelMock;
 import org.apache.http.impl.io.HttpTransportMetricsImpl;
 import org.apache.http.impl.nio.reactor.SessionInputBufferImpl;
 import org.apache.http.nio.reactor.SessionInputBuffer;
@@ -59,7 +59,7 @@ public class TestChunkDecoder {
     @Test
     public void testBasicDecoding() throws Exception {
         String s = "5\r\n01234\r\n5\r\n56789\r\n6\r\nabcdef\r\n0\r\n\r\n";
-        ReadableByteChannel channel = new ReadableByteChannelMockup(
+        ReadableByteChannel channel = new ReadableByteChannelMock(
                 new String[] {s}, "US-ASCII");
         HttpParams params = new BasicHttpParams();
 
@@ -85,7 +85,7 @@ public class TestChunkDecoder {
     public void testComplexDecoding() throws Exception {
         String s = "10;key=\"value\"\r\n1234567890123456\r\n" +
                 "5\r\n12345\r\n5\r\n12345\r\n0\r\nFooter1: abcde\r\nFooter2: fghij\r\n\r\n";
-        ReadableByteChannel channel = new ReadableByteChannelMockup(
+        ReadableByteChannel channel = new ReadableByteChannelMock(
                 new String[] {s}, "US-ASCII");
         HttpParams params = new BasicHttpParams();
 
@@ -123,7 +123,7 @@ public class TestChunkDecoder {
     public void testDecodingWithSmallBuffer() throws Exception {
         String s1 = "5\r\n01234\r\n5\r\n5678";
         String s2 = "9\r\n6\r\nabcdef\r\n0\r\n\r\n";
-        ReadableByteChannel channel = new ReadableByteChannelMockup(
+        ReadableByteChannel channel = new ReadableByteChannelMock(
                 new String[] {s1, s2}, "US-ASCII");
         HttpParams params = new BasicHttpParams();
 
@@ -168,7 +168,7 @@ public class TestChunkDecoder {
                 "er1: abcde\r\nFooter2: f",
                 "ghij\r\n\r\n"
         };
-        ReadableByteChannel channel = new ReadableByteChannelMockup(
+        ReadableByteChannel channel = new ReadableByteChannelMock(
                 chunks, "US-ASCII");
         HttpParams params = new BasicHttpParams();
 
@@ -206,7 +206,7 @@ public class TestChunkDecoder {
     @Test
     public void testMalformedChunkSizeDecoding() throws Exception {
         String s = "5\r\n01234\r\n5zz\r\n56789\r\n6\r\nabcdef\r\n0\r\n\r\n";
-        ReadableByteChannel channel = new ReadableByteChannelMockup(
+        ReadableByteChannel channel = new ReadableByteChannelMock(
                 new String[] {s}, "US-ASCII");
         HttpParams params = new BasicHttpParams();
 
@@ -227,7 +227,7 @@ public class TestChunkDecoder {
     @Test
     public void testMalformedChunkEndingDecoding() throws Exception {
         String s = "5\r\n01234\r\n5\r\n56789\n\r6\r\nabcdef\r\n0\r\n\r\n";
-        ReadableByteChannel channel = new ReadableByteChannelMockup(
+        ReadableByteChannel channel = new ReadableByteChannelMock(
                 new String[] {s}, "US-ASCII");
         HttpParams params = new BasicHttpParams();
 
@@ -248,7 +248,7 @@ public class TestChunkDecoder {
     @Test
     public void testMalformedChunkTruncatedChunk() throws Exception {
         String s = "3\r\n12";
-        ReadableByteChannel channel = new ReadableByteChannelMockup(
+        ReadableByteChannel channel = new ReadableByteChannelMock(
                 new String[] {s}, "US-ASCII");
         HttpParams params = new BasicHttpParams();
 
@@ -270,7 +270,7 @@ public class TestChunkDecoder {
     public void testFoldedFooters() throws Exception {
         String s = "10;key=\"value\"\r\n1234567890123456\r\n" +
                 "5\r\n12345\r\n5\r\n12345\r\n0\r\nFooter1: abcde\r\n   \r\n  fghij\r\n\r\n";
-        ReadableByteChannel channel = new ReadableByteChannelMockup(
+        ReadableByteChannel channel = new ReadableByteChannelMock(
                 new String[] {s}, "US-ASCII");
         HttpParams params = new BasicHttpParams();
 
@@ -294,7 +294,7 @@ public class TestChunkDecoder {
     public void testMalformedFooters() throws Exception {
         String s = "10;key=\"value\"\r\n1234567890123456\r\n" +
                 "5\r\n12345\r\n5\r\n12345\r\n0\r\nFooter1 abcde\r\n\r\n";
-        ReadableByteChannel channel = new ReadableByteChannelMockup(
+        ReadableByteChannel channel = new ReadableByteChannelMock(
                 new String[] {s}, "US-ASCII");
         HttpParams params = new BasicHttpParams();
 
@@ -316,7 +316,7 @@ public class TestChunkDecoder {
     public void testEndOfStreamConditionReadingLastChunk() throws Exception {
         String s = "10\r\n1234567890123456\r\n" +
                 "5\r\n12345\r\n5\r\n12345";
-        ReadableByteChannel channel = new ReadableByteChannelMockup(
+        ReadableByteChannel channel = new ReadableByteChannelMock(
                 new String[] {s}, "US-ASCII");
         HttpParams params = new BasicHttpParams();
 
@@ -344,7 +344,7 @@ public class TestChunkDecoder {
         String s = "10\r\n1234567890123456\r\n" +
                 "40\r\n12345678901234561234567890123456" +
                 "12345678901234561234567890123456\r\n0\r\n";
-        ReadableByteChannel channel = new ReadableByteChannelMockup(
+        ReadableByteChannel channel = new ReadableByteChannelMock(
                 new String[] {s}, "US-ASCII");
         HttpParams params = new BasicHttpParams();
 
@@ -377,7 +377,7 @@ public class TestChunkDecoder {
     public void testEndOfStreamConditionReadingFooters() throws Exception {
         String s = "10\r\n1234567890123456\r\n" +
                 "5\r\n12345\r\n5\r\n12345\r\n0\r\n";
-        ReadableByteChannel channel = new ReadableByteChannelMockup(
+        ReadableByteChannel channel = new ReadableByteChannelMock(
                 new String[] {s}, "US-ASCII");
         HttpParams params = new BasicHttpParams();
 
@@ -402,7 +402,7 @@ public class TestChunkDecoder {
 
     @Test
     public void testInvalidConstructor() {
-        ReadableByteChannel channel = new ReadableByteChannelMockup(
+        ReadableByteChannel channel = new ReadableByteChannelMock(
                 new String[] {"stuff;", "more stuff"}, "US-ASCII");
         HttpParams params = new BasicHttpParams();
 
@@ -431,7 +431,7 @@ public class TestChunkDecoder {
     public void testInvalidInput() throws Exception {
         String s = "10;key=\"value\"\r\n1234567890123456\r\n" +
                 "5\r\n12345\r\n5\r\n12345\r\n0\r\nFooter1 abcde\r\n\r\n";
-        ReadableByteChannel channel = new ReadableByteChannelMockup(
+        ReadableByteChannel channel = new ReadableByteChannelMock(
                 new String[] {s}, "US-ASCII");
         HttpParams params = new BasicHttpParams();
 

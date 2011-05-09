@@ -34,7 +34,7 @@ import java.nio.channels.Channels;
 import java.nio.channels.ReadableByteChannel;
 import java.nio.channels.WritableByteChannel;
 
-import org.apache.http.ReadableByteChannelMockup;
+import org.apache.http.ReadableByteChannelMock;
 import org.apache.http.impl.io.HttpTransportMetricsImpl;
 import org.apache.http.impl.nio.reactor.SessionOutputBufferImpl;
 import org.apache.http.io.BufferInfo;
@@ -54,10 +54,10 @@ public class TestBuffers {
 
     @Test
     public void testInputBufferOperations() throws IOException {
-        ReadableByteChannel channel = new ReadableByteChannelMockup(
+        ReadableByteChannel channel = new ReadableByteChannelMock(
                 new String[] {"stuff;", "more stuff"}, "US-ASCII");
 
-        ContentDecoder decoder = new MockupDecoder(channel);
+        ContentDecoder decoder = new ContentDecoderMock(channel);
 
         SimpleInputBuffer buffer = new SimpleInputBuffer(4, new DirectByteBufferAllocator());
         int count = buffer.consumeContent(decoder);
@@ -94,7 +94,7 @@ public class TestBuffers {
         SessionOutputBuffer outbuf = new SessionOutputBufferImpl(1024, 128, params);
         HttpTransportMetricsImpl metrics = new HttpTransportMetricsImpl();
 
-        ContentEncoder encoder = new MockupEncoder(channel, outbuf, metrics);
+        ContentEncoder encoder = new ContentEncoderMock(channel, outbuf, metrics);
 
         SimpleOutputBuffer buffer = new SimpleOutputBuffer(4, new DirectByteBufferAllocator());
 
