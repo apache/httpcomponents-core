@@ -27,6 +27,7 @@
 
 package org.apache.http.impl.io;
 
+import org.apache.http.impl.SessionInputBufferMockup;
 import org.apache.http.io.SessionInputBuffer;
 import org.junit.Assert;
 import org.junit.Test;

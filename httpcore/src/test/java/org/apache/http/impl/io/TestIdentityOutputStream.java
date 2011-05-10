@@ -31,6 +31,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 
+import org.apache.http.impl.SessionOutputBufferMockup;
 import org.junit.Assert;
 import org.junit.Test;
 

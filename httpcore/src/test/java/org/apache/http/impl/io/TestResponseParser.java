@@ -35,6 +35,7 @@ import org.apache.http.HttpVersion;
 import org.apache.http.NoHttpResponseException;
 import org.apache.http.StatusLine;
 import org.apache.http.impl.DefaultHttpResponseFactory;
+import org.apache.http.impl.SessionInputBufferMockup;
 import org.apache.http.io.SessionInputBuffer;
 import org.apache.http.message.BasicLineParser;
 import org.apache.http.params.BasicHttpParams;

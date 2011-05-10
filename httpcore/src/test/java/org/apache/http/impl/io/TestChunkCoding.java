@@ -35,6 +35,8 @@ import java.io.OutputStream;
 
 import org.apache.http.Header;
 import org.apache.http.MalformedChunkCodingException;
+import org.apache.http.impl.SessionInputBufferMockup;
+import org.apache.http.impl.SessionOutputBufferMockup;
 import org.apache.http.io.SessionInputBuffer;
 import org.apache.http.util.EncodingUtils;
 import org.junit.Assert;

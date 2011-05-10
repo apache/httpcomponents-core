@@ -39,6 +39,7 @@ import org.apache.http.HttpRequest;
 import org.apache.http.HttpVersion;
 import org.apache.http.RequestLine;
 import org.apache.http.impl.DefaultHttpRequestFactory;
+import org.apache.http.impl.SessionInputBufferMockup;
 import org.apache.http.io.SessionInputBuffer;
 import org.apache.http.message.BasicLineParser;
 import org.apache.http.params.BasicHttpParams;
