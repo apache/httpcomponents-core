@@ -29,6 +29,11 @@ package org.apache.http.impl.io;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.ByteBuffer;
+import java.nio.CharBuffer;
+import java.nio.charset.Charset;
+import java.nio.charset.CharsetDecoder;
+import java.nio.charset.CoderResult;
 
 import org.apache.http.io.BufferInfo;
 import org.apache.http.io.SessionInputBuffer;
@@ -61,6 +66,8 @@ import org.apache.http.util.CharArrayBuffer;
  */
 public abstract class AbstractSessionInputBuffer implements SessionInputBuffer, BufferInfo {
 
+    private static final Charset ASCII = Charset.forName("US-ASCII");
+
     private InputStream instream;
     private byte[] buffer;
     private int bufferpos;
@@ -68,7 +75,9 @@ public abstract class AbstractSessionInputBuffer implements SessionInputBuffer, 
 
     private ByteArrayBuffer linebuffer = null;
 
-    private String charset = HTTP.US_ASCII;
+    private Charset charset;
+    private CharsetDecoder decoder;
+    private CharBuffer cbuf;
     private boolean ascii = true;
     private int maxLineLen = -1;
     private int minChunkLimit = 512;
@@ -97,9 +106,9 @@ public abstract class AbstractSessionInputBuffer implements SessionInputBuffer, 
         this.bufferpos = 0;
         this.bufferlen = 0;
         this.linebuffer = new ByteArrayBuffer(buffersize);
-        this.charset = HttpProtocolParams.getHttpElementCharset(params);
-        this.ascii = this.charset.equalsIgnoreCase(HTTP.US_ASCII)
-                     || this.charset.equalsIgnoreCase(HTTP.ASCII);
+        this.charset = Charset.forName(HttpProtocolParams.getHttpElementCharset(params));
+        this.ascii = this.charset.equals(ASCII);
+        this.decoder = null;
         this.maxLineLen = params.getIntParameter(CoreConnectionPNames.MAX_LINE_LENGTH, -1);
         this.minChunkLimit = params.getIntParameter(CoreConnectionPNames.MIN_CHUNK_LIMIT, 512);
         this.metrics = createTransportMetrics();
@@ -293,32 +302,26 @@ public abstract class AbstractSessionInputBuffer implements SessionInputBuffer, 
     private int lineFromLineBuffer(final CharArrayBuffer charbuffer)
             throws IOException {
         // discard LF if found
-        int l = this.linebuffer.length();
-        if (l > 0) {
-            if (this.linebuffer.byteAt(l - 1) == HTTP.LF) {
-                l--;
-                this.linebuffer.setLength(l);
+        int len = this.linebuffer.length();
+        if (len > 0) {
+            if (this.linebuffer.byteAt(len - 1) == HTTP.LF) {
+                len--;
             }
             // discard CR if found
-            if (l > 0) {
-                if (this.linebuffer.byteAt(l - 1) == HTTP.CR) {
-                    l--;
-                    this.linebuffer.setLength(l);
+            if (len > 0) {
+                if (this.linebuffer.byteAt(len - 1) == HTTP.CR) {
+                    len--;
                 }
             }
         }
-        l = this.linebuffer.length();
         if (this.ascii) {
-            charbuffer.append(this.linebuffer, 0, l);
+            charbuffer.append(this.linebuffer, 0, len);
         } else {
-            // This is VERY memory inefficient, BUT since non-ASCII charsets are
-            // NOT meant to be used anyway, there's no point optimizing it
-            String s = new String(this.linebuffer.buffer(), 0, l, this.charset);
-            l = s.length();
-            charbuffer.append(s);
+            ByteBuffer bbuf =  ByteBuffer.wrap(this.linebuffer.buffer(), 0, len);
+            len = appendDecoded(charbuffer, bbuf);
         }
         this.linebuffer.clear();
-        return l;
+        return len;
     }
 
     private int lineFromReadBuffer(final CharArrayBuffer charbuffer, int pos)
@@ -334,12 +337,45 @@ public abstract class AbstractSessionInputBuffer implements SessionInputBuffer, 
         if (this.ascii) {
             charbuffer.append(this.buffer, off, len);
         } else {
-            // This is VERY memory inefficient, BUT since non-ASCII charsets are
-            // NOT meant to be used anyway, there's no point optimizing it
-            String s = new String(this.buffer, off, len, this.charset);
-            charbuffer.append(s);
-            len = s.length();
+            ByteBuffer bbuf =  ByteBuffer.wrap(this.buffer, off, len);
+            len = appendDecoded(charbuffer, bbuf);
         }
+        return len;
+    }
+
+    private int appendDecoded(
+            final CharArrayBuffer charbuffer, final ByteBuffer bbuf) throws IOException {
+        if (this.decoder == null) {
+            this.decoder = this.charset.newDecoder();
+        }
+        if (this.cbuf == null) {
+            this.cbuf = CharBuffer.allocate(1024);
+        }
+        this.decoder.reset();
+        int len = 0;
+        while (bbuf.hasRemaining()) {
+            CoderResult result = this.decoder.decode(bbuf, this.cbuf, true);
+            len += handleDecodingResult(result, charbuffer, bbuf);
+        }
+        CoderResult result = this.decoder.flush(this.cbuf);
+        len += handleDecodingResult(result, charbuffer, bbuf);
+        this.cbuf.clear();
+        return len;
+    }
+
+    private int handleDecodingResult(
+            final CoderResult result,
+            final CharArrayBuffer charbuffer,
+            final ByteBuffer bbuf) throws IOException {
+        if (result.isError()) {
+            result.throwException();
+        }
+        this.cbuf.flip();
+        int len = this.cbuf.remaining();
+        while (this.cbuf.hasRemaining()) {
+            charbuffer.append(this.cbuf.get());
+        }
+        this.cbuf.compact();
         return len;
     }
 
