@@ -30,7 +30,6 @@ package org.apache.http.impl.entity;
 import org.apache.http.HttpMessage;
 import org.apache.http.ProtocolException;
 import org.apache.http.entity.ContentLengthStrategy;
-import org.apache.http.mockup.HttpMessageMockup;
 import org.apache.http.params.CoreProtocolPNames;
 import org.junit.Assert;
 import org.junit.Test;
@@ -40,7 +39,7 @@ public class TestLaxContentLengthStrategy {
     @Test
     public void testEntityWithTransferEncoding() throws Exception {
         ContentLengthStrategy lenStrategy = new LaxContentLengthStrategy();
-        HttpMessage message = new HttpMessageMockup();
+        HttpMessage message = new DummyHttpMessage();
 
         // lenient mode
         message.getParams().setBooleanParameter(CoreProtocolPNames.STRICT_TRANSFER_ENCODING, false);
@@ -57,7 +56,7 @@ public class TestLaxContentLengthStrategy {
     @Test
     public void testEntityWithIdentityTransferEncoding() throws Exception {
         ContentLengthStrategy lenStrategy = new LaxContentLengthStrategy();
-        HttpMessage message = new HttpMessageMockup();
+        HttpMessage message = new DummyHttpMessage();
 
         // lenient mode
         message.getParams().setBooleanParameter(CoreProtocolPNames.STRICT_TRANSFER_ENCODING, false);
@@ -70,7 +69,7 @@ public class TestLaxContentLengthStrategy {
     @Test
     public void testEntityWithUnsupportedTransferEncoding() throws Exception {
         ContentLengthStrategy lenStrategy = new LaxContentLengthStrategy();
-        HttpMessage message = new HttpMessageMockup();
+        HttpMessage message = new DummyHttpMessage();
 
         // lenient mode
         message.getParams().setBooleanParameter(CoreProtocolPNames.STRICT_TRANSFER_ENCODING, false);
@@ -92,7 +91,7 @@ public class TestLaxContentLengthStrategy {
     @Test
     public void testChunkedTransferEncodingMustBeLast() throws Exception {
         ContentLengthStrategy lenStrategy = new LaxContentLengthStrategy();
-        HttpMessage message = new HttpMessageMockup();
+        HttpMessage message = new DummyHttpMessage();
 
         // lenient mode
         message.getParams().setBooleanParameter(CoreProtocolPNames.STRICT_TRANSFER_ENCODING, false);
@@ -114,7 +113,7 @@ public class TestLaxContentLengthStrategy {
     @Test
     public void testEntityWithContentLength() throws Exception {
         ContentLengthStrategy lenStrategy = new LaxContentLengthStrategy();
-        HttpMessage message = new HttpMessageMockup();
+        HttpMessage message = new DummyHttpMessage();
 
         // lenient mode
         message.getParams().setBooleanParameter(CoreProtocolPNames.STRICT_TRANSFER_ENCODING, false);
@@ -126,7 +125,7 @@ public class TestLaxContentLengthStrategy {
     @Test
     public void testEntityWithMultipleContentLength() throws Exception {
         ContentLengthStrategy lenStrategy = new LaxContentLengthStrategy();
-        HttpMessage message = new HttpMessageMockup();
+        HttpMessage message = new DummyHttpMessage();
 
         // lenient mode
         message.getParams().setBooleanParameter(CoreProtocolPNames.STRICT_TRANSFER_ENCODING, false);
@@ -149,7 +148,7 @@ public class TestLaxContentLengthStrategy {
     @Test
     public void testEntityWithMultipleContentLengthSomeWrong() throws Exception {
         ContentLengthStrategy lenStrategy = new LaxContentLengthStrategy();
-        HttpMessage message = new HttpMessageMockup();
+        HttpMessage message = new DummyHttpMessage();
 
         // lenient mode
         message.getParams().setBooleanParameter(CoreProtocolPNames.STRICT_TRANSFER_ENCODING, false);
@@ -172,7 +171,7 @@ public class TestLaxContentLengthStrategy {
     @Test
     public void testEntityWithMultipleContentLengthAllWrong() throws Exception {
         ContentLengthStrategy lenStrategy = new LaxContentLengthStrategy();
-        HttpMessage message = new HttpMessageMockup();
+        HttpMessage message = new DummyHttpMessage();
 
         // lenient mode
         message.getParams().setBooleanParameter(CoreProtocolPNames.STRICT_TRANSFER_ENCODING, false);
@@ -194,7 +193,7 @@ public class TestLaxContentLengthStrategy {
     @Test
     public void testEntityWithInvalidContentLength() throws Exception {
         ContentLengthStrategy lenStrategy = new LaxContentLengthStrategy();
-        HttpMessage message = new HttpMessageMockup();
+        HttpMessage message = new DummyHttpMessage();
 
         // lenient mode
         message.getParams().setBooleanParameter(CoreProtocolPNames.STRICT_TRANSFER_ENCODING, false);
@@ -215,7 +214,7 @@ public class TestLaxContentLengthStrategy {
     @Test
     public void testEntityNeitherContentLengthNorTransferEncoding() throws Exception {
         ContentLengthStrategy lenStrategy = new LaxContentLengthStrategy();
-        HttpMessage message = new HttpMessageMockup();
+        HttpMessage message = new DummyHttpMessage();
 
         // lenient mode
         Assert.assertEquals(ContentLengthStrategy.IDENTITY, lenStrategy.determineLength(message));

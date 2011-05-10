@@ -29,9 +29,10 @@ package org.apache.http.message;
 
 import org.apache.http.Header;
 import org.apache.http.HttpMessage;
-import org.apache.http.mockup.HttpMessageMockup;
+import org.apache.http.ProtocolVersion;
 import org.apache.http.params.BasicHttpParams;
 import org.apache.http.params.HttpParams;
+import org.apache.http.params.HttpProtocolParams;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -41,9 +42,21 @@ import org.junit.Test;
  */
 public class TestAbstractMessage {
 
+    static class TestHttpMessage extends AbstractHttpMessage {
+
+        public TestHttpMessage() {
+            super();
+        }
+
+        public ProtocolVersion getProtocolVersion() {
+            return HttpProtocolParams.getVersion(this.getParams());
+        }
+
+    }
+
     @Test
     public void testBasicProperties() {
-        HttpMessage message = new HttpMessageMockup();
+        HttpMessage message = new TestHttpMessage();
         Assert.assertNotNull(message.getParams());
         Assert.assertNotNull(message.headerIterator());
         Header[] headers = message.getAllHeaders();
@@ -53,7 +66,7 @@ public class TestAbstractMessage {
 
     @Test
     public void testBasicHeaderOps() {
-        HttpMessage message = new HttpMessageMockup();
+        HttpMessage message = new TestHttpMessage();
         Assert.assertFalse(message.containsHeader("whatever"));
 
         message.addHeader("name", "1");
@@ -112,7 +125,7 @@ public class TestAbstractMessage {
 
     @Test
     public void testParameters() {
-        HttpMessage message = new HttpMessageMockup();
+        HttpMessage message = new TestHttpMessage();
         Assert.assertNotNull(message.getParams());
         HttpParams params = new BasicHttpParams();
         message.setParams(params);
@@ -121,7 +134,7 @@ public class TestAbstractMessage {
 
     @Test
     public void testInvalidInput() {
-        HttpMessage message = new HttpMessageMockup();
+        HttpMessage message = new TestHttpMessage();
         try {
             message.setParams(null);
             Assert.fail("IllegalArgumentException should have been thrown");

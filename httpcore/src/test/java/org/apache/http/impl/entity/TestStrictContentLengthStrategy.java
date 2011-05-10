@@ -31,7 +31,6 @@ import org.apache.http.HttpMessage;
 import org.apache.http.HttpVersion;
 import org.apache.http.ProtocolException;
 import org.apache.http.entity.ContentLengthStrategy;
-import org.apache.http.mockup.HttpMessageMockup;
 import org.apache.http.params.CoreProtocolPNames;
 import org.junit.Assert;
 import org.junit.Test;
@@ -41,7 +40,7 @@ public class TestStrictContentLengthStrategy {
     @Test
     public void testEntityWithChunkTransferEncoding() throws Exception {
         ContentLengthStrategy lenStrategy = new StrictContentLengthStrategy();
-        HttpMessage message = new HttpMessageMockup();
+        HttpMessage message = new DummyHttpMessage();
         message.addHeader("Transfer-Encoding", "Chunked");
 
         Assert.assertEquals(ContentLengthStrategy.CHUNKED, lenStrategy.determineLength(message));
@@ -50,7 +49,7 @@ public class TestStrictContentLengthStrategy {
     @Test
     public void testEntityWithIdentityTransferEncoding() throws Exception {
         ContentLengthStrategy lenStrategy = new StrictContentLengthStrategy();
-        HttpMessage message = new HttpMessageMockup();
+        HttpMessage message = new DummyHttpMessage();
         message.addHeader("Transfer-Encoding", "Identity");
 
         Assert.assertEquals(ContentLengthStrategy.IDENTITY, lenStrategy.determineLength(message));
@@ -59,7 +58,7 @@ public class TestStrictContentLengthStrategy {
     @Test
     public void testEntityWithInvalidTransferEncoding() throws Exception {
         ContentLengthStrategy lenStrategy = new StrictContentLengthStrategy();
-        HttpMessage message = new HttpMessageMockup();
+        HttpMessage message = new DummyHttpMessage();
         message.addHeader("Transfer-Encoding", "whatever");
 
         try {
@@ -73,7 +72,7 @@ public class TestStrictContentLengthStrategy {
     @Test
     public void testEntityWithInvalidChunkEncodingAndHTTP10() throws Exception {
         ContentLengthStrategy lenStrategy = new StrictContentLengthStrategy();
-        HttpMessage message = new HttpMessageMockup();
+        HttpMessage message = new DummyHttpMessage();
         message.getParams().setParameter(CoreProtocolPNames.PROTOCOL_VERSION,
                 HttpVersion.HTTP_1_0);
         message.addHeader("Transfer-Encoding", "chunked");
@@ -89,7 +88,7 @@ public class TestStrictContentLengthStrategy {
     @Test
     public void testEntityWithContentLength() throws Exception {
         ContentLengthStrategy lenStrategy = new StrictContentLengthStrategy();
-        HttpMessage message = new HttpMessageMockup();
+        HttpMessage message = new DummyHttpMessage();
         message.addHeader("Content-Length", "100");
         Assert.assertEquals(100, lenStrategy.determineLength(message));
     }
@@ -97,7 +96,7 @@ public class TestStrictContentLengthStrategy {
     @Test
     public void testEntityWithInvalidContentLength() throws Exception {
         ContentLengthStrategy lenStrategy = new StrictContentLengthStrategy();
-        HttpMessage message = new HttpMessageMockup();
+        HttpMessage message = new DummyHttpMessage();
         message.addHeader("Content-Length", "whatever");
 
         try {
@@ -111,7 +110,7 @@ public class TestStrictContentLengthStrategy {
     @Test
     public void testEntityNoContentDelimiter() throws Exception {
         ContentLengthStrategy lenStrategy = new StrictContentLengthStrategy();
-        HttpMessage message = new HttpMessageMockup();
+        HttpMessage message = new DummyHttpMessage();
         Assert.assertEquals(ContentLengthStrategy.IDENTITY, lenStrategy.determineLength(message));
     }
 

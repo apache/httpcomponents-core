@@ -29,7 +29,6 @@ package org.apache.http.entity;
 
 import org.apache.http.Header;
 import org.apache.http.message.BasicHeader;
-import org.apache.http.mockup.HttpEntityMockup;
 import org.apache.http.protocol.HTTP;
 import org.junit.Assert;
 import org.junit.Test;
@@ -42,7 +41,7 @@ public class TestAbstractHttpEntity {
 
     @Test
     public void testContentType() throws Exception {
-        HttpEntityMockup httpentity = new HttpEntityMockup();
+        BasicHttpEntity httpentity = new BasicHttpEntity();
         httpentity.setContentType(new BasicHeader(HTTP.CONTENT_TYPE, HTTP.PLAIN_TEXT_TYPE));
         Assert.assertEquals(HTTP.CONTENT_TYPE, httpentity.getContentType().getName());
         Assert.assertEquals(HTTP.PLAIN_TEXT_TYPE, httpentity.getContentType().getValue());
@@ -59,7 +58,7 @@ public class TestAbstractHttpEntity {
 
     @Test
     public void testContentEncoding() throws Exception {
-        HttpEntityMockup httpentity = new HttpEntityMockup();
+        BasicHttpEntity httpentity = new BasicHttpEntity();
         httpentity.setContentEncoding(new BasicHeader(HTTP.CONTENT_ENCODING, "gzip"));
         Assert.assertEquals(HTTP.CONTENT_ENCODING, httpentity.getContentEncoding().getName());
         Assert.assertEquals("gzip", httpentity.getContentEncoding().getValue());
@@ -76,7 +75,7 @@ public class TestAbstractHttpEntity {
 
     @Test
     public void testChunkingFlag() throws Exception {
-        HttpEntityMockup httpentity = new HttpEntityMockup();
+        BasicHttpEntity httpentity = new BasicHttpEntity();
         Assert.assertFalse(httpentity.isChunked());
         httpentity.setChunked(true);
         Assert.assertTrue(httpentity.isChunked());

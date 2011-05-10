@@ -25,19 +25,15 @@
  *
  */
 
-package org.apache.http.mockup;
+package org.apache.http.impl.entity;
 
 import org.apache.http.ProtocolVersion;
 import org.apache.http.message.AbstractHttpMessage;
 import org.apache.http.params.HttpProtocolParams;
 
-/**
- *  {@link org.apache.http.HttpMessage} mockup implementation.
- *
- */
-public class HttpMessageMockup extends AbstractHttpMessage {
+class DummyHttpMessage extends AbstractHttpMessage {
 
-    public HttpMessageMockup() {
+    public DummyHttpMessage() {
         super();
     }
 
