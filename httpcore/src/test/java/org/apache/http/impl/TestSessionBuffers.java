@@ -56,6 +56,12 @@ public class TestSessionBuffers {
         } catch (IllegalArgumentException ex) {
             //expected
         }
+        try {
+            new SessionOutputBufferMockup(out, null);
+            Assert.fail("IllegalArgumentException should have been thrown");
+        } catch (IllegalArgumentException ex) {
+            //expected
+        }
         ByteArrayInputStream in = new ByteArrayInputStream(out.toByteArray());
         new SessionInputBufferMockup(in, 10);
         try {
@@ -72,6 +78,12 @@ public class TestSessionBuffers {
         }
         try {
             new SessionInputBufferMockup((InputStream)null, 1024);
+            Assert.fail("IllegalArgumentException should have been thrown");
+        } catch (IllegalArgumentException ex) {
+            //expected
+        }
+        try {
+            new SessionInputBufferMockup(in, 10, null);
             Assert.fail("IllegalArgumentException should have been thrown");
         } catch (IllegalArgumentException ex) {
             //expected
@@ -430,9 +442,9 @@ public class TestSessionBuffers {
         }
         outbuffer.flush();
         long bytesWritten = outbuffer.getMetrics().getBytesTransferred();
-        long expected = ((s1.toString().getBytes("UTF-8").length + 2)+
-                (s2.toString().getBytes("UTF-8").length + 2) +
-                (s3.toString().getBytes("UTF-8").length + 2)) * 10;
+        long expected = ((s1.getBytes("UTF-8").length + 2)+
+                (s2.getBytes("UTF-8").length + 2) +
+                (s3.getBytes("UTF-8").length + 2)) * 10;
         Assert.assertEquals(expected, bytesWritten);
 
         SessionInputBufferMockup inbuffer = new SessionInputBufferMockup(
@@ -450,6 +462,33 @@ public class TestSessionBuffers {
     }
 
     @Test
+    public void testMultibyteCodedReadWriteLongLine() throws Exception {
+        String s1 = constructString(SWISS_GERMAN_HELLO);
+        String s2 = constructString(RUSSIAN_HELLO);
+        String s3 = "Like hello and stuff";
+        StringBuilder buf = new StringBuilder();
+        for (int i = 0; i < 1024; i++) {
+            buf.append(s1).append(s2).append(s3);
+        }
+        String s = buf.toString();
+
+        HttpParams params = new BasicHttpParams();
+        HttpProtocolParams.setHttpElementCharset(params, "UTF-8");
+
+        SessionOutputBufferMockup outbuffer = new SessionOutputBufferMockup(params);
+
+        CharArrayBuffer chbuffer = new CharArrayBuffer(16);
+        chbuffer.append(s);
+        outbuffer.writeLine(chbuffer);
+        outbuffer.flush();
+
+        SessionInputBufferMockup inbuffer = new SessionInputBufferMockup(
+                outbuffer.getData(), params);
+
+        Assert.assertEquals(s, inbuffer.readLine());
+    }
+
+    @Test
     public void testNonAsciiReadWriteLine() throws Exception {
         String s1 = constructString(SWISS_GERMAN_HELLO);
 
@@ -459,10 +498,13 @@ public class TestSessionBuffers {
         SessionOutputBufferMockup outbuffer = new SessionOutputBufferMockup(params);
 
         CharArrayBuffer chbuffer = new CharArrayBuffer(16);
-        for (int i = 0; i < 10; i++) {
+        for (int i = 0; i < 5; i++) {
             chbuffer.clear();
             chbuffer.append(s1);
             outbuffer.writeLine(chbuffer);
+        }
+        for (int i = 0; i < 5; i++) {
+            outbuffer.writeLine(s1);
         }
         outbuffer.flush();
         long bytesWritten = outbuffer.getMetrics().getBytesTransferred();
