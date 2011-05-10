@@ -25,7 +25,7 @@
  *
  */
 
-package org.apache.http.mockup;
+package org.apache.http.testserver;
 
 import java.io.IOException;
 import java.io.InterruptedIOException;
