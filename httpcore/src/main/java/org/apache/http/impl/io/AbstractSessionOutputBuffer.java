@@ -29,6 +29,11 @@ package org.apache.http.impl.io;
 
 import java.io.IOException;
 import java.io.OutputStream;
+import java.nio.ByteBuffer;
+import java.nio.CharBuffer;
+import java.nio.charset.Charset;
+import java.nio.charset.CharsetEncoder;
+import java.nio.charset.CoderResult;
 
 import org.apache.http.io.BufferInfo;
 import org.apache.http.io.SessionOutputBuffer;
@@ -60,12 +65,15 @@ import org.apache.http.util.CharArrayBuffer;
  */
 public abstract class AbstractSessionOutputBuffer implements SessionOutputBuffer, BufferInfo {
 
+    private static final Charset ASCII = Charset.forName("US-ASCII");
     private static final byte[] CRLF = new byte[] {HTTP.CR, HTTP.LF};
 
     private OutputStream outstream;
     private ByteArrayBuffer buffer;
 
-    private String charset = HTTP.US_ASCII;
+    private Charset charset;
+    private CharsetEncoder encoder;
+    private ByteBuffer bbuf;
     private boolean ascii = true;
     private int minChunkLimit = 512;
 
@@ -90,9 +98,9 @@ public abstract class AbstractSessionOutputBuffer implements SessionOutputBuffer
         }
         this.outstream = outstream;
         this.buffer = new ByteArrayBuffer(buffersize);
-        this.charset = HttpProtocolParams.getHttpElementCharset(params);
-        this.ascii = this.charset.equalsIgnoreCase(HTTP.US_ASCII)
-                     || this.charset.equalsIgnoreCase(HTTP.ASCII);
+        this.charset = Charset.forName(HttpProtocolParams.getHttpElementCharset(params));
+        this.ascii = this.charset.equals(ASCII);
+        this.encoder = null;
         this.minChunkLimit = params.getIntParameter(CoreConnectionPNames.MIN_CHUNK_LIMIT, 512);
         this.metrics = createTransportMetrics();
     }
@@ -105,7 +113,7 @@ public abstract class AbstractSessionOutputBuffer implements SessionOutputBuffer
     }
 
     /**
-     * @since 4.`1
+     * @since 4.1
      */
     public int capacity() {
         return this.buffer.capacity();
@@ -192,7 +200,14 @@ public abstract class AbstractSessionOutputBuffer implements SessionOutputBuffer
             return;
         }
         if (s.length() > 0) {
-            write(s.getBytes(this.charset));
+            if (this.ascii) {
+                for (int i = 0; i < s.length(); i++) {
+                    write(s.charAt(i));
+                }
+            } else {
+                CharBuffer cbuf = CharBuffer.wrap(s);
+                writeEncoded(cbuf);
+            }
         }
         write(CRLF);
     }
@@ -203,21 +218,21 @@ public abstract class AbstractSessionOutputBuffer implements SessionOutputBuffer
      * <p>
      * This method uses CR-LF as a line delimiter.
      *
-     * @param      s the buffer containing chars of the line.
+     * @param      charbuffer the buffer containing chars of the line.
      * @exception  IOException  if an I/O error occurs.
      */
-    public void writeLine(final CharArrayBuffer s) throws IOException {
-        if (s == null) {
+    public void writeLine(final CharArrayBuffer charbuffer) throws IOException {
+        if (charbuffer == null) {
             return;
         }
         if (this.ascii) {
             int off = 0;
-            int remaining = s.length();
+            int remaining = charbuffer.length();
             while (remaining > 0) {
                 int chunk = this.buffer.capacity() - this.buffer.length();
                 chunk = Math.min(chunk, remaining);
                 if (chunk > 0) {
-                    this.buffer.append(s, off, chunk);
+                    this.buffer.append(charbuffer, off, chunk);
                 }
                 if (this.buffer.isFull()) {
                     flushBuffer();
@@ -226,12 +241,38 @@ public abstract class AbstractSessionOutputBuffer implements SessionOutputBuffer
                 remaining -= chunk;
             }
         } else {
-            // This is VERY memory inefficient, BUT since non-ASCII charsets are
-            // NOT meant to be used anyway, there's no point optimizing it
-            byte[] tmp = s.toString().getBytes(this.charset);
-            write(tmp);
+            CharBuffer cbuf = CharBuffer.wrap(charbuffer.buffer(), 0, charbuffer.length());
+            writeEncoded(cbuf);
         }
         write(CRLF);
+    }
+
+    private void writeEncoded(final CharBuffer cbuf) throws IOException {
+        if (this.encoder == null) {
+            this.encoder = this.charset.newEncoder();
+        }
+        if (this.bbuf == null) {
+            this.bbuf = ByteBuffer.allocate(1024);
+        }
+        this.encoder.reset();
+        while (cbuf.hasRemaining()) {
+            CoderResult result = this.encoder.encode(cbuf, this.bbuf, true);
+            handleEncodingResult(result);
+        }
+        CoderResult result = this.encoder.flush(this.bbuf);
+        handleEncodingResult(result);
+        this.bbuf.clear();
+    }
+
+    private void handleEncodingResult(final CoderResult result) throws IOException {
+        if (result.isError()) {
+            result.throwException();
+        }
+        this.bbuf.flip();
+        while (this.bbuf.hasRemaining()) {
+            write(this.bbuf.get());
+        }
+        this.bbuf.compact();
     }
 
     public HttpTransportMetrics getMetrics() {
