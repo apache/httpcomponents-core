@@ -31,7 +31,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 
-import org.apache.http.impl.SessionOutputBufferMockup;
+import org.apache.http.impl.SessionOutputBufferMock;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -39,7 +39,7 @@ public class TestIdentityOutputStream {
 
     @Test
     public void testConstructors() throws Exception {
-        new IdentityOutputStream(new SessionOutputBufferMockup());
+        new IdentityOutputStream(new SessionOutputBufferMock());
         try {
             new IdentityOutputStream(null);
             Assert.fail("IllegalArgumentException should have been thrown");
@@ -51,7 +51,7 @@ public class TestIdentityOutputStream {
     @Test
     public void testBasics() throws Exception {
         ByteArrayOutputStream buffer = new ByteArrayOutputStream();
-        SessionOutputBufferMockup datatransmitter = new SessionOutputBufferMockup(buffer);
+        SessionOutputBufferMock datatransmitter = new SessionOutputBufferMock(buffer);
         OutputStream out = new IdentityOutputStream(datatransmitter);
 
         byte[] tmp = new byte[10];
@@ -67,7 +67,7 @@ public class TestIdentityOutputStream {
     @Test
     public void testClose() throws Exception {
         ByteArrayOutputStream buffer = new ByteArrayOutputStream();
-        SessionOutputBufferMockup datatransmitter = new SessionOutputBufferMockup(buffer);
+        SessionOutputBufferMock datatransmitter = new SessionOutputBufferMock(buffer);
         OutputStream out = new IdentityOutputStream(datatransmitter);
         out.close();
         out.close();
@@ -88,7 +88,7 @@ public class TestIdentityOutputStream {
 
     @Test
     public void testConstructor() throws Exception {
-        SessionOutputBufferMockup transmitter = new SessionOutputBufferMockup();
+        SessionOutputBufferMock transmitter = new SessionOutputBufferMock();
         new IdentityOutputStream(transmitter);
         try {
             new IdentityOutputStream(null);
@@ -100,7 +100,7 @@ public class TestIdentityOutputStream {
 
     @Test
     public void testBasicWrite() throws Exception {
-        SessionOutputBufferMockup transmitter = new SessionOutputBufferMockup();
+        SessionOutputBufferMock transmitter = new SessionOutputBufferMock();
         IdentityOutputStream outstream = new IdentityOutputStream(transmitter);
         outstream.write(new byte[] {'a', 'b'}, 0, 2);
         outstream.write('c');
@@ -118,7 +118,7 @@ public class TestIdentityOutputStream {
 
     @Test
     public void testClosedCondition() throws Exception {
-        SessionOutputBufferMockup transmitter = new SessionOutputBufferMockup();
+        SessionOutputBufferMock transmitter = new SessionOutputBufferMock();
         IdentityOutputStream outstream = new IdentityOutputStream(transmitter);
         outstream.close();
         outstream.close();

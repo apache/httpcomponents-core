@@ -47,41 +47,41 @@ public class TestSessionBuffers {
     @Test
     public void testInit() throws Exception {
         ByteArrayOutputStream out = new ByteArrayOutputStream();
-        new SessionOutputBufferMockup(out);
+        new SessionOutputBufferMock(out);
         try {
-            new SessionOutputBufferMockup(null, new BasicHttpParams());
+            new SessionOutputBufferMock(null, new BasicHttpParams());
             Assert.fail("IllegalArgumentException should have been thrown");
         } catch (IllegalArgumentException ex) {
             //expected
         }
         try {
-            new SessionOutputBufferMockup(out, null);
+            new SessionOutputBufferMock(out, null);
             Assert.fail("IllegalArgumentException should have been thrown");
         } catch (IllegalArgumentException ex) {
             //expected
         }
         ByteArrayInputStream in = new ByteArrayInputStream(out.toByteArray());
-        new SessionInputBufferMockup(in, 10);
+        new SessionInputBufferMock(in, 10);
         try {
-            new SessionInputBufferMockup(in, -10);
+            new SessionInputBufferMock(in, -10);
             Assert.fail("IllegalArgumentException should have been thrown");
         } catch (IllegalArgumentException ex) {
             //expected
         }
         try {
-            new SessionOutputBufferMockup(out, -10);
+            new SessionOutputBufferMock(out, -10);
             Assert.fail("IllegalArgumentException should have been thrown");
         } catch (IllegalArgumentException ex) {
             //expected
         }
         try {
-            new SessionInputBufferMockup((InputStream)null, 1024);
+            new SessionInputBufferMock((InputStream)null, 1024);
             Assert.fail("IllegalArgumentException should have been thrown");
         } catch (IllegalArgumentException ex) {
             //expected
         }
         try {
-            new SessionInputBufferMockup(in, 10, null);
+            new SessionInputBufferMock(in, 10, null);
             Assert.fail("IllegalArgumentException should have been thrown");
         } catch (IllegalArgumentException ex) {
             //expected
@@ -90,20 +90,20 @@ public class TestSessionBuffers {
 
     @Test
     public void testBasicBufferProperties() throws Exception {
-        SessionInputBufferMockup inbuffer = new SessionInputBufferMockup(new byte[] { 1, 2 , 3});
-        Assert.assertEquals(SessionInputBufferMockup.BUFFER_SIZE, inbuffer.capacity());
-        Assert.assertEquals(SessionInputBufferMockup.BUFFER_SIZE, inbuffer.available());
+        SessionInputBufferMock inbuffer = new SessionInputBufferMock(new byte[] { 1, 2 , 3});
+        Assert.assertEquals(SessionInputBufferMock.BUFFER_SIZE, inbuffer.capacity());
+        Assert.assertEquals(SessionInputBufferMock.BUFFER_SIZE, inbuffer.available());
         Assert.assertEquals(0, inbuffer.length());
         inbuffer.read();
-        Assert.assertEquals(SessionInputBufferMockup.BUFFER_SIZE - 2, inbuffer.available());
+        Assert.assertEquals(SessionInputBufferMock.BUFFER_SIZE - 2, inbuffer.available());
         Assert.assertEquals(2, inbuffer.length());
 
-        SessionOutputBufferMockup outbuffer = new SessionOutputBufferMockup();
-        Assert.assertEquals(SessionOutputBufferMockup.BUFFER_SIZE, outbuffer.capacity());
-        Assert.assertEquals(SessionOutputBufferMockup.BUFFER_SIZE, outbuffer.available());
+        SessionOutputBufferMock outbuffer = new SessionOutputBufferMock();
+        Assert.assertEquals(SessionOutputBufferMock.BUFFER_SIZE, outbuffer.capacity());
+        Assert.assertEquals(SessionOutputBufferMock.BUFFER_SIZE, outbuffer.available());
         Assert.assertEquals(0, outbuffer.length());
         outbuffer.write(new byte[] {1, 2, 3});
-        Assert.assertEquals(SessionOutputBufferMockup.BUFFER_SIZE - 3, outbuffer.available());
+        Assert.assertEquals(SessionOutputBufferMock.BUFFER_SIZE - 3, outbuffer.available());
         Assert.assertEquals(3, outbuffer.length());
     }
 
@@ -124,7 +124,7 @@ public class TestSessionBuffers {
         teststrs[4] = "And goodbye";
 
         CharArrayBuffer chbuffer = new CharArrayBuffer(16);
-        SessionOutputBufferMockup outbuffer = new SessionOutputBufferMockup();
+        SessionOutputBufferMock outbuffer = new SessionOutputBufferMock();
         for (int i = 0; i < teststrs.length; i++) {
             chbuffer.clear();
             chbuffer.append(teststrs[i]);
@@ -143,7 +143,7 @@ public class TestSessionBuffers {
         }
         Assert.assertEquals(expected, bytesWritten);
 
-        SessionInputBufferMockup inbuffer = new SessionInputBufferMockup(
+        SessionInputBufferMock inbuffer = new SessionInputBufferMock(
                 outbuffer.getData());
 
         for (int i = 0; i < teststrs.length; i++) {
@@ -159,7 +159,7 @@ public class TestSessionBuffers {
 
     @Test
     public void testComplexReadWriteLine() throws Exception {
-        SessionOutputBufferMockup outbuffer = new SessionOutputBufferMockup();
+        SessionOutputBufferMock outbuffer = new SessionOutputBufferMock();
         outbuffer.write(new byte[] {'a', '\n'});
         outbuffer.write(new byte[] {'\r', '\n'});
         outbuffer.write(new byte[] {'\r', '\r', '\n'});
@@ -211,7 +211,7 @@ public class TestSessionBuffers {
         bytesWritten = outbuffer.getMetrics().getBytesTransferred();
         Assert.assertEquals(8 + 14 + 2 + 15 + 2 + 16 + 2 + 1, bytesWritten);
 
-        SessionInputBufferMockup inbuffer = new SessionInputBufferMockup(
+        SessionInputBufferMock inbuffer = new SessionInputBufferMock(
                 outbuffer.getData());
 
         Assert.assertEquals("a", inbuffer.readLine());
@@ -245,7 +245,7 @@ public class TestSessionBuffers {
         teststrs[4] = "And goodbye";
 
         CharArrayBuffer chbuffer = new CharArrayBuffer(16);
-        SessionOutputBufferMockup outbuffer = new SessionOutputBufferMockup();
+        SessionOutputBufferMock outbuffer = new SessionOutputBufferMock();
         for (int i = 0; i < teststrs.length; i++) {
             chbuffer.clear();
             chbuffer.append(teststrs[i]);
@@ -263,7 +263,7 @@ public class TestSessionBuffers {
         }
         Assert.assertEquals(expected, bytesWritten);
 
-        SessionInputBufferMockup inbuffer = new SessionInputBufferMockup(
+        SessionInputBufferMock inbuffer = new SessionInputBufferMock(
                 outbuffer.getData(), 1024);
 
         for (int i = 0; i < teststrs.length; i++) {
@@ -282,7 +282,7 @@ public class TestSessionBuffers {
         for (int i = 0; i < out.length; i++) {
             out[i] = (byte)('0' + i);
         }
-        SessionOutputBufferMockup outbuffer = new SessionOutputBufferMockup();
+        SessionOutputBufferMock outbuffer = new SessionOutputBufferMock();
         int off = 0;
         int remaining = out.length;
         while (remaining > 0) {
@@ -304,7 +304,7 @@ public class TestSessionBuffers {
             Assert.assertEquals(out[i], tmp[i]);
         }
 
-        SessionInputBufferMockup inbuffer = new SessionInputBufferMockup(tmp);
+        SessionInputBufferMock inbuffer = new SessionInputBufferMock(tmp);
 
         // these read operations will have no effect
         Assert.assertEquals(0, inbuffer.read(null, 0, 10));
@@ -343,7 +343,7 @@ public class TestSessionBuffers {
         for (int i = 0; i < out.length; i++) {
             out[i] = (byte)(120 + i);
         }
-        SessionOutputBufferMockup outbuffer = new SessionOutputBufferMockup();
+        SessionOutputBufferMock outbuffer = new SessionOutputBufferMock();
         for (int i = 0; i < out.length; i++) {
             outbuffer.write(out[i]);
         }
@@ -357,7 +357,7 @@ public class TestSessionBuffers {
             Assert.assertEquals(out[i], tmp[i]);
         }
 
-        SessionInputBufferMockup inbuffer = new SessionInputBufferMockup(tmp);
+        SessionInputBufferMock inbuffer = new SessionInputBufferMock(tmp);
         byte[] in = new byte[40];
         for (int i = 0; i < in.length; i++) {
             in[i] = (byte)inbuffer.read();
@@ -378,14 +378,14 @@ public class TestSessionBuffers {
         byte[] tmp = s.getBytes("US-ASCII");
         // no limit
         params.setIntParameter(CoreConnectionPNames.MAX_LINE_LENGTH, 0);
-        SessionInputBufferMockup inbuffer1 = new SessionInputBufferMockup(tmp, 5, params);
+        SessionInputBufferMock inbuffer1 = new SessionInputBufferMock(tmp, 5, params);
         Assert.assertNotNull(inbuffer1.readLine());
         long bytesRead = inbuffer1.getMetrics().getBytesTransferred();
         Assert.assertEquals(60, bytesRead);
 
         // 15 char limit
         params.setIntParameter(CoreConnectionPNames.MAX_LINE_LENGTH, 15);
-        SessionInputBufferMockup inbuffer2 = new SessionInputBufferMockup(tmp, 5, params);
+        SessionInputBufferMock inbuffer2 = new SessionInputBufferMock(tmp, 5, params);
         try {
             inbuffer2.readLine();
             Assert.fail("IOException should have been thrown");
@@ -424,7 +424,7 @@ public class TestSessionBuffers {
         HttpParams params = new BasicHttpParams();
         HttpProtocolParams.setHttpElementCharset(params, "UTF-8");
 
-        SessionOutputBufferMockup outbuffer = new SessionOutputBufferMockup(params);
+        SessionOutputBufferMock outbuffer = new SessionOutputBufferMock(params);
 
         CharArrayBuffer chbuffer = new CharArrayBuffer(16);
         for (int i = 0; i < 10; i++) {
@@ -445,7 +445,7 @@ public class TestSessionBuffers {
                 (s3.getBytes("UTF-8").length + 2)) * 10;
         Assert.assertEquals(expected, bytesWritten);
 
-        SessionInputBufferMockup inbuffer = new SessionInputBufferMockup(
+        SessionInputBufferMock inbuffer = new SessionInputBufferMock(
                 outbuffer.getData(), params);
 
         for (int i = 0; i < 10; i++) {
@@ -473,14 +473,14 @@ public class TestSessionBuffers {
         HttpParams params = new BasicHttpParams();
         HttpProtocolParams.setHttpElementCharset(params, "UTF-8");
 
-        SessionOutputBufferMockup outbuffer = new SessionOutputBufferMockup(params);
+        SessionOutputBufferMock outbuffer = new SessionOutputBufferMock(params);
 
         CharArrayBuffer chbuffer = new CharArrayBuffer(16);
         chbuffer.append(s);
         outbuffer.writeLine(chbuffer);
         outbuffer.flush();
 
-        SessionInputBufferMockup inbuffer = new SessionInputBufferMockup(
+        SessionInputBufferMock inbuffer = new SessionInputBufferMock(
                 outbuffer.getData(), params);
 
         Assert.assertEquals(s, inbuffer.readLine());
@@ -493,7 +493,7 @@ public class TestSessionBuffers {
         HttpParams params = new BasicHttpParams();
         HttpProtocolParams.setHttpElementCharset(params, HTTP.ISO_8859_1);
 
-        SessionOutputBufferMockup outbuffer = new SessionOutputBufferMockup(params);
+        SessionOutputBufferMock outbuffer = new SessionOutputBufferMock(params);
 
         CharArrayBuffer chbuffer = new CharArrayBuffer(16);
         for (int i = 0; i < 5; i++) {
@@ -509,7 +509,7 @@ public class TestSessionBuffers {
         long expected = ((s1.toString().getBytes(HTTP.ISO_8859_1).length + 2)) * 10;
         Assert.assertEquals(expected, bytesWritten);
 
-        SessionInputBufferMockup inbuffer = new SessionInputBufferMockup(
+        SessionInputBufferMock inbuffer = new SessionInputBufferMock(
                 outbuffer.getData(),
                 params);
         HttpProtocolParams.setHttpElementCharset(params, HTTP.ISO_8859_1);
@@ -528,7 +528,7 @@ public class TestSessionBuffers {
 
     @Test
     public void testInvalidCharArrayBuffer() throws Exception {
-        SessionInputBufferMockup inbuffer = new SessionInputBufferMockup(new byte[] {});
+        SessionInputBufferMock inbuffer = new SessionInputBufferMock(new byte[] {});
         try {
             inbuffer.readLine(null);
             Assert.fail("IllegalArgumentException should have been thrown");

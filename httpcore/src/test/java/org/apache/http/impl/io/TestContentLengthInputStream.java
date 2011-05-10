@@ -31,7 +31,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 
-import org.apache.http.impl.SessionInputBufferMockup;
+import org.apache.http.impl.SessionInputBufferMock;
 import org.apache.http.util.EncodingUtils;
 import org.junit.Assert;
 import org.junit.Test;
@@ -42,7 +42,7 @@ public class TestContentLengthInputStream {
 
     @Test
     public void testConstructors() throws Exception {
-        new ContentLengthInputStream(new SessionInputBufferMockup(new byte[] {}), 10);
+        new ContentLengthInputStream(new SessionInputBufferMock(new byte[] {}), 10);
         try {
             new ContentLengthInputStream(null, 10);
             Assert.fail("IllegalArgumentException should have been thrown");
@@ -50,7 +50,7 @@ public class TestContentLengthInputStream {
             // expected
         }
         try {
-            new ContentLengthInputStream(new SessionInputBufferMockup(new byte[] {}), -10);
+            new ContentLengthInputStream(new SessionInputBufferMock(new byte[] {}), -10);
             Assert.fail("IllegalArgumentException should have been thrown");
         } catch (IllegalArgumentException ex) {
             // expected
@@ -60,7 +60,7 @@ public class TestContentLengthInputStream {
     @Test
     public void testBasics() throws IOException {
         String correct = "1234567890123456";
-        InputStream in = new ContentLengthInputStream(new SessionInputBufferMockup(
+        InputStream in = new ContentLengthInputStream(new SessionInputBufferMock(
             EncodingUtils.getBytes(correct, CONTENT_CHARSET)), 10L);
         ByteArrayOutputStream out = new ByteArrayOutputStream();
 
@@ -76,27 +76,27 @@ public class TestContentLengthInputStream {
 
     @Test
     public void testSkip() throws IOException {
-        InputStream in = new ContentLengthInputStream(new SessionInputBufferMockup(new byte[20]), 10L);
+        InputStream in = new ContentLengthInputStream(new SessionInputBufferMock(new byte[20]), 10L);
         Assert.assertEquals(10, in.skip(10));
         Assert.assertTrue(in.read() == -1);
 
-        in = new ContentLengthInputStream(new SessionInputBufferMockup(new byte[20]), 10L);
+        in = new ContentLengthInputStream(new SessionInputBufferMock(new byte[20]), 10L);
         in.read();
         Assert.assertEquals(9, in.skip(10));
         Assert.assertTrue(in.read() == -1);
 
-        in = new ContentLengthInputStream(new SessionInputBufferMockup(new byte[20]), 2L);
+        in = new ContentLengthInputStream(new SessionInputBufferMock(new byte[20]), 2L);
         in.read();
         in.read();
         Assert.assertTrue(in.skip(10) <= 0);
         Assert.assertTrue(in.skip(-1) == 0);
         Assert.assertTrue(in.read() == -1);
 
-        in = new ContentLengthInputStream(new SessionInputBufferMockup(new byte[2]), 4L);
+        in = new ContentLengthInputStream(new SessionInputBufferMock(new byte[2]), 4L);
         in.read();
         Assert.assertTrue(in.skip(2) == 1);
 
-        in = new ContentLengthInputStream(new SessionInputBufferMockup(new byte[20]), 10L);
+        in = new ContentLengthInputStream(new SessionInputBufferMock(new byte[20]), 10L);
         Assert.assertEquals(5,in.skip(5));
         Assert.assertEquals(5, in.read(new byte[20]));
     }
@@ -104,7 +104,7 @@ public class TestContentLengthInputStream {
     @Test
     public void testAvailable() throws IOException {
         InputStream in = new ContentLengthInputStream(
-                new SessionInputBufferMockup(new byte[] {1, 2, 3}), 10L);
+                new SessionInputBufferMock(new byte[] {1, 2, 3}), 10L);
         Assert.assertEquals(0, in.available());
         in.read();
         Assert.assertEquals(2, in.available());
@@ -113,7 +113,7 @@ public class TestContentLengthInputStream {
     @Test
     public void testClose() throws IOException {
         String correct = "1234567890123456";
-        InputStream in = new ContentLengthInputStream(new SessionInputBufferMockup(
+        InputStream in = new ContentLengthInputStream(new SessionInputBufferMock(
             EncodingUtils.getBytes(correct, CONTENT_CHARSET)), 10L);
         in.close();
         in.close();

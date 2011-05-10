@@ -38,12 +38,12 @@ import org.apache.http.params.HttpParams;
  * {@link org.apache.http.io.SessionOutputBuffer} mockup implementation.
  *
  */
-public class SessionOutputBufferMockup extends AbstractSessionOutputBuffer {
+public class SessionOutputBufferMock extends AbstractSessionOutputBuffer {
 
     private ByteArrayOutputStream buffer = new ByteArrayOutputStream();
     public static final int BUFFER_SIZE = 16;
 
-    public SessionOutputBufferMockup(
+    public SessionOutputBufferMock(
             final OutputStream outstream,
             int buffersize,
             final HttpParams params) {
@@ -51,30 +51,30 @@ public class SessionOutputBufferMockup extends AbstractSessionOutputBuffer {
         init(outstream, buffersize, params);
     }
 
-    public SessionOutputBufferMockup(
+    public SessionOutputBufferMock(
             final OutputStream outstream,
             int buffersize) {
         this(outstream, buffersize, new BasicHttpParams());
     }
 
-    public SessionOutputBufferMockup(
+    public SessionOutputBufferMock(
             final ByteArrayOutputStream buffer,
             final HttpParams params) {
         this(buffer, BUFFER_SIZE, params);
         this.buffer = buffer;
     }
 
-    public SessionOutputBufferMockup(
+    public SessionOutputBufferMock(
             final ByteArrayOutputStream buffer) {
         this(buffer, BUFFER_SIZE, new BasicHttpParams());
         this.buffer = buffer;
     }
 
-    public SessionOutputBufferMockup(final HttpParams params) {
+    public SessionOutputBufferMock(final HttpParams params) {
         this(new ByteArrayOutputStream(), params);
     }
 
-    public SessionOutputBufferMockup() {
+    public SessionOutputBufferMock() {
         this(new ByteArrayOutputStream(), new BasicHttpParams());
     }
 

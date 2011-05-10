@@ -33,7 +33,7 @@ import org.apache.http.Header;
 import org.apache.http.HeaderElement;
 import org.apache.http.NameValuePair;
 import org.apache.http.ProtocolException;
-import org.apache.http.impl.SessionInputBufferMockup;
+import org.apache.http.impl.SessionInputBufferMock;
 import org.apache.http.io.SessionInputBuffer;
 import org.apache.http.message.BufferedHeader;
 import org.junit.Assert;
@@ -71,7 +71,7 @@ public class TestMessageParser {
             "\t and even more stuff\r\n" +
             "     \r\n" +
             "\r\n";
-        SessionInputBuffer receiver = new SessionInputBufferMockup(s, "US-ASCII");
+        SessionInputBuffer receiver = new SessionInputBufferMock(s, "US-ASCII");
         Header[] headers = AbstractMessageParser.parseHeaders
             (receiver, -1, -1, null);
         Assert.assertNotNull(headers);
@@ -96,7 +96,7 @@ public class TestMessageParser {
         String s =
             "header1  : stuff; param1 = value1; param2 = \"value 2\" \r\n" +
             "\r\n";
-        SessionInputBuffer receiver = new SessionInputBufferMockup(s, "US-ASCII");
+        SessionInputBuffer receiver = new SessionInputBufferMock(s, "US-ASCII");
         Header[] headers = AbstractMessageParser.parseHeaders
             (receiver, -1, -1, null);
         Assert.assertNotNull(headers);
@@ -121,7 +121,7 @@ public class TestMessageParser {
         String s = "    stuff\r\n" +
             "header1: stuff\r\n" +
             "\r\n";
-        SessionInputBuffer receiver = new SessionInputBufferMockup(s, "US-ASCII");
+        SessionInputBuffer receiver = new SessionInputBufferMock(s, "US-ASCII");
         try {
             AbstractMessageParser.parseHeaders(receiver, -1, -1, null);
             Assert.fail("ProtocolException should have been thrown");
@@ -131,7 +131,7 @@ public class TestMessageParser {
         s = "  :  stuff\r\n" +
             "header1: stuff\r\n" +
             "\r\n";
-        receiver = new SessionInputBufferMockup(s, "US-ASCII");
+        receiver = new SessionInputBufferMock(s, "US-ASCII");
         try {
             AbstractMessageParser.parseHeaders(receiver, -1, -1, null);
             Assert.fail("ProtocolException should have been thrown");
@@ -145,7 +145,7 @@ public class TestMessageParser {
         String s =
             "    header1: stuff\r\n" +
             "header2  : stuff \r\n";
-        SessionInputBuffer receiver = new SessionInputBufferMockup(s, "US-ASCII");
+        SessionInputBuffer receiver = new SessionInputBufferMock(s, "US-ASCII");
         Header[] headers = AbstractMessageParser.parseHeaders
             (receiver, -1, -1, null);
         Assert.assertNotNull(headers);
@@ -159,7 +159,7 @@ public class TestMessageParser {
     @Test
     public void testEmptyDataStream() throws Exception {
         String s = "";
-        SessionInputBuffer receiver = new SessionInputBufferMockup(s, "US-ASCII");
+        SessionInputBuffer receiver = new SessionInputBufferMock(s, "US-ASCII");
         Header[] headers = AbstractMessageParser.parseHeaders
             (receiver, -1, -1, null);
         Assert.assertNotNull(headers);
@@ -173,7 +173,7 @@ public class TestMessageParser {
             "header2: stuff \r\n" +
             "header3: stuff\r\n" +
             "\r\n";
-        SessionInputBuffer receiver = new SessionInputBufferMockup(s, "US-ASCII");
+        SessionInputBuffer receiver = new SessionInputBufferMock(s, "US-ASCII");
         try {
             AbstractMessageParser.parseHeaders(receiver, 2, -1, null);
             Assert.fail("IOException should have been thrown");
@@ -189,7 +189,7 @@ public class TestMessageParser {
             " stuff \r\n" +
             " stuff\r\n" +
             "\r\n";
-        SessionInputBuffer receiver = new SessionInputBufferMockup(s, "US-ASCII");
+        SessionInputBuffer receiver = new SessionInputBufferMock(s, "US-ASCII");
         try {
             AbstractMessageParser.parseHeaders(receiver, 2, 15, null);
             Assert.fail("IOException should have been thrown");

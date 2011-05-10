@@ -27,7 +27,7 @@
 
 package org.apache.http.impl.io;
 
-import org.apache.http.impl.SessionInputBufferMockup;
+import org.apache.http.impl.SessionInputBufferMock;
 import org.apache.http.io.SessionInputBuffer;
 import org.junit.Assert;
 import org.junit.Test;
@@ -40,7 +40,7 @@ public class TestIdentityInputStream {
 
     @Test
     public void testConstructor() throws Exception {
-        SessionInputBuffer receiver = new SessionInputBufferMockup(new byte[] {});
+        SessionInputBuffer receiver = new SessionInputBufferMock(new byte[] {});
         new IdentityInputStream(receiver);
         try {
             new IdentityInputStream(null);
@@ -53,7 +53,7 @@ public class TestIdentityInputStream {
     @Test
     public void testBasicRead() throws Exception {
         byte[] input = new byte[] {'a', 'b', 'c'};
-        SessionInputBufferMockup receiver = new SessionInputBufferMockup(input);
+        SessionInputBufferMock receiver = new SessionInputBufferMock(input);
         IdentityInputStream instream = new IdentityInputStream(receiver);
         byte[] tmp = new byte[2];
         Assert.assertEquals(2, instream.read(tmp, 0, tmp.length));
@@ -69,7 +69,7 @@ public class TestIdentityInputStream {
     @Test
     public void testClosedCondition() throws Exception {
         byte[] input = new byte[] {'a', 'b', 'c'};
-        SessionInputBufferMockup receiver = new SessionInputBufferMockup(input);
+        SessionInputBufferMock receiver = new SessionInputBufferMock(input);
         IdentityInputStream instream = new IdentityInputStream(receiver);
 
         instream.close();
@@ -86,7 +86,7 @@ public class TestIdentityInputStream {
     @Test
     public void testAvailable() throws Exception {
         byte[] input = new byte[] {'a', 'b', 'c'};
-        SessionInputBufferMockup receiver = new SessionInputBufferMockup(input);
+        SessionInputBufferMock receiver = new SessionInputBufferMock(input);
         IdentityInputStream instream = new IdentityInputStream(receiver);
         instream.read();
         Assert.assertEquals(2, instream.available());

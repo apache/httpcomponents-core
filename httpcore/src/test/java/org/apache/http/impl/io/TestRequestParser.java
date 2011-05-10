@@ -39,7 +39,7 @@ import org.apache.http.HttpRequest;
 import org.apache.http.HttpVersion;
 import org.apache.http.RequestLine;
 import org.apache.http.impl.DefaultHttpRequestFactory;
-import org.apache.http.impl.SessionInputBufferMockup;
+import org.apache.http.impl.SessionInputBufferMock;
 import org.apache.http.io.SessionInputBuffer;
 import org.apache.http.message.BasicLineParser;
 import org.apache.http.params.BasicHttpParams;
@@ -64,7 +64,7 @@ public class TestRequestParser {
             // expected
         }
         try {
-            SessionInputBuffer inbuffer = new SessionInputBufferMockup(new byte[] {});
+            SessionInputBuffer inbuffer = new SessionInputBufferMock(new byte[] {});
             new HttpRequestParser(
                     inbuffer,
                     BasicLineParser.DEFAULT,
@@ -75,7 +75,7 @@ public class TestRequestParser {
             // expected
         }
         try {
-            SessionInputBuffer inbuffer = new SessionInputBufferMockup(new byte[] {});
+            SessionInputBuffer inbuffer = new SessionInputBufferMock(new byte[] {});
             new HttpRequestParser(
                     inbuffer,
                     BasicLineParser.DEFAULT,
@@ -95,7 +95,7 @@ public class TestRequestParser {
             "User-Agent: whatever\r\n" +
             "Cookie: c1=stuff\r\n" +
             "\r\n";
-        SessionInputBuffer inbuffer = new SessionInputBufferMockup(s, "US-ASCII");
+        SessionInputBuffer inbuffer = new SessionInputBufferMock(s, "US-ASCII");
 
         HttpRequestParser parser = new HttpRequestParser(
                 inbuffer,
@@ -116,7 +116,7 @@ public class TestRequestParser {
 
     @Test
     public void testConnectionClosedException() throws Exception {
-        SessionInputBuffer inbuffer = new SessionInputBufferMockup(new byte[] {});
+        SessionInputBuffer inbuffer = new SessionInputBufferMock(new byte[] {});
 
         HttpRequestParser parser = new HttpRequestParser(
                 inbuffer,
@@ -139,7 +139,7 @@ public class TestRequestParser {
             "User-Agent: whatever\r\n" +
             "Coo\000kie: c1=stuff\r\n" +
             "\000\r\n";
-        SessionInputBuffer inbuffer = new SessionInputBufferMockup(
+        SessionInputBuffer inbuffer = new SessionInputBufferMock(
                 new TimeoutByteArrayInputStream(s.getBytes("US-ASCII")), 16);
 
         HttpRequestParser parser = new HttpRequestParser(

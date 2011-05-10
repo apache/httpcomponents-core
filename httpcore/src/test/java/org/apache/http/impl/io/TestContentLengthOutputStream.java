@@ -31,7 +31,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 
-import org.apache.http.impl.SessionOutputBufferMockup;
+import org.apache.http.impl.SessionOutputBufferMock;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -39,7 +39,7 @@ public class TestContentLengthOutputStream {
 
     @Test
     public void testConstructors() throws Exception {
-        new ContentLengthOutputStream(new SessionOutputBufferMockup(), 10L);
+        new ContentLengthOutputStream(new SessionOutputBufferMock(), 10L);
         try {
             new ContentLengthOutputStream(null, 10L);
             Assert.fail("IllegalArgumentException should have been thrown");
@@ -47,7 +47,7 @@ public class TestContentLengthOutputStream {
             // expected
         }
         try {
-            new ContentLengthOutputStream(new SessionOutputBufferMockup(), -10);
+            new ContentLengthOutputStream(new SessionOutputBufferMock(), -10);
             Assert.fail("IllegalArgumentException should have been thrown");
         } catch (IllegalArgumentException ex) {
             // expected
@@ -57,7 +57,7 @@ public class TestContentLengthOutputStream {
     @Test
     public void testBasics() throws Exception {
         ByteArrayOutputStream buffer = new ByteArrayOutputStream();
-        SessionOutputBufferMockup datatransmitter = new SessionOutputBufferMockup(buffer);
+        SessionOutputBufferMock datatransmitter = new SessionOutputBufferMock(buffer);
         OutputStream out = new ContentLengthOutputStream(datatransmitter, 15L);
 
         byte[] tmp = new byte[10];
@@ -77,7 +77,7 @@ public class TestContentLengthOutputStream {
     @Test
     public void testClose() throws Exception {
         ByteArrayOutputStream buffer = new ByteArrayOutputStream();
-        SessionOutputBufferMockup datatransmitter = new SessionOutputBufferMockup(buffer);
+        SessionOutputBufferMock datatransmitter = new SessionOutputBufferMock(buffer);
         OutputStream out = new ContentLengthOutputStream(datatransmitter, 15L);
         out.close();
         out.close();

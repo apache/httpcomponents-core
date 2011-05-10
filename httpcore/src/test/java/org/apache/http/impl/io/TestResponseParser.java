@@ -35,7 +35,7 @@ import org.apache.http.HttpVersion;
 import org.apache.http.NoHttpResponseException;
 import org.apache.http.StatusLine;
 import org.apache.http.impl.DefaultHttpResponseFactory;
-import org.apache.http.impl.SessionInputBufferMockup;
+import org.apache.http.impl.SessionInputBufferMock;
 import org.apache.http.io.SessionInputBuffer;
 import org.apache.http.message.BasicLineParser;
 import org.apache.http.params.BasicHttpParams;
@@ -60,7 +60,7 @@ public class TestResponseParser {
             // expected
         }
         try {
-            SessionInputBuffer inbuffer = new SessionInputBufferMockup(new byte[] {});
+            SessionInputBuffer inbuffer = new SessionInputBufferMock(new byte[] {});
             new HttpResponseParser(
                     inbuffer,
                     BasicLineParser.DEFAULT,
@@ -71,7 +71,7 @@ public class TestResponseParser {
             // expected
         }
         try {
-            SessionInputBuffer inbuffer = new SessionInputBufferMockup(new byte[] {});
+            SessionInputBuffer inbuffer = new SessionInputBufferMock(new byte[] {});
             new HttpResponseParser(
                     inbuffer,
                     BasicLineParser.DEFAULT,
@@ -91,7 +91,7 @@ public class TestResponseParser {
             "Date: some date\r\n" +
             "Set-Cookie: c1=stuff\r\n" +
             "\r\n";
-        SessionInputBuffer inbuffer = new SessionInputBufferMockup(s, "US-ASCII");
+        SessionInputBuffer inbuffer = new SessionInputBufferMock(s, "US-ASCII");
 
         HttpResponseParser parser = new HttpResponseParser(
                 inbuffer,
@@ -112,7 +112,7 @@ public class TestResponseParser {
 
     @Test
     public void testConnectionClosedException() throws Exception {
-        SessionInputBuffer inbuffer = new SessionInputBufferMockup(new byte[] {});
+        SessionInputBuffer inbuffer = new SessionInputBufferMock(new byte[] {});
 
         HttpResponseParser parser = new HttpResponseParser(
                 inbuffer,
@@ -135,7 +135,7 @@ public class TestResponseParser {
             "Date: some date\r\n" +
             "Set-Coo\000kie: c1=stuff\r\n" +
             "\000\r\n";
-        SessionInputBuffer inbuffer = new SessionInputBufferMockup(
+        SessionInputBuffer inbuffer = new SessionInputBufferMock(
                 new TimeoutByteArrayInputStream(s.getBytes("US-ASCII")), 16);
 
         HttpResponseParser parser = new HttpResponseParser(
