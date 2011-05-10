@@ -25,7 +25,7 @@
  *
  */
 
-package org.apache.http.mockup;
+package org.apache.http.impl.io;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;

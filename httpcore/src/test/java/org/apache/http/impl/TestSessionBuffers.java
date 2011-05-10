@@ -32,9 +32,9 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 
+import org.apache.http.impl.io.SessionInputBufferMockup;
+import org.apache.http.impl.io.SessionOutputBufferMockup;
 import org.apache.http.io.HttpTransportMetrics;
-import org.apache.http.mockup.SessionInputBufferMockup;
-import org.apache.http.mockup.SessionOutputBufferMockup;
 import org.apache.http.params.BasicHttpParams;
 import org.apache.http.params.CoreConnectionPNames;
 import org.apache.http.params.HttpParams;

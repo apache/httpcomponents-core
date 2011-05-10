@@ -35,7 +35,6 @@ import org.apache.http.NameValuePair;
 import org.apache.http.ProtocolException;
 import org.apache.http.io.SessionInputBuffer;
 import org.apache.http.message.BufferedHeader;
-import org.apache.http.mockup.SessionInputBufferMockup;
 import org.junit.Assert;
 import org.junit.Test;
 

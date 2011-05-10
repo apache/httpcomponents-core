@@ -37,8 +37,6 @@ import org.apache.http.StatusLine;
 import org.apache.http.impl.DefaultHttpResponseFactory;
 import org.apache.http.io.SessionInputBuffer;
 import org.apache.http.message.BasicLineParser;
-import org.apache.http.mockup.SessionInputBufferMockup;
-import org.apache.http.mockup.TimeoutByteArrayInputStream;
 import org.apache.http.params.BasicHttpParams;
 import org.junit.Assert;
 import org.junit.Test;
