@@ -1,4 +1,11 @@
 Changes since 4.1
+-------------------
+
+* In case of an unexpected end of stream condition (the peer closed connection prematurely) 
+  truncated Content-Length delimited message bodies will cause an I/O exception. Application
+  can still choose to catch and ignore ConnectionClosedException in order to accept partial 
+  message content.
+  Contributed by Oleg Kalnichevski <olegk at apache.org>
 
 * [HTTPCORE-255]: Fixed resource management in InputStreamEntity#writeTo()
   Contributed by Oleg Kalnichevski <olegk at apache.org>

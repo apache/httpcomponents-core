@@ -36,12 +36,14 @@ import java.nio.ByteBuffer;
 import java.nio.channels.FileChannel;
 import java.nio.channels.ReadableByteChannel;
 
+import org.apache.http.ConnectionClosedException;
 import org.apache.http.ReadableByteChannelMock;
 import org.apache.http.impl.io.HttpTransportMetricsImpl;
 import org.apache.http.impl.nio.reactor.SessionInputBufferImpl;
 import org.apache.http.nio.reactor.SessionInputBuffer;
 import org.apache.http.params.BasicHttpParams;
 import org.apache.http.params.HttpParams;
+import org.junit.After;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -49,6 +51,20 @@ import org.junit.Test;
  * Simple tests for {@link LengthDelimitedDecoder}.
  */
 public class TestLengthDelimitedDecoder {
+
+    private File tmpfile;
+
+    protected File createTempFile() throws IOException {
+        this.tmpfile = File.createTempFile("testFile", ".txt");
+        return this.tmpfile;
+    }
+
+    @After
+    public void deleteTempFile() {
+        if (this.tmpfile != null && this.tmpfile.exists()) {
+            this.tmpfile.delete();
+        }
+    }
 
     private static String convert(final ByteBuffer src) {
         src.flip();
@@ -280,30 +296,22 @@ public class TestLengthDelimitedDecoder {
         LengthDelimitedDecoder decoder = new LengthDelimitedDecoder(
                 channel, inbuf, metrics, 36);
 
-        File fileHandle = File.createTempFile("testFile", ".txt");
-
-        RandomAccessFile testfile = new RandomAccessFile(fileHandle, "rw");
-        FileChannel fchannel = testfile.getChannel();
-
-        long pos = 0;
-        while (!decoder.isCompleted()) {
-            long bytesRead = decoder.transfer(fchannel, pos, 10);
-            if (bytesRead > 0) {
-                pos += bytesRead;
+        createTempFile();
+        RandomAccessFile testfile = new RandomAccessFile(this.tmpfile, "rw");
+        try {
+            FileChannel fchannel = testfile.getChannel();
+            long pos = 0;
+            while (!decoder.isCompleted()) {
+                long bytesRead = decoder.transfer(fchannel, pos, 10);
+                if (bytesRead > 0) {
+                    pos += bytesRead;
+                }
             }
+        } finally {
+            testfile.close();
         }
-        Assert.assertEquals(testfile.length(), metrics.getBytesTransferred());
-        fchannel.close();
-
-        Assert.assertEquals("stuff; more stuff; a lot more stuff!", readFromFile(fileHandle));
-
-        deleteWithCheck(fileHandle);
-    }
-
-    private void deleteWithCheck(File handle){
-        if (!handle.delete() && handle.exists()){
-            System.err.println("Failed to delete: "+handle.getPath());
-        }
+        Assert.assertEquals(this.tmpfile.length(), metrics.getBytesTransferred());
+        Assert.assertEquals("stuff; more stuff; a lot more stuff!", readFromFile(this.tmpfile));
     }
 
     @Test
@@ -320,25 +328,22 @@ public class TestLengthDelimitedDecoder {
         int i = inbuf.fill(channel);
         Assert.assertEquals(7, i);
 
-        File fileHandle = File.createTempFile("testFile", ".txt");
-
-        RandomAccessFile testfile = new RandomAccessFile(fileHandle, "rw");
-        FileChannel fchannel = testfile.getChannel();
-
-        long pos = 0;
-        while (!decoder.isCompleted()) {
-            long bytesRead = decoder.transfer(fchannel, pos, 10);
-            if (bytesRead > 0) {
-                pos += bytesRead;
+        createTempFile();
+        RandomAccessFile testfile = new RandomAccessFile(this.tmpfile, "rw");
+        try {
+            FileChannel fchannel = testfile.getChannel();
+            long pos = 0;
+            while (!decoder.isCompleted()) {
+                long bytesRead = decoder.transfer(fchannel, pos, 10);
+                if (bytesRead > 0) {
+                    pos += bytesRead;
+                }
             }
+        } finally {
+            testfile.close();
         }
-
-        Assert.assertEquals(testfile.length() - 7, metrics.getBytesTransferred());
-        fchannel.close();
-
-        Assert.assertEquals("stuff; more stuff; a lot more stuff!", readFromFile(fileHandle));
-
-        deleteWithCheck(fileHandle);
+        Assert.assertEquals(this.tmpfile.length() - 7, metrics.getBytesTransferred());
+        Assert.assertEquals("stuff; more stuff; a lot more stuff!", readFromFile(this.tmpfile));
     }
 
     @Test
@@ -355,33 +360,36 @@ public class TestLengthDelimitedDecoder {
         int i = inbuf.fill(channel);
         Assert.assertEquals(7, i);
 
-        File fileHandle = File.createTempFile("testFile", ".txt");
-
-        RandomAccessFile testfile = new RandomAccessFile(fileHandle, "rw");
         byte[] beginning = "beginning; ".getBytes("US-ASCII");
-        testfile.write(beginning);
-        testfile.close();
 
-        testfile = new RandomAccessFile(fileHandle, "rw");
-        FileChannel fchannel = testfile.getChannel();
+        createTempFile();
+        RandomAccessFile testfile = new RandomAccessFile(this.tmpfile, "rw");
+        try {
+            testfile.write(beginning);
+        } finally {
+            testfile.close();
+        }
 
-        long pos = beginning.length;
-        while (!decoder.isCompleted()) {
-            if(testfile.length() < pos)
-                testfile.setLength(pos);
-            long bytesRead = decoder.transfer(fchannel, pos, 10);
-            if (bytesRead > 0) {
-                pos += bytesRead;
+        testfile = new RandomAccessFile(this.tmpfile, "rw");
+        try {
+            FileChannel fchannel = testfile.getChannel();
+
+            long pos = beginning.length;
+            while (!decoder.isCompleted()) {
+                if(testfile.length() < pos)
+                    testfile.setLength(pos);
+                long bytesRead = decoder.transfer(fchannel, pos, 10);
+                if (bytesRead > 0) {
+                    pos += bytesRead;
+                }
             }
+        } finally {
+            testfile.close();
         }
 
         // count everything except the initial 7 bytes that went to the session buffer
-        Assert.assertEquals(testfile.length() - 7 - beginning.length, metrics.getBytesTransferred());
-        fchannel.close();
-
-        Assert.assertEquals("beginning; stuff; more stuff; a lot more stuff!", readFromFile(fileHandle));
-
-        deleteWithCheck(fileHandle);
+        Assert.assertEquals(this.tmpfile.length() - 7 - beginning.length, metrics.getBytesTransferred());
+        Assert.assertEquals("beginning; stuff; more stuff; a lot more stuff!", readFromFile(this.tmpfile));
     }
 
     @Test
@@ -395,19 +403,19 @@ public class TestLengthDelimitedDecoder {
         LengthDelimitedDecoder decoder = new LengthDelimitedDecoder(
                 channel, inbuf, metrics, 1);
 
-        File fileHandle = File.createTempFile("testFile", ".txt");
-
-        RandomAccessFile testfile = new RandomAccessFile(fileHandle, "rw");
-        FileChannel fchannel = testfile.getChannel();
-        Assert.assertEquals(0, testfile.length());
-
+        createTempFile();
+        RandomAccessFile testfile = new RandomAccessFile(this.tmpfile, "rw");
         try {
-            decoder.transfer(fchannel, 5, 10);
-            Assert.fail("expected IOException");
-        } catch(IOException iox) {}
-
-        testfile.close();
-        deleteWithCheck(fileHandle);
+            FileChannel fchannel = testfile.getChannel();
+            Assert.assertEquals(0, testfile.length());
+            try {
+                decoder.transfer(fchannel, 5, 10);
+                Assert.fail("IOException should have been thrown");
+            } catch(IOException expected) {
+            }
+        } finally {
+            testfile.close();
+        }
     }
 
     @Test
@@ -423,27 +431,28 @@ public class TestLengthDelimitedDecoder {
         LengthDelimitedDecoder decoder = new LengthDelimitedDecoder(
                 channel, inbuf, metrics, 16);
 
-        File fileHandle = File.createTempFile("testFile", ".txt");
-        RandomAccessFile testfile  = new RandomAccessFile(fileHandle, "rw");
-        FileChannel fchannel = testfile.getChannel();
+        createTempFile();
+        RandomAccessFile testfile  = new RandomAccessFile(this.tmpfile, "rw");
+        try {
+            FileChannel fchannel = testfile.getChannel();
 
-        long bytesRead = decoder.transfer(fchannel, 0, 6);
-        Assert.assertEquals(6, bytesRead);
-        Assert.assertFalse(decoder.isCompleted());
-        Assert.assertEquals(6, metrics.getBytesTransferred());
+            long bytesRead = decoder.transfer(fchannel, 0, 6);
+            Assert.assertEquals(6, bytesRead);
+            Assert.assertFalse(decoder.isCompleted());
+            Assert.assertEquals(6, metrics.getBytesTransferred());
 
-        bytesRead = decoder.transfer(fchannel,0 , 10);
-        Assert.assertEquals(10, bytesRead);
-        Assert.assertTrue(decoder.isCompleted());
-        Assert.assertEquals(16, metrics.getBytesTransferred());
+            bytesRead = decoder.transfer(fchannel,0 , 10);
+            Assert.assertEquals(10, bytesRead);
+            Assert.assertTrue(decoder.isCompleted());
+            Assert.assertEquals(16, metrics.getBytesTransferred());
 
-        bytesRead = decoder.transfer(fchannel, 0, 1);
-        Assert.assertEquals(-1, bytesRead);
-        Assert.assertTrue(decoder.isCompleted());
-        Assert.assertEquals(16, metrics.getBytesTransferred());
-
-        testfile.close();
-        deleteWithCheck(fileHandle);
+            bytesRead = decoder.transfer(fchannel, 0, 1);
+            Assert.assertEquals(-1, bytesRead);
+            Assert.assertTrue(decoder.isCompleted());
+            Assert.assertEquals(16, metrics.getBytesTransferred());
+        } finally {
+            testfile.close();
+        }
     }
 
     @Test
@@ -517,6 +526,47 @@ public class TestLengthDelimitedDecoder {
         Assert.assertEquals(-1, bytesRead);
         Assert.assertTrue(decoder.isCompleted());
         Assert.assertEquals(0, metrics.getBytesTransferred());
+    }
+
+    @Test(expected=ConnectionClosedException.class)
+    public void testTruncatedContent() throws Exception {
+        ReadableByteChannel channel = new ReadableByteChannelMock(
+                new String[] {"1234567890"}, "US-ASCII");
+        HttpParams params = new BasicHttpParams();
+
+        SessionInputBuffer inbuf = new SessionInputBufferImpl(1024, 256, params);
+        HttpTransportMetricsImpl metrics = new HttpTransportMetricsImpl();
+        LengthDelimitedDecoder decoder = new LengthDelimitedDecoder(
+                channel, inbuf, metrics, 20);
+
+        ByteBuffer dst = ByteBuffer.allocate(1024);
+
+        int bytesRead = decoder.read(dst);
+        Assert.assertEquals(10, bytesRead);
+        decoder.read(dst);
+    }
+
+    @Test(expected=ConnectionClosedException.class)
+    public void testTruncatedContentWithFile() throws Exception {
+        ReadableByteChannel channel = new ReadableByteChannelMock(
+                new String[] {"1234567890"}, "US-ASCII");
+        HttpParams params = new BasicHttpParams();
+
+        SessionInputBuffer inbuf = new SessionInputBufferImpl(1024, 256, params);
+        HttpTransportMetricsImpl metrics = new HttpTransportMetricsImpl();
+        LengthDelimitedDecoder decoder = new LengthDelimitedDecoder(
+                channel, inbuf, metrics, 20);
+
+        createTempFile();
+        RandomAccessFile testfile  = new RandomAccessFile(this.tmpfile, "rw");
+        try {
+            FileChannel fchannel = testfile.getChannel();
+            long bytesRead = decoder.transfer(fchannel, 0, Integer.MAX_VALUE);
+            Assert.assertEquals(10, bytesRead);
+            decoder.transfer(fchannel, 0, Integer.MAX_VALUE);
+        } finally {
+            testfile.close();
+        }
     }
 
 }
