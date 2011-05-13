@@ -30,6 +30,7 @@ package org.apache.http.impl.io;
 import java.io.IOException;
 import java.io.InputStream;
 
+import org.apache.http.ConnectionClosedException;
 import org.apache.http.io.BufferInfo;
 import org.apache.http.io.SessionInputBuffer;
 
@@ -99,8 +100,10 @@ public class ContentLengthInputStream extends InputStream {
     public void close() throws IOException {
         if (!closed) {
             try {
-                byte buffer[] = new byte[BUFFER_SIZE];
-                while (read(buffer) >= 0) {
+                if (pos < contentLength) {
+                    byte buffer[] = new byte[BUFFER_SIZE];
+                    while (read(buffer) >= 0) {
+                    }
                 }
             } finally {
                 // close after above so that we don't throw an exception trying
@@ -133,8 +136,17 @@ public class ContentLengthInputStream extends InputStream {
         if (pos >= contentLength) {
             return -1;
         }
-        pos++;
-        return this.in.read();
+        int b = this.in.read();
+        if (b == -1) {
+            if (pos < contentLength) {
+                throw new ConnectionClosedException(
+                        "Premature end of Content-Length delimited message body (expected: "
+                        + contentLength + "; received: " + pos);
+            }
+        } else {
+            pos++;
+        }
+        return b;
     }
 
     /**
@@ -162,7 +174,14 @@ public class ContentLengthInputStream extends InputStream {
             len = (int) (contentLength - pos);
         }
         int count = this.in.read(b, off, len);
-        pos += count;
+        if (count == -1 && pos < contentLength) {
+            throw new ConnectionClosedException(
+                    "Premature end of Content-Length delimited message body (expected: "
+                    + contentLength + "; received: " + pos);
+        }
+        if (count > 0) {
+            pos += count;
+        }
         return count;
     }
 

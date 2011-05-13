@@ -33,7 +33,9 @@ import java.io.InputStream;
 
 import junit.framework.TestCase;
 
+import org.apache.http.ConnectionClosedException;
 import org.apache.http.mockup.SessionInputBufferMockup;
+import org.apache.http.io.SessionInputBuffer;
 import org.apache.http.util.EncodingUtils;
 
 public class TestContentLengthInputStream extends TestCase {
@@ -93,10 +95,6 @@ public class TestContentLengthInputStream extends TestCase {
         assertTrue(in.skip(-1) == 0);
         assertTrue(in.read() == -1);
 
-        in = new ContentLengthInputStream(new SessionInputBufferMockup(new byte[2]), 4L);
-        in.read();
-        assertTrue(in.skip(2) == 1);
-
         in = new ContentLengthInputStream(new SessionInputBufferMockup(new byte[20]), 10L);
         assertEquals(5,in.skip(5));
         assertEquals(5, in.read(new byte[20]));
@@ -111,9 +109,10 @@ public class TestContentLengthInputStream extends TestCase {
     }
 
     public void testClose() throws IOException {
-        String correct = "1234567890123456";
-        InputStream in = new ContentLengthInputStream(new SessionInputBufferMockup(
-            EncodingUtils.getBytes(correct, CONTENT_CHARSET)), 10L);
+        String correct = "1234567890123456-";
+        SessionInputBuffer inbuffer = new SessionInputBufferMockup(
+                EncodingUtils.getBytes(correct, CONTENT_CHARSET));
+        InputStream in = new ContentLengthInputStream(inbuffer, 16L);
         in.close();
         in.close();
         try {
@@ -134,6 +133,27 @@ public class TestContentLengthInputStream extends TestCase {
             fail("IOException should have been thrown");
         } catch (IOException ex) {
             // expected
+        }
+        assertEquals('-', inbuffer.read());
+    }
+
+    public void testTruncatedContent() throws IOException {
+        String correct = "1234567890123456";
+        SessionInputBuffer inbuffer = new SessionInputBufferMockup(EncodingUtils.getBytes(
+                correct, CONTENT_CHARSET));
+        InputStream in = new ContentLengthInputStream(inbuffer, 32L);
+        byte[] tmp = new byte[32];
+        int byteRead = in.read(tmp);
+        assertEquals(16, byteRead);
+        try {
+            in.read(tmp);
+            fail("ConnectionClosedException should have been closed");
+        } catch (ConnectionClosedException ex) {
+        }
+        try {
+            in.read();
+            fail("ConnectionClosedException should have been closed");
+        } catch (ConnectionClosedException ex) {
         }
     }
 

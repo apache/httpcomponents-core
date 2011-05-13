@@ -38,6 +38,7 @@ import java.nio.channels.ReadableByteChannel;
 
 import junit.framework.TestCase;
 
+import org.apache.http.ConnectionClosedException;
 import org.apache.http.impl.io.HttpTransportMetricsImpl;
 import org.apache.http.impl.nio.reactor.SessionInputBufferImpl;
 import org.apache.http.mockup.ReadableByteChannelMockup;
@@ -514,6 +515,52 @@ public class TestLengthDelimitedDecoder extends TestCase {
         assertEquals(-1, bytesRead);
         assertTrue(decoder.isCompleted());
         assertEquals(0, metrics.getBytesTransferred());
+    }
+
+    public void testTruncatedContent() throws Exception {
+        ReadableByteChannel channel = new ReadableByteChannelMockup(
+                new String[] {"1234567890"}, "US-ASCII");
+        HttpParams params = new BasicHttpParams();
+
+        SessionInputBuffer inbuf = new SessionInputBufferImpl(1024, 256, params);
+        HttpTransportMetricsImpl metrics = new HttpTransportMetricsImpl();
+        LengthDelimitedDecoder decoder = new LengthDelimitedDecoder(
+                channel, inbuf, metrics, 20);
+
+        ByteBuffer dst = ByteBuffer.allocate(1024);
+
+        int bytesRead = decoder.read(dst);
+        assertEquals(10, bytesRead);
+        try {
+            decoder.read(dst);
+            fail("ClosedChannelException should have been thrown");
+        } catch (ConnectionClosedException ex) {
+        }
+    }
+
+    public void testTruncatedContentWithFile() throws Exception {
+        ReadableByteChannel channel = new ReadableByteChannelMockup(
+                new String[] {"1234567890"}, "US-ASCII");
+        HttpParams params = new BasicHttpParams();
+
+        SessionInputBuffer inbuf = new SessionInputBufferImpl(1024, 256, params);
+        HttpTransportMetricsImpl metrics = new HttpTransportMetricsImpl();
+        LengthDelimitedDecoder decoder = new LengthDelimitedDecoder(
+                channel, inbuf, metrics, 20);
+
+        File fileHandle = File.createTempFile("testFile", ".txt");
+        RandomAccessFile testfile  = new RandomAccessFile(fileHandle, "rw");
+        FileChannel fchannel = testfile.getChannel();
+        long bytesRead = decoder.transfer(fchannel, 0, Integer.MAX_VALUE);
+        assertEquals(10, bytesRead);
+        try {
+            decoder.transfer(fchannel, 10, Integer.MAX_VALUE);
+            fail("ClosedChannelException should have been thrown");
+        } catch (ConnectionClosedException ex) {
+        } finally {
+            testfile.close();
+            deleteWithCheck(fileHandle);
+        }
     }
 
 }

@@ -32,6 +32,7 @@ import java.nio.ByteBuffer;
 import java.nio.channels.FileChannel;
 import java.nio.channels.ReadableByteChannel;
 
+import org.apache.http.ConnectionClosedException;
 import org.apache.http.impl.io.HttpTransportMetricsImpl;
 import org.apache.http.nio.FileContentDecoder;
 import org.apache.http.nio.reactor.SessionInputBuffer;
@@ -97,7 +98,11 @@ public class LengthDelimitedDecoder extends AbstractContentDecoder
         }
         if (bytesRead == -1) {
             this.completed = true;
-            return -1;
+            if (this.len < this.contentLength) {
+                throw new ConnectionClosedException(
+                        "Premature end of Content-Length delimited message body (expected: "
+                        + this.contentLength + "; received: " + this.len);
+            }
         }
         this.len += bytesRead;
         if (this.len >= this.contentLength) {
@@ -149,7 +154,11 @@ public class LengthDelimitedDecoder extends AbstractContentDecoder
         }
         if (bytesRead == -1) {
             this.completed = true;
-            return -1;
+            if (this.len < this.contentLength) {
+                throw new ConnectionClosedException(
+                        "Premature end of Content-Length delimited message body (expected: "
+                        + this.contentLength + "; received: " + this.len);
+            }
         }
         this.len += bytesRead;
         if (this.len >= this.contentLength) {

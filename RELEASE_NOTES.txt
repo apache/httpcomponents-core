@@ -1,4 +1,5 @@
 Release 4.1.1
+-------------------
 
 This is a patch release that fixes a number of non-critical issues found since release 4.1.
 
@@ -10,6 +11,12 @@ Please note that several classes and methods deprecated between versions 4.0-bet
 
 Users of 4.0.x versions are advised to upgrade and replace deprecated API calls following
 recommendations in javadocs.  
+
+* In case of an unexpected end of stream condition (the peer closed connection prematurely) 
+  truncated Content-Length delimited message bodies will cause an I/O exception. Application
+  can still choose to catch and ignore ConnectionClosedException in order to accept partial 
+  message content.
+  Contributed by Oleg Kalnichevski <olegk at apache.org>
 
 * [HTTPCORE-255]: Fixed resource management in InputStreamEntity#writeTo()
   Contributed by Oleg Kalnichevski <olegk at apache.org>
