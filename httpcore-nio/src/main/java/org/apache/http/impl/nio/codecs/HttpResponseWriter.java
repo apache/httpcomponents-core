@@ -44,7 +44,7 @@ import org.apache.http.util.CharArrayBuffer;
  *
  * @deprecated use {@link DefaultHttpResponseWriter}
  */
-@SuppressWarnings("unchecked")
+@SuppressWarnings("rawtypes")
 @Deprecated
 public class HttpResponseWriter extends AbstractMessageWriter {
 
