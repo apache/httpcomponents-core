@@ -55,34 +55,22 @@ public class TestStrictContentLengthStrategy {
         Assert.assertEquals(ContentLengthStrategy.IDENTITY, lenStrategy.determineLength(message));
     }
 
-    @Test
+    @Test(expected=ProtocolException.class)
     public void testEntityWithInvalidTransferEncoding() throws Exception {
         ContentLengthStrategy lenStrategy = new StrictContentLengthStrategy();
         HttpMessage message = new DummyHttpMessage();
         message.addHeader("Transfer-Encoding", "whatever");
-
-        try {
-            lenStrategy.determineLength(message);
-            Assert.fail("ProtocolException should have been thrown");
-        } catch (ProtocolException ex) {
-            // expected
-        }
+        lenStrategy.determineLength(message);
     }
 
-    @Test
+    @Test(expected=ProtocolException.class)
     public void testEntityWithInvalidChunkEncodingAndHTTP10() throws Exception {
         ContentLengthStrategy lenStrategy = new StrictContentLengthStrategy();
         HttpMessage message = new DummyHttpMessage();
         message.getParams().setParameter(CoreProtocolPNames.PROTOCOL_VERSION,
                 HttpVersion.HTTP_1_0);
         message.addHeader("Transfer-Encoding", "chunked");
-
-        try {
-            lenStrategy.determineLength(message);
-            Assert.fail("ProtocolException should have been thrown");
-        } catch (ProtocolException ex) {
-            // expected
-        }
+        lenStrategy.determineLength(message);
     }
 
     @Test
@@ -93,18 +81,20 @@ public class TestStrictContentLengthStrategy {
         Assert.assertEquals(100, lenStrategy.determineLength(message));
     }
 
-    @Test
+    @Test(expected=ProtocolException.class)
     public void testEntityWithInvalidContentLength() throws Exception {
         ContentLengthStrategy lenStrategy = new StrictContentLengthStrategy();
         HttpMessage message = new DummyHttpMessage();
         message.addHeader("Content-Length", "whatever");
+        lenStrategy.determineLength(message);
+    }
 
-        try {
-            lenStrategy.determineLength(message);
-            Assert.fail("ProtocolException should have been thrown");
-        } catch (ProtocolException ex) {
-            // expected
-        }
+    @Test(expected=ProtocolException.class)
+    public void testEntityWithNegativeContentLength() throws Exception {
+        ContentLengthStrategy lenStrategy = new StrictContentLengthStrategy();
+        HttpMessage message = new DummyHttpMessage();
+        message.addHeader("Content-Length", "-10");
+        lenStrategy.determineLength(message);
     }
 
     @Test

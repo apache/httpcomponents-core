@@ -28,16 +28,14 @@
 package org.apache.http.impl;
 
 import org.apache.http.ConnectionReuseStrategy;
-import org.apache.http.HttpConnection;
+import org.apache.http.Header;
 import org.apache.http.HeaderIterator;
-import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpVersion;
 import org.apache.http.ParseException;
 import org.apache.http.ProtocolVersion;
 import org.apache.http.protocol.HTTP;
 import org.apache.http.protocol.HttpContext;
-import org.apache.http.protocol.ExecutionContext;
 import org.apache.http.TokenIterator;
 import org.apache.http.message.BasicTokenIterator;
 
@@ -77,25 +75,28 @@ public class DefaultConnectionReuseStrategy implements ConnectionReuseStrategy {
                 ("HTTP context may not be null.");
         }
 
-        HttpConnection conn = (HttpConnection)
-            context.getAttribute(ExecutionContext.HTTP_CONNECTION);
-
-        if (conn != null && !conn.isOpen())
-            return false;
-        // do NOT check for stale connection, that is an expensive operation
-
         // Check for a self-terminating entity. If the end of the entity will
         // be indicated by closing the connection, there is no keep-alive.
-        HttpEntity entity = response.getEntity();
         ProtocolVersion ver = response.getStatusLine().getProtocolVersion();
-        if (entity != null) {
-            if (entity.getContentLength() < 0) {
-                if (!entity.isChunked() ||
-                    ver.lessEquals(HttpVersion.HTTP_1_0)) {
-                    // if the content length is not known and is not chunk
-                    // encoded, the connection cannot be reused
+        Header teh = response.getFirstHeader(HTTP.TRANSFER_ENCODING);
+        if (teh != null) {
+            if (!HTTP.CHUNK_CODING.equalsIgnoreCase(teh.getValue())) {
+                return false;
+            }
+        } else {
+            Header[] clhs = response.getHeaders(HTTP.CONTENT_LEN);
+            // Do not reuse if not properly content-length delimited
+            if (clhs == null || clhs.length != 1) {
+                return false;
+            }
+            Header clh = clhs[0];
+            try {
+                int contentLen = Integer.parseInt(clh.getValue());
+                if (contentLen < 0) {
                     return false;
                 }
+            } catch (NumberFormatException ex) {
+                return false;
             }
         }
 

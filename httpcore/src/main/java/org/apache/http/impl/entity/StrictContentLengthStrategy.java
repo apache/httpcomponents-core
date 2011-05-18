@@ -79,6 +79,9 @@ public class StrictContentLengthStrategy implements ContentLengthStrategy {
             String s = contentLengthHeader.getValue();
             try {
                 long len = Long.parseLong(s);
+                if (len < 0) {
+                    throw new ProtocolException("Negative content length: " + s);
+                }
                 return len;
             } catch (NumberFormatException e) {
                 throw new ProtocolException("Invalid content length: " + s);
