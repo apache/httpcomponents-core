@@ -54,7 +54,7 @@ public final class HttpHost implements Cloneable, Serializable {
     protected final String lcHostname;
 
 
-    /** The port to use. */
+    /** The port to use, defaults to -1 if not set. */
     protected final int port;
 
     /** The scheme (lowercased) */
