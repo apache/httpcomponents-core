@@ -38,7 +38,7 @@ import org.apache.http.HttpMessage;
  *
  * @since 4.0
  */
-public interface HttpMessageParser {
+public interface HttpMessageParser<T extends HttpMessage> {
 
     /**
      * Generates an instance of {@link HttpMessage} from the underlying data
@@ -48,7 +48,7 @@ public interface HttpMessageParser {
      * @throws IOException in case of an I/O error
      * @throws HttpException in case of HTTP protocol violation
      */
-    HttpMessage parse()
+    T parse()
         throws IOException, HttpException;
 
 }

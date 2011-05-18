@@ -57,7 +57,7 @@ import org.apache.http.util.CharArrayBuffer;
  *
  * @since 4.0
  */
-public abstract class AbstractMessageParser implements HttpMessageParser {
+public abstract class AbstractMessageParser<T extends HttpMessage> implements HttpMessageParser<T> {
 
     private static final int HEAD_LINE    = 0;
     private static final int HEADERS      = 1;
@@ -69,7 +69,7 @@ public abstract class AbstractMessageParser implements HttpMessageParser {
     protected final LineParser lineParser;
 
     private int state;
-    private HttpMessage message;
+    private T message;
 
     /**
      * Creates an instance of this class.
@@ -241,10 +241,10 @@ public abstract class AbstractMessageParser implements HttpMessageParser {
      * @throws HttpException in case of HTTP protocol violation.
      * @throws ParseException in case of a parse error.
      */
-    protected abstract HttpMessage parseHead(SessionInputBuffer sessionBuffer)
+    protected abstract T parseHead(SessionInputBuffer sessionBuffer)
         throws IOException, HttpException, ParseException;
 
-    public HttpMessage parse() throws IOException, HttpException {
+    public T parse() throws IOException, HttpException {
         int st = this.state;
         switch (st) {
         case HEAD_LINE:
@@ -263,7 +263,7 @@ public abstract class AbstractMessageParser implements HttpMessageParser {
                     this.lineParser,
                     this.headerLines);
             this.message.setHeaders(headers);
-            HttpMessage result = this.message;
+            T result = this.message;
             this.message = null;
             this.headerLines.clear();
             this.state = HEAD_LINE;

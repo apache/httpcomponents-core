@@ -31,7 +31,6 @@ import java.io.IOException;
 
 import org.apache.http.ConnectionClosedException;
 import org.apache.http.HttpException;
-import org.apache.http.HttpMessage;
 import org.apache.http.HttpRequest;
 import org.apache.http.HttpRequestFactory;
 import org.apache.http.RequestLine;
@@ -55,7 +54,7 @@ import org.apache.http.util.CharArrayBuffer;
  *
  * @since 4.0
  */
-public class HttpRequestParser extends AbstractMessageParser {
+public class HttpRequestParser extends AbstractMessageParser<HttpRequest> {
 
     private final HttpRequestFactory requestFactory;
     private final CharArrayBuffer lineBuf;
@@ -83,7 +82,7 @@ public class HttpRequestParser extends AbstractMessageParser {
     }
 
     @Override
-    protected HttpMessage parseHead(
+    protected HttpRequest parseHead(
             final SessionInputBuffer sessionBuffer)
         throws IOException, HttpException, ParseException {
 

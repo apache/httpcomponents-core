@@ -29,7 +29,6 @@ package org.apache.http.impl.io;
 
 import java.io.IOException;
 
-import org.apache.http.HttpMessage;
 import org.apache.http.HttpResponse;
 import org.apache.http.io.SessionOutputBuffer;
 import org.apache.http.message.LineFormatter;
@@ -41,7 +40,7 @@ import org.apache.http.params.HttpParams;
  *
  * @since 4.0
  */
-public class HttpResponseWriter extends AbstractMessageWriter {
+public class HttpResponseWriter extends AbstractMessageWriter<HttpResponse> {
 
     public HttpResponseWriter(final SessionOutputBuffer buffer,
                               final LineFormatter formatter,
@@ -50,11 +49,8 @@ public class HttpResponseWriter extends AbstractMessageWriter {
     }
 
     @Override
-    protected void writeHeadLine(final HttpMessage message)
-        throws IOException {
-
-        lineFormatter.formatStatusLine(this.lineBuf,
-                ((HttpResponse) message).getStatusLine());
+    protected void writeHeadLine(final HttpResponse message) throws IOException {
+        lineFormatter.formatStatusLine(this.lineBuf, message.getStatusLine());
         this.sessionBuffer.writeLine(this.lineBuf);
     }
 

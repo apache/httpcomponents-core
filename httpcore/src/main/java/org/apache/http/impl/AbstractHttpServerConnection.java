@@ -76,8 +76,8 @@ public abstract class AbstractHttpServerConnection implements HttpServerConnecti
     private SessionInputBuffer inbuffer = null;
     private SessionOutputBuffer outbuffer = null;
     private EofSensor eofSensor = null;
-    private HttpMessageParser requestParser = null;
-    private HttpMessageWriter responseWriter = null;
+    private HttpMessageParser<HttpRequest> requestParser = null;
+    private HttpMessageWriter<HttpResponse> responseWriter = null;
     private HttpConnectionMetricsImpl metrics = null;
 
     /**
@@ -159,7 +159,7 @@ public abstract class AbstractHttpServerConnection implements HttpServerConnecti
      * @param params HTTP parameters.
      * @return HTTP message parser.
      */
-    protected HttpMessageParser createRequestParser(
+    protected HttpMessageParser<HttpRequest> createRequestParser(
             final SessionInputBuffer buffer,
             final HttpRequestFactory requestFactory,
             final HttpParams params) {
@@ -179,7 +179,7 @@ public abstract class AbstractHttpServerConnection implements HttpServerConnecti
      * @param params HTTP parameters
      * @return HTTP message writer
      */
-    protected HttpMessageWriter createResponseWriter(
+    protected HttpMessageWriter<HttpResponse> createResponseWriter(
             final SessionOutputBuffer buffer,
             final HttpParams params) {
         return new HttpResponseWriter(buffer, null, params);
