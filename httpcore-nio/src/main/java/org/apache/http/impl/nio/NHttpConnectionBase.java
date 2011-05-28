@@ -423,14 +423,11 @@ public class NHttpConnectionBase
 
     @Override
     public String toString() {
-        StringBuilder buffer = new StringBuilder();
-        buffer.append("[");
-        buffer.append(this.remote);
-        if (this.status == CLOSED) {
-            buffer.append("(closed)");
-        }
-        buffer.append("]");
-        return buffer.toString();
+        StringBuilder buf = new StringBuilder();
+        buf.append(this.session.getLocalAddress())
+            .append("->")
+            .append(this.session.getRemoteAddress());
+        return buf.toString();
     }
 
 }

@@ -259,4 +259,17 @@ public class SocketHttpServerConnection extends
         }
     }
 
+    @Override
+    public String toString() {
+        StringBuilder buf = new StringBuilder();
+        if (this.socket != null) {
+            buf.append(this.socket.getLocalSocketAddress())
+            .append("->")
+            .append(this.socket.getRemoteSocketAddress());
+        } else {
+            buf.append("no socket");
+        }
+        return buf.toString();
+    }
+
 }

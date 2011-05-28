@@ -62,73 +62,73 @@ public class LoggingNHttpServiceHandler implements NHttpServiceHandler {
 
     public void connected(final NHttpServerConnection conn) {
         if (this.log.isDebugEnabled()) {
-            this.log.debug("HTTP connection " + conn + ": Connected");
+            this.log.debug(conn + ": Connected");
         }
         this.handler.connected(conn);
     }
 
     public void closed(final NHttpServerConnection conn) {
         if (this.log.isDebugEnabled()) {
-            this.log.debug("HTTP connection " + conn + ": Closed");
+            this.log.debug(conn + ": Closed");
         }
         this.handler.closed(conn);
     }
 
     public void exception(final NHttpServerConnection conn, final IOException ex) {
-        this.log.error("HTTP connection " + conn + ": " + ex.getMessage(), ex);
+        this.log.error(conn + ": " + ex.getMessage(), ex);
         this.handler.exception(conn, ex);
     }
 
     public void exception(final NHttpServerConnection conn, final HttpException ex) {
-        this.log.error("HTTP connection " + conn + ": " + ex.getMessage(), ex);
+        this.log.error(conn + ": " + ex.getMessage(), ex);
         this.handler.exception(conn, ex);
     }
 
     public void requestReceived(final NHttpServerConnection conn) {
         HttpRequest request = conn.getHttpRequest();
         if (this.log.isDebugEnabled()) {
-            this.log.debug("HTTP connection " + conn + ": " + request.getRequestLine());
+            this.log.debug(conn + ": " + request.getRequestLine());
         }
         this.handler.requestReceived(conn);
         if (this.headerlog.isDebugEnabled()) {
-            this.headerlog.debug(">> " + request.getRequestLine().toString());
+            this.headerlog.debug(conn + " >> " + request.getRequestLine().toString());
             Header[] headers = request.getAllHeaders();
             for (int i = 0; i < headers.length; i++) {
-                this.headerlog.debug(">> " + headers[i].toString());
+                this.headerlog.debug(conn + " >> " + headers[i].toString());
             }
         }
     }
 
     public void outputReady(final NHttpServerConnection conn, final ContentEncoder encoder) {
         if (this.log.isDebugEnabled()) {
-            this.log.debug("HTTP connection " + conn + ": Output ready");
+            this.log.debug(conn + ": Output ready");
         }
         this.handler.outputReady(conn, encoder);
         if (this.log.isDebugEnabled()) {
-            this.log.debug("HTTP connection " + conn + ": Content encoder " + encoder);
+            this.log.debug(conn + ": Content encoder " + encoder);
         }
     }
 
     public void responseReady(final NHttpServerConnection conn) {
         if (this.log.isDebugEnabled()) {
-            this.log.debug("HTTP connection " + conn + ": Response ready");
+            this.log.debug(conn + ": Response ready");
         }
         this.handler.responseReady(conn);
     }
 
     public void inputReady(final NHttpServerConnection conn, final ContentDecoder decoder) {
         if (this.log.isDebugEnabled()) {
-            this.log.debug("HTTP connection " + conn + ": Input ready");
+            this.log.debug(conn + ": Input ready");
         }
         this.handler.inputReady(conn, decoder);
         if (this.log.isDebugEnabled()) {
-            this.log.debug("HTTP connection " + conn + ": Content decoder " + decoder);
+            this.log.debug(conn + ": Content decoder " + decoder);
         }
     }
 
     public void timeout(final NHttpServerConnection conn) {
         if (this.log.isDebugEnabled()) {
-            this.log.debug("HTTP connection " + conn + ": Timeout");
+            this.log.debug(conn + ": Timeout");
         }
         this.handler.timeout(conn);
     }

@@ -33,10 +33,12 @@ import org.apache.commons.logging.Log;
 class Wire {
 
     private final Log log;
+    private final String id;
 
-    public Wire(final Log log) {
+    public Wire(final Log log, final String id) {
         super();
         this.log = log;
+        this.id = id;
     }
 
     private void wire(final String header, final byte[] b, int pos, int off) {
@@ -49,7 +51,7 @@ class Wire {
                     buffer.append("[\\n]\"");
                     buffer.insert(0, "\"");
                     buffer.insert(0, header);
-                    this.log.debug(buffer.toString());
+                    this.log.debug(this.id + " " + buffer.toString());
                     buffer.setLength(0);
             } else if ((ch < 32) || (ch > 127)) {
                 buffer.append("[0x");
@@ -63,7 +65,7 @@ class Wire {
             buffer.append('\"');
             buffer.insert(0, '\"');
             buffer.insert(0, header);
-            this.log.debug(buffer.toString());
+            this.log.debug(this.id + " " + buffer.toString());
         }
     }
 

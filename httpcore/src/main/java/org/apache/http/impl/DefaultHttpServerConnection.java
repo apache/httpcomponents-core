@@ -74,17 +74,4 @@ public class DefaultHttpServerConnection extends SocketHttpServerConnection {
         super.bind(socket, params);
     }
 
-    @Override
-    public String toString() {
-        StringBuilder buffer = new StringBuilder();
-        buffer.append("[");
-        if (isOpen()) {
-            buffer.append(getRemotePort());
-        } else {
-            buffer.append("closed");
-        }
-        buffer.append("]");
-        return buffer.toString();
-    }
-
 }

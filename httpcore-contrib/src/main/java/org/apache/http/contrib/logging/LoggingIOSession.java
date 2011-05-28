@@ -32,7 +32,6 @@ import java.net.SocketAddress;
 import java.nio.ByteBuffer;
 import java.nio.channels.ByteChannel;
 import java.nio.channels.SelectionKey;
-import java.util.concurrent.atomic.AtomicLong;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -46,24 +45,20 @@ import org.apache.http.nio.reactor.SessionBufferStatus;
  */
 public class LoggingIOSession implements IOSession {
 
-    private static AtomicLong COUNT = new AtomicLong(0);
-
     private final Log log;
     private final Wire wirelog;
     private final IOSession session;
     private final ByteChannel channel;
-    private final String id;
 
-    public LoggingIOSession(final IOSession session, final String id) {
+    public LoggingIOSession(final IOSession session) {
         super();
         if (session == null) {
             throw new IllegalArgumentException("I/O session may not be null");
         }
         this.session = session;
         this.channel = new LoggingByteChannel();
-        this.id = id + "-" + COUNT.incrementAndGet();
         this.log = LogFactory.getLog(session.getClass());
-        this.wirelog = new Wire(LogFactory.getLog("org.apache.http.wire"));
+        this.wirelog = new Wire(LogFactory.getLog("org.apache.http.wire"), getId());
     }
 
     public ByteChannel channel() {
@@ -102,32 +97,29 @@ public class LoggingIOSession implements IOSession {
     }
 
     public void setEventMask(int ops) {
-        if (this.log.isDebugEnabled()) {
-            this.log.debug("I/O session " + this.id + " " + this.session + ": Set event mask "
-                    + formatOps(ops));
-        }
         this.session.setEventMask(ops);
+        if (this.log.isDebugEnabled()) {
+            this.log.debug(getId() + " " + this.session + ": Event mask set " + formatOps(ops));
+        }
     }
 
     public void setEvent(int op) {
-        if (this.log.isDebugEnabled()) {
-            this.log.debug("I/O session " + this.id + " " + this.session + ": Set event "
-                    + formatOps(op));
-        }
         this.session.setEvent(op);
+        if (this.log.isDebugEnabled()) {
+            this.log.debug(getId() + " " + this.session + ": Event set " + formatOps(op));
+        }
     }
 
     public void clearEvent(int op) {
-        if (this.log.isDebugEnabled()) {
-            this.log.debug("I/O session " + this.id + " " + this.session + ": Clear event "
-                    + formatOps(op));
-        }
         this.session.clearEvent(op);
+        if (this.log.isDebugEnabled()) {
+            this.log.debug(getId() + " " + this.session + ": Event cleared " + formatOps(op));
+        }
     }
 
     public void close() {
         if (this.log.isDebugEnabled()) {
-            this.log.debug("I/O session " + this.id + " " + this.session + ": Close");
+            this.log.debug(getId() + " " + this.session + ": Close");
         }
         this.session.close();
     }
@@ -142,7 +134,7 @@ public class LoggingIOSession implements IOSession {
 
     public void shutdown() {
         if (this.log.isDebugEnabled()) {
-            this.log.debug("I/O session " + this.id + " " + this.session + ": Shutdown");
+            this.log.debug(getId() + " " + this.session + ": Shutdown");
         }
         this.session.shutdown();
     }
@@ -153,8 +145,7 @@ public class LoggingIOSession implements IOSession {
 
     public void setSocketTimeout(int timeout) {
         if (this.log.isDebugEnabled()) {
-            this.log.debug("I/O session " + this.id + " " + this.session + ": Set timeout "
-                    + timeout);
+            this.log.debug(getId() + " " + this.session + ": Set timeout " + timeout);
         }
         this.session.setSocketTimeout(timeout);
     }
@@ -177,18 +168,27 @@ public class LoggingIOSession implements IOSession {
 
     public void setAttribute(final String name, final Object obj) {
         if (this.log.isDebugEnabled()) {
-            this.log.debug("I/O session " + this.id + " " + this.session + ": Set attribute "
-                    + name);
+            this.log.debug(getId() + " " + this.session + ": Set attribute " + name);
         }
         this.session.setAttribute(name, obj);
     }
 
     public Object removeAttribute(final String name) {
         if (this.log.isDebugEnabled()) {
-            this.log.debug("I/O session " + this.id + " " + this.session + ": Remove attribute "
-                    + name);
+            this.log.debug(getId() + " " + this.session + ": Remove attribute " + name);
         }
         return this.session.removeAttribute(name);
+    }
+
+    private String getId() {
+        StringBuilder buf = new StringBuilder();
+        buf.append(getLocalAddress()).append("->").append(getRemoteAddress());
+        return buf.toString();
+    }
+
+    @Override
+    public String toString() {
+        return getId() + " " + this.session.toString();
     }
 
     class LoggingByteChannel implements ByteChannel {
@@ -196,7 +196,7 @@ public class LoggingIOSession implements IOSession {
         public int read(final ByteBuffer dst) throws IOException {
             int bytesRead = session.channel().read(dst);
             if (log.isDebugEnabled()) {
-                log.debug("I/O session " + id + " " + session + ": " + bytesRead + " bytes read");
+                log.debug(getId() + " " + session + ": " + bytesRead + " bytes read");
             }
             if (bytesRead > 0 && wirelog.isEnabled()) {
                 ByteBuffer b = dst.duplicate();
@@ -211,7 +211,7 @@ public class LoggingIOSession implements IOSession {
         public int write(final ByteBuffer src) throws IOException {
             int byteWritten = session.channel().write(src);
             if (log.isDebugEnabled()) {
-                log.debug("I/O session " + id + " " + session + ": " + byteWritten + " bytes written");
+                log.debug(getId() + " " + session + ": " + byteWritten + " bytes written");
             }
             if (byteWritten > 0 && wirelog.isEnabled()) {
                 ByteBuffer b = src.duplicate();
@@ -225,7 +225,7 @@ public class LoggingIOSession implements IOSession {
 
         public void close() throws IOException {
             if (log.isDebugEnabled()) {
-                log.debug("I/O session " + id + " " + session + ": Channel close");
+                log.debug(getId() + " " + session + ": Channel close");
             }
             session.channel().close();
         }

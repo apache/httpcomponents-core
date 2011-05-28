@@ -62,73 +62,73 @@ public class LoggingNHttpClientHandler implements NHttpClientHandler {
 
     public void connected(final NHttpClientConnection conn, final Object attachment) {
         if (this.log.isDebugEnabled()) {
-            this.log.debug("HTTP connection " + conn + ": Connected (" + attachment + ")");
+            this.log.debug(conn + ": Connected (" + attachment + ")");
         }
         this.handler.connected(conn, attachment);
     }
 
     public void closed(final NHttpClientConnection conn) {
         if (this.log.isDebugEnabled()) {
-            this.log.debug("HTTP connection " + conn + ": Closed");
+            this.log.debug(conn + ": Closed");
         }
         this.handler.closed(conn);
     }
 
     public void exception(final NHttpClientConnection conn, final IOException ex) {
-        this.log.error("HTTP connection " + conn + ": " + ex.getMessage(), ex);
+        this.log.error(conn + ": " + ex.getMessage(), ex);
         this.handler.exception(conn, ex);
     }
 
     public void exception(final NHttpClientConnection conn, final HttpException ex) {
-        this.log.error("HTTP connection " + conn + ": " + ex.getMessage(), ex);
+        this.log.error(conn + ": " + ex.getMessage(), ex);
         this.handler.exception(conn, ex);
     }
 
     public void requestReady(final NHttpClientConnection conn) {
         if (this.log.isDebugEnabled()) {
-            this.log.debug("HTTP connection " + conn + ": Request ready");
+            this.log.debug(conn + ": Request ready");
         }
         this.handler.requestReady(conn);
     }
 
     public void outputReady(final NHttpClientConnection conn, final ContentEncoder encoder) {
         if (this.log.isDebugEnabled()) {
-            this.log.debug("HTTP connection " + conn + ": Output ready");
+            this.log.debug(conn + ": Output ready");
         }
         this.handler.outputReady(conn, encoder);
         if (this.log.isDebugEnabled()) {
-            this.log.debug("HTTP connection " + conn + ": Content encoder " + encoder);
+            this.log.debug(conn + ": Content encoder " + encoder);
         }
     }
 
     public void responseReceived(final NHttpClientConnection conn) {
         HttpResponse response = conn.getHttpResponse();
         if (this.log.isDebugEnabled()) {
-            this.log.debug("HTTP connection " + conn + ": " + response.getStatusLine());
+            this.log.debug(conn + ": " + response.getStatusLine());
         }
         this.handler.responseReceived(conn);
         if (this.headerlog.isDebugEnabled()) {
-            this.headerlog.debug("<< " + response.getStatusLine().toString());
+            this.headerlog.debug(conn + " << " + response.getStatusLine().toString());
             Header[] headers = response.getAllHeaders();
             for (int i = 0; i < headers.length; i++) {
-                this.headerlog.debug("<< " + headers[i].toString());
+                this.headerlog.debug(conn + " << " + headers[i].toString());
             }
         }
     }
 
     public void inputReady(final NHttpClientConnection conn, final ContentDecoder decoder) {
         if (this.log.isDebugEnabled()) {
-            this.log.debug("HTTP connection " + conn + ": Input ready");
+            this.log.debug(conn + ": Input ready");
         }
         this.handler.inputReady(conn, decoder);
         if (this.log.isDebugEnabled()) {
-            this.log.debug("HTTP connection " + conn + ": Content decoder " + decoder);
+            this.log.debug(conn + ": Content decoder " + decoder);
         }
     }
 
     public void timeout(final NHttpClientConnection conn) {
         if (this.log.isDebugEnabled()) {
-            this.log.debug("HTTP connection " + conn + ": Timeout");
+            this.log.debug(conn + ": Timeout");
         }
         this.handler.timeout(conn);
     }

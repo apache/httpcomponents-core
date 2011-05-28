@@ -44,7 +44,7 @@ public class LoggingServerIOEventDispatch extends DefaultServerIOEventDispatch {
     @Override
     protected NHttpServerIOTarget createConnection(final IOSession session) {
         return new LoggingNHttpServerConnection(
-            new LoggingIOSession(session, "server"),
+            new LoggingIOSession(session),
             createHttpRequestFactory(),
             this.allocator,
             this.params);
