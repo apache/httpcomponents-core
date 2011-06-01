@@ -70,7 +70,7 @@ public class LoggingNHttpClientConnection extends DefaultNHttpClientConnection {
         this.wirelog = LogFactory.getLog("org.apache.http.wire");
         this.id = "http-outgoing-" + COUNT.incrementAndGet();
         if (this.iolog.isDebugEnabled() || this.wirelog.isDebugEnabled()) {
-            this.session = new LoggingIOSession(session, this.id, this.headerlog, this.wirelog);
+            this.session = new LoggingIOSession(session, this.id, this.iolog, this.wirelog);
         }
     }
 
