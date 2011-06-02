@@ -118,8 +118,8 @@ public class TestByteArrayEntity {
     @Test
     public void testWriteToOffLen() throws Exception {
         byte[] bytes = "Message content".getBytes(HTTP.US_ASCII);
-    int off = 8;
-    int len = 7;
+        int off = 8;
+        int len = 7;
         ByteArrayEntity httpentity = new ByteArrayEntity(bytes, off, len);
 
         ByteArrayOutputStream out = new ByteArrayOutputStream();
