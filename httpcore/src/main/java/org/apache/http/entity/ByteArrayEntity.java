@@ -39,7 +39,10 @@ import java.io.OutputStream;
  */
 public class ByteArrayEntity extends AbstractHttpEntity implements Cloneable {
 
+    @Deprecated
     protected final byte[] content;
+    private final byte[] b;
+    private final int off, len;
 
     public ByteArrayEntity(final byte[] b) {
         super();
@@ -47,6 +50,24 @@ public class ByteArrayEntity extends AbstractHttpEntity implements Cloneable {
             throw new IllegalArgumentException("Source byte array may not be null");
         }
         this.content = b;
+        this.b = b;
+        this.off = 0;
+        this.len = this.b.length;
+    }
+
+    public ByteArrayEntity(final byte[] b, final int off, final int len) {
+        super();
+        if (b == null) {
+            throw new IllegalArgumentException("Source byte array may not be null");
+        }
+        if ((off < 0) || (off > b.length) || (len < 0) ||
+                ((off + len) < 0) || ((off + len) > b.length)) {
+            throw new IndexOutOfBoundsException("off: " + off + " len: " + len + " b.length: " + b.length);
+        }
+        this.content = b;
+        this.b = b;
+        this.off = off;
+        this.len = len;
     }
 
     public boolean isRepeatable() {
@@ -54,18 +75,18 @@ public class ByteArrayEntity extends AbstractHttpEntity implements Cloneable {
     }
 
     public long getContentLength() {
-        return this.content.length;
+        return this.len;
     }
 
     public InputStream getContent() {
-        return new ByteArrayInputStream(this.content);
+        return new ByteArrayInputStream(this.b, this.off, this.len);
     }
 
     public void writeTo(final OutputStream outstream) throws IOException {
         if (outstream == null) {
             throw new IllegalArgumentException("Output stream may not be null");
         }
-        outstream.write(this.content);
+        outstream.write(this.b, this.off, this.len);
         outstream.flush();
     }
 

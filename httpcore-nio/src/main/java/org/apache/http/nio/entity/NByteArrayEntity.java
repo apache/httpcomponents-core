@@ -45,30 +45,60 @@ import org.apache.http.nio.protocol.AsyncNHttpServiceHandler;
  * @see AsyncNHttpServiceHandler
  * @since 4.0
  */
-public class NByteArrayEntity
-    extends AbstractHttpEntity implements ProducingNHttpEntity {
+public class NByteArrayEntity extends AbstractHttpEntity implements ProducingNHttpEntity {
 
+    private final byte[] b;
+    private final int off, len;
+    private final ByteBuffer buf;
+    @Deprecated
     protected final byte[] content;
+    @Deprecated
     protected final ByteBuffer buffer;
 
     public NByteArrayEntity(final byte[] b) {
+        super();
+        if (b == null) {
+            throw new IllegalArgumentException("Source byte array may not be null");
+        }
+        this.b = b;
+        this.off = 0;
+        this.len = b.length;
+        this.buf = ByteBuffer.wrap(b);
         this.content = b;
-        this.buffer = ByteBuffer.wrap(b);
+        this.buffer = this.buf;
+    }
+
+    public NByteArrayEntity(final byte[] b, int off, int len) {
+        super();
+        if (b == null) {
+            throw new IllegalArgumentException("Source byte array may not be null");
+        }
+        if ((off < 0) || (off > b.length) || (len < 0) ||
+                ((off + len) < 0) || ((off + len) > b.length)) {
+            throw new IndexOutOfBoundsException("off: " + off + " len: " + len + " b.length: " + b.length);
+        }
+        this.b = b;
+        this.off = off;
+        this.len = len;
+        this.buf = ByteBuffer.wrap(b, off, len);
+        this.content = b;
+        this.buffer = this.buf;
     }
 
     public void finish() {
-        buffer.rewind();
+        this.buf.rewind();
     }
 
-    public void produceContent(ContentEncoder encoder, IOControl ioctrl)
+    public void produceContent(final ContentEncoder encoder, final IOControl ioctrl)
             throws IOException {
-        encoder.write(buffer);
-        if(!buffer.hasRemaining())
+        encoder.write(this.buf);
+        if(!this.buf.hasRemaining()) {
             encoder.complete();
+        }
     }
 
     public long getContentLength() {
-        return buffer.limit();
+        return this.len;
     }
 
     public boolean isRepeatable() {
@@ -80,14 +110,14 @@ public class NByteArrayEntity
     }
 
     public InputStream getContent() {
-        return new ByteArrayInputStream(content);
+        return new ByteArrayInputStream(this.b, this.off, this.len);
     }
 
     public void writeTo(final OutputStream outstream) throws IOException {
         if (outstream == null) {
             throw new IllegalArgumentException("Output stream may not be null");
         }
-        outstream.write(content);
+        outstream.write(this.b, this.off, this.len);
         outstream.flush();
     }
 

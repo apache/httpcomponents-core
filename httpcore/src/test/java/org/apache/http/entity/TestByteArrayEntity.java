@@ -51,13 +51,37 @@ public class TestByteArrayEntity {
     }
 
     @Test
-    public void testIllegalConstructor() throws Exception {
-        try {
-            new ByteArrayEntity(null);
-            Assert.fail("IllegalArgumentException should have been thrown");
-        } catch (IllegalArgumentException ex) {
-            // expected
-        }
+    public void testBasicOffLen() throws Exception {
+        byte[] bytes = "Message content".getBytes(HTTP.US_ASCII);
+        ByteArrayEntity httpentity = new ByteArrayEntity(bytes, 8, 7);
+
+        Assert.assertEquals(7, httpentity.getContentLength());
+        Assert.assertNotNull(httpentity.getContent());
+        Assert.assertTrue(httpentity.isRepeatable());
+        Assert.assertFalse(httpentity.isStreaming());
+    }
+
+    @Test(expected=IllegalArgumentException.class)
+    public void testIllegalConstructorNullByteArray() throws Exception {
+        new ByteArrayEntity(null);
+    }
+
+    @Test(expected=IndexOutOfBoundsException.class)
+    public void testIllegalConstructorBadLen() throws Exception {
+        byte[] bytes = "Message content".getBytes(HTTP.US_ASCII);
+        new ByteArrayEntity(bytes, 0, bytes.length + 1);
+    }
+
+    @Test(expected=IndexOutOfBoundsException.class)
+    public void testIllegalConstructorBadOff1() throws Exception {
+        byte[] bytes = "Message content".getBytes(HTTP.US_ASCII);
+        new ByteArrayEntity(bytes, -1, bytes.length);
+    }
+
+    @Test(expected=IndexOutOfBoundsException.class)
+    public void testIllegalConstructorBadOff2() throws Exception {
+        byte[] bytes = "Message content".getBytes(HTTP.US_ASCII);
+        new ByteArrayEntity(bytes, bytes.length + 1, bytes.length);
     }
 
     @Test
@@ -81,6 +105,39 @@ public class TestByteArrayEntity {
         Assert.assertEquals(bytes.length, bytes2.length);
         for (int i = 0; i < bytes.length; i++) {
             Assert.assertEquals(bytes[i], bytes2[i]);
+        }
+
+        try {
+            httpentity.writeTo(null);
+            Assert.fail("IllegalArgumentException should have been thrown");
+        } catch (IllegalArgumentException ex) {
+            // expected
+        }
+    }
+
+    @Test
+    public void testWriteToOffLen() throws Exception {
+        byte[] bytes = "Message content".getBytes(HTTP.US_ASCII);
+    int off = 8;
+    int len = 7;
+        ByteArrayEntity httpentity = new ByteArrayEntity(bytes, off, len);
+
+        ByteArrayOutputStream out = new ByteArrayOutputStream();
+        httpentity.writeTo(out);
+        byte[] bytes2 = out.toByteArray();
+        Assert.assertNotNull(bytes2);
+        Assert.assertEquals(len, bytes2.length);
+        for (int i = 0; i < len; i++) {
+            Assert.assertEquals(bytes[i+off], bytes2[i]);
+        }
+
+        out = new ByteArrayOutputStream();
+        httpentity.writeTo(out);
+        bytes2 = out.toByteArray();
+        Assert.assertNotNull(bytes2);
+        Assert.assertEquals(len, bytes2.length);
+        for (int i = 0; i < len; i++) {
+            Assert.assertEquals(bytes[i+off], bytes2[i]);
         }
 
         try {
