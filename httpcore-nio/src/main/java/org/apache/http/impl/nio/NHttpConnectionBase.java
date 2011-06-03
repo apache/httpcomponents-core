@@ -425,7 +425,7 @@ public class NHttpConnectionBase
     public String toString() {
         StringBuilder buf = new StringBuilder();
         buf.append(this.session.getLocalAddress())
-            .append("->")
+            .append("<->")
             .append(this.session.getRemoteAddress());
         return buf.toString();
     }
