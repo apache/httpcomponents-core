@@ -462,7 +462,19 @@ public class SSLIOSession implements IOSession, SessionBufferStatus {
     public String toString() {
         StringBuilder buffer = new StringBuilder();
         buffer.append(this.session);
-        buffer.append("[SSL handshake status: ");
+        buffer.append("[");
+        switch (this.status) {
+        case ACTIVE:
+            buffer.append("ACTIVE");
+            break;
+        case CLOSING:
+            buffer.append("CLOSING");
+            break;
+        case CLOSED:
+            buffer.append("CLOSED");
+            break;
+        }
+        buffer.append("][");
         buffer.append(this.sslEngine.getHandshakeStatus());
         buffer.append("][");
         buffer.append(this.inEncrypted.position());

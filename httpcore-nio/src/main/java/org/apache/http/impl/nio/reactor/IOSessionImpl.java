@@ -251,7 +251,6 @@ public class IOSessionImpl implements IOSession {
     }
 
     private static void formatOps(final StringBuilder buffer, int ops) {
-        buffer.append('[');
         if ((ops & SelectionKey.OP_READ) > 0) {
             buffer.append('r');
         }
@@ -264,21 +263,29 @@ public class IOSessionImpl implements IOSession {
         if ((ops & SelectionKey.OP_CONNECT) > 0) {
             buffer.append('c');
         }
-        buffer.append(']');
     }
 
     @Override
     public synchronized String toString() {
         StringBuilder buffer = new StringBuilder();
         buffer.append("[");
+        switch (this.status) {
+        case ACTIVE:
+            buffer.append("ACTIVE");
+            break;
+        case CLOSING:
+            buffer.append("CLOSING");
+            break;
+        case CLOSED:
+            buffer.append("CLOSED");
+            break;
+        }
+        buffer.append("][");
         if (this.key.isValid()) {
-            buffer.append("interest ops: ");
             formatOps(buffer, this.interestOpsCallback != null ?
                     this.currentEventMask : this.key.interestOps());
-            buffer.append("; ready ops: ");
+            buffer.append(":");
             formatOps(buffer, this.key.readyOps());
-        } else {
-            buffer.append("invalid");
         }
         buffer.append("]");
         return buffer.toString();
