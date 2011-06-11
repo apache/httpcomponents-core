@@ -156,9 +156,6 @@ public class SSLIOSession implements IOSession, SessionBufferStatus {
                 if (result.getStatus() != Status.OK) {
                     handshaking = false;
                 }
-                if (result.getStatus() == Status.CLOSED) {
-                    this.status = CLOSED;
-                }
                 break;
             case NEED_UNWRAP:
                 // Process incoming handshake data
@@ -167,12 +164,6 @@ public class SSLIOSession implements IOSession, SessionBufferStatus {
                 this.inEncrypted.compact();
                 if (result.getStatus() != Status.OK) {
                     handshaking = false;
-                }
-                if (result.getStatus() == Status.CLOSED) {
-                    this.status = CLOSED;
-                }
-                if (result.getStatus() == Status.BUFFER_UNDERFLOW && this.endOfStream) {
-                    this.status = CLOSED;
                 }
                 break;
             case NEED_TASK:
@@ -198,7 +189,8 @@ public class SSLIOSession implements IOSession, SessionBufferStatus {
     }
 
     private void updateEventMask() {
-        if (this.sslEngine.isInboundDone() && this.sslEngine.isOutboundDone()) {
+        if (this.status == CLOSING &&
+                this.sslEngine.isInboundDone() && this.sslEngine.isOutboundDone()) {
             this.status = CLOSED;
         }
         if (this.status == CLOSED) {
@@ -255,12 +247,6 @@ public class SSLIOSession implements IOSession, SessionBufferStatus {
             this.inEncrypted.compact();
 
             opStatus = result.getStatus();
-            if (opStatus == Status.CLOSED) {
-                this.status = CLOSED;
-            }
-            if (opStatus == Status.BUFFER_UNDERFLOW && this.endOfStream) {
-                this.status = CLOSED;
-            }
             if (opStatus == Status.OK) {
                 decrypted = true;
             }
@@ -351,18 +337,19 @@ public class SSLIOSession implements IOSession, SessionBufferStatus {
         }
     }
 
-    public void close() {
-        if (this.status != ACTIVE) {
+    public synchronized void close() {
+        if (this.status >= CLOSING) {
             return;
         }
         this.status = CLOSING;
-        synchronized(this) {
-            this.sslEngine.closeOutbound();
-            updateEventMask();
-        }
+        this.sslEngine.closeOutbound();
+        updateEventMask();
     }
 
-    public void shutdown() {
+    public synchronized void shutdown() {
+        if (this.status == CLOSED) {
+            return;
+        }
         this.status = CLOSED;
         this.session.shutdown();
     }
@@ -372,7 +359,7 @@ public class SSLIOSession implements IOSession, SessionBufferStatus {
     }
 
     public boolean isClosed() {
-        return this.status != ACTIVE;
+        return this.status >= CLOSING;
     }
 
     public synchronized boolean isInboundDone() {
@@ -454,8 +441,23 @@ public class SSLIOSession implements IOSession, SessionBufferStatus {
     public String toString() {
         StringBuffer buffer = new StringBuffer();
         buffer.append(this.session);
-        buffer.append("[SSL handshake status: ");
+        buffer.append("[");
+        switch (this.status) {
+        case ACTIVE:
+            buffer.append("ACTIVE");
+            break;
+        case CLOSING:
+            buffer.append("CLOSING");
+            break;
+        case CLOSED:
+            buffer.append("CLOSED");
+            break;
+        }
+        buffer.append("][");
         buffer.append(this.sslEngine.getHandshakeStatus());
+        if (this.endOfStream) {
+            buffer.append("EOF][");
+        }
         buffer.append("][");
         buffer.append(this.inEncrypted.position());
         buffer.append("][");

@@ -1,3 +1,14 @@
+Changes since 4.1.1
+-------------------
+
+* [HTTPCORE-260] Non-blocking SSL I/O session can terminate prematurely causing message body 
+  truncation when message content is chunk coded and the connection is closed on the opposite end. 
+  Contributed by Oleg Kalnichevski <olegk at apache.org>
+
+* [HTTPCORE-257] Fixed incorrect results produced by DefaultConnectionReuseStrategy when handling 
+  response messages whose content entity has been decoded or modified by a protocol interceptor. 
+  Contributed by Oleg Kalnichevski <olegk at apache.org>
+
 Release 4.1.1
 -------------------
 
