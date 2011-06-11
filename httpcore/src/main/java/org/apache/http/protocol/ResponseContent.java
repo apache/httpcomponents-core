@@ -57,7 +57,7 @@ public class ResponseContent implements HttpResponseInterceptor {
     public void process(final HttpResponse response, final HttpContext context)
             throws HttpException, IOException {
         if (response == null) {
-            throw new IllegalArgumentException("HTTP request may not be null");
+            throw new IllegalArgumentException("HTTP response may not be null");
         }
         if (response.containsHeader(HTTP.TRANSFER_ENCODING)) {
             throw new ProtocolException("Transfer-encoding header already present");
