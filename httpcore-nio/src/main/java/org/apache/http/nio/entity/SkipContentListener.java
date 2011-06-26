@@ -54,13 +54,10 @@ public class SkipContentListener implements ContentListener {
     public void contentAvailable(
             final ContentDecoder decoder,
             final IOControl ioctrl) throws IOException {
-        int totalRead = 0;
         int lastRead;
         do {
             buffer.clear();
             lastRead = decoder.read(buffer);
-            if (lastRead > 0)
-                totalRead += lastRead;
         } while (lastRead > 0);
     }
 
