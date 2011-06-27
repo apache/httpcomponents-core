@@ -194,13 +194,7 @@ public abstract class AbstractIOReactor implements IOReactor {
      * @return I/O session.
      */
     protected IOSession getSession(final SelectionKey key) {
-        Object attachment = key.attachment();
-        if (attachment instanceof SessionHandle) {
-            SessionHandle handle = (SessionHandle) attachment;
-            return handle.getSession();
-        } else {
-            return null;
-        }
+        return (IOSession) key.attachment();
     }
 
     public IOReactorStatus getStatus() {
@@ -333,8 +327,7 @@ public abstract class AbstractIOReactor implements IOReactor {
      * @param key the selection key that triggered an event.
      */
     protected void processEvent(final SelectionKey key) {
-        SessionHandle handle = (SessionHandle) key.attachment();
-        IOSession session = handle.getSession();
+        IOSessionImpl session = (IOSessionImpl) key.attachment();
         try {
             if (key.isAcceptable()) {
                 acceptable(key);
@@ -343,11 +336,11 @@ public abstract class AbstractIOReactor implements IOReactor {
                 connectable(key);
             }
             if (key.isReadable()) {
-                handle.resetLastRead();
+                session.resetLastRead();
                 readable(key);
             }
             if (key.isWritable()) {
-                handle.resetLastWrite();
+                session.resetLastWrite();
                 writable(key);
             }
         } catch (CancelledKeyException ex) {
@@ -428,8 +421,7 @@ public abstract class AbstractIOReactor implements IOReactor {
                 if (sessionRequest != null) {
                     sessionRequest.completed(session);
                 }
-                SessionHandle handle = new SessionHandle(session);
-                key.attach(handle);
+                key.attach(session);
                 sessionCreated(key, session);
             } catch (CancelledKeyException ex) {
                 queueClosedSession(session);
@@ -492,19 +484,14 @@ public abstract class AbstractIOReactor implements IOReactor {
      * @param now current time as long value.
      */
     protected void timeoutCheck(final SelectionKey key, long now) {
-        Object attachment = key.attachment();
-        if (attachment instanceof SessionHandle) {
-            SessionHandle handle = (SessionHandle) key.attachment();
-            IOSession session = handle.getSession();
-            int timeout = session.getSocketTimeout();
-            if (timeout > 0) {
-                if (handle.getLastAccessTime() + timeout < now) {
-                    sessionTimedOut(session);
-                }
+        IOSessionImpl session = (IOSessionImpl) key.attachment();
+        int timeout = session.getSocketTimeout();
+        if (timeout > 0) {
+            if (session.getLastAccessTime() + timeout < now) {
+                sessionTimedOut(session);
             }
         }
     }
-
 
     /**
      * Closes out all I/O sessions maintained by this I/O reactor.

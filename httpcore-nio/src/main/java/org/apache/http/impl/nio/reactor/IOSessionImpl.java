@@ -58,6 +58,12 @@ public class IOSessionImpl implements IOSession {
     private volatile SessionBufferStatus bufferStatus;
     private volatile int socketTimeout;
 
+    private final long startedTime;
+
+    private long lastReadTime;
+    private long lastWriteTime;
+    private long lastAccessTime;
+    
     /**
      * Creates new instance of IOSessionImpl.
      *
@@ -83,6 +89,11 @@ public class IOSessionImpl implements IOSession {
         this.currentEventMask = 0;
         this.socketTimeout = 0;
         this.status = ACTIVE;
+        long now = System.currentTimeMillis();
+        this.startedTime = now;
+        this.lastReadTime = now;
+        this.lastWriteTime = now;
+        this.lastAccessTime = now;
     }
 
     /**
@@ -186,8 +197,9 @@ public class IOSessionImpl implements IOSession {
         return this.socketTimeout;
     }
 
-    public void setSocketTimeout(int timeout) {
+    public synchronized void setSocketTimeout(int timeout) {
         this.socketTimeout = timeout;
+        this.lastAccessTime = System.currentTimeMillis();
     }
 
     public synchronized void close() {
@@ -250,6 +262,34 @@ public class IOSessionImpl implements IOSession {
         this.attributes.put(name, obj);
     }
 
+    synchronized long getStartedTime() {
+        return this.startedTime;
+    }
+
+    synchronized long getLastReadTime() {
+        return this.lastReadTime;
+    }
+
+    synchronized long getLastWriteTime() {
+        return this.lastWriteTime;
+    }
+
+    synchronized long getLastAccessTime() {
+        return this.lastAccessTime;
+    }
+
+    synchronized void resetLastRead() {
+        long now = System.currentTimeMillis();
+        this.lastReadTime = now;
+        this.lastAccessTime = now;
+    }
+
+    synchronized void resetLastWrite() {
+        long now = System.currentTimeMillis();
+        this.lastWriteTime = now;
+        this.lastAccessTime = now;
+    }
+    
     private static void formatOps(final StringBuilder buffer, int ops) {
         if ((ops & SelectionKey.OP_READ) > 0) {
             buffer.append('r');
