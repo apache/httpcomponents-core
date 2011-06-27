@@ -235,6 +235,9 @@ public class SSLIOSession implements IOSession, SessionBufferStatus {
     }
 
     private int receiveEncryptedData() throws IOException {
+        if (this.endOfStream) {
+            return -1;
+        }
         return this.session.channel().read(this.inEncrypted);
     }
 
@@ -456,7 +459,7 @@ public class SSLIOSession implements IOSession, SessionBufferStatus {
         buffer.append("][");
         buffer.append(this.sslEngine.getHandshakeStatus());
         if (this.endOfStream) {
-            buffer.append("EOF][");
+            buffer.append("][EOF][");
         }
         buffer.append("][");
         buffer.append(this.inEncrypted.position());

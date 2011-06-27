@@ -144,17 +144,6 @@ public abstract class AbstractIOReactor implements IOReactor {
     protected abstract void writable(SelectionKey key);
 
     /**
-     * Triggered to verify whether the I/O session associated with the
-     * given selection key has not timed out.
-     * <p>
-     * Super-classes can implement this method to react to the event.
-     *
-     * @param key the selection key.
-     * @param now current time as long value.
-     */
-    protected abstract void timeoutCheck(SelectionKey key, long now);
-
-    /**
      * Triggered to validate keys currently registered with the selector. This
      * method is called after each I/O select loop.
      * <p>
@@ -174,7 +163,8 @@ public abstract class AbstractIOReactor implements IOReactor {
      * @param key the selection key.
      * @param session new I/O session.
      */
-    protected abstract void sessionCreated(SelectionKey key, IOSession session);
+    protected void sessionCreated(final SelectionKey key, final IOSession session) {
+    }
 
     /**
      * Triggered when a session has been closed.
@@ -183,7 +173,18 @@ public abstract class AbstractIOReactor implements IOReactor {
      *
      * @param session closed I/O session.
      */
-    protected abstract void sessionClosed(IOSession session);
+    protected void sessionClosed(final IOSession session) {
+    }
+
+    /**
+     * Triggered when a session has timed out.
+     * <p>
+     * Super-classes can implement this method to react to the event.
+     *
+     * @param session timed out I/O session.
+     */
+    protected void sessionTimedOut(final IOSession session) {
+    }
 
     /**
      * Obtains {@link IOSession} instance associated with the given selection
@@ -192,7 +193,9 @@ public abstract class AbstractIOReactor implements IOReactor {
      * @param key the selection key.
      * @return I/O session.
      */
-    protected abstract IOSession getSession(SelectionKey key);
+    protected IOSession getSession(final SelectionKey key) {
+        return (IOSession) key.attachment();
+    }
 
     public IOReactorStatus getStatus() {
         return this.status;
@@ -324,6 +327,7 @@ public abstract class AbstractIOReactor implements IOReactor {
      * @param key the selection key that triggered an event.
      */
     protected void processEvent(final SelectionKey key) {
+        IOSessionImpl session = (IOSessionImpl) key.attachment();
         try {
             if (key.isAcceptable()) {
                 acceptable(key);
@@ -332,13 +336,14 @@ public abstract class AbstractIOReactor implements IOReactor {
                 connectable(key);
             }
             if (key.isReadable()) {
+                session.resetLastRead();
                 readable(key);
             }
             if (key.isWritable()) {
+                session.resetLastWrite();
                 writable(key);
             }
         } catch (CancelledKeyException ex) {
-            IOSession session = getSession(key);
             queueClosedSession(session);
             key.attach(null);
         }
@@ -416,6 +421,7 @@ public abstract class AbstractIOReactor implements IOReactor {
                 if (sessionRequest != null) {
                     sessionRequest.completed(session);
                 }
+                key.attach(session);
                 sessionCreated(key, session);
             } catch (CancelledKeyException ex) {
                 queueClosedSession(session);
@@ -466,6 +472,27 @@ public abstract class AbstractIOReactor implements IOReactor {
         this.interestOpsQueue.add(entry);
 
         return true;
+    }
+
+    /**
+     * Triggered to verify whether the I/O session associated with the
+     * given selection key has not timed out.
+     * <p>
+     * Super-classes can implement this method to react to the event.
+     *
+     * @param key the selection key.
+     * @param now current time as long value.
+     */
+    protected void timeoutCheck(final SelectionKey key, long now) {
+        IOSessionImpl session = (IOSessionImpl) key.attachment();
+        if (session != null) {
+            int timeout = session.getSocketTimeout();
+            if (timeout > 0) {
+                if (session.getLastAccessTime() + timeout < now) {
+                    sessionTimedOut(session);
+                }
+            }
+        }
     }
 
     /**

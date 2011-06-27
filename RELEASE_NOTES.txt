@@ -1,6 +1,9 @@
 Changes since 4.1.1
 -------------------
 
+* [HTTPCORE-261] IOSession#setSocketTimeout() method does not reset the timeout count. 
+  Contributed by Oleg Kalnichevski <olegk at apache.org>
+
 * [HTTPCORE-260] Non-blocking SSL I/O session can terminate prematurely causing message body 
   truncation when message content is chunk coded and the connection is closed on the opposite end. 
   Contributed by Oleg Kalnichevski <olegk at apache.org>
