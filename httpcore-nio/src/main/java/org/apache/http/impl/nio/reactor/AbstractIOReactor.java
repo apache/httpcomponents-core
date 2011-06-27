@@ -485,10 +485,12 @@ public abstract class AbstractIOReactor implements IOReactor {
      */
     protected void timeoutCheck(final SelectionKey key, long now) {
         IOSessionImpl session = (IOSessionImpl) key.attachment();
-        int timeout = session.getSocketTimeout();
-        if (timeout > 0) {
-            if (session.getLastAccessTime() + timeout < now) {
-                sessionTimedOut(session);
+        if (session != null) {
+            int timeout = session.getSocketTimeout();
+            if (timeout > 0) {
+                if (session.getLastAccessTime() + timeout < now) {
+                    sessionTimedOut(session);
+                }
             }
         }
     }
