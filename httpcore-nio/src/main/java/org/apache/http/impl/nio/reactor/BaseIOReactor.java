@@ -109,7 +109,7 @@ public class BaseIOReactor extends AbstractIOReactor {
      *
      * @param exceptionHandler the exception handler.
      */
-    public void setExceptionHandler(IOReactorExceptionHandler exceptionHandler) {
+    public void setExceptionHandler(final IOReactorExceptionHandler exceptionHandler) {
         this.exceptionHandler = exceptionHandler;
     }
 
@@ -153,10 +153,7 @@ public class BaseIOReactor extends AbstractIOReactor {
      */
     @Override
     protected void readable(final SelectionKey key) {
-        SessionHandle handle = (SessionHandle) key.attachment();
-        IOSession session = handle.getSession();
-        handle.resetLastRead();
-
+        IOSession session = getSession(key);
         try {
             this.eventDispatch.inputReady(session);
             if (session.hasBufferedInput()) {
@@ -177,10 +174,7 @@ public class BaseIOReactor extends AbstractIOReactor {
      */
     @Override
     protected void writable(final SelectionKey key) {
-        SessionHandle handle = (SessionHandle) key.attachment();
-        IOSession session = handle.getSession();
-        handle.resetLastWrite();
-
+        IOSession session = getSession(key);
         try {
             this.eventDispatch.outputReady(session);
         } catch (CancelledKeyException ex) {
@@ -247,57 +241,32 @@ public class BaseIOReactor extends AbstractIOReactor {
     }
 
     /**
-     * Performs timeout check for the I/O session associated with the given
-     * selection key.
-     */
-    @Override
-    protected void timeoutCheck(final SelectionKey key, long now) {
-        Object attachment = key.attachment();
-        if (attachment instanceof SessionHandle) {
-            SessionHandle handle = (SessionHandle) key.attachment();
-            IOSession session = handle.getSession();
-            int timeout = session.getSocketTimeout();
-            if (timeout > 0) {
-                if (handle.getLastAccessTime() + timeout < now) {
-                    try {
-                        this.eventDispatch.timeout(session);
-                    } catch (CancelledKeyException ex) {
-                        queueClosedSession(session);
-                        key.attach(null);
-                    } catch (RuntimeException ex) {
-                        handleRuntimeException(ex);
-                    }
-                }
-            }
-        }
-    }
-
-    /**
      * Processes newly created I/O session. This method dispatches the event
      * notification to the {@link IOEventDispatch#connected(IOSession)} method.
      */
     @Override
     protected void sessionCreated(final SelectionKey key, final IOSession session) {
-        SessionHandle handle = new SessionHandle(session);
-        key.attach(handle);
         try {
             this.eventDispatch.connected(session);
         } catch (CancelledKeyException ex) {
             queueClosedSession(session);
-            key.attach(null);
         } catch (RuntimeException ex) {
             handleRuntimeException(ex);
         }
     }
 
+    /**
+     * Processes timed out I/O session. This method dispatches the event
+     * notification to the {@link IOEventDispatch#timeout(IOSession)} method.
+     */
     @Override
-    protected IOSession getSession(final SelectionKey key) {
-        Object attachment = key.attachment();
-        if (attachment instanceof SessionHandle) {
-            SessionHandle handle = (SessionHandle) attachment;
-            return handle.getSession();
-        } else {
-            return null;
+    protected void sessionTimedOut(final IOSession session) {
+        try {
+            this.eventDispatch.timeout(session);
+        } catch (CancelledKeyException ex) {
+            queueClosedSession(session);
+        } catch (RuntimeException ex) {
+            handleRuntimeException(ex);
         }
     }
 
