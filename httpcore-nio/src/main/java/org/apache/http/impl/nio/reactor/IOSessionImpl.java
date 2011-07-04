@@ -28,6 +28,7 @@
 package org.apache.http.impl.nio.reactor;
 
 import java.io.IOException;
+import java.net.InetSocketAddress;
 import java.net.SocketAddress;
 import java.nio.channels.ByteChannel;
 import java.nio.channels.Channel;
@@ -290,7 +291,7 @@ public class IOSessionImpl implements IOSession {
         this.lastAccessTime = now;
     }
 
-    private static void formatOps(final StringBuffer buffer, int ops) {
+    private static void formatOps(final StringBuilder buffer, int ops) {
         if ((ops & SelectionKey.OP_READ) > 0) {
             buffer.append('r');
         }
@@ -307,7 +308,28 @@ public class IOSessionImpl implements IOSession {
 
     @Override
     public synchronized String toString() {
-        StringBuffer buffer = new StringBuffer();
+        StringBuilder buffer = new StringBuilder();
+
+        if (getRemoteAddress() instanceof InetSocketAddress &&
+            getLocalAddress()  instanceof InetSocketAddress) {
+
+            final InetSocketAddress remote = ((InetSocketAddress) getRemoteAddress());
+            final InetSocketAddress local  = ((InetSocketAddress) getLocalAddress());
+
+            buffer.append(local.getAddress().getHostAddress())
+            .append(':')
+            .append(local.getPort())
+            .append("<->")
+            .append(remote.getAddress().getHostAddress())
+            .append(':')
+            .append(remote.getPort());
+
+        } else {
+            buffer.append(getLocalAddress())
+            .append("<->")
+            .append(getRemoteAddress());
+        }
+
         buffer.append("[");
         switch (this.status) {
         case ACTIVE:

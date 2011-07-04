@@ -28,6 +28,7 @@
 package org.apache.http.impl.nio;
 
 import java.io.IOException;
+import java.net.InetSocketAddress;
 
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpEntityEnclosingRequest;
@@ -254,6 +255,32 @@ public class DefaultNHttpServerConnection
 
     public boolean isResponseSubmitted() {
         return this.response != null;
+    }
+
+    public String toString() {
+        StringBuilder buf = new StringBuilder();
+
+        if (this.session.getRemoteAddress() instanceof InetSocketAddress &&
+            this.session.getLocalAddress()  instanceof InetSocketAddress) {
+
+            final InetSocketAddress remote = ((InetSocketAddress) this.session.getRemoteAddress());
+            final InetSocketAddress local  = ((InetSocketAddress) this.session.getLocalAddress());
+
+            buf.append(remote.getAddress().getHostAddress())
+            .append(':')
+            .append(remote.getPort())
+            .append("->")
+            .append(local.getAddress().getHostAddress())
+            .append(':')
+            .append(local.getPort());
+
+        } else {
+            buf.append(this.session.getRemoteAddress())
+            .append("->")
+            .append(this.session.getLocalAddress());
+        }
+
+        return buf.toString();
     }
 
 }
