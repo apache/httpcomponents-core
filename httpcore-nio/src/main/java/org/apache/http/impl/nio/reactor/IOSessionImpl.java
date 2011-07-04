@@ -28,6 +28,7 @@
 package org.apache.http.impl.nio.reactor;
 
 import java.io.IOException;
+import java.net.InetSocketAddress;
 import java.net.SocketAddress;
 import java.nio.channels.ByteChannel;
 import java.nio.channels.Channel;
@@ -310,6 +311,27 @@ public class IOSessionImpl implements IOSession {
     @Override
     public synchronized String toString() {
         StringBuilder buffer = new StringBuilder();
+
+        if (getRemoteAddress() instanceof InetSocketAddress &&
+            getLocalAddress()  instanceof InetSocketAddress) {
+
+            final InetSocketAddress remote = ((InetSocketAddress) getRemoteAddress());
+            final InetSocketAddress local  = ((InetSocketAddress) getLocalAddress());
+
+            buffer.append(local.getAddress().getHostAddress())
+            .append(':')
+            .append(local.getPort())
+            .append("<->")
+            .append(remote.getAddress().getHostAddress())
+            .append(':')
+            .append(remote.getPort());
+
+        } else {
+            buffer.append(getLocalAddress())
+            .append("<->")
+            .append(getRemoteAddress());
+        }
+
         buffer.append("[");
         switch (this.status) {
         case ACTIVE:
