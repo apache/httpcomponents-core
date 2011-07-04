@@ -38,6 +38,7 @@ import org.apache.http.HttpResponseInterceptor;
 import org.apache.http.HttpStatus;
 import org.apache.http.HttpVersion;
 import org.apache.http.ProtocolVersion;
+import org.apache.http.annotation.Immutable;
 
 /**
  * ResponseConnControl is responsible for adding <code>Connection</code> header
@@ -47,6 +48,7 @@ import org.apache.http.ProtocolVersion;
  *
  * @since 4.0
  */
+@Immutable
 public class ResponseConnControl implements HttpResponseInterceptor {
 
     public ResponseConnControl() {

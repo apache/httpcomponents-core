@@ -43,6 +43,7 @@ import org.apache.http.MethodNotSupportedException;
 import org.apache.http.ProtocolException;
 import org.apache.http.ProtocolVersion;
 import org.apache.http.UnsupportedHttpVersionException;
+import org.apache.http.annotation.Immutable;
 import org.apache.http.entity.ByteArrayEntity;
 import org.apache.http.params.HttpParams;
 import org.apache.http.params.DefaultedHttpParams;
@@ -68,6 +69,7 @@ import org.apache.http.util.EntityUtils;
  *
  * @since 4.0
  */
+@Immutable // provided injected dependencies are immutable and deprecated methods are not used
 public class HttpService {
 
     /**

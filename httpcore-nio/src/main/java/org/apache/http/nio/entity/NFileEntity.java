@@ -34,6 +34,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.channels.FileChannel;
 
+import org.apache.http.annotation.NotThreadSafe;
 import org.apache.http.entity.AbstractHttpEntity;
 import org.apache.http.nio.ContentEncoder;
 import org.apache.http.nio.ContentEncoderChannel;
@@ -48,6 +49,7 @@ import org.apache.http.nio.IOControl;
  *
  * @since 4.0
  */
+@NotThreadSafe
 public class NFileEntity extends AbstractHttpEntity implements ProducingNHttpEntity {
 
     private final File file;

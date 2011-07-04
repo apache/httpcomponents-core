@@ -32,6 +32,7 @@ import java.nio.ByteBuffer;
 import java.nio.channels.FileChannel;
 import java.nio.channels.WritableByteChannel;
 
+import org.apache.http.annotation.NotThreadSafe;
 import org.apache.http.impl.io.HttpTransportMetricsImpl;
 import org.apache.http.nio.FileContentEncoder;
 import org.apache.http.nio.reactor.SessionOutputBuffer;
@@ -49,6 +50,7 @@ import org.apache.http.nio.reactor.SessionOutputBuffer;
  *
  * @since 4.0
  */
+@NotThreadSafe
 public class LengthDelimitedEncoder extends AbstractContentEncoder
         implements FileContentEncoder {
 

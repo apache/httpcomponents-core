@@ -34,6 +34,7 @@ import javax.net.ssl.SSLException;
 
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpResponseFactory;
+import org.apache.http.annotation.Immutable;
 import org.apache.http.impl.DefaultHttpResponseFactory;
 import org.apache.http.impl.nio.DefaultNHttpClientConnection;
 import org.apache.http.impl.nio.reactor.SSLIOSession;
@@ -63,6 +64,7 @@ import org.apache.http.protocol.ExecutionContext;
  *
  * @since 4.1
  */
+@Immutable // provided injected dependencies are immutable
 public class SSLClientIOEventDispatch implements IOEventDispatch {
 
     private static final String SSL_SESSION = "http.nio.ssl-session";

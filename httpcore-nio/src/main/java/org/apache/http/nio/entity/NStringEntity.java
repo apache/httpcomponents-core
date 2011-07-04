@@ -34,6 +34,7 @@ import java.io.OutputStream;
 import java.io.UnsupportedEncodingException;
 import java.nio.ByteBuffer;
 
+import org.apache.http.annotation.NotThreadSafe;
 import org.apache.http.entity.AbstractHttpEntity;
 import org.apache.http.nio.ContentEncoder;
 import org.apache.http.nio.IOControl;
@@ -48,6 +49,7 @@ import org.apache.http.protocol.HTTP;
  * @since 4.0
  *
  */
+@NotThreadSafe
 public class NStringEntity extends AbstractHttpEntity implements ProducingNHttpEntity {
 
     protected final byte[] content;

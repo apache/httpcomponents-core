@@ -36,6 +36,7 @@ import org.apache.http.HttpException;
 import org.apache.http.HttpRequest;
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpResponseFactory;
+import org.apache.http.annotation.NotThreadSafe;
 import org.apache.http.impl.nio.codecs.DefaultHttpRequestWriter;
 import org.apache.http.impl.nio.codecs.DefaultHttpResponseParser;
 import org.apache.http.nio.NHttpClientConnection;
@@ -64,6 +65,7 @@ import org.apache.http.params.HttpParams;
  *
  * @since 4.0
  */
+@NotThreadSafe
 public class DefaultNHttpClientConnection
     extends NHttpConnectionBase implements NHttpClientIOTarget {
 

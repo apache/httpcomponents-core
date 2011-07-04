@@ -27,6 +27,8 @@
 
 package org.apache.http.message;
 
+import org.apache.http.annotation.NotThreadSafe;
+
 /**
  * This class represents a context of a parsing operation:
  * <ul>
@@ -36,6 +38,7 @@ package org.apache.http.message;
  *
  * @since 4.0
  */
+@NotThreadSafe
 public class ParserCursor {
 
     private final int lowerBound;

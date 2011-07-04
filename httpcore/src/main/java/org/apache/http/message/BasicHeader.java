@@ -32,12 +32,14 @@ import java.io.Serializable;
 import org.apache.http.Header;
 import org.apache.http.HeaderElement;
 import org.apache.http.ParseException;
+import org.apache.http.annotation.Immutable;
 
 /**
  * Basic implementation of {@link Header}.
  *
  * @since 4.0
  */
+@Immutable
 public class BasicHeader implements Header, Cloneable, Serializable {
 
     private static final long serialVersionUID = -5427236326487562174L;

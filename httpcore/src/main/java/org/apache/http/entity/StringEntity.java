@@ -33,6 +33,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.UnsupportedEncodingException;
 
+import org.apache.http.annotation.NotThreadSafe;
 import org.apache.http.protocol.HTTP;
 
 /**
@@ -41,6 +42,7 @@ import org.apache.http.protocol.HTTP;
  *
  * @since 4.0
  */
+@NotThreadSafe
 public class StringEntity extends AbstractHttpEntity implements Cloneable {
 
     protected final byte[] content;

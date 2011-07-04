@@ -32,6 +32,7 @@ import java.io.OutputStream;
 
 import org.apache.http.Header;
 import org.apache.http.HttpEntity;
+import org.apache.http.annotation.NotThreadSafe;
 import org.apache.http.message.BasicHeader;
 import org.apache.http.protocol.HTTP;
 
@@ -42,6 +43,7 @@ import org.apache.http.protocol.HTTP;
  *
  * @since 4.0
  */
+@NotThreadSafe
 public abstract class AbstractHttpEntity implements HttpEntity {
 
     protected Header contentType;

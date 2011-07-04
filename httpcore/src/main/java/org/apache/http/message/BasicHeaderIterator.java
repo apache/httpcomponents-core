@@ -31,12 +31,14 @@ import java.util.NoSuchElementException;
 
 import org.apache.http.Header;
 import org.apache.http.HeaderIterator;
+import org.apache.http.annotation.NotThreadSafe;
 
 /**
  * Basic implementation of a {@link HeaderIterator}.
  *
  * @since 4.0
  */
+@NotThreadSafe
 public class BasicHeaderIterator implements HeaderIterator {
 
     /**

@@ -34,12 +34,14 @@ import org.apache.http.HttpResponse;
 import org.apache.http.ProtocolVersion;
 import org.apache.http.StatusLine;
 import org.apache.http.ReasonPhraseCatalog;
+import org.apache.http.annotation.NotThreadSafe;
 
 /**
  * Basic implementation of {@link HttpResponse}.
  *
  * @since 4.0
  */
+@NotThreadSafe
 public class BasicHttpResponse extends AbstractHttpMessage
     implements HttpResponse {
 

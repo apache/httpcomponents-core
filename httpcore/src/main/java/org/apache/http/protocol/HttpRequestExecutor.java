@@ -39,6 +39,7 @@ import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
 import org.apache.http.HttpVersion;
 import org.apache.http.ProtocolVersion;
+import org.apache.http.annotation.Immutable;
 import org.apache.http.params.CoreProtocolPNames;
 
 /**
@@ -60,6 +61,7 @@ import org.apache.http.params.CoreProtocolPNames;
  *
  * @since 4.0
  */
+@Immutable
 public class HttpRequestExecutor {
 
     /**
@@ -313,7 +315,7 @@ public class HttpRequestExecutor {
      * <p>
      * This method does <i>not</i> read the response entity, if any.
      * The connection over which content of the response entity is being
-     * streamed from cannot be reused until 
+     * streamed from cannot be reused until
      * {@link org.apache.http.util.EntityUtils#consume(HttpEntity)}
      * has been invoked.
      *

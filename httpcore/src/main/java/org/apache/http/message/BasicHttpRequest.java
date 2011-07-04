@@ -30,6 +30,7 @@ package org.apache.http.message;
 import org.apache.http.HttpRequest;
 import org.apache.http.ProtocolVersion;
 import org.apache.http.RequestLine;
+import org.apache.http.annotation.NotThreadSafe;
 import org.apache.http.params.HttpParams;
 import org.apache.http.params.HttpProtocolParams;
 
@@ -43,6 +44,7 @@ import org.apache.http.params.HttpProtocolParams;
  *
  * @since 4.0
  */
+@NotThreadSafe
 public class BasicHttpRequest extends AbstractHttpMessage implements HttpRequest {
 
     private final String method;

@@ -493,49 +493,6 @@ HttpEntity entity = new FileEntity(staticFile,
     "application/java-archive");
 ]]></programlisting>
             </section>
-            <section id="entity-template">
-                <title><classname>EntityTemplate</classname></title>
-                <para>
-                This is an entity which receives its content from a 
-                <interfacename>ContentProducer</interfacename> interface. Content producers are 
-                objects which produce their content on demand, by writing it out to an output 
-                stream. They are expected to be able produce their content every time they are 
-                requested to do so. So creating a <classname>EntityTemplate</classname>, one is 
-                expected to supply a reference to a content producer, which effectively creates 
-                a repeatable entity.
-                </para>
-                <para>
-                There are no standard content producers in HttpCore. It is basically just a 
-                convenience interface to allow wrapping up complex logic into an entity. To use 
-                this entity one needs to create a class that implements <interfacename>
-                ContentProducer</interfacename> and override the <methodname>
-                ContentProducer#writeTo(OutputStream)</methodname> method. Then, an instance of 
-                custom <interfacename>ContentProducer</interfacename> will be used to write the 
-                full content body to the output stream. For instance, an HTTP server would serve 
-                static files with the <classname>FileEntity</classname>, but running CGI programs 
-                could be done with a <interfacename>ContentProducer</interfacename>, inside which 
-                one could implement custom logic to supply the content as it becomes available. 
-                This way one does not need to buffer it in a string and then use a <classname>
-                StringEntity</classname> or <classname>ByteArrayEntity</classname>.
-                </para>
-                <programlisting><![CDATA[
-ContentProducer myContentProducer = new ContentProducer() {
-
-    public void writeTo(OutputStream out) throws IOException {
-      out.write("ContentProducer rocks! ".getBytes());
-      out.write(("Time requested: " + new Date()).getBytes());
-    }
-    
-};
-
-HttpEntity myEntity = new EntityTemplate(myContentProducer);
-myEntity.writeTo(System.out);
-]]></programlisting>
-                <para>stdout &gt;</para>
-                <programlisting><![CDATA[
-ContentProducer rocks! Time requested: Fri Sep 05 12:20:22 CEST 2008
-]]></programlisting>
-</section>
             <section id="entity-wrapper">
                 <title><classname>HttpEntityWrapper</classname></title>
                 <para>

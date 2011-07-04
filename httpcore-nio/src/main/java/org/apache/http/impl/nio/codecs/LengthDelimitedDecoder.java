@@ -33,6 +33,7 @@ import java.nio.channels.FileChannel;
 import java.nio.channels.ReadableByteChannel;
 
 import org.apache.http.ConnectionClosedException;
+import org.apache.http.annotation.NotThreadSafe;
 import org.apache.http.impl.io.HttpTransportMetricsImpl;
 import org.apache.http.nio.FileContentDecoder;
 import org.apache.http.nio.reactor.SessionInputBuffer;
@@ -50,6 +51,7 @@ import org.apache.http.nio.reactor.SessionInputBuffer;
  *
  * @since 4.0
  */
+@NotThreadSafe
 public class LengthDelimitedDecoder extends AbstractContentDecoder
         implements FileContentDecoder {
 

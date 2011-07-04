@@ -32,6 +32,7 @@ import java.io.IOException;
 import org.apache.http.HttpException;
 import org.apache.http.HttpRequest;
 import org.apache.http.HttpRequestInterceptor;
+import org.apache.http.annotation.Immutable;
 
 /**
  * RequestConnControl is responsible for adding <code>Connection</code> header
@@ -41,6 +42,7 @@ import org.apache.http.HttpRequestInterceptor;
  *
  * @since 4.0
  */
+@Immutable
 public class RequestConnControl implements HttpRequestInterceptor {
 
     public RequestConnControl() {

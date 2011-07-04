@@ -29,6 +29,7 @@ package org.apache.http.impl.nio;
 
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpResponseFactory;
+import org.apache.http.annotation.Immutable;
 import org.apache.http.impl.DefaultHttpResponseFactory;
 import org.apache.http.nio.NHttpClientIOTarget;
 import org.apache.http.nio.NHttpClientHandler;
@@ -54,6 +55,7 @@ import org.apache.http.protocol.ExecutionContext;
  *
  * @since 4.0
  */
+@Immutable // provided injected dependencies are immutable
 public class DefaultClientIOEventDispatch implements IOEventDispatch {
 
     protected final ByteBufferAllocator allocator;

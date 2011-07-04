@@ -37,6 +37,7 @@ import org.apache.http.HttpException;
 import org.apache.http.HttpRequest;
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpResponseFactory;
+import org.apache.http.annotation.NotThreadSafe;
 import org.apache.http.entity.ContentLengthStrategy;
 import org.apache.http.impl.entity.EntityDeserializer;
 import org.apache.http.impl.entity.EntitySerializer;
@@ -68,6 +69,7 @@ import org.apache.http.params.HttpParams;
  *
  * @since 4.0
  */
+@NotThreadSafe
 public abstract class AbstractHttpClientConnection implements HttpClientConnection {
 
     private final EntitySerializer entityserializer;

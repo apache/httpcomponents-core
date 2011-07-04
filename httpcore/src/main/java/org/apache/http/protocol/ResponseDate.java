@@ -33,6 +33,7 @@ import org.apache.http.HttpException;
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpResponseInterceptor;
 import org.apache.http.HttpStatus;
+import org.apache.http.annotation.ThreadSafe;
 
 /**
  * ResponseDate is responsible for adding <code>Date<c/ode> header to the
@@ -41,6 +42,7 @@ import org.apache.http.HttpStatus;
  *
  * @since 4.0
  */
+@ThreadSafe
 public class ResponseDate implements HttpResponseInterceptor {
 
     private static final HttpDateGenerator DATE_GENERATOR = new HttpDateGenerator();

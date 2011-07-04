@@ -36,6 +36,7 @@ import org.apache.http.HttpEntity;
 import org.apache.http.HttpException;
 import org.apache.http.HttpRequest;
 import org.apache.http.HttpResponse;
+import org.apache.http.annotation.Immutable;
 import org.apache.http.nio.ContentDecoder;
 import org.apache.http.nio.ContentEncoder;
 import org.apache.http.nio.NHttpClientConnection;
@@ -67,6 +68,7 @@ import org.apache.http.protocol.HttpProcessor;
  *
  * @since 4.0
  */
+@Immutable // provided injected dependencies are immutable
 public class BufferingHttpClientHandler implements NHttpClientHandler {
 
     private final AsyncNHttpClientHandler asyncHandler;

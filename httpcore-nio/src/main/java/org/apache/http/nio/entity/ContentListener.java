@@ -37,6 +37,7 @@ import org.apache.http.nio.IOControl;
  *
  * @since 4.0
  */
+@Deprecated
 public interface ContentListener {
 
     /**

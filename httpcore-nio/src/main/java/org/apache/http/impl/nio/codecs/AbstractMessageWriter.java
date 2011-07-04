@@ -33,6 +33,7 @@ import java.util.Iterator;
 import org.apache.http.Header;
 import org.apache.http.HttpException;
 import org.apache.http.HttpMessage;
+import org.apache.http.annotation.NotThreadSafe;
 import org.apache.http.message.LineFormatter;
 import org.apache.http.message.BasicLineFormatter;
 import org.apache.http.nio.NHttpMessageWriter;
@@ -46,6 +47,7 @@ import org.apache.http.util.CharArrayBuffer;
  *
  * @since 4.0
  */
+@NotThreadSafe
 public abstract class AbstractMessageWriter<T extends HttpMessage> implements NHttpMessageWriter<T> {
 
     protected final SessionOutputBuffer sessionBuffer;

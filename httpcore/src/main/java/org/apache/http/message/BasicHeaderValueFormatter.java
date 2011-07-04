@@ -29,6 +29,7 @@ package org.apache.http.message;
 
 import org.apache.http.HeaderElement;
 import org.apache.http.NameValuePair;
+import org.apache.http.annotation.Immutable;
 import org.apache.http.util.CharArrayBuffer;
 
 /**
@@ -38,6 +39,7 @@ import org.apache.http.util.CharArrayBuffer;
  *
  * @since 4.0
  */
+@Immutable
 public class BasicHeaderValueFormatter implements HeaderValueFormatter {
 
     /**

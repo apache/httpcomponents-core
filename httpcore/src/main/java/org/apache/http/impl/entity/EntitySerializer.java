@@ -33,6 +33,7 @@ import java.io.OutputStream;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpException;
 import org.apache.http.HttpMessage;
+import org.apache.http.annotation.Immutable;
 import org.apache.http.entity.ContentLengthStrategy;
 import org.apache.http.impl.io.ChunkedOutputStream;
 import org.apache.http.impl.io.ContentLengthOutputStream;
@@ -54,6 +55,7 @@ import org.apache.http.io.SessionOutputBuffer;
  *
  * @since 4.0
  */
+@Immutable // assuming injected dependencies are immutable
 public class EntitySerializer {
 
     private final ContentLengthStrategy lenStrategy;

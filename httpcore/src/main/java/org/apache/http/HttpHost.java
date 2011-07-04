@@ -30,6 +30,7 @@ package org.apache.http;
 import java.io.Serializable;
 import java.util.Locale;
 
+import org.apache.http.annotation.Immutable;
 import org.apache.http.util.LangUtils;
 
 /**
@@ -39,7 +40,7 @@ import org.apache.http.util.LangUtils;
  *
  * @since 4.0
  */
-//@Immutable
+@Immutable
 public final class HttpHost implements Cloneable, Serializable {
 
     private static final long serialVersionUID = -7529410654042457626L;

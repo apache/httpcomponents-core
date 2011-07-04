@@ -37,6 +37,7 @@ import org.apache.http.HttpStatus;
 import org.apache.http.HttpVersion;
 import org.apache.http.ProtocolVersion;
 import org.apache.http.ProtocolException;
+import org.apache.http.annotation.Immutable;
 
 /**
  * ResponseContent is the most important interceptor for outgoing responses.
@@ -48,6 +49,7 @@ import org.apache.http.ProtocolException;
  *
  * @since 4.0
  */
+@Immutable
 public class ResponseContent implements HttpResponseInterceptor {
 
     public ResponseContent() {

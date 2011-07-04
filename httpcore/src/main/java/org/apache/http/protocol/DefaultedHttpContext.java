@@ -27,6 +27,8 @@
 
 package org.apache.http.protocol;
 
+import org.apache.http.annotation.NotThreadSafe;
+
 /**
  * {@link HttpContext} implementation that delegates resolution of an attribute
  * to the given default {@link HttpContext} instance if the attribute is not
@@ -35,6 +37,7 @@ package org.apache.http.protocol;
  *
  * @since 4.0
  */
+@NotThreadSafe
 public final class DefaultedHttpContext implements HttpContext {
 
     private final HttpContext local;

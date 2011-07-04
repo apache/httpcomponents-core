@@ -32,6 +32,7 @@ import java.io.IOException;
 import org.apache.http.HttpException;
 import org.apache.http.HttpRequest;
 import org.apache.http.HttpResponse;
+import org.apache.http.annotation.Immutable;
 import org.apache.http.protocol.HttpContext;
 
 /**
@@ -41,6 +42,7 @@ import org.apache.http.protocol.HttpContext;
  *
  * @since 4.0
  */
+@Immutable
 public abstract class SimpleNHttpRequestHandler implements NHttpRequestHandler {
 
     public final void handle(

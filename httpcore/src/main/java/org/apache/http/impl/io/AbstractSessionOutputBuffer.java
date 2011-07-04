@@ -35,6 +35,7 @@ import java.nio.charset.Charset;
 import java.nio.charset.CharsetEncoder;
 import java.nio.charset.CoderResult;
 
+import org.apache.http.annotation.NotThreadSafe;
 import org.apache.http.io.BufferInfo;
 import org.apache.http.io.SessionOutputBuffer;
 import org.apache.http.io.HttpTransportMetrics;
@@ -63,6 +64,7 @@ import org.apache.http.util.CharArrayBuffer;
  *
  * @since 4.0
  */
+@NotThreadSafe
 public abstract class AbstractSessionOutputBuffer implements SessionOutputBuffer, BufferInfo {
 
     private static final Charset ASCII = Charset.forName("US-ASCII");

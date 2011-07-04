@@ -33,6 +33,7 @@ import java.io.OutputStream;
 
 import org.apache.http.Header;
 import org.apache.http.HttpEntity;
+import org.apache.http.annotation.NotThreadSafe;
 
 /**
  * Base class for wrapping entities.
@@ -43,6 +44,7 @@ import org.apache.http.HttpEntity;
  *
  * @since 4.0
  */
+@NotThreadSafe
 public class HttpEntityWrapper implements HttpEntity {
 
     /** The wrapped entity. */

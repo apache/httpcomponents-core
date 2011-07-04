@@ -30,6 +30,7 @@ package org.apache.http.impl.io;
 import java.io.IOException;
 import java.io.InputStream;
 
+import org.apache.http.annotation.NotThreadSafe;
 import org.apache.http.io.BufferInfo;
 import org.apache.http.io.SessionInputBuffer;
 
@@ -45,6 +46,7 @@ import org.apache.http.io.SessionInputBuffer;
  *
  * @since 4.0
  */
+@NotThreadSafe
 public class IdentityInputStream extends InputStream {
 
     private final SessionInputBuffer in;

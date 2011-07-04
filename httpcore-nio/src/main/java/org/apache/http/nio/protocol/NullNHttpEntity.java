@@ -25,56 +25,59 @@
  *
  */
 
-package org.apache.http.entity;
+package org.apache.http.nio.protocol;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.nio.ByteBuffer;
 
 import org.apache.http.HttpEntity;
+import org.apache.http.entity.HttpEntityWrapper;
+import org.apache.http.nio.ContentDecoder;
+import org.apache.http.nio.IOControl;
+import org.apache.http.nio.entity.ConsumingNHttpEntity;
 
-/**
- * Entity that delegates the process of content generation
- * to a {@link ContentProducer}.
- *
- * @since 4.0
- *
- * @deprecated use custom {@link HttpEntity}
- */
-@Deprecated
-public class EntityTemplate extends AbstractHttpEntity {
+class NullNHttpEntity extends HttpEntityWrapper implements ConsumingNHttpEntity {
 
-    private final ContentProducer contentproducer;
+    private final ByteBuffer buffer;
 
-    public EntityTemplate(final ContentProducer contentproducer) {
-        super();
-        if (contentproducer == null) {
-            throw new IllegalArgumentException("Content producer may not be null");
-        }
-        this.contentproducer = contentproducer;
+    public NullNHttpEntity(final HttpEntity httpEntity) {
+        super(httpEntity);
+        this.buffer = ByteBuffer.allocate(2048);
     }
 
-    public long getContentLength() {
-        return -1;
+    @Override
+    public InputStream getContent() throws IOException, UnsupportedOperationException {
+        throw new UnsupportedOperationException("Does not support blocking methods");
     }
 
-    public InputStream getContent() {
-        throw new UnsupportedOperationException("Entity template does not implement getContent()");
-    }
-
-    public boolean isRepeatable() {
+    @Override
+    public boolean isStreaming() {
         return true;
     }
 
-    public void writeTo(final OutputStream outstream) throws IOException {
-        if (outstream == null) {
-            throw new IllegalArgumentException("Output stream may not be null");
-        }
-        this.contentproducer.writeTo(outstream);
+    @Override
+    public void writeTo(OutputStream out) throws IOException, UnsupportedOperationException {
+        throw new UnsupportedOperationException("Does not support blocking methods");
     }
 
-    public boolean isStreaming() {
-        return false;
+    @Override
+    public void consumeContent() throws IOException {
+        finish();
+    }
+
+    public void consumeContent(
+            final ContentDecoder decoder,
+            final IOControl ioctrl) throws IOException {
+        int lastRead;
+        do {
+            buffer.clear();
+            lastRead = decoder.read(buffer);
+        } while (lastRead > 0);
+    }
+
+    public void finish() {
     }
 
 }

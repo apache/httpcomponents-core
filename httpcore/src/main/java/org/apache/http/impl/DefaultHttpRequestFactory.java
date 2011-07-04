@@ -31,6 +31,7 @@ import org.apache.http.HttpRequest;
 import org.apache.http.HttpRequestFactory;
 import org.apache.http.MethodNotSupportedException;
 import org.apache.http.RequestLine;
+import org.apache.http.annotation.Immutable;
 import org.apache.http.message.BasicHttpEntityEnclosingRequest;
 import org.apache.http.message.BasicHttpRequest;
 
@@ -39,6 +40,7 @@ import org.apache.http.message.BasicHttpRequest;
  *
  * @since 4.0
  */
+@Immutable
 public class DefaultHttpRequestFactory implements HttpRequestFactory {
 
     private static final String[] RFC2616_COMMON_METHODS = {

@@ -31,6 +31,7 @@ import java.io.IOException;
 import java.net.Socket;
 import java.net.SocketTimeoutException;
 
+import org.apache.http.annotation.NotThreadSafe;
 import org.apache.http.io.EofSensor;
 import org.apache.http.io.SessionInputBuffer;
 import org.apache.http.params.HttpParams;
@@ -47,6 +48,7 @@ import org.apache.http.params.HttpParams;
  *
  * @since 4.0
  */
+@NotThreadSafe
 public class SocketInputBuffer extends AbstractSessionInputBuffer implements EofSensor {
 
     private final Socket socket;

@@ -31,12 +31,15 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 
+import org.apache.http.annotation.NotThreadSafe;
+
 /**
  * A generic streamed, non-repeatable entity that obtains its content
  * from an {@link InputStream}.
  *
  * @since 4.0
  */
+@NotThreadSafe
 public class BasicHttpEntity extends AbstractHttpEntity {
 
     private InputStream content;

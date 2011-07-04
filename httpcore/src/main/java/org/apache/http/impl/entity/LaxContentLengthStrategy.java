@@ -33,6 +33,7 @@ import org.apache.http.HttpException;
 import org.apache.http.HttpMessage;
 import org.apache.http.ParseException;
 import org.apache.http.ProtocolException;
+import org.apache.http.annotation.Immutable;
 import org.apache.http.entity.ContentLengthStrategy;
 import org.apache.http.params.HttpParams;
 import org.apache.http.params.CoreProtocolPNames;
@@ -53,6 +54,7 @@ import org.apache.http.protocol.HTTP;
  *
  * @since 4.0
  */
+@Immutable
 public class LaxContentLengthStrategy implements ContentLengthStrategy {
 
     public LaxContentLengthStrategy() {

@@ -30,6 +30,7 @@ package org.apache.http.impl.nio.codecs;
 import java.io.IOException;
 
 import org.apache.http.HttpResponse;
+import org.apache.http.annotation.NotThreadSafe;
 import org.apache.http.message.LineFormatter;
 import org.apache.http.nio.NHttpMessageWriter;
 import org.apache.http.nio.reactor.SessionOutputBuffer;
@@ -41,6 +42,7 @@ import org.apache.http.util.CharArrayBuffer;
  *
  * @since 4.1
  */
+@NotThreadSafe
 public class DefaultHttpResponseWriter extends AbstractMessageWriter<HttpResponse> {
 
     public DefaultHttpResponseWriter(final SessionOutputBuffer buffer,

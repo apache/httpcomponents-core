@@ -37,6 +37,7 @@ import org.apache.http.ProtocolVersion;
 import org.apache.http.protocol.HTTP;
 import org.apache.http.protocol.HttpContext;
 import org.apache.http.TokenIterator;
+import org.apache.http.annotation.Immutable;
 import org.apache.http.message.BasicTokenIterator;
 
 /**
@@ -57,6 +58,7 @@ import org.apache.http.message.BasicTokenIterator;
  *
  * @since 4.0
  */
+@Immutable
 public class DefaultConnectionReuseStrategy implements ConnectionReuseStrategy {
 
     public DefaultConnectionReuseStrategy() {

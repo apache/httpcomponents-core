@@ -41,7 +41,10 @@ import org.apache.http.nio.IOControl;
  * {@link ContentListener}.
  *
  * @since 4.0
+ *
+ * @deprecated use custom {@link ConsumingNHttpEntity}
  */
+@Deprecated
 public class ConsumingNHttpEntityTemplate
     extends HttpEntityWrapper implements ConsumingNHttpEntity {
 

@@ -38,6 +38,7 @@ import org.apache.http.HttpException;
 import org.apache.http.HttpRequest;
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
+import org.apache.http.annotation.ThreadSafe;
 import org.apache.http.nio.ContentDecoder;
 import org.apache.http.nio.ContentEncoder;
 import org.apache.http.nio.IOControl;
@@ -93,6 +94,7 @@ import org.apache.http.protocol.HttpProcessor;
  *
  * @since 4.0
  */
+@ThreadSafe // provided injected dependencies are immutable or thread safe
 public class ThrottlingHttpClientHandler extends NHttpHandlerBase
                                          implements NHttpClientHandler {
 

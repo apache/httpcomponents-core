@@ -35,6 +35,8 @@ import java.io.ObjectOutputStream;
 import java.io.OutputStream;
 import java.io.Serializable;
 
+import org.apache.http.annotation.NotThreadSafe;
+
 /**
  * A streamed entity that obtains its content from a {@link Serializable}.
  * The content obtained from the {@link Serializable} instance can
@@ -43,6 +45,7 @@ import java.io.Serializable;
  *
  * @since 4.0
  */
+@NotThreadSafe
 public class SerializableEntity extends AbstractHttpEntity {
 
     private byte[] objSer;

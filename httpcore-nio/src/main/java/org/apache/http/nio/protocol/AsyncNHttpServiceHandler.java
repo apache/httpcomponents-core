@@ -42,17 +42,16 @@ import org.apache.http.MethodNotSupportedException;
 import org.apache.http.ProtocolException;
 import org.apache.http.ProtocolVersion;
 import org.apache.http.UnsupportedHttpVersionException;
+import org.apache.http.annotation.Immutable;
 import org.apache.http.nio.ContentDecoder;
 import org.apache.http.nio.ContentEncoder;
 import org.apache.http.nio.IOControl;
 import org.apache.http.nio.NHttpServerConnection;
 import org.apache.http.nio.NHttpServiceHandler;
 import org.apache.http.nio.entity.ConsumingNHttpEntity;
-import org.apache.http.nio.entity.ConsumingNHttpEntityTemplate;
 import org.apache.http.nio.entity.NByteArrayEntity;
 import org.apache.http.nio.entity.NHttpEntityWrapper;
 import org.apache.http.nio.entity.ProducingNHttpEntity;
-import org.apache.http.nio.entity.SkipContentListener;
 import org.apache.http.nio.util.ByteBufferAllocator;
 import org.apache.http.nio.util.HeapByteBufferAllocator;
 import org.apache.http.params.DefaultedHttpParams;
@@ -99,6 +98,7 @@ import org.apache.http.util.EncodingUtils;
  *
  * @since 4.0
  */
+@Immutable // provided injected dependencies are immutable
 public class AsyncNHttpServiceHandler extends NHttpHandlerBase
                                       implements NHttpServiceHandler {
 
@@ -211,9 +211,7 @@ public class AsyncNHttpServiceHandler extends NHttpHandlerBase
                     consumingEntity = requestHandler.entityRequest(entityRequest, context);
                 }
                 if (consumingEntity == null) {
-                    consumingEntity = new ConsumingNHttpEntityTemplate(
-                            entityRequest.getEntity(),
-                            new SkipContentListener(this.allocator));
+                    consumingEntity = new NullNHttpEntity(entityRequest.getEntity());
                 }
                 entityRequest.setEntity(consumingEntity);
                 connState.setConsumingEntity(consumingEntity);

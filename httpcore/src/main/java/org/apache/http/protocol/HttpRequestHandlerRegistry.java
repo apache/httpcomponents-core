@@ -29,6 +29,8 @@ package org.apache.http.protocol;
 
 import java.util.Map;
 
+import org.apache.http.annotation.ThreadSafe;
+
 /**
  * Maintains a map of HTTP request handlers keyed by a request URI pattern.
  * <br>
@@ -46,6 +48,7 @@ import java.util.Map;
  *
  * @since 4.0
  */
+@ThreadSafe // provided injected dependencies are thread-safe
 public class HttpRequestHandlerRegistry implements HttpRequestHandlerResolver {
 
     private final UriPatternMatcher matcher;

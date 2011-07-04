@@ -39,6 +39,7 @@ import org.apache.http.HttpRequestInterceptor;
 import org.apache.http.HttpVersion;
 import org.apache.http.ProtocolVersion;
 import org.apache.http.ProtocolException;
+import org.apache.http.annotation.Immutable;
 
 /**
  * RequestTargetHost is responsible for adding <code>Host</code> header. This
@@ -46,6 +47,7 @@ import org.apache.http.ProtocolException;
  *
  * @since 4.0
  */
+@Immutable
 public class RequestTargetHost implements HttpRequestInterceptor {
 
     public RequestTargetHost() {

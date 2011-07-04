@@ -31,6 +31,9 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 
+import org.apache.http.annotation.GuardedBy;
+import org.apache.http.annotation.ThreadSafe;
+
 /**
  * Maintains a map of objects keyed by a request URI pattern.
  * <br>
@@ -46,11 +49,10 @@ import java.util.Map;
  *
  * @since 4.0
  */
+@ThreadSafe
 public class UriPatternMatcher {
 
-    /**
-     * TODO: Replace with ConcurrentHashMap
-     */
+    @GuardedBy("this")
     private final Map<String, Object> map;
 
     public UriPatternMatcher() {

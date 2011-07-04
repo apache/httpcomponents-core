@@ -33,11 +33,14 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 
+import org.apache.http.annotation.NotThreadSafe;
+
 /**
  * A self contained, repeatable entity that obtains its content from a file.
  *
  * @since 4.0
  */
+@NotThreadSafe
 public class FileEntity extends AbstractHttpEntity implements Cloneable {
 
     protected final File file;

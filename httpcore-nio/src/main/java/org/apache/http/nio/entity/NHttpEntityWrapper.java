@@ -35,6 +35,7 @@ import java.nio.channels.Channels;
 import java.nio.channels.ReadableByteChannel;
 
 import org.apache.http.HttpEntity;
+import org.apache.http.annotation.NotThreadSafe;
 import org.apache.http.entity.HttpEntityWrapper;
 import org.apache.http.nio.ContentEncoder;
 import org.apache.http.nio.IOControl;
@@ -45,6 +46,7 @@ import org.apache.http.nio.IOControl;
  *
  * @since 4.0
  */
+@NotThreadSafe
 public class NHttpEntityWrapper
     extends HttpEntityWrapper implements ProducingNHttpEntity {
 

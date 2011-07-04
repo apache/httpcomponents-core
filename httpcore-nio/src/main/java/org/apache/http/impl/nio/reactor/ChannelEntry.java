@@ -29,6 +29,8 @@ package org.apache.http.impl.nio.reactor;
 
 import java.nio.channels.SocketChannel;
 
+import org.apache.http.annotation.Immutable;
+
 /**
  * {@link SocketChannel} entry maintained by the I/O reactor. If the channel
  *  represents an outgoing client connection, this entry also contains the
@@ -36,6 +38,7 @@ import java.nio.channels.SocketChannel;
  *
  * @since 4.0
  */
+@Immutable
 public class ChannelEntry {
 
     private final SocketChannel channel;

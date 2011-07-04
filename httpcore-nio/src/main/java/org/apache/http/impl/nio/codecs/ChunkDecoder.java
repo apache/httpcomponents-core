@@ -38,6 +38,7 @@ import org.apache.http.MalformedChunkCodingException;
 import org.apache.http.TruncatedChunkException;
 import org.apache.http.message.BufferedHeader;
 import org.apache.http.nio.reactor.SessionInputBuffer;
+import org.apache.http.annotation.NotThreadSafe;
 import org.apache.http.impl.io.HttpTransportMetricsImpl;
 import org.apache.http.ParseException;
 import org.apache.http.protocol.HTTP;
@@ -49,6 +50,7 @@ import org.apache.http.util.CharArrayBuffer;
  *
  * @since 4.0
  */
+@NotThreadSafe
 public class ChunkDecoder extends AbstractContentDecoder {
 
     private static final int READ_CONTENT   = 0;

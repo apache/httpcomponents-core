@@ -32,11 +32,14 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 
+import org.apache.http.annotation.NotThreadSafe;
+
 /**
  * A self contained, repeatable entity that obtains its content from a byte array.
  *
  * @since 4.0
  */
+@NotThreadSafe
 public class ByteArrayEntity extends AbstractHttpEntity implements Cloneable {
 
     @Deprecated

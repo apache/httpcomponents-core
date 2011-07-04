@@ -29,11 +29,14 @@ package org.apache.http.impl.nio.reactor;
 
 import java.util.Date;
 
+import org.apache.http.annotation.Immutable;
+
 /**
  * A {@link Throwable} instance along with a time stamp.
  *
  * @since 4.0
  */
+@Immutable
 public class ExceptionEvent {
 
     private final Throwable ex;

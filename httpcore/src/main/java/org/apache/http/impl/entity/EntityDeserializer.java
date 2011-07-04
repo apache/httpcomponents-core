@@ -33,6 +33,7 @@ import org.apache.http.Header;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpException;
 import org.apache.http.HttpMessage;
+import org.apache.http.annotation.Immutable;
 import org.apache.http.entity.BasicHttpEntity;
 import org.apache.http.entity.ContentLengthStrategy;
 import org.apache.http.impl.io.ChunkedInputStream;
@@ -57,6 +58,7 @@ import org.apache.http.protocol.HTTP;
  *
  * @since 4.0
  */
+@Immutable // assuming injected dependencies are immutable
 public class EntityDeserializer {
 
     private final ContentLengthStrategy lenStrategy;

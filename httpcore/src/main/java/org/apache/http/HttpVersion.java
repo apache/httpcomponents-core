@@ -29,6 +29,8 @@ package org.apache.http;
 
 import java.io.Serializable;
 
+import org.apache.http.annotation.Immutable;
+
 /**
  * Represents an HTTP version. HTTP uses a "major.minor" numbering
  * scheme to indicate versions of the protocol.
@@ -42,6 +44,7 @@ import java.io.Serializable;
  *
  * @since 4.0
  */
+@Immutable
 public final class HttpVersion extends ProtocolVersion
     implements Serializable {
 

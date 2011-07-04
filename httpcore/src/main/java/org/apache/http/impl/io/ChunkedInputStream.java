@@ -34,6 +34,7 @@ import org.apache.http.Header;
 import org.apache.http.HttpException;
 import org.apache.http.MalformedChunkCodingException;
 import org.apache.http.TruncatedChunkException;
+import org.apache.http.annotation.NotThreadSafe;
 import org.apache.http.io.BufferInfo;
 import org.apache.http.io.SessionInputBuffer;
 import org.apache.http.util.CharArrayBuffer;
@@ -54,6 +55,7 @@ import org.apache.http.util.CharArrayBuffer;
  * @since 4.0
  *
  */
+@NotThreadSafe
 public class ChunkedInputStream extends InputStream {
 
     private static final int CHUNK_LEN               = 1;

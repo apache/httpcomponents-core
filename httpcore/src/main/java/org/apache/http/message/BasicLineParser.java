@@ -33,6 +33,7 @@ import org.apache.http.ParseException;
 import org.apache.http.RequestLine;
 import org.apache.http.StatusLine;
 import org.apache.http.Header;
+import org.apache.http.annotation.Immutable;
 import org.apache.http.protocol.HTTP;
 import org.apache.http.util.CharArrayBuffer;
 
@@ -54,6 +55,7 @@ import org.apache.http.util.CharArrayBuffer;
  *
  * @since 4.0
  */
+@Immutable
 public class BasicLineParser implements LineParser {
 
     /**

@@ -32,6 +32,7 @@ import org.apache.http.HttpEntity;
 import org.apache.http.HttpEntityEnclosingRequest;
 import org.apache.http.ProtocolVersion;
 import org.apache.http.RequestLine;
+import org.apache.http.annotation.NotThreadSafe;
 import org.apache.http.protocol.HTTP;
 
 /**
@@ -39,6 +40,7 @@ import org.apache.http.protocol.HTTP;
  *
  * @since 4.0
  */
+@NotThreadSafe
 public class BasicHttpEntityEnclosingRequest
             extends BasicHttpRequest implements HttpEntityEnclosingRequest {
 

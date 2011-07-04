@@ -29,12 +29,15 @@ package org.apache.http.nio.util;
 
 import java.nio.ByteBuffer;
 
+import org.apache.http.annotation.Immutable;
+
 /**
  * Allocates {@link ByteBuffer} instances using
  * {@link ByteBuffer#allocate(int)}.
  *
  * @since 4.0
  */
+@Immutable
 public class HeapByteBufferAllocator implements ByteBufferAllocator {
 
     public ByteBuffer allocate(int size) {

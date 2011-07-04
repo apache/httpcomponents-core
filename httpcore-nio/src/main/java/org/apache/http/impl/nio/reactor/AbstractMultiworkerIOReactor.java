@@ -43,6 +43,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.concurrent.ThreadFactory;
 
+import org.apache.http.annotation.ThreadSafe;
 import org.apache.http.nio.params.NIOReactorParams;
 import org.apache.http.nio.reactor.IOEventDispatch;
 import org.apache.http.nio.reactor.IOReactor;
@@ -103,6 +104,7 @@ import org.apache.http.params.HttpParams;
  *
  * @since 4.0
  */
+@ThreadSafe // public methods only
 public abstract class AbstractMultiworkerIOReactor implements IOReactor {
 
     protected volatile IOReactorStatus status;

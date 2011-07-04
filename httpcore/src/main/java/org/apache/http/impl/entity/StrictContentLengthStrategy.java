@@ -32,6 +32,7 @@ import org.apache.http.HttpException;
 import org.apache.http.HttpMessage;
 import org.apache.http.HttpVersion;
 import org.apache.http.ProtocolException;
+import org.apache.http.annotation.Immutable;
 import org.apache.http.entity.ContentLengthStrategy;
 import org.apache.http.protocol.HTTP;
 
@@ -45,6 +46,7 @@ import org.apache.http.protocol.HTTP;
  *
  * @since 4.0
  */
+@Immutable
 public class StrictContentLengthStrategy implements ContentLengthStrategy {
 
     public StrictContentLengthStrategy() {

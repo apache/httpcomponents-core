@@ -29,6 +29,7 @@ package org.apache.http.message;
 
 import org.apache.http.HeaderElement;
 import org.apache.http.NameValuePair;
+import org.apache.http.annotation.NotThreadSafe;
 import org.apache.http.util.LangUtils;
 
 /**
@@ -36,6 +37,7 @@ import org.apache.http.util.LangUtils;
  *
  * @since 4.0
  */
+@NotThreadSafe
 public class BasicHeaderElement implements HeaderElement, Cloneable {
 
     private final String name;

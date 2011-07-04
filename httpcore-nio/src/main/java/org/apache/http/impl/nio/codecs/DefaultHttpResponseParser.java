@@ -32,6 +32,7 @@ import org.apache.http.HttpResponse;
 import org.apache.http.HttpResponseFactory;
 import org.apache.http.StatusLine;
 import org.apache.http.ParseException;
+import org.apache.http.annotation.NotThreadSafe;
 import org.apache.http.message.LineParser;
 import org.apache.http.message.ParserCursor;
 import org.apache.http.nio.NHttpMessageParser;
@@ -51,6 +52,7 @@ import org.apache.http.util.CharArrayBuffer;
  *
  * @since 4.1
  */
+@NotThreadSafe
 public class DefaultHttpResponseParser extends AbstractMessageParser<HttpResponse> {
 
     private final HttpResponseFactory responseFactory;

@@ -32,6 +32,7 @@ import java.net.SocketAddress;
 import java.nio.channels.Channel;
 import java.nio.channels.SelectionKey;
 
+import org.apache.http.annotation.ThreadSafe;
 import org.apache.http.nio.reactor.ListenerEndpoint;
 
 /**
@@ -39,6 +40,7 @@ import org.apache.http.nio.reactor.ListenerEndpoint;
  *
  * @since 4.0
  */
+@ThreadSafe
 public class ListenerEndpointImpl implements ListenerEndpoint {
 
     private volatile boolean completed;

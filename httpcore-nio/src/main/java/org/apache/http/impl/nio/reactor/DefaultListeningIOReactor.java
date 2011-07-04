@@ -41,6 +41,7 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.ThreadFactory;
 
+import org.apache.http.annotation.ThreadSafe;
 import org.apache.http.nio.reactor.IOReactorException;
 import org.apache.http.nio.reactor.IOReactorStatus;
 import org.apache.http.nio.reactor.ListenerEndpoint;
@@ -65,6 +66,7 @@ import org.apache.http.params.HttpParams;
  *
  * @since 4.0
  */
+@ThreadSafe // public methods only
 public class DefaultListeningIOReactor extends AbstractMultiworkerIOReactor
         implements ListeningIOReactor {
 

@@ -29,6 +29,8 @@ package org.apache.http;
 
 import java.io.Serializable;
 
+import org.apache.http.annotation.Immutable;
+
 /**
  * Represents a protocol version. The "major.minor" numbering
  * scheme is used to indicate versions of the protocol.
@@ -41,6 +43,7 @@ import java.io.Serializable;
  *
  * @since 4.0
  */
+@Immutable
 public class ProtocolVersion implements Serializable, Cloneable {
 
     private static final long serialVersionUID = 8950662842175091068L;

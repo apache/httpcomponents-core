@@ -37,6 +37,7 @@ import java.io.OutputStream;
  *
  * @since 4.0
  */
+@Deprecated
 public interface ContentProducer {
 
     void writeTo(OutputStream outstream) throws IOException;

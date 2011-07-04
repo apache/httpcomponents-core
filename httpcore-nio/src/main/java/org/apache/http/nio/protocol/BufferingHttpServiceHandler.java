@@ -38,6 +38,7 @@ import org.apache.http.HttpException;
 import org.apache.http.HttpRequest;
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpResponseFactory;
+import org.apache.http.annotation.Immutable;
 import org.apache.http.nio.ContentDecoder;
 import org.apache.http.nio.ContentEncoder;
 import org.apache.http.nio.NHttpServerConnection;
@@ -72,6 +73,7 @@ import org.apache.http.protocol.HttpRequestHandlerResolver;
  *
  * @since 4.0
  */
+@Immutable // provided injected dependencies are immutable
 public class BufferingHttpServiceHandler implements NHttpServiceHandler {
 
     private final AsyncNHttpServiceHandler asyncHandler;

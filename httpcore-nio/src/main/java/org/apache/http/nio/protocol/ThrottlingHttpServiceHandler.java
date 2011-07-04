@@ -44,6 +44,7 @@ import org.apache.http.MethodNotSupportedException;
 import org.apache.http.ProtocolVersion;
 import org.apache.http.ProtocolException;
 import org.apache.http.UnsupportedHttpVersionException;
+import org.apache.http.annotation.ThreadSafe;
 import org.apache.http.entity.ByteArrayEntity;
 import org.apache.http.nio.ContentDecoder;
 import org.apache.http.nio.ContentEncoder;
@@ -100,6 +101,7 @@ import org.apache.http.util.EntityUtils;
  *
  * @since 4.0
  */
+@ThreadSafe // provided injected dependencies are immutable or thread safe
 public class ThrottlingHttpServiceHandler extends NHttpHandlerBase
                                           implements NHttpServiceHandler {
 

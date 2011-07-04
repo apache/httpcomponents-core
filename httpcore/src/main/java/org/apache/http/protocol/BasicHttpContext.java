@@ -30,6 +30,8 @@ package org.apache.http.protocol;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.apache.http.annotation.NotThreadSafe;
+
 /**
  * Default implementation of {@link HttpContext}.
  * <p>
@@ -38,6 +40,7 @@ import java.util.Map;
  *
  * @since 4.0
  */
+@NotThreadSafe
 public class BasicHttpContext implements HttpContext {
 
     private final HttpContext parentContext;

@@ -32,6 +32,7 @@ import java.io.IOException;
 import org.apache.http.HttpException;
 import org.apache.http.HttpRequest;
 import org.apache.http.HttpRequestInterceptor;
+import org.apache.http.annotation.Immutable;
 import org.apache.http.params.HttpProtocolParams;
 
 /**
@@ -46,6 +47,7 @@ import org.apache.http.params.HttpProtocolParams;
  *
  * @since 4.0
  */
+@Immutable
 public class RequestUserAgent implements HttpRequestInterceptor {
 
     public RequestUserAgent() {

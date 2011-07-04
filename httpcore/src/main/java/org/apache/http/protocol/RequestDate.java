@@ -33,6 +33,7 @@ import org.apache.http.HttpException;
 import org.apache.http.HttpRequest;
 import org.apache.http.HttpEntityEnclosingRequest;
 import org.apache.http.HttpRequestInterceptor;
+import org.apache.http.annotation.ThreadSafe;
 
 /**
  * RequestDate interceptor is responsible for adding <code>Date</code> header
@@ -41,6 +42,7 @@ import org.apache.http.HttpRequestInterceptor;
  *
  * @since 4.0
  */
+@ThreadSafe
 public class RequestDate implements HttpRequestInterceptor {
 
     private static final HttpDateGenerator DATE_GENERATOR = new HttpDateGenerator();

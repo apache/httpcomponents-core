@@ -32,6 +32,7 @@ import java.net.SocketAddress;
 import java.nio.channels.Channel;
 import java.nio.channels.SelectionKey;
 
+import org.apache.http.annotation.ThreadSafe;
 import org.apache.http.nio.reactor.IOSession;
 import org.apache.http.nio.reactor.SessionRequest;
 import org.apache.http.nio.reactor.SessionRequestCallback;
@@ -41,6 +42,7 @@ import org.apache.http.nio.reactor.SessionRequestCallback;
  *
  * @since 4.0
  */
+@ThreadSafe
 public class SessionRequestImpl implements SessionRequest {
 
     private volatile boolean completed;

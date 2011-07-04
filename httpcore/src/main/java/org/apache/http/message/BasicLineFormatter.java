@@ -32,6 +32,7 @@ import org.apache.http.RequestLine;
 import org.apache.http.StatusLine;
 import org.apache.http.Header;
 import org.apache.http.FormattedHeader;
+import org.apache.http.annotation.Immutable;
 import org.apache.http.util.CharArrayBuffer;
 
 /**
@@ -46,6 +47,7 @@ import org.apache.http.util.CharArrayBuffer;
  *
  * @since 4.0
  */
+@Immutable
 public class BasicLineFormatter implements LineFormatter {
 
     /**

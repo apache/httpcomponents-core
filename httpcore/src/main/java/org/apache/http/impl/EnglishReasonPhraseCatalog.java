@@ -31,6 +31,7 @@ import java.util.Locale;
 
 import org.apache.http.HttpStatus;
 import org.apache.http.ReasonPhraseCatalog;
+import org.apache.http.annotation.Immutable;
 
 /**
  * English reason phrases for HTTP status codes.
@@ -39,6 +40,7 @@ import org.apache.http.ReasonPhraseCatalog;
  *
  * @since 4.0
  */
+@Immutable
 public class EnglishReasonPhraseCatalog implements ReasonPhraseCatalog {
 
     // static array with english reason phrases defined below

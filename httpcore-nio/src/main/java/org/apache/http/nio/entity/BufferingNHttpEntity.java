@@ -32,6 +32,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 
 import org.apache.http.HttpEntity;
+import org.apache.http.annotation.NotThreadSafe;
 import org.apache.http.entity.HttpEntityWrapper;
 import org.apache.http.nio.ContentDecoder;
 import org.apache.http.nio.IOControl;
@@ -46,6 +47,7 @@ import org.apache.http.nio.util.SimpleInputBuffer;
  *
  * @since 4.0
  */
+@NotThreadSafe
 public class BufferingNHttpEntity extends HttpEntityWrapper implements
         ConsumingNHttpEntity {
 

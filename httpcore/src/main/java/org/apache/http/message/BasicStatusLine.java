@@ -31,14 +31,14 @@ import java.io.Serializable;
 
 import org.apache.http.ProtocolVersion;
 import org.apache.http.StatusLine;
+import org.apache.http.annotation.Immutable;
 
 /**
  * Basic implementation of {@link StatusLine}
  *
- * @version $Id$
- *
  * @since 4.0
  */
+@Immutable
 public class BasicStatusLine implements StatusLine, Cloneable, Serializable {
 
     private static final long serialVersionUID = -2443303766890459269L;

@@ -31,6 +31,7 @@ import java.io.InterruptedIOException;
 import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.ReentrantLock;
 
+import org.apache.http.annotation.ThreadSafe;
 import org.apache.http.nio.ContentDecoder;
 import org.apache.http.nio.IOControl;
 
@@ -50,6 +51,7 @@ import org.apache.http.nio.IOControl;
  *
  * @since 4.0
  */
+@ThreadSafe
 public class SharedInputBuffer extends ExpandableBuffer implements ContentInputBuffer {
 
     private final IOControl ioctrl;

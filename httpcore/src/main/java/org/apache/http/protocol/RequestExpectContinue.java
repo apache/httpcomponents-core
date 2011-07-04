@@ -36,6 +36,7 @@ import org.apache.http.HttpRequest;
 import org.apache.http.HttpRequestInterceptor;
 import org.apache.http.HttpVersion;
 import org.apache.http.ProtocolVersion;
+import org.apache.http.annotation.Immutable;
 import org.apache.http.params.HttpProtocolParams;
 
 /**
@@ -51,6 +52,7 @@ import org.apache.http.params.HttpProtocolParams;
  *
  * @since 4.0
  */
+@Immutable
 public class RequestExpectContinue implements HttpRequestInterceptor {
 
     public RequestExpectContinue() {

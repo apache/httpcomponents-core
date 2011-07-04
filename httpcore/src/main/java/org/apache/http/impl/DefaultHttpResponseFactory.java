@@ -37,6 +37,7 @@ import org.apache.http.message.BasicHttpResponse;
 import org.apache.http.message.BasicStatusLine;
 import org.apache.http.protocol.HttpContext;
 import org.apache.http.ReasonPhraseCatalog;
+import org.apache.http.annotation.Immutable;
 import org.apache.http.impl.EnglishReasonPhraseCatalog;
 
 /**
@@ -44,6 +45,7 @@ import org.apache.http.impl.EnglishReasonPhraseCatalog;
  *
  * @since 4.0
  */
+@Immutable
 public class DefaultHttpResponseFactory implements HttpResponseFactory {
 
     /** The catalog for looking up reason phrases. */

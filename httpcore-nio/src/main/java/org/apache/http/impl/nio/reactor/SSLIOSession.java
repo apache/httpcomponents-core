@@ -27,6 +27,7 @@
 
 package org.apache.http.impl.nio.reactor;
 
+import org.apache.http.annotation.ThreadSafe;
 import org.apache.http.nio.reactor.EventMask;
 import org.apache.http.nio.reactor.IOSession;
 import org.apache.http.nio.reactor.SessionBufferStatus;
@@ -52,6 +53,7 @@ import java.nio.channels.SelectionKey;
  *
  * @since 4.0
  */
+@ThreadSafe
 public class SSLIOSession implements IOSession, SessionBufferStatus {
 
     private final IOSession session;

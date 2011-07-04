@@ -36,15 +36,14 @@ import org.apache.http.HttpException;
 import org.apache.http.HttpRequest;
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
+import org.apache.http.annotation.Immutable;
 import org.apache.http.nio.ContentDecoder;
 import org.apache.http.nio.ContentEncoder;
 import org.apache.http.nio.NHttpClientConnection;
 import org.apache.http.nio.NHttpClientHandler;
 import org.apache.http.nio.entity.ConsumingNHttpEntity;
-import org.apache.http.nio.entity.ConsumingNHttpEntityTemplate;
 import org.apache.http.nio.entity.NHttpEntityWrapper;
 import org.apache.http.nio.entity.ProducingNHttpEntity;
-import org.apache.http.nio.entity.SkipContentListener;
 import org.apache.http.nio.util.ByteBufferAllocator;
 import org.apache.http.nio.util.HeapByteBufferAllocator;
 import org.apache.http.params.CoreProtocolPNames;
@@ -91,6 +90,7 @@ import org.apache.http.protocol.HttpProcessor;
  *
  * @since 4.0
  */
+@Immutable // provided injected dependencies are immutable
 public class AsyncNHttpClientHandler extends NHttpHandlerBase
                                      implements NHttpClientHandler {
 
@@ -323,8 +323,7 @@ public class AsyncNHttpClientHandler extends NHttpHandlerBase
                     ConsumingNHttpEntity consumingEntity = this.execHandler.responseEntity(
                             response, context);
                     if (consumingEntity == null) {
-                        consumingEntity = new ConsumingNHttpEntityTemplate(
-                                entity, new SkipContentListener(this.allocator));
+                        consumingEntity = new NullNHttpEntity(entity);
                     }
                     response.setEntity(consumingEntity);
                     connState.setConsumingEntity(consumingEntity);

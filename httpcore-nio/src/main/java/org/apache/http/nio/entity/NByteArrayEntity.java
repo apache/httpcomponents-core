@@ -33,6 +33,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.ByteBuffer;
 
+import org.apache.http.annotation.NotThreadSafe;
 import org.apache.http.entity.AbstractHttpEntity;
 import org.apache.http.nio.ContentEncoder;
 import org.apache.http.nio.IOControl;
@@ -45,6 +46,7 @@ import org.apache.http.nio.protocol.AsyncNHttpServiceHandler;
  * @see AsyncNHttpServiceHandler
  * @since 4.0
  */
+@NotThreadSafe
 public class NByteArrayEntity extends AbstractHttpEntity implements ProducingNHttpEntity {
 
     private final byte[] b;

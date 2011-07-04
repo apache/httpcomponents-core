@@ -32,6 +32,7 @@ import java.io.IOException;
 import org.apache.http.HttpException;
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpResponseInterceptor;
+import org.apache.http.annotation.Immutable;
 import org.apache.http.params.CoreProtocolPNames;
 
 /**
@@ -46,6 +47,7 @@ import org.apache.http.params.CoreProtocolPNames;
  *
  * @since 4.0
  */
+@Immutable
 public class ResponseServer implements HttpResponseInterceptor {
 
     public ResponseServer() {

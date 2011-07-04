@@ -37,6 +37,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.apache.http.annotation.ThreadSafe;
 import org.apache.http.nio.reactor.IOSession;
 import org.apache.http.nio.reactor.SessionBufferStatus;
 
@@ -45,6 +46,7 @@ import org.apache.http.nio.reactor.SessionBufferStatus;
  *
  * @since 4.0
  */
+@ThreadSafe
 public class IOSessionImpl implements IOSession {
 
     private final SelectionKey key;
@@ -63,7 +65,7 @@ public class IOSessionImpl implements IOSession {
     private long lastReadTime;
     private long lastWriteTime;
     private long lastAccessTime;
-    
+
     /**
      * Creates new instance of IOSessionImpl.
      *
@@ -289,7 +291,7 @@ public class IOSessionImpl implements IOSession {
         this.lastWriteTime = now;
         this.lastAccessTime = now;
     }
-    
+
     private static void formatOps(final StringBuilder buffer, int ops) {
         if ((ops & SelectionKey.OP_READ) > 0) {
             buffer.append('r');

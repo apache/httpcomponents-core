@@ -26,11 +26,14 @@
 
 package org.apache.http.params;
 
+import org.apache.http.annotation.ThreadSafe;
+
 /**
  * Thread-safe extension of the {@link BasicHttpParams}.
  *
  * @since 4.1
  */
+@ThreadSafe
 public class SyncBasicHttpParams extends BasicHttpParams {
 
     private static final long serialVersionUID = 5387834869062660642L;

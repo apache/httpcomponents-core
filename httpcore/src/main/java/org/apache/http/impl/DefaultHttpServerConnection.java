@@ -30,6 +30,7 @@ package org.apache.http.impl;
 import java.io.IOException;
 import java.net.Socket;
 
+import org.apache.http.annotation.NotThreadSafe;
 import org.apache.http.params.HttpConnectionParams;
 import org.apache.http.params.HttpParams;
 
@@ -49,6 +50,7 @@ import org.apache.http.params.HttpParams;
  *
  * @since 4.0
  */
+@NotThreadSafe
 public class DefaultHttpServerConnection extends SocketHttpServerConnection {
 
     public DefaultHttpServerConnection() {
