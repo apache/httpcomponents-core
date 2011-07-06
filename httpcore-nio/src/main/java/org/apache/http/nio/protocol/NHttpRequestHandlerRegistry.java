@@ -50,10 +50,10 @@ import org.apache.http.protocol.UriPatternMatcher;
  */
 public class NHttpRequestHandlerRegistry implements NHttpRequestHandlerResolver {
 
-    private final UriPatternMatcher matcher;
+    private final UriPatternMatcher<NHttpRequestHandler> matcher;
 
     public NHttpRequestHandlerRegistry() {
-        matcher = new UriPatternMatcher();
+        matcher = new UriPatternMatcher<NHttpRequestHandler>();
     }
 
     /**
@@ -80,12 +80,12 @@ public class NHttpRequestHandlerRegistry implements NHttpRequestHandlerResolver 
      * Sets handlers from the given map.
      * @param map the map containing handlers keyed by their URI patterns.
      */
-    public void setHandlers(final Map<String, Object> map) {
+    public void setHandlers(final Map<String, NHttpRequestHandler> map) {
         matcher.setObjects(map);
     }
 
     public NHttpRequestHandler lookup(String requestURI) {
-        return (NHttpRequestHandler) matcher.lookup(requestURI);
+        return matcher.lookup(requestURI);
     }
 
 }

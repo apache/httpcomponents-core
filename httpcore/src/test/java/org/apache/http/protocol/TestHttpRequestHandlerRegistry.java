@@ -37,8 +37,6 @@ import org.apache.http.HttpResponse;
 import org.junit.Assert;
 import org.junit.Test;
 
-/**
- */
 public class TestHttpRequestHandlerRegistry {
 
     private static class DummyHttpRequestHandler implements HttpRequestHandler {
@@ -78,7 +76,7 @@ public class TestHttpRequestHandlerRegistry {
         h = registry.lookup("/h1");
         Assert.assertNull(h);
 
-        Map<String, Object> map = new HashMap<String, Object>();
+        Map<String, HttpRequestHandler> map = new HashMap<String, HttpRequestHandler>();
         map.put("/a1", h1);
         map.put("/a2", h2);
         map.put("/a3", h3);
@@ -92,6 +90,12 @@ public class TestHttpRequestHandlerRegistry {
         h = registry.lookup("/a1");
         Assert.assertNotNull(h);
         Assert.assertTrue(h1 == h);
+    }
+
+    @Test(expected=IllegalArgumentException.class)
+    public void testRegisterNull() throws Exception {
+        HttpRequestHandlerRegistry registry = new HttpRequestHandlerRegistry();
+        registry.register(null, null);
     }
 
     @Test

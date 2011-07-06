@@ -287,14 +287,12 @@ public class HttpService {
                 }
             }
 
+            context.setAttribute(ExecutionContext.HTTP_REQUEST, request);
+
             if (response == null) {
                 response = this.responseFactory.newHttpResponse(ver, HttpStatus.SC_OK, context);
                 response.setParams(
                         new DefaultedHttpParams(response.getParams(), this.params));
-
-                context.setAttribute(ExecutionContext.HTTP_REQUEST, request);
-                context.setAttribute(ExecutionContext.HTTP_RESPONSE, response);
-
                 this.processor.process(request, context);
                 doService(request, response, context);
             }
@@ -313,6 +311,8 @@ public class HttpService {
                     new DefaultedHttpParams(response.getParams(), this.params));
             handleException(ex, response);
         }
+
+        context.setAttribute(ExecutionContext.HTTP_RESPONSE, response);
 
         this.processor.process(response, context);
         conn.sendResponseHeader(response);
@@ -342,7 +342,11 @@ public class HttpService {
         } else {
             response.setStatusCode(HttpStatus.SC_INTERNAL_SERVER_ERROR);
         }
-        byte[] msg = EncodingUtils.getAsciiBytes(ex.getMessage());
+        String message = ex.getMessage();
+        if (message == null) {
+            message = ex.toString();
+        }
+        byte[] msg = EncodingUtils.getAsciiBytes(message);
         ByteArrayEntity entity = new ByteArrayEntity(msg);
         entity.setContentType("text/plain; charset=US-ASCII");
         response.setEntity(entity);

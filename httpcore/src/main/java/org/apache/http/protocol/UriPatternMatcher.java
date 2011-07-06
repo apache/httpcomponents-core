@@ -50,14 +50,14 @@ import org.apache.http.annotation.ThreadSafe;
  * @since 4.0
  */
 @ThreadSafe
-public class UriPatternMatcher {
+public class UriPatternMatcher<T> {
 
     @GuardedBy("this")
-    private final Map<String, Object> map;
+    private final Map<String, T> map;
 
     public UriPatternMatcher() {
         super();
-        this.map = new HashMap<String, Object>();
+        this.map = new HashMap<String, T>();
     }
 
     /**
@@ -66,7 +66,7 @@ public class UriPatternMatcher {
      * @param pattern the pattern to register the handler for.
      * @param obj the object.
      */
-    public synchronized void register(final String pattern, final Object obj) {
+    public synchronized void register(final String pattern, final T obj) {
         if (pattern == null) {
             throw new IllegalArgumentException("URI request pattern may not be null");
         }
@@ -89,7 +89,7 @@ public class UriPatternMatcher {
      * @deprecated use {@link #setObjects(Map)}
      */
     @Deprecated
-    public synchronized void setHandlers(final Map<String, Object> map) {
+    public synchronized void setHandlers(final Map<String, T> map) {
         if (map == null) {
             throw new IllegalArgumentException("Map of handlers may not be null");
         }
@@ -101,7 +101,7 @@ public class UriPatternMatcher {
      * Sets objects from the given map.
      * @param map the map containing objects keyed by their URI patterns.
      */
-    public synchronized void setObjects(final Map<String, Object> map) {
+    public synchronized void setObjects(final Map<String, T> map) {
         if (map == null) {
             throw new IllegalArgumentException("Map of handlers may not be null");
         }
@@ -115,7 +115,7 @@ public class UriPatternMatcher {
      * @param requestURI the request URI
      * @return object or <code>null</code> if no match is found.
      */
-    public synchronized Object lookup(String requestURI) {
+    public synchronized T lookup(String requestURI) {
         if (requestURI == null) {
             throw new IllegalArgumentException("Request URI may not be null");
         }
@@ -126,7 +126,7 @@ public class UriPatternMatcher {
         }
 
         // direct match?
-        Object obj = this.map.get(requestURI);
+        T obj = this.map.get(requestURI);
         if (obj == null) {
             // pattern match?
             String bestMatch = null;

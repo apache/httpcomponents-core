@@ -28,7 +28,6 @@
 package org.apache.http.protocol;
 
 import java.io.IOException;
-import java.net.ProtocolException;
 
 import org.apache.http.HttpClientConnection;
 import org.apache.http.HttpEntity;
@@ -38,6 +37,7 @@ import org.apache.http.HttpRequest;
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
 import org.apache.http.HttpVersion;
+import org.apache.http.ProtocolException;
 import org.apache.http.ProtocolVersion;
 import org.apache.http.annotation.Immutable;
 import org.apache.http.params.CoreProtocolPNames;

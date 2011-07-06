@@ -51,10 +51,10 @@ import org.apache.http.annotation.ThreadSafe;
 @ThreadSafe // provided injected dependencies are thread-safe
 public class HttpRequestHandlerRegistry implements HttpRequestHandlerResolver {
 
-    private final UriPatternMatcher matcher;
+    private final UriPatternMatcher<HttpRequestHandler> matcher;
 
     public HttpRequestHandlerRegistry() {
-        matcher = new UriPatternMatcher();
+        matcher = new UriPatternMatcher<HttpRequestHandler>();
     }
 
     /**
@@ -87,12 +87,12 @@ public class HttpRequestHandlerRegistry implements HttpRequestHandlerResolver {
      * Sets handlers from the given map.
      * @param map the map containing handlers keyed by their URI patterns.
      */
-    public void setHandlers(final Map<String, Object> map) {
+    public void setHandlers(final Map<String, HttpRequestHandler> map) {
         matcher.setObjects(map);
     }
 
     public HttpRequestHandler lookup(final String requestURI) {
-        return (HttpRequestHandler) matcher.lookup(requestURI);
+        return matcher.lookup(requestURI);
     }
 
 }

@@ -27,8 +27,11 @@
 
 package org.apache.http.protocol;
 
+import java.net.InetAddress;
+
 import org.apache.http.Header;
 import org.apache.http.HttpHost;
+import org.apache.http.HttpInetConnection;
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
 import org.apache.http.HttpVersion;
@@ -42,6 +45,7 @@ import org.apache.http.message.BasicHttpResponse;
 import org.apache.http.params.CoreProtocolPNames;
 import org.junit.Assert;
 import org.junit.Test;
+import org.mockito.Mockito;
 
 public class TestStandardInterceptors {
 
@@ -54,6 +58,16 @@ public class TestStandardInterceptors {
         Header header = request.getFirstHeader(HTTP.CONN_DIRECTIVE);
         Assert.assertNotNull(header);
         Assert.assertEquals(HTTP.CONN_KEEP_ALIVE, header.getValue());
+    }
+
+    @Test
+    public void testRequestConnControlConnectMethod() throws Exception {
+        HttpContext context = new BasicHttpContext(null);
+        BasicHttpRequest request = new BasicHttpRequest("CONNECT", "/");
+        RequestConnControl interceptor = new RequestConnControl();
+        interceptor.process(request, context);
+        Header header = request.getFirstHeader(HTTP.CONN_DIRECTIVE);
+        Assert.assertNull(header);
     }
 
     @Test
@@ -346,6 +360,37 @@ public class TestStandardInterceptors {
         Header header = request.getFirstHeader(HTTP.TARGET_HOST);
         Assert.assertNotNull(header);
         Assert.assertEquals("somehost:8080", header.getValue());
+    }
+
+    @Test
+    public void testRequestTargetHostFallback() throws Exception {
+        HttpContext context = new BasicHttpContext(null);
+        BasicHttpRequest request = new BasicHttpRequest("GET", "/");
+        InetAddress address = Mockito.mock(InetAddress.class);
+        Mockito.when(address.getHostName()).thenReturn("somehost");
+        HttpInetConnection conn = Mockito.mock(HttpInetConnection.class);
+        Mockito.when(conn.getRemoteAddress()).thenReturn(address);
+        Mockito.when(conn.getRemotePort()).thenReturn(1234);
+        context.setAttribute(ExecutionContext.HTTP_TARGET_HOST, null);
+        context.setAttribute(ExecutionContext.HTTP_CONNECTION, conn);
+        RequestTargetHost interceptor = new RequestTargetHost();
+        interceptor.process(request, context);
+        Header header = request.getFirstHeader(HTTP.TARGET_HOST);
+        Assert.assertNotNull(header);
+        Assert.assertEquals("somehost:1234", header.getValue());
+    }
+
+    @Test(expected=ProtocolException.class)
+    public void testRequestTargetHostFallbackFailure() throws Exception {
+        HttpContext context = new BasicHttpContext(null);
+        BasicHttpRequest request = new BasicHttpRequest("GET", "/");
+        HttpInetConnection conn = Mockito.mock(HttpInetConnection.class);
+        Mockito.when(conn.getRemoteAddress()).thenReturn(null);
+        Mockito.when(conn.getRemotePort()).thenReturn(1234);
+        context.setAttribute(ExecutionContext.HTTP_TARGET_HOST, null);
+        context.setAttribute(ExecutionContext.HTTP_CONNECTION, conn);
+        RequestTargetHost interceptor = new RequestTargetHost();
+        interceptor.process(request, context);
     }
 
     @Test
