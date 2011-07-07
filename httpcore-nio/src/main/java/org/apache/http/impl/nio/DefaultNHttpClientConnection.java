@@ -267,11 +267,11 @@ public class DefaultNHttpClientConnection
             final InetSocketAddress remote = ((InetSocketAddress) this.session.getRemoteAddress());
             final InetSocketAddress local  = ((InetSocketAddress) this.session.getLocalAddress());
 
-            buf.append(local.getAddress().getHostAddress())
+            buf.append(local.getAddress() != null ? local.getAddress().getHostAddress() : local.getAddress())
             .append(':')
             .append(local.getPort())
             .append("->")
-            .append(remote.getAddress().getHostAddress())
+            .append(remote.getAddress() != null ? remote.getAddress().getHostAddress() : remote.getAddress())
             .append(':')
             .append(remote.getPort());
 

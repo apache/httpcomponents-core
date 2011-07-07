@@ -318,11 +318,11 @@ public class IOSessionImpl implements IOSession {
             final InetSocketAddress remote = ((InetSocketAddress) getRemoteAddress());
             final InetSocketAddress local  = ((InetSocketAddress) getLocalAddress());
 
-            buffer.append(local.getAddress().getHostAddress())
+            buffer.append(local.getAddress() != null ? local.getAddress().getHostAddress() : local.getAddress())
             .append(':')
             .append(local.getPort())
             .append("<->")
-            .append(remote.getAddress().getHostAddress())
+            .append(remote.getAddress() != null ? remote.getAddress().getHostAddress() : remote.getAddress())
             .append(':')
             .append(remote.getPort());
 
