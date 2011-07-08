@@ -265,19 +265,19 @@ public class IOSessionImpl implements IOSession {
         this.attributes.put(name, obj);
     }
 
-    synchronized long getStartedTime() {
+    public synchronized long getStartedTime() {
         return this.startedTime;
     }
 
-    synchronized long getLastReadTime() {
+    public synchronized long getLastReadTime() {
         return this.lastReadTime;
     }
 
-    synchronized long getLastWriteTime() {
+    public synchronized long getLastWriteTime() {
         return this.lastWriteTime;
     }
 
-    synchronized long getLastAccessTime() {
+    public synchronized long getLastAccessTime() {
         return this.lastAccessTime;
     }
 
