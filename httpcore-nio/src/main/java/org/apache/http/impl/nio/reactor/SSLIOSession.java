@@ -450,22 +450,6 @@ public class SSLIOSession implements IOSession, SessionBufferStatus {
         this.session.setAttribute(name, obj);
     }
 
-    public long getStartedTime() {
-        return this.session.getStartedTime();
-    }
-
-    public long getLastReadTime() {
-        return this.session.getLastReadTime();
-    }
-
-    public long getLastWriteTime() {
-        return this.session.getLastWriteTime();
-    }
-
-    public long getLastAccessTime() {
-        return this.session.getLastAccessTime();
-    }
-
     @Override
     public String toString() {
         StringBuilder buffer = new StringBuilder();
