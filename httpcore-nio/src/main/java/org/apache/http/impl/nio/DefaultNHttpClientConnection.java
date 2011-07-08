@@ -29,6 +29,7 @@ package org.apache.http.impl.nio;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
+import java.net.SocketAddress;
 
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpEntityEnclosingRequest;
@@ -261,11 +262,18 @@ public class DefaultNHttpClientConnection
     public String toString() {
         StringBuilder buf = new StringBuilder();
 
-        if (this.session.getRemoteAddress() instanceof InetSocketAddress &&
-            this.session.getLocalAddress()  instanceof InetSocketAddress) {
+        final SocketAddress remoteAddress = this.session.getRemoteAddress();
+        final SocketAddress localAddress = this.session.getLocalAddress();
 
-            final InetSocketAddress remote = ((InetSocketAddress) this.session.getRemoteAddress());
-            final InetSocketAddress local  = ((InetSocketAddress) this.session.getLocalAddress());
+        if (remoteAddress == null || localAddress == null) {
+            return "[CLOSED]";
+        }
+
+        if (remoteAddress instanceof InetSocketAddress &&
+            localAddress instanceof InetSocketAddress) {
+
+            final InetSocketAddress remote = ((InetSocketAddress) remoteAddress);
+            final InetSocketAddress local  = ((InetSocketAddress) localAddress);
 
             buf.append(local.getAddress() != null ? local.getAddress().getHostAddress() : local.getAddress())
             .append(':')
@@ -276,9 +284,9 @@ public class DefaultNHttpClientConnection
             .append(remote.getPort());
 
         } else {
-            buf.append(this.session.getLocalAddress())
+            buf.append(localAddress)
             .append("->")
-            .append(this.session.getRemoteAddress());
+            .append(remoteAddress);
         }
 
         return buf.toString();

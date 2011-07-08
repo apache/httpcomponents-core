@@ -312,24 +312,29 @@ public class IOSessionImpl implements IOSession {
     public synchronized String toString() {
         StringBuilder buffer = new StringBuilder();
 
-        if (getRemoteAddress() instanceof InetSocketAddress &&
-            getLocalAddress()  instanceof InetSocketAddress) {
+        final SocketAddress remoteAddress = getRemoteAddress();
+        final SocketAddress localAddress = getLocalAddress();
 
-            final InetSocketAddress remote = ((InetSocketAddress) getRemoteAddress());
-            final InetSocketAddress local  = ((InetSocketAddress) getLocalAddress());
+        if (remoteAddress != null && localAddress != null) {
+            if (remoteAddress instanceof InetSocketAddress &&
+                localAddress instanceof InetSocketAddress) {
 
-            buffer.append(local.getAddress() != null ? local.getAddress().getHostAddress() : local.getAddress())
-            .append(':')
-            .append(local.getPort())
-            .append("<->")
-            .append(remote.getAddress() != null ? remote.getAddress().getHostAddress() : remote.getAddress())
-            .append(':')
-            .append(remote.getPort());
+                final InetSocketAddress remote = ((InetSocketAddress) remoteAddress);
+                final InetSocketAddress local  = ((InetSocketAddress) localAddress);
 
-        } else {
-            buffer.append(getLocalAddress())
-            .append("<->")
-            .append(getRemoteAddress());
+                buffer.append(local.getAddress() != null ? local.getAddress().getHostAddress() : local.getAddress())
+                .append(':')
+                .append(local.getPort())
+                .append("<->")
+                .append(remote.getAddress() != null ? remote.getAddress().getHostAddress() : remote.getAddress())
+                .append(':')
+                .append(remote.getPort());
+
+            } else {
+                buffer.append(localAddress)
+                .append("<->")
+                .append(remoteAddress);
+            }
         }
 
         buffer.append("[");
