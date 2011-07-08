@@ -233,27 +233,4 @@ public interface IOSession {
      */
     Object removeAttribute(String name);
 
-    /**
-     * Return the IO Session start time in milliseconds
-     * @return IO Session start time in milliseconds
-     */
-    public long getStartedTime();
-
-    /**
-     * Return the IO Session last read time in milliseconds
-     * @return IO Session last read time in milliseconds
-     */
-    public long getLastReadTime();
-
-    /**
-     * Return the IO Session last write time in milliseconds
-     * @return IO Session last write time in milliseconds
-     */
-    public long getLastWriteTime();
-
-    /**
-     * Return the IO Session last access time in milliseconds
-     * @return IO Session last access time in milliseconds
-     */
-    public long getLastAccessTime();
 }
