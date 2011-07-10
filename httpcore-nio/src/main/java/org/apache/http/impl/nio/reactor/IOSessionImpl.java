@@ -308,35 +308,28 @@ public class IOSessionImpl implements IOSession {
         }
     }
 
+    private static void formatAddress(final StringBuilder buffer, final SocketAddress socketAddress) {
+        if (socketAddress instanceof InetSocketAddress) {
+            InetSocketAddress addr = ((InetSocketAddress) socketAddress);
+            buffer.append(addr.getAddress() != null ? addr.getAddress().getHostAddress() :
+                addr.getAddress())
+            .append(':')
+            .append(addr.getPort());
+        } else {
+            buffer.append(socketAddress);
+        }
+    }
+
     @Override
     public synchronized String toString() {
         StringBuilder buffer = new StringBuilder();
-
-        final SocketAddress remoteAddress = getRemoteAddress();
-        final SocketAddress localAddress = getLocalAddress();
-
+        SocketAddress remoteAddress = getRemoteAddress();
+        SocketAddress localAddress = getLocalAddress();
         if (remoteAddress != null && localAddress != null) {
-            if (remoteAddress instanceof InetSocketAddress &&
-                localAddress instanceof InetSocketAddress) {
-
-                final InetSocketAddress remote = ((InetSocketAddress) remoteAddress);
-                final InetSocketAddress local  = ((InetSocketAddress) localAddress);
-
-                buffer.append(local.getAddress() != null ? local.getAddress().getHostAddress() : local.getAddress())
-                .append(':')
-                .append(local.getPort())
-                .append("<->")
-                .append(remote.getAddress() != null ? remote.getAddress().getHostAddress() : remote.getAddress())
-                .append(':')
-                .append(remote.getPort());
-
-            } else {
-                buffer.append(localAddress)
-                .append("<->")
-                .append(remoteAddress);
-            }
+            formatAddress(buffer, localAddress);
+            buffer.append("<->");
+            formatAddress(buffer, remoteAddress);
         }
-
         buffer.append("[");
         switch (this.status) {
         case ACTIVE:

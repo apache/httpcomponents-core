@@ -423,13 +423,42 @@ public class NHttpConnectionBase
         return this.connMetrics;
     }
 
+    private static void formatAddress(final StringBuilder buffer, final SocketAddress socketAddress) {
+        if (socketAddress instanceof InetSocketAddress) {
+            InetSocketAddress addr = ((InetSocketAddress) socketAddress);
+            buffer.append(addr.getAddress() != null ? addr.getAddress().getHostAddress() :
+                addr.getAddress())
+            .append(':')
+            .append(addr.getPort());
+        } else {
+            buffer.append(socketAddress);
+        }
+    }
+
     @Override
     public String toString() {
-        StringBuilder buf = new StringBuilder();
-        buf.append(this.session.getLocalAddress())
-            .append("<->")
-            .append(this.session.getRemoteAddress());
-        return buf.toString();
+        StringBuilder buffer = new StringBuilder();
+        SocketAddress remoteAddress = this.session.getRemoteAddress();
+        SocketAddress localAddress = this.session.getLocalAddress();
+        if (remoteAddress != null && localAddress != null) {
+            formatAddress(buffer, localAddress);
+            buffer.append("<->");
+            formatAddress(buffer, remoteAddress);
+        }
+        buffer.append("[");
+        switch (this.status) {
+        case ACTIVE:
+            buffer.append("ACTIVE");
+            break;
+        case CLOSING:
+            buffer.append("CLOSING");
+            break;
+        case CLOSED:
+            buffer.append("CLOSED");
+            break;
+        }
+        buffer.append("]");
+        return buffer.toString();
     }
 
 }
