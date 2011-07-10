@@ -1,5 +1,13 @@
-Changes since 4.1.1
+Release 4.1.2
 -------------------
+
+This is a patch release that fixes a number of bugs found in the previous version.
+
+Please note that several classes and methods deprecated between versions 4.0-beta1 and 4.0 GA 
+(more than two years ago) will also be removed in the 4.2 branch.
+
+Users of 4.0.x versions are advised to upgrade and replace deprecated API calls following
+recommendations in javadocs.  
 
 * [HTTPCORE-261] IOSession#setSocketTimeout() method does not reset the timeout count. 
   Contributed by Oleg Kalnichevski <olegk at apache.org>
