@@ -52,19 +52,47 @@ import org.apache.http.annotation.Immutable;
 @Immutable
 public class ResponseContent implements HttpResponseInterceptor {
 
+    private final boolean overwrite;
+
+    /**
+     * Default constructor. The <code>Content-Length</code> or <code>Transfer-Encoding</code>
+     * will cause the interceptor to throw {@link ProtocolException} if already present in the 
+     * response message.
+     */
     public ResponseContent() {
-        super();
+        this(false);
     }
 
+    /**
+     * Constructor that can be used to fine-tune behavior of this interceptor.
+     * 
+     * @param overwrite If set to <code>true</code> the <code>Content-Length</code> and 
+     * <code>Transfer-Encoding</code> headers will be created or updated if already present.
+     * If set to <code>false</code> the <code>Content-Length</code> and 
+     * <code>Transfer-Encoding</code> headers will cause the interceptor to throw 
+     * {@link ProtocolException} if already present in the response message.
+     */
+     public ResponseContent(boolean overwrite) {
+         super();
+         this.overwrite = overwrite;
+    }
+
+    /**
+     * Processes the response (possibly updating or inserting) Content-Length and Transfer-Encoding headers.
+     * @param response The HttpResponse to modify.
+     * @param context Unused.
+     * @throws ProtocolException If either the Content-Length or Transfer-Encoding headers are found.
+     * @throws IllegalArgumentException If the response is null.
+     */
     public void process(final HttpResponse response, final HttpContext context)
             throws HttpException, IOException {
         if (response == null) {
             throw new IllegalArgumentException("HTTP response may not be null");
         }
-        if (response.containsHeader(HTTP.TRANSFER_ENCODING)) {
+        if (response.containsHeader(HTTP.TRANSFER_ENCODING) && !this.overwrite) {
             throw new ProtocolException("Transfer-encoding header already present");
         }
-        if (response.containsHeader(HTTP.CONTENT_LEN)) {
+        if (response.containsHeader(HTTP.CONTENT_LEN) && !this.overwrite) {
             throw new ProtocolException("Content-Length header already present");
         }
         ProtocolVersion ver = response.getStatusLine().getProtocolVersion();
@@ -72,26 +100,26 @@ public class ResponseContent implements HttpResponseInterceptor {
         if (entity != null) {
             long len = entity.getContentLength();
             if (entity.isChunked() && !ver.lessEquals(HttpVersion.HTTP_1_0)) {
-                response.addHeader(HTTP.TRANSFER_ENCODING, HTTP.CHUNK_CODING);
+                response.setHeader(HTTP.TRANSFER_ENCODING, HTTP.CHUNK_CODING);
             } else if (len >= 0) {
-                response.addHeader(HTTP.CONTENT_LEN, Long.toString(entity.getContentLength()));
+                response.setHeader(HTTP.CONTENT_LEN, Long.toString(entity.getContentLength()));
             }
             // Specify a content type if known
             if (entity.getContentType() != null && !response.containsHeader(
                     HTTP.CONTENT_TYPE )) {
-                response.addHeader(entity.getContentType());
+                response.setHeader(entity.getContentType());
             }
             // Specify a content encoding if known
             if (entity.getContentEncoding() != null && !response.containsHeader(
                     HTTP.CONTENT_ENCODING)) {
-                response.addHeader(entity.getContentEncoding());
+                response.setHeader(entity.getContentEncoding());
             }
         } else {
             int status = response.getStatusLine().getStatusCode();
             if (status != HttpStatus.SC_NO_CONTENT
                     && status != HttpStatus.SC_NOT_MODIFIED
                     && status != HttpStatus.SC_RESET_CONTENT) {
-                response.addHeader(HTTP.CONTENT_LEN, "0");
+                response.setHeader(HTTP.CONTENT_LEN, "0");
             }
         }
     }
