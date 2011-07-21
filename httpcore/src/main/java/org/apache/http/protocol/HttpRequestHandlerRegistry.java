@@ -91,6 +91,16 @@ public class HttpRequestHandlerRegistry implements HttpRequestHandlerResolver {
         matcher.setObjects(map);
     }
 
+    /**
+     * Get the handler map.
+     * @return The map of handlers and their associated URI patterns.
+     *
+     * @since 4.2
+     */
+    public Map<String, HttpRequestHandler> getHandlers() {
+        return matcher.getObjects();
+    }
+
     public HttpRequestHandler lookup(final String requestURI) {
         return matcher.lookup(requestURI);
     }

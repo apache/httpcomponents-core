@@ -110,6 +110,16 @@ public class UriPatternMatcher<T> {
     }
 
     /**
+     * Returns the objects map.
+     * @return The map of objects.
+     *
+     * @since 4.2
+     */
+    public synchronized Map<String, T> getObjects() {
+        return this.map;
+    }
+
+    /**
      * Looks up an object matching the given request URI.
      *
      * @param requestURI the request URI

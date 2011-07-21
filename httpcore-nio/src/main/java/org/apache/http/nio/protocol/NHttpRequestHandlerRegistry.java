@@ -84,6 +84,16 @@ public class NHttpRequestHandlerRegistry implements NHttpRequestHandlerResolver 
         matcher.setObjects(map);
     }
 
+    /**
+     * Get the handler map.
+     * @return The map of handlers and their associated URI patterns.
+     *
+     * @since 4.2
+     */
+    public Map<String, NHttpRequestHandler> getHandlers() {
+        return matcher.getObjects();
+    }
+
     public NHttpRequestHandler lookup(String requestURI) {
         return matcher.lookup(requestURI);
     }
