@@ -45,6 +45,10 @@ public class FileEntity extends AbstractHttpEntity implements Cloneable {
 
     protected final File file;
 
+    /**
+     * @deprecated {@link #FileEntity(File, ContentType)}
+     */
+    @Deprecated
     public FileEntity(final File file, final String contentType) {
         super();
         if (file == null) {
@@ -52,6 +56,20 @@ public class FileEntity extends AbstractHttpEntity implements Cloneable {
         }
         this.file = file;
         setContentType(contentType);
+    }
+
+    /**
+     * @since 4.2
+     */
+    public FileEntity(final File file, final ContentType contentType) {
+        super();
+        if (file == null) {
+            throw new IllegalArgumentException("File may not be null");
+        }
+        this.file = file;
+        if (contentType != null) {
+            setContentType(contentType.toString());
+        }
     }
 
     public boolean isRepeatable() {

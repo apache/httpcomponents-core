@@ -55,6 +55,7 @@ import org.apache.http.HttpResponse;
 import org.apache.http.HttpResponseInterceptor;
 import org.apache.http.HttpStatus;
 import org.apache.http.HttpVersion;
+import org.apache.http.entity.ContentType;
 import org.apache.http.entity.InputStreamEntity;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.DefaultConnectionReuseStrategy;
@@ -68,6 +69,7 @@ import org.apache.http.nio.reactor.ListenerEndpoint;
 import org.apache.http.nio.reactor.SessionRequest;
 import org.apache.http.params.CoreConnectionPNames;
 import org.apache.http.params.CoreProtocolPNames;
+import org.apache.http.protocol.HTTP;
 import org.apache.http.protocol.HttpContext;
 import org.apache.http.protocol.HttpExpectationVerifier;
 import org.apache.http.protocol.HttpProcessor;
@@ -85,7 +87,6 @@ import org.apache.http.protocol.ResponseServer;
 import org.apache.http.testserver.SimpleEventListener;
 import org.apache.http.testserver.SimpleHttpRequestHandlerResolver;
 import org.apache.http.util.EncodingUtils;
-import org.apache.http.util.EntityUtils;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
@@ -892,8 +893,12 @@ public class TestThrottlingNHttpHandlers extends HttpCoreNIOTestBase {
                             Thread.sleep(1);
                             outstream.write(tmp, 0, l);
                         }
-                        content = new String(outstream.toByteArray(),
-                                EntityUtils.getContentCharSet(entity));
+                        ContentType contentType = ContentType.getOrDefault(entity);
+                        String charset = contentType.getCharset();
+                        if (charset == null) {
+                            charset = HTTP.DEFAULT_CONTENT_CHARSET;
+                        }
+                        content = new String(outstream.toByteArray(), charset);
                     } catch (InterruptedException ex) {
                         content = "Interrupted: " + ex.getMessage();
                     } catch (IOException ex) {

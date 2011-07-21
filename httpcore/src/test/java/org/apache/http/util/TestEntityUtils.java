@@ -30,7 +30,6 @@ package org.apache.http.util;
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 
-import org.apache.http.Header;
 import org.apache.http.entity.BasicHttpEntity;
 import org.apache.http.message.BasicHeader;
 import org.junit.Assert;
@@ -98,62 +97,6 @@ public class TestEntityUtils {
         Assert.assertEquals(bytes.length, bytes2.length);
         for (int i = 0; i < bytes.length; i++) {
             Assert.assertEquals(bytes[i], bytes2[i]);
-        }
-    }
-
-    @Test
-    public void testNullEntityGetContentCharset() throws Exception {
-        try {
-            EntityUtils.getContentCharSet(null);
-            Assert.fail("IllegalArgumentException should have been thrown");
-        } catch (IllegalArgumentException ex) {
-            // expected
-        }
-    }
-
-    @Test
-    public void testNullContentTypeGetContentCharset() throws Exception {
-        BasicHttpEntity httpentity = new BasicHttpEntity();
-        httpentity.setContentType((Header)null);
-        Assert.assertNull(EntityUtils.getContentCharSet(httpentity));
-    }
-
-    @Test
-    public void testNoCharsetGetContentCharset() throws Exception {
-        BasicHttpEntity httpentity = new BasicHttpEntity();
-        httpentity.setContentType(new BasicHeader("Content-Type", "text/plain; param=yadayada"));
-        Assert.assertNull(EntityUtils.getContentCharSet(httpentity));
-    }
-
-    @Test
-    public void testGetContentCharset() throws Exception {
-        BasicHttpEntity httpentity = new BasicHttpEntity();
-        httpentity.setContentType(new BasicHeader("Content-Type", "text/plain; charset = UTF-8"));
-        Assert.assertEquals("UTF-8", EntityUtils.getContentCharSet(httpentity));
-    }
-
-    @Test
-    public void testGetContentMimeTypeWithCharset() throws Exception {
-        BasicHttpEntity httpentity = new BasicHttpEntity();
-        httpentity.setContentType(new BasicHeader("Content-Type", "text/plain; " +
-                "whatever; charset = UTF-8"));
-        Assert.assertEquals("text/plain", EntityUtils.getContentMimeType(httpentity));
-    }
-
-    @Test
-    public void testGetContentMimeTypeWithoutCharset() throws Exception {
-        BasicHttpEntity httpentity = new BasicHttpEntity();
-        httpentity.setContentType(new BasicHeader("Content-Type", "text/whatever"));
-        Assert.assertEquals("text/whatever", EntityUtils.getContentMimeType(httpentity));
-    }
-
-    @Test
-    public void testNullEntityGetMimeType() throws Exception {
-        try {
-            EntityUtils.getContentMimeType(null);
-            Assert.fail("IllegalArgumentException should have been thrown");
-        } catch (IllegalArgumentException ex) {
-            // expected
         }
     }
 

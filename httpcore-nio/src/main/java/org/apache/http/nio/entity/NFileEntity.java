@@ -36,6 +36,7 @@ import java.nio.channels.FileChannel;
 
 import org.apache.http.annotation.NotThreadSafe;
 import org.apache.http.entity.AbstractHttpEntity;
+import org.apache.http.entity.ContentType;
 import org.apache.http.nio.ContentEncoder;
 import org.apache.http.nio.ContentEncoderChannel;
 import org.apache.http.nio.FileContentEncoder;
@@ -67,7 +68,37 @@ public class NFileEntity extends AbstractHttpEntity implements ProducingNHttpEnt
      * @param contentType the content type of the file.
      * @param useFileChannels flag whether the direct transfer from the file
      *   channel should be attempted.
+     *
+     * @since 4.2
      */
+    public NFileEntity(final File file, final ContentType contentType, boolean useFileChannels) {
+        if (file == null) {
+            throw new IllegalArgumentException("File may not be null");
+        }
+        this.file = file;
+        this.useFileChannels = useFileChannels;
+        if (contentType != null) {
+            setContentType(contentType.toString());
+        }
+    }
+
+    /**
+     * Creates new instance of NFileEntity from the given source {@link File}
+     * with the given content type.
+     *
+     * @param file the source file.
+     * @param contentType the content type of the file.
+     *
+     * @since 4.2
+     */
+    public NFileEntity(final File file, final ContentType contentType) {
+        this(file, contentType, true);
+    }
+
+    /**
+     * @deprecated use {@link #NFileEntity(File, ContentType, boolean)}
+     */
+    @Deprecated
     public NFileEntity(final File file, final String contentType, boolean useFileChannels) {
         if (file == null) {
             throw new IllegalArgumentException("File may not be null");
@@ -77,6 +108,10 @@ public class NFileEntity extends AbstractHttpEntity implements ProducingNHttpEnt
         setContentType(contentType);
     }
 
+    /**
+     * @deprecated use {@link #NFileEntity(File, ContentType)}
+     */
+    @Deprecated
     public NFileEntity(final File file, final String contentType) {
         this(file, contentType, true);
     }

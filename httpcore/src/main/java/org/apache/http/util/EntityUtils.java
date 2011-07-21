@@ -36,6 +36,7 @@ import org.apache.http.HeaderElement;
 import org.apache.http.HttpEntity;
 import org.apache.http.NameValuePair;
 import org.apache.http.ParseException;
+import org.apache.http.entity.ContentType;
 import org.apache.http.protocol.HTTP;
 
 /**
@@ -113,7 +114,10 @@ public final class EntityUtils {
      * @return the character set, or null if not found
      * @throws ParseException if header elements cannot be parsed
      * @throws IllegalArgumentException if entity is null
+     *
+     * @deprecated use {@link ContentType#getOrDefault(HttpEntity)}
      */
+    @Deprecated
     public static String getContentCharSet(final HttpEntity entity) throws ParseException {
         if (entity == null) {
             throw new IllegalArgumentException("HTTP entity may not be null");
@@ -140,7 +144,10 @@ public final class EntityUtils {
      * @throws IllegalArgumentException if entity is null
      *
      * @since 4.1
+     *
+     * @deprecated use {@link ContentType#getOrDefault(HttpEntity)}
      */
+    @Deprecated
     public static String getContentMimeType(final HttpEntity entity) throws ParseException {
         if (entity == null) {
             throw new IllegalArgumentException("HTTP entity may not be null");

@@ -48,12 +48,22 @@ public class InputStreamEntity extends AbstractHttpEntity {
     private final long length;
 
     public InputStreamEntity(final InputStream instream, long length) {
+        this(instream, length, null);
+    }
+
+    /**
+     * @since 4.2
+     */
+    public InputStreamEntity(final InputStream instream, long length, final ContentType contentType) {
         super();
         if (instream == null) {
             throw new IllegalArgumentException("Source input stream may not be null");
         }
         this.content = instream;
         this.length = length;
+        if (contentType != null) {
+            setContentType(contentType.toString());
+        }
     }
 
     public boolean isRepeatable() {

@@ -50,6 +50,7 @@ import org.apache.http.HttpStatus;
 import org.apache.http.HttpVersion;
 import org.apache.http.entity.AbstractHttpEntity;
 import org.apache.http.entity.ByteArrayEntity;
+import org.apache.http.entity.ContentType;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.DefaultHttpClientConnection;
 import org.apache.http.message.BasicHttpEntityEnclosingRequest;
@@ -702,8 +703,11 @@ public class TestProtocolIntegration {
 
                     HttpEntity incoming = ((HttpEntityEnclosingRequest) request).getEntity();
                     String line = EntityUtils.toString(incoming);
-                    String charset = EntityUtils.getContentCharSet(incoming);
-
+                    ContentType contentType = ContentType.getOrDefault(incoming);
+                    String charset = contentType.getCharset();
+                    if (charset == null) {
+                        charset = HTTP.DEFAULT_CONTENT_CHARSET;
+                    }
                     RepeatingEntity outgoing = new RepeatingEntity(line, charset, n);
                     outgoing.setChunked(n % 2 == 0);
                     response.setEntity(outgoing);
@@ -737,9 +741,10 @@ public class TestProtocolIntegration {
                     HttpEntity incoming = response.getEntity();
                     Assert.assertNotNull(incoming);
                     InputStream instream = incoming.getContent();
-                    String charset = EntityUtils.getContentCharSet(incoming);
+                    ContentType contentType = ContentType.getOrDefault(incoming);
+                    String charset = contentType.getCharset();
                     if (charset == null) {
-                        charset = "US-ASCII";
+                        charset = HTTP.DEFAULT_CONTENT_CHARSET;
                     }
                     Assert.assertNotNull(instream);
                     BufferedReader reader = new BufferedReader(new InputStreamReader(instream, charset));

@@ -36,6 +36,7 @@ import java.nio.ByteBuffer;
 
 import org.apache.http.annotation.NotThreadSafe;
 import org.apache.http.entity.AbstractHttpEntity;
+import org.apache.http.entity.ContentType;
 import org.apache.http.nio.ContentEncoder;
 import org.apache.http.nio.IOControl;
 import org.apache.http.nio.protocol.AsyncNHttpServiceHandler;
@@ -55,21 +56,32 @@ public class NStringEntity extends AbstractHttpEntity implements ProducingNHttpE
     protected final byte[] content;
     protected final ByteBuffer buffer;
 
-    public NStringEntity(final String s, String charset)
+    /**
+     * @since 4.2
+     */
+    public NStringEntity(final String s, final ContentType contentType)
             throws UnsupportedEncodingException {
         if (s == null) {
             throw new IllegalArgumentException("Source string may not be null");
         }
+        String charset = contentType != null ? contentType.getCharset() : null;
         if (charset == null) {
             charset = HTTP.DEFAULT_CONTENT_CHARSET;
         }
         this.content = s.getBytes(charset);
         this.buffer = ByteBuffer.wrap(this.content);
-        setContentType(HTTP.PLAIN_TEXT_TYPE + HTTP.CHARSET_PARAM + charset);
+        if (contentType != null) {
+            setContentType(contentType.toString());
+        }
+    }
+
+    public NStringEntity(final String s, final String charset)
+            throws UnsupportedEncodingException {
+        this(s, ContentType.create(HTTP.PLAIN_TEXT_TYPE, charset));
     }
 
     public NStringEntity(final String s) throws UnsupportedEncodingException {
-        this(s, null);
+        this(s, ContentType.DEFAULT_TEXT);
     }
 
     public boolean isRepeatable() {

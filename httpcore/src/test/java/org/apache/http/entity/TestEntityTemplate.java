@@ -39,6 +39,7 @@ import org.junit.Test;
  * Unit tests for {@link EntityTemplate}.
  *
  */
+@Deprecated
 public class TestEntityTemplate {
 
     @Test
