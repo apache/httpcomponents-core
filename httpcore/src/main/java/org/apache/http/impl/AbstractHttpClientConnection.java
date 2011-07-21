@@ -280,7 +280,7 @@ public abstract class AbstractHttpClientConnection implements HttpClientConnecti
     public HttpResponse receiveResponseHeader()
             throws HttpException, IOException {
         assertOpen();
-        HttpResponse response = (HttpResponse) this.responseParser.parse();
+        HttpResponse response = this.responseParser.parse();
         if (response.getStatusLine().getStatusCode() >= 200) {
             this.metrics.incrementResponseCount();
         }

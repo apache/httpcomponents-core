@@ -99,7 +99,7 @@ public class TestResponseParser {
                 new DefaultHttpResponseFactory(),
                 new BasicHttpParams());
 
-        HttpResponse httpresponse = (HttpResponse) parser.parse();
+        HttpResponse httpresponse = parser.parse();
 
         StatusLine statusline = httpresponse.getStatusLine();
         Assert.assertNotNull(statusline);
@@ -149,7 +149,7 @@ public class TestResponseParser {
         HttpResponse httpresponse = null;
         for (int i = 0; i < 10; i++) {
             try {
-                httpresponse = (HttpResponse) parser.parse();
+                httpresponse = parser.parse();
                 break;
             } catch (InterruptedIOException ex) {
                 timeoutCount++;

@@ -103,7 +103,7 @@ public class TestRequestParser {
                 new DefaultHttpRequestFactory(),
                 new BasicHttpParams());
 
-        HttpRequest httprequest = (HttpRequest) parser.parse();
+        HttpRequest httprequest = parser.parse();
 
         RequestLine reqline = httprequest.getRequestLine();
         Assert.assertNotNull(reqline);
@@ -153,7 +153,7 @@ public class TestRequestParser {
         HttpRequest httprequest = null;
         for (int i = 0; i < 10; i++) {
             try {
-                httprequest = (HttpRequest) parser.parse();
+                httprequest = parser.parse();
                 break;
             } catch (InterruptedIOException ex) {
                 timeoutCount++;

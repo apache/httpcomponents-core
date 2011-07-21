@@ -241,7 +241,7 @@ public abstract class AbstractHttpServerConnection implements HttpServerConnecti
     public HttpRequest receiveRequestHeader()
             throws HttpException, IOException {
         assertOpen();
-        HttpRequest request = (HttpRequest) this.requestParser.parse();
+        HttpRequest request = this.requestParser.parse();
         this.metrics.incrementRequestCount();
         return request;
     }
