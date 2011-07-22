@@ -41,6 +41,7 @@ import org.apache.http.HttpResponse;
 import org.apache.http.HttpResponseInterceptor;
 import org.apache.http.HttpStatus;
 import org.apache.http.MethodNotSupportedException;
+import org.apache.http.entity.ContentType;
 import org.apache.http.impl.DefaultConnectionReuseStrategy;
 import org.apache.http.impl.DefaultHttpResponseFactory;
 import org.apache.http.impl.nio.DefaultServerIOEventDispatch;
@@ -68,12 +69,12 @@ import org.apache.http.protocol.ResponseServer;
 import org.apache.http.util.EntityUtils;
 
 /**
- * Basic, yet fully functional and spec compliant, HTTP/1.1 server based on the non-blocking 
+ * Basic, yet fully functional and spec compliant, HTTP/1.1 server based on the non-blocking
  * I/O model.
  * <p>
  * Please note the purpose of this application is demonstrate the usage of HttpCore APIs.
- * It is NOT intended to demonstrate the most efficient way of building an HTTP server. 
- * 
+ * It is NOT intended to demonstrate the most efficient way of building an HTTP server.
+ *
  *
  */
 public class NHttpServer {
@@ -97,7 +98,7 @@ public class NHttpServer {
                 new ResponseContent(),
                 new ResponseConnControl()
         });
-        
+
         BufferingHttpServiceHandler handler = new BufferingHttpServiceHandler(
                 httpproc,
                 new DefaultHttpResponseFactory(),
@@ -158,8 +159,8 @@ public class NHttpServer {
                 response.setStatusCode(HttpStatus.SC_NOT_FOUND);
                 NStringEntity entity = new NStringEntity(
                         "<html><body><h1>File" + file.getPath() +
-                        " not found</h1></body></html>", "UTF-8");
-                entity.setContentType("text/html; charset=UTF-8");
+                        " not found</h1></body></html>",
+                        ContentType.create("text/html", "UTF-8"));
                 response.setEntity(entity);
                 System.out.println("File " + file.getPath() + " not found");
 
@@ -168,18 +169,16 @@ public class NHttpServer {
                 response.setStatusCode(HttpStatus.SC_FORBIDDEN);
                 NStringEntity entity = new NStringEntity(
                         "<html><body><h1>Access denied</h1></body></html>",
-                        "UTF-8");
-                entity.setContentType("text/html; charset=UTF-8");
+                        ContentType.create("text/html", "UTF-8"));
                 response.setEntity(entity);
                 System.out.println("Cannot read file " + file.getPath());
 
             } else {
 
                 response.setStatusCode(HttpStatus.SC_OK);
-                NFileEntity body = new NFileEntity(file, "text/html");
+                NFileEntity body = new NFileEntity(file, ContentType.create("text/html", null));
                 response.setEntity(body);
                 System.out.println("Serving file " + file.getPath());
-
             }
         }
 
