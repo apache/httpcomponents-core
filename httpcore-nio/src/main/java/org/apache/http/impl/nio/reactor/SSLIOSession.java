@@ -189,8 +189,8 @@ public class SSLIOSession implements IOSession, SessionBufferStatus {
     }
 
     private void updateEventMask() {
-        if (this.status == CLOSING &&
-                this.sslEngine.isInboundDone() && this.sslEngine.isOutboundDone()) {
+        if (this.status == CLOSING && this.sslEngine.isOutboundDone()
+                && (this.endOfStream || this.sslEngine.isInboundDone())) {
             this.status = CLOSED;
         }
         if (this.status == CLOSED) {
