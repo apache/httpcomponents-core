@@ -1,0 +1,133 @@
+/*
+ * ====================================================================
+ * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
+ *
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ * ====================================================================
+ *
+ * This software consists of voluntary contributions made by many
+ * individuals on behalf of the Apache Software Foundation.  For more
+ * information on the Apache Software Foundation, please see
+ * <http://www.apache.org/>.
+ *
+ */
+package org.apache.http.concurrent;
+
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
+
+public class BasicFuture<T> implements Future<T> {
+
+    private final FutureCallback<T> callback;
+
+    private volatile boolean completed;
+    private volatile boolean cancelled;
+    private volatile T result;
+    private volatile Exception ex;
+
+    public BasicFuture(final FutureCallback<T> callback) {
+        super();
+        this.callback = callback;
+    }
+
+    public boolean isCancelled() {
+        return this.cancelled;
+    }
+
+    public boolean isDone() {
+        return this.completed;
+    }
+
+    private T getResult() throws ExecutionException {
+        if (this.ex != null) {
+            throw new ExecutionException(this.ex);
+        }
+        return this.result;
+    }
+
+    public synchronized T get() throws InterruptedException, ExecutionException {
+        while (!this.completed) {
+            wait();
+        }
+        return getResult();
+    }
+
+    public synchronized T get(long timeout, final TimeUnit unit)
+            throws InterruptedException, ExecutionException, TimeoutException {
+        long msecs = unit.toMillis(timeout);
+        long startTime = (msecs <= 0) ? 0 : System.currentTimeMillis();
+        long waitTime = msecs;
+        if (this.completed) {
+            return getResult();
+        } else if (waitTime <= 0) {
+            throw new TimeoutException();
+        } else {
+            for (;;) {
+                wait(waitTime);
+                if (this.completed) {
+                    return getResult();
+                } else {
+                    waitTime = msecs - (System.currentTimeMillis() - startTime);
+                    if (waitTime <= 0) {
+                        throw new TimeoutException();
+                    }
+                }
+            }
+        }
+    }
+
+    public synchronized boolean completed(final T result) {
+        if (this.completed) {
+            return false;
+        }
+        this.completed = true;
+        this.result = result;
+        if (this.callback != null) {
+            this.callback.completed(result);
+        }
+        notifyAll();
+        return true;
+    }
+
+    public synchronized boolean failed(final Exception exception) {
+        if (this.completed) {
+            return false;
+        }
+        this.completed = true;
+        this.ex = exception;
+        if (this.callback != null) {
+            this.callback.failed(exception);
+        }
+        notifyAll();
+        return true;
+    }
+
+    public synchronized boolean cancel(boolean mayInterruptIfRunning) {
+        if (this.completed) {
+            return false;
+        }
+        this.completed = true;
+        this.cancelled = true;
+        if (this.callback != null) {
+            this.callback.cancelled();
+        }
+        notifyAll();
+        return true;
+    }
+
+}
