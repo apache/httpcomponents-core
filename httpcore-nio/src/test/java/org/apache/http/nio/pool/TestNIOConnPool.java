@@ -42,7 +42,7 @@ import org.apache.http.pool.PoolStats;
 import org.junit.Test;
 import org.mockito.Mockito;
 
-public class TestSessionPool {
+public class TestNIOConnPool {
 
     static class LocalPoolEntry extends PoolEntry<String, IOSession> {
 
@@ -96,7 +96,7 @@ public class TestSessionPool {
 
     }    
 
-    static class LocalSessionPool extends SessionPool<String, LocalPoolEntry> {
+    static class LocalSessionPool extends AbstractNIOConnPool<String, LocalPoolEntry> {
 
         public LocalSessionPool(
                 final ConnectingIOReactor ioreactor, int defaultMaxPerRoute, int maxTotal) {

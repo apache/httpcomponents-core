@@ -46,7 +46,7 @@ import org.apache.http.nio.reactor.SessionRequestCallback;
 import org.apache.http.pool.PoolEntry;
 import org.apache.http.pool.PoolStats;
 
-public abstract class SessionPool<T, E extends PoolEntry<T, IOSession>> {
+public abstract class AbstractNIOConnPool<T, E extends PoolEntry<T, IOSession>> {
 
     private final ConnectingIOReactor ioreactor;
     private final SessionRequestCallback sessionRequestCallback;
@@ -62,7 +62,7 @@ public abstract class SessionPool<T, E extends PoolEntry<T, IOSession>> {
     private volatile int defaultMaxPerRoute;
     private volatile int maxTotal;
 
-    public SessionPool(
+    public AbstractNIOConnPool(
             final ConnectingIOReactor ioreactor,
             int defaultMaxPerRoute,
             int maxTotal) {
@@ -138,7 +138,7 @@ public abstract class SessionPool<T, E extends PoolEntry<T, IOSession>> {
 
                 @Override
                 protected E createEntry(final T route, final IOSession session) {
-                    return SessionPool.this.createEntry(route, session);
+                    return AbstractNIOConnPool.this.createEntry(route, session);
                 }
 
             };
