@@ -41,55 +41,55 @@ import org.apache.http.pool.PoolEntry;
 abstract class RouteSpecificPool<T, E extends PoolEntry<T, IOSession>> {
 
     private final T route;
-    private final Set<E> leasedSessions;
-    private final LinkedList<E> availableSessions;
-    private final Map<SessionRequest, PoolEntryCallback<E>> pendingSessions;
+    private final Set<E> leased;
+    private final LinkedList<E> available;
+    private final Map<SessionRequest, PoolEntryCallback<E>> pending;
 
     RouteSpecificPool(final T route) {
         super();
         this.route = route;
-        this.leasedSessions = new HashSet<E>();
-        this.availableSessions = new LinkedList<E>();
-        this.pendingSessions = new HashMap<SessionRequest, PoolEntryCallback<E>>();
+        this.leased = new HashSet<E>();
+        this.available = new LinkedList<E>();
+        this.pending = new HashMap<SessionRequest, PoolEntryCallback<E>>();
     }
 
     protected abstract E createEntry(T route, IOSession session);
 
     public int getLeasedCount() {
-        return this.leasedSessions.size();
+        return this.leased.size();
     }
 
     public int getPendingCount() {
-        return this.pendingSessions.size();
+        return this.pending.size();
     }
 
     public int getAvailableCount() {
-        return this.availableSessions.size();
+        return this.available.size();
     }
 
     public int getAllocatedCount() {
-        return this.availableSessions.size() + this.leasedSessions.size() + this.pendingSessions.size();
+        return this.available.size() + this.leased.size() + this.pending.size();
     }
 
-    public E getFreeEntry(final Object state) {
-        if (!this.availableSessions.isEmpty()) {
+    public E getFree(final Object state) {
+        if (!this.available.isEmpty()) {
             if (state != null) {
-                Iterator<E> it = this.availableSessions.iterator();
+                Iterator<E> it = this.available.iterator();
                 while (it.hasNext()) {
                     E entry = it.next();
                     if (state.equals(entry.getState())) {
                         it.remove();
-                        this.leasedSessions.add(entry);
+                        this.leased.add(entry);
                         return entry;
                     }
                 }
             }
-            Iterator<E> it = this.availableSessions.iterator();
+            Iterator<E> it = this.available.iterator();
             while (it.hasNext()) {
                 E entry = it.next();
                 if (entry.getState() == null) {
                     it.remove();
-                    this.leasedSessions.add(entry);
+                    this.leased.add(entry);
                     return entry;
                 }
             }
@@ -101,36 +101,36 @@ abstract class RouteSpecificPool<T, E extends PoolEntry<T, IOSession>> {
         if (entry == null) {
             throw new IllegalArgumentException("Pool entry may not be null");
         }
-        if (!this.availableSessions.remove(entry)) {
-            if (!this.leasedSessions.remove(entry)) {
+        if (!this.available.remove(entry)) {
+            if (!this.leased.remove(entry)) {
                 return false;
             }
         }
         return true;
     }
 
-    public void freeEntry(final E entry, boolean reusable) {
+    public void free(final E entry, boolean reusable) {
         if (entry == null) {
             throw new IllegalArgumentException("Pool entry may not be null");
         }
-        boolean found = this.leasedSessions.remove(entry);
+        boolean found = this.leased.remove(entry);
         if (!found) {
             throw new IllegalStateException("Entry " + entry +
                     " has not been leased from this pool");
         }
         if (reusable) {
-            this.availableSessions.add(entry);
+            this.available.add(entry);
         }
     }
 
     public void addPending(
             final SessionRequest sessionRequest,
             final PoolEntryCallback<E> callback) {
-        this.pendingSessions.put(sessionRequest, callback);
+        this.pending.put(sessionRequest, callback);
     }
 
     private PoolEntryCallback<E> removeRequest(final SessionRequest request) {
-        PoolEntryCallback<E> callback = this.pendingSessions.remove(request);
+        PoolEntryCallback<E> callback = this.pending.remove(request);
         if (callback == null) {
             throw new IllegalStateException("Invalid session request");
         }
@@ -141,7 +141,7 @@ abstract class RouteSpecificPool<T, E extends PoolEntry<T, IOSession>> {
         PoolEntryCallback<E> callback = removeRequest(request);
         IOSession iosession = request.getSession();
         E entry = createEntry(this.route, iosession);
-        this.leasedSessions.add(entry);
+        this.leased.add(entry);
         callback.completed(entry);
         return entry;
     }
@@ -162,18 +162,18 @@ abstract class RouteSpecificPool<T, E extends PoolEntry<T, IOSession>> {
     }
 
     public void shutdown() {
-        for (SessionRequest sessionRequest: this.pendingSessions.keySet()) {
+        for (SessionRequest sessionRequest: this.pending.keySet()) {
             sessionRequest.cancel();
         }
-        this.pendingSessions.clear();
-        for (E entry: this.availableSessions) {
+        this.pending.clear();
+        for (E entry: this.available) {
             entry.getConnection().close();
         }
-        this.availableSessions.clear();
-        for (E entry: this.leasedSessions) {
+        this.available.clear();
+        for (E entry: this.leased) {
             entry.getConnection().close();
         }
-        this.leasedSessions.clear();
+        this.leased.clear();
     }
 
     @Override
@@ -182,11 +182,11 @@ abstract class RouteSpecificPool<T, E extends PoolEntry<T, IOSession>> {
         buffer.append("[route: ");
         buffer.append(this.route);
         buffer.append("][leased: ");
-        buffer.append(this.leasedSessions.size());
+        buffer.append(this.leased.size());
         buffer.append("][available: ");
-        buffer.append(this.availableSessions.size());
+        buffer.append(this.available.size());
         buffer.append("][pending: ");
-        buffer.append(this.pendingSessions.size());
+        buffer.append(this.pending.size());
         buffer.append("]");
         return buffer.toString();
     }
