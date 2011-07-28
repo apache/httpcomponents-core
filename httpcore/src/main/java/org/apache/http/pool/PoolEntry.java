@@ -71,11 +71,11 @@ public class PoolEntry<T, C> {
         this(route, conn, 0, TimeUnit.MILLISECONDS);
     }
 
-    protected T getRoute() {
+    public T getRoute() {
         return this.route;
     }
 
-    protected C getConnection() {
+    public C getConnection() {
         return this.conn;
     }
 
@@ -87,11 +87,11 @@ public class PoolEntry<T, C> {
         return this.validUnit;
     }
 
-    protected Object getState() {
+    public Object getState() {
         return this.state;
     }
 
-    protected void setState(final Object state) {
+    public void setState(final Object state) {
         this.state = state;
     }
 

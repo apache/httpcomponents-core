@@ -97,12 +97,10 @@ public class TestConnPool {
         PoolStats totals = pool.getTotalStats();
         Assert.assertEquals(0, totals.getAvailable());
         Assert.assertEquals(0, totals.getLeased());
-        Assert.assertEquals(0, totals.getPending());
         Assert.assertEquals(10, totals.getMax());
         PoolStats stats = pool.getStats("somehost");
         Assert.assertEquals(0, stats.getAvailable());
         Assert.assertEquals(0, stats.getLeased());
-        Assert.assertEquals(0, stats.getPending());
         Assert.assertEquals(3, stats.getMax());
         Assert.assertEquals("[leased: []][available: []][pending: []]", pool.toString());
     }
@@ -145,7 +143,6 @@ public class TestConnPool {
         PoolStats totals = pool.getTotalStats();
         Assert.assertEquals(0, totals.getAvailable());
         Assert.assertEquals(3, totals.getLeased());
-        Assert.assertEquals(0, totals.getPending());
 
         LocalPoolEntry entry = future1.get();
         Assert.assertSame(entry1, entry);
@@ -159,8 +156,6 @@ public class TestConnPool {
         totals = pool.getTotalStats();
         Assert.assertEquals(2, totals.getAvailable());
         Assert.assertEquals(0, totals.getLeased());
-        Assert.assertEquals(0, totals.getPending());
-
     }
 
     @Test
@@ -270,7 +265,6 @@ public class TestConnPool {
         PoolStats totals = pool.getTotalStats();
         Assert.assertEquals(3, totals.getAvailable());
         Assert.assertEquals(0, totals.getLeased());
-        Assert.assertEquals(0, totals.getPending());
 
         Future<LocalPoolEntry> future4 = pool.lease("somehost", null);
         GetPoolEntryThread t4 = new GetPoolEntryThread(future4);
@@ -375,7 +369,6 @@ public class TestConnPool {
         PoolStats totals = pool.getTotalStats();
         Assert.assertEquals(0, totals.getAvailable());
         Assert.assertEquals(2, totals.getLeased());
-        Assert.assertEquals(2, totals.getPending());
 
         pool.release(entry1, true);
         pool.release(entry2, true);
@@ -395,7 +388,6 @@ public class TestConnPool {
         totals = pool.getTotalStats();
         Assert.assertEquals(0, totals.getAvailable());
         Assert.assertEquals(2, totals.getLeased());
-        Assert.assertEquals(0, totals.getPending());
 
         Future<LocalPoolEntry> future5 = pool.lease("somehost", null);
         GetPoolEntryThread t5 = new GetPoolEntryThread(future5);
@@ -422,7 +414,6 @@ public class TestConnPool {
         totals = pool.getTotalStats();
         Assert.assertEquals(0, totals.getAvailable());
         Assert.assertEquals(2, totals.getLeased());
-        Assert.assertEquals(0, totals.getPending());
 
         pool.release(entry5, true);
         pool.release(entry6, true);
@@ -430,7 +421,6 @@ public class TestConnPool {
         totals = pool.getTotalStats();
         Assert.assertEquals(2, totals.getAvailable());
         Assert.assertEquals(0, totals.getLeased());
-        Assert.assertEquals(0, totals.getPending());
     }
 
     @Test
@@ -462,11 +452,9 @@ public class TestConnPool {
         PoolStats totals = pool.getTotalStats();
         Assert.assertEquals(0, totals.getAvailable());
         Assert.assertEquals(1, totals.getLeased());
-        Assert.assertEquals(0, totals.getPending());
         PoolStats stats = pool.getStats("somehost");
         Assert.assertEquals(0, stats.getAvailable());
         Assert.assertEquals(1, stats.getLeased());
-        Assert.assertEquals(0, stats.getPending());
     }
 
     @Test
@@ -505,11 +493,9 @@ public class TestConnPool {
         PoolStats totals = pool.getTotalStats();
         Assert.assertEquals(1, totals.getAvailable());
         Assert.assertEquals(0, totals.getLeased());
-        Assert.assertEquals(0, totals.getPending());
         PoolStats stats = pool.getStats("somehost");
         Assert.assertEquals(1, stats.getAvailable());
         Assert.assertEquals(0, stats.getLeased());
-        Assert.assertEquals(0, stats.getPending());
     }
 
     @Test
@@ -625,11 +611,9 @@ public class TestConnPool {
         PoolStats totals = pool.getTotalStats();
         Assert.assertEquals(1, totals.getAvailable());
         Assert.assertEquals(0, totals.getLeased());
-        Assert.assertEquals(0, totals.getPending());
         PoolStats stats = pool.getStats("somehost");
         Assert.assertEquals(1, stats.getAvailable());
         Assert.assertEquals(0, stats.getLeased());
-        Assert.assertEquals(0, stats.getPending());
 
         pool.closeIdle(-1, TimeUnit.MILLISECONDS);
 
@@ -638,11 +622,9 @@ public class TestConnPool {
         totals = pool.getTotalStats();
         Assert.assertEquals(0, totals.getAvailable());
         Assert.assertEquals(0, totals.getLeased());
-        Assert.assertEquals(0, totals.getPending());
         stats = pool.getStats("somehost");
         Assert.assertEquals(0, stats.getAvailable());
         Assert.assertEquals(0, stats.getLeased());
-        Assert.assertEquals(0, stats.getPending());
     }
 
     @Test(expected=IllegalArgumentException.class)
@@ -707,7 +689,6 @@ public class TestConnPool {
         PoolStats totals = pool.getTotalStats();
         Assert.assertEquals(1, totals.getAvailable());
         Assert.assertEquals(1, totals.getLeased());
-        Assert.assertEquals(0, totals.getPending());
 
         pool.shutdown(1000);
         Assert.assertTrue(pool.isShutdown());
