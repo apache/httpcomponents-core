@@ -43,8 +43,7 @@ public class PoolEntry<T, C> {
     private long updated;
     private long expiry;
 
-    public PoolEntry(final T route, final C conn,
-            final long timeToLive, final TimeUnit tunit) {
+    public PoolEntry(final T route, final C conn, final long timeToLive, final TimeUnit tunit) {
         super();
         if (route == null) {
             throw new IllegalArgumentException("Route may not be null");

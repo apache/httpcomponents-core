@@ -54,18 +54,15 @@ import org.apache.http.protocol.RequestUserAgent;
 import org.apache.http.util.EntityUtils;
 
 /**
- * Elemental example for executing a GET request.
+ * Elemental example for executing multiple GET requests sequentially.
  * <p>
  * Please note the purpose of this application is demonstrate the usage of HttpCore APIs.
- * It is NOT intended to demonstrate the most efficient way of building an HTTP client. 
- *
- *
- *
+ * It is NOT intended to demonstrate the most efficient way of building an HTTP client.
  */
 public class ElementalHttpGet {
 
     public static void main(String[] args) throws Exception {
-        
+
         HttpParams params = new SyncBasicHttpParams();
         HttpProtocolParams.setVersion(params, HttpVersion.HTTP_1_1);
         HttpProtocolParams.setContentCharset(params, "UTF-8");
@@ -80,9 +77,9 @@ public class ElementalHttpGet {
                 new RequestConnControl(),
                 new RequestUserAgent(),
                 new RequestExpectContinue()});
-        
+
         HttpRequestExecutor httpexecutor = new HttpRequestExecutor();
-        
+
         HttpContext context = new BasicHttpContext(null);
         HttpHost host = new HttpHost("localhost", 8080);
 
@@ -93,12 +90,12 @@ public class ElementalHttpGet {
         context.setAttribute(ExecutionContext.HTTP_TARGET_HOST, host);
 
         try {
-            
+
             String[] targets = {
                     "/",
-                    "/servlets-examples/servlet/RequestInfoExample", 
+                    "/servlets-examples/servlet/RequestInfoExample",
                     "/somewhere%20in%20pampa"};
-            
+
             for (int i = 0; i < targets.length; i++) {
                 if (!conn.isOpen()) {
                     Socket socket = new Socket(host.getHostName(), host.getPort());
@@ -106,13 +103,13 @@ public class ElementalHttpGet {
                 }
                 BasicHttpRequest request = new BasicHttpRequest("GET", targets[i]);
                 System.out.println(">> Request URI: " + request.getRequestLine().getUri());
-                
+
                 request.setParams(params);
                 httpexecutor.preProcess(request, httpproc, context);
                 HttpResponse response = httpexecutor.execute(request, conn, context);
                 response.setParams(params);
                 httpexecutor.postProcess(response, httpproc, context);
-                
+
                 System.out.println("<< Response: " + response.getStatusLine());
                 System.out.println(EntityUtils.toString(response.getEntity()));
                 System.out.println("==============");
@@ -126,5 +123,5 @@ public class ElementalHttpGet {
             conn.close();
         }
     }
-    
+
 }

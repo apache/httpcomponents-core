@@ -196,6 +196,9 @@ public abstract class AbstractNIOConnPool<T, C, E extends PoolEntry<T, C>> {
     }
 
     public void release(final E entry, boolean reusable) {
+        if (entry == null) {
+            return;
+        }
         if (this.isShutDown) {
             return;
         }
