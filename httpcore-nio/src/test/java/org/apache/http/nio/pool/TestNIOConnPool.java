@@ -26,13 +26,17 @@
  */
 package org.apache.http.nio.pool;
 
+import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.net.SocketAddress;
 import java.net.SocketTimeoutException;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 
 import junit.framework.Assert;
 
+import org.apache.http.concurrent.BasicFuture;
 import org.apache.http.nio.reactor.ConnectingIOReactor;
 import org.apache.http.nio.reactor.IOSession;
 import org.apache.http.nio.reactor.SessionRequest;
@@ -51,52 +55,8 @@ public class TestNIOConnPool {
         }
 
     }
-    
-    static class BasicPoolEntryCallback implements PoolEntryCallback<LocalPoolEntry> {
 
-        private LocalPoolEntry entry;
-        private Exception ex;
-        private boolean completed;
-        private boolean failed;
-        private boolean cancelled;
-
-        public void completed(final LocalPoolEntry entry) {
-            this.entry = entry;
-            this.completed = true;
-        }
-
-        public LocalPoolEntry getEntry() {
-            return this.entry;
-        }
-
-        public Exception getException() {
-            return this.ex;
-        }
-
-        public void failed(final Exception ex) {
-            this.ex = ex;
-            this.failed = true;
-        }
-
-        public void cancelled() {
-            this.cancelled = true;
-        }
-
-        public boolean isCompleted() {
-            return this.completed;
-        }
-
-        public boolean isFailed() {
-            return this.failed;
-        }
-
-        public boolean isCancelled() {
-            return this.cancelled;
-        }
-
-    }    
-
-    static class LocalSessionPool extends AbstractNIOConnPool<String, LocalPoolEntry> {
+    static class LocalSessionPool extends AbstractNIOConnPool<String, IOSession, LocalPoolEntry> {
 
         public LocalSessionPool(
                 final ConnectingIOReactor ioreactor, int defaultMaxPerRoute, int maxTotal) {
@@ -111,6 +71,11 @@ public class TestNIOConnPool {
         @Override
         protected SocketAddress resolveLocalAddress(final String route) {
             return InetSocketAddress.createUnresolved(route, 80);
+        }
+
+        @Override
+        protected IOSession createConnection(final String route, final IOSession session) {
+            return session;
         }
 
         @Override
@@ -145,9 +110,9 @@ public class TestNIOConnPool {
 
     @Test
     public void testInternalLeaseRequest() throws Exception {
-        LeaseRequest<String, LocalPoolEntry> leaseRequest =
-            new LeaseRequest<String, LocalPoolEntry>("somehost", null, 0,
-                    new BasicPoolEntryCallback());
+        LeaseRequest<String, IOSession, LocalPoolEntry> leaseRequest =
+            new LeaseRequest<String, IOSession, LocalPoolEntry>("somehost", null, 0,
+                    new BasicFuture<LocalPoolEntry>(null));
         Assert.assertEquals("[somehost][null]", leaseRequest.toString());
     }
 
@@ -184,8 +149,7 @@ public class TestNIOConnPool {
                 Mockito.any(), Mockito.any(SessionRequestCallback.class))).
                 thenReturn(sessionRequest);
         LocalSessionPool pool = new LocalSessionPool(ioreactor, 2, 10);
-        BasicPoolEntryCallback callback = new BasicPoolEntryCallback();
-        pool.lease("somehost", null, 100, TimeUnit.MILLISECONDS, callback);
+        Future<LocalPoolEntry> future = pool.lease("somehost", null, 100, TimeUnit.MILLISECONDS, null);
         Mockito.verify(sessionRequest).setConnectTimeout(100);
 
         PoolStats totals = pool.getTotalStats();
@@ -194,9 +158,11 @@ public class TestNIOConnPool {
         Assert.assertEquals(1, totals.getPending());
 
         pool.requestCompleted(sessionRequest);
-        Assert.assertTrue(callback.isCompleted());
-        Assert.assertFalse(callback.isFailed());
-        Assert.assertFalse(callback.isCancelled());
+
+        Assert.assertTrue(future.isDone());
+        Assert.assertFalse(future.isCancelled());
+        LocalPoolEntry entry = future.get();
+        Assert.assertNotNull(entry);
 
         totals = pool.getTotalStats();
         Assert.assertEquals(0, totals.getAvailable());
@@ -206,10 +172,9 @@ public class TestNIOConnPool {
 
     @Test
     public void testFailedConnect() throws Exception {
-        IOSession iosession = Mockito.mock(IOSession.class);
         SessionRequest sessionRequest = Mockito.mock(SessionRequest.class);
         Mockito.when(sessionRequest.getAttachment()).thenReturn("somehost");
-        Mockito.when(sessionRequest.getSession()).thenReturn(iosession);
+        Mockito.when(sessionRequest.getException()).thenReturn(new IOException());
         ConnectingIOReactor ioreactor = Mockito.mock(ConnectingIOReactor.class);
         Mockito.when(ioreactor.connect(
                 Mockito.any(SocketAddress.class),
@@ -217,8 +182,7 @@ public class TestNIOConnPool {
                 Mockito.any(), Mockito.any(SessionRequestCallback.class))).
                 thenReturn(sessionRequest);
         LocalSessionPool pool = new LocalSessionPool(ioreactor, 2, 10);
-        BasicPoolEntryCallback callback = new BasicPoolEntryCallback();
-        pool.lease("somehost", null, -1, TimeUnit.MILLISECONDS, callback);
+        Future<LocalPoolEntry> future = pool.lease("somehost", null);
 
         PoolStats totals = pool.getTotalStats();
         Assert.assertEquals(0, totals.getAvailable());
@@ -226,9 +190,15 @@ public class TestNIOConnPool {
         Assert.assertEquals(1, totals.getPending());
 
         pool.requestFailed(sessionRequest);
-        Assert.assertFalse(callback.isCompleted());
-        Assert.assertTrue(callback.isFailed());
-        Assert.assertFalse(callback.isCancelled());
+
+        Assert.assertTrue(future.isDone());
+        Assert.assertFalse(future.isCancelled());
+        try {
+            future.get();
+            Assert.fail("ExecutionException should have been thrown");
+        } catch (ExecutionException ex) {
+            Assert.assertTrue(ex.getCause() instanceof IOException);
+        }
 
         totals = pool.getTotalStats();
         Assert.assertEquals(0, totals.getAvailable());
@@ -249,8 +219,7 @@ public class TestNIOConnPool {
                 Mockito.any(), Mockito.any(SessionRequestCallback.class))).
                 thenReturn(sessionRequest);
         LocalSessionPool pool = new LocalSessionPool(ioreactor, 2, 10);
-        BasicPoolEntryCallback callback = new BasicPoolEntryCallback();
-        pool.lease("somehost", null, -1, TimeUnit.MILLISECONDS, callback);
+        Future<LocalPoolEntry> future = pool.lease("somehost", null);
 
         PoolStats totals = pool.getTotalStats();
         Assert.assertEquals(0, totals.getAvailable());
@@ -258,9 +227,11 @@ public class TestNIOConnPool {
         Assert.assertEquals(1, totals.getPending());
 
         pool.requestCancelled(sessionRequest);
-        Assert.assertFalse(callback.isCompleted());
-        Assert.assertFalse(callback.isFailed());
-        Assert.assertTrue(callback.isCancelled());
+
+        Assert.assertTrue(future.isDone());
+        Assert.assertTrue(future.isCancelled());
+        LocalPoolEntry entry = future.get();
+        Assert.assertNull(entry);
 
         totals = pool.getTotalStats();
         Assert.assertEquals(0, totals.getAvailable());
@@ -281,8 +252,7 @@ public class TestNIOConnPool {
                 Mockito.any(), Mockito.any(SessionRequestCallback.class))).
                 thenReturn(sessionRequest);
         LocalSessionPool pool = new LocalSessionPool(ioreactor, 2, 10);
-        BasicPoolEntryCallback callback = new BasicPoolEntryCallback();
-        pool.lease("somehost", null, -1, TimeUnit.MILLISECONDS, callback);
+        Future<LocalPoolEntry> future = pool.lease("somehost", null);
 
         PoolStats totals = pool.getTotalStats();
         Assert.assertEquals(0, totals.getAvailable());
@@ -290,10 +260,15 @@ public class TestNIOConnPool {
         Assert.assertEquals(1, totals.getPending());
 
         pool.requestTimeout(sessionRequest);
-        Assert.assertFalse(callback.isCompleted());
-        Assert.assertTrue(callback.isFailed());
-        Assert.assertFalse(callback.isCancelled());
-        Assert.assertTrue(callback.getException() instanceof SocketTimeoutException);
+
+        Assert.assertTrue(future.isDone());
+        Assert.assertFalse(future.isCancelled());
+        try {
+            future.get();
+            Assert.fail("ExecutionException should have been thrown");
+        } catch (ExecutionException ex) {
+            Assert.assertTrue(ex.getCause() instanceof SocketTimeoutException);
+        }
 
         totals = pool.getTotalStats();
         Assert.assertEquals(0, totals.getAvailable());
@@ -326,21 +301,18 @@ public class TestNIOConnPool {
                 thenReturn(sessionRequest2);
 
         LocalSessionPool pool = new LocalSessionPool(ioreactor, 2, 10);
-        BasicPoolEntryCallback callback1 = new BasicPoolEntryCallback();
-        pool.lease("somehost", null, -1, TimeUnit.MILLISECONDS, callback1);
+        Future<LocalPoolEntry> future1 = pool.lease("somehost", null);
         pool.requestCompleted(sessionRequest1);
-        BasicPoolEntryCallback callback2 = new BasicPoolEntryCallback();
-        pool.lease("somehost", null, -1, TimeUnit.MILLISECONDS, callback2);
+        Future<LocalPoolEntry> future2 = pool.lease("somehost", null);
         pool.requestCompleted(sessionRequest1);
-        BasicPoolEntryCallback callback3 = new BasicPoolEntryCallback();
-        pool.lease("otherhost", null, -1, TimeUnit.MILLISECONDS, callback3);
+        Future<LocalPoolEntry> future3 = pool.lease("otherhost", null);
         pool.requestCompleted(sessionRequest2);
 
-        LocalPoolEntry entry1 = callback1.getEntry();
+        LocalPoolEntry entry1 = future1.get();
         Assert.assertNotNull(entry1);
-        LocalPoolEntry entry2 = callback2.getEntry();
+        LocalPoolEntry entry2 = future2.get();
         Assert.assertNotNull(entry2);
-        LocalPoolEntry entry3 = callback3.getEntry();
+        LocalPoolEntry entry3 = future3.get();
         Assert.assertNotNull(entry3);
 
         pool.release(entry1, true);
@@ -360,17 +332,12 @@ public class TestNIOConnPool {
         ConnectingIOReactor ioreactor = Mockito.mock(ConnectingIOReactor.class);
         LocalSessionPool pool = new LocalSessionPool(ioreactor, 2, 10);
         try {
-            pool.lease(null, null, 0, TimeUnit.MILLISECONDS, new BasicPoolEntryCallback());
+            pool.lease(null, null, 0, TimeUnit.MILLISECONDS, null);
             Assert.fail("IllegalArgumentException should have been thrown");
         } catch (IllegalArgumentException expected) {
         }
         try {
-            pool.lease("somehost", null, 0, null, new BasicPoolEntryCallback());
-            Assert.fail("IllegalArgumentException should have been thrown");
-        } catch (IllegalArgumentException expected) {
-        }
-        try {
-            pool.lease("somehost", null, 0, TimeUnit.MILLISECONDS, null);
+            pool.lease("somehost", null, 0, null, null);
             Assert.fail("IllegalArgumentException should have been thrown");
         } catch (IllegalArgumentException expected) {
         }
@@ -412,21 +379,18 @@ public class TestNIOConnPool {
         pool.setMaxPerHost("otherhost", 1);
         pool.setTotalMax(3);
 
-        BasicPoolEntryCallback callback1 = new BasicPoolEntryCallback();
-        pool.lease("somehost", null, -1, TimeUnit.MILLISECONDS, callback1);
+        Future<LocalPoolEntry> future1 = pool.lease("somehost", null);
         pool.requestCompleted(sessionRequest1);
-        BasicPoolEntryCallback callback2 = new BasicPoolEntryCallback();
-        pool.lease("somehost", null, -1, TimeUnit.MILLISECONDS, callback2);
+        Future<LocalPoolEntry> future2 = pool.lease("somehost", null);
         pool.requestCompleted(sessionRequest1);
-        BasicPoolEntryCallback callback3 = new BasicPoolEntryCallback();
-        pool.lease("otherhost", null, -1, TimeUnit.MILLISECONDS, callback3);
+        Future<LocalPoolEntry> future3 = pool.lease("otherhost", null);
         pool.requestCompleted(sessionRequest2);
 
-        LocalPoolEntry entry1 = callback1.getEntry();
+        LocalPoolEntry entry1 = future1.get();
         Assert.assertNotNull(entry1);
-        LocalPoolEntry entry2 = callback2.getEntry();
+        LocalPoolEntry entry2 = future2.get();
         Assert.assertNotNull(entry2);
-        LocalPoolEntry entry3 = callback3.getEntry();
+        LocalPoolEntry entry3 = future3.get();
         Assert.assertNotNull(entry3);
 
         pool.release(entry1, true);
@@ -438,31 +402,25 @@ public class TestNIOConnPool {
         Assert.assertEquals(0, totals.getLeased());
         Assert.assertEquals(0, totals.getPending());
 
-        BasicPoolEntryCallback callback4 = new BasicPoolEntryCallback();
-        pool.lease("somehost", null, -1, TimeUnit.MILLISECONDS, callback4);
-        BasicPoolEntryCallback callback5 = new BasicPoolEntryCallback();
-        pool.lease("somehost", null, -1, TimeUnit.MILLISECONDS, callback5);
-        BasicPoolEntryCallback callback6 = new BasicPoolEntryCallback();
-        pool.lease("otherhost", null, -1, TimeUnit.MILLISECONDS, callback6);
-        BasicPoolEntryCallback callback7 = new BasicPoolEntryCallback();
-        pool.lease("somehost", null, -1, TimeUnit.MILLISECONDS, callback7);
-        BasicPoolEntryCallback callback8 = new BasicPoolEntryCallback();
-        pool.lease("somehost", null, -1, TimeUnit.MILLISECONDS, callback8);
-        BasicPoolEntryCallback callback9 = new BasicPoolEntryCallback();
-        pool.lease("otherhost", null, -1, TimeUnit.MILLISECONDS, callback9);
+        Future<LocalPoolEntry> future4 = pool.lease("somehost", null);
+        Future<LocalPoolEntry> future5 = pool.lease("somehost", null);
+        Future<LocalPoolEntry> future6 = pool.lease("otherhost", null);
+        Future<LocalPoolEntry> future7 = pool.lease("somehost", null);
+        Future<LocalPoolEntry> future8 = pool.lease("somehost", null);
+        Future<LocalPoolEntry> future9 = pool.lease("otherhost", null);
 
-        Assert.assertTrue(callback4.isCompleted());
-        LocalPoolEntry entry4 = callback4.getEntry();
+        Assert.assertTrue(future4.isDone());
+        LocalPoolEntry entry4 = future4.get();
         Assert.assertNotNull(entry4);
-        Assert.assertTrue(callback5.isCompleted());
-        LocalPoolEntry entry5 = callback5.getEntry();
+        Assert.assertTrue(future5.isDone());
+        LocalPoolEntry entry5 = future5.get();
         Assert.assertNotNull(entry5);
-        Assert.assertTrue(callback6.isCompleted());
-        LocalPoolEntry entry6 = callback6.getEntry();
+        Assert.assertTrue(future6.isDone());
+        LocalPoolEntry entry6 = future6.get();
         Assert.assertNotNull(entry6);
-        Assert.assertFalse(callback7.isCompleted());
-        Assert.assertFalse(callback8.isCompleted());
-        Assert.assertFalse(callback9.isCompleted());
+        Assert.assertFalse(future7.isDone());
+        Assert.assertFalse(future8.isDone());
+        Assert.assertFalse(future9.isDone());
 
         Mockito.verify(ioreactor, Mockito.times(3)).connect(
                 Mockito.any(SocketAddress.class), Mockito.any(SocketAddress.class),
@@ -472,9 +430,9 @@ public class TestNIOConnPool {
         pool.release(entry5, false);
         pool.release(entry6, true);
 
-        Assert.assertTrue(callback7.isCompleted());
-        Assert.assertFalse(callback8.isCompleted());
-        Assert.assertTrue(callback9.isCompleted());
+        Assert.assertTrue(future7.isDone());
+        Assert.assertFalse(future8.isDone());
+        Assert.assertTrue(future9.isDone());
 
         Mockito.verify(ioreactor, Mockito.times(4)).connect(
                 Mockito.any(SocketAddress.class), Mockito.any(SocketAddress.class),
@@ -520,14 +478,10 @@ public class TestNIOConnPool {
         pool.setMaxPerHost("otherhost", 2);
         pool.setTotalMax(2);
 
-        BasicPoolEntryCallback callback1 = new BasicPoolEntryCallback();
-        pool.lease("somehost", null, -1, TimeUnit.MILLISECONDS, callback1);
-        BasicPoolEntryCallback callback2 = new BasicPoolEntryCallback();
-        pool.lease("somehost", null, -1, TimeUnit.MILLISECONDS, callback2);
-        BasicPoolEntryCallback callback3 = new BasicPoolEntryCallback();
-        pool.lease("otherhost", null, -1, TimeUnit.MILLISECONDS, callback3);
-        BasicPoolEntryCallback callback4 = new BasicPoolEntryCallback();
-        pool.lease("otherhost", null, -1, TimeUnit.MILLISECONDS, callback4);
+        Future<LocalPoolEntry> future1 = pool.lease("somehost", null);
+        Future<LocalPoolEntry> future2 = pool.lease("somehost", null);
+        Future<LocalPoolEntry> future3 = pool.lease("otherhost", null);
+        Future<LocalPoolEntry> future4 = pool.lease("otherhost", null);
 
         Mockito.verify(ioreactor, Mockito.times(2)).connect(
                 Mockito.eq(InetSocketAddress.createUnresolved("somehost", 80)),
@@ -542,15 +496,15 @@ public class TestNIOConnPool {
         pool.requestCompleted(sessionRequest1);
         pool.requestCompleted(sessionRequest2);
 
-        Assert.assertTrue(callback1.isCompleted());
-        LocalPoolEntry entry1 = callback1.getEntry();
+        Assert.assertTrue(future1.isDone());
+        LocalPoolEntry entry1 = future1.get();
         Assert.assertNotNull(entry1);
-        Assert.assertTrue(callback2.isCompleted());
-        LocalPoolEntry entry2 = callback2.getEntry();
+        Assert.assertTrue(future2.isDone());
+        LocalPoolEntry entry2 = future2.get();
         Assert.assertNotNull(entry2);
 
-        Assert.assertFalse(callback3.isCompleted());
-        Assert.assertFalse(callback4.isCompleted());
+        Assert.assertFalse(future3.isDone());
+        Assert.assertFalse(future4.isDone());
 
         PoolStats totals = pool.getTotalStats();
         Assert.assertEquals(0, totals.getAvailable());
@@ -573,11 +527,11 @@ public class TestNIOConnPool {
         pool.requestCompleted(sessionRequest3);
         pool.requestCompleted(sessionRequest4);
 
-        Assert.assertTrue(callback3.isCompleted());
-        LocalPoolEntry entry3 = callback3.getEntry();
+        Assert.assertTrue(future3.isDone());
+        LocalPoolEntry entry3 = future3.get();
         Assert.assertNotNull(entry3);
-        Assert.assertTrue(callback4.isCompleted());
-        LocalPoolEntry entry4 = callback4.getEntry();
+        Assert.assertTrue(future4.isDone());
+        LocalPoolEntry entry4 = future4.get();
         Assert.assertNotNull(entry4);
 
         totals = pool.getTotalStats();
@@ -585,10 +539,8 @@ public class TestNIOConnPool {
         Assert.assertEquals(2, totals.getLeased());
         Assert.assertEquals(0, totals.getPending());
 
-        BasicPoolEntryCallback callback5 = new BasicPoolEntryCallback();
-        pool.lease("somehost", null, -1, TimeUnit.MILLISECONDS, callback5);
-        BasicPoolEntryCallback callback6 = new BasicPoolEntryCallback();
-        pool.lease("otherhost", null, -1, TimeUnit.MILLISECONDS, callback6);
+        Future<LocalPoolEntry> future5 = pool.lease("somehost", null);
+        Future<LocalPoolEntry> future6 = pool.lease("otherhost", null);
 
         Mockito.verify(ioreactor, Mockito.times(2)).connect(
                 Mockito.eq(InetSocketAddress.createUnresolved("somehost", 80)),
@@ -615,11 +567,11 @@ public class TestNIOConnPool {
 
         pool.requestCompleted(sessionRequest1);
 
-        Assert.assertTrue(callback5.isCompleted());
-        LocalPoolEntry entry5 = callback5.getEntry();
+        Assert.assertTrue(future5.isDone());
+        LocalPoolEntry entry5 = future5.get();
         Assert.assertNotNull(entry5);
-        Assert.assertTrue(callback6.isCompleted());
-        LocalPoolEntry entry6 = callback6.getEntry();
+        Assert.assertTrue(future6.isDone());
+        LocalPoolEntry entry6 = future6.get();
         Assert.assertNotNull(entry6);
 
         totals = pool.getTotalStats();
@@ -663,8 +615,7 @@ public class TestNIOConnPool {
 
         LocalSessionPool pool = new LocalSessionPool(ioreactor, 2, 2);
 
-        BasicPoolEntryCallback callback1 = new BasicPoolEntryCallback();
-        pool.lease("somehost", null, -1, TimeUnit.MILLISECONDS, callback1);
+        Future<LocalPoolEntry> future1 = pool.lease("somehost", null);
 
         Mockito.verify(ioreactor, Mockito.times(1)).connect(
                 Mockito.any(SocketAddress.class), Mockito.any(SocketAddress.class),
@@ -672,8 +623,8 @@ public class TestNIOConnPool {
 
         pool.requestCompleted(sessionRequest1);
 
-        Assert.assertTrue(callback1.isCompleted());
-        LocalPoolEntry entry1 = callback1.getEntry();
+        Assert.assertTrue(future1.isDone());
+        LocalPoolEntry entry1 = future1.get();
         Assert.assertNotNull(entry1);
 
         entry1.updateExpiry(1, TimeUnit.MILLISECONDS);
@@ -681,10 +632,9 @@ public class TestNIOConnPool {
 
         Thread.sleep(200L);
 
-        BasicPoolEntryCallback callback2 = new BasicPoolEntryCallback();
-        pool.lease("somehost", null, -1, TimeUnit.MILLISECONDS, callback2);
+        Future<LocalPoolEntry> future2 = pool.lease("somehost", null);
 
-        Assert.assertFalse(callback2.isCompleted());
+        Assert.assertFalse(future2.isDone());
 
         Mockito.verify(iosession1).close();
         Mockito.verify(ioreactor, Mockito.times(2)).connect(
@@ -722,19 +672,17 @@ public class TestNIOConnPool {
 
         LocalSessionPool pool = new LocalSessionPool(ioreactor, 2, 2);
 
-        BasicPoolEntryCallback callback1 = new BasicPoolEntryCallback();
-        pool.lease("somehost", null, -1, TimeUnit.MILLISECONDS, callback1);
-        BasicPoolEntryCallback callback2 = new BasicPoolEntryCallback();
-        pool.lease("somehost", null, -1, TimeUnit.MILLISECONDS, callback2);
+        Future<LocalPoolEntry> future1 = pool.lease("somehost", null);
+        Future<LocalPoolEntry> future2 = pool.lease("somehost", null);
 
         pool.requestCompleted(sessionRequest1);
         pool.requestCompleted(sessionRequest2);
 
-        Assert.assertTrue(callback1.isCompleted());
-        LocalPoolEntry entry1 = callback1.getEntry();
+        Assert.assertTrue(future1.isDone());
+        LocalPoolEntry entry1 = future1.get();
         Assert.assertNotNull(entry1);
-        Assert.assertTrue(callback2.isCompleted());
-        LocalPoolEntry entry2 = callback2.getEntry();
+        Assert.assertTrue(future2.isDone());
+        LocalPoolEntry entry2 = future2.get();
         Assert.assertNotNull(entry2);
 
         entry1.updateExpiry(1, TimeUnit.MILLISECONDS);
@@ -780,19 +728,17 @@ public class TestNIOConnPool {
 
         LocalSessionPool pool = new LocalSessionPool(ioreactor, 2, 2);
 
-        BasicPoolEntryCallback callback1 = new BasicPoolEntryCallback();
-        pool.lease("somehost", null, -1, TimeUnit.MILLISECONDS, callback1);
-        BasicPoolEntryCallback callback2 = new BasicPoolEntryCallback();
-        pool.lease("somehost", null, -1, TimeUnit.MILLISECONDS, callback2);
+        Future<LocalPoolEntry> future1 = pool.lease("somehost", null);
+        Future<LocalPoolEntry> future2 = pool.lease("somehost", null);
 
         pool.requestCompleted(sessionRequest1);
         pool.requestCompleted(sessionRequest2);
 
-        Assert.assertTrue(callback1.isCompleted());
-        LocalPoolEntry entry1 = callback1.getEntry();
+        Assert.assertTrue(future1.isDone());
+        LocalPoolEntry entry1 = future1.get();
         Assert.assertNotNull(entry1);
-        Assert.assertTrue(callback2.isCompleted());
-        LocalPoolEntry entry2 = callback2.getEntry();
+        Assert.assertTrue(future2.isDone());
+        LocalPoolEntry entry2 = future2.get();
         Assert.assertNotNull(entry2);
 
         entry1.updateExpiry(0, TimeUnit.MILLISECONDS);
@@ -880,7 +826,7 @@ public class TestNIOConnPool {
         pool.shutdown(1000);
         Mockito.verify(ioreactor, Mockito.times(1)).shutdown(1000);
         try {
-            pool.lease("somehost", null, 0, TimeUnit.MILLISECONDS, new BasicPoolEntryCallback());
+            pool.lease("somehost", null);
             Assert.fail("IllegalStateException should have been thrown");
         } catch (IllegalStateException expected) {
         }

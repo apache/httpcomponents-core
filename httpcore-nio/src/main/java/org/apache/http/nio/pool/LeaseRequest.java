@@ -26,26 +26,26 @@
  */
 package org.apache.http.nio.pool;
 
-import org.apache.http.nio.reactor.IOSession;
+import org.apache.http.concurrent.BasicFuture;
 import org.apache.http.pool.PoolEntry;
 
-class LeaseRequest<T, E extends PoolEntry<T, IOSession>> {
+class LeaseRequest<T, C, E extends PoolEntry<T, C>> {
 
     private final T route;
     private final Object state;
     private final int connectTimeout;
-    private final PoolEntryCallback<E> callback;
+    private final BasicFuture<E> future;
 
     public LeaseRequest(
             final T route,
             final Object state,
             final int connectTimeout,
-            final PoolEntryCallback<E> callback) {
+            final BasicFuture<E> future) {
         super();
         this.route = route;
         this.state = state;
         this.connectTimeout = connectTimeout;
-        this.callback = callback;
+        this.future = future;
     }
 
     public T getRoute() {
@@ -56,8 +56,8 @@ class LeaseRequest<T, E extends PoolEntry<T, IOSession>> {
         return this.state;
     }
 
-    public PoolEntryCallback<E> getCallback() {
-        return this.callback;
+    public BasicFuture<E> getFuture() {
+        return this.future;
     }
 
     public int getConnectTimeout() {

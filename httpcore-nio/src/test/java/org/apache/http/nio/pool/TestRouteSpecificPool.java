@@ -28,9 +28,11 @@ package org.apache.http.nio.pool;
 
 import java.io.IOException;
 import java.net.SocketTimeoutException;
+import java.util.concurrent.ExecutionException;
 
 import junit.framework.Assert;
 
+import org.apache.http.concurrent.BasicFuture;
 import org.apache.http.nio.reactor.IOSession;
 import org.apache.http.nio.reactor.SessionRequest;
 import org.apache.http.pool.PoolEntry;
@@ -46,60 +48,22 @@ public class TestRouteSpecificPool {
         }
 
     }
-    
-    static class BasicPoolEntryCallback implements PoolEntryCallback<LocalPoolEntry> {
 
-        private LocalPoolEntry entry;
-        private Exception ex;
-        private boolean completed;
-        private boolean failed;
-        private boolean cancelled;
-
-        public void completed(final LocalPoolEntry entry) {
-            this.entry = entry;
-            this.completed = true;
-        }
-
-        public LocalPoolEntry getEntry() {
-            return this.entry;
-        }
-
-        public Exception getException() {
-            return this.ex;
-        }
-
-        public void failed(final Exception ex) {
-            this.ex = ex;
-            this.failed = true;
-        }
-
-        public void cancelled() {
-            this.cancelled = true;
-        }
-
-        public boolean isCompleted() {
-            return this.completed;
-        }
-
-        public boolean isFailed() {
-            return this.failed;
-        }
-
-        public boolean isCancelled() {
-            return this.cancelled;
-        }
-
-    }    
-
-    static class LocalRoutePool extends RouteSpecificPool<String, LocalPoolEntry> {
+    static class LocalRoutePool extends RouteSpecificPool<String, IOSession, LocalPoolEntry> {
 
         public LocalRoutePool() {
             super("whatever");
         }
 
         @Override
-        protected LocalPoolEntry createEntry(String route, IOSession session) {
+        protected LocalPoolEntry createEntry(final String route, final IOSession session) {
             return new LocalPoolEntry(route, session);
+        }
+
+        @Override
+        protected void closeEntry(final LocalPoolEntry entry) {
+            IOSession session = entry.getConnection();
+            session.close();
         }
 
     };
@@ -120,18 +84,17 @@ public class TestRouteSpecificPool {
         IOSession session = Mockito.mock(IOSession.class);
         SessionRequest sessionRequest = Mockito.mock(SessionRequest.class);
         Mockito.when(sessionRequest.getSession()).thenReturn(session);
-        BasicPoolEntryCallback callback = new BasicPoolEntryCallback();
-        pool.addPending(sessionRequest, callback);
+        BasicFuture<LocalPoolEntry> future = new BasicFuture<LocalPoolEntry>(null);
+        pool.addPending(sessionRequest, future);
         Assert.assertEquals(1, pool.getAllocatedCount());
         Assert.assertEquals(0, pool.getAvailableCount());
         Assert.assertEquals(0, pool.getLeasedCount());
         Assert.assertEquals(1, pool.getPendingCount());
-        LocalPoolEntry entry = pool.completed(sessionRequest);
+        LocalPoolEntry entry = pool.completed(sessionRequest, session);
         Assert.assertNotNull(entry);
         Assert.assertSame(session, entry.getConnection());
-        Assert.assertTrue(callback.isCompleted());
-        Assert.assertFalse(callback.isFailed());
-        Assert.assertFalse(callback.isCancelled());
+        Assert.assertTrue(future.isDone());
+        Assert.assertFalse(future.isCancelled());
 
         Assert.assertEquals(1, pool.getAllocatedCount());
         Assert.assertEquals(0, pool.getAvailableCount());
@@ -142,20 +105,23 @@ public class TestRouteSpecificPool {
     @Test
     public void testFailedConnect() throws Exception {
         LocalRoutePool pool = new LocalRoutePool();
-        IOException ex = new IOException();
         SessionRequest sessionRequest = Mockito.mock(SessionRequest.class);
-        Mockito.when(sessionRequest.getException()).thenReturn(ex);
-        BasicPoolEntryCallback callback = new BasicPoolEntryCallback();
-        pool.addPending(sessionRequest, callback);
+        Mockito.when(sessionRequest.getException()).thenReturn(new IOException());
+        BasicFuture<LocalPoolEntry> future = new BasicFuture<LocalPoolEntry>(null);
+        pool.addPending(sessionRequest, future);
         Assert.assertEquals(1, pool.getAllocatedCount());
         Assert.assertEquals(0, pool.getAvailableCount());
         Assert.assertEquals(0, pool.getLeasedCount());
         Assert.assertEquals(1, pool.getPendingCount());
         pool.failed(sessionRequest);
-        Assert.assertFalse(callback.isCompleted());
-        Assert.assertTrue(callback.isFailed());
-        Assert.assertFalse(callback.isCancelled());
-
+        Assert.assertTrue(future.isDone());
+        Assert.assertFalse(future.isCancelled());
+        try {
+            future.get();
+            Assert.fail("ExecutionException should have been thrown");
+        } catch (ExecutionException ex) {
+            Assert.assertTrue(ex.getCause() instanceof IOException);
+        }
         Assert.assertEquals(0, pool.getAllocatedCount());
         Assert.assertEquals(0, pool.getAvailableCount());
         Assert.assertEquals(0, pool.getLeasedCount());
@@ -166,16 +132,15 @@ public class TestRouteSpecificPool {
     public void testCancelledConnect() throws Exception {
         LocalRoutePool pool = new LocalRoutePool();
         SessionRequest sessionRequest = Mockito.mock(SessionRequest.class);
-        BasicPoolEntryCallback callback = new BasicPoolEntryCallback();
-        pool.addPending(sessionRequest, callback);
+        BasicFuture<LocalPoolEntry> future = new BasicFuture<LocalPoolEntry>(null);
+        pool.addPending(sessionRequest, future);
         Assert.assertEquals(1, pool.getAllocatedCount());
         Assert.assertEquals(0, pool.getAvailableCount());
         Assert.assertEquals(0, pool.getLeasedCount());
         Assert.assertEquals(1, pool.getPendingCount());
         pool.cancelled(sessionRequest);
-        Assert.assertFalse(callback.isCompleted());
-        Assert.assertFalse(callback.isFailed());
-        Assert.assertTrue(callback.isCancelled());
+        Assert.assertTrue(future.isDone());
+        Assert.assertTrue(future.isCancelled());
 
         Assert.assertEquals(0, pool.getAllocatedCount());
         Assert.assertEquals(0, pool.getAvailableCount());
@@ -187,18 +152,21 @@ public class TestRouteSpecificPool {
     public void testConnectTimeout() throws Exception {
         LocalRoutePool pool = new LocalRoutePool();
         SessionRequest sessionRequest = Mockito.mock(SessionRequest.class);
-        BasicPoolEntryCallback callback = new BasicPoolEntryCallback();
-        pool.addPending(sessionRequest, callback);
+        BasicFuture<LocalPoolEntry> future = new BasicFuture<LocalPoolEntry>(null);
+        pool.addPending(sessionRequest, future);
         Assert.assertEquals(1, pool.getAllocatedCount());
         Assert.assertEquals(0, pool.getAvailableCount());
         Assert.assertEquals(0, pool.getLeasedCount());
         Assert.assertEquals(1, pool.getPendingCount());
         pool.timeout(sessionRequest);
-        Assert.assertFalse(callback.isCompleted());
-        Assert.assertTrue(callback.isFailed());
-        Assert.assertFalse(callback.isCancelled());
-        Assert.assertTrue(callback.getException() instanceof SocketTimeoutException);
-
+        Assert.assertTrue(future.isDone());
+        Assert.assertFalse(future.isCancelled());
+        try {
+            future.get();
+            Assert.fail("ExecutionException should have been thrown");
+        } catch (ExecutionException ex) {
+            Assert.assertTrue(ex.getCause() instanceof SocketTimeoutException);
+        }
         Assert.assertEquals(0, pool.getAllocatedCount());
         Assert.assertEquals(0, pool.getAvailableCount());
         Assert.assertEquals(0, pool.getLeasedCount());
@@ -211,26 +179,29 @@ public class TestRouteSpecificPool {
         IOSession session1 = Mockito.mock(IOSession.class);
         SessionRequest sessionRequest1 = Mockito.mock(SessionRequest.class);
         Mockito.when(sessionRequest1.getSession()).thenReturn(session1);
-        pool.addPending(sessionRequest1, new BasicPoolEntryCallback());
+        BasicFuture<LocalPoolEntry> future1 = new BasicFuture<LocalPoolEntry>(null);
+        pool.addPending(sessionRequest1, future1);
         IOSession session2 = Mockito.mock(IOSession.class);
         SessionRequest sessionRequest2 = Mockito.mock(SessionRequest.class);
         Mockito.when(sessionRequest2.getSession()).thenReturn(session2);
-        pool.addPending(sessionRequest2, new BasicPoolEntryCallback());
+        BasicFuture<LocalPoolEntry> future2 = new BasicFuture<LocalPoolEntry>(null);
+        pool.addPending(sessionRequest2, future2);
         IOSession session3 = Mockito.mock(IOSession.class);
         SessionRequest sessionRequest3 = Mockito.mock(SessionRequest.class);
         Mockito.when(sessionRequest3.getSession()).thenReturn(session3);
-        pool.addPending(sessionRequest3, new BasicPoolEntryCallback());
+        BasicFuture<LocalPoolEntry> future3 = new BasicFuture<LocalPoolEntry>(null);
+        pool.addPending(sessionRequest3, future3);
 
         Assert.assertEquals(3, pool.getAllocatedCount());
         Assert.assertEquals(0, pool.getAvailableCount());
         Assert.assertEquals(0, pool.getLeasedCount());
         Assert.assertEquals(3, pool.getPendingCount());
 
-        LocalPoolEntry entry1 = pool.completed(sessionRequest1);
+        LocalPoolEntry entry1 = pool.completed(sessionRequest1, session1);
         Assert.assertNotNull(entry1);
-        LocalPoolEntry entry2 = pool.completed(sessionRequest2);
+        LocalPoolEntry entry2 = pool.completed(sessionRequest2, session2);
         Assert.assertNotNull(entry2);
-        LocalPoolEntry entry3 = pool.completed(sessionRequest3);
+        LocalPoolEntry entry3 = pool.completed(sessionRequest3, session3);
         Assert.assertNotNull(entry3);
 
         Assert.assertEquals(3, pool.getAllocatedCount());
@@ -260,24 +231,28 @@ public class TestRouteSpecificPool {
     @Test
     public void testLeaseReleaseStateful() throws Exception {
         LocalRoutePool pool = new LocalRoutePool();
+
         IOSession session1 = Mockito.mock(IOSession.class);
         SessionRequest sessionRequest1 = Mockito.mock(SessionRequest.class);
         Mockito.when(sessionRequest1.getSession()).thenReturn(session1);
-        pool.addPending(sessionRequest1, new BasicPoolEntryCallback());
+        BasicFuture<LocalPoolEntry> future1 = new BasicFuture<LocalPoolEntry>(null);
+        pool.addPending(sessionRequest1, future1);
         IOSession session2 = Mockito.mock(IOSession.class);
         SessionRequest sessionRequest2 = Mockito.mock(SessionRequest.class);
         Mockito.when(sessionRequest2.getSession()).thenReturn(session2);
-        pool.addPending(sessionRequest2, new BasicPoolEntryCallback());
+        BasicFuture<LocalPoolEntry> future2 = new BasicFuture<LocalPoolEntry>(null);
+        pool.addPending(sessionRequest2, future2);
         IOSession session3 = Mockito.mock(IOSession.class);
         SessionRequest sessionRequest3 = Mockito.mock(SessionRequest.class);
         Mockito.when(sessionRequest3.getSession()).thenReturn(session3);
-        pool.addPending(sessionRequest3, new BasicPoolEntryCallback());
+        BasicFuture<LocalPoolEntry> future3 = new BasicFuture<LocalPoolEntry>(null);
+        pool.addPending(sessionRequest3, future3);
 
-        LocalPoolEntry entry1 = pool.completed(sessionRequest1);
+        LocalPoolEntry entry1 = pool.completed(sessionRequest1, session1);
         Assert.assertNotNull(entry1);
-        LocalPoolEntry entry2 = pool.completed(sessionRequest2);
+        LocalPoolEntry entry2 = pool.completed(sessionRequest2, session2);
         Assert.assertNotNull(entry2);
-        LocalPoolEntry entry3 = pool.completed(sessionRequest3);
+        LocalPoolEntry entry3 = pool.completed(sessionRequest3, session3);
         Assert.assertNotNull(entry3);
 
         entry2.setState(Boolean.FALSE);
@@ -319,26 +294,29 @@ public class TestRouteSpecificPool {
         IOSession session1 = Mockito.mock(IOSession.class);
         SessionRequest sessionRequest1 = Mockito.mock(SessionRequest.class);
         Mockito.when(sessionRequest1.getSession()).thenReturn(session1);
-        pool.addPending(sessionRequest1, new BasicPoolEntryCallback());
+        BasicFuture<LocalPoolEntry> future1 = new BasicFuture<LocalPoolEntry>(null);
+        pool.addPending(sessionRequest1, future1);
         IOSession session2 = Mockito.mock(IOSession.class);
         SessionRequest sessionRequest2 = Mockito.mock(SessionRequest.class);
         Mockito.when(sessionRequest2.getSession()).thenReturn(session2);
-        pool.addPending(sessionRequest2, new BasicPoolEntryCallback());
+        BasicFuture<LocalPoolEntry> future2 = new BasicFuture<LocalPoolEntry>(null);
+        pool.addPending(sessionRequest2, future2);
         IOSession session3 = Mockito.mock(IOSession.class);
         SessionRequest sessionRequest3 = Mockito.mock(SessionRequest.class);
         Mockito.when(sessionRequest3.getSession()).thenReturn(session3);
-        pool.addPending(sessionRequest3, new BasicPoolEntryCallback());
+        BasicFuture<LocalPoolEntry> future3 = new BasicFuture<LocalPoolEntry>(null);
+        pool.addPending(sessionRequest3, future3);
 
         Assert.assertEquals(3, pool.getAllocatedCount());
         Assert.assertEquals(0, pool.getAvailableCount());
         Assert.assertEquals(0, pool.getLeasedCount());
         Assert.assertEquals(3, pool.getPendingCount());
 
-        LocalPoolEntry entry1 = pool.completed(sessionRequest1);
+        LocalPoolEntry entry1 = pool.completed(sessionRequest1, session1);
         Assert.assertNotNull(entry1);
-        LocalPoolEntry entry2 = pool.completed(sessionRequest2);
+        LocalPoolEntry entry2 = pool.completed(sessionRequest2, session2);
         Assert.assertNotNull(entry2);
-        LocalPoolEntry entry3 = pool.completed(sessionRequest3);
+        LocalPoolEntry entry3 = pool.completed(sessionRequest3, session3);
         Assert.assertNotNull(entry3);
 
         Assert.assertEquals(3, pool.getAllocatedCount());
@@ -389,19 +367,22 @@ public class TestRouteSpecificPool {
         IOSession session1 = Mockito.mock(IOSession.class);
         SessionRequest sessionRequest1 = Mockito.mock(SessionRequest.class);
         Mockito.when(sessionRequest1.getSession()).thenReturn(session1);
-        pool.addPending(sessionRequest1, new BasicPoolEntryCallback());
+        BasicFuture<LocalPoolEntry> future1 = new BasicFuture<LocalPoolEntry>(null);
+        pool.addPending(sessionRequest1, future1);
         IOSession session2 = Mockito.mock(IOSession.class);
         SessionRequest sessionRequest2 = Mockito.mock(SessionRequest.class);
         Mockito.when(sessionRequest2.getSession()).thenReturn(session2);
-        pool.addPending(sessionRequest2, new BasicPoolEntryCallback());
+        BasicFuture<LocalPoolEntry> future2 = new BasicFuture<LocalPoolEntry>(null);
+        pool.addPending(sessionRequest2, future2);
         IOSession session3 = Mockito.mock(IOSession.class);
         SessionRequest sessionRequest3 = Mockito.mock(SessionRequest.class);
         Mockito.when(sessionRequest3.getSession()).thenReturn(session3);
-        pool.addPending(sessionRequest3, new BasicPoolEntryCallback());
+        BasicFuture<LocalPoolEntry> future3 = new BasicFuture<LocalPoolEntry>(null);
+        pool.addPending(sessionRequest3, future3);
 
-        LocalPoolEntry entry1 = pool.completed(sessionRequest1);
+        LocalPoolEntry entry1 = pool.completed(sessionRequest1, session1);
         Assert.assertNotNull(entry1);
-        LocalPoolEntry entry2 = pool.completed(sessionRequest2);
+        LocalPoolEntry entry2 = pool.completed(sessionRequest2, session2);
         Assert.assertNotNull(entry2);
 
         pool.free(entry1, true);

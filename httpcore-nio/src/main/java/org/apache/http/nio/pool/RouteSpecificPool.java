@@ -34,26 +34,28 @@ import java.util.LinkedList;
 import java.util.Map;
 import java.util.Set;
 
-import org.apache.http.nio.reactor.IOSession;
+import org.apache.http.concurrent.BasicFuture;
 import org.apache.http.nio.reactor.SessionRequest;
 import org.apache.http.pool.PoolEntry;
 
-abstract class RouteSpecificPool<T, E extends PoolEntry<T, IOSession>> {
+abstract class RouteSpecificPool<T, C, E extends PoolEntry<T, C>> {
 
     private final T route;
     private final Set<E> leased;
     private final LinkedList<E> available;
-    private final Map<SessionRequest, PoolEntryCallback<E>> pending;
+    private final Map<SessionRequest, BasicFuture<E>> pending;
 
     RouteSpecificPool(final T route) {
         super();
         this.route = route;
         this.leased = new HashSet<E>();
         this.available = new LinkedList<E>();
-        this.pending = new HashMap<SessionRequest, PoolEntryCallback<E>>();
+        this.pending = new HashMap<SessionRequest, BasicFuture<E>>();
     }
 
-    protected abstract E createEntry(T route, IOSession session);
+    protected abstract E createEntry(T route, C conn);
+
+    protected abstract void closeEntry(E entry);
 
     public int getLeasedCount() {
         return this.leased.size();
@@ -125,40 +127,39 @@ abstract class RouteSpecificPool<T, E extends PoolEntry<T, IOSession>> {
 
     public void addPending(
             final SessionRequest sessionRequest,
-            final PoolEntryCallback<E> callback) {
-        this.pending.put(sessionRequest, callback);
+            final BasicFuture<E> future) {
+        this.pending.put(sessionRequest, future);
     }
 
-    private PoolEntryCallback<E> removeRequest(final SessionRequest request) {
-        PoolEntryCallback<E> callback = this.pending.remove(request);
-        if (callback == null) {
+    private BasicFuture<E> removeRequest(final SessionRequest request) {
+        BasicFuture<E> future = this.pending.remove(request);
+        if (future == null) {
             throw new IllegalStateException("Invalid session request");
         }
-        return callback;
+        return future;
     }
 
-    public E completed(final SessionRequest request) {
-        PoolEntryCallback<E> callback = removeRequest(request);
-        IOSession iosession = request.getSession();
-        E entry = createEntry(this.route, iosession);
+    public E completed(final SessionRequest request, final C conn) {
+        BasicFuture<E> future = removeRequest(request);
+        E entry = createEntry(this.route, conn);
         this.leased.add(entry);
-        callback.completed(entry);
+        future.completed(entry);
         return entry;
     }
 
     public void cancelled(final SessionRequest request) {
-        PoolEntryCallback<E> callback = removeRequest(request);
-        callback.cancelled();
+        BasicFuture<E> future = removeRequest(request);
+        future.cancel(true);
     }
 
     public void failed(final SessionRequest request) {
-        PoolEntryCallback<E> callback = removeRequest(request);
-        callback.failed(request.getException());
+        BasicFuture<E> future = removeRequest(request);
+        future.failed(request.getException());
     }
 
     public void timeout(final SessionRequest request) {
-        PoolEntryCallback<E> callback = removeRequest(request);
-        callback.failed(new SocketTimeoutException());
+        BasicFuture<E> future = removeRequest(request);
+        future.failed(new SocketTimeoutException());
     }
 
     public void shutdown() {
@@ -167,11 +168,11 @@ abstract class RouteSpecificPool<T, E extends PoolEntry<T, IOSession>> {
         }
         this.pending.clear();
         for (E entry: this.available) {
-            entry.getConnection().close();
+            closeEntry(entry);
         }
         this.available.clear();
         for (E entry: this.leased) {
-            entry.getConnection().close();
+            closeEntry(entry);
         }
         this.leased.clear();
     }
