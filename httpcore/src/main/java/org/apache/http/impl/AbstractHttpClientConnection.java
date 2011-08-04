@@ -28,6 +28,7 @@
 package org.apache.http.impl;
 
 import java.io.IOException;
+import java.net.SocketTimeoutException;
 
 import org.apache.http.HttpClientConnection;
 import org.apache.http.HttpConnectionMetrics;
@@ -311,6 +312,8 @@ public abstract class AbstractHttpClientConnection implements HttpClientConnecti
         try {
             this.inbuffer.isDataAvailable(1);
             return isEof();
+        } catch (SocketTimeoutException ex) {
+            return false;
         } catch (IOException ex) {
             return true;
         }
