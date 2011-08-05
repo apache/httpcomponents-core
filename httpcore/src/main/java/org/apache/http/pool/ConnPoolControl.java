@@ -28,11 +28,11 @@ package org.apache.http.pool;
 
 public interface ConnPoolControl<T> {
 
-    void setTotalMax(int max);
+    void setMaxTotal(int max);
 
-    void setDefaultMaxPerHost(int max);
+    void setDefaultMaxPerRoute(int max);
 
-    void setMaxPerHost(final T route, int max);
+    void setMaxPerRoute(final T route, int max);
 
     PoolStats getTotalStats();
 

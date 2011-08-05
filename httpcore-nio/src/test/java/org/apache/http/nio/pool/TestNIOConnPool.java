@@ -375,9 +375,9 @@ public class TestNIOConnPool {
                 thenReturn(sessionRequest2);
 
         LocalSessionPool pool = new LocalSessionPool(ioreactor, 2, 10);
-        pool.setMaxPerHost("somehost", 2);
-        pool.setMaxPerHost("otherhost", 1);
-        pool.setTotalMax(3);
+        pool.setMaxPerRoute("somehost", 2);
+        pool.setMaxPerRoute("otherhost", 1);
+        pool.setMaxTotal(3);
 
         Future<LocalPoolEntry> future1 = pool.lease("somehost", null);
         pool.requestCompleted(sessionRequest1);
@@ -474,9 +474,9 @@ public class TestNIOConnPool {
                 thenReturn(sessionRequest3, sessionRequest4, sessionRequest3);
 
         LocalSessionPool pool = new LocalSessionPool(ioreactor, 2, 10);
-        pool.setMaxPerHost("somehost", 2);
-        pool.setMaxPerHost("otherhost", 2);
-        pool.setTotalMax(2);
+        pool.setMaxPerRoute("somehost", 2);
+        pool.setMaxPerRoute("otherhost", 2);
+        pool.setMaxTotal(2);
 
         Future<LocalPoolEntry> future1 = pool.lease("somehost", null);
         Future<LocalPoolEntry> future2 = pool.lease("somehost", null);
@@ -796,22 +796,22 @@ public class TestNIOConnPool {
         ConnectingIOReactor ioreactor = Mockito.mock(ConnectingIOReactor.class);
         LocalSessionPool pool = new LocalSessionPool(ioreactor, 2, 2);
         try {
-            pool.setTotalMax(-1);
+            pool.setMaxTotal(-1);
             Assert.fail("IllegalArgumentException should have been thrown");
         } catch (IllegalArgumentException expected) {
         }
         try {
-            pool.setMaxPerHost(null, 1);
+            pool.setMaxPerRoute(null, 1);
             Assert.fail("IllegalArgumentException should have been thrown");
         } catch (IllegalArgumentException expected) {
         }
         try {
-            pool.setMaxPerHost("somehost", -1);
+            pool.setMaxPerRoute("somehost", -1);
             Assert.fail("IllegalArgumentException should have been thrown");
         } catch (IllegalArgumentException expected) {
         }
         try {
-            pool.setDefaultMaxPerHost(-1);
+            pool.setDefaultMaxPerRoute(-1);
             Assert.fail("IllegalArgumentException should have been thrown");
         } catch (IllegalArgumentException expected) {
         }

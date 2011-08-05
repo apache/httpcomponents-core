@@ -46,10 +46,11 @@ import org.apache.http.nio.reactor.ConnectingIOReactor;
 import org.apache.http.nio.reactor.IOSession;
 import org.apache.http.nio.reactor.SessionRequest;
 import org.apache.http.nio.reactor.SessionRequestCallback;
+import org.apache.http.pool.ConnPoolControl;
 import org.apache.http.pool.PoolEntry;
 import org.apache.http.pool.PoolStats;
 
-public abstract class AbstractNIOConnPool<T, C, E extends PoolEntry<T, C>> {
+public abstract class AbstractNIOConnPool<T, C, E extends PoolEntry<T, C>> implements ConnPoolControl<T> {
 
     private final ConnectingIOReactor ioreactor;
     private final SessionRequestCallback sessionRequestCallback;
@@ -359,7 +360,7 @@ public abstract class AbstractNIOConnPool<T, C, E extends PoolEntry<T, C>> {
         }
     }
 
-    public void setTotalMax(int max) {
+    public void setMaxTotal(int max) {
         if (max <= 0) {
             throw new IllegalArgumentException("Max value may not be negative or zero");
         }
@@ -371,7 +372,7 @@ public abstract class AbstractNIOConnPool<T, C, E extends PoolEntry<T, C>> {
         }
     }
 
-    public void setDefaultMaxPerHost(int max) {
+    public void setDefaultMaxPerRoute(int max) {
         if (max <= 0) {
             throw new IllegalArgumentException("Max value may not be negative or zero");
         }
@@ -383,7 +384,7 @@ public abstract class AbstractNIOConnPool<T, C, E extends PoolEntry<T, C>> {
         }
     }
 
-    public void setMaxPerHost(final T route, int max) {
+    public void setMaxPerRoute(final T route, int max) {
         if (route == null) {
             throw new IllegalArgumentException("Route may not be null");
         }

@@ -275,7 +275,7 @@ public abstract class AbstractConnPool<T, C, E extends PoolEntry<T, C>> implemen
         }
     }
 
-    public void setTotalMax(int max) {
+    public void setMaxTotal(int max) {
         if (max <= 0) {
             throw new IllegalArgumentException("Max value may not be negative or zero");
         }
@@ -287,7 +287,7 @@ public abstract class AbstractConnPool<T, C, E extends PoolEntry<T, C>> implemen
         }
     }
 
-    public void setDefaultMaxPerHost(int max) {
+    public void setDefaultMaxPerRoute(int max) {
         if (max <= 0) {
             throw new IllegalArgumentException("Max value may not be negative or zero");
         }
@@ -299,7 +299,7 @@ public abstract class AbstractConnPool<T, C, E extends PoolEntry<T, C>> implemen
         }
     }
 
-    public void setMaxPerHost(final T route, int max) {
+    public void setMaxPerRoute(final T route, int max) {
         if (route == null) {
             throw new IllegalArgumentException("Route may not be null");
         }

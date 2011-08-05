@@ -92,8 +92,8 @@ public class TestConnPool {
     public void testEmptyPool() throws Exception {
         HttpConnectionFactory connFactory = Mockito.mock(HttpConnectionFactory.class);
         LocalConnPool pool = new LocalConnPool(connFactory, 2, 10);
-        pool.setDefaultMaxPerHost(5);
-        pool.setMaxPerHost("somehost", 3);
+        pool.setDefaultMaxPerRoute(5);
+        pool.setMaxPerRoute("somehost", 3);
         PoolStats totals = pool.getTotalStats();
         Assert.assertEquals(0, totals.getAvailable());
         Assert.assertEquals(0, totals.getLeased());
@@ -231,9 +231,9 @@ public class TestConnPool {
         Mockito.when(connFactory.create(Mockito.eq("otherhost"))).thenReturn(conn2);
 
         LocalConnPool pool = new LocalConnPool(connFactory, 2, 10);
-        pool.setMaxPerHost("somehost", 2);
-        pool.setMaxPerHost("otherhost", 1);
-        pool.setTotalMax(3);
+        pool.setMaxPerRoute("somehost", 2);
+        pool.setMaxPerRoute("otherhost", 1);
+        pool.setMaxTotal(3);
 
         Future<LocalPoolEntry> future1 = pool.lease("somehost", null);
         GetPoolEntryThread t1 = new GetPoolEntryThread(future1);
@@ -333,9 +333,9 @@ public class TestConnPool {
         Mockito.when(connFactory.create(Mockito.eq("otherhost"))).thenReturn(conn4, conn5);
 
         LocalConnPool pool = new LocalConnPool(connFactory, 2, 10);
-        pool.setMaxPerHost("somehost", 2);
-        pool.setMaxPerHost("otherhost", 2);
-        pool.setTotalMax(2);
+        pool.setMaxPerRoute("somehost", 2);
+        pool.setMaxPerRoute("otherhost", 2);
+        pool.setMaxTotal(2);
 
         Future<LocalPoolEntry> future1 = pool.lease("somehost", null);
         GetPoolEntryThread t1 = new GetPoolEntryThread(future1);
@@ -646,22 +646,22 @@ public class TestConnPool {
         HttpConnectionFactory connFactory = Mockito.mock(HttpConnectionFactory.class);
         LocalConnPool pool = new LocalConnPool(connFactory, 2, 2);
         try {
-            pool.setTotalMax(-1);
+            pool.setMaxTotal(-1);
             Assert.fail("IllegalArgumentException should have been thrown");
         } catch (IllegalArgumentException expected) {
         }
         try {
-            pool.setMaxPerHost(null, 1);
+            pool.setMaxPerRoute(null, 1);
             Assert.fail("IllegalArgumentException should have been thrown");
         } catch (IllegalArgumentException expected) {
         }
         try {
-            pool.setMaxPerHost("somehost", -1);
+            pool.setMaxPerRoute("somehost", -1);
             Assert.fail("IllegalArgumentException should have been thrown");
         } catch (IllegalArgumentException expected) {
         }
         try {
-            pool.setDefaultMaxPerHost(-1);
+            pool.setDefaultMaxPerRoute(-1);
             Assert.fail("IllegalArgumentException should have been thrown");
         } catch (IllegalArgumentException expected) {
         }
