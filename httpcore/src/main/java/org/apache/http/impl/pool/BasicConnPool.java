@@ -35,11 +35,13 @@ import javax.net.ssl.SSLSocketFactory;
 import org.apache.http.HttpClientConnection;
 import org.apache.http.HttpConnection;
 import org.apache.http.HttpHost;
+import org.apache.http.annotation.ThreadSafe;
 import org.apache.http.impl.DefaultHttpClientConnection;
 import org.apache.http.params.HttpConnectionParams;
 import org.apache.http.params.HttpParams;
 import org.apache.http.pool.AbstractConnPool;
 
+@ThreadSafe
 public class BasicConnPool extends AbstractConnPool<HttpHost, HttpClientConnection, BasicPoolEntry> {
 
     private final SSLSocketFactory sslfactory;

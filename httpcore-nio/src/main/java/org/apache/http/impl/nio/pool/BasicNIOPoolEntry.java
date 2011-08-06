@@ -27,9 +27,11 @@
 package org.apache.http.impl.nio.pool;
 
 import org.apache.http.HttpHost;
+import org.apache.http.annotation.ThreadSafe;
 import org.apache.http.nio.NHttpClientConnection;
 import org.apache.http.pool.PoolEntry;
 
+@ThreadSafe
 public class BasicNIOPoolEntry extends PoolEntry<HttpHost, NHttpClientConnection> {
 
     public BasicNIOPoolEntry(final HttpHost route, final NHttpClientConnection conn) {

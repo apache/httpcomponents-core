@@ -35,6 +35,9 @@ import java.util.concurrent.TimeoutException;
 import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.Lock;
 
+import org.apache.http.annotation.ThreadSafe;
+
+@ThreadSafe
 abstract class PoolEntryFuture<T> implements Future<T> {
 
     private final Lock lock;

@@ -40,14 +40,17 @@ import java.util.concurrent.TimeoutException;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
+import org.apache.http.annotation.ThreadSafe;
+
+@ThreadSafe
 public abstract class AbstractConnPool<T, C, E extends PoolEntry<T, C>> implements ConnPoolControl<T> {
 
+    private final Lock lock;
     private final Map<T, RouteSpecificPool<T, C, E>> routeToPool;
     private final Set<E> leased;
     private final LinkedList<E> available;
     private final LinkedList<PoolEntryFuture<E>> pending;
     private final Map<T, Integer> maxPerRoute;
-    private final Lock lock;
 
     private volatile boolean isShutDown;
     private volatile int defaultMaxPerRoute;
@@ -63,12 +66,12 @@ public abstract class AbstractConnPool<T, C, E extends PoolEntry<T, C>> implemen
         if (maxTotal <= 0) {
             throw new IllegalArgumentException("Max total value may not be negative or zero");
         }
+        this.lock = new ReentrantLock();
         this.routeToPool = new HashMap<T, RouteSpecificPool<T, C, E>>();
         this.leased = new HashSet<E>();
         this.available = new LinkedList<E>();
         this.pending = new LinkedList<PoolEntryFuture<E>>();
         this.maxPerRoute = new HashMap<T, Integer>();
-        this.lock = new ReentrantLock();
         this.defaultMaxPerRoute = defaultMaxPerRoute;
         this.maxTotal = maxTotal;
     }

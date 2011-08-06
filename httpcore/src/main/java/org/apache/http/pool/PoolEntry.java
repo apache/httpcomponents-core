@@ -29,6 +29,9 @@ package org.apache.http.pool;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicLong;
 
+import org.apache.http.annotation.ThreadSafe;
+
+@ThreadSafe
 public class PoolEntry<T, C> {
 
     private static AtomicLong COUNTER = new AtomicLong();
@@ -70,6 +73,10 @@ public class PoolEntry<T, C> {
         this(route, conn, 0, TimeUnit.MILLISECONDS);
     }
 
+    public long getId() {
+        return this.id;
+    }
+
     public T getRoute() {
         return this.route;
     }
@@ -94,15 +101,15 @@ public class PoolEntry<T, C> {
         this.state = state;
     }
 
-    public long getUpdated() {
+    public synchronized long getUpdated() {
         return this.updated;
     }
 
-    public long getExpiry() {
+    public synchronized long getExpiry() {
         return this.expiry;
     }
 
-    public void updateExpiry(final long time, final TimeUnit tunit) {
+    public synchronized void updateExpiry(final long time, final TimeUnit tunit) {
         if (tunit == null) {
             throw new IllegalArgumentException("Time unit may not be null");
         }
@@ -116,7 +123,7 @@ public class PoolEntry<T, C> {
         this.expiry = Math.min(newExpiry, this.validUnit);
     }
 
-    public boolean isExpired(final long now) {
+    public synchronized boolean isExpired(final long now) {
         return now >= this.expiry;
     }
 

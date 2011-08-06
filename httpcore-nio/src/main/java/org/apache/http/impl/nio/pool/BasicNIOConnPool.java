@@ -33,6 +33,7 @@ import java.net.SocketAddress;
 import org.apache.http.HttpConnection;
 import org.apache.http.HttpHost;
 import org.apache.http.HttpResponseFactory;
+import org.apache.http.annotation.ThreadSafe;
 import org.apache.http.impl.DefaultHttpResponseFactory;
 import org.apache.http.impl.nio.DefaultNHttpClientConnection;
 import org.apache.http.nio.NHttpClientConnection;
@@ -43,6 +44,7 @@ import org.apache.http.nio.util.ByteBufferAllocator;
 import org.apache.http.nio.util.HeapByteBufferAllocator;
 import org.apache.http.params.HttpParams;
 
+@ThreadSafe
 public class BasicNIOConnPool extends AbstractNIOConnPool<HttpHost, NHttpClientConnection, BasicNIOPoolEntry> {
 
     private final HttpResponseFactory responseFactory;

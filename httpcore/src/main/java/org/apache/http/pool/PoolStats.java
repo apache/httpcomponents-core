@@ -26,6 +26,9 @@
  */
 package org.apache.http.pool;
 
+import org.apache.http.annotation.Immutable;
+
+@Immutable
 public class PoolStats {
 
     private final int leased;
