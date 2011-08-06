@@ -29,7 +29,9 @@ package org.apache.http.impl;
 
 import java.io.IOException;
 import java.net.InetAddress;
+import java.net.InetSocketAddress;
 import java.net.Socket;
+import java.net.SocketAddress;
 import java.net.SocketException;
 
 import org.apache.http.HttpInetConnection;
@@ -263,17 +265,33 @@ public class SocketHttpClientConnection
         }
     }
 
+    private static void formatAddress(final StringBuilder buffer, final SocketAddress socketAddress) {
+        if (socketAddress instanceof InetSocketAddress) {
+            InetSocketAddress addr = ((InetSocketAddress) socketAddress);
+            buffer.append(addr.getAddress() != null ? addr.getAddress().getHostAddress() :
+                addr.getAddress())
+            .append(':')
+            .append(addr.getPort());
+        } else {
+            buffer.append(socketAddress);
+        }
+    }
+
     @Override
     public String toString() {
-        StringBuilder buffer = new StringBuilder();
-        buffer.append("[");
-        if (isOpen()) {
-            buffer.append(getRemotePort());
+        if (this.socket != null) {
+            StringBuilder buffer = new StringBuilder();
+            SocketAddress remoteAddress = this.socket.getRemoteSocketAddress();
+            SocketAddress localAddress = this.socket.getLocalSocketAddress();
+            if (remoteAddress != null && localAddress != null) {
+                formatAddress(buffer, localAddress);
+                buffer.append("<->");
+                formatAddress(buffer, remoteAddress);
+            }
+            return buffer.toString();
         } else {
-            buffer.append("closed");
+            return super.toString();
         }
-        buffer.append("]");
-        return buffer.toString();
     }
 
 }
