@@ -82,8 +82,8 @@ public class NHttpClient {
 
         BasicNIOConnPool pool = new BasicNIOConnPool(ioReactor, params);
         // Limit total number of connections to just two
-        pool.setDefaultMaxPerHost(2);
-        pool.setTotalMax(2);
+        pool.setDefaultMaxPerRoute(2);
+        pool.setMaxTotal(2);
 
         HttpProcessor httpproc = new ImmutableHttpProcessor(new HttpRequestInterceptor[] {
                 new RequestContent(),

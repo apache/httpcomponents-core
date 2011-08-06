@@ -86,8 +86,8 @@ public class ElementalPoolingHttpGet {
         final HttpRequestExecutor httpexecutor = new HttpRequestExecutor();
 
         final BasicConnPool pool = new BasicConnPool(params);
-        pool.setDefaultMaxPerHost(2);
-        pool.setTotalMax(2);
+        pool.setDefaultMaxPerRoute(2);
+        pool.setMaxTotal(2);
 
         HttpHost[] targets = {
                 new HttpHost("www.google.com", 80),
