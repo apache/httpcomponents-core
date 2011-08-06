@@ -57,6 +57,71 @@ public class NStringEntity extends AbstractHttpEntity implements ProducingNHttpE
     protected final ByteBuffer buffer;
 
     /**
+     * Creates a NStringEntity with the specified content and content type.
+     *
+     * @param string content to be used. Not {@code null}.
+     * @param contentType content type to be used. May be {@code null}, in which case the default
+     *   MIME type {@link HTTP#PLAIN_TEXT_TYPE} i.e. "text/plain" and the default charset
+     *   {@link HTTP#DEFAULT_CONTENT_CHARSET} i.e. "ISO-8859-1" are assumed.
+     *
+     * @throws IllegalArgumentException if the string parameter is null or if the charset
+     *   specified in the CotnentType is not supported.
+     *
+     * @since 4.2
+     */
+    public static NStringEntity create(final String string, final ContentType contentType) {
+        try {
+            return new NStringEntity(string, contentType);
+        } catch (UnsupportedEncodingException ex) {
+            throw new IllegalArgumentException(ex.getMessage(), ex);
+        }
+    }
+
+    /**
+     * Creates a StringEntity with the specified content and charset. The mime type defaults
+     * to {@link HTTP#PLAIN_TEXT_TYPE} i.e. "text/plain".
+     *
+     * @param string content to be used. Not {@code null}.
+     * @param charset character set to be used. May be {@code null}, in which case the default
+     *   is {@link HTTP#DEFAULT_CONTENT_CHARSET} i.e. "ISO-8859-1"
+     *
+     * @throws IllegalArgumentException if the string parameter is null or if the charset
+     *   specified in the CotnentType is not supported.
+     *
+     * @since 4.2
+     */
+    public static NStringEntity create(
+            final String string, final String charset) {
+        return create(string, ContentType.create(HTTP.PLAIN_TEXT_TYPE, charset));
+    }
+
+    /**
+     * Creates a StringEntity with the specified content and charset. The charset defaults to
+     * {@link HTTP#DEFAULT_CONTENT_CHARSET} i.e. "ISO-8859-1". The mime type defaults to
+     * {@link HTTP#PLAIN_TEXT_TYPE} i.e. "text/plain".
+     *
+     * @param string content to be used. Not {@code null}.
+     *
+     * @throws IllegalArgumentException if the string parameter is null
+     *
+     * @since 4.2
+     */
+    public static NStringEntity create(final String string) {
+        return create(string, ContentType.DEFAULT_TEXT);
+    }
+
+    /**
+     * Creates a NStringEntity with the specified content and content type.
+     *
+     * @param string content to be used. Not {@code null}.
+     * @param contentType content type to be used. May be {@code null}, in which case the default
+     *   MIME type {@link HTTP#PLAIN_TEXT_TYPE} i.e. "text/plain" and the default charset
+     *   {@link HTTP#DEFAULT_CONTENT_CHARSET} i.e. "ISO-8859-1" are assumed.
+     *
+     * @throws IllegalArgumentException if the string parameter is null
+     * @throws UnsupportedEncodingException if the charset specified in the CotnentType
+     *   is not supported.
+     *
      * @since 4.2
      */
     public NStringEntity(final String s, final ContentType contentType)
@@ -75,11 +140,32 @@ public class NStringEntity extends AbstractHttpEntity implements ProducingNHttpE
         }
     }
 
+    /**
+     * Creates a NStringEntity with the specified content and charset. The mime type defaults
+     * to {@link HTTP#PLAIN_TEXT_TYPE} i.e. "text/plain".
+     *
+     * @param string content to be used. Not {@code null}.
+     * @param charset character set to be used. May be {@code null}, in which case the default
+     *   is {@link HTTP#DEFAULT_CONTENT_CHARSET} i.e. "ISO-8859-1"
+     *
+     * @throws IllegalArgumentException if the string parameter is null
+     * @throws UnsupportedEncodingException if the charset is not supported.
+     */
     public NStringEntity(final String s, final String charset)
             throws UnsupportedEncodingException {
         this(s, ContentType.create(HTTP.PLAIN_TEXT_TYPE, charset));
     }
 
+    /**
+     * Creates a StringEntity with the specified content and charset. The charset defaults to
+     * {@link HTTP#DEFAULT_CONTENT_CHARSET} i.e. "ISO-8859-1". The mime type defaults to
+     * {@link HTTP#PLAIN_TEXT_TYPE} i.e. "text/plain".
+     *
+     * @param string content to be used. Not {@code null}.
+     *
+     * @throws IllegalArgumentException if the string parameter is null
+     * @throws UnsupportedEncodingException if the default HTTP charset is not supported.
+     */
     public NStringEntity(final String s) throws UnsupportedEncodingException {
         this(s, ContentType.DEFAULT_TEXT);
     }
