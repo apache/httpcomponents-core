@@ -83,6 +83,15 @@ public class NFileEntity extends AbstractHttpEntity implements ProducingNHttpEnt
     }
 
     /**
+     * @since 4.2
+     */
+    public NFileEntity(final File file) {
+        if (file == null) {
+            throw new IllegalArgumentException("File may not be null");
+        }
+        this.file = file;
+    }
+    /**
      * Creates new instance of NFileEntity from the given source {@link File}
      * with the given content type.
      *

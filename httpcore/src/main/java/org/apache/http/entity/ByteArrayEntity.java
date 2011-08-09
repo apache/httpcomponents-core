@@ -47,7 +47,10 @@ public class ByteArrayEntity extends AbstractHttpEntity implements Cloneable {
     private final byte[] b;
     private final int off, len;
 
-    public ByteArrayEntity(final byte[] b) {
+    /**
+     * @since 4.2
+     */
+    public ByteArrayEntity(final byte[] b, final ContentType contentType) {
         super();
         if (b == null) {
             throw new IllegalArgumentException("Source byte array may not be null");
@@ -56,9 +59,15 @@ public class ByteArrayEntity extends AbstractHttpEntity implements Cloneable {
         this.b = b;
         this.off = 0;
         this.len = this.b.length;
+        if (contentType != null) {
+            setContentType(contentType.toString());
+        }
     }
 
-    public ByteArrayEntity(final byte[] b, final int off, final int len) {
+    /**
+     * @since 4.2
+     */
+    public ByteArrayEntity(final byte[] b, int off, int len, final ContentType contentType) {
         super();
         if (b == null) {
             throw new IllegalArgumentException("Source byte array may not be null");
@@ -71,6 +80,17 @@ public class ByteArrayEntity extends AbstractHttpEntity implements Cloneable {
         this.b = b;
         this.off = off;
         this.len = len;
+        if (contentType != null) {
+            setContentType(contentType.toString());
+        }
+    }
+
+    public ByteArrayEntity(final byte[] b) {
+        this(b, null);
+    }
+
+    public ByteArrayEntity(final byte[] b, int off, int len) {
+        this(b, off, len, null);
     }
 
     public boolean isRepeatable() {

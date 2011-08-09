@@ -72,6 +72,17 @@ public class FileEntity extends AbstractHttpEntity implements Cloneable {
         }
     }
 
+    /**
+     * @since 4.2
+     */
+    public FileEntity(final File file) {
+        super();
+        if (file == null) {
+            throw new IllegalArgumentException("File may not be null");
+        }
+        this.file = file;
+    }
+
     public boolean isRepeatable() {
         return true;
     }

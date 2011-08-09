@@ -35,6 +35,7 @@ import java.nio.ByteBuffer;
 
 import org.apache.http.annotation.NotThreadSafe;
 import org.apache.http.entity.AbstractHttpEntity;
+import org.apache.http.entity.ContentType;
 import org.apache.http.nio.ContentEncoder;
 import org.apache.http.nio.IOControl;
 import org.apache.http.nio.protocol.AsyncNHttpServiceHandler;
@@ -57,7 +58,10 @@ public class NByteArrayEntity extends AbstractHttpEntity implements ProducingNHt
     @Deprecated
     protected final ByteBuffer buffer;
 
-    public NByteArrayEntity(final byte[] b) {
+    /**
+     * @since 4.2
+     */
+    public NByteArrayEntity(final byte[] b, final ContentType contentType) {
         super();
         if (b == null) {
             throw new IllegalArgumentException("Source byte array may not be null");
@@ -68,9 +72,15 @@ public class NByteArrayEntity extends AbstractHttpEntity implements ProducingNHt
         this.buf = ByteBuffer.wrap(b);
         this.content = b;
         this.buffer = this.buf;
+        if (contentType != null) {
+            setContentType(contentType.toString());
+        }
     }
 
-    public NByteArrayEntity(final byte[] b, int off, int len) {
+    /**
+     * @since 4.2
+     */
+    public NByteArrayEntity(final byte[] b, int off, int len, final ContentType contentType) {
         super();
         if (b == null) {
             throw new IllegalArgumentException("Source byte array may not be null");
@@ -85,6 +95,17 @@ public class NByteArrayEntity extends AbstractHttpEntity implements ProducingNHt
         this.buf = ByteBuffer.wrap(b, off, len);
         this.content = b;
         this.buffer = this.buf;
+        if (contentType != null) {
+            setContentType(contentType.toString());
+        }
+    }
+
+    public NByteArrayEntity(final byte[] b) {
+        this(b, null);
+    }
+
+    public NByteArrayEntity(final byte[] b, int off, int len) {
+        this(b, off, len, null);
     }
 
     public void finish() {
