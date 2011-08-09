@@ -34,8 +34,8 @@ import org.apache.http.pool.PoolEntry;
 @ThreadSafe
 public class BasicNIOPoolEntry extends PoolEntry<HttpHost, NHttpClientConnection> {
 
-    public BasicNIOPoolEntry(final HttpHost route, final NHttpClientConnection conn) {
-        super(route, conn);
+    public BasicNIOPoolEntry(final String id, final HttpHost route, final NHttpClientConnection conn) {
+        super(id, route, conn);
     }
 
 }

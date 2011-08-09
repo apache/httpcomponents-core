@@ -27,16 +27,13 @@
 package org.apache.http.pool;
 
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicLong;
 
 import org.apache.http.annotation.ThreadSafe;
 
 @ThreadSafe
 public class PoolEntry<T, C> {
 
-    private static AtomicLong COUNTER = new AtomicLong();
-
-    private final long id;
+    private final String id;
     private final T route;
     private final C conn;
     private final long created;
@@ -46,7 +43,8 @@ public class PoolEntry<T, C> {
     private long updated;
     private long expiry;
 
-    public PoolEntry(final T route, final C conn, final long timeToLive, final TimeUnit tunit) {
+    public PoolEntry(final String id, final T route, final C conn,
+            final long timeToLive, final TimeUnit tunit) {
         super();
         if (route == null) {
             throw new IllegalArgumentException("Route may not be null");
@@ -57,9 +55,9 @@ public class PoolEntry<T, C> {
         if (tunit == null) {
             throw new IllegalArgumentException("Time unit may not be null");
         }
+        this.id = id;
         this.route = route;
         this.conn = conn;
-        this.id = COUNTER.incrementAndGet();
         this.created = System.currentTimeMillis();
         if (timeToLive > 0) {
             this.validUnit = this.created + tunit.toMillis(timeToLive);
@@ -69,11 +67,11 @@ public class PoolEntry<T, C> {
         this.expiry = this.validUnit;
     }
 
-    public PoolEntry(final T route, final C conn) {
-        this(route, conn, 0, TimeUnit.MILLISECONDS);
+    public PoolEntry(final String id, final T route, final C conn) {
+        this(id, route, conn, 0, TimeUnit.MILLISECONDS);
     }
 
-    public long getId() {
+    public String getId() {
         return this.id;
     }
 

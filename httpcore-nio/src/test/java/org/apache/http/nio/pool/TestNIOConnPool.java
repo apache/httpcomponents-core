@@ -51,7 +51,7 @@ public class TestNIOConnPool {
     static class LocalPoolEntry extends PoolEntry<String, IOSession> {
 
         public LocalPoolEntry(final String route, final IOSession conn) {
-            super(route, conn);
+            super(null, route, conn);
         }
 
     }

@@ -34,8 +34,8 @@ import org.apache.http.pool.PoolEntry;
 @ThreadSafe
 public class BasicPoolEntry extends PoolEntry<HttpHost, HttpClientConnection> {
 
-    public BasicPoolEntry(final HttpHost route, final HttpClientConnection conn) {
-        super(route, conn);
+    public BasicPoolEntry(final String id, final HttpHost route, final HttpClientConnection conn) {
+        super(id, route, conn);
     }
 
 }

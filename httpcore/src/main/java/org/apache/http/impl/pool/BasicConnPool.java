@@ -29,6 +29,7 @@ package org.apache.http.impl.pool;
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.net.Socket;
+import java.util.concurrent.atomic.AtomicLong;
 
 import javax.net.ssl.SSLSocketFactory;
 
@@ -43,6 +44,8 @@ import org.apache.http.pool.AbstractConnPool;
 
 @ThreadSafe
 public class BasicConnPool extends AbstractConnPool<HttpHost, HttpClientConnection, BasicPoolEntry> {
+
+    private static AtomicLong COUNTER = new AtomicLong();
 
     private final SSLSocketFactory sslfactory;
     private final HttpParams params;
@@ -86,7 +89,7 @@ public class BasicConnPool extends AbstractConnPool<HttpHost, HttpClientConnecti
 
     @Override
     protected BasicPoolEntry createEntry(final HttpHost host, final HttpClientConnection conn) {
-        return new BasicPoolEntry(host, conn);
+        return new BasicPoolEntry(Long.toString(COUNTER.getAndIncrement()), host, conn);
     }
 
     @Override

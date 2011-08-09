@@ -41,7 +41,7 @@ public class TestRouteSpecificPool {
     static class LocalPoolEntry extends PoolEntry<String, HttpConnection> {
 
         public LocalPoolEntry(final String route, final HttpConnection conn) {
-            super(route, conn);
+            super(null, route, conn);
         }
 
     }

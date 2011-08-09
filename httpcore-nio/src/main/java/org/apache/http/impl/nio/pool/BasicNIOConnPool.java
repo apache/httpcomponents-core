@@ -29,6 +29,7 @@ package org.apache.http.impl.nio.pool;
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.net.SocketAddress;
+import java.util.concurrent.atomic.AtomicLong;
 
 import org.apache.http.HttpConnection;
 import org.apache.http.HttpHost;
@@ -46,6 +47,8 @@ import org.apache.http.params.HttpParams;
 
 @ThreadSafe
 public class BasicNIOConnPool extends AbstractNIOConnPool<HttpHost, NHttpClientConnection, BasicNIOPoolEntry> {
+
+    private static AtomicLong COUNTER = new AtomicLong();
 
     private final HttpResponseFactory responseFactory;
     private final ByteBufferAllocator allocator;
@@ -79,7 +82,7 @@ public class BasicNIOConnPool extends AbstractNIOConnPool<HttpHost, NHttpClientC
 
     @Override
     protected BasicNIOPoolEntry createEntry(final HttpHost host, final NHttpClientConnection conn) {
-        return new BasicNIOPoolEntry(host, conn);
+        return new BasicNIOPoolEntry(Long.toString(COUNTER.getAndIncrement()), host, conn);
     }
 
     @Override
