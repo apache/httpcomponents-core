@@ -109,7 +109,7 @@ public class ElementalPoolingHttpGet {
                 try {
                     Future<BasicPoolEntry> future = pool.lease(this.target, null);
 
-                    boolean reusable = true;
+                    boolean reusable = false;
                     BasicPoolEntry entry = future.get();
                     try {
                         HttpClientConnection conn = entry.getConnection();
@@ -132,10 +132,8 @@ public class ElementalPoolingHttpGet {
                         ConnectionReuseStrategy connStrategy = new DefaultConnectionReuseStrategy();
                         reusable = connStrategy.keepAlive(response, context);
                     } catch (IOException ex) {
-                        reusable = false;
                         throw ex;
                     } catch (HttpException ex) {
-                        reusable = false;
                         throw ex;
                     } finally {
                         if (reusable) {
