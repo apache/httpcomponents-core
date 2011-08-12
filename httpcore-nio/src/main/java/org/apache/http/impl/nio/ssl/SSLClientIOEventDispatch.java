@@ -188,32 +188,36 @@ public class SSLClientIOEventDispatch implements IOEventDispatch {
     }
 
     public void connected(final IOSession session) {
+    	try {
+            SSLIOSession sslSession = createSSLIOSession(
+                    session,
+                    this.sslcontext,
+                    this.sslHandler);
 
-        SSLIOSession sslSession = createSSLIOSession(
-                session,
-                this.sslcontext,
-                this.sslHandler);
+            NHttpClientIOTarget conn = createConnection(
+                    sslSession);
 
-        NHttpClientIOTarget conn = createConnection(
-                sslSession);
+            session.setAttribute(ExecutionContext.HTTP_CONNECTION, conn);
+            session.setAttribute(SSL_SESSION, sslSession);
 
-        session.setAttribute(ExecutionContext.HTTP_CONNECTION, conn);
-        session.setAttribute(SSL_SESSION, sslSession);
+            Object attachment = session.getAttribute(IOSession.ATTACHMENT_KEY);
+            this.handler.connected(conn, attachment);
 
-        Object attachment = session.getAttribute(IOSession.ATTACHMENT_KEY);
-        this.handler.connected(conn, attachment);
-
-        try {
-            sslSession.bind(SSLMode.CLIENT, this.params);
-        } catch (SSLException ex) {
-            this.handler.exception(conn, ex);
-            sslSession.shutdown();
-        }
+            try {
+                sslSession.bind(SSLMode.CLIENT, this.params);
+            } catch (SSLException ex) {
+                this.handler.exception(conn, ex);
+                sslSession.shutdown();
+            }
+    	} catch (RuntimeException ex) {
+    		session.shutdown();
+    		throw ex;
+    	}
     }
 
     public void disconnected(final IOSession session) {
-        NHttpClientIOTarget conn =
-            (NHttpClientIOTarget) session.getAttribute(ExecutionContext.HTTP_CONNECTION);
+        NHttpClientIOTarget conn = (NHttpClientIOTarget) session.getAttribute(
+        		ExecutionContext.HTTP_CONNECTION);
         if (conn != null) {
             this.handler.closed(conn);
         }
@@ -232,58 +236,73 @@ public class SSLClientIOEventDispatch implements IOEventDispatch {
     }
 
     public void inputReady(final IOSession session) {
-        NHttpClientIOTarget conn =
-            (NHttpClientIOTarget) session.getAttribute(ExecutionContext.HTTP_CONNECTION);
-        ensureNotNull(conn);
-        SSLIOSession sslSession =
-            (SSLIOSession) session.getAttribute(SSL_SESSION);
-        ensureNotNull(sslSession);
+    	try {
+	        NHttpClientIOTarget conn = (NHttpClientIOTarget) session.getAttribute(
+	        		ExecutionContext.HTTP_CONNECTION);
+            ensureNotNull(conn);
+            SSLIOSession sslSession =
+                (SSLIOSession) session.getAttribute(SSL_SESSION);
+            ensureNotNull(sslSession);
 
-        try {
-            if (sslSession.isAppInputReady()) {
-                conn.consumeInput(this.handler);
+            try {
+                if (sslSession.isAppInputReady()) {
+                    conn.consumeInput(this.handler);
+                }
+                sslSession.inboundTransport();
+            } catch (IOException ex) {
+                this.handler.exception(conn, ex);
+                sslSession.shutdown();
             }
-            sslSession.inboundTransport();
-        } catch (IOException ex) {
-            this.handler.exception(conn, ex);
-            sslSession.shutdown();
-        }
+    	} catch (RuntimeException ex) {
+    		session.shutdown();
+    		throw ex;
+    	}
     }
 
     public void outputReady(final IOSession session) {
-        NHttpClientIOTarget conn =
-            (NHttpClientIOTarget) session.getAttribute(ExecutionContext.HTTP_CONNECTION);
-        ensureNotNull(conn);
-        SSLIOSession sslSession =
-            (SSLIOSession) session.getAttribute(SSL_SESSION);
-        ensureNotNull(sslSession);
+    	try {
+	        NHttpClientIOTarget conn = (NHttpClientIOTarget) session.getAttribute(
+	        		ExecutionContext.HTTP_CONNECTION);
+            ensureNotNull(conn);
+            SSLIOSession sslSession =
+                (SSLIOSession) session.getAttribute(SSL_SESSION);
+            ensureNotNull(sslSession);
 
-        try {
-            if (sslSession.isAppOutputReady()) {
-                conn.produceOutput(this.handler);
+            try {
+                if (sslSession.isAppOutputReady()) {
+                    conn.produceOutput(this.handler);
+                }
+                sslSession.outboundTransport();
+            } catch (IOException ex) {
+                this.handler.exception(conn, ex);
+                sslSession.shutdown();
             }
-            sslSession.outboundTransport();
-        } catch (IOException ex) {
-            this.handler.exception(conn, ex);
-            sslSession.shutdown();
-        }
+    	} catch (RuntimeException ex) {
+    		session.shutdown();
+    		throw ex;
+    	}
     }
 
     public void timeout(final IOSession session) {
-        NHttpClientIOTarget conn =
-            (NHttpClientIOTarget) session.getAttribute(ExecutionContext.HTTP_CONNECTION);
-        ensureNotNull(conn);
-        SSLIOSession sslSession =
-            (SSLIOSession) session.getAttribute(SSL_SESSION);
-        ensureNotNull(sslSession);
+    	try {
+	        NHttpClientIOTarget conn = (NHttpClientIOTarget) session.getAttribute(
+	        		ExecutionContext.HTTP_CONNECTION);
+	        ensureNotNull(conn);
+	        SSLIOSession sslSession =
+	            (SSLIOSession) session.getAttribute(SSL_SESSION);
+	        ensureNotNull(sslSession);
 
-        this.handler.timeout(conn);
-        synchronized (sslSession) {
-            if (sslSession.isOutboundDone() && !sslSession.isInboundDone()) {
-                // The session failed to terminate cleanly
-                sslSession.shutdown();
-            }
-        }
+	        this.handler.timeout(conn);
+	        synchronized (sslSession) {
+	            if (sslSession.isOutboundDone() && !sslSession.isInboundDone()) {
+	                // The session failed to terminate cleanly
+	                sslSession.shutdown();
+	            }
+	        }
+    	} catch (RuntimeException ex) {
+    		session.shutdown();
+    		throw ex;
+    	}
     }
 
 }

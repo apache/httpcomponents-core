@@ -130,14 +130,19 @@ public class DefaultServerIOEventDispatch implements IOEventDispatch {
     }
 
     public void connected(final IOSession session) {
-        NHttpServerIOTarget conn = createConnection(session);
-        session.setAttribute(ExecutionContext.HTTP_CONNECTION, conn);
-        this.handler.connected(conn);
+    	try {
+            NHttpServerIOTarget conn = createConnection(session);
+            session.setAttribute(ExecutionContext.HTTP_CONNECTION, conn);
+            this.handler.connected(conn);
+    	} catch (RuntimeException ex) {
+    		session.shutdown();
+    		throw ex;
+    	}
     }
 
     public void disconnected(final IOSession session) {
-        NHttpServerIOTarget conn =
-            (NHttpServerIOTarget) session.getAttribute(ExecutionContext.HTTP_CONNECTION);
+        NHttpServerIOTarget conn = (NHttpServerIOTarget) session.getAttribute(
+        		ExecutionContext.HTTP_CONNECTION);
         if (conn != null) {
             this.handler.closed(conn);
         }
@@ -150,24 +155,39 @@ public class DefaultServerIOEventDispatch implements IOEventDispatch {
     }
 
     public void inputReady(final IOSession session) {
-        NHttpServerIOTarget conn =
-            (NHttpServerIOTarget) session.getAttribute(ExecutionContext.HTTP_CONNECTION);
-        ensureNotNull(conn);
-        conn.consumeInput(this.handler);
+    	try {
+            NHttpServerIOTarget conn = (NHttpServerIOTarget) session.getAttribute(
+            		ExecutionContext.HTTP_CONNECTION);
+            ensureNotNull(conn);
+            conn.consumeInput(this.handler);
+    	} catch (RuntimeException ex) {
+    		session.shutdown();
+    		throw ex;
+    	}
     }
 
     public void outputReady(final IOSession session) {
-        NHttpServerIOTarget conn =
-            (NHttpServerIOTarget) session.getAttribute(ExecutionContext.HTTP_CONNECTION);
-        ensureNotNull(conn);
-        conn.produceOutput(this.handler);
+    	try {
+            NHttpServerIOTarget conn = (NHttpServerIOTarget) session.getAttribute(
+            		ExecutionContext.HTTP_CONNECTION);
+            ensureNotNull(conn);
+            conn.produceOutput(this.handler);
+    	} catch (RuntimeException ex) {
+    		session.shutdown();
+    		throw ex;
+    	}
     }
 
     public void timeout(final IOSession session) {
-        NHttpServerIOTarget conn =
-            (NHttpServerIOTarget) session.getAttribute(ExecutionContext.HTTP_CONNECTION);
-        ensureNotNull(conn);
-        this.handler.timeout(conn);
+    	try {
+            NHttpServerIOTarget conn = (NHttpServerIOTarget) session.getAttribute(
+            		ExecutionContext.HTTP_CONNECTION);
+            ensureNotNull(conn);
+            this.handler.timeout(conn);
+    	} catch (RuntimeException ex) {
+    		session.shutdown();
+    		throw ex;
+    	}
     }
 
 }

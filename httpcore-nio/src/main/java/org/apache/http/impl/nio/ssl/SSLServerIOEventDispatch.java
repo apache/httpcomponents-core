@@ -188,32 +188,35 @@ public class SSLServerIOEventDispatch implements IOEventDispatch {
     }
 
     public void connected(final IOSession session) {
+    	try {
+            SSLIOSession sslSession = createSSLIOSession(
+                    session,
+                    this.sslcontext,
+                    this.sslHandler);
 
-        SSLIOSession sslSession = createSSLIOSession(
-                session,
-                this.sslcontext,
-                this.sslHandler);
+            NHttpServerIOTarget conn = createConnection(
+                    sslSession);
 
-        NHttpServerIOTarget conn = createConnection(
-                sslSession);
+            session.setAttribute(ExecutionContext.HTTP_CONNECTION, conn);
+            session.setAttribute(SSL_SESSION, sslSession);
 
-        session.setAttribute(ExecutionContext.HTTP_CONNECTION, conn);
-        session.setAttribute(SSL_SESSION, sslSession);
+            this.handler.connected(conn);
 
-        this.handler.connected(conn);
-
-        try {
-            sslSession.bind(SSLMode.SERVER, this.params);
-        } catch (SSLException ex) {
-            this.handler.exception(conn, ex);
-            sslSession.shutdown();
-        }
+            try {
+                sslSession.bind(SSLMode.SERVER, this.params);
+            } catch (SSLException ex) {
+                this.handler.exception(conn, ex);
+                sslSession.shutdown();
+            }
+    	} catch (RuntimeException ex) {
+    		session.shutdown();
+    		throw ex;
+    	}
     }
 
     public void disconnected(final IOSession session) {
-        NHttpServerIOTarget conn =
-            (NHttpServerIOTarget) session.getAttribute(ExecutionContext.HTTP_CONNECTION);
-
+    	NHttpServerIOTarget conn = (NHttpServerIOTarget) session.getAttribute(
+        		ExecutionContext.HTTP_CONNECTION);
         if (conn != null) {
             this.handler.closed(conn);
         }
@@ -232,58 +235,73 @@ public class SSLServerIOEventDispatch implements IOEventDispatch {
     }
 
     public void inputReady(final IOSession session) {
-        NHttpServerIOTarget conn =
-            (NHttpServerIOTarget) session.getAttribute(ExecutionContext.HTTP_CONNECTION);
-        ensureNotNull(conn);
-        SSLIOSession sslSession =
-            (SSLIOSession) session.getAttribute(SSL_SESSION);
-        ensureNotNull(sslSession);
+    	try {
+        	NHttpServerIOTarget conn = (NHttpServerIOTarget) session.getAttribute(
+            		ExecutionContext.HTTP_CONNECTION);
+            ensureNotNull(conn);
+            SSLIOSession sslSession =
+                (SSLIOSession) session.getAttribute(SSL_SESSION);
+            ensureNotNull(sslSession);
 
-        try {
-            if (sslSession.isAppInputReady()) {
-                conn.consumeInput(this.handler);
+            try {
+                if (sslSession.isAppInputReady()) {
+                    conn.consumeInput(this.handler);
+                }
+                sslSession.inboundTransport();
+            } catch (IOException ex) {
+                this.handler.exception(conn, ex);
+                sslSession.shutdown();
             }
-            sslSession.inboundTransport();
-        } catch (IOException ex) {
-            this.handler.exception(conn, ex);
-            sslSession.shutdown();
-        }
+    	} catch (RuntimeException ex) {
+    		session.shutdown();
+    		throw ex;
+    	}
     }
 
     public void outputReady(final IOSession session) {
-        NHttpServerIOTarget conn =
-            (NHttpServerIOTarget) session.getAttribute(ExecutionContext.HTTP_CONNECTION);
-        ensureNotNull(conn);
-        SSLIOSession sslSession =
-            (SSLIOSession) session.getAttribute(SSL_SESSION);
-        ensureNotNull(sslSession);
+    	try {
+        	NHttpServerIOTarget conn = (NHttpServerIOTarget) session.getAttribute(
+            		ExecutionContext.HTTP_CONNECTION);
+            ensureNotNull(conn);
+            SSLIOSession sslSession =
+                (SSLIOSession) session.getAttribute(SSL_SESSION);
+            ensureNotNull(sslSession);
 
-        try {
-            if (sslSession.isAppOutputReady()) {
-                conn.produceOutput(this.handler);
+            try {
+                if (sslSession.isAppOutputReady()) {
+                    conn.produceOutput(this.handler);
+                }
+                sslSession.outboundTransport();
+            } catch (IOException ex) {
+                this.handler.exception(conn, ex);
+                sslSession.shutdown();
             }
-            sslSession.outboundTransport();
-        } catch (IOException ex) {
-            this.handler.exception(conn, ex);
-            sslSession.shutdown();
-        }
+    	} catch (RuntimeException ex) {
+    		session.shutdown();
+    		throw ex;
+    	}
     }
 
     public void timeout(final IOSession session) {
-        NHttpServerIOTarget conn =
-            (NHttpServerIOTarget) session.getAttribute(ExecutionContext.HTTP_CONNECTION);
-        ensureNotNull(conn);
-        SSLIOSession sslSession =
-            (SSLIOSession) session.getAttribute(SSL_SESSION);
-        ensureNotNull(sslSession);
+    	try {
+        	NHttpServerIOTarget conn = (NHttpServerIOTarget) session.getAttribute(
+            		ExecutionContext.HTTP_CONNECTION);
+            ensureNotNull(conn);
+            SSLIOSession sslSession =
+                (SSLIOSession) session.getAttribute(SSL_SESSION);
+            ensureNotNull(sslSession);
 
-        this.handler.timeout(conn);
-        synchronized (sslSession) {
-            if (sslSession.isOutboundDone() && !sslSession.isInboundDone()) {
-                // The session failed to cleanly terminate
-                sslSession.shutdown();
+            this.handler.timeout(conn);
+            synchronized (sslSession) {
+                if (sslSession.isOutboundDone() && !sslSession.isInboundDone()) {
+                    // The session failed to cleanly terminate
+                    sslSession.shutdown();
+                }
             }
-        }
+    	} catch (RuntimeException ex) {
+    		session.shutdown();
+    		throw ex;
+    	}
     }
 
 }
