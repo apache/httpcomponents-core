@@ -190,7 +190,7 @@ public class SSLServerIOEventDispatch implements IOEventDispatch {
     }
 
     public void connected(final IOSession session) {
-    	try {
+        try {
             SSLIOSession sslSession = createSSLIOSession(
                     session,
                     this.sslcontext,
@@ -203,7 +203,7 @@ public class SSLServerIOEventDispatch implements IOEventDispatch {
             session.setAttribute(SSL_SESSION, sslSession);
 
             int timeout = HttpConnectionParams.getSoTimeout(this.params);
-    		conn.setSocketTimeout(timeout);
+            conn.setSocketTimeout(timeout);
 
             this.handler.connected(conn);
 
@@ -213,15 +213,15 @@ public class SSLServerIOEventDispatch implements IOEventDispatch {
                 this.handler.exception(conn, ex);
                 sslSession.shutdown();
             }
-    	} catch (RuntimeException ex) {
-    		session.shutdown();
-    		throw ex;
-    	}
+        } catch (RuntimeException ex) {
+            session.shutdown();
+            throw ex;
+        }
     }
 
     public void disconnected(final IOSession session) {
-    	NHttpServerIOTarget conn = (NHttpServerIOTarget) session.getAttribute(
-        		ExecutionContext.HTTP_CONNECTION);
+        NHttpServerIOTarget conn = (NHttpServerIOTarget) session.getAttribute(
+                ExecutionContext.HTTP_CONNECTION);
         if (conn != null) {
             this.handler.closed(conn);
         }
@@ -240,9 +240,9 @@ public class SSLServerIOEventDispatch implements IOEventDispatch {
     }
 
     public void inputReady(final IOSession session) {
-    	try {
-        	NHttpServerIOTarget conn = (NHttpServerIOTarget) session.getAttribute(
-            		ExecutionContext.HTTP_CONNECTION);
+        try {
+            NHttpServerIOTarget conn = (NHttpServerIOTarget) session.getAttribute(
+                    ExecutionContext.HTTP_CONNECTION);
             ensureNotNull(conn);
             SSLIOSession sslSession =
                 (SSLIOSession) session.getAttribute(SSL_SESSION);
@@ -257,16 +257,16 @@ public class SSLServerIOEventDispatch implements IOEventDispatch {
                 this.handler.exception(conn, ex);
                 sslSession.shutdown();
             }
-    	} catch (RuntimeException ex) {
-    		session.shutdown();
-    		throw ex;
-    	}
+        } catch (RuntimeException ex) {
+            session.shutdown();
+            throw ex;
+        }
     }
 
     public void outputReady(final IOSession session) {
-    	try {
-        	NHttpServerIOTarget conn = (NHttpServerIOTarget) session.getAttribute(
-            		ExecutionContext.HTTP_CONNECTION);
+        try {
+            NHttpServerIOTarget conn = (NHttpServerIOTarget) session.getAttribute(
+                    ExecutionContext.HTTP_CONNECTION);
             ensureNotNull(conn);
             SSLIOSession sslSession =
                 (SSLIOSession) session.getAttribute(SSL_SESSION);
@@ -281,16 +281,16 @@ public class SSLServerIOEventDispatch implements IOEventDispatch {
                 this.handler.exception(conn, ex);
                 sslSession.shutdown();
             }
-    	} catch (RuntimeException ex) {
-    		session.shutdown();
-    		throw ex;
-    	}
+        } catch (RuntimeException ex) {
+            session.shutdown();
+            throw ex;
+        }
     }
 
     public void timeout(final IOSession session) {
-    	try {
-        	NHttpServerIOTarget conn = (NHttpServerIOTarget) session.getAttribute(
-            		ExecutionContext.HTTP_CONNECTION);
+        try {
+            NHttpServerIOTarget conn = (NHttpServerIOTarget) session.getAttribute(
+                    ExecutionContext.HTTP_CONNECTION);
             ensureNotNull(conn);
             SSLIOSession sslSession =
                 (SSLIOSession) session.getAttribute(SSL_SESSION);
@@ -303,10 +303,10 @@ public class SSLServerIOEventDispatch implements IOEventDispatch {
                     sslSession.shutdown();
                 }
             }
-    	} catch (RuntimeException ex) {
-    		session.shutdown();
-    		throw ex;
-    	}
+        } catch (RuntimeException ex) {
+            session.shutdown();
+            throw ex;
+        }
     }
 
 }

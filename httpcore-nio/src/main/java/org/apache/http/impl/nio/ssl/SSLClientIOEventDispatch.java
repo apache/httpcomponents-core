@@ -190,7 +190,7 @@ public class SSLClientIOEventDispatch implements IOEventDispatch {
     }
 
     public void connected(final IOSession session) {
-    	try {
+        try {
             SSLIOSession sslSession = createSSLIOSession(
                     session,
                     this.sslcontext,
@@ -202,10 +202,10 @@ public class SSLClientIOEventDispatch implements IOEventDispatch {
             session.setAttribute(ExecutionContext.HTTP_CONNECTION, conn);
             session.setAttribute(SSL_SESSION, sslSession);
 
-    		int timeout = HttpConnectionParams.getSoTimeout(this.params);
-    		conn.setSocketTimeout(timeout);
+            int timeout = HttpConnectionParams.getSoTimeout(this.params);
+            conn.setSocketTimeout(timeout);
 
-    		Object attachment = session.getAttribute(IOSession.ATTACHMENT_KEY);
+            Object attachment = session.getAttribute(IOSession.ATTACHMENT_KEY);
             this.handler.connected(conn, attachment);
 
             try {
@@ -214,15 +214,15 @@ public class SSLClientIOEventDispatch implements IOEventDispatch {
                 this.handler.exception(conn, ex);
                 sslSession.shutdown();
             }
-    	} catch (RuntimeException ex) {
-    		session.shutdown();
-    		throw ex;
-    	}
+        } catch (RuntimeException ex) {
+            session.shutdown();
+            throw ex;
+        }
     }
 
     public void disconnected(final IOSession session) {
         NHttpClientIOTarget conn = (NHttpClientIOTarget) session.getAttribute(
-        		ExecutionContext.HTTP_CONNECTION);
+                ExecutionContext.HTTP_CONNECTION);
         if (conn != null) {
             this.handler.closed(conn);
         }
@@ -241,9 +241,9 @@ public class SSLClientIOEventDispatch implements IOEventDispatch {
     }
 
     public void inputReady(final IOSession session) {
-    	try {
-	        NHttpClientIOTarget conn = (NHttpClientIOTarget) session.getAttribute(
-	        		ExecutionContext.HTTP_CONNECTION);
+        try {
+            NHttpClientIOTarget conn = (NHttpClientIOTarget) session.getAttribute(
+                    ExecutionContext.HTTP_CONNECTION);
             ensureNotNull(conn);
             SSLIOSession sslSession =
                 (SSLIOSession) session.getAttribute(SSL_SESSION);
@@ -258,16 +258,16 @@ public class SSLClientIOEventDispatch implements IOEventDispatch {
                 this.handler.exception(conn, ex);
                 sslSession.shutdown();
             }
-    	} catch (RuntimeException ex) {
-    		session.shutdown();
-    		throw ex;
-    	}
+        } catch (RuntimeException ex) {
+            session.shutdown();
+            throw ex;
+        }
     }
 
     public void outputReady(final IOSession session) {
-    	try {
-	        NHttpClientIOTarget conn = (NHttpClientIOTarget) session.getAttribute(
-	        		ExecutionContext.HTTP_CONNECTION);
+        try {
+            NHttpClientIOTarget conn = (NHttpClientIOTarget) session.getAttribute(
+                    ExecutionContext.HTTP_CONNECTION);
             ensureNotNull(conn);
             SSLIOSession sslSession =
                 (SSLIOSession) session.getAttribute(SSL_SESSION);
@@ -282,32 +282,32 @@ public class SSLClientIOEventDispatch implements IOEventDispatch {
                 this.handler.exception(conn, ex);
                 sslSession.shutdown();
             }
-    	} catch (RuntimeException ex) {
-    		session.shutdown();
-    		throw ex;
-    	}
+        } catch (RuntimeException ex) {
+            session.shutdown();
+            throw ex;
+        }
     }
 
     public void timeout(final IOSession session) {
-    	try {
-	        NHttpClientIOTarget conn = (NHttpClientIOTarget) session.getAttribute(
-	        		ExecutionContext.HTTP_CONNECTION);
-	        ensureNotNull(conn);
-	        SSLIOSession sslSession =
-	            (SSLIOSession) session.getAttribute(SSL_SESSION);
-	        ensureNotNull(sslSession);
+        try {
+            NHttpClientIOTarget conn = (NHttpClientIOTarget) session.getAttribute(
+                    ExecutionContext.HTTP_CONNECTION);
+            ensureNotNull(conn);
+            SSLIOSession sslSession =
+                (SSLIOSession) session.getAttribute(SSL_SESSION);
+            ensureNotNull(sslSession);
 
-	        this.handler.timeout(conn);
-	        synchronized (sslSession) {
-	            if (sslSession.isOutboundDone() && !sslSession.isInboundDone()) {
-	                // The session failed to terminate cleanly
-	                sslSession.shutdown();
-	            }
-	        }
-    	} catch (RuntimeException ex) {
-    		session.shutdown();
-    		throw ex;
-    	}
+            this.handler.timeout(conn);
+            synchronized (sslSession) {
+                if (sslSession.isOutboundDone() && !sslSession.isInboundDone()) {
+                    // The session failed to terminate cleanly
+                    sslSession.shutdown();
+                }
+            }
+        } catch (RuntimeException ex) {
+            session.shutdown();
+            throw ex;
+        }
     }
 
 }

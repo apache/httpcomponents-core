@@ -62,7 +62,7 @@ public class BasicNIOConnPool extends AbstractNIOConnPool<HttpHost, IOSession, B
     public BasicNIOConnPool(final ConnectingIOReactor ioreactor, final HttpParams params) {
         super(ioreactor, 2, 20);
         if (params == null) {
-        	throw new IllegalArgumentException("HTTP parameters may not be null");
+            throw new IllegalArgumentException("HTTP parameters may not be null");
         }
         this.params = params;
     }
@@ -93,19 +93,19 @@ public class BasicNIOConnPool extends AbstractNIOConnPool<HttpHost, IOSession, B
         iosession.shutdown();
     }
 
-	@Override
-	public Future<BasicNIOPoolEntry> lease(
-			final HttpHost route,
-			final Object state,
-			final FutureCallback<BasicNIOPoolEntry> callback) {
-		int connectTimeout = HttpConnectionParams.getConnectionTimeout(this.params);
-		return super.lease(route, state, connectTimeout, TimeUnit.MILLISECONDS, callback);
-	}
+    @Override
+    public Future<BasicNIOPoolEntry> lease(
+            final HttpHost route,
+            final Object state,
+            final FutureCallback<BasicNIOPoolEntry> callback) {
+        int connectTimeout = HttpConnectionParams.getConnectionTimeout(this.params);
+        return super.lease(route, state, connectTimeout, TimeUnit.MILLISECONDS, callback);
+    }
 
-	@Override
-	public Future<BasicNIOPoolEntry> lease(final HttpHost route, final Object state) {
-		int connectTimeout = HttpConnectionParams.getConnectionTimeout(this.params);
-		return super.lease(route, state, connectTimeout, TimeUnit.MILLISECONDS, null);
-	}
+    @Override
+    public Future<BasicNIOPoolEntry> lease(final HttpHost route, final Object state) {
+        int connectTimeout = HttpConnectionParams.getConnectionTimeout(this.params);
+        return super.lease(route, state, connectTimeout, TimeUnit.MILLISECONDS, null);
+    }
 
 }

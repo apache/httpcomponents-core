@@ -124,37 +124,37 @@ public class DefaultClientIOEventDispatch implements IOEventDispatch {
      * @return newly created HTTP connection.
      */
     protected NHttpClientIOTarget createConnection(final IOSession session) {
-    	try {
-    		return new DefaultNHttpClientConnection(
+        try {
+            return new DefaultNHttpClientConnection(
                     session,
                     createHttpResponseFactory(),
                     this.allocator,
                     this.params);
-    	} catch (RuntimeException ex) {
-    		session.shutdown();
-    		throw ex;
-    	}
+        } catch (RuntimeException ex) {
+            session.shutdown();
+            throw ex;
+        }
     }
 
     public void connected(final IOSession session) {
-    	try {
+        try {
             NHttpClientIOTarget conn = createConnection(session);
             Object attachment = session.getAttribute(IOSession.ATTACHMENT_KEY);
             session.setAttribute(ExecutionContext.HTTP_CONNECTION, conn);
 
             int timeout = HttpConnectionParams.getSoTimeout(this.params);
-    		conn.setSocketTimeout(timeout);
+            conn.setSocketTimeout(timeout);
 
-    		this.handler.connected(conn, attachment);
-    	} catch (RuntimeException ex) {
-    		session.shutdown();
-    		throw ex;
-    	}
+            this.handler.connected(conn, attachment);
+        } catch (RuntimeException ex) {
+            session.shutdown();
+            throw ex;
+        }
     }
 
     public void disconnected(final IOSession session) {
         NHttpClientIOTarget conn = (NHttpClientIOTarget) session.getAttribute(
-        		ExecutionContext.HTTP_CONNECTION);
+                ExecutionContext.HTTP_CONNECTION);
         if (conn != null) {
             this.handler.closed(conn);
         }
@@ -167,39 +167,39 @@ public class DefaultClientIOEventDispatch implements IOEventDispatch {
     }
 
     public void inputReady(final IOSession session) {
-    	try {
+        try {
             NHttpClientIOTarget conn = (NHttpClientIOTarget) session.getAttribute(
-            		ExecutionContext.HTTP_CONNECTION);
+                    ExecutionContext.HTTP_CONNECTION);
             ensureNotNull(conn);
             conn.consumeInput(this.handler);
-    	} catch (RuntimeException ex) {
-    		session.shutdown();
-    		throw ex;
-    	}
+        } catch (RuntimeException ex) {
+            session.shutdown();
+            throw ex;
+        }
     }
 
     public void outputReady(final IOSession session) {
-    	try {
+        try {
             NHttpClientIOTarget conn = (NHttpClientIOTarget) session.getAttribute(
-            		ExecutionContext.HTTP_CONNECTION);
+                    ExecutionContext.HTTP_CONNECTION);
             ensureNotNull(conn);
             conn.produceOutput(this.handler);
-    	} catch (RuntimeException ex) {
-    		session.shutdown();
-    		throw ex;
-    	}
+        } catch (RuntimeException ex) {
+            session.shutdown();
+            throw ex;
+        }
     }
 
     public void timeout(final IOSession session) {
-    	try {
+        try {
             NHttpClientIOTarget conn = (NHttpClientIOTarget) session.getAttribute(
-            		ExecutionContext.HTTP_CONNECTION);
+                    ExecutionContext.HTTP_CONNECTION);
             ensureNotNull(conn);
             this.handler.timeout(conn);
-    	} catch (RuntimeException ex) {
-    		session.shutdown();
-    		throw ex;
-    	}
+        } catch (RuntimeException ex) {
+            session.shutdown();
+            throw ex;
+        }
     }
 
 }
