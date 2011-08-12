@@ -78,11 +78,11 @@ public class BasicConnPool extends AbstractConnPool<HttpHost, HttpClientConnecti
         if (socket == null) {
             throw new IOException(scheme + " scheme is not supported");
         }
-        int connTimeout = HttpConnectionParams.getConnectionTimeout(params);
-        int soTimeout = HttpConnectionParams.getSoTimeout(params);
+        int connectTimeout = HttpConnectionParams.getConnectionTimeout(this.params);
+        int soTimeout = HttpConnectionParams.getSoTimeout(this.params);
 
         socket.setSoTimeout(soTimeout);
-        socket.connect(new InetSocketAddress(host.getHostName(), host.getPort()), connTimeout);
+        socket.connect(new InetSocketAddress(host.getHostName(), host.getPort()), connectTimeout);
         conn.bind(socket, this.params);
         return conn;
     }

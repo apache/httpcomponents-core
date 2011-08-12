@@ -31,20 +31,17 @@ import java.io.InterruptedIOException;
 import java.net.InetSocketAddress;
 import java.nio.ByteBuffer;
 
-import org.apache.http.params.SyncBasicHttpParams;
 import org.apache.http.impl.nio.reactor.DefaultListeningIOReactor;
 import org.apache.http.nio.reactor.EventMask;
 import org.apache.http.nio.reactor.IOEventDispatch;
 import org.apache.http.nio.reactor.IOSession;
 import org.apache.http.nio.reactor.ListeningIOReactor;
-import org.apache.http.params.HttpParams;
 
 public class ElementalEchoServer {
 
     public static void main(String[] args) throws Exception {
-        HttpParams params = new SyncBasicHttpParams(); 
         IOEventDispatch ioEventDispatch = new DefaultIoEventDispatch();
-        ListeningIOReactor ioReactor = new DefaultListeningIOReactor(2, params);
+        ListeningIOReactor ioReactor = new DefaultListeningIOReactor();
         ioReactor.listen(new InetSocketAddress(8080));
         try {
             ioReactor.execute(ioEventDispatch);
@@ -55,11 +52,11 @@ public class ElementalEchoServer {
         }
         System.out.println("Shutdown");
     }
-    
+
     static class DefaultIoEventDispatch implements IOEventDispatch {
 
         private final ByteBuffer buffer = ByteBuffer.allocate(1024);
-        
+
         public void connected(IOSession session) {
             System.out.println("connected");
             session.setEventMask(EventMask.READ);
@@ -101,10 +98,10 @@ public class ElementalEchoServer {
             System.out.println("timeout");
             session.close();
         }
-        
+
         public void disconnected(final IOSession session) {
             System.out.println("disconnected");
         }
     }
-    
+
 }

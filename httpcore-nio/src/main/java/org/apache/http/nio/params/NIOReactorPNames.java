@@ -27,11 +27,16 @@
 
 package org.apache.http.nio.params;
 
+import org.apache.http.impl.nio.reactor.IOReactorConfig;
+
 /**
  * Parameter names for I/O reactors.
  *
  * @since 4.0
+ *
+ * @deprecated use {@link IOReactorConfig}
  */
+@Deprecated
 public interface NIOReactorPNames {
 
     /**

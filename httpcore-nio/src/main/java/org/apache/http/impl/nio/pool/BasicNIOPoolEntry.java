@@ -28,13 +28,13 @@ package org.apache.http.impl.nio.pool;
 
 import org.apache.http.HttpHost;
 import org.apache.http.annotation.ThreadSafe;
-import org.apache.http.nio.NHttpClientConnection;
+import org.apache.http.nio.reactor.IOSession;
 import org.apache.http.pool.PoolEntry;
 
 @ThreadSafe
-public class BasicNIOPoolEntry extends PoolEntry<HttpHost, NHttpClientConnection> {
+public class BasicNIOPoolEntry extends PoolEntry<HttpHost, IOSession> {
 
-    public BasicNIOPoolEntry(final String id, final HttpHost route, final NHttpClientConnection conn) {
+    public BasicNIOPoolEntry(final String id, final HttpHost route, final IOSession conn) {
         super(id, route, conn);
     }
 

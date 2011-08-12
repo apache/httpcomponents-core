@@ -55,7 +55,7 @@ public class HttpServerNio {
 
     public HttpServerNio(final HttpParams params) throws IOException {
         super();
-        this.ioReactor = new DefaultListeningIOReactor(2, params);
+        this.ioReactor = new DefaultListeningIOReactor();
         this.params = params;
     }
 

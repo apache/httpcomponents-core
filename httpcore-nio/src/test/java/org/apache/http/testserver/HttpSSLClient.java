@@ -60,7 +60,7 @@ public class HttpSSLClient {
         super();
         this.params = params;
         this.sslcontext = createSSLContext();
-        this.ioReactor = new DefaultConnectingIOReactor(2, this.params);
+        this.ioReactor = new DefaultConnectingIOReactor();
     }
 
     private TrustManagerFactory createTrustManagerFactory() throws NoSuchAlgorithmException {

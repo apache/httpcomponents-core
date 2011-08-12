@@ -82,7 +82,9 @@ public class TestDefaultListeningIOReactor {
                 serviceHandler,
                 params);
 
-        final ListeningIOReactor ioreactor = new DefaultListeningIOReactor(1, params);
+        IOReactorConfig config = new IOReactorConfig();
+        config.setIoThreadCount(1);
+        final ListeningIOReactor ioreactor = new DefaultListeningIOReactor(config);
 
         Thread t = new Thread(new Runnable() {
 
@@ -149,7 +151,9 @@ public class TestDefaultListeningIOReactor {
                 serviceHandler,
                 params);
 
-        final ListeningIOReactor ioreactor = new DefaultListeningIOReactor(1, params);
+        IOReactorConfig config = new IOReactorConfig();
+        config.setIoThreadCount(1);
+        final ListeningIOReactor ioreactor = new DefaultListeningIOReactor(config);
 
         final CountDownLatch latch = new CountDownLatch(1);
 
@@ -211,7 +215,9 @@ public class TestDefaultListeningIOReactor {
                 serviceHandler,
                 params);
 
-        final DefaultListeningIOReactor ioreactor = new DefaultListeningIOReactor(1, params);
+        IOReactorConfig config = new IOReactorConfig();
+        config.setIoThreadCount(1);
+        final DefaultListeningIOReactor ioreactor = new DefaultListeningIOReactor(config);
 
         ioreactor.setExceptionHandler(new IOReactorExceptionHandler() {
 

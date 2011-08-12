@@ -90,12 +90,14 @@ import org.apache.http.util.EncodingUtils;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 
 /**
  * HttpCore NIO integration tests using throttling versions of the
  * protocol handlers.
  */
+@Deprecated
 public class TestThrottlingNHttpHandlers extends HttpCoreNIOTestBase {
 
     private ExecutorService execService;
@@ -275,7 +277,7 @@ public class TestThrottlingNHttpHandlers extends HttpCoreNIOTestBase {
      * (under the control of a ThrottlingHttpServiceHandler)
      * terminates when a connection timeout occurs.
      */
-    @Test
+    @Test @Ignore
     public void testExecutorTermination() throws Exception {
         final int SHORT_TIMEOUT = 100;
         final int DEFAULT_SERVER_SO_TIMEOUT = 60000;

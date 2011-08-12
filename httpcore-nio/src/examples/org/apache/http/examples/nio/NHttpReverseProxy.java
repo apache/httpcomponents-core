@@ -50,6 +50,7 @@ import org.apache.http.impl.nio.DefaultClientIOEventDispatch;
 import org.apache.http.impl.nio.DefaultServerIOEventDispatch;
 import org.apache.http.impl.nio.reactor.DefaultConnectingIOReactor;
 import org.apache.http.impl.nio.reactor.DefaultListeningIOReactor;
+import org.apache.http.impl.nio.reactor.IOReactorConfig;
 import org.apache.http.nio.ContentDecoder;
 import org.apache.http.nio.ContentEncoder;
 import org.apache.http.nio.IOControl;
@@ -85,14 +86,14 @@ import org.apache.http.protocol.ResponseServer;
  * Rudimentary HTTP/1.1 reverse proxy based on the non-blocking I/O model.
  * <p>
  * Please note the purpose of this application is demonstrate the usage of HttpCore APIs.
- * It is NOT intended to demonstrate the most efficient way of building an HTTP reverse proxy. 
- * 
+ * It is NOT intended to demonstrate the most efficient way of building an HTTP reverse proxy.
+ *
  *
  */
 public class NHttpReverseProxy {
 
     public static void main(String[] args) throws Exception {
-        
+
         if (args.length < 1) {
             System.out.println("Usage: NHttpReverseProxy <hostname> [port]");
             System.exit(1);
@@ -102,25 +103,24 @@ public class NHttpReverseProxy {
         if (args.length > 1) {
             port = Integer.parseInt(args[1]);
         }
-        
+
         // Target host
-        HttpHost targetHost = new HttpHost(hostname, port); 
-        
+        HttpHost targetHost = new HttpHost(hostname, port);
+
         HttpParams params = new SyncBasicHttpParams();
         params
             .setIntParameter(CoreConnectionPNames.SO_TIMEOUT, 30000)
             .setIntParameter(CoreConnectionPNames.SOCKET_BUFFER_SIZE, 8 * 1024)
             .setBooleanParameter(CoreConnectionPNames.STALE_CONNECTION_CHECK, false)
             .setBooleanParameter(CoreConnectionPNames.TCP_NODELAY, true)
-            .setParameter(CoreProtocolPNames.ORIGIN_SERVER, "HttpComponents/1.1")
-            .setParameter(CoreProtocolPNames.USER_AGENT, "HttpComponents/1.1");
+            .setParameter(CoreProtocolPNames.ORIGIN_SERVER, "Test/1.1")
+            .setParameter(CoreProtocolPNames.USER_AGENT, "Test/1.1");
 
-        final ConnectingIOReactor connectingIOReactor = new DefaultConnectingIOReactor(
-                1, params);
+        IOReactorConfig config = new IOReactorConfig();
+        config.setIoThreadCount(1);
+        final ConnectingIOReactor connectingIOReactor = new DefaultConnectingIOReactor(config);
+        final ListeningIOReactor listeningIOReactor = new DefaultListeningIOReactor(config);
 
-        final ListeningIOReactor listeningIOReactor = new DefaultListeningIOReactor(
-                1, params);
-        
         // Set up HTTP protocol processor for incoming connections
         HttpProcessor inhttpproc = new ImmutableHttpProcessor(
                 new HttpRequestInterceptor[] {
@@ -130,7 +130,7 @@ public class NHttpReverseProxy {
                         new RequestUserAgent(),
                         new RequestExpectContinue()
          });
-        
+
         // Set up HTTP protocol processor for outgoing connections
         HttpProcessor outhttpproc = new ImmutableHttpProcessor(
                 new HttpResponseInterceptor[] {
@@ -139,7 +139,7 @@ public class NHttpReverseProxy {
                         new ResponseContent(),
                         new ResponseConnControl()
         });
-        
+
         NHttpClientHandler connectingHandler = new ConnectingHandler(
                 inhttpproc,
                 new DefaultConnectionReuseStrategy(),
@@ -148,19 +148,19 @@ public class NHttpReverseProxy {
         NHttpServiceHandler listeningHandler = new ListeningHandler(
                 targetHost,
                 connectingIOReactor,
-                outhttpproc, 
+                outhttpproc,
                 new DefaultHttpResponseFactory(),
                 new DefaultConnectionReuseStrategy(),
                 params);
-        
+
         final IOEventDispatch connectingEventDispatch = new DefaultClientIOEventDispatch(
                 connectingHandler, params);
 
         final IOEventDispatch listeningEventDispatch = new DefaultServerIOEventDispatch(
                 listeningHandler, params);
-        
+
         Thread t = new Thread(new Runnable() {
-            
+
             public void run() {
                 try {
                     connectingIOReactor.execute(connectingEventDispatch);
@@ -170,10 +170,10 @@ public class NHttpReverseProxy {
                     System.err.println("I/O error: " + e.getMessage());
                 }
             }
-            
+
         });
         t.start();
-        
+
         try {
             listeningIOReactor.listen(new InetSocketAddress(8888));
             listeningIOReactor.execute(listeningEventDispatch);
@@ -187,16 +187,16 @@ public class NHttpReverseProxy {
     static class ListeningHandler implements NHttpServiceHandler {
 
         private final HttpHost targetHost;
-        private final ConnectingIOReactor connectingIOReactor;    
+        private final ConnectingIOReactor connectingIOReactor;
         private final HttpProcessor httpProcessor;
         private final HttpResponseFactory responseFactory;
         private final ConnectionReuseStrategy connStrategy;
         private final HttpParams params;
-        
+
         public ListeningHandler(
                 final HttpHost targetHost,
                 final ConnectingIOReactor connectingIOReactor,
-                final HttpProcessor httpProcessor, 
+                final HttpProcessor httpProcessor,
                 final HttpResponseFactory responseFactory,
                 final ConnectionReuseStrategy connStrategy,
                 final HttpParams params) {
@@ -213,26 +213,26 @@ public class NHttpReverseProxy {
             System.out.println(conn + " [client->proxy] conn open");
 
             ProxyTask proxyTask = new ProxyTask();
-            
+
             synchronized (proxyTask) {
 
                 // Initialize connection state
                 proxyTask.setTarget(this.targetHost);
                 proxyTask.setClientIOControl(conn);
                 proxyTask.setClientState(ConnState.CONNECTED);
-                
+
                 HttpContext context = conn.getContext();
                 context.setAttribute(ProxyTask.ATTRIB, proxyTask);
-                
+
                 InetSocketAddress address = new InetSocketAddress(
-                        this.targetHost.getHostName(), 
-                        this.targetHost.getPort()); 
-                
+                        this.targetHost.getHostName(),
+                        this.targetHost.getPort());
+
                 this.connectingIOReactor.connect(
-                        address, 
-                        null, 
-                        proxyTask, 
-                        null);            
+                        address,
+                        null,
+                        proxyTask,
+                        null);
             }
         }
 
@@ -252,25 +252,25 @@ public class NHttpReverseProxy {
                 try {
 
                     HttpRequest request = conn.getHttpRequest();
-                    
+
                     System.out.println(conn + " [client->proxy] >> " + request.getRequestLine());
-                    
+
                     ProtocolVersion ver = request.getRequestLine().getProtocolVersion();
                     if (!ver.lessEquals(HttpVersion.HTTP_1_1)) {
-                        // Downgrade protocol version if greater than HTTP/1.1 
+                        // Downgrade protocol version if greater than HTTP/1.1
                         ver = HttpVersion.HTTP_1_1;
                     }
-                    
+
                     // Update connection state
                     proxyTask.setRequest(request);
                     proxyTask.setClientState(ConnState.REQUEST_RECEIVED);
-                    
+
                     // See if the client expects a 100-Continue
                     if (request instanceof HttpEntityEnclosingRequest) {
                         if (((HttpEntityEnclosingRequest) request).expectContinue()) {
                             HttpResponse ack = this.responseFactory.newHttpResponse(
-                                    ver, 
-                                    HttpStatus.SC_CONTINUE, 
+                                    ver,
+                                    HttpStatus.SC_CONTINUE,
                                     context);
                             conn.submitResponse(ack);
                         }
@@ -278,13 +278,13 @@ public class NHttpReverseProxy {
                         // No request content expected. Suspend client input
                         conn.suspendInput();
                     }
-                    
+
                     // If there is already a connection to the origin server
                     // make sure origin output is active
                     if (proxyTask.getOriginIOControl() != null) {
                         proxyTask.getOriginIOControl().requestOutput();
                     }
-                    
+
                 } catch (IOException ex) {
                     shutdownConnection(conn);
                 } catch (HttpException ex) {
@@ -305,7 +305,7 @@ public class NHttpReverseProxy {
                         && connState != ConnState.REQUEST_BODY_STREAM) {
                     throw new IllegalStateException("Illegal client connection state: " + connState);
                 }
-                
+
                 try {
 
                     ByteBuffer dst = proxyTask.getInBuffer();
@@ -317,7 +317,7 @@ public class NHttpReverseProxy {
                         // until the origin handler frees up some space in the buffer
                         conn.suspendInput();
                     }
-                    // If there is some content in the input buffer make sure origin 
+                    // If there is some content in the input buffer make sure origin
                     // output is active
                     if (dst.position() > 0) {
                         if (proxyTask.getOriginIOControl() != null) {
@@ -334,7 +334,7 @@ public class NHttpReverseProxy {
                     } else {
                         proxyTask.setClientState(ConnState.REQUEST_BODY_STREAM);
                     }
-                    
+
                 } catch (IOException ex) {
                     shutdownConnection(conn);
                 }
@@ -350,7 +350,7 @@ public class NHttpReverseProxy {
             synchronized (proxyTask) {
                 ConnState connState = proxyTask.getClientState();
                 if (connState == ConnState.IDLE) {
-                    // Response not available 
+                    // Response not available
                     return;
                 }
                 if (connState != ConnState.REQUEST_RECEIVED
@@ -375,27 +375,27 @@ public class NHttpReverseProxy {
                     response.removeHeaders("TE");
                     response.removeHeaders("Trailers");
                     response.removeHeaders("Upgrade");
-                    
+
                     response.setParams(
                             new DefaultedHttpParams(response.getParams(), this.params));
 
-                    // Close client connection if the connection to the target 
+                    // Close client connection if the connection to the target
                     // is no longer active / open
                     if (proxyTask.getOriginState().compareTo(ConnState.CLOSING) >= 0) {
-                        response.addHeader(HTTP.CONN_DIRECTIVE, "Close");    
+                        response.addHeader(HTTP.CONN_DIRECTIVE, "Close");
                     }
-                    
+
                     // Pre-process HTTP request
                     context.setAttribute(ExecutionContext.HTTP_CONNECTION, conn);
                     context.setAttribute(ExecutionContext.HTTP_REQUEST, request);
                     this.httpProcessor.process(response, context);
-                    
+
                     conn.submitResponse(response);
 
                     proxyTask.setClientState(ConnState.RESPONSE_SENT);
 
                     System.out.println(conn + " [client<-proxy] << " + response.getStatusLine());
-                    
+
                     if (!canResponseHaveBody(request, response)) {
                         conn.resetInput();
                         if (!this.connStrategy.keepAlive(response, context)) {
@@ -409,7 +409,7 @@ public class NHttpReverseProxy {
                             // Ready to deal with a new request
                         }
                     }
-                    
+
                 } catch (IOException ex) {
                     shutdownConnection(conn);
                 } catch (HttpException ex) {
@@ -417,21 +417,21 @@ public class NHttpReverseProxy {
                 }
             }
         }
-        
+
         private boolean canResponseHaveBody(
                 final HttpRequest request, final HttpResponse response) {
 
             if (request != null && "HEAD".equalsIgnoreCase(request.getRequestLine().getMethod())) {
                 return false;
             }
-            
-            int status = response.getStatusLine().getStatusCode(); 
-            return status >= HttpStatus.SC_OK 
-                && status != HttpStatus.SC_NO_CONTENT 
+
+            int status = response.getStatusLine().getStatusCode();
+            return status >= HttpStatus.SC_OK
+                && status != HttpStatus.SC_NO_CONTENT
                 && status != HttpStatus.SC_NOT_MODIFIED
-                && status != HttpStatus.SC_RESET_CONTENT; 
+                && status != HttpStatus.SC_RESET_CONTENT;
         }
-        
+
         public void outputReady(final NHttpServerConnection conn, final ContentEncoder encoder) {
             System.out.println(conn + " [client<-proxy] output ready");
 
@@ -449,7 +449,7 @@ public class NHttpReverseProxy {
                 if (response == null) {
                     throw new IllegalStateException("HTTP request is null");
                 }
-                
+
                 try {
 
                     ByteBuffer src = proxyTask.getOutBuffer();
@@ -464,7 +464,7 @@ public class NHttpReverseProxy {
                         if (proxyTask.getOriginState() == ConnState.RESPONSE_BODY_DONE) {
                             encoder.complete();
                         } else {
-                            // Input output is empty. Wait until the origin handler 
+                            // Input output is empty. Wait until the origin handler
                             // fills up the buffer
                             conn.suspendOutput();
                         }
@@ -489,10 +489,10 @@ public class NHttpReverseProxy {
                         // Make sure origin input is active
                         proxyTask.getOriginIOControl().requestInput();
                     }
-                    
+
                 } catch (IOException ex) {
                     shutdownConnection(conn);
-                } 
+                }
             }
         }
 
@@ -515,7 +515,7 @@ public class NHttpReverseProxy {
                 shutdownConnection(conn);
                 return;
             }
-            
+
             HttpContext context = conn.getContext();
 
             try {
@@ -528,11 +528,11 @@ public class NHttpReverseProxy {
                 context.setAttribute(ExecutionContext.HTTP_CONNECTION, conn);
                 context.setAttribute(ExecutionContext.HTTP_REQUEST, null);
                 this.httpProcessor.process(response, context);
-                
+
                 conn.submitResponse(response);
 
                 conn.close();
-                
+
             } catch (IOException ex) {
                 shutdownConnection(conn);
             } catch (HttpException ex) {
@@ -544,12 +544,12 @@ public class NHttpReverseProxy {
             shutdownConnection(conn);
             System.out.println(conn + " [client->proxy] I/O error: " + ex.getMessage());
         }
-        
+
         public void timeout(final NHttpServerConnection conn) {
             System.out.println(conn + " [client->proxy] timeout");
             closeConnection(conn);
         }
-        
+
         private void shutdownConnection(final NHttpConnection conn) {
             try {
                 conn.shutdown();
@@ -565,15 +565,15 @@ public class NHttpReverseProxy {
         }
 
     }
-    
+
     static class ConnectingHandler implements NHttpClientHandler {
 
         private final HttpProcessor httpProcessor;
         private final ConnectionReuseStrategy connStrategy;
         private final HttpParams params;
-        
+
         public ConnectingHandler(
-                final HttpProcessor httpProcessor, 
+                final HttpProcessor httpProcessor,
                 final ConnectionReuseStrategy connStrategy,
                 final HttpParams params) {
             super();
@@ -581,10 +581,10 @@ public class NHttpReverseProxy {
             this.connStrategy = connStrategy;
             this.params = params;
         }
-        
+
         public void connected(final NHttpClientConnection conn, final Object attachment) {
             System.out.println(conn + " [proxy->origin] conn open");
-            
+
             // The shared state object is expected to be passed as an attachment
             ProxyTask proxyTask = (ProxyTask) attachment;
 
@@ -601,7 +601,7 @@ public class NHttpReverseProxy {
                 context.setAttribute(ProxyTask.ATTRIB, proxyTask);
                 // Update connection state
                 proxyTask.setOriginState(ConnState.CONNECTED);
-                
+
                 if (proxyTask.getRequest() != null) {
                     conn.requestOutput();
                 }
@@ -616,7 +616,7 @@ public class NHttpReverseProxy {
 
             synchronized (proxyTask) {
                 ConnState connState = proxyTask.getOriginState();
-                if (connState == ConnState.REQUEST_SENT 
+                if (connState == ConnState.REQUEST_SENT
                         || connState == ConnState.REQUEST_BODY_DONE) {
                     // Request sent but no response available yet
                     return;
@@ -631,7 +631,7 @@ public class NHttpReverseProxy {
                 if (request == null) {
                     throw new IllegalStateException("HTTP request is null");
                 }
-                
+
                 // Remove hop-by-hop headers
                 request.removeHeaders(HTTP.CONTENT_LEN);
                 request.removeHeaders(HTTP.TRANSFER_ENCODING);
@@ -644,14 +644,14 @@ public class NHttpReverseProxy {
                 request.removeHeaders("Upgrade");
                 // Remove host header
                 request.removeHeaders(HTTP.TARGET_HOST);
-                
+
                 HttpHost targetHost = proxyTask.getTarget();
-                
+
                 try {
-                    
+
                     request.setParams(
                             new DefaultedHttpParams(request.getParams(), this.params));
-                    
+
                     // Pre-process HTTP request
                     context.setAttribute(ExecutionContext.HTTP_CONNECTION, conn);
                     context.setAttribute(ExecutionContext.HTTP_TARGET_HOST, targetHost);
@@ -661,21 +661,21 @@ public class NHttpReverseProxy {
                     conn.submitRequest(request);
                     // Update connection state
                     proxyTask.setOriginState(ConnState.REQUEST_SENT);
-                    
+
                     System.out.println(conn + " [proxy->origin] >> " + request.getRequestLine().toString());
-                    
+
                 } catch (IOException ex) {
                     shutdownConnection(conn);
                 } catch (HttpException ex) {
                     shutdownConnection(conn);
                 }
-                
+
             }
         }
 
         public void outputReady(final NHttpClientConnection conn, final ContentEncoder encoder) {
             System.out.println(conn + " [proxy->origin] output ready");
-            
+
             HttpContext context = conn.getContext();
             ProxyTask proxyTask = (ProxyTask) context.getAttribute(ProxyTask.ATTRIB);
 
@@ -685,21 +685,21 @@ public class NHttpReverseProxy {
                         && connState != ConnState.REQUEST_BODY_STREAM) {
                     throw new IllegalStateException("Illegal target connection state: " + connState);
                 }
-                
+
                 try {
-                    
+
                     ByteBuffer src = proxyTask.getInBuffer();
                     src.flip();
                     int bytesWritten = encoder.write(src);
                     System.out.println(conn + " [proxy->origin] " + bytesWritten + " bytes written");
                     System.out.println(conn + " [proxy->origin] " + encoder);
                     src.compact();
-                    
+
                     if (src.position() == 0) {
                         if (proxyTask.getClientState() == ConnState.REQUEST_BODY_DONE) {
                             encoder.complete();
                         } else {
-                            // Input buffer is empty. Wait until the client fills up 
+                            // Input buffer is empty. Wait until the client fills up
                             // the buffer
                             conn.suspendOutput();
                         }
@@ -713,7 +713,7 @@ public class NHttpReverseProxy {
                         // Make sure client input is active
                         proxyTask.getClientIOControl().requestInput();
                     }
-                    
+
                 } catch (IOException ex) {
                     shutdownConnection(conn);
                 }
@@ -722,7 +722,7 @@ public class NHttpReverseProxy {
 
         public void responseReceived(final NHttpClientConnection conn) {
             System.out.println(conn + " [proxy<-origin] response received");
-            
+
             HttpContext context = conn.getContext();
             ProxyTask proxyTask = (ProxyTask) context.getAttribute(ProxyTask.ATTRIB);
 
@@ -737,18 +737,18 @@ public class NHttpReverseProxy {
                 HttpRequest request = proxyTask.getRequest();
 
                 System.out.println(conn + " [proxy<-origin] << " + response.getStatusLine());
-                
+
                 int statusCode = response.getStatusLine().getStatusCode();
                 if (statusCode < HttpStatus.SC_OK) {
                     // Ignore 1xx response
                     return;
                 }
                 try {
-                
+
                     // Update connection state
                     proxyTask.setResponse(response);
                     proxyTask.setOriginState(ConnState.RESPONSE_RECEIVED);
-                    
+
                     if (!canResponseHaveBody(request, response)) {
                         conn.resetInput();
                         if (!this.connStrategy.keepAlive(response, context)) {
@@ -773,14 +773,14 @@ public class NHttpReverseProxy {
             if (request != null && "HEAD".equalsIgnoreCase(request.getRequestLine().getMethod())) {
                 return false;
             }
-            
-            int status = response.getStatusLine().getStatusCode(); 
-            return status >= HttpStatus.SC_OK 
-                && status != HttpStatus.SC_NO_CONTENT 
+
+            int status = response.getStatusLine().getStatusCode();
+            return status >= HttpStatus.SC_OK
+                && status != HttpStatus.SC_NO_CONTENT
                 && status != HttpStatus.SC_NOT_MODIFIED
-                && status != HttpStatus.SC_RESET_CONTENT; 
+                && status != HttpStatus.SC_RESET_CONTENT;
         }
-        
+
         public void inputReady(final NHttpClientConnection conn, final ContentDecoder decoder) {
             System.out.println(conn + " [proxy<-origin] input ready");
 
@@ -796,22 +796,22 @@ public class NHttpReverseProxy {
 
                 HttpResponse response = proxyTask.getResponse();
                 try {
-                    
+
                     ByteBuffer dst = proxyTask.getOutBuffer();
                     int bytesRead = decoder.read(dst);
                     System.out.println(conn + " [proxy<-origin] " + bytesRead + " bytes read");
                     System.out.println(conn + " [proxy<-origin] " + decoder);
                     if (!dst.hasRemaining()) {
-                        // Output buffer is full. Suspend origin input until 
+                        // Output buffer is full. Suspend origin input until
                         // the client handler frees up some space in the buffer
                         conn.suspendInput();
                     }
-                    // If there is some content in the buffer make sure client output 
+                    // If there is some content in the buffer make sure client output
                     // is active
                     if (dst.position() > 0) {
                         proxyTask.getClientIOControl().requestOutput();
                     }
-                    
+
                     if (decoder.isCompleted()) {
                         System.out.println(conn + " [proxy<-origin] response body received");
                         proxyTask.setOriginState(ConnState.RESPONSE_BODY_DONE);
@@ -824,7 +824,7 @@ public class NHttpReverseProxy {
                     } else {
                         proxyTask.setOriginState(ConnState.RESPONSE_BODY_STREAM);
                     }
-                    
+
                 } catch (IOException ex) {
                     shutdownConnection(conn);
                 }
@@ -852,19 +852,19 @@ public class NHttpReverseProxy {
             shutdownConnection(conn);
             System.out.println(conn + " [proxy->origin] I/O error: " + ex.getMessage());
         }
-        
+
         public void timeout(final NHttpClientConnection conn) {
             System.out.println(conn + " [proxy->origin] timeout");
             closeConnection(conn);
         }
-     
+
         private void shutdownConnection(final HttpConnection conn) {
             try {
                 conn.shutdown();
             } catch (IOException ignore) {
             }
         }
-        
+
         private void closeConnection(final HttpConnection conn) {
             try {
                 conn.shutdown();
@@ -872,8 +872,8 @@ public class NHttpReverseProxy {
             }
         }
 
-    }    
-    
+    }
+
     enum ConnState {
         IDLE,
         CONNECTED,
@@ -888,25 +888,25 @@ public class NHttpReverseProxy {
         CLOSING,
         CLOSED
     }
-    
+
     static class ProxyTask {
-        
+
         public static final String ATTRIB = "nhttp.proxy-task";
-        
+
         private final ByteBuffer inBuffer;
         private final ByteBuffer outBuffer;
 
         private HttpHost target;
-        
+
         private IOControl originIOControl;
         private IOControl clientIOControl;
-        
+
         private ConnState originState;
         private ConnState clientState;
-        
+
         private HttpRequest request;
         private HttpResponse response;
-        
+
         public ProxyTask() {
             super();
             this.originState = ConnState.IDLE;
@@ -922,7 +922,7 @@ public class NHttpReverseProxy {
         public ByteBuffer getOutBuffer() {
             return this.outBuffer;
         }
-        
+
         public HttpHost getTarget() {
             return this.target;
         }
@@ -962,7 +962,7 @@ public class NHttpReverseProxy {
         public void setOriginIOControl(final IOControl originIOControl) {
             this.originIOControl = originIOControl;
         }
-        
+
         public ConnState getOriginState() {
             return this.originState;
         }
@@ -970,7 +970,7 @@ public class NHttpReverseProxy {
         public void setOriginState(final ConnState state) {
             this.originState = state;
         }
-        
+
         public ConnState getClientState() {
             return this.clientState;
         }
@@ -987,7 +987,7 @@ public class NHttpReverseProxy {
             this.request = null;
             this.response = null;
         }
-        
+
         public void shutdown() {
             if (this.clientIOControl != null) {
                 try {
@@ -1004,5 +1004,5 @@ public class NHttpReverseProxy {
         }
 
     }
-    
+
 }

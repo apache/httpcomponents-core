@@ -47,26 +47,12 @@ import org.apache.http.nio.reactor.IOReactorException;
 import org.apache.http.nio.reactor.IOReactorStatus;
 import org.apache.http.nio.reactor.SessionRequest;
 import org.apache.http.nio.reactor.SessionRequestCallback;
-import org.apache.http.params.HttpConnectionParams;
 import org.apache.http.params.HttpParams;
 
 /**
  * Default implementation of {@link ConnectingIOReactor}. This class extends
  * {@link AbstractMultiworkerIOReactor} with capability to connect to remote
  * hosts.
- * <p>
- * The following parameters can be used to customize the behavior of this
- * class:
- * <ul>
- *  <li>{@link org.apache.http.params.CoreConnectionPNames#TCP_NODELAY}</li>
- *  <li>{@link org.apache.http.params.CoreConnectionPNames#SO_TIMEOUT}</li>
- *  <li>{@link org.apache.http.params.CoreConnectionPNames#CONNECTION_TIMEOUT}</li>
- *  <li>{@link org.apache.http.params.CoreConnectionPNames#SO_LINGER}</li>
- *  <li>{@link org.apache.http.params.CoreConnectionPNames#SO_REUSEADDR}</li>
- *  <li>{@link org.apache.http.nio.params.NIOReactorPNames#SELECT_INTERVAL}</li>
- *  <li>{@link org.apache.http.nio.params.NIOReactorPNames#GRACE_PERIOD}</li>
- *  <li>{@link org.apache.http.nio.params.NIOReactorPNames#INTEREST_OPS_QUEUEING}</li>
- * </ul>
  *
  * @since 4.0
  */
@@ -78,19 +64,65 @@ public class DefaultConnectingIOReactor extends AbstractMultiworkerIOReactor
 
     private long lastTimeoutCheck;
 
+    /**
+     * Creates an instance of DefaultConnectingIOReactor with the given configuration.
+     *
+     * @param config I/O reactor configuration.
+     * @param threadFactory the factory to create threads.
+     *   Can be <code>null</code>.
+     * @throws IOReactorException in case if a non-recoverable I/O error.
+     *
+     * @since 4.2
+     */
     public DefaultConnectingIOReactor(
-            int workerCount,
-            final ThreadFactory threadFactory,
-            final HttpParams params) throws IOReactorException {
-        super(workerCount, threadFactory, params);
+            final IOReactorConfig config,
+            final ThreadFactory threadFactory) throws IOReactorException {
+        super(config, threadFactory);
         this.requestQueue = new ConcurrentLinkedQueue<SessionRequestImpl>();
         this.lastTimeoutCheck = System.currentTimeMillis();
     }
 
+    /**
+     * Creates an instance of DefaultConnectingIOReactor with the given configuration.
+     *
+     * @param config I/O reactor configuration.
+     *   Can be <code>null</code>.
+     * @throws IOReactorException in case if a non-recoverable I/O error.
+     *
+     * @since 4.2
+     */
+    public DefaultConnectingIOReactor(final IOReactorConfig config) throws IOReactorException {
+        this(config, null);
+    }
+
+    /**
+     * Creates an instance of DefaultConnectingIOReactor with default configuration.
+     *
+     * @throws IOReactorException in case if a non-recoverable I/O error.
+     *
+     * @since 4.2
+     */
+    public DefaultConnectingIOReactor() throws IOReactorException {
+        this(null, null);
+    }
+
+    /**
+     * @deprecated use {@link DefaultConnectingIOReactor#DefaultConnectingIOReactor(IOReactorConfig, ThreadFactory)}
+     */
+    public DefaultConnectingIOReactor(
+            int workerCount,
+            final ThreadFactory threadFactory,
+            final HttpParams params) throws IOReactorException {
+        this(convert(workerCount, params), threadFactory);
+    }
+
+    /**
+     * @deprecated use {@link DefaultConnectingIOReactor#DefaultConnectingIOReactor(IOReactorConfig)}
+     */
     public DefaultConnectingIOReactor(
             int workerCount,
             final HttpParams params) throws IOReactorException {
-        this(workerCount, null, params);
+        this(convert(workerCount, params), null);
     }
 
     @Override
@@ -196,7 +228,7 @@ public class DefaultConnectingIOReactor extends AbstractMultiworkerIOReactor
         }
         SessionRequestImpl sessionRequest = new SessionRequestImpl(
                 remoteAddress, localAddress, attachment, callback);
-        sessionRequest.setConnectTimeout(HttpConnectionParams.getConnectionTimeout(this.params));
+        sessionRequest.setConnectTimeout(this.config.getConnectTimeout());
 
         this.requestQueue.add(sessionRequest);
         this.selector.wakeup();
@@ -235,7 +267,7 @@ public class DefaultConnectingIOReactor extends AbstractMultiworkerIOReactor
 
                 if (request.getLocalAddress() != null) {
                     Socket sock = socketChannel.socket();
-                    sock.setReuseAddress(HttpConnectionParams.getSoReuseaddr(this.params));
+                    sock.setReuseAddress(this.config.isSoReuseAddress());
                     sock.bind(request.getLocalAddress());
                 }
                 boolean connected = socketChannel.connect(request.getRemoteAddress());

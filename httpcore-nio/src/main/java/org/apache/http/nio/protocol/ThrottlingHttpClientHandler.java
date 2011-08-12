@@ -88,18 +88,23 @@ import org.apache.http.protocol.HttpProcessor;
  * The following parameters can be used to customize the behavior of this
  * class:
  * <ul>
- *  <li>{@link org.apache.http.params.CoreProtocolPNames#WAIT_FOR_CONTINUE}</li>
  *  <li>{@link org.apache.http.nio.params.NIOReactorPNames#CONTENT_BUFFER_SIZE}</li>
+ *  <li>{@link org.apache.http.params.CoreProtocolPNames#WAIT_FOR_CONTINUE}</li>
  * </ul>
  *
  * @since 4.0
+ *
+ * @deprecated Use {@link AsyncNHttpClientHandler}
  */
+@Deprecated
 @ThreadSafe // provided injected dependencies are immutable or thread safe
 public class ThrottlingHttpClientHandler extends NHttpHandlerBase
                                          implements NHttpClientHandler {
 
     protected HttpRequestExecutionHandler execHandler;
     protected final Executor executor;
+
+    private final int bufsize;
 
     public ThrottlingHttpClientHandler(
             final HttpProcessor httpProcessor,
@@ -117,6 +122,7 @@ public class ThrottlingHttpClientHandler extends NHttpHandlerBase
         }
         this.execHandler = execHandler;
         this.executor = executor;
+        this.bufsize = this.params.getIntParameter(NIOReactorPNames.CONTENT_BUFFER_SIZE, 20480);
     }
 
     public ThrottlingHttpClientHandler(
@@ -134,9 +140,7 @@ public class ThrottlingHttpClientHandler extends NHttpHandlerBase
 
         initialize(conn, attachment);
 
-        int bufsize = this.params.getIntParameter(
-                NIOReactorPNames.CONTENT_BUFFER_SIZE, 20480);
-        ClientConnState connState = new ClientConnState(bufsize, conn, this.allocator);
+        ClientConnState connState = new ClientConnState(this.bufsize, conn, this.allocator);
         context.setAttribute(CONN_STATE, connState);
 
         if (this.eventListener != null) {

@@ -115,7 +115,7 @@ public class NHttpServer {
         handler.setEventListener(new EventLogger());
 
         IOEventDispatch ioEventDispatch = new DefaultServerIOEventDispatch(handler, params);
-        ListeningIOReactor ioReactor = new DefaultListeningIOReactor(2, params);
+        ListeningIOReactor ioReactor = new DefaultListeningIOReactor();
         try {
             ioReactor.listen(new InetSocketAddress(8080));
             ioReactor.execute(ioEventDispatch);

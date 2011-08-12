@@ -65,7 +65,7 @@ public class HttpSSLServer {
         super();
         this.params = params;
         this.sslcontext = createSSLContext();
-        this.ioReactor = new DefaultListeningIOReactor(2, this.params);
+        this.ioReactor = new DefaultListeningIOReactor();
     }
 
     private KeyManagerFactory createKeyManagerFactory() throws NoSuchAlgorithmException {

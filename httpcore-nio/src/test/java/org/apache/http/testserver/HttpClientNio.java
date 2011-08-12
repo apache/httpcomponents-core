@@ -50,7 +50,7 @@ public class HttpClientNio {
 
     public HttpClientNio(final HttpParams params) throws IOException {
         super();
-        this.ioReactor = new DefaultConnectingIOReactor(2, params);
+        this.ioReactor = new DefaultConnectingIOReactor();
         this.params = params;
     }
 

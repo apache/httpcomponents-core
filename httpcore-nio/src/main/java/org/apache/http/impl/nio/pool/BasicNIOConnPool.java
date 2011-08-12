@@ -26,42 +26,23 @@
  */
 package org.apache.http.impl.nio.pool;
 
-import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.net.SocketAddress;
 import java.util.concurrent.atomic.AtomicLong;
 
-import org.apache.http.HttpConnection;
 import org.apache.http.HttpHost;
-import org.apache.http.HttpResponseFactory;
 import org.apache.http.annotation.ThreadSafe;
-import org.apache.http.impl.DefaultHttpResponseFactory;
-import org.apache.http.impl.nio.DefaultNHttpClientConnection;
-import org.apache.http.nio.NHttpClientConnection;
 import org.apache.http.nio.pool.AbstractNIOConnPool;
 import org.apache.http.nio.reactor.ConnectingIOReactor;
 import org.apache.http.nio.reactor.IOSession;
-import org.apache.http.nio.util.ByteBufferAllocator;
-import org.apache.http.nio.util.HeapByteBufferAllocator;
-import org.apache.http.params.HttpParams;
 
 @ThreadSafe
-public class BasicNIOConnPool extends AbstractNIOConnPool<HttpHost, NHttpClientConnection, BasicNIOPoolEntry> {
+public class BasicNIOConnPool extends AbstractNIOConnPool<HttpHost, IOSession, BasicNIOPoolEntry> {
 
     private static AtomicLong COUNTER = new AtomicLong();
 
-    private final HttpResponseFactory responseFactory;
-    private final ByteBufferAllocator allocator;
-    private final HttpParams params;
-
-    public BasicNIOConnPool(final ConnectingIOReactor ioreactor, final HttpParams params) {
+    public BasicNIOConnPool(final ConnectingIOReactor ioreactor) {
         super(ioreactor, 2, 20);
-        if (params == null) {
-            throw new IllegalArgumentException("HTTP params may not be null");
-        }
-        this.responseFactory = new DefaultHttpResponseFactory();
-        this.allocator = new HeapByteBufferAllocator();
-        this.params = params;
     }
 
     @Override
@@ -75,23 +56,19 @@ public class BasicNIOConnPool extends AbstractNIOConnPool<HttpHost, NHttpClientC
     }
 
     @Override
-    protected NHttpClientConnection createConnection(final HttpHost route, final IOSession session) {
-        return new DefaultNHttpClientConnection(session,
-                this.responseFactory, this.allocator, this.params);
+    protected IOSession createConnection(final HttpHost route, final IOSession session) {
+        return session;
     }
 
     @Override
-    protected BasicNIOPoolEntry createEntry(final HttpHost host, final NHttpClientConnection conn) {
+    protected BasicNIOPoolEntry createEntry(final HttpHost host, final IOSession conn) {
         return new BasicNIOPoolEntry(Long.toString(COUNTER.getAndIncrement()), host, conn);
     }
 
     @Override
     protected void closeEntry(final BasicNIOPoolEntry entry) {
-        HttpConnection conn = entry.getConnection();
-        try {
-            conn.close();
-        } catch (IOException ignore) {
-        }
+        IOSession iosession = entry.getConnection();
+        iosession.shutdown();
     }
 
 }

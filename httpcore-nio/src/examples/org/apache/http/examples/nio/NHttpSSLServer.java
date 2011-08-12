@@ -138,7 +138,7 @@ public class NHttpSSLServer {
                 sslcontext,
                 params);
 
-        ListeningIOReactor ioReactor = new DefaultListeningIOReactor(2, params);
+        ListeningIOReactor ioReactor = new DefaultListeningIOReactor();
         try {
             ioReactor.listen(new InetSocketAddress(8080));
             ioReactor.execute(ioEventDispatch);

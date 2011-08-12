@@ -28,10 +28,8 @@ package org.apache.http.impl.nio.pool;
 
 
 import org.apache.http.HttpHost;
-import org.apache.http.nio.NHttpClientConnection;
 import org.apache.http.nio.reactor.ConnectingIOReactor;
 import org.apache.http.nio.reactor.IOSession;
-import org.apache.http.params.HttpParams;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -41,9 +39,8 @@ import org.mockito.MockitoAnnotations;
 public class TestBasicNIOConnPool {
 
     private BasicNIOConnPool pool;
-    @Mock private ConnectingIOReactor reactor;
-    @Mock private HttpParams params;
     private HttpHost route;
+    @Mock private ConnectingIOReactor reactor;
     @Mock private IOSession session;
 
     @Before
@@ -52,7 +49,7 @@ public class TestBasicNIOConnPool {
 
         route = new HttpHost("localhost", 80, "http");
 
-        pool = new BasicNIOConnPool(reactor, params);
+        pool = new BasicNIOConnPool(reactor);
     }
 
     @After
@@ -61,7 +58,7 @@ public class TestBasicNIOConnPool {
 
     @Test(expected=IllegalArgumentException.class)
     public void testNullConstructor() throws Exception {
-        pool = new BasicNIOConnPool(null, null);
+        pool = new BasicNIOConnPool(null);
     }
 
     @Test
@@ -71,7 +68,7 @@ public class TestBasicNIOConnPool {
 
     @Test
     public void testCreateEntry() throws Exception {
-        NHttpClientConnection conn = pool.createConnection(route, session);
+        IOSession conn = pool.createConnection(route, session);
         BasicNIOPoolEntry entry = pool.createEntry(route, conn);
 
         pool.closeEntry(entry);

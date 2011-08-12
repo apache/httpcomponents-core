@@ -95,12 +95,18 @@ import org.apache.http.util.EntityUtils;
  * will have to block only when processing large messages and the shared buffer
  * fills up. It is generally advisable to allocate shared buffers of a size of
  * an average content body for optimal performance.
- *
- * @see NIOReactorPNames#CONTENT_BUFFER_SIZE
- *
+ * <p>
+ * The following parameters can be used to customize the behavior of this
+ * class:
+ * <ul>
+ *  <li>{@link org.apache.http.nio.params.NIOReactorPNames#CONTENT_BUFFER_SIZE}</li>
+ *  <li>{@link org.apache.http.params.CoreProtocolPNames#WAIT_FOR_CONTINUE}</li>
+ * </ul>
  *
  * @since 4.0
+ * @deprecated Use {@link AsyncNHttpServiceHandler}
  */
+@Deprecated
 @ThreadSafe // provided injected dependencies are immutable or thread safe
 public class ThrottlingHttpServiceHandler extends NHttpHandlerBase
                                           implements NHttpServiceHandler {
@@ -110,6 +116,8 @@ public class ThrottlingHttpServiceHandler extends NHttpHandlerBase
 
     protected HttpRequestHandlerResolver handlerResolver;
     protected HttpExpectationVerifier expectationVerifier;
+
+    private final int bufsize;
 
     public ThrottlingHttpServiceHandler(
             final HttpProcessor httpProcessor,
@@ -127,6 +135,7 @@ public class ThrottlingHttpServiceHandler extends NHttpHandlerBase
         }
         this.responseFactory = responseFactory;
         this.executor = executor;
+        this.bufsize = this.params.getIntParameter(NIOReactorPNames.CONTENT_BUFFER_SIZE, 20480);
     }
 
     public ThrottlingHttpServiceHandler(
@@ -150,9 +159,7 @@ public class ThrottlingHttpServiceHandler extends NHttpHandlerBase
     public void connected(final NHttpServerConnection conn) {
         HttpContext context = conn.getContext();
 
-        int bufsize = this.params.getIntParameter(
-                NIOReactorPNames.CONTENT_BUFFER_SIZE, 20480);
-        ServerConnState connState = new ServerConnState(bufsize, conn, allocator);
+        ServerConnState connState = new ServerConnState(this.bufsize, conn, allocator);
         context.setAttribute(CONN_STATE, connState);
 
         if (this.eventListener != null) {

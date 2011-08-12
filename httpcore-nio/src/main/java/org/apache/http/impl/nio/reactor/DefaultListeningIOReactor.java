@@ -52,17 +52,6 @@ import org.apache.http.params.HttpParams;
  * Default implementation of {@link ListeningIOReactor}. This class extends
  * {@link AbstractMultiworkerIOReactor} with capability to listen for incoming
  * connections.
- * <p>
- * The following parameters can be used to customize the behavior of this
- * class:
- * <ul>
- *  <li>{@link org.apache.http.params.CoreConnectionPNames#TCP_NODELAY}</li>
- *  <li>{@link org.apache.http.params.CoreConnectionPNames#SO_TIMEOUT}</li>
- *  <li>{@link org.apache.http.params.CoreConnectionPNames#SO_LINGER}</li>
- *  <li>{@link org.apache.http.nio.params.NIOReactorPNames#SELECT_INTERVAL}</li>
- *  <li>{@link org.apache.http.nio.params.NIOReactorPNames#GRACE_PERIOD}</li>
- *  <li>{@link org.apache.http.nio.params.NIOReactorPNames#INTEREST_OPS_QUEUEING}</li>
- * </ul>
  *
  * @since 4.0
  */
@@ -76,22 +65,67 @@ public class DefaultListeningIOReactor extends AbstractMultiworkerIOReactor
 
     private volatile boolean paused;
 
+    /**
+     * Creates an instance of DefaultListeningIOReactor with the given configuration.
+     *
+     * @param config I/O reactor configuration.
+     * @param threadFactory the factory to create threads.
+     *   Can be <code>null</code>.
+     * @throws IOReactorException in case if a non-recoverable I/O error.
+     *
+     * @since 4.2
+     */
     public DefaultListeningIOReactor(
-            int workerCount,
-            final ThreadFactory threadFactory,
-            final HttpParams params) throws IOReactorException {
-        super(workerCount, threadFactory, params);
+            final IOReactorConfig config,
+            final ThreadFactory threadFactory) throws IOReactorException {
+        super(config, threadFactory);
         this.requestQueue = new ConcurrentLinkedQueue<ListenerEndpointImpl>();
         this.endpoints = Collections.synchronizedSet(new HashSet<ListenerEndpointImpl>());
         this.pausedEndpoints = new HashSet<SocketAddress>();
     }
 
+    /**
+     * Creates an instance of DefaultListeningIOReactor with the given configuration.
+     *
+     * @param config I/O reactor configuration.
+     *   Can be <code>null</code>.
+     * @throws IOReactorException in case if a non-recoverable I/O error.
+     *
+     * @since 4.2
+     */
+    public DefaultListeningIOReactor(final IOReactorConfig config) throws IOReactorException {
+        this(config, null);
+    }
+
+    /**
+     * Creates an instance of DefaultListeningIOReactor with default configuration.
+     *
+     * @throws IOReactorException in case if a non-recoverable I/O error.
+     *
+     * @since 4.2
+     */
+    public DefaultListeningIOReactor() throws IOReactorException {
+        this(null, null);
+    }
+
+    /**
+     * @deprecated use {@link DefaultListeningIOReactor#DefaultListeningIOReactor(IOReactorConfig, ThreadFactory)}
+     */
+    public DefaultListeningIOReactor(
+            int workerCount,
+            final ThreadFactory threadFactory,
+            final HttpParams params) throws IOReactorException {
+        this(convert(workerCount, params), threadFactory);
+    }
+
+    /**
+     * @deprecated use {@link DefaultListeningIOReactor#DefaultListeningIOReactor(IOReactorConfig)}
+     */
     public DefaultListeningIOReactor(
             int workerCount,
             final HttpParams params) throws IOReactorException {
-        this(workerCount, null, params);
+        this(convert(workerCount, params), null);
     }
-
 
     @Override
     protected void cancelRequests() throws IOReactorException {

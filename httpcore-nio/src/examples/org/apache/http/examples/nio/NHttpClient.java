@@ -28,6 +28,7 @@ package org.apache.http.examples.nio;
 
 import java.io.IOException;
 import java.io.InterruptedIOException;
+import java.nio.channels.SelectionKey;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
@@ -42,11 +43,11 @@ import org.apache.http.impl.nio.pool.BasicNIOConnPool;
 import org.apache.http.impl.nio.pool.BasicNIOPoolEntry;
 import org.apache.http.impl.nio.reactor.DefaultConnectingIOReactor;
 import org.apache.http.message.BasicHttpRequest;
-import org.apache.http.nio.NHttpConnection;
 import org.apache.http.nio.protocol.BufferingHttpClientHandler;
 import org.apache.http.nio.protocol.HttpRequestExecutionHandler;
 import org.apache.http.nio.reactor.ConnectingIOReactor;
 import org.apache.http.nio.reactor.IOEventDispatch;
+import org.apache.http.nio.reactor.IOSession;
 import org.apache.http.params.CoreConnectionPNames;
 import org.apache.http.params.CoreProtocolPNames;
 import org.apache.http.params.HttpParams;
@@ -69,6 +70,7 @@ import org.apache.http.protocol.RequestUserAgent;
 public class NHttpClient {
 
     public static void main(String[] args) throws Exception {
+        final ConnectingIOReactor ioReactor = new DefaultConnectingIOReactor();
         HttpParams params = new SyncBasicHttpParams();
         params
             .setIntParameter(CoreConnectionPNames.SO_TIMEOUT, 5000)
@@ -78,9 +80,8 @@ public class NHttpClient {
             .setBooleanParameter(CoreConnectionPNames.TCP_NODELAY, true)
             .setParameter(CoreProtocolPNames.USER_AGENT, "Test/1.1");
 
-        final ConnectingIOReactor ioReactor = new DefaultConnectingIOReactor(2, params);
 
-        BasicNIOConnPool pool = new BasicNIOConnPool(ioReactor, params);
+        BasicNIOConnPool pool = new BasicNIOConnPool(ioReactor);
         // Limit total number of connections to just two
         pool.setDefaultMaxPerRoute(2);
         pool.setMaxTotal(2);
@@ -166,9 +167,9 @@ public class NHttpClient {
 
         public void completed(final BasicNIOPoolEntry entry) {
             this.poolEntry = entry;
-            NHttpConnection conn = entry.getConnection();
-            conn.getContext().setAttribute("executor", this);
-            conn.requestOutput();
+            IOSession session = entry.getConnection();
+            session.setAttribute("executor", this);
+            session.setEvent(SelectionKey.OP_WRITE);
             System.out.println(this.poolEntry.getRoute() + ": obtained connection from the pool");
         }
 

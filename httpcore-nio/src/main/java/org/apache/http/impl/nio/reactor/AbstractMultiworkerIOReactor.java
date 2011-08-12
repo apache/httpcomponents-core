@@ -50,6 +50,7 @@ import org.apache.http.nio.reactor.IOReactor;
 import org.apache.http.nio.reactor.IOReactorException;
 import org.apache.http.nio.reactor.IOReactorExceptionHandler;
 import org.apache.http.nio.reactor.IOReactorStatus;
+import org.apache.http.params.BasicHttpParams;
 import org.apache.http.params.HttpConnectionParams;
 import org.apache.http.params.HttpParams;
 
@@ -104,12 +105,15 @@ import org.apache.http.params.HttpParams;
  *
  * @since 4.0
  */
+@SuppressWarnings("deprecation")
 @ThreadSafe // public methods only
 public abstract class AbstractMultiworkerIOReactor implements IOReactor {
 
     protected volatile IOReactorStatus status;
 
+    @Deprecated
     protected final HttpParams params;
+    protected final IOReactorConfig config;
     protected final Selector selector;
     protected final long selectTimeout;
     protected final boolean interestOpsQueueing;
@@ -127,6 +131,79 @@ public abstract class AbstractMultiworkerIOReactor implements IOReactor {
     private int currentWorker = 0;
 
     /**
+     * Creates an instance of AbstractMultiworkerIOReactor with the given configuration.
+     *
+     * @param config I/O reactor configuration.
+     * @param threadFactory the factory to create threads.
+     *   Can be <code>null</code>.
+     * @throws IOReactorException in case if a non-recoverable I/O error.
+     *
+     * @since 4.2
+     */
+    public AbstractMultiworkerIOReactor(
+            final IOReactorConfig config,
+            final ThreadFactory threadFactory) throws IOReactorException {
+        super();
+        if (config != null) {
+            try {
+                this.config = config.clone();
+            } catch (CloneNotSupportedException ex) {
+                throw new IOReactorException("Unable to clone configuration");
+            }
+        } else {
+            this.config = new IOReactorConfig();
+        }
+        this.params = new BasicHttpParams();
+        try {
+            this.selector = Selector.open();
+        } catch (IOException ex) {
+            throw new IOReactorException("Failure opening selector", ex);
+        }
+        this.selectTimeout = this.config.getSelectInterval();
+        this.interestOpsQueueing = this.config.isInterestOpQueued();
+        this.statusLock = new Object();
+        if (threadFactory != null) {
+            this.threadFactory = threadFactory;
+        } else {
+            this.threadFactory = new DefaultThreadFactory();
+        }
+        this.workerCount = this.config.getIoThreadCount();
+        this.dispatchers = new BaseIOReactor[workerCount];
+        this.workers = new Worker[workerCount];
+        this.threads = new Thread[workerCount];
+        this.status = IOReactorStatus.INACTIVE;
+    }
+
+    /**
+     * Creates an instance of AbstractMultiworkerIOReactor with default configuration.
+     *
+     * @throws IOReactorException in case if a non-recoverable I/O error.
+     *
+     * @since 4.2
+     */
+    public AbstractMultiworkerIOReactor() throws IOReactorException {
+        this(null, null);
+    }
+
+    static IOReactorConfig convert(int workerCount, final HttpParams params) {
+        if (params == null) {
+            throw new IllegalArgumentException("HTTP parameters may not be null");
+        }
+        IOReactorConfig config = new IOReactorConfig();
+        config.setSelectInterval(NIOReactorParams.getSelectInterval(params));
+        config.setShutdownGracePeriod(NIOReactorParams.getGracePeriod(params));
+        config.setInterestOpQueued(NIOReactorParams.getInterestOpsQueueing(params));
+        config.setIoThreadCount(workerCount);
+        config.setTcpNoDelay(HttpConnectionParams.getTcpNoDelay(params));
+        config.setSoTimeout(HttpConnectionParams.getSoTimeout(params));
+        config.setSoLinger(HttpConnectionParams.getLinger(params));
+        config.setConnectTimeout(HttpConnectionParams.getConnectionTimeout(params));
+        config.setSoReuseAddress(HttpConnectionParams.getSoReuseaddr(params));
+
+        return config;
+    }
+
+    /**
      * Creates an instance of AbstractMultiworkerIOReactor.
      *
      * @param workerCount number of worker I/O reactors.
@@ -134,37 +211,15 @@ public abstract class AbstractMultiworkerIOReactor implements IOReactor {
      *   Can be <code>null</code>.
      * @param params HTTP parameters.
      * @throws IOReactorException in case if a non-recoverable I/O error.
+     *
+     * @deprecated use {@link AbstractMultiworkerIOReactor#AbstractMultiworkerIOReactor(IOReactorConfig, ThreadFactory)}
      */
+    @Deprecated
     public AbstractMultiworkerIOReactor(
             int workerCount,
             final ThreadFactory threadFactory,
             final HttpParams params) throws IOReactorException {
-        super();
-        if (workerCount <= 0) {
-            throw new IllegalArgumentException("Worker count may not be negative or zero");
-        }
-        if (params == null) {
-            throw new IllegalArgumentException("HTTP parameters may not be null");
-        }
-        try {
-            this.selector = Selector.open();
-        } catch (IOException ex) {
-            throw new IOReactorException("Failure opening selector", ex);
-        }
-        this.params = params;
-        this.selectTimeout = NIOReactorParams.getSelectInterval(params);
-        this.interestOpsQueueing = NIOReactorParams.getInterestOpsQueueing(params);
-        this.statusLock = new Object();
-        this.workerCount = workerCount;
-        if (threadFactory != null) {
-            this.threadFactory = threadFactory;
-        } else {
-            this.threadFactory = new DefaultThreadFactory();
-        }
-        this.dispatchers = new BaseIOReactor[workerCount];
-        this.workers = new Worker[workerCount];
-        this.threads = new Thread[workerCount];
-        this.status = IOReactorStatus.INACTIVE;
+        this(convert(workerCount, params), threadFactory);
     }
 
     public IOReactorStatus getStatus() {
@@ -400,7 +455,7 @@ public abstract class AbstractMultiworkerIOReactor implements IOReactor {
             dispatcher.gracefulShutdown();
         }
 
-        long gracePeriod = NIOReactorParams.getGracePeriod(this.params);
+        long gracePeriod = this.config.getShutdownGracePeriod();
 
         try {
             // Force shut down I/O dispatchers if they fail to terminate
@@ -463,9 +518,9 @@ public abstract class AbstractMultiworkerIOReactor implements IOReactor {
      * @throws IOException in case of an I/O error.
      */
     protected void prepareSocket(final Socket socket) throws IOException {
-        socket.setTcpNoDelay(HttpConnectionParams.getTcpNoDelay(this.params));
-        socket.setSoTimeout(HttpConnectionParams.getSoTimeout(this.params));
-        int linger = HttpConnectionParams.getLinger(this.params);
+        socket.setTcpNoDelay(this.config.isTcpNoDelay());
+        socket.setSoTimeout(this.config.getSoTimeout());
+        int linger = this.config.getSoLinger();
         if (linger >= 0) {
             socket.setSoLinger(linger > 0, linger);
         }
