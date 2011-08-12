@@ -142,6 +142,46 @@ public class SSLIOSession implements IOSession, SessionBufferStatus {
         doHandshake();
     }
 
+    // A works-around for exception handling craziness in Sun/Oracle's SSLEngine
+    // implementation.
+    //
+    // sun.security.pkcs11.wrapper.PKCS11Exception is re-thrown as
+    // plain RuntimeException in sun.security.ssl.Handshaker#checkThrown
+    private SSLException convert(final RuntimeException ex) throws SSLException {
+		Throwable cause = ex.getCause();
+		if (cause == null) {
+			cause = ex;
+		}
+		return new SSLException(cause);
+    }
+
+    private SSLEngineResult doWrap(final ByteBuffer src, final ByteBuffer dst) throws SSLException {
+    	try {
+        	return this.sslEngine.wrap(src, dst);
+    	} catch (RuntimeException ex) {
+    		throw convert(ex);
+    	}
+    }
+
+    private SSLEngineResult doUnwrap(final ByteBuffer src, final ByteBuffer dst) throws SSLException {
+    	try {
+        	return this.sslEngine.unwrap(src, dst);
+    	} catch (RuntimeException ex) {
+    		throw convert(ex);
+    	}
+    }
+
+    private void doRunTask() throws SSLException {
+    	try {
+            Runnable r = this.sslEngine.getDelegatedTask();
+            if (r != null) {
+            	r.run();
+            }
+    	} catch (RuntimeException ex) {
+    		throw convert(ex);
+    	}
+    }
+
     private void doHandshake() throws SSLException {
         boolean handshaking = true;
 
@@ -151,7 +191,7 @@ public class SSLIOSession implements IOSession, SessionBufferStatus {
             case NEED_WRAP:
                 // Generate outgoing handshake data
                 this.outPlain.flip();
-                result = this.sslEngine.wrap(this.outPlain, this.outEncrypted);
+                result = doWrap(this.outPlain, this.outEncrypted);
                 this.outPlain.compact();
                 if (result.getStatus() != Status.OK) {
                     handshaking = false;
@@ -160,15 +200,14 @@ public class SSLIOSession implements IOSession, SessionBufferStatus {
             case NEED_UNWRAP:
                 // Process incoming handshake data
                 this.inEncrypted.flip();
-                result = this.sslEngine.unwrap(this.inEncrypted, this.inPlain);
+                result = doUnwrap(this.inEncrypted, this.inPlain);
                 this.inEncrypted.compact();
                 if (result.getStatus() != Status.OK) {
                     handshaking = false;
                 }
                 break;
             case NEED_TASK:
-                Runnable r = this.sslEngine.getDelegatedTask();
-                r.run();
+            	doRunTask();
                 break;
             case NOT_HANDSHAKING:
                 handshaking = false;
@@ -246,7 +285,7 @@ public class SSLIOSession implements IOSession, SessionBufferStatus {
         SSLEngineResult.Status opStatus = Status.OK;
         while (this.inEncrypted.position() > 0 && opStatus == Status.OK) {
             this.inEncrypted.flip();
-            SSLEngineResult result = this.sslEngine.unwrap(this.inEncrypted, this.inPlain);
+            SSLEngineResult result = doUnwrap(this.inEncrypted, this.inPlain);
             this.inEncrypted.compact();
 
             opStatus = result.getStatus();
@@ -302,11 +341,11 @@ public class SSLIOSession implements IOSession, SessionBufferStatus {
         }
         if (this.outPlain.position() > 0) {
             this.outPlain.flip();
-            this.sslEngine.wrap(this.outPlain, this.outEncrypted);
+            doWrap(this.outPlain, this.outEncrypted);
             this.outPlain.compact();
         }
         if (this.outPlain.position() == 0) {
-            SSLEngineResult result = this.sslEngine.wrap(src, this.outEncrypted);
+            SSLEngineResult result = doWrap(src, this.outEncrypted);
             if (result.getStatus() == Status.CLOSED) {
                 this.status = CLOSED;
             }
