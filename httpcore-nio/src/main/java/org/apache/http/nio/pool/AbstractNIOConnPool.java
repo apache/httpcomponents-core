@@ -51,6 +51,15 @@ import org.apache.http.pool.ConnPoolControl;
 import org.apache.http.pool.PoolEntry;
 import org.apache.http.pool.PoolStats;
 
+/**
+ * Abstract non-blocking connection pool.
+ *
+ * @param <T> route
+ * @param <C> connection object
+ * @param <E> pool entry
+ *
+ * @since 4.2
+ */
 @ThreadSafe
 public abstract class AbstractNIOConnPool<T, C, E extends PoolEntry<T, C>> implements ConnPoolControl<T> {
 

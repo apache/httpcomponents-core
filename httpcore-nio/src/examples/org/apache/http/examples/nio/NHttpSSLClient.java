@@ -83,7 +83,7 @@ public class NHttpSSLClient {
 
         final ConnectingIOReactor ioReactor = new DefaultConnectingIOReactor();
 
-        BasicNIOConnPool pool = new BasicNIOConnPool(ioReactor);
+        BasicNIOConnPool pool = new BasicNIOConnPool(ioReactor, params);
         // Limit total number of connections to just two
         pool.setDefaultMaxPerRoute(2);
         pool.setMaxTotal(2);

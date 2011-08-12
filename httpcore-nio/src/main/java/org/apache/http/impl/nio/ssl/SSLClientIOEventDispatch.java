@@ -46,6 +46,7 @@ import org.apache.http.nio.reactor.IOEventDispatch;
 import org.apache.http.nio.reactor.IOSession;
 import org.apache.http.nio.util.ByteBufferAllocator;
 import org.apache.http.nio.util.HeapByteBufferAllocator;
+import org.apache.http.params.HttpConnectionParams;
 import org.apache.http.params.HttpParams;
 import org.apache.http.protocol.ExecutionContext;
 
@@ -57,6 +58,7 @@ import org.apache.http.protocol.ExecutionContext;
  * class:
  * <ul>
  *  <li>{@link org.apache.http.params.CoreProtocolPNames#HTTP_ELEMENT_CHARSET}</li>
+ *  <li>{@link org.apache.http.params.CoreConnectionPNames#SO_TIMEOUT}</li>
  *  <li>{@link org.apache.http.params.CoreConnectionPNames#SOCKET_BUFFER_SIZE}</li>
  *  <li>{@link org.apache.http.params.CoreConnectionPNames#MAX_HEADER_COUNT}</li>
  *  <li>{@link org.apache.http.params.CoreConnectionPNames#MAX_LINE_LENGTH}</li>
@@ -200,7 +202,10 @@ public class SSLClientIOEventDispatch implements IOEventDispatch {
             session.setAttribute(ExecutionContext.HTTP_CONNECTION, conn);
             session.setAttribute(SSL_SESSION, sslSession);
 
-            Object attachment = session.getAttribute(IOSession.ATTACHMENT_KEY);
+    		int timeout = HttpConnectionParams.getSoTimeout(this.params);
+    		conn.setSocketTimeout(timeout);
+
+    		Object attachment = session.getAttribute(IOSession.ATTACHMENT_KEY);
             this.handler.connected(conn, attachment);
 
             try {

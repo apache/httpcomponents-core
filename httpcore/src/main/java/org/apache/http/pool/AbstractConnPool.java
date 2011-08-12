@@ -42,6 +42,15 @@ import java.util.concurrent.locks.ReentrantLock;
 
 import org.apache.http.annotation.ThreadSafe;
 
+/**
+ * Abstract blocking connection pool.
+ *
+ * @param <T> route
+ * @param <C> connection object
+ * @param <E> pool entry
+ *
+ * @since 4.2
+ */
 @ThreadSafe
 public abstract class AbstractConnPool<T, C, E extends PoolEntry<T, C>> implements ConnPoolControl<T> {
 

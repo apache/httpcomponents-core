@@ -30,6 +30,7 @@ package org.apache.http.impl.nio.pool;
 import org.apache.http.HttpHost;
 import org.apache.http.nio.reactor.ConnectingIOReactor;
 import org.apache.http.nio.reactor.IOSession;
+import org.apache.http.params.BasicHttpParams;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -49,7 +50,7 @@ public class TestBasicNIOConnPool {
 
         route = new HttpHost("localhost", 80, "http");
 
-        pool = new BasicNIOConnPool(reactor);
+        pool = new BasicNIOConnPool(reactor, new BasicHttpParams());
     }
 
     @After
@@ -58,7 +59,12 @@ public class TestBasicNIOConnPool {
 
     @Test(expected=IllegalArgumentException.class)
     public void testNullConstructor() throws Exception {
-        pool = new BasicNIOConnPool(null);
+        pool = new BasicNIOConnPool(null, new BasicHttpParams());
+    }
+
+    @Test(expected=IllegalArgumentException.class)
+    public void testNullConstructor2() throws Exception {
+        pool = new BasicNIOConnPool(reactor, null);
     }
 
     @Test

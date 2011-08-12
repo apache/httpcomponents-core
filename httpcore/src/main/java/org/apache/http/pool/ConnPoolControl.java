@@ -26,6 +26,13 @@
  */
 package org.apache.http.pool;
 
+/**
+ * Interface to control runtime properties of a connection pool such as
+ * maximum total number of connections or maximum connections per route
+ * allowed.
+ *
+ * @param <T> route
+ */
 public interface ConnPoolControl<T> {
 
     void setMaxTotal(int max);

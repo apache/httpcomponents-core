@@ -31,6 +31,11 @@ import org.apache.http.annotation.ThreadSafe;
 import org.apache.http.nio.reactor.IOSession;
 import org.apache.http.pool.PoolEntry;
 
+/**
+ * Pool entry for {@link BasicNIOConnPool}.
+ *
+ * @since 4.2
+ */
 @ThreadSafe
 public class BasicNIOPoolEntry extends PoolEntry<HttpHost, IOSession> {
 

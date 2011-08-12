@@ -30,6 +30,14 @@ import java.util.concurrent.TimeUnit;
 
 import org.apache.http.annotation.ThreadSafe;
 
+/**
+ * Pool entry containing a connection object along with its route information.
+ *
+ * @param <T> route
+ * @param <C> connection
+ *
+ * @since 4.2
+ */
 @ThreadSafe
 public class PoolEntry<T, C> {
 

@@ -28,6 +28,12 @@ package org.apache.http.pool;
 
 import org.apache.http.annotation.Immutable;
 
+/**
+ * Pool statistics.
+ *
+ * @since 4.2
+ *
+ */
 @Immutable
 public class PoolStats {
 
