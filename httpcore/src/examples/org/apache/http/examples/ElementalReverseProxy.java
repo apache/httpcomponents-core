@@ -74,8 +74,8 @@ import org.apache.http.protocol.ResponseServer;
  * Rudimentary HTTP/1.1 reverse proxy.
  * <p>
  * Please note the purpose of this application is demonstrate the usage of HttpCore APIs.
- * It is NOT intended to demonstrate the most efficient way of building an HTTP reverse proxy. 
- * 
+ * It is NOT intended to demonstrate the most efficient way of building an HTTP reverse proxy.
+ *
  *
  */
 public class ElementalReverseProxy {
@@ -83,7 +83,7 @@ public class ElementalReverseProxy {
     private static final String HTTP_IN_CONN = "http.proxy.in-conn";
     private static final String HTTP_OUT_CONN = "http.proxy.out-conn";
     private static final String HTTP_CONN_KEEPALIVE = "http.proxy.conn-keepalive";
-    
+
     public static void main(String[] args) throws Exception {
         if (args.length < 1) {
             System.err.println("Please specified target hostname and port");
@@ -95,19 +95,19 @@ public class ElementalReverseProxy {
             port = Integer.parseInt(args[1]);
         }
         HttpHost target = new HttpHost(hostname, port);
-        
+
         Thread t = new RequestListenerThread(8888, target);
         t.setDaemon(false);
         t.start();
     }
-    
+
     static class ProxyHandler implements HttpRequestHandler  {
-        
+
         private final HttpHost target;
         private final HttpProcessor httpproc;
         private final HttpRequestExecutor httpexecutor;
         private final ConnectionReuseStrategy connStrategy;
-        
+
         public ProxyHandler(
                 final HttpHost target,
                 final HttpProcessor httpproc,
@@ -118,12 +118,12 @@ public class ElementalReverseProxy {
             this.httpexecutor = httpexecutor;
             this.connStrategy = new DefaultConnectionReuseStrategy();
         }
-        
+
         public void handle(
-                final HttpRequest request, 
+                final HttpRequest request,
                 final HttpResponse response,
                 final HttpContext context) throws HttpException, IOException {
-            
+
             HttpClientConnection conn = (HttpClientConnection) context.getAttribute(
                     HTTP_OUT_CONN);
 
@@ -141,11 +141,11 @@ public class ElementalReverseProxy {
             request.removeHeaders("TE");
             request.removeHeaders("Trailers");
             request.removeHeaders("Upgrade");
-            
+
             this.httpexecutor.preProcess(request, this.httpproc, context);
             HttpResponse targetResponse = this.httpexecutor.execute(request, conn, context);
             this.httpexecutor.postProcess(response, this.httpproc, context);
-            
+
             // Remove hop-by-hop headers
             targetResponse.removeHeaders(HTTP.CONTENT_LEN);
             targetResponse.removeHeaders(HTTP.TRANSFER_ENCODING);
@@ -154,26 +154,26 @@ public class ElementalReverseProxy {
             targetResponse.removeHeaders("TE");
             targetResponse.removeHeaders("Trailers");
             targetResponse.removeHeaders("Upgrade");
-            
+
             response.setStatusLine(targetResponse.getStatusLine());
             response.setHeaders(targetResponse.getAllHeaders());
             response.setEntity(targetResponse.getEntity());
-            
+
             System.out.println("<< Response: " + response.getStatusLine());
 
             boolean keepalive = this.connStrategy.keepAlive(response, context);
             context.setAttribute(HTTP_CONN_KEEPALIVE, new Boolean(keepalive));
         }
-        
+
     }
-    
+
     static class RequestListenerThread extends Thread {
 
         private final HttpHost target;
         private final ServerSocket serversocket;
-        private final HttpParams params; 
+        private final HttpParams params;
         private final HttpService httpService;
-        
+
         public RequestListenerThread(int port, final HttpHost target) throws IOException {
             this.target = target;
             this.serversocket = new ServerSocket(port);
@@ -194,7 +194,7 @@ public class ElementalReverseProxy {
                             new RequestUserAgent(),
                             new RequestExpectContinue()
              });
-            
+
             // Set up HTTP protocol processor for outgoing connections
             HttpProcessor outhttpproc = new ImmutableHttpProcessor(
                     new HttpResponseInterceptor[] {
@@ -204,25 +204,26 @@ public class ElementalReverseProxy {
                             new ResponseConnControl()
             });
 
-            // Set up outgoing request executor 
+            // Set up outgoing request executor
             HttpRequestExecutor httpexecutor = new HttpRequestExecutor();
-            
+
             // Set up incoming request handler
             HttpRequestHandlerRegistry reqistry = new HttpRequestHandlerRegistry();
             reqistry.register("*", new ProxyHandler(
-                    this.target, 
-                    outhttpproc, 
+                    this.target,
+                    outhttpproc,
                     httpexecutor));
-            
+
             // Set up the HTTP service
             this.httpService = new HttpService(
-                    inhttpproc, 
-                    new DefaultConnectionReuseStrategy(), 
+                    inhttpproc,
+                    new DefaultConnectionReuseStrategy(),
                     new DefaultHttpResponseFactory(),
                     reqistry,
                     this.params);
         }
-        
+
+        @Override
         public void run() {
             System.out.println("Listening on port " + this.serversocket.getLocalPort());
             while (!Thread.interrupted()) {
@@ -238,7 +239,7 @@ public class ElementalReverseProxy {
                     DefaultHttpClientConnection outconn = new DefaultHttpClientConnection();
                     outconn.bind(outsocket, this.params);
                     System.out.println("Outgoing connection to " + outsocket.getInetAddress());
-                    
+
                     // Start worker thread
                     Thread t = new ProxyThread(this.httpService, inconn, outconn);
                     t.setDaemon(true);
@@ -246,22 +247,22 @@ public class ElementalReverseProxy {
                 } catch (InterruptedIOException ex) {
                     break;
                 } catch (IOException e) {
-                    System.err.println("I/O error initialising connection thread: " 
+                    System.err.println("I/O error initialising connection thread: "
                             + e.getMessage());
                     break;
                 }
             }
         }
     }
-    
+
     static class ProxyThread extends Thread {
 
         private final HttpService httpservice;
         private final HttpServerConnection inconn;
         private final HttpClientConnection outconn;
-        
+
         public ProxyThread(
-                final HttpService httpservice, 
+                final HttpService httpservice,
                 final HttpServerConnection inconn,
                 final HttpClientConnection outconn) {
             super();
@@ -269,24 +270,25 @@ public class ElementalReverseProxy {
             this.inconn = inconn;
             this.outconn = outconn;
         }
-        
+
+        @Override
         public void run() {
             System.out.println("New connection thread");
             HttpContext context = new BasicHttpContext(null);
-            
+
             // Bind connection objects to the execution context
             context.setAttribute(HTTP_IN_CONN, this.inconn);
             context.setAttribute(HTTP_OUT_CONN, this.outconn);
-            
+
             try {
                 while (!Thread.interrupted()) {
                     if (!this.inconn.isOpen()) {
                         this.outconn.close();
                         break;
                     }
-                    
+
                     this.httpservice.handleRequest(this.inconn, context);
-                    
+
                     Boolean keepalive = (Boolean) context.getAttribute(HTTP_CONN_KEEPALIVE);
                     if (!Boolean.TRUE.equals(keepalive)) {
                         this.outconn.close();
@@ -311,5 +313,5 @@ public class ElementalReverseProxy {
         }
 
     }
-    
+
 }

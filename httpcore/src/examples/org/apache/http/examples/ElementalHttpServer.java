@@ -182,6 +182,7 @@ public class ElementalHttpServer {
                     this.params);
         }
 
+        @Override
         public void run() {
             System.out.println("Listening on port " + this.serversocket.getLocalPort());
             while (!Thread.interrupted()) {
@@ -220,6 +221,7 @@ public class ElementalHttpServer {
             this.conn = conn;
         }
 
+        @Override
         public void run() {
             System.out.println("New connection thread");
             HttpContext context = new BasicHttpContext(null);
