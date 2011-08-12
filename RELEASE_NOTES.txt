@@ -1,10 +1,16 @@
+Changes since 4.1.3
+-------------------
+
+* [HTTPCORE-268] Handle runtime exceptions thrown by SSLEngine.
+  Contributed by Oleg Kalnichevski <olegk at apache.org>
+
 Release 4.1.3
 -------------------
 
-This is an emergency release that fixes a severe regression in the non-blocking SSL I/O code 
+This is an emergency release that fixes a severe regression in the non-blocking SSL I/O code
 introduced in release 4.1.2.
 
-* [HTTPCORE-266] SSLIOSession does not correctly terminate if the opposite end shuts down connection 
+* [HTTPCORE-266] SSLIOSession does not correctly terminate if the opposite end shuts down connection
   without sending a 'close notify' message causing an infinite loop in the I/O dispatch thread.
   Contributed by Oleg Kalnichevski <olegk at apache.org>
 
@@ -13,35 +19,21 @@ Release 4.1.2
 
 This is a patch release that fixes a number of bugs found in the previous version.
 
-Please note that several classes and methods deprecated between versions 4.0-beta1 and 4.0 GA 
+Please note that several classes and methods deprecated between versions 4.0-beta1 and 4.0 GA
 (more than two years ago) will also be removed in the 4.2 branch.
 
 Users of 4.0.x versions are advised to upgrade and replace deprecated API calls following
-recommendations in javadocs.  
+recommendations in javadocs.
 
-* [HTTPCORE-261] IOSession#setSocketTimeout() method does not reset the timeout count. 
+* [HTTPCORE-261] IOSession#setSocketTimeout() method does not reset the timeout count.
   Contributed by Oleg Kalnichevski <olegk at apache.org>
 
-* [HTTPCORE-260] Non-blocking SSL I/O session can terminate prematurely causing message body 
-  truncation when message content is chunk coded and the connection is closed on the opposite end. 
+* [HTTPCORE-260] Non-blocking SSL I/O session can terminate prematurely causing message body
+  truncation when message content is chunk coded and the connection is closed on the opposite end.
   Contributed by Oleg Kalnichevski <olegk at apache.org>
 
-* [HTTPCORE-257] Fixed incorrect results produced by DefaultConnectionReuseStrategy when handling 
-  response messages whose content entity has been decoded or modified by a protocol interceptor. 
-  Contributed by Oleg Kalnichevski <olegk at apache.org>
-
-Changes since 4.1.1
--------------------
-
-* [HTTPCORE-261] IOSession#setSocketTimeout() method does not reset the timeout count. 
-  Contributed by Oleg Kalnichevski <olegk at apache.org>
-
-* [HTTPCORE-260] Non-blocking SSL I/O session can terminate prematurely causing message body 
-  truncation when message content is chunk coded and the connection is closed on the opposite end. 
-  Contributed by Oleg Kalnichevski <olegk at apache.org>
-
-* [HTTPCORE-257] Fixed incorrect results produced by DefaultConnectionReuseStrategy when handling 
-  response messages whose content entity has been decoded or modified by a protocol interceptor. 
+* [HTTPCORE-257] Fixed incorrect results produced by DefaultConnectionReuseStrategy when handling
+  response messages whose content entity has been decoded or modified by a protocol interceptor.
   Contributed by Oleg Kalnichevski <olegk at apache.org>
 
 Release 4.1.1
@@ -49,18 +41,18 @@ Release 4.1.1
 
 This is a patch release that fixes a number of non-critical issues found since release 4.1.
 
-This release marks the end of support for Java 1.3. As of release 4.2 HttpCore will require 
-Java 1.5 for all its components. 
+This release marks the end of support for Java 1.3. As of release 4.2 HttpCore will require
+Java 1.5 for all its components.
 
-Please note that several classes and methods deprecated between versions 4.0-beta1 and 4.0 GA 
+Please note that several classes and methods deprecated between versions 4.0-beta1 and 4.0 GA
 (more than two years ago) will also be removed in the 4.2 branch.
 
 Users of 4.0.x versions are advised to upgrade and replace deprecated API calls following
-recommendations in javadocs.  
+recommendations in javadocs.
 
-* In case of an unexpected end of stream condition (the peer closed connection prematurely) 
+* In case of an unexpected end of stream condition (the peer closed connection prematurely)
   truncated Content-Length delimited message bodies will cause an I/O exception. Application
-  can still choose to catch and ignore ConnectionClosedException in order to accept partial 
+  can still choose to catch and ignore ConnectionClosedException in order to accept partial
   message content.
   Contributed by Oleg Kalnichevski <olegk at apache.org>
 
