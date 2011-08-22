@@ -424,6 +424,66 @@ public class TestConnPool {
     }
 
     @Test
+    public void testStatefulConnectionRedistributionOnPerRouteMaxLimit() throws Exception {
+        HttpConnectionFactory connFactory = Mockito.mock(HttpConnectionFactory.class);
+
+        HttpConnection conn1 = Mockito.mock(HttpConnection.class);
+        HttpConnection conn2 = Mockito.mock(HttpConnection.class);
+        HttpConnection conn3 = Mockito.mock(HttpConnection.class);
+        Mockito.when(connFactory.create(Mockito.eq("somehost"))).thenReturn(conn1, conn2, conn3);
+
+        LocalConnPool pool = new LocalConnPool(connFactory, 2, 10);
+        pool.setMaxPerRoute("somehost", 2);
+        pool.setMaxTotal(2);
+
+        Future<LocalPoolEntry> future1 = pool.lease("somehost", null);
+        GetPoolEntryThread t1 = new GetPoolEntryThread(future1);
+        t1.start();
+        Future<LocalPoolEntry> future2 = pool.lease("somehost", null);
+        GetPoolEntryThread t2 = new GetPoolEntryThread(future2);
+        t2.start();
+
+        t1.join(GRACE_PERIOD);
+        Assert.assertTrue(future1.isDone());
+        LocalPoolEntry entry1 = t1.getEntry();
+        Assert.assertNotNull(entry1);
+        t2.join(GRACE_PERIOD);
+        Assert.assertTrue(future2.isDone());
+        LocalPoolEntry entry2 = t2.getEntry();
+        Assert.assertNotNull(entry2);
+
+        PoolStats totals = pool.getTotalStats();
+        Assert.assertEquals(0, totals.getAvailable());
+        Assert.assertEquals(2, totals.getLeased());
+        Assert.assertEquals(0, totals.getPending());
+
+        entry1.setState("some-stuff");
+        pool.release(entry1, true);
+        entry2.setState("some-stuff");
+        pool.release(entry2, true);
+
+        Mockito.verify(connFactory, Mockito.times(2)).create(Mockito.eq("somehost"));
+
+        Future<LocalPoolEntry> future3 = pool.lease("somehost", "some-other-stuff");
+        GetPoolEntryThread t3 = new GetPoolEntryThread(future3);
+        t3.start();
+
+        t3.join(GRACE_PERIOD);
+        Assert.assertTrue(future3.isDone());
+        LocalPoolEntry entry3 = t3.getEntry();
+        Assert.assertNotNull(entry3);
+
+        Mockito.verify(connFactory, Mockito.times(3)).create(Mockito.eq("somehost"));
+
+        Mockito.verify(conn1).close();
+        Mockito.verify(conn2, Mockito.never()).close();
+
+        totals = pool.getTotalStats();
+        Assert.assertEquals(1, totals.getAvailable());
+        Assert.assertEquals(1, totals.getLeased());
+    }
+
+    @Test
     public void testCreateNewIfExpired() throws Exception {
         HttpConnectionFactory connFactory = Mockito.mock(HttpConnectionFactory.class);
 

@@ -35,18 +35,21 @@ class LeaseRequest<T, C, E extends PoolEntry<T, C>> {
 
     private final T route;
     private final Object state;
-    private final int connectTimeout;
+    private final long connectTimeout;
+    private final long deadline;
     private final BasicFuture<E> future;
 
     public LeaseRequest(
             final T route,
             final Object state,
-            final int connectTimeout,
+            final long connectTimeout,
             final BasicFuture<E> future) {
         super();
         this.route = route;
         this.state = state;
         this.connectTimeout = connectTimeout;
+        this.deadline = connectTimeout > 0 ? System.currentTimeMillis() + connectTimeout :
+            Long.MAX_VALUE;
         this.future = future;
     }
 
@@ -58,12 +61,16 @@ class LeaseRequest<T, C, E extends PoolEntry<T, C>> {
         return this.state;
     }
 
-    public BasicFuture<E> getFuture() {
-        return this.future;
+    public long getConnectTimeout() {
+        return this.connectTimeout;
     }
 
-    public int getConnectTimeout() {
-        return this.connectTimeout;
+    public long getDeadline() {
+        return this.deadline;
+    }
+
+    public BasicFuture<E> getFuture() {
+        return this.future;
     }
 
     @Override

@@ -1,3 +1,10 @@
+Changes since 4.2-ALPHA1  
+
+* [HTTPCORE-269] Connection pools incorrectly handle lease requests when the max limit for the given 
+  route has been exceeded and all connections in the route pool are stateful.
+  Contributed by Oleg Kalnichevski <olegk at apache.org>
+
+
 Release 4.2-ALPHA1
 -------------------
 

@@ -37,6 +37,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
@@ -184,10 +185,7 @@ public abstract class AbstractNIOConnPool<T, C, E extends PoolEntry<T, C>> imple
         }
         this.lock.lock();
         try {
-            int timeout = (int) tunit.toMillis(connectTimeout);
-            if (timeout < 0) {
-                timeout = 0;
-            }
+            long timeout = connectTimeout > 0 ? tunit.toMillis(connectTimeout) : 0;
             BasicFuture<E> future = new BasicFuture<E>(callback);
             LeaseRequest<T, C, E> request = new LeaseRequest<T, C, E>(route, state, timeout, future);
             this.leasingRequests.add(request);
@@ -238,10 +236,17 @@ public abstract class AbstractNIOConnPool<T, C, E extends PoolEntry<T, C>> imple
 
             T route = request.getRoute();
             Object state = request.getState();
-            int timeout = request.getConnectTimeout();
+            long deadline = request.getDeadline();
             BasicFuture<E> future = request.getFuture();
 
-            RouteSpecificPool<T, C, E> pool = getPool(request.getRoute());
+            long now = System.currentTimeMillis();
+            if (now > deadline) {
+                it.remove();
+                future.failed(new TimeoutException());
+                continue;
+            }
+
+            RouteSpecificPool<T, C, E> pool = getPool(route);
             E entry = null;
             for (;;) {
                 entry = pool.getFree(state);
@@ -263,7 +268,24 @@ public abstract class AbstractNIOConnPool<T, C, E extends PoolEntry<T, C>> imple
                 future.completed(entry);
                 continue;
             }
-            if (pool.getAllocatedCount() < getMaxPerRoute(route)) {
+
+            // New connection is needed
+            int maxPerRoute = getMaxPerRoute(route);
+            // Shrink the pool prior to allocating a new connection
+            int excess = Math.max(0, pool.getAllocatedCount() + 1 - maxPerRoute);
+            if (excess > 0) {
+                for (int i = 0; i < excess; i++) {
+                    E lastUsed = pool.getLastUsed();
+                    if (lastUsed == null) {
+                        break;
+                    }
+                    closeEntry(lastUsed);
+                    this.available.remove(lastUsed);
+                    pool.remove(lastUsed);
+                }
+            }
+
+            if (pool.getAllocatedCount() < maxPerRoute) {
                 int totalUsed = this.pending.size() + this.leased.size();
                 int freeCapacity = Math.max(this.maxTotal - totalUsed, 0);
                 if (freeCapacity == 0) {
@@ -271,7 +293,12 @@ public abstract class AbstractNIOConnPool<T, C, E extends PoolEntry<T, C>> imple
                 }
                 int totalAvailable = this.available.size();
                 if (totalAvailable > freeCapacity - 1) {
-                    dropLastUsed();
+                    if (!this.available.isEmpty()) {
+                        E lastUsed = this.available.removeFirst();
+                        closeEntry(lastUsed);
+                        RouteSpecificPool<T, C, E> otherpool = getPool(lastUsed.getRoute());
+                        otherpool.remove(lastUsed);
+                    }
                 }
                 it.remove();
                 SessionRequest sessionRequest = this.ioreactor.connect(
@@ -279,19 +306,31 @@ public abstract class AbstractNIOConnPool<T, C, E extends PoolEntry<T, C>> imple
                         resolveLocalAddress(route),
                         route,
                         this.sessionRequestCallback);
-                sessionRequest.setConnectTimeout(timeout);
+                int timout = request.getConnectTimeout() < Integer.MAX_VALUE ?
+                        (int) request.getConnectTimeout() : Integer.MAX_VALUE;
+                sessionRequest.setConnectTimeout(timout);
                 this.pending.add(sessionRequest);
                 pool.addPending(sessionRequest, future);
             }
         }
     }
 
-    private void dropLastUsed() {
-        if (!this.available.isEmpty()) {
-            E entry = this.available.removeFirst();
-            closeEntry(entry);
-            RouteSpecificPool<T, C, E> pool = getPool(entry.getRoute());
-            pool.remove(entry);
+    public void validatePendingRequests() {
+        this.lock.lock();
+        try {
+            long now = System.currentTimeMillis();
+            ListIterator<LeaseRequest<T, C, E>> it = this.leasingRequests.listIterator();
+            while (it.hasNext()) {
+                LeaseRequest<T, C, E> request = it.next();
+                long deadline = request.getDeadline();
+                if (now > deadline) {
+                    it.remove();
+                    BasicFuture<E> future = request.getFuture();
+                    future.failed(new TimeoutException());
+                }
+            }
+        } finally {
+            this.lock.unlock();
         }
     }
 

@@ -75,6 +75,7 @@ public class TestRouteSpecificPool {
         Assert.assertEquals(0, pool.getAvailableCount());
         Assert.assertEquals(0, pool.getLeasedCount());
         Assert.assertEquals(0, pool.getPendingCount());
+        Assert.assertNull(pool.getLastUsed());
         Assert.assertEquals("[route: whatever][leased: 0][available: 0][pending: 0]", pool.toString());
     }
 
@@ -212,6 +213,8 @@ public class TestRouteSpecificPool {
         pool.free(entry1, true);
         pool.free(entry2, false);
         pool.free(entry3, true);
+
+        Assert.assertSame(entry1, pool.getLastUsed());
 
         Assert.assertEquals(2, pool.getAllocatedCount());
         Assert.assertEquals(2, pool.getAvailableCount());

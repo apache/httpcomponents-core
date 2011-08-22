@@ -199,13 +199,34 @@ public abstract class AbstractConnPool<T, C, E extends PoolEntry<T, C>> implemen
                     return entry;
                 }
 
-                if (pool.getAllocatedCount() < getMaxPerRoute(route)) {
+                // New connection is needed
+                int maxPerRoute = getMaxPerRoute(route);
+                // Shrink the pool prior to allocating a new connection
+                int excess = Math.max(0, pool.getAllocatedCount() + 1 - maxPerRoute);
+                if (excess > 0) {
+                    for (int i = 0; i < excess; i++) {
+                        E lastUsed = pool.getLastUsed();
+                        if (lastUsed == null) {
+                            break;
+                        }
+                        closeEntry(lastUsed);
+                        this.available.remove(lastUsed);
+                        pool.remove(lastUsed);
+                    }
+                }
+
+                if (pool.getAllocatedCount() < maxPerRoute) {
                     int totalUsed = this.leased.size();
                     int freeCapacity = Math.max(this.maxTotal - totalUsed, 0);
                     if (freeCapacity > 0) {
                         int totalAvailable = this.available.size();
                         if (totalAvailable > freeCapacity - 1) {
-                            dropLastUsed();
+                            if (!this.available.isEmpty()) {
+                                E lastUsed = this.available.removeFirst();
+                                closeEntry(lastUsed);
+                                RouteSpecificPool<T, C, E> otherpool = getPool(lastUsed.getRoute());
+                                otherpool.remove(lastUsed);
+                            }
                         }
                         C conn = createConnection(route);
                         entry = pool.add(conn);
@@ -266,15 +287,6 @@ public abstract class AbstractConnPool<T, C, E extends PoolEntry<T, C>> implemen
             }
         } finally {
             this.lock.unlock();
-        }
-    }
-
-    private void dropLastUsed() {
-        if (!this.available.isEmpty()) {
-            E entry = this.available.removeFirst();
-            closeEntry(entry);
-            RouteSpecificPool<T, C, E> pool = getPool(entry.getRoute());
-            pool.remove(entry);
         }
     }
 
