@@ -270,7 +270,7 @@ public abstract class AbstractNIOConnPool<T, C, E extends PoolEntry<T, C>> imple
             }
 
             // New connection is needed
-            int maxPerRoute = getMaxPerRoute(route);
+            int maxPerRoute = getMax(route);
             // Shrink the pool prior to allocating a new connection
             int excess = Math.max(0, pool.getAllocatedCount() + 1 - maxPerRoute);
             if (excess > 0) {
@@ -401,7 +401,7 @@ public abstract class AbstractNIOConnPool<T, C, E extends PoolEntry<T, C>> imple
         }
     }
 
-    private int getMaxPerRoute(final T route) {
+    private int getMax(final T route) {
         Integer v = this.maxPerRoute.get(route);
         if (v != null) {
             return v.intValue();
@@ -422,6 +422,15 @@ public abstract class AbstractNIOConnPool<T, C, E extends PoolEntry<T, C>> imple
         }
     }
 
+    public int getMaxTotal() {
+        this.lock.lock();
+        try {
+            return this.maxTotal;
+        } finally {
+            this.lock.unlock();
+        }
+    }
+
     public void setDefaultMaxPerRoute(int max) {
         if (max <= 0) {
             throw new IllegalArgumentException("Max value may not be negative or zero");
@@ -429,6 +438,15 @@ public abstract class AbstractNIOConnPool<T, C, E extends PoolEntry<T, C>> imple
         this.lock.lock();
         try {
             this.defaultMaxPerRoute = max;
+        } finally {
+            this.lock.unlock();
+        }
+    }
+
+    public int getDefaultMaxPerRoute() {
+        this.lock.lock();
+        try {
+            return this.defaultMaxPerRoute;
         } finally {
             this.lock.unlock();
         }
@@ -444,6 +462,18 @@ public abstract class AbstractNIOConnPool<T, C, E extends PoolEntry<T, C>> imple
         this.lock.lock();
         try {
             this.maxPerRoute.put(route, max);
+        } finally {
+            this.lock.unlock();
+        }
+    }
+
+    public int getMaxPerRoute(T route) {
+        if (route == null) {
+            throw new IllegalArgumentException("Route may not be null");
+        }
+        this.lock.lock();
+        try {
+            return getMax(route);
         } finally {
             this.lock.unlock();
         }
@@ -473,7 +503,7 @@ public abstract class AbstractNIOConnPool<T, C, E extends PoolEntry<T, C>> imple
                     pool.getLeasedCount(),
                     pool.getPendingCount(),
                     pool.getAvailableCount(),
-                    getMaxPerRoute(route));
+                    getMax(route));
         } finally {
             this.lock.unlock();
         }

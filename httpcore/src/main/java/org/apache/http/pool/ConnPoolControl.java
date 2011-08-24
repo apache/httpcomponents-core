@@ -32,14 +32,22 @@ package org.apache.http.pool;
  * allowed.
  *
  * @param <T> route
+ *
+ * @since 4.2
  */
 public interface ConnPoolControl<T> {
 
     void setMaxTotal(int max);
 
+    int getMaxTotal();
+
     void setDefaultMaxPerRoute(int max);
 
+    int getDefaultMaxPerRoute();
+
     void setMaxPerRoute(final T route, int max);
+
+    int getMaxPerRoute(final T route);
 
     PoolStats getTotalStats();
 
