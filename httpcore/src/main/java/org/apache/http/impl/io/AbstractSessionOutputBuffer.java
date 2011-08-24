@@ -250,6 +250,9 @@ public abstract class AbstractSessionOutputBuffer implements SessionOutputBuffer
     }
 
     private void writeEncoded(final CharBuffer cbuf) throws IOException {
+        if (!cbuf.hasRemaining()) {
+            return;
+        }
         if (this.encoder == null) {
             this.encoder = this.charset.newEncoder();
         }

@@ -347,6 +347,9 @@ public abstract class AbstractSessionInputBuffer implements SessionInputBuffer, 
 
     private int appendDecoded(
             final CharArrayBuffer charbuffer, final ByteBuffer bbuf) throws IOException {
+        if (!bbuf.hasRemaining()) {
+            return 0;
+        }
         if (this.decoder == null) {
             this.decoder = this.charset.newDecoder();
         }

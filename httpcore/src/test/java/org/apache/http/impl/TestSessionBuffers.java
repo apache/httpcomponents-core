@@ -504,9 +504,11 @@ public class TestSessionBuffers {
         for (int i = 0; i < 5; i++) {
             outbuffer.writeLine(s1);
         }
+        chbuffer.clear();
+        outbuffer.writeLine(chbuffer);
         outbuffer.flush();
         long bytesWritten = outbuffer.getMetrics().getBytesTransferred();
-        long expected = ((s1.toString().getBytes(HTTP.ISO_8859_1).length + 2)) * 10;
+        long expected = ((s1.toString().getBytes(HTTP.ISO_8859_1).length + 2)) * 10 + 2;
         Assert.assertEquals(expected, bytesWritten);
 
         SessionInputBufferMock inbuffer = new SessionInputBufferMock(
@@ -514,12 +516,15 @@ public class TestSessionBuffers {
                 params);
         HttpProtocolParams.setHttpElementCharset(params, HTTP.ISO_8859_1);
 
+        CharArrayBuffer buf = new CharArrayBuffer(64);
         for (int i = 0; i < 10; i++) {
-            CharArrayBuffer buf = new CharArrayBuffer(64);
+            buf.clear();
             int len = inbuffer.readLine(buf);
             Assert.assertEquals(len, SWISS_GERMAN_HELLO.length);
             Assert.assertEquals(s1, buf.toString());
         }
+        buf.clear();
+        Assert.assertEquals("", inbuffer.readLine());
         Assert.assertNull(inbuffer.readLine());
         Assert.assertNull(inbuffer.readLine());
         long bytesRead = inbuffer.getMetrics().getBytesTransferred();
