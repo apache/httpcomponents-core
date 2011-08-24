@@ -25,13 +25,15 @@
  *
  */
 
-package org.apache.http.impl;
+package org.apache.http.impl.io;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 
+import org.apache.http.impl.SessionInputBufferMock;
+import org.apache.http.impl.SessionOutputBufferMock;
 import org.apache.http.io.HttpTransportMetrics;
 import org.apache.http.params.BasicHttpParams;
 import org.apache.http.params.CoreConnectionPNames;
