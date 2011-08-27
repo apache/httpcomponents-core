@@ -27,6 +27,8 @@
 
 package org.apache.http.protocol;
 
+import org.apache.http.entity.ContentType;
+
 /**
  * Constants and static helpers related to the HTTP protocol.
  *
@@ -79,7 +81,7 @@ public final class HTTP {
     public final static String CHARSET_PARAM = "; charset=";
 
     /** Default content type */
-    public final static String DEFAULT_CONTENT_TYPE = OCTET_STREAM_TYPE;
+    public final static String DEFAULT_CONTENT_TYPE = ContentType.APPLICATION_OCTET_STREAM.toString();
 
     public static boolean isWhitespace(char ch) {
         return ch == SP || ch == HT || ch == CR || ch == LF;
