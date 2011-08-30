@@ -25,50 +25,32 @@
  *
  */
 
-package org.apache.http.protocol;
+package org.apache.http.nio.protocol;
 
-import org.apache.http.annotation.ThreadSafe;
+import org.apache.http.HttpRequest;
+import org.apache.http.HttpStatus;
+import org.apache.http.HttpVersion;
+import org.apache.http.nio.entity.NStringEntity;
+import org.apache.http.protocol.HttpContext;
 
-/**
- * Thread-safe extension of the {@link BasicHttpContext}.
- *
- * @since 4.0
- */
-@ThreadSafe
-public class SyncBasicHttpContext extends BasicHttpContext {
+class NullRequestHandler implements HttpAsyncRequestHandler<Object> {
 
-    public SyncBasicHttpContext(final HttpContext parentContext) {
-        super(parentContext);
-    }
-
-    /**
-     * @since 4.2
-     */
-    public SyncBasicHttpContext() {
+    public NullRequestHandler() {
         super();
     }
 
-    @Override
-    public synchronized Object getAttribute(final String id) {
-        return super.getAttribute(id);
+    public HttpAsyncRequestConsumer<Object> processRequest(
+            final HttpRequest request, final HttpContext context) {
+        return new NullRequestConsumer();
     }
 
-    @Override
-    public synchronized void setAttribute(final String id, final Object obj) {
-        super.setAttribute(id, obj);
-    }
-
-    @Override
-    public synchronized Object removeAttribute(final String id) {
-        return super.removeAttribute(id);
-    }
-
-    /**
-     * @since 4.2
-     */
-    @Override
-    public synchronized void clear() {
-        super.clear();
+    public void handle(
+            final Object obj,
+            final HttpAsyncResponseTrigger trigger,
+            final HttpContext context) {
+        trigger.submitResponse(new ErrorResponseProducer(
+                HttpVersion.HTTP_1_0, HttpStatus.SC_NOT_IMPLEMENTED,
+                NStringEntity.create("Service not implemented"), true));
     }
 
 }

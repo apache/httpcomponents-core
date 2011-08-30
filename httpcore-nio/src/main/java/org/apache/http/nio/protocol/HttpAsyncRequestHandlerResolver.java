@@ -25,50 +25,24 @@
  *
  */
 
-package org.apache.http.protocol;
-
-import org.apache.http.annotation.ThreadSafe;
+package org.apache.http.nio.protocol;
 
 /**
- * Thread-safe extension of the {@link BasicHttpContext}.
+ * HttpAsyncRequestHandlerResolver can be used to resolve an instance of
+ * {@link HttpAsyncRequestHandler} matching a particular request URI. Usually the resolved
+ * request handler will be used to process the request with the specified request URI.
  *
- * @since 4.0
+ * @since 4.2
  */
-@ThreadSafe
-public class SyncBasicHttpContext extends BasicHttpContext {
-
-    public SyncBasicHttpContext(final HttpContext parentContext) {
-        super(parentContext);
-    }
+public interface HttpAsyncRequestHandlerResolver {
 
     /**
-     * @since 4.2
+     * Looks up a handler matching the given request URI.
+     *
+     * @param requestURI the request URI
+     * @return HTTP request handler or <code>null</code> if no match
+     * is found.
      */
-    public SyncBasicHttpContext() {
-        super();
-    }
-
-    @Override
-    public synchronized Object getAttribute(final String id) {
-        return super.getAttribute(id);
-    }
-
-    @Override
-    public synchronized void setAttribute(final String id, final Object obj) {
-        super.setAttribute(id, obj);
-    }
-
-    @Override
-    public synchronized Object removeAttribute(final String id) {
-        return super.removeAttribute(id);
-    }
-
-    /**
-     * @since 4.2
-     */
-    @Override
-    public synchronized void clear() {
-        super.clear();
-    }
+    HttpAsyncRequestHandler<?> lookup(String requestURI);
 
 }

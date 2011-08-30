@@ -24,51 +24,29 @@
  * <http://www.apache.org/>.
  *
  */
+package org.apache.http.nio.protocol;
 
-package org.apache.http.protocol;
+import java.io.Closeable;
+import java.io.IOException;
 
-import org.apache.http.annotation.ThreadSafe;
+import org.apache.http.HttpRequest;
+import org.apache.http.nio.ContentDecoder;
+import org.apache.http.nio.IOControl;
+import org.apache.http.protocol.HttpContext;
 
 /**
- * Thread-safe extension of the {@link BasicHttpContext}.
- *
- * @since 4.0
+ * @since 4.2
  */
-@ThreadSafe
-public class SyncBasicHttpContext extends BasicHttpContext {
+public interface HttpAsyncRequestConsumer<T> extends Closeable {
 
-    public SyncBasicHttpContext(final HttpContext parentContext) {
-        super(parentContext);
-    }
+    void requestReceived(HttpRequest request);
 
-    /**
-     * @since 4.2
-     */
-    public SyncBasicHttpContext() {
-        super();
-    }
+    void consumeContent(ContentDecoder decoder, IOControl ioctrl) throws IOException;
 
-    @Override
-    public synchronized Object getAttribute(final String id) {
-        return super.getAttribute(id);
-    }
+    void requestCompleted(HttpContext context);
 
-    @Override
-    public synchronized void setAttribute(final String id, final Object obj) {
-        super.setAttribute(id, obj);
-    }
+    Exception getException();
 
-    @Override
-    public synchronized Object removeAttribute(final String id) {
-        return super.removeAttribute(id);
-    }
-
-    /**
-     * @since 4.2
-     */
-    @Override
-    public synchronized void clear() {
-        super.clear();
-    }
+    T getResult();
 
 }

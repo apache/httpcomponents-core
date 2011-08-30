@@ -24,51 +24,30 @@
  * <http://www.apache.org/>.
  *
  */
+package org.apache.http.nio.protocol;
 
-package org.apache.http.protocol;
+import java.io.Closeable;
+import java.io.IOException;
 
-import org.apache.http.annotation.ThreadSafe;
+import org.apache.http.HttpException;
+import org.apache.http.HttpHost;
+import org.apache.http.HttpRequest;
+import org.apache.http.nio.ContentEncoder;
+import org.apache.http.nio.IOControl;
 
 /**
- * Thread-safe extension of the {@link BasicHttpContext}.
- *
- * @since 4.0
+ * @ since 4.2
  */
-@ThreadSafe
-public class SyncBasicHttpContext extends BasicHttpContext {
+public interface HttpAsyncRequestProducer extends Closeable {
 
-    public SyncBasicHttpContext(final HttpContext parentContext) {
-        super(parentContext);
-    }
+    HttpHost getTarget();
 
-    /**
-     * @since 4.2
-     */
-    public SyncBasicHttpContext() {
-        super();
-    }
+    HttpRequest generateRequest() throws IOException, HttpException;
 
-    @Override
-    public synchronized Object getAttribute(final String id) {
-        return super.getAttribute(id);
-    }
+    void produceContent(ContentEncoder encoder, IOControl ioctrl) throws IOException;
 
-    @Override
-    public synchronized void setAttribute(final String id, final Object obj) {
-        super.setAttribute(id, obj);
-    }
+    boolean isRepeatable();
 
-    @Override
-    public synchronized Object removeAttribute(final String id) {
-        return super.removeAttribute(id);
-    }
-
-    /**
-     * @since 4.2
-     */
-    @Override
-    public synchronized void clear() {
-        super.clear();
-    }
+    void resetRequest();
 
 }

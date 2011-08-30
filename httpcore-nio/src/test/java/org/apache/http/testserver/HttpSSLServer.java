@@ -41,10 +41,12 @@ import javax.net.ssl.SSLContext;
 import org.apache.http.impl.nio.reactor.DefaultListeningIOReactor;
 import org.apache.http.impl.nio.reactor.ExceptionEvent;
 import org.apache.http.impl.nio.ssl.SSLServerIOEventDispatch;
+import org.apache.http.nio.NHttpServerIOTarget;
 import org.apache.http.nio.NHttpServiceHandler;
 import org.apache.http.nio.reactor.IOEventDispatch;
 import org.apache.http.nio.reactor.IOReactorExceptionHandler;
 import org.apache.http.nio.reactor.IOReactorStatus;
+import org.apache.http.nio.reactor.IOSession;
 import org.apache.http.nio.reactor.ListenerEndpoint;
 import org.apache.http.params.HttpParams;
 
@@ -110,7 +112,18 @@ public class HttpSSLServer {
             final NHttpServiceHandler serviceHandler,
             final SSLContext sslcontext,
             final HttpParams params) {
-        return new SSLServerIOEventDispatch(serviceHandler, sslcontext, params);
+        return new SSLServerIOEventDispatch(serviceHandler, sslcontext, params) {
+
+            @Override
+            protected NHttpServerIOTarget createConnection(final IOSession session) {
+                return new LoggingNHttpServerConnection(
+                        session,
+                        createHttpRequestFactory(),
+                        createByteBufferAllocator(),
+                        params);
+            }
+
+        };
     }
 
     private void execute(final NHttpServiceHandler serviceHandler) throws IOException {

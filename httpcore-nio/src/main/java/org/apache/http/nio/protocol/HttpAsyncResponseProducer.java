@@ -25,50 +25,22 @@
  *
  */
 
-package org.apache.http.protocol;
+package org.apache.http.nio.protocol;
 
-import org.apache.http.annotation.ThreadSafe;
+import java.io.Closeable;
+import java.io.IOException;
+
+import org.apache.http.HttpResponse;
+import org.apache.http.nio.ContentEncoder;
+import org.apache.http.nio.IOControl;
 
 /**
- * Thread-safe extension of the {@link BasicHttpContext}.
- *
- * @since 4.0
+ * @since 4.2
  */
-@ThreadSafe
-public class SyncBasicHttpContext extends BasicHttpContext {
+public interface HttpAsyncResponseProducer extends Closeable {
 
-    public SyncBasicHttpContext(final HttpContext parentContext) {
-        super(parentContext);
-    }
+    HttpResponse generateResponse();
 
-    /**
-     * @since 4.2
-     */
-    public SyncBasicHttpContext() {
-        super();
-    }
-
-    @Override
-    public synchronized Object getAttribute(final String id) {
-        return super.getAttribute(id);
-    }
-
-    @Override
-    public synchronized void setAttribute(final String id, final Object obj) {
-        super.setAttribute(id, obj);
-    }
-
-    @Override
-    public synchronized Object removeAttribute(final String id) {
-        return super.removeAttribute(id);
-    }
-
-    /**
-     * @since 4.2
-     */
-    @Override
-    public synchronized void clear() {
-        super.clear();
-    }
+    void produceContent(ContentEncoder encoder, IOControl ioctrl) throws IOException;
 
 }

@@ -25,50 +25,52 @@
  *
  */
 
-package org.apache.http.protocol;
+package org.apache.http.nio.protocol;
 
-import org.apache.http.annotation.ThreadSafe;
+import java.io.IOException;
+import java.nio.ByteBuffer;
 
-/**
- * Thread-safe extension of the {@link BasicHttpContext}.
- *
- * @since 4.0
- */
-@ThreadSafe
-public class SyncBasicHttpContext extends BasicHttpContext {
+import org.apache.http.HttpRequest;
+import org.apache.http.nio.ContentDecoder;
+import org.apache.http.nio.IOControl;
+import org.apache.http.protocol.HttpContext;
 
-    public SyncBasicHttpContext(final HttpContext parentContext) {
-        super(parentContext);
-    }
+class NullRequestConsumer implements HttpAsyncRequestConsumer<Object> {
 
-    /**
-     * @since 4.2
-     */
-    public SyncBasicHttpContext() {
+    private final ByteBuffer buffer;
+
+    NullRequestConsumer() {
         super();
+        this.buffer = ByteBuffer.allocate(2048);
     }
 
-    @Override
-    public synchronized Object getAttribute(final String id) {
-        return super.getAttribute(id);
+    public void requestReceived(final HttpRequest request) {
     }
 
-    @Override
-    public synchronized void setAttribute(final String id, final Object obj) {
-        super.setAttribute(id, obj);
+    public void consumeContent(
+            final ContentDecoder decoder, final IOControl ioctrl) throws IOException {
+        int lastRead;
+        do {
+            this.buffer.clear();
+            lastRead = decoder.read(this.buffer);
+        } while (lastRead > 0);
     }
 
-    @Override
-    public synchronized Object removeAttribute(final String id) {
-        return super.removeAttribute(id);
+    public void requestCompleted(final HttpContext context) {
     }
 
-    /**
-     * @since 4.2
-     */
-    @Override
-    public synchronized void clear() {
-        super.clear();
+    public void failed(final Exception ex) {
+    }
+
+    public Object getResult() {
+        return Boolean.TRUE;
+    }
+
+    public Exception getException() {
+        return null;
+    }
+
+    public void close() throws IOException {
     }
 
 }

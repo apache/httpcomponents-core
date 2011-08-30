@@ -90,4 +90,13 @@ public class BasicHttpContext implements HttpContext {
         }
     }
 
+    /**
+     * @since 4.2
+     */
+    public void clear() {
+        if (this.map != null) {
+            this.map.clear();
+        }
+    }
+
 }

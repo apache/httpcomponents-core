@@ -75,7 +75,8 @@
     <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
     <junit.version>4.8.2</junit.version>
     <mockito.version>1.8.5</mockito.version>
-    <comparisonVersion>4.0</comparisonVersion>
+    <commons-logging.version>1.1.1</commons-logging.version>
+    <comparisonVersion>4.1</comparisonVersion>
   </properties>
 
   <dependencyManagement>
@@ -90,6 +91,12 @@
         <groupId>org.mockito</groupId>
         <artifactId>mockito-core</artifactId>
         <version>${mockito.version}</version>
+        <scope>test</scope>
+      </dependency>
+      <dependency>
+        <groupId>commons-logging</groupId>
+        <artifactId>commons-logging</artifactId>
+        <version>${commons-logging.version}</version>
         <scope>test</scope>
       </dependency>
     </dependencies>
