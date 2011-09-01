@@ -28,7 +28,6 @@ package org.apache.http.examples.nio;
 
 import java.io.IOException;
 import java.io.InterruptedIOException;
-import java.nio.channels.SelectionKey;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
@@ -43,11 +42,11 @@ import org.apache.http.impl.nio.pool.BasicNIOConnPool;
 import org.apache.http.impl.nio.pool.BasicNIOPoolEntry;
 import org.apache.http.impl.nio.reactor.DefaultConnectingIOReactor;
 import org.apache.http.message.BasicHttpRequest;
+import org.apache.http.nio.NHttpClientConnection;
 import org.apache.http.nio.protocol.BufferingHttpClientHandler;
 import org.apache.http.nio.protocol.HttpRequestExecutionHandler;
 import org.apache.http.nio.reactor.ConnectingIOReactor;
 import org.apache.http.nio.reactor.IOEventDispatch;
-import org.apache.http.nio.reactor.IOSession;
 import org.apache.http.params.CoreConnectionPNames;
 import org.apache.http.params.CoreProtocolPNames;
 import org.apache.http.params.HttpParams;
@@ -167,9 +166,9 @@ public class NHttpClient {
 
         public void completed(final BasicNIOPoolEntry entry) {
             this.poolEntry = entry;
-            IOSession session = entry.getConnection();
-            session.setAttribute("executor", this);
-            session.setEvent(SelectionKey.OP_WRITE);
+            NHttpClientConnection conn = entry.getConnection();
+            conn.getContext().setAttribute("executor", this);
+            conn.requestOutput();
             System.out.println(this.poolEntry.getRoute() + ": obtained connection from the pool");
         }
 

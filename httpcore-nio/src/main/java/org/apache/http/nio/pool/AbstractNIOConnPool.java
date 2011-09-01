@@ -109,7 +109,7 @@ public abstract class AbstractNIOConnPool<T, C, E extends PoolEntry<T, C>> imple
 
     protected abstract SocketAddress resolveLocalAddress(T route);
 
-    protected abstract C createConnection(T route, IOSession session);
+    protected abstract C createConnection(T route, IOSession session) throws IOException;
 
     protected abstract E createEntry(T route, C conn);
 
@@ -345,9 +345,13 @@ public abstract class AbstractNIOConnPool<T, C, E extends PoolEntry<T, C>> imple
             this.pending.remove(request);
             RouteSpecificPool<T, C, E> pool = getPool(route);
             IOSession session = request.getSession();
-            C conn = createConnection(route, session);
-            E entry = pool.completed(request, conn);
-            this.leased.add(entry);
+            try {
+                C conn = createConnection(route, session);
+                E entry = pool.completed(request, conn);
+                this.leased.add(entry);
+            } catch (IOException ex) {
+                pool.failed(request, ex);
+            }
         } finally {
             this.lock.unlock();
         }
@@ -379,7 +383,7 @@ public abstract class AbstractNIOConnPool<T, C, E extends PoolEntry<T, C>> imple
         try {
             this.pending.remove(request);
             RouteSpecificPool<T, C, E> pool = getPool(route);
-            pool.failed(request);
+            pool.failed(request, request.getException());
         } finally {
             this.lock.unlock();
         }

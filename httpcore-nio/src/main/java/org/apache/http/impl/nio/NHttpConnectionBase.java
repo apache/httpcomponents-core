@@ -133,6 +133,9 @@ public class NHttpConnectionBase
         }
 
         int buffersize = HttpConnectionParams.getSocketBufferSize(params);
+        if (buffersize <= 0) {
+            buffersize = 4096;
+        }
         int linebuffersize = buffersize;
         if (linebuffersize > 512) {
             linebuffersize = 512;

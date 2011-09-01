@@ -26,8 +26,8 @@
  */
 package org.apache.http.impl.nio.pool;
 
-
 import org.apache.http.HttpHost;
+import org.apache.http.nio.NHttpClientConnection;
 import org.apache.http.nio.reactor.ConnectingIOReactor;
 import org.apache.http.nio.reactor.IOSession;
 import org.apache.http.params.BasicHttpParams;
@@ -74,7 +74,7 @@ public class TestBasicNIOConnPool {
 
     @Test
     public void testCreateEntry() throws Exception {
-        IOSession conn = pool.createConnection(route, session);
+        NHttpClientConnection conn = pool.createConnection(route, session);
         BasicNIOPoolEntry entry = pool.createEntry(route, conn);
 
         pool.closeEntry(entry);

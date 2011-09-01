@@ -27,10 +27,13 @@
 
 package org.apache.http.impl.nio;
 
+import java.io.IOException;
+
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpResponseFactory;
 import org.apache.http.annotation.Immutable;
 import org.apache.http.impl.DefaultHttpResponseFactory;
+import org.apache.http.impl.nio.reactor.SSLIOSession;
 import org.apache.http.nio.NHttpClientIOTarget;
 import org.apache.http.nio.NHttpClientHandler;
 import org.apache.http.nio.reactor.IOEventDispatch;
@@ -60,8 +63,8 @@ import org.apache.http.protocol.ExecutionContext;
 @Immutable // provided injected dependencies are immutable
 public class DefaultClientIOEventDispatch implements IOEventDispatch {
 
-    protected final ByteBufferAllocator allocator;
     protected final NHttpClientHandler handler;
+    protected final ByteBufferAllocator allocator;
     protected final HttpParams params;
 
     /**
@@ -124,27 +127,25 @@ public class DefaultClientIOEventDispatch implements IOEventDispatch {
      * @return newly created HTTP connection.
      */
     protected NHttpClientIOTarget createConnection(final IOSession session) {
-        try {
-            return new DefaultNHttpClientConnection(
-                    session,
-                    createHttpResponseFactory(),
-                    this.allocator,
-                    this.params);
-        } catch (RuntimeException ex) {
-            session.shutdown();
-            throw ex;
-        }
+        return new DefaultNHttpClientConnection(
+                session,
+                createHttpResponseFactory(),
+                this.allocator,
+                this.params);
     }
 
     public void connected(final IOSession session) {
         try {
-            NHttpClientIOTarget conn = createConnection(session);
-            Object attachment = session.getAttribute(IOSession.ATTACHMENT_KEY);
-            session.setAttribute(ExecutionContext.HTTP_CONNECTION, conn);
-
+            NHttpClientIOTarget conn = (NHttpClientIOTarget) session.getAttribute(
+                    ExecutionContext.HTTP_CONNECTION);
+            if (conn == null) {
+                conn = createConnection(session);
+                session.setAttribute(ExecutionContext.HTTP_CONNECTION, conn);
+            }
             int timeout = HttpConnectionParams.getSoTimeout(this.params);
             conn.setSocketTimeout(timeout);
 
+            Object attachment = session.getAttribute(IOSession.ATTACHMENT_KEY);
             this.handler.connected(conn, attachment);
         } catch (RuntimeException ex) {
             session.shutdown();
@@ -171,7 +172,21 @@ public class DefaultClientIOEventDispatch implements IOEventDispatch {
             NHttpClientIOTarget conn = (NHttpClientIOTarget) session.getAttribute(
                     ExecutionContext.HTTP_CONNECTION);
             ensureNotNull(conn);
-            conn.consumeInput(this.handler);
+            SSLIOSession ssliosession = (SSLIOSession) session.getAttribute(
+                    IOSession.SSL_SESSION_KEY);
+            if (ssliosession == null) {
+                conn.consumeInput(this.handler);
+            } else {
+                try {
+                    if (ssliosession.isAppInputReady()) {
+                        conn.consumeInput(this.handler);
+                    }
+                    ssliosession.inboundTransport();
+                } catch (IOException ex) {
+                    this.handler.exception(conn, ex);
+                    ssliosession.shutdown();
+                }
+            }
         } catch (RuntimeException ex) {
             session.shutdown();
             throw ex;
@@ -183,7 +198,21 @@ public class DefaultClientIOEventDispatch implements IOEventDispatch {
             NHttpClientIOTarget conn = (NHttpClientIOTarget) session.getAttribute(
                     ExecutionContext.HTTP_CONNECTION);
             ensureNotNull(conn);
-            conn.produceOutput(this.handler);
+            SSLIOSession ssliosession = (SSLIOSession) session.getAttribute(
+                    IOSession.SSL_SESSION_KEY);
+            if (ssliosession == null) {
+                conn.produceOutput(this.handler);
+            } else {
+                try {
+                    if (ssliosession.isAppOutputReady()) {
+                        conn.produceOutput(this.handler);
+                    }
+                    ssliosession.outboundTransport();
+                } catch (IOException ex) {
+                    this.handler.exception(conn, ex);
+                    ssliosession.shutdown();
+                }
+            }
         } catch (RuntimeException ex) {
             session.shutdown();
             throw ex;
@@ -194,8 +223,20 @@ public class DefaultClientIOEventDispatch implements IOEventDispatch {
         try {
             NHttpClientIOTarget conn = (NHttpClientIOTarget) session.getAttribute(
                     ExecutionContext.HTTP_CONNECTION);
+            SSLIOSession ssliosession = (SSLIOSession) session.getAttribute(
+                    IOSession.SSL_SESSION_KEY);
             ensureNotNull(conn);
-            this.handler.timeout(conn);
+            if (ssliosession == null) {
+                this.handler.timeout(conn);
+            } else {
+                this.handler.timeout(conn);
+                synchronized (ssliosession) {
+                    if (ssliosession.isOutboundDone() && !ssliosession.isInboundDone()) {
+                        // The session failed to terminate cleanly
+                        ssliosession.shutdown();
+                    }
+                }
+            }
         } catch (RuntimeException ex) {
             session.shutdown();
             throw ex;

@@ -27,16 +27,11 @@
 
 package org.apache.http.impl.nio.ssl;
 
-import java.io.IOException;
-
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.SSLException;
 
-import org.apache.http.HttpRequest;
-import org.apache.http.HttpRequestFactory;
 import org.apache.http.annotation.Immutable;
-import org.apache.http.impl.DefaultHttpRequestFactory;
-import org.apache.http.impl.nio.DefaultNHttpServerConnection;
+import org.apache.http.impl.nio.DefaultServerIOEventDispatch;
 import org.apache.http.impl.nio.reactor.SSLIOSession;
 import org.apache.http.impl.nio.reactor.SSLMode;
 import org.apache.http.impl.nio.reactor.SSLSetupHandler;
@@ -44,8 +39,6 @@ import org.apache.http.nio.NHttpServerIOTarget;
 import org.apache.http.nio.NHttpServiceHandler;
 import org.apache.http.nio.reactor.IOEventDispatch;
 import org.apache.http.nio.reactor.IOSession;
-import org.apache.http.nio.util.ByteBufferAllocator;
-import org.apache.http.nio.util.HeapByteBufferAllocator;
 import org.apache.http.params.HttpConnectionParams;
 import org.apache.http.params.HttpParams;
 import org.apache.http.protocol.ExecutionContext;
@@ -67,14 +60,10 @@ import org.apache.http.protocol.ExecutionContext;
  * @since 4.1
  */
 @Immutable // provided injected dependencies are immutable
-public class SSLServerIOEventDispatch implements IOEventDispatch {
+public class SSLServerIOEventDispatch extends DefaultServerIOEventDispatch {
 
-    private static final String SSL_SESSION = "http.nio.ssl-session";
-
-    private final NHttpServiceHandler handler;
     private final SSLContext sslcontext;
     private final SSLSetupHandler sslHandler;
-    private final HttpParams params;
 
     /**
      * Creates a new instance of this class to be used for dispatching I/O event
@@ -92,18 +81,13 @@ public class SSLServerIOEventDispatch implements IOEventDispatch {
             final SSLContext sslcontext,
             final SSLSetupHandler sslHandler,
             final HttpParams params) {
-        super();
-        if (handler == null) {
-            throw new IllegalArgumentException("HTTP service handler may not be null");
-        }
+        super(handler, params);
         if (sslcontext == null) {
             throw new IllegalArgumentException("SSL context may not be null");
         }
         if (params == null) {
             throw new IllegalArgumentException("HTTP parameters may not be null");
         }
-        this.handler = handler;
-        this.params = params;
         this.sslcontext = sslcontext;
         this.sslHandler = sslHandler;
     }
@@ -123,51 +107,6 @@ public class SSLServerIOEventDispatch implements IOEventDispatch {
             final SSLContext sslcontext,
             final HttpParams params) {
         this(handler, sslcontext, null, params);
-    }
-
-    /**
-     * Creates an instance of {@link HeapByteBufferAllocator} to be used
-     * by HTTP connections for allocating {@link java.nio.ByteBuffer} objects.
-     * <p>
-     * This method can be overridden in a super class in order to provide
-     * a different implementation of the {@link ByteBufferAllocator} interface.
-     *
-     * @return byte buffer allocator.
-     */
-    protected ByteBufferAllocator createByteBufferAllocator() {
-        return new HeapByteBufferAllocator();
-    }
-
-    /**
-     * Creates an instance of {@link DefaultHttpRequestFactory} to be used
-     * by HTTP connections for creating {@link HttpRequest} objects.
-     * <p>
-     * This method can be overridden in a super class in order to provide
-     * a different implementation of the {@link HttpRequestFactory} interface.
-     *
-     * @return HTTP request factory.
-     */
-    protected HttpRequestFactory createHttpRequestFactory() {
-        return new DefaultHttpRequestFactory();
-    }
-
-    /**
-     * Creates an instance of {@link DefaultNHttpServerConnection} based on the
-     * given {@link IOSession}.
-     * <p>
-     * This method can be overridden in a super class in order to provide
-     * a different implementation of the {@link NHttpServerIOTarget} interface.
-     *
-     * @param session the underlying SSL I/O session.
-     *
-     * @return newly created HTTP connection.
-     */
-    protected NHttpServerIOTarget createConnection(final IOSession session) {
-        return new DefaultNHttpServerConnection(
-                session,
-                createHttpRequestFactory(),
-                createByteBufferAllocator(),
-                this.params);
     }
 
     /**
@@ -191,16 +130,14 @@ public class SSLServerIOEventDispatch implements IOEventDispatch {
 
     public void connected(final IOSession session) {
         try {
-            SSLIOSession sslSession = createSSLIOSession(
+
+            SSLIOSession ssliosession = createSSLIOSession(
                     session,
                     this.sslcontext,
                     this.sslHandler);
-
-            NHttpServerIOTarget conn = createConnection(
-                    sslSession);
-
+            session.setAttribute(IOSession.SSL_SESSION_KEY, ssliosession);
+            NHttpServerIOTarget conn = createConnection(ssliosession);
             session.setAttribute(ExecutionContext.HTTP_CONNECTION, conn);
-            session.setAttribute(SSL_SESSION, sslSession);
 
             int timeout = HttpConnectionParams.getSoTimeout(this.params);
             conn.setSocketTimeout(timeout);
@@ -208,100 +145,10 @@ public class SSLServerIOEventDispatch implements IOEventDispatch {
             this.handler.connected(conn);
 
             try {
-                sslSession.bind(SSLMode.SERVER, this.params);
+                ssliosession.bind(SSLMode.SERVER, this.params);
             } catch (SSLException ex) {
                 this.handler.exception(conn, ex);
-                sslSession.shutdown();
-            }
-        } catch (RuntimeException ex) {
-            session.shutdown();
-            throw ex;
-        }
-    }
-
-    public void disconnected(final IOSession session) {
-        NHttpServerIOTarget conn = (NHttpServerIOTarget) session.getAttribute(
-                ExecutionContext.HTTP_CONNECTION);
-        if (conn != null) {
-            this.handler.closed(conn);
-        }
-    }
-
-    private void ensureNotNull(final NHttpServerIOTarget conn) {
-        if (conn == null) {
-            throw new IllegalStateException("HTTP connection is null");
-        }
-    }
-
-    private void ensureNotNull(final SSLIOSession ssliosession) {
-        if (ssliosession == null) {
-            throw new IllegalStateException("SSL I/O session is null");
-        }
-    }
-
-    public void inputReady(final IOSession session) {
-        try {
-            NHttpServerIOTarget conn = (NHttpServerIOTarget) session.getAttribute(
-                    ExecutionContext.HTTP_CONNECTION);
-            ensureNotNull(conn);
-            SSLIOSession sslSession =
-                (SSLIOSession) session.getAttribute(SSL_SESSION);
-            ensureNotNull(sslSession);
-
-            try {
-                if (sslSession.isAppInputReady()) {
-                    conn.consumeInput(this.handler);
-                }
-                sslSession.inboundTransport();
-            } catch (IOException ex) {
-                this.handler.exception(conn, ex);
-                sslSession.shutdown();
-            }
-        } catch (RuntimeException ex) {
-            session.shutdown();
-            throw ex;
-        }
-    }
-
-    public void outputReady(final IOSession session) {
-        try {
-            NHttpServerIOTarget conn = (NHttpServerIOTarget) session.getAttribute(
-                    ExecutionContext.HTTP_CONNECTION);
-            ensureNotNull(conn);
-            SSLIOSession sslSession =
-                (SSLIOSession) session.getAttribute(SSL_SESSION);
-            ensureNotNull(sslSession);
-
-            try {
-                if (sslSession.isAppOutputReady()) {
-                    conn.produceOutput(this.handler);
-                }
-                sslSession.outboundTransport();
-            } catch (IOException ex) {
-                this.handler.exception(conn, ex);
-                sslSession.shutdown();
-            }
-        } catch (RuntimeException ex) {
-            session.shutdown();
-            throw ex;
-        }
-    }
-
-    public void timeout(final IOSession session) {
-        try {
-            NHttpServerIOTarget conn = (NHttpServerIOTarget) session.getAttribute(
-                    ExecutionContext.HTTP_CONNECTION);
-            ensureNotNull(conn);
-            SSLIOSession sslSession =
-                (SSLIOSession) session.getAttribute(SSL_SESSION);
-            ensureNotNull(sslSession);
-
-            this.handler.timeout(conn);
-            synchronized (sslSession) {
-                if (sslSession.isOutboundDone() && !sslSession.isInboundDone()) {
-                    // The session failed to cleanly terminate
-                    sslSession.shutdown();
-                }
+                ssliosession.shutdown();
             }
         } catch (RuntimeException ex) {
             session.shutdown();

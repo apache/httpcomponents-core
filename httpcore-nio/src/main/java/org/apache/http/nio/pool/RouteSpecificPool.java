@@ -162,9 +162,9 @@ abstract class RouteSpecificPool<T, C, E extends PoolEntry<T, C>> {
         future.cancel(true);
     }
 
-    public void failed(final SessionRequest request) {
+    public void failed(final SessionRequest request, final Exception ex) {
         BasicFuture<E> future = removeRequest(request);
-        future.failed(request.getException());
+        future.failed(ex);
     }
 
     public void timeout(final SessionRequest request) {
