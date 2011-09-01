@@ -112,9 +112,9 @@ public final class IOReactorConfig implements Cloneable {
      * <p/>
      * Default: <code>false</code>
      *
-     * @see {@link SelectionKey}
-     * @see {@link SelectionKey#interestOps()}
-     * @see {@link SelectionKey#interestOps(int)}
+     * @see SelectionKey
+     * @see SelectionKey#interestOps()
+     * @see SelectionKey#interestOps(int)
      */
     public boolean isInterestOpQueued() {
         return this.interestOpQueued;
@@ -125,9 +125,9 @@ public final class IOReactorConfig implements Cloneable {
      * asynchronously by the I/O reactor thread or to be applied to the underlying
      * {@link SelectionKey} immediately.
      *
-     * @see {@link SelectionKey}
-     * @see {@link SelectionKey#interestOps()}
-     * @see {@link SelectionKey#interestOps(int)}
+     * @see SelectionKey
+     * @see SelectionKey#interestOps()
+     * @see SelectionKey#interestOps(int)
      */
     public void setInterestOpQueued(boolean interestOpQueued) {
         this.interestOpQueued = interestOpQueued;
