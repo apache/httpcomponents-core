@@ -36,7 +36,7 @@ import org.apache.http.nio.ContentEncoder;
 import org.apache.http.nio.IOControl;
 
 /**
- * @ since 4.2
+ * @since 4.2
  */
 public interface HttpAsyncRequestProducer extends Closeable {
 

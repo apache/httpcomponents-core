@@ -113,7 +113,7 @@ public class NStringEntity extends AbstractHttpEntity implements ProducingNHttpE
     /**
      * Creates a NStringEntity with the specified content and content type.
      *
-     * @param string content to be used. Not {@code null}.
+     * @param s content to be used. Not {@code null}.
      * @param contentType content type to be used. May be {@code null}, in which case the default
      *   MIME type {@link HTTP#PLAIN_TEXT_TYPE} i.e. "text/plain" and the default charset
      *   {@link HTTP#DEFAULT_CONTENT_CHARSET} i.e. "ISO-8859-1" are assumed.
@@ -144,7 +144,7 @@ public class NStringEntity extends AbstractHttpEntity implements ProducingNHttpE
      * Creates a NStringEntity with the specified content and charset. The mime type defaults
      * to {@link HTTP#PLAIN_TEXT_TYPE} i.e. "text/plain".
      *
-     * @param string content to be used. Not {@code null}.
+     * @param s content to be used. Not {@code null}.
      * @param charset character set to be used. May be {@code null}, in which case the default
      *   is {@link HTTP#DEFAULT_CONTENT_CHARSET} i.e. "ISO-8859-1"
      *
@@ -161,7 +161,7 @@ public class NStringEntity extends AbstractHttpEntity implements ProducingNHttpE
      * {@link HTTP#DEFAULT_CONTENT_CHARSET} i.e. "ISO-8859-1". The mime type defaults to
      * {@link HTTP#PLAIN_TEXT_TYPE} i.e. "text/plain".
      *
-     * @param string content to be used. Not {@code null}.
+     * @param s content to be used. Not {@code null}.
      *
      * @throws IllegalArgumentException if the string parameter is null
      * @throws UnsupportedEncodingException if the default HTTP charset is not supported.
