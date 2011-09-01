@@ -26,29 +26,8 @@
  */
 package org.apache.http.nio.protocol;
 
-import java.io.Closeable;
-import java.io.IOException;
+enum MessageState {
 
-import org.apache.http.HttpRequest;
-import org.apache.http.nio.ContentDecoder;
-import org.apache.http.nio.IOControl;
-import org.apache.http.protocol.HttpContext;
-
-/**
- * @since 4.2
- */
-public interface HttpAsyncRequestConsumer<T> extends Closeable {
-
-    void requestReceived(HttpRequest request);
-
-    void consumeContent(ContentDecoder decoder, IOControl ioctrl) throws IOException;
-
-    void requestCompleted(HttpContext context);
-
-    Exception getException();
-
-    T getResult();
-
-    boolean isDone();
+    READY, HEAD, ACK, BODY_STREAM, COMPLETED
 
 }

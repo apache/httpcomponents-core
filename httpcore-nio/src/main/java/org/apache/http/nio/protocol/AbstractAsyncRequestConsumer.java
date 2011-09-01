@@ -96,4 +96,8 @@ public abstract class AbstractAsyncRequestConsumer<T> implements HttpAsyncReques
         return this.result;
     }
 
+    public boolean isDone() {
+        return this.completed;
+    }
+
 }

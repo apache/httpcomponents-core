@@ -27,58 +27,16 @@
 
 package org.apache.http.nio.protocol;
 
-import java.io.IOException;
-import java.nio.ByteBuffer;
-
-import org.apache.http.HttpRequest;
-import org.apache.http.nio.ContentDecoder;
-import org.apache.http.nio.IOControl;
+import org.apache.http.ConnectionReuseStrategy;
 import org.apache.http.protocol.HttpContext;
 
-class NullRequestConsumer implements HttpAsyncRequestConsumer<Object> {
+/**
+ * @since 4.2
+ */
+public interface HttpAsyncClientExchangeHandler<T> extends HttpAsyncRequestProducer, HttpAsyncResponseConsumer<T> {
 
-    private final ByteBuffer buffer;
-    private volatile boolean completed;
+    HttpContext getContext();
 
-    NullRequestConsumer() {
-        super();
-        this.buffer = ByteBuffer.allocate(2048);
-    }
-
-    public void requestReceived(final HttpRequest request) {
-    }
-
-    public void consumeContent(
-            final ContentDecoder decoder, final IOControl ioctrl) throws IOException {
-        int lastRead;
-        do {
-            this.buffer.clear();
-            lastRead = decoder.read(this.buffer);
-        } while (lastRead > 0);
-    }
-
-    public void requestCompleted(final HttpContext context) {
-        this.completed = true;
-    }
-
-    public void failed(final Exception ex) {
-        this.completed = true;
-    }
-
-    public Object getResult() {
-        return this.completed;
-    }
-
-    public Exception getException() {
-        return null;
-    }
-
-    public void close() throws IOException {
-        this.completed = true;
-    }
-
-    public boolean isDone() {
-        return this.completed;
-    }
+    ConnectionReuseStrategy getConnectionReuseStrategy();
 
 }

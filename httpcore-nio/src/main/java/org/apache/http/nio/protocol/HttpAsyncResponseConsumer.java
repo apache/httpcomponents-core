@@ -54,4 +54,6 @@ public interface HttpAsyncResponseConsumer<T> extends Closeable {
 
     Exception getException();
 
+    boolean isDone();
+
 }
