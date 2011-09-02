@@ -1,0 +1,167 @@
+/*
+ * ====================================================================
+ * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
+ *
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ * ====================================================================
+ *
+ * This software consists of voluntary contributions made by many
+ * individuals on behalf of the Apache Software Foundation.  For more
+ * information on the Apache Software Foundation, please see
+ * <http://www.apache.org/>.
+ *
+ */
+
+package org.apache.http.impl.nio;
+
+import java.io.IOException;
+
+import org.apache.http.annotation.Immutable;
+import org.apache.http.impl.nio.reactor.SSLIOSession;
+import org.apache.http.nio.NHttpConnection;
+import org.apache.http.nio.reactor.IOEventDispatch;
+import org.apache.http.nio.reactor.IOSession;
+import org.apache.http.protocol.ExecutionContext;
+
+/**
+ * Abstract {@link IOEventDispatch} implementation that supports both plain (unencrypted)
+ * and SSL encrypted HTTP connections.
+ *
+ * @since 4.2
+ */
+@Immutable // provided injected dependencies are immutable
+public abstract class AbstractIOEventDispatch<T extends NHttpConnection> implements IOEventDispatch {
+
+	protected abstract T createConnection(IOSession session);
+
+	protected abstract void onConnected(T conn);
+
+	protected abstract void onClosed(T conn);
+
+	protected abstract void onException(T conn, IOException ex);
+
+	protected abstract void onInputReady(T conn);
+
+	protected abstract void onOutputReady(T conn);
+
+	protected abstract void onTimeout(T conn);
+
+    private void ensureNotNull(final T conn) {
+        if (conn == null) {
+            throw new IllegalStateException("HTTP connection is null");
+        }
+    }
+
+    public void connected(final IOSession session) {
+        @SuppressWarnings("unchecked")
+		T conn = (T) session.getAttribute(ExecutionContext.HTTP_CONNECTION);
+        try {
+            if (conn == null) {
+                conn = createConnection(session);
+                session.setAttribute(ExecutionContext.HTTP_CONNECTION, conn);
+            }
+            onConnected(conn);
+        } catch (RuntimeException ex) {
+            session.shutdown();
+            throw ex;
+        }
+    }
+
+    public void disconnected(final IOSession session) {
+        @SuppressWarnings("unchecked")
+		T conn = (T) session.getAttribute(ExecutionContext.HTTP_CONNECTION);
+        if (conn != null) {
+        	onClosed(conn);
+        }
+    }
+
+    public void inputReady(final IOSession session) {
+        @SuppressWarnings("unchecked")
+        T conn = (T) session.getAttribute(ExecutionContext.HTTP_CONNECTION);
+        try {
+            ensureNotNull(conn);
+            SSLIOSession ssliosession = (SSLIOSession) session.getAttribute(
+                    IOSession.SSL_SESSION_KEY);
+            if (ssliosession == null) {
+            	onInputReady(conn);
+            } else {
+                try {
+                    if (ssliosession.isAppInputReady()) {
+                    	onInputReady(conn);
+                    }
+                    ssliosession.inboundTransport();
+                } catch (IOException ex) {
+                    onException(conn, ex);
+                    ssliosession.shutdown();
+                }
+            }
+        } catch (RuntimeException ex) {
+            session.shutdown();
+            throw ex;
+        }
+    }
+
+    public void outputReady(final IOSession session) {
+        @SuppressWarnings("unchecked")
+        T conn = (T) session.getAttribute(ExecutionContext.HTTP_CONNECTION);
+        try {
+            ensureNotNull(conn);
+            SSLIOSession ssliosession = (SSLIOSession) session.getAttribute(
+                    IOSession.SSL_SESSION_KEY);
+            if (ssliosession == null) {
+                onOutputReady(conn);
+            } else {
+                try {
+                    if (ssliosession.isAppOutputReady()) {
+                        onOutputReady(conn);
+                    }
+                    ssliosession.outboundTransport();
+                } catch (IOException ex) {
+                    onException(conn, ex);
+                    ssliosession.shutdown();
+                }
+            }
+        } catch (RuntimeException ex) {
+            session.shutdown();
+            throw ex;
+        }
+    }
+
+    public void timeout(final IOSession session) {
+        @SuppressWarnings("unchecked")
+        T conn = (T) session.getAttribute(ExecutionContext.HTTP_CONNECTION);
+        try {
+            SSLIOSession ssliosession = (SSLIOSession) session.getAttribute(
+                    IOSession.SSL_SESSION_KEY);
+            ensureNotNull(conn);
+            if (ssliosession == null) {
+                onTimeout(conn);
+            } else {
+            	onTimeout(conn);
+                synchronized (ssliosession) {
+                    if (ssliosession.isOutboundDone() && !ssliosession.isInboundDone()) {
+                        // The session failed to terminate cleanly
+                        ssliosession.shutdown();
+                    }
+                }
+            }
+        } catch (RuntimeException ex) {
+            session.shutdown();
+            throw ex;
+        }
+    }
+
+}

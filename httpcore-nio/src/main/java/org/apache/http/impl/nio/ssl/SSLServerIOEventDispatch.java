@@ -35,13 +35,13 @@ import org.apache.http.impl.nio.DefaultServerIOEventDispatch;
 import org.apache.http.impl.nio.reactor.SSLIOSession;
 import org.apache.http.impl.nio.reactor.SSLMode;
 import org.apache.http.impl.nio.reactor.SSLSetupHandler;
+import org.apache.http.nio.NHttpClientIOTarget;
 import org.apache.http.nio.NHttpServerIOTarget;
 import org.apache.http.nio.NHttpServiceHandler;
 import org.apache.http.nio.reactor.IOEventDispatch;
 import org.apache.http.nio.reactor.IOSession;
 import org.apache.http.params.HttpConnectionParams;
 import org.apache.http.params.HttpParams;
-import org.apache.http.protocol.ExecutionContext;
 
 /**
  * Default implementation of {@link IOEventDispatch} interface for SSL
@@ -128,32 +128,29 @@ public class SSLServerIOEventDispatch extends DefaultServerIOEventDispatch {
         return new SSLIOSession(session, sslcontext, sslHandler);
     }
 
-    public void connected(final IOSession session) {
+    protected NHttpServerIOTarget createSSLConnection(final SSLIOSession ssliosession) {
+    	return super.createConnection(ssliosession);
+    }
+
+    @Override
+	protected NHttpServerIOTarget createConnection(final IOSession session) {
+        SSLIOSession ssliosession = createSSLIOSession(session, this.sslcontext, this.sslHandler);
+        session.setAttribute(IOSession.SSL_SESSION_KEY, ssliosession);
+    	NHttpServerIOTarget conn = createSSLConnection(ssliosession);
         try {
-
-            SSLIOSession ssliosession = createSSLIOSession(
-                    session,
-                    this.sslcontext,
-                    this.sslHandler);
-            session.setAttribute(IOSession.SSL_SESSION_KEY, ssliosession);
-            NHttpServerIOTarget conn = createConnection(ssliosession);
-            session.setAttribute(ExecutionContext.HTTP_CONNECTION, conn);
-
-            int timeout = HttpConnectionParams.getSoTimeout(this.params);
-            conn.setSocketTimeout(timeout);
-
-            this.handler.connected(conn);
-
-            try {
-                ssliosession.bind(SSLMode.SERVER, this.params);
-            } catch (SSLException ex) {
-                this.handler.exception(conn, ex);
-                ssliosession.shutdown();
-            }
-        } catch (RuntimeException ex) {
-            session.shutdown();
-            throw ex;
+            ssliosession.bind(SSLMode.SERVER, this.params);
+        } catch (SSLException ex) {
+            this.handler.exception(conn, ex);
+            ssliosession.shutdown();
         }
+    	return conn;
+	}
+
+	@Override
+    public void onConnected(final NHttpServerIOTarget conn) {
+        int timeout = HttpConnectionParams.getSoTimeout(this.params);
+        conn.setSocketTimeout(timeout);
+        this.handler.connected(conn);
     }
 
 }

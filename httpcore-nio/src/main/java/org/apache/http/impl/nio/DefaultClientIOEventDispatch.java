@@ -33,7 +33,6 @@ import org.apache.http.HttpResponse;
 import org.apache.http.HttpResponseFactory;
 import org.apache.http.annotation.Immutable;
 import org.apache.http.impl.DefaultHttpResponseFactory;
-import org.apache.http.impl.nio.reactor.SSLIOSession;
 import org.apache.http.nio.NHttpClientIOTarget;
 import org.apache.http.nio.NHttpClientHandler;
 import org.apache.http.nio.reactor.IOEventDispatch;
@@ -42,7 +41,6 @@ import org.apache.http.nio.util.ByteBufferAllocator;
 import org.apache.http.nio.util.HeapByteBufferAllocator;
 import org.apache.http.params.HttpConnectionParams;
 import org.apache.http.params.HttpParams;
-import org.apache.http.protocol.ExecutionContext;
 
 /**
  * Default implementation of {@link IOEventDispatch} interface for plain
@@ -61,7 +59,7 @@ import org.apache.http.protocol.ExecutionContext;
  * @since 4.0
  */
 @Immutable // provided injected dependencies are immutable
-public class DefaultClientIOEventDispatch implements IOEventDispatch {
+public class DefaultClientIOEventDispatch extends AbstractIOEventDispatch<NHttpClientIOTarget> {
 
     protected final NHttpClientHandler handler;
     protected final ByteBufferAllocator allocator;
@@ -126,7 +124,8 @@ public class DefaultClientIOEventDispatch implements IOEventDispatch {
      *
      * @return newly created HTTP connection.
      */
-    protected NHttpClientIOTarget createConnection(final IOSession session) {
+    @Override
+	protected NHttpClientIOTarget createConnection(final IOSession session) {
         return new DefaultNHttpClientConnection(
                 session,
                 createHttpResponseFactory(),
@@ -134,113 +133,38 @@ public class DefaultClientIOEventDispatch implements IOEventDispatch {
                 this.params);
     }
 
-    public void connected(final IOSession session) {
-        try {
-            NHttpClientIOTarget conn = (NHttpClientIOTarget) session.getAttribute(
-                    ExecutionContext.HTTP_CONNECTION);
-            if (conn == null) {
-                conn = createConnection(session);
-                session.setAttribute(ExecutionContext.HTTP_CONNECTION, conn);
-            }
-            int timeout = HttpConnectionParams.getSoTimeout(this.params);
-            conn.setSocketTimeout(timeout);
+    @Override
+	protected void onConnected(final NHttpClientIOTarget conn) {
+        int timeout = HttpConnectionParams.getSoTimeout(this.params);
+        conn.setSocketTimeout(timeout);
 
-            Object attachment = session.getAttribute(IOSession.ATTACHMENT_KEY);
-            this.handler.connected(conn, attachment);
-        } catch (RuntimeException ex) {
-            session.shutdown();
-            throw ex;
-        }
-    }
+        Object attachment = conn.getContext().getAttribute(IOSession.ATTACHMENT_KEY);
+        this.handler.connected(conn, attachment);
+	}
 
-    public void disconnected(final IOSession session) {
-        NHttpClientIOTarget conn = (NHttpClientIOTarget) session.getAttribute(
-                ExecutionContext.HTTP_CONNECTION);
-        if (conn != null) {
-            this.handler.closed(conn);
-        }
-    }
+    @Override
+	protected void onClosed(final NHttpClientIOTarget conn) {
+        this.handler.closed(conn);
+	}
 
-    private void ensureNotNull(final NHttpClientIOTarget conn) {
-        if (conn == null) {
-            throw new IllegalStateException("HTTP connection is null");
-        }
-    }
+	@Override
+	protected void onException(final NHttpClientIOTarget conn, IOException ex) {
+        this.handler.exception(conn, ex);
+	}
 
-    public void inputReady(final IOSession session) {
-        try {
-            NHttpClientIOTarget conn = (NHttpClientIOTarget) session.getAttribute(
-                    ExecutionContext.HTTP_CONNECTION);
-            ensureNotNull(conn);
-            SSLIOSession ssliosession = (SSLIOSession) session.getAttribute(
-                    IOSession.SSL_SESSION_KEY);
-            if (ssliosession == null) {
-                conn.consumeInput(this.handler);
-            } else {
-                try {
-                    if (ssliosession.isAppInputReady()) {
-                        conn.consumeInput(this.handler);
-                    }
-                    ssliosession.inboundTransport();
-                } catch (IOException ex) {
-                    this.handler.exception(conn, ex);
-                    ssliosession.shutdown();
-                }
-            }
-        } catch (RuntimeException ex) {
-            session.shutdown();
-            throw ex;
-        }
-    }
+	@Override
+	protected void onInputReady(final NHttpClientIOTarget conn) {
+        conn.consumeInput(this.handler);
+	}
 
-    public void outputReady(final IOSession session) {
-        try {
-            NHttpClientIOTarget conn = (NHttpClientIOTarget) session.getAttribute(
-                    ExecutionContext.HTTP_CONNECTION);
-            ensureNotNull(conn);
-            SSLIOSession ssliosession = (SSLIOSession) session.getAttribute(
-                    IOSession.SSL_SESSION_KEY);
-            if (ssliosession == null) {
-                conn.produceOutput(this.handler);
-            } else {
-                try {
-                    if (ssliosession.isAppOutputReady()) {
-                        conn.produceOutput(this.handler);
-                    }
-                    ssliosession.outboundTransport();
-                } catch (IOException ex) {
-                    this.handler.exception(conn, ex);
-                    ssliosession.shutdown();
-                }
-            }
-        } catch (RuntimeException ex) {
-            session.shutdown();
-            throw ex;
-        }
-    }
+	@Override
+	protected void onOutputReady(final NHttpClientIOTarget conn) {
+        conn.produceOutput(this.handler);
+	}
 
-    public void timeout(final IOSession session) {
-        try {
-            NHttpClientIOTarget conn = (NHttpClientIOTarget) session.getAttribute(
-                    ExecutionContext.HTTP_CONNECTION);
-            SSLIOSession ssliosession = (SSLIOSession) session.getAttribute(
-                    IOSession.SSL_SESSION_KEY);
-            ensureNotNull(conn);
-            if (ssliosession == null) {
-                this.handler.timeout(conn);
-            } else {
-                this.handler.timeout(conn);
-                synchronized (ssliosession) {
-                    if (ssliosession.isOutboundDone() && !ssliosession.isInboundDone()) {
-                        // The session failed to terminate cleanly
-                        ssliosession.shutdown();
-                    }
-                }
-            }
-        } catch (RuntimeException ex) {
-            session.shutdown();
-            throw ex;
-        }
-    }
+	@Override
+	protected void onTimeout(final NHttpClientIOTarget conn) {
+        this.handler.timeout(conn);
+	}
 
 }

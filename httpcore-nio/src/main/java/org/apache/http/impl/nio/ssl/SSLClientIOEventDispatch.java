@@ -41,7 +41,6 @@ import org.apache.http.nio.reactor.IOEventDispatch;
 import org.apache.http.nio.reactor.IOSession;
 import org.apache.http.params.HttpConnectionParams;
 import org.apache.http.params.HttpParams;
-import org.apache.http.protocol.ExecutionContext;
 
 /**
  * Default implementation of {@link IOEventDispatch} interface for SSL
@@ -128,40 +127,31 @@ public class SSLClientIOEventDispatch extends DefaultClientIOEventDispatch {
         return new SSLIOSession(session, sslcontext, sslHandler);
     }
 
+    protected NHttpClientIOTarget createSSLConnection(final SSLIOSession ssliosession) {
+    	return super.createConnection(ssliosession);
+    }
+
     @Override
-    public void connected(final IOSession session) {
+	protected NHttpClientIOTarget createConnection(final IOSession session) {
+        SSLIOSession ssliosession = createSSLIOSession(session, this.sslcontext, this.sslHandler);
+        session.setAttribute(IOSession.SSL_SESSION_KEY, ssliosession);
+        NHttpClientIOTarget conn = createSSLConnection(ssliosession);
         try {
-
-            NHttpClientIOTarget conn = (NHttpClientIOTarget) session.getAttribute(
-                    ExecutionContext.HTTP_CONNECTION);
-
-            if (conn == null) {
-                SSLIOSession ssliosession = createSSLIOSession(
-                        session,
-                        this.sslcontext,
-                        this.sslHandler);
-                session.setAttribute(IOSession.SSL_SESSION_KEY, ssliosession);
-                conn = createConnection(ssliosession);
-                session.setAttribute(ExecutionContext.HTTP_CONNECTION, conn);
-
-                try {
-                    ssliosession.bind(SSLMode.CLIENT, this.params);
-                } catch (SSLException ex) {
-                    this.handler.exception(conn, ex);
-                    ssliosession.shutdown();
-                }
-            }
-
-            int timeout = HttpConnectionParams.getSoTimeout(this.params);
-            conn.setSocketTimeout(timeout);
-
-            Object attachment = session.getAttribute(IOSession.ATTACHMENT_KEY);
-            this.handler.connected(conn, attachment);
-
-        } catch (RuntimeException ex) {
-            session.shutdown();
-            throw ex;
+            ssliosession.bind(SSLMode.CLIENT, this.params);
+        } catch (SSLException ex) {
+            this.handler.exception(conn, ex);
+            ssliosession.shutdown();
         }
+		return conn;
+	}
+
+	@Override
+    public void onConnected(final NHttpClientIOTarget conn) {
+        int timeout = HttpConnectionParams.getSoTimeout(this.params);
+        conn.setSocketTimeout(timeout);
+
+        Object attachment = conn.getContext().getAttribute(IOSession.ATTACHMENT_KEY);
+        this.handler.connected(conn, attachment);
     }
 
 }
