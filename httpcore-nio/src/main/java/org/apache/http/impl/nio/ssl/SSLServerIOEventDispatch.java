@@ -35,7 +35,6 @@ import org.apache.http.impl.nio.DefaultServerIOEventDispatch;
 import org.apache.http.impl.nio.reactor.SSLIOSession;
 import org.apache.http.impl.nio.reactor.SSLMode;
 import org.apache.http.impl.nio.reactor.SSLSetupHandler;
-import org.apache.http.nio.NHttpClientIOTarget;
 import org.apache.http.nio.NHttpServerIOTarget;
 import org.apache.http.nio.NHttpServiceHandler;
 import org.apache.http.nio.reactor.IOEventDispatch;

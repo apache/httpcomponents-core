@@ -24,30 +24,27 @@
  * <http://www.apache.org/>.
  *
  */
-package org.apache.http.impl.nio.pool;
+package org.apache.http.impl.nio;
 
 import java.io.IOException;
 
 import javax.net.ssl.SSLContext;
 
-import org.apache.http.HttpHost;
 import org.apache.http.HttpResponseFactory;
 import org.apache.http.annotation.Immutable;
 import org.apache.http.impl.DefaultHttpResponseFactory;
-import org.apache.http.impl.nio.DefaultNHttpClientConnectionFactory;
-import org.apache.http.impl.nio.SSLNHttpClientConnectionFactory;
+import org.apache.http.impl.nio.reactor.SSLIOSession;
+import org.apache.http.impl.nio.reactor.SSLMode;
 import org.apache.http.impl.nio.reactor.SSLSetupHandler;
 import org.apache.http.nio.NHttpClientConnection;
 import org.apache.http.nio.NHttpConnectionFactory;
-import org.apache.http.nio.pool.NIOConnFactory;
 import org.apache.http.nio.reactor.IOSession;
 import org.apache.http.nio.util.ByteBufferAllocator;
 import org.apache.http.nio.util.HeapByteBufferAllocator;
 import org.apache.http.params.HttpParams;
-import org.apache.http.protocol.ExecutionContext;
 
 /**
- * Basic non-blocking {@link NHttpClientConnection} factory.
+ * SSL encrypted non-blocking {@link NHttpClientConnection} factory.
  * <p>
  * The following parameters can be used to customize the behavior of this
  * class:
@@ -61,58 +58,73 @@ import org.apache.http.protocol.ExecutionContext;
  * @since 4.2
  */
 @Immutable
-public class BasicNIOConnFactory implements NIOConnFactory<HttpHost, NHttpClientConnection> {
+public class SSLNHttpClientConnectionFactory implements NHttpConnectionFactory<NHttpClientConnection> {
 
-    private final NHttpConnectionFactory<NHttpClientConnection> plainFactory;
-    private final NHttpConnectionFactory<NHttpClientConnection> sslFactory;
+    private final HttpResponseFactory responseFactory;
+    private final ByteBufferAllocator allocator;
+    private final SSLContext sslcontext;
+    private final SSLSetupHandler sslHandler;
+    private final HttpParams params;
 
-    public BasicNIOConnFactory(
-            final NHttpConnectionFactory<NHttpClientConnection> plainFactory,
-            final NHttpConnectionFactory<NHttpClientConnection> sslFactory) {
-        super();
-        if (plainFactory == null) {
-        	throw new IllegalArgumentException("Plain HTTP client connection factory may not be null");
-        }
-        if (sslFactory == null) {
-        	throw new IllegalArgumentException("SSL HTTP client connection factory may not be null");
-        }
-        this.plainFactory = plainFactory;
-        this.sslFactory = sslFactory;
-    }
-
-    public BasicNIOConnFactory(
+    public SSLNHttpClientConnectionFactory(
             final SSLContext sslcontext,
             final SSLSetupHandler sslHandler,
             final HttpResponseFactory responseFactory,
             final ByteBufferAllocator allocator,
             final HttpParams params) {
-        this(new DefaultNHttpClientConnectionFactory(
-                responseFactory, allocator, params),
-                new SSLNHttpClientConnectionFactory(
-                        sslcontext, sslHandler, responseFactory, allocator, params));
+        super();
+        if (responseFactory == null) {
+            throw new IllegalArgumentException("HTTP response factory may not be null");
+        }
+        if (allocator == null) {
+            throw new IllegalArgumentException("Byte buffer allocator may not be null");
+        }
+        if (params == null) {
+            throw new IllegalArgumentException("HTTP parameters may not be null");
+        }
+        this.sslcontext = sslcontext;
+        this.sslHandler = sslHandler;
+        this.responseFactory = responseFactory;
+        this.allocator = allocator;
+        this.params = params;
     }
 
-    public BasicNIOConnFactory(
+    public SSLNHttpClientConnectionFactory(
             final SSLContext sslcontext,
             final SSLSetupHandler sslHandler,
             final HttpParams params) {
-        this(sslcontext, sslHandler,
-                new DefaultHttpResponseFactory(), new HeapByteBufferAllocator(), params);
+        this(sslcontext, sslHandler, new DefaultHttpResponseFactory(), new HeapByteBufferAllocator(), params);
     }
 
-    public BasicNIOConnFactory(final HttpParams params) {
+    public SSLNHttpClientConnectionFactory(final HttpParams params) {
         this(null, null, params);
     }
 
-    public NHttpClientConnection create(final HttpHost route, final IOSession session) throws IOException {
-    	NHttpClientConnection conn;
-    	if (route.getSchemeName().equalsIgnoreCase("https")) {
-        	conn = this.sslFactory.createConnection(session);
-        } else {
-        	conn = this.plainFactory.createConnection(session);
+    private SSLContext getDefaultSSLContext() {
+        SSLContext sslcontext;
+        try {
+            sslcontext = SSLContext.getInstance("TLS");
+            sslcontext.init(null, null, null);
+        } catch (Exception ex) {
+            throw new IllegalStateException("Failure initializing default SSL context", ex);
         }
-        session.setAttribute(ExecutionContext.HTTP_CONNECTION, conn);
-        return conn;
+        return sslcontext;
+    }
+
+    protected NHttpClientConnection createConnection(
+            final IOSession session,
+            final HttpResponseFactory responseFactory,
+            final ByteBufferAllocator allocator,
+            final HttpParams params) throws IOException {
+        return new DefaultNHttpClientConnection(session, responseFactory, allocator, params);
+    }
+
+    public NHttpClientConnection createConnection(final IOSession session) throws IOException {
+        SSLContext sslcontext = this.sslcontext != null ? this.sslcontext : getDefaultSSLContext();
+        SSLIOSession ssliosession = new SSLIOSession(session, sslcontext, this.sslHandler);
+        ssliosession.bind(SSLMode.CLIENT, this.params);
+        session.setAttribute(IOSession.SSL_SESSION_KEY, ssliosession);
+        return createConnection(ssliosession, this.responseFactory, this.allocator, this.params);
     }
 
 }

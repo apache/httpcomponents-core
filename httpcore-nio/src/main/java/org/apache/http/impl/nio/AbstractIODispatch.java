@@ -37,7 +37,7 @@ import org.apache.http.nio.reactor.IOSession;
 import org.apache.http.protocol.ExecutionContext;
 
 /**
- * Abstract {@link IOEventDispatch} implementation that supports both plain (unencrypted)
+ * Abstract {@link IOEventDispatch} implementation that supports both plain (non-encrypted)
  * and SSL encrypted HTTP connections.
  *
  * @since 4.2
