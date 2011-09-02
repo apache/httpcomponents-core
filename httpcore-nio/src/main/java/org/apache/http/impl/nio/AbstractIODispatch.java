@@ -43,7 +43,7 @@ import org.apache.http.protocol.ExecutionContext;
  * @since 4.2
  */
 @Immutable // provided injected dependencies are immutable
-public abstract class AbstractIOEventDispatch<T extends NHttpConnection> implements IOEventDispatch {
+public abstract class AbstractIODispatch<T extends NHttpConnection> implements IOEventDispatch {
 
 	protected abstract T createConnection(IOSession session);
 

@@ -59,7 +59,7 @@ import org.apache.http.params.HttpParams;
  * @since 4.0
  */
 @Immutable // provided injected dependencies are immutable
-public class DefaultClientIOEventDispatch extends AbstractIOEventDispatch<NHttpClientIOTarget> {
+public class DefaultClientIOEventDispatch extends AbstractIODispatch<NHttpClientIOTarget> {
 
     protected final NHttpClientHandler handler;
     protected final ByteBufferAllocator allocator;
