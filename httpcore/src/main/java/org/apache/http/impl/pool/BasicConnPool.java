@@ -27,64 +27,30 @@
 package org.apache.http.impl.pool;
 
 import java.io.IOException;
-import java.net.InetSocketAddress;
-import java.net.Socket;
 import java.util.concurrent.atomic.AtomicLong;
-
-import javax.net.ssl.SSLSocketFactory;
 
 import org.apache.http.HttpClientConnection;
 import org.apache.http.HttpConnection;
 import org.apache.http.HttpHost;
 import org.apache.http.annotation.ThreadSafe;
-import org.apache.http.impl.DefaultHttpClientConnection;
-import org.apache.http.params.HttpConnectionParams;
 import org.apache.http.params.HttpParams;
 import org.apache.http.pool.AbstractConnPool;
+import org.apache.http.pool.ConnFactory;
 
+/**
+ * @since 4.2
+ */
 @ThreadSafe
 public class BasicConnPool extends AbstractConnPool<HttpHost, HttpClientConnection, BasicPoolEntry> {
 
     private static AtomicLong COUNTER = new AtomicLong();
 
-    private final SSLSocketFactory sslfactory;
-    private final HttpParams params;
-
-    public BasicConnPool(final SSLSocketFactory sslfactory, final HttpParams params) {
-        super(2, 20);
-        if (params == null) {
-            throw new IllegalArgumentException("HTTP params may not be null");
-        }
-        this.sslfactory = sslfactory;
-        this.params = params;
+    public BasicConnPool(final ConnFactory<HttpHost, HttpClientConnection> connFactory) {
+        super(connFactory, 2, 20);
     }
 
     public BasicConnPool(final HttpParams params) {
-        this(null, params);
-    }
-
-    @Override
-    protected HttpClientConnection createConnection(final HttpHost host) throws IOException {
-        DefaultHttpClientConnection conn = new DefaultHttpClientConnection();
-        String scheme = host.getSchemeName();
-        Socket socket = null;
-        if ("http".equalsIgnoreCase(scheme)) {
-            socket = new Socket();
-        } if ("https".equalsIgnoreCase(scheme)) {
-            if (this.sslfactory != null) {
-                socket = this.sslfactory.createSocket();
-            }
-        }
-        if (socket == null) {
-            throw new IOException(scheme + " scheme is not supported");
-        }
-        int connectTimeout = HttpConnectionParams.getConnectionTimeout(this.params);
-        int soTimeout = HttpConnectionParams.getSoTimeout(this.params);
-
-        socket.setSoTimeout(soTimeout);
-        socket.connect(new InetSocketAddress(host.getHostName(), host.getPort()), connectTimeout);
-        conn.bind(socket, this.params);
-        return conn;
+        super(new BasicConnFactory(params), 2, 20);
     }
 
     @Override

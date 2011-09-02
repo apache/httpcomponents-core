@@ -24,21 +24,16 @@
  * <http://www.apache.org/>.
  *
  */
-package org.apache.http.impl.pool;
 
-import org.apache.http.HttpClientConnection;
-import org.apache.http.HttpHost;
-import org.apache.http.annotation.ThreadSafe;
-import org.apache.http.pool.PoolEntry;
+package org.apache.http.pool;
+
+import java.io.IOException;
 
 /**
  * @since 4.2
  */
-@ThreadSafe
-public class BasicPoolEntry extends PoolEntry<HttpHost, HttpClientConnection> {
+public interface ConnFactory<T, C> {
 
-    public BasicPoolEntry(final String id, final HttpHost route, final HttpClientConnection conn) {
-        super(id, route, conn);
-    }
+    C create(T route) throws IOException;
 
 }

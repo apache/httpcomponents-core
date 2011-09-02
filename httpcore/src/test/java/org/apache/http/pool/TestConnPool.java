@@ -42,10 +42,7 @@ public class TestConnPool {
 
     private static final int GRACE_PERIOD = 10000;
 
-    interface HttpConnectionFactory {
-
-        HttpConnection create(String route) throws IOException;
-
+    static interface LocalConnFactory extends ConnFactory<String, HttpConnection> {
     }
 
     static class LocalPoolEntry extends PoolEntry<String, HttpConnection> {
@@ -58,18 +55,10 @@ public class TestConnPool {
 
     static class LocalConnPool extends AbstractConnPool<String, HttpConnection, LocalPoolEntry> {
 
-        private final HttpConnectionFactory connFactory;
-
         public LocalConnPool(
-                final HttpConnectionFactory connFactory,
+                final ConnFactory<String, HttpConnection> connFactory,
                 int defaultMaxPerRoute, int maxTotal) {
-            super(defaultMaxPerRoute, maxTotal);
-            this.connFactory = connFactory;
-        }
-
-        @Override
-        protected HttpConnection createConnection(final String route) throws IOException {
-            return this.connFactory.create(route);
+            super(connFactory, defaultMaxPerRoute, maxTotal);
         }
 
         @Override
@@ -90,7 +79,7 @@ public class TestConnPool {
 
     @Test
     public void testEmptyPool() throws Exception {
-        HttpConnectionFactory connFactory = Mockito.mock(HttpConnectionFactory.class);
+        LocalConnFactory connFactory = Mockito.mock(LocalConnFactory.class);
         LocalConnPool pool = new LocalConnPool(connFactory, 2, 10);
         pool.setDefaultMaxPerRoute(5);
         pool.setMaxPerRoute("somehost", 3);
@@ -107,7 +96,7 @@ public class TestConnPool {
 
     @Test
     public void testInvalidConstruction() throws Exception {
-        HttpConnectionFactory connFactory = Mockito.mock(HttpConnectionFactory.class);
+        LocalConnFactory connFactory = Mockito.mock(LocalConnFactory.class);
         try {
             new LocalConnPool(connFactory, -1, 1);
             Assert.fail("IllegalArgumentException should have been thrown");
@@ -125,7 +114,7 @@ public class TestConnPool {
         HttpConnection conn1 = Mockito.mock(HttpConnection.class);
         HttpConnection conn2 = Mockito.mock(HttpConnection.class);
 
-        HttpConnectionFactory connFactory = Mockito.mock(HttpConnectionFactory.class);
+        LocalConnFactory connFactory = Mockito.mock(LocalConnFactory.class);
         Mockito.when(connFactory.create(Mockito.eq("somehost"))).thenReturn(conn1);
         Mockito.when(connFactory.create(Mockito.eq("otherhost"))).thenReturn(conn2);
 
@@ -160,7 +149,7 @@ public class TestConnPool {
 
     @Test
     public void testLeaseIllegal() throws Exception {
-        HttpConnectionFactory connFactory = Mockito.mock(HttpConnectionFactory.class);
+        LocalConnFactory connFactory = Mockito.mock(LocalConnFactory.class);
         LocalConnPool pool = new LocalConnPool(connFactory, 2, 10);
         try {
             pool.lease(null, null);
@@ -171,7 +160,7 @@ public class TestConnPool {
 
     @Test
     public void testReleaseUnknownEntry() throws Exception {
-        HttpConnectionFactory connFactory = Mockito.mock(HttpConnectionFactory.class);
+        LocalConnFactory connFactory = Mockito.mock(LocalConnFactory.class);
         LocalConnPool pool = new LocalConnPool(connFactory, 2, 10);
         pool.release(new LocalPoolEntry("somehost", Mockito.mock(HttpConnection.class)), true);
     }
@@ -222,7 +211,7 @@ public class TestConnPool {
 
     @Test
     public void testMaxLimits() throws Exception {
-        HttpConnectionFactory connFactory = Mockito.mock(HttpConnectionFactory.class);
+        LocalConnFactory connFactory = Mockito.mock(LocalConnFactory.class);
 
         HttpConnection conn1 = Mockito.mock(HttpConnection.class);
         Mockito.when(connFactory.create(Mockito.eq("somehost"))).thenReturn(conn1);
@@ -321,7 +310,7 @@ public class TestConnPool {
 
     @Test
     public void testConnectionRedistributionOnTotalMaxLimit() throws Exception {
-        HttpConnectionFactory connFactory = Mockito.mock(HttpConnectionFactory.class);
+        LocalConnFactory connFactory = Mockito.mock(LocalConnFactory.class);
 
         HttpConnection conn1 = Mockito.mock(HttpConnection.class);
         HttpConnection conn2 = Mockito.mock(HttpConnection.class);
@@ -425,7 +414,7 @@ public class TestConnPool {
 
     @Test
     public void testStatefulConnectionRedistributionOnPerRouteMaxLimit() throws Exception {
-        HttpConnectionFactory connFactory = Mockito.mock(HttpConnectionFactory.class);
+        LocalConnFactory connFactory = Mockito.mock(LocalConnFactory.class);
 
         HttpConnection conn1 = Mockito.mock(HttpConnection.class);
         HttpConnection conn2 = Mockito.mock(HttpConnection.class);
@@ -485,7 +474,7 @@ public class TestConnPool {
 
     @Test
     public void testCreateNewIfExpired() throws Exception {
-        HttpConnectionFactory connFactory = Mockito.mock(HttpConnectionFactory.class);
+        LocalConnFactory connFactory = Mockito.mock(LocalConnFactory.class);
 
         HttpConnection conn1 = Mockito.mock(HttpConnection.class);
         Mockito.when(connFactory.create(Mockito.eq("somehost"))).thenReturn(conn1);
@@ -519,7 +508,7 @@ public class TestConnPool {
 
     @Test
     public void testCloseExpired() throws Exception {
-        HttpConnectionFactory connFactory = Mockito.mock(HttpConnectionFactory.class);
+        LocalConnFactory connFactory = Mockito.mock(LocalConnFactory.class);
 
         HttpConnection conn1 = Mockito.mock(HttpConnection.class);
         Mockito.when(conn1.isOpen()).thenReturn(Boolean.FALSE);
@@ -560,7 +549,7 @@ public class TestConnPool {
 
     @Test
     public void testLeaseTimeout() throws Exception {
-        HttpConnectionFactory connFactory = Mockito.mock(HttpConnectionFactory.class);
+        LocalConnFactory connFactory = Mockito.mock(LocalConnFactory.class);
 
         HttpConnection conn1 = Mockito.mock(HttpConnection.class);
         Mockito.when(connFactory.create(Mockito.eq("somehost"))).thenReturn(conn1);
@@ -586,7 +575,7 @@ public class TestConnPool {
 
     @Test
     public void testLeaseIOException() throws Exception {
-        HttpConnectionFactory connFactory = Mockito.mock(HttpConnectionFactory.class);
+        LocalConnFactory connFactory = Mockito.mock(LocalConnFactory.class);
         Mockito.doThrow(new IOException("Oppsie")).when(connFactory).create("somehost");
 
         LocalConnPool pool = new LocalConnPool(connFactory, 2, 10);
@@ -604,7 +593,7 @@ public class TestConnPool {
 
     @Test
     public void testLeaseCacnel() throws Exception {
-        HttpConnectionFactory connFactory = Mockito.mock(HttpConnectionFactory.class);
+        LocalConnFactory connFactory = Mockito.mock(LocalConnFactory.class);
 
         HttpConnection conn1 = Mockito.mock(HttpConnection.class);
         Mockito.when(connFactory.create(Mockito.eq("somehost"))).thenReturn(conn1);
@@ -639,7 +628,7 @@ public class TestConnPool {
 
     @Test
     public void testCloseIdle() throws Exception {
-        HttpConnectionFactory connFactory = Mockito.mock(HttpConnectionFactory.class);
+        LocalConnFactory connFactory = Mockito.mock(LocalConnFactory.class);
 
         HttpConnection conn1 = Mockito.mock(HttpConnection.class);
         HttpConnection conn2 = Mockito.mock(HttpConnection.class);
@@ -689,21 +678,21 @@ public class TestConnPool {
 
     @Test(expected=IllegalArgumentException.class)
     public void testCloseIdleInvalid() throws Exception {
-        HttpConnectionFactory connFactory = Mockito.mock(HttpConnectionFactory.class);
+        LocalConnFactory connFactory = Mockito.mock(LocalConnFactory.class);
         LocalConnPool pool = new LocalConnPool(connFactory, 2, 2);
         pool.closeIdle(50, null);
     }
 
     @Test(expected=IllegalArgumentException.class)
     public void testGetStatsInvalid() throws Exception {
-        HttpConnectionFactory connFactory = Mockito.mock(HttpConnectionFactory.class);
+        LocalConnFactory connFactory = Mockito.mock(LocalConnFactory.class);
         LocalConnPool pool = new LocalConnPool(connFactory, 2, 2);
         pool.getStats(null);
     }
 
     @Test
     public void testSetMaxInvalid() throws Exception {
-        HttpConnectionFactory connFactory = Mockito.mock(HttpConnectionFactory.class);
+        LocalConnFactory connFactory = Mockito.mock(LocalConnFactory.class);
         LocalConnPool pool = new LocalConnPool(connFactory, 2, 2);
         try {
             pool.setMaxTotal(-1);
@@ -729,7 +718,7 @@ public class TestConnPool {
 
     @Test
     public void testShutdown() throws Exception {
-        HttpConnectionFactory connFactory = Mockito.mock(HttpConnectionFactory.class);
+        LocalConnFactory connFactory = Mockito.mock(LocalConnFactory.class);
 
         HttpConnection conn1 = Mockito.mock(HttpConnection.class);
         Mockito.when(connFactory.create(Mockito.eq("somehost"))).thenReturn(conn1);

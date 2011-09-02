@@ -65,6 +65,7 @@ import org.apache.http.pool.PoolStats;
 public abstract class AbstractNIOConnPool<T, C, E extends PoolEntry<T, C>> implements ConnPoolControl<T> {
 
     private final ConnectingIOReactor ioreactor;
+    private final NIOConnFactory<T, C> connFactory;
     private final SessionRequestCallback sessionRequestCallback;
     private final Map<T, RouteSpecificPool<T, C, E>> routeToPool;
     private final LinkedList<LeaseRequest<T, C, E>> leasingRequests;
@@ -80,11 +81,15 @@ public abstract class AbstractNIOConnPool<T, C, E extends PoolEntry<T, C>> imple
 
     public AbstractNIOConnPool(
             final ConnectingIOReactor ioreactor,
+            final NIOConnFactory<T, C> connFactory,
             int defaultMaxPerRoute,
             int maxTotal) {
         super();
         if (ioreactor == null) {
             throw new IllegalArgumentException("I/O reactor may not be null");
+        }
+        if (connFactory == null) {
+            throw new IllegalArgumentException("Connection factory may not null");
         }
         if (defaultMaxPerRoute <= 0) {
             throw new IllegalArgumentException("Max per route value may not be negative or zero");
@@ -93,6 +98,7 @@ public abstract class AbstractNIOConnPool<T, C, E extends PoolEntry<T, C>> imple
             throw new IllegalArgumentException("Max total value may not be negative or zero");
         }
         this.ioreactor = ioreactor;
+        this.connFactory = connFactory;
         this.sessionRequestCallback = new InternalSessionRequestCallback();
         this.routeToPool = new HashMap<T, RouteSpecificPool<T, C, E>>();
         this.leasingRequests = new LinkedList<LeaseRequest<T, C, E>>();
@@ -108,8 +114,6 @@ public abstract class AbstractNIOConnPool<T, C, E extends PoolEntry<T, C>> imple
     protected abstract SocketAddress resolveRemoteAddress(T route);
 
     protected abstract SocketAddress resolveLocalAddress(T route);
-
-    protected abstract C createConnection(T route, IOSession session) throws IOException;
 
     protected abstract E createEntry(T route, C conn);
 
@@ -346,7 +350,7 @@ public abstract class AbstractNIOConnPool<T, C, E extends PoolEntry<T, C>> imple
             RouteSpecificPool<T, C, E> pool = getPool(route);
             IOSession session = request.getSession();
             try {
-                C conn = createConnection(route, session);
+                C conn = this.connFactory.create(route, session);
                 E entry = pool.completed(request, conn);
                 this.leased.add(entry);
             } catch (IOException ex) {

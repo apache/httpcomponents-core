@@ -24,21 +24,18 @@
  * <http://www.apache.org/>.
  *
  */
-package org.apache.http.impl.pool;
 
-import org.apache.http.HttpClientConnection;
-import org.apache.http.HttpHost;
-import org.apache.http.annotation.ThreadSafe;
-import org.apache.http.pool.PoolEntry;
+package org.apache.http.nio.pool;
+
+import java.io.IOException;
+
+import org.apache.http.nio.reactor.IOSession;
 
 /**
  * @since 4.2
  */
-@ThreadSafe
-public class BasicPoolEntry extends PoolEntry<HttpHost, HttpClientConnection> {
+public interface NIOConnFactory<T, C> {
 
-    public BasicPoolEntry(final String id, final HttpHost route, final HttpClientConnection conn) {
-        super(id, route, conn);
-    }
+    C create(T route, IOSession session) throws IOException;
 
 }

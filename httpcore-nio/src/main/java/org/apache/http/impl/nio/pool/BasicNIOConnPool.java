@@ -33,29 +33,18 @@ import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicLong;
 
-import javax.net.ssl.SSLContext;
-
 import org.apache.http.HttpHost;
-import org.apache.http.HttpResponseFactory;
 import org.apache.http.annotation.ThreadSafe;
 import org.apache.http.concurrent.FutureCallback;
-import org.apache.http.impl.DefaultHttpResponseFactory;
-import org.apache.http.impl.nio.DefaultNHttpClientConnection;
-import org.apache.http.impl.nio.reactor.SSLIOSession;
-import org.apache.http.impl.nio.reactor.SSLMode;
-import org.apache.http.impl.nio.reactor.SSLSetupHandler;
 import org.apache.http.nio.NHttpClientConnection;
 import org.apache.http.nio.pool.AbstractNIOConnPool;
+import org.apache.http.nio.pool.NIOConnFactory;
 import org.apache.http.nio.reactor.ConnectingIOReactor;
-import org.apache.http.nio.reactor.IOSession;
-import org.apache.http.nio.util.ByteBufferAllocator;
-import org.apache.http.nio.util.HeapByteBufferAllocator;
 import org.apache.http.params.HttpConnectionParams;
 import org.apache.http.params.HttpParams;
-import org.apache.http.protocol.ExecutionContext;
 
 /**
- * Basic non-blocking {@link IOSession} pool.
+ * Basic non-blocking {@link NHttpClientConnection} pool.
  * <p>
  * The following parameters can be used to customize the behavior of this
  * class:
@@ -75,49 +64,22 @@ public class BasicNIOConnPool extends AbstractNIOConnPool<HttpHost, NHttpClientC
 
     private static AtomicLong COUNTER = new AtomicLong();
 
-    private final HttpResponseFactory responseFactory;
-    private final ByteBufferAllocator allocator;
-    private final SSLContext sslcontext;
-    private final SSLSetupHandler sslHandler;
     private final HttpParams params;
 
     public BasicNIOConnPool(
             final ConnectingIOReactor ioreactor,
-            final SSLContext sslcontext,
-            final SSLSetupHandler sslHandler,
-            final HttpResponseFactory responseFactory,
-            final ByteBufferAllocator allocator,
+            final NIOConnFactory<HttpHost, NHttpClientConnection> connFactory,
             final HttpParams params) {
-        super(ioreactor, 2, 20);
-        if (responseFactory == null) {
-            throw new IllegalArgumentException("HTTP response factory may not be null");
-        }
-        if (allocator == null) {
-            throw new IllegalArgumentException("Byte buffer allocator may not be null");
-        }
+        super(ioreactor, connFactory, 2, 20);
         if (params == null) {
             throw new IllegalArgumentException("HTTP parameters may not be null");
         }
-        this.sslcontext = sslcontext;
-        this.sslHandler = sslHandler;
-        this.responseFactory = responseFactory;
-        this.allocator = allocator;
         this.params = params;
     }
 
     public BasicNIOConnPool(
-            final ConnectingIOReactor ioreactor,
-            final SSLContext sslcontext,
-            final SSLSetupHandler sslHandler,
-            final HttpParams params) {
-        this(ioreactor, sslcontext, sslHandler,
-                new DefaultHttpResponseFactory(), new HeapByteBufferAllocator(), params);
-    }
-
-    public BasicNIOConnPool(
-            final ConnectingIOReactor ioreactor,
-            final HttpParams params) {
-        this(ioreactor, null, null, params);
+            final ConnectingIOReactor ioreactor, final HttpParams params) {
+        this(ioreactor, new BasicNIOConnFactory(params), params);
     }
 
     @Override
@@ -128,42 +90,6 @@ public class BasicNIOConnPool extends AbstractNIOConnPool<HttpHost, NHttpClientC
     @Override
     protected SocketAddress resolveLocalAddress(final HttpHost host) {
         return null;
-    }
-
-    private SSLContext getDefaultSSLContext() {
-        SSLContext sslcontext;
-        try {
-            sslcontext = SSLContext.getInstance("TLS");
-            sslcontext.init(null, null, null);
-        } catch (Exception ex) {
-            throw new IllegalStateException("Failure initializing default SSL context", ex);
-        }
-        return sslcontext;
-    }
-
-    @Override
-    protected NHttpClientConnection createConnection(
-            final HttpHost route, final IOSession session) throws IOException {
-        IOSession connSession;
-        if (route.getSchemeName().equalsIgnoreCase("https")) {
-            SSLContext connSSLContext = this.sslcontext != null ? this.sslcontext : getDefaultSSLContext();
-            SSLIOSession ssliosession = new SSLIOSession(session, connSSLContext, this.sslHandler);
-            ssliosession.bind(SSLMode.CLIENT, this.params);
-            session.setAttribute(IOSession.SSL_SESSION_KEY, ssliosession);
-            connSession = ssliosession;
-        } else {
-            connSession = session;
-        }
-
-        NHttpClientConnection conn = new DefaultNHttpClientConnection(
-                connSession, this.responseFactory, this.allocator, this.params);
-
-        session.setAttribute(ExecutionContext.HTTP_CONNECTION, conn);
-
-        int timeout = HttpConnectionParams.getSoTimeout(this.params);
-        conn.setSocketTimeout(timeout);
-
-        return conn;
     }
 
     @Override

@@ -27,7 +27,6 @@
 package org.apache.http.impl.pool;
 
 import static org.junit.Assert.assertEquals;
-import static org.mockito.Mockito.when;
 
 import java.net.ServerSocket;
 
@@ -37,20 +36,20 @@ import javax.net.ssl.SSLSocketFactory;
 
 import org.apache.http.HttpClientConnection;
 import org.apache.http.HttpHost;
+import org.apache.http.params.BasicHttpParams;
 import org.apache.http.params.CoreConnectionPNames;
 import org.apache.http.params.HttpParams;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
 
 public class TestBasicConnPool {
 
+    private BasicConnFactory connFactory;
     private BasicConnPool pool;
     private HttpHost host;
-    @Mock private HttpParams params;
-    private HttpClientConnection conn = null;
+    private HttpParams params;
+    private HttpClientConnection conn;
 
     private ServerSocket server;
     private int serverPort;
@@ -60,8 +59,6 @@ public class TestBasicConnPool {
 
     @Before
     public void setUp() throws Exception {
-        MockitoAnnotations.initMocks(this);
-
         // setup an "http" server
         server = new ServerSocket(0);
         serverPort = server.getLocalPort();
@@ -70,11 +67,11 @@ public class TestBasicConnPool {
         sslServer = (SSLServerSocket) SSLServerSocketFactory.getDefault().createServerSocket(0);
         sslServerPort = sslServer.getLocalPort();
 
-        pool = new BasicConnPool(params);
-
-        when(params.getIntParameter(CoreConnectionPNames.CONNECTION_TIMEOUT, 0)).thenReturn(100);
-        when(params.getIntParameter(CoreConnectionPNames.SO_TIMEOUT, 0)).thenReturn(100);
-
+        params = new BasicHttpParams();
+        params.setIntParameter(CoreConnectionPNames.SO_TIMEOUT, 100);
+        params.setIntParameter(CoreConnectionPNames.CONNECTION_TIMEOUT, 100);
+        connFactory = new BasicConnFactory(params);
+        pool = new BasicConnPool(connFactory);
     }
 
     @After
@@ -87,14 +84,19 @@ public class TestBasicConnPool {
     }
 
     @Test(expected=IllegalArgumentException.class)
-    public void testNullConstructor() throws Exception {
-        pool = new BasicConnPool(null, null);
+    public void testNullConstructor1() throws Exception {
+        new BasicConnPool((HttpParams) null);
+    }
+
+    @Test(expected=IllegalArgumentException.class)
+    public void testNullConstructor2() throws Exception {
+        new BasicConnPool((BasicConnFactory) null);
     }
 
     @Test
     public void testHttpCreateConnection() throws Exception {
         host = new HttpHost("localhost", serverPort, "http");
-        conn = pool.createConnection(host);
+        conn = connFactory.create(host);
 
         assertEquals(true, conn.isOpen());
         assertEquals(100, conn.getSocketTimeout());
@@ -102,9 +104,9 @@ public class TestBasicConnPool {
 
     @Test
     public void testHttpsCreateConnection() throws Exception {
-        pool = new BasicConnPool((SSLSocketFactory)SSLSocketFactory.getDefault(), params);
+        connFactory = new BasicConnFactory((SSLSocketFactory)SSLSocketFactory.getDefault(), params);
         host = new HttpHost("localhost", sslServerPort, "https");
-        conn = pool.createConnection(host);
+        conn = connFactory.create(host);
 
         assertEquals(true, conn.isOpen());
         assertEquals(100, conn.getSocketTimeout());
@@ -113,7 +115,7 @@ public class TestBasicConnPool {
     @Test
     public void testHttpCreateEntry() throws Exception {
         host = new HttpHost("localhost", serverPort, "http");
-        conn = pool.createConnection(host);
+        conn = connFactory.create(host);
 
         BasicPoolEntry entry = pool.createEntry(host, conn);
 

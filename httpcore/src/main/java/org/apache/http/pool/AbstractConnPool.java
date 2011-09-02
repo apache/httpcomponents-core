@@ -55,6 +55,7 @@ import org.apache.http.annotation.ThreadSafe;
 public abstract class AbstractConnPool<T, C, E extends PoolEntry<T, C>> implements ConnPoolControl<T> {
 
     private final Lock lock;
+    private final ConnFactory<T, C> connFactory;
     private final Map<T, RouteSpecificPool<T, C, E>> routeToPool;
     private final Set<E> leased;
     private final LinkedList<E> available;
@@ -66,9 +67,13 @@ public abstract class AbstractConnPool<T, C, E extends PoolEntry<T, C>> implemen
     private volatile int maxTotal;
 
     public AbstractConnPool(
+            final ConnFactory<T, C> connFactory,
             int defaultMaxPerRoute,
             int maxTotal) {
         super();
+        if (connFactory == null) {
+            throw new IllegalArgumentException("Connection factory may not null");
+        }
         if (defaultMaxPerRoute <= 0) {
             throw new IllegalArgumentException("Max per route value may not be negative or zero");
         }
@@ -76,6 +81,7 @@ public abstract class AbstractConnPool<T, C, E extends PoolEntry<T, C>> implemen
             throw new IllegalArgumentException("Max total value may not be negative or zero");
         }
         this.lock = new ReentrantLock();
+        this.connFactory = connFactory;
         this.routeToPool = new HashMap<T, RouteSpecificPool<T, C, E>>();
         this.leased = new HashSet<E>();
         this.available = new LinkedList<E>();
@@ -84,8 +90,6 @@ public abstract class AbstractConnPool<T, C, E extends PoolEntry<T, C>> implemen
         this.defaultMaxPerRoute = defaultMaxPerRoute;
         this.maxTotal = maxTotal;
     }
-
-    protected abstract C createConnection(T route) throws IOException;
 
     protected abstract E createEntry(T route, C conn);
 
@@ -228,7 +232,7 @@ public abstract class AbstractConnPool<T, C, E extends PoolEntry<T, C>> implemen
                                 otherpool.remove(lastUsed);
                             }
                         }
-                        C conn = createConnection(route);
+                        C conn = this.connFactory.create(route);
                         entry = pool.add(conn);
                         this.leased.add(entry);
                         return entry;

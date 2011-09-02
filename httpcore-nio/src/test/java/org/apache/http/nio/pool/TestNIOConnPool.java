@@ -56,11 +56,19 @@ public class TestNIOConnPool {
 
     }
 
+    static class LocalConnFactory implements NIOConnFactory<String, IOSession> {
+
+        public IOSession create(String route, IOSession session) throws IOException {
+            return session;
+        }
+
+    }
+
     static class LocalSessionPool extends AbstractNIOConnPool<String, IOSession, LocalPoolEntry> {
 
         public LocalSessionPool(
                 final ConnectingIOReactor ioreactor, int defaultMaxPerRoute, int maxTotal) {
-            super(ioreactor, defaultMaxPerRoute, maxTotal);
+            super(ioreactor, new LocalConnFactory(), defaultMaxPerRoute, maxTotal);
         }
 
         @Override
@@ -71,11 +79,6 @@ public class TestNIOConnPool {
         @Override
         protected SocketAddress resolveLocalAddress(final String route) {
             return InetSocketAddress.createUnresolved(route, 80);
-        }
-
-        @Override
-        protected IOSession createConnection(final String route, final IOSession session) {
-            return session;
         }
 
         @Override

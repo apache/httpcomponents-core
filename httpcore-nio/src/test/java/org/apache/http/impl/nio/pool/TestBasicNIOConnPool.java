@@ -31,6 +31,7 @@ import org.apache.http.nio.NHttpClientConnection;
 import org.apache.http.nio.reactor.ConnectingIOReactor;
 import org.apache.http.nio.reactor.IOSession;
 import org.apache.http.params.BasicHttpParams;
+import org.apache.http.params.HttpParams;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -39,6 +40,8 @@ import org.mockito.MockitoAnnotations;
 
 public class TestBasicNIOConnPool {
 
+    private HttpParams params;
+    private BasicNIOConnFactory connFactory;
     private BasicNIOConnPool pool;
     private HttpHost route;
     @Mock private ConnectingIOReactor reactor;
@@ -49,8 +52,9 @@ public class TestBasicNIOConnPool {
         MockitoAnnotations.initMocks(this);
 
         route = new HttpHost("localhost", 80, "http");
-
-        pool = new BasicNIOConnPool(reactor, new BasicHttpParams());
+        params = new BasicHttpParams();
+        connFactory = new BasicNIOConnFactory(params);
+        pool = new BasicNIOConnPool(reactor, connFactory, params);
     }
 
     @After
@@ -69,12 +73,12 @@ public class TestBasicNIOConnPool {
 
     @Test
     public void testCreateConnection() throws Exception {
-        pool.createConnection(route, session);
+        connFactory.create(route, session);
     }
 
     @Test
     public void testCreateEntry() throws Exception {
-        NHttpClientConnection conn = pool.createConnection(route, session);
+        NHttpClientConnection conn = connFactory.create(route, session);
         BasicNIOPoolEntry entry = pool.createEntry(route, conn);
 
         pool.closeEntry(entry);

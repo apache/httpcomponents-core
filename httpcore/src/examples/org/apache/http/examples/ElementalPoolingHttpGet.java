@@ -38,6 +38,7 @@ import org.apache.http.HttpRequestInterceptor;
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpVersion;
 import org.apache.http.impl.DefaultConnectionReuseStrategy;
+import org.apache.http.impl.pool.BasicConnFactory;
 import org.apache.http.impl.pool.BasicConnPool;
 import org.apache.http.impl.pool.BasicPoolEntry;
 import org.apache.http.message.BasicHttpRequest;
@@ -85,7 +86,7 @@ public class ElementalPoolingHttpGet {
 
         final HttpRequestExecutor httpexecutor = new HttpRequestExecutor();
 
-        final BasicConnPool pool = new BasicConnPool(params);
+        final BasicConnPool pool = new BasicConnPool(new BasicConnFactory(params));
         pool.setDefaultMaxPerRoute(2);
         pool.setMaxTotal(2);
 
