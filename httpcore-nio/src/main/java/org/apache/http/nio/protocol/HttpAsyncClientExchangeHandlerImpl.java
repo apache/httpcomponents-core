@@ -34,6 +34,7 @@ import org.apache.http.HttpException;
 import org.apache.http.HttpHost;
 import org.apache.http.HttpRequest;
 import org.apache.http.HttpResponse;
+import org.apache.http.concurrent.BasicFuture;
 import org.apache.http.nio.ContentDecoder;
 import org.apache.http.nio.ContentEncoder;
 import org.apache.http.nio.IOControl;
@@ -46,6 +47,7 @@ import org.apache.http.protocol.HttpProcessor;
 
 class HttpAsyncClientExchangeHandlerImpl<T> implements HttpAsyncClientExchangeHandler<T> {
 
+    private final BasicFuture<T> future;
     private final HttpAsyncRequestProducer requestProducer;
     private final HttpAsyncResponseConsumer<T> responseConsumer;
     private final HttpContext localContext;
@@ -55,6 +57,7 @@ class HttpAsyncClientExchangeHandlerImpl<T> implements HttpAsyncClientExchangeHa
     private final HttpParams params;
 
     public HttpAsyncClientExchangeHandlerImpl(
+            final BasicFuture<T> future,
             final HttpAsyncRequestProducer requestProducer,
             final HttpAsyncResponseConsumer<T> responseConsumer,
             final HttpContext localContext,
@@ -63,6 +66,9 @@ class HttpAsyncClientExchangeHandlerImpl<T> implements HttpAsyncClientExchangeHa
             final ConnectionReuseStrategy reuseStrategy,
             final HttpParams params) {
         super();
+        if (future == null) {
+            throw new IllegalArgumentException("Request future may not be null");
+        }
         if (requestProducer == null) {
             throw new IllegalArgumentException("Request producer may not be null");
         }
@@ -84,6 +90,7 @@ class HttpAsyncClientExchangeHandlerImpl<T> implements HttpAsyncClientExchangeHa
         if (params == null) {
             throw new IllegalArgumentException("HTTP parameters may not be null");
         }
+        this.future = future;
         this.requestProducer = requestProducer;
         this.responseConsumer = responseConsumer;
         this.localContext = localContext;
@@ -93,9 +100,22 @@ class HttpAsyncClientExchangeHandlerImpl<T> implements HttpAsyncClientExchangeHa
         this.params = params;
     }
 
+    private void releaseResources() {
+        try {
+            this.responseConsumer.close();
+        } catch (IOException ex) {
+        }
+        try {
+            this.requestProducer.close();
+        } catch (IOException ex) {
+        }
+    }
+
     public void close() throws IOException {
-        this.responseConsumer.close();
-        this.requestProducer.close();
+        releaseResources();
+        if (!this.future.isDone()) {
+            this.future.cancel(true);
+        }
     }
 
     public HttpHost getTarget() {
@@ -143,16 +163,41 @@ class HttpAsyncClientExchangeHandlerImpl<T> implements HttpAsyncClientExchangeHa
         this.responseConsumer.consumeContent(decoder, ioctrl);
     }
 
-    public void responseCompleted(final HttpContext context) {
-        this.responseConsumer.responseCompleted(context);
-    }
-
     public void failed(final Exception ex) {
-        this.responseConsumer.failed(ex);
+        try {
+            this.responseConsumer.failed(ex);
+        } finally {
+            try {
+                this.future.failed(ex);
+            } finally {
+                releaseResources();
+            }
+        }
     }
 
     public void cancel() {
-        this.responseConsumer.cancel();
+        try {
+            this.responseConsumer.cancel();
+        } catch (RuntimeException ex) {
+            failed(ex);
+            throw ex;
+        }
+    }
+
+    public void responseCompleted(final HttpContext context) {
+        try {
+            this.responseConsumer.responseCompleted(context);
+            T result = this.responseConsumer.getResult();
+            Exception ex = this.responseConsumer.getException();
+            if (ex == null) {
+                this.future.completed(result);
+            } else {
+                this.future.failed(ex);
+            }
+        } catch (RuntimeException ex) {
+            failed(ex);
+            throw ex;
+        }
     }
 
     public T getResult() {
