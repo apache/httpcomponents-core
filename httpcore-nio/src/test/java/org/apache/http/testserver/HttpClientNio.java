@@ -37,11 +37,11 @@ import org.apache.http.impl.nio.reactor.ExceptionEvent;
 import org.apache.http.nio.NHttpClientHandler;
 import org.apache.http.nio.NHttpClientIOTarget;
 import org.apache.http.nio.NHttpConnectionFactory;
+import org.apache.http.nio.reactor.ConnectingIOReactor;
 import org.apache.http.nio.reactor.IOEventDispatch;
 import org.apache.http.nio.reactor.IOReactorExceptionHandler;
 import org.apache.http.nio.reactor.IOReactorStatus;
 import org.apache.http.nio.reactor.SessionRequest;
-import org.apache.http.params.HttpParams;
 
 public class HttpClientNio {
 
@@ -61,11 +61,6 @@ public class HttpClientNio {
         this.ioReactor.setExceptionHandler(exceptionHandler);
     }
 
-    protected IOEventDispatch createIOEventDispatch(
-            final NHttpClientHandler clientHandler, final HttpParams params) {
-        return new DefaultClientIODispatch(clientHandler, params);
-    }
-
     private void execute(final NHttpClientHandler clientHandler) throws IOException {
         IOEventDispatch ioEventDispatch = new DefaultClientIODispatch(clientHandler, this.connFactory);
         this.ioReactor.execute(ioEventDispatch);
@@ -78,6 +73,10 @@ public class HttpClientNio {
     public void start(final NHttpClientHandler clientHandler) {
         this.thread = new IOReactorThread(clientHandler);
         this.thread.start();
+    }
+
+    public ConnectingIOReactor getIoReactor() {
+        return this.ioReactor;
     }
 
     public IOReactorStatus getStatus() {

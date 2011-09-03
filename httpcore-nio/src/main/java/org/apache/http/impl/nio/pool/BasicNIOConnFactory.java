@@ -73,11 +73,13 @@ public class BasicNIOConnFactory implements NIOConnFactory<HttpHost, NHttpClient
         if (plainFactory == null) {
             throw new IllegalArgumentException("Plain HTTP client connection factory may not be null");
         }
-        if (sslFactory == null) {
-            throw new IllegalArgumentException("SSL HTTP client connection factory may not be null");
-        }
         this.plainFactory = plainFactory;
         this.sslFactory = sslFactory;
+    }
+
+    public BasicNIOConnFactory(
+            final NHttpConnectionFactory<? extends NHttpClientConnection> plainFactory) {
+        this(plainFactory, null);
     }
 
     public BasicNIOConnFactory(
@@ -107,6 +109,9 @@ public class BasicNIOConnFactory implements NIOConnFactory<HttpHost, NHttpClient
     public NHttpClientConnection create(final HttpHost route, final IOSession session) throws IOException {
         NHttpClientConnection conn;
         if (route.getSchemeName().equalsIgnoreCase("https")) {
+            if (this.sslFactory == null) {
+                throw new IOException("SSL not supported");
+            }
             conn = this.sslFactory.createConnection(session);
         } else {
             conn = this.plainFactory.createConnection(session);

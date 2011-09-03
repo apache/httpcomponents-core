@@ -68,15 +68,13 @@ import org.junit.Test;
 public class TestBaseIOReactorSSL extends HttpCoreNIOTestBase {
 
     @Before
-    @Override
-    public void initServer() throws Exception {
-        super.initServer();
+    public void setUp() throws Exception {
+        initServer();
     }
 
     @After
-    @Override
-    public void shutDownServer() throws Exception {
-        super.shutDownServer();
+    public void tearDown() throws Exception {
+        shutDownServer();
     }
 
     @Override

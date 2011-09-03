@@ -27,6 +27,8 @@
 
 package org.apache.http;
 
+import org.apache.http.impl.nio.pool.BasicNIOConnFactory;
+import org.apache.http.impl.nio.pool.BasicNIOConnPool;
 import org.apache.http.nio.NHttpClientIOTarget;
 import org.apache.http.nio.NHttpConnectionFactory;
 import org.apache.http.nio.NHttpServerIOTarget;
@@ -47,6 +49,7 @@ import org.apache.http.protocol.ResponseDate;
 import org.apache.http.protocol.ResponseServer;
 import org.apache.http.testserver.HttpClientNio;
 import org.apache.http.testserver.HttpServerNio;
+import org.junit.After;
 
 /**
  * Base class for all HttpCore NIO tests
@@ -60,6 +63,7 @@ public abstract class HttpCoreNIOTestBase {
     protected HttpClientNio client;
     protected HttpProcessor serverHttpProc;
     protected HttpProcessor clientHttpProc;
+    protected BasicNIOConnPool connpool;
 
     protected abstract NHttpConnectionFactory<NHttpServerIOTarget> createServerConnectionFactory(
             HttpParams params) throws Exception;
@@ -105,15 +109,34 @@ public abstract class HttpCoreNIOTestBase {
                 new RequestExpectContinue()});
     }
 
-    public void shutDownClient() throws Exception {
-        if (this.client != null) {
-            this.client.shutdown();
+    public void initConnPool() throws Exception {
+        this.connpool = new BasicNIOConnPool(
+                this.client.getIoReactor(),
+                new BasicNIOConnFactory(createClientConnectionFactory(this.clientParams)),
+                this.clientParams);
+    }
+
+    @After
+    public void shutDownConnPool() throws Exception {
+        if (this.connpool != null) {
+            this.connpool.shutdown(2000);
+            this.connpool = null;
         }
     }
 
+    @After
+    public void shutDownClient() throws Exception {
+        if (this.client != null) {
+            this.client.shutdown();
+            this.client = null;
+        }
+    }
+
+    @After
     public void shutDownServer() throws Exception {
         if (this.server != null) {
             this.server.shutdown();
+            this.server = null;
         }
     }
 

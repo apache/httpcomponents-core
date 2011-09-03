@@ -67,27 +67,15 @@ import org.junit.Test;
 public class TestNIOSSLHttp extends HttpCoreNIOTestBase {
 
     @Before
-    @Override
-    public void initServer() throws Exception {
-        super.initServer();
-    }
-
-    @Before
-    @Override
-    public void initClient() throws Exception {
-        super.initClient();
+    public void setUp() throws Exception {
+        initServer();
+        initClient();
     }
 
     @After
-    @Override
-    public void shutDownClient() throws Exception {
-        super.shutDownClient();
-    }
-
-    @After
-    @Override
-    public void shutDownServer() throws Exception {
-        super.shutDownServer();
+    public void tearDown() throws Exception {
+        shutDownClient();
+        shutDownServer();
     }
 
     @Override

@@ -41,6 +41,7 @@ import org.apache.http.nio.reactor.IOEventDispatch;
 import org.apache.http.nio.reactor.IOReactorExceptionHandler;
 import org.apache.http.nio.reactor.IOReactorStatus;
 import org.apache.http.nio.reactor.ListenerEndpoint;
+import org.apache.http.nio.reactor.ListeningIOReactor;
 
 /**
  * Trivial test server based on HttpCore NIO
@@ -82,6 +83,10 @@ public class HttpServerNio {
         this.endpoint = this.ioReactor.listen(new InetSocketAddress(0));
         this.thread = new IOReactorThread(serviceHandler);
         this.thread.start();
+    }
+
+    public ListeningIOReactor getIoReactor() {
+        return this.ioReactor;
     }
 
     public IOReactorStatus getStatus() {
