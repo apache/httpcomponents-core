@@ -128,7 +128,7 @@ public class DefaultClientIOEventDispatch extends AbstractIODispatch<NHttpClient
      * @return newly created HTTP connection.
      */
     @Override
-	protected NHttpClientIOTarget createConnection(final IOSession session) {
+    protected NHttpClientIOTarget createConnection(final IOSession session) {
         return new DefaultNHttpClientConnection(
                 session,
                 createHttpResponseFactory(),
@@ -137,37 +137,37 @@ public class DefaultClientIOEventDispatch extends AbstractIODispatch<NHttpClient
     }
 
     @Override
-	protected void onConnected(final NHttpClientIOTarget conn) {
+    protected void onConnected(final NHttpClientIOTarget conn) {
         int timeout = HttpConnectionParams.getSoTimeout(this.params);
         conn.setSocketTimeout(timeout);
 
         Object attachment = conn.getContext().getAttribute(IOSession.ATTACHMENT_KEY);
         this.handler.connected(conn, attachment);
-	}
+    }
 
     @Override
-	protected void onClosed(final NHttpClientIOTarget conn) {
+    protected void onClosed(final NHttpClientIOTarget conn) {
         this.handler.closed(conn);
-	}
+    }
 
-	@Override
-	protected void onException(final NHttpClientIOTarget conn, IOException ex) {
+    @Override
+    protected void onException(final NHttpClientIOTarget conn, IOException ex) {
         this.handler.exception(conn, ex);
-	}
+    }
 
-	@Override
-	protected void onInputReady(final NHttpClientIOTarget conn) {
+    @Override
+    protected void onInputReady(final NHttpClientIOTarget conn) {
         conn.consumeInput(this.handler);
-	}
+    }
 
-	@Override
-	protected void onOutputReady(final NHttpClientIOTarget conn) {
+    @Override
+    protected void onOutputReady(final NHttpClientIOTarget conn) {
         conn.produceOutput(this.handler);
-	}
+    }
 
-	@Override
-	protected void onTimeout(final NHttpClientIOTarget conn) {
+    @Override
+    protected void onTimeout(final NHttpClientIOTarget conn) {
         this.handler.timeout(conn);
-	}
+    }
 
 }

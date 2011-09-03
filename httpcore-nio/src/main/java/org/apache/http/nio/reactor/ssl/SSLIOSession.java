@@ -161,38 +161,38 @@ public class SSLIOSession implements IOSession, SessionBufferStatus {
     // sun.security.pkcs11.wrapper.PKCS11Exception is re-thrown as
     // plain RuntimeException in sun.security.ssl.Handshaker#checkThrown
     private SSLException convert(final RuntimeException ex) throws SSLException {
-		Throwable cause = ex.getCause();
-		if (cause == null) {
-			cause = ex;
-		}
-		return new SSLException(cause);
+        Throwable cause = ex.getCause();
+        if (cause == null) {
+            cause = ex;
+        }
+        return new SSLException(cause);
     }
 
     private SSLEngineResult doWrap(final ByteBuffer src, final ByteBuffer dst) throws SSLException {
-    	try {
-        	return this.sslEngine.wrap(src, dst);
-    	} catch (RuntimeException ex) {
-    		throw convert(ex);
-    	}
+        try {
+            return this.sslEngine.wrap(src, dst);
+        } catch (RuntimeException ex) {
+            throw convert(ex);
+        }
     }
 
     private SSLEngineResult doUnwrap(final ByteBuffer src, final ByteBuffer dst) throws SSLException {
-    	try {
-        	return this.sslEngine.unwrap(src, dst);
-    	} catch (RuntimeException ex) {
-    		throw convert(ex);
-    	}
+        try {
+            return this.sslEngine.unwrap(src, dst);
+        } catch (RuntimeException ex) {
+            throw convert(ex);
+        }
     }
 
     private void doRunTask() throws SSLException {
-    	try {
+        try {
             Runnable r = this.sslEngine.getDelegatedTask();
             if (r != null) {
-            	r.run();
+                r.run();
             }
-    	} catch (RuntimeException ex) {
-    		throw convert(ex);
-    	}
+        } catch (RuntimeException ex) {
+            throw convert(ex);
+        }
     }
 
     private void doHandshake() throws SSLException {
@@ -220,7 +220,7 @@ public class SSLIOSession implements IOSession, SessionBufferStatus {
                 }
                 break;
             case NEED_TASK:
-            	doRunTask();
+                doRunTask();
                 break;
             case NOT_HANDSHAKING:
                 handshaking = false;

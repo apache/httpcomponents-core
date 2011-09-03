@@ -132,11 +132,11 @@ public class SSLClientIOEventDispatch extends DefaultClientIOEventDispatch {
     }
 
     protected NHttpClientIOTarget createSSLConnection(final SSLIOSession ssliosession) {
-    	return super.createConnection(ssliosession);
+        return super.createConnection(ssliosession);
     }
 
     @Override
-	protected NHttpClientIOTarget createConnection(final IOSession session) {
+    protected NHttpClientIOTarget createConnection(final IOSession session) {
         SSLIOSession ssliosession = createSSLIOSession(session, this.sslcontext, this.sslHandler);
         session.setAttribute(SSLIOSession.SESSION_KEY, ssliosession);
         NHttpClientIOTarget conn = createSSLConnection(ssliosession);
@@ -146,10 +146,10 @@ public class SSLClientIOEventDispatch extends DefaultClientIOEventDispatch {
             this.handler.exception(conn, ex);
             ssliosession.shutdown();
         }
-		return conn;
-	}
+        return conn;
+    }
 
-	@Override
+    @Override
     public void onConnected(final NHttpClientIOTarget conn) {
         int timeout = HttpConnectionParams.getSoTimeout(this.params);
         conn.setSocketTimeout(timeout);

@@ -89,28 +89,28 @@ public class DefaultServerIODispatch extends AbstractIODispatch<NHttpServerIOTar
     }
 
     @Override
-	protected void onClosed(final NHttpServerIOTarget conn) {
+    protected void onClosed(final NHttpServerIOTarget conn) {
         this.handler.closed(conn);
-	}
+    }
 
-	@Override
-	protected void onException(final NHttpServerIOTarget conn, IOException ex) {
+    @Override
+    protected void onException(final NHttpServerIOTarget conn, IOException ex) {
         this.handler.exception(conn, ex);
-	}
+    }
 
-	@Override
-	protected void onInputReady(final NHttpServerIOTarget conn) {
+    @Override
+    protected void onInputReady(final NHttpServerIOTarget conn) {
         conn.consumeInput(this.handler);
-	}
+    }
 
-	@Override
-	protected void onOutputReady(final NHttpServerIOTarget conn) {
+    @Override
+    protected void onOutputReady(final NHttpServerIOTarget conn) {
         conn.produceOutput(this.handler);
-	}
+    }
 
-	@Override
-	protected void onTimeout(final NHttpServerIOTarget conn) {
+    @Override
+    protected void onTimeout(final NHttpServerIOTarget conn) {
         this.handler.timeout(conn);
-	}
+    }
 
 }

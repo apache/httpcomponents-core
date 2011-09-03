@@ -52,29 +52,29 @@ public final class ContentType {
 
     // constants
     public static final ContentType APPLICATION_ATOM_XML = new ContentType(
-    		"application/atom+xml", HTTP.DEFAULT_CONTENT_CHARSET);
+            "application/atom+xml", HTTP.DEFAULT_CONTENT_CHARSET);
     public static final ContentType APPLICATION_FORM_URLENCODED = new ContentType(
-    		"application/x-www-form-urlencoded", HTTP.DEFAULT_CONTENT_CHARSET);
+            "application/x-www-form-urlencoded", HTTP.DEFAULT_CONTENT_CHARSET);
     public static final ContentType APPLICATION_JSON = new ContentType(
-    		"application/json", HTTP.DEFAULT_CONTENT_CHARSET);
+            "application/json", HTTP.DEFAULT_CONTENT_CHARSET);
     public static final ContentType APPLICATION_OCTET_STREAM = new ContentType(
-    		"application/octet-stream", null);
+            "application/octet-stream", null);
     public static final ContentType APPLICATION_SVG_XML = new ContentType(
-    		"application/svg+xml", HTTP.DEFAULT_CONTENT_CHARSET);
+            "application/svg+xml", HTTP.DEFAULT_CONTENT_CHARSET);
     public static final ContentType APPLICATION_XHTML_XML = new ContentType(
-    		"application/xhtml+xml", HTTP.DEFAULT_CONTENT_CHARSET);
+            "application/xhtml+xml", HTTP.DEFAULT_CONTENT_CHARSET);
     public static final ContentType APPLICATION_XML = new ContentType(
-    		"application/xml", HTTP.DEFAULT_CONTENT_CHARSET);
+            "application/xml", HTTP.DEFAULT_CONTENT_CHARSET);
     public static final ContentType MULTIPART_FORM_DATA = new ContentType(
-    		"multipart/form-data", HTTP.DEFAULT_CONTENT_CHARSET);
+            "multipart/form-data", HTTP.DEFAULT_CONTENT_CHARSET);
     public static final ContentType TEXT_HTML = new ContentType(
-    		"text/html", HTTP.DEFAULT_CONTENT_CHARSET);
+            "text/html", HTTP.DEFAULT_CONTENT_CHARSET);
     public static final ContentType TEXT_PLAIN = new ContentType(
-    		"text/plain", HTTP.DEFAULT_CONTENT_CHARSET);
+            "text/plain", HTTP.DEFAULT_CONTENT_CHARSET);
     public static final ContentType TEXT_XML = new ContentType(
-    		"text/xml", HTTP.DEFAULT_CONTENT_CHARSET);
+            "text/xml", HTTP.DEFAULT_CONTENT_CHARSET);
     public static final ContentType WILDCARD = new ContentType(
-    		"*/*", null);
+            "*/*", null);
 
     // defaults
     public static final ContentType DEFAULT_TEXT = TEXT_PLAIN;

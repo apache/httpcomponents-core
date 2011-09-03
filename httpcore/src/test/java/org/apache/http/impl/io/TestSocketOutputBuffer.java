@@ -46,9 +46,9 @@ import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
 public class TestSocketOutputBuffer {
-    
+
     private SocketOutputBuffer sob;
-    
+
     @Mock private Socket socket;
     @Mock private OutputStream os;
     @Mock private HttpParams params;
@@ -58,19 +58,19 @@ public class TestSocketOutputBuffer {
     @Before
     public void setUp() throws Exception {
         MockitoAnnotations.initMocks(this);
-        
+
         when(socket.getOutputStream()).thenReturn(os);
     }
 
     private void create(int buffSize, int arraySize, int minChunkLimit) throws Exception {
         b = new byte[arraySize];
         cb = new CharArrayBuffer(arraySize);
-        
+
         when(params.getIntParameter(CoreConnectionPNames.MIN_CHUNK_LIMIT, 512)).thenReturn(minChunkLimit);
-        
+
         sob = new SocketOutputBuffer(socket, buffSize, params);
     }
-    
+
     @Test
     public void testWriteByteArrayOffLenDirectToStream1() throws Exception {
         create(2048, 2048, 1024);
@@ -122,7 +122,7 @@ public class TestSocketOutputBuffer {
     @Test
     public void testWriteLineString() throws Exception {
         create(2048, 2048, 2048);
-        
+
         sob.writeLine("test");
     }
 
@@ -130,14 +130,14 @@ public class TestSocketOutputBuffer {
     public void testWriteLineStringEncode() throws Exception {
         when(params.getParameter(CoreProtocolPNames.HTTP_ELEMENT_CHARSET)).thenReturn("UTF-8");
         create(2048, 2048, 2048);
-        
+
         sob.writeLine("test");
     }
 
     @Test
     public void testWriteLineEmptyString() throws Exception {
         create(2048, 2048, 2048);
-        
+
         sob.writeLine("");
     }
 
@@ -145,14 +145,14 @@ public class TestSocketOutputBuffer {
     public void testWriteLineEmptyStringEncode() throws Exception {
         when(params.getParameter(CoreProtocolPNames.HTTP_ELEMENT_CHARSET)).thenReturn("UTF-8");
         create(2048, 2048, 2048);
-        
+
         sob.writeLine("");
     }
 
     @Test
     public void testWriteLineNullString() throws Exception {
         create(2048, 2048, 2048);
-        
+
         sob.writeLine((String)null);
     }
 
@@ -160,14 +160,14 @@ public class TestSocketOutputBuffer {
     public void testWriteLineNullStringEncode() throws Exception {
         when(params.getParameter(CoreProtocolPNames.HTTP_ELEMENT_CHARSET)).thenReturn("UTF-8");
         create(2048, 2048, 2048);
-        
+
         sob.writeLine((String)null);
     }
 
     @Test
     public void testWriteLineCharArrayBuffer() throws Exception {
         create(2048, 2048, 2048);
-        
+
         sob.writeLine(cb);
     }
 
@@ -175,14 +175,14 @@ public class TestSocketOutputBuffer {
     public void testWriteLineCharArrayBufferEncode() throws Exception {
         when(params.getParameter(CoreProtocolPNames.HTTP_ELEMENT_CHARSET)).thenReturn("UTF-8");
         create(2048, 2048, 2048);
-        
+
         sob.writeLine(cb);
     }
 
     @Test
     public void testWriteLineEmptyCharArrayBuffer() throws Exception {
         create(2048, 0, 2048);
-        
+
         sob.writeLine(cb);
     }
 
@@ -190,7 +190,7 @@ public class TestSocketOutputBuffer {
     public void testWriteLineEmptyCharArrayBufferEncode() throws Exception {
         when(params.getParameter(CoreProtocolPNames.HTTP_ELEMENT_CHARSET)).thenReturn("UTF-8");
         create(2048, 0, 2048);
-        
+
         sob.writeLine(cb);
     }
 

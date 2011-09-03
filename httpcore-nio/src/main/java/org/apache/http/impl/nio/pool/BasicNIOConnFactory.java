@@ -71,10 +71,10 @@ public class BasicNIOConnFactory implements NIOConnFactory<HttpHost, NHttpClient
             final NHttpConnectionFactory<? extends NHttpClientConnection> sslFactory) {
         super();
         if (plainFactory == null) {
-        	throw new IllegalArgumentException("Plain HTTP client connection factory may not be null");
+            throw new IllegalArgumentException("Plain HTTP client connection factory may not be null");
         }
         if (sslFactory == null) {
-        	throw new IllegalArgumentException("SSL HTTP client connection factory may not be null");
+            throw new IllegalArgumentException("SSL HTTP client connection factory may not be null");
         }
         this.plainFactory = plainFactory;
         this.sslFactory = sslFactory;
@@ -105,11 +105,11 @@ public class BasicNIOConnFactory implements NIOConnFactory<HttpHost, NHttpClient
     }
 
     public NHttpClientConnection create(final HttpHost route, final IOSession session) throws IOException {
-    	NHttpClientConnection conn;
-    	if (route.getSchemeName().equalsIgnoreCase("https")) {
-        	conn = this.sslFactory.createConnection(session);
+        NHttpClientConnection conn;
+        if (route.getSchemeName().equalsIgnoreCase("https")) {
+            conn = this.sslFactory.createConnection(session);
         } else {
-        	conn = this.plainFactory.createConnection(session);
+            conn = this.plainFactory.createConnection(session);
         }
         session.setAttribute(ExecutionContext.HTTP_CONNECTION, conn);
         return conn;

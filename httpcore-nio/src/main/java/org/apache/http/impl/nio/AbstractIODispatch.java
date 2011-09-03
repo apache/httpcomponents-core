@@ -45,19 +45,19 @@ import org.apache.http.protocol.ExecutionContext;
 @Immutable // provided injected dependencies are immutable
 public abstract class AbstractIODispatch<T extends NHttpConnection> implements IOEventDispatch {
 
-	protected abstract T createConnection(IOSession session);
+    protected abstract T createConnection(IOSession session);
 
-	protected abstract void onConnected(T conn);
+    protected abstract void onConnected(T conn);
 
-	protected abstract void onClosed(T conn);
+    protected abstract void onClosed(T conn);
 
-	protected abstract void onException(T conn, IOException ex);
+    protected abstract void onException(T conn, IOException ex);
 
-	protected abstract void onInputReady(T conn);
+    protected abstract void onInputReady(T conn);
 
-	protected abstract void onOutputReady(T conn);
+    protected abstract void onOutputReady(T conn);
 
-	protected abstract void onTimeout(T conn);
+    protected abstract void onTimeout(T conn);
 
     private void ensureNotNull(final T conn) {
         if (conn == null) {
@@ -67,7 +67,7 @@ public abstract class AbstractIODispatch<T extends NHttpConnection> implements I
 
     public void connected(final IOSession session) {
         @SuppressWarnings("unchecked")
-		T conn = (T) session.getAttribute(ExecutionContext.HTTP_CONNECTION);
+        T conn = (T) session.getAttribute(ExecutionContext.HTTP_CONNECTION);
         try {
             if (conn == null) {
                 conn = createConnection(session);
@@ -94,9 +94,9 @@ public abstract class AbstractIODispatch<T extends NHttpConnection> implements I
 
     public void disconnected(final IOSession session) {
         @SuppressWarnings("unchecked")
-		T conn = (T) session.getAttribute(ExecutionContext.HTTP_CONNECTION);
+        T conn = (T) session.getAttribute(ExecutionContext.HTTP_CONNECTION);
         if (conn != null) {
-        	onClosed(conn);
+            onClosed(conn);
         }
     }
 
@@ -108,14 +108,14 @@ public abstract class AbstractIODispatch<T extends NHttpConnection> implements I
             SSLIOSession ssliosession = (SSLIOSession) session.getAttribute(
                     SSLIOSession.SESSION_KEY);
             if (ssliosession == null) {
-            	onInputReady(conn);
+                onInputReady(conn);
             } else {
                 try {
                     if (!ssliosession.isInitialized()) {
                         ssliosession.initialize();
                     }
                     if (ssliosession.isAppInputReady()) {
-                    	onInputReady(conn);
+                        onInputReady(conn);
                     }
                     ssliosession.inboundTransport();
                 } catch (IOException ex) {

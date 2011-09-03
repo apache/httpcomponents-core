@@ -56,7 +56,7 @@ public class ResponseContent implements HttpResponseInterceptor {
 
     /**
      * Default constructor. The <code>Content-Length</code> or <code>Transfer-Encoding</code>
-     * will cause the interceptor to throw {@link ProtocolException} if already present in the 
+     * will cause the interceptor to throw {@link ProtocolException} if already present in the
      * response message.
      */
     public ResponseContent() {
@@ -65,11 +65,11 @@ public class ResponseContent implements HttpResponseInterceptor {
 
     /**
      * Constructor that can be used to fine-tune behavior of this interceptor.
-     * 
-     * @param overwrite If set to <code>true</code> the <code>Content-Length</code> and 
+     *
+     * @param overwrite If set to <code>true</code> the <code>Content-Length</code> and
      * <code>Transfer-Encoding</code> headers will be created or updated if already present.
-     * If set to <code>false</code> the <code>Content-Length</code> and 
-     * <code>Transfer-Encoding</code> headers will cause the interceptor to throw 
+     * If set to <code>false</code> the <code>Content-Length</code> and
+     * <code>Transfer-Encoding</code> headers will cause the interceptor to throw
      * {@link ProtocolException} if already present in the response message.
      */
      public ResponseContent(boolean overwrite) {
