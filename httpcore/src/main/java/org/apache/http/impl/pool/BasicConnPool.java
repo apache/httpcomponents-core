@@ -36,12 +36,14 @@ import org.apache.http.annotation.ThreadSafe;
 import org.apache.http.params.HttpParams;
 import org.apache.http.pool.AbstractConnPool;
 import org.apache.http.pool.ConnFactory;
+import org.apache.http.pool.PoolEntry;
 
 /**
  * @since 4.2
  */
 @ThreadSafe
-public class BasicConnPool extends AbstractConnPool<HttpHost, HttpClientConnection, BasicPoolEntry> {
+public class BasicConnPool extends AbstractConnPool<HttpHost, HttpClientConnection,
+                                                    PoolEntry<HttpHost, HttpClientConnection>> {
 
     private static AtomicLong COUNTER = new AtomicLong();
 
@@ -54,12 +56,14 @@ public class BasicConnPool extends AbstractConnPool<HttpHost, HttpClientConnecti
     }
 
     @Override
-    protected BasicPoolEntry createEntry(final HttpHost host, final HttpClientConnection conn) {
+    protected PoolEntry<HttpHost, HttpClientConnection> createEntry(
+            final HttpHost host,
+            final HttpClientConnection conn) {
         return new BasicPoolEntry(Long.toString(COUNTER.getAndIncrement()), host, conn);
     }
 
     @Override
-    protected void closeEntry(final BasicPoolEntry entry) {
+    protected void closeEntry(final PoolEntry<HttpHost, HttpClientConnection> entry) {
         HttpConnection conn = entry.getConnection();
         try {
             conn.close();

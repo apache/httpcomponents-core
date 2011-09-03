@@ -39,6 +39,7 @@ import org.apache.http.HttpHost;
 import org.apache.http.params.BasicHttpParams;
 import org.apache.http.params.CoreConnectionPNames;
 import org.apache.http.params.HttpParams;
+import org.apache.http.pool.PoolEntry;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -117,7 +118,7 @@ public class TestBasicConnPool {
         host = new HttpHost("localhost", serverPort, "http");
         conn = connFactory.create(host);
 
-        BasicPoolEntry entry = pool.createEntry(host, conn);
+        PoolEntry<HttpHost, HttpClientConnection> entry = pool.createEntry(host, conn);
 
         assertEquals(conn, entry.getConnection());
         assertEquals("localhost", entry.getRoute().getHostName());

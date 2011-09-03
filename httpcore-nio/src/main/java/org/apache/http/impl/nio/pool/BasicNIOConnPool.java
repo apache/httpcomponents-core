@@ -42,6 +42,7 @@ import org.apache.http.nio.pool.NIOConnFactory;
 import org.apache.http.nio.reactor.ConnectingIOReactor;
 import org.apache.http.params.HttpConnectionParams;
 import org.apache.http.params.HttpParams;
+import org.apache.http.pool.PoolEntry;
 
 /**
  * Basic non-blocking {@link NHttpClientConnection} pool.
@@ -60,7 +61,8 @@ import org.apache.http.params.HttpParams;
  * @since 4.2
  */
 @ThreadSafe
-public class BasicNIOConnPool extends AbstractNIOConnPool<HttpHost, NHttpClientConnection, BasicNIOPoolEntry> {
+public class BasicNIOConnPool extends AbstractNIOConnPool<HttpHost, NHttpClientConnection,
+                                            PoolEntry<HttpHost, NHttpClientConnection>> {
 
     private static AtomicLong COUNTER = new AtomicLong();
 
@@ -98,7 +100,7 @@ public class BasicNIOConnPool extends AbstractNIOConnPool<HttpHost, NHttpClientC
     }
 
     @Override
-    protected void closeEntry(final BasicNIOPoolEntry entry) {
+    protected void closeEntry(final PoolEntry<HttpHost, NHttpClientConnection> entry) {
         NHttpClientConnection conn = entry.getConnection();
         try {
             conn.shutdown();
@@ -107,16 +109,18 @@ public class BasicNIOConnPool extends AbstractNIOConnPool<HttpHost, NHttpClientC
     }
 
     @Override
-    public Future<BasicNIOPoolEntry> lease(
+    public Future<PoolEntry<HttpHost, NHttpClientConnection>> lease(
             final HttpHost route,
             final Object state,
-            final FutureCallback<BasicNIOPoolEntry> callback) {
+            final FutureCallback<PoolEntry<HttpHost, NHttpClientConnection>> callback) {
         int connectTimeout = HttpConnectionParams.getConnectionTimeout(this.params);
         return super.lease(route, state, connectTimeout, TimeUnit.MILLISECONDS, callback);
     }
 
     @Override
-    public Future<BasicNIOPoolEntry> lease(final HttpHost route, final Object state) {
+    public Future<PoolEntry<HttpHost, NHttpClientConnection>> lease(
+            final HttpHost route,
+            final Object state) {
         int connectTimeout = HttpConnectionParams.getConnectionTimeout(this.params);
         return super.lease(route, state, connectTimeout, TimeUnit.MILLISECONDS, null);
     }
