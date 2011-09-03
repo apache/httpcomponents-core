@@ -156,7 +156,7 @@ public class TestDefaultIOReactors extends HttpCoreNIOTestBase {
                 serverHttpProc,
                 new DefaultHttpResponseFactory(),
                 new DefaultConnectionReuseStrategy(),
-                this.server.getParams());
+                this.serverParams);
 
         serviceHandler.setHandlerResolver(
                 new SimpleHttpRequestHandlerResolver(requestHandler));
@@ -190,7 +190,7 @@ public class TestDefaultIOReactors extends HttpCoreNIOTestBase {
                 clientHttpProc,
                 requestExecutionHandler,
                 new DefaultConnectionReuseStrategy(),
-                this.client.getParams());
+                this.clientParams);
 
         clientHandler.setEventListener(
                 clientEventListener);
@@ -282,7 +282,7 @@ public class TestDefaultIOReactors extends HttpCoreNIOTestBase {
                 serverHttpProc,
                 new DefaultHttpResponseFactory(),
                 new DefaultConnectionReuseStrategy(),
-                this.server.getParams());
+                this.serverParams);
 
         serviceHandler.setHandlerResolver(
                 new SimpleHttpRequestHandlerResolver(requestHandler));
@@ -300,7 +300,7 @@ public class TestDefaultIOReactors extends HttpCoreNIOTestBase {
                 clientHttpProc,
                 requestExecutionHandler,
                 new DefaultConnectionReuseStrategy(),
-                this.client.getParams());
+                this.clientParams);
 
         clientHandler.setEventListener(
                 new SimpleEventListener());
@@ -399,7 +399,7 @@ public class TestDefaultIOReactors extends HttpCoreNIOTestBase {
                 serverHttpProc,
                 new DefaultHttpResponseFactory(),
                 new DefaultConnectionReuseStrategy(),
-                this.server.getParams());
+                this.serverParams);
 
         serviceHandler.setHandlerResolver(
                 new SimpleHttpRequestHandlerResolver(requestHandler));
@@ -417,7 +417,7 @@ public class TestDefaultIOReactors extends HttpCoreNIOTestBase {
                 clientHttpProc,
                 requestExecutionHandler,
                 new DefaultConnectionReuseStrategy(),
-                this.client.getParams());
+                this.clientParams);
 
         this.server.setExceptionHandler(exceptionHandler);
         this.server.start(serviceHandler);
@@ -517,7 +517,7 @@ public class TestDefaultIOReactors extends HttpCoreNIOTestBase {
                 serverHttpProc,
                 new DefaultHttpResponseFactory(),
                 new DefaultConnectionReuseStrategy(),
-                this.server.getParams());
+                this.serverParams);
 
         serviceHandler.setHandlerResolver(
                 new SimpleHttpRequestHandlerResolver(requestHandler));
@@ -535,7 +535,7 @@ public class TestDefaultIOReactors extends HttpCoreNIOTestBase {
                 clientHttpProc,
                 requestExecutionHandler,
                 new DefaultConnectionReuseStrategy(),
-                this.client.getParams());
+                this.clientParams);
 
         this.server.setExceptionHandler(exceptionHandler);
 

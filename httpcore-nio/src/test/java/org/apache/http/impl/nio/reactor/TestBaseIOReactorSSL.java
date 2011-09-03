@@ -45,6 +45,7 @@ import org.apache.http.HttpResponse;
 import org.apache.http.HttpResponseInterceptor;
 import org.apache.http.impl.DefaultConnectionReuseStrategy;
 import org.apache.http.impl.DefaultHttpResponseFactory;
+import org.apache.http.impl.nio.SSLNHttpServerConnectionFactory;
 import org.apache.http.nio.NHttpServiceHandler;
 import org.apache.http.nio.protocol.BufferingHttpServiceHandler;
 import org.apache.http.nio.protocol.EventListener;
@@ -62,7 +63,8 @@ import org.apache.http.protocol.ResponseConnControl;
 import org.apache.http.protocol.ResponseContent;
 import org.apache.http.protocol.ResponseDate;
 import org.apache.http.protocol.ResponseServer;
-import org.apache.http.testserver.HttpSSLServer;
+import org.apache.http.testserver.HttpServerNio;
+import org.apache.http.testserver.SSLTestContexts;
 import org.apache.http.testserver.SimpleHttpRequestHandlerResolver;
 import org.junit.After;
 import org.junit.Assert;
@@ -71,19 +73,20 @@ import org.junit.Test;
 
 public class TestBaseIOReactorSSL {
 
-    private HttpSSLServer server;
+    private HttpParams serverParams;
+    private HttpServerNio server;
 
     @Before
     public void initServer() throws Exception {
-        HttpParams serverParams = new SyncBasicHttpParams();
-        serverParams
+        this.serverParams = new SyncBasicHttpParams();
+        this.serverParams
             .setIntParameter(CoreConnectionPNames.SO_TIMEOUT, 5000)
             .setIntParameter(CoreConnectionPNames.SOCKET_BUFFER_SIZE, 10)
             .setBooleanParameter(CoreConnectionPNames.STALE_CONNECTION_CHECK, false)
             .setBooleanParameter(CoreConnectionPNames.TCP_NODELAY, true)
             .setParameter(CoreProtocolPNames.ORIGIN_SERVER, "TEST-SERVER/1.1");
-
-        this.server = new HttpSSLServer(serverParams);
+        this.server = new HttpServerNio(new SSLNHttpServerConnectionFactory(
+                SSLTestContexts.createServerSSLContext(), null, this.serverParams));
     }
 
     @After
@@ -107,7 +110,7 @@ public class TestBaseIOReactorSSL {
                 httpproc,
                 new DefaultHttpResponseFactory(),
                 new DefaultConnectionReuseStrategy(),
-                this.server.getParams());
+                this.serverParams);
 
         serviceHandler.setHandlerResolver(
                 new SimpleHttpRequestHandlerResolver(requestHandler));

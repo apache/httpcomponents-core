@@ -50,9 +50,9 @@ import org.apache.http.entity.HttpEntityWrapper;
 import org.apache.http.impl.DefaultConnectionReuseStrategy;
 import org.apache.http.impl.DefaultHttpResponseFactory;
 import org.apache.http.impl.io.HttpTransportMetricsImpl;
+import org.apache.http.impl.nio.DefaultNHttpClientConnectionFactory;
 import org.apache.http.impl.nio.DefaultNHttpServerConnection;
 import org.apache.http.impl.nio.DefaultNHttpServerConnectionFactory;
-import org.apache.http.impl.nio.DefaultServerIODispatch;
 import org.apache.http.impl.nio.codecs.AbstractContentEncoder;
 import org.apache.http.message.BasicHttpRequest;
 import org.apache.http.nio.ContentDecoder;
@@ -60,10 +60,8 @@ import org.apache.http.nio.ContentEncoder;
 import org.apache.http.nio.IOControl;
 import org.apache.http.nio.NHttpConnection;
 import org.apache.http.nio.NHttpServerIOTarget;
-import org.apache.http.nio.NHttpServiceHandler;
 import org.apache.http.nio.entity.ConsumingNHttpEntity;
 import org.apache.http.nio.entity.ContentInputStream;
-import org.apache.http.nio.reactor.IOEventDispatch;
 import org.apache.http.nio.reactor.IOSession;
 import org.apache.http.nio.reactor.ListenerEndpoint;
 import org.apache.http.nio.reactor.SessionOutputBuffer;
@@ -178,48 +176,34 @@ public class TestTruncatedChunks {
 
     }
 
-    static class CustomTestHttpServer extends HttpServerNio {
-
-        public CustomTestHttpServer(final HttpParams params) throws IOException {
-            super(params);
-        }
-
-        @Override
-        protected IOEventDispatch createIOEventDispatch(
-                NHttpServiceHandler serviceHandler, HttpParams params) {
-            return new DefaultServerIODispatch(serviceHandler, new CustomServerConnectionFactory(params));
-        }
-
-    }
-
-    protected CustomTestHttpServer server;
+    protected HttpParams serverParams;
+    protected HttpParams clientParams;
+    protected HttpServerNio server;
     protected HttpClientNio client;
 
     @Before
     public void initServer() throws Exception {
-        HttpParams serverParams = new SyncBasicHttpParams();
-        serverParams
+        this.serverParams = new SyncBasicHttpParams();
+        this.serverParams
             .setIntParameter(CoreConnectionPNames.SO_TIMEOUT, 60000)
             .setIntParameter(CoreConnectionPNames.SOCKET_BUFFER_SIZE, 8 * 1024)
             .setBooleanParameter(CoreConnectionPNames.STALE_CONNECTION_CHECK, false)
             .setBooleanParameter(CoreConnectionPNames.TCP_NODELAY, true)
             .setParameter(CoreProtocolPNames.ORIGIN_SERVER, "TEST-SERVER/1.1");
-
-        this.server = new CustomTestHttpServer(serverParams);
+        this.server = new HttpServerNio(new CustomServerConnectionFactory(this.serverParams));
     }
 
     @Before
     public void initClient() throws Exception {
-        HttpParams clientParams = new SyncBasicHttpParams();
-        clientParams
+        this.clientParams = new SyncBasicHttpParams();
+        this.clientParams
             .setIntParameter(CoreConnectionPNames.SO_TIMEOUT, 60000)
             .setIntParameter(CoreConnectionPNames.CONNECTION_TIMEOUT, 30000)
             .setIntParameter(CoreConnectionPNames.SOCKET_BUFFER_SIZE, 8 * 1024)
             .setBooleanParameter(CoreConnectionPNames.STALE_CONNECTION_CHECK, false)
             .setBooleanParameter(CoreConnectionPNames.TCP_NODELAY, true)
             .setParameter(CoreProtocolPNames.USER_AGENT, "TEST-CLIENT/1.1");
-
-        this.client = new HttpClientNio(clientParams);
+        this.client = new HttpClientNio(new DefaultNHttpClientConnectionFactory(this.clientParams));
     }
 
     @After
@@ -264,7 +248,7 @@ public class TestTruncatedChunks {
                 serverHttpProc,
                 new DefaultHttpResponseFactory(),
                 new DefaultConnectionReuseStrategy(),
-                this.server.getParams());
+                this.serverParams);
 
         serviceHandler.setHandlerResolver(
                 new SimpleNHttpRequestHandlerResolver(new RequestHandler(true)));
@@ -282,7 +266,7 @@ public class TestTruncatedChunks {
                 clientHttpProc,
                 requestExecutionHandler,
                 new DefaultConnectionReuseStrategy(),
-                this.client.getParams());
+                this.clientParams);
 
         clientHandler.setEventListener(
                 new SimpleEventListener() {
@@ -426,7 +410,7 @@ public class TestTruncatedChunks {
                 serverHttpProc,
                 new DefaultHttpResponseFactory(),
                 new DefaultConnectionReuseStrategy(),
-                this.server.getParams());
+                this.serverParams);
 
         serviceHandler.setHandlerResolver(
                 new SimpleNHttpRequestHandlerResolver(new RequestHandler(true)));
@@ -444,7 +428,7 @@ public class TestTruncatedChunks {
                 clientHttpProc,
                 requestExecutionHandler,
                 new DefaultConnectionReuseStrategy(),
-                this.client.getParams());
+                this.clientParams);
 
         clientHandler.setEventListener(
                 new SimpleEventListener());

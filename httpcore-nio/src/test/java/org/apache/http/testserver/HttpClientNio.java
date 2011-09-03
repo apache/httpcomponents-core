@@ -35,6 +35,8 @@ import org.apache.http.impl.nio.DefaultClientIODispatch;
 import org.apache.http.impl.nio.reactor.DefaultConnectingIOReactor;
 import org.apache.http.impl.nio.reactor.ExceptionEvent;
 import org.apache.http.nio.NHttpClientHandler;
+import org.apache.http.nio.NHttpClientIOTarget;
+import org.apache.http.nio.NHttpConnectionFactory;
 import org.apache.http.nio.reactor.IOEventDispatch;
 import org.apache.http.nio.reactor.IOReactorExceptionHandler;
 import org.apache.http.nio.reactor.IOReactorStatus;
@@ -44,18 +46,15 @@ import org.apache.http.params.HttpParams;
 public class HttpClientNio {
 
     private final DefaultConnectingIOReactor ioReactor;
-    private final HttpParams params;
+    private final NHttpConnectionFactory<NHttpClientIOTarget> connFactory;
 
     private volatile IOReactorThread thread;
 
-    public HttpClientNio(final HttpParams params) throws IOException {
+    public HttpClientNio(
+            final NHttpConnectionFactory<NHttpClientIOTarget> connFactory) throws IOException {
         super();
         this.ioReactor = new DefaultConnectingIOReactor();
-        this.params = params;
-    }
-
-    public HttpParams getParams() {
-        return this.params;
+        this.connFactory = connFactory;
     }
 
     public void setExceptionHandler(final IOReactorExceptionHandler exceptionHandler) {
@@ -68,10 +67,7 @@ public class HttpClientNio {
     }
 
     private void execute(final NHttpClientHandler clientHandler) throws IOException {
-        IOEventDispatch ioEventDispatch = createIOEventDispatch(
-                clientHandler,
-                this.params);
-
+        IOEventDispatch ioEventDispatch = new DefaultClientIODispatch(clientHandler, this.connFactory);
         this.ioReactor.execute(ioEventDispatch);
     }
 

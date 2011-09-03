@@ -30,20 +30,13 @@ package org.apache.http.nio.protocol;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.PipedInputStream;
-import java.io.PipedOutputStream;
 import java.io.UnsupportedEncodingException;
 import java.net.InetSocketAddress;
-import java.util.Collections;
-import java.util.HashMap;
 import java.util.LinkedList;
-import java.util.Map;
 import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
-import java.util.concurrent.Executor;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.concurrent.TimeUnit;
 
 import org.apache.http.HttpCoreNIOTestBase;
 import org.apache.http.HttpEntity;
@@ -56,7 +49,6 @@ import org.apache.http.HttpResponseInterceptor;
 import org.apache.http.HttpStatus;
 import org.apache.http.HttpVersion;
 import org.apache.http.entity.ContentType;
-import org.apache.http.entity.InputStreamEntity;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.DefaultConnectionReuseStrategy;
 import org.apache.http.impl.DefaultHttpResponseFactory;
@@ -67,7 +59,6 @@ import org.apache.http.nio.entity.NStringEntity;
 import org.apache.http.nio.reactor.IOReactorStatus;
 import org.apache.http.nio.reactor.ListenerEndpoint;
 import org.apache.http.nio.reactor.SessionRequest;
-import org.apache.http.params.CoreConnectionPNames;
 import org.apache.http.params.CoreProtocolPNames;
 import org.apache.http.protocol.HTTP;
 import org.apache.http.protocol.HttpContext;
@@ -90,7 +81,6 @@ import org.apache.http.util.EncodingUtils;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 
 /**
@@ -138,7 +128,7 @@ public class TestThrottlingNHttpHandlers extends HttpCoreNIOTestBase {
                 new DefaultHttpResponseFactory(),
                 new DefaultConnectionReuseStrategy(),
                 this.execService,
-                this.server.getParams());
+                this.serverParams);
 
         serviceHandler.setHandlerResolver(
                 new SimpleHttpRequestHandlerResolver(requestHandler));
@@ -157,7 +147,7 @@ public class TestThrottlingNHttpHandlers extends HttpCoreNIOTestBase {
                 requestExecutionHandler,
                 new DefaultConnectionReuseStrategy(),
                 this.execService,
-                this.client.getParams());
+                this.clientParams);
 
         clientHandler.setEventListener(
                 new SimpleEventListener());
@@ -270,171 +260,6 @@ public class TestThrottlingNHttpHandlers extends HttpCoreNIOTestBase {
 
         };
         executeStandardTest(new RequestHandler(), requestExecutionHandler);
-    }
-
-    /**
-     * This test ensures that an Executor instance
-     * (under the control of a ThrottlingHttpServiceHandler)
-     * terminates when a connection timeout occurs.
-     */
-    @Test @Ignore
-    public void testExecutorTermination() throws Exception {
-        final int SHORT_TIMEOUT = 100;
-        final int DEFAULT_SERVER_SO_TIMEOUT = 60000;
-        this.server.getParams().setIntParameter(
-                CoreConnectionPNames.SO_TIMEOUT, SHORT_TIMEOUT);
-
-        // main expectation: the executor spawned by the service must finish.
-        final String COMMAND_FINISHED = "CommandFinished";
-        final Map<String, Boolean> serverExpectations = Collections.synchronizedMap(
-                new HashMap<String, Boolean>());
-        serverExpectations.put(COMMAND_FINISHED, Boolean.FALSE);
-
-        // secondary expectation: not strictly necessary, the test will wait for the
-        // client to finalize the request
-        final String CLIENT_FINALIZED = "ClientFinalized";
-        final Map<String, Boolean> clientExpectations = Collections.synchronizedMap(
-                new HashMap<String, Boolean>());
-        clientExpectations.put(CLIENT_FINALIZED, Boolean.FALSE);
-
-        // runs the command on a separate thread and updates the server expectation
-        Executor executor = new Executor() {
-
-            public void execute(final Runnable command) {
-                new Thread() {
-                    @Override
-                    public void run() {
-                        command.run();
-                        synchronized (serverExpectations) {
-                            serverExpectations.put(COMMAND_FINISHED, Boolean.TRUE);
-                            serverExpectations.notify();
-                        }
-                    }
-                }.start();
-            }
-
-        };
-
-        HttpRequestHandler requestHandler = new HttpRequestHandler() {
-            public void handle(
-                    HttpRequest request,
-                    HttpResponse response,
-                    HttpContext context) {
-                try {
-                    ((HttpEntityEnclosingRequest) request).getEntity().getContent().read();
-                    response.setStatusCode(HttpStatus.SC_OK);
-                } catch (Exception e){
-                }
-            }
-        };
-
-        // convoluted client-side entity content. The byte expected by the HttpRequest will not
-        // be written.
-        final PipedOutputStream pipe = new PipedOutputStream();
-        final PipedInputStream producer = new PipedInputStream(pipe);
-        pipe.close();
-
-        // A POST request enclosing an entity with (supposedly) a content length of 1 byte.
-        // the connection will be closed at the end of the request.
-        HttpRequestExecutionHandler requestExecutionHandler = new HttpRequestExecutionHandler() {
-            public void initalizeContext(final HttpContext context, final Object attachment) {
-            }
-
-            public void finalizeContext(HttpContext context) {
-                synchronized (clientExpectations) {
-                    clientExpectations.put(CLIENT_FINALIZED, Boolean.TRUE);
-                    clientExpectations.notifyAll();
-                }
-            }
-
-            public HttpRequest submitRequest( HttpContext context ) {
-                HttpEntityEnclosingRequest post = new BasicHttpEntityEnclosingRequest("POST", "/");
-                post.setHeader( "Connection", "Close" );
-                post.setEntity(new InputStreamEntity(producer, 1));
-                return post;
-            }
-
-            public void handleResponse(final HttpResponse response, final HttpContext context) {
-            }
-
-        };
-
-        HttpProcessor serverHttpProc = new ImmutableHttpProcessor(new HttpResponseInterceptor[] {
-                new ResponseDate(),
-                new ResponseServer(),
-                new ResponseContent(),
-                new ResponseConnControl()
-        });
-
-        ThrottlingHttpServiceHandler serviceHandler = new ThrottlingHttpServiceHandler(
-                serverHttpProc,
-                new DefaultHttpResponseFactory(),
-                new DefaultConnectionReuseStrategy(),
-                executor,
-                this.server.getParams());
-
-        serviceHandler.setHandlerResolver(
-                new SimpleHttpRequestHandlerResolver(requestHandler));
-        serviceHandler.setEventListener(
-                new SimpleEventListener());
-
-        HttpProcessor clientHttpProc = new ImmutableHttpProcessor(new HttpRequestInterceptor[] {
-                new RequestContent(),
-                new RequestTargetHost(),
-                new RequestConnControl(),
-                new RequestUserAgent(),
-                new RequestExpectContinue()});
-
-        ThrottlingHttpClientHandler clientHandler = new ThrottlingHttpClientHandler(
-                clientHttpProc,
-                requestExecutionHandler,
-                new DefaultConnectionReuseStrategy(),
-                this.execService,
-                this.client.getParams());
-
-        clientHandler.setEventListener(
-                new SimpleEventListener());
-
-        this.server.start(serviceHandler);
-        this.client.start(clientHandler);
-
-        ListenerEndpoint endpoint = this.server.getListenerEndpoint();
-        endpoint.waitFor();
-        InetSocketAddress serverAddress = (InetSocketAddress) endpoint.getAddress();
-
-        Assert.assertEquals("Test server status", IOReactorStatus.ACTIVE, this.server.getStatus());
-
-        SessionRequest sessionRequest = this.client.openConnection(
-                new InetSocketAddress("localhost", serverAddress.getPort()),
-                null);
-
-        sessionRequest.waitFor();
-        if (sessionRequest.getException() != null) {
-            throw sessionRequest.getException();
-        }
-        Assert.assertNotNull(sessionRequest.getSession());
-
-        Assert.assertEquals("Test client status", IOReactorStatus.ACTIVE, this.client.getStatus());
-
-        // wait for the client to invoke finalizeContext().
-        synchronized (clientExpectations) {
-            if (!clientExpectations.get(CLIENT_FINALIZED).booleanValue()) {
-                clientExpectations.wait(DEFAULT_SERVER_SO_TIMEOUT);
-                Assert.assertTrue(clientExpectations.get(CLIENT_FINALIZED).booleanValue());
-            }
-        }
-
-        // wait for server to finish the command within a reasonable amount of time.
-        // the time constraint is not necessary, it only prevents the test from hanging.
-        synchronized (serverExpectations) {
-            if (!serverExpectations.get(COMMAND_FINISHED).booleanValue()) {
-                serverExpectations.wait(SHORT_TIMEOUT);
-                Assert.assertTrue(serverExpectations.get(COMMAND_FINISHED).booleanValue());
-            }
-        }
-
-        this.execService.shutdown();
-        this.execService.awaitTermination(10, TimeUnit.SECONDS);
     }
 
     /**
@@ -551,7 +376,7 @@ public class TestThrottlingNHttpHandlers extends HttpCoreNIOTestBase {
                 new DefaultHttpResponseFactory(),
                 new DefaultConnectionReuseStrategy(),
                 this.execService,
-                this.server.getParams());
+                this.serverParams);
 
         serviceHandler.setHandlerResolver(
                 new SimpleHttpRequestHandlerResolver(new RequestHandler()));
@@ -572,7 +397,7 @@ public class TestThrottlingNHttpHandlers extends HttpCoreNIOTestBase {
                 requestExecutionHandler,
                 new DefaultConnectionReuseStrategy(),
                 this.execService,
-                this.client.getParams());
+                this.clientParams);
 
         clientHandler.setEventListener(
                 new SimpleEventListener());
@@ -651,7 +476,7 @@ public class TestThrottlingNHttpHandlers extends HttpCoreNIOTestBase {
                 new DefaultHttpResponseFactory(),
                 new DefaultConnectionReuseStrategy(),
                 this.execService,
-                this.server.getParams());
+                this.serverParams);
 
         serviceHandler.setHandlerResolver(
                 new SimpleHttpRequestHandlerResolver(new RequestHandler()));
@@ -670,7 +495,7 @@ public class TestThrottlingNHttpHandlers extends HttpCoreNIOTestBase {
                 requestExecutionHandler,
                 new DefaultConnectionReuseStrategy(),
                 this.execService,
-                this.client.getParams());
+                this.clientParams);
 
         clientHandler.setEventListener(new SimpleEventListener());
 
@@ -773,7 +598,7 @@ public class TestThrottlingNHttpHandlers extends HttpCoreNIOTestBase {
                 new DefaultHttpResponseFactory(),
                 new DefaultConnectionReuseStrategy(),
                 this.execService,
-                this.server.getParams());
+                this.serverParams);
 
         serviceHandler.setHandlerResolver(
                 new SimpleHttpRequestHandlerResolver(requestHandler));
@@ -792,7 +617,7 @@ public class TestThrottlingNHttpHandlers extends HttpCoreNIOTestBase {
                 requestExecutionHandler,
                 new DefaultConnectionReuseStrategy(),
                 this.execService,
-                this.client.getParams());
+                this.clientParams);
 
         clientHandler.setEventListener(
                 new SimpleEventListener());
@@ -941,7 +766,7 @@ public class TestThrottlingNHttpHandlers extends HttpCoreNIOTestBase {
                 new DefaultHttpResponseFactory(),
                 new DefaultConnectionReuseStrategy(),
                 this.execService,
-                this.server.getParams());
+                this.serverParams);
 
         serviceHandler.setHandlerResolver(
                 new SimpleHttpRequestHandlerResolver(new RequestHandler()));
@@ -960,7 +785,7 @@ public class TestThrottlingNHttpHandlers extends HttpCoreNIOTestBase {
                 requestExecutionHandler,
                 new DefaultConnectionReuseStrategy(),
                 this.execService,
-                this.client.getParams());
+                this.clientParams);
 
         clientHandler.setEventListener(
                 new SimpleEventListener());

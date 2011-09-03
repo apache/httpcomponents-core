@@ -153,7 +153,7 @@ public class TestDefaultIOReactorsSSL extends HttpCoreNIOSSLTestBase {
                 serverHttpProc,
                 new DefaultHttpResponseFactory(),
                 new DefaultConnectionReuseStrategy(),
-                this.server.getParams());
+                this.serverParams);
 
         serviceHandler.setHandlerResolver(
                 new SimpleHttpRequestHandlerResolver(requestHandler));
@@ -187,7 +187,7 @@ public class TestDefaultIOReactorsSSL extends HttpCoreNIOSSLTestBase {
                 clientHttpProc,
                 requestExecutionHandler,
                 new DefaultConnectionReuseStrategy(),
-                this.client.getParams());
+                this.serverParams);
 
         clientHandler.setEventListener(
                 clientEventListener);

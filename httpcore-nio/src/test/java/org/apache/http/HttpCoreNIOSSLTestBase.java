@@ -27,12 +27,15 @@
 
 package org.apache.http;
 
+import org.apache.http.impl.nio.SSLNHttpClientConnectionFactory;
+import org.apache.http.impl.nio.SSLNHttpServerConnectionFactory;
 import org.apache.http.params.CoreConnectionPNames;
 import org.apache.http.params.CoreProtocolPNames;
 import org.apache.http.params.HttpParams;
 import org.apache.http.params.SyncBasicHttpParams;
-import org.apache.http.testserver.HttpSSLClient;
-import org.apache.http.testserver.HttpSSLServer;
+import org.apache.http.testserver.HttpClientNio;
+import org.apache.http.testserver.HttpServerNio;
+import org.apache.http.testserver.SSLTestContexts;
 import org.junit.After;
 import org.junit.Before;
 
@@ -41,35 +44,37 @@ import org.junit.Before;
  */
 public class HttpCoreNIOSSLTestBase {
 
-    protected HttpSSLServer server;
-    protected HttpSSLClient client;
+    protected HttpParams serverParams;
+    protected HttpParams clientParams;
+    protected HttpServerNio server;
+    protected HttpClientNio client;
 
     @Before
     public void initServer() throws Exception {
-        HttpParams serverParams = new SyncBasicHttpParams();
-        serverParams
+        this.serverParams = new SyncBasicHttpParams();
+        this.serverParams
             .setIntParameter(CoreConnectionPNames.SO_TIMEOUT, 120000)
             .setIntParameter(CoreConnectionPNames.SOCKET_BUFFER_SIZE, 8 * 1024)
             .setBooleanParameter(CoreConnectionPNames.STALE_CONNECTION_CHECK, false)
             .setBooleanParameter(CoreConnectionPNames.TCP_NODELAY, true)
             .setParameter(CoreProtocolPNames.ORIGIN_SERVER, "TEST-SERVER/1.1");
-
-        this.server = new HttpSSLServer(serverParams);
+        this.server = new HttpServerNio(new SSLNHttpServerConnectionFactory(
+                SSLTestContexts.createServerSSLContext(), null, this.serverParams));
         this.server.setExceptionHandler(new SimpleIOReactorExceptionHandler());
     }
 
     @Before
     public void initClient() throws Exception {
-        HttpParams clientParams = new SyncBasicHttpParams();
-        clientParams
+        this.clientParams = new SyncBasicHttpParams();
+        this.clientParams
             .setIntParameter(CoreConnectionPNames.SO_TIMEOUT, 120000)
             .setIntParameter(CoreConnectionPNames.CONNECTION_TIMEOUT, 120000)
             .setIntParameter(CoreConnectionPNames.SOCKET_BUFFER_SIZE, 8 * 1024)
             .setBooleanParameter(CoreConnectionPNames.STALE_CONNECTION_CHECK, false)
             .setBooleanParameter(CoreConnectionPNames.TCP_NODELAY, true)
             .setParameter(CoreProtocolPNames.USER_AGENT, "TEST-CLIENT/1.1");
-
-        this.client = new HttpSSLClient(clientParams);
+        this.client = new HttpClientNio(new SSLNHttpClientConnectionFactory(
+                SSLTestContexts.createClientSSLContext(), null, this.clientParams));
         this.client.setExceptionHandler(new SimpleIOReactorExceptionHandler());
     }
 

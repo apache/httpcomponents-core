@@ -95,7 +95,7 @@ public class TestNIOSSLHttp extends HttpCoreNIOSSLTestBase {
                 serverHttpProc,
                 new DefaultHttpResponseFactory(),
                 new DefaultConnectionReuseStrategy(),
-                this.server.getParams());
+                this.serverParams);
 
         serviceHandler.setHandlerResolver(
                 new SimpleNHttpRequestHandlerResolver(requestHandler));
@@ -113,7 +113,7 @@ public class TestNIOSSLHttp extends HttpCoreNIOSSLTestBase {
                 clientHttpProc,
                 requestExecutionHandler,
                 new DefaultConnectionReuseStrategy(),
-                this.client.getParams());
+                this.clientParams);
 
         clientHandler.setEventListener(
                 new SimpleEventListener());

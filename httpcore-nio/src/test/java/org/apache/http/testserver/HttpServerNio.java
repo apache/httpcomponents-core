@@ -34,12 +34,13 @@ import java.util.List;
 import org.apache.http.impl.nio.DefaultServerIODispatch;
 import org.apache.http.impl.nio.reactor.DefaultListeningIOReactor;
 import org.apache.http.impl.nio.reactor.ExceptionEvent;
+import org.apache.http.nio.NHttpConnectionFactory;
+import org.apache.http.nio.NHttpServerIOTarget;
 import org.apache.http.nio.NHttpServiceHandler;
 import org.apache.http.nio.reactor.IOEventDispatch;
 import org.apache.http.nio.reactor.IOReactorExceptionHandler;
 import org.apache.http.nio.reactor.IOReactorStatus;
 import org.apache.http.nio.reactor.ListenerEndpoint;
-import org.apache.http.params.HttpParams;
 
 /**
  * Trivial test server based on HttpCore NIO
@@ -48,35 +49,24 @@ import org.apache.http.params.HttpParams;
 public class HttpServerNio {
 
     private final DefaultListeningIOReactor ioReactor;
-    private final HttpParams params;
+    private final NHttpConnectionFactory<NHttpServerIOTarget> connFactory;
 
     private volatile IOReactorThread thread;
     private ListenerEndpoint endpoint;
 
-    public HttpServerNio(final HttpParams params) throws IOException {
+    public HttpServerNio(
+            final NHttpConnectionFactory<NHttpServerIOTarget> connFactory) throws IOException {
         super();
         this.ioReactor = new DefaultListeningIOReactor();
-        this.params = params;
-    }
-
-    public HttpParams getParams() {
-        return this.params;
+        this.connFactory = connFactory;
     }
 
     public void setExceptionHandler(final IOReactorExceptionHandler exceptionHandler) {
         this.ioReactor.setExceptionHandler(exceptionHandler);
     }
 
-    protected IOEventDispatch createIOEventDispatch(
-            final NHttpServiceHandler serviceHandler, final HttpParams params) {
-        return new DefaultServerIODispatch(serviceHandler, params);
-    }
-
     private void execute(final NHttpServiceHandler serviceHandler) throws IOException {
-        IOEventDispatch ioEventDispatch = createIOEventDispatch(
-                serviceHandler,
-                this.params);
-
+        IOEventDispatch ioEventDispatch = new DefaultServerIODispatch(serviceHandler, this.connFactory);
         this.ioReactor.execute(ioEventDispatch);
     }
 

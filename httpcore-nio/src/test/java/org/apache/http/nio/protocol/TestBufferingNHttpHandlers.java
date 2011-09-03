@@ -97,7 +97,7 @@ public class TestBufferingNHttpHandlers extends HttpCoreNIOTestBase {
                 serverHttpProc,
                 new DefaultHttpResponseFactory(),
                 new DefaultConnectionReuseStrategy(),
-                this.server.getParams());
+                this.serverParams);
 
         serviceHandler.setHandlerResolver(
                 new SimpleHttpRequestHandlerResolver(requestHandler));
@@ -115,7 +115,7 @@ public class TestBufferingNHttpHandlers extends HttpCoreNIOTestBase {
                 clientHttpProc,
                 requestExecutionHandler,
                 new DefaultConnectionReuseStrategy(),
-                this.client.getParams());
+                this.clientParams);
 
         clientHandler.setEventListener(
                 new SimpleEventListener());

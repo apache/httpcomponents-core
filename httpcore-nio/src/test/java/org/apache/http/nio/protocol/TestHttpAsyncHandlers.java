@@ -108,7 +108,7 @@ public class TestHttpAsyncHandlers extends HttpCoreNIOTestBase {
                 new BasicHttpAsyncRequestHandlerResolver(requestHandler),
                 serverHttpProc,
                 new DefaultConnectionReuseStrategy(),
-                this.server.getParams());
+                this.serverParams);
 
         HttpProcessor clientHttpProc = new ImmutableHttpProcessor(new HttpRequestInterceptor[] {
                 new RequestContent(),
@@ -121,7 +121,7 @@ public class TestHttpAsyncHandlers extends HttpCoreNIOTestBase {
                 clientHttpProc,
                 requestExecutionHandler,
                 new DefaultConnectionReuseStrategy(),
-                this.client.getParams());
+                this.clientParams);
 
         clientHandler.setEventListener(
                 new SimpleEventListener());
