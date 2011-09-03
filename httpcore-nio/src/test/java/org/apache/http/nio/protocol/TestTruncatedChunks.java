@@ -42,6 +42,8 @@ import org.apache.http.HttpRequest;
 import org.apache.http.HttpRequestFactory;
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
+import org.apache.http.LoggingClientConnectionFactory;
+import org.apache.http.LoggingNHttpServerConnection;
 import org.apache.http.MalformedChunkCodingException;
 import org.apache.http.TruncatedChunkException;
 import org.apache.http.entity.ContentLengthStrategy;
@@ -49,8 +51,6 @@ import org.apache.http.entity.HttpEntityWrapper;
 import org.apache.http.impl.DefaultConnectionReuseStrategy;
 import org.apache.http.impl.DefaultHttpResponseFactory;
 import org.apache.http.impl.io.HttpTransportMetricsImpl;
-import org.apache.http.impl.nio.DefaultNHttpClientConnectionFactory;
-import org.apache.http.impl.nio.DefaultNHttpServerConnection;
 import org.apache.http.impl.nio.DefaultNHttpServerConnectionFactory;
 import org.apache.http.impl.nio.codecs.AbstractContentEncoder;
 import org.apache.http.message.BasicHttpRequest;
@@ -98,14 +98,14 @@ public class TestTruncatedChunks extends HttpCoreNIOTestBase {
 
     @Override
     protected NHttpConnectionFactory<NHttpServerIOTarget> createServerConnectionFactory(
-            final HttpParams params) {
+            final HttpParams params) throws Exception {
         return new CustomServerConnectionFactory(params);
     }
 
     @Override
     protected NHttpConnectionFactory<NHttpClientIOTarget> createClientConnectionFactory(
-            final HttpParams params) {
-        return new DefaultNHttpClientConnectionFactory(params);
+            final HttpParams params) throws Exception {
+        return new LoggingClientConnectionFactory(params);
     }
 
     private static final byte[] GARBAGE = new byte[] {'1', '2', '3', '4', '5' };
@@ -165,7 +165,7 @@ public class TestTruncatedChunks extends HttpCoreNIOTestBase {
                 final ByteBufferAllocator allocator,
                 final HttpParams params) {
 
-            return new DefaultNHttpServerConnection(session, requestFactory, allocator, params) {
+            return new LoggingNHttpServerConnection(session, requestFactory, allocator, params) {
 
                         @Override
                         protected ContentEncoder createContentEncoder(

@@ -43,10 +43,11 @@ import org.apache.http.HttpCoreNIOTestBase;
 import org.apache.http.HttpException;
 import org.apache.http.HttpRequest;
 import org.apache.http.HttpResponse;
+import org.apache.http.LoggingSSLClientConnectionFactory;
+import org.apache.http.LoggingSSLServerConnectionFactory;
+import org.apache.http.SSLTestContexts;
 import org.apache.http.impl.DefaultConnectionReuseStrategy;
 import org.apache.http.impl.DefaultHttpResponseFactory;
-import org.apache.http.impl.nio.SSLNHttpClientConnectionFactory;
-import org.apache.http.impl.nio.SSLNHttpServerConnectionFactory;
 import org.apache.http.nio.NHttpClientIOTarget;
 import org.apache.http.nio.NHttpConnectionFactory;
 import org.apache.http.nio.NHttpServerIOTarget;
@@ -58,7 +59,6 @@ import org.apache.http.params.HttpParams;
 import org.apache.http.protocol.HttpContext;
 import org.apache.http.protocol.HttpExpectationVerifier;
 import org.apache.http.protocol.HttpRequestHandler;
-import org.apache.http.testserver.SSLTestContexts;
 import org.apache.http.testserver.SimpleHttpRequestHandlerResolver;
 import org.junit.After;
 import org.junit.Assert;
@@ -79,14 +79,14 @@ public class TestBaseIOReactorSSL extends HttpCoreNIOTestBase {
 
     @Override
     protected NHttpConnectionFactory<NHttpServerIOTarget> createServerConnectionFactory(
-            HttpParams params) throws Exception {
-        return new SSLNHttpServerConnectionFactory(SSLTestContexts.createServerSSLContext(), null, params);
+            final HttpParams params) throws Exception {
+        return new LoggingSSLServerConnectionFactory(SSLTestContexts.createServerSSLContext(), params);
     }
 
     @Override
     protected NHttpConnectionFactory<NHttpClientIOTarget> createClientConnectionFactory(
-            HttpParams params) throws Exception {
-        return new SSLNHttpClientConnectionFactory(SSLTestContexts.createClientSSLContext(), null, params);
+            final HttpParams params) throws Exception {
+        return new LoggingSSLClientConnectionFactory(SSLTestContexts.createClientSSLContext(), params);
     }
 
     private NHttpServiceHandler createHttpServiceHandler(

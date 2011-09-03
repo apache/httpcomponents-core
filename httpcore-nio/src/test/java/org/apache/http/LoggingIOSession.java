@@ -25,7 +25,7 @@
  *
  */
 
-package org.apache.http.testserver;
+package org.apache.http;
 
 import java.io.IOException;
 import java.net.SocketAddress;

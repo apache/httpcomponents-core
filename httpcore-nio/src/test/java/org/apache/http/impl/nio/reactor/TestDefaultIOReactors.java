@@ -41,11 +41,11 @@ import org.apache.http.HttpRequest;
 import org.apache.http.HttpRequestInterceptor;
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpResponseInterceptor;
+import org.apache.http.LoggingClientConnectionFactory;
+import org.apache.http.LoggingServerConnectionFactory;
 import org.apache.http.OoopsieRuntimeException;
 import org.apache.http.impl.DefaultConnectionReuseStrategy;
 import org.apache.http.impl.DefaultHttpResponseFactory;
-import org.apache.http.impl.nio.DefaultNHttpClientConnectionFactory;
-import org.apache.http.impl.nio.DefaultNHttpServerConnectionFactory;
 import org.apache.http.message.BasicHttpRequest;
 import org.apache.http.nio.NHttpClientIOTarget;
 import org.apache.http.nio.NHttpConnection;
@@ -100,14 +100,14 @@ public class TestDefaultIOReactors extends HttpCoreNIOTestBase {
 
     @Override
     protected NHttpConnectionFactory<NHttpServerIOTarget> createServerConnectionFactory(
-            final HttpParams params) {
-        return new DefaultNHttpServerConnectionFactory(params);
+            final HttpParams params) throws Exception {
+        return new LoggingServerConnectionFactory(params);
     }
 
     @Override
     protected NHttpConnectionFactory<NHttpClientIOTarget> createClientConnectionFactory(
-            final HttpParams params) {
-        return new DefaultNHttpClientConnectionFactory(params);
+            final HttpParams params) throws Exception {
+        return new LoggingClientConnectionFactory(params);
     }
 
     @Test

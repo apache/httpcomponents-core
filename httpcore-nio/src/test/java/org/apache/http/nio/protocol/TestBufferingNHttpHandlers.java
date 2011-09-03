@@ -38,10 +38,10 @@ import org.apache.http.HttpEntityEnclosingRequest;
 import org.apache.http.HttpRequest;
 import org.apache.http.HttpStatus;
 import org.apache.http.HttpVersion;
+import org.apache.http.LoggingClientConnectionFactory;
+import org.apache.http.LoggingServerConnectionFactory;
 import org.apache.http.impl.DefaultConnectionReuseStrategy;
 import org.apache.http.impl.DefaultHttpResponseFactory;
-import org.apache.http.impl.nio.DefaultNHttpClientConnectionFactory;
-import org.apache.http.impl.nio.DefaultNHttpServerConnectionFactory;
 import org.apache.http.message.BasicHttpEntityEnclosingRequest;
 import org.apache.http.message.BasicHttpRequest;
 import org.apache.http.nio.NHttpClientIOTarget;
@@ -81,14 +81,14 @@ public class TestBufferingNHttpHandlers extends HttpCoreNIOTestBase {
 
     @Override
     protected NHttpConnectionFactory<NHttpServerIOTarget> createServerConnectionFactory(
-            final HttpParams params) {
-        return new DefaultNHttpServerConnectionFactory(params);
+            final HttpParams params) throws Exception {
+        return new LoggingServerConnectionFactory(params);
     }
 
     @Override
     protected NHttpConnectionFactory<NHttpClientIOTarget> createClientConnectionFactory(
-            final HttpParams params) {
-        return new DefaultNHttpClientConnectionFactory(params);
+            final HttpParams params) throws Exception {
+        return new LoggingClientConnectionFactory(params);
     }
 
     private void executeStandardTest(

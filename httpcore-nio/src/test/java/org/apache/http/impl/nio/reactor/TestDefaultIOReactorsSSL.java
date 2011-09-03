@@ -40,10 +40,11 @@ import org.apache.http.HttpRequest;
 import org.apache.http.HttpRequestInterceptor;
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpResponseInterceptor;
+import org.apache.http.LoggingSSLClientConnectionFactory;
+import org.apache.http.LoggingSSLServerConnectionFactory;
+import org.apache.http.SSLTestContexts;
 import org.apache.http.impl.DefaultConnectionReuseStrategy;
 import org.apache.http.impl.DefaultHttpResponseFactory;
-import org.apache.http.impl.nio.SSLNHttpClientConnectionFactory;
-import org.apache.http.impl.nio.SSLNHttpServerConnectionFactory;
 import org.apache.http.message.BasicHttpRequest;
 import org.apache.http.nio.NHttpClientIOTarget;
 import org.apache.http.nio.NHttpConnection;
@@ -70,7 +71,6 @@ import org.apache.http.protocol.ResponseConnControl;
 import org.apache.http.protocol.ResponseContent;
 import org.apache.http.protocol.ResponseDate;
 import org.apache.http.protocol.ResponseServer;
-import org.apache.http.testserver.SSLTestContexts;
 import org.apache.http.testserver.SimpleEventListener;
 import org.apache.http.testserver.SimpleHttpRequestHandlerResolver;
 import org.junit.After;
@@ -98,14 +98,14 @@ public class TestDefaultIOReactorsSSL extends HttpCoreNIOTestBase {
 
     @Override
     protected NHttpConnectionFactory<NHttpServerIOTarget> createServerConnectionFactory(
-            HttpParams params) throws Exception {
-        return new SSLNHttpServerConnectionFactory(SSLTestContexts.createServerSSLContext(), null, params);
+            final HttpParams params) throws Exception {
+        return new LoggingSSLServerConnectionFactory(SSLTestContexts.createServerSSLContext(), params);
     }
 
     @Override
     protected NHttpConnectionFactory<NHttpClientIOTarget> createClientConnectionFactory(
-            HttpParams params) throws Exception {
-        return new SSLNHttpClientConnectionFactory(SSLTestContexts.createClientSSLContext(), null, params);
+            final HttpParams params) throws Exception {
+        return new LoggingSSLClientConnectionFactory(SSLTestContexts.createClientSSLContext(), params);
     }
 
     @Test
