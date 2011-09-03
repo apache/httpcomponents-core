@@ -40,7 +40,6 @@ import javax.net.ssl.SSLContext;
 
 import org.apache.http.impl.nio.reactor.DefaultListeningIOReactor;
 import org.apache.http.impl.nio.reactor.ExceptionEvent;
-import org.apache.http.impl.nio.reactor.SSLIOSession;
 import org.apache.http.impl.nio.ssl.SSLServerIOEventDispatch;
 import org.apache.http.nio.NHttpServerIOTarget;
 import org.apache.http.nio.NHttpServiceHandler;
@@ -48,6 +47,7 @@ import org.apache.http.nio.reactor.IOEventDispatch;
 import org.apache.http.nio.reactor.IOReactorExceptionHandler;
 import org.apache.http.nio.reactor.IOReactorStatus;
 import org.apache.http.nio.reactor.ListenerEndpoint;
+import org.apache.http.nio.reactor.ssl.SSLIOSession;
 import org.apache.http.params.HttpParams;
 
 /**

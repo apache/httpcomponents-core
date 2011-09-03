@@ -54,12 +54,6 @@ public interface IOSession {
      */
     public static final String ATTACHMENT_KEY = "http.session.attachment";
 
-    /**
-     * Name of the context attribute key, which can be used to obtain the
-     * SSL session.
-     */
-    public static final String SSL_SESSION_KEY = "http.session.ssl";
-
     public static final int ACTIVE       = 0;
     public static final int CLOSING      = 1;
     public static final int CLOSED       = Integer.MAX_VALUE;

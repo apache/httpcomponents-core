@@ -30,10 +30,10 @@ package org.apache.http.impl.nio;
 import java.io.IOException;
 
 import org.apache.http.annotation.Immutable;
-import org.apache.http.impl.nio.reactor.SSLIOSession;
 import org.apache.http.nio.NHttpConnection;
 import org.apache.http.nio.reactor.IOEventDispatch;
 import org.apache.http.nio.reactor.IOSession;
+import org.apache.http.nio.reactor.ssl.SSLIOSession;
 import org.apache.http.protocol.ExecutionContext;
 
 /**
@@ -94,7 +94,7 @@ public abstract class AbstractIODispatch<T extends NHttpConnection> implements I
         try {
             ensureNotNull(conn);
             SSLIOSession ssliosession = (SSLIOSession) session.getAttribute(
-                    IOSession.SSL_SESSION_KEY);
+                    SSLIOSession.SESSION_KEY);
             if (ssliosession == null) {
             	onInputReady(conn);
             } else {
@@ -120,7 +120,7 @@ public abstract class AbstractIODispatch<T extends NHttpConnection> implements I
         try {
             ensureNotNull(conn);
             SSLIOSession ssliosession = (SSLIOSession) session.getAttribute(
-                    IOSession.SSL_SESSION_KEY);
+                    SSLIOSession.SESSION_KEY);
             if (ssliosession == null) {
                 onOutputReady(conn);
             } else {
@@ -145,7 +145,7 @@ public abstract class AbstractIODispatch<T extends NHttpConnection> implements I
         T conn = (T) session.getAttribute(ExecutionContext.HTTP_CONNECTION);
         try {
             SSLIOSession ssliosession = (SSLIOSession) session.getAttribute(
-                    IOSession.SSL_SESSION_KEY);
+                    SSLIOSession.SESSION_KEY);
             ensureNotNull(conn);
             if (ssliosession == null) {
                 onTimeout(conn);

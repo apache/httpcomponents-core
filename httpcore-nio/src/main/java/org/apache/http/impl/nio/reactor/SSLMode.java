@@ -30,6 +30,7 @@ package org.apache.http.impl.nio.reactor;
 /**
  * @since 4.0
  */
+@Deprecated
 public enum SSLMode {
 
     CLIENT,

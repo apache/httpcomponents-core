@@ -32,13 +32,13 @@ import javax.net.ssl.SSLException;
 
 import org.apache.http.annotation.Immutable;
 import org.apache.http.impl.nio.DefaultClientIOEventDispatch;
-import org.apache.http.impl.nio.reactor.SSLIOSession;
-import org.apache.http.impl.nio.reactor.SSLMode;
-import org.apache.http.impl.nio.reactor.SSLSetupHandler;
 import org.apache.http.nio.NHttpClientHandler;
 import org.apache.http.nio.NHttpClientIOTarget;
 import org.apache.http.nio.reactor.IOEventDispatch;
 import org.apache.http.nio.reactor.IOSession;
+import org.apache.http.nio.reactor.ssl.SSLIOSession;
+import org.apache.http.nio.reactor.ssl.SSLMode;
+import org.apache.http.nio.reactor.ssl.SSLSetupHandler;
 import org.apache.http.params.HttpConnectionParams;
 import org.apache.http.params.HttpParams;
 
@@ -124,7 +124,7 @@ public class SSLClientIOEventDispatch extends DefaultClientIOEventDispatch {
             final IOSession session,
             final SSLContext sslcontext,
             final SSLSetupHandler sslHandler) {
-        return new SSLIOSession(session, sslcontext, sslHandler);
+        return new SSLIOSession(session, SSLMode.CLIENT, sslcontext, sslHandler);
     }
 
     protected NHttpClientIOTarget createSSLConnection(final SSLIOSession ssliosession) {
@@ -134,10 +134,10 @@ public class SSLClientIOEventDispatch extends DefaultClientIOEventDispatch {
     @Override
 	protected NHttpClientIOTarget createConnection(final IOSession session) {
         SSLIOSession ssliosession = createSSLIOSession(session, this.sslcontext, this.sslHandler);
-        session.setAttribute(IOSession.SSL_SESSION_KEY, ssliosession);
+        session.setAttribute(SSLIOSession.SESSION_KEY, ssliosession);
         NHttpClientIOTarget conn = createSSLConnection(ssliosession);
         try {
-            ssliosession.bind(SSLMode.CLIENT, this.params);
+            ssliosession.initialize();
         } catch (SSLException ex) {
             this.handler.exception(conn, ex);
             ssliosession.shutdown();

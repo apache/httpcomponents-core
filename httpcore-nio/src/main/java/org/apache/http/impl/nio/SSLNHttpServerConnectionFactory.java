@@ -33,12 +33,12 @@ import javax.net.ssl.SSLContext;
 import org.apache.http.HttpRequestFactory;
 import org.apache.http.annotation.Immutable;
 import org.apache.http.impl.DefaultHttpRequestFactory;
-import org.apache.http.impl.nio.reactor.SSLIOSession;
-import org.apache.http.impl.nio.reactor.SSLMode;
-import org.apache.http.impl.nio.reactor.SSLSetupHandler;
 import org.apache.http.nio.NHttpConnectionFactory;
 import org.apache.http.nio.NHttpServerConnection;
 import org.apache.http.nio.reactor.IOSession;
+import org.apache.http.nio.reactor.ssl.SSLIOSession;
+import org.apache.http.nio.reactor.ssl.SSLMode;
+import org.apache.http.nio.reactor.ssl.SSLSetupHandler;
 import org.apache.http.nio.util.ByteBufferAllocator;
 import org.apache.http.nio.util.HeapByteBufferAllocator;
 import org.apache.http.params.HttpParams;
@@ -121,9 +121,9 @@ public class SSLNHttpServerConnectionFactory implements NHttpConnectionFactory<N
 
     public NHttpServerConnection createConnection(final IOSession session) throws IOException {
         SSLContext sslcontext = this.sslcontext != null ? this.sslcontext : getDefaultSSLContext();
-        SSLIOSession ssliosession = new SSLIOSession(session, sslcontext, this.sslHandler);
-        ssliosession.bind(SSLMode.CLIENT, this.params);
-        session.setAttribute(IOSession.SSL_SESSION_KEY, ssliosession);
+        SSLIOSession ssliosession = new SSLIOSession(session, SSLMode.CLIENT, sslcontext, this.sslHandler);
+        ssliosession.initialize();
+        session.setAttribute(SSLIOSession.SESSION_KEY, ssliosession);
         return createConnection(ssliosession, this.requestFactory, this.allocator, this.params);
     }
 

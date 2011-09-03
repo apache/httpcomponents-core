@@ -55,6 +55,12 @@ import java.nio.channels.SelectionKey;
 @ThreadSafe
 public class SSLIOSession implements IOSession, SessionBufferStatus {
 
+    /**
+     * Name of the context attribute key, which can be used to obtain the
+     * SSL session.
+     */
+    public static final String SESSION_KEY = "http.session.ssl";
+
     private final IOSession session;
     private final SSLMode defaultMode;
     private final SSLEngine sslEngine;
