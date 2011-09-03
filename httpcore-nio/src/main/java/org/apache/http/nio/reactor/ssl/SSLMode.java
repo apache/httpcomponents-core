@@ -25,38 +25,14 @@
  *
  */
 
-package org.apache.http.impl.nio.reactor;
+package org.apache.http.nio.reactor.ssl;
 
-import javax.net.ssl.SSLEngine;
-import javax.net.ssl.SSLException;
-import javax.net.ssl.SSLSession;
+/**
+ * @since 4.2
+ */
+public enum SSLMode {
 
-import org.apache.http.nio.reactor.IOSession;
-import org.apache.http.params.BasicHttpParams;
-import org.apache.http.params.HttpParams;
-
-@Deprecated
-class SSLIOSessionHandlerAdaptor implements org.apache.http.nio.reactor.ssl.SSLSetupHandler {
-
-    private final SSLIOSessionHandler handler;
-
-    private HttpParams params;
-
-    public SSLIOSessionHandlerAdaptor(final SSLIOSessionHandler handler) {
-        super();
-        this.handler = handler;
-    }
-
-    public void initalize(final SSLEngine sslengine) throws SSLException {
-        this.handler.initalize(sslengine, this.params != null ? this.params : new BasicHttpParams());
-    }
-
-    public void verify(final IOSession iosession, final SSLSession sslsession) throws SSLException {
-        this.handler.verify(iosession.getRemoteAddress(), sslsession);
-    }
-
-    public void setParams(final HttpParams params) {
-        this.params = params;
-    }
+    CLIENT,
+    SERVER
 
 }

@@ -32,43 +32,31 @@ import javax.net.ssl.SSLException;
 import javax.net.ssl.SSLSession;
 
 import org.apache.http.nio.reactor.IOSession;
+import org.apache.http.params.BasicHttpParams;
 import org.apache.http.params.HttpParams;
 
-/**
- * Callback interface that can be used to customize various aspects of
- * the TLS/SSl protocol.
- *
- * @since 4.1
- *
- * @deprecated use {@link org.apache.http.nio.reactor.ssl.SSLSetupHandler}
- */
 @Deprecated
-public interface SSLSetupHandler {
+class SSLSetupHandlerAdaptor implements org.apache.http.nio.reactor.ssl.SSLSetupHandler {
 
-    /**
-     * Triggered when the SSL connection is being initialized. Custom handlers
-     * can use this callback to customize properties of the {@link SSLEngine}
-     * used to establish the SSL session.
-     *
-     * @param sslengine the SSL engine.
-     * @param params HTTP parameters.
-     * @throws SSLException if case of SSL protocol error.
-     */
-    void initalize(SSLEngine sslengine, HttpParams params)
-        throws SSLException;
+    private final SSLSetupHandler handler;
 
-    /**
-     * Triggered when the SSL connection has been established and initial SSL
-     * handshake has been successfully completed. Custom handlers can use
-     * this callback to verify properties of the {@link SSLSession}.
-     * For instance this would be the right place to enforce SSL cipher
-     * strength, validate certificate chain and do hostname checks.
-     *
-     * @param iosession the underlying IOSession for the SSL connection.
-     * @param sslsession newly created SSL session.
-     * @throws SSLException if case of SSL protocol error.
-     */
-    void verify(IOSession iosession, SSLSession sslsession)
-        throws SSLException;
+    private HttpParams params;
+
+    public SSLSetupHandlerAdaptor(final SSLSetupHandler handler) {
+        super();
+        this.handler = handler;
+    }
+
+    public void initalize(final SSLEngine sslengine) throws SSLException {
+        this.handler.initalize(sslengine, this.params != null ? this.params : new BasicHttpParams());
+    }
+
+    public void verify(final IOSession iosession, final SSLSession sslsession) throws SSLException {
+        this.handler.verify(iosession, sslsession);
+    }
+
+    public void setParams(final HttpParams params) {
+        this.params = params;
+    }
 
 }

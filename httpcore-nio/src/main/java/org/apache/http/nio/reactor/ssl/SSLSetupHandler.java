@@ -25,24 +25,20 @@
  *
  */
 
-package org.apache.http.impl.nio.reactor;
+package org.apache.http.nio.reactor.ssl;
 
 import javax.net.ssl.SSLEngine;
 import javax.net.ssl.SSLException;
 import javax.net.ssl.SSLSession;
 
 import org.apache.http.nio.reactor.IOSession;
-import org.apache.http.params.HttpParams;
 
 /**
  * Callback interface that can be used to customize various aspects of
  * the TLS/SSl protocol.
  *
  * @since 4.1
- *
- * @deprecated use {@link org.apache.http.nio.reactor.ssl.SSLSetupHandler}
  */
-@Deprecated
 public interface SSLSetupHandler {
 
     /**
@@ -54,8 +50,7 @@ public interface SSLSetupHandler {
      * @param params HTTP parameters.
      * @throws SSLException if case of SSL protocol error.
      */
-    void initalize(SSLEngine sslengine, HttpParams params)
-        throws SSLException;
+    void initalize(SSLEngine sslengine) throws SSLException;
 
     /**
      * Triggered when the SSL connection has been established and initial SSL
@@ -68,7 +63,6 @@ public interface SSLSetupHandler {
      * @param sslsession newly created SSL session.
      * @throws SSLException if case of SSL protocol error.
      */
-    void verify(IOSession iosession, SSLSession sslsession)
-        throws SSLException;
+    void verify(IOSession iosession, SSLSession sslsession) throws SSLException;
 
 }
