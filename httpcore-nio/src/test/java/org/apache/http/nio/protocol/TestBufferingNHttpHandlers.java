@@ -36,34 +36,29 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 import org.apache.http.HttpCoreNIOTestBase;
 import org.apache.http.HttpEntityEnclosingRequest;
 import org.apache.http.HttpRequest;
-import org.apache.http.HttpRequestInterceptor;
-import org.apache.http.HttpResponseInterceptor;
 import org.apache.http.HttpStatus;
 import org.apache.http.HttpVersion;
 import org.apache.http.impl.DefaultConnectionReuseStrategy;
 import org.apache.http.impl.DefaultHttpResponseFactory;
+import org.apache.http.impl.nio.DefaultNHttpClientConnectionFactory;
+import org.apache.http.impl.nio.DefaultNHttpServerConnectionFactory;
 import org.apache.http.message.BasicHttpEntityEnclosingRequest;
 import org.apache.http.message.BasicHttpRequest;
+import org.apache.http.nio.NHttpClientIOTarget;
+import org.apache.http.nio.NHttpConnectionFactory;
+import org.apache.http.nio.NHttpServerIOTarget;
 import org.apache.http.nio.entity.NStringEntity;
 import org.apache.http.nio.reactor.IOReactorStatus;
 import org.apache.http.nio.reactor.ListenerEndpoint;
 import org.apache.http.nio.reactor.SessionRequest;
 import org.apache.http.params.CoreProtocolPNames;
-import org.apache.http.protocol.HttpProcessor;
+import org.apache.http.params.HttpParams;
 import org.apache.http.protocol.HttpRequestHandler;
-import org.apache.http.protocol.ImmutableHttpProcessor;
-import org.apache.http.protocol.RequestConnControl;
-import org.apache.http.protocol.RequestContent;
-import org.apache.http.protocol.RequestExpectContinue;
-import org.apache.http.protocol.RequestTargetHost;
-import org.apache.http.protocol.RequestUserAgent;
-import org.apache.http.protocol.ResponseConnControl;
-import org.apache.http.protocol.ResponseContent;
-import org.apache.http.protocol.ResponseDate;
-import org.apache.http.protocol.ResponseServer;
 import org.apache.http.testserver.SimpleEventListener;
 import org.apache.http.testserver.SimpleHttpRequestHandlerResolver;
+import org.junit.After;
 import org.junit.Assert;
+import org.junit.Before;
 import org.junit.Test;
 
 /**
@@ -71,6 +66,42 @@ import org.junit.Test;
  * protocol handlers.
  */
 public class TestBufferingNHttpHandlers extends HttpCoreNIOTestBase {
+
+    @Before
+    @Override
+    public void initServer() throws Exception {
+        super.initServer();
+    }
+
+    @Before
+    @Override
+    public void initClient() throws Exception {
+        super.initClient();
+    }
+
+    @After
+    @Override
+    public void shutDownClient() throws Exception {
+        super.shutDownClient();
+    }
+
+    @After
+    @Override
+    public void shutDownServer() throws Exception {
+        super.shutDownServer();
+    }
+
+    @Override
+    protected NHttpConnectionFactory<NHttpServerIOTarget> createServerConnectionFactory(
+            final HttpParams params) {
+        return new DefaultNHttpServerConnectionFactory(params);
+    }
+
+    @Override
+    protected NHttpConnectionFactory<NHttpClientIOTarget> createClientConnectionFactory(
+            final HttpParams params) {
+        return new DefaultNHttpClientConnectionFactory(params);
+    }
 
     private void executeStandardTest(
             final HttpRequestHandler requestHandler,
@@ -86,15 +117,8 @@ public class TestBufferingNHttpHandlers extends HttpCoreNIOTestBase {
             queue.add(jobs[i]);
         }
 
-        HttpProcessor serverHttpProc = new ImmutableHttpProcessor(new HttpResponseInterceptor[] {
-                new ResponseDate(),
-                new ResponseServer(),
-                new ResponseContent(),
-                new ResponseConnControl()
-        });
-
         BufferingHttpServiceHandler serviceHandler = new BufferingHttpServiceHandler(
-                serverHttpProc,
+                this.serverHttpProc,
                 new DefaultHttpResponseFactory(),
                 new DefaultConnectionReuseStrategy(),
                 this.serverParams);
@@ -104,15 +128,8 @@ public class TestBufferingNHttpHandlers extends HttpCoreNIOTestBase {
         serviceHandler.setEventListener(
                 new SimpleEventListener());
 
-        HttpProcessor clientHttpProc = new ImmutableHttpProcessor(new HttpRequestInterceptor[] {
-                new RequestContent(),
-                new RequestTargetHost(),
-                new RequestConnControl(),
-                new RequestUserAgent(),
-                new RequestExpectContinue()});
-
         BufferingHttpClientHandler clientHandler = new BufferingHttpClientHandler(
-                clientHttpProc,
+                this.clientHttpProc,
                 requestExecutionHandler,
                 new DefaultConnectionReuseStrategy(),
                 this.clientParams);

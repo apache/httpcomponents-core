@@ -36,12 +36,11 @@ import java.nio.channels.WritableByteChannel;
 import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
+import org.apache.http.HttpCoreNIOTestBase;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpRequest;
 import org.apache.http.HttpRequestFactory;
-import org.apache.http.HttpRequestInterceptor;
 import org.apache.http.HttpResponse;
-import org.apache.http.HttpResponseInterceptor;
 import org.apache.http.HttpStatus;
 import org.apache.http.MalformedChunkCodingException;
 import org.apache.http.TruncatedChunkException;
@@ -58,7 +57,9 @@ import org.apache.http.message.BasicHttpRequest;
 import org.apache.http.nio.ContentDecoder;
 import org.apache.http.nio.ContentEncoder;
 import org.apache.http.nio.IOControl;
+import org.apache.http.nio.NHttpClientIOTarget;
 import org.apache.http.nio.NHttpConnection;
+import org.apache.http.nio.NHttpConnectionFactory;
 import org.apache.http.nio.NHttpServerIOTarget;
 import org.apache.http.nio.entity.ConsumingNHttpEntity;
 import org.apache.http.nio.entity.ContentInputStream;
@@ -68,24 +69,8 @@ import org.apache.http.nio.reactor.SessionOutputBuffer;
 import org.apache.http.nio.util.ByteBufferAllocator;
 import org.apache.http.nio.util.HeapByteBufferAllocator;
 import org.apache.http.nio.util.SimpleInputBuffer;
-import org.apache.http.params.CoreConnectionPNames;
-import org.apache.http.params.CoreProtocolPNames;
 import org.apache.http.params.HttpParams;
-import org.apache.http.params.SyncBasicHttpParams;
 import org.apache.http.protocol.HttpContext;
-import org.apache.http.protocol.HttpProcessor;
-import org.apache.http.protocol.ImmutableHttpProcessor;
-import org.apache.http.protocol.RequestConnControl;
-import org.apache.http.protocol.RequestContent;
-import org.apache.http.protocol.RequestExpectContinue;
-import org.apache.http.protocol.RequestTargetHost;
-import org.apache.http.protocol.RequestUserAgent;
-import org.apache.http.protocol.ResponseConnControl;
-import org.apache.http.protocol.ResponseContent;
-import org.apache.http.protocol.ResponseDate;
-import org.apache.http.protocol.ResponseServer;
-import org.apache.http.testserver.HttpClientNio;
-import org.apache.http.testserver.HttpServerNio;
 import org.apache.http.testserver.SimpleEventListener;
 import org.apache.http.testserver.SimpleNHttpRequestHandlerResolver;
 import org.apache.http.util.CharArrayBuffer;
@@ -97,7 +82,43 @@ import org.junit.Test;
 /**
  * Tests for handling truncated chunks.
  */
-public class TestTruncatedChunks {
+public class TestTruncatedChunks extends HttpCoreNIOTestBase {
+
+    @Before
+    @Override
+    public void initServer() throws Exception {
+        super.initServer();
+    }
+
+    @Before
+    @Override
+    public void initClient() throws Exception {
+        super.initClient();
+    }
+
+    @After
+    @Override
+    public void shutDownClient() throws Exception {
+        super.shutDownClient();
+    }
+
+    @After
+    @Override
+    public void shutDownServer() throws Exception {
+        super.shutDownServer();
+    }
+
+    @Override
+    protected NHttpConnectionFactory<NHttpServerIOTarget> createServerConnectionFactory(
+            final HttpParams params) {
+        return new CustomServerConnectionFactory(params);
+    }
+
+    @Override
+    protected NHttpConnectionFactory<NHttpClientIOTarget> createClientConnectionFactory(
+            final HttpParams params) {
+        return new DefaultNHttpClientConnectionFactory(params);
+    }
 
     private static final byte[] GARBAGE = new byte[] {'1', '2', '3', '4', '5' };
 
@@ -176,50 +197,6 @@ public class TestTruncatedChunks {
 
     }
 
-    protected HttpParams serverParams;
-    protected HttpParams clientParams;
-    protected HttpServerNio server;
-    protected HttpClientNio client;
-
-    @Before
-    public void initServer() throws Exception {
-        this.serverParams = new SyncBasicHttpParams();
-        this.serverParams
-            .setIntParameter(CoreConnectionPNames.SO_TIMEOUT, 60000)
-            .setIntParameter(CoreConnectionPNames.SOCKET_BUFFER_SIZE, 8 * 1024)
-            .setBooleanParameter(CoreConnectionPNames.STALE_CONNECTION_CHECK, false)
-            .setBooleanParameter(CoreConnectionPNames.TCP_NODELAY, true)
-            .setParameter(CoreProtocolPNames.ORIGIN_SERVER, "TEST-SERVER/1.1");
-        this.server = new HttpServerNio(new CustomServerConnectionFactory(this.serverParams));
-    }
-
-    @Before
-    public void initClient() throws Exception {
-        this.clientParams = new SyncBasicHttpParams();
-        this.clientParams
-            .setIntParameter(CoreConnectionPNames.SO_TIMEOUT, 60000)
-            .setIntParameter(CoreConnectionPNames.CONNECTION_TIMEOUT, 30000)
-            .setIntParameter(CoreConnectionPNames.SOCKET_BUFFER_SIZE, 8 * 1024)
-            .setBooleanParameter(CoreConnectionPNames.STALE_CONNECTION_CHECK, false)
-            .setBooleanParameter(CoreConnectionPNames.TCP_NODELAY, true)
-            .setParameter(CoreProtocolPNames.USER_AGENT, "TEST-CLIENT/1.1");
-        this.client = new HttpClientNio(new DefaultNHttpClientConnectionFactory(this.clientParams));
-    }
-
-    @After
-    public void shutDownClient() throws Exception {
-        if (this.client != null) {
-            this.client.shutdown();
-        }
-    }
-
-    @After
-    public void shutDownServer() throws Exception {
-        if (this.server != null) {
-            this.server.shutdown();
-        }
-    }
-
     @Test
     public void testTruncatedChunkException() throws Exception {
 
@@ -237,15 +214,8 @@ public class TestTruncatedChunks {
         Queue<Job> queue = new ConcurrentLinkedQueue<Job>();
         queue.add(testjob);
 
-        HttpProcessor serverHttpProc = new ImmutableHttpProcessor(new HttpResponseInterceptor[] {
-                new ResponseDate(),
-                new ResponseServer(),
-                new ResponseContent(),
-                new ResponseConnControl()
-        });
-
         AsyncNHttpServiceHandler serviceHandler = new AsyncNHttpServiceHandler(
-                serverHttpProc,
+                this.serverHttpProc,
                 new DefaultHttpResponseFactory(),
                 new DefaultConnectionReuseStrategy(),
                 this.serverParams);
@@ -255,15 +225,8 @@ public class TestTruncatedChunks {
         serviceHandler.setEventListener(
                 new SimpleEventListener());
 
-        HttpProcessor clientHttpProc = new ImmutableHttpProcessor(new HttpRequestInterceptor[] {
-                new RequestContent(),
-                new RequestTargetHost(),
-                new RequestConnControl(),
-                new RequestUserAgent(),
-                new RequestExpectContinue()});
-
         AsyncNHttpClientHandler clientHandler = new AsyncNHttpClientHandler(
-                clientHttpProc,
+                this.clientHttpProc,
                 requestExecutionHandler,
                 new DefaultConnectionReuseStrategy(),
                 this.clientParams);
@@ -399,15 +362,8 @@ public class TestTruncatedChunks {
         Queue<Job> queue = new ConcurrentLinkedQueue<Job>();
         queue.add(testjob);
 
-        HttpProcessor serverHttpProc = new ImmutableHttpProcessor(new HttpResponseInterceptor[] {
-                new ResponseDate(),
-                new ResponseServer(),
-                new ResponseContent(),
-                new ResponseConnControl()
-        });
-
         AsyncNHttpServiceHandler serviceHandler = new AsyncNHttpServiceHandler(
-                serverHttpProc,
+                this.serverHttpProc,
                 new DefaultHttpResponseFactory(),
                 new DefaultConnectionReuseStrategy(),
                 this.serverParams);
@@ -417,15 +373,8 @@ public class TestTruncatedChunks {
         serviceHandler.setEventListener(
                 new SimpleEventListener());
 
-        HttpProcessor clientHttpProc = new ImmutableHttpProcessor(new HttpRequestInterceptor[] {
-                new RequestContent(),
-                new RequestTargetHost(),
-                new RequestConnControl(),
-                new RequestUserAgent(),
-                new RequestExpectContinue()});
-
         AsyncNHttpClientHandler clientHandler = new AsyncNHttpClientHandler(
-                clientHttpProc,
+                this.clientHttpProc,
                 requestExecutionHandler,
                 new DefaultConnectionReuseStrategy(),
                 this.clientParams);

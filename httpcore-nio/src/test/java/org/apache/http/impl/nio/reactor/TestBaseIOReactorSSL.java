@@ -39,31 +39,25 @@ import javax.net.ssl.SSLContext;
 import javax.net.ssl.TrustManager;
 import javax.net.ssl.TrustManagerFactory;
 
+import org.apache.http.HttpCoreNIOTestBase;
 import org.apache.http.HttpException;
 import org.apache.http.HttpRequest;
 import org.apache.http.HttpResponse;
-import org.apache.http.HttpResponseInterceptor;
 import org.apache.http.impl.DefaultConnectionReuseStrategy;
 import org.apache.http.impl.DefaultHttpResponseFactory;
+import org.apache.http.impl.nio.SSLNHttpClientConnectionFactory;
 import org.apache.http.impl.nio.SSLNHttpServerConnectionFactory;
+import org.apache.http.nio.NHttpClientIOTarget;
+import org.apache.http.nio.NHttpConnectionFactory;
+import org.apache.http.nio.NHttpServerIOTarget;
 import org.apache.http.nio.NHttpServiceHandler;
 import org.apache.http.nio.protocol.BufferingHttpServiceHandler;
 import org.apache.http.nio.protocol.EventListener;
 import org.apache.http.nio.reactor.ListenerEndpoint;
-import org.apache.http.params.CoreConnectionPNames;
-import org.apache.http.params.CoreProtocolPNames;
 import org.apache.http.params.HttpParams;
-import org.apache.http.params.SyncBasicHttpParams;
 import org.apache.http.protocol.HttpContext;
 import org.apache.http.protocol.HttpExpectationVerifier;
-import org.apache.http.protocol.HttpProcessor;
 import org.apache.http.protocol.HttpRequestHandler;
-import org.apache.http.protocol.ImmutableHttpProcessor;
-import org.apache.http.protocol.ResponseConnControl;
-import org.apache.http.protocol.ResponseContent;
-import org.apache.http.protocol.ResponseDate;
-import org.apache.http.protocol.ResponseServer;
-import org.apache.http.testserver.HttpServerNio;
 import org.apache.http.testserver.SSLTestContexts;
 import org.apache.http.testserver.SimpleHttpRequestHandlerResolver;
 import org.junit.After;
@@ -71,43 +65,38 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
-public class TestBaseIOReactorSSL {
-
-    private HttpParams serverParams;
-    private HttpServerNio server;
+public class TestBaseIOReactorSSL extends HttpCoreNIOTestBase {
 
     @Before
+    @Override
     public void initServer() throws Exception {
-        this.serverParams = new SyncBasicHttpParams();
-        this.serverParams
-            .setIntParameter(CoreConnectionPNames.SO_TIMEOUT, 5000)
-            .setIntParameter(CoreConnectionPNames.SOCKET_BUFFER_SIZE, 10)
-            .setBooleanParameter(CoreConnectionPNames.STALE_CONNECTION_CHECK, false)
-            .setBooleanParameter(CoreConnectionPNames.TCP_NODELAY, true)
-            .setParameter(CoreProtocolPNames.ORIGIN_SERVER, "TEST-SERVER/1.1");
-        this.server = new HttpServerNio(new SSLNHttpServerConnectionFactory(
-                SSLTestContexts.createServerSSLContext(), null, this.serverParams));
+        super.initServer();
     }
 
     @After
+    @Override
     public void shutDownServer() throws Exception {
-        if (this.server != null) {
-            this.server.shutdown();
-        }
+        super.shutDownServer();
+    }
+
+    @Override
+    protected NHttpConnectionFactory<NHttpServerIOTarget> createServerConnectionFactory(
+            HttpParams params) throws Exception {
+        return new SSLNHttpServerConnectionFactory(SSLTestContexts.createServerSSLContext(), null, params);
+    }
+
+    @Override
+    protected NHttpConnectionFactory<NHttpClientIOTarget> createClientConnectionFactory(
+            HttpParams params) throws Exception {
+        return new SSLNHttpClientConnectionFactory(SSLTestContexts.createClientSSLContext(), null, params);
     }
 
     private NHttpServiceHandler createHttpServiceHandler(
             final HttpRequestHandler requestHandler,
             final HttpExpectationVerifier expectationVerifier,
             final EventListener eventListener) {
-        HttpProcessor httpproc = new ImmutableHttpProcessor(new HttpResponseInterceptor[] {
-                new ResponseDate(),
-                new ResponseServer(),
-                new ResponseContent(),
-                new ResponseConnControl()
-        });
         BufferingHttpServiceHandler serviceHandler = new BufferingHttpServiceHandler(
-                httpproc,
+                this.serverHttpProc,
                 new DefaultHttpResponseFactory(),
                 new DefaultConnectionReuseStrategy(),
                 this.serverParams);

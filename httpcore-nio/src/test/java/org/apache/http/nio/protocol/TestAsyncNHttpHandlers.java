@@ -45,8 +45,13 @@ import org.apache.http.HttpStatus;
 import org.apache.http.HttpVersion;
 import org.apache.http.impl.DefaultConnectionReuseStrategy;
 import org.apache.http.impl.DefaultHttpResponseFactory;
+import org.apache.http.impl.nio.DefaultNHttpClientConnectionFactory;
+import org.apache.http.impl.nio.DefaultNHttpServerConnectionFactory;
 import org.apache.http.message.BasicHttpEntityEnclosingRequest;
 import org.apache.http.message.BasicHttpRequest;
+import org.apache.http.nio.NHttpClientIOTarget;
+import org.apache.http.nio.NHttpConnectionFactory;
+import org.apache.http.nio.NHttpServerIOTarget;
 import org.apache.http.nio.entity.ConsumingNHttpEntity;
 import org.apache.http.nio.entity.NByteArrayEntity;
 import org.apache.http.nio.entity.NStringEntity;
@@ -54,6 +59,7 @@ import org.apache.http.nio.reactor.IOReactorStatus;
 import org.apache.http.nio.reactor.ListenerEndpoint;
 import org.apache.http.nio.reactor.SessionRequest;
 import org.apache.http.params.CoreProtocolPNames;
+import org.apache.http.params.HttpParams;
 import org.apache.http.protocol.HttpContext;
 import org.apache.http.protocol.HttpExpectationVerifier;
 import org.apache.http.protocol.HttpProcessor;
@@ -70,13 +76,51 @@ import org.apache.http.protocol.ResponseServer;
 import org.apache.http.testserver.SimpleEventListener;
 import org.apache.http.testserver.SimpleNHttpRequestHandlerResolver;
 import org.apache.http.util.EncodingUtils;
+import org.junit.After;
 import org.junit.Assert;
+import org.junit.Before;
 import org.junit.Test;
 
 /**
  * HttpCore NIO integration tests for async handlers.
  */
 public class TestAsyncNHttpHandlers extends HttpCoreNIOTestBase {
+
+    @Before
+    @Override
+    public void initServer() throws Exception {
+        super.initServer();
+    }
+
+    @Before
+    @Override
+    public void initClient() throws Exception {
+        super.initClient();
+    }
+
+    @After
+    @Override
+    public void shutDownClient() throws Exception {
+        super.shutDownClient();
+    }
+
+    @After
+    @Override
+    public void shutDownServer() throws Exception {
+        super.shutDownServer();
+    }
+
+    @Override
+    protected NHttpConnectionFactory<NHttpServerIOTarget> createServerConnectionFactory(
+            final HttpParams params) {
+        return new DefaultNHttpServerConnectionFactory(params);
+    }
+
+    @Override
+    protected NHttpConnectionFactory<NHttpClientIOTarget> createClientConnectionFactory(
+            final HttpParams params) {
+        return new DefaultNHttpClientConnectionFactory(params);
+    }
 
     private void executeStandardTest(
             final NHttpRequestHandler requestHandler,
@@ -92,15 +136,8 @@ public class TestAsyncNHttpHandlers extends HttpCoreNIOTestBase {
             queue.add(jobs[i]);
         }
 
-        HttpProcessor serverHttpProc = new ImmutableHttpProcessor(new HttpResponseInterceptor[] {
-                new ResponseDate(),
-                new ResponseServer(),
-                new ResponseContent(),
-                new ResponseConnControl()
-        });
-
         AsyncNHttpServiceHandler serviceHandler = new AsyncNHttpServiceHandler(
-                serverHttpProc,
+                this.serverHttpProc,
                 new DefaultHttpResponseFactory(),
                 new DefaultConnectionReuseStrategy(),
                 this.serverParams);
@@ -110,15 +147,8 @@ public class TestAsyncNHttpHandlers extends HttpCoreNIOTestBase {
         serviceHandler.setEventListener(
                 new SimpleEventListener());
 
-        HttpProcessor clientHttpProc = new ImmutableHttpProcessor(new HttpRequestInterceptor[] {
-                new RequestContent(),
-                new RequestTargetHost(),
-                new RequestConnControl(),
-                new RequestUserAgent(),
-                new RequestExpectContinue()});
-
         AsyncNHttpClientHandler clientHandler = new AsyncNHttpClientHandler(
-                clientHttpProc,
+                this.clientHttpProc,
                 requestExecutionHandler,
                 new DefaultConnectionReuseStrategy(),
                 this.clientParams);

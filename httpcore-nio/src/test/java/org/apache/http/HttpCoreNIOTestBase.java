@@ -27,29 +27,46 @@
 
 package org.apache.http;
 
-import org.apache.http.impl.nio.DefaultNHttpClientConnectionFactory;
-import org.apache.http.impl.nio.DefaultNHttpServerConnectionFactory;
+import org.apache.http.nio.NHttpClientIOTarget;
+import org.apache.http.nio.NHttpConnectionFactory;
+import org.apache.http.nio.NHttpServerIOTarget;
 import org.apache.http.params.CoreConnectionPNames;
 import org.apache.http.params.CoreProtocolPNames;
 import org.apache.http.params.HttpParams;
 import org.apache.http.params.SyncBasicHttpParams;
+import org.apache.http.protocol.HttpProcessor;
+import org.apache.http.protocol.ImmutableHttpProcessor;
+import org.apache.http.protocol.RequestConnControl;
+import org.apache.http.protocol.RequestContent;
+import org.apache.http.protocol.RequestExpectContinue;
+import org.apache.http.protocol.RequestTargetHost;
+import org.apache.http.protocol.RequestUserAgent;
+import org.apache.http.protocol.ResponseConnControl;
+import org.apache.http.protocol.ResponseContent;
+import org.apache.http.protocol.ResponseDate;
+import org.apache.http.protocol.ResponseServer;
 import org.apache.http.testserver.HttpClientNio;
 import org.apache.http.testserver.HttpServerNio;
-import org.junit.After;
-import org.junit.Before;
 
 /**
  * Base class for all HttpCore NIO tests
  *
  */
-public class HttpCoreNIOTestBase {
+public abstract class HttpCoreNIOTestBase {
 
     protected HttpParams serverParams;
     protected HttpParams clientParams;
     protected HttpServerNio server;
     protected HttpClientNio client;
+    protected HttpProcessor serverHttpProc;
+    protected HttpProcessor clientHttpProc;
 
-    @Before
+    protected abstract NHttpConnectionFactory<NHttpServerIOTarget> createServerConnectionFactory(
+            HttpParams params) throws Exception;
+
+    protected abstract NHttpConnectionFactory<NHttpClientIOTarget> createClientConnectionFactory(
+            HttpParams params) throws Exception;
+
     public void initServer() throws Exception {
         this.serverParams = new SyncBasicHttpParams();
         this.serverParams
@@ -58,11 +75,16 @@ public class HttpCoreNIOTestBase {
             .setBooleanParameter(CoreConnectionPNames.STALE_CONNECTION_CHECK, false)
             .setBooleanParameter(CoreConnectionPNames.TCP_NODELAY, true)
             .setParameter(CoreProtocolPNames.ORIGIN_SERVER, "TEST-SERVER/1.1");
-        this.server = new HttpServerNio(new DefaultNHttpServerConnectionFactory(this.serverParams));
+        this.server = new HttpServerNio(createServerConnectionFactory(this.serverParams));
         this.server.setExceptionHandler(new SimpleIOReactorExceptionHandler());
+        this.serverHttpProc = new ImmutableHttpProcessor(new HttpResponseInterceptor[] {
+                new ResponseDate(),
+                new ResponseServer(),
+                new ResponseContent(),
+                new ResponseConnControl()
+        });
     }
 
-    @Before
     public void initClient() throws Exception {
         this.clientParams = new SyncBasicHttpParams();
         this.clientParams
@@ -73,18 +95,22 @@ public class HttpCoreNIOTestBase {
             .setBooleanParameter(CoreConnectionPNames.TCP_NODELAY, true)
             .setParameter(CoreProtocolPNames.USER_AGENT, "TEST-CLIENT/1.1");
 
-        this.client = new HttpClientNio(new DefaultNHttpClientConnectionFactory(this.clientParams));
+        this.client = new HttpClientNio(createClientConnectionFactory(this.clientParams));
         this.client.setExceptionHandler(new SimpleIOReactorExceptionHandler());
+        this.clientHttpProc = new ImmutableHttpProcessor(new HttpRequestInterceptor[] {
+                new RequestContent(),
+                new RequestTargetHost(),
+                new RequestConnControl(),
+                new RequestUserAgent(),
+                new RequestExpectContinue()});
     }
 
-    @After
     public void shutDownClient() throws Exception {
         if (this.client != null) {
             this.client.shutdown();
         }
     }
 
-    @After
     public void shutDownServer() throws Exception {
         if (this.server != null) {
             this.server.shutdown();

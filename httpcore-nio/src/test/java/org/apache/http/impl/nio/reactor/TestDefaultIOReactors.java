@@ -44,8 +44,13 @@ import org.apache.http.HttpResponseInterceptor;
 import org.apache.http.OoopsieRuntimeException;
 import org.apache.http.impl.DefaultConnectionReuseStrategy;
 import org.apache.http.impl.DefaultHttpResponseFactory;
+import org.apache.http.impl.nio.DefaultNHttpClientConnectionFactory;
+import org.apache.http.impl.nio.DefaultNHttpServerConnectionFactory;
 import org.apache.http.message.BasicHttpRequest;
+import org.apache.http.nio.NHttpClientIOTarget;
 import org.apache.http.nio.NHttpConnection;
+import org.apache.http.nio.NHttpConnectionFactory;
+import org.apache.http.nio.NHttpServerIOTarget;
 import org.apache.http.nio.protocol.BufferingHttpClientHandler;
 import org.apache.http.nio.protocol.BufferingHttpServiceHandler;
 import org.apache.http.nio.protocol.EventListener;
@@ -55,6 +60,7 @@ import org.apache.http.nio.reactor.IOReactorExceptionHandler;
 import org.apache.http.nio.reactor.IOReactorStatus;
 import org.apache.http.nio.reactor.ListenerEndpoint;
 import org.apache.http.nio.reactor.SessionRequest;
+import org.apache.http.params.HttpParams;
 import org.apache.http.protocol.HttpContext;
 import org.apache.http.protocol.HttpProcessor;
 import org.apache.http.protocol.HttpRequestHandler;
@@ -70,13 +76,51 @@ import org.apache.http.protocol.ResponseDate;
 import org.apache.http.protocol.ResponseServer;
 import org.apache.http.testserver.SimpleEventListener;
 import org.apache.http.testserver.SimpleHttpRequestHandlerResolver;
+import org.junit.After;
 import org.junit.Assert;
+import org.junit.Before;
 import org.junit.Test;
 
 /**
  * Tests for basic I/O functionality.
  */
 public class TestDefaultIOReactors extends HttpCoreNIOTestBase {
+
+    @Before
+    @Override
+    public void initServer() throws Exception {
+        super.initServer();
+    }
+
+    @Before
+    @Override
+    public void initClient() throws Exception {
+        super.initClient();
+    }
+
+    @After
+    @Override
+    public void shutDownClient() throws Exception {
+        super.shutDownClient();
+    }
+
+    @After
+    @Override
+    public void shutDownServer() throws Exception {
+        super.shutDownServer();
+    }
+
+    @Override
+    protected NHttpConnectionFactory<NHttpServerIOTarget> createServerConnectionFactory(
+            final HttpParams params) {
+        return new DefaultNHttpServerConnectionFactory(params);
+    }
+
+    @Override
+    protected NHttpConnectionFactory<NHttpClientIOTarget> createClientConnectionFactory(
+            final HttpParams params) {
+        return new DefaultNHttpClientConnectionFactory(params);
+    }
 
     @Test
     public void testGracefulShutdown() throws Exception {
