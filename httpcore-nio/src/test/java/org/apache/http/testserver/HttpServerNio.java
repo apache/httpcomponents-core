@@ -31,15 +31,13 @@ import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.util.List;
 
-import org.apache.http.impl.nio.DefaultServerIOEventDispatch;
+import org.apache.http.impl.nio.DefaultServerIODispatch;
 import org.apache.http.impl.nio.reactor.DefaultListeningIOReactor;
 import org.apache.http.impl.nio.reactor.ExceptionEvent;
-import org.apache.http.nio.NHttpServerIOTarget;
 import org.apache.http.nio.NHttpServiceHandler;
 import org.apache.http.nio.reactor.IOEventDispatch;
 import org.apache.http.nio.reactor.IOReactorExceptionHandler;
 import org.apache.http.nio.reactor.IOReactorStatus;
-import org.apache.http.nio.reactor.IOSession;
 import org.apache.http.nio.reactor.ListenerEndpoint;
 import org.apache.http.params.HttpParams;
 
@@ -71,18 +69,7 @@ public class HttpServerNio {
 
     protected IOEventDispatch createIOEventDispatch(
             final NHttpServiceHandler serviceHandler, final HttpParams params) {
-        return new DefaultServerIOEventDispatch(serviceHandler, params) {
-
-            @Override
-            protected NHttpServerIOTarget createConnection(final IOSession session) {
-                return new LoggingNHttpServerConnection(
-                        session,
-                        createHttpRequestFactory(),
-                        createByteBufferAllocator(),
-                        params);
-            }
-
-        };
+        return new DefaultServerIODispatch(serviceHandler, params);
     }
 
     private void execute(final NHttpServiceHandler serviceHandler) throws IOException {

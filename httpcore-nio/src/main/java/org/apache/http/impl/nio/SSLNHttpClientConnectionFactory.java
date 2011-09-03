@@ -32,6 +32,7 @@ import org.apache.http.HttpResponseFactory;
 import org.apache.http.annotation.Immutable;
 import org.apache.http.impl.DefaultHttpResponseFactory;
 import org.apache.http.nio.NHttpClientConnection;
+import org.apache.http.nio.NHttpClientIOTarget;
 import org.apache.http.nio.NHttpConnectionFactory;
 import org.apache.http.nio.reactor.IOSession;
 import org.apache.http.nio.reactor.ssl.SSLIOSession;
@@ -39,6 +40,7 @@ import org.apache.http.nio.reactor.ssl.SSLMode;
 import org.apache.http.nio.reactor.ssl.SSLSetupHandler;
 import org.apache.http.nio.util.ByteBufferAllocator;
 import org.apache.http.nio.util.HeapByteBufferAllocator;
+import org.apache.http.params.HttpConnectionParams;
 import org.apache.http.params.HttpParams;
 
 /**
@@ -48,6 +50,7 @@ import org.apache.http.params.HttpParams;
  * class:
  * <ul>
  *  <li>{@link org.apache.http.params.CoreProtocolPNames#HTTP_ELEMENT_CHARSET}</li>
+ *  <li>{@link org.apache.http.params.CoreConnectionPNames#SO_TIMEOUT}</li>
  *  <li>{@link org.apache.http.params.CoreConnectionPNames#SOCKET_BUFFER_SIZE}</li>
  *  <li>{@link org.apache.http.params.CoreConnectionPNames#MAX_HEADER_COUNT}</li>
  *  <li>{@link org.apache.http.params.CoreConnectionPNames#MAX_LINE_LENGTH}</li>
@@ -56,7 +59,7 @@ import org.apache.http.params.HttpParams;
  * @since 4.2
  */
 @Immutable
-public class SSLNHttpClientConnectionFactory implements NHttpConnectionFactory<NHttpClientConnection> {
+public class SSLNHttpClientConnectionFactory implements NHttpConnectionFactory<NHttpClientIOTarget> {
 
     private final HttpResponseFactory responseFactory;
     private final ByteBufferAllocator allocator;
@@ -109,7 +112,7 @@ public class SSLNHttpClientConnectionFactory implements NHttpConnectionFactory<N
         return sslcontext;
     }
 
-    protected NHttpClientConnection createConnection(
+    protected NHttpClientIOTarget createConnection(
             final IOSession session,
             final HttpResponseFactory responseFactory,
             final ByteBufferAllocator allocator,
@@ -117,11 +120,15 @@ public class SSLNHttpClientConnectionFactory implements NHttpConnectionFactory<N
         return new DefaultNHttpClientConnection(session, responseFactory, allocator, params);
     }
 
-    public NHttpClientConnection createConnection(final IOSession session) {
+    public NHttpClientIOTarget createConnection(final IOSession session) {
         SSLContext sslcontext = this.sslcontext != null ? this.sslcontext : getDefaultSSLContext();
         SSLIOSession ssliosession = new SSLIOSession(session, SSLMode.CLIENT, sslcontext, this.sslHandler);
         session.setAttribute(SSLIOSession.SESSION_KEY, ssliosession);
-        return createConnection(ssliosession, this.responseFactory, this.allocator, this.params);
+        NHttpClientIOTarget conn = createConnection(
+                ssliosession, this.responseFactory, this.allocator, this.params);
+        int timeout = HttpConnectionParams.getSoTimeout(this.params);
+        conn.setSocketTimeout(timeout);
+        return conn;
     }
 
 }

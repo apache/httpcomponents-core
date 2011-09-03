@@ -38,6 +38,7 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpRequest;
+import org.apache.http.HttpRequestFactory;
 import org.apache.http.HttpRequestInterceptor;
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpResponseInterceptor;
@@ -50,7 +51,8 @@ import org.apache.http.impl.DefaultConnectionReuseStrategy;
 import org.apache.http.impl.DefaultHttpResponseFactory;
 import org.apache.http.impl.io.HttpTransportMetricsImpl;
 import org.apache.http.impl.nio.DefaultNHttpServerConnection;
-import org.apache.http.impl.nio.DefaultServerIOEventDispatch;
+import org.apache.http.impl.nio.DefaultNHttpServerConnectionFactory;
+import org.apache.http.impl.nio.DefaultServerIODispatch;
 import org.apache.http.impl.nio.codecs.AbstractContentEncoder;
 import org.apache.http.message.BasicHttpRequest;
 import org.apache.http.nio.ContentDecoder;
@@ -143,22 +145,20 @@ public class TestTruncatedChunks {
 
     }
 
-    static class CustomServerIOEventDispatch extends DefaultServerIOEventDispatch {
+    static class CustomServerConnectionFactory extends DefaultNHttpServerConnectionFactory {
 
-        public CustomServerIOEventDispatch(
-                final NHttpServiceHandler handler,
-                final HttpParams params) {
-            super(handler, params);
+        public CustomServerConnectionFactory(final HttpParams params) {
+            super(params);
         }
 
         @Override
-        protected NHttpServerIOTarget createConnection(final IOSession session) {
+        protected NHttpServerIOTarget createConnection(
+                final IOSession session,
+                final HttpRequestFactory requestFactory,
+                final ByteBufferAllocator allocator,
+                final HttpParams params) {
 
-            return new DefaultNHttpServerConnection(
-                    session,
-                    createHttpRequestFactory(),
-                    this.allocator,
-                    this.params) {
+            return new DefaultNHttpServerConnection(session, requestFactory, allocator, params) {
 
                         @Override
                         protected ContentEncoder createContentEncoder(
@@ -187,7 +187,7 @@ public class TestTruncatedChunks {
         @Override
         protected IOEventDispatch createIOEventDispatch(
                 NHttpServiceHandler serviceHandler, HttpParams params) {
-            return new CustomServerIOEventDispatch(serviceHandler, params);
+            return new DefaultServerIODispatch(serviceHandler, new CustomServerConnectionFactory(params));
         }
 
     }

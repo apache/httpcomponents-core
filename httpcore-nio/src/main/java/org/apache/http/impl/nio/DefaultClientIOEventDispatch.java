@@ -57,7 +57,10 @@ import org.apache.http.params.HttpParams;
  * </ul>
  *
  * @since 4.0
+ *
+ * @deprecated use {@link DefaultClientIODispatch}
  */
+@Deprecated
 @Immutable // provided injected dependencies are immutable
 public class DefaultClientIOEventDispatch extends AbstractIODispatch<NHttpClientIOTarget> {
 

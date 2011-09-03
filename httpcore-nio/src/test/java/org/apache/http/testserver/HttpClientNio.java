@@ -31,7 +31,7 @@ import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.util.List;
 
-import org.apache.http.impl.nio.DefaultClientIOEventDispatch;
+import org.apache.http.impl.nio.DefaultClientIODispatch;
 import org.apache.http.impl.nio.reactor.DefaultConnectingIOReactor;
 import org.apache.http.impl.nio.reactor.ExceptionEvent;
 import org.apache.http.nio.NHttpClientHandler;
@@ -64,7 +64,7 @@ public class HttpClientNio {
 
     protected IOEventDispatch createIOEventDispatch(
             final NHttpClientHandler clientHandler, final HttpParams params) {
-        return new DefaultClientIOEventDispatch(clientHandler, params);
+        return new DefaultClientIODispatch(clientHandler, params);
     }
 
     private void execute(final NHttpClientHandler clientHandler) throws IOException {

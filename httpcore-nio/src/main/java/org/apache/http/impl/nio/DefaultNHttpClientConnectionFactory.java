@@ -30,10 +30,12 @@ import org.apache.http.HttpResponseFactory;
 import org.apache.http.annotation.Immutable;
 import org.apache.http.impl.DefaultHttpResponseFactory;
 import org.apache.http.nio.NHttpClientConnection;
+import org.apache.http.nio.NHttpClientIOTarget;
 import org.apache.http.nio.NHttpConnectionFactory;
 import org.apache.http.nio.reactor.IOSession;
 import org.apache.http.nio.util.ByteBufferAllocator;
 import org.apache.http.nio.util.HeapByteBufferAllocator;
+import org.apache.http.params.HttpConnectionParams;
 import org.apache.http.params.HttpParams;
 
 /**
@@ -43,6 +45,7 @@ import org.apache.http.params.HttpParams;
  * class:
  * <ul>
  *  <li>{@link org.apache.http.params.CoreProtocolPNames#HTTP_ELEMENT_CHARSET}</li>
+ *  <li>{@link org.apache.http.params.CoreConnectionPNames#SO_TIMEOUT}</li>
  *  <li>{@link org.apache.http.params.CoreConnectionPNames#SOCKET_BUFFER_SIZE}</li>
  *  <li>{@link org.apache.http.params.CoreConnectionPNames#MAX_HEADER_COUNT}</li>
  *  <li>{@link org.apache.http.params.CoreConnectionPNames#MAX_LINE_LENGTH}</li>
@@ -51,7 +54,7 @@ import org.apache.http.params.HttpParams;
  * @since 4.2
  */
 @Immutable
-public class DefaultNHttpClientConnectionFactory implements NHttpConnectionFactory<NHttpClientConnection> {
+public class DefaultNHttpClientConnectionFactory implements NHttpConnectionFactory<NHttpClientIOTarget> {
 
     private final HttpResponseFactory responseFactory;
     private final ByteBufferAllocator allocator;
@@ -80,7 +83,7 @@ public class DefaultNHttpClientConnectionFactory implements NHttpConnectionFacto
         this(new DefaultHttpResponseFactory(), new HeapByteBufferAllocator(), params);
     }
 
-    protected NHttpClientConnection createConnection(
+    protected NHttpClientIOTarget createConnection(
             final IOSession session,
             final HttpResponseFactory responseFactory,
             final ByteBufferAllocator allocator,
@@ -88,8 +91,11 @@ public class DefaultNHttpClientConnectionFactory implements NHttpConnectionFacto
         return new DefaultNHttpClientConnection(session, responseFactory, allocator, params);
     }
 
-    public NHttpClientConnection createConnection(final IOSession session) {
-        return createConnection(session, this.responseFactory, this.allocator, this.params);
+    public NHttpClientIOTarget createConnection(final IOSession session) {
+        NHttpClientIOTarget conn = createConnection(session, this.responseFactory, this.allocator, this.params);
+        int timeout = HttpConnectionParams.getSoTimeout(this.params);
+        conn.setSocketTimeout(timeout);
+        return conn;
     }
 
 }

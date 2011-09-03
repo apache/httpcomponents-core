@@ -31,6 +31,7 @@ import javax.net.ssl.SSLContext;
 import javax.net.ssl.SSLException;
 
 import org.apache.http.annotation.Immutable;
+import org.apache.http.impl.nio.DefaultServerIODispatch;
 import org.apache.http.impl.nio.DefaultServerIOEventDispatch;
 import org.apache.http.nio.NHttpServerIOTarget;
 import org.apache.http.nio.NHttpServiceHandler;
@@ -57,7 +58,10 @@ import org.apache.http.params.HttpParams;
  * </ul>
  *
  * @since 4.1
+ *
+ * @deprecated use {@link DefaultServerIODispatch}
  */
+@Deprecated
 @Immutable // provided injected dependencies are immutable
 public class SSLServerIOEventDispatch extends DefaultServerIOEventDispatch {
 

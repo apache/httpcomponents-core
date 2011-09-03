@@ -38,9 +38,9 @@ import javax.net.ssl.SSLContext;
 import javax.net.ssl.TrustManager;
 import javax.net.ssl.TrustManagerFactory;
 
+import org.apache.http.impl.nio.DefaultClientIODispatch;
 import org.apache.http.impl.nio.reactor.DefaultConnectingIOReactor;
 import org.apache.http.impl.nio.reactor.ExceptionEvent;
-import org.apache.http.impl.nio.ssl.SSLClientIOEventDispatch;
 import org.apache.http.nio.NHttpClientHandler;
 import org.apache.http.nio.reactor.IOEventDispatch;
 import org.apache.http.nio.reactor.IOReactorExceptionHandler;
@@ -105,7 +105,7 @@ public class HttpSSLClient {
             final NHttpClientHandler clientHandler,
             final SSLContext sslcontext,
             final HttpParams params) {
-        return new SSLClientIOEventDispatch(clientHandler, sslcontext, params);
+        return new DefaultClientIODispatch(clientHandler, sslcontext, null, params);
     }
 
     private void execute(final NHttpClientHandler clientHandler) throws IOException {

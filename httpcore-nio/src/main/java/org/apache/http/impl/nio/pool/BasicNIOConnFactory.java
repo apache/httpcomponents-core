@@ -63,12 +63,12 @@ import org.apache.http.protocol.ExecutionContext;
 @Immutable
 public class BasicNIOConnFactory implements NIOConnFactory<HttpHost, NHttpClientConnection> {
 
-    private final NHttpConnectionFactory<NHttpClientConnection> plainFactory;
-    private final NHttpConnectionFactory<NHttpClientConnection> sslFactory;
+    private final NHttpConnectionFactory<? extends NHttpClientConnection> plainFactory;
+    private final NHttpConnectionFactory<? extends NHttpClientConnection> sslFactory;
 
     public BasicNIOConnFactory(
-            final NHttpConnectionFactory<NHttpClientConnection> plainFactory,
-            final NHttpConnectionFactory<NHttpClientConnection> sslFactory) {
+            final NHttpConnectionFactory<? extends NHttpClientConnection> plainFactory,
+            final NHttpConnectionFactory<? extends NHttpClientConnection> sslFactory) {
         super();
         if (plainFactory == null) {
         	throw new IllegalArgumentException("Plain HTTP client connection factory may not be null");

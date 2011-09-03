@@ -37,7 +37,7 @@ import java.util.concurrent.TimeUnit;
 import org.apache.http.HttpResponseInterceptor;
 import org.apache.http.impl.DefaultConnectionReuseStrategy;
 import org.apache.http.impl.DefaultHttpResponseFactory;
-import org.apache.http.impl.nio.DefaultServerIOEventDispatch;
+import org.apache.http.impl.nio.DefaultServerIODispatch;
 import org.apache.http.nio.protocol.BufferingHttpServiceHandler;
 import org.apache.http.nio.reactor.IOEventDispatch;
 import org.apache.http.nio.reactor.IOReactorExceptionHandler;
@@ -78,7 +78,7 @@ public class TestDefaultListeningIOReactor {
                 new DefaultConnectionReuseStrategy(),
                 params);
 
-        final IOEventDispatch eventDispatch = new DefaultServerIOEventDispatch(
+        final IOEventDispatch eventDispatch = new DefaultServerIODispatch(
                 serviceHandler,
                 params);
 
@@ -147,7 +147,7 @@ public class TestDefaultListeningIOReactor {
                 new DefaultConnectionReuseStrategy(),
                 params);
 
-        final IOEventDispatch eventDispatch = new DefaultServerIOEventDispatch(
+        final IOEventDispatch eventDispatch = new DefaultServerIODispatch(
                 serviceHandler,
                 params);
 
@@ -211,7 +211,7 @@ public class TestDefaultListeningIOReactor {
                 new DefaultConnectionReuseStrategy(),
                 params);
 
-        final IOEventDispatch eventDispatch = new DefaultServerIOEventDispatch(
+        final IOEventDispatch eventDispatch = new DefaultServerIODispatch(
                 serviceHandler,
                 params);
 
