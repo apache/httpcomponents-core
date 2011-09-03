@@ -26,8 +26,6 @@
  */
 package org.apache.http.impl.nio;
 
-import java.io.IOException;
-
 import javax.net.ssl.SSLContext;
 
 import org.apache.http.HttpResponseFactory;
@@ -115,14 +113,13 @@ public class SSLNHttpClientConnectionFactory implements NHttpConnectionFactory<N
             final IOSession session,
             final HttpResponseFactory responseFactory,
             final ByteBufferAllocator allocator,
-            final HttpParams params) throws IOException {
+            final HttpParams params) {
         return new DefaultNHttpClientConnection(session, responseFactory, allocator, params);
     }
 
-    public NHttpClientConnection createConnection(final IOSession session) throws IOException {
+    public NHttpClientConnection createConnection(final IOSession session) {
         SSLContext sslcontext = this.sslcontext != null ? this.sslcontext : getDefaultSSLContext();
         SSLIOSession ssliosession = new SSLIOSession(session, SSLMode.CLIENT, sslcontext, this.sslHandler);
-        ssliosession.initialize();
         session.setAttribute(SSLIOSession.SESSION_KEY, ssliosession);
         return createConnection(ssliosession, this.responseFactory, this.allocator, this.params);
     }

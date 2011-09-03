@@ -27,8 +27,6 @@
 
 package org.apache.http.nio;
 
-import java.io.IOException;
-
 import org.apache.http.nio.reactor.IOSession;
 
 /**
@@ -36,6 +34,6 @@ import org.apache.http.nio.reactor.IOSession;
  */
 public interface NHttpConnectionFactory<T extends NHttpConnection> {
 
-	T createConnection(IOSession session) throws IOException;
+	T createConnection(IOSession session);
 
 }

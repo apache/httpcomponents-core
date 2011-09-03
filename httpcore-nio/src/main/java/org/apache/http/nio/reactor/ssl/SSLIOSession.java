@@ -76,6 +76,7 @@ public class SSLIOSession implements IOSession, SessionBufferStatus {
 
     private boolean endOfStream;
     private volatile int status;
+    private volatile boolean initialized;
 
     public SSLIOSession(
             final IOSession session,
@@ -122,7 +123,14 @@ public class SSLIOSession implements IOSession, SessionBufferStatus {
         return this.handler;
     }
 
+    public boolean isInitialized() {
+        return this.initialized;
+    }
+
     public synchronized void initialize(final SSLMode mode) throws SSLException {
+        if (this.initialized) {
+            throw new IllegalStateException("SSL I/O session already initialized");
+        }
         switch (mode) {
         case CLIENT:
             this.sslEngine.setUseClientMode(true);
@@ -134,6 +142,7 @@ public class SSLIOSession implements IOSession, SessionBufferStatus {
         if (this.handler != null) {
             this.handler.initalize(this.sslEngine);
         }
+        this.initialized = true;
         this.sslEngine.beginHandshake();
         doHandshake();
     }

@@ -74,6 +74,18 @@ public abstract class AbstractIODispatch<T extends NHttpConnection> implements I
                 session.setAttribute(ExecutionContext.HTTP_CONNECTION, conn);
             }
             onConnected(conn);
+            SSLIOSession ssliosession = (SSLIOSession) session.getAttribute(
+                    SSLIOSession.SESSION_KEY);
+            if (ssliosession != null) {
+                try {
+                    if (!ssliosession.isInitialized()) {
+                        ssliosession.initialize();
+                    }
+                } catch (IOException ex) {
+                    onException(conn, ex);
+                    ssliosession.shutdown();
+                }
+            }
         } catch (RuntimeException ex) {
             session.shutdown();
             throw ex;
@@ -99,6 +111,9 @@ public abstract class AbstractIODispatch<T extends NHttpConnection> implements I
             	onInputReady(conn);
             } else {
                 try {
+                    if (!ssliosession.isInitialized()) {
+                        ssliosession.initialize();
+                    }
                     if (ssliosession.isAppInputReady()) {
                     	onInputReady(conn);
                     }
@@ -125,6 +140,9 @@ public abstract class AbstractIODispatch<T extends NHttpConnection> implements I
                 onOutputReady(conn);
             } else {
                 try {
+                    if (!ssliosession.isInitialized()) {
+                        ssliosession.initialize();
+                    }
                     if (ssliosession.isAppOutputReady()) {
                         onOutputReady(conn);
                     }
@@ -147,10 +165,8 @@ public abstract class AbstractIODispatch<T extends NHttpConnection> implements I
             SSLIOSession ssliosession = (SSLIOSession) session.getAttribute(
                     SSLIOSession.SESSION_KEY);
             ensureNotNull(conn);
-            if (ssliosession == null) {
-                onTimeout(conn);
-            } else {
-            	onTimeout(conn);
+            onTimeout(conn);
+            if (ssliosession != null) {
                 synchronized (ssliosession) {
                     if (ssliosession.isOutboundDone() && !ssliosession.isInboundDone()) {
                         // The session failed to terminate cleanly
