@@ -42,7 +42,6 @@ import org.apache.http.nio.pool.NIOConnFactory;
 import org.apache.http.nio.reactor.ConnectingIOReactor;
 import org.apache.http.params.HttpConnectionParams;
 import org.apache.http.params.HttpParams;
-import org.apache.http.pool.PoolEntry;
 
 /**
  * Basic non-blocking {@link NHttpClientConnection} pool.
@@ -61,8 +60,7 @@ import org.apache.http.pool.PoolEntry;
  * @since 4.2
  */
 @ThreadSafe
-public class BasicNIOConnPool extends AbstractNIOConnPool<HttpHost, NHttpClientConnection,
-                                            PoolEntry<HttpHost, NHttpClientConnection>> {
+public class BasicNIOConnPool extends AbstractNIOConnPool<HttpHost, NHttpClientConnection, BasicNIOPoolEntry> {
 
     private static AtomicLong COUNTER = new AtomicLong();
 
@@ -100,7 +98,7 @@ public class BasicNIOConnPool extends AbstractNIOConnPool<HttpHost, NHttpClientC
     }
 
     @Override
-    protected void closeEntry(final PoolEntry<HttpHost, NHttpClientConnection> entry) {
+    protected void closeEntry(final BasicNIOPoolEntry entry) {
         NHttpClientConnection conn = entry.getConnection();
         try {
             conn.shutdown();
@@ -109,16 +107,16 @@ public class BasicNIOConnPool extends AbstractNIOConnPool<HttpHost, NHttpClientC
     }
 
     @Override
-    public Future<PoolEntry<HttpHost, NHttpClientConnection>> lease(
+    public Future<BasicNIOPoolEntry> lease(
             final HttpHost route,
             final Object state,
-            final FutureCallback<PoolEntry<HttpHost, NHttpClientConnection>> callback) {
+            final FutureCallback<BasicNIOPoolEntry> callback) {
         int connectTimeout = HttpConnectionParams.getConnectionTimeout(this.params);
         return super.lease(route, state, connectTimeout, TimeUnit.MILLISECONDS, callback);
     }
 
     @Override
-    public Future<PoolEntry<HttpHost, NHttpClientConnection>> lease(
+    public Future<BasicNIOPoolEntry> lease(
             final HttpHost route,
             final Object state) {
         int connectTimeout = HttpConnectionParams.getConnectionTimeout(this.params);

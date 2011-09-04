@@ -48,6 +48,7 @@ import org.apache.http.nio.reactor.ConnectingIOReactor;
 import org.apache.http.nio.reactor.IOSession;
 import org.apache.http.nio.reactor.SessionRequest;
 import org.apache.http.nio.reactor.SessionRequestCallback;
+import org.apache.http.pool.ConnPool;
 import org.apache.http.pool.ConnPoolControl;
 import org.apache.http.pool.PoolEntry;
 import org.apache.http.pool.PoolStats;
@@ -62,7 +63,8 @@ import org.apache.http.pool.PoolStats;
  * @since 4.2
  */
 @ThreadSafe
-public abstract class AbstractNIOConnPool<T, C, E extends PoolEntry<T, C>> implements ConnPoolControl<T> {
+public abstract class AbstractNIOConnPool<T, C, E extends PoolEntry<T, C>>
+                                                  implements ConnPool<T, E>, ConnPoolControl<T> {
 
     private final ConnectingIOReactor ioreactor;
     private final NIOConnFactory<T, C> connFactory;

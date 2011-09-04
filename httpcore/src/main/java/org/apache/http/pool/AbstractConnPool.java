@@ -52,7 +52,8 @@ import org.apache.http.annotation.ThreadSafe;
  * @since 4.2
  */
 @ThreadSafe
-public abstract class AbstractConnPool<T, C, E extends PoolEntry<T, C>> implements ConnPoolControl<T> {
+public abstract class AbstractConnPool<T, C, E extends PoolEntry<T, C>>
+                                               implements ConnPool<T, E>, ConnPoolControl<T> {
 
     private final Lock lock;
     private final ConnFactory<T, C> connFactory;
