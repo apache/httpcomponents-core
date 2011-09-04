@@ -44,7 +44,7 @@ import org.apache.http.MethodNotSupportedException;
 import org.apache.http.entity.ContentType;
 import org.apache.http.impl.DefaultConnectionReuseStrategy;
 import org.apache.http.impl.DefaultHttpResponseFactory;
-import org.apache.http.impl.nio.DefaultServerIOEventDispatch;
+import org.apache.http.impl.nio.DefaultServerIODispatch;
 import org.apache.http.impl.nio.reactor.DefaultListeningIOReactor;
 import org.apache.http.nio.NHttpConnection;
 import org.apache.http.nio.entity.NFileEntity;
@@ -114,7 +114,7 @@ public class NHttpServer {
         // Provide an event logger
         handler.setEventListener(new EventLogger());
 
-        IOEventDispatch ioEventDispatch = new DefaultServerIOEventDispatch(handler, params);
+        IOEventDispatch ioEventDispatch = new DefaultServerIODispatch(handler, params);
         ListeningIOReactor ioReactor = new DefaultListeningIOReactor();
         try {
             ioReactor.listen(new InetSocketAddress(8080));

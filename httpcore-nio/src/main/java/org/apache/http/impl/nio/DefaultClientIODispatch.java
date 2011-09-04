@@ -85,6 +85,13 @@ public class DefaultClientIODispatch extends AbstractIODispatch<NHttpClientIOTar
         this(handler, new SSLNHttpClientConnectionFactory(sslcontext, sslHandler, params));
     }
 
+    public DefaultClientIODispatch(
+            final NHttpClientHandler handler,
+            final SSLContext sslcontext,
+            final HttpParams params) {
+        this(handler, sslcontext, null, params);
+    }
+
     @Override
     protected NHttpClientIOTarget createConnection(final IOSession session) {
         return this.connFactory.createConnection(session);

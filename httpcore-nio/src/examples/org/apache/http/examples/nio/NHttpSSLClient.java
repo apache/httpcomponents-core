@@ -39,10 +39,10 @@ import org.apache.http.HttpRequestInterceptor;
 import org.apache.http.HttpResponse;
 import org.apache.http.concurrent.FutureCallback;
 import org.apache.http.impl.DefaultConnectionReuseStrategy;
+import org.apache.http.impl.nio.DefaultClientIODispatch;
 import org.apache.http.impl.nio.pool.BasicNIOConnPool;
 import org.apache.http.impl.nio.pool.BasicNIOPoolEntry;
 import org.apache.http.impl.nio.reactor.DefaultConnectingIOReactor;
-import org.apache.http.impl.nio.ssl.SSLClientIOEventDispatch;
 import org.apache.http.message.BasicHttpRequest;
 import org.apache.http.nio.NHttpClientConnection;
 import org.apache.http.nio.protocol.BufferingHttpClientHandler;
@@ -104,7 +104,7 @@ public class NHttpSSLClient {
                 new DefaultConnectionReuseStrategy(),
                 params);
 
-        final IOEventDispatch ioEventDispatch = new SSLClientIOEventDispatch(
+        final IOEventDispatch ioEventDispatch = new DefaultClientIODispatch(
                 handler,
                 sslcontext,
                 params);

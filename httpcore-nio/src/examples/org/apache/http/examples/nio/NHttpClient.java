@@ -37,7 +37,7 @@ import org.apache.http.HttpRequestInterceptor;
 import org.apache.http.HttpResponse;
 import org.apache.http.concurrent.FutureCallback;
 import org.apache.http.impl.DefaultConnectionReuseStrategy;
-import org.apache.http.impl.nio.DefaultClientIOEventDispatch;
+import org.apache.http.impl.nio.DefaultClientIODispatch;
 import org.apache.http.impl.nio.pool.BasicNIOConnPool;
 import org.apache.http.impl.nio.pool.BasicNIOPoolEntry;
 import org.apache.http.impl.nio.reactor.DefaultConnectingIOReactor;
@@ -98,7 +98,7 @@ public class NHttpClient {
                 new DefaultConnectionReuseStrategy(),
                 params);
 
-        final IOEventDispatch ioEventDispatch = new DefaultClientIOEventDispatch(handler, params);
+        final IOEventDispatch ioEventDispatch = new DefaultClientIODispatch(handler, params);
 
         Thread t = new Thread(new Runnable() {
 
