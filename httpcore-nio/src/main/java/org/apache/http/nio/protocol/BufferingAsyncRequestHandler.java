@@ -89,7 +89,7 @@ public class BufferingAsyncRequestHandler implements HttpAsyncRequestHandler<Htt
         }
         HttpResponse response = this.responseFactory.newHttpResponse(ver, HttpStatus.SC_OK, context);
         this.handler.handle(request, response, context);
-        trigger.submitResponse(new HttpAsyncRequestProducerImpl(response));
+        trigger.submitResponse(new BasicAsyncResponseProducer(response));
     }
 
 }

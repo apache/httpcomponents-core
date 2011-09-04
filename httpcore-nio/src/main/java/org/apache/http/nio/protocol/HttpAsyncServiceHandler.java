@@ -469,7 +469,8 @@ public class HttpAsyncServiceHandler implements NHttpServiceHandler {
             if (this.responseProducer != null) {
                 try {
                     this.responseProducer.close();
-                } catch (IOException ignore) {
+                } catch (IOException ex) {
+                    HttpAsyncServiceHandler.this.onException(ex);
                 }
             }
             this.responseProducer = null;

@@ -35,15 +35,15 @@ import org.apache.http.nio.ContentEncoder;
 import org.apache.http.nio.IOControl;
 import org.apache.http.nio.entity.ProducingNHttpEntity;
 
-class HttpAsyncRequestProducerImpl implements HttpAsyncResponseProducer {
+public class BasicAsyncResponseProducer implements HttpAsyncResponseProducer {
 
     private final HttpResponse response;
     private final ProducingNHttpEntity producer;
 
-    HttpAsyncRequestProducerImpl(final HttpResponse response) {
+    public BasicAsyncResponseProducer(final HttpResponse response) {
         super();
         if (response == null) {
-            throw new IllegalArgumentException("Response may not be null");
+            throw new IllegalArgumentException("HTTP response may not be null");
         }
         this.response = response;
         HttpEntity entity = response.getEntity();
@@ -54,11 +54,11 @@ class HttpAsyncRequestProducerImpl implements HttpAsyncResponseProducer {
         }
     }
 
-    public HttpResponse generateResponse() {
+    public synchronized HttpResponse generateResponse() {
         return this.response;
     }
 
-    public void produceContent(
+    public synchronized void produceContent(
             final ContentEncoder encoder, final IOControl ioctrl) throws IOException {
         this.producer.produceContent(encoder, ioctrl);
         if (encoder.isCompleted()) {
@@ -66,7 +66,7 @@ class HttpAsyncRequestProducerImpl implements HttpAsyncResponseProducer {
         }
     }
 
-    public void close() throws IOException {
+    public synchronized void close() throws IOException {
         this.producer.finish();
     }
 
