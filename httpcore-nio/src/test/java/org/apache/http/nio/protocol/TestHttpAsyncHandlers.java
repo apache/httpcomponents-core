@@ -52,6 +52,7 @@ import org.apache.http.nio.reactor.ListenerEndpoint;
 import org.apache.http.nio.reactor.SessionRequest;
 import org.apache.http.params.CoreProtocolPNames;
 import org.apache.http.params.HttpParams;
+import org.apache.http.protocol.HttpRequestHandler;
 import org.apache.http.testserver.SimpleEventListener;
 import org.junit.After;
 import org.junit.Assert;
@@ -89,23 +90,8 @@ public class TestHttpAsyncHandlers extends HttpCoreNIOTestBase {
         return new LoggingClientConnectionFactory(params);
     }
 
-    static class BasicHttpAsyncRequestHandlerResolver implements HttpAsyncRequestHandlerResolver {
-
-        private final HttpAsyncRequestHandler<?> handler;
-
-        public BasicHttpAsyncRequestHandlerResolver(final HttpAsyncRequestHandler<?> handler) {
-            super();
-            this.handler = handler;
-        }
-
-        public HttpAsyncRequestHandler<?> lookup(String requestURI) {
-            return this.handler;
-        }
-
-    }
-
     private void executeStandardTest(
-            final HttpAsyncRequestHandler<?> requestHandler,
+            final HttpRequestHandler requestHandler,
             final NHttpRequestExecutionHandler requestExecutionHandler) throws Exception {
         int connNo = 3;
         int reqNo = 20;
@@ -119,7 +105,7 @@ public class TestHttpAsyncHandlers extends HttpCoreNIOTestBase {
         }
 
         HttpAsyncServiceHandler serviceHandler = new HttpAsyncServiceHandler(
-                new BasicHttpAsyncRequestHandlerResolver(requestHandler),
+                new RequestHandlerResolver(new BufferingAsyncRequestHandler(requestHandler)),
                 this.serverHttpProc,
                 new DefaultConnectionReuseStrategy(),
                 this.serverParams);
@@ -188,7 +174,7 @@ public class TestHttpAsyncHandlers extends HttpCoreNIOTestBase {
             }
 
         };
-        executeStandardTest(new BufferingAsyncRequestHandler(new RequestHandler()), requestExecutionHandler);
+        executeStandardTest(new RequestHandler(), requestExecutionHandler);
     }
 
     /**
@@ -215,7 +201,7 @@ public class TestHttpAsyncHandlers extends HttpCoreNIOTestBase {
             }
 
         };
-        executeStandardTest(new BufferingAsyncRequestHandler(new RequestHandler()), requestExecutionHandler);
+        executeStandardTest(new RequestHandler(), requestExecutionHandler);
     }
 
     /**
@@ -242,7 +228,7 @@ public class TestHttpAsyncHandlers extends HttpCoreNIOTestBase {
             }
 
         };
-        executeStandardTest(new BufferingAsyncRequestHandler(new RequestHandler()), requestExecutionHandler);
+        executeStandardTest(new RequestHandler(), requestExecutionHandler);
     }
 
     /**
@@ -269,7 +255,7 @@ public class TestHttpAsyncHandlers extends HttpCoreNIOTestBase {
             }
 
         };
-        executeStandardTest(new BufferingAsyncRequestHandler(new RequestHandler()), requestExecutionHandler);
+        executeStandardTest(new RequestHandler(), requestExecutionHandler);
     }
 
     /**
@@ -296,7 +282,7 @@ public class TestHttpAsyncHandlers extends HttpCoreNIOTestBase {
             }
 
         };
-        executeStandardTest(new BufferingAsyncRequestHandler(new RequestHandler()), requestExecutionHandler);
+        executeStandardTest(new RequestHandler(), requestExecutionHandler);
     }
 
 }
