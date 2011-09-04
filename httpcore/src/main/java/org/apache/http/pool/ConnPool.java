@@ -28,6 +28,8 @@ package org.apache.http.pool;
 
 import java.util.concurrent.Future;
 
+import org.apache.http.concurrent.FutureCallback;
+
 /**
  * Abstract connection pool.
  *
@@ -38,7 +40,7 @@ import java.util.concurrent.Future;
  */
 public interface ConnPool<T, E> {
 
-    Future<E> lease(final T route, final Object state);
+    Future<E> lease(final T route, final Object state, final FutureCallback<E> callback);
 
     void release(E entry, boolean reusable);
 

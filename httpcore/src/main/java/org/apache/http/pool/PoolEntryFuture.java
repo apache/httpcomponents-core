@@ -36,20 +36,23 @@ import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.Lock;
 
 import org.apache.http.annotation.ThreadSafe;
+import org.apache.http.concurrent.FutureCallback;
 
 @ThreadSafe
 abstract class PoolEntryFuture<T> implements Future<T> {
 
     private final Lock lock;
+    private final FutureCallback<T> callback;
     private final Condition condition;
     private volatile boolean cancelled;
     private volatile boolean completed;
     private T result;
 
-    PoolEntryFuture(final Lock lock) {
+    PoolEntryFuture(final Lock lock, final FutureCallback<T> callback) {
         super();
         this.lock = lock;
         this.condition = lock.newCondition();
+        this.callback = callback;
     }
 
     public boolean cancel(boolean mayInterruptIfRunning) {
@@ -60,6 +63,9 @@ abstract class PoolEntryFuture<T> implements Future<T> {
             }
             this.completed = true;
             this.cancelled = true;
+            if (this.callback != null) {
+                this.callback.cancelled();
+            }
             this.condition.signalAll();
             return true;
         } finally {
@@ -93,10 +99,16 @@ abstract class PoolEntryFuture<T> implements Future<T> {
             }
             this.result = getPoolEntry(timeout, unit);
             this.completed = true;
+            if (this.callback != null) {
+                this.callback.completed(this.result);
+            }
             return result;
         } catch (IOException ex) {
             this.completed = true;
             this.result = null;
+            if (this.callback != null) {
+                this.callback.failed(ex);
+            }
             throw new ExecutionException(ex);
         } finally {
             this.lock.unlock();

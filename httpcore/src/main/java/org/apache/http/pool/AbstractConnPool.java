@@ -41,6 +41,7 @@ import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
 import org.apache.http.annotation.ThreadSafe;
+import org.apache.http.concurrent.FutureCallback;
 
 /**
  * Abstract blocking connection pool.
@@ -145,14 +146,14 @@ public abstract class AbstractConnPool<T, C, E extends PoolEntry<T, C>>
         return pool;
     }
 
-    public Future<E> lease(final T route, final Object state) {
+    public Future<E> lease(final T route, final Object state, final FutureCallback<E> callback) {
         if (route == null) {
             throw new IllegalArgumentException("Route may not be null");
         }
         if (this.isShutDown) {
             throw new IllegalStateException("Connection pool shut down");
         }
-        return new PoolEntryFuture<E>(this.lock) {
+        return new PoolEntryFuture<E>(this.lock, callback) {
 
             @Override
             public E getPoolEntry(
@@ -163,6 +164,10 @@ public abstract class AbstractConnPool<T, C, E extends PoolEntry<T, C>>
             }
 
         };
+    }
+
+    public Future<E> lease(final T route, final Object state) {
+        return lease(route, state, null);
     }
 
     private E getPoolEntryBlocking(
