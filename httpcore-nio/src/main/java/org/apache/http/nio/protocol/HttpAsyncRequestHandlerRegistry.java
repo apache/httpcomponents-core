@@ -29,6 +29,7 @@ package org.apache.http.nio.protocol;
 
 import java.util.Map;
 
+import org.apache.http.annotation.ThreadSafe;
 import org.apache.http.protocol.UriPatternMatcher;
 
 /**
@@ -47,6 +48,7 @@ import org.apache.http.protocol.UriPatternMatcher;
  *
  * @since 4.2
  */
+@ThreadSafe
 public class HttpAsyncRequestHandlerRegistry implements HttpAsyncRequestHandlerResolver {
 
     private final UriPatternMatcher<HttpAsyncRequestHandler<?>> matcher;

@@ -94,7 +94,7 @@ import org.apache.http.protocol.HttpProcessor;
  *
  * @since 4.0
  *
- * @deprecated Use {@link AsyncNHttpClientHandler}
+ * @deprecated use {@link HttpAsyncClientProtocolHandler} and {@link HttpAsyncRequestExecutor}
  */
 @Deprecated
 @ThreadSafe // provided injected dependencies are immutable or thread safe

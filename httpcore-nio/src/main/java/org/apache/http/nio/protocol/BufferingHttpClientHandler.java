@@ -65,9 +65,11 @@ import org.apache.http.protocol.HttpProcessor;
  * IMPORTANT: This protocol handler should be used only when dealing with HTTP
  * messages that are known to be limited in length.
  *
- *
  * @since 4.0
+ *
+ * @deprecated use {@link HttpAsyncClientProtocolHandler} and {@link HttpAsyncRequestExecutor}
  */
+@Deprecated
 @Immutable // provided injected dependencies are immutable
 public class BufferingHttpClientHandler implements NHttpClientHandler {
 

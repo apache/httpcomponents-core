@@ -29,6 +29,7 @@ package org.apache.http.testserver;
 import org.apache.http.nio.protocol.NHttpRequestHandler;
 import org.apache.http.nio.protocol.NHttpRequestHandlerResolver;
 
+@Deprecated
 public class SimpleNHttpRequestHandlerResolver implements NHttpRequestHandlerResolver {
 
     private final NHttpRequestHandler handler;

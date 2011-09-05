@@ -37,7 +37,10 @@ import org.apache.http.nio.NHttpConnection;
  * and events that may need to be logged using a logging toolkit.
  *
  * @since 4.0
+ *
+ * @deprecated do not use
  */
+@Deprecated
 public interface EventListener {
 
     /**

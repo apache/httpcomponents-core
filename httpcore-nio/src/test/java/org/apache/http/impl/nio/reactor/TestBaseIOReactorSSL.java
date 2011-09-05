@@ -65,6 +65,7 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
+@Deprecated
 public class TestBaseIOReactorSSL extends HttpCoreNIOTestBase {
 
     @Before

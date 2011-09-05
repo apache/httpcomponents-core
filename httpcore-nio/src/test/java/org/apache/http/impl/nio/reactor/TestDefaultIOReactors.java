@@ -33,49 +33,38 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Queue;
 import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.Future;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.apache.http.HttpCoreNIOTestBase;
 import org.apache.http.HttpException;
+import org.apache.http.HttpHost;
 import org.apache.http.HttpRequest;
-import org.apache.http.HttpRequestInterceptor;
 import org.apache.http.HttpResponse;
-import org.apache.http.HttpResponseInterceptor;
 import org.apache.http.LoggingClientConnectionFactory;
 import org.apache.http.LoggingServerConnectionFactory;
 import org.apache.http.OoopsieRuntimeException;
 import org.apache.http.impl.DefaultConnectionReuseStrategy;
-import org.apache.http.impl.DefaultHttpResponseFactory;
+import org.apache.http.impl.nio.pool.BasicNIOPoolEntry;
 import org.apache.http.message.BasicHttpRequest;
+import org.apache.http.nio.NHttpClientConnection;
 import org.apache.http.nio.NHttpClientIOTarget;
-import org.apache.http.nio.NHttpConnection;
 import org.apache.http.nio.NHttpConnectionFactory;
+import org.apache.http.nio.NHttpServerConnection;
 import org.apache.http.nio.NHttpServerIOTarget;
-import org.apache.http.nio.protocol.BufferingHttpClientHandler;
-import org.apache.http.nio.protocol.BufferingHttpServiceHandler;
-import org.apache.http.nio.protocol.EventListener;
-import org.apache.http.nio.protocol.HttpRequestExecutionHandler;
+import org.apache.http.nio.protocol.BasicAsyncRequestProducer;
+import org.apache.http.nio.protocol.BasicAsyncResponseConsumer;
+import org.apache.http.nio.protocol.BufferingAsyncRequestHandler;
+import org.apache.http.nio.protocol.HttpAsyncClientProtocolHandler;
+import org.apache.http.nio.protocol.HttpAsyncRequestHandlerRegistry;
+import org.apache.http.nio.protocol.HttpAsyncServiceHandler;
 import org.apache.http.nio.reactor.IOReactorException;
 import org.apache.http.nio.reactor.IOReactorExceptionHandler;
 import org.apache.http.nio.reactor.IOReactorStatus;
 import org.apache.http.nio.reactor.ListenerEndpoint;
-import org.apache.http.nio.reactor.SessionRequest;
 import org.apache.http.params.HttpParams;
 import org.apache.http.protocol.HttpContext;
-import org.apache.http.protocol.HttpProcessor;
 import org.apache.http.protocol.HttpRequestHandler;
-import org.apache.http.protocol.ImmutableHttpProcessor;
-import org.apache.http.protocol.RequestConnControl;
-import org.apache.http.protocol.RequestContent;
-import org.apache.http.protocol.RequestExpectContinue;
-import org.apache.http.protocol.RequestTargetHost;
-import org.apache.http.protocol.RequestUserAgent;
-import org.apache.http.protocol.ResponseConnControl;
-import org.apache.http.protocol.ResponseContent;
-import org.apache.http.protocol.ResponseDate;
-import org.apache.http.protocol.ResponseServer;
-import org.apache.http.testserver.SimpleEventListener;
-import org.apache.http.testserver.SimpleHttpRequestHandlerResolver;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
@@ -90,10 +79,12 @@ public class TestDefaultIOReactors extends HttpCoreNIOTestBase {
     public void setUp() throws Exception {
         initServer();
         initClient();
+        initConnPool();
     }
 
     @After
     public void tearDown() throws Exception {
+        shutDownConnPool();
         shutDownClient();
         shutDownServer();
     }
@@ -112,152 +103,74 @@ public class TestDefaultIOReactors extends HttpCoreNIOTestBase {
 
     @Test
     public void testGracefulShutdown() throws Exception {
-
-        // Open some connection and make sure
-        // they get cleanly closed upon shutdown
-
         final int connNo = 10;
-        final CountDownLatch requestConns = new CountDownLatch(connNo);
         final AtomicInteger closedServerConns = new AtomicInteger(0);
         final AtomicInteger openServerConns = new AtomicInteger(0);
         final AtomicInteger closedClientConns = new AtomicInteger(0);
         final AtomicInteger openClientConns = new AtomicInteger(0);
 
-        HttpRequestHandler requestHandler = new HttpRequestHandler() {
+        this.connpool.setDefaultMaxPerRoute(connNo);
+        this.connpool.setMaxTotal(connNo);
 
-            public void handle(
-                    final HttpRequest request,
-                    final HttpResponse response,
-                    final HttpContext context) throws HttpException, IOException {
-            }
-
-        };
-
-        HttpRequestExecutionHandler requestExecutionHandler = new HttpRequestExecutionHandler() {
-
-            public void initalizeContext(final HttpContext context, final Object attachment) {
-            }
-
-            public void finalizeContext(final HttpContext context) {
-                while (requestConns.getCount() > 0) {
-                    requestConns.countDown();
-                }
-            }
-
-            public HttpRequest submitRequest(final HttpContext context) {
-                Boolean b = ((Boolean) context.getAttribute("done"));
-                if (b == null) {
-                    BasicHttpRequest get = new BasicHttpRequest("GET", "/");
-                    context.setAttribute("done", Boolean.TRUE);
-                    return get;
-                } else {
-                    return null;
-                }
-            }
-
-            public void handleResponse(final HttpResponse response, final HttpContext context) {
-                requestConns.countDown();
-            }
-
-        };
-
-        EventListener serverEventListener = new SimpleEventListener() {
+        HttpAsyncRequestHandlerRegistry registry = new HttpAsyncRequestHandlerRegistry();
+        HttpAsyncServiceHandler serviceHandler = new HttpAsyncServiceHandler(
+                registry,
+                this.serverHttpProc,
+                new DefaultConnectionReuseStrategy(),
+                this.serverParams) {
 
             @Override
-            public void connectionOpen(NHttpConnection conn) {
+            public void connected(final NHttpServerConnection conn) {
                 openServerConns.incrementAndGet();
-                super.connectionOpen(conn);
+                super.connected(conn);
             }
 
             @Override
-            public void connectionClosed(NHttpConnection conn) {
+            public void closed(final NHttpServerConnection conn) {
                 closedServerConns.incrementAndGet();
-                super.connectionClosed(conn);
+                super.closed(conn);
             }
 
         };
-
-        HttpProcessor serverHttpProc = new ImmutableHttpProcessor(new HttpResponseInterceptor[] {
-                new ResponseDate(),
-                new ResponseServer(),
-                new ResponseContent(),
-                new ResponseConnControl()
-        });
-
-        BufferingHttpServiceHandler serviceHandler = new BufferingHttpServiceHandler(
-                serverHttpProc,
-                new DefaultHttpResponseFactory(),
-                new DefaultConnectionReuseStrategy(),
-                this.serverParams);
-
-        serviceHandler.setHandlerResolver(
-                new SimpleHttpRequestHandlerResolver(requestHandler));
-        serviceHandler.setEventListener(
-                serverEventListener);
-
-        EventListener clientEventListener = new SimpleEventListener() {
+        HttpAsyncClientProtocolHandler clientHandler = new HttpAsyncClientProtocolHandler() {
 
             @Override
-            public void connectionOpen(NHttpConnection conn) {
-                openClientConns.incrementAndGet();
-                super.connectionOpen(conn);
+            public void connected(final NHttpClientConnection conn, final Object attachment) {
+                openServerConns.incrementAndGet();
+                super.connected(conn, attachment);
             }
 
             @Override
-            public void connectionClosed(NHttpConnection conn) {
-                closedClientConns.incrementAndGet();
-                super.connectionClosed(conn);
+            public void closed(final NHttpClientConnection conn) {
+                closedServerConns.incrementAndGet();
+                super.closed(conn);
             }
 
         };
-
-        HttpProcessor clientHttpProc = new ImmutableHttpProcessor(new HttpRequestInterceptor[] {
-                new RequestContent(),
-                new RequestTargetHost(),
-                new RequestConnControl(),
-                new RequestUserAgent(),
-                new RequestExpectContinue()});
-
-        BufferingHttpClientHandler clientHandler = new BufferingHttpClientHandler(
-                clientHttpProc,
-                requestExecutionHandler,
-                new DefaultConnectionReuseStrategy(),
-                this.clientParams);
-
-        clientHandler.setEventListener(
-                clientEventListener);
-
         this.server.start(serviceHandler);
         this.client.start(clientHandler);
 
         ListenerEndpoint endpoint = this.server.getListenerEndpoint();
         endpoint.waitFor();
-        InetSocketAddress serverAddress = (InetSocketAddress) endpoint.getAddress();
+        InetSocketAddress address = (InetSocketAddress) endpoint.getAddress();
+        HttpHost target = new HttpHost("localhost", address.getPort());
 
         Assert.assertEquals("Test server status", IOReactorStatus.ACTIVE, this.server.getStatus());
 
-        Queue<SessionRequest> connRequests = new LinkedList<SessionRequest>();
+        Queue<Future<BasicNIOPoolEntry>> queue = new LinkedList<Future<BasicNIOPoolEntry>>();
         for (int i = 0; i < connNo; i++) {
-            SessionRequest sessionRequest = this.client.openConnection(
-                    new InetSocketAddress("localhost", serverAddress.getPort()),
-                    null);
-            connRequests.add(sessionRequest);
+            queue.add(this.connpool.lease(target, null));
         }
 
-        while (!connRequests.isEmpty()) {
-            SessionRequest sessionRequest = connRequests.remove();
-            sessionRequest.waitFor();
-            if (sessionRequest.getException() != null) {
-                throw sessionRequest.getException();
-            }
-            Assert.assertNotNull(sessionRequest.getSession());
+        while (!queue.isEmpty()) {
+            Future<BasicNIOPoolEntry> future = queue.remove();
+            BasicNIOPoolEntry poolEntry = future.get();
+            Assert.assertNotNull(poolEntry);
         }
 
         Assert.assertEquals("Test client status", IOReactorStatus.ACTIVE, this.client.getStatus());
 
-        requestConns.await();
-        Assert.assertEquals(0, requestConns.getCount());
-
+        this.connpool.shutdown(2000);
         this.client.shutdown();
         this.server.shutdown();
 
@@ -279,74 +192,29 @@ public class TestDefaultIOReactors extends HttpCoreNIOTestBase {
 
         };
 
-        HttpRequestExecutionHandler requestExecutionHandler = new HttpRequestExecutionHandler() {
-
-            public void initalizeContext(final HttpContext context, final Object attachment) {
-            }
-
-            public void finalizeContext(final HttpContext context) {
-            }
-
-            public HttpRequest submitRequest(final HttpContext context) {
-                Boolean b = ((Boolean) context.getAttribute("done"));
-                if (b == null) {
-                    BasicHttpRequest get = new BasicHttpRequest("GET", "/");
-                    context.setAttribute("done", Boolean.TRUE);
-                    return get;
-                } else {
-                    return null;
-                }
-            }
-
-            public void handleResponse(final HttpResponse response, final HttpContext context) {
-            }
-
-        };
-
-        HttpProcessor serverHttpProc = new ImmutableHttpProcessor(new HttpResponseInterceptor[] {
-                new ResponseDate(),
-                new ResponseServer(),
-                new ResponseContent(),
-                new ResponseConnControl()
-        });
-
-        BufferingHttpServiceHandler serviceHandler = new BufferingHttpServiceHandler(
-                serverHttpProc,
-                new DefaultHttpResponseFactory(),
+        HttpAsyncRequestHandlerRegistry registry = new HttpAsyncRequestHandlerRegistry();
+        registry.register("*", new BufferingAsyncRequestHandler(requestHandler));
+        HttpAsyncServiceHandler serviceHandler = new HttpAsyncServiceHandler(
+                registry,
+                this.serverHttpProc,
                 new DefaultConnectionReuseStrategy(),
                 this.serverParams);
-
-        serviceHandler.setHandlerResolver(
-                new SimpleHttpRequestHandlerResolver(requestHandler));
-        serviceHandler.setEventListener(
-                new SimpleEventListener());
-
-        HttpProcessor clientHttpProc = new ImmutableHttpProcessor(new HttpRequestInterceptor[] {
-                new RequestContent(),
-                new RequestTargetHost(),
-                new RequestConnControl(),
-                new RequestUserAgent(),
-                new RequestExpectContinue()});
-
-        BufferingHttpClientHandler clientHandler = new BufferingHttpClientHandler(
-                clientHttpProc,
-                requestExecutionHandler,
-                new DefaultConnectionReuseStrategy(),
-                this.clientParams);
-
-        clientHandler.setEventListener(
-                new SimpleEventListener());
-
+        HttpAsyncClientProtocolHandler clientHandler = new HttpAsyncClientProtocolHandler();
         this.server.start(serviceHandler);
         this.client.start(clientHandler);
 
         ListenerEndpoint endpoint = this.server.getListenerEndpoint();
         endpoint.waitFor();
-        InetSocketAddress serverAddress = (InetSocketAddress) endpoint.getAddress();
+        InetSocketAddress address = (InetSocketAddress) endpoint.getAddress();
+        HttpHost target = new HttpHost("localhost", address.getPort());
 
-        this.client.openConnection(
-                new InetSocketAddress("localhost", serverAddress.getPort()),
-                null);
+        Assert.assertEquals("Test server status", IOReactorStatus.ACTIVE, this.server.getStatus());
+
+        BasicHttpRequest request = new BasicHttpRequest("GET", "/");
+        this.executor.execute(
+                new BasicAsyncRequestProducer(target, request),
+                new BasicAsyncResponseConsumer(),
+                this.connpool);
 
         this.server.join(20000);
 
@@ -369,7 +237,6 @@ public class TestDefaultIOReactors extends HttpCoreNIOTestBase {
 
     @Test
     public void testUnhandledRuntimeException() throws Exception {
-
         final CountDownLatch requestConns = new CountDownLatch(1);
 
         HttpRequestHandler requestHandler = new HttpRequestHandler() {
@@ -379,30 +246,6 @@ public class TestDefaultIOReactors extends HttpCoreNIOTestBase {
                     final HttpResponse response,
                     final HttpContext context) throws HttpException, IOException {
                 throw new OoopsieRuntimeException();
-            }
-
-        };
-
-        HttpRequestExecutionHandler requestExecutionHandler = new HttpRequestExecutionHandler() {
-
-            public void initalizeContext(final HttpContext context, final Object attachment) {
-            }
-
-            public void finalizeContext(final HttpContext context) {
-            }
-
-            public HttpRequest submitRequest(final HttpContext context) {
-                Boolean b = ((Boolean) context.getAttribute("done"));
-                if (b == null) {
-                    BasicHttpRequest get = new BasicHttpRequest("GET", "/");
-                    context.setAttribute("done", Boolean.TRUE);
-                    return get;
-                } else {
-                    return null;
-                }
-            }
-
-            public void handleResponse(final HttpResponse response, final HttpContext context) {
             }
 
         };
@@ -420,51 +263,30 @@ public class TestDefaultIOReactors extends HttpCoreNIOTestBase {
 
         };
 
-        HttpProcessor serverHttpProc = new ImmutableHttpProcessor(new HttpResponseInterceptor[] {
-                new ResponseDate(),
-                new ResponseServer(),
-                new ResponseContent(),
-                new ResponseConnControl()
-        });
-
-        BufferingHttpServiceHandler serviceHandler = new BufferingHttpServiceHandler(
-                serverHttpProc,
-                new DefaultHttpResponseFactory(),
+        HttpAsyncRequestHandlerRegistry registry = new HttpAsyncRequestHandlerRegistry();
+        registry.register("*", new BufferingAsyncRequestHandler(requestHandler));
+        HttpAsyncServiceHandler serviceHandler = new HttpAsyncServiceHandler(
+                registry,
+                this.serverHttpProc,
                 new DefaultConnectionReuseStrategy(),
                 this.serverParams);
-
-        serviceHandler.setHandlerResolver(
-                new SimpleHttpRequestHandlerResolver(requestHandler));
-        serviceHandler.setEventListener(
-                new SimpleEventListener());
-
-        HttpProcessor clientHttpProc = new ImmutableHttpProcessor(new HttpRequestInterceptor[] {
-                new RequestContent(),
-                new RequestTargetHost(),
-                new RequestConnControl(),
-                new RequestUserAgent(),
-                new RequestExpectContinue()});
-
-        BufferingHttpClientHandler clientHandler = new BufferingHttpClientHandler(
-                clientHttpProc,
-                requestExecutionHandler,
-                new DefaultConnectionReuseStrategy(),
-                this.clientParams);
-
+        HttpAsyncClientProtocolHandler clientHandler = new HttpAsyncClientProtocolHandler();
         this.server.setExceptionHandler(exceptionHandler);
         this.server.start(serviceHandler);
         this.client.start(clientHandler);
 
         ListenerEndpoint endpoint = this.server.getListenerEndpoint();
         endpoint.waitFor();
-        InetSocketAddress serverAddress = (InetSocketAddress) endpoint.getAddress();
+        InetSocketAddress address = (InetSocketAddress) endpoint.getAddress();
+        HttpHost target = new HttpHost("localhost", address.getPort());
 
-        this.client.openConnection(
-                new InetSocketAddress("localhost", serverAddress.getPort()),
-                null);
+        Assert.assertEquals("Test server status", IOReactorStatus.ACTIVE, this.server.getStatus());
 
-        requestConns.await();
-        Assert.assertEquals(0, requestConns.getCount());
+        BasicHttpRequest request = new BasicHttpRequest("GET", "/");
+        this.executor.execute(
+                new BasicAsyncRequestProducer(target, request),
+                new BasicAsyncResponseConsumer(),
+                this.connpool);
 
         this.server.join(20000);
 
@@ -487,7 +309,6 @@ public class TestDefaultIOReactors extends HttpCoreNIOTestBase {
 
     @Test
     public void testHandledRuntimeException() throws Exception {
-
         final CountDownLatch requestConns = new CountDownLatch(1);
 
         HttpRequestHandler requestHandler = new HttpRequestHandler() {
@@ -497,30 +318,6 @@ public class TestDefaultIOReactors extends HttpCoreNIOTestBase {
                     final HttpResponse response,
                     final HttpContext context) throws HttpException, IOException {
                 throw new OoopsieRuntimeException();
-            }
-
-        };
-
-        HttpRequestExecutionHandler requestExecutionHandler = new HttpRequestExecutionHandler() {
-
-            public void initalizeContext(final HttpContext context, final Object attachment) {
-            }
-
-            public void finalizeContext(final HttpContext context) {
-            }
-
-            public HttpRequest submitRequest(final HttpContext context) {
-                Boolean b = ((Boolean) context.getAttribute("done"));
-                if (b == null) {
-                    BasicHttpRequest get = new BasicHttpRequest("GET", "/");
-                    context.setAttribute("done", Boolean.TRUE);
-                    return get;
-                } else {
-                    return null;
-                }
-            }
-
-            public void handleResponse(final HttpResponse response, final HttpContext context) {
             }
 
         };
@@ -538,49 +335,30 @@ public class TestDefaultIOReactors extends HttpCoreNIOTestBase {
 
         };
 
-        HttpProcessor serverHttpProc = new ImmutableHttpProcessor(new HttpResponseInterceptor[] {
-                new ResponseDate(),
-                new ResponseServer(),
-                new ResponseContent(),
-                new ResponseConnControl()
-        });
-
-        BufferingHttpServiceHandler serviceHandler = new BufferingHttpServiceHandler(
-                serverHttpProc,
-                new DefaultHttpResponseFactory(),
+        HttpAsyncRequestHandlerRegistry registry = new HttpAsyncRequestHandlerRegistry();
+        registry.register("*", new BufferingAsyncRequestHandler(requestHandler));
+        HttpAsyncServiceHandler serviceHandler = new HttpAsyncServiceHandler(
+                registry,
+                this.serverHttpProc,
                 new DefaultConnectionReuseStrategy(),
                 this.serverParams);
-
-        serviceHandler.setHandlerResolver(
-                new SimpleHttpRequestHandlerResolver(requestHandler));
-        serviceHandler.setEventListener(
-                new SimpleEventListener());
-
-        HttpProcessor clientHttpProc = new ImmutableHttpProcessor(new HttpRequestInterceptor[] {
-                new RequestContent(),
-                new RequestTargetHost(),
-                new RequestConnControl(),
-                new RequestUserAgent(),
-                new RequestExpectContinue()});
-
-        BufferingHttpClientHandler clientHandler = new BufferingHttpClientHandler(
-                clientHttpProc,
-                requestExecutionHandler,
-                new DefaultConnectionReuseStrategy(),
-                this.clientParams);
-
+        HttpAsyncClientProtocolHandler clientHandler = new HttpAsyncClientProtocolHandler();
         this.server.setExceptionHandler(exceptionHandler);
-
         this.server.start(serviceHandler);
         this.client.start(clientHandler);
 
         ListenerEndpoint endpoint = this.server.getListenerEndpoint();
         endpoint.waitFor();
-        InetSocketAddress serverAddress = (InetSocketAddress) endpoint.getAddress();
+        InetSocketAddress address = (InetSocketAddress) endpoint.getAddress();
+        HttpHost target = new HttpHost("localhost", address.getPort());
 
-        this.client.openConnection(
-                new InetSocketAddress("localhost", serverAddress.getPort()),
-                null);
+        Assert.assertEquals("Test server status", IOReactorStatus.ACTIVE, this.server.getStatus());
+
+        BasicHttpRequest request = new BasicHttpRequest("GET", "/");
+        this.executor.execute(
+                new BasicAsyncRequestProducer(target, request),
+                new BasicAsyncResponseConsumer(),
+                this.connpool);
 
         requestConns.await();
         Assert.assertEquals(0, requestConns.getCount());

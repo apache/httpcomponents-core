@@ -32,10 +32,15 @@ import org.apache.http.HttpEntity;
 import org.apache.http.HttpEntityEnclosingRequest;
 import org.apache.http.HttpHost;
 import org.apache.http.HttpRequest;
+import org.apache.http.annotation.ThreadSafe;
 import org.apache.http.nio.ContentEncoder;
 import org.apache.http.nio.IOControl;
 import org.apache.http.nio.entity.ProducingNHttpEntity;
 
+/**
+ * @since 4.2
+ */
+@ThreadSafe
 public class BasicAsyncRequestProducer implements HttpAsyncRequestProducer {
 
     private final HttpHost target;

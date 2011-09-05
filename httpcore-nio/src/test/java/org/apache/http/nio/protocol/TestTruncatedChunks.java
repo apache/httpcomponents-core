@@ -28,17 +28,14 @@
 package org.apache.http.nio.protocol;
 
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
 import java.net.InetSocketAddress;
 import java.nio.ByteBuffer;
 import java.nio.channels.WritableByteChannel;
-import java.util.Queue;
-import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Future;
 
 import org.apache.http.HttpCoreNIOTestBase;
-import org.apache.http.HttpEntity;
-import org.apache.http.HttpRequest;
+import org.apache.http.HttpHost;
 import org.apache.http.HttpRequestFactory;
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
@@ -47,9 +44,8 @@ import org.apache.http.LoggingNHttpServerConnection;
 import org.apache.http.MalformedChunkCodingException;
 import org.apache.http.TruncatedChunkException;
 import org.apache.http.entity.ContentLengthStrategy;
-import org.apache.http.entity.HttpEntityWrapper;
+import org.apache.http.entity.InputStreamEntity;
 import org.apache.http.impl.DefaultConnectionReuseStrategy;
-import org.apache.http.impl.DefaultHttpResponseFactory;
 import org.apache.http.impl.io.HttpTransportMetricsImpl;
 import org.apache.http.impl.nio.DefaultNHttpServerConnectionFactory;
 import org.apache.http.impl.nio.codecs.AbstractContentEncoder;
@@ -58,11 +54,10 @@ import org.apache.http.nio.ContentDecoder;
 import org.apache.http.nio.ContentEncoder;
 import org.apache.http.nio.IOControl;
 import org.apache.http.nio.NHttpClientIOTarget;
-import org.apache.http.nio.NHttpConnection;
 import org.apache.http.nio.NHttpConnectionFactory;
 import org.apache.http.nio.NHttpServerIOTarget;
-import org.apache.http.nio.entity.ConsumingNHttpEntity;
 import org.apache.http.nio.entity.ContentInputStream;
+import org.apache.http.nio.reactor.IOReactorStatus;
 import org.apache.http.nio.reactor.IOSession;
 import org.apache.http.nio.reactor.ListenerEndpoint;
 import org.apache.http.nio.reactor.SessionOutputBuffer;
@@ -70,10 +65,9 @@ import org.apache.http.nio.util.ByteBufferAllocator;
 import org.apache.http.nio.util.HeapByteBufferAllocator;
 import org.apache.http.nio.util.SimpleInputBuffer;
 import org.apache.http.params.HttpParams;
-import org.apache.http.protocol.HttpContext;
-import org.apache.http.testserver.SimpleEventListener;
-import org.apache.http.testserver.SimpleNHttpRequestHandlerResolver;
+import org.apache.http.protocol.HTTP;
 import org.apache.http.util.CharArrayBuffer;
+import org.apache.http.util.EntityUtils;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
@@ -88,10 +82,12 @@ public class TestTruncatedChunks extends HttpCoreNIOTestBase {
     public void setUp() throws Exception {
         initServer();
         initClient();
+        initConnPool();
     }
 
     @After
     public void tearDown() throws Exception {
+        shutDownConnPool();
         shutDownClient();
         shutDownServer();
     }
@@ -187,207 +183,118 @@ public class TestTruncatedChunks extends HttpCoreNIOTestBase {
 
     @Test
     public void testTruncatedChunkException() throws Exception {
-
-        NHttpRequestExecutionHandler requestExecutionHandler = new RequestExecutionHandler() {
-
-            @Override
-            protected HttpRequest generateRequest(Job testjob) {
-                String s = testjob.getPattern() + "x" + testjob.getCount();
-                return new BasicHttpRequest("GET", s);
-            }
-
-        };
-
-        Job testjob = new Job(2000);
-        Queue<Job> queue = new ConcurrentLinkedQueue<Job>();
-        queue.add(testjob);
-
-        AsyncNHttpServiceHandler serviceHandler = new AsyncNHttpServiceHandler(
+        HttpAsyncRequestHandlerRegistry registry = new HttpAsyncRequestHandlerRegistry();
+        registry.register("*", new BufferingAsyncRequestHandler(new SimpleRequestHandler(true)));
+        HttpAsyncServiceHandler serviceHandler = new HttpAsyncServiceHandler(
+                registry,
                 this.serverHttpProc,
-                new DefaultHttpResponseFactory(),
                 new DefaultConnectionReuseStrategy(),
                 this.serverParams);
-
-        serviceHandler.setHandlerResolver(
-                new SimpleNHttpRequestHandlerResolver(new RequestHandler(true)));
-        serviceHandler.setEventListener(
-                new SimpleEventListener());
-
-        AsyncNHttpClientHandler clientHandler = new AsyncNHttpClientHandler(
-                this.clientHttpProc,
-                requestExecutionHandler,
-                new DefaultConnectionReuseStrategy(),
-                this.clientParams);
-
-        clientHandler.setEventListener(
-                new SimpleEventListener() {
-
-                    @Override
-                    public void fatalIOException(
-                            final IOException ex,
-                            final NHttpConnection conn) {
-                        HttpContext context = conn.getContext();
-                        Job testjob = (Job) context.getAttribute("job");
-                        testjob.fail(ex.getMessage(), ex);
-                    }
-
-                });
-
+        HttpAsyncClientProtocolHandler clientHandler = new HttpAsyncClientProtocolHandler();
         this.server.start(serviceHandler);
         this.client.start(clientHandler);
 
         ListenerEndpoint endpoint = this.server.getListenerEndpoint();
         endpoint.waitFor();
-        InetSocketAddress serverAddress = (InetSocketAddress) endpoint.getAddress();
 
-        this.client.openConnection(
-                new InetSocketAddress("localhost", serverAddress.getPort()),
-                queue);
+        Assert.assertEquals("Test server status", IOReactorStatus.ACTIVE, this.server.getStatus());
 
-        testjob.waitFor();
-        Assert.assertFalse(testjob.isSuccessful());
-        Assert.assertNotNull(testjob.getException());
-        Assert.assertTrue(testjob.getException() instanceof MalformedChunkCodingException);
+        String pattern = RndTestPatternGenerator.generateText();
+        int count = RndTestPatternGenerator.generateCount(1000);
+
+        HttpHost target = new HttpHost("localhost", ((InetSocketAddress)endpoint.getAddress()).getPort());
+        BasicHttpRequest request = new BasicHttpRequest("GET", pattern + "x" + count);
+        Future<HttpResponse> future = this.executor.execute(
+                new BasicAsyncRequestProducer(target, request),
+                new BasicAsyncResponseConsumer(),
+                this.connpool);
+        try {
+            future.get();
+            Assert.fail("ExecutionException should have been thrown");
+        } catch (ExecutionException ex) {
+            Throwable cause = ex.getCause();
+            Assert.assertTrue(cause instanceof MalformedChunkCodingException);
+        }
     }
 
-    static class LenientNHttpEntity extends HttpEntityWrapper implements ConsumingNHttpEntity {
-
-        private final static int BUFFER_SIZE = 2048;
+    static class LenientAsyncResponseConsumer extends AbstractAsyncResponseConsumer<HttpResponse> {
 
         private final SimpleInputBuffer buffer;
-        private boolean finished;
-        private boolean consumed;
+        private volatile HttpResponse response;
 
-        public LenientNHttpEntity(
-                final HttpEntity httpEntity,
-                final ByteBufferAllocator allocator) {
-            super(httpEntity);
-            this.buffer = new SimpleInputBuffer(BUFFER_SIZE, allocator);
+        public LenientAsyncResponseConsumer() {
+            super();
+            this.buffer = new SimpleInputBuffer(2048, new HeapByteBufferAllocator());
         }
 
-        public void consumeContent(
-                final ContentDecoder decoder,
-                final IOControl ioctrl) throws IOException {
+        @Override
+        protected void onResponseReceived(final HttpResponse response) {
+            this.response = response;
+        }
+
+        @Override
+        protected void onContentReceived(
+                final ContentDecoder decoder, final IOControl ioctrl) throws IOException {
+            boolean finished = false;
             try {
                 this.buffer.consumeContent(decoder);
                 if (decoder.isCompleted()) {
-                    this.finished = true;
+                    finished = true;
                 }
             } catch (TruncatedChunkException ex) {
                 this.buffer.shutdown();
-                this.finished = true;
+                finished = true;
+            }
+            if (finished) {
+                this.response.setEntity(
+                        new InputStreamEntity(new ContentInputStream(this.buffer), -1));
             }
         }
 
-        public void finish() {
-            this.finished = true;
+        @Override
+        protected void releaseResources() {
         }
 
         @Override
-        public void consumeContent() throws IOException {
-        }
-
-        @Override
-        public InputStream getContent() throws IOException {
-            if (!this.finished) {
-                throw new IllegalStateException("Entity content has not been fully received");
-            }
-            if (this.consumed) {
-                throw new IllegalStateException("Entity content has been consumed");
-            }
-            this.consumed = true;
-            return new ContentInputStream(this.buffer);
-        }
-
-        @Override
-        public boolean isRepeatable() {
-            return false;
-        }
-
-        @Override
-        public boolean isStreaming() {
-            return true;
-        }
-
-        @Override
-        public void writeTo(final OutputStream outstream) throws IOException {
-            if (outstream == null) {
-                throw new IllegalArgumentException("Output stream may not be null");
-            }
-            InputStream instream = getContent();
-            byte[] buffer = new byte[BUFFER_SIZE];
-            int l;
-            // consume until EOF
-            while ((l = instream.read(buffer)) != -1) {
-                outstream.write(buffer, 0, l);
-            }
+        protected HttpResponse buildResult() {
+            return this.response;
         }
 
     }
 
     @Test
     public void testIgnoreTruncatedChunkException() throws Exception {
-
-        NHttpRequestExecutionHandler requestExecutionHandler = new RequestExecutionHandler() {
-
-            @Override
-            protected HttpRequest generateRequest(final Job testjob) {
-                String s = testjob.getPattern() + "x" + testjob.getCount();
-                return new BasicHttpRequest("GET", s);
-            }
-
-            @Override
-            public ConsumingNHttpEntity responseEntity(
-                    final HttpResponse response,
-                    final HttpContext context) throws IOException {
-                return new LenientNHttpEntity(response.getEntity(),
-                        new HeapByteBufferAllocator());
-            }
-
-        };
-
-        Job testjob = new Job(2000);
-        Queue<Job> queue = new ConcurrentLinkedQueue<Job>();
-        queue.add(testjob);
-
-        AsyncNHttpServiceHandler serviceHandler = new AsyncNHttpServiceHandler(
+        HttpAsyncRequestHandlerRegistry registry = new HttpAsyncRequestHandlerRegistry();
+        registry.register("*", new BufferingAsyncRequestHandler(new SimpleRequestHandler(true)));
+        HttpAsyncServiceHandler serviceHandler = new HttpAsyncServiceHandler(
+                registry,
                 this.serverHttpProc,
-                new DefaultHttpResponseFactory(),
                 new DefaultConnectionReuseStrategy(),
                 this.serverParams);
-
-        serviceHandler.setHandlerResolver(
-                new SimpleNHttpRequestHandlerResolver(new RequestHandler(true)));
-        serviceHandler.setEventListener(
-                new SimpleEventListener());
-
-        AsyncNHttpClientHandler clientHandler = new AsyncNHttpClientHandler(
-                this.clientHttpProc,
-                requestExecutionHandler,
-                new DefaultConnectionReuseStrategy(),
-                this.clientParams);
-
-        clientHandler.setEventListener(
-                new SimpleEventListener());
-
+        HttpAsyncClientProtocolHandler clientHandler = new HttpAsyncClientProtocolHandler();
         this.server.start(serviceHandler);
         this.client.start(clientHandler);
 
         ListenerEndpoint endpoint = this.server.getListenerEndpoint();
         endpoint.waitFor();
-        InetSocketAddress serverAddress = (InetSocketAddress) endpoint.getAddress();
 
-        this.client.openConnection(
-                new InetSocketAddress("localhost", serverAddress.getPort()),
-                queue);
+        Assert.assertEquals("Test server status", IOReactorStatus.ACTIVE, this.server.getStatus());
 
-        testjob.waitFor();
-        if (testjob.isSuccessful()) {
-            Assert.assertEquals(HttpStatus.SC_OK, testjob.getStatusCode());
-            Assert.assertEquals(new String(GARBAGE, "US-ASCII"), testjob.getResult());
-        } else {
-            Assert.fail(testjob.getFailureMessage());
-        }
+        String pattern = RndTestPatternGenerator.generateText();
+        int count = RndTestPatternGenerator.generateCount(1000);
+
+        HttpHost target = new HttpHost("localhost", ((InetSocketAddress)endpoint.getAddress()).getPort());
+        BasicHttpRequest request = new BasicHttpRequest("GET", pattern + "x" + count);
+        Future<HttpResponse> future = this.executor.execute(
+                new BasicAsyncRequestProducer(target, request),
+                new LenientAsyncResponseConsumer(),
+                this.connpool);
+
+        HttpResponse response = future.get();
+        Assert.assertNotNull(response);
+        Assert.assertEquals(HttpStatus.SC_OK, response.getStatusLine().getStatusCode());
+        Assert.assertEquals(new String(GARBAGE, HTTP.DEFAULT_CONTENT_CHARSET),
+                EntityUtils.toString(response.getEntity()));
     }
 
 }

@@ -41,7 +41,10 @@ import org.apache.http.protocol.HttpContext;
  * implement {@link #handle(HttpRequest, HttpResponse, HttpContext)}.
  *
  * @since 4.0
+ *
+ * @deprecated use {@link BufferingAsyncRequestHandler}
  */
+@Deprecated
 @Immutable
 public abstract class SimpleNHttpRequestHandler implements NHttpRequestHandler {
 

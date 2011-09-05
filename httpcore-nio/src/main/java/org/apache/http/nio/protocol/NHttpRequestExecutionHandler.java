@@ -45,9 +45,11 @@ import org.apache.http.protocol.HttpContext;
  * {@link #handleResponse(HttpResponse, HttpContext)} is notified that the
  * response is fully read.
  *
- *
  * @since 4.0
+ *
+ * @deprecated use {@link HttpAsyncClientProtocolHandler} and {@link HttpAsyncRequestExecutor}
  */
+@Deprecated
 public interface NHttpRequestExecutionHandler {
 
     /**

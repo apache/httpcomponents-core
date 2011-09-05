@@ -39,6 +39,7 @@ import org.apache.http.nio.util.HeapByteBufferAllocator;
 import org.apache.http.protocol.HttpContext;
 import org.apache.http.util.EntityUtils;
 
+@Deprecated
 abstract class RequestExecutionHandler
     implements NHttpRequestExecutionHandler, HttpRequestExecutionHandler {
 

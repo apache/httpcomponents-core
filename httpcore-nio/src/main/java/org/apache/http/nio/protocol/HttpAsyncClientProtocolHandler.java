@@ -37,6 +37,7 @@ import org.apache.http.HttpException;
 import org.apache.http.HttpRequest;
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
+import org.apache.http.annotation.Immutable;
 import org.apache.http.nio.ContentDecoder;
 import org.apache.http.nio.ContentEncoder;
 import org.apache.http.nio.NHttpClientConnection;
@@ -48,6 +49,7 @@ import org.apache.http.protocol.HttpContext;
 /**
  * @since 4.2
  */
+@Immutable
 public class HttpAsyncClientProtocolHandler implements NHttpClientHandler {
 
     public static final String HTTP_HANDLER = "http.nio.exchange-handler";

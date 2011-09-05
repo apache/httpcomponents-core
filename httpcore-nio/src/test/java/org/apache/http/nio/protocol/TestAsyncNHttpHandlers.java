@@ -84,6 +84,7 @@ import org.junit.Test;
 /**
  * HttpCore NIO integration tests for async handlers.
  */
+@Deprecated
 public class TestAsyncNHttpHandlers extends HttpCoreNIOTestBase {
 
     @Before

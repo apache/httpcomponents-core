@@ -36,35 +36,24 @@ import org.apache.http.HttpRequest;
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
 import org.apache.http.entity.ContentType;
-import org.apache.http.nio.entity.BufferingNHttpEntity;
-import org.apache.http.nio.entity.ConsumingNHttpEntity;
 import org.apache.http.nio.entity.NStringEntity;
-import org.apache.http.nio.util.HeapByteBufferAllocator;
 import org.apache.http.protocol.HttpContext;
 import org.apache.http.protocol.HttpRequestHandler;
 import org.apache.http.util.EntityUtils;
 
-@Deprecated
-final class RequestHandler extends SimpleNHttpRequestHandler implements HttpRequestHandler {
+final class SimpleRequestHandler implements HttpRequestHandler {
 
     private final boolean chunking;
 
-    RequestHandler() {
+    SimpleRequestHandler() {
         this(false);
     }
 
-    RequestHandler(boolean chunking) {
+    SimpleRequestHandler(boolean chunking) {
         super();
         this.chunking = chunking;
     }
 
-    public ConsumingNHttpEntity entityRequest(
-            final HttpEntityEnclosingRequest request,
-            final HttpContext context) {
-        return new BufferingNHttpEntity(request.getEntity(), new HeapByteBufferAllocator());
-    }
-
-    @Override
     public void handle(
             final HttpRequest request,
             final HttpResponse response,

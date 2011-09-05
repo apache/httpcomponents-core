@@ -29,6 +29,7 @@ package org.apache.http.nio.protocol;
 
 import java.util.Random;
 
+@Deprecated
 public class Job {
 
     private static final Random RND = new Random();

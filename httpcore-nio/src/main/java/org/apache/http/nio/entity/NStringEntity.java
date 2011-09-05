@@ -39,14 +39,12 @@ import org.apache.http.entity.AbstractHttpEntity;
 import org.apache.http.entity.ContentType;
 import org.apache.http.nio.ContentEncoder;
 import org.apache.http.nio.IOControl;
-import org.apache.http.nio.protocol.AsyncNHttpServiceHandler;
 import org.apache.http.protocol.HTTP;
 
 /**
  * A simple, self contained, repeatable non-blocking entity that retrieves
  * its content from a {@link String} object.
  *
- * @see AsyncNHttpServiceHandler
  * @since 4.0
  *
  */

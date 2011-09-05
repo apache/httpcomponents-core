@@ -43,10 +43,6 @@ import org.apache.http.nio.reactor.IOReactorStatus;
 import org.apache.http.nio.reactor.ListenerEndpoint;
 import org.apache.http.nio.reactor.ListeningIOReactor;
 
-/**
- * Trivial test server based on HttpCore NIO
- *
- */
 public class HttpServerNio {
 
     private final DefaultListeningIOReactor ioReactor;

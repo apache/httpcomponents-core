@@ -36,9 +36,9 @@ import java.util.concurrent.TimeUnit;
 
 import org.apache.http.HttpResponseInterceptor;
 import org.apache.http.impl.DefaultConnectionReuseStrategy;
-import org.apache.http.impl.DefaultHttpResponseFactory;
 import org.apache.http.impl.nio.DefaultServerIODispatch;
-import org.apache.http.nio.protocol.BufferingHttpServiceHandler;
+import org.apache.http.nio.protocol.HttpAsyncRequestHandlerRegistry;
+import org.apache.http.nio.protocol.HttpAsyncServiceHandler;
 import org.apache.http.nio.reactor.IOEventDispatch;
 import org.apache.http.nio.reactor.IOReactorExceptionHandler;
 import org.apache.http.nio.reactor.IOReactorStatus;
@@ -60,28 +60,25 @@ import org.junit.Test;
  */
 public class TestDefaultListeningIOReactor {
 
-    @Test
-    public void testEndpointUpAndDown() throws Exception {
-
+    private static IOEventDispatch createIOEventDispatch() {
         HttpParams params = new SyncBasicHttpParams();
-
         HttpProcessor httpproc = new ImmutableHttpProcessor(new HttpResponseInterceptor[] {
                 new ResponseDate(),
                 new ResponseServer(),
                 new ResponseContent(),
                 new ResponseConnControl()
         });
-
-        final BufferingHttpServiceHandler serviceHandler = new BufferingHttpServiceHandler(
+        HttpAsyncServiceHandler serviceHandler = new HttpAsyncServiceHandler(
+                new HttpAsyncRequestHandlerRegistry(),
                 httpproc,
-                new DefaultHttpResponseFactory(),
                 new DefaultConnectionReuseStrategy(),
                 params);
+        return new DefaultServerIODispatch(serviceHandler, params);
+    }
 
-        final IOEventDispatch eventDispatch = new DefaultServerIODispatch(
-                serviceHandler,
-                params);
-
+    @Test
+    public void testEndpointUpAndDown() throws Exception {
+        final IOEventDispatch eventDispatch = createIOEventDispatch();
         IOReactorConfig config = new IOReactorConfig();
         config.setIoThreadCount(1);
         final ListeningIOReactor ioreactor = new DefaultListeningIOReactor(config);
@@ -103,17 +100,18 @@ public class TestDefaultListeningIOReactor {
         Assert.assertNotNull(endpoints);
         Assert.assertEquals(0, endpoints.size());
 
-        ListenerEndpoint port9998 = ioreactor.listen(new InetSocketAddress(9998));
-        port9998.waitFor();
+        ListenerEndpoint endpoint1 = ioreactor.listen(new InetSocketAddress(0));
+        endpoint1.waitFor();
 
-        ListenerEndpoint port9999 = ioreactor.listen(new InetSocketAddress(9999));
-        port9999.waitFor();
+        ListenerEndpoint endpoint2 = ioreactor.listen(new InetSocketAddress(0));
+        endpoint2.waitFor();
+        int port = ((InetSocketAddress) endpoint2.getAddress()).getPort();
 
         endpoints = ioreactor.getEndpoints();
         Assert.assertNotNull(endpoints);
         Assert.assertEquals(2, endpoints.size());
 
-        port9998.close();
+        endpoint1.close();
 
         endpoints = ioreactor.getEndpoints();
         Assert.assertNotNull(endpoints);
@@ -121,7 +119,7 @@ public class TestDefaultListeningIOReactor {
 
         ListenerEndpoint endpoint = endpoints.iterator().next();
 
-        Assert.assertEquals(9999, ((InetSocketAddress) endpoint.getAddress()).getPort());
+        Assert.assertEquals(port, ((InetSocketAddress) endpoint.getAddress()).getPort());
 
         ioreactor.shutdown(1000);
         t.join(1000);
@@ -131,26 +129,7 @@ public class TestDefaultListeningIOReactor {
 
     @Test
     public void testEndpointAlreadyBoundFatal() throws Exception {
-
-        HttpParams params = new SyncBasicHttpParams();
-
-        HttpProcessor httpproc = new ImmutableHttpProcessor(new HttpResponseInterceptor[] {
-                new ResponseDate(),
-                new ResponseServer(),
-                new ResponseContent(),
-                new ResponseConnControl()
-        });
-
-        final BufferingHttpServiceHandler serviceHandler = new BufferingHttpServiceHandler(
-                httpproc,
-                new DefaultHttpResponseFactory(),
-                new DefaultConnectionReuseStrategy(),
-                params);
-
-        final IOEventDispatch eventDispatch = new DefaultServerIODispatch(
-                serviceHandler,
-                params);
-
+        final IOEventDispatch eventDispatch = createIOEventDispatch();
         IOReactorConfig config = new IOReactorConfig();
         config.setIoThreadCount(1);
         final ListeningIOReactor ioreactor = new DefaultListeningIOReactor(config);
@@ -172,10 +151,11 @@ public class TestDefaultListeningIOReactor {
 
         t.start();
 
-        ListenerEndpoint endpoint1 = ioreactor.listen(new InetSocketAddress(9999));
+        ListenerEndpoint endpoint1 = ioreactor.listen(new InetSocketAddress(0));
         endpoint1.waitFor();
+        int port = ((InetSocketAddress) endpoint1.getAddress()).getPort();
 
-        ListenerEndpoint endpoint2 = ioreactor.listen(new InetSocketAddress(9999));
+        ListenerEndpoint endpoint2 = ioreactor.listen(new InetSocketAddress(port));
         endpoint2.waitFor();
         Assert.assertNotNull(endpoint2.getException());
 
@@ -195,26 +175,7 @@ public class TestDefaultListeningIOReactor {
 
     @Test
     public void testEndpointAlreadyBoundNonFatal() throws Exception {
-
-        HttpParams params = new SyncBasicHttpParams();
-
-        HttpProcessor httpproc = new ImmutableHttpProcessor(new HttpResponseInterceptor[] {
-                new ResponseDate(),
-                new ResponseServer(),
-                new ResponseContent(),
-                new ResponseConnControl()
-        });
-
-        final BufferingHttpServiceHandler serviceHandler = new BufferingHttpServiceHandler(
-                httpproc,
-                new DefaultHttpResponseFactory(),
-                new DefaultConnectionReuseStrategy(),
-                params);
-
-        final IOEventDispatch eventDispatch = new DefaultServerIODispatch(
-                serviceHandler,
-                params);
-
+        final IOEventDispatch eventDispatch = createIOEventDispatch();
         IOReactorConfig config = new IOReactorConfig();
         config.setIoThreadCount(1);
         final DefaultListeningIOReactor ioreactor = new DefaultListeningIOReactor(config);

@@ -31,6 +31,7 @@ import java.util.concurrent.Future;
 
 import org.apache.http.ConnectionReuseStrategy;
 import org.apache.http.HttpHost;
+import org.apache.http.annotation.Immutable;
 import org.apache.http.concurrent.BasicFuture;
 import org.apache.http.concurrent.FutureCallback;
 import org.apache.http.nio.NHttpClientConnection;
@@ -41,6 +42,10 @@ import org.apache.http.protocol.BasicHttpContext;
 import org.apache.http.protocol.HttpContext;
 import org.apache.http.protocol.HttpProcessor;
 
+/**
+ * @since 4.2
+ */
+@Immutable
 public class HttpAsyncRequestExecutor {
 
     private final HttpProcessor httppocessor;

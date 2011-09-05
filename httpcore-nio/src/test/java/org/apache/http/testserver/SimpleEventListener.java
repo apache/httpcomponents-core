@@ -33,6 +33,7 @@ import org.apache.http.HttpException;
 import org.apache.http.nio.NHttpConnection;
 import org.apache.http.nio.protocol.EventListener;
 
+@Deprecated
 public class SimpleEventListener implements EventListener {
 
     public SimpleEventListener() {

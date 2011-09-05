@@ -85,11 +85,11 @@ import org.apache.http.protocol.HttpProcessor;
  *  <li>{@link org.apache.http.params.CoreProtocolPNames#WAIT_FOR_CONTINUE}</li>
  * </ul>
  *
- * @see ConsumingNHttpEntity
- * @see ProducingNHttpEntity
- *
  * @since 4.0
+ *
+ * @deprecated use {@link HttpAsyncClientProtocolHandler} and {@link HttpAsyncRequestExecutor}
  */
+@Deprecated
 @Immutable // provided injected dependencies are immutable
 public class AsyncNHttpClientHandler extends NHttpHandlerBase
                                      implements NHttpClientHandler {

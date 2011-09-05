@@ -39,9 +39,11 @@ import org.apache.http.protocol.HttpContext;
  * to trigger the submission of a new HTTP request and the processing of an
  * HTTP response.
  *
- *
  * @since 4.0
+ *
+ * @deprecated use {@link HttpAsyncClientProtocolHandler} and {@link HttpAsyncRequestExecutor}
  */
+@Deprecated
 public interface HttpRequestExecutionHandler {
 
     /**

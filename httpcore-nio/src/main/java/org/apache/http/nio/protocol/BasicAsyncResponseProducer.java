@@ -31,10 +31,15 @@ import java.io.IOException;
 
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
+import org.apache.http.annotation.ThreadSafe;
 import org.apache.http.nio.ContentEncoder;
 import org.apache.http.nio.IOControl;
 import org.apache.http.nio.entity.ProducingNHttpEntity;
 
+/**
+ * @since 4.2
+ */
+@ThreadSafe
 public class BasicAsyncResponseProducer implements HttpAsyncResponseProducer {
 
     private final HttpResponse response;
@@ -47,10 +52,14 @@ public class BasicAsyncResponseProducer implements HttpAsyncResponseProducer {
         }
         this.response = response;
         HttpEntity entity = response.getEntity();
-        if (entity instanceof ProducingNHttpEntity) {
-            this.producer = (ProducingNHttpEntity) entity;
+        if (entity != null) {
+            if (entity instanceof ProducingNHttpEntity) {
+                this.producer = (ProducingNHttpEntity) entity;
+            } else {
+                this.producer = new NHttpEntityWrapper(entity);
+            }
         } else {
-            this.producer =  new NHttpEntityWrapper(entity);
+            this.producer = null;
         }
     }
 
@@ -60,14 +69,18 @@ public class BasicAsyncResponseProducer implements HttpAsyncResponseProducer {
 
     public synchronized void produceContent(
             final ContentEncoder encoder, final IOControl ioctrl) throws IOException {
-        this.producer.produceContent(encoder, ioctrl);
-        if (encoder.isCompleted()) {
-            this.producer.finish();
+        if (this.producer != null) {
+            this.producer.produceContent(encoder, ioctrl);
+            if (encoder.isCompleted()) {
+                this.producer.finish();
+            }
         }
     }
 
     public synchronized void close() throws IOException {
-        this.producer.finish();
+        if (this.producer != null) {
+            this.producer.finish();
+        }
     }
 
 }

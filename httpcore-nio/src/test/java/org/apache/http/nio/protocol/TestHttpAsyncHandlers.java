@@ -88,8 +88,10 @@ public class TestHttpAsyncHandlers extends HttpCoreNIOTestBase {
     }
 
     private InetSocketAddress start() throws Exception {
+        HttpAsyncRequestHandlerRegistry registry = new HttpAsyncRequestHandlerRegistry();
+        registry.register("*", new BufferingAsyncRequestHandler(new SimpleRequestHandler()));
         HttpAsyncServiceHandler serviceHandler = new HttpAsyncServiceHandler(
-                new RequestHandlerResolver(new BufferingAsyncRequestHandler(new RequestHandler())),
+                registry,
                 this.serverHttpProc,
                 new DefaultConnectionReuseStrategy(),
                 this.serverParams);

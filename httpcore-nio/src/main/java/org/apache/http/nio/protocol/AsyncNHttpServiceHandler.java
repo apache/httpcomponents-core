@@ -93,11 +93,11 @@ import org.apache.http.util.EncodingUtils;
  * instance of {@link NHttpResponseTrigger} passed as a parameter to submit
  * a response as at a later point of time once the response becomes available.
  *
- * @see ConsumingNHttpEntity
- * @see ProducingNHttpEntity
- *
  * @since 4.0
+ *
+ * @deprecated use {@link HttpAsyncServiceHandler}
  */
+@Deprecated
 @Immutable // provided injected dependencies are immutable
 public class AsyncNHttpServiceHandler extends NHttpHandlerBase
                                       implements NHttpServiceHandler {

@@ -44,7 +44,10 @@ import org.apache.http.HttpResponse;
  * a later point of time once the response becomes available.
  *
  * @since 4.0
+ *
+ * @deprecated use {@link HttpAsyncResponseTrigger}
  */
+@Deprecated
 public interface NHttpResponseTrigger {
 
     /**

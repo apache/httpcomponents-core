@@ -46,7 +46,10 @@ import org.apache.http.protocol.HttpContext;
  * the given request
  *
  * @since 4.0
+ *
+ * @deprecated use {@link HttpAsyncRequestHandler}
  */
+@Deprecated
 public interface NHttpRequestHandler {
 
     /**

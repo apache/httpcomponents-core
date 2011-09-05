@@ -65,6 +65,7 @@ import org.junit.Test;
  * HttpCore NIO integration tests using buffering versions of the
  * protocol handlers.
  */
+@Deprecated
 public class TestBufferingNHttpHandlers extends HttpCoreNIOTestBase {
 
     @Before

@@ -47,7 +47,10 @@ import org.apache.http.protocol.UriPatternMatcher;
  * specified request URI.
  *
  * @since 4.0
+ *
+ * @deprecated use {@link HttpAsyncRequestHandlerRegistry}
  */
+@Deprecated
 public class NHttpRequestHandlerRegistry implements NHttpRequestHandlerResolver {
 
     private final UriPatternMatcher<NHttpRequestHandler> matcher;

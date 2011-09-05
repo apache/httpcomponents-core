@@ -41,7 +41,10 @@ import org.apache.http.protocol.HttpProcessor;
 
 /**
  * @since 4.0
+ *
+ * @deprecated do not use
  */
+@Deprecated
 @Immutable // provided injected dependencies are immutable
 public abstract class NHttpHandlerBase {
 

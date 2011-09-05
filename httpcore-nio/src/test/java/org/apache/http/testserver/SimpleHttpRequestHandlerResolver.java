@@ -29,6 +29,7 @@ package org.apache.http.testserver;
 import org.apache.http.protocol.HttpRequestHandler;
 import org.apache.http.protocol.HttpRequestHandlerResolver;
 
+@Deprecated
 public class SimpleHttpRequestHandlerResolver implements HttpRequestHandlerResolver {
 
     private final HttpRequestHandler handler;
