@@ -117,7 +117,7 @@ public class HttpAsyncRequestExecutor {
             final HttpAsyncResponseConsumer<T> responseConsumer,
             final ConnPool<HttpHost, E> connPool,
             final HttpContext context) {
-        return execute(requestProducer, responseConsumer, connPool, context);
+        return execute(requestProducer, responseConsumer, connPool, context, null);
     }
 
     public <T, E extends PoolEntry<HttpHost, NHttpClientConnection>> Future<T> execute(
@@ -129,20 +129,20 @@ public class HttpAsyncRequestExecutor {
 
     class ConnRequestCallback<T, E extends PoolEntry<HttpHost, NHttpClientConnection>> implements FutureCallback<E> {
 
-        private final BasicFuture<T> future;
+        private final BasicFuture<T> requestFuture;
         private final HttpAsyncRequestProducer requestProducer;
         private final HttpAsyncResponseConsumer<T> responseConsumer;
         private final ConnPool<HttpHost, E> connPool;
         private final HttpContext context;
 
         ConnRequestCallback(
-                final BasicFuture<T> future,
+                final BasicFuture<T> requestFuture,
                 final HttpAsyncRequestProducer requestProducer,
                 final HttpAsyncResponseConsumer<T> responseConsumer,
                 final ConnPool<HttpHost, E> connPool,
                 final HttpContext context) {
             super();
-            this.future = future;
+            this.requestFuture = requestFuture;
             this.requestProducer = requestProducer;
             this.responseConsumer = responseConsumer;
             this.connPool = connPool;
@@ -150,13 +150,15 @@ public class HttpAsyncRequestExecutor {
         }
 
         public void completed(final E result) {
-            if (this.future.isDone()) {
+            if (this.requestFuture.isDone()) {
                 this.connPool.release(result, true);
                 return;
             }
             NHttpClientConnection conn = result.getConnection();
+            BasicFuture<T> execFuture = new BasicFuture<T>(new RequestExecutionCallback<T, E>(
+                    this.requestFuture, result, this.connPool));
             HttpAsyncClientExchangeHandler<T> handler = new HttpAsyncClientExchangeHandlerImpl<T>(
-                    this.future, this.requestProducer, this.responseConsumer, this.context,
+                    execFuture, this.requestProducer, this.responseConsumer, this.context,
                     httppocessor, conn, reuseStrategy, params);
             conn.getContext().setAttribute(HttpAsyncClientProtocolHandler.HTTP_HANDLER, handler);
             conn.requestOutput();
@@ -170,7 +172,7 @@ public class HttpAsyncRequestExecutor {
                     releaseResources();
                 }
             } finally {
-                this.future.failed(ex);
+                this.requestFuture.failed(ex);
             }
         }
 
@@ -182,7 +184,7 @@ public class HttpAsyncRequestExecutor {
                     releaseResources();
                 }
             } finally {
-                this.future.cancel(true);
+                this.requestFuture.cancel(true);
             }
         }
 

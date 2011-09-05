@@ -401,7 +401,7 @@ public class HttpAsyncClientProtocolHandler implements NHttpClientHandler {
         }
 
         public void setResponse(final HttpResponse response) {
-            if (this.request != null) {
+            if (this.response != null) {
                 throw new IllegalStateException("Response already set");
             }
             this.response = response;

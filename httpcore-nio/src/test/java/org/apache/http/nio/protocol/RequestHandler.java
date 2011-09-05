@@ -35,6 +35,7 @@ import org.apache.http.HttpException;
 import org.apache.http.HttpRequest;
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
+import org.apache.http.entity.ContentType;
 import org.apache.http.nio.entity.BufferingNHttpEntity;
 import org.apache.http.nio.entity.ConsumingNHttpEntity;
 import org.apache.http.nio.entity.NStringEntity;
@@ -59,9 +60,7 @@ final class RequestHandler extends SimpleNHttpRequestHandler implements HttpRequ
     public ConsumingNHttpEntity entityRequest(
             final HttpEntityEnclosingRequest request,
             final HttpContext context) {
-        return new BufferingNHttpEntity(
-                request.getEntity(),
-                new HeapByteBufferAllocator());
+        return new BufferingNHttpEntity(request.getEntity(), new HeapByteBufferAllocator());
     }
 
     @Override
@@ -94,7 +93,7 @@ final class RequestHandler extends SimpleNHttpRequestHandler implements HttpRequ
             }
             content = buffer.toString();
         }
-        NStringEntity entity = new NStringEntity(content, "US-ASCII");
+        NStringEntity entity = NStringEntity.create(content, ContentType.DEFAULT_TEXT);
         entity.setChunked(this.chunking);
         response.setEntity(entity);
     }
