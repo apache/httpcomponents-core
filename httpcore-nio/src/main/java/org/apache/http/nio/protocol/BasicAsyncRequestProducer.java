@@ -65,6 +65,9 @@ public class BasicAsyncRequestProducer implements HttpAsyncRequestProducer {
     }
 
     public BasicAsyncRequestProducer(final HttpHost target, final HttpRequest request) {
+        if (target == null) {
+            throw new IllegalArgumentException("HTTP host may not be null");
+        }
         if (request == null) {
             throw new IllegalArgumentException("HTTP request may not be null");
         }
