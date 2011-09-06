@@ -374,6 +374,7 @@ public abstract class AbstractNIOConnPool<T, C, E extends PoolEntry<T, C>>
             this.pending.remove(request);
             RouteSpecificPool<T, C, E> pool = getPool(route);
             pool.cancelled(request);
+            processPendingRequests();
         } finally {
             this.lock.unlock();
         }
@@ -390,6 +391,7 @@ public abstract class AbstractNIOConnPool<T, C, E extends PoolEntry<T, C>>
             this.pending.remove(request);
             RouteSpecificPool<T, C, E> pool = getPool(route);
             pool.failed(request, request.getException());
+            processPendingRequests();
         } finally {
             this.lock.unlock();
         }
@@ -406,6 +408,7 @@ public abstract class AbstractNIOConnPool<T, C, E extends PoolEntry<T, C>>
             this.pending.remove(request);
             RouteSpecificPool<T, C, E> pool = getPool(route);
             pool.timeout(request);
+            processPendingRequests();
         } finally {
             this.lock.unlock();
         }
