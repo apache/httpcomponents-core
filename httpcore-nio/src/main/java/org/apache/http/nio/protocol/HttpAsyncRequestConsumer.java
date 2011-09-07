@@ -29,6 +29,7 @@ package org.apache.http.nio.protocol;
 import java.io.Closeable;
 import java.io.IOException;
 
+import org.apache.http.HttpException;
 import org.apache.http.HttpRequest;
 import org.apache.http.nio.ContentDecoder;
 import org.apache.http.nio.IOControl;
@@ -39,7 +40,7 @@ import org.apache.http.protocol.HttpContext;
  */
 public interface HttpAsyncRequestConsumer<T> extends Closeable {
 
-    void requestReceived(HttpRequest request);
+    void requestReceived(HttpRequest request) throws HttpException, IOException;
 
     void consumeContent(ContentDecoder decoder, IOControl ioctrl) throws IOException;
 
