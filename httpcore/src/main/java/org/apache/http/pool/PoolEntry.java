@@ -39,7 +39,7 @@ import org.apache.http.annotation.ThreadSafe;
  * @since 4.2
  */
 @ThreadSafe
-public class PoolEntry<T, C> {
+public abstract class PoolEntry<T, C> {
 
     private final String id;
     private final T route;
@@ -132,6 +132,10 @@ public class PoolEntry<T, C> {
     public synchronized boolean isExpired(final long now) {
         return now >= this.expiry;
     }
+
+    public abstract void close();
+
+    public abstract boolean isClosed();
 
     @Override
     public String toString() {

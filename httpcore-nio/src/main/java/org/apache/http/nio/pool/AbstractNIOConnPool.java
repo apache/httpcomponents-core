@@ -119,8 +119,6 @@ public abstract class AbstractNIOConnPool<T, C, E extends PoolEntry<T, C>>
 
     protected abstract E createEntry(T route, C conn);
 
-    protected abstract void closeEntry(E entry);
-
     public boolean isShutdown() {
         return this.isShutDown;
     }
@@ -136,10 +134,10 @@ public abstract class AbstractNIOConnPool<T, C, E extends PoolEntry<T, C>>
                 sessionRequest.cancel();
             }
             for (E entry: this.available) {
-                closeEntry(entry);
+                entry.close();
             }
             for (E entry: this.leased) {
-                closeEntry(entry);
+                entry.close();
             }
             for (RouteSpecificPool<T, C, E> pool: this.routeToPool.values()) {
                 pool.shutdown();
@@ -163,11 +161,6 @@ public abstract class AbstractNIOConnPool<T, C, E extends PoolEntry<T, C>>
                 @Override
                 protected E createEntry(final T route, final C conn) {
                     return AbstractNIOConnPool.this.createEntry(route, conn);
-                }
-
-                @Override
-                protected void closeEntry(final E entry) {
-                    AbstractNIOConnPool.this.closeEntry(entry);
                 }
 
             };
@@ -226,7 +219,7 @@ public abstract class AbstractNIOConnPool<T, C, E extends PoolEntry<T, C>>
                 if (reusable) {
                     this.available.add(entry);
                 } else {
-                    closeEntry(entry);
+                    entry.close();
                 }
                 processPendingRequests();
             }
@@ -259,8 +252,8 @@ public abstract class AbstractNIOConnPool<T, C, E extends PoolEntry<T, C>>
                 if (entry == null) {
                     break;
                 }
-                if (entry.isExpired(System.currentTimeMillis())) {
-                    closeEntry(entry);
+                if (entry.isClosed() || entry.isExpired(System.currentTimeMillis())) {
+                    entry.close();
                     this.available.remove(entry);
                     pool.free(entry, false);
                 } else {
@@ -285,7 +278,7 @@ public abstract class AbstractNIOConnPool<T, C, E extends PoolEntry<T, C>>
                     if (lastUsed == null) {
                         break;
                     }
-                    closeEntry(lastUsed);
+                    lastUsed.close();
                     this.available.remove(lastUsed);
                     pool.remove(lastUsed);
                 }
@@ -301,7 +294,7 @@ public abstract class AbstractNIOConnPool<T, C, E extends PoolEntry<T, C>>
                 if (totalAvailable > freeCapacity - 1) {
                     if (!this.available.isEmpty()) {
                         E lastUsed = this.available.removeFirst();
-                        closeEntry(lastUsed);
+                        lastUsed.close();
                         RouteSpecificPool<T, C, E> otherpool = getPool(lastUsed.getRoute());
                         otherpool.remove(lastUsed);
                     }
@@ -537,7 +530,7 @@ public abstract class AbstractNIOConnPool<T, C, E extends PoolEntry<T, C>>
             while (it.hasNext()) {
                 E entry = it.next();
                 if (entry.getUpdated() <= deadline) {
-                    closeEntry(entry);
+                    entry.close();
                     RouteSpecificPool<T, C, E> pool = getPool(entry.getRoute());
                     pool.remove(entry);
                     it.remove();
@@ -557,7 +550,7 @@ public abstract class AbstractNIOConnPool<T, C, E extends PoolEntry<T, C>>
             while (it.hasNext()) {
                 E entry = it.next();
                 if (entry.isExpired(now)) {
-                    closeEntry(entry);
+                    entry.close();
                     RouteSpecificPool<T, C, E> pool = getPool(entry.getRoute());
                     pool.remove(entry);
                     it.remove();

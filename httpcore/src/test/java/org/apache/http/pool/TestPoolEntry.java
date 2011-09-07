@@ -26,6 +26,7 @@
  */
 package org.apache.http.pool;
 
+import java.io.IOException;
 import java.util.concurrent.TimeUnit;
 
 import junit.framework.Assert;
@@ -46,6 +47,19 @@ public class TestPoolEntry {
         public MockPoolEntry(final String route, final HttpConnection conn,
                 long timeToLive, final TimeUnit tunit) {
             super(null, route, conn, timeToLive, tunit);
+        }
+
+        @Override
+        public void close() {
+            try {
+                getConnection().close();
+            } catch (IOException ignore) {
+            }
+        }
+
+        @Override
+        public boolean isClosed() {
+            return !getConnection().isOpen();
         }
 
     }

@@ -51,6 +51,19 @@ public class TestConnPool {
             super(null, route, conn);
         }
 
+        @Override
+        public void close() {
+            try {
+                getConnection().close();
+            } catch (IOException ignore) {
+            }
+        }
+
+        @Override
+        public boolean isClosed() {
+            return !getConnection().isOpen();
+        }
+
     }
 
     static class LocalConnPool extends AbstractConnPool<String, HttpConnection, LocalPoolEntry> {
@@ -64,15 +77,6 @@ public class TestConnPool {
         @Override
         protected LocalPoolEntry createEntry(final String route, final HttpConnection conn) {
             return new LocalPoolEntry(route, conn);
-        }
-
-        @Override
-        protected void closeEntry(final LocalPoolEntry entry) {
-            HttpConnection conn = entry.getConnection();
-            try {
-                conn.close();
-            } catch (IOException ignore) {
-            }
         }
 
     }
@@ -112,7 +116,9 @@ public class TestConnPool {
     @Test
     public void testLeaseRelease() throws Exception {
         HttpConnection conn1 = Mockito.mock(HttpConnection.class);
+        Mockito.when(conn1.isOpen()).thenReturn(true);
         HttpConnection conn2 = Mockito.mock(HttpConnection.class);
+        Mockito.when(conn2.isOpen()).thenReturn(true);
 
         LocalConnFactory connFactory = Mockito.mock(LocalConnFactory.class);
         Mockito.when(connFactory.create(Mockito.eq("somehost"))).thenReturn(conn1);
@@ -214,9 +220,11 @@ public class TestConnPool {
         LocalConnFactory connFactory = Mockito.mock(LocalConnFactory.class);
 
         HttpConnection conn1 = Mockito.mock(HttpConnection.class);
+        Mockito.when(conn1.isOpen()).thenReturn(true);
         Mockito.when(connFactory.create(Mockito.eq("somehost"))).thenReturn(conn1);
 
         HttpConnection conn2 = Mockito.mock(HttpConnection.class);
+        Mockito.when(conn2.isOpen()).thenReturn(true);
         Mockito.when(connFactory.create(Mockito.eq("otherhost"))).thenReturn(conn2);
 
         LocalConnPool pool = new LocalConnPool(connFactory, 2, 10);
@@ -313,12 +321,17 @@ public class TestConnPool {
         LocalConnFactory connFactory = Mockito.mock(LocalConnFactory.class);
 
         HttpConnection conn1 = Mockito.mock(HttpConnection.class);
+        Mockito.when(conn1.isOpen()).thenReturn(true);
         HttpConnection conn2 = Mockito.mock(HttpConnection.class);
+        Mockito.when(conn2.isOpen()).thenReturn(true);
         HttpConnection conn3 = Mockito.mock(HttpConnection.class);
+        Mockito.when(conn3.isOpen()).thenReturn(true);
         Mockito.when(connFactory.create(Mockito.eq("somehost"))).thenReturn(conn1, conn2, conn3);
 
         HttpConnection conn4 = Mockito.mock(HttpConnection.class);
+        Mockito.when(conn4.isOpen()).thenReturn(true);
         HttpConnection conn5 = Mockito.mock(HttpConnection.class);
+        Mockito.when(conn5.isOpen()).thenReturn(true);
         Mockito.when(connFactory.create(Mockito.eq("otherhost"))).thenReturn(conn4, conn5);
 
         LocalConnPool pool = new LocalConnPool(connFactory, 2, 10);
@@ -417,8 +430,11 @@ public class TestConnPool {
         LocalConnFactory connFactory = Mockito.mock(LocalConnFactory.class);
 
         HttpConnection conn1 = Mockito.mock(HttpConnection.class);
+        Mockito.when(conn1.isOpen()).thenReturn(true);
         HttpConnection conn2 = Mockito.mock(HttpConnection.class);
+        Mockito.when(conn2.isOpen()).thenReturn(true);
         HttpConnection conn3 = Mockito.mock(HttpConnection.class);
+        Mockito.when(conn3.isOpen()).thenReturn(true);
         Mockito.when(connFactory.create(Mockito.eq("somehost"))).thenReturn(conn1, conn2, conn3);
 
         LocalConnPool pool = new LocalConnPool(connFactory, 2, 10);
@@ -480,6 +496,7 @@ public class TestConnPool {
         LocalConnFactory connFactory = Mockito.mock(LocalConnFactory.class);
 
         HttpConnection conn1 = Mockito.mock(HttpConnection.class);
+        Mockito.when(conn1.isOpen()).thenReturn(true);
         Mockito.when(connFactory.create(Mockito.eq("somehost"))).thenReturn(conn1);
 
         LocalConnPool pool = new LocalConnPool(connFactory, 2, 2);
@@ -555,6 +572,7 @@ public class TestConnPool {
         LocalConnFactory connFactory = Mockito.mock(LocalConnFactory.class);
 
         HttpConnection conn1 = Mockito.mock(HttpConnection.class);
+        Mockito.when(conn1.isOpen()).thenReturn(true);
         Mockito.when(connFactory.create(Mockito.eq("somehost"))).thenReturn(conn1);
 
         LocalConnPool pool = new LocalConnPool(connFactory, 1, 1);
@@ -601,6 +619,7 @@ public class TestConnPool {
         LocalConnFactory connFactory = Mockito.mock(LocalConnFactory.class);
 
         HttpConnection conn1 = Mockito.mock(HttpConnection.class);
+        Mockito.when(conn1.isOpen()).thenReturn(true);
         Mockito.when(connFactory.create(Mockito.eq("somehost"))).thenReturn(conn1);
 
         LocalConnPool pool = new LocalConnPool(connFactory, 1, 1);
@@ -636,7 +655,9 @@ public class TestConnPool {
         LocalConnFactory connFactory = Mockito.mock(LocalConnFactory.class);
 
         HttpConnection conn1 = Mockito.mock(HttpConnection.class);
+        Mockito.when(conn1.isOpen()).thenReturn(true);
         HttpConnection conn2 = Mockito.mock(HttpConnection.class);
+        Mockito.when(conn2.isOpen()).thenReturn(true);
 
         Mockito.when(connFactory.create(Mockito.eq("somehost"))).thenReturn(conn1, conn2);
 
@@ -726,8 +747,10 @@ public class TestConnPool {
         LocalConnFactory connFactory = Mockito.mock(LocalConnFactory.class);
 
         HttpConnection conn1 = Mockito.mock(HttpConnection.class);
+        Mockito.when(conn1.isOpen()).thenReturn(true);
         Mockito.when(connFactory.create(Mockito.eq("somehost"))).thenReturn(conn1);
         HttpConnection conn2 = Mockito.mock(HttpConnection.class);
+        Mockito.when(conn2.isOpen()).thenReturn(true);
         Mockito.when(connFactory.create(Mockito.eq("otherhost"))).thenReturn(conn2);
 
         LocalConnPool pool = new LocalConnPool(connFactory, 2, 2);

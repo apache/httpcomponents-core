@@ -26,7 +26,6 @@
  */
 package org.apache.http.impl.nio.pool;
 
-import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.net.SocketAddress;
 import java.util.concurrent.Future;
@@ -95,15 +94,6 @@ public class BasicNIOConnPool extends AbstractNIOConnPool<HttpHost, NHttpClientC
     @Override
     protected BasicNIOPoolEntry createEntry(final HttpHost host, final NHttpClientConnection conn) {
         return new BasicNIOPoolEntry(Long.toString(COUNTER.getAndIncrement()), host, conn);
-    }
-
-    @Override
-    protected void closeEntry(final BasicNIOPoolEntry entry) {
-        NHttpClientConnection conn = entry.getConnection();
-        try {
-            conn.shutdown();
-        } catch (IOException ex) {
-        }
     }
 
     @Override

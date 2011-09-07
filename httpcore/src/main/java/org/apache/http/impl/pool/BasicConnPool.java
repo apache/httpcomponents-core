@@ -26,11 +26,9 @@
  */
 package org.apache.http.impl.pool;
 
-import java.io.IOException;
 import java.util.concurrent.atomic.AtomicLong;
 
 import org.apache.http.HttpClientConnection;
-import org.apache.http.HttpConnection;
 import org.apache.http.HttpHost;
 import org.apache.http.annotation.ThreadSafe;
 import org.apache.http.params.HttpParams;
@@ -58,15 +56,6 @@ public class BasicConnPool extends AbstractConnPool<HttpHost, HttpClientConnecti
             final HttpHost host,
             final HttpClientConnection conn) {
         return new BasicPoolEntry(Long.toString(COUNTER.getAndIncrement()), host, conn);
-    }
-
-    @Override
-    protected void closeEntry(final BasicPoolEntry entry) {
-        HttpConnection conn = entry.getConnection();
-        try {
-            conn.close();
-        } catch (IOException ignore) {
-        }
     }
 
 }

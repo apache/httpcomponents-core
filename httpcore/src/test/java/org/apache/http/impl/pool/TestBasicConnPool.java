@@ -122,7 +122,7 @@ public class TestBasicConnPool {
         assertEquals(conn, entry.getConnection());
         assertEquals("localhost", entry.getRoute().getHostName());
 
-        pool.closeEntry(entry);
+        entry.close();
     }
 
 }

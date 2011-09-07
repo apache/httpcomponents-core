@@ -47,6 +47,16 @@ public class TestRouteSpecificPool {
             super(null, route, conn);
         }
 
+        @Override
+        public void close() {
+            getConnection().close();
+        }
+
+        @Override
+        public boolean isClosed() {
+            return getConnection().isClosed();
+        }
+
     }
 
     static class LocalRoutePool extends RouteSpecificPool<String, IOSession, LocalPoolEntry> {
@@ -58,12 +68,6 @@ public class TestRouteSpecificPool {
         @Override
         protected LocalPoolEntry createEntry(final String route, final IOSession session) {
             return new LocalPoolEntry(route, session);
-        }
-
-        @Override
-        protected void closeEntry(final LocalPoolEntry entry) {
-            IOSession session = entry.getConnection();
-            session.close();
         }
 
     };

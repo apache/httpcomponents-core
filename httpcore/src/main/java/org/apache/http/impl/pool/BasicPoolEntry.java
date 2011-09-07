@@ -26,6 +26,8 @@
  */
 package org.apache.http.impl.pool;
 
+import java.io.IOException;
+
 import org.apache.http.HttpClientConnection;
 import org.apache.http.HttpHost;
 import org.apache.http.annotation.ThreadSafe;
@@ -39,6 +41,19 @@ public class BasicPoolEntry extends PoolEntry<HttpHost, HttpClientConnection> {
 
     public BasicPoolEntry(final String id, final HttpHost route, final HttpClientConnection conn) {
         super(id, route, conn);
+    }
+
+    @Override
+    public void close() {
+        try {
+            this.getConnection().close();
+        } catch (IOException ignore) {
+        }
+    }
+
+    @Override
+    public boolean isClosed() {
+        return !this.getConnection().isOpen();
     }
 
 }

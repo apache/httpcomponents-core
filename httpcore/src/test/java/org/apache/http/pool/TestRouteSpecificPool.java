@@ -44,6 +44,19 @@ public class TestRouteSpecificPool {
             super(null, route, conn);
         }
 
+        @Override
+        public void close() {
+            try {
+                getConnection().close();
+            } catch (IOException ignore) {
+            }
+        }
+
+        @Override
+        public boolean isClosed() {
+            return !getConnection().isOpen();
+        }
+
     }
 
     static class LocalRoutePool extends RouteSpecificPool<String, HttpConnection, LocalPoolEntry> {
@@ -55,15 +68,6 @@ public class TestRouteSpecificPool {
         @Override
         protected LocalPoolEntry createEntry(final HttpConnection conn) {
             return new LocalPoolEntry(getRoute(), conn);
-        }
-
-        @Override
-        protected void closeEntry(LocalPoolEntry entry) {
-            HttpConnection conn = entry.getConnection();
-            try {
-                conn.close();
-            } catch (IOException ignore) {
-            }
         }
 
     };

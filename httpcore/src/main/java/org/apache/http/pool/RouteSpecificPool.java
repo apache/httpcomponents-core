@@ -51,8 +51,6 @@ abstract class RouteSpecificPool<T, C, E extends PoolEntry<T, C>> {
 
     protected abstract E createEntry(C conn);
 
-    protected abstract void closeEntry(E entry);
-
     public final T getRoute() {
         return route;
     }
@@ -163,11 +161,11 @@ abstract class RouteSpecificPool<T, C, E extends PoolEntry<T, C>> {
         }
         this.pending.clear();
         for (E entry: this.available) {
-            closeEntry(entry);
+            entry.close();
         }
         this.available.clear();
         for (E entry: this.leased) {
-            closeEntry(entry);
+            entry.close();
         }
         this.leased.clear();
     }

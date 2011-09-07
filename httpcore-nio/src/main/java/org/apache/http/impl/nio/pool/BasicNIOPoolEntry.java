@@ -26,6 +26,8 @@
  */
 package org.apache.http.impl.nio.pool;
 
+import java.io.IOException;
+
 import org.apache.http.HttpHost;
 import org.apache.http.annotation.ThreadSafe;
 import org.apache.http.nio.NHttpClientConnection;
@@ -41,6 +43,19 @@ public class BasicNIOPoolEntry extends PoolEntry<HttpHost, NHttpClientConnection
 
     public BasicNIOPoolEntry(final String id, final HttpHost route, final NHttpClientConnection conn) {
         super(id, route, conn);
+    }
+
+    @Override
+    public void close() {
+        try {
+            getConnection().close();
+        } catch (IOException ignore) {
+        }
+    }
+
+    @Override
+    public boolean isClosed() {
+        return !getConnection().isOpen();
     }
 
 }

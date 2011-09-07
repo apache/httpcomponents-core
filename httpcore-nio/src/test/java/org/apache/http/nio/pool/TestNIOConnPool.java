@@ -54,6 +54,16 @@ public class TestNIOConnPool {
             super(null, route, conn);
         }
 
+        @Override
+        public void close() {
+            getConnection().close();
+        }
+
+        @Override
+        public boolean isClosed() {
+            return getConnection().isClosed();
+        }
+
     }
 
     static class LocalConnFactory implements NIOConnFactory<String, IOSession> {
@@ -84,12 +94,6 @@ public class TestNIOConnPool {
         @Override
         protected LocalPoolEntry createEntry(final String route, final IOSession session) {
             return new LocalPoolEntry(route, session);
-        }
-
-        @Override
-        protected void closeEntry(final LocalPoolEntry entry) {
-            IOSession session = entry.getConnection();
-            session.close();
         }
 
     }

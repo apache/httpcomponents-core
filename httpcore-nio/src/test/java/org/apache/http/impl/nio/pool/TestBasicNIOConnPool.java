@@ -80,7 +80,6 @@ public class TestBasicNIOConnPool {
     public void testCreateEntry() throws Exception {
         NHttpClientConnection conn = connFactory.create(route, session);
         BasicNIOPoolEntry entry = pool.createEntry(route, conn);
-
-        pool.closeEntry(entry);
+        entry.close();
     }
 }
