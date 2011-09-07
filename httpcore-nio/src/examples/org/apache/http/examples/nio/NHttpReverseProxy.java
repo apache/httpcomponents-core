@@ -49,7 +49,6 @@ import org.apache.http.impl.DefaultConnectionReuseStrategy;
 import org.apache.http.impl.EnglishReasonPhraseCatalog;
 import org.apache.http.impl.nio.DefaultClientIODispatch;
 import org.apache.http.impl.nio.DefaultServerIODispatch;
-import org.apache.http.impl.nio.pool.BasicNIOConnFactory;
 import org.apache.http.impl.nio.pool.BasicNIOConnPool;
 import org.apache.http.impl.nio.pool.BasicNIOPoolEntry;
 import org.apache.http.impl.nio.reactor.DefaultConnectingIOReactor;
@@ -160,8 +159,7 @@ public class NHttpReverseProxy {
         HttpAsyncRequestExecutor executor = new HttpAsyncRequestExecutor(
                 outhttpproc, new ProxyOutgoingConnectionReuseStrategy(), params);
 
-        ProxyConnPool connPool = new ProxyConnPool(connectingIOReactor,
-                new BasicNIOConnFactory(new LoggingClientConnectionFactory(params)), params);
+        ProxyConnPool connPool = new ProxyConnPool(connectingIOReactor, params);
         connPool.setMaxTotal(100);
         connPool.setDefaultMaxPerRoute(20);
 
@@ -172,10 +170,10 @@ public class NHttpReverseProxy {
                 handlerRegistry, inhttpproc, new ProxyIncomingConnectionReuseStrategy(), params);
 
         final IOEventDispatch connectingEventDispatch = new DefaultClientIODispatch(
-                clientHandler, new LoggingClientConnectionFactory(params));
+                clientHandler, params);
 
         final IOEventDispatch listeningEventDispatch = new DefaultServerIODispatch(
-                serviceHandler, new LoggingServerConnectionFactory(params));
+                serviceHandler, params);
 
         Thread t = new Thread(new Runnable() {
 
