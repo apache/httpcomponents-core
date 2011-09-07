@@ -241,12 +241,12 @@ public class HttpAsyncServiceHandler implements NHttpServiceHandler {
 
             producer.produceContent(encoder, conn);
             if (encoder.isCompleted()) {
-                httpExchange.reset();
                 if (!this.connStrategy.keepAlive(response, context)) {
                     conn.close();
                 } else {
                     conn.requestInput();
                 }
+                httpExchange.reset();
             }
         } catch (RuntimeException ex) {
             shutdownConnection(conn);
@@ -280,7 +280,7 @@ public class HttpAsyncServiceHandler implements NHttpServiceHandler {
         }
     }
 
-    private ErrorResponseProducer handleException(final Exception ex) {
+    protected HttpAsyncResponseProducer handleException(final Exception ex) {
         int code = HttpStatus.SC_INTERNAL_SERVER_ERROR;
         if (ex instanceof MethodNotSupportedException) {
             code = HttpStatus.SC_NOT_IMPLEMENTED;
@@ -317,7 +317,7 @@ public class HttpAsyncServiceHandler implements NHttpServiceHandler {
         consumer.requestCompleted(context);
         Exception ex = consumer.getException();
         if (ex != null) {
-            ErrorResponseProducer responseProducer = handleException(ex);
+            HttpAsyncResponseProducer responseProducer = handleException(ex);
             httpExchange.setResponseProducer(responseProducer);
             conn.requestOutput();
         } else {
@@ -352,13 +352,13 @@ public class HttpAsyncServiceHandler implements NHttpServiceHandler {
         conn.submitResponse(response);
 
         if (entity == null) {
-            httpExchange.reset();
             if (!this.connStrategy.keepAlive(response, context)) {
                 conn.close();
             } else {
                 // Ready to process new request
                 conn.requestInput();
             }
+            httpExchange.reset();
         }
     }
 
@@ -522,6 +522,10 @@ public class HttpAsyncServiceHandler implements NHttpServiceHandler {
             this.triggered = true;
             this.httpExchange.setResponseProducer(responseProducer);
             this.iocontrol.requestOutput();
+        }
+
+        public boolean isTriggered() {
+            return this.triggered;
         }
 
     }

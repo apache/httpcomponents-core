@@ -34,4 +34,6 @@ public interface HttpAsyncResponseTrigger {
 
     void submitResponse(HttpAsyncResponseProducer responseProducer);
 
+    boolean isTriggered();
+
 }
