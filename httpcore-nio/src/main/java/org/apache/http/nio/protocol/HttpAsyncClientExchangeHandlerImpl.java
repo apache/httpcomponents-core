@@ -144,6 +144,10 @@ class HttpAsyncClientExchangeHandlerImpl<T> implements HttpAsyncClientExchangeHa
         }
     }
 
+    public void requestCompleted(final HttpContext context) {
+        this.requestProducer.requestCompleted(context);
+    }
+
     public boolean isRepeatable() {
         return false;
     }

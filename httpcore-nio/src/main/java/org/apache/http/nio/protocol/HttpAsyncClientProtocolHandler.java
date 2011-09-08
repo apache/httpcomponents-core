@@ -107,6 +107,7 @@ public class HttpAsyncClientProtocolHandler implements NHttpClientHandler {
             return;
         }
         try {
+            HttpContext context = handler.getContext();
             HttpRequest request = handler.generateRequest();
             httpexchange.setRequest(request);
 
@@ -129,6 +130,7 @@ public class HttpAsyncClientProtocolHandler implements NHttpClientHandler {
                     httpexchange.setRequestState(MessageState.BODY_STREAM);
                 }
             } else {
+                handler.requestCompleted(context);
                 httpexchange.setRequestState(MessageState.COMPLETED);
             }
         } catch (RuntimeException ex) {
@@ -169,8 +171,10 @@ public class HttpAsyncClientProtocolHandler implements NHttpClientHandler {
                 conn.suspendOutput();
                 return;
             }
+            HttpContext context = handler.getContext();
             handler.produceContent(encoder, conn);
             if (encoder.isCompleted()) {
+                handler.requestCompleted(context);
                 httpexchange.setRequestState(MessageState.COMPLETED);
             }
         } catch (RuntimeException ex) {

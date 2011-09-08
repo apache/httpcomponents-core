@@ -552,6 +552,12 @@ public class NHttpReverseProxy {
             }
         }
 
+        public void requestCompleted(final HttpContext context) {
+            synchronized (this.httpExchange) {
+                System.out.println("[proxy->origin] " + this.httpExchange.getId() + " request completed");
+            }
+        }
+
         public boolean isRepeatable() {
             return false;
         }
@@ -718,6 +724,12 @@ public class NHttpReverseProxy {
                         ioctrl.suspendOutput();
                     }
                 }
+            }
+        }
+
+        public void responseCompleted(final HttpContext context) {
+            synchronized (this.httpExchange) {
+                System.out.println("[client<-proxy] " + this.httpExchange.getId() + " response completed");
             }
         }
 

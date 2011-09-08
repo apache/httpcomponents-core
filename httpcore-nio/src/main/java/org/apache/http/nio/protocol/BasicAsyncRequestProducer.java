@@ -36,6 +36,7 @@ import org.apache.http.annotation.ThreadSafe;
 import org.apache.http.nio.ContentEncoder;
 import org.apache.http.nio.IOControl;
 import org.apache.http.nio.entity.ProducingNHttpEntity;
+import org.apache.http.protocol.HttpContext;
 
 /**
  * @since 4.2
@@ -89,7 +90,7 @@ public class BasicAsyncRequestProducer implements HttpAsyncRequestProducer {
         return this.request;
     }
 
-    public synchronized HttpHost getTarget() {
+    public HttpHost getTarget() {
         return this.target;
     }
 
@@ -101,6 +102,9 @@ public class BasicAsyncRequestProducer implements HttpAsyncRequestProducer {
                 this.producer.finish();
             }
         }
+    }
+
+    public void requestCompleted(final HttpContext context) {
     }
 
     public synchronized boolean isRepeatable() {

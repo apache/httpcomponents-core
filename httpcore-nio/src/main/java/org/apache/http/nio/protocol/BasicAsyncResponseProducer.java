@@ -35,6 +35,7 @@ import org.apache.http.annotation.ThreadSafe;
 import org.apache.http.nio.ContentEncoder;
 import org.apache.http.nio.IOControl;
 import org.apache.http.nio.entity.ProducingNHttpEntity;
+import org.apache.http.protocol.HttpContext;
 
 /**
  * @since 4.2
@@ -75,6 +76,9 @@ public class BasicAsyncResponseProducer implements HttpAsyncResponseProducer {
                 this.producer.finish();
             }
         }
+    }
+
+    public void responseCompleted(final HttpContext context) {
     }
 
     public synchronized void close() throws IOException {

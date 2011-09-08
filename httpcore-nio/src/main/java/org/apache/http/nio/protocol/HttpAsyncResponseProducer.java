@@ -33,6 +33,7 @@ import java.io.IOException;
 import org.apache.http.HttpResponse;
 import org.apache.http.nio.ContentEncoder;
 import org.apache.http.nio.IOControl;
+import org.apache.http.protocol.HttpContext;
 
 /**
  * @since 4.2
@@ -42,5 +43,7 @@ public interface HttpAsyncResponseProducer extends Closeable {
     HttpResponse generateResponse();
 
     void produceContent(ContentEncoder encoder, IOControl ioctrl) throws IOException;
+
+    void responseCompleted(HttpContext context);
 
 }

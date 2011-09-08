@@ -235,12 +235,13 @@ public class HttpAsyncServiceHandler implements NHttpServiceHandler {
     public void outputReady(final NHttpServerConnection conn, final ContentEncoder encoder) {
         HttpExchange httpExchange = (HttpExchange) conn.getContext().getAttribute(HTTP_EXCHANGE);
         try {
-            HttpAsyncResponseProducer producer = httpExchange.getResponseProducer();
+            HttpAsyncResponseProducer responseProducer = httpExchange.getResponseProducer();
             HttpContext context = httpExchange.getContext();
             HttpResponse response = httpExchange.getResponse();
 
-            producer.produceContent(encoder, conn);
+            responseProducer.produceContent(encoder, conn);
             if (encoder.isCompleted()) {
+                responseProducer.responseCompleted(context);
                 if (!this.connStrategy.keepAlive(response, context)) {
                     conn.close();
                 } else {
@@ -352,6 +353,7 @@ public class HttpAsyncServiceHandler implements NHttpServiceHandler {
         conn.submitResponse(response);
 
         if (entity == null) {
+            responseProducer.responseCompleted(context);
             if (!this.connStrategy.keepAlive(response, context)) {
                 conn.close();
             } else {

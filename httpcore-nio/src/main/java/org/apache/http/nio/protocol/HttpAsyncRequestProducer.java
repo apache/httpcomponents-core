@@ -34,6 +34,7 @@ import org.apache.http.HttpHost;
 import org.apache.http.HttpRequest;
 import org.apache.http.nio.ContentEncoder;
 import org.apache.http.nio.IOControl;
+import org.apache.http.protocol.HttpContext;
 
 /**
  * @since 4.2
@@ -45,6 +46,8 @@ public interface HttpAsyncRequestProducer extends Closeable {
     HttpRequest generateRequest() throws IOException, HttpException;
 
     void produceContent(ContentEncoder encoder, IOControl ioctrl) throws IOException;
+
+    void requestCompleted(HttpContext context);
 
     boolean isRepeatable();
 

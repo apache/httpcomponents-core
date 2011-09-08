@@ -38,6 +38,7 @@ import org.apache.http.nio.ContentEncoder;
 import org.apache.http.nio.IOControl;
 import org.apache.http.nio.entity.ProducingNHttpEntity;
 import org.apache.http.protocol.HTTP;
+import org.apache.http.protocol.HttpContext;
 
 class ErrorResponseProducer implements HttpAsyncResponseProducer {
 
@@ -73,6 +74,9 @@ class ErrorResponseProducer implements HttpAsyncResponseProducer {
     public void produceContent(
             final ContentEncoder encoder, final IOControl ioctrl) throws IOException {
         this.entity.produceContent(encoder, ioctrl);
+    }
+
+    public void responseCompleted(final HttpContext context) {
     }
 
     public void close() throws IOException {
