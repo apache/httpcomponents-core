@@ -453,12 +453,14 @@ public class NHttpReverseProxy {
                 // space in the buffer
                 if (!buf.hasRemaining()) {
                     ioctrl.suspendInput();
+                    System.out.println("[client->proxy] " + this.httpExchange.getId() + " suspend client input");
                 }
                 // If there is some content in the input buffer make sure origin
                 // output is active
                 if (buf.position() > 0) {
                     if (this.httpExchange.getOriginIOControl() != null) {
                         this.httpExchange.getOriginIOControl().requestOutput();
+                        System.out.println("[client->proxy] " + this.httpExchange.getId() + " request origin output");
                     }
                 }
             }
@@ -469,6 +471,10 @@ public class NHttpReverseProxy {
                 this.completed = true;;
                 System.out.println("[client->proxy] " + this.httpExchange.getId() + " request completed");
                 this.httpExchange.setRequestReceived();
+                if (this.httpExchange.getOriginIOControl() != null) {
+                    this.httpExchange.getOriginIOControl().requestOutput();
+                    System.out.println("[client->proxy] " + this.httpExchange.getId() + " request origin output");
+                }
             }
         }
 
@@ -530,23 +536,23 @@ public class NHttpReverseProxy {
                 int n = encoder.write(buf);
                 buf.compact();
                 System.out.println("[proxy->origin] " + this.httpExchange.getId() + " " + n + " bytes written");
-                if (encoder.isCompleted()) {
-                    System.out.println("[proxy->origin] " + this.httpExchange.getId() + " content fully written");
-                }
                 // If there is space in the buffer and the message has not been
                 // transferred, make sure the client is sending more data
                 if (buf.hasRemaining() && !this.httpExchange.isRequestReceived()) {
                     if (this.httpExchange.getClientIOControl() != null) {
                         this.httpExchange.getClientIOControl().requestInput();
+                        System.out.println("[proxy->origin] " + this.httpExchange.getId() + " request client input");
                     }
                 }
                 if (buf.position() == 0) {
                     if (this.httpExchange.isRequestReceived()) {
                         encoder.complete();
+                        System.out.println("[proxy->origin] " + this.httpExchange.getId() + " content fully written");
                     } else {
                         // Input buffer is empty. Wait until the client fills up
                         // the buffer
                         ioctrl.suspendOutput();
+                        System.out.println("[proxy->origin] " + this.httpExchange.getId() + " suspend origin output");
                     }
                 }
             }
@@ -608,12 +614,14 @@ public class NHttpReverseProxy {
                 // space in the buffer
                 if (!buf.hasRemaining()) {
                     ioctrl.suspendInput();
+                    System.out.println("[proxy<-origin] " + this.httpExchange.getId() + " suspend origin input");
                 }
                 // If there is some content in the input buffer make sure client
                 // output is active
                 if (buf.position() > 0) {
                     if (this.httpExchange.getClientIOControl() != null) {
                         this.httpExchange.getClientIOControl().requestOutput();
+                        System.out.println("[proxy<-origin] " + this.httpExchange.getId() + " request client output");
                     }
                 }
             }
@@ -627,6 +635,10 @@ public class NHttpReverseProxy {
                 this.completed = true;
                 System.out.println("[proxy<-origin] " + this.httpExchange.getId() + " response completed");
                 this.httpExchange.setResponseReceived();
+                if (this.httpExchange.getClientIOControl() != null) {
+                    this.httpExchange.getClientIOControl().requestOutput();
+                    System.out.println("[proxy<-origin] " + this.httpExchange.getId() + " request client output");
+                }
             }
         }
 
@@ -705,23 +717,23 @@ public class NHttpReverseProxy {
                 int n = encoder.write(buf);
                 buf.compact();
                 System.out.println("[client<-proxy] " + this.httpExchange.getId() + " " + n + " bytes written");
-                if (encoder.isCompleted()) {
-                    System.out.println("[client<-proxy] " + this.httpExchange.getId() + " content fully written");
-                }
                 // If there is space in the buffer and the message has not been
                 // transferred, make sure the origin is sending more data
                 if (buf.hasRemaining() && !this.httpExchange.isResponseReceived()) {
                     if (this.httpExchange.getOriginIOControl() != null) {
                         this.httpExchange.getOriginIOControl().requestInput();
+                        System.out.println("[client<-proxy] " + this.httpExchange.getId() + " request origin input");
                     }
                 }
                 if (buf.position() == 0) {
                     if (this.httpExchange.isResponseReceived()) {
                         encoder.complete();
+                        System.out.println("[client<-proxy] " + this.httpExchange.getId() + " content fully written");
                     } else {
                         // Input buffer is empty. Wait until the origin fills up
                         // the buffer
                         ioctrl.suspendOutput();
+                        System.out.println("[client<-proxy] " + this.httpExchange.getId() + " suspend client output");
                     }
                 }
             }
