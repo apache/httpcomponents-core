@@ -98,12 +98,16 @@ public class HttpAsyncClientProtocolHandler implements NHttpClientHandler {
             return;
         }
         HttpAsyncClientExchangeHandler<?> handler = httpexchange.getHandler();
+        if (handler != null && handler.isDone()) {
+            httpexchange.clearHandler();
+            handler = null;
+        }
         if (handler == null) {
             handler = (HttpAsyncClientExchangeHandler<?>) conn.getContext().removeAttribute(
                     HTTP_HANDLER);
             httpexchange.setHandler(handler);
         }
-        if (handler == null || handler.isDone()) {
+        if (handler == null) {
             return;
         }
         try {
@@ -375,6 +379,10 @@ public class HttpAsyncClientProtocolHandler implements NHttpClientHandler {
             this.handler = handler;
         }
 
+        public void clearHandler() {
+            this.handler = null;
+        }
+
         public MessageState getRequestState() {
             return this.requestState;
         }
@@ -424,9 +432,9 @@ public class HttpAsyncClientProtocolHandler implements NHttpClientHandler {
         public void reset() {
             this.responseState = MessageState.READY;
             this.requestState = MessageState.READY;
-            this.handler = null;
             this.response = null;
             this.request = null;
+            this.timeout = 0;
         }
 
         public boolean isValid() {
