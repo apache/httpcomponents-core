@@ -101,7 +101,7 @@ public class HttpAsyncServiceHandler implements NHttpServiceHandler {
 
     public void closed(final NHttpServerConnection conn) {
         HttpExchange httpExchange = (HttpExchange) conn.getContext().getAttribute(HTTP_EXCHANGE);
-        httpExchange.reset();
+        httpExchange.clear();
     }
 
     public void requestReceived(final NHttpServerConnection conn) {
@@ -138,6 +138,7 @@ public class HttpAsyncServiceHandler implements NHttpServiceHandler {
                             new DefaultedHttpParams(response.getParams(), this.params));
                     conn.submitResponse(response);
                 }
+                httpExchange.setRequestState(MessageState.BODY_STREAM);
             } else {
                 // No request content is expected.
                 // Process request right away
@@ -203,6 +204,7 @@ public class HttpAsyncServiceHandler implements NHttpServiceHandler {
         try {
             HttpAsyncRequestConsumer<?> consumer = httpExchange.getRequestConsumer();
             consumer.consumeContent(decoder, conn);
+            httpExchange.setRequestState(MessageState.BODY_STREAM);
             if (decoder.isCompleted()) {
                 conn.suspendInput();
                 processRequest(conn, httpExchange);
@@ -240,6 +242,7 @@ public class HttpAsyncServiceHandler implements NHttpServiceHandler {
             HttpResponse response = httpExchange.getResponse();
 
             responseProducer.produceContent(encoder, conn);
+            httpExchange.setResponseState(MessageState.BODY_STREAM);
             if (encoder.isCompleted()) {
                 responseProducer.responseCompleted(context);
                 if (!this.connStrategy.keepAlive(response, context)) {
@@ -247,7 +250,7 @@ public class HttpAsyncServiceHandler implements NHttpServiceHandler {
                 } else {
                     conn.requestInput();
                 }
-                httpExchange.reset();
+                httpExchange.clear();
             }
         } catch (RuntimeException ex) {
             shutdownConnection(conn);
@@ -316,6 +319,7 @@ public class HttpAsyncServiceHandler implements NHttpServiceHandler {
         HttpContext context = httpExchange.getContext();
         HttpAsyncRequestConsumer<?> consumer = httpExchange.getRequestConsumer();
         consumer.requestCompleted(context);
+        httpExchange.setRequestState(MessageState.COMPLETED);
         Exception ex = consumer.getException();
         if (ex != null) {
             HttpAsyncResponseProducer responseProducer = handleException(ex);
@@ -360,7 +364,9 @@ public class HttpAsyncServiceHandler implements NHttpServiceHandler {
                 // Ready to process new request
                 conn.requestInput();
             }
-            httpExchange.reset();
+            httpExchange.clear();
+        } else {
+            httpExchange.setRequestState(MessageState.BODY_STREAM);
         }
     }
 
@@ -380,6 +386,8 @@ public class HttpAsyncServiceHandler implements NHttpServiceHandler {
 
         private final BasicHttpContext context;
         private volatile HttpAsyncRequestHandler<Object> requestHandler;
+        private volatile MessageState requestState;
+        private volatile MessageState responseState;
         private volatile HttpAsyncRequestConsumer<Object> requestConsumer;
         private volatile HttpAsyncResponseProducer responseProducer;
         private volatile HttpRequest request;
@@ -405,6 +413,23 @@ public class HttpAsyncServiceHandler implements NHttpServiceHandler {
             }
             this.requestHandler = requestHandler;
         }
+
+        public MessageState getRequestState() {
+            return this.requestState;
+        }
+
+        public void setRequestState(final MessageState state) {
+            this.requestState = state;
+        }
+
+        public MessageState getResponseState() {
+            return this.responseState;
+        }
+
+        public void setResponseState(final MessageState state) {
+            this.responseState = state;
+        }
+
 
         public HttpAsyncRequestConsumer<Object> getRequestConsumer() {
             return this.requestConsumer;
@@ -458,13 +483,15 @@ public class HttpAsyncServiceHandler implements NHttpServiceHandler {
             this.handled = handled;
         }
 
-        public void reset() {
+        public void clear() {
+            this.responseState = MessageState.READY;
+            this.requestState = MessageState.READY;
             this.requestHandler = null;
             if (this.requestConsumer != null) {
                 try {
                     this.requestConsumer.close();
                 } catch (IOException ex) {
-                    HttpAsyncServiceHandler.this.onException(ex);
+                    onException(ex);
                 }
             }
             this.requestConsumer = null;
@@ -472,7 +499,7 @@ public class HttpAsyncServiceHandler implements NHttpServiceHandler {
                 try {
                     this.responseProducer.close();
                 } catch (IOException ex) {
-                    HttpAsyncServiceHandler.this.onException(ex);
+                    onException(ex);
                 }
             }
             this.responseProducer = null;
@@ -485,16 +512,20 @@ public class HttpAsyncServiceHandler implements NHttpServiceHandler {
         @Override
         public String toString() {
             StringBuilder buf = new StringBuilder();
-            buf.append("done: ");
-            buf.append(this.handled);
+            buf.append("request state: ");
+            buf.append(this.requestState);
             buf.append("; request: ");
             if (this.request != null) {
                 buf.append(this.request.getRequestLine());
             }
+            buf.append("; response state: ");
+            buf.append(this.responseState);
             buf.append("; response: ");
             if (this.response != null) {
                 buf.append(this.response.getStatusLine());
             }
+            buf.append("; done: ");
+            buf.append(this.handled);
             buf.append(";");
             return buf.toString();
         }
