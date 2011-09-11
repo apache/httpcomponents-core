@@ -76,10 +76,14 @@ public class BasicAsyncRequestProducer implements HttpAsyncRequestProducer {
         this.request = request;
         if (request instanceof HttpEntityEnclosingRequest) {
             HttpEntity entity = ((HttpEntityEnclosingRequest) request).getEntity();
-            if (entity instanceof ProducingNHttpEntity) {
-                this.producer = (ProducingNHttpEntity) entity;
+            if (entity != null) {
+                if (entity instanceof ProducingNHttpEntity) {
+                    this.producer = (ProducingNHttpEntity) entity;
+                } else {
+                    this.producer = new NHttpEntityWrapper(entity);
+                }
             } else {
-                this.producer = new NHttpEntityWrapper(entity);
+                this.producer = null;
             }
         } else {
             this.producer = null;

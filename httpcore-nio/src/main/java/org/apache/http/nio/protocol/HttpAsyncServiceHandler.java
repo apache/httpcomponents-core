@@ -351,15 +351,25 @@ public class HttpAsyncServiceHandler implements NHttpServiceHandler {
         HttpAsyncRequestConsumer<?> consumer = httpExchange.getRequestConsumer();
         consumer.requestCompleted(context);
         httpExchange.setRequestState(MessageState.COMPLETED);
-        Exception ex = consumer.getException();
-        if (ex != null) {
-            HttpAsyncResponseProducer responseProducer = handleException(ex);
+        Exception exception = consumer.getException();
+        if (exception != null) {
+            HttpAsyncResponseProducer responseProducer = handleException(exception);
             httpExchange.setResponseProducer(responseProducer);
             conn.requestOutput();
         } else {
             Object result = consumer.getResult();
             HttpAsyncResponseTrigger trigger = new ResponseTriggerImpl(httpExchange, conn);
-            handler.handle(result, trigger, context);
+            try {
+                handler.handle(result, trigger, context);
+            } catch (HttpException ex) {
+                HttpAsyncResponseProducer responseProducer = handleException(ex);
+                httpExchange.setResponseProducer(responseProducer);
+                conn.requestOutput();
+            } catch (IOException ex) {
+                HttpAsyncResponseProducer responseProducer = handleException(ex);
+                httpExchange.setResponseProducer(responseProducer);
+                conn.requestOutput();
+            }
         }
     }
 
@@ -405,7 +415,8 @@ public class HttpAsyncServiceHandler implements NHttpServiceHandler {
         if (this.handlerResolver != null) {
             String requestURI = request.getRequestLine().getUri();
             handler = (HttpAsyncRequestHandler<Object>) this.handlerResolver.lookup(requestURI);
-        } else {
+        }
+        if (handler == null) {
             handler = new NullRequestHandler();
         }
         return handler;

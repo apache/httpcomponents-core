@@ -27,6 +27,7 @@
 
 package org.apache.http.nio.protocol;
 
+import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
@@ -150,13 +151,43 @@ public class TestHttpAsyncHandlers extends HttpCoreNIOTestBase {
             queue.add(future);
         }
 
-        Assert.assertEquals("Test client status", IOReactorStatus.ACTIVE, this.client.getStatus());
-
         while (!queue.isEmpty()) {
             Future<HttpResponse> future = queue.remove();
             HttpResponse response = future.get();
             Assert.assertNotNull(response);
             Assert.assertEquals(expectedPattern, EntityUtils.toString(response.getEntity()));
+        }
+    }
+
+    @Test
+    public void testHttpHeads() throws Exception {
+        HttpAsyncRequestHandlerRegistry registry = new HttpAsyncRequestHandlerRegistry();
+        registry.register("*", new BufferingAsyncRequestHandler(new SimpleRequestHandler()));
+        InetSocketAddress address = start(registry, null);
+
+        this.connpool.setDefaultMaxPerRoute(3);
+        this.connpool.setMaxTotal(3);
+
+        String pattern = RndTestPatternGenerator.generateText();
+        int count = RndTestPatternGenerator.generateCount(1000);
+
+        HttpHost target = new HttpHost("localhost", address.getPort());
+
+        Queue<Future<HttpResponse>> queue = new ConcurrentLinkedQueue<Future<HttpResponse>>();
+        for (int i = 0; i < 30; i++) {
+            BasicHttpRequest request = new BasicHttpRequest("HEAD", createRequestUri(pattern, count));
+            Future<HttpResponse> future = this.executor.execute(
+                    new BasicAsyncRequestProducer(target, request),
+                    new BasicAsyncResponseConsumer(),
+                    this.connpool);
+            queue.add(future);
+        }
+
+        while (!queue.isEmpty()) {
+            Future<HttpResponse> future = queue.remove();
+            HttpResponse response = future.get();
+            Assert.assertNotNull(response);
+            Assert.assertEquals(HttpStatus.SC_OK, response.getStatusLine().getStatusCode());
         }
     }
 
@@ -187,8 +218,6 @@ public class TestHttpAsyncHandlers extends HttpCoreNIOTestBase {
                     this.connpool);
             queue.add(future);
         }
-
-        Assert.assertEquals("Test client status", IOReactorStatus.ACTIVE, this.client.getStatus());
 
         while (!queue.isEmpty()) {
             Future<HttpResponse> future = queue.remove();
@@ -227,8 +256,6 @@ public class TestHttpAsyncHandlers extends HttpCoreNIOTestBase {
             queue.add(future);
         }
 
-        Assert.assertEquals("Test client status", IOReactorStatus.ACTIVE, this.client.getStatus());
-
         while (!queue.isEmpty()) {
             Future<HttpResponse> future = queue.remove();
             HttpResponse response = future.get();
@@ -265,13 +292,45 @@ public class TestHttpAsyncHandlers extends HttpCoreNIOTestBase {
             queue.add(future);
         }
 
-        Assert.assertEquals("Test client status", IOReactorStatus.ACTIVE, this.client.getStatus());
-
         while (!queue.isEmpty()) {
             Future<HttpResponse> future = queue.remove();
             HttpResponse response = future.get();
             Assert.assertNotNull(response);
             Assert.assertEquals(expectedPattern, EntityUtils.toString(response.getEntity()));
+        }
+    }
+
+    @Test
+    public void testHttpPostsNoEntity() throws Exception {
+        HttpAsyncRequestHandlerRegistry registry = new HttpAsyncRequestHandlerRegistry();
+        registry.register("*", new BufferingAsyncRequestHandler(new SimpleRequestHandler()));
+        InetSocketAddress address = start(registry, null);
+
+        this.connpool.setDefaultMaxPerRoute(3);
+        this.connpool.setMaxTotal(3);
+
+        String pattern = RndTestPatternGenerator.generateText();
+        int count = RndTestPatternGenerator.generateCount(1000);
+
+        HttpHost target = new HttpHost("localhost", address.getPort());
+
+        Queue<Future<HttpResponse>> queue = new ConcurrentLinkedQueue<Future<HttpResponse>>();
+        for (int i = 0; i < 30; i++) {
+            BasicHttpEntityEnclosingRequest request = new BasicHttpEntityEnclosingRequest(
+                    "POST", createRequestUri(pattern, count));
+            request.setEntity(null);
+            Future<HttpResponse> future = this.executor.execute(
+                    new BasicAsyncRequestProducer(target, request),
+                    new BasicAsyncResponseConsumer(),
+                    this.connpool);
+            queue.add(future);
+        }
+
+        while (!queue.isEmpty()) {
+            Future<HttpResponse> future = queue.remove();
+            HttpResponse response = future.get();
+            Assert.assertNotNull(response);
+            Assert.assertEquals(HttpStatus.SC_OK, response.getStatusLine().getStatusCode());
         }
     }
 
@@ -303,8 +362,6 @@ public class TestHttpAsyncHandlers extends HttpCoreNIOTestBase {
                     this.connpool);
             queue.add(future);
         }
-
-        Assert.assertEquals("Test client status", IOReactorStatus.ACTIVE, this.client.getStatus());
 
         while (!queue.isEmpty()) {
             Future<HttpResponse> future = queue.remove();
@@ -369,7 +426,156 @@ public class TestHttpAsyncHandlers extends HttpCoreNIOTestBase {
             queue.add(future);
         }
 
-        Assert.assertEquals("Test client status", IOReactorStatus.ACTIVE, this.client.getStatus());
+        Future<HttpResponse> future1 = queue.remove();
+        HttpResponse response1 = future1.get();
+        Assert.assertEquals(HttpStatus.SC_OK, response1.getStatusLine().getStatusCode());
+
+        Future<HttpResponse> future2 = queue.remove();
+        HttpResponse response2 = future2.get();
+        Assert.assertEquals(HttpStatus.SC_OK, response2.getStatusLine().getStatusCode());
+
+        Future<HttpResponse> future3 = queue.remove();
+        HttpResponse response3 = future3.get();
+        Assert.assertEquals(HttpStatus.SC_EXPECTATION_FAILED, response3.getStatusLine().getStatusCode());
+    }
+
+    @Test
+    public void testHttpHeadsDelayedResponse() throws Exception {
+
+        class DelayedRequestHandler implements HttpAsyncRequestHandler<HttpRequest> {
+
+            private final SimpleRequestHandler requestHandler;
+
+            public DelayedRequestHandler() {
+                super();
+                this.requestHandler = new SimpleRequestHandler();
+            }
+
+            public HttpAsyncRequestConsumer<HttpRequest> processRequest(
+                    final HttpRequest request,
+                    final HttpContext context) {
+                return new BasicAsyncRequestConsumer();
+            }
+
+            public void handle(
+                    final HttpRequest request,
+                    final HttpAsyncResponseTrigger trigger,
+                    final HttpContext context) throws HttpException, IOException {
+                ProtocolVersion ver = request.getRequestLine().getProtocolVersion();
+                if (!ver.lessEquals(HttpVersion.HTTP_1_1)) {
+                    ver = HttpVersion.HTTP_1_1;
+                }
+                final BasicHttpResponse response = new BasicHttpResponse(ver, HttpStatus.SC_OK, "OK");
+                new Thread() {
+                    @Override
+                    public void run() {
+                        // Wait a bit, to make sure this is delayed.
+                        try { Thread.sleep(100); } catch(InterruptedException ie) {}
+                        // Set the entity after delaying...
+                        try {
+                            requestHandler.handle(request, response, context);
+                        } catch (Exception ex) {
+                            response.setStatusCode(HttpStatus.SC_INTERNAL_SERVER_ERROR);
+                        }
+                        trigger.submitResponse(new BasicAsyncResponseProducer(response));
+                    }
+                }.start();
+            }
+
+        }
+
+        HttpAsyncRequestHandlerRegistry registry = new HttpAsyncRequestHandlerRegistry();
+        registry.register("*", new DelayedRequestHandler());
+        InetSocketAddress address = start(registry, null);
+
+        this.connpool.setDefaultMaxPerRoute(3);
+        this.connpool.setMaxTotal(3);
+
+        String pattern = RndTestPatternGenerator.generateText();
+        int count = RndTestPatternGenerator.generateCount(1000);
+
+        HttpHost target = new HttpHost("localhost", address.getPort());
+
+        Queue<Future<HttpResponse>> queue = new ConcurrentLinkedQueue<Future<HttpResponse>>();
+        for (int i = 0; i < 30; i++) {
+            BasicHttpRequest request = new BasicHttpRequest("HEAD", createRequestUri(pattern, count));
+            Future<HttpResponse> future = this.executor.execute(
+                    new BasicAsyncRequestProducer(target, request),
+                    new BasicAsyncResponseConsumer(),
+                    this.connpool);
+            queue.add(future);
+        }
+
+        while (!queue.isEmpty()) {
+            Future<HttpResponse> future = queue.remove();
+            HttpResponse response = future.get();
+            Assert.assertNotNull(response);
+            Assert.assertEquals(HttpStatus.SC_OK, response.getStatusLine().getStatusCode());
+        }
+    }
+
+    @Test
+    public void testHttpPostsWithExpectationVerificationDelayedResponse() throws Exception {
+        HttpAsyncExpectationVerifier expectationVerifier = new HttpAsyncExpectationVerifier() {
+
+            public void verify(
+                    final HttpRequest request,
+                    final HttpAsyncContinueTrigger trigger,
+                    final HttpContext context) throws HttpException {
+                new Thread() {
+                    @Override
+                    public void run() {
+                        // Wait a bit, to make sure this is delayed.
+                        try { Thread.sleep(100); } catch(InterruptedException ie) {}
+                        // Set the entity after delaying...
+                        ProtocolVersion ver = request.getRequestLine().getProtocolVersion();
+                        String s = request.getRequestLine().getUri();
+                        if (!s.equals("AAAAAx10")) {
+                            if (!ver.lessEquals(HttpVersion.HTTP_1_1)) {
+                                ver = HttpVersion.HTTP_1_1;
+                            }
+                            BasicHttpResponse response = new BasicHttpResponse(ver,
+                                    HttpStatus.SC_EXPECTATION_FAILED, "Expectation failed");
+                            response.setEntity(NStringEntity.create("Expectation failed"));
+                            trigger.submitResponse(new BasicAsyncResponseProducer(response));
+                        } else {
+                            trigger.continueRequest();
+                        }
+                    }
+                }.start();
+            }
+
+        };
+
+        HttpAsyncRequestHandlerRegistry registry = new HttpAsyncRequestHandlerRegistry();
+        registry.register("*", new BufferingAsyncRequestHandler(new SimpleRequestHandler()));
+        InetSocketAddress address = start(registry, expectationVerifier);
+
+        BasicHttpEntityEnclosingRequest request1 = new BasicHttpEntityEnclosingRequest(
+                "POST", createRequestUri("AAAAA", 10));
+        request1.getParams().setBooleanParameter(CoreProtocolPNames.USE_EXPECT_CONTINUE, true);
+        request1.setEntity(NStringEntity.create(createExpectedString("AAAAA", 10)));
+        BasicHttpEntityEnclosingRequest request2 = new BasicHttpEntityEnclosingRequest(
+                "POST", createRequestUri("AAAAA", 10));
+        request2.getParams().setBooleanParameter(CoreProtocolPNames.USE_EXPECT_CONTINUE, true);
+        request2.setEntity(NStringEntity.create(createExpectedString("AAAAA", 10)));
+        BasicHttpEntityEnclosingRequest request3 = new BasicHttpEntityEnclosingRequest(
+                "POST", createRequestUri("BBBBB", 10));
+        request3.getParams().setBooleanParameter(CoreProtocolPNames.USE_EXPECT_CONTINUE, true);
+        request3.setEntity(NStringEntity.create(createExpectedString("BBBBB", 10)));
+
+        HttpRequest[] requests = new HttpRequest[] { request1, request2, request3 };
+
+        HttpHost target = new HttpHost("localhost", address.getPort());
+
+        Queue<Future<HttpResponse>> queue = new ConcurrentLinkedQueue<Future<HttpResponse>>();
+        for (int i = 0; i < requests.length; i++) {
+            Future<HttpResponse> future = this.executor.execute(
+                    new BasicAsyncRequestProducer(target, requests[i]),
+                    new BasicAsyncResponseConsumer(),
+                    this.connpool);
+            queue.add(future);
+        }
 
         Future<HttpResponse> future1 = queue.remove();
         HttpResponse response1 = future1.get();
@@ -382,6 +588,91 @@ public class TestHttpAsyncHandlers extends HttpCoreNIOTestBase {
         Future<HttpResponse> future3 = queue.remove();
         HttpResponse response3 = future3.get();
         Assert.assertEquals(HttpStatus.SC_EXPECTATION_FAILED, response3.getStatusLine().getStatusCode());
+    }
+
+    @Test
+    public void testHttpExceptionInHandler() throws Exception {
+
+        class FailingRequestHandler implements HttpAsyncRequestHandler<HttpRequest> {
+
+            public FailingRequestHandler() {
+                super();
+            }
+
+            public HttpAsyncRequestConsumer<HttpRequest> processRequest(
+                    final HttpRequest request,
+                    final HttpContext context) {
+                return new BasicAsyncRequestConsumer();
+            }
+
+            public void handle(
+                    final HttpRequest request,
+                    final HttpAsyncResponseTrigger trigger,
+                    final HttpContext context) throws HttpException, IOException {
+                throw new HttpException("Boom");
+            }
+
+        }
+
+        HttpAsyncRequestHandlerRegistry registry = new HttpAsyncRequestHandlerRegistry();
+        registry.register("*", new FailingRequestHandler());
+        InetSocketAddress address = start(registry, null);
+
+        this.connpool.setDefaultMaxPerRoute(3);
+        this.connpool.setMaxTotal(3);
+
+        String pattern = RndTestPatternGenerator.generateText();
+        int count = RndTestPatternGenerator.generateCount(1000);
+
+        HttpHost target = new HttpHost("localhost", address.getPort());
+
+        Queue<Future<HttpResponse>> queue = new ConcurrentLinkedQueue<Future<HttpResponse>>();
+        for (int i = 0; i < 1; i++) {
+            BasicHttpRequest request = new BasicHttpRequest("GET", createRequestUri(pattern, count));
+            Future<HttpResponse> future = this.executor.execute(
+                    new BasicAsyncRequestProducer(target, request),
+                    new BasicAsyncResponseConsumer(),
+                    this.connpool);
+            queue.add(future);
+        }
+
+        while (!queue.isEmpty()) {
+            Future<HttpResponse> future = queue.remove();
+            HttpResponse response = future.get();
+            Assert.assertNotNull(response);
+            Assert.assertEquals(HttpStatus.SC_INTERNAL_SERVER_ERROR, response.getStatusLine().getStatusCode());
+        }
+    }
+
+    @Test
+    public void testNoServiceHandler() throws Exception {
+        HttpAsyncRequestHandlerRegistry registry = new HttpAsyncRequestHandlerRegistry();
+        InetSocketAddress address = start(registry, null);
+
+        this.connpool.setDefaultMaxPerRoute(3);
+        this.connpool.setMaxTotal(3);
+
+        String pattern = RndTestPatternGenerator.generateText();
+        int count = RndTestPatternGenerator.generateCount(1000);
+
+        HttpHost target = new HttpHost("localhost", address.getPort());
+
+        Queue<Future<HttpResponse>> queue = new ConcurrentLinkedQueue<Future<HttpResponse>>();
+        for (int i = 0; i < 30; i++) {
+            BasicHttpRequest request = new BasicHttpRequest("GET", createRequestUri(pattern, count));
+            Future<HttpResponse> future = this.executor.execute(
+                    new BasicAsyncRequestProducer(target, request),
+                    new BasicAsyncResponseConsumer(),
+                    this.connpool);
+            queue.add(future);
+        }
+
+        while (!queue.isEmpty()) {
+            Future<HttpResponse> future = queue.remove();
+            HttpResponse response = future.get();
+            Assert.assertNotNull(response);
+            Assert.assertEquals(HttpStatus.SC_NOT_IMPLEMENTED, response.getStatusLine().getStatusCode());
+        }
     }
 
 }
