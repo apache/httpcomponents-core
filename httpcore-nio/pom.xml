@@ -124,6 +124,7 @@
 
       <plugin>
         <artifactId>maven-javadoc-plugin</artifactId>
+        <version>${hc.javadoc.version}</version>
         <configuration>
           <!-- reduce console output. Can override with -Dquiet=false -->
           <quiet>true</quiet>
@@ -154,6 +155,7 @@
       <plugin>
         <groupId>org.codehaus.mojo</groupId>
         <artifactId>clirr-maven-plugin</artifactId>
+        <version>${hc.clirr.version}</version>
         <configuration>
           <comparisonVersion>${comparisonVersion.version}</comparisonVersion>
         </configuration>
@@ -161,10 +163,12 @@
 
       <plugin>
         <artifactId>maven-jxr-plugin</artifactId>
+        <version>${hc.jxr.version}</version>
       </plugin>
 
       <plugin>
         <artifactId>maven-surefire-report-plugin</artifactId>
+        <version>${hc.surefire-report.version}</version>
       </plugin>
 
     </plugins>
