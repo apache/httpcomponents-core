@@ -28,6 +28,7 @@
 package org.apache.http.impl.nio;
 
 import java.io.IOException;
+import java.nio.channels.SelectionKey;
 
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpEntityEnclosingRequest;
@@ -170,7 +171,7 @@ public class DefaultNHttpClientConnection
                     close();
                 }
             }
-            if (this.contentDecoder != null) {
+            if (this.contentDecoder != null && (this.session.getEventMask() & SelectionKey.OP_READ) > 0) {
                 handler.inputReady(this, this.contentDecoder);
                 if (this.contentDecoder.isCompleted()) {
                     // Response entity received

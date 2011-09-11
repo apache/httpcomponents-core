@@ -33,15 +33,20 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.Future;
 
 import org.apache.http.HttpCoreNIOTestBase;
+import org.apache.http.HttpException;
 import org.apache.http.HttpHost;
+import org.apache.http.HttpRequest;
 import org.apache.http.HttpResponse;
+import org.apache.http.HttpStatus;
 import org.apache.http.HttpVersion;
 import org.apache.http.LoggingClientConnectionFactory;
 import org.apache.http.LoggingServerConnectionFactory;
+import org.apache.http.ProtocolVersion;
 import org.apache.http.entity.ContentType;
 import org.apache.http.impl.DefaultConnectionReuseStrategy;
 import org.apache.http.message.BasicHttpEntityEnclosingRequest;
 import org.apache.http.message.BasicHttpRequest;
+import org.apache.http.message.BasicHttpResponse;
 import org.apache.http.nio.NHttpClientIOTarget;
 import org.apache.http.nio.NHttpConnectionFactory;
 import org.apache.http.nio.NHttpServerIOTarget;
@@ -50,6 +55,7 @@ import org.apache.http.nio.reactor.IOReactorStatus;
 import org.apache.http.nio.reactor.ListenerEndpoint;
 import org.apache.http.params.CoreProtocolPNames;
 import org.apache.http.params.HttpParams;
+import org.apache.http.protocol.HttpContext;
 import org.apache.http.util.EntityUtils;
 import org.junit.After;
 import org.junit.Assert;
@@ -87,11 +93,12 @@ public class TestHttpAsyncHandlers extends HttpCoreNIOTestBase {
         return new LoggingClientConnectionFactory(params);
     }
 
-    private InetSocketAddress start() throws Exception {
-        HttpAsyncRequestHandlerRegistry registry = new HttpAsyncRequestHandlerRegistry();
-        registry.register("*", new BufferingAsyncRequestHandler(new SimpleRequestHandler()));
+    private InetSocketAddress start(
+            final HttpAsyncRequestHandlerResolver requestHandlerResolver,
+            final HttpAsyncExpectationVerifier expectationVerifier) throws Exception {
         HttpAsyncServiceHandler serviceHandler = new HttpAsyncServiceHandler(
-                registry,
+                requestHandlerResolver,
+                expectationVerifier,
                 this.serverHttpProc,
                 new DefaultConnectionReuseStrategy(),
                 this.serverParams);
@@ -106,9 +113,23 @@ public class TestHttpAsyncHandlers extends HttpCoreNIOTestBase {
         return (InetSocketAddress) endpoint.getAddress();
     }
 
+    private static String createRequestUri(final String pattern, int count) {
+        return pattern + "x" + count;
+    }
+
+    private static String createExpectedString(final String pattern, int count) {
+        StringBuilder buffer = new StringBuilder();
+        for (int i = 0; i < count; i++) {
+            buffer.append(pattern);
+        }
+        return buffer.toString();
+    }
+
     @Test
     public void testHttpGets() throws Exception {
-        InetSocketAddress address = start();
+        HttpAsyncRequestHandlerRegistry registry = new HttpAsyncRequestHandlerRegistry();
+        registry.register("*", new BufferingAsyncRequestHandler(new SimpleRequestHandler()));
+        InetSocketAddress address = start(registry, null);
 
         this.connpool.setDefaultMaxPerRoute(3);
         this.connpool.setMaxTotal(3);
@@ -116,18 +137,12 @@ public class TestHttpAsyncHandlers extends HttpCoreNIOTestBase {
         String pattern = RndTestPatternGenerator.generateText();
         int count = RndTestPatternGenerator.generateCount(1000);
 
-        StringBuilder buffer = new StringBuilder();
-        for (int i = 0; i < count; i++) {
-            buffer.append(pattern);
-        }
-        String expectedPattern = buffer.toString();
-
         HttpHost target = new HttpHost("localhost", address.getPort());
+        String expectedPattern = createExpectedString(pattern, count);
 
         Queue<Future<HttpResponse>> queue = new ConcurrentLinkedQueue<Future<HttpResponse>>();
         for (int i = 0; i < 30; i++) {
-            BasicHttpRequest request = new BasicHttpRequest(
-                    "GET", pattern + "x" + count);
+            BasicHttpRequest request = new BasicHttpRequest("GET", createRequestUri(pattern, count));
             Future<HttpResponse> future = this.executor.execute(
                     new BasicAsyncRequestProducer(target, request),
                     new BasicAsyncResponseConsumer(),
@@ -147,7 +162,9 @@ public class TestHttpAsyncHandlers extends HttpCoreNIOTestBase {
 
     @Test
     public void testHttpPostsWithContentLength() throws Exception {
-        InetSocketAddress address = start();
+        HttpAsyncRequestHandlerRegistry registry = new HttpAsyncRequestHandlerRegistry();
+        registry.register("*", new BufferingAsyncRequestHandler(new SimpleRequestHandler()));
+        InetSocketAddress address = start(registry, null);
 
         this.connpool.setDefaultMaxPerRoute(3);
         this.connpool.setMaxTotal(3);
@@ -155,18 +172,13 @@ public class TestHttpAsyncHandlers extends HttpCoreNIOTestBase {
         String pattern = RndTestPatternGenerator.generateText();
         int count = RndTestPatternGenerator.generateCount(1000);
 
-        StringBuilder buffer = new StringBuilder();
-        for (int i = 0; i < count; i++) {
-            buffer.append(pattern);
-        }
-        String expectedPattern = buffer.toString();
-
         HttpHost target = new HttpHost("localhost", address.getPort());
+        String expectedPattern = createExpectedString(pattern, count);
 
         Queue<Future<HttpResponse>> queue = new ConcurrentLinkedQueue<Future<HttpResponse>>();
         for (int i = 0; i < 30; i++) {
             BasicHttpEntityEnclosingRequest request = new BasicHttpEntityEnclosingRequest(
-                    "POST", pattern + "x" + count);
+                    "POST", createRequestUri(pattern, count));
             NStringEntity entity = NStringEntity.create(expectedPattern, ContentType.DEFAULT_TEXT);
             request.setEntity(entity);
             Future<HttpResponse> future = this.executor.execute(
@@ -188,7 +200,9 @@ public class TestHttpAsyncHandlers extends HttpCoreNIOTestBase {
 
     @Test
     public void testHttpPostsChunked() throws Exception {
-        InetSocketAddress address = start();
+        HttpAsyncRequestHandlerRegistry registry = new HttpAsyncRequestHandlerRegistry();
+        registry.register("*", new BufferingAsyncRequestHandler(new SimpleRequestHandler()));
+        InetSocketAddress address = start(registry, null);
 
         this.connpool.setDefaultMaxPerRoute(3);
         this.connpool.setMaxTotal(3);
@@ -196,18 +210,13 @@ public class TestHttpAsyncHandlers extends HttpCoreNIOTestBase {
         String pattern = RndTestPatternGenerator.generateText();
         int count = RndTestPatternGenerator.generateCount(1000);
 
-        StringBuilder buffer = new StringBuilder();
-        for (int i = 0; i < count; i++) {
-            buffer.append(pattern);
-        }
-        String expectedPattern = buffer.toString();
-
         HttpHost target = new HttpHost("localhost", address.getPort());
+        String expectedPattern = createExpectedString(pattern, count);
 
         Queue<Future<HttpResponse>> queue = new ConcurrentLinkedQueue<Future<HttpResponse>>();
         for (int i = 0; i < 30; i++) {
             BasicHttpEntityEnclosingRequest request = new BasicHttpEntityEnclosingRequest(
-                    "POST", pattern + "x" + count);
+                    "POST", createRequestUri(pattern, count));
             NStringEntity entity = NStringEntity.create(expectedPattern, ContentType.DEFAULT_TEXT);
             entity.setChunked(true);
             request.setEntity(entity);
@@ -230,7 +239,9 @@ public class TestHttpAsyncHandlers extends HttpCoreNIOTestBase {
 
     @Test
     public void testHttpPostsHTTP10() throws Exception {
-        InetSocketAddress address = start();
+        HttpAsyncRequestHandlerRegistry registry = new HttpAsyncRequestHandlerRegistry();
+        registry.register("*", new BufferingAsyncRequestHandler(new SimpleRequestHandler()));
+        InetSocketAddress address = start(registry, null);
 
         this.connpool.setDefaultMaxPerRoute(3);
         this.connpool.setMaxTotal(3);
@@ -238,18 +249,13 @@ public class TestHttpAsyncHandlers extends HttpCoreNIOTestBase {
         String pattern = RndTestPatternGenerator.generateText();
         int count = RndTestPatternGenerator.generateCount(1000);
 
-        StringBuilder buffer = new StringBuilder();
-        for (int i = 0; i < count; i++) {
-            buffer.append(pattern);
-        }
-        String expectedPattern = buffer.toString();
-
         HttpHost target = new HttpHost("localhost", address.getPort());
+        String expectedPattern = createExpectedString(pattern, count);
 
         Queue<Future<HttpResponse>> queue = new ConcurrentLinkedQueue<Future<HttpResponse>>();
         for (int i = 0; i < 30; i++) {
             BasicHttpEntityEnclosingRequest request = new BasicHttpEntityEnclosingRequest(
-                    "POST", pattern + "x" + count, HttpVersion.HTTP_1_0);
+                    "POST", createRequestUri(pattern, count), HttpVersion.HTTP_1_0);
             NStringEntity entity = NStringEntity.create(expectedPattern, ContentType.DEFAULT_TEXT);
             request.setEntity(entity);
             Future<HttpResponse> future = this.executor.execute(
@@ -271,7 +277,9 @@ public class TestHttpAsyncHandlers extends HttpCoreNIOTestBase {
 
     @Test
     public void testHttpPostsWithExpectContinue() throws Exception {
-        InetSocketAddress address = start();
+        HttpAsyncRequestHandlerRegistry registry = new HttpAsyncRequestHandlerRegistry();
+        registry.register("*", new BufferingAsyncRequestHandler(new SimpleRequestHandler()));
+        InetSocketAddress address = start(registry, null);
 
         this.connpool.setDefaultMaxPerRoute(3);
         this.connpool.setMaxTotal(3);
@@ -279,18 +287,13 @@ public class TestHttpAsyncHandlers extends HttpCoreNIOTestBase {
         String pattern = RndTestPatternGenerator.generateText();
         int count = RndTestPatternGenerator.generateCount(1000);
 
-        StringBuilder buffer = new StringBuilder();
-        for (int i = 0; i < count; i++) {
-            buffer.append(pattern);
-        }
-        String expectedPattern = buffer.toString();
-
         HttpHost target = new HttpHost("localhost", address.getPort());
+        String expectedPattern = createExpectedString(pattern, count);
 
         Queue<Future<HttpResponse>> queue = new ConcurrentLinkedQueue<Future<HttpResponse>>();
         for (int i = 0; i < 30; i++) {
             BasicHttpEntityEnclosingRequest request = new BasicHttpEntityEnclosingRequest(
-                    "POST", pattern + "x" + count);
+                    "POST", createRequestUri(pattern, count));
             request.getParams().setBooleanParameter(CoreProtocolPNames.USE_EXPECT_CONTINUE, true);
             NStringEntity entity = NStringEntity.create(expectedPattern, ContentType.DEFAULT_TEXT);
             request.setEntity(entity);
@@ -309,6 +312,76 @@ public class TestHttpAsyncHandlers extends HttpCoreNIOTestBase {
             Assert.assertNotNull(response);
             Assert.assertEquals(expectedPattern, EntityUtils.toString(response.getEntity()));
         }
+    }
+
+    @Test
+    public void testHttpPostsWithExpectationVerification() throws Exception {
+        HttpAsyncExpectationVerifier expectationVerifier = new HttpAsyncExpectationVerifier() {
+
+            public void verify(
+                    final HttpRequest request,
+                    final HttpAsyncContinueTrigger trigger,
+                    final HttpContext context) throws HttpException {
+                ProtocolVersion ver = request.getRequestLine().getProtocolVersion();
+                String s = request.getRequestLine().getUri();
+                if (!s.equals("AAAAAx10")) {
+                    if (!ver.lessEquals(HttpVersion.HTTP_1_1)) {
+                        ver = HttpVersion.HTTP_1_1;
+                    }
+                    BasicHttpResponse response = new BasicHttpResponse(ver,
+                            HttpStatus.SC_EXPECTATION_FAILED, "Expectation failed");
+                    response.setEntity(NStringEntity.create("Expectation failed"));
+                    trigger.submitResponse(new BasicAsyncResponseProducer(response));
+                } else {
+                    trigger.continueRequest();
+                }
+            }
+
+        };
+
+        HttpAsyncRequestHandlerRegistry registry = new HttpAsyncRequestHandlerRegistry();
+        registry.register("*", new BufferingAsyncRequestHandler(new SimpleRequestHandler()));
+        InetSocketAddress address = start(registry, expectationVerifier);
+
+        BasicHttpEntityEnclosingRequest request1 = new BasicHttpEntityEnclosingRequest(
+                "POST", createRequestUri("AAAAA", 10));
+        request1.getParams().setBooleanParameter(CoreProtocolPNames.USE_EXPECT_CONTINUE, true);
+        request1.setEntity(NStringEntity.create(createExpectedString("AAAAA", 10)));
+        BasicHttpEntityEnclosingRequest request2 = new BasicHttpEntityEnclosingRequest(
+                "POST", createRequestUri("AAAAA", 10));
+        request2.getParams().setBooleanParameter(CoreProtocolPNames.USE_EXPECT_CONTINUE, true);
+        request2.setEntity(NStringEntity.create(createExpectedString("AAAAA", 10)));
+        BasicHttpEntityEnclosingRequest request3 = new BasicHttpEntityEnclosingRequest(
+                "POST", createRequestUri("BBBBB", 10));
+        request3.getParams().setBooleanParameter(CoreProtocolPNames.USE_EXPECT_CONTINUE, true);
+        request3.setEntity(NStringEntity.create(createExpectedString("BBBBB", 10)));
+
+        HttpRequest[] requests = new HttpRequest[] { request1, request2, request3 };
+
+        HttpHost target = new HttpHost("localhost", address.getPort());
+
+        Queue<Future<HttpResponse>> queue = new ConcurrentLinkedQueue<Future<HttpResponse>>();
+        for (int i = 0; i < requests.length; i++) {
+            Future<HttpResponse> future = this.executor.execute(
+                    new BasicAsyncRequestProducer(target, requests[i]),
+                    new BasicAsyncResponseConsumer(),
+                    this.connpool);
+            queue.add(future);
+        }
+
+        Assert.assertEquals("Test client status", IOReactorStatus.ACTIVE, this.client.getStatus());
+
+        Future<HttpResponse> future1 = queue.remove();
+        HttpResponse response1 = future1.get();
+        Assert.assertEquals(HttpStatus.SC_OK, response1.getStatusLine().getStatusCode());
+
+        Future<HttpResponse> future2 = queue.remove();
+        HttpResponse response2 = future2.get();
+        Assert.assertEquals(HttpStatus.SC_OK, response2.getStatusLine().getStatusCode());
+
+        Future<HttpResponse> future3 = queue.remove();
+        HttpResponse response3 = future3.get();
+        Assert.assertEquals(HttpStatus.SC_EXPECTATION_FAILED, response3.getStatusLine().getStatusCode());
     }
 
 }

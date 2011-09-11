@@ -24,10 +24,18 @@
  * <http://www.apache.org/>.
  *
  */
+
 package org.apache.http.nio.protocol;
 
-enum MessageState {
+/**
+ * @since 4.2
+ */
+public interface HttpAsyncContinueTrigger {
 
-    READY, ACK_EXPECTED, ACK, BODY_STREAM, COMPLETED
+    void continueRequest();
+
+    void submitResponse(HttpAsyncResponseProducer responseProducer);
+
+    boolean isTriggered();
 
 }

@@ -128,7 +128,7 @@ public class HttpAsyncClientProtocolHandler implements NHttpClientHandler {
                     timeout = request.getParams().getIntParameter(
                             CoreProtocolPNames.WAIT_FOR_CONTINUE, 3000);
                     conn.setSocketTimeout(timeout);
-                    httpexchange.setRequestState(MessageState.ACK);
+                    httpexchange.setRequestState(MessageState.ACK_EXPECTED);
                 } else {
                     httpexchange.setRequestState(MessageState.BODY_STREAM);
                 }
@@ -170,7 +170,7 @@ public class HttpAsyncClientProtocolHandler implements NHttpClientHandler {
         HttpExchange httpexchange = getHttpExchange(conn);
         HttpAsyncClientExchangeHandler<?> handler = httpexchange.getHandler();
         try {
-            if (httpexchange.getRequestState() == MessageState.ACK) {
+            if (httpexchange.getRequestState() == MessageState.ACK_EXPECTED) {
                 conn.suspendOutput();
                 return;
             }
@@ -205,7 +205,7 @@ public class HttpAsyncClientProtocolHandler implements NHttpClientHandler {
                     throw new ProtocolException(
                             "Unexpected response: " + response.getStatusLine());
                 }
-                if (httpexchange.getRequestState() == MessageState.ACK) {
+                if (httpexchange.getRequestState() == MessageState.ACK_EXPECTED) {
                     int timeout = httpexchange.getTimeout();
                     conn.setSocketTimeout(timeout);
                     conn.requestOutput();
@@ -214,7 +214,7 @@ public class HttpAsyncClientProtocolHandler implements NHttpClientHandler {
                 return;
             } else {
                 httpexchange.setResponse(response);
-                if (httpexchange.getRequestState() == MessageState.ACK) {
+                if (httpexchange.getRequestState() == MessageState.ACK_EXPECTED) {
                     int timeout = httpexchange.getTimeout();
                     conn.setSocketTimeout(timeout);
                     conn.resetOutput();
@@ -252,7 +252,7 @@ public class HttpAsyncClientProtocolHandler implements NHttpClientHandler {
             return;
         }
         try {
-            if (httpexchange.getRequestState() == MessageState.ACK) {
+            if (httpexchange.getRequestState() == MessageState.ACK_EXPECTED) {
                 int timeout = httpexchange.getTimeout();
                 conn.setSocketTimeout(timeout);
                 conn.requestOutput();

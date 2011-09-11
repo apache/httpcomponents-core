@@ -24,10 +24,23 @@
  * <http://www.apache.org/>.
  *
  */
+
 package org.apache.http.nio.protocol;
 
-enum MessageState {
+import java.io.IOException;
 
-    READY, ACK_EXPECTED, ACK, BODY_STREAM, COMPLETED
+import org.apache.http.HttpException;
+import org.apache.http.HttpRequest;
+import org.apache.http.protocol.HttpContext;
+
+/**
+ * @since 4.2
+ */
+public interface HttpAsyncExpectationVerifier {
+
+    void verify(
+            HttpRequest request,
+            HttpAsyncContinueTrigger trigger,
+            HttpContext context) throws HttpException, IOException;
 
 }

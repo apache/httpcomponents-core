@@ -66,12 +66,14 @@ public class HttpAsyncServiceHandler implements NHttpServiceHandler {
     private static final String HTTP_EXCHANGE = "http.nio.http-exchange";
 
     private final HttpAsyncRequestHandlerResolver handlerResolver;
+    private final HttpAsyncExpectationVerifier expectationVerifier;
     private final HttpProcessor httpProcessor;
     private final ConnectionReuseStrategy connStrategy;
     private final HttpParams params;
 
     public HttpAsyncServiceHandler(
             final HttpAsyncRequestHandlerResolver handlerResolver,
+            final HttpAsyncExpectationVerifier expectationVerifier,
             final HttpProcessor httpProcessor,
             final ConnectionReuseStrategy connStrategy,
             final HttpParams params) {
@@ -89,9 +91,18 @@ public class HttpAsyncServiceHandler implements NHttpServiceHandler {
             throw new IllegalArgumentException("HTTP parameters may not be null");
         }
         this.handlerResolver = handlerResolver;
+        this.expectationVerifier = expectationVerifier;
         this.httpProcessor = httpProcessor;
         this.connStrategy = connStrategy;
         this.params = params;
+    }
+
+    public HttpAsyncServiceHandler(
+            final HttpAsyncRequestHandlerResolver handlerResolver,
+            final HttpProcessor httpProcessor,
+            final ConnectionReuseStrategy connStrategy,
+            final HttpParams params) {
+        this(handlerResolver, null, httpProcessor, connStrategy, params);
     }
 
     public void connected(final NHttpServerConnection conn) {
@@ -127,18 +138,19 @@ public class HttpAsyncServiceHandler implements NHttpServiceHandler {
             if (request instanceof HttpEntityEnclosingRequest) {
                 HttpEntityEnclosingRequest entityRequest = (HttpEntityEnclosingRequest) request;
                 if (entityRequest.expectContinue()) {
-                    ProtocolVersion ver = request.getRequestLine().getProtocolVersion();
-                    if (!ver.lessEquals(HttpVersion.HTTP_1_1)) {
-                        // Downgrade protocol version if greater than HTTP/1.1
-                        ver = HttpVersion.HTTP_1_1;
+                    httpExchange.setRequestState(MessageState.ACK_EXPECTED);
+                    if (this.expectationVerifier != null) {
+                        conn.suspendInput();
+                        HttpAsyncContinueTrigger trigger = new ContinueTriggerImpl(httpExchange, conn);
+                        this.expectationVerifier.verify(request, trigger, context);
+                    } else {
+                        HttpResponse response = create100Continue(request);
+                        conn.submitResponse(response);
+                        httpExchange.setRequestState(MessageState.BODY_STREAM);
                     }
-                    HttpResponse response = new BasicHttpResponse(
-                            ver, HttpStatus.SC_CONTINUE, "Continue");
-                    response.setParams(
-                            new DefaultedHttpParams(response.getParams(), this.params));
-                    conn.submitResponse(response);
+                } else {
+                    httpExchange.setRequestState(MessageState.BODY_STREAM);
                 }
-                httpExchange.setRequestState(MessageState.BODY_STREAM);
             } else {
                 // No request content is expected.
                 // Process request right away
@@ -220,11 +232,21 @@ public class HttpAsyncServiceHandler implements NHttpServiceHandler {
 
     public void responseReady(final NHttpServerConnection conn) {
         HttpExchange httpExchange = (HttpExchange) conn.getContext().getAttribute(HTTP_EXCHANGE);
-        if (!httpExchange.isResponseReady()) {
-            return;
-        }
         try {
-            commitResponse(conn, httpExchange);
+            if (httpExchange.getRequestState() == MessageState.ACK) {
+                conn.requestInput();
+                httpExchange.setRequestState(MessageState.COMPLETED);
+                HttpRequest request = httpExchange.getRequest();
+                HttpResponse response = create100Continue(request);
+                conn.submitResponse(response);
+            } else if (httpExchange.getResponse() == null && httpExchange.getResponseProducer() != null) {
+                if (httpExchange.getRequestState() == MessageState.ACK_EXPECTED) {
+                    conn.resetInput();
+                    httpExchange.setRequestState(MessageState.COMPLETED);
+                }
+                conn.resetInput();
+                commitResponse(conn, httpExchange);
+            }
         } catch (RuntimeException ex) {
             shutdownConnection(conn);
             throw ex;
@@ -301,6 +323,15 @@ public class HttpAsyncServiceHandler implements NHttpServiceHandler {
                 HttpVersion.HTTP_1_0, code, NStringEntity.create(message), false);
     }
 
+    private HttpResponse create100Continue(final HttpRequest request) {
+        ProtocolVersion ver = request.getRequestLine().getProtocolVersion();
+        if (!ver.lessEquals(HttpVersion.HTTP_1_1)) {
+            // Downgrade protocol version if greater than HTTP/1.1
+            ver = HttpVersion.HTTP_1_1;
+        }
+        return new BasicHttpResponse(ver, HttpStatus.SC_CONTINUE, "Continue");
+    }
+
     private boolean canResponseHaveBody(final HttpRequest request, final HttpResponse response) {
         if (request != null && "HEAD".equalsIgnoreCase(request.getRequestLine().getMethod())) {
             return false;
@@ -346,8 +377,6 @@ public class HttpAsyncServiceHandler implements NHttpServiceHandler {
         context.setAttribute(ExecutionContext.HTTP_RESPONSE, response);
         this.httpProcessor.process(response, context);
 
-        httpExchange.setHandled(true);
-
         HttpEntity entity = response.getEntity();
         if (entity != null && !canResponseHaveBody(request, response)) {
             response.setEntity(null);
@@ -392,7 +421,6 @@ public class HttpAsyncServiceHandler implements NHttpServiceHandler {
         private volatile HttpAsyncResponseProducer responseProducer;
         private volatile HttpRequest request;
         private volatile HttpResponse response;
-        private volatile boolean handled;
 
         HttpExchange() {
             super();
@@ -475,14 +503,6 @@ public class HttpAsyncServiceHandler implements NHttpServiceHandler {
             this.response = response;
         }
 
-        public boolean isResponseReady() {
-            return !this.handled && this.responseProducer != null;
-        }
-
-        public void setHandled(boolean handled) {
-            this.handled = handled;
-        }
-
         public void clear() {
             this.responseState = MessageState.READY;
             this.requestState = MessageState.READY;
@@ -505,7 +525,6 @@ public class HttpAsyncServiceHandler implements NHttpServiceHandler {
             this.responseProducer = null;
             this.request = null;
             this.response = null;
-            this.handled = false;
             this.context.clear();
         }
 
@@ -524,8 +543,6 @@ public class HttpAsyncServiceHandler implements NHttpServiceHandler {
             if (this.response != null) {
                 buf.append(this.response.getStatusLine());
             }
-            buf.append("; done: ");
-            buf.append(this.handled);
             buf.append(";");
             return buf.toString();
         }
@@ -545,7 +562,47 @@ public class HttpAsyncServiceHandler implements NHttpServiceHandler {
             this.iocontrol = iocontrol;
         }
 
-        public void submitResponse(final HttpAsyncResponseProducer responseProducer) {
+        public synchronized void submitResponse(final HttpAsyncResponseProducer responseProducer) {
+            if (responseProducer == null) {
+                throw new IllegalArgumentException("Response producer may not be null");
+            }
+            if (this.triggered) {
+                throw new IllegalStateException("Response already triggered");
+            }
+            this.triggered = true;
+            this.httpExchange.setResponseProducer(responseProducer);
+            this.iocontrol.requestOutput();
+        }
+
+        public boolean isTriggered() {
+            return this.triggered;
+        }
+
+    }
+
+    class ContinueTriggerImpl implements HttpAsyncContinueTrigger {
+
+        private final HttpExchange httpExchange;
+        private final IOControl iocontrol;
+
+        private volatile boolean triggered;
+
+        public ContinueTriggerImpl(final HttpExchange httpExchange, final IOControl iocontrol) {
+            super();
+            this.httpExchange = httpExchange;
+            this.iocontrol = iocontrol;
+        }
+
+        public synchronized void continueRequest() {
+            if (this.triggered) {
+                throw new IllegalStateException("Response already triggered");
+            }
+            this.triggered = true;
+            this.httpExchange.setRequestState(MessageState.ACK);
+            this.iocontrol.requestOutput();
+        }
+
+        public synchronized void submitResponse(final HttpAsyncResponseProducer responseProducer) {
             if (responseProducer == null) {
                 throw new IllegalArgumentException("Response producer may not be null");
             }
