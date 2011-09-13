@@ -66,6 +66,7 @@ import org.apache.http.nio.util.HeapByteBufferAllocator;
 import org.apache.http.nio.util.SimpleInputBuffer;
 import org.apache.http.params.HttpParams;
 import org.apache.http.protocol.HTTP;
+import org.apache.http.protocol.HttpContext;
 import org.apache.http.util.CharArrayBuffer;
 import org.apache.http.util.EntityUtils;
 import org.junit.After;
@@ -256,7 +257,7 @@ public class TestTruncatedChunks extends HttpCoreNIOTestBase {
         }
 
         @Override
-        protected HttpResponse buildResult() {
+        protected HttpResponse buildResult(final HttpContext context) {
             return this.response;
         }
 

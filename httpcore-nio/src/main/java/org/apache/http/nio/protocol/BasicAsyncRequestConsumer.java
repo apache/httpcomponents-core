@@ -38,6 +38,7 @@ import org.apache.http.nio.entity.BufferingNHttpEntity;
 import org.apache.http.nio.entity.ConsumingNHttpEntity;
 import org.apache.http.nio.util.ByteBufferAllocator;
 import org.apache.http.nio.util.HeapByteBufferAllocator;
+import org.apache.http.protocol.HttpContext;
 
 /**
  * @since 4.2
@@ -86,7 +87,7 @@ public class BasicAsyncRequestConsumer extends AbstractAsyncRequestConsumer<Http
     }
 
     @Override
-    protected HttpRequest buildResult() {
+    protected HttpRequest buildResult(final HttpContext context) {
         return this.request;
     }
 

@@ -54,7 +54,7 @@ public abstract class AbstractAsyncResponseConsumer<T> implements HttpAsyncRespo
     protected abstract void onContentReceived(
             final ContentDecoder decoder, final IOControl ioctrl) throws IOException;
 
-    protected abstract T buildResult() throws Exception;
+    protected abstract T buildResult(HttpContext context) throws Exception;
 
     protected abstract void releaseResources();
 
@@ -73,7 +73,7 @@ public abstract class AbstractAsyncResponseConsumer<T> implements HttpAsyncRespo
         }
         this.completed = true;
         try {
-            this.result = buildResult();
+            this.result = buildResult(context);
         } catch (Exception ex) {
             this.ex = ex;
         } finally {
