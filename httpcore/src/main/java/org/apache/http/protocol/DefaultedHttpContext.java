@@ -73,4 +73,13 @@ public final class DefaultedHttpContext implements HttpContext {
         return this.defaults;
     }
 
+    @Override
+    public String toString() {
+        StringBuilder buf = new StringBuilder();
+        buf.append("[local: ").append(this.local);
+        buf.append("defaults: ").append(this.defaults);
+        buf.append("]");
+        return buf.toString();
+    }
+
 }

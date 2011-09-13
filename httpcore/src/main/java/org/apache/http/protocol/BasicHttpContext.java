@@ -99,4 +99,12 @@ public class BasicHttpContext implements HttpContext {
         }
     }
 
+    @Override
+    public String toString() {
+        if (this.map != null) {
+            return this.map.toString();
+        } else {
+            return "{}";
+        }
+    }
 }
