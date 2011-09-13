@@ -70,7 +70,7 @@ public class TestRouteSpecificPool {
             return new LocalPoolEntry(getRoute(), conn);
         }
 
-    };
+    }
 
     @Test
     public void testEmptyPool() throws Exception {
