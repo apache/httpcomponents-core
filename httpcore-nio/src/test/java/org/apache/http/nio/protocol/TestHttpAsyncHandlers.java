@@ -43,6 +43,7 @@ import org.apache.http.HttpVersion;
 import org.apache.http.LoggingClientConnectionFactory;
 import org.apache.http.LoggingServerConnectionFactory;
 import org.apache.http.ProtocolVersion;
+import org.apache.http.concurrent.Cancellable;
 import org.apache.http.entity.ContentType;
 import org.apache.http.impl.DefaultConnectionReuseStrategy;
 import org.apache.http.message.BasicHttpEntityEnclosingRequest;
@@ -375,7 +376,7 @@ public class TestHttpAsyncHandlers extends HttpCoreNIOTestBase {
     public void testHttpPostsWithExpectationVerification() throws Exception {
         HttpAsyncExpectationVerifier expectationVerifier = new HttpAsyncExpectationVerifier() {
 
-            public void verify(
+            public Cancellable verify(
                     final HttpRequest request,
                     final HttpAsyncContinueTrigger trigger,
                     final HttpContext context) throws HttpException {
@@ -392,6 +393,7 @@ public class TestHttpAsyncHandlers extends HttpCoreNIOTestBase {
                 } else {
                     trigger.continueRequest();
                 }
+                return null;
             }
 
         };
@@ -457,7 +459,7 @@ public class TestHttpAsyncHandlers extends HttpCoreNIOTestBase {
                 return new BasicAsyncRequestConsumer();
             }
 
-            public void handle(
+            public Cancellable handle(
                     final HttpRequest request,
                     final HttpAsyncResponseTrigger trigger,
                     final HttpContext context) throws HttpException, IOException {
@@ -480,6 +482,7 @@ public class TestHttpAsyncHandlers extends HttpCoreNIOTestBase {
                         trigger.submitResponse(new BasicAsyncResponseProducer(response));
                     }
                 }.start();
+                return null;
             }
 
         }
@@ -518,7 +521,7 @@ public class TestHttpAsyncHandlers extends HttpCoreNIOTestBase {
     public void testHttpPostsWithExpectationVerificationDelayedResponse() throws Exception {
         HttpAsyncExpectationVerifier expectationVerifier = new HttpAsyncExpectationVerifier() {
 
-            public void verify(
+            public Cancellable verify(
                     final HttpRequest request,
                     final HttpAsyncContinueTrigger trigger,
                     final HttpContext context) throws HttpException {
@@ -543,6 +546,7 @@ public class TestHttpAsyncHandlers extends HttpCoreNIOTestBase {
                         }
                     }
                 }.start();
+                return null;
             }
 
         };
@@ -605,7 +609,7 @@ public class TestHttpAsyncHandlers extends HttpCoreNIOTestBase {
                 return new BasicAsyncRequestConsumer();
             }
 
-            public void handle(
+            public Cancellable handle(
                     final HttpRequest request,
                     final HttpAsyncResponseTrigger trigger,
                     final HttpContext context) throws HttpException, IOException {

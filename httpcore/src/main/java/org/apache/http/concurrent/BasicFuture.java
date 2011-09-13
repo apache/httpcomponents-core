@@ -31,7 +31,10 @@ import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
-public class BasicFuture<T> implements Future<T> {
+/**
+ * @since 4.2
+ */
+public class BasicFuture<T> implements Future<T>, Cancellable {
 
     private final FutureCallback<T> callback;
 
@@ -128,6 +131,10 @@ public class BasicFuture<T> implements Future<T> {
         }
         notifyAll();
         return true;
+    }
+
+    public boolean cancel() {
+        return cancel(true);
     }
 
 }

@@ -31,6 +31,7 @@ import java.io.IOException;
 
 import org.apache.http.HttpException;
 import org.apache.http.HttpResponse;
+import org.apache.http.concurrent.Cancellable;
 import org.apache.http.nio.ContentDecoder;
 import org.apache.http.nio.IOControl;
 import org.apache.http.protocol.HttpContext;
@@ -38,7 +39,7 @@ import org.apache.http.protocol.HttpContext;
 /**
  * @since 4.2
  */
-public interface HttpAsyncResponseConsumer<T> extends Closeable {
+public interface HttpAsyncResponseConsumer<T> extends Closeable, Cancellable {
 
     void responseReceived(HttpResponse response) throws IOException, HttpException;
 
@@ -47,8 +48,6 @@ public interface HttpAsyncResponseConsumer<T> extends Closeable {
     void responseCompleted(HttpContext context);
 
     void failed(Exception ex);
-
-    void cancel();
 
     T getResult();
 

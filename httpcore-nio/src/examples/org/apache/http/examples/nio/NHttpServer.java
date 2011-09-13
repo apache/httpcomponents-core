@@ -48,6 +48,7 @@ import org.apache.http.HttpStatus;
 import org.apache.http.HttpVersion;
 import org.apache.http.MethodNotSupportedException;
 import org.apache.http.ProtocolVersion;
+import org.apache.http.concurrent.Cancellable;
 import org.apache.http.entity.ContentType;
 import org.apache.http.impl.DefaultConnectionReuseStrategy;
 import org.apache.http.impl.DefaultHttpResponseFactory;
@@ -193,7 +194,7 @@ public class NHttpServer {
             return new BasicAsyncRequestConsumer();
         }
 
-        public void handle(
+        public Cancellable handle(
                 final HttpRequest request,
                 final HttpAsyncResponseTrigger trigger,
                 final HttpContext context) throws HttpException, IOException {
@@ -204,6 +205,7 @@ public class NHttpServer {
             HttpResponse response = this.responseFactory.newHttpResponse(ver, HttpStatus.SC_OK, context);
             handleInternal(request, response, context);
             trigger.submitResponse(new BasicAsyncResponseProducer(response));
+            return null;
         }
 
         private void handleInternal(

@@ -81,12 +81,13 @@ public abstract class AbstractAsyncResponseConsumer<T> implements HttpAsyncRespo
         }
     }
 
-    public synchronized void cancel() {
+    public synchronized boolean cancel() {
         if (this.completed) {
-            return;
+            return false;
         }
         this.completed = true;
         releaseResources();
+        return true;
     }
 
     public synchronized void failed(final Exception ex) {

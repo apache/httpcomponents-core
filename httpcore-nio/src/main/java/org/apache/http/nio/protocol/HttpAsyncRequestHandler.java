@@ -31,6 +31,7 @@ import java.io.IOException;
 
 import org.apache.http.HttpException;
 import org.apache.http.HttpRequest;
+import org.apache.http.concurrent.Cancellable;
 import org.apache.http.protocol.HttpContext;
 
 /**
@@ -42,7 +43,7 @@ public interface HttpAsyncRequestHandler<T> {
             HttpRequest request,
             HttpContext context);
 
-    void handle(
+    Cancellable handle(
             T data,
             HttpAsyncResponseTrigger trigger,
             HttpContext context) throws HttpException, IOException;

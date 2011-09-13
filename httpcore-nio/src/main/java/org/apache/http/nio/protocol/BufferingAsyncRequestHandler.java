@@ -37,6 +37,7 @@ import org.apache.http.HttpStatus;
 import org.apache.http.HttpVersion;
 import org.apache.http.ProtocolVersion;
 import org.apache.http.annotation.Immutable;
+import org.apache.http.concurrent.Cancellable;
 import org.apache.http.impl.DefaultHttpResponseFactory;
 import org.apache.http.nio.util.ByteBufferAllocator;
 import org.apache.http.nio.util.HeapByteBufferAllocator;
@@ -81,7 +82,7 @@ public class BufferingAsyncRequestHandler implements HttpAsyncRequestHandler<Htt
         return new BasicAsyncRequestConsumer(this.allocator);
     }
 
-    public void handle(final HttpRequest request, final HttpAsyncResponseTrigger trigger,
+    public Cancellable handle(final HttpRequest request, final HttpAsyncResponseTrigger trigger,
             final HttpContext context) throws HttpException, IOException {
         ProtocolVersion ver = request.getRequestLine().getProtocolVersion();
         if (!ver.lessEquals(HttpVersion.HTTP_1_1)) {
@@ -90,6 +91,7 @@ public class BufferingAsyncRequestHandler implements HttpAsyncRequestHandler<Htt
         HttpResponse response = this.responseFactory.newHttpResponse(ver, HttpStatus.SC_OK, context);
         this.handler.handle(request, response, context);
         trigger.submitResponse(new BasicAsyncResponseProducer(response));
+        return null;
     }
 
 }

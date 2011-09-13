@@ -42,6 +42,7 @@ import org.apache.http.ProtocolException;
 import org.apache.http.ProtocolVersion;
 import org.apache.http.UnsupportedHttpVersionException;
 import org.apache.http.annotation.Immutable;
+import org.apache.http.concurrent.Cancellable;
 import org.apache.http.message.BasicHttpResponse;
 import org.apache.http.nio.ContentDecoder;
 import org.apache.http.nio.ContentEncoder;
@@ -112,7 +113,11 @@ public class HttpAsyncServiceHandler implements NHttpServiceHandler {
 
     public void closed(final NHttpServerConnection conn) {
         HttpExchange httpExchange = (HttpExchange) conn.getContext().getAttribute(HTTP_EXCHANGE);
+        Cancellable asyncProcess = httpExchange.getAsyncProcess();
         httpExchange.clear();
+        if (asyncProcess != null) {
+            asyncProcess.cancel();
+        }
     }
 
     public void requestReceived(final NHttpServerConnection conn) {
@@ -142,7 +147,8 @@ public class HttpAsyncServiceHandler implements NHttpServiceHandler {
                     if (this.expectationVerifier != null) {
                         conn.suspendInput();
                         HttpAsyncContinueTrigger trigger = new ContinueTriggerImpl(httpExchange, conn);
-                        this.expectationVerifier.verify(request, trigger, context);
+                        Cancellable asyncProcess = this.expectationVerifier.verify(request, trigger, context);
+                        httpExchange.setAsyncProcess(asyncProcess);
                     } else {
                         HttpResponse response = create100Continue(request);
                         conn.submitResponse(response);
@@ -360,7 +366,8 @@ public class HttpAsyncServiceHandler implements NHttpServiceHandler {
             Object result = consumer.getResult();
             HttpAsyncResponseTrigger trigger = new ResponseTriggerImpl(httpExchange, conn);
             try {
-                handler.handle(result, trigger, context);
+                Cancellable asyncProcess = handler.handle(result, trigger, context);
+                httpExchange.setAsyncProcess(asyncProcess);
             } catch (HttpException ex) {
                 HttpAsyncResponseProducer responseProducer = handleException(ex);
                 httpExchange.setResponseProducer(responseProducer);
@@ -432,6 +439,7 @@ public class HttpAsyncServiceHandler implements NHttpServiceHandler {
         private volatile HttpAsyncResponseProducer responseProducer;
         private volatile HttpRequest request;
         private volatile HttpResponse response;
+        private volatile Cancellable asyncProcess;
 
         HttpExchange() {
             super();
@@ -514,6 +522,14 @@ public class HttpAsyncServiceHandler implements NHttpServiceHandler {
             this.response = response;
         }
 
+        public Cancellable getAsyncProcess() {
+            return this.asyncProcess;
+        }
+
+        public void setAsyncProcess(final Cancellable asyncProcess) {
+            this.asyncProcess = asyncProcess;
+        }
+
         public void clear() {
             this.responseState = MessageState.READY;
             this.requestState = MessageState.READY;
@@ -536,6 +552,7 @@ public class HttpAsyncServiceHandler implements NHttpServiceHandler {
             this.responseProducer = null;
             this.request = null;
             this.response = null;
+            this.asyncProcess = null;
             this.context.clear();
         }
 

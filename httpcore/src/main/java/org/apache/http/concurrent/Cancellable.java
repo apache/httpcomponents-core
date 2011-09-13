@@ -29,12 +29,8 @@ package org.apache.http.concurrent;
 /**
  * @since 4.2
  */
-public interface FutureCallback<T> {
+public interface Cancellable {
 
-    void completed(T result);
-
-    void failed(Exception ex);
-
-    void cancelled();
+    boolean cancel();
 
 }

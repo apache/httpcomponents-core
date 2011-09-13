@@ -30,12 +30,8 @@ package org.apache.http.nio.protocol;
 /**
  * @since 4.2
  */
-public interface HttpAsyncContinueTrigger {
+public interface HttpAsyncContinueTrigger extends HttpAsyncResponseTrigger {
 
     void continueRequest();
-
-    void submitResponse(HttpAsyncResponseProducer responseProducer);
-
-    boolean isTriggered();
 
 }
