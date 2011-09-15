@@ -41,7 +41,7 @@ public interface HttpAsyncRequestHandler<T> {
 
     HttpAsyncRequestConsumer<T> processRequest(
             HttpRequest request,
-            HttpContext context);
+            HttpContext context) throws HttpException, IOException;
 
     Cancellable handle(
             T data,

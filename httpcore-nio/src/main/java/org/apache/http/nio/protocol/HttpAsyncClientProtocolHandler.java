@@ -61,7 +61,7 @@ public class HttpAsyncClientProtocolHandler implements NHttpClientHandler {
     public void connected(final NHttpClientConnection conn, final Object attachment) {
         HttpExchange httpexchange = new HttpExchange();
         HttpContext context = conn.getContext();
-        context.setAttribute(HTTP_EXCHNAGE, httpexchange);
+        context.setAttribute(HTTP_EXCHANGE, httpexchange);
         requestReady(conn);
     }
 
@@ -292,7 +292,7 @@ public class HttpAsyncClientProtocolHandler implements NHttpClientHandler {
     }
 
     private HttpExchange getHttpExchange(final NHttpConnection conn) {
-        return (HttpExchange) conn.getContext().getAttribute(HTTP_EXCHNAGE);
+        return (HttpExchange) conn.getContext().getAttribute(HTTP_EXCHANGE);
     }
 
     private HttpExchange ensureNotNull(final HttpExchange httpExchange) {
@@ -349,7 +349,7 @@ public class HttpAsyncClientProtocolHandler implements NHttpClientHandler {
             && status != HttpStatus.SC_RESET_CONTENT;
     }
 
-    static final String HTTP_EXCHNAGE = "http.nio.exchange";
+    static final String HTTP_EXCHANGE = "http.nio.exchange";
 
     class HttpExchange {
 

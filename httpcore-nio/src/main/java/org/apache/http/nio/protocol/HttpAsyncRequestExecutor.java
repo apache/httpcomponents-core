@@ -68,6 +68,12 @@ public class HttpAsyncRequestExecutor {
             final NHttpClientConnection conn,
             final HttpContext context,
             final FutureCallback<T> callback) {
+        if (requestProducer == null) {
+            throw new IllegalArgumentException("HTTP request producer may not be null");
+        }
+        if (responseConsumer == null) {
+            throw new IllegalArgumentException("HTTP response consumer may not be null");
+        }
         if (conn == null) {
             throw new IllegalArgumentException("HTTP connection may not be null");
         }
@@ -88,7 +94,7 @@ public class HttpAsyncRequestExecutor {
             final HttpAsyncResponseConsumer<T> responseConsumer,
             final NHttpClientConnection conn,
             final HttpContext context) {
-        return execute(requestProducer, responseConsumer, conn, context);
+        return execute(requestProducer, responseConsumer, conn, context, null);
     }
 
     public <T> Future<T> execute(
@@ -104,6 +110,12 @@ public class HttpAsyncRequestExecutor {
             final ConnPool<HttpHost, E> connPool,
             final HttpContext context,
             final FutureCallback<T> callback) {
+        if (requestProducer == null) {
+            throw new IllegalArgumentException("HTTP request producer may not be null");
+        }
+        if (responseConsumer == null) {
+            throw new IllegalArgumentException("HTTP response consumer may not be null");
+        }
         if (connPool == null) {
             throw new IllegalArgumentException("HTTP connection pool may not be null");
         }

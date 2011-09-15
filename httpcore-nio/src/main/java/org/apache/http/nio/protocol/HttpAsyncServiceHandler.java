@@ -64,7 +64,7 @@ import org.apache.http.protocol.HttpProcessor;
 @Immutable // provided injected dependencies are immutable
 public class HttpAsyncServiceHandler implements NHttpServiceHandler {
 
-    private static final String HTTP_EXCHANGE = "http.nio.http-exchange";
+    static final String HTTP_EXCHANGE = "http.nio.http-exchange";
 
     private final HttpAsyncRequestHandlerResolver handlerResolver;
     private final HttpAsyncExpectationVerifier expectationVerifier;
@@ -112,7 +112,7 @@ public class HttpAsyncServiceHandler implements NHttpServiceHandler {
     }
 
     public void closed(final NHttpServerConnection conn) {
-        HttpExchange httpExchange = (HttpExchange) conn.getContext().getAttribute(HTTP_EXCHANGE);
+        HttpExchange httpExchange = ensureNotNull(getHttpExchange(conn));
         Cancellable asyncProcess = httpExchange.getAsyncProcess();
         httpExchange.clear();
         if (asyncProcess != null) {
@@ -120,8 +120,36 @@ public class HttpAsyncServiceHandler implements NHttpServiceHandler {
         }
     }
 
+    public void exception(final NHttpServerConnection conn, final HttpException httpex) {
+        if (conn.isResponseSubmitted()) {
+            // There is not much that we can do if a response head
+            // has already been submitted
+            closeConnection(conn);
+            onException(httpex);
+            return;
+        }
+
+        HttpExchange httpExchange = ensureNotNull(getHttpExchange(conn));
+        try {
+            HttpAsyncResponseProducer responseProducer = handleException(httpex);
+            httpExchange.setResponseProducer(responseProducer);
+            commitResponse(conn, httpExchange);
+        } catch (RuntimeException ex) {
+            shutdownConnection(conn);
+            throw ex;
+        } catch (Exception ex) {
+            shutdownConnection(conn);
+            onException(ex);
+        }
+    }
+
+    public void exception(final NHttpServerConnection conn, final IOException ex) {
+        shutdownConnection(conn);
+        onException(ex);
+    }
+
     public void requestReceived(final NHttpServerConnection conn) {
-        HttpExchange httpExchange = (HttpExchange) conn.getContext().getAttribute(HTTP_EXCHANGE);
+        HttpExchange httpExchange = ensureNotNull(getHttpExchange(conn));
         try {
             HttpRequest request = conn.getHttpRequest();
             HttpContext context = httpExchange.getContext();
@@ -131,18 +159,16 @@ public class HttpAsyncServiceHandler implements NHttpServiceHandler {
             context.setAttribute(ExecutionContext.HTTP_CONNECTION, conn);
             this.httpProcessor.process(request, context);
 
-            HttpAsyncRequestHandler<Object> requestHandler = getRequestHandler(request);
-            HttpAsyncRequestConsumer<Object> consumer = requestHandler.processRequest(request, context);
-
-            httpExchange.setRequestHandler(requestHandler);
-            httpExchange.setRequestConsumer(consumer);
             httpExchange.setRequest(request);
+            HttpAsyncRequestHandler<Object> requestHandler = getRequestHandler(request);
+            httpExchange.setRequestHandler(requestHandler);
+            HttpAsyncRequestConsumer<Object> consumer = requestHandler.processRequest(request, context);
+            httpExchange.setRequestConsumer(consumer);
 
             consumer.requestReceived(request);
 
             if (request instanceof HttpEntityEnclosingRequest) {
-                HttpEntityEnclosingRequest entityRequest = (HttpEntityEnclosingRequest) request;
-                if (entityRequest.expectContinue()) {
+                if (((HttpEntityEnclosingRequest) request).expectContinue()) {
                     httpExchange.setRequestState(MessageState.ACK_EXPECTED);
                     if (this.expectationVerifier != null) {
                         conn.suspendInput();
@@ -172,55 +198,10 @@ public class HttpAsyncServiceHandler implements NHttpServiceHandler {
         }
     }
 
-    public void exception(final NHttpServerConnection conn, final HttpException httpex) {
-        if (conn.isResponseSubmitted()) {
-            // There is not much that we can do if a response head
-            // has already been submitted
-            closeConnection(conn);
-            onException(httpex);
-            return;
-        }
-
-        HttpExchange httpExchange = (HttpExchange) conn.getContext().getAttribute(HTTP_EXCHANGE);
-        try {
-            HttpAsyncResponseProducer responseProducer = handleException(httpex);
-            httpExchange.setResponseProducer(responseProducer);
-            commitResponse(conn, httpExchange);
-        } catch (RuntimeException ex) {
-            shutdownConnection(conn);
-            throw ex;
-        } catch (Exception ex) {
-            shutdownConnection(conn);
-            onException(ex);
-        }
-    }
-
-    public void exception(final NHttpServerConnection conn, final IOException ex) {
-        shutdownConnection(conn);
-        onException(ex);
-    }
-
-    public void timeout(final NHttpServerConnection conn) {
-        try {
-            if (conn.getStatus() == NHttpConnection.ACTIVE) {
-                conn.close();
-                if (conn.getStatus() == NHttpConnection.CLOSING) {
-                    // Give the connection some grace time to
-                    // close itself nicely
-                    conn.setSocketTimeout(250);
-                }
-            } else {
-                conn.shutdown();
-            }
-        } catch (IOException ex) {
-            onException(ex);
-        }
-    }
-
     public void inputReady(final NHttpServerConnection conn, final ContentDecoder decoder) {
-        HttpExchange httpExchange = (HttpExchange) conn.getContext().getAttribute(HTTP_EXCHANGE);
+        HttpExchange httpExchange = ensureNotNull(getHttpExchange(conn));
         try {
-            HttpAsyncRequestConsumer<?> consumer = httpExchange.getRequestConsumer();
+            HttpAsyncRequestConsumer<?> consumer = ensureNotNull(httpExchange.getRequestConsumer());
             consumer.consumeContent(decoder, conn);
             httpExchange.setRequestState(MessageState.BODY_STREAM);
             if (decoder.isCompleted()) {
@@ -237,11 +218,11 @@ public class HttpAsyncServiceHandler implements NHttpServiceHandler {
     }
 
     public void responseReady(final NHttpServerConnection conn) {
-        HttpExchange httpExchange = (HttpExchange) conn.getContext().getAttribute(HTTP_EXCHANGE);
+        HttpExchange httpExchange = ensureNotNull(getHttpExchange(conn));
         try {
             if (httpExchange.getRequestState() == MessageState.ACK) {
                 conn.requestInput();
-                httpExchange.setRequestState(MessageState.COMPLETED);
+                httpExchange.setRequestState(MessageState.BODY_STREAM);
                 HttpRequest request = httpExchange.getRequest();
                 HttpResponse response = create100Continue(request);
                 conn.submitResponse(response);
@@ -250,7 +231,6 @@ public class HttpAsyncServiceHandler implements NHttpServiceHandler {
                     conn.resetInput();
                     httpExchange.setRequestState(MessageState.COMPLETED);
                 }
-                conn.resetInput();
                 commitResponse(conn, httpExchange);
             }
         } catch (RuntimeException ex) {
@@ -263,7 +243,7 @@ public class HttpAsyncServiceHandler implements NHttpServiceHandler {
     }
 
     public void outputReady(final NHttpServerConnection conn, final ContentEncoder encoder) {
-        HttpExchange httpExchange = (HttpExchange) conn.getContext().getAttribute(HTTP_EXCHANGE);
+        HttpExchange httpExchange = ensureNotNull(getHttpExchange(conn));
         try {
             HttpAsyncResponseProducer responseProducer = httpExchange.getResponseProducer();
             HttpContext context = httpExchange.getContext();
@@ -289,6 +269,41 @@ public class HttpAsyncServiceHandler implements NHttpServiceHandler {
         }
     }
 
+    public void timeout(final NHttpServerConnection conn) {
+        try {
+            if (conn.getStatus() == NHttpConnection.ACTIVE) {
+                conn.close();
+                if (conn.getStatus() == NHttpConnection.CLOSING) {
+                    // Give the connection some grace time to
+                    // close itself nicely
+                    conn.setSocketTimeout(250);
+                }
+            } else {
+                conn.shutdown();
+            }
+        } catch (IOException ex) {
+            onException(ex);
+        }
+    }
+
+    private HttpExchange getHttpExchange(final NHttpConnection conn) {
+        return (HttpExchange) conn.getContext().getAttribute(HTTP_EXCHANGE);
+    }
+
+    private HttpExchange ensureNotNull(final HttpExchange httpExchange) {
+        if (httpExchange == null) {
+            throw new IllegalStateException("HTTP exchange is null");
+        }
+        return httpExchange;
+    }
+
+    private HttpAsyncRequestConsumer<Object> ensureNotNull(final HttpAsyncRequestConsumer<Object> requestConsumer) {
+        if (requestConsumer == null) {
+            throw new IllegalStateException("Request consumer is null");
+        }
+        return requestConsumer;
+    }
+
     protected void onException(final Exception ex) {
     }
 
@@ -296,11 +311,7 @@ public class HttpAsyncServiceHandler implements NHttpServiceHandler {
         try {
             conn.close();
         } catch (IOException ex) {
-            try {
-                conn.shutdown();
-            } catch (IOException ex2) {
-                onException(ex2);
-            }
+            onException(ex);
         }
     }
 
@@ -372,10 +383,6 @@ public class HttpAsyncServiceHandler implements NHttpServiceHandler {
                 HttpAsyncResponseProducer responseProducer = handleException(ex);
                 httpExchange.setResponseProducer(responseProducer);
                 conn.requestOutput();
-            } catch (IOException ex) {
-                HttpAsyncResponseProducer responseProducer = handleException(ex);
-                httpExchange.setResponseProducer(responseProducer);
-                conn.requestOutput();
             }
         }
     }
@@ -412,7 +419,7 @@ public class HttpAsyncServiceHandler implements NHttpServiceHandler {
             }
             httpExchange.clear();
         } else {
-            httpExchange.setRequestState(MessageState.BODY_STREAM);
+            httpExchange.setResponseState(MessageState.BODY_STREAM);
         }
     }
 
@@ -444,6 +451,8 @@ public class HttpAsyncServiceHandler implements NHttpServiceHandler {
         HttpExchange() {
             super();
             this.context = new BasicHttpContext();
+            this.requestState = MessageState.READY;
+            this.responseState = MessageState.READY;
         }
 
         public HttpContext getContext() {

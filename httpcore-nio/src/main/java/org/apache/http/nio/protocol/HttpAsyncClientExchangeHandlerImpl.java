@@ -181,7 +181,10 @@ class HttpAsyncClientExchangeHandlerImpl<T> implements HttpAsyncClientExchangeHa
 
     public boolean cancel() {
         try {
-            return this.responseConsumer.cancel();
+            boolean cancelled = this.responseConsumer.cancel();
+            this.future.cancel();
+            releaseResources();
+            return cancelled;
         } catch (RuntimeException ex) {
             failed(ex);
             throw ex;
@@ -198,6 +201,7 @@ class HttpAsyncClientExchangeHandlerImpl<T> implements HttpAsyncClientExchangeHa
             } else {
                 this.future.failed(ex);
             }
+            releaseResources();
         } catch (RuntimeException ex) {
             failed(ex);
             throw ex;
