@@ -668,8 +668,13 @@ public class NHttpReverseProxy {
         }
 
         public boolean cancel() {
-            failed(new InterruptedIOException("Cancelled"));
-            return true;
+            synchronized (this.httpExchange) {
+                if (this.completed) {
+                    return false;
+                }
+                failed(new InterruptedIOException("Cancelled"));
+                return true;
+            }
         }
 
         public ProxyHttpExchange getResult() {

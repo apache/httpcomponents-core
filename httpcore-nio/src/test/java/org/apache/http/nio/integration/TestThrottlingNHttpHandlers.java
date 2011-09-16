@@ -25,16 +25,21 @@
  *
  */
 
-package org.apache.http.nio.protocol;
+package org.apache.http.nio.integration;
 
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
 import java.net.InetSocketAddress;
 import java.util.LinkedList;
 import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 import org.apache.http.HttpCoreNIOTestBase;
+import org.apache.http.HttpEntity;
 import org.apache.http.HttpEntityEnclosingRequest;
 import org.apache.http.HttpException;
 import org.apache.http.HttpRequest;
@@ -45,6 +50,8 @@ import org.apache.http.HttpStatus;
 import org.apache.http.HttpVersion;
 import org.apache.http.LoggingClientConnectionFactory;
 import org.apache.http.LoggingServerConnectionFactory;
+import org.apache.http.entity.ContentType;
+import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.DefaultConnectionReuseStrategy;
 import org.apache.http.impl.DefaultHttpResponseFactory;
 import org.apache.http.message.BasicHttpEntityEnclosingRequest;
@@ -52,17 +59,21 @@ import org.apache.http.message.BasicHttpRequest;
 import org.apache.http.nio.NHttpClientIOTarget;
 import org.apache.http.nio.NHttpConnectionFactory;
 import org.apache.http.nio.NHttpServerIOTarget;
-import org.apache.http.nio.entity.ConsumingNHttpEntity;
 import org.apache.http.nio.entity.NByteArrayEntity;
 import org.apache.http.nio.entity.NStringEntity;
+import org.apache.http.nio.protocol.HttpRequestExecutionHandler;
+import org.apache.http.nio.protocol.ThrottlingHttpClientHandler;
+import org.apache.http.nio.protocol.ThrottlingHttpServiceHandler;
 import org.apache.http.nio.reactor.IOReactorStatus;
 import org.apache.http.nio.reactor.ListenerEndpoint;
 import org.apache.http.nio.reactor.SessionRequest;
 import org.apache.http.params.CoreProtocolPNames;
 import org.apache.http.params.HttpParams;
+import org.apache.http.protocol.HTTP;
 import org.apache.http.protocol.HttpContext;
 import org.apache.http.protocol.HttpExpectationVerifier;
 import org.apache.http.protocol.HttpProcessor;
+import org.apache.http.protocol.HttpRequestHandler;
 import org.apache.http.protocol.ImmutableHttpProcessor;
 import org.apache.http.protocol.RequestConnControl;
 import org.apache.http.protocol.RequestContent;
@@ -74,7 +85,7 @@ import org.apache.http.protocol.ResponseContent;
 import org.apache.http.protocol.ResponseDate;
 import org.apache.http.protocol.ResponseServer;
 import org.apache.http.testserver.SimpleEventListener;
-import org.apache.http.testserver.SimpleNHttpRequestHandlerResolver;
+import org.apache.http.testserver.SimpleHttpRequestHandlerResolver;
 import org.apache.http.util.EncodingUtils;
 import org.junit.After;
 import org.junit.Assert;
@@ -82,10 +93,11 @@ import org.junit.Before;
 import org.junit.Test;
 
 /**
- * HttpCore NIO integration tests for async handlers.
+ * HttpCore NIO integration tests using throttling versions of the
+ * protocol handlers.
  */
 @Deprecated
-public class TestAsyncNHttpHandlers extends HttpCoreNIOTestBase {
+public class TestThrottlingNHttpHandlers extends HttpCoreNIOTestBase {
 
     @Before
     public void setUp() throws Exception {
@@ -111,9 +123,21 @@ public class TestAsyncNHttpHandlers extends HttpCoreNIOTestBase {
         return new LoggingClientConnectionFactory(params);
     }
 
+    private ExecutorService execService;
+
+    @Before
+    public void initExecService() throws Exception {
+        this.execService = Executors.newCachedThreadPool();
+    }
+
+    @After
+    public void shutDownExecService() {
+        this.execService.shutdownNow();
+    }
+
     private void executeStandardTest(
-            final NHttpRequestHandler requestHandler,
-            final NHttpRequestExecutionHandler requestExecutionHandler) throws Exception {
+            final HttpRequestHandler requestHandler,
+            final HttpRequestExecutionHandler requestExecutionHandler) throws Exception {
         int connNo = 3;
         int reqNo = 20;
         Job[] jobs = new Job[connNo * reqNo];
@@ -125,21 +149,23 @@ public class TestAsyncNHttpHandlers extends HttpCoreNIOTestBase {
             queue.add(jobs[i]);
         }
 
-        AsyncNHttpServiceHandler serviceHandler = new AsyncNHttpServiceHandler(
+        ThrottlingHttpServiceHandler serviceHandler = new ThrottlingHttpServiceHandler(
                 this.serverHttpProc,
                 new DefaultHttpResponseFactory(),
                 new DefaultConnectionReuseStrategy(),
+                this.execService,
                 this.serverParams);
 
         serviceHandler.setHandlerResolver(
-                new SimpleNHttpRequestHandlerResolver(requestHandler));
+                new SimpleHttpRequestHandlerResolver(requestHandler));
         serviceHandler.setEventListener(
                 new SimpleEventListener());
 
-        AsyncNHttpClientHandler clientHandler = new AsyncNHttpClientHandler(
+        ThrottlingHttpClientHandler clientHandler = new ThrottlingHttpClientHandler(
                 this.clientHttpProc,
                 requestExecutionHandler,
                 new DefaultConnectionReuseStrategy(),
+                this.execService,
                 this.clientParams);
 
         clientHandler.setEventListener(
@@ -187,11 +213,11 @@ public class TestAsyncNHttpHandlers extends HttpCoreNIOTestBase {
 
     /**
      * This test case executes a series of simple (non-pipelined) GET requests
-     * over multiple connections. This uses non-blocking output entities.
+     * over multiple connections.
      */
     @Test
-    public void testHttpGets() throws Exception {
-        NHttpRequestExecutionHandler requestExecutionHandler = new RequestExecutionHandler() {
+    public void testSimpleHttpGets() throws Exception {
+        HttpRequestExecutionHandler requestExecutionHandler = new RequestExecutionHandler() {
 
             @Override
             protected HttpRequest generateRequest(Job testjob) {
@@ -206,11 +232,10 @@ public class TestAsyncNHttpHandlers extends HttpCoreNIOTestBase {
     /**
      * This test case executes a series of simple (non-pipelined) POST requests
      * with content length delimited content over multiple connections.
-     * It uses purely asynchronous handlers.
      */
     @Test
-    public void testHttpPostsWithContentLength() throws Exception {
-        NHttpRequestExecutionHandler requestExecutionHandler = new RequestExecutionHandler() {
+    public void testSimpleHttpPostsWithContentLength() throws Exception {
+        HttpRequestExecutionHandler requestExecutionHandler = new RequestExecutionHandler() {
 
             @Override
             protected HttpRequest generateRequest(Job testjob) {
@@ -232,12 +257,11 @@ public class TestAsyncNHttpHandlers extends HttpCoreNIOTestBase {
 
     /**
      * This test case executes a series of simple (non-pipelined) POST requests
-     * with chunk coded content content over multiple connections.  This tests
-     * with nonblocking handlers & nonblocking entities.
+     * with chunk coded content content over multiple connections.
      */
     @Test
-    public void testHttpPostsChunked() throws Exception {
-        NHttpRequestExecutionHandler requestExecutionHandler = new RequestExecutionHandler() {
+    public void testSimpleHttpPostsChunked() throws Exception {
+        HttpRequestExecutionHandler requestExecutionHandler = new RequestExecutionHandler() {
 
             @Override
             protected HttpRequest generateRequest(Job testjob) {
@@ -259,12 +283,11 @@ public class TestAsyncNHttpHandlers extends HttpCoreNIOTestBase {
 
     /**
      * This test case executes a series of simple (non-pipelined) HTTP/1.0
-     * POST requests over multiple persistent connections. This tests with nonblocking
-     * handlers & entities.
+     * POST requests over multiple persistent connections.
      */
     @Test
-    public void testHttpPostsHTTP10() throws Exception {
-        NHttpRequestExecutionHandler requestExecutionHandler = new RequestExecutionHandler() {
+    public void testSimpleHttpPostsHTTP10() throws Exception {
+        HttpRequestExecutionHandler requestExecutionHandler = new RequestExecutionHandler() {
 
             @Override
             protected HttpRequest generateRequest(Job testjob) {
@@ -286,12 +309,11 @@ public class TestAsyncNHttpHandlers extends HttpCoreNIOTestBase {
 
     /**
      * This test case executes a series of simple (non-pipelined) POST requests
-     * over multiple connections using the 'expect: continue' handshake.  This test
-     * uses nonblocking handlers & entities.
+     * over multiple connections using the 'expect: continue' handshake.
      */
     @Test
     public void testHttpPostsWithExpectContinue() throws Exception {
-        NHttpRequestExecutionHandler requestExecutionHandler = new RequestExecutionHandler() {
+        HttpRequestExecutionHandler requestExecutionHandler = new RequestExecutionHandler() {
 
             @Override
             protected HttpRequest generateRequest(Job testjob) {
@@ -313,8 +335,7 @@ public class TestAsyncNHttpHandlers extends HttpCoreNIOTestBase {
 
     /**
      * This test case executes a series of simple (non-pipelined) POST requests
-     * one of which does not meet the target server expectations.
-     * This test uses nonblocking entities.
+     * over multiple connections that do not meet the target server expectations.
      */
     @Test
     public void testHttpPostsWithExpectationVerification() throws Exception {
@@ -344,7 +365,7 @@ public class TestAsyncNHttpHandlers extends HttpCoreNIOTestBase {
 
         };
 
-        NHttpRequestExecutionHandler requestExecutionHandler = new RequestExecutionHandler() {
+        HttpRequestExecutionHandler requestExecutionHandler = new RequestExecutionHandler() {
 
             @Override
             protected HttpRequest generateRequest(Job testjob) {
@@ -369,14 +390,15 @@ public class TestAsyncNHttpHandlers extends HttpCoreNIOTestBase {
                 new ResponseConnControl()
         });
 
-        AsyncNHttpServiceHandler serviceHandler = new AsyncNHttpServiceHandler(
+        ThrottlingHttpServiceHandler serviceHandler = new ThrottlingHttpServiceHandler(
                 serverHttpProc,
                 new DefaultHttpResponseFactory(),
                 new DefaultConnectionReuseStrategy(),
+                this.execService,
                 this.serverParams);
 
         serviceHandler.setHandlerResolver(
-                new SimpleNHttpRequestHandlerResolver(new RequestHandler()));
+                new SimpleHttpRequestHandlerResolver(new RequestHandler()));
         serviceHandler.setExpectationVerifier(
                 expectationVerifier);
         serviceHandler.setEventListener(
@@ -389,13 +411,15 @@ public class TestAsyncNHttpHandlers extends HttpCoreNIOTestBase {
                 new RequestUserAgent(),
                 new RequestExpectContinue()});
 
-        AsyncNHttpClientHandler clientHandler = new AsyncNHttpClientHandler(
+        ThrottlingHttpClientHandler clientHandler = new ThrottlingHttpClientHandler(
                 clientHttpProc,
                 requestExecutionHandler,
                 new DefaultConnectionReuseStrategy(),
+                this.execService,
                 this.clientParams);
 
-        clientHandler.setEventListener(new SimpleEventListener());
+        clientHandler.setEventListener(
+                new SimpleEventListener());
 
         this.server.start(serviceHandler);
         this.client.start(clientHandler);
@@ -434,10 +458,10 @@ public class TestAsyncNHttpHandlers extends HttpCoreNIOTestBase {
 
     /**
      * This test case executes a series of simple (non-pipelined) HEAD requests
-     * over multiple connections. This test uses nonblocking entities.
+     * over multiple connections.
      */
     @Test
-    public void testHttpHeads() throws Exception {
+    public void testSimpleHttpHeads() throws Exception {
         int connNo = 3;
         int reqNo = 20;
         Job[] jobs = new Job[connNo * reqNo];
@@ -449,7 +473,7 @@ public class TestAsyncNHttpHandlers extends HttpCoreNIOTestBase {
             queue.add(jobs[i]);
         }
 
-        NHttpRequestExecutionHandler requestExecutionHandler = new RequestExecutionHandler() {
+        HttpRequestExecutionHandler requestExecutionHandler = new RequestExecutionHandler() {
 
             @Override
             protected HttpRequest generateRequest(Job testjob) {
@@ -466,14 +490,15 @@ public class TestAsyncNHttpHandlers extends HttpCoreNIOTestBase {
                 new ResponseConnControl()
         });
 
-        AsyncNHttpServiceHandler serviceHandler = new AsyncNHttpServiceHandler(
+        ThrottlingHttpServiceHandler serviceHandler = new ThrottlingHttpServiceHandler(
                 serverHttpProc,
                 new DefaultHttpResponseFactory(),
                 new DefaultConnectionReuseStrategy(),
+                this.execService,
                 this.serverParams);
 
         serviceHandler.setHandlerResolver(
-                new SimpleNHttpRequestHandlerResolver(new RequestHandler()));
+                new SimpleHttpRequestHandlerResolver(new RequestHandler()));
         serviceHandler.setEventListener(
                 new SimpleEventListener());
 
@@ -484,10 +509,11 @@ public class TestAsyncNHttpHandlers extends HttpCoreNIOTestBase {
                 new RequestUserAgent(),
                 new RequestExpectContinue()});
 
-        AsyncNHttpClientHandler clientHandler = new AsyncNHttpClientHandler(
+        ThrottlingHttpClientHandler clientHandler = new ThrottlingHttpClientHandler(
                 clientHttpProc,
                 requestExecutionHandler,
                 new DefaultConnectionReuseStrategy(),
+                this.execService,
                 this.clientParams);
 
         clientHandler.setEventListener(new SimpleEventListener());
@@ -532,425 +558,42 @@ public class TestAsyncNHttpHandlers extends HttpCoreNIOTestBase {
     }
 
     /**
-     * This test executes a series of delayed GETs, ensuring the
-     * {@link NHttpResponseTrigger} works correctly.
+     * This test case tests if the protocol handler can correctly deal
+     * with requests with partially consumed content.
      */
     @Test
-    public void testDelayedHttpGets() throws Exception {
-
-        NHttpRequestHandler requestHandler = new NHttpRequestHandler() {
-
-            public ConsumingNHttpEntity entityRequest(
-                    final HttpEntityEnclosingRequest request,
-                    final HttpContext context) {
-                return null;
-            }
+    public void testSimpleHttpPostsContentNotConsumed() throws Exception {
+        HttpRequestHandler requestHandler = new HttpRequestHandler() {
 
             public void handle(
                     final HttpRequest request,
                     final HttpResponse response,
-                    final NHttpResponseTrigger trigger,
                     final HttpContext context) throws HttpException, IOException {
-                String s = request.getRequestLine().getUri();
-                int idx = s.indexOf('x');
-                if (idx == -1) {
-                    throw new HttpException("Unexpected request-URI format");
-                }
-                String pattern = s.substring(0, idx);
-                int count = Integer.parseInt(s.substring(idx + 1, s.length()));
 
-                StringBuilder buffer = new StringBuilder();
-                for (int i = 0; i < count; i++) {
-                    buffer.append(pattern);
-                }
-                final String content = buffer.toString();
-
-                new Thread() {
-                    @Override
-                    public void run() {
-                        // Wait a bit, to make sure this is delayed.
-                        try { Thread.sleep(10); } catch(InterruptedException ie) {}
-                        // Set the entity after delaying...
-                        try {
-                            NStringEntity entity = new NStringEntity(content, "US-ASCII");
-                            response.setEntity(entity);
-                        }  catch (UnsupportedEncodingException ex) {
-                        }
-                        trigger.submitResponse(response);
-                    }
-                }.start();
+                // Request content body has not been consumed!!!
+                response.setStatusCode(HttpStatus.SC_INTERNAL_SERVER_ERROR);
+                NStringEntity outgoing = new NStringEntity("Ooopsie");
+                response.setEntity(outgoing);
             }
 
         };
-
-        NHttpRequestExecutionHandler requestExecutionHandler = new RequestExecutionHandler() {
-
-            @Override
-            protected HttpRequest generateRequest(Job testjob) {
-                String s = testjob.getPattern() + "x" + testjob.getCount();
-                return new BasicHttpRequest("GET", s);
-            }
-
-        };
-        executeStandardTest(requestHandler, requestExecutionHandler);
-    }
-
-    /**
-     * This test ensures that HttpExceptions work correctly when immediate.
-     */
-    @Test
-    public void testHttpException() throws Exception {
-
-        NHttpRequestHandler requestHandler = new SimpleNHttpRequestHandler() {
-
-            public ConsumingNHttpEntity entityRequest(
-                    final HttpEntityEnclosingRequest request,
-                    final HttpContext context) {
-                return null;
-            }
-
-            @Override
-            public void handle(
-                    final HttpRequest request,
-                    final HttpResponse response,
-                    final HttpContext context) throws HttpException, IOException {
-                throw new HttpException(request.getRequestLine().getUri());
-            }
-
-        };
-
-        NHttpRequestExecutionHandler requestExecutionHandler = new RequestExecutionHandler() {
-
-            @Override
-            protected HttpRequest generateRequest(Job testjob) {
-                String s = testjob.getPattern() + "x" + testjob.getCount();
-                return new BasicHttpRequest("GET", s);
-            }
-
-        };
-
-        int connNo = 3;
-        int reqNo = 20;
-        Job[] jobs = new Job[connNo * reqNo];
-        for (int i = 0; i < jobs.length; i++) {
-            jobs[i] = new Job();
-        }
-        Queue<Job> queue = new ConcurrentLinkedQueue<Job>();
-        for (int i = 0; i < jobs.length; i++) {
-            queue.add(jobs[i]);
-        }
-
-        HttpProcessor serverHttpProc = new ImmutableHttpProcessor(new HttpResponseInterceptor[] {
-                new ResponseDate(),
-                new ResponseServer(),
-                new ResponseContent(),
-                new ResponseConnControl()
-        });
-
-        AsyncNHttpServiceHandler serviceHandler = new AsyncNHttpServiceHandler(
-                serverHttpProc,
-                new DefaultHttpResponseFactory(),
-                new DefaultConnectionReuseStrategy(),
-                this.serverParams);
-
-        serviceHandler.setHandlerResolver(
-                new SimpleNHttpRequestHandlerResolver(requestHandler));
-        serviceHandler.setEventListener(
-                new SimpleEventListener());
-
-        HttpProcessor clientHttpProc = new ImmutableHttpProcessor(new HttpRequestInterceptor[] {
-                new RequestContent(),
-                new RequestTargetHost(),
-                new RequestConnControl(),
-                new RequestUserAgent(),
-                new RequestExpectContinue()});
-
-        AsyncNHttpClientHandler clientHandler = new AsyncNHttpClientHandler(
-                clientHttpProc,
-                requestExecutionHandler,
-                new DefaultConnectionReuseStrategy(),
-                this.clientParams);
-
-        clientHandler.setEventListener(new SimpleEventListener());
-
-        this.server.start(serviceHandler);
-        this.client.start(clientHandler);
-
-        ListenerEndpoint endpoint = this.server.getListenerEndpoint();
-        endpoint.waitFor();
-        InetSocketAddress serverAddress = (InetSocketAddress) endpoint.getAddress();
-
-        Assert.assertEquals("Test server status", IOReactorStatus.ACTIVE, this.server.getStatus());
-
-        Queue<SessionRequest> connRequests = new LinkedList<SessionRequest>();
-        for (int i = 0; i < connNo; i++) {
-            SessionRequest sessionRequest = this.client.openConnection(
-                    new InetSocketAddress("localhost", serverAddress.getPort()),
-                    queue);
-            connRequests.add(sessionRequest);
-        }
-
-        while (!connRequests.isEmpty()) {
-            SessionRequest sessionRequest = connRequests.remove();
-            sessionRequest.waitFor();
-            if (sessionRequest.getException() != null) {
-                throw sessionRequest.getException();
-            }
-            Assert.assertNotNull(sessionRequest.getSession());
-        }
-
-        Assert.assertEquals("Test client status", IOReactorStatus.ACTIVE, this.client.getStatus());
-
-        for (int i = 0; i < jobs.length; i++) {
-            Job testjob = jobs[i];
-            testjob.waitFor();
-            if (testjob.isSuccessful()) {
-                Assert.assertEquals(HttpStatus.SC_INTERNAL_SERVER_ERROR, testjob.getStatusCode());
-                Assert.assertEquals(testjob.getPattern() + "x" + testjob.getCount(), testjob.getResult());
-            } else {
-                Assert.fail(testjob.getFailureMessage());
-            }
-        }
-    }
-
-    /**
-     * This test ensures that HttpExceptions work correctly when they are delayed by a trigger.
-     */
-    @Test
-    public void testDelayedHttpException() throws Exception {
-
-        NHttpRequestHandler requestHandler = new NHttpRequestHandler() {
-
-            public ConsumingNHttpEntity entityRequest(
-                    final HttpEntityEnclosingRequest request,
-                    final HttpContext context) {
-                return null;
-            }
-            public void handle(final HttpRequest request, HttpResponse response,
-                    final NHttpResponseTrigger trigger, HttpContext context)
-                    throws HttpException, IOException {
-                new Thread() {
-                    @Override
-                    public void run() {
-                        try { Thread.sleep(10); } catch(InterruptedException ie) {}
-                        trigger.handleException(
-                                new HttpException(request.getRequestLine().getUri()));
-                    }
-                }.start();
-            }
-
-        };
-
-        NHttpRequestExecutionHandler requestExecutionHandler = new RequestExecutionHandler() {
-
-            @Override
-            protected HttpRequest generateRequest(Job testjob) {
-                String s = testjob.getPattern() + "x" + testjob.getCount();
-                return new BasicHttpRequest("GET", s);
-            }
-
-        };
-
-        int connNo = 3;
-        int reqNo = 20;
-        Job[] jobs = new Job[connNo * reqNo];
-        for (int i = 0; i < jobs.length; i++) {
-            jobs[i] = new Job();
-        }
-        Queue<Job> queue = new ConcurrentLinkedQueue<Job>();
-        for (int i = 0; i < jobs.length; i++) {
-            queue.add(jobs[i]);
-        }
-
-        HttpProcessor serverHttpProc = new ImmutableHttpProcessor(new HttpResponseInterceptor[] {
-                new ResponseDate(),
-                new ResponseServer(),
-                new ResponseContent(),
-                new ResponseConnControl()
-        });
-
-        AsyncNHttpServiceHandler serviceHandler = new AsyncNHttpServiceHandler(
-                serverHttpProc,
-                new DefaultHttpResponseFactory(),
-                new DefaultConnectionReuseStrategy(),
-                this.serverParams);
-
-        serviceHandler.setHandlerResolver(
-                new SimpleNHttpRequestHandlerResolver(requestHandler));
-        serviceHandler.setEventListener(
-                new SimpleEventListener());
-
-        HttpProcessor clientHttpProc = new ImmutableHttpProcessor(new HttpRequestInterceptor[] {
-                new RequestContent(),
-                new RequestTargetHost(),
-                new RequestConnControl(),
-                new RequestUserAgent(),
-                new RequestExpectContinue()});
-
-        AsyncNHttpClientHandler clientHandler = new AsyncNHttpClientHandler(
-                clientHttpProc,
-                requestExecutionHandler,
-                new DefaultConnectionReuseStrategy(),
-                this.clientParams);
-
-        clientHandler.setEventListener(new SimpleEventListener());
-
-        this.server.start(serviceHandler);
-        this.client.start(clientHandler);
-
-        ListenerEndpoint endpoint = this.server.getListenerEndpoint();
-        endpoint.waitFor();
-        InetSocketAddress serverAddress = (InetSocketAddress) endpoint.getAddress();
-
-        Assert.assertEquals("Test server status", IOReactorStatus.ACTIVE, this.server.getStatus());
-
-        Queue<SessionRequest> connRequests = new LinkedList<SessionRequest>();
-        for (int i = 0; i < connNo; i++) {
-            SessionRequest sessionRequest = this.client.openConnection(
-                    new InetSocketAddress("localhost", serverAddress.getPort()),
-                    queue);
-            connRequests.add(sessionRequest);
-        }
-
-        while (!connRequests.isEmpty()) {
-            SessionRequest sessionRequest = connRequests.remove();
-            sessionRequest.waitFor();
-            if (sessionRequest.getException() != null) {
-                throw sessionRequest.getException();
-            }
-            Assert.assertNotNull(sessionRequest.getSession());
-        }
-
-        Assert.assertEquals("Test client status", IOReactorStatus.ACTIVE, this.client.getStatus());
-
-        for (int i = 0; i < jobs.length; i++) {
-            Job testjob = jobs[i];
-            testjob.waitFor();
-            if (testjob.isSuccessful()) {
-                Assert.assertEquals(HttpStatus.SC_INTERNAL_SERVER_ERROR, testjob.getStatusCode());
-                Assert.assertEquals(testjob.getPattern() + "x" + testjob.getCount(), testjob.getResult());
-            } else {
-                Assert.fail(testjob.getFailureMessage());
-            }
-        }
-    }
-
-    /**
-     * This test makes sure that if no service handler is installed, things still work.
-     */
-    @Test
-    public void testNoServiceHandler() throws Exception {
-        NHttpRequestExecutionHandler requestExecutionHandler = new RequestExecutionHandler() {
-
-            @Override
-            protected HttpRequest generateRequest(Job testjob) {
-                String s = testjob.getPattern() + "x" + testjob.getCount();
-                return new BasicHttpRequest("GET", s);
-            }
-
-        };
-
-        int connNo = 5;
-        Job[] jobs = new Job[connNo];
-        for (int i = 0; i < jobs.length; i++) {
-            jobs[i] = new Job();
-        }
-        Queue<Job> queue = new ConcurrentLinkedQueue<Job>();
-        for (int i = 0; i < jobs.length; i++) {
-            queue.add(jobs[i]);
-        }
-
-        HttpProcessor serverHttpProc = new ImmutableHttpProcessor(new HttpResponseInterceptor[] {
-                new ResponseDate(),
-                new ResponseServer(),
-                new ResponseContent(),
-                new ResponseConnControl()
-        });
-
-        AsyncNHttpServiceHandler serviceHandler = new AsyncNHttpServiceHandler(
-                serverHttpProc,
-                new DefaultHttpResponseFactory(),
-                new DefaultConnectionReuseStrategy(),
-                this.serverParams);
-
-        serviceHandler.setEventListener(
-                new SimpleEventListener());
-
-        HttpProcessor clientHttpProc = new ImmutableHttpProcessor(new HttpRequestInterceptor[] {
-                new RequestContent(),
-                new RequestTargetHost(),
-                new RequestConnControl(),
-                new RequestUserAgent(),
-                new RequestExpectContinue()});
-
-        AsyncNHttpClientHandler clientHandler = new AsyncNHttpClientHandler(
-                clientHttpProc,
-                requestExecutionHandler,
-                new DefaultConnectionReuseStrategy(),
-                this.clientParams);
-
-        clientHandler.setEventListener(new SimpleEventListener());
-
-        this.server.start(serviceHandler);
-        this.client.start(clientHandler);
-
-        ListenerEndpoint endpoint = this.server.getListenerEndpoint();
-        endpoint.waitFor();
-        InetSocketAddress serverAddress = (InetSocketAddress) endpoint.getAddress();
-
-        Assert.assertEquals("Test server status", IOReactorStatus.ACTIVE, this.server.getStatus());
-
-        Queue<SessionRequest> connRequests = new LinkedList<SessionRequest>();
-        for (int i = 0; i < connNo; i++) {
-            SessionRequest sessionRequest = this.client.openConnection(
-                    new InetSocketAddress("localhost", serverAddress.getPort()),
-                    queue);
-            connRequests.add(sessionRequest);
-        }
-
-        while (!connRequests.isEmpty()) {
-            SessionRequest sessionRequest = connRequests.remove();
-            sessionRequest.waitFor();
-            if (sessionRequest.getException() != null) {
-                throw sessionRequest.getException();
-            }
-            Assert.assertNotNull(sessionRequest.getSession());
-        }
-
-        Assert.assertEquals("Test client status", IOReactorStatus.ACTIVE, this.client.getStatus());
-
-        for (int i = 0; i < jobs.length; i++) {
-            Job testjob = jobs[i];
-
-            testjob.waitFor();
-            if (testjob.isSuccessful()) {
-                Assert.assertEquals(HttpStatus.SC_NOT_IMPLEMENTED, testjob.getStatusCode());
-                Assert.assertEquals("", testjob.getResult());
-            } else {
-                Assert.fail(testjob.getFailureMessage());
-            }
-        }
-    }
-
-    /**
-     * This test case executes a series of simple (non-pipelined) POST requests
-     * with no entities on the client side, to ensure they are sent properly,
-     * and the server can read them.
-     */
-    @Test
-    public void testHttpPostWithNoEntities() throws Exception {
-        NHttpRequestExecutionHandler requestExecutionHandler = new RequestExecutionHandler() {
+        HttpRequestExecutionHandler requestExecutionHandler = new RequestExecutionHandler() {
 
             @Override
             protected HttpRequest generateRequest(Job testjob) {
                 String s = testjob.getPattern() + "x" + testjob.getCount();
                 HttpEntityEnclosingRequest r = new BasicHttpEntityEnclosingRequest("POST", s);
-                r.setEntity(null);
+                NStringEntity entity = null;
+                try {
+                    entity = new NStringEntity(testjob.getExpected(), "US-ASCII");
+                    entity.setChunked(testjob.getCount() % 2 == 0);
+                } catch (UnsupportedEncodingException ignore) {
+                }
+                r.setEntity(entity);
                 return r;
             }
 
         };
-
         int connNo = 3;
         int reqNo = 20;
         Job[] jobs = new Job[connNo * reqNo];
@@ -969,14 +612,15 @@ public class TestAsyncNHttpHandlers extends HttpCoreNIOTestBase {
                 new ResponseConnControl()
         });
 
-        AsyncNHttpServiceHandler serviceHandler = new AsyncNHttpServiceHandler(
+        ThrottlingHttpServiceHandler serviceHandler = new ThrottlingHttpServiceHandler(
                 serverHttpProc,
                 new DefaultHttpResponseFactory(),
                 new DefaultConnectionReuseStrategy(),
+                this.execService,
                 this.serverParams);
 
         serviceHandler.setHandlerResolver(
-                new SimpleNHttpRequestHandlerResolver(new RequestHandler()));
+                new SimpleHttpRequestHandlerResolver(requestHandler));
         serviceHandler.setEventListener(
                 new SimpleEventListener());
 
@@ -987,13 +631,183 @@ public class TestAsyncNHttpHandlers extends HttpCoreNIOTestBase {
                 new RequestUserAgent(),
                 new RequestExpectContinue()});
 
-        AsyncNHttpClientHandler clientHandler = new AsyncNHttpClientHandler(
+        ThrottlingHttpClientHandler clientHandler = new ThrottlingHttpClientHandler(
                 clientHttpProc,
                 requestExecutionHandler,
                 new DefaultConnectionReuseStrategy(),
+                this.execService,
                 this.clientParams);
 
-        clientHandler.setEventListener(new SimpleEventListener());
+        clientHandler.setEventListener(
+                new SimpleEventListener());
+
+        this.server.start(serviceHandler);
+        this.client.start(clientHandler);
+
+        ListenerEndpoint endpoint = this.server.getListenerEndpoint();
+        endpoint.waitFor();
+        InetSocketAddress serverAddress = (InetSocketAddress) endpoint.getAddress();
+
+        Assert.assertEquals("Test server status", IOReactorStatus.ACTIVE, this.server.getStatus());
+
+        Queue<SessionRequest> connRequests = new LinkedList<SessionRequest>();
+        for (int i = 0; i < connNo; i++) {
+            SessionRequest sessionRequest = this.client.openConnection(
+                    new InetSocketAddress("localhost", serverAddress.getPort()),
+                    queue);
+            connRequests.add(sessionRequest);
+        }
+
+        while (!connRequests.isEmpty()) {
+            SessionRequest sessionRequest = connRequests.remove();
+            sessionRequest.waitFor();
+            if (sessionRequest.getException() != null) {
+                throw sessionRequest.getException();
+            }
+            Assert.assertNotNull(sessionRequest.getSession());
+        }
+
+        Assert.assertEquals("Test client status", IOReactorStatus.ACTIVE, this.client.getStatus());
+
+        for (int i = 0; i < jobs.length; i++) {
+            Job testjob = jobs[i];
+            testjob.waitFor();
+            if (testjob.isSuccessful()) {
+                Assert.assertEquals(HttpStatus.SC_INTERNAL_SERVER_ERROR, testjob.getStatusCode());
+                Assert.assertEquals("Ooopsie", testjob.getResult());
+            } else {
+                Assert.fail(testjob.getFailureMessage());
+            }
+        }
+    }
+
+    @Test
+    public void testInputThrottling() throws Exception {
+        HttpRequestExecutionHandler requestExecutionHandler = new HttpRequestExecutionHandler() {
+
+            public void initalizeContext(final HttpContext context, final Object attachment) {
+                context.setAttribute("queue", attachment);
+            }
+
+            public HttpRequest submitRequest(final HttpContext context) {
+
+                @SuppressWarnings("unchecked")
+                Queue<Job> queue = (Queue<Job>) context.getAttribute("queue");
+                if (queue == null) {
+                    throw new IllegalStateException("Queue is null");
+                }
+
+                Job testjob = queue.poll();
+                context.setAttribute("job", testjob);
+
+                if (testjob != null) {
+                    String s = testjob.getPattern() + "x" + testjob.getCount();
+                    HttpEntityEnclosingRequest r = new BasicHttpEntityEnclosingRequest("POST", s);
+                    StringEntity entity = null;
+                    try {
+                        entity = new StringEntity(testjob.getExpected(), "US-ASCII");
+                        entity.setChunked(testjob.getCount() % 2 == 0);
+                    } catch (UnsupportedEncodingException ignore) {
+                    }
+                    r.setEntity(entity);
+                    return r;
+                } else {
+                    return null;
+                }
+            }
+
+            public void handleResponse(final HttpResponse response, final HttpContext context) {
+                Job testjob = (Job) context.removeAttribute("job");
+                if (testjob == null) {
+                    throw new IllegalStateException("TestJob is null");
+                }
+
+                int statusCode = response.getStatusLine().getStatusCode();
+                String content = null;
+
+                HttpEntity entity = response.getEntity();
+                if (entity != null) {
+                    try {
+                        // Simulate slow response handling in order to cause the
+                        // internal content buffer to fill up, forcing the
+                        // protocol handler to throttle input rate
+                        ByteArrayOutputStream outstream = new ByteArrayOutputStream();
+                        InputStream instream = entity.getContent();
+                        byte[] tmp = new byte[2048];
+                        int l;
+                        while((l = instream.read(tmp)) != -1) {
+                            Thread.sleep(1);
+                            outstream.write(tmp, 0, l);
+                        }
+                        ContentType contentType = ContentType.getOrDefault(entity);
+                        String charset = contentType.getCharset();
+                        if (charset == null) {
+                            charset = HTTP.DEFAULT_CONTENT_CHARSET;
+                        }
+                        content = new String(outstream.toByteArray(), charset);
+                    } catch (InterruptedException ex) {
+                        content = "Interrupted: " + ex.getMessage();
+                    } catch (IOException ex) {
+                        content = "I/O exception: " + ex.getMessage();
+                    }
+                }
+                testjob.setResult(statusCode, content);
+            }
+
+            public void finalizeContext(final HttpContext context) {
+                Job testjob = (Job) context.removeAttribute("job");
+                if (testjob != null) {
+                    testjob.fail("Request failed");
+                }
+            }
+
+        };
+        int connNo = 3;
+        int reqNo = 20;
+        Job[] jobs = new Job[connNo * reqNo];
+        for (int i = 0; i < jobs.length; i++) {
+            jobs[i] = new Job(10000);
+        }
+        Queue<Job> queue = new ConcurrentLinkedQueue<Job>();
+        for (int i = 0; i < jobs.length; i++) {
+            queue.add(jobs[i]);
+        }
+
+        HttpProcessor serverHttpProc = new ImmutableHttpProcessor(new HttpResponseInterceptor[] {
+                new ResponseDate(),
+                new ResponseServer(),
+                new ResponseContent(),
+                new ResponseConnControl()
+        });
+
+        ThrottlingHttpServiceHandler serviceHandler = new ThrottlingHttpServiceHandler(
+                serverHttpProc,
+                new DefaultHttpResponseFactory(),
+                new DefaultConnectionReuseStrategy(),
+                this.execService,
+                this.serverParams);
+
+        serviceHandler.setHandlerResolver(
+                new SimpleHttpRequestHandlerResolver(new RequestHandler()));
+        serviceHandler.setEventListener(
+                new SimpleEventListener());
+
+        HttpProcessor clientHttpProc = new ImmutableHttpProcessor(new HttpRequestInterceptor[] {
+                new RequestContent(),
+                new RequestTargetHost(),
+                new RequestConnControl(),
+                new RequestUserAgent(),
+                new RequestExpectContinue()});
+
+        ThrottlingHttpClientHandler clientHandler = new ThrottlingHttpClientHandler(
+                clientHttpProc,
+                requestExecutionHandler,
+                new DefaultConnectionReuseStrategy(),
+                this.execService,
+                this.clientParams);
+
+        clientHandler.setEventListener(
+                new SimpleEventListener());
 
         this.server.start(serviceHandler);
         this.client.start(clientHandler);
@@ -1028,108 +842,11 @@ public class TestAsyncNHttpHandlers extends HttpCoreNIOTestBase {
             testjob.waitFor();
             if (testjob.isSuccessful()) {
                 Assert.assertEquals(HttpStatus.SC_OK, testjob.getStatusCode());
-                Assert.assertEquals("", testjob.getResult());
+                Assert.assertEquals(testjob.getExpected(), testjob.getResult());
             } else {
                 Assert.fail(testjob.getFailureMessage());
             }
         }
     }
 
-    @Test
-    public void testNoRequestHandler() throws Exception {
-        NHttpRequestExecutionHandler requestExecutionHandler = new RequestExecutionHandler() {
-
-            @Override
-            protected HttpRequest generateRequest(Job testjob) {
-                String s = testjob.getPattern() + "x" + testjob.getCount();
-                HttpEntityEnclosingRequest r = new BasicHttpEntityEnclosingRequest("POST", s);
-                NByteArrayEntity entity = new NByteArrayEntity(new byte[] {1,2,3,4,5} );
-                entity.setChunked(false);
-                r.setEntity(entity);
-                return r;
-            }
-
-        };
-
-        int connNo = 3;
-        Job[] jobs = new Job[connNo];
-        for (int i = 0; i < jobs.length; i++) {
-            jobs[i] = new Job();
-        }
-        Queue<Job> queue = new ConcurrentLinkedQueue<Job>();
-        for (int i = 0; i < jobs.length; i++) {
-            queue.add(jobs[i]);
-        }
-
-        HttpProcessor serverHttpProc = new ImmutableHttpProcessor(new HttpResponseInterceptor[] {
-                new ResponseDate(),
-                new ResponseServer(),
-                new ResponseContent(),
-                new ResponseConnControl()
-        });
-
-        AsyncNHttpServiceHandler serviceHandler = new AsyncNHttpServiceHandler(
-                serverHttpProc,
-                new DefaultHttpResponseFactory(),
-                new DefaultConnectionReuseStrategy(),
-                this.serverParams);
-
-        serviceHandler.setHandlerResolver(
-                new SimpleNHttpRequestHandlerResolver(null));
-        serviceHandler.setEventListener(
-                new SimpleEventListener());
-
-        HttpProcessor clientHttpProc = new ImmutableHttpProcessor(new HttpRequestInterceptor[] {
-                new RequestContent(),
-                new RequestTargetHost(),
-                new RequestConnControl(),
-                new RequestUserAgent(),
-                new RequestExpectContinue()});
-
-        AsyncNHttpClientHandler clientHandler = new AsyncNHttpClientHandler(
-                clientHttpProc,
-                requestExecutionHandler,
-                new DefaultConnectionReuseStrategy(),
-                this.clientParams);
-
-        clientHandler.setEventListener(new SimpleEventListener());
-
-        this.server.start(serviceHandler);
-        this.client.start(clientHandler);
-
-        ListenerEndpoint endpoint = this.server.getListenerEndpoint();
-        endpoint.waitFor();
-        InetSocketAddress serverAddress = (InetSocketAddress) endpoint.getAddress();
-
-        Assert.assertEquals("Test server status", IOReactorStatus.ACTIVE, this.server.getStatus());
-
-        Queue<SessionRequest> connRequests = new LinkedList<SessionRequest>();
-        for (int i = 0; i < connNo; i++) {
-            SessionRequest sessionRequest = this.client.openConnection(
-                    new InetSocketAddress("localhost", serverAddress.getPort()),
-                    queue);
-            connRequests.add(sessionRequest);
-        }
-
-        while (!connRequests.isEmpty()) {
-            SessionRequest sessionRequest = connRequests.remove();
-            sessionRequest.waitFor();
-            if (sessionRequest.getException() != null) {
-                throw sessionRequest.getException();
-            }
-            Assert.assertNotNull(sessionRequest.getSession());
-        }
-
-        Assert.assertEquals("Test client status", IOReactorStatus.ACTIVE, this.client.getStatus());
-
-        for (int i = 0; i < jobs.length; i++) {
-            Job testjob = jobs[i];
-            testjob.waitFor();
-            if (testjob.isSuccessful()) {
-                Assert.assertEquals(HttpStatus.SC_NOT_IMPLEMENTED, testjob.getStatusCode());
-            } else {
-                Assert.fail(testjob.getFailureMessage());
-            }
-        }
-    }
 }

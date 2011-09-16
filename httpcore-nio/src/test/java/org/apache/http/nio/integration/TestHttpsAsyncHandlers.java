@@ -25,7 +25,7 @@
  *
  */
 
-package org.apache.http.nio.protocol;
+package org.apache.http.nio.integration;
 
 import org.apache.http.LoggingSSLClientConnectionFactory;
 import org.apache.http.LoggingSSLServerConnectionFactory;

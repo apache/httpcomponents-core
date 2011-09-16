@@ -25,7 +25,7 @@
  *
  */
 
-package org.apache.http.nio.protocol;
+package org.apache.http.nio.integration;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
@@ -53,6 +53,20 @@ import org.apache.http.nio.NHttpClientIOTarget;
 import org.apache.http.nio.NHttpConnectionFactory;
 import org.apache.http.nio.NHttpServerIOTarget;
 import org.apache.http.nio.entity.NStringEntity;
+import org.apache.http.nio.protocol.BasicAsyncRequestConsumer;
+import org.apache.http.nio.protocol.BasicAsyncRequestProducer;
+import org.apache.http.nio.protocol.BasicAsyncResponseConsumer;
+import org.apache.http.nio.protocol.BasicAsyncResponseProducer;
+import org.apache.http.nio.protocol.BufferingAsyncRequestHandler;
+import org.apache.http.nio.protocol.HttpAsyncClientProtocolHandler;
+import org.apache.http.nio.protocol.HttpAsyncContinueTrigger;
+import org.apache.http.nio.protocol.HttpAsyncExpectationVerifier;
+import org.apache.http.nio.protocol.HttpAsyncRequestConsumer;
+import org.apache.http.nio.protocol.HttpAsyncRequestHandler;
+import org.apache.http.nio.protocol.HttpAsyncRequestHandlerRegistry;
+import org.apache.http.nio.protocol.HttpAsyncRequestHandlerResolver;
+import org.apache.http.nio.protocol.HttpAsyncResponseTrigger;
+import org.apache.http.nio.protocol.HttpAsyncServiceHandler;
 import org.apache.http.nio.reactor.IOReactorStatus;
 import org.apache.http.nio.reactor.ListenerEndpoint;
 import org.apache.http.params.CoreProtocolPNames;

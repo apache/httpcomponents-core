@@ -25,7 +25,7 @@
  *
  */
 
-package org.apache.http.nio.protocol;
+package org.apache.http.nio.integration;
 
 import java.io.IOException;
 
@@ -36,24 +36,36 @@ import org.apache.http.HttpRequest;
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
 import org.apache.http.entity.ContentType;
+import org.apache.http.nio.entity.BufferingNHttpEntity;
+import org.apache.http.nio.entity.ConsumingNHttpEntity;
 import org.apache.http.nio.entity.NStringEntity;
+import org.apache.http.nio.protocol.SimpleNHttpRequestHandler;
+import org.apache.http.nio.util.HeapByteBufferAllocator;
 import org.apache.http.protocol.HttpContext;
 import org.apache.http.protocol.HttpRequestHandler;
 import org.apache.http.util.EntityUtils;
 
-final class SimpleRequestHandler implements HttpRequestHandler {
+@Deprecated
+final class RequestHandler extends SimpleNHttpRequestHandler implements HttpRequestHandler {
 
     private final boolean chunking;
 
-    SimpleRequestHandler() {
+    RequestHandler() {
         this(false);
     }
 
-    SimpleRequestHandler(boolean chunking) {
+    RequestHandler(boolean chunking) {
         super();
         this.chunking = chunking;
     }
 
+    public ConsumingNHttpEntity entityRequest(
+            final HttpEntityEnclosingRequest request,
+            final HttpContext context) {
+        return new BufferingNHttpEntity(request.getEntity(), new HeapByteBufferAllocator());
+    }
+
+    @Override
     public void handle(
             final HttpRequest request,
             final HttpResponse response,

@@ -25,7 +25,7 @@
  *
  */
 
-package org.apache.http.protocol;
+package org.apache.http.integration;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -56,6 +56,10 @@ import org.apache.http.impl.DefaultHttpClientConnection;
 import org.apache.http.message.BasicHttpEntityEnclosingRequest;
 import org.apache.http.message.BasicHttpRequest;
 import org.apache.http.params.CoreProtocolPNames;
+import org.apache.http.protocol.HTTP;
+import org.apache.http.protocol.HttpContext;
+import org.apache.http.protocol.HttpExpectationVerifier;
+import org.apache.http.protocol.HttpRequestHandler;
 import org.apache.http.testserver.HttpClient;
 import org.apache.http.testserver.HttpServer;
 import org.apache.http.util.EncodingUtils;
@@ -65,7 +69,7 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
-public class TestProtocolIntegration {
+public class TestSyncHttp {
 
     private HttpServer server;
     private HttpClient client;

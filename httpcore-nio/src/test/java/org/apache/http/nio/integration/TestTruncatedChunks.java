@@ -25,7 +25,7 @@
  *
  */
 
-package org.apache.http.nio.protocol;
+package org.apache.http.nio.integration;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
@@ -57,6 +57,13 @@ import org.apache.http.nio.NHttpClientIOTarget;
 import org.apache.http.nio.NHttpConnectionFactory;
 import org.apache.http.nio.NHttpServerIOTarget;
 import org.apache.http.nio.entity.ContentInputStream;
+import org.apache.http.nio.protocol.AbstractAsyncResponseConsumer;
+import org.apache.http.nio.protocol.BasicAsyncRequestProducer;
+import org.apache.http.nio.protocol.BasicAsyncResponseConsumer;
+import org.apache.http.nio.protocol.BufferingAsyncRequestHandler;
+import org.apache.http.nio.protocol.HttpAsyncClientProtocolHandler;
+import org.apache.http.nio.protocol.HttpAsyncRequestHandlerRegistry;
+import org.apache.http.nio.protocol.HttpAsyncServiceHandler;
 import org.apache.http.nio.reactor.IOReactorStatus;
 import org.apache.http.nio.reactor.IOSession;
 import org.apache.http.nio.reactor.ListenerEndpoint;
