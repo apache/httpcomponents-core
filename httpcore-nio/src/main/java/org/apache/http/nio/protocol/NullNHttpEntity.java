@@ -38,6 +38,7 @@ import org.apache.http.nio.ContentDecoder;
 import org.apache.http.nio.IOControl;
 import org.apache.http.nio.entity.ConsumingNHttpEntity;
 
+@Deprecated
 class NullNHttpEntity extends HttpEntityWrapper implements ConsumingNHttpEntity {
 
     private final ByteBuffer buffer;
