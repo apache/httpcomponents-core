@@ -63,14 +63,14 @@ public class TestBasicAsyncRequestProducer {
     public void testGenerateRequest() {
         HttpRequest res = producer.generateRequest();
 
-        Assert.assertEquals(request, res);
+        Assert.assertSame(request, res);
     }
 
     @Test
     public void testGetTarget() {
         HttpHost res = producer.getTarget();
 
-        Assert.assertEquals(target, res);
+        Assert.assertSame(target, res);
     }
 
     @Test

@@ -51,6 +51,9 @@ public class BasicAsyncResponseConsumer extends AbstractAsyncResponseConsumer<Ht
 
     public BasicAsyncResponseConsumer(final ByteBufferAllocator allocator) {
         super();
+        if (allocator == null) {
+            throw new IllegalArgumentException("Byte buffer allocator is null");
+        }
         this.allocator = allocator;
     }
 
