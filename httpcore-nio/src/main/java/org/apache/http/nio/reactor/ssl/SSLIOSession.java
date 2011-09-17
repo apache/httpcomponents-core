@@ -131,6 +131,9 @@ public class SSLIOSession implements IOSession, SessionBufferStatus {
         if (this.initialized) {
             throw new IllegalStateException("SSL I/O session already initialized");
         }
+        if (this.status >= IOSession.CLOSING) {
+            return;
+        }
         switch (mode) {
         case CLIENT:
             this.sslEngine.setUseClientMode(true);

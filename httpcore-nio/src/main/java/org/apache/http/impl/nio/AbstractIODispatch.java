@@ -78,8 +78,10 @@ public abstract class AbstractIODispatch<T extends NHttpConnection> implements I
                     SSLIOSession.SESSION_KEY);
             if (ssliosession != null) {
                 try {
-                    if (!ssliosession.isInitialized()) {
-                        ssliosession.initialize();
+                    synchronized (ssliosession) {
+                        if (!ssliosession.isInitialized()) {
+                            ssliosession.initialize();
+                        }
                     }
                 } catch (IOException ex) {
                     onException(conn, ex);
