@@ -114,7 +114,7 @@ class HttpAsyncClientExchangeHandlerImpl<T> implements HttpAsyncClientExchangeHa
     public void close() throws IOException {
         releaseResources();
         if (!this.future.isDone()) {
-            this.future.cancel(true);
+            this.future.cancel();
         }
     }
 
