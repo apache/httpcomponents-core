@@ -47,7 +47,6 @@ public interface SSLSetupHandler {
      * used to establish the SSL session.
      *
      * @param sslengine the SSL engine.
-     * @param params HTTP parameters.
      * @throws SSLException if case of SSL protocol error.
      */
     void initalize(SSLEngine sslengine) throws SSLException;
