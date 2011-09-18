@@ -59,7 +59,7 @@ import org.apache.http.protocol.RequestTargetHost;
 import org.apache.http.protocol.RequestUserAgent;
 
 /**
- * Elemental example for executing HTTP requests using the non-blocking I/O model.
+ * Asynchronous HTTP/1.1 client.
  */
 public class NHttpClient {
 

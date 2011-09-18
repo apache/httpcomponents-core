@@ -85,8 +85,8 @@ import org.apache.http.protocol.ResponseDate;
 import org.apache.http.protocol.ResponseServer;
 
 /**
- * Basic, yet fully functional and spec compliant, HTTP/1.1 server based on the non-blocking
- * I/O model.
+ * HTTP/1.1 file server based on the non-blocking I/O model and capable of direct channel
+ * (zero copy) data transfer.
  */
 public class NHttpServer {
 

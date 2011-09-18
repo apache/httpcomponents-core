@@ -101,7 +101,7 @@ import org.apache.http.protocol.ResponseDate;
 import org.apache.http.protocol.ResponseServer;
 
 /**
- * Elemental HTTP/1.1 reverse proxy based on the non-blocking I/O model.
+ * Asynchronous, fully streaming HTTP/1.1 reverse proxy.
  */
 public class NHttpReverseProxy {
 
