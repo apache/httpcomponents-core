@@ -38,6 +38,7 @@ import org.apache.http.impl.DefaultConnectionReuseStrategy;
 import org.apache.http.impl.nio.DefaultClientIODispatch;
 import org.apache.http.impl.nio.pool.BasicNIOConnPool;
 import org.apache.http.impl.nio.reactor.DefaultConnectingIOReactor;
+import org.apache.http.impl.nio.reactor.IOReactorConfig;
 import org.apache.http.message.BasicHttpRequest;
 import org.apache.http.nio.protocol.BasicAsyncRequestProducer;
 import org.apache.http.nio.protocol.BasicAsyncResponseConsumer;
@@ -85,7 +86,9 @@ public class NHttpClient {
         // Create client-side I/O event dispatch
         final IOEventDispatch ioEventDispatch = new DefaultClientIODispatch(protocolHandler, params);
         // Create client-side I/O reactor
-        final ConnectingIOReactor ioReactor = new DefaultConnectingIOReactor();
+        IOReactorConfig config = new IOReactorConfig();
+        config.setIoThreadCount(1);
+        final ConnectingIOReactor ioReactor = new DefaultConnectingIOReactor(config);
         // Create HTTP connection pool
         BasicNIOConnPool pool = new BasicNIOConnPool(ioReactor, params);
         // Limit total number of connections to just two
