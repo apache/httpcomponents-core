@@ -136,13 +136,13 @@ public class TestDefaultIOReactors extends HttpCoreNIOTestBase {
 
             @Override
             public void connected(final NHttpClientConnection conn, final Object attachment) {
-                openServerConns.incrementAndGet();
+                openClientConns.incrementAndGet();
                 super.connected(conn, attachment);
             }
 
             @Override
             public void closed(final NHttpClientConnection conn) {
-                closedServerConns.incrementAndGet();
+                closedClientConns.incrementAndGet();
                 super.closed(conn);
             }
 
@@ -174,8 +174,9 @@ public class TestDefaultIOReactors extends HttpCoreNIOTestBase {
         this.client.shutdown();
         this.server.shutdown();
 
-        Assert.assertEquals(openClientConns.get(), closedClientConns.get());
-        Assert.assertEquals(openServerConns.get(), closedServerConns.get());
+        Assert.assertEquals("Client connections that should have been opened", connNo, openClientConns.get());
+        Assert.assertEquals("Client connections that should have been closed", openClientConns.get(), closedClientConns.get());
+        Assert.assertEquals("Server connections that should have been closed", openServerConns.get(), closedServerConns.get());
     }
 
     @Test
