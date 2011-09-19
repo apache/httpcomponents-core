@@ -37,6 +37,8 @@ import javax.net.ssl.SSLContext;
 import javax.net.ssl.TrustManager;
 import javax.net.ssl.TrustManagerFactory;
 
+import junit.framework.Assert;
+
 public class SSLTestContexts {
 
     private static KeyManagerFactory createKeyManagerFactory() throws NoSuchAlgorithmException {
@@ -51,6 +53,7 @@ public class SSLTestContexts {
     public static SSLContext createServerSSLContext() throws Exception {
         ClassLoader cl = SSLTestContexts.class.getClassLoader();
         URL url = cl.getResource("test.keystore");
+        Assert.assertNotNull("Keystore URL should not be null", url);
         KeyStore keystore  = KeyStore.getInstance("jks");
         keystore.load(url.openStream(), "nopassword".toCharArray());
         KeyManagerFactory kmfactory = createKeyManagerFactory();
