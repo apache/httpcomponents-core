@@ -34,6 +34,7 @@ import java.util.List;
 import java.util.Queue;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.apache.http.HttpCoreNIOTestBase;
@@ -104,10 +105,10 @@ public class TestDefaultIOReactors extends HttpCoreNIOTestBase {
     @Test
     public void testGracefulShutdown() throws Exception {
         final int connNo = 10;
-        final AtomicInteger closedServerConns = new AtomicInteger(0);
-        final AtomicInteger openServerConns = new AtomicInteger(0);
+        final CountDownLatch openServerConns = new CountDownLatch(connNo);
+        final CountDownLatch openClientConns = new CountDownLatch(connNo);
         final AtomicInteger closedClientConns = new AtomicInteger(0);
-        final AtomicInteger openClientConns = new AtomicInteger(0);
+        final AtomicInteger closedServerConns = new AtomicInteger(0);
 
         this.connpool.setDefaultMaxPerRoute(connNo);
         this.connpool.setMaxTotal(connNo);
@@ -121,7 +122,7 @@ public class TestDefaultIOReactors extends HttpCoreNIOTestBase {
 
             @Override
             public void connected(final NHttpServerConnection conn) {
-                openServerConns.incrementAndGet();
+                openServerConns.countDown();
                 super.connected(conn);
             }
 
@@ -136,7 +137,7 @@ public class TestDefaultIOReactors extends HttpCoreNIOTestBase {
 
             @Override
             public void connected(final NHttpClientConnection conn, final Object attachment) {
-                openClientConns.incrementAndGet();
+                openClientConns.countDown();
                 super.connected(conn, attachment);
             }
 
@@ -170,13 +171,15 @@ public class TestDefaultIOReactors extends HttpCoreNIOTestBase {
 
         Assert.assertEquals("Test client status", IOReactorStatus.ACTIVE, this.client.getStatus());
 
+        openClientConns.await(15, TimeUnit.SECONDS);
+        openServerConns.await(15, TimeUnit.SECONDS);
+        
         this.connpool.shutdown(2000);
         this.client.shutdown();
         this.server.shutdown();
 
-        Assert.assertEquals("Client connections that should have been opened", connNo, openClientConns.get());
-        Assert.assertEquals("Client connections that should have been closed", openClientConns.get(), closedClientConns.get());
-        Assert.assertEquals("Server connections that should have been closed", openServerConns.get(), closedServerConns.get());
+        Assert.assertEquals("Client connections that should have been closed", connNo, closedClientConns.get());
+        Assert.assertEquals("Server connections that should have been closed", connNo, closedServerConns.get());
     }
 
     @Test
