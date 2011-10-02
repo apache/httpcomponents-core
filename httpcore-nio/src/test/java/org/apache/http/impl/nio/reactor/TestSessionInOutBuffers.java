@@ -35,6 +35,7 @@ import java.nio.channels.Channels;
 import java.nio.channels.ReadableByteChannel;
 import java.nio.channels.WritableByteChannel;
 import java.nio.charset.CharacterCodingException;
+import java.nio.charset.CodingErrorAction;
 
 import org.apache.http.nio.reactor.SessionInputBuffer;
 import org.apache.http.nio.reactor.SessionOutputBuffer;
@@ -476,6 +477,81 @@ public class TestSessionInOutBuffers {
         String s1 = "abcde";
         SessionOutputBuffer outbuf = new SessionOutputBufferImpl(1024, 5, params);
         outbuf.writeLine(s1);
+    }
+
+    @Test
+    public void testMalformedInputAction() throws Exception {
+        HttpParams params = new BasicHttpParams();
+        String s1 = constructString(SWISS_GERMAN_HELLO);
+
+        byte[] tmp = s1.getBytes("ISO-8859-1");
+        ReadableByteChannel channel = newChannel(tmp);
+        SessionInputBuffer inbuf = new SessionInputBufferImpl(16, 16, params);
+        while (inbuf.fill(channel) > 0) {
+        }
+
+        // Action with report
+        HttpProtocolParams.setMalformedInputAction(params, CodingErrorAction.REPORT);
+        try {
+            String s = inbuf.readLine(true);
+            Assert.fail("Expected CharacterCodingException, got '" + s + "'");
+        } catch (CharacterCodingException expected) {
+        }
+
+        // Action with ignore
+        HttpProtocolParams.setMalformedInputAction(params, CodingErrorAction.IGNORE);
+        inbuf = new SessionInputBufferImpl(16, 16, params);
+        String s2 = null;
+        try {
+            s2 = inbuf.readLine(true);
+        } catch (CharacterCodingException e) {
+            Assert.fail("Unexpected CharacterCodingException " +
+                    (s2 == null ? "" : ", got '" + s2 + "'"));
+        }
+
+        // Action with replace
+        HttpProtocolParams.setMalformedInputAction(params, CodingErrorAction.REPLACE);
+        inbuf = new SessionInputBufferImpl(16, 16, params);
+        String s3 = null;
+        try {
+            s3 = inbuf.readLine(true);
+        } catch (CharacterCodingException e) {
+            Assert.fail("Unexpected CharacterCodingException " +
+                    (s3 == null ? "" : ", got '" + s3 + "'"));
+        }
+    }
+
+    @Test
+    public void testUnmappableInputAction() throws Exception {
+        HttpParams params = new BasicHttpParams();
+        String s1 = constructString(SWISS_GERMAN_HELLO);
+
+        // Action with report
+        HttpProtocolParams.setUnmappableInputAction(params, CodingErrorAction.REPORT);
+        SessionOutputBuffer outbuf = new SessionOutputBufferImpl(1024, 16, params);
+        try {
+            outbuf.writeLine(s1);
+            Assert.fail("Expected CharacterCodingException");
+        } catch (CharacterCodingException expected) {
+        }
+
+        // Action with ignore
+        HttpProtocolParams.setUnmappableInputAction(params, CodingErrorAction.IGNORE);
+        outbuf = new SessionOutputBufferImpl(1024, 16, params);
+        try {
+            outbuf.writeLine(s1);
+        } catch (CharacterCodingException e) {
+            Assert.fail("Unexpected CharacterCodingException");
+        }
+
+        // Action with replace
+        HttpProtocolParams.setUnmappableInputAction(params, CodingErrorAction.REPLACE);
+        outbuf = new SessionOutputBufferImpl(1024, 16, params);
+        try {
+            outbuf.writeLine(s1);
+        } catch (CharacterCodingException e) {
+            Assert.fail("Unexpected CharacterCodingException");
+        }
     }
 
 }

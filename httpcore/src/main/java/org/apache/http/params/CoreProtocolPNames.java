@@ -122,4 +122,29 @@ public interface CoreProtocolPNames {
      */
     public static final String WAIT_FOR_CONTINUE = "http.protocol.wait-for-continue";
 
+    /**
+     * <p>
+     * Defines the action to perform upon receiving a malformed input. If the input byte sequence
+     * is not legal for this charset then the input is said to be malformed
+     * </p>
+     *
+     * This parameter expects a value of type {@link java.nio.charset.CodingErrorAction}
+     *
+     * @since 4.2
+     */
+    public static final String HTTP_MALFORMED_INPUT_ACTION = "http.malformed.input.action";
+
+    /**
+     * <p>
+     * Defines the action to perform upon receiving an unmappable input. If the input byte sequence
+     * is legal but cannot be mapped to a valid Unicode character then the input is said to be
+     * unmappable
+     * </p>
+     *
+     * This parameter expects a value of type {@link java.nio.charset.CodingErrorAction}
+     *
+     * @since 4.2
+     */
+    public static final String HTTP_UNMAPPABLE_INPUT_ACTION = "http.unmappable.input.action";
+
 }

@@ -31,6 +31,8 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.charset.CharacterCodingException;
+import java.nio.charset.CodingErrorAction;
 
 import org.apache.http.impl.SessionInputBufferMock;
 import org.apache.http.impl.SessionOutputBufferMock;
@@ -531,6 +533,76 @@ public class TestSessionBuffers {
         Assert.assertNull(inbuffer.readLine());
         long bytesRead = inbuffer.getMetrics().getBytesTransferred();
         Assert.assertEquals(expected, bytesRead);
+    }
+
+    @Test
+    public void testUnmappableInputAction() throws Exception {
+        BasicHttpParams params = new BasicHttpParams();
+        String s = "In valid ISO-8859-1 character string because  of Ŵ and ŵ";
+        HttpProtocolParams.setHttpElementCharset(params, HTTP.ISO_8859_1);
+
+        // Action with report
+        HttpProtocolParams.setUnmappableInputAction(params, CodingErrorAction.REPORT);
+        SessionOutputBufferMock outbuf = new SessionOutputBufferMock(params);
+        try {
+            outbuf.writeLine(s);
+            Assert.fail("Expected CharacterCodingException");
+        } catch (CharacterCodingException expected) {
+        }
+
+        // Action with ignore
+        HttpProtocolParams.setUnmappableInputAction(params, CodingErrorAction.IGNORE);
+        outbuf = new SessionOutputBufferMock(params);
+        try {
+            outbuf.writeLine(s);
+        } catch (CharacterCodingException e) {
+            Assert.fail("Unexpected CharacterCodingException");
+        }
+
+        // Action with replace
+        HttpProtocolParams.setUnmappableInputAction(params, CodingErrorAction.REPLACE);
+        outbuf = new SessionOutputBufferMock(params);
+        try {
+            outbuf.writeLine(s);
+        } catch (IOException e) {
+            Assert.fail("Unexpected CharacterCodingException");
+        }
+    }
+
+    @Test
+    public void testMalformedInputAction() throws Exception {
+        byte[] tmp = constructString(SWISS_GERMAN_HELLO).getBytes("UTF-16");
+        CharArrayBuffer buf = new CharArrayBuffer(1);
+
+        BasicHttpParams params = new BasicHttpParams();
+        HttpProtocolParams.setHttpElementCharset(params, "UTF-8");
+
+        // Action with report
+        HttpProtocolParams.setMalformedInputAction(params, CodingErrorAction.REPORT);
+        SessionInputBufferMock inbuffer = new SessionInputBufferMock(tmp, params);
+        try {
+            inbuffer.readLine(buf);
+            Assert.fail("Expected CharacterCodingException");
+        } catch (CharacterCodingException e) {
+        }
+
+        // Action with replace
+        HttpProtocolParams.setMalformedInputAction(params, CodingErrorAction.REPLACE);
+        inbuffer = new SessionInputBufferMock(tmp, params);
+        try {
+            inbuffer.readLine(buf);
+        } catch (CharacterCodingException e) {
+            Assert.fail("Unexpected CharacterCodingException");
+        }
+
+        // Action with ignore
+        HttpProtocolParams.setMalformedInputAction(params, CodingErrorAction.IGNORE);
+        inbuffer = new SessionInputBufferMock(tmp, params);
+        try {
+            inbuffer.readLine();
+        } catch (IOException e) {
+            Assert.fail("Unexpected CharacterCodingException");
+        }
     }
 
     @Test

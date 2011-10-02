@@ -77,6 +77,8 @@ public class SessionOutputBufferImpl extends ExpandableBuffer implements Session
         this.charbuffer = CharBuffer.allocate(linebuffersize);
         this.charset = Charset.forName(HttpProtocolParams.getHttpElementCharset(params));
         this.charencoder = this.charset.newEncoder();
+        this.charencoder.onMalformedInput(HttpProtocolParams.getMalformedInputAction(params));
+        this.charencoder.onUnmappableCharacter(HttpProtocolParams.getUnmappableInputAction(params));
     }
 
     public SessionOutputBufferImpl(

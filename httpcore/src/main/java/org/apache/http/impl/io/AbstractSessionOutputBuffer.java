@@ -34,6 +34,7 @@ import java.nio.CharBuffer;
 import java.nio.charset.Charset;
 import java.nio.charset.CharsetEncoder;
 import java.nio.charset.CoderResult;
+import java.nio.charset.CodingErrorAction;
 
 import org.apache.http.annotation.NotThreadSafe;
 import org.apache.http.io.BufferInfo;
@@ -81,6 +82,9 @@ public abstract class AbstractSessionOutputBuffer implements SessionOutputBuffer
 
     private HttpTransportMetricsImpl metrics;
 
+    private CodingErrorAction onMalformedInputAction;
+    private CodingErrorAction onUnMappableInputAction;
+
     /**
      * Initializes this session output buffer.
      *
@@ -105,6 +109,8 @@ public abstract class AbstractSessionOutputBuffer implements SessionOutputBuffer
         this.encoder = null;
         this.minChunkLimit = params.getIntParameter(CoreConnectionPNames.MIN_CHUNK_LIMIT, 512);
         this.metrics = createTransportMetrics();
+        this.onMalformedInputAction = HttpProtocolParams.getMalformedInputAction(params);
+        this.onUnMappableInputAction = HttpProtocolParams.getUnmappableInputAction(params);
     }
 
     /**
@@ -255,6 +261,8 @@ public abstract class AbstractSessionOutputBuffer implements SessionOutputBuffer
         }
         if (this.encoder == null) {
             this.encoder = this.charset.newEncoder();
+            this.encoder.onMalformedInput(onMalformedInputAction);
+            this.encoder.onUnmappableCharacter(onUnMappableInputAction);
         }
         if (this.bbuf == null) {
             this.bbuf = ByteBuffer.allocate(1024);

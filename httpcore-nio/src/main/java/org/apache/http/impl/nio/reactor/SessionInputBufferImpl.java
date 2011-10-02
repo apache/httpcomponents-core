@@ -32,10 +32,7 @@ import java.nio.ByteBuffer;
 import java.nio.CharBuffer;
 import java.nio.channels.ReadableByteChannel;
 import java.nio.channels.WritableByteChannel;
-import java.nio.charset.CharacterCodingException;
-import java.nio.charset.Charset;
-import java.nio.charset.CharsetDecoder;
-import java.nio.charset.CoderResult;
+import java.nio.charset.*;
 
 import org.apache.http.annotation.NotThreadSafe;
 import org.apache.http.nio.reactor.SessionInputBuffer;
@@ -75,6 +72,8 @@ public class SessionInputBufferImpl extends ExpandableBuffer implements SessionI
         this.charbuffer = CharBuffer.allocate(linebuffersize);
         this.charset = Charset.forName(HttpProtocolParams.getHttpElementCharset(params));
         this.chardecoder = this.charset.newDecoder();
+        this.chardecoder.onMalformedInput(HttpProtocolParams.getMalformedInputAction(params));
+        this.chardecoder.onUnmappableCharacter(HttpProtocolParams.getUnmappableInputAction(params));
     }
 
     public SessionInputBufferImpl(

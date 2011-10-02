@@ -31,6 +31,8 @@ import org.apache.http.HttpVersion;
 import org.apache.http.ProtocolVersion;
 import org.apache.http.protocol.HTTP;
 
+import java.nio.charset.CodingErrorAction;
+
 /**
  * Utility class for accessing protocol parameters in {@link HttpParams}.
  *
@@ -195,4 +197,69 @@ public final class HttpProtocolParams implements CoreProtocolPNames {
         params.setBooleanParameter(CoreProtocolPNames.USE_EXPECT_CONTINUE, b);
     }
 
+    /**
+     * Obtains value of the {@link CoreProtocolPNames#HTTP_MALFORMED_INPUT_ACTION} parameter.
+     * @param params HTTP parameters.
+     * @return Action to perform upon receiving a malformed input
+     *
+     * @since 4.2
+     */
+    public static CodingErrorAction getMalformedInputAction(final HttpParams params) {
+        if (params == null) {
+            throw new IllegalArgumentException("HTTP parameters may not be null");
+        }
+        Object param = params.getParameter(CoreProtocolPNames.HTTP_MALFORMED_INPUT_ACTION);
+        if (param == null) {
+            // the default CodingErrorAction
+            return CodingErrorAction.REPORT;
+        }
+        return (CodingErrorAction) param;
+    }
+
+    /**
+     * Sets value of the {@link CoreProtocolPNames#HTTP_MALFORMED_INPUT_ACTION} parameter.
+     * @param params HTTP parameters
+     * @param action action to perform on malformed inputs
+     *
+     * @since 4.2
+     */
+    public static void setMalformedInputAction(final HttpParams params, CodingErrorAction action) {
+        if (params == null) {
+            throw new IllegalArgumentException("HTTP parameters may not be null");
+        }
+        params.setParameter(CoreProtocolPNames.HTTP_MALFORMED_INPUT_ACTION, action);
+    }
+
+    /**
+     * Obtains the value of the  {@link CoreProtocolPNames#HTTP_UNMAPPABLE_INPUT_ACTION} parameter.
+     * @param params HTTP parameters
+     * @return Action to perform upon receiving a unmapped input
+     *
+     * @since 4.2
+     */
+    public static CodingErrorAction getUnmappableInputAction(final HttpParams params) {
+        if (params == null) {
+            throw new IllegalArgumentException("HTTP parameters may not be null");
+        }
+        Object param = params.getParameter(CoreProtocolPNames.HTTP_UNMAPPABLE_INPUT_ACTION);
+        if (param == null) {
+            // the default CodingErrorAction
+            return CodingErrorAction.REPORT;
+        }
+        return (CodingErrorAction) param;
+    }
+
+    /**
+     * Sets the value of the {@link CoreProtocolPNames#HTTP_UNMAPPABLE_INPUT_ACTION} parameter.
+     * @param params HTTP parameters
+     * @param action action to perform on un mappable inputs
+     *
+     * @since 4.2
+     */
+    public static void setUnmappableInputAction(final HttpParams params, CodingErrorAction action) {
+        if (params == null) {
+            throw new IllegalArgumentException("HTTP parameters may no be null");
+        }
+        params.setParameter(CoreProtocolPNames.HTTP_UNMAPPABLE_INPUT_ACTION, action);
+    }
 }
