@@ -33,7 +33,12 @@ import java.net.Socket;
 import java.security.KeyStore;
 
 import javax.net.SocketFactory;
-import javax.net.ssl.*;
+import javax.net.ssl.HttpsURLConnection;
+import javax.net.ssl.KeyManagerFactory;
+import javax.net.ssl.SSLContext;
+import javax.net.ssl.SSLSocketFactory;
+import javax.net.ssl.TrustManager;
+import javax.net.ssl.X509TrustManager;
 
 import org.apache.http.ConnectionReuseStrategy;
 import org.apache.http.Header;
