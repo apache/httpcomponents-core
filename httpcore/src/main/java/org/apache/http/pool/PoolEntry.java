@@ -28,6 +28,7 @@ package org.apache.http.pool;
 
 import java.util.concurrent.TimeUnit;
 
+import org.apache.http.annotation.GuardedBy;
 import org.apache.http.annotation.ThreadSafe;
 
 /**
@@ -47,8 +48,12 @@ public abstract class PoolEntry<T, C> {
     private final long created;
     private final long validUnit;
 
-    private Object state;
+    private Object state; // see HTTPCORE-279
+
+    @GuardedBy("this")
     private long updated;
+
+    @GuardedBy("this")
     private long expiry;
 
     public PoolEntry(final String id, final T route, final C conn,
