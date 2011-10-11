@@ -48,13 +48,13 @@ public abstract class PoolEntry<T, C> {
     private final long created;
     private final long validUnit;
 
-    private Object state; // see HTTPCORE-279
-
     @GuardedBy("this")
     private long updated;
 
     @GuardedBy("this")
     private long expiry;
+
+    private volatile Object state;
 
     public PoolEntry(final String id, final T route, final C conn,
             final long timeToLive, final TimeUnit tunit) {
