@@ -45,8 +45,10 @@ import org.apache.http.nio.IOControl;
  *
  * @since 4.0
  */
+@SuppressWarnings("deprecation")
 @NotThreadSafe
-public class NByteArrayEntity extends AbstractHttpEntity implements ProducingNHttpEntity {
+public class NByteArrayEntity extends AbstractHttpEntity 
+                              implements HttpAsyncContentProducer, ProducingNHttpEntity {
 
     private final byte[] b;
     private final int off, len;
@@ -106,8 +108,22 @@ public class NByteArrayEntity extends AbstractHttpEntity implements ProducingNHt
         this(b, off, len, null);
     }
 
-    public void finish() {
+    /**
+     * {@inheritDoc}
+     * 
+     * @since 4.2
+     */
+    public void close() {
         this.buf.rewind();
+    }
+
+    /**
+     * {@inheritDoc}
+     * 
+     * @deprecated use {@link #close()}
+     */
+    public void finish() {
+        close();
     }
 
     public void produceContent(final ContentEncoder encoder, final IOControl ioctrl)

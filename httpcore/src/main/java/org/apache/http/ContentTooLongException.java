@@ -24,33 +24,27 @@
  * <http://www.apache.org/>.
  *
  */
-package org.apache.http.nio.protocol;
 
-import java.io.Closeable;
+package org.apache.http;
+
 import java.io.IOException;
 
-import org.apache.http.HttpException;
-import org.apache.http.HttpHost;
-import org.apache.http.HttpRequest;
-import org.apache.http.nio.ContentEncoder;
-import org.apache.http.nio.IOControl;
-import org.apache.http.protocol.HttpContext;
-
 /**
+ * Signals that HTTP entity content is too long.
+ *
  * @since 4.2
  */
-public interface HttpAsyncRequestProducer extends Closeable {
+public class ContentTooLongException extends IOException {
 
-    HttpHost getTarget();
+    private static final long serialVersionUID = -924287689552495383L;
 
-    HttpRequest generateRequest() throws IOException, HttpException;
-
-    void produceContent(ContentEncoder encoder, IOControl ioctrl) throws IOException;
-
-    void requestCompleted(HttpContext context);
-
-    boolean isRepeatable();
-
-    void resetRequest() throws IOException;
+    /**
+     * Creates a new ContentTooLongException with the specified detail message.
+     *
+     * @param message exception message
+     */
+    public ContentTooLongException(String message) {
+        super(message);
+    }
 
 }

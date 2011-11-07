@@ -35,7 +35,7 @@ import junit.framework.Assert;
 
 import org.apache.http.HttpResponse;
 import org.apache.http.nio.ContentEncoder;
-import org.apache.http.nio.entity.ProducingNHttpEntity;
+import org.apache.http.nio.entity.HttpAsyncContentProducer;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -45,17 +45,14 @@ import org.mockito.MockitoAnnotations;
 public class TestBasicAsyncResponseProducer {
 
     private BasicAsyncResponseProducer producer;
-    @Mock private ProducingNHttpEntity entity;
+    @Mock private HttpAsyncContentProducer contentProducer;
     @Mock private HttpResponse response;
     @Mock private ContentEncoder encoder;
 
     @Before
     public void setUp() throws Exception {
         MockitoAnnotations.initMocks(this);
-
-        when(response.getEntity()).thenReturn(entity);
-
-        producer = new BasicAsyncResponseProducer(response);
+        producer = new BasicAsyncResponseProducer(response, contentProducer);
     }
 
     @After
@@ -80,7 +77,7 @@ public class TestBasicAsyncResponseProducer {
 
         producer.produceContent(encoder,  null);
 
-        verify(entity, times(1)).finish();
+        verify(contentProducer, times(1)).close();
     }
 
     @Test
@@ -89,13 +86,13 @@ public class TestBasicAsyncResponseProducer {
 
         producer.produceContent(encoder,  null);
 
-        verify(entity, never()).finish();
+        verify(contentProducer, never()).close();
     }
 
     @Test
     public void testClose() throws Exception {
         producer.close();
-        verify(entity, times(1)).finish();
+        verify(contentProducer, times(1)).close();
     }
 
 }

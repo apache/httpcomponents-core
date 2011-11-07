@@ -27,24 +27,16 @@
 
 package org.apache.http.nio.entity;
 
+import java.io.Closeable;
 import java.io.IOException;
 
-import org.apache.http.HttpEntity;
 import org.apache.http.nio.ContentEncoder;
 import org.apache.http.nio.IOControl;
-import org.apache.http.nio.protocol.BasicAsyncRequestProducer;
-import org.apache.http.nio.protocol.BasicAsyncResponseProducer;
 
 /**
- * An {@link HttpEntity} that can stream content out into a
- * {@link ContentEncoder}.
- *
- * @since 4.0
- * 
- * @deprecated use {@link BasicAsyncRequestProducer} or {@link BasicAsyncResponseProducer}
+ * @since 4.2
  */
-@Deprecated
-public interface ProducingNHttpEntity extends HttpEntity {
+public interface HttpAsyncContentProducer extends Closeable {
 
     /**
      * Notification that content should be written to the encoder.
@@ -59,10 +51,7 @@ public interface ProducingNHttpEntity extends HttpEntity {
      * @param ioctrl I/O control of the underlying connection.
      */
     void produceContent(ContentEncoder encoder, IOControl ioctrl) throws IOException;
-
-    /**
-     * Notification that any resources allocated for writing can be released.
-     */
-    void finish() throws IOException;
+    
+    boolean isRepeatable();
 
 }

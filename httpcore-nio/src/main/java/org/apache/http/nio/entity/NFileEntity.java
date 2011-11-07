@@ -50,8 +50,10 @@ import org.apache.http.nio.IOControl;
  *
  * @since 4.0
  */
+@SuppressWarnings("deprecation")
 @NotThreadSafe
-public class NFileEntity extends AbstractHttpEntity implements ProducingNHttpEntity {
+public class NFileEntity extends AbstractHttpEntity 
+                         implements HttpAsyncContentProducer, ProducingNHttpEntity {
 
     private final File file;
     private FileChannel fileChannel;
@@ -125,12 +127,26 @@ public class NFileEntity extends AbstractHttpEntity implements ProducingNHttpEnt
         this(file, contentType, true);
     }
 
-    public void finish() {
-        try {
-            if(fileChannel != null)
-                fileChannel.close();
-        } catch(IOException ignored) {}
+    /**
+     * {@inheritDoc}
+     * 
+     * @since 4.2
+     */
+    public void close() throws IOException {
+        FileChannel local = fileChannel;
         fileChannel = null;
+        if (local != null) {
+            local.close();
+        }
+    }
+
+    /**
+     * {@inheritDoc}
+     * 
+     * @deprecated use {@link #close()}
+     */
+    public void finish() throws IOException {
+        close();
     }
 
     public long getContentLength() {
@@ -143,26 +159,27 @@ public class NFileEntity extends AbstractHttpEntity implements ProducingNHttpEnt
 
     public void produceContent(ContentEncoder encoder, IOControl ioctrl)
             throws IOException {
-        if(fileChannel == null) {
+        if (fileChannel == null) {
             FileInputStream in = new FileInputStream(file);
             fileChannel = in.getChannel();
             idx = 0;
         }
 
         long transferred;
-        if(useFileChannels && encoder instanceof FileContentEncoder) {
+        if (useFileChannels && encoder instanceof FileContentEncoder) {
             transferred = ((FileContentEncoder)encoder)
                 .transfer(fileChannel, idx, Long.MAX_VALUE);
         } else {
             transferred = fileChannel.
                 transferTo(idx, Long.MAX_VALUE, new ContentEncoderChannel(encoder));
         }
-
-        if(transferred > 0)
+        if (transferred > 0) {
             idx += transferred;
-
-        if(idx >= fileChannel.size())
+        }
+        if (idx >= fileChannel.size()) {
             encoder.complete();
+            close();
+        }
     }
 
     public boolean isStreaming() {

@@ -51,7 +51,7 @@ public class ContentInputStream extends InputStream {
         }
         this.buffer = buffer;
     }
-
+    
     @Override
     public int available() throws IOException {
         if (this.buffer instanceof BufferInfo) {

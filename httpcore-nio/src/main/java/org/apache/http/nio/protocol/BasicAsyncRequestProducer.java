@@ -35,7 +35,8 @@ import org.apache.http.HttpRequest;
 import org.apache.http.annotation.ThreadSafe;
 import org.apache.http.nio.ContentEncoder;
 import org.apache.http.nio.IOControl;
-import org.apache.http.nio.entity.ProducingNHttpEntity;
+import org.apache.http.nio.entity.EntityAsyncContentProducer;
+import org.apache.http.nio.entity.HttpAsyncContentProducer;
 import org.apache.http.protocol.HttpContext;
 
 /**
@@ -46,12 +47,12 @@ public class BasicAsyncRequestProducer implements HttpAsyncRequestProducer {
 
     private final HttpHost target;
     private final HttpRequest request;
-    private final ProducingNHttpEntity producer;
+    private final HttpAsyncContentProducer producer;
 
     protected BasicAsyncRequestProducer(
             final HttpHost target,
             final HttpEntityEnclosingRequest request,
-            final ProducingNHttpEntity producer) {
+            final HttpAsyncContentProducer producer) {
         super();
         if (target == null) {
             throw new IllegalArgumentException("HTTP host may not be null");
@@ -59,7 +60,9 @@ public class BasicAsyncRequestProducer implements HttpAsyncRequestProducer {
         if (request == null) {
             throw new IllegalArgumentException("HTTP request may not be null");
         }
-        request.setEntity(producer);
+        if (producer == null) {
+            throw new IllegalArgumentException("HTTP content producer may not be null");
+        }
         this.target = target;
         this.request = request;
         this.producer = producer;
@@ -77,10 +80,10 @@ public class BasicAsyncRequestProducer implements HttpAsyncRequestProducer {
         if (request instanceof HttpEntityEnclosingRequest) {
             HttpEntity entity = ((HttpEntityEnclosingRequest) request).getEntity();
             if (entity != null) {
-                if (entity instanceof ProducingNHttpEntity) {
-                    this.producer = (ProducingNHttpEntity) entity;
+                if (entity instanceof HttpAsyncContentProducer) {
+                    this.producer = (HttpAsyncContentProducer) entity;
                 } else {
-                    this.producer = new NHttpEntityWrapper(entity);
+                    this.producer = new EntityAsyncContentProducer(entity);
                 }
             } else {
                 this.producer = null;
@@ -103,7 +106,7 @@ public class BasicAsyncRequestProducer implements HttpAsyncRequestProducer {
         if (this.producer != null) {
             this.producer.produceContent(encoder, ioctrl);
             if (encoder.isCompleted()) {
-                this.producer.finish();
+                this.producer.close();
             }
         }
     }
@@ -115,18 +118,13 @@ public class BasicAsyncRequestProducer implements HttpAsyncRequestProducer {
         return this.producer == null || this.producer.isRepeatable();
     }
 
-    public synchronized void resetRequest() {
-        if (this.producer != null) {
-            try {
-                this.producer.finish();
-            } catch (IOException ignore) {
-            }
-        }
+    public synchronized void resetRequest() throws IOException {
+        this.producer.close();
     }
 
     public synchronized void close() throws IOException {
         if (this.producer != null) {
-            this.producer.finish();
+            this.producer.close();
         }
     }
 

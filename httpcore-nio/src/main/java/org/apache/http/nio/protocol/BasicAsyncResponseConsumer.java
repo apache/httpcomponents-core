@@ -28,15 +28,15 @@ package org.apache.http.nio.protocol;
 
 import java.io.IOException;
 
+import org.apache.http.ContentTooLongException;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.annotation.ThreadSafe;
 import org.apache.http.nio.ContentDecoder;
 import org.apache.http.nio.IOControl;
-import org.apache.http.nio.entity.BufferingNHttpEntity;
-import org.apache.http.nio.entity.ConsumingNHttpEntity;
-import org.apache.http.nio.util.ByteBufferAllocator;
+import org.apache.http.nio.entity.ContentBufferEntity;
 import org.apache.http.nio.util.HeapByteBufferAllocator;
+import org.apache.http.nio.util.SimpleInputBuffer;
 import org.apache.http.protocol.HttpContext;
 
 /**
@@ -45,45 +45,43 @@ import org.apache.http.protocol.HttpContext;
 @ThreadSafe
 public class BasicAsyncResponseConsumer extends AbstractAsyncResponseConsumer<HttpResponse> {
 
-    private final ByteBufferAllocator allocator;
     private volatile HttpResponse response;
-    private volatile ConsumingNHttpEntity consumer;
-
-    public BasicAsyncResponseConsumer(final ByteBufferAllocator allocator) {
-        super();
-        if (allocator == null) {
-            throw new IllegalArgumentException("Byte buffer allocator is null");
-        }
-        this.allocator = allocator;
-    }
+    private volatile SimpleInputBuffer buf;
 
     public BasicAsyncResponseConsumer() {
-        this(new HeapByteBufferAllocator());
+        super();
     }
 
     @Override
-    protected void onResponseReceived(final HttpResponse response) {
+    protected void onResponseReceived(final HttpResponse response) throws IOException {
         this.response = response;
         HttpEntity entity = this.response.getEntity();
         if (entity != null) {
-            this.consumer = new BufferingNHttpEntity(entity, this.allocator);
-            this.response.setEntity(this.consumer);
+            long len = entity.getContentLength();
+            if (len > Integer.MAX_VALUE) {
+                throw new ContentTooLongException("Entity content is not long: " + len);
+            }
+            if (len < 0) {
+                len = 4096;
+            }
+            this.buf = new SimpleInputBuffer((int) len, new HeapByteBufferAllocator());
+            response.setEntity(new ContentBufferEntity(entity, this.buf));
         }
     }
 
     @Override
     protected void onContentReceived(
             final ContentDecoder decoder, final IOControl ioctrl) throws IOException {
-        if (this.consumer == null) {
-            throw new IllegalArgumentException("Content consumer is null");
+        if (this.buf == null) {
+            throw new IllegalStateException("Content buffer is null");
         }
-        this.consumer.consumeContent(decoder, ioctrl);
+        this.buf.consumeContent(decoder);
     }
 
     @Override
     protected void releaseResources() {
         this.response = null;
-        this.consumer = null;
+        this.buf = null;
     }
 
     @Override

@@ -48,10 +48,15 @@ import org.apache.http.protocol.HTTP;
  * @since 4.0
  *
  */
+@SuppressWarnings("deprecation")
 @NotThreadSafe
 public class NStringEntity extends AbstractHttpEntity implements ProducingNHttpEntity {
 
+    private final byte[] b;
+    private final ByteBuffer buf;
+    @Deprecated
     protected final byte[] content;
+    @Deprecated
     protected final ByteBuffer buffer;
 
     /**
@@ -131,8 +136,10 @@ public class NStringEntity extends AbstractHttpEntity implements ProducingNHttpE
         if (charset == null) {
             charset = HTTP.DEFAULT_CONTENT_CHARSET;
         }
-        this.content = s.getBytes(charset);
-        this.buffer = ByteBuffer.wrap(this.content);
+        this.b = s.getBytes(charset);
+        this.buf = ByteBuffer.wrap(this.b);
+        this.content = b;
+        this.buffer = this.buf;
         if (contentType != null) {
             setContentType(contentType.toString());
         }
@@ -173,18 +180,33 @@ public class NStringEntity extends AbstractHttpEntity implements ProducingNHttpE
     }
 
     public long getContentLength() {
-        return this.buffer.limit();
+        return this.b.length;
     }
 
+    /**
+     * {@inheritDoc}
+     * 
+     * @since 4.2
+     */
+    public void close() {
+        this.buf.rewind();
+    }
+
+    /**
+     * {@inheritDoc}
+     * 
+     * @deprecated use {@link #close()}
+     */
     public void finish() {
-        buffer.rewind();
+        close();
     }
 
-    public void produceContent(ContentEncoder encoder, IOControl ioctrl)
-            throws IOException {
-        encoder.write(buffer);
-        if(!buffer.hasRemaining())
+    public void produceContent(
+            final ContentEncoder encoder, final IOControl ioctrl) throws IOException {
+        encoder.write(this.buf);
+        if (!this.buf.hasRemaining()) {
             encoder.complete();
+        }
     }
 
     public boolean isStreaming() {
@@ -192,14 +214,14 @@ public class NStringEntity extends AbstractHttpEntity implements ProducingNHttpE
     }
 
     public InputStream getContent() {
-        return new ByteArrayInputStream(content);
+        return new ByteArrayInputStream(this.b);
     }
 
     public void writeTo(final OutputStream outstream) throws IOException {
         if (outstream == null) {
             throw new IllegalArgumentException("Output stream may not be null");
         }
-        outstream.write(content);
+        outstream.write(this.b);
         outstream.flush();
     }
 

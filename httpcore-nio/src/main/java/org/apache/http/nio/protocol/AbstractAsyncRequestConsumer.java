@@ -28,6 +28,7 @@ package org.apache.http.nio.protocol;
 
 import java.io.IOException;
 
+import org.apache.http.HttpException;
 import org.apache.http.HttpRequest;
 import org.apache.http.annotation.ThreadSafe;
 import org.apache.http.nio.ContentDecoder;
@@ -48,7 +49,7 @@ public abstract class AbstractAsyncRequestConsumer<T> implements HttpAsyncReques
         super();
     }
 
-    protected abstract void onRequestReceived(HttpRequest request);
+    protected abstract void onRequestReceived(HttpRequest request) throws HttpException, IOException;
 
     protected abstract void onContentReceived(
             ContentDecoder decoder, IOControl ioctrl) throws IOException;
@@ -57,7 +58,7 @@ public abstract class AbstractAsyncRequestConsumer<T> implements HttpAsyncReques
 
     protected abstract void releaseResources();
 
-    public synchronized void requestReceived(HttpRequest request) {
+    public synchronized void requestReceived(HttpRequest request) throws HttpException, IOException {
         onRequestReceived(request);
     }
 

@@ -32,13 +32,18 @@ import java.io.IOException;
 import org.apache.http.HttpEntity;
 import org.apache.http.nio.ContentDecoder;
 import org.apache.http.nio.IOControl;
+import org.apache.http.nio.protocol.BasicAsyncRequestConsumer;
+import org.apache.http.nio.protocol.BasicAsyncResponseConsumer;
 
 /**
  * A non-blocking {@link HttpEntity} that allows content to be streamed from a
  * {@link ContentDecoder}.
  *
  * @since 4.0
+ * 
+ * @deprecated use {@link BasicAsyncRequestConsumer} or {@link BasicAsyncResponseConsumer}
  */
+@Deprecated
 public interface ConsumingNHttpEntity extends HttpEntity {
 
     /**

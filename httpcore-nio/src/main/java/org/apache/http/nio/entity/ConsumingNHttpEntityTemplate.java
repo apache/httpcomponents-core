@@ -35,14 +35,16 @@ import org.apache.http.HttpEntity;
 import org.apache.http.entity.HttpEntityWrapper;
 import org.apache.http.nio.ContentDecoder;
 import org.apache.http.nio.IOControl;
+import org.apache.http.nio.protocol.BasicAsyncRequestConsumer;
+import org.apache.http.nio.protocol.BasicAsyncResponseConsumer;
 
 /**
  * A {@link ConsumingNHttpEntity} that forwards available content to a
  * {@link ContentListener}.
  *
  * @since 4.0
- *
- * @deprecated use custom {@link ConsumingNHttpEntity}
+ * 
+ * @deprecated use {@link BasicAsyncRequestConsumer} or {@link BasicAsyncResponseConsumer}
  */
 @Deprecated
 public class ConsumingNHttpEntityTemplate

@@ -28,16 +28,16 @@ package org.apache.http.nio.protocol;
 
 import java.io.IOException;
 
+import org.apache.http.ContentTooLongException;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpEntityEnclosingRequest;
 import org.apache.http.HttpRequest;
 import org.apache.http.annotation.ThreadSafe;
 import org.apache.http.nio.ContentDecoder;
 import org.apache.http.nio.IOControl;
-import org.apache.http.nio.entity.BufferingNHttpEntity;
-import org.apache.http.nio.entity.ConsumingNHttpEntity;
-import org.apache.http.nio.util.ByteBufferAllocator;
+import org.apache.http.nio.entity.ContentBufferEntity;
 import org.apache.http.nio.util.HeapByteBufferAllocator;
+import org.apache.http.nio.util.SimpleInputBuffer;
 import org.apache.http.protocol.HttpContext;
 
 /**
@@ -46,30 +46,29 @@ import org.apache.http.protocol.HttpContext;
 @ThreadSafe
 public class BasicAsyncRequestConsumer extends AbstractAsyncRequestConsumer<HttpRequest> {
 
-    private final ByteBufferAllocator allocator;
     private volatile HttpRequest request;
-    private volatile ConsumingNHttpEntity consumer;
-
-    public BasicAsyncRequestConsumer(final ByteBufferAllocator allocator) {
-        super();
-        if (allocator == null) {
-            throw new IllegalArgumentException("Byte buffer allocator is null");
-        }
-        this.allocator = allocator;
-    }
+    private volatile SimpleInputBuffer buf;
 
     public BasicAsyncRequestConsumer() {
-        this(new HeapByteBufferAllocator());
+        super();
     }
 
     @Override
-    protected void onRequestReceived(final HttpRequest request) {
+    protected void onRequestReceived(final HttpRequest request) throws IOException {
         this.request = request;
         if (request instanceof HttpEntityEnclosingRequest) {
             HttpEntity entity = ((HttpEntityEnclosingRequest) this.request).getEntity();
             if (entity != null) {
-                this.consumer = new BufferingNHttpEntity(entity, this.allocator);
-                ((HttpEntityEnclosingRequest) this.request).setEntity(this.consumer);
+                long len = entity.getContentLength();
+                if (len > Integer.MAX_VALUE) {
+                    throw new ContentTooLongException("Entity content is not long: " + len);
+                }
+                if (len < 0) {
+                    len = 4096;
+                }
+                this.buf = new SimpleInputBuffer((int) len, new HeapByteBufferAllocator());
+                ((HttpEntityEnclosingRequest) this.request).setEntity(
+                        new ContentBufferEntity(entity, this.buf));
             }
         }
     }
@@ -77,16 +76,16 @@ public class BasicAsyncRequestConsumer extends AbstractAsyncRequestConsumer<Http
     @Override
     protected void onContentReceived(
             final ContentDecoder decoder, final IOControl ioctrl) throws IOException {
-        if (this.consumer == null) {
-            throw new IllegalArgumentException("Content consumer is null");
+        if (this.buf == null) {
+            throw new IllegalStateException("Content buffer is null");
         }
-        this.consumer.consumeContent(decoder, ioctrl);
+        this.buf.consumeContent(decoder);
     }
 
     @Override
     protected void releaseResources() {
         this.request = null;
-        this.consumer = null;
+        this.buf = null;
     }
 
     @Override

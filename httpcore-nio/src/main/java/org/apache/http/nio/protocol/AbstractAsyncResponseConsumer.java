@@ -49,7 +49,7 @@ public abstract class AbstractAsyncResponseConsumer<T> implements HttpAsyncRespo
         super();
     }
 
-    protected abstract void onResponseReceived(final HttpResponse response);
+    protected abstract void onResponseReceived(final HttpResponse response) throws HttpException, IOException;
 
     protected abstract void onContentReceived(
             final ContentDecoder decoder, final IOControl ioctrl) throws IOException;

@@ -25,57 +25,42 @@
  *
  */
 
-package org.apache.http.nio.protocol;
+package org.apache.http.nio.entity;
 
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
 import java.nio.ByteBuffer;
 import java.nio.channels.Channels;
 import java.nio.channels.ReadableByteChannel;
 
 import org.apache.http.HttpEntity;
-import org.apache.http.entity.HttpEntityWrapper;
+import org.apache.http.annotation.NotThreadSafe;
 import org.apache.http.nio.ContentEncoder;
 import org.apache.http.nio.IOControl;
-import org.apache.http.nio.entity.ProducingNHttpEntity;
 
-class NHttpEntityWrapper extends HttpEntityWrapper implements ProducingNHttpEntity {
+/**
+ *
+ * @since 4.2
+ */
+@NotThreadSafe
+public class EntityAsyncContentProducer implements HttpAsyncContentProducer {
 
+    private final HttpEntity entity;
     private final ByteBuffer buffer;
     private ReadableByteChannel channel;
 
-    public NHttpEntityWrapper(final HttpEntity httpEntity) {
-        super(httpEntity);
+    public EntityAsyncContentProducer(final HttpEntity entity) {
+        super();
+        if (entity == null) {
+            throw new IllegalArgumentException("HTTP entity may not be null");
+        }
+        this.entity = entity;
         this.buffer = ByteBuffer.allocate(4096);
     }
 
-    @Override
-    public InputStream getContent() throws IOException, UnsupportedOperationException {
-        throw new UnsupportedOperationException("Does not support blocking methods");
-    }
-
-    @Override
-    public boolean isStreaming() {
-        return true;
-    }
-
-    @Override
-    public void writeTo(final OutputStream out) throws IOException, UnsupportedOperationException {
-        throw new UnsupportedOperationException("Does not support blocking methods");
-    }
-
-    @Override
-    @Deprecated
-    public void consumeContent() throws IOException {
-        finish();
-    }
-
     public void produceContent(
-            final ContentEncoder encoder,
-            final IOControl ioctrl) throws IOException {
+            final ContentEncoder encoder, final IOControl ioctrl) throws IOException {
         if (this.channel == null) {
-            this.channel = Channels.newChannel(this.wrappedEntity.getContent());
+            this.channel = Channels.newChannel(this.entity.getContent());
         }
         int i = this.channel.read(this.buffer);
         this.buffer.flip();
@@ -84,16 +69,20 @@ class NHttpEntityWrapper extends HttpEntityWrapper implements ProducingNHttpEnti
         this.buffer.compact();
         if (i == -1 && !buffering) {
             encoder.complete();
-            this.channel.close();
+            close();
         }
     }
 
-    public void finish() throws IOException {
-        if (this.channel != null) {
-            this.channel.close();
-            this.channel = null;
+    public boolean isRepeatable() {
+        return this.entity.isRepeatable();
+    }
+
+    public void close() throws IOException {
+        ReadableByteChannel local = this.channel;
+        this.channel = null;
+        if (local != null) {
+            local.close();
         }
     }
 
 }
-

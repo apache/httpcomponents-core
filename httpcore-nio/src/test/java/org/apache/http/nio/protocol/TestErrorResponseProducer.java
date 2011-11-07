@@ -27,14 +27,11 @@
 
 package org.apache.http.nio.protocol;
 
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-
 import junit.framework.Assert;
 
+import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpVersion;
-import org.apache.http.nio.entity.ProducingNHttpEntity;
 import org.apache.http.protocol.HTTP;
 import org.junit.After;
 import org.junit.Before;
@@ -45,12 +42,11 @@ import org.mockito.MockitoAnnotations;
 public class TestErrorResponseProducer {
 
     private ErrorResponseProducer erp;
-    @Mock private ProducingNHttpEntity entity;
+    @Mock private HttpEntity entity;
 
     @Before
     public void setUp() throws Exception {
         MockitoAnnotations.initMocks(this);
-
     }
 
     @After
@@ -75,15 +71,6 @@ public class TestErrorResponseProducer {
         Assert.assertEquals(HTTP.CONN_CLOSE, res.getFirstHeader(HTTP.CONN_DIRECTIVE).getValue());
         Assert.assertEquals(entity, res.getEntity());
         Assert.assertEquals(200, res.getStatusLine().getStatusCode());
-    }
-
-    @Test
-    public void testProduceContent() throws Exception {
-        erp = new ErrorResponseProducer(HttpVersion.HTTP_1_1, 200, entity, true);
-
-        erp.produceContent(null, null);
-
-        verify(entity, times(1)).produceContent(null, null);
     }
 
 }

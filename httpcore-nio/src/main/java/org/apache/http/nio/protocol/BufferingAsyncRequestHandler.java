@@ -39,8 +39,6 @@ import org.apache.http.ProtocolVersion;
 import org.apache.http.annotation.Immutable;
 import org.apache.http.concurrent.Cancellable;
 import org.apache.http.impl.DefaultHttpResponseFactory;
-import org.apache.http.nio.util.ByteBufferAllocator;
-import org.apache.http.nio.util.HeapByteBufferAllocator;
 import org.apache.http.protocol.HttpContext;
 import org.apache.http.protocol.HttpRequestHandler;
 
@@ -52,12 +50,10 @@ public class BufferingAsyncRequestHandler implements HttpAsyncRequestHandler<Htt
 
     private final HttpRequestHandler handler;
     private final HttpResponseFactory responseFactory;
-    private final ByteBufferAllocator allocator;
 
     public BufferingAsyncRequestHandler(
             final HttpRequestHandler handler,
-            final HttpResponseFactory responseFactory,
-            final ByteBufferAllocator allocator) {
+            final HttpResponseFactory responseFactory) {
         super();
         if (handler == null) {
             throw new IllegalArgumentException("Request handler may not be null");
@@ -65,21 +61,17 @@ public class BufferingAsyncRequestHandler implements HttpAsyncRequestHandler<Htt
         if (responseFactory == null) {
             throw new IllegalArgumentException("Response factory may not be null");
         }
-        if (allocator == null) {
-            throw new IllegalArgumentException("Byte buffer allocator may not be null");
-        }
         this.handler = handler;
         this.responseFactory = responseFactory;
-        this.allocator = allocator;
     }
 
     public BufferingAsyncRequestHandler(final HttpRequestHandler handler) {
-        this(handler, new DefaultHttpResponseFactory(), new HeapByteBufferAllocator());
+        this(handler, new DefaultHttpResponseFactory());
     }
 
     public HttpAsyncRequestConsumer<HttpRequest> processRequest(final HttpRequest request,
             final HttpContext context) {
-        return new BasicAsyncRequestConsumer(this.allocator);
+        return new BasicAsyncRequestConsumer();
     }
 
     public Cancellable handle(final HttpRequest request, final HttpAsyncResponseTrigger trigger,

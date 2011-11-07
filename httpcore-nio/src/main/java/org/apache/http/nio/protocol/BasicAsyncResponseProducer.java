@@ -34,7 +34,8 @@ import org.apache.http.HttpResponse;
 import org.apache.http.annotation.ThreadSafe;
 import org.apache.http.nio.ContentEncoder;
 import org.apache.http.nio.IOControl;
-import org.apache.http.nio.entity.ProducingNHttpEntity;
+import org.apache.http.nio.entity.EntityAsyncContentProducer;
+import org.apache.http.nio.entity.HttpAsyncContentProducer;
 import org.apache.http.protocol.HttpContext;
 
 /**
@@ -44,7 +45,21 @@ import org.apache.http.protocol.HttpContext;
 public class BasicAsyncResponseProducer implements HttpAsyncResponseProducer {
 
     private final HttpResponse response;
-    private final ProducingNHttpEntity producer;
+    private final HttpAsyncContentProducer producer;
+
+    protected BasicAsyncResponseProducer(
+            final HttpResponse response,
+            final HttpAsyncContentProducer producer) {
+        super();
+        if (response == null) {
+            throw new IllegalArgumentException("HTTP response may not be null");
+        }
+        if (producer == null) {
+            throw new IllegalArgumentException("HTTP content producer may not be null");
+        }
+        this.response = response;
+        this.producer = producer;
+    }
 
     public BasicAsyncResponseProducer(final HttpResponse response) {
         super();
@@ -54,10 +69,10 @@ public class BasicAsyncResponseProducer implements HttpAsyncResponseProducer {
         this.response = response;
         HttpEntity entity = response.getEntity();
         if (entity != null) {
-            if (entity instanceof ProducingNHttpEntity) {
-                this.producer = (ProducingNHttpEntity) entity;
+            if (entity instanceof HttpAsyncContentProducer) {
+                this.producer = (HttpAsyncContentProducer) entity;
             } else {
-                this.producer = new NHttpEntityWrapper(entity);
+                this.producer = new EntityAsyncContentProducer(entity);
             }
         } else {
             this.producer = null;
@@ -73,7 +88,7 @@ public class BasicAsyncResponseProducer implements HttpAsyncResponseProducer {
         if (this.producer != null) {
             this.producer.produceContent(encoder, ioctrl);
             if (encoder.isCompleted()) {
-                this.producer.finish();
+                this.producer.close();
             }
         }
     }
@@ -83,7 +98,7 @@ public class BasicAsyncResponseProducer implements HttpAsyncResponseProducer {
 
     public synchronized void close() throws IOException {
         if (this.producer != null) {
-            this.producer.finish();
+            this.producer.close();
         }
     }
 

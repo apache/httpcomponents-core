@@ -36,7 +36,7 @@ import org.apache.http.HttpEntityEnclosingRequest;
 import org.apache.http.HttpHost;
 import org.apache.http.HttpRequest;
 import org.apache.http.nio.ContentEncoder;
-import org.apache.http.nio.entity.ProducingNHttpEntity;
+import org.apache.http.nio.entity.HttpAsyncContentProducer;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -47,19 +47,15 @@ public class TestBasicAsyncRequestProducer {
 
     private BasicAsyncRequestProducer producer;
     private HttpHost target;
-    @Mock private ProducingNHttpEntity entity;
+    @Mock private HttpAsyncContentProducer contentProducer;
     @Mock private HttpEntityEnclosingRequest request;
     @Mock private ContentEncoder encoder;
 
     @Before
     public void setUp() throws Exception {
         MockitoAnnotations.initMocks(this);
-
-        when(request.getEntity()).thenReturn(entity);
-
         target = new HttpHost("localhost");
-
-        producer = new BasicAsyncRequestProducer(target, request, entity);
+        producer = new BasicAsyncRequestProducer(target, request, contentProducer);
     }
 
     @After
@@ -68,12 +64,12 @@ public class TestBasicAsyncRequestProducer {
 
     @Test(expected=IllegalArgumentException.class)
     public void testNullTarget3ArgConstructor() throws Exception {
-        producer = new BasicAsyncRequestProducer(null, request, entity);
+        producer = new BasicAsyncRequestProducer(null, request, contentProducer);
     }
 
     @Test(expected=IllegalArgumentException.class)
     public void testNullRequest3ArgConstructor() throws Exception {
-        producer = new BasicAsyncRequestProducer(target, null, entity);
+        producer = new BasicAsyncRequestProducer(target, null, contentProducer);
     }
 
     @Test(expected=IllegalArgumentException.class)
@@ -106,7 +102,7 @@ public class TestBasicAsyncRequestProducer {
 
         producer.produceContent(encoder,  null);
 
-        verify(entity, times(1)).finish();
+        verify(contentProducer, times(1)).close();
     }
 
     @Test
@@ -115,19 +111,19 @@ public class TestBasicAsyncRequestProducer {
 
         producer.produceContent(encoder,  null);
 
-        verify(entity, times(0)).finish();
+        verify(contentProducer, times(0)).close();
     }
 
     @Test
     public void testResetRequest() throws Exception {
         producer.resetRequest();
-        verify(entity, times(1)).finish();
+        verify(contentProducer, times(1)).close();
     }
 
     @Test
     public void testClose() throws Exception {
         producer.close();
-        verify(entity, times(1)).finish();
+        verify(contentProducer, times(1)).close();
     }
 
 }

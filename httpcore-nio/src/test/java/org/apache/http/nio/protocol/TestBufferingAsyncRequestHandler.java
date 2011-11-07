@@ -35,7 +35,6 @@ import org.apache.http.HttpVersion;
 import org.apache.http.concurrent.Cancellable;
 import org.apache.http.impl.DefaultHttpResponseFactory;
 import org.apache.http.message.BasicRequestLine;
-import org.apache.http.nio.util.HeapByteBufferAllocator;
 import org.apache.http.protocol.BasicHttpContext;
 import org.apache.http.protocol.HttpContext;
 import org.apache.http.protocol.HttpRequestHandler;
@@ -57,7 +56,7 @@ public class TestBufferingAsyncRequestHandler {
     public void setUp() throws Exception {
         this.requestHandler = Mockito.mock(HttpRequestHandler.class);
         this.asyncRequestHandler = new BufferingAsyncRequestHandler(this.requestHandler,
-                new DefaultHttpResponseFactory(), new HeapByteBufferAllocator());
+                new DefaultHttpResponseFactory());
         this.context = new BasicHttpContext();
         this.request = Mockito.mock(HttpRequest.class);
         this.trigger = Mockito.mock(HttpAsyncResponseTrigger.class);
@@ -71,17 +70,12 @@ public class TestBufferingAsyncRequestHandler {
     @Test
     public void testInvalidConstruction() throws Exception {
         try {
-            new BufferingAsyncRequestHandler(null, new DefaultHttpResponseFactory(), new HeapByteBufferAllocator());
+            new BufferingAsyncRequestHandler(null, new DefaultHttpResponseFactory());
             Assert.fail("IllegalArgumentException expected");
         } catch (IllegalArgumentException ex) {
         }
         try {
-            new BufferingAsyncRequestHandler(this.requestHandler, null, new HeapByteBufferAllocator());
-            Assert.fail("IllegalArgumentException expected");
-        } catch (IllegalArgumentException ex) {
-        }
-        try {
-            new BufferingAsyncRequestHandler(this.requestHandler, new DefaultHttpResponseFactory(), null);
+            new BufferingAsyncRequestHandler(this.requestHandler, null);
             Assert.fail("IllegalArgumentException expected");
         } catch (IllegalArgumentException ex) {
         }

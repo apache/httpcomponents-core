@@ -30,13 +30,15 @@ package org.apache.http.nio.protocol;
 import java.io.IOException;
 import java.util.Locale;
 
+import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpVersion;
 import org.apache.http.impl.EnglishReasonPhraseCatalog;
 import org.apache.http.message.BasicHttpResponse;
 import org.apache.http.nio.ContentEncoder;
 import org.apache.http.nio.IOControl;
-import org.apache.http.nio.entity.ProducingNHttpEntity;
+import org.apache.http.nio.entity.EntityAsyncContentProducer;
+import org.apache.http.nio.entity.HttpAsyncContentProducer;
 import org.apache.http.protocol.HTTP;
 import org.apache.http.protocol.HttpContext;
 
@@ -44,18 +46,24 @@ class ErrorResponseProducer implements HttpAsyncResponseProducer {
 
     private final HttpVersion version;
     private final int status;
-    private final ProducingNHttpEntity entity;
+    private final HttpEntity entity;
+    private final HttpAsyncContentProducer contentProducer;
     private final boolean keepAlive;
 
     ErrorResponseProducer(
             final HttpVersion version,
             final int status,
-            final ProducingNHttpEntity entity,
+            final HttpEntity entity,
             final boolean keepAlive) {
         super();
         this.version = version;
         this.status = status;
         this.entity = entity;
+        if (entity instanceof HttpAsyncContentProducer) {
+            this.contentProducer = (HttpAsyncContentProducer) entity;
+        } else {
+            this.contentProducer = new EntityAsyncContentProducer(entity);
+        }
         this.keepAlive = keepAlive;
     }
 
@@ -73,14 +81,14 @@ class ErrorResponseProducer implements HttpAsyncResponseProducer {
 
     public void produceContent(
             final ContentEncoder encoder, final IOControl ioctrl) throws IOException {
-        this.entity.produceContent(encoder, ioctrl);
+        this.contentProducer.produceContent(encoder, ioctrl);
     }
 
     public void responseCompleted(final HttpContext context) {
     }
 
     public void close() throws IOException {
-        this.entity.finish();
+        this.contentProducer.close();
     }
 
 }

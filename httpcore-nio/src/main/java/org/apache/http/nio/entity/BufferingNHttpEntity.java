@@ -36,6 +36,8 @@ import org.apache.http.annotation.NotThreadSafe;
 import org.apache.http.entity.HttpEntityWrapper;
 import org.apache.http.nio.ContentDecoder;
 import org.apache.http.nio.IOControl;
+import org.apache.http.nio.protocol.BasicAsyncRequestConsumer;
+import org.apache.http.nio.protocol.BasicAsyncResponseConsumer;
 import org.apache.http.nio.util.ByteBufferAllocator;
 import org.apache.http.nio.util.SimpleInputBuffer;
 
@@ -46,8 +48,11 @@ import org.apache.http.nio.util.SimpleInputBuffer;
  * {@link HttpEntity#writeTo(OutputStream)}.
  *
  * @since 4.0
+ * 
+ * @deprecated use {@link BasicAsyncRequestConsumer} or {@link BasicAsyncResponseConsumer}
  */
 @NotThreadSafe
+@Deprecated
 public class BufferingNHttpEntity extends HttpEntityWrapper implements
         ConsumingNHttpEntity {
 

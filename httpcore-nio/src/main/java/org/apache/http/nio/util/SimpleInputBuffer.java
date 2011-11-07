@@ -81,6 +81,7 @@ public class SimpleInputBuffer extends ExpandableBuffer implements ContentInputB
         if (isEndOfStream()) {
             return -1;
         }
+        setOutputMode();
         return this.buffer.get() & 0xff;
     }
 

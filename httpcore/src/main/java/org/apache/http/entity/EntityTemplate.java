@@ -27,21 +27,18 @@
 
 package org.apache.http.entity;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-
-import org.apache.http.HttpEntity;
 
 /**
  * Entity that delegates the process of content generation
  * to a {@link ContentProducer}.
  *
  * @since 4.0
- *
- * @deprecated use custom {@link HttpEntity}
  */
-@Deprecated
 public class EntityTemplate extends AbstractHttpEntity {
 
     private final ContentProducer contentproducer;
@@ -58,8 +55,10 @@ public class EntityTemplate extends AbstractHttpEntity {
         return -1;
     }
 
-    public InputStream getContent() {
-        throw new UnsupportedOperationException("Entity template does not implement getContent()");
+    public InputStream getContent() throws IOException {
+        ByteArrayOutputStream buf = new ByteArrayOutputStream();
+        writeTo(buf);
+        return new ByteArrayInputStream(buf.toByteArray()); 
     }
 
     public boolean isRepeatable() {

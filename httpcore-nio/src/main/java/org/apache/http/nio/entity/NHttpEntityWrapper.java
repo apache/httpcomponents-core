@@ -45,8 +45,11 @@ import org.apache.http.nio.IOControl;
  * entities.
  *
  * @since 4.0
+ * 
+ * @deprecated use {@link EntityAsyncContentProducer}
  */
 @NotThreadSafe
+@Deprecated
 public class NHttpEntityWrapper
     extends HttpEntityWrapper implements ProducingNHttpEntity {
 

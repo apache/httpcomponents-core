@@ -63,11 +63,6 @@ public class TestBasicAsyncResponseConsumer {
     public void tearDown() throws Exception {
     }
 
-    @Test(expected=IllegalArgumentException.class)
-    public void testNullTargetArgConstructor() throws Exception {
-        new BasicAsyncResponseConsumer(null);
-    }
-
     @Test
     public void testResponseProcessing() throws Exception {
         when(response.getEntity()).thenReturn(new StringEntity("stuff"));
