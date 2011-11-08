@@ -51,7 +51,7 @@ public interface HttpAsyncContentProducer extends Closeable {
      * @param ioctrl I/O control of the underlying connection.
      */
     void produceContent(ContentEncoder encoder, IOControl ioctrl) throws IOException;
-    
+
     boolean isRepeatable();
 
 }

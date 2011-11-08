@@ -40,7 +40,7 @@ import org.apache.http.nio.protocol.BasicAsyncResponseProducer;
  * {@link ContentEncoder}.
  *
  * @since 4.0
- * 
+ *
  * @deprecated use {@link BasicAsyncRequestProducer} or {@link BasicAsyncResponseProducer}
  */
 @Deprecated

@@ -173,7 +173,7 @@ public class TestDefaultIOReactors extends HttpCoreNIOTestBase {
 
         openClientConns.await(15, TimeUnit.SECONDS);
         openServerConns.await(15, TimeUnit.SECONDS);
-        
+
         this.connpool.shutdown(2000);
         this.client.shutdown();
         this.server.shutdown();

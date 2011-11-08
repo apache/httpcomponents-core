@@ -43,7 +43,7 @@ import org.apache.http.nio.protocol.BasicAsyncResponseConsumer;
  * {@link ContentListener}.
  *
  * @since 4.0
- * 
+ *
  * @deprecated use {@link BasicAsyncRequestConsumer} or {@link BasicAsyncResponseConsumer}
  */
 @Deprecated

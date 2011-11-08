@@ -47,7 +47,7 @@ import org.apache.http.nio.IOControl;
  */
 @SuppressWarnings("deprecation")
 @NotThreadSafe
-public class NByteArrayEntity extends AbstractHttpEntity 
+public class NByteArrayEntity extends AbstractHttpEntity
                               implements HttpAsyncContentProducer, ProducingNHttpEntity {
 
     private final byte[] b;
@@ -110,7 +110,7 @@ public class NByteArrayEntity extends AbstractHttpEntity
 
     /**
      * {@inheritDoc}
-     * 
+     *
      * @since 4.2
      */
     public void close() {
@@ -119,7 +119,7 @@ public class NByteArrayEntity extends AbstractHttpEntity
 
     /**
      * {@inheritDoc}
-     * 
+     *
      * @deprecated use {@link #close()}
      */
     public void finish() {

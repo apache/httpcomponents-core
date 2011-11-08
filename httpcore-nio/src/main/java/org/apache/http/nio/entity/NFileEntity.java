@@ -52,7 +52,7 @@ import org.apache.http.nio.IOControl;
  */
 @SuppressWarnings("deprecation")
 @NotThreadSafe
-public class NFileEntity extends AbstractHttpEntity 
+public class NFileEntity extends AbstractHttpEntity
                          implements HttpAsyncContentProducer, ProducingNHttpEntity {
 
     private final File file;
@@ -129,7 +129,7 @@ public class NFileEntity extends AbstractHttpEntity
 
     /**
      * {@inheritDoc}
-     * 
+     *
      * @since 4.2
      */
     public void close() throws IOException {
@@ -142,7 +142,7 @@ public class NFileEntity extends AbstractHttpEntity
 
     /**
      * {@inheritDoc}
-     * 
+     *
      * @deprecated use {@link #close()}
      */
     public void finish() throws IOException {

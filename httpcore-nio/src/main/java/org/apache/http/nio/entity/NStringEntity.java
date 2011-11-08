@@ -185,7 +185,7 @@ public class NStringEntity extends AbstractHttpEntity implements ProducingNHttpE
 
     /**
      * {@inheritDoc}
-     * 
+     *
      * @since 4.2
      */
     public void close() {
@@ -194,7 +194,7 @@ public class NStringEntity extends AbstractHttpEntity implements ProducingNHttpE
 
     /**
      * {@inheritDoc}
-     * 
+     *
      * @deprecated use {@link #close()}
      */
     public void finish() {

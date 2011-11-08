@@ -58,7 +58,7 @@ public class EntityTemplate extends AbstractHttpEntity {
     public InputStream getContent() throws IOException {
         ByteArrayOutputStream buf = new ByteArrayOutputStream();
         writeTo(buf);
-        return new ByteArrayInputStream(buf.toByteArray()); 
+        return new ByteArrayInputStream(buf.toByteArray());
     }
 
     public boolean isRepeatable() {

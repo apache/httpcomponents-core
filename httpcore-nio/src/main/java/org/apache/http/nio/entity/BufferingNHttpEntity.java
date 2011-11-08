@@ -48,7 +48,7 @@ import org.apache.http.nio.util.SimpleInputBuffer;
  * {@link HttpEntity#writeTo(OutputStream)}.
  *
  * @since 4.0
- * 
+ *
  * @deprecated use {@link BasicAsyncRequestConsumer} or {@link BasicAsyncResponseConsumer}
  */
 @NotThreadSafe
