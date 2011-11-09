@@ -32,11 +32,19 @@ import org.apache.http.annotation.GuardedBy;
 import org.apache.http.annotation.ThreadSafe;
 
 /**
- * Pool entry containing a connection object along with its route information.
+ * Pool entry containing a pool connection object along with its route.
+ * <p/>
+ * The connection contained by the pool entry may have an expiration time which
+ * can be either set upon construction time or updated with
+ * the {@link #updateExpiry(long, TimeUnit)}.
+ * <p/>
+ * Pool entry may also have an object associated with it that represents
+ * a connection state (usually a security principal or a unique token identifying
+ * the user whose credentials have been used while establishing the connection).
  *
- * @param <T> route
- * @param <C> connection
- *
+ * @param <T> the route type that represents the opposite endpoint of a pooled
+ *   connection.
+ * @param <C> the connection type.
  * @since 4.2
  */
 @ThreadSafe
@@ -56,6 +64,16 @@ public abstract class PoolEntry<T, C> {
 
     private volatile Object state;
 
+    /**
+     * Creates new <tt>PoolEntry</tt> instance.
+     *
+     * @param id unique identifier of the pool entry. May be <code>null</code>.
+     * @param route route to the opposite endpoint.
+     * @param conn the connection.
+     * @param timeToLive maximum time to live. May be zero if the connection
+     *   does not have an expiry deadline.
+     * @param tunit time unit.
+     */
     public PoolEntry(final String id, final T route, final C conn,
             final long timeToLive, final TimeUnit tunit) {
         super();
@@ -80,6 +98,13 @@ public abstract class PoolEntry<T, C> {
         this.expiry = this.validUnit;
     }
 
+    /**
+     * Creates new <tt>PoolEntry</tt> instance without an expiry deadline.
+     *
+     * @param id unique identifier of the pool entry. May be <code>null</code>.
+     * @param route route to the opposite endpoint.
+     * @param conn the connection.
+     */
     public PoolEntry(final String id, final T route, final C conn) {
         this(id, route, conn, 0, TimeUnit.MILLISECONDS);
     }
@@ -138,8 +163,15 @@ public abstract class PoolEntry<T, C> {
         return now >= this.expiry;
     }
 
+    /**
+     * Invalidates the pool entry and closes the pooled connection associated
+     * with it.
+     */
     public abstract void close();
 
+    /**
+     * Returns <code>true</code> if the pool entry has been invalidated.
+     */
     public abstract boolean isClosed();
 
     @Override

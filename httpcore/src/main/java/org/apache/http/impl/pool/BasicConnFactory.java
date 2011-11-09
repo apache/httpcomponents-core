@@ -41,6 +41,10 @@ import org.apache.http.params.HttpParams;
 import org.apache.http.pool.ConnFactory;
 
 /**
+ * A very basic {@link ConnFactory} implementation that creates
+ * {@link HttpClientConnection} instances given a {@link HttpHost} instance.
+ *
+ * @see HttpHost
  * @since 4.2
  */
 @Immutable

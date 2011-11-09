@@ -27,12 +27,12 @@
 package org.apache.http.pool;
 
 /**
- * Interface to control runtime properties of a connection pool such as
+ * Interface to control runtime properties of a {@link ConnPool} such as
  * maximum total number of connections or maximum connections per route
  * allowed.
  *
- * @param <T> route
- *
+ * @param <T> the route type that represents the opposite endpoint of a pooled
+ *   connection.
  * @since 4.2
  */
 public interface ConnPoolControl<T> {

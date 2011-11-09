@@ -26,7 +26,12 @@
  */
 package org.apache.http.concurrent;
 
+import java.util.concurrent.Future;
+
 /**
+ * A callback interface that gets invoked upon completion of a {@link Future}.
+ *
+ * @param <T> the future result type returned by this callback.
  * @since 4.2
  */
 public interface FutureCallback<T> {

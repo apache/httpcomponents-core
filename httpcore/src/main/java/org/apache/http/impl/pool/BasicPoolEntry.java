@@ -34,6 +34,12 @@ import org.apache.http.annotation.ThreadSafe;
 import org.apache.http.pool.PoolEntry;
 
 /**
+ * A very basic {@link PoolEntry} implementation that represents an entry
+ * in a pool of {@link HttpClientConnection}s identified by an {@link HttpHost}
+ * instance  containing basic details about the connection such as the scheme
+ * name, the host name and the port)
+ *
+ * @see HttpHost
  * @since 4.2
  */
 @ThreadSafe

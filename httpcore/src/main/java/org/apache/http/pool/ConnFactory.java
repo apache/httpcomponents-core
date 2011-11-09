@@ -30,6 +30,11 @@ package org.apache.http.pool;
 import java.io.IOException;
 
 /**
+ * Factory for poolable connections.
+ *
+ * @param <T> the route type that represents the opposite endpoint of a pooled
+ *   connection.
+ * @param <C> the connection type.
  * @since 4.2
  */
 public interface ConnFactory<T, C> {

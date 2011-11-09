@@ -34,8 +34,16 @@ import org.apache.http.annotation.ThreadSafe;
 import org.apache.http.params.HttpParams;
 import org.apache.http.pool.AbstractConnPool;
 import org.apache.http.pool.ConnFactory;
+import org.apache.http.pool.ConnPool;
 
 /**
+ * A very basic {@link ConnPool} implementation that represents a pool
+ * of {@link HttpClientConnection} connections identified by
+ * an {@link HttpHost} instance containing basic details about the connection
+ * such as the scheme name, the host name and the port). This pool implementation,
+ * however, cannot differentiate direct and proxied connections.
+ *
+ * @see HttpHost
  * @since 4.2
  */
 @ThreadSafe

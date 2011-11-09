@@ -44,12 +44,18 @@ import org.apache.http.annotation.ThreadSafe;
 import org.apache.http.concurrent.FutureCallback;
 
 /**
- * Abstract blocking connection pool.
+ * Abstract synchronous (blocking) pool of connections.
+ * <p/>
+ * Please note that this class does not maintain its own pool of execution {@link Thread}s.
+ * Therefore, one <b>must</b> call {@link Future#get()} or {@link Future#get(long, TimeUnit)}
+ * method on the {@link Future} object returned by the
+ * {@link #lease(Object, Object, FutureCallback)} method in order for the lease operation
+ * to complete.
  *
- * @param <T> route
- * @param <C> connection object
- * @param <E> pool entry
- *
+ * @param <T> the route type that represents the opposite endpoint of a pooled
+ *   connection.
+ * @param <C> the connection type.
+ * @param <E> the type of the pool entry containing a pooled connection.
  * @since 4.2
  */
 @ThreadSafe
@@ -93,13 +99,19 @@ public abstract class AbstractConnPool<T, C, E extends PoolEntry<T, C>>
         this.maxTotal = maxTotal;
     }
 
+    /**
+     * Creates a new entry for the given connection with the given route.
+     */
     protected abstract E createEntry(T route, C conn);
 
     public boolean isShutdown() {
         return this.isShutDown;
     }
 
-    public void shutdown(long waitMs) throws IOException {
+    /**
+     * Shuts down the pool.
+     */
+    public void shutdown() throws IOException {
         if (this.isShutDown) {
             return ;
         }
@@ -139,6 +151,14 @@ public abstract class AbstractConnPool<T, C, E extends PoolEntry<T, C>>
         return pool;
     }
 
+    /**
+     * {@inheritDoc}
+     * <p/>
+     * Please note that this class does not maintain its own pool of execution
+     * {@link Thread}s. Therefore, one <b>must</b> call {@link Future#get()}
+     * or {@link Future#get(long, TimeUnit)} method on the {@link Future}
+     * returned by this method in order for the lease operation to complete.
+     */
     public Future<E> lease(final T route, final Object state, final FutureCallback<E> callback) {
         if (route == null) {
             throw new IllegalArgumentException("Route may not be null");
@@ -159,6 +179,22 @@ public abstract class AbstractConnPool<T, C, E extends PoolEntry<T, C>>
         };
     }
 
+    /**
+     * Attempts to lease a connection for the given route and with the given
+     * state from the pool.
+     * <p/>
+     * Please note that this class does not maintain its own pool of execution
+     * {@link Thread}s. Therefore, one <b>must</b> call {@link Future#get()}
+     * or {@link Future#get(long, TimeUnit)} method on the {@link Future}
+     * returned by this method in order for the lease operation to complete.
+     *
+     * @param route route of the connection.
+     * @param state arbitrary object that represents a particular state
+     *  (usually a security principal or a unique token identifying
+     *  the user whose credentials have been used while establishing the connection).
+     *  May be <code>null</code>.
+     * @return future for a leased pool entry.
+     */
     public Future<E> lease(final T route, final Object state) {
         return lease(route, state, null);
     }
@@ -401,6 +437,13 @@ public abstract class AbstractConnPool<T, C, E extends PoolEntry<T, C>>
         }
     }
 
+    /**
+     * Closes connections that have been idle longer than the given period
+     * of time and evicts them from the pool.
+     *
+     * @param idletime maximum idle time.
+     * @param tunit time unit.
+     */
     public void closeIdle(long idletime, final TimeUnit tunit) {
         if (tunit == null) {
             throw new IllegalArgumentException("Time unit must not be null.");
@@ -428,6 +471,9 @@ public abstract class AbstractConnPool<T, C, E extends PoolEntry<T, C>>
         }
     }
 
+    /**
+     * Closes expired connections and evicts them from the pool.
+     */
     public void closeExpired() {
         long now = System.currentTimeMillis();
         this.lock.lock();

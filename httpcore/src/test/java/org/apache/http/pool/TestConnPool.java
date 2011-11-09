@@ -767,10 +767,10 @@ public class TestConnPool {
         Assert.assertEquals(1, totals.getAvailable());
         Assert.assertEquals(1, totals.getLeased());
 
-        pool.shutdown(1000);
+        pool.shutdown();
         Assert.assertTrue(pool.isShutdown());
-        pool.shutdown(1000);
-        pool.shutdown(1000);
+        pool.shutdown();
+        pool.shutdown();
 
         Mockito.verify(conn1, Mockito.atLeastOnce()).close();
         Mockito.verify(conn2, Mockito.atLeastOnce()).close();
