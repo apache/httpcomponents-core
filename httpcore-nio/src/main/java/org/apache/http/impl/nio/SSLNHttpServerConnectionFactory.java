@@ -44,7 +44,7 @@ import org.apache.http.params.HttpConnectionParams;
 import org.apache.http.params.HttpParams;
 
 /**
- * SSL encrypted non-blocking {@link NHttpServerConnection} factory.
+ * Factory for SSL encrypted, non-blocking {@link NHttpServerConnection}s.
  * <p>
  * The following parameters can be used to customize the behavior of this
  * class:

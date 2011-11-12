@@ -38,10 +38,21 @@ import org.apache.http.pool.ConnPool;
 
 /**
  * A very basic {@link ConnPool} implementation that represents a pool
- * of {@link HttpClientConnection} connections identified by
- * an {@link HttpHost} instance containing basic details about the connection
- * such as the scheme name, the host name and the port). This pool implementation,
- * however, cannot differentiate direct and proxied connections.
+ * of blocking {@link HttpClientConnection} connections identified by
+ * an {@link HttpHost} instance. Please note this pool implementation
+ * does not support complex routes via a proxy cannot differentiate between
+ * direct and proxied connections.
+ * <p/>
+ * The following parameters can be used to customize the behavior of this
+ * class:
+ * <ul>
+ *  <li>{@link org.apache.http.params.CoreProtocolPNames#HTTP_ELEMENT_CHARSET}</li>
+ *  <li>{@link org.apache.http.params.CoreConnectionPNames#TCP_NODELAY}</li>
+ *  <li>{@link org.apache.http.params.CoreConnectionPNames#SO_TIMEOUT}</li>
+ *  <li>{@link org.apache.http.params.CoreConnectionPNames#SO_LINGER}</li>
+ *  <li>{@link org.apache.http.params.CoreConnectionPNames#SOCKET_BUFFER_SIZE}</li>
+ *  <li>{@link org.apache.http.params.CoreConnectionPNames#MAX_LINE_LENGTH}</li>
+ * </ul>
  *
  * @see HttpHost
  * @since 4.2

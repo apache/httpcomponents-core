@@ -47,7 +47,8 @@ import org.apache.http.params.HttpParams;
 import org.apache.http.protocol.ExecutionContext;
 
 /**
- * Basic non-blocking {@link NHttpClientConnection} factory.
+ * A basic {@link NIOConnFactory} implementation that creates
+ * {@link NHttpClientConnection} instances given a {@link HttpHost} instance.
  * <p>
  * The following parameters can be used to customize the behavior of this
  * class:

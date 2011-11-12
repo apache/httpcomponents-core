@@ -50,7 +50,8 @@ import org.apache.http.protocol.HTTP;
  */
 @SuppressWarnings("deprecation")
 @NotThreadSafe
-public class NStringEntity extends AbstractHttpEntity implements ProducingNHttpEntity {
+public class NStringEntity extends AbstractHttpEntity
+                           implements HttpAsyncContentProducer, ProducingNHttpEntity {
 
     private final byte[] b;
     private final ByteBuffer buf;

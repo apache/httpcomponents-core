@@ -40,6 +40,7 @@ import org.apache.http.protocol.ExecutionContext;
  * Abstract {@link IOEventDispatch} implementation that supports both plain (non-encrypted)
  * and SSL encrypted HTTP connections.
  *
+ * @param <T> the connection type.
  * @since 4.2
  */
 @Immutable // provided injected dependencies are immutable

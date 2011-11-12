@@ -34,8 +34,11 @@ import org.apache.http.nio.NHttpClientConnection;
 import org.apache.http.pool.PoolEntry;
 
 /**
- * Pool entry for {@link BasicNIOConnPool}.
+ * A basic {@link PoolEntry} implementation that represents an entry
+ * in a pool of non-blocking {@link NHttpClientConnection}s identified by
+ * an {@link HttpHost} instance.
  *
+ * @see HttpHost
  * @since 4.2
  */
 @ThreadSafe

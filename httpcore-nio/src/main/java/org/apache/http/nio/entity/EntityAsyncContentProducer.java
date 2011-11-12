@@ -38,6 +38,7 @@ import org.apache.http.nio.ContentEncoder;
 import org.apache.http.nio.IOControl;
 
 /**
+ * Basic implementation of {@link HttpAsyncContentProducer}.
  *
  * @since 4.2
  */

@@ -165,6 +165,9 @@ public class NHttpConnectionBase
     }
 
     /**
+     * Binds the connection to a different {@link IOSession}. This may be necessary
+     * when the underlying I/O session gets upgraded with SSL/TLS encryption.
+     *
      * @since 4.2
      */
     protected void bind(final IOSession session) {

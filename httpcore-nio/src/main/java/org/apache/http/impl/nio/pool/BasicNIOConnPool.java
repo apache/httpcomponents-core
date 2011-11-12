@@ -41,9 +41,14 @@ import org.apache.http.nio.pool.NIOConnFactory;
 import org.apache.http.nio.reactor.ConnectingIOReactor;
 import org.apache.http.params.HttpConnectionParams;
 import org.apache.http.params.HttpParams;
+import org.apache.http.pool.ConnPool;
 
 /**
- * Basic non-blocking {@link NHttpClientConnection} pool.
+ * A very basic {@link ConnPool} implementation that represents a pool
+ * of non-blocking {@link NHttpClientConnection} connections identified by
+ * an {@link HttpHost} instance. Please note this pool implementation
+ * does not support complex routes via a proxy cannot differentiate between
+ * direct and proxied connections.
  * <p>
  * The following parameters can be used to customize the behavior of this
  * class:
@@ -56,6 +61,7 @@ import org.apache.http.params.HttpParams;
  *  <li>{@link org.apache.http.params.CoreConnectionPNames#MAX_LINE_LENGTH}</li>
  * </ul>
  *
+ * @see HttpHost
  * @since 4.2
  */
 @ThreadSafe

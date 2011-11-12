@@ -34,15 +34,18 @@ import org.apache.http.nio.ContentEncoder;
 import org.apache.http.nio.IOControl;
 
 /**
+ * <tt>HttpAsyncContentProducer</tt> is a callback interface whose methods
+ * get invoked to stream out message content to a non-blocking HTTP connection
+ * through a {@link ContentEncoder}.
+ *
  * @since 4.2
  */
 public interface HttpAsyncContentProducer extends Closeable {
 
     /**
-     * Notification that content should be written to the encoder.
-     * {@link IOControl} instance passed as a parameter to the method can be
-     * used to suspend output events if the entity is temporarily unable to
-     * produce more content.
+     * Invoked to write out a chunk of content to the {@link ContentEncoder}.
+     * The {@link IOControl} interface can be used to suspend output events
+     * if the entity is temporarily unable to produce more content.
      * <p>
      * When all content is finished, this <b>MUST</b> call {@link ContentEncoder#complete()}.
      * Failure to do so could result in the entity never being written.
@@ -52,6 +55,10 @@ public interface HttpAsyncContentProducer extends Closeable {
      */
     void produceContent(ContentEncoder encoder, IOControl ioctrl) throws IOException;
 
+    /**
+     * Determines whether or not this producer is capable of producing
+     * its content more than once.
+     */
     boolean isRepeatable();
 
 }

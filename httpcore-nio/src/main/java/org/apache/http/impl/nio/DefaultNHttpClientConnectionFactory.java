@@ -39,7 +39,7 @@ import org.apache.http.params.HttpConnectionParams;
 import org.apache.http.params.HttpParams;
 
 /**
- * Plain (non-encrypted) {@link NHttpClientConnection} factory.
+ * Factory for plain (non-encrypted), non-blocking {@link NHttpClientConnection}s.
  * <p>
  * The following parameters can be used to customize the behavior of this
  * class:

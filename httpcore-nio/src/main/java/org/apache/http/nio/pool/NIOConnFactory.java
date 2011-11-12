@@ -32,6 +32,11 @@ import java.io.IOException;
 import org.apache.http.nio.reactor.IOSession;
 
 /**
+ * Factory for poolable non-blocking connections.
+ *
+ * @param <T> the route type that represents the opposite endpoint of a pooled
+ *   connection.
+ * @param <C> the connection type.
  * @since 4.2
  */
 public interface NIOConnFactory<T, C> {
