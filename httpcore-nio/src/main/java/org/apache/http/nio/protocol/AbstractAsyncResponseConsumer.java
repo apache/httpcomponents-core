@@ -36,6 +36,10 @@ import org.apache.http.nio.IOControl;
 import org.apache.http.protocol.HttpContext;
 
 /**
+ * Abstract {@link HttpAsyncResponseConsumer} implementation that relieves its
+ * subclasses form having to synchronize access to internal instance variables
+ * and provides a number of protected methods that they need to implement.
+ *
  * @since 4.2
  */
 @ThreadSafe
@@ -49,25 +53,68 @@ public abstract class AbstractAsyncResponseConsumer<T> implements HttpAsyncRespo
         super();
     }
 
+    /**
+     * Invoked when a HTTP response message is received. Please note
+     * that the {@link #onContentReceived(ContentDecoder, IOControl)} method
+     * will be invoked only if the response messages has a content entity
+     * enclosed.
+     *
+     * @return HTTP response message.
+     * @throws HttpException in case of HTTP protocol violation
+     * @throws IOException in case of an I/O error
+     */
     protected abstract void onResponseReceived(final HttpResponse response) throws HttpException, IOException;
 
+    /**
+     * Invoked to process a chunk of content from the {@link ContentDecoder}.
+     * The {@link IOControl} interface can be used to suspend input events
+     * if the consumer is temporarily unable to consume more content.
+     * <p/>
+     * The consumer can use the {@link ContentDecoder#isCompleted()} method
+     * to find out whether or not the message content has been fully consumed.
+     *
+     * @param decoder content decoder.
+     * @param ioctrl I/O control of the underlying connection.
+     * @throws IOException in case of an I/O error
+     */
     protected abstract void onContentReceived(
             final ContentDecoder decoder, final IOControl ioctrl) throws IOException;
 
+    /**
+     * Invoked to generate a result object from the received HTTP response
+     * message.
+     *
+     * @param context HTTP context.
+     * @return result of the response processing.
+     * @throws Exception in case of an abnormal termination.
+     */
     protected abstract T buildResult(HttpContext context) throws Exception;
 
+    /**
+     * Invoked to release all system resources currently allocated.
+     */
     protected abstract void releaseResources();
 
-    public synchronized void responseReceived(final HttpResponse response) throws IOException, HttpException {
+    /**
+     * Use {@link #onResponseReceived(HttpResponse) instead.
+     */
+    public final synchronized void responseReceived(
+            final HttpResponse response) throws IOException, HttpException {
         onResponseReceived(response);
     }
 
-    public synchronized void consumeContent(
+    /**
+     * Use {@link #onContentReceived(ContentDecoder, IOControl) instead.
+     */
+    public final synchronized void consumeContent(
             final ContentDecoder decoder, final IOControl ioctrl) throws IOException {
         onContentReceived(decoder, ioctrl);
     }
 
-    public synchronized void responseCompleted(final HttpContext context) {
+    /**
+     * Use {@link #buildResult(HttpContext)} instead.
+     */
+    public final synchronized void responseCompleted(final HttpContext context) {
         if (this.completed) {
             return;
         }
@@ -81,7 +128,7 @@ public abstract class AbstractAsyncResponseConsumer<T> implements HttpAsyncRespo
         }
     }
 
-    public synchronized boolean cancel() {
+    public final synchronized boolean cancel() {
         if (this.completed) {
             return false;
         }
@@ -90,7 +137,7 @@ public abstract class AbstractAsyncResponseConsumer<T> implements HttpAsyncRespo
         return true;
     }
 
-    public synchronized void failed(final Exception ex) {
+    public final synchronized void failed(final Exception ex) {
         if (this.completed) {
             return;
         }
@@ -99,7 +146,7 @@ public abstract class AbstractAsyncResponseConsumer<T> implements HttpAsyncRespo
         releaseResources();
     }
 
-    public synchronized void close() {
+    public final synchronized void close() {
         if (this.completed) {
             return;
         }

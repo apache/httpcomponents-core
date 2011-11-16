@@ -30,20 +30,49 @@ package org.apache.http.nio.protocol;
 import java.io.Closeable;
 import java.io.IOException;
 
+import org.apache.http.HttpException;
 import org.apache.http.HttpResponse;
 import org.apache.http.nio.ContentEncoder;
 import org.apache.http.nio.IOControl;
 import org.apache.http.protocol.HttpContext;
 
 /**
+ * <tt>HttpAsyncResponseProducer</tt> is a callback interface whose methods
+ * get invoked to generate an HTTP response message and to stream message
+ * content to a non-blocking HTTP connection through a {@link ContentEncoder}.
+ *
  * @since 4.2
  */
 public interface HttpAsyncResponseProducer extends Closeable {
 
+    /**
+     * Invoked to generate a HTTP response message.
+     *
+     * @return HTTP response message.
+     * @throws HttpException in case of HTTP protocol violation
+     * @throws IOException in case of an I/O error
+     */
     HttpResponse generateResponse();
 
+    /**
+     * Invoked to write out a chunk of content to the {@link ContentEncoder}.
+     * The {@link IOControl} interface can be used to suspend output events
+     * if the producer is temporarily unable to produce more content.
+     * <p/>
+     * When all content is finished, this <b>MUST</b> call {@link ContentEncoder#complete()}.
+     * Failure to do so could result in the entity never being written.
+     *
+     * @param encoder content encoder.
+     * @param ioctrl I/O control of the underlying connection.
+     * @throws IOException in case of an I/O error
+     */
     void produceContent(ContentEncoder encoder, IOControl ioctrl) throws IOException;
 
+    /**
+     * Invoked to signal that the response has been fully written out.
+     *
+     * @param context HTTP context
+     */
     void responseCompleted(HttpContext context);
 
 }

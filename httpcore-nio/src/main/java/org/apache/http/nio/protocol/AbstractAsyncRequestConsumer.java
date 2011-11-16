@@ -28,6 +28,7 @@ package org.apache.http.nio.protocol;
 
 import java.io.IOException;
 
+import org.apache.http.HttpEntityEnclosingRequest;
 import org.apache.http.HttpException;
 import org.apache.http.HttpRequest;
 import org.apache.http.annotation.ThreadSafe;
@@ -36,6 +37,10 @@ import org.apache.http.nio.IOControl;
 import org.apache.http.protocol.HttpContext;
 
 /**
+ * Abstract {@link HttpAsyncRequestConsumer} implementation that relieves its
+ * subclasses form having to synchronize access to internal instance variables
+ * and provides a number of protected methods that they need to implement.
+ *
  * @since 4.2
  */
 @ThreadSafe
@@ -49,25 +54,69 @@ public abstract class AbstractAsyncRequestConsumer<T> implements HttpAsyncReques
         super();
     }
 
+    /**
+     * Invoked when a HTTP request message is received. Please note
+     * that the {@link #onContentReceived(ContentDecoder, IOControl)} method
+     * will be invoked only for if the request message implements
+     * {@link HttpEntityEnclosingRequest} interface and has a content
+     * entity enclosed.
+     *
+     * @return HTTP request message.
+     * @throws HttpException in case of HTTP protocol violation
+     * @throws IOException in case of an I/O error
+     */
     protected abstract void onRequestReceived(HttpRequest request) throws HttpException, IOException;
 
+    /**
+     * Invoked to process a chunk of content from the {@link ContentDecoder}.
+     * The {@link IOControl} interface can be used to suspend input events
+     * if the consumer is temporarily unable to consume more content.
+     * <p/>
+     * The consumer can use the {@link ContentDecoder#isCompleted()} method
+     * to find out whether or not the message content has been fully consumed.
+     *
+     * @param decoder content decoder.
+     * @param ioctrl I/O control of the underlying connection.
+     * @throws IOException in case of an I/O error
+     */
     protected abstract void onContentReceived(
             ContentDecoder decoder, IOControl ioctrl) throws IOException;
 
+    /**
+     * Invoked to generate a result object from the received HTTP request
+     * message.
+     *
+     * @param context HTTP context.
+     * @return result of the request processing.
+     * @throws Exception in case of an abnormal termination.
+     */
     protected abstract T buildResult(HttpContext context) throws Exception;
 
+    /**
+     * Invoked to release all system resources currently allocated.
+     */
     protected abstract void releaseResources();
 
-    public synchronized void requestReceived(HttpRequest request) throws HttpException, IOException {
+    /**
+     * Use {@link #onRequestReceived(HttpRequest)} instead.
+     */
+    public final synchronized void requestReceived(
+            final HttpRequest request) throws HttpException, IOException {
         onRequestReceived(request);
     }
 
-    public synchronized void consumeContent(
+    /**
+     * Use {@link #onContentReceived(ContentDecoder, IOControl) instead.
+     */
+    public final synchronized void consumeContent(
             final ContentDecoder decoder, final IOControl ioctrl) throws IOException {
         onContentReceived(decoder, ioctrl);
     }
 
-    public synchronized void requestCompleted(final HttpContext context) {
+    /**
+     * Use {@link #buildResult(HttpContext)} instead.
+     */
+    public final synchronized void requestCompleted(final HttpContext context) {
         if (this.completed) {
             return;
         }
@@ -81,7 +130,7 @@ public abstract class AbstractAsyncRequestConsumer<T> implements HttpAsyncReques
         }
     }
 
-    public synchronized void close() throws IOException {
+    public final synchronized void close() throws IOException {
         if (this.completed) {
             return;
         }
