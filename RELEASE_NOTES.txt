@@ -1,10 +1,10 @@
 Changes since Release 4.2-ALPHA2
 -------------------
 
-* [HTTPCORE-282] Newly created non-blocking I/O sessions to have READ interest op bit cleared 
-  per default due to a regression introduced in release 4.1.1. This has a side effect on client
-  side non-blocking connections when running in the interest op queuing mode.
-  Contributed by Sadeep Jayasumana <sadeep at wso2.com> 
+* [HTTPCORE-282] The default value of the internal event mask of newly created non-blocking I/O 
+  is not correctly initialized, which causes the READ interest bit to get cleared in the interest 
+  op queuing mode unless the event mask is explicitly reset.
+  Contributed by Sadeep Jayasumana <sadeep at wso2.com> and Oleg Kalnichevski <olegk at apache.org>
 
 Release 4.2-ALPHA2
 -------------------
