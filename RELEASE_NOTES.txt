@@ -1,6 +1,11 @@
 Changes since 4.1.3
 -------------------
 
+* [HTTPCORE-282] Newly created non-blocking I/O sessions to have READ interest op bit cleared 
+  per default due to a regression introduced in release 4.1.1. This has a side effect on client
+  side non-blocking connections when running in the interest op queuing mode.
+  Contributed by Sadeep Jayasumana <sadeep at wso2.com> 
+
 * [HTTPCORE-268] Handle runtime exceptions thrown by SSLEngine.
   Contributed by Oleg Kalnichevski <olegk at apache.org>
 
