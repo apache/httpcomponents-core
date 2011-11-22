@@ -161,6 +161,7 @@ public class NHttpConnectionBase
         this.session = session;
         this.context = new SessionHttpContext(this.session);
         this.session.setBufferStatus(this);
+        this.session.setEvent(EventMask.READ);
         this.remote = this.session.getRemoteAddress();
     }
 
