@@ -87,7 +87,7 @@ public class IOSessionImpl implements IOSession {
         this.interestOpsCallback = interestOpsCallback;
         this.sessionClosedCallback = sessionClosedCallback;
         this.attributes = Collections.synchronizedMap(new HashMap<String, Object>());
-        this.currentEventMask = 0;
+        this.currentEventMask = key.interestOps();
         this.socketTimeout = 0;
         this.status = ACTIVE;
         long now = System.currentTimeMillis();
