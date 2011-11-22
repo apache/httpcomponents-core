@@ -543,6 +543,21 @@ public class TestStandardInterceptors extends TestCase {
         assertNull(header);
     }
 
+    public void testResponseConnControl10Client11Response() throws Exception {
+        HttpContext context = new BasicHttpContext(null);
+        BasicHttpRequest request = new BasicHttpRequest("GET", "/", HttpVersion.HTTP_1_0);
+        context.setAttribute(ExecutionContext.HTTP_REQUEST, request);
+
+        HttpResponse response = new BasicHttpResponse(HttpVersion.HTTP_1_1, HttpStatus.SC_OK, "OK");
+        StringEntity entity = new StringEntity("whatever");
+        response.setEntity(entity);
+        ResponseConnControl interceptor = new ResponseConnControl();
+        interceptor.process(response, context);
+        Header header = response.getFirstHeader(HTTP.CONN_DIRECTIVE);
+        assertNotNull(header);
+        assertEquals(HTTP.CONN_CLOSE, header.getValue());
+    }
+
     public void testResponseConnControlStatusCode() throws Exception {
         HttpContext context = new BasicHttpContext(null);
         BasicHttpRequest request = new BasicHttpRequest("GET", "/");
