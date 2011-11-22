@@ -1,6 +1,11 @@
 Changes since Release 4.2-ALPHA2
 -------------------
 
+* [HTTPCORE-281] ResponseConnControl protocol interceptor does not correctly populate connection
+  persistence control headers when sending a HTTP/1.1 response message in response to a HTTP/1.0 
+  request message.
+  Contributed by William R. Speirs <bill.speirs at gmail.com>
+
 * [HTTPCORE-282] The default value of the internal event mask of newly created non-blocking I/O 
   is not correctly initialized, which causes the READ interest bit to get cleared in the interest 
   op queuing mode unless the event mask is explicitly reset.
