@@ -80,7 +80,7 @@ public class TestHttpAsyncServiceHandler {
     @Before
     public void setUp() throws Exception {
         this.requestHandler = Mockito.mock(HttpAsyncRequestHandler.class);
-        this.requestConsumer = Mockito.mock(HttpAsyncRequestConsumer.class);;
+        this.requestConsumer = Mockito.mock(HttpAsyncRequestConsumer.class);
         this.responseProducer = Mockito.mock(HttpAsyncResponseProducer.class);
         this.handlerResolver = new HttpAsyncRequestHandlerRegistry();
         this.handlerResolver.register("/", this.requestHandler);

@@ -70,7 +70,7 @@ public class TestRouteSpecificPool {
             return new LocalPoolEntry(route, session);
         }
 
-    };
+    }
 
     @Test
     public void testEmptyPool() throws Exception {
