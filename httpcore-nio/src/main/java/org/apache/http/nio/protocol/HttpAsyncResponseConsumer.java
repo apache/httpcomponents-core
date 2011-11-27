@@ -51,7 +51,7 @@ public interface HttpAsyncResponseConsumer<T> extends Closeable, Cancellable {
      * will be invoked only if the response messages has a content entity
      * enclosed.
      *
-     * @return HTTP response message.
+     * @param response HTTP response message.
      * @throws HttpException in case of HTTP protocol violation
      * @throws IOException in case of an I/O error
      */

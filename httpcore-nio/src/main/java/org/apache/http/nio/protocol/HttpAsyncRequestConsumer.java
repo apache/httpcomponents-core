@@ -52,7 +52,7 @@ public interface HttpAsyncRequestConsumer<T> extends Closeable {
      * {@link HttpEntityEnclosingRequest} interface and has a content
      * entity enclosed.
      *
-     * @return HTTP request message.
+     * @param request HTTP request message.
      * @throws HttpException in case of HTTP protocol violation
      * @throws IOException in case of an I/O error
      */

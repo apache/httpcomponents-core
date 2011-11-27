@@ -61,7 +61,7 @@ public abstract class AbstractAsyncRequestConsumer<T> implements HttpAsyncReques
      * {@link HttpEntityEnclosingRequest} interface and has a content
      * entity enclosed.
      *
-     * @return HTTP request message.
+     * @param request HTTP request message.
      * @throws HttpException in case of HTTP protocol violation
      * @throws IOException in case of an I/O error
      */
@@ -106,7 +106,7 @@ public abstract class AbstractAsyncRequestConsumer<T> implements HttpAsyncReques
     }
 
     /**
-     * Use {@link #onContentReceived(ContentDecoder, IOControl) instead.
+     * Use {@link #onContentReceived(ContentDecoder, IOControl)} instead.
      */
     public final synchronized void consumeContent(
             final ContentDecoder decoder, final IOControl ioctrl) throws IOException {
