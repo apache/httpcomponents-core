@@ -130,6 +130,15 @@ public abstract class AbstractAsyncRequestConsumer<T> implements HttpAsyncReques
         }
     }
 
+    public final synchronized void failed(final Exception ex) {
+        if (this.completed) {
+            return;
+        }
+        this.completed = true;
+        this.ex = ex;
+        releaseResources();
+    }
+
     public final synchronized void close() throws IOException {
         if (this.completed) {
             return;

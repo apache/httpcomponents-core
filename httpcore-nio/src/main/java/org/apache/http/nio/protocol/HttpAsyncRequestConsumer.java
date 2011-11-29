@@ -80,6 +80,13 @@ public interface HttpAsyncRequestConsumer<T> extends Closeable {
     void requestCompleted(HttpContext context);
 
     /**
+     * Invoked to signal that the response processing terminated abnormally.
+     *
+     * @param ex exception
+     */
+    void failed(Exception ex);
+
+    /**
      * Returns an exception in case of an abnormal termination. This method
      * returns <code>null</code> if the request execution is still ongoing
      * or if it completed successfully.

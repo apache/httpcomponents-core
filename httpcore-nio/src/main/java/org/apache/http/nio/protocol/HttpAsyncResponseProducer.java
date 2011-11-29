@@ -75,4 +75,11 @@ public interface HttpAsyncResponseProducer extends Closeable {
      */
     void responseCompleted(HttpContext context);
 
+    /**
+     * Invoked to signal that the response processing terminated abnormally.
+     *
+     * @param ex exception
+     */
+    void failed(Exception ex);
+
 }

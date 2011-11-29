@@ -114,12 +114,17 @@ public class BasicAsyncRequestProducer implements HttpAsyncRequestProducer {
     public void requestCompleted(final HttpContext context) {
     }
 
+    public void failed(final Exception ex) {
+    }
+
     public synchronized boolean isRepeatable() {
         return this.producer == null || this.producer.isRepeatable();
     }
 
     public synchronized void resetRequest() throws IOException {
-        this.producer.close();
+        if (this.producer != null) {
+            this.producer.close();
+        }
     }
 
     public synchronized void close() throws IOException {

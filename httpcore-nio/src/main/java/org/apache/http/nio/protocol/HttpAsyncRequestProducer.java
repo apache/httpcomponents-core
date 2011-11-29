@@ -92,6 +92,13 @@ public interface HttpAsyncRequestProducer extends Closeable {
     void requestCompleted(HttpContext context);
 
     /**
+     * Invoked to signal that the response processing terminated abnormally.
+     *
+     * @param ex exception
+     */
+    void failed(Exception ex);
+
+    /**
      * Determines whether or not this producer is capable of producing
      * HTTP request messages more than once.
      */

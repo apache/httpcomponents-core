@@ -87,6 +87,9 @@ class ErrorResponseProducer implements HttpAsyncResponseProducer {
     public void responseCompleted(final HttpContext context) {
     }
 
+    public void failed(final Exception ex) {
+    }
+
     public void close() throws IOException {
         this.contentProducer.close();
     }

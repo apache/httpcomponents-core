@@ -96,6 +96,9 @@ public class BasicAsyncResponseProducer implements HttpAsyncResponseProducer {
     public void responseCompleted(final HttpContext context) {
     }
 
+    public void failed(final Exception ex) {
+    }
+
     public synchronized void close() throws IOException {
         if (this.producer != null) {
             this.producer.close();
