@@ -45,7 +45,7 @@ import org.apache.http.nio.ContentEncoder;
 import org.apache.http.nio.NHttpClientConnection;
 import org.apache.http.nio.NHttpConnection;
 import org.apache.http.nio.entity.NStringEntity;
-import org.apache.http.nio.protocol.HttpAsyncClientProtocolHandler.HttpExchangeState;
+import org.apache.http.nio.protocol.HttpAsyncClientProtocolHandler.State;
 import org.apache.http.protocol.BasicHttpContext;
 import org.apache.http.protocol.HTTP;
 import org.apache.http.protocol.HttpContext;
@@ -92,8 +92,8 @@ public class TestHttpAsyncClientProtocolHandler {
 
         this.protocolHandler.connected(this.conn, null);
 
-        HttpExchangeState state = (HttpExchangeState) this.connContext.getAttribute(
-                HttpAsyncClientProtocolHandler.HTTP_EXCHANGE);
+        State state = (State) this.connContext.getAttribute(
+                HttpAsyncClientProtocolHandler.HTTP_EXCHANGE_STATE);
         Assert.assertNotNull(state);
         Assert.assertSame(this.exchangeHandler, state.getHandler());
         Mockito.verify(this.exchangeHandler).generateRequest();
@@ -107,11 +107,11 @@ public class TestHttpAsyncClientProtocolHandler {
 
     @Test
     public void testClosed() throws Exception {
-        HttpExchangeState state = this.protocolHandler.new HttpExchangeState();
+        State state = new HttpAsyncClientProtocolHandler.State();
         state.setRequestState(MessageState.COMPLETED);
         state.setResponseState(MessageState.COMPLETED);
         state.setHandler(this.exchangeHandler);
-        this.connContext.setAttribute(HttpAsyncClientProtocolHandler.HTTP_EXCHANGE, state);
+        this.connContext.setAttribute(HttpAsyncClientProtocolHandler.HTTP_EXCHANGE_STATE, state);
 
         this.protocolHandler.closed(this.conn);
 
@@ -123,39 +123,41 @@ public class TestHttpAsyncClientProtocolHandler {
 
     @Test
     public void testHttpExceptionHandling() throws Exception {
-        HttpExchangeState state = this.protocolHandler.new HttpExchangeState();
+        State state = new HttpAsyncClientProtocolHandler.State();
         state.setRequestState(MessageState.COMPLETED);
         state.setResponseState(MessageState.COMPLETED);
         state.setHandler(this.exchangeHandler);
-        this.connContext.setAttribute(HttpAsyncClientProtocolHandler.HTTP_EXCHANGE, state);
+        this.connContext.setAttribute(HttpAsyncClientProtocolHandler.HTTP_EXCHANGE_STATE, state);
 
         HttpException httpex = new HttpException();
         this.protocolHandler.exception(this.conn, httpex);
 
         Mockito.verify(this.exchangeHandler).failed(httpex);
+        Mockito.verify(this.exchangeHandler).close();
         Mockito.verify(this.conn).close();
     }
 
     @Test
     public void testIOExceptionHandling() throws Exception {
-        HttpExchangeState state = this.protocolHandler.new HttpExchangeState();
+        State state = new HttpAsyncClientProtocolHandler.State();
         state.setRequestState(MessageState.COMPLETED);
         state.setResponseState(MessageState.COMPLETED);
         state.setHandler(this.exchangeHandler);
-        this.connContext.setAttribute(HttpAsyncClientProtocolHandler.HTTP_EXCHANGE, state);
+        this.connContext.setAttribute(HttpAsyncClientProtocolHandler.HTTP_EXCHANGE_STATE, state);
 
         IOException ioex = new IOException();
         this.protocolHandler.exception(this.conn, ioex);
 
         Mockito.verify(this.exchangeHandler).failed(ioex);
+        Mockito.verify(this.exchangeHandler).close();
         Mockito.verify(this.conn).shutdown();
     }
 
     @Test
     public void testBasicRequest() throws Exception {
-        HttpExchangeState state = this.protocolHandler.new HttpExchangeState();
+        State state = new HttpAsyncClientProtocolHandler.State();
         state.setHandler(this.exchangeHandler);
-        this.connContext.setAttribute(HttpAsyncClientProtocolHandler.HTTP_EXCHANGE, state);
+        this.connContext.setAttribute(HttpAsyncClientProtocolHandler.HTTP_EXCHANGE_STATE, state);
         HttpRequest request = new BasicHttpRequest("GET", "/");
         Mockito.when(this.exchangeHandler.generateRequest()).thenReturn(request);
 
@@ -170,9 +172,9 @@ public class TestHttpAsyncClientProtocolHandler {
 
     @Test
     public void testEntityEnclosingRequestWithoutExpectContinue() throws Exception {
-        HttpExchangeState state = this.protocolHandler.new HttpExchangeState();
+        State state = new HttpAsyncClientProtocolHandler.State();
         state.setHandler(this.exchangeHandler);
-        this.connContext.setAttribute(HttpAsyncClientProtocolHandler.HTTP_EXCHANGE, state);
+        this.connContext.setAttribute(HttpAsyncClientProtocolHandler.HTTP_EXCHANGE_STATE, state);
         BasicHttpEntityEnclosingRequest request = new BasicHttpEntityEnclosingRequest("POST", "/");
         request.setEntity(NStringEntity.create("stuff"));
         Mockito.when(this.exchangeHandler.generateRequest()).thenReturn(request);
@@ -188,9 +190,9 @@ public class TestHttpAsyncClientProtocolHandler {
 
     @Test
     public void testEntityEnclosingRequestWithExpectContinue() throws Exception {
-        HttpExchangeState state = this.protocolHandler.new HttpExchangeState();
+        State state = new HttpAsyncClientProtocolHandler.State();
         state.setHandler(this.exchangeHandler);
-        this.connContext.setAttribute(HttpAsyncClientProtocolHandler.HTTP_EXCHANGE, state);
+        this.connContext.setAttribute(HttpAsyncClientProtocolHandler.HTTP_EXCHANGE_STATE, state);
         BasicHttpEntityEnclosingRequest request = new BasicHttpEntityEnclosingRequest("POST", "/");
         request.setHeader(HTTP.EXPECT_DIRECTIVE, HTTP.EXPECT_CONTINUE);
         Mockito.when(this.exchangeHandler.generateRequest()).thenReturn(request);
@@ -210,38 +212,39 @@ public class TestHttpAsyncClientProtocolHandler {
     @Test
     public void testRequestRuntimeException() throws Exception {
         RuntimeException runtimeex = new RuntimeException();
-        HttpExchangeState state = this.protocolHandler.new HttpExchangeState();
+        State state = new HttpAsyncClientProtocolHandler.State();
         state.setHandler(this.exchangeHandler);
-        this.connContext.setAttribute(HttpAsyncClientProtocolHandler.HTTP_EXCHANGE, state);
+        this.connContext.setAttribute(HttpAsyncClientProtocolHandler.HTTP_EXCHANGE_STATE, state);
         Mockito.when(this.exchangeHandler.generateRequest()).thenThrow(runtimeex);
         try {
             this.protocolHandler.requestReady(this.conn);
             Assert.fail("RuntimeException expected");
         } catch (RuntimeException ex) {
             Mockito.verify(this.conn).shutdown();
-            Mockito.verify(this.exchangeHandler).failed(ex);
+            Mockito.verify(this.exchangeHandler).close();
         }
     }
 
     @Test
     public void testRequestHttpException() throws Exception {
         HttpException httpex = new HttpException();
-        HttpExchangeState state = this.protocolHandler.new HttpExchangeState();
+        State state = new HttpAsyncClientProtocolHandler.State();
         state.setHandler(this.exchangeHandler);
-        this.connContext.setAttribute(HttpAsyncClientProtocolHandler.HTTP_EXCHANGE, state);
+        this.connContext.setAttribute(HttpAsyncClientProtocolHandler.HTTP_EXCHANGE_STATE, state);
         Mockito.when(this.exchangeHandler.generateRequest()).thenThrow(httpex);
 
         this.protocolHandler.requestReady(this.conn);
 
         Mockito.verify(this.conn).close();
         Mockito.verify(this.exchangeHandler).failed(httpex);
+        Mockito.verify(this.exchangeHandler).close();
     }
 
     @Test
     public void testRequestContentOutput() throws Exception {
-        HttpExchangeState state = this.protocolHandler.new HttpExchangeState();
+        State state = new HttpAsyncClientProtocolHandler.State();
         state.setHandler(this.exchangeHandler);
-        this.connContext.setAttribute(HttpAsyncClientProtocolHandler.HTTP_EXCHANGE, state);
+        this.connContext.setAttribute(HttpAsyncClientProtocolHandler.HTTP_EXCHANGE_STATE, state);
         Mockito.when(this.encoder.isCompleted()).thenReturn(false);
 
         this.protocolHandler.outputReady(this.conn, this.encoder);
@@ -252,9 +255,9 @@ public class TestHttpAsyncClientProtocolHandler {
 
     @Test
     public void testRequestContentOutputCompleted() throws Exception {
-        HttpExchangeState state = this.protocolHandler.new HttpExchangeState();
+        State state = new HttpAsyncClientProtocolHandler.State();
         state.setHandler(this.exchangeHandler);
-        this.connContext.setAttribute(HttpAsyncClientProtocolHandler.HTTP_EXCHANGE, state);
+        this.connContext.setAttribute(HttpAsyncClientProtocolHandler.HTTP_EXCHANGE_STATE, state);
         Mockito.when(this.encoder.isCompleted()).thenReturn(true);
 
         this.protocolHandler.outputReady(this.conn, this.encoder);
@@ -266,10 +269,10 @@ public class TestHttpAsyncClientProtocolHandler {
 
     @Test
     public void testRequestContentContinueExpected() throws Exception {
-        HttpExchangeState state = this.protocolHandler.new HttpExchangeState();
+        State state = new HttpAsyncClientProtocolHandler.State();
         state.setRequestState(MessageState.ACK_EXPECTED);
         state.setHandler(this.exchangeHandler);
-        this.connContext.setAttribute(HttpAsyncClientProtocolHandler.HTTP_EXCHANGE, state);
+        this.connContext.setAttribute(HttpAsyncClientProtocolHandler.HTTP_EXCHANGE_STATE, state);
 
         this.protocolHandler.outputReady(this.conn, this.encoder);
 
@@ -281,9 +284,9 @@ public class TestHttpAsyncClientProtocolHandler {
     @Test
     public void testRequestContentRuntimeException() throws Exception {
         RuntimeException runtimeex = new RuntimeException();
-        HttpExchangeState state = this.protocolHandler.new HttpExchangeState();
+        State state = new HttpAsyncClientProtocolHandler.State();
         state.setHandler(this.exchangeHandler);
-        this.connContext.setAttribute(HttpAsyncClientProtocolHandler.HTTP_EXCHANGE, state);
+        this.connContext.setAttribute(HttpAsyncClientProtocolHandler.HTTP_EXCHANGE_STATE, state);
         Mockito.doThrow(runtimeex).when(this.exchangeHandler).produceContent(this.encoder, this.conn);
 
         try {
@@ -291,31 +294,32 @@ public class TestHttpAsyncClientProtocolHandler {
             Assert.fail("RuntimeException expected");
         } catch (RuntimeException ex) {
             Mockito.verify(this.conn).shutdown();
-            Mockito.verify(this.exchangeHandler).failed(ex);
+            Mockito.verify(this.exchangeHandler).close();
         }
     }
 
     @Test
     public void testRequestContentIOException() throws Exception {
         IOException ioex = new IOException();
-        HttpExchangeState state = this.protocolHandler.new HttpExchangeState();
+        State state = new HttpAsyncClientProtocolHandler.State();
         state.setHandler(this.exchangeHandler);
-        this.connContext.setAttribute(HttpAsyncClientProtocolHandler.HTTP_EXCHANGE, state);
+        this.connContext.setAttribute(HttpAsyncClientProtocolHandler.HTTP_EXCHANGE_STATE, state);
         Mockito.doThrow(ioex).when(this.exchangeHandler).produceContent(this.encoder, this.conn);
 
         this.protocolHandler.outputReady(this.conn, this.encoder);
 
         Mockito.verify(this.conn).shutdown();
         Mockito.verify(this.exchangeHandler).failed(ioex);
+        Mockito.verify(this.exchangeHandler).close();
     }
 
     @Test
     public void testBasicResponse() throws Exception {
-        HttpExchangeState state = this.protocolHandler.new HttpExchangeState();
+        State state = new HttpAsyncClientProtocolHandler.State();
         HttpRequest request = new BasicHttpRequest("GET", "/");
         state.setRequest(request);
         state.setHandler(this.exchangeHandler);
-        this.connContext.setAttribute(HttpAsyncClientProtocolHandler.HTTP_EXCHANGE, state);
+        this.connContext.setAttribute(HttpAsyncClientProtocolHandler.HTTP_EXCHANGE_STATE, state);
         BasicHttpResponse response = new BasicHttpResponse(HttpVersion.HTTP_1_1, 200, "OK");
         Mockito.when(this.conn.getHttpResponse()).thenReturn(response);
 
@@ -327,14 +331,14 @@ public class TestHttpAsyncClientProtocolHandler {
 
     @Test
     public void testResponseContinue() throws Exception {
-        HttpExchangeState state = this.protocolHandler.new HttpExchangeState();
+        State state = new HttpAsyncClientProtocolHandler.State();
         state.setRequestState(MessageState.ACK_EXPECTED);
         state.setTimeout(1000);
         BasicHttpEntityEnclosingRequest request = new BasicHttpEntityEnclosingRequest("POST", "/");
         request.setEntity(NStringEntity.create("stuff"));
         state.setRequest(request);
         state.setHandler(this.exchangeHandler);
-        this.connContext.setAttribute(HttpAsyncClientProtocolHandler.HTTP_EXCHANGE, state);
+        this.connContext.setAttribute(HttpAsyncClientProtocolHandler.HTTP_EXCHANGE_STATE, state);
         BasicHttpResponse response = new BasicHttpResponse(HttpVersion.HTTP_1_1, 100, "Continue");
         Mockito.when(this.conn.getHttpResponse()).thenReturn(response);
 
@@ -349,13 +353,13 @@ public class TestHttpAsyncClientProtocolHandler {
 
     @Test
     public void testResponseContinueOutOfSequence() throws Exception {
-        HttpExchangeState state = this.protocolHandler.new HttpExchangeState();
+        State state = new HttpAsyncClientProtocolHandler.State();
         state.setRequestState(MessageState.COMPLETED);
         BasicHttpEntityEnclosingRequest request = new BasicHttpEntityEnclosingRequest("POST", "/");
         request.setEntity(NStringEntity.create("stuff"));
         state.setRequest(request);
         state.setHandler(this.exchangeHandler);
-        this.connContext.setAttribute(HttpAsyncClientProtocolHandler.HTTP_EXCHANGE, state);
+        this.connContext.setAttribute(HttpAsyncClientProtocolHandler.HTTP_EXCHANGE_STATE, state);
         BasicHttpResponse response = new BasicHttpResponse(HttpVersion.HTTP_1_1, 100, "Continue");
         Mockito.when(this.conn.getHttpResponse()).thenReturn(response);
 
@@ -368,35 +372,35 @@ public class TestHttpAsyncClientProtocolHandler {
 
     @Test
     public void testResponseUnsupported1xx() throws Exception {
-        HttpExchangeState state = this.protocolHandler.new HttpExchangeState();
+        State state = new HttpAsyncClientProtocolHandler.State();
         state.setRequestState(MessageState.ACK_EXPECTED);
         state.setTimeout(1000);
         BasicHttpEntityEnclosingRequest request = new BasicHttpEntityEnclosingRequest("POST", "/");
         request.setEntity(NStringEntity.create("stuff"));
         state.setRequest(request);
         state.setHandler(this.exchangeHandler);
-        this.connContext.setAttribute(HttpAsyncClientProtocolHandler.HTTP_EXCHANGE, state);
+        this.connContext.setAttribute(HttpAsyncClientProtocolHandler.HTTP_EXCHANGE_STATE, state);
         BasicHttpResponse response = new BasicHttpResponse(HttpVersion.HTTP_1_1, 111, "WTF?");
         Mockito.when(this.conn.getHttpResponse()).thenReturn(response);
 
         this.protocolHandler.responseReceived(this.conn);
 
         Assert.assertNull(state.getResponse());
-        Assert.assertEquals(MessageState.ACK_EXPECTED, state.getRequestState());
         Mockito.verify(this.conn).shutdown();
         Mockito.verify(this.exchangeHandler).failed(Mockito.any(HttpException.class));
+        Mockito.verify(this.exchangeHandler).close();
     }
 
     @Test
     public void testResponseExpectationFailed() throws Exception {
-        HttpExchangeState state = this.protocolHandler.new HttpExchangeState();
+        State state = new HttpAsyncClientProtocolHandler.State();
         state.setRequestState(MessageState.ACK_EXPECTED);
         state.setTimeout(1000);
         BasicHttpEntityEnclosingRequest request = new BasicHttpEntityEnclosingRequest("POST", "/");
         request.setEntity(NStringEntity.create("stuff"));
         state.setRequest(request);
         state.setHandler(this.exchangeHandler);
-        this.connContext.setAttribute(HttpAsyncClientProtocolHandler.HTTP_EXCHANGE, state);
+        this.connContext.setAttribute(HttpAsyncClientProtocolHandler.HTTP_EXCHANGE_STATE, state);
         BasicHttpResponse response = new BasicHttpResponse(HttpVersion.HTTP_1_1, 403, "Unauthorized");
         Mockito.when(this.conn.getHttpResponse()).thenReturn(response);
 
@@ -411,14 +415,14 @@ public class TestHttpAsyncClientProtocolHandler {
 
     @Test
     public void testEarlyResponse() throws Exception {
-        HttpExchangeState state = this.protocolHandler.new HttpExchangeState();
+        State state = new HttpAsyncClientProtocolHandler.State();
         state.setRequestState(MessageState.BODY_STREAM);
         state.setTimeout(1000);
         BasicHttpEntityEnclosingRequest request = new BasicHttpEntityEnclosingRequest("POST", "/");
         request.setEntity(NStringEntity.create("stuff"));
         state.setRequest(request);
         state.setHandler(this.exchangeHandler);
-        this.connContext.setAttribute(HttpAsyncClientProtocolHandler.HTTP_EXCHANGE, state);
+        this.connContext.setAttribute(HttpAsyncClientProtocolHandler.HTTP_EXCHANGE_STATE, state);
         BasicHttpResponse response = new BasicHttpResponse(HttpVersion.HTTP_1_1, 403, "Unauthorized");
         Mockito.when(this.conn.getHttpResponse()).thenReturn(response);
 
@@ -434,11 +438,11 @@ public class TestHttpAsyncClientProtocolHandler {
 
     @Test
     public void testResponseToHead() throws Exception {
-        HttpExchangeState state = this.protocolHandler.new HttpExchangeState();
+        State state = new HttpAsyncClientProtocolHandler.State();
         HttpRequest request = new BasicHttpRequest("HEAD", "/");
         state.setRequest(request);
         state.setHandler(this.exchangeHandler);
-        this.connContext.setAttribute(HttpAsyncClientProtocolHandler.HTTP_EXCHANGE, state);
+        this.connContext.setAttribute(HttpAsyncClientProtocolHandler.HTTP_EXCHANGE_STATE, state);
         BasicHttpResponse response = new BasicHttpResponse(HttpVersion.HTTP_1_1, 200, "OK");
         Mockito.when(this.conn.getHttpResponse()).thenReturn(response);
         Mockito.when(this.reuseStrategy.keepAlive(response, this.exchangeContext)).thenReturn(true);
@@ -457,11 +461,11 @@ public class TestHttpAsyncClientProtocolHandler {
 
     @Test
     public void testResponseToConnect() throws Exception {
-        HttpExchangeState state = this.protocolHandler.new HttpExchangeState();
+        State state = new HttpAsyncClientProtocolHandler.State();
         HttpRequest request = new BasicHttpRequest("Connect", "/");
         state.setRequest(request);
         state.setHandler(this.exchangeHandler);
-        this.connContext.setAttribute(HttpAsyncClientProtocolHandler.HTTP_EXCHANGE, state);
+        this.connContext.setAttribute(HttpAsyncClientProtocolHandler.HTTP_EXCHANGE_STATE, state);
         BasicHttpResponse response = new BasicHttpResponse(HttpVersion.HTTP_1_1, 200, "OK");
         Mockito.when(this.conn.getHttpResponse()).thenReturn(response);
         Mockito.when(this.reuseStrategy.keepAlive(response, this.exchangeContext)).thenReturn(true);
@@ -480,11 +484,11 @@ public class TestHttpAsyncClientProtocolHandler {
 
     @Test
     public void testResponseNotModified() throws Exception {
-        HttpExchangeState state = this.protocolHandler.new HttpExchangeState();
+        State state = new HttpAsyncClientProtocolHandler.State();
         HttpRequest request = new BasicHttpRequest("Connect", "/");
         state.setRequest(request);
         state.setHandler(this.exchangeHandler);
-        this.connContext.setAttribute(HttpAsyncClientProtocolHandler.HTTP_EXCHANGE, state);
+        this.connContext.setAttribute(HttpAsyncClientProtocolHandler.HTTP_EXCHANGE_STATE, state);
         BasicHttpResponse response = new BasicHttpResponse(HttpVersion.HTTP_1_1,
                 HttpStatus.SC_NOT_MODIFIED, "Not modified");
         Mockito.when(this.conn.getHttpResponse()).thenReturn(response);
@@ -505,11 +509,11 @@ public class TestHttpAsyncClientProtocolHandler {
     @Test
     public void testResponseRuntimeException() throws Exception {
         RuntimeException runtimeex = new RuntimeException();
-        HttpExchangeState state = this.protocolHandler.new HttpExchangeState();
+        State state = new HttpAsyncClientProtocolHandler.State();
         HttpRequest request = new BasicHttpRequest("GET", "/");
         state.setRequest(request);
         state.setHandler(this.exchangeHandler);
-        this.connContext.setAttribute(HttpAsyncClientProtocolHandler.HTTP_EXCHANGE, state);
+        this.connContext.setAttribute(HttpAsyncClientProtocolHandler.HTTP_EXCHANGE_STATE, state);
         BasicHttpResponse response = new BasicHttpResponse(HttpVersion.HTTP_1_1, 200, "OK");
         Mockito.when(this.conn.getHttpResponse()).thenReturn(response);
         Mockito.doThrow(runtimeex).when(this.exchangeHandler).responseReceived(response);
@@ -518,18 +522,18 @@ public class TestHttpAsyncClientProtocolHandler {
             Assert.fail("RuntimeException expected");
         } catch (RuntimeException ex) {
             Mockito.verify(this.conn).shutdown();
-            Mockito.verify(this.exchangeHandler).failed(ex);
+            Mockito.verify(this.exchangeHandler).close();
         }
     }
 
     @Test
     public void testResponseHttpException() throws Exception {
         HttpException httpex = new HttpException();
-        HttpExchangeState state = this.protocolHandler.new HttpExchangeState();
+        State state = new HttpAsyncClientProtocolHandler.State();
         HttpRequest request = new BasicHttpRequest("GET", "/");
         state.setRequest(request);
         state.setHandler(this.exchangeHandler);
-        this.connContext.setAttribute(HttpAsyncClientProtocolHandler.HTTP_EXCHANGE, state);
+        this.connContext.setAttribute(HttpAsyncClientProtocolHandler.HTTP_EXCHANGE_STATE, state);
         BasicHttpResponse response = new BasicHttpResponse(HttpVersion.HTTP_1_1, 200, "OK");
         Mockito.when(this.conn.getHttpResponse()).thenReturn(response);
         Mockito.doThrow(httpex).when(this.exchangeHandler).responseReceived(response);
@@ -538,13 +542,14 @@ public class TestHttpAsyncClientProtocolHandler {
 
         Mockito.verify(this.conn).close();
         Mockito.verify(this.exchangeHandler).failed(httpex);
+        Mockito.verify(this.exchangeHandler).close();
     }
 
     @Test
     public void testResponseContentInput() throws Exception {
-        HttpExchangeState state = this.protocolHandler.new HttpExchangeState();
+        State state = new HttpAsyncClientProtocolHandler.State();
         state.setHandler(this.exchangeHandler);
-        this.connContext.setAttribute(HttpAsyncClientProtocolHandler.HTTP_EXCHANGE, state);
+        this.connContext.setAttribute(HttpAsyncClientProtocolHandler.HTTP_EXCHANGE_STATE, state);
         Mockito.when(this.decoder.isCompleted()).thenReturn(false);
 
         this.protocolHandler.inputReady(this.conn, this.decoder);
@@ -555,13 +560,13 @@ public class TestHttpAsyncClientProtocolHandler {
 
     @Test
     public void testResponseContentOutputCompleted() throws Exception {
-        HttpExchangeState state = this.protocolHandler.new HttpExchangeState();
+        State state = new HttpAsyncClientProtocolHandler.State();
         HttpRequest request = new BasicHttpRequest("GET", "/");
         state.setRequest(request);
         BasicHttpResponse response = new BasicHttpResponse(HttpVersion.HTTP_1_1, 200, "OK");
         state.setResponse(response);
         state.setHandler(this.exchangeHandler);
-        this.connContext.setAttribute(HttpAsyncClientProtocolHandler.HTTP_EXCHANGE, state);
+        this.connContext.setAttribute(HttpAsyncClientProtocolHandler.HTTP_EXCHANGE_STATE, state);
         Mockito.when(this.reuseStrategy.keepAlive(response, this.exchangeContext)).thenReturn(true);
         Mockito.when(this.exchangeHandler.getConnectionReuseStrategy()).thenReturn(this.reuseStrategy);
         Mockito.when(this.decoder.isCompleted()).thenReturn(true);
@@ -577,14 +582,14 @@ public class TestHttpAsyncClientProtocolHandler {
 
     @Test
     public void testResponseInvalidState() throws Exception {
-        HttpExchangeState state = this.protocolHandler.new HttpExchangeState();
+        State state = new HttpAsyncClientProtocolHandler.State();
         HttpRequest request = new BasicHttpRequest("GET", "/");
         state.setRequest(request);
         BasicHttpResponse response = new BasicHttpResponse(HttpVersion.HTTP_1_1, 200, "OK");
         state.setResponse(response);
         state.invalidate();
         state.setHandler(this.exchangeHandler);
-        this.connContext.setAttribute(HttpAsyncClientProtocolHandler.HTTP_EXCHANGE, state);
+        this.connContext.setAttribute(HttpAsyncClientProtocolHandler.HTTP_EXCHANGE_STATE, state);
         Mockito.when(this.decoder.isCompleted()).thenReturn(true);
 
         this.protocolHandler.inputReady(this.conn, this.decoder);
@@ -598,13 +603,13 @@ public class TestHttpAsyncClientProtocolHandler {
 
     @Test
     public void testResponseNoKeepAlive() throws Exception {
-        HttpExchangeState state = this.protocolHandler.new HttpExchangeState();
+        State state = new HttpAsyncClientProtocolHandler.State();
         HttpRequest request = new BasicHttpRequest("GET", "/");
         state.setRequest(request);
         BasicHttpResponse response = new BasicHttpResponse(HttpVersion.HTTP_1_1, 200, "OK");
         state.setResponse(response);
         state.setHandler(this.exchangeHandler);
-        this.connContext.setAttribute(HttpAsyncClientProtocolHandler.HTTP_EXCHANGE, state);
+        this.connContext.setAttribute(HttpAsyncClientProtocolHandler.HTTP_EXCHANGE_STATE, state);
         Mockito.when(this.reuseStrategy.keepAlive(response, this.exchangeContext)).thenReturn(false);
         Mockito.when(this.exchangeHandler.getConnectionReuseStrategy()).thenReturn(this.reuseStrategy);
         Mockito.when(this.decoder.isCompleted()).thenReturn(true);
@@ -621,9 +626,9 @@ public class TestHttpAsyncClientProtocolHandler {
     @Test
     public void testResponseContentRuntimeException() throws Exception {
         RuntimeException runtimeex = new RuntimeException();
-        HttpExchangeState state = this.protocolHandler.new HttpExchangeState();
+        State state = new HttpAsyncClientProtocolHandler.State();
         state.setHandler(this.exchangeHandler);
-        this.connContext.setAttribute(HttpAsyncClientProtocolHandler.HTTP_EXCHANGE, state);
+        this.connContext.setAttribute(HttpAsyncClientProtocolHandler.HTTP_EXCHANGE_STATE, state);
         Mockito.doThrow(runtimeex).when(this.exchangeHandler).consumeContent(this.decoder, this.conn);
 
         try {
@@ -631,28 +636,29 @@ public class TestHttpAsyncClientProtocolHandler {
             Assert.fail("RuntimeException expected");
         } catch (RuntimeException ex) {
             Mockito.verify(this.conn).shutdown();
-            Mockito.verify(this.exchangeHandler).failed(ex);
+            Mockito.verify(this.exchangeHandler).close();
         }
     }
 
     @Test
     public void testResponseContentIOException() throws Exception {
         IOException ioex = new IOException();
-        HttpExchangeState state = this.protocolHandler.new HttpExchangeState();
+        State state = new HttpAsyncClientProtocolHandler.State();
         state.setHandler(this.exchangeHandler);
-        this.connContext.setAttribute(HttpAsyncClientProtocolHandler.HTTP_EXCHANGE, state);
+        this.connContext.setAttribute(HttpAsyncClientProtocolHandler.HTTP_EXCHANGE_STATE, state);
         Mockito.doThrow(ioex).when(this.exchangeHandler).consumeContent(this.decoder, this.conn);
 
         this.protocolHandler.inputReady(this.conn, this.decoder);
 
         Mockito.verify(this.conn).shutdown();
         Mockito.verify(this.exchangeHandler).failed(ioex);
+        Mockito.verify(this.exchangeHandler).close();
     }
 
     @Test
     public void testTimeoutNoHandler() throws Exception {
-        HttpExchangeState state = this.protocolHandler.new HttpExchangeState();
-        this.connContext.setAttribute(HttpAsyncClientProtocolHandler.HTTP_EXCHANGE, state);
+        State state = new HttpAsyncClientProtocolHandler.State();
+        this.connContext.setAttribute(HttpAsyncClientProtocolHandler.HTTP_EXCHANGE_STATE, state);
 
         Mockito.when(this.conn.getStatus()).thenReturn(
                 NHttpConnection.ACTIVE, NHttpConnection.CLOSING);
@@ -665,11 +671,11 @@ public class TestHttpAsyncClientProtocolHandler {
 
     @Test
     public void testExpectContinueTimeout() throws Exception {
-        HttpExchangeState state = this.protocolHandler.new HttpExchangeState();
+        State state = new HttpAsyncClientProtocolHandler.State();
         state.setRequestState(MessageState.ACK_EXPECTED);
         state.setTimeout(1000);
         state.setHandler(this.exchangeHandler);
-        this.connContext.setAttribute(HttpAsyncClientProtocolHandler.HTTP_EXCHANGE, state);
+        this.connContext.setAttribute(HttpAsyncClientProtocolHandler.HTTP_EXCHANGE_STATE, state);
 
         this.protocolHandler.timeout(this.conn);
 
@@ -680,60 +686,63 @@ public class TestHttpAsyncClientProtocolHandler {
 
     @Test
     public void testTimeoutActiveConnection() throws Exception {
-        HttpExchangeState state = this.protocolHandler.new HttpExchangeState();
+        State state = new HttpAsyncClientProtocolHandler.State();
         state.setRequestState(MessageState.BODY_STREAM);
         state.setHandler(this.exchangeHandler);
-        this.connContext.setAttribute(HttpAsyncClientProtocolHandler.HTTP_EXCHANGE, state);
+        this.connContext.setAttribute(HttpAsyncClientProtocolHandler.HTTP_EXCHANGE_STATE, state);
         Mockito.when(this.conn.getStatus()).thenReturn(NHttpConnection.ACTIVE, NHttpConnection.CLOSED);
 
         this.protocolHandler.timeout(this.conn);
 
         Assert.assertEquals(MessageState.BODY_STREAM, state.getRequestState());
         Mockito.verify(this.exchangeHandler).failed(Mockito.any(SocketTimeoutException.class));
+        Mockito.verify(this.exchangeHandler).close();
         Mockito.verify(this.conn).close();
         Mockito.verify(this.conn, Mockito.never()).setSocketTimeout(Mockito.anyInt());
     }
 
     @Test
     public void testTimeoutActiveConnectionBufferedData() throws Exception {
-        HttpExchangeState state = this.protocolHandler.new HttpExchangeState();
+        State state = new HttpAsyncClientProtocolHandler.State();
         state.setRequestState(MessageState.BODY_STREAM);
         state.setHandler(this.exchangeHandler);
-        this.connContext.setAttribute(HttpAsyncClientProtocolHandler.HTTP_EXCHANGE, state);
+        this.connContext.setAttribute(HttpAsyncClientProtocolHandler.HTTP_EXCHANGE_STATE, state);
         Mockito.when(this.conn.getStatus()).thenReturn(NHttpConnection.ACTIVE, NHttpConnection.CLOSING);
 
         this.protocolHandler.timeout(this.conn);
 
         Assert.assertEquals(MessageState.BODY_STREAM, state.getRequestState());
         Mockito.verify(this.exchangeHandler).failed(Mockito.any(SocketTimeoutException.class));
+        Mockito.verify(this.exchangeHandler).close();
         Mockito.verify(this.conn).close();
         Mockito.verify(this.conn).setSocketTimeout(250);
     }
 
     @Test
     public void testTimeoutClosingConnection() throws Exception {
-        HttpExchangeState state = this.protocolHandler.new HttpExchangeState();
+        State state = new HttpAsyncClientProtocolHandler.State();
         state.setRequestState(MessageState.BODY_STREAM);
         state.setHandler(this.exchangeHandler);
-        this.connContext.setAttribute(HttpAsyncClientProtocolHandler.HTTP_EXCHANGE, state);
+        this.connContext.setAttribute(HttpAsyncClientProtocolHandler.HTTP_EXCHANGE_STATE, state);
         Mockito.when(this.conn.getStatus()).thenReturn(NHttpConnection.CLOSING, NHttpConnection.CLOSED);
 
         this.protocolHandler.timeout(this.conn);
 
         Assert.assertEquals(MessageState.BODY_STREAM, state.getRequestState());
         Mockito.verify(this.exchangeHandler).failed(Mockito.any(SocketTimeoutException.class));
+        Mockito.verify(this.exchangeHandler).close();
         Mockito.verify(this.conn).shutdown();
     }
 
     @Test
     public void testExchangeDone() throws Exception {
-        HttpExchangeState state = this.protocolHandler.new HttpExchangeState();
+        State state = new HttpAsyncClientProtocolHandler.State();
         HttpRequest request = new BasicHttpRequest("GET", "/");
         state.setRequest(request);
         BasicHttpResponse response = new BasicHttpResponse(HttpVersion.HTTP_1_1, 200, "OK");
         state.setResponse(response);
         state.setHandler(this.exchangeHandler);
-        this.connContext.setAttribute(HttpAsyncClientProtocolHandler.HTTP_EXCHANGE, state);
+        this.connContext.setAttribute(HttpAsyncClientProtocolHandler.HTTP_EXCHANGE_STATE, state);
         Mockito.when(this.exchangeHandler.isDone()).thenReturn(true);
 
         Assert.assertEquals("request state: READY; request: GET / HTTP/1.1; " +

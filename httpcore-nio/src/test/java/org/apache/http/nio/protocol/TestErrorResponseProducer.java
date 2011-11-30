@@ -32,21 +32,23 @@ import junit.framework.Assert;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpVersion;
+import org.apache.http.entity.StringEntity;
+import org.apache.http.message.BasicHttpResponse;
 import org.apache.http.protocol.HTTP;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
 
 public class TestErrorResponseProducer {
 
     private ErrorResponseProducer erp;
-    @Mock private HttpEntity entity;
+    private HttpResponse response;
+    private HttpEntity entity;
 
     @Before
     public void setUp() throws Exception {
-        MockitoAnnotations.initMocks(this);
+        response = new BasicHttpResponse(HttpVersion.HTTP_1_1, 200, "OK");
+        entity = new StringEntity("stuff");
     }
 
     @After
@@ -55,7 +57,7 @@ public class TestErrorResponseProducer {
 
     @Test
     public void testGenerateResponseKeepAlive() {
-        erp = new ErrorResponseProducer(HttpVersion.HTTP_1_1, 200, entity, true);
+        erp = new ErrorResponseProducer(response, entity, true);
         HttpResponse res = erp.generateResponse();
 
         Assert.assertEquals(HTTP.CONN_KEEP_ALIVE, res.getFirstHeader(HTTP.CONN_DIRECTIVE).getValue());
@@ -65,7 +67,7 @@ public class TestErrorResponseProducer {
 
     @Test
     public void testGenerateResponseClose() {
-        erp = new ErrorResponseProducer(HttpVersion.HTTP_1_1, 200, entity, false);
+        erp = new ErrorResponseProducer(response, entity, false);
         HttpResponse res = erp.generateResponse();
 
         Assert.assertEquals(HTTP.CONN_CLOSE, res.getFirstHeader(HTTP.CONN_DIRECTIVE).getValue());

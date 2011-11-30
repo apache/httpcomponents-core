@@ -45,7 +45,7 @@ public interface HttpAsyncRequestHandler<T> {
 
     Cancellable handle(
             T data,
-            HttpAsyncResponseTrigger trigger,
+            HttpAsyncServiceExchange httpExchange,
             HttpContext context) throws HttpException, IOException;
 
 }

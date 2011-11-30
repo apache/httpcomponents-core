@@ -159,12 +159,12 @@ public class TestHttpService {
         HttpRequest request = new BasicHttpRequest("GET", "/", HttpVersion.HTTP_1_0);
         Mockito.when(conn.receiveRequestHeader()).thenReturn(request);
         HttpResponse response = new BasicHttpResponse(HttpVersion.HTTP_1_0, 200, "OK");
-        Mockito.when(responseFactory.newHttpResponse(HttpVersion.HTTP_1_0, 200, context)).thenReturn(response);
+        Mockito.when(responseFactory.newHttpResponse(HttpVersion.HTTP_1_1, 200, context)).thenReturn(response);
         Mockito.when(connReuseStrategy.keepAlive(response, context)).thenReturn(false);
 
         httpservice.handleRequest(conn, context);
 
-        Mockito.verify(responseFactory).newHttpResponse(HttpVersion.HTTP_1_0, 200, context);
+        Mockito.verify(responseFactory).newHttpResponse(HttpVersion.HTTP_1_1, 200, context);
     }
 
     @Test

@@ -28,13 +28,9 @@
 package org.apache.http.nio.protocol;
 
 import java.io.IOException;
-import java.util.Locale;
 
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
-import org.apache.http.HttpVersion;
-import org.apache.http.impl.EnglishReasonPhraseCatalog;
-import org.apache.http.message.BasicHttpResponse;
 import org.apache.http.nio.ContentEncoder;
 import org.apache.http.nio.IOControl;
 import org.apache.http.nio.entity.EntityAsyncContentProducer;
@@ -44,20 +40,17 @@ import org.apache.http.protocol.HttpContext;
 
 class ErrorResponseProducer implements HttpAsyncResponseProducer {
 
-    private final HttpVersion version;
-    private final int status;
+    private final HttpResponse response;
     private final HttpEntity entity;
     private final HttpAsyncContentProducer contentProducer;
     private final boolean keepAlive;
 
     ErrorResponseProducer(
-            final HttpVersion version,
-            final int status,
+            final HttpResponse response,
             final HttpEntity entity,
             final boolean keepAlive) {
         super();
-        this.version = version;
-        this.status = status;
+        this.response = response;
         this.entity = entity;
         if (entity instanceof HttpAsyncContentProducer) {
             this.contentProducer = (HttpAsyncContentProducer) entity;
@@ -68,8 +61,6 @@ class ErrorResponseProducer implements HttpAsyncResponseProducer {
     }
 
     public HttpResponse generateResponse() {
-        BasicHttpResponse response = new BasicHttpResponse(this.version, this.status,
-                EnglishReasonPhraseCatalog.INSTANCE.getReason(this.status, Locale.US));
         if (this.keepAlive) {
             response.addHeader(HTTP.CONN_DIRECTIVE, HTTP.CONN_KEEP_ALIVE);
         } else {

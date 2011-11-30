@@ -27,11 +27,22 @@
 
 package org.apache.http.nio.protocol;
 
+import org.apache.http.HttpRequest;
+import org.apache.http.HttpResponse;
+
 /**
  * @since 4.2
  */
-public interface HttpAsyncContinueTrigger extends HttpAsyncResponseTrigger {
+public interface HttpAsyncServiceExchange {
 
-    void continueRequest();
+    HttpRequest getRequest();
+
+    HttpResponse getResponse();
+
+    void submitResponse(HttpAsyncResponseProducer responseProducer);
+
+    void submitResponse();
+
+    boolean isCompleted();
 
 }

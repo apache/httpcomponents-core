@@ -28,8 +28,8 @@
 package org.apache.http.nio.protocol;
 
 import org.apache.http.HttpRequest;
+import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
-import org.apache.http.HttpVersion;
 import org.apache.http.concurrent.Cancellable;
 import org.apache.http.nio.entity.NStringEntity;
 import org.apache.http.protocol.HttpContext;
@@ -47,11 +47,12 @@ class NullRequestHandler implements HttpAsyncRequestHandler<Object> {
 
     public Cancellable handle(
             final Object obj,
-            final HttpAsyncResponseTrigger trigger,
+            final HttpAsyncServiceExchange httpexchange,
             final HttpContext context) {
-        trigger.submitResponse(new ErrorResponseProducer(
-                HttpVersion.HTTP_1_0, HttpStatus.SC_NOT_IMPLEMENTED,
-                NStringEntity.create("Service not implemented"), true));
+        HttpResponse response = httpexchange.getResponse();
+        response.setStatusCode(HttpStatus.SC_NOT_IMPLEMENTED);
+        httpexchange.submitResponse(new ErrorResponseProducer(
+                response, NStringEntity.create("Service not implemented"), true));
         return null;
     }
 

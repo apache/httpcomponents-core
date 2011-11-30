@@ -397,7 +397,7 @@ public class TestSyncHttp {
                 post.setEntity(outgoing);
 
                 HttpResponse response = this.client.execute(post, host, conn);
-                Assert.assertEquals(HttpVersion.HTTP_1_0, response.getStatusLine().getProtocolVersion());
+                Assert.assertEquals(HttpVersion.HTTP_1_1, response.getStatusLine().getProtocolVersion());
                 byte[] received = EntityUtils.toByteArray(response.getEntity());
                 byte[] expected = testData.get(r);
 

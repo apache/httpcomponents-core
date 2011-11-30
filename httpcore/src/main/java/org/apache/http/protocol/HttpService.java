@@ -41,7 +41,6 @@ import org.apache.http.HttpStatus;
 import org.apache.http.HttpVersion;
 import org.apache.http.MethodNotSupportedException;
 import org.apache.http.ProtocolException;
-import org.apache.http.ProtocolVersion;
 import org.apache.http.UnsupportedHttpVersionException;
 import org.apache.http.annotation.Immutable;
 import org.apache.http.entity.ByteArrayEntity;
@@ -248,17 +247,10 @@ public class HttpService {
             request.setParams(
                     new DefaultedHttpParams(request.getParams(), this.params));
 
-            ProtocolVersion ver =
-                request.getRequestLine().getProtocolVersion();
-            if (!ver.lessEquals(HttpVersion.HTTP_1_1)) {
-                // Downgrade protocol version if greater than HTTP/1.1
-                ver = HttpVersion.HTTP_1_1;
-            }
-
             if (request instanceof HttpEntityEnclosingRequest) {
 
                 if (((HttpEntityEnclosingRequest) request).expectContinue()) {
-                    response = this.responseFactory.newHttpResponse(ver,
+                    response = this.responseFactory.newHttpResponse(HttpVersion.HTTP_1_1,
                             HttpStatus.SC_CONTINUE, context);
                     response.setParams(
                             new DefaultedHttpParams(response.getParams(), this.params));
@@ -290,7 +282,8 @@ public class HttpService {
             context.setAttribute(ExecutionContext.HTTP_REQUEST, request);
 
             if (response == null) {
-                response = this.responseFactory.newHttpResponse(ver, HttpStatus.SC_OK, context);
+                response = this.responseFactory.newHttpResponse(HttpVersion.HTTP_1_1,
+                        HttpStatus.SC_OK, context);
                 response.setParams(
                         new DefaultedHttpParams(response.getParams(), this.params));
                 this.processor.process(request, context);

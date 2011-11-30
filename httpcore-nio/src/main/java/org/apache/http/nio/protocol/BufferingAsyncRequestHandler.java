@@ -31,14 +31,8 @@ import java.io.IOException;
 
 import org.apache.http.HttpException;
 import org.apache.http.HttpRequest;
-import org.apache.http.HttpResponse;
-import org.apache.http.HttpResponseFactory;
-import org.apache.http.HttpStatus;
-import org.apache.http.HttpVersion;
-import org.apache.http.ProtocolVersion;
 import org.apache.http.annotation.Immutable;
 import org.apache.http.concurrent.Cancellable;
-import org.apache.http.impl.DefaultHttpResponseFactory;
 import org.apache.http.protocol.HttpContext;
 import org.apache.http.protocol.HttpRequestHandler;
 
@@ -49,24 +43,13 @@ import org.apache.http.protocol.HttpRequestHandler;
 public class BufferingAsyncRequestHandler implements HttpAsyncRequestHandler<HttpRequest> {
 
     private final HttpRequestHandler handler;
-    private final HttpResponseFactory responseFactory;
 
-    public BufferingAsyncRequestHandler(
-            final HttpRequestHandler handler,
-            final HttpResponseFactory responseFactory) {
+    public BufferingAsyncRequestHandler(final HttpRequestHandler handler) {
         super();
         if (handler == null) {
             throw new IllegalArgumentException("Request handler may not be null");
         }
-        if (responseFactory == null) {
-            throw new IllegalArgumentException("Response factory may not be null");
-        }
         this.handler = handler;
-        this.responseFactory = responseFactory;
-    }
-
-    public BufferingAsyncRequestHandler(final HttpRequestHandler handler) {
-        this(handler, new DefaultHttpResponseFactory());
     }
 
     public HttpAsyncRequestConsumer<HttpRequest> processRequest(final HttpRequest request,
@@ -74,15 +57,12 @@ public class BufferingAsyncRequestHandler implements HttpAsyncRequestHandler<Htt
         return new BasicAsyncRequestConsumer();
     }
 
-    public Cancellable handle(final HttpRequest request, final HttpAsyncResponseTrigger trigger,
+    public Cancellable handle(
+            final HttpRequest request,
+            final HttpAsyncServiceExchange httpexchange,
             final HttpContext context) throws HttpException, IOException {
-        ProtocolVersion ver = request.getRequestLine().getProtocolVersion();
-        if (!ver.lessEquals(HttpVersion.HTTP_1_1)) {
-            ver = HttpVersion.HTTP_1_1;
-        }
-        HttpResponse response = this.responseFactory.newHttpResponse(ver, HttpStatus.SC_OK, context);
-        this.handler.handle(request, response, context);
-        trigger.submitResponse(new BasicAsyncResponseProducer(response));
+        this.handler.handle(request, httpexchange.getResponse(), context);
+        httpexchange.submitResponse();
         return null;
     }
 

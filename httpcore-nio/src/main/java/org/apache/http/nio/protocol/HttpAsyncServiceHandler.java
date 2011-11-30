@@ -36,18 +36,17 @@ import org.apache.http.HttpEntityEnclosingRequest;
 import org.apache.http.HttpException;
 import org.apache.http.HttpRequest;
 import org.apache.http.HttpResponse;
+import org.apache.http.HttpResponseFactory;
 import org.apache.http.HttpStatus;
 import org.apache.http.HttpVersion;
 import org.apache.http.MethodNotSupportedException;
 import org.apache.http.ProtocolException;
-import org.apache.http.ProtocolVersion;
 import org.apache.http.UnsupportedHttpVersionException;
 import org.apache.http.annotation.Immutable;
 import org.apache.http.concurrent.Cancellable;
-import org.apache.http.message.BasicHttpResponse;
+import org.apache.http.impl.DefaultHttpResponseFactory;
 import org.apache.http.nio.ContentDecoder;
 import org.apache.http.nio.ContentEncoder;
-import org.apache.http.nio.IOControl;
 import org.apache.http.nio.NHttpConnection;
 import org.apache.http.nio.NHttpServerConnection;
 import org.apache.http.nio.NHttpServiceHandler;
@@ -65,64 +64,71 @@ import org.apache.http.protocol.HttpProcessor;
 @Immutable // provided injected dependencies are immutable
 public class HttpAsyncServiceHandler implements NHttpServiceHandler {
 
-    static final String HTTP_EXCHANGE = "http.nio.http-exchange";
+    static final String HTTP_EXCHANGE_STATE = "http.nio.http-exchange-state";
 
-    private final HttpAsyncRequestHandlerResolver handlerResolver;
-    private final HttpAsyncExpectationVerifier expectationVerifier;
     private final HttpProcessor httpProcessor;
     private final ConnectionReuseStrategy connStrategy;
+    private final HttpResponseFactory responseFactory;
+    private final HttpAsyncRequestHandlerResolver handlerResolver;
+    private final HttpAsyncExpectationVerifier expectationVerifier;
     private final HttpParams params;
 
     public HttpAsyncServiceHandler(
-            final HttpAsyncRequestHandlerResolver handlerResolver,
-            final HttpAsyncExpectationVerifier expectationVerifier,
             final HttpProcessor httpProcessor,
             final ConnectionReuseStrategy connStrategy,
+            final HttpResponseFactory responseFactory,
+            final HttpAsyncRequestHandlerResolver handlerResolver,
+            final HttpAsyncExpectationVerifier expectationVerifier,
             final HttpParams params) {
         super();
-        if (handlerResolver == null) {
-            throw new IllegalArgumentException("Handler resolver may not be null.");
-        }
         if (httpProcessor == null) {
             throw new IllegalArgumentException("HTTP processor may not be null.");
         }
         if (connStrategy == null) {
             throw new IllegalArgumentException("Connection reuse strategy may not be null");
         }
+        if (responseFactory == null) {
+            throw new IllegalArgumentException("Response factory may not be null");
+        }
         if (params == null) {
             throw new IllegalArgumentException("HTTP parameters may not be null");
         }
-        this.handlerResolver = handlerResolver;
-        this.expectationVerifier = expectationVerifier;
         this.httpProcessor = httpProcessor;
         this.connStrategy = connStrategy;
+        this.responseFactory = responseFactory;
+        this.handlerResolver = handlerResolver;
+        this.expectationVerifier = expectationVerifier;
         this.params = params;
     }
 
     public HttpAsyncServiceHandler(
-            final HttpAsyncRequestHandlerResolver handlerResolver,
             final HttpProcessor httpProcessor,
             final ConnectionReuseStrategy connStrategy,
+            final HttpAsyncRequestHandlerResolver handlerResolver,
             final HttpParams params) {
-        this(handlerResolver, null, httpProcessor, connStrategy, params);
+        this(httpProcessor, connStrategy, new DefaultHttpResponseFactory(),
+                handlerResolver, null, params);
     }
 
     public void connected(final NHttpServerConnection conn) {
-        HttpExchangeState state = new HttpExchangeState();
-        conn.getContext().setAttribute(HTTP_EXCHANGE, state);
+        State state = new State();
+        conn.getContext().setAttribute(HTTP_EXCHANGE_STATE, state);
     }
 
     public void closed(final NHttpServerConnection conn) {
-        HttpExchangeState state = ensureNotNull(getHttpExchange(conn));
-        Cancellable asyncProcess = state.getAsyncProcess();
-        state.clear();
-        if (asyncProcess != null) {
-            asyncProcess.cancel();
+        State state = getState(conn);
+        if (state != null) {
+            closeHandlers(state);
+            Cancellable asyncProcess = state.getAsyncProcess();
+            if (asyncProcess != null) {
+                asyncProcess.cancel();
+            }
+            state.reset();
         }
     }
 
     public void exception(final NHttpServerConnection conn, final HttpException httpex) {
-        HttpExchangeState state = ensureNotNull(getHttpExchange(conn));
+        State state = ensureNotNull(getState(conn));
         if (state != null) {
             handleProtocolFailure(conn, state, httpex);
         } else {
@@ -132,7 +138,7 @@ public class HttpAsyncServiceHandler implements NHttpServiceHandler {
     }
 
     public void exception(final NHttpServerConnection conn, final IOException ex) {
-        HttpExchangeState state = getHttpExchange(conn);
+        State state = getState(conn);
         if (state != null) {
             handleFailure(conn, state, ex);
         } else {
@@ -142,7 +148,7 @@ public class HttpAsyncServiceHandler implements NHttpServiceHandler {
     }
 
     public void requestReceived(final NHttpServerConnection conn) {
-        HttpExchangeState state = ensureNotNull(getHttpExchange(conn));
+        State state = ensureNotNull(getState(conn));
         try {
             HttpRequest request = conn.getHttpRequest();
             HttpContext context = state.getContext();
@@ -163,14 +169,16 @@ public class HttpAsyncServiceHandler implements NHttpServiceHandler {
             if (request instanceof HttpEntityEnclosingRequest) {
                 if (((HttpEntityEnclosingRequest) request).expectContinue()) {
                     state.setRequestState(MessageState.ACK_EXPECTED);
+                    HttpResponse ack = this.responseFactory.newHttpResponse(HttpVersion.HTTP_1_1,
+                            HttpStatus.SC_CONTINUE, context);
                     if (this.expectationVerifier != null) {
                         conn.suspendInput();
-                        HttpAsyncContinueTrigger trigger = new ContinueTriggerImpl(state, conn);
-                        Cancellable asyncProcess = this.expectationVerifier.verify(request, trigger, context);
+                        HttpAsyncServiceExchange httpex = new Exchange(
+                                request, ack, state, conn);
+                        Cancellable asyncProcess = this.expectationVerifier.verify(httpex, context);
                         state.setAsyncProcess(asyncProcess);
                     } else {
-                        HttpResponse response = create100Continue(request);
-                        conn.submitResponse(response);
+                        conn.submitResponse(ack);
                         state.setRequestState(MessageState.BODY_STREAM);
                     }
                 } else {
@@ -187,13 +195,13 @@ public class HttpAsyncServiceHandler implements NHttpServiceHandler {
         } catch (IOException ex) {
             handleFailure(conn, state, ex);
         } catch (RuntimeException ex) {
-            handleFailure(conn, state, ex);
+            terminate(conn, state);
             throw ex;
         }
     }
 
     public void inputReady(final NHttpServerConnection conn, final ContentDecoder decoder) {
-        HttpExchangeState state = ensureNotNull(getHttpExchange(conn));
+        State state = ensureNotNull(getState(conn));
         try {
             HttpAsyncRequestConsumer<?> consumer = ensureNotNull(state.getRequestConsumer());
             consumer.consumeContent(decoder, conn);
@@ -207,13 +215,13 @@ public class HttpAsyncServiceHandler implements NHttpServiceHandler {
         } catch (IOException ex) {
             handleFailure(conn, state, ex);
         } catch (RuntimeException ex) {
-            handleFailure(conn, state, ex);
+            terminate(conn, state);
             throw ex;
         }
     }
 
     public void responseReady(final NHttpServerConnection conn) {
-        HttpExchangeState state = ensureNotNull(getHttpExchange(conn));
+        State state = ensureNotNull(getState(conn));
         try {
             if (state.getResponse() != null) {
                 return;
@@ -259,13 +267,13 @@ public class HttpAsyncServiceHandler implements NHttpServiceHandler {
         } catch (IOException ex) {
             handleFailure(conn, state, ex);
         } catch (RuntimeException ex) {
-            handleFailure(conn, state, ex);
+            terminate(conn, state);
             throw ex;
         }
     }
 
     public void outputReady(final NHttpServerConnection conn, final ContentEncoder encoder) {
-        HttpExchangeState state = ensureNotNull(getHttpExchange(conn));
+        State state = ensureNotNull(getState(conn));
         try {
             HttpAsyncResponseProducer responseProducer = state.getResponseProducer();
             HttpContext context = state.getContext();
@@ -280,20 +288,21 @@ public class HttpAsyncServiceHandler implements NHttpServiceHandler {
                 } else {
                     conn.requestInput();
                 }
-                state.clear();
+                closeHandlers(state);
+                state.reset();
             }
         } catch (IOException ex) {
             handleFailure(conn, state, ex);
         } catch (RuntimeException ex) {
-            handleFailure(conn, state, ex);
+            terminate(conn, state);
             throw ex;
         }
     }
 
     public void timeout(final NHttpServerConnection conn) {
-        HttpExchangeState state = getHttpExchange(conn);
+        State state = getState(conn);
         if (state != null) {
-            shutdownHttpExchange(state, new SocketTimeoutException());
+            closeHandlers(state, new SocketTimeoutException());
         }
         try {
             if (conn.getStatus() == NHttpConnection.ACTIVE) {
@@ -311,13 +320,13 @@ public class HttpAsyncServiceHandler implements NHttpServiceHandler {
         }
     }
 
-    private HttpExchangeState getHttpExchange(final NHttpConnection conn) {
-        return (HttpExchangeState) conn.getContext().getAttribute(HTTP_EXCHANGE);
+    private State getState(final NHttpConnection conn) {
+        return (State) conn.getContext().getAttribute(HTTP_EXCHANGE_STATE);
     }
 
-    private HttpExchangeState ensureNotNull(final HttpExchangeState state) {
+    private State ensureNotNull(final State state) {
         if (state == null) {
-            throw new IllegalStateException("HTTP exchange is null");
+            throw new IllegalStateException("HTTP exchange state is null");
         }
         return state;
     }
@@ -348,10 +357,9 @@ public class HttpAsyncServiceHandler implements NHttpServiceHandler {
         }
     }
 
-    private void shutdownHttpExchange(final HttpExchangeState state, final Exception ex) {
+    private void closeHandlers(final State state, final Exception ex) {
         HttpAsyncRequestConsumer<Object> consumer = state.getRequestConsumer();
         if (consumer != null) {
-            state.setRequestConsumer(null);
             try {
                 consumer.failed(ex);
             } finally {
@@ -364,7 +372,6 @@ public class HttpAsyncServiceHandler implements NHttpServiceHandler {
         }
         HttpAsyncResponseProducer producer = state.getResponseProducer();
         if (producer != null) {
-            state.setResponseProducer(null);
             try {
                 producer.failed(ex);
             } finally {
@@ -375,10 +382,29 @@ public class HttpAsyncServiceHandler implements NHttpServiceHandler {
                 }
             }
         }
-        state.setRequestHandler(null);
     }
 
-    protected HttpAsyncResponseProducer handleException(final Exception ex) {
+    private void closeHandlers(final State state) {
+        HttpAsyncRequestConsumer<Object> consumer = state.getRequestConsumer();
+        if (consumer != null) {
+            try {
+                consumer.close();
+            } catch (IOException ioex) {
+                onException(ioex);
+            }
+        }
+        HttpAsyncResponseProducer producer = state.getResponseProducer();
+        if (producer != null) {
+            try {
+                producer.close();
+            } catch (IOException ioex) {
+                onException(ioex);
+            }
+        }
+    }
+
+    protected HttpAsyncResponseProducer handleException(
+            final Exception ex, final HttpContext context) {
         int code = HttpStatus.SC_INTERNAL_SERVER_ERROR;
         if (ex instanceof MethodNotSupportedException) {
             code = HttpStatus.SC_NOT_IMPLEMENTED;
@@ -391,17 +417,9 @@ public class HttpAsyncServiceHandler implements NHttpServiceHandler {
         if (message == null) {
             message = ex.toString();
         }
-        return new ErrorResponseProducer(
-                HttpVersion.HTTP_1_0, code, NStringEntity.create(message), false);
-    }
-
-    private HttpResponse create100Continue(final HttpRequest request) {
-        ProtocolVersion ver = request.getRequestLine().getProtocolVersion();
-        if (!ver.lessEquals(HttpVersion.HTTP_1_1)) {
-            // Downgrade protocol version if greater than HTTP/1.1
-            ver = HttpVersion.HTTP_1_1;
-        }
-        return new BasicHttpResponse(ver, HttpStatus.SC_CONTINUE, "Continue");
+        HttpResponse response = this.responseFactory.newHttpResponse(HttpVersion.HTTP_1_1,
+                code, context);
+        return new ErrorResponseProducer(response, NStringEntity.create(message), false);
     }
 
     private boolean canResponseHaveBody(final HttpRequest request, final HttpResponse response) {
@@ -415,25 +433,35 @@ public class HttpAsyncServiceHandler implements NHttpServiceHandler {
             && status != HttpStatus.SC_RESET_CONTENT;
     }
 
+    private void terminate(
+            final NHttpServerConnection conn,
+            final State state) {
+        shutdownConnection(conn);
+        closeHandlers(state);
+        state.reset();
+    }
+
     private void handleFailure(
             final NHttpServerConnection conn,
-            final HttpExchangeState state,
+            final State state,
             final Exception ex) {
         shutdownConnection(conn);
-        shutdownHttpExchange(state, ex);
+        closeHandlers(state, ex);
+        state.reset();
     }
 
     private void handleProtocolFailure(
             final NHttpServerConnection conn,
-            final HttpExchangeState state,
+            final State state,
             final HttpException httpex) {
-        shutdownHttpExchange(state, httpex);
+        closeHandlers(state, httpex);
         if (conn.isResponseSubmitted() || state.getResponseState() != MessageState.READY) {
             // There is not much that we can do if a response
             // has already been submitted
             closeConnection(conn);
         } else {
-            HttpAsyncResponseProducer responseProducer = handleException(httpex);
+            HttpContext context = state.getContext();
+            HttpAsyncResponseProducer responseProducer = handleException(httpex, context);
             state.setResponseProducer(responseProducer);
             try {
                 HttpResponse response = responseProducer.generateResponse();
@@ -450,7 +478,7 @@ public class HttpAsyncServiceHandler implements NHttpServiceHandler {
 
     private void processRequest(
             final NHttpServerConnection conn,
-            final HttpExchangeState state) throws HttpException, IOException {
+            final State state) throws HttpException, IOException {
         HttpAsyncRequestHandler<Object> handler = state.getRequestHandler();
         HttpContext context = state.getContext();
         HttpAsyncRequestConsumer<?> consumer = state.getRequestConsumer();
@@ -458,17 +486,21 @@ public class HttpAsyncServiceHandler implements NHttpServiceHandler {
         state.setRequestState(MessageState.COMPLETED);
         Exception exception = consumer.getException();
         if (exception != null) {
-            HttpAsyncResponseProducer responseProducer = handleException(exception);
+            HttpAsyncResponseProducer responseProducer = handleException(exception, context);
             state.setResponseProducer(responseProducer);
             conn.requestOutput();
         } else {
+            HttpRequest request = state.getRequest();
             Object result = consumer.getResult();
-            HttpAsyncResponseTrigger trigger = new ResponseTriggerImpl(state, conn);
+            HttpResponse response = this.responseFactory.newHttpResponse(HttpVersion.HTTP_1_1,
+                    HttpStatus.SC_OK, context);
+            HttpAsyncServiceExchange httpex = new Exchange(
+                    request, response, state, conn);
             try {
-                Cancellable asyncProcess = handler.handle(result, trigger, context);
+                Cancellable asyncProcess = handler.handle(result, httpex, context);
                 state.setAsyncProcess(asyncProcess);
             } catch (HttpException ex) {
-                HttpAsyncResponseProducer responseProducer = handleException(ex);
+                HttpAsyncResponseProducer responseProducer = handleException(ex, context);
                 state.setResponseProducer(responseProducer);
                 conn.requestOutput();
             }
@@ -477,7 +509,7 @@ public class HttpAsyncServiceHandler implements NHttpServiceHandler {
 
     private void commitFinalResponse(
             final NHttpServerConnection conn,
-            final HttpExchangeState state) throws IOException, HttpException {
+            final State state) throws IOException, HttpException {
         HttpContext context = state.getContext();
         HttpRequest request = state.getRequest();
         HttpResponse response = state.getResponse();
@@ -503,7 +535,8 @@ public class HttpAsyncServiceHandler implements NHttpServiceHandler {
                 // Ready to process new request
                 conn.requestInput();
             }
-            state.clear();
+            closeHandlers(state);
+            state.reset();
         } else {
             state.setResponseState(MessageState.BODY_STREAM);
         }
@@ -522,7 +555,7 @@ public class HttpAsyncServiceHandler implements NHttpServiceHandler {
         return handler;
     }
 
-    class HttpExchangeState {
+    static class State {
 
         private final BasicHttpContext context;
         private volatile HttpAsyncRequestHandler<Object> requestHandler;
@@ -534,7 +567,7 @@ public class HttpAsyncServiceHandler implements NHttpServiceHandler {
         private volatile HttpResponse response;
         private volatile Cancellable asyncProcess;
 
-        HttpExchangeState() {
+        State() {
             super();
             this.context = new BasicHttpContext();
             this.requestState = MessageState.READY;
@@ -609,25 +642,11 @@ public class HttpAsyncServiceHandler implements NHttpServiceHandler {
             this.asyncProcess = asyncProcess;
         }
 
-        public void clear() {
+        public void reset() {
             this.responseState = MessageState.READY;
             this.requestState = MessageState.READY;
             this.requestHandler = null;
-            if (this.requestConsumer != null) {
-                try {
-                    this.requestConsumer.close();
-                } catch (IOException ex) {
-                    onException(ex);
-                }
-            }
             this.requestConsumer = null;
-            if (this.responseProducer != null) {
-                try {
-                    this.responseProducer.close();
-                } catch (IOException ex) {
-                    onException(ex);
-                }
-            }
             this.responseProducer = null;
             this.request = null;
             this.response = null;
@@ -656,74 +675,53 @@ public class HttpAsyncServiceHandler implements NHttpServiceHandler {
 
     }
 
-    class ResponseTriggerImpl implements HttpAsyncResponseTrigger {
+    static class Exchange implements HttpAsyncServiceExchange {
 
-        private final HttpExchangeState state;
-        private final IOControl iocontrol;
+        private final HttpRequest request;
+        private final HttpResponse response;
+        private final State state;
+        private final NHttpServerConnection conn;
 
-        private volatile boolean triggered;
+        private volatile boolean completed;
 
-        public ResponseTriggerImpl(final HttpExchangeState state, final IOControl iocontrol) {
+        public Exchange(
+                final HttpRequest request,
+                final HttpResponse response,
+                final State state,
+                final NHttpServerConnection conn) {
             super();
+            this.request = request;
+            this.response = response;
             this.state = state;
-            this.iocontrol = iocontrol;
+            this.conn = conn;
+        }
+
+        public HttpRequest getRequest() {
+            return this.request;
+        }
+
+        public HttpResponse getResponse() {
+            return this.response;
         }
 
         public synchronized void submitResponse(final HttpAsyncResponseProducer responseProducer) {
             if (responseProducer == null) {
                 throw new IllegalArgumentException("Response producer may not be null");
             }
-            if (this.triggered) {
-                throw new IllegalStateException("Response already triggered");
+            if (this.completed) {
+                throw new IllegalStateException("Response already submitted");
             }
-            this.triggered = true;
+            this.completed = true;
             this.state.setResponseProducer(responseProducer);
-            this.iocontrol.requestOutput();
+            this.conn.requestOutput();
         }
 
-        public boolean isTriggered() {
-            return this.triggered;
+        public void submitResponse() {
+            submitResponse(new BasicAsyncResponseProducer(this.response));
         }
 
-    }
-
-    class ContinueTriggerImpl implements HttpAsyncContinueTrigger {
-
-        private final HttpExchangeState state;
-        private final IOControl iocontrol;
-
-        private volatile boolean triggered;
-
-        public ContinueTriggerImpl(final HttpExchangeState state, final IOControl iocontrol) {
-            super();
-            this.state = state;
-            this.iocontrol = iocontrol;
-        }
-
-        public synchronized void continueRequest() {
-            if (this.triggered) {
-                throw new IllegalStateException("Response already triggered");
-            }
-            this.triggered = true;
-            HttpResponse ack = new BasicHttpResponse(HttpVersion.HTTP_1_1, HttpStatus.SC_CONTINUE, "Continue");
-            this.state.setResponseProducer(new BasicAsyncResponseProducer(ack));
-            this.iocontrol.requestOutput();
-        }
-
-        public synchronized void submitResponse(final HttpAsyncResponseProducer responseProducer) {
-            if (responseProducer == null) {
-                throw new IllegalArgumentException("Response producer may not be null");
-            }
-            if (this.triggered) {
-                throw new IllegalStateException("Response already triggered");
-            }
-            this.triggered = true;
-            this.state.setResponseProducer(responseProducer);
-            this.iocontrol.requestOutput();
-        }
-
-        public boolean isTriggered() {
-            return this.triggered;
+        public boolean isCompleted() {
+            return this.completed;
         }
 
     }

@@ -33,7 +33,6 @@ import org.apache.http.HttpRequest;
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpVersion;
 import org.apache.http.concurrent.Cancellable;
-import org.apache.http.impl.DefaultHttpResponseFactory;
 import org.apache.http.message.BasicRequestLine;
 import org.apache.http.protocol.BasicHttpContext;
 import org.apache.http.protocol.HttpContext;
@@ -41,7 +40,6 @@ import org.apache.http.protocol.HttpRequestHandler;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-import org.mockito.ArgumentCaptor;
 import org.mockito.Mockito;
 
 public class TestBufferingAsyncRequestHandler {
@@ -50,16 +48,19 @@ public class TestBufferingAsyncRequestHandler {
     private BufferingAsyncRequestHandler asyncRequestHandler;
     private HttpContext context;
     private HttpRequest request;
-    private HttpAsyncResponseTrigger trigger;
+    private HttpResponse response;
+    private HttpAsyncServiceExchange httpexchange;
 
     @Before
     public void setUp() throws Exception {
         this.requestHandler = Mockito.mock(HttpRequestHandler.class);
-        this.asyncRequestHandler = new BufferingAsyncRequestHandler(this.requestHandler,
-                new DefaultHttpResponseFactory());
+        this.asyncRequestHandler = new BufferingAsyncRequestHandler(this.requestHandler);
         this.context = new BasicHttpContext();
         this.request = Mockito.mock(HttpRequest.class);
-        this.trigger = Mockito.mock(HttpAsyncResponseTrigger.class);
+        this.response = Mockito.mock(HttpResponse.class);
+        this.httpexchange = Mockito.mock(HttpAsyncServiceExchange.class);
+        Mockito.when(this.httpexchange.getRequest()).thenReturn(this.request);
+        Mockito.when(this.httpexchange.getResponse()).thenReturn(this.response);
     }
 
     @After
@@ -70,12 +71,7 @@ public class TestBufferingAsyncRequestHandler {
     @Test
     public void testInvalidConstruction() throws Exception {
         try {
-            new BufferingAsyncRequestHandler(null, new DefaultHttpResponseFactory());
-            Assert.fail("IllegalArgumentException expected");
-        } catch (IllegalArgumentException ex) {
-        }
-        try {
-            new BufferingAsyncRequestHandler(this.requestHandler, null);
+            new BufferingAsyncRequestHandler(null);
             Assert.fail("IllegalArgumentException expected");
         } catch (IllegalArgumentException ex) {
         }
@@ -92,30 +88,12 @@ public class TestBufferingAsyncRequestHandler {
     public void testHandleRequest() throws Exception {
         Mockito.when(this.request.getRequestLine()).thenReturn(new BasicRequestLine("GET", "/", HttpVersion.HTTP_1_0));
 
-        Cancellable cancellable = this.asyncRequestHandler.handle(this.request, this.trigger, this.context);
+        Cancellable cancellable = this.asyncRequestHandler.handle(this.request, this.httpexchange, this.context);
 
         Assert.assertNull(cancellable);
-        ArgumentCaptor<HttpResponse> argCaptor = ArgumentCaptor.forClass(HttpResponse.class);
         Mockito.verify(this.requestHandler).handle(
-                Mockito.eq(this.request), argCaptor.capture(), Mockito.eq(this.context));
-        HttpResponse response = argCaptor.getValue();
-        Assert.assertEquals(HttpVersion.HTTP_1_0, response.getProtocolVersion());
-        Mockito.verify(this.trigger).submitResponse(Mockito.any(BasicAsyncResponseProducer.class));
-    }
-
-    @Test
-    public void testHandleRequestUnsupportedVersion() throws Exception {
-        Mockito.when(this.request.getRequestLine()).thenReturn(new BasicRequestLine("GET", "/", new HttpVersion(234, 456)));
-
-        Cancellable cancellable = this.asyncRequestHandler.handle(this.request, this.trigger, this.context);
-
-        Assert.assertNull(cancellable);
-        ArgumentCaptor<HttpResponse> argCaptor = ArgumentCaptor.forClass(HttpResponse.class);
-        Mockito.verify(this.requestHandler).handle(
-                Mockito.eq(this.request), argCaptor.capture(), Mockito.eq(this.context));
-        HttpResponse response = argCaptor.getValue();
-        Assert.assertEquals(HttpVersion.HTTP_1_1, response.getProtocolVersion());
-        Mockito.verify(this.trigger).submitResponse(Mockito.any(BasicAsyncResponseProducer.class));
+                Mockito.eq(this.request), Mockito.eq(this.response), Mockito.eq(this.context));
+        Mockito.verify(this.httpexchange).submitResponse();
     }
 
 }

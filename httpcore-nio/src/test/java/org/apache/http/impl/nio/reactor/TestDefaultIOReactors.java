@@ -115,9 +115,9 @@ public class TestDefaultIOReactors extends HttpCoreNIOTestBase {
 
         HttpAsyncRequestHandlerRegistry registry = new HttpAsyncRequestHandlerRegistry();
         HttpAsyncServiceHandler serviceHandler = new HttpAsyncServiceHandler(
-                registry,
                 this.serverHttpProc,
                 new DefaultConnectionReuseStrategy(),
+                registry,
                 this.serverParams) {
 
             @Override
@@ -199,9 +199,9 @@ public class TestDefaultIOReactors extends HttpCoreNIOTestBase {
         HttpAsyncRequestHandlerRegistry registry = new HttpAsyncRequestHandlerRegistry();
         registry.register("*", new BufferingAsyncRequestHandler(requestHandler));
         HttpAsyncServiceHandler serviceHandler = new HttpAsyncServiceHandler(
-                registry,
                 this.serverHttpProc,
                 new DefaultConnectionReuseStrategy(),
+                registry,
                 this.serverParams);
         HttpAsyncClientProtocolHandler clientHandler = new HttpAsyncClientProtocolHandler();
         this.server.start(serviceHandler);
@@ -270,9 +270,9 @@ public class TestDefaultIOReactors extends HttpCoreNIOTestBase {
         HttpAsyncRequestHandlerRegistry registry = new HttpAsyncRequestHandlerRegistry();
         registry.register("*", new BufferingAsyncRequestHandler(requestHandler));
         HttpAsyncServiceHandler serviceHandler = new HttpAsyncServiceHandler(
-                registry,
                 this.serverHttpProc,
                 new DefaultConnectionReuseStrategy(),
+                registry,
                 this.serverParams);
         HttpAsyncClientProtocolHandler clientHandler = new HttpAsyncClientProtocolHandler();
         this.server.setExceptionHandler(exceptionHandler);
@@ -342,9 +342,9 @@ public class TestDefaultIOReactors extends HttpCoreNIOTestBase {
         HttpAsyncRequestHandlerRegistry registry = new HttpAsyncRequestHandlerRegistry();
         registry.register("*", new BufferingAsyncRequestHandler(requestHandler));
         HttpAsyncServiceHandler serviceHandler = new HttpAsyncServiceHandler(
-                registry,
                 this.serverHttpProc,
                 new DefaultConnectionReuseStrategy(),
+                registry,
                 this.serverParams);
         HttpAsyncClientProtocolHandler clientHandler = new HttpAsyncClientProtocolHandler();
         this.server.setExceptionHandler(exceptionHandler);

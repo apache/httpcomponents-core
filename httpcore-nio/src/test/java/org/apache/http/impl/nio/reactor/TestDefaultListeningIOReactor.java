@@ -69,9 +69,9 @@ public class TestDefaultListeningIOReactor {
                 new ResponseConnControl()
         });
         HttpAsyncServiceHandler serviceHandler = new HttpAsyncServiceHandler(
-                new HttpAsyncRequestHandlerRegistry(),
                 httpproc,
                 new DefaultConnectionReuseStrategy(),
+                new HttpAsyncRequestHandlerRegistry(),
                 params);
         return new DefaultServerIODispatch(serviceHandler, params);
     }

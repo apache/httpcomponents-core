@@ -46,6 +46,7 @@ import org.apache.http.ProtocolVersion;
 import org.apache.http.concurrent.Cancellable;
 import org.apache.http.entity.ContentType;
 import org.apache.http.impl.DefaultConnectionReuseStrategy;
+import org.apache.http.impl.DefaultHttpResponseFactory;
 import org.apache.http.message.BasicHttpEntityEnclosingRequest;
 import org.apache.http.message.BasicHttpRequest;
 import org.apache.http.message.BasicHttpResponse;
@@ -59,13 +60,12 @@ import org.apache.http.nio.protocol.BasicAsyncResponseConsumer;
 import org.apache.http.nio.protocol.BasicAsyncResponseProducer;
 import org.apache.http.nio.protocol.BufferingAsyncRequestHandler;
 import org.apache.http.nio.protocol.HttpAsyncClientProtocolHandler;
-import org.apache.http.nio.protocol.HttpAsyncContinueTrigger;
 import org.apache.http.nio.protocol.HttpAsyncExpectationVerifier;
 import org.apache.http.nio.protocol.HttpAsyncRequestConsumer;
 import org.apache.http.nio.protocol.HttpAsyncRequestHandler;
 import org.apache.http.nio.protocol.HttpAsyncRequestHandlerRegistry;
 import org.apache.http.nio.protocol.HttpAsyncRequestHandlerResolver;
-import org.apache.http.nio.protocol.HttpAsyncResponseTrigger;
+import org.apache.http.nio.protocol.HttpAsyncServiceExchange;
 import org.apache.http.nio.protocol.HttpAsyncServiceHandler;
 import org.apache.http.nio.reactor.IOReactorStatus;
 import org.apache.http.nio.reactor.ListenerEndpoint;
@@ -113,10 +113,11 @@ public class TestHttpAsyncHandlers extends HttpCoreNIOTestBase {
             final HttpAsyncRequestHandlerResolver requestHandlerResolver,
             final HttpAsyncExpectationVerifier expectationVerifier) throws Exception {
         HttpAsyncServiceHandler serviceHandler = new HttpAsyncServiceHandler(
-                requestHandlerResolver,
-                expectationVerifier,
                 this.serverHttpProc,
                 new DefaultConnectionReuseStrategy(),
+                new DefaultHttpResponseFactory(),
+                requestHandlerResolver,
+                expectationVerifier,
                 this.serverParams);
         HttpAsyncClientProtocolHandler clientHandler = new HttpAsyncClientProtocolHandler();
         this.server.start(serviceHandler);
@@ -391,9 +392,9 @@ public class TestHttpAsyncHandlers extends HttpCoreNIOTestBase {
         HttpAsyncExpectationVerifier expectationVerifier = new HttpAsyncExpectationVerifier() {
 
             public Cancellable verify(
-                    final HttpRequest request,
-                    final HttpAsyncContinueTrigger trigger,
+                    final HttpAsyncServiceExchange httpexchange,
                     final HttpContext context) throws HttpException {
+                HttpRequest request = httpexchange.getRequest();
                 ProtocolVersion ver = request.getRequestLine().getProtocolVersion();
                 String s = request.getRequestLine().getUri();
                 if (!s.equals("AAAAAx10")) {
@@ -403,9 +404,9 @@ public class TestHttpAsyncHandlers extends HttpCoreNIOTestBase {
                     BasicHttpResponse response = new BasicHttpResponse(ver,
                             HttpStatus.SC_EXPECTATION_FAILED, "Expectation failed");
                     response.setEntity(NStringEntity.create("Expectation failed"));
-                    trigger.submitResponse(new BasicAsyncResponseProducer(response));
+                    httpexchange.submitResponse(new BasicAsyncResponseProducer(response));
                 } else {
-                    trigger.continueRequest();
+                    httpexchange.submitResponse();
                 }
                 return null;
             }
@@ -475,7 +476,7 @@ public class TestHttpAsyncHandlers extends HttpCoreNIOTestBase {
 
             public Cancellable handle(
                     final HttpRequest request,
-                    final HttpAsyncResponseTrigger trigger,
+                    final HttpAsyncServiceExchange httpexchange,
                     final HttpContext context) throws HttpException, IOException {
                 ProtocolVersion ver = request.getRequestLine().getProtocolVersion();
                 if (!ver.lessEquals(HttpVersion.HTTP_1_1)) {
@@ -493,7 +494,7 @@ public class TestHttpAsyncHandlers extends HttpCoreNIOTestBase {
                         } catch (Exception ex) {
                             response.setStatusCode(HttpStatus.SC_INTERNAL_SERVER_ERROR);
                         }
-                        trigger.submitResponse(new BasicAsyncResponseProducer(response));
+                        httpexchange.submitResponse(new BasicAsyncResponseProducer(response));
                     }
                 }.start();
                 return null;
@@ -536,8 +537,7 @@ public class TestHttpAsyncHandlers extends HttpCoreNIOTestBase {
         HttpAsyncExpectationVerifier expectationVerifier = new HttpAsyncExpectationVerifier() {
 
             public Cancellable verify(
-                    final HttpRequest request,
-                    final HttpAsyncContinueTrigger trigger,
+                    final HttpAsyncServiceExchange httpexchange,
                     final HttpContext context) throws HttpException {
                 new Thread() {
                     @Override
@@ -545,6 +545,7 @@ public class TestHttpAsyncHandlers extends HttpCoreNIOTestBase {
                         // Wait a bit, to make sure this is delayed.
                         try { Thread.sleep(100); } catch(InterruptedException ie) {}
                         // Set the entity after delaying...
+                        HttpRequest request = httpexchange.getRequest();
                         ProtocolVersion ver = request.getRequestLine().getProtocolVersion();
                         String s = request.getRequestLine().getUri();
                         if (!s.equals("AAAAAx10")) {
@@ -554,9 +555,9 @@ public class TestHttpAsyncHandlers extends HttpCoreNIOTestBase {
                             BasicHttpResponse response = new BasicHttpResponse(ver,
                                     HttpStatus.SC_EXPECTATION_FAILED, "Expectation failed");
                             response.setEntity(NStringEntity.create("Expectation failed"));
-                            trigger.submitResponse(new BasicAsyncResponseProducer(response));
+                            httpexchange.submitResponse(new BasicAsyncResponseProducer(response));
                         } else {
-                            trigger.continueRequest();
+                            httpexchange.submitResponse();
                         }
                     }
                 }.start();
@@ -625,7 +626,7 @@ public class TestHttpAsyncHandlers extends HttpCoreNIOTestBase {
 
             public Cancellable handle(
                     final HttpRequest request,
-                    final HttpAsyncResponseTrigger trigger,
+                    final HttpAsyncServiceExchange httpexchange,
                     final HttpContext context) throws HttpException, IOException {
                 throw new HttpException("Boom");
             }
