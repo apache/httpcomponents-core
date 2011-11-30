@@ -47,6 +47,7 @@ public final class IOReactorConfig implements Cloneable {
     private int soTimeout;
     private boolean soReuseAddress;
     private int soLinger;
+    private boolean soKeepAlive;
     private boolean tcpNoDelay;
     private int connectTimeout;
 
@@ -59,6 +60,7 @@ public final class IOReactorConfig implements Cloneable {
         this.soTimeout = 0;
         this.soReuseAddress = false;
         this.soLinger = -1;
+        this.soKeepAlive = false;
         this.tcpNoDelay = false;
         this.connectTimeout = 0;
     }
@@ -157,6 +159,8 @@ public final class IOReactorConfig implements Cloneable {
      * Determines the default socket timeout value for non-blocking I/O operations.
      * <p/>
      * Default: <code>0</code> (no timeout)
+     *
+     * @see SocketOptions#SO_TIMEOUT
      */
     public int getSoTimeout() {
         return soTimeout;
@@ -166,6 +170,8 @@ public final class IOReactorConfig implements Cloneable {
      * Defines the default socket timeout value for non-blocking I/O operations.
      * <p/>
      * Default: <code>0</code> (no timeout)
+     *
+     * @see SocketOptions#SO_TIMEOUT
      */
     public void setSoTimeout(int soTimeout) {
         this.soTimeout = soTimeout;
@@ -176,6 +182,8 @@ public final class IOReactorConfig implements Cloneable {
      * for newly created sockets.
      * <p/>
      * Default: <code>false</code>
+     *
+     * @see SocketOptions#SO_REUSEADDR
      */
     public boolean isSoReuseAddress() {
         return soReuseAddress;
@@ -184,6 +192,8 @@ public final class IOReactorConfig implements Cloneable {
     /**
      * Defines the default value of the {@link SocketOptions#SO_REUSEADDR} parameter
      * for newly created sockets.
+     *
+     * @see SocketOptions#SO_REUSEADDR
      */
     public void setSoReuseAddress(boolean soReuseAddress) {
         this.soReuseAddress = soReuseAddress;
@@ -194,6 +204,8 @@ public final class IOReactorConfig implements Cloneable {
      * for newly created sockets.
      * <p/>
      * Default: <code>-1</code>
+     *
+     * @see SocketOptions#SO_LINGER
      */
     public int getSoLinger() {
         return soLinger;
@@ -202,9 +214,35 @@ public final class IOReactorConfig implements Cloneable {
     /**
      * Defines the default value of the {@link SocketOptions#SO_LINGER} parameter
      * for newly created sockets.
+     *
+     * @see SocketOptions#SO_LINGER
      */
     public void setSoLinger(int soLinger) {
         this.soLinger = soLinger;
+    }
+
+    /**
+     * Determines the default value of the {@link SocketOptions#SO_KEEPALIVE} parameter
+     * for newly created sockets.
+     * <p/>
+     * Default: <code>-1</code>
+     *
+     * @see SocketOptions#SO_KEEPALIVE
+     */
+    public boolean isSoKeepalive() {
+        return this.soKeepAlive;
+    }
+
+    /**
+     * Defines the default value of the {@link SocketOptions#SO_KEEPALIVE} parameter
+     * for newly created sockets.
+     * <p/>
+     * Default: <code>-1</code>
+     *
+     * @see SocketOptions#SO_KEEPALIVE
+     */
+    public void setSoKeepalive(boolean soKeepAlive) {
+        this.soKeepAlive = soKeepAlive;
     }
 
     /**
@@ -212,6 +250,8 @@ public final class IOReactorConfig implements Cloneable {
      * for newly created sockets.
      * <p/>
      * Default: <code>false</code>
+     *
+     * @see SocketOptions#TCP_NODELAY
      */
     public boolean isTcpNoDelay() {
         return tcpNoDelay;
@@ -220,6 +260,8 @@ public final class IOReactorConfig implements Cloneable {
     /**
      * Defines the default value of the {@link SocketOptions#TCP_NODELAY} parameter
      * for newly created sockets.
+     *
+     * @see SocketOptions#TCP_NODELAY
      */
     public void setTcpNoDelay(boolean tcpNoDelay) {
         this.tcpNoDelay = tcpNoDelay;
@@ -256,6 +298,7 @@ public final class IOReactorConfig implements Cloneable {
                 .append(", soTimeout=").append(this.soTimeout)
                 .append(", soReuseAddress=").append(this.soReuseAddress)
                 .append(", soLinger=").append(this.soLinger)
+                .append(", soKeepAlive=").append(this.soKeepAlive)
                 .append(", tcpNoDelay=").append(this.tcpNoDelay)
                 .append(", connectTimeout=").append(this.connectTimeout).append("]");
         return builder.toString();

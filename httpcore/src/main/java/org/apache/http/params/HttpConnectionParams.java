@@ -241,4 +241,38 @@ public final class HttpConnectionParams implements CoreConnectionPNames {
             (CoreConnectionPNames.STALE_CONNECTION_CHECK, value);
     }
 
+    /**
+     * Obtains value of the {@link CoreConnectionPNames#SO_KEEPALIVE} parameter.
+     * If not set, defaults to <code>false</code>.
+     *
+     * @param params HTTP parameters.
+     * @return SO_KEEPALIVE.
+     *
+     * @since 4.2
+     */
+    public static boolean getSoKeepalive(final HttpParams params) {
+        if (params == null) {
+            throw new IllegalArgumentException("HTTP parameters may not be null");
+        }
+        return params.getBooleanParameter(CoreConnectionPNames.SO_KEEPALIVE, false);
+    }
+
+    /**
+     * Sets value of the {@link CoreConnectionPNames#SO_KEEPALIVE} parameter.
+     *
+     * @param params HTTP parameters.
+     * @param enableKeepalive SO_KEEPALIVE.
+     *
+     * @since 4.2
+     */
+    public static void setSoKeepalive(final HttpParams params, boolean enableKeepalive) {
+        if (params == null) {
+            throw new IllegalArgumentException("HTTP parameters may not be null");
+        }
+        params.setBooleanParameter(CoreConnectionPNames.SO_KEEPALIVE, enableKeepalive);
+    }
+
+
+
+
 }

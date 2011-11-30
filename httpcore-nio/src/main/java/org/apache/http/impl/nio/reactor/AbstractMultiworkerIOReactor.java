@@ -197,6 +197,7 @@ public abstract class AbstractMultiworkerIOReactor implements IOReactor {
         config.setTcpNoDelay(HttpConnectionParams.getTcpNoDelay(params));
         config.setSoTimeout(HttpConnectionParams.getSoTimeout(params));
         config.setSoLinger(HttpConnectionParams.getLinger(params));
+        config.setSoKeepalive(HttpConnectionParams.getSoKeepalive(params));
         config.setConnectTimeout(HttpConnectionParams.getConnectionTimeout(params));
         config.setSoReuseAddress(HttpConnectionParams.getSoReuseaddr(params));
 
@@ -520,6 +521,7 @@ public abstract class AbstractMultiworkerIOReactor implements IOReactor {
     protected void prepareSocket(final Socket socket) throws IOException {
         socket.setTcpNoDelay(this.config.isTcpNoDelay());
         socket.setSoTimeout(this.config.getSoTimeout());
+        socket.setKeepAlive(this.config.isSoKeepalive());
         int linger = this.config.getSoLinger();
         if (linger >= 0) {
             socket.setSoLinger(linger > 0, linger);

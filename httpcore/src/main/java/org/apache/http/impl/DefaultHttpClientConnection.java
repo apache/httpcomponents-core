@@ -44,6 +44,7 @@ import org.apache.http.params.HttpParams;
  *  <li>{@link org.apache.http.params.CoreConnectionPNames#TCP_NODELAY}</li>
  *  <li>{@link org.apache.http.params.CoreConnectionPNames#SO_TIMEOUT}</li>
  *  <li>{@link org.apache.http.params.CoreConnectionPNames#SO_LINGER}</li>
+ *  <li>{@link org.apache.http.params.CoreConnectionPNames#SO_KEEPALIVE}</li>
  *  <li>{@link org.apache.http.params.CoreConnectionPNames#SOCKET_BUFFER_SIZE}</li>
  *  <li>{@link org.apache.http.params.CoreConnectionPNames#MAX_LINE_LENGTH}</li>
  * </ul>
@@ -70,6 +71,7 @@ public class DefaultHttpClientConnection extends SocketHttpClientConnection {
         assertNotOpen();
         socket.setTcpNoDelay(HttpConnectionParams.getTcpNoDelay(params));
         socket.setSoTimeout(HttpConnectionParams.getSoTimeout(params));
+        socket.setKeepAlive(HttpConnectionParams.getSoKeepalive(params));
 
         int linger = HttpConnectionParams.getLinger(params);
         if (linger >= 0) {
