@@ -1,6 +1,11 @@
 Changes since 4.1.3
 -------------------
 
+* [HTTPCORE-283] Workaround for a bug causing termination of the I/O reactor in case of exception 
+  thrown by NHttpServiceHandler#requestReceived or NHttpClientHandler#responseReceived
+  methods. A more comprehensive fix for the bug applied to the (4.2 branch).
+  Contributed by Oleg Kalnichevski <olegk at apache.org>
+
 * [HTTPCORE-281] ResponseConnControl protocol interceptor does not correctly populate connection
   persistence control headers when sending a HTTP/1.1 response message in response to a HTTP/1.0 
   request message.

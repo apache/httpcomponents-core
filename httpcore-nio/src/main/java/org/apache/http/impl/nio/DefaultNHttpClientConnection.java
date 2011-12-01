@@ -162,6 +162,9 @@ public class DefaultNHttpClientConnection
                         this.connMetrics.incrementResponseCount();
                     }
                     handler.responseReceived(this);
+                    if (this.session.isClosed()) {
+                        return;
+                    }
                     if (this.contentDecoder == null) {
                         resetInput();
                     }
@@ -172,6 +175,9 @@ public class DefaultNHttpClientConnection
             }
             if (this.contentDecoder != null) {
                 handler.inputReady(this, this.contentDecoder);
+                if (this.session.isClosed()) {
+                    return;
+                }
                 if (this.contentDecoder.isCompleted()) {
                     // Response entity received
                     // Ready to receive a new response

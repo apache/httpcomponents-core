@@ -161,6 +161,9 @@ public class DefaultNHttpServerConnection
                     }
                     this.connMetrics.incrementRequestCount();
                     handler.requestReceived(this);
+                    if (this.session.isClosed()) {
+                        return;
+                    }
                     if (this.contentDecoder == null) {
                         // No request entity is expected
                         // Ready to receive a new request
@@ -173,6 +176,9 @@ public class DefaultNHttpServerConnection
             }
             if (this.contentDecoder != null) {
                 handler.inputReady(this, this.contentDecoder);
+                if (this.session.isClosed()) {
+                    return;
+                }
                 if (this.contentDecoder.isCompleted()) {
                     // Request entity received
                     // Ready to receive a new request
