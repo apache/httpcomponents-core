@@ -33,13 +33,12 @@ import javax.net.ssl.SSLException;
 import org.apache.http.annotation.Immutable;
 import org.apache.http.impl.nio.DefaultServerIODispatch;
 import org.apache.http.impl.nio.DefaultServerIOEventDispatch;
+import org.apache.http.impl.nio.reactor.SSLIOSession;
+import org.apache.http.impl.nio.reactor.SSLSetupHandler;
 import org.apache.http.nio.NHttpServerIOTarget;
 import org.apache.http.nio.NHttpServiceHandler;
 import org.apache.http.nio.reactor.IOEventDispatch;
 import org.apache.http.nio.reactor.IOSession;
-import org.apache.http.nio.reactor.ssl.SSLIOSession;
-import org.apache.http.nio.reactor.ssl.SSLMode;
-import org.apache.http.nio.reactor.ssl.SSLSetupHandler;
 import org.apache.http.params.HttpConnectionParams;
 import org.apache.http.params.HttpParams;
 
@@ -128,7 +127,7 @@ public class SSLServerIOEventDispatch extends DefaultServerIOEventDispatch {
             final IOSession session,
             final SSLContext sslcontext,
             final SSLSetupHandler sslHandler) {
-        return new SSLIOSession(session, SSLMode.SERVER, sslcontext, sslHandler);
+        return new SSLIOSession(session, sslcontext, sslHandler);
     }
 
     protected NHttpServerIOTarget createSSLConnection(final SSLIOSession ssliosession) {
