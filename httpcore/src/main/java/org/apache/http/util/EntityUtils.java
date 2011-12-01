@@ -192,7 +192,8 @@ public final class EntityUtils {
             if (i < 0) {
                 i = 4096;
             }
-            String charset = getContentCharSet(entity);
+            ContentType contentType = ContentType.getOrDefault(entity);
+            String charset = contentType.getCharset();
             if (charset == null) {
                 charset = defaultCharset;
             }
