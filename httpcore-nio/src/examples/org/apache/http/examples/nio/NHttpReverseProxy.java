@@ -76,7 +76,7 @@ import org.apache.http.nio.protocol.HttpAsyncRequestHandlerResolver;
 import org.apache.http.nio.protocol.HttpAsyncRequestProducer;
 import org.apache.http.nio.protocol.HttpAsyncResponseConsumer;
 import org.apache.http.nio.protocol.HttpAsyncResponseProducer;
-import org.apache.http.nio.protocol.HttpAsyncResponseTrigger;
+import org.apache.http.nio.protocol.HttpAsyncServiceExchange;
 import org.apache.http.nio.protocol.HttpAsyncServiceHandler;
 import org.apache.http.nio.reactor.ConnectingIOReactor;
 import org.apache.http.nio.reactor.IOEventDispatch;
@@ -168,7 +168,7 @@ public class NHttpReverseProxy {
         handlerRegistry.register("*", new ProxyRequestHandler(targetHost, executor, connPool));
 
         ProxyServiceHandler serviceHandler = new ProxyServiceHandler(
-                handlerRegistry, inhttpproc, new ProxyIncomingConnectionReuseStrategy(), params);
+                inhttpproc, new ProxyIncomingConnectionReuseStrategy(), handlerRegistry, params);
 
         final IOEventDispatch connectingEventDispatch = new DefaultClientIODispatch(
                 clientHandler, params);
@@ -219,7 +219,7 @@ public class NHttpReverseProxy {
 
         private volatile String id;
         private volatile HttpHost target;
-        private volatile HttpAsyncResponseTrigger responseTrigger;
+        private volatile HttpAsyncServiceExchange responseTrigger;
         private volatile IOControl originIOControl;
         private volatile IOControl clientIOControl;
         private volatile HttpRequest request;
@@ -274,11 +274,11 @@ public class NHttpReverseProxy {
             this.response = response;
         }
 
-        public HttpAsyncResponseTrigger getResponseTrigger() {
+        public HttpAsyncServiceExchange getResponseTrigger() {
             return this.responseTrigger;
         }
 
-        public void setResponseTrigger(final HttpAsyncResponseTrigger responseTrigger) {
+        public void setResponseTrigger(final HttpAsyncServiceExchange responseTrigger) {
             this.responseTrigger = responseTrigger;
         }
 
@@ -376,7 +376,7 @@ public class NHttpReverseProxy {
 
         public Cancellable handle(
                 final ProxyHttpExchange httpExchange,
-                final HttpAsyncResponseTrigger responseTrigger,
+                final HttpAsyncServiceExchange responseTrigger,
                 final HttpContext context) throws HttpException, IOException {
             synchronized (httpExchange) {
                 Exception ex = httpExchange.getException();
@@ -492,6 +492,10 @@ public class NHttpReverseProxy {
             return this.completed;
         }
 
+        public void failed(final Exception ex) {
+            System.out.println("[client->proxy] " + ex.toString());
+        }
+
     }
 
     static class ProxyRequestProducer implements HttpAsyncRequestProducer {
@@ -573,6 +577,10 @@ public class NHttpReverseProxy {
         public void resetRequest() {
         }
 
+        public void failed(final Exception ex) {
+            System.out.println("[proxy->origin] " + ex.toString());
+        }
+
     }
 
     static class ProxyResponseConsumer implements HttpAsyncResponseConsumer<ProxyHttpExchange> {
@@ -593,8 +601,8 @@ public class NHttpReverseProxy {
             synchronized (this.httpExchange) {
                 System.out.println("[proxy<-origin] " + this.httpExchange.getId() + " " + response.getStatusLine());
                 this.httpExchange.setResponse(response);
-                HttpAsyncResponseTrigger responseTrigger = this.httpExchange.getResponseTrigger();
-                if (responseTrigger != null && !responseTrigger.isTriggered()) {
+                HttpAsyncServiceExchange responseTrigger = this.httpExchange.getResponseTrigger();
+                if (responseTrigger != null && !responseTrigger.isCompleted()) {
                     System.out.println("[client<-proxy] " + this.httpExchange.getId() + " response triggered");
                     responseTrigger.submitResponse(new ProxyResponseProducer(this.httpExchange));
                 }
@@ -644,15 +652,15 @@ public class NHttpReverseProxy {
             }
         }
 
-        public void failed(Exception ex) {
+        public void failed(final Exception ex) {
             synchronized (this.httpExchange) {
                 if (this.completed) {
                     return;
                 }
                 this.completed = true;
                 this.httpExchange.setException(ex);
-                HttpAsyncResponseTrigger responseTrigger = this.httpExchange.getResponseTrigger();
-                if (responseTrigger != null && !responseTrigger.isTriggered()) {
+                HttpAsyncServiceExchange responseTrigger = this.httpExchange.getResponseTrigger();
+                if (responseTrigger != null && !responseTrigger.isCompleted()) {
                     System.out.println("[client<-proxy] " + this.httpExchange.getId() + " " + ex);
                     int status = HttpStatus.SC_INTERNAL_SERVER_ERROR;
                     HttpResponse response = new BasicHttpResponse(HttpVersion.HTTP_1_0, status,
@@ -753,6 +761,10 @@ public class NHttpReverseProxy {
             }
         }
 
+        public void failed(final Exception ex) {
+            System.out.println("[client<-proxy] " + ex.toString());
+        }
+
     }
 
     static class ProxyIncomingConnectionReuseStrategy extends DefaultConnectionReuseStrategy {
@@ -788,15 +800,15 @@ public class NHttpReverseProxy {
     static class ProxyServiceHandler extends HttpAsyncServiceHandler {
 
         public ProxyServiceHandler(
-                final HttpAsyncRequestHandlerResolver handlerResolver,
                 final HttpProcessor httpProcessor,
                 final ConnectionReuseStrategy reuseStrategy,
+                final HttpAsyncRequestHandlerResolver handlerResolver,
                 final HttpParams params) {
-            super(handlerResolver, httpProcessor, reuseStrategy, params);
+            super(httpProcessor, reuseStrategy, handlerResolver, params);
         }
 
         @Override
-        protected void onException(final Exception ex) {
+        protected void log(final Exception ex) {
             ex.printStackTrace();
         }
 
@@ -821,12 +833,13 @@ public class NHttpReverseProxy {
         }
 
         @Override
-        protected void onException(final Exception ex) {
+        protected void log(final Exception ex) {
             ex.printStackTrace();
         }
 
         @Override
-        public void connected(final NHttpClientConnection conn, final Object attachment) {
+        public void connected(final NHttpClientConnection conn,
+                final Object attachment) throws IOException, HttpException {
             System.out.println("[proxy->origin] connection open " + conn);
             super.connected(conn, attachment);
         }

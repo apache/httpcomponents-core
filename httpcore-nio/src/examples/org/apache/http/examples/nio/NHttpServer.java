@@ -42,16 +42,13 @@ import javax.net.ssl.SSLContext;
 import org.apache.http.HttpException;
 import org.apache.http.HttpRequest;
 import org.apache.http.HttpResponse;
-import org.apache.http.HttpResponseFactory;
 import org.apache.http.HttpResponseInterceptor;
 import org.apache.http.HttpStatus;
-import org.apache.http.HttpVersion;
 import org.apache.http.MethodNotSupportedException;
-import org.apache.http.ProtocolVersion;
 import org.apache.http.concurrent.Cancellable;
 import org.apache.http.entity.ContentType;
 import org.apache.http.impl.DefaultConnectionReuseStrategy;
-import org.apache.http.impl.DefaultHttpResponseFactory;
+import org.apache.http.impl.nio.DefaultNHttpServerConnection;
 import org.apache.http.impl.nio.DefaultNHttpServerConnectionFactory;
 import org.apache.http.impl.nio.DefaultServerIODispatch;
 import org.apache.http.impl.nio.SSLNHttpServerConnectionFactory;
@@ -59,7 +56,6 @@ import org.apache.http.impl.nio.reactor.DefaultListeningIOReactor;
 import org.apache.http.nio.NHttpConnection;
 import org.apache.http.nio.NHttpConnectionFactory;
 import org.apache.http.nio.NHttpServerConnection;
-import org.apache.http.nio.NHttpServerIOTarget;
 import org.apache.http.nio.entity.NFileEntity;
 import org.apache.http.nio.entity.NStringEntity;
 import org.apache.http.nio.protocol.BasicAsyncRequestConsumer;
@@ -67,7 +63,7 @@ import org.apache.http.nio.protocol.BasicAsyncResponseProducer;
 import org.apache.http.nio.protocol.HttpAsyncRequestConsumer;
 import org.apache.http.nio.protocol.HttpAsyncRequestHandler;
 import org.apache.http.nio.protocol.HttpAsyncRequestHandlerRegistry;
-import org.apache.http.nio.protocol.HttpAsyncResponseTrigger;
+import org.apache.http.nio.protocol.HttpAsyncServiceExchange;
 import org.apache.http.nio.protocol.HttpAsyncServiceHandler;
 import org.apache.http.nio.reactor.IOEventDispatch;
 import org.apache.http.nio.reactor.ListeningIOReactor;
@@ -122,7 +118,7 @@ public class NHttpServer {
         reqistry.register("*", new HttpFileHandler(docRoot));
         // Create server-side HTTP protocol handler
         HttpAsyncServiceHandler protocolHandler = new HttpAsyncServiceHandler(
-                reqistry, httpproc, new DefaultConnectionReuseStrategy(), params) {
+                httpproc, new DefaultConnectionReuseStrategy(), reqistry, params) {
 
             @Override
             public void connected(final NHttpServerConnection conn) {
@@ -138,7 +134,7 @@ public class NHttpServer {
 
         };
         // Create HTTP connection factory
-        NHttpConnectionFactory<NHttpServerIOTarget> connFactory;
+        NHttpConnectionFactory<DefaultNHttpServerConnection> connFactory;
         if (port == 8443) {
             // Initialize SSL context
             ClassLoader cl = NHttpServer.class.getClassLoader();
@@ -179,12 +175,10 @@ public class NHttpServer {
     static class HttpFileHandler implements HttpAsyncRequestHandler<HttpRequest> {
 
         private final File docRoot;
-        private final HttpResponseFactory responseFactory;
 
         public HttpFileHandler(final File docRoot) {
             super();
             this.docRoot = docRoot;
-            this.responseFactory = new DefaultHttpResponseFactory();
         }
 
         public HttpAsyncRequestConsumer<HttpRequest> processRequest(
@@ -196,15 +190,11 @@ public class NHttpServer {
 
         public Cancellable handle(
                 final HttpRequest request,
-                final HttpAsyncResponseTrigger trigger,
+                final HttpAsyncServiceExchange httpexchange,
                 final HttpContext context) throws HttpException, IOException {
-            ProtocolVersion ver = request.getRequestLine().getProtocolVersion();
-            if (!ver.lessEquals(HttpVersion.HTTP_1_1)) {
-                ver = HttpVersion.HTTP_1_1;
-            }
-            HttpResponse response = this.responseFactory.newHttpResponse(ver, HttpStatus.SC_OK, context);
+            HttpResponse response = httpexchange.getResponse();
             handleInternal(request, response, context);
-            trigger.submitResponse(new BasicAsyncResponseProducer(response));
+            httpexchange.submitResponse(new BasicAsyncResponseProducer(response));
             return null;
         }
 

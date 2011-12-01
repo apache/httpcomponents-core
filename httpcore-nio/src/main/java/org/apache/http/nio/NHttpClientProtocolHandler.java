@@ -34,12 +34,9 @@ import org.apache.http.HttpException;
 /**
  * Abstract client-side HTTP protocol handler.
  *
- * @since 4.0
- *
- * @deprecated use {@link NHttpClientProtocolHandler}
+ * @since 4.2
  */
-@Deprecated
-public interface NHttpClientHandler {
+public interface NHttpClientProtocolHandler {
 
     /**
      * Triggered when a new outgoing connection is created.
@@ -47,7 +44,9 @@ public interface NHttpClientHandler {
      * @param conn new outgoing HTTP connection.
      * @param attachment an object that was attached to the session request
      */
-    void connected(NHttpClientConnection conn, Object attachment);
+    void connected(
+            NHttpClientConnection conn,
+            Object attachment) throws IOException, HttpException;
 
     /**
      * Triggered when the connection is ready to accept a new HTTP request.
@@ -58,7 +57,8 @@ public interface NHttpClientHandler {
      *
      * @param conn HTTP connection that is ready to accept a new HTTP request.
      */
-    void requestReady(NHttpClientConnection conn);
+    void requestReady(
+            NHttpClientConnection conn) throws IOException, HttpException;
 
     /**
      * Triggered when an HTTP response is received. The connection
@@ -74,7 +74,8 @@ public interface NHttpClientHandler {
      *
      * @param conn HTTP connection that contains an HTTP response
      */
-    void responseReceived(NHttpClientConnection conn);
+    void responseReceived(
+            NHttpClientConnection conn) throws IOException, HttpException;
 
     /**
      * Triggered when the underlying channel is ready for reading a
@@ -93,7 +94,9 @@ public interface NHttpClientHandler {
      * incoming response content.
      * @param decoder The content decoder to use to read content.
      */
-    void inputReady(NHttpClientConnection conn, ContentDecoder decoder);
+    void inputReady(
+            NHttpClientConnection conn,
+            ContentDecoder decoder) throws IOException, HttpException;
 
     /**
      * Triggered when the underlying channel is ready for writing a next portion
@@ -111,25 +114,9 @@ public interface NHttpClientHandler {
      * of the outgoing request content.
      * @param encoder The content encoder to use to write content.
      */
-    void outputReady(NHttpClientConnection conn, ContentEncoder encoder);
-
-    /**
-     * Triggered when an I/O error occurs while reading from or writing
-     * to the underlying channel.
-     *
-     * @param conn HTTP connection that caused an I/O error
-     * @param ex I/O exception
-     */
-    void exception(NHttpClientConnection conn, IOException ex);
-
-    /**
-     * Triggered when an HTTP protocol violation occurs while receiving
-     * an HTTP response.
-     *
-     * @param conn HTTP connection that caused an HTTP protocol violation
-     * @param ex HTTP protocol violation exception
-     */
-    void exception(NHttpClientConnection conn, HttpException ex);
+    void outputReady(
+            NHttpClientConnection conn,
+            ContentEncoder encoder) throws IOException, HttpException;
 
     /**
      * Triggered when no input is detected on this connection over the
@@ -137,7 +124,8 @@ public interface NHttpClientHandler {
      *
      * @param conn HTTP connection that caused timeout condition.
      */
-    void timeout(NHttpClientConnection conn);
+    void timeout(
+            NHttpClientConnection conn) throws IOException, HttpException;
 
     /**
      * Triggered when the connection is closed.
@@ -145,5 +133,13 @@ public interface NHttpClientHandler {
      * @param conn closed HTTP connection.
      */
     void closed(NHttpClientConnection conn);
+
+    /**
+     * Triggered if an error occurs during the HTTP exchange.
+     *
+     * @param conn HTTP connection that caused an I/O error
+     * @param ex exception
+     */
+    void exception(NHttpClientConnection conn, Exception ex);
 
 }

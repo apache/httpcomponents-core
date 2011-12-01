@@ -46,13 +46,13 @@ import org.apache.http.LoggingClientConnectionFactory;
 import org.apache.http.LoggingServerConnectionFactory;
 import org.apache.http.OoopsieRuntimeException;
 import org.apache.http.impl.DefaultConnectionReuseStrategy;
+import org.apache.http.impl.nio.DefaultNHttpClientConnection;
+import org.apache.http.impl.nio.DefaultNHttpServerConnection;
 import org.apache.http.impl.nio.pool.BasicNIOPoolEntry;
 import org.apache.http.message.BasicHttpRequest;
 import org.apache.http.nio.NHttpClientConnection;
-import org.apache.http.nio.NHttpClientIOTarget;
 import org.apache.http.nio.NHttpConnectionFactory;
 import org.apache.http.nio.NHttpServerConnection;
-import org.apache.http.nio.NHttpServerIOTarget;
 import org.apache.http.nio.protocol.BasicAsyncRequestProducer;
 import org.apache.http.nio.protocol.BasicAsyncResponseConsumer;
 import org.apache.http.nio.protocol.BufferingAsyncRequestHandler;
@@ -91,13 +91,13 @@ public class TestDefaultIOReactors extends HttpCoreNIOTestBase {
     }
 
     @Override
-    protected NHttpConnectionFactory<NHttpServerIOTarget> createServerConnectionFactory(
+    protected NHttpConnectionFactory<DefaultNHttpServerConnection> createServerConnectionFactory(
             final HttpParams params) throws Exception {
         return new LoggingServerConnectionFactory(params);
     }
 
     @Override
-    protected NHttpConnectionFactory<NHttpClientIOTarget> createClientConnectionFactory(
+    protected NHttpConnectionFactory<DefaultNHttpClientConnection> createClientConnectionFactory(
             final HttpParams params) throws Exception {
         return new LoggingClientConnectionFactory(params);
     }
@@ -136,7 +136,9 @@ public class TestDefaultIOReactors extends HttpCoreNIOTestBase {
         HttpAsyncClientProtocolHandler clientHandler = new HttpAsyncClientProtocolHandler() {
 
             @Override
-            public void connected(final NHttpClientConnection conn, final Object attachment) {
+            public void connected(
+                    final NHttpClientConnection conn,
+                    final Object attachment) throws IOException, HttpException {
                 openClientConns.countDown();
                 super.connected(conn, attachment);
             }
@@ -202,7 +204,19 @@ public class TestDefaultIOReactors extends HttpCoreNIOTestBase {
                 this.serverHttpProc,
                 new DefaultConnectionReuseStrategy(),
                 registry,
-                this.serverParams);
+                this.serverParams) {
+
+                    @Override
+                    public void exception(
+                            final NHttpServerConnection conn,
+                            final Exception cause) {
+                        super.exception(conn, cause);
+                        if (cause instanceof RuntimeException) {
+                            throw (RuntimeException) cause;
+                        }
+                    }
+
+        };
         HttpAsyncClientProtocolHandler clientHandler = new HttpAsyncClientProtocolHandler();
         this.server.start(serviceHandler);
         this.client.start(clientHandler);
@@ -273,7 +287,19 @@ public class TestDefaultIOReactors extends HttpCoreNIOTestBase {
                 this.serverHttpProc,
                 new DefaultConnectionReuseStrategy(),
                 registry,
-                this.serverParams);
+                this.serverParams) {
+
+            @Override
+            public void exception(
+                    final NHttpServerConnection conn,
+                    final Exception cause) {
+                super.exception(conn, cause);
+                if (cause instanceof RuntimeException) {
+                    throw (RuntimeException) cause;
+                }
+            }
+
+        };
         HttpAsyncClientProtocolHandler clientHandler = new HttpAsyncClientProtocolHandler();
         this.server.setExceptionHandler(exceptionHandler);
         this.server.start(serviceHandler);
@@ -345,7 +371,19 @@ public class TestDefaultIOReactors extends HttpCoreNIOTestBase {
                 this.serverHttpProc,
                 new DefaultConnectionReuseStrategy(),
                 registry,
-                this.serverParams);
+                this.serverParams) {
+
+            @Override
+            public void exception(
+                    final NHttpServerConnection conn,
+                    final Exception cause) {
+                super.exception(conn, cause);
+                if (cause instanceof RuntimeException) {
+                    throw (RuntimeException) cause;
+                }
+            }
+
+        };
         HttpAsyncClientProtocolHandler clientHandler = new HttpAsyncClientProtocolHandler();
         this.server.setExceptionHandler(exceptionHandler);
         this.server.start(serviceHandler);

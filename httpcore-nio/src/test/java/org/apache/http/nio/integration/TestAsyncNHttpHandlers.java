@@ -47,11 +47,11 @@ import org.apache.http.LoggingClientConnectionFactory;
 import org.apache.http.LoggingServerConnectionFactory;
 import org.apache.http.impl.DefaultConnectionReuseStrategy;
 import org.apache.http.impl.DefaultHttpResponseFactory;
+import org.apache.http.impl.nio.DefaultNHttpClientConnection;
+import org.apache.http.impl.nio.DefaultNHttpServerConnection;
 import org.apache.http.message.BasicHttpEntityEnclosingRequest;
 import org.apache.http.message.BasicHttpRequest;
-import org.apache.http.nio.NHttpClientIOTarget;
 import org.apache.http.nio.NHttpConnectionFactory;
-import org.apache.http.nio.NHttpServerIOTarget;
 import org.apache.http.nio.entity.ConsumingNHttpEntity;
 import org.apache.http.nio.entity.NByteArrayEntity;
 import org.apache.http.nio.entity.NStringEntity;
@@ -106,13 +106,13 @@ public class TestAsyncNHttpHandlers extends HttpCoreNIOTestBase {
     }
 
     @Override
-    protected NHttpConnectionFactory<NHttpServerIOTarget> createServerConnectionFactory(
+    protected NHttpConnectionFactory<DefaultNHttpServerConnection> createServerConnectionFactory(
             final HttpParams params) throws Exception {
         return new LoggingServerConnectionFactory(params);
     }
 
     @Override
-    protected NHttpConnectionFactory<NHttpClientIOTarget> createClientConnectionFactory(
+    protected NHttpConnectionFactory<DefaultNHttpClientConnection> createClientConnectionFactory(
             final HttpParams params) throws Exception {
         return new LoggingClientConnectionFactory(params);
     }

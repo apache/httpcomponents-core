@@ -29,8 +29,8 @@ package org.apache.http;
 import javax.net.ssl.SSLContext;
 
 import org.apache.http.impl.DefaultHttpResponseFactory;
+import org.apache.http.impl.nio.DefaultNHttpClientConnection;
 import org.apache.http.impl.nio.SSLNHttpClientConnectionFactory;
-import org.apache.http.nio.NHttpClientIOTarget;
 import org.apache.http.nio.reactor.IOSession;
 import org.apache.http.nio.util.ByteBufferAllocator;
 import org.apache.http.nio.util.HeapByteBufferAllocator;
@@ -45,7 +45,7 @@ public class LoggingSSLClientConnectionFactory extends SSLNHttpClientConnectionF
     }
 
     @Override
-    protected NHttpClientIOTarget createConnection(
+    protected DefaultNHttpClientConnection createConnection(
             final IOSession session,
             final HttpResponseFactory responseFactory,
             final ByteBufferAllocator allocator,

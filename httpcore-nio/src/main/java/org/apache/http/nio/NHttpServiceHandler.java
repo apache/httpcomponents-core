@@ -35,7 +35,10 @@ import org.apache.http.HttpException;
  * Abstract server-side HTTP protocol handler.
  *
  * @since 4.0
+ *
+ * @deprecated use {@link NHttpServerProtocolHandler}
  */
+@Deprecated
 public interface NHttpServiceHandler {
 
     /**

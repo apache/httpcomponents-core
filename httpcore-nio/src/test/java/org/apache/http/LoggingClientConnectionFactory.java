@@ -27,8 +27,8 @@
 package org.apache.http;
 
 import org.apache.http.impl.DefaultHttpResponseFactory;
+import org.apache.http.impl.nio.DefaultNHttpClientConnection;
 import org.apache.http.impl.nio.DefaultNHttpClientConnectionFactory;
-import org.apache.http.nio.NHttpClientIOTarget;
 import org.apache.http.nio.reactor.IOSession;
 import org.apache.http.nio.util.ByteBufferAllocator;
 import org.apache.http.nio.util.HeapByteBufferAllocator;
@@ -41,7 +41,7 @@ public class LoggingClientConnectionFactory extends DefaultNHttpClientConnection
     }
 
     @Override
-    protected NHttpClientIOTarget createConnection(
+    protected DefaultNHttpClientConnection createConnection(
             final IOSession session,
             final HttpResponseFactory responseFactory,
             final ByteBufferAllocator allocator,

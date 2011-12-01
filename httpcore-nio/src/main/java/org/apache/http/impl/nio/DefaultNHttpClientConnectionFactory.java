@@ -30,7 +30,6 @@ import org.apache.http.HttpResponseFactory;
 import org.apache.http.annotation.Immutable;
 import org.apache.http.impl.DefaultHttpResponseFactory;
 import org.apache.http.nio.NHttpClientConnection;
-import org.apache.http.nio.NHttpClientIOTarget;
 import org.apache.http.nio.NHttpConnectionFactory;
 import org.apache.http.nio.reactor.IOSession;
 import org.apache.http.nio.util.ByteBufferAllocator;
@@ -54,7 +53,8 @@ import org.apache.http.params.HttpParams;
  * @since 4.2
  */
 @Immutable
-public class DefaultNHttpClientConnectionFactory implements NHttpConnectionFactory<NHttpClientIOTarget> {
+public class DefaultNHttpClientConnectionFactory
+    implements NHttpConnectionFactory<DefaultNHttpClientConnection> {
 
     private final HttpResponseFactory responseFactory;
     private final ByteBufferAllocator allocator;
@@ -83,7 +83,7 @@ public class DefaultNHttpClientConnectionFactory implements NHttpConnectionFacto
         this(new DefaultHttpResponseFactory(), new HeapByteBufferAllocator(), params);
     }
 
-    protected NHttpClientIOTarget createConnection(
+    protected DefaultNHttpClientConnection createConnection(
             final IOSession session,
             final HttpResponseFactory responseFactory,
             final ByteBufferAllocator allocator,
@@ -91,8 +91,8 @@ public class DefaultNHttpClientConnectionFactory implements NHttpConnectionFacto
         return new DefaultNHttpClientConnection(session, responseFactory, allocator, params);
     }
 
-    public NHttpClientIOTarget createConnection(final IOSession session) {
-        NHttpClientIOTarget conn = createConnection(session, this.responseFactory, this.allocator, this.params);
+    public DefaultNHttpClientConnection createConnection(final IOSession session) {
+        DefaultNHttpClientConnection conn = createConnection(session, this.responseFactory, this.allocator, this.params);
         int timeout = HttpConnectionParams.getSoTimeout(this.params);
         conn.setSocketTimeout(timeout);
         return conn;

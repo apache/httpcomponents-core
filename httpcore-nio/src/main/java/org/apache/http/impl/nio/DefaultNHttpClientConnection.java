@@ -42,6 +42,7 @@ import org.apache.http.impl.nio.codecs.DefaultHttpResponseParser;
 import org.apache.http.nio.NHttpClientConnection;
 import org.apache.http.nio.NHttpClientIOTarget;
 import org.apache.http.nio.NHttpClientHandler;
+import org.apache.http.nio.NHttpClientProtocolHandler;
 import org.apache.http.nio.NHttpMessageParser;
 import org.apache.http.nio.NHttpMessageWriter;
 import org.apache.http.nio.reactor.EventMask;
@@ -65,6 +66,7 @@ import org.apache.http.params.HttpParams;
  *
  * @since 4.0
  */
+@SuppressWarnings("deprecation")
 @NotThreadSafe
 public class DefaultNHttpClientConnection
     extends NHttpConnectionBase implements NHttpClientIOTarget {
@@ -141,7 +143,7 @@ public class DefaultNHttpClientConnection
         this.requestWriter.reset();
     }
 
-    public void consumeInput(final NHttpClientHandler handler) {
+    public void consumeInput(final NHttpClientProtocolHandler handler) {
         if (this.status != ACTIVE) {
             this.session.clearEvent(EventMask.READ);
             return;
@@ -179,10 +181,10 @@ public class DefaultNHttpClientConnection
                     resetInput();
                 }
             }
-        } catch (IOException ex) {
-            handler.exception(this, ex);
         } catch (HttpException ex) {
             resetInput();
+            handler.exception(this, ex);
+        } catch (Exception ex) {
             handler.exception(this, ex);
         } finally {
             // Finally set buffered input flag
@@ -190,8 +192,7 @@ public class DefaultNHttpClientConnection
         }
     }
 
-    public void produceOutput(final NHttpClientHandler handler) {
-
+    public void produceOutput(final NHttpClientProtocolHandler handler) {
         try {
             if (this.outbuf.hasData()) {
                 int bytesWritten = this.outbuf.flush(this.session.channel());
@@ -225,7 +226,7 @@ public class DefaultNHttpClientConnection
                     }
                 }
             }
-        } catch (IOException ex) {
+        } catch (Exception ex) {
             handler.exception(this, ex);
         } finally {
             // Finally set buffered output flag
@@ -255,6 +256,14 @@ public class DefaultNHttpClientConnection
 
     public boolean isRequestSubmitted() {
         return this.request != null;
+    }
+
+    public void consumeInput(final NHttpClientHandler handler) {
+        consumeInput(new NHttpClientProtocolHandlerAdaptor(handler));
+    }
+
+    public void produceOutput(final NHttpClientHandler handler) {
+        produceOutput(new NHttpClientProtocolHandlerAdaptor(handler));
     }
 
 }

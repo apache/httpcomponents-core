@@ -30,9 +30,9 @@ package org.apache.http.nio.integration;
 import org.apache.http.LoggingSSLClientConnectionFactory;
 import org.apache.http.LoggingSSLServerConnectionFactory;
 import org.apache.http.SSLTestContexts;
-import org.apache.http.nio.NHttpClientIOTarget;
+import org.apache.http.impl.nio.DefaultNHttpClientConnection;
+import org.apache.http.impl.nio.DefaultNHttpServerConnection;
 import org.apache.http.nio.NHttpConnectionFactory;
-import org.apache.http.nio.NHttpServerIOTarget;
 import org.apache.http.params.HttpParams;
 
 /**
@@ -41,13 +41,13 @@ import org.apache.http.params.HttpParams;
 public class TestHttpsAsyncHandlers extends TestHttpAsyncHandlers {
 
     @Override
-    protected NHttpConnectionFactory<NHttpServerIOTarget> createServerConnectionFactory(
+    protected NHttpConnectionFactory<DefaultNHttpServerConnection> createServerConnectionFactory(
             final HttpParams params) throws Exception {
         return new LoggingSSLServerConnectionFactory(SSLTestContexts.createServerSSLContext(), params);
     }
 
     @Override
-    protected NHttpConnectionFactory<NHttpClientIOTarget> createClientConnectionFactory(
+    protected NHttpConnectionFactory<DefaultNHttpClientConnection> createClientConnectionFactory(
             final HttpParams params) throws Exception {
         return new LoggingSSLClientConnectionFactory(SSLTestContexts.createClientSSLContext(), params);
     }

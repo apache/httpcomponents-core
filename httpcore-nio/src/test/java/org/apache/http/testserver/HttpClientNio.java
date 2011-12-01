@@ -32,10 +32,11 @@ import java.net.InetSocketAddress;
 import java.util.List;
 
 import org.apache.http.impl.nio.DefaultClientIODispatch;
+import org.apache.http.impl.nio.DefaultNHttpClientConnection;
 import org.apache.http.impl.nio.reactor.DefaultConnectingIOReactor;
 import org.apache.http.impl.nio.reactor.ExceptionEvent;
 import org.apache.http.nio.NHttpClientHandler;
-import org.apache.http.nio.NHttpClientIOTarget;
+import org.apache.http.nio.NHttpClientProtocolHandler;
 import org.apache.http.nio.NHttpConnectionFactory;
 import org.apache.http.nio.reactor.ConnectingIOReactor;
 import org.apache.http.nio.reactor.IOEventDispatch;
@@ -43,15 +44,16 @@ import org.apache.http.nio.reactor.IOReactorExceptionHandler;
 import org.apache.http.nio.reactor.IOReactorStatus;
 import org.apache.http.nio.reactor.SessionRequest;
 
+@SuppressWarnings("deprecation")
 public class HttpClientNio {
 
     private final DefaultConnectingIOReactor ioReactor;
-    private final NHttpConnectionFactory<NHttpClientIOTarget> connFactory;
+    private final NHttpConnectionFactory<DefaultNHttpClientConnection> connFactory;
 
     private volatile IOReactorThread thread;
 
     public HttpClientNio(
-            final NHttpConnectionFactory<NHttpClientIOTarget> connFactory) throws IOException {
+            final NHttpConnectionFactory<DefaultNHttpClientConnection> connFactory) throws IOException {
         super();
         this.ioReactor = new DefaultConnectingIOReactor();
         this.connFactory = connFactory;
@@ -61,7 +63,7 @@ public class HttpClientNio {
         this.ioReactor.setExceptionHandler(exceptionHandler);
     }
 
-    private void execute(final NHttpClientHandler clientHandler) throws IOException {
+    private void execute(final NHttpClientProtocolHandler clientHandler) throws IOException {
         IOEventDispatch ioEventDispatch = new DefaultClientIODispatch(clientHandler, this.connFactory);
         this.ioReactor.execute(ioEventDispatch);
     }
@@ -70,8 +72,13 @@ public class HttpClientNio {
         return this.ioReactor.connect(address, null, attachment, null);
     }
 
-    public void start(final NHttpClientHandler clientHandler) {
+    public void start(final NHttpClientProtocolHandler clientHandler) {
         this.thread = new IOReactorThread(clientHandler);
+        this.thread.start();
+    }
+
+    public void start(final NHttpClientHandler handler) {
+        this.thread = new IOReactorThread(new NHttpClientProtocolHandlerAdaptor(handler));
         this.thread.start();
     }
 
@@ -111,11 +118,11 @@ public class HttpClientNio {
 
     private class IOReactorThread extends Thread {
 
-        private final NHttpClientHandler clientHandler;
+        private final NHttpClientProtocolHandler clientHandler;
 
         private volatile Exception ex;
 
-        public IOReactorThread(final NHttpClientHandler clientHandler) {
+        public IOReactorThread(final NHttpClientProtocolHandler clientHandler) {
             super();
             this.clientHandler = clientHandler;
         }

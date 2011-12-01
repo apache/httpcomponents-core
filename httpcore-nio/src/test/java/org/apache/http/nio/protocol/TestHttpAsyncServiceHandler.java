@@ -182,6 +182,8 @@ public class TestHttpAsyncServiceHandler {
 
         Mockito.verify(this.requestConsumer).failed(httpex);
         Mockito.verify(this.requestConsumer).close();
+        Mockito.verify(this.conn, Mockito.never()).shutdown();
+        Mockito.verify(this.conn, Mockito.never()).close();
     }
 
     @Test
@@ -445,46 +447,6 @@ public class TestHttpAsyncServiceHandler {
     }
 
     @Test
-    public void testRequestRuntimeException() throws Exception {
-        State state = new HttpAsyncServiceHandler.State();
-        HttpContext exchangeContext = state.getContext();
-        this.connContext.setAttribute(HttpAsyncServiceHandler.HTTP_EXCHANGE_STATE, state);
-
-        BasicHttpRequest request = new BasicHttpRequest("GET", "/", HttpVersion.HTTP_1_1);
-        Mockito.when(this.conn.getHttpRequest()).thenReturn(request);
-        Mockito.when(this.requestHandler.processRequest(
-                request, exchangeContext)).thenThrow(new RuntimeException());
-        try {
-            this.protocolHandler.requestReceived(this.conn);
-            Assert.fail("RuntimeException expected");
-        } catch (RuntimeException ex) {
-            Mockito.verify(this.conn).shutdown();
-        }
-    }
-
-    @Test
-    public void testRequestHttpException() throws Exception {
-        State state = new HttpAsyncServiceHandler.State();
-        HttpContext exchangeContext = state.getContext();
-        this.connContext.setAttribute(HttpAsyncServiceHandler.HTTP_EXCHANGE_STATE, state);
-
-        BasicHttpRequest request = new BasicHttpRequest("GET", "/", HttpVersion.HTTP_1_1);
-        Mockito.when(this.conn.getHttpRequest()).thenReturn(request);
-        Mockito.when(this.requestHandler.processRequest(
-                request, exchangeContext)).thenThrow(new HttpException());
-
-        this.protocolHandler.requestReceived(this.conn);
-
-        HttpAsyncResponseProducer responseProducer = state.getResponseProducer();
-        Assert.assertNotNull(responseProducer);
-        HttpResponse response = state.getResponse();
-        Assert.assertNotNull(response);
-        Assert.assertEquals(500, response.getStatusLine().getStatusCode());
-
-        Mockito.verify(this.conn).submitResponse(response);
-    }
-
-    @Test
     public void testRequestExpectationFailed() throws Exception {
         State state = new HttpAsyncServiceHandler.State();
         state.setRequestState(MessageState.ACK_EXPECTED);
@@ -671,58 +633,6 @@ public class TestHttpAsyncServiceHandler {
         Mockito.verify(this.conn).suspendInput();
         Mockito.verify(this.requestConsumer).requestCompleted(exchangeContext);
         Mockito.verify(this.conn).requestOutput();
-    }
-
-    @Test
-    public void testRequestContentRuntimeException() throws Exception {
-        State state = new HttpAsyncServiceHandler.State();
-        HttpContext exchangeContext = state.getContext();
-        BasicHttpEntityEnclosingRequest request = new BasicHttpEntityEnclosingRequest("POST", "/",
-                HttpVersion.HTTP_1_1);
-        state.setRequestState(MessageState.BODY_STREAM);
-        state.setRequest(request);
-        state.setRequestConsumer(this.requestConsumer);
-        this.connContext.setAttribute(HttpAsyncServiceHandler.HTTP_EXCHANGE_STATE, state);
-        Mockito.when(this.decoder.isCompleted()).thenReturn(true);
-        RuntimeException runtimeex = new RuntimeException();
-        Mockito.doThrow(runtimeex).when(
-                this.requestConsumer).requestCompleted(exchangeContext);
-        try {
-            this.protocolHandler.inputReady(this.conn, this.decoder);
-            Assert.fail("RuntimeException expected");
-        } catch (RuntimeException ex) {
-            Mockito.verify(this.conn).shutdown();
-            Mockito.verify(this.requestConsumer).close();
-        }
-    }
-
-    @Test
-    public void testRequestContentIOException() throws Exception {
-        State state = new HttpAsyncServiceHandler.State();
-        HttpContext exchangeContext = state.getContext();
-        BasicHttpEntityEnclosingRequest request = new BasicHttpEntityEnclosingRequest("POST", "/",
-                HttpVersion.HTTP_1_1);
-        state.setRequestState(MessageState.BODY_STREAM);
-        state.setRequest(request);
-        state.setRequestConsumer(this.requestConsumer);
-        state.setRequestHandler(this.requestHandler);
-        this.connContext.setAttribute(HttpAsyncServiceHandler.HTTP_EXCHANGE_STATE, state);
-        Mockito.when(this.decoder.isCompleted()).thenReturn(true);
-        Mockito.when(this.requestConsumer.getException()).thenReturn(null);
-        Object data = new Object();
-        Mockito.when(this.requestConsumer.getResult()).thenReturn(data);
-        IOException ioex = new IOException();
-        Mockito.doThrow(ioex).when(
-                this.requestHandler).handle(
-                        Mockito.eq(data),
-                        Mockito.any(HttpAsyncServiceExchange.class),
-                        Mockito.eq(exchangeContext));
-
-        this.protocolHandler.inputReady(this.conn, this.decoder);
-
-        Mockito.verify(this.conn).shutdown();
-        Mockito.verify(this.requestConsumer).failed(ioex);
-        Mockito.verify(this.requestConsumer).close();
     }
 
     @Test
@@ -914,10 +824,9 @@ public class TestHttpAsyncServiceHandler {
         Mockito.verify(this.responseProducer, Mockito.never()).responseCompleted(exchangeContext);
     }
 
-    @Test
+    @Test(expected=HttpException.class)
     public void testInvalidResponseStatus() throws Exception {
         State state = new HttpAsyncServiceHandler.State();
-        HttpContext exchangeContext = state.getContext();
         BasicHttpEntityEnclosingRequest request = new BasicHttpEntityEnclosingRequest("POST", "/",
                 HttpVersion.HTTP_1_1);
         state.setRequest(request);
@@ -931,25 +840,11 @@ public class TestHttpAsyncServiceHandler {
         Mockito.when(this.conn.isResponseSubmitted()).thenReturn(false);
 
         this.protocolHandler.responseReady(this.conn);
-
-        Mockito.verify(this.conn).submitResponse(Mockito.argThat(new ArgumentMatcher<HttpResponse>() {
-
-            @Override
-            public boolean matches(final Object argument) {
-                int status = ((HttpResponse) argument).getStatusLine().getStatusCode();
-                return status == 500;
-            }
-
-        }));
-        Mockito.verify(this.responseProducer, Mockito.never()).responseCompleted(exchangeContext);
-        Mockito.verify(this.responseProducer).failed(Mockito.any(HttpException.class));
-        Mockito.verify(this.responseProducer).close();
     }
 
-    @Test
+    @Test(expected=HttpException.class)
     public void testInvalidResponseStatusToExpection() throws Exception {
         State state = new HttpAsyncServiceHandler.State();
-        HttpContext exchangeContext = state.getContext();
         BasicHttpEntityEnclosingRequest request = new BasicHttpEntityEnclosingRequest("POST", "/",
                 HttpVersion.HTTP_1_1);
         state.setRequest(request);
@@ -964,19 +859,6 @@ public class TestHttpAsyncServiceHandler {
         Mockito.when(this.conn.isResponseSubmitted()).thenReturn(false);
 
         this.protocolHandler.responseReady(this.conn);
-
-        Mockito.verify(this.conn).submitResponse(Mockito.argThat(new ArgumentMatcher<HttpResponse>() {
-
-            @Override
-            public boolean matches(final Object argument) {
-                int status = ((HttpResponse) argument).getStatusLine().getStatusCode();
-                return status == 500;
-            }
-
-        }));
-        Mockito.verify(this.responseProducer, Mockito.never()).responseCompleted(exchangeContext);
-        Mockito.verify(this.responseProducer).failed(Mockito.any(HttpException.class));
-        Mockito.verify(this.responseProducer).close();
     }
 
     @Test
@@ -1018,59 +900,6 @@ public class TestHttpAsyncServiceHandler {
                 new BasicHttpResponse(HttpVersion.HTTP_1_1, 200, "OK"),
                 state, this.conn);
         httpexchanage.submitResponse(null);
-    }
-
-    @Test
-    public void testResponseRuntimeException() throws Exception {
-        State state = new HttpAsyncServiceHandler.State();
-        HttpContext exchangeContext = state.getContext();
-        BasicHttpEntityEnclosingRequest request = new BasicHttpEntityEnclosingRequest("POST", "/",
-                HttpVersion.HTTP_1_1);
-        state.setRequest(request);
-        state.setRequestState(MessageState.ACK_EXPECTED);
-        state.setResponseProducer(this.responseProducer);
-        this.connContext.setAttribute(HttpAsyncServiceHandler.HTTP_EXCHANGE_STATE, state);
-
-        BasicHttpResponse response = new BasicHttpResponse(HttpVersion.HTTP_1_1, 417, "Expectation failed");
-        response.setEntity(NStringEntity.create("stuff"));
-        Mockito.when(this.responseProducer.generateResponse()).thenReturn(response);
-
-        RuntimeException runtimeex = new RuntimeException();
-        Mockito.doThrow(runtimeex).when(
-                this.httpProcessor).process(response, exchangeContext);
-        try {
-            this.protocolHandler.responseReady(this.conn);
-            Assert.fail("RuntimeException expected");
-        } catch (RuntimeException ex) {
-            Mockito.verify(this.conn).shutdown();
-            Mockito.verify(this.responseProducer).close();
-
-        }
-    }
-
-    @Test
-    public void testResponseIOException() throws Exception {
-        State state = new HttpAsyncServiceHandler.State();
-        HttpContext exchangeContext = state.getContext();
-        BasicHttpEntityEnclosingRequest request = new BasicHttpEntityEnclosingRequest("POST", "/",
-                HttpVersion.HTTP_1_1);
-        state.setRequest(request);
-        state.setRequestState(MessageState.ACK_EXPECTED);
-        state.setResponseProducer(this.responseProducer);
-        this.connContext.setAttribute(HttpAsyncServiceHandler.HTTP_EXCHANGE_STATE, state);
-
-        BasicHttpResponse response = new BasicHttpResponse(HttpVersion.HTTP_1_1, 417, "Expectation failed");
-        response.setEntity(NStringEntity.create("stuff"));
-        Mockito.when(this.responseProducer.generateResponse()).thenReturn(response);
-        IOException ioex = new IOException();
-        Mockito.doThrow(ioex).when(
-                this.httpProcessor).process(response, exchangeContext);
-
-        this.protocolHandler.responseReady(this.conn);
-
-        Mockito.verify(this.conn).shutdown();
-        Mockito.verify(this.responseProducer).failed(ioex);
-        Mockito.verify(this.responseProducer).close();
     }
 
     @Test
@@ -1143,51 +972,6 @@ public class TestHttpAsyncServiceHandler {
         Mockito.verify(this.responseProducer).responseCompleted(exchangeContext);
         Mockito.verify(this.conn, Mockito.never()).requestInput();
         Mockito.verify(this.conn).close();
-    }
-
-    @Test
-    public void testResponseContentRuntimeException() throws Exception {
-        State state = new HttpAsyncServiceHandler.State();
-        BasicHttpResponse response = new BasicHttpResponse(HttpVersion.HTTP_1_1, 200, "OK");
-        response.setEntity(NStringEntity.create("stuff"));
-        state.setRequestState(MessageState.COMPLETED);
-        state.setResponseState(MessageState.BODY_STREAM);
-        state.setResponse(response);
-        state.setResponseProducer(this.responseProducer);
-        this.connContext.setAttribute(HttpAsyncServiceHandler.HTTP_EXCHANGE_STATE, state);
-        Mockito.when(this.encoder.isCompleted()).thenReturn(false);
-
-        RuntimeException runtimeex = new RuntimeException();
-        Mockito.doThrow(runtimeex).when(
-                this.responseProducer).produceContent(this.encoder, this.conn);
-        try {
-            this.protocolHandler.outputReady(conn, this.encoder);
-            Assert.fail("RuntimeException expected");
-        } catch (RuntimeException ex) {
-            Mockito.verify(this.conn).shutdown();
-            Mockito.verify(this.responseProducer).close();
-        }
-    }
-
-    @Test
-    public void testResponseContentIOException() throws Exception {
-        State state = new HttpAsyncServiceHandler.State();
-        BasicHttpResponse response = new BasicHttpResponse(HttpVersion.HTTP_1_1, 200, "OK");
-        response.setEntity(NStringEntity.create("stuff"));
-        state.setRequestState(MessageState.COMPLETED);
-        state.setResponseState(MessageState.BODY_STREAM);
-        state.setResponse(response);
-        state.setResponseProducer(this.responseProducer);
-        this.connContext.setAttribute(HttpAsyncServiceHandler.HTTP_EXCHANGE_STATE, state);
-        Mockito.when(this.encoder.isCompleted()).thenReturn(false);
-
-        IOException ioex = new IOException();
-        Mockito.doThrow(ioex).when(
-                this.responseProducer).produceContent(this.encoder, this.conn);
-        this.protocolHandler.outputReady(conn, this.encoder);
-        Mockito.verify(this.conn).shutdown();
-        Mockito.verify(this.responseProducer).failed(ioex);
-        Mockito.verify(this.responseProducer).close();
     }
 
     @Test

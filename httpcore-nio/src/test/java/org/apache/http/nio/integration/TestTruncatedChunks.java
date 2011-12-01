@@ -47,15 +47,15 @@ import org.apache.http.entity.ContentLengthStrategy;
 import org.apache.http.entity.InputStreamEntity;
 import org.apache.http.impl.DefaultConnectionReuseStrategy;
 import org.apache.http.impl.io.HttpTransportMetricsImpl;
+import org.apache.http.impl.nio.DefaultNHttpClientConnection;
+import org.apache.http.impl.nio.DefaultNHttpServerConnection;
 import org.apache.http.impl.nio.DefaultNHttpServerConnectionFactory;
 import org.apache.http.impl.nio.codecs.AbstractContentEncoder;
 import org.apache.http.message.BasicHttpRequest;
 import org.apache.http.nio.ContentDecoder;
 import org.apache.http.nio.ContentEncoder;
 import org.apache.http.nio.IOControl;
-import org.apache.http.nio.NHttpClientIOTarget;
 import org.apache.http.nio.NHttpConnectionFactory;
-import org.apache.http.nio.NHttpServerIOTarget;
 import org.apache.http.nio.entity.ContentInputStream;
 import org.apache.http.nio.protocol.AbstractAsyncResponseConsumer;
 import org.apache.http.nio.protocol.BasicAsyncRequestProducer;
@@ -101,13 +101,13 @@ public class TestTruncatedChunks extends HttpCoreNIOTestBase {
     }
 
     @Override
-    protected NHttpConnectionFactory<NHttpServerIOTarget> createServerConnectionFactory(
+    protected NHttpConnectionFactory<DefaultNHttpServerConnection> createServerConnectionFactory(
             final HttpParams params) throws Exception {
         return new CustomServerConnectionFactory(params);
     }
 
     @Override
-    protected NHttpConnectionFactory<NHttpClientIOTarget> createClientConnectionFactory(
+    protected NHttpConnectionFactory<DefaultNHttpClientConnection> createClientConnectionFactory(
             final HttpParams params) throws Exception {
         return new LoggingClientConnectionFactory(params);
     }
@@ -163,7 +163,7 @@ public class TestTruncatedChunks extends HttpCoreNIOTestBase {
         }
 
         @Override
-        protected NHttpServerIOTarget createConnection(
+        protected DefaultNHttpServerConnection createConnection(
                 final IOSession session,
                 final HttpRequestFactory requestFactory,
                 final ByteBufferAllocator allocator,

@@ -35,7 +35,10 @@ import org.apache.http.nio.reactor.IOEventDispatch;
  * objects of I/O events.
  *
  * @since 4.0
+ *
+ * @deprecated no longer used
  */
+@Deprecated
 public interface NHttpClientIOTarget extends NHttpClientConnection {
 
     /**

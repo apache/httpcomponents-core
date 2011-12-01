@@ -28,11 +28,11 @@
 package org.apache.http;
 
 import org.apache.http.impl.DefaultConnectionReuseStrategy;
+import org.apache.http.impl.nio.DefaultNHttpClientConnection;
+import org.apache.http.impl.nio.DefaultNHttpServerConnection;
 import org.apache.http.impl.nio.pool.BasicNIOConnFactory;
 import org.apache.http.impl.nio.pool.BasicNIOConnPool;
-import org.apache.http.nio.NHttpClientIOTarget;
 import org.apache.http.nio.NHttpConnectionFactory;
-import org.apache.http.nio.NHttpServerIOTarget;
 import org.apache.http.nio.protocol.HttpAsyncRequestExecutor;
 import org.apache.http.params.CoreConnectionPNames;
 import org.apache.http.params.CoreProtocolPNames;
@@ -68,10 +68,10 @@ public abstract class HttpCoreNIOTestBase {
     protected BasicNIOConnPool connpool;
     protected HttpAsyncRequestExecutor executor;
 
-    protected abstract NHttpConnectionFactory<NHttpServerIOTarget> createServerConnectionFactory(
+    protected abstract NHttpConnectionFactory<DefaultNHttpServerConnection> createServerConnectionFactory(
             HttpParams params) throws Exception;
 
-    protected abstract NHttpConnectionFactory<NHttpClientIOTarget> createClientConnectionFactory(
+    protected abstract NHttpConnectionFactory<DefaultNHttpClientConnection> createClientConnectionFactory(
             HttpParams params) throws Exception;
 
     public void initServer() throws Exception {

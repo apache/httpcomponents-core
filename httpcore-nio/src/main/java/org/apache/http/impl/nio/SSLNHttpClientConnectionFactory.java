@@ -32,7 +32,6 @@ import org.apache.http.HttpResponseFactory;
 import org.apache.http.annotation.Immutable;
 import org.apache.http.impl.DefaultHttpResponseFactory;
 import org.apache.http.nio.NHttpClientConnection;
-import org.apache.http.nio.NHttpClientIOTarget;
 import org.apache.http.nio.NHttpConnectionFactory;
 import org.apache.http.nio.reactor.IOSession;
 import org.apache.http.nio.reactor.ssl.SSLIOSession;
@@ -59,7 +58,8 @@ import org.apache.http.params.HttpParams;
  * @since 4.2
  */
 @Immutable
-public class SSLNHttpClientConnectionFactory implements NHttpConnectionFactory<NHttpClientIOTarget> {
+public class SSLNHttpClientConnectionFactory
+    implements NHttpConnectionFactory<DefaultNHttpClientConnection> {
 
     private final HttpResponseFactory responseFactory;
     private final ByteBufferAllocator allocator;
@@ -112,7 +112,7 @@ public class SSLNHttpClientConnectionFactory implements NHttpConnectionFactory<N
         return sslcontext;
     }
 
-    protected NHttpClientIOTarget createConnection(
+    protected DefaultNHttpClientConnection createConnection(
             final IOSession session,
             final HttpResponseFactory responseFactory,
             final ByteBufferAllocator allocator,
@@ -120,11 +120,11 @@ public class SSLNHttpClientConnectionFactory implements NHttpConnectionFactory<N
         return new DefaultNHttpClientConnection(session, responseFactory, allocator, params);
     }
 
-    public NHttpClientIOTarget createConnection(final IOSession session) {
+    public DefaultNHttpClientConnection createConnection(final IOSession session) {
         SSLContext sslcontext = this.sslcontext != null ? this.sslcontext : getDefaultSSLContext();
         SSLIOSession ssliosession = new SSLIOSession(session, SSLMode.CLIENT, sslcontext, this.sslHandler);
         session.setAttribute(SSLIOSession.SESSION_KEY, ssliosession);
-        NHttpClientIOTarget conn = createConnection(
+        DefaultNHttpClientConnection conn = createConnection(
                 ssliosession, this.responseFactory, this.allocator, this.params);
         int timeout = HttpConnectionParams.getSoTimeout(this.params);
         conn.setSocketTimeout(timeout);
