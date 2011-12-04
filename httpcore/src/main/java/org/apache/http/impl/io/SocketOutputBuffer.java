@@ -41,6 +41,7 @@ import org.apache.http.params.HttpParams;
  * class:
  * <ul>
  *  <li>{@link org.apache.http.params.CoreProtocolPNames#HTTP_ELEMENT_CHARSET}</li>
+ *  <li>{@link org.apache.http.params.CoreConnectionPNames#MIN_CHUNK_LIMIT}</li>
  * </ul>
  *
  * @since 4.0
