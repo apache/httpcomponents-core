@@ -119,10 +119,11 @@ public class HttpAsyncServiceHandler implements NHttpServerProtocolHandler {
         State state = getState(conn);
         if (state != null) {
             synchronized (state) {
+                state.setTerminated();
                 closeHandlers(state);
-                Cancellable asyncProcess = state.getAsyncProcess();
-                if (asyncProcess != null) {
-                    asyncProcess.cancel();
+                Cancellable cancellable = state.getCancellable();
+                if (cancellable != null) {
+                    cancellable.cancel();
                 }
                 state.reset();
             }
@@ -201,8 +202,7 @@ public class HttpAsyncServiceHandler implements NHttpServerProtocolHandler {
                         conn.suspendInput();
                         HttpAsyncServiceExchange httpex = new Exchange(
                                 request, ack, state, conn);
-                        Cancellable asyncProcess = this.expectationVerifier.verify(httpex, context);
-                        state.setAsyncProcess(asyncProcess);
+                        this.expectationVerifier.verify(httpex, context);
                     } else {
                         conn.submitResponse(ack);
                         state.setRequestState(MessageState.BODY_STREAM);
@@ -454,11 +454,9 @@ public class HttpAsyncServiceHandler implements NHttpServerProtocolHandler {
             Object result = consumer.getResult();
             HttpResponse response = this.responseFactory.newHttpResponse(HttpVersion.HTTP_1_1,
                     HttpStatus.SC_OK, context);
-            HttpAsyncServiceExchange httpex = new Exchange(
-                    request, response, state, conn);
+            Exchange httpexchange = new Exchange(request, response, state, conn);
             try {
-                Cancellable asyncProcess = handler.handle(result, httpex, context);
-                state.setAsyncProcess(asyncProcess);
+                handler.handle(result, httpexchange, context);
             } catch (HttpException ex) {
                 HttpAsyncResponseProducer responseProducer = handleException(ex, context);
                 state.setResponseProducer(responseProducer);
@@ -518,6 +516,7 @@ public class HttpAsyncServiceHandler implements NHttpServerProtocolHandler {
     static class State {
 
         private final BasicHttpContext context;
+        private volatile boolean terminated;
         private volatile HttpAsyncRequestHandler<Object> requestHandler;
         private volatile MessageState requestState;
         private volatile MessageState responseState;
@@ -525,8 +524,8 @@ public class HttpAsyncServiceHandler implements NHttpServerProtocolHandler {
         private volatile HttpAsyncResponseProducer responseProducer;
         private volatile HttpRequest request;
         private volatile HttpResponse response;
-        private volatile Cancellable asyncProcess;
-
+        private volatile Cancellable cancellable;
+        
         State() {
             super();
             this.context = new BasicHttpContext();
@@ -536,6 +535,14 @@ public class HttpAsyncServiceHandler implements NHttpServerProtocolHandler {
 
         public HttpContext getContext() {
             return this.context;
+        }
+
+        public boolean isTerminated() {
+            return this.terminated;
+        }
+
+        public void setTerminated() {
+            this.terminated = true;
         }
 
         public HttpAsyncRequestHandler<Object> getRequestHandler() {
@@ -594,15 +601,16 @@ public class HttpAsyncServiceHandler implements NHttpServerProtocolHandler {
             this.response = response;
         }
 
-        public Cancellable getAsyncProcess() {
-            return this.asyncProcess;
+        public Cancellable getCancellable() {
+            return this.cancellable;
         }
 
-        public void setAsyncProcess(final Cancellable asyncProcess) {
-            this.asyncProcess = asyncProcess;
+        public void setCancellable(final Cancellable cancellable) {
+            this.cancellable = cancellable;
         }
 
         public void reset() {
+            this.context.clear();
             this.responseState = MessageState.READY;
             this.requestState = MessageState.READY;
             this.requestHandler = null;
@@ -610,8 +618,7 @@ public class HttpAsyncServiceHandler implements NHttpServerProtocolHandler {
             this.responseProducer = null;
             this.request = null;
             this.response = null;
-            this.asyncProcess = null;
-            this.context.clear();
+            this.cancellable = null;
         }
 
         @Override
@@ -642,6 +649,8 @@ public class HttpAsyncServiceHandler implements NHttpServerProtocolHandler {
         private final State state;
         private final NHttpServerConnection conn;
 
+        private volatile boolean completed;
+        
         public Exchange(
                 final HttpRequest request,
                 final HttpResponse response,
@@ -662,16 +671,33 @@ public class HttpAsyncServiceHandler implements NHttpServerProtocolHandler {
             return this.response;
         }
 
+        public void setCallback(final Cancellable cancellable) {
+            synchronized (this.state) {
+                if (this.completed) {
+                    throw new IllegalStateException("Response already submitted");
+                }
+                if (this.state.isTerminated() && cancellable != null) {
+                    cancellable.cancel();
+                } else {
+                    this.state.setCancellable(cancellable);
+                }
+            }
+        }
+
         public void submitResponse(final HttpAsyncResponseProducer responseProducer) {
             if (responseProducer == null) {
                 throw new IllegalArgumentException("Response producer may not be null");
             }
             synchronized (this.state) {
-                if (this.state.getResponseProducer() != null) {
+                if (this.completed) {
                     throw new IllegalStateException("Response already submitted");
                 }
-                this.state.setResponseProducer(responseProducer);
-                this.conn.requestOutput();
+                this.completed = true;
+                if (!this.state.isTerminated()) {
+                    this.state.setResponseProducer(responseProducer);
+                    this.state.setCancellable(null);
+                    this.conn.requestOutput();
+                }
             }
         }
 
@@ -680,9 +706,7 @@ public class HttpAsyncServiceHandler implements NHttpServerProtocolHandler {
         }
 
         public boolean isCompleted() {
-            synchronized (this.state) {
-                return this.state.getResponseProducer() != null;
-            }
+            return this.completed;
         }
 
     }

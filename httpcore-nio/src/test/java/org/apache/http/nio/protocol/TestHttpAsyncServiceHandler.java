@@ -151,7 +151,7 @@ public class TestHttpAsyncServiceHandler {
         state.setResponseState(MessageState.COMPLETED);
         state.setRequestConsumer(this.requestConsumer);
         state.setResponseProducer(this.responseProducer);
-        state.setAsyncProcess(this.cancellable);
+        state.setCancellable(this.cancellable);
         this.connContext.setAttribute(HttpAsyncServiceHandler.HTTP_EXCHANGE_STATE, state);
 
         this.protocolHandler.closed(this.conn);
@@ -290,10 +290,6 @@ public class TestHttpAsyncServiceHandler {
         Mockito.when(this.requestConsumer.getException()).thenReturn(null);
         Object data = new Object();
         Mockito.when(this.requestConsumer.getResult()).thenReturn(data);
-        Mockito.when(this.requestHandler.handle(
-                Mockito.eq(data),
-                Mockito.any(HttpAsyncServiceExchange.class),
-                Mockito.eq(exchangeContext))).thenReturn(this.cancellable);
 
         this.protocolHandler.requestReceived(this.conn);
 
@@ -314,7 +310,6 @@ public class TestHttpAsyncServiceHandler {
                 Mockito.eq(data),
                 Mockito.any(HttpAsyncServiceExchange.class),
                 Mockito.eq(exchangeContext));
-        Assert.assertSame(this.cancellable, state.getAsyncProcess());
     }
 
     @Test
@@ -422,9 +417,6 @@ public class TestHttpAsyncServiceHandler {
         Mockito.when(this.conn.getHttpRequest()).thenReturn(request);
         Mockito.when(this.requestHandler.processRequest(
                 request, exchangeContext)).thenReturn(this.requestConsumer);
-        Mockito.when(expectationVerifier.verify(
-                Mockito.any(HttpAsyncServiceExchange.class),
-                Mockito.eq(exchangeContext))).thenReturn(this.cancellable);
 
         this.protocolHandler.requestReceived(this.conn);
 
@@ -443,7 +435,6 @@ public class TestHttpAsyncServiceHandler {
         Mockito.verify(expectationVerifier).verify(
                 Mockito.any(HttpAsyncServiceExchange.class),
                 Mockito.eq(exchangeContext));
-        Assert.assertSame(this.cancellable, state.getAsyncProcess());
     }
 
     @Test
@@ -551,10 +542,6 @@ public class TestHttpAsyncServiceHandler {
         Mockito.when(this.requestConsumer.getException()).thenReturn(null);
         Object data = new Object();
         Mockito.when(this.requestConsumer.getResult()).thenReturn(data);
-        Mockito.when(this.requestHandler.handle(
-                Mockito.eq(data),
-                Mockito.any(HttpAsyncServiceExchange.class),
-                Mockito.eq(exchangeContext))).thenReturn(this.cancellable);
 
         this.protocolHandler.inputReady(conn, this.decoder);
 
@@ -568,7 +555,6 @@ public class TestHttpAsyncServiceHandler {
                 Mockito.eq(data),
                 Mockito.any(HttpAsyncServiceExchange.class),
                 Mockito.eq(exchangeContext));
-        Assert.assertSame(this.cancellable, state.getAsyncProcess());
     }
 
     @Test

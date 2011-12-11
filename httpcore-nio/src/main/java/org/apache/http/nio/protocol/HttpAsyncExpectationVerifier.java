@@ -30,7 +30,6 @@ package org.apache.http.nio.protocol;
 import java.io.IOException;
 
 import org.apache.http.HttpException;
-import org.apache.http.concurrent.Cancellable;
 import org.apache.http.protocol.HttpContext;
 
 /**
@@ -38,7 +37,7 @@ import org.apache.http.protocol.HttpContext;
  */
 public interface HttpAsyncExpectationVerifier {
 
-    Cancellable verify(
+    void verify(
             HttpAsyncServiceExchange httpExchange,
             HttpContext context) throws HttpException, IOException;
 

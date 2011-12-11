@@ -29,6 +29,7 @@ package org.apache.http.nio.protocol;
 
 import org.apache.http.HttpRequest;
 import org.apache.http.HttpResponse;
+import org.apache.http.concurrent.Cancellable;
 
 /**
  * @since 4.2
@@ -39,6 +40,8 @@ public interface HttpAsyncServiceExchange {
 
     HttpResponse getResponse();
 
+    void setCallback(Cancellable cancellable);
+    
     void submitResponse(HttpAsyncResponseProducer responseProducer);
 
     void submitResponse();

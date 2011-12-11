@@ -44,7 +44,6 @@ import org.apache.http.HttpResponse;
 import org.apache.http.HttpResponseInterceptor;
 import org.apache.http.HttpStatus;
 import org.apache.http.HttpVersion;
-import org.apache.http.concurrent.Cancellable;
 import org.apache.http.entity.ContentType;
 import org.apache.http.impl.DefaultConnectionReuseStrategy;
 import org.apache.http.impl.EnglishReasonPhraseCatalog;
@@ -374,7 +373,7 @@ public class NHttpReverseProxy {
             }
         }
 
-        public Cancellable handle(
+        public void handle(
                 final ProxyHttpExchange httpExchange,
                 final HttpAsyncServiceExchange responseTrigger,
                 final HttpContext context) throws HttpException, IOException {
@@ -392,17 +391,14 @@ public class NHttpReverseProxy {
                     response.setEntity(NStringEntity.create(message, ContentType.DEFAULT_TEXT));
                     responseTrigger.submitResponse(new BasicAsyncResponseProducer(response));
                     System.out.println("[client<-proxy] " + httpExchange.getId() + " error response triggered");
-                    return null;
                 }
                 HttpResponse response = httpExchange.getResponse();
                 if (response != null) {
                     responseTrigger.submitResponse(new ProxyResponseProducer(httpExchange));
                     System.out.println("[client<-proxy] " + httpExchange.getId() + " response triggered");
-                    return null;
                 }
                 // No response yet.
                 httpExchange.setResponseTrigger(responseTrigger);
-                return null;
             }
         }
 

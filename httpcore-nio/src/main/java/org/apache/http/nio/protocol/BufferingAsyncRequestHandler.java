@@ -32,7 +32,6 @@ import java.io.IOException;
 import org.apache.http.HttpException;
 import org.apache.http.HttpRequest;
 import org.apache.http.annotation.Immutable;
-import org.apache.http.concurrent.Cancellable;
 import org.apache.http.protocol.HttpContext;
 import org.apache.http.protocol.HttpRequestHandler;
 
@@ -57,13 +56,12 @@ public class BufferingAsyncRequestHandler implements HttpAsyncRequestHandler<Htt
         return new BasicAsyncRequestConsumer();
     }
 
-    public Cancellable handle(
+    public void handle(
             final HttpRequest request,
             final HttpAsyncServiceExchange httpexchange,
             final HttpContext context) throws HttpException, IOException {
         this.handler.handle(request, httpexchange.getResponse(), context);
         httpexchange.submitResponse();
-        return null;
     }
 
 }

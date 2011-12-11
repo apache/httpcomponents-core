@@ -45,7 +45,6 @@ import org.apache.http.HttpResponse;
 import org.apache.http.HttpResponseInterceptor;
 import org.apache.http.HttpStatus;
 import org.apache.http.MethodNotSupportedException;
-import org.apache.http.concurrent.Cancellable;
 import org.apache.http.entity.ContentType;
 import org.apache.http.impl.DefaultConnectionReuseStrategy;
 import org.apache.http.impl.nio.DefaultNHttpServerConnection;
@@ -188,14 +187,13 @@ public class NHttpServer {
             return new BasicAsyncRequestConsumer();
         }
 
-        public Cancellable handle(
+        public void handle(
                 final HttpRequest request,
                 final HttpAsyncServiceExchange httpexchange,
                 final HttpContext context) throws HttpException, IOException {
             HttpResponse response = httpexchange.getResponse();
             handleInternal(request, response, context);
             httpexchange.submitResponse(new BasicAsyncResponseProducer(response));
-            return null;
         }
 
         private void handleInternal(

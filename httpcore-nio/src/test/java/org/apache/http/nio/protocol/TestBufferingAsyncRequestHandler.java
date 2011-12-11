@@ -32,7 +32,6 @@ import junit.framework.Assert;
 import org.apache.http.HttpRequest;
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpVersion;
-import org.apache.http.concurrent.Cancellable;
 import org.apache.http.message.BasicRequestLine;
 import org.apache.http.protocol.BasicHttpContext;
 import org.apache.http.protocol.HttpContext;
@@ -88,9 +87,8 @@ public class TestBufferingAsyncRequestHandler {
     public void testHandleRequest() throws Exception {
         Mockito.when(this.request.getRequestLine()).thenReturn(new BasicRequestLine("GET", "/", HttpVersion.HTTP_1_0));
 
-        Cancellable cancellable = this.asyncRequestHandler.handle(this.request, this.httpexchange, this.context);
+        this.asyncRequestHandler.handle(this.request, this.httpexchange, this.context);
 
-        Assert.assertNull(cancellable);
         Mockito.verify(this.requestHandler).handle(
                 Mockito.eq(this.request), Mockito.eq(this.response), Mockito.eq(this.context));
         Mockito.verify(this.httpexchange).submitResponse();
