@@ -42,7 +42,7 @@ import org.apache.http.impl.nio.codecs.DefaultHttpResponseParser;
 import org.apache.http.nio.NHttpClientConnection;
 import org.apache.http.nio.NHttpClientIOTarget;
 import org.apache.http.nio.NHttpClientHandler;
-import org.apache.http.nio.NHttpClientProtocolHandler;
+import org.apache.http.nio.NHttpClientEventHandler;
 import org.apache.http.nio.NHttpMessageParser;
 import org.apache.http.nio.NHttpMessageWriter;
 import org.apache.http.nio.reactor.EventMask;
@@ -143,7 +143,7 @@ public class DefaultNHttpClientConnection
         this.requestWriter.reset();
     }
 
-    public void consumeInput(final NHttpClientProtocolHandler handler) {
+    public void consumeInput(final NHttpClientEventHandler handler) {
         if (this.status != ACTIVE) {
             this.session.clearEvent(EventMask.READ);
             return;
@@ -192,7 +192,7 @@ public class DefaultNHttpClientConnection
         }
     }
 
-    public void produceOutput(final NHttpClientProtocolHandler handler) {
+    public void produceOutput(final NHttpClientEventHandler handler) {
         try {
             if (this.outbuf.hasData()) {
                 int bytesWritten = this.outbuf.flush(this.session.channel());
@@ -259,11 +259,11 @@ public class DefaultNHttpClientConnection
     }
 
     public void consumeInput(final NHttpClientHandler handler) {
-        consumeInput(new NHttpClientProtocolHandlerAdaptor(handler));
+        consumeInput(new NHttpClientEventHandlerAdaptor(handler));
     }
 
     public void produceOutput(final NHttpClientHandler handler) {
-        produceOutput(new NHttpClientProtocolHandlerAdaptor(handler));
+        produceOutput(new NHttpClientEventHandlerAdaptor(handler));
     }
 
 }

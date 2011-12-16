@@ -32,90 +32,89 @@ import java.io.IOException;
 import org.apache.http.HttpException;
 
 /**
- * Abstract client-side HTTP protocol handler.
+ * Abstract server-side HTTP event handler.
  *
  * @since 4.2
  */
-public interface NHttpClientProtocolHandler {
+public interface NHttpServerEventHandler {
 
     /**
-     * Triggered when a new outgoing connection is created.
+     * Triggered when a new incoming connection is created.
      *
-     * @param conn new outgoing HTTP connection.
-     * @param attachment an object that was attached to the session request
+     * @param conn new incoming connection HTTP connection.
      */
     void connected(
-            NHttpClientConnection conn,
-            Object attachment) throws IOException, HttpException;
+            NHttpServerConnection conn) throws IOException, HttpException;
 
     /**
-     * Triggered when the connection is ready to accept a new HTTP request.
-     * The protocol handler does not have to submit a request if it is not
-     * ready.
-     *
-     * @see NHttpClientConnection
-     *
-     * @param conn HTTP connection that is ready to accept a new HTTP request.
-     */
-    void requestReady(
-            NHttpClientConnection conn) throws IOException, HttpException;
-
-    /**
-     * Triggered when an HTTP response is received. The connection
+     * Triggered when a new HTTP request is received. The connection
      * passed as a parameter to this method is guaranteed to return
-     * a valid HTTP response object.
+     * a valid HTTP request object.
      * <p/>
-     * If the response received encloses a response entity this method will
-     * be followed by a series of
-     * {@link #inputReady(NHttpClientConnection, ContentDecoder)} calls
-     * to transfer the response content.
+     * If the request received encloses a request entity this method will
+     * be followed a series of
+     * {@link #inputReady(NHttpServerConnection, ContentDecoder)} calls
+     * to transfer the request content.
      *
-     * @see NHttpClientConnection
+     * @see NHttpServerConnection
      *
-     * @param conn HTTP connection that contains an HTTP response
+     * @param conn HTTP connection that contains a new HTTP request
      */
-    void responseReceived(
-            NHttpClientConnection conn) throws IOException, HttpException;
+    void requestReceived(
+            NHttpServerConnection conn) throws IOException, HttpException;
 
     /**
      * Triggered when the underlying channel is ready for reading a
-     * new portion of the response entity through the corresponding
+     * new portion of the request entity through the corresponding
      * content decoder.
      * <p/>
      * If the content consumer is unable to process the incoming content,
      * input event notifications can be temporarily suspended using
      * {@link IOControl} interface.
      *
-     * @see NHttpClientConnection
+     * @see NHttpServerConnection
      * @see ContentDecoder
      * @see IOControl
      *
      * @param conn HTTP connection that can produce a new portion of the
-     * incoming response content.
+     * incoming request content.
      * @param decoder The content decoder to use to read content.
      */
     void inputReady(
-            NHttpClientConnection conn,
+            NHttpServerConnection conn,
             ContentDecoder decoder) throws IOException, HttpException;
 
     /**
-     * Triggered when the underlying channel is ready for writing a next portion
-     * of the request entity through the corresponding content encoder.
-     * <p>
+     * Triggered when the connection is ready to accept a new HTTP response.
+     * The protocol handler does not have to submit a response if it is not
+     * ready.
+     *
+     * @see NHttpServerConnection
+     *
+     * @param conn HTTP connection that contains an HTTP response
+     */
+    void responseReady(
+            NHttpServerConnection conn) throws IOException, HttpException;
+
+    /**
+     * Triggered when the underlying channel is ready for writing a
+     * next portion of the response entity through the corresponding
+     * content encoder.
+     * <p/>
      * If the content producer is unable to generate the outgoing content,
      * output event notifications can be temporarily suspended using
      * {@link IOControl} interface.
      *
-     * @see NHttpClientConnection
+     * @see NHttpServerConnection
      * @see ContentEncoder
      * @see IOControl
      *
      * @param conn HTTP connection that can accommodate a new portion
-     * of the outgoing request content.
+     * of the outgoing response content.
      * @param encoder The content encoder to use to write content.
      */
     void outputReady(
-            NHttpClientConnection conn,
+            NHttpServerConnection conn,
             ContentEncoder encoder) throws IOException, HttpException;
 
     /**
@@ -125,14 +124,14 @@ public interface NHttpClientProtocolHandler {
      * @param conn HTTP connection that caused timeout condition.
      */
     void timeout(
-            NHttpClientConnection conn) throws IOException, HttpException;
+            NHttpServerConnection conn) throws IOException;
 
     /**
      * Triggered when the connection is closed.
      *
      * @param conn closed HTTP connection.
      */
-    void closed(NHttpClientConnection conn);
+    void closed(NHttpServerConnection conn);
 
     /**
      * Triggered if an error occurs during the HTTP exchange.
@@ -140,6 +139,6 @@ public interface NHttpClientProtocolHandler {
      * @param conn HTTP connection that caused an I/O error
      * @param ex exception
      */
-    void exception(NHttpClientConnection conn, Exception ex);
+    void exception(NHttpServerConnection conn, Exception ex);
 
 }

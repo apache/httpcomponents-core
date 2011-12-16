@@ -49,7 +49,7 @@ import org.apache.http.nio.ContentDecoder;
 import org.apache.http.nio.ContentEncoder;
 import org.apache.http.nio.NHttpConnection;
 import org.apache.http.nio.NHttpServerConnection;
-import org.apache.http.nio.NHttpServerProtocolHandler;
+import org.apache.http.nio.NHttpServerEventHandler;
 import org.apache.http.nio.entity.NStringEntity;
 import org.apache.http.params.DefaultedHttpParams;
 import org.apache.http.params.HttpParams;
@@ -62,7 +62,7 @@ import org.apache.http.protocol.HttpProcessor;
  * @since 4.2
  */
 @Immutable // provided injected dependencies are immutable
-public class HttpAsyncServiceHandler implements NHttpServerProtocolHandler {
+public class HttpAsyncServerProtocolHandler implements NHttpServerEventHandler {
 
     static final String HTTP_EXCHANGE_STATE = "http.nio.http-exchange-state";
 
@@ -73,7 +73,7 @@ public class HttpAsyncServiceHandler implements NHttpServerProtocolHandler {
     private final HttpAsyncExpectationVerifier expectationVerifier;
     private final HttpParams params;
 
-    public HttpAsyncServiceHandler(
+    public HttpAsyncServerProtocolHandler(
             final HttpProcessor httpProcessor,
             final ConnectionReuseStrategy connStrategy,
             final HttpResponseFactory responseFactory,
@@ -101,7 +101,7 @@ public class HttpAsyncServiceHandler implements NHttpServerProtocolHandler {
         this.params = params;
     }
 
-    public HttpAsyncServiceHandler(
+    public HttpAsyncServerProtocolHandler(
             final HttpProcessor httpProcessor,
             final ConnectionReuseStrategy connStrategy,
             final HttpAsyncRequestHandlerResolver handlerResolver,

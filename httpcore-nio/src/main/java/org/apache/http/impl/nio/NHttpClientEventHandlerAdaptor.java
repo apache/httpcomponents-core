@@ -25,7 +25,7 @@
  *
  */
 
-package org.apache.http.testserver;
+package org.apache.http.impl.nio;
 
 import java.io.IOException;
 
@@ -34,14 +34,14 @@ import org.apache.http.nio.ContentDecoder;
 import org.apache.http.nio.ContentEncoder;
 import org.apache.http.nio.NHttpClientConnection;
 import org.apache.http.nio.NHttpClientHandler;
-import org.apache.http.nio.NHttpClientProtocolHandler;
+import org.apache.http.nio.NHttpClientEventHandler;
 
 @Deprecated
-class NHttpClientProtocolHandlerAdaptor implements NHttpClientProtocolHandler {
+class NHttpClientEventHandlerAdaptor implements NHttpClientEventHandler {
 
     private final NHttpClientHandler handler;
 
-    public NHttpClientProtocolHandlerAdaptor(final NHttpClientHandler handler) {
+    public NHttpClientEventHandlerAdaptor(final NHttpClientHandler handler) {
         super();
         this.handler = handler;
     }

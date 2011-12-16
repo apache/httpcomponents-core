@@ -33,15 +33,15 @@ import org.apache.http.HttpException;
 import org.apache.http.nio.ContentDecoder;
 import org.apache.http.nio.ContentEncoder;
 import org.apache.http.nio.NHttpServerConnection;
-import org.apache.http.nio.NHttpServerProtocolHandler;
+import org.apache.http.nio.NHttpServerEventHandler;
 import org.apache.http.nio.NHttpServiceHandler;
 
 @Deprecated
-class NHttpServerProtocolHandlerAdaptor implements NHttpServerProtocolHandler {
+class NHttpServerEventHandlerAdaptor implements NHttpServerEventHandler {
 
     private final NHttpServiceHandler handler;
 
-    public NHttpServerProtocolHandlerAdaptor(final NHttpServiceHandler handler) {
+    public NHttpServerEventHandlerAdaptor(final NHttpServiceHandler handler) {
         super();
         this.handler = handler;
     }

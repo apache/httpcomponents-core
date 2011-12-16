@@ -58,7 +58,7 @@ import org.apache.http.nio.protocol.BasicAsyncResponseConsumer;
 import org.apache.http.nio.protocol.BufferingAsyncRequestHandler;
 import org.apache.http.nio.protocol.HttpAsyncClientProtocolHandler;
 import org.apache.http.nio.protocol.HttpAsyncRequestHandlerRegistry;
-import org.apache.http.nio.protocol.HttpAsyncServiceHandler;
+import org.apache.http.nio.protocol.HttpAsyncServerProtocolHandler;
 import org.apache.http.nio.reactor.IOReactorException;
 import org.apache.http.nio.reactor.IOReactorExceptionHandler;
 import org.apache.http.nio.reactor.IOReactorStatus;
@@ -114,7 +114,7 @@ public class TestDefaultIOReactors extends HttpCoreNIOTestBase {
         this.connpool.setMaxTotal(connNo);
 
         HttpAsyncRequestHandlerRegistry registry = new HttpAsyncRequestHandlerRegistry();
-        HttpAsyncServiceHandler serviceHandler = new HttpAsyncServiceHandler(
+        HttpAsyncServerProtocolHandler serviceHandler = new HttpAsyncServerProtocolHandler(
                 this.serverHttpProc,
                 new DefaultConnectionReuseStrategy(),
                 registry,
@@ -200,7 +200,7 @@ public class TestDefaultIOReactors extends HttpCoreNIOTestBase {
 
         HttpAsyncRequestHandlerRegistry registry = new HttpAsyncRequestHandlerRegistry();
         registry.register("*", new BufferingAsyncRequestHandler(requestHandler));
-        HttpAsyncServiceHandler serviceHandler = new HttpAsyncServiceHandler(
+        HttpAsyncServerProtocolHandler serviceHandler = new HttpAsyncServerProtocolHandler(
                 this.serverHttpProc,
                 new DefaultConnectionReuseStrategy(),
                 registry,
@@ -283,7 +283,7 @@ public class TestDefaultIOReactors extends HttpCoreNIOTestBase {
 
         HttpAsyncRequestHandlerRegistry registry = new HttpAsyncRequestHandlerRegistry();
         registry.register("*", new BufferingAsyncRequestHandler(requestHandler));
-        HttpAsyncServiceHandler serviceHandler = new HttpAsyncServiceHandler(
+        HttpAsyncServerProtocolHandler serviceHandler = new HttpAsyncServerProtocolHandler(
                 this.serverHttpProc,
                 new DefaultConnectionReuseStrategy(),
                 registry,
@@ -367,7 +367,7 @@ public class TestDefaultIOReactors extends HttpCoreNIOTestBase {
 
         HttpAsyncRequestHandlerRegistry registry = new HttpAsyncRequestHandlerRegistry();
         registry.register("*", new BufferingAsyncRequestHandler(requestHandler));
-        HttpAsyncServiceHandler serviceHandler = new HttpAsyncServiceHandler(
+        HttpAsyncServerProtocolHandler serviceHandler = new HttpAsyncServerProtocolHandler(
                 this.serverHttpProc,
                 new DefaultConnectionReuseStrategy(),
                 registry,

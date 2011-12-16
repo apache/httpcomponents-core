@@ -38,7 +38,7 @@ import org.apache.http.HttpResponseInterceptor;
 import org.apache.http.impl.DefaultConnectionReuseStrategy;
 import org.apache.http.impl.nio.DefaultServerIODispatch;
 import org.apache.http.nio.protocol.HttpAsyncRequestHandlerRegistry;
-import org.apache.http.nio.protocol.HttpAsyncServiceHandler;
+import org.apache.http.nio.protocol.HttpAsyncServerProtocolHandler;
 import org.apache.http.nio.reactor.IOEventDispatch;
 import org.apache.http.nio.reactor.IOReactorExceptionHandler;
 import org.apache.http.nio.reactor.IOReactorStatus;
@@ -68,7 +68,7 @@ public class TestDefaultListeningIOReactor {
                 new ResponseContent(),
                 new ResponseConnControl()
         });
-        HttpAsyncServiceHandler serviceHandler = new HttpAsyncServiceHandler(
+        HttpAsyncServerProtocolHandler serviceHandler = new HttpAsyncServerProtocolHandler(
                 httpproc,
                 new DefaultConnectionReuseStrategy(),
                 new HttpAsyncRequestHandlerRegistry(),

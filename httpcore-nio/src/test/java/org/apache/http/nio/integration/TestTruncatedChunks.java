@@ -63,7 +63,7 @@ import org.apache.http.nio.protocol.BasicAsyncResponseConsumer;
 import org.apache.http.nio.protocol.BufferingAsyncRequestHandler;
 import org.apache.http.nio.protocol.HttpAsyncClientProtocolHandler;
 import org.apache.http.nio.protocol.HttpAsyncRequestHandlerRegistry;
-import org.apache.http.nio.protocol.HttpAsyncServiceHandler;
+import org.apache.http.nio.protocol.HttpAsyncServerProtocolHandler;
 import org.apache.http.nio.reactor.IOReactorStatus;
 import org.apache.http.nio.reactor.IOSession;
 import org.apache.http.nio.reactor.ListenerEndpoint;
@@ -193,7 +193,7 @@ public class TestTruncatedChunks extends HttpCoreNIOTestBase {
     public void testTruncatedChunkException() throws Exception {
         HttpAsyncRequestHandlerRegistry registry = new HttpAsyncRequestHandlerRegistry();
         registry.register("*", new BufferingAsyncRequestHandler(new SimpleRequestHandler(true)));
-        HttpAsyncServiceHandler serviceHandler = new HttpAsyncServiceHandler(
+        HttpAsyncServerProtocolHandler serviceHandler = new HttpAsyncServerProtocolHandler(
                 this.serverHttpProc,
                 new DefaultConnectionReuseStrategy(),
                 registry,
@@ -274,7 +274,7 @@ public class TestTruncatedChunks extends HttpCoreNIOTestBase {
     public void testIgnoreTruncatedChunkException() throws Exception {
         HttpAsyncRequestHandlerRegistry registry = new HttpAsyncRequestHandlerRegistry();
         registry.register("*", new BufferingAsyncRequestHandler(new SimpleRequestHandler(true)));
-        HttpAsyncServiceHandler serviceHandler = new HttpAsyncServiceHandler(
+        HttpAsyncServerProtocolHandler serviceHandler = new HttpAsyncServerProtocolHandler(
                 this.serverHttpProc,
                 new DefaultConnectionReuseStrategy(),
                 registry,

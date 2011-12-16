@@ -258,7 +258,7 @@ public class TestHttpAsyncRequestExecutor {
 
         BasicNIOPoolEntry entry = new BasicNIOPoolEntry("id", host, this.conn);
         connRequestCallback.completed(entry);
-        HttpAsyncClientExchangeHandlerImpl exchangeHandler = (HttpAsyncClientExchangeHandlerImpl) this.connContext.getAttribute(
+        BasicAsyncRequestExecutionHandler exchangeHandler = (BasicAsyncRequestExecutionHandler) this.connContext.getAttribute(
                 HttpAsyncClientProtocolHandler.HTTP_HANDLER);
         Assert.assertNotNull(exchangeHandler);
         Mockito.verify(this.conn).requestOutput();
@@ -290,7 +290,7 @@ public class TestHttpAsyncRequestExecutor {
 
         BasicNIOPoolEntry entry = new BasicNIOPoolEntry("id", host, this.conn);
         connRequestCallback.completed(entry);
-        HttpAsyncClientExchangeHandlerImpl exchangeHandler = (HttpAsyncClientExchangeHandlerImpl) this.connContext.getAttribute(
+        BasicAsyncRequestExecutionHandler exchangeHandler = (BasicAsyncRequestExecutionHandler) this.connContext.getAttribute(
                 HttpAsyncClientProtocolHandler.HTTP_HANDLER);
         Assert.assertNotNull(exchangeHandler);
         Mockito.verify(this.conn).requestOutput();
@@ -322,7 +322,7 @@ public class TestHttpAsyncRequestExecutor {
 
         BasicNIOPoolEntry entry = new BasicNIOPoolEntry("id", host, this.conn);
         connRequestCallback.completed(entry);
-        HttpAsyncClientExchangeHandlerImpl exchangeHandler = (HttpAsyncClientExchangeHandlerImpl) this.connContext.getAttribute(
+        BasicAsyncRequestExecutionHandler exchangeHandler = (BasicAsyncRequestExecutionHandler) this.connContext.getAttribute(
                 HttpAsyncClientProtocolHandler.HTTP_HANDLER);
         Assert.assertNotNull(exchangeHandler);
         Mockito.verify(this.conn).requestOutput();

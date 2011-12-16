@@ -41,7 +41,7 @@ import org.apache.http.annotation.Immutable;
 import org.apache.http.nio.ContentDecoder;
 import org.apache.http.nio.ContentEncoder;
 import org.apache.http.nio.NHttpClientConnection;
-import org.apache.http.nio.NHttpClientProtocolHandler;
+import org.apache.http.nio.NHttpClientEventHandler;
 import org.apache.http.nio.NHttpConnection;
 import org.apache.http.params.CoreProtocolPNames;
 import org.apache.http.protocol.HttpContext;
@@ -50,7 +50,7 @@ import org.apache.http.protocol.HttpContext;
  * @since 4.2
  */
 @Immutable
-public class HttpAsyncClientProtocolHandler implements NHttpClientProtocolHandler {
+public class HttpAsyncClientProtocolHandler implements NHttpClientEventHandler {
 
     public static final String HTTP_HANDLER = "http.nio.exchange-handler";
 
@@ -98,14 +98,14 @@ public class HttpAsyncClientProtocolHandler implements NHttpClientProtocolHandle
             if (state.getRequestState() != MessageState.READY) {
                 return;
             }
-            HttpAsyncClientExchangeHandler<?> handler = state.getHandler();
+            HttpAsyncRequestExecutionHandler<?> handler = state.getHandler();
             if (handler != null && handler.isDone()) {
                 closeHandler(state);
                 state.reset();
                 handler = null;
             }
             if (handler == null) {
-                handler = (HttpAsyncClientExchangeHandler<?>) conn.getContext().removeAttribute(
+                handler = (HttpAsyncRequestExecutionHandler<?>) conn.getContext().removeAttribute(
                         HTTP_HANDLER);
                 state.setHandler(handler);
             }
@@ -141,7 +141,7 @@ public class HttpAsyncClientProtocolHandler implements NHttpClientProtocolHandle
             final ContentEncoder encoder) throws IOException {
         State state = ensureNotNull(getState(conn));
         synchronized (state) {
-            HttpAsyncClientExchangeHandler<?> handler = ensureNotNull(state.getHandler());
+            HttpAsyncRequestExecutionHandler<?> handler = ensureNotNull(state.getHandler());
             if (state.getRequestState() == MessageState.ACK_EXPECTED) {
                 conn.suspendOutput();
                 return;
@@ -160,7 +160,7 @@ public class HttpAsyncClientProtocolHandler implements NHttpClientProtocolHandle
             final NHttpClientConnection conn) throws HttpException, IOException {
         State state = ensureNotNull(getState(conn));
         synchronized (state) {
-            HttpAsyncClientExchangeHandler<?> handler = ensureNotNull(state.getHandler());
+            HttpAsyncRequestExecutionHandler<?> handler = ensureNotNull(state.getHandler());
             HttpResponse response = conn.getHttpResponse();
             HttpRequest request = state.getRequest();
 
@@ -206,7 +206,7 @@ public class HttpAsyncClientProtocolHandler implements NHttpClientProtocolHandle
             final ContentDecoder decoder) throws IOException {
         State state = ensureNotNull(getState(conn));
         synchronized (state) {
-            HttpAsyncClientExchangeHandler<?> handler = ensureNotNull(state.getHandler());
+            HttpAsyncRequestExecutionHandler<?> handler = ensureNotNull(state.getHandler());
             handler.consumeContent(decoder, conn);
             state.setResponseState(MessageState.BODY_STREAM);
             if (decoder.isCompleted()) {
@@ -257,7 +257,7 @@ public class HttpAsyncClientProtocolHandler implements NHttpClientProtocolHandle
         return state;
     }
 
-    private HttpAsyncClientExchangeHandler<?> ensureNotNull(final HttpAsyncClientExchangeHandler<?> handler) {
+    private HttpAsyncRequestExecutionHandler<?> ensureNotNull(final HttpAsyncRequestExecutionHandler<?> handler) {
         if (handler == null) {
             throw new IllegalStateException("HTTP exchange handler is null");
         }
@@ -273,7 +273,7 @@ public class HttpAsyncClientProtocolHandler implements NHttpClientProtocolHandle
     }
 
     private void closeHandler(final State state, final Exception ex) {
-        HttpAsyncClientExchangeHandler<?> handler = state.getHandler();
+        HttpAsyncRequestExecutionHandler<?> handler = state.getHandler();
         if (handler != null) {
             try {
                 handler.failed(ex);
@@ -288,7 +288,7 @@ public class HttpAsyncClientProtocolHandler implements NHttpClientProtocolHandle
     }
 
     private void closeHandler(final State state) {
-        HttpAsyncClientExchangeHandler<?> handler = state.getHandler();
+        HttpAsyncRequestExecutionHandler<?> handler = state.getHandler();
         if (handler != null) {
             try {
                 handler.close();
@@ -301,7 +301,7 @@ public class HttpAsyncClientProtocolHandler implements NHttpClientProtocolHandle
     private void processResponse(
             final NHttpClientConnection conn,
             final State state,
-            final HttpAsyncClientExchangeHandler<?> handler) throws IOException {
+            final HttpAsyncRequestExecutionHandler<?> handler) throws IOException {
         HttpContext context = handler.getContext();
         if (state.isValid()) {
             HttpRequest request = state.getRequest();
@@ -342,7 +342,7 @@ public class HttpAsyncClientProtocolHandler implements NHttpClientProtocolHandle
 
     static class State {
 
-        private volatile HttpAsyncClientExchangeHandler<?> handler;
+        private volatile HttpAsyncRequestExecutionHandler<?> handler;
         private volatile MessageState requestState;
         private volatile MessageState responseState;
         private volatile HttpRequest request;
@@ -357,11 +357,11 @@ public class HttpAsyncClientProtocolHandler implements NHttpClientProtocolHandle
             this.responseState = MessageState.READY;
         }
 
-        public HttpAsyncClientExchangeHandler<?> getHandler() {
+        public HttpAsyncRequestExecutionHandler<?> getHandler() {
             return this.handler;
         }
 
-        public void setHandler(final HttpAsyncClientExchangeHandler<?> handler) {
+        public void setHandler(final HttpAsyncRequestExecutionHandler<?> handler) {
             this.handler = handler;
         }
 

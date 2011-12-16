@@ -33,7 +33,7 @@ import javax.net.ssl.SSLContext;
 
 import org.apache.http.annotation.Immutable;
 import org.apache.http.nio.NHttpConnectionFactory;
-import org.apache.http.nio.NHttpServerProtocolHandler;
+import org.apache.http.nio.NHttpServerEventHandler;
 import org.apache.http.nio.reactor.IOEventDispatch;
 import org.apache.http.nio.reactor.IOSession;
 import org.apache.http.nio.reactor.ssl.SSLSetupHandler;
@@ -49,11 +49,11 @@ import org.apache.http.params.HttpParams;
 public class DefaultServerIODispatch
                     extends AbstractIODispatch<DefaultNHttpServerConnection> {
 
-    private final NHttpServerProtocolHandler handler;
+    private final NHttpServerEventHandler handler;
     private final NHttpConnectionFactory<DefaultNHttpServerConnection> connFactory;
 
     public DefaultServerIODispatch(
-            final NHttpServerProtocolHandler handler,
+            final NHttpServerEventHandler handler,
             final NHttpConnectionFactory<DefaultNHttpServerConnection> connFactory) {
         super();
         if (handler == null) {
@@ -67,13 +67,13 @@ public class DefaultServerIODispatch
     }
 
     public DefaultServerIODispatch(
-            final NHttpServerProtocolHandler handler,
+            final NHttpServerEventHandler handler,
             final HttpParams params) {
         this(handler, new DefaultNHttpServerConnectionFactory(params));
     }
 
     public DefaultServerIODispatch(
-            final NHttpServerProtocolHandler handler,
+            final NHttpServerEventHandler handler,
             final SSLContext sslcontext,
             final SSLSetupHandler sslHandler,
             final HttpParams params) {
@@ -81,7 +81,7 @@ public class DefaultServerIODispatch
     }
 
     public DefaultServerIODispatch(
-            final NHttpServerProtocolHandler handler,
+            final NHttpServerEventHandler handler,
             final SSLContext sslcontext,
             final HttpParams params) {
         this(handler, sslcontext, null, params);

@@ -33,7 +33,7 @@ import org.apache.http.protocol.HttpContext;
 /**
  * @since 4.2
  */
-public interface HttpAsyncClientExchangeHandler<T> extends HttpAsyncRequestProducer, HttpAsyncResponseConsumer<T> {
+public interface HttpAsyncRequestExecutionHandler<T> extends HttpAsyncRequestProducer, HttpAsyncResponseConsumer<T> {
 
     HttpContext getContext();
 

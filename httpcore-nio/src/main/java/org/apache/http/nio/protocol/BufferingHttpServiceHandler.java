@@ -72,7 +72,7 @@ import org.apache.http.protocol.HttpRequestHandlerResolver;
  *
  * @since 4.0
  *
- * @deprecated use {@link HttpAsyncServiceHandler}
+ * @deprecated use {@link HttpAsyncServerProtocolHandler}
  */
 @Deprecated
 @Immutable // provided injected dependencies are immutable

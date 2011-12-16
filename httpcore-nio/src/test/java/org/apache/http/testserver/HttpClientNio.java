@@ -36,7 +36,7 @@ import org.apache.http.impl.nio.DefaultNHttpClientConnection;
 import org.apache.http.impl.nio.reactor.DefaultConnectingIOReactor;
 import org.apache.http.impl.nio.reactor.ExceptionEvent;
 import org.apache.http.nio.NHttpClientHandler;
-import org.apache.http.nio.NHttpClientProtocolHandler;
+import org.apache.http.nio.NHttpClientEventHandler;
 import org.apache.http.nio.NHttpConnectionFactory;
 import org.apache.http.nio.reactor.ConnectingIOReactor;
 import org.apache.http.nio.reactor.IOEventDispatch;
@@ -63,7 +63,7 @@ public class HttpClientNio {
         this.ioReactor.setExceptionHandler(exceptionHandler);
     }
 
-    private void execute(final NHttpClientProtocolHandler clientHandler) throws IOException {
+    private void execute(final NHttpClientEventHandler clientHandler) throws IOException {
         IOEventDispatch ioEventDispatch = new DefaultClientIODispatch(clientHandler, this.connFactory);
         this.ioReactor.execute(ioEventDispatch);
     }
@@ -72,13 +72,13 @@ public class HttpClientNio {
         return this.ioReactor.connect(address, null, attachment, null);
     }
 
-    public void start(final NHttpClientProtocolHandler clientHandler) {
+    public void start(final NHttpClientEventHandler clientHandler) {
         this.thread = new IOReactorThread(clientHandler);
         this.thread.start();
     }
 
     public void start(final NHttpClientHandler handler) {
-        this.thread = new IOReactorThread(new NHttpClientProtocolHandlerAdaptor(handler));
+        this.thread = new IOReactorThread(new NHttpClientEventHandlerAdaptor(handler));
         this.thread.start();
     }
 
@@ -118,11 +118,11 @@ public class HttpClientNio {
 
     private class IOReactorThread extends Thread {
 
-        private final NHttpClientProtocolHandler clientHandler;
+        private final NHttpClientEventHandler clientHandler;
 
         private volatile Exception ex;
 
-        public IOReactorThread(final NHttpClientProtocolHandler clientHandler) {
+        public IOReactorThread(final NHttpClientEventHandler clientHandler) {
             super();
             this.clientHandler = clientHandler;
         }

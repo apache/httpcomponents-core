@@ -36,7 +36,7 @@ import org.apache.http.impl.nio.DefaultServerIODispatch;
 import org.apache.http.impl.nio.reactor.DefaultListeningIOReactor;
 import org.apache.http.impl.nio.reactor.ExceptionEvent;
 import org.apache.http.nio.NHttpConnectionFactory;
-import org.apache.http.nio.NHttpServerProtocolHandler;
+import org.apache.http.nio.NHttpServerEventHandler;
 import org.apache.http.nio.NHttpServiceHandler;
 import org.apache.http.nio.reactor.IOEventDispatch;
 import org.apache.http.nio.reactor.IOReactorExceptionHandler;
@@ -64,7 +64,7 @@ public class HttpServerNio {
         this.ioReactor.setExceptionHandler(exceptionHandler);
     }
 
-    private void execute(final NHttpServerProtocolHandler serviceHandler) throws IOException {
+    private void execute(final NHttpServerEventHandler serviceHandler) throws IOException {
         IOEventDispatch ioEventDispatch = new DefaultServerIODispatch(serviceHandler, this.connFactory);
         this.ioReactor.execute(ioEventDispatch);
     }
@@ -77,7 +77,7 @@ public class HttpServerNio {
         this.endpoint = endpoint;
     }
 
-    public void start(final NHttpServerProtocolHandler serviceHandler) {
+    public void start(final NHttpServerEventHandler serviceHandler) {
         this.endpoint = this.ioReactor.listen(new InetSocketAddress(0));
         this.thread = new IOReactorThread(serviceHandler);
         this.thread.start();
@@ -85,7 +85,7 @@ public class HttpServerNio {
 
     public void start(final NHttpServiceHandler handler) {
         this.endpoint = this.ioReactor.listen(new InetSocketAddress(0));
-        this.thread = new IOReactorThread(new NHttpServerProtocolHandlerAdaptor(handler));
+        this.thread = new IOReactorThread(new NHttpServerEventHandlerAdaptor(handler));
         this.thread.start();
     }
 
@@ -125,11 +125,11 @@ public class HttpServerNio {
 
     private class IOReactorThread extends Thread {
 
-        private final NHttpServerProtocolHandler serviceHandler;
+        private final NHttpServerEventHandler serviceHandler;
 
         private volatile Exception ex;
 
-        public IOReactorThread(final NHttpServerProtocolHandler serviceHandler) {
+        public IOReactorThread(final NHttpServerEventHandler serviceHandler) {
             super();
             this.serviceHandler = serviceHandler;
         }

@@ -45,7 +45,7 @@ import org.apache.http.protocol.ExecutionContext;
 import org.apache.http.protocol.HttpContext;
 import org.apache.http.protocol.HttpProcessor;
 
-class HttpAsyncClientExchangeHandlerImpl<T> implements HttpAsyncClientExchangeHandler<T> {
+class BasicAsyncRequestExecutionHandler<T> implements HttpAsyncRequestExecutionHandler<T> {
 
     private final BasicFuture<T> future;
     private final HttpAsyncRequestProducer requestProducer;
@@ -56,7 +56,7 @@ class HttpAsyncClientExchangeHandlerImpl<T> implements HttpAsyncClientExchangeHa
     private final ConnectionReuseStrategy reuseStrategy;
     private final HttpParams params;
 
-    public HttpAsyncClientExchangeHandlerImpl(
+    public BasicAsyncRequestExecutionHandler(
             final BasicFuture<T> future,
             final HttpAsyncRequestProducer requestProducer,
             final HttpAsyncResponseConsumer<T> responseConsumer,

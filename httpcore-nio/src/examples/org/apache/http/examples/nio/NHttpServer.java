@@ -63,7 +63,7 @@ import org.apache.http.nio.protocol.HttpAsyncRequestConsumer;
 import org.apache.http.nio.protocol.HttpAsyncRequestHandler;
 import org.apache.http.nio.protocol.HttpAsyncRequestHandlerRegistry;
 import org.apache.http.nio.protocol.HttpAsyncServiceExchange;
-import org.apache.http.nio.protocol.HttpAsyncServiceHandler;
+import org.apache.http.nio.protocol.HttpAsyncServerProtocolHandler;
 import org.apache.http.nio.reactor.IOEventDispatch;
 import org.apache.http.nio.reactor.ListeningIOReactor;
 import org.apache.http.params.CoreConnectionPNames;
@@ -116,7 +116,7 @@ public class NHttpServer {
         // Register the default handler for all URIs
         reqistry.register("*", new HttpFileHandler(docRoot));
         // Create server-side HTTP protocol handler
-        HttpAsyncServiceHandler protocolHandler = new HttpAsyncServiceHandler(
+        HttpAsyncServerProtocolHandler protocolHandler = new HttpAsyncServerProtocolHandler(
                 httpproc, new DefaultConnectionReuseStrategy(), reqistry, params) {
 
             @Override

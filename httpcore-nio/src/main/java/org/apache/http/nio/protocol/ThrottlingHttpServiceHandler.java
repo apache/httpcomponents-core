@@ -105,7 +105,7 @@ import org.apache.http.util.EntityUtils;
  *
  * @since 4.0
  *
- * @deprecated use {@link HttpAsyncServiceHandler}
+ * @deprecated use {@link HttpAsyncServerProtocolHandler}
  */
 @Deprecated
 @ThreadSafe // provided injected dependencies are immutable or thread safe

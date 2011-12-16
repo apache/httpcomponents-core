@@ -32,7 +32,7 @@ import java.io.IOException;
 import javax.net.ssl.SSLContext;
 
 import org.apache.http.annotation.Immutable;
-import org.apache.http.nio.NHttpClientProtocolHandler;
+import org.apache.http.nio.NHttpClientEventHandler;
 import org.apache.http.nio.NHttpConnectionFactory;
 import org.apache.http.nio.reactor.IOEventDispatch;
 import org.apache.http.nio.reactor.IOSession;
@@ -49,7 +49,7 @@ import org.apache.http.params.HttpParams;
 public class DefaultClientIODispatch
                     extends AbstractIODispatch<DefaultNHttpClientConnection> {
 
-    private final NHttpClientProtocolHandler handler;
+    private final NHttpClientEventHandler handler;
     private final NHttpConnectionFactory<DefaultNHttpClientConnection> connFactory;
 
     /**
@@ -60,7 +60,7 @@ public class DefaultClientIODispatch
      * @param connFactory HTTP client connection factory.
      */
     public DefaultClientIODispatch(
-            final NHttpClientProtocolHandler handler,
+            final NHttpClientEventHandler handler,
             final NHttpConnectionFactory<DefaultNHttpClientConnection> connFactory) {
         super();
         if (handler == null) {
@@ -74,13 +74,13 @@ public class DefaultClientIODispatch
     }
 
     public DefaultClientIODispatch(
-            final NHttpClientProtocolHandler handler,
+            final NHttpClientEventHandler handler,
             final HttpParams params) {
         this(handler, new DefaultNHttpClientConnectionFactory(params));
     }
 
     public DefaultClientIODispatch(
-            final NHttpClientProtocolHandler handler,
+            final NHttpClientEventHandler handler,
             final SSLContext sslcontext,
             final SSLSetupHandler sslHandler,
             final HttpParams params) {
@@ -88,7 +88,7 @@ public class DefaultClientIODispatch
     }
 
     public DefaultClientIODispatch(
-            final NHttpClientProtocolHandler handler,
+            final NHttpClientEventHandler handler,
             final SSLContext sslcontext,
             final HttpParams params) {
         this(handler, sslcontext, null, params);

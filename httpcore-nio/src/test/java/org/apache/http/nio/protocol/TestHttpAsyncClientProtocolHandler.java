@@ -59,7 +59,7 @@ public class TestHttpAsyncClientProtocolHandler {
     private HttpAsyncClientProtocolHandler protocolHandler;
     private HttpContext connContext;
     private NHttpClientConnection conn;
-    private HttpAsyncClientExchangeHandler<?> exchangeHandler;
+    private HttpAsyncRequestExecutionHandler<?> exchangeHandler;
     private HttpContext exchangeContext;
     private ContentEncoder encoder;
     private ContentDecoder decoder;
@@ -70,7 +70,7 @@ public class TestHttpAsyncClientProtocolHandler {
         this.protocolHandler = new HttpAsyncClientProtocolHandler();
         this.connContext = new BasicHttpContext();
         this.conn = Mockito.mock(NHttpClientConnection.class);
-        this.exchangeHandler = Mockito.mock(HttpAsyncClientExchangeHandler.class);
+        this.exchangeHandler = Mockito.mock(HttpAsyncRequestExecutionHandler.class);
         this.exchangeContext = new BasicHttpContext();
         this.encoder = Mockito.mock(ContentEncoder.class);
         this.decoder = Mockito.mock(ContentDecoder.class);

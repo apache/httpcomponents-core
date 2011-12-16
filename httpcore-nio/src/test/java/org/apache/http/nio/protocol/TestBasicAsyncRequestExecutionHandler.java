@@ -51,7 +51,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
 
-public class TestHttpAsyncClientExchangeHandlerImpl {
+public class TestBasicAsyncRequestExecutionHandler {
 
     private BasicFuture<Object> future;
     private HttpAsyncRequestProducer requestProducer;
@@ -61,7 +61,7 @@ public class TestHttpAsyncClientExchangeHandlerImpl {
     private NHttpClientConnection conn;
     private ConnectionReuseStrategy reuseStrategy;
     private HttpParams params;
-    private HttpAsyncClientExchangeHandlerImpl<Object> exchangeHandler;
+    private BasicAsyncRequestExecutionHandler<Object> exchangeHandler;
     private ContentEncoder encoder;
     private ContentDecoder decoder;
 
@@ -76,7 +76,7 @@ public class TestHttpAsyncClientExchangeHandlerImpl {
         this.conn = Mockito.mock(NHttpClientConnection.class);
         this.reuseStrategy = Mockito.mock(ConnectionReuseStrategy.class);
         this.params = new BasicHttpParams();
-        this.exchangeHandler = new HttpAsyncClientExchangeHandlerImpl<Object>(
+        this.exchangeHandler = new BasicAsyncRequestExecutionHandler<Object>(
                 this.future,
                 this.requestProducer,
                 this.responseConsumer,
@@ -96,7 +96,7 @@ public class TestHttpAsyncClientExchangeHandlerImpl {
     @Test
     public void testInvalidExecution() throws Exception {
         try {
-            new HttpAsyncClientExchangeHandlerImpl<Object>(
+            new BasicAsyncRequestExecutionHandler<Object>(
                     null,
                     this.requestProducer,
                     this.responseConsumer,
@@ -109,7 +109,7 @@ public class TestHttpAsyncClientExchangeHandlerImpl {
         } catch (IllegalArgumentException ex) {
         }
         try {
-            new HttpAsyncClientExchangeHandlerImpl<Object>(
+            new BasicAsyncRequestExecutionHandler<Object>(
                     this.future,
                     null,
                     this.responseConsumer,
@@ -122,7 +122,7 @@ public class TestHttpAsyncClientExchangeHandlerImpl {
         } catch (IllegalArgumentException ex) {
         }
         try {
-            new HttpAsyncClientExchangeHandlerImpl<Object>(
+            new BasicAsyncRequestExecutionHandler<Object>(
                     this.future,
                     this.requestProducer,
                     null,
@@ -135,7 +135,7 @@ public class TestHttpAsyncClientExchangeHandlerImpl {
         } catch (IllegalArgumentException ex) {
         }
         try {
-            new HttpAsyncClientExchangeHandlerImpl<Object>(
+            new BasicAsyncRequestExecutionHandler<Object>(
                     this.future,
                     this.requestProducer,
                     this.responseConsumer,
@@ -148,7 +148,7 @@ public class TestHttpAsyncClientExchangeHandlerImpl {
         } catch (IllegalArgumentException ex) {
         }
         try {
-            new HttpAsyncClientExchangeHandlerImpl<Object>(
+            new BasicAsyncRequestExecutionHandler<Object>(
                     this.future,
                     this.requestProducer,
                     this.responseConsumer,
@@ -161,7 +161,7 @@ public class TestHttpAsyncClientExchangeHandlerImpl {
         } catch (IllegalArgumentException ex) {
         }
         try {
-            new HttpAsyncClientExchangeHandlerImpl<Object>(
+            new BasicAsyncRequestExecutionHandler<Object>(
                     this.future,
                     this.requestProducer,
                     this.responseConsumer,
@@ -174,7 +174,7 @@ public class TestHttpAsyncClientExchangeHandlerImpl {
         } catch (IllegalArgumentException ex) {
         }
         try {
-            new HttpAsyncClientExchangeHandlerImpl<Object>(
+            new BasicAsyncRequestExecutionHandler<Object>(
                     this.future,
                     this.requestProducer,
                     this.responseConsumer,
@@ -187,7 +187,7 @@ public class TestHttpAsyncClientExchangeHandlerImpl {
         } catch (IllegalArgumentException ex) {
         }
         try {
-            new HttpAsyncClientExchangeHandlerImpl<Object>(
+            new BasicAsyncRequestExecutionHandler<Object>(
                     this.future,
                     this.requestProducer,
                     this.responseConsumer,

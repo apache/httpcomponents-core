@@ -76,7 +76,7 @@ import org.apache.http.nio.protocol.HttpAsyncRequestProducer;
 import org.apache.http.nio.protocol.HttpAsyncResponseConsumer;
 import org.apache.http.nio.protocol.HttpAsyncResponseProducer;
 import org.apache.http.nio.protocol.HttpAsyncServiceExchange;
-import org.apache.http.nio.protocol.HttpAsyncServiceHandler;
+import org.apache.http.nio.protocol.HttpAsyncServerProtocolHandler;
 import org.apache.http.nio.reactor.ConnectingIOReactor;
 import org.apache.http.nio.reactor.IOEventDispatch;
 import org.apache.http.nio.reactor.ListeningIOReactor;
@@ -793,7 +793,7 @@ public class NHttpReverseProxy {
 
     };
 
-    static class ProxyServiceHandler extends HttpAsyncServiceHandler {
+    static class ProxyServiceHandler extends HttpAsyncServerProtocolHandler {
 
         public ProxyServiceHandler(
                 final HttpProcessor httpProcessor,

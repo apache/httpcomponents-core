@@ -32,47 +32,47 @@ import java.io.IOException;
 import org.apache.http.HttpException;
 import org.apache.http.nio.ContentDecoder;
 import org.apache.http.nio.ContentEncoder;
-import org.apache.http.nio.NHttpServerConnection;
-import org.apache.http.nio.NHttpServerProtocolHandler;
-import org.apache.http.nio.NHttpServiceHandler;
+import org.apache.http.nio.NHttpClientConnection;
+import org.apache.http.nio.NHttpClientHandler;
+import org.apache.http.nio.NHttpClientEventHandler;
 
 @Deprecated
-class NHttpServerProtocolHandlerAdaptor implements NHttpServerProtocolHandler {
+class NHttpClientEventHandlerAdaptor implements NHttpClientEventHandler {
 
-    private final NHttpServiceHandler handler;
+    private final NHttpClientHandler handler;
 
-    public NHttpServerProtocolHandlerAdaptor(final NHttpServiceHandler handler) {
+    public NHttpClientEventHandlerAdaptor(final NHttpClientHandler handler) {
         super();
         this.handler = handler;
     }
 
-    public void connected(final NHttpServerConnection conn) {
-        this.handler.connected(conn);
+    public void connected(final NHttpClientConnection conn, final Object attachment) {
+        this.handler.connected(conn, attachment);
     }
 
-    public void responseReady(
-            final NHttpServerConnection conn) throws IOException, HttpException {
-        this.handler.responseReady(conn);
+    public void requestReady(
+            final NHttpClientConnection conn) throws IOException, HttpException {
+        this.handler.requestReady(conn);
     }
 
-    public void requestReceived(
-            final NHttpServerConnection conn) throws IOException, HttpException {
-        this.handler.requestReceived(conn);
+    public void responseReceived(
+            final NHttpClientConnection conn) throws IOException, HttpException {
+        this.handler.responseReceived(conn);
     }
 
     public void inputReady(
-            final NHttpServerConnection conn,
+            final NHttpClientConnection conn,
             final ContentDecoder decoder) throws IOException, HttpException {
         this.handler.inputReady(conn, decoder);
     }
 
     public void outputReady(
-            final NHttpServerConnection conn,
+            final NHttpClientConnection conn,
             final ContentEncoder encoder) throws IOException, HttpException {
         this.handler.outputReady(conn, encoder);
     }
 
-    public void exception(final NHttpServerConnection conn, final Exception ex) {
+    public void exception(final NHttpClientConnection conn, final Exception ex) {
         if (ex instanceof HttpException) {
             this.handler.exception(conn, (HttpException) ex);
         } else if (ex instanceof IOException) {
@@ -86,11 +86,11 @@ class NHttpServerProtocolHandlerAdaptor implements NHttpServerProtocolHandler {
         }
     }
 
-    public void timeout(final NHttpServerConnection conn) {
+    public void timeout(final NHttpClientConnection conn) {
         this.handler.timeout(conn);
     }
 
-    public void closed(final NHttpServerConnection conn) {
+    public void closed(final NHttpClientConnection conn) {
         this.handler.closed(conn);
     }
 
