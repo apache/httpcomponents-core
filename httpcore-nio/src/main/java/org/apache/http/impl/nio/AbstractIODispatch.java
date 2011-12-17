@@ -30,7 +30,6 @@ package org.apache.http.impl.nio;
 import java.io.IOException;
 
 import org.apache.http.annotation.Immutable;
-import org.apache.http.nio.NHttpConnection;
 import org.apache.http.nio.reactor.IOEventDispatch;
 import org.apache.http.nio.reactor.IOSession;
 import org.apache.http.nio.reactor.ssl.SSLIOSession;
@@ -44,7 +43,7 @@ import org.apache.http.protocol.ExecutionContext;
  * @since 4.2
  */
 @Immutable // provided injected dependencies are immutable
-public abstract class AbstractIODispatch<T extends NHttpConnection> implements IOEventDispatch {
+public abstract class AbstractIODispatch<T> implements IOEventDispatch {
 
     protected abstract T createConnection(IOSession session);
 
