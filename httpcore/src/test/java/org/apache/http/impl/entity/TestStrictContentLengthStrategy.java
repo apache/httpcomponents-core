@@ -97,7 +97,18 @@ public class TestStrictContentLengthStrategy extends TestCase {
         ContentLengthStrategy lenStrategy = new StrictContentLengthStrategy();
         HttpMessage message = new HttpMessageMockup();
         message.addHeader("Content-Length", "whatever");
+        try {
+            lenStrategy.determineLength(message);
+            fail("ProtocolException should have been thrown");
+        } catch (ProtocolException ex) {
+            // expected
+        }
+    }
 
+    public void testEntityWithNegativeContentLength() throws Exception {
+        ContentLengthStrategy lenStrategy = new StrictContentLengthStrategy();
+        HttpMessage message = new HttpMessageMockup();
+        message.addHeader("Content-Length", "-10");
         try {
             lenStrategy.determineLength(message);
             fail("ProtocolException should have been thrown");
