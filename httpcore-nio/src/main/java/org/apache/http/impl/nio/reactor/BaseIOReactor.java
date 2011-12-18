@@ -213,28 +213,18 @@ public class BaseIOReactor extends AbstractIOReactor {
                     it.remove();
                     continue;
                 }
-
-                int ops = 0;
                 try {
-                    ops = session.getEventMask();
+                    if ((session.getEventMask() & EventMask.READ) > 0) {
+                        this.eventDispatch.inputReady(session);
+                        if (!session.hasBufferedInput()) {
+                            it.remove();
+                        }
+                    }
                 } catch (CancelledKeyException ex) {
                     it.remove();
                     queueClosedSession(session);
-                    continue;
-                }
-
-                if ((ops & EventMask.READ) > 0) {
-                    try {
-                        this.eventDispatch.inputReady(session);
-                    } catch (CancelledKeyException ex) {
-                        it.remove();
-                        queueClosedSession(session);
-                    } catch (RuntimeException ex) {
-                        handleRuntimeException(ex);
-                    }
-                    if (!session.hasBufferedInput()) {
-                        it.remove();
-                    }
+                } catch (RuntimeException ex) {
+                    handleRuntimeException(ex);
                 }
             }
         }
