@@ -28,14 +28,14 @@
   <parent>
     <artifactId>project</artifactId>
     <groupId>org.apache.httpcomponents</groupId>
-    <version>4.1.1</version>
+    <version>5</version>
     <relativePath>../project/pom.xml</relativePath>
   </parent>
   <modelVersion>4.0.0</modelVersion>
   <groupId>org.apache.httpcomponents</groupId>
   <artifactId>httpcomponents-core</artifactId>
   <name>HttpComponents Core</name>
-  <version>4.1.4-SNAPSHOT</version>
+  <version>4.1.4</version>
   <description>Core components to build HTTP enabled services</description>
   <url>http://hc.apache.org/httpcomponents-core</url>
   <inceptionYear>2005</inceptionYear>
