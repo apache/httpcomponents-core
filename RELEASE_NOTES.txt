@@ -1,6 +1,10 @@
 Changes since Release 4.2-ALPHA2
 -------------------
 
+* [HTTPCORE-286] Canceled I/O session can cause an IllegalStateException in BaseIOReactor#validate
+  leading to an abnormal termination of the I/O reactor.
+  Contributed by Oleg Kalnichevski <olegk at apache.org>
+
 * [HTTPCORE-281] ResponseConnControl protocol interceptor does not correctly populate connection
   persistence control headers when sending a HTTP/1.1 response message in response to a HTTP/1.0 
   request message.
