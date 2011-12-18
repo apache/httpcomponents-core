@@ -1,5 +1,8 @@
-Changes since 4.1.3
+Release 4.1.4
 -------------------
+
+This is a maintenance release that fixes a number of bugs found since release 4.1.4. It is also 
+likely to be the last release in the 4.1.x branch.
 
 * [HTTPCORE-286] Canceled I/O session can cause an IllegalStateException in BaseIOReactor#validate
   leading to an abnormal termination of the I/O reactor.
