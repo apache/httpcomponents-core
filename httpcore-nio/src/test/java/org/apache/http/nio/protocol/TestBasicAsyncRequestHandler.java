@@ -41,10 +41,10 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
 
-public class TestBufferingAsyncRequestHandler {
+public class TestBasicAsyncRequestHandler {
 
     private HttpRequestHandler requestHandler;
-    private BufferingAsyncRequestHandler asyncRequestHandler;
+    private BasicAsyncRequestHandler asyncRequestHandler;
     private HttpContext context;
     private HttpRequest request;
     private HttpResponse response;
@@ -53,7 +53,7 @@ public class TestBufferingAsyncRequestHandler {
     @Before
     public void setUp() throws Exception {
         this.requestHandler = Mockito.mock(HttpRequestHandler.class);
-        this.asyncRequestHandler = new BufferingAsyncRequestHandler(this.requestHandler);
+        this.asyncRequestHandler = new BasicAsyncRequestHandler(this.requestHandler);
         this.context = new BasicHttpContext();
         this.request = Mockito.mock(HttpRequest.class);
         this.response = Mockito.mock(HttpResponse.class);
@@ -70,7 +70,7 @@ public class TestBufferingAsyncRequestHandler {
     @Test
     public void testInvalidConstruction() throws Exception {
         try {
-            new BufferingAsyncRequestHandler(null);
+            new BasicAsyncRequestHandler(null);
             Assert.fail("IllegalArgumentException expected");
         } catch (IllegalArgumentException ex) {
         }

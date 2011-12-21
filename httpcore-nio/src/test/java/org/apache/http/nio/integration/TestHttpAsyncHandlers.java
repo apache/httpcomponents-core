@@ -57,7 +57,7 @@ import org.apache.http.nio.protocol.BasicAsyncRequestConsumer;
 import org.apache.http.nio.protocol.BasicAsyncRequestProducer;
 import org.apache.http.nio.protocol.BasicAsyncResponseConsumer;
 import org.apache.http.nio.protocol.BasicAsyncResponseProducer;
-import org.apache.http.nio.protocol.BufferingAsyncRequestHandler;
+import org.apache.http.nio.protocol.BasicAsyncRequestHandler;
 import org.apache.http.nio.protocol.HttpAsyncClientProtocolHandler;
 import org.apache.http.nio.protocol.HttpAsyncExpectationVerifier;
 import org.apache.http.nio.protocol.HttpAsyncRequestConsumer;
@@ -144,7 +144,7 @@ public class TestHttpAsyncHandlers extends HttpCoreNIOTestBase {
     @Test
     public void testHttpGets() throws Exception {
         HttpAsyncRequestHandlerRegistry registry = new HttpAsyncRequestHandlerRegistry();
-        registry.register("*", new BufferingAsyncRequestHandler(new SimpleRequestHandler()));
+        registry.register("*", new BasicAsyncRequestHandler(new SimpleRequestHandler()));
         InetSocketAddress address = start(registry, null);
 
         this.connpool.setDefaultMaxPerRoute(3);
@@ -177,7 +177,7 @@ public class TestHttpAsyncHandlers extends HttpCoreNIOTestBase {
     @Test
     public void testHttpHeads() throws Exception {
         HttpAsyncRequestHandlerRegistry registry = new HttpAsyncRequestHandlerRegistry();
-        registry.register("*", new BufferingAsyncRequestHandler(new SimpleRequestHandler()));
+        registry.register("*", new BasicAsyncRequestHandler(new SimpleRequestHandler()));
         InetSocketAddress address = start(registry, null);
 
         this.connpool.setDefaultMaxPerRoute(3);
@@ -209,7 +209,7 @@ public class TestHttpAsyncHandlers extends HttpCoreNIOTestBase {
     @Test
     public void testHttpPostsWithContentLength() throws Exception {
         HttpAsyncRequestHandlerRegistry registry = new HttpAsyncRequestHandlerRegistry();
-        registry.register("*", new BufferingAsyncRequestHandler(new SimpleRequestHandler()));
+        registry.register("*", new BasicAsyncRequestHandler(new SimpleRequestHandler()));
         InetSocketAddress address = start(registry, null);
 
         this.connpool.setDefaultMaxPerRoute(3);
@@ -245,7 +245,7 @@ public class TestHttpAsyncHandlers extends HttpCoreNIOTestBase {
     @Test
     public void testHttpPostsChunked() throws Exception {
         HttpAsyncRequestHandlerRegistry registry = new HttpAsyncRequestHandlerRegistry();
-        registry.register("*", new BufferingAsyncRequestHandler(new SimpleRequestHandler()));
+        registry.register("*", new BasicAsyncRequestHandler(new SimpleRequestHandler()));
         InetSocketAddress address = start(registry, null);
 
         this.connpool.setDefaultMaxPerRoute(3);
@@ -282,7 +282,7 @@ public class TestHttpAsyncHandlers extends HttpCoreNIOTestBase {
     @Test
     public void testHttpPostsHTTP10() throws Exception {
         HttpAsyncRequestHandlerRegistry registry = new HttpAsyncRequestHandlerRegistry();
-        registry.register("*", new BufferingAsyncRequestHandler(new SimpleRequestHandler()));
+        registry.register("*", new BasicAsyncRequestHandler(new SimpleRequestHandler()));
         InetSocketAddress address = start(registry, null);
 
         this.connpool.setDefaultMaxPerRoute(3);
@@ -318,7 +318,7 @@ public class TestHttpAsyncHandlers extends HttpCoreNIOTestBase {
     @Test
     public void testHttpPostsNoEntity() throws Exception {
         HttpAsyncRequestHandlerRegistry registry = new HttpAsyncRequestHandlerRegistry();
-        registry.register("*", new BufferingAsyncRequestHandler(new SimpleRequestHandler()));
+        registry.register("*", new BasicAsyncRequestHandler(new SimpleRequestHandler()));
         InetSocketAddress address = start(registry, null);
 
         this.connpool.setDefaultMaxPerRoute(3);
@@ -352,7 +352,7 @@ public class TestHttpAsyncHandlers extends HttpCoreNIOTestBase {
     @Test
     public void testHttpPostsWithExpectContinue() throws Exception {
         HttpAsyncRequestHandlerRegistry registry = new HttpAsyncRequestHandlerRegistry();
-        registry.register("*", new BufferingAsyncRequestHandler(new SimpleRequestHandler()));
+        registry.register("*", new BasicAsyncRequestHandler(new SimpleRequestHandler()));
         InetSocketAddress address = start(registry, null);
 
         this.connpool.setDefaultMaxPerRoute(3);
@@ -412,7 +412,7 @@ public class TestHttpAsyncHandlers extends HttpCoreNIOTestBase {
         };
 
         HttpAsyncRequestHandlerRegistry registry = new HttpAsyncRequestHandlerRegistry();
-        registry.register("*", new BufferingAsyncRequestHandler(new SimpleRequestHandler()));
+        registry.register("*", new BasicAsyncRequestHandler(new SimpleRequestHandler()));
         InetSocketAddress address = start(registry, expectationVerifier);
 
         BasicHttpEntityEnclosingRequest request1 = new BasicHttpEntityEnclosingRequest(
@@ -563,7 +563,7 @@ public class TestHttpAsyncHandlers extends HttpCoreNIOTestBase {
         };
 
         HttpAsyncRequestHandlerRegistry registry = new HttpAsyncRequestHandlerRegistry();
-        registry.register("*", new BufferingAsyncRequestHandler(new SimpleRequestHandler()));
+        registry.register("*", new BasicAsyncRequestHandler(new SimpleRequestHandler()));
         InetSocketAddress address = start(registry, expectationVerifier);
 
         BasicHttpEntityEnclosingRequest request1 = new BasicHttpEntityEnclosingRequest(

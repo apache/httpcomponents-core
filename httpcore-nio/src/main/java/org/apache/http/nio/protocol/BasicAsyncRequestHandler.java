@@ -44,11 +44,11 @@ import org.apache.http.protocol.HttpRequestHandler;
  * @since 4.2
  */
 @Immutable
-public class BufferingAsyncRequestHandler implements HttpAsyncRequestHandler<HttpRequest> {
+public class BasicAsyncRequestHandler implements HttpAsyncRequestHandler<HttpRequest> {
 
     private final HttpRequestHandler handler;
 
-    public BufferingAsyncRequestHandler(final HttpRequestHandler handler) {
+    public BasicAsyncRequestHandler(final HttpRequestHandler handler) {
         super();
         if (handler == null) {
             throw new IllegalArgumentException("Request handler may not be null");

@@ -55,7 +55,7 @@ import org.apache.http.nio.NHttpConnectionFactory;
 import org.apache.http.nio.NHttpServerConnection;
 import org.apache.http.nio.protocol.BasicAsyncRequestProducer;
 import org.apache.http.nio.protocol.BasicAsyncResponseConsumer;
-import org.apache.http.nio.protocol.BufferingAsyncRequestHandler;
+import org.apache.http.nio.protocol.BasicAsyncRequestHandler;
 import org.apache.http.nio.protocol.HttpAsyncClientProtocolHandler;
 import org.apache.http.nio.protocol.HttpAsyncRequestHandlerRegistry;
 import org.apache.http.nio.protocol.HttpAsyncServerProtocolHandler;
@@ -199,7 +199,7 @@ public class TestDefaultIOReactors extends HttpCoreNIOTestBase {
         };
 
         HttpAsyncRequestHandlerRegistry registry = new HttpAsyncRequestHandlerRegistry();
-        registry.register("*", new BufferingAsyncRequestHandler(requestHandler));
+        registry.register("*", new BasicAsyncRequestHandler(requestHandler));
         HttpAsyncServerProtocolHandler serviceHandler = new HttpAsyncServerProtocolHandler(
                 this.serverHttpProc,
                 new DefaultConnectionReuseStrategy(),
@@ -282,7 +282,7 @@ public class TestDefaultIOReactors extends HttpCoreNIOTestBase {
         };
 
         HttpAsyncRequestHandlerRegistry registry = new HttpAsyncRequestHandlerRegistry();
-        registry.register("*", new BufferingAsyncRequestHandler(requestHandler));
+        registry.register("*", new BasicAsyncRequestHandler(requestHandler));
         HttpAsyncServerProtocolHandler serviceHandler = new HttpAsyncServerProtocolHandler(
                 this.serverHttpProc,
                 new DefaultConnectionReuseStrategy(),
@@ -366,7 +366,7 @@ public class TestDefaultIOReactors extends HttpCoreNIOTestBase {
         };
 
         HttpAsyncRequestHandlerRegistry registry = new HttpAsyncRequestHandlerRegistry();
-        registry.register("*", new BufferingAsyncRequestHandler(requestHandler));
+        registry.register("*", new BasicAsyncRequestHandler(requestHandler));
         HttpAsyncServerProtocolHandler serviceHandler = new HttpAsyncServerProtocolHandler(
                 this.serverHttpProc,
                 new DefaultConnectionReuseStrategy(),
