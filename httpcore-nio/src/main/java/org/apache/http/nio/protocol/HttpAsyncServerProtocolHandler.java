@@ -47,6 +47,7 @@ import org.apache.http.concurrent.Cancellable;
 import org.apache.http.impl.DefaultHttpResponseFactory;
 import org.apache.http.nio.ContentDecoder;
 import org.apache.http.nio.ContentEncoder;
+import org.apache.http.nio.NHttpClientEventHandler;
 import org.apache.http.nio.NHttpConnection;
 import org.apache.http.nio.NHttpServerConnection;
 import org.apache.http.nio.NHttpServerEventHandler;
@@ -59,6 +60,33 @@ import org.apache.http.protocol.HttpContext;
 import org.apache.http.protocol.HttpProcessor;
 
 /**
+ * Fully asynchronous HTTP server side protocol handler that translates
+ * individual events fired through the {@link NHttpClientEventHandler}
+ * interface into logically related HTTP message exchanges.
+ * <p/>
+ * This handler is capable of executing HTTP requests with nearly constant
+ * memory footprint. Only HTTP message heads are stored in memory, while
+ * content of message bodies is streamed directly from the entity to
+ * the underlying channel (and vice versa) using
+ * {@link HttpAsyncRequestConsumer} and {@link HttpAsyncResponseProducer}
+ * interfaces.
+ * <p/>
+ * Once an incoming request is received the message is optionally verified
+ * for compliance with the server expectations using
+ * {@link HttpAsyncExpectationVerifier} if provided and then
+ * {@link HttpAsyncRequestHandlerResolver} interface is used to resolve
+ * the request URI to a particular {@link HttpAsyncRequestHandler} intended
+ * to handle the request. The protocol handler on the selected
+ * {@link HttpAsyncRequestHandler} instance to process the incoming request
+ * and to generate an outgoing response.
+ * <p/>
+ * Individual {@link HttpAsyncRequestHandler}s do not have to submit a response
+ * immediately. They can defer transmission of an HTTP response back to
+ * the client without blocking the I/O thread by delegating the process of
+ * request handling to another service or a worker thread. HTTP response can
+ * be submitted as a later a later point of time once response content becomes
+ * available.
+ *
  * @since 4.2
  */
 @Immutable // provided injected dependencies are immutable
@@ -73,6 +101,16 @@ public class HttpAsyncServerProtocolHandler implements NHttpServerEventHandler {
     private final HttpAsyncExpectationVerifier expectationVerifier;
     private final HttpParams params;
 
+    /**
+     * Creates an instance of <tt>HttpAsyncServerProtocolHandler</tt>.
+     *
+     * @param httpProcessor HTTP protocol processor (required).
+     * @param connStrategy Connection re-use strategy (required).
+     * @param responseFactory HTTP response factory (required).
+     * @param handlerResolver Request handler resolver.
+     * @param expectationVerifier Request expectation verifier (optional).
+     * @param params HTTP parameters (required).
+     */
     public HttpAsyncServerProtocolHandler(
             final HttpProcessor httpProcessor,
             final ConnectionReuseStrategy connStrategy,
@@ -101,6 +139,14 @@ public class HttpAsyncServerProtocolHandler implements NHttpServerEventHandler {
         this.params = params;
     }
 
+    /**
+     * Creates an instance of <tt>HttpAsyncServerProtocolHandler</tt>.
+     *
+     * @param httpProcessor HTTP protocol processor (required).
+     * @param connStrategy Connection re-use strategy (required).
+     * @param handlerResolver Request handler resolver.
+     * @param params HTTP parameters (required).
+     */
     public HttpAsyncServerProtocolHandler(
             final HttpProcessor httpProcessor,
             final ConnectionReuseStrategy connStrategy,
@@ -525,7 +571,7 @@ public class HttpAsyncServerProtocolHandler implements NHttpServerEventHandler {
         private volatile HttpRequest request;
         private volatile HttpResponse response;
         private volatile Cancellable cancellable;
-        
+
         State() {
             super();
             this.context = new BasicHttpContext();
@@ -650,7 +696,7 @@ public class HttpAsyncServerProtocolHandler implements NHttpServerEventHandler {
         private final NHttpServerConnection conn;
 
         private volatile boolean completed;
-        
+
         public Exchange(
                 final HttpRequest request,
                 final HttpResponse response,

@@ -42,9 +42,9 @@ import org.apache.http.protocol.UriPatternMatcher;
  *   <li><code>&lt;uri&gt;*</code></li>
  * </ul>
  * <br>
- * This class can be used to resolve an instance of {@link HttpAsyncRequestHandler} matching
- * a particular request URI. Usually the resolved request handler will be used to process
- * the request with the specified request URI.
+ * This class can be used to resolve an instance of {@link HttpAsyncRequestHandler}
+ * matching a particular request URI. Usually the resolved request handler
+ * will be used to process the request with the specified request URI.
  *
  * @since 4.2
  */

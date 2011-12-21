@@ -28,9 +28,10 @@
 package org.apache.http.nio.protocol;
 
 /**
- * HttpAsyncRequestHandlerResolver can be used to resolve an instance of
- * {@link HttpAsyncRequestHandler} matching a particular request URI. Usually the resolved
- * request handler will be used to process the request with the specified request URI.
+ * <tt>HttpAsyncRequestHandlerResolver</tt> can be used to resolve an instance
+ * of {@link HttpAsyncRequestHandler} matching a particular request URI.
+ * Usually the resolved request handler will be used to process the request
+ * with the specified request URI.
  *
  * @since 4.2
  */

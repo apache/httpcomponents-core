@@ -40,6 +40,10 @@ import org.apache.http.nio.util.SimpleInputBuffer;
 import org.apache.http.protocol.HttpContext;
 
 /**
+ * Basic implementation of {@link HttpAsyncResponseConsumer}. Please note that
+ * this consumer buffers response content in memory and should be used for
+ * relatively small response messages.
+ *
  * @since 4.2
  */
 @ThreadSafe

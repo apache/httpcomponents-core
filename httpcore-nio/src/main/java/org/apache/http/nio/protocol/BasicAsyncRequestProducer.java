@@ -40,6 +40,13 @@ import org.apache.http.nio.entity.HttpAsyncContentProducer;
 import org.apache.http.protocol.HttpContext;
 
 /**
+ * Basic implementation of {@link HttpAsyncRequestProducer}. The producer
+ * can make use of the {@link HttpAsyncContentProducer} interface to
+ * efficiently stream out message content to the underlying non-blocking HTTP
+ * connection, if it is implemented by the enclosed {@link HttpEntity}.
+ *
+ * @see HttpAsyncContentProducer
+ *
  * @since 4.2
  */
 @ThreadSafe
@@ -49,6 +56,17 @@ public class BasicAsyncRequestProducer implements HttpAsyncRequestProducer {
     private final HttpRequest request;
     private final HttpAsyncContentProducer producer;
 
+    /**
+     * Creates a producer that can be used to transmit the given request
+     * message. The given content producer will be used to stream out message
+     * content. Please note that the request message is expected to enclose
+     * an {@link HttpEntity} whose properties are consistent with the behavior
+     * of the content producer.
+     *
+     * @param target target host.
+     * @param request request message.
+     * @param producer request content producer.
+     */
     protected BasicAsyncRequestProducer(
             final HttpHost target,
             final HttpEntityEnclosingRequest request,
@@ -68,6 +86,14 @@ public class BasicAsyncRequestProducer implements HttpAsyncRequestProducer {
         this.producer = producer;
     }
 
+    /**
+     * Creates a producer that can be used to transmit the given request
+     * message. If the request message encloses an {@link HttpEntity}
+     * it is also expected to implement {@link HttpAsyncContentProducer}.
+     *
+     * @param target target host.
+     * @param request request message.
+     */
     public BasicAsyncRequestProducer(final HttpHost target, final HttpRequest request) {
         if (target == null) {
             throw new IllegalArgumentException("HTTP host may not be null");

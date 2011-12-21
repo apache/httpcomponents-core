@@ -41,7 +41,7 @@ public interface HttpAsyncServiceExchange {
     HttpResponse getResponse();
 
     void setCallback(Cancellable cancellable);
-    
+
     void submitResponse(HttpAsyncResponseProducer responseProducer);
 
     void submitResponse();

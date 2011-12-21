@@ -31,12 +31,30 @@ import org.apache.http.ConnectionReuseStrategy;
 import org.apache.http.protocol.HttpContext;
 
 /**
+ * <tt>HttpAsyncRequestExecutionHandler</tt> represents a callback interface
+ * that combines functionality of {@link HttpAsyncRequestProducer} and
+ * {@link HttpAsyncResponseConsumer} and is capable of handling logically
+ * related series of HTTP request / response exchanges.
+ *
  * @since 4.2
  */
-public interface HttpAsyncRequestExecutionHandler<T> extends HttpAsyncRequestProducer, HttpAsyncResponseConsumer<T> {
+public interface HttpAsyncRequestExecutionHandler<T>
+    extends HttpAsyncRequestProducer, HttpAsyncResponseConsumer<T> {
 
+    /**
+     * Returns shared {@link HttpContext} instance.
+     *
+     * @return HTTP context
+     */
     HttpContext getContext();
 
+    /**
+     * Returns {@link ConnectionReuseStrategy} implementation that can be used
+     * to determine whether or not the underlying connection can be kept alive
+     * after a particular HTTP request / response exchange.
+     *
+     * @return connection re-use strategy.
+     */
     ConnectionReuseStrategy getConnectionReuseStrategy();
 
 }

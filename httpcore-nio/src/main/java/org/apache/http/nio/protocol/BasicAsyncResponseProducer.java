@@ -39,6 +39,13 @@ import org.apache.http.nio.entity.HttpAsyncContentProducer;
 import org.apache.http.protocol.HttpContext;
 
 /**
+ * Basic implementation of {@link HttpAsyncResponseProducer}. The producer
+ * can make use of the {@link HttpAsyncContentProducer} interface to
+ * efficiently stream out message content to the underlying non-blocking HTTP
+ * connection, if it is implemented by the enclosed {@link HttpEntity}.
+ *
+ * @see HttpAsyncContentProducer
+ *
  * @since 4.2
  */
 @ThreadSafe
@@ -47,6 +54,16 @@ public class BasicAsyncResponseProducer implements HttpAsyncResponseProducer {
     private final HttpResponse response;
     private final HttpAsyncContentProducer producer;
 
+    /**
+     * Creates a producer that can be used to transmit the given response
+     * message. The given content producer will be used to stream out message
+     * content. Please note that the response message is expected to enclose
+     * an {@link HttpEntity} whose properties are consistent with the behavior
+     * of the content producer.
+     *
+     * @param response response message.
+     * @param producer response content producer.
+     */
     protected BasicAsyncResponseProducer(
             final HttpResponse response,
             final HttpAsyncContentProducer producer) {
@@ -61,6 +78,13 @@ public class BasicAsyncResponseProducer implements HttpAsyncResponseProducer {
         this.producer = producer;
     }
 
+    /**
+     * Creates a producer that can be used to transmit the given response
+     * message. If the response message encloses an {@link HttpEntity}
+     * it is also expected to implement {@link HttpAsyncContentProducer}.
+     *
+     * @param response response message.
+     */
     public BasicAsyncResponseProducer(final HttpResponse response) {
         super();
         if (response == null) {

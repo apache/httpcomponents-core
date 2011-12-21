@@ -36,6 +36,11 @@ import org.apache.http.protocol.HttpContext;
 import org.apache.http.protocol.HttpRequestHandler;
 
 /**
+ * Basic implementation of {@link HttpAsyncRequestHandler} that delegates
+ * the process of request handling to a {@link HttpRequestHandler}. Please note
+ * that this handler buffers request content in memory and should be used for
+ * relatively small request messages.
+ *
  * @since 4.2
  */
 @Immutable

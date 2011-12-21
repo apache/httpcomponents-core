@@ -43,10 +43,39 @@ import org.apache.http.nio.ContentEncoder;
 import org.apache.http.nio.NHttpClientConnection;
 import org.apache.http.nio.NHttpClientEventHandler;
 import org.apache.http.nio.NHttpConnection;
+import org.apache.http.nio.NHttpServerEventHandler;
 import org.apache.http.params.CoreProtocolPNames;
 import org.apache.http.protocol.HttpContext;
 
 /**
+ * Fully asynchronous HTTP client side protocol handler that translates
+ * individual events fired through the {@link NHttpServerEventHandler}
+ * interface into logically related HTTP message exchanges.
+ * <p/>
+ * This handler is capable of processing HTTP requests with nearly constant
+ * memory footprint. Only HTTP message heads are stored in memory, while
+ * content of message bodies is streamed directly from the entity to
+ * the underlying channel (and vice versa) using
+ * {@link HttpAsyncRequestProducer} and {@link HttpAsyncResponseConsumer}
+ * interfaces.
+ * <p/>
+ * The protocol handler relies on the {@link HttpAsyncRequestExecutionHandler}
+ * interface to generate outgoing HTTP requests and to process incoming HTTP
+ * responses. The caller is expected to pass an instance of
+ * {@link HttpAsyncRequestExecutionHandler} to be used for the next series
+ * of HTTP message exchanges through the connection context using
+ * {@link #HTTP_HANDLER} attribute. HTTP exchange sequence is considered
+ * complete when the {@link HttpAsyncRequestExecutionHandler#isDone()}
+ * method returns <code>true</tt>.
+ * <p/>
+ * The following parameters can be used to customize the behavior of this
+ * class:
+ * <ul>
+ *  <li>{@link org.apache.http.params.CoreProtocolPNames#WAIT_FOR_CONTINUE}</li>
+ * </ul>
+ *
+ * @see HttpAsyncRequestExecutionHandler
+ *
  * @since 4.2
  */
 @Immutable

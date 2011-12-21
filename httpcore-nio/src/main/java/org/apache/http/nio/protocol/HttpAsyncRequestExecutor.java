@@ -209,12 +209,12 @@ public class HttpAsyncRequestExecutor {
             try {
                 this.requestProducer.close();
             } catch (IOException ioex) {
-                onException(ioex);
+                log(ioex);
             }
             try {
                 this.responseConsumer.close();
             } catch (IOException ioex) {
-                onException(ioex);
+                log(ioex);
             }
         }
 
@@ -262,7 +262,7 @@ public class HttpAsyncRequestExecutor {
 
     }
 
-    protected void onException(Exception ex) {
+    protected void log(Exception ex) {
     }
 
 }
