@@ -28,9 +28,11 @@ package org.apache.http.nio.protocol;
 
 import java.io.IOException;
 
+import org.apache.http.HttpEntity;
 import org.apache.http.HttpException;
 import org.apache.http.HttpResponse;
 import org.apache.http.annotation.ThreadSafe;
+import org.apache.http.entity.ContentType;
 import org.apache.http.nio.ContentDecoder;
 import org.apache.http.nio.IOControl;
 import org.apache.http.protocol.HttpContext;
@@ -63,7 +65,8 @@ public abstract class AbstractAsyncResponseConsumer<T> implements HttpAsyncRespo
      * @throws HttpException in case of HTTP protocol violation
      * @throws IOException in case of an I/O error
      */
-    protected abstract void onResponseReceived(final HttpResponse response) throws HttpException, IOException;
+    protected abstract void onResponseReceived(
+            HttpResponse response) throws HttpException, IOException;
 
     /**
      * Invoked to process a chunk of content from the {@link ContentDecoder}.
@@ -78,7 +81,17 @@ public abstract class AbstractAsyncResponseConsumer<T> implements HttpAsyncRespo
      * @throws IOException in case of an I/O error
      */
     protected abstract void onContentReceived(
-            final ContentDecoder decoder, final IOControl ioctrl) throws IOException;
+            ContentDecoder decoder, IOControl ioctrl) throws IOException;
+
+    /**
+     * Invoked if the response message encloses a content entity.
+     *
+     * @param entity HTTP entity
+     * @param contentType expected content type.
+     * @throws IOException in case of an I/O error
+     */
+    protected abstract void onEntityEnclosed(
+            HttpEntity entity, ContentType contentType) throws IOException;
 
     /**
      * Invoked to generate a result object from the received HTTP response
@@ -101,6 +114,11 @@ public abstract class AbstractAsyncResponseConsumer<T> implements HttpAsyncRespo
     public final synchronized void responseReceived(
             final HttpResponse response) throws IOException, HttpException {
         onResponseReceived(response);
+        HttpEntity entity = response.getEntity();
+        if (entity != null) {
+            ContentType contentType = ContentType.getOrDefault(entity);
+            onEntityEnclosed(entity, contentType);
+        }
     }
 
     /**

@@ -319,6 +319,7 @@ public class HttpAsyncClientProtocolHandler implements NHttpClientEventHandler {
     private void closeHandler(final State state) {
         HttpAsyncRequestExecutionHandler<?> handler = state.getHandler();
         if (handler != null) {
+            state.setHandler(null);
             try {
                 handler.close();
             } catch (IOException ioex) {
@@ -439,7 +440,6 @@ public class HttpAsyncClientProtocolHandler implements NHttpClientEventHandler {
             this.requestState = MessageState.READY;
             this.response = null;
             this.request = null;
-            this.handler = null;
             this.timeout = 0;
         }
 

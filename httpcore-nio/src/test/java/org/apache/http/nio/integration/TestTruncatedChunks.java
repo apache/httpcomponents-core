@@ -35,6 +35,7 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 
 import org.apache.http.HttpCoreNIOTestBase;
+import org.apache.http.HttpEntity;
 import org.apache.http.HttpHost;
 import org.apache.http.HttpRequestFactory;
 import org.apache.http.HttpResponse;
@@ -44,6 +45,7 @@ import org.apache.http.LoggingNHttpServerConnection;
 import org.apache.http.MalformedChunkCodingException;
 import org.apache.http.TruncatedChunkException;
 import org.apache.http.entity.ContentLengthStrategy;
+import org.apache.http.entity.ContentType;
 import org.apache.http.entity.InputStreamEntity;
 import org.apache.http.impl.DefaultConnectionReuseStrategy;
 import org.apache.http.impl.io.HttpTransportMetricsImpl;
@@ -238,6 +240,10 @@ public class TestTruncatedChunks extends HttpCoreNIOTestBase {
         @Override
         protected void onResponseReceived(final HttpResponse response) {
             this.response = response;
+        }
+
+        @Override
+        protected void onEntityEnclosed(final HttpEntity entity, final ContentType contentType) {
         }
 
         @Override

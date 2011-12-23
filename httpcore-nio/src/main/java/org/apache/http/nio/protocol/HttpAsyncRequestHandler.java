@@ -52,7 +52,7 @@ public interface HttpAsyncRequestHandler<T> {
      * the request and consume message content if enclosed. The consumer
      * can optionally parse or transform the message content into a structured
      * object which is then passed onto
-     * the {@link #handle(Object, HttpAsyncServiceExchange, HttpContext))}
+     * the {@link #handle(Object, HttpAsyncServiceExchange, HttpContext)}
      * method for further processing.
      *
      * @param request the entity enclosing request.

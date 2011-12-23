@@ -28,10 +28,12 @@ package org.apache.http.nio.protocol;
 
 import java.io.IOException;
 
+import org.apache.http.HttpEntity;
 import org.apache.http.HttpEntityEnclosingRequest;
 import org.apache.http.HttpException;
 import org.apache.http.HttpRequest;
 import org.apache.http.annotation.ThreadSafe;
+import org.apache.http.entity.ContentType;
 import org.apache.http.nio.ContentDecoder;
 import org.apache.http.nio.IOControl;
 import org.apache.http.protocol.HttpContext;
@@ -65,7 +67,18 @@ public abstract class AbstractAsyncRequestConsumer<T> implements HttpAsyncReques
      * @throws HttpException in case of HTTP protocol violation
      * @throws IOException in case of an I/O error
      */
-    protected abstract void onRequestReceived(HttpRequest request) throws HttpException, IOException;
+    protected abstract void onRequestReceived(
+            HttpRequest request) throws HttpException, IOException;
+
+    /**
+     * Invoked if the request message encloses a content entity.
+     *
+     * @param entity HTTP entity
+     * @param contentType expected content type.
+     * @throws IOException in case of an I/O error
+     */
+    protected abstract void onEntityEnclosed(
+            HttpEntity entity, ContentType contentType) throws IOException;
 
     /**
      * Invoked to process a chunk of content from the {@link ContentDecoder}.
@@ -103,6 +116,13 @@ public abstract class AbstractAsyncRequestConsumer<T> implements HttpAsyncReques
     public final synchronized void requestReceived(
             final HttpRequest request) throws HttpException, IOException {
         onRequestReceived(request);
+        if (request instanceof HttpEntityEnclosingRequest) {
+            HttpEntity entity = ((HttpEntityEnclosingRequest) request).getEntity();
+            if (entity != null) {
+                ContentType contentType = ContentType.getOrDefault(entity);
+                onEntityEnclosed(entity, contentType);
+            }
+        }
     }
 
     /**

@@ -47,7 +47,7 @@ public interface HttpAsyncContentProducer extends Closeable {
      * The {@link IOControl} interface can be used to suspend output events
      * if the entity is temporarily unable to produce more content.
      * <p>
-     * When all content is finished, the producer <b>MUST</b> call 
+     * When all content is finished, the producer <b>MUST</b> call
      * {@link ContentEncoder#complete()}. Failure to do so may cause the entity
      * to be incorrectly delimited.
      *

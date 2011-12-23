@@ -32,6 +32,7 @@ import org.apache.http.ContentTooLongException;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.annotation.ThreadSafe;
+import org.apache.http.entity.ContentType;
 import org.apache.http.nio.ContentDecoder;
 import org.apache.http.nio.IOControl;
 import org.apache.http.nio.entity.ContentBufferEntity;
@@ -71,6 +72,10 @@ public class BasicAsyncResponseConsumer extends AbstractAsyncResponseConsumer<Ht
             this.buf = new SimpleInputBuffer((int) len, new HeapByteBufferAllocator());
             response.setEntity(new ContentBufferEntity(entity, this.buf));
         }
+    }
+
+    @Override
+    protected void onEntityEnclosed(final HttpEntity entity, final ContentType contentType) {
     }
 
     @Override
