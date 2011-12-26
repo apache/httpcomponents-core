@@ -35,8 +35,7 @@ import org.apache.http.nio.IOControl;
 
 /**
  * <tt>HttpAsyncContentProducer</tt> is a callback interface whose methods
- * get invoked to stream out message content to a non-blocking HTTP connection
- * through a {@link ContentEncoder}.
+ * get invoked to stream out message content to a non-blocking HTTP connection.
  *
  * @since 4.2
  */

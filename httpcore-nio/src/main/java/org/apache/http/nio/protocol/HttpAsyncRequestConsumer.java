@@ -39,7 +39,7 @@ import org.apache.http.protocol.HttpContext;
 /**
  * <tt>HttpAsyncRequestConsumer</tt> is a callback interface whose methods
  * get invoked to process an HTTP request message and to stream message
- * content from a non-blocking HTTP connection through a {@link ContentDecoder}.
+ * content from a non-blocking HTTP connection.
  *
  * @since 4.2
  */

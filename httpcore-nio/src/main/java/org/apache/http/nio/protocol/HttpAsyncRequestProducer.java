@@ -40,7 +40,7 @@ import org.apache.http.protocol.HttpContext;
 /**
  * <tt>HttpAsyncRequestProducer</tt> is a callback interface whose methods
  * get invoked to generate an HTTP request message and to stream message
- * content to a non-blocking HTTP connection through a {@link ContentEncoder}.
+ * content to a non-blocking HTTP connection.
  * <p/>
  * Repeatable request producers capable of generating the same request
  * message more than once can be reset to their initial state by calling

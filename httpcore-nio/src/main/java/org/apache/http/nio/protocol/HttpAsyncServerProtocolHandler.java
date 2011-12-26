@@ -246,7 +246,7 @@ public class HttpAsyncServerProtocolHandler implements NHttpServerEventHandler {
                             HttpStatus.SC_CONTINUE, context);
                     if (this.expectationVerifier != null) {
                         conn.suspendInput();
-                        HttpAsyncServiceExchange httpex = new Exchange(
+                        HttpAsyncExchange httpex = new Exchange(
                                 request, ack, state, conn);
                         this.expectationVerifier.verify(httpex, context);
                     } else {
@@ -688,7 +688,7 @@ public class HttpAsyncServerProtocolHandler implements NHttpServerEventHandler {
 
     }
 
-    static class Exchange implements HttpAsyncServiceExchange {
+    static class Exchange implements HttpAsyncExchange {
 
         private final HttpRequest request;
         private final HttpResponse response;

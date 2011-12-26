@@ -64,7 +64,7 @@ import org.apache.http.nio.protocol.HttpAsyncRequestConsumer;
 import org.apache.http.nio.protocol.HttpAsyncRequestHandler;
 import org.apache.http.nio.protocol.HttpAsyncRequestHandlerRegistry;
 import org.apache.http.nio.protocol.HttpAsyncRequestHandlerResolver;
-import org.apache.http.nio.protocol.HttpAsyncServiceExchange;
+import org.apache.http.nio.protocol.HttpAsyncExchange;
 import org.apache.http.nio.protocol.HttpAsyncServerProtocolHandler;
 import org.apache.http.nio.reactor.IOReactorStatus;
 import org.apache.http.nio.reactor.ListenerEndpoint;
@@ -391,7 +391,7 @@ public class TestHttpAsyncHandlers extends HttpCoreNIOTestBase {
         HttpAsyncExpectationVerifier expectationVerifier = new HttpAsyncExpectationVerifier() {
 
             public void verify(
-                    final HttpAsyncServiceExchange httpexchange,
+                    final HttpAsyncExchange httpexchange,
                     final HttpContext context) throws HttpException {
                 HttpRequest request = httpexchange.getRequest();
                 ProtocolVersion ver = request.getRequestLine().getProtocolVersion();
@@ -474,7 +474,7 @@ public class TestHttpAsyncHandlers extends HttpCoreNIOTestBase {
 
             public void handle(
                     final HttpRequest request,
-                    final HttpAsyncServiceExchange httpexchange,
+                    final HttpAsyncExchange httpexchange,
                     final HttpContext context) throws HttpException, IOException {
                 ProtocolVersion ver = request.getRequestLine().getProtocolVersion();
                 if (!ver.lessEquals(HttpVersion.HTTP_1_1)) {
@@ -534,7 +534,7 @@ public class TestHttpAsyncHandlers extends HttpCoreNIOTestBase {
         HttpAsyncExpectationVerifier expectationVerifier = new HttpAsyncExpectationVerifier() {
 
             public void verify(
-                    final HttpAsyncServiceExchange httpexchange,
+                    final HttpAsyncExchange httpexchange,
                     final HttpContext context) throws HttpException {
                 new Thread() {
                     @Override
@@ -622,7 +622,7 @@ public class TestHttpAsyncHandlers extends HttpCoreNIOTestBase {
 
             public void handle(
                     final HttpRequest request,
-                    final HttpAsyncServiceExchange httpexchange,
+                    final HttpAsyncExchange httpexchange,
                     final HttpContext context) throws HttpException, IOException {
                 throw new HttpException("Boom");
             }

@@ -48,7 +48,7 @@ import org.apache.http.protocol.HttpContext;
 public interface HttpAsyncExpectationVerifier {
 
     void verify(
-            HttpAsyncServiceExchange httpExchange,
+            HttpAsyncExchange httpExchange,
             HttpContext context) throws HttpException, IOException;
 
 }

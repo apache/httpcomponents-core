@@ -39,7 +39,7 @@ import org.apache.http.protocol.HttpContext;
 /**
  * <tt>HttpAsyncResponseProducer</tt> is a callback interface whose methods
  * get invoked to generate an HTTP response message and to stream message
- * content to a non-blocking HTTP connection through a {@link ContentEncoder}.
+ * content to a non-blocking HTTP connection.
  *
  * @since 4.2
  */

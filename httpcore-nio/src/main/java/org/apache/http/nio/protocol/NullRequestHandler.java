@@ -46,7 +46,7 @@ class NullRequestHandler implements HttpAsyncRequestHandler<Object> {
 
     public void handle(
             final Object obj,
-            final HttpAsyncServiceExchange httpexchange,
+            final HttpAsyncExchange httpexchange,
             final HttpContext context) {
         HttpResponse response = httpexchange.getResponse();
         response.setStatusCode(HttpStatus.SC_NOT_IMPLEMENTED);

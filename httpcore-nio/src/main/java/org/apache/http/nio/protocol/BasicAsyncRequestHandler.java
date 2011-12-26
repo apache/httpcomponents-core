@@ -63,7 +63,7 @@ public class BasicAsyncRequestHandler implements HttpAsyncRequestHandler<HttpReq
 
     public void handle(
             final HttpRequest request,
-            final HttpAsyncServiceExchange httpexchange,
+            final HttpAsyncExchange httpexchange,
             final HttpContext context) throws HttpException, IOException {
         this.handler.handle(request, httpexchange.getResponse(), context);
         httpexchange.submitResponse();

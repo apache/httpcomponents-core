@@ -52,7 +52,7 @@ public interface HttpAsyncRequestHandler<T> {
      * the request and consume message content if enclosed. The consumer
      * can optionally parse or transform the message content into a structured
      * object which is then passed onto
-     * the {@link #handle(Object, HttpAsyncServiceExchange, HttpContext)}
+     * the {@link #handle(Object, HttpAsyncExchange, HttpContext)}
      * method for further processing.
      *
      * @param request the entity enclosing request.
@@ -73,7 +73,7 @@ public interface HttpAsyncRequestHandler<T> {
      * the client without blocking the I/O thread by delegating the process
      * of request handling to another service or a worker thread. HTTP response
      * can be submitted as a later a later point of time using
-     * {@link HttpAsyncServiceExchange} once response content becomes available.
+     * {@link HttpAsyncExchange} once response content becomes available.
      *
      * @param data request data returned by the request consumer.
      * @param httpExchange HTTP exchange.
@@ -84,7 +84,7 @@ public interface HttpAsyncRequestHandler<T> {
      */
     void handle(
             T data,
-            HttpAsyncServiceExchange httpExchange,
+            HttpAsyncExchange httpExchange,
             HttpContext context) throws HttpException, IOException;
 
 }

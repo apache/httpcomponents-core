@@ -48,7 +48,7 @@ public class TestBasicAsyncRequestHandler {
     private HttpContext context;
     private HttpRequest request;
     private HttpResponse response;
-    private HttpAsyncServiceExchange httpexchange;
+    private HttpAsyncExchange httpexchange;
 
     @Before
     public void setUp() throws Exception {
@@ -57,7 +57,7 @@ public class TestBasicAsyncRequestHandler {
         this.context = new BasicHttpContext();
         this.request = Mockito.mock(HttpRequest.class);
         this.response = Mockito.mock(HttpResponse.class);
-        this.httpexchange = Mockito.mock(HttpAsyncServiceExchange.class);
+        this.httpexchange = Mockito.mock(HttpAsyncExchange.class);
         Mockito.when(this.httpexchange.getRequest()).thenReturn(this.request);
         Mockito.when(this.httpexchange.getResponse()).thenReturn(this.response);
     }

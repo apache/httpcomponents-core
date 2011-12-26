@@ -308,7 +308,7 @@ public class TestHttpAsyncServerProtocolHandler {
         Mockito.verify(this.requestConsumer).requestCompleted(exchangeContext);
         Mockito.verify(this.requestHandler).handle(
                 Mockito.eq(data),
-                Mockito.any(HttpAsyncServiceExchange.class),
+                Mockito.any(HttpAsyncExchange.class),
                 Mockito.eq(exchangeContext));
     }
 
@@ -433,7 +433,7 @@ public class TestHttpAsyncServerProtocolHandler {
         Mockito.verify(this.requestConsumer).requestReceived(request);
         Mockito.verify(this.conn).suspendInput();
         Mockito.verify(expectationVerifier).verify(
-                Mockito.any(HttpAsyncServiceExchange.class),
+                Mockito.any(HttpAsyncExchange.class),
                 Mockito.eq(exchangeContext));
     }
 
@@ -443,7 +443,7 @@ public class TestHttpAsyncServerProtocolHandler {
         state.setRequestState(MessageState.ACK_EXPECTED);
         this.connContext.setAttribute(HttpAsyncServerProtocolHandler.HTTP_EXCHANGE_STATE, state);
 
-        HttpAsyncServiceExchange httpexchanage = new HttpAsyncServerProtocolHandler.Exchange(
+        HttpAsyncExchange httpexchanage = new HttpAsyncServerProtocolHandler.Exchange(
                 new BasicHttpRequest("GET", "/", HttpVersion.HTTP_1_1),
                 new BasicHttpResponse(HttpVersion.HTTP_1_1, 200, "OK"),
                 state, this.conn);
@@ -470,7 +470,7 @@ public class TestHttpAsyncServerProtocolHandler {
         state.setRequestState(MessageState.ACK_EXPECTED);
         this.connContext.setAttribute(HttpAsyncServerProtocolHandler.HTTP_EXCHANGE_STATE, state);
 
-        HttpAsyncServiceExchange httpexchanage = new HttpAsyncServerProtocolHandler.Exchange(
+        HttpAsyncExchange httpexchanage = new HttpAsyncServerProtocolHandler.Exchange(
                 new BasicHttpRequest("GET", "/", HttpVersion.HTTP_1_1),
                 new BasicHttpResponse(HttpVersion.HTTP_1_1, 200, "OK"),
                 state, this.conn);
@@ -483,7 +483,7 @@ public class TestHttpAsyncServerProtocolHandler {
         state.setRequestState(MessageState.ACK_EXPECTED);
         this.connContext.setAttribute(HttpAsyncServerProtocolHandler.HTTP_EXCHANGE_STATE, state);
 
-        HttpAsyncServiceExchange httpexchanage = new HttpAsyncServerProtocolHandler.Exchange(
+        HttpAsyncExchange httpexchanage = new HttpAsyncServerProtocolHandler.Exchange(
                 new BasicHttpRequest("GET", "/", HttpVersion.HTTP_1_1),
                 new BasicHttpResponse(HttpVersion.HTTP_1_1, 100, "Continue"),
                 state, this.conn);
@@ -553,7 +553,7 @@ public class TestHttpAsyncServerProtocolHandler {
         Mockito.verify(this.requestConsumer).requestCompleted(exchangeContext);
         Mockito.verify(this.requestHandler).handle(
                 Mockito.eq(data),
-                Mockito.any(HttpAsyncServiceExchange.class),
+                Mockito.any(HttpAsyncExchange.class),
                 Mockito.eq(exchangeContext));
     }
 
@@ -584,7 +584,7 @@ public class TestHttpAsyncServerProtocolHandler {
         Mockito.verify(this.conn).requestOutput();
         Mockito.verify(this.requestHandler, Mockito.never()).handle(
                 Mockito.any(),
-                Mockito.any(HttpAsyncServiceExchange.class),
+                Mockito.any(HttpAsyncExchange.class),
                 Mockito.any(HttpContext.class));
     }
 
@@ -606,7 +606,7 @@ public class TestHttpAsyncServerProtocolHandler {
         Mockito.doThrow(new UnsupportedHttpVersionException()).when(
                 this.requestHandler).handle(
                         Mockito.eq(data),
-                        Mockito.any(HttpAsyncServiceExchange.class),
+                        Mockito.any(HttpAsyncExchange.class),
                         Mockito.eq(exchangeContext));
 
         this.protocolHandler.inputReady(conn, this.decoder);
@@ -854,7 +854,7 @@ public class TestHttpAsyncServerProtocolHandler {
         state.setResponseState(MessageState.READY);
         this.connContext.setAttribute(HttpAsyncServerProtocolHandler.HTTP_EXCHANGE_STATE, state);
 
-        HttpAsyncServiceExchange httpexchanage = new HttpAsyncServerProtocolHandler.Exchange(
+        HttpAsyncExchange httpexchanage = new HttpAsyncServerProtocolHandler.Exchange(
                 new BasicHttpRequest("GET", "/", HttpVersion.HTTP_1_1),
                 new BasicHttpResponse(HttpVersion.HTTP_1_1, 200, "OK"),
                 state, this.conn);
@@ -881,7 +881,7 @@ public class TestHttpAsyncServerProtocolHandler {
         state.setRequestState(MessageState.ACK_EXPECTED);
         this.connContext.setAttribute(HttpAsyncServerProtocolHandler.HTTP_EXCHANGE_STATE, state);
 
-        HttpAsyncServiceExchange httpexchanage = new HttpAsyncServerProtocolHandler.Exchange(
+        HttpAsyncExchange httpexchanage = new HttpAsyncServerProtocolHandler.Exchange(
                 new BasicHttpRequest("GET", "/", HttpVersion.HTTP_1_1),
                 new BasicHttpResponse(HttpVersion.HTTP_1_1, 200, "OK"),
                 state, this.conn);
