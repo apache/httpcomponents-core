@@ -95,7 +95,7 @@ import org.apache.http.util.EncodingUtils;
  *
  * @since 4.0
  *
- * @deprecated use {@link HttpAsyncServerProtocolHandler}
+ * @deprecated use {@link HttpAsyncService}
  */
 @Deprecated
 @Immutable // provided injected dependencies are immutable

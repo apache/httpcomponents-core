@@ -63,9 +63,9 @@ import org.apache.http.nio.protocol.AbstractAsyncResponseConsumer;
 import org.apache.http.nio.protocol.BasicAsyncRequestProducer;
 import org.apache.http.nio.protocol.BasicAsyncResponseConsumer;
 import org.apache.http.nio.protocol.BasicAsyncRequestHandler;
-import org.apache.http.nio.protocol.HttpAsyncClientProtocolHandler;
+import org.apache.http.nio.protocol.HttpAsyncRequestExecutor;
 import org.apache.http.nio.protocol.HttpAsyncRequestHandlerRegistry;
-import org.apache.http.nio.protocol.HttpAsyncServerProtocolHandler;
+import org.apache.http.nio.protocol.HttpAsyncService;
 import org.apache.http.nio.reactor.IOReactorStatus;
 import org.apache.http.nio.reactor.IOSession;
 import org.apache.http.nio.reactor.ListenerEndpoint;
@@ -195,12 +195,12 @@ public class TestTruncatedChunks extends HttpCoreNIOTestBase {
     public void testTruncatedChunkException() throws Exception {
         HttpAsyncRequestHandlerRegistry registry = new HttpAsyncRequestHandlerRegistry();
         registry.register("*", new BasicAsyncRequestHandler(new SimpleRequestHandler(true)));
-        HttpAsyncServerProtocolHandler serviceHandler = new HttpAsyncServerProtocolHandler(
+        HttpAsyncService serviceHandler = new HttpAsyncService(
                 this.serverHttpProc,
                 new DefaultConnectionReuseStrategy(),
                 registry,
                 this.serverParams);
-        HttpAsyncClientProtocolHandler clientHandler = new HttpAsyncClientProtocolHandler();
+        HttpAsyncRequestExecutor clientHandler = new HttpAsyncRequestExecutor();
         this.server.start(serviceHandler);
         this.client.start(clientHandler);
 
@@ -280,12 +280,12 @@ public class TestTruncatedChunks extends HttpCoreNIOTestBase {
     public void testIgnoreTruncatedChunkException() throws Exception {
         HttpAsyncRequestHandlerRegistry registry = new HttpAsyncRequestHandlerRegistry();
         registry.register("*", new BasicAsyncRequestHandler(new SimpleRequestHandler(true)));
-        HttpAsyncServerProtocolHandler serviceHandler = new HttpAsyncServerProtocolHandler(
+        HttpAsyncService serviceHandler = new HttpAsyncService(
                 this.serverHttpProc,
                 new DefaultConnectionReuseStrategy(),
                 registry,
                 this.serverParams);
-        HttpAsyncClientProtocolHandler clientHandler = new HttpAsyncClientProtocolHandler();
+        HttpAsyncRequestExecutor clientHandler = new HttpAsyncRequestExecutor();
         this.server.start(serviceHandler);
         this.client.start(clientHandler);
 

@@ -24,245 +24,461 @@
  * <http://www.apache.org/>.
  *
  */
+
 package org.apache.http.nio.protocol;
 
+import java.io.Closeable;
 import java.io.IOException;
-import java.util.concurrent.Future;
+import java.net.SocketTimeoutException;
 
 import org.apache.http.ConnectionReuseStrategy;
-import org.apache.http.HttpHost;
+import org.apache.http.HttpConnection;
+import org.apache.http.HttpEntityEnclosingRequest;
+import org.apache.http.HttpException;
+import org.apache.http.HttpRequest;
+import org.apache.http.HttpResponse;
+import org.apache.http.HttpStatus;
+import org.apache.http.ProtocolException;
 import org.apache.http.annotation.Immutable;
-import org.apache.http.concurrent.BasicFuture;
-import org.apache.http.concurrent.FutureCallback;
+import org.apache.http.nio.ContentDecoder;
+import org.apache.http.nio.ContentEncoder;
 import org.apache.http.nio.NHttpClientConnection;
-import org.apache.http.params.HttpParams;
-import org.apache.http.pool.ConnPool;
-import org.apache.http.pool.PoolEntry;
-import org.apache.http.protocol.BasicHttpContext;
+import org.apache.http.nio.NHttpClientEventHandler;
+import org.apache.http.nio.NHttpConnection;
+import org.apache.http.params.CoreProtocolPNames;
 import org.apache.http.protocol.HttpContext;
 import org.apache.http.protocol.HttpProcessor;
 
 /**
+ * <tt>HttpAsyncRequestExecutor</tt> is a fully asynchronous HTTP client side 
+ * protocol handler based on the NIO (non-blocking) I/O model.
+ * <tt>HttpAsyncRequestExecutor</tt> translates individual events fired through 
+ * the {@link NHttpClientEventHandler} interface into logically related HTTP 
+ * message exchanges.
+ * <p/>
+ * <tt>HttpAsyncRequestExecutor</tt> relies on {@link HttpProcessor} 
+ * to generate mandatory protocol headers for all outgoing messages and apply
+ * common, cross-cutting message transformations to all incoming and outgoing
+ * messages, whereas individual {@link HttpAsyncRequestExecutionHandler}s
+ * are expected to implement application specific content generation and
+ * processing. The caller is expected to pass an instance of
+ * {@link HttpAsyncRequestExecutionHandler} to be used for the next series
+ * of HTTP message exchanges through the connection context using
+ * {@link #HTTP_HANDLER} attribute. HTTP exchange sequence is considered
+ * complete when the {@link HttpAsyncRequestExecutionHandler#isDone()} method
+ * returns <code>true</tt>. The {@link HttpAsyncRequester} utility class can
+ * be used to facilitate initiation of asynchronous HTTP request execution.
+ * <p/>
+ * The following parameters can be used to customize the behavior of this
+ * class:
+ * <ul>
+ *  <li>{@link org.apache.http.params.CoreProtocolPNames#WAIT_FOR_CONTINUE}</li>
+ * </ul>
+ *
+ * @see HttpAsyncRequestExecutionHandler
+ *
  * @since 4.2
  */
 @Immutable
-public class HttpAsyncRequestExecutor {
+public class HttpAsyncRequestExecutor implements NHttpClientEventHandler {
 
-    private final HttpProcessor httppocessor;
-    private final ConnectionReuseStrategy reuseStrategy;
-    private final HttpParams params;
+    public static final String HTTP_HANDLER = "http.nio.exchange-handler";
 
-    public HttpAsyncRequestExecutor(
-            final HttpProcessor httppocessor,
-            final ConnectionReuseStrategy reuseStrategy,
-            final HttpParams params) {
+    public HttpAsyncRequestExecutor() {
         super();
-        this.httppocessor = httppocessor;
-        this.reuseStrategy = reuseStrategy;
-        this.params = params;
     }
 
-    public <T> Future<T> execute(
-            final HttpAsyncRequestProducer requestProducer,
-            final HttpAsyncResponseConsumer<T> responseConsumer,
+    public void connected(
             final NHttpClientConnection conn,
-            final HttpContext context,
-            final FutureCallback<T> callback) {
-        if (requestProducer == null) {
-            throw new IllegalArgumentException("HTTP request producer may not be null");
-        }
-        if (responseConsumer == null) {
-            throw new IllegalArgumentException("HTTP response consumer may not be null");
-        }
-        if (conn == null) {
-            throw new IllegalArgumentException("HTTP connection may not be null");
-        }
-        if (context == null) {
-            throw new IllegalArgumentException("HTTP context may not be null");
-        }
-        BasicFuture<T> future = new BasicFuture<T>(callback);
-        HttpAsyncRequestExecutionHandler<T> handler = new BasicAsyncRequestExecutionHandler<T>(
-                future, requestProducer, responseConsumer, context,
-                this.httppocessor, conn, this.reuseStrategy, this.params);
-        conn.getContext().setAttribute(HttpAsyncClientProtocolHandler.HTTP_HANDLER, handler);
-        conn.requestOutput();
-        return future;
+            final Object attachment) throws IOException, HttpException {
+        State state = new State();
+        HttpContext context = conn.getContext();
+        context.setAttribute(HTTP_EXCHANGE_STATE, state);
+        requestReady(conn);
     }
 
-    public <T> Future<T> execute(
-            final HttpAsyncRequestProducer requestProducer,
-            final HttpAsyncResponseConsumer<T> responseConsumer,
-            final NHttpClientConnection conn,
-            final HttpContext context) {
-        return execute(requestProducer, responseConsumer, conn, context, null);
+    public void closed(final NHttpClientConnection conn) {
+        State state = getState(conn);
+        if (state != null) {
+            synchronized (state) {
+                closeHandler(state);
+                state.reset();
+            }
+        }
     }
 
-    public <T> Future<T> execute(
-            final HttpAsyncRequestProducer requestProducer,
-            final HttpAsyncResponseConsumer<T> responseConsumer,
-            final NHttpClientConnection conn) {
-        return execute(requestProducer, responseConsumer, conn, new BasicHttpContext());
+    public void exception(
+            final NHttpClientConnection conn, final Exception cause) {
+        shutdownConnection(conn);
+        State state = getState(conn);
+        if (state != null) {
+            synchronized (state) {
+                closeHandler(state, cause);
+                state.reset();
+            }
+        } else {
+            log(cause);
+        }
     }
 
-    public <T, E extends PoolEntry<HttpHost, NHttpClientConnection>> Future<T> execute(
-            final HttpAsyncRequestProducer requestProducer,
-            final HttpAsyncResponseConsumer<T> responseConsumer,
-            final ConnPool<HttpHost, E> connPool,
-            final HttpContext context,
-            final FutureCallback<T> callback) {
-        if (requestProducer == null) {
-            throw new IllegalArgumentException("HTTP request producer may not be null");
-        }
-        if (responseConsumer == null) {
-            throw new IllegalArgumentException("HTTP response consumer may not be null");
-        }
-        if (connPool == null) {
-            throw new IllegalArgumentException("HTTP connection pool may not be null");
-        }
-        if (context == null) {
-            throw new IllegalArgumentException("HTTP context may not be null");
-        }
-        BasicFuture<T> future = new BasicFuture<T>(callback);
-        HttpHost target = requestProducer.getTarget();
-        connPool.lease(target, null, new ConnRequestCallback<T, E>(
-                future, requestProducer, responseConsumer, connPool, context));
-        return future;
-    }
-
-    public <T, E extends PoolEntry<HttpHost, NHttpClientConnection>> Future<T> execute(
-            final HttpAsyncRequestProducer requestProducer,
-            final HttpAsyncResponseConsumer<T> responseConsumer,
-            final ConnPool<HttpHost, E> connPool,
-            final HttpContext context) {
-        return execute(requestProducer, responseConsumer, connPool, context, null);
-    }
-
-    public <T, E extends PoolEntry<HttpHost, NHttpClientConnection>> Future<T> execute(
-            final HttpAsyncRequestProducer requestProducer,
-            final HttpAsyncResponseConsumer<T> responseConsumer,
-            final ConnPool<HttpHost, E> connPool) {
-        return execute(requestProducer, responseConsumer, connPool, new BasicHttpContext());
-    }
-
-    class ConnRequestCallback<T, E extends PoolEntry<HttpHost, NHttpClientConnection>> implements FutureCallback<E> {
-
-        private final BasicFuture<T> requestFuture;
-        private final HttpAsyncRequestProducer requestProducer;
-        private final HttpAsyncResponseConsumer<T> responseConsumer;
-        private final ConnPool<HttpHost, E> connPool;
-        private final HttpContext context;
-
-        ConnRequestCallback(
-                final BasicFuture<T> requestFuture,
-                final HttpAsyncRequestProducer requestProducer,
-                final HttpAsyncResponseConsumer<T> responseConsumer,
-                final ConnPool<HttpHost, E> connPool,
-                final HttpContext context) {
-            super();
-            this.requestFuture = requestFuture;
-            this.requestProducer = requestProducer;
-            this.responseConsumer = responseConsumer;
-            this.connPool = connPool;
-            this.context = context;
-        }
-
-        public void completed(final E result) {
-            if (this.requestFuture.isDone()) {
-                this.connPool.release(result, true);
+    public void requestReady(
+            final NHttpClientConnection conn) throws IOException, HttpException {
+        State state = ensureNotNull(getState(conn));
+        synchronized (state) {
+            if (state.getRequestState() != MessageState.READY) {
                 return;
             }
-            NHttpClientConnection conn = result.getConnection();
-            BasicFuture<T> execFuture = new BasicFuture<T>(new RequestExecutionCallback<T, E>(
-                    this.requestFuture, result, this.connPool));
-            HttpAsyncRequestExecutionHandler<T> handler = new BasicAsyncRequestExecutionHandler<T>(
-                    execFuture, this.requestProducer, this.responseConsumer, this.context,
-                    httppocessor, conn, reuseStrategy, params);
-            conn.getContext().setAttribute(HttpAsyncClientProtocolHandler.HTTP_HANDLER, handler);
-            conn.requestOutput();
-        }
+            HttpAsyncRequestExecutionHandler<?> handler = state.getHandler();
+            if (handler != null && handler.isDone()) {
+                closeHandler(state);
+                state.reset();
+                handler = null;
+            }
+            if (handler == null) {
+                handler = (HttpAsyncRequestExecutionHandler<?>) conn.getContext().removeAttribute(
+                        HTTP_HANDLER);
+                state.setHandler(handler);
+            }
+            if (handler == null) {
+                return;
+            }
+            HttpContext context = handler.getContext();
+            HttpRequest request = handler.generateRequest();
+            state.setRequest(request);
 
-        public void failed(final Exception ex) {
-            try {
-                try {
-                    this.responseConsumer.failed(ex);
-                } finally {
-                    releaseResources();
+            conn.submitRequest(request);
+
+            if (request instanceof HttpEntityEnclosingRequest) {
+                if (((HttpEntityEnclosingRequest) request).expectContinue()) {
+                    int timeout = conn.getSocketTimeout();
+                    state.setTimeout(timeout);
+                    timeout = request.getParams().getIntParameter(
+                            CoreProtocolPNames.WAIT_FOR_CONTINUE, 3000);
+                    conn.setSocketTimeout(timeout);
+                    state.setRequestState(MessageState.ACK_EXPECTED);
+                } else {
+                    state.setRequestState(MessageState.BODY_STREAM);
                 }
-            } finally {
-                this.requestFuture.failed(ex);
+            } else {
+                handler.requestCompleted(context);
+                state.setRequestState(MessageState.COMPLETED);
             }
         }
-
-        public void cancelled() {
-            try {
-                try {
-                    this.responseConsumer.cancel();
-                } finally {
-                    releaseResources();
-                }
-            } finally {
-                this.requestFuture.cancel(true);
-            }
-        }
-
-        public void releaseResources() {
-            try {
-                this.requestProducer.close();
-            } catch (IOException ioex) {
-                log(ioex);
-            }
-            try {
-                this.responseConsumer.close();
-            } catch (IOException ioex) {
-                log(ioex);
-            }
-        }
-
     }
 
-    class RequestExecutionCallback<T, E extends PoolEntry<HttpHost, NHttpClientConnection>> implements FutureCallback<T> {
+    public void outputReady(
+            final NHttpClientConnection conn,
+            final ContentEncoder encoder) throws IOException {
+        State state = ensureNotNull(getState(conn));
+        synchronized (state) {
+            HttpAsyncRequestExecutionHandler<?> handler = ensureNotNull(state.getHandler());
+            if (state.getRequestState() == MessageState.ACK_EXPECTED) {
+                conn.suspendOutput();
+                return;
+            }
+            HttpContext context = handler.getContext();
+            handler.produceContent(encoder, conn);
+            state.setRequestState(MessageState.BODY_STREAM);
+            if (encoder.isCompleted()) {
+                handler.requestCompleted(context);
+                state.setRequestState(MessageState.COMPLETED);
+            }
+        }
+    }
 
-        private final BasicFuture<T> future;
-        private final E poolEntry;
-        private final ConnPool<HttpHost, E> connPool;
+    public void responseReceived(
+            final NHttpClientConnection conn) throws HttpException, IOException {
+        State state = ensureNotNull(getState(conn));
+        synchronized (state) {
+            HttpAsyncRequestExecutionHandler<?> handler = ensureNotNull(state.getHandler());
+            HttpResponse response = conn.getHttpResponse();
+            HttpRequest request = state.getRequest();
 
-        RequestExecutionCallback(
-                final BasicFuture<T> future,
-                final E poolEntry,
-                final ConnPool<HttpHost, E> connPool) {
+            int statusCode = response.getStatusLine().getStatusCode();
+            if (statusCode < HttpStatus.SC_OK) {
+                // 1xx intermediate response
+                if (statusCode != HttpStatus.SC_CONTINUE) {
+                    throw new ProtocolException(
+                            "Unexpected response: " + response.getStatusLine());
+                }
+                if (state.getRequestState() == MessageState.ACK_EXPECTED) {
+                    int timeout = state.getTimeout();
+                    conn.setSocketTimeout(timeout);
+                    conn.requestOutput();
+                    state.setRequestState(MessageState.ACK);
+                }
+                return;
+            }
+            state.setResponse(response);
+            if (state.getRequestState() == MessageState.ACK_EXPECTED) {
+                int timeout = state.getTimeout();
+                conn.setSocketTimeout(timeout);
+                conn.resetOutput();
+                state.setRequestState(MessageState.COMPLETED);
+            } else if (state.getRequestState() == MessageState.BODY_STREAM) {
+                // Early response
+                conn.resetOutput();
+                conn.suspendOutput();
+                state.setRequestState(MessageState.COMPLETED);
+                state.invalidate();
+            }
+            handler.responseReceived(response);
+            state.setResponseState(MessageState.BODY_STREAM);
+            if (!canResponseHaveBody(request, response)) {
+                conn.resetInput();
+                processResponse(conn, state, handler);
+            }
+        }
+    }
+
+    public void inputReady(
+            final NHttpClientConnection conn,
+            final ContentDecoder decoder) throws IOException {
+        State state = ensureNotNull(getState(conn));
+        synchronized (state) {
+            HttpAsyncRequestExecutionHandler<?> handler = ensureNotNull(state.getHandler());
+            handler.consumeContent(decoder, conn);
+            state.setResponseState(MessageState.BODY_STREAM);
+            if (decoder.isCompleted()) {
+                processResponse(conn, state, handler);
+            }
+        }
+    }
+
+    public void timeout(
+            final NHttpClientConnection conn) throws IOException {
+        State state = getState(conn);
+        if (state != null) {
+            synchronized (state) {
+                if (state.getRequestState() == MessageState.ACK_EXPECTED) {
+                    int timeout = state.getTimeout();
+                    conn.setSocketTimeout(timeout);
+                    conn.requestOutput();
+                    state.setRequestState(MessageState.BODY_STREAM);
+                    return;
+                } else {
+                    closeHandler(state, new SocketTimeoutException());
+                }
+            }
+        }
+        if (conn.getStatus() == NHttpConnection.ACTIVE) {
+            conn.close();
+            if (conn.getStatus() == NHttpConnection.CLOSING) {
+                // Give the connection some grace time to
+                // close itself nicely
+                conn.setSocketTimeout(250);
+            }
+        } else {
+            conn.shutdown();
+        }
+    }
+
+    /**
+     * This method can be used to log I/O exception thrown while closing {@link Closeable}
+     * objects (such as {@link HttpConnection}}).
+     *
+     * @param ex I/O exception thrown by {@link Closeable#close()}
+     */
+    protected void log(final Exception ex) {
+    }
+
+    private State getState(final NHttpConnection conn) {
+        return (State) conn.getContext().getAttribute(HTTP_EXCHANGE_STATE);
+    }
+
+    private State ensureNotNull(final State state) {
+        if (state == null) {
+            throw new IllegalStateException("HTTP exchange state is null");
+        }
+        return state;
+    }
+
+    private HttpAsyncRequestExecutionHandler<?> ensureNotNull(final HttpAsyncRequestExecutionHandler<?> handler) {
+        if (handler == null) {
+            throw new IllegalStateException("HTTP exchange handler is null");
+        }
+        return handler;
+    }
+
+    private void shutdownConnection(final NHttpConnection conn) {
+        try {
+            conn.shutdown();
+        } catch (IOException ex) {
+            log(ex);
+        }
+    }
+
+    private void closeHandler(final State state, final Exception ex) {
+        HttpAsyncRequestExecutionHandler<?> handler = state.getHandler();
+        if (handler != null) {
+            try {
+                handler.failed(ex);
+            } finally {
+                try {
+                    handler.close();
+                } catch (IOException ioex) {
+                    log(ioex);
+                }
+            }
+        }
+    }
+
+    private void closeHandler(final State state) {
+        HttpAsyncRequestExecutionHandler<?> handler = state.getHandler();
+        if (handler != null) {
+            state.setHandler(null);
+            try {
+                handler.close();
+            } catch (IOException ioex) {
+                log(ioex);
+            }
+        }
+    }
+
+    private void processResponse(
+            final NHttpClientConnection conn,
+            final State state,
+            final HttpAsyncRequestExecutionHandler<?> handler) throws IOException {
+        HttpContext context = handler.getContext();
+        if (state.isValid()) {
+            HttpRequest request = state.getRequest();
+            HttpResponse response = state.getResponse();
+            String method = request.getRequestLine().getMethod();
+            int status = response.getStatusLine().getStatusCode();
+            if (!(method.equalsIgnoreCase("CONNECT") && status < 300)) {
+                ConnectionReuseStrategy connReuseStrategy = handler.getConnectionReuseStrategy();
+                if (!connReuseStrategy.keepAlive(response, context)) {
+                    conn.close();
+                }
+            }
+        } else {
+            conn.close();
+        }
+        handler.responseCompleted(context);
+        state.reset();
+    }
+
+    private boolean canResponseHaveBody(final HttpRequest request, final HttpResponse response) {
+
+        String method = request.getRequestLine().getMethod();
+        int status = response.getStatusLine().getStatusCode();
+
+        if (method.equalsIgnoreCase("HEAD")) {
+            return false;
+        }
+        if (method.equalsIgnoreCase("CONNECT") && status < 300) {
+            return false;
+        }
+        return status >= HttpStatus.SC_OK
+            && status != HttpStatus.SC_NO_CONTENT
+            && status != HttpStatus.SC_NOT_MODIFIED
+            && status != HttpStatus.SC_RESET_CONTENT;
+    }
+
+    static final String HTTP_EXCHANGE_STATE = "http.nio.http-exchange-state";
+
+    static class State {
+
+        private volatile HttpAsyncRequestExecutionHandler<?> handler;
+        private volatile MessageState requestState;
+        private volatile MessageState responseState;
+        private volatile HttpRequest request;
+        private volatile HttpResponse response;
+        private volatile boolean valid;
+        private volatile int timeout;
+
+        State() {
             super();
-            this.future = future;
-            this.poolEntry = poolEntry;
-            this.connPool = connPool;
+            this.valid = true;
+            this.requestState = MessageState.READY;
+            this.responseState = MessageState.READY;
         }
 
-        public void completed(final T result) {
-            try {
-                this.connPool.release(this.poolEntry, true);
-            } finally {
-                this.future.completed(result);
+        public HttpAsyncRequestExecutionHandler<?> getHandler() {
+            return this.handler;
+        }
+
+        public void setHandler(final HttpAsyncRequestExecutionHandler<?> handler) {
+            this.handler = handler;
+        }
+
+        public MessageState getRequestState() {
+            return this.requestState;
+        }
+
+        public void setRequestState(final MessageState state) {
+            this.requestState = state;
+        }
+
+        public MessageState getResponseState() {
+            return this.responseState;
+        }
+
+        public void setResponseState(final MessageState state) {
+            this.responseState = state;
+        }
+
+        public HttpRequest getRequest() {
+            return this.request;
+        }
+
+        public void setRequest(final HttpRequest request) {
+            this.request = request;
+        }
+
+        public HttpResponse getResponse() {
+            return this.response;
+        }
+
+        public void setResponse(final HttpResponse response) {
+            this.response = response;
+        }
+
+        public int getTimeout() {
+            return this.timeout;
+        }
+
+        public void setTimeout(int timeout) {
+            this.timeout = timeout;
+        }
+
+        public void reset() {
+            this.responseState = MessageState.READY;
+            this.requestState = MessageState.READY;
+            this.response = null;
+            this.request = null;
+            this.timeout = 0;
+        }
+
+        public boolean isValid() {
+            return this.valid;
+        }
+
+        public void invalidate() {
+            this.valid = false;
+        }
+
+        @Override
+        public String toString() {
+            StringBuilder buf = new StringBuilder();
+            buf.append("request state: ");
+            buf.append(this.requestState);
+            buf.append("; request: ");
+            if (this.request != null) {
+                buf.append(this.request.getRequestLine());
             }
-        }
-
-        public void failed(final Exception ex) {
-            try {
-                this.connPool.release(this.poolEntry, false);
-            } finally {
-                this.future.failed(ex);
+            buf.append("; response state: ");
+            buf.append(this.responseState);
+            buf.append("; response: ");
+            if (this.response != null) {
+                buf.append(this.response.getStatusLine());
             }
+            buf.append("; valid: ");
+            buf.append(this.valid);
+            buf.append(";");
+            return buf.toString();
         }
 
-        public void cancelled() {
-            try {
-                this.connPool.release(this.poolEntry, false);
-            } finally {
-                this.future.cancel(true);
-            }
-        }
-
-    }
-
-    protected void log(Exception ex) {
     }
 
 }

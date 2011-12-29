@@ -41,6 +41,7 @@ import org.apache.http.protocol.HttpContext;
  * get invoked to process an HTTP request message and to stream message
  * content from a non-blocking HTTP connection.
  *
+ * @param <T> the result type of request processing.
  * @since 4.2
  */
 public interface HttpAsyncRequestConsumer<T> extends Closeable {

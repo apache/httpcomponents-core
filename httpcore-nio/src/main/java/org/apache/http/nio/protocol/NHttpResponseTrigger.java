@@ -45,7 +45,7 @@ import org.apache.http.HttpResponse;
  *
  * @since 4.0
  *
- * @deprecated use {@link HttpAsyncResponseTrigger}
+ * @deprecated use {@link HttpAsyncExchange}
  */
 @Deprecated
 public interface NHttpResponseTrigger {

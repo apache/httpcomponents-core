@@ -27,10 +27,12 @@
 
 package org.apache.http.nio.protocol;
 
+import java.io.Closeable;
 import java.io.IOException;
 import java.net.SocketTimeoutException;
 
 import org.apache.http.ConnectionReuseStrategy;
+import org.apache.http.HttpConnection;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpEntityEnclosingRequest;
 import org.apache.http.HttpException;
@@ -47,7 +49,6 @@ import org.apache.http.concurrent.Cancellable;
 import org.apache.http.impl.DefaultHttpResponseFactory;
 import org.apache.http.nio.ContentDecoder;
 import org.apache.http.nio.ContentEncoder;
-import org.apache.http.nio.NHttpClientEventHandler;
 import org.apache.http.nio.NHttpConnection;
 import org.apache.http.nio.NHttpServerConnection;
 import org.apache.http.nio.NHttpServerEventHandler;
@@ -57,19 +58,28 @@ import org.apache.http.params.HttpParams;
 import org.apache.http.protocol.BasicHttpContext;
 import org.apache.http.protocol.ExecutionContext;
 import org.apache.http.protocol.HttpContext;
+import org.apache.http.protocol.HttpExpectationVerifier;
 import org.apache.http.protocol.HttpProcessor;
 
 /**
- * Fully asynchronous HTTP server side protocol handler that translates
- * individual events fired through the {@link NHttpClientEventHandler}
- * interface into logically related HTTP message exchanges.
+ * <tt>HttpAsyncService</tt> is a fully asynchronous HTTP server side protocol 
+ * handler based on the non-blocking (NIO) I/O model.
+ * <tt>HttpAsyncServerProtocolHandler</tt> translates individual events fired
+ * through the {@link NHttpServerEventHandler} interface into logically related
+ * HTTP message exchanges.
  * <p/>
- * This handler is capable of executing HTTP requests with nearly constant
- * memory footprint. Only HTTP message heads are stored in memory, while
- * content of message bodies is streamed directly from the entity to
- * the underlying channel (and vice versa) using
- * {@link HttpAsyncRequestConsumer} and {@link HttpAsyncResponseProducer}
- * interfaces.
+ * <tt>HttpAsyncService</tt> relies on {@link HttpProcessor} to generate 
+ * mandatory protocol headers for all outgoing messages and apply common, 
+ * cross-cutting message transformations to all incoming and outgoing messages, 
+ * whereas individual {@link HttpAsyncRequestHandler}s are expected 
+ * to implement application specific content generation and processing.
+ * <p/>
+ * <tt>HttpAsyncService</tt> uses {@link HttpAsyncRequestHandlerResolver} 
+ * to resolve matching request handler for a particular request URI of 
+ * an incoming HTTP request.
+ * <p/>
+ * <tt>HttpAsyncService</tt> can use optional {@link HttpExpectationVerifier} 
+ * to ensure that incoming requests meet server's expectations.
  * <p/>
  * Once an incoming request is received the message is optionally verified
  * for compliance with the server expectations using
@@ -90,7 +100,7 @@ import org.apache.http.protocol.HttpProcessor;
  * @since 4.2
  */
 @Immutable // provided injected dependencies are immutable
-public class HttpAsyncServerProtocolHandler implements NHttpServerEventHandler {
+public class HttpAsyncService implements NHttpServerEventHandler {
 
     static final String HTTP_EXCHANGE_STATE = "http.nio.http-exchange-state";
 
@@ -111,7 +121,7 @@ public class HttpAsyncServerProtocolHandler implements NHttpServerEventHandler {
      * @param expectationVerifier Request expectation verifier (optional).
      * @param params HTTP parameters (required).
      */
-    public HttpAsyncServerProtocolHandler(
+    public HttpAsyncService(
             final HttpProcessor httpProcessor,
             final ConnectionReuseStrategy connStrategy,
             final HttpResponseFactory responseFactory,
@@ -147,7 +157,7 @@ public class HttpAsyncServerProtocolHandler implements NHttpServerEventHandler {
      * @param handlerResolver Request handler resolver.
      * @param params HTTP parameters (required).
      */
-    public HttpAsyncServerProtocolHandler(
+    public HttpAsyncService(
             final HttpProcessor httpProcessor,
             final ConnectionReuseStrategy connStrategy,
             final HttpAsyncRequestHandlerResolver handlerResolver,
@@ -387,6 +397,12 @@ public class HttpAsyncServerProtocolHandler implements NHttpServerEventHandler {
         return requestConsumer;
     }
 
+    /**
+     * This method can be used to log I/O exception thrown while closing {@link Closeable}
+     * objects (such as {@link HttpConnection}).
+     *
+     * @param ex I/O exception thrown by {@link Closeable#close()}
+     */
     protected void log(final Exception ex) {
     }
 

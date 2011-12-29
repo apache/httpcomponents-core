@@ -50,21 +50,21 @@ import org.apache.http.util.EncodingUtils;
 import org.apache.http.util.EntityUtils;
 
 /**
- * HttpService is a server side HTTP protocol handler based in the blocking
- * I/O model that implements the essential requirements of the HTTP protocol
- * for the server side message processing as described by RFC 2616.
- * <br>
- * HttpService relies on {@link HttpProcessor} to generate mandatory protocol
- * headers for all outgoing messages and apply common, cross-cutting message
- * transformations to all incoming and outgoing messages, whereas individual
- * {@link HttpRequestHandler}s are expected to take care of application specific
- * content generation and processing.
- * <br>
- * HttpService relies on {@link HttpRequestHandler} to resolve matching request
- * handler for a particular request URI of an incoming HTTP request.
- * <br>
- * HttpService can use optional {@link HttpExpectationVerifier} to ensure that
- * incoming requests meet server's expectations.
+ * <tt>HttpService</tt> is a server side HTTP protocol handler based on
+ * the classic (blocking) I/O model.
+ * <p/>
+ * <tt>HttpService</tt> relies on {@link HttpProcessor} to generate mandatory
+ * protocol headers for all outgoing messages and apply common, cross-cutting
+ * message transformations to all incoming and outgoing messages, whereas
+ * individual {@link HttpRequestHandler}s are expected to implement
+ * application specific content generation and processing.
+ * <p/>
+ * <tt>HttpService</tt> uses {@link HttpRequestHandlerResolver} to resolve
+ * matching request handler for a particular request URI of an incoming HTTP
+ * request.
+ * <p/>
+ * <tt>HttpService</tt> can use optional {@link HttpExpectationVerifier}
+ * to ensure that incoming requests meet server's expectations.
  *
  * @since 4.0
  */

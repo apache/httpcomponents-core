@@ -43,16 +43,16 @@ import org.apache.http.annotation.Immutable;
 import org.apache.http.params.CoreProtocolPNames;
 
 /**
- * HttpRequestExecutor is a client side HTTP protocol handler based on the
- * blocking I/O model that implements the essential requirements of the HTTP
- * protocol for the client side message  processing, as described by RFC 2616.
- * <br>
- * HttpRequestExecutor relies on {@link HttpProcessor} to generate mandatory
- * protocol headers for all outgoing messages and apply common, cross-cutting
- * message transformations to all incoming and outgoing messages. Application
- * specific processing can be implemented outside HttpRequestExecutor once the
- * request has been executed and a response has been received.
- * <p>
+ * <tt>HttpRequestExecutor</tt> is a client side HTTP protocol handler based
+ * on the blocking (classic) I/O model.
+ * <p/>
+ * <tt>HttpRequestExecutor</tt> relies on {@link HttpProcessor} to generate
+ * mandatory protocol headers for all outgoing messages and apply common,
+ * cross-cutting message transformations to all incoming and outgoing messages.
+ * Application specific processing can be implemented outside
+ * <tt>HttpRequestExecutor</tt> once the request has been executed and
+ * a response has been received.
+ * <p/>
  * The following parameters can be used to customize the behavior of this
  * class:
  * <ul>

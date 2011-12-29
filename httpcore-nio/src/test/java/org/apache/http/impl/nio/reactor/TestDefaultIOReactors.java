@@ -56,9 +56,9 @@ import org.apache.http.nio.NHttpServerConnection;
 import org.apache.http.nio.protocol.BasicAsyncRequestProducer;
 import org.apache.http.nio.protocol.BasicAsyncResponseConsumer;
 import org.apache.http.nio.protocol.BasicAsyncRequestHandler;
-import org.apache.http.nio.protocol.HttpAsyncClientProtocolHandler;
+import org.apache.http.nio.protocol.HttpAsyncRequestExecutor;
 import org.apache.http.nio.protocol.HttpAsyncRequestHandlerRegistry;
-import org.apache.http.nio.protocol.HttpAsyncServerProtocolHandler;
+import org.apache.http.nio.protocol.HttpAsyncService;
 import org.apache.http.nio.reactor.IOReactorException;
 import org.apache.http.nio.reactor.IOReactorExceptionHandler;
 import org.apache.http.nio.reactor.IOReactorStatus;
@@ -114,7 +114,7 @@ public class TestDefaultIOReactors extends HttpCoreNIOTestBase {
         this.connpool.setMaxTotal(connNo);
 
         HttpAsyncRequestHandlerRegistry registry = new HttpAsyncRequestHandlerRegistry();
-        HttpAsyncServerProtocolHandler serviceHandler = new HttpAsyncServerProtocolHandler(
+        HttpAsyncService serviceHandler = new HttpAsyncService(
                 this.serverHttpProc,
                 new DefaultConnectionReuseStrategy(),
                 registry,
@@ -133,7 +133,7 @@ public class TestDefaultIOReactors extends HttpCoreNIOTestBase {
             }
 
         };
-        HttpAsyncClientProtocolHandler clientHandler = new HttpAsyncClientProtocolHandler() {
+        HttpAsyncRequestExecutor clientHandler = new HttpAsyncRequestExecutor() {
 
             @Override
             public void connected(
@@ -200,7 +200,7 @@ public class TestDefaultIOReactors extends HttpCoreNIOTestBase {
 
         HttpAsyncRequestHandlerRegistry registry = new HttpAsyncRequestHandlerRegistry();
         registry.register("*", new BasicAsyncRequestHandler(requestHandler));
-        HttpAsyncServerProtocolHandler serviceHandler = new HttpAsyncServerProtocolHandler(
+        HttpAsyncService serviceHandler = new HttpAsyncService(
                 this.serverHttpProc,
                 new DefaultConnectionReuseStrategy(),
                 registry,
@@ -217,7 +217,7 @@ public class TestDefaultIOReactors extends HttpCoreNIOTestBase {
                     }
 
         };
-        HttpAsyncClientProtocolHandler clientHandler = new HttpAsyncClientProtocolHandler();
+        HttpAsyncRequestExecutor clientHandler = new HttpAsyncRequestExecutor();
         this.server.start(serviceHandler);
         this.client.start(clientHandler);
 
@@ -283,7 +283,7 @@ public class TestDefaultIOReactors extends HttpCoreNIOTestBase {
 
         HttpAsyncRequestHandlerRegistry registry = new HttpAsyncRequestHandlerRegistry();
         registry.register("*", new BasicAsyncRequestHandler(requestHandler));
-        HttpAsyncServerProtocolHandler serviceHandler = new HttpAsyncServerProtocolHandler(
+        HttpAsyncService serviceHandler = new HttpAsyncService(
                 this.serverHttpProc,
                 new DefaultConnectionReuseStrategy(),
                 registry,
@@ -300,7 +300,7 @@ public class TestDefaultIOReactors extends HttpCoreNIOTestBase {
             }
 
         };
-        HttpAsyncClientProtocolHandler clientHandler = new HttpAsyncClientProtocolHandler();
+        HttpAsyncRequestExecutor clientHandler = new HttpAsyncRequestExecutor();
         this.server.setExceptionHandler(exceptionHandler);
         this.server.start(serviceHandler);
         this.client.start(clientHandler);
@@ -367,7 +367,7 @@ public class TestDefaultIOReactors extends HttpCoreNIOTestBase {
 
         HttpAsyncRequestHandlerRegistry registry = new HttpAsyncRequestHandlerRegistry();
         registry.register("*", new BasicAsyncRequestHandler(requestHandler));
-        HttpAsyncServerProtocolHandler serviceHandler = new HttpAsyncServerProtocolHandler(
+        HttpAsyncService serviceHandler = new HttpAsyncService(
                 this.serverHttpProc,
                 new DefaultConnectionReuseStrategy(),
                 registry,
@@ -384,7 +384,7 @@ public class TestDefaultIOReactors extends HttpCoreNIOTestBase {
             }
 
         };
-        HttpAsyncClientProtocolHandler clientHandler = new HttpAsyncClientProtocolHandler();
+        HttpAsyncRequestExecutor clientHandler = new HttpAsyncRequestExecutor();
         this.server.setExceptionHandler(exceptionHandler);
         this.server.start(serviceHandler);
         this.client.start(clientHandler);

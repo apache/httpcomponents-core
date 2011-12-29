@@ -66,17 +66,17 @@ import org.apache.http.nio.NHttpServerConnection;
 import org.apache.http.nio.entity.NStringEntity;
 import org.apache.http.nio.pool.NIOConnFactory;
 import org.apache.http.nio.protocol.BasicAsyncResponseProducer;
-import org.apache.http.nio.protocol.HttpAsyncClientProtocolHandler;
-import org.apache.http.nio.protocol.HttpAsyncRequestConsumer;
 import org.apache.http.nio.protocol.HttpAsyncRequestExecutor;
+import org.apache.http.nio.protocol.HttpAsyncRequestConsumer;
+import org.apache.http.nio.protocol.HttpAsyncRequester;
 import org.apache.http.nio.protocol.HttpAsyncRequestHandler;
 import org.apache.http.nio.protocol.HttpAsyncRequestHandlerRegistry;
 import org.apache.http.nio.protocol.HttpAsyncRequestHandlerResolver;
 import org.apache.http.nio.protocol.HttpAsyncRequestProducer;
 import org.apache.http.nio.protocol.HttpAsyncResponseConsumer;
 import org.apache.http.nio.protocol.HttpAsyncResponseProducer;
-import org.apache.http.nio.protocol.HttpAsyncServiceExchange;
-import org.apache.http.nio.protocol.HttpAsyncServerProtocolHandler;
+import org.apache.http.nio.protocol.HttpAsyncExchange;
+import org.apache.http.nio.protocol.HttpAsyncService;
 import org.apache.http.nio.reactor.ConnectingIOReactor;
 import org.apache.http.nio.reactor.IOEventDispatch;
 import org.apache.http.nio.reactor.ListeningIOReactor;
@@ -156,7 +156,7 @@ public class NHttpReverseProxy {
         });
 
         ProxyClientProtocolHandler clientHandler = new ProxyClientProtocolHandler();
-        HttpAsyncRequestExecutor executor = new HttpAsyncRequestExecutor(
+        HttpAsyncRequester executor = new HttpAsyncRequester(
                 outhttpproc, new ProxyOutgoingConnectionReuseStrategy(), params);
 
         ProxyConnPool connPool = new ProxyConnPool(connectingIOReactor, params);
@@ -218,7 +218,7 @@ public class NHttpReverseProxy {
 
         private volatile String id;
         private volatile HttpHost target;
-        private volatile HttpAsyncServiceExchange responseTrigger;
+        private volatile HttpAsyncExchange responseTrigger;
         private volatile IOControl originIOControl;
         private volatile IOControl clientIOControl;
         private volatile HttpRequest request;
@@ -273,11 +273,11 @@ public class NHttpReverseProxy {
             this.response = response;
         }
 
-        public HttpAsyncServiceExchange getResponseTrigger() {
+        public HttpAsyncExchange getResponseTrigger() {
             return this.responseTrigger;
         }
 
-        public void setResponseTrigger(final HttpAsyncServiceExchange responseTrigger) {
+        public void setResponseTrigger(final HttpAsyncExchange responseTrigger) {
             this.responseTrigger = responseTrigger;
         }
 
@@ -341,13 +341,13 @@ public class NHttpReverseProxy {
     static class ProxyRequestHandler implements HttpAsyncRequestHandler<ProxyHttpExchange> {
 
         private final HttpHost target;
-        private final HttpAsyncRequestExecutor executor;
+        private final HttpAsyncRequester executor;
         private final BasicNIOConnPool connPool;
         private final AtomicLong counter;
 
         public ProxyRequestHandler(
                 final HttpHost target,
-                final HttpAsyncRequestExecutor executor,
+                final HttpAsyncRequester executor,
                 final BasicNIOConnPool connPool) {
             super();
             this.target = target;
@@ -375,7 +375,7 @@ public class NHttpReverseProxy {
 
         public void handle(
                 final ProxyHttpExchange httpExchange,
-                final HttpAsyncServiceExchange responseTrigger,
+                final HttpAsyncExchange responseTrigger,
                 final HttpContext context) throws HttpException, IOException {
             synchronized (httpExchange) {
                 Exception ex = httpExchange.getException();
@@ -407,14 +407,14 @@ public class NHttpReverseProxy {
     static class ProxyRequestConsumer implements HttpAsyncRequestConsumer<ProxyHttpExchange> {
 
         private final ProxyHttpExchange httpExchange;
-        private final HttpAsyncRequestExecutor executor;
+        private final HttpAsyncRequester executor;
         private final BasicNIOConnPool connPool;
 
         private volatile boolean completed;
 
         public ProxyRequestConsumer(
                 final ProxyHttpExchange httpExchange,
-                final HttpAsyncRequestExecutor executor,
+                final HttpAsyncRequester executor,
                 final BasicNIOConnPool connPool) {
             super();
             this.httpExchange = httpExchange;
@@ -597,7 +597,7 @@ public class NHttpReverseProxy {
             synchronized (this.httpExchange) {
                 System.out.println("[proxy<-origin] " + this.httpExchange.getId() + " " + response.getStatusLine());
                 this.httpExchange.setResponse(response);
-                HttpAsyncServiceExchange responseTrigger = this.httpExchange.getResponseTrigger();
+                HttpAsyncExchange responseTrigger = this.httpExchange.getResponseTrigger();
                 if (responseTrigger != null && !responseTrigger.isCompleted()) {
                     System.out.println("[client<-proxy] " + this.httpExchange.getId() + " response triggered");
                     responseTrigger.submitResponse(new ProxyResponseProducer(this.httpExchange));
@@ -655,7 +655,7 @@ public class NHttpReverseProxy {
                 }
                 this.completed = true;
                 this.httpExchange.setException(ex);
-                HttpAsyncServiceExchange responseTrigger = this.httpExchange.getResponseTrigger();
+                HttpAsyncExchange responseTrigger = this.httpExchange.getResponseTrigger();
                 if (responseTrigger != null && !responseTrigger.isCompleted()) {
                     System.out.println("[client<-proxy] " + this.httpExchange.getId() + " " + ex);
                     int status = HttpStatus.SC_INTERNAL_SERVER_ERROR;
@@ -793,7 +793,7 @@ public class NHttpReverseProxy {
 
     };
 
-    static class ProxyServiceHandler extends HttpAsyncServerProtocolHandler {
+    static class ProxyServiceHandler extends HttpAsyncService {
 
         public ProxyServiceHandler(
                 final HttpProcessor httpProcessor,
@@ -822,7 +822,7 @@ public class NHttpReverseProxy {
 
     }
 
-    static class ProxyClientProtocolHandler extends HttpAsyncClientProtocolHandler {
+    static class ProxyClientProtocolHandler extends HttpAsyncRequestExecutor {
 
         public ProxyClientProtocolHandler() {
             super();

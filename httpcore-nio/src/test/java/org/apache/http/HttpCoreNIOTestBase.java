@@ -33,7 +33,7 @@ import org.apache.http.impl.nio.DefaultNHttpServerConnection;
 import org.apache.http.impl.nio.pool.BasicNIOConnFactory;
 import org.apache.http.impl.nio.pool.BasicNIOConnPool;
 import org.apache.http.nio.NHttpConnectionFactory;
-import org.apache.http.nio.protocol.HttpAsyncRequestExecutor;
+import org.apache.http.nio.protocol.HttpAsyncRequester;
 import org.apache.http.params.CoreConnectionPNames;
 import org.apache.http.params.CoreProtocolPNames;
 import org.apache.http.params.HttpParams;
@@ -66,7 +66,7 @@ public abstract class HttpCoreNIOTestBase {
     protected HttpProcessor serverHttpProc;
     protected HttpProcessor clientHttpProc;
     protected BasicNIOConnPool connpool;
-    protected HttpAsyncRequestExecutor executor;
+    protected HttpAsyncRequester executor;
 
     protected abstract NHttpConnectionFactory<DefaultNHttpServerConnection> createServerConnectionFactory(
             HttpParams params) throws Exception;
@@ -117,7 +117,7 @@ public abstract class HttpCoreNIOTestBase {
                 this.client.getIoReactor(),
                 new BasicNIOConnFactory(createClientConnectionFactory(this.clientParams)),
                 this.clientParams);
-        this.executor = new HttpAsyncRequestExecutor(
+        this.executor = new HttpAsyncRequester(
                 this.clientHttpProc,
                 new DefaultConnectionReuseStrategy(),
                 this.clientParams);

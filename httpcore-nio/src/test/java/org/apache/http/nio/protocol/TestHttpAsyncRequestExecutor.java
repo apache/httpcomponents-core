@@ -36,7 +36,7 @@ import org.apache.http.HttpHost;
 import org.apache.http.concurrent.FutureCallback;
 import org.apache.http.impl.nio.pool.BasicNIOPoolEntry;
 import org.apache.http.nio.NHttpClientConnection;
-import org.apache.http.nio.protocol.HttpAsyncRequestExecutor.ConnRequestCallback;
+import org.apache.http.nio.protocol.HttpAsyncRequester.ConnRequestCallback;
 import org.apache.http.params.BasicHttpParams;
 import org.apache.http.params.HttpParams;
 import org.apache.http.pool.ConnPool;
@@ -55,7 +55,7 @@ public class TestHttpAsyncRequestExecutor {
     private HttpProcessor httpProcessor;
     private ConnectionReuseStrategy reuseStrategy;
     private HttpParams params;
-    private HttpAsyncRequestExecutor requestExecutor;
+    private HttpAsyncRequester requestExecutor;
     private HttpContext exchangeContext;
     private HttpContext connContext;
     private HttpAsyncRequestProducer requestProducer;
@@ -70,7 +70,7 @@ public class TestHttpAsyncRequestExecutor {
         this.httpProcessor = Mockito.mock(HttpProcessor.class);
         this.reuseStrategy = Mockito.mock(ConnectionReuseStrategy.class);
         this.params = new BasicHttpParams();
-        this.requestExecutor = new HttpAsyncRequestExecutor(
+        this.requestExecutor = new HttpAsyncRequester(
                 this.httpProcessor, this.reuseStrategy, this.params);
         this.exchangeContext = new BasicHttpContext();
         this.requestProducer = Mockito.mock(HttpAsyncRequestProducer.class);
@@ -165,7 +165,7 @@ public class TestHttpAsyncRequestExecutor {
                 this.responseConsumer,
                 this.conn, this.exchangeContext, null);
         Assert.assertNotNull(future);
-        Assert.assertNotNull(this.connContext.getAttribute(HttpAsyncClientProtocolHandler.HTTP_HANDLER));
+        Assert.assertNotNull(this.connContext.getAttribute(HttpAsyncRequestExecutor.HTTP_HANDLER));
         Mockito.verify(this.conn).requestOutput();
     }
 
@@ -259,7 +259,7 @@ public class TestHttpAsyncRequestExecutor {
         BasicNIOPoolEntry entry = new BasicNIOPoolEntry("id", host, this.conn);
         connRequestCallback.completed(entry);
         BasicAsyncRequestExecutionHandler exchangeHandler = (BasicAsyncRequestExecutionHandler) this.connContext.getAttribute(
-                HttpAsyncClientProtocolHandler.HTTP_HANDLER);
+                HttpAsyncRequestExecutor.HTTP_HANDLER);
         Assert.assertNotNull(exchangeHandler);
         Mockito.verify(this.conn).requestOutput();
 
@@ -291,7 +291,7 @@ public class TestHttpAsyncRequestExecutor {
         BasicNIOPoolEntry entry = new BasicNIOPoolEntry("id", host, this.conn);
         connRequestCallback.completed(entry);
         BasicAsyncRequestExecutionHandler exchangeHandler = (BasicAsyncRequestExecutionHandler) this.connContext.getAttribute(
-                HttpAsyncClientProtocolHandler.HTTP_HANDLER);
+                HttpAsyncRequestExecutor.HTTP_HANDLER);
         Assert.assertNotNull(exchangeHandler);
         Mockito.verify(this.conn).requestOutput();
 
@@ -323,7 +323,7 @@ public class TestHttpAsyncRequestExecutor {
         BasicNIOPoolEntry entry = new BasicNIOPoolEntry("id", host, this.conn);
         connRequestCallback.completed(entry);
         BasicAsyncRequestExecutionHandler exchangeHandler = (BasicAsyncRequestExecutionHandler) this.connContext.getAttribute(
-                HttpAsyncClientProtocolHandler.HTTP_HANDLER);
+                HttpAsyncRequestExecutor.HTTP_HANDLER);
         Assert.assertNotNull(exchangeHandler);
         Mockito.verify(this.conn).requestOutput();
 

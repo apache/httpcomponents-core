@@ -42,8 +42,8 @@ import org.apache.http.impl.nio.reactor.IOReactorConfig;
 import org.apache.http.message.BasicHttpRequest;
 import org.apache.http.nio.protocol.BasicAsyncRequestProducer;
 import org.apache.http.nio.protocol.BasicAsyncResponseConsumer;
-import org.apache.http.nio.protocol.HttpAsyncClientProtocolHandler;
 import org.apache.http.nio.protocol.HttpAsyncRequestExecutor;
+import org.apache.http.nio.protocol.HttpAsyncRequester;
 import org.apache.http.nio.reactor.ConnectingIOReactor;
 import org.apache.http.nio.reactor.IOEventDispatch;
 import org.apache.http.params.CoreConnectionPNames;
@@ -82,7 +82,7 @@ public class NHttpClient {
                 new RequestUserAgent(),
                 new RequestExpectContinue()});
         // Create client-side HTTP protocol handler
-        HttpAsyncClientProtocolHandler protocolHandler = new HttpAsyncClientProtocolHandler();
+        HttpAsyncRequestExecutor protocolHandler = new HttpAsyncRequestExecutor();
         // Create client-side I/O event dispatch
         final IOEventDispatch ioEventDispatch = new DefaultClientIODispatch(protocolHandler, params);
         // Create client-side I/O reactor
@@ -113,7 +113,7 @@ public class NHttpClient {
         // Start the client thread
         t.start();
         // Create HTTP request executor
-        HttpAsyncRequestExecutor executor = new HttpAsyncRequestExecutor(
+        HttpAsyncRequester executor = new HttpAsyncRequester(
                 httpproc, new DefaultConnectionReuseStrategy(), params);
         // Execute HTTP GETs to the following hosts and
         HttpHost[] targets = new HttpHost[] {

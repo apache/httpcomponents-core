@@ -47,7 +47,7 @@ import org.apache.http.protocol.HttpContext;
  *
  * @since 4.0
  *
- * @deprecated use {@link HttpAsyncClientProtocolHandler} and {@link HttpAsyncRequestExecutor}
+ * @deprecated use {@link HttpAsyncRequestExecutor} and {@link HttpAsyncRequester}
  */
 @Deprecated
 public interface NHttpRequestExecutionHandler {

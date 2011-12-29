@@ -36,6 +36,7 @@ import org.apache.http.protocol.HttpContext;
  * {@link HttpAsyncResponseConsumer} and is capable of handling logically
  * related series of HTTP request / response exchanges.
  *
+ * @param <T> the result type of request execution.
  * @since 4.2
  */
 public interface HttpAsyncRequestExecutionHandler<T>
