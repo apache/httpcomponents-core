@@ -63,7 +63,7 @@ import org.junit.Test;
 import org.mockito.ArgumentMatcher;
 import org.mockito.Mockito;
 
-public class TestHttpAsyncServerProtocolHandler {
+public class TestHttpAsyncService {
 
     private HttpAsyncRequestHandlerRegistry handlerResolver;
     private HttpAsyncService protocolHandler;
