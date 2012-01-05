@@ -358,8 +358,8 @@ public abstract class AbstractSessionInputBuffer implements SessionInputBuffer, 
         }
         if (this.decoder == null) {
             this.decoder = this.charset.newDecoder();
-            this.decoder.onMalformedInput(onMalformedInputAction);
-            this.decoder.onUnmappableCharacter(onUnMappableInputAction);
+            this.decoder.onMalformedInput(this.onMalformedInputAction);
+            this.decoder.onUnmappableCharacter(this.onUnMappableInputAction);
         }
         if (this.cbuf == null) {
             this.cbuf = CharBuffer.allocate(1024);

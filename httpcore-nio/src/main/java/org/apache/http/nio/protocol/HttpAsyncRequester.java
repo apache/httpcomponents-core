@@ -102,7 +102,7 @@ public class HttpAsyncRequester {
         BasicFuture<T> future = new BasicFuture<T>(callback);
         HttpAsyncRequestExecutionHandler<T> handler = new BasicAsyncRequestExecutionHandler<T>(
                 future, requestProducer, responseConsumer, context,
-                this.httppocessor, conn, this.reuseStrategy, this.params);
+                this.httppocessor, this.reuseStrategy, this.params);
         conn.getContext().setAttribute(HttpAsyncRequestExecutor.HTTP_HANDLER, handler);
         conn.requestOutput();
         return future;
@@ -247,7 +247,7 @@ public class HttpAsyncRequester {
                     this.requestFuture, result, this.connPool));
             HttpAsyncRequestExecutionHandler<T> handler = new BasicAsyncRequestExecutionHandler<T>(
                     execFuture, this.requestProducer, this.responseConsumer, this.context,
-                    httppocessor, conn, reuseStrategy, params);
+                    httppocessor, reuseStrategy, params);
             conn.getContext().setAttribute(HttpAsyncRequestExecutor.HTTP_HANDLER, handler);
             conn.requestOutput();
         }

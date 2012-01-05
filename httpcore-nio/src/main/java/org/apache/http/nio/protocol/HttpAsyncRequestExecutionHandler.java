@@ -29,6 +29,7 @@ package org.apache.http.nio.protocol;
 
 import org.apache.http.ConnectionReuseStrategy;
 import org.apache.http.protocol.HttpContext;
+import org.apache.http.protocol.HttpProcessor;
 
 /**
  * <tt>HttpAsyncRequestExecutionHandler</tt> represents a callback interface
@@ -50,7 +51,15 @@ public interface HttpAsyncRequestExecutionHandler<T>
     HttpContext getContext();
 
     /**
-     * Returns {@link ConnectionReuseStrategy} implementation that can be used
+     * Returns {@link HttpProcessor} implementation to be used to process 
+     * HTTP request and response messages for protocol compliance.
+     *
+     * @return HTTP protocol processor.
+     */
+    HttpProcessor getHttpProcessor();
+    
+    /**
+     * Returns {@link ConnectionReuseStrategy} implementation to be used
      * to determine whether or not the underlying connection can be kept alive
      * after a particular HTTP request / response exchange.
      *

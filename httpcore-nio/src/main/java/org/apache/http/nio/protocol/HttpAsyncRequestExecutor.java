@@ -46,6 +46,7 @@ import org.apache.http.nio.NHttpClientConnection;
 import org.apache.http.nio.NHttpClientEventHandler;
 import org.apache.http.nio.NHttpConnection;
 import org.apache.http.params.CoreProtocolPNames;
+import org.apache.http.protocol.ExecutionContext;
 import org.apache.http.protocol.HttpContext;
 import org.apache.http.protocol.HttpProcessor;
 
@@ -142,8 +143,16 @@ public class HttpAsyncRequestExecutor implements NHttpClientEventHandler {
             if (handler == null) {
                 return;
             }
+
             HttpContext context = handler.getContext();
+            context.setAttribute(ExecutionContext.HTTP_CONNECTION, conn);
+
             HttpRequest request = handler.generateRequest();
+            context.setAttribute(ExecutionContext.HTTP_REQUEST, request);
+            
+            HttpProcessor httppocessor = handler.getHttpProcessor();
+            httppocessor.process(request, context);
+            
             state.setRequest(request);
 
             conn.submitRequest(request);
@@ -222,7 +231,15 @@ public class HttpAsyncRequestExecutor implements NHttpClientEventHandler {
                 state.setRequestState(MessageState.COMPLETED);
                 state.invalidate();
             }
+
             handler.responseReceived(response);
+            
+            HttpContext context = handler.getContext();
+            HttpProcessor httpprocessor = handler.getHttpProcessor();
+            
+            context.setAttribute(ExecutionContext.HTTP_RESPONSE, response);
+            httpprocessor.process(response, context);
+            
             state.setResponseState(MessageState.BODY_STREAM);
             if (!canResponseHaveBody(request, response)) {
                 conn.resetInput();

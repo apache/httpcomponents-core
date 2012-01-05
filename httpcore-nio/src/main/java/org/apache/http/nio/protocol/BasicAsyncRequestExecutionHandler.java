@@ -38,10 +38,8 @@ import org.apache.http.concurrent.BasicFuture;
 import org.apache.http.nio.ContentDecoder;
 import org.apache.http.nio.ContentEncoder;
 import org.apache.http.nio.IOControl;
-import org.apache.http.nio.NHttpClientConnection;
 import org.apache.http.params.DefaultedHttpParams;
 import org.apache.http.params.HttpParams;
-import org.apache.http.protocol.ExecutionContext;
 import org.apache.http.protocol.HttpContext;
 import org.apache.http.protocol.HttpProcessor;
 
@@ -52,7 +50,6 @@ class BasicAsyncRequestExecutionHandler<T> implements HttpAsyncRequestExecutionH
     private final HttpAsyncResponseConsumer<T> responseConsumer;
     private final HttpContext localContext;
     private final HttpProcessor httppocessor;
-    private final NHttpClientConnection conn;
     private final ConnectionReuseStrategy reuseStrategy;
     private final HttpParams params;
 
@@ -62,7 +59,6 @@ class BasicAsyncRequestExecutionHandler<T> implements HttpAsyncRequestExecutionH
             final HttpAsyncResponseConsumer<T> responseConsumer,
             final HttpContext localContext,
             final HttpProcessor httppocessor,
-            final NHttpClientConnection conn,
             final ConnectionReuseStrategy reuseStrategy,
             final HttpParams params) {
         super();
@@ -81,9 +77,6 @@ class BasicAsyncRequestExecutionHandler<T> implements HttpAsyncRequestExecutionH
         if (httppocessor == null) {
             throw new IllegalArgumentException("HTTP processor may not be null");
         }
-        if (conn == null) {
-            throw new IllegalArgumentException("HTTP connection may not be null");
-        }
         if (reuseStrategy == null) {
             throw new IllegalArgumentException("Connection reuse strategy may not be null");
         }
@@ -95,7 +88,6 @@ class BasicAsyncRequestExecutionHandler<T> implements HttpAsyncRequestExecutionH
         this.responseConsumer = responseConsumer;
         this.localContext = localContext;
         this.httppocessor = httppocessor;
-        this.conn = conn;
         this.reuseStrategy = reuseStrategy;
         this.params = params;
     }
@@ -123,16 +115,8 @@ class BasicAsyncRequestExecutionHandler<T> implements HttpAsyncRequestExecutionH
     }
 
     public HttpRequest generateRequest() throws IOException, HttpException {
-        HttpHost target = this.requestProducer.getTarget();
         HttpRequest request = this.requestProducer.generateRequest();
         request.setParams(new DefaultedHttpParams(request.getParams(), this.params));
-
-        this.localContext.setAttribute(ExecutionContext.HTTP_REQUEST, request);
-        this.localContext.setAttribute(ExecutionContext.HTTP_TARGET_HOST, target);
-        this.localContext.setAttribute(ExecutionContext.HTTP_CONNECTION, this.conn);
-
-        this.httppocessor.process(request, this.localContext);
-
         return request;
     }
 
@@ -157,8 +141,6 @@ class BasicAsyncRequestExecutionHandler<T> implements HttpAsyncRequestExecutionH
 
     public void responseReceived(final HttpResponse response) throws IOException, HttpException {
         response.setParams(new DefaultedHttpParams(response.getParams(), this.params));
-        this.localContext.setAttribute(ExecutionContext.HTTP_RESPONSE, response);
-        this.httppocessor.process(response, this.localContext);
         this.responseConsumer.responseReceived(response);
     }
 
@@ -218,6 +200,10 @@ class BasicAsyncRequestExecutionHandler<T> implements HttpAsyncRequestExecutionH
 
     public HttpContext getContext() {
         return this.localContext;
+    }
+
+    public HttpProcessor getHttpProcessor() {
+        return this.httppocessor;
     }
 
     public ConnectionReuseStrategy getConnectionReuseStrategy() {

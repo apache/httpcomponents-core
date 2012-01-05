@@ -261,8 +261,8 @@ public abstract class AbstractSessionOutputBuffer implements SessionOutputBuffer
         }
         if (this.encoder == null) {
             this.encoder = this.charset.newEncoder();
-            this.encoder.onMalformedInput(onMalformedInputAction);
-            this.encoder.onUnmappableCharacter(onUnMappableInputAction);
+            this.encoder.onMalformedInput(this.onMalformedInputAction);
+            this.encoder.onUnmappableCharacter(this.onUnMappableInputAction);
         }
         if (this.bbuf == null) {
             this.bbuf = ByteBuffer.allocate(1024);
