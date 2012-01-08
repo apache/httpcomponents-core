@@ -54,6 +54,7 @@ import org.apache.http.nio.NHttpServerConnection;
 import org.apache.http.nio.NHttpServerEventHandler;
 import org.apache.http.nio.entity.NStringEntity;
 import org.apache.http.params.DefaultedHttpParams;
+import org.apache.http.params.HttpConnectionParams;
 import org.apache.http.params.HttpParams;
 import org.apache.http.protocol.BasicHttpContext;
 import org.apache.http.protocol.ExecutionContext;
@@ -96,6 +97,12 @@ import org.apache.http.protocol.HttpProcessor;
  * request handling to another service or a worker thread. HTTP response can
  * be submitted as a later a later point of time once response content becomes
  * available.
+ * <p/>
+ * The following parameters can be used to customize the behavior of this
+ * class:
+ * <ul>
+ *  <li>{@link org.apache.http.params.CoreConnectionPNames#SO_TIMEOUT}</li>
+ * </ul>
  *
  * @since 4.2
  */
@@ -356,6 +363,7 @@ public class HttpAsyncService implements NHttpServerEventHandler {
                 }
                 closeHandlers(state);
                 state.reset();
+                conn.setSocketTimeout(HttpConnectionParams.getSoTimeout(this.params));
             }
         }
     }
@@ -557,6 +565,7 @@ public class HttpAsyncService implements NHttpServerEventHandler {
             }
             closeHandlers(state);
             state.reset();
+            conn.setSocketTimeout(HttpConnectionParams.getSoTimeout(this.params));
         } else {
             state.setResponseState(MessageState.BODY_STREAM);
         }
@@ -769,6 +778,14 @@ public class HttpAsyncService implements NHttpServerEventHandler {
 
         public boolean isCompleted() {
             return this.completed;
+        }
+
+        public void setTimeout(int timeout) {
+            this.conn.setSocketTimeout(timeout);
+        }
+
+        public int getTimeout() {
+            return this.conn.getSocketTimeout();
         }
 
     }

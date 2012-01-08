@@ -46,6 +46,7 @@ import org.apache.http.nio.NHttpClientConnection;
 import org.apache.http.nio.NHttpClientEventHandler;
 import org.apache.http.nio.NHttpConnection;
 import org.apache.http.params.CoreProtocolPNames;
+import org.apache.http.params.HttpConnectionParams;
 import org.apache.http.protocol.ExecutionContext;
 import org.apache.http.protocol.HttpContext;
 import org.apache.http.protocol.HttpProcessor;
@@ -74,6 +75,7 @@ import org.apache.http.protocol.HttpProcessor;
  * class:
  * <ul>
  *  <li>{@link org.apache.http.params.CoreProtocolPNames#WAIT_FOR_CONTINUE}</li>
+ *  <li>{@link org.apache.http.params.CoreConnectionPNames#SO_TIMEOUT}</li>
  * </ul>
  *
  * @see HttpAsyncRequestExecutionHandler
@@ -149,6 +151,8 @@ public class HttpAsyncRequestExecutor implements NHttpClientEventHandler {
 
             HttpRequest request = handler.generateRequest();
             context.setAttribute(ExecutionContext.HTTP_REQUEST, request);
+            
+            conn.setSocketTimeout(HttpConnectionParams.getSoTimeout(request.getParams()));
             
             HttpProcessor httppocessor = handler.getHttpProcessor();
             httppocessor.process(request, context);

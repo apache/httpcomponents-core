@@ -94,4 +94,14 @@ public interface HttpAsyncExchange {
      */
     void setCallback(Cancellable cancellable);
 
+    /**
+     * Sets timeout for this message exchange.
+     */
+    void setTimeout(int timeout);
+    
+    /**
+     * Returns timeout for this message exchange.
+     */
+    int getTimeout();
+    
 }
