@@ -35,7 +35,7 @@ import org.apache.http.HttpRequestInterceptor;
 import org.apache.http.HttpResponse;
 import org.apache.http.concurrent.FutureCallback;
 import org.apache.http.impl.DefaultConnectionReuseStrategy;
-import org.apache.http.impl.nio.DefaultClientIODispatch;
+import org.apache.http.impl.nio.DefaultHttpClientIODispatch;
 import org.apache.http.impl.nio.pool.BasicNIOConnPool;
 import org.apache.http.impl.nio.reactor.DefaultConnectingIOReactor;
 import org.apache.http.impl.nio.reactor.IOReactorConfig;
@@ -84,7 +84,7 @@ public class NHttpClient {
         // Create client-side HTTP protocol handler
         HttpAsyncRequestExecutor protocolHandler = new HttpAsyncRequestExecutor();
         // Create client-side I/O event dispatch
-        final IOEventDispatch ioEventDispatch = new DefaultClientIODispatch(protocolHandler, params);
+        final IOEventDispatch ioEventDispatch = new DefaultHttpClientIODispatch(protocolHandler, params);
         // Create client-side I/O reactor
         IOReactorConfig config = new IOReactorConfig();
         config.setIoThreadCount(1);

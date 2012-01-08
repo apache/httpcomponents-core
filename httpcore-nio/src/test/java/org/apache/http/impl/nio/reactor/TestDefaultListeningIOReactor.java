@@ -36,7 +36,7 @@ import java.util.concurrent.TimeUnit;
 
 import org.apache.http.HttpResponseInterceptor;
 import org.apache.http.impl.DefaultConnectionReuseStrategy;
-import org.apache.http.impl.nio.DefaultServerIODispatch;
+import org.apache.http.impl.nio.DefaultHttpServerIODispatch;
 import org.apache.http.nio.protocol.HttpAsyncRequestHandlerRegistry;
 import org.apache.http.nio.protocol.HttpAsyncService;
 import org.apache.http.nio.reactor.IOEventDispatch;
@@ -73,7 +73,7 @@ public class TestDefaultListeningIOReactor {
                 new DefaultConnectionReuseStrategy(),
                 new HttpAsyncRequestHandlerRegistry(),
                 params);
-        return new DefaultServerIODispatch(serviceHandler, params);
+        return new DefaultHttpServerIODispatch(serviceHandler, params);
     }
 
     @Test

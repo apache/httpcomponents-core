@@ -25,7 +25,7 @@
  *
  */
 
-package org.apache.http.impl.nio;
+package org.apache.http.impl.nio.reactor;
 
 import java.io.IOException;
 
@@ -33,7 +33,6 @@ import org.apache.http.annotation.Immutable;
 import org.apache.http.nio.reactor.IOEventDispatch;
 import org.apache.http.nio.reactor.IOSession;
 import org.apache.http.nio.reactor.ssl.SSLIOSession;
-import org.apache.http.protocol.ExecutionContext;
 
 /**
  * Abstract {@link IOEventDispatch} implementation that supports both plain (non-encrypted)
@@ -67,11 +66,11 @@ public abstract class AbstractIODispatch<T> implements IOEventDispatch {
 
     public void connected(final IOSession session) {
         @SuppressWarnings("unchecked")
-        T conn = (T) session.getAttribute(ExecutionContext.HTTP_CONNECTION);
+        T conn = (T) session.getAttribute(IOEventDispatch.CONNECTION_KEY);
         try {
             if (conn == null) {
                 conn = createConnection(session);
-                session.setAttribute(ExecutionContext.HTTP_CONNECTION, conn);
+                session.setAttribute(IOEventDispatch.CONNECTION_KEY, conn);
             }
             onConnected(conn);
             SSLIOSession ssliosession = (SSLIOSession) session.getAttribute(
@@ -96,7 +95,7 @@ public abstract class AbstractIODispatch<T> implements IOEventDispatch {
 
     public void disconnected(final IOSession session) {
         @SuppressWarnings("unchecked")
-        T conn = (T) session.getAttribute(ExecutionContext.HTTP_CONNECTION);
+        T conn = (T) session.getAttribute(IOEventDispatch.CONNECTION_KEY);
         if (conn != null) {
             onClosed(conn);
         }
@@ -104,7 +103,7 @@ public abstract class AbstractIODispatch<T> implements IOEventDispatch {
 
     public void inputReady(final IOSession session) {
         @SuppressWarnings("unchecked")
-        T conn = (T) session.getAttribute(ExecutionContext.HTTP_CONNECTION);
+        T conn = (T) session.getAttribute(IOEventDispatch.CONNECTION_KEY);
         try {
             ensureNotNull(conn);
             SSLIOSession ssliosession = (SSLIOSession) session.getAttribute(
@@ -133,7 +132,7 @@ public abstract class AbstractIODispatch<T> implements IOEventDispatch {
 
     public void outputReady(final IOSession session) {
         @SuppressWarnings("unchecked")
-        T conn = (T) session.getAttribute(ExecutionContext.HTTP_CONNECTION);
+        T conn = (T) session.getAttribute(IOEventDispatch.CONNECTION_KEY);
         try {
             ensureNotNull(conn);
             SSLIOSession ssliosession = (SSLIOSession) session.getAttribute(
@@ -162,7 +161,7 @@ public abstract class AbstractIODispatch<T> implements IOEventDispatch {
 
     public void timeout(final IOSession session) {
         @SuppressWarnings("unchecked")
-        T conn = (T) session.getAttribute(ExecutionContext.HTTP_CONNECTION);
+        T conn = (T) session.getAttribute(IOEventDispatch.CONNECTION_KEY);
         try {
             SSLIOSession ssliosession = (SSLIOSession) session.getAttribute(
                     SSLIOSession.SESSION_KEY);

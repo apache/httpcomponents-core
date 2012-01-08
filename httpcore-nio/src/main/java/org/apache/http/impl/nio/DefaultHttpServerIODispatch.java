@@ -32,8 +32,9 @@ import java.io.IOException;
 import javax.net.ssl.SSLContext;
 
 import org.apache.http.annotation.Immutable;
-import org.apache.http.nio.NHttpClientEventHandler;
+import org.apache.http.impl.nio.reactor.AbstractIODispatch;
 import org.apache.http.nio.NHttpConnectionFactory;
+import org.apache.http.nio.NHttpServerEventHandler;
 import org.apache.http.nio.reactor.IOEventDispatch;
 import org.apache.http.nio.reactor.IOSession;
 import org.apache.http.nio.reactor.ssl.SSLSetupHandler;
@@ -41,96 +42,88 @@ import org.apache.http.params.HttpParams;
 
 /**
  * Default {@link IOEventDispatch} implementation that supports both plain (non-encrypted)
- * and SSL encrypted HTTP connections.
+ * and SSL encrypted server side HTTP connections.
  *
  * @since 4.2
  */
 @Immutable // provided injected dependencies are immutable
-public class DefaultClientIODispatch
-                    extends AbstractIODispatch<DefaultNHttpClientConnection> {
+public class DefaultHttpServerIODispatch
+                    extends AbstractIODispatch<DefaultNHttpServerConnection> {
 
-    private final NHttpClientEventHandler handler;
-    private final NHttpConnectionFactory<DefaultNHttpClientConnection> connFactory;
+    private final NHttpServerEventHandler handler;
+    private final NHttpConnectionFactory<DefaultNHttpServerConnection> connFactory;
 
-    /**
-     * Creates a new instance of this class to be used for dispatching I/O event
-     * notifications to the given protocol handler.
-     *
-     * @param handler the client protocol handler.
-     * @param connFactory HTTP client connection factory.
-     */
-    public DefaultClientIODispatch(
-            final NHttpClientEventHandler handler,
-            final NHttpConnectionFactory<DefaultNHttpClientConnection> connFactory) {
+    public DefaultHttpServerIODispatch(
+            final NHttpServerEventHandler handler,
+            final NHttpConnectionFactory<DefaultNHttpServerConnection> connFactory) {
         super();
         if (handler == null) {
             throw new IllegalArgumentException("HTTP client handler may not be null");
         }
         if (connFactory == null) {
-            throw new IllegalArgumentException("HTTP client connection factory may not null");
+            throw new IllegalArgumentException("HTTP server connection factory is null");
         }
         this.handler = handler;
         this.connFactory = connFactory;
     }
 
-    public DefaultClientIODispatch(
-            final NHttpClientEventHandler handler,
+    public DefaultHttpServerIODispatch(
+            final NHttpServerEventHandler handler,
             final HttpParams params) {
-        this(handler, new DefaultNHttpClientConnectionFactory(params));
+        this(handler, new DefaultNHttpServerConnectionFactory(params));
     }
 
-    public DefaultClientIODispatch(
-            final NHttpClientEventHandler handler,
+    public DefaultHttpServerIODispatch(
+            final NHttpServerEventHandler handler,
             final SSLContext sslcontext,
             final SSLSetupHandler sslHandler,
             final HttpParams params) {
-        this(handler, new SSLNHttpClientConnectionFactory(sslcontext, sslHandler, params));
+        this(handler, new SSLNHttpServerConnectionFactory(sslcontext, sslHandler, params));
     }
 
-    public DefaultClientIODispatch(
-            final NHttpClientEventHandler handler,
+    public DefaultHttpServerIODispatch(
+            final NHttpServerEventHandler handler,
             final SSLContext sslcontext,
             final HttpParams params) {
         this(handler, sslcontext, null, params);
     }
 
     @Override
-    protected DefaultNHttpClientConnection createConnection(final IOSession session) {
+    protected DefaultNHttpServerConnection createConnection(final IOSession session) {
         return this.connFactory.createConnection(session);
     }
 
     @Override
-    protected void onConnected(final DefaultNHttpClientConnection conn) {
-        Object attachment = conn.getContext().getAttribute(IOSession.ATTACHMENT_KEY);
+    protected void onConnected(final DefaultNHttpServerConnection conn) {
         try {
-            this.handler.connected(conn, attachment);
+            this.handler.connected(conn);
         } catch (Exception ex) {
             this.handler.exception(conn, ex);
         }
     }
 
     @Override
-    protected void onClosed(final DefaultNHttpClientConnection conn) {
+    protected void onClosed(final DefaultNHttpServerConnection conn) {
         this.handler.closed(conn);
     }
 
     @Override
-    protected void onException(final DefaultNHttpClientConnection conn, IOException ex) {
+    protected void onException(final DefaultNHttpServerConnection conn, IOException ex) {
         this.handler.exception(conn, ex);
     }
 
     @Override
-    protected void onInputReady(final DefaultNHttpClientConnection conn) {
+    protected void onInputReady(final DefaultNHttpServerConnection conn) {
         conn.consumeInput(this.handler);
     }
 
     @Override
-    protected void onOutputReady(final DefaultNHttpClientConnection conn) {
+    protected void onOutputReady(final DefaultNHttpServerConnection conn) {
         conn.produceOutput(this.handler);
     }
 
     @Override
-    protected void onTimeout(final DefaultNHttpClientConnection conn) {
+    protected void onTimeout(final DefaultNHttpServerConnection conn) {
         try {
             this.handler.timeout(conn);
         } catch (Exception ex) {

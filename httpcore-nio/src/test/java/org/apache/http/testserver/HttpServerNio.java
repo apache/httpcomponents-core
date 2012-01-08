@@ -32,7 +32,7 @@ import java.net.InetSocketAddress;
 import java.util.List;
 
 import org.apache.http.impl.nio.DefaultNHttpServerConnection;
-import org.apache.http.impl.nio.DefaultServerIODispatch;
+import org.apache.http.impl.nio.DefaultHttpServerIODispatch;
 import org.apache.http.impl.nio.reactor.DefaultListeningIOReactor;
 import org.apache.http.impl.nio.reactor.ExceptionEvent;
 import org.apache.http.nio.NHttpConnectionFactory;
@@ -65,7 +65,7 @@ public class HttpServerNio {
     }
 
     private void execute(final NHttpServerEventHandler serviceHandler) throws IOException {
-        IOEventDispatch ioEventDispatch = new DefaultServerIODispatch(serviceHandler, this.connFactory);
+        IOEventDispatch ioEventDispatch = new DefaultHttpServerIODispatch(serviceHandler, this.connFactory);
         this.ioReactor.execute(ioEventDispatch);
     }
 

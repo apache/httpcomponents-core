@@ -47,8 +47,8 @@ import org.apache.http.HttpVersion;
 import org.apache.http.entity.ContentType;
 import org.apache.http.impl.DefaultConnectionReuseStrategy;
 import org.apache.http.impl.EnglishReasonPhraseCatalog;
-import org.apache.http.impl.nio.DefaultClientIODispatch;
-import org.apache.http.impl.nio.DefaultServerIODispatch;
+import org.apache.http.impl.nio.DefaultHttpClientIODispatch;
+import org.apache.http.impl.nio.DefaultHttpServerIODispatch;
 import org.apache.http.impl.nio.pool.BasicNIOConnPool;
 import org.apache.http.impl.nio.pool.BasicNIOPoolEntry;
 import org.apache.http.impl.nio.reactor.DefaultConnectingIOReactor;
@@ -169,10 +169,10 @@ public class NHttpReverseProxy {
         ProxyServiceHandler serviceHandler = new ProxyServiceHandler(
                 inhttpproc, new ProxyIncomingConnectionReuseStrategy(), handlerRegistry, params);
 
-        final IOEventDispatch connectingEventDispatch = new DefaultClientIODispatch(
+        final IOEventDispatch connectingEventDispatch = new DefaultHttpClientIODispatch(
                 clientHandler, params);
 
-        final IOEventDispatch listeningEventDispatch = new DefaultServerIODispatch(
+        final IOEventDispatch listeningEventDispatch = new DefaultHttpServerIODispatch(
                 serviceHandler, params);
 
         Thread t = new Thread(new Runnable() {

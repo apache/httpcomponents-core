@@ -31,7 +31,7 @@ import javax.net.ssl.SSLContext;
 import javax.net.ssl.SSLException;
 
 import org.apache.http.annotation.Immutable;
-import org.apache.http.impl.nio.DefaultClientIODispatch;
+import org.apache.http.impl.nio.DefaultHttpClientIODispatch;
 import org.apache.http.impl.nio.DefaultClientIOEventDispatch;
 import org.apache.http.impl.nio.reactor.SSLIOSession;
 import org.apache.http.impl.nio.reactor.SSLSetupHandler;
@@ -58,7 +58,7 @@ import org.apache.http.params.HttpParams;
  *
  * @since 4.1
  *
- * @deprecated use {@link DefaultClientIODispatch}
+ * @deprecated use {@link DefaultHttpClientIODispatch}
  */
 @Deprecated
 @Immutable // provided injected dependencies are immutable

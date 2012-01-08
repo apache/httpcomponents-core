@@ -49,7 +49,7 @@ import org.apache.http.entity.ContentType;
 import org.apache.http.impl.DefaultConnectionReuseStrategy;
 import org.apache.http.impl.nio.DefaultNHttpServerConnection;
 import org.apache.http.impl.nio.DefaultNHttpServerConnectionFactory;
-import org.apache.http.impl.nio.DefaultServerIODispatch;
+import org.apache.http.impl.nio.DefaultHttpServerIODispatch;
 import org.apache.http.impl.nio.SSLNHttpServerConnectionFactory;
 import org.apache.http.impl.nio.reactor.DefaultListeningIOReactor;
 import org.apache.http.nio.NHttpConnection;
@@ -155,7 +155,7 @@ public class NHttpServer {
             connFactory = new DefaultNHttpServerConnectionFactory(params);
         }
         // Create server-side I/O event dispatch
-        IOEventDispatch ioEventDispatch = new DefaultServerIODispatch(protocolHandler, connFactory);
+        IOEventDispatch ioEventDispatch = new DefaultHttpServerIODispatch(protocolHandler, connFactory);
         // Create server-side I/O reactor
         ListeningIOReactor ioReactor = new DefaultListeningIOReactor();
         try {

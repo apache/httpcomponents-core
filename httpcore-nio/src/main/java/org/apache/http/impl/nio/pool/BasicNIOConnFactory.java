@@ -39,12 +39,12 @@ import org.apache.http.impl.nio.SSLNHttpClientConnectionFactory;
 import org.apache.http.nio.NHttpClientConnection;
 import org.apache.http.nio.NHttpConnectionFactory;
 import org.apache.http.nio.pool.NIOConnFactory;
+import org.apache.http.nio.reactor.IOEventDispatch;
 import org.apache.http.nio.reactor.IOSession;
 import org.apache.http.nio.reactor.ssl.SSLSetupHandler;
 import org.apache.http.nio.util.ByteBufferAllocator;
 import org.apache.http.nio.util.HeapByteBufferAllocator;
 import org.apache.http.params.HttpParams;
-import org.apache.http.protocol.ExecutionContext;
 
 /**
  * A basic {@link NIOConnFactory} implementation that creates
@@ -117,7 +117,7 @@ public class BasicNIOConnFactory implements NIOConnFactory<HttpHost, NHttpClient
         } else {
             conn = this.plainFactory.createConnection(session);
         }
-        session.setAttribute(ExecutionContext.HTTP_CONNECTION, conn);
+        session.setAttribute(IOEventDispatch.CONNECTION_KEY, conn);
         return conn;
     }
 
