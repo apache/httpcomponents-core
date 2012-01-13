@@ -40,7 +40,7 @@ import org.apache.http.protocol.HttpContext;
  * individual request handlers are expected to take care of application
  * specific HTTP processing. The main purpose of a request handler is to
  * generate a response object with a content entity to be sent back to
- * the client in response to the given request
+ * the client in response to the given request.
  *
  * @since 4.2
  */

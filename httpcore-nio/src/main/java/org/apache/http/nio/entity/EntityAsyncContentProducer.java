@@ -38,7 +38,9 @@ import org.apache.http.nio.ContentEncoder;
 import org.apache.http.nio.IOControl;
 
 /**
- * Basic implementation of {@link HttpAsyncContentProducer}.
+ * Basic implementation of {@link HttpAsyncContentProducer} that relies on
+ * inefficient and potentially blocking I/O operation redirection through
+ * {@link Channels#newChannel(java.io.InputStream)}.
  *
  * @since 4.2
  */

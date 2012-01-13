@@ -58,7 +58,7 @@ public interface HttpAsyncRequestProducer extends Closeable {
     HttpHost getTarget();
 
     /**
-     * Invoked to generate a HTTP request message. The message is expected
+     * Invoked to generate a HTTP request message head. The message is expected
      * to implement the {@link HttpEntityEnclosingRequest} interface if it is
      * to enclose a content entity. The {@link #produceContent(ContentEncoder, IOControl)}
      * method will not be invoked if {@link HttpEntityEnclosingRequest#getEntity()}

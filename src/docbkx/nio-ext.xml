@@ -852,12 +852,12 @@ if (encoder instanceof FileContentEncoder) {
         <title>HTTP I/O event dispatchers</title>
         <para>
         HTTP I/O event dispatchers serve to convert generic I/O events triggered by an I/O reactor 
-        to HTTP protocol specific events. They rely on <interfacename>NHttpClientHandler
-        </interfacename> and <interfacename>NHttpServiceHandler</interfacename> interfaces to 
+        to HTTP protocol specific events. They rely on <interfacename>NHttpClientEventHandler
+        </interfacename> and <interfacename>NHttpServerEventHandler</interfacename> interfaces to 
         propagate HTTP protocol events to a HTTP protocol handler.
         </para>
         <para>
-        Server side HTTP I/O events as defined by the <interfacename>NHttpServiceHandler
+        Server side HTTP I/O events as defined by the <interfacename>NHttpServerEventHandler
         </interfacename> interface:
         </para>
         <itemizedlist>
@@ -873,8 +873,8 @@ if (encoder instanceof FileContentEncoder) {
                 <formalpara>
                 <title><methodname>requestReceived</methodname>:</title>
                 <para>
-                Triggered when a new HTTP request is received. The connection passed as a parameter to 
-                this method is guaranteed to return a valid HTTP request object. If the request 
+                Triggered when a new HTTP request is received. The connection passed as a parameter 
+                to this method is guaranteed to return a valid HTTP request object. If the request 
                 received encloses a request entity this method will be followed a series of 
                 <methodname>inputReady</methodname> events to transfer the request content.
                 </para>
@@ -884,10 +884,10 @@ if (encoder instanceof FileContentEncoder) {
                 <formalpara>
                 <title><methodname>inputReady</methodname>:</title>
                 <para>
-                Triggered when the underlying channel is ready for reading a new portion of the request 
-                entity through the corresponding content decoder. If the content consumer is unable to 
-                process the incoming content, input event notifications can be temporarily suspended 
-                using <interfacename>IOControl</interfacename> interface.
+                Triggered when the underlying channel is ready for reading a new portion of 
+                the request entity through the corresponding content decoder. If the content 
+                consumer is unable to process the incoming content, input event notifications can 
+                be temporarily suspended using <interfacename>IOControl</interfacename> interface.
                 </para>
                 </formalpara>
             </listitem>
@@ -905,9 +905,9 @@ if (encoder instanceof FileContentEncoder) {
                 <title><methodname>outputReady</methodname>:</title>
                 <para>
                 Triggered when the underlying channel is ready for writing a next portion of the 
-                response entity through the corresponding content encoder. If the content producer is 
-                unable to generate the outgoing content, output event notifications can be temporarily 
-                suspended using <interfacename>IOControl</interfacename> interface.
+                response entity through the corresponding content encoder. If the content producer 
+                is unable to generate the outgoing content, output event notifications can be 
+                temporarily suspended using <interfacename>IOControl</interfacename> interface.
                 </para>
                 </formalpara>
             </listitem>
@@ -939,7 +939,7 @@ if (encoder instanceof FileContentEncoder) {
             </listitem>
         </itemizedlist>
         <para>
-        Client side HTTP I/O events as defined by the <interfacename>NHttpClientHandler
+        Client side HTTP I/O events as defined by the <interfacename>NHttpClientEventHandler
         </interfacename> interface:
         </para>
         <itemizedlist>
@@ -1024,169 +1024,59 @@ if (encoder instanceof FileContentEncoder) {
         </itemizedlist>
     </section>
     <section>
-        <title>Non-blocking HTTP entities</title>
+        <title>Non-blocking HTTP content producers</title>
         <para>
         As discussed previously the process of content transfer for non-blocking connections works 
         completely differently compared to that for blocking connections. For obvious reasons 
         classic I/O abstraction based on inherently blocking <classname>java.io.InputStream
-        </classname> and <classname>java.io.OutputStream</classname> classes is not applicable to 
-        the asynchronous process of data transfer. Therefore, non-blocking HTTP entities provide 
-        NIO specific extensions to the HttpEntity interface: <interfacename>ProducingNHttpEntity
-        </interfacename> and <interfacename>ConsumingNHttpEntity</interfacename> interfaces. 
-        Implementation classes of these interfaces may throw <classname>
-        java.lang.UnsupportedOperationException</classname> from <methodname>
-        HttpEntity#getContent()</methodname> or <methodname>HttpEntity#writeTo()</methodname> if 
-        a particular implementation is unable to represent its content stream as instance of 
-        <classname>java.io.InputStream</classname> or cannot stream its content out to an 
-        <classname>java.io.OutputStream</classname>.
+        </classname> and <classname>java.io.OutputStream</classname> classes is not well suited 
+        for asynchronous data transfer. In order to avoid inefficient and potentially blocking
+        I/O operation redirection through <methodname>java.nio.channels.Channles#newChannel
+        </methodname> non-blocking HTTP entities are expected to implement NIO specific extension 
+        interface <interfacename>HttpAsyncContentProducer</interfacename>.
         </para>
-        <section>
-            <title>Content consuming non-blocking HTTP entity</title>
-            <para>
-            <interfacename>ConsumingNHttpEntity</interfacename> interface represents a non-blocking 
-            entity that allows content to be consumed from a content decoder. <interfacename>
-            ConsumingNHttpEntity</interfacename> extends the base <interfacename>HttpEntity
-            </interfacename> interface with a number of NIO specific notification methods:
-            </para>
-            <itemizedlist>
-                <listitem>
-                    <formalpara>
-                    <title><methodname>consumeContent</methodname>:</title>
-                    <para>
-                    Notification that content is available to be read from the decoder. 
-                    <interfacename>IOControl</interfacename> instance passed as a parameter to the 
-                    method can be used to suspend input events if the entity is temporarily unable 
-                    to allocate more storage to accommodate all incoming content.
-                    </para>
-                    </formalpara>
-                </listitem>
-                <listitem>
-                    <formalpara>
-                    <title><methodname>finish</methodname>:</title>
-                    <para>
-                    Notification that any resources allocated for reading can be released.
-                    </para>
-                    </formalpara>
-                </listitem>
-            </itemizedlist>
-            <para>
-            The following implementations of <interfacename>ConsumingNHttpEntity</interfacename> 
-            provided by HttpCore NIO:
-            </para>
-            <itemizedlist>
-                <listitem>
-                    <para>
-                    <link linkend="buffering-n-entity">
-                        <classname>BufferingNHttpEntity</classname>
-                    </link>
-                    </para>
-                </listitem>
-                <listitem>
-                    <para>
-                    <link linkend="consuming-n-entity-template">
-                        <classname>ConsumingNHttpEntityTemplate</classname>
-                    </link>
-                    </para>
-                </listitem>
-            </itemizedlist>
-            <section id="buffering-n-entity">
-                <title><classname>BufferingNHttpEntity</classname></title>
+        <para>
+        The <interfacename>HttpAsyncContentProducer</interfacename> interface defines several
+        additional method for efficient streaming of content to a non-blocking HTTP connection:
+        </para>
+        <itemizedlist>
+            <listitem>
+                <formalpara>
+                <title><methodname>produceContent</methodname>:</title>
                 <para>
-                <classname>BufferingNHttpEntity</classname> is a subclass of <classname>
-                HttpEntityWrapper</classname> that consumes all incoming content into memory. Once 
-                the content body has been fully received it can be retrieved as an <classname>
-                java.io.InputStream</classname> via <methodname>HttpEntity#getContent()
-                </methodname>, or written to an output stream via <methodname>HttpEntity#writeTo()
-                </methodname>.
+                Invoked to write out a chunk of content to the <interfacename>ContentEncoder
+                </interfacename>. The <interfacename>IOControl</interfacename> interface can be 
+                used to suspend output events if the entity is temporarily unable to produce more 
+                content. When all content is finished, the producer MUST call 
+                <methodname>ContentEncoder#complete()</methodname>. Failure to do so may cause 
+                the entity to be incorrectly delimited.                    
                 </para>
-            </section>
-            <section id="consuming-n-entity-template">
-                <title><classname>ConsumingNHttpEntityTemplate</classname></title>
+                </formalpara>
+            </listitem>
+            <listitem>
+                <formalpara>
+                <title><methodname>isRepeatable</methodname>:</title>
                 <para>
-                <classname>ConsumingNHttpEntityTemplate</classname> is a subclass of <classname>
-                HttpEntityWrapper</classname> that decorates the incoming HTTP entity and 
-                delegates the handling of incoming content to a <interfacename>ContentListener
-                </interfacename> instance.
+                Determines whether or not this producer is capable of producing its content more 
+                than once. Repeatable content producers are expected to be able to recreate
+                their content even after having been closed.
                 </para>
-                <programlisting><![CDATA[
-static class FileWriteListener implements ContentListener {
-
-    private final FileChannel fileChannel;
-    private long idx = 0;
-
-    public FileWriteListener(File file) throws IOException {
-        this.fileChannel = new FileInputStream(file).getChannel();
-    }
-
-    public void contentAvailable(
-    ContentDecoder decoder, IOControl ioctrl) throws IOException {
-        long transferred;
-        if (decoder instanceof FileContentDecoder) {
-            transferred = ((FileContentDecoder) decoder).transfer(
-                    fileChannel, idx, Long.MAX_VALUE);
-        } else {
-            transferred = fileChannel.transferFrom(
-                    new ContentDecoderChannel(decoder), 
-                    idx, Long.MAX_VALUE);
-        }
-        if (transferred > 0) {
-            idx += transferred;
-        }
-    }
-
-    public void finished() {
-        try {
-            fileChannel.close();
-        } catch(IOException ignored) {}
-    }
-    
-}
-
-HttpEntity incomingEntity;
-
-File file = new File("buffer.bin");
-ConsumingNHttpEntity entity = new ConsumingNHttpEntityTemplate(
-        incomingEntity, 
-        new FileWriteListener(file)); 
-]]></programlisting>
-            </section>
-        </section>
+                </formalpara>
+            </listitem>
+            <listitem>
+                <formalpara>
+                <title><methodname>close</methodname>:</title>
+                <para>
+                Closes the producer and releases all resources currently allocated by it.
+                </para>
+                </formalpara>
+            </listitem>
+        </itemizedlist>
         <section>
-            <title>Content producing non-blocking HTTP entity</title>
+            <title>Creating non-blocking entities</title>
             <para>
-            <interfacename>ProducingNHttpEntity</interfacename> interface represents a non-blocking 
-            entity that allows content to be written to a content encoder. 
-            <interfacename>ProducingNHttpEntity</interfacename> extends the base 
-            <interfacename>HttpEntity</interfacename> interface with a number of NIO specific 
-            notification methods:
-            </para>
-            <itemizedlist>
-                <listitem>
-                    <formalpara>
-                    <title><methodname>produceContent</methodname>:</title>
-                    <para>
-                    Notification that content can be written to the encoder. <interfacename>
-                    IOControl</interfacename> instance passed as a parameter to the method can be 
-                    used to temporarily suspend output events if the entity is unable to produce 
-                    more content. Please note one must call <methodname>ContentEncoder#complete()
-                    </methodname> to inform the underlying connection that all content has been 
-                    written. Failure to do so could result in the entity never being correctly 
-                    delimited.
-                    </para>
-                    </formalpara>
-                </listitem>
-                <listitem>
-                    <formalpara>
-                    <title><methodname>finish</methodname>:</title>
-                    <para>
-                    Notification that any resources allocated for writing can be released.
-                    </para>
-                    </formalpara>
-                </listitem>
-            </itemizedlist>
-            <para>
-            The following implementations of <interfacename>ProducingNHttpEntity</interfacename> 
-            provided by HttpCore NIO:
+            Several HTTP entity implementations included in HttpCore NIO support 
+            <interfacename>HttpAsyncContentProducer</interfacename> interface:
             </para>
             <itemizedlist>
                 <listitem>
@@ -1220,7 +1110,7 @@ ConsumingNHttpEntity entity = new ConsumingNHttpEntityTemplate(
                 <programlisting><![CDATA[
 String myData = "Hello world on the other side!!";
 NByteArrayEntity entity = new NByteArrayEntity(myData.getBytes()); 
-]]></programlisting>
+    ]]></programlisting>
             </section>
             <section id="string-n-entity">
                 <title><classname>NStringEntity</classname></title>
@@ -1236,7 +1126,7 @@ String myData = "Hello world on the other side!!";
 NStringEntity myEntity1 = new NStringEntity(myData);
 // alternatively construct with an encoding
 NStringEntity myEntity2 = new NStringEntity(myData, "UTF-8");
-]]></programlisting>
+    ]]></programlisting>
             </section>
             <section id="file-n-entity">
                 <title><classname>NFileEntity</classname></title>
@@ -1249,8 +1139,8 @@ NStringEntity myEntity2 = new NStringEntity(myData, "UTF-8");
                 <programlisting><![CDATA[
 File staticFile = new File("/path/to/myapp.jar");
 NHttpEntity entity = new NFileEntity(staticFile, 
-    "application/java-archive");
-]]></programlisting>
+    ContentType.create("application/java-archive", null));
+    ]]></programlisting>
                 <para>
                 The <classname>NHttpEntity</classname> will make use of the direct channel I/O 
                 whenever possible, provided the content encoder is capable of transferring data 
@@ -1258,45 +1148,33 @@ NHttpEntity entity = new NFileEntity(staticFile,
                 </para>
             </section>
         </section>
-    </section>
+    </section>    
     <section>
         <title>Non-blocking HTTP protocol handlers</title>
         <section>
-            <title>Asynchronous HTTP service handler</title>
+            <title>Asynchronous HTTP service</title>
             <para>
-            <classname>AsyncNHttpServiceHandler</classname> is a fully asynchronous HTTP server 
-            side protocol handler that implements the essential requirements of the HTTP protocol 
-            for the server side message processing as described by RFC 2616. <classname>
-            AsyncNHttpServiceHandler</classname> is capable of processing HTTP requests with nearly 
-            constant memory footprint for individual HTTP connections. The handler stores headers 
-            of HTTP messages in memory, while content of message bodies is streamed directly from 
-            the entity to the underlying channel (and vice versa) using <interfacename>
-            ConsumingNHttpEntity</interfacename> and <interfacename>ProducingNHttpEntity
-            </interfacename> interfaces. 
+            <classname>HttpAsyncService</classname> is a fully asynchronous HTTP server side 
+            protocol handler based on the non-blocking (NIO) I/O model. <classname>
+            HttpAsyncService</classname> translates individual events fired through the 
+            <interfacename>NHttpServerEventHandler</interfacename> interface into logically 
+            related HTTP message exchanges.
             </para>
             <para>
-            When using this implementation, it is important to ensure that entities supplied for 
-            writing implement <interfacename>ProducingNHttpEntity</interfacename>. Doing so will 
-            allow the entity to be written out asynchronously. If entities supplied for writing do 
-            not implement the <interfacename>ProducingNHttpEntity</interfacename> interface, 
-            a delegate is added that buffers the entire contents in memory. Additionally, 
-            the buffering might take place in the I/O dispatch thread, which could cause I/O to 
-            block temporarily. For best results, one must ensure that all entities set on 
-            HTTP responses from <interfacename>NHttpRequestHandler</interfacename> implement 
-            <interfacename>ProducingNHttpEntity</interfacename>.
+            Upon receiving an incoming request the <classname>HttpAsyncService</classname> 
+            verifies the message for compliance with the server expectations using <interfacename>
+            HttpAsyncExpectationVerifier</interfacename>, if provided, and then <interfacename>
+            HttpAsyncRequestHandlerResolver</interfacename> is used to resolve the request URI to 
+            a particular <interfacename>HttpAsyncRequestHandler</interfacename> intended to handle 
+            the request with the given URI. The protocol handler uses the selected <interfacename>
+            HttpAsyncRequestHandler</interfacename> instance to process the incoming request and 
+            to generate an outgoing response.
             </para>
             <para>
-            If incoming requests enclose a content entity, <interfacename>NHttpRequestHandler
-            </interfacename> instances are expected to return a <interfacename>ConsumingNHttpEntity
-            </interfacename> for reading the content. After the entity is finished reading the 
-            data, <methodname>NHttpRequestHandler#handle()</methodname> method is called to 
-            generate a response. 
-            </para>
-            <para>
-            <classname>AsyncNHttpServiceHandler</classname> relies on <interfacename>HttpProcessor
-            </interfacename> to generate mandatory protocol headers for all outgoing messages and 
-            apply common, cross-cutting message transformations to all incoming and outgoing 
-            messages, whereas individual HTTP request handlers are expected to take care of 
+            <classname>HttpAsyncService</classname> relies on <interfacename>HttpProcessor
+            </interfacename> to generate mandatory protocol headers for all outgoing messages 
+            and apply common, cross-cutting message transformations to all incoming and outgoing 
+            messages, whereas individual HTTP request handlers are expected to implement 
             application specific content generation and processing.
             </para>
             <programlisting><![CDATA[
@@ -1304,48 +1182,52 @@ HttpParams params;
 // Initialize HTTP parameters
 HttpProcessor httpproc;
 // Initialize HTTP processor
-
-AsyncNHttpServiceHandler handler = new AsyncNHttpServiceHandler(
-        httpproc,
+HttpAsyncRequestHandlerResolver handlerResolver;
+// Initialize HTTP request resolver
+HttpAsyncService protocolHandler = new HttpAsyncService(
+        httpproc, 
+        new DefaultConnectionReuseStrategy(), 
         new DefaultHttpResponseFactory(),
-        new DefaultConnectionReuseStrategy(),
+        handlerResolver, 
+        null,
         params);
+NHttpConnectionFactory<DefaultNHttpServerConnection> connFactory;
+// Initialize HTTP connection factory
+IOEventDispatch ioEventDispatch = new DefaultHttpServerIODispatch(protocolHandler, connFactory);
 ]]></programlisting>
             <section>
                 <title>Non-blocking HTTP request handlers</title>
                 <para>
-                <interfacename>NHttpRequestHandler</interfacename> interface represents a routine 
-                for processing of a specific group of non-blocking HTTP requests. <interfacename>
-                NHttpRequestHandler</interfacename> implementations are expected to take care of 
-                protocol specific aspects, whereas individual request handlers are expected take 
-                care of application specific HTTP processing. The main purpose of a request handler 
-                is to generate a response object with a content entity to be send back to the 
-                client in response to the given request.
+                <interfacename>HttpAsyncRequestHandler</interfacename> represents a routine for 
+                asynchronous processing of a specific group of non-blocking HTTP requests. 
+                Protocol handlers are designed to take care of protocol specific aspects, whereas
+                individual request handlers are expected to take care of application specific HTTP 
+                processing. The main purpose of a request handler is to generate a response object 
+                with a content entity to be sent back to the client in response to the given 
+                request.
                 </para>
                 <programlisting><![CDATA[
-NHttpRequestHandler myRequestHandler = new NHttpRequestHandler() {
+HttpAsyncRequestHandler<HttpRequest> myHandler = new HttpAsyncRequestHandler<HttpRequest>() {
 
-    public ConsumingNHttpEntity entityRequest(
-            HttpEntityEnclosingRequest request, 
-            HttpContext context) throws HttpException, IOException {
-        // Buffer incoming content in memory for simplicity 
-        return new BufferingNHttpEntity(request.getEntity(),
-                new HeapByteBufferAllocator());
+    public HttpAsyncRequestConsumer<HttpRequest> processRequest(
+            final HttpRequest request,
+            final HttpContext context) {
+        // Buffer request content in memory for simplicity
+        return new BasicAsyncRequestConsumer();
     }
 
     public void handle(
-            HttpRequest request, 
-            HttpResponse response,
-            NHttpResponseTrigger trigger,
-            HttpContext context) throws HttpException, IOException {
+            final HttpRequest request,
+            final HttpAsyncExchange httpexchange,
+            final HttpContext context) throws HttpException, IOException {
+        HttpResponse response = httpexchange.getResponse();
         response.setStatusCode(HttpStatus.SC_OK);
-        response.addHeader("Content-Type", "text/plain");
-        response.setEntity(
-            new NStringEntity("some important message"));
-        // Submit response immediately for simplicity
-        trigger.submitResponse(response);
+        NFileEntity body = new NFileEntity(new File("static.html"), 
+                ContentType.create("text/html", null));
+        response.setEntity(body);
+        httpexchange.submitResponse(new BasicAsyncResponseProducer(response));
     }
-    
+
 };
 ]]></programlisting>
                 <para>
@@ -1355,64 +1237,305 @@ NHttpRequestHandler myRequestHandler = new NHttpRequestHandler() {
                 </para>
             </section>
             <section>
-                <title>Asynchronous response trigger</title>
+                <title>Asynchronous HTTP exchange</title>
                 <para>
                 The most fundamental difference of the non-blocking request handlers compared to 
                 their blocking counterparts is ability to defer transmission of the HTTP response 
                 back to the client without blocking the I/O thread by delegating the process of 
-                handling the HTTP request to a worker thread. The worker thread can use the 
-                instance of <interfacename>NHttpResponseTrigger</interfacename> passed as a 
-                parameter to the <methodname>NHttpRequestHandler#handle</methodname> method to 
-                submit a response as at a later point of time once the response becomes available.
+                handling the HTTP request to a worker thread or another service. The instance of 
+                <interfacename>HttpAsyncExchange</interfacename> passed as a parameter to the 
+                <methodname>HttpAsyncRequestHandler#handle</methodname> method to submit 
+                a response as at a later point once response content becomes available.
                 </para>
+                <para>
+                The <interfacename>HttpAsyncExchange</interfacename> interface can be interacted
+                with using the following methods:
+                </para>
+                <itemizedlist>
+                    <listitem>
+                        <formalpara>
+                        <title><methodname>getRequest</methodname>:</title>
+                        <para>
+                        Returns the received HTTP request message.
+                        </para>
+                        </formalpara>
+                    </listitem>
+                    <listitem>
+                        <formalpara>
+                        <title><methodname>getResponse</methodname>:</title>
+                        <para>
+                        Returns the default HTTP response message that can submitted once ready.
+                        </para>
+                        </formalpara>
+                    </listitem>
+                    <listitem>
+                        <formalpara>
+                        <title><methodname>submitResponse</methodname>:</title>
+                        <para>
+                        Submits an HTTP response and completed the message exchange. 
+                        </para>
+                        </formalpara>
+                    </listitem>
+                    <listitem>
+                        <formalpara>
+                        <title><methodname>isCompleted</methodname>:</title>
+                        <para>
+                        Determines whether or not the message exchange has been completed. 
+                        </para>
+                        </formalpara>
+                    </listitem>
+                    <listitem>
+                        <formalpara>
+                        <title><methodname>setCallback</methodname>:</title>
+                        <para>
+                        Sets <interfacename>Cancellable</interfacename> callback to be invoked 
+                        in case the underlying connection times out or gets terminated prematurely 
+                        by the client. This callback can be used to cancel a long running response 
+                        generating process if a response is no longer needed. 
+                        </para>
+                        </formalpara>
+                    </listitem>
+                    <listitem>
+                        <formalpara>
+                        <title><methodname>setTimeout</methodname>:</title>
+                        <para>
+                        Sets timeout for this message exchange. 
+                        </para>
+                        </formalpara>
+                    </listitem>
+                    <listitem>
+                        <formalpara>
+                        <title><methodname>getTimeout</methodname>:</title>
+                        <para>
+                        Returns timeout for this message exchange. 
+                        </para>
+                        </formalpara>
+                    </listitem>
+                </itemizedlist>
                 <programlisting><![CDATA[
-NHttpRequestHandler myRequestHandler = new NHttpRequestHandler() {
+HttpAsyncRequestHandler<HttpRequest> myHandler = new HttpAsyncRequestHandler<HttpRequest>() {
 
-    public ConsumingNHttpEntity entityRequest(
-            HttpEntityEnclosingRequest request, 
-            HttpContext context) throws HttpException, IOException {
-        // Buffer incoming content in memory for simplicity 
-        return new BufferingNHttpEntity(request.getEntity(),
-                new HeapByteBufferAllocator());
+    public HttpAsyncRequestConsumer<HttpRequest> processRequest(
+            final HttpRequest request,
+            final HttpContext context) {
+        // Buffer request content in memory for simplicity
+        return new BasicAsyncRequestConsumer();
     }
 
     public void handle(
-            HttpRequest request, 
-            HttpResponse response,
-            NHttpResponseTrigger trigger,
-            HttpContext context) 
-                throws HttpException, IOException {
+            final HttpRequest request,
+            final HttpAsyncExchange httpexchange,
+            final HttpContext context) throws HttpException, IOException {
+
         new Thread() {
             
-        @Override
-        public void run() {
-            try { 
-                Thread.sleep(10); 
-            } 
-            catch(InterruptedException ie) {}
-            try {
-                URI uri = new URI(request.getRequestLine().getUri());
+            @Override
+            public void run() {
+                try { 
+                    Thread.sleep(10); 
+                } 
+                catch(InterruptedException ie) {}
+                HttpResponse response = httpexchange.getResponse();
                 response.setStatusCode(HttpStatus.SC_OK);
-                response.addHeader("Content-Type", "text/plain");
-                response.setEntity(
-                    new NStringEntity("some important message"));
-                trigger.submitResponse(response);                    
-            } catch(URISyntaxException ex) {
-                trigger.handleException(
-                    new HttpException("Invalid request URI: " + 
-                    ex.getInput()));
+                NFileEntity body = new NFileEntity(new File("static.html"), 
+                        ContentType.create("text/html", null));
+                response.setEntity(body);
+                httpexchange.submitResponse(new BasicAsyncResponseProducer(response));
             }
-        }
-            
         }.start();
+        
     }
-    
+
 };
 ]]></programlisting>
                 <para>
-                Please note <interfacename>HttpResponse</interfacename> objects are not thread-safe 
-                and may not be modified concurrently. Non-blocking request handlers must ensure 
-                the HTTP response cannot be accessed by more than one thread at a time.
+                Please note <interfacename>HttpResponse</interfacename> instances are not 
+                thread-safe and may not be modified concurrently. Non-blocking request handlers 
+                must ensure HTTP response cannot be accessed by more than one thread at a time.
+                </para>
+            </section>
+            <section>
+                <title>Asynchronous HTTP request consumer</title>
+                <para>
+                <interfacename>HttpAsyncRequestConsumer</interfacename> facilities the process of 
+                asynchronous processing of HTTP requests. It is a callback interface used by
+                <interfacename>HttpAsyncRequestHandler</interfacename>s to process an incoming 
+                HTTP request message and to stream its content from a non-blocking server side 
+                HTTP connection.
+                </para>
+                <para>
+                HTTP I/O events and methods as defined by the <interfacename>
+                HttpAsyncRequestConsumer</interfacename> interface:
+                </para>
+                <itemizedlist>
+                    <listitem>
+                        <formalpara>
+                        <title><methodname>requestReceived</methodname>:</title>
+                        <para>
+                        Invoked when a HTTP request message is received.
+                        </para>
+                        </formalpara>
+                    </listitem>
+                    <listitem>
+                        <formalpara>
+                        <title><methodname>consumeContent</methodname>:</title>
+                        <para>
+                        Invoked to process a chunk of content from the <interfacename>
+                        ContentDecoder</interfacename>. The <interfacename>IOControl
+                        </interfacename> interface can be used to suspend input events if 
+                        the consumer is temporarily unable to consume more content.
+                        </para>
+                        <para>
+                        The consumer can use the <methodname>ContentDecoder#isCompleted()
+                        </methodname> method to find out whether or not the message content 
+                        has been fully consumed.
+                        </para>
+                        <para>
+                        This event is invoked only for if the incoming request message has 
+                        a content entity enclosed in it.
+                        </para>
+                        </formalpara>
+                    </listitem>
+                    <listitem>
+                        <formalpara>
+                        <title><methodname>requestCompleted</methodname>:</title>
+                        <para>
+                        Invoked to signal that the request has been fully processed. 
+                        </para>
+                        </formalpara>
+                    </listitem>
+                    <listitem>
+                        <formalpara>
+                        <title><methodname>failed</methodname>:</title>
+                        <para>
+                        Invoked to signal that the request processing terminated abnormally. 
+                        </para>
+                        </formalpara>
+                    </listitem>
+                    <listitem>
+                        <formalpara>
+                        <title><methodname>getException</methodname>:</title>
+                        <para>
+                        Returns an exception in case of an abnormal termination. This method 
+                        returns <code>null</code> if the request execution is still ongoing or if 
+                        it completed successfully. 
+                        </para>
+                        </formalpara>
+                    </listitem>
+                    <listitem>
+                        <formalpara>
+                        <title><methodname>getResult</methodname>:</title>
+                        <para>
+                        Returns a result of the request execution, when available. This method 
+                        returns <code>null</code> if the request execution is still ongoing. 
+                        </para>
+                        </formalpara>
+                    </listitem>
+                    <listitem>
+                        <formalpara>
+                        <title><methodname>isDone</methodname>:</title>
+                        <para>
+                        Determines whether or not the request execution completed. If the
+                        request processing terminated normally <methodname>getResult()</methodname>
+                        can be used to obtain the result. If the request processing terminated
+                        abnormally <methodname>getException()</methodname> can be used to obtain 
+                        the cause. 
+                        </para>
+                        </formalpara>
+                    </listitem>
+                    <listitem>
+                        <formalpara>
+                        <title><methodname>close</methodname>:</title>
+                        <para>
+                        Closes the consumer and releases all resources currently allocated by it.
+                        </para>
+                        </formalpara>
+                    </listitem>
+                </itemizedlist>
+                <para>
+                <interfacename>HttpAsyncRequestConsumer</interfacename> implementations are 
+                expected to be tread-safe.
+                </para>
+                <para>
+                <classname>BasicAsyncRequestConsumer</classname> is a very basic implementation 
+                of the <interfacename>HttpAsyncRequestConsumer</interfacename> interface shipped
+                with the library. Please note that this consumer buffers request content in memory and 
+                therefore should be used for relatively small request messages.
+                </para>
+            </section>
+            <section>
+                <title>Asynchronous HTTP response producer</title>
+                <para>
+                <interfacename>HttpAsyncResponseProducer</interfacename> facilities the process of 
+                asynchronous generation of HTTP responses. It is a callback interface used by
+                <interfacename>HttpAsyncRequestHandler</interfacename>s to generate an HTTP response 
+                message and to stream its content to a non-blocking server side HTTP connection.
+                </para>
+                <para>
+                HTTP I/O events and methods as defined by the 
+                <interfacename>HttpAsyncResponseProducer</interfacename> interface:
+                </para>
+                <itemizedlist>
+                    <listitem>
+                        <formalpara>
+                        <title><methodname>generateResponse</methodname>:</title>
+                        <para>
+                        Invoked to generate a HTTP response message head.
+                        </para>
+                        </formalpara>
+                    </listitem>
+                    <listitem>
+                        <formalpara>
+                        <title><methodname>produceContent</methodname>:</title>
+                        <para>
+                        Invoked to write out a chunk of content to the <interfacename>
+                        ContentEncoder</interfacename>. The <interfacename>IOControl
+                        </interfacename> interface can be used to suspend output events if 
+                        the producer is temporarily unable to produce more content.
+                        </para>
+                        <para>
+                        When all content is finished, the producer MUST call <methodname>
+                        ContentEncoder#complete()</methodname>. Failure to do so may cause 
+                        the entity to be incorrectly delimited
+                        </para>
+                        </formalpara>
+                    </listitem>
+                    <listitem>
+                        <formalpara>
+                        <title><methodname>responseCompleted</methodname>:</title>
+                        <para>
+                        Invoked to signal that the response has been fully written out. 
+                        </para>
+                        </formalpara>
+                    </listitem>
+                    <listitem>
+                        <formalpara>
+                        <title><methodname>failed</methodname>:</title>
+                        <para>
+                        Invoked to signal that the response processing terminated abnormally. 
+                        </para>
+                        </formalpara>
+                    </listitem>
+                    <listitem>
+                        <formalpara>
+                        <title><methodname>close</methodname>:</title>
+                        <para>
+                        Closes the producer and releases all resources currently allocated by it.
+                        </para>
+                        </formalpara>
+                    </listitem>
+                </itemizedlist>
+                <para>
+                <interfacename>HttpAsyncResponseProducer</interfacename> implementations are 
+                expected to be tread-safe.
+                </para>
+                <para>
+                <classname>BasicAsyncResponseProducer</classname> is a basic implementation 
+                of the <interfacename>HttpAsyncResponseProducer</interfacename> interface shipped
+                with the library. The producer can make use of the <interfacename>
+                HttpAsyncContentProducer</interfacename> interface to efficiently stream out 
+                message content to a non-blocking HTTP connection, if it is implemented by the 
+                <interfacename>HttpEntity</interfacename> enclosed in the response.
                 </para>
             </section>
             <section>
@@ -1420,30 +1543,25 @@ NHttpRequestHandler myRequestHandler = new NHttpRequestHandler() {
                 <para>
                 The management of non-blocking HTTP request handlers is quite similar to that of 
                 blocking HTTP request handlers. Usually an instance of <interfacename>
-                NHttpRequestHandlerResolver</interfacename> is used to maintain a registry of 
+                HttpAsyncRequestHandlerResolver</interfacename> is used to maintain a registry of 
                 request handlers and to matches a request URI to a particular request handler. 
                 HttpCore includes only a very simple implementation of the request handler resolver 
-                based on a trivial pattern matching algorithm: <interfacename>
-                NHttpRequestHandlerRegistry</interfacename> supports only three formats: 
+                based on a trivial pattern matching algorithm: <classname>
+                HttpAsyncRequestHandlerRegistry</classname> supports only three formats: 
                 <literal>*</literal>, <literal>&lt;uri&gt;*</literal> and 
                 <literal>*&lt;uri&gt;</literal>.
                 </para>
                 <programlisting><![CDATA[
-// Initialize asynchronous protocol handler
-AsyncNHttpServiceHandler handler;
-
-NHttpRequestHandlerRegistry handlerResolver = 
-    new NHttpRequestHandlerRegistry();
+HttpAsyncRequestHandlerRegistry handlerReqistry = 
+    new HttpAsyncRequestHandlerRegistry();
 handlerReqistry.register("/service/*", myRequestHandler1);
 handlerReqistry.register("*.do", myRequestHandler2);
 handlerReqistry.register("*", myRequestHandler3);
-
-handler.setHandlerResolver(handlerResolver);
 ]]></programlisting>
                 <para>
                 Users are encouraged to provide more sophisticated implementations of 
-                <interfacename>NHttpRequestHandlerResolver</interfacename>, for instance, based on 
-                regular expressions.
+                <interfacename>HttpAsyncRequestHandlerResolver</interfacename>, for instance, based 
+                on regular expressions.
                 </para>
             </section>
         </section>
@@ -1741,6 +1859,138 @@ NHttpRequestExecutionHandler execHandler =
             </itemizedlist>
         </section>
     </section>
+
+    <section>
+        <title>Non-blocking HTTP entities</title>
+        <para>
+        As discussed previously the process of content transfer for non-blocking connections works 
+        completely differently compared to that for blocking connections. For obvious reasons 
+        classic I/O abstraction based on inherently blocking <classname>java.io.InputStream
+        </classname> and <classname>java.io.OutputStream</classname> classes is not applicable to 
+        the asynchronous process of data transfer. Therefore, non-blocking HTTP entities provide 
+        NIO specific extensions to the HttpEntity interface: <interfacename>ProducingNHttpEntity
+        </interfacename> and <interfacename>ConsumingNHttpEntity</interfacename> interfaces. 
+        Implementation classes of these interfaces may throw <classname>
+        java.lang.UnsupportedOperationException</classname> from <methodname>
+        HttpEntity#getContent()</methodname> or <methodname>HttpEntity#writeTo()</methodname> if 
+        a particular implementation is unable to represent its content stream as instance of 
+        <classname>java.io.InputStream</classname> or cannot stream its content out to an 
+        <classname>java.io.OutputStream</classname>.
+        </para>
+        <section>
+            <title>Content consuming non-blocking HTTP entity</title>
+            <para>
+            <interfacename>ConsumingNHttpEntity</interfacename> interface represents a non-blocking 
+            entity that allows content to be consumed from a content decoder. <interfacename>
+            ConsumingNHttpEntity</interfacename> extends the base <interfacename>HttpEntity
+            </interfacename> interface with a number of NIO specific notification methods:
+            </para>
+            <itemizedlist>
+                <listitem>
+                    <formalpara>
+                    <title><methodname>consumeContent</methodname>:</title>
+                    <para>
+                    Notification that content is available to be read from the decoder. 
+                    <interfacename>IOControl</interfacename> instance passed as a parameter to the 
+                    method can be used to suspend input events if the entity is temporarily unable 
+                    to allocate more storage to accommodate all incoming content.
+                    </para>
+                    </formalpara>
+                </listitem>
+                <listitem>
+                    <formalpara>
+                    <title><methodname>finish</methodname>:</title>
+                    <para>
+                    Notification that any resources allocated for reading can be released.
+                    </para>
+                    </formalpara>
+                </listitem>
+            </itemizedlist>
+            <para>
+            The following implementations of <interfacename>ConsumingNHttpEntity</interfacename> 
+            provided by HttpCore NIO:
+            </para>
+            <itemizedlist>
+                <listitem>
+                    <para>
+                    <link linkend="buffering-n-entity">
+                        <classname>BufferingNHttpEntity</classname>
+                    </link>
+                    </para>
+                </listitem>
+                <listitem>
+                    <para>
+                    <link linkend="consuming-n-entity-template">
+                        <classname>ConsumingNHttpEntityTemplate</classname>
+                    </link>
+                    </para>
+                </listitem>
+            </itemizedlist>
+            <section id="buffering-n-entity">
+                <title><classname>BufferingNHttpEntity</classname></title>
+                <para>
+                <classname>BufferingNHttpEntity</classname> is a subclass of <classname>
+                HttpEntityWrapper</classname> that consumes all incoming content into memory. Once 
+                the content body has been fully received it can be retrieved as an <classname>
+                java.io.InputStream</classname> via <methodname>HttpEntity#getContent()
+                </methodname>, or written to an output stream via <methodname>HttpEntity#writeTo()
+                </methodname>.
+                </para>
+            </section>
+            <section id="consuming-n-entity-template">
+                <title><classname>ConsumingNHttpEntityTemplate</classname></title>
+                <para>
+                <classname>ConsumingNHttpEntityTemplate</classname> is a subclass of <classname>
+                HttpEntityWrapper</classname> that decorates the incoming HTTP entity and 
+                delegates the handling of incoming content to a <interfacename>ContentListener
+                </interfacename> instance.
+                </para>
+                <programlisting><![CDATA[
+static class FileWriteListener implements ContentListener {
+
+    private final FileChannel fileChannel;
+    private long idx = 0;
+
+    public FileWriteListener(File file) throws IOException {
+        this.fileChannel = new FileInputStream(file).getChannel();
+    }
+
+    public void contentAvailable(
+    ContentDecoder decoder, IOControl ioctrl) throws IOException {
+        long transferred;
+        if (decoder instanceof FileContentDecoder) {
+            transferred = ((FileContentDecoder) decoder).transfer(
+                    fileChannel, idx, Long.MAX_VALUE);
+        } else {
+            transferred = fileChannel.transferFrom(
+                    new ContentDecoderChannel(decoder), 
+                    idx, Long.MAX_VALUE);
+        }
+        if (transferred > 0) {
+            idx += transferred;
+        }
+    }
+
+    public void finished() {
+        try {
+            fileChannel.close();
+        } catch(IOException ignored) {}
+    }
+    
+}
+
+HttpEntity incomingEntity;
+
+File file = new File("buffer.bin");
+ConsumingNHttpEntity entity = new ConsumingNHttpEntityTemplate(
+        incomingEntity, 
+        new FileWriteListener(file)); 
+]]></programlisting>
+            </section>
+        </section>
+    </section>
+
+
     <section>
         <title>Non-blocking TLS/SSL</title>
         <section>

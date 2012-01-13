@@ -59,7 +59,6 @@ import org.apache.http.params.HttpParams;
 import org.apache.http.protocol.BasicHttpContext;
 import org.apache.http.protocol.ExecutionContext;
 import org.apache.http.protocol.HttpContext;
-import org.apache.http.protocol.HttpExpectationVerifier;
 import org.apache.http.protocol.HttpProcessor;
 
 /**
@@ -69,27 +68,20 @@ import org.apache.http.protocol.HttpProcessor;
  * through the {@link NHttpServerEventHandler} interface into logically related
  * HTTP message exchanges.
  * <p/>
+ * Upon receiving an incoming request <tt>HttpAsyncService</tt> verifies 
+ * the message for compliance with the server expectations using
+ * {@link HttpAsyncExpectationVerifier}, if provided, and then
+ * {@link HttpAsyncRequestHandlerResolver} is used to resolve the request URI 
+ * to a particular {@link HttpAsyncRequestHandler} intended to handle 
+ * the request with the given URI. The protocol handler uses the selected
+ * {@link HttpAsyncRequestHandler} instance to process the incoming request
+ * and to generate an outgoing response.
+ * <p/>
  * <tt>HttpAsyncService</tt> relies on {@link HttpProcessor} to generate 
  * mandatory protocol headers for all outgoing messages and apply common, 
  * cross-cutting message transformations to all incoming and outgoing messages, 
  * whereas individual {@link HttpAsyncRequestHandler}s are expected 
  * to implement application specific content generation and processing.
- * <p/>
- * <tt>HttpAsyncService</tt> uses {@link HttpAsyncRequestHandlerResolver} 
- * to resolve matching request handler for a particular request URI of 
- * an incoming HTTP request.
- * <p/>
- * <tt>HttpAsyncService</tt> can use optional {@link HttpExpectationVerifier} 
- * to ensure that incoming requests meet server's expectations.
- * <p/>
- * Once an incoming request is received the message is optionally verified
- * for compliance with the server expectations using
- * {@link HttpAsyncExpectationVerifier} if provided and then
- * {@link HttpAsyncRequestHandlerResolver} interface is used to resolve
- * the request URI to a particular {@link HttpAsyncRequestHandler} intended
- * to handle the request. The protocol handler on the selected
- * {@link HttpAsyncRequestHandler} instance to process the incoming request
- * and to generate an outgoing response.
  * <p/>
  * Individual {@link HttpAsyncRequestHandler}s do not have to submit a response
  * immediately. They can defer transmission of an HTTP response back to

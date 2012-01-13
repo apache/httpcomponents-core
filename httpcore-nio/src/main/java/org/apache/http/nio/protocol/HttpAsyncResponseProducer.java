@@ -39,14 +39,14 @@ import org.apache.http.protocol.HttpContext;
 /**
  * <tt>HttpAsyncResponseProducer</tt> is a callback interface whose methods
  * get invoked to generate an HTTP response message and to stream message
- * content to a non-blocking HTTP connection.
+ * content to a non-blocking HTTP connection on the server side.
  *
  * @since 4.2
  */
 public interface HttpAsyncResponseProducer extends Closeable {
 
     /**
-     * Invoked to generate a HTTP response message.
+     * Invoked to generate a HTTP response message head.
      *
      * @return HTTP response message.
      * @throws HttpException in case of HTTP protocol violation

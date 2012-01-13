@@ -39,7 +39,7 @@ import org.apache.http.protocol.HttpContext;
 /**
  * <tt>HttpAsyncRequestConsumer</tt> is a callback interface whose methods
  * get invoked to process an HTTP request message and to stream message
- * content from a non-blocking HTTP connection.
+ * content from a non-blocking HTTP connection on the server side.
  *
  * @param <T> the result type of request processing.
  * @since 4.2
@@ -81,7 +81,7 @@ public interface HttpAsyncRequestConsumer<T> extends Closeable {
     void requestCompleted(HttpContext context);
 
     /**
-     * Invoked to signal that the response processing terminated abnormally.
+     * Invoked to signal that the request processing terminated abnormally.
      *
      * @param ex exception
      */

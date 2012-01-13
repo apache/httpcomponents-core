@@ -39,7 +39,7 @@ import org.apache.http.protocol.HttpContext;
 /**
  * <tt>HttpAsyncResponseConsumer</tt> is a callback interface whose methods
  * get invoked to process an HTTP response message and to stream message
- * content from a non-blocking HTTP connection.
+ * content from a non-blocking HTTP connection on the client side.
  *
  * @param <T> the result type of response processing.
  * @since 4.2
