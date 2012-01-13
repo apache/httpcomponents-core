@@ -75,6 +75,11 @@ public class ResponseConnControl implements HttpResponseInterceptor {
             response.setHeader(HTTP.CONN_DIRECTIVE, HTTP.CONN_CLOSE);
             return;
         }
+        Header explicit = response.getFirstHeader(HTTP.CONN_DIRECTIVE);
+        if (explicit != null && HTTP.CONN_CLOSE.equalsIgnoreCase(explicit.getValue())) {
+            // Connection persistence explicitly disabled
+            return;
+        }
         // Always drop connection for HTTP/1.0 responses and below
         // if the content body cannot be correctly delimited
         HttpEntity entity = response.getEntity();

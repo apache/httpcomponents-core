@@ -666,6 +666,24 @@ public class TestStandardInterceptors {
     }
 
     @Test
+    public void testResponseConnControlExplicitClose() throws Exception {
+        HttpContext context = new BasicHttpContext(null);
+        BasicHttpRequest request = new BasicHttpRequest("GET", "/");
+        request.addHeader(new BasicHeader(HTTP.CONN_DIRECTIVE, HTTP.CONN_KEEP_ALIVE));
+        context.setAttribute(ExecutionContext.HTTP_REQUEST, request);
+
+        ResponseConnControl interceptor = new ResponseConnControl();
+
+        BasicHttpResponse response = new BasicHttpResponse(
+                HttpVersion.HTTP_1_1, 200, "OK");
+        response.setHeader(HTTP.CONN_DIRECTIVE, HTTP.CONN_CLOSE);
+        interceptor.process(response, context);
+        Header header = response.getFirstHeader(HTTP.CONN_DIRECTIVE);
+        Assert.assertNotNull(header);
+        Assert.assertEquals(HTTP.CONN_CLOSE, header.getValue());
+    }
+
+    @Test
     public void testResponseConnControlHostInvalidInput() throws Exception {
         ResponseConnControl interceptor = new ResponseConnControl();
         try {
