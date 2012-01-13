@@ -121,10 +121,9 @@ public class TestHttpAsyncRequestExecutor {
 
         this.protocolHandler.closed(this.conn);
 
-        Assert.assertNull(state.getHandler());
         Assert.assertEquals(MessageState.READY, state.getRequestState());
         Assert.assertEquals(MessageState.READY, state.getResponseState());
-        Mockito.verify(this.exchangeHandler).close();
+        Mockito.verify(this.exchangeHandler, Mockito.never()).close();
     }
 
     @Test

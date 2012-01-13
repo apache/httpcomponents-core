@@ -104,7 +104,6 @@ public class HttpAsyncRequestExecutor implements NHttpClientEventHandler {
         State state = getState(conn);
         if (state != null) {
             synchronized (state) {
-                closeHandler(state);
                 state.reset();
             }
         }
