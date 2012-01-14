@@ -232,6 +232,9 @@ public class HttpAsyncService implements NHttpServerEventHandler {
             final NHttpServerConnection conn) throws IOException, HttpException {
         State state = ensureNotNull(getState(conn));
         synchronized (state) {
+            if (state.getResponseState() != MessageState.READY) {
+                throw new ProtocolException("Out of sequence request message detected (pipelining is not supported)");
+            }
             HttpRequest request = conn.getHttpRequest();
             HttpContext context = state.getContext();
             request.setParams(new DefaultedHttpParams(request.getParams(), this.params));
@@ -742,6 +745,7 @@ public class HttpAsyncService implements NHttpServerEventHandler {
                 if (this.state.isTerminated() && cancellable != null) {
                     cancellable.cancel();
                 } else {
+                    this.conn.requestInput();
                     this.state.setCancellable(cancellable);
                 }
             }
