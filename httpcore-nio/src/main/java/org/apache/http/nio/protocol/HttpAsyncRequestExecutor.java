@@ -52,13 +52,13 @@ import org.apache.http.protocol.HttpContext;
 import org.apache.http.protocol.HttpProcessor;
 
 /**
- * <tt>HttpAsyncRequestExecutor</tt> is a fully asynchronous HTTP client side 
+ * <tt>HttpAsyncRequestExecutor</tt> is a fully asynchronous HTTP client side
  * protocol handler based on the NIO (non-blocking) I/O model.
- * <tt>HttpAsyncRequestExecutor</tt> translates individual events fired through 
- * the {@link NHttpClientEventHandler} interface into logically related HTTP 
+ * <tt>HttpAsyncRequestExecutor</tt> translates individual events fired through
+ * the {@link NHttpClientEventHandler} interface into logically related HTTP
  * message exchanges.
  * <p/>
- * <tt>HttpAsyncRequestExecutor</tt> relies on {@link HttpProcessor} 
+ * <tt>HttpAsyncRequestExecutor</tt> relies on {@link HttpProcessor}
  * to generate mandatory protocol headers for all outgoing messages and apply
  * common, cross-cutting message transformations to all incoming and outgoing
  * messages, whereas individual {@link HttpAsyncRequestExecutionHandler}s
@@ -68,7 +68,7 @@ import org.apache.http.protocol.HttpProcessor;
  * of HTTP message exchanges through the connection context using
  * {@link #HTTP_HANDLER} attribute. HTTP exchange sequence is considered
  * complete when the {@link HttpAsyncRequestExecutionHandler#isDone()} method
- * returns <code>true</tt>. The {@link HttpAsyncRequester} utility class can
+ * returns <code>true</code>. The {@link HttpAsyncRequester} utility class can
  * be used to facilitate initiation of asynchronous HTTP request execution.
  * <p/>
  * The following parameters can be used to customize the behavior of this
@@ -150,12 +150,12 @@ public class HttpAsyncRequestExecutor implements NHttpClientEventHandler {
 
             HttpRequest request = handler.generateRequest();
             context.setAttribute(ExecutionContext.HTTP_REQUEST, request);
-            
+
             conn.setSocketTimeout(HttpConnectionParams.getSoTimeout(request.getParams()));
-            
+
             HttpProcessor httppocessor = handler.getHttpProcessor();
             httppocessor.process(request, context);
-            
+
             state.setRequest(request);
 
             conn.submitRequest(request);
@@ -236,13 +236,13 @@ public class HttpAsyncRequestExecutor implements NHttpClientEventHandler {
             }
 
             handler.responseReceived(response);
-            
+
             HttpContext context = handler.getContext();
             HttpProcessor httpprocessor = handler.getHttpProcessor();
-            
+
             context.setAttribute(ExecutionContext.HTTP_RESPONSE, response);
             httpprocessor.process(response, context);
-            
+
             state.setResponseState(MessageState.BODY_STREAM);
             if (!canResponseHaveBody(request, response)) {
                 conn.resetInput();

@@ -28,6 +28,7 @@
 package org.apache.http.nio.protocol;
 
 import java.io.IOException;
+import java.util.concurrent.Future;
 
 import org.apache.http.ConnectionReuseStrategy;
 import org.apache.http.HttpException;
@@ -35,6 +36,7 @@ import org.apache.http.HttpHost;
 import org.apache.http.HttpRequest;
 import org.apache.http.HttpResponse;
 import org.apache.http.concurrent.BasicFuture;
+import org.apache.http.concurrent.FutureCallback;
 import org.apache.http.nio.ContentDecoder;
 import org.apache.http.nio.ContentEncoder;
 import org.apache.http.nio.IOControl;
@@ -43,28 +45,32 @@ import org.apache.http.params.HttpParams;
 import org.apache.http.protocol.HttpContext;
 import org.apache.http.protocol.HttpProcessor;
 
-class BasicAsyncRequestExecutionHandler<T> implements HttpAsyncRequestExecutionHandler<T> {
+/**
+ * Basic implementation of {@link HttpAsyncRequestExecutionHandler} that executes
+ * a single HTTP request / response exchange.
+ *
+ * @param <T> the result type of request execution.
+ * @since 4.2
+ */
+public class BasicAsyncRequestExecutionHandler<T> implements HttpAsyncRequestExecutionHandler<T> {
 
-    private final BasicFuture<T> future;
     private final HttpAsyncRequestProducer requestProducer;
     private final HttpAsyncResponseConsumer<T> responseConsumer;
+    private final BasicFuture<T> future;
     private final HttpContext localContext;
     private final HttpProcessor httppocessor;
     private final ConnectionReuseStrategy reuseStrategy;
     private final HttpParams params;
 
     public BasicAsyncRequestExecutionHandler(
-            final BasicFuture<T> future,
             final HttpAsyncRequestProducer requestProducer,
             final HttpAsyncResponseConsumer<T> responseConsumer,
+            final FutureCallback<T> callback,
             final HttpContext localContext,
             final HttpProcessor httppocessor,
             final ConnectionReuseStrategy reuseStrategy,
             final HttpParams params) {
         super();
-        if (future == null) {
-            throw new IllegalArgumentException("Request future may not be null");
-        }
         if (requestProducer == null) {
             throw new IllegalArgumentException("Request producer may not be null");
         }
@@ -83,13 +89,27 @@ class BasicAsyncRequestExecutionHandler<T> implements HttpAsyncRequestExecutionH
         if (params == null) {
             throw new IllegalArgumentException("HTTP parameters may not be null");
         }
-        this.future = future;
         this.requestProducer = requestProducer;
         this.responseConsumer = responseConsumer;
+        this.future = new BasicFuture<T>(callback);
         this.localContext = localContext;
         this.httppocessor = httppocessor;
         this.reuseStrategy = reuseStrategy;
         this.params = params;
+    }
+
+    public BasicAsyncRequestExecutionHandler(
+            final HttpAsyncRequestProducer requestProducer,
+            final HttpAsyncResponseConsumer<T> responseConsumer,
+            final HttpContext localContext,
+            final HttpProcessor httppocessor,
+            final ConnectionReuseStrategy reuseStrategy,
+            final HttpParams params) {
+        this(requestProducer, responseConsumer, null, localContext, httppocessor, reuseStrategy, params);
+    }
+
+    public Future<T> getFuture() {
+        return this.future;
     }
 
     private void releaseResources() {

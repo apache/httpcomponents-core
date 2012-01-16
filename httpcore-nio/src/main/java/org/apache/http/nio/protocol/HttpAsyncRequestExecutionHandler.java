@@ -51,13 +51,13 @@ public interface HttpAsyncRequestExecutionHandler<T>
     HttpContext getContext();
 
     /**
-     * Returns {@link HttpProcessor} implementation to be used to process 
+     * Returns {@link HttpProcessor} implementation to be used to process
      * HTTP request and response messages for protocol compliance.
      *
      * @return HTTP protocol processor.
      */
     HttpProcessor getHttpProcessor();
-    
+
     /**
      * Returns {@link ConnectionReuseStrategy} implementation to be used
      * to determine whether or not the underlying connection can be kept alive

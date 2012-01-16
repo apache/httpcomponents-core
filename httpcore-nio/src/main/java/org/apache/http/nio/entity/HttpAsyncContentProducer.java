@@ -57,7 +57,7 @@ public interface HttpAsyncContentProducer extends Closeable {
 
     /**
      * Determines whether or not this producer is capable of producing
-     * its content more than once. Repeatable content producers are expected 
+     * its content more than once. Repeatable content producers are expected
      * to be able to recreate their content even after having been closed.
      */
     boolean isRepeatable();

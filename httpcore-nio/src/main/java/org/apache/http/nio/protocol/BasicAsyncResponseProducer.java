@@ -42,7 +42,7 @@ import org.apache.http.protocol.HttpContext;
  * Basic implementation of {@link HttpAsyncResponseProducer}. The producer
  * can make use of the {@link HttpAsyncContentProducer} interface to
  * efficiently stream out message content to the underlying non-blocking HTTP
- * connection, if it is implemented by the {@link HttpEntity} inclosed in 
+ * connection, if it is implemented by the {@link HttpEntity} inclosed in
  * the response.
  *
  * @see HttpAsyncContentProducer

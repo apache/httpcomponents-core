@@ -35,7 +35,6 @@ import org.apache.http.ConnectionReuseStrategy;
 import org.apache.http.HttpHost;
 import org.apache.http.HttpRequest;
 import org.apache.http.HttpVersion;
-import org.apache.http.concurrent.BasicFuture;
 import org.apache.http.message.BasicHttpRequest;
 import org.apache.http.message.BasicHttpResponse;
 import org.apache.http.nio.ContentDecoder;
@@ -53,7 +52,6 @@ import org.mockito.Mockito;
 
 public class TestBasicAsyncRequestExecutionHandler {
 
-    private BasicFuture<Object> future;
     private HttpAsyncRequestProducer requestProducer;
     private HttpAsyncResponseConsumer<Object> responseConsumer;
     private HttpContext context;
@@ -68,7 +66,6 @@ public class TestBasicAsyncRequestExecutionHandler {
     @SuppressWarnings("unchecked")
     @Before
     public void setUp() throws Exception {
-        this.future = new BasicFuture<Object>(null);
         this.requestProducer = Mockito.mock(HttpAsyncRequestProducer.class);
         this.responseConsumer = Mockito.mock(HttpAsyncResponseConsumer.class);
         this.context = new BasicHttpContext();
@@ -76,7 +73,6 @@ public class TestBasicAsyncRequestExecutionHandler {
         this.reuseStrategy = Mockito.mock(ConnectionReuseStrategy.class);
         this.params = new BasicHttpParams();
         this.exchangeHandler = new BasicAsyncRequestExecutionHandler<Object>(
-                this.future,
                 this.requestProducer,
                 this.responseConsumer,
                 this.context,
@@ -96,7 +92,6 @@ public class TestBasicAsyncRequestExecutionHandler {
         try {
             new BasicAsyncRequestExecutionHandler<Object>(
                     null,
-                    this.requestProducer,
                     this.responseConsumer,
                     this.context,
                     this.httpProcessor,
@@ -107,19 +102,6 @@ public class TestBasicAsyncRequestExecutionHandler {
         }
         try {
             new BasicAsyncRequestExecutionHandler<Object>(
-                    this.future,
-                    null,
-                    this.responseConsumer,
-                    this.context,
-                    this.httpProcessor,
-                    this.reuseStrategy,
-                    this.params);
-            Assert.fail("IllegalArgumentException expected");
-        } catch (IllegalArgumentException ex) {
-        }
-        try {
-            new BasicAsyncRequestExecutionHandler<Object>(
-                    this.future,
                     this.requestProducer,
                     null,
                     this.context,
@@ -131,7 +113,6 @@ public class TestBasicAsyncRequestExecutionHandler {
         }
         try {
             new BasicAsyncRequestExecutionHandler<Object>(
-                    this.future,
                     this.requestProducer,
                     this.responseConsumer,
                     null,
@@ -143,7 +124,6 @@ public class TestBasicAsyncRequestExecutionHandler {
         }
         try {
             new BasicAsyncRequestExecutionHandler<Object>(
-                    this.future,
                     this.requestProducer,
                     this.responseConsumer,
                     this.context,
@@ -155,7 +135,6 @@ public class TestBasicAsyncRequestExecutionHandler {
         }
         try {
             new BasicAsyncRequestExecutionHandler<Object>(
-                    this.future,
                     this.requestProducer,
                     this.responseConsumer,
                     this.context,
@@ -167,7 +146,6 @@ public class TestBasicAsyncRequestExecutionHandler {
         }
         try {
             new BasicAsyncRequestExecutionHandler<Object>(
-                    this.future,
                     this.requestProducer,
                     this.responseConsumer,
                     this.context,
@@ -181,20 +159,11 @@ public class TestBasicAsyncRequestExecutionHandler {
 
     @Test
     public void testClose() throws Exception {
-        Assert.assertFalse(this.future.isCancelled());
+        Assert.assertFalse(this.exchangeHandler.getFuture().isCancelled());
         this.exchangeHandler.close();
         Mockito.verify(this.requestProducer).close();
         Mockito.verify(this.responseConsumer).close();
-        Assert.assertTrue(this.future.isCancelled());
-    }
-
-    @Test
-    public void testCloseFutureDone() throws Exception {
-        this.future.completed(null);
-        this.exchangeHandler.close();
-        Mockito.verify(this.requestProducer).close();
-        Mockito.verify(this.responseConsumer).close();
-        Assert.assertFalse(this.future.isCancelled());
+        Assert.assertTrue(this.exchangeHandler.getFuture().isCancelled());
     }
 
     @Test
@@ -212,7 +181,7 @@ public class TestBasicAsyncRequestExecutionHandler {
         HttpRequest result = this.exchangeHandler.generateRequest();
 
         Assert.assertSame(request, result);
-        
+
         Mockito.verify(this.requestProducer).generateRequest();
     }
 
@@ -267,7 +236,7 @@ public class TestBasicAsyncRequestExecutionHandler {
         Mockito.verify(this.requestProducer).close();
         Mockito.verify(this.responseConsumer).close();
         try {
-            this.future.get();
+            this.exchangeHandler.getFuture().get();
         } catch (ExecutionException ex) {
             Assert.assertSame(ooopsie, ex.getCause());
         }
@@ -284,7 +253,7 @@ public class TestBasicAsyncRequestExecutionHandler {
             Mockito.verify(this.requestProducer).close();
             Mockito.verify(this.responseConsumer).close();
             try {
-                this.future.get();
+                this.exchangeHandler.getFuture().get();
             } catch (ExecutionException exex) {
                 Assert.assertSame(ooopsie, exex.getCause());
             }
@@ -298,7 +267,7 @@ public class TestBasicAsyncRequestExecutionHandler {
         Mockito.verify(this.responseConsumer).cancel();
         Mockito.verify(this.requestProducer).close();
         Mockito.verify(this.responseConsumer).close();
-        Assert.assertTrue(this.future.isCancelled());
+        Assert.assertTrue(this.exchangeHandler.getFuture().isCancelled());
     }
 
     @Test
@@ -311,7 +280,7 @@ public class TestBasicAsyncRequestExecutionHandler {
             Mockito.verify(this.requestProducer).close();
             Mockito.verify(this.responseConsumer).close();
             try {
-                this.future.get();
+                this.exchangeHandler.getFuture().get();
                 Assert.fail("ExecutionException expected");
             } catch (ExecutionException exex) {
             }
@@ -328,7 +297,7 @@ public class TestBasicAsyncRequestExecutionHandler {
         Mockito.verify(this.responseConsumer).responseCompleted(this.context);
         Mockito.verify(this.requestProducer).close();
         Mockito.verify(this.responseConsumer).close();
-        Object result = this.future.get();
+        Object result = this.exchangeHandler.getFuture().get();
         Assert.assertSame(obj, result);
     }
 
@@ -343,7 +312,7 @@ public class TestBasicAsyncRequestExecutionHandler {
         Mockito.verify(this.requestProducer).close();
         Mockito.verify(this.responseConsumer).close();
         try {
-            this.future.get();
+            this.exchangeHandler.getFuture().get();
         } catch (ExecutionException exex) {
             Assert.assertSame(ooopsie, exex.getCause());
         }
@@ -359,7 +328,7 @@ public class TestBasicAsyncRequestExecutionHandler {
             Mockito.verify(this.requestProducer).close();
             Mockito.verify(this.responseConsumer).close();
             try {
-                this.future.get();
+                this.exchangeHandler.getFuture().get();
                 Assert.fail("ExecutionException expected");
             } catch (ExecutionException exex) {
             }

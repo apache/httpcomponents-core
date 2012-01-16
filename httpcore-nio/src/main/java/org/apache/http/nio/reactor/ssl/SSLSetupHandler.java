@@ -37,7 +37,7 @@ import org.apache.http.nio.reactor.IOSession;
  * Callback interface that can be used to customize various aspects of
  * the TLS/SSl protocol.
  *
- * @since 4.1
+ * @since 4.2
  */
 public interface SSLSetupHandler {
 

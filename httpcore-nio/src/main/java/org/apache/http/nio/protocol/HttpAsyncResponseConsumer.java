@@ -97,7 +97,7 @@ public interface HttpAsyncResponseConsumer<T> extends Closeable, Cancellable {
 
     /**
      * Returns a result of the response processing, when available. This method
-     * returns <code>null</code> if response processing is still ongoing.
+     * returns <code>null</code> if the response processing is still ongoing.
      *
      * @see #isDone()
      */

@@ -99,13 +99,12 @@ public class HttpAsyncRequester {
         if (context == null) {
             throw new IllegalArgumentException("HTTP context may not be null");
         }
-        BasicFuture<T> future = new BasicFuture<T>(callback);
-        HttpAsyncRequestExecutionHandler<T> handler = new BasicAsyncRequestExecutionHandler<T>(
-                future, requestProducer, responseConsumer, context,
+        BasicAsyncRequestExecutionHandler<T> handler = new BasicAsyncRequestExecutionHandler<T>(
+                requestProducer, responseConsumer, callback, context,
                 this.httppocessor, this.reuseStrategy, this.params);
         conn.getContext().setAttribute(HttpAsyncRequestExecutor.HTTP_HANDLER, handler);
         conn.requestOutput();
-        return future;
+        return handler.getFuture();
     }
 
     /**
@@ -243,11 +242,10 @@ public class HttpAsyncRequester {
                 return;
             }
             NHttpClientConnection conn = result.getConnection();
-            BasicFuture<T> execFuture = new BasicFuture<T>(new RequestExecutionCallback<T, E>(
-                    this.requestFuture, result, this.connPool));
-            HttpAsyncRequestExecutionHandler<T> handler = new BasicAsyncRequestExecutionHandler<T>(
-                    execFuture, this.requestProducer, this.responseConsumer, this.context,
-                    httppocessor, reuseStrategy, params);
+            BasicAsyncRequestExecutionHandler<T> handler = new BasicAsyncRequestExecutionHandler<T>(
+                    this.requestProducer, this.responseConsumer,
+                    new RequestExecutionCallback<T, E>(this.requestFuture, result, this.connPool),
+                    this.context, httppocessor, reuseStrategy, params);
             conn.getContext().setAttribute(HttpAsyncRequestExecutor.HTTP_HANDLER, handler);
             conn.requestOutput();
         }
