@@ -1852,40 +1852,40 @@ HttpResponse response = future.get();
             <para>
             <classname>SSLIOSession</classname> is a decorator class intended to transparently 
             extend any arbitrary <interfacename>IOSession</interfacename> with transport layer 
-            security capabilities based on the SSL/TLS protocol. Individual protocol handlers 
-            should be able to work with SSL sessions without special preconditions or 
-            modifications. However, I/O dispatchers need to take some additional actions to ensure 
-            correct functioning of the transport layer encryption.
+            security capabilities based on the SSL/TLS protocol. Default HTTP connection 
+            implementations and protocol handlers should be able to work with SSL sessions without 
+            special preconditions or modifications. 
             </para>
-            <itemizedlist>
-                <listitem>
-                    <para>
-                    When the underlying I/O session has been  created, the I/O dispatch must call 
-                    <methodname>SSLIOSession#bind()</methodname> method in order to put the SSL 
-                    session either into a client or a server mode.
-                    </para>
-                </listitem>
-                <listitem>
-                    <para>
-                    When the underlying I/O session is input ready, the I/O dispatcher should check 
-                    whether the SSL I/O session is ready to produce input data by calling 
-                    <methodname>SSLIOSession#isAppInputReady()</methodname>, pass control to the 
-                    protocol handler if it is, and finally call <methodname>
-                    SSLIOSession#inboundTransport()</methodname> method in order to do the 
-                    necessary SSL handshaking and decrypt input data.
-                    </para>
-                </listitem>
-                <listitem>
-                    <para>
-                    When the underlying I/O session is output ready, the I/O dispatcher should 
-                    check whether the SSL I/O session is ready to accept output data by calling 
-                    <methodname>SSLIOSession#isAppOutputReady()</methodname>, pass control to the 
-                    protocol handler if it is, and finally call <methodname>
-                    SSLIOSession#outboundTransport()</methodname> method in order to do the nessary 
-                    SSL handshaking and encrypt application data.
-                    </para>
-                </listitem>
-            </itemizedlist>
+            <programlisting><![CDATA[
+// Initialize HTTP parameters
+HttpParams params;
+// Initialize default SSL context
+SSLContext sslcontext = SSLContext.getInstance("SSL");
+sslcontext.init(null, null, null);
+// Plain I/O session
+IOSession iosession; 
+SSLIOSession sslsession = new SSLIOSession(
+        iosession, SSLMode.CLIENT, sslcontext, null);
+iosession.setAttribute(SSLIOSession.SESSION_KEY, sslsession);
+NHttpClientConnection conn = new DefaultNHttpClientConnection(
+        sslsession, 
+        new DefaultHttpResponseFactory(), 
+        new HeapByteBufferAllocator(), params);
+]]></programlisting>
+            <para>
+            One can also use <classname>SSLNHttpClientConnectionFactory</classname> or <classname>
+            SSLNHttpServerConnectionFactory</classname> classes to conveniently create SSL 
+            encrypterd HTTP connections. 
+            </para>
+            <programlisting><![CDATA[
+// Initialize HTTP parameters
+HttpParams params;
+// Plain I/O session
+IOSession iosession; 
+SSLNHttpClientConnectionFactory connfactory = new SSLNHttpClientConnectionFactory(
+        params);
+NHttpClientConnection conn = connfactory.createConnection(iosession);
+]]></programlisting>
             <section>
                 <title>SSL setup handler</title>
                 <para>
@@ -1922,9 +1922,8 @@ HttpResponse response = future.get();
                     </listitem>
                 </itemizedlist>
                 <programlisting><![CDATA[
-// Get hold of new I/O session
+// Plain I/O session
 IOSession iosession; 
-
 // Initialize default SSL context
 SSLContext sslcontext = SSLContext.getInstance("SSL");
 sslcontext.init(null, null, null);
@@ -1933,8 +1932,6 @@ SSLIOSession sslsession = new SSLIOSession(
     iosession, SSLMode.CLIENT, sslcontext, new SSLSetupHandler() {
        
     public void initalize(final SSLEngine sslengine) throws SSLException {
-        // Ask clients to authenticate
-        sslengine.setWantClientAuth(true);
         // Enforce strong ciphers 
         sslengine.setEnabledCipherSuites(new String[] {
                 "TLS_RSA_WITH_AES_256_CBC_SHA",
@@ -1954,7 +1951,81 @@ SSLIOSession sslsession = new SSLIOSession(
         
 });
 ]]></programlisting>
+            <para>
+            <interfacename>SSLSetupHandler</interfacename> impelemntations can also be used with 
+            the <classname>SSLNHttpClientConnectionFactory</classname> or <classname>
+            SSLNHttpServerConnectionFactory</classname> classes. 
+            </para>
+            <programlisting><![CDATA[
+// Initialize HTTP parameters
+HttpParams params;
+// Initialize default SSL context
+SSLContext sslcontext = SSLContext.getInstance("SSL");
+sslcontext.init(null, null, null);
+SSLSetupHandler mysslhandler = new SSLSetupHandler() {
+
+    public void initalize(final SSLEngine sslengine) throws SSLException {
+        // Enforce strong ciphers 
+        sslengine.setEnabledCipherSuites(new String[] {
+                "TLS_RSA_WITH_AES_256_CBC_SHA",
+                "TLS_DHE_RSA_WITH_AES_256_CBC_SHA",
+                "TLS_DHE_DSS_WITH_AES_256_CBC_SHA" });
+    }
+
+    public void verify(
+            final IOSession iosession, final SSLSession sslsession) throws SSLException {
+    }
+    
+    
+};
+// Plain I/O session
+IOSession iosession;
+SSLNHttpClientConnectionFactory connfactory = new SSLNHttpClientConnectionFactory(
+        sslcontext, mysslhandler, params);
+// Create SSL connection
+NHttpClientConnection conn = connfactory.createConnection(iosession);
+]]></programlisting>
             </section>
+        </section>
+        <section>
+            <title>TLS/SSL aware I/O event dispatches</title>
+            <para>
+            Default <interfacename>IOEventDispatch</interfacename> implementations shipped with 
+            the library such as <classname>DefaultHttpServerIODispatch</classname> and <classname>
+            DefaultHttpClientIODispatch</classname> automatically detect SSL encrypted sessions
+            and handle SSL transport aspects transparently. However, custom I/O event dispatchers 
+            that do not extend <classname>AbstractIODispatch</classname> are required to take some 
+            additional actions to ensure correct functioning of the transport layer encryption.
+            </para>
+            <itemizedlist>
+                <listitem>
+                    <para>
+                    The I/O dispatch may need to call <methodname>SSLIOSession#initalize()
+                    </methodname> method in order to put the SSL session either into a client or 
+                    a server mode, if the SSL session has not been yet initialized.
+                    </para>
+                </listitem>
+                <listitem>
+                    <para>
+                    When the underlying I/O session is input ready, the I/O dispatcher should check 
+                    whether the SSL I/O session is ready to produce input data by calling 
+                    <methodname>SSLIOSession#isAppInputReady()</methodname>, pass control to the 
+                    protocol handler if it is, and finally call <methodname>
+                    SSLIOSession#inboundTransport()</methodname> method in order to do the 
+                    necessary SSL handshaking and decrypt input data.
+                    </para>
+                </listitem>
+                <listitem>
+                    <para>
+                    When the underlying I/O session is output ready, the I/O dispatcher should 
+                    check whether the SSL I/O session is ready to accept output data by calling 
+                    <methodname>SSLIOSession#isAppOutputReady()</methodname>, pass control to the 
+                    protocol handler if it is, and finally call <methodname>
+                    SSLIOSession#outboundTransport()</methodname> method in order to do the nessary 
+                    SSL handshaking and encrypt application data.
+                    </para>
+                </listitem>
+            </itemizedlist>
         </section>
     </section>
 </chapter>
