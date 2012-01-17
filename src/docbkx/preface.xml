@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE preface PUBLIC "-//OASIS//DTD DocBook XML V4.4//EN"
                  "http://www.oasis-open.org/docbook/xml/4.4/docbookx.dtd">
-<!-- 
+<!--
    ====================================================================
    Licensed to the Apache Software Foundation (ASF) under one
    or more contributor license agreements.  See the NOTICE file
@@ -25,8 +25,8 @@
 <preface id="preface">
     <title>Preface</title>
     <para>
-    HttpCore is a set of components implementing the most fundamental aspects 
-    of the HTTP protocol that are nonetheless sufficient to develop full-featured 
+    HttpCore is a set of components implementing the most fundamental aspects
+    of the HTTP protocol that are nonetheless sufficient to develop full-featured
     client-side and server-side HTTP services with a minimal footprint.
     </para>
     <para>
@@ -47,8 +47,8 @@
             </listitem>
             <listitem>
                 <para>
-                A set of low level components based on blocking (classic) and non-blocking 
-                (NIO) I/O models 
+                A set of low level components based on blocking (classic) and non-blocking
+                (NIO) I/O models
                 </para>
             </listitem>
         </itemizedlist>
@@ -63,17 +63,17 @@
             </listitem>
             <listitem>
                 <para>
-                Balance between good performance and the clarity &amp; expressiveness of API 
+                Balance between good performance and the clarity &amp; expressiveness of API
                 </para>
             </listitem>
             <listitem>
                 <para>
-                Small (predictable) memory footprint  
+                Small (predictable) memory footprint
                 </para>
             </listitem>
             <listitem>
                 <para>
-                Self contained library (no external dependencies beyond JRE)   
+                Self contained library (no external dependencies beyond JRE)
                 </para>
             </listitem>
         </itemizedlist>
@@ -83,7 +83,7 @@
         <itemizedlist>
             <listitem>
                 <para>
-                A replacement for HttpClient 
+                A replacement for HttpClient
                 </para>
             </listitem>
             <listitem>
