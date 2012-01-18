@@ -30,19 +30,13 @@
 -->
 </head>
 <body>
-Representations for non-blocking HTTP message entities.
+Common HTTP entity implementations with extensions for 
+asynchronous (non-blocking) data transfer.
 
-An {@link org.apache.http.HttpEntity entity} is the optional content of a
-{@link org.apache.http.HttpMessage message}.
 This package provides a basic selection of entity implementations
 that can obtain content from
 {@link org.apache.http.nio.entity.NByteArrayEntity byte array},
 {@link org.apache.http.nio.entity.NStringEntity string},
 {@link org.apache.http.nio.entity.NFileEntity file}, or through an
-{@link org.apache.http.nio.entity.NHttpEntityWrapper compatibility adaptor}
-for blocking HTTP entities.
-If a message is received from an open non-blocking connection, usually it is
-represented by
-{@link org.apache.http.nio.entity.ConsumingNHttpEntity consuming} entity.
 </body>
 </html>

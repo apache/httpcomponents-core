@@ -47,8 +47,19 @@ import java.nio.channels.ByteChannel;
 import java.nio.channels.SelectionKey;
 
 /**
- * A decorator class intended to transparently extend an {@link IOSession}
- * with transport layer security capabilities based on the SSL/TLS protocol.
+ * <tt>SSLIOSession</tt> is a decorator class intended to transparently extend 
+ * an {@link IOSession} with transport layer security capabilities based on 
+ * the SSL/TLS protocol.
+ * <p/>
+ * The resultant instance of <tt>SSLIOSession</tt> must be added to the original 
+ * I/O session as an attribute with the {@link #SESSION_KEY} key.  
+ * <pre>
+ *  SSLContext sslcontext = SSLContext.getInstance("SSL");
+ *  sslcontext.init(null, null, null);
+ *  SSLIOSession sslsession = new SSLIOSession(
+ *      iosession, SSLMode.CLIENT, sslcontext, null);
+ *  iosession.setAttribute(SSLIOSession.SESSION_KEY, sslsession); 
+ * </pre>
  *
  * @since 4.2
  */
@@ -78,6 +89,14 @@ public class SSLIOSession implements IOSession, SessionBufferStatus {
     private volatile int status;
     private volatile boolean initialized;
 
+    /**
+     * Creates new instance of <tt>SSLIOSession</tt> class.
+     *  
+     * @param session I/O session to be decorated with the TLS/SSL capabilities.
+     * @param defaultMode default mode (client or server)
+     * @param sslContext SSL context to use for this I/O session.
+     * @param handler optional SSL setup handler. May be <code>null</code>.
+     */
     public SSLIOSession(
             final IOSession session,
             final SSLMode defaultMode,
@@ -123,10 +142,24 @@ public class SSLIOSession implements IOSession, SessionBufferStatus {
         return this.handler;
     }
 
+    /**
+     * Returns <code>true</code> is the session has been fully initialized, 
+     * <code>false</code> otherwise. 
+     */
     public boolean isInitialized() {
         return this.initialized;
     }
 
+    /**
+     * Initializes the session in the given {@link SSLMode}. This method 
+     * invokes the {@link SSLSetupHandler#initalize(SSLEngine)} callback
+     * if an instance of {@link SSLSetupHandler} was specified at 
+     * the construction time.
+     * 
+     * @param mode mode of operation (client or server).
+     * @throws SSLException in case of a SSL protocol exception.
+     * @throws IllegalStateException if the session has already been initialized.
+     */
     public synchronized void initialize(final SSLMode mode) throws SSLException {
         if (this.initialized) {
             throw new IllegalStateException("SSL I/O session already initialized");
@@ -150,6 +183,15 @@ public class SSLIOSession implements IOSession, SessionBufferStatus {
         doHandshake();
     }
 
+    /**
+     * Initializes the session in the default operation mode. This method 
+     * invokes the {@link SSLSetupHandler#initalize(SSLEngine)} callback
+     * if an instance of {@link SSLSetupHandler} was specified at 
+     * the construction time.
+     * 
+     * @throws SSLException in case of a SSL protocol exception.
+     * @throws IllegalStateException if the session has already been initialized.
+     */
     public void initialize() throws SSLException {
         initialize(this.defaultMode);
     }
@@ -312,6 +354,12 @@ public class SSLIOSession implements IOSession, SessionBufferStatus {
         return decrypted;
     }
 
+    /**
+     * Reads encrypted data and returns whether the channel associated with 
+     * this session has any decrypted inbound data available for reading.
+     *  
+     * @throws IOException in case of an I/O error.
+     */
     public synchronized boolean isAppInputReady() throws IOException {
         int bytesRead = receiveEncryptedData();
         if (bytesRead == -1) {
@@ -327,6 +375,9 @@ public class SSLIOSession implements IOSession, SessionBufferStatus {
     }
 
     /**
+     * Returns whether the channel associated with this session is ready to 
+     * accept outbound unecrypted data for writing.
+     *  
      * @throws IOException - not thrown currently
      */
     public synchronized boolean isAppOutputReady() throws IOException {
@@ -336,16 +387,37 @@ public class SSLIOSession implements IOSession, SessionBufferStatus {
     }
 
     /**
+     * Executes inbound SSL transport operations.
+     * 
      * @throws IOException - not thrown currently
      */
     public synchronized void inboundTransport() throws IOException {
         updateEventMask();
     }
 
+    /**
+     * Sends encrypted data and executes outbound SSL transport operations.
+     * 
+     * @throws IOException in case of an I/O error.
+     */
     public synchronized void outboundTransport() throws IOException {
         sendEncryptedData();
         doHandshake();
         updateEventMask();
+    }
+
+    /**
+     * Returns whether the session will produce any more inbound data. 
+     */
+    public synchronized boolean isInboundDone() {
+        return this.sslEngine.isInboundDone();
+    }
+
+    /**
+     * Returns whether the session will accept any more outbound data. 
+     */
+    public synchronized boolean isOutboundDone() {
+        return this.sslEngine.isOutboundDone();
     }
 
     private synchronized int writePlain(final ByteBuffer src) throws SSLException {
@@ -371,10 +443,7 @@ public class SSLIOSession implements IOSession, SessionBufferStatus {
         }
     }
 
-    /**
-     * @throws SSLException - not thrown currently
-     */
-    private synchronized int readPlain(final ByteBuffer dst) throws SSLException {
+    private synchronized int readPlain(final ByteBuffer dst) {
         if (dst == null) {
             throw new IllegalArgumentException("Byte buffer may not be null");
         }
@@ -418,14 +487,6 @@ public class SSLIOSession implements IOSession, SessionBufferStatus {
 
     public boolean isClosed() {
         return this.status >= CLOSING;
-    }
-
-    public synchronized boolean isInboundDone() {
-        return this.sslEngine.isInboundDone();
-    }
-
-    public synchronized boolean isOutboundDone() {
-        return this.sslEngine.isOutboundDone();
     }
 
     public ByteChannel channel() {
