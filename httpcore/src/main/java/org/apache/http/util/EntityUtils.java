@@ -51,6 +51,22 @@ public final class EntityUtils {
 
     /**
      * Ensures that the entity content is fully consumed and the content stream, if exists,
+     * is closed. The process is done, <i>quietly</i> , without throwing any IOException.
+     *
+     * @param entity
+     *
+     *
+     * @since 4.2
+     */
+    public static void consumeQuietly(final HttpEntity entity) {
+        try {
+          consume(entity);
+        } catch (IOException ioex) {
+        }
+    }
+
+    /**
+     * Ensures that the entity content is fully consumed and the content stream, if exists,
      * is closed.
      *
      * @param entity
