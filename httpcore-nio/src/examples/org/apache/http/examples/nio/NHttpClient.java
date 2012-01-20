@@ -112,8 +112,8 @@ public class NHttpClient {
         });
         // Start the client thread
         t.start();
-        // Create HTTP request executor
-        HttpAsyncRequester executor = new HttpAsyncRequester(
+        // Create HTTP requester
+        HttpAsyncRequester requester = new HttpAsyncRequester(
                 httpproc, new DefaultConnectionReuseStrategy(), params);
         // Execute HTTP GETs to the following hosts and
         HttpHost[] targets = new HttpHost[] {
@@ -124,7 +124,7 @@ public class NHttpClient {
         final CountDownLatch latch = new CountDownLatch(targets.length);
         for (final HttpHost target: targets) {
             BasicHttpRequest request = new BasicHttpRequest("GET", "/");
-            executor.execute(
+            requester.execute(
                     new BasicAsyncRequestProducer(target, request),
                     new BasicAsyncResponseConsumer(),
                     pool,

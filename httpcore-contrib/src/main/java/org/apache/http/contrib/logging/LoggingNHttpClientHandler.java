@@ -36,19 +36,19 @@ import org.apache.http.HttpResponse;
 import org.apache.http.nio.ContentDecoder;
 import org.apache.http.nio.ContentEncoder;
 import org.apache.http.nio.NHttpClientConnection;
-import org.apache.http.nio.NHttpClientHandler;
+import org.apache.http.nio.NHttpClientEventHandler;
 
 /**
  * Decorator class intended to transparently extend an {@link NHttpClientHandler}
  * with basic event logging capabilities using Commons Logging.
  *
  */
-public class LoggingNHttpClientHandler implements NHttpClientHandler {
+public class LoggingNHttpClientHandler implements NHttpClientEventHandler {
 
     private final Log log;
-    private final NHttpClientHandler handler;
+    private final NHttpClientEventHandler handler;
 
-    public LoggingNHttpClientHandler(final NHttpClientHandler handler) {
+    public LoggingNHttpClientHandler(final NHttpClientEventHandler handler) {
         super();
         if (handler == null) {
             throw new IllegalArgumentException("HTTP client handler may not be null");
@@ -57,7 +57,9 @@ public class LoggingNHttpClientHandler implements NHttpClientHandler {
         this.log = LogFactory.getLog(handler.getClass());
     }
 
-    public void connected(final NHttpClientConnection conn, final Object attachment) {
+    public void connected(
+            final NHttpClientConnection conn,
+            final Object attachment) throws IOException, HttpException {
         if (this.log.isDebugEnabled()) {
             this.log.debug(conn + ": Connected (" + attachment + ")");
         }
@@ -71,24 +73,23 @@ public class LoggingNHttpClientHandler implements NHttpClientHandler {
         this.handler.closed(conn);
     }
 
-    public void exception(final NHttpClientConnection conn, final IOException ex) {
+    public void exception(
+            final NHttpClientConnection conn, final Exception ex) {
         this.log.error(conn + ": " + ex.getMessage(), ex);
         this.handler.exception(conn, ex);
     }
 
-    public void exception(final NHttpClientConnection conn, final HttpException ex) {
-        this.log.error(conn + ": " + ex.getMessage(), ex);
-        this.handler.exception(conn, ex);
-    }
-
-    public void requestReady(final NHttpClientConnection conn) {
+    public void requestReady(
+            final NHttpClientConnection conn) throws IOException, HttpException {
         if (this.log.isDebugEnabled()) {
             this.log.debug(conn + ": Request ready");
         }
         this.handler.requestReady(conn);
     }
 
-    public void outputReady(final NHttpClientConnection conn, final ContentEncoder encoder) {
+    public void outputReady(
+            final NHttpClientConnection conn,
+            final ContentEncoder encoder) throws IOException, HttpException {
         if (this.log.isDebugEnabled()) {
             this.log.debug(conn + ": Output ready");
         }
@@ -98,7 +99,8 @@ public class LoggingNHttpClientHandler implements NHttpClientHandler {
         }
     }
 
-    public void responseReceived(final NHttpClientConnection conn) {
+    public void responseReceived(
+            final NHttpClientConnection conn) throws IOException, HttpException {
         HttpResponse response = conn.getHttpResponse();
         if (this.log.isDebugEnabled()) {
             this.log.debug(conn + ": " + response.getStatusLine());
@@ -106,7 +108,9 @@ public class LoggingNHttpClientHandler implements NHttpClientHandler {
         this.handler.responseReceived(conn);
     }
 
-    public void inputReady(final NHttpClientConnection conn, final ContentDecoder decoder) {
+    public void inputReady(
+            final NHttpClientConnection conn,
+            final ContentDecoder decoder) throws IOException, HttpException {
         if (this.log.isDebugEnabled()) {
             this.log.debug(conn + ": Input ready");
         }
@@ -116,7 +120,8 @@ public class LoggingNHttpClientHandler implements NHttpClientHandler {
         }
     }
 
-    public void timeout(final NHttpClientConnection conn) {
+    public void timeout(
+            final NHttpClientConnection conn) throws IOException, HttpException {
         if (this.log.isDebugEnabled()) {
             this.log.debug(conn + ": Timeout");
         }

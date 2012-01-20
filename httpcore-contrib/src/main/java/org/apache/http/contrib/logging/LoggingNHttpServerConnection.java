@@ -41,7 +41,7 @@ import org.apache.http.HttpResponse;
 import org.apache.http.impl.nio.DefaultNHttpServerConnection;
 import org.apache.http.nio.NHttpMessageParser;
 import org.apache.http.nio.NHttpMessageWriter;
-import org.apache.http.nio.NHttpServiceHandler;
+import org.apache.http.nio.NHttpServerEventHandler;
 import org.apache.http.nio.reactor.IOSession;
 import org.apache.http.nio.reactor.SessionInputBuffer;
 import org.apache.http.nio.reactor.SessionOutputBuffer;
@@ -99,7 +99,7 @@ public class LoggingNHttpServerConnection extends DefaultNHttpServerConnection {
     }
 
     @Override
-    public void consumeInput(final NHttpServiceHandler handler) {
+    public void consumeInput(final NHttpServerEventHandler handler) {
         if (this.log.isDebugEnabled()) {
             this.log.debug(this.id + ": Consume input");
         }
@@ -107,7 +107,7 @@ public class LoggingNHttpServerConnection extends DefaultNHttpServerConnection {
     }
 
     @Override
-    public void produceOutput(final NHttpServiceHandler handler) {
+    public void produceOutput(final NHttpServerEventHandler handler) {
         if (this.log.isDebugEnabled()) {
             this.log.debug(this.id + ": Produce output");
         }
