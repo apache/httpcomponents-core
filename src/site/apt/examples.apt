@@ -45,7 +45,7 @@ HttpCore Examples
 
     * {{{./httpcore-nio/examples/org/apache/http/examples/nio/NHttpClient.java} Asynchronous HTTP GET}}
     
-    This example demonstrates how HttpCore NIO can be used to execute multiple HTTP GET requests 
+    This example demonstrates how HttpCore NIO can be used to execute multiple HTTP requests 
     asynchronously using only one I/O thread.
 
     * {{{./httpcore-nio/examples/org/apache/http/examples/nio/NHttpServer.java} Asynchronous HTTP 

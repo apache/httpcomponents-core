@@ -1,8 +1,37 @@
-Changes since Release 4.2-ALPHA2
+Release 4.2-BETA1
 -------------------
+
+This is the first BETA release of HttpCore 4.2. This release comes with completely redesigned 
+and rewritten asynchronous protocol handlers. New protocol handling API used in conjunction with 
+connection pooling components is expected to make development of asynchronous HTTP client agents 
+and HTTP proxies easier and less error prone.
+
+Sample application shipped with the release include an example of an HTTP file server capable of 
+direct channel (zero copy) data transfer and an example of a non-blocking, fully streaming reverse 
+proxy.  
+
+This release also incorporates bug fixes from the stable 4.1.x branch and includes an updated
+HttpCore tutorial.
+
+
+
+Release 4.1.4
+-------------------
+
+This is a maintenance release that fixes a number of bugs found since 4.1.3. It is also likely 
+to be the last release in the 4.1.x branch.
 
 * [HTTPCORE-286] Canceled I/O session can cause an IllegalStateException in BaseIOReactor#validate
   leading to an abnormal termination of the I/O reactor.
+  Contributed by Oleg Kalnichevski <olegk at apache.org>
+
+* [HTTPCORE-257] Fixed incorrect results produced by DefaultConnectionReuseStrategy when handling 
+  response messages whose content entity has been decoded or modified by a protocol interceptor. 
+  Contributed by Oleg Kalnichevski <olegk at apache.org>
+
+* [HTTPCORE-283] Workaround for a bug causing termination of the I/O reactor in case of exception 
+  thrown by NHttpServiceHandler#requestReceived or NHttpClientHandler#responseReceived
+  methods. A more comprehensive fix for the bug applied to the 4.2 branch.
   Contributed by Oleg Kalnichevski <olegk at apache.org>
 
 * [HTTPCORE-281] ResponseConnControl protocol interceptor does not correctly populate connection
@@ -14,6 +43,11 @@ Changes since Release 4.2-ALPHA2
   is not correctly initialized, which causes the READ interest bit to get cleared in the interest 
   op queuing mode unless the event mask is explicitly reset.
   Contributed by Sadeep Jayasumana <sadeep at wso2.com> and Oleg Kalnichevski <olegk at apache.org>
+
+* [HTTPCORE-268] Handle runtime exceptions thrown by SSLEngine.
+  Contributed by Oleg Kalnichevski <olegk at apache.org>
+
+
 
 Release 4.2-ALPHA2
 -------------------

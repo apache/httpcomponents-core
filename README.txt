@@ -11,10 +11,7 @@ For building from source instructions please refer to BUILDING.txt.
 Dependencies
 ------------
 
-HttpCore main module requires Java 1.3 compatible runtime only.
-
-HttpCore NIO module is optional and requires Java 5.0 compatible runtime
-and the main module of the same version.
+HttpCore requires Java 1.5 compatible runtime.
 
 Licensing
 ---------
