@@ -190,13 +190,19 @@ public class HttpAsyncService implements NHttpServerEventHandler {
         State state = ensureNotNull(getState(conn));
         if (state != null) {
             synchronized (state) {
+                state.setTerminated();
                 closeHandlers(state, cause);
+                Cancellable cancellable = state.getCancellable();
+                if (cancellable != null) {
+                    cancellable.cancel();
+                }
                 if (cause instanceof HttpException) {
                     if (conn.isResponseSubmitted()
-                            || state.getResponseState() != MessageState.READY) {
+                            || state.getResponseState().compareTo(MessageState.INIT) > 0) {
                         // There is not much that we can do if a response
                         // has already been submitted
                         closeConnection(conn);
+                        log(cause);
                     } else {
                         HttpContext context = state.getContext();
                         HttpAsyncResponseProducer responseProducer = handleException(
@@ -209,7 +215,6 @@ public class HttpAsyncService implements NHttpServerEventHandler {
                         } catch (Exception ex) {
                             shutdownConnection(conn);
                             closeHandlers(state);
-                            state.reset();
                             if (ex instanceof RuntimeException) {
                                 throw (RuntimeException) ex;
                             } else {
@@ -219,7 +224,6 @@ public class HttpAsyncService implements NHttpServerEventHandler {
                     }
                 } else {
                     shutdownConnection(conn);
-                    state.reset();
                 }
             }
         } else {
@@ -509,6 +513,7 @@ public class HttpAsyncService implements NHttpServerEventHandler {
         HttpAsyncRequestConsumer<?> consumer = state.getRequestConsumer();
         consumer.requestCompleted(context);
         state.setRequestState(MessageState.COMPLETED);
+        state.setResponseState(MessageState.INIT);
         Exception exception = consumer.getException();
         if (exception != null) {
             HttpAsyncResponseProducer responseProducer = handleException(exception, context);

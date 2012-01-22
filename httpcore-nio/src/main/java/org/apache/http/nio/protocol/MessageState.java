@@ -28,6 +28,6 @@ package org.apache.http.nio.protocol;
 
 enum MessageState {
 
-    READY, ACK_EXPECTED, ACK, BODY_STREAM, COMPLETED
+    READY, INIT, ACK_EXPECTED, ACK, BODY_STREAM, COMPLETED
 
 }

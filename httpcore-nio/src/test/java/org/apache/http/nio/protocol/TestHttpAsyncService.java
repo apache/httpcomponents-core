@@ -169,6 +169,7 @@ public class TestHttpAsyncService {
         state.setRequestState(MessageState.READY);
         state.setResponseState(MessageState.READY);
         state.setRequestConsumer(this.requestConsumer);
+        state.setCancellable(this.cancellable);
         this.connContext.setAttribute(HttpAsyncService.HTTP_EXCHANGE_STATE, state);
 
         HttpException httpex = new HttpException();
@@ -182,6 +183,7 @@ public class TestHttpAsyncService {
 
         Mockito.verify(this.requestConsumer).failed(httpex);
         Mockito.verify(this.requestConsumer).close();
+        Mockito.verify(this.cancellable).cancel();
         Mockito.verify(this.conn, Mockito.never()).shutdown();
         Mockito.verify(this.conn, Mockito.never()).close();
     }
@@ -194,6 +196,7 @@ public class TestHttpAsyncService {
         state.setResponseState(MessageState.READY);
         state.setRequestConsumer(this.requestConsumer);
         state.setResponseProducer(this.responseProducer);
+        state.setCancellable(this.cancellable);
         this.connContext.setAttribute(HttpAsyncService.HTTP_EXCHANGE_STATE, state);
 
         Mockito.doThrow(new RuntimeException()).when(this.httpProcessor).process(
@@ -208,6 +211,7 @@ public class TestHttpAsyncService {
             Mockito.verify(this.requestConsumer, Mockito.atLeastOnce()).close();
             Mockito.verify(this.responseProducer).failed(httpex);
             Mockito.verify(this.responseProducer, Mockito.atLeastOnce()).close();
+            Mockito.verify(this.cancellable).cancel();
         }
     }
 
@@ -219,6 +223,7 @@ public class TestHttpAsyncService {
         state.setResponseState(MessageState.READY);
         state.setRequestConsumer(this.requestConsumer);
         state.setResponseProducer(this.responseProducer);
+        state.setCancellable(this.cancellable);
         this.connContext.setAttribute(HttpAsyncService.HTTP_EXCHANGE_STATE, state);
 
         Mockito.doThrow(new IOException()).when(this.httpProcessor).process(
@@ -232,6 +237,7 @@ public class TestHttpAsyncService {
         Mockito.verify(this.requestConsumer, Mockito.atLeastOnce()).close();
         Mockito.verify(this.responseProducer).failed(httpex);
         Mockito.verify(this.responseProducer, Mockito.atLeastOnce()).close();
+        Mockito.verify(this.cancellable).cancel();
     }
 
     @Test
@@ -294,7 +300,7 @@ public class TestHttpAsyncService {
         this.protocolHandler.requestReceived(this.conn);
 
         Assert.assertEquals(MessageState.COMPLETED, state.getRequestState());
-        Assert.assertEquals(MessageState.READY, state.getResponseState());
+        Assert.assertEquals(MessageState.INIT, state.getResponseState());
 
         Assert.assertSame(request, state.getRequest());
         Assert.assertSame(this.requestHandler, state.getRequestHandler());
@@ -546,7 +552,7 @@ public class TestHttpAsyncService {
         this.protocolHandler.inputReady(conn, this.decoder);
 
         Assert.assertEquals(MessageState.COMPLETED, state.getRequestState());
-        Assert.assertEquals(MessageState.READY, state.getResponseState());
+        Assert.assertEquals(MessageState.INIT, state.getResponseState());
 
         Mockito.verify(this.requestConsumer).consumeContent(this.decoder, this.conn);
         Mockito.verify(this.conn).suspendInput();
@@ -575,7 +581,7 @@ public class TestHttpAsyncService {
         this.protocolHandler.inputReady(conn, this.decoder);
 
         Assert.assertEquals(MessageState.COMPLETED, state.getRequestState());
-        Assert.assertEquals(MessageState.READY, state.getResponseState());
+        Assert.assertEquals(MessageState.INIT, state.getResponseState());
         Assert.assertNotNull(state.getResponseProducer());
 
         Mockito.verify(this.requestConsumer).consumeContent(this.decoder, this.conn);
@@ -612,7 +618,7 @@ public class TestHttpAsyncService {
         this.protocolHandler.inputReady(conn, this.decoder);
 
         Assert.assertEquals(MessageState.COMPLETED, state.getRequestState());
-        Assert.assertEquals(MessageState.READY, state.getResponseState());
+        Assert.assertEquals(MessageState.INIT, state.getResponseState());
         Assert.assertNotNull(state.getResponseProducer());
 
         Mockito.verify(this.requestConsumer).consumeContent(this.decoder, this.conn);
