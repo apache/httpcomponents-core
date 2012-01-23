@@ -118,6 +118,15 @@ public interface NHttpServerEventHandler {
             ContentEncoder encoder) throws IOException, HttpException;
 
     /**
+     * Triggered when the connection is closed by the opposite end point
+     * (half-closed).
+     *
+     * @param conn half-closed HTTP connection.
+     */
+    void endOfInput(
+            NHttpServerConnection conn) throws IOException;
+
+    /**
      * Triggered when no input is detected on this connection over the
      * maximum period of inactivity.
      *

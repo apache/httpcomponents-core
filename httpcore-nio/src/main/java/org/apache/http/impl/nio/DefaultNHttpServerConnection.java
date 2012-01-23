@@ -171,7 +171,7 @@ public class DefaultNHttpServerConnection
                     }
                 }
                 if (bytesRead == -1) {
-                    close();
+                    handler.endOfInput(this);
                 }
             }
             if (this.contentDecoder != null && (this.session.getEventMask() & SelectionKey.OP_READ) > 0) {

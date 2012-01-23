@@ -265,6 +265,10 @@ public class HttpAsyncRequestExecutor implements NHttpClientEventHandler {
         }
     }
 
+    public void endOfInput(final NHttpClientConnection conn) throws IOException {
+        conn.close();
+    }
+
     public void timeout(
             final NHttpClientConnection conn) throws IOException {
         State state = getState(conn);

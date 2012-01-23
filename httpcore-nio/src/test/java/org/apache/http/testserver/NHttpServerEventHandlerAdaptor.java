@@ -86,6 +86,10 @@ class NHttpServerEventHandlerAdaptor implements NHttpServerEventHandler {
         }
     }
 
+    public void endOfInput(final NHttpServerConnection conn) throws IOException {
+        conn.close();
+    }
+
     public void timeout(final NHttpServerConnection conn) {
         this.handler.timeout(conn);
     }
