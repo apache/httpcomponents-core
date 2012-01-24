@@ -45,8 +45,8 @@ import org.apache.http.protocol.HttpContext;
 import org.apache.http.protocol.HttpProcessor;
 
 /**
- * <tt>HttpAsyncRequester</tt> is a utility class that can be used 
- * in conjunction with {@link HttpAsyncRequestExecutor} to initiate execution 
+ * <tt>HttpAsyncRequester</tt> is a utility class that can be used
+ * in conjunction with {@link HttpAsyncRequestExecutor} to initiate execution
  * of asynchronous HTTP requests.
  *
  * @see HttpAsyncRequestExecutor

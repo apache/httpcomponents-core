@@ -43,7 +43,7 @@ public interface IOEventDispatch {
      * Attribute name of an object that represents a non-blocking connection.
      */
     public static final String CONNECTION_KEY = "http.connection";
-    
+
     /**
      * Triggered after the given session has been just created.
      *

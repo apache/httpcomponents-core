@@ -118,7 +118,7 @@ public class TestPipelining extends HttpCoreNIOTestBase {
                 NStringEntity entity = NStringEntity.create(content, ContentType.DEFAULT_TEXT);
                 response.setEntity(entity);
             }
-            
+
         }));
         HttpAsyncService serviceHandler = new HttpAsyncService(
                 this.serverHttpProc,
@@ -131,7 +131,7 @@ public class TestPipelining extends HttpCoreNIOTestBase {
         endpoint.waitFor();
 
         Assert.assertEquals("Test server status", IOReactorStatus.ACTIVE, this.server.getStatus());
-        
+
         InetSocketAddress address = (InetSocketAddress) endpoint.getAddress();
         Socket socket = new Socket("localhost", address.getPort());
         try {
@@ -155,7 +155,7 @@ public class TestPipelining extends HttpCoreNIOTestBase {
             }
             reader.close();
             writer.close();
-            String expected = 
+            String expected =
                     "HTTP/1.1 200 OK\r\n" +
                     "Server: TEST-SERVER/1.1\r\n" +
                     "Content-Length: 19\r\n" +
@@ -170,11 +170,11 @@ public class TestPipelining extends HttpCoreNIOTestBase {
                     "\r\n" +
                     "thank you very much";
             Assert.assertEquals(expected, buf.toString());
-            
+
         } finally {
             socket.close();
         }
-        
+
     }
 
     @Test
@@ -190,7 +190,7 @@ public class TestPipelining extends HttpCoreNIOTestBase {
                 NStringEntity entity = NStringEntity.create(content, ContentType.DEFAULT_TEXT);
                 response.setEntity(entity);
             }
-            
+
         }));
         HttpAsyncService serviceHandler = new HttpAsyncService(
                 this.serverHttpProc,
@@ -203,7 +203,7 @@ public class TestPipelining extends HttpCoreNIOTestBase {
         endpoint.waitFor();
 
         Assert.assertEquals("Test server status", IOReactorStatus.ACTIVE, this.server.getStatus());
-        
+
         InetSocketAddress address = (InetSocketAddress) endpoint.getAddress();
         Socket socket = new Socket("localhost", address.getPort());
         try {
@@ -227,7 +227,7 @@ public class TestPipelining extends HttpCoreNIOTestBase {
             }
             reader.close();
             writer.close();
-            String expected = 
+            String expected =
                     "HTTP/1.1 200 OK\r\n" +
                     "Server: TEST-SERVER/1.1\r\n" +
                     "Content-Length: 19\r\n" +
@@ -241,18 +241,18 @@ public class TestPipelining extends HttpCoreNIOTestBase {
                     "\r\n" +
                     "thank you very much";
             Assert.assertEquals(expected, buf.toString());
-            
+
         } finally {
             socket.close();
         }
-        
+
     }
 
     @Test
     public void testPipeliningWithCancellable() throws Exception {
-        
+
         final Cancellable cancellable = Mockito.mock(Cancellable.class);
-        
+
         HttpAsyncRequestHandlerRegistry registry = new HttpAsyncRequestHandlerRegistry();
         registry.register("/long", new HttpAsyncRequestHandler<HttpRequest>() {
 
@@ -268,7 +268,7 @@ public class TestPipelining extends HttpCoreNIOTestBase {
                 httpexchange.setCallback(cancellable);
                 // do not submit a response;
             }
-            
+
         });
         registry.register("/short", new BasicAsyncRequestHandler(new HttpRequestHandler() {
 
@@ -280,7 +280,7 @@ public class TestPipelining extends HttpCoreNIOTestBase {
                 NStringEntity entity = NStringEntity.create(content, ContentType.DEFAULT_TEXT);
                 response.setEntity(entity);
             }
-            
+
         }));
         HttpAsyncService serviceHandler = new HttpAsyncService(
                 this.serverHttpProc,
@@ -293,7 +293,7 @@ public class TestPipelining extends HttpCoreNIOTestBase {
         endpoint.waitFor();
 
         Assert.assertEquals("Test server status", IOReactorStatus.ACTIVE, this.server.getStatus());
-        
+
         InetSocketAddress address = (InetSocketAddress) endpoint.getAddress();
         Socket socket = new Socket("localhost", address.getPort());
         try {
@@ -317,8 +317,8 @@ public class TestPipelining extends HttpCoreNIOTestBase {
             }
             reader.close();
             writer.close();
-            
-            String expected = 
+
+            String expected =
                     "HTTP/1.1 400 Bad Request\r\n" +
                     "Connection: Close\r\n" +
                     "Server: TEST-SERVER/1.1\r\n" +
@@ -327,11 +327,11 @@ public class TestPipelining extends HttpCoreNIOTestBase {
                     "\r\n" +
                     "Out of sequence request message detected (pipelining is not supported)";
             Assert.assertEquals(expected, buf.toString());
-            
+
         } finally {
             socket.close();
         }
-        
+
         Mockito.verify(cancellable).cancel();
     }
 

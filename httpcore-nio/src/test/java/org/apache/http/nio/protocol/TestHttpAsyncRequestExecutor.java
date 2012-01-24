@@ -170,12 +170,12 @@ public class TestHttpAsyncRequestExecutor {
 
         Mockito.verify(this.exchangeHandler).generateRequest();
         Assert.assertSame(request, state.getRequest());
-        
+
         Assert.assertSame(request, this.exchangeContext.getAttribute(ExecutionContext.HTTP_REQUEST));
         Assert.assertSame(this.conn, this.exchangeContext.getAttribute(ExecutionContext.HTTP_CONNECTION));
         Mockito.verify(this.httpprocessor).process(request, this.exchangeContext);
-        
-        
+
+
         Mockito.verify(this.conn).submitRequest(request);
         Mockito.verify(this.exchangeHandler).requestCompleted(this.exchangeContext);
         Assert.assertEquals(MessageState.COMPLETED, state.getRequestState());

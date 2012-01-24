@@ -62,25 +62,25 @@ import org.apache.http.protocol.HttpContext;
 import org.apache.http.protocol.HttpProcessor;
 
 /**
- * <tt>HttpAsyncService</tt> is a fully asynchronous HTTP server side protocol 
+ * <tt>HttpAsyncService</tt> is a fully asynchronous HTTP server side protocol
  * handler based on the non-blocking (NIO) I/O model.
  * <tt>HttpAsyncServerProtocolHandler</tt> translates individual events fired
  * through the {@link NHttpServerEventHandler} interface into logically related
  * HTTP message exchanges.
  * <p/>
- * Upon receiving an incoming request <tt>HttpAsyncService</tt> verifies 
+ * Upon receiving an incoming request <tt>HttpAsyncService</tt> verifies
  * the message for compliance with the server expectations using
  * {@link HttpAsyncExpectationVerifier}, if provided, and then
- * {@link HttpAsyncRequestHandlerResolver} is used to resolve the request URI 
- * to a particular {@link HttpAsyncRequestHandler} intended to handle 
+ * {@link HttpAsyncRequestHandlerResolver} is used to resolve the request URI
+ * to a particular {@link HttpAsyncRequestHandler} intended to handle
  * the request with the given URI. The protocol handler uses the selected
  * {@link HttpAsyncRequestHandler} instance to process the incoming request
  * and to generate an outgoing response.
  * <p/>
- * <tt>HttpAsyncService</tt> relies on {@link HttpProcessor} to generate 
- * mandatory protocol headers for all outgoing messages and apply common, 
- * cross-cutting message transformations to all incoming and outgoing messages, 
- * whereas individual {@link HttpAsyncRequestHandler}s are expected 
+ * <tt>HttpAsyncService</tt> relies on {@link HttpProcessor} to generate
+ * mandatory protocol headers for all outgoing messages and apply common,
+ * cross-cutting message transformations to all incoming and outgoing messages,
+ * whereas individual {@link HttpAsyncRequestHandler}s are expected
  * to implement application specific content generation and processing.
  * <p/>
  * Individual {@link HttpAsyncRequestHandler}s do not have to submit a response
