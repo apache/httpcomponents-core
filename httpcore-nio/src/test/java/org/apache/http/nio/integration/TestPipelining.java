@@ -178,6 +178,77 @@ public class TestPipelining extends HttpCoreNIOTestBase {
     }
 
     @Test
+    public void testBasicPipeliningHalfClosed() throws Exception {
+        HttpAsyncRequestHandlerRegistry registry = new HttpAsyncRequestHandlerRegistry();
+        registry.register("*", new BasicAsyncRequestHandler(new HttpRequestHandler() {
+
+            public void handle(
+                    final HttpRequest request,
+                    final HttpResponse response,
+                    final HttpContext context) throws HttpException, IOException {
+                String content = "thank you very much";
+                NStringEntity entity = NStringEntity.create(content, ContentType.DEFAULT_TEXT);
+                response.setEntity(entity);
+            }
+            
+        }));
+        HttpAsyncService serviceHandler = new HttpAsyncService(
+                this.serverHttpProc,
+                new DefaultConnectionReuseStrategy(),
+                registry,
+                this.serverParams);
+        this.server.start(serviceHandler);
+
+        ListenerEndpoint endpoint = this.server.getListenerEndpoint();
+        endpoint.waitFor();
+
+        Assert.assertEquals("Test server status", IOReactorStatus.ACTIVE, this.server.getStatus());
+        
+        InetSocketAddress address = (InetSocketAddress) endpoint.getAddress();
+        Socket socket = new Socket("localhost", address.getPort());
+        try {
+            OutputStream outstream = socket.getOutputStream();
+            BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(outstream, "US-ASCII"));
+            writer.write("GET / HTTP/1.1\r\n");
+            writer.write("Host: localhost\r\n");
+            writer.write("\r\n");
+            writer.write("GET / HTTP/1.1\r\n");
+            writer.write("Host: localhost\r\n");
+            writer.write("\r\n");
+            writer.flush();
+            socket.shutdownOutput();
+            InputStream instream = socket.getInputStream();
+            BufferedReader reader = new BufferedReader(new InputStreamReader(instream, "US-ASCII"));
+            StringBuilder buf = new StringBuilder();
+            char[] tmp = new char[1024];
+            int l;
+            while ((l = reader.read(tmp)) != -1) {
+                buf.append(tmp, 0, l);
+            }
+            reader.close();
+            writer.close();
+            String expected = 
+                    "HTTP/1.1 200 OK\r\n" +
+                    "Server: TEST-SERVER/1.1\r\n" +
+                    "Content-Length: 19\r\n" +
+                    "Content-Type: text/plain; charset=ISO-8859-1\r\n" +
+                    "\r\n" +
+                    "thank you very much" +
+                    "HTTP/1.1 200 OK\r\n" +
+                    "Server: TEST-SERVER/1.1\r\n" +
+                    "Content-Length: 19\r\n" +
+                    "Content-Type: text/plain; charset=ISO-8859-1\r\n" +
+                    "\r\n" +
+                    "thank you very much";
+            Assert.assertEquals(expected, buf.toString());
+            
+        } finally {
+            socket.close();
+        }
+        
+    }
+
+    @Test
     public void testPipeliningWithCancellable() throws Exception {
         
         final Cancellable cancellable = Mockito.mock(Cancellable.class);
