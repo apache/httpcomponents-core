@@ -157,7 +157,7 @@
         <artifactId>clirr-maven-plugin</artifactId>
         <version>${hc.clirr.version}</version>
         <configuration>
-          <comparisonVersion>${comparisonVersion.version}</comparisonVersion>
+          <comparisonVersion>${api.comparison.version}</comparisonVersion>
         </configuration>
       </plugin>
 
