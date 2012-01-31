@@ -49,6 +49,7 @@ import org.apache.http.HttpHost;
 import org.apache.http.HttpRequest;
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
+import org.apache.http.entity.ContentType;
 import org.apache.http.impl.DefaultConnectionReuseStrategy;
 import org.apache.http.impl.DefaultHttpClientConnection;
 import org.apache.http.params.BasicHttpParams;
@@ -65,7 +66,6 @@ import org.apache.http.protocol.RequestContent;
 import org.apache.http.protocol.RequestExpectContinue;
 import org.apache.http.protocol.RequestTargetHost;
 import org.apache.http.protocol.RequestUserAgent;
-import org.apache.http.util.EntityUtils;
 
 /**
  * Worker thread for the {@link HttpBenchmark HttpBenchmark}.
@@ -241,7 +241,8 @@ public class BenchmarkWorker implements Runnable {
 
                 HttpEntity entity = response.getEntity();
                 if (entity != null) {
-                    String charset = EntityUtils.getContentCharSet(entity);
+                    ContentType ct = ContentType.get(entity);
+                    String charset = ct.getCharset();
                     if (charset == null) {
                         charset = HTTP.DEFAULT_CONTENT_CHARSET;
                     }

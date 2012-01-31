@@ -31,6 +31,8 @@ import org.apache.http.message.BasicHeader;
 
 public class DefaultHeader extends BasicHeader {
 
+    private static final long serialVersionUID = 3465786867105185103L;
+
     public DefaultHeader(final String name, final String value) {
         super(name, value);
     }
