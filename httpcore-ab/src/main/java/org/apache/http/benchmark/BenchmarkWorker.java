@@ -29,11 +29,10 @@ package org.apache.http.benchmark;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.InetSocketAddress;
 import java.net.Socket;
 import java.security.KeyStore;
 
-import javax.net.SocketFactory;
-import javax.net.ssl.HttpsURLConnection;
 import javax.net.ssl.KeyManagerFactory;
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.SSLSocketFactory;
@@ -53,6 +52,7 @@ import org.apache.http.entity.ContentType;
 import org.apache.http.impl.DefaultConnectionReuseStrategy;
 import org.apache.http.impl.DefaultHttpClientConnection;
 import org.apache.http.params.BasicHttpParams;
+import org.apache.http.params.HttpConnectionParams;
 import org.apache.http.params.HttpParams;
 import org.apache.http.params.DefaultedHttpParams;
 import org.apache.http.protocol.BasicHttpProcessor;
@@ -158,10 +158,15 @@ public class BenchmarkWorker implements Runnable {
         HttpResponse response = null;
         DefaultHttpClientConnection conn = new DefaultHttpClientConnection();
 
+        String scheme = targetHost.getSchemeName();
         String hostname = targetHost.getHostName();
         int port = targetHost.getPort();
         if (port == -1) {
-            port = 80;
+            if (scheme.equalsIgnoreCase("https")) {
+                port = 443;
+            } else {
+                port = 80;
+            }
         }
 
         // Populate the execution context
@@ -176,7 +181,8 @@ public class BenchmarkWorker implements Runnable {
             try {
                 resetHeader(request);
                 if (!conn.isOpen()) {
-                    Socket socket = null;
+                    
+                    Socket socket;
                     if ("https".equals(targetHost.getSchemeName())) {
                         if (disableSSLVerification) {
                             SSLContext sc = SSLContext.getInstance("SSL");
@@ -195,9 +201,8 @@ public class BenchmarkWorker implements Runnable {
                             } else {
                                 sc.init(null, trustAllCerts, null);
                             }
-
-                            HttpsURLConnection.setDefaultSSLSocketFactory(sc.getSocketFactory());
-                            socket = sc.getSocketFactory().createSocket(hostname, port);
+                            socket = sc.getSocketFactory().createSocket();
+                            
                         } else {
                             if (trustStorePath != null) {
                                 System.setProperty("javax.net.ssl.trustStore", trustStorePath);
@@ -205,12 +210,18 @@ public class BenchmarkWorker implements Runnable {
                             if (trustStorePassword != null) {
                                 System.setProperty("javax.net.ssl.trustStorePassword", trustStorePassword);
                             }
-                            SocketFactory socketFactory = SSLSocketFactory.getDefault();
-                            socket = socketFactory.createSocket(hostname, port);
+                            socket = SSLSocketFactory.getDefault().createSocket();
                         }
                     } else {
-                        socket = new Socket(hostname, port);
+                        socket = new Socket();
                     }
+                    
+                    int connTimeout = HttpConnectionParams.getConnectionTimeout(params);
+                    int soTimeout = HttpConnectionParams.getSoTimeout(params);
+
+                    socket.setSoTimeout(soTimeout);
+                    socket.connect(new InetSocketAddress(hostname, port), connTimeout);
+                    
                     conn.bind(socket, params);
                 }
 
