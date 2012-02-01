@@ -445,7 +445,7 @@ ByteArrayEntity myEntity = new ByteArrayEntity(myData.getBytes());
                 string; the third allows the mime type to be specified.
                 </para>
                 <programlisting><![CDATA[
-StringBuffer sb = new StringBuffer();
+StringBuilder sb = new StringBuilder();
 Map<String, String> env = System.getenv();
 for (Entry<String, String> envEntry : env.entrySet()) {
     sb.append(envEntry.getKey()).append(": ")
