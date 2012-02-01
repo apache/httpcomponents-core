@@ -152,15 +152,6 @@
       </plugin>
 
       <plugin>
-        <groupId>org.codehaus.mojo</groupId>
-        <artifactId>clirr-maven-plugin</artifactId>
-        <version>${hc.clirr.version}</version>
-        <configuration>
-          <comparisonVersion>${api.comparison.version}</comparisonVersion>
-        </configuration>
-      </plugin>
-
-      <plugin>
         <artifactId>maven-jxr-plugin</artifactId>
         <version>${hc.jxr.version}</version>
       </plugin>
