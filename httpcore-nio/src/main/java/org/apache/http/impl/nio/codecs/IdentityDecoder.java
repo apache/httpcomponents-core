@@ -39,7 +39,7 @@ import org.apache.http.nio.reactor.SessionInputBuffer;
 
 /**
  * Content decoder that reads data without any transformation. The end of the
- * content entity is demarcated by closing the underlying connection
+ * content entity is delineated by closing the underlying connection
  * (EOF condition). Entities transferred using this input stream can be of
  * unlimited length.
  * <p>
@@ -112,11 +112,10 @@ public class IdentityDecoder extends AbstractContentDecoder
             bytesRead = this.buffer.read(dst);
         } else {
             if (this.channel.isOpen()) {
-                if(dst.size() < position)
-                    throw new IOException("FileChannel.size() [" + dst.size() +
-                                          "] < position [" + position +
-                                          "].  Please grow the file before writing.");
-
+                if (position > dst.size()) {
+                    throw new IOException("Position past end of file [" + position +
+                            " > " + dst.size() + "]");
+                }
                 bytesRead = dst.transferFrom(this.channel, position, count);
                 if (bytesRead == 0) {
                     bytesRead = buffer.fill(this.channel);

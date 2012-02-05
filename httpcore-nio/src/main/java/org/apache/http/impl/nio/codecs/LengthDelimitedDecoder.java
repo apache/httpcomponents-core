@@ -141,11 +141,10 @@ public class LengthDelimitedDecoder extends AbstractContentDecoder
                 count = chunk;
             }
             if (this.channel.isOpen()) {
-                if(dst.size() < position)
-                    throw new IOException("FileChannel.size() [" + dst.size() +
-                                          "] < position [" + position +
-                                          "].  Please grow the file before writing.");
-
+                if (position > dst.size()) {
+                    throw new IOException("Position past end of file [" + position +
+                            " > " + dst.size() + "]");
+                }
                 bytesRead = dst.transferFrom(this.channel, position, count);
             } else {
                 bytesRead = -1;
