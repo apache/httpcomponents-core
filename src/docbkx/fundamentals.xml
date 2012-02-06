@@ -29,15 +29,15 @@
         <section>
             <title>Structure</title>
             <para>
-            A HTTP message consists of a head and an optional body. The message head of an HTTP
-            request consists of a request line and a collection of header fields. The message head
+            A HTTP message consists of a header and an optional body. The message header of an HTTP
+            request consists of a request line and a collection of header fields. The message header
             of an HTTP response consists of a status line and a collection of header fields. All
             HTTP messages must include the protocol version. Some HTTP messages can optionally
             enclose a content body.
             </para>
             <para>
-            HttpCore defines the HTTP message object model that closely follows the definition and
-            provides an extensive support for serialization (formatting) and deserialization
+            HttpCore defines the HTTP message object model to closely follow this definition and
+            provides extensive support for serialization (formatting) and deserialization
             (parsing) of HTTP message elements.
             </para>
         </section>
@@ -97,7 +97,7 @@ HTTP/1.1 200 OK
                 <para>
                 An HTTP message can contain a number of headers describing properties of the
                 message such as the content length, content type and so on. HttpCore provides
-                methods to retrieve, add, remove and enumerate headers.
+                methods to retrieve, add, remove and enumerate such headers.
                 </para>
                 <programlisting><![CDATA[
 HttpResponse response = new BasicHttpResponse(HttpVersion.HTTP_1_1,
@@ -179,7 +179,7 @@ c3 = c
                 <para>
                 HTTP headers get tokenized into individual header elements only on demand. HTTP
                 headers received over an HTTP connection are stored internally as an array of
-                chars and parsed lazily only when their properties are accessed.
+                characters and parsed lazily only when their properties are accessed.
                 </para>
             </section>
         </section>
@@ -607,7 +607,7 @@ if (request instanceof HttpEntityEnclosingRequest) {
     if (entity != null) {
         // Do something useful with the entity and, when done, ensure all
         // content has been consumed, so that the underlying connection
-        // coult be re-used
+        // could be re-used
         EntityUtils.consume(entity);
     }
 }
@@ -619,7 +619,7 @@ conn.sendResponseEntity(response);
 ]]></programlisting>
             <para>
             Please note that one should rarely need to transmit messages using these low level
-            methods and should use appropriate higher level HTTP service implementations instead.
+            methods and should normally use the appropriate higher level HTTP service implementations instead.
             </para>
         </section>
         <section>
@@ -633,7 +633,7 @@ conn.sendResponseEntity(response);
             incoming data. They merely inject an appropriate content codec based on the properties
             of the incoming message. The content can be retrieved by reading from the content input
             stream of the enclosed entity using <methodname>HttpEntity#getContent()</methodname>.
-            The incoming data will be decoded automatically completely transparently for the data
+            The incoming data will be decoded automatically, and completely transparently to the data
             consumer. Likewise, HTTP connections rely on <methodname>
             HttpEntity#writeTo(OutputStream)</methodname> method to generate the content of an
             outgoing message. If an outgoing messages encloses an entity, the content will be
@@ -719,7 +719,7 @@ conn.sendResponseEntity(response);
         protocol. Usually protocol interceptors are expected to act upon one specific header or a
         group of related headers of the incoming message or populate the outgoing message with one
         specific header or a group of related headers. Protocol interceptors can also manipulate
-        content entities enclosed with messages, transparent content compression / decompression
+        content entities enclosed with messages; transparent content compression / decompression
         being a good example. Usually this is accomplished by using the 'Decorator' pattern where
         a wrapper entity class is used to decorate the original entity. Several protocol
         interceptors can be combined to form one logical unit.
@@ -751,7 +751,7 @@ conn.sendResponseEntity(response);
                 <para>
                 <classname>RequestContent</classname> is the most important interceptor for
                 outgoing requests. It is responsible for delimiting content length by adding
-                <literal>Content-Length</literal> or <literal>Transfer-Content</literal> headers
+                the <literal>Content-Length</literal> or <literal>Transfer-Content</literal> headers
                 based on the properties of the enclosed entity and the protocol version. This
                 interceptor is required for correct functioning of client side protocol processors.
                 </para>
@@ -769,7 +769,7 @@ conn.sendResponseEntity(response);
             <section>
                 <title><classname>RequestConnControl</classname></title>
                 <para>
-                <classname>RequestConnControl</classname> is responsible for adding
+                <classname>RequestConnControl</classname> is responsible for adding the 
                 <literal>Connection</literal> header to the outgoing requests, which is essential
                 for managing persistence of <literal>HTTP/1.0</literal> connections. This
                 interceptor is recommended for client side protocol processors.
@@ -779,7 +779,7 @@ conn.sendResponseEntity(response);
                 <title><classname>ResponseConnControl</classname></title>
                 <para>
                 <classname>ResponseConnControl</classname> is responsible for adding
-                <literal>Connection</literal> header to the outgoing responses, which is essential
+                the <literal>Connection</literal> header to the outgoing responses, which is essential
                 for managing persistence of <literal>HTTP/1.0</literal> connections. This
                 interceptor is recommended for server side protocol processors.
                 </para>
@@ -787,7 +787,7 @@ conn.sendResponseEntity(response);
             <section>
                 <title><classname>RequestDate</classname></title>
                 <para>
-                <classname>RequestDate</classname> is responsible for adding
+                <classname>RequestDate</classname> is responsible for adding the
                 <literal>Date</literal> header to the outgoing requests. This interceptor is
                 optional for client side protocol processors.
                 </para>
@@ -795,7 +795,7 @@ conn.sendResponseEntity(response);
             <section>
                 <title><classname>ResponseDate</classname></title>
                 <para>
-                <classname>ResponseDate</classname> is responsible for adding
+                <classname>ResponseDate</classname> is responsible for adding the
                 <literal>Date</literal> header to the outgoing responses. This interceptor is
                 recommended for server side protocol processors.
                 </para>
@@ -804,14 +804,14 @@ conn.sendResponseEntity(response);
                 <title><classname>RequestExpectContinue</classname></title>
                 <para>
                 <classname>RequestExpectContinue</classname> is responsible for enabling the
-                'expect-continue' handshake by adding <literal>Expect</literal> header. This
+                'expect-continue' handshake by adding the <literal>Expect</literal> header. This
                 interceptor is recommended for client side protocol processors.
                 </para>
             </section>
             <section>
                 <title><classname>RequestTargetHost</classname></title>
                 <para>
-                <classname>RequestTargetHost</classname> is responsible for adding
+                <classname>RequestTargetHost</classname> is responsible for adding the 
                 <literal>Host</literal> header. This interceptor is required for client side
                 protocol processors.
                 </para>
@@ -819,7 +819,7 @@ conn.sendResponseEntity(response);
             <section>
                 <title><classname>RequestUserAgent</classname></title>
                 <para>
-                <classname>RequestUserAgent</classname> is responsible for adding
+                <classname>RequestUserAgent</classname> is responsible for adding the 
                 <literal>User-Agent</literal> header. This interceptor is recommended for client
                 side protocol processors.
                 </para>
@@ -827,7 +827,7 @@ conn.sendResponseEntity(response);
             <section>
                 <title><classname>ResponseServer</classname></title>
                 <para>
-                <classname>ResponseServer</classname> is responsible for adding
+                <classname>ResponseServer</classname> is responsible for adding the 
                 <literal>Server</literal> header. This interceptor is recommended for server side
                 protocol processors.
                 </para>
@@ -863,7 +863,7 @@ httpproc.process(response, context);
 ]]></programlisting>
             <para>
             Please note the <classname>BasicHttpProcessor</classname> class does not synchronize
-            access to its internal structures and therefore may be thread-unsafe.
+            access to its internal structures and therefore may not be thread-safe.
             </para>
         </section>
         <section>
@@ -943,7 +943,7 @@ null
                 <interfacename>HttpParams</interfacename> is intended to contain simple objects:
                 integers, doubles, strings, collections and objects that remain immutable at
                 runtime. <interfacename>HttpParams</interfacename> is expected to be used in the
-                'write once - ready many' mode. <interfacename>HttpContext</interfacename> is
+                'write once - read many' mode. <interfacename>HttpContext</interfacename> is
                 intended to contain complex objects that are very likely to mutate in the course of
                 HTTP message processing.
                 </para>
@@ -997,7 +997,7 @@ null
 ]]></programlisting>
         <para>
         Please note the <classname>BasicHttpParams</classname> class does not synchronize access to
-        its internal structures and therefore may be thread-unsafe.
+        its internal structures and therefore may not be thread-safe.
         </para>
         <section>
             <title>HTTP parameter beans</title>
@@ -1159,7 +1159,7 @@ try {
             <classname>HttpRequestExecutor</classname> is a client side HTTP protocol handler based
             on the blocking I/O model that implements the essential requirements of the HTTP
             protocol for the client side message processing, as described by RFC 2616.
-            <classname>HttpRequestExecutor</classname> relies on on <interfacename>HttpProcessor
+            The <classname>HttpRequestExecutor</classname> relies on the <interfacename>HttpProcessor
             </interfacename> instance to generate mandatory protocol headers for all outgoing
             messages and apply common, cross-cutting message transformations to all incoming and
             outgoing messages. Application specific processing can be implemented outside
