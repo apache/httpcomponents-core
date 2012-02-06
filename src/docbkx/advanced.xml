@@ -244,7 +244,7 @@ if (outbuffer.hasData()) {
 ]]></programlisting>
         </section>
         <section>
-            <title>HTTP message parsers and formatter</title>
+            <title>HTTP message parsers and formatters</title>
             <para>
             HttpCore also provides coarse-grained facade type interfaces for parsing and
             formatting of HTTP messages. Default implementations of those interfaces build upon the

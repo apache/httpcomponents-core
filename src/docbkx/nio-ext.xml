@@ -62,7 +62,7 @@
             </listitem>
             <listitem>
                 <para>
-                efficient memory management: data consumer can read only as much input data as it
+                efficient memory management: data consumer can read is only as much input data as it
                 can process without having to allocate more memory.
                 </para>
             </listitem>
@@ -243,7 +243,7 @@ iosession.clearEvent(SelectionKey.OP_READ);
             Quite often I/O sessions need to maintain internal I/O buffers in order to transform
             input / output data prior to returning it to the consumer or writing it to the
             underlying channel. Memory management in HttpCore NIO is based on the fundamental
-            principle that the data consumer can read only as much input data as it can process
+            principle that the data a consumer can read, is only as much input data as it can process
             without having to allocate more memory. That means, quite often some input data may
             remain unread in one of the internal or external session buffers. The I/O reactor can
             query the status of these session buffers, and make sure the consumer gets notified
@@ -453,7 +453,7 @@ ListeningIOReactor ioreactor = new DefaultListeningIOReactor(2, params);
         exceptions are usually fatal and will cause the I/O reactor to shut down automatically.
         </para>
         <para>
-        There is a possibility to override this behaviour and prevent I/O reactors from shutting
+        There is a possibility to override this behavior and prevent I/O reactors from shutting
         down automatically in case of a runtime exception or an I/O exception in internal classes.
         This can be accomplished by providing a custom implementation of the <interfacename>
         IOReactorExceptionHandler</interfacename> interface.
@@ -1357,7 +1357,7 @@ HttpAsyncRequestHandler<HttpRequest> myHandler = new HttpAsyncRequestHandler<Htt
             <section>
                 <title>Asynchronous HTTP request consumer</title>
                 <para>
-                <interfacename>HttpAsyncRequestConsumer</interfacename> facilities the process of
+                <interfacename>HttpAsyncRequestConsumer</interfacename> facilitates the process of
                 asynchronous processing of HTTP requests. It is a callback interface used by
                 <interfacename>HttpAsyncRequestHandler</interfacename>s to process an incoming
                 HTTP request message and to stream its content from a non-blocking server side
@@ -1391,7 +1391,7 @@ HttpAsyncRequestHandler<HttpRequest> myHandler = new HttpAsyncRequestHandler<Htt
                         has been fully consumed.
                         </para>
                         <para>
-                        This event is invoked only for if the incoming request message has
+                        This event is invoked only if the incoming request message has
                         a content entity enclosed in it.
                         </para>
                         </formalpara>
@@ -1454,7 +1454,7 @@ HttpAsyncRequestHandler<HttpRequest> myHandler = new HttpAsyncRequestHandler<Htt
                 </itemizedlist>
                 <para>
                 <interfacename>HttpAsyncRequestConsumer</interfacename> implementations are
-                expected to be tread-safe.
+                expected to be thread-safe.
                 </para>
                 <para>
                 <classname>BasicAsyncRequestConsumer</classname> is a very basic implementation
@@ -1466,7 +1466,7 @@ HttpAsyncRequestHandler<HttpRequest> myHandler = new HttpAsyncRequestHandler<Htt
             <section>
                 <title>Asynchronous HTTP response producer</title>
                 <para>
-                <interfacename>HttpAsyncResponseProducer</interfacename> facilities the process of
+                <interfacename>HttpAsyncResponseProducer</interfacename> facilitates the process of
                 asynchronous generation of HTTP responses. It is a callback interface used by
                 <interfacename>HttpAsyncRequestHandler</interfacename>s to generate an HTTP response
                 message and to stream its content to a non-blocking server side HTTP connection.
@@ -1480,7 +1480,7 @@ HttpAsyncRequestHandler<HttpRequest> myHandler = new HttpAsyncRequestHandler<Htt
                         <formalpara>
                         <title><methodname>generateResponse</methodname>:</title>
                         <para>
-                        Invoked to generate a HTTP response message head.
+                        Invoked to generate a HTTP response message header.
                         </para>
                         </formalpara>
                     </listitem>
@@ -1532,7 +1532,7 @@ HttpAsyncRequestHandler<HttpRequest> myHandler = new HttpAsyncRequestHandler<Htt
                 </itemizedlist>
                 <para>
                 <interfacename>HttpAsyncResponseProducer</interfacename> implementations are
-                expected to be tread-safe.
+                expected to be thread-safe.
                 </para>
                 <para>
                 <classname>BasicAsyncResponseProducer</classname> is a basic implementation
@@ -1630,7 +1630,7 @@ HttpResponse response = future.get();
             <section>
                 <title>Asynchronous HTTP request producer</title>
                 <para>
-                <interfacename>HttpAsyncRequestProducer</interfacename> facilities the process of
+                <interfacename>HttpAsyncRequestProducer</interfacename> facilitates the process of
                 asynchronous generation of HTTP requests. It is a callback interface whose methods
                 get invoked to generate an HTTP request message and to stream message content to
                 a non-blocking client side HTTP connection.
@@ -1659,7 +1659,7 @@ HttpResponse response = future.get();
                         <formalpara>
                         <title><methodname>generateRequest</methodname>:</title>
                         <para>
-                        Invoked to generate a HTTP request message head. The message is expected
+                        Invoked to generate a HTTP request message header. The message is expected
                         to implement the <interfacename>HttpEntityEnclosingRequest</interfacename>
                         interface if it is to enclose a content entity.
                         </para>
@@ -1724,7 +1724,7 @@ HttpResponse response = future.get();
                 </itemizedlist>
                 <para>
                 <interfacename>HttpAsyncRequestProducer</interfacename> implementations are
-                expected to be tread-safe.
+                expected to be thread-safe.
                 </para>
                 <para>
                 <classname>BasicAsyncRequestProducer</classname> is a basic implementation
@@ -1738,7 +1738,7 @@ HttpResponse response = future.get();
             <section>
                 <title>Asynchronous HTTP response consumer</title>
                 <para>
-                <interfacename>HttpAsyncResponseConsumer</interfacename> facilities the process of
+                <interfacename>HttpAsyncResponseConsumer</interfacename> facilitates the process of
                 asynchronous processing of HTTP responses. It is a callback interface whose methods
                 get invoked to process an HTTP response message and to stream message content from
                 a non-blocking client side HTTP connection.
@@ -1834,7 +1834,7 @@ HttpResponse response = future.get();
                 </itemizedlist>
                 <para>
                 <interfacename>HttpAsyncResponseConsumer</interfacename> implementations are
-                expected to be tread-safe.
+                expected to be thread-safe.
                 </para>
                 <para>
                 <classname>BasicAsyncResponseConsumer</classname> is a very basic implementation
@@ -2021,7 +2021,7 @@ NHttpClientConnection conn = connfactory.createConnection(iosession);
                     check whether the SSL I/O session is ready to accept output data by calling
                     <methodname>SSLIOSession#isAppOutputReady()</methodname>, pass control to the
                     protocol handler if it is, and finally call <methodname>
-                    SSLIOSession#outboundTransport()</methodname> method in order to do the nessary
+                    SSLIOSession#outboundTransport()</methodname> method in order to do the necessary
                     SSL handshaking and encrypt application data.
                     </para>
                 </listitem>
