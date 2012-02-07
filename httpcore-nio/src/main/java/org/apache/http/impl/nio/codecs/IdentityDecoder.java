@@ -117,8 +117,8 @@ public class IdentityDecoder extends AbstractContentDecoder
                             " > " + dst.size() + "]");
                 }
                 bytesRead = dst.transferFrom(this.channel, position, count);
-                if (bytesRead == 0) {
-                    bytesRead = buffer.fill(this.channel);
+                if (count > 0 && bytesRead == 0) {
+                    bytesRead = this.buffer.fill(this.channel);
                 }
             } else {
                 bytesRead = -1;
