@@ -40,6 +40,8 @@ import org.apache.http.annotation.NotThreadSafe;
 @NotThreadSafe
 public final class IOReactorConfig implements Cloneable {
 
+    private static final int AVAIL_PROCS = Runtime.getRuntime().availableProcessors();
+    
     private long selectInterval;
     private long shutdownGracePeriod;
     private boolean interestOpQueued;
@@ -56,7 +58,7 @@ public final class IOReactorConfig implements Cloneable {
         this.selectInterval = 1000;
         this.shutdownGracePeriod = 500;
         this.interestOpQueued = false;
-        this.ioThreadCount = 2;
+        this.ioThreadCount = AVAIL_PROCS;
         this.soTimeout = 0;
         this.soReuseAddress = false;
         this.soLinger = -1;

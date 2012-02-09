@@ -28,7 +28,6 @@
 package org.apache.http.contrib.logging;
 
 import java.io.IOException;
-import java.nio.channels.ReadableByteChannel;
 import java.util.concurrent.atomic.AtomicLong;
 
 import org.apache.commons.logging.Log;
@@ -40,11 +39,7 @@ import org.apache.http.HttpResponse;
 import org.apache.http.HttpResponseFactory;
 import org.apache.http.impl.nio.DefaultNHttpClientConnection;
 import org.apache.http.nio.NHttpClientEventHandler;
-import org.apache.http.nio.NHttpMessageParser;
-import org.apache.http.nio.NHttpMessageWriter;
 import org.apache.http.nio.reactor.IOSession;
-import org.apache.http.nio.reactor.SessionInputBuffer;
-import org.apache.http.nio.reactor.SessionOutputBuffer;
 import org.apache.http.nio.util.ByteBufferAllocator;
 import org.apache.http.params.HttpParams;
 
@@ -115,82 +110,30 @@ public class LoggingNHttpClientConnection extends DefaultNHttpClientConnection {
     }
 
     @Override
-    protected NHttpMessageWriter<HttpRequest> createRequestWriter(
-            final SessionOutputBuffer buffer,
-            final HttpParams params) {
-        return new LoggingNHttpMessageWriter(
-                super.createRequestWriter(buffer, params));
+    protected void onResponseReceived(final HttpResponse response) {
+        if (response != null && this.headerlog.isDebugEnabled()) {
+            this.headerlog.debug(this.id + " << " + response.getStatusLine().toString());
+            Header[] headers = response.getAllHeaders();
+            for (int i = 0; i < headers.length; i++) {
+                this.headerlog.debug(this.id + " << " + headers[i].toString());
+            }
+        }
     }
 
     @Override
-    protected NHttpMessageParser<HttpResponse> createResponseParser(
-            final SessionInputBuffer buffer,
-            final HttpResponseFactory responseFactory,
-            final HttpParams params) {
-        return new LoggingNHttpMessageParser(
-                super.createResponseParser(buffer, responseFactory, params));
+    protected void onRequestSubmitted(final HttpRequest request) {
+        if (request != null && this.headerlog.isDebugEnabled()) {
+            this.headerlog.debug(id + " >> " + request.getRequestLine().toString());
+            Header[] headers = request.getAllHeaders();
+            for (int i = 0; i < headers.length; i++) {
+                this.headerlog.debug(this.id + " >> " + headers[i].toString());
+            }
+        }
     }
 
     @Override
     public String toString() {
         return this.id;
-    }
-
-    class LoggingNHttpMessageWriter implements NHttpMessageWriter<HttpRequest> {
-
-        private final NHttpMessageWriter<HttpRequest> writer;
-
-        public LoggingNHttpMessageWriter(final NHttpMessageWriter<HttpRequest> writer) {
-            super();
-            this.writer = writer;
-        }
-
-        public void reset() {
-            this.writer.reset();
-        }
-
-        public void write(final HttpRequest message) throws IOException, HttpException {
-            if (message != null && headerlog.isDebugEnabled()) {
-                headerlog.debug(id + " >> " + message.getRequestLine().toString());
-                Header[] headers = message.getAllHeaders();
-                for (int i = 0; i < headers.length; i++) {
-                    headerlog.debug(id + " >> " + headers[i].toString());
-                }
-            }
-            this.writer.write(message);
-        }
-
-    }
-
-    class LoggingNHttpMessageParser implements NHttpMessageParser<HttpResponse> {
-
-        private final NHttpMessageParser<HttpResponse> parser;
-
-        public LoggingNHttpMessageParser(final NHttpMessageParser<HttpResponse> parser) {
-            super();
-            this.parser = parser;
-        }
-
-        public void reset() {
-            this.parser.reset();
-        }
-
-        public int fillBuffer(final ReadableByteChannel channel) throws IOException {
-            return this.parser.fillBuffer(channel);
-        }
-
-        public HttpResponse parse() throws IOException, HttpException {
-            HttpResponse message = this.parser.parse();
-            if (message != null && headerlog.isDebugEnabled()) {
-                headerlog.debug(id + " << " + message.getStatusLine().toString());
-                Header[] headers = message.getAllHeaders();
-                for (int i = 0; i < headers.length; i++) {
-                    headerlog.debug(id + " << " + headers[i].toString());
-                }
-            }
-            return message;
-        }
-
     }
 
 }

@@ -118,6 +118,14 @@ public class LoggingNHttpServiceHandler implements NHttpServerEventHandler {
             this.log.debug(conn + ": Content decoder " + decoder);
         }
     }
+    
+    public void endOfInput(
+            final NHttpServerConnection conn) throws IOException {
+        if (this.log.isDebugEnabled()) {
+            this.log.debug(conn + ": end of input");
+        }
+        this.handler.endOfInput(conn);
+    }
 
     public void timeout(
             final NHttpServerConnection conn) throws IOException {

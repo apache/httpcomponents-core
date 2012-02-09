@@ -131,6 +131,18 @@ public class DefaultNHttpClientConnection
         return new DefaultHttpRequestWriter(buffer, null, params);
     }
 
+    /**
+     * @since 4.2
+     */
+    protected void onResponseReceived(final HttpResponse response) {
+    }
+    
+    /**
+     * @since 4.2
+     */
+    protected void onRequestSubmitted(final HttpRequest request) {
+    }
+    
     public void resetInput() {
         this.response = null;
         this.contentDecoder = null;
@@ -164,6 +176,7 @@ public class DefaultNHttpClientConnection
                         this.response.setEntity(entity);
                         this.connMetrics.incrementResponseCount();
                     }
+                    onResponseReceived(this.response);
                     handler.responseReceived(this);
                     if (this.contentDecoder == null) {
                         resetInput();
@@ -242,6 +255,7 @@ public class DefaultNHttpClientConnection
         if (this.request != null) {
             throw new HttpException("Request already submitted");
         }
+        onRequestSubmitted(request);
         this.requestWriter.write(request);
         this.hasBufferedOutput = this.outbuf.hasData();
 

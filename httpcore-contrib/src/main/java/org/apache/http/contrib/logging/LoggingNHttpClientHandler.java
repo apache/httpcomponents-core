@@ -120,6 +120,14 @@ public class LoggingNHttpClientHandler implements NHttpClientEventHandler {
         }
     }
 
+    public void endOfInput(
+            final NHttpClientConnection conn) throws IOException {
+        if (this.log.isDebugEnabled()) {
+            this.log.debug(conn + ": end of input");
+        }
+        this.handler.endOfInput(conn);
+    }
+
     public void timeout(
             final NHttpClientConnection conn) throws IOException, HttpException {
         if (this.log.isDebugEnabled()) {
