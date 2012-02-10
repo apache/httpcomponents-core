@@ -42,6 +42,7 @@ public class Stats {
     private int keepAliveCount = 0;
     private String serverName = null;
     private long totalBytesRecv = 0;
+    private long totalBytesSent = 0;
     private long contentLength = -1;
 
     public Stats() {
@@ -111,8 +112,16 @@ public class Stats {
         return this.totalBytesRecv;
     }
 
-    public void incTotalBytesRecv(int n) {
+    public void incTotalBytesRecv(long n) {
         this.totalBytesRecv += n;
+    }
+
+    public long getTotalBytesSent() {
+        return this.totalBytesSent;
+    }
+
+    public void incTotalBytesSent(long n) {
+        this.totalBytesSent += n;
     }
 
     public long getContentLength() {

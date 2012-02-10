@@ -67,7 +67,6 @@ public class HttpBenchmark {
     private HttpParams params = null;
     private HttpRequest[] request = null;
     private HttpHost host = null;
-    private long contentLength = -1;
 
     public static void main(String[] args) throws Exception {
 
@@ -112,14 +111,11 @@ public class HttpBenchmark {
             fe.setContentType(config.getContentType());
             fe.setChunked(config.isUseChunking());
             entity = fe;
-            contentLength = config.getPayloadFile().length();
-
         } else if (config.getPayloadText() != null) {
             StringEntity se = new StringEntity(config.getPayloadText(), 
                     ContentType.parse(config.getContentType()));
             se.setChunked(config.isUseChunking());
             entity = se;
-            contentLength = config.getPayloadText().getBytes().length;
         }
         request = new HttpRequest[config.getThreads()];
 
@@ -220,7 +216,7 @@ public class HttpBenchmark {
         }
 
         workerPool.shutdown();
-        return ResultProcessor.printResults(workers, host, config.getUrl().toString(), contentLength);
+        return ResultProcessor.printResults(workers, host, config.getUrl().toString());
     }
 
     private HttpParams getHttpParams(

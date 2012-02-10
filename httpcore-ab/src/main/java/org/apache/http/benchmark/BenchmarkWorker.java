@@ -50,7 +50,6 @@ import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
 import org.apache.http.entity.ContentType;
 import org.apache.http.impl.DefaultConnectionReuseStrategy;
-import org.apache.http.impl.DefaultHttpClientConnection;
 import org.apache.http.params.BasicHttpParams;
 import org.apache.http.params.HttpConnectionParams;
 import org.apache.http.params.HttpParams;
@@ -156,7 +155,7 @@ public class BenchmarkWorker implements Runnable {
     public void run() {
 
         HttpResponse response = null;
-        DefaultHttpClientConnection conn = new DefaultHttpClientConnection();
+        BenchmarkConnection conn = new BenchmarkConnection(this.stats);
 
         String scheme = targetHost.getSchemeName();
         String hostname = targetHost.getHostName();
@@ -261,7 +260,6 @@ public class BenchmarkWorker implements Runnable {
                     InputStream instream = entity.getContent();
                     int l = 0;
                     while ((l = instream.read(this.buffer)) != -1) {
-                        stats.incTotalBytesRecv(l);
                         contentlen += l;
                         if (this.verbosity >= 4) {
                             String s = new String(this.buffer, 0, l, charset);

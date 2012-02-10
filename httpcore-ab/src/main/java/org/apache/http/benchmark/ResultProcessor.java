@@ -45,8 +45,7 @@ public class ResultProcessor {
         nf6.setMinimumFractionDigits(6);
     }
 
-    static String printResults(BenchmarkWorker[] workers, HttpHost host,
-        String uri, long contentLength) {
+    static String printResults(BenchmarkWorker[] workers, HttpHost host, String uri) {
 
         double totalTimeNano = 0;
         long successCount    = 0;
@@ -54,6 +53,7 @@ public class ResultProcessor {
         long writeErrors     = 0;
         long keepAliveCount  = 0;
         long totalBytesRcvd  = 0;
+        long totalBytesSent  = 0;
 
         Stats stats = workers[0].getStats();
 
@@ -65,6 +65,7 @@ public class ResultProcessor {
             writeErrors    += s.getWriteErrors();
             keepAliveCount += s.getKeepAliveCount();
             totalBytesRcvd += s.getTotalBytesRecv();
+            totalBytesSent += s.getTotalBytesSent();
         }
 
         int threads = workers.length;
@@ -72,7 +73,6 @@ public class ResultProcessor {
         double timePerReqMs = totalTimeMs / successCount;
         double totalTimeSec = totalTimeMs / 1000;
         double reqsPerSec   = successCount / totalTimeSec;
-        long totalBytesSent = contentLength * successCount;
         long totalBytes     = totalBytesRcvd + (totalBytesSent > 0 ? totalBytesSent : 0);
 
         StringBuilder sb = new StringBuilder(1024);
