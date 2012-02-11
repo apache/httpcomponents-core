@@ -26,7 +26,8 @@
  */
 package org.apache.http.benchmark;
 
-import java.io.UnsupportedEncodingException;
+import java.io.FileInputStream;
+import java.io.IOException;
 import java.net.URL;
 
 import org.apache.commons.cli.CommandLine;
@@ -47,10 +48,20 @@ import org.apache.http.params.HttpParams;
 import org.apache.http.params.HttpProtocolParams;
 import org.apache.http.protocol.HTTP;
 
+import java.security.KeyStore;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
+
+import javax.net.SocketFactory;
+import javax.net.ssl.KeyManager;
+import javax.net.ssl.KeyManagerFactory;
+import javax.net.ssl.SSLContext;
+import javax.net.ssl.TrustManager;
+import javax.net.ssl.TrustManagerFactory;
+import javax.net.ssl.X509TrustManager;
+
 import org.apache.http.HttpEntity;
 import org.apache.http.entity.StringEntity;
 
@@ -63,10 +74,6 @@ import org.apache.http.entity.StringEntity;
 public class HttpBenchmark {
 
     private final Config config;
-
-    private HttpParams params = null;
-    private HttpRequest[] request = null;
-    private HttpHost host = null;
 
     public static void main(String[] args) throws Exception {
 
@@ -96,13 +103,16 @@ public class HttpBenchmark {
         this.config = config != null ? config : new Config();
     }
 
-    private void prepare() throws UnsupportedEncodingException {
-        // prepare http params
-        params = getHttpParams(config.getSocketTimeout(), config.isUseHttp1_0(), config.isUseExpectContinue());
+    private HttpRequest createRequest() {
+        HttpParams params = new BasicHttpParams();
+        params.setParameter(HttpProtocolParams.PROTOCOL_VERSION,
+                config.isUseHttp1_0() ? HttpVersion.HTTP_1_0 : HttpVersion.HTTP_1_1)
+            .setParameter(HttpProtocolParams.USER_AGENT, "HttpCore-AB/1.1")
+            .setBooleanParameter(HttpProtocolParams.USE_EXPECT_CONTINUE, config.isUseExpectContinue())
+            .setBooleanParameter(HttpConnectionParams.STALE_CONNECTION_CHECK, false)
+            .setIntParameter(HttpConnectionParams.SO_TIMEOUT, config.getSocketTimeout());
 
         URL url = config.getUrl();
-        host = new HttpHost(url.getHost(), url.getPort(), url.getProtocol());
-
         HttpEntity entity = null;
 
         // Prepare requests for each thread
@@ -112,39 +122,34 @@ public class HttpBenchmark {
             fe.setChunked(config.isUseChunking());
             entity = fe;
         } else if (config.getPayloadText() != null) {
-            StringEntity se = new StringEntity(config.getPayloadText(), 
+            StringEntity se = StringEntity.create(config.getPayloadText(), 
                     ContentType.parse(config.getContentType()));
             se.setChunked(config.isUseChunking());
             entity = se;
         }
-        request = new HttpRequest[config.getThreads()];
-
-        for (int i = 0; i < request.length; i++) {
-            if ("POST".equals(config.getMethod())) {
-                BasicHttpEntityEnclosingRequest httppost =
-                        new BasicHttpEntityEnclosingRequest("POST", url.getPath());
-                httppost.setEntity(entity);
-                request[i] = httppost;
-            } else if ("PUT".equals(config.getMethod())) {
-                BasicHttpEntityEnclosingRequest httpput =
-                        new BasicHttpEntityEnclosingRequest("PUT", url.getPath());
-                httpput.setEntity(entity);
-                request[i] = httpput;
-            } else {
-                String path = url.getPath();
-                if (url.getQuery() != null && url.getQuery().length() > 0) {
-                    path += "?" + url.getQuery();
-                } else if (path.trim().length() == 0) {
-                    path = "/";
-                }
-                request[i] = new BasicHttpRequest(config.getMethod(), path);
+        HttpRequest request;
+        if ("POST".equals(config.getMethod())) {
+            BasicHttpEntityEnclosingRequest httppost =
+                    new BasicHttpEntityEnclosingRequest("POST", url.getPath());
+            httppost.setEntity(entity);
+            request = httppost;
+        } else if ("PUT".equals(config.getMethod())) {
+            BasicHttpEntityEnclosingRequest httpput =
+                    new BasicHttpEntityEnclosingRequest("PUT", url.getPath());
+            httpput.setEntity(entity);
+            request = httpput;
+        } else {
+            String path = url.getPath();
+            if (url.getQuery() != null && url.getQuery().length() > 0) {
+                path += "?" + url.getQuery();
+            } else if (path.trim().length() == 0) {
+                path = "/";
             }
+            request = new BasicHttpRequest(config.getMethod(), path);
         }
 
         if (!config.isKeepAlive()) {
-            for (int i = 0; i < request.length; i++) {
-                request[i].addHeader(new DefaultHeader(HTTP.CONN_DIRECTIVE, HTTP.CONN_CLOSE));
-            }
+            request.addHeader(new DefaultHeader(HTTP.CONN_DIRECTIVE, HTTP.CONN_CLOSE));
         }
 
         String[] headers = config.getHeaders();
@@ -154,29 +159,25 @@ public class HttpBenchmark {
                 int pos = s.indexOf(':');
                 if (pos != -1) {
                     Header header = new DefaultHeader(s.substring(0, pos).trim(), s.substring(pos + 1));
-                    for (int j = 0; j < request.length; j++) {
-                        request[j].addHeader(header);
-                    }
+                    request.addHeader(header);
                 }
             }
         }
 
         if (config.isUseAcceptGZip()) {
-            for (int i = 0; i < request.length; i++) {
-                request[i].addHeader(new DefaultHeader("Accept-Encoding", "gzip"));
-            }
+            request.addHeader(new DefaultHeader("Accept-Encoding", "gzip"));
         }
 
         if (config.getSoapAction() != null && config.getSoapAction().length() > 0) {
-            for (int i = 0; i < request.length; i++) {
-                request[i].addHeader(new DefaultHeader("SOAPAction", config.getSoapAction()));
-            }
+            request.addHeader(new DefaultHeader("SOAPAction", config.getSoapAction()));
         }
+        return request;
     }
 
     public String execute() throws Exception {
 
-        prepare();
+        URL url = config.getUrl();
+        HttpHost host = new HttpHost(url.getHost(), url.getPort(), url.getProtocol());
 
         ThreadPoolExecutor workerPool = new ThreadPoolExecutor(
                 config.getThreads(), config.getThreads(), 5, TimeUnit.SECONDS,
@@ -190,20 +191,71 @@ public class HttpBenchmark {
             });
         workerPool.prestartAllCoreThreads();
 
+        SocketFactory socketFactory = null;
+        if ("https".equals(host.getSchemeName())) {
+            TrustManager[] trustManagers = null;
+            if (config.isDisableSSLVerification()) {
+                // Create a trust manager that does not validate certificate chains
+                trustManagers = new TrustManager[] {
+                    new X509TrustManager() {
+
+                        public java.security.cert.X509Certificate[] getAcceptedIssuers() {
+                            return null;
+                        }
+
+                        public void checkClientTrusted(
+                            java.security.cert.X509Certificate[] certs, String authType) {
+                        }
+
+                        public void checkServerTrusted(
+                            java.security.cert.X509Certificate[] certs, String authType) {
+                        }
+                    }
+                };
+            } else if (config.getTrustStorePath() != null) {
+                KeyStore trustStore = KeyStore.getInstance(KeyStore.getDefaultType());
+                FileInputStream instream = new FileInputStream(config.getTrustStorePath());
+                try {
+                    trustStore.load(instream, config.getTrustStorePath() != null ? 
+                            config.getTrustStorePath().toCharArray() : null);
+                } finally {
+                    try { instream.close(); } catch (IOException ignore) {}
+                }
+                TrustManagerFactory tmfactory = TrustManagerFactory.getInstance(
+                        TrustManagerFactory.getDefaultAlgorithm());
+                tmfactory.init(trustStore);
+                trustManagers = tmfactory.getTrustManagers();
+            }
+            KeyManager[] keyManagers = null;
+            if (config.getIdentityStorePath() != null) {
+                KeyStore identityStore = KeyStore.getInstance(KeyStore.getDefaultType());
+                FileInputStream instream = new FileInputStream(config.getIdentityStorePath());
+                try {
+                    identityStore.load(instream, config.getIdentityStorePassword() != null ?
+                            config.getIdentityStorePassword().toCharArray() : null);
+                } finally {
+                    try { instream.close(); } catch (IOException ignore) {}
+                }
+                KeyManagerFactory kmf = KeyManagerFactory.getInstance(
+                    KeyManagerFactory.getDefaultAlgorithm());
+                kmf.init(identityStore, config.getIdentityStorePassword() != null ?
+                        config.getIdentityStorePassword().toCharArray() : null);
+                keyManagers = kmf.getKeyManagers();
+            }
+            SSLContext sc = SSLContext.getInstance("SSL");
+            sc.init(keyManagers, trustManagers, null);
+            socketFactory = sc.getSocketFactory();
+        }
+        
         BenchmarkWorker[] workers = new BenchmarkWorker[config.getThreads()];
         for (int i = 0; i < workers.length; i++) {
             workers[i] = new BenchmarkWorker(
-                    params,
-                    config.getVerbosity(),
-                    request[i],
+                    createRequest(),
                     host,
                     config.getRequests(),
                     config.isKeepAlive(),
-                    config.isDisableSSLVerification(),
-                    config.getTrustStorePath(),
-                    config.getTrustStorePassword(),
-                    config.getIdentityStorePath(),
-                    config.getIdentityStorePassword());
+                    config.getVerbosity(),
+                    socketFactory);
             workerPool.execute(workers[i]);
         }
 
@@ -219,16 +271,4 @@ public class HttpBenchmark {
         return ResultProcessor.printResults(workers, host, config.getUrl().toString());
     }
 
-    private HttpParams getHttpParams(
-            int socketTimeout, boolean useHttp1_0, boolean useExpectContinue) {
-
-        HttpParams params = new BasicHttpParams();
-        params.setParameter(HttpProtocolParams.PROTOCOL_VERSION,
-            useHttp1_0 ? HttpVersion.HTTP_1_0 : HttpVersion.HTTP_1_1)
-            .setParameter(HttpProtocolParams.USER_AGENT, "HttpCore-AB/1.1")
-            .setBooleanParameter(HttpProtocolParams.USE_EXPECT_CONTINUE, useExpectContinue)
-            .setBooleanParameter(HttpConnectionParams.STALE_CONNECTION_CHECK, false)
-            .setIntParameter(HttpConnectionParams.SO_TIMEOUT, socketTimeout);
-        return params;
-    }
 }

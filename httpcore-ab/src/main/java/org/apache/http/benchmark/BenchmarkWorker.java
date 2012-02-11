@@ -26,18 +26,12 @@
  */
 package org.apache.http.benchmark;
 
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.InetSocketAddress;
 import java.net.Socket;
-import java.security.KeyStore;
 
-import javax.net.ssl.KeyManagerFactory;
-import javax.net.ssl.SSLContext;
-import javax.net.ssl.SSLSocketFactory;
-import javax.net.ssl.TrustManager;
-import javax.net.ssl.X509TrustManager;
+import javax.net.SocketFactory;
 
 import org.apache.http.ConnectionReuseStrategy;
 import org.apache.http.Header;
@@ -50,15 +44,13 @@ import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
 import org.apache.http.entity.ContentType;
 import org.apache.http.impl.DefaultConnectionReuseStrategy;
-import org.apache.http.params.BasicHttpParams;
 import org.apache.http.params.HttpConnectionParams;
 import org.apache.http.params.HttpParams;
-import org.apache.http.params.DefaultedHttpParams;
+import org.apache.http.protocol.BasicHttpContext;
 import org.apache.http.protocol.BasicHttpProcessor;
+import org.apache.http.protocol.ExecutionContext;
 import org.apache.http.protocol.HTTP;
 import org.apache.http.protocol.HttpContext;
-import org.apache.http.protocol.BasicHttpContext;
-import org.apache.http.protocol.ExecutionContext;
 import org.apache.http.protocol.HttpRequestExecutor;
 import org.apache.http.protocol.RequestConnControl;
 import org.apache.http.protocol.RequestContent;
@@ -72,11 +64,10 @@ import org.apache.http.protocol.RequestUserAgent;
  *
  * @since 4.0
  */
-public class BenchmarkWorker implements Runnable {
+class BenchmarkWorker implements Runnable {
 
-    private byte[] buffer = new byte[4096];
+    private final byte[] buffer = new byte[4096];
     private final int verbosity;
-    private final HttpParams params;
     private final HttpContext context;
     private final BasicHttpProcessor httpProcessor;
     private final HttpRequestExecutor httpexecutor;
@@ -85,29 +76,18 @@ public class BenchmarkWorker implements Runnable {
     private final HttpHost targetHost;
     private final int count;
     private final boolean keepalive;
-    private final boolean disableSSLVerification;
+    private final SocketFactory socketFactory;
     private final Stats stats = new Stats();
-    private final TrustManager[] trustAllCerts;
-    private final String trustStorePath;
-    private final String trustStorePassword;
-    private final String identityStorePath;
-    private final String identityStorePassword;
 
     public BenchmarkWorker(
-            final HttpParams params,
-            int verbosity,
             final HttpRequest request,
             final HttpHost targetHost,
             int count,
             boolean keepalive,
-            boolean disableSSLVerification,
-            String trustStorePath,
-            String trustStorePassword,
-            String identityStorePath,
-            String identityStorePassword) {
+            int verbosity,
+            final SocketFactory socketFactory) {
 
         super();
-        this.params = params;
         this.context = new BasicHttpContext(null);
         this.request = request;
         this.targetHost = targetHost;
@@ -127,29 +107,7 @@ public class BenchmarkWorker implements Runnable {
 
         this.connstrategy = new DefaultConnectionReuseStrategy();
         this.verbosity = verbosity;
-        this.disableSSLVerification = disableSSLVerification;
-        this.trustStorePath = trustStorePath;
-        this.trustStorePassword = trustStorePassword;
-        this.identityStorePath = identityStorePath;
-        this.identityStorePassword = identityStorePassword;
-
-        // Create a trust manager that does not validate certificate chains
-        trustAllCerts = new TrustManager[]{
-            new X509TrustManager() {
-
-                public java.security.cert.X509Certificate[] getAcceptedIssuers() {
-                    return null;
-                }
-
-                public void checkClientTrusted(
-                    java.security.cert.X509Certificate[] certs, String authType) {
-                }
-
-                public void checkServerTrusted(
-                    java.security.cert.X509Certificate[] certs, String authType) {
-                }
-            }
-        };
+        this.socketFactory = socketFactory;
     }
 
     public void run() {
@@ -174,7 +132,6 @@ public class BenchmarkWorker implements Runnable {
         this.context.setAttribute(ExecutionContext.HTTP_REQUEST, this.request);
 
         stats.start();
-        request.setParams(new DefaultedHttpParams(new BasicHttpParams(), this.params));
         for (int i = 0; i < count; i++) {
 
             try {
@@ -182,39 +139,13 @@ public class BenchmarkWorker implements Runnable {
                 if (!conn.isOpen()) {
                     
                     Socket socket;
-                    if ("https".equals(targetHost.getSchemeName())) {
-                        if (disableSSLVerification) {
-                            SSLContext sc = SSLContext.getInstance("SSL");
-                            if (identityStorePath != null) {
-                                KeyStore identityStore = KeyStore.getInstance(KeyStore.getDefaultType());
-                                FileInputStream instream = new FileInputStream(identityStorePath);
-                                try {
-                                    identityStore.load(instream, identityStorePassword.toCharArray());
-                                } finally {
-                                    try { instream.close(); } catch (IOException ignore) {}
-                                }
-                                KeyManagerFactory kmf = KeyManagerFactory.getInstance(
-                                    KeyManagerFactory.getDefaultAlgorithm());
-                                kmf.init(identityStore, identityStorePassword.toCharArray());
-                                sc.init(kmf.getKeyManagers(), trustAllCerts, null);
-                            } else {
-                                sc.init(null, trustAllCerts, null);
-                            }
-                            socket = sc.getSocketFactory().createSocket();
-                            
-                        } else {
-                            if (trustStorePath != null) {
-                                System.setProperty("javax.net.ssl.trustStore", trustStorePath);
-                            }
-                            if (trustStorePassword != null) {
-                                System.setProperty("javax.net.ssl.trustStorePassword", trustStorePassword);
-                            }
-                            socket = SSLSocketFactory.getDefault().createSocket();
-                        }
+                    if (socketFactory != null) {
+                        socket = socketFactory.createSocket();
                     } else {
                         socket = new Socket();
                     }
                     
+                    HttpParams params = request.getParams();
                     int connTimeout = HttpConnectionParams.getConnectionTimeout(params);
                     int soTimeout = HttpConnectionParams.getSoTimeout(params);
 
@@ -282,13 +213,11 @@ public class BenchmarkWorker implements Runnable {
                 }
 
             } catch (IOException ex) {
-                ex.printStackTrace();
                 stats.incFailureCount();
                 if (this.verbosity >= 2) {
                     System.err.println("I/O error: " + ex.getMessage());
                 }
             } catch (Exception ex) {
-                ex.printStackTrace();
                 stats.incFailureCount();
                 if (this.verbosity >= 2) {
                     System.err.println("Generic error: " + ex.getMessage());
@@ -308,7 +237,6 @@ public class BenchmarkWorker implements Runnable {
         try {
             conn.close();
         } catch (IOException ex) {
-            ex.printStackTrace();
             stats.incFailureCount();
             if (this.verbosity >= 2) {
                 System.err.println("I/O error: " + ex.getMessage());
