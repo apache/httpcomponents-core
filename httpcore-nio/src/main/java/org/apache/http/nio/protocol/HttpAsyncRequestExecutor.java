@@ -103,9 +103,7 @@ public class HttpAsyncRequestExecutor implements NHttpClientEventHandler {
     public void closed(final NHttpClientConnection conn) {
         State state = getState(conn);
         if (state != null) {
-            synchronized (state) {
-                state.reset();
-            }
+            state.reset();
         }
     }
 
@@ -114,10 +112,8 @@ public class HttpAsyncRequestExecutor implements NHttpClientEventHandler {
         shutdownConnection(conn);
         State state = getState(conn);
         if (state != null) {
-            synchronized (state) {
-                closeHandler(state, cause);
-                state.reset();
-            }
+            closeHandler(state, cause);
+            state.reset();
         } else {
             log(cause);
         }
@@ -126,55 +122,53 @@ public class HttpAsyncRequestExecutor implements NHttpClientEventHandler {
     public void requestReady(
             final NHttpClientConnection conn) throws IOException, HttpException {
         State state = ensureNotNull(getState(conn));
-        synchronized (state) {
-            if (state.getRequestState() != MessageState.READY) {
-                return;
-            }
-            HttpAsyncRequestExecutionHandler<?> handler = state.getHandler();
-            if (handler != null && handler.isDone()) {
-                closeHandler(state);
-                state.reset();
-                handler = null;
-            }
-            if (handler == null) {
-                handler = (HttpAsyncRequestExecutionHandler<?>) conn.getContext().removeAttribute(
-                        HTTP_HANDLER);
-                state.setHandler(handler);
-            }
-            if (handler == null) {
-                return;
-            }
+        if (state.getRequestState() != MessageState.READY) {
+            return;
+        }
+        HttpAsyncRequestExecutionHandler<?> handler = state.getHandler();
+        if (handler != null && handler.isDone()) {
+            closeHandler(state);
+            state.reset();
+            handler = null;
+        }
+        if (handler == null) {
+            handler = (HttpAsyncRequestExecutionHandler<?>) conn.getContext().removeAttribute(
+                    HTTP_HANDLER);
+            state.setHandler(handler);
+        }
+        if (handler == null) {
+            return;
+        }
 
-            HttpContext context = handler.getContext();
-            context.setAttribute(ExecutionContext.HTTP_CONNECTION, conn);
+        HttpContext context = handler.getContext();
+        context.setAttribute(ExecutionContext.HTTP_CONNECTION, conn);
 
-            HttpRequest request = handler.generateRequest();
-            context.setAttribute(ExecutionContext.HTTP_REQUEST, request);
+        HttpRequest request = handler.generateRequest();
+        context.setAttribute(ExecutionContext.HTTP_REQUEST, request);
 
-            conn.setSocketTimeout(HttpConnectionParams.getSoTimeout(request.getParams()));
+        conn.setSocketTimeout(HttpConnectionParams.getSoTimeout(request.getParams()));
 
-            HttpProcessor httppocessor = handler.getHttpProcessor();
-            httppocessor.process(request, context);
+        HttpProcessor httppocessor = handler.getHttpProcessor();
+        httppocessor.process(request, context);
 
-            state.setRequest(request);
+        state.setRequest(request);
 
-            conn.submitRequest(request);
+        conn.submitRequest(request);
 
-            if (request instanceof HttpEntityEnclosingRequest) {
-                if (((HttpEntityEnclosingRequest) request).expectContinue()) {
-                    int timeout = conn.getSocketTimeout();
-                    state.setTimeout(timeout);
-                    timeout = request.getParams().getIntParameter(
-                            CoreProtocolPNames.WAIT_FOR_CONTINUE, 3000);
-                    conn.setSocketTimeout(timeout);
-                    state.setRequestState(MessageState.ACK_EXPECTED);
-                } else {
-                    state.setRequestState(MessageState.BODY_STREAM);
-                }
+        if (request instanceof HttpEntityEnclosingRequest) {
+            if (((HttpEntityEnclosingRequest) request).expectContinue()) {
+                int timeout = conn.getSocketTimeout();
+                state.setTimeout(timeout);
+                timeout = request.getParams().getIntParameter(
+                        CoreProtocolPNames.WAIT_FOR_CONTINUE, 3000);
+                conn.setSocketTimeout(timeout);
+                state.setRequestState(MessageState.ACK_EXPECTED);
             } else {
-                handler.requestCompleted(context);
-                state.setRequestState(MessageState.COMPLETED);
+                state.setRequestState(MessageState.BODY_STREAM);
             }
+        } else {
+            handler.requestCompleted(context);
+            state.setRequestState(MessageState.COMPLETED);
         }
     }
 
@@ -182,72 +176,68 @@ public class HttpAsyncRequestExecutor implements NHttpClientEventHandler {
             final NHttpClientConnection conn,
             final ContentEncoder encoder) throws IOException {
         State state = ensureNotNull(getState(conn));
-        synchronized (state) {
-            HttpAsyncRequestExecutionHandler<?> handler = ensureNotNull(state.getHandler());
-            if (state.getRequestState() == MessageState.ACK_EXPECTED) {
-                conn.suspendOutput();
-                return;
-            }
-            HttpContext context = handler.getContext();
-            handler.produceContent(encoder, conn);
-            state.setRequestState(MessageState.BODY_STREAM);
-            if (encoder.isCompleted()) {
-                handler.requestCompleted(context);
-                state.setRequestState(MessageState.COMPLETED);
-            }
+        HttpAsyncRequestExecutionHandler<?> handler = ensureNotNull(state.getHandler());
+        if (state.getRequestState() == MessageState.ACK_EXPECTED) {
+            conn.suspendOutput();
+            return;
+        }
+        HttpContext context = handler.getContext();
+        handler.produceContent(encoder, conn);
+        state.setRequestState(MessageState.BODY_STREAM);
+        if (encoder.isCompleted()) {
+            handler.requestCompleted(context);
+            state.setRequestState(MessageState.COMPLETED);
         }
     }
 
     public void responseReceived(
             final NHttpClientConnection conn) throws HttpException, IOException {
         State state = ensureNotNull(getState(conn));
-        synchronized (state) {
-            HttpAsyncRequestExecutionHandler<?> handler = ensureNotNull(state.getHandler());
-            HttpResponse response = conn.getHttpResponse();
-            HttpRequest request = state.getRequest();
+        HttpAsyncRequestExecutionHandler<?> handler = ensureNotNull(state.getHandler());
+        HttpResponse response = conn.getHttpResponse();
+        HttpRequest request = state.getRequest();
 
-            int statusCode = response.getStatusLine().getStatusCode();
-            if (statusCode < HttpStatus.SC_OK) {
-                // 1xx intermediate response
-                if (statusCode != HttpStatus.SC_CONTINUE) {
-                    throw new ProtocolException(
-                            "Unexpected response: " + response.getStatusLine());
-                }
-                if (state.getRequestState() == MessageState.ACK_EXPECTED) {
-                    int timeout = state.getTimeout();
-                    conn.setSocketTimeout(timeout);
-                    conn.requestOutput();
-                    state.setRequestState(MessageState.ACK);
-                }
-                return;
+        int statusCode = response.getStatusLine().getStatusCode();
+        if (statusCode < HttpStatus.SC_OK) {
+            // 1xx intermediate response
+            if (statusCode != HttpStatus.SC_CONTINUE) {
+                throw new ProtocolException(
+                        "Unexpected response: " + response.getStatusLine());
             }
-            state.setResponse(response);
             if (state.getRequestState() == MessageState.ACK_EXPECTED) {
                 int timeout = state.getTimeout();
                 conn.setSocketTimeout(timeout);
-                conn.resetOutput();
-                state.setRequestState(MessageState.COMPLETED);
-            } else if (state.getRequestState() == MessageState.BODY_STREAM) {
-                // Early response
-                conn.resetOutput();
-                conn.suspendOutput();
-                state.setRequestState(MessageState.COMPLETED);
-                state.invalidate();
+                conn.requestOutput();
+                state.setRequestState(MessageState.ACK);
             }
+            return;
+        }
+        state.setResponse(response);
+        if (state.getRequestState() == MessageState.ACK_EXPECTED) {
+            int timeout = state.getTimeout();
+            conn.setSocketTimeout(timeout);
+            conn.resetOutput();
+            state.setRequestState(MessageState.COMPLETED);
+        } else if (state.getRequestState() == MessageState.BODY_STREAM) {
+            // Early response
+            conn.resetOutput();
+            conn.suspendOutput();
+            state.setRequestState(MessageState.COMPLETED);
+            state.invalidate();
+        }
 
-            handler.responseReceived(response);
+        handler.responseReceived(response);
 
-            HttpContext context = handler.getContext();
-            HttpProcessor httpprocessor = handler.getHttpProcessor();
+        HttpContext context = handler.getContext();
+        HttpProcessor httpprocessor = handler.getHttpProcessor();
 
-            context.setAttribute(ExecutionContext.HTTP_RESPONSE, response);
-            httpprocessor.process(response, context);
+        context.setAttribute(ExecutionContext.HTTP_RESPONSE, response);
+        httpprocessor.process(response, context);
 
-            state.setResponseState(MessageState.BODY_STREAM);
-            if (!canResponseHaveBody(request, response)) {
-                conn.resetInput();
-                processResponse(conn, state, handler);
-            }
+        state.setResponseState(MessageState.BODY_STREAM);
+        if (!canResponseHaveBody(request, response)) {
+            conn.resetInput();
+            processResponse(conn, state, handler);
         }
     }
 
@@ -255,13 +245,11 @@ public class HttpAsyncRequestExecutor implements NHttpClientEventHandler {
             final NHttpClientConnection conn,
             final ContentDecoder decoder) throws IOException {
         State state = ensureNotNull(getState(conn));
-        synchronized (state) {
-            HttpAsyncRequestExecutionHandler<?> handler = ensureNotNull(state.getHandler());
-            handler.consumeContent(decoder, conn);
-            state.setResponseState(MessageState.BODY_STREAM);
-            if (decoder.isCompleted()) {
-                processResponse(conn, state, handler);
-            }
+        HttpAsyncRequestExecutionHandler<?> handler = ensureNotNull(state.getHandler());
+        handler.consumeContent(decoder, conn);
+        state.setResponseState(MessageState.BODY_STREAM);
+        if (decoder.isCompleted()) {
+            processResponse(conn, state, handler);
         }
     }
 
@@ -273,16 +261,14 @@ public class HttpAsyncRequestExecutor implements NHttpClientEventHandler {
             final NHttpClientConnection conn) throws IOException {
         State state = getState(conn);
         if (state != null) {
-            synchronized (state) {
-                if (state.getRequestState() == MessageState.ACK_EXPECTED) {
-                    int timeout = state.getTimeout();
-                    conn.setSocketTimeout(timeout);
-                    conn.requestOutput();
-                    state.setRequestState(MessageState.BODY_STREAM);
-                    return;
-                } else {
-                    closeHandler(state, new SocketTimeoutException());
-                }
+            if (state.getRequestState() == MessageState.ACK_EXPECTED) {
+                int timeout = state.getTimeout();
+                conn.setSocketTimeout(timeout);
+                conn.requestOutput();
+                state.setRequestState(MessageState.BODY_STREAM);
+                return;
+            } else {
+                closeHandler(state, new SocketTimeoutException());
             }
         }
         if (conn.getStatus() == NHttpConnection.ACTIVE) {
