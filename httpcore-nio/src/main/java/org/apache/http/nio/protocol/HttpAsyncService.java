@@ -356,12 +356,7 @@ public class HttpAsyncService implements NHttpServerEventHandler {
     }
 
     public void endOfInput(final NHttpServerConnection conn) throws IOException {
-        State state = ensureNotNull(getState(conn));
-        if (state.getResponseState().compareTo(MessageState.READY) > 0) {
-            conn.suspendInput();
-        } else {
-            conn.close();
-        }
+        conn.close();
     }
 
     public void timeout(final NHttpServerConnection conn) throws IOException {
