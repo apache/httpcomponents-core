@@ -103,6 +103,9 @@ public class HttpAsyncRequestExecutor implements NHttpClientEventHandler {
     public void closed(final NHttpClientConnection conn) {
         State state = getState(conn);
         if (state != null) {
+            if (!state.isValid()) {
+                closeHandler(state);
+            }
             state.reset();
         }
     }
@@ -268,6 +271,7 @@ public class HttpAsyncRequestExecutor implements NHttpClientEventHandler {
                 state.setRequestState(MessageState.BODY_STREAM);
                 return;
             } else {
+                state.invalidate();
                 closeHandler(state, new SocketTimeoutException());
             }
         }
