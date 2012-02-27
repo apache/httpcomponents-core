@@ -27,14 +27,14 @@
 
 package org.apache.http.protocol;
 
-import org.apache.http.annotation.ThreadSafe;
-
 /**
  * Thread-safe extension of the {@link BasicHttpContext}.
  *
  * @since 4.0
+ * 
+ * @deprecated HttpContext instances may not be shared by multiple threads
  */
-@ThreadSafe
+@Deprecated
 public class SyncBasicHttpContext extends BasicHttpContext {
 
     public SyncBasicHttpContext(final HttpContext parentContext) {

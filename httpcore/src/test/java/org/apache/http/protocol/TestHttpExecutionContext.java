@@ -36,8 +36,8 @@ public class TestHttpExecutionContext {
 
     @Test
     public void testContextOperations() {
-        HttpContext parentContext = new SyncBasicHttpContext(null);
-        HttpContext currentContext = new SyncBasicHttpContext(parentContext);
+        HttpContext parentContext = new BasicHttpContext(null);
+        HttpContext currentContext = new BasicHttpContext(parentContext);
 
         parentContext.setAttribute("param1", "1");
         parentContext.setAttribute("param2", "2");
@@ -66,7 +66,7 @@ public class TestHttpExecutionContext {
 
     @Test
     public void testEmptyContextOperations() {
-        HttpContext currentContext = new SyncBasicHttpContext(null);
+        HttpContext currentContext = new BasicHttpContext(null);
         Assert.assertEquals(null, currentContext.getAttribute("param1"));
         currentContext.removeAttribute("param1");
         Assert.assertEquals(null, currentContext.getAttribute("param1"));
@@ -74,7 +74,7 @@ public class TestHttpExecutionContext {
 
     @Test
     public void testContextInvalidInput() throws Exception {
-        HttpContext currentContext = new SyncBasicHttpContext(null);
+        HttpContext currentContext = new BasicHttpContext(null);
         try {
             currentContext.setAttribute(null, null);
             Assert.fail("IllegalArgumentException should have been thrown");
