@@ -32,6 +32,7 @@ import java.net.SocketTimeoutException;
 
 import junit.framework.Assert;
 
+import org.apache.http.ConnectionClosedException;
 import org.apache.http.ConnectionReuseStrategy;
 import org.apache.http.HttpException;
 import org.apache.http.HttpRequest;
@@ -139,6 +140,16 @@ public class TestHttpAsyncRequestExecutor {
 
         Assert.assertEquals(MessageState.READY, state.getRequestState());
         Assert.assertEquals(MessageState.READY, state.getResponseState());
+        Mockito.verify(this.exchangeHandler).close();
+    }
+
+    @Test
+    public void testClosedUnexpectedly() throws Exception {
+        this.connContext.setAttribute(HttpAsyncRequestExecutor.HTTP_HANDLER, this.exchangeHandler);
+
+        this.protocolHandler.closed(this.conn);
+
+        Mockito.verify(this.exchangeHandler).failed(Mockito.any(ConnectionClosedException.class));
         Mockito.verify(this.exchangeHandler).close();
     }
 

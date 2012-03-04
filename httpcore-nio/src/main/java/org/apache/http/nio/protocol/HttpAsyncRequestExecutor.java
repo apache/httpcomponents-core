@@ -31,6 +31,7 @@ import java.io.Closeable;
 import java.io.IOException;
 import java.net.SocketTimeoutException;
 
+import org.apache.http.ConnectionClosedException;
 import org.apache.http.ConnectionReuseStrategy;
 import org.apache.http.HttpConnection;
 import org.apache.http.HttpEntityEnclosingRequest;
@@ -107,6 +108,18 @@ public class HttpAsyncRequestExecutor implements NHttpClientEventHandler {
                 closeHandler(state);
             }
             state.reset();
+        }
+        // Make sure the request handler gets closed in case #requestReady never fired
+        // to due unexpected connection shutdown.
+        HttpAsyncRequestExecutionHandler<?> handler = (HttpAsyncRequestExecutionHandler<?>) conn.
+                getContext().removeAttribute(HTTP_HANDLER);
+        if (handler != null) {
+            handler.failed(new ConnectionClosedException("Connection closed"));
+            try {
+                handler.close();
+            } catch (IOException ioex) {
+                log(ioex);
+            }
         }
     }
 
