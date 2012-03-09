@@ -27,10 +27,12 @@
 
 package org.apache.http.nio.protocol;
 
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 
 import junit.framework.Assert;
 
+import org.apache.http.ConnectionClosedException;
 import org.apache.http.ConnectionReuseStrategy;
 import org.apache.http.HttpHost;
 import org.apache.http.concurrent.FutureCallback;
@@ -169,6 +171,30 @@ public class TestHttpAsyncRequester {
         Mockito.verify(this.conn).requestOutput();
     }
 
+    @Test
+    public void testExecuteConnectionClosedUnexpectedly() throws Exception {
+        Mockito.when(this.conn.isOpen()).thenReturn(false);
+        Future<Object> future = this.requester.execute(
+                this.requestProducer,
+                this.responseConsumer,
+                this.conn, this.exchangeContext, null);
+        Assert.assertNotNull(future);
+        Mockito.verify(this.requestProducer).failed(Mockito.any(ConnectionClosedException.class));
+        Mockito.verify(this.responseConsumer).failed(Mockito.any(ConnectionClosedException.class));
+        Mockito.verify(this.requestProducer, Mockito.atLeastOnce()).close();
+        Mockito.verify(this.responseConsumer, Mockito.atLeastOnce()).close();
+        Assert.assertTrue(future.isDone());
+        Assert.assertNotNull(future.isDone());
+        try {
+            future.get();
+        } catch (ExecutionException ex) {
+            Throwable cause =  ex.getCause();
+            Assert.assertNotNull(cause);
+            Assert.assertTrue(cause instanceof ConnectionClosedException);
+        }
+
+    }
+
     @SuppressWarnings({ "rawtypes", "unchecked" })
     @Test
     public void testPooledConnectionRequestFailed() throws Exception {
@@ -245,6 +271,7 @@ public class TestHttpAsyncRequester {
     public void testPooledRequestExecutionSucceeded() throws Exception {
         HttpHost host = new HttpHost("somehost");
         Mockito.when(this.requestProducer.getTarget()).thenReturn(host);
+        Mockito.when(this.conn.isOpen()).thenReturn(true);
 
         Future<Object> future = this.requester.execute(
                 this.requestProducer,
@@ -277,6 +304,7 @@ public class TestHttpAsyncRequester {
     public void testPooledRequestExecutionFailed() throws Exception {
         HttpHost host = new HttpHost("somehost");
         Mockito.when(this.requestProducer.getTarget()).thenReturn(host);
+        Mockito.when(this.conn.isOpen()).thenReturn(true);
 
         Future<Object> future = this.requester.execute(
                 this.requestProducer,
@@ -309,6 +337,7 @@ public class TestHttpAsyncRequester {
     public void testPooledRequestExecutionCancelled() throws Exception {
         HttpHost host = new HttpHost("somehost");
         Mockito.when(this.requestProducer.getTarget()).thenReturn(host);
+        Mockito.when(this.conn.isOpen()).thenReturn(true);
 
         Future<Object> future = this.requester.execute(
                 this.requestProducer,

@@ -62,6 +62,8 @@ public class BasicAsyncRequestExecutionHandler<T> implements HttpAsyncRequestExe
     private final ConnectionReuseStrategy reuseStrategy;
     private final HttpParams params;
 
+    private volatile boolean requestSent;
+
     public BasicAsyncRequestExecutionHandler(
             final HttpAsyncRequestProducer requestProducer,
             final HttpAsyncResponseConsumer<T> responseConsumer,
@@ -143,13 +145,11 @@ public class BasicAsyncRequestExecutionHandler<T> implements HttpAsyncRequestExe
     public void produceContent(
             final ContentEncoder encoder, final IOControl ioctrl) throws IOException {
         this.requestProducer.produceContent(encoder, ioctrl);
-        if (encoder.isCompleted()) {
-            this.requestProducer.close();
-        }
     }
 
     public void requestCompleted(final HttpContext context) {
         this.requestProducer.requestCompleted(context);
+        this.requestSent = true;
     }
 
     public boolean isRepeatable() {
@@ -171,6 +171,9 @@ public class BasicAsyncRequestExecutionHandler<T> implements HttpAsyncRequestExe
 
     public void failed(final Exception ex) {
         try {
+            if (!this.requestSent) {
+                this.requestProducer.failed(ex);
+            }
             this.responseConsumer.failed(ex);
         } finally {
             try {

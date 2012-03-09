@@ -30,6 +30,7 @@ import java.io.Closeable;
 import java.io.IOException;
 import java.util.concurrent.Future;
 
+import org.apache.http.ConnectionClosedException;
 import org.apache.http.ConnectionReuseStrategy;
 import org.apache.http.HttpConnection;
 import org.apache.http.HttpHost;
@@ -102,9 +103,22 @@ public class HttpAsyncRequester {
         BasicAsyncRequestExecutionHandler<T> handler = new BasicAsyncRequestExecutionHandler<T>(
                 requestProducer, responseConsumer, callback, context,
                 this.httppocessor, this.reuseStrategy, this.params);
+        doExecute(handler, conn);
+        return handler.getFuture();
+    }
+
+    private <T> void doExecute(
+            final HttpAsyncRequestExecutionHandler<T> handler, final NHttpClientConnection conn) {
         conn.getContext().setAttribute(HttpAsyncRequestExecutor.HTTP_HANDLER, handler);
         conn.requestOutput();
-        return handler.getFuture();
+        if (!conn.isOpen()) {
+            handler.failed(new ConnectionClosedException("Connection closed"));
+            try {
+                handler.close();
+            } catch (IOException ex) {
+                log(ex);
+            }
+        }
     }
 
     /**
@@ -246,8 +260,7 @@ public class HttpAsyncRequester {
                     this.requestProducer, this.responseConsumer,
                     new RequestExecutionCallback<T, E>(this.requestFuture, result, this.connPool),
                     this.context, httppocessor, reuseStrategy, params);
-            conn.getContext().setAttribute(HttpAsyncRequestExecutor.HTTP_HANDLER, handler);
-            conn.requestOutput();
+            doExecute(handler, conn);
         }
 
         public void failed(final Exception ex) {

@@ -201,7 +201,6 @@ public class TestBasicAsyncRequestExecutionHandler {
         this.exchangeHandler.produceContent(this.encoder, this.conn);
 
         Mockito.verify(this.requestProducer).produceContent(this.encoder, this.conn);
-        Mockito.verify(this.requestProducer).close();
     }
 
     @Test
@@ -232,6 +231,24 @@ public class TestBasicAsyncRequestExecutionHandler {
         Exception ooopsie = new Exception();
         this.exchangeHandler.failed(ooopsie);
 
+        Mockito.verify(this.requestProducer).failed(ooopsie);
+        Mockito.verify(this.responseConsumer).failed(ooopsie);
+        Mockito.verify(this.requestProducer).close();
+        Mockito.verify(this.responseConsumer).close();
+        try {
+            this.exchangeHandler.getFuture().get();
+        } catch (ExecutionException ex) {
+            Assert.assertSame(ooopsie, ex.getCause());
+        }
+    }
+
+    @Test
+    public void testFailedAfterRequest() throws Exception {
+        Exception ooopsie = new Exception();
+        this.exchangeHandler.requestCompleted(this.context);
+        this.exchangeHandler.failed(ooopsie);
+
+        Mockito.verify(this.requestProducer, Mockito.never()).failed(ooopsie);
         Mockito.verify(this.responseConsumer).failed(ooopsie);
         Mockito.verify(this.requestProducer).close();
         Mockito.verify(this.responseConsumer).close();
