@@ -52,8 +52,31 @@ import org.apache.http.annotation.Immutable;
 @Immutable
 public class RequestContent implements HttpRequestInterceptor {
 
+    private final boolean overwrite;
+
+    /**
+     * Default constructor. The <code>Content-Length</code> or <code>Transfer-Encoding</code>
+     * will cause the interceptor to throw {@link ProtocolException} if already present in the
+     * response message.
+     */
     public RequestContent() {
-        super();
+        this(false);
+    }
+
+    /**
+     * Constructor that can be used to fine-tune behavior of this interceptor.
+     *
+     * @param overwrite If set to <code>true</code> the <code>Content-Length</code> and
+     * <code>Transfer-Encoding</code> headers will be created or updated if already present.
+     * If set to <code>false</code> the <code>Content-Length</code> and
+     * <code>Transfer-Encoding</code> headers will cause the interceptor to throw
+     * {@link ProtocolException} if already present in the response message.
+     * 
+     * @since 4.2
+     */
+     public RequestContent(boolean overwrite) {
+         super();
+         this.overwrite = overwrite;
     }
 
     public void process(final HttpRequest request, final HttpContext context)
@@ -62,11 +85,16 @@ public class RequestContent implements HttpRequestInterceptor {
             throw new IllegalArgumentException("HTTP request may not be null");
         }
         if (request instanceof HttpEntityEnclosingRequest) {
-            if (request.containsHeader(HTTP.TRANSFER_ENCODING)) {
-                throw new ProtocolException("Transfer-encoding header already present");
-            }
-            if (request.containsHeader(HTTP.CONTENT_LEN)) {
-                throw new ProtocolException("Content-Length header already present");
+            if (this.overwrite) {
+                request.removeHeaders(HTTP.TRANSFER_ENCODING);
+                request.removeHeaders(HTTP.CONTENT_LEN);
+            } else {
+                if (request.containsHeader(HTTP.TRANSFER_ENCODING)) {
+                    throw new ProtocolException("Transfer-encoding header already present");
+                }
+                if (request.containsHeader(HTTP.CONTENT_LEN)) {
+                    throw new ProtocolException("Content-Length header already present");
+                }
             }
             ProtocolVersion ver = request.getRequestLine().getProtocolVersion();
             HttpEntity entity = ((HttpEntityEnclosingRequest)request).getEntity();

@@ -71,6 +71,8 @@ public class ResponseContent implements HttpResponseInterceptor {
      * If set to <code>false</code> the <code>Content-Length</code> and
      * <code>Transfer-Encoding</code> headers will cause the interceptor to throw
      * {@link ProtocolException} if already present in the response message.
+     * 
+     * @since 4.2
      */
      public ResponseContent(boolean overwrite) {
          super();
@@ -89,37 +91,42 @@ public class ResponseContent implements HttpResponseInterceptor {
         if (response == null) {
             throw new IllegalArgumentException("HTTP response may not be null");
         }
-        if (response.containsHeader(HTTP.TRANSFER_ENCODING) && !this.overwrite) {
-            throw new ProtocolException("Transfer-encoding header already present");
-        }
-        if (response.containsHeader(HTTP.CONTENT_LEN) && !this.overwrite) {
-            throw new ProtocolException("Content-Length header already present");
+        if (this.overwrite) {
+            response.removeHeaders(HTTP.TRANSFER_ENCODING);
+            response.removeHeaders(HTTP.CONTENT_LEN);
+        } else {
+            if (response.containsHeader(HTTP.TRANSFER_ENCODING)) {
+                throw new ProtocolException("Transfer-encoding header already present");
+            }
+            if (response.containsHeader(HTTP.CONTENT_LEN)) {
+                throw new ProtocolException("Content-Length header already present");
+            }
         }
         ProtocolVersion ver = response.getStatusLine().getProtocolVersion();
         HttpEntity entity = response.getEntity();
         if (entity != null) {
             long len = entity.getContentLength();
             if (entity.isChunked() && !ver.lessEquals(HttpVersion.HTTP_1_0)) {
-                response.setHeader(HTTP.TRANSFER_ENCODING, HTTP.CHUNK_CODING);
+                response.addHeader(HTTP.TRANSFER_ENCODING, HTTP.CHUNK_CODING);
             } else if (len >= 0) {
-                response.setHeader(HTTP.CONTENT_LEN, Long.toString(entity.getContentLength()));
+                response.addHeader(HTTP.CONTENT_LEN, Long.toString(entity.getContentLength()));
             }
             // Specify a content type if known
             if (entity.getContentType() != null && !response.containsHeader(
                     HTTP.CONTENT_TYPE )) {
-                response.setHeader(entity.getContentType());
+                response.addHeader(entity.getContentType());
             }
             // Specify a content encoding if known
             if (entity.getContentEncoding() != null && !response.containsHeader(
                     HTTP.CONTENT_ENCODING)) {
-                response.setHeader(entity.getContentEncoding());
+                response.addHeader(entity.getContentEncoding());
             }
         } else {
             int status = response.getStatusLine().getStatusCode();
             if (status != HttpStatus.SC_NO_CONTENT
                     && status != HttpStatus.SC_NOT_MODIFIED
                     && status != HttpStatus.SC_RESET_CONTENT) {
-                response.setHeader(HTTP.CONTENT_LEN, "0");
+                response.addHeader(HTTP.CONTENT_LEN, "0");
             }
         }
     }

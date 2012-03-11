@@ -272,6 +272,27 @@ public class TestStandardInterceptors {
     }
 
     @Test
+    public void testRequestContentOverwriteHeaders() throws Exception {
+        RequestContent interceptor = new RequestContent(true);
+        HttpContext context = new BasicHttpContext(null);
+        BasicHttpEntityEnclosingRequest request = new BasicHttpEntityEnclosingRequest("POST", "/");
+        request.addHeader(new BasicHeader(HTTP.CONTENT_LEN, "10"));
+        request.addHeader(new BasicHeader(HTTP.TRANSFER_ENCODING, "whatever"));
+        interceptor.process(request, context);
+        Assert.assertEquals("0", request.getFirstHeader(HTTP.CONTENT_LEN).getValue());
+    }
+
+    @Test
+    public void testRequestContentAddHeaders() throws Exception {
+        RequestContent interceptor = new RequestContent(true);
+        HttpContext context = new BasicHttpContext(null);
+        BasicHttpEntityEnclosingRequest request = new BasicHttpEntityEnclosingRequest("POST", "/");
+        interceptor.process(request, context);
+        Assert.assertEquals("0", request.getFirstHeader(HTTP.CONTENT_LEN).getValue());
+        Assert.assertNull(request.getFirstHeader(HTTP.TRANSFER_ENCODING));
+    }
+
+    @Test
     public void testRequestExpectContinueGenerated() throws Exception {
         HttpContext context = new BasicHttpContext(null);
         BasicHttpEntityEnclosingRequest request = new BasicHttpEntityEnclosingRequest("POST", "/");
@@ -880,7 +901,6 @@ public class TestStandardInterceptors {
         response.addHeader(new BasicHeader(HTTP.TRANSFER_ENCODING, "whatever"));
         interceptor.process(response, context);
         Assert.assertEquals("0", response.getFirstHeader(HTTP.CONTENT_LEN).getValue());
-        Assert.assertEquals("whatever", response.getFirstHeader(HTTP.TRANSFER_ENCODING).getValue());
     }
 
     @Test
