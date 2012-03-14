@@ -30,6 +30,7 @@ package org.apache.http.impl.nio;
 import java.io.IOException;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
+import java.net.Socket;
 import java.net.SocketAddress;
 import java.nio.channels.ReadableByteChannel;
 import java.nio.channels.WritableByteChannel;
@@ -67,6 +68,7 @@ import org.apache.http.nio.reactor.IOSession;
 import org.apache.http.nio.reactor.SessionBufferStatus;
 import org.apache.http.nio.reactor.SessionInputBuffer;
 import org.apache.http.nio.reactor.SessionOutputBuffer;
+import org.apache.http.nio.reactor.SocketAccessor;
 import org.apache.http.nio.util.ByteBufferAllocator;
 import org.apache.http.params.HttpConnectionParams;
 import org.apache.http.params.HttpParams;
@@ -89,7 +91,7 @@ import org.apache.http.protocol.HttpContext;
  */
 @NotThreadSafe
 public class NHttpConnectionBase
-        implements NHttpConnection, HttpInetConnection, SessionBufferStatus {
+        implements NHttpConnection, HttpInetConnection, SessionBufferStatus, SocketAccessor {
 
     protected final ContentLengthStrategy incomingContentStrategy;
     protected final ContentLengthStrategy outgoingContentStrategy;
@@ -465,6 +467,14 @@ public class NHttpConnectionBase
         }
         buffer.append("]");
         return buffer.toString();
+    }
+    
+    public Socket getSocket() {
+        if (this.session instanceof SocketAccessor) {
+            return ((SocketAccessor) this.session).getSocket();
+        } else {
+            return null;
+        }
     }
 
 }

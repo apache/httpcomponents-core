@@ -30,6 +30,7 @@ package org.apache.http.nio.reactor.ssl;
 import org.apache.http.annotation.ThreadSafe;
 import org.apache.http.nio.reactor.EventMask;
 import org.apache.http.nio.reactor.IOSession;
+import org.apache.http.nio.reactor.SocketAccessor;
 import org.apache.http.nio.reactor.SessionBufferStatus;
 
 import javax.net.ssl.SSLContext;
@@ -41,6 +42,7 @@ import javax.net.ssl.SSLEngineResult.Status;
 import javax.net.ssl.SSLException;
 import java.io.IOException;
 import java.net.InetSocketAddress;
+import java.net.Socket;
 import java.net.SocketAddress;
 import java.nio.ByteBuffer;
 import java.nio.channels.ByteChannel;
@@ -64,7 +66,7 @@ import java.nio.channels.SelectionKey;
  * @since 4.2
  */
 @ThreadSafe
-public class SSLIOSession implements IOSession, SessionBufferStatus {
+public class SSLIOSession implements IOSession, SessionBufferStatus, SocketAccessor {
 
     /**
      * Name of the context attribute key, which can be used to obtain the
@@ -587,6 +589,14 @@ public class SSLIOSession implements IOSession, SessionBufferStatus {
         buffer.append(this.outPlain.position());
         buffer.append("]");
         return buffer.toString();
+    }
+    
+    public Socket getSocket(){
+    	if (this.session instanceof SocketAccessor){
+    		return ((SocketAccessor) this.session).getSocket();
+    	} else {
+    		return null;
+    	}
     }
 
     private class InternalByteChannel implements ByteChannel {

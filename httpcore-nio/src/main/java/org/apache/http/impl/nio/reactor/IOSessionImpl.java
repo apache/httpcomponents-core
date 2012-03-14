@@ -29,6 +29,7 @@ package org.apache.http.impl.nio.reactor;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
+import java.net.Socket;
 import java.net.SocketAddress;
 import java.nio.channels.ByteChannel;
 import java.nio.channels.Channel;
@@ -41,6 +42,7 @@ import java.util.Map;
 import org.apache.http.annotation.ThreadSafe;
 import org.apache.http.nio.reactor.IOSession;
 import org.apache.http.nio.reactor.SessionBufferStatus;
+import org.apache.http.nio.reactor.SocketAccessor;
 
 /**
  * Default implementation of {@link IOSession}.
@@ -48,7 +50,7 @@ import org.apache.http.nio.reactor.SessionBufferStatus;
  * @since 4.0
  */
 @ThreadSafe
-public class IOSessionImpl implements IOSession {
+public class IOSessionImpl implements IOSession, SocketAccessor {
 
     private final SelectionKey key;
     private final ByteChannel channel;
@@ -351,6 +353,15 @@ public class IOSessionImpl implements IOSession {
         }
         buffer.append("]");
         return buffer.toString();
+    }
+    
+    public Socket getSocket() {
+        Channel channel = this.channel;
+        if (channel instanceof SocketChannel) {
+            return ((SocketChannel) channel).socket();
+        } else {
+            return null;
+        }
     }
 
 }
