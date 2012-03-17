@@ -57,8 +57,27 @@ import org.apache.http.protocol.HTTP;
 @Immutable
 public class LaxContentLengthStrategy implements ContentLengthStrategy {
 
-    public LaxContentLengthStrategy() {
+    private final int implicitLen;
+    
+    /**
+     * Creates <tt>LaxContentLengthStrategy</tt> instance with the given length used per default
+     * when content length is not explicitly specified in the message.
+     * 
+     * @param implicit implicit content length.
+     * 
+     * @since 4.2
+     */
+    public LaxContentLengthStrategy(int implicitLen) {
         super();
+        this.implicitLen = implicitLen;
+    }
+
+    /**
+     * Creates <tt>LaxContentLengthStrategy</tt> instance. {@link ContentLengthStrategy#IDENTITY} 
+     * is used per default when content length is not explicitly specified in the message.
+     */
+    public LaxContentLengthStrategy() {
+        this(IDENTITY);
     }
 
     public long determineLength(final HttpMessage message) throws HttpException {
@@ -70,7 +89,6 @@ public class LaxContentLengthStrategy implements ContentLengthStrategy {
         boolean strict = params.isParameterTrue(CoreProtocolPNames.STRICT_TRANSFER_ENCODING);
 
         Header transferEncodingHeader = message.getFirstHeader(HTTP.TRANSFER_ENCODING);
-        Header contentLengthHeader = message.getFirstHeader(HTTP.CONTENT_LEN);
         // We use Transfer-Encoding if present and ignore Content-Length.
         // RFC2616, 4.4 item number 3
         if (transferEncodingHeader != null) {
@@ -106,7 +124,9 @@ public class LaxContentLengthStrategy implements ContentLengthStrategy {
                 }
                 return IDENTITY;
             }
-        } else if (contentLengthHeader != null) {
+        }
+        Header contentLengthHeader = message.getFirstHeader(HTTP.CONTENT_LEN);
+        if (contentLengthHeader != null) {
             long contentlen = -1;
             Header[] headers = message.getHeaders(HTTP.CONTENT_LEN);
             if (strict && headers.length > 1) {
@@ -129,9 +149,8 @@ public class LaxContentLengthStrategy implements ContentLengthStrategy {
             } else {
                 return IDENTITY;
             }
-        } else {
-            return IDENTITY;
         }
+        return this.implicitLen;
     }
 
 }

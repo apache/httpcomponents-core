@@ -49,8 +49,27 @@ import org.apache.http.protocol.HTTP;
 @Immutable
 public class StrictContentLengthStrategy implements ContentLengthStrategy {
 
-    public StrictContentLengthStrategy() {
+    private final int implicitLen;
+    
+    /**
+     * Creates <tt>StrictContentLengthStrategy</tt> instance with the given length used per default
+     * when content length is not explicitly specified in the message.
+     * 
+     * @param implicit implicit content length.
+     * 
+     * @since 4.2
+     */
+    public StrictContentLengthStrategy(int implicitLen) {
         super();
+        this.implicitLen = implicitLen;
+    }
+
+    /**
+     * Creates <tt>StrictContentLengthStrategy</tt> instance. {@link ContentLengthStrategy#IDENTITY} 
+     * is used per default when content length is not explicitly specified in the message.
+     */
+    public StrictContentLengthStrategy() {
+        this(IDENTITY);
     }
 
     public long determineLength(final HttpMessage message) throws HttpException {
@@ -61,7 +80,6 @@ public class StrictContentLengthStrategy implements ContentLengthStrategy {
         // it is either missing or has the single value "chunked". So we
         // treat it as a single-valued header here.
         Header transferEncodingHeader = message.getFirstHeader(HTTP.TRANSFER_ENCODING);
-        Header contentLengthHeader = message.getFirstHeader(HTTP.CONTENT_LEN);
         if (transferEncodingHeader != null) {
             String s = transferEncodingHeader.getValue();
             if (HTTP.CHUNK_CODING.equalsIgnoreCase(s)) {
@@ -77,7 +95,9 @@ public class StrictContentLengthStrategy implements ContentLengthStrategy {
                 throw new ProtocolException(
                         "Unsupported transfer encoding: " + s);
             }
-        } else if (contentLengthHeader != null) {
+        }
+        Header contentLengthHeader = message.getFirstHeader(HTTP.CONTENT_LEN);
+        if (contentLengthHeader != null) {
             String s = contentLengthHeader.getValue();
             try {
                 long len = Long.parseLong(s);
@@ -88,9 +108,8 @@ public class StrictContentLengthStrategy implements ContentLengthStrategy {
             } catch (NumberFormatException e) {
                 throw new ProtocolException("Invalid content length: " + s);
             }
-        } else {
-            return IDENTITY;
         }
+        return this.implicitLen;
     }
 
 }
