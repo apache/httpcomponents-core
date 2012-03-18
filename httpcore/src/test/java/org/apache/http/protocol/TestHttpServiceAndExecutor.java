@@ -46,6 +46,7 @@ import org.apache.http.HttpEntityEnclosingRequest;
 import org.apache.http.HttpException;
 import org.apache.http.HttpHost;
 import org.apache.http.HttpRequest;
+import org.apache.http.HttpRequestInterceptor;
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
 import org.apache.http.HttpVersion;
@@ -58,6 +59,15 @@ import org.apache.http.message.BasicHttpRequest;
 import org.apache.http.mockup.HttpClient;
 import org.apache.http.mockup.HttpServer;
 import org.apache.http.params.CoreProtocolPNames;
+import org.apache.http.protocol.HTTP;
+import org.apache.http.protocol.HttpContext;
+import org.apache.http.protocol.HttpExpectationVerifier;
+import org.apache.http.protocol.HttpRequestHandler;
+import org.apache.http.protocol.ImmutableHttpProcessor;
+import org.apache.http.protocol.RequestConnControl;
+import org.apache.http.protocol.RequestExpectContinue;
+import org.apache.http.protocol.RequestTargetHost;
+import org.apache.http.protocol.RequestUserAgent;
 import org.apache.http.util.EncodingUtils;
 import org.apache.http.util.EntityUtils;
 
@@ -747,6 +757,160 @@ public class TestHttpServiceAndExecutor extends TestCase {
                     }
                 }
             }
+        } finally {
+            conn.close();
+            this.server.shutdown();
+        }
+    }
+
+    public void testHttpPostNoEntity() throws Exception {
+        this.server.registerHandler("*", new HttpRequestHandler() {
+
+            public void handle(
+                    final HttpRequest request,
+                    final HttpResponse response,
+                    final HttpContext context) throws HttpException, IOException {
+
+                if (request instanceof HttpEntityEnclosingRequest) {
+                    HttpEntity incoming = ((HttpEntityEnclosingRequest) request).getEntity();
+                    byte[] data = EntityUtils.toByteArray(incoming);
+                    ByteArrayEntity outgoing = new ByteArrayEntity(data);
+                    response.setEntity(outgoing);
+                } else {
+                    StringEntity outgoing = new StringEntity("No content");
+                    response.setEntity(outgoing);
+                }
+            }
+
+        });
+
+        this.server.start();
+
+        DefaultHttpClientConnection conn = new DefaultHttpClientConnection();
+        HttpHost host = new HttpHost("localhost", this.server.getPort());
+
+        try {
+            if (!conn.isOpen()) {
+                Socket socket = new Socket(host.getHostName(), host.getPort());
+                conn.bind(socket, this.client.getParams());
+            }
+
+            BasicHttpEntityEnclosingRequest post = new BasicHttpEntityEnclosingRequest("POST", "/");
+            post.setEntity(null);
+
+            HttpResponse response = this.client.execute(post, host, conn);
+            assertEquals(HttpStatus.SC_OK, response.getStatusLine().getStatusCode());
+            byte[] received = EntityUtils.toByteArray(response.getEntity());
+            assertEquals(0, received.length);
+        } finally {
+            conn.close();
+            this.server.shutdown();
+        }
+    }
+
+    public void testHttpPostNoContentLength() throws Exception {
+        this.server.registerHandler("*", new HttpRequestHandler() {
+
+            public void handle(
+                    final HttpRequest request,
+                    final HttpResponse response,
+                    final HttpContext context) throws HttpException, IOException {
+
+                if (request instanceof HttpEntityEnclosingRequest) {
+                    HttpEntity incoming = ((HttpEntityEnclosingRequest) request).getEntity();
+                    byte[] data = EntityUtils.toByteArray(incoming);
+                    ByteArrayEntity outgoing = new ByteArrayEntity(data);
+                    response.setEntity(outgoing);
+                } else {
+                    StringEntity outgoing = new StringEntity("No content");
+                    response.setEntity(outgoing);
+                }
+            }
+
+        });
+
+        this.server.start();
+
+        DefaultHttpClientConnection conn = new DefaultHttpClientConnection();
+        HttpHost host = new HttpHost("localhost", this.server.getPort());
+
+        try {
+            if (!conn.isOpen()) {
+                Socket socket = new Socket(host.getHostName(), host.getPort());
+                conn.bind(socket, this.client.getParams());
+            }
+
+            BasicHttpEntityEnclosingRequest post = new BasicHttpEntityEnclosingRequest("POST", "/");
+            post.setEntity(null);
+
+            this.client = new HttpClient(new ImmutableHttpProcessor(
+                    new HttpRequestInterceptor[] {
+                            new RequestTargetHost(),
+                            new RequestConnControl(),
+                            new RequestUserAgent(),
+                            new RequestExpectContinue() }));
+            
+            HttpResponse response = this.client.execute(post, host, conn);
+            assertEquals(HttpStatus.SC_BAD_REQUEST, response.getStatusLine().getStatusCode());
+        } finally {
+            conn.close();
+            this.server.shutdown();
+        }
+    }
+
+    public void testHttpPostIdentity() throws Exception {
+        this.server.registerHandler("*", new HttpRequestHandler() {
+
+            public void handle(
+                    final HttpRequest request,
+                    final HttpResponse response,
+                    final HttpContext context) throws HttpException, IOException {
+
+                if (request instanceof HttpEntityEnclosingRequest) {
+                    HttpEntity incoming = ((HttpEntityEnclosingRequest) request).getEntity();
+                    byte[] data = EntityUtils.toByteArray(incoming);
+                    ByteArrayEntity outgoing = new ByteArrayEntity(data);
+                    response.setEntity(outgoing);
+                } else {
+                    StringEntity outgoing = new StringEntity("No content");
+                    response.setEntity(outgoing);
+                }
+            }
+
+        });
+
+        this.server.start();
+
+        DefaultHttpClientConnection conn = new DefaultHttpClientConnection();
+        HttpHost host = new HttpHost("localhost", this.server.getPort());
+
+        try {
+            if (!conn.isOpen()) {
+                Socket socket = new Socket(host.getHostName(), host.getPort());
+                conn.bind(socket, this.client.getParams());
+            }
+
+            BasicHttpEntityEnclosingRequest post = new BasicHttpEntityEnclosingRequest("POST", "/");
+            post.setEntity(null);
+
+            this.client = new HttpClient(new ImmutableHttpProcessor(
+                    new HttpRequestInterceptor[] {
+                            new HttpRequestInterceptor() {
+                                
+                                public void process(
+                                        final HttpRequest request, 
+                                        final HttpContext context) throws HttpException, IOException {
+                                    request.addHeader(HTTP.TRANSFER_ENCODING, "identity");
+                                }
+
+                            },
+                            new RequestTargetHost(),
+                            new RequestConnControl(),
+                            new RequestUserAgent(),
+                            new RequestExpectContinue() }));
+            
+            HttpResponse response = this.client.execute(post, host, conn);
+            assertEquals(HttpStatus.SC_BAD_REQUEST, response.getStatusLine().getStatusCode());
         } finally {
             conn.close();
             this.server.shutdown();

@@ -139,8 +139,8 @@ public class NHttpConnectionBase
         this.inbuf = new SessionInputBufferImpl(buffersize, linebuffersize, allocator, params);
         this.outbuf = new SessionOutputBufferImpl(buffersize, linebuffersize, allocator, params);
 
-        this.incomingContentStrategy = new LaxContentLengthStrategy();
-        this.outgoingContentStrategy = new StrictContentLengthStrategy();
+        this.incomingContentStrategy = createIncomingContentStrategy();
+        this.outgoingContentStrategy = createOutgoingContentStrategy();
 
         this.inTransportMetrics = createTransportMetrics();
         this.outTransportMetrics = createTransportMetrics();
@@ -160,6 +160,37 @@ public class NHttpConnectionBase
     }
 
     /**
+<<<<<<< HEAD
+=======
+     * Binds the connection to a different {@link IOSession}. This may be necessary
+     * when the underlying I/O session gets upgraded with SSL/TLS encryption.
+     *
+     * @since 4.2
+     */
+    protected void bind(final IOSession session) {
+        if (session == null) {
+            throw new IllegalArgumentException("I/O session may not be null");
+        }
+        this.session.setBufferStatus(null);
+        setSession(session);
+    }
+
+    /**
+     * @since 4.2
+     */
+    protected ContentLengthStrategy createIncomingContentStrategy() {
+        return new LaxContentLengthStrategy();
+    }
+
+    /**
+     * @since 4.2
+     */
+    protected ContentLengthStrategy createOutgoingContentStrategy() {
+        return new StrictContentLengthStrategy();
+    }
+
+    /**
+>>>>>>> 74acee1... HTTPCORE-296: server side connections (both blocking and non-blocking) can now handle entity enclosing requests without Content-Length and Transfer-Encoding headers
      * @since 4.1
      */
     protected HttpTransportMetricsImpl createTransportMetrics() {
