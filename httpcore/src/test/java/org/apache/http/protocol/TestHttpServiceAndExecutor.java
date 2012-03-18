@@ -851,7 +851,7 @@ public class TestHttpServiceAndExecutor extends TestCase {
                             new RequestExpectContinue() }));
             
             HttpResponse response = this.client.execute(post, host, conn);
-            assertEquals(HttpStatus.SC_BAD_REQUEST, response.getStatusLine().getStatusCode());
+            assertEquals(HttpStatus.SC_OK, response.getStatusLine().getStatusCode());
         } finally {
             conn.close();
             this.server.shutdown();

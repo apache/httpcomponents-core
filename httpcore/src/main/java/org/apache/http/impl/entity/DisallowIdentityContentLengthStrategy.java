@@ -35,8 +35,6 @@ import org.apache.http.entity.ContentLengthStrategy;
 /**
  * Decorator for  {@link ContentLengthStrategy} implementations that disallows the use of 
  * identity transfer encoding. 
- *
- * @since 4.2
  */
 public class DisallowIdentityContentLengthStrategy implements ContentLengthStrategy {
 

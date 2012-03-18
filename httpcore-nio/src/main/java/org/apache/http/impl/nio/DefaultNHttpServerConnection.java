@@ -97,7 +97,7 @@ public class DefaultNHttpServerConnection
 
     @Override
     protected ContentLengthStrategy createIncomingContentStrategy() {
-        return new DisallowIdentityContentLengthStrategy(new LaxContentLengthStrategy());
+        return new DisallowIdentityContentLengthStrategy(new LaxContentLengthStrategy(0));
     }
 
     /**

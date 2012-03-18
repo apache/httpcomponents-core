@@ -116,7 +116,7 @@ public abstract class AbstractHttpServerConnection implements HttpServerConnecti
      */
     protected EntityDeserializer createEntityDeserializer() {
         return new EntityDeserializer(new DisallowIdentityContentLengthStrategy(
-                new LaxContentLengthStrategy()));
+                new LaxContentLengthStrategy(0)));
     }
 
     /**
