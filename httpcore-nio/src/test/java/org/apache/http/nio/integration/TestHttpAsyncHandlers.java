@@ -37,6 +37,7 @@ import org.apache.http.HttpCoreNIOTestBase;
 import org.apache.http.HttpException;
 import org.apache.http.HttpHost;
 import org.apache.http.HttpRequest;
+import org.apache.http.HttpRequestInterceptor;
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
 import org.apache.http.HttpVersion;
@@ -65,12 +66,19 @@ import org.apache.http.nio.protocol.HttpAsyncRequestExecutor;
 import org.apache.http.nio.protocol.HttpAsyncRequestHandler;
 import org.apache.http.nio.protocol.HttpAsyncRequestHandlerRegistry;
 import org.apache.http.nio.protocol.HttpAsyncRequestHandlerResolver;
+import org.apache.http.nio.protocol.HttpAsyncRequester;
 import org.apache.http.nio.protocol.HttpAsyncService;
 import org.apache.http.nio.reactor.IOReactorStatus;
 import org.apache.http.nio.reactor.ListenerEndpoint;
 import org.apache.http.params.CoreProtocolPNames;
 import org.apache.http.params.HttpParams;
+import org.apache.http.protocol.HTTP;
 import org.apache.http.protocol.HttpContext;
+import org.apache.http.protocol.ImmutableHttpProcessor;
+import org.apache.http.protocol.RequestConnControl;
+import org.apache.http.protocol.RequestExpectContinue;
+import org.apache.http.protocol.RequestTargetHost;
+import org.apache.http.protocol.RequestUserAgent;
 import org.apache.http.util.EntityUtils;
 import org.junit.After;
 import org.junit.Assert;
@@ -347,6 +355,95 @@ public class TestHttpAsyncHandlers extends HttpCoreNIOTestBase {
             Assert.assertNotNull(response);
             Assert.assertEquals(HttpStatus.SC_OK, response.getStatusLine().getStatusCode());
         }
+    }
+
+    @Test
+    public void testHttpPostNoContentLength() throws Exception {
+        HttpAsyncRequestHandlerRegistry registry = new HttpAsyncRequestHandlerRegistry();
+        registry.register("*", new BasicAsyncRequestHandler(new SimpleRequestHandler()));
+        
+        this.clientHttpProc = new ImmutableHttpProcessor(new HttpRequestInterceptor[] {
+                new RequestTargetHost(),
+                new RequestConnControl(),
+                new RequestUserAgent(),
+                new RequestExpectContinue()});
+        
+        this.executor = new HttpAsyncRequester(
+                this.clientHttpProc,
+                new DefaultConnectionReuseStrategy(),
+                this.clientParams);
+        
+        InetSocketAddress address = start(registry, null);
+
+        this.connpool.setDefaultMaxPerRoute(3);
+        this.connpool.setMaxTotal(3);
+
+        String pattern = RndTestPatternGenerator.generateText();
+        int count = RndTestPatternGenerator.generateCount(1000);
+
+        HttpHost target = new HttpHost("localhost", address.getPort());
+
+        BasicHttpEntityEnclosingRequest request = new BasicHttpEntityEnclosingRequest(
+                "POST", createRequestUri(pattern, count));
+        request.setEntity(null);
+
+        Future<HttpResponse> future = this.executor.execute(
+                new BasicAsyncRequestProducer(target, request),
+                new BasicAsyncResponseConsumer(),
+                this.connpool);
+
+        HttpResponse response = future.get();
+        Assert.assertNotNull(response);
+        Assert.assertEquals(HttpStatus.SC_OK, response.getStatusLine().getStatusCode());
+    }
+
+    @Test
+    public void testHttpPostIdentity() throws Exception {
+        HttpAsyncRequestHandlerRegistry registry = new HttpAsyncRequestHandlerRegistry();
+        registry.register("*", new BasicAsyncRequestHandler(new SimpleRequestHandler()));
+        
+        this.clientHttpProc = new ImmutableHttpProcessor(new HttpRequestInterceptor[] {
+                new HttpRequestInterceptor() {
+                    
+                    public void process(
+                            final HttpRequest request, 
+                            final HttpContext context) throws HttpException, IOException {
+                        request.addHeader(HTTP.TRANSFER_ENCODING, "identity");
+                    }
+
+                },
+                new RequestTargetHost(),
+                new RequestConnControl(),
+                new RequestUserAgent(),
+                new RequestExpectContinue()});
+        
+        this.executor = new HttpAsyncRequester(
+                this.clientHttpProc,
+                new DefaultConnectionReuseStrategy(),
+                this.clientParams);
+        
+        InetSocketAddress address = start(registry, null);
+
+        this.connpool.setDefaultMaxPerRoute(3);
+        this.connpool.setMaxTotal(3);
+
+        String pattern = RndTestPatternGenerator.generateText();
+        int count = RndTestPatternGenerator.generateCount(1000);
+
+        HttpHost target = new HttpHost("localhost", address.getPort());
+
+        BasicHttpEntityEnclosingRequest request = new BasicHttpEntityEnclosingRequest(
+                "POST", createRequestUri(pattern, count));
+        request.setEntity(null);
+
+        Future<HttpResponse> future = this.executor.execute(
+                new BasicAsyncRequestProducer(target, request),
+                new BasicAsyncResponseConsumer(),
+                this.connpool);
+
+        HttpResponse response = future.get();
+        Assert.assertNotNull(response);
+        Assert.assertEquals(HttpStatus.SC_BAD_REQUEST, response.getStatusLine().getStatusCode());
     }
 
     @Test

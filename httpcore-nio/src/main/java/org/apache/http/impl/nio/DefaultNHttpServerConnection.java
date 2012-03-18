@@ -37,6 +37,9 @@ import org.apache.http.HttpRequest;
 import org.apache.http.HttpRequestFactory;
 import org.apache.http.HttpResponse;
 import org.apache.http.annotation.NotThreadSafe;
+import org.apache.http.entity.ContentLengthStrategy;
+import org.apache.http.impl.entity.DisallowIdentityContentLengthStrategy;
+import org.apache.http.impl.entity.LaxContentLengthStrategy;
 import org.apache.http.impl.nio.codecs.DefaultHttpRequestParser;
 import org.apache.http.impl.nio.codecs.DefaultHttpResponseWriter;
 import org.apache.http.nio.NHttpMessageParser;
@@ -93,6 +96,11 @@ public class DefaultNHttpServerConnection
         }
         this.requestParser = createRequestParser(this.inbuf, requestFactory, params);
         this.responseWriter = createResponseWriter(this.outbuf, params);
+    }
+
+    @Override
+    protected ContentLengthStrategy createIncomingContentStrategy() {
+        return new DisallowIdentityContentLengthStrategy(new LaxContentLengthStrategy(0));
     }
 
     /**

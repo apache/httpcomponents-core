@@ -146,8 +146,8 @@ public class NHttpConnectionBase
         this.inbuf = new SessionInputBufferImpl(buffersize, linebuffersize, allocator, params);
         this.outbuf = new SessionOutputBufferImpl(buffersize, linebuffersize, allocator, params);
 
-        this.incomingContentStrategy = new LaxContentLengthStrategy();
-        this.outgoingContentStrategy = new StrictContentLengthStrategy();
+        this.incomingContentStrategy = createIncomingContentStrategy();
+        this.outgoingContentStrategy = createOutgoingContentStrategy();
 
         this.inTransportMetrics = createTransportMetrics();
         this.outTransportMetrics = createTransportMetrics();
@@ -178,6 +178,20 @@ public class NHttpConnectionBase
         }
         this.session.setBufferStatus(null);
         setSession(session);
+    }
+
+    /**
+     * @since 4.2
+     */
+    protected ContentLengthStrategy createIncomingContentStrategy() {
+        return new LaxContentLengthStrategy();
+    }
+
+    /**
+     * @since 4.2
+     */
+    protected ContentLengthStrategy createOutgoingContentStrategy() {
+        return new StrictContentLengthStrategy();
     }
 
     /**

@@ -63,25 +63,29 @@ public class HttpClient {
     private final ConnectionReuseStrategy connStrategy;
     private final HttpContext context;
 
-    public HttpClient() {
+    public HttpClient(final HttpProcessor httpproc) {
         super();
+        this.httpproc = httpproc;
+        this.connStrategy = new DefaultConnectionReuseStrategy();
         this.params = new SyncBasicHttpParams();
         this.params
             .setIntParameter(CoreConnectionPNames.SO_TIMEOUT, 5000)
             .setBooleanParameter(CoreConnectionPNames.STALE_CONNECTION_CHECK, false)
             .setParameter(CoreProtocolPNames.PROTOCOL_VERSION, HttpVersion.HTTP_1_1)
             .setParameter(CoreProtocolPNames.USER_AGENT, "TEST-CLIENT/1.1");
-        this.httpproc = new ImmutableHttpProcessor(
+        this.httpexecutor = new HttpRequestExecutor();
+        this.context = new BasicHttpContext();
+    }
+
+    public HttpClient() {
+        this(new ImmutableHttpProcessor(
                 new HttpRequestInterceptor[] {
                         new RequestContent(),
                         new RequestTargetHost(),
                         new RequestConnControl(),
                         new RequestUserAgent(),
                         new RequestExpectContinue()
-                });
-        this.httpexecutor = new HttpRequestExecutor();
-        this.connStrategy = new DefaultConnectionReuseStrategy();
-        this.context = new BasicHttpContext();
+                }));
     }
 
     public HttpParams getParams() {

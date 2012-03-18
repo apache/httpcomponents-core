@@ -39,6 +39,7 @@ import org.apache.http.HttpResponse;
 import org.apache.http.HttpServerConnection;
 import org.apache.http.annotation.NotThreadSafe;
 import org.apache.http.entity.ContentLengthStrategy;
+import org.apache.http.impl.entity.DisallowIdentityContentLengthStrategy;
 import org.apache.http.impl.entity.EntityDeserializer;
 import org.apache.http.impl.entity.EntitySerializer;
 import org.apache.http.impl.entity.LaxContentLengthStrategy;
@@ -116,7 +117,8 @@ public abstract class AbstractHttpServerConnection implements HttpServerConnecti
      * @return HTTP entity deserializer
      */
     protected EntityDeserializer createEntityDeserializer() {
-        return new EntityDeserializer(new LaxContentLengthStrategy());
+        return new EntityDeserializer(new DisallowIdentityContentLengthStrategy(
+                new LaxContentLengthStrategy(0)));
     }
 
     /**
