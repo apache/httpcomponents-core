@@ -1,6 +1,19 @@
 Changes since 4.2-BETA1 
 -------------------
 
+* AbstractHttpClientConnection#isResponseAvailable method now catches SocketTimeoutException
+  and returns false.
+  Contributed by Oleg Kalnichevski <olegk at apache.org>
+
+* [HTTPCORE-296] Server side connections (both blocking and non-blocking) can now handle entity 
+  enclosing requests without Content-Length and Transfer-Encoding headers.
+  Contributed by Oleg Kalnichevski <olegk at apache.org>
+
+* [HTTPCORE-295] [HTTPCORE-288] Provided direct access to the underlying socket of non-blocking 
+  HTTP connection to allow modification of socket level settings such as TCP_NODELAY, SO_KEEPALIVE,
+  TrafficClass, etc.
+  Contributed by Oleg Kalnichevski <olegk at apache.org>
+
 * [HTTPCORE-289] HttpAsyncService fails to invoke Cancellable#cancel() when the ongoing HTTP 
   exchange is aborted by the client. 
   Contributed by Oleg Kalnichevski <olegk at apache.org>

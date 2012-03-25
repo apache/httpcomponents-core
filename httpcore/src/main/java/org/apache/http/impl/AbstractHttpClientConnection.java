@@ -242,7 +242,11 @@ public abstract class AbstractHttpClientConnection implements HttpClientConnecti
 
     public boolean isResponseAvailable(int timeout) throws IOException {
         assertOpen();
-        return this.inbuffer.isDataAvailable(timeout);
+        try {
+            return this.inbuffer.isDataAvailable(timeout);
+        } catch (SocketTimeoutException ex) {
+            return false;
+        }
     }
 
     public void sendRequestHeader(final HttpRequest request)
