@@ -55,7 +55,7 @@ public class StrictContentLengthStrategy implements ContentLengthStrategy {
      * Creates <tt>StrictContentLengthStrategy</tt> instance with the given length used per default
      * when content length is not explicitly specified in the message.
      * 
-     * @param implicit implicit content length.
+     * @param implicitLen implicit content length.
      * 
      * @since 4.2
      */
