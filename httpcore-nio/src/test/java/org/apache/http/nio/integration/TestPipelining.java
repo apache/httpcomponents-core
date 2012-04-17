@@ -116,7 +116,7 @@ public class TestPipelining extends HttpCoreNIOTestBase {
                     final HttpResponse response,
                     final HttpContext context) throws HttpException, IOException {
                 String content = "thank you very much";
-                NStringEntity entity = NStringEntity.create(content, ContentType.DEFAULT_TEXT);
+                NStringEntity entity = new NStringEntity(content, ContentType.DEFAULT_TEXT);
                 response.setEntity(entity);
             }
 
@@ -214,7 +214,7 @@ public class TestPipelining extends HttpCoreNIOTestBase {
                     final HttpResponse response,
                     final HttpContext context) throws HttpException, IOException {
                 String content = "thank you very much";
-                NStringEntity entity = NStringEntity.create(content, ContentType.DEFAULT_TEXT);
+                NStringEntity entity = new NStringEntity(content, ContentType.DEFAULT_TEXT);
                 response.setEntity(entity);
             }
 

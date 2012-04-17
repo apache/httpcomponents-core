@@ -31,6 +31,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Reader;
+import java.nio.charset.Charset;
 
 import org.apache.http.HeaderElement;
 import org.apache.http.HttpEntity;
@@ -192,7 +193,7 @@ public final class EntityUtils {
      * @throws IOException if an error occurs reading the input stream
      */
     public static String toString(
-            final HttpEntity entity, final String defaultCharset) throws IOException, ParseException {
+            final HttpEntity entity, final Charset defaultCharset) throws IOException, ParseException {
         if (entity == null) {
             throw new IllegalArgumentException("HTTP entity may not be null");
         }
@@ -209,12 +210,12 @@ public final class EntityUtils {
                 i = 4096;
             }
             ContentType contentType = ContentType.getOrDefault(entity);
-            String charset = contentType.getCharset();
+            Charset charset = contentType.getCharset();
             if (charset == null) {
                 charset = defaultCharset;
             }
             if (charset == null) {
-                charset = HTTP.DEFAULT_CONTENT_CHARSET;
+                charset = HTTP.DEF_CONTENT_CHARSET;
             }
             Reader reader = new InputStreamReader(instream, charset);
             CharArrayBuffer buffer = new CharArrayBuffer(i);
@@ -230,6 +231,24 @@ public final class EntityUtils {
     }
 
     /**
+     * Get the entity content as a String, using the provided default character set
+     * if none is found in the entity.
+     * If defaultCharset is null, the default "ISO-8859-1" is used.
+     *
+     * @param entity must not be null
+     * @param defaultCharset character set to be applied if none found in the entity
+     * @return the entity content as a String. May be null if
+     *   {@link HttpEntity#getContent()} is null.
+     * @throws ParseException if header elements cannot be parsed
+     * @throws IllegalArgumentException if entity is null or if content length > Integer.MAX_VALUE
+     * @throws IOException if an error occurs reading the input stream
+     */
+    public static String toString(
+            final HttpEntity entity, final String defaultCharset) throws IOException, ParseException {
+        return toString(entity, Charset.forName(defaultCharset));
+    }
+
+    /**
      * Read the contents of an entity and return it as a String.
      * The content is converted using the character set from the entity (if any),
      * failing that, "ISO-8859-1" is used.
@@ -242,7 +261,7 @@ public final class EntityUtils {
      */
     public static String toString(final HttpEntity entity)
         throws IOException, ParseException {
-        return toString(entity, null);
+        return toString(entity, (Charset)null);
     }
 
 }

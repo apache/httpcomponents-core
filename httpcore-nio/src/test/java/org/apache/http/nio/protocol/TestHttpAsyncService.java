@@ -326,7 +326,7 @@ public class TestHttpAsyncService {
 
         BasicHttpEntityEnclosingRequest request = new BasicHttpEntityEnclosingRequest("POST",
                 "/stuff", HttpVersion.HTTP_1_1);
-        request.setEntity(NStringEntity.create("stuff"));
+        request.setEntity(new NStringEntity("stuff"));
         Mockito.when(this.conn.getHttpRequest()).thenReturn(request);
         Mockito.when(this.requestHandler.processRequest(
                 request, exchangeContext)).thenReturn(this.requestConsumer);
@@ -689,7 +689,7 @@ public class TestHttpAsyncService {
         this.connContext.setAttribute(HttpAsyncService.HTTP_EXCHANGE_STATE, state);
 
         BasicHttpResponse response = new BasicHttpResponse(HttpVersion.HTTP_1_1, 200, "OK");
-        response.setEntity(NStringEntity.create("stuff"));
+        response.setEntity(new NStringEntity("stuff"));
         Mockito.when(this.responseProducer.generateResponse()).thenReturn(response);
 
         this.protocolHandler.responseReady(this.conn);
@@ -715,7 +715,7 @@ public class TestHttpAsyncService {
         this.connContext.setAttribute(HttpAsyncService.HTTP_EXCHANGE_STATE, state);
 
         BasicHttpResponse response = new BasicHttpResponse(HttpVersion.HTTP_1_1, 200, "OK");
-        response.setEntity(NStringEntity.create("stuff"));
+        response.setEntity(new NStringEntity("stuff"));
         Mockito.when(this.responseProducer.generateResponse()).thenReturn(response);
         Mockito.when(this.reuseStrategy.keepAlive(response, exchangeContext)).thenReturn(true);
 
@@ -743,7 +743,7 @@ public class TestHttpAsyncService {
 
         BasicHttpResponse response = new BasicHttpResponse(HttpVersion.HTTP_1_1,
                 HttpStatus.SC_NOT_MODIFIED, "Not modified");
-        response.setEntity(NStringEntity.create("stuff"));
+        response.setEntity(new NStringEntity("stuff"));
         Mockito.when(this.responseProducer.generateResponse()).thenReturn(response);
         Mockito.when(this.reuseStrategy.keepAlive(response, exchangeContext)).thenReturn(true);
 
@@ -802,7 +802,7 @@ public class TestHttpAsyncService {
         this.connContext.setAttribute(HttpAsyncService.HTTP_EXCHANGE_STATE, state);
 
         BasicHttpResponse response = new BasicHttpResponse(HttpVersion.HTTP_1_1, 417, "Expectation failed");
-        response.setEntity(NStringEntity.create("stuff"));
+        response.setEntity(new NStringEntity("stuff"));
         Mockito.when(this.responseProducer.generateResponse()).thenReturn(response);
 
         this.protocolHandler.responseReady(this.conn);
@@ -846,7 +846,7 @@ public class TestHttpAsyncService {
         this.connContext.setAttribute(HttpAsyncService.HTTP_EXCHANGE_STATE, state);
 
         BasicHttpResponse response = new BasicHttpResponse(HttpVersion.HTTP_1_1, 200, "OK");
-        response.setEntity(NStringEntity.create("stuff"));
+        response.setEntity(new NStringEntity("stuff"));
         Mockito.when(this.responseProducer.generateResponse()).thenReturn(response);
         Mockito.when(this.conn.isResponseSubmitted()).thenReturn(false);
 
@@ -898,7 +898,7 @@ public class TestHttpAsyncService {
     public void testResponseContent() throws Exception {
         State state = new HttpAsyncService.State();
         BasicHttpResponse response = new BasicHttpResponse(HttpVersion.HTTP_1_1, 200, "OK");
-        response.setEntity(NStringEntity.create("stuff"));
+        response.setEntity(new NStringEntity("stuff"));
         state.setRequestState(MessageState.COMPLETED);
         state.setResponseState(MessageState.BODY_STREAM);
         state.setResponse(response);
@@ -921,7 +921,7 @@ public class TestHttpAsyncService {
         State state = new HttpAsyncService.State();
         HttpContext exchangeContext = state.getContext();
         BasicHttpResponse response = new BasicHttpResponse(HttpVersion.HTTP_1_1, 200, "OK");
-        response.setEntity(NStringEntity.create("stuff"));
+        response.setEntity(new NStringEntity("stuff"));
         state.setRequestState(MessageState.COMPLETED);
         state.setResponseState(MessageState.BODY_STREAM);
         state.setResponse(response);
@@ -946,7 +946,7 @@ public class TestHttpAsyncService {
         State state = new HttpAsyncService.State();
         HttpContext exchangeContext = state.getContext();
         BasicHttpResponse response = new BasicHttpResponse(HttpVersion.HTTP_1_1, 200, "OK");
-        response.setEntity(NStringEntity.create("stuff"));
+        response.setEntity(new NStringEntity("stuff"));
         state.setRequestState(MessageState.COMPLETED);
         state.setResponseState(MessageState.BODY_STREAM);
         state.setResponse(response);

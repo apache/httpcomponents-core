@@ -30,7 +30,7 @@ package org.apache.http.entity;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 
-import org.apache.http.protocol.HTTP;
+import org.apache.http.Consts;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -42,7 +42,7 @@ public class TestBufferedHttpEntity {
 
     @Test
     public void testBufferingEntity() throws Exception {
-        byte[] bytes = "Message content".getBytes(HTTP.US_ASCII);
+        byte[] bytes = "Message content".getBytes(Consts.ASCII.name());
         InputStreamEntity httpentity = new InputStreamEntity(new ByteArrayInputStream(bytes), -1);
         BufferedHttpEntity bufentity = new BufferedHttpEntity(httpentity);
         Assert.assertEquals(bytes.length, bufentity.getContentLength());
@@ -57,7 +57,7 @@ public class TestBufferedHttpEntity {
 
     @Test
     public void testWrappingEntity() throws Exception {
-        byte[] bytes = "Message content".getBytes(HTTP.US_ASCII);
+        byte[] bytes = "Message content".getBytes(Consts.ASCII.name());
         ByteArrayEntity httpentity = new ByteArrayEntity(bytes);
         httpentity.setChunked(true);
         BufferedHttpEntity bufentity = new BufferedHttpEntity(httpentity);
@@ -83,7 +83,7 @@ public class TestBufferedHttpEntity {
 
     @Test
     public void testWriteToBuffered() throws Exception {
-        byte[] bytes = "Message content".getBytes(HTTP.US_ASCII);
+        byte[] bytes = "Message content".getBytes(Consts.ASCII.name());
         InputStreamEntity httpentity = new InputStreamEntity(new ByteArrayInputStream(bytes), -1);
         BufferedHttpEntity bufentity = new BufferedHttpEntity(httpentity);
 
@@ -115,7 +115,7 @@ public class TestBufferedHttpEntity {
 
     @Test
     public void testWriteToWrapped() throws Exception {
-        byte[] bytes = "Message content".getBytes(HTTP.US_ASCII);
+        byte[] bytes = "Message content".getBytes(Consts.ASCII.name());
         ByteArrayEntity httpentity = new ByteArrayEntity(bytes);
         BufferedHttpEntity bufentity = new BufferedHttpEntity(httpentity);
 

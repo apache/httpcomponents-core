@@ -46,6 +46,7 @@ import org.apache.http.ProtocolException;
 import org.apache.http.UnsupportedHttpVersionException;
 import org.apache.http.annotation.Immutable;
 import org.apache.http.concurrent.Cancellable;
+import org.apache.http.entity.ContentType;
 import org.apache.http.impl.DefaultHttpResponseFactory;
 import org.apache.http.nio.ContentDecoder;
 import org.apache.http.nio.ContentEncoder;
@@ -481,7 +482,8 @@ public class HttpAsyncService implements NHttpServerEventHandler {
         }
         HttpResponse response = this.responseFactory.newHttpResponse(HttpVersion.HTTP_1_1,
                 code, context);
-        return new ErrorResponseProducer(response, NStringEntity.create(message), false);
+        return new ErrorResponseProducer(response, 
+                new NStringEntity(message, ContentType.DEFAULT_TEXT), false);
     }
 
     private boolean canResponseHaveBody(final HttpRequest request, final HttpResponse response) {

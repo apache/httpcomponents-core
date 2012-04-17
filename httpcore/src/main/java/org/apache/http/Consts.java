@@ -25,34 +25,27 @@
  *
  */
 
-package org.apache.http.nio.protocol;
+package org.apache.http;
 
-import org.apache.http.HttpRequest;
-import org.apache.http.HttpResponse;
-import org.apache.http.HttpStatus;
-import org.apache.http.entity.ContentType;
-import org.apache.http.nio.entity.NStringEntity;
-import org.apache.http.protocol.HttpContext;
+import java.nio.charset.Charset;
 
-class NullRequestHandler implements HttpAsyncRequestHandler<Object> {
+/**
+ * Commons constants.
+ *
+ * @since 4.2
+ */
+public final class Consts {
 
-    public NullRequestHandler() {
-        super();
-    }
+    public static final int CR = 13; // <US-ASCII CR, carriage return (13)>
+    public static final int LF = 10; // <US-ASCII LF, linefeed (10)>
+    public static final int SP = 32; // <US-ASCII SP, space (32)>
+    public static final int HT = 9;  // <US-ASCII HT, horizontal-tab (9)>
 
-    public HttpAsyncRequestConsumer<Object> processRequest(
-            final HttpRequest request, final HttpContext context) {
-        return new NullRequestConsumer();
-    }
+    public static final Charset UTF_8 = Charset.forName("UTF-8");
+    public static final Charset ASCII = Charset.forName("US-ASCII");
+    public static final Charset ISO_8859_1 = Charset.forName("ISO-8859-1");
 
-    public void handle(
-            final Object obj,
-            final HttpAsyncExchange httpexchange,
-            final HttpContext context) {
-        HttpResponse response = httpexchange.getResponse();
-        response.setStatusCode(HttpStatus.SC_NOT_IMPLEMENTED);
-        httpexchange.submitResponse(new ErrorResponseProducer(
-                response, new NStringEntity("Service not implemented", ContentType.TEXT_PLAIN), true));
+    private Consts() {
     }
 
 }

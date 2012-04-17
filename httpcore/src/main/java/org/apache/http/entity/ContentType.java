@@ -27,8 +27,11 @@
 
 package org.apache.http.entity;
 
+import java.nio.charset.Charset;
+import java.nio.charset.UnsupportedCharsetException;
 import java.util.Locale;
 
+import org.apache.http.Consts;
 import org.apache.http.Header;
 import org.apache.http.HeaderElement;
 import org.apache.http.HttpEntity;
@@ -36,7 +39,6 @@ import org.apache.http.NameValuePair;
 import org.apache.http.ParseException;
 import org.apache.http.annotation.Immutable;
 import org.apache.http.message.BasicHeaderValueParser;
-import org.apache.http.protocol.HTTP;
 
 /**
  * Content type information consisting of a MIME type and an optional charset.
@@ -51,44 +53,46 @@ import org.apache.http.protocol.HTTP;
 public final class ContentType {
 
     // constants
-    public static final ContentType APPLICATION_ATOM_XML = new ContentType(
-            "application/atom+xml", HTTP.DEFAULT_CONTENT_CHARSET);
-    public static final ContentType APPLICATION_FORM_URLENCODED = new ContentType(
-            "application/x-www-form-urlencoded", HTTP.DEFAULT_CONTENT_CHARSET);
-    public static final ContentType APPLICATION_JSON = new ContentType(
-            "application/json", HTTP.DEFAULT_CONTENT_CHARSET);
-    public static final ContentType APPLICATION_OCTET_STREAM = new ContentType(
-            "application/octet-stream", null);
-    public static final ContentType APPLICATION_SVG_XML = new ContentType(
-            "application/svg+xml", HTTP.DEFAULT_CONTENT_CHARSET);
-    public static final ContentType APPLICATION_XHTML_XML = new ContentType(
-            "application/xhtml+xml", HTTP.DEFAULT_CONTENT_CHARSET);
-    public static final ContentType APPLICATION_XML = new ContentType(
-            "application/xml", HTTP.DEFAULT_CONTENT_CHARSET);
-    public static final ContentType MULTIPART_FORM_DATA = new ContentType(
-            "multipart/form-data", HTTP.DEFAULT_CONTENT_CHARSET);
-    public static final ContentType TEXT_HTML = new ContentType(
-            "text/html", HTTP.DEFAULT_CONTENT_CHARSET);
-    public static final ContentType TEXT_PLAIN = new ContentType(
-            "text/plain", HTTP.DEFAULT_CONTENT_CHARSET);
-    public static final ContentType TEXT_XML = new ContentType(
-            "text/xml", HTTP.DEFAULT_CONTENT_CHARSET);
-    public static final ContentType WILDCARD = new ContentType(
-            "*/*", null);
+    public static final ContentType APPLICATION_ATOM_XML = create(
+            "application/atom+xml", Consts.ISO_8859_1);
+    public static final ContentType APPLICATION_FORM_URLENCODED = create(
+            "application/x-www-form-urlencoded", Consts.ISO_8859_1);
+    public static final ContentType APPLICATION_JSON = create(
+            "application/json", Consts.ISO_8859_1);
+    public static final ContentType APPLICATION_OCTET_STREAM = create(
+            "application/octet-stream", (Charset) null);
+    public static final ContentType APPLICATION_SVG_XML = create(
+            "application/svg+xml", Consts.ISO_8859_1);
+    public static final ContentType APPLICATION_XHTML_XML = create(
+            "application/xhtml+xml", Consts.ISO_8859_1);
+    public static final ContentType APPLICATION_XML = create(
+            "application/xml", Consts.ISO_8859_1);
+    public static final ContentType MULTIPART_FORM_DATA = create(
+            "multipart/form-data", Consts.ISO_8859_1);
+    public static final ContentType TEXT_HTML = create(
+            "text/html", Consts.ISO_8859_1);
+    public static final ContentType TEXT_PLAIN = create(
+            "text/plain", Consts.ISO_8859_1);
+    public static final ContentType TEXT_XML = create(
+            "text/xml", Consts.ISO_8859_1);
+    public static final ContentType WILDCARD = create(
+            "*/*", (Charset) null);
 
     // defaults
     public static final ContentType DEFAULT_TEXT = TEXT_PLAIN;
     public static final ContentType DEFAULT_BINARY = APPLICATION_OCTET_STREAM;
 
     private final String mimeType;
-    private final String charset;
+    private final Charset charset;
 
     /**
      * Given a mime type and a character set, constructs a ContentType.
      * @param mimeType The mime type to use for the ContentType header.
      * @param charset The optional character set to use with the ContentType header.
+     * @throws  UnsupportedCharsetException
+     *          If no support for the named charset is available in this Java virtual machine
      */
-    ContentType(final String mimeType, final String charset) {
+    ContentType(final String mimeType, final Charset charset) {
         this.mimeType = mimeType;
         this.charset = charset;
     }
@@ -97,7 +101,7 @@ public final class ContentType {
         return this.mimeType;
     }
 
-    public String getCharset() {
+    public Charset getCharset() {
         return this.charset;
     }
 
@@ -131,11 +135,10 @@ public final class ContentType {
      *
      * @param mimeType MIME type. It may not be <code>null</code> or empty. It may not contain
      *        characters <">, <;>, <,> reserved by the HTTP specification.
-     * @param charset charset. It may not contain characters <">, <;>, <,> reserved by the HTTP
-     *        specification. This parameter is optional.
+     * @param charset charset.
      * @return content type
      */
-    public static ContentType create(final String mimeType, final String charset) {
+    public static ContentType create(final String mimeType, final Charset charset) {
         if (mimeType == null) {
             throw new IllegalArgumentException("MIME type may not be null");
         }
@@ -146,14 +149,32 @@ public final class ContentType {
         if (!valid(type)) {
             throw new IllegalArgumentException("MIME type may not contain reserved characters");
         }
-        String cs = null;
-        if (charset != null) {
-            cs = charset.trim().toLowerCase(Locale.US);
-            if (!valid(cs)) {
-                throw new IllegalArgumentException("Charset may not contain reserved characters");
-            }
-        }
-        return new ContentType(type, cs);
+        return new ContentType(type, charset);
+    }
+
+    /**
+     * Creates a new instance of {@link ContentType} without a charset.
+     *
+     * @param mimeType MIME type. It may not be <code>null</code> or empty. It may not contain
+     *        characters <">, <;>, <,> reserved by the HTTP specification.
+     * @return content type
+     */
+    public static ContentType create(final String mimeType) {
+        return new ContentType(mimeType, (Charset) null);
+    }
+    
+    /**
+     * Creates a new instance of {@link ContentType}.
+     *
+     * @param mimeType MIME type. It may not be <code>null</code> or empty. It may not contain
+     *        characters <">, <;>, <,> reserved by the HTTP specification.
+     * @param charset charset. It may not contain characters <">, <;>, <,> reserved by the HTTP
+     *        specification. This parameter is optional.
+     * @return content type
+     */
+    public static ContentType create(
+            final String mimeType, final String charset) throws UnsupportedCharsetException {
+        return create(mimeType, charset != null ? Charset.forName(charset) : null);
     }
 
     private static ContentType create(final HeaderElement helem) {
@@ -174,7 +195,8 @@ public final class ContentType {
      * @throws ParseException if the given text does not represent a valid
      * <code>Content-Type</code> value.
      */
-    public static ContentType parse(final String s) throws ParseException {
+    public static ContentType parse(
+            final String s) throws ParseException, UnsupportedCharsetException {
         if (s == null) {
             throw new IllegalArgumentException("Content type may not be null");
         }
@@ -196,7 +218,8 @@ public final class ContentType {
      * @throws ParseException if the given text does not represent a valid
      * <code>Content-Type</code> value.
      */
-    public static ContentType get(final HttpEntity entity) throws ParseException {
+    public static ContentType get(
+            final HttpEntity entity) throws ParseException, UnsupportedCharsetException {
         if (entity == null) {
             return null;
         }

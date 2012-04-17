@@ -30,6 +30,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.InetSocketAddress;
 import java.net.Socket;
+import java.nio.charset.Charset;
 
 import javax.net.SocketFactory;
 
@@ -183,9 +184,9 @@ class BenchmarkWorker implements Runnable {
                 HttpEntity entity = response.getEntity();
                 if (entity != null) {
                     ContentType ct = ContentType.get(entity);
-                    String charset = ct.getCharset();
+                    Charset charset = ct.getCharset();
                     if (charset == null) {
-                        charset = HTTP.DEFAULT_CONTENT_CHARSET;
+                        charset = HTTP.DEF_CONTENT_CHARSET;
                     }
                     long contentlen = 0;
                     InputStream instream = entity.getContent();
@@ -193,7 +194,7 @@ class BenchmarkWorker implements Runnable {
                     while ((l = instream.read(this.buffer)) != -1) {
                         contentlen += l;
                         if (this.verbosity >= 4) {
-                            String s = new String(this.buffer, 0, l, charset);
+                            String s = new String(this.buffer, 0, l, charset.name());
                             System.out.print(s);
                         }
                     }

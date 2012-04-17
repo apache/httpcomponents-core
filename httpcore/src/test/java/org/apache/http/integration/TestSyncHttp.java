@@ -34,6 +34,7 @@ import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.UnsupportedEncodingException;
 import java.net.Socket;
+import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
@@ -615,7 +616,7 @@ public class TestSyncHttp {
         private final byte[] raw;
         private int n;
 
-        public RepeatingEntity(final String content, String charset, int n) {
+        public RepeatingEntity(final String content, Charset charset, int n) {
             super();
             if (content == null) {
                 throw new IllegalArgumentException("Content may not be null");
@@ -624,11 +625,14 @@ public class TestSyncHttp {
                 throw new IllegalArgumentException("N may not be negative or zero");
             }
             if (charset == null) {
-                charset = "US-ASCII";
+                charset = Charset.forName("US-ASCII"); // US-ASCII is built-in
             }
             byte[] b;
+            // Java 6 only:
+            // b = content.getBytes(charset);
+            // Java 5 OK:
             try {
-                b = content.getBytes(charset);
+                b = content.getBytes(charset.name());
             } catch (UnsupportedEncodingException ex) {
                 b = content.getBytes();
             }
@@ -714,9 +718,9 @@ public class TestSyncHttp {
                     HttpEntity incoming = ((HttpEntityEnclosingRequest) request).getEntity();
                     String line = EntityUtils.toString(incoming);
                     ContentType contentType = ContentType.getOrDefault(incoming);
-                    String charset = contentType.getCharset();
+                    Charset charset = contentType.getCharset();
                     if (charset == null) {
-                        charset = HTTP.DEFAULT_CONTENT_CHARSET;
+                        charset = HTTP.DEF_CONTENT_CHARSET;
                     }
                     RepeatingEntity outgoing = new RepeatingEntity(line, charset, n);
                     outgoing.setChunked(n % 2 == 0);
@@ -752,9 +756,9 @@ public class TestSyncHttp {
                     Assert.assertNotNull(incoming);
                     InputStream instream = incoming.getContent();
                     ContentType contentType = ContentType.getOrDefault(incoming);
-                    String charset = contentType.getCharset();
+                    Charset charset = contentType.getCharset();
                     if (charset == null) {
-                        charset = HTTP.DEFAULT_CONTENT_CHARSET;
+                        charset = HTTP.DEF_CONTENT_CHARSET;
                     }
                     Assert.assertNotNull(instream);
                     BufferedReader reader = new BufferedReader(new InputStreamReader(instream, charset));

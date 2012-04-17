@@ -122,7 +122,7 @@ public class HttpBenchmark {
             fe.setChunked(config.isUseChunking());
             entity = fe;
         } else if (config.getPayloadText() != null) {
-            StringEntity se = StringEntity.create(config.getPayloadText(), 
+            StringEntity se = new StringEntity(config.getPayloadText(), 
                     ContentType.parse(config.getContentType()));
             se.setChunked(config.isUseChunking());
             entity = se;

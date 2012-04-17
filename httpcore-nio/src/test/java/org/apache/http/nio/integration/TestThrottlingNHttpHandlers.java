@@ -32,6 +32,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
 import java.net.InetSocketAddress;
+import java.nio.charset.Charset;
 import java.util.LinkedList;
 import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
@@ -740,11 +741,11 @@ public class TestThrottlingNHttpHandlers extends HttpCoreNIOTestBase {
                             outstream.write(tmp, 0, l);
                         }
                         ContentType contentType = ContentType.getOrDefault(entity);
-                        String charset = contentType.getCharset();
+                        Charset charset = contentType.getCharset();
                         if (charset == null) {
-                            charset = HTTP.DEFAULT_CONTENT_CHARSET;
+                            charset = HTTP.DEF_CONTENT_CHARSET;
                         }
-                        content = new String(outstream.toByteArray(), charset);
+                        content = new String(outstream.toByteArray(), charset.name());
                     } catch (InterruptedException ex) {
                         content = "Interrupted: " + ex.getMessage();
                     } catch (IOException ex) {

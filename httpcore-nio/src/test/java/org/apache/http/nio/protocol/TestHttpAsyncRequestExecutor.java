@@ -214,7 +214,7 @@ public class TestHttpAsyncRequestExecutor {
         state.setHandler(this.exchangeHandler);
         this.connContext.setAttribute(HttpAsyncRequestExecutor.HTTP_EXCHANGE_STATE, state);
         BasicHttpEntityEnclosingRequest request = new BasicHttpEntityEnclosingRequest("POST", "/");
-        request.setEntity(NStringEntity.create("stuff"));
+        request.setEntity(new NStringEntity("stuff"));
         Mockito.when(this.exchangeHandler.generateRequest()).thenReturn(request);
 
         this.protocolHandler.requestReady(this.conn);
@@ -312,7 +312,7 @@ public class TestHttpAsyncRequestExecutor {
         state.setRequestState(MessageState.ACK_EXPECTED);
         state.setTimeout(1000);
         BasicHttpEntityEnclosingRequest request = new BasicHttpEntityEnclosingRequest("POST", "/");
-        request.setEntity(NStringEntity.create("stuff"));
+        request.setEntity(new NStringEntity("stuff"));
         state.setRequest(request);
         state.setHandler(this.exchangeHandler);
         this.connContext.setAttribute(HttpAsyncRequestExecutor.HTTP_EXCHANGE_STATE, state);
@@ -333,7 +333,7 @@ public class TestHttpAsyncRequestExecutor {
         State state = new HttpAsyncRequestExecutor.State();
         state.setRequestState(MessageState.COMPLETED);
         BasicHttpEntityEnclosingRequest request = new BasicHttpEntityEnclosingRequest("POST", "/");
-        request.setEntity(NStringEntity.create("stuff"));
+        request.setEntity(new NStringEntity("stuff"));
         state.setRequest(request);
         state.setHandler(this.exchangeHandler);
         this.connContext.setAttribute(HttpAsyncRequestExecutor.HTTP_EXCHANGE_STATE, state);
@@ -353,7 +353,7 @@ public class TestHttpAsyncRequestExecutor {
         state.setRequestState(MessageState.ACK_EXPECTED);
         state.setTimeout(1000);
         BasicHttpEntityEnclosingRequest request = new BasicHttpEntityEnclosingRequest("POST", "/");
-        request.setEntity(NStringEntity.create("stuff"));
+        request.setEntity(new NStringEntity("stuff"));
         state.setRequest(request);
         state.setHandler(this.exchangeHandler);
         this.connContext.setAttribute(HttpAsyncRequestExecutor.HTTP_EXCHANGE_STATE, state);
@@ -369,7 +369,7 @@ public class TestHttpAsyncRequestExecutor {
         state.setRequestState(MessageState.ACK_EXPECTED);
         state.setTimeout(1000);
         BasicHttpEntityEnclosingRequest request = new BasicHttpEntityEnclosingRequest("POST", "/");
-        request.setEntity(NStringEntity.create("stuff"));
+        request.setEntity(new NStringEntity("stuff"));
         state.setRequest(request);
         state.setHandler(this.exchangeHandler);
         this.connContext.setAttribute(HttpAsyncRequestExecutor.HTTP_EXCHANGE_STATE, state);
@@ -391,7 +391,7 @@ public class TestHttpAsyncRequestExecutor {
         state.setRequestState(MessageState.BODY_STREAM);
         state.setTimeout(1000);
         BasicHttpEntityEnclosingRequest request = new BasicHttpEntityEnclosingRequest("POST", "/");
-        request.setEntity(NStringEntity.create("stuff"));
+        request.setEntity(new NStringEntity("stuff"));
         state.setRequest(request);
         state.setHandler(this.exchangeHandler);
         this.connContext.setAttribute(HttpAsyncRequestExecutor.HTTP_EXCHANGE_STATE, state);

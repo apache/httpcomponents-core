@@ -388,7 +388,7 @@ public class NHttpReverseProxy {
                     if (message == null) {
                         message = "Unexpected error";
                     }
-                    response.setEntity(NStringEntity.create(message, ContentType.DEFAULT_TEXT));
+                    response.setEntity(new NStringEntity(message, ContentType.DEFAULT_TEXT));
                     responseTrigger.submitResponse(new BasicAsyncResponseProducer(response));
                     System.out.println("[client<-proxy] " + httpExchange.getId() + " error response triggered");
                 }
@@ -665,7 +665,7 @@ public class NHttpReverseProxy {
                     if (message == null) {
                         message = "Unexpected error";
                     }
-                    response.setEntity(NStringEntity.create(message, ContentType.DEFAULT_TEXT));
+                    response.setEntity(new NStringEntity(message, ContentType.DEFAULT_TEXT));
                     responseTrigger.submitResponse(new BasicAsyncResponseProducer(response));
                 }
             }

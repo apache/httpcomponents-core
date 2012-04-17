@@ -60,7 +60,7 @@ public final class HttpProtocolParams implements CoreProtocolPNames {
         String charset = (String) params.getParameter
             (CoreProtocolPNames.HTTP_ELEMENT_CHARSET);
         if (charset == null) {
-            charset = HTTP.DEFAULT_PROTOCOL_CHARSET;
+            charset = HTTP.DEF_PROTOCOL_CHARSET.name();
         }
         return charset;
     }
@@ -92,7 +92,7 @@ public final class HttpProtocolParams implements CoreProtocolPNames {
         String charset = (String) params.getParameter
             (CoreProtocolPNames.HTTP_CONTENT_CHARSET);
         if (charset == null) {
-            charset = HTTP.DEFAULT_CONTENT_CHARSET;
+            charset = HTTP.DEF_CONTENT_CHARSET.name();
         }
         return charset;
     }

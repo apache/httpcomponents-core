@@ -29,7 +29,7 @@ package org.apache.http.entity;
 
 import java.io.ByteArrayOutputStream;
 
-import org.apache.http.protocol.HTTP;
+import org.apache.http.Consts;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -42,9 +42,9 @@ public class TestStringEntity {
     @Test
     public void testBasics() throws Exception {
         String s = "Message content";
-        StringEntity httpentity = new StringEntity(s, HTTP.ISO_8859_1);
+        StringEntity httpentity = new StringEntity(s, ContentType.TEXT_PLAIN);
 
-        byte[] bytes = s.getBytes(HTTP.ISO_8859_1);
+        byte[] bytes = s.getBytes(Consts.ISO_8859_1.name());
         Assert.assertEquals(bytes.length, httpentity.getContentLength());
         Assert.assertNotNull(httpentity.getContent());
         Assert.assertTrue(httpentity.isRepeatable());
@@ -65,10 +65,10 @@ public class TestStringEntity {
     public void testDefaultContent() throws Exception {
         String s = "Message content";
         StringEntity httpentity = new StringEntity(s, ContentType.create("text/csv", "ANSI_X3.4-1968"));
-        Assert.assertEquals("text/csv; charset=ansi_x3.4-1968",
+        Assert.assertEquals("text/csv; charset=US-ASCII",
                 httpentity.getContentType().getValue());
-        httpentity = new StringEntity(s, HTTP.US_ASCII);
-        Assert.assertEquals("text/plain; charset=us-ascii",
+        httpentity = new StringEntity(s, Consts.ASCII.name());
+        Assert.assertEquals("text/plain; charset=US-ASCII",
                 httpentity.getContentType().getValue());
         httpentity = new StringEntity(s);
         Assert.assertEquals("text/plain; charset=ISO-8859-1",
@@ -78,7 +78,7 @@ public class TestStringEntity {
     @Test
     public void testWriteTo() throws Exception {
         String s = "Message content";
-        byte[] bytes = s.getBytes(HTTP.ISO_8859_1);
+        byte[] bytes = s.getBytes(Consts.ISO_8859_1.name());
         StringEntity httpentity = new StringEntity(s);
 
         ByteArrayOutputStream out = new ByteArrayOutputStream();

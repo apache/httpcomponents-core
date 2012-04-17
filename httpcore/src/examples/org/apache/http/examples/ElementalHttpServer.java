@@ -33,6 +33,7 @@ import java.io.InterruptedIOException;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.URLDecoder;
+import java.nio.charset.Charset;
 import java.util.Locale;
 
 import org.apache.http.ConnectionClosedException;
@@ -137,7 +138,7 @@ public class ElementalHttpServer {
             } else {
 
                 response.setStatusCode(HttpStatus.SC_OK);
-                FileEntity body = new FileEntity(file, ContentType.create("text/html", null));
+                FileEntity body = new FileEntity(file, ContentType.create("text/html", (Charset) null));
                 response.setEntity(body);
                 System.out.println("Serving file " + file.getPath());
             }

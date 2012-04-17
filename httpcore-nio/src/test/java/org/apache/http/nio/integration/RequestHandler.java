@@ -95,7 +95,7 @@ final class RequestHandler extends SimpleNHttpRequestHandler implements HttpRequ
             }
             content = buffer.toString();
         }
-        NStringEntity entity = NStringEntity.create(content, ContentType.DEFAULT_TEXT);
+        NStringEntity entity = new NStringEntity(content, ContentType.DEFAULT_TEXT);
         entity.setChunked(this.chunking);
         response.setEntity(entity);
     }

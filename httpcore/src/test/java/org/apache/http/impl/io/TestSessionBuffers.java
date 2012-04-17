@@ -34,6 +34,7 @@ import java.io.InputStream;
 import java.nio.charset.CharacterCodingException;
 import java.nio.charset.CodingErrorAction;
 
+import org.apache.http.Consts;
 import org.apache.http.impl.SessionInputBufferMock;
 import org.apache.http.impl.SessionOutputBufferMock;
 import org.apache.http.io.HttpTransportMetrics;
@@ -41,7 +42,6 @@ import org.apache.http.params.BasicHttpParams;
 import org.apache.http.params.CoreConnectionPNames;
 import org.apache.http.params.HttpParams;
 import org.apache.http.params.HttpProtocolParams;
-import org.apache.http.protocol.HTTP;
 import org.apache.http.util.CharArrayBuffer;
 import org.junit.Assert;
 import org.junit.Test;
@@ -495,7 +495,7 @@ public class TestSessionBuffers {
         String s1 = constructString(SWISS_GERMAN_HELLO);
 
         HttpParams params = new BasicHttpParams();
-        HttpProtocolParams.setHttpElementCharset(params, HTTP.ISO_8859_1);
+        HttpProtocolParams.setHttpElementCharset(params, Consts.ISO_8859_1.name());
 
         SessionOutputBufferMock outbuffer = new SessionOutputBufferMock(params);
 
@@ -512,13 +512,13 @@ public class TestSessionBuffers {
         outbuffer.writeLine(chbuffer);
         outbuffer.flush();
         long bytesWritten = outbuffer.getMetrics().getBytesTransferred();
-        long expected = ((s1.toString().getBytes(HTTP.ISO_8859_1).length + 2)) * 10 + 2;
+        long expected = ((s1.toString().getBytes(Consts.ISO_8859_1.name()).length + 2)) * 10 + 2;
         Assert.assertEquals(expected, bytesWritten);
 
         SessionInputBufferMock inbuffer = new SessionInputBufferMock(
                 outbuffer.getData(),
                 params);
-        HttpProtocolParams.setHttpElementCharset(params, HTTP.ISO_8859_1);
+        HttpProtocolParams.setHttpElementCharset(params, Consts.ISO_8859_1.name());
 
         CharArrayBuffer buf = new CharArrayBuffer(64);
         for (int i = 0; i < 10; i++) {
@@ -539,7 +539,7 @@ public class TestSessionBuffers {
     public void testUnmappableInputAction() throws Exception {
         BasicHttpParams params = new BasicHttpParams();
         String s = "In valid ISO-8859-1 character string because  of Ŵ and ŵ";
-        HttpProtocolParams.setHttpElementCharset(params, HTTP.ISO_8859_1);
+        HttpProtocolParams.setHttpElementCharset(params, Consts.ISO_8859_1.name());
 
         // Action with report
         HttpProtocolParams.setUnmappableInputAction(params, CodingErrorAction.REPORT);

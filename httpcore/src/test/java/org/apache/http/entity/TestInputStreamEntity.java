@@ -31,7 +31,7 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
 
-import org.apache.http.protocol.HTTP;
+import org.apache.http.Consts;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -43,7 +43,7 @@ public class TestInputStreamEntity {
 
     @Test
     public void testBasics() throws Exception {
-        byte[] bytes = "Message content".getBytes(HTTP.ISO_8859_1);
+        byte[] bytes = "Message content".getBytes(Consts.ISO_8859_1.name());
         InputStream instream = new ByteArrayInputStream(bytes);
         InputStreamEntity httpentity = new InputStreamEntity(instream, bytes.length);
 
@@ -66,7 +66,7 @@ public class TestInputStreamEntity {
 
     @Test
     public void testWriteTo() throws Exception {
-        byte[] bytes = "Message content".getBytes(HTTP.ISO_8859_1);
+        byte[] bytes = "Message content".getBytes(Consts.ISO_8859_1.name());
         InputStream instream = new ByteArrayInputStream(bytes);
         InputStreamEntity httpentity = new InputStreamEntity(instream, 7);
 
@@ -75,7 +75,7 @@ public class TestInputStreamEntity {
         byte[] bytes2 = out.toByteArray();
         Assert.assertNotNull(bytes2);
         Assert.assertEquals(7, bytes2.length);
-        String s = new String(bytes2, HTTP.ISO_8859_1);
+        String s = new String(bytes2, Consts.ISO_8859_1.name());
         Assert.assertEquals("Message", s);
 
         instream = new ByteArrayInputStream(bytes);

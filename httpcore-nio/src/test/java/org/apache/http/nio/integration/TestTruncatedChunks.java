@@ -34,6 +34,7 @@ import java.nio.channels.WritableByteChannel;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 
+import org.apache.http.Consts;
 import org.apache.http.HttpCoreNIOTestBase;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpHost;
@@ -74,7 +75,6 @@ import org.apache.http.nio.util.ByteBufferAllocator;
 import org.apache.http.nio.util.HeapByteBufferAllocator;
 import org.apache.http.nio.util.SimpleInputBuffer;
 import org.apache.http.params.HttpParams;
-import org.apache.http.protocol.HTTP;
 import org.apache.http.protocol.HttpContext;
 import org.apache.http.util.CharArrayBuffer;
 import org.apache.http.util.EntityUtils;
@@ -307,7 +307,7 @@ public class TestTruncatedChunks extends HttpCoreNIOTestBase {
         HttpResponse response = future.get();
         Assert.assertNotNull(response);
         Assert.assertEquals(HttpStatus.SC_OK, response.getStatusLine().getStatusCode());
-        Assert.assertEquals(new String(GARBAGE, HTTP.DEFAULT_CONTENT_CHARSET),
+        Assert.assertEquals(new String(GARBAGE, Consts.ISO_8859_1.name()),
                 EntityUtils.toString(response.getEntity()));
     }
 

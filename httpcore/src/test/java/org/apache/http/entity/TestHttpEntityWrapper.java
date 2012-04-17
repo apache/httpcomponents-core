@@ -29,6 +29,7 @@ package org.apache.http.entity;
 
 import java.io.ByteArrayOutputStream;
 
+import org.apache.http.Consts;
 import org.apache.http.protocol.HTTP;
 import org.apache.http.util.EntityUtils;
 import org.junit.Assert;
@@ -43,8 +44,7 @@ public class TestHttpEntityWrapper {
     @Test
     public void testBasics() throws Exception {
         String s = "Message content";
-        StringEntity httpentity = new StringEntity(s, HTTP.ISO_8859_1);
-        httpentity.setContentType(HTTP.PLAIN_TEXT_TYPE);
+        StringEntity httpentity = new StringEntity(s, ContentType.TEXT_PLAIN);
         httpentity.setContentEncoding(HTTP.IDENTITY_CODING);
         HttpEntityWrapper wrapped = new HttpEntityWrapper(httpentity);
 
@@ -70,7 +70,7 @@ public class TestHttpEntityWrapper {
     @Test
     public void testWriteTo() throws Exception {
         String s = "Message content";
-        byte[] bytes = s.getBytes(HTTP.ISO_8859_1);
+        byte[] bytes = s.getBytes(Consts.ISO_8859_1.name());
         StringEntity httpentity = new StringEntity(s);
         HttpEntityWrapper wrapped = new HttpEntityWrapper(httpentity);
 

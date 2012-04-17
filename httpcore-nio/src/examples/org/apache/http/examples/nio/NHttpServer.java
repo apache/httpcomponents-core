@@ -231,7 +231,7 @@ public class NHttpServer {
                 NHttpConnection conn = (NHttpConnection) context.getAttribute(
                         ExecutionContext.HTTP_CONNECTION);
                 response.setStatusCode(HttpStatus.SC_OK);
-                NFileEntity body = new NFileEntity(file, ContentType.create("text/html", null));
+                NFileEntity body = new NFileEntity(file, ContentType.create("text/html"));
                 response.setEntity(body);
                 System.out.println(conn + ": serving file " + file.getPath());
             }

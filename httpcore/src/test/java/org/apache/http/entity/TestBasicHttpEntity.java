@@ -31,7 +31,7 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
 
-import org.apache.http.protocol.HTTP;
+import org.apache.http.Consts;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -44,7 +44,7 @@ public class TestBasicHttpEntity {
     @Test
     public void testBasics() throws Exception {
 
-        byte[] bytes = "Message content".getBytes(HTTP.US_ASCII);
+        byte[] bytes = "Message content".getBytes(Consts.ASCII.name());
         InputStream content = new ByteArrayInputStream(bytes);
         BasicHttpEntity httpentity = new BasicHttpEntity();
         httpentity.setContent(content);
@@ -57,7 +57,7 @@ public class TestBasicHttpEntity {
 
     @Test
     public void testContent() throws Exception {
-        byte[] bytes = "Message content".getBytes(HTTP.US_ASCII);
+        byte[] bytes = "Message content".getBytes(Consts.ASCII.name());
         InputStream content = new ByteArrayInputStream(bytes);
         BasicHttpEntity httpentity = new BasicHttpEntity();
         try {
@@ -80,7 +80,7 @@ public class TestBasicHttpEntity {
 
     @Test
     public void testWriteTo() throws Exception {
-        byte[] bytes = "Message content".getBytes(HTTP.US_ASCII);
+        byte[] bytes = "Message content".getBytes(Consts.ASCII.name());
         InputStream content = new ByteArrayInputStream(bytes);
         BasicHttpEntity httpentity = new BasicHttpEntity();
         httpentity.setContent(content);

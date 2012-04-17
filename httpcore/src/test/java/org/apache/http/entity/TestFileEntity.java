@@ -32,7 +32,6 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.InputStream;
 
-import org.apache.http.protocol.HTTP;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -46,8 +45,7 @@ public class TestFileEntity {
     public void testBasics() throws Exception {
         File tmpfile = File.createTempFile("testfile", ".txt");
         tmpfile.deleteOnExit();
-        FileEntity httpentity = new FileEntity(tmpfile,
-                ContentType.create("text/plain", HTTP.ISO_8859_1));
+        FileEntity httpentity = new FileEntity(tmpfile, ContentType.TEXT_PLAIN);
 
         Assert.assertEquals(tmpfile.length(), httpentity.getContentLength());
         final InputStream content = httpentity.getContent();
@@ -63,7 +61,7 @@ public class TestFileEntity {
     @Test
     public void testIllegalConstructor() throws Exception {
         try {
-            new FileEntity(null, ContentType.create("text/plain", HTTP.ISO_8859_1));
+            new FileEntity(null, ContentType.TEXT_PLAIN);
             Assert.fail("IllegalArgumentException should have been thrown");
         } catch (IllegalArgumentException ex) {
             // expected
@@ -82,8 +80,7 @@ public class TestFileEntity {
         outstream.write(3);
         outstream.close();
 
-        FileEntity httpentity = new FileEntity(tmpfile,
-                ContentType.create("text/plain", HTTP.ISO_8859_1));
+        FileEntity httpentity = new FileEntity(tmpfile, ContentType.TEXT_PLAIN);
 
         ByteArrayOutputStream out = new ByteArrayOutputStream();
         httpentity.writeTo(out);

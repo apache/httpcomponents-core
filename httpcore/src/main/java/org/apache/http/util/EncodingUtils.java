@@ -28,7 +28,7 @@ package org.apache.http.util;
 
 import java.io.UnsupportedEncodingException;
 
-import org.apache.http.protocol.HTTP;
+import org.apache.http.Consts;
 
 /**
  * The home for utility methods that handle various encoding tasks.
@@ -126,7 +126,7 @@ public final class EncodingUtils {
         }
 
         try {
-            return data.getBytes(HTTP.US_ASCII);
+            return data.getBytes(Consts.ASCII.name());
         } catch (UnsupportedEncodingException e) {
             throw new Error("HttpClient requires ASCII support");
         }
@@ -149,7 +149,7 @@ public final class EncodingUtils {
         }
 
         try {
-            return new String(data, offset, length, HTTP.US_ASCII);
+            return new String(data, offset, length, Consts.ASCII.name());
         } catch (UnsupportedEncodingException e) {
             throw new Error("HttpClient requires ASCII support");
         }
