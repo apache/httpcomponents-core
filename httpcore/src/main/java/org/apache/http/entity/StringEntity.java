@@ -66,9 +66,6 @@ public class StringEntity extends AbstractHttpEntity implements Cloneable {
             throw new IllegalArgumentException("Source string may not be null");
         }
         Charset charset = contentType != null ? contentType.getCharset() : null;
-        if (charset == null) {
-            charset = HTTP.DEF_CONTENT_CHARSET;
-        }
         try {
             this.content = string.getBytes(charset.name());
         } catch (UnsupportedEncodingException ex) {
@@ -124,6 +121,22 @@ public class StringEntity extends AbstractHttpEntity implements Cloneable {
      */
     public StringEntity(final String string, final String charset)
             throws UnsupportedEncodingException {
+        this(string, ContentType.create(ContentType.TEXT_PLAIN.getMimeType(), charset));
+    }
+
+    /**
+     * Creates a StringEntity with the specified content and charset. The MIME type defaults
+     * to "text/plain".
+     *
+     * @param string content to be used. Not {@code null}.
+     * @param charset character set to be used. May be {@code null}, in which case the default
+     *   is {@link HTTP#DEF_CONTENT_CHARSET} is assumed
+     *
+     * @throws IllegalArgumentException if the string parameter is null
+     * 
+     * @since 4.2
+     */
+    public StringEntity(final String string, final Charset charset) {
         this(string, ContentType.create(ContentType.TEXT_PLAIN.getMimeType(), charset));
     }
 

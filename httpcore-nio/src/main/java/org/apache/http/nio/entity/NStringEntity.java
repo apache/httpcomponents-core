@@ -112,6 +112,22 @@ public class NStringEntity extends AbstractHttpEntity
     }
 
     /**
+     * Creates a NStringEntity with the specified content and charset. The MIME type defaults
+     * to "text/plain".
+     *
+     * @param string content to be used. Not {@code null}.
+     * @param charset character set to be used. May be {@code null}, in which case the default
+     *   is {@link HTTP#DEF_CONTENT_CHARSET} is assumed
+     *
+     * @throws IllegalArgumentException if the string parameter is null
+     * 
+     * @since 4.2
+     */
+    public NStringEntity(final String s, final Charset charset) {
+        this(s, ContentType.create(ContentType.TEXT_PLAIN.getMimeType(), charset));
+    }
+
+    /**
      * Creates a NStringEntity with the specified content. The content type defaults to
      * {@link ContentType#TEXT_PLAIN}.
      *

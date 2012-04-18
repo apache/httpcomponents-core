@@ -35,7 +35,6 @@ import org.junit.Test;
 
 /**
  * Unit tests for {@link StringEntity}.
- *
  */
 public class TestStringEntity {
 
@@ -68,6 +67,9 @@ public class TestStringEntity {
         Assert.assertEquals("text/csv; charset=US-ASCII",
                 httpentity.getContentType().getValue());
         httpentity = new StringEntity(s, Consts.ASCII.name());
+        Assert.assertEquals("text/plain; charset=US-ASCII",
+                httpentity.getContentType().getValue());
+        httpentity = new StringEntity(s, Consts.ASCII);
         Assert.assertEquals("text/plain; charset=US-ASCII",
                 httpentity.getContentType().getValue());
         httpentity = new StringEntity(s);
