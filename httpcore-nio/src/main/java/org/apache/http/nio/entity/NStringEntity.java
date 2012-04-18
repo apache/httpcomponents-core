@@ -96,7 +96,7 @@ public class NStringEntity extends AbstractHttpEntity
     }
 
     /**
-     * Creates a NStringEntity with the specified content and charset. The mime type defaults
+     * Creates a NStringEntity with the specified content and charset. The MIME type defaults
      * to "text/plain".
      *
      * @param string content to be used. Not {@code null}.

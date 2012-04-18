@@ -43,7 +43,7 @@ import org.apache.http.message.BasicHeaderValueParser;
 /**
  * Content type information consisting of a MIME type and an optional charset.
  * <p/>
- * This class makes no attempts to verify validity of mime-type and charset attributes.
+ * This class makes no attempts to verify validity of the MIME type.
  * The input parameters of the {@link #create(String, String)} method, however, may not
  * contain characters <">, <;>, <,> reserved by the HTTP specification.
  *
@@ -58,7 +58,7 @@ public final class ContentType {
     public static final ContentType APPLICATION_FORM_URLENCODED = create(
             "application/x-www-form-urlencoded", Consts.ISO_8859_1);
     public static final ContentType APPLICATION_JSON = create(
-            "application/json", Consts.ISO_8859_1);
+            "application/json", Consts.UTF_8);
     public static final ContentType APPLICATION_OCTET_STREAM = create(
             "application/octet-stream", (Charset) null);
     public static final ContentType APPLICATION_SVG_XML = create(
@@ -86,8 +86,8 @@ public final class ContentType {
     private final Charset charset;
 
     /**
-     * Given a mime type and a character set, constructs a ContentType.
-     * @param mimeType The mime type to use for the ContentType header.
+     * Given a MIME type and a character set, constructs a ContentType.
+     * @param mimeType The MIME type to use for the ContentType header.
      * @param charset The optional character set to use with the ContentType header.
      * @throws  UnsupportedCharsetException
      *          If no support for the named charset is available in this Java virtual machine

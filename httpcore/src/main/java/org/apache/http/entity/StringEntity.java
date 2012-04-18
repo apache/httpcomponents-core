@@ -78,10 +78,10 @@ public class StringEntity extends AbstractHttpEntity implements Cloneable {
     }
 
     /**
-     * Creates a StringEntity with the specified content, mimetype and charset
+     * Creates a StringEntity with the specified content, MIME type and charset
      *
      * @param string content to be used. Not {@code null}.
-     * @param mimeType mime type to be used. May be {@code null}, in which case the default
+     * @param mimeType MIME type to be used. May be {@code null}, in which case the default
      *   is {@link HTTP#PLAIN_TEXT_TYPE} i.e. "text/plain"
      * @param charset character set to be used. May be {@code null}, in which case the default
      *   is {@link HTTP#DEF_CONTENT_CHARSET} i.e. "ISO-8859-1"
@@ -109,7 +109,7 @@ public class StringEntity extends AbstractHttpEntity implements Cloneable {
     }
 
     /**
-     * Creates a StringEntity with the specified content and charset. The mime type defaults
+     * Creates a StringEntity with the specified content and charset. The MIME type defaults
      * to "text/plain".
      *
      * @param string content to be used. Not {@code null}.
