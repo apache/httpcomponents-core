@@ -34,7 +34,7 @@
   <modelVersion>4.0.0</modelVersion>
   <artifactId>httpcomponents-core</artifactId>
   <name>HttpComponents Core</name>
-  <version>4.2-beta2-SNAPSHOT</version>
+  <version>4.2</version>
   <description>Core components to build HTTP enabled services</description>
   <url>http://hc.apache.org/httpcomponents-core</url>
   <inceptionYear>2005</inceptionYear>
@@ -59,9 +59,9 @@
   </issueManagement>
 
   <scm>
-    <connection>scm:svn:http://svn.apache.org/repos/asf/httpcomponents/httpcore/trunk</connection>
-    <developerConnection>scm:svn:https://svn.apache.org/repos/asf/httpcomponents/httpcore/trunk</developerConnection>
-    <url>http://svn.apache.org/repos/asf/httpcomponents/httpcore/trunk</url>
+    <connection>scm:svn:http://svn.apache.org/repos/asf/httpcomponents/httpcore/tags/4.2</connection>
+    <developerConnection>scm:svn:https://svn.apache.org/repos/asf/httpcomponents/httpcore/tags/4.2</developerConnection>
+    <url>http://svn.apache.org/repos/asf/httpcomponents/httpcore/tags/4.2</url>
   </scm>
 
   <modules>
@@ -237,14 +237,12 @@
             </entity>
           </entities>
           <postProcess>
-            <copy todir="target/site/tutorial/html" 
-              failonerror="false">
+            <copy todir="target/site/tutorial/html" failonerror="false">
               <fileset dir="target/docbkx/html/index">
                 <include name="**/*.html" />
               </fileset>
             </copy>
-            <copy todir="target/site/tutorial/html" 
-              failonerror="false">
+            <copy todir="target/site/tutorial/html" failonerror="false">
               <fileset dir="src/docbkx/resources">
                 <include name="**/*.css" />
                 <include name="**/*.png" />
@@ -252,9 +250,7 @@
                 <include name="**/*.jpg" />
               </fileset>
             </copy>
-            <copy file="target/docbkx/pdf/index.pdf" 
-                  tofile="target/site/tutorial/pdf/httpcore-tutorial.pdf" 
-                  failonerror="false"/>
+            <copy file="target/docbkx/pdf/index.pdf" tofile="target/site/tutorial/pdf/httpcore-tutorial.pdf" failonerror="false" />
           </postProcess>
         </configuration>
       </plugin>
