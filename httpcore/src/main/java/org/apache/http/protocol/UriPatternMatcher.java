@@ -86,7 +86,7 @@ public class UriPatternMatcher<T> {
     }
 
     /**
-     * @deprecated use {@link #setObjects(Map)}
+     * @deprecated (4.1) use {@link #setObjects(Map)}
      */
     @Deprecated
     public synchronized void setHandlers(final Map<String, T> map) {

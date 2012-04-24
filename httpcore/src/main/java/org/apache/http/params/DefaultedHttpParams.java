@@ -63,7 +63,7 @@ public final class DefaultedHttpParams extends AbstractHttpParams {
     /**
      * Creates a copy of the local collection with the same default
      *
-     * @deprecated
+     * @deprecated (4.1)
      */
     @Deprecated
     public HttpParams copy() {
@@ -103,7 +103,7 @@ public final class DefaultedHttpParams extends AbstractHttpParams {
     /**
      *
      * @return the default HttpParams collection
-     * @deprecated (4.2) do not use, will be removed in a later version
+     * @deprecated (4.1.1) do not use, will be removed in a later version
      */
     @Deprecated
     public HttpParams getDefaults() {

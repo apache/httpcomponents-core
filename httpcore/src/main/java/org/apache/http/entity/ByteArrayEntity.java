@@ -42,7 +42,7 @@ import org.apache.http.annotation.NotThreadSafe;
 @NotThreadSafe
 public class ByteArrayEntity extends AbstractHttpEntity implements Cloneable {
 
-    @Deprecated
+    @Deprecated // 4.1.2
     protected final byte[] content;
     private final byte[] b;
     private final int off, len;

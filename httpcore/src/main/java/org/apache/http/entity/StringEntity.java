@@ -89,7 +89,7 @@ public class StringEntity extends AbstractHttpEntity implements Cloneable {
      * @since 4.1
      * @throws IllegalArgumentException if the string parameter is null
      *
-     * @deprecated use {@link #StringEntity(String, ContentType)}
+     * @deprecated (4.1.3) use {@link #StringEntity(String, ContentType)}
      */
     @Deprecated
     public StringEntity(final String string, String mimeType, String charset)

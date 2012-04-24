@@ -148,7 +148,7 @@ public class HttpService {
      * @param connStrategy     the connection reuse strategy
      * @param responseFactory  the response factory
      *
-     * @deprecated use {@link HttpService#HttpService(HttpProcessor,
+     * @deprecated (4.1) use {@link HttpService#HttpService(HttpProcessor,
      *  ConnectionReuseStrategy, HttpResponseFactory, HttpRequestHandlerResolver, HttpParams)}
      */
     @Deprecated
@@ -163,7 +163,7 @@ public class HttpService {
     }
 
     /**
-     * @deprecated set {@link HttpProcessor} using constructor
+     * @deprecated (4.1) set {@link HttpProcessor} using constructor
      */
     @Deprecated
     public void setHttpProcessor(final HttpProcessor processor) {
@@ -174,7 +174,7 @@ public class HttpService {
     }
 
     /**
-     * @deprecated set {@link ConnectionReuseStrategy} using constructor
+     * @deprecated (4.1) set {@link ConnectionReuseStrategy} using constructor
      */
     @Deprecated
     public void setConnReuseStrategy(final ConnectionReuseStrategy connStrategy) {
@@ -185,7 +185,7 @@ public class HttpService {
     }
 
     /**
-     * @deprecated set {@link HttpResponseFactory} using constructor
+     * @deprecated (4.1) set {@link HttpResponseFactory} using constructor
      */
     @Deprecated
     public void setResponseFactory(final HttpResponseFactory responseFactory) {
@@ -196,7 +196,7 @@ public class HttpService {
     }
 
     /**
-     * @deprecated set {@link HttpResponseFactory} using constructor
+     * @deprecated (4.1) set {@link HttpResponseFactory} using constructor
      */
     @Deprecated
     public void setParams(final HttpParams params) {
@@ -204,7 +204,7 @@ public class HttpService {
     }
 
     /**
-     * @deprecated set {@link HttpRequestHandlerResolver} using constructor
+     * @deprecated (4.1) set {@link HttpRequestHandlerResolver} using constructor
      */
     @Deprecated
     public void setHandlerResolver(final HttpRequestHandlerResolver handlerResolver) {
@@ -212,7 +212,7 @@ public class HttpService {
     }
 
     /**
-     * @deprecated set {@link HttpExpectationVerifier} using constructor
+     * @deprecated (4.1) set {@link HttpExpectationVerifier} using constructor
      */
     @Deprecated
     public void setExpectationVerifier(final HttpExpectationVerifier expectationVerifier) {

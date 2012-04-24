@@ -46,7 +46,7 @@ public class FileEntity extends AbstractHttpEntity implements Cloneable {
     protected final File file;
 
     /**
-     * @deprecated {@link #FileEntity(File, ContentType)}
+     * @deprecated (4.1.3) {@link #FileEntity(File, ContentType)}
      */
     @Deprecated
     public FileEntity(final File file, final String contentType) {

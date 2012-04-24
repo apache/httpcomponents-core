@@ -74,7 +74,7 @@ public interface HttpParams {
      *
      * @return  a new set of parameters holding the same values as this one
      *
-     * @deprecated
+     * @deprecated (4.1)
      */
     @Deprecated
     HttpParams copy();

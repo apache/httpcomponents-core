@@ -32,7 +32,7 @@ package org.apache.http.protocol;
  *
  * @since 4.0
  * 
- * @deprecated HttpContext instances may not be shared by multiple threads
+ * @deprecated (4.2) HttpContext instances may not be shared by multiple threads
  */
 @Deprecated
 public class SyncBasicHttpContext extends BasicHttpContext {

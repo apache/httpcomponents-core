@@ -131,7 +131,7 @@ public class BasicHttpParams extends AbstractHttpParams implements Serializable,
      * @return  a new set of params holding a copy of the
      *          <i>local</i> parameters in this object.
      *
-     * @deprecated
+     * @deprecated (4.1)
      * @throws UnsupportedOperationException if the clone() fails
      */
     @Deprecated

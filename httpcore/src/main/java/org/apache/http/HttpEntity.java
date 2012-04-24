@@ -189,7 +189,7 @@ public interface HttpEntity {
      *
      * @throws IOException if an I/O error occurs.
      *
-     * @deprecated Use {@link org.apache.http.util.EntityUtils#consume(HttpEntity)}
+     * @deprecated (4.1) Use {@link org.apache.http.util.EntityUtils#consume(HttpEntity)}
      *
      * @see #getContent() and #writeTo(OutputStream)
      */

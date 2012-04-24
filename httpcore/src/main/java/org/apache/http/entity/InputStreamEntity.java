@@ -113,7 +113,7 @@ public class InputStreamEntity extends AbstractHttpEntity {
     }
 
     /**
-     * @deprecated Either use {@link #getContent()} and call {@link java.io.InputStream#close()} on that;
+     * @deprecated (4.1) Either use {@link #getContent()} and call {@link java.io.InputStream#close()} on that;
      * otherwise call {@link #writeTo(OutputStream)} which is required to free the resources.
      */
     @Deprecated
