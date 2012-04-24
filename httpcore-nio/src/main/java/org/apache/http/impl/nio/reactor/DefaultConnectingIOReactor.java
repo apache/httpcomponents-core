@@ -107,8 +107,9 @@ public class DefaultConnectingIOReactor extends AbstractMultiworkerIOReactor
     }
 
     /**
-     * @deprecated use {@link DefaultConnectingIOReactor#DefaultConnectingIOReactor(IOReactorConfig, ThreadFactory)}
+     * @deprecated (4.2) use {@link DefaultConnectingIOReactor#DefaultConnectingIOReactor(IOReactorConfig, ThreadFactory)}
      */
+    @Deprecated
     public DefaultConnectingIOReactor(
             int workerCount,
             final ThreadFactory threadFactory,
@@ -117,8 +118,9 @@ public class DefaultConnectingIOReactor extends AbstractMultiworkerIOReactor
     }
 
     /**
-     * @deprecated use {@link DefaultConnectingIOReactor#DefaultConnectingIOReactor(IOReactorConfig)}
+     * @deprecated (4.2) use {@link DefaultConnectingIOReactor#DefaultConnectingIOReactor(IOReactorConfig)}
      */
+    @Deprecated
     public DefaultConnectingIOReactor(
             int workerCount,
             final HttpParams params) throws IOReactorException {

@@ -109,8 +109,9 @@ public class DefaultListeningIOReactor extends AbstractMultiworkerIOReactor
     }
 
     /**
-     * @deprecated use {@link DefaultListeningIOReactor#DefaultListeningIOReactor(IOReactorConfig, ThreadFactory)}
+     * @deprecated (4.2) use {@link DefaultListeningIOReactor#DefaultListeningIOReactor(IOReactorConfig, ThreadFactory)}
      */
+    @Deprecated
     public DefaultListeningIOReactor(
             int workerCount,
             final ThreadFactory threadFactory,
@@ -119,8 +120,9 @@ public class DefaultListeningIOReactor extends AbstractMultiworkerIOReactor
     }
 
     /**
-     * @deprecated use {@link DefaultListeningIOReactor#DefaultListeningIOReactor(IOReactorConfig)}
+     * @deprecated (4.2) use {@link DefaultListeningIOReactor#DefaultListeningIOReactor(IOReactorConfig)}
      */
+    @Deprecated
     public DefaultListeningIOReactor(
             int workerCount,
             final HttpParams params) throws IOReactorException {

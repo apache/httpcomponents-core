@@ -42,7 +42,7 @@ import org.apache.http.util.CharArrayBuffer;
  *
  * @since 4.0
  *
- * @deprecated use {@link DefaultHttpRequestWriter}
+ * @deprecated (4.1) use {@link DefaultHttpRequestWriter}
  */
 @SuppressWarnings("rawtypes")
 @Deprecated

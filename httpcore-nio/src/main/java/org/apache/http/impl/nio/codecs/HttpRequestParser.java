@@ -52,7 +52,7 @@ import org.apache.http.util.CharArrayBuffer;
  *
  * @since 4.0
  *
- * @deprecated use {@link DefaultHttpRequestParser}
+ * @deprecated (4.1) use {@link DefaultHttpRequestParser}
  */
 @SuppressWarnings("rawtypes")
 @Deprecated

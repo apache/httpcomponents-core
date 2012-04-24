@@ -111,7 +111,7 @@ public abstract class AbstractMultiworkerIOReactor implements IOReactor {
 
     protected volatile IOReactorStatus status;
 
-    @Deprecated
+    @Deprecated // 4.2
     protected final HttpParams params;
     protected final IOReactorConfig config;
     protected final Selector selector;
@@ -213,7 +213,7 @@ public abstract class AbstractMultiworkerIOReactor implements IOReactor {
      * @param params HTTP parameters.
      * @throws IOReactorException in case if a non-recoverable I/O error.
      *
-     * @deprecated use {@link AbstractMultiworkerIOReactor#AbstractMultiworkerIOReactor(IOReactorConfig, ThreadFactory)}
+     * @deprecated (4.2) use {@link AbstractMultiworkerIOReactor#AbstractMultiworkerIOReactor(IOReactorConfig, ThreadFactory)}
      */
     @Deprecated
     public AbstractMultiworkerIOReactor(
