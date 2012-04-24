@@ -32,6 +32,24 @@ Changelog
   exchange is aborted by the client. 
   Contributed by Oleg Kalnichevski <olegk at apache.org>
 
+Incompatible changes
+--------------------
+[Compared to release version 4.1.4]
+
+The following methods have been deprecated for some time now and have been deleted:
+
+org.apache.http.impl.SocketHttpServerConnection#createHttpDataReceiver(Socket, int, HttpParams)
+org.apache.http.impl.SocketHttpServerConnection#createHttpDataTransmitter(Socket, int, HttpParams)
+org.apache.http.protocol.HttpRequestHandlerRegistry#matchUriRequestPattern(String, String)
+
+The following classes have been deprecated for some while now and have been deleted:
+
+org.apache.http.nio.entity.ByteArrayNIOEntity
+org.apache.http.nio.entity.FileNIOEntity
+org.apache.http.nio.entity.HttpNIOEntity
+org.apache.http.nio.entity.StringNIOEntity
+org.apache.http.nio.protocol.NHttpClientHandlerBase
+org.apache.http.nio.protocol.NHttpServiceHandlerBase
 
 Release 4.2-BETA1
 -------------------
