@@ -80,9 +80,9 @@ public final class HTTP {
     @Deprecated
     public static final String ISO_8859_1 = "ISO-8859-1";
     @Deprecated
-    public static final String DEFAULT_CONTENT_CHARSET = Consts.ISO_8859_1.name();
+    public static final String DEFAULT_CONTENT_CHARSET = ISO_8859_1;
     @Deprecated
-    public static final String DEFAULT_PROTOCOL_CHARSET = Consts.ASCII.name();
+    public static final String DEFAULT_PROTOCOL_CHARSET = US_ASCII;
     @Deprecated
     public final static String OCTET_STREAM_TYPE = "application/octet-stream";
     @Deprecated
