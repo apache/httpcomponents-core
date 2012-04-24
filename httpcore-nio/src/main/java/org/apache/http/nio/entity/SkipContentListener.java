@@ -39,7 +39,7 @@ import org.apache.http.nio.util.ByteBufferAllocator;
  *
  * @since 4.0
  *
- * @deprecated
+ * @deprecated (4.2)
  */
 @Deprecated
 public class SkipContentListener implements ContentListener {

@@ -111,7 +111,10 @@ public abstract class AbstractMultiworkerIOReactor implements IOReactor {
 
     protected volatile IOReactorStatus status;
 
-    @Deprecated // 4.2
+    /**
+     * @deprecated (4.2)
+     */
+    @Deprecated
     protected final HttpParams params;
     protected final IOReactorConfig config;
     protected final Selector selector;

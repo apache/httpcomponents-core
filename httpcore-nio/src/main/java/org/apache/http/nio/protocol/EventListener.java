@@ -38,7 +38,7 @@ import org.apache.http.nio.NHttpConnection;
  *
  * @since 4.0
  *
- * @deprecated do not use
+ * @deprecated (4.2) do not use
  */
 @Deprecated
 public interface EventListener {

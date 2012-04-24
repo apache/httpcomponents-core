@@ -69,27 +69,60 @@ public final class HTTP {
     public static final Charset DEF_CONTENT_CHARSET = Consts.ISO_8859_1;
     public static final Charset DEF_PROTOCOL_CHARSET = Consts.ASCII;
     
-    @Deprecated // 4.2
+    /**
+     * @deprecated (4.2)
+     */
+    @Deprecated
     public static final String UTF_8 = "UTF-8";
-    @Deprecated // 4.2
+    /**
+     * @deprecated (4.2)
+     */
+    @Deprecated
     public static final String UTF_16 = "UTF-16";
-    @Deprecated // 4.2
+    /**
+     * @deprecated (4.2)
+     */
+    @Deprecated
     public static final String US_ASCII = "US-ASCII";
-    @Deprecated // 4.2
+    /**
+     * @deprecated (4.2)
+     */
+    @Deprecated
     public static final String ASCII = "ASCII";
-    @Deprecated // 4.2
+    /**
+     * @deprecated (4.2)
+     */
+    @Deprecated
     public static final String ISO_8859_1 = "ISO-8859-1";
-    @Deprecated // 4.2
+    /**
+     * @deprecated (4.2)
+     */
+    @Deprecated
     public static final String DEFAULT_CONTENT_CHARSET = ISO_8859_1;
-    @Deprecated // 4.2
+    /**
+     * @deprecated (4.2)
+     */
+    @Deprecated
     public static final String DEFAULT_PROTOCOL_CHARSET = US_ASCII;
-    @Deprecated // 4.2
+    /**
+     * @deprecated (4.2)
+     */
+    @Deprecated
     public final static String OCTET_STREAM_TYPE = "application/octet-stream";
-    @Deprecated // 4.2
+    /**
+     * @deprecated (4.2)
+     */
+    @Deprecated
     public final static String PLAIN_TEXT_TYPE = "text/plain";
-    @Deprecated // 4.2
+    /**
+     * @deprecated (4.2)
+     */
+    @Deprecated
     public final static String CHARSET_PARAM = "; charset=";
-    @Deprecated // 4.2
+    /**
+     * @deprecated (4.2)
+     */
+    @Deprecated
     public final static String DEFAULT_CONTENT_TYPE = OCTET_STREAM_TYPE;
 
     public static boolean isWhitespace(char ch) {

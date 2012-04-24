@@ -40,7 +40,7 @@ import org.apache.http.params.HttpParams;
  *
  * @since 4.1
  *
- * @deprecated use {@link org.apache.http.nio.reactor.ssl.SSLSetupHandler}
+ * @deprecated (4.2) use {@link org.apache.http.nio.reactor.ssl.SSLSetupHandler}
  */
 @Deprecated
 public interface SSLSetupHandler {

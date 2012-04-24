@@ -32,7 +32,7 @@ package org.apache.http.nio.util;
  *
  * @since 4.0
  *
- * @deprecated Use {@link org.apache.http.io.BufferInfo}
+ * @deprecated (4.1) Use {@link org.apache.http.io.BufferInfo}
  */
 @Deprecated
 public interface BufferInfo {

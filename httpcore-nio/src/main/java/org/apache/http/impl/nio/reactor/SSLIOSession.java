@@ -39,7 +39,7 @@ import org.apache.http.params.HttpParams;
  *
  * @since 4.0
  *
- * @deprecated use {@link org.apache.http.nio.reactor.ssl.SSLIOSession}
+ * @deprecated (4.2) use {@link org.apache.http.nio.reactor.ssl.SSLIOSession}
  */
 @Deprecated
 public class SSLIOSession extends org.apache.http.nio.reactor.ssl.SSLIOSession {

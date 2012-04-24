@@ -37,7 +37,7 @@ import org.apache.http.params.HttpParams;
  *
  * @see NIOReactorPNames
  *
- * @deprecated use {@link IOReactorConfig}
+ * @deprecated (4.2) use {@link IOReactorConfig}
  */
 @Deprecated
 public final class NIOReactorParams implements NIOReactorPNames {

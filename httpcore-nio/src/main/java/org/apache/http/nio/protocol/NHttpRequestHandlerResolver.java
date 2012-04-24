@@ -35,7 +35,7 @@ package org.apache.http.nio.protocol;
  *
  * @since 4.0
  *
- * @deprecated use {@link HttpAsyncRequestHandlerResolver}
+ * @deprecated (4.2) use {@link HttpAsyncRequestHandlerResolver}
  */
 @Deprecated
 public interface NHttpRequestHandlerResolver {

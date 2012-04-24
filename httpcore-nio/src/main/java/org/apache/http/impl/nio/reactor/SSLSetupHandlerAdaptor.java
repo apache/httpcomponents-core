@@ -35,6 +35,9 @@ import org.apache.http.nio.reactor.IOSession;
 import org.apache.http.params.BasicHttpParams;
 import org.apache.http.params.HttpParams;
 
+/**
+* @deprecated (4.2)
+*/
 @Deprecated
 class SSLSetupHandlerAdaptor implements org.apache.http.nio.reactor.ssl.SSLSetupHandler {
 

@@ -107,7 +107,7 @@ public class NFileEntity extends AbstractHttpEntity
     }
 
     /**
-     * @deprecated use {@link #NFileEntity(File, ContentType, boolean)}
+     * @deprecated (4.2) use {@link #NFileEntity(File, ContentType, boolean)}
      */
     @Deprecated
     public NFileEntity(final File file, final String contentType, boolean useFileChannels) {
@@ -120,7 +120,7 @@ public class NFileEntity extends AbstractHttpEntity
     }
 
     /**
-     * @deprecated use {@link #NFileEntity(File, ContentType)}
+     * @deprecated (4.2) use {@link #NFileEntity(File, ContentType)}
      */
     @Deprecated
     public NFileEntity(final File file, final String contentType) {
@@ -143,7 +143,7 @@ public class NFileEntity extends AbstractHttpEntity
     /**
      * {@inheritDoc}
      *
-     * @deprecated use {@link #close()}
+     * @deprecated (4.2) use {@link #close()}
      */
     public void finish() throws IOException {
         close();

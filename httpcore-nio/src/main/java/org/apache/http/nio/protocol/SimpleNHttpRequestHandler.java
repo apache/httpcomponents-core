@@ -42,7 +42,7 @@ import org.apache.http.protocol.HttpContext;
  *
  * @since 4.0
  *
- * @deprecated use {@link BasicAsyncRequestHandler}
+ * @deprecated (4.2) use {@link BasicAsyncRequestHandler}
  */
 @Deprecated
 @Immutable

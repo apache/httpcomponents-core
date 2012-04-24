@@ -34,9 +34,9 @@ import org.apache.http.nio.reactor.IOSession;
  * to a {@link IOSession} along with information about time of last I/O
  * operations on that session.
  *
- * @deprecated use {@link IOSessionImpl}
- *
  * @since 4.0
+ * 
+ * @deprecated (4.2) use {@link IOSessionImpl}
  */
 @Deprecated
 public class SessionHandle {

@@ -53,8 +53,14 @@ public class NByteArrayEntity extends AbstractHttpEntity
     private final byte[] b;
     private final int off, len;
     private final ByteBuffer buf;
+    /**
+     * @deprecated (4.2)
+     */
     @Deprecated
     protected final byte[] content;
+    /**
+     * @deprecated (4.2)
+     */
     @Deprecated
     protected final ByteBuffer buffer;
 
@@ -120,7 +126,7 @@ public class NByteArrayEntity extends AbstractHttpEntity
     /**
      * {@inheritDoc}
      *
-     * @deprecated use {@link #close()}
+     * @deprecated (4.2) use {@link #close()}
      */
     public void finish() {
         close();

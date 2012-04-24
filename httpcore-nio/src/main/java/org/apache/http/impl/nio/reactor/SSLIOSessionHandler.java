@@ -41,7 +41,7 @@ import org.apache.http.params.HttpParams;
  *
  * @since 4.0
  *
- * @deprecated Use {@link SSLSetupHandler}
+ * @deprecated (4.2) Use {@link SSLSetupHandler}
  */
 @Deprecated
 public interface SSLIOSessionHandler {

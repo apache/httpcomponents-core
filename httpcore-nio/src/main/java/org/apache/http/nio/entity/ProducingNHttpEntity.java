@@ -41,7 +41,7 @@ import org.apache.http.nio.protocol.BasicAsyncResponseProducer;
  *
  * @since 4.0
  *
- * @deprecated use {@link BasicAsyncRequestProducer} or {@link BasicAsyncResponseProducer}
+ * @deprecated use (4.2) {@link BasicAsyncRequestProducer} or {@link BasicAsyncResponseProducer}
  */
 @Deprecated
 public interface ProducingNHttpEntity extends HttpEntity {

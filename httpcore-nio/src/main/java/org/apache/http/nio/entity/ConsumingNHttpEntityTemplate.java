@@ -44,7 +44,7 @@ import org.apache.http.nio.protocol.BasicAsyncResponseConsumer;
  *
  * @since 4.0
  *
- * @deprecated use {@link BasicAsyncRequestConsumer} or {@link BasicAsyncResponseConsumer}
+ * @deprecated (4.2) use {@link BasicAsyncRequestConsumer} or {@link BasicAsyncResponseConsumer}
  */
 @Deprecated
 public class ConsumingNHttpEntityTemplate

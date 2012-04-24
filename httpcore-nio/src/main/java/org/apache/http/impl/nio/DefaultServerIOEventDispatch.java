@@ -59,7 +59,7 @@ import org.apache.http.params.HttpParams;
  *
  * @since 4.0
  *
- * @deprecated use {@link DefaultHttpServerIODispatch}
+ * @deprecated (4.2) use {@link DefaultHttpServerIODispatch}
  */
 @Deprecated
 @Immutable // provided injected dependencies are immutable

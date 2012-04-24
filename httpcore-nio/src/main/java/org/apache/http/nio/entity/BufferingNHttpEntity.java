@@ -49,7 +49,7 @@ import org.apache.http.nio.util.SimpleInputBuffer;
  *
  * @since 4.0
  *
- * @deprecated use {@link BasicAsyncRequestConsumer} or {@link BasicAsyncResponseConsumer}
+ * @deprecated (4.2) use {@link BasicAsyncRequestConsumer} or {@link BasicAsyncResponseConsumer}
  */
 @NotThreadSafe
 @Deprecated

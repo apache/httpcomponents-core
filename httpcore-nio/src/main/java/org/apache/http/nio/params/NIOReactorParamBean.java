@@ -34,7 +34,7 @@ import org.apache.http.params.HttpParams;
 /**
  * @since 4.0
  *
- * @deprecated use {@link IOReactorConfig}
+ * @deprecated (4.2) use {@link IOReactorConfig}
  */
 @Deprecated
 public class NIOReactorParamBean extends HttpAbstractParamBean {

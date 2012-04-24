@@ -46,7 +46,7 @@ import org.apache.http.nio.IOControl;
  *
  * @since 4.0
  *
- * @deprecated use {@link EntityAsyncContentProducer}
+ * @deprecated (4.2) use {@link EntityAsyncContentProducer}
  */
 @NotThreadSafe
 @Deprecated

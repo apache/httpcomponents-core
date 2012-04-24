@@ -36,7 +36,7 @@ import org.apache.http.HttpException;
  *
  * @since 4.0
  *
- * @deprecated use {@link NHttpServerEventHandler}
+ * @deprecated (4.2) use {@link NHttpServerEventHandler}
  */
 @Deprecated
 public interface NHttpServiceHandler {

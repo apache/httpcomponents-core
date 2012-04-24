@@ -36,6 +36,9 @@ import org.apache.http.nio.NHttpServerConnection;
 import org.apache.http.nio.NHttpServerEventHandler;
 import org.apache.http.nio.NHttpServiceHandler;
 
+/**
+ * @deprecated (4.2)
+ */
 @Deprecated
 class NHttpServerEventHandlerAdaptor implements NHttpServerEventHandler {
 

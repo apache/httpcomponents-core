@@ -34,7 +34,7 @@ import org.apache.http.impl.nio.reactor.IOReactorConfig;
  *
  * @since 4.0
  *
- * @deprecated use {@link IOReactorConfig}
+ * @deprecated (4.2) use {@link IOReactorConfig}
  */
 @Deprecated
 public interface NIOReactorPNames {

@@ -62,7 +62,7 @@ import org.apache.http.protocol.ExecutionContext;
  *
  * @since 4.0
  *
- * @deprecated use {@link org.apache.http.impl.nio.ssl.SSLServerIOEventDispatch}
+ * @deprecated (4.2) use {@link org.apache.http.impl.nio.ssl.SSLServerIOEventDispatch}
  */
 @Deprecated
 public class SSLServerIOEventDispatch implements IOEventDispatch {

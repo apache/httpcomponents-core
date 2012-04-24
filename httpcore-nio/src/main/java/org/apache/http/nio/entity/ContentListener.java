@@ -36,6 +36,8 @@ import org.apache.http.nio.IOControl;
  * A listener for available data on a non-blocking {@link ConsumingNHttpEntity}.
  *
  * @since 4.0
+ * 
+ * @deprecated (4.2)
  */
 @Deprecated
 public interface ContentListener {

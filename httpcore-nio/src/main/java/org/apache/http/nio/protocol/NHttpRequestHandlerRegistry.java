@@ -48,7 +48,7 @@ import org.apache.http.protocol.UriPatternMatcher;
  *
  * @since 4.0
  *
- * @deprecated use {@link HttpAsyncRequestHandlerRegistry}
+ * @deprecated (4.2) use {@link HttpAsyncRequestHandlerRegistry}
  */
 @Deprecated
 public class NHttpRequestHandlerRegistry implements NHttpRequestHandlerResolver {

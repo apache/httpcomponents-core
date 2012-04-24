@@ -95,7 +95,7 @@ import org.apache.http.util.EncodingUtils;
  *
  * @since 4.0
  *
- * @deprecated use {@link HttpAsyncService}
+ * @deprecated (4.2) use {@link HttpAsyncService}
  */
 @Deprecated
 @Immutable // provided injected dependencies are immutable
@@ -607,7 +607,6 @@ public class AsyncNHttpServiceHandler extends NHttpHandlerBase
             return this.ioex;
         }
 
-        @Deprecated
         public IOException getIOExepction() {
             return this.ioex;
         }
@@ -616,7 +615,6 @@ public class AsyncNHttpServiceHandler extends NHttpHandlerBase
             this.ioex = ex;
         }
 
-        @Deprecated
         public void setIOExepction(final IOException ex) {
             this.ioex = ex;
         }
@@ -625,7 +623,6 @@ public class AsyncNHttpServiceHandler extends NHttpHandlerBase
             return this.httpex;
         }
 
-        @Deprecated
         public HttpException getHttpExepction() {
             return this.httpex;
         }
@@ -634,7 +631,6 @@ public class AsyncNHttpServiceHandler extends NHttpHandlerBase
             this.httpex = ex;
         }
 
-        @Deprecated
         public void setHttpExepction(final HttpException ex) {
             this.httpex = ex;
         }
