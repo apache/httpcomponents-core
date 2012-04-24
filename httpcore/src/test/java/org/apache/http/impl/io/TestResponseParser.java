@@ -50,7 +50,7 @@ public class TestResponseParser {
     @Test
     public void testInvalidConstructorInput() throws Exception {
         try {
-            new HttpResponseParser(
+            new DefaultHttpResponseParser(
                     null,
                     BasicLineParser.DEFAULT,
                     new DefaultHttpResponseFactory(),
@@ -61,7 +61,7 @@ public class TestResponseParser {
         }
         try {
             SessionInputBuffer inbuffer = new SessionInputBufferMock(new byte[] {});
-            new HttpResponseParser(
+            new DefaultHttpResponseParser(
                     inbuffer,
                     BasicLineParser.DEFAULT,
                     null,
@@ -72,7 +72,7 @@ public class TestResponseParser {
         }
         try {
             SessionInputBuffer inbuffer = new SessionInputBufferMock(new byte[] {});
-            new HttpResponseParser(
+            new DefaultHttpResponseParser(
                     inbuffer,
                     BasicLineParser.DEFAULT,
                     new DefaultHttpResponseFactory(),
@@ -114,7 +114,7 @@ public class TestResponseParser {
     public void testConnectionClosedException() throws Exception {
         SessionInputBuffer inbuffer = new SessionInputBufferMock(new byte[] {});
 
-        HttpResponseParser parser = new HttpResponseParser(
+        DefaultHttpResponseParser parser = new DefaultHttpResponseParser(
                 inbuffer,
                 BasicLineParser.DEFAULT,
                 new DefaultHttpResponseFactory(),

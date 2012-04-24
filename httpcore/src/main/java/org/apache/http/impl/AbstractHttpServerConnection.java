@@ -45,7 +45,6 @@ import org.apache.http.impl.entity.EntitySerializer;
 import org.apache.http.impl.entity.LaxContentLengthStrategy;
 import org.apache.http.impl.entity.StrictContentLengthStrategy;
 import org.apache.http.impl.io.DefaultHttpRequestParser;
-import org.apache.http.impl.io.HttpRequestParser;
 import org.apache.http.impl.io.HttpResponseWriter;
 import org.apache.http.io.EofSensor;
 import org.apache.http.io.HttpMessageParser;
@@ -157,8 +156,8 @@ public abstract class AbstractHttpServerConnection implements HttpServerConnecti
      * <p>
      * This method can be overridden in a super class in order to provide
      * a different implementation of the {@link HttpMessageParser} interface or
-     * to pass a different implementation of {@link LineParser} to the
-     * the default implementation {@link HttpRequestParser}.
+     * to pass a different implementation of the {@link LineParser} to the
+     * the {@link DefaultHttpRequestParser} constructor.
      *
      * @param buffer the session input buffer.
      * @param requestFactory the HTTP request factory.

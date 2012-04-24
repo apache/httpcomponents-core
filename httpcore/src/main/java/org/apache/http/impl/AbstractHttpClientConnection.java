@@ -46,7 +46,6 @@ import org.apache.http.impl.entity.LaxContentLengthStrategy;
 import org.apache.http.impl.entity.StrictContentLengthStrategy;
 import org.apache.http.impl.io.DefaultHttpResponseParser;
 import org.apache.http.impl.io.HttpRequestWriter;
-import org.apache.http.impl.io.HttpResponseParser;
 import org.apache.http.io.EofSensor;
 import org.apache.http.io.HttpMessageParser;
 import org.apache.http.io.HttpMessageWriter;
@@ -156,8 +155,8 @@ public abstract class AbstractHttpClientConnection implements HttpClientConnecti
      * <p>
      * This method can be overridden in a super class in order to provide
      * a different implementation of the {@link HttpMessageParser} interface or
-     * to pass a different implementation of {@link LineParser} to the
-     * the default implementation {@link HttpResponseParser}.
+     * to pass a different implementation of the {@link LineParser} to the
+     * the {@link DefaultHttpResponseParser} constructor.
      *
      * @param buffer the session input buffer.
      * @param responseFactory the HTTP response factory.

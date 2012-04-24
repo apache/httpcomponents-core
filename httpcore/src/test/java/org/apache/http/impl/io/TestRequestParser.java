@@ -47,14 +47,14 @@ import org.junit.Assert;
 import org.junit.Test;
 
 /**
- * Unit tests for {@link HttpRequestParser}.
+ * Unit tests for {@link DefaultHttpRequestParser}.
  */
 public class TestRequestParser {
 
     @Test
     public void testInvalidConstructorInput() throws Exception {
         try {
-            new HttpRequestParser(
+            new DefaultHttpRequestParser(
                     null,
                     BasicLineParser.DEFAULT,
                     new DefaultHttpRequestFactory(),
@@ -65,7 +65,7 @@ public class TestRequestParser {
         }
         try {
             SessionInputBuffer inbuffer = new SessionInputBufferMock(new byte[] {});
-            new HttpRequestParser(
+            new DefaultHttpRequestParser(
                     inbuffer,
                     BasicLineParser.DEFAULT,
                     null,
@@ -76,7 +76,7 @@ public class TestRequestParser {
         }
         try {
             SessionInputBuffer inbuffer = new SessionInputBufferMock(new byte[] {});
-            new HttpRequestParser(
+            new DefaultHttpRequestParser(
                     inbuffer,
                     BasicLineParser.DEFAULT,
                     new DefaultHttpRequestFactory(),
@@ -118,7 +118,7 @@ public class TestRequestParser {
     public void testConnectionClosedException() throws Exception {
         SessionInputBuffer inbuffer = new SessionInputBufferMock(new byte[] {});
 
-        HttpRequestParser parser = new HttpRequestParser(
+        DefaultHttpRequestParser parser = new DefaultHttpRequestParser(
                 inbuffer,
                 BasicLineParser.DEFAULT,
                 new DefaultHttpRequestFactory(),
