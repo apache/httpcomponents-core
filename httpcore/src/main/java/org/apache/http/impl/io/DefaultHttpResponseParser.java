@@ -29,12 +29,11 @@ package org.apache.http.impl.io;
 
 import java.io.IOException;
 
-import org.apache.http.ConnectionClosedException;
 import org.apache.http.HttpException;
-import org.apache.http.HttpMessage;
-import org.apache.http.HttpRequest;
-import org.apache.http.HttpRequestFactory;
-import org.apache.http.RequestLine;
+import org.apache.http.HttpResponse;
+import org.apache.http.HttpResponseFactory;
+import org.apache.http.NoHttpResponseException;
+import org.apache.http.StatusLine;
 import org.apache.http.ParseException;
 import org.apache.http.annotation.NotThreadSafe;
 import org.apache.http.io.SessionInputBuffer;
@@ -44,7 +43,7 @@ import org.apache.http.params.HttpParams;
 import org.apache.http.util.CharArrayBuffer;
 
 /**
- * HTTP request parser that obtain its input from an instance
+ * HTTP response parser that obtain its input from an instance
  * of {@link SessionInputBuffer}.
  * <p>
  * The following parameters can be used to customize the behavior of this
@@ -54,12 +53,12 @@ import org.apache.http.util.CharArrayBuffer;
  *  <li>{@link org.apache.http.params.CoreConnectionPNames#MAX_LINE_LENGTH}</li>
  * </ul>
  *
- * @since 4.0
+ * @since 4.2
  */
 @NotThreadSafe
-public class HttpRequestParser extends AbstractMessageParser<HttpMessage> {
+public class DefaultHttpResponseParser extends AbstractMessageParser<HttpResponse> {
 
-    private final HttpRequestFactory requestFactory;
+    private final HttpResponseFactory responseFactory;
     private final CharArrayBuffer lineBuf;
 
     /**
@@ -67,36 +66,37 @@ public class HttpRequestParser extends AbstractMessageParser<HttpMessage> {
      *
      * @param buffer the session input buffer.
      * @param parser the line parser.
-     * @param requestFactory the factory to use to create
-     *    {@link HttpRequest}s.
+     * @param responseFactory the factory to use to create
+     *    {@link HttpResponse}s.
      * @param params HTTP parameters.
      */
-    public HttpRequestParser(
+    public DefaultHttpResponseParser(
             final SessionInputBuffer buffer,
             final LineParser parser,
-            final HttpRequestFactory requestFactory,
+            final HttpResponseFactory responseFactory,
             final HttpParams params) {
         super(buffer, parser, params);
-        if (requestFactory == null) {
-            throw new IllegalArgumentException("Request factory may not be null");
+        if (responseFactory == null) {
+            throw new IllegalArgumentException("Response factory may not be null");
         }
-        this.requestFactory = requestFactory;
+        this.responseFactory = responseFactory;
         this.lineBuf = new CharArrayBuffer(128);
     }
 
     @Override
-    protected HttpMessage parseHead(
+    protected HttpResponse parseHead(
             final SessionInputBuffer sessionBuffer)
         throws IOException, HttpException, ParseException {
 
         this.lineBuf.clear();
         int i = sessionBuffer.readLine(this.lineBuf);
         if (i == -1) {
-            throw new ConnectionClosedException("Client closed connection");
+            throw new NoHttpResponseException("The target server failed to respond");
         }
+        //create the status line from the status string
         ParserCursor cursor = new ParserCursor(0, this.lineBuf.length());
-        RequestLine requestline = this.lineParser.parseRequestLine(this.lineBuf, cursor);
-        return this.requestFactory.newHttpRequest(requestline);
+        StatusLine statusline = lineParser.parseStatusLine(this.lineBuf, cursor);
+        return this.responseFactory.newHttpResponse(statusline, null);
     }
 
 }

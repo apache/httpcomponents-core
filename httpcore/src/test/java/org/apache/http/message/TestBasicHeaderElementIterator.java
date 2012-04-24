@@ -53,12 +53,12 @@ public class TestBasicHeaderElementIterator {
                         new BasicHeaderIterator(headers, "Name"));
 
         Assert.assertTrue(hei.hasNext());
-        HeaderElement elem = hei.next();
+        HeaderElement elem = hei.nextElement();
         Assert.assertEquals("The two header values must be equal",
                 "value0", elem.getName());
 
         Assert.assertTrue(hei.hasNext());
-        elem = hei.next();
+        elem = hei.nextElement();
         Assert.assertEquals("The two header values must be equal",
                 "value1", elem.getName());
 
@@ -89,19 +89,19 @@ public class TestBasicHeaderElementIterator {
         HeaderElementIterator hei =
                 new BasicHeaderElementIterator(new BasicHeaderIterator(headers, "Name"));
 
-        HeaderElement elem = hei.next();
+        HeaderElement elem = hei.nextElement();
         Assert.assertEquals("The two header values must be equal",
                 "value0", elem.getName());
-        elem = hei.next();
+        elem = hei.nextElement();
         Assert.assertEquals("The two header values must be equal",
                 "value1", elem.getName());
-        elem = hei.next();
+        elem = hei.nextElement();
         Assert.assertEquals("The two header values must be equal",
                 "cookie1", elem.getName());
         Assert.assertEquals("The two header values must be equal",
                 "1", elem.getValue());
 
-        elem = hei.next();
+        elem = hei.nextElement();
         Assert.assertEquals("The two header values must be equal",
                 "cookie2", elem.getName());
         Assert.assertEquals("The two header values must be equal",

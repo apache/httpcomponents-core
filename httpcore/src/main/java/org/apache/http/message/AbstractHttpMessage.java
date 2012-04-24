@@ -27,8 +27,6 @@
 
 package org.apache.http.message;
 
-import java.util.Iterator;
-
 import org.apache.http.Header;
 import org.apache.http.HeaderIterator;
 import org.apache.http.HttpMessage;
@@ -124,8 +122,8 @@ public abstract class AbstractHttpMessage implements HttpMessage {
         if (name == null) {
             return;
         }
-        for (Iterator<Header> i = this.headergroup.iterator(); i.hasNext(); ) {
-            Header header = i.next();
+        for (HeaderIterator i = this.headergroup.iterator(); i.hasNext(); ) {
+            Header header = i.nextHeader();
             if (name.equalsIgnoreCase(header.getName())) {
                 i.remove();
             }

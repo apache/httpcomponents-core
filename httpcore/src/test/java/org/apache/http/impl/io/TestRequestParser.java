@@ -97,7 +97,7 @@ public class TestRequestParser {
             "\r\n";
         SessionInputBuffer inbuffer = new SessionInputBufferMock(s, "US-ASCII");
 
-        HttpRequestParser parser = new HttpRequestParser(
+        DefaultHttpRequestParser parser = new DefaultHttpRequestParser(
                 inbuffer,
                 BasicLineParser.DEFAULT,
                 new DefaultHttpRequestFactory(),
@@ -142,7 +142,7 @@ public class TestRequestParser {
         SessionInputBuffer inbuffer = new SessionInputBufferMock(
                 new TimeoutByteArrayInputStream(s.getBytes("US-ASCII")), 16);
 
-        HttpRequestParser parser = new HttpRequestParser(
+        DefaultHttpRequestParser parser = new DefaultHttpRequestParser(
                 inbuffer,
                 BasicLineParser.DEFAULT,
                 new DefaultHttpRequestFactory(),

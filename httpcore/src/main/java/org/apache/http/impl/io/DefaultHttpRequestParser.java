@@ -31,7 +31,6 @@ import java.io.IOException;
 
 import org.apache.http.ConnectionClosedException;
 import org.apache.http.HttpException;
-import org.apache.http.HttpMessage;
 import org.apache.http.HttpRequest;
 import org.apache.http.HttpRequestFactory;
 import org.apache.http.RequestLine;
@@ -54,10 +53,10 @@ import org.apache.http.util.CharArrayBuffer;
  *  <li>{@link org.apache.http.params.CoreConnectionPNames#MAX_LINE_LENGTH}</li>
  * </ul>
  *
- * @since 4.0
+ * @since 4.2
  */
 @NotThreadSafe
-public class HttpRequestParser extends AbstractMessageParser<HttpMessage> {
+public class DefaultHttpRequestParser extends AbstractMessageParser<HttpRequest> {
 
     private final HttpRequestFactory requestFactory;
     private final CharArrayBuffer lineBuf;
@@ -71,7 +70,7 @@ public class HttpRequestParser extends AbstractMessageParser<HttpMessage> {
      *    {@link HttpRequest}s.
      * @param params HTTP parameters.
      */
-    public HttpRequestParser(
+    public DefaultHttpRequestParser(
             final SessionInputBuffer buffer,
             final LineParser parser,
             final HttpRequestFactory requestFactory,
@@ -85,7 +84,7 @@ public class HttpRequestParser extends AbstractMessageParser<HttpMessage> {
     }
 
     @Override
-    protected HttpMessage parseHead(
+    protected HttpRequest parseHead(
             final SessionInputBuffer sessionBuffer)
         throws IOException, HttpException, ParseException {
 

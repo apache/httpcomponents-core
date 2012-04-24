@@ -30,6 +30,7 @@ package org.apache.http.impl.io;
 import java.io.IOException;
 
 import org.apache.http.HttpException;
+import org.apache.http.HttpMessage;
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpResponseFactory;
 import org.apache.http.NoHttpResponseException;
@@ -56,7 +57,7 @@ import org.apache.http.util.CharArrayBuffer;
  * @since 4.0
  */
 @NotThreadSafe
-public class HttpResponseParser extends AbstractMessageParser<HttpResponse> {
+public class HttpResponseParser extends AbstractMessageParser<HttpMessage> {
 
     private final HttpResponseFactory responseFactory;
     private final CharArrayBuffer lineBuf;
@@ -84,7 +85,7 @@ public class HttpResponseParser extends AbstractMessageParser<HttpResponse> {
     }
 
     @Override
-    protected HttpResponse parseHead(
+    protected HttpMessage parseHead(
             final SessionInputBuffer sessionBuffer)
         throws IOException, HttpException, ParseException {
 

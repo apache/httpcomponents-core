@@ -44,6 +44,7 @@ import org.apache.http.impl.entity.EntityDeserializer;
 import org.apache.http.impl.entity.EntitySerializer;
 import org.apache.http.impl.entity.LaxContentLengthStrategy;
 import org.apache.http.impl.entity.StrictContentLengthStrategy;
+import org.apache.http.impl.io.DefaultHttpResponseParser;
 import org.apache.http.impl.io.HttpRequestWriter;
 import org.apache.http.impl.io.HttpResponseParser;
 import org.apache.http.io.EofSensor;
@@ -167,7 +168,7 @@ public abstract class AbstractHttpClientConnection implements HttpClientConnecti
             final SessionInputBuffer buffer,
             final HttpResponseFactory responseFactory,
             final HttpParams params) {
-        return new HttpResponseParser(buffer, null, responseFactory, params);
+        return new DefaultHttpResponseParser(buffer, null, responseFactory, params);
     }
 
     /**
