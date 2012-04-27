@@ -15,6 +15,10 @@ primitives.
 Changelog
 -------------------
 
+* Fixed HttpAsyncRequestExecutor incorrect execution of message exchanges that span across multiple 
+  hosts (for instance, in case of a request redirect).  
+  Contributed by Oleg Kalnichevski <olegk at apache.org>
+
 * AbstractHttpClientConnection#isResponseAvailable method now catches SocketTimeoutException
   and returns false.
   Contributed by Oleg Kalnichevski <olegk at apache.org>
