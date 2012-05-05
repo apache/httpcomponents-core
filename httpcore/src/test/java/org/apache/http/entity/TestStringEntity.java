@@ -28,8 +28,10 @@
 package org.apache.http.entity;
 
 import java.io.ByteArrayOutputStream;
+import java.nio.charset.Charset;
 
 import org.apache.http.Consts;
+import org.apache.http.util.EntityUtils;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -75,6 +77,37 @@ public class TestStringEntity {
         httpentity = new StringEntity(s);
         Assert.assertEquals("text/plain; charset=ISO-8859-1",
                 httpentity.getContentType().getValue());
+    }
+
+    private static String constructString(int [] unicodeChars) {
+        StringBuilder buffer = new StringBuilder();
+        if (unicodeChars != null) {
+            for (int i = 0; i < unicodeChars.length; i++) {
+                buffer.append((char)unicodeChars[i]);
+            }
+        }
+        return buffer.toString();
+    }
+
+    static final int SWISS_GERMAN_HELLO [] = {
+            0x47, 0x72, 0xFC, 0x65, 0x7A, 0x69, 0x5F, 0x7A, 0xE4, 0x6D, 0xE4
+        };
+
+    @Test
+    public void testNullCharset() throws Exception {
+        String s = constructString(SWISS_GERMAN_HELLO);
+        StringEntity httpentity = new StringEntity(s, ContentType.create("text/plain", (Charset) null));
+        Assert.assertNotNull(httpentity.getContentType());
+        Assert.assertEquals("text/plain", httpentity.getContentType().getValue());
+        Assert.assertEquals(s, EntityUtils.toString(httpentity));
+        httpentity = new StringEntity(s, (Charset) null);
+        Assert.assertNotNull(httpentity.getContentType());
+        Assert.assertEquals("text/plain", httpentity.getContentType().getValue());
+        Assert.assertEquals(s, EntityUtils.toString(httpentity));
+        httpentity = new StringEntity(s, (String) null);
+        Assert.assertNotNull(httpentity.getContentType());
+        Assert.assertEquals("text/plain", httpentity.getContentType().getValue());
+        Assert.assertEquals(s, EntityUtils.toString(httpentity));
     }
 
     @Test
