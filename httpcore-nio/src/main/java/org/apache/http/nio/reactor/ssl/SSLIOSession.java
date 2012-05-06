@@ -488,7 +488,7 @@ public class SSLIOSession implements IOSession, SessionBufferStatus, SocketAcces
     }
 
     public boolean isClosed() {
-        return this.status >= CLOSING;
+        return this.status >= CLOSING || this.session.isClosed();
     }
 
     public ByteChannel channel() {

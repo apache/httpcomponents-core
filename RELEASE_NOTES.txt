@@ -1,6 +1,11 @@
 Changes since 4.2
 -------------------
 
+* [HTTPCORE-298] Fixed non-blocking SSLIOSession state can getting out of sync with the underlying
+  IOSession in case the I/O session is terminated by the I/O reactor rather than by the protocol
+  handler. 
+  Contributed by Sandeep Tamhankar <sandman at electric-cloud.com>
+
 * Fixed NPE in StringEntity constructor thrown if ContentType#getCharset is null.
   Contributed by Oleg Kalnichevski <olegk at apache.org>
 
