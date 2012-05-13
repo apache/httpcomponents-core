@@ -138,6 +138,36 @@ public class TestRouteSpecificPool {
     }
 
     @Test
+    public void testLeaseOrder() throws Exception {
+        LocalRoutePool pool = new LocalRoutePool();
+        HttpConnection conn1 = Mockito.mock(HttpConnection.class);
+        LocalPoolEntry entry1 = pool.add(conn1);
+        HttpConnection conn2 = Mockito.mock(HttpConnection.class);
+        LocalPoolEntry entry2 = pool.add(conn2);
+        HttpConnection conn3 = Mockito.mock(HttpConnection.class);
+        LocalPoolEntry entry3 = pool.add(conn3);
+
+        Assert.assertNotNull(entry1);
+        Assert.assertNotNull(entry2);
+        Assert.assertNotNull(entry3);
+
+        Assert.assertEquals(3, pool.getAllocatedCount());
+        Assert.assertEquals(0, pool.getAvailableCount());
+        Assert.assertEquals(3, pool.getLeasedCount());
+        Assert.assertEquals(0, pool.getPendingCount());
+
+        pool.free(entry1, true);
+        pool.free(entry2, true);
+        pool.free(entry3, true);
+
+        Assert.assertSame(entry1, pool.getLastUsed());
+
+        Assert.assertSame(entry3, pool.getFree(null));
+        Assert.assertSame(entry2, pool.getFree(null));
+        Assert.assertSame(entry1, pool.getFree(null));
+    }
+
+    @Test
     public void testLeaseReleaseStateful() throws Exception {
         LocalRoutePool pool = new LocalRoutePool();
         HttpConnection conn1 = Mockito.mock(HttpConnection.class);
@@ -161,10 +191,10 @@ public class TestRouteSpecificPool {
         pool.free(entry2, true);
         pool.free(entry3, true);
 
-        Assert.assertEquals(entry2, pool.getFree(Boolean.FALSE));
-        Assert.assertEquals(entry1, pool.getFree(Boolean.FALSE));
-        Assert.assertEquals(entry3, pool.getFree(null));
-        Assert.assertEquals(null, pool.getFree(null));
+        Assert.assertSame(entry2, pool.getFree(Boolean.FALSE));
+        Assert.assertSame(entry3, pool.getFree(Boolean.FALSE));
+        Assert.assertSame(entry1, pool.getFree(null));
+        Assert.assertSame(null, pool.getFree(null));
 
         entry1.setState(Boolean.TRUE);
         entry2.setState(Boolean.FALSE);
@@ -173,12 +203,12 @@ public class TestRouteSpecificPool {
         pool.free(entry2, true);
         pool.free(entry3, true);
 
-        Assert.assertEquals(null, pool.getFree(null));
-        Assert.assertEquals(entry2, pool.getFree(Boolean.FALSE));
-        Assert.assertEquals(null, pool.getFree(Boolean.FALSE));
-        Assert.assertEquals(entry1, pool.getFree(Boolean.TRUE));
-        Assert.assertEquals(entry3, pool.getFree(Boolean.TRUE));
-        Assert.assertEquals(null, pool.getFree(Boolean.TRUE));
+        Assert.assertSame(null, pool.getFree(null));
+        Assert.assertSame(entry2, pool.getFree(Boolean.FALSE));
+        Assert.assertSame(null, pool.getFree(Boolean.FALSE));
+        Assert.assertSame(entry3, pool.getFree(Boolean.TRUE));
+        Assert.assertSame(entry1, pool.getFree(Boolean.TRUE));
+        Assert.assertSame(null, pool.getFree(Boolean.TRUE));
     }
 
     @Test(expected=IllegalStateException.class)

@@ -217,7 +217,7 @@ public abstract class AbstractNIOConnPool<T, C, E extends PoolEntry<T, C>>
                 RouteSpecificPool<T, C, E> pool = getPool(entry.getRoute());
                 pool.free(entry, reusable);
                 if (reusable) {
-                    this.available.add(entry);
+                    this.available.addFirst(entry);
                 } else {
                     entry.close();
                 }
@@ -293,7 +293,7 @@ public abstract class AbstractNIOConnPool<T, C, E extends PoolEntry<T, C>>
                 int totalAvailable = this.available.size();
                 if (totalAvailable > freeCapacity - 1) {
                     if (!this.available.isEmpty()) {
-                        E lastUsed = this.available.removeFirst();
+                        E lastUsed = this.available.removeLast();
                         lastUsed.close();
                         RouteSpecificPool<T, C, E> otherpool = getPool(lastUsed.getRoute());
                         otherpool.remove(lastUsed);

@@ -99,7 +99,7 @@ abstract class RouteSpecificPool<T, C, E extends PoolEntry<T, C>> {
 
     public E getLastUsed() {
         if (!this.available.isEmpty()) {
-            return this.available.getFirst();
+            return this.available.getLast();
         } else {
             return null;
         }
@@ -127,7 +127,7 @@ abstract class RouteSpecificPool<T, C, E extends PoolEntry<T, C>> {
                     " has not been leased from this pool");
         }
         if (reusable) {
-            this.available.add(entry);
+            this.available.addFirst(entry);
         }
     }
 

@@ -615,7 +615,7 @@ public class TestConnPool {
     }
 
     @Test
-    public void testLeaseCacnel() throws Exception {
+    public void testLeaseCancel() throws Exception {
         LocalConnFactory connFactory = Mockito.mock(LocalConnFactory.class);
 
         HttpConnection conn1 = Mockito.mock(HttpConnection.class);

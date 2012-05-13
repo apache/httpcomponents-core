@@ -693,8 +693,8 @@ public class TestNIOConnPool {
                 Mockito.any(SocketAddress.class),
                 Mockito.any(), Mockito.any(SessionRequestCallback.class));
 
-        Mockito.verify(iosession1).close();
-        Mockito.verify(iosession2, Mockito.never()).close();
+        Mockito.verify(iosession2).close();
+        Mockito.verify(iosession1, Mockito.never()).close();
 
         totals = pool.getTotalStats();
         Assert.assertEquals(1, totals.getAvailable());

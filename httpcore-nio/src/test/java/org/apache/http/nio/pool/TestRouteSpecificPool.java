@@ -235,6 +235,53 @@ public class TestRouteSpecificPool {
     }
 
     @Test
+    public void testLeaseOrder() throws Exception {
+        LocalRoutePool pool = new LocalRoutePool();
+        IOSession session1 = Mockito.mock(IOSession.class);
+        SessionRequest sessionRequest1 = Mockito.mock(SessionRequest.class);
+        Mockito.when(sessionRequest1.getSession()).thenReturn(session1);
+        BasicFuture<LocalPoolEntry> future1 = new BasicFuture<LocalPoolEntry>(null);
+        pool.addPending(sessionRequest1, future1);
+        IOSession session2 = Mockito.mock(IOSession.class);
+        SessionRequest sessionRequest2 = Mockito.mock(SessionRequest.class);
+        Mockito.when(sessionRequest2.getSession()).thenReturn(session2);
+        BasicFuture<LocalPoolEntry> future2 = new BasicFuture<LocalPoolEntry>(null);
+        pool.addPending(sessionRequest2, future2);
+        IOSession session3 = Mockito.mock(IOSession.class);
+        SessionRequest sessionRequest3 = Mockito.mock(SessionRequest.class);
+        Mockito.when(sessionRequest3.getSession()).thenReturn(session3);
+        BasicFuture<LocalPoolEntry> future3 = new BasicFuture<LocalPoolEntry>(null);
+        pool.addPending(sessionRequest3, future3);
+
+        Assert.assertEquals(3, pool.getAllocatedCount());
+        Assert.assertEquals(0, pool.getAvailableCount());
+        Assert.assertEquals(0, pool.getLeasedCount());
+        Assert.assertEquals(3, pool.getPendingCount());
+
+        LocalPoolEntry entry1 = pool.completed(sessionRequest1, session1);
+        Assert.assertNotNull(entry1);
+        LocalPoolEntry entry2 = pool.completed(sessionRequest2, session2);
+        Assert.assertNotNull(entry2);
+        LocalPoolEntry entry3 = pool.completed(sessionRequest3, session3);
+        Assert.assertNotNull(entry3);
+
+        Assert.assertEquals(3, pool.getAllocatedCount());
+        Assert.assertEquals(0, pool.getAvailableCount());
+        Assert.assertEquals(3, pool.getLeasedCount());
+        Assert.assertEquals(0, pool.getPendingCount());
+
+        pool.free(entry1, true);
+        pool.free(entry2, true);
+        pool.free(entry3, true);
+
+        Assert.assertSame(entry1, pool.getLastUsed());
+
+        Assert.assertSame(entry3, pool.getFree(null));
+        Assert.assertSame(entry2, pool.getFree(null));
+        Assert.assertSame(entry1, pool.getFree(null));
+    }
+
+    @Test
     public void testLeaseReleaseStateful() throws Exception {
         LocalRoutePool pool = new LocalRoutePool();
 
@@ -266,10 +313,10 @@ public class TestRouteSpecificPool {
         pool.free(entry2, true);
         pool.free(entry3, true);
 
-        Assert.assertEquals(entry2, pool.getFree(Boolean.FALSE));
-        Assert.assertEquals(entry1, pool.getFree(Boolean.FALSE));
-        Assert.assertEquals(entry3, pool.getFree(null));
-        Assert.assertEquals(null, pool.getFree(null));
+        Assert.assertSame(entry2, pool.getFree(Boolean.FALSE));
+        Assert.assertSame(entry3, pool.getFree(Boolean.FALSE));
+        Assert.assertSame(entry1, pool.getFree(null));
+        Assert.assertSame(null, pool.getFree(null));
 
         entry1.setState(Boolean.TRUE);
         entry2.setState(Boolean.FALSE);
@@ -278,12 +325,12 @@ public class TestRouteSpecificPool {
         pool.free(entry2, true);
         pool.free(entry3, true);
 
-        Assert.assertEquals(null, pool.getFree(null));
-        Assert.assertEquals(entry2, pool.getFree(Boolean.FALSE));
-        Assert.assertEquals(null, pool.getFree(Boolean.FALSE));
-        Assert.assertEquals(entry1, pool.getFree(Boolean.TRUE));
-        Assert.assertEquals(entry3, pool.getFree(Boolean.TRUE));
-        Assert.assertEquals(null, pool.getFree(Boolean.TRUE));
+        Assert.assertSame(null, pool.getFree(null));
+        Assert.assertSame(entry2, pool.getFree(Boolean.FALSE));
+        Assert.assertSame(null, pool.getFree(Boolean.FALSE));
+        Assert.assertSame(entry3, pool.getFree(Boolean.TRUE));
+        Assert.assertSame(entry1, pool.getFree(Boolean.TRUE));
+        Assert.assertSame(null, pool.getFree(Boolean.TRUE));
     }
 
     @Test(expected=IllegalStateException.class)

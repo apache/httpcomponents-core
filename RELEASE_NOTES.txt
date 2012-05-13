@@ -1,6 +1,10 @@
 Changes since 4.2
 -------------------
 
+* Made connection pools use FIFO algorithm instead of LIFO when leasing / releasing persistent
+  connections.
+  Contributed by Oleg Kalnichevski <olegk at apache.org>
+
 * [HTTPCORE-298] Fixed non-blocking SSLIOSession state can getting out of sync with the underlying
   IOSession in case the I/O session is terminated by the I/O reactor rather than by the protocol
   handler. 
