@@ -337,7 +337,7 @@ public abstract class AbstractSessionInputBuffer implements SessionInputBuffer, 
         int off = this.bufferpos;
         int len;
         this.bufferpos = pos + 1;
-        if (pos > 0 && this.buffer[pos - 1] == HTTP.CR) {
+        if (pos > off && this.buffer[pos - 1] == HTTP.CR) {
             // skip CR if found
             pos--;
         }

@@ -400,6 +400,19 @@ public class TestSessionBuffers {
         }
     }
 
+    @Test
+    public void testReadLineFringeCase1() throws Exception {
+        HttpParams params = new BasicHttpParams();
+        String s = "abc\r\n";
+        byte[] tmp = s.getBytes("US-ASCII");
+        SessionInputBufferMock inbuffer1 = new SessionInputBufferMock(tmp, 128, params);
+        Assert.assertEquals('a', inbuffer1.read());
+        Assert.assertEquals('b', inbuffer1.read());
+        Assert.assertEquals('c', inbuffer1.read());
+        Assert.assertEquals('\r', inbuffer1.read());
+        Assert.assertEquals("", inbuffer1.readLine());
+    }
+
     static final int SWISS_GERMAN_HELLO [] = {
         0x47, 0x72, 0xFC, 0x65, 0x7A, 0x69, 0x5F, 0x7A, 0xE4, 0x6D, 0xE4
     };
