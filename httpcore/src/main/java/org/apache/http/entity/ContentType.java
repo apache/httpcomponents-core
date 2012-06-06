@@ -115,7 +115,7 @@ public final class ContentType {
         buf.append(this.mimeType);
         if (this.charset != null) {
             buf.append("; charset=");
-            buf.append(this.charset);
+            buf.append(this.charset.name());
         }
         return buf.toString();
     }

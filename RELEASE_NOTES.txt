@@ -1,6 +1,10 @@
 Changes since 4.2
 -------------------
 
+* [HTTPCORE-299] ContentType should rely on Charset#name() instead of Charset#toString() 
+  for building header value.
+  Contributed by Oleg Kalnichevski <olegk at apache.org>
+
 * [HTTPCORE-263] Under rare circumstances incorrectly delineated or garbled HTTP message
   can cause an IndexOutOfBoundsException in AbstractSessionInputBuffer#readLine()
   Contributed by Michael Pujos <bubbleguuum at free.fr> 
