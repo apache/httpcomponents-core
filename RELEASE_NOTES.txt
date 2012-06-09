@@ -1,4 +1,10 @@
-Changes since 4.2
+Release 4.1.4
+-------------------
+
+This is a maintenance release that fixes a non-critical number of bugs found since 4.2. 
+Users of HttpCore 4.2 are encouraged to upgrade.
+
+Changelog
 -------------------
 
 * [HTTPCORE-299] ContentType should rely on Charset#name() instead of Charset#toString() 
@@ -20,6 +26,7 @@ Changes since 4.2
 
 * Fixed NPE in StringEntity constructor thrown if ContentType#getCharset is null.
   Contributed by Oleg Kalnichevski <olegk at apache.org>
+
 
 Release 4.2
 -------------------
