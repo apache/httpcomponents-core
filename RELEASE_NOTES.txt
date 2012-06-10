@@ -1,4 +1,4 @@
-Release 4.1.4
+Release 4.2.1
 -------------------
 
 This is a maintenance release that fixes a non-critical number of bugs found since 4.2. 
