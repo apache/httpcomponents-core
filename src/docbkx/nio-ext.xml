@@ -1193,7 +1193,8 @@ HttpAsyncService protocolHandler = new HttpAsyncService(
         params);
 NHttpConnectionFactory<DefaultNHttpServerConnection> connFactory;
 // Initialize HTTP connection factory
-IOEventDispatch ioEventDispatch = new DefaultHttpServerIODispatch(protocolHandler, connFactory);
+IOEventDispatch ioEventDispatch = new DefaultHttpServerIODispatch(
+    protocolHandler, connFactory);
 ]]></programlisting>
             <section>
                 <title>Non-blocking HTTP request handlers</title>
@@ -1207,7 +1208,7 @@ IOEventDispatch ioEventDispatch = new DefaultHttpServerIODispatch(protocolHandle
                 request.
                 </para>
                 <programlisting><![CDATA[
-HttpAsyncRequestHandler<HttpRequest> myHandler = new HttpAsyncRequestHandler<HttpRequest>() {
+HttpAsyncRequestHandler<HttpRequest> rh = new HttpAsyncRequestHandler<HttpRequest>() {
 
     public HttpAsyncRequestConsumer<HttpRequest> processRequest(
             final HttpRequest request,
@@ -1313,7 +1314,7 @@ HttpAsyncRequestHandler<HttpRequest> myHandler = new HttpAsyncRequestHandler<Htt
                     </listitem>
                 </itemizedlist>
                 <programlisting><![CDATA[
-HttpAsyncRequestHandler<HttpRequest> myHandler = new HttpAsyncRequestHandler<HttpRequest>() {
+HttpAsyncRequestHandler<HttpRequest> rh = new HttpAsyncRequestHandler<HttpRequest>() {
 
     public HttpAsyncRequestConsumer<HttpRequest> processRequest(
             final HttpRequest request,
@@ -1595,10 +1596,10 @@ handlerReqistry.register("*", myRequestHandler3);
             HttpAsyncRequestExecutionHandler#isDone()</methodname> method returns <code>true</code>.
             </para>
             <programlisting><![CDATA[
-HttpAsyncRequestExecutor protocolHandler = new HttpAsyncRequestExecutor();
+HttpAsyncRequestExecutor ph = new HttpAsyncRequestExecutor();
 NHttpConnectionFactory<DefaultNHttpClientConnection> connFactory;
 // Initialize HTTP connection factory
-IOEventDispatch ioEventDispatch = new DefaultHttpClientIODispatch(protocolHandler, connFactory);
+IOEventDispatch ioEventDispatch = new DefaultHttpClientIODispatch(ph, connFactory);
 ]]></programlisting>
             <para>
             The <classname>HttpAsyncRequester</classname> utility class can be used to abstract
