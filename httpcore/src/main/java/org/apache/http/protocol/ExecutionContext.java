@@ -61,7 +61,10 @@ public interface ExecutionContext {
     /**
      * Attribute name of a {@link org.apache.http.HttpHost} object that
      * represents the connection proxy.
+     * 
+     * @deprecated (4.3) do not use.
      */
+    @Deprecated
     public static final String HTTP_PROXY_HOST  = "http.proxy_host";
 
     /**
