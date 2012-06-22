@@ -48,11 +48,12 @@ import org.apache.http.impl.DefaultConnectionReuseStrategy;
 import org.apache.http.params.HttpConnectionParams;
 import org.apache.http.params.HttpParams;
 import org.apache.http.protocol.BasicHttpContext;
-import org.apache.http.protocol.BasicHttpProcessor;
 import org.apache.http.protocol.ExecutionContext;
 import org.apache.http.protocol.HTTP;
 import org.apache.http.protocol.HttpContext;
+import org.apache.http.protocol.HttpProcessor;
 import org.apache.http.protocol.HttpRequestExecutor;
+import org.apache.http.protocol.ImmutableHttpProcessor;
 import org.apache.http.protocol.RequestConnControl;
 import org.apache.http.protocol.RequestContent;
 import org.apache.http.protocol.RequestExpectContinue;
@@ -70,7 +71,7 @@ class BenchmarkWorker implements Runnable {
     private final byte[] buffer = new byte[4096];
     private final int verbosity;
     private final HttpContext context;
-    private final BasicHttpProcessor httpProcessor;
+    private final HttpProcessor httpProcessor;
     private final HttpRequestExecutor httpexecutor;
     private final ConnectionReuseStrategy connstrategy;
     private final HttpRequest request;
@@ -95,16 +96,13 @@ class BenchmarkWorker implements Runnable {
         this.count = count;
         this.keepalive = keepalive;
 
-        this.httpProcessor = new BasicHttpProcessor();
+        this.httpProcessor = new ImmutableHttpProcessor(
+                new RequestContent(), 
+                new RequestTargetHost(), 
+                new RequestConnControl(),
+                new RequestUserAgent(),
+                new RequestExpectContinue());
         this.httpexecutor = new HttpRequestExecutor();
-
-        // Required request interceptors
-        this.httpProcessor.addInterceptor(new RequestContent());
-        this.httpProcessor.addInterceptor(new RequestTargetHost());
-        // Recommended request interceptors
-        this.httpProcessor.addInterceptor(new RequestConnControl());
-        this.httpProcessor.addInterceptor(new RequestUserAgent());
-        this.httpProcessor.addInterceptor(new RequestExpectContinue());
 
         this.connstrategy = new DefaultConnectionReuseStrategy();
         this.verbosity = verbosity;

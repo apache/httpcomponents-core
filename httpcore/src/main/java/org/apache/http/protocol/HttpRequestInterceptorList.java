@@ -37,7 +37,10 @@ import org.apache.http.HttpRequestInterceptor;
  * for {@link HttpProcessor processing}.
  *
  * @since 4.0
+ *
+ * @deprecated (4.3)
  */
+@Deprecated
 public interface HttpRequestInterceptorList {
 
     /**

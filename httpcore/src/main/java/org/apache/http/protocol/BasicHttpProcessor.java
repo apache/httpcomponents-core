@@ -46,8 +46,11 @@ import org.apache.http.annotation.NotThreadSafe;
  * synchronized and therefore this class may be thread-unsafe.
  *
  * @since 4.0
+ *
+ * @deprecated (4.3)
  */
 @NotThreadSafe
+@Deprecated
 public final class BasicHttpProcessor implements
     HttpProcessor, HttpRequestInterceptorList, HttpResponseInterceptorList, Cloneable {
 

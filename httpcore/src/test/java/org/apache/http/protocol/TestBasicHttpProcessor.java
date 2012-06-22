@@ -35,6 +35,7 @@ import org.apache.http.HttpRequestInterceptor;
 import org.junit.Assert;
 import org.junit.Test;
 
+@Deprecated
 public class TestBasicHttpProcessor {
 
     static class TestHttpRequestInterceptorPlaceHolder implements HttpRequestInterceptor {

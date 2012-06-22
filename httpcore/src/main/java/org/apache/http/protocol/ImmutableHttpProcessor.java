@@ -27,6 +27,7 @@
 package org.apache.http.protocol;
 
 import java.io.IOException;
+import java.util.List;
 
 import org.apache.http.HttpException;
 import org.apache.http.HttpRequest;
@@ -51,25 +52,46 @@ public final class ImmutableHttpProcessor implements HttpProcessor {
             final HttpResponseInterceptor[] responseInterceptors) {
         super();
         if (requestInterceptors != null) {
-            int count = requestInterceptors.length;
-            this.requestInterceptors = new HttpRequestInterceptor[count];
-            for (int i = 0; i < count; i++) {
-                this.requestInterceptors[i] = requestInterceptors[i];
-            }
+            int l = requestInterceptors.length;
+            this.requestInterceptors = new HttpRequestInterceptor[l];
+            System.arraycopy(requestInterceptors, 0, this.requestInterceptors, 0, l);
         } else {
             this.requestInterceptors = new HttpRequestInterceptor[0];
         }
         if (responseInterceptors != null) {
-            int count = responseInterceptors.length;
-            this.responseInterceptors = new HttpResponseInterceptor[count];
-            for (int i = 0; i < count; i++) {
-                this.responseInterceptors[i] = responseInterceptors[i];
-            }
+            int l = responseInterceptors.length;
+            this.responseInterceptors = new HttpResponseInterceptor[l];
+            System.arraycopy(responseInterceptors, 0, this.responseInterceptors, 0, l);
         } else {
             this.responseInterceptors = new HttpResponseInterceptor[0];
         }
     }
 
+    /**
+     * @since 4.3
+     */
+    public ImmutableHttpProcessor(
+            final List<HttpRequestInterceptor> requestInterceptors,
+            final List<HttpResponseInterceptor> responseInterceptors) {
+        super();
+        if (requestInterceptors != null) {
+            int l = requestInterceptors.size();
+            this.requestInterceptors = requestInterceptors.toArray(new HttpRequestInterceptor[l]);
+        } else {
+            this.requestInterceptors = new HttpRequestInterceptor[0];
+        }
+        if (responseInterceptors != null) {
+            int l = responseInterceptors.size();
+            this.responseInterceptors = responseInterceptors.toArray(new HttpResponseInterceptor[l]);
+        } else {
+            this.responseInterceptors = new HttpResponseInterceptor[0];
+        }
+    }
+
+    /**
+     * @deprecated (4.3) do not use.
+     */
+    @Deprecated
     public ImmutableHttpProcessor(
             final HttpRequestInterceptorList requestInterceptors,
             final HttpResponseInterceptorList responseInterceptors) {
@@ -94,11 +116,11 @@ public final class ImmutableHttpProcessor implements HttpProcessor {
         }
     }
 
-    public ImmutableHttpProcessor(final HttpRequestInterceptor[] requestInterceptors) {
+    public ImmutableHttpProcessor(final HttpRequestInterceptor... requestInterceptors) {
         this(requestInterceptors, null);
     }
 
-    public ImmutableHttpProcessor(final HttpResponseInterceptor[] responseInterceptors) {
+    public ImmutableHttpProcessor(final HttpResponseInterceptor... responseInterceptors) {
         this(null, responseInterceptors);
     }
 
