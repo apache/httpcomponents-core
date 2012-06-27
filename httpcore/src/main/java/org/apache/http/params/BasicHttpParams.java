@@ -30,11 +30,11 @@ package org.apache.http.params;
 import java.io.Serializable;
 import java.util.HashSet;
 import java.util.Map;
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 
-import org.apache.http.annotation.NotThreadSafe;
+import org.apache.http.annotation.ThreadSafe;
 import org.apache.http.params.HttpParams;
 
 /**
@@ -45,13 +45,13 @@ import org.apache.http.params.HttpParams;
  *
  * @since 4.0
  */
-@NotThreadSafe
+@ThreadSafe
 public class BasicHttpParams extends AbstractHttpParams implements Serializable, Cloneable {
 
     private static final long serialVersionUID = -7086398485908701455L;
 
     /** Map of HTTP parameters that this collection contains. */
-    private final HashMap<String, Object> parameters = new HashMap<String, Object>();
+    private final Map<String, Object> parameters = new ConcurrentHashMap<String, Object>();
 
     public BasicHttpParams() {
         super();
@@ -62,7 +62,14 @@ public class BasicHttpParams extends AbstractHttpParams implements Serializable,
     }
 
     public HttpParams setParameter(final String name, final Object value) {
-        this.parameters.put(name, value);
+        if (name == null) {
+            return this;
+        }
+        if (value != null) {
+            this.parameters.put(name, value);
+        } else {
+            this.parameters.remove(name);
+        }
         return this;
     }
 

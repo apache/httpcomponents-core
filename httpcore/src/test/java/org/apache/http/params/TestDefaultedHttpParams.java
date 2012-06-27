@@ -91,8 +91,8 @@ public class TestDefaultedHttpParams {
         nameSet = params.getNames();
         localnameSet = params.getLocalNames();
         defaultnameSet = params.getDefaultNames();
-        Assert.assertEquals(4, nameSet.size());
-        Assert.assertEquals(3, localnameSet.size());
+        Assert.assertEquals(3, nameSet.size());
+        Assert.assertEquals(2, localnameSet.size());
         Assert.assertEquals(2, defaultnameSet.size());
     }
 }

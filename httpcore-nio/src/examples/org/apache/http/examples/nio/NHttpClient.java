@@ -46,10 +46,10 @@ import org.apache.http.nio.protocol.HttpAsyncRequestExecutor;
 import org.apache.http.nio.protocol.HttpAsyncRequester;
 import org.apache.http.nio.reactor.ConnectingIOReactor;
 import org.apache.http.nio.reactor.IOEventDispatch;
+import org.apache.http.params.BasicHttpParams;
 import org.apache.http.params.CoreConnectionPNames;
 import org.apache.http.params.CoreProtocolPNames;
 import org.apache.http.params.HttpParams;
-import org.apache.http.params.SyncBasicHttpParams;
 import org.apache.http.protocol.BasicHttpContext;
 import org.apache.http.protocol.HttpProcessor;
 import org.apache.http.protocol.ImmutableHttpProcessor;
@@ -66,7 +66,7 @@ public class NHttpClient {
 
     public static void main(String[] args) throws Exception {
         // HTTP parameters for the client
-        HttpParams params = new SyncBasicHttpParams();
+        HttpParams params = new BasicHttpParams();
         params
             .setIntParameter(CoreConnectionPNames.SO_TIMEOUT, 3000)
             .setIntParameter(CoreConnectionPNames.CONNECTION_TIMEOUT, 3000)

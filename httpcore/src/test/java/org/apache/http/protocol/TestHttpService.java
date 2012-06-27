@@ -45,8 +45,8 @@ import org.apache.http.entity.InputStreamEntity;
 import org.apache.http.message.BasicHttpEntityEnclosingRequest;
 import org.apache.http.message.BasicHttpRequest;
 import org.apache.http.message.BasicHttpResponse;
+import org.apache.http.params.BasicHttpParams;
 import org.apache.http.params.HttpParams;
-import org.apache.http.params.SyncBasicHttpParams;
 import org.junit.Assert;
 import org.junit.Test;
 import org.mockito.Mockito;
@@ -59,7 +59,7 @@ public class TestHttpService {
         ConnectionReuseStrategy connReuseStrategy = Mockito.mock(ConnectionReuseStrategy.class);
         HttpResponseFactory responseFactory = Mockito.mock(HttpResponseFactory.class);
         HttpRequestHandlerResolver handlerResolver = Mockito.mock(HttpRequestHandlerResolver.class);
-        HttpParams params = new SyncBasicHttpParams();
+        HttpParams params = new BasicHttpParams();
         try {
             new HttpService(
                     null,
@@ -108,7 +108,7 @@ public class TestHttpService {
         ConnectionReuseStrategy connReuseStrategy = Mockito.mock(ConnectionReuseStrategy.class);
         HttpResponseFactory responseFactory = Mockito.mock(HttpResponseFactory.class);
         HttpRequestHandlerResolver handlerResolver = Mockito.mock(HttpRequestHandlerResolver.class);
-        HttpParams params = new SyncBasicHttpParams();
+        HttpParams params = new BasicHttpParams();
 
         HttpService httpservice = new HttpService(
                 httprocessor,
@@ -146,7 +146,7 @@ public class TestHttpService {
         ConnectionReuseStrategy connReuseStrategy = Mockito.mock(ConnectionReuseStrategy.class);
         HttpResponseFactory responseFactory = Mockito.mock(HttpResponseFactory.class);
         HttpRequestHandlerResolver handlerResolver = Mockito.mock(HttpRequestHandlerResolver.class);
-        HttpParams params = new SyncBasicHttpParams();
+        HttpParams params = new BasicHttpParams();
 
         HttpService httpservice = new HttpService(
                 httprocessor,
@@ -173,7 +173,7 @@ public class TestHttpService {
         ConnectionReuseStrategy connReuseStrategy = Mockito.mock(ConnectionReuseStrategy.class);
         HttpResponseFactory responseFactory = Mockito.mock(HttpResponseFactory.class);
         HttpRequestHandlerResolver handlerResolver = Mockito.mock(HttpRequestHandlerResolver.class);
-        HttpParams params = new SyncBasicHttpParams();
+        HttpParams params = new BasicHttpParams();
 
         HttpService httpservice = new HttpService(
                 httprocessor,
@@ -200,7 +200,7 @@ public class TestHttpService {
         ConnectionReuseStrategy connReuseStrategy = Mockito.mock(ConnectionReuseStrategy.class);
         HttpResponseFactory responseFactory = Mockito.mock(HttpResponseFactory.class);
         HttpRequestHandlerResolver handlerResolver = Mockito.mock(HttpRequestHandlerResolver.class);
-        HttpParams params = new SyncBasicHttpParams();
+        HttpParams params = new BasicHttpParams();
 
         HttpService httpservice = new HttpService(
                 httprocessor,
@@ -244,7 +244,7 @@ public class TestHttpService {
         ConnectionReuseStrategy connReuseStrategy = Mockito.mock(ConnectionReuseStrategy.class);
         HttpResponseFactory responseFactory = Mockito.mock(HttpResponseFactory.class);
         HttpRequestHandlerResolver handlerResolver = Mockito.mock(HttpRequestHandlerResolver.class);
-        HttpParams params = new SyncBasicHttpParams();
+        HttpParams params = new BasicHttpParams();
 
         HttpService httpservice = new HttpService(
                 httprocessor,
@@ -292,7 +292,7 @@ public class TestHttpService {
         ConnectionReuseStrategy connReuseStrategy = Mockito.mock(ConnectionReuseStrategy.class);
         HttpResponseFactory responseFactory = Mockito.mock(HttpResponseFactory.class);
         HttpRequestHandlerResolver handlerResolver = Mockito.mock(HttpRequestHandlerResolver.class);
-        HttpParams params = new SyncBasicHttpParams();
+        HttpParams params = new BasicHttpParams();
 
         HttpExpectationVerifier expectationVerifier = new HttpExpectationVerifier() {
 
@@ -349,7 +349,7 @@ public class TestHttpService {
         HttpResponseFactory responseFactory = Mockito.mock(HttpResponseFactory.class);
         HttpExpectationVerifier expectationVerifier = Mockito.mock(HttpExpectationVerifier.class);
         HttpRequestHandlerResolver handlerResolver = Mockito.mock(HttpRequestHandlerResolver.class);
-        HttpParams params = new SyncBasicHttpParams();
+        HttpParams params = new BasicHttpParams();
 
         HttpService httpservice = new HttpService(
                 httprocessor,
@@ -398,7 +398,7 @@ public class TestHttpService {
         HttpResponseFactory responseFactory = Mockito.mock(HttpResponseFactory.class);
         HttpRequestHandlerResolver handlerResolver = Mockito.mock(HttpRequestHandlerResolver.class);
         HttpRequestHandler requestHandler = Mockito.mock(HttpRequestHandler.class);
-        HttpParams params = new SyncBasicHttpParams();
+        HttpParams params = new BasicHttpParams();
 
         HttpService httpservice = new HttpService(
                 httprocessor,
@@ -443,7 +443,7 @@ public class TestHttpService {
         HttpResponseFactory responseFactory = Mockito.mock(HttpResponseFactory.class);
         HttpRequestHandlerResolver handlerResolver = Mockito.mock(HttpRequestHandlerResolver.class);
         HttpRequestHandler requestHandler = Mockito.mock(HttpRequestHandler.class);
-        HttpParams params = new SyncBasicHttpParams();
+        HttpParams params = new BasicHttpParams();
 
         HttpService httpservice = new HttpService(
                 httprocessor,
@@ -488,7 +488,7 @@ public class TestHttpService {
         HttpResponseFactory responseFactory = Mockito.mock(HttpResponseFactory.class);
         HttpRequestHandlerResolver handlerResolver = Mockito.mock(HttpRequestHandlerResolver.class);
         HttpRequestHandler requestHandler = Mockito.mock(HttpRequestHandler.class);
-        HttpParams params = new SyncBasicHttpParams();
+        HttpParams params = new BasicHttpParams();
 
         HttpService httpservice = new HttpService(
                 httprocessor,
@@ -533,7 +533,7 @@ public class TestHttpService {
         HttpResponseFactory responseFactory = Mockito.mock(HttpResponseFactory.class);
         HttpRequestHandlerResolver handlerResolver = Mockito.mock(HttpRequestHandlerResolver.class);
         HttpRequestHandler requestHandler = Mockito.mock(HttpRequestHandler.class);
-        HttpParams params = new SyncBasicHttpParams();
+        HttpParams params = new BasicHttpParams();
 
         HttpService httpservice = new HttpService(
                 httprocessor,

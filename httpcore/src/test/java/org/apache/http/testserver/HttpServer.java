@@ -42,12 +42,12 @@ import org.apache.http.HttpServerConnection;
 import org.apache.http.impl.DefaultConnectionReuseStrategy;
 import org.apache.http.impl.DefaultHttpResponseFactory;
 import org.apache.http.impl.DefaultHttpServerConnection;
+import org.apache.http.params.BasicHttpParams;
 import org.apache.http.params.CoreConnectionPNames;
-import org.apache.http.params.HttpParams;
 import org.apache.http.params.CoreProtocolPNames;
-import org.apache.http.params.SyncBasicHttpParams;
-import org.apache.http.protocol.HttpContext;
+import org.apache.http.params.HttpParams;
 import org.apache.http.protocol.BasicHttpContext;
+import org.apache.http.protocol.HttpContext;
 import org.apache.http.protocol.HttpExpectationVerifier;
 import org.apache.http.protocol.HttpProcessor;
 import org.apache.http.protocol.HttpRequestHandler;
@@ -75,7 +75,7 @@ public class HttpServer {
 
     public HttpServer() throws IOException {
         super();
-        this.params = new SyncBasicHttpParams();
+        this.params = new BasicHttpParams();
         this.params
             .setIntParameter(CoreConnectionPNames.SO_TIMEOUT, 5000)
             .setIntParameter(CoreConnectionPNames.SOCKET_BUFFER_SIZE, 8 * 1024)

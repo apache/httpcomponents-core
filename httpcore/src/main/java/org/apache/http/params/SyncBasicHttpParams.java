@@ -32,8 +32,11 @@ import org.apache.http.annotation.ThreadSafe;
  * Thread-safe extension of the {@link BasicHttpParams}.
  *
  * @since 4.1
+ * 
+ * @deprecated (4.3) use {@link BasicHttpParams}.
  */
 @ThreadSafe
+@Deprecated
 public class SyncBasicHttpParams extends BasicHttpParams {
 
     private static final long serialVersionUID = 5387834869062660642L;

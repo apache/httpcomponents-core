@@ -44,8 +44,8 @@ import org.apache.http.nio.reactor.IOReactorExceptionHandler;
 import org.apache.http.nio.reactor.IOReactorStatus;
 import org.apache.http.nio.reactor.ListenerEndpoint;
 import org.apache.http.nio.reactor.ListeningIOReactor;
+import org.apache.http.params.BasicHttpParams;
 import org.apache.http.params.HttpParams;
-import org.apache.http.params.SyncBasicHttpParams;
 import org.apache.http.protocol.HttpProcessor;
 import org.apache.http.protocol.ImmutableHttpProcessor;
 import org.apache.http.protocol.ResponseConnControl;
@@ -61,7 +61,7 @@ import org.junit.Test;
 public class TestDefaultListeningIOReactor {
 
     private static IOEventDispatch createIOEventDispatch() {
-        HttpParams params = new SyncBasicHttpParams();
+        HttpParams params = new BasicHttpParams();
         HttpProcessor httpproc = new ImmutableHttpProcessor(new HttpResponseInterceptor[] {
                 new ResponseDate(),
                 new ResponseServer(),

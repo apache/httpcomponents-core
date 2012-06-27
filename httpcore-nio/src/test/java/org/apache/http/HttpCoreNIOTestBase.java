@@ -34,10 +34,10 @@ import org.apache.http.impl.nio.pool.BasicNIOConnFactory;
 import org.apache.http.impl.nio.pool.BasicNIOConnPool;
 import org.apache.http.nio.NHttpConnectionFactory;
 import org.apache.http.nio.protocol.HttpAsyncRequester;
+import org.apache.http.params.BasicHttpParams;
 import org.apache.http.params.CoreConnectionPNames;
 import org.apache.http.params.CoreProtocolPNames;
 import org.apache.http.params.HttpParams;
-import org.apache.http.params.SyncBasicHttpParams;
 import org.apache.http.protocol.HttpProcessor;
 import org.apache.http.protocol.ImmutableHttpProcessor;
 import org.apache.http.protocol.RequestConnControl;
@@ -75,7 +75,7 @@ public abstract class HttpCoreNIOTestBase {
             HttpParams params) throws Exception;
 
     public void initServer() throws Exception {
-        this.serverParams = new SyncBasicHttpParams();
+        this.serverParams = new BasicHttpParams();
         this.serverParams
             .setIntParameter(CoreConnectionPNames.SO_TIMEOUT, 60000)
             .setIntParameter(CoreConnectionPNames.SOCKET_BUFFER_SIZE, 8 * 1024)
@@ -93,7 +93,7 @@ public abstract class HttpCoreNIOTestBase {
     }
 
     public void initClient() throws Exception {
-        this.clientParams = new SyncBasicHttpParams();
+        this.clientParams = new BasicHttpParams();
         this.clientParams
             .setIntParameter(CoreConnectionPNames.SO_TIMEOUT, 60000)
             .setIntParameter(CoreConnectionPNames.CONNECTION_TIMEOUT, 60000)

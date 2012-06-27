@@ -42,9 +42,9 @@ import org.apache.http.impl.pool.BasicConnFactory;
 import org.apache.http.impl.pool.BasicConnPool;
 import org.apache.http.impl.pool.BasicPoolEntry;
 import org.apache.http.message.BasicHttpRequest;
+import org.apache.http.params.BasicHttpParams;
 import org.apache.http.params.HttpParams;
 import org.apache.http.params.HttpProtocolParams;
-import org.apache.http.params.SyncBasicHttpParams;
 import org.apache.http.protocol.BasicHttpContext;
 import org.apache.http.protocol.ExecutionContext;
 import org.apache.http.protocol.HttpContext;
@@ -69,7 +69,7 @@ public class ElementalPoolingHttpGet {
 
     public static void main(String[] args) throws Exception {
 
-        final HttpParams params = new SyncBasicHttpParams();
+        final HttpParams params = new BasicHttpParams();
         HttpProtocolParams.setVersion(params, HttpVersion.HTTP_1_1);
         HttpProtocolParams.setContentCharset(params, "UTF-8");
         HttpProtocolParams.setUserAgent(params, "Test/1.1");

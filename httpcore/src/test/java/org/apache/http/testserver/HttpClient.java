@@ -38,14 +38,14 @@ import org.apache.http.HttpRequestInterceptor;
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpVersion;
 import org.apache.http.impl.DefaultConnectionReuseStrategy;
+import org.apache.http.params.BasicHttpParams;
 import org.apache.http.params.CoreConnectionPNames;
-import org.apache.http.params.HttpParams;
 import org.apache.http.params.CoreProtocolPNames;
 import org.apache.http.params.DefaultedHttpParams;
-import org.apache.http.params.SyncBasicHttpParams;
-import org.apache.http.protocol.HttpContext;
+import org.apache.http.params.HttpParams;
 import org.apache.http.protocol.BasicHttpContext;
 import org.apache.http.protocol.ExecutionContext;
+import org.apache.http.protocol.HttpContext;
 import org.apache.http.protocol.HttpProcessor;
 import org.apache.http.protocol.HttpRequestExecutor;
 import org.apache.http.protocol.ImmutableHttpProcessor;
@@ -67,7 +67,7 @@ public class HttpClient {
         super();
         this.httpproc = httpproc;
         this.connStrategy = new DefaultConnectionReuseStrategy();
-        this.params = new SyncBasicHttpParams();
+        this.params = new BasicHttpParams();
         this.params
             .setIntParameter(CoreConnectionPNames.SO_TIMEOUT, 5000)
             .setBooleanParameter(CoreConnectionPNames.STALE_CONNECTION_CHECK, false)
