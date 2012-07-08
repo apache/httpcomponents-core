@@ -39,19 +39,27 @@ import java.util.concurrent.TimeUnit;
 import org.apache.http.HttpCoreNIOTestBase;
 import org.apache.http.HttpException;
 import org.apache.http.HttpRequest;
+import org.apache.http.HttpResponse;
+import org.apache.http.HttpVersion;
 import org.apache.http.LoggingClientConnectionFactory;
 import org.apache.http.LoggingServerConnectionFactory;
 import org.apache.http.concurrent.Cancellable;
+import org.apache.http.entity.BasicHttpEntity;
+import org.apache.http.entity.ContentType;
 import org.apache.http.impl.DefaultConnectionReuseStrategy;
 import org.apache.http.impl.DefaultHttpResponseFactory;
 import org.apache.http.impl.nio.DefaultNHttpClientConnection;
 import org.apache.http.impl.nio.DefaultNHttpServerConnection;
+import org.apache.http.message.BasicHttpResponse;
+import org.apache.http.nio.ContentEncoder;
+import org.apache.http.nio.IOControl;
 import org.apache.http.nio.NHttpConnectionFactory;
 import org.apache.http.nio.protocol.BasicAsyncRequestConsumer;
 import org.apache.http.nio.protocol.HttpAsyncExchange;
 import org.apache.http.nio.protocol.HttpAsyncRequestConsumer;
 import org.apache.http.nio.protocol.HttpAsyncRequestHandler;
 import org.apache.http.nio.protocol.HttpAsyncRequestHandlerRegistry;
+import org.apache.http.nio.protocol.HttpAsyncResponseProducer;
 import org.apache.http.nio.protocol.HttpAsyncService;
 import org.apache.http.nio.reactor.IOReactorStatus;
 import org.apache.http.nio.reactor.ListenerEndpoint;
@@ -84,6 +92,90 @@ public class TestHttpAsyncHandlerCancellable extends HttpCoreNIOTestBase {
     protected NHttpConnectionFactory<DefaultNHttpClientConnection> createClientConnectionFactory(
             final HttpParams params) throws Exception {
         return new LoggingClientConnectionFactory(params);
+    }
+
+    @Test
+    public void testResponsePrematureTermination() throws Exception {
+        
+        final CountDownLatch latch = new CountDownLatch(1);
+        final HttpAsyncResponseProducer responseProducer = new HttpAsyncResponseProducer() {
+            
+            public HttpResponse generateResponse() {
+                HttpResponse response = new BasicHttpResponse(HttpVersion.HTTP_1_1, 200, "OK");
+                BasicHttpEntity entity = new BasicHttpEntity();
+                entity.setContentType(ContentType.DEFAULT_BINARY.toString());
+                entity.setChunked(true);
+                response.setEntity(entity);
+                return response;
+            }
+            
+            public void close() throws IOException {
+                latch.countDown();
+            }
+            
+            public void responseCompleted(final HttpContext context) {
+            }
+            
+            public void produceContent(
+                    final ContentEncoder encoder, final IOControl ioctrl) throws IOException {
+                // suspend output
+                ioctrl.suspendOutput();
+            }
+            
+            public void failed(final Exception ex) {
+            }
+
+        };
+        
+        HttpAsyncRequestHandlerRegistry registry = new HttpAsyncRequestHandlerRegistry();
+        registry.register("*", new HttpAsyncRequestHandler<HttpRequest>() {
+
+            public HttpAsyncRequestConsumer<HttpRequest> processRequest(
+                    final HttpRequest request,
+                    final HttpContext context) throws HttpException, IOException {
+                return new BasicAsyncRequestConsumer();
+            }
+
+            public void handle(
+                    final HttpRequest data, 
+                    final HttpAsyncExchange httpExchange, 
+                    final HttpContext context)
+                    throws HttpException, IOException {
+                httpExchange.submitResponse(responseProducer);
+            }
+            
+        });
+        HttpAsyncService serviceHandler = new HttpAsyncService(
+                this.serverHttpProc,
+                new DefaultConnectionReuseStrategy(),
+                new DefaultHttpResponseFactory(),
+                registry,
+                null,
+                this.serverParams);
+        this.server.start(serviceHandler);
+
+        ListenerEndpoint endpoint = this.server.getListenerEndpoint();
+        endpoint.waitFor();
+
+        Assert.assertEquals("Test server status", IOReactorStatus.ACTIVE, this.server.getStatus());
+        InetSocketAddress address = (InetSocketAddress) endpoint.getAddress();
+        Socket socket = new Socket("localhost", address.getPort());
+        try {
+            OutputStream outstream = socket.getOutputStream();
+            BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(outstream, "US-ASCII"));
+            writer.write("GET /long HTTP/1.1\r\n");
+            writer.write("Host: localhost\r\n");
+            writer.write("\r\n");
+            writer.flush();
+            
+            Thread.sleep(250);
+            
+            writer.close();
+        } finally {
+            socket.close();
+        }
+
+        Assert.assertTrue(latch.await(5, TimeUnit.SECONDS));
     }
 
     @Test

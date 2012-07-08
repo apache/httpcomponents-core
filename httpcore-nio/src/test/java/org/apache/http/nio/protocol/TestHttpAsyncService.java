@@ -310,7 +310,6 @@ public class TestHttpAsyncService {
 
         Mockito.verify(this.httpProcessor).process(request, exchangeContext);
         Mockito.verify(this.requestConsumer).requestReceived(request);
-        Mockito.verify(this.conn).suspendInput();
         Mockito.verify(this.requestConsumer).requestCompleted(exchangeContext);
         Mockito.verify(this.requestHandler).handle(
                 Mockito.eq(data),
@@ -555,7 +554,6 @@ public class TestHttpAsyncService {
         Assert.assertEquals(MessageState.INIT, state.getResponseState());
 
         Mockito.verify(this.requestConsumer).consumeContent(this.decoder, this.conn);
-        Mockito.verify(this.conn).suspendInput();
         Mockito.verify(this.requestConsumer).requestCompleted(exchangeContext);
         Mockito.verify(this.requestHandler).handle(
                 Mockito.eq(data),
@@ -585,7 +583,6 @@ public class TestHttpAsyncService {
         Assert.assertNotNull(state.getResponseProducer());
 
         Mockito.verify(this.requestConsumer).consumeContent(this.decoder, this.conn);
-        Mockito.verify(this.conn).suspendInput();
         Mockito.verify(this.requestConsumer).requestCompleted(exchangeContext);
         Mockito.verify(this.conn).requestOutput();
         Mockito.verify(this.requestHandler, Mockito.never()).handle(
@@ -622,7 +619,6 @@ public class TestHttpAsyncService {
         Assert.assertNotNull(state.getResponseProducer());
 
         Mockito.verify(this.requestConsumer).consumeContent(this.decoder, this.conn);
-        Mockito.verify(this.conn).suspendInput();
         Mockito.verify(this.requestConsumer).requestCompleted(exchangeContext);
         Mockito.verify(this.conn).requestOutput();
     }
