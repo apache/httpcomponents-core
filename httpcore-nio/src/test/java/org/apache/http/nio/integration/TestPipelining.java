@@ -156,20 +156,28 @@ public class TestPipelining extends HttpCoreNIOTestBase {
             }
             reader.close();
             writer.close();
+//            String expected =
+//                    "HTTP/1.1 200 OK\r\n" +
+//                    "Server: TEST-SERVER/1.1\r\n" +
+//                    "Content-Length: 19\r\n" +
+//                    "Content-Type: text/plain; charset=ISO-8859-1\r\n" +
+//                    "\r\n" +
+//                    "thank you very much" +
+//                    "HTTP/1.1 200 OK\r\n" +
+//                    "Server: TEST-SERVER/1.1\r\n" +
+//                    "Content-Length: 19\r\n" +
+//                    "Content-Type: text/plain; charset=ISO-8859-1\r\n" +
+//                    "Connection: close\r\n" +
+//                    "\r\n" +
+//                    "thank you very much";
             String expected =
-                    "HTTP/1.1 200 OK\r\n" +
+                    "HTTP/1.1 400 Bad Request\r\n" +
+                    "Connection: Close\r\n" +
                     "Server: TEST-SERVER/1.1\r\n" +
-                    "Content-Length: 19\r\n" +
+                    "Content-Length: 70\r\n" +
                     "Content-Type: text/plain; charset=ISO-8859-1\r\n" +
                     "\r\n" +
-                    "thank you very much" +
-                    "HTTP/1.1 200 OK\r\n" +
-                    "Server: TEST-SERVER/1.1\r\n" +
-                    "Content-Length: 19\r\n" +
-                    "Content-Type: text/plain; charset=ISO-8859-1\r\n" +
-                    "Connection: close\r\n" +
-                    "\r\n" +
-                    "thank you very much";
+                    "Out of sequence request message detected (pipelining is not supported)";
             Assert.assertEquals(expected, buf.toString());
 
         } finally {

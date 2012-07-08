@@ -271,7 +271,6 @@ public class HttpAsyncService implements NHttpServerEventHandler {
         } else {
             // No request content is expected.
             // Process request right away
-            conn.suspendInput();
             processRequest(conn, state);
         }
     }
@@ -284,7 +283,6 @@ public class HttpAsyncService implements NHttpServerEventHandler {
         consumer.consumeContent(decoder, conn);
         state.setRequestState(MessageState.BODY_STREAM);
         if (decoder.isCompleted()) {
-            conn.suspendInput();
             processRequest(conn, state);
         }
     }
@@ -761,6 +759,11 @@ public class HttpAsyncService implements NHttpServerEventHandler {
                     this.state.setResponseProducer(responseProducer);
                     this.state.setCancellable(null);
                     this.conn.requestOutput();
+                } else {
+                    try {
+                        responseProducer.close();
+                    } catch (IOException ex) {
+                    }
                 }
             }
         }
