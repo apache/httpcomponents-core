@@ -71,7 +71,6 @@ import org.apache.http.protocol.HttpContext;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 
 public class TestHttpAsyncPrematureTermination extends HttpCoreNIOTestBase {
@@ -122,7 +121,7 @@ public class TestHttpAsyncPrematureTermination extends HttpCoreNIOTestBase {
         return (InetSocketAddress) endpoint.getAddress();
     }
 
-    @Test @Ignore
+    @Test
     public void testConnectionTerminatedProcessingRequest() throws Exception {
         HttpAsyncRequestHandlerRegistry registry = new HttpAsyncRequestHandlerRegistry();
         registry.register("*", new HttpAsyncRequestHandler<HttpRequest>() {
@@ -177,7 +176,7 @@ public class TestHttpAsyncPrematureTermination extends HttpCoreNIOTestBase {
         Assert.assertTrue(latch.await(5, TimeUnit.SECONDS));
     }
 
-    @Test @Ignore
+    @Test
     public void testConnectionTerminatedHandlingRequest() throws Exception {
         HttpAsyncRequestHandlerRegistry registry = new HttpAsyncRequestHandlerRegistry();
         registry.register("*", new HttpAsyncRequestHandler<HttpRequest>() {

@@ -32,6 +32,7 @@ import java.net.SocketTimeoutException;
 
 import junit.framework.Assert;
 
+import org.apache.http.ConnectionClosedException;
 import org.apache.http.ConnectionReuseStrategy;
 import org.apache.http.HttpException;
 import org.apache.http.HttpRequest;
@@ -530,6 +531,31 @@ public class TestHttpAsyncRequestExecutor {
         Mockito.verify(this.exchangeHandler).consumeContent(this.decoder, this.conn);
         Mockito.verify(this.exchangeHandler).responseCompleted(this.exchangeContext);
         Mockito.verify(this.conn).close();
+    }
+
+    @Test
+    public void testEndOfInput() throws Exception {
+        State state = new HttpAsyncRequestExecutor.State();
+        this.connContext.setAttribute(HttpAsyncRequestExecutor.HTTP_EXCHANGE_STATE, state);
+
+        this.protocolHandler.endOfInput(this.conn);
+
+        Mockito.verify(this.conn).close();
+    }
+
+    @Test
+    public void testPrematureEndOfInput() throws Exception {
+        State state = new HttpAsyncRequestExecutor.State();
+        state.setRequestState(MessageState.COMPLETED);
+        this.connContext.setAttribute(HttpAsyncRequestExecutor.HTTP_EXCHANGE_STATE, state);
+        this.connContext.setAttribute(HttpAsyncRequestExecutor.HTTP_HANDLER, this.exchangeHandler);
+
+        this.protocolHandler.endOfInput(this.conn);
+
+        Assert.assertFalse(state.isValid());
+
+        Mockito.verify(this.conn).close();
+        Mockito.verify(this.exchangeHandler).failed(Mockito.any(ConnectionClosedException.class));
     }
 
     @Test
