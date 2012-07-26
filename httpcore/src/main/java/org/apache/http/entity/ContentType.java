@@ -27,6 +27,7 @@
 
 package org.apache.http.entity;
 
+import java.io.Serializable;
 import java.nio.charset.Charset;
 import java.nio.charset.UnsupportedCharsetException;
 import java.util.Locale;
@@ -50,8 +51,10 @@ import org.apache.http.message.BasicHeaderValueParser;
  * @since 4.2
  */
 @Immutable
-public final class ContentType {
+public final class ContentType implements Serializable {
 
+    private static final long serialVersionUID = -7768694718232371896L;
+    
     // constants
     public static final ContentType APPLICATION_ATOM_XML = create(
             "application/atom+xml", Consts.ISO_8859_1);
