@@ -131,14 +131,15 @@ public interface HttpResponse extends HttpMessage {
     /**
      * Associates a response entity with this response.
      * <p/>
-     * Please note that if an entity has already been set for this response and it depends on 
-     * an input stream ({@link HttpEntity#isStreaming()} returns <code>true</code>), 
+     * Please note that if an entity has already been set for this response and it depends on
+     * an input stream ({@link HttpEntity#isStreaming()} returns <code>true</code>),
      * it must be fully consumed in order to ensure release of resources.
      *
      * @param entity    the entity to associate with this response, or
      *                  <code>null</code> to unset
-     *                  
+     *
      * @see HttpEntity#isStreaming()
+     * @see org.apache.http.util.EntityUtils#updateEntity(HttpResponse, HttpEntity)
      */
     void setEntity(HttpEntity entity);
 

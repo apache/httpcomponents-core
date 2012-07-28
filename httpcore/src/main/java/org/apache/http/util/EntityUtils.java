@@ -55,7 +55,7 @@ public final class EntityUtils {
      * Ensures that the entity content is fully consumed and the content stream, if exists,
      * is closed. The process is done, <i>quietly</i> , without throwing any IOException.
      *
-     * @param entity
+     * @param entity the entity to consume.
      *
      *
      * @since 4.2
@@ -71,7 +71,7 @@ public final class EntityUtils {
      * Ensures that the entity content is fully consumed and the content stream, if exists,
      * is closed.
      *
-     * @param entity
+     * @param entity the entity to consume.
      * @throws IOException if an error occurs reading the input stream
      *
      * @since 4.1
@@ -89,25 +89,29 @@ public final class EntityUtils {
     }
 
     /**
-     * Updates entity in a response by first consuming an existing entity, then setting the new one.
+     * Updates an entity in a response by first consuming an existing entity, then setting the new one.
      *
-     * @param response the response with an entity to update.
+     * @param response the response with an entity to update; must not be null.
      * @param entity the entity to set in the response.
-     * @throws IOException if an error occurs while reading the input stream on the existing 
+     * @throws IOException if an error occurs while reading the input stream on the existing
      * entity.
-     * 
+     * @throws IllegalArgumentException if response is null.
+     *
      * @since 4.3
      */
     public static void updateEntity(
             final HttpResponse response, final HttpEntity entity) throws IOException {
+        if(response == null) {
+            throw new IllegalArgumentException("Response cannot be null");
+        }
         consume(response.getEntity());
         response.setEntity(entity);
     }
-    
+
     /**
      * Read the contents of an entity and return it as a byte array.
      *
-     * @param entity
+     * @param entity the entity to read from=
      * @return byte array containing the entity content. May be null if
      *   {@link HttpEntity#getContent()} is null.
      * @throws IOException if an error occurs reading the input stream
@@ -270,7 +274,7 @@ public final class EntityUtils {
      * The content is converted using the character set from the entity (if any),
      * failing that, "ISO-8859-1" is used.
      *
-     * @param entity
+     * @param entity the entity to convert to a string; must not be null
      * @return String containing the content.
      * @throws ParseException if header elements cannot be parsed
      * @throws IllegalArgumentException if entity is null or if content length > Integer.MAX_VALUE
