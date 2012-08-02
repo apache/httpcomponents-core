@@ -40,6 +40,8 @@ import org.apache.http.annotation.Immutable;
 @Immutable
 public class DirectByteBufferAllocator implements ByteBufferAllocator {
 
+    public static final ByteBufferAllocator INSTANCE = new DirectByteBufferAllocator();
+
     public ByteBuffer allocate(int size) {
         return ByteBuffer.allocateDirect(size);
     }

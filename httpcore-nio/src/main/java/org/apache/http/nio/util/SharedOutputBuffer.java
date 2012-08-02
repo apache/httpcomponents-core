@@ -54,13 +54,17 @@ import org.apache.http.nio.IOControl;
 @ThreadSafe
 public class SharedOutputBuffer extends ExpandableBuffer implements ContentOutputBuffer {
 
-    private final IOControl ioctrl;
     private final ReentrantLock lock;
     private final Condition condition;
 
+    private volatile IOControl ioctrl;
     private volatile boolean shutdown = false;
     private volatile boolean endOfStream = false;
 
+    /**
+     * @deprecated (4.3) use {@link SharedOutputBuffer#SharedOutputBuffer(int, ByteBufferAllocator)}
+     */
+    @Deprecated
     public SharedOutputBuffer(int buffersize, final IOControl ioctrl, final ByteBufferAllocator allocator) {
         super(buffersize, allocator);
         if (ioctrl == null) {
@@ -69,6 +73,22 @@ public class SharedOutputBuffer extends ExpandableBuffer implements ContentOutpu
         this.ioctrl = ioctrl;
         this.lock = new ReentrantLock();
         this.condition = this.lock.newCondition();
+    }
+
+    /**
+     * @since 4.3
+     */
+    public SharedOutputBuffer(int buffersize, final ByteBufferAllocator allocator) {
+        super(buffersize, allocator);
+        this.lock = new ReentrantLock();
+        this.condition = this.lock.newCondition();
+    }
+
+    /**
+     * @since 4.3
+     */
+    public SharedOutputBuffer(int buffersize) {
+        this(buffersize, HeapByteBufferAllocator.INSTANCE);
     }
 
     public void reset() {
@@ -124,12 +144,25 @@ public class SharedOutputBuffer extends ExpandableBuffer implements ContentOutpu
         }
     }
 
+    /**
+     * @deprecated (4.3) use {@link #produceContent(ContentEncoder, IOControl)
+     */
     public int produceContent(final ContentEncoder encoder) throws IOException {
+        return produceContent(encoder, null);
+    }
+
+    /**
+     * @since 4.3
+     */
+    public int produceContent(final ContentEncoder encoder, final IOControl ioctrl) throws IOException {
         if (this.shutdown) {
             return -1;
         }
         this.lock.lock();
         try {
+            if (ioctrl != null) {
+                this.ioctrl = ioctrl;
+            }
             setOutputMode();
             int bytesWritten = 0;
             if (super.hasData()) {
@@ -146,7 +179,9 @@ public class SharedOutputBuffer extends ExpandableBuffer implements ContentOutpu
                 }
                 if (!this.endOfStream) {
                     // suspend output events
-                    this.ioctrl.suspendOutput();
+                    if (this.ioctrl != null) {
+                        this.ioctrl.suspendOutput();
+                    }
                 }
             }
             this.condition.signalAll();
@@ -234,7 +269,9 @@ public class SharedOutputBuffer extends ExpandableBuffer implements ContentOutpu
                     if (this.shutdown) {
                         throw new InterruptedIOException("Output operation aborted");
                     }
-                    this.ioctrl.requestOutput();
+                    if (this.ioctrl != null) {
+                        this.ioctrl.requestOutput();
+                    }
                     this.condition.await();
                 }
             } catch (InterruptedException ex) {
@@ -252,7 +289,9 @@ public class SharedOutputBuffer extends ExpandableBuffer implements ContentOutpu
                 return;
             }
             this.endOfStream = true;
-            this.ioctrl.requestOutput();
+            if (this.ioctrl != null) {
+                this.ioctrl.requestOutput();
+            }
         } finally {
             this.lock.unlock();
         }

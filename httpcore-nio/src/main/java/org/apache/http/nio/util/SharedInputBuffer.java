@@ -54,21 +54,38 @@ import org.apache.http.nio.IOControl;
 @ThreadSafe
 public class SharedInputBuffer extends ExpandableBuffer implements ContentInputBuffer {
 
-    private final IOControl ioctrl;
     private final ReentrantLock lock;
     private final Condition condition;
 
+    private volatile IOControl ioctrl;
     private volatile boolean shutdown = false;
     private volatile boolean endOfStream = false;
 
+    /**
+     * @deprecated (4.3) use {@link SharedInputBuffer#SharedInputBuffer(int, ByteBufferAllocator)}
+     */
+    @Deprecated
     public SharedInputBuffer(int buffersize, final IOControl ioctrl, final ByteBufferAllocator allocator) {
         super(buffersize, allocator);
-        if (ioctrl == null) {
-            throw new IllegalArgumentException("I/O content control may not be null");
-        }
         this.ioctrl = ioctrl;
         this.lock = new ReentrantLock();
         this.condition = this.lock.newCondition();
+    }
+
+    /**
+     * @since 4.3
+     */
+    public SharedInputBuffer(int buffersize, final ByteBufferAllocator allocator) {
+        super(buffersize, allocator);
+        this.lock = new ReentrantLock();
+        this.condition = this.lock.newCondition();
+    }
+
+    /**
+     * @since 4.3
+     */
+    public SharedInputBuffer(int buffersize) {
+        this(buffersize, HeapByteBufferAllocator.INSTANCE);
     }
 
     public void reset() {
@@ -84,12 +101,26 @@ public class SharedInputBuffer extends ExpandableBuffer implements ContentInputB
         }
     }
 
+    /**
+     * @deprecated (4.3) use {@link #consumeContent(ContentDecoder, IOControl)}
+     */
+    @Deprecated
     public int consumeContent(final ContentDecoder decoder) throws IOException {
+        return consumeContent(decoder, null);
+    }
+
+    /**
+     * @since 4.3
+     */
+    public int consumeContent(final ContentDecoder decoder, final IOControl ioctrl) throws IOException {
         if (this.shutdown) {
             return -1;
         }
         this.lock.lock();
         try {
+            if (ioctrl != null) {
+                this.ioctrl = ioctrl;
+            }
             setInputMode();
             int totalRead = 0;
             int bytesRead;
@@ -100,7 +131,9 @@ public class SharedInputBuffer extends ExpandableBuffer implements ContentInputB
                 this.endOfStream = true;
             }
             if (!this.buffer.hasRemaining()) {
-                this.ioctrl.suspendInput();
+                if (this.ioctrl != null) {
+                    this.ioctrl.suspendInput();
+                }
             }
             this.condition.signalAll();
 
@@ -166,7 +199,9 @@ public class SharedInputBuffer extends ExpandableBuffer implements ContentInputB
                     if (this.shutdown) {
                         throw new InterruptedIOException("Input operation aborted");
                     }
-                    this.ioctrl.requestInput();
+                    if (this.ioctrl != null) {
+                        this.ioctrl.requestInput();
+                    }
                     this.condition.await();
                 }
             } catch (InterruptedException ex) {

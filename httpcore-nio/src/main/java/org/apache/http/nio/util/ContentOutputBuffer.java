@@ -32,7 +32,7 @@ import java.io.IOException;
 import org.apache.http.nio.ContentEncoder;
 
 /**
- * Buffer for storing content to be streamed out to a {@link ContentEncoder}.
+ * Generic content output buffer.
  *
  * @since 4.0
  */
@@ -44,7 +44,10 @@ public interface ContentOutputBuffer {
      * @param encoder content encoder.
      * @return number of bytes written.
      * @throws IOException in case of an I/O error.
+     *
+     * @deprecated (4.3) use implementation specific methods.
      */
+    @Deprecated
     int produceContent(ContentEncoder encoder) throws IOException;
 
     /**

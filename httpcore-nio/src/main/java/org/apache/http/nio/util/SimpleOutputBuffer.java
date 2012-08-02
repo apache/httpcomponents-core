@@ -48,6 +48,13 @@ public class SimpleOutputBuffer extends ExpandableBuffer implements ContentOutpu
         this.endOfStream = false;
     }
 
+    /**
+     * @since 4.3
+     */
+    public SimpleOutputBuffer(int buffersize) {
+        this(buffersize, HeapByteBufferAllocator.INSTANCE);
+    }
+
     public int produceContent(final ContentEncoder encoder) throws IOException {
         setOutputMode();
         int bytesWritten = encoder.write(this.buffer);

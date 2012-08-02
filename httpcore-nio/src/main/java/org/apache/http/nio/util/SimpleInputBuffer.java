@@ -47,6 +47,13 @@ public class SimpleInputBuffer extends ExpandableBuffer implements ContentInputB
         super(buffersize, allocator);
     }
 
+    /**
+     * @since 4.3
+     */
+    public SimpleInputBuffer(int buffersize) {
+        this(buffersize, HeapByteBufferAllocator.INSTANCE);
+    }
+
     public void reset() {
         this.endOfStream = false;
         super.clear();

@@ -32,7 +32,7 @@ import java.io.IOException;
 import org.apache.http.nio.ContentDecoder;
 
 /**
- * Buffer for storing content streamed out from a {@link ContentDecoder}.
+ * Generic content input buffer.
  *
  * @since 4.0
  */
@@ -45,7 +45,10 @@ public interface ContentInputBuffer {
      * @param decoder the content decoder.
      * @return number of bytes read.
      * @throws IOException in case of an I/O error.
+     *
+     * @deprecated (4.3) use implementation specific methods.
      */
+    @Deprecated
     int consumeContent(ContentDecoder decoder) throws IOException;
 
     /**

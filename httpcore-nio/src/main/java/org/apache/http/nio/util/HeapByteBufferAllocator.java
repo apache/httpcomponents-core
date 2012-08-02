@@ -40,6 +40,8 @@ import org.apache.http.annotation.Immutable;
 @Immutable
 public class HeapByteBufferAllocator implements ByteBufferAllocator {
 
+    public static final ByteBufferAllocator INSTANCE = new HeapByteBufferAllocator();
+
     public ByteBuffer allocate(int size) {
         return ByteBuffer.allocate(size);
     }
