@@ -1,5 +1,12 @@
 Changes since 4.2.1
 
+* [HTTPCORE-306] I/O reactor TCP_NODELAY parameter now defaults to true.
+  Contributed by Oleg Kalnichevski <olegk at apache.org>
+
+* [HTTPASYNC-21] request execution handler does not get closed in case of a premature HTTP 
+  exchange termination.
+  Contributed by Oleg Kalnichevski <olegk at apache.org>
+
 * [HTTPCORE-303] ContentType made Serializable. 
   Contributed by Oleg Kalnichevski <olegk at apache.org>
 
