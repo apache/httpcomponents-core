@@ -63,7 +63,7 @@ public final class IOReactorConfig implements Cloneable {
         this.soReuseAddress = false;
         this.soLinger = -1;
         this.soKeepAlive = false;
-        this.tcpNoDelay = false;
+        this.tcpNoDelay = true;
         this.connectTimeout = 0;
     }
 
