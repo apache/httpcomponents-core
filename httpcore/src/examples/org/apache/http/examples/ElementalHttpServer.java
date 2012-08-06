@@ -177,8 +177,8 @@ public class ElementalHttpServer {
             // Set up the HTTP service
             this.httpService = new HttpService(
                     httpproc,
-                    new DefaultConnectionReuseStrategy(),
-                    new DefaultHttpResponseFactory(),
+                    DefaultConnectionReuseStrategy.INSTANCE,
+                    DefaultHttpResponseFactory.INSTANCE,
                     reqistry,
                     this.params);
         }

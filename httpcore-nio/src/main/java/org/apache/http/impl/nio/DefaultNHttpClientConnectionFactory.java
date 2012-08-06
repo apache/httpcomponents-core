@@ -80,7 +80,7 @@ public class DefaultNHttpClientConnectionFactory
     }
 
     public DefaultNHttpClientConnectionFactory(final HttpParams params) {
-        this(new DefaultHttpResponseFactory(), new HeapByteBufferAllocator(), params);
+        this(DefaultHttpResponseFactory.INSTANCE, HeapByteBufferAllocator.INSTANCE, params);
     }
 
     protected DefaultNHttpClientConnection createConnection(

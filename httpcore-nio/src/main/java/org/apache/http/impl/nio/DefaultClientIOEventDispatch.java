@@ -101,7 +101,7 @@ public class DefaultClientIOEventDispatch extends AbstractIODispatch<NHttpClient
      * @return byte buffer allocator.
      */
     protected ByteBufferAllocator createByteBufferAllocator() {
-        return new HeapByteBufferAllocator();
+        return HeapByteBufferAllocator.INSTANCE;
     }
 
     /**
@@ -114,7 +114,7 @@ public class DefaultClientIOEventDispatch extends AbstractIODispatch<NHttpClient
      * @return HTTP response factory.
      */
     protected HttpResponseFactory createHttpResponseFactory() {
-        return new DefaultHttpResponseFactory();
+        return DefaultHttpResponseFactory.INSTANCE;
     }
 
     /**

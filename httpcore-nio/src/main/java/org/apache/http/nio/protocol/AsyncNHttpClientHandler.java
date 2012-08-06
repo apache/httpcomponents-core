@@ -114,8 +114,7 @@ public class AsyncNHttpClientHandler extends NHttpHandlerBase
             final NHttpRequestExecutionHandler execHandler,
             final ConnectionReuseStrategy connStrategy,
             final HttpParams params) {
-        this(httpProcessor, execHandler, connStrategy,
-                new HeapByteBufferAllocator(), params);
+        this(httpProcessor, execHandler, connStrategy, HeapByteBufferAllocator.INSTANCE, params);
     }
 
     public void connected(final NHttpClientConnection conn, final Object attachment) {

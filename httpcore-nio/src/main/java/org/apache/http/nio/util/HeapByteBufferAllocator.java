@@ -42,6 +42,10 @@ public class HeapByteBufferAllocator implements ByteBufferAllocator {
 
     public static final ByteBufferAllocator INSTANCE = new HeapByteBufferAllocator();
 
+    public HeapByteBufferAllocator() {
+        super();
+    }
+
     public ByteBuffer allocate(int size) {
         return ByteBuffer.allocate(size);
     }

@@ -59,7 +59,7 @@ public class TestBuffers {
 
         ContentDecoder decoder = new ContentDecoderMock(channel);
 
-        SimpleInputBuffer buffer = new SimpleInputBuffer(4, new DirectByteBufferAllocator());
+        SimpleInputBuffer buffer = new SimpleInputBuffer(4, DirectByteBufferAllocator.INSTANCE);
         int count = buffer.consumeContent(decoder);
         Assert.assertEquals(16, count);
         Assert.assertTrue(decoder.isCompleted());
@@ -96,7 +96,7 @@ public class TestBuffers {
 
         ContentEncoder encoder = new ContentEncoderMock(channel, outbuf, metrics);
 
-        SimpleOutputBuffer buffer = new SimpleOutputBuffer(4, new DirectByteBufferAllocator());
+        SimpleOutputBuffer buffer = new SimpleOutputBuffer(4, DirectByteBufferAllocator.INSTANCE);
 
         buffer.write(EncodingUtils.getAsciiBytes("stuff"));
         buffer.write(';');
@@ -112,7 +112,7 @@ public class TestBuffers {
 
     @Test
     public void testBufferInfo() throws Exception {
-        SimpleOutputBuffer buffer = new SimpleOutputBuffer(8, new DirectByteBufferAllocator());
+        SimpleOutputBuffer buffer = new SimpleOutputBuffer(8, DirectByteBufferAllocator.INSTANCE);
         BufferInfo bufferinfo = buffer;
 
         Assert.assertEquals(0, bufferinfo.length());
@@ -127,14 +127,14 @@ public class TestBuffers {
 
     @Test
     public void testInputBufferNullInput() throws IOException {
-        SimpleInputBuffer buffer = new SimpleInputBuffer(4, new DirectByteBufferAllocator());
+        SimpleInputBuffer buffer = new SimpleInputBuffer(4, DirectByteBufferAllocator.INSTANCE);
         Assert.assertEquals(0, buffer.read(null));
         Assert.assertEquals(0, buffer.read(null, 0, 0));
     }
 
     @Test
     public void testOutputBufferNullInput() throws IOException {
-        SimpleOutputBuffer buffer = new SimpleOutputBuffer(4, new DirectByteBufferAllocator());
+        SimpleOutputBuffer buffer = new SimpleOutputBuffer(4, DirectByteBufferAllocator.INSTANCE);
         buffer.write(null);
         buffer.write(null, 0, 10);
         Assert.assertFalse(buffer.hasData());

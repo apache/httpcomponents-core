@@ -96,8 +96,7 @@ public class BasicStatusLine implements StatusLine, Cloneable, Serializable {
     @Override
     public String toString() {
         // no need for non-default formatting in toString()
-        return BasicLineFormatter.DEFAULT
-            .formatStatusLine(null, this).toString();
+        return BasicLineFormatter.INSTANCE.formatStatusLine(null, this).toString();
     }
 
     @Override

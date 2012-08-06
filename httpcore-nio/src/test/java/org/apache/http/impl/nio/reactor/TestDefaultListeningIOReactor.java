@@ -70,7 +70,7 @@ public class TestDefaultListeningIOReactor {
         });
         HttpAsyncService serviceHandler = new HttpAsyncService(
                 httpproc,
-                new DefaultConnectionReuseStrategy(),
+                DefaultConnectionReuseStrategy.INSTANCE,
                 new HttpAsyncRequestHandlerRegistry(),
                 params);
         return new DefaultHttpServerIODispatch(serviceHandler, params);

@@ -85,7 +85,7 @@ public class SessionOutputBufferImpl extends ExpandableBuffer implements Session
             int buffersize,
             int linebuffersize,
             final HttpParams params) {
-        this(buffersize, linebuffersize, new HeapByteBufferAllocator(), params);
+        this(buffersize, linebuffersize, HeapByteBufferAllocator.INSTANCE, params);
     }
 
     public void reset(final HttpParams params) {

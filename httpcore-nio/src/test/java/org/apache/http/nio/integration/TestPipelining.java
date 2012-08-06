@@ -123,7 +123,7 @@ public class TestPipelining extends HttpCoreNIOTestBase {
         }));
         HttpAsyncService serviceHandler = new HttpAsyncService(
                 this.serverHttpProc,
-                new DefaultConnectionReuseStrategy(),
+                DefaultConnectionReuseStrategy.INSTANCE,
                 registry,
                 this.serverParams);
         this.server.start(serviceHandler);
@@ -191,7 +191,7 @@ public class TestPipelining extends HttpCoreNIOTestBase {
 
         final CountDownLatch latch = new CountDownLatch(1);
         final Cancellable cancellable = new Cancellable() {
-            
+
             public boolean cancel() {
                 latch.countDown();
                 return true;
@@ -229,7 +229,7 @@ public class TestPipelining extends HttpCoreNIOTestBase {
         }));
         HttpAsyncService serviceHandler = new HttpAsyncService(
                 this.serverHttpProc,
-                new DefaultConnectionReuseStrategy(),
+                DefaultConnectionReuseStrategy.INSTANCE,
                 registry,
                 this.serverParams);
         this.server.start(serviceHandler);

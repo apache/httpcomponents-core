@@ -152,8 +152,8 @@ public class TestThrottlingNHttpHandlers extends HttpCoreNIOTestBase {
 
         ThrottlingHttpServiceHandler serviceHandler = new ThrottlingHttpServiceHandler(
                 this.serverHttpProc,
-                new DefaultHttpResponseFactory(),
-                new DefaultConnectionReuseStrategy(),
+                DefaultHttpResponseFactory.INSTANCE,
+                DefaultConnectionReuseStrategy.INSTANCE,
                 this.execService,
                 this.serverParams);
 
@@ -165,7 +165,7 @@ public class TestThrottlingNHttpHandlers extends HttpCoreNIOTestBase {
         ThrottlingHttpClientHandler clientHandler = new ThrottlingHttpClientHandler(
                 this.clientHttpProc,
                 requestExecutionHandler,
-                new DefaultConnectionReuseStrategy(),
+                DefaultConnectionReuseStrategy.INSTANCE,
                 this.execService,
                 this.clientParams);
 
@@ -393,8 +393,8 @@ public class TestThrottlingNHttpHandlers extends HttpCoreNIOTestBase {
 
         ThrottlingHttpServiceHandler serviceHandler = new ThrottlingHttpServiceHandler(
                 serverHttpProc,
-                new DefaultHttpResponseFactory(),
-                new DefaultConnectionReuseStrategy(),
+                DefaultHttpResponseFactory.INSTANCE,
+                DefaultConnectionReuseStrategy.INSTANCE,
                 this.execService,
                 this.serverParams);
 
@@ -415,7 +415,7 @@ public class TestThrottlingNHttpHandlers extends HttpCoreNIOTestBase {
         ThrottlingHttpClientHandler clientHandler = new ThrottlingHttpClientHandler(
                 clientHttpProc,
                 requestExecutionHandler,
-                new DefaultConnectionReuseStrategy(),
+                DefaultConnectionReuseStrategy.INSTANCE,
                 this.execService,
                 this.clientParams);
 
@@ -493,8 +493,8 @@ public class TestThrottlingNHttpHandlers extends HttpCoreNIOTestBase {
 
         ThrottlingHttpServiceHandler serviceHandler = new ThrottlingHttpServiceHandler(
                 serverHttpProc,
-                new DefaultHttpResponseFactory(),
-                new DefaultConnectionReuseStrategy(),
+                DefaultHttpResponseFactory.INSTANCE,
+                DefaultConnectionReuseStrategy.INSTANCE,
                 this.execService,
                 this.serverParams);
 
@@ -513,7 +513,7 @@ public class TestThrottlingNHttpHandlers extends HttpCoreNIOTestBase {
         ThrottlingHttpClientHandler clientHandler = new ThrottlingHttpClientHandler(
                 clientHttpProc,
                 requestExecutionHandler,
-                new DefaultConnectionReuseStrategy(),
+                DefaultConnectionReuseStrategy.INSTANCE,
                 this.execService,
                 this.clientParams);
 
@@ -615,8 +615,8 @@ public class TestThrottlingNHttpHandlers extends HttpCoreNIOTestBase {
 
         ThrottlingHttpServiceHandler serviceHandler = new ThrottlingHttpServiceHandler(
                 serverHttpProc,
-                new DefaultHttpResponseFactory(),
-                new DefaultConnectionReuseStrategy(),
+                DefaultHttpResponseFactory.INSTANCE,
+                DefaultConnectionReuseStrategy.INSTANCE,
                 this.execService,
                 this.serverParams);
 
@@ -635,7 +635,7 @@ public class TestThrottlingNHttpHandlers extends HttpCoreNIOTestBase {
         ThrottlingHttpClientHandler clientHandler = new ThrottlingHttpClientHandler(
                 clientHttpProc,
                 requestExecutionHandler,
-                new DefaultConnectionReuseStrategy(),
+                DefaultConnectionReuseStrategy.INSTANCE,
                 this.execService,
                 this.clientParams);
 
@@ -783,8 +783,8 @@ public class TestThrottlingNHttpHandlers extends HttpCoreNIOTestBase {
 
         ThrottlingHttpServiceHandler serviceHandler = new ThrottlingHttpServiceHandler(
                 serverHttpProc,
-                new DefaultHttpResponseFactory(),
-                new DefaultConnectionReuseStrategy(),
+                DefaultHttpResponseFactory.INSTANCE,
+                DefaultConnectionReuseStrategy.INSTANCE,
                 this.execService,
                 this.serverParams);
 
@@ -803,7 +803,7 @@ public class TestThrottlingNHttpHandlers extends HttpCoreNIOTestBase {
         ThrottlingHttpClientHandler clientHandler = new ThrottlingHttpClientHandler(
                 clientHttpProc,
                 requestExecutionHandler,
-                new DefaultConnectionReuseStrategy(),
+                DefaultConnectionReuseStrategy.INSTANCE,
                 this.execService,
                 this.clientParams);
 

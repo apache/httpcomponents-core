@@ -41,7 +41,8 @@ public class LoggingSSLServerConnectionFactory extends SSLNHttpServerConnectionF
     public LoggingSSLServerConnectionFactory(
             final SSLContext sslcontext,
             final HttpParams params) {
-        super(sslcontext, null, new DefaultHttpRequestFactory(), new HeapByteBufferAllocator(), params);
+        super(sslcontext, null, DefaultHttpRequestFactory.INSTANCE, 
+                HeapByteBufferAllocator.INSTANCE, params);
     }
 
     @Override

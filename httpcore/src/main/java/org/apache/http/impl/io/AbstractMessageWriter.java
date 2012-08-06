@@ -70,8 +70,7 @@ public abstract class AbstractMessageWriter<T extends HttpMessage> implements Ht
         }
         this.sessionBuffer = buffer;
         this.lineBuf = new CharArrayBuffer(128);
-        this.lineFormatter = (formatter != null) ?
-            formatter : BasicLineFormatter.DEFAULT;
+        this.lineFormatter = (formatter != null) ? formatter : BasicLineFormatter.INSTANCE;
     }
 
     /**

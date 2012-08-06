@@ -63,9 +63,13 @@ public class BasicLineParser implements LineParser {
      * Note that {@link BasicLineParser} is not a singleton, there can
      * be many instances of the class itself and of derived classes.
      * The instance here provides non-customized, default behavior.
+     *
+     * @deprecated (4.3) use {@link #INSTANCE}
      */
+    @Deprecated
     public final static BasicLineParser DEFAULT = new BasicLineParser();
 
+    public final static LineParser INSTANCE = new BasicLineParser();
 
     /**
      * A version of the protocol to parse.
@@ -108,7 +112,7 @@ public class BasicLineParser implements LineParser {
         }
 
         if (parser == null)
-            parser = BasicLineParser.DEFAULT;
+            parser = BasicLineParser.INSTANCE;
 
         CharArrayBuffer buffer = new CharArrayBuffer(value.length());
         buffer.append(value);
@@ -273,7 +277,7 @@ public class BasicLineParser implements LineParser {
         }
 
         if (parser == null)
-            parser = BasicLineParser.DEFAULT;
+            parser = BasicLineParser.INSTANCE;
 
         CharArrayBuffer buffer = new CharArrayBuffer(value.length());
         buffer.append(value);
@@ -373,7 +377,7 @@ public class BasicLineParser implements LineParser {
         }
 
         if (parser == null)
-            parser = BasicLineParser.DEFAULT;
+            parser = BasicLineParser.INSTANCE;
 
         CharArrayBuffer buffer = new CharArrayBuffer(value.length());
         buffer.append(value);
@@ -471,7 +475,7 @@ public class BasicLineParser implements LineParser {
         }
 
         if (parser == null)
-            parser = BasicLineParser.DEFAULT;
+            parser = BasicLineParser.INSTANCE;
 
         CharArrayBuffer buffer = new CharArrayBuffer(value.length());
         buffer.append(value);

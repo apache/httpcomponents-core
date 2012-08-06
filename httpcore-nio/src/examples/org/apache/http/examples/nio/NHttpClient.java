@@ -114,7 +114,7 @@ public class NHttpClient {
         t.start();
         // Create HTTP requester
         HttpAsyncRequester requester = new HttpAsyncRequester(
-                httpproc, new DefaultConnectionReuseStrategy(), params);
+                httpproc, DefaultConnectionReuseStrategy.INSTANCE, params);
         // Execute HTTP GETs to the following hosts and
         HttpHost[] targets = new HttpHost[] {
                 new HttpHost("www.apache.org", 80, "http"),

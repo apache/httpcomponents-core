@@ -90,7 +90,7 @@ public class ElementalHttpPost {
         HttpHost host = new HttpHost("localhost", 8080);
 
         DefaultHttpClientConnection conn = new DefaultHttpClientConnection();
-        ConnectionReuseStrategy connStrategy = new DefaultConnectionReuseStrategy();
+        ConnectionReuseStrategy connStrategy = DefaultConnectionReuseStrategy.INSTANCE;
 
         context.setAttribute(ExecutionContext.HTTP_CONNECTION, conn);
         context.setAttribute(ExecutionContext.HTTP_TARGET_HOST, host);

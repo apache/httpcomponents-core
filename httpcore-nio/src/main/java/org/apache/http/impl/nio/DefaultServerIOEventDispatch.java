@@ -101,7 +101,7 @@ public class DefaultServerIOEventDispatch extends AbstractIODispatch<NHttpServer
     * @return byte buffer allocator.
     */
     protected ByteBufferAllocator createByteBufferAllocator() {
-        return new HeapByteBufferAllocator();
+        return HeapByteBufferAllocator.INSTANCE;
     }
 
     /**
@@ -114,7 +114,7 @@ public class DefaultServerIOEventDispatch extends AbstractIODispatch<NHttpServer
      * @return HTTP request factory.
      */
     protected HttpRequestFactory createHttpRequestFactory() {
-        return new DefaultHttpRequestFactory();
+        return DefaultHttpRequestFactory.INSTANCE;
     }
 
     /**

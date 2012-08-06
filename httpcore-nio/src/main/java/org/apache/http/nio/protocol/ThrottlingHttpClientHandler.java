@@ -132,7 +132,7 @@ public class ThrottlingHttpClientHandler extends NHttpHandlerBase
             final Executor executor,
             final HttpParams params) {
         this(httpProcessor, execHandler, connStrategy,
-                new DirectByteBufferAllocator(), executor, params);
+                DirectByteBufferAllocator.INSTANCE, executor, params);
     }
 
     public void connected(final NHttpClientConnection conn, final Object attachment) {

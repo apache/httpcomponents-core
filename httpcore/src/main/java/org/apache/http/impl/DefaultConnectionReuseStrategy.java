@@ -61,6 +61,8 @@ import org.apache.http.message.BasicTokenIterator;
 @Immutable
 public class DefaultConnectionReuseStrategy implements ConnectionReuseStrategy {
 
+    public static final ConnectionReuseStrategy INSTANCE = new DefaultConnectionReuseStrategy();
+
     public DefaultConnectionReuseStrategy() {
         super();
     }
@@ -69,12 +71,10 @@ public class DefaultConnectionReuseStrategy implements ConnectionReuseStrategy {
     public boolean keepAlive(final HttpResponse response,
                              final HttpContext context) {
         if (response == null) {
-            throw new IllegalArgumentException
-                ("HTTP response may not be null.");
+            throw new IllegalArgumentException("HTTP response may not be null");
         }
         if (context == null) {
-            throw new IllegalArgumentException
-                ("HTTP context may not be null.");
+            throw new IllegalArgumentException("HTTP context may not be null");
         }
 
         // Check for a self-terminating entity. If the end of the entity will

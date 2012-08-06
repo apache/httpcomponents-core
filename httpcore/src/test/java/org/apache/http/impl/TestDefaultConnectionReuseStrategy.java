@@ -47,7 +47,7 @@ public class TestDefaultConnectionReuseStrategy {
 
     @Before
     public void setUp() {
-        reuseStrategy = new DefaultConnectionReuseStrategy();
+        reuseStrategy = DefaultConnectionReuseStrategy.INSTANCE;
         context = new BasicHttpContext(null);
     }
 

@@ -104,7 +104,7 @@ public class BufferingHttpServiceHandler implements NHttpServiceHandler {
             final ConnectionReuseStrategy connStrategy,
             final HttpParams params) {
         this(httpProcessor, responseFactory, connStrategy,
-                new HeapByteBufferAllocator(), params);
+                HeapByteBufferAllocator.INSTANCE, params);
     }
 
     public void setEventListener(final EventListener eventListener) {
@@ -182,7 +182,7 @@ public class BufferingHttpServiceHandler implements NHttpServiceHandler {
                 final HttpContext context) throws HttpException, IOException {
             return new BufferingNHttpEntity(
                     request.getEntity(),
-                    new HeapByteBufferAllocator());
+                    HeapByteBufferAllocator.INSTANCE);
         }
 
         @Override

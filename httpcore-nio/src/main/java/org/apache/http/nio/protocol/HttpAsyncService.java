@@ -162,7 +162,7 @@ public class HttpAsyncService implements NHttpServerEventHandler {
             final ConnectionReuseStrategy connStrategy,
             final HttpAsyncRequestHandlerResolver handlerResolver,
             final HttpParams params) {
-        this(httpProcessor, connStrategy, new DefaultHttpResponseFactory(),
+        this(httpProcessor, connStrategy, DefaultHttpResponseFactory.INSTANCE,
                 handlerResolver, null, params);
     }
 
@@ -480,7 +480,7 @@ public class HttpAsyncService implements NHttpServerEventHandler {
         }
         HttpResponse response = this.responseFactory.newHttpResponse(HttpVersion.HTTP_1_1,
                 code, context);
-        return new ErrorResponseProducer(response, 
+        return new ErrorResponseProducer(response,
                 new NStringEntity(message, ContentType.DEFAULT_TEXT), false);
     }
 

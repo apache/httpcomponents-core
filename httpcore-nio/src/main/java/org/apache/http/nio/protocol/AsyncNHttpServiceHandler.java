@@ -125,8 +125,7 @@ public class AsyncNHttpServiceHandler extends NHttpHandlerBase
             final HttpResponseFactory responseFactory,
             final ConnectionReuseStrategy connStrategy,
             final HttpParams params) {
-        this(httpProcessor, responseFactory, connStrategy,
-                new HeapByteBufferAllocator(), params);
+        this(httpProcessor, responseFactory, connStrategy, HeapByteBufferAllocator.INSTANCE, params);
     }
 
     public void setExpectationVerifier(final HttpExpectationVerifier expectationVerifier) {

@@ -69,7 +69,7 @@ public class BasicAsyncResponseConsumer extends AbstractAsyncResponseConsumer<Ht
             if (len < 0) {
                 len = 4096;
             }
-            this.buf = new SimpleInputBuffer((int) len, new HeapByteBufferAllocator());
+            this.buf = new SimpleInputBuffer((int) len, HeapByteBufferAllocator.INSTANCE);
             response.setEntity(new ContentBufferEntity(entity, this.buf));
         }
     }

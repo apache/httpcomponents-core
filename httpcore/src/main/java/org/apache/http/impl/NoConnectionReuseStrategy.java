@@ -40,10 +40,12 @@ import org.apache.http.protocol.HttpContext;
 @Immutable
 public class NoConnectionReuseStrategy implements ConnectionReuseStrategy {
 
-    // default constructor
+    public static final ConnectionReuseStrategy INSTANCE = new NoConnectionReuseStrategy();
 
+    public NoConnectionReuseStrategy() {
+        super();
+    }
 
-    // non-JavaDoc, see interface ConnectionReuseStrategy
     public boolean keepAlive(final HttpResponse response, final HttpContext context) {
         if (response == null) {
             throw new IllegalArgumentException("HTTP response may not be null");

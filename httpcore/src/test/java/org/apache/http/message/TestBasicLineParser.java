@@ -230,7 +230,7 @@ public class TestBasicLineParser {
         buffer.append(s);
         ParserCursor cursor = new ParserCursor(0, s.length());
 
-        LineParser parser = BasicLineParser.DEFAULT;
+        LineParser parser = BasicLineParser.INSTANCE;
 
         HttpVersion version = (HttpVersion) parser.parseProtocolVersion(buffer, cursor);
         Assert.assertEquals("HTTP protocol name", "HTTP", version.getProtocol());

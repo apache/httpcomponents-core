@@ -114,7 +114,7 @@ public class TestBasicHeaderValueParser {
     @Test
     public void testNVParseUsingCursor() {
 
-        HeaderValueParser parser = BasicHeaderValueParser.DEFAULT;
+        HeaderValueParser parser = BasicHeaderValueParser.INSTANCE;
 
         String s = "test";
         CharArrayBuffer buffer = new CharArrayBuffer(16);
@@ -274,7 +274,7 @@ public class TestBasicHeaderValueParser {
 
     @Test
     public void testNVParseAllWithCursor() {
-        HeaderValueParser parser = BasicHeaderValueParser.DEFAULT;
+        HeaderValueParser parser = BasicHeaderValueParser.INSTANCE;
 
         String s =
             "test; test1 =  stuff   ; test2 =  \"stuff; stuff\"; test3=\"stuff";

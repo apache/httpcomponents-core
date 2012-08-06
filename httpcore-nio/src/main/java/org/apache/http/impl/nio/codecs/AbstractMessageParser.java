@@ -101,7 +101,7 @@ public abstract class AbstractMessageParser<T extends HttpMessage> implements NH
                 CoreConnectionPNames.MAX_LINE_LENGTH, -1);
         this.maxHeaderCount = params.getIntParameter(
                 CoreConnectionPNames.MAX_HEADER_COUNT, -1);
-        this.lineParser = (parser != null) ? parser : BasicLineParser.DEFAULT;
+        this.lineParser = (parser != null) ? parser : BasicLineParser.INSTANCE;
     }
 
     public void reset() {

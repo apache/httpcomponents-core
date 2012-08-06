@@ -43,6 +43,8 @@ import org.apache.http.message.BasicHttpRequest;
 @Immutable
 public class DefaultHttpRequestFactory implements HttpRequestFactory {
 
+    public static final HttpRequestFactory INSTANCE = new DefaultHttpRequestFactory();
+
     private static final String[] RFC2616_COMMON_METHODS = {
         "GET"
     };

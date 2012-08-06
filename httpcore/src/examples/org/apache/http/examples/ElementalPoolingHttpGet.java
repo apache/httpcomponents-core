@@ -130,7 +130,7 @@ public class ElementalPoolingHttpGet {
                         System.out.println("<< Response: " + response.getStatusLine());
                         System.out.println(EntityUtils.toString(response.getEntity()));
 
-                        ConnectionReuseStrategy connStrategy = new DefaultConnectionReuseStrategy();
+                        ConnectionReuseStrategy connStrategy = DefaultConnectionReuseStrategy.INSTANCE;
                         reusable = connStrategy.keepAlive(response, context);
                     } catch (IOException ex) {
                         throw ex;

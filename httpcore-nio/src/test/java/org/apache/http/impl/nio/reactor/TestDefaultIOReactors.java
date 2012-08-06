@@ -116,7 +116,7 @@ public class TestDefaultIOReactors extends HttpCoreNIOTestBase {
         HttpAsyncRequestHandlerRegistry registry = new HttpAsyncRequestHandlerRegistry();
         HttpAsyncService serviceHandler = new HttpAsyncService(
                 this.serverHttpProc,
-                new DefaultConnectionReuseStrategy(),
+                DefaultConnectionReuseStrategy.INSTANCE,
                 registry,
                 this.serverParams) {
 
@@ -202,7 +202,7 @@ public class TestDefaultIOReactors extends HttpCoreNIOTestBase {
         registry.register("*", new BasicAsyncRequestHandler(requestHandler));
         HttpAsyncService serviceHandler = new HttpAsyncService(
                 this.serverHttpProc,
-                new DefaultConnectionReuseStrategy(),
+                DefaultConnectionReuseStrategy.INSTANCE,
                 registry,
                 this.serverParams) {
 
@@ -285,7 +285,7 @@ public class TestDefaultIOReactors extends HttpCoreNIOTestBase {
         registry.register("*", new BasicAsyncRequestHandler(requestHandler));
         HttpAsyncService serviceHandler = new HttpAsyncService(
                 this.serverHttpProc,
-                new DefaultConnectionReuseStrategy(),
+                DefaultConnectionReuseStrategy.INSTANCE,
                 registry,
                 this.serverParams) {
 
@@ -369,7 +369,7 @@ public class TestDefaultIOReactors extends HttpCoreNIOTestBase {
         registry.register("*", new BasicAsyncRequestHandler(requestHandler));
         HttpAsyncService serviceHandler = new HttpAsyncService(
                 this.serverHttpProc,
-                new DefaultConnectionReuseStrategy(),
+                DefaultConnectionReuseStrategy.INSTANCE,
                 registry,
                 this.serverParams) {
 

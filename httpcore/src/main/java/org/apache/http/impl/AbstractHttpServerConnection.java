@@ -147,7 +147,7 @@ public abstract class AbstractHttpServerConnection implements HttpServerConnecti
      * @return HTTP request factory.
      */
     protected HttpRequestFactory createHttpRequestFactory() {
-        return new DefaultHttpRequestFactory();
+        return DefaultHttpRequestFactory.INSTANCE;
     }
 
     /**

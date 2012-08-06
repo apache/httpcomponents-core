@@ -121,8 +121,8 @@ public class TestHttpAsyncHandlers extends HttpCoreNIOTestBase {
             final HttpAsyncExpectationVerifier expectationVerifier) throws Exception {
         HttpAsyncService serviceHandler = new HttpAsyncService(
                 this.serverHttpProc,
-                new DefaultConnectionReuseStrategy(),
-                new DefaultHttpResponseFactory(),
+                DefaultConnectionReuseStrategy.INSTANCE,
+                DefaultHttpResponseFactory.INSTANCE,
                 requestHandlerResolver,
                 expectationVerifier,
                 this.serverParams);
@@ -370,7 +370,7 @@ public class TestHttpAsyncHandlers extends HttpCoreNIOTestBase {
         
         this.executor = new HttpAsyncRequester(
                 this.clientHttpProc,
-                new DefaultConnectionReuseStrategy(),
+                DefaultConnectionReuseStrategy.INSTANCE,
                 this.clientParams);
         
         InetSocketAddress address = start(registry, null);
@@ -419,7 +419,7 @@ public class TestHttpAsyncHandlers extends HttpCoreNIOTestBase {
         
         this.executor = new HttpAsyncRequester(
                 this.clientHttpProc,
-                new DefaultConnectionReuseStrategy(),
+                DefaultConnectionReuseStrategy.INSTANCE,
                 this.clientParams);
         
         InetSocketAddress address = start(registry, null);

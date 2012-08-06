@@ -70,7 +70,7 @@ public class BasicHeaderElementIterator implements HeaderElementIterator {
 
 
     public BasicHeaderElementIterator(final HeaderIterator headerIterator) {
-        this(headerIterator, BasicHeaderValueParser.DEFAULT);
+        this(headerIterator, BasicHeaderValueParser.INSTANCE);
     }
 
 

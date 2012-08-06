@@ -37,7 +37,7 @@ import org.apache.http.params.HttpParams;
 public class LoggingClientConnectionFactory extends DefaultNHttpClientConnectionFactory {
 
     public LoggingClientConnectionFactory(final HttpParams params) {
-        super(new DefaultHttpResponseFactory(), new HeapByteBufferAllocator(), params);
+        super(DefaultHttpResponseFactory.INSTANCE, HeapByteBufferAllocator.INSTANCE, params);
     }
 
     @Override

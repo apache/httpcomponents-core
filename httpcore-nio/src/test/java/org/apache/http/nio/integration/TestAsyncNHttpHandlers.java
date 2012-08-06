@@ -133,8 +133,8 @@ public class TestAsyncNHttpHandlers extends HttpCoreNIOTestBase {
 
         AsyncNHttpServiceHandler serviceHandler = new AsyncNHttpServiceHandler(
                 this.serverHttpProc,
-                new DefaultHttpResponseFactory(),
-                new DefaultConnectionReuseStrategy(),
+                DefaultHttpResponseFactory.INSTANCE,
+                DefaultConnectionReuseStrategy.INSTANCE,
                 this.serverParams);
 
         serviceHandler.setHandlerResolver(
@@ -145,7 +145,7 @@ public class TestAsyncNHttpHandlers extends HttpCoreNIOTestBase {
         AsyncNHttpClientHandler clientHandler = new AsyncNHttpClientHandler(
                 this.clientHttpProc,
                 requestExecutionHandler,
-                new DefaultConnectionReuseStrategy(),
+                DefaultConnectionReuseStrategy.INSTANCE,
                 this.clientParams);
 
         clientHandler.setEventListener(
@@ -377,8 +377,8 @@ public class TestAsyncNHttpHandlers extends HttpCoreNIOTestBase {
 
         AsyncNHttpServiceHandler serviceHandler = new AsyncNHttpServiceHandler(
                 serverHttpProc,
-                new DefaultHttpResponseFactory(),
-                new DefaultConnectionReuseStrategy(),
+                DefaultHttpResponseFactory.INSTANCE,
+                DefaultConnectionReuseStrategy.INSTANCE,
                 this.serverParams);
 
         serviceHandler.setHandlerResolver(
@@ -398,7 +398,7 @@ public class TestAsyncNHttpHandlers extends HttpCoreNIOTestBase {
         AsyncNHttpClientHandler clientHandler = new AsyncNHttpClientHandler(
                 clientHttpProc,
                 requestExecutionHandler,
-                new DefaultConnectionReuseStrategy(),
+                DefaultConnectionReuseStrategy.INSTANCE,
                 this.clientParams);
 
         clientHandler.setEventListener(new SimpleEventListener());
@@ -474,8 +474,8 @@ public class TestAsyncNHttpHandlers extends HttpCoreNIOTestBase {
 
         AsyncNHttpServiceHandler serviceHandler = new AsyncNHttpServiceHandler(
                 serverHttpProc,
-                new DefaultHttpResponseFactory(),
-                new DefaultConnectionReuseStrategy(),
+                DefaultHttpResponseFactory.INSTANCE,
+                DefaultConnectionReuseStrategy.INSTANCE,
                 this.serverParams);
 
         serviceHandler.setHandlerResolver(
@@ -493,7 +493,7 @@ public class TestAsyncNHttpHandlers extends HttpCoreNIOTestBase {
         AsyncNHttpClientHandler clientHandler = new AsyncNHttpClientHandler(
                 clientHttpProc,
                 requestExecutionHandler,
-                new DefaultConnectionReuseStrategy(),
+                DefaultConnectionReuseStrategy.INSTANCE,
                 this.clientParams);
 
         clientHandler.setEventListener(new SimpleEventListener());
@@ -655,8 +655,8 @@ public class TestAsyncNHttpHandlers extends HttpCoreNIOTestBase {
 
         AsyncNHttpServiceHandler serviceHandler = new AsyncNHttpServiceHandler(
                 serverHttpProc,
-                new DefaultHttpResponseFactory(),
-                new DefaultConnectionReuseStrategy(),
+                DefaultHttpResponseFactory.INSTANCE,
+                DefaultConnectionReuseStrategy.INSTANCE,
                 this.serverParams);
 
         serviceHandler.setHandlerResolver(
@@ -674,7 +674,7 @@ public class TestAsyncNHttpHandlers extends HttpCoreNIOTestBase {
         AsyncNHttpClientHandler clientHandler = new AsyncNHttpClientHandler(
                 clientHttpProc,
                 requestExecutionHandler,
-                new DefaultConnectionReuseStrategy(),
+                DefaultConnectionReuseStrategy.INSTANCE,
                 this.clientParams);
 
         clientHandler.setEventListener(new SimpleEventListener());
@@ -777,8 +777,8 @@ public class TestAsyncNHttpHandlers extends HttpCoreNIOTestBase {
 
         AsyncNHttpServiceHandler serviceHandler = new AsyncNHttpServiceHandler(
                 serverHttpProc,
-                new DefaultHttpResponseFactory(),
-                new DefaultConnectionReuseStrategy(),
+                DefaultHttpResponseFactory.INSTANCE,
+                DefaultConnectionReuseStrategy.INSTANCE,
                 this.serverParams);
 
         serviceHandler.setHandlerResolver(
@@ -796,7 +796,7 @@ public class TestAsyncNHttpHandlers extends HttpCoreNIOTestBase {
         AsyncNHttpClientHandler clientHandler = new AsyncNHttpClientHandler(
                 clientHttpProc,
                 requestExecutionHandler,
-                new DefaultConnectionReuseStrategy(),
+                DefaultConnectionReuseStrategy.INSTANCE,
                 this.clientParams);
 
         clientHandler.setEventListener(new SimpleEventListener());
@@ -875,8 +875,8 @@ public class TestAsyncNHttpHandlers extends HttpCoreNIOTestBase {
 
         AsyncNHttpServiceHandler serviceHandler = new AsyncNHttpServiceHandler(
                 serverHttpProc,
-                new DefaultHttpResponseFactory(),
-                new DefaultConnectionReuseStrategy(),
+                DefaultHttpResponseFactory.INSTANCE,
+                DefaultConnectionReuseStrategy.INSTANCE,
                 this.serverParams);
 
         serviceHandler.setEventListener(
@@ -892,7 +892,7 @@ public class TestAsyncNHttpHandlers extends HttpCoreNIOTestBase {
         AsyncNHttpClientHandler clientHandler = new AsyncNHttpClientHandler(
                 clientHttpProc,
                 requestExecutionHandler,
-                new DefaultConnectionReuseStrategy(),
+                DefaultConnectionReuseStrategy.INSTANCE,
                 this.clientParams);
 
         clientHandler.setEventListener(new SimpleEventListener());
@@ -977,8 +977,8 @@ public class TestAsyncNHttpHandlers extends HttpCoreNIOTestBase {
 
         AsyncNHttpServiceHandler serviceHandler = new AsyncNHttpServiceHandler(
                 serverHttpProc,
-                new DefaultHttpResponseFactory(),
-                new DefaultConnectionReuseStrategy(),
+                DefaultHttpResponseFactory.INSTANCE,
+                DefaultConnectionReuseStrategy.INSTANCE,
                 this.serverParams);
 
         serviceHandler.setHandlerResolver(
@@ -996,7 +996,7 @@ public class TestAsyncNHttpHandlers extends HttpCoreNIOTestBase {
         AsyncNHttpClientHandler clientHandler = new AsyncNHttpClientHandler(
                 clientHttpProc,
                 requestExecutionHandler,
-                new DefaultConnectionReuseStrategy(),
+                DefaultConnectionReuseStrategy.INSTANCE,
                 this.clientParams);
 
         clientHandler.setEventListener(new SimpleEventListener());
@@ -1076,8 +1076,8 @@ public class TestAsyncNHttpHandlers extends HttpCoreNIOTestBase {
 
         AsyncNHttpServiceHandler serviceHandler = new AsyncNHttpServiceHandler(
                 serverHttpProc,
-                new DefaultHttpResponseFactory(),
-                new DefaultConnectionReuseStrategy(),
+                DefaultHttpResponseFactory.INSTANCE,
+                DefaultConnectionReuseStrategy.INSTANCE,
                 this.serverParams);
 
         serviceHandler.setHandlerResolver(
@@ -1095,7 +1095,7 @@ public class TestAsyncNHttpHandlers extends HttpCoreNIOTestBase {
         AsyncNHttpClientHandler clientHandler = new AsyncNHttpClientHandler(
                 clientHttpProc,
                 requestExecutionHandler,
-                new DefaultConnectionReuseStrategy(),
+                DefaultConnectionReuseStrategy.INSTANCE,
                 this.clientParams);
 
         clientHandler.setEventListener(new SimpleEventListener());

@@ -48,6 +48,8 @@ import org.apache.http.impl.EnglishReasonPhraseCatalog;
 @Immutable
 public class DefaultHttpResponseFactory implements HttpResponseFactory {
 
+    public static final HttpResponseFactory INSTANCE = new DefaultHttpResponseFactory();
+
     /** The catalog for looking up reason phrases. */
     protected final ReasonPhraseCatalog reasonCatalog;
 

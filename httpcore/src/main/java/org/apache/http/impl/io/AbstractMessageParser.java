@@ -96,7 +96,7 @@ public abstract class AbstractMessageParser<T extends HttpMessage> implements Ht
                 CoreConnectionPNames.MAX_HEADER_COUNT, -1);
         this.maxLineLen = params.getIntParameter(
                 CoreConnectionPNames.MAX_LINE_LENGTH, -1);
-        this.lineParser = (parser != null) ? parser : BasicLineParser.DEFAULT;
+        this.lineParser = (parser != null) ? parser : BasicLineParser.INSTANCE;
         this.headerLines = new ArrayList<CharArrayBuffer>();
         this.state = HEAD_LINE;
     }
@@ -127,7 +127,7 @@ public abstract class AbstractMessageParser<T extends HttpMessage> implements Ht
             LineParser parser)
         throws HttpException, IOException {
         if (parser == null) {
-            parser = BasicLineParser.DEFAULT;
+            parser = BasicLineParser.INSTANCE;
         }
         List<CharArrayBuffer> headerLines = new ArrayList<CharArrayBuffer>();
         return parseHeaders(inbuffer, maxHeaderCount, maxLineLen, parser, headerLines);

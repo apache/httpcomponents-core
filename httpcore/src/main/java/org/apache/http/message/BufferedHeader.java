@@ -106,8 +106,7 @@ public class BufferedHeader implements FormattedHeader, Cloneable, Serializable 
     public HeaderElement[] getElements() throws ParseException {
         ParserCursor cursor = new ParserCursor(0, this.buffer.length());
         cursor.updatePos(this.valuePos);
-        return BasicHeaderValueParser.DEFAULT
-            .parseElements(this.buffer, cursor);
+        return BasicHeaderValueParser.INSTANCE.parseElements(this.buffer, cursor);
     }
 
     public int getValuePos() {

@@ -47,10 +47,14 @@ public class BasicHeaderValueFormatter implements HeaderValueFormatter {
      * Note that {@link BasicHeaderValueFormatter} is not a singleton, there
      * can be many instances of the class itself and of derived classes.
      * The instance here provides non-customized, default behavior.
+     *
+     * @deprecated (4.3) use {@link #INSTANCE}
      */
+    @Deprecated
     public final static
         BasicHeaderValueFormatter DEFAULT = new BasicHeaderValueFormatter();
 
+    public final static HeaderValueFormatter INSTANCE = new BasicHeaderValueFormatter();
 
     /**
      * Special characters that can be used as separators in HTTP parameters.
@@ -59,18 +63,15 @@ public class BasicHeaderValueFormatter implements HeaderValueFormatter {
      */
     public final static String SEPARATORS = " ;,:@()<>\\\"/[]?={}\t";
 
-
     /**
      * Unsafe special characters that must be escaped using the backslash
      * character
      */
     public final static String UNSAFE_CHARS = "\"\\";
 
-
-
-    // public default constructor
-
-
+    public BasicHeaderValueFormatter() {
+        super();
+    }
 
     /**
      * Formats an array of header elements.
@@ -79,7 +80,7 @@ public class BasicHeaderValueFormatter implements HeaderValueFormatter {
      * @param quote     <code>true</code> to always format with quoted values,
      *                  <code>false</code> to use quotes only when necessary
      * @param formatter         the formatter to use, or <code>null</code>
-     *                          for the {@link #DEFAULT default}
+     *                          for the {@link #INSTANCE default}
      *
      * @return  the formatted header elements
      */
@@ -88,7 +89,7 @@ public class BasicHeaderValueFormatter implements HeaderValueFormatter {
                               final boolean quote,
                               HeaderValueFormatter formatter) {
         if (formatter == null)
-            formatter = BasicHeaderValueFormatter.DEFAULT;
+            formatter = BasicHeaderValueFormatter.INSTANCE;
         return formatter.formatElements(null, elems, quote).toString();
     }
 
@@ -148,7 +149,7 @@ public class BasicHeaderValueFormatter implements HeaderValueFormatter {
      * @param quote     <code>true</code> to always format with quoted values,
      *                  <code>false</code> to use quotes only when necessary
      * @param formatter         the formatter to use, or <code>null</code>
-     *                          for the {@link #DEFAULT default}
+     *                          for the {@link #INSTANCE default}
      *
      * @return  the formatted header element
      */
@@ -157,7 +158,7 @@ public class BasicHeaderValueFormatter implements HeaderValueFormatter {
                                    boolean quote,
                                    HeaderValueFormatter formatter) {
         if (formatter == null)
-            formatter = BasicHeaderValueFormatter.DEFAULT;
+            formatter = BasicHeaderValueFormatter.INSTANCE;
         return formatter.formatHeaderElement(null, elem, quote).toString();
     }
 
@@ -236,7 +237,7 @@ public class BasicHeaderValueFormatter implements HeaderValueFormatter {
      * @param quote     <code>true</code> to always format with quoted values,
      *                  <code>false</code> to use quotes only when necessary
      * @param formatter         the formatter to use, or <code>null</code>
-     *                          for the {@link #DEFAULT default}
+     *                          for the {@link #INSTANCE default}
      *
      * @return  the formatted parameters
      */
@@ -245,7 +246,7 @@ public class BasicHeaderValueFormatter implements HeaderValueFormatter {
                                 final boolean quote,
                                 HeaderValueFormatter formatter) {
         if (formatter == null)
-            formatter = BasicHeaderValueFormatter.DEFAULT;
+            formatter = BasicHeaderValueFormatter.INSTANCE;
         return formatter.formatParameters(null, nvps, quote).toString();
     }
 
@@ -304,7 +305,7 @@ public class BasicHeaderValueFormatter implements HeaderValueFormatter {
      * @param quote     <code>true</code> to always format with a quoted value,
      *                  <code>false</code> to use quotes only when necessary
      * @param formatter         the formatter to use, or <code>null</code>
-     *                          for the {@link #DEFAULT default}
+     *                          for the {@link #INSTANCE default}
      *
      * @return  the formatted name-value pair
      */
@@ -313,7 +314,7 @@ public class BasicHeaderValueFormatter implements HeaderValueFormatter {
                                    final boolean quote,
                                    HeaderValueFormatter formatter) {
         if (formatter == null)
-            formatter = BasicHeaderValueFormatter.DEFAULT;
+            formatter = BasicHeaderValueFormatter.INSTANCE;
         return formatter.formatNameValuePair(null, nvp, quote).toString();
     }
 

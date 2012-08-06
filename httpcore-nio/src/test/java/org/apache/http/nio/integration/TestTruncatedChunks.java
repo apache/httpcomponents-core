@@ -197,7 +197,7 @@ public class TestTruncatedChunks extends HttpCoreNIOTestBase {
         registry.register("*", new BasicAsyncRequestHandler(new SimpleRequestHandler(true)));
         HttpAsyncService serviceHandler = new HttpAsyncService(
                 this.serverHttpProc,
-                new DefaultConnectionReuseStrategy(),
+                DefaultConnectionReuseStrategy.INSTANCE,
                 registry,
                 this.serverParams);
         HttpAsyncRequestExecutor clientHandler = new HttpAsyncRequestExecutor();
@@ -234,7 +234,7 @@ public class TestTruncatedChunks extends HttpCoreNIOTestBase {
 
         public LenientAsyncResponseConsumer() {
             super();
-            this.buffer = new SimpleInputBuffer(2048, new HeapByteBufferAllocator());
+            this.buffer = new SimpleInputBuffer(2048, HeapByteBufferAllocator.INSTANCE);
         }
 
         @Override
@@ -282,7 +282,7 @@ public class TestTruncatedChunks extends HttpCoreNIOTestBase {
         registry.register("*", new BasicAsyncRequestHandler(new SimpleRequestHandler(true)));
         HttpAsyncService serviceHandler = new HttpAsyncService(
                 this.serverHttpProc,
-                new DefaultConnectionReuseStrategy(),
+                DefaultConnectionReuseStrategy.INSTANCE,
                 registry,
                 this.serverParams);
         HttpAsyncRequestExecutor clientHandler = new HttpAsyncRequestExecutor();

@@ -90,7 +90,7 @@ public class TestHttpAsyncService {
         this.handlerResolver.register("/", this.requestHandler);
         this.httpProcessor = Mockito.mock(HttpProcessor.class);
         this.reuseStrategy = Mockito.mock(ConnectionReuseStrategy.class);
-        this.responseFactory = new DefaultHttpResponseFactory();
+        this.responseFactory = DefaultHttpResponseFactory.INSTANCE;
         this.params = new BasicHttpParams();
         this.protocolHandler = new HttpAsyncService(
                 this.httpProcessor, this.reuseStrategy, this.handlerResolver, this.params);

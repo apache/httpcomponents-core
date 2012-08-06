@@ -94,7 +94,8 @@ public class SSLNHttpServerConnectionFactory
             final SSLContext sslcontext,
             final SSLSetupHandler sslHandler,
             final HttpParams params) {
-        this(sslcontext, sslHandler, new DefaultHttpRequestFactory(), new HeapByteBufferAllocator(), params);
+        this(sslcontext, sslHandler, DefaultHttpRequestFactory.INSTANCE,
+                HeapByteBufferAllocator.INSTANCE, params);
     }
 
     public SSLNHttpServerConnectionFactory(final HttpParams params) {

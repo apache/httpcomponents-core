@@ -100,7 +100,7 @@ public class BasicNIOConnFactory implements NIOConnFactory<HttpHost, NHttpClient
             final SSLSetupHandler sslHandler,
             final HttpParams params) {
         this(sslcontext, sslHandler,
-                new DefaultHttpResponseFactory(), new HeapByteBufferAllocator(), params);
+                DefaultHttpResponseFactory.INSTANCE, HeapByteBufferAllocator.INSTANCE, params);
     }
 
     public BasicNIOConnFactory(final HttpParams params) {

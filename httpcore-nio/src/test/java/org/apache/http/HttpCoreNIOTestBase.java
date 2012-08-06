@@ -119,7 +119,7 @@ public abstract class HttpCoreNIOTestBase {
                 this.clientParams);
         this.executor = new HttpAsyncRequester(
                 this.clientHttpProc,
-                new DefaultConnectionReuseStrategy(),
+                DefaultConnectionReuseStrategy.INSTANCE,
                 this.clientParams);
     }
 

@@ -55,13 +55,17 @@ public class BasicLineFormatter implements LineFormatter {
      * Note that {@link BasicLineFormatter} is not a singleton, there can
      * be many instances of the class itself and of derived classes.
      * The instance here provides non-customized, default behavior.
+     *
+     * @deprecated (4.3) use {@link #INSTANCE}
      */
+    @Deprecated
     public final static BasicLineFormatter DEFAULT = new BasicLineFormatter();
 
+    public final static LineFormatter INSTANCE = new BasicLineFormatter();
 
-
-    // public default constructor
-
+    public BasicLineFormatter() {
+        super();
+    }
 
     /**
      * Obtains a buffer for formatting.
@@ -87,7 +91,7 @@ public class BasicLineFormatter implements LineFormatter {
      * @param version           the protocol version to format
      * @param formatter         the formatter to use, or
      *                          <code>null</code> for the
-     *                          {@link #DEFAULT default}
+     *                          {@link #INSTANCE default}
      *
      * @return  the formatted protocol version
      */
@@ -95,7 +99,7 @@ public class BasicLineFormatter implements LineFormatter {
         String formatProtocolVersion(final ProtocolVersion version,
                                      LineFormatter formatter) {
         if (formatter == null)
-            formatter = BasicLineFormatter.DEFAULT;
+            formatter = BasicLineFormatter.INSTANCE;
         return formatter.appendProtocolVersion(null, version).toString();
     }
 
@@ -147,14 +151,14 @@ public class BasicLineFormatter implements LineFormatter {
      * @param reqline           the request line to format
      * @param formatter         the formatter to use, or
      *                          <code>null</code> for the
-     *                          {@link #DEFAULT default}
+     *                          {@link #INSTANCE default}
      *
      * @return  the formatted request line
      */
     public final static String formatRequestLine(final RequestLine reqline,
                                                  LineFormatter formatter) {
         if (formatter == null)
-            formatter = BasicLineFormatter.DEFAULT;
+            formatter = BasicLineFormatter.INSTANCE;
         return formatter.formatRequestLine(null, reqline).toString();
     }
 
@@ -207,14 +211,14 @@ public class BasicLineFormatter implements LineFormatter {
      * @param statline          the status line to format
      * @param formatter         the formatter to use, or
      *                          <code>null</code> for the
-     *                          {@link #DEFAULT default}
+     *                          {@link #INSTANCE default}
      *
      * @return  the formatted status line
      */
     public final static String formatStatusLine(final StatusLine statline,
                                                 LineFormatter formatter) {
         if (formatter == null)
-            formatter = BasicLineFormatter.DEFAULT;
+            formatter = BasicLineFormatter.INSTANCE;
         return formatter.formatStatusLine(null, statline).toString();
     }
 
@@ -269,14 +273,14 @@ public class BasicLineFormatter implements LineFormatter {
      * @param header            the header to format
      * @param formatter         the formatter to use, or
      *                          <code>null</code> for the
-     *                          {@link #DEFAULT default}
+     *                          {@link #INSTANCE default}
      *
      * @return  the formatted header
      */
     public final static String formatHeader(final Header header,
                                             LineFormatter formatter) {
         if (formatter == null)
-            formatter = BasicLineFormatter.DEFAULT;
+            formatter = BasicLineFormatter.INSTANCE;
         return formatter.formatHeader(null, header).toString();
     }
 

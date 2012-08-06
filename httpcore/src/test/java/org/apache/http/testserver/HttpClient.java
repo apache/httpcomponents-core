@@ -66,7 +66,7 @@ public class HttpClient {
     public HttpClient(final HttpProcessor httpproc) {
         super();
         this.httpproc = httpproc;
-        this.connStrategy = new DefaultConnectionReuseStrategy();
+        this.connStrategy = DefaultConnectionReuseStrategy.INSTANCE;
         this.params = new BasicHttpParams();
         this.params
             .setIntParameter(CoreConnectionPNames.SO_TIMEOUT, 5000)

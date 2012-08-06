@@ -62,7 +62,7 @@ final class RequestHandler extends SimpleNHttpRequestHandler implements HttpRequ
     public ConsumingNHttpEntity entityRequest(
             final HttpEntityEnclosingRequest request,
             final HttpContext context) {
-        return new BufferingNHttpEntity(request.getEntity(), new HeapByteBufferAllocator());
+        return new BufferingNHttpEntity(request.getEntity(), HeapByteBufferAllocator.INSTANCE);
     }
 
     @Override

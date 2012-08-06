@@ -83,8 +83,7 @@ public class BasicRequestLine implements RequestLine, Cloneable, Serializable {
     @Override
     public String toString() {
         // no need for non-default formatting in toString()
-        return BasicLineFormatter.DEFAULT
-            .formatRequestLine(null, this).toString();
+        return BasicLineFormatter.INSTANCE.formatRequestLine(null, this).toString();
     }
 
     @Override

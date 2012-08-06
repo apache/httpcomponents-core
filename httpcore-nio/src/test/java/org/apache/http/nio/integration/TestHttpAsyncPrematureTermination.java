@@ -105,8 +105,8 @@ public class TestHttpAsyncPrematureTermination extends HttpCoreNIOTestBase {
             final HttpAsyncExpectationVerifier expectationVerifier) throws Exception {
         HttpAsyncService serviceHandler = new HttpAsyncService(
                 this.serverHttpProc,
-                new DefaultConnectionReuseStrategy(),
-                new DefaultHttpResponseFactory(),
+                DefaultConnectionReuseStrategy.INSTANCE,
+                DefaultHttpResponseFactory.INSTANCE,
                 requestHandlerResolver,
                 expectationVerifier,
                 this.serverParams);

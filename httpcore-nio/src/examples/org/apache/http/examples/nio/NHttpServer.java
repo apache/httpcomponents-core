@@ -117,7 +117,7 @@ public class NHttpServer {
         reqistry.register("*", new HttpFileHandler(docRoot));
         // Create server-side HTTP protocol handler
         HttpAsyncService protocolHandler = new HttpAsyncService(
-                httpproc, new DefaultConnectionReuseStrategy(), reqistry, params) {
+                httpproc, DefaultConnectionReuseStrategy.INSTANCE, reqistry, params) {
 
             @Override
             public void connected(final NHttpServerConnection conn) {

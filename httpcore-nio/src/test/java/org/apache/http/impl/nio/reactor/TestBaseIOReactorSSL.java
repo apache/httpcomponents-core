@@ -96,8 +96,8 @@ public class TestBaseIOReactorSSL extends HttpCoreNIOTestBase {
             final EventListener eventListener) {
         BufferingHttpServiceHandler serviceHandler = new BufferingHttpServiceHandler(
                 this.serverHttpProc,
-                new DefaultHttpResponseFactory(),
-                new DefaultConnectionReuseStrategy(),
+                DefaultHttpResponseFactory.INSTANCE,
+                DefaultConnectionReuseStrategy.INSTANCE,
                 this.serverParams);
 
         serviceHandler.setHandlerResolver(

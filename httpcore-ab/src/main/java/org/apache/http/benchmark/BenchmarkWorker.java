@@ -104,7 +104,7 @@ class BenchmarkWorker implements Runnable {
                 new RequestExpectContinue());
         this.httpexecutor = new HttpRequestExecutor();
 
-        this.connstrategy = new DefaultConnectionReuseStrategy();
+        this.connstrategy = DefaultConnectionReuseStrategy.INSTANCE;
         this.verbosity = verbosity;
         this.socketFactory = socketFactory;
     }

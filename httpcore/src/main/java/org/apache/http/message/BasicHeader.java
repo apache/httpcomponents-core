@@ -73,7 +73,7 @@ public class BasicHeader implements Header, Cloneable, Serializable {
     @Override
     public String toString() {
         // no need for non-default formatting in toString()
-        return BasicLineFormatter.DEFAULT.formatHeader(null, this).toString();
+        return BasicLineFormatter.INSTANCE.formatHeader(null, this).toString();
     }
 
     public HeaderElement[] getElements() throws ParseException {

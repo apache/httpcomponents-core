@@ -146,7 +146,7 @@ public abstract class AbstractHttpClientConnection implements HttpClientConnecti
      * @return HTTP response factory.
      */
     protected HttpResponseFactory createHttpResponseFactory() {
-        return new DefaultHttpResponseFactory();
+        return DefaultHttpResponseFactory.INSTANCE;
     }
 
     /**

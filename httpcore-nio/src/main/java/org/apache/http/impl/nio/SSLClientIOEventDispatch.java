@@ -133,7 +133,7 @@ public class SSLClientIOEventDispatch implements IOEventDispatch {
      * @return byte buffer allocator.
      */
     protected ByteBufferAllocator createByteBufferAllocator() {
-        return new HeapByteBufferAllocator();
+        return HeapByteBufferAllocator.INSTANCE;
     }
 
     /**
@@ -146,7 +146,7 @@ public class SSLClientIOEventDispatch implements IOEventDispatch {
      * @return HTTP response factory.
      */
     protected HttpResponseFactory createHttpResponseFactory() {
-        return new DefaultHttpResponseFactory();
+        return DefaultHttpResponseFactory.INSTANCE;
     }
 
     /**

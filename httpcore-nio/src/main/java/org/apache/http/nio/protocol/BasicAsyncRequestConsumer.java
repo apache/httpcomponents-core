@@ -71,7 +71,7 @@ public class BasicAsyncRequestConsumer extends AbstractAsyncRequestConsumer<Http
                 if (len < 0) {
                     len = 4096;
                 }
-                this.buf = new SimpleInputBuffer((int) len, new HeapByteBufferAllocator());
+                this.buf = new SimpleInputBuffer((int) len, HeapByteBufferAllocator.INSTANCE);
                 ((HttpEntityEnclosingRequest) this.request).setEntity(
                         new ContentBufferEntity(entity, this.buf));
             }

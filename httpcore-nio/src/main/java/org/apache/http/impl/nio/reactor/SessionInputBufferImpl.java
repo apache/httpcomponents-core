@@ -83,7 +83,7 @@ public class SessionInputBufferImpl extends ExpandableBuffer implements SessionI
             int buffersize,
             int linebuffersize,
             final HttpParams params) {
-        this(buffersize, linebuffersize, new HeapByteBufferAllocator(), params);
+        this(buffersize, linebuffersize, HeapByteBufferAllocator.INSTANCE, params);
     }
 
     public int fill(final ReadableByteChannel channel) throws IOException {

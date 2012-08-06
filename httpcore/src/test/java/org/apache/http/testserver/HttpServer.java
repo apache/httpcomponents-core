@@ -89,8 +89,8 @@ public class HttpServer {
                         new ResponseContent(),
                         new ResponseConnControl()
                 });
-        this.connStrategy = new DefaultConnectionReuseStrategy();
-        this.responseFactory = new DefaultHttpResponseFactory();
+        this.connStrategy = DefaultConnectionReuseStrategy.INSTANCE;
+        this.responseFactory = DefaultHttpResponseFactory.INSTANCE;
         this.reqistry = new HttpRequestHandlerRegistry();
         this.serversocket = new ServerSocket(0);
     }

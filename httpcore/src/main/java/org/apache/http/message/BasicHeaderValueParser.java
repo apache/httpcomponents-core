@@ -52,9 +52,14 @@ public class BasicHeaderValueParser implements HeaderValueParser {
      * Note that {@link BasicHeaderValueParser} is not a singleton, there
      * can be many instances of the class itself and of derived classes.
      * The instance here provides non-customized, default behavior.
+     *
+     * @deprecated (4.3) use {@link #INSTANCE}
      */
+    @Deprecated
     public final static
         BasicHeaderValueParser DEFAULT = new BasicHeaderValueParser();
+
+    public final static HeaderValueParser INSTANCE = new BasicHeaderValueParser();
 
     private final static char PARAM_DELIMITER                = ';';
     private final static char ELEM_DELIMITER                 = ',';
@@ -63,8 +68,9 @@ public class BasicHeaderValueParser implements HeaderValueParser {
                                                                 ELEM_DELIMITER
                                                                 };
 
-    // public default constructor
-
+    public BasicHeaderValueParser() {
+        super();
+    }
 
     /**
      * Parses elements with the given parser.
@@ -85,7 +91,7 @@ public class BasicHeaderValueParser implements HeaderValueParser {
         }
 
         if (parser == null)
-            parser = BasicHeaderValueParser.DEFAULT;
+            parser = BasicHeaderValueParser.INSTANCE;
 
         CharArrayBuffer buffer = new CharArrayBuffer(value.length());
         buffer.append(value);
@@ -135,7 +141,7 @@ public class BasicHeaderValueParser implements HeaderValueParser {
         }
 
         if (parser == null)
-            parser = BasicHeaderValueParser.DEFAULT;
+            parser = BasicHeaderValueParser.INSTANCE;
 
         CharArrayBuffer buffer = new CharArrayBuffer(value.length());
         buffer.append(value);
@@ -200,7 +206,7 @@ public class BasicHeaderValueParser implements HeaderValueParser {
         }
 
         if (parser == null)
-            parser = BasicHeaderValueParser.DEFAULT;
+            parser = BasicHeaderValueParser.INSTANCE;
 
         CharArrayBuffer buffer = new CharArrayBuffer(value.length());
         buffer.append(value);
@@ -269,7 +275,7 @@ public class BasicHeaderValueParser implements HeaderValueParser {
         }
 
         if (parser == null)
-            parser = BasicHeaderValueParser.DEFAULT;
+            parser = BasicHeaderValueParser.INSTANCE;
 
         CharArrayBuffer buffer = new CharArrayBuffer(value.length());
         buffer.append(value);

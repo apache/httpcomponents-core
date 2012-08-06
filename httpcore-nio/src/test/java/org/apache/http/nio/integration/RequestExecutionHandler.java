@@ -72,8 +72,7 @@ abstract class RequestExecutionHandler
     public ConsumingNHttpEntity responseEntity(
             final HttpResponse response,
             final HttpContext context) throws IOException {
-        return new BufferingNHttpEntity(response.getEntity(),
-                new HeapByteBufferAllocator());
+        return new BufferingNHttpEntity(response.getEntity(), HeapByteBufferAllocator.INSTANCE);
     }
 
     public void handleResponse(final HttpResponse response, final HttpContext context) {

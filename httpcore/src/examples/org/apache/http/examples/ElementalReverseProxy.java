@@ -116,7 +116,7 @@ public class ElementalReverseProxy {
             this.target = target;
             this.httpproc = httpproc;
             this.httpexecutor = httpexecutor;
-            this.connStrategy = new DefaultConnectionReuseStrategy();
+            this.connStrategy = DefaultConnectionReuseStrategy.INSTANCE;
         }
 
         public void handle(
@@ -217,8 +217,8 @@ public class ElementalReverseProxy {
             // Set up the HTTP service
             this.httpService = new HttpService(
                     inhttpproc,
-                    new DefaultConnectionReuseStrategy(),
-                    new DefaultHttpResponseFactory(),
+                    DefaultConnectionReuseStrategy.INSTANCE,
+                    DefaultHttpResponseFactory.INSTANCE,
                     reqistry,
                     this.params);
         }

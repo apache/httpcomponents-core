@@ -151,7 +151,7 @@ public class TestBasicHeaderValueFormatter {
         try {
             BasicHeaderValueFormatter.formatHeaderElement
                 ((HeaderElement) null, false,
-                 BasicHeaderValueFormatter.DEFAULT);
+                 BasicHeaderValueFormatter.INSTANCE);
             Assert.fail("IllegalArgumentException should habe been thrown");
         } catch (IllegalArgumentException ex) {
             // expected
@@ -160,7 +160,7 @@ public class TestBasicHeaderValueFormatter {
         try {
             BasicHeaderValueFormatter.formatElements
                 ((HeaderElement[]) null, false,
-                 BasicHeaderValueFormatter.DEFAULT);
+                 BasicHeaderValueFormatter.INSTANCE);
             Assert.fail("IllegalArgumentException should habe been thrown");
         } catch (IllegalArgumentException ex) {
             // expected
@@ -182,7 +182,7 @@ public class TestBasicHeaderValueFormatter {
         try {
             BasicHeaderValueFormatter.formatParameters
                 ((NameValuePair[]) null, true,
-                 BasicHeaderValueFormatter.DEFAULT);
+                 BasicHeaderValueFormatter.INSTANCE);
             Assert.fail("IllegalArgumentException should habe been thrown");
         } catch (IllegalArgumentException ex) {
             // expected
