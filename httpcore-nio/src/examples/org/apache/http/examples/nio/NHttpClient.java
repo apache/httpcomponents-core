@@ -38,7 +38,6 @@ import org.apache.http.impl.DefaultConnectionReuseStrategy;
 import org.apache.http.impl.nio.DefaultHttpClientIODispatch;
 import org.apache.http.impl.nio.pool.BasicNIOConnPool;
 import org.apache.http.impl.nio.reactor.DefaultConnectingIOReactor;
-import org.apache.http.impl.nio.reactor.IOReactorConfig;
 import org.apache.http.message.BasicHttpRequest;
 import org.apache.http.nio.protocol.BasicAsyncRequestProducer;
 import org.apache.http.nio.protocol.BasicAsyncResponseConsumer;
@@ -71,7 +70,6 @@ public class NHttpClient {
             .setIntParameter(CoreConnectionPNames.SO_TIMEOUT, 3000)
             .setIntParameter(CoreConnectionPNames.CONNECTION_TIMEOUT, 3000)
             .setIntParameter(CoreConnectionPNames.SOCKET_BUFFER_SIZE, 8 * 1024)
-            .setBooleanParameter(CoreConnectionPNames.TCP_NODELAY, true)
             .setParameter(CoreProtocolPNames.USER_AGENT, "Test/1.1");
         // Create HTTP protocol processing chain
         HttpProcessor httpproc = new ImmutableHttpProcessor(new HttpRequestInterceptor[] {
@@ -86,9 +84,7 @@ public class NHttpClient {
         // Create client-side I/O event dispatch
         final IOEventDispatch ioEventDispatch = new DefaultHttpClientIODispatch(protocolHandler, params);
         // Create client-side I/O reactor
-        IOReactorConfig config = new IOReactorConfig();
-        config.setIoThreadCount(1);
-        final ConnectingIOReactor ioReactor = new DefaultConnectingIOReactor(config);
+        final ConnectingIOReactor ioReactor = new DefaultConnectingIOReactor();
         // Create HTTP connection pool
         BasicNIOConnPool pool = new BasicNIOConnPool(ioReactor, params);
         // Limit total number of connections to just two
