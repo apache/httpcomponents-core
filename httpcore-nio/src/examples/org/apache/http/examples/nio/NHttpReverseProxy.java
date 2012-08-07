@@ -127,7 +127,6 @@ public class NHttpReverseProxy {
         params
             .setIntParameter(CoreConnectionPNames.SO_TIMEOUT, 30000)
             .setIntParameter(CoreConnectionPNames.SOCKET_BUFFER_SIZE, 8 * 1024)
-            .setBooleanParameter(CoreConnectionPNames.TCP_NODELAY, true)
             .setParameter(CoreProtocolPNames.ORIGIN_SERVER, "Test/1.1")
             .setParameter(CoreProtocolPNames.USER_AGENT, "Test/1.1");
 
