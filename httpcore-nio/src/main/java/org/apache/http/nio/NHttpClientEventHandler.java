@@ -82,9 +82,15 @@ public interface NHttpClientEventHandler {
      * new portion of the response entity through the corresponding
      * content decoder.
      * <p/>
-     * If the content consumer is unable to process the incoming content,
+     * If the content consumer is unable to process incoming content,
      * input event notifications can be temporarily suspended using
-     * {@link IOControl} interface.
+     * {@link IOControl} interface (super interface of {@link NHttpClientConnection}).
+     * <p/>
+     * Please note that the {@link NHttpClientConnection} and {@link ContentDecoder}
+     * objects are not thread-safe and should only be used within the context of
+     * this method call. The {@link IOControl} object can be shared and used on other
+     * thread to resume input event notifications when the handler is capable of
+     * processing more content.
      *
      * @see NHttpClientConnection
      * @see ContentDecoder
@@ -101,10 +107,15 @@ public interface NHttpClientEventHandler {
     /**
      * Triggered when the underlying channel is ready for writing a next portion
      * of the request entity through the corresponding content encoder.
-     * <p>
-     * If the content producer is unable to generate the outgoing content,
+     * <p/>
+     * If the content producer is unable to generate outgoing content,
      * output event notifications can be temporarily suspended using
-     * {@link IOControl} interface.
+     * {@link IOControl} interface (super interface of {@link NHttpClientConnection}).
+     * <p/>
+     * Please note that the {@link NHttpClientConnection} and {@link ContentEncoder}
+     * objects are not thread-safe and should only be used within the context of
+     * this method call. The {@link IOControl} object can be shared and used on other
+     * thread to resume output event notifications when more content is made available.
      *
      * @see NHttpClientConnection
      * @see ContentEncoder
