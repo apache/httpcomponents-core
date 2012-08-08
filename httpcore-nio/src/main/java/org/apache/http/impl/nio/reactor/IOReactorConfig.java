@@ -31,6 +31,7 @@ import java.net.SocketOptions;
 import java.nio.channels.SelectionKey;
 
 import org.apache.http.annotation.NotThreadSafe;
+import org.apache.http.util.Args;
 
 /**
  * I/O reactor configuration parameters.
@@ -82,9 +83,7 @@ public final class IOReactorConfig implements Cloneable {
      * timed out sessions and session requests. May not be negative or zero.
      */
     public void setSelectInterval(long selectInterval) {
-        if (selectInterval <= 0) {
-            throw new IllegalArgumentException("Select internal may not be negative or zero");
-        }
+        Args.positive(selectInterval, "Select internal");
         this.selectInterval = selectInterval;
     }
 
@@ -103,9 +102,7 @@ public final class IOReactorConfig implements Cloneable {
      * for individual worker threads to terminate cleanly. May not be negative or zero.
      */
     public void setShutdownGracePeriod(long gracePeriod) {
-        if (gracePeriod <= 0) {
-            throw new IllegalArgumentException("Shutdown grace period may not be negative or zero");
-        }
+        Args.positive(gracePeriod, "Shutdown grace period");
         this.shutdownGracePeriod = gracePeriod;
     }
 
@@ -151,9 +148,7 @@ public final class IOReactorConfig implements Cloneable {
      * May not be negative or zero.
      */
     public void setIoThreadCount(int ioThreadCount) {
-        if (ioThreadCount <= 0) {
-            throw new IllegalArgumentException("I/O thread count may not be negative or zero");
-        }
+        Args.positive(ioThreadCount, "I/O thread count");
         this.ioThreadCount = ioThreadCount;
     }
 

@@ -28,6 +28,7 @@
 package org.apache.http.protocol;
 
 import org.apache.http.annotation.NotThreadSafe;
+import org.apache.http.util.Args;
 
 /**
  * {@link HttpContext} implementation that delegates resolution of an attribute
@@ -45,10 +46,7 @@ public final class DefaultedHttpContext implements HttpContext {
 
     public DefaultedHttpContext(final HttpContext local, final HttpContext defaults) {
         super();
-        if (local == null) {
-            throw new IllegalArgumentException("HTTP context may not be null");
-        }
-        this.local = local;
+        this.local = Args.notNull(local, "HTTP context");
         this.defaults = defaults;
     }
 

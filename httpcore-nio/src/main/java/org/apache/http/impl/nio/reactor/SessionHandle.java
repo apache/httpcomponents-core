@@ -28,6 +28,7 @@
 package org.apache.http.impl.nio.reactor;
 
 import org.apache.http.nio.reactor.IOSession;
+import org.apache.http.util.Args;
 
 /**
  * Session handle class used by I/O reactor implementations to keep a reference
@@ -50,9 +51,7 @@ public class SessionHandle {
 
     public SessionHandle(final IOSession session) {
         super();
-        if (session == null) {
-            throw new IllegalArgumentException("Session may not be null");
-        }
+        Args.notNull(session, "Session");
         this.session = session;
         long now = System.currentTimeMillis();
         this.startedTime = now;

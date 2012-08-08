@@ -32,6 +32,7 @@ import org.apache.http.HttpEntity;
 import org.apache.http.annotation.NotThreadSafe;
 import org.apache.http.entity.BasicHttpEntity;
 import org.apache.http.nio.util.ContentInputBuffer;
+import org.apache.http.util.Args;
 
 /**
  * HTTP entity wrapper whose content is provided by a
@@ -52,9 +53,7 @@ public class ContentBufferEntity extends BasicHttpEntity {
      */
     public ContentBufferEntity(final HttpEntity entity, final ContentInputBuffer buffer) {
         super();
-        if (entity == null) {
-            throw new IllegalArgumentException("HTTP entity may not be null");
-        }
+        Args.notNull(entity, "HTTP entity");
         this.wrappedEntity = entity;
         setContent(new ContentInputStream(buffer));
     }

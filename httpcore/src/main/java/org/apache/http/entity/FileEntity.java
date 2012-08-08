@@ -34,6 +34,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 
 import org.apache.http.annotation.NotThreadSafe;
+import org.apache.http.util.Args;
 
 /**
  * A self contained, repeatable entity that obtains its content from a file.
@@ -51,10 +52,7 @@ public class FileEntity extends AbstractHttpEntity implements Cloneable {
     @Deprecated
     public FileEntity(final File file, final String contentType) {
         super();
-        if (file == null) {
-            throw new IllegalArgumentException("File may not be null");
-        }
-        this.file = file;
+        this.file = Args.notNull(file, "File");
         setContentType(contentType);
     }
 
@@ -63,10 +61,7 @@ public class FileEntity extends AbstractHttpEntity implements Cloneable {
      */
     public FileEntity(final File file, final ContentType contentType) {
         super();
-        if (file == null) {
-            throw new IllegalArgumentException("File may not be null");
-        }
-        this.file = file;
+        this.file = Args.notNull(file, "File");
         if (contentType != null) {
             setContentType(contentType.toString());
         }
@@ -77,10 +72,7 @@ public class FileEntity extends AbstractHttpEntity implements Cloneable {
      */
     public FileEntity(final File file) {
         super();
-        if (file == null) {
-            throw new IllegalArgumentException("File may not be null");
-        }
-        this.file = file;
+        this.file = Args.notNull(file, "File");
     }
 
     public boolean isRepeatable() {
@@ -96,9 +88,7 @@ public class FileEntity extends AbstractHttpEntity implements Cloneable {
     }
 
     public void writeTo(final OutputStream outstream) throws IOException {
-        if (outstream == null) {
-            throw new IllegalArgumentException("Output stream may not be null");
-        }
+        Args.notNull(outstream, "Output stream");
         InputStream instream = new FileInputStream(this.file);
         try {
             byte[] tmp = new byte[4096];

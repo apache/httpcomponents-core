@@ -53,6 +53,7 @@ import org.apache.http.nio.reactor.IOReactorStatus;
 import org.apache.http.params.BasicHttpParams;
 import org.apache.http.params.HttpConnectionParams;
 import org.apache.http.params.HttpParams;
+import org.apache.http.util.Args;
 
 /**
  * Generic implementation of {@link IOReactor} that can run multiple
@@ -189,9 +190,7 @@ public abstract class AbstractMultiworkerIOReactor implements IOReactor {
     }
 
     static IOReactorConfig convert(int workerCount, final HttpParams params) {
-        if (params == null) {
-            throw new IllegalArgumentException("HTTP parameters may not be null");
-        }
+        Args.notNull(params, "HTTP parameters");
         IOReactorConfig config = new IOReactorConfig();
         config.setSelectInterval(NIOReactorParams.getSelectInterval(params));
         config.setShutdownGracePeriod(NIOReactorParams.getGracePeriod(params));
@@ -326,9 +325,7 @@ public abstract class AbstractMultiworkerIOReactor implements IOReactor {
      */
     public void execute(
             final IOEventDispatch eventDispatch) throws InterruptedIOException, IOReactorException {
-        if (eventDispatch == null) {
-            throw new IllegalArgumentException("Event dispatcher may not be null");
-        }
+        Args.notNull(eventDispatch, "Event dispatcher");
         synchronized (this.statusLock) {
             if (this.status.compareTo(IOReactorStatus.SHUTDOWN_REQUEST) >= 0) {
                 this.status = IOReactorStatus.SHUT_DOWN;

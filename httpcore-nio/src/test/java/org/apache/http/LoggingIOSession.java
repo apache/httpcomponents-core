@@ -52,9 +52,6 @@ public class LoggingIOSession implements IOSession {
 
     public LoggingIOSession(final IOSession session, final String id, final Log log, final Log wirelog) {
         super();
-        if (session == null) {
-            throw new IllegalArgumentException("I/O session may not be null");
-        }
         this.session = session;
         this.channel = new LoggingByteChannel();
         this.id = id;

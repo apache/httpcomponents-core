@@ -32,13 +32,13 @@ import java.util.Locale;
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpResponseFactory;
 import org.apache.http.ProtocolVersion;
+import org.apache.http.ReasonPhraseCatalog;
 import org.apache.http.StatusLine;
+import org.apache.http.annotation.Immutable;
 import org.apache.http.message.BasicHttpResponse;
 import org.apache.http.message.BasicStatusLine;
 import org.apache.http.protocol.HttpContext;
-import org.apache.http.ReasonPhraseCatalog;
-import org.apache.http.annotation.Immutable;
-import org.apache.http.impl.EnglishReasonPhraseCatalog;
+import org.apache.http.util.Args;
 
 /**
  * Default factory for creating {@link HttpResponse} objects.
@@ -60,11 +60,7 @@ public class DefaultHttpResponseFactory implements HttpResponseFactory {
      * @param catalog   the catalog of reason phrases
      */
     public DefaultHttpResponseFactory(ReasonPhraseCatalog catalog) {
-        if (catalog == null) {
-            throw new IllegalArgumentException
-                ("Reason phrase catalog must not be null.");
-        }
-        this.reasonCatalog = catalog;
+        this.reasonCatalog = Args.notNull(catalog, "Reason phrase catalog");
     }
 
     /**
@@ -80,11 +76,9 @@ public class DefaultHttpResponseFactory implements HttpResponseFactory {
     public HttpResponse newHttpResponse(final ProtocolVersion ver,
                                         final int status,
                                         HttpContext context) {
-        if (ver == null) {
-            throw new IllegalArgumentException("HTTP version may not be null");
-        }
-        final Locale loc      = determineLocale(context);
-        final String reason   = reasonCatalog.getReason(status, loc);
+        Args.notNull(ver, "HTTP version");
+        Locale loc = determineLocale(context);
+        String reason   = reasonCatalog.getReason(status, loc);
         StatusLine statusline = new BasicStatusLine(ver, status, reason);
         return new BasicHttpResponse(statusline, reasonCatalog, loc);
     }
@@ -93,9 +87,7 @@ public class DefaultHttpResponseFactory implements HttpResponseFactory {
     // non-javadoc, see interface HttpResponseFactory
     public HttpResponse newHttpResponse(final StatusLine statusline,
                                         HttpContext context) {
-        if (statusline == null) {
-            throw new IllegalArgumentException("Status line may not be null");
-        }
+        Args.notNull(statusline, "Status line");
         final Locale loc = determineLocale(context);
         return new BasicHttpResponse(statusline, reasonCatalog, loc);
     }

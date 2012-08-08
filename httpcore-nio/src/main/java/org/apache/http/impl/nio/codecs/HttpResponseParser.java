@@ -31,13 +31,14 @@ import org.apache.http.HttpException;
 import org.apache.http.HttpMessage;
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpResponseFactory;
-import org.apache.http.StatusLine;
 import org.apache.http.ParseException;
+import org.apache.http.StatusLine;
 import org.apache.http.message.LineParser;
 import org.apache.http.message.ParserCursor;
 import org.apache.http.nio.NHttpMessageParser;
 import org.apache.http.nio.reactor.SessionInputBuffer;
 import org.apache.http.params.HttpParams;
+import org.apache.http.util.Args;
 import org.apache.http.util.CharArrayBuffer;
 
 /**
@@ -66,9 +67,7 @@ public class HttpResponseParser extends AbstractMessageParser {
             final HttpResponseFactory responseFactory,
             final HttpParams params) {
         super(buffer, parser, params);
-        if (responseFactory == null) {
-            throw new IllegalArgumentException("Response factory may not be null");
-        }
+        Args.notNull(responseFactory, "Response factory");
         this.responseFactory = responseFactory;
     }
 

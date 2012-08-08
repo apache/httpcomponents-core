@@ -38,6 +38,7 @@ import org.apache.http.entity.AbstractHttpEntity;
 import org.apache.http.entity.ContentType;
 import org.apache.http.nio.ContentEncoder;
 import org.apache.http.nio.IOControl;
+import org.apache.http.util.Args;
 
 /**
  * A simple self contained, repeatable non-blocking entity that retrieves
@@ -69,9 +70,7 @@ public class NByteArrayEntity extends AbstractHttpEntity
      */
     public NByteArrayEntity(final byte[] b, final ContentType contentType) {
         super();
-        if (b == null) {
-            throw new IllegalArgumentException("Source byte array may not be null");
-        }
+        Args.notNull(b, "Source byte array");
         this.b = b;
         this.off = 0;
         this.len = b.length;
@@ -88,9 +87,7 @@ public class NByteArrayEntity extends AbstractHttpEntity
      */
     public NByteArrayEntity(final byte[] b, int off, int len, final ContentType contentType) {
         super();
-        if (b == null) {
-            throw new IllegalArgumentException("Source byte array may not be null");
-        }
+        Args.notNull(b, "Source byte array");
         if ((off < 0) || (off > b.length) || (len < 0) ||
                 ((off + len) < 0) || ((off + len) > b.length)) {
             throw new IndexOutOfBoundsException("off: " + off + " len: " + len + " b.length: " + b.length);
@@ -157,9 +154,7 @@ public class NByteArrayEntity extends AbstractHttpEntity
     }
 
     public void writeTo(final OutputStream outstream) throws IOException {
-        if (outstream == null) {
-            throw new IllegalArgumentException("Output stream may not be null");
-        }
+        Args.notNull(outstream, "Output stream");
         outstream.write(this.b, this.off, this.len);
         outstream.flush();
     }

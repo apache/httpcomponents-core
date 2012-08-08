@@ -39,10 +39,11 @@ import org.apache.http.ProtocolException;
 import org.apache.http.annotation.NotThreadSafe;
 import org.apache.http.io.HttpMessageParser;
 import org.apache.http.io.SessionInputBuffer;
-import org.apache.http.message.LineParser;
 import org.apache.http.message.BasicLineParser;
+import org.apache.http.message.LineParser;
 import org.apache.http.params.CoreConnectionPNames;
 import org.apache.http.params.HttpParams;
+import org.apache.http.util.Args;
 import org.apache.http.util.CharArrayBuffer;
 
 /**
@@ -85,12 +86,8 @@ public abstract class AbstractMessageParser<T extends HttpMessage> implements Ht
             final LineParser parser,
             final HttpParams params) {
         super();
-        if (buffer == null) {
-            throw new IllegalArgumentException("Session input buffer may not be null");
-        }
-        if (params == null) {
-            throw new IllegalArgumentException("HTTP parameters may not be null");
-        }
+        Args.notNull(buffer, "Session input buffer");
+        Args.notNull(params, "HTTP parameters");
         this.sessionBuffer = buffer;
         this.maxHeaderCount = params.getIntParameter(
                 CoreConnectionPNames.MAX_HEADER_COUNT, -1);
@@ -162,18 +159,10 @@ public abstract class AbstractMessageParser<T extends HttpMessage> implements Ht
             int maxHeaderCount,
             int maxLineLen,
             final LineParser parser,
-            final List<CharArrayBuffer> headerLines)
-        throws HttpException, IOException {
-
-        if (inbuffer == null) {
-            throw new IllegalArgumentException("Session input buffer may not be null");
-        }
-        if (parser == null) {
-            throw new IllegalArgumentException("Line parser may not be null");
-        }
-        if (headerLines == null) {
-            throw new IllegalArgumentException("Header line list may not be null");
-        }
+            final List<CharArrayBuffer> headerLines) throws HttpException, IOException {
+        Args.notNull(inbuffer, "Session input buffer");
+        Args.notNull(parser, "Line parser");
+        Args.notNull(headerLines, "Header line list");
 
         CharArrayBuffer current = null;
         CharArrayBuffer previous = null;

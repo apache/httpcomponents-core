@@ -35,9 +35,10 @@ import org.apache.http.ParseException;
 import org.apache.http.ProtocolException;
 import org.apache.http.annotation.Immutable;
 import org.apache.http.entity.ContentLengthStrategy;
-import org.apache.http.params.HttpParams;
 import org.apache.http.params.CoreProtocolPNames;
+import org.apache.http.params.HttpParams;
 import org.apache.http.protocol.HTTP;
+import org.apache.http.util.Args;
 
 /**
  * The lax implementation of the content length strategy. This class will ignore
@@ -81,10 +82,7 @@ public class LaxContentLengthStrategy implements ContentLengthStrategy {
     }
 
     public long determineLength(final HttpMessage message) throws HttpException {
-        if (message == null) {
-            throw new IllegalArgumentException("HTTP message may not be null");
-        }
-
+        Args.notNull(message, "HTTP message");
         HttpParams params = message.getParams();
         boolean strict = params.isParameterTrue(CoreProtocolPNames.STRICT_TRANSFER_ENCODING);
 

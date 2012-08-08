@@ -28,6 +28,7 @@
 package org.apache.http.contrib.sip;
 
 import org.apache.http.message.BasicHeader;
+import org.apache.http.util.Args;
 
 
 /**
@@ -55,14 +56,8 @@ public class BasicCompactHeader extends BasicHeader
                               final String compactname,
                               final String value) {
         super(fullname, value);
-
-        if ((compactname != null) &&
-            (compactname.length() >= fullname.length()))  {
-            throw new IllegalArgumentException
-                ("Compact name must be shorter than full name. " +
-                 compactname + " -> " + fullname);
-        }
-
+        Args.check(compactname == null || compactname.length() < fullname.length(), 
+                "Compact name must be shorter than full name. " + compactname + " -> " + fullname);
         this.compact = compactname;
     }
 
@@ -84,12 +79,7 @@ public class BasicCompactHeader extends BasicHeader
     public static
         BasicCompactHeader newHeader(final String name, final String value,
                                      CompactHeaderMapper mapper) {
-        if (name == null) {
-            throw new IllegalArgumentException
-                ("The name must not be null.");
-        }
-        // value will be checked by constructor later
-
+        Args.notNull(name, "Name");
         if (mapper == null)
             mapper = BasicCompactHeaderMapper.DEFAULT;
 

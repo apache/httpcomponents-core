@@ -47,16 +47,6 @@ public class TestNoConnectionReuseStrategy {
         MockitoAnnotations.initMocks(this);
     }
 
-    @Test(expected=IllegalArgumentException.class)
-    public void testNullResponse() throws Exception {
-        strat.keepAlive(null, context);
-    }
-
-    @Test(expected=IllegalArgumentException.class)
-    public void testNullContext() throws Exception {
-        strat.keepAlive(response, null);
-    }
-
     @Test
     public void testGoodcall() throws Exception {
         Assert.assertFalse(strat.keepAlive(response, context));

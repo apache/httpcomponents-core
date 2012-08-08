@@ -37,12 +37,13 @@ import org.apache.http.HttpMessage;
 import org.apache.http.ParseException;
 import org.apache.http.ProtocolException;
 import org.apache.http.annotation.NotThreadSafe;
-import org.apache.http.message.LineParser;
 import org.apache.http.message.BasicLineParser;
+import org.apache.http.message.LineParser;
 import org.apache.http.nio.NHttpMessageParser;
 import org.apache.http.nio.reactor.SessionInputBuffer;
 import org.apache.http.params.CoreConnectionPNames;
 import org.apache.http.params.HttpParams;
+import org.apache.http.util.Args;
 import org.apache.http.util.CharArrayBuffer;
 
 /**
@@ -87,12 +88,8 @@ public abstract class AbstractMessageParser<T extends HttpMessage> implements NH
      */
     public AbstractMessageParser(final SessionInputBuffer buffer, final LineParser parser, final HttpParams params) {
         super();
-        if (buffer == null) {
-            throw new IllegalArgumentException("Session input buffer may not be null");
-        }
-        if (params == null) {
-            throw new IllegalArgumentException("HTTP parameters may not be null");
-        }
+        Args.notNull(buffer, "Session input buffer");
+        Args.notNull(params, "HTTP parameters");
         this.sessionBuffer = buffer;
         this.state = READ_HEAD_LINE;
         this.endOfStream = false;

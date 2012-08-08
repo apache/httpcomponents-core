@@ -37,9 +37,10 @@ import org.apache.http.HttpInetConnection;
 import org.apache.http.HttpRequest;
 import org.apache.http.HttpRequestInterceptor;
 import org.apache.http.HttpVersion;
-import org.apache.http.ProtocolVersion;
 import org.apache.http.ProtocolException;
+import org.apache.http.ProtocolVersion;
 import org.apache.http.annotation.Immutable;
+import org.apache.http.util.Args;
 
 /**
  * RequestTargetHost is responsible for adding <code>Host</code> header. This
@@ -56,12 +57,8 @@ public class RequestTargetHost implements HttpRequestInterceptor {
 
     public void process(final HttpRequest request, final HttpContext context)
             throws HttpException, IOException {
-        if (request == null) {
-            throw new IllegalArgumentException("HTTP request may not be null");
-        }
-        if (context == null) {
-            throw new IllegalArgumentException("HTTP context may not be null");
-        }
+        Args.notNull(request, "HTTP request");
+        Args.notNull(context, "HTTP context");
 
         ProtocolVersion ver = request.getRequestLine().getProtocolVersion();
         String method = request.getRequestLine().getMethod();

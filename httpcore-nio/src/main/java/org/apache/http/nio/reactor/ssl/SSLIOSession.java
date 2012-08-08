@@ -27,19 +27,6 @@
 
 package org.apache.http.nio.reactor.ssl;
 
-import org.apache.http.annotation.ThreadSafe;
-import org.apache.http.nio.reactor.EventMask;
-import org.apache.http.nio.reactor.IOSession;
-import org.apache.http.nio.reactor.SocketAccessor;
-import org.apache.http.nio.reactor.SessionBufferStatus;
-
-import javax.net.ssl.SSLContext;
-import javax.net.ssl.SSLEngine;
-import javax.net.ssl.SSLEngineResult;
-import javax.net.ssl.SSLSession;
-import javax.net.ssl.SSLEngineResult.HandshakeStatus;
-import javax.net.ssl.SSLEngineResult.Status;
-import javax.net.ssl.SSLException;
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.net.Socket;
@@ -47,6 +34,21 @@ import java.net.SocketAddress;
 import java.nio.ByteBuffer;
 import java.nio.channels.ByteChannel;
 import java.nio.channels.SelectionKey;
+
+import javax.net.ssl.SSLContext;
+import javax.net.ssl.SSLEngine;
+import javax.net.ssl.SSLEngineResult;
+import javax.net.ssl.SSLEngineResult.HandshakeStatus;
+import javax.net.ssl.SSLEngineResult.Status;
+import javax.net.ssl.SSLException;
+import javax.net.ssl.SSLSession;
+
+import org.apache.http.annotation.ThreadSafe;
+import org.apache.http.nio.reactor.EventMask;
+import org.apache.http.nio.reactor.IOSession;
+import org.apache.http.nio.reactor.SessionBufferStatus;
+import org.apache.http.nio.reactor.SocketAccessor;
+import org.apache.http.util.Args;
 
 /**
  * <tt>SSLIOSession</tt> is a decorator class intended to transparently extend
@@ -105,12 +107,8 @@ public class SSLIOSession implements IOSession, SessionBufferStatus, SocketAcces
             final SSLContext sslContext,
             final SSLSetupHandler handler) {
         super();
-        if (session == null) {
-            throw new IllegalArgumentException("IO session may not be null");
-        }
-        if (sslContext == null) {
-            throw new IllegalArgumentException("SSL context may not be null");
-        }
+        Args.notNull(session, "IO session");
+        Args.notNull(sslContext, "SSL context");
         this.session = session;
         this.defaultMode = defaultMode;
         this.appEventMask = session.getEventMask();
@@ -423,9 +421,7 @@ public class SSLIOSession implements IOSession, SessionBufferStatus, SocketAcces
     }
 
     private synchronized int writePlain(final ByteBuffer src) throws SSLException {
-        if (src == null) {
-            throw new IllegalArgumentException("Byte buffer may not be null");
-        }
+        Args.notNull(src, "Byte buffer");
         if (this.status != ACTIVE) {
             return -1;
         }
@@ -446,9 +442,7 @@ public class SSLIOSession implements IOSession, SessionBufferStatus, SocketAcces
     }
 
     private synchronized int readPlain(final ByteBuffer dst) {
-        if (dst == null) {
-            throw new IllegalArgumentException("Byte buffer may not be null");
-        }
+        Args.notNull(dst, "Byte buffer");
         if (this.inPlain.position() > 0) {
             this.inPlain.flip();
             int n = Math.min(this.inPlain.remaining(), dst.remaining());

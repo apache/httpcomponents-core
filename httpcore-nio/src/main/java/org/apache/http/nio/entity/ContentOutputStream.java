@@ -32,6 +32,7 @@ import java.io.OutputStream;
 
 import org.apache.http.annotation.NotThreadSafe;
 import org.apache.http.nio.util.ContentOutputBuffer;
+import org.apache.http.util.Args;
 
 /**
  * {@link OutputStream} adaptor for {@link ContentOutputBuffer}.
@@ -45,9 +46,7 @@ public class ContentOutputStream extends OutputStream {
 
     public ContentOutputStream(final ContentOutputBuffer buffer) {
         super();
-        if (buffer == null) {
-            throw new IllegalArgumentException("Output buffer may not be null");
-        }
+        Args.notNull(buffer, "Output buffer");
         this.buffer = buffer;
     }
 

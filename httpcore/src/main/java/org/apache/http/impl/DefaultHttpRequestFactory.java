@@ -34,6 +34,7 @@ import org.apache.http.RequestLine;
 import org.apache.http.annotation.Immutable;
 import org.apache.http.message.BasicHttpEntityEnclosingRequest;
 import org.apache.http.message.BasicHttpRequest;
+import org.apache.http.util.Args;
 
 /**
  * Default factory for creating {@link HttpRequest} objects.
@@ -78,9 +79,7 @@ public class DefaultHttpRequestFactory implements HttpRequestFactory {
 
     public HttpRequest newHttpRequest(final RequestLine requestline)
             throws MethodNotSupportedException {
-        if (requestline == null) {
-            throw new IllegalArgumentException("Request line may not be null");
-        }
+        Args.notNull(requestline, "Request line");
         String method = requestline.getMethod();
         if (isOneOf(RFC2616_COMMON_METHODS, method)) {
             return new BasicHttpRequest(requestline);

@@ -35,6 +35,7 @@ import org.apache.http.HeaderElement;
 import org.apache.http.HeaderElementIterator;
 import org.apache.http.HeaderIterator;
 import org.apache.http.annotation.NotThreadSafe;
+import org.apache.http.util.Args;
 import org.apache.http.util.CharArrayBuffer;
 
 /**
@@ -58,14 +59,8 @@ public class BasicHeaderElementIterator implements HeaderElementIterator {
     public BasicHeaderElementIterator(
             final HeaderIterator headerIterator,
             final HeaderValueParser parser) {
-        if (headerIterator == null) {
-            throw new IllegalArgumentException("Header iterator may not be null");
-        }
-        if (parser == null) {
-            throw new IllegalArgumentException("Parser may not be null");
-        }
-        this.headerIt = headerIterator;
-        this.parser = parser;
+        this.headerIt = Args.notNull(headerIterator, "Header iterator");
+        this.parser = Args.notNull(parser, "Parser");
     }
 
 

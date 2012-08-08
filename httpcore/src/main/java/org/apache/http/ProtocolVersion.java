@@ -30,6 +30,7 @@ package org.apache.http;
 import java.io.Serializable;
 
 import org.apache.http.annotation.Immutable;
+import org.apache.http.util.Args;
 
 /**
  * Represents a protocol version. The "major.minor" numbering
@@ -67,21 +68,9 @@ public class ProtocolVersion implements Serializable, Cloneable {
      * @param minor      the minor version number of the protocol
      */
     public ProtocolVersion(String protocol, int major, int minor) {
-        if (protocol == null) {
-            throw new IllegalArgumentException
-                ("Protocol name must not be null.");
-        }
-        if (major < 0) {
-            throw new IllegalArgumentException
-                ("Protocol major version number must not be negative.");
-        }
-        if (minor < 0) {
-            throw new IllegalArgumentException
-                ("Protocol minor version number may not be negative");
-        }
-        this.protocol = protocol;
-        this.major = major;
-        this.minor = minor;
+        this.protocol = Args.notNull(protocol, "Protocol name");
+        this.major = Args.notNegative(major, "Protocol minor version");
+        this.minor = Args.notNegative(minor, "Protocol minor version");;
     }
 
     /**
@@ -199,7 +188,7 @@ public class ProtocolVersion implements Serializable, Cloneable {
      * This method does <i>not</i> define a total ordering, as it would be
      * required for {@link java.lang.Comparable}.
      *
-     * @param that      the protocl version to compare with
+     * @param that      the protocol version to compare with
      *
      * @return   a negative integer, zero, or a positive integer
      *           as this version is less than, equal to, or greater than
@@ -210,16 +199,11 @@ public class ProtocolVersion implements Serializable, Cloneable {
      *         or if the argument is <code>null</code>
      */
     public int compareToVersion(ProtocolVersion that) {
-        if (that == null) {
-            throw new IllegalArgumentException
-                ("Protocol version must not be null.");
-        }
+        Args.notNull(that, "Protocol version");
         if (!this.protocol.equals(that.protocol)) {
-            throw new IllegalArgumentException
-                ("Versions for different protocols cannot be compared. " +
-                 this + " " + that);
+                throw new IllegalArgumentException("Versions for different protocols " +
+                		"cannot be compared. " + this + " " + that);
         }
-
         int delta = getMajor() - that.getMajor();
         if (delta == 0) {
             delta = getMinor() - that.getMinor();

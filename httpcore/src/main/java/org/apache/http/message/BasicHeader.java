@@ -33,6 +33,7 @@ import org.apache.http.Header;
 import org.apache.http.HeaderElement;
 import org.apache.http.ParseException;
 import org.apache.http.annotation.Immutable;
+import org.apache.http.util.Args;
 
 /**
  * Basic implementation of {@link Header}.
@@ -55,10 +56,7 @@ public class BasicHeader implements Header, Cloneable, Serializable {
      */
     public BasicHeader(final String name, final String value) {
         super();
-        if (name == null) {
-            throw new IllegalArgumentException("Name may not be null");
-        }
-        this.name = name;
+        this.name = Args.notNull(name, "Name");
         this.value = value;
     }
 

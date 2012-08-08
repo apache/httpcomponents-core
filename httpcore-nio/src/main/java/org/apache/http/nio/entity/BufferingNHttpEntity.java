@@ -40,6 +40,7 @@ import org.apache.http.nio.protocol.BasicAsyncRequestConsumer;
 import org.apache.http.nio.protocol.BasicAsyncResponseConsumer;
 import org.apache.http.nio.util.ByteBufferAllocator;
 import org.apache.http.nio.util.SimpleInputBuffer;
+import org.apache.http.util.Args;
 
 /**
  * A {@link ConsumingNHttpEntity} that consumes content into a buffer. The
@@ -116,9 +117,7 @@ public class BufferingNHttpEntity extends HttpEntityWrapper implements
 
     @Override
     public void writeTo(final OutputStream outstream) throws IOException {
-        if (outstream == null) {
-            throw new IllegalArgumentException("Output stream may not be null");
-        }
+        Args.notNull(outstream, "Output stream");
         InputStream instream = getContent();
         byte[] buffer = new byte[BUFFER_SIZE];
         int l;

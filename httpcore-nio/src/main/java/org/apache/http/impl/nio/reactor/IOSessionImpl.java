@@ -43,6 +43,7 @@ import org.apache.http.annotation.ThreadSafe;
 import org.apache.http.nio.reactor.IOSession;
 import org.apache.http.nio.reactor.SessionBufferStatus;
 import org.apache.http.nio.reactor.SocketAccessor;
+import org.apache.http.util.Args;
 
 /**
  * Default implementation of {@link IOSession}.
@@ -83,9 +84,7 @@ public class IOSessionImpl implements IOSession, SocketAccessor {
             final InterestOpsCallback interestOpsCallback,
             final SessionClosedCallback sessionClosedCallback) {
         super();
-        if (key == null) {
-            throw new IllegalArgumentException("Selection key may not be null");
-        }
+        Args.notNull(key, "Selection key");
         this.key = key;
         this.channel = (ByteChannel) this.key.channel();
         this.interestOpsCallback = interestOpsCallback;

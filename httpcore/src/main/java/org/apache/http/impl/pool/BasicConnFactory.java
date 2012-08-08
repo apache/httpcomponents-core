@@ -39,6 +39,7 @@ import org.apache.http.impl.DefaultHttpClientConnection;
 import org.apache.http.params.HttpConnectionParams;
 import org.apache.http.params.HttpParams;
 import org.apache.http.pool.ConnFactory;
+import org.apache.http.util.Args;
 
 /**
  * A very basic {@link ConnFactory} implementation that creates
@@ -66,11 +67,8 @@ public class BasicConnFactory implements ConnFactory<HttpHost, HttpClientConnect
 
     public BasicConnFactory(final SSLSocketFactory sslfactory, final HttpParams params) {
         super();
-        if (params == null) {
-            throw new IllegalArgumentException("HTTP params may not be null");
-        }
         this.sslfactory = sslfactory;
-        this.params = params;
+        this.params = Args.notNull(params, "HTTP params");
     }
 
     public BasicConnFactory(final HttpParams params) {

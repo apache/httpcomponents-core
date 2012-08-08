@@ -60,6 +60,7 @@ import org.apache.http.protocol.ExecutionContext;
 import org.apache.http.protocol.HttpContext;
 import org.apache.http.protocol.HttpExpectationVerifier;
 import org.apache.http.protocol.HttpProcessor;
+import org.apache.http.util.Args;
 import org.apache.http.util.EncodingUtils;
 
 /**
@@ -114,9 +115,7 @@ public class AsyncNHttpServiceHandler extends NHttpHandlerBase
             final ByteBufferAllocator allocator,
             final HttpParams params) {
         super(httpProcessor, connStrategy, allocator, params);
-        if (responseFactory == null) {
-            throw new IllegalArgumentException("Response factory may not be null");
-        }
+        Args.notNull(responseFactory, "Response factory");
         this.responseFactory = responseFactory;
     }
 
@@ -658,9 +657,7 @@ public class AsyncNHttpServiceHandler extends NHttpHandlerBase
         }
 
         public void submitResponse(final HttpResponse response) {
-            if (response == null) {
-                throw new IllegalArgumentException("Response may not be null");
-            }
+            Args.notNull(response, "Response");
             if (this.triggered) {
                 throw new IllegalStateException("Response already triggered");
             }

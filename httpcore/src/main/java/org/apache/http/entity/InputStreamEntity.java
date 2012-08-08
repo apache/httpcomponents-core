@@ -32,6 +32,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 
 import org.apache.http.annotation.NotThreadSafe;
+import org.apache.http.util.Args;
 
 /**
  * A streamed, non-repeatable entity that obtains its content from
@@ -56,10 +57,7 @@ public class InputStreamEntity extends AbstractHttpEntity {
      */
     public InputStreamEntity(final InputStream instream, long length, final ContentType contentType) {
         super();
-        if (instream == null) {
-            throw new IllegalArgumentException("Source input stream may not be null");
-        }
-        this.content = instream;
+        this.content = Args.notNull(instream, "Source input stream");
         this.length = length;
         if (contentType != null) {
             setContentType(contentType.toString());
@@ -79,9 +77,7 @@ public class InputStreamEntity extends AbstractHttpEntity {
     }
 
     public void writeTo(final OutputStream outstream) throws IOException {
-        if (outstream == null) {
-            throw new IllegalArgumentException("Output stream may not be null");
-        }
+        Args.notNull(outstream, "Output stream");
         InputStream instream = this.content;
         try {
             byte[] buffer = new byte[BUFFER_SIZE];

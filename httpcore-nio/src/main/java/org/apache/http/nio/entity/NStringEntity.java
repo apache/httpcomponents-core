@@ -42,6 +42,7 @@ import org.apache.http.entity.ContentType;
 import org.apache.http.nio.ContentEncoder;
 import org.apache.http.nio.IOControl;
 import org.apache.http.protocol.HTTP;
+import org.apache.http.util.Args;
 
 /**
  * A simple, self contained, repeatable non-blocking entity that retrieves
@@ -80,9 +81,7 @@ public class NStringEntity extends AbstractHttpEntity
      * @since 4.2
      */
     public NStringEntity(final String s, final ContentType contentType) {
-        if (s == null) {
-            throw new IllegalArgumentException("Source string may not be null");
-        }
+        Args.notNull(s, "Source string");
         Charset charset = contentType != null ? contentType.getCharset() : null;
         if (charset == null) {
             charset = HTTP.DEF_CONTENT_CHARSET;
@@ -189,9 +188,7 @@ public class NStringEntity extends AbstractHttpEntity
     }
 
     public void writeTo(final OutputStream outstream) throws IOException {
-        if (outstream == null) {
-            throw new IllegalArgumentException("Output stream may not be null");
-        }
+        Args.notNull(outstream, "Output stream");
         outstream.write(this.b);
         outstream.flush();
     }

@@ -38,6 +38,7 @@ import org.apache.http.HttpRequestInterceptor;
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpResponseInterceptor;
 import org.apache.http.annotation.NotThreadSafe;
+import org.apache.http.util.Args;
 
 /**
  * Default implementation of {@link HttpProcessor}.
@@ -170,9 +171,7 @@ public final class BasicHttpProcessor implements
      *                  from which to initialize
      */
     public void setInterceptors(final List<?> list) {
-        if (list == null) {
-            throw new IllegalArgumentException("List must not be null.");
-        }
+        Args.notNull(list, "Inteceptor list");
         this.requestInterceptors.clear();
         this.responseInterceptors.clear();
         for (int i = 0; i < list.size(); i++) {

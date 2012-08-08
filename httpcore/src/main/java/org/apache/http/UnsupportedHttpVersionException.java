@@ -27,7 +27,6 @@
 
 package org.apache.http;
 
-import org.apache.http.ProtocolException;
 
 /**
  * Signals an unsupported version of the HTTP protocol.

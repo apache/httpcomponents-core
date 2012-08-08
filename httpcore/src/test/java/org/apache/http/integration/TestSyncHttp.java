@@ -618,12 +618,6 @@ public class TestSyncHttp {
 
         public RepeatingEntity(final String content, Charset charset, int n) {
             super();
-            if (content == null) {
-                throw new IllegalArgumentException("Content may not be null");
-            }
-            if (n <= 0) {
-                throw new IllegalArgumentException("N may not be negative or zero");
-            }
             if (charset == null) {
                 charset = Charset.forName("US-ASCII"); // US-ASCII is built-in
             }

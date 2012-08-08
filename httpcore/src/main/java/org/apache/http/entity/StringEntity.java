@@ -37,6 +37,7 @@ import java.nio.charset.UnsupportedCharsetException;
 
 import org.apache.http.annotation.NotThreadSafe;
 import org.apache.http.protocol.HTTP;
+import org.apache.http.util.Args;
 
 /**
  * A self contained, repeatable entity that obtains its content from
@@ -62,9 +63,7 @@ public class StringEntity extends AbstractHttpEntity implements Cloneable {
      */
     public StringEntity(final String string, final ContentType contentType) {
         super();
-        if (string == null) {
-            throw new IllegalArgumentException("Source string may not be null");
-        }
+        Args.notNull(string, "Source string");
         Charset charset = contentType != null ? contentType.getCharset() : null;
         if (charset == null) {
             charset = HTTP.DEF_CONTENT_CHARSET;
@@ -98,9 +97,7 @@ public class StringEntity extends AbstractHttpEntity implements Cloneable {
     public StringEntity(final String string, String mimeType, String charset)
             throws UnsupportedEncodingException {
         super();
-        if (string == null) {
-            throw new IllegalArgumentException("Source string may not be null");
-        }
+        Args.notNull(string, "Source string");
         if (mimeType == null) {
             mimeType = HTTP.PLAIN_TEXT_TYPE;
         }
@@ -170,9 +167,7 @@ public class StringEntity extends AbstractHttpEntity implements Cloneable {
     }
 
     public void writeTo(final OutputStream outstream) throws IOException {
-        if (outstream == null) {
-            throw new IllegalArgumentException("Output stream may not be null");
-        }
+        Args.notNull(outstream, "Output stream");
         outstream.write(this.content);
         outstream.flush();
     }

@@ -33,6 +33,7 @@ import java.nio.ByteBuffer;
 import org.apache.http.nio.ContentDecoder;
 import org.apache.http.nio.IOControl;
 import org.apache.http.nio.util.ByteBufferAllocator;
+import org.apache.http.util.Args;
 
 /**
  * A simple {@link ContentListener} that reads and ignores all content.
@@ -48,9 +49,7 @@ public class SkipContentListener implements ContentListener {
 
     public SkipContentListener(final ByteBufferAllocator allocator) {
         super();
-        if (allocator == null) {
-            throw new IllegalArgumentException("ByteBuffer allocator may not be null");
-        }
+        Args.notNull(allocator, "ByteBuffer allocator");
         this.buffer = allocator.allocate(2048);
     }
 

@@ -33,6 +33,7 @@ import java.net.Socket;
 import org.apache.http.annotation.NotThreadSafe;
 import org.apache.http.io.SessionOutputBuffer;
 import org.apache.http.params.HttpParams;
+import org.apache.http.util.Args;
 
 /**
  * {@link SessionOutputBuffer} implementation bound to a {@link Socket}.
@@ -64,9 +65,7 @@ public class SocketOutputBuffer extends AbstractSessionOutputBuffer {
             int buffersize,
             final HttpParams params) throws IOException {
         super();
-        if (socket == null) {
-            throw new IllegalArgumentException("Socket may not be null");
-        }
+        Args.notNull(socket, "Socket");
         if (buffersize < 0) {
             buffersize = socket.getSendBufferSize();
         }

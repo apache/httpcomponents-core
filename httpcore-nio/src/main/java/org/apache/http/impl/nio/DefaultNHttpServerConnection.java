@@ -45,8 +45,8 @@ import org.apache.http.impl.nio.codecs.DefaultHttpResponseWriter;
 import org.apache.http.nio.NHttpMessageParser;
 import org.apache.http.nio.NHttpMessageWriter;
 import org.apache.http.nio.NHttpServerConnection;
-import org.apache.http.nio.NHttpServerIOTarget;
 import org.apache.http.nio.NHttpServerEventHandler;
+import org.apache.http.nio.NHttpServerIOTarget;
 import org.apache.http.nio.NHttpServiceHandler;
 import org.apache.http.nio.reactor.EventMask;
 import org.apache.http.nio.reactor.IOSession;
@@ -54,6 +54,7 @@ import org.apache.http.nio.reactor.SessionInputBuffer;
 import org.apache.http.nio.reactor.SessionOutputBuffer;
 import org.apache.http.nio.util.ByteBufferAllocator;
 import org.apache.http.params.HttpParams;
+import org.apache.http.util.Args;
 
 /**
  * Default implementation of the {@link NHttpServerConnection} interface.
@@ -91,9 +92,7 @@ public class DefaultNHttpServerConnection
             final ByteBufferAllocator allocator,
             final HttpParams params) {
         super(session, allocator, params);
-        if (requestFactory == null) {
-            throw new IllegalArgumentException("Request factory may not be null");
-        }
+        Args.notNull(requestFactory, "Request factory");
         this.requestParser = createRequestParser(this.inbuf, requestFactory, params);
         this.responseWriter = createResponseWriter(this.outbuf, params);
     }
@@ -257,9 +256,7 @@ public class DefaultNHttpServerConnection
     }
 
     public void submitResponse(final HttpResponse response) throws IOException, HttpException {
-        if (response == null) {
-            throw new IllegalArgumentException("HTTP response may not be null");
-        }
+        Args.notNull(response, "HTTP response");
         assertNotClosed();
         if (this.response != null) {
             throw new HttpException("Response already submitted");

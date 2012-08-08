@@ -36,6 +36,7 @@ import org.apache.http.nio.util.ByteBufferAllocator;
 import org.apache.http.nio.util.HeapByteBufferAllocator;
 import org.apache.http.params.HttpConnectionParams;
 import org.apache.http.params.HttpParams;
+import org.apache.http.util.Args;
 
 /**
  * Factory for plain (non-encrypted), non-blocking {@link NHttpClientConnection}s.
@@ -65,15 +66,9 @@ public class DefaultNHttpClientConnectionFactory
             final ByteBufferAllocator allocator,
             final HttpParams params) {
         super();
-        if (responseFactory == null) {
-            throw new IllegalArgumentException("HTTP response factory may not be null");
-        }
-        if (allocator == null) {
-            throw new IllegalArgumentException("Byte buffer allocator may not be null");
-        }
-        if (params == null) {
-            throw new IllegalArgumentException("HTTP parameters may not be null");
-        }
+        Args.notNull(responseFactory, "HTTP response factory");
+        Args.notNull(allocator, "Byte buffer allocator");
+        Args.notNull(params, "HTTP parameters");
         this.responseFactory = responseFactory;
         this.allocator = allocator;
         this.params = params;

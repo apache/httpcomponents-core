@@ -61,6 +61,7 @@ import org.apache.http.protocol.BasicHttpContext;
 import org.apache.http.protocol.ExecutionContext;
 import org.apache.http.protocol.HttpContext;
 import org.apache.http.protocol.HttpProcessor;
+import org.apache.http.util.Args;
 
 /**
  * <tt>HttpAsyncService</tt> is a fully asynchronous HTTP server side protocol
@@ -129,18 +130,10 @@ public class HttpAsyncService implements NHttpServerEventHandler {
             final HttpAsyncExpectationVerifier expectationVerifier,
             final HttpParams params) {
         super();
-        if (httpProcessor == null) {
-            throw new IllegalArgumentException("HTTP processor may not be null.");
-        }
-        if (connStrategy == null) {
-            throw new IllegalArgumentException("Connection reuse strategy may not be null");
-        }
-        if (responseFactory == null) {
-            throw new IllegalArgumentException("Response factory may not be null");
-        }
-        if (params == null) {
-            throw new IllegalArgumentException("HTTP parameters may not be null");
-        }
+        Args.notNull(httpProcessor, "HTTP processor");
+        Args.notNull(connStrategy, "Connection reuse strategy");
+        Args.notNull(responseFactory, "Response factory");
+        Args.notNull(params, "HTTP parameters");
         this.httpProcessor = httpProcessor;
         this.connStrategy = connStrategy;
         this.responseFactory = responseFactory;
@@ -747,9 +740,7 @@ public class HttpAsyncService implements NHttpServerEventHandler {
         }
 
         public void submitResponse(final HttpAsyncResponseProducer responseProducer) {
-            if (responseProducer == null) {
-                throw new IllegalArgumentException("Response producer may not be null");
-            }
+            Args.notNull(responseProducer, "Response producer");
             synchronized (this) {
                 if (this.completed) {
                     throw new IllegalStateException("Response already submitted");

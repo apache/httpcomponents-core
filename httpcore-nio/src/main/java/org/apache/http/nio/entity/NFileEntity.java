@@ -41,6 +41,7 @@ import org.apache.http.nio.ContentEncoder;
 import org.apache.http.nio.ContentEncoderChannel;
 import org.apache.http.nio.FileContentEncoder;
 import org.apache.http.nio.IOControl;
+import org.apache.http.util.Args;
 
 /**
  * A self contained, repeatable non-blocking entity that retrieves its content
@@ -74,9 +75,7 @@ public class NFileEntity extends AbstractHttpEntity
      * @since 4.2
      */
     public NFileEntity(final File file, final ContentType contentType, boolean useFileChannels) {
-        if (file == null) {
-            throw new IllegalArgumentException("File may not be null");
-        }
+        Args.notNull(file, "File");
         this.file = file;
         this.useFileChannels = useFileChannels;
         if (contentType != null) {
@@ -88,9 +87,7 @@ public class NFileEntity extends AbstractHttpEntity
      * @since 4.2
      */
     public NFileEntity(final File file) {
-        if (file == null) {
-            throw new IllegalArgumentException("File may not be null");
-        }
+        Args.notNull(file, "File");
         this.file = file;
     }
     /**
@@ -111,9 +108,7 @@ public class NFileEntity extends AbstractHttpEntity
      */
     @Deprecated
     public NFileEntity(final File file, final String contentType, boolean useFileChannels) {
-        if (file == null) {
-            throw new IllegalArgumentException("File may not be null");
-        }
+        Args.notNull(file, "File");
         this.file = file;
         this.useFileChannels = useFileChannels;
         setContentType(contentType);
@@ -191,9 +186,7 @@ public class NFileEntity extends AbstractHttpEntity
     }
 
     public void writeTo(final OutputStream outstream) throws IOException {
-        if (outstream == null) {
-            throw new IllegalArgumentException("Output stream may not be null");
-        }
+        Args.notNull(outstream, "Output stream");
         InputStream instream = new FileInputStream(this.file);
         try {
             byte[] tmp = new byte[4096];

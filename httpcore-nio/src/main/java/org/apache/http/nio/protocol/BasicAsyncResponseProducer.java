@@ -37,6 +37,7 @@ import org.apache.http.nio.IOControl;
 import org.apache.http.nio.entity.EntityAsyncContentProducer;
 import org.apache.http.nio.entity.HttpAsyncContentProducer;
 import org.apache.http.protocol.HttpContext;
+import org.apache.http.util.Args;
 
 /**
  * Basic implementation of {@link HttpAsyncResponseProducer}. The producer
@@ -69,12 +70,8 @@ public class BasicAsyncResponseProducer implements HttpAsyncResponseProducer {
             final HttpResponse response,
             final HttpAsyncContentProducer producer) {
         super();
-        if (response == null) {
-            throw new IllegalArgumentException("HTTP response may not be null");
-        }
-        if (producer == null) {
-            throw new IllegalArgumentException("HTTP content producer may not be null");
-        }
+        Args.notNull(response, "HTTP response");
+        Args.notNull(producer, "HTTP content producer");
         this.response = response;
         this.producer = producer;
     }
@@ -88,9 +85,7 @@ public class BasicAsyncResponseProducer implements HttpAsyncResponseProducer {
      */
     public BasicAsyncResponseProducer(final HttpResponse response) {
         super();
-        if (response == null) {
-            throw new IllegalArgumentException("HTTP response may not be null");
-        }
+        Args.notNull(response, "HTTP response");
         this.response = response;
         HttpEntity entity = response.getEntity();
         if (entity != null) {

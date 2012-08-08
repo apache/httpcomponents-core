@@ -101,9 +101,7 @@ public final class EntityUtils {
      */
     public static void updateEntity(
             final HttpResponse response, final HttpEntity entity) throws IOException {
-        if(response == null) {
-            throw new IllegalArgumentException("Response cannot be null");
-        }
+        Args.notNull(response, "Response");
         consume(response.getEntity());
         response.setEntity(entity);
     }
@@ -118,17 +116,14 @@ public final class EntityUtils {
      * @throws IllegalArgumentException if entity is null or if content length > Integer.MAX_VALUE
      */
     public static byte[] toByteArray(final HttpEntity entity) throws IOException {
-        if (entity == null) {
-            throw new IllegalArgumentException("HTTP entity may not be null");
-        }
+        Args.notNull(entity, "Entity");
         InputStream instream = entity.getContent();
         if (instream == null) {
             return null;
         }
         try {
-            if (entity.getContentLength() > Integer.MAX_VALUE) {
-                throw new IllegalArgumentException("HTTP entity too large to be buffered in memory");
-            }
+            Args.check(entity.getContentLength() <= Integer.MAX_VALUE, 
+                    "HTTP entity too large to be buffered in memory");
             int i = (int)entity.getContentLength();
             if (i < 0) {
                 i = 4096;
@@ -157,9 +152,7 @@ public final class EntityUtils {
      */
     @Deprecated
     public static String getContentCharSet(final HttpEntity entity) throws ParseException {
-        if (entity == null) {
-            throw new IllegalArgumentException("HTTP entity may not be null");
-        }
+        Args.notNull(entity, "Entity");
         String charset = null;
         if (entity.getContentType() != null) {
             HeaderElement values[] = entity.getContentType().getElements();
@@ -187,9 +180,7 @@ public final class EntityUtils {
      */
     @Deprecated
     public static String getContentMimeType(final HttpEntity entity) throws ParseException {
-        if (entity == null) {
-            throw new IllegalArgumentException("HTTP entity may not be null");
-        }
+        Args.notNull(entity, "Entity");
         String mimeType = null;
         if (entity.getContentType() != null) {
             HeaderElement values[] = entity.getContentType().getElements();
@@ -215,17 +206,14 @@ public final class EntityUtils {
      */
     public static String toString(
             final HttpEntity entity, final Charset defaultCharset) throws IOException, ParseException {
-        if (entity == null) {
-            throw new IllegalArgumentException("HTTP entity may not be null");
-        }
+        Args.notNull(entity, "Entity");
         InputStream instream = entity.getContent();
         if (instream == null) {
             return null;
         }
         try {
-            if (entity.getContentLength() > Integer.MAX_VALUE) {
-                throw new IllegalArgumentException("HTTP entity too large to be buffered in memory");
-            }
+            Args.check(entity.getContentLength() <= Integer.MAX_VALUE, 
+                    "HTTP entity too large to be buffered in memory");
             int i = (int)entity.getContentLength();
             if (i < 0) {
                 i = 4096;

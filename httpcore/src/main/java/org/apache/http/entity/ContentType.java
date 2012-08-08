@@ -40,6 +40,7 @@ import org.apache.http.NameValuePair;
 import org.apache.http.ParseException;
 import org.apache.http.annotation.Immutable;
 import org.apache.http.message.BasicHeaderValueParser;
+import org.apache.http.util.Args;
 
 /**
  * Content type information consisting of a MIME type and an optional charset.
@@ -142,16 +143,8 @@ public final class ContentType implements Serializable {
      * @return content type
      */
     public static ContentType create(final String mimeType, final Charset charset) {
-        if (mimeType == null) {
-            throw new IllegalArgumentException("MIME type may not be null");
-        }
-        String type = mimeType.trim().toLowerCase(Locale.US);
-        if (type.length() == 0) {
-            throw new IllegalArgumentException("MIME type may not be empty");
-        }
-        if (!valid(type)) {
-            throw new IllegalArgumentException("MIME type may not contain reserved characters");
-        }
+        String type = Args.notEmpty(mimeType, "MIME type").trim().toLowerCase(Locale.US);
+        Args.check(valid(type), "MIME type may not contain reserved characters");
         return new ContentType(type, charset);
     }
 
@@ -200,9 +193,7 @@ public final class ContentType implements Serializable {
      */
     public static ContentType parse(
             final String s) throws ParseException, UnsupportedCharsetException {
-        if (s == null) {
-            throw new IllegalArgumentException("Content type may not be null");
-        }
+        Args.notNull(s, "Content type");
         HeaderElement[] elements = BasicHeaderValueParser.parseElements(s, null);
         if (elements.length > 0) {
             return create(elements[0]);

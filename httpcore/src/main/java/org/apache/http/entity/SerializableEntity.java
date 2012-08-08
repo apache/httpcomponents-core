@@ -36,6 +36,7 @@ import java.io.OutputStream;
 import java.io.Serializable;
 
 import org.apache.http.annotation.NotThreadSafe;
+import org.apache.http.util.Args;
 
 /**
  * A streamed entity that obtains its content from a {@link Serializable}.
@@ -62,10 +63,7 @@ public class SerializableEntity extends AbstractHttpEntity {
      */
     public SerializableEntity(Serializable ser, boolean bufferize) throws IOException {
         super();
-        if (ser == null) {
-            throw new IllegalArgumentException("Source object may not be null");
-        }
-
+        Args.notNull(ser, "Source object");
         if (bufferize) {
             createBytes(ser);
         } else {
@@ -105,10 +103,7 @@ public class SerializableEntity extends AbstractHttpEntity {
     }
 
     public void writeTo(OutputStream outstream) throws IOException {
-        if (outstream == null) {
-            throw new IllegalArgumentException("Output stream may not be null");
-        }
-
+        Args.notNull(outstream, "Output stream");
         if (this.objSer == null) {
             ObjectOutputStream out = new ObjectOutputStream(outstream);
             out.writeObject(this.objRef);

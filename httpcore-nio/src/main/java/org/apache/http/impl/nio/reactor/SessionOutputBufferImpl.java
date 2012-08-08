@@ -45,6 +45,7 @@ import org.apache.http.nio.util.HeapByteBufferAllocator;
 import org.apache.http.params.HttpParams;
 import org.apache.http.params.HttpProtocolParams;
 import org.apache.http.protocol.HTTP;
+import org.apache.http.util.Args;
 import org.apache.http.util.CharArrayBuffer;
 
 /**
@@ -93,9 +94,7 @@ public class SessionOutputBufferImpl extends ExpandableBuffer implements Session
     }
 
     public int flush(final WritableByteChannel channel) throws IOException {
-        if (channel == null) {
-            throw new IllegalArgumentException("Channel may not be null");
-        }
+        Args.notNull(channel, "Channel");
         setOutputMode();
         int noWritten = channel.write(this.buffer);
         return noWritten;

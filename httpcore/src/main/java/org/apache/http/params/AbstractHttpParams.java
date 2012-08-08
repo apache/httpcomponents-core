@@ -29,8 +29,6 @@ package org.apache.http.params;
 
 import java.util.Set;
 
-import org.apache.http.params.HttpParams;
-
 
 /**
  * Abstract base class for parameter collections.

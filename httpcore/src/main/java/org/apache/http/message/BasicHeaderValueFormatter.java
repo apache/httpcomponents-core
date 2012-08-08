@@ -30,6 +30,7 @@ package org.apache.http.message;
 import org.apache.http.HeaderElement;
 import org.apache.http.NameValuePair;
 import org.apache.http.annotation.Immutable;
+import org.apache.http.util.Args;
 import org.apache.http.util.CharArrayBuffer;
 
 /**
@@ -98,11 +99,7 @@ public class BasicHeaderValueFormatter implements HeaderValueFormatter {
     public CharArrayBuffer formatElements(CharArrayBuffer buffer,
                                           final HeaderElement[] elems,
                                           final boolean quote) {
-        if (elems == null) {
-            throw new IllegalArgumentException
-                ("Header element array must not be null.");
-        }
-
+        Args.notNull(elems, "Header element array");
         int len = estimateElementsLen(elems);
         if (buffer == null) {
             buffer = new CharArrayBuffer(len);
@@ -167,11 +164,7 @@ public class BasicHeaderValueFormatter implements HeaderValueFormatter {
     public CharArrayBuffer formatHeaderElement(CharArrayBuffer buffer,
                                                final HeaderElement elem,
                                                final boolean quote) {
-        if (elem == null) {
-            throw new IllegalArgumentException
-                ("Header element must not be null.");
-        }
-
+        Args.notNull(elem, "Header element");
         int len = estimateHeaderElementLen(elem);
         if (buffer == null) {
             buffer = new CharArrayBuffer(len);
@@ -255,11 +248,7 @@ public class BasicHeaderValueFormatter implements HeaderValueFormatter {
     public CharArrayBuffer formatParameters(CharArrayBuffer buffer,
                                             NameValuePair[] nvps,
                                             boolean quote) {
-        if (nvps == null) {
-            throw new IllegalArgumentException
-                ("Parameters must not be null.");
-        }
-
+        Args.notNull(nvps, "Header parameter array");
         int len = estimateParametersLen(nvps);
         if (buffer == null) {
             buffer = new CharArrayBuffer(len);
@@ -323,11 +312,7 @@ public class BasicHeaderValueFormatter implements HeaderValueFormatter {
     public CharArrayBuffer formatNameValuePair(CharArrayBuffer buffer,
                                                final NameValuePair nvp,
                                                final boolean quote) {
-        if (nvp == null) {
-            throw new IllegalArgumentException
-                ("NameValuePair must not be null.");
-        }
-
+        Args.notNull(nvp, "Name / value pair");
         int len = estimateNameValuePairLen(nvp);
         if (buffer == null) {
             buffer = new CharArrayBuffer(len);

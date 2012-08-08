@@ -34,6 +34,7 @@ import java.util.concurrent.locks.ReentrantLock;
 import org.apache.http.annotation.ThreadSafe;
 import org.apache.http.nio.ContentEncoder;
 import org.apache.http.nio.IOControl;
+import org.apache.http.util.Args;
 
 /**
  * Implementation of the {@link ContentOutputBuffer} interface that can be
@@ -67,9 +68,7 @@ public class SharedOutputBuffer extends ExpandableBuffer implements ContentOutpu
     @Deprecated
     public SharedOutputBuffer(int buffersize, final IOControl ioctrl, final ByteBufferAllocator allocator) {
         super(buffersize, allocator);
-        if (ioctrl == null) {
-            throw new IllegalArgumentException("I/O content control may not be null");
-        }
+        Args.notNull(ioctrl, "I/O content control");
         this.ioctrl = ioctrl;
         this.lock = new ReentrantLock();
         this.condition = this.lock.newCondition();

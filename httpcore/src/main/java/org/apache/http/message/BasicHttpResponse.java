@@ -32,9 +32,10 @@ import java.util.Locale;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.ProtocolVersion;
-import org.apache.http.StatusLine;
 import org.apache.http.ReasonPhraseCatalog;
+import org.apache.http.StatusLine;
 import org.apache.http.annotation.NotThreadSafe;
+import org.apache.http.util.Args;
 
 /**
  * Basic implementation of {@link HttpResponse}.
@@ -66,12 +67,9 @@ public class BasicHttpResponse extends AbstractHttpMessage
                              final ReasonPhraseCatalog catalog,
                              final Locale locale) {
         super();
-        if (statusline == null) {
-            throw new IllegalArgumentException("Status line may not be null.");
-        }
-        this.statusline    = statusline;
+        this.statusline = Args.notNull(statusline, "Status line");
         this.reasonCatalog = catalog;
-        this.locale        = (locale != null) ? locale : Locale.getDefault();
+        this.locale = (locale != null) ? locale : Locale.getDefault();
     }
 
     /**
@@ -124,10 +122,7 @@ public class BasicHttpResponse extends AbstractHttpMessage
 
     // non-javadoc, see interface HttpResponse
     public void setStatusLine(final StatusLine statusline) {
-        if (statusline == null) {
-            throw new IllegalArgumentException("Status line may not be null");
-        }
-        this.statusline = statusline;
+        this.statusline = Args.notNull(statusline, "Status line");
     }
 
     // non-javadoc, see interface HttpResponse
@@ -152,12 +147,8 @@ public class BasicHttpResponse extends AbstractHttpMessage
 
     // non-javadoc, see interface HttpResponse
     public void setReasonPhrase(String reason) {
-
-        if ((reason != null) && ((reason.indexOf('\n') >= 0) ||
-                                 (reason.indexOf('\r') >= 0))
-            ) {
-            throw new IllegalArgumentException("Line break in reason phrase.");
-        }
+        Args.check(reason == null || (reason.indexOf('\n') == 0 && reason.indexOf('\r') == 0), 
+                "Line break in reason phrase.");
         this.statusline = new BasicStatusLine(this.statusline.getProtocolVersion(),
                                               this.statusline.getStatusCode(),
                                               reason);
@@ -169,11 +160,8 @@ public class BasicHttpResponse extends AbstractHttpMessage
     }
 
     // non-javadoc, see interface HttpResponse
-    public void setLocale(Locale loc) {
-        if (loc == null) {
-            throw new IllegalArgumentException("Locale may not be null.");
-        }
-        this.locale = loc;
+    public void setLocale(Locale locale) {
+        this.locale =  Args.notNull(locale, "Locale");
         final int code = this.statusline.getStatusCode();
         this.statusline = new BasicStatusLine
             (this.statusline.getProtocolVersion(), code, getReason(code));

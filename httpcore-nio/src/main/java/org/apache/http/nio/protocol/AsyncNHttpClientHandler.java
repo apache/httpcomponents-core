@@ -52,6 +52,7 @@ import org.apache.http.params.HttpParams;
 import org.apache.http.protocol.ExecutionContext;
 import org.apache.http.protocol.HttpContext;
 import org.apache.http.protocol.HttpProcessor;
+import org.apache.http.util.Args;
 
 /**
  * Fully asynchronous HTTP client side protocol handler that implements the
@@ -103,10 +104,7 @@ public class AsyncNHttpClientHandler extends NHttpHandlerBase
             final ByteBufferAllocator allocator,
             final HttpParams params) {
         super(httpProcessor, connStrategy, allocator, params);
-        if (execHandler == null) {
-            throw new IllegalArgumentException("HTTP request execution handler may not be null.");
-        }
-        this.execHandler = execHandler;
+        this.execHandler = Args.notNull(execHandler, "HTTP request execution handler");
     }
 
     public AsyncNHttpClientHandler(

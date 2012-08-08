@@ -34,6 +34,7 @@ import org.apache.http.HttpRequest;
 import org.apache.http.HttpRequestInterceptor;
 import org.apache.http.annotation.Immutable;
 import org.apache.http.params.HttpProtocolParams;
+import org.apache.http.util.Args;
 
 /**
  * RequestUserAgent is responsible for adding <code>User-Agent</code> header.
@@ -56,9 +57,7 @@ public class RequestUserAgent implements HttpRequestInterceptor {
 
     public void process(final HttpRequest request, final HttpContext context)
         throws HttpException, IOException {
-        if (request == null) {
-            throw new IllegalArgumentException("HTTP request may not be null");
-        }
+        Args.notNull(request, "HTTP request");
         if (!request.containsHeader(HTTP.USER_AGENT)) {
             String useragent = HttpProtocolParams.getUserAgent(request.getParams());
             if (useragent != null) {

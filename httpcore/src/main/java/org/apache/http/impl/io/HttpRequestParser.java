@@ -34,13 +34,14 @@ import org.apache.http.HttpException;
 import org.apache.http.HttpMessage;
 import org.apache.http.HttpRequest;
 import org.apache.http.HttpRequestFactory;
-import org.apache.http.RequestLine;
 import org.apache.http.ParseException;
+import org.apache.http.RequestLine;
 import org.apache.http.annotation.NotThreadSafe;
 import org.apache.http.io.SessionInputBuffer;
 import org.apache.http.message.LineParser;
 import org.apache.http.message.ParserCursor;
 import org.apache.http.params.HttpParams;
+import org.apache.http.util.Args;
 import org.apache.http.util.CharArrayBuffer;
 
 /**
@@ -80,10 +81,7 @@ public class HttpRequestParser extends AbstractMessageParser<HttpMessage> {
             final HttpRequestFactory requestFactory,
             final HttpParams params) {
         super(buffer, parser, params);
-        if (requestFactory == null) {
-            throw new IllegalArgumentException("Request factory may not be null");
-        }
-        this.requestFactory = requestFactory;
+        this.requestFactory = Args.notNull(requestFactory, "Request factory");
         this.lineBuf = new CharArrayBuffer(128);
     }
 

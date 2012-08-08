@@ -36,6 +36,7 @@ import org.apache.http.HttpEntity;
 import org.apache.http.annotation.NotThreadSafe;
 import org.apache.http.nio.ContentEncoder;
 import org.apache.http.nio.IOControl;
+import org.apache.http.util.Args;
 
 /**
  * Basic implementation of {@link HttpAsyncContentProducer} that relies on
@@ -53,9 +54,7 @@ public class EntityAsyncContentProducer implements HttpAsyncContentProducer {
 
     public EntityAsyncContentProducer(final HttpEntity entity) {
         super();
-        if (entity == null) {
-            throw new IllegalArgumentException("HTTP entity may not be null");
-        }
+        Args.notNull(entity, "HTTP entity");
         this.entity = entity;
         this.buffer = ByteBuffer.allocate(4096);
     }

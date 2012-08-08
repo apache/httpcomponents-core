@@ -29,10 +29,10 @@ package org.apache.http.util;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
-import java.util.ArrayList;
 
 
 /**
@@ -88,11 +88,7 @@ public class VersionInfo {
      */
     protected VersionInfo(String pckg, String module,
                           String release, String time, String clsldr) {
-        if (pckg == null) {
-            throw new IllegalArgumentException
-                ("Package identifier must not be null.");
-        }
-
+        Args.notNull(pckg, "Package identifier");
         infoPackage     = pckg;
         infoModule      = (module  != null) ? module  : UNAVAILABLE;
         infoRelease     = (release != null) ? release : UNAVAILABLE;
@@ -197,11 +193,7 @@ public class VersionInfo {
      */
     public final static VersionInfo[] loadVersionInfo(String[] pckgs,
                                                       ClassLoader clsldr) {
-        if (pckgs == null) {
-            throw new IllegalArgumentException
-                ("Package identifier list must not be null.");
-        }
-
+        Args.notNull(pckgs, "Package identifier array");
         List<VersionInfo> vil = new ArrayList<VersionInfo>(pckgs.length);
         for (int i=0; i<pckgs.length; i++) {
             VersionInfo vi = loadVersionInfo(pckgs[i], clsldr);
@@ -227,11 +219,7 @@ public class VersionInfo {
      */
     public final static VersionInfo loadVersionInfo(final String pckg,
                                                     ClassLoader clsldr) {
-        if (pckg == null) {
-            throw new IllegalArgumentException
-                ("Package identifier must not be null.");
-        }
-
+        Args.notNull(pckg, "Package identifier");
         if (clsldr == null)
             clsldr = Thread.currentThread().getContextClassLoader();
 
@@ -274,11 +262,7 @@ public class VersionInfo {
      */
     protected final static VersionInfo fromMap(String pckg, Map<?, ?> info,
                                                ClassLoader clsldr) {
-        if (pckg == null) {
-            throw new IllegalArgumentException
-                ("Package identifier must not be null.");
-        }
-
+        Args.notNull(pckg, "Package identifier");
         String module = null;
         String release = null;
         String timestamp = null;

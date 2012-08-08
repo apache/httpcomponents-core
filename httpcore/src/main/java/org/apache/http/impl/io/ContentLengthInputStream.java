@@ -34,6 +34,7 @@ import org.apache.http.ConnectionClosedException;
 import org.apache.http.annotation.NotThreadSafe;
 import org.apache.http.io.BufferInfo;
 import org.apache.http.io.SessionInputBuffer;
+import org.apache.http.util.Args;
 
 /**
  * Input stream that cuts off after a defined number of bytes. This class
@@ -82,14 +83,8 @@ public class ContentLengthInputStream extends InputStream {
      */
     public ContentLengthInputStream(final SessionInputBuffer in, long contentLength) {
         super();
-        if (in == null) {
-            throw new IllegalArgumentException("Input stream may not be null");
-        }
-        if (contentLength < 0) {
-            throw new IllegalArgumentException("Content length may not be negative");
-        }
-        this.in = in;
-        this.contentLength = contentLength;
+        this.in = Args.notNull(in, "Session input buffer");
+        this.contentLength = Args.notNegative(contentLength, "Content length");
     }
 
     /**

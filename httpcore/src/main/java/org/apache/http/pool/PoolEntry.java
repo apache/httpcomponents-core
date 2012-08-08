@@ -30,6 +30,7 @@ import java.util.concurrent.TimeUnit;
 
 import org.apache.http.annotation.GuardedBy;
 import org.apache.http.annotation.ThreadSafe;
+import org.apache.http.util.Args;
 
 /**
  * Pool entry containing a pool connection object along with its route.
@@ -77,15 +78,9 @@ public abstract class PoolEntry<T, C> {
     public PoolEntry(final String id, final T route, final C conn,
             final long timeToLive, final TimeUnit tunit) {
         super();
-        if (route == null) {
-            throw new IllegalArgumentException("Route may not be null");
-        }
-        if (conn == null) {
-            throw new IllegalArgumentException("Connection may not be null");
-        }
-        if (tunit == null) {
-            throw new IllegalArgumentException("Time unit may not be null");
-        }
+        Args.notNull(route, "Route");
+        Args.notNull(conn, "Connection");
+        Args.notNull(tunit, "Time unit");
         this.id = id;
         this.route = route;
         this.conn = conn;
@@ -146,9 +141,7 @@ public abstract class PoolEntry<T, C> {
     }
 
     public synchronized void updateExpiry(final long time, final TimeUnit tunit) {
-        if (tunit == null) {
-            throw new IllegalArgumentException("Time unit may not be null");
-        }
+        Args.notNull(tunit, "Time unit");
         this.updated = System.currentTimeMillis();
         long newExpiry;
         if (time > 0) {

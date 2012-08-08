@@ -34,6 +34,7 @@ import org.apache.http.HttpResponse;
 import org.apache.http.HttpResponseInterceptor;
 import org.apache.http.HttpStatus;
 import org.apache.http.annotation.ThreadSafe;
+import org.apache.http.util.Args;
 
 /**
  * ResponseDate is responsible for adding <code>Date<c/ode> header to the
@@ -53,10 +54,7 @@ public class ResponseDate implements HttpResponseInterceptor {
 
     public void process(final HttpResponse response, final HttpContext context)
             throws HttpException, IOException {
-        if (response == null) {
-            throw new IllegalArgumentException
-                ("HTTP response may not be null.");
-        }
+        Args.notNull(response, "HTTP response");
         int status = response.getStatusLine().getStatusCode();
         if ((status >= HttpStatus.SC_OK) &&
             !response.containsHeader(HTTP.DATE_HEADER)) {

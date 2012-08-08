@@ -42,6 +42,7 @@ import org.apache.http.nio.reactor.ConnectingIOReactor;
 import org.apache.http.params.HttpConnectionParams;
 import org.apache.http.params.HttpParams;
 import org.apache.http.pool.ConnPool;
+import org.apache.http.util.Args;
 
 /**
  * A very basic {@link ConnPool} implementation that represents a pool
@@ -76,9 +77,7 @@ public class BasicNIOConnPool extends AbstractNIOConnPool<HttpHost, NHttpClientC
             final NIOConnFactory<HttpHost, NHttpClientConnection> connFactory,
             final HttpParams params) {
         super(ioreactor, connFactory, 2, 20);
-        if (params == null) {
-            throw new IllegalArgumentException("HTTP parameters may not be null");
-        }
+        Args.notNull(params, "HTTP parameters");
         this.params = params;
     }
 

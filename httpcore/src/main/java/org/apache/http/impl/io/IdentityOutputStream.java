@@ -32,6 +32,7 @@ import java.io.OutputStream;
 
 import org.apache.http.annotation.NotThreadSafe;
 import org.apache.http.io.SessionOutputBuffer;
+import org.apache.http.util.Args;
 
 /**
  * Output stream that writes data without any transformation. The end of
@@ -58,10 +59,7 @@ public class IdentityOutputStream extends OutputStream {
 
     public IdentityOutputStream(final SessionOutputBuffer out) {
         super();
-        if (out == null) {
-            throw new IllegalArgumentException("Session output buffer may not be null");
-        }
-        this.out = out;
+        this.out = Args.notNull(out, "Session output buffer");
     }
 
     /**

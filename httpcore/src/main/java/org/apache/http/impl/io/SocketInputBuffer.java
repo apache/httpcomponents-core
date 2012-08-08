@@ -35,6 +35,7 @@ import org.apache.http.annotation.NotThreadSafe;
 import org.apache.http.io.EofSensor;
 import org.apache.http.io.SessionInputBuffer;
 import org.apache.http.params.HttpParams;
+import org.apache.http.util.Args;
 
 /**
  * {@link SessionInputBuffer} implementation bound to a {@link Socket}.
@@ -71,9 +72,7 @@ public class SocketInputBuffer extends AbstractSessionInputBuffer implements Eof
             int buffersize,
             final HttpParams params) throws IOException {
         super();
-        if (socket == null) {
-            throw new IllegalArgumentException("Socket may not be null");
-        }
+        Args.notNull(socket, "Socket");
         this.socket = socket;
         this.eof = false;
         if (buffersize < 0) {

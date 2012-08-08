@@ -36,9 +36,10 @@ import org.apache.http.HttpMessage;
 import org.apache.http.annotation.NotThreadSafe;
 import org.apache.http.io.HttpMessageWriter;
 import org.apache.http.io.SessionOutputBuffer;
-import org.apache.http.message.LineFormatter;
 import org.apache.http.message.BasicLineFormatter;
+import org.apache.http.message.LineFormatter;
 import org.apache.http.params.HttpParams;
+import org.apache.http.util.Args;
 import org.apache.http.util.CharArrayBuffer;
 
 /**
@@ -65,9 +66,7 @@ public abstract class AbstractMessageWriter<T extends HttpMessage> implements Ht
                                  final LineFormatter formatter,
                                  final HttpParams params) {
         super();
-        if (buffer == null) {
-            throw new IllegalArgumentException("Session input buffer may not be null");
-        }
+        Args.notNull(buffer, "Session input buffer");
         this.sessionBuffer = buffer;
         this.lineBuf = new CharArrayBuffer(128);
         this.lineFormatter = (formatter != null) ? formatter : BasicLineFormatter.INSTANCE;
@@ -83,9 +82,7 @@ public abstract class AbstractMessageWriter<T extends HttpMessage> implements Ht
     protected abstract void writeHeadLine(T message) throws IOException;
 
     public void write(final T message) throws IOException, HttpException {
-        if (message == null) {
-            throw new IllegalArgumentException("HTTP message may not be null");
-        }
+        Args.notNull(message, "HTTP message");
         writeHeadLine(message);
         for (HeaderIterator it = message.headerIterator(); it.hasNext(); ) {
             Header header = it.nextHeader();

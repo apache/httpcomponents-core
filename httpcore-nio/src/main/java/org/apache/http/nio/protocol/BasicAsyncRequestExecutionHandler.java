@@ -44,6 +44,7 @@ import org.apache.http.params.DefaultedHttpParams;
 import org.apache.http.params.HttpParams;
 import org.apache.http.protocol.HttpContext;
 import org.apache.http.protocol.HttpProcessor;
+import org.apache.http.util.Args;
 
 /**
  * Basic implementation of {@link HttpAsyncRequestExecutionHandler} that executes
@@ -73,24 +74,12 @@ public class BasicAsyncRequestExecutionHandler<T> implements HttpAsyncRequestExe
             final ConnectionReuseStrategy reuseStrategy,
             final HttpParams params) {
         super();
-        if (requestProducer == null) {
-            throw new IllegalArgumentException("Request producer may not be null");
-        }
-        if (responseConsumer == null) {
-            throw new IllegalArgumentException("Response consumer may not be null");
-        }
-        if (localContext == null) {
-            throw new IllegalArgumentException("HTTP context may not be null");
-        }
-        if (httppocessor == null) {
-            throw new IllegalArgumentException("HTTP processor may not be null");
-        }
-        if (reuseStrategy == null) {
-            throw new IllegalArgumentException("Connection reuse strategy may not be null");
-        }
-        if (params == null) {
-            throw new IllegalArgumentException("HTTP parameters may not be null");
-        }
+        Args.notNull(requestProducer, "Request producer");
+        Args.notNull(responseConsumer, "Response consumer");
+        Args.notNull(localContext, "HTTP context");
+        Args.notNull(httppocessor, "HTTP processor");
+        Args.notNull(reuseStrategy, "Connection reuse strategy");
+        Args.notNull(params, "HTTP parameters");
         this.requestProducer = requestProducer;
         this.responseConsumer = responseConsumer;
         this.future = new BasicFuture<T>(callback);

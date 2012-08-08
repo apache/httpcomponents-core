@@ -46,6 +46,7 @@ import org.apache.http.nio.util.ByteBufferAllocator;
 import org.apache.http.nio.util.HeapByteBufferAllocator;
 import org.apache.http.params.HttpParams;
 import org.apache.http.protocol.ExecutionContext;
+import org.apache.http.util.Args;
 
 /**
  * Default implementation of {@link IOEventDispatch} interface for SSL
@@ -91,15 +92,9 @@ public class SSLClientIOEventDispatch implements IOEventDispatch {
             final SSLIOSessionHandler sslHandler,
             final HttpParams params) {
         super();
-        if (handler == null) {
-            throw new IllegalArgumentException("HTTP client handler may not be null");
-        }
-        if (sslcontext == null) {
-            throw new IllegalArgumentException("SSL context may not be null");
-        }
-        if (params == null) {
-            throw new IllegalArgumentException("HTTP parameters may not be null");
-        }
+        Args.notNull(handler, "HTTP client handler");
+        Args.notNull(sslcontext, "SSL context");
+        Args.notNull(params, "HTTP parameters");
         this.handler = handler;
         this.params = params;
         this.sslcontext = sslcontext;

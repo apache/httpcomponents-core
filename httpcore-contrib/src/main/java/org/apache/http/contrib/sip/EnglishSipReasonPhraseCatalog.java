@@ -27,11 +27,12 @@
 
 package org.apache.http.contrib.sip;
 
+import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
-import java.util.HashMap;
 
 import org.apache.http.ReasonPhraseCatalog;
+import org.apache.http.util.Args;
 
 
 /**
@@ -76,11 +77,7 @@ public class EnglishSipReasonPhraseCatalog
      * @return  the reason phrase, or <code>null</code>
      */
     public String getReason(int status, Locale loc) {
-        if ((status < 100) || (status >= 700)) {
-            throw new IllegalArgumentException
-                ("Unknown category for status code " + status + ".");
-        }
-
+        Args.check(status >= 100 && status < 700, "Unknown category for status code " + status);
         // Unlike HTTP status codes, those for SIP are not compact
         // in each category. We therefore use a map for lookup.
 

@@ -38,6 +38,7 @@ import org.apache.http.HttpVersion;
 import org.apache.http.ProtocolVersion;
 import org.apache.http.annotation.Immutable;
 import org.apache.http.params.HttpProtocolParams;
+import org.apache.http.util.Args;
 
 /**
  * RequestExpectContinue is responsible for enabling the 'expect-continue'
@@ -61,9 +62,7 @@ public class RequestExpectContinue implements HttpRequestInterceptor {
 
     public void process(final HttpRequest request, final HttpContext context)
             throws HttpException, IOException {
-        if (request == null) {
-            throw new IllegalArgumentException("HTTP request may not be null");
-        }
+        Args.notNull(request, "HTTP request");
         if (request instanceof HttpEntityEnclosingRequest) {
             HttpEntity entity = ((HttpEntityEnclosingRequest)request).getEntity();
             // Do not send the expect header if request body is known to be empty

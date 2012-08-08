@@ -33,8 +33,8 @@ import org.apache.http.HttpException;
 import org.apache.http.nio.ContentDecoder;
 import org.apache.http.nio.ContentEncoder;
 import org.apache.http.nio.NHttpClientConnection;
-import org.apache.http.nio.NHttpClientHandler;
 import org.apache.http.nio.NHttpClientEventHandler;
+import org.apache.http.nio.NHttpClientHandler;
 
 /**
  * @deprecated (4.2)

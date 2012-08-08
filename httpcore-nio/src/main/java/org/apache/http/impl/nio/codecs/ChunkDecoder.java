@@ -35,13 +35,14 @@ import java.util.List;
 
 import org.apache.http.Header;
 import org.apache.http.MalformedChunkCodingException;
+import org.apache.http.ParseException;
 import org.apache.http.TruncatedChunkException;
-import org.apache.http.message.BufferedHeader;
-import org.apache.http.nio.reactor.SessionInputBuffer;
 import org.apache.http.annotation.NotThreadSafe;
 import org.apache.http.impl.io.HttpTransportMetricsImpl;
-import org.apache.http.ParseException;
+import org.apache.http.message.BufferedHeader;
+import org.apache.http.nio.reactor.SessionInputBuffer;
 import org.apache.http.protocol.HTTP;
+import org.apache.http.util.Args;
 import org.apache.http.util.CharArrayBuffer;
 
 /**
@@ -153,9 +154,7 @@ public class ChunkDecoder extends AbstractContentDecoder {
     }
 
     public int read(final ByteBuffer dst) throws IOException {
-        if (dst == null) {
-            throw new IllegalArgumentException("Byte buffer may not be null");
-        }
+        Args.notNull(dst, "Byte buffer");
         if (this.state == COMPLETED) {
             return -1;
         }

@@ -29,11 +29,12 @@ package org.apache.http.protocol;
 
 import java.io.IOException;
 
+import org.apache.http.HttpEntityEnclosingRequest;
 import org.apache.http.HttpException;
 import org.apache.http.HttpRequest;
-import org.apache.http.HttpEntityEnclosingRequest;
 import org.apache.http.HttpRequestInterceptor;
 import org.apache.http.annotation.ThreadSafe;
+import org.apache.http.util.Args;
 
 /**
  * RequestDate interceptor is responsible for adding <code>Date</code> header
@@ -53,10 +54,7 @@ public class RequestDate implements HttpRequestInterceptor {
 
     public void process(final HttpRequest request, final HttpContext context)
             throws HttpException, IOException {
-        if (request == null) {
-            throw new IllegalArgumentException
-                ("HTTP request may not be null.");
-        }
+        Args.notNull(request, "HTTP request");
         if ((request instanceof HttpEntityEnclosingRequest) &&
             !request.containsHeader(HTTP.DATE_HEADER)) {
             String httpdate = DATE_GENERATOR.getCurrentDate();

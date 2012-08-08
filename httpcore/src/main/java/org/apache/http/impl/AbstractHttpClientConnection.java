@@ -55,6 +55,7 @@ import org.apache.http.io.SessionOutputBuffer;
 import org.apache.http.message.LineFormatter;
 import org.apache.http.message.LineParser;
 import org.apache.http.params.HttpParams;
+import org.apache.http.util.Args;
 
 /**
  * Abstract client-side HTTP connection capable of transmitting and receiving
@@ -218,14 +219,8 @@ public abstract class AbstractHttpClientConnection implements HttpClientConnecti
             final SessionInputBuffer inbuffer,
             final SessionOutputBuffer outbuffer,
             final HttpParams params) {
-        if (inbuffer == null) {
-            throw new IllegalArgumentException("Input session buffer may not be null");
-        }
-        if (outbuffer == null) {
-            throw new IllegalArgumentException("Output session buffer may not be null");
-        }
-        this.inbuffer = inbuffer;
-        this.outbuffer = outbuffer;
+        this.inbuffer = Args.notNull(inbuffer, "Input session buffer");
+        this.outbuffer = Args.notNull(outbuffer, "Output session buffer");
         if (inbuffer instanceof EofSensor) {
             this.eofSensor = (EofSensor) inbuffer;
         }
@@ -251,9 +246,7 @@ public abstract class AbstractHttpClientConnection implements HttpClientConnecti
 
     public void sendRequestHeader(final HttpRequest request)
             throws HttpException, IOException {
-        if (request == null) {
-            throw new IllegalArgumentException("HTTP request may not be null");
-        }
+        Args.notNull(request, "HTTP request");
         assertOpen();
         this.requestWriter.write(request);
         this.metrics.incrementRequestCount();
@@ -261,9 +254,7 @@ public abstract class AbstractHttpClientConnection implements HttpClientConnecti
 
     public void sendRequestEntity(final HttpEntityEnclosingRequest request)
             throws HttpException, IOException {
-        if (request == null) {
-            throw new IllegalArgumentException("HTTP request may not be null");
-        }
+        Args.notNull(request, "HTTP request");
         assertOpen();
         if (request.getEntity() == null) {
             return;
@@ -295,9 +286,7 @@ public abstract class AbstractHttpClientConnection implements HttpClientConnecti
 
     public void receiveResponseEntity(final HttpResponse response)
             throws HttpException, IOException {
-        if (response == null) {
-            throw new IllegalArgumentException("HTTP response may not be null");
-        }
+        Args.notNull(response, "HTTP response");
         assertOpen();
         HttpEntity entity = this.entitydeserializer.deserialize(this.inbuffer, response);
         response.setEntity(entity);

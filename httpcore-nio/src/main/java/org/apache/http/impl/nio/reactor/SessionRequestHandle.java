@@ -29,6 +29,7 @@ package org.apache.http.impl.nio.reactor;
 
 import org.apache.http.annotation.Immutable;
 import org.apache.http.nio.reactor.SessionRequest;
+import org.apache.http.util.Args;
 
 /**
  * Session request handle class used by I/O reactor implementations to keep
@@ -45,9 +46,7 @@ public class SessionRequestHandle {
 
     public SessionRequestHandle(final SessionRequestImpl sessionRequest) {
         super();
-        if (sessionRequest == null) {
-            throw new IllegalArgumentException("Session request may not be null");
-        }
+        Args.notNull(sessionRequest, "Session request");
         this.sessionRequest = sessionRequest;
         this.requestTime = System.currentTimeMillis();
     }

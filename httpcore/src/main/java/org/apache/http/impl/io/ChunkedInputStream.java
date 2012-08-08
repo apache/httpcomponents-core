@@ -37,6 +37,7 @@ import org.apache.http.TruncatedChunkException;
 import org.apache.http.annotation.NotThreadSafe;
 import org.apache.http.io.BufferInfo;
 import org.apache.http.io.SessionInputBuffer;
+import org.apache.http.util.Args;
 import org.apache.http.util.CharArrayBuffer;
 
 /**
@@ -92,10 +93,7 @@ public class ChunkedInputStream extends InputStream {
      */
     public ChunkedInputStream(final SessionInputBuffer in) {
         super();
-        if (in == null) {
-            throw new IllegalArgumentException("Session input buffer may not be null");
-        }
-        this.in = in;
+        this.in = Args.notNull(in, "Session input buffer");
         this.pos = 0;
         this.buffer = new CharArrayBuffer(16);
         this.state = CHUNK_LEN;

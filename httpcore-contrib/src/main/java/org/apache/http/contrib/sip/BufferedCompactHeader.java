@@ -30,9 +30,10 @@ package org.apache.http.contrib.sip;
 import org.apache.http.FormattedHeader;
 import org.apache.http.HeaderElement;
 import org.apache.http.ParseException;
-import org.apache.http.util.CharArrayBuffer;
-import org.apache.http.message.ParserCursor;
 import org.apache.http.message.BasicHeaderValueParser;
+import org.apache.http.message.ParserCursor;
+import org.apache.http.util.Args;
+import org.apache.http.util.CharArrayBuffer;
 
 
 /**
@@ -74,14 +75,9 @@ public class BufferedCompactHeader
      * @throws ParseException   in case of a parse error
      */
     public BufferedCompactHeader(final CharArrayBuffer buffer,
-                                 CompactHeaderMapper mapper)
-        throws ParseException {
-
+                                 CompactHeaderMapper mapper) throws ParseException {
         super();
-        if (buffer == null) {
-            throw new IllegalArgumentException
-                ("Char array buffer may not be null");
-        }
+        Args.notNull(buffer, "Char array buffer");
 
         final int colon = buffer.indexOf(':');
         if (colon == -1) {
@@ -135,8 +131,7 @@ public class BufferedCompactHeader
     public HeaderElement[] getElements() throws ParseException {
         ParserCursor cursor = new ParserCursor(0, this.buffer.length());
         cursor.updatePos(this.valuePos);
-        return BasicHeaderValueParser.DEFAULT
-            .parseElements(this.buffer, cursor);
+        return BasicHeaderValueParser.INSTANCE.parseElements(this.buffer, cursor);
     }
 
     // non-javadoc, see interface BufferedHeader

@@ -33,6 +33,7 @@ import org.apache.http.RequestLine;
 import org.apache.http.annotation.NotThreadSafe;
 import org.apache.http.params.HttpParams;
 import org.apache.http.params.HttpProtocolParams;
+import org.apache.http.util.Args;
 
 /**
  * Basic implementation of {@link HttpRequest}.
@@ -64,14 +65,8 @@ public class BasicHttpRequest extends AbstractHttpMessage implements HttpRequest
      */
     public BasicHttpRequest(final String method, final String uri) {
         super();
-        if (method == null) {
-            throw new IllegalArgumentException("Method name may not be null");
-        }
-        if (uri == null) {
-            throw new IllegalArgumentException("Request URI may not be null");
-        }
-        this.method = method;
-        this.uri = uri;
+        this.method = Args.notNull(method, "Method name");
+        this.uri = Args.notNull(uri, "Request URI");
         this.requestline = null;
     }
 
@@ -94,10 +89,7 @@ public class BasicHttpRequest extends AbstractHttpMessage implements HttpRequest
      */
     public BasicHttpRequest(final RequestLine requestline) {
         super();
-        if (requestline == null) {
-            throw new IllegalArgumentException("Request line may not be null");
-        }
-        this.requestline = requestline;
+        this.requestline = Args.notNull(requestline, "Request line");
         this.method = requestline.getMethod();
         this.uri = requestline.getUri();
     }

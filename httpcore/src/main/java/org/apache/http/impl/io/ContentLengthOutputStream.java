@@ -32,6 +32,7 @@ import java.io.OutputStream;
 
 import org.apache.http.annotation.NotThreadSafe;
 import org.apache.http.io.SessionOutputBuffer;
+import org.apache.http.util.Args;
 
 /**
  * Output stream that cuts off after a defined number of bytes. This class
@@ -78,14 +79,8 @@ public class ContentLengthOutputStream extends OutputStream {
      */
     public ContentLengthOutputStream(final SessionOutputBuffer out, long contentLength) {
         super();
-        if (out == null) {
-            throw new IllegalArgumentException("Session output buffer may not be null");
-        }
-        if (contentLength < 0) {
-            throw new IllegalArgumentException("Content length may not be negative");
-        }
-        this.out = out;
-        this.contentLength = contentLength;
+        this.out = Args.notNull(out, "Session output buffer");
+        this.contentLength = Args.notNegative(contentLength, "Content length");
     }
 
     /**

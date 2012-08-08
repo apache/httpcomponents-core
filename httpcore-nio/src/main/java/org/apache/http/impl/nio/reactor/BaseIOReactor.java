@@ -41,6 +41,7 @@ import org.apache.http.nio.reactor.IOReactor;
 import org.apache.http.nio.reactor.IOReactorException;
 import org.apache.http.nio.reactor.IOReactorExceptionHandler;
 import org.apache.http.nio.reactor.IOSession;
+import org.apache.http.util.Args;
 
 /**
  * Default implementation of {@link AbstractIOReactor} that serves as a base
@@ -99,9 +100,7 @@ public class BaseIOReactor extends AbstractIOReactor {
      */
     public void execute(
             final IOEventDispatch eventDispatch) throws InterruptedIOException, IOReactorException {
-        if (eventDispatch == null) {
-            throw new IllegalArgumentException("Event dispatcher may not be null");
-        }
+        Args.notNull(eventDispatch, "Event dispatcher");
         this.eventDispatch = eventDispatch;
         execute();
     }

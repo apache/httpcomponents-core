@@ -30,14 +30,15 @@ package org.apache.http.impl.nio.codecs;
 import org.apache.http.HttpException;
 import org.apache.http.HttpRequest;
 import org.apache.http.HttpRequestFactory;
-import org.apache.http.RequestLine;
 import org.apache.http.ParseException;
+import org.apache.http.RequestLine;
 import org.apache.http.annotation.NotThreadSafe;
 import org.apache.http.message.LineParser;
 import org.apache.http.message.ParserCursor;
 import org.apache.http.nio.NHttpMessageParser;
 import org.apache.http.nio.reactor.SessionInputBuffer;
 import org.apache.http.params.HttpParams;
+import org.apache.http.util.Args;
 import org.apache.http.util.CharArrayBuffer;
 
 /**
@@ -63,9 +64,7 @@ public class DefaultHttpRequestParser extends AbstractMessageParser<HttpRequest>
             final HttpRequestFactory requestFactory,
             final HttpParams params) {
         super(buffer, parser, params);
-        if (requestFactory == null) {
-            throw new IllegalArgumentException("Request factory may not be null");
-        }
+        Args.notNull(requestFactory, "Request factory");
         this.requestFactory = requestFactory;
     }
 

@@ -51,9 +51,6 @@ import org.apache.http.impl.HttpConnectionMetricsImpl;
 import org.apache.http.impl.entity.LaxContentLengthStrategy;
 import org.apache.http.impl.entity.StrictContentLengthStrategy;
 import org.apache.http.impl.io.HttpTransportMetricsImpl;
-import org.apache.http.nio.ContentDecoder;
-import org.apache.http.nio.ContentEncoder;
-import org.apache.http.nio.NHttpConnection;
 import org.apache.http.impl.nio.codecs.ChunkDecoder;
 import org.apache.http.impl.nio.codecs.ChunkEncoder;
 import org.apache.http.impl.nio.codecs.IdentityDecoder;
@@ -63,6 +60,9 @@ import org.apache.http.impl.nio.codecs.LengthDelimitedEncoder;
 import org.apache.http.impl.nio.reactor.SessionInputBufferImpl;
 import org.apache.http.impl.nio.reactor.SessionOutputBufferImpl;
 import org.apache.http.io.HttpTransportMetrics;
+import org.apache.http.nio.ContentDecoder;
+import org.apache.http.nio.ContentEncoder;
+import org.apache.http.nio.NHttpConnection;
 import org.apache.http.nio.reactor.EventMask;
 import org.apache.http.nio.reactor.IOSession;
 import org.apache.http.nio.reactor.SessionBufferStatus;
@@ -74,6 +74,7 @@ import org.apache.http.params.HttpConnectionParams;
 import org.apache.http.params.HttpParams;
 import org.apache.http.protocol.HTTP;
 import org.apache.http.protocol.HttpContext;
+import org.apache.http.util.Args;
 
 /**
  * This class serves as a base for all {@link NHttpConnection} implementations
@@ -127,12 +128,8 @@ public class NHttpConnectionBase
             final ByteBufferAllocator allocator,
             final HttpParams params) {
         super();
-        if (session == null) {
-            throw new IllegalArgumentException("I/O session may not be null");
-        }
-        if (params == null) {
-            throw new IllegalArgumentException("HTTP params may not be null");
-        }
+        Args.notNull(session, "I/O session");
+        Args.notNull(params, "HTTP params");
 
         int buffersize = HttpConnectionParams.getSocketBufferSize(params);
         if (buffersize <= 0) {
@@ -173,9 +170,7 @@ public class NHttpConnectionBase
      * @since 4.2
      */
     protected void bind(final IOSession session) {
-        if (session == null) {
-            throw new IllegalArgumentException("I/O session may not be null");
-        }
+        Args.notNull(session, "I/O session");
         this.session.setBufferStatus(null);
         setSession(session);
     }

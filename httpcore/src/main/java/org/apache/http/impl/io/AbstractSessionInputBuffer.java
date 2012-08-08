@@ -38,12 +38,13 @@ import java.nio.charset.CodingErrorAction;
 
 import org.apache.http.annotation.NotThreadSafe;
 import org.apache.http.io.BufferInfo;
-import org.apache.http.io.SessionInputBuffer;
 import org.apache.http.io.HttpTransportMetrics;
+import org.apache.http.io.SessionInputBuffer;
 import org.apache.http.params.CoreConnectionPNames;
 import org.apache.http.params.HttpParams;
 import org.apache.http.params.HttpProtocolParams;
 import org.apache.http.protocol.HTTP;
+import org.apache.http.util.Args;
 import org.apache.http.util.ByteArrayBuffer;
 import org.apache.http.util.CharArrayBuffer;
 
@@ -98,15 +99,9 @@ public abstract class AbstractSessionInputBuffer implements SessionInputBuffer, 
      * @param params HTTP parameters.
      */
     protected void init(final InputStream instream, int buffersize, final HttpParams params) {
-        if (instream == null) {
-            throw new IllegalArgumentException("Input stream may not be null");
-        }
-        if (buffersize <= 0) {
-            throw new IllegalArgumentException("Buffer size may not be negative or zero");
-        }
-        if (params == null) {
-            throw new IllegalArgumentException("HTTP parameters may not be null");
-        }
+        Args.notNull(instream, "Input stream");
+        Args.notNegative(buffersize, "Buffer size");
+        Args.notNull(params, "HTTP parameters");
         this.instream = instream;
         this.buffer = new byte[buffersize];
         this.bufferpos = 0;
@@ -253,9 +248,7 @@ public abstract class AbstractSessionInputBuffer implements SessionInputBuffer, 
      * @exception  IOException  if an I/O error occurs.
      */
     public int readLine(final CharArrayBuffer charbuffer) throws IOException {
-        if (charbuffer == null) {
-            throw new IllegalArgumentException("Char array buffer may not be null");
-        }
+        Args.notNull(charbuffer, "Char array buffer");
         int noRead = 0;
         boolean retry = true;
         while (retry) {

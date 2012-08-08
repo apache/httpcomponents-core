@@ -39,6 +39,7 @@ import org.apache.http.HttpStatus;
 import org.apache.http.HttpVersion;
 import org.apache.http.ProtocolVersion;
 import org.apache.http.annotation.Immutable;
+import org.apache.http.util.Args;
 
 /**
  * ResponseConnControl is responsible for adding <code>Connection</code> header
@@ -57,12 +58,8 @@ public class ResponseConnControl implements HttpResponseInterceptor {
 
     public void process(final HttpResponse response, final HttpContext context)
             throws HttpException, IOException {
-        if (response == null) {
-            throw new IllegalArgumentException("HTTP response may not be null");
-        }
-        if (context == null) {
-            throw new IllegalArgumentException("HTTP context may not be null");
-        }
+        Args.notNull(response, "HTTP response");
+        Args.notNull(context, "HTTP context");
         // Always drop connection after certain type of responses
         int status = response.getStatusLine().getStatusCode();
         if (status == HttpStatus.SC_BAD_REQUEST ||

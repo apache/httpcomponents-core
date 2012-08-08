@@ -33,6 +33,7 @@ import org.apache.http.HttpMessage;
 import org.apache.http.annotation.NotThreadSafe;
 import org.apache.http.params.BasicHttpParams;
 import org.apache.http.params.HttpParams;
+import org.apache.http.util.Args;
 
 /**
  * Basic implementation of {@link HttpMessage}.
@@ -88,9 +89,7 @@ public abstract class AbstractHttpMessage implements HttpMessage {
 
     // non-javadoc, see interface HttpMessage
     public void addHeader(final String name, final String value) {
-        if (name == null) {
-            throw new IllegalArgumentException("Header name may not be null");
-        }
+        Args.notNull(name, "Header name");
         this.headergroup.addHeader(new BasicHeader(name, value));
     }
 
@@ -101,9 +100,7 @@ public abstract class AbstractHttpMessage implements HttpMessage {
 
     // non-javadoc, see interface HttpMessage
     public void setHeader(final String name, final String value) {
-        if (name == null) {
-            throw new IllegalArgumentException("Header name may not be null");
-        }
+        Args.notNull(name, "Header name");
         this.headergroup.updateHeader(new BasicHeader(name, value));
     }
 
@@ -150,9 +147,6 @@ public abstract class AbstractHttpMessage implements HttpMessage {
 
     // non-javadoc, see interface HttpMessage
     public void setParams(final HttpParams params) {
-        if (params == null) {
-            throw new IllegalArgumentException("HTTP parameters may not be null");
-        }
-        this.params = params;
+        this.params = Args.notNull(params, "HTTP parameters");
     }
 }

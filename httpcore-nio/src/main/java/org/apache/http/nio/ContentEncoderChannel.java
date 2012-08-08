@@ -31,8 +31,6 @@ import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.channels.WritableByteChannel;
 
-import org.apache.http.nio.ContentEncoder;
-
 /**
  * A {@link WritableByteChannel} that delegates to a {@link ContentEncoder}.
  * Attempts to close this channel are ignored, and {@link #isOpen} always

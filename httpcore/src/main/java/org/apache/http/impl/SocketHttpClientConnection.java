@@ -42,6 +42,7 @@ import org.apache.http.io.SessionInputBuffer;
 import org.apache.http.io.SessionOutputBuffer;
 import org.apache.http.params.HttpConnectionParams;
 import org.apache.http.params.HttpParams;
+import org.apache.http.util.Args;
 
 /**
  * Implementation of a client-side HTTP connection that can be bound to an
@@ -150,12 +151,8 @@ public class SocketHttpClientConnection
     protected void bind(
             final Socket socket,
             final HttpParams params) throws IOException {
-        if (socket == null) {
-            throw new IllegalArgumentException("Socket may not be null");
-        }
-        if (params == null) {
-            throw new IllegalArgumentException("HTTP parameters may not be null");
-        }
+        Args.notNull(socket, "Socket");
+        Args.notNull(params, "HTTP parameters");
         this.socket = socket;
 
         int buffersize = HttpConnectionParams.getSocketBufferSize(params);

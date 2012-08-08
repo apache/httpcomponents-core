@@ -33,6 +33,7 @@ import java.io.InputStream;
 import org.apache.http.annotation.NotThreadSafe;
 import org.apache.http.io.BufferInfo;
 import org.apache.http.nio.util.ContentInputBuffer;
+import org.apache.http.util.Args;
 
 /**
  * {@link InputStream} adaptor for {@link ContentInputBuffer}.
@@ -46,9 +47,7 @@ public class ContentInputStream extends InputStream {
 
     public ContentInputStream(final ContentInputBuffer buffer) {
         super();
-        if (buffer == null) {
-            throw new IllegalArgumentException("Input buffer may not be null");
-        }
+        Args.notNull(buffer, "Input buffer");
         this.buffer = buffer;
     }
 

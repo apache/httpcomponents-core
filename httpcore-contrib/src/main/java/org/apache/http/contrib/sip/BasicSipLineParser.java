@@ -29,8 +29,8 @@ package org.apache.http.contrib.sip;
 
 import org.apache.http.Header;
 import org.apache.http.ParseException;
-import org.apache.http.util.CharArrayBuffer;
 import org.apache.http.message.BasicLineParser;
+import org.apache.http.util.CharArrayBuffer;
 
 
 /**

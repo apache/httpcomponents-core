@@ -29,13 +29,12 @@ package org.apache.http.params;
 
 import java.io.Serializable;
 import java.util.HashSet;
-import java.util.Map;
 import java.util.Iterator;
+import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
 import org.apache.http.annotation.ThreadSafe;
-import org.apache.http.params.HttpParams;
 
 /**
  * Default implementation of {@link HttpParams} interface.

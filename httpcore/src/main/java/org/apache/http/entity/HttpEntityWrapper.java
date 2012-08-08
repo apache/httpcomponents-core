@@ -34,6 +34,7 @@ import java.io.OutputStream;
 import org.apache.http.Header;
 import org.apache.http.HttpEntity;
 import org.apache.http.annotation.NotThreadSafe;
+import org.apache.http.util.Args;
 
 /**
  * Base class for wrapping entities.
@@ -56,17 +57,10 @@ public class HttpEntityWrapper implements HttpEntity {
      * @param wrapped   the entity to wrap, not null
      * @throws IllegalArgumentException if wrapped is null
      */
-    public HttpEntityWrapper(HttpEntity wrapped) {
+    public HttpEntityWrapper(HttpEntity wrappedEntity) {
         super();
-
-        if (wrapped == null) {
-            throw new IllegalArgumentException
-                ("wrapped entity must not be null");
-        }
-        wrappedEntity = wrapped;
-
+        this.wrappedEntity = Args.notNull(wrappedEntity, "Wrapped entity");
     } // constructor
-
 
     public boolean isRepeatable() {
         return wrappedEntity.isRepeatable();

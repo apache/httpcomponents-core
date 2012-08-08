@@ -34,6 +34,7 @@ import org.apache.http.annotation.NotThreadSafe;
 import org.apache.http.impl.io.HttpTransportMetricsImpl;
 import org.apache.http.nio.ContentEncoder;
 import org.apache.http.nio.reactor.SessionOutputBuffer;
+import org.apache.http.util.Args;
 
 /**
  * Abstract {@link ContentEncoder} that serves as a base for all content
@@ -63,15 +64,9 @@ public abstract class AbstractContentEncoder implements ContentEncoder {
             final SessionOutputBuffer buffer,
             final HttpTransportMetricsImpl metrics) {
         super();
-        if (channel == null) {
-            throw new IllegalArgumentException("Channel may not be null");
-        }
-        if (buffer == null) {
-            throw new IllegalArgumentException("Session input buffer may not be null");
-        }
-        if (metrics == null) {
-            throw new IllegalArgumentException("Transport metrics may not be null");
-        }
+        Args.notNull(channel, "Channel");
+        Args.notNull(buffer, "Session input buffer");
+        Args.notNull(metrics, "Transport metrics");
         this.buffer = buffer;
         this.channel = channel;
         this.metrics = metrics;

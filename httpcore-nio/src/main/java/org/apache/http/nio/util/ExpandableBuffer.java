@@ -31,6 +31,7 @@ import java.nio.ByteBuffer;
 
 import org.apache.http.annotation.NotThreadSafe;
 import org.apache.http.io.BufferInfo;
+import org.apache.http.util.Args;
 
 /**
  * A buffer that expand its capacity on demand using {@link ByteBufferAllocator}
@@ -61,9 +62,7 @@ public class ExpandableBuffer implements BufferInfo, org.apache.http.nio.util.Bu
      */
     public ExpandableBuffer(int buffersize, final ByteBufferAllocator allocator) {
         super();
-        if (allocator == null) {
-            throw new IllegalArgumentException("ByteBuffer allocator may not be null");
-        }
+        Args.notNull(allocator, "ByteBuffer allocator");
         this.allocator = allocator;
         this.buffer = allocator.allocate(buffersize);
         this.mode = INPUT_MODE;

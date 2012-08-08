@@ -31,6 +31,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.apache.http.annotation.NotThreadSafe;
+import org.apache.http.util.Args;
 
 /**
  * Default implementation of {@link HttpContext}.
@@ -56,9 +57,7 @@ public class BasicHttpContext implements HttpContext {
     }
 
     public Object getAttribute(final String id) {
-        if (id == null) {
-            throw new IllegalArgumentException("Id may not be null");
-        }
+        Args.notNull(id, "Id");
         Object obj = null;
         if (this.map != null) {
             obj = this.map.get(id);
@@ -70,9 +69,7 @@ public class BasicHttpContext implements HttpContext {
     }
 
     public void setAttribute(final String id, final Object obj) {
-        if (id == null) {
-            throw new IllegalArgumentException("Id may not be null");
-        }
+        Args.notNull(id, "Id");
         if (this.map == null) {
             this.map = new HashMap<String, Object>();
         }
@@ -80,9 +77,7 @@ public class BasicHttpContext implements HttpContext {
     }
 
     public Object removeAttribute(final String id) {
-        if (id == null) {
-            throw new IllegalArgumentException("Id may not be null");
-        }
+        Args.notNull(id, "Id");
         if (this.map != null) {
             return this.map.remove(id);
         } else {

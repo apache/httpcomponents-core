@@ -37,6 +37,7 @@ import org.apache.http.nio.ContentDecoder;
 import org.apache.http.nio.ContentEncoder;
 import org.apache.http.nio.NHttpServerConnection;
 import org.apache.http.nio.NHttpServerEventHandler;
+import org.apache.http.util.Args;
 
 /**
  * Decorator class intended to transparently extend an {@link NHttpServiceHandler}
@@ -50,9 +51,7 @@ public class LoggingNHttpServiceHandler implements NHttpServerEventHandler {
 
     public LoggingNHttpServiceHandler(final NHttpServerEventHandler handler) {
         super();
-        if (handler == null) {
-            throw new IllegalArgumentException("HTTP service handler may not be null");
-        }
+        Args.notNull(handler, "HTTP service handler");
         this.handler = handler;
         this.log = LogFactory.getLog(handler.getClass());
     }

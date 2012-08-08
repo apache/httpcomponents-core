@@ -32,6 +32,7 @@ import java.io.Serializable;
 import org.apache.http.ProtocolVersion;
 import org.apache.http.StatusLine;
 import org.apache.http.annotation.Immutable;
+import org.apache.http.util.Args;
 
 /**
  * Basic implementation of {@link StatusLine}
@@ -66,16 +67,8 @@ public class BasicStatusLine implements StatusLine, Cloneable, Serializable {
     public BasicStatusLine(final ProtocolVersion version, int statusCode,
                            final String reasonPhrase) {
         super();
-        if (version == null) {
-            throw new IllegalArgumentException
-                ("Protocol version may not be null.");
-        }
-        if (statusCode < 0) {
-            throw new IllegalArgumentException
-                ("Status code may not be negative.");
-        }
-        this.protoVersion = version;
-        this.statusCode   = statusCode;
+        this.protoVersion = Args.notNull(version, "Version");
+        this.statusCode = Args.notNegative(statusCode, "Status code");
         this.reasonPhrase = reasonPhrase;
     }
 

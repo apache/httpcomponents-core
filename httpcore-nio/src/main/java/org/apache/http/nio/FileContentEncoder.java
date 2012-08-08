@@ -29,7 +29,6 @@ package org.apache.http.nio;
 
 import java.io.IOException;
 import java.nio.channels.FileChannel;
-import org.apache.http.nio.ContentEncoder;
 
 /**
  * A content encoder capable of transferring data directly from a {@link FileChannel}

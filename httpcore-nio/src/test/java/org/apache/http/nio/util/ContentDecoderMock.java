@@ -44,9 +44,6 @@ public class ContentDecoderMock implements ContentDecoder {
     }
 
     public int read(final ByteBuffer dst) throws IOException {
-        if (dst == null) {
-            throw new IllegalArgumentException("Byte buffer may not be null");
-        }
         if (this.completed) {
             return -1;
         }

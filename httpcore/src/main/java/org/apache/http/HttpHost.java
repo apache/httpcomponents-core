@@ -31,6 +31,7 @@ import java.io.Serializable;
 import java.util.Locale;
 
 import org.apache.http.annotation.Immutable;
+import org.apache.http.util.Args;
 import org.apache.http.util.LangUtils;
 
 /**
@@ -75,10 +76,7 @@ public final class HttpHost implements Cloneable, Serializable {
      */
     public HttpHost(final String hostname, int port, final String scheme) {
         super();
-        if (hostname == null) {
-            throw new IllegalArgumentException("Host name may not be null");
-        }
-        this.hostname   = hostname;
+        this.hostname   = Args.notNull(hostname, "Host name");
         this.lcHostname = hostname.toLowerCase(Locale.ENGLISH);
         if (scheme != null) {
             this.schemeName = scheme.toLowerCase(Locale.ENGLISH);

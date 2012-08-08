@@ -30,7 +30,7 @@ package org.apache.http.params;
 import java.util.HashSet;
 import java.util.Set;
 
-import org.apache.http.params.HttpParams;
+import org.apache.http.util.Args;
 
 /**
  * {@link HttpParams} implementation that delegates resolution of a parameter
@@ -53,10 +53,7 @@ public final class DefaultedHttpParams extends AbstractHttpParams {
      */
     public DefaultedHttpParams(final HttpParams local, final HttpParams defaults) {
         super();
-        if (local == null) {
-            throw new IllegalArgumentException("HTTP parameters may not be null");
-        }
-        this.local = local;
+        this.local = Args.notNull(local, "Local HTTP parameters");
         this.defaults = defaults;
     }
 

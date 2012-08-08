@@ -36,6 +36,7 @@ import org.apache.http.annotation.ThreadSafe;
 import org.apache.http.nio.reactor.IOSession;
 import org.apache.http.nio.reactor.SessionRequest;
 import org.apache.http.nio.reactor.SessionRequestCallback;
+import org.apache.http.util.Args;
 
 /**
  * Default implementation of {@link SessionRequest}.
@@ -63,9 +64,7 @@ public class SessionRequestImpl implements SessionRequest {
             final Object attachment,
             final SessionRequestCallback callback) {
         super();
-        if (remoteAddress == null) {
-            throw new IllegalArgumentException("Remote address may not be null");
-        }
+        Args.notNull(remoteAddress, "Remote address");
         this.remoteAddress = remoteAddress;
         this.localAddress = localAddress;
         this.attachment = attachment;
@@ -117,9 +116,7 @@ public class SessionRequestImpl implements SessionRequest {
     }
 
     public void completed(final IOSession session) {
-        if (session == null) {
-            throw new IllegalArgumentException("Session may not be null");
-        }
+        Args.notNull(session, "Session");
         if (this.completed) {
             return;
         }

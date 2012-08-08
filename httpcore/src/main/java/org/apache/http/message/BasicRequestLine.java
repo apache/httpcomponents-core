@@ -32,6 +32,7 @@ import java.io.Serializable;
 import org.apache.http.ProtocolVersion;
 import org.apache.http.RequestLine;
 import org.apache.http.annotation.Immutable;
+import org.apache.http.util.Args;
 
 /**
  * Basic implementation of {@link RequestLine}.
@@ -51,21 +52,9 @@ public class BasicRequestLine implements RequestLine, Cloneable, Serializable {
                             final String uri,
                             final ProtocolVersion version) {
         super();
-        if (method == null) {
-            throw new IllegalArgumentException
-                ("Method must not be null.");
-        }
-        if (uri == null) {
-            throw new IllegalArgumentException
-                ("URI must not be null.");
-        }
-        if (version == null) {
-            throw new IllegalArgumentException
-                ("Protocol version must not be null.");
-        }
-        this.method = method;
-        this.uri = uri;
-        this.protoversion = version;
+        this.method = Args.notNull(method, "Method");
+        this.uri = Args.notNull(uri, "URI");
+        this.protoversion = Args.notNull(version, "Version");
     }
 
     public String getMethod() {

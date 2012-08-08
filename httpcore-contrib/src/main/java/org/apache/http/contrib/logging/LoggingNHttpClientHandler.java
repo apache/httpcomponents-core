@@ -37,9 +37,10 @@ import org.apache.http.nio.ContentDecoder;
 import org.apache.http.nio.ContentEncoder;
 import org.apache.http.nio.NHttpClientConnection;
 import org.apache.http.nio.NHttpClientEventHandler;
+import org.apache.http.util.Args;
 
 /**
- * Decorator class intended to transparently extend an {@link NHttpClientHandler}
+ * Decorator class intended to transparently extend an {@link NHttpClientEventHandler}
  * with basic event logging capabilities using Commons Logging.
  *
  */
@@ -50,9 +51,7 @@ public class LoggingNHttpClientHandler implements NHttpClientEventHandler {
 
     public LoggingNHttpClientHandler(final NHttpClientEventHandler handler) {
         super();
-        if (handler == null) {
-            throw new IllegalArgumentException("HTTP client handler may not be null");
-        }
+        Args.notNull(handler, "HTTP client handler");
         this.handler = handler;
         this.log = LogFactory.getLog(handler.getClass());
     }

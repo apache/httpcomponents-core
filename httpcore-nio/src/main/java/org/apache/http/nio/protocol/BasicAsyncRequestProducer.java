@@ -38,6 +38,7 @@ import org.apache.http.nio.IOControl;
 import org.apache.http.nio.entity.EntityAsyncContentProducer;
 import org.apache.http.nio.entity.HttpAsyncContentProducer;
 import org.apache.http.protocol.HttpContext;
+import org.apache.http.util.Args;
 
 /**
  * Basic implementation of {@link HttpAsyncRequestProducer}. The producer
@@ -72,15 +73,9 @@ public class BasicAsyncRequestProducer implements HttpAsyncRequestProducer {
             final HttpEntityEnclosingRequest request,
             final HttpAsyncContentProducer producer) {
         super();
-        if (target == null) {
-            throw new IllegalArgumentException("HTTP host may not be null");
-        }
-        if (request == null) {
-            throw new IllegalArgumentException("HTTP request may not be null");
-        }
-        if (producer == null) {
-            throw new IllegalArgumentException("HTTP content producer may not be null");
-        }
+        Args.notNull(target, "HTTP host");
+        Args.notNull(request, "HTTP request");
+        Args.notNull(producer, "HTTP content producer");
         this.target = target;
         this.request = request;
         this.producer = producer;
@@ -95,12 +90,8 @@ public class BasicAsyncRequestProducer implements HttpAsyncRequestProducer {
      * @param request request message.
      */
     public BasicAsyncRequestProducer(final HttpHost target, final HttpRequest request) {
-        if (target == null) {
-            throw new IllegalArgumentException("HTTP host may not be null");
-        }
-        if (request == null) {
-            throw new IllegalArgumentException("HTTP request may not be null");
-        }
+        Args.notNull(target, "HTTP host");
+        Args.notNull(request, "HTTP request");
         this.target = target;
         this.request = request;
         if (request instanceof HttpEntityEnclosingRequest) {

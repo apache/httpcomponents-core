@@ -45,6 +45,7 @@ import org.apache.http.nio.reactor.ssl.SSLSetupHandler;
 import org.apache.http.nio.util.ByteBufferAllocator;
 import org.apache.http.nio.util.HeapByteBufferAllocator;
 import org.apache.http.params.HttpParams;
+import org.apache.http.util.Args;
 
 /**
  * A basic {@link NIOConnFactory} implementation that creates
@@ -71,9 +72,7 @@ public class BasicNIOConnFactory implements NIOConnFactory<HttpHost, NHttpClient
             final NHttpConnectionFactory<? extends NHttpClientConnection> plainFactory,
             final NHttpConnectionFactory<? extends NHttpClientConnection> sslFactory) {
         super();
-        if (plainFactory == null) {
-            throw new IllegalArgumentException("Plain HTTP client connection factory may not be null");
-        }
+        Args.notNull(plainFactory, "Plain HTTP client connection factory");
         this.plainFactory = plainFactory;
         this.sslFactory = sslFactory;
     }

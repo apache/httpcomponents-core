@@ -34,6 +34,7 @@ import org.apache.http.HttpRequest;
 import org.apache.http.annotation.Immutable;
 import org.apache.http.protocol.HttpContext;
 import org.apache.http.protocol.HttpRequestHandler;
+import org.apache.http.util.Args;
 
 /**
  * Basic implementation of {@link HttpAsyncRequestHandler} that delegates
@@ -50,9 +51,7 @@ public class BasicAsyncRequestHandler implements HttpAsyncRequestHandler<HttpReq
 
     public BasicAsyncRequestHandler(final HttpRequestHandler handler) {
         super();
-        if (handler == null) {
-            throw new IllegalArgumentException("Request handler may not be null");
-        }
+        Args.notNull(handler, "Request handler");
         this.handler = handler;
     }
 

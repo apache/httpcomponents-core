@@ -47,6 +47,7 @@ import org.apache.http.nio.reactor.IOReactor;
 import org.apache.http.nio.reactor.IOReactorException;
 import org.apache.http.nio.reactor.IOReactorStatus;
 import org.apache.http.nio.reactor.IOSession;
+import org.apache.http.util.Args;
 
 /**
  * Generic implementation of {@link IOReactor} that can used as a subclass
@@ -91,9 +92,7 @@ public abstract class AbstractIOReactor implements IOReactor {
      */
     public AbstractIOReactor(long selectTimeout, boolean interestOpsQueueing) throws IOReactorException {
         super();
-        if (selectTimeout <= 0) {
-            throw new IllegalArgumentException("Select timeout may not be negative or zero");
-        }
+        Args.positive(selectTimeout, "Select timeout");
         this.selectTimeout = selectTimeout;
         this.interestOpsQueueing = interestOpsQueueing;
         this.sessions = Collections.synchronizedSet(new HashSet<IOSession>());
@@ -219,9 +218,7 @@ public abstract class AbstractIOReactor implements IOReactor {
      * @param channelEntry the channel entry.
      */
     public void addChannel(final ChannelEntry channelEntry) {
-        if (channelEntry == null) {
-            throw new IllegalArgumentException("Channel entry may not be null");
-        }
+        Args.notNull(channelEntry, "Channel entry");
         this.newChannels.add(channelEntry);
         this.selector.wakeup();
     }

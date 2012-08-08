@@ -30,6 +30,7 @@ package org.apache.http.impl.nio.reactor;
 import java.nio.channels.SocketChannel;
 
 import org.apache.http.annotation.Immutable;
+import org.apache.http.util.Args;
 
 /**
  * {@link SocketChannel} entry maintained by the I/O reactor. If the channel
@@ -53,9 +54,7 @@ public class ChannelEntry {
      */
     public ChannelEntry(final SocketChannel channel, final SessionRequestImpl sessionRequest) {
         super();
-        if (channel == null) {
-            throw new IllegalArgumentException("Socket channel may not be null");
-        }
+        Args.notNull(channel, "Socket channel");
         this.channel = channel;
         this.sessionRequest = sessionRequest;
     }

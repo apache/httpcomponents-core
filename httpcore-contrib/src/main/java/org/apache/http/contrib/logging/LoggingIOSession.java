@@ -36,6 +36,7 @@ import java.nio.channels.SelectionKey;
 import org.apache.commons.logging.Log;
 import org.apache.http.nio.reactor.IOSession;
 import org.apache.http.nio.reactor.SessionBufferStatus;
+import org.apache.http.util.Args;
 
 /**
  * Decorator class intended to transparently extend an {@link IOSession}
@@ -52,9 +53,7 @@ public class LoggingIOSession implements IOSession {
 
     public LoggingIOSession(final IOSession session, final String id, final Log log, final Log wirelog) {
         super();
-        if (session == null) {
-            throw new IllegalArgumentException("I/O session may not be null");
-        }
+        Args.notNull(session, "I/O session");
         this.session = session;
         this.channel = new LoggingByteChannel();
         this.id = id;

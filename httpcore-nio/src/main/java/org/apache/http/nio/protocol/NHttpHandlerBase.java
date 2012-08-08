@@ -38,6 +38,7 @@ import org.apache.http.nio.NHttpConnection;
 import org.apache.http.nio.util.ByteBufferAllocator;
 import org.apache.http.params.HttpParams;
 import org.apache.http.protocol.HttpProcessor;
+import org.apache.http.util.Args;
 
 /**
  * @since 4.0
@@ -63,18 +64,10 @@ public abstract class NHttpHandlerBase {
             final ByteBufferAllocator allocator,
             final HttpParams params) {
         super();
-        if (httpProcessor == null) {
-            throw new IllegalArgumentException("HTTP processor may not be null.");
-        }
-        if (connStrategy == null) {
-            throw new IllegalArgumentException("Connection reuse strategy may not be null");
-        }
-        if (allocator == null) {
-            throw new IllegalArgumentException("ByteBuffer allocator may not be null");
-        }
-        if (params == null) {
-            throw new IllegalArgumentException("HTTP parameters may not be null");
-        }
+        Args.notNull(httpProcessor, "HTTP processor");
+        Args.notNull(connStrategy, "Connection reuse strategy");
+        Args.notNull(allocator, "ByteBuffer allocator");
+        Args.notNull(params, "HTTP parameters");
         this.httpProcessor = httpProcessor;
         this.connStrategy = connStrategy;
         this.allocator = allocator;

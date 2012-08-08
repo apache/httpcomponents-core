@@ -45,6 +45,7 @@ import org.apache.http.nio.util.HeapByteBufferAllocator;
 import org.apache.http.params.HttpParams;
 import org.apache.http.params.HttpProtocolParams;
 import org.apache.http.protocol.HTTP;
+import org.apache.http.util.Args;
 import org.apache.http.util.CharArrayBuffer;
 
 /**
@@ -87,9 +88,7 @@ public class SessionInputBufferImpl extends ExpandableBuffer implements SessionI
     }
 
     public int fill(final ReadableByteChannel channel) throws IOException {
-        if (channel == null) {
-            throw new IllegalArgumentException("Channel may not be null");
-        }
+        Args.notNull(channel, "Channel");
         setInputMode();
         if (!this.buffer.hasRemaining()) {
             expand();

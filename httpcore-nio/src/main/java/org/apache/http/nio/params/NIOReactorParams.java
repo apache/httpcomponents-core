@@ -29,6 +29,7 @@ package org.apache.http.nio.params;
 
 import org.apache.http.impl.nio.reactor.IOReactorConfig;
 import org.apache.http.params.HttpParams;
+import org.apache.http.util.Args;
 
 /**
  * Utility class for accessing I/O reactor parameters in {@link HttpParams}.
@@ -54,9 +55,7 @@ public final class NIOReactorParams implements NIOReactorPNames {
      * @return content buffer size.
      */
     public static int getContentBufferSize(final HttpParams params) {
-        if (params == null) {
-            throw new IllegalArgumentException("HTTP parameters may not be null");
-        }
+        Args.notNull(params, "HTTP parameters");
         return params.getIntParameter(CONTENT_BUFFER_SIZE, 4096);
     }
 
@@ -67,9 +66,7 @@ public final class NIOReactorParams implements NIOReactorPNames {
      * @param size content buffer size.
      */
     public static void setContentBufferSize(final HttpParams params, int size) {
-        if (params == null) {
-            throw new IllegalArgumentException("HTTP parameters may not be null");
-        }
+        Args.notNull(params, "HTTP parameters");
         params.setIntParameter(CONTENT_BUFFER_SIZE, size);
     }
 
@@ -81,9 +78,7 @@ public final class NIOReactorParams implements NIOReactorPNames {
      * @return I/O select interval in milliseconds.
      */
     public static long getSelectInterval(final HttpParams params) {
-        if (params == null) {
-            throw new IllegalArgumentException("HTTP parameters may not be null");
-        }
+        Args.notNull(params, "HTTP parameters");
         return params.getLongParameter(SELECT_INTERVAL, 1000);
     }
 
@@ -94,9 +89,7 @@ public final class NIOReactorParams implements NIOReactorPNames {
      * @param ms I/O select interval in milliseconds.
      */
     public static void setSelectInterval(final HttpParams params, long ms) {
-        if (params == null) {
-            throw new IllegalArgumentException("HTTP parameters may not be null");
-        }
+        Args.notNull(params, "HTTP parameters");
         params.setLongParameter(SELECT_INTERVAL, ms);
     }
 
@@ -108,9 +101,7 @@ public final class NIOReactorParams implements NIOReactorPNames {
      * @return shutdown grace period in milliseconds.
      */
     public static long getGracePeriod(final HttpParams params) {
-        if (params == null) {
-            throw new IllegalArgumentException("HTTP parameters may not be null");
-        }
+        Args.notNull(params, "HTTP parameters");
         return params.getLongParameter(GRACE_PERIOD, 500);
     }
 
@@ -121,9 +112,7 @@ public final class NIOReactorParams implements NIOReactorPNames {
      * @param ms shutdown grace period in milliseconds.
      */
     public static void setGracePeriod(final HttpParams params, long ms) {
-        if (params == null) {
-            throw new IllegalArgumentException("HTTP parameters may not be null");
-        }
+        Args.notNull(params, "HTTP parameters");
         params.setLongParameter(GRACE_PERIOD, ms);
     }
 
@@ -137,9 +126,7 @@ public final class NIOReactorParams implements NIOReactorPNames {
      * @since 4.1
      */
     public static boolean getInterestOpsQueueing(final HttpParams params) {
-        if (params == null) {
-            throw new IllegalArgumentException("HTTP parameters may not be null");
-        }
+        Args.notNull(params, "HTTP parameters");
         return params.getBooleanParameter(INTEREST_OPS_QUEUEING, false);
     }
 
@@ -153,9 +140,7 @@ public final class NIOReactorParams implements NIOReactorPNames {
      */
     public static void setInterestOpsQueueing(
             final HttpParams params, boolean interestOpsQueueing) {
-        if (params == null) {
-            throw new IllegalArgumentException("HTTP parameters may not be null");
-        }
+        Args.notNull(params, "HTTP parameters");
         params.setBooleanParameter(INTEREST_OPS_QUEUEING, interestOpsQueueing);
     }
 

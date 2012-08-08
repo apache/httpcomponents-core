@@ -44,6 +44,7 @@ import org.apache.http.pool.PoolEntry;
 import org.apache.http.protocol.BasicHttpContext;
 import org.apache.http.protocol.HttpContext;
 import org.apache.http.protocol.HttpProcessor;
+import org.apache.http.util.Args;
 
 /**
  * <tt>HttpAsyncRequester</tt> is a utility class that can be used
@@ -88,18 +89,10 @@ public class HttpAsyncRequester {
             final NHttpClientConnection conn,
             final HttpContext context,
             final FutureCallback<T> callback) {
-        if (requestProducer == null) {
-            throw new IllegalArgumentException("HTTP request producer may not be null");
-        }
-        if (responseConsumer == null) {
-            throw new IllegalArgumentException("HTTP response consumer may not be null");
-        }
-        if (conn == null) {
-            throw new IllegalArgumentException("HTTP connection may not be null");
-        }
-        if (context == null) {
-            throw new IllegalArgumentException("HTTP context may not be null");
-        }
+        Args.notNull(requestProducer, "HTTP request producer");
+        Args.notNull(responseConsumer, "HTTP response consumer");
+        Args.notNull(conn, "HTTP connection");
+        Args.notNull(context, "HTTP context");
         BasicAsyncRequestExecutionHandler<T> handler = new BasicAsyncRequestExecutionHandler<T>(
                 requestProducer, responseConsumer, callback, context,
                 this.httppocessor, this.reuseStrategy, this.params);
@@ -173,18 +166,10 @@ public class HttpAsyncRequester {
             final ConnPool<HttpHost, E> connPool,
             final HttpContext context,
             final FutureCallback<T> callback) {
-        if (requestProducer == null) {
-            throw new IllegalArgumentException("HTTP request producer may not be null");
-        }
-        if (responseConsumer == null) {
-            throw new IllegalArgumentException("HTTP response consumer may not be null");
-        }
-        if (connPool == null) {
-            throw new IllegalArgumentException("HTTP connection pool may not be null");
-        }
-        if (context == null) {
-            throw new IllegalArgumentException("HTTP context may not be null");
-        }
+        Args.notNull(requestProducer, "HTTP request producer");
+        Args.notNull(responseConsumer, "HTTP response consumer");
+        Args.notNull(connPool, "HTTP connection pool");
+        Args.notNull(context, "HTTP context");
         BasicFuture<T> future = new BasicFuture<T>(callback);
         HttpHost target = requestProducer.getTarget();
         connPool.lease(target, null, new ConnRequestCallback<T, E>(

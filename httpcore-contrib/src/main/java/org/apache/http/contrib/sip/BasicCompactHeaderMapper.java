@@ -27,9 +27,11 @@
 
 package org.apache.http.contrib.sip;
 
-import java.util.Map;
-import java.util.HashMap;
 import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
+
+import org.apache.http.util.Args;
 
 
 
@@ -100,20 +102,10 @@ public class BasicCompactHeaderMapper implements CompactHeaderMapper {
      * @param full      the full name of the header
      */
     public void addMapping(final String compact, final String full) {
-        if (compact == null) {
-            throw new IllegalArgumentException
-                ("The compact name must not be null.");
-        }
-        if (full == null) {
-            throw new IllegalArgumentException
-                ("The full name must not be null.");
-        }
-        if (compact.length() >= full.length()) {
-            throw new IllegalArgumentException
-                ("The compact name must be shorter than the full name. " +
-                 compact + " -> " + full);
-        }
-
+        Args.notNull(compact, "Compact name");
+        Args.notNull(full, "Full name");
+        Args.check(compact.length() < full.length(), "The compact name must be shorter " +
+        		"than the full name. " + compact + " -> " + full);
         mapCompactToFull.put(compact.toLowerCase(), full);
         mapFullToCompact.put(full.toLowerCase(), compact);
     }
@@ -135,31 +127,21 @@ public class BasicCompactHeaderMapper implements CompactHeaderMapper {
 
     // non-javadoc, see interface CompactHeaderMapper
     public String getCompactName(final String fullname) {
-        if (fullname == null) {
-            throw new IllegalArgumentException
-                ("The full name must not be null.");
-        }
+        Args.notNull(fullname, "Full name");
         return mapFullToCompact.get(fullname.toLowerCase());
     }
 
 
     // non-javadoc, see interface CompactHeaderMapper
     public String getFullName(final String compactname) {
-        if (compactname == null) {
-            throw new IllegalArgumentException
-                ("The compact name must not be null.");
-        }
+        Args.notNull(compactname, "Compact name");
         return mapCompactToFull.get(compactname.toLowerCase());
     }
 
 
     // non-javadoc, see interface CompactHeaderMapper
     public String getAlternateName(final String name) {
-        if (name == null) {
-            throw new IllegalArgumentException
-                ("The name must not be null.");
-        }
-
+        Args.notNull(name, "Name");
         final String namelc = name.toLowerCase();
         String       result = null;
 

@@ -42,6 +42,7 @@ import org.apache.http.nio.util.ByteBufferAllocator;
 import org.apache.http.nio.util.HeapByteBufferAllocator;
 import org.apache.http.params.HttpConnectionParams;
 import org.apache.http.params.HttpParams;
+import org.apache.http.util.Args;
 
 /**
  * Default implementation of {@link IOEventDispatch} interface for plain
@@ -80,12 +81,8 @@ public class DefaultServerIOEventDispatch extends AbstractIODispatch<NHttpServer
             final NHttpServiceHandler handler,
             final HttpParams params) {
         super();
-        if (handler == null) {
-            throw new IllegalArgumentException("HTTP service handler may not be null");
-        }
-        if (params == null) {
-            throw new IllegalArgumentException("HTTP parameters may not be null");
-        }
+        Args.notNull(handler, "HTTP service handler");
+        Args.notNull(params, "HTTP parameters");
         this.allocator = createByteBufferAllocator();
         this.handler = handler;
         this.params = params;

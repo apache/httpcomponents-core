@@ -40,9 +40,9 @@ import org.apache.http.annotation.NotThreadSafe;
 import org.apache.http.impl.nio.codecs.DefaultHttpRequestWriter;
 import org.apache.http.impl.nio.codecs.DefaultHttpResponseParser;
 import org.apache.http.nio.NHttpClientConnection;
-import org.apache.http.nio.NHttpClientIOTarget;
-import org.apache.http.nio.NHttpClientHandler;
 import org.apache.http.nio.NHttpClientEventHandler;
+import org.apache.http.nio.NHttpClientHandler;
+import org.apache.http.nio.NHttpClientIOTarget;
 import org.apache.http.nio.NHttpMessageParser;
 import org.apache.http.nio.NHttpMessageWriter;
 import org.apache.http.nio.reactor.EventMask;
@@ -51,6 +51,7 @@ import org.apache.http.nio.reactor.SessionInputBuffer;
 import org.apache.http.nio.reactor.SessionOutputBuffer;
 import org.apache.http.nio.util.ByteBufferAllocator;
 import org.apache.http.params.HttpParams;
+import org.apache.http.util.Args;
 
 /**
  * Default implementation of the {@link NHttpClientConnection} interface.
@@ -88,9 +89,7 @@ public class DefaultNHttpClientConnection
             final ByteBufferAllocator allocator,
             final HttpParams params) {
         super(session, allocator, params);
-        if (responseFactory == null) {
-            throw new IllegalArgumentException("Response factory may not be null");
-        }
+        Args.notNull(responseFactory, "Response factory");
         this.responseParser = createResponseParser(this.inbuf, responseFactory, params);
         this.requestWriter = createRequestWriter(this.outbuf, params);
         this.hasBufferedInput = false;
@@ -248,9 +247,7 @@ public class DefaultNHttpClientConnection
     }
 
     public void submitRequest(final HttpRequest request) throws IOException, HttpException {
-        if (request == null) {
-            throw new IllegalArgumentException("HTTP request may not be null");
-        }
+        Args.notNull(request, "HTTP request");
         assertNotClosed();
         if (this.request != null) {
             throw new HttpException("Request already submitted");

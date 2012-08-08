@@ -54,12 +54,13 @@ import org.apache.http.nio.util.ContentOutputBuffer;
 import org.apache.http.nio.util.DirectByteBufferAllocator;
 import org.apache.http.nio.util.SharedInputBuffer;
 import org.apache.http.nio.util.SharedOutputBuffer;
-import org.apache.http.params.HttpParams;
 import org.apache.http.params.CoreProtocolPNames;
 import org.apache.http.params.DefaultedHttpParams;
+import org.apache.http.params.HttpParams;
 import org.apache.http.protocol.ExecutionContext;
 import org.apache.http.protocol.HttpContext;
 import org.apache.http.protocol.HttpProcessor;
+import org.apache.http.util.Args;
 
 /**
  * Client protocol handler implementation that provide compatibility with
@@ -114,12 +115,8 @@ public class ThrottlingHttpClientHandler extends NHttpHandlerBase
             final Executor executor,
             final HttpParams params) {
         super(httpProcessor, connStrategy, allocator, params);
-        if (execHandler == null) {
-            throw new IllegalArgumentException("HTTP request execution handler may not be null.");
-        }
-        if (executor == null) {
-            throw new IllegalArgumentException("Executor may not be null");
-        }
+        Args.notNull(execHandler, "HTTP request execution handler");
+        Args.notNull(executor, "Executor");
         this.execHandler = execHandler;
         this.executor = executor;
         this.bufsize = this.params.getIntParameter(NIOReactorPNames.CONTENT_BUFFER_SIZE, 20480);

@@ -37,6 +37,7 @@ import org.apache.http.HttpEntity;
 import org.apache.http.entity.HttpEntityWrapper;
 import org.apache.http.message.BasicHeader;
 import org.apache.http.protocol.HTTP;
+import org.apache.http.util.Args;
 
 /**
  * Wrapping entity that compresses content when {@link #writeTo writing}.
@@ -70,9 +71,7 @@ public class GzipCompressingEntity extends HttpEntityWrapper {
 
     @Override
     public void writeTo(final OutputStream outstream) throws IOException {
-        if (outstream == null) {
-            throw new IllegalArgumentException("Output stream may not be null");
-        }
+        Args.notNull(outstream, "Output stream");
         GZIPOutputStream gzip = new GZIPOutputStream(outstream);
         InputStream in = wrappedEntity.getContent();
         byte[] tmp = new byte[2048];

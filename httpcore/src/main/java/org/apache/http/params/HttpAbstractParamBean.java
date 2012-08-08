@@ -27,6 +27,8 @@
 
 package org.apache.http.params;
 
+import org.apache.http.util.Args;
+
 /**
  * @since 4.0
  */
@@ -35,9 +37,8 @@ public abstract class HttpAbstractParamBean {
     protected final HttpParams params;
 
     public HttpAbstractParamBean (final HttpParams params) {
-        if (params == null)
-            throw new IllegalArgumentException("HTTP parameters may not be null");
-        this.params = params;
+        super();
+        this.params = Args.notNull(params, "HTTP parameters");
     }
 
 }

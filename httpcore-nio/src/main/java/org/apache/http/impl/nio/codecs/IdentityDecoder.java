@@ -36,6 +36,7 @@ import org.apache.http.annotation.NotThreadSafe;
 import org.apache.http.impl.io.HttpTransportMetricsImpl;
 import org.apache.http.nio.FileContentDecoder;
 import org.apache.http.nio.reactor.SessionInputBuffer;
+import org.apache.http.util.Args;
 
 /**
  * Content decoder that reads data without any transformation. The end of the
@@ -72,9 +73,7 @@ public class IdentityDecoder extends AbstractContentDecoder
     }
 
     public int read(final ByteBuffer dst) throws IOException {
-        if (dst == null) {
-            throw new IllegalArgumentException("Byte buffer may not be null");
-        }
+        Args.notNull(dst, "Byte buffer");
         if (this.completed) {
             return -1;
         }

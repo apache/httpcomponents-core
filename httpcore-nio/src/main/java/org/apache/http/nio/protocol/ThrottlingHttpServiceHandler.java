@@ -41,8 +41,8 @@ import org.apache.http.HttpResponseFactory;
 import org.apache.http.HttpStatus;
 import org.apache.http.HttpVersion;
 import org.apache.http.MethodNotSupportedException;
-import org.apache.http.ProtocolVersion;
 import org.apache.http.ProtocolException;
+import org.apache.http.ProtocolVersion;
 import org.apache.http.UnsupportedHttpVersionException;
 import org.apache.http.annotation.ThreadSafe;
 import org.apache.http.entity.ByteArrayEntity;
@@ -61,14 +61,15 @@ import org.apache.http.nio.util.ContentOutputBuffer;
 import org.apache.http.nio.util.DirectByteBufferAllocator;
 import org.apache.http.nio.util.SharedInputBuffer;
 import org.apache.http.nio.util.SharedOutputBuffer;
-import org.apache.http.params.HttpParams;
 import org.apache.http.params.DefaultedHttpParams;
-import org.apache.http.protocol.HttpContext;
+import org.apache.http.params.HttpParams;
 import org.apache.http.protocol.ExecutionContext;
+import org.apache.http.protocol.HttpContext;
 import org.apache.http.protocol.HttpExpectationVerifier;
 import org.apache.http.protocol.HttpProcessor;
 import org.apache.http.protocol.HttpRequestHandler;
 import org.apache.http.protocol.HttpRequestHandlerResolver;
+import org.apache.http.util.Args;
 import org.apache.http.util.EncodingUtils;
 import org.apache.http.util.EntityUtils;
 
@@ -128,12 +129,8 @@ public class ThrottlingHttpServiceHandler extends NHttpHandlerBase
             final Executor executor,
             final HttpParams params) {
         super(httpProcessor, connStrategy, allocator, params);
-        if (responseFactory == null) {
-            throw new IllegalArgumentException("Response factory may not be null");
-        }
-        if (executor == null) {
-            throw new IllegalArgumentException("Executor may not be null");
-        }
+        Args.notNull(responseFactory, "Response factory");
+        Args.notNull(executor, "Executor");
         this.responseFactory = responseFactory;
         this.executor = executor;
         this.bufsize = this.params.getIntParameter(NIOReactorPNames.CONTENT_BUFFER_SIZE, 20480);

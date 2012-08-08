@@ -33,6 +33,7 @@ import java.net.Socket;
 import org.apache.http.annotation.NotThreadSafe;
 import org.apache.http.params.HttpConnectionParams;
 import org.apache.http.params.HttpParams;
+import org.apache.http.util.Args;
 
 /**
  * Default implementation of a client-side HTTP connection.
@@ -64,12 +65,8 @@ public class DefaultHttpClientConnection extends SocketHttpClientConnection {
     public void bind(
             final Socket socket,
             final HttpParams params) throws IOException {
-        if (socket == null) {
-            throw new IllegalArgumentException("Socket may not be null");
-        }
-        if (params == null) {
-            throw new IllegalArgumentException("HTTP parameters may not be null");
-        }
+        Args.notNull(socket, "Socket");
+        Args.notNull(params, "HTTP parameters");
         assertNotOpen();
         socket.setTcpNoDelay(HttpConnectionParams.getTcpNoDelay(params));
         socket.setSoTimeout(HttpConnectionParams.getSoTimeout(params));

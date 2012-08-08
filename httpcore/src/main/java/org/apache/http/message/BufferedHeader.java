@@ -33,6 +33,7 @@ import org.apache.http.FormattedHeader;
 import org.apache.http.HeaderElement;
 import org.apache.http.ParseException;
 import org.apache.http.annotation.NotThreadSafe;
+import org.apache.http.util.Args;
 import org.apache.http.util.CharArrayBuffer;
 
 /**
@@ -75,10 +76,7 @@ public class BufferedHeader implements FormattedHeader, Cloneable, Serializable 
         throws ParseException {
 
         super();
-        if (buffer == null) {
-            throw new IllegalArgumentException
-                ("Char array buffer may not be null");
-        }
+        Args.notNull(buffer, "Char array buffer");
         int colon = buffer.indexOf(':');
         if (colon == -1) {
             throw new ParseException

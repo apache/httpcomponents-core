@@ -27,14 +27,15 @@
 
 package org.apache.http.message;
 
+import org.apache.http.Header;
 import org.apache.http.HttpVersion;
-import org.apache.http.ProtocolVersion;
 import org.apache.http.ParseException;
+import org.apache.http.ProtocolVersion;
 import org.apache.http.RequestLine;
 import org.apache.http.StatusLine;
-import org.apache.http.Header;
 import org.apache.http.annotation.Immutable;
 import org.apache.http.protocol.HTTP;
+import org.apache.http.util.Args;
 import org.apache.http.util.CharArrayBuffer;
 
 /**
@@ -103,14 +104,8 @@ public class BasicLineParser implements LineParser {
 
     public final static
         ProtocolVersion parseProtocolVersion(String value,
-                                             LineParser parser)
-        throws ParseException {
-
-        if (value == null) {
-            throw new IllegalArgumentException
-                ("Value to parse may not be null.");
-        }
-
+                                             LineParser parser) throws ParseException {
+        Args.notNull(value, "Value");
         if (parser == null)
             parser = BasicLineParser.INSTANCE;
 
@@ -123,16 +118,9 @@ public class BasicLineParser implements LineParser {
 
     // non-javadoc, see interface LineParser
     public ProtocolVersion parseProtocolVersion(final CharArrayBuffer buffer,
-                                                final ParserCursor cursor)
-        throws ParseException {
-
-        if (buffer == null) {
-            throw new IllegalArgumentException("Char array buffer may not be null");
-        }
-        if (cursor == null) {
-            throw new IllegalArgumentException("Parser cursor may not be null");
-        }
-
+                                                final ParserCursor cursor) throws ParseException {
+        Args.notNull(buffer, "Char array buffer");
+        Args.notNull(cursor, "Parser cursor");
         final String protoname = this.protocol.getProtocol();
         final int protolength  = protoname.length();
 
@@ -220,13 +208,8 @@ public class BasicLineParser implements LineParser {
     // non-javadoc, see interface LineParser
     public boolean hasProtocolVersion(final CharArrayBuffer buffer,
                                       final ParserCursor cursor) {
-
-        if (buffer == null) {
-            throw new IllegalArgumentException("Char array buffer may not be null");
-        }
-        if (cursor == null) {
-            throw new IllegalArgumentException("Parser cursor may not be null");
-        }
+        Args.notNull(buffer, "Char array buffer");
+        Args.notNull(cursor, "Parser cursor");
         int index = cursor.getPos();
 
         final String protoname = this.protocol.getProtocol();
@@ -268,14 +251,8 @@ public class BasicLineParser implements LineParser {
 
     public final static
         RequestLine parseRequestLine(final String value,
-                                     LineParser parser)
-        throws ParseException {
-
-        if (value == null) {
-            throw new IllegalArgumentException
-                ("Value to parse may not be null.");
-        }
-
+                                     LineParser parser) throws ParseException {
+        Args.notNull(value, "Value");
         if (parser == null)
             parser = BasicLineParser.INSTANCE;
 
@@ -296,16 +273,10 @@ public class BasicLineParser implements LineParser {
      * @throws ParseException        in case of a parse error
      */
     public RequestLine parseRequestLine(final CharArrayBuffer buffer,
-                                        final ParserCursor cursor)
-        throws ParseException {
+                                        final ParserCursor cursor) throws ParseException {
 
-        if (buffer == null) {
-            throw new IllegalArgumentException("Char array buffer may not be null");
-        }
-        if (cursor == null) {
-            throw new IllegalArgumentException("Parser cursor may not be null");
-        }
-
+        Args.notNull(buffer, "Char array buffer");
+        Args.notNull(cursor, "Parser cursor");
         int indexFrom = cursor.getPos();
         int indexTo = cursor.getUpperBound();
 
@@ -368,14 +339,8 @@ public class BasicLineParser implements LineParser {
 
     public final static
         StatusLine parseStatusLine(final String value,
-                                   LineParser parser)
-        throws ParseException {
-
-        if (value == null) {
-            throw new IllegalArgumentException
-                ("Value to parse may not be null.");
-        }
-
+                                   LineParser parser) throws ParseException {
+        Args.notNull(value, "Value");
         if (parser == null)
             parser = BasicLineParser.INSTANCE;
 
@@ -388,16 +353,9 @@ public class BasicLineParser implements LineParser {
 
     // non-javadoc, see interface LineParser
     public StatusLine parseStatusLine(final CharArrayBuffer buffer,
-                                      final ParserCursor cursor)
-        throws ParseException {
-
-        if (buffer == null) {
-            throw new IllegalArgumentException("Char array buffer may not be null");
-        }
-        if (cursor == null) {
-            throw new IllegalArgumentException("Parser cursor may not be null");
-        }
-
+                                      final ParserCursor cursor) throws ParseException {
+        Args.notNull(buffer, "Char array buffer");
+        Args.notNull(cursor, "Parser cursor");
         int indexFrom = cursor.getPos();
         int indexTo = cursor.getUpperBound();
 
@@ -466,14 +424,8 @@ public class BasicLineParser implements LineParser {
 
     public final static
         Header parseHeader(final String value,
-                           LineParser parser)
-        throws ParseException {
-
-        if (value == null) {
-            throw new IllegalArgumentException
-                ("Value to parse may not be null");
-        }
-
+                           LineParser parser) throws ParseException {
+        Args.notNull(value, "Value");
         if (parser == null)
             parser = BasicLineParser.INSTANCE;
 

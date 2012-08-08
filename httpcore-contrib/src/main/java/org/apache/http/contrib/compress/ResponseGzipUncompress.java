@@ -36,6 +36,7 @@ import org.apache.http.HttpException;
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpResponseInterceptor;
 import org.apache.http.protocol.HttpContext;
+import org.apache.http.util.Args;
 
 /**
  * Client-side interceptor to handle Gzip-compressed responses.
@@ -49,9 +50,7 @@ public class ResponseGzipUncompress implements HttpResponseInterceptor {
 
     public void process(final HttpResponse response, final HttpContext context)
             throws HttpException, IOException {
-        if (context == null) {
-            throw new IllegalArgumentException("HTTP context may not be null");
-        }
+        Args.notNull(context, "HTTP context");
         HttpEntity entity = response.getEntity();
         if (entity != null) {
             Header ceheader = entity.getContentEncoding();

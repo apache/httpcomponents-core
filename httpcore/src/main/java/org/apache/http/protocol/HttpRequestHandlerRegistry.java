@@ -30,6 +30,7 @@ package org.apache.http.protocol;
 import java.util.Map;
 
 import org.apache.http.annotation.ThreadSafe;
+import org.apache.http.util.Args;
 
 /**
  * Maintains a map of HTTP request handlers keyed by a request URI pattern.
@@ -65,12 +66,8 @@ public class HttpRequestHandlerRegistry implements HttpRequestHandlerResolver {
      * @param handler the handler.
      */
     public void register(final String pattern, final HttpRequestHandler handler) {
-        if (pattern == null) {
-            throw new IllegalArgumentException("URI request pattern may not be null");
-        }
-        if (handler == null) {
-            throw new IllegalArgumentException("Request handler may not be null");
-        }
+        Args.notNull(pattern, "URI request pattern");
+        Args.notNull(handler, "Request handler");
         matcher.register(pattern, handler);
     }
 

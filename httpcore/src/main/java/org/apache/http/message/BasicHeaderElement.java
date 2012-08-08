@@ -30,6 +30,7 @@ package org.apache.http.message;
 import org.apache.http.HeaderElement;
 import org.apache.http.NameValuePair;
 import org.apache.http.annotation.NotThreadSafe;
+import org.apache.http.util.Args;
 import org.apache.http.util.LangUtils;
 
 /**
@@ -57,10 +58,7 @@ public class BasicHeaderElement implements HeaderElement, Cloneable {
             final String value,
             final NameValuePair[] parameters) {
         super();
-        if (name == null) {
-            throw new IllegalArgumentException("Name may not be null");
-        }
-        this.name = name;
+        this.name = Args.notNull(name, "Name");
         this.value = value;
         if (parameters != null) {
             this.parameters = parameters;
@@ -101,9 +99,7 @@ public class BasicHeaderElement implements HeaderElement, Cloneable {
     }
 
     public NameValuePair getParameterByName(final String name) {
-        if (name == null) {
-            throw new IllegalArgumentException("Name may not be null");
-        }
+        Args.notNull(name, "Name");
         NameValuePair found = null;
         for (int i = 0; i < this.parameters.length; i++) {
             NameValuePair current = this.parameters[ i ];

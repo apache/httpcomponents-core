@@ -36,6 +36,7 @@ import org.apache.http.annotation.NotThreadSafe;
 import org.apache.http.impl.io.HttpTransportMetricsImpl;
 import org.apache.http.nio.FileContentEncoder;
 import org.apache.http.nio.reactor.SessionOutputBuffer;
+import org.apache.http.util.Args;
 
 /**
  * Content encoder that cuts off after a defined number of bytes. This class
@@ -64,9 +65,7 @@ public class LengthDelimitedEncoder extends AbstractContentEncoder
             final HttpTransportMetricsImpl metrics,
             long contentLength) {
         super(channel, buffer, metrics);
-        if (contentLength < 0) {
-            throw new IllegalArgumentException("Content length may not be negative");
-        }
+        Args.notNegative(contentLength, "Content length");
         this.contentLength = contentLength;
         this.len = 0;
     }

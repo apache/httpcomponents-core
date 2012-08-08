@@ -41,6 +41,7 @@ import org.apache.http.nio.reactor.IOEventDispatch;
 import org.apache.http.nio.reactor.IOSession;
 import org.apache.http.params.HttpConnectionParams;
 import org.apache.http.params.HttpParams;
+import org.apache.http.util.Args;
 
 /**
  * Default implementation of {@link IOEventDispatch} interface for SSL
@@ -84,12 +85,8 @@ public class SSLServerIOEventDispatch extends DefaultServerIOEventDispatch {
             final SSLSetupHandler sslHandler,
             final HttpParams params) {
         super(handler, params);
-        if (sslcontext == null) {
-            throw new IllegalArgumentException("SSL context may not be null");
-        }
-        if (params == null) {
-            throw new IllegalArgumentException("HTTP parameters may not be null");
-        }
+        Args.notNull(sslcontext, "SSL context");
+        Args.notNull(params, "HTTP parameters");
         this.sslcontext = sslcontext;
         this.sslHandler = sslHandler;
     }

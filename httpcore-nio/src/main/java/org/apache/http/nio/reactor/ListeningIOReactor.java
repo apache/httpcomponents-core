@@ -27,9 +27,9 @@
 
 package org.apache.http.nio.reactor;
 
+import java.io.IOException;
 import java.net.SocketAddress;
 import java.util.Set;
-import java.io.IOException;
 
 /**
  * ListeningIOReactor represents an I/O reactor capable of listening for

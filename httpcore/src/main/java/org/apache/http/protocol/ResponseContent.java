@@ -35,9 +35,10 @@ import org.apache.http.HttpResponse;
 import org.apache.http.HttpResponseInterceptor;
 import org.apache.http.HttpStatus;
 import org.apache.http.HttpVersion;
-import org.apache.http.ProtocolVersion;
 import org.apache.http.ProtocolException;
+import org.apache.http.ProtocolVersion;
 import org.apache.http.annotation.Immutable;
+import org.apache.http.util.Args;
 
 /**
  * ResponseContent is the most important interceptor for outgoing responses.
@@ -88,9 +89,7 @@ public class ResponseContent implements HttpResponseInterceptor {
      */
     public void process(final HttpResponse response, final HttpContext context)
             throws HttpException, IOException {
-        if (response == null) {
-            throw new IllegalArgumentException("HTTP response may not be null");
-        }
+        Args.notNull(response, "HTTP response");
         if (this.overwrite) {
             response.removeHeaders(HTTP.TRANSFER_ENCODING);
             response.removeHeaders(HTTP.CONTENT_LEN);

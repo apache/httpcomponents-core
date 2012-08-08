@@ -35,9 +35,10 @@ import org.apache.http.HttpException;
 import org.apache.http.HttpRequest;
 import org.apache.http.HttpRequestInterceptor;
 import org.apache.http.HttpVersion;
-import org.apache.http.ProtocolVersion;
 import org.apache.http.ProtocolException;
+import org.apache.http.ProtocolVersion;
 import org.apache.http.annotation.Immutable;
+import org.apache.http.util.Args;
 
 /**
  * RequestContent is the most important interceptor for outgoing requests.
@@ -81,9 +82,7 @@ public class RequestContent implements HttpRequestInterceptor {
 
     public void process(final HttpRequest request, final HttpContext context)
             throws HttpException, IOException {
-        if (request == null) {
-            throw new IllegalArgumentException("HTTP request may not be null");
-        }
+        Args.notNull(request, "HTTP request");
         if (request instanceof HttpEntityEnclosingRequest) {
             if (this.overwrite) {
                 request.removeHeaders(HTTP.TRANSFER_ENCODING);

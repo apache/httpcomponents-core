@@ -33,6 +33,7 @@ import java.util.NoSuchElementException;
 import org.apache.http.Header;
 import org.apache.http.HeaderIterator;
 import org.apache.http.annotation.NotThreadSafe;
+import org.apache.http.util.Args;
 
 /**
  * Implementation of a {@link HeaderIterator} based on a {@link List}.
@@ -80,12 +81,8 @@ public class BasicListHeaderIterator implements HeaderIterator {
      *                  <code>null</code> for any
      */
     public BasicListHeaderIterator(List<Header> headers, String name) {
-        if (headers == null) {
-            throw new IllegalArgumentException
-                ("Header list must not be null.");
-        }
-
-        this.allHeaders = headers;
+        super();
+        this.allHeaders = Args.notNull(headers, "Header list");
         this.headerName = name;
         this.currentIndex = findNext(-1);
         this.lastIndex = -1;

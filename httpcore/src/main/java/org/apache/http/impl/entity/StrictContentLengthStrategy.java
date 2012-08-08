@@ -35,6 +35,7 @@ import org.apache.http.ProtocolException;
 import org.apache.http.annotation.Immutable;
 import org.apache.http.entity.ContentLengthStrategy;
 import org.apache.http.protocol.HTTP;
+import org.apache.http.util.Args;
 
 /**
  * The strict implementation of the content length strategy. This class
@@ -73,9 +74,7 @@ public class StrictContentLengthStrategy implements ContentLengthStrategy {
     }
 
     public long determineLength(final HttpMessage message) throws HttpException {
-        if (message == null) {
-            throw new IllegalArgumentException("HTTP message may not be null");
-        }
+        Args.notNull(message, "HTTP message");
         // Although Transfer-Encoding is specified as a list, in practice
         // it is either missing or has the single value "chunked". So we
         // treat it as a single-valued header here.

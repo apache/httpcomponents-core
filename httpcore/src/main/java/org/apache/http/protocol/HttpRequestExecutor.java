@@ -41,6 +41,7 @@ import org.apache.http.ProtocolException;
 import org.apache.http.ProtocolVersion;
 import org.apache.http.annotation.Immutable;
 import org.apache.http.params.CoreProtocolPNames;
+import org.apache.http.util.Args;
 
 /**
  * <tt>HttpRequestExecutor</tt> is a client side HTTP protocol handler based
@@ -109,18 +110,10 @@ public class HttpRequestExecutor {
     public HttpResponse execute(
             final HttpRequest request,
             final HttpClientConnection conn,
-            final HttpContext context)
-                throws IOException, HttpException {
-        if (request == null) {
-            throw new IllegalArgumentException("HTTP request may not be null");
-        }
-        if (conn == null) {
-            throw new IllegalArgumentException("Client connection may not be null");
-        }
-        if (context == null) {
-            throw new IllegalArgumentException("HTTP context may not be null");
-        }
-
+            final HttpContext context) throws IOException, HttpException {
+        Args.notNull(request, "HTTP request");
+        Args.notNull(conn, "Client connection");
+        Args.notNull(context, "HTTP context");
         try {
             HttpResponse response = doSendRequest(request, conn, context);
             if (response == null) {
@@ -161,17 +154,10 @@ public class HttpRequestExecutor {
     public void preProcess(
             final HttpRequest request,
             final HttpProcessor processor,
-            final HttpContext context)
-                throws HttpException, IOException {
-        if (request == null) {
-            throw new IllegalArgumentException("HTTP request may not be null");
-        }
-        if (processor == null) {
-            throw new IllegalArgumentException("HTTP processor may not be null");
-        }
-        if (context == null) {
-            throw new IllegalArgumentException("HTTP context may not be null");
-        }
+            final HttpContext context) throws HttpException, IOException {
+        Args.notNull(request, "HTTP request");
+        Args.notNull(processor, "HTTP processor");
+        Args.notNull(context, "HTTP context");
         context.setAttribute(ExecutionContext.HTTP_REQUEST, request);
         processor.process(request, context);
     }
@@ -201,17 +187,10 @@ public class HttpRequestExecutor {
     protected HttpResponse doSendRequest(
             final HttpRequest request,
             final HttpClientConnection conn,
-            final HttpContext context)
-                throws IOException, HttpException {
-        if (request == null) {
-            throw new IllegalArgumentException("HTTP request may not be null");
-        }
-        if (conn == null) {
-            throw new IllegalArgumentException("HTTP connection may not be null");
-        }
-        if (context == null) {
-            throw new IllegalArgumentException("HTTP context may not be null");
-        }
+            final HttpContext context) throws IOException, HttpException {
+        Args.notNull(request, "HTTP request");
+        Args.notNull(conn, "Client connection");
+        Args.notNull(context, "HTTP context");
 
         HttpResponse response = null;
 
@@ -278,20 +257,12 @@ public class HttpRequestExecutor {
      *   problem.
      */
     protected HttpResponse doReceiveResponse(
-            final HttpRequest          request,
+            final HttpRequest request,
             final HttpClientConnection conn,
-            final HttpContext          context)
-                throws HttpException, IOException {
-        if (request == null) {
-            throw new IllegalArgumentException("HTTP request may not be null");
-        }
-        if (conn == null) {
-            throw new IllegalArgumentException("HTTP connection may not be null");
-        }
-        if (context == null) {
-            throw new IllegalArgumentException("HTTP context may not be null");
-        }
-
+            final HttpContext context) throws HttpException, IOException {
+        Args.notNull(request, "HTTP request");
+        Args.notNull(conn, "Client connection");
+        Args.notNull(context, "HTTP context");
         HttpResponse response = null;
         int statuscode = 0;
 
@@ -306,7 +277,6 @@ public class HttpRequestExecutor {
         } // while intermediate response
 
         return response;
-
     }
 
     /**
@@ -330,17 +300,10 @@ public class HttpRequestExecutor {
     public void postProcess(
             final HttpResponse response,
             final HttpProcessor processor,
-            final HttpContext context)
-                throws HttpException, IOException {
-        if (response == null) {
-            throw new IllegalArgumentException("HTTP response may not be null");
-        }
-        if (processor == null) {
-            throw new IllegalArgumentException("HTTP processor may not be null");
-        }
-        if (context == null) {
-            throw new IllegalArgumentException("HTTP context may not be null");
-        }
+            final HttpContext context) throws HttpException, IOException {
+        Args.notNull(response, "HTTP response");
+        Args.notNull(processor, "HTTP processor");
+        Args.notNull(context, "HTTP context");
         context.setAttribute(ExecutionContext.HTTP_RESPONSE, response);
         processor.process(response, context);
     }

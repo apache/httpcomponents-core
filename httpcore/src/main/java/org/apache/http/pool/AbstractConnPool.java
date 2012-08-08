@@ -42,6 +42,7 @@ import java.util.concurrent.locks.ReentrantLock;
 
 import org.apache.http.annotation.ThreadSafe;
 import org.apache.http.concurrent.FutureCallback;
+import org.apache.http.util.Args;
 
 /**
  * Abstract synchronous (blocking) pool of connections.
@@ -79,24 +80,15 @@ public abstract class AbstractConnPool<T, C, E extends PoolEntry<T, C>>
             int defaultMaxPerRoute,
             int maxTotal) {
         super();
-        if (connFactory == null) {
-            throw new IllegalArgumentException("Connection factory may not null");
-        }
-        if (defaultMaxPerRoute <= 0) {
-            throw new IllegalArgumentException("Max per route value may not be negative or zero");
-        }
-        if (maxTotal <= 0) {
-            throw new IllegalArgumentException("Max total value may not be negative or zero");
-        }
+        this.connFactory = Args.notNull(connFactory, "Connection factory");
+        this.defaultMaxPerRoute = Args.notNegative(defaultMaxPerRoute, "Max per route value");
+        this.maxTotal = Args.notNegative(maxTotal, "Max total value");
         this.lock = new ReentrantLock();
-        this.connFactory = connFactory;
         this.routeToPool = new HashMap<T, RouteSpecificPool<T, C, E>>();
         this.leased = new HashSet<E>();
         this.available = new LinkedList<E>();
         this.pending = new LinkedList<PoolEntryFuture<E>>();
         this.maxPerRoute = new HashMap<T, Integer>();
-        this.defaultMaxPerRoute = defaultMaxPerRoute;
-        this.maxTotal = maxTotal;
     }
 
     /**
@@ -160,9 +152,7 @@ public abstract class AbstractConnPool<T, C, E extends PoolEntry<T, C>>
      * returned by this method in order for the lease operation to complete.
      */
     public Future<E> lease(final T route, final Object state, final FutureCallback<E> callback) {
-        if (route == null) {
-            throw new IllegalArgumentException("Route may not be null");
-        }
+        Args.notNull(route, "Route");
         if (this.isShutDown) {
             throw new IllegalStateException("Connection pool shut down");
         }
@@ -339,9 +329,7 @@ public abstract class AbstractConnPool<T, C, E extends PoolEntry<T, C>>
     }
 
     public void setMaxTotal(int max) {
-        if (max <= 0) {
-            throw new IllegalArgumentException("Max value may not be negative or zero");
-        }
+        Args.notNegative(max, "Max value");        
         this.lock.lock();
         try {
             this.maxTotal = max;
@@ -360,9 +348,7 @@ public abstract class AbstractConnPool<T, C, E extends PoolEntry<T, C>>
     }
 
     public void setDefaultMaxPerRoute(int max) {
-        if (max <= 0) {
-            throw new IllegalArgumentException("Max value may not be negative or zero");
-        }
+        Args.notNegative(max, "Max per route value");        
         this.lock.lock();
         try {
             this.defaultMaxPerRoute = max;
@@ -381,12 +367,8 @@ public abstract class AbstractConnPool<T, C, E extends PoolEntry<T, C>>
     }
 
     public void setMaxPerRoute(final T route, int max) {
-        if (route == null) {
-            throw new IllegalArgumentException("Route may not be null");
-        }
-        if (max <= 0) {
-            throw new IllegalArgumentException("Max value may not be negative or zero");
-        }
+        Args.notNull(route, "Route");
+        Args.notNegative(max, "Max per route value");        
         this.lock.lock();
         try {
             this.maxPerRoute.put(route, max);
@@ -396,9 +378,7 @@ public abstract class AbstractConnPool<T, C, E extends PoolEntry<T, C>>
     }
 
     public int getMaxPerRoute(T route) {
-        if (route == null) {
-            throw new IllegalArgumentException("Route may not be null");
-        }
+        Args.notNull(route, "Route");
         this.lock.lock();
         try {
             return getMax(route);
@@ -421,9 +401,7 @@ public abstract class AbstractConnPool<T, C, E extends PoolEntry<T, C>>
     }
 
     public PoolStats getStats(final T route) {
-        if (route == null) {
-            throw new IllegalArgumentException("Route may not be null");
-        }
+        Args.notNull(route, "Route");
         this.lock.lock();
         try {
             RouteSpecificPool<T, C, E> pool = getPool(route);
@@ -445,9 +423,7 @@ public abstract class AbstractConnPool<T, C, E extends PoolEntry<T, C>>
      * @param tunit time unit.
      */
     public void closeIdle(long idletime, final TimeUnit tunit) {
-        if (tunit == null) {
-            throw new IllegalArgumentException("Time unit must not be null.");
-        }
+        Args.notNull(tunit, "Time unit");
         long time = tunit.toMillis(idletime);
         if (time < 0) {
             time = 0;

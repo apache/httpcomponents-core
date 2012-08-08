@@ -33,6 +33,7 @@ import org.apache.http.HeaderIterator;
 import org.apache.http.ParseException;
 import org.apache.http.TokenIterator;
 import org.apache.http.annotation.NotThreadSafe;
+import org.apache.http.util.Args;
 
 /**
  * Basic implementation of a {@link TokenIterator}.
@@ -80,12 +81,8 @@ public class BasicTokenIterator implements TokenIterator {
      * @param headerIterator    the iterator for the headers to tokenize
      */
     public BasicTokenIterator(final HeaderIterator headerIterator) {
-        if (headerIterator == null) {
-            throw new IllegalArgumentException
-                ("Header iterator must not be null.");
-        }
-
-        this.headerIt = headerIterator;
+        super();
+        this.headerIt = Args.notNull(headerIterator, "Header iterator");
         this.searchPos = findNext(-1);
     }
 
@@ -226,11 +223,7 @@ public class BasicTokenIterator implements TokenIterator {
      *          negative if no token start could be found
      */
     protected int findTokenStart(int from) {
-        if (from < 0) {
-            throw new IllegalArgumentException
-                ("Search position must not be negative: " + from);
-        }
-
+        Args.notNegative(from, "Search position");
         boolean found = false;
         while (!found && (this.currentHeader != null)) {
 
@@ -282,11 +275,7 @@ public class BasicTokenIterator implements TokenIterator {
      *         tokens for <tt>#</tt>.
      */
     protected int findTokenSeparator(int from) {
-        if (from < 0) {
-            throw new IllegalArgumentException
-                ("Search position must not be negative: " + from);
-        }
-
+        Args.notNegative(from, "Search position");
         boolean found = false;
         final int to = this.currentHeader.length();
         while (!found && (from < to)) {
@@ -322,11 +311,7 @@ public class BasicTokenIterator implements TokenIterator {
      *          point to a token character in the current header value.
      */
     protected int findTokenEnd(int from) {
-        if (from < 0) {
-            throw new IllegalArgumentException
-                ("Token start position must not be negative: " + from);
-        }
-
+        Args.notNegative(from, "Search position");
         final int to = this.currentHeader.length();
         int end = from+1;
         while ((end < to) && isTokenChar(this.currentHeader.charAt(end))) {

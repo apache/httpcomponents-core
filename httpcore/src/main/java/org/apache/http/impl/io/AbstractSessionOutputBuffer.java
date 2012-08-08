@@ -38,12 +38,13 @@ import java.nio.charset.CodingErrorAction;
 
 import org.apache.http.annotation.NotThreadSafe;
 import org.apache.http.io.BufferInfo;
-import org.apache.http.io.SessionOutputBuffer;
 import org.apache.http.io.HttpTransportMetrics;
+import org.apache.http.io.SessionOutputBuffer;
 import org.apache.http.params.CoreConnectionPNames;
 import org.apache.http.params.HttpParams;
 import org.apache.http.params.HttpProtocolParams;
 import org.apache.http.protocol.HTTP;
+import org.apache.http.util.Args;
 import org.apache.http.util.ByteArrayBuffer;
 import org.apache.http.util.CharArrayBuffer;
 
@@ -93,15 +94,9 @@ public abstract class AbstractSessionOutputBuffer implements SessionOutputBuffer
      * @param params HTTP parameters.
      */
     protected void init(final OutputStream outstream, int buffersize, final HttpParams params) {
-        if (outstream == null) {
-            throw new IllegalArgumentException("Input stream may not be null");
-        }
-        if (buffersize <= 0) {
-            throw new IllegalArgumentException("Buffer size may not be negative or zero");
-        }
-        if (params == null) {
-            throw new IllegalArgumentException("HTTP parameters may not be null");
-        }
+        Args.notNull(outstream, "Input stream");
+        Args.notNegative(buffersize, "Buffer size");
+        Args.notNull(params, "HTTP parameters");
         this.outstream = outstream;
         this.buffer = new ByteArrayBuffer(buffersize);
         this.charset = Charset.forName(HttpProtocolParams.getHttpElementCharset(params));

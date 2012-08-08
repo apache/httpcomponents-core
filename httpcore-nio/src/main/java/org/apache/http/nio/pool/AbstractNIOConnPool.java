@@ -52,6 +52,7 @@ import org.apache.http.pool.ConnPool;
 import org.apache.http.pool.ConnPoolControl;
 import org.apache.http.pool.PoolEntry;
 import org.apache.http.pool.PoolStats;
+import org.apache.http.util.Args;
 
 /**
  * Abstract non-blocking connection pool.
@@ -87,18 +88,10 @@ public abstract class AbstractNIOConnPool<T, C, E extends PoolEntry<T, C>>
             int defaultMaxPerRoute,
             int maxTotal) {
         super();
-        if (ioreactor == null) {
-            throw new IllegalArgumentException("I/O reactor may not be null");
-        }
-        if (connFactory == null) {
-            throw new IllegalArgumentException("Connection factory may not null");
-        }
-        if (defaultMaxPerRoute <= 0) {
-            throw new IllegalArgumentException("Max per route value may not be negative or zero");
-        }
-        if (maxTotal <= 0) {
-            throw new IllegalArgumentException("Max total value may not be negative or zero");
-        }
+        Args.notNull(ioreactor, "I/O reactor");
+        Args.notNull(connFactory, "Connection factory");
+        Args.positive(defaultMaxPerRoute, "Max per route value");
+        Args.positive(maxTotal, "Max total value");
         this.ioreactor = ioreactor;
         this.connFactory = connFactory;
         this.sessionRequestCallback = new InternalSessionRequestCallback();
@@ -173,12 +166,8 @@ public abstract class AbstractNIOConnPool<T, C, E extends PoolEntry<T, C>>
             final T route, final Object state,
             final long connectTimeout, final TimeUnit tunit,
             final FutureCallback<E> callback) {
-        if (route == null) {
-            throw new IllegalArgumentException("Route may not be null");
-        }
-        if (tunit == null) {
-            throw new IllegalArgumentException("Time unit may not be null.");
-        }
+        Args.notNull(route, "Route");
+        Args.notNull(tunit, "Time unit");
         if (this.isShutDown) {
             throw new IllegalStateException("Session pool has been shut down");
         }
@@ -417,9 +406,7 @@ public abstract class AbstractNIOConnPool<T, C, E extends PoolEntry<T, C>>
     }
 
     public void setMaxTotal(int max) {
-        if (max <= 0) {
-            throw new IllegalArgumentException("Max value may not be negative or zero");
-        }
+        Args.positive(max, "Max value");
         this.lock.lock();
         try {
             this.maxTotal = max;
@@ -438,9 +425,7 @@ public abstract class AbstractNIOConnPool<T, C, E extends PoolEntry<T, C>>
     }
 
     public void setDefaultMaxPerRoute(int max) {
-        if (max <= 0) {
-            throw new IllegalArgumentException("Max value may not be negative or zero");
-        }
+        Args.positive(max, "Max value");
         this.lock.lock();
         try {
             this.defaultMaxPerRoute = max;
@@ -459,12 +444,8 @@ public abstract class AbstractNIOConnPool<T, C, E extends PoolEntry<T, C>>
     }
 
     public void setMaxPerRoute(final T route, int max) {
-        if (route == null) {
-            throw new IllegalArgumentException("Route may not be null");
-        }
-        if (max <= 0) {
-            throw new IllegalArgumentException("Max value may not be negative or zero");
-        }
+        Args.notNull(route, "Route");
+        Args.positive(max, "Max value");
         this.lock.lock();
         try {
             this.maxPerRoute.put(route, max);
@@ -474,9 +455,7 @@ public abstract class AbstractNIOConnPool<T, C, E extends PoolEntry<T, C>>
     }
 
     public int getMaxPerRoute(T route) {
-        if (route == null) {
-            throw new IllegalArgumentException("Route may not be null");
-        }
+        Args.notNull(route, "Route");
         this.lock.lock();
         try {
             return getMax(route);
@@ -499,9 +478,7 @@ public abstract class AbstractNIOConnPool<T, C, E extends PoolEntry<T, C>>
     }
 
     public PoolStats getStats(final T route) {
-        if (route == null) {
-            throw new IllegalArgumentException("Route may not be null");
-        }
+        Args.notNull(route, "Route");
         this.lock.lock();
         try {
             RouteSpecificPool<T, C, E> pool = getPool(route);
@@ -516,9 +493,7 @@ public abstract class AbstractNIOConnPool<T, C, E extends PoolEntry<T, C>>
     }
 
     public void closeIdle(long idletime, final TimeUnit tunit) {
-        if (tunit == null) {
-            throw new IllegalArgumentException("Time unit must not be null.");
-        }
+        Args.notNull(tunit, "Time unit");
         long time = tunit.toMillis(idletime);
         if (time < 0) {
             time = 0;

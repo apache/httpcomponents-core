@@ -34,11 +34,12 @@ import org.apache.http.HttpResponse;
 import org.apache.http.HttpVersion;
 import org.apache.http.ParseException;
 import org.apache.http.ProtocolVersion;
-import org.apache.http.protocol.HTTP;
-import org.apache.http.protocol.HttpContext;
 import org.apache.http.TokenIterator;
 import org.apache.http.annotation.Immutable;
 import org.apache.http.message.BasicTokenIterator;
+import org.apache.http.protocol.HTTP;
+import org.apache.http.protocol.HttpContext;
+import org.apache.http.util.Args;
 
 /**
  * Default implementation of a strategy deciding about connection re-use.
@@ -70,12 +71,8 @@ public class DefaultConnectionReuseStrategy implements ConnectionReuseStrategy {
     // see interface ConnectionReuseStrategy
     public boolean keepAlive(final HttpResponse response,
                              final HttpContext context) {
-        if (response == null) {
-            throw new IllegalArgumentException("HTTP response may not be null");
-        }
-        if (context == null) {
-            throw new IllegalArgumentException("HTTP context may not be null");
-        }
+        Args.notNull(response, "HTTP response");
+        Args.notNull(context, "HTTP context");
 
         // Check for a self-terminating entity. If the end of the entity will
         // be indicated by closing the connection, there is no keep-alive.

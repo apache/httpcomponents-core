@@ -39,6 +39,7 @@ import org.apache.http.nio.reactor.IOEventDispatch;
 import org.apache.http.nio.reactor.IOSession;
 import org.apache.http.nio.reactor.ssl.SSLSetupHandler;
 import org.apache.http.params.HttpParams;
+import org.apache.http.util.Args;
 
 /**
  * Default {@link IOEventDispatch} implementation that supports both plain (non-encrypted)
@@ -64,14 +65,8 @@ public class DefaultHttpClientIODispatch
             final NHttpClientEventHandler handler,
             final NHttpConnectionFactory<DefaultNHttpClientConnection> connFactory) {
         super();
-        if (handler == null) {
-            throw new IllegalArgumentException("HTTP client handler may not be null");
-        }
-        if (connFactory == null) {
-            throw new IllegalArgumentException("HTTP client connection factory may not null");
-        }
-        this.handler = handler;
-        this.connFactory = connFactory;
+        this.handler = Args.notNull(handler, "HTTP client handler");
+        this.connFactory = Args.notNull(connFactory, "HTTP client connection factory");
     }
 
     public DefaultHttpClientIODispatch(

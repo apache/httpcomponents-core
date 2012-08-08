@@ -29,6 +29,8 @@ package org.apache.http.impl.nio.reactor;
 
 import java.nio.channels.SelectionKey;
 
+import org.apache.http.util.Args;
+
 /**
  * Helper class, representing an entry on an {@link java.nio.channels.SelectionKey#interestOps(int)
  * interestOps(int)} queue.
@@ -42,9 +44,7 @@ class InterestOpEntry {
 
     public InterestOpEntry(final SelectionKey key, int eventMask) {
         super();
-        if (key == null) {
-            throw new IllegalArgumentException("Selection key may not be null");
-        }
+        Args.notNull(key, "Selection key");
         this.key = key;
         this.eventMask = eventMask;
     }

@@ -41,6 +41,7 @@ import org.apache.http.impl.io.ContentLengthInputStream;
 import org.apache.http.impl.io.IdentityInputStream;
 import org.apache.http.io.SessionInputBuffer;
 import org.apache.http.protocol.HTTP;
+import org.apache.http.util.Args;
 
 /**
  * HTTP entity deserializer.
@@ -65,10 +66,7 @@ public class EntityDeserializer {
 
     public EntityDeserializer(final ContentLengthStrategy lenStrategy) {
         super();
-        if (lenStrategy == null) {
-            throw new IllegalArgumentException("Content length strategy may not be null");
-        }
-        this.lenStrategy = lenStrategy;
+        this.lenStrategy = Args.notNull(lenStrategy, "Content length strategy");
     }
 
     /**
@@ -134,12 +132,8 @@ public class EntityDeserializer {
     public HttpEntity deserialize(
             final SessionInputBuffer inbuffer,
             final HttpMessage message) throws HttpException, IOException {
-        if (inbuffer == null) {
-            throw new IllegalArgumentException("Session input buffer may not be null");
-        }
-        if (message == null) {
-            throw new IllegalArgumentException("HTTP message may not be null");
-        }
+        Args.notNull(inbuffer, "Session input buffer");
+        Args.notNull(message, "HTTP message");
         return doDeserialize(inbuffer, message);
     }
 

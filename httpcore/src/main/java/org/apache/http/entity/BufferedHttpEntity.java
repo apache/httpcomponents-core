@@ -34,6 +34,7 @@ import java.io.OutputStream;
 
 import org.apache.http.HttpEntity;
 import org.apache.http.annotation.NotThreadSafe;
+import org.apache.http.util.Args;
 import org.apache.http.util.EntityUtils;
 
 /**
@@ -106,9 +107,7 @@ public class BufferedHttpEntity extends HttpEntityWrapper {
 
     @Override
     public void writeTo(final OutputStream outstream) throws IOException {
-        if (outstream == null) {
-            throw new IllegalArgumentException("Output stream may not be null");
-        }
+        Args.notNull(outstream, "Output stream");
         if (this.buffer != null) {
             outstream.write(this.buffer);
         } else {

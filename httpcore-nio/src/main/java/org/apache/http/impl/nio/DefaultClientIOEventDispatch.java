@@ -34,14 +34,15 @@ import org.apache.http.HttpResponseFactory;
 import org.apache.http.annotation.Immutable;
 import org.apache.http.impl.DefaultHttpResponseFactory;
 import org.apache.http.impl.nio.reactor.AbstractIODispatch;
-import org.apache.http.nio.NHttpClientIOTarget;
 import org.apache.http.nio.NHttpClientHandler;
+import org.apache.http.nio.NHttpClientIOTarget;
 import org.apache.http.nio.reactor.IOEventDispatch;
 import org.apache.http.nio.reactor.IOSession;
 import org.apache.http.nio.util.ByteBufferAllocator;
 import org.apache.http.nio.util.HeapByteBufferAllocator;
 import org.apache.http.params.HttpConnectionParams;
 import org.apache.http.params.HttpParams;
+import org.apache.http.util.Args;
 
 /**
  * Default implementation of {@link IOEventDispatch} interface for plain
@@ -80,12 +81,8 @@ public class DefaultClientIOEventDispatch extends AbstractIODispatch<NHttpClient
             final NHttpClientHandler handler,
             final HttpParams params) {
         super();
-        if (handler == null) {
-            throw new IllegalArgumentException("HTTP client handler may not be null");
-        }
-        if (params == null) {
-            throw new IllegalArgumentException("HTTP parameters may not be null");
-        }
+        Args.notNull(handler, "HTTP client handler");
+        Args.notNull(params, "HTTP parameters");
         this.allocator = createByteBufferAllocator();
         this.handler = handler;
         this.params = params;

@@ -34,6 +34,7 @@ import java.nio.channels.SelectionKey;
 
 import org.apache.http.annotation.ThreadSafe;
 import org.apache.http.nio.reactor.ListenerEndpoint;
+import org.apache.http.util.Args;
 
 /**
  * Default implementation of {@link ListenerEndpoint}.
@@ -55,9 +56,7 @@ public class ListenerEndpointImpl implements ListenerEndpoint {
             final SocketAddress address,
             final ListenerEndpointClosedCallback callback) {
         super();
-        if (address == null) {
-            throw new IllegalArgumentException("Address may not be null");
-        }
+        Args.notNull(address, "Address");
         this.address = address;
         this.callback = callback;
     }
@@ -86,9 +85,7 @@ public class ListenerEndpointImpl implements ListenerEndpoint {
     }
 
     public void completed(final SocketAddress address) {
-        if (address == null) {
-            throw new IllegalArgumentException("Address may not be null");
-        }
+        Args.notNull(address, "Address");
         if (this.completed) {
             return;
         }

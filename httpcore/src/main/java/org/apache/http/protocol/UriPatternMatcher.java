@@ -33,6 +33,7 @@ import java.util.Map;
 
 import org.apache.http.annotation.GuardedBy;
 import org.apache.http.annotation.ThreadSafe;
+import org.apache.http.util.Args;
 
 /**
  * Maintains a map of objects keyed by a request URI pattern.
@@ -67,9 +68,7 @@ public class UriPatternMatcher<T> {
      * @param obj the object.
      */
     public synchronized void register(final String pattern, final T obj) {
-        if (pattern == null) {
-            throw new IllegalArgumentException("URI request pattern may not be null");
-        }
+        Args.notNull(pattern, "URI request pattern");
         this.map.put(pattern, obj);
     }
 
@@ -90,9 +89,7 @@ public class UriPatternMatcher<T> {
      */
     @Deprecated
     public synchronized void setHandlers(final Map<String, T> map) {
-        if (map == null) {
-            throw new IllegalArgumentException("Map of handlers may not be null");
-        }
+        Args.notNull(map, "Map of handlers");
         this.map.clear();
         this.map.putAll(map);
     }
@@ -102,9 +99,7 @@ public class UriPatternMatcher<T> {
      * @param map the map containing objects keyed by their URI patterns.
      */
     public synchronized void setObjects(final Map<String, T> map) {
-        if (map == null) {
-            throw new IllegalArgumentException("Map of handlers may not be null");
-        }
+        Args.notNull(map, "Map of handlers");
         this.map.clear();
         this.map.putAll(map);
     }
@@ -126,9 +121,7 @@ public class UriPatternMatcher<T> {
      * @return object or <code>null</code> if no match is found.
      */
     public synchronized T lookup(String requestURI) {
-        if (requestURI == null) {
-            throw new IllegalArgumentException("Request URI may not be null");
-        }
+        Args.notNull(requestURI, "Request URI");
         //Strip away the query part part if found
         int index = requestURI.indexOf("?");
         if (index != -1) {

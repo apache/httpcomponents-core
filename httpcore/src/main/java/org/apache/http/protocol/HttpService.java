@@ -44,8 +44,9 @@ import org.apache.http.ProtocolException;
 import org.apache.http.UnsupportedHttpVersionException;
 import org.apache.http.annotation.Immutable;
 import org.apache.http.entity.ByteArrayEntity;
-import org.apache.http.params.HttpParams;
 import org.apache.http.params.DefaultedHttpParams;
+import org.apache.http.params.HttpParams;
+import org.apache.http.util.Args;
 import org.apache.http.util.EncodingUtils;
 import org.apache.http.util.EntityUtils;
 
@@ -101,24 +102,12 @@ public class HttpService {
             final HttpExpectationVerifier expectationVerifier,
             final HttpParams params) {
         super();
-        if (processor == null) {
-            throw new IllegalArgumentException("HTTP processor may not be null");
-        }
-        if (connStrategy == null) {
-            throw new IllegalArgumentException("Connection reuse strategy may not be null");
-        }
-        if (responseFactory == null) {
-            throw new IllegalArgumentException("Response factory may not be null");
-        }
-        if (params == null) {
-            throw new IllegalArgumentException("HTTP parameters may not be null");
-        }
-        this.processor = processor;
-        this.connStrategy = connStrategy;
-        this.responseFactory = responseFactory;
+        this.processor =  Args.notNull(processor, "HTTP processor");
+        this.connStrategy =  Args.notNull(connStrategy, "Connection reuse strategy");
+        this.responseFactory =  Args.notNull(responseFactory, "Response factory");
+        this.params = Args.notNull(params, "HTTP parameters");
         this.handlerResolver = handlerResolver;
         this.expectationVerifier = expectationVerifier;
-        this.params = params;
     }
 
     /**
@@ -167,9 +156,7 @@ public class HttpService {
      */
     @Deprecated
     public void setHttpProcessor(final HttpProcessor processor) {
-        if (processor == null) {
-            throw new IllegalArgumentException("HTTP processor may not be null");
-        }
+        Args.notNull(processor, "HTTP processor");
         this.processor = processor;
     }
 
@@ -178,9 +165,7 @@ public class HttpService {
      */
     @Deprecated
     public void setConnReuseStrategy(final ConnectionReuseStrategy connStrategy) {
-        if (connStrategy == null) {
-            throw new IllegalArgumentException("Connection reuse strategy may not be null");
-        }
+        Args.notNull(connStrategy, "Connection reuse strategy");
         this.connStrategy = connStrategy;
     }
 
@@ -189,9 +174,7 @@ public class HttpService {
      */
     @Deprecated
     public void setResponseFactory(final HttpResponseFactory responseFactory) {
-        if (responseFactory == null) {
-            throw new IllegalArgumentException("Response factory may not be null");
-        }
+        Args.notNull(responseFactory, "Response factory");
         this.responseFactory = responseFactory;
     }
 

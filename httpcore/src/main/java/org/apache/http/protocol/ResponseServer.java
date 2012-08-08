@@ -34,6 +34,7 @@ import org.apache.http.HttpResponse;
 import org.apache.http.HttpResponseInterceptor;
 import org.apache.http.annotation.Immutable;
 import org.apache.http.params.CoreProtocolPNames;
+import org.apache.http.util.Args;
 
 /**
  * ResponseServer is responsible for adding <code>Server</code> header. This
@@ -56,9 +57,7 @@ public class ResponseServer implements HttpResponseInterceptor {
 
     public void process(final HttpResponse response, final HttpContext context)
             throws HttpException, IOException {
-        if (response == null) {
-            throw new IllegalArgumentException("HTTP request may not be null");
-        }
+        Args.notNull(response, "HTTP response");
         if (!response.containsHeader(HTTP.SERVER_HEADER)) {
             String s = (String) response.getParams().getParameter(
                     CoreProtocolPNames.ORIGIN_SERVER);

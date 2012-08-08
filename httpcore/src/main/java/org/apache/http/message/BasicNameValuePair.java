@@ -31,6 +31,7 @@ import java.io.Serializable;
 
 import org.apache.http.NameValuePair;
 import org.apache.http.annotation.Immutable;
+import org.apache.http.util.Args;
 import org.apache.http.util.LangUtils;
 
 /**
@@ -54,10 +55,7 @@ public class BasicNameValuePair implements NameValuePair, Cloneable, Serializabl
      */
     public BasicNameValuePair(final String name, final String value) {
         super();
-        if (name == null) {
-            throw new IllegalArgumentException("Name may not be null");
-        }
-        this.name = name;
+        this.name = Args.notNull(name, "Name");
         this.value = value;
     }
 

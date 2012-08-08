@@ -27,12 +27,13 @@
 
 package org.apache.http.message;
 
+import org.apache.http.FormattedHeader;
+import org.apache.http.Header;
 import org.apache.http.ProtocolVersion;
 import org.apache.http.RequestLine;
 import org.apache.http.StatusLine;
-import org.apache.http.Header;
-import org.apache.http.FormattedHeader;
 import org.apache.http.annotation.Immutable;
+import org.apache.http.util.Args;
 import org.apache.http.util.CharArrayBuffer;
 
 /**
@@ -107,11 +108,7 @@ public class BasicLineFormatter implements LineFormatter {
     // non-javadoc, see interface LineFormatter
     public CharArrayBuffer appendProtocolVersion(final CharArrayBuffer buffer,
                                                  final ProtocolVersion version) {
-        if (version == null) {
-            throw new IllegalArgumentException
-                ("Protocol version may not be null");
-        }
-
+        Args.notNull(version, "Protocol version");
         // can't use initBuffer, that would clear the argument!
         CharArrayBuffer result = buffer;
         final int len = estimateProtocolVersionLen(version);
@@ -166,11 +163,7 @@ public class BasicLineFormatter implements LineFormatter {
     // non-javadoc, see interface LineFormatter
     public CharArrayBuffer formatRequestLine(CharArrayBuffer buffer,
                                              RequestLine reqline) {
-        if (reqline == null) {
-            throw new IllegalArgumentException
-                ("Request line may not be null");
-        }
-
+        Args.notNull(reqline, "Request line");
         CharArrayBuffer result = initBuffer(buffer);
         doFormatRequestLine(result, reqline);
 
@@ -226,11 +219,7 @@ public class BasicLineFormatter implements LineFormatter {
     // non-javadoc, see interface LineFormatter
     public CharArrayBuffer formatStatusLine(final CharArrayBuffer buffer,
                                             final StatusLine statline) {
-        if (statline == null) {
-            throw new IllegalArgumentException
-                ("Status line may not be null");
-        }
-
+        Args.notNull(statline, "Status line");
         CharArrayBuffer result = initBuffer(buffer);
         doFormatStatusLine(result, statline);
 
@@ -288,10 +277,7 @@ public class BasicLineFormatter implements LineFormatter {
     // non-javadoc, see interface LineFormatter
     public CharArrayBuffer formatHeader(CharArrayBuffer buffer,
                                         Header header) {
-        if (header == null) {
-            throw new IllegalArgumentException
-                ("Header may not be null");
-        }
+        Args.notNull(header, "Header");
         CharArrayBuffer result = null;
 
         if (header instanceof FormattedHeader) {
