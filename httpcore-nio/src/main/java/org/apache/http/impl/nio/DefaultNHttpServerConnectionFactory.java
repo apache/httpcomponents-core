@@ -34,7 +34,7 @@ import org.apache.http.nio.NHttpServerConnection;
 import org.apache.http.nio.reactor.IOSession;
 import org.apache.http.nio.util.ByteBufferAllocator;
 import org.apache.http.nio.util.HeapByteBufferAllocator;
-import org.apache.http.params.HttpConnectionParams;
+import org.apache.http.params.CoreConnectionPNames;
 import org.apache.http.params.HttpParams;
 import org.apache.http.util.Args;
 
@@ -89,7 +89,7 @@ public class DefaultNHttpServerConnectionFactory
     public DefaultNHttpServerConnection createConnection(final IOSession session) {
         DefaultNHttpServerConnection conn = createConnection(
                 session, this.requestFactory, this.allocator, this.params);
-        int timeout = HttpConnectionParams.getSoTimeout(this.params);
+        int timeout = this.params.getIntParameter(CoreConnectionPNames.SO_TIMEOUT, 0);
         conn.setSocketTimeout(timeout);
         return conn;
     }

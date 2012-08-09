@@ -31,7 +31,10 @@ import org.apache.http.util.Args;
 
 /**
  * @since 4.0
+ * 
+ * @deprecated (4.3) do not use
  */
+@Deprecated
 public abstract class HttpAbstractParamBean {
 
     protected final HttpParams params;

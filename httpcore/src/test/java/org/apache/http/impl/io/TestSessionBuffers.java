@@ -40,8 +40,8 @@ import org.apache.http.impl.SessionOutputBufferMock;
 import org.apache.http.io.HttpTransportMetrics;
 import org.apache.http.params.BasicHttpParams;
 import org.apache.http.params.CoreConnectionPNames;
+import org.apache.http.params.HttpCoreConfigBuilder;
 import org.apache.http.params.HttpParams;
-import org.apache.http.params.HttpProtocolParams;
 import org.apache.http.util.CharArrayBuffer;
 import org.junit.Assert;
 import org.junit.Test;
@@ -438,8 +438,7 @@ public class TestSessionBuffers {
         String s2 = constructString(RUSSIAN_HELLO);
         String s3 = "Like hello and stuff";
 
-        HttpParams params = new BasicHttpParams();
-        HttpProtocolParams.setHttpElementCharset(params, "UTF-8");
+        HttpParams params = new HttpCoreConfigBuilder().setHttpElementCharset("UTF-8").build();
 
         SessionOutputBufferMock outbuffer = new SessionOutputBufferMock(params);
 
@@ -487,8 +486,7 @@ public class TestSessionBuffers {
         }
         String s = buf.toString();
 
-        HttpParams params = new BasicHttpParams();
-        HttpProtocolParams.setHttpElementCharset(params, "UTF-8");
+        HttpParams params = new HttpCoreConfigBuilder().setHttpElementCharset("UTF-8").build();
 
         SessionOutputBufferMock outbuffer = new SessionOutputBufferMock(params);
 
@@ -507,8 +505,7 @@ public class TestSessionBuffers {
     public void testNonAsciiReadWriteLine() throws Exception {
         String s1 = constructString(SWISS_GERMAN_HELLO);
 
-        HttpParams params = new BasicHttpParams();
-        HttpProtocolParams.setHttpElementCharset(params, Consts.ISO_8859_1.name());
+        HttpParams params = new HttpCoreConfigBuilder().setHttpElementCharset("ISO-8859-1").build();
 
         SessionOutputBufferMock outbuffer = new SessionOutputBufferMock(params);
 
@@ -531,7 +528,6 @@ public class TestSessionBuffers {
         SessionInputBufferMock inbuffer = new SessionInputBufferMock(
                 outbuffer.getData(),
                 params);
-        HttpProtocolParams.setHttpElementCharset(params, Consts.ISO_8859_1.name());
 
         CharArrayBuffer buf = new CharArrayBuffer(64);
         for (int i = 0; i < 10; i++) {
@@ -550,12 +546,14 @@ public class TestSessionBuffers {
 
     @Test
     public void testUnmappableInputAction() throws Exception {
-        BasicHttpParams params = new BasicHttpParams();
         String s = "In valid ISO-8859-1 character string because  of Ŵ and ŵ";
-        HttpProtocolParams.setHttpElementCharset(params, Consts.ISO_8859_1.name());
-
+        
         // Action with report
-        HttpProtocolParams.setUnmappableInputAction(params, CodingErrorAction.REPORT);
+        HttpParams params = new HttpCoreConfigBuilder()
+            .setHttpElementCharset("ISO-8859-1")
+            .setUnmappableInputAction(CodingErrorAction.REPORT)
+            .build();
+
         SessionOutputBufferMock outbuf = new SessionOutputBufferMock(params);
         try {
             outbuf.writeLine(s);
@@ -564,7 +562,10 @@ public class TestSessionBuffers {
         }
 
         // Action with ignore
-        HttpProtocolParams.setUnmappableInputAction(params, CodingErrorAction.IGNORE);
+        params = new HttpCoreConfigBuilder()
+            .setHttpElementCharset("ISO-8859-1")
+            .setUnmappableInputAction(CodingErrorAction.IGNORE)
+            .build();
         outbuf = new SessionOutputBufferMock(params);
         try {
             outbuf.writeLine(s);
@@ -573,7 +574,10 @@ public class TestSessionBuffers {
         }
 
         // Action with replace
-        HttpProtocolParams.setUnmappableInputAction(params, CodingErrorAction.REPLACE);
+        params = new HttpCoreConfigBuilder()
+            .setHttpElementCharset("ISO-8859-1")
+            .setUnmappableInputAction(CodingErrorAction.REPLACE)
+            .build();
         outbuf = new SessionOutputBufferMock(params);
         try {
             outbuf.writeLine(s);
@@ -587,11 +591,11 @@ public class TestSessionBuffers {
         byte[] tmp = constructString(SWISS_GERMAN_HELLO).getBytes("UTF-16");
         CharArrayBuffer buf = new CharArrayBuffer(1);
 
-        BasicHttpParams params = new BasicHttpParams();
-        HttpProtocolParams.setHttpElementCharset(params, "UTF-8");
-
         // Action with report
-        HttpProtocolParams.setMalformedInputAction(params, CodingErrorAction.REPORT);
+        HttpParams params = new HttpCoreConfigBuilder()
+            .setHttpElementCharset("UTF-8")
+            .setMalformedInputAction(CodingErrorAction.REPORT)
+            .build();
         SessionInputBufferMock inbuffer = new SessionInputBufferMock(tmp, params);
         try {
             inbuffer.readLine(buf);
@@ -600,7 +604,10 @@ public class TestSessionBuffers {
         }
 
         // Action with replace
-        HttpProtocolParams.setMalformedInputAction(params, CodingErrorAction.REPLACE);
+        params = new HttpCoreConfigBuilder()
+            .setHttpElementCharset("UTF-8")
+            .setMalformedInputAction(CodingErrorAction.REPLACE)
+            .build();
         inbuffer = new SessionInputBufferMock(tmp, params);
         try {
             inbuffer.readLine(buf);
@@ -609,7 +616,10 @@ public class TestSessionBuffers {
         }
 
         // Action with ignore
-        HttpProtocolParams.setMalformedInputAction(params, CodingErrorAction.IGNORE);
+        params = new HttpCoreConfigBuilder()
+            .setHttpElementCharset("UTF-8")
+            .setMalformedInputAction(CodingErrorAction.IGNORE)
+            .build();
         inbuffer = new SessionInputBufferMock(tmp, params);
         try {
             inbuffer.readLine();

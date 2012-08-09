@@ -28,11 +28,12 @@
 package org.apache.http.message;
 
 import org.apache.http.HttpRequest;
+import org.apache.http.HttpVersion;
 import org.apache.http.ProtocolVersion;
 import org.apache.http.RequestLine;
 import org.apache.http.annotation.NotThreadSafe;
+import org.apache.http.params.CoreProtocolPNames;
 import org.apache.http.params.HttpParams;
-import org.apache.http.params.HttpProtocolParams;
 import org.apache.http.util.Args;
 
 /**
@@ -115,8 +116,10 @@ public class BasicHttpRequest extends AbstractHttpMessage implements HttpRequest
      */
     public RequestLine getRequestLine() {
         if (this.requestline == null) {
-            ProtocolVersion ver = HttpProtocolParams.getVersion(getParams());
-            this.requestline = new BasicRequestLine(this.method, this.uri, ver);
+            ProtocolVersion ver = (ProtocolVersion) getParams().getParameter
+                    (CoreProtocolPNames.PROTOCOL_VERSION);
+            this.requestline = new BasicRequestLine(this.method, this.uri, 
+                    ver != null ? ver : HttpVersion.HTTP_1_1);
         }
         return this.requestline;
     }

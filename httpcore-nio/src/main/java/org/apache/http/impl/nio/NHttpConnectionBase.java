@@ -70,7 +70,7 @@ import org.apache.http.nio.reactor.SessionInputBuffer;
 import org.apache.http.nio.reactor.SessionOutputBuffer;
 import org.apache.http.nio.reactor.SocketAccessor;
 import org.apache.http.nio.util.ByteBufferAllocator;
-import org.apache.http.params.HttpConnectionParams;
+import org.apache.http.params.CoreConnectionPNames;
 import org.apache.http.params.HttpParams;
 import org.apache.http.protocol.HTTP;
 import org.apache.http.protocol.HttpContext;
@@ -131,7 +131,7 @@ public class NHttpConnectionBase
         Args.notNull(session, "I/O session");
         Args.notNull(params, "HTTP params");
 
-        int buffersize = HttpConnectionParams.getSocketBufferSize(params);
+        int buffersize = params.getIntParameter(CoreConnectionPNames.SOCKET_BUFFER_SIZE, -1);
         if (buffersize <= 0) {
             buffersize = 4096;
         }

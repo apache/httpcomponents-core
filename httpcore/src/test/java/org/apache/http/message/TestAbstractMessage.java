@@ -29,10 +29,11 @@ package org.apache.http.message;
 
 import org.apache.http.Header;
 import org.apache.http.HttpMessage;
+import org.apache.http.HttpVersion;
 import org.apache.http.ProtocolVersion;
 import org.apache.http.params.BasicHttpParams;
+import org.apache.http.params.CoreProtocolPNames;
 import org.apache.http.params.HttpParams;
-import org.apache.http.params.HttpProtocolParams;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -49,7 +50,9 @@ public class TestAbstractMessage {
         }
 
         public ProtocolVersion getProtocolVersion() {
-            return HttpProtocolParams.getVersion(this.getParams());
+            ProtocolVersion ver = (ProtocolVersion) getParams().getParameter(
+                    CoreProtocolPNames.PROTOCOL_VERSION);
+            return ver != null ? ver : HttpVersion.HTTP_1_1;
         }
 
     }

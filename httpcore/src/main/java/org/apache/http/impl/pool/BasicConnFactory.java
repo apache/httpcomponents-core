@@ -36,7 +36,7 @@ import org.apache.http.HttpClientConnection;
 import org.apache.http.HttpHost;
 import org.apache.http.annotation.Immutable;
 import org.apache.http.impl.DefaultHttpClientConnection;
-import org.apache.http.params.HttpConnectionParams;
+import org.apache.http.params.CoreConnectionPNames;
 import org.apache.http.params.HttpParams;
 import org.apache.http.pool.ConnFactory;
 import org.apache.http.util.Args;
@@ -94,8 +94,8 @@ public class BasicConnFactory implements ConnFactory<HttpHost, HttpClientConnect
         if (socket == null) {
             throw new IOException(scheme + " scheme is not supported");
         }
-        int connectTimeout = HttpConnectionParams.getConnectionTimeout(this.params);
-        int soTimeout = HttpConnectionParams.getSoTimeout(this.params);
+        int connectTimeout = params.getIntParameter(CoreConnectionPNames.CONNECTION_TIMEOUT, 0);
+        int soTimeout = params.getIntParameter(CoreConnectionPNames.SO_TIMEOUT, 0);
 
         socket.setSoTimeout(soTimeout);
         socket.connect(new InetSocketAddress(host.getHostName(), host.getPort()), connectTimeout);

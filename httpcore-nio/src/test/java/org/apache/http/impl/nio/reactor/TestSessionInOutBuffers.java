@@ -40,8 +40,8 @@ import java.nio.charset.CodingErrorAction;
 import org.apache.http.nio.reactor.SessionInputBuffer;
 import org.apache.http.nio.reactor.SessionOutputBuffer;
 import org.apache.http.params.BasicHttpParams;
+import org.apache.http.params.HttpCoreConfigBuilder;
 import org.apache.http.params.HttpParams;
-import org.apache.http.params.HttpProtocolParams;
 import org.apache.http.util.CharArrayBuffer;
 import org.junit.Assert;
 import org.junit.Test;
@@ -417,8 +417,9 @@ public class TestSessionInOutBuffers {
         String s2 = constructString(RUSSIAN_HELLO);
         String s3 = "Like hello and stuff";
 
-        HttpParams params = new BasicHttpParams();
-        HttpProtocolParams.setHttpElementCharset(params, "UTF-8");
+        HttpParams params = new HttpCoreConfigBuilder()
+            .setHttpElementCharset("UTF-8")
+            .build();
 
         SessionOutputBuffer outbuf = new SessionOutputBufferImpl(1024, 16, params);
 
@@ -481,17 +482,17 @@ public class TestSessionInOutBuffers {
 
     @Test
     public void testMalformedInputAction() throws Exception {
-        HttpParams params = new BasicHttpParams();
         String s1 = constructString(SWISS_GERMAN_HELLO);
-
         byte[] tmp = s1.getBytes("ISO-8859-1");
-        ReadableByteChannel channel = newChannel(tmp);
-        SessionInputBuffer inbuf = new SessionInputBufferImpl(16, 16, params);
-        while (inbuf.fill(channel) > 0) {
-        }
 
         // Action with report
-        HttpProtocolParams.setMalformedInputAction(params, CodingErrorAction.REPORT);
+        HttpParams params = new HttpCoreConfigBuilder()
+            .setMalformedInputAction(CodingErrorAction.REPORT)
+            .build();
+        SessionInputBuffer inbuf = new SessionInputBufferImpl(16, 16, params);
+        ReadableByteChannel channel = newChannel(tmp);
+        while (inbuf.fill(channel) > 0) {
+        }
         try {
             String s = inbuf.readLine(true);
             Assert.fail("Expected CharacterCodingException, got '" + s + "'");
@@ -499,35 +500,36 @@ public class TestSessionInOutBuffers {
         }
 
         // Action with ignore
-        HttpProtocolParams.setMalformedInputAction(params, CodingErrorAction.IGNORE);
+        params = new HttpCoreConfigBuilder()
+            .setMalformedInputAction(CodingErrorAction.IGNORE)
+            .build();
         inbuf = new SessionInputBufferImpl(16, 16, params);
-        String s2 = null;
-        try {
-            s2 = inbuf.readLine(true);
-        } catch (CharacterCodingException e) {
-            Assert.fail("Unexpected CharacterCodingException " +
-                    (s2 == null ? "" : ", got '" + s2 + "'"));
+        channel = newChannel(tmp);
+        while (inbuf.fill(channel) > 0) {
         }
+        String s2 = inbuf.readLine(true);
+        Assert.assertEquals("Grezi_zm", s2);
 
         // Action with replace
-        HttpProtocolParams.setMalformedInputAction(params, CodingErrorAction.REPLACE);
+        params = new HttpCoreConfigBuilder()
+            .setMalformedInputAction(CodingErrorAction.REPLACE)
+            .build();
         inbuf = new SessionInputBufferImpl(16, 16, params);
-        String s3 = null;
-        try {
-            s3 = inbuf.readLine(true);
-        } catch (CharacterCodingException e) {
-            Assert.fail("Unexpected CharacterCodingException " +
-                    (s3 == null ? "" : ", got '" + s3 + "'"));
+        channel = newChannel(tmp);
+        while (inbuf.fill(channel) > 0) {
         }
+        String s3 = inbuf.readLine(true);
+        Assert.assertEquals("Gr\ufffdezi_z\ufffdm\ufffd", s3);
     }
 
     @Test
     public void testUnmappableInputAction() throws Exception {
-        HttpParams params = new BasicHttpParams();
         String s1 = constructString(SWISS_GERMAN_HELLO);
 
         // Action with report
-        HttpProtocolParams.setUnmappableInputAction(params, CodingErrorAction.REPORT);
+        HttpParams params = new HttpCoreConfigBuilder()
+            .setUnmappableInputAction(CodingErrorAction.REPORT)
+            .build();
         SessionOutputBuffer outbuf = new SessionOutputBufferImpl(1024, 16, params);
         try {
             outbuf.writeLine(s1);
@@ -536,7 +538,9 @@ public class TestSessionInOutBuffers {
         }
 
         // Action with ignore
-        HttpProtocolParams.setUnmappableInputAction(params, CodingErrorAction.IGNORE);
+        params = new HttpCoreConfigBuilder()
+            .setUnmappableInputAction(CodingErrorAction.IGNORE)
+            .build();
         outbuf = new SessionOutputBufferImpl(1024, 16, params);
         try {
             outbuf.writeLine(s1);
@@ -545,7 +549,9 @@ public class TestSessionInOutBuffers {
         }
 
         // Action with replace
-        HttpProtocolParams.setUnmappableInputAction(params, CodingErrorAction.REPLACE);
+        params = new HttpCoreConfigBuilder()
+            .setUnmappableInputAction(CodingErrorAction.REPLACE)
+            .build();
         outbuf = new SessionOutputBufferImpl(1024, 16, params);
         try {
             outbuf.writeLine(s1);

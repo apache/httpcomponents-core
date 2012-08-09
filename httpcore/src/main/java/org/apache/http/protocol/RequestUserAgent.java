@@ -33,7 +33,8 @@ import org.apache.http.HttpException;
 import org.apache.http.HttpRequest;
 import org.apache.http.HttpRequestInterceptor;
 import org.apache.http.annotation.Immutable;
-import org.apache.http.params.HttpProtocolParams;
+import org.apache.http.params.CoreProtocolPNames;
+import org.apache.http.params.HttpParams;
 import org.apache.http.util.Args;
 
 /**
@@ -59,7 +60,8 @@ public class RequestUserAgent implements HttpRequestInterceptor {
         throws HttpException, IOException {
         Args.notNull(request, "HTTP request");
         if (!request.containsHeader(HTTP.USER_AGENT)) {
-            String useragent = HttpProtocolParams.getUserAgent(request.getParams());
+            HttpParams params = request.getParams();
+            String useragent = (String) params.getParameter(CoreProtocolPNames.USER_AGENT);
             if (useragent != null) {
                 request.addHeader(HTTP.USER_AGENT, useragent);
             }

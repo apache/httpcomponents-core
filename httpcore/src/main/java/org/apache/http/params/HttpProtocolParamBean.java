@@ -35,7 +35,10 @@ import org.apache.http.HttpVersion;
  * conventions.
  *
  * @since 4.0
+ * 
+ * @deprecated (4.3) use {@link HttpCoreConfigBuilder}
  */
+@Deprecated
 public class HttpProtocolParamBean extends HttpAbstractParamBean {
 
     public HttpProtocolParamBean (final HttpParams params) {

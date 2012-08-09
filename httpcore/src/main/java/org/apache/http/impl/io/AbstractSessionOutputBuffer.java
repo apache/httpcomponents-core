@@ -36,13 +36,14 @@ import java.nio.charset.CharsetEncoder;
 import java.nio.charset.CoderResult;
 import java.nio.charset.CodingErrorAction;
 
+import org.apache.http.Consts;
 import org.apache.http.annotation.NotThreadSafe;
 import org.apache.http.io.BufferInfo;
 import org.apache.http.io.HttpTransportMetrics;
 import org.apache.http.io.SessionOutputBuffer;
 import org.apache.http.params.CoreConnectionPNames;
+import org.apache.http.params.CoreProtocolPNames;
 import org.apache.http.params.HttpParams;
-import org.apache.http.params.HttpProtocolParams;
 import org.apache.http.protocol.HTTP;
 import org.apache.http.util.Args;
 import org.apache.http.util.ByteArrayBuffer;
@@ -99,13 +100,18 @@ public abstract class AbstractSessionOutputBuffer implements SessionOutputBuffer
         Args.notNull(params, "HTTP parameters");
         this.outstream = outstream;
         this.buffer = new ByteArrayBuffer(buffersize);
-        this.charset = Charset.forName(HttpProtocolParams.getHttpElementCharset(params));
+        String charset = (String) params.getParameter(CoreProtocolPNames.HTTP_ELEMENT_CHARSET);
+        this.charset = charset != null ? Charset.forName(charset) : Consts.ASCII;
         this.ascii = this.charset.equals(ASCII);
         this.encoder = null;
         this.minChunkLimit = params.getIntParameter(CoreConnectionPNames.MIN_CHUNK_LIMIT, 512);
         this.metrics = createTransportMetrics();
-        this.onMalformedInputAction = HttpProtocolParams.getMalformedInputAction(params);
-        this.onUnMappableInputAction = HttpProtocolParams.getUnmappableInputAction(params);
+        CodingErrorAction a1 = (CodingErrorAction) params.getParameter(
+                CoreProtocolPNames.HTTP_MALFORMED_INPUT_ACTION);
+        this.onMalformedInputAction = a1 != null ? a1 : CodingErrorAction.REPORT;
+        CodingErrorAction a2 = (CodingErrorAction) params.getParameter(
+                CoreProtocolPNames.HTTP_UNMAPPABLE_INPUT_ACTION);
+        this.onUnMappableInputAction = a2 != null? a2 : CodingErrorAction.REPORT;
     }
 
     /**

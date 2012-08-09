@@ -36,14 +36,16 @@ import java.nio.charset.CharacterCodingException;
 import java.nio.charset.Charset;
 import java.nio.charset.CharsetEncoder;
 import java.nio.charset.CoderResult;
+import java.nio.charset.CodingErrorAction;
 
+import org.apache.http.Consts;
 import org.apache.http.annotation.NotThreadSafe;
 import org.apache.http.nio.reactor.SessionOutputBuffer;
 import org.apache.http.nio.util.ByteBufferAllocator;
 import org.apache.http.nio.util.ExpandableBuffer;
 import org.apache.http.nio.util.HeapByteBufferAllocator;
+import org.apache.http.params.CoreProtocolPNames;
 import org.apache.http.params.HttpParams;
-import org.apache.http.params.HttpProtocolParams;
 import org.apache.http.protocol.HTTP;
 import org.apache.http.util.Args;
 import org.apache.http.util.CharArrayBuffer;
@@ -76,10 +78,15 @@ public class SessionOutputBufferImpl extends ExpandableBuffer implements Session
             final HttpParams params) {
         super(buffersize, allocator);
         this.charbuffer = CharBuffer.allocate(linebuffersize);
-        this.charset = Charset.forName(HttpProtocolParams.getHttpElementCharset(params));
+        String charset = (String) params.getParameter(CoreProtocolPNames.HTTP_ELEMENT_CHARSET);
+        this.charset = charset != null ? Charset.forName(charset) : Consts.ASCII;
         this.charencoder = this.charset.newEncoder();
-        this.charencoder.onMalformedInput(HttpProtocolParams.getMalformedInputAction(params));
-        this.charencoder.onUnmappableCharacter(HttpProtocolParams.getUnmappableInputAction(params));
+        CodingErrorAction a1 = (CodingErrorAction) params.getParameter(
+                CoreProtocolPNames.HTTP_MALFORMED_INPUT_ACTION);
+        this.charencoder.onMalformedInput(a1 != null ? a1 : CodingErrorAction.REPORT);
+        CodingErrorAction a2 = (CodingErrorAction) params.getParameter(
+                CoreProtocolPNames.HTTP_UNMAPPABLE_INPUT_ACTION);
+        this.charencoder.onUnmappableCharacter(a2 != null? a2 : CodingErrorAction.REPORT);
     }
 
     public SessionOutputBufferImpl(

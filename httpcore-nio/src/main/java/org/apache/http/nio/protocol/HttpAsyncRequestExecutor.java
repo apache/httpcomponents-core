@@ -46,8 +46,9 @@ import org.apache.http.nio.ContentEncoder;
 import org.apache.http.nio.NHttpClientConnection;
 import org.apache.http.nio.NHttpClientEventHandler;
 import org.apache.http.nio.NHttpConnection;
+import org.apache.http.params.CoreConnectionPNames;
 import org.apache.http.params.CoreProtocolPNames;
-import org.apache.http.params.HttpConnectionParams;
+import org.apache.http.params.HttpParams;
 import org.apache.http.protocol.ExecutionContext;
 import org.apache.http.protocol.HttpContext;
 import org.apache.http.protocol.HttpProcessor;
@@ -145,7 +146,8 @@ public class HttpAsyncRequestExecutor implements NHttpClientEventHandler {
         HttpRequest request = handler.generateRequest();
         context.setAttribute(ExecutionContext.HTTP_REQUEST, request);
 
-        conn.setSocketTimeout(HttpConnectionParams.getSoTimeout(request.getParams()));
+        HttpParams params = request.getParams();
+        conn.setSocketTimeout(params.getIntParameter(CoreConnectionPNames.SO_TIMEOUT, 0));
 
         HttpProcessor httppocessor = handler.getHttpProcessor();
         httppocessor.process(request, context);

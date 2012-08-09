@@ -37,9 +37,8 @@ import org.apache.http.HttpVersion;
 import org.apache.http.impl.DefaultConnectionReuseStrategy;
 import org.apache.http.impl.DefaultHttpClientConnection;
 import org.apache.http.message.BasicHttpRequest;
-import org.apache.http.params.BasicHttpParams;
+import org.apache.http.params.HttpCoreConfigBuilder;
 import org.apache.http.params.HttpParams;
-import org.apache.http.params.HttpProtocolParams;
 import org.apache.http.protocol.HttpContext;
 import org.apache.http.protocol.BasicHttpContext;
 import org.apache.http.protocol.ExecutionContext;
@@ -62,12 +61,11 @@ import org.apache.http.util.EntityUtils;
 public class ElementalHttpGet {
 
     public static void main(String[] args) throws Exception {
-
-        HttpParams params = new BasicHttpParams();
-        HttpProtocolParams.setVersion(params, HttpVersion.HTTP_1_1);
-        HttpProtocolParams.setContentCharset(params, "UTF-8");
-        HttpProtocolParams.setUserAgent(params, "HttpComponents/1.1");
-        HttpProtocolParams.setUseExpectContinue(params, true);
+        HttpParams params = new HttpCoreConfigBuilder()
+            .setProtocolVersion(HttpVersion.HTTP_1_1)
+            .setContentCharset("UTF-8")
+            .setUserAgent("Test/1.1")
+            .setUseExpectContinue(true).build();
 
         HttpProcessor httpproc = new ImmutableHttpProcessor(new HttpRequestInterceptor[] {
                 // Required protocol interceptors

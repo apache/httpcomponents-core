@@ -33,7 +33,10 @@ import org.apache.http.util.Args;
  * Utility class for accessing connection parameters in {@link HttpParams}.
  *
  * @since 4.0
+ * 
+ * @deprecated (4.3)
  */
+@Deprecated
 public final class HttpConnectionParams implements CoreConnectionPNames {
 
     private HttpConnectionParams() {

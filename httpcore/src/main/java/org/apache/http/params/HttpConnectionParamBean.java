@@ -33,7 +33,10 @@ package org.apache.http.params;
  * conventions.
  *
  * @since 4.0
+ * 
+ * @deprecated (4.3) use {@link HttpCoreConfigBuilder}
  */
+@Deprecated
 public class HttpConnectionParamBean extends HttpAbstractParamBean {
 
     public HttpConnectionParamBean (final HttpParams params) {

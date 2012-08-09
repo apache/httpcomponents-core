@@ -39,8 +39,9 @@ import org.apache.http.util.Args;
  *
  * @since 4.0
  *
- * @see CoreProtocolPNames
+ * @deprecated (4.3) use {@link HttpCoreConfigBuilder}
  */
+@Deprecated
 public final class HttpProtocolParams implements CoreProtocolPNames {
 
     private HttpProtocolParams() {

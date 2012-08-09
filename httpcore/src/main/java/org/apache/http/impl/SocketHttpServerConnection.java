@@ -40,7 +40,7 @@ import org.apache.http.impl.io.SocketInputBuffer;
 import org.apache.http.impl.io.SocketOutputBuffer;
 import org.apache.http.io.SessionInputBuffer;
 import org.apache.http.io.SessionOutputBuffer;
-import org.apache.http.params.HttpConnectionParams;
+import org.apache.http.params.CoreConnectionPNames;
 import org.apache.http.params.HttpParams;
 import org.apache.http.util.Args;
 
@@ -152,8 +152,7 @@ public class SocketHttpServerConnection extends
         Args.notNull(params, "HTTP parameters");
         this.socket = socket;
 
-        int buffersize = HttpConnectionParams.getSocketBufferSize(params);
-
+        int buffersize = params.getIntParameter(CoreConnectionPNames.SOCKET_BUFFER_SIZE, -1);
         init(
                 createSessionInputBuffer(socket, buffersize, params),
                 createSessionOutputBuffer(socket, buffersize, params),
