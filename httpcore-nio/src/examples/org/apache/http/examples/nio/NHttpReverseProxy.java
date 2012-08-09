@@ -66,23 +66,21 @@ import org.apache.http.nio.NHttpServerConnection;
 import org.apache.http.nio.entity.NStringEntity;
 import org.apache.http.nio.pool.NIOConnFactory;
 import org.apache.http.nio.protocol.BasicAsyncResponseProducer;
-import org.apache.http.nio.protocol.HttpAsyncRequestExecutor;
+import org.apache.http.nio.protocol.HttpAsyncExchange;
 import org.apache.http.nio.protocol.HttpAsyncRequestConsumer;
-import org.apache.http.nio.protocol.HttpAsyncRequester;
+import org.apache.http.nio.protocol.HttpAsyncRequestExecutor;
 import org.apache.http.nio.protocol.HttpAsyncRequestHandler;
 import org.apache.http.nio.protocol.HttpAsyncRequestHandlerRegistry;
 import org.apache.http.nio.protocol.HttpAsyncRequestHandlerResolver;
 import org.apache.http.nio.protocol.HttpAsyncRequestProducer;
+import org.apache.http.nio.protocol.HttpAsyncRequester;
 import org.apache.http.nio.protocol.HttpAsyncResponseConsumer;
 import org.apache.http.nio.protocol.HttpAsyncResponseProducer;
-import org.apache.http.nio.protocol.HttpAsyncExchange;
 import org.apache.http.nio.protocol.HttpAsyncService;
 import org.apache.http.nio.reactor.ConnectingIOReactor;
 import org.apache.http.nio.reactor.IOEventDispatch;
 import org.apache.http.nio.reactor.ListeningIOReactor;
-import org.apache.http.params.BasicHttpParams;
-import org.apache.http.params.CoreConnectionPNames;
-import org.apache.http.params.CoreProtocolPNames;
+import org.apache.http.params.HttpCoreConfigBuilder;
 import org.apache.http.params.HttpParams;
 import org.apache.http.pool.PoolStats;
 import org.apache.http.protocol.ExecutionContext;
@@ -123,12 +121,12 @@ public class NHttpReverseProxy {
 
         System.out.println("Reverse proxy to " + targetHost);
 
-        HttpParams params = new BasicHttpParams();
-        params
-            .setIntParameter(CoreConnectionPNames.SO_TIMEOUT, 30000)
-            .setIntParameter(CoreConnectionPNames.SOCKET_BUFFER_SIZE, 8 * 1024)
-            .setParameter(CoreProtocolPNames.ORIGIN_SERVER, "Test/1.1")
-            .setParameter(CoreProtocolPNames.USER_AGENT, "Test/1.1");
+        HttpParams params = new HttpCoreConfigBuilder()
+            .setSocketTimeout(3000)
+            .setConnectTimeout(3000)
+            .setSocketBufferSize(8 * 1024)
+            .setUserAgent("Test/1.1")
+            .setOriginServer("Test/1.1").build();
 
         IOReactorConfig config = new IOReactorConfig();
         config.setIoThreadCount(1);

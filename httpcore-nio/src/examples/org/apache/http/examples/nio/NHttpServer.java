@@ -66,9 +66,7 @@ import org.apache.http.nio.protocol.HttpAsyncExchange;
 import org.apache.http.nio.protocol.HttpAsyncService;
 import org.apache.http.nio.reactor.IOEventDispatch;
 import org.apache.http.nio.reactor.ListeningIOReactor;
-import org.apache.http.params.BasicHttpParams;
-import org.apache.http.params.CoreConnectionPNames;
-import org.apache.http.params.CoreProtocolPNames;
+import org.apache.http.params.HttpCoreConfigBuilder;
 import org.apache.http.params.HttpParams;
 import org.apache.http.protocol.ExecutionContext;
 import org.apache.http.protocol.HttpContext;
@@ -97,11 +95,11 @@ public class NHttpServer {
             port = Integer.parseInt(args[1]);
         }
         // HTTP parameters for the server
-        HttpParams params = new BasicHttpParams();
-        params
-            .setIntParameter(CoreConnectionPNames.SO_TIMEOUT, 5000)
-            .setIntParameter(CoreConnectionPNames.SOCKET_BUFFER_SIZE, 8 * 1024)
-            .setParameter(CoreProtocolPNames.ORIGIN_SERVER, "HttpTest/1.1");
+        HttpParams params = new HttpCoreConfigBuilder()
+            .setSocketTimeout(3000)
+            .setConnectTimeout(3000)
+            .setSocketBufferSize(8 * 1024)
+            .setOriginServer("Test/1.1").build();
         // Create HTTP protocol processing chain
         HttpProcessor httpproc = new ImmutableHttpProcessor(new HttpResponseInterceptor[] {
                 // Use standard server-side protocol interceptors

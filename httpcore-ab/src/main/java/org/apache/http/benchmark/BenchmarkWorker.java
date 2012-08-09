@@ -45,7 +45,7 @@ import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
 import org.apache.http.entity.ContentType;
 import org.apache.http.impl.DefaultConnectionReuseStrategy;
-import org.apache.http.params.HttpConnectionParams;
+import org.apache.http.params.CoreConnectionPNames;
 import org.apache.http.params.HttpParams;
 import org.apache.http.protocol.BasicHttpContext;
 import org.apache.http.protocol.ExecutionContext;
@@ -145,8 +145,8 @@ class BenchmarkWorker implements Runnable {
                     }
                     
                     HttpParams params = request.getParams();
-                    int connTimeout = HttpConnectionParams.getConnectionTimeout(params);
-                    int soTimeout = HttpConnectionParams.getSoTimeout(params);
+                    int connTimeout = params.getIntParameter(CoreConnectionPNames.CONNECTION_TIMEOUT, 0);
+                    int soTimeout = params.getIntParameter(CoreConnectionPNames.SO_TIMEOUT, 0);
 
                     socket.setSoTimeout(soTimeout);
                     socket.connect(new InetSocketAddress(hostname, port), connTimeout);

@@ -42,10 +42,8 @@ import org.apache.http.entity.ContentType;
 import org.apache.http.entity.FileEntity;
 import org.apache.http.message.BasicHttpEntityEnclosingRequest;
 import org.apache.http.message.BasicHttpRequest;
-import org.apache.http.params.BasicHttpParams;
-import org.apache.http.params.HttpConnectionParams;
+import org.apache.http.params.HttpCoreConfigBuilder;
 import org.apache.http.params.HttpParams;
-import org.apache.http.params.HttpProtocolParams;
 import org.apache.http.protocol.HTTP;
 
 import java.security.KeyStore;
@@ -104,13 +102,12 @@ public class HttpBenchmark {
     }
 
     private HttpRequest createRequest() {
-        HttpParams params = new BasicHttpParams();
-        params.setParameter(HttpProtocolParams.PROTOCOL_VERSION,
-                config.isUseHttp1_0() ? HttpVersion.HTTP_1_0 : HttpVersion.HTTP_1_1)
-            .setParameter(HttpProtocolParams.USER_AGENT, "HttpCore-AB/1.1")
-            .setBooleanParameter(HttpProtocolParams.USE_EXPECT_CONTINUE, config.isUseExpectContinue())
-            .setBooleanParameter(HttpConnectionParams.STALE_CONNECTION_CHECK, false)
-            .setIntParameter(HttpConnectionParams.SO_TIMEOUT, config.getSocketTimeout());
+        HttpParams params = new HttpCoreConfigBuilder()
+            .setProtocolVersion(config.isUseHttp1_0() ? HttpVersion.HTTP_1_0 : HttpVersion.HTTP_1_1)
+            .setUserAgent("HttpCore-AB/1.1")
+            .setUseExpectContinue(config.isUseExpectContinue())
+            .setSocketTimeout(config.getSocketTimeout())
+            .setSocketBufferSize(8 * 1024).build();
 
         URL url = config.getUrl();
         HttpEntity entity = null;
@@ -147,6 +144,7 @@ public class HttpBenchmark {
             }
             request = new BasicHttpRequest(config.getMethod(), path);
         }
+        request.setParams(params);
 
         if (!config.isKeepAlive()) {
             request.addHeader(new DefaultHeader(HTTP.CONN_DIRECTIVE, HTTP.CONN_CLOSE));
